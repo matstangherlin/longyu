@@ -11,8 +11,8 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Edge Functions publicadas | ✅ | checkout, billing-portal, webhook, delete-account |
 | `npm run verify:production` | ✅ | REST + functions respondendo |
 | RLS testado (usuário A ≠ B) | ⬜ | Manual no SQL Editor ou Dashboard |
-| Secrets Stripe no Supabase | ⬜ | Adiar até configurar Stripe |
-| Webhook Stripe apontando para `stripe-webhook` | ⬜ | |
+| Secrets Stripe no Supabase | ✅ | Price IDs mensal/anual + trial 30 dias |
+| Webhook Stripe apontando para `stripe-webhook` | ✅ | `whsec` configurado |
 
 ## App (frontend)
 
@@ -30,10 +30,10 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 
 | Item | Status | Notas |
 |------|--------|-------|
-| Repositório conectado | ⬜ | |
+| Repositório conectado | ✅ | Site `singular-meringue-7838cd`, deploy GitHub `main` |
 | `VITE_*` no painel do site | ✅ | Também em `netlify.toml` (produção) |
-| Redirect URLs no Supabase Auth | ✅ | `lucky-croissant-eeed26.netlify.app` |
-| Smoke: criar conta → jogar → sair → entrar | ⬜ | |
+| Redirect URLs no Supabase Auth | ✅ | `singular-meringue-7838cd.netlify.app` |
+| Smoke: criar conta → jogar → sair → entrar | ⬜ | URL: https://singular-meringue-7838cd.netlify.app |
 | PWA no celular (360px) | ⬜ | |
 
 ## Comandos rápidos

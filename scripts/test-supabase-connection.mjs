@@ -41,7 +41,7 @@ if (token) {
   if (mgmt.ok) {
     const auth = await mgmt.json();
     const redirects = auth.uri_allow_list ?? "";
-    const prod = "lucky-croissant-eeed26.netlify.app";
+    const prod = "singular-meringue-7838cd.netlify.app";
     if (String(redirects).includes(prod)) {
       console.log(`Redirect Netlify (Management API): inclui ${prod} ✓`);
     } else {

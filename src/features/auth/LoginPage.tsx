@@ -115,7 +115,14 @@ export function LoginPage() {
             Criar conta
           </Link>
         </p>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/jornada")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setAccountSetupComplete(true);
+            navigate("/jornada");
+          }}
+        >
           Continuar sem login
         </Button>
       </div>

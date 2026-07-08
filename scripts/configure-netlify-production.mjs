@@ -4,7 +4,7 @@ import { mergedEnv } from "./lib/env-local.mjs";
 const env = mergedEnv();
 const token = env.NETLIFY_AUTH_TOKEN;
 const siteId = env.NETLIFY_SITE_ID;
-const siteName = env.NETLIFY_SITE_NAME ?? "lucky-croissant-eeed26";
+const siteName = env.NETLIFY_SITE_NAME ?? "singular-meringue-7838cd";
 
 const viteVars = {
   VITE_BACKEND_MODE: env.VITE_BACKEND_MODE ?? "supabase",
@@ -86,7 +86,7 @@ try {
   await triggerBuild(id);
   console.log("Build iniciado. Aguarde 1–2 min e abra o site de novo.");
   console.log("\nAuth Supabase (redirects):");
-  console.log("  npm run configure:supabase-auth -- --add-prod-url https://lucky-croissant-eeed26.netlify.app");
+  console.log("  npm run configure:supabase-auth -- --add-prod-url https://singular-meringue-7838cd.netlify.app");
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);

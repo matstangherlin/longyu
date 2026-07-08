@@ -40,7 +40,7 @@ if (project.ok) {
 const auth = await get("/config/auth");
 if (auth.ok) {
   const redirects = auth.json?.uri_allow_list ?? "";
-  const prod = "lucky-croissant-eeed26.netlify.app";
+  const prod = "singular-meringue-7838cd.netlify.app";
   console.log(`\nAuth:`);
   console.log(`  mailer_autoconfirm: ${auth.json?.mailer_autoconfirm}`);
   console.log(`  disable_signup: ${auth.json?.disable_signup}`);
