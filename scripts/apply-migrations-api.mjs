@@ -38,6 +38,13 @@ async function applyMigration(filename) {
   });
   const body = await response.text();
   if (!response.ok) {
+    const alreadyApplied =
+      response.status === 400 &&
+      (body.includes("already exists") || body.includes("duplicate key"));
+    if (alreadyApplied) {
+      console.log(`↷ ${filename} (já aplicada)`);
+      return;
+    }
     throw new Error(`${filename} → ${response.status}: ${body.slice(0, 1500)}`);
   }
   console.log(`✓ ${filename}`);

@@ -24,7 +24,10 @@ function normalizeUrl(raw) {
 const addProdUrl = normalizeUrl(
   readFlag("--add-prod-url") ?? env.LONGYU_PROD_URL ?? env.NETLIFY_SITE_URL ?? env.URL
 );
-const siteUrl = normalizeUrl(readFlag("--site-url") ?? (addProdUrl && args.includes("--prod") ? addProdUrl : undefined)) ?? "http://localhost:5173";
+const siteUrl = normalizeUrl(
+  readFlag("--site-url") ??
+    (addProdUrl && (args.includes("--prod") || args.includes("--add-prod-url")) ? addProdUrl : undefined)
+) ?? "http://localhost:5173";
 
 const redirectEntries = [
   "http://localhost:5173/**",
