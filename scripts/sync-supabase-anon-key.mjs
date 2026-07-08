@@ -36,13 +36,14 @@ if (!anon) {
 
 const prodPath = path.join(root, ".env.production");
 const netlifyPath = path.join(root, "netlify.toml");
-const currentProd = env.VITE_SUPABASE_ANON_KEY ?? readKeyFromFile(prodPath);
 
 function readKeyFromFile(filePath) {
   if (!fs.existsSync(filePath)) return "";
   const match = fs.readFileSync(filePath, "utf8").match(/VITE_SUPABASE_ANON_KEY\s*=\s*"?([^"\n]+)"?/);
   return match?.[1] ?? "";
 }
+
+const currentProd = readKeyFromFile(prodPath);
 
 console.log(`Anon key atual: ${currentProd.length} chars`);
 console.log(`Anon key remota: ${anon.length} chars`);

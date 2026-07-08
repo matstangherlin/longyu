@@ -1,7 +1,7 @@
 /**
  * Auditoria read-only do projeto Supabase via Management API.
  */
-import { mergedEnv } from "./lib/env-local.mjs";
+import { mergedEnv, readEnvFile } from "./lib/env-local.mjs";
 
 const env = mergedEnv();
 const ref = env.SUPABASE_PROJECT_REF ?? "drjcfalvlbbeblmmyhwj";
@@ -71,5 +71,6 @@ if (advisors.ok && Array.isArray(advisors.json)) {
   console.log(`\nSecurity advisors: HTTP ${advisors.status}`);
 }
 
-const anon = env.VITE_SUPABASE_ANON_KEY ?? "";
-console.log(`\nAnon key local: ${anon.length} chars (${anon.split(".").length} partes JWT)`);
+const prodEnv = readEnvFile(".env.production");
+const anon = prodEnv.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY || "";
+console.log(`\nAnon key em .env.production: ${anon.length} chars (${anon.split(".").length} partes JWT)`);
