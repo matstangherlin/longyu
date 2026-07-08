@@ -29,6 +29,7 @@
     "db:apply-api": "node scripts/apply-migrations-api.mjs",
     "configure:supabase-auth": "node scripts/configure-supabase-auth.mjs",
     "configure:netlify": "node scripts/configure-netlify-production.mjs",
+    "sync:supabase-key": "node scripts/sync-supabase-anon-key.mjs",
     "test:supabase": "node scripts/test-supabase-connection.mjs",
     "deploy:functions": "node scripts/deploy-functions-env.mjs",
     "setup:supabase": "node scripts/setup-supabase.mjs",

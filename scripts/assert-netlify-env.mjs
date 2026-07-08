@@ -26,4 +26,12 @@ if (process.env.VITE_BACKEND_MODE !== "supabase") {
   process.exit(1);
 }
 
+const anonKey = process.env.VITE_SUPABASE_ANON_KEY?.trim() ?? "";
+const jwtParts = anonKey.split(".");
+if (jwtParts.length !== 3 || anonKey.length < 200) {
+  console.error("ERRO: VITE_SUPABASE_ANON_KEY parece truncada ou inválida.");
+  console.error("Rode: npm run sync:supabase-key (com SUPABASE_ACCESS_TOKEN em .env.local)");
+  process.exit(1);
+}
+
 console.log("OK: variáveis VITE_* do Supabase presentes no build Netlify.");
