@@ -94,11 +94,11 @@ export function ProPage() {
         <Mascot size={104} variant="celebrate" className="mx-auto" />
         <Pill tone="gold" className="mt-3">Longyu Pro</Pill>
         <h1 className="mx-auto mt-4 max-w-3xl font-serif text-4xl font-semibold leading-tight text-ink sm:text-5xl">
-          Assine com 30 dias grátis e apresente o anual como o melhor desconto.
+          Destrave o Longyu Pro com 30 dias grátis.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">
           {cloudBackend
-            ? "Escolha entre mensal ou anual com desconto. O checkout real usa Stripe e libera o Pro pelo servidor."
+            ? "Escolha entre mensal ou anual. O plano anual aparece como a melhor oferta, com o equivalente a R$ 10/mês."
             : "Ative recursos de teste neste dispositivo, sem conta em nuvem, assinatura real ou cobrança."}
         </p>
         <div className="mx-auto mt-7 flex max-w-sm flex-col gap-3">
@@ -130,7 +130,7 @@ export function ProPage() {
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Planos</div>
           <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">Escolha como quer assinar</h2>
           <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-ink-soft">
-            Os dois planos começam com 30 dias grátis. O anual aparece como melhor oferta e mostra o desconto de forma clara.
+            Os dois planos começam com 30 dias grátis. O anual destaca a economia total sem esconder a cobrança real.
           </p>
         </div>
 
@@ -231,7 +231,7 @@ export function ProPage() {
       <section className="border-y border-[#B7791F]/25 bg-surface px-5 py-7 text-center sm:px-8">
         <h2 className="font-serif text-2xl font-semibold text-ink">Seu estudo, com espaço para crescer</h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink-soft">
-          O Pro real começa com 30 dias grátis. No anual, apresente como desconto forte: R$ 10/mês no plano de R$ 120/ano.
+          O Pro real começa com 30 dias grátis. No anual, você paga R$ 120/ano, o equivalente a R$ 10 por mês.
         </p>
         <div className="mx-auto mt-5 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
           <Button className="sm:min-w-48" onClick={() => setPremium(true)} disabled={isPremium}>

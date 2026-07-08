@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -22,6 +22,7 @@ import {
   IconTarget,
 } from "../../components/ui/Icon";
 import { storyStepCountsAsPhrasePractice } from "../../lib/missionHelpers";
+import { buildMissionViews } from "../../data/missions";
 import {
   IMMERSION_SESSIONS,
   type ImmersionMode,
@@ -243,6 +244,9 @@ export function ImmersionPage() {
   const sessionsRef = useRef<HTMLDivElement>(null);
   const immersionDaily = useStore((state) => state.immersionDaily);
   const isPremium = useStore((state) => state.isPremium);
+  const missionAggregates = useStore((state) => state.getMissionAggregates());
+  const dailyMissions = useStore((state) => state.dailyMissions);
+  const weeklyMissions = useStore((state) => state.weeklyMissions);
   const dailyEnergy = useStore((state) => state.getActiveDailyEnergy());
   const canStartActivity = useStore((state) => state.canStartActivity);
   const consumeCharge = useStore((state) => state.consumeCharge);
@@ -257,6 +261,13 @@ export function ImmersionPage() {
     : undefined;
   const outOfCharges = !isPremium && dailyEnergy.charges <= 0;
   const refreshStoryProgress = useCallback(() => setStoryProgress(readStoryProgress()), []);
+  const missionFocus = useMemo(() => {
+    const dailyViews = buildMissionViews("daily", missionAggregates, dailyMissions.claimed);
+    const weeklyViews = buildMissionViews("weekly", missionAggregates, weeklyMissions.claimed);
+    return [...dailyViews, ...weeklyViews].find((mission) => !mission.claimed && mission.progress > 0)
+      ?? dailyViews.find((mission) => !mission.claimed)
+      ?? null;
+  }, [dailyMissions.claimed, missionAggregates, weeklyMissions.claimed]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -352,6 +363,25 @@ export function ImmersionPage() {
           </div>
         </div>
       </Card>
+
+      {missionFocus && (
+        <Card className="rounded-xl border-line/70 p-4 shadow-none">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Missão em andamento</div>
+              <div className="mt-1 text-sm font-semibold text-ink">{missionFocus.title}</div>
+              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                {missionFocus.desc} Progresso: {missionFocus.progress}/{missionFocus.goal}.
+              </p>
+            </div>
+            <Link to="/missoes" className="shrink-0">
+              <Button variant="outline" className="w-full sm:w-auto">
+                Ver missões <IconChevron width={18} height={18} />
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      )}
 
       {outOfCharges && (
         <Card className="rounded-xl border-line/70 p-3.5 shadow-none">

@@ -30,6 +30,7 @@ import {
   buildModuleSkipTest,
   gradeModuleSkipTest,
   EXAM_MIN_QUESTIONS,
+  EXAM_PASS_RATIO,
   examKindLabel,
   examFormatLabel,
   examDifficultyLabel,
@@ -251,6 +252,7 @@ export function ModuleChallengePage() {
   const q = questions[pos];
   const correctIds = new Set(Object.keys(results).filter((id) => results[id]));
   const grade = gradeModuleSkipTest(questions, correctIds);
+  const requiredPercent = Math.round(EXAM_PASS_RATIO * 100);
   const retryCost = MODULE_RETRY_QI;
   const moduleRetryItems = inventory["shop-module-retry"] ?? 0;
   const canRetry = isPremium || moduleRetryItems > 0 || points >= retryCost;
@@ -395,7 +397,7 @@ export function ModuleChallengePage() {
             {passed
               ? "Você demonstrou domínio suficiente deste conteúdo. O Longyu liberou a próxima etapa."
               : blockedByEssential
-              ? `Você acertou ${grade.scoredCorrectCount}/${grade.scoredTotal} no bloco pontuado, mas errou um item essencial do módulo. ${failureMessage}`
+              ? `Você acertou ${grade.scoredCorrectCount}/${grade.scoredTotal} no bloco pontuado, mas errou um item essencial do módulo. Para pular, precisa bater ${requiredPercent}% e não falhar no núcleo. ${failureMessage}`
               : failureMessage}
           </p>
 
@@ -573,7 +575,7 @@ export function ModuleChallengePage() {
       <SectionTitle
         eyebrow={`${phaseTitle} · Teste de módulo`}
         title={unit.title}
-        desc="Um desafio direto para quem já sabe o conteúdo. Responda com base no que você aprendeu — a explicação completa aparece depois de cada resposta."
+        desc={`Um desafio direto para quem já sabe o conteúdo. Para pular com segurança, acerte pelo menos ${requiredPercent}% do bloco pontuado e não erre itens essenciais. A explicação completa aparece só depois de cada resposta.`}
       />
 
       <div className="flex items-center gap-3 text-sm text-ink-faint">
@@ -589,7 +591,7 @@ export function ModuleChallengePage() {
             {examFormatLabel(q.format) && <Pill tone="muted">{examFormatLabel(q.format)}</Pill>}
             {q.isEssential && <Pill tone="good">Essencial</Pill>}
           </div>
-          <span className="text-xs text-ink-faint">mínimo {grade.requiredCorrect}/{grade.scoredTotal}</span>
+          <span className="text-xs text-ink-faint">mínimo {grade.requiredCorrect}/{grade.scoredTotal} ({requiredPercent}%)</span>
         </div>
 
         <QuestionStimulus question={q} />

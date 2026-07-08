@@ -39,7 +39,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ProgressBar } from "../../components/ui/primitives";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
-import { IconCheck, IconChevron, IconFlame, IconLibrary, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { StepRenderer, type PairMistakePayload } from "./steps";
@@ -2095,6 +2095,12 @@ export function LessonPlayer() {
     const remainingErrors = committedErrors.filter((error) => !correctedErrorIds.includes(error.id));
     const reviewQueue = errorReviewMode === "review" && remainingErrors.length > 0 ? remainingErrors : committedErrors;
     const canRetryAfterReview = !passed || (!lesson.isReview && stars < requiredStars);
+    const suggestsPinyinLab = lesson.steps.some((step) =>
+      step.kind === "tone" || step.kind === "tone_pair" || step.kind === "listen_select"
+    );
+    const suggestsHanziLab = lesson.steps.some((step) =>
+      step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build"
+    );
 
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
@@ -2648,6 +2654,30 @@ export function LessonPlayer() {
           <p className="mt-3 text-left text-sm leading-6 text-ink-soft">
             Você passou por apresentar, reconhecer, montar, usar e fixar este conteúdo.
           </p>
+          {(suggestsPinyinLab || suggestsHanziLab) && (
+            <div className="mt-4 rounded-[22px] border border-line bg-surface/85 p-4 text-left shadow-card">
+              <div className="text-sm font-semibold text-ink">Reforço guiado</div>
+              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                Este conteúdo já pode continuar em prática livre curta, sem sair do eixo da Jornada.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {suggestsPinyinLab && (
+                  <Link to="/pinyin">
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      <IconSound width={17} height={17} /> Reforçar no Pinyin Lab
+                    </Button>
+                  </Link>
+                )}
+                {suggestsHanziLab && (
+                  <Link to="/hanzi">
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      <IconHanzi width={17} height={17} /> Reforçar no Hànzì Lab
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="mt-7 text-left">
             <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Etapa 3</div>
