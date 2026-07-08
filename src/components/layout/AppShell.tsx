@@ -41,7 +41,8 @@ export function AppShell() {
       !accountSetupComplete &&
       completedLessons.length === 0 &&
       location.pathname !== "/conta" &&
-      location.pathname !== "/login"
+      location.pathname !== "/login" &&
+      location.pathname !== "/pro"
     ) {
       navigate("/conta", { replace: true });
     }

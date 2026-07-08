@@ -1536,7 +1536,11 @@ export const useStore = create<AppState>()(
       setToneColorIntensity: (intensity) => set({ toneColorIntensity: clamp01(intensity) }),
       setAutoPlayAudio: (enabled) => set({ autoPlayAudio: enabled }),
       setSlowAudio: (enabled) => set({ slowAudio: enabled }),
-      setAccountSetupComplete: (v) => set({ accountSetupComplete: v }),
+      setAccountSetupComplete: (v) =>
+        set((s) => {
+          const next = { ...s, accountSetupComplete: v };
+          return { accountSetupComplete: v, accounts: saveCurrentAccount(next) };
+        }),
       setPremium: (v) =>
         set((s) => {
           const next = { ...s, isPremium: v };

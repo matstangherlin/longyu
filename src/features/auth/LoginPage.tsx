@@ -17,6 +17,7 @@ export function LoginPage() {
   const { signIn } = useCloudSignIn();
   const activeAccount = useStore((s) => s.accounts[s.currentAccountId]);
   const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
+  const createAccount = useStore((s) => s.createAccount);
   const authMode = accountAuthMode(activeAccount);
 
   const [email, setEmail] = useState(activeAccount?.email ?? "");
@@ -119,8 +120,8 @@ export function LoginPage() {
           variant="ghost"
           size="sm"
           onClick={() => {
-            setAccountSetupComplete(true);
-            navigate("/jornada");
+            createAccount(activeAccount?.name?.trim() || "Aluno Longyu");
+            navigate("/jornada", { replace: true });
           }}
         >
           Continuar sem login
