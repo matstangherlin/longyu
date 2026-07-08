@@ -1,6 +1,6 @@
 import { IconBook, IconChat, IconHanzi, IconRefresh, IconShield, IconTarget } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
-import { canAccessHanziLab } from "../../lib/proAccess";
+import { canAccessHanziLab, useIsPro } from "../../lib/proAccess";
 import { charById } from "../../data/characters";
 import {
   HubHeader,
@@ -15,7 +15,7 @@ import {
 export function IdeogramasPage() {
   const learnedChars = useStore((s) => s.learnedChars);
   const completedLessons = useStore((s) => s.completedLessons);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const hanziAccess = canAccessHanziLab({ isPremium, completedLessons });
   const learnedHanzi = learnedChars
     .map((id) => charById[id]?.hanzi ?? id)

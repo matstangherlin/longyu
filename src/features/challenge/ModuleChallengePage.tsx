@@ -8,7 +8,7 @@ import { useStore, type Track } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { playSoundFx } from "../../lib/soundFx";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
-import { canStartModule } from "../../lib/proAccess";
+import { canStartModule, useIsPro } from "../../lib/proAccess";
 import type { ReviewDomain } from "../../lib/srs";
 import { MODULE_PASS_QI, MODULE_RETRY_QI } from "../../data/economy";
 import { Card, Button, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
@@ -116,7 +116,7 @@ function challengeFailureMessage(
 export function ModuleChallengePage() {
   const { unitId } = useParams();
   const navigate = useNavigate();
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const completeLesson = useStore((s) => s.completeLesson);
   const validateModule = useStore((s) => s.validateModule);
   const completedLessons = useStore((s) => s.completedLessons);

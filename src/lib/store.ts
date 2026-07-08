@@ -29,7 +29,13 @@ import {
   normalizeLeagueTier,
 } from "./leagues";
 
-import { CHARGE_COST_ACTIVITY, DAILY_CHARGES_FREE, FOCUS_PASS_HOURS, QI_PACK_AMOUNT } from "../data/economy";
+import {
+  CHARGE_COST_ACTIVITY,
+  DAILY_CHARGES_FREE,
+  FOCUS_PASS_HOURS,
+  PRO_CHEST_QI_MULTIPLIER,
+  QI_PACK_AMOUNT,
+} from "../data/economy";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import type { ProgressSnapshotBody } from "./progressSnapshot";
 
@@ -78,7 +84,8 @@ export type DailyTaskKey =
   | "hanziDecomposed"
   | "microtextsRead"
   | "errorsCorrected"
-  | "threeStarLessons";
+  | "threeStarLessons"
+  | "tonesTrained";
 
 export interface DailyTasks {
   date: string;
@@ -91,6 +98,8 @@ export interface DailyTasks {
   errorsCorrected: number;
   /** Lições concluídas com 3 estrelas hoje. */
   threeStarLessons: number;
+  /** Tons acertados hoje (lições, Pinyin Lab, Tone Trainer). */
+  tonesTrained: number;
   claimedMissions: Record<string, boolean>;
 }
 
@@ -204,6 +213,7 @@ function freshDailyTasks(date = todayKey()): DailyTasks {
     microtextsRead: 0,
     errorsCorrected: 0,
     threeStarLessons: 0,
+    tonesTrained: 0,
     claimedMissions: {},
   };
 }
@@ -345,6 +355,7 @@ function missionAggregates(s: AppState): MissionAggregates {
     errorsToday: tasks.errorsCorrected,
     threeStarToday: tasks.threeStarLessons,
     immersionToday: immersion.completedSessionIds.length,
+    tonesToday: tasks.tonesTrained,
     weeklyXp: xp.weeklyXp,
     weeklyLessons: week.lessons,
     weeklyReviewDays: week.reviewDays.length,
@@ -402,7 +413,7 @@ export interface ShopUseResult {
 // ————————————————————————————————————————————————————————————————
 
 export type ChestType = "small" | "dragon" | "monthly" | "legendary";
-export type ChestRewardKind = "qi" | "xp" | "charge" | "shield" | "pearl" | "spark";
+export type ChestRewardKind = "qi" | "xp" | "charge" | "shield" | "pearl" | "spark" | "breath";
 
 export interface ChestRewardItem {
   kind: ChestRewardKind;
@@ -427,25 +438,29 @@ function randBetween(min: number, max: number): number {
 
 // Sorteio das recompensas de um baú (sem aplicar nada). Baús pequeno/dragão dão
 // um prêmio; o mensal entrega um pacote (Qi alto + escudo + chance de Pérola).
-function generateChestRewards(type: ChestType): ChestRewardItem[] {
+// Grátis: Qi, carga extra, escudo e tentativa extra (Fôlego). Pro: a parcela de
+// Qi rende mais (PRO_CHEST_QI_MULTIPLIER) — nunca progresso direto.
+function generateChestRewards(type: ChestType, pro = false): ChestRewardItem[] {
+  const boostQi = (amount: number) => (pro ? Math.round(amount * PRO_CHEST_QI_MULTIPLIER) : amount);
   const pick = Math.random();
   if (type === "small") {
-    if (pick < 0.45) return [{ kind: "qi", amount: randBetween(20, 50), label: "Qi" }];
+    if (pick < 0.45) return [{ kind: "qi", amount: boostQi(randBetween(20, 50)), label: "Qi" }];
     if (pick < 0.8) return [{ kind: "xp", amount: randBetween(5, 15), label: "XP" }];
     if (pick < 0.95) return [{ kind: "charge", amount: 1, label: "Carga do Dragão" }];
-    return [{ kind: "spark", amount: 1, label: "Selo do Dragão" }];
+    return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
   }
   if (type === "dragon") {
-    if (pick < 0.35) return [{ kind: "qi", amount: randBetween(80, 150), label: "Qi" }];
-    if (pick < 0.6) return [{ kind: "xp", amount: randBetween(25, 50), label: "XP" }];
-    if (pick < 0.75) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
-    if (pick < 0.9) return [{ kind: "charge", amount: 2, label: "Cargas do Dragão" }];
+    if (pick < 0.35) return [{ kind: "qi", amount: boostQi(randBetween(80, 150)), label: "Qi" }];
+    if (pick < 0.55) return [{ kind: "xp", amount: randBetween(25, 50), label: "XP" }];
+    if (pick < 0.7) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
+    if (pick < 0.85) return [{ kind: "charge", amount: 2, label: "Cargas do Dragão" }];
+    if (pick < 0.92) return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
     return [{ kind: "pearl", amount: 1, label: "Pérola de Jade" }];
   }
   if (type === "monthly") {
     // monthly (épico) — pacote garantido + chance de Pérola.
     const rewards: ChestRewardItem[] = [
-      { kind: "qi", amount: randBetween(200, 300), label: "Qi" },
+      { kind: "qi", amount: boostQi(randBetween(200, 300)), label: "Qi" },
       { kind: "shield", amount: 1, label: "Escudo de Sequência" },
     ];
     if (Math.random() < 0.5) rewards.push({ kind: "pearl", amount: 1, label: "Pérola de Jade" });
@@ -454,7 +469,7 @@ function generateChestRewards(type: ChestType): ChestRewardItem[] {
   // legendary — o pacote máximo, ganho por feitos raros (nunca vendido):
   // Qi alto + Pérola garantida + escudo, com chance de segunda Pérola.
   const rewards: ChestRewardItem[] = [
-    { kind: "qi", amount: randBetween(350, 500), label: "Qi" },
+    { kind: "qi", amount: boostQi(randBetween(350, 500)), label: "Qi" },
     { kind: "pearl", amount: 1, label: "Pérola de Jade" },
     { kind: "shield", amount: 1, label: "Escudo de Sequência" },
   ];
@@ -470,13 +485,24 @@ const CHEST_SOURCE: Record<ChestType, string> = {
 };
 
 // Mapeia o tipo de prêmio do baú para o tipo do rewardHistory.
-const CHEST_REWARD_TYPE: Record<Exclude<ChestRewardKind, "spark">, RewardType> = {
+// "spark" (legado) e "breath" (vai para o inventário) são tratados à parte.
+const CHEST_REWARD_TYPE: Record<Exclude<ChestRewardKind, "spark" | "breath">, RewardType> = {
   qi: "qi",
   xp: "xp",
   charge: "charge",
   shield: "streakShield",
   pearl: "dragonPearl",
 };
+
+// Tentativa extra sorteada em baú vira o item "Recuperar Fôlego" no inventário.
+function applyBreathRewardToState(s: AppState, amount: number): AppState {
+  const inc = Math.max(0, Math.round(amount));
+  if (inc <= 0) return s;
+  return {
+    ...s,
+    inventory: { ...s.inventory, "shop-breath": (s.inventory["shop-breath"] ?? 0) + inc },
+  };
+}
 
 // Pode comprar? Regras: item existe e é comprável (não é link Pro), cosmético
 // ainda não possuído, e saldo suficiente na moeda do item.
@@ -1694,6 +1720,8 @@ export const useStore = create<AppState>()(
         // Missões diárias/semanais: precisam estar completas e não resgatadas.
         const def = findMissionDef(scope, missionId);
         if (!def) return false;
+        // Missão premium: o resgate exige Pro (o progresso é visível a todos).
+        if (def.pro && !hasProAccess(state)) return false;
         if (metricValue(def.metric, missionAggregates(state)) < def.goal) return false;
         const periodClaimed =
           scope === "daily"
@@ -2186,8 +2214,15 @@ export const useStore = create<AppState>()(
             errorsByTone,
           };
           const toneTrainer = { ...s.toneTrainer, [attempt.packId]: stats };
-          const next = { ...s, toneTrainer };
-          return { toneTrainer, accounts: saveCurrentAccount(next) };
+          // Tons acertados alimentam a missão diária de tons.
+          const date = todayKey();
+          const tasks = activeDailyTasks(s.dailyTasks, date);
+          const dailyTasks = {
+            ...tasks,
+            tonesTrained: tasks.tonesTrained + Math.max(0, attempt.correct),
+          };
+          const next = { ...s, toneTrainer, dailyTasks };
+          return { toneTrainer, dailyTasks, accounts: saveCurrentAccount(next) };
         }),
 
       markLearned: (type, itemId) =>
@@ -2587,14 +2622,14 @@ export const useStore = create<AppState>()(
           return { chests, accounts: saveCurrentAccount(next) };
         }),
 
-      generateChestReward: (type) => generateChestRewards(type),
+      generateChestReward: (type) => generateChestRewards(type, hasProAccess(get())),
 
       openChest: (type) => {
         if ((get().chests?.[type] ?? 0) <= 0) return null;
         let openedRewards: ChestRewardItem[] | null = null;
         set((s) => {
           if ((s.chests?.[type] ?? 0) <= 0) return {};
-          const rewards = generateChestRewards(type);
+          const rewards = generateChestRewards(type, hasProAccess(s));
           const chests = { ...s.chests, [type]: s.chests[type] - 1 };
           const now = Date.now();
           const openEntry: ChestOpenHistoryEntry = {
@@ -2609,6 +2644,10 @@ export const useStore = create<AppState>()(
           };
           rewards.forEach((reward, i) => {
             if (reward.kind === "spark") return;
+            if (reward.kind === "breath") {
+              next = applyBreathRewardToState(next, reward.amount);
+              return;
+            }
             next = applyRewardToState(next, {
               id: `chest:${type}:${now}:${i}`,
               type: CHEST_REWARD_TYPE[reward.kind],
@@ -2623,6 +2662,7 @@ export const useStore = create<AppState>()(
             points: next.points,
             dragonPearls: next.dragonPearls,
             streakShields: next.streakShields,
+            inventory: next.inventory,
             xpTotal: next.xpTotal,
             xpToday: next.xpToday,
             weeklyXp: next.weeklyXp,
@@ -2644,7 +2684,7 @@ export const useStore = create<AppState>()(
         let openedRewards: ChestRewardItem[] | null = null;
         set((s) => {
           if ((s.journeyChestsOpened ?? []).includes(cleanId)) return {};
-          const rewards = generateChestRewards(type).map((reward) =>
+          const rewards = generateChestRewards(type, hasProAccess(s)).map((reward) =>
             reward.kind === "spark" ? { kind: "qi", amount: 25, label: "Qi" } satisfies ChestRewardItem : reward
           );
           const now = Date.now();
@@ -2660,6 +2700,10 @@ export const useStore = create<AppState>()(
           };
           rewards.forEach((reward, i) => {
             if (reward.kind === "spark") return;
+            if (reward.kind === "breath") {
+              next = applyBreathRewardToState(next, reward.amount);
+              return;
+            }
             next = applyRewardToState(next, {
               id: `journey-chest:${cleanId}:${i}`,
               type: CHEST_REWARD_TYPE[reward.kind],
@@ -2674,6 +2718,7 @@ export const useStore = create<AppState>()(
             points: next.points,
             dragonPearls: next.dragonPearls,
             streakShields: next.streakShields,
+            inventory: next.inventory,
             xpTotal: next.xpTotal,
             xpToday: next.xpToday,
             weeklyXp: next.weeklyXp,

@@ -24,6 +24,7 @@ import {
   IconTarget,
   IconUser,
 } from "../../components/ui/Icon";
+import { useIsPro } from "../../lib/proAccess";
 
 const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
   breath: IconFlame,
@@ -45,7 +46,7 @@ export function LojaPage() {
   const dragonPearls = useStore((s) => s.dragonPearls);
   const inventory = useStore((s) => s.inventory);
   const ownedCosmetics = useStore((s) => s.ownedCosmetics);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const canBuyShopItem = useStore((s) => s.canBuyShopItem);
   const buyShopItem = useStore((s) => s.buyShopItem);
   const useInventoryItem = useStore((s) => s.useInventoryItem);
@@ -111,7 +112,11 @@ export function LojaPage() {
         }
       />
 
-      <HubSection id="baus" title="Seus baús" desc="Recompensas aleatórias do dragão.">
+      <HubSection
+        id="baus"
+        title="Seus baús"
+        desc={isPremium ? "Recompensas aleatórias do dragão. No Pro, os baús rendem mais Qi." : "Recompensas aleatórias do dragão."}
+      >
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
           {(["small", "dragon", "monthly", "legendary"] as ChestType[]).map((type) => (
             <ChestCard
@@ -234,7 +239,7 @@ function ShopItemCard({
             <Button size="sm" className="w-full" disabled={!canBuy} onClick={onBuy}>
               {insufficient ? (
                 <>
-                  <IconLock width={14} height={14} /> Qi insuficiente
+                  <IconLock width={14} height={14} /> {currencyLabel === "Qi" ? "Qi insuficiente" : "Pérolas insuficientes"}
                 </>
               ) : (
                 "Comprar"

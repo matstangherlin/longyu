@@ -127,7 +127,7 @@ export const SHOP_ITEMS: ShopItem[] = [
   {
     id: "shop-chest-small",
     name: "Baú Comum",
-    desc: "Raridade comum: Qi, XP ou uma carga.",
+    desc: "Raridade comum: Qi, XP, uma carga ou tentativa extra.",
     category: "baus",
     currency: "qi",
     cost: SHOP_PRICES.chestSmall,
@@ -138,7 +138,7 @@ export const SHOP_ITEMS: ShopItem[] = [
   {
     id: "shop-chest-dragon",
     name: "Baú Raro",
-    desc: "Raridade rara: mais Qi, XP, Pérola ou Escudo.",
+    desc: "Raridade rara: mais Qi, XP, Pérola, Escudo ou tentativa extra.",
     category: "baus",
     currency: "qi",
     cost: SHOP_PRICES.chestDragon,

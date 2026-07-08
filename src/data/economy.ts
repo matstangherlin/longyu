@@ -14,11 +14,28 @@
 // para o balanceamento ser ajustável em um só lugar.
 // ————————————————————————————————————————————————————————————————
 
+// ——— Regras do plano grátis (resumo canônico) ———
+// - Cargas diárias limitadas (DAILY_CHARGES_FREE); missões devolvem cargas.
+// - Revisão básica limitada a FREE_REVIEW_SESSION_LIMIT itens por sessão.
+// - Pinyin Lab, Hànzì Builder, Imersão e histórias consomem Cargas.
+// - Histórias marcadas como premium ficam no Pro; as demais são grátis.
+// - Erros detalhados (histórico + padrões) são Pro.
+// - Correção imediata do erro da lição atual é SEMPRE grátis — nunca bloquear.
+//
+// ——— Regras do Pro (resumo canônico) ———
+// - Cargas e revisão sem limite; erros detalhados e treino focado abertos.
+// - Retry de questão/teste sem custo de Qi (spendQi não desconta no Pro).
+// - Mais Qi por conclusão de lição (PRO_LESSON_QI_BONUS).
+// - Baús rendem mais Qi (PRO_CHEST_QI_MULTIPLIER) e missões premium pagam mais.
+
 // ——— Cargas (limite diário do grátis) ———
 /** Cargas diárias do plano grátis; voltam para o máximo a cada dia. */
 export const DAILY_CHARGES_FREE = 5;
 /** Iniciar lição/atividade principal consome 1 Carga (revisão essencial: 0). */
 export const CHARGE_COST_ACTIVITY = 1;
+
+/** Revisão básica do grátis: itens por sessão. Pro revisa a fila inteira. */
+export const FREE_REVIEW_SESSION_LIMIT = 20;
 
 // ——— Fôlego (vidas dentro da lição) ———
 /** Fôlego inicial por lição. Cada erro confirmado consome 1. */
@@ -47,6 +64,10 @@ export const LESSON_BASE_XP = 10;
 export const LESSON_THREE_STAR_XP_BONUS = 5;
 export const LESSON_THREE_STAR_QI = 5;
 export const LESSON_NO_SKIP_QI = 2;
+/** Pro: bônus de Qi por conclusão de lição (remove fricção, não compra XP). */
+export const PRO_LESSON_QI_BONUS = 3;
+/** Pro: baús pagam mais Qi (multiplicador aplicado só à parcela de Qi). */
+export const PRO_CHEST_QI_MULTIPLIER = 1.5;
 /** Meta diária batida: Qi do dia. */
 export const DAILY_GOAL_QI = 8;
 

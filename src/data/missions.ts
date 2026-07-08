@@ -19,6 +19,7 @@ export type MissionMetric =
   | "errorsToday"
   | "threeStarToday"
   | "immersionToday"
+  | "tonesToday"
   | "weeklyXp"
   | "weeklyLessons"
   | "weeklyReviewDays"
@@ -54,6 +55,12 @@ export interface MissionDef {
   goal: number;
   to: string;
   reward: MissionReward;
+  /**
+   * Missão premium: recompensa maior, resgatável só no Pro. O progresso é
+   * visível para todos (a meta continua sendo aprendizado real), mas o resgate
+   * exige a assinatura — as missões grátis continuam pagando Qi suficiente.
+   */
+  pro?: boolean;
 }
 
 // Missões do dia (resetam todo dia). Todas derivam de contadores já existentes,
@@ -151,12 +158,49 @@ export const DAILY_MISSION_DEFS: MissionDef[] = [
     id: "daily-immersion",
     scope: "daily",
     title: "Complete 1 sessão de Imersão",
-    desc: "Finalize uma sessão de imersão guiada.",
+    desc: "Finalize uma história ou sessão de imersão guiada.",
     iconKey: "immersion",
     metric: "immersionToday",
     goal: 1,
     to: "/imersao",
     reward: { xp: 10, qi: 8 },
+  },
+  {
+    id: "daily-tones",
+    scope: "daily",
+    title: "Acerte 8 tons",
+    desc: "Treine o ouvido acertando tons em lições ou no Pinyin Lab.",
+    iconKey: "audio",
+    metric: "tonesToday",
+    goal: 8,
+    to: "/pinyin",
+    reward: { xp: 8, qi: 6 },
+  },
+  // Missões premium do dia: metas mais pesadas de correção e revisão,
+  // pagando mais Qi. O aprendizado grátis não depende delas.
+  {
+    id: "daily-pro-fix",
+    scope: "daily",
+    title: "Correção intensiva: 6 erros",
+    desc: "Zere 6 erros pendentes na revisão corretiva de hoje.",
+    iconKey: "fix",
+    metric: "errorsToday",
+    goal: 6,
+    to: "/revisao?modo=erros",
+    reward: { xp: 15, qi: 18 },
+    pro: true,
+  },
+  {
+    id: "daily-pro-review",
+    scope: "daily",
+    title: "Revisão profunda: 25 itens",
+    desc: "Percorra 25 itens da fila inteligente em um dia.",
+    iconKey: "reviews",
+    metric: "reviewsToday",
+    goal: 25,
+    to: "/revisao",
+    reward: { xp: 18, qi: 20 },
+    pro: true,
   },
 ];
 
@@ -210,12 +254,24 @@ export const WEEKLY_MISSION_DEFS: MissionDef[] = [
     id: "weekly-immersion",
     scope: "weekly",
     title: "Complete 3 sessões de Imersão",
-    desc: "Finalize 3 sessões de imersão durante a semana.",
+    desc: "Finalize 3 histórias ou sessões de imersão durante a semana.",
     iconKey: "immersion",
     metric: "weeklyImmersion",
     goal: 3,
     to: "/imersao",
     reward: { xp: 45, qi: 22 },
+  },
+  {
+    id: "weekly-pro-xp",
+    scope: "weekly",
+    title: "Semana intensa: 400 XP",
+    desc: "Estude forte a semana toda com lições, revisão e treino focado.",
+    iconKey: "xp",
+    metric: "weeklyXp",
+    goal: 400,
+    to: "/treino",
+    reward: { xp: 60, qi: 45 },
+    pro: true,
   },
 ];
 
@@ -233,6 +289,7 @@ export interface MissionAggregates {
   errorsToday: number;
   threeStarToday: number;
   immersionToday: number;
+  tonesToday: number;
   weeklyXp: number;
   weeklyLessons: number;
   weeklyReviewDays: number;

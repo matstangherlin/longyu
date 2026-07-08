@@ -47,6 +47,8 @@ export interface InteractiveStory {
     xp: number;
     qi?: number;
   };
+  /** História extra do Longyu Pro. A trilha básica de histórias segue grátis. */
+  premium?: boolean;
 }
 
 export const INTERACTIVE_STORIES: InteractiveStory[] = [
@@ -452,6 +454,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
     descriptionPt: "Cumprimente a família de manhã e diga que está bem.",
     estimatedMinutes: 4,
     rewards: { xp: 18, qi: 2 },
+    premium: true,
     steps: [
       {
         id: "mae-cumprimento",
@@ -541,6 +544,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
     descriptionPt: "Convide alguém para comer e agradeça depois da refeição.",
     estimatedMinutes: 5,
     rewards: { xp: 20, qi: 3 },
+    premium: true,
     steps: [
       {
         id: "convite",

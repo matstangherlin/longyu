@@ -23,6 +23,7 @@ import {
   type ToneTrainerProgress,
 } from "../../data/toneTrainer";
 import { buildModuleSkipTest } from "../challenge/examBuilder";
+import { useIsPro } from "../../lib/proAccess";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -183,7 +184,7 @@ export function JourneyPage() {
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
   const toneTrainer = useStore((s) => s.toneTrainer);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const today = useStore((s) => s.today);
   const journeyChestsOpened = useStore((s) => s.journeyChestsOpened ?? []);
   const aggregates = useStore((s) => s.getMissionAggregates());

@@ -23,6 +23,7 @@ import {
   HubPage,
   HubSection,
 } from "../../components/layout/HubLayout";
+import { useIsPro } from "../../lib/proAccess";
 
 interface MoreSectionData {
   title: string;
@@ -36,7 +37,7 @@ export function MorePage() {
   const srs = useStore((s) => s.srs);
   const chests = useStore((s) => s.chests);
   const streak = useStore((s) => s.streak);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
 
   const account = accounts[currentAccountId];
   const due = dueItems(srs).length;

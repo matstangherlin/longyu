@@ -1,4 +1,5 @@
 import type { DomainTrack } from "../data/domains";
+import { FREE_REVIEW_SESSION_LIMIT } from "../data/economy";
 import { ALL_LESSONS, JOURNEY, getLesson } from "../data/journey";
 import { effectivePremium } from "./entitlements";
 import { useStore } from "./store";
@@ -68,7 +69,7 @@ const PRO_DETAILED_ERRORS_REASON =
   "O Longyu Pro mostra seu histórico de erros, padrões de repetição e uma revisão focada nos pontos fracos.";
 
 export const FREE_TIER_REVIEW_HINT =
-  "No plano grátis, você revisa até 20 itens por sessão na fila básica.";
+  `No plano grátis, você revisa até ${FREE_REVIEW_SESSION_LIMIT} itens por sessão na fila básica.`;
 
 function completedFrom(context?: ProAccessContext): string[] {
   return context?.completedLessons ?? useStore.getState().completedLessons;
@@ -85,6 +86,15 @@ export function isProUser(context?: ProAccessContext | boolean): boolean {
   }
   const preview = context?.isPremium ?? state.isPremium;
   return effectivePremium(preview, state.serverIsPro);
+}
+
+/**
+ * Pro efetivo para as telas: assinatura real do servidor OU preview local.
+ * Use este hook em vez de ler `s.isPremium` direto — ler só o preview faz um
+ * assinante real (serverIsPro) ver a UI do plano grátis.
+ */
+export function useIsPro(): boolean {
+  return useStore((s) => effectivePremium(s.isPremium, s.serverIsPro));
 }
 
 function hasCompleted(completed: string[], lessonId: string): boolean {
@@ -150,7 +160,7 @@ function freePracticeToolDecision(toolId: PracticeToolId, completed: string[], p
   if (toolId === "biblioteca") return unlocked("Biblioteca básica fica aberta no plano grátis.", true);
   if (toolId === "revisao") {
     return unlocked(
-      "Revisão básica gratuita (até 20 itens/sessão). Filtros, histórico e erros detalhados ficam no Longyu Pro.",
+      `Revisão básica gratuita (até ${FREE_REVIEW_SESSION_LIMIT} itens/sessão). Filtros, histórico e erros detalhados ficam no Longyu Pro.`,
       true
     );
   }

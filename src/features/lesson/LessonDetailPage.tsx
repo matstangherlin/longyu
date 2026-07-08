@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, currentLessonId, getLesson, type Skill } from "../../data/journey";
-import { canStartLesson } from "../../lib/proAccess";
+import { canStartLesson, useIsPro } from "../../lib/proAccess";
 import { useStore } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives";
@@ -177,7 +177,7 @@ export function LessonDetailPage() {
 
   const completed = useStore((state) => state.completedLessons);
   const lessonStarsById = useStore((state) => state.lessonStarsById);
-  const isPremium = useStore((state) => state.isPremium);
+  const isPremium = useIsPro();
   const lessonTaskProgress = useStore((state) => state.lessonTaskProgress);
   const toneTrainer = useStore((state) => state.toneTrainer);
   const consumeCharge = useStore((state) => state.consumeCharge);

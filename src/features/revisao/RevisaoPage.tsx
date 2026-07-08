@@ -32,7 +32,9 @@ import {
   canAccessAdvancedReview,
   canAccessDetailedErrors,
   FREE_TIER_REVIEW_HINT,
+  useIsPro,
 } from "../../lib/proAccess";
+import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import {
@@ -166,7 +168,8 @@ const GRADES: { g: Grade; label: string; effect: string; variant: "outline" | "s
   { g: "easy", label: "Fácil", effect: "intervalo maior", variant: "primary" },
 ];
 
-const FREE_REVIEW_LIMIT = 20;
+// Limite canônico do plano grátis vive em data/economy.ts.
+const FREE_REVIEW_LIMIT = FREE_REVIEW_SESSION_LIMIT;
 const RECENT_ERROR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 function itemLabel(item: SRSItem): string {
@@ -928,7 +931,7 @@ export function RevisaoPage() {
   const addXp = useStore((s) => s.addXp);
   const addQi = useStore((s) => s.addQi);
   const addMinutes = useStore((s) => s.addMinutes);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const soundEffects = useStore((s) => s.soundEffects);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const lessonStarsById = useStore((s) => s.lessonStarsById);

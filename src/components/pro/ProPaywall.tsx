@@ -3,8 +3,21 @@ import { Link } from "react-router-dom";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { Button } from "../ui/primitives";
 import { IconBook, IconChat, IconFlame, IconHanzi, IconHeadphones, IconStar, IconTarget } from "../ui/Icon";
+import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 
-export type ProPaywallKind = "qi" | "energy" | "immersion" | "hanzi" | "speech" | "reports" | "content" | "review" | "errors";
+export type ProPaywallKind =
+  | "qi"
+  | "energy"
+  | "immersion"
+  | "hanzi"
+  | "speech"
+  | "reports"
+  | "content"
+  | "review"
+  | "errors"
+  | "weak_spots"
+  | "story"
+  | "training";
 
 const PAYWALL_COPY: Record<ProPaywallKind, {
   eyebrow: string;
@@ -22,9 +35,9 @@ const PAYWALL_COPY: Record<ProPaywallKind, {
   },
   energy: {
     eyebrow: "Cargas do Dragão",
-    title: "Suas Cargas acabaram por hoje",
-    description: "Volte amanhã, complete uma missão para recuperar cargas ou teste cargas infinitas no Pro Preview.",
-    benefit: "O Pro Preview remove esse bloqueio apenas neste dispositivo, sem assinatura real.",
+    title: "Suas Cargas de hoje acabaram",
+    description: "Continue sem limite com o Longyu Pro — ou volte amanhã, ou complete uma missão para recuperar cargas.",
+    benefit: "No Pro, Cargas não travam a prática: você estuda o quanto quiser, todos os dias.",
     icon: IconFlame,
   },
   immersion: {
@@ -71,10 +84,31 @@ const PAYWALL_COPY: Record<ProPaywallKind, {
   },
   errors: {
     eyebrow: "Erros detalhados",
-    title: "Erros detalhados fazem parte do Longyu Pro",
-    description: "Você ainda pode fazer revisões básicas pela Jornada.",
-    benefit: "Pro libera histórico completo, padrões de repetição, análise por competência e correção intensiva por pontos fracos.",
+    title: "Veja seus padrões de erro e corrija pontos fracos",
+    description: "A correção imediata do erro da lição atual continua grátis. O Pro adiciona o histórico completo e os padrões de repetição.",
+    benefit: "Pro libera histórico completo, padrões por competência e correção intensiva dos pontos fracos.",
     icon: IconTarget,
+  },
+  weak_spots: {
+    eyebrow: "Revisão focada",
+    title: "O Pro cria uma revisão focada nos seus pontos fracos",
+    description: "Você teve dificuldade nesta lição. Corrigir os erros agora continua grátis — o Pro monta um plano de treino automático para os pontos que mais repetem.",
+    benefit: "Correção intensiva por ponto fraco, com fila montada a partir dos seus próprios erros.",
+    icon: IconTarget,
+  },
+  story: {
+    eyebrow: "Histórias extras",
+    title: "Histórias extras fazem parte do Longyu Pro",
+    description: "As histórias da trilha básica continuam grátis. As histórias extras aprofundam vocabulário e diálogos.",
+    benefit: "Mais contexto real: diálogos maiores, escolhas e revisão integrada em cada história.",
+    icon: IconBook,
+  },
+  training: {
+    eyebrow: "Treino livre completo",
+    title: "Treino livre completo é Pro",
+    description: "O treino básico e a revisão essencial continuam grátis todos os dias. O Pro libera treino ilimitado e a fila de itens fracos.",
+    benefit: "Treine qualquer ponto fraco, sem limite de Cargas e com priorização automática.",
+    icon: IconFlame,
   },
 };
 
@@ -89,6 +123,7 @@ export function ProPaywall({
 }) {
   const copy = PAYWALL_COPY[kind];
   const Icon = copy.icon;
+  const realBilling = isSupabaseBackendEnabled();
 
   useEffect(() => {
     if (!open) return;
@@ -115,7 +150,7 @@ export function ProPaywall({
             <Icon width={24} height={24} />
           </span>
           <span className="rounded-full border border-[#B7791F]/25 bg-[#B7791F]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">
-            Pro Preview
+            {realBilling ? "Longyu Pro" : "Pro Preview"}
           </span>
         </div>
         <div className="mt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</div>
@@ -144,7 +179,11 @@ export function ProPaywall({
             <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>Agora não</Button>
           </div>
         )}
-        <p className="mt-3 text-center text-xs text-ink-faint">Sem cobrança e sem assinatura real nesta prévia.</p>
+        <p className="mt-3 text-center text-xs text-ink-faint">
+          {realBilling
+            ? "30 dias grátis. Cancele quando quiser, direto na sua conta."
+            : "Sem cobrança e sem assinatura real nesta prévia."}
+        </p>
       </section>
     </ModalOverlay>
   );

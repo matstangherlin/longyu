@@ -9,6 +9,7 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
+import { useIsPro } from "../../lib/proAccess";
 
 export function FalaPage() {
   const ensureSrs = useStore((s) => s.ensureSrs);
@@ -18,7 +19,7 @@ export function FalaPage() {
   const soundEffects = useStore((s) => s.soundEffects);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const consumeCharge = useStore((s) => s.consumeCharge);
 
   const [i, setI] = useState(0);

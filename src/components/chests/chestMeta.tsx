@@ -1,5 +1,5 @@
 import type { ChestType, ChestRewardKind } from "../../lib/store";
-import { IconShield, IconStar, IconTarget } from "../ui/Icon";
+import { IconFlame, IconShield, IconStar, IconTarget } from "../ui/Icon";
 
 // Identidade Longyu para cada baú: um hànzì central (tesouro / dragão / jade),
 // um selo e as cores do tema. Nada de estética de cassino — pergaminho e jade.
@@ -20,7 +20,7 @@ export const CHEST_VISUALS: Record<ChestType, ChestVisual> = {
     glyph: "宝",
     seal: "印",
     tagline: "Uma pequena surpresa do dragão.",
-    contains: "Qi, XP, uma carga ou um selo do dragão.",
+    contains: "Qi, XP, uma carga ou uma tentativa extra.",
     accent: "rgb(var(--accent))",
   },
   dragon: {
@@ -60,6 +60,7 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
     shield: "Protege sua sequência",
     pearl: "Moeda rara de jade",
     spark: "Bônus visual do dragão",
+    breath: "Recupera o Fôlego numa lição",
   };
   return captions[kind];
 }
@@ -67,6 +68,7 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
 export function ChestRewardIcon({ kind }: { kind: ChestRewardKind }) {
   if (kind === "pearl") return <span aria-hidden className="text-lg leading-none text-good">珠</span>;
   if (kind === "spark") return <span aria-hidden className="text-lg leading-none text-accent">印</span>;
+  if (kind === "breath") return <IconFlame width={20} height={20} />;
   if (kind === "charge" || kind === "shield") return <IconShield width={20} height={20} />;
   if (kind === "xp") return <IconTarget width={20} height={20} />;
   return <IconStar width={20} height={20} />;

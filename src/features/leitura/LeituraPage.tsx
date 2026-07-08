@@ -9,6 +9,7 @@ import { EngineGate } from "../../components/layout/EngineGate";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { Card, SectionTitle } from "../../components/ui/primitives";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { useIsPro } from "../../lib/proAccess";
 
 export function LeituraPage() {
   const ensureSrs = useStore((s) => s.ensureSrs);
@@ -17,7 +18,7 @@ export function LeituraPage() {
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const consumeCharge = useStore((s) => s.consumeCharge);
   const completed = useStore((s) => s.completedLessons);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const texts = availableMicrotexts(completed, isPremium);
   const [idx, setIdx] = useState(0);
   const [sessionCharged, setSessionCharged] = useState(false);

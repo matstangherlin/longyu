@@ -6,7 +6,7 @@ import { RADICALS } from "../../data/radicals";
 import { radicalById } from "../../data/radicals";
 import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
-import { canAccessHanziLab } from "../../lib/proAccess";
+import { canAccessHanziLab, useIsPro } from "../../lib/proAccess";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, Pill, SectionTitle } from "../../components/ui/primitives";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
@@ -31,7 +31,7 @@ export function HanziPage() {
   const [selected, setSelected] = useState(() => CHARACTERS.find((char) => char.id === requestedCharId) ?? DECOMPOSABLE[0]);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [labNotice, setLabNotice] = useState<string | null>(null);
-  const isPremium = useStore((state) => state.isPremium);
+  const isPremium = useIsPro();
   const hanziLabAccess = canAccessHanziLab({ isPremium });
   const lesson = hanziLessonFor(selected);
 

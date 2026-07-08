@@ -39,6 +39,7 @@ import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
+import { useIsPro } from "../../lib/proAccess";
 
 const MODE_META: Record<ImmersionMode, { label: string; instruction: string; icon: typeof IconSound }> = {
   listen_repeat: {
@@ -243,7 +244,7 @@ export function ImmersionPage() {
   const [storyProgress, setStoryProgress] = useState<StoryProgressMap>(() => readStoryProgress());
   const sessionsRef = useRef<HTMLDivElement>(null);
   const immersionDaily = useStore((state) => state.immersionDaily);
-  const isPremium = useStore((state) => state.isPremium);
+  const isPremium = useIsPro();
   const missionAggregates = useStore((state) => state.getMissionAggregates());
   const dailyMissions = useStore((state) => state.dailyMissions);
   const weeklyMissions = useStore((state) => state.weeklyMissions);
@@ -331,6 +332,27 @@ export function ImmersionPage() {
     }
     window.sessionStorage.setItem(sessionKey, "1");
     setSelectedSessionId(session.id);
+  }
+
+  // Histórias: extras são Pro; as da trilha básica consomem 1 Carga no grátis
+  // (retomar no mesmo dia ou rever uma concluída não consome de novo).
+  function openStory(story: InteractiveStory) {
+    if (story.premium && !isPremium) {
+      setPaywallKind("story");
+      return;
+    }
+    const status = storyStatus(storyProgress[story.id]);
+    const storyKey = `longyu-energy:story:${story.id}:${todayKey()}`;
+    if (status === "concluido" || window.sessionStorage.getItem(storyKey) === "1") {
+      setSelectedStoryId(story.id);
+      return;
+    }
+    if (!consumeCharge("immersion_session")) {
+      setPaywallKind("energy");
+      return;
+    }
+    window.sessionStorage.setItem(storyKey, "1");
+    setSelectedStoryId(story.id);
   }
 
   return (
@@ -435,7 +457,8 @@ export function ImmersionPage() {
                 key={story.id}
                 story={story}
                 progress={storyProgress[story.id]}
-                onOpen={() => setSelectedStoryId(story.id)}
+                locked={Boolean(story.premium) && !isPremium}
+                onOpen={() => openStory(story)}
               />
             ))}
           </div>
@@ -493,10 +516,13 @@ export function ImmersionPage() {
 function InteractiveStoryCard({
   story,
   progress,
+  locked = false,
   onOpen,
 }: {
   story: InteractiveStory;
   progress?: StoredStoryProgress;
+  /** História premium vista por quem não é Pro: abre o paywall honesto. */
+  locked?: boolean;
   onOpen: () => void;
 }) {
   const status = storyStatus(progress);
@@ -517,10 +543,10 @@ function InteractiveStoryCard({
     <Card data-testid={`interactive-story-card-${story.id}`} className="rounded-xl border-line/70 p-3.5 shadow-none transition hover:shadow-card">
       <div className="flex items-start justify-between gap-2">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-          {status === "concluido" ? <IconCheck width={18} height={18} /> : <IconPath width={18} height={18} />}
+          {locked ? <IconLock width={18} height={18} /> : status === "concluido" ? <IconCheck width={18} height={18} /> : <IconPath width={18} height={18} />}
         </span>
-        <Pill tone={status === "concluido" ? "good" : status === "novo" ? "accent" : "gold"}>
-          {statusLabel[status]}
+        <Pill tone={locked ? "gold" : status === "concluido" ? "good" : status === "novo" ? "accent" : "gold"}>
+          {locked ? "Pro" : statusLabel[status]}
         </Pill>
       </div>
       <h3 className="mt-2 text-sm font-semibold leading-tight text-ink">{story.title}</h3>
@@ -532,10 +558,18 @@ function InteractiveStoryCard({
         </div>
         <ProgressBar value={completedSteps} max={story.steps.length} className="h-1" />
       </div>
-      <div className="mt-2 text-[10px] text-ink-faint">{interactionCount} escolhas · história interativa</div>
-      <Button data-testid={`interactive-story-start-${story.id}`} size="sm" className="mt-3 w-full" onClick={onOpen}>
-        {status === "concluido" ? <IconRefresh width={16} height={16} /> : <IconPlay width={16} height={16} />}
-        {actionLabel[status]}
+      <div className="mt-2 text-[10px] text-ink-faint">
+        {interactionCount} escolhas · {locked ? "história extra do Pro" : "história interativa"}
+      </div>
+      <Button
+        data-testid={`interactive-story-start-${story.id}`}
+        size="sm"
+        variant={locked ? "outline" : "primary"}
+        className="mt-3 w-full"
+        onClick={onOpen}
+      >
+        {locked ? <IconLock width={16} height={16} /> : status === "concluido" ? <IconRefresh width={16} height={16} /> : <IconPlay width={16} height={16} />}
+        {locked ? "Ver no Pro" : actionLabel[status]}
       </Button>
     </Card>
   );

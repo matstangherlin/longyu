@@ -41,6 +41,7 @@ import {
   createAccount as createAuthAccount,
 } from "../../services/authService";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { useIsPro } from "../../lib/proAccess";
 import {
   IconBook,
   IconChat,
@@ -1474,7 +1475,10 @@ export function AccountPage() {
   const chests = useStore((s) => s.chests);
   const medals = useStore((s) => s.medals ?? []);
   const rewardHistory = useStore((s) => s.rewardHistory);
+  /** Preview local — alimenta o estado da assinatura (subscriptionStateFor). */
   const isPremium = useStore((s) => s.isPremium);
+  /** Pro efetivo (servidor OU preview) — usado para exibir benefícios ativos. */
+  const isProEffective = useIsPro();
   const placement = useStore((s) => s.placement);
   const createAccount = useStore((s) => s.createAccount);
   const createCloudAccountDraft = useStore((s) => s.createCloudAccountDraft);
@@ -1603,7 +1607,7 @@ export function AccountPage() {
       weeklyXp,
       charges: dailyEnergy.charges,
       maxCharges: dailyEnergy.maxCharges,
-      isPremium,
+      isPremium: isProEffective,
       dragonPearls,
       streakShields,
       streak,
@@ -1621,7 +1625,7 @@ export function AccountPage() {
       dailyEnergy.maxCharges,
       dailyTasks,
       dragonPearls,
-      isPremium,
+      isProEffective,
       learnedChars,
       learnedChunks,
       longestStreak,
@@ -2085,7 +2089,7 @@ export function AccountPage() {
           title: "Pinyin Lab",
           desc: "Som, acento e tons.",
           icon: IconSound,
-          badge: isPremium ? "Pro" : "Cargas",
+          badge: isProEffective ? "Pro" : "Cargas",
           featured: true,
           onClick: () => navigate("/pinyin"),
         },
@@ -2151,7 +2155,7 @@ export function AccountPage() {
           authTone={status.tone}
           proLabel={proState === "not_subscriber" ? undefined : proStatus.label}
           proTone={proStatus.tone}
-          isPremium={isPremium}
+          isPremium={isProEffective}
           streak={streak}
           xpTotal={xpTotal}
           points={points}
@@ -2160,7 +2164,7 @@ export function AccountPage() {
           onCreateAccount={openCreateAccountPreparation}
           onPro={() => navigate("/pro")}
           showCreateAccount={authMode === "local"}
-          showPro={!isPremium}
+          showPro={!isProEffective}
           showSignOut={canSignOut}
           onSignOut={() => void handleCloudSignOut()}
         />
@@ -2404,8 +2408,8 @@ export function AccountPage() {
             </div>
             <div className="flex items-center gap-2">
               <Pill tone="muted">{dashboard.totalProgress}% geral</Pill>
-              <Button size="sm" variant="outline" disabled={isPremium} onClick={() => setReportPaywallOpen(true)}>
-                {isPremium ? "Relatórios em breve" : "Relatório avançado"}
+              <Button size="sm" variant="outline" disabled={isProEffective} onClick={() => setReportPaywallOpen(true)}>
+                {isProEffective ? "Relatórios em breve" : "Relatório avançado"}
               </Button>
             </div>
           </div>

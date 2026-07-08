@@ -15,6 +15,8 @@ import {
   type MissionView,
 } from "../../data/missions";
 import { ACHIEVEMENTS } from "../../data/achievements";
+import { useIsPro } from "../../lib/proAccess";
+import { ProPaywall } from "../../components/pro/ProPaywall";
 import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
 import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives";
@@ -103,10 +105,12 @@ export function MissoesPage() {
   const monthlyChests = useStore((s) => s.chests.monthly);
   const claimMission = useStore((s) => s.claimMission);
   const soundEffects = useStore((s) => s.soundEffects);
+  const isPro = useIsPro();
 
   const [burst, setBurst] = useState<string | null>(null);
   const [justClaimed, setJustClaimed] = useState<string | null>(null);
   const [chestOpen, setChestOpen] = useState(false);
+  const [proPaywallOpen, setProPaywallOpen] = useState(false);
   const [missionCelebration, setMissionCelebration] = useState<MissionCelebration | null>(null);
   const location = useLocation();
 
@@ -153,6 +157,11 @@ export function MissoesPage() {
   }
 
   function claim(scope: MissionScope, mission: MissionView) {
+    // Missão premium completa mas sem Pro: mostra o paywall honesto.
+    if (mission.pro && !isPro) {
+      setProPaywallOpen(true);
+      return;
+    }
     if (claimMission(scope, mission.id)) {
       const rewards = rewardLabel(mission.reward);
       showBurst(rewards, `${scope}:${mission.id}`);
@@ -287,6 +296,7 @@ export function MissoesPage() {
         onClaim={(m) => claim("daily", m)}
         justClaimed={justClaimed}
         scope="daily"
+        isPro={isPro}
       />
 
       {/* 3. Missões semanais */}
@@ -299,6 +309,7 @@ export function MissoesPage() {
         onClaim={(m) => claim("weekly", m)}
         justClaimed={justClaimed}
         scope="weekly"
+        isPro={isPro}
       />
 
       {/* 4. Medalhas */}
@@ -379,6 +390,7 @@ export function MissoesPage() {
         />
       )}
       {chestOpen && <ChestRewardModal type="monthly" onClose={() => setChestOpen(false)} />}
+      <ProPaywall open={proPaywallOpen} kind="training" onClose={() => setProPaywallOpen(false)} />
     </HubPage>
   );
 }
@@ -392,6 +404,7 @@ function MissionSection({
   onClaim,
   justClaimed,
   scope,
+  isPro,
 }: {
   title: string;
   desc: string;
@@ -401,6 +414,7 @@ function MissionSection({
   onClaim: (mission: MissionView) => void;
   justClaimed: string | null;
   scope: MissionScope;
+  isPro: boolean;
 }) {
   return (
     <HubSection title={title} desc={desc} count={<Pill tone={done > 0 ? "accent" : "muted"}>{done}/{total}</Pill>}>
@@ -409,6 +423,7 @@ function MissionSection({
           <MissionCard
             key={mission.id}
             mission={mission}
+            lockedPro={Boolean(mission.pro) && !isPro}
             onClaim={() => onClaim(mission)}
             highlighted={justClaimed === `${scope}:${mission.id}`}
           />
@@ -501,10 +516,13 @@ function MissionCard({
   mission,
   onClaim,
   highlighted,
+  lockedPro = false,
 }: {
   mission: MissionView;
   onClaim: () => void;
   highlighted: boolean;
+  /** Missão premium vista por quem não é Pro: progresso visível, resgate no Pro. */
+  lockedPro?: boolean;
 }) {
   const Icon = MISSION_ICONS[mission.iconKey];
   const state = mission.claimed
@@ -537,7 +555,10 @@ function MissionCard({
         >
           {mission.claimed ? <IconCheck width={17} height={17} /> : <Icon width={17} height={17} />}
         </span>
-        <Pill tone="muted" className="text-[10px]">{state}</Pill>
+        <div className="flex flex-col items-end gap-1">
+          {mission.pro && <Pill tone="gold" className="text-[10px]">Pro</Pill>}
+          <Pill tone="muted" className="text-[10px]">{state}</Pill>
+        </div>
       </div>
 
       <h3 className="mt-2 text-sm font-semibold text-ink">{mission.title}</h3>
@@ -563,8 +584,8 @@ function MissionCard({
             <IconCheck width={15} height={15} /> Resgatada
           </Button>
         ) : mission.complete ? (
-          <Button size="sm" className="w-full" onClick={onClaim}>
-            Resgatar
+          <Button size="sm" variant={lockedPro ? "outline" : "primary"} className="w-full" onClick={onClaim}>
+            {lockedPro ? "Resgatar com Pro" : "Resgatar"}
           </Button>
         ) : (
           <Link to={mission.to}>

@@ -5,7 +5,7 @@ import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import type { ItemType } from "../../data/types";
 import { canAccessLesson } from "../../lib/journeyUnlocks";
-import { canStartLesson, canUseUnlimitedRetry } from "../../lib/proAccess";
+import { canStartLesson, canUseUnlimitedRetry, useIsPro } from "../../lib/proAccess";
 import {
   DAILY_GOAL_PER_TRACK,
   useStore,
@@ -32,6 +32,7 @@ import {
   LESSON_THREE_STAR_QI,
   LESSON_THREE_STAR_XP_BONUS,
   MODULE_REVIEW_PASS_ACCURACY,
+  PRO_LESSON_QI_BONUS,
   RETRY_QUESTION_QI,
 } from "../../data/economy";
 import { speak } from "../../lib/tts";
@@ -1093,6 +1094,66 @@ function MissionUpdateCard({ mission }: { mission: MissionView }) {
   );
 }
 
+interface NextFocusSuggestion {
+  title: string;
+  desc: string;
+  to: string;
+  cta: string;
+}
+
+// Próxima recomendação ao fim da sessão, na ordem que mais destrava a Jornada:
+// erros pendentes > tons fracos > hànzì fracos > próxima lição > revisão.
+function buildNextFocus({
+  remainingErrorCount,
+  toneErrorCount,
+  hanziErrorCount,
+  nextLessonTitle,
+}: {
+  remainingErrorCount: number;
+  toneErrorCount: number;
+  hanziErrorCount: number;
+  nextLessonTitle?: string;
+}): NextFocusSuggestion {
+  if (remainingErrorCount > 0) {
+    return {
+      title: "Corrigir os erros de hoje",
+      desc: `${remainingErrorCount} ${remainingErrorCount === 1 ? "erro pendente" : "erros pendentes"} desta sessão entraram na revisão.`,
+      to: "/revisao",
+      cta: "Revisar agora",
+    };
+  }
+  if (toneErrorCount > 0 && toneErrorCount >= hanziErrorCount) {
+    return {
+      title: "Reforçar tons",
+      desc: "Os tons foram seu ponto mais frágil hoje. Uma rodada curta no Pinyin Lab firma o ouvido.",
+      to: "/pinyin",
+      cta: "Treinar tons",
+    };
+  }
+  if (hanziErrorCount > 0) {
+    return {
+      title: "Reforçar hànzì",
+      desc: "Monte de novo os caracteres que falharam para fixar forma e significado.",
+      to: "/hanzi",
+      cta: "Praticar hànzì",
+    };
+  }
+  if (nextLessonTitle) {
+    return {
+      title: `Próxima lição: ${nextLessonTitle}`,
+      desc: "Você está pronto para avançar na Jornada.",
+      to: "/",
+      cta: "Continuar Jornada",
+    };
+  }
+  return {
+    title: "Revisão do dia",
+    desc: "Traga de volta frases e caracteres antes que enfraqueçam.",
+    to: "/revisao",
+    cta: "Revisar",
+  };
+}
+
 export function LessonPlayer() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
@@ -1103,7 +1164,8 @@ export function LessonPlayer() {
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const learnedChars = useStore((s) => s.learnedChars);
-  const isPremium = useStore((s) => s.isPremium);
+  // Pro efetivo (assinatura real OU preview local) — nunca só o preview.
+  const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
   const gradeSrs = useStore((s) => s.gradeSrs);
   const ensureSrs = useStore((s) => s.ensureSrs);
@@ -1156,6 +1218,13 @@ export function LessonPlayer() {
   const [reviewItemsAdded, setReviewItemsAdded] = useState(0);
   const [lessonReward, setLessonReward] = useState(0);
   const [lessonXp, setLessonXp] = useState(0);
+  // Resumo pedagógico da sessão: o que de fato foi praticado nesta rodada.
+  const [sessionSummary, setSessionSummary] = useState<{
+    phrases: number;
+    newPhrases: number;
+    hanzi: number;
+    tones: number;
+  } | null>(null);
   const [estimatedMinutes, setEstimatedMinutes] = useState(5);
   const [postLessonView, setPostLessonView] = useState<"victory" | "rewards" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
@@ -1883,6 +1952,9 @@ export function LessonPlayer() {
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
     const gradedDomains = new Set<string>();
+    // Itens distintos praticados nesta sessão — alimentam o resumo final.
+    const practicedChunkIds = new Set<string>();
+    const practicedCharIds = new Set<string>();
     const gradeOnce = (
       type: ItemType,
       itemId: string,
@@ -1890,6 +1962,8 @@ export function LessonPlayer() {
       sourceTrack: Track = track
     ) => {
       const key = `${type}:${itemId}:${domain}`;
+      if (type === "chunk") practicedChunkIds.add(itemId);
+      else practicedCharIds.add(itemId);
       if (gradedDomains.has(key)) return;
       gradedDomains.add(key);
       gradeReviewDomain({
@@ -2023,9 +2097,31 @@ export function LessonPlayer() {
     const completionXp = passed && firstCompletion
       ? LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0)
       : 0;
+    // Pro ganha um bônus fixo de Qi por conclusão (fricção menor, não XP).
     const completionQi = passed && firstCompletion
-      ? (stars === 3 ? LESSON_THREE_STAR_QI : 0) + (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0)
+      ? (stars === 3 ? LESSON_THREE_STAR_QI : 0) +
+        (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0) +
+        (isPremium ? PRO_LESSON_QI_BONUS : 0)
       : 0;
+
+    // Resumo pedagógico: frases/hànzì praticados e tons acertados na rodada.
+    const toneStepsTotal = lesson.steps.reduce((count, s) => {
+      if (s.kind === "tone") return count + 1;
+      if (s.kind === "tone_pair") return count + (s.pairs?.length ?? 1);
+      return count;
+    }, 0);
+    const toneErrors = activityErrorsRef.current.filter(
+      (error) => error.type === "tone" || error.type === "tone_pair"
+    ).length;
+    const tonesHit = Math.max(0, toneStepsTotal - toneErrors);
+    const newPhrases = [...practicedChunkIds].filter((id) => !learnedChunks.includes(id)).length;
+    setSessionSummary({
+      phrases: practicedChunkIds.size,
+      newPhrases,
+      hanzi: practicedCharIds.size,
+      tones: tonesHit,
+    });
+    if (tonesHit > 0) recordDailyTask("tonesTrained", tonesHit);
     const xpClaimed = completionXp > 0
       ? claimReward({
           id: `lesson:${lesson.id}:xp`,
@@ -2101,6 +2197,44 @@ export function LessonPlayer() {
     const suggestsHanziLab = lesson.steps.some((step) =>
       step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build"
     );
+    // Próximo foco + frase-resumo: dizem em uma linha o que a sessão rendeu.
+    const toneErrorCount = committedErrors.filter(
+      (error) => error.skill === "som" || error.type === "tone" || error.type === "tone_pair"
+    ).length;
+    const hanziErrorCount = committedErrors.filter(
+      (error) => error.skill === "hanzi" || error.type === "hanzi_build" || error.type === "recognize"
+    ).length;
+    const nextFocus = buildNextFocus({
+      remainingErrorCount: remainingErrors.length,
+      toneErrorCount,
+      hanziErrorCount,
+      nextLessonTitle: nextLesson?.title,
+    });
+    const weakSkillsLabel =
+      toneErrorCount > 0 && hanziErrorCount > 0
+        ? "tons e hànzì"
+        : toneErrorCount > 0
+          ? "tons"
+          : hanziErrorCount > 0
+            ? "hànzì"
+            : "algumas frases";
+    const summaryParts: string[] = [];
+    if (sessionSummary) {
+      if (sessionSummary.phrases > 0) {
+        summaryParts.push(
+          sessionSummary.newPhrases > 0
+            ? `praticou ${sessionSummary.phrases} frases (${sessionSummary.newPhrases} novas)`
+            : `praticou ${sessionSummary.phrases} ${sessionSummary.phrases === 1 ? "frase" : "frases"}`
+        );
+      }
+      if (sessionSummary.hanzi > 0) summaryParts.push(`reforçou ${sessionSummary.hanzi} hànzì`);
+      if (sessionSummary.tones > 0) summaryParts.push(`acertou ${sessionSummary.tones} tons`);
+    }
+    if (correctedCount > 0) summaryParts.push(`corrigiu ${correctedCount} ${correctedCount === 1 ? "erro" : "erros"}`);
+    const sessionSummaryLine =
+      summaryParts.length > 0
+        ? `Hoje você ${summaryParts.length > 1 ? `${summaryParts.slice(0, -1).join(", ")} e ${summaryParts[summaryParts.length - 1]}` : summaryParts[0]}.`
+        : "Você completou esta etapa da Jornada.";
 
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
@@ -2168,6 +2302,7 @@ export function LessonPlayer() {
       setReviewItemsAdded(0);
       setLessonReward(0);
       setLessonXp(0);
+      setSessionSummary(null);
       skippedStepsRef.current = 0;
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
@@ -2639,21 +2774,57 @@ export function LessonPlayer() {
 
           <div className="mt-7 text-left">
             <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Etapa 2</div>
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-ink">Resumo da lição</h2>
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-ink">Resumo da sessão</h2>
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
-            <LessonSummaryStat label="Etapas" value={`${lessonTasks.length}/${lessonTasks.length}`} />
-            <LessonSummaryStat label="XP da lição" value={`+${lessonXp}`} />
+            <LessonSummaryStat
+              label="Frases praticadas"
+              value={`${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${sessionSummary?.newPhrases} novas)` : ""}`}
+            />
+            <LessonSummaryStat label="Hànzì praticados" value={`${sessionSummary?.hanzi ?? 0}`} />
+            <LessonSummaryStat label="Tons acertados" value={`${sessionSummary?.tones ?? 0}`} />
+            <LessonSummaryStat
+              label="Erros corrigidos"
+              value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
+            />
             <LessonSummaryStat label="Precisão" value={`${precision}%`} />
-            <LessonSummaryStat label="Tempo" value={`${estimatedMinutes} min`} />
-            <LessonSummaryStat label="Estrelas" value={`${stars}/3`} />
             <LessonSummaryStat label="Qi ganho" value={`+${lessonReward}`} />
-            <LessonSummaryStat label="Revisão" value={`${reviewItemsAdded} itens`} />
           </div>
           <p className="mt-3 text-left text-sm leading-6 text-ink-soft">
-            Você passou por apresentar, reconhecer, montar, usar e fixar este conteúdo.
+            {sessionSummaryLine} Foram ~{estimatedMinutes} min de prática
+            {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na sua revisão.` : "."}
           </p>
+
+          <div className="mt-4 rounded-[22px] border border-accent-soft bg-accent-soft/30 p-4 text-left shadow-card">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Próximo foco</div>
+            <div className="mt-1 text-sm font-semibold text-ink">{nextFocus.title}</div>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">{nextFocus.desc}</p>
+            <Link to={nextFocus.to} className="mt-3 inline-block">
+              <Button variant="outline" className="w-full sm:w-auto">
+                {nextFocus.cta} <IconChevron width={16} height={16} />
+              </Button>
+            </Link>
+          </div>
+
+          {!isPremium && committedErrors.length >= 3 && (
+            <div className="mt-4 rounded-[22px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] p-4 text-left shadow-card">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
+              <p className="mt-1 text-sm leading-6 text-ink">
+                Você teve dificuldade com {weakSkillsLabel}. O Pro cria uma revisão focada nos seus pontos fracos.
+              </p>
+              <p className="mt-1 text-xs leading-5 text-ink-faint">
+                Corrigir os erros desta lição continua grátis, agora e sempre.
+              </p>
+              <Button
+                variant="soft"
+                className="mt-3 w-full sm:w-auto"
+                onClick={() => setProPaywallKind("weak_spots")}
+              >
+                Conhecer a revisão focada
+              </Button>
+            </div>
+          )}
           {(suggestsPinyinLab || suggestsHanziLab) && (
             <div className="mt-4 rounded-[22px] border border-line bg-surface/85 p-4 text-left shadow-card">
               <div className="text-sm font-semibold text-ink">Reforço guiado</div>

@@ -32,7 +32,7 @@ import { hasChineseVoice, speak, stopSpeaking, warmUpVoices } from "../../lib/tt
 import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { playSoundFx } from "../../lib/soundFx";
-import { canAccessPinyinLab } from "../../lib/proAccess";
+import { canAccessPinyinLab, useIsPro } from "../../lib/proAccess";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ToneTrainer } from "../som/SomPage";
 
@@ -51,7 +51,7 @@ const PINYIN_LAB_VIEWS: { id: PinyinLabView; label: string }[] = [
 
 export function PinyinLabPage() {
   const completedLessons = useStore((s) => s.completedLessons);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const access = canAccessPinyinLab({ isPremium, completedLessons });
   const [selectedSyllable, setSelectedSyllable] = useState(PINYIN_SYLLABLES[0]);
   const [mobileView, setMobileView] = useState<PinyinLabView>("silabas");

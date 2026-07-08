@@ -9,7 +9,7 @@ import {
   IconSound,
   IconTarget,
 } from "../../components/ui/Icon";
-import { canAccessDetailedErrors, canUsePracticeTool, type PracticeToolId } from "../../lib/proAccess";
+import { canAccessDetailedErrors, canUsePracticeTool, useIsPro, type PracticeToolId } from "../../lib/proAccess";
 import { dueItems } from "../../lib/srs";
 import { DAILY_GOAL_PER_TRACK, useStore } from "../../lib/store";
 import { buildMissionViews, type MissionView } from "../../data/missions";
@@ -31,12 +31,12 @@ export function TreinoPage() {
   const today = useStore((s) => s.today);
   const srs = useStore((s) => s.srs);
   const completed = useStore((s) => s.completedLessons);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyClaimed = useStore((s) => s.dailyMissions.claimed);
-  const [errorsPaywallOpen, setErrorsPaywallOpen] = useState(false);
+  const [paywallKind, setPaywallKind] = useState<"errors" | "training" | null>(null);
 
   const accessContext = { isPremium, completedLessons: completed };
   const detailedErrorsAccess = canAccessDetailedErrors(accessContext);
@@ -89,7 +89,7 @@ export function TreinoPage() {
         : "Histórico e padrões de erro no Pro.",
       icon: IconTarget,
       to: detailedErrorsAccess.allowed ? "/revisao?modo=erros" : undefined,
-      onClick: detailedErrorsAccess.allowed ? undefined : () => setErrorsPaywallOpen(true),
+      onClick: detailedErrorsAccess.allowed ? undefined : () => setPaywallKind("errors"),
       status: detailedErrorsAccess.allowed && recentErrors > 0 ? `${recentErrors} erros` : "Pro",
       statusTone: "gold",
       pro: !detailedErrorsAccess.allowed,
@@ -112,6 +112,8 @@ export function TreinoPage() {
     },
   ];
 
+  // Treino completo: visível para todos; no grátis abre o paywall honesto em
+  // vez de sumir da tela (a revisão essencial continua sempre livre).
   const extraReview: HubNavItem[] = detailedErrorsAccess.allowed
     ? [
         {
@@ -123,7 +125,17 @@ export function TreinoPage() {
           featured: weakCount > 0,
         },
       ]
-    : [];
+    : [
+        {
+          title: "Itens fracos",
+          desc: "Fila priorizada por lapsos, sem limite.",
+          icon: IconShield,
+          onClick: () => setPaywallKind("training"),
+          status: "Pro",
+          statusTone: "gold",
+          pro: true,
+        },
+      ];
 
   return (
     <HubPage>
@@ -156,13 +168,16 @@ export function TreinoPage() {
       </HubSection>
 
       {extraReview.length > 0 && (
-        <HubSection title="Revisão avançada" desc="Disponível no seu plano.">
+        <HubSection
+          title="Revisão avançada"
+          desc={detailedErrorsAccess.allowed ? "Disponível no seu plano." : "Treino completo faz parte do Pro."}
+        >
           <HubNavGrid items={extraReview} columns="grid-cols-2 sm:grid-cols-3" />
         </HubSection>
       )}
 
       <HubProStrip isPremium={isPremium} />
-      <ProPaywall open={errorsPaywallOpen} kind="errors" onClose={() => setErrorsPaywallOpen(false)} />
+      <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "errors"} onClose={() => setPaywallKind(null)} />
     </HubPage>
   );
 }

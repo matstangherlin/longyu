@@ -6,7 +6,7 @@ import {
   TREINO_UNLOCK_COPY,
   type EngineTrack,
 } from "../../lib/journeyUnlocks";
-import { canUsePracticeTool } from "../../lib/proAccess";
+import { canUsePracticeTool, useIsPro } from "../../lib/proAccess";
 import { Card, Button } from "../ui/primitives";
 import { IconLock } from "../ui/Icon";
 
@@ -19,7 +19,7 @@ interface EngineGateProps {
 
 export function EngineGate({ track, mode = "engine", children }: EngineGateProps) {
   const completed = useStore((s) => s.completedLessons);
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const access =
     mode === "treino"
       ? canUsePracticeTool("treino", { isPremium, completedLessons: completed })

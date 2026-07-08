@@ -4,40 +4,49 @@ import { Mascot } from "../../components/brand/Mascot";
 import { Button, Pill } from "../../components/ui/primitives";
 import {
   IconBook,
-  IconChat,
   IconCheck,
   IconChevron,
   IconFlame,
-  IconHanzi,
   IconHeadphones,
-  IconLibrary,
   IconLock,
   IconRefresh,
   IconShield,
-  IconSound,
+  IconStar,
   IconTarget,
 } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { DAILY_CHARGES_FREE, FREE_REVIEW_SESSION_LIMIT, PRO_LESSON_QI_BONUS } from "../../data/economy";
 import { createCheckoutSession, type ProPlanKey } from "../../services/subscriptionService";
 
-const BENEFITS = [
-  { title: "Cargas infinitas", detail: "No preview local, as Cargas não travam a prática.", icon: IconFlame },
-  { title: "Fôlego sem travamento", detail: "Erros viram prática; a lição não para por falta de Fôlego no preview.", icon: IconShield },
-  { title: "Fala com IA em breve", detail: "Converse em cenários guiados quando o recurso estiver disponível.", icon: IconChat },
-  { title: "Correção de pronúncia", detail: "Receba feedback claro nos exercícios disponíveis no app.", icon: IconSound },
-  { title: "Modo Imersão ampliado", detail: "Ouça, repita e faça shadowing com limites relaxados para teste.", icon: IconHeadphones },
-  { title: "Revisão ampliada", detail: "Continue além da fila essencial e priorize fraquezas por domínio.", icon: IconRefresh },
-  { title: "Ferramentas abertas para explorar", detail: "Som, fala, hànzì, leitura, revisão e labs ficam abertos no Preview.", icon: IconTarget },
-  { title: "Hànzì profundo", detail: "Explore componentes, famílias e padrões fonéticos.", icon: IconHanzi },
-  { title: "Leitura guiada avançada", detail: "Leia textos maiores com suporte ajustável.", icon: IconBook },
-  { title: "Estatísticas avançadas", detail: "Entenda sua evolução e a próxima melhor prática.", icon: IconTarget },
-  { title: "Trilhas HSK", detail: "Organize o estudo por vocabulário e habilidades do exame.", icon: IconShield },
-  { title: "Ferramentas Pro", detail: "Acesse áreas extras sem marcar lições da Jornada como concluídas.", icon: IconLibrary },
+// Comparação concreta: o que o grátis permite e o que o Pro melhora.
+// Nada aqui bloqueia o aprendizado gratuito: a Jornada, a revisão essencial e a
+// correção imediata de erros continuam livres para sempre.
+const COMPARISON_ROWS: { area: string; free: string; pro: string }[] = [
+  { area: "Jornada de lições", free: "Completa, no seu ritmo", pro: "Completa, no seu ritmo" },
+  { area: "Correção imediata de erros", free: "Sempre grátis", pro: "Sempre grátis" },
+  { area: "Cargas diárias", free: `${DAILY_CHARGES_FREE} por dia`, pro: "Sem limite" },
+  { area: "Revisão inteligente", free: `Até ${FREE_REVIEW_SESSION_LIMIT} itens por sessão`, pro: "Fila completa, sem limite" },
+  { area: "Erros detalhados", free: "—", pro: "Histórico, padrões e revisão focada" },
+  { area: "Plano de treino", free: "Recomendação simples", pro: "Correção intensiva dos pontos fracos" },
+  { area: "Pinyin Lab e Hànzì Builder", free: "Com Cargas", pro: "Completos, sem limite" },
+  { area: "Imersão e histórias", free: "Trilha básica com Cargas", pro: "Sem limite + histórias extras" },
+  { area: "Refazer questão ou teste", free: "Custa Qi", pro: "Sem custo" },
+  { area: "Qi por conclusão", free: "Padrão", pro: `+${PRO_LESSON_QI_BONUS} Qi por lição` },
+  { area: "Missões", free: "Missões diárias úteis", pro: "+ missões premium com mais Qi" },
+  { area: "Baús", free: "Qi, cargas, escudo, tentativa extra", pro: "Mais Qi nos mesmos baús" },
 ];
 
-const FREE_FEATURES = ["Jornada inicial", "5 Cargas diárias", "Revisão essencial", "Biblioteca básica", "Treinos limitados"];
-const PRO_FEATURES = ["Pro Preview local", "Cargas sem limite local", "Fôlego sem travamento", "Ferramentas de prática liberadas", "Fala com IA em breve", "Imersão ampliada", "Revisão extra", "Treino focado", "Pinyin Lab e Hànzì Lab", "Jornada preservada por progresso"];
+const BENEFITS = [
+  { title: "Cargas ilimitadas", detail: "Estude o quanto quiser: lições, treino, labs e imersão sem esperar o dia virar.", icon: IconFlame },
+  { title: "Revisão sem limite", detail: "A fila inteligente inteira, com filtros por modo e prioridade por fraqueza.", icon: IconRefresh },
+  { title: "Erros detalhados", detail: "Histórico completo, padrões de repetição e correção intensiva por ponto fraco.", icon: IconTarget },
+  { title: "Plano de treino automático", detail: "O Longyu monta a próxima prática a partir dos seus próprios erros.", icon: IconShield },
+  { title: "Labs completos", detail: "Pinyin Lab e Hànzì Builder abertos, sem consumir Cargas.", icon: IconBook },
+  { title: "Imersão e histórias extras", detail: "Sessões sem limite e histórias adicionais com diálogos maiores.", icon: IconHeadphones },
+  { title: "Retry sem custo", detail: "Refazer questão errada ou teste de módulo não gasta Qi.", icon: IconStar },
+  { title: "Economia acelerada", detail: `Mais Qi por conclusão e baús mais generosos — nunca progresso comprado.`, icon: IconCheck },
+];
 
 const BILLING_PLANS: {
   key: ProPlanKey;
@@ -51,10 +60,10 @@ const BILLING_PLANS: {
 }[] = [
   {
     key: "pro_annual",
-    eyebrow: "Mais escolhido",
+    eyebrow: "Melhor economia",
     name: "Longyu Pro Anual",
     priceLine: "R$ 10/mês no anual",
-    detail: "Cobrança de R$ 120/ano após 30 dias grátis.",
+    detail: "Cobrança única de R$ 120/ano após 30 dias grátis.",
     badge: "60% OFF",
     featured: true,
     comparison: "Equivale a R$ 10/mês em vez de R$ 24,90/mês.",
@@ -64,14 +73,15 @@ const BILLING_PLANS: {
     eyebrow: "Flexível",
     name: "Longyu Pro Mensal",
     priceLine: "R$ 24,90/mês",
-    detail: "Primeiro mês grátis. Depois, renovação mensal.",
+    detail: "30 dias grátis. Depois, renovação mensal.",
     comparison: "Ideal para testar sem compromisso anual.",
   },
 ];
 
 export function ProPage() {
   const navigate = useNavigate();
-  const isPremium = useStore((state) => state.isPremium);
+  const isPreviewActive = useStore((state) => state.isPremium);
+  const serverIsPro = useStore((state) => state.serverIsPro);
   const setPremium = useStore((state) => state.setPremium);
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<ProPlanKey>("pro_annual");
@@ -83,9 +93,13 @@ export function ProPage() {
   );
 
   async function handleSubscribe(planKey = selectedPlan) {
-    const result = await createCheckoutSession(planKey);
-    setCheckoutNotice(result.message);
-    if (result.data?.url) window.location.assign(result.data.url);
+    try {
+      const result = await createCheckoutSession(planKey);
+      setCheckoutNotice(result.message);
+      if (result.data?.url) window.location.assign(result.data.url);
+    } catch {
+      setCheckoutNotice("Não foi possível abrir o checkout agora. Tente de novo em instantes.");
+    }
   }
 
   return (
@@ -94,43 +108,62 @@ export function ProPage() {
         <Mascot size={104} variant="celebrate" className="mx-auto" />
         <Pill tone="gold" className="mt-3">Longyu Pro</Pill>
         <h1 className="mx-auto mt-4 max-w-3xl font-serif text-4xl font-semibold leading-tight text-ink sm:text-5xl">
-          Destrave o Longyu Pro com 30 dias grátis.
+          Aprenda no grátis. Acelere com o Pro.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">
-          {cloudBackend
-            ? "Escolha entre mensal ou anual. O plano anual aparece como a melhor oferta, com o equivalente a R$ 10/mês."
-            : "Ative recursos de teste neste dispositivo, sem conta em nuvem, assinatura real ou cobrança."}
+          A Jornada, a revisão essencial e a correção imediata de erros são grátis para sempre.
+          O Pro remove os limites diários e transforma seus erros em um plano de treino focado.
         </p>
-        <div className="mx-auto mt-7 flex max-w-sm flex-col gap-3">
-          <Button
-            size="lg"
-            className="w-full bg-[#9A6518] hover:bg-[#785014]"
-            variant="primary"
-            disabled={isPremium}
-            onClick={() => setPremium(true)}
-          >
-            {isPremium ? <><IconCheck width={19} height={19} /> Pro Preview ativo</> : "Experimentar Pro Preview"}
-          </Button>
-          <p className="text-xs text-ink-faint">
-            {cloudBackend
-              ? "Preview local não substitui assinatura real. O Pro de pagamento vem do servidor."
-              : "Prévia local, sem pagamento ou renovação automática."}
-          </p>
-          <Button variant="outline" className="w-full" onClick={() => void handleSubscribe()}>
-            {cloudBackend ? "Ir para checkout real" : "Assinar Pro (quando disponível)"}
-          </Button>
-          {checkoutNotice && (
-            <p className="text-xs leading-5 text-ink-soft">{checkoutNotice}</p>
-          )}
-        </div>
+        {serverIsPro && (
+          <div className="mx-auto mt-5 max-w-md rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
+            Sua assinatura Pro está ativa. Obrigado por apoiar o Longyu!
+          </div>
+        )}
+        {!cloudBackend && (
+          <div className="mx-auto mt-5 max-w-xl rounded-2xl border border-line bg-surface px-4 py-3 text-left text-sm leading-6 text-ink-soft">
+            <span className="font-semibold text-ink">Status honesto:</span> o pagamento (Stripe) ainda não está
+            ativo nesta versão. Nada será cobrado. Você pode ativar o Pro Preview local abaixo, sem pagamento e
+            sem assinatura real.
+          </div>
+        )}
       </header>
+
+      <section>
+        <div className="mb-5 text-center">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Compare com calma</div>
+          <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">O que o grátis permite, o que o Pro melhora</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-ink-soft">
+            O Pro não conclui lições por você e não vende XP: ele tira fricção do caminho e devolve tempo de estudo.
+          </p>
+        </div>
+        <div className="overflow-x-auto rounded-2xl border border-line">
+          <table className="w-full min-w-[560px] border-collapse bg-surface text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-ink-faint">
+                <th className="px-4 py-3 font-semibold">Área</th>
+                <th className="px-4 py-3 font-semibold">Grátis</th>
+                <th className="bg-[#B7791F]/[0.07] px-4 py-3 font-semibold text-gold">Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON_ROWS.map((row) => (
+                <tr key={row.area} className="border-b border-line/60 last:border-b-0">
+                  <td className="px-4 py-3 font-medium text-ink">{row.area}</td>
+                  <td className="px-4 py-3 text-ink-soft">{row.free}</td>
+                  <td className="bg-[#B7791F]/[0.05] px-4 py-3 font-medium text-ink">{row.pro}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="space-y-5">
         <div className="text-center">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Planos</div>
           <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">Escolha como quer assinar</h2>
           <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-ink-soft">
-            Os dois planos começam com 30 dias grátis. O anual destaca a economia total sem esconder a cobrança real.
+            Os dois planos começam com 30 dias grátis e podem ser cancelados a qualquer momento, direto na sua conta.
           </p>
         </div>
 
@@ -166,7 +199,7 @@ export function ProPage() {
                 {plan.comparison && <p className="mt-1 text-sm text-ink-soft">{plan.comparison}</p>}
                 <div className="mt-4 flex items-center gap-2 text-xs font-medium text-ink-faint">
                   <IconLock width={14} height={14} />
-                  Checkout seguro via Stripe
+                  {cloudBackend ? "Checkout seguro via Stripe" : "Checkout abre quando o pagamento estiver ativo"}
                 </div>
               </button>
             );
@@ -179,7 +212,7 @@ export function ProPage() {
               <Pill tone="gold">{selectedPlanMeta.badge ?? "30 dias grátis"}</Pill>
               <h3 className="mt-2 font-serif text-2xl font-semibold text-ink">{selectedPlanMeta.name}</h3>
               <p className="mt-1 text-sm leading-6 text-ink-soft">
-                {selectedPlanMeta.detail} {selectedPlanMeta.comparison}
+                {selectedPlanMeta.detail} {selectedPlanMeta.comparison} Cancele quando quiser.
               </p>
             </div>
             <Button
@@ -187,22 +220,24 @@ export function ProPage() {
               className="bg-[#9A6518] hover:bg-[#785014]"
               onClick={() => void handleSubscribe(selectedPlan)}
             >
-              Assinar agora <IconChevron width={18} height={18} />
+              {cloudBackend ? "Começar 30 dias grátis" : "Assinar (quando disponível)"}
+              <IconChevron width={18} height={18} />
             </Button>
           </div>
+          {checkoutNotice && <p className="mt-3 text-xs leading-5 text-ink-soft">{checkoutNotice}</p>}
         </div>
       </section>
 
       <section>
         <div className="mb-5 text-center">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Tudo que evolui com você</div>
-          <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">Mais profundidade, menos interrupções</h2>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Por que o Pro acelera</div>
+          <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">Mais prática, menos interrupções</h2>
         </div>
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
           {BENEFITS.map((benefit) => {
             const Icon = benefit.icon;
             return (
-              <article key={benefit.title} className="min-h-44 bg-surface p-4">
+              <article key={benefit.title} className="min-h-40 bg-surface p-4">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#B7791F]/12 text-gold">
                   <Icon width={20} height={20} />
                 </span>
@@ -214,59 +249,47 @@ export function ProPage() {
         </div>
       </section>
 
-      <section>
-        <div className="mb-5 text-center">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Compare com calma</div>
-          <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">O hábito continua grátis</h2>
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-ink-soft">
-            Revisão essencial, biblioteca básica e prática diária mínima não desaparecem no plano gratuito. Pro libera ferramentas, mas não conclui a Jornada automaticamente.
-          </p>
-        </div>
-        <div className="grid overflow-hidden rounded-2xl border border-line md:grid-cols-2">
-          <ComparisonColumn title="Grátis" subtitle="Para começar e manter o hábito" features={FREE_FEATURES} />
-          <ComparisonColumn title="Pro Preview" subtitle="Teste local, sem cobrança" features={PRO_FEATURES} pro />
+      <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-serif text-2xl font-semibold text-ink">Pro Preview</h2>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-ink-soft">
+              Prévia local dos recursos Pro neste dispositivo — sem pagamento, sem conta em nuvem e sem renovação
+              automática. Desative quando quiser.
+              {cloudBackend ? " O preview não substitui a assinatura real: o Pro de verdade vem do servidor." : ""}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+            <Button
+              size="lg"
+              className="bg-[#9A6518] hover:bg-[#785014]"
+              disabled={isPreviewActive}
+              onClick={() => setPremium(true)}
+            >
+              {isPreviewActive ? <><IconCheck width={19} height={19} /> Preview ativo</> : "Experimentar Pro Preview"}
+            </Button>
+            {isPreviewActive && (
+              <Button variant="ghost" onClick={() => setPremium(false)}>
+                Desativar preview
+              </Button>
+            )}
+          </div>
         </div>
       </section>
 
       <section className="border-y border-[#B7791F]/25 bg-surface px-5 py-7 text-center sm:px-8">
-        <h2 className="font-serif text-2xl font-semibold text-ink">Seu estudo, com espaço para crescer</h2>
+        <h2 className="font-serif text-2xl font-semibold text-ink">O hábito continua grátis</h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink-soft">
-          O Pro real começa com 30 dias grátis. No anual, você paga R$ 120/ano, o equivalente a R$ 10 por mês.
+          Revisão essencial, biblioteca básica, correção imediata de erros e a Jornada inteira não desaparecem no
+          plano gratuito. O Pro existe para quem quer treinar mais — nunca para travar quem estuda.
         </p>
         <div className="mx-auto mt-5 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button className="sm:min-w-48" onClick={() => setPremium(true)} disabled={isPremium}>
-            {isPremium ? "Preview ativo" : "Ativar Pro Preview"}
-          </Button>
-          <Button className="sm:min-w-48" variant="outline" onClick={() => void handleSubscribe(selectedPlan)}>
+          <Button className="sm:min-w-48" onClick={() => void handleSubscribe(selectedPlan)}>
             Assinar {selectedPlan === "pro_annual" ? "anual" : "mensal"}
           </Button>
           <Button className="sm:min-w-40" variant="ghost" onClick={() => navigate(-1)}>Voltar</Button>
         </div>
       </section>
-    </div>
-  );
-}
-
-function ComparisonColumn({ title, subtitle, features, pro = false }: { title: string; subtitle: string; features: string[]; pro?: boolean }) {
-  return (
-    <div className={["p-5 sm:p-6", pro ? "border-t border-[#B7791F]/25 bg-[#B7791F]/8 md:border-l md:border-t-0" : "bg-surface"].join(" ")}>
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="font-serif text-2xl font-semibold text-ink">{title}</h3>
-          <p className="mt-1 text-xs text-ink-faint">{subtitle}</p>
-        </div>
-        {pro && <Pill tone="gold">Preview local</Pill>}
-      </div>
-      <ul className="mt-5 space-y-3">
-        {features.map((feature) => (
-          <li key={feature} className="flex items-center gap-3 text-sm text-ink-soft">
-            <span className={["flex h-6 w-6 shrink-0 items-center justify-center rounded-full", pro ? "bg-[#B7791F]/15 text-gold" : "bg-surface-2 text-ink-faint"].join(" ")}>
-              <IconCheck width={14} height={14} />
-            </span>
-            {feature}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

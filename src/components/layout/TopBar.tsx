@@ -3,6 +3,7 @@ import { useStore } from "../../lib/store";
 import { IconFlame, IconShield, IconStar, IconUser } from "../ui/Icon";
 import { BrandWordmark } from "./Brand";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
+import { useIsPro } from "../../lib/proAccess";
 
 // Barra superior fina: marca + indicadores essenciais.
 export function TopBar() {
@@ -10,7 +11,7 @@ export function TopBar() {
   const streak = useStore((s) => s.streak);
   const points = useStore((s) => s.points);
   const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
-  const isPremium = useStore((s) => s.isPremium);
+  const isPremium = useIsPro();
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts?.[currentAccountId];
