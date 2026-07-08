@@ -1,0 +1,62 @@
+{
+  "name": "longyu",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Longyu (龙语) — aprenda mandarim pela lógica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/typecheck.mjs && node scripts/vite-build.mjs",
+    "clean": "node scripts/clean.mjs",
+    "preview": "vite preview",
+    "typecheck": "node scripts/typecheck.mjs",
+    "validate:atlas": "node scripts/validate-hanzi-atlas.mjs",
+    "validate:corpus": "node scripts/validate-corpus.mjs",
+    "validate:copy": "node scripts/validate-copy.mjs",
+    "validate:encoding": "node scripts/validate-encoding.js",
+    "validate:pinyin-display": "node scripts/validate-pinyin-display.mjs",
+    "validate:lessons": "node scripts/validate-lessons.mjs",
+    "validate:lesson-recovery": "node scripts/validate-lesson-recovery.mjs",
+    "validate:progress-snapshot": "node scripts/validate-progress-snapshot.mjs",
+    "validate:sync-merge": "node scripts/validate-sync-merge.mjs",
+    "validate:backend-ready": "node scripts/validate-backend-ready.mjs",
+    "deploy:backend": "node scripts/deploy-backend.mjs",
+    "db:bundle": "node scripts/apply-migrations-sql.mjs",
+    "db:push": "node scripts/db-push.mjs",
+    "db:apply-api": "node scripts/apply-migrations-api.mjs",
+    "configure:supabase-auth": "node scripts/configure-supabase-auth.mjs",
+    "configure:netlify": "node scripts/configure-netlify-production.mjs",
+    "test:supabase": "node scripts/test-supabase-connection.mjs",
+    "deploy:functions": "node scripts/deploy-functions-env.mjs",
+    "setup:supabase": "node scripts/setup-supabase.mjs",
+    "verify:production": "node scripts/verify-production.mjs",
+    "ci": "npm run validate:beta && npm run test:e2e",
+    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:backend-ready",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^20.19.43",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "sharp": "^0.35.2",
+    "supabase": "^2.109.1",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8",
+    "vite-plugin-pwa": "^0.20.5"
+  }
+}

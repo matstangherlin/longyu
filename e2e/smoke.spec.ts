@@ -1,0 +1,37 @@
+import { test, expect } from "@playwright/test";
+import { seedOnboardedSession } from "./helpers";
+
+test.describe("smoke", () => {
+  test("app abre onboarding ou jornada", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByText(/Longyu|Mandarim com som/i).first()).toBeVisible();
+  });
+
+  test("página Pro carrega copy honesta", async ({ page }) => {
+    await seedOnboardedSession(page);
+    await page.goto("/pro");
+    await expect(page.getByRole("heading", { name: "Pro Preview" })).toBeVisible();
+    await expect(page.getByText(/sem pagamento/i)).toBeVisible();
+  });
+
+  test("rota de conta responde", async ({ page }) => {
+    await page.goto("/conta");
+    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+  });
+});
+
+test.describe("mobile", () => {
+  test.use({ viewport: { width: 360, height: 640 } });
+
+  test("jornada renderiza em 360px", async ({ page }) => {
+    await seedOnboardedSession(page, []);
+    await page.goto("/jornada");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+
+  test("player da primeira lição cabe em 360px", async ({ page }) => {
+    await seedOnboardedSession(page, []);
+    await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+  });
+});

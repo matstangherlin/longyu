@@ -1,0 +1,42 @@
+# Configuração de deploy no Netlify.
+# App estático (Vite/PWA). Com backend: defina VITE_BACKEND_MODE=supabase
+# e credenciais Supabase nas variáveis de ambiente do site (ver .env.example).
+
+[build]
+  # Instalação limpa no Linux; build via node (evita "tsc: Permission denied" em .bin).
+  command = "node scripts/assert-netlify-env.mjs && npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Garante binários nativos do Rollup no Linux (evita "Cannot find module @rollup/rollup-linux-x64-gnu").
+  NPM_FLAGS = "--include=optional"
+
+# Variáveis VITE_* são públicas (entram no bundle). RLS no Supabase protege os dados.
+[context.production.environment]
+  VITE_BACKEND_MODE = "supabase"
+  VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2"
+
+[context.deploy-preview.environment]
+  VITE_BACKEND_MODE = "supabase"
+  VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2"
+
+# SPA: qualquer rota (/som, /licao/:id, etc.) cai no index.html.
+# Sem isso, atualizar a página numa rota interna daria 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Service worker e manifest sempre frescos.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
