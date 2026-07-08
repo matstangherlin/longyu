@@ -2110,8 +2110,9 @@ export function LessonPlayer() {
       if (s.kind === "tone_pair") return count + (s.pairs?.length ?? 1);
       return count;
     }, 0);
+    // Erros de par de tons chegam como "pair-match"; o step de origem decide.
     const toneErrors = activityErrorsRef.current.filter(
-      (error) => error.type === "tone" || error.type === "tone_pair"
+      (error) => error.step?.kind === "tone" || error.step?.kind === "tone_pair"
     ).length;
     const tonesHit = Math.max(0, toneStepsTotal - toneErrors);
     const newPhrases = [...practicedChunkIds].filter((id) => !learnedChunks.includes(id)).length;
@@ -2199,10 +2200,10 @@ export function LessonPlayer() {
     );
     // Próximo foco + frase-resumo: dizem em uma linha o que a sessão rendeu.
     const toneErrorCount = committedErrors.filter(
-      (error) => error.skill === "som" || error.type === "tone" || error.type === "tone_pair"
+      (error) => error.skill === "som" || error.step?.kind === "tone" || error.step?.kind === "tone_pair"
     ).length;
     const hanziErrorCount = committedErrors.filter(
-      (error) => error.skill === "hanzi" || error.type === "hanzi_build" || error.type === "recognize"
+      (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
     ).length;
     const nextFocus = buildNextFocus({
       remainingErrorCount: remainingErrors.length,
