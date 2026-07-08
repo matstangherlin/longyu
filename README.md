@@ -181,6 +181,12 @@ npm run deploy:backend -- --all
 npm run verify:production
 ```
 
+Precos planejados do Pro:
+
+- `Mensal`: `R$ 24,90/mês`
+- `Anual`: `R$ 120/ano`, apresentado como `R$ 10/mês` com desconto
+- `Trial`: `30 dias grátis` nos dois planos
+
 ## Variáveis de ambiente
 
 Crie arquivos `.env.local` apenas para valores públicos de desenvolvimento. Arquivos `.env` e `.env.local` ficam fora do versionamento.

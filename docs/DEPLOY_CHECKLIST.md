@@ -49,7 +49,11 @@ npm run ci
 
 ## Próximo marco (Fase 5 — Stripe)
 
-1. `supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_PRO_MONTHLY=...`
+1. `supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_PRO_MONTHLY=... STRIPE_PRICE_PRO_ANNUAL=...`
 2. Webhook no Stripe Dashboard → `https://<ref>.supabase.co/functions/v1/stripe-webhook`
-3. Checkout de teste em `/pro` com cartão `4242…`
-4. Confirmar `serverIsPro` após webhook
+3. Prices no Stripe:
+   - mensal: `R$ 24,90/mês`
+   - anual: `R$ 120/ano` (apresentado como `R$ 10/mês`, com desconto)
+   - ambos com `30 dias grátis`
+4. Checkout de teste em `/pro` com cartão `4242…`
+5. Confirmar `serverIsPro` após webhook

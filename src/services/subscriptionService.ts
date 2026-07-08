@@ -24,6 +24,8 @@ export interface SubscriptionServiceResult<T = undefined> {
   data?: T;
 }
 
+export type ProPlanKey = "pro_monthly" | "pro_annual";
+
 export function isBillingPortalAvailable(): boolean {
   return isSupabaseBackendEnabled();
 }
@@ -45,7 +47,9 @@ export function subscriptionStateFor(
   return isPremiumPreview ? "local_preview" : "not_subscriber";
 }
 
-export async function createCheckoutSession(planKey = "pro_monthly"): Promise<SubscriptionServiceResult<{ url?: string }>> {
+export async function createCheckoutSession(
+  planKey: ProPlanKey = "pro_monthly"
+): Promise<SubscriptionServiceResult<{ url?: string }>> {
   if (!isSupabaseBackendEnabled()) {
     return { status: "not_implemented", message: CHECKOUT_PENDING_MESSAGE };
   }

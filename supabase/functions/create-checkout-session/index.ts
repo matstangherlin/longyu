@@ -59,6 +59,7 @@ serve(async (req) => {
       mode: "subscription",
       "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
+      "subscription_data[trial_period_days]": "30",
       success_url: `${origin}/pro?checkout=success`,
       cancel_url: `${origin}/pro?checkout=cancel`,
       client_reference_id: user.id,

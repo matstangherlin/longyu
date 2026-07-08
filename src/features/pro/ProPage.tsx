@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, Pill } from "../../components/ui/primitives";
@@ -6,10 +6,12 @@ import {
   IconBook,
   IconChat,
   IconCheck,
+  IconChevron,
   IconFlame,
   IconHanzi,
   IconHeadphones,
   IconLibrary,
+  IconLock,
   IconRefresh,
   IconShield,
   IconSound,
@@ -17,7 +19,7 @@ import {
 } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
-import { createCheckoutSession } from "../../services/subscriptionService";
+import { createCheckoutSession, type ProPlanKey } from "../../services/subscriptionService";
 
 const BENEFITS = [
   { title: "Cargas infinitas", detail: "No preview local, as Cargas não travam a prática.", icon: IconFlame },
@@ -37,15 +39,51 @@ const BENEFITS = [
 const FREE_FEATURES = ["Jornada inicial", "5 Cargas diárias", "Revisão essencial", "Biblioteca básica", "Treinos limitados"];
 const PRO_FEATURES = ["Pro Preview local", "Cargas sem limite local", "Fôlego sem travamento", "Ferramentas de prática liberadas", "Fala com IA em breve", "Imersão ampliada", "Revisão extra", "Treino focado", "Pinyin Lab e Hànzì Lab", "Jornada preservada por progresso"];
 
+const BILLING_PLANS: {
+  key: ProPlanKey;
+  eyebrow: string;
+  name: string;
+  priceLine: string;
+  detail: string;
+  badge?: string;
+  featured?: boolean;
+  comparison?: string;
+}[] = [
+  {
+    key: "pro_annual",
+    eyebrow: "Mais escolhido",
+    name: "Longyu Pro Anual",
+    priceLine: "R$ 10/mês no anual",
+    detail: "Cobrança de R$ 120/ano após 30 dias grátis.",
+    badge: "60% OFF",
+    featured: true,
+    comparison: "Equivale a R$ 10/mês em vez de R$ 24,90/mês.",
+  },
+  {
+    key: "pro_monthly",
+    eyebrow: "Flexível",
+    name: "Longyu Pro Mensal",
+    priceLine: "R$ 24,90/mês",
+    detail: "Primeiro mês grátis. Depois, renovação mensal.",
+    comparison: "Ideal para testar sem compromisso anual.",
+  },
+];
+
 export function ProPage() {
   const navigate = useNavigate();
   const isPremium = useStore((state) => state.isPremium);
   const setPremium = useStore((state) => state.setPremium);
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<ProPlanKey>("pro_annual");
   const cloudBackend = isSupabaseBackendEnabled();
 
-  async function handleSubscribe() {
-    const result = await createCheckoutSession("pro_monthly");
+  const selectedPlanMeta = useMemo(
+    () => BILLING_PLANS.find((plan) => plan.key === selectedPlan) ?? BILLING_PLANS[0],
+    [selectedPlan]
+  );
+
+  async function handleSubscribe(planKey = selectedPlan) {
+    const result = await createCheckoutSession(planKey);
     setCheckoutNotice(result.message);
     if (result.data?.url) window.location.assign(result.data.url);
   }
@@ -54,13 +92,13 @@ export function ProPage() {
     <div className="mx-auto max-w-5xl space-y-10 pb-8">
       <header className="border-b border-[#B7791F]/25 pb-8 text-center">
         <Mascot size={104} variant="celebrate" className="mx-auto" />
-        <Pill tone="gold" className="mt-3">Longyu Pro Preview</Pill>
+        <Pill tone="gold" className="mt-3">Longyu Pro</Pill>
         <h1 className="mx-auto mt-4 max-w-3xl font-serif text-4xl font-semibold leading-tight text-ink sm:text-5xl">
-          Experimente o Longyu completo em preview local.
+          Assine com 30 dias grátis e apresente o anual como o melhor desconto.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">
           {cloudBackend
-            ? "Experimente o preview local ou assine o Pro real com checkout seguro via Stripe."
+            ? "Escolha entre mensal ou anual com desconto. O checkout real usa Stripe e libera o Pro pelo servidor."
             : "Ative recursos de teste neste dispositivo, sem conta em nuvem, assinatura real ou cobrança."}
         </p>
         <div className="mx-auto mt-7 flex max-w-sm flex-col gap-3">
@@ -79,13 +117,81 @@ export function ProPage() {
               : "Prévia local, sem pagamento ou renovação automática."}
           </p>
           <Button variant="outline" className="w-full" onClick={() => void handleSubscribe()}>
-            {cloudBackend ? "Assinar Longyu Pro" : "Assinar Pro (quando disponível)"}
+            {cloudBackend ? "Ir para checkout real" : "Assinar Pro (quando disponível)"}
           </Button>
           {checkoutNotice && (
             <p className="text-xs leading-5 text-ink-soft">{checkoutNotice}</p>
           )}
         </div>
       </header>
+
+      <section className="space-y-5">
+        <div className="text-center">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Planos</div>
+          <h2 className="mt-2 font-serif text-3xl font-semibold text-ink">Escolha como quer assinar</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-ink-soft">
+            Os dois planos começam com 30 dias grátis. O anual aparece como melhor oferta e mostra o desconto de forma clara.
+          </p>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          {BILLING_PLANS.map((plan) => {
+            const active = selectedPlan === plan.key;
+            return (
+              <button
+                key={plan.key}
+                type="button"
+                onClick={() => setSelectedPlan(plan.key)}
+                className={[
+                  "rounded-3xl border p-5 text-left transition",
+                  active
+                    ? "border-[#B7791F]/40 bg-[#B7791F]/10 shadow-card"
+                    : "border-line bg-surface hover:border-[#B7791F]/25 hover:bg-[#B7791F]/[0.04]",
+                ].join(" ")}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">{plan.eyebrow}</div>
+                    <h3 className="mt-2 font-serif text-2xl font-semibold text-ink">{plan.name}</h3>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {plan.badge && <Pill tone="gold">{plan.badge}</Pill>}
+                    {active && <Pill tone="accent">Selecionado</Pill>}
+                  </div>
+                </div>
+                <div className="mt-5 flex items-end gap-2">
+                  <span className="font-serif text-3xl font-semibold text-ink">{plan.priceLine}</span>
+                </div>
+                <p className="mt-2 text-sm font-medium text-ink">{plan.detail}</p>
+                {plan.comparison && <p className="mt-1 text-sm text-ink-soft">{plan.comparison}</p>}
+                <div className="mt-4 flex items-center gap-2 text-xs font-medium text-ink-faint">
+                  <IconLock width={14} height={14} />
+                  Checkout seguro via Stripe
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="rounded-3xl border border-[#B7791F]/20 bg-[#B7791F]/[0.06] p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <Pill tone="gold">{selectedPlanMeta.badge ?? "30 dias grátis"}</Pill>
+              <h3 className="mt-2 font-serif text-2xl font-semibold text-ink">{selectedPlanMeta.name}</h3>
+              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                {selectedPlanMeta.detail} {selectedPlanMeta.comparison}
+              </p>
+            </div>
+            <Button
+              size="lg"
+              className="bg-[#9A6518] hover:bg-[#785014]"
+              onClick={() => void handleSubscribe(selectedPlan)}
+            >
+              Assinar agora <IconChevron width={18} height={18} />
+            </Button>
+          </div>
+        </div>
+      </section>
 
       <section>
         <div className="mb-5 text-center">
@@ -125,13 +231,16 @@ export function ProPage() {
       <section className="border-y border-[#B7791F]/25 bg-surface px-5 py-7 text-center sm:px-8">
         <h2 className="font-serif text-2xl font-semibold text-ink">Seu estudo, com espaço para crescer</h2>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink-soft">
-          Ative a prévia para experimentar os recursos no seu perfil local. Isso não cria assinatura real nem pagamento.
+          O Pro real começa com 30 dias grátis. No anual, apresente como desconto forte: R$ 10/mês no plano de R$ 120/ano.
         </p>
         <div className="mx-auto mt-5 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
           <Button className="sm:min-w-48" onClick={() => setPremium(true)} disabled={isPremium}>
             {isPremium ? "Preview ativo" : "Ativar Pro Preview"}
           </Button>
-          <Button className="sm:min-w-40" variant="outline" onClick={() => navigate(-1)}>Voltar</Button>
+          <Button className="sm:min-w-48" variant="outline" onClick={() => void handleSubscribe(selectedPlan)}>
+            Assinar {selectedPlan === "pro_annual" ? "anual" : "mensal"}
+          </Button>
+          <Button className="sm:min-w-40" variant="ghost" onClick={() => navigate(-1)}>Voltar</Button>
         </div>
       </section>
     </div>

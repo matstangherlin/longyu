@@ -66,7 +66,7 @@ console.log("");
 console.log("Deploy manual (Supabase CLI):");
 console.log("  1. supabase login && supabase link --project-ref <ref>");
 console.log("  2. npm run deploy:backend -- --db");
-console.log("  3. supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_PRO_MONTHLY=...");
+console.log("  3. supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_PRO_MONTHLY=... STRIPE_PRICE_PRO_ANNUAL=...");
 console.log("  4. npm run deploy:backend -- --functions");
 console.log("  5. Stripe webhook → https://<ref>.supabase.co/functions/v1/stripe-webhook");
 console.log("  6. Netlify: VITE_BACKEND_MODE=supabase, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY");

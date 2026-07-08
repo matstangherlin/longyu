@@ -71,23 +71,27 @@ step("E", "Secrets das Edge Functions", [
   "  STRIPE_SECRET_KEY=sk_live_... \\",
   "  STRIPE_WEBHOOK_SECRET=whsec_... \\",
   "  STRIPE_PRICE_PRO_MONTHLY=price_... \\",
+  "  STRIPE_PRICE_PRO_ANNUAL=price_... \\",
   "  SUPABASE_SERVICE_ROLE_KEY=<service_role>",
   "",
   "SUPABASE_URL e SUPABASE_ANON_KEY já existem no ambiente das functions.",
 ]);
 
 step("F", "Stripe — produto e webhook", [
-  "1. Crie produto/price recorrente (BRL) no Stripe Dashboard.",
-  "2. Copie o price id para STRIPE_PRICE_PRO_MONTHLY.",
-  "3. Developers → Webhooks → Add endpoint:",
+  "1. Crie dois prices recorrentes (BRL) no Stripe Dashboard.",
+  "2. Mensal: R$ 24,90/mês.",
+  "3. Anual: R$ 120/ano (apresente como R$ 10/mês, com desconto).",
+  "4. Copie os price ids para STRIPE_PRICE_PRO_MONTHLY e STRIPE_PRICE_PRO_ANNUAL.",
+  "5. Developers → Webhooks → Add endpoint:",
   "   URL: https://<project-ref>.supabase.co/functions/v1/stripe-webhook",
-  "4. Eventos:",
+  "6. Eventos:",
   "   - checkout.session.completed",
   "   - customer.subscription.updated",
   "   - customer.subscription.deleted",
   "   - invoice.paid",
   "   - invoice.payment_failed",
-  "5. Copie o signing secret para STRIPE_WEBHOOK_SECRET.",
+  "7. O checkout aplica 30 dias grátis nos dois planos.",
+  "8. Copie o signing secret para STRIPE_WEBHOOK_SECRET.",
 ]);
 
 step("G", "Desenvolvimento local (.env.local)", [
