@@ -48,7 +48,7 @@ console.log(`Anon key atual: ${currentProd.length} chars`);
 console.log(`Anon key remota: ${anon.length} chars`);
 
 if (currentProd === anon) {
-  console.log("Chave já está correta — nada a atualizar.");
+  console.log("Chave já está correta em .env.production — nada a atualizar.");
 } else {
   let prodText = fs.readFileSync(prodPath, "utf8");
   prodText = prodText.replace(
@@ -66,6 +66,20 @@ if (currentProd === anon) {
   console.log("Atualizado .env.production e netlify.toml com a anon key correta.");
 }
 
+const localPath = path.join(root, ".env.local");
+if (fs.existsSync(localPath)) {
+  const localKey = readKeyFromFile(localPath);
+  if (localKey && localKey !== anon) {
+    let localText = fs.readFileSync(localPath, "utf8");
+    localText = localText.replace(
+      /VITE_SUPABASE_ANON_KEY=.*/,
+      `VITE_SUPABASE_ANON_KEY=${anon}`
+    );
+    fs.writeFileSync(localPath, localText);
+    console.log("Atualizado .env.local com a anon key correta.");
+  }
+}
+
 // Testa signup endpoint (sem criar conta real — só valida a chave)
 const url = (env.VITE_SUPABASE_URL ?? `https://${ref}.supabase.co`).replace(/\/$/, "");
 const probe = await fetch(`${url}/auth/v1/signup`, {
@@ -78,7 +92,8 @@ const probe = await fetch(`${url}/auth/v1/signup`, {
   body: JSON.stringify({ email: "key-probe@longyu.invalid", password: "probe-only-123456" }),
 });
 const body = await probe.json().catch(() => ({}));
-const invalidKey = String(body?.msg ?? body?.message ?? "").toLowerCase().includes("invalid api key");
+const msg = String(body?.msg ?? body?.message ?? "").toLowerCase();
+const invalidKey = msg.includes("invalid api key");
 
 if (invalidKey) {
   console.error("ERRO: Supabase ainda retorna Invalid API key após sync.");
