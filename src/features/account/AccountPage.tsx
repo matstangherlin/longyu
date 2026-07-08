@@ -30,13 +30,15 @@ import {
 } from "../../services/subscriptionService";
 import { restoreCloudSessionIfPresent, syncAuthSessionProgress } from "../../services/cloudSyncCoordinator";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
+import { useCloudSignIn } from "../../hooks/useCloudSignIn";
+import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
+import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services/privacyService";
 import {
   createAccount as createAuthAccount,
-  login as authLogin,
 } from "../../services/authService";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import {
@@ -1483,6 +1485,7 @@ export function AccountPage() {
   const setServerEntitlement = useStore((s) => s.setServerEntitlement);
   const switchAccount = useStore((s) => s.switchAccount);
   const { signOut: signOutCloud, canSignOut } = useCloudSignOut();
+  const { signIn: signInCloud } = useCloudSignIn();
   const claimReward = useStore((s) => s.claimReward);
   const soundEffects = useStore((s) => s.soundEffects);
 
@@ -1687,7 +1690,7 @@ export function AccountPage() {
   async function handleCreateAccount(event: FormEvent) {
     event.preventDefault();
     if (isFinishingOnboarding || name.trim().length < 2) return;
-    if (!canCreateOptionalAccount(email, password, passwordConfirm)) {
+    if (!canRegisterWithCredentials(email, password, passwordConfirm)) {
       setAccountError(
         isSupabaseBackendEnabled()
           ? "Preencha email, senha e confirmação para criar sua conta."
@@ -1734,7 +1737,7 @@ export function AccountPage() {
 
   async function handleAttachEmail(event: FormEvent) {
     event.preventDefault();
-    if (!canCreateOptionalAccount(email, password, passwordConfirm)) {
+    if (!canRegisterWithCredentials(email, password, passwordConfirm)) {
       setAccountError(
         isSupabaseBackendEnabled()
           ? "Use um email válido e uma senha de pelo menos 6 caracteres."
@@ -1851,27 +1854,14 @@ export function AccountPage() {
 
   async function handleCloudSignIn(event?: FormEvent) {
     event?.preventDefault();
-    if (!canCreateOptionalAccount(email, password, passwordConfirm)) {
-      setAccountError("Informe email e senha para entrar.");
+    setAccountError(null);
+    const result = await signInCloud(email, password);
+    if (!result.ok) {
+      setAccountError(result.message);
       return;
     }
-    const authResult = await authLogin(email, password);
-    if (authResult.status === "error") {
-      setAccountError(authResult.message);
-      return;
-    }
-    attachEmailToLocalAccount(email);
-    if (authResult.status === "ok") {
-      syncAccountWithCloudAuth(email);
-      const syncResult = await syncAuthSessionProgress();
-      setAccountNotice(
-        syncResult.ok
-          ? "Conta ativa. Seu progresso sincroniza automaticamente na nuvem."
-          : authResult.message
-      );
-    } else {
-      setAccountNotice(authResult.message);
-    }
+    setAccountNotice(result.message);
+    setPassword("");
     setAccountError(null);
   }
 
@@ -2034,7 +2024,7 @@ export function AccountPage() {
   }, [authMode]);
   const proState = subscriptionStateFor(isPremium, serverSubscription);
   const proStatus = PRO_STATUS[proState];
-  const canAttachEmail = canCreateOptionalAccount(email, password, passwordConfirm);
+  const canAttachEmail = canRegisterWithCredentials(email, password, passwordConfirm);
   const mobileMenuSections: MobileMenuSectionData[] = [
     {
       title: "Conta",
@@ -2126,17 +2116,14 @@ export function AccountPage() {
       )}
 
       {!canSignOut && authMode === "cloud_pending" && isSupabaseBackendEnabled() && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-accent/25 bg-accent-soft px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent-soft/80 to-surface px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Pill tone="accent">Entrar na conta</Pill>
-            <p className="mt-1 text-sm text-ink-soft">
-              Você já tem email registrado. Entre com a senha para ativar o salvamento automático na nuvem.
+            <p className="mt-1.5 text-sm leading-6 text-ink-soft">
+              Você saiu da sessão na nuvem. Entre com email e senha para continuar sincronizando.
             </p>
           </div>
-          <Button
-            size="sm"
-            onClick={() => accountToolsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
-          >
+          <Button size="sm" onClick={() => navigate("/login")}>
             Ir para login
           </Button>
         </div>
@@ -2215,11 +2202,7 @@ export function AccountPage() {
                   </Button>
                 )}
                 {authMode === "cloud_pending" && isSupabaseBackendEnabled() && (
-                  <Button
-                    size="sm"
-                    variant="soft"
-                    onClick={() => accountToolsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                  >
+                  <Button size="sm" variant="soft" onClick={() => navigate("/login")}>
                     Entrar na conta
                   </Button>
                 )}
@@ -2521,32 +2504,42 @@ export function AccountPage() {
       </section>
 
       <div ref={accountToolsRef}>
-        <Card className="p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <Pill tone={status.tone}>{status.label}</Pill>
-              <h2 className="mt-2 font-serif text-xl font-semibold text-ink">
-                {authMode === "local" ? (isSupabaseBackendEnabled() ? "Criar conta" : "Preparar conta") : "Conta"}
-              </h2>
-              <p className="mt-1 max-w-md text-sm leading-6 text-ink-soft">
-                {authMode === "local"
-                  ? isSupabaseBackendEnabled()
-                    ? "Crie sua conta com email e senha. O progresso sincroniza automaticamente na nuvem."
-                    : "Você pode preparar um email para a futura sincronização. Por enquanto, nada é enviado."
-                  : "Gerencie login e perfil neste dispositivo."}
-              </p>
+        <Card className="overflow-hidden border-line/80 p-0 shadow-card">
+          <div className="border-b border-line/70 bg-surface-2/60 px-5 py-4 sm:px-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <Pill tone={status.tone}>{status.label}</Pill>
+                <h2 className="mt-2 font-serif text-xl font-semibold text-ink">
+                  {authMode === "local"
+                    ? isSupabaseBackendEnabled()
+                      ? "Criar conta na nuvem"
+                      : "Preparar conta"
+                    : authMode === "cloud_pending"
+                      ? "Entrar na conta"
+                      : "Conta conectada"}
+                </h2>
+                <p className="mt-1 max-w-lg text-sm leading-6 text-ink-soft">
+                  {authMode === "local"
+                    ? isSupabaseBackendEnabled()
+                      ? "Crie sua conta com email e senha. O progresso sincroniza automaticamente."
+                      : "Prepare um email para a futura sincronização neste dispositivo."
+                    : authMode === "cloud_pending"
+                      ? "Use o mesmo email e senha da sua conta Longyu."
+                      : "Seu progresso salva automaticamente na nuvem."}
+                </p>
+              </div>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <IconShield width={22} height={22} />
+              </span>
             </div>
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-              <IconShield width={22} height={22} />
-            </span>
+            {accountNotice && (
+              <p className="mt-4 rounded-xl border border-accent/20 bg-accent-soft/70 px-4 py-3 text-sm font-medium text-accent">
+                {accountNotice}
+              </p>
+            )}
           </div>
 
-          {accountNotice && (
-            <p className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft px-4 py-3 text-sm font-medium text-accent">
-              {accountNotice}
-            </p>
-          )}
-
+          <div className="px-5 py-5 sm:px-6">
           {authMode === "local" && (
             <form onSubmit={handleAttachEmail} className="mt-4 grid gap-3 sm:max-w-2xl">
               {showCloudPrompt && isSupabaseBackendEnabled() && (
@@ -2641,40 +2634,33 @@ export function AccountPage() {
           )}
 
           {authMode === "cloud_pending" && isSupabaseBackendEnabled() && (
-            <form onSubmit={(event) => void handleCloudSignIn(event)} className="mt-4 grid gap-3 sm:max-w-md">
-              <p className="text-sm font-medium text-ink">Entre na sua conta para ativar o salvamento automático na nuvem.</p>
-              <label className="block">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Email</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => {
-                    setEmail(event.target.value);
-                    setAccountError(null);
-                  }}
-                  className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
-                />
-              </label>
-              <label className="block">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    setAccountError(null);
-                  }}
-                  placeholder="Mínimo de 6 caracteres"
-                  className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
-                />
-              </label>
-              {accountError && (
-                <p className="rounded-xl bg-wrong-soft px-3 py-2 text-sm font-medium text-wrong">{accountError}</p>
-              )}
-              <Button type="submit" disabled={!canCreateOptionalAccount(email, password, passwordConfirm)} className="w-full sm:w-auto">
-                Entrar
-              </Button>
-            </form>
+            <div className="mx-auto max-w-md">
+              <CloudLoginForm
+                email={email}
+                password={password}
+                error={accountError}
+                onEmail={(value) => {
+                  setEmail(value);
+                  setAccountError(null);
+                }}
+                onPassword={(value) => {
+                  setPassword(value);
+                  setAccountError(null);
+                }}
+                onSubmit={(event) => void handleCloudSignIn(event)}
+              />
+              <p className="mt-4 text-center text-xs text-ink-faint">
+                Ou acesse{" "}
+                <button
+                  type="button"
+                  className="font-semibold text-accent hover:underline"
+                  onClick={() => navigate("/login")}
+                >
+                  /login
+                </button>{" "}
+                para entrar direto, sem tutorial.
+              </p>
+            </div>
           )}
 
           {authMode === "cloud_pending" && !isSupabaseBackendEnabled() && (
@@ -2684,15 +2670,18 @@ export function AccountPage() {
           )}
 
           {authMode === "cloud" && (
-            <div className="mt-4 rounded-2xl border border-good/25 bg-good-soft px-4 py-3 text-sm font-medium text-ink">
+            <div className="rounded-2xl border border-good/25 bg-good-soft px-4 py-4 text-sm font-medium text-ink">
               Progresso sincronizado automaticamente com sua conta na nuvem.
             </div>
           )}
+          </div>
         </Card>
       </div>
 
       <div>
-        <Card className="p-5 sm:p-6">
+        <Card className="border-line/80 p-5 sm:p-6">
+          <h3 className="font-serif text-lg font-semibold text-ink">Perfis neste dispositivo</h3>
+          <p className="mt-1 text-sm text-ink-soft">Cada perfil guarda progresso local separado.</p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <form className="flex-1" onSubmit={handleCreateProfile} id="longyu-local-account-form">
               <label className="block">
@@ -2756,8 +2745,7 @@ function footerLabel(step: OnboardingStep): string {
 }
 
 function canCreateOptionalAccount(email: string, password: string, passwordConfirm: string): boolean {
-  const cleanEmail = email.trim();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail) && password.length >= 6 && password === passwordConfirm;
+  return canRegisterWithCredentials(email, password, passwordConfirm);
 }
 
 function AccountProfileStateCard({

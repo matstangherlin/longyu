@@ -55,6 +55,13 @@ export function MorePage() {
           featured: true,
         },
         {
+          title: "Entrar",
+          desc: "Login direto, sem tutorial.",
+          icon: IconShield,
+          to: "/login",
+          status: "Nuvem",
+        },
+        {
           title: "Conta local",
           desc: "Progresso neste dispositivo.",
           icon: IconShield,

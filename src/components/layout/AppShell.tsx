@@ -18,6 +18,7 @@ export function AppShell() {
   const completedLessons = useStore((s) => s.completedLessons);
   const location = useLocation();
   const navigate = useNavigate();
+  const isLoginPage = location.pathname === "/login";
   const isOnboarding = location.pathname === "/conta" && !accountSetupComplete;
   // Modo foco: durante lição e desafio o app esconde TopBar (mobile) e TabBar
   // para liberar espaço vertical — nada compete com o exercício.
@@ -36,7 +37,12 @@ export function AppShell() {
   }, [registerActivity]);
 
   useEffect(() => {
-    if (!accountSetupComplete && completedLessons.length === 0 && location.pathname !== "/conta") {
+    if (
+      !accountSetupComplete &&
+      completedLessons.length === 0 &&
+      location.pathname !== "/conta" &&
+      location.pathname !== "/login"
+    ) {
       navigate("/conta", { replace: true });
     }
   }, [accountSetupComplete, completedLessons.length, location.pathname, navigate]);
@@ -46,7 +52,7 @@ export function AppShell() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  if (isOnboarding) {
+  if (isOnboarding || isLoginPage) {
     return (
       <>
         <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">

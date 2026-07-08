@@ -24,6 +24,7 @@ import { LigasPage } from "./features/ligas/LigasPage";
 import { AchievementsPage } from "./features/conquistas/AchievementsPage";
 import { MorePage } from "./features/more/MorePage";
 import { AboutPage } from "./features/about/AboutPage";
+import { LoginPage } from "./features/auth/LoginPage";
 
 export const routes: RouteObject[] = [
   {
@@ -49,6 +50,7 @@ export const routes: RouteObject[] = [
       { path: "ligas", element: <LigasPage /> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
+      { path: "login", element: <LoginPage /> },
       { path: "perfil", element: <AccountPage /> },
       { path: "conta", element: <AccountPage /> },
       { path: "config", element: <SettingsPage /> },
