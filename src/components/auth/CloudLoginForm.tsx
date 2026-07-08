@@ -21,7 +21,7 @@ export function CloudLoginForm({
   submitLabel?: string;
   onEmail: (value: string) => void;
   onPassword: (value: string) => void;
-  onSubmit: (event: FormEvent) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   const canSubmit = canSignInWithCredentials(email, password) && !loading;
 
@@ -35,6 +35,7 @@ export function CloudLoginForm({
       <label className="block">
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Email</span>
         <input
+          name="email"
           type="email"
           autoComplete="email"
           value={email}
@@ -46,6 +47,7 @@ export function CloudLoginForm({
       <label className="block">
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
         <input
+          name="password"
           type="password"
           autoComplete="current-password"
           value={password}
@@ -59,7 +61,7 @@ export function CloudLoginForm({
           {error}
         </p>
       )}
-      <Button type="submit" size="lg" disabled={!canSubmit} className="w-full">
+      <Button type="submit" size="lg" disabled={loading || (!canSubmit && !email && !password)} className="w-full">
         {loading ? "Entrando…" : submitLabel}
       </Button>
     </form>

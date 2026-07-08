@@ -44,15 +44,20 @@ export function LoginPage() {
     });
   }, [authMode, cloudEnabled, navigate, setAccountSetupComplete]);
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const formEmail = String(form.get("email") ?? email).trim();
+    const formPassword = String(form.get("password") ?? password);
+    setEmail(formEmail);
+    setPassword(formPassword);
     if (!cloudEnabled) {
       setError("Backend em nuvem não está ativo neste ambiente.");
       return;
     }
     setLoading(true);
     setError(null);
-    const result = await signIn(email, password);
+    const result = await signIn(formEmail, formPassword);
     setLoading(false);
     if (!result.ok) {
       setError(result.message);

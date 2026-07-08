@@ -1852,10 +1852,15 @@ export function AccountPage() {
     }
   }
 
-  async function handleCloudSignIn(event?: FormEvent) {
+  async function handleCloudSignIn(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
+    const form = event ? new FormData(event.currentTarget) : null;
+    const formEmail = String(form?.get("email") ?? email).trim();
+    const formPassword = String(form?.get("password") ?? password);
+    setEmail(formEmail);
+    setPassword(formPassword);
     setAccountError(null);
-    const result = await signInCloud(email, password);
+    const result = await signInCloud(formEmail, formPassword);
     if (!result.ok) {
       setAccountError(result.message);
       return;
