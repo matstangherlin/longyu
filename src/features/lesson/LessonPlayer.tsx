@@ -236,6 +236,39 @@ function LessonSummaryStat({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Chip compacto para as métricas do fim de lição (XP, Qi, precisão, estrelas).
+// Substitui os cards grandes: a mesma informação em uma linha, estilo app.
+function MetricChip({
+  value,
+  label,
+  icon,
+  tone = "neutral",
+}: {
+  value: string;
+  label?: string;
+  icon?: ReactNode;
+  tone?: "neutral" | "accent" | "good" | "gold";
+}) {
+  const toneClass = {
+    neutral: "border-line bg-surface-2 text-ink",
+    accent: "border-accent-soft bg-accent-soft/60 text-accent",
+    good: "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
+    gold: "border-[#B7791F]/25 bg-[#B7791F]/[0.1] text-gold",
+  }[tone];
+  return (
+    <span
+      className={[
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold shadow-card",
+        toneClass,
+      ].join(" ")}
+    >
+      {icon}
+      <span className="font-serif tabular-nums">{value}</span>
+      {label && <span className="text-xs font-medium opacity-80">{label}</span>}
+    </span>
+  );
+}
+
 function CollapsibleInfoCard({
   title,
   defaultOpen = false,
@@ -1110,11 +1143,10 @@ export function LessonPlayer() {
     tones: number;
   } | null>(null);
   const [estimatedMinutes, setEstimatedMinutes] = useState(5);
-  const [postLessonView, setPostLessonView] = useState<"victory" | "rewards" | "streak">("victory");
+  const [postLessonView, setPostLessonView] = useState<"victory" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
+  // Recompensas (Qi/pérola/medalha) resgatadas no próprio card de vitória.
   const [claimedRewardCards, setClaimedRewardCards] = useState(false);
-  const [visibleRewards, setVisibleRewards] = useState<RewardGrant[]>([]);
-  const [showAllRewards, setShowAllRewards] = useState(false);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
   const contextualOffer = useProOffer();
   const [entryChecked, setEntryChecked] = useState(false);
@@ -2026,8 +2058,6 @@ export function LessonPlayer() {
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
-    setVisibleRewards([]);
-    setShowAllRewards(false);
     setErrorReviewMode(activityErrorsRef.current.length > 0 ? "offer" : "idle");
     setCorrectedErrorIds([]);
     setRecovered(false);
@@ -2217,8 +2247,6 @@ export function LessonPlayer() {
       setPostLessonView("victory");
       setDailyGoalReached(false);
       setClaimedRewardCards(false);
-      setVisibleRewards([]);
-      setShowAllRewards(false);
       setLessonTaskProgress(lesson.id, 0);
       recordedMistakeStepRef.current = null;
       recordedPairMistakesRef.current.clear();
@@ -2454,44 +2482,40 @@ export function LessonPlayer() {
     ].filter((reward) => reward.amount > 0);
     const newRewards = allRewards.filter((reward) => !rewardHistory.some((entry) => entry.id === reward.id));
     const shouldShowStreak = dailyGoalReached;
-    const rewardCards = showAllRewards ? visibleRewards : visibleRewards.slice(0, 3);
-    const hiddenRewardCount = Math.max(0, visibleRewards.length - rewardCards.length);
     const saveStatusLabel = progressSaveLabel(authMode, cloudSyncState.status);
+    // Recompensas extras além de XP/Qi (pérola, medalha) viram chips no card.
+    const extraRewards = allRewards.filter((reward) => reward.type !== "qi");
+    const hasUnclaimedRewards = newRewards.length > 0 && !claimedRewardCards;
     const topSummaryStats = [
       {
         label: "Frases",
         value: `${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${sessionSummary?.newPhrases} novas)` : ""}`,
       },
       { label: "Hànzì", value: `${sessionSummary?.hanzi ?? 0}` },
-      { label: "Precisão", value: `${precision}%` },
+      { label: "Tons", value: `${sessionSummary?.tones ?? 0}` },
     ];
 
-    function continueAfterVictory() {
-      if (newRewards.length > 0) {
-        setVisibleRewards(newRewards);
-        setPostLessonView("rewards");
-        return;
-      }
-      if (shouldShowStreak) {
-        setPostLessonView("streak");
-        return;
-      }
-      navigate("/jornada");
-    }
-
+    // Resgata as recompensas no próprio card (sem uma segunda tela longa).
     function claimLessonRewards() {
       if (claimedRewardCards) return;
       let claimed = false;
-      for (const reward of visibleRewards) {
-        claimed = claimReward(reward) || claimed;
-      }
+      for (const reward of newRewards) claimed = claimReward(reward) || claimed;
       if (claimed) playSoundFx("qiGain", soundEffects);
       setClaimedRewardCards(true);
     }
 
-    function continueAfterRewards() {
+    function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
       else navigate("/jornada");
+    }
+
+    // Botão principal: 1º toque resgata (se houver), depois segue a jornada.
+    function handlePrimaryAction() {
+      if (hasUnclaimedRewards) {
+        claimLessonRewards();
+        return;
+      }
+      continueJourney();
     }
 
     function continueAfterStreak() {
@@ -2523,66 +2547,6 @@ export function LessonPlayer() {
       for (const reward of streakRewards) claimed = claimReward(reward) || claimed;
       if (claimed) playSoundFx("streak", soundEffects);
       navigate("/jornada");
-    }
-
-    if (postLessonView === "rewards") {
-      return (
-        <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col px-1 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] text-center">
-          <div className="flex flex-1 flex-col overflow-hidden rounded-[28px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-4 shadow-lift sm:p-5">
-            <div className="mx-auto mt-2 flex h-14 w-14 items-center justify-center rounded-[18px] bg-accent text-white shadow-card sm:h-16 sm:w-16">
-              <IconFlame width={28} height={28} fill="currentColor" />
-            </div>
-            <div className="mx-auto mt-3 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
-              Etapa 2
-            </div>
-            <h1 className="mt-2 font-serif text-2xl font-semibold text-ink sm:text-3xl">Recompensas prontas</h1>
-            <p className="mx-auto mt-1 max-w-sm text-sm leading-5 text-ink-soft">
-              Guarde os ganhos da lição no seu progresso antes de seguir.
-            </p>
-
-            <div className="mt-4 grid gap-2.5">
-              {rewardCards.map((reward, index) => (
-                <div
-                  key={reward.id}
-                  className={[
-                    "longyu-reward-rise relative flex items-center justify-between overflow-hidden rounded-[18px] border border-line bg-surface px-3 py-3 text-left shadow-card",
-                    claimedRewardCards ? "ring-2 ring-accent/30" : "",
-                  ].join(" ")}
-                  style={{ animationDelay: `${index * 80}ms` }}
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="hanzi flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-accent-soft text-2xl text-accent shadow-card sm:h-12 sm:w-12">
-                      {rewardIcon(reward)}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold text-ink">{rewardLabel(reward)}</div>
-                      <div className="truncate text-[11px] text-ink-faint">{reward.source}</div>
-                    </div>
-                  </div>
-                  <IconStar width={18} height={18} className="shrink-0 text-gold" fill="currentColor" />
-                </div>
-              ))}
-            </div>
-            {hiddenRewardCount > 0 && (
-              <button
-                type="button"
-                onClick={() => setShowAllRewards(true)}
-                className="mt-3 text-sm font-semibold text-accent hover:underline"
-              >
-                Ver todas (+{hiddenRewardCount})
-              </button>
-            )}
-
-            <Button
-              className="mt-auto w-full shadow-lift"
-              size="lg"
-              onClick={claimedRewardCards ? continueAfterRewards : claimLessonRewards}
-            >
-              {claimedRewardCards ? "Continuar jornada" : "Receber recompensas"}
-            </Button>
-          </div>
-        </div>
-      );
     }
 
     if (postLessonView === "streak") {
@@ -2641,170 +2605,145 @@ export function LessonPlayer() {
     }
 
     return (
-      <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-3xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         {recoveryDebugPanel}
-        <section className="flex flex-1 flex-col overflow-hidden rounded-[28px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] px-4 pb-0 pt-4 text-center shadow-lift sm:px-6">
-          <div className="relative mx-auto h-20 w-28 shrink-0 sm:h-24 sm:w-32">
+        <section className="flex flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] px-4 pb-0 pt-3 text-center shadow-lift sm:px-6">
+          {/* 1 · Resultado principal — mascote pequeno, título, estrelas, chips. */}
+          <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
+            {lesson.title}
+          </div>
+          <div className="relative mx-auto mt-1 h-16 w-20 shrink-0">
             <div className="absolute inset-x-0 top-0 flex justify-center">
-              <Mascot size={80} variant="celebrate" />
-            </div>
-            <div className="longyu-lesson-dragon absolute -bottom-1 left-3 grid h-9 w-9 place-items-center rounded-[14px] border border-accent-soft bg-accent-soft text-accent shadow-card">
-              <IconFlame width={18} height={18} fill="currentColor" />
+              <Mascot size={62} variant="celebrate" />
             </div>
             {[0, 1, 2].map((n) => (
               <IconStar
                 key={n}
-                width={14 + n * 2}
-                height={14 + n * 2}
+                width={12 + n * 2}
+                height={12 + n * 2}
                 className={[
                   "longyu-star-spark absolute text-accent",
-                  n === 0 ? "left-0 top-9" : n === 1 ? "right-1 top-1" : "right-6 bottom-1",
+                  n === 0 ? "left-1 top-7" : n === 1 ? "right-1 top-1" : "right-4 bottom-1",
                 ].join(" ")}
                 fill="currentColor"
                 style={{ animationDelay: `${n * 90}ms` }}
               />
             ))}
           </div>
-
-          <div className="mx-auto mt-1 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
-            Etapa 1
-          </div>
-          <h1 className="mt-2 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
+          <h1 className="mt-1 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             {stars === 3 ? "Lição concluída!" : "Você avançou!"}
           </h1>
-          <p className="mx-auto mt-1 max-w-md text-sm leading-5 text-ink-soft">
-            {victoryTitle} <span className="font-semibold text-ink">{lesson.title}</span> foi concluída.
-          </p>
-          {recovered && (
-            <div className="mx-auto mt-3 max-w-md rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
-              Erros corrigidos! Você recuperou 3 estrelas. A próxima lição foi liberada.
-            </div>
-          )}
-          <div className="mt-4 grid gap-3 text-left lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-[22px] border border-accent-soft bg-surface/90 p-4 shadow-lift">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Resumo rápido</div>
-                  <div className="mt-1 text-xs text-ink-faint">{saveStatusLabel}</div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {[1, 2, 3].map((n) => (
-                    <IconStar
-                      key={n}
-                      width={24}
-                      height={24}
-                      className={n <= stars ? "longyu-star-spark text-accent" : "text-line"}
-                      fill={n <= stars ? "currentColor" : "none"}
-                      style={{ animationDelay: `${n * 80}ms` }}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <div className="rounded-[18px] border border-line bg-surface-2 px-3 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">XP ganho</div>
-                  <div className="mt-1 font-serif text-2xl font-semibold text-ink">+{lessonXp}</div>
-                  <div className="text-xs text-ink-faint">XP total agora: {postLessonXpTotal}</div>
-                </div>
-                <div className="rounded-[18px] border border-line bg-surface-2 px-3 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Qi ganho</div>
-                  <div className="mt-1 font-serif text-2xl font-semibold text-ink">+{lessonReward}</div>
-                  <div className="text-xs text-ink-faint">Pronto para seguir</div>
-                </div>
-              </div>
-            </div>
+          <p className="mx-auto mt-0.5 text-xs text-ink-soft sm:text-sm">{victoryTitle}</p>
 
-            <div className="rounded-[22px] border border-line bg-surface/85 p-4 text-left shadow-card">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Próximo foco</div>
-              <div className="mt-1 text-sm font-semibold text-ink">{nextFocus.title}</div>
-              <p className="mt-1 text-sm leading-5 text-ink-soft">{nextFocus.desc}</p>
-              <Link to={nextFocus.to} className="mt-3 inline-block w-full sm:w-auto">
-                <Button variant="outline" className="w-full sm:w-auto">
-                  {nextFocus.cta} <IconChevron width={16} height={16} />
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-2 text-left sm:grid-cols-3">
-            {topSummaryStats.map((item) => (
-              <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
+          <div className="mt-2 flex items-center justify-center gap-1.5">
+            {[1, 2, 3].map((n) => (
+              <IconStar
+                key={n}
+                width={26}
+                height={26}
+                className={n <= stars ? "longyu-star-spark text-accent" : "text-line"}
+                fill={n <= stars ? "currentColor" : "none"}
+                style={{ animationDelay: `${n * 80}ms` }}
+              />
             ))}
           </div>
-          <p className="mt-3 text-left text-sm leading-5 text-ink-soft">
-            {sessionSummaryLine} Foram ~{estimatedMinutes} min de prática
-            {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na sua revisão.` : "."}
-          </p>
 
-          {!isPremium && committedErrors.length >= 3 && (
-            <div className="mt-4 rounded-[20px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] p-3 text-left shadow-card">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
-              <p className="mt-1 text-sm leading-5 text-ink">
-                Você teve dificuldade com {weakSkillsLabel}. O Pro cria uma revisão focada nos seus pontos fracos.
-              </p>
-              <p className="mt-1 text-xs leading-5 text-ink-faint">
-                Corrigir os erros desta lição continua grátis, agora e sempre.
-              </p>
-              <Button
-                variant="soft"
-                className="mt-3 w-full sm:w-auto"
-                onClick={() => setProPaywallKind("weak_spots")}
-              >
-                Conhecer a revisão focada
-              </Button>
+          {recovered && (
+            <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]">
+              Erros corrigidos! Você recuperou 3 estrelas e liberou a próxima lição.
             </div>
           )}
-          <div className="mt-4 grid gap-3">
-            <CollapsibleInfoCard
-              title="Detalhes da sessão"
-              compactLabel={`${committedErrors.length} erro(s) · ${reviewItemsAdded} revisão`}
-            >
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <LessonSummaryStat label="Tons" value={`${sessionSummary?.tones ?? 0}`} />
-                <LessonSummaryStat label="Qi" value={`+${lessonReward}`} />
+
+          {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+            <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
+            <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
+            <MetricChip value={`${precision}%`} label="precisão" tone={precision >= 80 ? "good" : "neutral"} />
+            {extraRewards.map((reward) => (
+              <MetricChip
+                key={reward.id}
+                value={reward.type === "badge" ? reward.source : rewardLabel(reward)}
+                icon={<span className="hanzi text-base leading-none">{rewardIcon(reward)}</span>}
+                tone="gold"
+              />
+            ))}
+          </div>
+          <div className="mt-2 text-[11px] text-ink-faint">
+            {saveStatusLabel} · XP total agora {postLessonXpTotal}
+            {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · recompensas recebidas ✓</span>}
+          </div>
+
+          {/* 2 · Próximo foco — card compacto com CTA. */}
+          <div className="mt-2.5 flex flex-col gap-2 rounded-2xl border border-line bg-surface/85 p-3 text-left shadow-card sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Próximo foco</div>
+              <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
+              <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
+            </div>
+            <Link to={nextFocus.to} className="shrink-0">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                {nextFocus.cta} <IconChevron width={15} height={15} />
+              </Button>
+            </Link>
+          </div>
+
+          {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
+          <div className="mt-2.5 grid gap-1.5 text-left">
+            <CollapsibleInfoCard title="Ver detalhes" compactLabel={`~${estimatedMinutes} min`}>
+              <div className="grid grid-cols-3 gap-2">
+                {topSummaryStats.map((item) => (
+                  <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
+                ))}
+                <LessonSummaryStat label="Precisão" value={`${precision}%`} />
                 <LessonSummaryStat
                   label="Erros corrigidos"
                   value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
                 />
+                <LessonSummaryStat label="P/ revisão" value={`${reviewItemsAdded}`} />
               </div>
+              <p className="mt-2 text-xs leading-5 text-ink-soft">
+                {sessionSummaryLine} Foram ~{estimatedMinutes} min de prática
+                {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na revisão.` : "."}
+              </p>
             </CollapsibleInfoCard>
 
             <CollapsibleInfoCard
               title="Missões atualizadas"
-              compactLabel={`${monthlyProgress}/${MONTHLY_GOAL} mensal`}
+              compactLabel={missionHighlights.length > 0 ? `${missionHighlights.length} atualizada(s)` : `${monthlyProgress}/${MONTHLY_GOAL} mensal`}
               defaultOpen={false}
             >
-              <ProgressBar value={monthlyProgress} max={MONTHLY_GOAL} className="h-2.5" />
+              <ProgressBar value={monthlyProgress} max={MONTHLY_GOAL} className="h-2" />
               {missionHighlights.length > 0 ? (
-                <div className="mt-3 grid gap-2.5">
+                <div className="mt-2.5 grid gap-2">
                   {missionHighlights.map((mission) => (
                     <MissionUpdateCard key={`${mission.scope}:${mission.id}`} mission={mission} />
                   ))}
                 </div>
               ) : (
-                <div className="mt-3 rounded-[18px] border border-line bg-surface-2 px-3 py-3 text-sm text-ink-soft">
+                <div className="mt-2.5 rounded-[16px] border border-line bg-surface-2 px-3 py-2.5 text-xs text-ink-soft">
                   Continue praticando para completar a próxima missão.
                 </div>
               )}
+              <Link to="/missoes" className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
+                Ver missões <IconChevron width={13} height={13} />
+              </Link>
             </CollapsibleInfoCard>
 
             {(suggestsPinyinLab || suggestsHanziLab) && (
-              <CollapsibleInfoCard title="Reforço guiado" compactLabel="Prática curta recomendada">
-                <p className="text-sm leading-5 text-ink-soft">
-                  Este conteúdo já pode continuar em prática livre curta, sem sair do eixo da Jornada.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
+              <CollapsibleInfoCard title="Reforço guiado" compactLabel="Prática curta">
+                <div className="text-sm font-medium text-ink">Quer reforçar este ponto?</div>
+                <div className="mt-2 flex flex-wrap gap-2">
                   {suggestsPinyinLab && (
                     <Link to="/pinyin">
-                      <Button variant="outline" className="w-full sm:w-auto">
-                        <IconSound width={17} height={17} /> Reforçar no Pinyin Lab
+                      <Button variant="outline" size="sm">
+                        <IconSound width={15} height={15} /> Pinyin Lab
                       </Button>
                     </Link>
                   )}
                   {suggestsHanziLab && (
                     <Link to="/hanzi">
-                      <Button variant="outline" className="w-full sm:w-auto">
-                        <IconHanzi width={17} height={17} /> Reforçar no Hànzì Lab
+                      <Button variant="outline" size="sm">
+                        <IconHanzi width={15} height={15} /> Hànzì Lab
                       </Button>
                     </Link>
                   )}
@@ -2812,11 +2751,31 @@ export function LessonPlayer() {
               </CollapsibleInfoCard>
             )}
 
+            <CollapsibleInfoCard title="Deixar feedback" compactLabel="Opcional">
+              <FeedbackPrompt
+                context={{ screen: `/licao/${lesson.id}/player — lição concluída` }}
+                compact
+                className="border-line/70"
+              />
+            </CollapsibleInfoCard>
+
+            {!isPremium && committedErrors.length >= 3 && (
+              <div className="rounded-[18px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] px-3 py-2.5 text-left shadow-card">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
+                <p className="mt-0.5 text-xs leading-5 text-ink">
+                  Dificuldade com {weakSkillsLabel}? O Pro cria uma revisão focada. Corrigir esta lição é sempre grátis.
+                </p>
+                <Button variant="soft" size="sm" className="mt-2" onClick={() => setProPaywallKind("weak_spots")}>
+                  Conhecer a revisão focada
+                </Button>
+              </div>
+            )}
+
             {!recovered && mistakes.length > 0 && (
               <CollapsibleInfoCard title="Enviado para revisão" compactLabel={`${mistakes.length} item(ns)`}>
                 <div className="grid gap-2">
                   {mistakes.slice(0, 3).map((mistake, index) => (
-                    <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-sm">
+                    <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-xs">
                       <div className="font-medium text-ink">{mistake.prompt}</div>
                       <div className="mt-0.5 text-ink-soft">
                         Correto: <span className="font-medium text-ink">{mistake.correction}</span>
@@ -2828,31 +2787,22 @@ export function LessonPlayer() {
             )}
           </div>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <Link to="/revisao">
-              <Button variant="outline" className="w-full">
-                <IconRefresh width={17} height={17} /> Revisar
-              </Button>
-            </Link>
-            <Link to="/biblioteca">
-              <Button variant="outline" className="w-full">
-                <IconLibrary width={17} height={17} /> Biblioteca
-              </Button>
-            </Link>
-            <Link to="/treino">
-              <Button variant="outline" className="w-full">
-                <IconTarget width={17} height={17} /> Treinar
-              </Button>
-            </Link>
-          </div>
-          <div className="sticky bottom-0 -mx-4 mt-auto bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0">
-            <FeedbackPrompt
-              context={{ screen: `/licao/${lesson.id}/player — lição concluída` }}
-              compact
-              className="mb-3 border-line/70"
-            />
-            <Button className="w-full shadow-lift" size="lg" onClick={continueAfterVictory}>
-              Receber recompensas <IconChevron width={18} height={18} />
+          {/* 3 · Botão principal — sempre visível, resgata e depois continua. */}
+          <div className="sticky bottom-0 -mx-4 mt-auto bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 sm:static sm:mx-0 sm:bg-none sm:px-0">
+            <div className="mb-1.5 flex items-center justify-center gap-4 text-xs font-medium text-ink-faint">
+              <Link to="/revisao" className="inline-flex items-center gap-1 transition hover:text-ink">
+                <IconRefresh width={14} height={14} /> Revisar
+              </Link>
+              <Link to="/biblioteca" className="inline-flex items-center gap-1 transition hover:text-ink">
+                <IconLibrary width={14} height={14} /> Biblioteca
+              </Link>
+              <Link to="/treino" className="inline-flex items-center gap-1 transition hover:text-ink">
+                <IconTarget width={14} height={14} /> Treinar
+              </Link>
+            </div>
+            <Button className="w-full shadow-lift" size="lg" onClick={handlePrimaryAction}>
+              {hasUnclaimedRewards ? "Receber recompensas" : "Continuar Jornada"}
+              <IconChevron width={18} height={18} />
             </Button>
           </div>
         </section>
