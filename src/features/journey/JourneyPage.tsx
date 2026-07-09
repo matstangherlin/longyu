@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
   type Lesson, type Skill, type LessonState, type Unit,
@@ -16,7 +16,7 @@ import { CHEST_VISUALS } from "../../components/chests/chestMeta";
 import { LongyuChest } from "../../components/chests/LongyuChest";
 import { RewardReveal } from "../../components/chests/RewardReveal";
 import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
-import { auditJourneyModuleCoverageInDev, lessonStageProgressCopy, lessonTasksFor } from "../lesson/lessonTasks";
+import { auditJourneyModuleCoverageInDev, lessonTasksFor } from "../lesson/lessonTasks";
 import {
   requiredToneTrainerPackForLesson,
   toneTrainerPackCompleted,
@@ -34,14 +34,6 @@ const SKILL_ICON: Record<Skill, typeof IconSound> = {
 };
 
 const REVIEW_COLOR = "#B7791F";
-
-const SKILL_TAGLINE: Record<Skill, string> = {
-  som: "Ouvir, imitar e falar",
-  fala: "Falar com confiança",
-  hanzi: "Reconhecer caracteres",
-  leitura: "Ler frases curtas",
-  sistema: "Entender o sistema",
-};
 
 interface ThemeCheckpoint {
   title: string;
@@ -190,7 +182,6 @@ export function JourneyPage() {
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyMissions = useStore((s) => s.dailyMissions);
   const streak = useStore((s) => s.streak);
-  const streakShields = useStore((s) => s.streakShields);
 
   const currentId = currentLessonId(completed, isPremium);
   const currentLesson = ALL_LESSONS.find((l) => l.id === currentId);
@@ -246,8 +237,8 @@ export function JourneyPage() {
 
   return (
     <>
-      <div className="mx-auto grid w-full max-w-[1180px] gap-6 xl:grid-cols-[minmax(0,680px)_320px] xl:items-start">
-        <div className="min-w-0 space-y-4">
+      <div className="mx-auto grid w-full max-w-[1180px] gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start">
+        <div className="min-w-0 space-y-5">
           <JourneyHeroCard
             phaseLabel={
               currentContext
@@ -271,9 +262,10 @@ export function JourneyPage() {
           <div className="flex justify-end lg:hidden">
             <Button
               size="sm"
-              variant="outline"
+              variant="ghost"
               onClick={() => setShowFullJourney((value) => !value)}
               aria-expanded={showFullJourney}
+              className="h-8 text-xs"
             >
               {showFullJourney ? "Focar atual" : "Ver tudo"}
             </Button>
@@ -284,27 +276,24 @@ export function JourneyPage() {
         const phases = JOURNEY.filter((p) => p.tier === tier.id);
         if (!phases.length) return null;
         return (
-          <div key={tier.id} className="space-y-4">
-            {/* divisória do nível */}
-            <div className="flex items-center gap-3 py-2">
-              <div className="h-px flex-1 bg-line" />
+          <div key={tier.id} className="space-y-5">
+            <div className="flex items-center gap-3 py-1">
+              <div className="h-px flex-1 bg-line/50" />
               <div className="min-w-0 text-center">
-                <div className="font-serif text-sm font-semibold uppercase tracking-[0.18em] text-accent">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
                   {tier.label}
                 </div>
-                <div className="hidden text-[11px] text-ink-faint sm:block">{tier.subtitle}</div>
               </div>
-              <div className="h-px flex-1 bg-line" />
+              <div className="h-px flex-1 bg-line/50" />
             </div>
 
             {phases.map((phase) => (
-              <section key={phase.id} className="space-y-3">
-                <div className="lg:sticky lg:top-16 lg:z-10 lg:-mx-2 lg:rounded-2xl lg:bg-bg/85 lg:px-2 lg:py-2 lg:backdrop-blur">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              <section key={phase.id} className="space-y-4">
+                <div className="lg:sticky lg:top-14 lg:z-10 lg:-mx-1 lg:rounded-xl lg:bg-bg/90 lg:px-2 lg:py-1.5 lg:backdrop-blur-sm">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
                     Fase {phase.order}
                   </div>
-                  <h2 className="font-serif text-lg font-semibold text-ink">{phase.title}</h2>
-                  <p className="mt-0.5 hidden text-xs leading-5 text-ink-soft sm:block">{phase.why}</p>
+                  <h2 className="font-serif text-base font-semibold text-ink sm:text-lg">{phase.title}</h2>
                 </div>
 
                 {phase.units.map((unit) => {
@@ -361,11 +350,9 @@ export function JourneyPage() {
         <JourneySidePanel
           mission={primaryMission}
           streak={streak}
-          streakShields={streakShields}
           todayMinutes={todayMinutes}
           completedCount={doneCount}
           totalLessons={ALL_LESSONS.length}
-          onNavigate={navigate}
         />
       </div>
 
@@ -431,32 +418,32 @@ function JourneyHeroCard({
   onContinue?: () => void;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-accent/15 bg-[linear-gradient(135deg,rgb(var(--accent-soft)/0.55),rgb(var(--surface))_55%)] p-4 shadow-card sm:p-5">
+    <div className="relative overflow-hidden rounded-2xl border border-accent/10 bg-[linear-gradient(145deg,rgb(var(--accent-soft)/0.4)_0%,rgb(var(--surface))_50%,rgb(var(--surface))_100%)] p-3.5 shadow-card sm:p-4">
       <div
-        className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-accent/10 blur-2xl"
+        className="pointer-events-none absolute -right-8 -top-12 h-32 w-32 rounded-full bg-accent/8 blur-3xl"
         aria-hidden
       />
-      <div className="relative flex items-center gap-4">
+      <div className="relative flex items-center gap-3">
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent/90">
             {phaseLabel}
           </div>
-          <h1 className="mt-1 truncate font-serif text-[1.6rem] font-semibold leading-tight text-ink">
+          <h1 className="mt-0.5 truncate font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">
             {title}
           </h1>
           {currentLessonTitle ? (
-            <p className="mt-1 truncate text-sm text-ink-soft">
-              Agora: <span className="font-medium text-ink">{currentLessonTitle}</span>
+            <p className="mt-0.5 truncate text-xs text-ink-soft sm:text-sm">
+              <span className="font-medium text-ink">{currentLessonTitle}</span>
             </p>
           ) : (
-            <p className="mt-1 text-sm text-ink-soft">{done}/{Math.max(1, total)} lições concluídas</p>
+            <p className="mt-0.5 text-xs text-ink-faint">{done}/{Math.max(1, total)} lições</p>
           )}
         </div>
         <UnitProgressRing done={done} total={total} />
       </div>
       {onContinue && (
-        <Button className="relative mt-3.5 w-full shadow-card sm:w-auto" onClick={onContinue}>
-          Continuar <IconChevron width={17} height={17} />
+        <Button className="relative mt-3 w-full sm:w-auto" size="md" onClick={onContinue}>
+          Continuar <IconChevron width={16} height={16} />
         </Button>
       )}
     </div>
@@ -475,22 +462,22 @@ function JourneyMobileChips({
   totalLessons: number;
 }) {
   return (
-    <div className="flex gap-2 overflow-x-auto xl:hidden">
-      <div className="min-w-[148px] rounded-full border border-line/70 bg-surface px-3 py-2">
-        <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-          <IconTarget width={14} height={14} className="text-accent" />
-          Missão
-        </div>
-        <div className="truncate text-sm font-semibold text-ink">{mission?.title ?? "Hoje"}</div>
-      </div>
-      <div className="min-w-[148px] rounded-full border border-line/70 bg-surface px-3 py-2">
-        <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-          <IconFlame width={14} height={14} className="text-accent" />
-          Ritmo
-        </div>
-        <div className="truncate text-sm font-semibold text-ink">
-          Seq. {streak} · {completedCount}/{totalLessons}
-        </div>
+    <div className="flex gap-1.5 overflow-x-auto xl:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <Link
+        to="/missoes"
+        className="flex min-w-0 shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-2.5 py-1.5 shadow-card transition active:scale-[0.98]"
+      >
+        <IconTarget width={12} height={12} className="shrink-0 text-accent" />
+        <span className="truncate text-[11px] font-semibold text-ink">{mission?.title ?? "Missão"}</span>
+        {mission && (
+          <span className="text-[10px] tabular-nums text-ink-faint">{mission.progress}/{mission.goal}</span>
+        )}
+      </Link>
+      <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-2.5 py-1.5 shadow-card">
+        <IconFlame width={12} height={12} className="text-accent" />
+        <span className="text-[11px] font-semibold tabular-nums text-ink">{streak}d</span>
+        <span className="text-[10px] text-ink-faint">·</span>
+        <span className="text-[10px] tabular-nums text-ink-faint">{completedCount}/{totalLessons}</span>
       </div>
     </div>
   );
@@ -499,78 +486,66 @@ function JourneyMobileChips({
 function JourneySidePanel({
   mission,
   streak,
-  streakShields,
   todayMinutes,
   completedCount,
   totalLessons,
-  onNavigate,
 }: {
   mission?: MissionView;
   streak: number;
-  streakShields: number;
   todayMinutes: number;
   completedCount: number;
   totalLessons: number;
-  onNavigate: (to: string) => void;
 }) {
   const pct = Math.round((completedCount / Math.max(1, totalLessons)) * 100);
   return (
-    <aside className="sticky top-20 hidden space-y-2.5 xl:block">
-      <Card className="rounded-xl p-3.5 shadow-none">
-        <button
-          type="button"
-          onClick={() => onNavigate("/missoes")}
-          className="group flex w-full items-center gap-2 text-left"
-        >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-            <IconTarget width={16} height={16} />
+    <aside className="sticky top-16 hidden space-y-2 xl:block">
+      <Card className="p-3">
+        <Link to="/missoes" className="group flex w-full items-center gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
+            <IconTarget width={14} height={14} />
           </span>
-          <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Missão do dia
+          <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+            Missão
           </span>
-          <IconChevron width={14} height={14} className="text-ink-faint transition group-hover:text-ink" />
-        </button>
+          <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
+        </Link>
         {mission ? (
           <>
-            <div className="mt-2.5 flex items-center justify-between gap-2">
-              <div className="min-w-0 truncate text-sm font-semibold text-ink">{mission.title}</div>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <div className="min-w-0 truncate text-xs font-semibold text-ink">{mission.title}</div>
               <Pill tone={mission.complete ? "good" : "muted"}>
                 {mission.progress}/{mission.goal}
               </Pill>
             </div>
-            <ProgressBar value={mission.progress} max={mission.goal} className="mt-2 h-1" />
+            <ProgressBar value={mission.progress} max={mission.goal} className="mt-1.5" />
           </>
         ) : (
-          <p className="mt-2.5 text-sm text-ink-soft">Sem missão ativa agora.</p>
+          <p className="mt-2 text-xs text-ink-faint">Sem missão ativa.</p>
         )}
       </Card>
 
-      <Card className="rounded-xl p-3.5 shadow-none">
-        <button
-          type="button"
-          onClick={() => onNavigate("/perfil")}
-          className="group flex w-full items-center gap-2 text-left"
-        >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-            <IconBook width={16} height={16} />
+      <Card className="p-3">
+        <Link to="/perfil" className="group flex w-full items-center gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-accent/80">
+            <IconFlame width={14} height={14} />
           </span>
-          <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Seu progresso
+          <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+            Progresso
           </span>
-          <IconChevron width={14} height={14} className="text-ink-faint transition group-hover:text-ink" />
-        </button>
-        <div className="mt-2.5 flex items-baseline justify-between">
-          <span className="text-sm font-semibold text-ink">{completedCount}/{totalLessons} lições</span>
-          <span className="text-xs font-medium text-ink-faint tabular-nums">{pct}%</span>
+          <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
+        </Link>
+        <div className="mt-2 flex items-baseline justify-between">
+          <span className="text-xs font-semibold text-ink">{completedCount}/{totalLessons}</span>
+          <span className="text-[10px] font-medium tabular-nums text-ink-faint">{pct}%</span>
         </div>
-        <ProgressBar value={completedCount} max={totalLessons} className="mt-2 h-1" />
-        <div className="mt-3 flex items-center gap-3 border-t border-line/60 pt-3 text-sm">
-          <span className="flex items-center gap-1.5 font-semibold text-ink">
-            <IconFlame width={15} height={15} className="text-accent" />
-            {streak} {streak === 1 ? "dia" : "dias"}
+        <ProgressBar value={completedCount} max={totalLessons} className="mt-1.5" />
+        <div className="mt-2 flex items-center gap-2 border-t border-line/40 pt-2 text-[11px] text-ink-faint">
+          <span className="flex items-center gap-1 font-semibold text-ink">
+            <IconFlame width={12} height={12} className="text-accent" />
+            {streak}d
           </span>
-          <span className="text-ink-faint">·</span>
-          <span className="text-xs text-ink-faint">{streakShields} escudos · {todayMinutes} min hoje</span>
+          <span>·</span>
+          <span>{todayMinutes} min</span>
         </div>
       </Card>
     </aside>
@@ -591,20 +566,20 @@ function ThemeCheckpointCard({
   visibleOnMobile: boolean;
 }) {
   return (
-    <div className={["mx-auto mb-2 mt-4 max-w-md items-center gap-3 lg:flex lg:max-w-xl", visibleOnMobile ? "flex" : "hidden"].join(" ")}>
-      <div className="h-px flex-1 bg-line/60" />
-      <div className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em]">
+    <div className={["mx-auto mb-3 mt-5 max-w-sm items-center gap-2 lg:flex lg:max-w-md", visibleOnMobile ? "flex" : "hidden"].join(" ")}>
+      <div className="h-px flex-1 bg-line/40" />
+      <div className="flex min-w-0 items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em]">
         <span
-          className="h-1.5 w-1.5 shrink-0 rounded-full"
+          className="h-1 w-1 shrink-0 rounded-full"
           style={{ background: complete ? color : active ? "rgb(var(--accent))" : "rgb(var(--text-faint))" }}
           aria-hidden
         />
         <span className={["truncate", active ? "text-accent" : complete ? "text-ink-soft" : "text-ink-faint"].join(" ")}>
           {checkpoint.title}
         </span>
-        {complete && <IconCheck width={12} height={12} className="shrink-0 text-ink-faint" />}
+        {complete && <IconCheck width={10} height={10} className="shrink-0 text-ink-faint" />}
       </div>
-      <div className="h-px flex-1 bg-line/60" />
+      <div className="h-px flex-1 bg-line/40" />
     </div>
   );
 }
@@ -661,115 +636,95 @@ function ModuleBlock({
   const canChallenge = showSkipTest && !proChallenge && skipTestReady;
   const chestOpen = chest ? journeyChestsOpened.includes(chest.id) : false;
   const chestUnlocked = Boolean(chest && moduleComplete && !chestOpen);
-  const moduleState = moduleComplete
-    ? "concluído"
-    : containsCurrent
-    ? "agora"
-    : isFutureModule
-    ? "fechado"
-    : "anterior";
 
   return (
-    <div className="mb-2">
+    <div className="mb-6">
       <div
         className={[
-          "mx-auto max-w-md rounded-xl border bg-surface px-3 py-2.5 lg:max-w-xl",
-          containsCurrent ? "border-accent/50 ring-1 ring-accent/20" : "border-line/70",
-          isFutureModule ? "opacity-75" : "",
+          "mx-auto max-w-sm rounded-xl border bg-surface px-3 py-2 shadow-card lg:max-w-md",
+          containsCurrent ? "border-accent/35 shadow-glow" : "border-line/50",
+          isFutureModule ? "opacity-60" : "",
         ].join(" ")}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-2.5">
           <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white"
             style={{ background: isFutureModule ? "rgb(var(--surface-2))" : unit.color }}
           >
             {moduleComplete ? (
-              <IconCheck width={17} height={17} />
+              <IconCheck width={14} height={14} />
             ) : isFutureModule ? (
-              <IconLock width={16} height={16} className="text-ink-faint" />
+              <IconLock width={13} height={13} className="text-ink-faint" />
             ) : (
-              <IconShield width={17} height={17} />
+              <IconShield width={14} height={14} />
             )}
           </span>
           <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                  {moduleState}
-                </div>
-                <div className="truncate text-base font-semibold leading-tight text-ink">{unit.title}</div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 truncate text-[13px] font-semibold leading-tight text-ink">{unit.title}</div>
+              <div className="flex shrink-0 items-center gap-1">
                 {hasPremium && (
-                  <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold">
+                  <span className="rounded-full bg-gold/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold">
                     Pro
                   </span>
                 )}
-                <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-ink-soft">
+                <span className="text-[10px] font-semibold tabular-nums text-ink-faint">
                   {done}/{total}
                 </span>
               </div>
             </div>
-            <div className="mt-0.5 line-clamp-1 text-xs text-ink-soft">{unit.subtitle}</div>
-            <ProgressBar value={done} max={total} className="mt-2 h-1" />
+            <ProgressBar value={done} max={total} className="mt-1.5" />
           </div>
         </div>
 
         {showSkipTest && (
-          <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-surface-2 px-3 py-2 text-ink-soft">
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-surface-2/80 px-2.5 py-1.5">
             {canChallenge ? (
               <>
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Já sabe isso?</div>
-                  <div className="truncate text-xs">{containsCurrent ? "Teste o módulo atual." : "Pule com um teste rápido."}</div>
-                </div>
+                <div className="min-w-0 text-[11px] text-ink-soft">Já sabe? Teste rápido.</div>
                 <button
                   onClick={() => onChallenge(unit.id)}
-                  className="inline-flex h-8 shrink-0 items-center justify-center rounded-full bg-accent px-3 text-xs font-semibold text-white transition hover:bg-accent-strong"
+                  className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
                 >
-                  Fazer teste
+                  Teste
                 </button>
               </>
             ) : insufficientSkipTest ? (
               <>
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Teste indisponível</div>
-                  <div className="truncate text-xs">Este módulo ainda não tem perguntas suficientes para teste.</div>
-                </div>
+                <div className="min-w-0 text-[11px] text-ink-faint">Teste indisponível</div>
                 <button
                   disabled
-                  title="Este módulo ainda não tem perguntas suficientes para teste."
-                  className="inline-flex h-8 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-surface px-3 text-xs font-semibold text-ink-faint"
+                  className="inline-flex h-7 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-surface px-2.5 text-[11px] font-semibold text-ink-faint"
                 >
-                  Fazer teste
+                  Teste
                 </button>
               </>
             ) : proChallenge ? (
               <>
-                <div className="flex min-w-0 items-center gap-2 text-xs">
-                  <IconLock width={16} height={16} className="shrink-0" />
-                  <span className="truncate">Já sabe isso?</span>
+                <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-ink-soft">
+                  <IconLock width={12} height={12} className="shrink-0" />
+                  <span className="truncate">Pular módulo</span>
                 </div>
                 <button
                   onClick={onProChallenge}
-                  className="inline-flex h-8 shrink-0 items-center justify-center rounded-full bg-accent px-3 text-xs font-semibold text-white transition hover:bg-accent-strong"
+                  className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
                 >
-                  Teste Pro
+                  Pro
                 </button>
               </>
             ) : (
-              <div className="flex items-center gap-2 text-xs font-medium">
-                <IconLock width={16} height={16} className="shrink-0" />
-                Complete o módulo anterior para tentar pular este.
+              <div className="flex items-center gap-1.5 text-[11px] text-ink-faint">
+                <IconLock width={12} height={12} className="shrink-0" />
+                Complete o módulo anterior.
               </div>
             )}
           </div>
         )}
       </div>
 
-      <div className={["relative flex-col items-center gap-3 py-3 lg:flex", mobileExpanded ? "flex" : "hidden"].join(" ")}>
+      <div className={["relative flex-col items-center gap-4 py-4 lg:flex", mobileExpanded ? "flex" : "hidden"].join(" ")}>
         <div
-          className="pointer-events-none absolute inset-y-4 left-1/2 w-px -translate-x-1/2 bg-line/70"
+          className="pointer-events-none absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-line/50 to-transparent"
           aria-hidden
         />
         {unit.lessons.map((lesson) => {
@@ -1061,23 +1016,24 @@ function LessonNode({
     : isReview
     ? REVIEW_COLOR
     : "rgb(var(--accent))";
-  const nodeSizeClass = isCurrent ? "h-[72px] w-[72px]" : isDone ? "h-[52px] w-[52px]" : "h-[58px] w-[58px]";
-  const ringSizeClass = isCurrent ? "h-[84px] w-[84px]" : isDone ? "h-[64px] w-[64px]" : "h-[70px] w-[70px]";
-  const iconSize = isCurrent ? 30 : isDone ? 22 : 25;
+  const nodeSizeClass = isCurrent ? "h-[68px] w-[68px]" : isDone ? "h-[48px] w-[48px]" : "h-[54px] w-[54px]";
+  const ringSizeClass = isCurrent ? "h-[80px] w-[80px]" : isDone ? "h-[58px] w-[58px]" : "h-[64px] w-[64px]";
+  const iconSize = isCurrent ? 28 : isDone ? 20 : 22;
   const safeStageTotal = Math.max(1, stageTotal);
   const safeStageProgress = Math.max(0, Math.min(safeStageTotal, stageProgress));
   const hasPartialProgress = !isDone && !locked && safeStageProgress > 0 && safeStageProgress < safeStageTotal;
-  const stageCopy = lessonStageProgressCopy(safeStageProgress, safeStageTotal);
-  const compactStageCopy = stageCopy === "Falta fixar este conteúdo" ? "Falta fixar" : stageCopy.replace(" concluídas", "");
 
   return (
     <div className="relative z-[1] flex flex-col items-center" style={{ transform: `translateX(${offset}px)` }}>
       {isCurrent && (
-        <div className="mb-1 animate-bounce rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lift">
-          {isPaywall ? "Pro" : attempted ? "Quase" : hasPartialProgress ? `${safeStageProgress}/${safeStageTotal}` : isReview ? "Revisar" : "Começar"}
+        <div className="mb-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-card">
+          {isPaywall ? "Pro" : attempted ? "Quase" : hasPartialProgress ? `${safeStageProgress}/${safeStageTotal}` : isReview ? "Revisar" : "Agora"}
         </div>
       )}
       <div className={["relative grid place-items-center", ringSizeClass].join(" ")}>
+        {isCurrent && (
+          <span className="absolute inset-0 animate-pulse rounded-full bg-accent/15" aria-hidden />
+        )}
         <LessonStageRing value={safeStageProgress} total={safeStageTotal} color={bg ?? "rgb(var(--accent))"} locked={locked} />
         <button
           onClick={onClick}
@@ -1088,8 +1044,9 @@ function LessonNode({
             "relative flex items-center justify-center rounded-full transition active:scale-95",
             nodeSizeClass,
             isReview && !locked ? "rounded-2xl" : "",
-            isCurrent && "ring-4 ring-accent/30",
-            locked ? "cursor-help bg-surface-2 text-ink-faint shadow-inner" : "text-white shadow-card hover:brightness-105",
+            isCurrent && "ring-[3px] ring-accent/40 shadow-glow",
+            isDone && !isCurrent && "opacity-90",
+            locked ? "cursor-help bg-surface-2 text-ink-faint" : "text-white shadow-card hover:brightness-105",
           ].filter(Boolean).join(" ")}
           style={bg ? { background: bg } : undefined}
         >
@@ -1119,17 +1076,9 @@ function LessonNode({
           ))}
         </div>
       )}
-      <span className={["mt-1.5 max-w-[128px] text-center text-xs font-medium leading-tight", locked ? "text-ink-faint" : "text-ink-soft"].join(" ")}>
+      <span className={["mt-1 max-w-[112px] truncate text-center text-[11px] font-medium leading-tight", locked ? "text-ink-faint" : isCurrent ? "text-ink" : "text-ink-soft"].join(" ")}>
         {title}
-        {isCurrent && !locked && (
-          <span className="mt-0.5 block text-[10px] font-normal text-ink-faint">{SKILL_TAGLINE[skill]}</span>
-        )}
-        {attempted && !isDone && !locked && <span className="mt-0.5 block text-[10px] uppercase tracking-wide text-accent">Quase</span>}
-        {hasPartialProgress && <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-accent">{compactStageCopy}</span>}
-        {isCurrent && !attempted && !hasPartialProgress && !isDone && !locked && (
-          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-accent">Etapa 1/{safeStageTotal}</span>
-        )}
-        {premium && !isDone && <span className="mt-0.5 block text-[10px] uppercase tracking-wide text-accent">Pro</span>}
+        {premium && !isDone && <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-gold">Pro</span>}
       </span>
     </div>
   );

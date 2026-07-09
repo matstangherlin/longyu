@@ -1,13 +1,45 @@
-import { Link, useLocation } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { IconFlame, IconShield, IconStar, IconUser } from "../ui/Icon";
 import { BrandWordmark } from "./Brand";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useIsPro } from "../../lib/proAccess";
 
-// Barra superior fina: marca + indicadores essenciais.
+function StatPill({
+  to,
+  icon: Icon,
+  value,
+  label,
+  className,
+}: {
+  to?: string;
+  icon: typeof IconShield;
+  value: ReactNode;
+  label: string;
+  className?: string;
+}) {
+  const inner = (
+    <span
+      className={[
+        "inline-flex items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 py-1 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs",
+        className,
+      ].join(" ")}
+      aria-label={label}
+    >
+      <Icon width={13} height={13} className="shrink-0 text-accent sm:h-3.5 sm:w-3.5" />
+      <span className="text-accent">{value}</span>
+    </span>
+  );
+  if (!to) return inner;
+  return (
+    <Link to={to} className="transition hover:opacity-80">
+      {inner}
+    </Link>
+  );
+}
+
 export function TopBar() {
-  const location = useLocation();
   const streak = useStore((s) => s.streak);
   const points = useStore((s) => s.points);
   const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
@@ -15,63 +47,46 @@ export function TopBar() {
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts?.[currentAccountId];
-  const activityFocus = /^\/(licao|teste)\//.test(location.pathname);
   const { signOut, canSignOut } = useCloudSignOut();
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-2 border-b border-line bg-bg/85 px-3 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-20 flex h-12 items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 backdrop-blur-md sm:px-5 lg:h-14">
       <div className="min-w-0 shrink lg:hidden">
         <Link to="/" aria-label="Longyu">
-          <BrandWordmark className="text-[1.35rem] sm:text-[1.45rem]" />
+          <BrandWordmark className="text-[1.2rem] sm:text-[1.3rem]" />
         </Link>
       </div>
 
-      {/* Mobile mostra só Cargas + sequência; Conta e Qi ficam no desktop
-          (no mobile, perfil e Qi vivem em Meu e na Loja). */}
-      <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap sm:gap-2">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+        <StatPill
+          to="/loja"
+          icon={IconShield}
+          value={isPremium ? "∞" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
+          label={isPremium ? "Cargas infinitas" : `Cargas: ${dailyEnergy.charges} de ${dailyEnergy.maxCharges}`}
+        />
+        <StatPill
+          to="/loja"
+          icon={IconStar}
+          value={points}
+          label={`Qi: ${points}`}
+        />
+        <StatPill
+          icon={IconFlame}
+          value={streak}
+          label={`Sequência: ${streak} ${streak === 1 ? "dia" : "dias"}`}
+        />
         <Link
           to="/perfil"
-          className="hidden h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 lg:flex"
-          aria-label="Conta"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition hover:bg-surface-2 sm:h-9 sm:w-9"
+          aria-label={account?.name ? `Conta: ${account.name}` : "Conta"}
         >
-          <IconUser width={16} height={16} className="text-accent" />
-          <span className="max-w-[120px] truncate">
-            {account?.name ?? "Conta"}
-          </span>
+          <IconUser width={15} height={15} className="sm:h-4 sm:w-4" />
         </Link>
-        {/* Ultra-compacto no mobile: sempre visível, até em 360px. */}
-        <div
-          className={[
-            "items-center gap-1 rounded-full border border-line bg-surface px-2 py-1 text-xs font-semibold tabular-nums text-accent sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm",
-            activityFocus ? "hidden lg:flex" : "flex",
-          ].join(" ")}
-          aria-label={isPremium ? "Cargas infinitas" : `Cargas: ${dailyEnergy.charges} de ${dailyEnergy.maxCharges}`}
-        >
-          <IconShield width={14} height={14} className="sm:h-4 sm:w-4" />
-          {isPremium ? "∞" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
-          <span className="hidden font-normal text-ink-faint sm:inline">Cargas</span>
-        </div>
-        <div className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-accent lg:flex">
-          <IconStar width={16} height={16} />
-          {points}
-          <span className="font-normal text-ink-faint">Qi</span>
-        </div>
-        <div
-          className={[
-            "items-center gap-1 rounded-full border border-line bg-surface px-2 py-1 text-xs font-semibold tabular-nums text-accent sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm",
-            activityFocus ? "hidden lg:flex" : "flex",
-          ].join(" ")}
-          aria-label={`Sequência: ${streak} ${streak === 1 ? "dia" : "dias"}`}
-        >
-          <IconFlame width={14} height={14} className="sm:h-4 sm:w-4" />
-          {streak}
-          <span className="hidden font-normal text-ink-faint sm:inline">{streak === 1 ? "dia" : "dias"}</span>
-        </div>
         {canSignOut && (
           <button
             type="button"
             onClick={() => void signOut()}
-            className="flex h-9 shrink-0 items-center rounded-full border border-wrong/30 bg-wrong-soft px-3 text-xs font-bold text-wrong transition hover:bg-wrong/15 sm:px-4 sm:text-sm"
+            className="hidden h-8 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-2.5 text-[11px] font-semibold text-wrong transition hover:bg-wrong/10 sm:flex"
           >
             Sair
           </button>

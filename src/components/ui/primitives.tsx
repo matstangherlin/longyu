@@ -18,7 +18,7 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-2xl border border-line/70 bg-surface text-ink shadow-none transition-colors",
+        "rounded-xl border border-line/50 bg-surface text-ink shadow-card transition-colors",
         className
       )}
       {...rest}
@@ -45,7 +45,7 @@ export function Button({
       "bg-accent text-white hover:bg-accent-strong active:scale-[.98] shadow-card",
     ghost: "text-ink-soft hover:bg-surface-2 active:scale-[.98]",
     soft: "bg-accent-soft text-accent hover:brightness-95 active:scale-[.98]",
-    outline: "border border-line bg-surface text-ink hover:bg-surface-2 active:scale-[.98]",
+    outline: "border border-line/60 bg-surface text-ink hover:bg-surface-2 active:scale-[.98]",
     good:
       "bg-[rgb(var(--good))] text-white hover:brightness-95 active:scale-[.98] shadow-card",
   };
@@ -81,7 +81,7 @@ export function ProgressBar({
   const safeMax = max > 0 ? max : 1;
   const pct = Math.max(0, Math.min(100, Math.round((value / safeMax) * 100)));
   return (
-    <div className={cx("h-2 overflow-hidden rounded-full border border-line/70 bg-surface-2", className)}>
+    <div className={cx("h-1.5 overflow-hidden rounded-full bg-surface-2", className)}>
       <div
         className="h-full rounded-full bg-accent shadow-inner transition-all duration-500"
         style={{ width: `${pct}%` }}
@@ -108,7 +108,7 @@ export function Pill({
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
         tones[tone],
         className
       )}
@@ -144,28 +144,28 @@ export function HubCard({
       type="button"
       onClick={onClick}
       className={cx(
-        "flex min-h-[88px] flex-col items-start rounded-xl border p-3 text-left transition hover:-translate-y-0.5 active:scale-[.99] sm:min-h-[96px]",
+        "flex min-h-[76px] flex-col items-start rounded-xl border p-2.5 text-left transition active:scale-[.99] sm:min-h-[84px] sm:p-3",
         active
-          ? "border-accent/50 bg-accent-soft/30"
+          ? "border-accent/40 bg-accent-soft/25 shadow-card"
           : featured
-            ? "border-accent/30 bg-accent-soft/20"
-            : "border-line/70 bg-surface",
+            ? "border-accent/25 bg-accent-soft/15"
+            : "border-line/50 bg-surface shadow-card",
         className
       )}
     >
       <span className="flex w-full items-start justify-between gap-2">
         <span
           className={cx(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-            active || featured ? "bg-accent text-white" : "bg-accent-soft text-accent"
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+            active || featured ? "bg-accent text-white" : "bg-surface-2 text-accent/80"
           )}
         >
-          <Icon width={18} height={18} />
+          <Icon width={16} height={16} />
         </span>
         {badge}
       </span>
-      <span className="mt-2 text-sm font-semibold leading-tight text-ink">{title}</span>
-      {desc && <span className="mt-1 line-clamp-2 text-xs leading-4 text-ink-soft">{desc}</span>}
+      <span className="mt-1.5 text-[13px] font-semibold leading-tight text-ink">{title}</span>
+      {desc && <span className="mt-0.5 line-clamp-1 text-[11px] leading-4 text-ink-faint">{desc}</span>}
     </button>
   );
 }
@@ -186,7 +186,7 @@ export function SectionTitle({
           {eyebrow}
         </div>
       )}
-      <h1 className="font-serif text-[1.65rem] font-semibold leading-tight text-ink sm:text-[1.85rem]">
+      <h1 className="font-serif text-[1.45rem] font-semibold leading-tight text-ink sm:text-[1.65rem]">
         {title}
       </h1>
       {desc && <p className="mt-1 max-w-xl text-sm leading-5 text-ink-soft">{desc}</p>}

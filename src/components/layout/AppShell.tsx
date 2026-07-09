@@ -82,10 +82,10 @@ export function AppShell() {
             tab bar some, então o padding encolhe. */}
         <main
           className={[
-            "mx-auto w-full max-w-content flex-1 px-4 sm:px-6 lg:pb-12",
+            "mx-auto w-full max-w-content flex-1 px-3 sm:px-5 lg:px-6 lg:pb-12",
             focusMode
-              ? "pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3 sm:pt-6"
-              : "pb-[calc(env(safe-area-inset-bottom)+7.75rem)] pt-6",
+              ? "pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3 sm:pt-5"
+              : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5",
           ].join(" ")}
         >
           <Outlet />

@@ -13,7 +13,7 @@ const MORE_DROPDOWN_CLOSE_DELAY = 180;
 
 function linkClass(active: boolean) {
   return [
-    "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+    "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
     active
       ? "bg-accent-soft text-accent"
       : "text-ink-soft hover:bg-surface-2 hover:text-ink",
@@ -24,12 +24,12 @@ export function Sidebar() {
   const location = useLocation();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-line bg-surface px-3 py-5 lg:flex">
-      <div className="px-3 pb-3">
+    <aside className="sticky top-0 hidden h-screen w-[13.5rem] shrink-0 flex-col border-r border-line/60 bg-surface px-2.5 py-4 lg:flex">
+      <div className="px-2 pb-2">
         <BrandLockup tagline={COURSE_PROFILE.shortTagline} />
       </div>
 
-      <nav className="mt-2 flex-1 space-y-1 overflow-y-auto">
+      <nav className="mt-1 flex-1 space-y-0.5 overflow-y-auto">
         {DESKTOP_NAV.map((item) => {
           const active = isNavItemActive(item, location.pathname);
           if (item.to === "/mais") {
@@ -61,7 +61,7 @@ function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
       className={linkClass(active)}
       aria-current={active ? "page" : undefined}
     >
-      <Icon width={20} height={20} />
+      <Icon width={18} height={18} />
       <span className="truncate">{item.label}</span>
     </Link>
   );
@@ -203,7 +203,7 @@ function MoreSidebarItem({
         aria-label="Mais: abrir página completa"
         onClick={closeNow}
       >
-        <Icon width={20} height={20} />
+        <Icon width={18} height={18} />
         <span className="truncate">{item.label}</span>
       </Link>
 

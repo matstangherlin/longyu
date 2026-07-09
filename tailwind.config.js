@@ -26,12 +26,14 @@ export default {
         hanzi: ["'Noto Serif SC'", "'Songti SC'", "serif"],
       },
       borderRadius: {
+        lg: "12px",
         xl: "14px",
-        "2xl": "18px",
+        "2xl": "16px",
       },
       boxShadow: {
-        card: "0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.03)",
-        lift: "0 6px 24px rgb(0 0 0 / 0.08)",
+        card: "0 1px 2px rgb(0 0 0 / 0.03), 0 2px 8px rgb(0 0 0 / 0.04)",
+        lift: "0 4px 16px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.04)",
+        glow: "0 0 0 3px rgb(var(--accent) / 0.18)",
       },
       maxWidth: {
         content: "1180px",

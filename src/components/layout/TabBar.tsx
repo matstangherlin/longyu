@@ -14,7 +14,6 @@ export function TabBar() {
   const isPro = useIsPro();
   const due = dueItems(srs).length;
   const readyChests = (chests.small ?? 0) + (chests.dragon ?? 0) + (chests.monthly ?? 0) + (chests.legendary ?? 0);
-  // Missão premium não resgatável pelo grátis não conta no badge (nunca zeraria).
   const readyMissions = buildMissionViews("daily", aggregates, dailyMissions.claimed).filter(
     (mission) => mission.complete && !mission.claimed && isMissionActionable(mission, isPro)
   ).length;
@@ -26,10 +25,10 @@ export function TabBar() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/92 shadow-[0_-12px_34px_rgb(0_0_0/0.08)] backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-line/60 bg-surface/95 shadow-[0_-4px_20px_rgb(0_0_0/0.05)] backdrop-blur-xl lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-around px-2 pb-1 pt-1">
+      <div className="mx-auto flex max-w-md items-stretch justify-around px-1 pb-0.5 pt-0.5">
         {NAV_MOBILE.map((item) => {
           const active = isNavItemActive(item, location.pathname);
           const badge = badges[item.to] ?? 0;
@@ -39,19 +38,19 @@ export function TabBar() {
               to={item.to}
               aria-current={active ? "page" : undefined}
               className={[
-                "flex min-w-0 flex-1 flex-col items-center gap-1 py-2 text-[10px] font-semibold transition active:scale-[0.98]",
-                active ? "text-accent" : "text-ink-faint hover:text-ink-soft",
+                "flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1.5 text-[9px] font-semibold transition active:scale-[0.98] sm:text-[10px]",
+                active ? "text-accent" : "text-ink-faint",
               ].join(" ")}
             >
               <span
                 className={[
-                  "relative flex h-10 w-14 items-center justify-center rounded-full transition",
-                  active ? "bg-accent text-white shadow-card" : "bg-transparent",
+                  "relative flex h-9 w-12 items-center justify-center rounded-full transition sm:h-10 sm:w-14",
+                  active ? "bg-accent text-white shadow-card" : "",
                 ].join(" ")}
               >
-                <item.icon width={22} height={22} />
+                <item.icon width={20} height={20} />
                 {badge > 0 && !active && (
-                  <span className="absolute -top-0.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold leading-none text-white shadow-card">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-accent px-0.5 text-[8px] font-bold leading-none text-white">
                     {badge > 9 ? "9+" : badge}
                   </span>
                 )}
