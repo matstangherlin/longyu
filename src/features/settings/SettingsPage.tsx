@@ -403,30 +403,44 @@ export function SettingsPage() {
           </Link>
         }
       >
-        <Card className="flex items-center justify-between gap-3 rounded-xl border-line/70 p-3.5 shadow-none">
-          <div>
-            <div className="font-medium text-ink">Ativar Pro Preview</div>
-            <div className="text-sm text-ink-soft">
-              Libera ferramentas de prática, cargas e novas tentativas sem Qi. A Jornada continua em ordem pedagógica.
-            </div>
+        <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
+          <div className="text-sm text-ink-soft">
+            O Longyu Pro remove os limites diários, libera a revisão inteligente e as ferramentas avançadas. A Jornada
+            e a revisão essencial continuam grátis para sempre.
           </div>
-          <button
-            role="switch"
-            aria-checked={isPremium}
-            onClick={() => setPremium(!isPremium)}
-            className={[
-              "relative h-7 w-12 shrink-0 rounded-full transition",
-              isPremium ? "bg-accent" : "bg-line",
-            ].join(" ")}
-          >
-            <span
-              className={[
-                "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
-                isPremium ? "left-5" : "left-0.5",
-              ].join(" ")}
-            />
-          </button>
+          <Link to="/pro" className="mt-3 inline-block">
+            <Button size="sm">Ver planos Pro</Button>
+          </Link>
         </Card>
+
+        {/* Ferramenta interna de desenvolvimento: simular o Pro sem servidor.
+            Nunca aparece para o usuário final (só em build de DEV). */}
+        {import.meta.env.DEV && (
+          <Card className="mt-2 flex items-center justify-between gap-3 rounded-xl border-dashed border-accent/40 p-3.5 shadow-none">
+            <div>
+              <div className="font-medium text-ink">DEV: simular Pro</div>
+              <div className="text-sm text-ink-soft">
+                Alterna o entitlement local para testar as telas Pro. Só existe em desenvolvimento.
+              </div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={isPremium}
+              onClick={() => setPremium(!isPremium)}
+              className={[
+                "relative h-7 w-12 shrink-0 rounded-full transition",
+                isPremium ? "bg-accent" : "bg-line",
+              ].join(" ")}
+            >
+              <span
+                className={[
+                  "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
+                  isPremium ? "left-5" : "left-0.5",
+                ].join(" ")}
+              />
+            </button>
+          </Card>
+        )}
 
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {DOMAIN_ORDER.map((track) => {

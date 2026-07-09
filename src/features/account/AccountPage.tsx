@@ -1419,9 +1419,9 @@ const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; b
     blurb: "Você está usando o Longyu gratuito. O Longyu Pro ficará disponível no lançamento.",
   },
   local_preview: {
-    label: "Pro Preview",
+    label: "Longyu Pro",
     tone: "gold",
-    blurb: "Pro Preview ativo neste dispositivo. Sem cobrança nesta versão de teste.",
+    blurb: "Recursos do Longyu Pro liberados.",
   },
   real_active: {
     label: "Longyu Pro ativo",
@@ -2049,7 +2049,7 @@ export function AccountPage() {
           title: "Pro",
           desc: proStatus.label,
           icon: IconStar,
-          badge: proState === "local_preview" ? "Preview" : undefined,
+          badge: proState === "local_preview" ? "Pro" : undefined,
           featured: proState === "not_subscriber",
           onClick: () => proAccountRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },
@@ -2356,11 +2356,9 @@ export function AccountPage() {
           <HubCard
             title="Longyu Pro"
             desc={
-              proState === "local_preview"
-                ? "Pro Preview ativo."
-                : proState === "real_active"
-                  ? "Longyu Pro ativo."
-                  : "Pro Preview, sem cobrança."
+              proState === "local_preview" || proState === "real_active"
+                ? "Longyu Pro ativo."
+                : "Estude sem limites com o Pro."
             }
             icon={IconStar}
             featured={proState === "not_subscriber"}
@@ -2878,7 +2876,7 @@ function ProSubscriptionCard({
   const hasRealSubscription = Boolean(serverSubscription);
   const canManage = hasRealSubscription && isBillingPortalAvailable();
   const canCancel = proState === "real_active" && hasRealSubscription && isBillingPortalAvailable();
-  const planName = serverSubscription?.planName ?? (isLocalPreview ? "Pro Preview" : "Gratuito");
+  const planName = serverSubscription?.planName ?? (isLocalPreview ? "Longyu Pro" : "Gratuito");
   const benefits = isFree ? getAccountFreeBenefits() : ACCOUNT_PRO_BENEFITS;
   const nextBilling =
     serverSubscription?.nextBillingAt
@@ -2932,7 +2930,7 @@ function ProSubscriptionCard({
           <p className="mt-3 text-xs leading-5 text-ink-faint">
             {isSupabaseBackendEnabled()
               ? "Assine o Pro com pagamento seguro quando estiver pronto para desbloquear tudo."
-              : "Assinatura real será ativada no lançamento. Sem cobrança nesta versão de teste."}
+              : "Checkout em configuração. A assinatura será liberada assim que o pagamento seguro estiver ativo."}
           </p>
         </div>
       ) : (
@@ -2958,7 +2956,7 @@ function ProSubscriptionCard({
           </div>
           <p className="mt-3 text-xs leading-5 text-ink-faint">
             {isLocalPreview
-              ? "Pro Preview local: sem cobrança nesta versão de teste."
+              ? "Recursos do Longyu Pro liberados nesta conta."
               : "Quando o pagamento real estiver ativo, você poderá gerenciar ou cancelar sua assinatura por aqui."}
           </p>
         </>

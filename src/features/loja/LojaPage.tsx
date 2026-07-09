@@ -228,7 +228,7 @@ function ShopItemCard({
 
         {item.kind === "pro_link" ? (
           <Button size="sm" className="w-full" variant={isPremium ? "soft" : "primary"} onClick={onPro}>
-            {isPremium ? "Pro Preview ativo" : "Ver Longyu Pro"}
+            {isPremium ? "Longyu Pro ativo" : "Ver planos Pro"}
           </Button>
         ) : item.cosmetic && owned ? (
           <Button size="sm" variant="outline" className="w-full" disabled>

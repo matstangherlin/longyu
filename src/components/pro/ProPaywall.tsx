@@ -29,7 +29,7 @@ const PAYWALL_COPY: Record<ProPaywallKind, {
   qi: {
     eyebrow: "Refazer sem gastar Qi",
     title: "Continue praticando sem contar tentativas",
-    description: "No Pro Preview, repetir uma questão, lição ou teste não consome Qi.",
+    description: "Com o Longyu Pro, repetir uma questão, lição ou teste não consome Qi.",
     benefit: "Refaça no seu ritmo e transforme erros em prática, sem interromper o estudo.",
     icon: IconStar,
   },
@@ -43,7 +43,7 @@ const PAYWALL_COPY: Record<ProPaywallKind, {
   immersion: {
     eyebrow: "Imersão ilimitada",
     title: "Mantenha o mandarim no ouvido",
-    description: "Sessões de imersão usam Cargas do Dragão no plano grátis. No Pro Preview, a prática guiada fica ampliada para teste.",
+    description: "Sessões de imersão usam Cargas do Dragão no plano grátis. Com o Longyu Pro, a imersão fica ampliada.",
     benefit: "Faça quantas sessões quiser e avance para shadowing avançado quando estiver pronto.",
     icon: IconHeadphones,
   },
@@ -58,7 +58,7 @@ const PAYWALL_COPY: Record<ProPaywallKind, {
     eyebrow: "Fala com IA",
     title: "Pratique conversas com feedback",
     description: "Em breve você poderá treinar conversas guiadas com feedback mais completo.",
-    benefit: "Enquanto isso, use a prévia para experimentar o formato e preparar sua fala.",
+    benefit: "Um recurso do Longyu Pro para praticar a fala com correção clara.",
     icon: IconChat,
   },
   reports: {
@@ -71,15 +71,15 @@ const PAYWALL_COPY: Record<ProPaywallKind, {
   content: {
     eyebrow: "Conteúdo premium",
     title: "Continue sua jornada completa",
-    description: "Visualize novas fases, trilhas HSK e situações reais do mandarim no preview local.",
-    benefit: "A jornada gratuita permanece disponível; o preview amplia o caminho para teste.",
+    description: "Acesse novas fases, trilhas HSK e situações reais do mandarim com o Longyu Pro.",
+    benefit: "A jornada gratuita permanece disponível; o Pro amplia o caminho para você avançar mais.",
     icon: IconBook,
   },
   review: {
     eyebrow: "Revisão avançada",
     title: "Revise além da fila essencial",
     description: "Continue a sessão com tarefas ativas e foco nas fraquezas que mais precisam voltar hoje.",
-    benefit: "A revisão gratuita continua ativa todos os dias; o preview libera a fila ampliada localmente.",
+    benefit: "A revisão gratuita continua ativa todos os dias; o Longyu Pro libera a fila ampliada.",
     icon: IconTarget,
   },
   errors: {
@@ -150,7 +150,7 @@ export function ProPaywall({
             <Icon width={24} height={24} />
           </span>
           <span className="rounded-full border border-[#B7791F]/25 bg-[#B7791F]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">
-            {realBilling ? "Longyu Pro" : "Pro Preview"}
+            Longyu Pro
           </span>
         </div>
         <div className="mt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</div>
@@ -182,7 +182,7 @@ export function ProPaywall({
         <p className="mt-3 text-center text-xs text-ink-faint">
           {realBilling
             ? "30 dias grátis. Cancele quando quiser, direto na sua conta."
-            : "Sem cobrança e sem assinatura real nesta prévia."}
+            : "Os planos do Longyu Pro serão liberados em breve."}
         </p>
       </section>
     </ModalOverlay>

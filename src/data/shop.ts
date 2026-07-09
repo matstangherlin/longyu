@@ -63,7 +63,7 @@ export const CATEGORY_META: Record<ShopCategory, { label: string; desc: string }
   baus: { label: "Baús", desc: "Recompensas aleatórias para variar o dia." },
   sequencia: { label: "Sequência", desc: "Proteja sua ofensiva." },
   cosmeticos: { label: "Cosméticos", desc: "Personalize o Longyu (em breve)." },
-  pro: { label: "Pro Preview", desc: "Preview local dos recursos Pro." },
+  pro: { label: "Longyu Pro", desc: "Estude sem limites e com revisão inteligente." },
 };
 
 export const CATEGORY_ORDER: ShopCategory[] = ["uteis", "baus", "sequencia", "cosmeticos", "pro"];
@@ -181,8 +181,8 @@ export const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop-pro",
-    name: "Longyu Pro Preview",
-    desc: "Ativa o preview local de Cargas sem limite, revisão ampliada e treino focado. Sem cobrança real.",
+    name: "Longyu Pro",
+    desc: "Cargas ilimitadas, revisão inteligente, erros detalhados e ferramentas avançadas. Veja os planos.",
     category: "pro",
     currency: "qi",
     cost: 0,
