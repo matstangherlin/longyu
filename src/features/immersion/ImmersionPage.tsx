@@ -39,6 +39,7 @@ import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
+import { useProOffer } from "../../hooks/useProOffer";
 import { useIsPro } from "../../lib/proAccess";
 
 const MODE_META: Record<ImmersionMode, { label: string; instruction: string; icon: typeof IconSound }> = {
@@ -241,6 +242,7 @@ export function ImmersionPage() {
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ImmersionCategory>("all");
   const [paywallKind, setPaywallKind] = useState<ProPaywallKind | null>(null);
+  const contextualOffer = useProOffer();
   const [storyProgress, setStoryProgress] = useState<StoryProgressMap>(() => readStoryProgress());
   const sessionsRef = useRef<HTMLDivElement>(null);
   const immersionDaily = useStore((state) => state.immersionDaily);
@@ -340,6 +342,7 @@ export function ImmersionPage() {
   // (retomar no mesmo dia ou rever uma concluída não consome de novo).
   function openStory(story: InteractiveStory) {
     if (story.premium && !isPremium) {
+      contextualOffer.consider({ storyPremium: true });
       setPaywallKind("story");
       return;
     }
@@ -510,7 +513,7 @@ export function ImmersionPage() {
         </HubSection>
       )}
 
-      <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "immersion"} onClose={() => setPaywallKind(null)} />
+      <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "immersion"} offer={contextualOffer.offer} onClose={() => setPaywallKind(null)} />
     </HubPage>
   );
 }
@@ -677,6 +680,7 @@ function InteractiveStoryPlayer({
   const recordActivityError = useStore((state) => state.recordActivityError);
   const completeImmersionSession = useStore((state) => state.completeImmersionSession);
   const recordDailyTask = useStore((state) => state.recordDailyTask);
+  const contextualOffer = useProOffer();
   const [currentIndex, setCurrentIndex] = useState(() => initialStoryStepIndex(story, progress));
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [shortAnswer, setShortAnswer] = useState("");
@@ -799,6 +803,9 @@ function InteractiveStoryPlayer({
     }
     onProgressChange();
     setVictory({ score, total: interactiveTotal, awarded: !alreadyCompleted });
+    if (!alreadyCompleted) {
+      contextualOffer.consider({ storyCompleted: true, storyPremium: Boolean(story.premium) });
+    }
   }
 
   function continueStory() {
@@ -1042,6 +1049,12 @@ function InteractiveStoryPlayer({
           <IconChevron width={18} height={18} />
         </Button>
       </div>
+      <ProPaywall
+        open={contextualOffer.open}
+        kind={contextualOffer.offer?.paywallKind ?? "story"}
+        offer={contextualOffer.offer}
+        onClose={contextualOffer.dismiss}
+      />
     </div>
   );
 }

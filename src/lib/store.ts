@@ -28,7 +28,12 @@ import {
   nextLeagueTier,
   normalizeLeagueTier,
 } from "./leagues";
-import { syncLeagueXpToServer } from "./leagueXpSync";
+import { syncLeagueXpToServerAsync } from "./leagueXpSync";
+import {
+  leagueXpKeyImmersion,
+  leagueXpKeyMission,
+  leagueXpKeyReward,
+} from "./leagueXpKeys";
 
 import {
   CHARGE_COST_ACTIVITY,
@@ -1384,7 +1389,7 @@ interface AppState {
   addPoints: (points: number) => void;
   spendPoints: (points: number) => boolean;
   /** XP = progresso de estudo (lições, revisão, prática, imersão, missões). Nunca é gasto. */
-  addXp: (amount: number, source: string) => void;
+  addXp: (amount: number, sourceKey: string) => void;
   /** Qi = moeda acumulável (loja, recuperações, tentativas extras). */
   addQi: (amount: number, source: string) => void;
   /** Gasta Qi; retorna false se não houver saldo. Pro nunca fica sem Qi. */
@@ -1659,10 +1664,11 @@ export const useStore = create<AppState>()(
       // Aliases legados: Qi era chamado de "points". Mantidos para compat.
       addPoints: (points) => get().addQi(points, "legacy"),
       spendPoints: (points) => get().spendQi(points, "legacy"),
-      addXp: (amount, source) => {
+      addXp: (amount, sourceKey) => {
         const inc = Math.max(0, Math.round(amount));
         if (inc <= 0) return;
-        const sourceKey = `${source}:${Date.now()}`;
+        const key = sourceKey.trim();
+        if (key.length < 3) return;
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
@@ -1677,7 +1683,7 @@ export const useStore = create<AppState>()(
           const next = { ...current, ...nextXp };
           return { ...leaguePatch, ...nextXp, accounts: saveCurrentAccount(next) };
         });
-        syncLeagueXpToServer(inc, sourceKey);
+        syncLeagueXpToServerAsync(inc, key);
       },
       getTodayXp: () => activeXp(get()).xpToday,
       getWeeklyXp: () => activeXp(get()).weeklyXp,
@@ -1836,7 +1842,7 @@ export const useStore = create<AppState>()(
           };
         });
         if (xpInc > 0) {
-          syncLeagueXpToServer(xpInc, `mission:${scope}:${missionId}:${periodKeyForSync}`);
+          syncLeagueXpToServerAsync(xpInc, leagueXpKeyMission(scope, missionId, periodKeyForSync));
         }
         return true;
       },
@@ -2327,6 +2333,9 @@ export const useStore = create<AppState>()(
         const current = activeImmersionDaily(state.immersionDaily, date);
         if (current.completedSessionIds.includes(sessionId)) return false;
 
+        let xpToSync = 0;
+        const syncKey = leagueXpKeyImmersion(sessionId, date);
+
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const currentState = { ...s, ...leaguePatch };
@@ -2374,10 +2383,9 @@ export const useStore = create<AppState>()(
             lifetimeStats,
           }, reward);
 
-          // XP não passa pelo rewardHistory (não é idempotente por design):
-          // a sessão já é protegida contra duplicação por completedSessionIds.
           const xpBase = activeXp(next);
           const xpInc = Math.max(0, Math.round(completion.rewardXp ?? 0));
+          xpToSync = xpInc;
           const nextXp: XpBuckets = {
             ...xpBase,
             xpTotal: xpBase.xpTotal + xpInc,
@@ -2385,7 +2393,6 @@ export const useStore = create<AppState>()(
             weeklyXp: xpBase.weeklyXp + xpInc,
             monthlyXp: xpBase.monthlyXp + xpInc,
           };
-          // Alimenta as missões semanais de imersão e leitura.
           const week = activeWeeklyMissions(currentState.weeklyMissions);
           const weeklyMissions: WeeklyMissionsState = {
             ...week,
@@ -2394,7 +2401,6 @@ export const useStore = create<AppState>()(
             premiumStories: week.premiumStories + (completion.isPremiumStory ? 1 : 0),
           };
           const withXp = { ...next, ...nextXp, weeklyMissions };
-          syncLeagueXpToServer(xpInc, `immersion:${sessionId}`);
 
           return {
             ...leaguePatch,
@@ -2410,6 +2416,8 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(withXp),
           };
         });
+
+        if (xpToSync > 0) syncLeagueXpToServerAsync(xpToSync, syncKey);
         return true;
       },
 
@@ -2492,6 +2500,9 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(next),
           };
         });
+        if (reward.type === "xp" && reward.amount > 0) {
+          syncLeagueXpToServerAsync(reward.amount, leagueXpKeyReward(reward.id));
+        }
         return true;
       },
 

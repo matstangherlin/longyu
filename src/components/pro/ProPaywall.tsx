@@ -19,6 +19,7 @@ import {
   type PaywallKind,
   type ProPaywallKind,
 } from "../../data/planFeatures";
+import type { ProOfferCopy } from "../../lib/proOfferEngine";
 
 export type { PaywallKind, ProPaywallKind };
 
@@ -43,13 +44,25 @@ export function ProPaywall({
   open,
   kind,
   onClose,
+  offer,
 }: {
   open: boolean;
   kind: ProPaywallKind;
   onClose: () => void;
+  /** Copy contextual do proOfferEngine (sobrescreve PAYWALL_COPY). */
+  offer?: ProOfferCopy | null;
 }) {
-  const copy = PAYWALL_COPY[kind];
-  const Icon = PAYWALL_ICONS[kind];
+  const baseCopy = PAYWALL_COPY[kind];
+  const copy = offer
+    ? {
+        eyebrow: offer.eyebrow,
+        title: offer.title,
+        description: offer.description,
+        benefit: offer.benefit,
+        freeContinues: offer.freeContinues,
+      }
+    : baseCopy;
+  const Icon = PAYWALL_ICONS[offer?.paywallKind ?? kind];
   const realBilling = isSupabaseBackendEnabled();
 
   useEffect(() => {

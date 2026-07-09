@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
+import { todayKey } from "../../lib/storage";
 import { useStore, type Track } from "../../lib/store";
 import type { ActivityErrorRecord } from "../../lib/store";
 import { dueItems, describeNextDue, makeKey, newItem, type SRSItem, type Grade, type ReviewDomain } from "../../lib/srs";
@@ -37,6 +39,7 @@ import {
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { useProOffer } from "../../hooks/useProOffer";
 import {
   buildReviewExercise,
   buildReviewExerciseFromMistake,
@@ -1000,10 +1003,15 @@ export function RevisaoPage() {
   const [reviewed, setReviewed] = useState(0);
   const [proPaywallOpen, setProPaywallOpen] = useState(false);
   const [proPaywallKind, setProPaywallKind] = useState<"review" | "errors">("review");
+  const contextualOffer = useProOffer();
   const openPaywall = useCallback((kind: "review" | "errors") => {
+    contextualOffer.consider({
+      reviewLimitHit: kind === "review",
+      triedDetailedErrors: kind === "errors",
+    });
     setProPaywallKind(kind);
     setProPaywallOpen(true);
-  }, []);
+  }, [contextualOffer]);
   const handleCorrectWeakness = useCallback(() => setMode("mistakes"), []);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>([]);
@@ -1088,7 +1096,7 @@ export function RevisaoPage() {
           />
         </HubSection>
         <DetailedErrorsUpsellCard onOpenPaywall={() => openPaywall("errors")} />
-        <ProPaywall open={proPaywallOpen} kind={proPaywallKind} onClose={() => setProPaywallOpen(false)} />
+        <ProPaywall open={proPaywallOpen} kind={proPaywallKind} offer={contextualOffer.offer} onClose={() => setProPaywallOpen(false)} />
       </HubPage>
     );
   }
@@ -1188,7 +1196,7 @@ export function RevisaoPage() {
             </>
           )}
         </Card>
-        <ProPaywall open={proPaywallOpen} kind={proPaywallKind} onClose={() => setProPaywallOpen(false)} />
+        <ProPaywall open={proPaywallOpen} kind={proPaywallKind} offer={contextualOffer.offer} onClose={() => setProPaywallOpen(false)} />
       </HubPage>
     );
   }
@@ -1288,7 +1296,7 @@ export function RevisaoPage() {
       }
     }
     recordDailyTask("reviewsDone");
-    addXp(xp, "review");
+    addXp(xp, leagueXpKeyActivity("review", `${todayKey()}:${item.type}:${item.itemId}`));
     addQi(qi, "Revisão");
     addMinutes(reviewTrack(domain), 1);
     playSoundFx(isLast && effectiveGrade !== "again" ? "lessonComplete" : gradeSound(effectiveGrade), soundEffects);

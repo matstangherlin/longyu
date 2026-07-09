@@ -53,6 +53,8 @@ import {
   lessonTasksFor,
 } from "./lessonTasks";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
+import { useProOffer } from "../../hooks/useProOffer";
+import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
 import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from "./immediateRemediation";
@@ -1231,6 +1233,7 @@ export function LessonPlayer() {
   const [claimedRewardCards, setClaimedRewardCards] = useState(false);
   const [visibleRewards, setVisibleRewards] = useState<RewardGrant[]>([]);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
+  const contextualOffer = useProOffer();
   const [entryChecked, setEntryChecked] = useState(false);
   const [energyBlocked, setEnergyBlocked] = useState(false);
   // Erro aguardando decisão do aluno (abre o painel de retry e pausa o avanço).
@@ -1702,8 +1705,9 @@ export function LessonPlayer() {
     completeLesson(lesson.id);
     if (firstCompletion) {
       const recoveredXp = LESSON_BASE_XP + LESSON_THREE_STAR_XP_BONUS;
+      const attemptId = attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`;
       const xpClaimed = claimReward({
-        id: `lesson:${lesson.id}:xp`,
+        id: leagueXpKeyLesson(lesson.id, attemptId),
         type: "xp",
         amount: recoveredXp,
         source: "Conclusão de lição",
@@ -2120,9 +2124,10 @@ export function LessonPlayer() {
       tones: tonesHit,
     });
     if (tonesHit > 0) recordDailyTask("tonesTrained", tonesHit);
+    const attemptId = attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`;
     const xpClaimed = completionXp > 0
       ? claimReward({
-          id: `lesson:${lesson.id}:xp`,
+          id: leagueXpKeyLesson(lesson.id, attemptId),
           type: "xp",
           amount: completionXp,
           source: "Conclusão de lição",
@@ -2154,6 +2159,21 @@ export function LessonPlayer() {
     if (passed && stars === 3) recordDailyTask("threeStarLessons");
     setFinishReason(reason);
     setFinished(true);
+    const sessionErrors = activityErrorsRef.current;
+    const toneErrorCount = sessionErrors.filter(
+      (error) => error.skill === "som" || error.step?.kind === "tone" || error.step?.kind === "tone_pair"
+    ).length;
+    const hanziErrorCount = sessionErrors.filter(
+      (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
+    ).length;
+    contextualOffer.consider({
+      lessonThreeStars: passed && stars === 3,
+      twoStars: passed && stars === 2,
+      errorCount: sessionErrors.length,
+      outOfBreath: reason === "out_of_lives",
+      repeatedToneErrors: toneErrorCount >= 2,
+      repeatedHanziErrors: hanziErrorCount >= 2,
+    });
   }
 
   if (finished) {
@@ -3094,6 +3114,12 @@ export function LessonPlayer() {
         </ModalOverlay>
       )}
       <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
+      <ProPaywall
+        open={contextualOffer.open && proPaywallKind === null}
+        kind={contextualOffer.offer?.paywallKind ?? "training"}
+        offer={contextualOffer.offer}
+        onClose={contextualOffer.dismiss}
+      />
     </div>
   );
 }

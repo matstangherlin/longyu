@@ -4,6 +4,8 @@ import { CHARACTERS, DECOMPOSABLE } from "../../data/characters";
 import { hanziLessonFor } from "../../data/hanziPedagogy";
 import { RADICALS } from "../../data/radicals";
 import { radicalById } from "../../data/radicals";
+import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
+import { todayKey } from "../../lib/storage";
 import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { canAccessHanziLab, useIsPro } from "../../lib/proAccess";
@@ -343,7 +345,7 @@ function HanziBuildTrainer() {
     if (isLast) {
       setCorrect(next);
       setDone(true);
-      addXp(6, "hanzi_session");
+      addXp(6, leagueXpKeyActivity("hanzi", `${todayKey()}:practice`));
       addMinutes("hanzi", 4);
       playSoundFx("streak", soundEffects);
       return;
@@ -510,7 +512,7 @@ function RecognitionQuiz() {
       if (q + 1 >= ROUND) {
         setScore(ns);
         setDone(true);
-        addXp(5 + (ns >= 7 ? 3 : 0), "hanzi_session");
+        addXp(5 + (ns >= 7 ? 3 : 0), leagueXpKeyActivity("hanzi", `${todayKey()}:builder:${ns}`));
         playSoundFx(ns >= 7 ? "streak" : "success", soundEffects);
         addMinutes("hanzi", 5);
         return;
@@ -665,7 +667,7 @@ function DecompositionQuiz() {
       if (q + 1 >= ROUND) {
         setScore(ns);
         setDone(true);
-        addXp(5 + (ns >= 7 ? 3 : 0), "hanzi_session");
+        addXp(5 + (ns >= 7 ? 3 : 0), leagueXpKeyActivity("hanzi", `${todayKey()}:builder:${ns}`));
         playSoundFx(ns >= 7 ? "streak" : "success", soundEffects);
         addMinutes("hanzi", 5);
         return;

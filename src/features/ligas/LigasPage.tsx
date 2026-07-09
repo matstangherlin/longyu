@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import { IconChevron, IconFlame, IconStar, IconTrophy } from "../../components/ui/Icon";
 import { useLeagueData } from "../../hooks/useLeagueData";
+import { useProOffer } from "../../hooks/useProOffer";
+import { ProPaywall } from "../../components/pro/ProPaywall";
 import {
   LEAGUE_META,
   leagueOutcomeLabel,
@@ -15,6 +17,7 @@ import { claimLeagueWeekReward } from "../../services/leagueService";
 
 export function LigasPage() {
   const league = useLeagueData();
+  const contextualOffer = useProOffer();
   const [claimMsg, setClaimMsg] = useState<string | null>(null);
 
   const {
@@ -29,6 +32,7 @@ export function LigasPage() {
     standings,
     userWeeklyXp,
     userRank,
+    allStandingsZero,
     resetAt,
     lastWeek,
     proHistory,
@@ -58,6 +62,11 @@ export function LigasPage() {
   const xpPaceNeeded =
     !inPromotionZone && !isTopTier && joined ? Math.ceil(xpToPromotion / daysLeftInWeek) : 0;
 
+  useEffect(() => {
+    if (isPro || !joined || xpToPromotion <= 0 || xpToPromotion > 40) return;
+    contextualOffer.consider({ xpToPromotion }, "card");
+  }, [contextualOffer, isPro, joined, xpToPromotion]);
+
   async function handleClaimReward() {
     if (!lastWeek?.week_key || lastWeek.reward_claimed) return;
     const result = await claimLeagueWeekReward(lastWeek.week_key);
@@ -66,7 +75,7 @@ export function LigasPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-6xl space-y-4 px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0">
       {!isPro && isLive && (
         <p className="rounded-xl border border-line/40 bg-surface-2/60 px-3 py-2 text-center text-[11px] text-ink-soft">
           {getPlanFeature("ligas").freeTier}{" "}
@@ -91,18 +100,32 @@ export function LigasPage() {
         </div>
       )}
 
-      <header>
+      <header className="lg:px-1">
         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
           Ligas · semana {loading && isLive ? "…" : ""}
         </div>
-        <h1 className="mt-0.5 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">
+        <h1 className="mt-0.5 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl lg:text-3xl">
           {meta.name}
         </h1>
-        <p className="mt-0.5 text-xs text-ink-faint">{meta.description}</p>
+        <p className="mt-0.5 text-xs text-ink-faint sm:text-sm">{meta.description}</p>
       </header>
 
+      {isLive && allStandingsZero && (
+        <Card className="border-accent/25 bg-accent-soft/20 p-4 text-center">
+          <p className="font-serif text-base font-semibold text-ink">Complete uma lição para começar a disputar a semana</p>
+          <p className="mt-1 text-xs leading-5 text-ink-soft">
+            Lições, revisão e imersão somam XP semanal. O ranking atualiza assim que você estuda.
+          </p>
+          <Link to="/" className="mt-3 inline-block">
+            <Button size="sm">Fazer uma lição</Button>
+          </Link>
+        </Card>
+      )}
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-start">
+        <div className="space-y-4">
       <div
-        className="relative overflow-hidden rounded-2xl p-4 text-white shadow-card"
+        className="relative overflow-hidden rounded-2xl p-4 text-white shadow-card lg:p-5"
         style={{ background: `linear-gradient(145deg, ${meta.color}, ${shade(meta.color, -22)})` }}
       >
         <div className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-white/12 blur-2xl" aria-hidden />
@@ -176,14 +199,14 @@ export function LigasPage() {
       </div>
 
       {joined && podium.length >= 3 && (
-        <div className="grid grid-cols-3 items-end gap-1.5 px-2">
-          <PodiumSpot row={podium[1]} place={2} height="h-16" />
-          <PodiumSpot row={podium[0]} place={1} height="h-20" highlight />
-          <PodiumSpot row={podium[2]} place={3} height="h-14" />
+        <div className="grid grid-cols-3 items-end gap-1.5 px-2 lg:px-0">
+          <PodiumSpot row={podium[1]} place={2} height="h-16 lg:h-20" />
+          <PodiumSpot row={podium[0]} place={1} height="h-20 lg:h-24" highlight />
+          <PodiumSpot row={podium[2]} place={3} height="h-14 lg:h-18" />
         </div>
       )}
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
         <Card className="p-3">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">
             <IconStar width={12} height={12} /> Prêmio da semana
@@ -255,15 +278,30 @@ export function LigasPage() {
         </Card>
       )}
 
-      <section>
+      {!isPro && joined && xpToPromotion > 0 && xpToPromotion <= 60 && (
+        <Card className="border-gold/20 bg-gold/5 p-3">
+          <p className="text-xs leading-5 text-ink-soft">
+            Faltam <span className="font-semibold text-ink">{xpToPromotion} XP</span> para a zona de promoção.{" "}
+            <button type="button" className="font-semibold text-gold hover:underline" onClick={() => contextualOffer.consider({ xpToPromotion })}>
+              Ver como o Pro ajuda a manter o ritmo
+            </button>
+          </p>
+        </Card>
+      )}
+        </div>
+
+      <section className="min-w-0">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <h2 className="font-serif text-base font-semibold text-ink">Ranking</h2>
+          <h2 className="font-serif text-base font-semibold text-ink lg:text-lg">Ranking</h2>
           <Pill tone={inPromotionZone ? "good" : inDemotionZone ? "muted" : joined ? "accent" : "muted"}>
             {joined ? (inPromotionZone ? "subindo" : inDemotionZone ? "atenção" : "ativo") : "aguardando"}
           </Pill>
         </div>
-        <Card className="overflow-hidden p-0">
-          {standings.map((row, index) => {
+        <Card className="overflow-hidden p-0 lg:min-h-[28rem]">
+          {standings.length === 0 ? (
+            <div className="p-6 text-center text-sm text-ink-soft">Nenhum participante nesta divisão ainda.</div>
+          ) : (
+          standings.map((row, index) => {
             const promotion = row.rank <= promotionCutoff;
             const demotion = row.rank > standings.length - demotionCutoff;
             const showPromotionDivider = row.rank === 1;
@@ -287,7 +325,8 @@ export function LigasPage() {
                 />
               </div>
             );
-          })}
+          })
+          )}
         </Card>
         {isDemo && (
           <p className="mt-2 px-1 text-[10px] leading-4 text-ink-faint">
@@ -295,6 +334,14 @@ export function LigasPage() {
           </p>
         )}
       </section>
+      </div>
+
+      <ProPaywall
+        open={contextualOffer.open}
+        kind={contextualOffer.offer?.paywallKind ?? "leagues"}
+        offer={contextualOffer.offer}
+        onClose={contextualOffer.dismiss}
+      />
     </div>
   );
 }

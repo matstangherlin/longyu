@@ -20,6 +20,7 @@ import {
   type LeagueDataPayload,
   type ServerLeagueStanding,
 } from "../services/leagueService";
+import { onLeagueXpSynced, flushPendingLeagueXpSync } from "../lib/leagueXpSync";
 
 function serverStandingToRow(row: ServerLeagueStanding): LeagueStandingRow {
   return {
@@ -47,6 +48,7 @@ export function useLeagueData() {
   const [now, setNow] = useState(() => new Date());
   const [live, setLive] = useState<LeagueDataPayload | null>(null);
   const [loading, setLoading] = useState(isCloudLeagueAvailable());
+  const [syncTick, setSyncTick] = useState(0);
 
   const refreshLive = useCallback(async () => {
     if (!isCloudLeagueAvailable() || authMode !== "cloud") {
@@ -55,6 +57,7 @@ export function useLeagueData() {
       return;
     }
     setLoading(true);
+    await flushPendingLeagueXpSync();
     const data = await fetchLiveLeagueData();
     setLive(data.mode === "live" ? data : null);
     setLoading(false);
@@ -66,7 +69,21 @@ export function useLeagueData() {
 
   useEffect(() => {
     void refreshLive();
-  }, [refreshLive, weeklyXp]);
+  }, [refreshLive, weeklyXp, syncTick]);
+
+  useEffect(() => {
+    return onLeagueXpSynced(() => {
+      setSyncTick((tick) => tick + 1);
+    });
+  }, []);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void refreshLive();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [refreshLive]);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 60_000);
@@ -79,26 +96,34 @@ export function useLeagueData() {
   const leagueTier: LeagueTier = isLive ? live!.tier : normalizeLeagueTier(tier);
   const meta = isLive ? live!.tierMeta : LEAGUE_META[leagueTier];
   const currentWeek = isLive ? live!.weekKey : weekKey(now);
-  const joined = isLive ? live!.weeklyXp > 0 || live!.rankPosition != null : joinedLeagueThisWeek(joinedAt, now);
+  const joined = isLive
+    ? live!.rankPosition != null || weeklyXp > 0 || live!.weeklyXp > 0
+    : joinedLeagueThisWeek(joinedAt, now);
 
   const demoBots =
     joined && leagueBots.length > 0
       ? leagueBots
       : generateLeagueBots(leagueTier, currentWeek, joined ? "joined-demo" : "preview");
 
+  const optimisticWeeklyXp = isLive ? Math.max(live!.weeklyXp, weeklyXp) : weeklyXp;
+
   const standings: LeagueStandingRow[] = useMemo(() => {
     if (isLive && live) {
-      return live.standings
+      const rows = live.standings
         .map(serverStandingToRow)
         .filter((row) => row.rank > 0)
         .sort((a, b) => a.rank - b.rank);
+      return rows.map((row) =>
+        row.isUser && optimisticWeeklyXp > row.xp ? { ...row, xp: optimisticWeeklyXp } : row
+      );
     }
     return buildLeagueStandings(weeklyXp, demoBots, firstName(accountName));
-  }, [accountName, demoBots, isLive, live, weeklyXp]);
+  }, [accountName, demoBots, isLive, live, optimisticWeeklyXp, weeklyXp]);
 
-  const userWeeklyXp = isLive ? live!.weeklyXp : weeklyXp;
+  const userWeeklyXp = optimisticWeeklyXp;
   const userRow = standings.find((row) => row.isUser) ?? standings[0];
   const userRank = isLive && live?.rankPosition ? live.rankPosition : userRow?.rank ?? 1;
+  const allStandingsZero = standings.length > 0 && standings.every((row) => row.xp === 0);
 
   return {
     now,
@@ -113,10 +138,11 @@ export function useLeagueData() {
     leagueTier,
     meta,
     currentWeek,
-    joined: isLive ? true : joined,
+    joined: isLive ? live!.rankPosition != null || joined : joined,
     standings,
     userWeeklyXp,
     userRank,
+    allStandingsZero,
     resetAt: isLive ? live?.resetAt ?? null : null,
     lastWeek: isLive ? live?.lastWeek ?? null : null,
     proHistory: isLive ? live?.proHistory ?? null : null,

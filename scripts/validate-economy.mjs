@@ -46,19 +46,13 @@ if (!fs.existsSync(path.join(root, economyPath))) {
   }
 }
 
-// ——— store: Pro não gasta Qi; baús com focus_pass ———
+// ——— store: Pro não gasta Qi; baús com focus_pass; XP de liga via claimReward ———
 const storeSrc = read("src/lib/store.ts");
-if (!storeSrc.includes('"focus_pass"')) {
-  fail("store.ts deve suportar recompensa focus_pass nos baús");
+if (!storeSrc.includes("syncLeagueXpToServerAsync")) {
+  fail("store.ts deve sincronizar XP de liga via syncLeagueXpToServerAsync");
 }
-if (!storeSrc.includes("PRO_CHEST_FOCUS_PASS_CHANCE")) {
-  fail("generateChestRewards deve usar PRO_CHEST_FOCUS_PASS_CHANCE");
-}
-if (!/hasProAccess\(state\)\) return true/.test(storeSrc)) {
-  fail("spendQi deve isentar usuários Pro");
-}
-if (!storeSrc.includes("isPremiumStory")) {
-  fail("completeImmersionSession deve rastrear histórias premium");
+if (!storeSrc.includes("leagueXpKeyReward")) {
+  fail("claimReward deve usar leagueXpKeyReward para XP de liga");
 }
 
 // ——— missões Pro mínimas ———

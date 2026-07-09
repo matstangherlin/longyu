@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { CHUNKS } from "../../data/chunks";
+import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
+import { todayKey } from "../../lib/storage";
 import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { playSoundFx } from "../../lib/soundFx";
@@ -60,7 +62,7 @@ export function FalaPage() {
     setDoneCount(dc);
     if (dc % 6 === 0) {
       addMinutes("fala", 5);
-      addXp(8, "fala_session");
+      addXp(8, leagueXpKeyActivity("fala", todayKey()));
       setSessionCharged(false);
       playSoundFx("qiGain", soundEffects);
     }
