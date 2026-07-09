@@ -2571,6 +2571,16 @@ export const useStore = create<AppState>()(
             dragonPearls: next.dragonPearls,
             streakShields: next.streakShields,
             badges: next.badges,
+            // XP precisa ser persistido no estado raiz: sem isto, xpTotal/weeklyXp
+            // continuavam 0 depois de concluir a lição ("+15 XP" com "total 0").
+            xpTotal: next.xpTotal,
+            xpToday: next.xpToday,
+            weeklyXp: next.weeklyXp,
+            monthlyXp: next.monthlyXp,
+            xpDayKey: next.xpDayKey,
+            xpWeekKey: next.xpWeekKey,
+            xpMonthKey: next.xpMonthKey,
+            dailyEnergy: next.dailyEnergy,
             rewardHistory: next.rewardHistory,
             accounts: saveCurrentAccount(next),
           };

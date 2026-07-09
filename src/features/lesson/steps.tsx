@@ -2620,6 +2620,27 @@ function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void })
   );
 }
 
+const PINYIN_TONE_MARK_RE = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/iu;
+
+function optionHasToneMark(value: string | undefined): boolean {
+  return PINYIN_TONE_MARK_RE.test(value ?? "");
+}
+
+// Pergunta avaliada em que a própria dica entregaria a resposta: identificar o
+// pinyin ou o tom de um hànzì exibido no enunciado. Nesses casos a ajuda de
+// leitura é desligada para não revelar o alvo — passar o mouse no hànzì mostra
+// apenas "Sem ajuda nesta pergunta." em vez do pinyin/significado.
+function hintWouldRevealAnswer(step: LessonStep): boolean {
+  if (step.kind !== "dialogue_choice" && step.kind !== "listen_select") return false;
+  const options = [step.correctAnswer, step.answer, ...(step.options ?? [])];
+  const optionsArePinyin = options.filter(optionHasToneMark).length >= 2;
+  if (!optionsArePinyin) return false;
+  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`.toLocaleLowerCase(
+    "pt-BR"
+  );
+  return label.includes("pinyin") || label.includes("acento") || label.includes("tom");
+}
+
 export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
   const name = useStudentFirstName();
   const personalizedStep = useMemo(() => personalizeStep(step, name), [step, name]);
@@ -2685,7 +2706,11 @@ export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <MandarinHelpProvider
       helpMode={stepHelpMode}
-      disabled={personalizedStep.isNoHint || personalizedStep.helpMode === "disabled"}
+      disabled={
+        personalizedStep.isNoHint ||
+        personalizedStep.helpMode === "disabled" ||
+        hintWouldRevealAnswer(personalizedStep)
+      }
     >
       {rendered}
     </MandarinHelpProvider>
