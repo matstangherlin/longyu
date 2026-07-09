@@ -22,7 +22,7 @@ import {
   IconTarget,
 } from "../../components/ui/Icon";
 import { storyStepCountsAsPhrasePractice } from "../../lib/missionHelpers";
-import { buildMissionViews } from "../../data/missions";
+import { buildMissionViews, isMissionActionable } from "../../data/missions";
 import {
   IMMERSION_SESSIONS,
   type ImmersionMode,
@@ -263,12 +263,14 @@ export function ImmersionPage() {
   const outOfCharges = !isPremium && dailyEnergy.charges <= 0;
   const refreshStoryProgress = useCallback(() => setStoryProgress(readStoryProgress()), []);
   const missionFocus = useMemo(() => {
-    const dailyViews = buildMissionViews("daily", missionAggregates, dailyMissions.claimed);
-    const weeklyViews = buildMissionViews("weekly", missionAggregates, weeklyMissions.claimed);
+    const dailyViews = buildMissionViews("daily", missionAggregates, dailyMissions.claimed)
+      .filter((mission) => isMissionActionable(mission, isPremium));
+    const weeklyViews = buildMissionViews("weekly", missionAggregates, weeklyMissions.claimed)
+      .filter((mission) => isMissionActionable(mission, isPremium));
     return [...dailyViews, ...weeklyViews].find((mission) => !mission.claimed && mission.progress > 0)
       ?? dailyViews.find((mission) => !mission.claimed)
       ?? null;
-  }, [dailyMissions.claimed, missionAggregates, weeklyMissions.claimed]);
+  }, [dailyMissions.claimed, isPremium, missionAggregates, weeklyMissions.claimed]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });

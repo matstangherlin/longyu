@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { NAV_MOBILE, isNavItemActive } from "./nav";
 import { useStore } from "../../lib/store";
+import { useIsPro } from "../../lib/proAccess";
 import { dueItems } from "../../lib/srs";
-import { buildMissionViews } from "../../data/missions";
+import { buildMissionViews, isMissionActionable } from "../../data/missions";
 
 export function TabBar() {
   const location = useLocation();
@@ -10,10 +11,12 @@ export function TabBar() {
   const chests = useStore((s) => s.chests);
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyMissions = useStore((s) => s.dailyMissions);
+  const isPro = useIsPro();
   const due = dueItems(srs).length;
   const readyChests = (chests.small ?? 0) + (chests.dragon ?? 0) + (chests.monthly ?? 0) + (chests.legendary ?? 0);
+  // Missão premium não resgatável pelo grátis não conta no badge (nunca zeraria).
   const readyMissions = buildMissionViews("daily", aggregates, dailyMissions.claimed).filter(
-    (mission) => mission.complete && !mission.claimed
+    (mission) => mission.complete && !mission.claimed && isMissionActionable(mission, isPro)
   ).length;
   const badges: Record<string, number> = {
     "/treino": due,

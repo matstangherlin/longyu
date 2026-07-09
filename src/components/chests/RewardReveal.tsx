@@ -24,7 +24,7 @@ export function RewardReveal({ rewards, large = false }: { rewards: ChestRewardI
           </span>
           <div className="min-w-0">
             <div className={large ? "font-serif text-lg font-semibold text-ink" : "font-semibold text-ink"}>
-              {reward.kind === "spark" ? reward.label : `+${reward.amount} ${reward.label}`}
+              +{reward.amount} {reward.label}
             </div>
             <div className="text-xs text-ink-faint">{chestRewardCaption(reward.kind)}</div>
           </div>

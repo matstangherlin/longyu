@@ -413,7 +413,7 @@ export interface ShopUseResult {
 // ————————————————————————————————————————————————————————————————
 
 export type ChestType = "small" | "dragon" | "monthly" | "legendary";
-export type ChestRewardKind = "qi" | "xp" | "charge" | "shield" | "pearl" | "spark" | "breath";
+export type ChestRewardKind = "qi" | "xp" | "charge" | "shield" | "pearl" | "breath";
 
 export interface ChestRewardItem {
   kind: ChestRewardKind;
@@ -485,8 +485,8 @@ const CHEST_SOURCE: Record<ChestType, string> = {
 };
 
 // Mapeia o tipo de prêmio do baú para o tipo do rewardHistory.
-// "spark" (legado) e "breath" (vai para o inventário) são tratados à parte.
-const CHEST_REWARD_TYPE: Record<Exclude<ChestRewardKind, "spark" | "breath">, RewardType> = {
+// "breath" vai para o inventário (item de Fôlego), então é tratado à parte.
+const CHEST_REWARD_TYPE: Record<Exclude<ChestRewardKind, "breath">, RewardType> = {
   qi: "qi",
   xp: "xp",
   charge: "charge",
@@ -2643,7 +2643,6 @@ export const useStore = create<AppState>()(
             chestOpenHistory: [...(s.chestOpenHistory ?? []), openEntry].slice(-100),
           };
           rewards.forEach((reward, i) => {
-            if (reward.kind === "spark") return;
             if (reward.kind === "breath") {
               next = applyBreathRewardToState(next, reward.amount);
               return;
@@ -2684,9 +2683,7 @@ export const useStore = create<AppState>()(
         let openedRewards: ChestRewardItem[] | null = null;
         set((s) => {
           if ((s.journeyChestsOpened ?? []).includes(cleanId)) return {};
-          const rewards = generateChestRewards(type, hasProAccess(s)).map((reward) =>
-            reward.kind === "spark" ? { kind: "qi", amount: 25, label: "Qi" } satisfies ChestRewardItem : reward
-          );
+          const rewards = generateChestRewards(type, hasProAccess(s));
           const now = Date.now();
           const openEntry: ChestOpenHistoryEntry = {
             id: `journey-chest:${cleanId}`,
@@ -2699,7 +2696,6 @@ export const useStore = create<AppState>()(
             chestOpenHistory: [...(s.chestOpenHistory ?? []), openEntry].slice(-100),
           };
           rewards.forEach((reward, i) => {
-            if (reward.kind === "spark") return;
             if (reward.kind === "breath") {
               next = applyBreathRewardToState(next, reward.amount);
               return;

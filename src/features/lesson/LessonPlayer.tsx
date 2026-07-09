@@ -22,7 +22,7 @@ import {
 import { todayKey } from "../../lib/storage";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import type { ReviewDomain } from "../../lib/srs";
-import { buildMissionViews, MONTHLY_GOAL, type MissionView } from "../../data/missions";
+import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
   BREATH_LIVES,
   BREATH_RECOVERY_QI,
@@ -1245,6 +1245,10 @@ export function LessonPlayer() {
   const skippedStepsRef = useRef(0);
   const retryUsesRef = useRef(0);
   const recoveryUsesRef = useRef(0);
+  // Tons acertados nesta tentativa (contados no acerto real, não inferidos):
+  // alimenta o resumo da sessão e a missão diária de tons sem creditar steps
+  // não respondidos (out_of_lives) nem sofrer com a poda do histórico de erros.
+  const toneHitsRef = useRef(0);
   const mistakeReviewTargetsRef = useRef<LessonReviewTarget[]>([]);
   const activityErrorsRef = useRef<ActivityError[]>([]);
   const attemptIdRef = useRef<string | null>(null);
@@ -1885,6 +1889,8 @@ export function LessonPlayer() {
     let nextLives = lives;
 
     if (countsAsCorrect) {
+      if (currentStep.kind === "tone") toneHitsRef.current += 1;
+      else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
       nextStreak = answerStreak + 1;
       setAnswerStreak(nextStreak);
       setCorrectBurst(nextStreak % 2 === 0 ? "Boa!" : "Certo");
@@ -2105,16 +2111,7 @@ export function LessonPlayer() {
       : 0;
 
     // Resumo pedagógico: frases/hànzì praticados e tons acertados na rodada.
-    const toneStepsTotal = lesson.steps.reduce((count, s) => {
-      if (s.kind === "tone") return count + 1;
-      if (s.kind === "tone_pair") return count + (s.pairs?.length ?? 1);
-      return count;
-    }, 0);
-    // Erros de par de tons chegam como "pair-match"; o step de origem decide.
-    const toneErrors = activityErrorsRef.current.filter(
-      (error) => error.step?.kind === "tone" || error.step?.kind === "tone_pair"
-    ).length;
-    const tonesHit = Math.max(0, toneStepsTotal - toneErrors);
+    const tonesHit = toneHitsRef.current;
     const newPhrases = [...practicedChunkIds].filter((id) => !learnedChunks.includes(id)).length;
     setSessionSummary({
       phrases: practicedChunkIds.size,
@@ -2181,7 +2178,7 @@ export function LessonPlayer() {
       ...buildMissionViews("daily", missionAggregates, dailyMissions.claimed),
       ...buildMissionViews("weekly", missionAggregates, weeklyMissions.claimed),
     ]
-      .filter((mission) => mission.progress > 0 && !mission.claimed)
+      .filter((mission) => mission.progress > 0 && !mission.claimed && isMissionActionable(mission, isPremium))
       .sort((a, b) => Number(b.complete) - Number(a.complete) || (b.progress / b.goal) - (a.progress / a.goal))
       .slice(0, 3);
     const monthlyProgress = Math.min(monthlyMission.completed, MONTHLY_GOAL);
@@ -2307,6 +2304,7 @@ export function LessonPlayer() {
       skippedStepsRef.current = 0;
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
+      toneHitsRef.current = 0;
       mistakeReviewTargetsRef.current = [];
       setEstimatedMinutes(5);
       setPostLessonView("victory");

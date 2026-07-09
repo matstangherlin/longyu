@@ -319,6 +319,16 @@ export interface MissionView extends MissionDef {
   claimed: boolean;
 }
 
+/**
+ * A missão pode ser resgatada/perseguida por este usuário? Missão premium só é
+ * "acionável" no Pro. Usada por badges, foco e destaques para não empurrar o
+ * grátis para uma missão que só levaria ao paywall (o resgate ainda é possível
+ * na tela de Missões, com o CTA "Resgatar com Pro").
+ */
+export function isMissionActionable(mission: Pick<MissionDef, "pro">, isPro: boolean): boolean {
+  return !mission.pro || isPro;
+}
+
 export function buildMissionViews(
   scope: Exclude<MissionScope, "monthly">,
   agg: MissionAggregates,

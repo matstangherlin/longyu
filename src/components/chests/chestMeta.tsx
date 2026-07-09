@@ -59,7 +59,6 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
     charge: "Bateria diária",
     shield: "Protege sua sequência",
     pearl: "Moeda rara de jade",
-    spark: "Bônus visual do dragão",
     breath: "Recupera o Fôlego numa lição",
   };
   return captions[kind];
@@ -67,7 +66,6 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
 
 export function ChestRewardIcon({ kind }: { kind: ChestRewardKind }) {
   if (kind === "pearl") return <span aria-hidden className="text-lg leading-none text-good">珠</span>;
-  if (kind === "spark") return <span aria-hidden className="text-lg leading-none text-accent">印</span>;
   if (kind === "breath") return <IconFlame width={20} height={20} />;
   if (kind === "charge" || kind === "shield") return <IconShield width={20} height={20} />;
   if (kind === "xp") return <IconTarget width={20} height={20} />;
