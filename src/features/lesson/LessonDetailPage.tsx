@@ -4,12 +4,13 @@ import { ALL_LESSONS, currentLessonId, getLesson, type Skill } from "../../data/
 import { canStartLesson, useIsPro } from "../../lib/proAccess";
 import { useStore } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
-import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Button, Pill } from "../../components/ui/primitives";
+import { PageShell, PageHeader, CompactCard, StatTile, RightRail, ActionButton } from "../../components/ui/page";
+import { HubProStrip } from "../../components/layout/HubLayout";
 import {
   IconBook,
   IconChat,
   IconCheck,
-  IconChevron,
   IconHanzi,
   IconLock,
   IconPlay,
@@ -120,11 +121,11 @@ function TaskCard({
   const enabled = status === "disponivel";
 
   return (
-    <div className={["rounded-2xl border p-4 transition", taskTone(status)].join(" ")}>
-      <div className="flex items-start gap-3">
+    <div className={["rounded-xl border p-3 transition", taskTone(status)].join(" ")}>
+      <div className="flex items-center gap-3">
         <div
           className={[
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
             status === "concluida"
               ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
               : status === "disponivel"
@@ -132,40 +133,28 @@ function TaskCard({
               : "bg-surface text-ink-faint",
           ].join(" ")}
         >
-          {status === "concluida" ? <IconCheck width={21} height={21} /> : status === "bloqueada" ? <IconLock width={20} height={20} /> : <Icon width={21} height={21} />}
+          {status === "concluida" ? <IconCheck width={19} height={19} /> : status === "bloqueada" ? <IconLock width={18} height={18} /> : <Icon width={19} height={19} />}
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-            Etapa {index + 1} de {total}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-base font-semibold leading-tight text-ink">{task.name}</h2>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Etapa {index + 1}/{total}</span>
             <Pill tone={status === "concluida" ? "good" : status === "disponivel" ? "accent" : "muted"}>
               {taskStatusLabel(status)}
             </Pill>
           </div>
-          <p className="mt-1 text-sm leading-5 text-ink-soft">
-            {task.actionLabel ? `${task.actionLabel}. ${task.description}` : task.description}
-          </p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="text-xs font-semibold text-accent">+{task.rewardQi} Qi</div>
-            <Button size="sm" variant={enabled ? "primary" : "outline"} disabled={!enabled} onClick={onStart}>
-              {enabled && <IconPlay width={14} height={14} />}
-              {buttonLabel(status, progress)}
-            </Button>
-          </div>
+          <h3 className="mt-0.5 text-sm font-semibold leading-tight text-ink">{task.name}</h3>
+          <p className="mt-0.5 line-clamp-1 text-[12px] leading-4 text-ink-faint">{task.description}</p>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <div className="text-[11px] font-semibold text-accent">+{task.rewardQi} Qi</div>
+          <Button size="sm" variant={enabled ? "primary" : "outline"} disabled={!enabled} onClick={onStart}>
+            {enabled && <IconPlay width={13} height={13} />}
+            {buttonLabel(status, progress)}
+          </Button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function DetailStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-surface-2 px-3 py-3">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-      <div className="mt-1 text-sm font-semibold text-ink">{value}</div>
     </div>
   );
 }
@@ -253,78 +242,63 @@ export function LessonDetailPage() {
     ? "Continuar"
     : "Começar lição";
 
-  return (
-    <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+6rem)] sm:pb-6">
-      <button
-        onClick={() => navigate("/jornada")}
-        className="mb-4 inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-medium text-ink-soft transition hover:bg-surface-2 hover:text-ink"
-      >
-        <IconChevron width={17} height={17} className="rotate-180" />
-        Jornada
-      </button>
+  const skillIcon = SKILL_ICON[lesson.skill];
+  const primaryCta = (
+    <ActionButton onClick={startLesson} size="lg" block trailingChevron>
+      {primaryLabel}
+    </ActionButton>
+  );
 
-      <Card className="overflow-hidden p-0">
-        <div
-          className="border-b border-line bg-[radial-gradient(circle_at_top_left,rgb(var(--accent-soft)),transparent_48%)] px-5 py-6 sm:px-6"
-          style={{ borderTop: `5px solid ${lesson.unitColor}` }}
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <Pill tone="accent">Fase {lesson.phaseOrder}</Pill>
-            <Pill>{lesson.unitTitle}</Pill>
-            <Pill>{mainType}</Pill>
-          </div>
-
-          <div className="mt-4 flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">{lesson.title}</h1>
-              <p className="mt-2 text-sm font-medium text-ink-soft">
-                {lesson.phaseTitle} · {SKILL_LABEL[lesson.skill]} · {estimate} min
-              </p>
-            </div>
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-              {(() => {
-                const SkillIcon = SKILL_ICON[lesson.skill];
-                return <SkillIcon width={30} height={30} />;
-              })()}
-            </div>
-          </div>
-
-          <p className="mt-4 max-w-xl text-sm leading-6 text-ink-soft">{lessonDescription(lesson)}</p>
-
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <DetailStat label="Tipo" value={mainType} />
-            <DetailStat label="Dificuldade" value={difficulty} />
-            <DetailStat label="Tempo" value={`${estimate} min`} />
-            <DetailStat label="Etapas" value={progressLabel} />
-          </div>
-
-          <div className="mt-5">
-            <div className="mb-2 flex items-center justify-between text-xs font-semibold text-ink-faint">
-              <span>Ciclo de memorização</span>
-              <span>{progressLabel}</span>
-            </div>
-            <ProgressBar value={progress} max={tasks.length} />
-            <p className="mt-2 text-xs font-medium text-ink-soft">{progressCopy}</p>
-          </div>
+  const rail = (
+    <RightRail>
+      <CompactCard>
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Resumo</div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <StatTile icon={skillIcon} value={mainType} label="Tipo" />
+          <StatTile icon={IconStar} value={difficulty} label="Nível" />
+          <StatTile icon={IconPlay} value={`${estimate} min`} label="Tempo" />
+          <StatTile icon={IconCheck} value={progressLabel} label="Etapas" tone={isCompleted ? "good" : "default"} />
         </div>
+        <div className="mt-3 hidden lg:block">{primaryCta}</div>
+      </CompactCard>
+      {!isPremium && <HubProStrip isPremium={isPremium} />}
+    </RightRail>
+  );
+
+  return (
+    <>
+      <PageShell width="wide" rail={rail} className="pb-[calc(env(safe-area-inset-bottom)+6rem)] lg:pb-6">
+        <PageHeader
+          back={{ to: "/jornada", label: "Jornada" }}
+          eyebrow={`Fase ${lesson.phaseOrder} · ${lesson.unitTitle}`}
+          title={lesson.title}
+          subtitle={`${lesson.phaseTitle} · ${SKILL_LABEL[lesson.skill]} · ${estimate} min`}
+          icon={skillIcon}
+          progress={{ value: progress, max: tasks.length, label: progressCopy }}
+        />
+
+        <CompactCard>
+          <p className="text-[13px] leading-6 text-ink-soft">{lessonDescription(lesson)}</p>
+        </CompactCard>
 
         {(isLocked || !hasAccess) && (
-          <div className="border-b border-line bg-surface-2 px-5 py-4 text-sm font-medium text-ink-soft sm:px-6">
-            {blockedCopy}
-          </div>
+          <CompactCard className="border-accent-soft bg-accent-soft/30">
+            <div className="flex items-start gap-2 text-[13px] font-medium text-ink-soft">
+              <IconLock width={16} height={16} className="mt-0.5 shrink-0 text-accent" />
+              <span>{blockedCopy}</span>
+            </div>
+          </CompactCard>
         )}
 
-        <div className="px-5 py-5 sm:px-6">
-          <div className="mb-3 flex items-end justify-between gap-3">
+        <section>
+          <div className="mb-2 flex items-end justify-between gap-3">
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">5 exposições</div>
-              <h2 className="font-serif text-2xl font-semibold text-ink">Ciclo da lição</h2>
-              <p className="mt-1 text-sm leading-5 text-ink-soft">Veja, reconheça, monte, use e fixe o mesmo conteúdo.</p>
+              <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">5 exposições</div>
+              <h2 className="font-serif text-lg font-semibold text-ink sm:text-xl">Ciclo da lição</h2>
             </div>
-            <div className="hidden text-right text-xs text-ink-faint sm:block">Qi liberado ao avançar</div>
+            <span className="hidden text-[11px] text-ink-faint sm:block">Veja · reconheça · monte · use · fixe</span>
           </div>
-
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             {tasks.map((task, index) => (
               <TaskCard
                 key={task.id}
@@ -337,18 +311,14 @@ export function LessonDetailPage() {
               />
             ))}
           </div>
-        </div>
-      </Card>
+        </section>
+      </PageShell>
 
-      <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.25rem)] z-30 bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-2 pt-6 sm:sticky sm:bottom-auto sm:-mx-4 sm:mt-3 sm:pb-0">
-        <div className="mx-auto max-w-2xl">
-          <Button size="lg" className="w-full shadow-lift" onClick={startLesson}>
-            {primaryLabel}
-            <IconChevron width={18} height={18} />
-          </Button>
-        </div>
+      {/* Mobile: CTA fixo no rodapé (no desktop, o CTA vive no rail). */}
+      <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.25rem)] z-30 bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-2 pt-6 lg:hidden">
+        <div className="mx-auto max-w-2xl">{primaryCta}</div>
       </div>
       <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
-    </div>
+    </>
   );
 }
