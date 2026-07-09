@@ -70,24 +70,20 @@ export function AppShell() {
   return (
     <>
     <div className="theme-transition flex min-h-screen bg-bg">
-      <Sidebar />
+      {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
+          Só o conteúdo do exercício, como um app de idiomas. */}
+      {!focusMode && <Sidebar />}
       <div className="flex min-w-0 flex-1 flex-col">
-        {focusMode ? (
-          <div className="hidden lg:block">
-            <TopBar />
-          </div>
-        ) : (
-          <TopBar />
-        )}
+        {!focusMode && <TopBar />}
         {/* Padding bottom cobre a altura da tab bar + safe area: nenhum botão
             principal pode ficar escondido atrás dela no mobile. No modo foco a
             tab bar some, então o padding encolhe. */}
         <main
           className={[
-            "mx-auto w-full max-w-content flex-1 px-3 sm:px-5 lg:px-6 lg:pb-12",
+            "mx-auto w-full max-w-content flex-1 px-3 sm:px-5 lg:px-6",
             focusMode
-              ? "pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3 sm:pt-5"
-              : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5",
+              ? "pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:pt-3 lg:pb-6"
+              : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5 lg:pb-12",
           ].join(" ")}
         >
           <Outlet />

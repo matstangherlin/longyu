@@ -70,13 +70,13 @@ function ToneCurve({ tone, size = 16 }: { tone: ToneN; size?: number }) {
 
 function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; label?: string }) {
   return (
-    <Button className="mt-6 w-full animate-pop shadow-lift" onClick={onClick}>
+    <Button className="mt-4 w-full animate-pop shadow-lift" onClick={onClick}>
       {label} <IconChevron width={18} height={18} />
     </Button>
   );
 }
 
-function SkipStepButton({ onSkip, className = "mt-4" }: { onSkip?: () => void; className?: string }) {
+function SkipStepButton({ onSkip, className = "mt-3" }: { onSkip?: () => void; className?: string }) {
   if (!onSkip) return null;
   return (
     <button
@@ -95,7 +95,7 @@ function SkipStepButton({ onSkip, className = "mt-4" }: { onSkip?: () => void; c
 
 function Eyebrow({ children }: { children: string }) {
   return (
-    <div className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+    <div className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
       {children}
     </div>
   );
@@ -121,7 +121,7 @@ function AnswerFeedback({
   return (
     <div
       className={[
-        "animate-pop mt-5 rounded-2xl border p-4",
+        "animate-pop mt-4 rounded-2xl border p-3.5",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
@@ -173,7 +173,7 @@ function ToneAnswerFeedback({
   return (
     <div
       className={[
-        "animate-pop mt-5 rounded-2xl border p-4 text-left",
+        "animate-pop mt-4 rounded-2xl border p-3.5 text-left",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
@@ -308,7 +308,7 @@ function StepIntro({ step, onDone }: StepProps) {
   return (
     <div>
       <Eyebrow>Entenda</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       <p className="mt-3 text-ink-soft">{step.body}</p>
       <ContinueBtn onClick={() => onDone()} label="Entendi" />
     </div>
@@ -319,12 +319,12 @@ function StepListen({ step, onDone }: StepProps) {
   return (
     <div className="text-center">
       <Eyebrow>Ouça e imite</Eyebrow>
-      <div className="my-7">
+      <div className="my-4">
         <MandarinText
           hanzi={step.text!}
           pinyin={step.pinyin}
           meaning={step.pt}
-          size="xl"
+          size="lg"
           audio
           align="center"
         />
@@ -392,12 +392,12 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div className="text-center">
       <Eyebrow>{guided ? "Ouvido tonal" : "Qual é o tom?"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-xl font-semibold text-ink sm:text-2xl">Qual contorno você ouviu?</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">Qual contorno você ouviu?</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
         Escute primeiro, compare com as curvas e só peça a dica forte se travar.
       </p>
 
-      <div className="mx-auto mt-5 grid max-w-md grid-cols-3 gap-2 text-xs font-medium">
+      <div className="mx-auto mt-3 grid max-w-md grid-cols-3 gap-2 text-xs font-medium">
         {["1. Ouça", "2. Compare", "3. Escolha"].map((label, i) => (
           <div
             key={label}
@@ -415,10 +415,10 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
         ))}
       </div>
 
-      <div className="mx-auto my-4 grid max-w-md gap-4 sm:my-5 sm:max-w-xl sm:grid-cols-[112px_1fr] sm:items-start">
+      <div className="mx-auto my-3 grid max-w-md gap-3 sm:my-4 sm:max-w-xl sm:grid-cols-[112px_1fr] sm:items-start">
         <button
           onClick={play}
-          className="mx-auto flex h-16 w-16 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-8 ring-accent-soft/40 transition hover:scale-105 active:scale-95 sm:h-20 sm:w-20"
+          className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-4 ring-accent-soft/40 transition hover:scale-105 active:scale-95 sm:h-16 sm:w-16"
           aria-label="Ouvir"
         >
           <IconSound width={26} height={26} />
@@ -434,7 +434,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 Dica 1 · sem entregar
               </div>
               <div className="mt-1 flex items-center gap-2">
-                <span className="hanzi text-4xl text-ink">{step.hanzi}</span>
+                <span className="hanzi text-3xl text-ink">{step.hanzi}</span>
                 {basePinyin && (
                   <span className="font-serif text-xl text-ink-soft">{basePinyin}</span>
                 )}
@@ -578,7 +578,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div>
       <Eyebrow>Compreenda</Eyebrow>
-      <div className="my-5">
+      <div className="my-4">
         <MandarinText
           hanzi={step.hanzi!}
           pinyin={step.pinyin}
@@ -588,7 +588,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
         />
       </div>
       <KeyboardShortcutHint />
-      <div className="grid gap-2.5">
+      <div className="grid gap-2">
         {options.map((o, index) => {
           const state = answered == null ? (o === selected ? "selected" : "idle") : o === step.answer ? "right" : o === answered ? "wrong" : "idle";
           return (
@@ -598,7 +598,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
               disabled={answered != null}
               aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
               className={[
-                "relative flex items-center justify-between rounded-xl border px-4 py-3 text-left transition",
+                "relative flex items-center min-h-12 justify-between rounded-xl border px-4 py-2.5 text-left transition",
                 state === "idle" && "border-line hover:bg-surface-2",
                 state === "selected" && "border-accent bg-accent-soft text-accent",
                 state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
@@ -671,7 +671,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
     <div>
       <Eyebrow>Produza</Eyebrow>
       <p className="mt-2 text-sm text-ink-soft">Monte “{step.pt}” na ordem certa.</p>
-      <div className="my-5 flex min-h-[76px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4">
+      <div className="my-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4">
         {picked.length === 0 && <span className="text-sm font-medium text-ink-faint">toque nas peças</span>}
         {picked.map((p, i) => (
           <button key={i} onClick={() => {
@@ -906,7 +906,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div>
       <Eyebrow>{isFreeReflection ? "Reflexão opcional" : "Escrita guiada"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {step.body && <p className="mt-3 text-sm leading-6 text-ink-soft">{step.body}</p>}
 
       <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
@@ -937,7 +937,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {composing && (
-        <div className="mt-5 flex min-h-[76px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
+        <div className="mt-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
           {pickedPieces.length === 0 && (
             <span className="text-sm font-medium text-ink-faint">toque nas peças para montar a resposta</span>
           )}
@@ -956,7 +956,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {wordBank.length > 0 && (
-        <div className="mt-5">
+        <div className="mt-4">
           <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {composing ? "Peças sugeridas" : "Banco de peças"}
           </div>
@@ -1006,8 +1006,8 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
           onChange={(event) => updateDraft(event.target.value)}
           placeholder={step.placeholder}
           disabled={status === "correct"}
-          rows={4}
-          className="mt-5 w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition focus:ring-2 focus:ring-accent/25 disabled:bg-surface-2"
+          rows={3}
+          className="mt-4 w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition focus:ring-2 focus:ring-accent/25 disabled:bg-surface-2"
         />
       )}
 
@@ -1219,8 +1219,8 @@ function engineTileClass({
 }) {
   return [
     // Peças grandes: alvo de toque confortável (>= 68px) e fonte legível no mobile.
-    "min-h-[4.25rem] min-w-[3.5rem] rounded-[18px] border px-4 py-3 text-center font-semibold shadow-card transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none",
-    cjk ? "hanzi text-3xl" : "text-[15px]",
+    "min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none",
+    cjk ? "hanzi text-[26px] sm:text-[30px]" : "text-[15px]",
     matched && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))] ring-1 ring-[rgb(var(--good)/0.18)]",
     wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong ring-1 ring-wrong/10",
     active && !matched && !wrong && "border-accent bg-accent-soft text-accent shadow-lift ring-2 ring-accent/15",
@@ -1252,7 +1252,7 @@ function EngineFeedbackPanel({
   return (
     <div
       className={[
-        "animate-pop mt-5 rounded-2xl border p-4",
+        "animate-pop mt-4 rounded-2xl border p-3.5",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
@@ -1315,7 +1315,7 @@ function EngineActions({
   canClear?: boolean;
 }) {
   return (
-    <div className="sticky bottom-0 z-20 -mx-5 mt-6 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-5 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-6 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0">
+    <div className="sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0">
       <div className={onClear ? "grid gap-2 sm:grid-cols-[0.8fr_1.2fr]" : ""}>
         {onClear && (
           <Button size="lg" variant="outline" className="w-full" disabled={!canClear} onClick={onClear}>
@@ -1342,13 +1342,13 @@ function renderTypedValue(value: string, type?: StepTextType, className = "") {
     return (
       <span className="inline-flex items-center justify-center gap-2">
         <IconSound width={18} height={18} />
-        <ExerciseText value={value} type={containsCjk(value) ? "hanzi" : type} speakOnClick className={className || "text-2xl"} />
+        <ExerciseText value={value} type={containsCjk(value) ? "hanzi" : type} speakOnClick className={className || "text-[26px] sm:text-3xl"} />
       </span>
     );
   }
 
   if (type === "hanzi" || containsCjk(value)) {
-    return <ExerciseText value={value} type="hanzi" speakOnClick className={className || "text-2xl"} />;
+    return <ExerciseText value={value} type="hanzi" speakOnClick className={className || "text-[26px] sm:text-3xl"} />;
   }
 
   if (type === "pinyin") {
@@ -1470,11 +1470,11 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
     <div>
       <div className="min-w-0">
         <Eyebrow>{toneMode ? "Tons" : "Pares"}</Eyebrow>
-        <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight text-ink">{title}</h2>
+        <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl leading-tight text-ink">{title}</h2>
         <p className="mt-1 text-sm leading-5 text-ink-soft">{instruction}</p>
       </div>
 
-      <div className="mt-4 flex flex-nowrap items-center gap-2 overflow-hidden text-xs font-semibold text-ink-faint">
+      <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-hidden text-xs font-semibold text-ink-faint">
         <span className="shrink-0 rounded-full bg-surface-2 px-3 py-1">
           {matchedCount}/{pairs.length} pares
         </span>
@@ -1485,7 +1485,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
       <KeyboardShortcutHint pairs />
 
       {/* Empilhado em telas muito estreitas; colunas lado a lado a partir de 480px. */}
-      <div className="mt-5 grid grid-cols-1 gap-2 min-[480px]:grid-cols-[1fr_auto_1fr] sm:gap-3">
+      <div className="mt-3.5 grid grid-cols-1 gap-2 min-[480px]:grid-cols-[1fr_auto_1fr] sm:gap-3">
         <div className="grid gap-2">
           {pairs.map((pair, index) => {
             const matched = matches[pair.id];
@@ -1575,7 +1575,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
       {complete && (
         <div
           className={[
-            "animate-pop mt-5 rounded-2xl p-4 text-center text-sm font-semibold",
+            "animate-pop mt-4 rounded-2xl p-3.5 text-center text-sm font-semibold",
             errors === 0
               ? "longyu-success-bloom bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
               : "bg-accent-soft text-accent",
@@ -1626,7 +1626,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
   return (
     <div>
       <Eyebrow>Escuta ativa</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt ?? "Ouça e escolha a resposta certa."}</p>
 
       <div className="mt-5 grid gap-3 rounded-3xl bg-surface-2 p-4 text-center">
@@ -1648,7 +1648,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
         </div>
       </div>
 
-      <div className="mt-5 grid gap-2.5">
+      <div className="mt-3.5 grid gap-2">
         {options.map((option, index) => {
           const active = picked === option;
           const correct = feedback && normalizeEngineAnswer(option) === normalizeEngineAnswer(answer);
@@ -1777,7 +1777,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div>
       <Eyebrow>{audioFallback ? "Escuta · modo visual" : "Escuta ativa"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {audioFallback ? "Leia e escolha" : step.title ?? "Toque no que escutar"}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
@@ -1787,18 +1787,18 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       </p>
 
       {audioFallback ? (
-        <div className="mt-5 rounded-3xl border border-line bg-surface-2 p-5 text-center">
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-4 text-center">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             Você ouviria
           </div>
           <Pinyin text={fallbackPinyin} className="mt-2 block font-serif text-2xl" />
         </div>
       ) : (
-        <div className="mt-5 grid gap-3 rounded-3xl border border-line bg-surface-2 p-4 text-center">
+        <div className="mt-3 grid gap-2.5 rounded-2xl border border-line bg-surface-2 p-3 text-center">
           <button
             type="button"
             onClick={playNormal}
-            className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-accent text-white shadow-lift ring-8 ring-accent-soft transition hover:scale-105 active:scale-95"
+            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent text-white shadow-lift ring-4 ring-accent-soft transition hover:scale-105 active:scale-95"
             aria-label="Ouvir áudio normal"
           >
             <IconSound width={34} height={34} />
@@ -1813,7 +1813,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       <KeyboardShortcutHint />
-      <div className="mt-5 grid gap-2.5">
+      <div className="mt-3.5 grid gap-2">
         {options.map((option, index) => {
           const active = picked === option;
           const correct = feedback && normalizeEngineAnswer(option) === normalizeEngineAnswer(answer);
@@ -1842,7 +1842,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       </div>
 
       {feedback === "correct" && (
-        <div className="animate-pop longyu-success-bloom mt-5 rounded-2xl bg-[rgb(var(--good)/0.12)] p-4 text-center text-sm font-semibold text-[rgb(var(--good))]">
+        <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl bg-[rgb(var(--good)/0.12)] p-4 text-center text-sm font-semibold text-[rgb(var(--good))]">
           <div className="flex items-center justify-center gap-2">
             <IconCheck width={18} height={18} />
             {audioFallback ? "Boa! Esta escuta volta na revisão." : "Boa, foi esse som."}
@@ -1851,7 +1851,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {feedback === "wrong" && !onMistake && (
-        <div className="animate-pop mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
+        <div className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-accent">
             <IconX width={18} height={18} />
             Quase
@@ -1872,7 +1872,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {!feedback && (
-        <div className="sticky bottom-0 z-20 -mx-5 mt-6 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-5 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-6 sm:static sm:mx-0 sm:grid-cols-[1fr_1fr_1.25fr] sm:bg-none sm:px-0 sm:pb-0">
+        <div className="sticky bottom-0 z-20 -mx-4 mt-4 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5 sm:static sm:mx-0 sm:grid-cols-[1fr_1fr_1.25fr] sm:bg-none sm:px-0 sm:pb-0">
           {!audioFallback ? (
             <Button
               variant="outline"
@@ -2006,7 +2006,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
   return (
     <div>
       <Eyebrow>{kindLabel}</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {promptText && <p className="mt-2 text-sm leading-6 text-ink-soft">{promptText}</p>}
       {(step.sourceText || (!helpDisabled && (step.sourcePinyin || step.sourceMeaning))) && (
         <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center">
@@ -2077,7 +2077,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
       )}
 
       {feedback === "correct" && (
-        <div className="animate-pop longyu-success-bloom mt-5 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
+        <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
             <IconCheck width={18} height={18} />
@@ -2097,7 +2097,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
       )}
 
       {feedback === "wrong" && !onMistake && (
-        <div className="animate-pop mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
+        <div className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-accent">
             <IconX width={18} height={18} />
             A ordem ainda não fechou.
@@ -2221,10 +2221,10 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div>
       <Eyebrow>Complete a lacuna</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {step.prompt && <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt}</p>}
 
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-2 rounded-3xl border border-line bg-surface-2 p-5">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-line bg-surface-2 p-4">
         {step.sentenceBefore && (
           <span className="hanzi text-3xl text-ink">
             <ExerciseText value={step.sentenceBefore} type="hanzi" speakOnClick />
@@ -2247,7 +2247,7 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
       </div>
 
       <KeyboardShortcutHint />
-      <div className="mt-5 flex flex-wrap justify-center gap-2">
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
         {bank.map((piece, index) => (
           <button
             key={`${piece}-${index}`}
@@ -2328,9 +2328,9 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div>
       <Eyebrow>Escolha no diálogo</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
 
-      <div className="mt-5 rounded-3xl border border-line bg-surface-2 p-4">
+      <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
         {step.speaker && (
           <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-accent">{step.speaker}</div>
         )}
@@ -2340,7 +2340,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
       </div>
 
       <KeyboardShortcutHint />
-      <div className="mt-5 grid gap-2.5">
+      <div className="mt-3.5 grid gap-2">
         {options.map((option, index) => {
           const active = picked === option;
           const correct = feedback && normalizeEngineAnswer(option) === normalizeEngineAnswer(answer);
@@ -2423,18 +2423,18 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div className="text-center">
       <Eyebrow>O que significa?</Eyebrow>
-      <div className="my-5">
+      <div className="my-4">
         <MandarinText
           hanzi={char.hanzi}
           pinyin={char.pinyin}
-          size="xl"
+          size="lg"
           audio
           displayMode="hanzi_only"
           align="center"
         />
       </div>
       <KeyboardShortcutHint />
-      <div className="grid gap-2.5 text-left">
+      <div className="grid gap-2 text-left">
         {options.map((o, index) => {
           const state = answered == null ? (o === selected ? "selected" : "idle") : o === char.meaningPt ? "right" : o === answered ? "wrong" : "idle";
           return (
@@ -2444,7 +2444,7 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
               onClick={() => answerOption(o)}
               aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
               className={[
-                "relative flex items-center justify-between rounded-xl border px-4 py-3 transition",
+                "relative flex items-center min-h-12 justify-between rounded-xl border px-4 py-2.5 transition",
                 state === "idle" && "border-line hover:bg-surface-2",
                 state === "selected" && "border-accent bg-accent-soft text-accent",
                 state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
@@ -2512,10 +2512,10 @@ function StepHanziEvolution({ step, onDone }: StepProps) {
   return (
     <div>
       <Eyebrow>Evolução visual</Eyebrow>
-      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{step.title ?? "Como um hànzì nasce"}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title ?? "Como um hànzì nasce"}</h2>
       {step.body && <p className="mt-3 text-sm leading-6 text-ink-soft">{step.body}</p>}
 
-      <div className="mt-5 grid gap-4">
+      <div className="mt-4 grid gap-3">
         {models.map((model) => {
           const trained = trainedIds.has(model.charId);
           return (
@@ -2555,12 +2555,12 @@ function StepFlashcard({ step, onDone }: StepProps) {
   return (
     <div className="text-center">
       <Eyebrow>Frase útil</Eyebrow>
-      <div className="my-5 flex flex-col items-center gap-3">
+      <div className="my-4 flex flex-col items-center gap-3">
         <MandarinText
           hanzi={chunk.hanzi}
           pinyin={chunk.pinyin}
           meaning={revealed ? chunk.meaningPt : undefined}
-          size="xl"
+          size="lg"
           audio
           align="center"
         />

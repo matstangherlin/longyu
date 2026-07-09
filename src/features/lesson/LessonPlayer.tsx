@@ -44,6 +44,7 @@ import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconRefresh,
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { StepRenderer, type PairMistakePayload } from "./steps";
+import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
   type LessonTask,
@@ -272,74 +273,8 @@ function progressSaveLabel(
   return "Progresso salvo neste dispositivo";
 }
 
-function LessonStageSegments({ value, total, activeIndex }: { value: number; total: number; activeIndex: number }) {
-  const safeTotal = Math.max(1, total);
-  const safeValue = Math.max(0, Math.min(safeTotal, value));
-
-  return (
-    <div className="mt-2 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${safeTotal}, minmax(0, 1fr))` }}>
-      {Array.from({ length: safeTotal }, (_, index) => (
-        <span
-          key={index}
-          aria-label={`Etapa ${index + 1}`}
-          className={[
-            "h-2 min-w-0 rounded-full border transition-colors",
-            index < safeValue
-              ? "border-accent bg-accent"
-              : index === activeIndex
-                ? "border-accent bg-accent-soft"
-                : "border-line bg-surface-2",
-          ].join(" ")}
-        />
-      ))}
-    </div>
-  );
-}
-
-function limitedList(values: string[] | undefined, limit: number): string[] {
-  return (values ?? []).filter(Boolean).slice(0, limit);
-}
-
-function uniqueCompactLabels(labels: string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const label of labels) {
-    if (!label || seen.has(label)) continue;
-    seen.add(label);
-    result.push(label);
-  }
-  return result;
-}
-
 function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> {
   return new Set([...(step.exercises ?? []), ...(stage?.stepKinds ?? []), step.kind]);
-}
-
-function roundBadges(step: LessonRoundStep, stage?: LessonTask): string[] {
-  const kinds = roundKindSet(step, stage);
-  const badges: string[] = [];
-  const hasOldVocabulary = Boolean(step.reusesPreviousVocabulary?.length);
-
-  if (kinds.has("tone") || kinds.has("tone_pair")) badges.push("Tons");
-  if (
-    kinds.has("tone") ||
-    kinds.has("tone_pair") ||
-    kinds.has("listen_select") ||
-    kinds.has("dialogue_choice")
-  ) {
-    badges.push("Pinyin");
-  }
-  if (kinds.has("listen") || kinds.has("listen_select")) badges.push("Escuta");
-  if (kinds.has("hanzi_build") || kinds.has("recognize") || kinds.has("decompose") || kinds.has("hanzi_evolution")) badges.push("Hànzì");
-  if (kinds.has("sentence_build") || kinds.has("translation_build") || kinds.has("fill_blank") || kinds.has("produce")) {
-    badges.push("Montagem");
-  }
-  if (kinds.has("dialogue_choice") || kinds.has("write")) badges.push("Uso");
-  if (kinds.has("microread")) badges.push("Leitura");
-  if (step.lessonStageId === "consolidation" || hasOldVocabulary || kinds.has("match_pairs")) badges.push("Revisão");
-  if (hasOldVocabulary) badges.push("Vocabulário antigo");
-
-  return uniqueCompactLabels(badges).slice(0, 3);
 }
 
 function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
@@ -364,47 +299,6 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   if (kinds.has("dialogue_choice")) return "Escolha a resposta que combina com a situação.";
   if (kinds.has("microread")) return "Leia um trecho curto e procure o sentido geral.";
   return "Pratique este ponto em uma rodada curta.";
-}
-
-function LessonRoundIntent({
-  step,
-  stage,
-}: {
-  step: LessonRoundStep;
-  stage?: LessonTask;
-}) {
-  const badges = roundBadges(step, stage);
-  const summary = roundSummary(step, stage);
-  const showDebug = Boolean(
-    (import.meta as { env?: { DEV?: boolean } }).env?.DEV &&
-      typeof window !== "undefined" &&
-      window.localStorage.getItem("longyu:debug-variety") === "1"
-  );
-  const introduced = limitedList(step.introducesNewVocabulary, 4);
-  const reused = limitedList(step.reusesPreviousVocabulary, 6);
-
-  return (
-    <div className="mt-2 rounded-xl border border-line/70 bg-surface/80 px-3 py-2 text-xs leading-5 shadow-card">
-      <div className="font-medium text-ink-soft">{summary}</div>
-      {badges.length > 0 && (
-        <div className="mt-1.5 flex max-h-7 flex-nowrap gap-1.5 overflow-hidden">
-          {badges.map((item) => (
-            <span key={item} className="shrink-0 rounded-full bg-surface-2 px-2.5 py-0.5 font-semibold text-ink-faint">
-              {item}
-            </span>
-          ))}
-        </div>
-      )}
-      {showDebug && (introduced.length > 0 || reused.length > 0 || step.objective) && (
-        <details className="mt-2 rounded-lg bg-surface-2 px-2.5 py-1 text-[11px] text-ink-faint">
-          <summary className="cursor-pointer font-semibold">Debug da variedade</summary>
-          {step.objective && <div className="mt-1">Objetivo: {step.objective}</div>}
-          {introduced.length > 0 && <div className="mt-1">Novo: {introduced.join(" | ")}</div>}
-          {reused.length > 0 && <div className="mt-1">Revisa: {reused.join(" | ")}</div>}
-        </details>
-      )}
-    </div>
-  );
 }
 
 const VICTORY_TITLES = [
@@ -1045,57 +939,6 @@ function ImmediateErrorReviewSession({
           else setIndex((value) => value + 1);
         }}
       />
-    </div>
-  );
-}
-
-function DragonBreathMeter({
-  lives,
-  maxLives,
-  unlimited,
-}: {
-  lives: number;
-  maxLives: number;
-  unlimited: boolean;
-}) {
-  if (unlimited) {
-    return (
-      <div
-        className="inline-flex shrink-0 items-center gap-2 rounded-full border border-accent-soft bg-accent-soft/70 px-3 py-1.5 text-xs font-semibold text-accent shadow-card"
-        aria-label="Fôlego do Dragão ilimitado"
-      >
-        <IconFlame width={15} height={15} />
-        <span className="hidden sm:inline">Fôlego</span>
-        <span>∞</span>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-surface/95 px-3 py-1.5 shadow-card"
-      aria-label={`Fôlego do Dragão: ${lives} de ${maxLives}`}
-    >
-      <span className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint sm:inline">
-        Fôlego
-      </span>
-      <div className="flex items-center gap-1">
-        {Array.from({ length: maxLives }, (_, index) => {
-          const active = index < lives;
-          return (
-            <span
-              key={index}
-              className={[
-                "grid h-5 w-5 place-items-center rounded-full transition",
-                active ? "bg-accent-soft text-accent" : "bg-surface-2 text-line",
-              ].join(" ")}
-            >
-              <IconFlame width={13} height={13} fill={active ? "currentColor" : "none"} />
-            </span>
-          );
-        })}
-      </div>
-      <span className="tabular-nums text-[11px] font-semibold text-ink-soft sm:hidden">{lives}</span>
     </div>
   );
 }
@@ -3021,13 +2864,24 @@ export function LessonPlayer() {
   const step = lesson.steps[idx];
   const canSkipStep = isGradedStep(step);
   const canPayRetry = isPremium || points >= RETRY_COST_QI;
-  const completedStageProgress = completedLessonStagesFromRoundStep(lesson.steps, idx, lessonTasks.length);
   const activeRoundProgress = lessonRoundProgressForStep(lesson.steps, idx, lessonTasks.length);
   const activeStageIndex = Math.min(Math.max(0, lessonTasks.length - 1), activeRoundProgress.stageIndex);
   const activeStage = lessonTasks[activeStageIndex];
+  // Linha única e discreta abaixo da barra: etapa + intenção + nº da pergunta.
+  const stageLabel = activeStage
+    ? [
+        `Etapa ${activeStageIndex + 1}/${lessonTasks.length}`,
+        roundSummary(step, activeStage),
+        activeRoundProgress.questionCount > 1
+          ? `pergunta ${activeRoundProgress.questionIndex}/${activeRoundProgress.questionCount}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : undefined;
 
   return (
-    <div className="mx-auto max-w-3xl px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0 lg:max-w-4xl">
+    <div className="mx-auto w-full max-w-2xl px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0">
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
@@ -3042,41 +2896,15 @@ export function LessonPlayer() {
           </div>
         </div>
       )}
-      <div className="sticky top-0 z-30 -mx-2 mb-4 bg-bg/95 px-2 pb-3 pt-1 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:backdrop-blur-none">
-        <div className="flex items-center gap-2.5 text-sm sm:gap-3">
-          <button
-            onClick={exitLesson}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-            aria-label="Sair"
-          >
-            <IconX width={17} height={17} />
-          </button>
-          <div className="min-w-0 flex-1">
-            <ProgressBar value={idx + 1} max={total} className="h-3 min-w-0 shadow-inner" />
-          </div>
-          <DragonBreathMeter lives={lives} maxLives={DRAGON_BREATH_LIVES} unlimited={hasUnlimitedLives} />
-          <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-ink-faint">
-            {idx + 1}/{total}
-          </span>
-        </div>
-        {activeStage && (
-          <div className="mt-2 rounded-2xl border border-line bg-surface/85 px-3 py-2 shadow-card sm:bg-surface">
-            <div className="flex min-w-0 items-center justify-between gap-3 text-xs font-semibold">
-              <span className="shrink-0 text-accent">
-                Etapa {activeStageIndex + 1} de {lessonTasks.length}
-              </span>
-              <span className="min-w-0 truncate text-right text-ink-soft">
-                {activeStage.actionLabel ?? activeStage.name}
-                {activeRoundProgress.questionCount > 1
-                  ? ` · pergunta ${activeRoundProgress.questionIndex}/${activeRoundProgress.questionCount}`
-                  : ""}
-              </span>
-            </div>
-            <LessonStageSegments value={completedStageProgress} total={lessonTasks.length} activeIndex={activeStageIndex} />
-            <LessonRoundIntent step={step} stage={activeStage} />
-          </div>
-        )}
-      </div>
+      <LessonFocusHeader
+        onExit={exitLesson}
+        progressValue={idx + 1}
+        progressMax={total}
+        lives={lives}
+        maxLives={DRAGON_BREATH_LIVES}
+        unlimitedLives={hasUnlimitedLives}
+        stageLabel={stageLabel}
+      />
 
       {recoveryDebugPanel}
 
@@ -3088,7 +2916,7 @@ export function LessonPlayer() {
         </div>
       )}
 
-      <Card className="mx-auto overflow-visible rounded-[28px] p-5 shadow-lift sm:p-8 lg:p-10">
+      <Card className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-6">
         <StepRenderer
           key={`${idx}:${stepAttempt}`}
           step={step}
