@@ -68,8 +68,34 @@ export const LESSON_NO_SKIP_QI = 2;
 export const PRO_LESSON_QI_BONUS = 3;
 /** Pro: baús pagam mais Qi (multiplicador aplicado só à parcela de Qi). */
 export const PRO_CHEST_QI_MULTIPLIER = 1.5;
+/** Pro: missões premium pagam este multiplicador extra de Qi no resgate. */
+export const PRO_MISSION_QI_MULTIPLIER = 1.25;
+/** Pro: chance extra de prêmio raro em baús pequeno (escudo / pérola). */
+export const PRO_CHEST_RARE_BONUS = 0.12;
 /** Meta diária batida: Qi do dia. */
 export const DAILY_GOAL_QI = 8;
+
+/** Atividades que NUNCA consomem Carga (correção imediata, revisão essencial). */
+export const CHARGE_FREE_ACTIVITIES = ["essential_review", "mistake_correction"] as const;
+
+export const ECONOMY_SUMMARY = {
+  free: {
+    chargesPerDay: DAILY_CHARGES_FREE,
+    reviewItemsPerSession: FREE_REVIEW_SESSION_LIMIT,
+    chestSmall: "Qi, carga, escudo ou tentativa extra",
+    missions: "Missões diárias de hábito, revisão, tons e lições",
+    qiUses: "Retry extra, teste de módulo e recuperar Fôlego",
+  },
+  pro: {
+    charges: "Ilimitadas",
+    review: "Fila completa",
+    qiBonusPerLesson: PRO_LESSON_QI_BONUS,
+    chestQiMultiplier: PRO_CHEST_QI_MULTIPLIER,
+    retryCost: "Grátis (sem gastar Qi)",
+    missions: "Missões inteligentes + recompensas ampliadas",
+    leagues: "Histórico e bônus de Qi — sem vantagem no ranking",
+  },
+} as const;
 
 // ——— Teste de pular módulo ———
 /** Qi ao passar no teste (pular com segurança é celebrado, não punido). */

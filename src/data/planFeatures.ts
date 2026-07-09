@@ -3,6 +3,7 @@ import {
   FREE_REVIEW_SESSION_LIMIT,
   PRO_CHEST_QI_MULTIPLIER,
   PRO_LESSON_QI_BONUS,
+  PRO_MISSION_QI_MULTIPLIER,
 } from "./economy";
 
 // ————————————————————————————————————————————————————————————————
@@ -221,7 +222,7 @@ export const PLAN_FEATURES: readonly PlanFeature[] = [
     descricao: "Missões diárias e semanais com recompensas ampliadas.",
     plano: "pro",
     freeTier: "Missões diárias básicas e baús comuns continuam grátis.",
-    proBenefit: "Missões exclusivas Pro com Qi e baús melhores.",
+    proBenefit: `Missões exclusivas + ${Math.round((PRO_MISSION_QI_MULTIPLIER - 1) * 100)}% de Qi extra em cada resgate. Baús melhores.`,
     rota: "/missoes",
   },
   {

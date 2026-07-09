@@ -35,6 +35,8 @@ import {
   DAILY_CHARGES_FREE,
   FOCUS_PASS_HOURS,
   PRO_CHEST_QI_MULTIPLIER,
+  PRO_CHEST_RARE_BONUS,
+  PRO_MISSION_QI_MULTIPLIER,
   QI_PACK_AMOUNT,
 } from "../data/economy";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
@@ -439,23 +441,25 @@ function randBetween(min: number, max: number): number {
 
 // Sorteio das recompensas de um baú (sem aplicar nada). Baús pequeno/dragão dão
 // um prêmio; o mensal entrega um pacote (Qi alto + escudo + chance de Pérola).
-// Grátis: Qi, carga extra, escudo e tentativa extra (Fôlego). Pro: a parcela de
-// Qi rende mais (PRO_CHEST_QI_MULTIPLIER) — nunca progresso direto.
+// Grátis: Qi, carga extra, escudo e tentativa extra (Fôlego). Pro: Qi ampliado,
+// maior chance de raro e recompensas de missão com bônus — nunca progresso direto.
 function generateChestRewards(type: ChestType, pro = false): ChestRewardItem[] {
   const boostQi = (amount: number) => (pro ? Math.round(amount * PRO_CHEST_QI_MULTIPLIER) : amount);
+  const rareBonus = pro ? PRO_CHEST_RARE_BONUS : 0;
   const pick = Math.random();
   if (type === "small") {
-    if (pick < 0.45) return [{ kind: "qi", amount: boostQi(randBetween(20, 50)), label: "Qi" }];
+    if (pick < 0.45 + rareBonus * 0.3) return [{ kind: "qi", amount: boostQi(randBetween(20, 50)), label: "Qi" }];
     if (pick < 0.8) return [{ kind: "xp", amount: randBetween(5, 15), label: "XP" }];
-    if (pick < 0.95) return [{ kind: "charge", amount: 1, label: "Carga do Dragão" }];
+    if (pick < 0.92 + rareBonus) return [{ kind: "charge", amount: 1, label: "Carga do Dragão" }];
+    if (pick < 0.97 + rareBonus * 0.5) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
     return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
   }
   if (type === "dragon") {
-    if (pick < 0.35) return [{ kind: "qi", amount: boostQi(randBetween(80, 150)), label: "Qi" }];
+    if (pick < 0.35 + rareBonus * 0.2) return [{ kind: "qi", amount: boostQi(randBetween(80, 150)), label: "Qi" }];
     if (pick < 0.55) return [{ kind: "xp", amount: randBetween(25, 50), label: "XP" }];
-    if (pick < 0.7) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
-    if (pick < 0.85) return [{ kind: "charge", amount: 2, label: "Cargas do Dragão" }];
-    if (pick < 0.92) return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
+    if (pick < 0.72 + rareBonus) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
+    if (pick < 0.86) return [{ kind: "charge", amount: pro ? 3 : 2, label: "Cargas do Dragão" }];
+    if (pick < 0.93) return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
     return [{ kind: "pearl", amount: 1, label: "Pérola de Jade" }];
   }
   if (type === "monthly") {
@@ -1746,7 +1750,10 @@ export const useStore = create<AppState>()(
           if (claimedMap[missionId]) return {};
 
           const xpIncInner = def.reward.xp ?? 0;
-          const qiInc = def.reward.qi ?? 0;
+          const baseQi = def.reward.qi ?? 0;
+          const qiInc = hasProAccess(s)
+            ? Math.round(baseQi * PRO_MISSION_QI_MULTIPLIER)
+            : baseQi;
           const chargeInc = def.reward.charges ?? 0;
 
           const xpBase = activeXp(s);
