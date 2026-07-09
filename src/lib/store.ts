@@ -908,6 +908,18 @@ interface AccountSnapshot extends XpBuckets {
  */
 export type AuthMode = "local" | "cloud_pending" | "cloud";
 
+export type CloudSyncStatus = "idle" | "loading" | "synced" | "pending" | "error";
+
+export interface CloudSyncState {
+  status: CloudSyncStatus;
+  message: string;
+  updatedAt: number | null;
+}
+
+export function cloudAccountId(userId: string): string {
+  return `cloud:${userId}`;
+}
+
 export interface LearningAccount extends AccountSnapshot {
   id: string;
   name: string;
@@ -971,6 +983,10 @@ function blankSnapshot(): AccountSnapshot {
   };
 }
 
+function freshCloudSyncState(): CloudSyncState {
+  return { status: "idle", message: "", updatedAt: null };
+}
+
 function makeAccount(
   id: string,
   name: string,
@@ -980,6 +996,28 @@ function makeAccount(
 ): LearningAccount {
   const now = Date.now();
   return { id, name, email, authMode, createdAt: now, updatedAt: now, ...snapshot };
+}
+
+function buildCloudAccount(
+  existing: LearningAccount | undefined,
+  fallback: LearningAccount | undefined,
+  identity: { userId: string; email?: string; name?: string },
+  progress?: AccountSnapshot
+): LearningAccount {
+  const id = cloudAccountId(identity.userId);
+  const now = Date.now();
+  const baseSnapshot = progress ?? existing ?? fallback ?? blankSnapshot();
+  return {
+    ...makeAccount(id, identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu"),
+    ...(existing ?? {}),
+    ...(baseSnapshot as AccountSnapshot),
+    id,
+    name: identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu",
+    email: identity.email ?? existing?.email ?? fallback?.email,
+    authMode: "cloud",
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
 }
 
 function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSnapshot {
@@ -1345,6 +1383,7 @@ interface AppState {
   isPremium: boolean;
   /** Pro real confirmado pelo servidor (assinatura Stripe ativa). */
   serverIsPro: boolean;
+  cloudSyncState: CloudSyncState;
   placement: PlacementResult | null;
   dailyMissions: DailyMissionsState;
   weeklyMissions: WeeklyMissionsState;
@@ -1385,7 +1424,9 @@ interface AppState {
   setAccountSetupComplete: (v: boolean) => void;
   setPremium: (v: boolean) => void;
   setServerEntitlement: (isPro: boolean) => void;
+  setCloudSyncState: (status: CloudSyncStatus, message?: string) => void;
   applyCloudProgressSnapshot: (body: ProgressSnapshotBody) => void;
+  activateCloudAccount: (identity: { userId: string; email?: string; name?: string }, progress?: AccountSnapshot) => string;
   addPoints: (points: number) => void;
   spendPoints: (points: number) => boolean;
   /** XP = progresso de estudo (lições, revisão, prática, imersão, missões). Nunca é gasto. */
@@ -1426,7 +1467,7 @@ interface AppState {
   createCloudAccountDraft: (name: string, email: string, placement: PlacementResult) => void;
   /** Anexa um email a um perfil local já existente e o promove a "cloud_pending". */
   attachEmailToLocalAccount: (email: string) => void;
-  /** Marca a conta atual como autenticada na nuvem (sessão Supabase ativa). */
+  /** Compatibilidade: marca a conta atual como cloud sem trocar de id. */
   syncAccountWithCloudAuth: (email: string) => void;
   /** Encerra sessão na nuvem sem apagar progresso local. */
   endCloudSession: () => void;
@@ -1557,6 +1598,7 @@ export const useStore = create<AppState>()(
       favoriteItems: [],
       isPremium: false,
       serverIsPro: false,
+      cloudSyncState: freshCloudSyncState(),
       placement: null,
       dailyMissions: freshDailyMissions(),
       weeklyMissions: freshWeeklyMissions(),
@@ -1603,6 +1645,14 @@ export const useStore = create<AppState>()(
           return { isPremium: v, accounts: saveCurrentAccount(next) };
         }),
       setServerEntitlement: (isPro) => set({ serverIsPro: isPro }),
+      setCloudSyncState: (status, message = "") =>
+        set({
+          cloudSyncState: {
+            status,
+            message,
+            updatedAt: Date.now(),
+          },
+        }),
       applyCloudProgressSnapshot: (body) =>
         set((s) => {
           const id = s.currentAccountId;
@@ -1623,6 +1673,25 @@ export const useStore = create<AppState>()(
             accounts: { ...s.accounts, [id]: merged },
           };
         }),
+      activateCloudAccount: (identity, progress) => {
+        const id = cloudAccountId(identity.userId);
+        set((s) => {
+          const saved = saveCurrentAccount(s);
+          const fallback = saved[s.currentAccountId];
+          const existing = saved[id];
+          const account = buildCloudAccount(existing, fallback, identity, progress);
+          return {
+            ...accountFields(account),
+            accountSetupComplete: true,
+            currentAccountId: id,
+            accounts: {
+              ...saved,
+              [id]: account,
+            },
+          };
+        });
+        return id;
+      },
       addQi: (amount, source) =>
         set((s) => {
           const inc = Math.max(0, Math.round(amount));
@@ -1920,6 +1989,11 @@ export const useStore = create<AppState>()(
               ...s.accounts,
               [id]: { ...account, email, authMode: "cloud", updatedAt: Date.now() },
             },
+            cloudSyncState: {
+              status: "synced",
+              message: "Conta em nuvem conectada neste dispositivo.",
+              updatedAt: Date.now(),
+            },
           };
         }),
       endCloudSession: () =>
@@ -1932,11 +2006,12 @@ export const useStore = create<AppState>()(
               ...s.accounts,
               [id]: { ...account, authMode: "cloud_pending", updatedAt: Date.now() },
             },
+            cloudSyncState: freshCloudSyncState(),
           };
         }),
       logout: () =>
         // Salva o progresso na conta atual e volta para o onboarding.
-        set((s) => ({ accounts: saveCurrentAccount(s), accountSetupComplete: false })),
+        set((s) => ({ accounts: saveCurrentAccount(s), accountSetupComplete: false, cloudSyncState: freshCloudSyncState() })),
       switchAccount: (id) =>
         set((s) => {
           if (id === s.currentAccountId) return {};
