@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -228,11 +228,48 @@ function correctionForStep(step: LessonStep): LessonMistake {
 
 function LessonSummaryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-[22px] border border-line bg-surface-2 px-4 py-4 shadow-card">
+    <div className="min-w-0 rounded-[18px] border border-line bg-surface-2 px-3 py-3 shadow-card">
       <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-      <div className="mt-2 truncate font-serif text-xl font-semibold text-ink">{value}</div>
+      <div className="mt-1.5 truncate font-serif text-lg font-semibold text-ink sm:text-xl">{value}</div>
     </div>
   );
+}
+
+function CollapsibleInfoCard({
+  title,
+  defaultOpen = false,
+  compactLabel,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  compactLabel?: string;
+  children: ReactNode;
+}) {
+  return (
+    <details
+      className="rounded-[20px] border border-line bg-surface/85 p-3 text-left shadow-card"
+      open={defaultOpen}
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink">
+        <span>{title}</span>
+        <span className="text-xs font-medium text-ink-faint">{compactLabel ?? "Toque para expandir"}</span>
+      </summary>
+      <div className="mt-3">{children}</div>
+    </details>
+  );
+}
+
+function progressSaveLabel(
+  authMode: "local" | "cloud_pending" | "cloud",
+  syncStatus: ReturnType<typeof useStore.getState>["cloudSyncState"]["status"]
+): string {
+  if (authMode === "cloud") {
+    if (syncStatus === "pending" || syncStatus === "loading") return "Sincronizando progresso...";
+    if (syncStatus === "error") return "Progresso local seguro";
+    return "Progresso salvo na nuvem";
+  }
+  return "Progresso salvo neste dispositivo";
 }
 
 function LessonStageSegments({ value, total, activeIndex }: { value: number; total: number; activeIndex: number }) {
@@ -1172,7 +1209,8 @@ export function LessonPlayer() {
   const gradeSrs = useStore((s) => s.gradeSrs);
   const ensureSrs = useStore((s) => s.ensureSrs);
   const addMinutes = useStore((s) => s.addMinutes);
-  const xpTotal = useStore((s) => s.xpTotal);
+  const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
+  const cloudSyncState = useStore((s) => s.cloudSyncState);
   const today = useStore((s) => s.today);
   const streak = useStore((s) => s.streak);
   const streakShields = useStore((s) => s.streakShields);
@@ -1220,6 +1258,7 @@ export function LessonPlayer() {
   const [reviewItemsAdded, setReviewItemsAdded] = useState(0);
   const [lessonReward, setLessonReward] = useState(0);
   const [lessonXp, setLessonXp] = useState(0);
+  const [postLessonXpTotal, setPostLessonXpTotal] = useState(0);
   // Resumo pedagógico da sessão: o que de fato foi praticado nesta rodada.
   const [sessionSummary, setSessionSummary] = useState<{
     phrases: number;
@@ -1232,6 +1271,7 @@ export function LessonPlayer() {
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
   const [claimedRewardCards, setClaimedRewardCards] = useState(false);
   const [visibleRewards, setVisibleRewards] = useState<RewardGrant[]>([]);
+  const [showAllRewards, setShowAllRewards] = useState(false);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
   const contextualOffer = useProOffer();
   const [entryChecked, setEntryChecked] = useState(false);
@@ -1713,6 +1753,7 @@ export function LessonPlayer() {
         source: "Conclusão de lição",
       });
       setLessonXp(xpClaimed ? recoveredXp : 0);
+      setPostLessonXpTotal(useStore.getState().xpTotal);
       setLessonReward(LESSON_THREE_STAR_QI + (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0));
     }
     if (firstCompletion || (lessonStarsById[lesson.id] ?? 0) < 3) recordDailyTask("threeStarLessons");
@@ -2136,12 +2177,14 @@ export function LessonPlayer() {
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
     setReviewItemsAdded(gradedDomains.size);
     setLessonXp(xpClaimed ? completionXp : 0);
+    setPostLessonXpTotal(useStore.getState().xpTotal);
     setLessonReward(completionQi);
     setEstimatedMinutes(minutesEarned);
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
     setVisibleRewards([]);
+    setShowAllRewards(false);
     setErrorReviewMode(activityErrorsRef.current.length > 0 ? "offer" : "idle");
     setCorrectedErrorIds([]);
     setRecovered(false);
@@ -2320,6 +2363,7 @@ export function LessonPlayer() {
       setReviewItemsAdded(0);
       setLessonReward(0);
       setLessonXp(0);
+      setPostLessonXpTotal(0);
       setSessionSummary(null);
       skippedStepsRef.current = 0;
       retryUsesRef.current = 0;
@@ -2331,6 +2375,7 @@ export function LessonPlayer() {
       setDailyGoalReached(false);
       setClaimedRewardCards(false);
       setVisibleRewards([]);
+      setShowAllRewards(false);
       setLessonTaskProgress(lesson.id, 0);
       recordedMistakeStepRef.current = null;
       recordedPairMistakesRef.current.clear();
@@ -2566,6 +2611,17 @@ export function LessonPlayer() {
     ].filter((reward) => reward.amount > 0);
     const newRewards = allRewards.filter((reward) => !rewardHistory.some((entry) => entry.id === reward.id));
     const shouldShowStreak = dailyGoalReached;
+    const rewardCards = showAllRewards ? visibleRewards : visibleRewards.slice(0, 3);
+    const hiddenRewardCount = Math.max(0, visibleRewards.length - rewardCards.length);
+    const saveStatusLabel = progressSaveLabel(authMode, cloudSyncState.status);
+    const topSummaryStats = [
+      {
+        label: "Frases",
+        value: `${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${sessionSummary?.newPhrases} novas)` : ""}`,
+      },
+      { label: "Hànzì", value: `${sessionSummary?.hanzi ?? 0}` },
+      { label: "Precisão", value: `${precision}%` },
+    ];
 
     function continueAfterVictory() {
       if (newRewards.length > 0) {
@@ -2628,45 +2684,54 @@ export function LessonPlayer() {
 
     if (postLessonView === "rewards") {
       return (
-        <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] text-center">
-          <div className="flex flex-1 flex-col overflow-hidden rounded-[34px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-5 shadow-lift sm:p-6">
-            <div className="mx-auto mt-4 flex h-24 w-24 items-center justify-center rounded-[30px] bg-accent text-white shadow-lift">
-              <IconFlame width={44} height={44} fill="currentColor" />
+        <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col px-1 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] text-center">
+          <div className="flex flex-1 flex-col overflow-hidden rounded-[28px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-4 shadow-lift sm:p-5">
+            <div className="mx-auto mt-2 flex h-14 w-14 items-center justify-center rounded-[18px] bg-accent text-white shadow-card sm:h-16 sm:w-16">
+              <IconFlame width={28} height={28} fill="currentColor" />
             </div>
-            <div className="mx-auto mt-5 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
+            <div className="mx-auto mt-3 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
               Etapa 2
             </div>
-            <h1 className="mt-3 font-serif text-3xl font-semibold text-ink">Recompensas prontas</h1>
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
+            <h1 className="mt-2 font-serif text-2xl font-semibold text-ink sm:text-3xl">Recompensas prontas</h1>
+            <p className="mx-auto mt-1 max-w-sm text-sm leading-5 text-ink-soft">
               Guarde os ganhos da lição no seu progresso antes de seguir.
             </p>
 
-            <div className="mt-6 grid gap-3">
-              {visibleRewards.map((reward, index) => (
+            <div className="mt-4 grid gap-2.5">
+              {rewardCards.map((reward, index) => (
                 <div
                   key={reward.id}
                   className={[
-                    "longyu-reward-rise relative flex items-center justify-between overflow-hidden rounded-[24px] border border-line bg-surface px-4 py-4 text-left shadow-card",
+                    "longyu-reward-rise relative flex items-center justify-between overflow-hidden rounded-[18px] border border-line bg-surface px-3 py-3 text-left shadow-card",
                     claimedRewardCards ? "ring-2 ring-accent/30" : "",
                   ].join(" ")}
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="hanzi flex h-16 w-16 items-center justify-center rounded-[22px] bg-accent-soft text-4xl text-accent shadow-card">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="hanzi flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-accent-soft text-2xl text-accent shadow-card sm:h-12 sm:w-12">
                       {rewardIcon(reward)}
                     </span>
-                    <div>
-                      <div className="font-semibold text-ink">{rewardLabel(reward)}</div>
-                      <div className="text-xs text-ink-faint">{reward.source}</div>
+                    <div className="min-w-0">
+                      <div className="truncate font-semibold text-ink">{rewardLabel(reward)}</div>
+                      <div className="truncate text-[11px] text-ink-faint">{reward.source}</div>
                     </div>
                   </div>
-                  <IconStar width={24} height={24} className="text-gold" fill="currentColor" />
+                  <IconStar width={18} height={18} className="shrink-0 text-gold" fill="currentColor" />
                 </div>
               ))}
             </div>
+            {hiddenRewardCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowAllRewards(true)}
+                className="mt-3 text-sm font-semibold text-accent hover:underline"
+              >
+                Ver todas (+{hiddenRewardCount})
+              </button>
+            )}
 
             <Button
-              className="mt-auto w-full shadow-lift sm:mt-6"
+              className="mt-auto w-full shadow-lift"
               size="lg"
               onClick={claimedRewardCards ? continueAfterRewards : claimLessonRewards}
             >
@@ -2735,22 +2800,22 @@ export function LessonPlayer() {
     return (
       <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-3xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]">
         {recoveryDebugPanel}
-        <section className="flex flex-1 flex-col overflow-hidden rounded-[34px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.22),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] px-4 pb-0 pt-6 text-center shadow-lift sm:px-7">
-          <div className="relative mx-auto h-32 w-44 shrink-0">
+        <section className="flex flex-1 flex-col overflow-hidden rounded-[28px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] px-4 pb-0 pt-4 text-center shadow-lift sm:px-6">
+          <div className="relative mx-auto h-20 w-28 shrink-0 sm:h-24 sm:w-32">
             <div className="absolute inset-x-0 top-0 flex justify-center">
-              <Mascot size={116} variant="celebrate" />
+              <Mascot size={80} variant="celebrate" />
             </div>
-            <div className="longyu-lesson-dragon absolute -bottom-1 left-5 grid h-12 w-12 place-items-center rounded-[18px] border border-accent-soft bg-accent-soft text-accent shadow-card">
-              <IconFlame width={26} height={26} fill="currentColor" />
+            <div className="longyu-lesson-dragon absolute -bottom-1 left-3 grid h-9 w-9 place-items-center rounded-[14px] border border-accent-soft bg-accent-soft text-accent shadow-card">
+              <IconFlame width={18} height={18} fill="currentColor" />
             </div>
             {[0, 1, 2].map((n) => (
               <IconStar
                 key={n}
-                width={18 + n * 3}
-                height={18 + n * 3}
+                width={14 + n * 2}
+                height={14 + n * 2}
                 className={[
                   "longyu-star-spark absolute text-accent",
-                  n === 0 ? "left-1 top-12" : n === 1 ? "right-3 top-3" : "right-9 bottom-2",
+                  n === 0 ? "left-0 top-9" : n === 1 ? "right-1 top-1" : "right-6 bottom-1",
                 ].join(" ")}
                 fill="currentColor"
                 style={{ animationDelay: `${n * 90}ms` }}
@@ -2758,78 +2823,80 @@ export function LessonPlayer() {
             ))}
           </div>
 
-          <div className="mx-auto mt-2 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
+          <div className="mx-auto mt-1 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             Etapa 1
           </div>
-          <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-ink sm:text-5xl">
+          <h1 className="mt-2 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
             {stars === 3 ? "Lição concluída!" : "Você avançou!"}
           </h1>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
+          <p className="mx-auto mt-1 max-w-md text-sm leading-5 text-ink-soft">
             {victoryTitle} <span className="font-semibold text-ink">{lesson.title}</span> foi concluída.
           </p>
           {recovered && (
-            <div className="mx-auto mt-4 max-w-md rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
+            <div className="mx-auto mt-3 max-w-md rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
               Erros corrigidos! Você recuperou 3 estrelas. A próxima lição foi liberada.
             </div>
           )}
-          <div className="mx-auto mt-5 rounded-[28px] border border-accent-soft bg-surface/90 px-6 py-4 shadow-lift">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">XP ganho</div>
-            <div className="mt-1 font-serif text-5xl font-semibold text-ink">+{lessonXp}</div>
-            <div className="mt-1 text-xs text-ink-faint">XP total agora: {xpTotal}</div>
+          <div className="mt-4 grid gap-3 text-left lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-[22px] border border-accent-soft bg-surface/90 p-4 shadow-lift">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Resumo rápido</div>
+                  <div className="mt-1 text-xs text-ink-faint">{saveStatusLabel}</div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3].map((n) => (
+                    <IconStar
+                      key={n}
+                      width={24}
+                      height={24}
+                      className={n <= stars ? "longyu-star-spark text-accent" : "text-line"}
+                      fill={n <= stars ? "currentColor" : "none"}
+                      style={{ animationDelay: `${n * 80}ms` }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="rounded-[18px] border border-line bg-surface-2 px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">XP ganho</div>
+                  <div className="mt-1 font-serif text-2xl font-semibold text-ink">+{lessonXp}</div>
+                  <div className="text-xs text-ink-faint">XP total agora: {postLessonXpTotal}</div>
+                </div>
+                <div className="rounded-[18px] border border-line bg-surface-2 px-3 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Qi ganho</div>
+                  <div className="mt-1 font-serif text-2xl font-semibold text-ink">+{lessonReward}</div>
+                  <div className="text-xs text-ink-faint">Pronto para seguir</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[22px] border border-line bg-surface/85 p-4 text-left shadow-card">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Próximo foco</div>
+              <div className="mt-1 text-sm font-semibold text-ink">{nextFocus.title}</div>
+              <p className="mt-1 text-sm leading-5 text-ink-soft">{nextFocus.desc}</p>
+              <Link to={nextFocus.to} className="mt-3 inline-block w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  {nextFocus.cta} <IconChevron width={16} height={16} />
+                </Button>
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-6 flex justify-center gap-2">
-            {[1, 2, 3].map((n) => (
-              <IconStar
-                key={n}
-                width={38}
-                height={38}
-                className={n <= stars ? "longyu-star-spark text-accent" : "text-line"}
-                fill={n <= stars ? "currentColor" : "none"}
-                style={{ animationDelay: `${n * 80}ms` }}
-              />
+          <div className="mt-4 grid grid-cols-1 gap-2 text-left sm:grid-cols-3">
+            {topSummaryStats.map((item) => (
+              <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
             ))}
           </div>
-
-          <div className="mt-7 text-left">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Etapa 2</div>
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-ink">Resumo da sessão</h2>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
-            <LessonSummaryStat
-              label="Frases praticadas"
-              value={`${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${sessionSummary?.newPhrases} novas)` : ""}`}
-            />
-            <LessonSummaryStat label="Hànzì praticados" value={`${sessionSummary?.hanzi ?? 0}`} />
-            <LessonSummaryStat label="Tons acertados" value={`${sessionSummary?.tones ?? 0}`} />
-            <LessonSummaryStat
-              label="Erros corrigidos"
-              value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
-            />
-            <LessonSummaryStat label="Precisão" value={`${precision}%`} />
-            <LessonSummaryStat label="Qi ganho" value={`+${lessonReward}`} />
-          </div>
-          <p className="mt-3 text-left text-sm leading-6 text-ink-soft">
+          <p className="mt-3 text-left text-sm leading-5 text-ink-soft">
             {sessionSummaryLine} Foram ~{estimatedMinutes} min de prática
             {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na sua revisão.` : "."}
           </p>
 
-          <div className="mt-4 rounded-[22px] border border-accent-soft bg-accent-soft/30 p-4 text-left shadow-card">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Próximo foco</div>
-            <div className="mt-1 text-sm font-semibold text-ink">{nextFocus.title}</div>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">{nextFocus.desc}</p>
-            <Link to={nextFocus.to} className="mt-3 inline-block">
-              <Button variant="outline" className="w-full sm:w-auto">
-                {nextFocus.cta} <IconChevron width={16} height={16} />
-              </Button>
-            </Link>
-          </div>
-
           {!isPremium && committedErrors.length >= 3 && (
-            <div className="mt-4 rounded-[22px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] p-4 text-left shadow-card">
+            <div className="mt-4 rounded-[20px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] p-3 text-left shadow-card">
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
-              <p className="mt-1 text-sm leading-6 text-ink">
+              <p className="mt-1 text-sm leading-5 text-ink">
                 Você teve dificuldade com {weakSkillsLabel}. O Pro cria uma revisão focada nos seus pontos fracos.
               </p>
               <p className="mt-1 text-xs leading-5 text-ink-faint">
@@ -2844,71 +2911,81 @@ export function LessonPlayer() {
               </Button>
             </div>
           )}
-          {(suggestsPinyinLab || suggestsHanziLab) && (
-            <div className="mt-4 rounded-[22px] border border-line bg-surface/85 p-4 text-left shadow-card">
-              <div className="text-sm font-semibold text-ink">Reforço guiado</div>
-              <p className="mt-1 text-sm leading-6 text-ink-soft">
-                Este conteúdo já pode continuar em prática livre curta, sem sair do eixo da Jornada.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {suggestsPinyinLab && (
-                  <Link to="/pinyin">
-                    <Button variant="outline" className="w-full sm:w-auto">
-                      <IconSound width={17} height={17} /> Reforçar no Pinyin Lab
-                    </Button>
-                  </Link>
-                )}
-                {suggestsHanziLab && (
-                  <Link to="/hanzi">
-                    <Button variant="outline" className="w-full sm:w-auto">
-                      <IconHanzi width={17} height={17} /> Reforçar no Hànzì Lab
-                    </Button>
-                  </Link>
-                )}
+          <div className="mt-4 grid gap-3">
+            <CollapsibleInfoCard
+              title="Detalhes da sessão"
+              compactLabel={`${committedErrors.length} erro(s) · ${reviewItemsAdded} revisão`}
+            >
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <LessonSummaryStat label="Tons" value={`${sessionSummary?.tones ?? 0}`} />
+                <LessonSummaryStat label="Qi" value={`+${lessonReward}`} />
+                <LessonSummaryStat
+                  label="Erros corrigidos"
+                  value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
+                />
               </div>
-            </div>
-          )}
+            </CollapsibleInfoCard>
 
-          <div className="mt-7 text-left">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Etapa 3</div>
-            <div className="mt-1 flex items-end justify-between gap-3">
-              <h2 className="font-serif text-2xl font-semibold text-ink">Missões atualizadas</h2>
-              <span className="shrink-0 rounded-full bg-surface/85 px-3 py-1 text-xs font-semibold text-ink-soft">
-                {monthlyProgress}/{MONTHLY_GOAL} mensal
-              </span>
-            </div>
-            <ProgressBar value={monthlyProgress} max={MONTHLY_GOAL} className="mt-3 h-2.5" />
+            <CollapsibleInfoCard
+              title="Missões atualizadas"
+              compactLabel={`${monthlyProgress}/${MONTHLY_GOAL} mensal`}
+              defaultOpen={false}
+            >
+              <ProgressBar value={monthlyProgress} max={MONTHLY_GOAL} className="h-2.5" />
+              {missionHighlights.length > 0 ? (
+                <div className="mt-3 grid gap-2.5">
+                  {missionHighlights.map((mission) => (
+                    <MissionUpdateCard key={`${mission.scope}:${mission.id}`} mission={mission} />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-3 rounded-[18px] border border-line bg-surface-2 px-3 py-3 text-sm text-ink-soft">
+                  Continue praticando para completar a próxima missão.
+                </div>
+              )}
+            </CollapsibleInfoCard>
+
+            {(suggestsPinyinLab || suggestsHanziLab) && (
+              <CollapsibleInfoCard title="Reforço guiado" compactLabel="Prática curta recomendada">
+                <p className="text-sm leading-5 text-ink-soft">
+                  Este conteúdo já pode continuar em prática livre curta, sem sair do eixo da Jornada.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {suggestsPinyinLab && (
+                    <Link to="/pinyin">
+                      <Button variant="outline" className="w-full sm:w-auto">
+                        <IconSound width={17} height={17} /> Reforçar no Pinyin Lab
+                      </Button>
+                    </Link>
+                  )}
+                  {suggestsHanziLab && (
+                    <Link to="/hanzi">
+                      <Button variant="outline" className="w-full sm:w-auto">
+                        <IconHanzi width={17} height={17} /> Reforçar no Hànzì Lab
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CollapsibleInfoCard>
+            )}
+
+            {!recovered && mistakes.length > 0 && (
+              <CollapsibleInfoCard title="Enviado para revisão" compactLabel={`${mistakes.length} item(ns)`}>
+                <div className="grid gap-2">
+                  {mistakes.slice(0, 3).map((mistake, index) => (
+                    <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-sm">
+                      <div className="font-medium text-ink">{mistake.prompt}</div>
+                      <div className="mt-0.5 text-ink-soft">
+                        Correto: <span className="font-medium text-ink">{mistake.correction}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleInfoCard>
+            )}
           </div>
 
-          {missionHighlights.length > 0 ? (
-            <div className="mt-3 grid gap-3">
-              {missionHighlights.map((mission) => (
-                <MissionUpdateCard key={`${mission.scope}:${mission.id}`} mission={mission} />
-              ))}
-            </div>
-          ) : (
-            <div className="mt-3 rounded-[22px] border border-line bg-surface/85 px-4 py-3 text-left text-sm text-ink-soft shadow-card">
-              Continue praticando para completar a próxima missão.
-            </div>
-          )}
-
-          {!recovered && mistakes.length > 0 && (
-            <div className="mt-5 rounded-[22px] border border-line bg-surface/85 p-4 text-left shadow-card">
-              <div className="text-sm font-semibold text-ink">Enviado para revisão</div>
-              <div className="mt-3 grid gap-2">
-                {mistakes.slice(0, 3).map((mistake, index) => (
-                  <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-sm">
-                    <div className="font-medium text-ink">{mistake.prompt}</div>
-                    <div className="mt-0.5 text-ink-soft">
-                      Correto: <span className="font-medium text-ink">{mistake.correction}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <Link to="/revisao">
               <Button variant="outline" className="w-full">
                 <IconRefresh width={17} height={17} /> Revisar
