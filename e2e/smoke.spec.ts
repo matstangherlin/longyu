@@ -16,6 +16,29 @@ test.describe("smoke", () => {
     await expect(page.locator("nav")).toHaveCount(0);
   });
 
+  test("landing: Começar agora vai para /conta", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /Começar agora/i }).click();
+    await page.waitForURL("**/conta");
+    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+  });
+
+  test("landing: Já tenho uma conta vai para /login", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /Já tenho uma conta/i }).click();
+    await page.waitForURL("**/login");
+    await expect(page.getByRole("heading", { name: /Entrar na conta/i })).toBeVisible();
+  });
+
+  test("modo foco esconde chrome na lição", async ({ page }) => {
+    await seedOnboardedSession(page, []);
+    await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await expect(page.locator("nav")).toHaveCount(0);
+    await expect(page.getByLabel(/Enviar feedback/i)).toHaveCount(0);
+    await expect(page.getByLabel(/Sair/i)).toBeVisible();
+    await expect(page.getByText(/\d+\/\d+/).first()).toBeVisible();
+  });
+
   test("usuário com conta em / vai para /jornada", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/");

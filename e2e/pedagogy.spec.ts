@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { dismissBlockingOverlays, seedFreshJourneySession, seedFoundationThrough, seedLessonRecoverySession, seedOnboardedSession } from "./helpers";
+import {
+  dismissBlockingOverlays,
+  seedFreshJourneySession,
+  seedFoundationThrough,
+  seedLessonRecoverySession,
+  seedOnboardedSession,
+} from "./helpers";
 
 test.describe("jornada", () => {
   test("jornada carrega com perfil onboarded", async ({ page }) => {

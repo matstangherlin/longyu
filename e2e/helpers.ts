@@ -56,12 +56,17 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
   }));
 }
 
-export async function seedFreshJourneySession(page: Page) {
+export async function seedFreshJourneySession(
+  page: Page,
+  options: { isPremium?: boolean; points?: number } = {}
+) {
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
     completedLessons: [],
+    isPremium: options.isPremium ?? false,
+    points: options.points ?? 20,
   }));
 }
 
