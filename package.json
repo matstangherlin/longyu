@@ -25,6 +25,7 @@
     "validate:backend-ready": "node scripts/validate-backend-ready.mjs",
     "deploy:backend": "node scripts/deploy-backend.mjs",
     "deploy:leagues": "node scripts/deploy-leagues.mjs",
+    "deploy:leagues:browser": "node scripts/browser-deploy-leagues.mjs",
     "verify:leagues": "node scripts/verify-leagues-backend.mjs",
     "db:bundle": "node scripts/apply-migrations-sql.mjs",
     "db:push": "node scripts/db-push.mjs",
