@@ -34,8 +34,8 @@ export function AuthBootstrap() {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, session) => {
-      const email = session?.user?.email;
-      if (email && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")) {
+      const userId = session?.user?.id;
+      if (userId && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")) {
         void waitForStoreHydration().then(() => restoreCloudSessionIfPresent());
         return;
       }

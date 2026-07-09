@@ -5,8 +5,6 @@ import { login as authLogin } from "../services/authService";
 import { syncAuthSessionProgress } from "../services/cloudSyncCoordinator";
 
 export function useCloudSignIn() {
-  const attachEmailToLocalAccount = useStore((s) => s.attachEmailToLocalAccount);
-  const syncAccountWithCloudAuth = useStore((s) => s.syncAccountWithCloudAuth);
   const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
 
   const signIn = useCallback(
@@ -18,9 +16,7 @@ export function useCloudSignIn() {
       if (authResult.status === "error") {
         return { ok: false, message: authResult.message };
       }
-      attachEmailToLocalAccount(email.trim());
       if (authResult.status === "ok") {
-        syncAccountWithCloudAuth(email.trim());
         setAccountSetupComplete(true);
         const syncResult = await syncAuthSessionProgress();
         return {
@@ -33,7 +29,7 @@ export function useCloudSignIn() {
       setAccountSetupComplete(true);
       return { ok: true, message: authResult.message };
     },
-    [attachEmailToLocalAccount, setAccountSetupComplete, syncAccountWithCloudAuth]
+    [setAccountSetupComplete]
   );
 
   return { signIn };

@@ -1,4 +1,4 @@
-/** Valida merge de progresso local+remoto (espelha src/lib/syncMerge.ts). */
+/** Valida merge de progresso local+remoto e guardrails do sync cloud. */
 
 function unionUnique(values) {
   return [...new Set(values)];
@@ -22,6 +22,19 @@ function maxLessonStars(a, b) {
   return merged;
 }
 
+function uniqueById(items) {
+  const byId = new Map();
+  items.forEach((item, index) => {
+    const key = item.id?.trim() || `idx:${index}:${JSON.stringify(item)}`;
+    byId.set(key, item);
+  });
+  return [...byId.values()];
+}
+
+function sortByTimestampDesc(items, pickTimestamp) {
+  return [...items].sort((a, b) => pickTimestamp(b) - pickTimestamp(a));
+}
+
 function mergeSrs(local, remote) {
   const merged = { ...local };
   for (const [key, remoteItem] of Object.entries(remote)) {
@@ -37,15 +50,89 @@ function mergeSrs(local, remote) {
   return merged;
 }
 
+function hasAnyPositiveValue(values) {
+  if (!values) return false;
+  return Object.values(values).some((value) => Number(value) > 0);
+}
+
+function countPositiveValues(values) {
+  if (!values) return 0;
+  return Object.values(values).filter((value) => Number(value) > 0).length;
+}
+
+function countObjectKeys(values) {
+  return values ? Object.keys(values).length : 0;
+}
+
+function chestInventoryScore(chests) {
+  if (!chests) return 0;
+  return Object.values(chests).reduce((sum, value) => sum + Math.max(0, Number(value) || 0), 0);
+}
+
+function isMeaningfulProgress(source) {
+  const progress = source?.snapshot?.progress ?? source;
+  if (!progress) return false;
+  return (
+    (progress.completedLessons?.length ?? 0) > 0 ||
+    hasAnyPositiveValue(progress.lessonStarsById) ||
+    hasAnyPositiveValue(progress.lessonTaskProgress) ||
+    (progress.learnedChars?.length ?? 0) > 0 ||
+    (progress.learnedChunks?.length ?? 0) > 0 ||
+    countObjectKeys(progress.srs) > 0 ||
+    (progress.xpTotal ?? 0) > 0 ||
+    (progress.points ?? 0) > 0 ||
+    (progress.streak ?? 0) > 0 ||
+    countObjectKeys(progress.achievementsUnlocked) > 0 ||
+    chestInventoryScore(progress.chests) > 0 ||
+    (progress.rewardHistory?.length ?? 0) > 0 ||
+    progress.placement != null
+  );
+}
+
+function getProgressScore(source) {
+  const progress = source?.snapshot?.progress ?? source;
+  if (!progress) return 0;
+  const totalStars = Object.values(progress.lessonStarsById ?? {}).reduce((sum, value) => sum + Math.max(0, Number(value) || 0), 0);
+  const lessonTaskUnits = Object.values(progress.lessonTaskProgress ?? {}).reduce((sum, value) => sum + Math.max(0, Number(value) || 0), 0);
+  return (
+    (progress.completedLessons?.length ?? 0) * 100 +
+    totalStars * 25 +
+    lessonTaskUnits * 10 +
+    (progress.learnedChars?.length ?? 0) * 8 +
+    (progress.learnedChunks?.length ?? 0) * 8 +
+    countObjectKeys(progress.srs) * 12 +
+    Math.max(0, progress.xpTotal ?? 0) +
+    Math.max(0, progress.points ?? 0) * 2 +
+    Math.max(0, progress.streak ?? 0) * 20 +
+    countObjectKeys(progress.achievementsUnlocked) * 30 +
+    (progress.rewardHistory?.length ?? 0) * 10 +
+    chestInventoryScore(progress.chests) * 10 +
+    (progress.placement ? 40 : 0) +
+    countPositiveValues(progress.correctedMistakes) * 4 +
+    (progress.recentErrors?.length ?? 0) * 2 +
+    (progress.recentActivityErrors?.length ?? 0) * 2 +
+    (progress.journeyChestsOpened?.length ?? 0) * 5 +
+    (progress.validatedModules?.length ?? 0) * 12
+  );
+}
+
 function mergeRemoteProgress(local, remote) {
+  const primary = getProgressScore(local) >= getProgressScore(remote) ? local : remote;
+  const secondary = primary === local ? remote : local;
   return {
-    ...local,
-    ...remote,
+    ...secondary,
+    ...primary,
     completedLessons: unionUnique([...local.completedLessons, ...remote.completedLessons]),
     learnedChars: unionUnique([...local.learnedChars, ...remote.learnedChars]),
     learnedChunks: unionUnique([...local.learnedChunks, ...remote.learnedChunks]),
+    badges: unionUnique([...(local.badges ?? []), ...(remote.badges ?? [])]),
+    favoriteItems: unionUnique([...(local.favoriteItems ?? []), ...(remote.favoriteItems ?? [])]),
+    ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
+    journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
+    validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),
     lessonStarsById: maxLessonStars(local.lessonStarsById, remote.lessonStarsById),
     lessonTaskProgress: maxRecordValues(local.lessonTaskProgress, remote.lessonTaskProgress),
+    correctedMistakes: maxRecordValues(local.correctedMistakes, remote.correctedMistakes),
     points: Math.max(local.points, remote.points),
     xpTotal: Math.max(local.xpTotal, remote.xpTotal),
     xpToday: Math.max(local.xpToday, remote.xpToday),
@@ -57,17 +144,80 @@ function mergeRemoteProgress(local, remote) {
     streakShields: Math.max(local.streakShields, remote.streakShields),
     srs: mergeSrs(local.srs, remote.srs),
     achievementsUnlocked: { ...remote.achievementsUnlocked, ...local.achievementsUnlocked },
+    achievementHistory: sortByTimestampDesc(uniqueById([...(local.achievementHistory ?? []), ...(remote.achievementHistory ?? [])]), (item) => item.unlockedAt ?? 0),
+    rewardHistory: sortByTimestampDesc(uniqueById([...(local.rewardHistory ?? []), ...(remote.rewardHistory ?? [])]), (item) => item.claimedAt ?? 0),
+    chestOpenHistory: sortByTimestampDesc(uniqueById([...(local.chestOpenHistory ?? []), ...(remote.chestOpenHistory ?? [])]), (item) => item.openedAt ?? 0),
+    purchaseHistory: sortByTimestampDesc(uniqueById([...(local.purchaseHistory ?? []), ...(remote.purchaseHistory ?? [])]), (item) => item.purchasedAt ?? 0),
+    missionHistory: sortByTimestampDesc(uniqueById([...(local.missionHistory ?? []), ...(remote.missionHistory ?? [])]), (item) => item.claimedAt ?? 0),
+    medals: sortByTimestampDesc(uniqueById([...(local.medals ?? []), ...(remote.medals ?? [])]), (item) => item.earnedAt ?? 0),
+    mistakeHistory: sortByTimestampDesc(uniqueById([...(local.mistakeHistory ?? []), ...(remote.mistakeHistory ?? [])]), (item) => item.createdAt ?? 0),
+    recentErrors: sortByTimestampDesc(uniqueById([...(local.recentErrors ?? []), ...(remote.recentErrors ?? [])]), (item) => item.createdAt ?? 0),
+    recentActivityErrors: sortByTimestampDesc(uniqueById([...(local.recentActivityErrors ?? []), ...(remote.recentActivityErrors ?? [])]), (item) => item.timestamp ?? 0),
+    inventory: maxRecordValues(local.inventory, remote.inventory),
+    chests: maxRecordValues(local.chests, remote.chests),
+    leagueHistory: sortByTimestampDesc(uniqueById([...(local.leagueHistory ?? []), ...(remote.leagueHistory ?? [])]), (item) => item.createdAt ?? 0).slice(0, 24),
+    leagueJoinedAt:
+      local.leagueJoinedAt == null
+        ? remote.leagueJoinedAt
+        : remote.leagueJoinedAt == null
+        ? local.leagueJoinedAt
+        : Math.min(local.leagueJoinedAt, remote.leagueJoinedAt),
+    leagueBots: (local.leagueBots?.length ?? 0) >= (remote.leagueBots?.length ?? 0) ? local.leagueBots : remote.leagueBots,
     isPremium: local.isPremium || remote.isPremium,
     placement: local.placement ?? remote.placement,
   };
 }
 
-const local = {
+function baseProgress(overrides = {}) {
+  return {
+    completedLessons: [],
+    learnedChars: [],
+    learnedChunks: [],
+    badges: [],
+    favoriteItems: [],
+    ownedCosmetics: [],
+    journeyChestsOpened: [],
+    validatedModules: [],
+    lessonStarsById: {},
+    lessonTaskProgress: {},
+    correctedMistakes: {},
+    points: 0,
+    xpTotal: 0,
+    xpToday: 0,
+    weeklyXp: 0,
+    monthlyXp: 0,
+    streak: 0,
+    longestStreak: 0,
+    dragonPearls: 0,
+    streakShields: 0,
+    srs: {},
+    achievementsUnlocked: {},
+    achievementHistory: [],
+    rewardHistory: [],
+    chestOpenHistory: [],
+    purchaseHistory: [],
+    missionHistory: [],
+    medals: [],
+    mistakeHistory: [],
+    recentErrors: [],
+    recentActivityErrors: [],
+    inventory: {},
+    chests: { small: 0, dragon: 0, monthly: 0, legendary: 0 },
+    leagueHistory: [],
+    leagueJoinedAt: null,
+    leagueBots: [],
+    isPremium: false,
+    placement: null,
+    ...overrides,
+  };
+}
+
+const local = baseProgress({
   completedLessons: ["l1"],
   learnedChars: ["char:ni"],
-  learnedChunks: [],
   lessonStarsById: { l1: 2 },
   lessonTaskProgress: { l1: 3 },
+  correctedMistakes: { "l1:q1": 1 },
   points: 10,
   xpTotal: 50,
   xpToday: 5,
@@ -75,15 +225,12 @@ const local = {
   monthlyXp: 20,
   streak: 2,
   longestStreak: 2,
-  dragonPearls: 0,
-  streakShields: 0,
   srs: { "chunk:nihao": { due: 100, reps: 1 } },
-  achievementsUnlocked: {},
-  isPremium: false,
-  placement: null,
-};
+  recentActivityErrors: [{ id: "activity-local", timestamp: 100 }],
+  rewardHistory: [{ id: "reward-local", claimedAt: 100, type: "qi", amount: 5, source: "local" }],
+});
 
-const remote = {
+const remote = baseProgress({
   completedLessons: ["l2"],
   learnedChars: ["char:hao"],
   learnedChunks: ["chunk:xiexie"],
@@ -100,9 +247,19 @@ const remote = {
   streakShields: 1,
   srs: { "chunk:nihao": { due: 200, reps: 2 } },
   achievementsUnlocked: { first_lesson: 1 },
-  isPremium: false,
-  placement: null,
-};
+  recentErrors: [{ id: "mistake-remote", createdAt: 300 }],
+  chestOpenHistory: [{ id: "chest-remote", openedAt: 200 }],
+  chests: { small: 1, dragon: 0, monthly: 0, legendary: 0 },
+});
+
+function decideSync(localProgress, remoteProgress) {
+  const localMeaningful = isMeaningfulProgress(localProgress);
+  const remoteMeaningful = isMeaningfulProgress(remoteProgress);
+  if (remoteProgress && !localMeaningful && remoteMeaningful) return "restore_remote";
+  if (remoteProgress && localMeaningful) return "merge_and_push";
+  if (!remoteProgress && localMeaningful) return "push_local";
+  return "create_initial";
+}
 
 const merged = mergeRemoteProgress(local, remote);
 const errors = [];
@@ -113,6 +270,39 @@ if (!merged.completedLessons.includes("l1") || !merged.completedLessons.includes
 if ((merged.lessonStarsById.l1 ?? 0) !== 3) errors.push("lessonStarsById deveria manter 3 estrelas em l1");
 if (merged.xpTotal !== 80) errors.push("xpTotal deveria usar o maior valor");
 if ((merged.srs["chunk:nihao"]?.due ?? 0) !== 200) errors.push("srs deveria preferir item com due mais recente");
+if ((merged.lessonTaskProgress.l2 ?? 0) !== 2 || (merged.lessonTaskProgress.l1 ?? 0) !== 3) {
+  errors.push("lessonTaskProgress deveria preservar progresso dos dois lados");
+}
+if ((merged.correctedMistakes["l1:q1"] ?? 0) !== 1) errors.push("correctedMistakes deveria ser preservado");
+if ((merged.recentActivityErrors?.length ?? 0) !== 1) errors.push("recentActivityErrors deveria ser preservado");
+if ((merged.recentErrors?.length ?? 0) !== 1) errors.push("recentErrors deveria ser preservado");
+if ((merged.chests?.small ?? 0) !== 1) errors.push("chests deveria preservar inventário relevante");
+
+const emptyLocal = baseProgress();
+if (isMeaningfulProgress(emptyLocal)) errors.push("snapshot vazio não deveria ser considerado progresso significativo");
+if (!isMeaningfulProgress(remote)) errors.push("snapshot remoto avançado deveria ser considerado significativo");
+if (decideSync(emptyLocal, remote) !== "restore_remote") errors.push("local vazio + remoto avançado deveria restaurar remoto");
+if (decideSync(local, remote) !== "merge_and_push") errors.push("local com progresso + remoto com progresso deveria mesclar");
+if (decideSync(local, null) !== "push_local") errors.push("sem remoto + local com progresso deveria enviar local");
+if (decideSync(emptyLocal, null) !== "create_initial") errors.push("sem remoto + local vazio deveria criar snapshot inicial");
+
+const remoteScore = getProgressScore(remote);
+const emptyScore = getProgressScore(emptyLocal);
+if (!(remoteScore > emptyScore)) errors.push("progressScore deveria ranquear remoto avançado acima do vazio");
+if (!(remoteScore > getProgressScore(local) || getProgressScore(local) > 0)) {
+  errors.push("progressScore deveria produzir valor positivo para progresso real");
+}
+
+if (!(emptyScore < remoteScore && isMeaningfulProgress(remote))) {
+  errors.push("local vazio nunca deve poder sobrescrever remoto avançado");
+}
+
+const tabA = mergeRemoteProgress(baseProgress({ completedLessons: ["p1"], lessonStarsById: { p1: 3 }, lessonTaskProgress: { p1: 6 } }), baseProgress());
+const tabBDecision = decideSync(baseProgress(), tabA);
+if (tabBDecision !== "restore_remote") errors.push("nova aba deve restaurar progresso da aba A");
+if ((tabA.completedLessons?.length ?? 0) === 0 || countObjectKeys(tabA.lessonStarsById) === 0 || countObjectKeys(tabA.lessonTaskProgress) === 0) {
+  errors.push("restauração remota deve manter completedLessons, lessonStarsById e lessonTaskProgress");
+}
 
 if (errors.length > 0) {
   console.error("ERRO: validate:sync-merge falhou.");

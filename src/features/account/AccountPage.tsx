@@ -6,7 +6,15 @@ import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { engineInsights, type EngineInsight } from "../../lib/engineIntelligence";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
-import { useStore, type AuthMode, type LearningAccount, type PlacementLevel, type PlacementResult, type RewardHistoryEntry } from "../../lib/store";
+import {
+  useStore,
+  type AuthMode,
+  type CloudSyncState,
+  type LearningAccount,
+  type PlacementLevel,
+  type PlacementResult,
+  type RewardHistoryEntry,
+} from "../../lib/store";
 import type { SRSItem } from "../../lib/srs";
 import { Button, Card, HubCard, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubContentCard, HubHeader, HubPage } from "../../components/layout/HubLayout";
@@ -1397,6 +1405,33 @@ function getAccountStatus(authMode: AuthMode): {
   };
 }
 
+function cloudSyncBanner(sync: CloudSyncState): { className: string; label: string } | null {
+  switch (sync.status) {
+    case "loading":
+      return {
+        className: "rounded-2xl border border-accent/20 bg-accent/10 px-4 py-4 text-sm font-medium text-ink",
+        label: sync.message || "Carregando progresso da nuvem...",
+      };
+    case "synced":
+      return {
+        className: "rounded-2xl border border-good/25 bg-good-soft px-4 py-4 text-sm font-medium text-ink",
+        label: sync.message || "Progresso sincronizado",
+      };
+    case "pending":
+      return {
+        className: "rounded-2xl border border-gold/25 bg-gold-soft px-4 py-4 text-sm font-medium text-ink",
+        label: sync.message || "Sincronização pendente",
+      };
+    case "error":
+      return {
+        className: "rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-4 text-sm font-medium text-ink",
+        label: sync.message || "Erro ao sincronizar — seu progresso local está seguro",
+      };
+    default:
+      return null;
+  }
+}
+
 import { getAccountFreeBenefitLines, getAccountProBenefitLines } from "../../data/planFeatures";
 
 const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; blurb: string }> = {
@@ -1466,7 +1501,7 @@ export function AccountPage() {
   const createCloudAccountDraft = useStore((s) => s.createCloudAccountDraft);
   const finishLocalOnboarding = useStore((s) => s.finishLocalOnboarding);
   const attachEmailToLocalAccount = useStore((s) => s.attachEmailToLocalAccount);
-  const syncAccountWithCloudAuth = useStore((s) => s.syncAccountWithCloudAuth);
+  const cloudSyncState = useStore((s) => s.cloudSyncState);
   const endCloudSession = useStore((s) => s.endCloudSession);
   const setServerEntitlement = useStore((s) => s.setServerEntitlement);
   const switchAccount = useStore((s) => s.switchAccount);
@@ -1694,7 +1729,6 @@ export function AccountPage() {
       }
       createCloudAccountDraft(firstName(name), email, result);
       if (authResult.status === "ok") {
-        syncAccountWithCloudAuth(email);
         const syncResult = await syncAuthSessionProgress();
         if (syncResult.ok) setAccountNotice("Conta criada e progresso sincronizado na nuvem.");
       }
@@ -1738,9 +1772,7 @@ export function AccountPage() {
         setAccountError(authResult.message);
         return;
       }
-      attachEmailToLocalAccount(email);
       if (authResult.status === "ok") {
-        syncAccountWithCloudAuth(email);
         const syncResult = await syncAuthSessionProgress();
         setAccountNotice(
           syncResult.ok
@@ -1998,6 +2030,7 @@ export function AccountPage() {
 
   const authMode = accountAuthMode(activeAccount);
   const status = getAccountStatus(authMode);
+  const syncBanner = cloudSyncBanner(cloudSyncState);
 
   useEffect(() => {
     if (activeAccount?.email && authMode === "cloud_pending" && !email) {
@@ -2659,11 +2692,7 @@ export function AccountPage() {
             </div>
           )}
 
-          {authMode === "cloud" && (
-            <div className="rounded-2xl border border-good/25 bg-good-soft px-4 py-4 text-sm font-medium text-ink">
-              Progresso sincronizado automaticamente com sua conta na nuvem.
-            </div>
-          )}
+          {authMode === "cloud" && syncBanner && <div className={syncBanner.className}>{syncBanner.label}</div>}
           </div>
         </Card>
       </div>
