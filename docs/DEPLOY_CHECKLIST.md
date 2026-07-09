@@ -8,6 +8,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 |------|--------|-------|
 | Projeto criado (`drjcfalvlbbeblmmyhwj`) | ✅ | |
 | Migrations 001–003 aplicadas | ✅ | `user_progress`, RLS, `client_snapshot`, trigger de perfil |
+| Migration 004 (Ligas) aplicada | ⬜ | `league_tiers`, RPC `get_league_standings`, backfill Bronze |
 | Edge Functions publicadas | ✅ | checkout, billing-portal, webhook, delete-account |
 | `npm run verify:production` | ✅ | REST + functions respondendo |
 | RLS testado (usuário A ≠ B) | ⬜ | Manual no SQL Editor ou Dashboard |
@@ -42,6 +43,8 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 npm run setup:supabase          # checklist A→I no terminal
 npm run configure:supabase-auth # dev: login sem confirmar email
 npm run deploy:backend -- --all
+npm run deploy:leagues          # só migration 004 (requer SUPABASE_ACCESS_TOKEN)
+npm run verify:leagues
 npm run verify:production
 npm run validate:beta
 npm run ci

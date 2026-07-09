@@ -24,6 +24,8 @@
     "validate:sync-merge": "node scripts/validate-sync-merge.mjs",
     "validate:backend-ready": "node scripts/validate-backend-ready.mjs",
     "deploy:backend": "node scripts/deploy-backend.mjs",
+    "deploy:leagues": "node scripts/deploy-leagues.mjs",
+    "verify:leagues": "node scripts/verify-leagues-backend.mjs",
     "db:bundle": "node scripts/apply-migrations-sql.mjs",
     "db:push": "node scripts/db-push.mjs",
     "db:apply-api": "node scripts/apply-migrations-api.mjs",

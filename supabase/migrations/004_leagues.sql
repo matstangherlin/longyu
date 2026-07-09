@@ -575,10 +575,12 @@ alter table public.league_weekly_results enable row level security;
 alter table public.league_xp_events enable row level security;
 
 -- Tiers: leitura pública para usuários autenticados
+drop policy if exists "league_tiers_select_authenticated" on public.league_tiers;
 create policy "league_tiers_select_authenticated"
   on public.league_tiers for select to authenticated using (true);
 
 -- Memberships: leitura do próprio registro + colegas da mesma divisão/semana
+drop policy if exists "league_memberships_select_peers" on public.league_memberships;
 create policy "league_memberships_select_peers"
   on public.league_memberships for select to authenticated
   using (
@@ -591,6 +593,7 @@ create policy "league_memberships_select_peers"
 
 -- Sem INSERT/UPDATE/DELETE direto pelo cliente — apenas RPC security definer
 
+drop policy if exists "league_weekly_results_select_own" on public.league_weekly_results;
 create policy "league_weekly_results_select_own"
   on public.league_weekly_results for select to authenticated
   using (user_id = auth.uid());
@@ -606,3 +609,44 @@ grant execute on function public.ensure_league_membership(uuid) to authenticated
 
 revoke all on function public.recalculate_league_ranks(text, text) from public;
 revoke all on function public.finalize_league_week_for_user(uuid) from public;
+
+-- Novos usuários entram automaticamente na Liga Bronze.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, name, native_language, target_language)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'name', 'Aluno Longyu'),
+    coalesce(new.raw_user_meta_data->>'native_language', 'pt-BR'),
+    coalesce(new.raw_user_meta_data->>'target_language', 'zh-CN')
+  )
+  on conflict (id) do nothing;
+
+  insert into public.league_memberships (user_id, league_tier_id, current_week_key, weekly_xp)
+  values (new.id, 'bronze', public.iso_week_key(), 0)
+  on conflict (user_id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- Usuários já cadastrados entram na Liga Bronze (sem duplicar).
+insert into public.league_memberships (user_id, league_tier_id, current_week_key, weekly_xp)
+select
+  p.id,
+  'bronze',
+  public.iso_week_key(),
+  greatest(0, coalesce(up.weekly_xp, 0))
+from public.profiles p
+left join public.user_progress up on up.user_id = p.id
+on conflict (user_id) do nothing;
