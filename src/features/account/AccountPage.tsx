@@ -1395,22 +1395,7 @@ function getAccountStatus(authMode: AuthMode): {
   };
 }
 
-function getAccountFreeBenefits(): string[] {
-  if (isSupabaseBackendEnabled()) {
-    return [
-      "Jornada essencial, lições iniciais e revisão básica.",
-      "Progresso local neste dispositivo.",
-      "Cargas diárias para treinos extras.",
-      "Crie uma conta gratuita para sincronizar o progresso na nuvem.",
-    ];
-  }
-  return [
-    "Jornada essencial, lições iniciais e revisão básica.",
-    "Progresso local neste dispositivo.",
-    "Cargas diárias para treinos extras.",
-    "Exportação manual de progresso enquanto a sincronização em nuvem não está disponível.",
-  ];
-}
+import { getAccountFreeBenefitLines, getAccountProBenefitLines } from "../../data/planFeatures";
 
 const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; blurb: string }> = {
   not_subscriber: {
@@ -1441,12 +1426,7 @@ const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; b
 };
 
 // Enquanto contas antigas não têm authMode, derivamos pelo email (defensivo).
-const ACCOUNT_PRO_BENEFITS = [
-  "Leitura, Hànzì, Fala, Pinyin Lab, Imersão e Treino focado abertos para explorar.",
-  "Erros, revisão extra e biblioteca avançada liberados no Preview.",
-  "Qi, Cargas e Fôlego não travam o estudo no Pro.",
-  "A Jornada continua pedagógica: Pro não marca aulas como feitas.",
-];
+const ACCOUNT_PRO_BENEFITS = getAccountProBenefitLines();
 
 function accountAuthMode(account?: LearningAccount): AuthMode {
   return account?.authMode ?? (account?.email ? "cloud_pending" : "local");
@@ -2877,7 +2857,7 @@ function ProSubscriptionCard({
   const canManage = hasRealSubscription && isBillingPortalAvailable();
   const canCancel = proState === "real_active" && hasRealSubscription && isBillingPortalAvailable();
   const planName = serverSubscription?.planName ?? (isLocalPreview ? "Longyu Pro" : "Gratuito");
-  const benefits = isFree ? getAccountFreeBenefits() : ACCOUNT_PRO_BENEFITS;
+  const benefits = isFree ? getAccountFreeBenefitLines(isSupabaseBackendEnabled()) : ACCOUNT_PRO_BENEFITS;
   const nextBilling =
     serverSubscription?.nextBillingAt
       ? formatAccountDate(serverSubscription.nextBillingAt)

@@ -13,38 +13,37 @@ import {
   IconShield,
   IconStar,
   IconTarget,
+  IconTrophy,
 } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
-import { DAILY_CHARGES_FREE, FREE_REVIEW_SESSION_LIMIT, PRO_LESSON_QI_BONUS } from "../../data/economy";
-import { createCheckoutSession, type ProPlanKey } from "../../services/subscriptionService";
+import { PRO_LESSON_QI_BONUS } from "../../data/economy";
+import {
+  getPlanFeature,
+  getProOnlyFeatures,
+  getProPageFreeHighlights,
+  getProPageProHighlights,
+  PLAN_FEATURES,
+  PRO_BENEFIT_GROUPS,
+} from "../../data/planFeatures";
+import {
+  createCheckoutSession,
+  openBillingPortal,
+  isBillingPortalAvailable,
+  type ProPlanKey,
+} from "../../services/subscriptionService";
 
-const FREE_HIGHLIGHTS = [
-  "Jornada completa",
-  `${DAILY_CHARGES_FREE} Cargas/dia`,
-  `Revisão até ${FREE_REVIEW_SESSION_LIMIT} itens`,
-  "Correção imediata",
-];
-
-const PRO_HIGHLIGHTS = [
-  "Cargas ilimitadas",
-  "Revisão ilimitada",
-  "Erros detalhados",
-  "Pinyin + Hànzì Lab completos",
-  "Imersão ampliada",
-  "Mais Qi por lição",
-];
-
-const BENEFITS = [
-  { title: "Cargas ilimitadas", icon: IconFlame },
-  { title: "Revisão inteligente", icon: IconRefresh },
-  { title: "Erros detalhados", icon: IconTarget },
-  { title: "Plano de estudo", icon: IconShield },
-  { title: "Pinyin Lab", icon: IconStar },
-  { title: "Hànzì profundo", icon: IconBook },
-  { title: "Imersão ampliada", icon: IconHeadphones },
-  { title: "Mais Qi", icon: IconCheck },
-];
+const BENEFIT_ICONS: Record<string, typeof IconStar> = {
+  cargas: IconFlame,
+  revisao_ilimitada: IconRefresh,
+  erros_detalhados: IconTarget,
+  plano_estudo_inteligente: IconShield,
+  pinyin_lab: IconStar,
+  hanzi_lab: IconBook,
+  imersao: IconHeadphones,
+  qi_bonus: IconCheck,
+  ligas_estatisticas: IconTrophy,
+};
 
 const BILLING_PLANS: {
   key: ProPlanKey;
@@ -85,6 +84,10 @@ export function ProPage() {
     [selectedPlan]
   );
 
+  const freeHighlights = useMemo(() => getProPageFreeHighlights(), []);
+  const proHighlights = useMemo(() => getProPageProHighlights(), []);
+  const proOnlyCount = getProOnlyFeatures().length;
+
   async function handleSubscribe(planKey = selectedPlan) {
     if (!checkoutReady) return;
     try {
@@ -96,9 +99,19 @@ export function ProPage() {
     }
   }
 
+  async function handleManageBilling() {
+    if (!isBillingPortalAvailable()) return;
+    try {
+      const portal = await openBillingPortal();
+      if (portal.data?.url) window.location.assign(portal.data.url);
+      else setCheckoutNotice(portal.message);
+    } catch {
+      setCheckoutNotice("Não foi possível abrir o portal de assinatura.");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-      {/* Hero */}
       <section className="relative overflow-hidden rounded-2xl border border-gold/20 bg-[linear-gradient(160deg,rgb(var(--gold)/0.12)_0%,rgb(var(--surface))_45%,rgb(var(--bg))_100%)] p-5 text-center shadow-card sm:p-6">
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold/10 blur-3xl" aria-hidden />
         <Mascot size={88} variant="celebrate" className="relative mx-auto" />
@@ -107,12 +120,19 @@ export function ProPage() {
           30 dias grátis. Estude sem limites.
         </h1>
         <p className="relative mx-auto mt-2 max-w-sm text-sm text-ink-soft">
-          Revisão ilimitada, cargas infinitas e ferramentas avançadas para evoluir mais rápido.
+          {getPlanFeature("cargas").proBenefit} {getPlanFeature("revisao_ilimitada").proBenefit.split(".")[0]}.
         </p>
 
         {serverIsPro ? (
-          <div className="relative mx-auto mt-4 max-w-xs rounded-xl border border-good/30 bg-good/10 px-4 py-2.5 text-sm font-semibold text-good">
-            Assinatura Pro ativa. Obrigado!
+          <div className="relative mx-auto mt-4 max-w-xs space-y-2">
+            <div className="rounded-xl border border-good/30 bg-good/10 px-4 py-2.5 text-sm font-semibold text-good">
+              Assinatura Pro ativa. Obrigado!
+            </div>
+            {isBillingPortalAvailable() && (
+              <Button size="lg" variant="outline" className="w-full" onClick={() => void handleManageBilling()}>
+                Gerenciar ou cancelar assinatura
+              </Button>
+            )}
           </div>
         ) : (
           <div className="relative mx-auto mt-5 max-w-xs space-y-2">
@@ -134,7 +154,6 @@ export function ProPage() {
         )}
       </section>
 
-      {/* Comparação Grátis vs Pro */}
       <section>
         <h2 className="mb-3 text-center font-serif text-lg font-semibold text-ink sm:text-xl">
           Grátis vs Pro
@@ -142,9 +161,10 @@ export function ProPage() {
         <div className="grid gap-2 sm:grid-cols-2">
           <Card className="p-3.5">
             <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Grátis</div>
-            <h3 className="mt-0.5 text-sm font-semibold text-ink">Para começar</h3>
+            <h3 className="mt-0.5 text-sm font-semibold text-ink">Ensina de verdade</h3>
+            <p className="mt-1 text-[11px] text-ink-soft">{getPlanFeature("jornada").descricao}</p>
             <ul className="mt-3 space-y-2">
-              {FREE_HIGHLIGHTS.map((item) => (
+              {freeHighlights.map((item) => (
                 <li key={item} className="flex items-center gap-2 text-xs text-ink-soft">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-faint">
                     <IconCheck width={11} height={11} />
@@ -159,9 +179,10 @@ export function ProPage() {
               <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">Pro</div>
               <Pill tone="gold">Recomendado</Pill>
             </div>
-            <h3 className="mt-0.5 text-sm font-semibold text-ink">Sem limites</h3>
+            <h3 className="mt-0.5 text-sm font-semibold text-ink">Mais rápido, menos limites</h3>
+            <p className="mt-1 text-[11px] text-ink-soft">{proOnlyCount} benefícios extras — sem comprar posição nas ligas.</p>
             <ul className="mt-3 space-y-2">
-              {PRO_HIGHLIGHTS.map((item) => (
+              {proHighlights.map((item) => (
                 <li key={item} className="flex items-center gap-2 text-xs text-ink">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold">
                     <IconCheck width={11} height={11} />
@@ -177,7 +198,6 @@ export function ProPage() {
         </p>
       </section>
 
-      {/* Planos */}
       {!serverIsPro && (
         <section className="space-y-3">
           <h2 className="text-center font-serif text-lg font-semibold text-ink">Escolha o plano</h2>
@@ -237,35 +257,71 @@ export function ProPage() {
         </section>
       )}
 
-      {/* Benefícios */}
       <section>
         <h2 className="mb-3 text-center font-serif text-lg font-semibold text-ink">O que você ganha</h2>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {BENEFITS.map((benefit) => {
-            const Icon = benefit.icon;
-            return (
-              <Card key={benefit.title} className="flex flex-col items-center p-3 text-center">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/10 text-gold">
-                  <Icon width={18} height={18} />
-                </span>
-                <h3 className="mt-2 text-[11px] font-semibold leading-tight text-ink">{benefit.title}</h3>
-              </Card>
-            );
-          })}
+        <div className="space-y-4">
+          {PRO_BENEFIT_GROUPS.map((group) => (
+            <div key={group.title}>
+              <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{group.title}</h3>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {group.featureIds.map((featureId) => {
+                  const feature = getPlanFeature(featureId);
+                  const Icon = BENEFIT_ICONS[featureId] ?? IconStar;
+                  return (
+                    <Card key={featureId} className="flex flex-col items-center p-3 text-center">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/10 text-gold">
+                        <Icon width={18} height={18} />
+                      </span>
+                      <h4 className="mt-2 text-[11px] font-semibold leading-tight text-ink">{feature.nome}</h4>
+                      <p className="mt-1 text-[10px] leading-4 text-ink-faint">{feature.proBenefit}</p>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Footer CTA */}
+      <section className="rounded-xl border border-line/50 bg-surface p-4">
+        <h2 className="font-serif text-base font-semibold text-ink">Matriz completa</h2>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[520px] text-left text-xs">
+            <thead>
+              <tr className="border-b border-line text-ink-faint">
+                <th className="py-2 pr-3 font-semibold">Recurso</th>
+                <th className="py-2 pr-3 font-semibold">Grátis</th>
+                <th className="py-2 font-semibold">Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PLAN_FEATURES.map((feature) => (
+                <tr key={feature.id} className="border-b border-line/50">
+                  <td className="py-2 pr-3 font-medium text-ink">{feature.nome}</td>
+                  <td className="py-2 pr-3 text-ink-soft">{feature.freeTier ?? feature.freeLimit ?? "—"}</td>
+                  <td className="py-2 text-ink">{feature.proBenefit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section className="rounded-xl border border-line/50 bg-surface p-4 text-center shadow-card">
         <p className="text-sm text-ink-soft">
           {checkoutReady
-            ? "30 dias grátis no anual — R$ 10/mês depois."
+            ? "30 dias grátis no anual — R$ 10/mês depois. Cancele quando quiser."
             : "A assinatura será liberada em breve."}
         </p>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
           {checkoutReady && !serverIsPro && (
             <Button className="bg-gold text-white hover:brightness-95" onClick={() => void handleSubscribe(selectedPlan)}>
               Começar grátis
+            </Button>
+          )}
+          {serverIsPro && isBillingPortalAvailable() && (
+            <Button variant="outline" onClick={() => void handleManageBilling()}>
+              Gerenciar assinatura
             </Button>
           )}
           <Button variant="ghost" onClick={() => navigate(-1)}>Voltar</Button>

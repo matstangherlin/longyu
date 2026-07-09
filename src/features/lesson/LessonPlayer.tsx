@@ -3002,7 +3002,7 @@ export function LessonPlayer() {
       </Card>
 
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
-          ProPaywall (z-50) para "Ver preview Pro" abrir por cima. */}
+          {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
         <ModalOverlay
           label="Você errou esta questão"

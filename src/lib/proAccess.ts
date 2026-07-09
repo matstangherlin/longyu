@@ -1,5 +1,6 @@
 import type { DomainTrack } from "../data/domains";
 import { FREE_REVIEW_SESSION_LIMIT } from "../data/economy";
+import { getPlanFeature } from "../data/planFeatures";
 import { ALL_LESSONS, JOURNEY, getLesson } from "../data/journey";
 import { effectivePremium } from "./entitlements";
 import { useStore } from "./store";
@@ -69,6 +70,7 @@ const PRO_DETAILED_ERRORS_REASON =
   "O Longyu Pro mostra seu histórico de erros, padrões de repetição e uma revisão focada nos pontos fracos.";
 
 export const FREE_TIER_REVIEW_HINT =
+  getPlanFeature("revisao_basica").freeLimit ??
   `No plano grátis, você revisa até ${FREE_REVIEW_SESSION_LIMIT} itens por sessão na fila básica.`;
 
 function completedFrom(context?: ProAccessContext): string[] {

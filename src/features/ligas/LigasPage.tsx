@@ -9,6 +9,7 @@ import {
   type LeagueStandingRow,
   type LeagueTier,
 } from "../../lib/leagues";
+import { getLeagueProBonusLabel, getPlanFeature } from "../../data/planFeatures";
 import { claimLeagueWeekReward } from "../../services/leagueService";
 
 export function LigasPage() {
@@ -57,6 +58,14 @@ export function LigasPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+      {!isPro && isLive && (
+        <p className="rounded-xl border border-line/40 bg-surface-2/60 px-3 py-2 text-center text-[11px] text-ink-soft">
+          {getPlanFeature("ligas").freeTier}{" "}
+          <Link to="/pro" className="font-semibold text-gold hover:underline">Ver planos Pro</Link>
+          {" "}para histórico e estatísticas.
+        </p>
+      )}
+
       {isDemo && (
         <div className="rounded-xl border border-line/50 bg-surface-2/80 px-3 py-2 text-center text-[11px] leading-4 text-ink-soft">
           <span className="font-semibold text-ink">Demonstração</span>
@@ -169,7 +178,7 @@ export function LigasPage() {
             <IconStar width={12} height={12} /> Prêmio da semana
           </div>
           <p className="mt-1 text-xs leading-5 text-ink-soft">{meta.reward}</p>
-          {isPro && <p className="mt-1 text-[10px] text-gold">Pro: +15 Qi bônus ao resgatar</p>}
+          {isPro && <p className="mt-1 text-[10px] text-gold">{getLeagueProBonusLabel()}</p>}
         </Card>
         <Card className="p-3">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
