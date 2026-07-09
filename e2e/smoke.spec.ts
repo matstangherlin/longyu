@@ -7,11 +7,13 @@ test.describe("smoke", () => {
     await expect(page.getByText(/Longyu|Mandarim com som/i).first()).toBeVisible();
   });
 
-  test("página Pro carrega copy honesta", async ({ page }) => {
+  test("página Pro vende o plano comercial, sem Pro Preview", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/pro");
-    await expect(page.getByRole("heading", { name: "Pro Preview" })).toBeVisible();
-    await expect(page.getByText(/sem pagamento/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Destrave o Longyu Pro/i })).toBeVisible();
+    await expect(page.getByText(/30 dias grátis/i).first()).toBeVisible();
+    // O conceito de "Pro Preview" não deve mais aparecer na tela pública.
+    await expect(page.getByText(/Pro Preview/i)).toHaveCount(0);
   });
 
   test("rota de conta responde", async ({ page }) => {

@@ -431,9 +431,9 @@ function JourneyHeroCard({
   onContinue?: () => void;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-line/70 bg-surface p-4 shadow-card sm:p-5">
+    <div className="relative overflow-hidden rounded-2xl border border-accent/15 bg-[linear-gradient(135deg,rgb(var(--accent-soft)/0.55),rgb(var(--surface))_55%)] p-4 shadow-card sm:p-5">
       <div
-        className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-accent/10 blur-2xl"
+        className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-accent/10 blur-2xl"
         aria-hidden
       />
       <div className="relative flex items-center gap-4">
@@ -444,19 +444,18 @@ function JourneyHeroCard({
           <h1 className="mt-1 truncate font-serif text-[1.6rem] font-semibold leading-tight text-ink">
             {title}
           </h1>
-          <p className="mt-0.5 text-sm text-ink-soft">
-            {done}/{Math.max(1, total)} lições concluídas
-          </p>
-          {currentLessonTitle && (
-            <p className="mt-0.5 truncate text-xs text-ink-faint">
-              Agora: <span className="font-medium text-ink-soft">{currentLessonTitle}</span>
+          {currentLessonTitle ? (
+            <p className="mt-1 truncate text-sm text-ink-soft">
+              Agora: <span className="font-medium text-ink">{currentLessonTitle}</span>
             </p>
+          ) : (
+            <p className="mt-1 text-sm text-ink-soft">{done}/{Math.max(1, total)} lições concluídas</p>
           )}
         </div>
         <UnitProgressRing done={done} total={total} />
       </div>
       {onContinue && (
-        <Button className="relative mt-3.5 w-full sm:w-auto" onClick={onContinue}>
+        <Button className="relative mt-3.5 w-full shadow-card sm:w-auto" onClick={onContinue}>
           Continuar <IconChevron width={17} height={17} />
         </Button>
       )}
@@ -514,6 +513,7 @@ function JourneySidePanel({
   totalLessons: number;
   onNavigate: (to: string) => void;
 }) {
+  const pct = Math.round((completedCount / Math.max(1, totalLessons)) * 100);
   return (
     <aside className="sticky top-20 hidden space-y-2.5 xl:block">
       <Card className="rounded-xl p-3.5 shadow-none">
@@ -555,32 +555,22 @@ function JourneySidePanel({
             <IconBook width={16} height={16} />
           </span>
           <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Progresso geral
+            Seu progresso
           </span>
           <IconChevron width={14} height={14} className="text-ink-faint transition group-hover:text-ink" />
         </button>
-        <div className="mt-2.5 text-sm font-semibold text-ink">
-          {completedCount}/{totalLessons} lições
+        <div className="mt-2.5 flex items-baseline justify-between">
+          <span className="text-sm font-semibold text-ink">{completedCount}/{totalLessons} lições</span>
+          <span className="text-xs font-medium text-ink-faint tabular-nums">{pct}%</span>
         </div>
         <ProgressBar value={completedCount} max={totalLessons} className="mt-2 h-1" />
-      </Card>
-
-      <Card className="rounded-xl p-3.5 shadow-none">
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-            <IconFlame width={16} height={16} />
-          </span>
-          <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Sequência
-          </span>
-        </div>
-        <div className="mt-2.5 flex items-baseline justify-between text-sm">
-          <span className="font-serif text-xl font-semibold text-ink">
+        <div className="mt-3 flex items-center gap-3 border-t border-line/60 pt-3 text-sm">
+          <span className="flex items-center gap-1.5 font-semibold text-ink">
+            <IconFlame width={15} height={15} className="text-accent" />
             {streak} {streak === 1 ? "dia" : "dias"}
           </span>
-          <span className="text-xs text-ink-faint">
-            {streakShields} esc. · {todayMinutes} min hoje
-          </span>
+          <span className="text-ink-faint">·</span>
+          <span className="text-xs text-ink-faint">{streakShields} escudos · {todayMinutes} min hoje</span>
         </div>
       </Card>
     </aside>
