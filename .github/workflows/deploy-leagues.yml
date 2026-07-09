@@ -2,11 +2,6 @@ name: Deploy Leagues
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "supabase/migrations/004_leagues.sql"
-      - "scripts/deploy-leagues.mjs"
 
 jobs:
   deploy:
