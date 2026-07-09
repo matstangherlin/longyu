@@ -33,7 +33,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Repositório conectado | ✅ | Site `singular-meringue-7838cd`, deploy GitHub `main` |
 | `VITE_*` no painel do site | ✅ | Também em `netlify.toml` (produção) |
 | Redirect URLs no Supabase Auth | ✅ | `singular-meringue-7838cd.netlify.app` |
-| Smoke: criar conta → jogar → sair → entrar | ⬜ | URL: https://singular-meringue-7838cd.netlify.app |
+| Smoke: criar conta → jogar → sair → entrar | ✅ | `c5c9dfd` em https://singular-meringue-7838cd.netlify.app — guest `/login`, `/pro` sem tutorial, signup+logout+login ok (08/07/2026) |
 | PWA no celular (360px) | ⬜ | |
 
 ## Comandos rápidos
