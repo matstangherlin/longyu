@@ -72,6 +72,8 @@ export const PRO_CHEST_QI_MULTIPLIER = 1.5;
 export const PRO_MISSION_QI_MULTIPLIER = 1.25;
 /** Pro: chance extra de prêmio raro em baús pequeno (escudo / pérola). */
 export const PRO_CHEST_RARE_BONUS = 0.12;
+/** Pro: chance de pass de revisão profunda no Baú do Dragão. */
+export const PRO_CHEST_FOCUS_PASS_CHANCE = 0.1;
 /** Meta diária batida: Qi do dia. */
 export const DAILY_GOAL_QI = 8;
 
@@ -91,6 +93,7 @@ export const ECONOMY_SUMMARY = {
     review: "Fila completa",
     qiBonusPerLesson: PRO_LESSON_QI_BONUS,
     chestQiMultiplier: PRO_CHEST_QI_MULTIPLIER,
+    chestDeepReview: "Chance de pass de revisão profunda nos baús raros",
     retryCost: "Grátis (sem gastar Qi)",
     missions: "Missões inteligentes + recompensas ampliadas",
     leagues: "Histórico e bônus de Qi — sem vantagem no ranking",

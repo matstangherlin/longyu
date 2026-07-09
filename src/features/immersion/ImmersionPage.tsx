@@ -791,6 +791,7 @@ function InteractiveStoryPlayer({
         rewardXp: story.rewards?.xp ?? 0,
         rewardQi: story.rewards?.qi ?? 0,
         source: `História: ${story.title}`,
+        isPremiumStory: Boolean(story.premium),
       });
       playSoundFx(awarded ? "lessonComplete" : "success", soundEffects);
     } else {

@@ -16,8 +16,7 @@ import {
 } from "../../data/missions";
 import { ACHIEVEMENTS } from "../../data/achievements";
 import { useIsPro } from "../../lib/proAccess";
-import { PRO_MISSION_QI_MULTIPLIER } from "../../data/economy";
-import { getPlanFeature } from "../../data/planFeatures";
+import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
@@ -207,24 +206,7 @@ export function MissoesPage() {
         desc="Metas curtas para manter ritmo e resgatar Qi."
       />
 
-      <Card className="border-line/50 p-3 text-xs leading-5 text-ink-soft">
-        <p>
-          <span className="font-semibold text-ink">Grátis:</span>{" "}
-          {getPlanFeature("missoes_pro").freeTier} Corrigir erros na lição não consome carga.
-        </p>
-        {isPro ? (
-          <p className="mt-1">
-            <span className="font-semibold text-gold">Pro:</span>{" "}
-            Missões exclusivas + {Math.round((PRO_MISSION_QI_MULTIPLIER - 1) * 100)}% de Qi extra em cada resgate.
-          </p>
-        ) : (
-          <p className="mt-1">
-            <span className="font-semibold text-gold">Pro:</span>{" "}
-            {getPlanFeature("missoes_pro").proBenefit}{" "}
-            <Link to="/pro" className="font-semibold text-gold hover:underline">Ver planos Pro</Link>
-          </p>
-        )}
-      </Card>
+      <EconomyExplainer isPro={isPro} context="missoes" />
 
       {/* 1. Missão do mês */}
       <Card

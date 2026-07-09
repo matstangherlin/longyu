@@ -10,6 +10,7 @@ import {
   type LeagueTier,
 } from "../../lib/leagues";
 import { getLeagueProBonusLabel, getPlanFeature } from "../../data/planFeatures";
+import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { claimLeagueWeekReward } from "../../services/leagueService";
 
 export function LigasPage() {
@@ -48,6 +49,14 @@ export function LigasPage() {
   const podium = standings.slice(0, 3);
   const isTopTier = leagueTier === "celestial";
   const isBottomTier = leagueTier === "bronze";
+  const avgWeeklyXp =
+    standings.length > 0
+      ? Math.round(standings.reduce((sum, row) => sum + row.xp, 0) / standings.length)
+      : 0;
+  const dayOfWeek = now.getDay() || 7;
+  const daysLeftInWeek = Math.max(1, 8 - dayOfWeek);
+  const xpPaceNeeded =
+    !inPromotionZone && !isTopTier && joined ? Math.ceil(xpToPromotion / daysLeftInWeek) : 0;
 
   async function handleClaimReward() {
     if (!lastWeek?.week_key || lastWeek.reward_claimed) return;
@@ -65,6 +74,8 @@ export function LigasPage() {
           {" "}para histórico e estatísticas.
         </p>
       )}
+
+      <EconomyExplainer isPro={isPro} context="ligas" />
 
       {isDemo && (
         <div className="rounded-xl border border-line/50 bg-surface-2/80 px-3 py-2 text-center text-[11px] leading-4 text-ink-soft">
@@ -214,6 +225,32 @@ export function LigasPage() {
                 <span>#{week.final_rank} · {week.weekly_xp} XP</span>
               </li>
             ))}
+          </ul>
+        </Card>
+      )}
+
+      {isPro && joined && (
+        <Card className="border-gold/25 bg-gold/5 p-3">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">Como subir</div>
+          <ul className="mt-2 space-y-1.5 text-[11px] leading-4 text-ink-soft">
+            {inPromotionZone ? (
+              <li className="text-good">Você está na zona de promoção — mantenha o ritmo até o reset.</li>
+            ) : isTopTier ? (
+              <li>Você já está na divisão máxima. Compita pelo pódio sem vantagem de plano.</li>
+            ) : (
+              <li>
+                Faltam cerca de <span className="font-semibold text-ink">{xpToPromotion} XP</span> para o top{" "}
+                {promotionCutoff}.
+                {xpPaceNeeded > 0 && (
+                  <> Ritmo sugerido: ~{xpPaceNeeded} XP/dia nos próximos {daysLeftInWeek} dias.</>
+                )}
+              </li>
+            )}
+            <li>
+              Média da liga: {avgWeeklyXp} XP — você está{" "}
+              {userWeeklyXp >= avgWeeklyXp ? "acima" : "abaixo"} da média ({userWeeklyXp} XP).
+            </li>
+            <li>Lições, revisão e missões geram XP igual para todos — Pro só amplia recompensas, não o ranking.</li>
           </ul>
         </Card>
       )}

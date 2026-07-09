@@ -24,7 +24,9 @@ export type MissionMetric =
   | "weeklyLessons"
   | "weeklyReviewDays"
   | "weeklyMicrotexts"
-  | "weeklyImmersion";
+  | "weeklyImmersion"
+  | "weeklyPremiumStories"
+  | "currentStreak";
 
 export type MissionIconKey =
   | "xp"
@@ -202,6 +204,30 @@ export const DAILY_MISSION_DEFS: MissionDef[] = [
     reward: { xp: 14, qi: 16 },
     pro: true,
   },
+  {
+    id: "daily-pro-review",
+    scope: "daily",
+    title: "Revisão profunda: 25 itens",
+    desc: "Revise 25 itens na fila completa — sem limite de sessão no Pro.",
+    iconKey: "reviews",
+    metric: "reviewsToday",
+    goal: 25,
+    to: "/revisao",
+    reward: { xp: 12, qi: 14 },
+    pro: true,
+  },
+  {
+    id: "daily-pro-streak",
+    scope: "daily",
+    title: "Sequência firme: 3 dias",
+    desc: "Mantenha uma sequência de estudo de pelo menos 3 dias.",
+    iconKey: "medal",
+    metric: "currentStreak",
+    goal: 3,
+    to: "/treino",
+    reward: { xp: 10, qi: 12 },
+    pro: true,
+  },
 ];
 
 // Missões da semana (resetam toda semana ISO).
@@ -285,6 +311,18 @@ export const WEEKLY_MISSION_DEFS: MissionDef[] = [
     reward: { xp: 55, qi: 40 },
     pro: true,
   },
+  {
+    id: "weekly-pro-story",
+    scope: "weekly",
+    title: "História extra concluída",
+    desc: "Finalize uma história premium exclusiva do Pro.",
+    iconKey: "immersion",
+    metric: "weeklyPremiumStories",
+    goal: 1,
+    to: "/imersao",
+    reward: { xp: 45, qi: 35 },
+    pro: true,
+  },
 ];
 
 // Missão mensal: completar 30 missões diárias garante a medalha do mês.
@@ -307,6 +345,8 @@ export interface MissionAggregates {
   weeklyReviewDays: number;
   weeklyMicrotexts: number;
   weeklyImmersion: number;
+  weeklyPremiumStories: number;
+  currentStreak: number;
 }
 
 export function metricValue(metric: MissionMetric, agg: MissionAggregates): number {

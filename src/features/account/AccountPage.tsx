@@ -42,6 +42,7 @@ import {
 } from "../../services/authService";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useIsPro } from "../../lib/proAccess";
+import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import {
   IconBook,
   IconChat,
@@ -2125,6 +2126,7 @@ export function AccountPage() {
           desc="Ritmo, recompensas e preferências."
           badge={<BetaBadge />}
         />
+        <EconomyExplainer isPro={isProEffective} context="conta" className="mt-4" />
       </div>
 
       <div className="space-y-4 lg:hidden">

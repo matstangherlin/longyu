@@ -34,6 +34,7 @@ import {
   CHARGE_COST_ACTIVITY,
   DAILY_CHARGES_FREE,
   FOCUS_PASS_HOURS,
+  PRO_CHEST_FOCUS_PASS_CHANCE,
   PRO_CHEST_QI_MULTIPLIER,
   PRO_CHEST_RARE_BONUS,
   PRO_MISSION_QI_MULTIPLIER,
@@ -174,6 +175,8 @@ export interface ImmersionCompletion {
   rewardXp: number;
   rewardQi: number;
   source: string;
+  /** História premium concluída pela primeira vez na sessão. */
+  isPremiumStory?: boolean;
 }
 
 export type RewardType = "qi" | "dragonPearl" | "streakShield" | "badge" | "xp" | "charge";
@@ -298,6 +301,8 @@ export interface WeeklyMissionsState {
   immersion: number;
   microtexts: number;
   reviewDays: string[];
+  /** Histórias premium concluídas na semana (primeira vez). */
+  premiumStories: number;
 }
 
 export interface MonthlyMissionState {
@@ -316,7 +321,7 @@ function activeDailyMissions(s: DailyMissionsState | undefined, date = todayKey(
 }
 
 function freshWeeklyMissions(key = weekKey()): WeeklyMissionsState {
-  return { weekKey: key, claimed: {}, lessons: 0, immersion: 0, microtexts: 0, reviewDays: [] };
+  return { weekKey: key, claimed: {}, lessons: 0, immersion: 0, microtexts: 0, reviewDays: [], premiumStories: 0 };
 }
 
 function activeWeeklyMissions(s: WeeklyMissionsState | undefined, key = weekKey()): WeeklyMissionsState {
@@ -328,6 +333,7 @@ function activeWeeklyMissions(s: WeeklyMissionsState | undefined, key = weekKey(
     immersion: Math.max(0, s.immersion ?? 0),
     microtexts: Math.max(0, s.microtexts ?? 0),
     reviewDays: s.reviewDays ?? [],
+    premiumStories: Math.max(0, s.premiumStories ?? 0),
   };
 }
 
@@ -364,6 +370,8 @@ function missionAggregates(s: AppState): MissionAggregates {
     weeklyReviewDays: week.reviewDays.length,
     weeklyMicrotexts: week.microtexts,
     weeklyImmersion: week.immersion,
+    weeklyPremiumStories: week.premiumStories,
+    currentStreak: s.streak,
   };
 }
 
@@ -416,7 +424,7 @@ export interface ShopUseResult {
 // ————————————————————————————————————————————————————————————————
 
 export type ChestType = "small" | "dragon" | "monthly" | "legendary";
-export type ChestRewardKind = "qi" | "xp" | "charge" | "shield" | "pearl" | "breath";
+export type ChestRewardKind = "qi" | "xp" | "charge" | "shield" | "pearl" | "breath" | "focus_pass";
 
 export interface ChestRewardItem {
   kind: ChestRewardKind;
@@ -460,6 +468,9 @@ function generateChestRewards(type: ChestType, pro = false): ChestRewardItem[] {
     if (pick < 0.72 + rareBonus) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
     if (pick < 0.86) return [{ kind: "charge", amount: pro ? 3 : 2, label: "Cargas do Dragão" }];
     if (pick < 0.93) return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
+    if (pro && Math.random() < PRO_CHEST_FOCUS_PASS_CHANCE) {
+      return [{ kind: "focus_pass", amount: 1, label: "Pass de revisão profunda" }];
+    }
     return [{ kind: "pearl", amount: 1, label: "Pérola de Jade" }];
   }
   if (type === "monthly") {
@@ -491,7 +502,7 @@ const CHEST_SOURCE: Record<ChestType, string> = {
 
 // Mapeia o tipo de prêmio do baú para o tipo do rewardHistory.
 // "breath" vai para o inventário (item de Fôlego), então é tratado à parte.
-const CHEST_REWARD_TYPE: Record<Exclude<ChestRewardKind, "breath">, RewardType> = {
+const CHEST_REWARD_TYPE: Record<Exclude<ChestRewardKind, "breath" | "focus_pass">, RewardType> = {
   qi: "qi",
   xp: "xp",
   charge: "charge",
@@ -506,6 +517,15 @@ function applyBreathRewardToState(s: AppState, amount: number): AppState {
   return {
     ...s,
     inventory: { ...s.inventory, "shop-breath": (s.inventory["shop-breath"] ?? 0) + inc },
+  };
+}
+
+function applyFocusPassRewardToState(s: AppState, amount: number): AppState {
+  const inc = Math.max(0, Math.round(amount));
+  if (inc <= 0) return s;
+  return {
+    ...s,
+    inventory: { ...s.inventory, "shop-focus-pass": (s.inventory["shop-focus-pass"] ?? 0) + inc },
   };
 }
 
@@ -2371,6 +2391,7 @@ export const useStore = create<AppState>()(
             ...week,
             immersion: week.immersion + 1,
             microtexts: week.microtexts + Math.max(0, completion.microtextsRead ?? 0),
+            premiumStories: week.premiumStories + (completion.isPremiumStory ? 1 : 0),
           };
           const withXp = { ...next, ...nextXp, weeklyMissions };
           syncLeagueXpToServer(xpInc, `immersion:${sessionId}`);
@@ -2666,6 +2687,10 @@ export const useStore = create<AppState>()(
               next = applyBreathRewardToState(next, reward.amount);
               return;
             }
+            if (reward.kind === "focus_pass") {
+              next = applyFocusPassRewardToState(next, reward.amount);
+              return;
+            }
             next = applyRewardToState(next, {
               id: `chest:${type}:${now}:${i}`,
               type: CHEST_REWARD_TYPE[reward.kind],
@@ -2717,6 +2742,10 @@ export const useStore = create<AppState>()(
           rewards.forEach((reward, i) => {
             if (reward.kind === "breath") {
               next = applyBreathRewardToState(next, reward.amount);
+              return;
+            }
+            if (reward.kind === "focus_pass") {
+              next = applyFocusPassRewardToState(next, reward.amount);
               return;
             }
             next = applyRewardToState(next, {

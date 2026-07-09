@@ -29,7 +29,7 @@ export const CHEST_VISUALS: Record<ChestType, ChestVisual> = {
     glyph: "龙",
     seal: "印",
     tagline: "A generosidade do dragão, em jade.",
-    contains: "Bastante Qi, XP, escudo, cargas ou uma Pérola de Jade.",
+    contains: "Bastante Qi, XP, escudo, cargas ou uma Pérola de Jade. No Pro: chance de pass de revisão profunda.",
     accent: "#B7791F",
   },
   monthly: {
@@ -60,12 +60,14 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
     shield: "Protege sua sequência",
     pearl: "Moeda rara de jade",
     breath: "Recupera o Fôlego numa lição",
+    focus_pass: "Revisão profunda por 24h",
   };
   return captions[kind];
 }
 
 export function ChestRewardIcon({ kind }: { kind: ChestRewardKind }) {
   if (kind === "pearl") return <span aria-hidden className="text-lg leading-none text-good">珠</span>;
+  if (kind === "focus_pass") return <IconTarget width={20} height={20} />;
   if (kind === "breath") return <IconFlame width={20} height={20} />;
   if (kind === "charge" || kind === "shield") return <IconShield width={20} height={20} />;
   if (kind === "xp") return <IconTarget width={20} height={20} />;

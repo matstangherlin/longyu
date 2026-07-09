@@ -24,6 +24,7 @@
     "validate:sync-merge": "node scripts/validate-sync-merge.mjs",
     "validate:backend-ready": "node scripts/validate-backend-ready.mjs",
     "validate:plans": "node scripts/validate-plans.mjs",
+    "validate:economy": "node scripts/validate-economy.mjs",
     "deploy:backend": "node scripts/deploy-backend.mjs",
     "deploy:leagues": "node scripts/deploy-leagues.mjs",
     "deploy:leagues:browser": "node scripts/browser-deploy-leagues.mjs",
@@ -40,7 +41,7 @@
     "setup:supabase": "node scripts/setup-supabase.mjs",
     "verify:production": "node scripts/verify-production.mjs",
     "ci": "npm run validate:beta && npm run test:e2e",
-    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:plans && npm run validate:backend-ready",
+    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:plans && npm run validate:economy && npm run validate:backend-ready",
     "test:e2e": "playwright test"
   },
   "dependencies": {

@@ -25,8 +25,7 @@ import {
   IconUser,
 } from "../../components/ui/Icon";
 import { useIsPro } from "../../lib/proAccess";
-import { DAILY_CHARGES_FREE, ECONOMY_SUMMARY } from "../../data/economy";
-import { getPlanFeature } from "../../data/planFeatures";
+import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 
 const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
   breath: IconFlame,
@@ -114,17 +113,7 @@ export function LojaPage() {
         }
       />
 
-      <Card className="border-line/50 p-3 text-xs leading-5 text-ink-soft">
-        <p>
-          <span className="font-semibold text-ink">Grátis:</span>{" "}
-          {DAILY_CHARGES_FREE} cargas/dia · revisão essencial sem carga · baús com {ECONOMY_SUMMARY.free.chestSmall.toLowerCase()}.
-        </p>
-        <p className="mt-1">
-          <span className="font-semibold text-gold">Pro:</span>{" "}
-          {getPlanFeature("cargas").proBenefit} · {getPlanFeature("baus_pro").proBenefit}
-          {isPremium ? " — ativo na sua conta." : "."}
-        </p>
-      </Card>
+      <EconomyExplainer isPro={isPremium} context="loja" />
 
       <HubSection
         id="baus"

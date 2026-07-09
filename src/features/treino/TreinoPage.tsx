@@ -13,6 +13,7 @@ import { canAccessDetailedErrors, canUsePracticeTool, useIsPro, type PracticeToo
 import { dueItems } from "../../lib/srs";
 import { DAILY_GOAL_PER_TRACK, useStore } from "../../lib/store";
 import { buildMissionViews, type MissionView } from "../../data/missions";
+import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { TONE_SHORT_LABEL, weakestToneFromProgress, type MandarinTone } from "../../data/toneTrainer";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import {
@@ -144,6 +145,8 @@ export function TreinoPage() {
         title="Praticar"
         desc="Revisão, som, fala e pinyin em treinos curtos."
       />
+
+      <EconomyExplainer isPro={isPremium} context="treino" />
 
       <HubHeroCard
         title={recommendation.title}
