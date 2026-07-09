@@ -20,7 +20,12 @@ import {
   type LeagueDataPayload,
   type ServerLeagueStanding,
 } from "../services/leagueService";
-import { onLeagueXpSynced, flushPendingLeagueXpSync } from "../lib/leagueXpSync";
+import {
+  onLeagueXpSynced,
+  onLeagueXpSyncFailed,
+  flushPendingLeagueXpSync,
+  getPendingLeagueXpCount,
+} from "../lib/leagueXpSync";
 
 function serverStandingToRow(row: ServerLeagueStanding): LeagueStandingRow {
   return {
@@ -48,19 +53,27 @@ export function useLeagueData() {
   const [now, setNow] = useState(() => new Date());
   const [live, setLive] = useState<LeagueDataPayload | null>(null);
   const [loading, setLoading] = useState(isCloudLeagueAvailable());
+  const [syncing, setSyncing] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [lastSyncError, setLastSyncError] = useState<string | null>(null);
 
   const refreshLive = useCallback(async () => {
     if (!isCloudLeagueAvailable() || authMode !== "cloud") {
       setLive(null);
       setLoading(false);
+      setSyncing(false);
+      setPendingCount(0);
       return;
     }
     setLoading(true);
+    setSyncing(true);
     await flushPendingLeagueXpSync();
     const data = await fetchLiveLeagueData();
     setLive(data.mode === "live" ? data : null);
+    setPendingCount(getPendingLeagueXpCount());
     setLoading(false);
+    setSyncing(false);
   }, [authMode]);
 
   useEffect(() => {
@@ -72,8 +85,21 @@ export function useLeagueData() {
   }, [refreshLive, weeklyXp, syncTick]);
 
   useEffect(() => {
+    setPendingCount(getPendingLeagueXpCount());
+  }, [weeklyXp, syncTick]);
+
+  useEffect(() => {
     return onLeagueXpSynced(() => {
       setSyncTick((tick) => tick + 1);
+      setPendingCount(getPendingLeagueXpCount());
+      setLastSyncError(null);
+    });
+  }, []);
+
+  useEffect(() => {
+    return onLeagueXpSyncFailed((detail) => {
+      setLastSyncError(detail.reason);
+      setPendingCount(getPendingLeagueXpCount());
     });
   }, []);
 
@@ -106,6 +132,9 @@ export function useLeagueData() {
       : generateLeagueBots(leagueTier, currentWeek, joined ? "joined-demo" : "preview");
 
   const optimisticWeeklyXp = isLive ? Math.max(live!.weeklyXp, weeklyXp) : weeklyXp;
+  const serverWeeklyXp = isLive ? live!.weeklyXp : weeklyXp;
+  const isXpSyncing =
+    isLive && authMode === "cloud" && (syncing || loading || pendingCount > 0) && optimisticWeeklyXp > serverWeeklyXp;
 
   const standings: LeagueStandingRow[] = useMemo(() => {
     if (isLive && live) {
@@ -143,6 +172,10 @@ export function useLeagueData() {
     userWeeklyXp,
     userRank,
     allStandingsZero,
+    serverWeeklyXp,
+    isXpSyncing,
+    pendingXpCount: pendingCount,
+    lastSyncError: import.meta.env.DEV ? lastSyncError : null,
     resetAt: isLive ? live?.resetAt ?? null : null,
     lastWeek: isLive ? live?.lastWeek ?? null : null,
     proHistory: isLive ? live?.proHistory ?? null : null,

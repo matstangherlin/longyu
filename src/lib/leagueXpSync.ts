@@ -2,6 +2,7 @@ import { useStore } from "./store";
 import { addLeagueWeeklyXpOnServer } from "../services/leagueService";
 
 export const LEAGUE_XP_SYNCED_EVENT = "longyu:league-xp-synced";
+export const LEAGUE_XP_SYNC_FAILED_EVENT = "longyu:league-xp-sync-failed";
 
 export interface LeagueXpSyncResult {
   ok: boolean;
@@ -55,6 +56,13 @@ function dequeuePending(accountId: string, sourceKey: string): void {
   );
 }
 
+function emitSyncFailed(reason: string, sourceKey: string): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(LEAGUE_XP_SYNC_FAILED_EVENT, { detail: { reason, sourceKey } })
+  );
+}
+
 function emitSynced(added: number, sourceKey: string): void {
   if (typeof window === "undefined") return;
   window.dispatchEvent(
@@ -93,6 +101,7 @@ async function pushLeagueXp(
   }
   queuePending(accountId, amount, sourceKey);
   logDev(`pending (${result.reason ?? "failed"})`, { amount, sourceKey });
+  if (import.meta.env.DEV) emitSyncFailed(result.reason ?? "sync_failed", sourceKey);
   return { ok: false, added: 0, reason: result.reason ?? "sync_failed", sourceKey };
 }
 
@@ -146,4 +155,23 @@ export function onLeagueXpSynced(listener: (detail: { added: number; sourceKey: 
   };
   window.addEventListener(LEAGUE_XP_SYNCED_EVENT, handler);
   return () => window.removeEventListener(LEAGUE_XP_SYNCED_EVENT, handler);
+}
+
+export function onLeagueXpSyncFailed(
+  listener: (detail: { reason: string; sourceKey: string }) => void
+): () => void {
+  if (typeof window === "undefined") return () => {};
+  const handler = (event: Event) => {
+    const custom = event as CustomEvent<{ reason: string; sourceKey: string }>;
+    listener(custom.detail);
+  };
+  window.addEventListener(LEAGUE_XP_SYNC_FAILED_EVENT, handler);
+  return () => window.removeEventListener(LEAGUE_XP_SYNC_FAILED_EVENT, handler);
+}
+
+/** Quantidade de eventos de XP ainda não confirmados pelo servidor. */
+export function getPendingLeagueXpCount(): number {
+  const cloud = isCloudAccount();
+  if (!cloud.ok) return 0;
+  return readPending(cloud.accountId).length;
 }

@@ -616,6 +616,7 @@ const FOUNDATION_PROOF_LABELS: Record<string, string> = {
   "p1-o-que-e-pinyin": "pinyin como guia de som",
   "p1-o-que-e-tom": "tom como parte do significado",
   "p1-o-que-e-hanzi": "hànzì como escrita chinesa",
+  "p1-primeiros-hanzi": "primeiros hànzì por fragmentos",
   "p1-engine-2-lab": "laboratório inicial de exercícios",
 };
 

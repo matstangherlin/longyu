@@ -172,6 +172,12 @@ function markStrongOfferShown(): void {
   });
 }
 
+const STRONG_BYPASS_DAILY: ReadonlySet<ProOfferKind> = new Set([
+  "energy_limit",
+  "detailed_errors",
+  "review_limit",
+]);
+
 function pickOffer(ctx: ProOfferContext): ProOfferKind | null {
   if (ctx.isPro) return null;
 
@@ -201,12 +207,17 @@ export function evaluateProOffer(
   const kind = pickOffer(ctx);
   if (!kind) return null;
 
-  if (strength === "strong" && !canShowStrongOffer()) return null;
+  if (strength === "strong" && !STRONG_BYPASS_DAILY.has(kind) && !canShowStrongOffer()) return null;
 
   const base = OFFER_COPY[kind];
   let description = base.description;
+  let title = base.title;
   if (kind === "weak_spots") {
-    if (ctx.repeatedToneErrors && !ctx.repeatedHanziErrors) {
+    title = "Vamos focar no que travou hoje";
+    if (ctx.twoStars && (ctx.errorCount ?? 0) < 4) {
+      description =
+        "Você passou, mas ainda há pontos para reforçar. O Longyu Pro monta uma revisão focada nos seus erros recentes.";
+    } else if (ctx.repeatedToneErrors && !ctx.repeatedHanziErrors) {
       description = "Você teve dificuldade com tons. O Longyu Pro cria uma revisão focada nos seus pontos fracos.";
     } else if (ctx.repeatedHanziErrors && !ctx.repeatedToneErrors) {
       description = "Você teve dificuldade com hànzì. O Longyu Pro cria uma revisão focada nos seus pontos fracos.";
@@ -217,6 +228,7 @@ export function evaluateProOffer(
     kind,
     strength,
     ...base,
+    title,
     description,
   };
 }

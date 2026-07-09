@@ -33,6 +33,8 @@ export function LigasPage() {
     userWeeklyXp,
     userRank,
     allStandingsZero,
+    isXpSyncing,
+    lastSyncError,
     resetAt,
     lastWeek,
     proHistory,
@@ -65,7 +67,7 @@ export function LigasPage() {
   useEffect(() => {
     if (isPro || !joined || xpToPromotion <= 0 || xpToPromotion > 40) return;
     contextualOffer.consider({ xpToPromotion }, "card");
-  }, [contextualOffer, isPro, joined, xpToPromotion]);
+  }, [isPro, joined, xpToPromotion]);
 
   async function handleClaimReward() {
     if (!lastWeek?.week_key || lastWeek.reward_claimed) return;
@@ -109,6 +111,18 @@ export function LigasPage() {
         </h1>
         <p className="mt-0.5 text-xs text-ink-faint sm:text-sm">{meta.description}</p>
       </header>
+
+      {isLive && isXpSyncing && (
+        <p className="rounded-xl border border-accent/25 bg-accent-soft/30 px-3 py-2 text-center text-[11px] text-ink-soft">
+          Sincronizando XP com a liga…
+        </p>
+      )}
+
+      {import.meta.env.DEV && lastSyncError && (
+        <p className="rounded-xl border border-wrong/30 bg-wrong-soft px-3 py-2 text-[11px] text-wrong">
+          [DEV] Falha ao sincronizar XP: {lastSyncError}
+        </p>
+      )}
 
       {isLive && allStandingsZero && (
         <Card className="border-accent/25 bg-accent-soft/20 p-4 text-center">

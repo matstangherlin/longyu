@@ -8,6 +8,15 @@ function buildStorePayload(state: SeedState) {
   return JSON.stringify({ state, version: STORE_VERSION });
 }
 
+function isoWeekKey(d = new Date()): string {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
 export async function dismissBlockingOverlays(page: Page) {
   const achievement = page.getByRole("dialog", { name: /medalha/i });
   if (await achievement.isVisible().catch(() => false)) {
@@ -24,12 +33,50 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
   }));
 }
 
+/** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
+export async function seedFoundationThrough(page: Page, throughLessonId: string) {
+  const foundation = [
+    "p1-o-que-e-mandarim",
+    "p1-o-que-e-pinyin",
+    "p1-o-que-e-tom",
+    "p1-o-que-e-hanzi",
+    "p1-primeiros-hanzi",
+    "p1-engine-2-lab",
+  ];
+  const index = foundation.indexOf(throughLessonId);
+  const completedLessons = index >= 0 ? foundation.slice(0, index + 1) : foundation;
+  const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, 3]));
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons,
+    lessonStarsById,
+    achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+  }));
+}
+
 export async function seedFreshJourneySession(page: Page) {
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
     completedLessons: [],
+  }));
+}
+
+/** Liga em modo demo com XP semanal local (conta não-cloud). */
+export async function seedLeagueDemoSession(page: Page, weeklyXp = 15) {
+  const week = isoWeekKey();
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons: ["l1"],
+    weeklyXp,
+    xpWeekKey: week,
+    leagueJoinedAt: Date.now(),
+    leagueTier: "bronze",
   }));
 }
 
