@@ -8,7 +8,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 |------|--------|-------|
 | Projeto criado (`drjcfalvlbbeblmmyhwj`) | ✅ | |
 | Migrations 001–003 aplicadas | ✅ | `user_progress`, RLS, `client_snapshot`, trigger de perfil |
-| Migration 004 (Ligas) aplicada | ⬜ | `league_tiers`, RPC `get_league_standings`, backfill Bronze |
+| Migration 004 (Ligas) aplicada | ✅ | `league_tiers`, RPCs, backfill Bronze — via SQL Editor (09/07/2026) |
 | Edge Functions publicadas | ✅ | checkout, billing-portal, webhook, delete-account |
 | `npm run verify:production` | ✅ | REST + functions respondendo |
 | RLS testado (usuário A ≠ B) | ⬜ | Manual no SQL Editor ou Dashboard |
