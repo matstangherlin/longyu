@@ -38,6 +38,9 @@ serve(async (req) => {
   const admin = createClient(supabaseUrl, serviceRole);
   const userId = user.id;
 
+  await admin.from("league_xp_events").delete().eq("user_id", userId);
+  await admin.from("league_weekly_results").delete().eq("user_id", userId);
+  await admin.from("league_memberships").delete().eq("user_id", userId);
   await admin.from("user_progress").delete().eq("user_id", userId);
   await admin.from("user_economy").delete().eq("user_id", userId);
   await admin.from("user_srs").delete().eq("user_id", userId);

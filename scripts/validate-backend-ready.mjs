@@ -18,6 +18,7 @@ const migrations = [
   "supabase/migrations/001_initial_schema.sql",
   "supabase/migrations/002_client_snapshot.sql",
   "supabase/migrations/003_profile_trigger.sql",
+  "supabase/migrations/004_leagues.sql",
 ];
 const functions = [
   "supabase/functions/create-checkout-session/index.ts",

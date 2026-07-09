@@ -28,6 +28,7 @@ import {
   nextLeagueTier,
   normalizeLeagueTier,
 } from "./leagues";
+import { syncLeagueXpToServer } from "./leagueXpSync";
 
 import {
   CHARGE_COST_ACTIVITY,
@@ -929,7 +930,7 @@ function blankSnapshot(): AccountSnapshot {
     chests: freshChests(),
     chestOpenHistory: [],
     journeyChestsOpened: [],
-    leagueTier: "jade",
+    leagueTier: "bronze",
     leagueJoinedAt: null,
     leagueBots: [],
     leagueHistory: [],
@@ -1544,7 +1545,7 @@ export const useStore = create<AppState>()(
       chests: freshChests(),
       chestOpenHistory: [],
       journeyChestsOpened: [],
-      leagueTier: "jade",
+      leagueTier: "bronze",
       leagueJoinedAt: null,
       leagueBots: [],
       leagueHistory: [],
@@ -1634,10 +1635,11 @@ export const useStore = create<AppState>()(
       // Aliases legados: Qi era chamado de "points". Mantidos para compat.
       addPoints: (points) => get().addQi(points, "legacy"),
       spendPoints: (points) => get().spendQi(points, "legacy"),
-      addXp: (amount, _source) =>
+      addXp: (amount, source) => {
+        const inc = Math.max(0, Math.round(amount));
+        if (inc <= 0) return;
+        const sourceKey = `${source}:${Date.now()}`;
         set((s) => {
-          const inc = Math.max(0, Math.round(amount));
-          if (inc <= 0) return {};
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
           const base = activeXp(current);
@@ -1650,7 +1652,9 @@ export const useStore = create<AppState>()(
           };
           const next = { ...current, ...nextXp };
           return { ...leaguePatch, ...nextXp, accounts: saveCurrentAccount(next) };
-        }),
+        });
+        syncLeagueXpToServer(inc, sourceKey);
+      },
       getTodayXp: () => activeXp(get()).xpToday,
       getWeeklyXp: () => activeXp(get()).weeklyXp,
       getMonthlyXp: () => activeXp(get()).monthlyXp,
@@ -1729,6 +1733,10 @@ export const useStore = create<AppState>()(
             : activeWeeklyMissions(state.weeklyMissions).claimed;
         if (periodClaimed[missionId]) return false;
 
+        const xpInc = def.reward.xp ?? 0;
+        const periodKeyForSync =
+          scope === "daily" ? todayKey() : activeWeeklyMissions(state.weeklyMissions).weekKey;
+
         set((s) => {
           const date = todayKey();
           const day = activeDailyMissions(s.dailyMissions, date);
@@ -1737,17 +1745,17 @@ export const useStore = create<AppState>()(
           const claimedMap = scope === "daily" ? day.claimed : week.claimed;
           if (claimedMap[missionId]) return {};
 
-          const xpInc = def.reward.xp ?? 0;
+          const xpIncInner = def.reward.xp ?? 0;
           const qiInc = def.reward.qi ?? 0;
           const chargeInc = def.reward.charges ?? 0;
 
           const xpBase = activeXp(s);
           const nextXp: XpBuckets = {
             ...xpBase,
-            xpTotal: xpBase.xpTotal + xpInc,
-            xpToday: xpBase.xpToday + xpInc,
-            weeklyXp: xpBase.weeklyXp + xpInc,
-            monthlyXp: xpBase.monthlyXp + xpInc,
+            xpTotal: xpBase.xpTotal + xpIncInner,
+            xpToday: xpBase.xpToday + xpIncInner,
+            weeklyXp: xpBase.weeklyXp + xpIncInner,
+            monthlyXp: xpBase.monthlyXp + xpIncInner,
           };
           const points = Math.max(0, s.points + qiInc);
           let dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
@@ -1772,7 +1780,7 @@ export const useStore = create<AppState>()(
             scope,
             missionId,
             title: def.title,
-            xp: xpInc,
+            xp: xpIncInner,
             qi: qiInc,
             charges: chargesGranted ? chargeInc : 0,
             claimedAt: Date.now(),
@@ -1800,6 +1808,9 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(next),
           };
         });
+        if (xpInc > 0) {
+          syncLeagueXpToServer(xpInc, `mission:${scope}:${missionId}:${periodKeyForSync}`);
+        }
         return true;
       },
       createAccount: (rawName, rawEmail) => {
@@ -2355,6 +2366,7 @@ export const useStore = create<AppState>()(
             microtexts: week.microtexts + Math.max(0, completion.microtextsRead ?? 0),
           };
           const withXp = { ...next, ...nextXp, weeklyMissions };
+          syncLeagueXpToServer(xpInc, `immersion:${sessionId}`);
 
           return {
             ...leaguePatch,
