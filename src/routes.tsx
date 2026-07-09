@@ -25,13 +25,15 @@ import { AchievementsPage } from "./features/conquistas/AchievementsPage";
 import { MorePage } from "./features/more/MorePage";
 import { AboutPage } from "./features/about/AboutPage";
 import { LoginPage } from "./features/auth/LoginPage";
+import { LandingPage } from "./features/landing/LandingPage";
 
 export const routes: RouteObject[] = [
+  // "/" público: landing para quem ainda não tem conta/progresso.
+  // Quem já tem redireciona para /jornada dentro do próprio componente.
+  { path: "/", element: <LandingPage /> },
   {
-    path: "/",
     element: <AppShell />,
     children: [
-      { index: true, element: <JourneyPage /> },
       { path: "jornada", element: <JourneyPage /> },
       { path: "treino", element: <TreinoPage /> },
       { path: "praticar", element: <TreinoPage /> },

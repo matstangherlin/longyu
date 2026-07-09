@@ -35,7 +35,7 @@ const PROFILE_MATCHES = ["/perfil", "/conta"];
 const MORE_MATCHES = ["/mais", "/sobre", "/biblioteca", "/config", "/ajustes", "/pro", "/conquistas"];
 
 export const DESKTOP_NAV: NavItem[] = [
-  { to: "/", label: "Jornada", icon: IconHome, matches: ["/jornada", "/licao", "/teste"] },
+  { to: "/jornada", label: "Jornada", icon: IconHome, matches: ["/jornada", "/licao", "/teste"] },
   { to: "/ideogramas", label: "Ideogramas", icon: IconHanzi, matches: IDEOGRAM_MATCHES },
   { to: "/treino", label: "Praticar", icon: IconTarget, matches: PRACTICE_MATCHES },
   { to: "/imersao", label: "Imersão", icon: IconHeadphones },
@@ -47,7 +47,7 @@ export const DESKTOP_NAV: NavItem[] = [
 ];
 
 export const NAV_MOBILE: NavItem[] = [
-  { to: "/", label: "Jornada", icon: IconHome, matches: ["/jornada", "/licao", "/teste"] },
+  { to: "/jornada", label: "Jornada", icon: IconHome, matches: ["/jornada", "/licao", "/teste"] },
   { to: "/treino", label: "Praticar", icon: IconTarget, matches: PRACTICE_MATCHES },
   { to: "/imersao", label: "Imersão", icon: IconHeadphones },
   { to: "/missoes", label: "Missões", icon: IconTarget },

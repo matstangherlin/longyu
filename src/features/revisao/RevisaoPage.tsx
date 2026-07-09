@@ -1139,7 +1139,7 @@ export function RevisaoPage() {
                 title: "Revisão de módulo",
                 desc: "Teste de fechamento na Jornada.",
                 icon: IconRefresh,
-                to: "/",
+                to: "/jornada",
                 status: "Jornada",
               },
               {

@@ -1734,7 +1734,7 @@ export function AccountPage() {
       }
       claimOnboardingReward();
       playSoundFx("lessonComplete", soundEffects);
-      navigate("/");
+      navigate("/jornada");
       return;
     }
     // Autenticação real virá no backend. A senha é validada só em memória (nunca
@@ -1742,7 +1742,7 @@ export function AccountPage() {
     createCloudAccountDraft(firstName(name), email, result);
     claimOnboardingReward();
     playSoundFx("lessonComplete", soundEffects);
-    navigate("/");
+    navigate("/jornada");
   }
 
   function handleSkipAccount() {
@@ -1752,7 +1752,7 @@ export function AccountPage() {
     finishLocalOnboarding(firstName(name), result);
     claimOnboardingReward();
     playSoundFx("lessonComplete", soundEffects);
-    navigate("/");
+    navigate("/jornada");
   }
 
   async function handleAttachEmail(event: FormEvent) {
@@ -2246,7 +2246,7 @@ export function AccountPage() {
                     Sair da conta
                   </Button>
                 )}
-                <Button size="sm" variant="soft" onClick={() => navigate("/")}>
+                <Button size="sm" variant="soft" onClick={() => navigate("/jornada")}>
                   Ir para jornada <IconChevron width={18} height={18} />
                 </Button>
               </div>

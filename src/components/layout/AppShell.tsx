@@ -36,6 +36,8 @@ export function AppShell() {
     warmUpVoices();
   }, [registerActivity]);
 
+  // Usuário sem conta/progresso em página interna volta para a landing "/",
+  // que dá contexto antes do onboarding (/conta continua acessível direto).
   useEffect(() => {
     if (
       !accountSetupComplete &&
@@ -44,7 +46,7 @@ export function AppShell() {
       location.pathname !== "/login" &&
       location.pathname !== "/pro"
     ) {
-      navigate("/conta", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [accountSetupComplete, completedLessons.length, location.pathname, navigate]);
 

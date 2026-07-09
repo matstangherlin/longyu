@@ -7,6 +7,22 @@ test.describe("smoke", () => {
     await expect(page.getByText(/Longyu|Mandarim com som/i).first()).toBeVisible();
   });
 
+  test("usuário novo vê landing pública em /", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Começar agora/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Já tenho uma conta/i })).toBeVisible();
+    // Página pública: sem sidebar/tab bar.
+    await expect(page.locator("nav")).toHaveCount(0);
+  });
+
+  test("usuário com conta em / vai para /jornada", async ({ page }) => {
+    await seedOnboardedSession(page, []);
+    await page.goto("/");
+    await page.waitForURL("**/jornada");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+
   test("página Pro vende o plano comercial, sem Pro Preview", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/pro");

@@ -183,7 +183,7 @@ export function LessonDetailPage() {
   const consumeCharge = useStore((state) => state.consumeCharge);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
 
-  if (!foundLesson) return <Navigate to="/" replace />;
+  if (!foundLesson) return <Navigate to="/jornada" replace />;
 
   const lesson = foundLesson;
   const tasks = lessonTasksFor(lesson);
@@ -256,7 +256,7 @@ export function LessonDetailPage() {
   return (
     <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+6rem)] sm:pb-6">
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/jornada")}
         className="mb-4 inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-medium text-ink-soft transition hover:bg-surface-2 hover:text-ink"
       >
         <IconChevron width={17} height={17} className="rotate-180" />

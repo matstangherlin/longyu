@@ -52,7 +52,7 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-20 flex h-12 items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 backdrop-blur-md sm:px-5 lg:h-14">
       <div className="min-w-0 shrink lg:hidden">
-        <Link to="/" aria-label="Longyu">
+        <Link to="/jornada" aria-label="Longyu">
           <BrandWordmark className="text-[1.2rem] sm:text-[1.3rem]" />
         </Link>
       </div>

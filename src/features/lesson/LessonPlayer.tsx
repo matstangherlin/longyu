@@ -1181,7 +1181,7 @@ function buildNextFocus({
     return {
       title: `Próxima lição: ${nextLessonTitle}`,
       desc: "Você está pronto para avançar na Jornada.",
-      to: "/",
+      to: "/jornada",
       cta: "Continuar Jornada",
     };
   }
@@ -1431,7 +1431,7 @@ export function LessonPlayer() {
     });
   }, [adaptiveLesson, entryChecked, finished, foundLesson, setCurrentLessonAttempt]);
 
-  if (!foundLesson || !adaptiveLesson) return <Navigate to="/" replace />;
+  if (!foundLesson || !adaptiveLesson) return <Navigate to="/jornada" replace />;
   const lesson = adaptiveLesson;
   const total = lesson.steps.length;
   const lessonTasks = lessonTasksFor(lesson);
@@ -1479,10 +1479,10 @@ export function LessonPlayer() {
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">{startAccess.reason}</p>
-        <Button size="lg" className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/"))}>
+        <Button size="lg" className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/jornada"))}>
           {premiumBlocked ? "Ver opções Pro" : "Continuar na jornada"}
         </Button>
-        <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/")}>
+        <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
           Voltar
         </Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
@@ -1507,7 +1507,7 @@ export function LessonPlayer() {
         <Button size="lg" className="mt-6 w-full" onClick={() => navigate("/som")}>
           Abrir treino de tons
         </Button>
-        <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/")}>
+        <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
           Voltar à jornada
         </Button>
       </div>
@@ -1800,7 +1800,7 @@ export function LessonPlayer() {
           </ul>
         </Card>
         <Button size="lg" className="mt-6 w-full" onClick={() => setProPaywallKind("content")}>Ver opções Pro</Button>
-        <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/")}>
+        <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
           Voltar à jornada
         </Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
@@ -1837,7 +1837,7 @@ export function LessonPlayer() {
             <Button variant="outline" className="mt-3 w-full" onClick={() => setProPaywallKind("energy")}>
               Conhecer o Longyu Pro
             </Button>
-            <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/")}>
+            <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
               Voltar amanhã
             </Button>
             <Link to="/loja" className="mt-4 text-xs font-semibold text-ink-faint transition hover:text-accent">
@@ -1846,7 +1846,7 @@ export function LessonPlayer() {
           </>
         )}
         {!energyBlocked && (
-          <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/")}>
+          <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
             Voltar à jornada
           </Button>
         )}
@@ -1996,7 +1996,7 @@ export function LessonPlayer() {
 
   function exitLesson() {
     playSoundFx("phaseExit", soundEffects);
-    navigate("/");
+    navigate("/jornada");
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
@@ -2307,7 +2307,7 @@ export function LessonPlayer() {
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
-            navigate("/");
+            navigate("/jornada");
           }}
         />
       );
@@ -2576,7 +2576,7 @@ export function LessonPlayer() {
                   <IconTarget width={17} height={17} /> Treinar antes
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/")}>
+              <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
                 Voltar à jornada
               </Button>
             </div>
@@ -2633,7 +2633,7 @@ export function LessonPlayer() {
         setPostLessonView("streak");
         return;
       }
-      navigate("/");
+      navigate("/jornada");
     }
 
     function claimLessonRewards() {
@@ -2648,7 +2648,7 @@ export function LessonPlayer() {
 
     function continueAfterRewards() {
       if (shouldShowStreak) setPostLessonView("streak");
-      else navigate("/");
+      else navigate("/jornada");
     }
 
     function continueAfterStreak() {
@@ -2679,7 +2679,7 @@ export function LessonPlayer() {
       let claimed = false;
       for (const reward of streakRewards) claimed = claimReward(reward) || claimed;
       if (claimed) playSoundFx("streak", soundEffects);
-      navigate("/");
+      navigate("/jornada");
     }
 
     if (postLessonView === "rewards") {

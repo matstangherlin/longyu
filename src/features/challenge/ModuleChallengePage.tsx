@@ -170,7 +170,7 @@ export function ModuleChallengePage() {
     setActivityReady(true);
   }, [activityReady, consumeCharge, energyBlocked, found, hasPremium, isPremium, moduleAccess, questions.length, soundEffects]);
 
-  if (!found) return <Navigate to="/" replace />;
+  if (!found) return <Navigate to="/jornada" replace />;
 
   const { unit, phaseTitle } = found;
   const reviewEntries = reviewEntriesForUnit(unit);
@@ -185,7 +185,7 @@ export function ModuleChallengePage() {
           Teste bloqueado
         </h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">{moduleAccess.reason}</p>
-        <Button className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/"))}>
+        <Button className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/jornada"))}>
           {premiumBlocked ? "Ver Pro" : "Continuar na jornada"}
         </Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
@@ -224,7 +224,7 @@ export function ModuleChallengePage() {
           O pulo de módulo só é liberado com pelo menos {EXAM_MIN_QUESTIONS} perguntas válidas
           {exam?.status === "insufficient" ? `; este módulo gerou ${exam.validCount}.` : "."}
         </p>
-        <Button className="mt-6" onClick={() => navigate("/")}>Voltar</Button>
+        <Button className="mt-6" onClick={() => navigate("/jornada")}>Voltar</Button>
       </div>
     );
   }
@@ -537,7 +537,7 @@ export function ModuleChallengePage() {
             </div>
           )}
           {passed ? (
-            <Button className="mt-6 w-full" onClick={() => navigate("/")}>
+            <Button className="mt-6 w-full" onClick={() => navigate("/jornada")}>
               Continuar jornada
             </Button>
           ) : (
@@ -545,7 +545,7 @@ export function ModuleChallengePage() {
               <Button className="w-full" onClick={() => navigate(studyTarget ? `/licao/${studyTarget}` : "/")}>
                 Estudar módulo
               </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/")}>
+              <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
                 Voltar à jornada
               </Button>
             </div>

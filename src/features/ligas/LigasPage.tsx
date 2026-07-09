@@ -130,7 +130,7 @@ export function LigasPage() {
           <p className="mt-1 text-xs leading-5 text-ink-soft">
             Lições, revisão e imersão somam XP semanal. O ranking atualiza assim que você estuda.
           </p>
-          <Link to="/" className="mt-3 inline-block">
+          <Link to="/jornada" className="mt-3 inline-block">
             <Button size="sm">Fazer uma lição</Button>
           </Link>
         </Card>
@@ -205,7 +205,7 @@ export function LigasPage() {
           )}
         </div>
 
-        <Link to="/" className="relative mt-3 block">
+        <Link to="/jornada" className="relative mt-3 block">
           <Button className="w-full !bg-white !text-ink hover:!bg-white/90">
             {joined ? "Estudar agora para subir" : "Fazer uma lição"} <IconChevron width={16} height={16} />
           </Button>

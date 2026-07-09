@@ -153,7 +153,7 @@ export const DAILY_MISSION_DEFS: MissionDef[] = [
     iconKey: "star",
     metric: "threeStarToday",
     goal: 1,
-    to: "/",
+    to: "/jornada",
     reward: { xp: 8, qi: 8 },
   },
   {
@@ -240,7 +240,7 @@ export const WEEKLY_MISSION_DEFS: MissionDef[] = [
     iconKey: "lessons",
     metric: "weeklyLessons",
     goal: 5,
-    to: "/",
+    to: "/jornada",
     reward: { xp: 40, qi: 20 },
   },
   {

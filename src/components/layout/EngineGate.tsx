@@ -51,7 +51,7 @@ export function EngineGate({ track, mode = "engine", children }: EngineGateProps
         A jornada é a trilha principal. Cada competência abre quando você já praticou o básico na ordem certa —
         som depois das primeiras frases, hànzì depois dos tons, leitura depois do vocabulário fechado.
       </Card>
-      <Link to="/">
+      <Link to="/jornada">
         <Button size="lg" className="w-full sm:w-auto">
           Continuar na jornada
         </Button>
