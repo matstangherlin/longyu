@@ -79,11 +79,18 @@ async function runSql(page) {
   await runButton.waitFor({ state: "visible", timeout: 30_000 });
   await runButton.click();
 
-  await page.waitForTimeout(5000);
+  const confirm = page.getByRole("button", { name: /run query/i }).last();
+  if (await confirm.isVisible({ timeout: 5000 }).catch(() => false)) {
+    console.log("Confirmando modal de segurança…");
+    await confirm.click();
+  }
+
+  await page.waitForTimeout(15000);
   const body = await page.locator("body").innerText();
   const hasError =
-    /error|failed|permission denied/i.test(body) &&
-    !/success|completed|rows affected/i.test(body);
+    (/error|failed|permission denied/i.test(body) &&
+      !/success|completed|rows affected/i.test(body)) ||
+    (await page.getByText(/potential issue detected/i).isVisible().catch(() => false));
   return { hasError, snippet: body.slice(0, 2000) };
 }
 
