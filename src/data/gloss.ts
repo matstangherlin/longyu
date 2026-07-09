@@ -5,7 +5,7 @@ import { CHARACTERS } from "./characters";
 import { CHUNKS } from "./chunks";
 import { RADICALS } from "./radicals";
 import { VOCABULARY } from "./vocabulary";
-import { containsNumericPinyin, formatPinyinForDisplay } from "../lib/pinyin";
+import { containsNumericPinyin, formatPinyinForDisplay, stripPinyinTone } from "../lib/pinyin";
 
 export interface Gloss {
   pinyin?: string;
@@ -269,8 +269,48 @@ interface GlossEntry {
 const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/u;
 const HANZI_PUNCTUATION_RE = /[，。！？、,.!?\s：；;“”"（）()]/g;
 const END_PUNCTUATION_RE = /[，。！？、,.!?？\s]+$/g;
-const TOKEN_RE = /([\u3400-\u9fff\uf900-\ufaff]+|[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’.-]*)/gu;
+const TOKEN_RE = /([\u3400-\u9fff\uf900-\ufaff]+|[\p{Script=Latin}][\p{Script=Latin}'’.-]*[1-5]?)/gu;
 const PINYIN_TONE_MARK_RE = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜĀÁǍÀĒÉĚÈĪÍǏÌŌÓǑÒŪÚǓÙǕǗǙǛ]/u;
+const LATIN_TOKEN_RE = /^[\p{Script=Latin}][\p{Script=Latin}'’.-]*[1-5]?$/u;
+const PINYIN_INITIALS = ["zh", "ch", "sh", "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "q", "x", "r", "z", "c", "s", "y", "w", ""] as const;
+const PINYIN_FINALS = new Set([
+  "a",
+  "ai",
+  "an",
+  "ang",
+  "ao",
+  "e",
+  "ei",
+  "en",
+  "eng",
+  "er",
+  "i",
+  "ia",
+  "ian",
+  "iang",
+  "iao",
+  "ie",
+  "in",
+  "ing",
+  "iong",
+  "iu",
+  "o",
+  "ong",
+  "ou",
+  "u",
+  "ua",
+  "uai",
+  "uan",
+  "uang",
+  "ue",
+  "ui",
+  "un",
+  "uo",
+  "ü",
+  "üe",
+  "üan",
+  "ün",
+]);
 
 const PROPER_NAMES: GlossEntry[] = [
   { text: "马修", pinyin: "Mǎxiū", meaningPt: "Matheus", role: "nome próprio", rank: 4 },
@@ -368,6 +408,7 @@ function personalizedNameGloss(text: string): RichGloss | null {
   const name = match[1].trim();
   if (!name) return null;
   const namePart = partForToken(name);
+  if (!namePart) return null;
   return {
     fullText: text,
     fullPinyin: `wǒ jiào ${namePart.pinyin ?? name}`,
@@ -388,7 +429,8 @@ function segmentText(text: string, avoidExactFullMatch: boolean): RichGlossPart[
     if (CJK_RE.test(token)) {
       parts.push(...segmentHanzi(token, avoidExactFullMatch));
     } else {
-      parts.push(partForToken(token));
+      const part = partForToken(token);
+      if (part) parts.push(part);
     }
   }
   return parts;
@@ -436,15 +478,46 @@ function findPartEntry(
   return null;
 }
 
-function partForToken(token: string): RichGlossPart {
+export function isMandarinGlossableToken(token: string): boolean {
+  const raw = token.trim();
+  if (!raw) return false;
+  if (CJK_RE.test(raw)) return true;
+  if (!LATIN_TOKEN_RE.test(raw)) return false;
+
+  const normalized = raw.normalize("NFC");
+  if (PROPER_NAMES.some((entry) => entry.text === normalized)) return true;
+
+  if (normalized.toLowerCase() === "pinyin") return false;
+  return containsNumericPinyin(normalized) || isLikelyPinyinToken(normalized);
+}
+
+function isLikelyPinyinToken(token: string): boolean {
+  const sanitized = stripPinyinTone(token)
+    .replace(/[1-5]/g, "")
+    .replace(/u:/gi, (match) => (match === "U:" ? "Ü" : "ü"))
+    .replace(/v/gi, (match) => (match === "V" ? "Ü" : "ü"))
+    .toLowerCase();
+  if (!/^[a-zü]+$/u.test(sanitized)) return false;
+  return PINYIN_INITIALS.some((initial) => {
+    if (!sanitized.startsWith(initial)) return false;
+    const final = sanitized.slice(initial.length);
+    return PINYIN_FINALS.has(final);
+  });
+}
+
+function partForToken(token: string): RichGlossPart | null {
   const normalized = normalizeHanzi(token);
   const known = normalized ? ENTRY_BY_NORMALIZED.get(normalized) : undefined;
   if (known) return entryToPart(known);
-  return {
-    text: token,
-    meaningPt: "nome próprio",
-    role: "nome próprio",
-  };
+  if (!isMandarinGlossableToken(token)) return null;
+  if (PROPER_NAMES.some((entry) => entry.text === token.trim())) {
+    return {
+      text: token,
+      meaningPt: "nome próprio",
+      role: "nome próprio",
+    };
+  }
+  return null;
 }
 
 function entryToPart(entry: GlossEntry): RichGlossPart {

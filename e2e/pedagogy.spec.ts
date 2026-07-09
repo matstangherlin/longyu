@@ -25,6 +25,14 @@ test.describe("lição", () => {
     await expect(page.getByText(/Monte 林|Monte 明|hb-lin|hb-ming/i)).toHaveCount(0);
   });
 
+  test("prompt misto não abre glossário em português", async ({ page }) => {
+    await seedFoundationThrough(page, "p1-engine-2-lab");
+    await page.goto("/licao/l1/player");
+    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /qual/i })).toHaveCount(0);
+  });
+
   test("primeiros hànzì começa com fragmentos simples", async ({ page }) => {
     await seedFoundationThrough(page, "p1-o-que-e-hanzi");
     await page.goto("/licao/p1-primeiros-hanzi/player");
