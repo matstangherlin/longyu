@@ -14,8 +14,9 @@ import { LeituraPage } from "./features/leitura/LeituraPage";
 import { RevisaoPage } from "./features/revisao/RevisaoPage";
 import { BibliotecaPage } from "./features/biblioteca/BibliotecaPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
-import { AccountPage } from "./features/account/AccountPage";
 import { ProfilePage } from "./features/perfil/ProfilePage";
+import { ContaRoute } from "./features/conta/ContaRoute";
+import { DadosLocaisPage } from "./features/dados/DadosLocaisPage";
 import { LessonDetailPage } from "./features/lesson/LessonDetailPage";
 import { LessonPlayer } from "./features/lesson/LessonPlayer";
 import { ModuleChallengePage } from "./features/challenge/ModuleChallengePage";
@@ -53,9 +54,11 @@ export const routes: RouteObject[] = [
       { path: "ligas", element: <LigasPage /> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
+      { path: "plano", element: <ProPage /> },
       { path: "login", element: <LoginPage /> },
       { path: "perfil", element: <ProfilePage /> },
-      { path: "conta", element: <AccountPage /> },
+      { path: "conta", element: <ContaRoute /> },
+      { path: "dados-locais", element: <DadosLocaisPage /> },
       { path: "config", element: <SettingsPage /> },
       { path: "ajustes", element: <SettingsPage /> },
       { path: "mais", element: <MorePage /> },
