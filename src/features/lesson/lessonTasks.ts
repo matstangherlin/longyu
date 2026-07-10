@@ -14,6 +14,7 @@ import { CHUNKS, chunkById } from "../../data/chunks";
 import type { ItemType } from "../../data/types";
 import {
   buildersForCharacter,
+  builderPrerequisitesMet,
   selectHanziBuilderForStudent,
   type HanziBuilder,
   type HanziBuilderProgressMap,
@@ -475,7 +476,10 @@ interface PracticeCandidate {
 interface LessonPracticeProfile {
   targetCount: number;
   stageTargets: Record<LessonStageId, number>;
+  minHanziBuilds: number;
   maxHanziBuilds: number;
+  /** Máximo de builders do MESMO caractere na lição (aula dedicada permite mais). */
+  perCharBuildCap: number;
   maxPinyinTasks: number;
   needsPinyinTask: boolean;
 }
@@ -865,6 +869,16 @@ function maxPinyinTasksForLesson(lesson: Lesson, pinyinRich: boolean): number {
   return 1;
 }
 
+// Uma lição é "dedicada de montagem" quando a maior parte do que ela ensina
+// são HanziBuilders (ex.: p1-primeiros-hanzi). Aí ela pode ter vários builders.
+function authoredBuilderCount(lesson: Lesson): number {
+  return lesson.steps.filter((step) => step.kind === "hanzi_build").length;
+}
+
+function isDedicatedBuilderLesson(lesson: Lesson): boolean {
+  return authoredBuilderCount(lesson) >= 4;
+}
+
 function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticeProfile {
   const phaseOrder = lessonPhaseOrder(lesson);
   const isFoundation = FOUNDATION_LESSON_IDS.includes(lesson.id);
@@ -874,12 +888,33 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   const commonTarget = phaseOrder <= 2 ? 8 : phaseOrder <= 5 ? 9 : 10;
   const maxPinyinTasks = maxPinyinTasksForLesson(lesson, pinyinRich);
 
+  // Aula dedicada de montagem: muitos builders, dificuldade misturada.
+  if (isDedicatedBuilderLesson(lesson)) {
+    const builds = authoredBuilderCount(lesson);
+    const maxBuilds = Math.min(6, builds);
+    const targetCount = Math.max(10, Math.min(14, Math.max(authoredCount, maxBuilds + 5)));
+    return {
+      targetCount,
+      // Montagem entra em assembly e também na consolidação, para caber a
+      // sequência sem virar uma parede de builders iguais em fila.
+      stageTargets: { intro: 1, recognition: 1, assembly: maxBuilds, usage: 1, consolidation: Math.max(2, targetCount - maxBuilds - 3) },
+      minHanziBuilds: Math.min(5, builds),
+      maxHanziBuilds: maxBuilds,
+      perCharBuildCap: 3,
+      maxPinyinTasks,
+      needsPinyinTask: pinyinRich,
+    };
+  }
+
   if (lesson.isReview || (lesson.skill === "sistema" && lesson.title.toLocaleLowerCase("pt-BR").includes("revis"))) {
     const targetCount = Math.max(12, Math.min(20, Math.max(authoredCount, focus.length >= 8 ? 14 : 12)));
+    // Revisão de módulo: pelo menos 2 builders quando há hànzì relevante.
     return {
       targetCount,
       stageTargets: { intro: 2, recognition: 3, assembly: 3, usage: 2, consolidation: targetCount - 10 },
+      minHanziBuilds: relevantHanzi ? 2 : 0,
       maxHanziBuilds: relevantHanzi ? (lesson.skill === "hanzi" ? 3 : 2) : 0,
+      perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
     };
@@ -887,24 +922,34 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
 
   if (isFoundation || lesson.skill === "sistema") {
     const targetCount = Math.max(8, Math.min(12, Math.max(authoredCount, 10)));
+    // Lições-conceito de fundação que não são de hànzì (mandarim/pinyin/tom) não
+    // montam nada — evita composição solta numa aula puramente conceitual.
+    const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi";
     return {
       targetCount,
       stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 2, consolidation: targetCount - 7 },
-      maxHanziBuilds: relevantHanzi ? 1 : 0,
+      minHanziBuilds: 0,
+      maxHanziBuilds: conceptNonHanzi ? 0 : relevantHanzi ? 1 : 0,
+      perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
     };
   }
 
   const targetCount = Math.max(6, Math.min(10, Math.max(authoredCount, commonTarget)));
-  const hanziCap = relevantHanzi ? (isHanziFocusedLesson(lesson) ? 2 : 1) : 0;
+  const hanziLesson = isHanziFocusedLesson(lesson);
+  // Lição de hànzì: 2–4 builders; lição comum: no máximo 1.
+  const maxBuilds = relevantHanzi ? (hanziLesson ? 4 : 1) : 0;
+  const minBuilds = relevantHanzi && hanziLesson ? 2 : 0;
   const pinyinCap = isPinyinFocusedLesson(lesson)
     ? maxPinyinTasksForLesson(lesson, pinyinRich)
     : Math.min(1, maxPinyinTasksForLesson(lesson, pinyinRich));
   return {
     targetCount,
     stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 1, consolidation: Math.max(1, targetCount - 6) },
-    maxHanziBuilds: hanziCap,
+    minHanziBuilds: minBuilds,
+    maxHanziBuilds: maxBuilds,
+    perCharBuildCap: 2,
     maxPinyinTasks: pinyinCap,
     needsPinyinTask: pinyinRich && (phaseOrder <= 4 || isPinyinFocusedLesson(lesson) || Boolean(lesson.isReview)),
   };
@@ -1154,22 +1199,44 @@ function makeFillBlankStep(item: FocusItem, focus: FocusItem[]): LessonStep | nu
   };
 }
 
+interface BuilderSelectionContext {
+  seenGlyphs?: ReadonlySet<string>;
+  /** Glifos que ESTA lição ensina (não a revisão). */
+  ownFocusGlyphs?: ReadonlySet<string>;
+  /** Revisões podem remontar composições antigas; lições básicas não. */
+  allowComposedFiller?: boolean;
+}
+
+function isComposedBuilder(builder: HanziBuilder): boolean {
+  return builder.mode === "components" || (builder.prerequisites?.length ?? 0) > 0;
+}
+
 function builderForItem(
   item: FocusItem,
   phaseOrder: number,
-  progress?: HanziBuilderProgressMap
+  progress?: HanziBuilderProgressMap,
+  selection: BuilderSelectionContext = {}
 ): HanziBuilder | undefined {
+  const { seenGlyphs, ownFocusGlyphs, allowComposedFiller = false } = selection;
   const chars = [...cleanHanzi(item.hanzi)];
   for (const glyph of chars) {
-    const builders = buildersForCharacter(glyph);
+    // Composição só entra na lição que ensina o caractere, ou em revisão —
+    // nunca como "recheio" numa lição básica (nada de 明 numa aula de 木/人).
+    const composedFiller = (b: HanziBuilder) =>
+      isComposedBuilder(b) && !(ownFocusGlyphs?.has(glyph) ?? false) && !allowComposedFiller;
+    // Não pular bases: builder composto só entra se as bases já foram vistas.
+    const builders = buildersForCharacter(glyph)
+      .filter((b) => builderPrerequisitesMet(b, seenGlyphs))
+      .filter((b) => !composedFiller(b));
     if (builders.length === 0) continue;
+    const allowed = new Set(builders.map((b) => b.id));
     // Com domínio registrado, a variação segue o aluno (novo→guia, dominado→
     // desafio sem molde). Sem domínio, mantém a escolha por fase (como antes),
     // para não facilitar demais conteúdo avançado que o aluno ainda não montou.
     const charProgress = progress?.[glyph];
     if (charProgress) {
-      const selected = selectHanziBuilderForStudent(glyph, charProgress);
-      if (selected) return selected;
+      const selected = selectHanziBuilderForStudent(glyph, charProgress, seenGlyphs);
+      if (selected && allowed.has(selected.id)) return selected;
     }
     const preferred = [...builders].sort((a, b) => {
       const phaseTarget = phaseOrder <= 2 ? 1 : phaseOrder <= 5 ? 3 : 5;
@@ -1187,9 +1254,10 @@ function builderForItem(
 function makeHanziBuilderStep(
   item: FocusItem,
   phaseOrder: number,
-  progress?: HanziBuilderProgressMap
+  progress?: HanziBuilderProgressMap,
+  selection: BuilderSelectionContext = {}
 ): LessonStep | null {
-  const builder = builderForItem(item, phaseOrder, progress);
+  const builder = builderForItem(item, phaseOrder, progress, selection);
   if (!builder) return null;
   return {
     kind: "hanzi_build",
@@ -1297,6 +1365,9 @@ interface SupplementalStepOptions {
   phaseOrder?: number;
   reviewFocus?: FocusItem[];
   hanziBuilderProgress?: HanziBuilderProgressMap;
+  seenGlyphs?: ReadonlySet<string>;
+  ownFocusGlyphs?: ReadonlySet<string>;
+  allowComposedFiller?: boolean;
 }
 
 function supplementalStepsForStage(
@@ -1309,6 +1380,11 @@ function supplementalStepsForStage(
   const result: LessonStep[] = [];
   const phaseOrder = options.phaseOrder ?? 1;
   const builderProgress = options.hanziBuilderProgress;
+  const builderSelection: BuilderSelectionContext = {
+    seenGlyphs: options.seenGlyphs,
+    ownFocusGlyphs: options.ownFocusGlyphs,
+    allowComposedFiller: options.allowComposedFiller,
+  };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
@@ -1331,7 +1407,7 @@ function supplementalStepsForStage(
     push(makeTonePairStep(focus));
   } else if (stageId === "assembly") {
     for (const item of focus) {
-      push(makeHanziBuilderStep(item, phaseOrder, builderProgress));
+      push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeSentenceBuildStep(item, focus));
       push(makeAssemblyChoiceStep(item, focus));
       if (result.length >= targetCount) break;
@@ -1348,7 +1424,7 @@ function supplementalStepsForStage(
     push(makeTonePairStep([...reviewFocus, ...focus]));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
-      push(makeHanziBuilderStep(item, phaseOrder, builderProgress));
+      push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
       if (result.length >= targetCount) break;
     }
@@ -1491,13 +1567,16 @@ function generatedCandidatesFor(
   focus: FocusItem[],
   reviewFocus: FocusItem[],
   profile: LessonPracticeProfile,
-  hanziBuilderProgress?: HanziBuilderProgressMap
+  hanziBuilderProgress?: HanziBuilderProgressMap,
+  seenGlyphs?: ReadonlySet<string>,
+  ownFocusGlyphs?: ReadonlySet<string>
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
+  const allowComposedFiller = Boolean(lesson.isReview);
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress });
+    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller });
     for (const step of generated) {
       candidates.push({
         step,
@@ -1523,6 +1602,17 @@ function countKind(candidates: readonly PracticeCandidate[], kind: StepKind): nu
   return candidates.filter((candidate) => candidate.step.kind === kind).length;
 }
 
+// Quantos builders do MESMO caractere já foram escolhidos (evita 明 3× etc.).
+function charBuildCount(candidates: readonly PracticeCandidate[], char: string | undefined): number {
+  if (!char) return 0;
+  return candidates.filter((c) => c.step.kind === "hanzi_build" && c.step.correctAnswer === char).length;
+}
+
+function underPerCharCap(selected: readonly PracticeCandidate[], candidate: PracticeCandidate, profile: LessonPracticeProfile): boolean {
+  if (candidate.step.kind !== "hanzi_build") return true;
+  return charBuildCount(selected, candidate.step.correctAnswer) < profile.perCharBuildCap;
+}
+
 function countPinyinTasks(candidates: readonly PracticeCandidate[]): number {
   return candidates.filter((candidate) => isPinyinPracticeStep(candidate.step)).length;
 }
@@ -1540,6 +1630,7 @@ function selectBestCandidate(
     .filter((candidate) => candidate.stageId === stageId)
     .filter((candidate) => !usedSignatures.has(stepSignature(candidate.step)))
     .filter((candidate) => candidate.step.kind !== "hanzi_build" || hanziBuildCount < profile.maxHanziBuilds)
+    .filter((candidate) => underPerCharCap(selected, candidate, profile))
     .filter((candidate) => !isPinyinPracticeStep(candidate.step) || pinyinTaskCount < profile.maxPinyinTasks)
     .sort((a, b) => b.score - a.score);
   return eligible.find((candidate) => !wouldMakeTriplet(selected, candidate)) ?? eligible[0];
@@ -1554,6 +1645,7 @@ function replaceLowestIfNeeded(
   const signature = stepSignature(candidate.step);
   if (usedSignatures.has(signature)) return;
   if (candidate.step.kind === "hanzi_build" && countKind(selected, "hanzi_build") >= profile.maxHanziBuilds) return;
+  if (!underPerCharCap(selected, candidate, profile)) return;
   if (isPinyinPracticeStep(candidate.step) && countPinyinTasks(selected) >= profile.maxPinyinTasks) return;
 
   if (selected.length < profile.targetCount) {
@@ -1589,12 +1681,27 @@ function ensureCoverage(
     if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
   };
 
+  // Garante ao menos `count` candidatos que casam com o predicado (respeitando
+  // os tetos por tipo dentro de replaceLowestIfNeeded).
+  const ensureCount = (predicate: (candidate: PracticeCandidate) => boolean, count: number) => {
+    const pool = candidates
+      .filter(predicate)
+      .filter((item) => !usedSignatures.has(stepSignature(item.step)))
+      .sort((a, b) => b.score - a.score);
+    for (const candidate of pool) {
+      if (selected.filter(predicate).length >= count) break;
+      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+    }
+  };
+
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
   ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
   ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
   ensure((candidate) => candidate.stageId === "consolidation" || candidate.families.includes("review"));
   if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) ensure((candidate) => candidate.families.includes("pinyin"));
-  if (profile.maxHanziBuilds > 0) ensure((candidate) => candidate.step.kind === "hanzi_build");
+  // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
+  const minBuilds = Math.max(profile.maxHanziBuilds > 0 ? 1 : 0, profile.minHanziBuilds);
+  if (minBuilds > 0) ensureCount((candidate) => candidate.step.kind === "hanzi_build", minBuilds);
   if (reviewFocus.length > 0) {
     ensure((candidate) => stepUsesFocus(candidate.step, reviewFocus) || candidate.stageId === "consolidation");
     if (oldPhraseFocus(lessonFocus).length > 0) {
@@ -1712,14 +1819,37 @@ function logPracticePlanInDev(
   }
 }
 
+// Glifos que o aluno já encontrou: aprendidos antes + os desta lição + revisão.
+// Serve para liberar (ou não) builders compostos sem pular as bases.
+function seenGlyphsForPlanning(
+  focus: readonly FocusItem[],
+  reviewFocus: readonly FocusItem[],
+  context: LessonPracticePlanContext
+): Set<string> {
+  const set = new Set<string>();
+  for (const id of context.learnedChars ?? []) {
+    const glyph = charById[id]?.hanzi;
+    if (glyph) set.add(glyph);
+  }
+  for (const item of [...focus, ...reviewFocus]) {
+    for (const glyph of cleanHanzi(item.hanzi)) set.add(glyph);
+  }
+  return set;
+}
+
 export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
   if (lesson.steps.length === 0) return [];
   const focus = focusForPlanning(lesson, context);
   const reviewFocus = combinedReviewFocus(lesson, context);
   const profile = profileForLesson(lesson, focus);
+  const seenGlyphs = seenGlyphsForPlanning(focus, reviewFocus, context);
+  // Glifos que ESTA lição ensina (só o próprio foco, sem a revisão): composição
+  // só é montada aqui se for do próprio conteúdo, ou em revisões.
+  const ownFocusGlyphs = new Set<string>();
+  for (const item of focus) for (const glyph of cleanHanzi(item.hanzi)) ownFocusGlyphs.add(glyph);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
-    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress),
+    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];

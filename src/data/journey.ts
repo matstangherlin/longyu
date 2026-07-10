@@ -586,27 +586,17 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     reviewItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao"],
     estimatedMinutes: 6,
     steps: [
+      // Aula dedicada de montagem básica: cada hànzì novo entra com guia e
+      // fragmentos simples; no fim, 木 volta sem silhueta como revisão. Nada de
+      // composição (林/明) aqui — isso vem depois, quando as bases já foram vistas.
       intro("Monte peça por peça", "Agora você monta caracteres simples com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
-      {
-        kind: "hanzi_build",
-        title: "Monte 木 peça por peça",
-        builderId: "hb-mu-fragments",
-        prompt: "Encaixe os traços para formar árvore.",
-        sourceMeaning: "árvore / madeira",
-        targetParts: ["木"],
-        bank: ["木"],
-        correctAnswer: "木",
-        explanation: "木 é o tronco vertical com a copa e dois galhos.",
-      },
+      hanziBuild("hb-mu-fragments", "Monte 木", "Encaixe os traços da árvore.", "木", "árvore / madeira"),
       hanziBuild("hb-ren-fragments", "Monte 人", "Monte o hànzì de pessoa.", "人", "pessoa"),
       hanziBuild("hb-kou-fragments", "Monte 口", "Monte o hànzì de boca.", "口", "boca"),
       hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol.", "日", "sol; dia"),
       hanziBuild("hb-shan-fragments", "Monte 山", "Encaixe os traços da montanha.", "山", "montanha"),
-      hanziBuild("hb-yue-fragments", "Monte 月", "Monte o hànzì de lua.", "月", "lua; mês"),
-      hanziBuild("hb-shui-fragments", "Monte 水", "Encaixe os traços da água.", "水", "água"),
-      hanziBuild("hb-huo-fragments", "Monte 火", "Monte o hànzì de fogo.", "火", "fogo"),
-      hanziBuild("hb-da-fragments", "Monte 大", "Monte o hànzì de grande.", "大", "grande"),
-      hanziBuild("hb-xiao-fragments", "Monte 小", "Monte o hànzì de pequeno.", "小", "pequeno"),
+      // Revisão de 木 sem silhueta e com distratores — reforça o que abriu a lição.
+      hanziBuild("hb-mu-complete", "Revise 木 sem molde", "Complete 木 sem a silhueta de fundo.", "木", "árvore / madeira"),
       dialogue(
         "Fechamento",
         "Como você montou os hànzì nesta lição?",

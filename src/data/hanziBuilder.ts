@@ -37,6 +37,11 @@ export interface HanziBuilder {
   showGuide?: boolean;
   /** Níveis avançados: mostra só o significado até o aluno montar corretamente. */
   hidePinyinUntilCorrect?: boolean;
+  /**
+   * Bases (glifos) que o aluno precisa ter visto antes deste builder composto.
+   * Ex.: 明 exige 日 e 月; 好 exige 女 e 子. Não montar composição sem as bases.
+   */
+  prerequisites?: string[];
   /** Nível 5: montar o hànzì dentro de uma frase curta. */
   context?: {
     before: string;
@@ -705,6 +710,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que significa 'bosque'.",
     hintPt: "Duas árvores, lado a lado.",
+    prerequisites: ["木"],
     components: [G_MU, G_MU2],
     componentDistractors: [G_RI, G_KOU],
     explanationPt: "林 junta 木 + 木: duas árvores formam um bosque.",
@@ -720,6 +726,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que significa 'floresta'.",
     hintPt: "Três árvores empilhadas.",
+    prerequisites: ["木"],
     components: [G_MU, G_MU2, G_MU3],
     componentDistractors: [G_KOU, G_RI],
     explanationPt: "森 junta 木 + 木 + 木: a repetição intensifica a ideia de árvore.",
@@ -735,6 +742,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que significa 'claro/brilhante'.",
     hintPt: "Sol + lua.",
+    prerequisites: ["日", "月"],
     components: [G_RI, G_YUE],
     componentDistractors: [G_MU, G_KOU],
     explanationPt: "明 junta 日 + 月: sol e lua, duas fontes de luz.",
@@ -749,6 +757,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que significa 'bom'.",
     hintPt: "Mulher + criança.",
+    prerequisites: ["女", "子"],
     components: [G_NV, G_ZI],
     componentDistractors: [G_MU, G_RI],
     explanationPt: "好 junta 女 + 子. Hoje significa bom ou bem.",
@@ -763,6 +772,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que significa 'descansar'.",
     hintPt: "Uma pessoa ao lado de uma árvore.",
+    prerequisites: ["人", "木"],
     components: [G_REN_SIDE, G_MU],
     componentDistractors: [G_ZI, G_RI],
     explanationPt: "休 junta 亻 (pessoa) + 木 (árvore): alguém encostado numa árvore, descansando.",
@@ -777,6 +787,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que significa 'você'.",
     hintPt: "Pessoa + 尔.",
+    prerequisites: ["人"],
     components: [G_REN_SIDE, G_ER],
     componentDistractors: [G_ZI, G_MU],
     explanationPt: "你 junta 亻 (pessoa) + 尔. É o 'você' do dia a dia.",
@@ -792,6 +803,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Complete a saudação: 你__.",
     hidePinyinUntilCorrect: true,
+    prerequisites: ["女", "子"],
     context: {
       before: "你",
       after: "",
@@ -813,6 +825,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Complete a frase: __好.",
     hidePinyinUntilCorrect: true,
+    prerequisites: ["人"],
     context: {
       before: "",
       after: "好",
@@ -855,6 +868,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     mode: "components",
     promptPt: "Monte o hànzì que completa: __天.",
     hidePinyinUntilCorrect: true,
+    prerequisites: ["日", "月"],
     context: {
       before: "",
       after: "天",
@@ -961,6 +975,12 @@ export function isCharMastered(progress: HanziBuilderCharProgress | undefined): 
   return progress.mastered || (progress.correct >= 3 && progress.lastLevelCompleted >= 3);
 }
 
+/** As bases exigidas por este builder já foram vistas? (sem set = sem restrição) */
+export function builderPrerequisitesMet(builder: HanziBuilder, seenGlyphs?: ReadonlySet<string>): boolean {
+  if (!seenGlyphs) return true;
+  return (builder.prerequisites ?? []).every((glyph) => seenGlyphs.has(glyph));
+}
+
 /**
  * Escolhe o builder certo para o momento do aluno, em vez de pegar sempre o
  * primeiro de `buildersForCharacter`:
@@ -968,12 +988,16 @@ export function isCharMastered(progress: HanziBuilderCharProgress | undefined): 
  * - acertou pouco: completar peça;
  * - acertou algumas vezes: desafio sem molde (embaralhado, com distratores);
  * - dominado: reforça sem molde e, quando existir, avança para componentes/frase.
+ *
+ * `seenGlyphs` (opcional): bases já vistas. Builders compostos cujas bases não
+ * foram vistas são descartados — se sobrar nada, retorna undefined (não gera).
  */
 export function selectHanziBuilderForStudent(
   character: string,
-  progress?: HanziBuilderCharProgress
+  progress?: HanziBuilderCharProgress,
+  seenGlyphs?: ReadonlySet<string>
 ): HanziBuilder | undefined {
-  const builders = buildersForCharacter(character);
+  const builders = buildersForCharacter(character).filter((b) => builderPrerequisitesMet(b, seenGlyphs));
   if (builders.length === 0) return undefined;
 
   const fragmentsGuide = builders.filter((b) => b.mode === "fragments" && b.showGuide && !b.context);
