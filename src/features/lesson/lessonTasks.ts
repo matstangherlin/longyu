@@ -13,6 +13,7 @@ import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import type { ItemType } from "../../data/types";
 import { buildersForCharacter } from "../../data/hanziBuilder";
+import { numericPinyinToDiacritics } from "../../lib/pinyin";
 
 export type LessonMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
 
@@ -584,6 +585,81 @@ function chunkForText(text: string | undefined) {
   return CHUNKS.find((chunk) => cleanHanzi(chunk.hanzi) === normalized);
 }
 
+// ————————————————————————————————————————————————————————————————
+// Segurança de conteúdo para pares e opções.
+//
+// Uma explicação pós-resposta (frase longa, muitas vezes com hànzì no meio,
+// ex.: "Três árvores formam 森, floresta densa...") NUNCA pode virar gloss de
+// significado nem item de par/opção. Um gloss é curto, em português e sem
+// hànzì. Estas funções garantem isso na origem (geração) e são reaproveitadas
+// pela validação de build.
+// ————————————————————————————————————————————————————————————————
+const CLEAN_GLOSS_MAX = 32;
+const PAIR_MEANING_MAX = 32;
+
+function isCleanMeaningGloss(value: string | undefined): boolean {
+  const text = (value ?? "").trim();
+  if (!text) return false;
+  if (containsCjk(text)) return false; // gloss não tem hànzì
+  if (text.length > CLEAN_GLOSS_MAX) return false; // explicação longa
+  if (/[.!?](\s+)\S/.test(text)) return false; // mais de uma frase = explicação
+  return true;
+}
+
+// Usa o significado passado apenas se for um gloss limpo; caso contrário mantém
+// o significado canônico (do char/chunk). Impede que uma explicação sobrescreva
+// o gloss curto de um caractere ou frase conhecida.
+function sanitizeMeaning(passed: string | undefined, fallback: string): string {
+  return isCleanMeaningGloss(passed) ? passed!.trim().replace(/\.$/, "") : fallback;
+}
+
+// Chave de comparação de pinyin para unicidade: numérico → diacrítico, minúsculo,
+// espaços normalizados. Assim a forma numérica e a com acento da mesma sílaba
+// contam como iguais, mas os acentos são preservados no texto exibido (só a
+// chave de comparação é normalizada).
+export function normalizePinyinOptionForUniqueness(value: string | undefined): string {
+  return numericPinyinToDiacritics(String(value ?? ""))
+    .normalize("NFC")
+    .trim()
+    .toLocaleLowerCase("pt-BR")
+    .replace(/\s+/g, " ");
+}
+
+function uniqueByPinyinDisplay(values: (string | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    const clean = value?.trim();
+    if (!clean) continue;
+    const key = normalizePinyinOptionForUniqueness(clean);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(clean);
+  }
+  return result;
+}
+
+// Um FocusItem só pode virar par (hànzì ⇆ significado) se o lado esquerdo for
+// hànzì puro e curto (1 char, ou até 4 num chunk) e o lado direito um gloss
+// curto em português. Rejeita explicações, texto misto PT+hànzì e frases longas.
+export function isSafePairFocusItem(item: FocusItem): boolean {
+  const hanzi = cleanHanzi(item.hanzi);
+  if (!hanzi || !CJK_ONLY_RE.test(hanzi)) return false; // esquerda deve ser hànzì puro
+  if (item.type === "char") {
+    if (hanzi.length !== 1) return false;
+  } else if (item.type === "chunk") {
+    if (hanzi.length > 4) return false;
+  } else if (hanzi.length > 4) {
+    // text: sem tipo conhecido — aceita só sequência curtíssima de hànzì.
+    return false;
+  }
+  const meaning = (item.meaningPt ?? "").trim();
+  if (!meaning || containsCjk(meaning)) return false; // direita = gloss PT, sem hànzì
+  if (meaning.length > PAIR_MEANING_MAX) return false;
+  if (meaning.split(/\s+/).filter(Boolean).length > 5) return false;
+  return true;
+}
+
 function focusFromRef(ref: string): FocusItem | null {
   const [type, itemId] = ref.split(":");
   if (type === "chunk") {
@@ -621,7 +697,7 @@ function focusFromText(text: string | undefined, pinyin?: string, meaningPt?: st
       key: `chunk:${chunk.id}`,
       hanzi: chunk.hanzi,
       pinyin: pinyin ?? chunk.pinyin,
-      meaningPt: meaningPt ?? chunk.meaningPt.replace(/\.$/, ""),
+      meaningPt: sanitizeMeaning(meaningPt, chunk.meaningPt.replace(/\.$/, "")),
       type: "chunk",
       itemId: chunk.id,
     };
@@ -635,19 +711,22 @@ function focusFromText(text: string | undefined, pinyin?: string, meaningPt?: st
         key: `char:${char.id}`,
         hanzi: char.hanzi,
         pinyin: pinyin ?? char.pinyin,
-        meaningPt: meaningPt ?? char.meaningPt,
+        meaningPt: sanitizeMeaning(meaningPt, char.meaningPt),
         type: "char",
         itemId: char.id,
       };
     }
   }
 
-  if (meaningPt?.trim()) {
+  // Fallback text:: só cria item para uma sequência curta de hànzì com gloss
+  // limpo. Assim uma explicação ("木木木森" ⇒ "Três árvores formam 森...") nunca
+  // vira FocusItem — e portanto nunca vira par, opção ou gloss.
+  if (isCleanMeaningGloss(meaningPt) && CJK_ONLY_RE.test(clean) && clean.length <= 6) {
     return {
-      key: `text:${clean || text}`,
-      hanzi: clean || text!,
+      key: `text:${clean}`,
+      hanzi: clean,
       pinyin,
-      meaningPt: meaningPt.replace(/\.$/, ""),
+      meaningPt: meaningPt!.trim().replace(/\.$/, ""),
     };
   }
 
@@ -938,7 +1017,9 @@ function makeListenSelectStep(item: FocusItem, focus: FocusItem[]): LessonStep |
 }
 
 function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
-  return uniqueValues([
+  // Dedup por forma exibida (numérico→diacrítico), para não gerar opções que
+  // parecem idênticas na tela (formas numérica e acentuada contam como uma só).
+  return uniqueByPinyinDisplay([
     target.pinyin,
     ...focus.filter((item) => item.key !== target.key).map((item) => item.pinyin),
     ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.pinyin),
@@ -949,7 +1030,12 @@ function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
 function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
   if (!item.pinyin?.trim()) return null;
   const options = optionPinyin(item, focus);
-  if (options.length < 2) return null;
+  // Só gera a pergunta se houver 3+ opções visualmente diferentes; caso
+  // contrário vira pegadinha inválida (todas iguais). Quem chama tenta outra
+  // microtarefa (listen_select, tom, comprehend, par curto).
+  if (options.length < 3) return null;
+  const answerKey = normalizePinyinOptionForUniqueness(item.pinyin);
+  if (!options.some((option) => normalizePinyinOptionForUniqueness(option) === answerKey)) return null;
   return {
     kind: "dialogue_choice",
     title: "Escolha o pinyin",
@@ -1130,7 +1216,13 @@ function makeMatchPairsStep(focus: FocusItem[]): LessonStep | null {
     .map(focusFromRef)
     .filter((item): item is FocusItem => Boolean(item));
   const items: FocusItem[] = [];
-  for (const item of [...focus.slice(0, 3), ...reviewItems]) {
+  // Só itens seguros viram par: hànzì curto à esquerda, gloss curto à direita.
+  // Frases/explicações e texto misto PT+hànzì são descartados. Mantém a mesma
+  // mistura de antes (até 3 do conteúdo novo + revisão do núcleo), garantindo
+  // que uma frase antiga do núcleo entre nos pares como revisão leve.
+  const safeFocus = focus.filter(isSafePairFocusItem).slice(0, 3);
+  const safeReview = reviewItems.filter(isSafePairFocusItem);
+  for (const item of [...safeFocus, ...safeReview]) {
     addFocusItem(items, item);
     if (items.length >= 4) break;
   }

@@ -1123,6 +1123,21 @@ function isCjkText(value: string | undefined): boolean {
   return containsCjk(value);
 }
 
+const LATIN_RE = /[A-Za-zÀ-ÿ]/;
+
+// Rede de segurança de layout: mesmo que um texto maior chegue a um par/opção
+// (conteúdo antigo, gerado ou de borda), ele nunca pode ser renderizado como
+// hànzì gigante. Frase longa ou mistura de português + hànzì vira texto pequeno
+// e truncado em vez de estourar o tile.
+function isLongMixedText(value: string | undefined): boolean {
+  const text = (value ?? "").trim();
+  if (!text) return false;
+  if (isCjkText(text) && LATIN_RE.test(text)) return true; // PT + hànzì misturados
+  if (text.length > 18) return true; // longo demais para um tile de par/opção
+  if (/[.!?].*\S/.test(text) && text.split(/\s+/).filter(Boolean).length > 3) return true; // frase
+  return false;
+}
+
 function shouldSpeakExercisePiece(value: string | undefined, type?: StepTextType): boolean {
   return type === "audio" || type === "hanzi" || isCjkText(value);
 }
@@ -1347,6 +1362,19 @@ function renderTypedValue(value: string, type?: StepTextType, className = "") {
     );
   }
 
+  // Frase longa ou português + hànzì misturado: nunca em fonte hànzì gigante.
+  // Renderiza como texto pequeno, com no máximo 2 linhas, sem estourar o tile.
+  // Vale mesmo para type "hanzi" — um hànzì puro e curto não cai aqui.
+  if (type !== "pinyin" && isLongMixedText(value)) {
+    return (
+      <ExerciseText
+        value={value}
+        speakOnClick={isCjkText(value)}
+        className={className || "block max-w-[16rem] text-[13px] font-medium leading-snug line-clamp-2"}
+      />
+    );
+  }
+
   if (type === "hanzi" || containsCjk(value)) {
     return <ExerciseText value={value} type="hanzi" speakOnClick className={className || "text-[26px] sm:text-3xl"} />;
   }
@@ -1503,7 +1531,9 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                     active: selectedLeft === pair.id,
                     matched,
                     wrong,
-                    cjk: pair.leftType === "hanzi" || (pair.leftType === "audio" && Boolean(matched)) || isCjkText(pair.left),
+                    cjk:
+                      (pair.leftType === "audio" && Boolean(matched)) ||
+                      ((pair.leftType === "hanzi" || isCjkText(pair.left)) && !isLongMixedText(pair.left)),
                   }),
                 ].join(" ")}
               >
@@ -1544,7 +1574,9 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                   engineTileClass({
                     matched,
                     wrong,
-                    cjk: item.type === "hanzi" || (item.type === "audio" && Boolean(matched)) || isCjkText(item.value),
+                    cjk:
+                      (item.type === "audio" && Boolean(matched)) ||
+                      ((item.type === "hanzi" || isCjkText(item.value)) && !isLongMixedText(item.value)),
                   }),
                 ].join(" ")}
               >
