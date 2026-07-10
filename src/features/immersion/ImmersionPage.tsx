@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Mascot } from "../../components/brand/Mascot";
@@ -34,7 +34,7 @@ import {
   type StoryStep,
 } from "../../data/interactiveStories";
 import { playSoundFx } from "../../lib/soundFx";
-import { useStore, type ActivityErrorRecord, type ActivityErrorSkill } from "../../lib/store";
+import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
@@ -274,6 +274,27 @@ export function ImmersionPage() {
       ?? null;
   }, [dailyMissions.claimed, isPremium, missionAggregates, weeklyMissions.claimed]);
 
+  // Quantas cargas por histórias ainda cabem hoje (grátis), para o card destaque.
+  const storyEnergyRemaining = useMemo(() => {
+    const prefix = `story-energy:${todayKey()}:`;
+    const grantedToday = Object.keys(dailyEnergy.bonusChargesClaimed).filter((key) => key.startsWith(prefix)).length;
+    return Math.max(0, STORY_ENERGY_DAILY_CAP - grantedToday);
+  }, [dailyEnergy.bonusChargesClaimed]);
+
+  // História recomendada: prioriza a que ainda paga recompensa hoje, em
+  // progresso antes de nova, e cai para qualquer uma como revisão.
+  const recommendedStory = useMemo(() => {
+    const playable = INTERACTIVE_STORIES.filter((story) => !story.premium || isPremium);
+    const notDoneToday = playable.filter((story) => !activeDaily.completedSessionIds.includes(`story:${story.id}`));
+    const pool = notDoneToday.length > 0 ? notDoneToday : playable;
+    return (
+      pool.find((story) => storyStatus(storyProgress[story.id]) === "em progresso") ??
+      pool.find((story) => storyStatus(storyProgress[story.id]) === "novo") ??
+      pool[0] ??
+      INTERACTIVE_STORIES[0]
+    );
+  }, [activeDaily.completedSessionIds, isPremium, storyProgress]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [selectedSessionId, selectedStoryId]);
@@ -338,25 +359,15 @@ export function ImmersionPage() {
     setSelectedSessionId(session.id);
   }
 
-  // Histórias: extras são Pro; as da trilha básica consomem 1 Carga no grátis
-  // (retomar no mesmo dia ou rever uma concluída não consome de novo).
+  // Histórias são o modo especial que DÁ energia: no grátis não consomem Carga
+  // para começar (senão um aluno sem Cargas nunca poderia jogar uma história
+  // para reganhar energia). Extras continuam sendo Pro.
   function openStory(story: InteractiveStory) {
     if (story.premium && !isPremium) {
       contextualOffer.consider({ storyPremium: true });
       setPaywallKind("story");
       return;
     }
-    const status = storyStatus(storyProgress[story.id]);
-    const storyKey = `longyu-energy:story:${story.id}:${todayKey()}`;
-    if (status === "concluido" || window.sessionStorage.getItem(storyKey) === "1") {
-      setSelectedStoryId(story.id);
-      return;
-    }
-    if (!consumeCharge("immersion_session")) {
-      setPaywallKind("energy");
-      return;
-    }
-    window.sessionStorage.setItem(storyKey, "1");
     setSelectedStoryId(story.id);
   }
 
@@ -373,6 +384,17 @@ export function ImmersionPage() {
           </div>
         }
       />
+
+      {recommendedStory && (
+        <RecommendedStoryCard
+          story={recommendedStory}
+          progress={storyProgress[recommendedStory.id]}
+          isPremium={isPremium}
+          completedToday={activeDaily.completedSessionIds.includes(`story:${recommendedStory.id}`)}
+          energyRemaining={storyEnergyRemaining}
+          onOpen={() => openStory(recommendedStory)}
+        />
+      )}
 
       <Card className="rounded-xl border-line/70 p-3 shadow-none">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -515,6 +537,86 @@ export function ImmersionPage() {
 
       <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "immersion"} offer={contextualOffer.offer} onClose={() => setPaywallKind(null)} />
     </HubPage>
+  );
+}
+
+// Card destaque: a história recomendada com progresso, recompensa e CTA.
+// Deixa as histórias parecerem importantes (contexto + energia extra).
+function RecommendedStoryCard({
+  story,
+  progress,
+  isPremium,
+  completedToday,
+  energyRemaining,
+  onOpen,
+}: {
+  story: InteractiveStory;
+  progress?: StoredStoryProgress;
+  isPremium: boolean;
+  completedToday: boolean;
+  energyRemaining: number;
+  onOpen: () => void;
+}) {
+  const status = storyStatus(progress);
+  const completedSteps = storyCompletedCount(story, progress);
+  const rewardXp = story.rewards?.xp ?? 0;
+  const rewardQi = story.rewards?.qi ?? 0;
+  const rewardAvailable = !completedToday;
+  const givesEnergy = !isPremium && !completedToday && energyRemaining > 0;
+  const actionLabel =
+    status === "novo" ? "Começar história" : status === "em progresso" ? "Continuar história" : "Rever história";
+  return (
+    <Card
+      data-testid="recommended-story"
+      className="relative overflow-hidden rounded-2xl border-accent/25 bg-gradient-to-br from-accent-soft/60 via-surface to-surface p-4 shadow-card sm:p-5"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+              <IconPath width={18} height={18} />
+            </span>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">História recomendada</div>
+          </div>
+          <h2 className="mt-2 font-serif text-lg font-semibold leading-tight text-ink sm:text-xl">{story.title}</h2>
+          <p className="mt-1 line-clamp-2 max-w-lg text-sm leading-6 text-ink-soft">{story.descriptionPt}</p>
+        </div>
+        <Pill tone={story.premium ? "gold" : "accent"}>{story.premium ? "Pro" : story.level}</Pill>
+      </div>
+
+      <div className="mt-3">
+        <div className="mb-1 flex justify-between text-[10px] text-ink-faint">
+          <span>{completedSteps}/{story.steps.length} passos</span>
+          <span>{story.estimatedMinutes ?? 4} min</span>
+        </div>
+        <ProgressBar value={completedSteps} max={story.steps.length} className="h-1.5" />
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {rewardAvailable ? (
+          <>
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-ink-soft">
+              <IconStar width={13} height={13} className="text-accent" /> +{rewardXp} XP
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-gold">
+              +{rewardQi} Qi
+            </span>
+            {givesEnergy && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
+                <IconHeadphones width={13} height={13} /> +1 carga extra
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="text-xs font-medium text-ink-faint">Recompensa recebida hoje — volte amanhã por mais.</span>
+        )}
+      </div>
+
+      <Button data-testid="recommended-story-start" className="mt-4 w-full sm:w-auto" onClick={onOpen}>
+        {status === "concluido" ? <IconRefresh width={16} height={16} /> : <IconPlay width={16} height={16} />}
+        {actionLabel}
+      </Button>
+    </Card>
   );
 }
 
@@ -675,10 +777,12 @@ function InteractiveStoryPlayer({
   onClose: () => void;
   onProgressChange: () => void;
 }) {
+  const navigate = useNavigate();
   const soundEffects = useStore((state) => state.soundEffects);
   const gradeSrs = useStore((state) => state.gradeSrs);
   const recordActivityError = useStore((state) => state.recordActivityError);
   const completeImmersionSession = useStore((state) => state.completeImmersionSession);
+  const grantStoryEnergy = useStore((state) => state.grantStoryEnergy);
   const recordDailyTask = useStore((state) => state.recordDailyTask);
   const contextualOffer = useProOffer();
   const [currentIndex, setCurrentIndex] = useState(() => initialStoryStepIndex(story, progress));
@@ -687,7 +791,14 @@ function InteractiveStoryPlayer({
   const [revealed, setRevealed] = useState(false);
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
   const [answerResults, setAnswerResults] = useState<Record<string, boolean>>({});
-  const [victory, setVictory] = useState<{ score: number; total: number; awarded: boolean } | null>(null);
+  const [victory, setVictory] = useState<{
+    score: number;
+    total: number;
+    awarded: boolean;
+    xp: number;
+    qi: number;
+    energy: StoryEnergyResult | null;
+  } | null>(null);
 
   const step = story.steps[currentIndex];
   const interactiveTotal = story.steps.filter(storyStepIsInteractive).length;
@@ -776,8 +887,6 @@ function InteractiveStoryPlayer({
   }
 
   function finishStory() {
-    const saved = readStoryProgress()[story.id];
-    const alreadyCompleted = Boolean(saved?.completed);
     const score = Object.values(answerResults).filter(Boolean).length;
     updateStoredStoryProgress(story.id, (previous) => ({
       completedStepIds: story.steps.map((storyStep) => storyStep.id),
@@ -786,24 +895,27 @@ function InteractiveStoryPlayer({
       attempts: (previous?.attempts ?? 0) + 1,
       updatedAt: Date.now(),
     }));
-    if (!alreadyCompleted) {
-      const listenSteps = story.steps.filter((storyStep) => storyStep.type === "listen_choice").length;
-      const awarded = completeImmersionSession(`story:${story.id}`, {
-        audioHeard: Math.max(1, listenSteps),
-        microtextsRead: 1,
-        leituraMinutes: story.estimatedMinutes ?? 4,
-        rewardXp: story.rewards?.xp ?? 0,
-        rewardQi: story.rewards?.qi ?? 0,
-        source: `História: ${story.title}`,
-        isPremiumStory: Boolean(story.premium),
-      });
-      playSoundFx(awarded ? "lessonComplete" : "success", soundEffects);
-    } else {
-      playSoundFx("success", soundEffects);
-    }
+    const listenSteps = story.steps.filter((storyStep) => storyStep.type === "listen_choice").length;
+    const rewardXp = story.rewards?.xp ?? 0;
+    const rewardQi = story.rewards?.qi ?? 0;
+    // Recompensa uma vez por DIA (completeImmersionSession é idempotente por
+    // dia): concluir a mesma história de novo hoje não paga de novo.
+    const awarded = completeImmersionSession(`story:${story.id}`, {
+      audioHeard: Math.max(1, listenSteps),
+      microtextsRead: 1,
+      leituraMinutes: story.estimatedMinutes ?? 4,
+      rewardXp,
+      rewardQi,
+      source: `História: ${story.title}`,
+      isPremiumStory: Boolean(story.premium),
+    });
+    // Carga extra só na primeira conclusão do dia (grátis: teto por dia; Pro
+    // dispensa, já tem cargas ilimitadas). rewardId idempotente evita farm.
+    const energy = awarded ? grantStoryEnergy(story.id) : null;
+    playSoundFx(awarded ? "lessonComplete" : "success", soundEffects);
     onProgressChange();
-    setVictory({ score, total: interactiveTotal, awarded: !alreadyCompleted });
-    if (!alreadyCompleted) {
+    setVictory({ score, total: interactiveTotal, awarded, xp: rewardXp, qi: rewardQi, energy });
+    if (awarded) {
       contextualOffer.consider({ storyCompleted: true, storyPremium: Boolean(story.premium) });
     }
   }
@@ -852,29 +964,53 @@ function InteractiveStoryPlayer({
   });
 
   if (victory) {
+    const energyGranted = Boolean(victory.energy?.granted);
     return (
       <div className="mx-auto max-w-xl py-6 text-center sm:py-12">
         <Mascot size={126} variant="celebrate" className="mx-auto" />
         <div className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-accent">História concluída</div>
         <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{story.title}</h1>
         <p className="mx-auto mt-2 max-w-md text-ink-soft">
-          Você chegou ao fim da história e mandou os pontos fracos para revisão.
+          Você praticou em contexto e mandou os pontos fracos para revisão.
         </p>
-        <div className="mx-auto mt-6 flex max-w-xs items-center justify-center gap-3 border-y border-line py-4">
-          <IconStar className="text-accent" />
-          <span className="font-semibold text-ink">
-            {victory.awarded ? `+${story.rewards?.xp ?? 0} XP · +${story.rewards?.qi ?? 0} Qi` : "História revisada"}
-          </span>
+
+        <div className="mx-auto mt-6 grid max-w-sm grid-cols-3 gap-2">
+          <StoryStat label="Acertos" value={`${victory.score}/${victory.total}`} />
+          <StoryStat label="XP" value={victory.awarded ? `+${victory.xp}` : "—"} tone="accent" />
+          <StoryStat label="Qi" value={victory.awarded ? `+${victory.qi}` : "—"} tone="gold" />
         </div>
-        <p className="mt-3 text-sm text-ink-soft">
-          Acertos nesta rodada: {victory.score}/{victory.total}
-        </p>
+
+        {energyGranted ? (
+          <div className="mx-auto mt-4 flex max-w-sm items-center justify-center gap-2 rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
+            <IconHeadphones width={16} height={16} /> +1 carga extra hoje
+          </div>
+        ) : victory.awarded && victory.energy?.reason === "limit" ? (
+          <p className="mx-auto mt-4 max-w-sm text-xs text-ink-faint">
+            Você já ganhou o máximo de {victory.energy.cap} cargas por histórias hoje.
+          </p>
+        ) : victory.awarded && victory.energy?.reason === "pro" ? (
+          <p className="mx-auto mt-4 max-w-sm text-xs text-ink-faint">No Pro suas cargas já são ilimitadas.</p>
+        ) : !victory.awarded ? (
+          <p className="mx-auto mt-4 max-w-sm text-xs text-ink-faint">
+            Você já concluiu esta história hoje — a recompensa é uma vez por dia.
+          </p>
+        ) : null}
+
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button variant="outline" onClick={repeatStory}>
-            <IconRefresh width={18} height={18} /> Repetir história
+          <Button onClick={onClose}>
+            Continuar Imersão <IconChevron width={18} height={18} />
           </Button>
-          <Button onClick={onClose}>Voltar à Imersão</Button>
+          <Button variant="outline" onClick={() => navigate("/jornada")}>
+            <IconPath width={18} height={18} /> Voltar à Jornada
+          </Button>
         </div>
+        <button
+          type="button"
+          onClick={repeatStory}
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-faint transition hover:text-ink-soft"
+        >
+          <IconRefresh width={14} height={14} /> Repetir história
+        </button>
       </div>
     );
   }
@@ -1328,6 +1464,16 @@ function ImmersionPlayer({
           <p className="mt-3 text-xs text-ink-faint">As cores de tom estão desativadas nas configurações.</p>
         )}
       </section>
+    </div>
+  );
+}
+
+function StoryStat({ label, value, tone = "ink" }: { label: string; value: string; tone?: "ink" | "accent" | "gold" }) {
+  const valueColor = tone === "accent" ? "text-accent" : tone === "gold" ? "text-gold" : "text-ink";
+  return (
+    <div className="rounded-2xl border border-line/70 bg-surface px-3 py-3">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{label}</div>
+      <div className={["mt-1 text-lg font-bold", valueColor].join(" ")}>{value}</div>
     </div>
   );
 }

@@ -59,6 +59,8 @@ export const DAILY_GOAL_PER_TRACK = 5; // min por trilha (20 min total)
 export const DEFAULT_ACCOUNT_ID = "local";
 export const FREE_DAILY_CHARGES = DAILY_CHARGES_FREE;
 export const MISSION_CHARGE_REWARD = 2;
+/** Máximo de cargas extras que as histórias dão por dia no plano grátis. */
+export const STORY_ENERGY_DAILY_CAP = 2;
 
 export type PlacementLevel = "inicio" | "sobrevivencia" | "tons" | "frases" | "hanzi";
 
@@ -183,6 +185,22 @@ export interface ImmersionCompletion {
   source: string;
   /** História premium concluída pela primeira vez na sessão. */
   isPremiumStory?: boolean;
+}
+
+/** Resultado de tentar dar a carga extra de energia por concluir uma história. */
+export interface StoryEnergyResult {
+  granted: boolean;
+  reason: "granted" | "pro" | "limit" | "claimed";
+  grantedToday: number;
+  cap: number;
+}
+
+/** Status diário de energia ganha por histórias (para a tela de Imersão). */
+export interface StoryEnergyStatus {
+  grantedToday: number;
+  remaining: number;
+  cap: number;
+  isPro: boolean;
 }
 
 export type RewardType = "qi" | "dragonPearl" | "streakShield" | "badge" | "xp" | "charge";
@@ -1533,6 +1551,9 @@ interface AppState {
   getActiveDailyEnergy: () => DailyEnergy;
   consumeCharge: (activityType: EnergyActivityType) => boolean;
   addCharges: (amount: number, source: string) => boolean;
+  /** +1 carga extra por concluir uma história (idempotente por dia/história). */
+  grantStoryEnergy: (storyId: string) => StoryEnergyResult;
+  getStoryEnergyStatus: () => StoryEnergyStatus;
   refillDailyCharges: () => void;
   canStartActivity: (activityType: EnergyActivityType) => boolean;
   registerActivity: () => void;
@@ -3005,6 +3026,68 @@ export const useStore = create<AppState>()(
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
         });
         return recoveredCharges;
+      },
+
+      grantStoryEnergy: (storyId) => {
+        const clean = storyId.trim();
+        const date = todayKey();
+        const cap = STORY_ENERGY_DAILY_CAP;
+        const prefix = `story-energy:${date}:`;
+        const countStories = (claimed: Record<string, boolean>) =>
+          Object.keys(claimed).filter((key) => key.startsWith(prefix)).length;
+        const state = get();
+        const energyNow = activeDailyEnergy(state.dailyEnergy, date);
+        const grantedNow = countStories(energyNow.bonusChargesClaimed);
+        // Pro tem cargas ilimitadas: não precisa (nem deve) farmar energia.
+        if (hasProAccess(state)) return { granted: false, reason: "pro", grantedToday: grantedNow, cap };
+        const rewardId = `${prefix}${clean}`;
+        if (!clean || energyNow.bonusChargesClaimed[rewardId]) {
+          return { granted: false, reason: "claimed", grantedToday: grantedNow, cap };
+        }
+        if (grantedNow >= cap) return { granted: false, reason: "limit", grantedToday: grantedNow, cap };
+
+        let result: StoryEnergyResult = { granted: false, reason: "limit", grantedToday: grantedNow, cap };
+        set((s) => {
+          const current = activeDailyEnergy(s.dailyEnergy, date);
+          const claimed = current.bonusChargesClaimed;
+          const already = countStories(claimed);
+          // rewardId idempotente: a mesma história no mesmo dia nunca dá 2×.
+          if (claimed[rewardId]) {
+            result = { granted: false, reason: "claimed", grantedToday: already, cap };
+            return {};
+          }
+          if (already >= cap) {
+            result = { granted: false, reason: "limit", grantedToday: already, cap };
+            return {};
+          }
+          // Carga EXTRA de verdade: sobe o teto do dia junto (senão o clamp de
+          // activeDailyEnergy devolveria a carga acima do máximo).
+          const dailyEnergy: DailyEnergy = {
+            ...current,
+            maxCharges: current.maxCharges + 1,
+            charges: current.charges + 1,
+            bonusChargesClaimed: { ...claimed, [rewardId]: true },
+          };
+          result = { granted: true, reason: "granted", grantedToday: already + 1, cap };
+          const next = { ...s, dailyEnergy };
+          return { dailyEnergy, accounts: saveCurrentAccount(next) };
+        });
+        return result;
+      },
+
+      getStoryEnergyStatus: () => {
+        const state = get();
+        const date = todayKey();
+        const energy = activeDailyEnergy(state.dailyEnergy, date);
+        const grantedToday = Object.keys(energy.bonusChargesClaimed).filter((key) =>
+          key.startsWith(`story-energy:${date}:`)
+        ).length;
+        return {
+          grantedToday,
+          remaining: Math.max(0, STORY_ENERGY_DAILY_CAP - grantedToday),
+          cap: STORY_ENERGY_DAILY_CAP,
+          isPro: hasProAccess(state),
+        };
       },
 
       refillDailyCharges: () =>
