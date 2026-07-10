@@ -12,7 +12,12 @@ import {
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import type { ItemType } from "../../data/types";
-import { buildersForCharacter } from "../../data/hanziBuilder";
+import {
+  buildersForCharacter,
+  selectHanziBuilderForStudent,
+  type HanziBuilder,
+  type HanziBuilderProgressMap,
+} from "../../data/hanziBuilder";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
 
 export type LessonMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
@@ -414,6 +419,8 @@ export interface LessonPracticePlanContext {
   learnedChunks?: string[];
   learnedChars?: string[];
   recentErrors?: LessonPracticeRecentError[];
+  /** Domínio do HanziBuilder por caractere: escolhe a variação certa (guia → desafio). */
+  hanziBuilderProgress?: HanziBuilderProgressMap;
   silent?: boolean;
 }
 
@@ -1147,11 +1154,23 @@ function makeFillBlankStep(item: FocusItem, focus: FocusItem[]): LessonStep | nu
   };
 }
 
-function builderForItem(item: FocusItem, phaseOrder: number) {
+function builderForItem(
+  item: FocusItem,
+  phaseOrder: number,
+  progress?: HanziBuilderProgressMap
+): HanziBuilder | undefined {
   const chars = [...cleanHanzi(item.hanzi)];
   for (const glyph of chars) {
     const builders = buildersForCharacter(glyph);
     if (builders.length === 0) continue;
+    // Com domínio registrado, a variação segue o aluno (novo→guia, dominado→
+    // desafio sem molde). Sem domínio, mantém a escolha por fase (como antes),
+    // para não facilitar demais conteúdo avançado que o aluno ainda não montou.
+    const charProgress = progress?.[glyph];
+    if (charProgress) {
+      const selected = selectHanziBuilderForStudent(glyph, charProgress);
+      if (selected) return selected;
+    }
     const preferred = [...builders].sort((a, b) => {
       const phaseTarget = phaseOrder <= 2 ? 1 : phaseOrder <= 5 ? 3 : 5;
       const aDistance = Math.abs(a.level - phaseTarget);
@@ -1165,8 +1184,12 @@ function builderForItem(item: FocusItem, phaseOrder: number) {
   return undefined;
 }
 
-function makeHanziBuilderStep(item: FocusItem, phaseOrder: number): LessonStep | null {
-  const builder = builderForItem(item, phaseOrder);
+function makeHanziBuilderStep(
+  item: FocusItem,
+  phaseOrder: number,
+  progress?: HanziBuilderProgressMap
+): LessonStep | null {
+  const builder = builderForItem(item, phaseOrder, progress);
   if (!builder) return null;
   return {
     kind: "hanzi_build",
@@ -1273,6 +1296,7 @@ function stepSignature(step: LessonStep): string {
 interface SupplementalStepOptions {
   phaseOrder?: number;
   reviewFocus?: FocusItem[];
+  hanziBuilderProgress?: HanziBuilderProgressMap;
 }
 
 function supplementalStepsForStage(
@@ -1284,6 +1308,7 @@ function supplementalStepsForStage(
   if (focus.length === 0 || targetCount <= 0) return [];
   const result: LessonStep[] = [];
   const phaseOrder = options.phaseOrder ?? 1;
+  const builderProgress = options.hanziBuilderProgress;
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
@@ -1306,7 +1331,7 @@ function supplementalStepsForStage(
     push(makeTonePairStep(focus));
   } else if (stageId === "assembly") {
     for (const item of focus) {
-      push(makeHanziBuilderStep(item, phaseOrder));
+      push(makeHanziBuilderStep(item, phaseOrder, builderProgress));
       push(makeSentenceBuildStep(item, focus));
       push(makeAssemblyChoiceStep(item, focus));
       if (result.length >= targetCount) break;
@@ -1323,7 +1348,7 @@ function supplementalStepsForStage(
     push(makeTonePairStep([...reviewFocus, ...focus]));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
-      push(makeHanziBuilderStep(item, phaseOrder));
+      push(makeHanziBuilderStep(item, phaseOrder, builderProgress));
       push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
       if (result.length >= targetCount) break;
     }
@@ -1465,13 +1490,14 @@ function generatedCandidatesFor(
   lesson: Lesson,
   focus: FocusItem[],
   reviewFocus: FocusItem[],
-  profile: LessonPracticeProfile
+  profile: LessonPracticeProfile,
+  hanziBuilderProgress?: HanziBuilderProgressMap
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus });
+    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress });
     for (const step of generated) {
       candidates.push({
         step,
@@ -1693,7 +1719,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const profile = profileForLesson(lesson, focus);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
-    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile),
+    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];

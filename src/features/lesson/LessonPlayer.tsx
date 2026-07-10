@@ -1079,6 +1079,7 @@ export function LessonPlayer() {
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const learnedChars = useStore((s) => s.learnedChars);
+  const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
   // Pro efetivo (assinatura real OU preview local) — nunca só o preview.
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
@@ -1208,13 +1209,14 @@ export function LessonPlayer() {
                   completedLessons,
                   learnedChunks,
                   learnedChars,
+                  hanziBuilderProgress,
                   recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
                 }
               ),
             };
           })()
         : undefined,
-    [completedLessons, foundLesson, learnedChars, learnedChunks, recentActivityErrors]
+    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors]
   );
 
   useEffect(() => {

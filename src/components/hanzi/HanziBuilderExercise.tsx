@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type { HanziBuilder, HanziGlyphPiece, HanziStroke } from "../../data/hanziBuilder";
+import type { HanziBuilder, HanziGlyphPiece, HanziGuideStrength, HanziStroke } from "../../data/hanziBuilder";
+import { resolveGuideStrength } from "../../data/hanziBuilder";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
@@ -45,6 +46,16 @@ export function HanziBuilderExercise({
   continueLabel?: string;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
+  const charProgress = useStore((s) => s.hanziBuilderProgressByChar[builder.character]);
+  const recordHanziBuilderResult = useStore((s) => s.recordHanziBuilderResult);
+
+  // Guia/silhueta dinâmica: cheia para hànzì novo, mais fraca com prática,
+  // some quando o aluno domina (ou em builders "sem molde").
+  const guideStrength = useMemo(
+    () => resolveGuideStrength(builder, charProgress),
+    [builder, charProgress]
+  );
+  const builtWithoutGuide = guideStrength === "none";
 
   const fixedStrokes = useMemo(() => resolveFixedStrokes(builder), [builder]);
   const correctOrder = useMemo(() => resolveCorrectOrder(builder), [builder]);
@@ -63,14 +74,12 @@ export function HanziBuilderExercise({
   const [selected, setSelected] = useState<string[]>([]);
   const [status, setStatus] = useState<BuildStatus>("idle");
   const [hadMistake, setHadMistake] = useState(false);
-  const [wrongAttempts, setWrongAttempts] = useState(0);
 
   // Reinicia quando troca de exercício (sessões de treino/revisão).
   useEffect(() => {
     setSelected([]);
     setStatus("idle");
     setHadMistake(false);
-    setWrongAttempts(0);
   }, [builder.id]);
 
   // Erro trava as peças. No treino/revisão o próprio componente oferece
@@ -142,11 +151,18 @@ export function HanziBuilderExercise({
     if (ok) {
       setStatus("correct");
       playSoundFx("success", soundEffects);
+      // Registra o domínio deste caractere (persiste na conta/nuvem). firstTry =
+      // montou sem nenhum erro nesta rodada — vale mais para o domínio.
+      recordHanziBuilderResult({
+        character: builder.character,
+        correct: true,
+        firstTry: !hadMistake,
+        level: builder.level,
+      });
       return;
     }
     setStatus("wrong");
     setHadMistake(true);
-    setWrongAttempts((current) => current + 1);
     onWrong?.();
     if (!externalRetry) playSoundFx("error", soundEffects);
   }
@@ -211,6 +227,7 @@ export function HanziBuilderExercise({
       <div className="mt-5 flex justify-center">
         <BuildCanvas
           builder={builder}
+          guideStrength={guideStrength}
           fixedStrokes={fixedStrokes}
           selectedStrokes={selectedStrokeDs}
           selectedGlyphs={selectedPieces
@@ -241,7 +258,7 @@ export function HanziBuilderExercise({
       )}
 
       {/* Bandeja de peças disponíveis */}
-      {status !== "correct" && (
+      {status !== "correct" && availablePieces.length > 0 && (
         <div className="mt-5">
           <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {builder.mode === "components" ? "Componentes" : "Fragmentos"}
@@ -257,12 +274,16 @@ export function HanziBuilderExercise({
                 onClick={() => addPiece(piece)}
               />
             ))}
-            {availablePieces.length === 0 && (
-              <span className="text-sm text-ink-faint">Todas as peças estão na carta.</span>
-            )}
             </div>
           </div>
         </div>
+      )}
+
+      {/* Sem peças na bandeja: montagem completa, é hora de verificar (não é bug). */}
+      {status !== "correct" && availablePieces.length === 0 && selected.length > 0 && (
+        <p className="animate-pop mt-5 rounded-2xl border border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-center text-sm font-semibold text-[rgb(var(--good))]">
+          Tudo colocado. Agora toque em Verificar.
+        </p>
       )}
 
       {status === "incomplete" && (
@@ -280,11 +301,9 @@ export function HanziBuilderExercise({
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {builder.errorHintPt ?? "Revise as peças e tente de novo."}
           </p>
-          {wrongAttempts >= 2 && (
-            <p className="mt-2 rounded-xl bg-surface px-3 py-2 text-xs font-medium text-ink-soft">
-              Este hànzì vai ficar mais forte na revisão de forma visual.
-            </p>
-          )}
+          <p className="mt-2 rounded-xl bg-surface px-3 py-2 text-xs font-medium text-ink-soft">
+            Este hànzì vai voltar em revisão visual.
+          </p>
           <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
             Tentar de novo
           </Button>
@@ -297,7 +316,22 @@ export function HanziBuilderExercise({
             <IconCheck width={18} height={18} />
             {hadMistake ? "Boa! Hànzì montado." : "Perfeito! Hànzì montado."}
           </div>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">{builder.explanationPt}</p>
+          {(!hadMistake || builtWithoutGuide) && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {!hadMistake && (
+                <span className="rounded-full bg-[rgb(var(--good)/0.16)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
+                  Domínio visual +1
+                </span>
+              )}
+              {builtWithoutGuide && (
+                <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-ink-soft">
+                  Você montou sem molde.
+                </span>
+              )}
+            </div>
+          )}
+          <div className="mt-2 text-sm font-semibold text-ink">{builder.meaningPt}</div>
+          <p className="mt-1 text-sm leading-6 text-ink-soft">{builder.explanationPt}</p>
           {builder.relatedPt && <p className="mt-1 text-sm text-ink-faint">{builder.relatedPt}</p>}
           {showContinue && (
             <Button
@@ -318,7 +352,15 @@ export function HanziBuilderExercise({
               Limpar
             </Button>
           )}
-          <Button variant={canCheck ? "good" : "outline"} disabled={!canCheck} onClick={check} className="min-w-32 flex-1 shadow-lift sm:flex-none">
+          <Button
+            variant={canCheck ? "good" : "outline"}
+            disabled={!canCheck}
+            onClick={check}
+            className={[
+              "min-w-32 flex-1 shadow-lift sm:flex-none",
+              canCheck && availablePieces.length === 0 ? "animate-pulse ring-2 ring-[rgb(var(--good)/0.4)]" : "",
+            ].join(" ")}
+          >
             Verificar
           </Button>
         </div>
@@ -333,12 +375,14 @@ export function HanziBuilderExercise({
 
 function BuildCanvas({
   builder,
+  guideStrength,
   fixedStrokes,
   selectedStrokes,
   selectedGlyphs,
   status,
 }: {
   builder: HanziBuilder;
+  guideStrength: HanziGuideStrength;
   fixedStrokes: HanziStroke[];
   selectedStrokes: { id: string; d: string; correct: boolean }[];
   selectedGlyphs: { glyph: string; correct: boolean }[];
@@ -396,18 +440,18 @@ function BuildCanvas({
   return (
     <div className={[cardBase, cardBorder].join(" ")}>
       <svg viewBox="0 0 100 100" className="h-full w-full p-3" role="img" aria-label={`Montagem de ${builder.character}`}>
-        {builder.showGuide &&
+        {guideStrength !== "none" &&
           (builder.strokes ?? []).map((stroke) => (
             <path
               key={`guide-${stroke.id}`}
               d={stroke.d}
               className="text-ink-faint"
               stroke="currentColor"
-              strokeWidth={7}
+              strokeWidth={guideStrength === "weak" ? 6 : 7}
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
-              opacity={0.18}
+              opacity={guideStrength === "weak" ? 0.09 : 0.18}
             />
           ))}
         {fixedStrokes.map((stroke) => (
@@ -435,7 +479,7 @@ function BuildCanvas({
           />
         ))}
       </svg>
-      {selectedStrokes.length === 0 && !builder.showGuide && fixedStrokes.length === 0 && (
+      {selectedStrokes.length === 0 && guideStrength === "none" && fixedStrokes.length === 0 && (
         <span className="pointer-events-none absolute px-4 text-center text-sm font-medium text-ink-faint">
           toque nos fragmentos
         </span>

@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { ItemType } from "../data/types";
 import type { DomainTrack } from "../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS } from "../data/journey";
+import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
 import { todayKey, daysBetween, weekKey, monthKey } from "./storage";
 import {
@@ -849,6 +850,8 @@ interface AccountSnapshot extends XpBuckets {
   srs: Record<string, SRSItem>;
   learnedChars: string[];
   learnedChunks: string[];
+  /** Domínio do HanziBuilder por caractere: guia dificuldade e silhueta. */
+  hanziBuilderProgressByChar: HanziBuilderProgressMap;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -935,6 +938,7 @@ function blankSnapshot(): AccountSnapshot {
     srs: {},
     learnedChars: [],
     learnedChunks: [],
+    hanziBuilderProgressByChar: {},
     completedLessons: [],
     lessonStarsById: {},
     lessonAttemptsById: {},
@@ -1032,6 +1036,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     srs: s.srs,
     learnedChars: s.learnedChars,
     learnedChunks: s.learnedChunks,
+    hanziBuilderProgressByChar: s.hanziBuilderProgressByChar,
     completedLessons: s.completedLessons,
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
@@ -1111,6 +1116,27 @@ function normalizeAchievementState(
   };
 }
 
+function normalizeHanziBuilderProgress(
+  raw: HanziBuilderProgressMap | undefined
+): HanziBuilderProgressMap {
+  const result: HanziBuilderProgressMap = {};
+  for (const [char, entry] of Object.entries(raw ?? {})) {
+    if (!char || !entry) continue;
+    const attempts = Math.max(0, Math.round(entry.attempts ?? 0));
+    const correct = Math.max(0, Math.round(entry.correct ?? 0));
+    const firstTry = Math.max(0, Math.round(entry.firstTry ?? 0));
+    const lastLevelCompleted = Math.max(0, Math.round(entry.lastLevelCompleted ?? 0));
+    result[char] = {
+      attempts,
+      correct: Math.min(correct, attempts),
+      firstTry: Math.min(firstTry, correct),
+      lastLevelCompleted,
+      mastered: Boolean(entry.mastered) || (correct >= 3 && lastLevelCompleted >= 3),
+    };
+  }
+  return result;
+}
+
 function accountFields(account: LearningAccount): AccountSnapshot {
   const date = todayKey();
   const completedLessons = normalizeCompletedLessons(account.completedLessons, account.lessonStarsById);
@@ -1119,6 +1145,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     srs: account.srs,
     learnedChars: account.learnedChars,
     learnedChunks: account.learnedChunks,
+    hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
@@ -1349,6 +1376,7 @@ interface AppState {
   srs: Record<string, SRSItem>;
   learnedChars: string[];
   learnedChunks: string[];
+  hanziBuilderProgressByChar: HanziBuilderProgressMap;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -1489,6 +1517,12 @@ interface AppState {
   markMistakeRecovered: (mistakeId: string) => void;
   recordToneTrainerAttempt: (attempt: ToneTrainerAttemptInput) => void;
   markLearned: (type: ItemType, itemId: string) => void;
+  recordHanziBuilderResult: (input: {
+    character: string;
+    correct: boolean;
+    firstTry: boolean;
+    level: number;
+  }) => void;
   addMinutes: (track: Track, min: number) => void;
   recordDailyTask: (task: DailyTaskKey, amount?: number) => void;
   completeImmersionSession: (sessionId: string, completion: ImmersionCompletion) => boolean;
@@ -1572,6 +1606,7 @@ export const useStore = create<AppState>()(
       srs: {},
       learnedChars: [],
       learnedChunks: [],
+      hanziBuilderProgressByChar: {},
       completedLessons: [],
       lessonStarsById: {},
       lessonAttemptsById: {},
@@ -2357,6 +2392,35 @@ export const useStore = create<AppState>()(
           return { learnedChars: next.learnedChars, accounts: saveCurrentAccount(next) };
         }),
 
+      recordHanziBuilderResult: ({ character, correct, firstTry, level }) =>
+        set((s) => {
+          const key = character.trim();
+          if (!key) return {};
+          const prev = s.hanziBuilderProgressByChar[key] ?? {
+            attempts: 0,
+            correct: 0,
+            firstTry: 0,
+            lastLevelCompleted: 0,
+            mastered: false,
+          };
+          const safeLevel = Math.max(0, Math.round(level || 0));
+          const attempts = prev.attempts + 1;
+          const correctCount = prev.correct + (correct ? 1 : 0);
+          const firstTryCount = prev.firstTry + (correct && firstTry ? 1 : 0);
+          const lastLevelCompleted = correct ? Math.max(prev.lastLevelCompleted, safeLevel) : prev.lastLevelCompleted;
+          const entry: HanziBuilderCharProgress = {
+            attempts,
+            correct: correctCount,
+            firstTry: firstTryCount,
+            lastLevelCompleted,
+            // Dominado: montou limpo o suficiente e já chegou a um nível sem molde.
+            mastered: prev.mastered || (correctCount >= 3 && lastLevelCompleted >= 3),
+          };
+          const hanziBuilderProgressByChar = { ...s.hanziBuilderProgressByChar, [key]: entry };
+          const next = { ...s, hanziBuilderProgressByChar };
+          return { hanziBuilderProgressByChar, accounts: saveCurrentAccount(next) };
+        }),
+
       addMinutes: (track, min) =>
         set((s) => {
           const date = todayKey();
@@ -3026,7 +3090,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 12,
+      version: 13,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -3041,6 +3105,7 @@ export const useStore = create<AppState>()(
       // v9: adiciona achievementHistory para auditoria rica de medalhas gerais.
       // v10: adiciona progresso do Tone Trainer por conta.
       // v11: adiciona histórico leve de erros recentes para revisão corretiva.
+      // v13: adiciona progresso do HanziBuilder por caractere (guia/dificuldade).
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -3146,6 +3211,7 @@ export const useStore = create<AppState>()(
             dailyEnergy: activeDailyEnergy(migrated.dailyEnergy),
             chestOpenHistory: migrated.chestOpenHistory ?? [],
             lifetimeStats: { ...freshLifetimeStats(), ...(migrated.lifetimeStats ?? {}) },
+            hanziBuilderProgressByChar: normalizeHanziBuilderProgress(migrated.hanziBuilderProgressByChar),
             ...normalizeAchievementState(migrated.achievementsUnlocked, migrated.achievementHistory),
           };
           normalized[id] = migrated;
@@ -3172,6 +3238,7 @@ export const useStore = create<AppState>()(
           chestOpenHistory: root.chestOpenHistory ?? [],
           dailyEnergy: activeDailyEnergy(root.dailyEnergy),
           lifetimeStats: { ...freshLifetimeStats(), ...(root.lifetimeStats ?? {}) },
+          hanziBuilderProgressByChar: normalizeHanziBuilderProgress(root.hanziBuilderProgressByChar),
           ...rootAchievements,
           accounts: normalized,
         } as AppState;

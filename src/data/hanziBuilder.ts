@@ -403,10 +403,128 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     level: 3,
     mode: "fragments",
     promptPt: "Monte 中 sem molde.",
+    hidePinyinUntilCorrect: true,
     strokes: ZHONG_STROKES,
     strokeDistractors: [cloneStroke(D_DIAG, "x-diag-zhong-challenge"), cloneStroke(D_DOT, "x-dot-zhong-challenge")],
     explanationPt: "中 só funciona visualmente quando a caixa é atravessada pelo traço central.",
     errorHintPt: "Monte a caixa e atravesse o centro com uma vertical.",
+  },
+  {
+    id: "hb-mu-challenge",
+    character: "木",
+    pinyin: "mù",
+    meaningPt: "árvore / madeira",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 木 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: MU_STROKES,
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-mu-challenge"), cloneStroke(D_CURVE, "x-curve-mu-challenge")],
+    explanationPt: "木 é o tronco vertical com a copa e dois galhos — sem molde, você reconhece a forma de árvore.",
+    relatedPt: "Reaparece em 林 (bosque) e 森 (floresta).",
+    errorHintPt: "Tronco vertical no centro, copa na horizontal e dois galhos abrindo.",
+  },
+  {
+    id: "hb-ren-challenge",
+    character: "人",
+    pinyin: "rén",
+    meaningPt: "pessoa",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 人 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: REN_STROKES,
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-ren-challenge"), cloneStroke(D_DOT, "x-dot-ren-challenge")],
+    explanationPt: "人 são dois traços que se encontram no topo e abrem como pernas.",
+    relatedPt: "Como radical lateral vira 亻, em 你 e 休.",
+    errorHintPt: "Dois traços que se apoiam no topo e abrem para baixo.",
+  },
+  {
+    id: "hb-kou-challenge",
+    character: "口",
+    pinyin: "kǒu",
+    meaningPt: "boca / abertura",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 口 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: KOU_STROKES,
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-kou-challenge"), cloneStroke(D_CURVE, "x-curve-kou-challenge")],
+    explanationPt: "口 é um quadrado fechado: lados, topo e base.",
+    relatedPt: "Aparece em muitos caracteres de fala e som.",
+    errorHintPt: "Feche o quadrado com os quatro lados, sem diagonais.",
+  },
+  {
+    id: "hb-ri-challenge",
+    character: "日",
+    pinyin: "rì",
+    meaningPt: "sol / dia",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 日 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: RI_STROKES,
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-ri-challenge"), cloneStroke(D_DOT, "x-dot-ri-challenge")],
+    explanationPt: "日 é uma caixa com uma linha no meio, como o sol antigo.",
+    relatedPt: "日 + 月 formam 明 (claro).",
+    errorHintPt: "Retângulo com uma linha dividindo o meio.",
+  },
+  {
+    id: "hb-yue-challenge",
+    character: "月",
+    pinyin: "yuè",
+    meaningPt: "lua / mês",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 月 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: YUE_STROKES,
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-yue-challenge"), cloneStroke(D_SHORT, "x-short-yue-challenge")],
+    explanationPt: "月 é o contorno da lua com dois traços internos.",
+    relatedPt: "日 + 月 formam 明 (claro).",
+    errorHintPt: "Contorno curvo à esquerda, lado reto à direita e dois traços dentro.",
+  },
+  {
+    id: "hb-shan-challenge",
+    character: "山",
+    pinyin: "shān",
+    meaningPt: "montanha",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 山 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: SHAN_STROKES,
+    strokeDistractors: [cloneStroke(D_CURVE, "x-curve-shan-challenge"), cloneStroke(D_DOT, "x-dot-shan-challenge")],
+    explanationPt: "山 são três picos apoiados numa base comum.",
+    errorHintPt: "Três hastes verticais sobre uma base.",
+  },
+  {
+    id: "hb-da-challenge",
+    character: "大",
+    pinyin: "dà",
+    meaningPt: "grande",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 大 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: DA_STROKES,
+    strokeDistractors: [cloneStroke(D_CURVE, "x-curve-da-challenge"), cloneStroke(D_DOT, "x-dot-da-challenge")],
+    explanationPt: "大 é uma pessoa de braços abertos: uma linha e duas pernas.",
+    errorHintPt: "Uma horizontal no alto e duas pernas abrindo.",
+  },
+  {
+    id: "hb-xiao-challenge",
+    character: "小",
+    pinyin: "xiǎo",
+    meaningPt: "pequeno",
+    level: 3,
+    mode: "fragments",
+    promptPt: "Monte 小 sem molde.",
+    hidePinyinUntilCorrect: true,
+    strokes: XIAO_STROKES,
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-xiao-challenge"), cloneStroke(D_SHORT, "x-short-xiao-challenge")],
+    explanationPt: "小 é um gancho central com dois pontinhos ao lado.",
+    errorHintPt: "Gancho no centro e um ponto de cada lado.",
   },
 
   // ---- Nível 2: completar peça faltando ----
@@ -499,6 +617,82 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     strokeDistractors: [cloneStroke(D_DIAG, "x-diag-yue"), cloneStroke(D_DOT, "x-dot-yue")],
     explanationPt: "月 leva dois traços internos dentro do contorno.",
     errorHintPt: "São dois traços horizontais dentro do contorno da lua.",
+  },
+  {
+    id: "hb-ren-complete",
+    character: "人",
+    pinyin: "rén",
+    meaningPt: "pessoa",
+    level: 2,
+    mode: "complete",
+    promptPt: "Complete o hànzì 人.",
+    hintPt: "Falta o traço direito.",
+    strokes: REN_STROKES,
+    fixedStrokeIds: ["ren-l"],
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-ren"), cloneStroke(D_SHORT, "x-short-ren")],
+    explanationPt: "人 fecha com o traço direito que abre como a segunda perna.",
+    errorHintPt: "Falta o traço que abre para a direita.",
+  },
+  {
+    id: "hb-shan-complete",
+    character: "山",
+    pinyin: "shān",
+    meaningPt: "montanha",
+    level: 2,
+    mode: "complete",
+    promptPt: "Complete o hànzì 山.",
+    hintPt: "Faltam os picos laterais.",
+    strokes: SHAN_STROKES,
+    fixedStrokeIds: ["shan-b", "shan-c"],
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-shan"), cloneStroke(D_SHORT, "x-short-shan")],
+    explanationPt: "山 fecha com os dois picos laterais apoiados na base.",
+    errorHintPt: "Faltam as hastes da esquerda e da direita.",
+  },
+  {
+    id: "hb-da-complete",
+    character: "大",
+    pinyin: "dà",
+    meaningPt: "grande",
+    level: 2,
+    mode: "complete",
+    promptPt: "Complete o hànzì 大.",
+    hintPt: "Faltam as duas pernas.",
+    strokes: DA_STROKES,
+    fixedStrokeIds: ["da-h"],
+    strokeDistractors: [cloneStroke(D_CURVE, "x-curve-da"), cloneStroke(D_SHORT, "x-short-da")],
+    explanationPt: "大 é a horizontal com as duas pernas abrindo embaixo.",
+    errorHintPt: "Faltam as duas pernas que abrem para baixo.",
+  },
+  {
+    id: "hb-xiao-complete",
+    character: "小",
+    pinyin: "xiǎo",
+    meaningPt: "pequeno",
+    level: 2,
+    mode: "complete",
+    promptPt: "Complete o hànzì 小.",
+    hintPt: "Faltam os dois pontos.",
+    strokes: XIAO_STROKES,
+    fixedStrokeIds: ["xiao-c"],
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-xiao"), cloneStroke(D_SHORT, "x-short-xiao-complete")],
+    explanationPt: "小 é o gancho central com um ponto de cada lado.",
+    errorHintPt: "Faltam os pontinhos da esquerda e da direita.",
+  },
+  {
+    id: "hb-zhong-complete",
+    character: "中",
+    pinyin: "zhōng",
+    meaningPt: "meio / centro; China",
+    level: 2,
+    mode: "complete",
+    promptPt: "Complete o hànzì 中.",
+    hintPt: "Falta fechar a base e cruzar o meio.",
+    strokes: ZHONG_STROKES,
+    fixedStrokeIds: ["zhong-l", "zhong-t", "zhong-r"],
+    strokeDistractors: [cloneStroke(D_DIAG, "x-diag-zhong"), cloneStroke(D_DOT, "x-dot-zhong")],
+    explanationPt: "中 fecha a caixa embaixo e é atravessado por um traço vertical no centro.",
+    relatedPt: "Aparece em 中文, Zhōngwén: língua chinesa.",
+    errorHintPt: "Falta a base e o traço vertical que cruza o meio.",
   },
 
   // ---- Nível 3: componentes inteiros ----
@@ -710,3 +904,98 @@ export const SENTENCE_BUILDERS = HANZI_BUILDERS.filter((b) => Boolean(b.context)
 
 /** Ordena todos os builders por dificuldade, para uma sessão de treino livre. */
 export const TRAINING_BUILDERS = [...HANZI_BUILDERS].sort((a, b) => a.level - b.level);
+
+// ---------------------------------------------------------------------------
+// Progressão por caractere: o domínio do aluno guia a dificuldade e a guia.
+// ---------------------------------------------------------------------------
+
+/** Domínio acumulado de um caractere no HanziBuilder (persistido por conta). */
+export interface HanziBuilderCharProgress {
+  attempts: number;
+  correct: number;
+  /** Quantas vezes montou de primeira (sem erro). */
+  firstTry: number;
+  /** Maior nível de builder concluído com acerto. */
+  lastLevelCompleted: number;
+  mastered: boolean;
+}
+
+export type HanziBuilderProgressMap = Record<string, HanziBuilderCharProgress>;
+
+export type HanziGuideStrength = "full" | "weak" | "none";
+
+export function emptyHanziBuilderProgress(): HanziBuilderCharProgress {
+  return { attempts: 0, correct: 0, firstTry: 0, lastLevelCompleted: 0, mastered: false };
+}
+
+/**
+ * Força da guia/silhueta de fundo. Some conforme o aluno domina o caractere.
+ * - hànzì novo / prática inicial: guia cheia;
+ * - já acertou 2+ vezes: guia mais fraca;
+ * - dominado, ou builder sem molde (challenge/complete/contexto): sem guia.
+ */
+export function resolveGuideStrength(
+  builder: HanziBuilder,
+  progress?: HanziBuilderCharProgress
+): HanziGuideStrength {
+  // Builder sem silhueta (challenge, complete, contexto) nunca mostra guia.
+  if (!builder.showGuide) return "none";
+  if (progress) {
+    if (progress.mastered) return "none";
+    if (progress.correct >= 2) return "weak";
+    return "full";
+  }
+  // Sem tracking: cai no nível do builder.
+  if (builder.level >= 3) return "none";
+  if (builder.level === 2) return "weak";
+  return "full";
+}
+
+export function shouldShowGuide(builder: HanziBuilder, progress?: HanziBuilderCharProgress): boolean {
+  return resolveGuideStrength(builder, progress) !== "none";
+}
+
+/** Domínio a partir do histórico: montou limpo o suficiente e num nível alto. */
+export function isCharMastered(progress: HanziBuilderCharProgress | undefined): boolean {
+  if (!progress) return false;
+  return progress.mastered || (progress.correct >= 3 && progress.lastLevelCompleted >= 3);
+}
+
+/**
+ * Escolhe o builder certo para o momento do aluno, em vez de pegar sempre o
+ * primeiro de `buildersForCharacter`:
+ * - nunca viu: fragmentos com guia;
+ * - acertou pouco: completar peça;
+ * - acertou algumas vezes: desafio sem molde (embaralhado, com distratores);
+ * - dominado: reforça sem molde e, quando existir, avança para componentes/frase.
+ */
+export function selectHanziBuilderForStudent(
+  character: string,
+  progress?: HanziBuilderCharProgress
+): HanziBuilder | undefined {
+  const builders = buildersForCharacter(character);
+  if (builders.length === 0) return undefined;
+
+  const fragmentsGuide = builders.filter((b) => b.mode === "fragments" && b.showGuide && !b.context);
+  const complete = builders.filter((b) => b.mode === "complete" && !b.context);
+  const challenge = builders.filter((b) => b.mode === "fragments" && !b.showGuide && !b.context);
+  const components = builders.filter((b) => b.mode === "components" && !b.context);
+  const sentence = builders.filter((b) => Boolean(b.context));
+
+  const byLevel = (list: HanziBuilder[]) => [...list].sort((a, b) => a.level - b.level);
+  const first = (...lists: HanziBuilder[][]): HanziBuilder => {
+    for (const list of lists) {
+      const sorted = byLevel(list);
+      if (sorted.length > 0) return sorted[0];
+    }
+    return byLevel(builders)[0];
+  };
+
+  const correct = progress?.correct ?? 0;
+  const mastered = isCharMastered(progress);
+
+  if (!progress || correct === 0) return first(fragmentsGuide, complete, builders);
+  if (correct < 2) return first(complete, fragmentsGuide, builders);
+  if (!mastered) return first(challenge, components, complete, builders);
+  return first(challenge, components, sentence, complete, builders);
+}
