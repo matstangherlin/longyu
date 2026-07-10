@@ -3,7 +3,7 @@ import type { LessonStep, StepTextType } from "../../data/journey";
 import { CHARACTERS, charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS, TONE_NAMES } from "../../data/tones";
-import { HANZI_EVOLUTIONS } from "../../data/hanziPedagogy";
+import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
 import { speak } from "../../lib/tts";
@@ -24,7 +24,7 @@ import { MandarinText } from "../../components/hanzi/MandarinText";
 import { MandarinHelpProvider, useMandarinHelpSettings } from "../../components/hanzi/helpMode";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
-import { HanziEvolutionCard } from "../../components/hanzi/HanziEvolutionCard";
+import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
@@ -2487,54 +2487,63 @@ function StepDecompose({ step, onDone }: StepProps) {
   );
 }
 
+// "O que é hànzì?": um exemplo por vez (木 → 日 → 月 → 人), em vez de empilhar
+// todos os cartões numa lista gigante. Cada slide mostra caractere grande, som,
+// ideia curta e 2–3 peças; ao avançar, o caractere entra na revisão.
 function StepHanziEvolution({ step, onDone }: StepProps) {
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
-  const [trainedIds, setTrainedIds] = useState<Set<string>>(() => new Set());
+  const [index, setIndex] = useState(0);
   const models = (step.charIds ?? [])
     .map((charId) => HANZI_EVOLUTIONS[charId])
     .filter((model): model is NonNullable<typeof model> => Boolean(model));
-  const compact = models.length > 1;
 
-  function train(charId: string) {
+  if (models.length === 0) {
+    return (
+      <div>
+        <Eyebrow>Entenda hànzì</Eyebrow>
+        <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title ?? "O que é hànzì?"}</h2>
+        <ContinueBtn onClick={() => onDone()} />
+      </div>
+    );
+  }
+
+  const total = models.length;
+  const safeIndex = Math.min(index, total - 1);
+  const model = models[safeIndex];
+  const isLast = safeIndex >= total - 1;
+  const explanation = HANZI_CONCEPT_EXPLANATIONS[model.charId] ?? model.insight;
+
+  function advance() {
+    // Viu, ouviu e reconheceu a peça: entra na revisão espaçada antes de avançar.
     gradeReviewDomain({
       ensureSrs,
       gradeSrs,
       type: "char",
-      itemId: charId,
+      itemId: model.charId,
       track: "hanzi",
       domain: "forma",
       grade: "good",
     });
-    setTrainedIds((current) => new Set(current).add(charId));
+    if (isLast) onDone();
+    else setIndex((i) => i + 1);
   }
 
   return (
     <div>
-      <Eyebrow>Evolução visual</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title ?? "Como um hànzì nasce"}</h2>
-      {step.body && <p className="mt-3 text-sm leading-6 text-ink-soft">{step.body}</p>}
+      <Eyebrow>Entenda hànzì</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title ?? "O que é hànzì?"}</h2>
+      {step.body && <p className="mt-2 text-sm leading-6 text-ink-soft">{step.body}</p>}
 
-      <div className="mt-4 grid gap-3">
-        {models.map((model) => {
-          const trained = trainedIds.has(model.charId);
-          return (
-            <HanziEvolutionCard
-              key={model.charId}
-              model={model}
-              compact={compact}
-              trainLabel={trained ? "Em revisão" : "Treinar este hànzì"}
-              trainDisabled={trained}
-              onTrain={() => train(model.charId)}
-            />
-          );
-        })}
-      </div>
-
-      <p className="mt-4 rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-6 text-ink-soft">
-        Nem todo caractere moderno é um desenho. Muitos usam uma peça de sentido e outra de som; a lógica ajuda a lembrar sem transformar tudo em historinha literal.
-      </p>
-      <ContinueBtn onClick={() => onDone()} />
+      <HanziConceptSlide
+        key={model.charId}
+        model={model}
+        explanation={explanation}
+        index={safeIndex}
+        total={total}
+        onNext={advance}
+        nextLabel={isLast ? "Praticar montando um hànzì" : "Próximo exemplo"}
+      />
     </div>
   );
 }

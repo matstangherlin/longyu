@@ -161,6 +161,19 @@ export const HANZI_EVOLUTIONS: Record<string, HanziEvolutionModel> = {
   },
 };
 
+// Explicações curtas, uma frase, para o modo "um exemplo por vez" da lição
+// "O que é hànzì?". Ficam separadas das notas de evolução (mais longas) porque
+// aqui o objetivo é caber num slide compacto, sem virar textão.
+export const HANZI_CONCEPT_EXPLANATIONS: Record<string, string> = {
+  mu: "Pense em uma árvore: tronco no meio, copa em cima e galhos abrindo.",
+  ri: "Era um desenho do sol, depois virou uma forma mais quadrada.",
+  yue: "Nasceu da ideia visual da lua e também passou a indicar mês.",
+  ren: "Dois traços lembram uma pessoa de pé.",
+  kou: "Uma abertura simples que hoje virou um quadrado: a boca.",
+  shan: "Três picos de montanha viraram três traços sobre uma base.",
+  shui: "Linhas de água correndo viraram traços mais organizados.",
+};
+
 export const HANZI_LOGIC_CARDS: HanziLogicCard[] = [
   {
     title: "Pictogramas",

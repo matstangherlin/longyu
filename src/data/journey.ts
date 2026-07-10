@@ -510,9 +510,16 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       intro("Pinyin e hànzì", "Pinyin mostra o som: nǐ hǎo. Hànzì mostra a forma escrita usada por chineses: 你好. O pinyin ajuda você a pronunciar; o hànzì ajuda você a ler e reconhecer a escrita real."),
       intro("Pense no número 3", "O símbolo 3 não é a palavra 'três', mas todo mundo reconhece a ideia. 三 representa 'três' em chinês; o som é sān; a forma escrita é 三. Hànzì se parece mais com símbolos assim do que com letras soltas."),
       hanziEvolution(
-        ["mu", "ri", "yue", "ren", "kou", "shan", "shui"],
-        "Do desenho ao sinal",
-        "Veja formas antigas aproximadas virarem blocos modernos de leitura: árvore, sol, lua, pessoa, boca, montanha e água."
+        ["mu", "ri", "yue", "ren"],
+        "O que é hànzì?",
+        "Cada hànzì carrega uma ideia. Veja quatro exemplos, um de cada vez — depois você monta o primeiro."
+      ),
+      hanziBuild(
+        "hb-mu-fragments",
+        "Monte seu primeiro hànzì",
+        "Agora monte seu primeiro hànzì: 木 (árvore), encaixando as peças.",
+        "木",
+        "árvore / madeira"
       ),
       match(
         "Combine forma e ideia",
