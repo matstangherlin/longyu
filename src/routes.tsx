@@ -15,6 +15,7 @@ import { RevisaoPage } from "./features/revisao/RevisaoPage";
 import { BibliotecaPage } from "./features/biblioteca/BibliotecaPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { AccountPage } from "./features/account/AccountPage";
+import { ProfilePage } from "./features/perfil/ProfilePage";
 import { LessonDetailPage } from "./features/lesson/LessonDetailPage";
 import { LessonPlayer } from "./features/lesson/LessonPlayer";
 import { ModuleChallengePage } from "./features/challenge/ModuleChallengePage";
@@ -53,7 +54,7 @@ export const routes: RouteObject[] = [
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "login", element: <LoginPage /> },
-      { path: "perfil", element: <AccountPage /> },
+      { path: "perfil", element: <ProfilePage /> },
       { path: "conta", element: <AccountPage /> },
       { path: "config", element: <SettingsPage /> },
       { path: "ajustes", element: <SettingsPage /> },
