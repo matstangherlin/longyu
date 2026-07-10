@@ -418,32 +418,32 @@ function JourneyHeroCard({
   onContinue?: () => void;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-accent/10 bg-[linear-gradient(145deg,rgb(var(--accent-soft)/0.4)_0%,rgb(var(--surface))_50%,rgb(var(--surface))_100%)] p-3.5 shadow-card sm:p-4">
+    <div className="relative overflow-hidden rounded-[22px] border border-accent/15 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5">
       <div
-        className="pointer-events-none absolute -right-8 -top-12 h-32 w-32 rounded-full bg-accent/8 blur-3xl"
+        className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
         aria-hidden
       />
-      <div className="relative flex items-center gap-3">
+      <div className="relative flex items-center gap-4">
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent/90">
+          <span className="inline-flex items-center rounded-full bg-surface/85 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent shadow-card">
             {phaseLabel}
-          </div>
-          <h1 className="mt-0.5 truncate font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">
+          </span>
+          <h1 className="mt-1.5 truncate font-serif text-2xl font-semibold leading-tight text-ink sm:text-[1.7rem]">
             {title}
           </h1>
           {currentLessonTitle ? (
             <p className="mt-0.5 truncate text-xs text-ink-soft sm:text-sm">
-              <span className="font-medium text-ink">{currentLessonTitle}</span>
+              Próxima: <span className="font-semibold text-ink">{currentLessonTitle}</span>
             </p>
           ) : (
-            <p className="mt-0.5 text-xs text-ink-faint">{done}/{Math.max(1, total)} lições</p>
+            <p className="mt-0.5 text-xs text-ink-faint">{done}/{Math.max(1, total)} lições concluídas</p>
           )}
         </div>
         <UnitProgressRing done={done} total={total} />
       </div>
       {onContinue && (
-        <Button className="relative mt-3 w-full sm:w-auto" size="md" onClick={onContinue}>
-          Continuar <IconChevron width={16} height={16} />
+        <Button className="relative mt-3.5 w-full shadow-lift" size="lg" onClick={onContinue}>
+          {done === 0 ? "Começar" : "Continuar"} <IconChevron width={18} height={18} />
         </Button>
       )}
     </div>
