@@ -31,5 +31,6 @@ const functions = [
   "create-billing-portal",
   "stripe-webhook",
   "delete-account",
+  "submit-analytics",
 ];
 if (run("npx", ["supabase", "functions", "deploy", ...functions]) !== 0) process.exit(1);

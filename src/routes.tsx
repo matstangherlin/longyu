@@ -28,6 +28,7 @@ import { MorePage } from "./features/more/MorePage";
 import { AboutPage } from "./features/about/AboutPage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { LandingPage } from "./features/landing/LandingPage";
+import { BetaAnalyticsAdminPage } from "./features/admin/BetaAnalyticsAdminPage";
 
 export const routes: RouteObject[] = [
   // "/" público: landing para quem ainda não tem conta/progresso.
@@ -66,6 +67,7 @@ export const routes: RouteObject[] = [
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },
       { path: "teste/:unitId", element: <ModuleChallengePage /> },
+      { path: "admin/analytics", element: <BetaAnalyticsAdminPage /> },
     ],
   },
 ];

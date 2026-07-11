@@ -32,6 +32,7 @@ import {
   isBillingPortalAvailable,
   type ProPlanKey,
 } from "../../services/subscriptionService";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../../services/analyticsService";
 
 const BENEFIT_ICONS: Record<string, typeof IconStar> = {
   cargas: IconFlame,
@@ -90,6 +91,10 @@ export function ProPage() {
 
   async function handleSubscribe(planKey = selectedPlan) {
     if (!checkoutReady) return;
+    trackAnalytics({
+      event: ANALYTICS_EVENTS.checkout_started,
+      metadata: { plan_key: planKey },
+    });
     try {
       const result = await createCheckoutSession(planKey);
       setCheckoutNotice(result.message);

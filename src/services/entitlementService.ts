@@ -36,6 +36,7 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
   if (isActiveSubscriptionStatus(data.status) && stillValid) {
     return {
       state: "real_active",
+      rawStatus: data.status,
       planName: "Longyu Pro",
       currentPeriodEnd: periodEnd,
       nextBillingAt: periodEnd,
@@ -45,6 +46,7 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
   if (data.status === "canceled" || data.cancel_at_period_end) {
     return {
       state: stillValid ? "real_active" : "real_canceled",
+      rawStatus: data.status,
       planName: "Longyu Pro",
       currentPeriodEnd: periodEnd,
     };
@@ -52,6 +54,7 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
 
   return {
     state: "real_expired",
+    rawStatus: data.status,
     planName: "Longyu Pro",
     currentPeriodEnd: periodEnd,
   };

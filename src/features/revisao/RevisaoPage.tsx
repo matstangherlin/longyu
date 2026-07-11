@@ -39,6 +39,7 @@ import {
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../../services/analyticsService";
 import { useProOffer } from "../../hooks/useProOffer";
 import {
   buildReviewExercise,
@@ -1300,6 +1301,12 @@ export function RevisaoPage() {
     addQi(qi, "Revisão");
     addMinutes(reviewTrack(domain), 1);
     playSoundFx(isLast && effectiveGrade !== "again" ? "lessonComplete" : gradeSound(effectiveGrade), soundEffects);
+    if (isLast) {
+      trackAnalytics({
+        event: ANALYTICS_EVENTS.review_completed,
+        metadata: { mode: requestedMode, items_reviewed: reviewed + 1 },
+      });
+    }
     setReviewed((n) => n + 1);
     setRevealed(false);
     setSelectedOption(null);

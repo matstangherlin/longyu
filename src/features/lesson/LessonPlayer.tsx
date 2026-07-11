@@ -62,6 +62,7 @@ import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from ".
 import { getPendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars, requiredStarsForLesson } from "./lessonStarRules";
+import { trackAnalytics, trackStepMistake, ANALYTICS_EVENTS } from "../../services/analyticsService";
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -1178,6 +1179,9 @@ export function LessonPlayer() {
   // conclusão, XP/Qi, missão ou baú).
   const recoveryAppliedRef = useRef(false);
   const pendingReviewRestoredRef = useRef(false);
+  const analyticsLessonStartedRef = useRef(false);
+  const analyticsLessonFinishedRef = useRef(false);
+  const stepIndexRef = useRef(0);
   const requiredTonePack = foundLesson ? requiredToneTrainerPackForLesson(foundLesson.id) : undefined;
   const toneLocked = Boolean(
     foundLesson &&
@@ -1295,6 +1299,12 @@ export function LessonPlayer() {
     const startedAt = Date.now();
     attemptStartedAtRef.current = startedAt;
     attemptIdRef.current = `${foundLesson.id}:${startedAt}`;
+    analyticsLessonStartedRef.current = true;
+    analyticsLessonFinishedRef.current = false;
+    trackAnalytics({ event: ANALYTICS_EVENTS.lesson_started, lessonId: foundLesson.id });
+    if (completedLessons.length === 0) {
+      trackAnalytics({ event: ANALYTICS_EVENTS.first_lesson_started, lessonId: foundLesson.id });
+    }
     setCurrentLessonAttempt({
       id: attemptIdRef.current,
       lessonId: foundLesson.id,
@@ -1306,7 +1316,23 @@ export function LessonPlayer() {
       recoveredMistakes: [],
       finalStars: 0,
     });
-  }, [adaptiveLesson, entryChecked, finished, foundLesson, setCurrentLessonAttempt]);
+  }, [adaptiveLesson, completedLessons.length, entryChecked, finished, foundLesson, setCurrentLessonAttempt]);
+
+  useEffect(() => {
+    stepIndexRef.current = idx;
+  }, [idx]);
+
+  useEffect(() => {
+    return () => {
+      if (!foundLesson || !analyticsLessonStartedRef.current || analyticsLessonFinishedRef.current) return;
+      trackAnalytics({
+        event: ANALYTICS_EVENTS.lesson_abandoned,
+        lessonId: foundLesson.id,
+        stepType: adaptiveLesson?.steps[stepIndexRef.current]?.kind,
+        metadata: { step_index: String(stepIndexRef.current) },
+      });
+    };
+  }, [adaptiveLesson, foundLesson]);
 
   if (!foundLesson || !adaptiveLesson) return <Navigate to="/jornada" replace />;
   const lesson = adaptiveLesson;
@@ -1574,6 +1600,15 @@ export function LessonPlayer() {
     setActivityErrors(activityErrorsRef.current);
     recordActivityError(persistableActivityError(error));
     recordLessonMistake(lessonMistakeFromActivityError(error));
+    trackStepMistake({
+      lessonId: lesson.id,
+      stepType: step.kind,
+      taskType: step.kind,
+      skill: activityErrorSkillForStep(step),
+      isReview: lesson.isReview,
+      attemptNumber: error.wrongCount,
+      stepIndex,
+    });
     mistakeReviewTargetsRef.current = uniqueLessonReviewTargets([
       ...mistakeReviewTargetsRef.current,
       ...error.targets,
@@ -1617,6 +1652,7 @@ export function LessonPlayer() {
     if (currentStars >= 3) return;
     if (lesson.isReview && canCompleteLesson(baseStars, graded, true, correct) && attemptErrors.length === 0) return;
     recoveryAppliedRef.current = true;
+    trackAnalytics({ event: ANALYTICS_EVENTS.lesson_recovery_completed, lessonId: lesson.id });
     finishLessonAttempt(buildStoredAttempt(3, correct, correctedIds));
     const firstCompletion = !completedLessons.includes(lesson.id);
     completeLesson(lesson.id);
@@ -1871,12 +1907,25 @@ export function LessonPlayer() {
     handleDone(false);
   }
 
+  function trackLessonAbandoned() {
+    if (!analyticsLessonStartedRef.current || analyticsLessonFinishedRef.current) return;
+    trackAnalytics({
+      event: ANALYTICS_EVENTS.lesson_abandoned,
+      lessonId: lesson.id,
+      stepType: lesson.steps[stepIndexRef.current]?.kind,
+      metadata: { step_index: String(stepIndexRef.current) },
+    });
+    analyticsLessonFinishedRef.current = true;
+  }
+
   function exitLesson() {
+    trackLessonAbandoned();
     playSoundFx("phaseExit", soundEffects);
     navigate("/jornada");
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
+    analyticsLessonFinishedRef.current = true;
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
     const gradedDomains = new Set<string>();
@@ -2179,9 +2228,13 @@ export function LessonPlayer() {
           correct={correct}
           total={graded}
           canRecover={!passed}
-          onStart={() => setErrorReviewMode("review")}
+          onStart={() => {
+            trackAnalytics({ event: ANALYTICS_EVENTS.lesson_recovery_started, lessonId: lesson.id });
+            setErrorReviewMode("review");
+          }}
           onLater={() => {
             setErrorReviewMode("dismissed");
+            trackLessonAbandoned();
             navigate("/jornada");
           }}
         />

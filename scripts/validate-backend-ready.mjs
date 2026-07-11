@@ -19,12 +19,14 @@ const migrations = [
   "supabase/migrations/002_client_snapshot.sql",
   "supabase/migrations/003_profile_trigger.sql",
   "supabase/migrations/004_leagues.sql",
+  "supabase/migrations/005_analytics_events.sql",
 ];
 const functions = [
   "supabase/functions/create-checkout-session/index.ts",
   "supabase/functions/create-billing-portal/index.ts",
   "supabase/functions/stripe-webhook/index.ts",
   "supabase/functions/delete-account/index.ts",
+  "supabase/functions/submit-analytics/index.ts",
 ];
 
 for (const migration of migrations) requirePath(migration, "migration");

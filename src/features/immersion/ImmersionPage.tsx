@@ -41,6 +41,7 @@ import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHo
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { useIsPro } from "../../lib/proAccess";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../../services/analyticsService";
 
 const MODE_META: Record<ImmersionMode, { label: string; instruction: string; icon: typeof IconSound }> = {
   listen_repeat: {
@@ -805,6 +806,13 @@ function InteractiveStoryPlayer({
 
   useEffect(() => () => stopSpeaking(), []);
 
+  useEffect(() => {
+    trackAnalytics({
+      event: ANALYTICS_EVENTS.story_started,
+      metadata: { story_id: story.id, premium: Boolean(story.premium) },
+    });
+  }, [story.id, story.premium]);
+
   if (!step) return null;
 
   const interactive = storyStepIsInteractive(step);
@@ -914,6 +922,10 @@ function InteractiveStoryPlayer({
     const energy = awarded ? grantStoryEnergy(story.id) : null;
     playSoundFx(awarded ? "lessonComplete" : "success", soundEffects);
     onProgressChange();
+    trackAnalytics({
+      event: ANALYTICS_EVENTS.story_completed,
+      metadata: { story_id: story.id, premium: Boolean(story.premium), score, total: interactiveTotal },
+    });
     setVictory({ score, total: interactiveTotal, awarded, xp: rewardXp, qi: rewardQi, energy });
     if (awarded) {
       contextualOffer.consider({ storyCompleted: true, storyPremium: Boolean(story.premium) });

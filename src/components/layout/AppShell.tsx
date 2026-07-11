@@ -10,6 +10,8 @@ import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
+import { AnalyticsBootstrap } from "../analytics/AnalyticsBootstrap";
+import { AppErrorBoundary } from "../feedback/AppErrorBoundary";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -59,10 +61,13 @@ export function AppShell() {
     return (
       <>
         <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">
-          <Outlet />
+          <AppErrorBoundary>
+            <Outlet />
+          </AppErrorBoundary>
         </div>
         <AuthBootstrap />
         <CloudSyncBootstrap />
+        <AnalyticsBootstrap />
       </>
     );
   }
@@ -86,7 +91,9 @@ export function AppShell() {
               : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5 lg:pb-12",
           ].join(" ")}
         >
-          <Outlet />
+          <AppErrorBoundary>
+            <Outlet />
+          </AppErrorBoundary>
         </main>
       </div>
       {!focusMode && <TabBar />}
@@ -94,6 +101,7 @@ export function AppShell() {
       <AuthBootstrap />
       <CloudSyncBootstrap />
       <EntitlementBootstrap />
+      <AnalyticsBootstrap />
       <AchievementsWatcher />
     </div>
     </>
