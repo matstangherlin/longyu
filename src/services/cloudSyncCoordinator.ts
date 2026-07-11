@@ -4,6 +4,13 @@ import { mergeRemoteProgress } from "../lib/syncMerge";
 import { activeLearningRepository } from "../lib/repositories/learningRepository";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { useStore } from "../lib/store";
+import {
+  buildLocalEconomyMigrationPayload,
+  fetchServerEconomy,
+  flushEconomyIntentQueue,
+  serverMigrateLocalEconomy,
+  shouldUseServerEconomy,
+} from "../lib/economyServerBridge";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
@@ -114,6 +121,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
       remote.snapshot.snapshot.progress
     );
     markCloudSync("synced", "Progresso sincronizado.");
+    await migrateEconomyAfterCloudLogin(user.id);
     return { ok: true, message: "Progresso restaurado da nuvem." };
   }
 
@@ -130,6 +138,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
       push.ok ? "synced" : "error",
       push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
     );
+    if (push.ok) await migrateEconomyAfterCloudLogin(user.id);
     return {
       ok: push.ok,
       message: push.ok
@@ -145,6 +154,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
       push.ok ? "synced" : "error",
       push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
     );
+    if (push.ok) await migrateEconomyAfterCloudLogin(user.id);
     return {
       ok: push.ok,
       message: push.ok ? "Conta na nuvem iniciada com seu progresso local." : push.message,
@@ -157,10 +167,18 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
     initialPush.ok ? "synced" : "error",
     initialPush.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
   );
+  if (initialPush.ok) await migrateEconomyAfterCloudLogin(user.id);
   return {
     ok: initialPush.ok,
     message: initialPush.ok ? "Conta na nuvem inicializada sem sobrescrever progresso existente." : initialPush.message,
   };
+}
+
+async function migrateEconomyAfterCloudLogin(userId: string): Promise<void> {
+  if (!shouldUseServerEconomy()) return;
+  await serverMigrateLocalEconomy(buildLocalEconomyMigrationPayload(), `economy-migration:${userId}`);
+  await fetchServerEconomy();
+  await flushEconomyIntentQueue();
 }
 
 export function scheduleCloudProgressPush(delayMs = 1200): void {

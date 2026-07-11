@@ -4,6 +4,7 @@ import {
   PRO_CHEST_QI_MULTIPLIER,
   PRO_LESSON_QI_BONUS,
   PRO_MISSION_QI_MULTIPLIER,
+  STORY_ENERGY_DAILY_CAP,
 } from "./economy";
 
 // ————————————————————————————————————————————————————————————————
@@ -107,7 +108,7 @@ export const PLAN_FEATURES: readonly PlanFeature[] = [
     descricao: "Bateria diária para lições extras, labs e imersão.",
     plano: "free",
     freeTier: `${DAILY_CHARGES_FREE} cargas por dia`,
-    freeLimit: `${DAILY_CHARGES_FREE} cargas/dia · missões devolvem cargas`,
+    freeLimit: `${DAILY_CHARGES_FREE} cargas/dia · histórias introdutórias podem dar +1 carga (até ${STORY_ENERGY_DAILY_CAP}/dia) · missões devolvem cargas`,
     proBenefit: "Cargas ilimitadas — estude o quanto quiser.",
     paywallKind: "energy",
     rota: "/treino",
@@ -180,8 +181,8 @@ export const PLAN_FEATURES: readonly PlanFeature[] = [
     nome: "Imersão",
     descricao: "Sessões de escuta, shadowing e histórias curtas.",
     plano: "free",
-    freeTier: "Imersão básica com histórias introdutórias",
-    freeLimit: "Consome Cargas por sessão",
+    freeTier: "Histórias introdutórias grátis não consomem Carga ao abrir",
+    freeLimit: `Sessões de áudio consomem Carga · histórias básicas podem conceder +1 Carga (até ${STORY_ENERGY_DAILY_CAP}/dia)`,
     proBenefit: "Imersão ampliada e sessões sem limite de Cargas.",
     paywallKind: "immersion",
     rota: "/imersao",
@@ -397,7 +398,7 @@ export const PAYWALL_COPY: Record<PaywallKind, PaywallCopy> = {
     title: "Suas Cargas de hoje acabaram",
     description: `Continue sem limite com o Longyu Pro — ou volte amanhã, ou complete uma missão para recuperar cargas.`,
     benefit: getPlanFeature("cargas").proBenefit,
-    freeContinues: `No grátis você tem ${DAILY_CHARGES_FREE} cargas por dia. Missões devolvem cargas.`,
+    freeContinues: `No grátis você tem ${DAILY_CHARGES_FREE} cargas por dia. Histórias introdutórias podem dar +1 carga (até ${STORY_ENERGY_DAILY_CAP}/dia). Missões devolvem cargas.`,
   }),
   errors: paywallFromFeature(getPlanFeature("erros_detalhados"), {
     eyebrow: "Erros detalhados",
@@ -465,8 +466,10 @@ export const PAYWALL_COPY: Record<PaywallKind, PaywallCopy> = {
   immersion: paywallFromFeature(getPlanFeature("imersao"), {
     eyebrow: "Imersão ampliada",
     title: "Mantenha o mandarim no ouvido",
-    description: "Sessões de imersão usam Cargas no plano grátis. Com o Pro, a imersão fica ampliada.",
+    description:
+      "Sessões de áudio consomem Cargas no plano grátis. Histórias introdutórias continuam grátis e podem devolver +1 Carga por dia.",
     benefit: getPlanFeature("imersao").proBenefit,
+    freeContinues: getPlanFeature("imersao").freeLimit!,
   }),
   content: paywallFromFeature(getPlanFeature("jornada"), {
     eyebrow: "Conteúdo premium",

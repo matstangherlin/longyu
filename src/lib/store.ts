@@ -45,9 +45,18 @@ import {
   PRO_CHEST_RARE_BONUS,
   PRO_MISSION_QI_MULTIPLIER,
   QI_PACK_AMOUNT,
+  STORY_ENERGY_DAILY_CAP,
 } from "../data/economy";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import type { ProgressSnapshotBody } from "./progressSnapshot";
+import {
+  shouldUseServerEconomy,
+  serverClaimMission,
+  serverConsumeCharge,
+  serverGrantStoryEnergy,
+  serverOpenChest,
+  serverSpendQi,
+} from "./economyServerBridge";
 
 export type ThemeName = "clay" | "china" | "dark";
 export type SoundTheme = "longyu_classic" | "longyu_soft" | "longyu_game";
@@ -59,8 +68,7 @@ export const DAILY_GOAL_PER_TRACK = 5; // min por trilha (20 min total)
 export const DEFAULT_ACCOUNT_ID = "local";
 export const FREE_DAILY_CHARGES = DAILY_CHARGES_FREE;
 export const MISSION_CHARGE_REWARD = 2;
-/** Máximo de cargas extras que as histórias dão por dia no plano grátis. */
-export const STORY_ENERGY_DAILY_CAP = 2;
+export { STORY_ENERGY_DAILY_CAP };
 
 export type PlacementLevel = "inicio" | "sobrevivencia" | "tons" | "frases" | "hanzi";
 
@@ -1430,6 +1438,7 @@ interface AppState {
   /** Pro real confirmado pelo servidor (assinatura Stripe ativa). */
   serverIsPro: boolean;
   cloudSyncState: CloudSyncState;
+  economySyncMessage: string | null;
   placement: PlacementResult | null;
   dailyMissions: DailyMissionsState;
   weeklyMissions: WeeklyMissionsState;
@@ -1471,6 +1480,7 @@ interface AppState {
   setPremium: (v: boolean) => void;
   setServerEntitlement: (isPro: boolean) => void;
   setCloudSyncState: (status: CloudSyncStatus, message?: string) => void;
+  setEconomySyncMessage: (message: string | null) => void;
   applyCloudProgressSnapshot: (body: ProgressSnapshotBody) => void;
   activateCloudAccount: (identity: { userId: string; email?: string; name?: string }, progress?: AccountSnapshot) => string;
   addPoints: (points: number) => void;
@@ -1480,7 +1490,7 @@ interface AppState {
   /** Qi = moeda acumulável (loja, recuperações, tentativas extras). */
   addQi: (amount: number, source: string) => void;
   /** Gasta Qi; retorna false se não houver saldo. Pro nunca fica sem Qi. */
-  spendQi: (amount: number, source: string) => boolean;
+  spendQi: (amount: number, source: string, idempotencyKey?: string) => boolean;
   getTodayXp: () => number;
   getWeeklyXp: () => number;
   getMonthlyXp: () => number;
@@ -1504,7 +1514,7 @@ interface AppState {
   /** Baús: sorteia as recompensas de um tipo de baú (sem aplicar). */
   generateChestReward: (type: ChestType) => ChestRewardItem[];
   /** Baús: abre 1 baú — aplica as recompensas, registra no rewardHistory e as retorna. */
-  openChest: (type: ChestType) => ChestRewardItem[] | null;
+  openChest: (type: ChestType, openingId?: string) => ChestRewardItem[] | null;
   openJourneyChest: (chestId: string, type: ChestType) => ChestRewardItem[] | null;
   createAccount: (name: string, email?: string) => string;
   /** Onboarding sem conta: perfil local com o nome informado (authMode "local"). */
@@ -1549,7 +1559,7 @@ interface AppState {
   claimReward: (reward: RewardGrant) => boolean;
   claimDailyMission: (missionId: string, rewards: RewardGrant[]) => boolean;
   getActiveDailyEnergy: () => DailyEnergy;
-  consumeCharge: (activityType: EnergyActivityType) => boolean;
+  consumeCharge: (activityType: EnergyActivityType, idempotencyKey?: string) => boolean;
   addCharges: (amount: number, source: string) => boolean;
   /** +1 carga extra por concluir uma história (idempotente por dia/história). */
   grantStoryEnergy: (storyId: string) => StoryEnergyResult;
@@ -1655,6 +1665,7 @@ export const useStore = create<AppState>()(
       isPremium: false,
       serverIsPro: false,
       cloudSyncState: freshCloudSyncState(),
+      economySyncMessage: null,
       placement: null,
       dailyMissions: freshDailyMissions(),
       weeklyMissions: freshWeeklyMissions(),
@@ -1709,6 +1720,7 @@ export const useStore = create<AppState>()(
             updatedAt: Date.now(),
           },
         }),
+      setEconomySyncMessage: (message) => set({ economySyncMessage: message }),
       applyCloudProgressSnapshot: (body) =>
         set((s) => {
           const id = s.currentAccountId;
@@ -1761,12 +1773,13 @@ export const useStore = create<AppState>()(
           });
           return { points: next.points, rewardHistory: next.rewardHistory, accounts: saveCurrentAccount(next) };
         }),
-      spendQi: (amount, source) => {
+      spendQi: (amount, source, idempotencyKey) => {
         const spendAmount = Math.max(0, Math.round(amount));
         if (spendAmount <= 0) return true;
         const state = get();
         if (hasProAccess(state)) return true;
         if (state.points < spendAmount) return false;
+        const previousPoints = state.points;
         set((s) => {
           if (s.points < spendAmount) return {};
           const now = Date.now();
@@ -1784,6 +1797,18 @@ export const useStore = create<AppState>()(
           const next = { ...s, points: Math.max(0, s.points - spendAmount), purchaseHistory };
           return { points: next.points, purchaseHistory, accounts: saveCurrentAccount(next) };
         });
+        if (shouldUseServerEconomy()) {
+          const key = idempotencyKey ?? `spend:${source}:${spendAmount}:${Date.now()}`;
+          void serverSpendQi(spendAmount, source, key).then((result) => {
+            if (!result.ok && !result.already_applied) {
+              set((s) => {
+                const next = { ...s, points: previousPoints };
+                return { points: next.points, accounts: saveCurrentAccount(next) };
+              });
+              get().setEconomySyncMessage("Qi não confirmado pelo servidor.");
+            }
+          });
+        }
         return true;
       },
       // Aliases legados: Qi era chamado de "points". Mantidos para compat.
@@ -1968,6 +1993,11 @@ export const useStore = create<AppState>()(
         });
         if (xpInc > 0) {
           syncLeagueXpToServerAsync(xpInc, leagueXpKeyMission(scope, missionId, periodKeyForSync));
+        }
+        if (shouldUseServerEconomy()) {
+          const metric = metricValue(def.metric, missionAggregates(get()));
+          const periodKey = scope === "daily" ? todayKey() : activeWeeklyMissions(get().weeklyMissions).weekKey;
+          void serverClaimMission({ scope, missionId, periodKey, metricValue: metric });
         }
         return true;
       },
@@ -2845,16 +2875,17 @@ export const useStore = create<AppState>()(
 
       generateChestReward: (type) => generateChestRewards(type, hasProAccess(get())),
 
-      openChest: (type) => {
+      openChest: (type, openingId) => {
         if ((get().chests?.[type] ?? 0) <= 0) return null;
+        const now = Date.now();
+        const resolvedOpeningId = openingId ?? `chest:${type}:${now}:${get().chestOpenHistory?.length ?? 0}`;
         let openedRewards: ChestRewardItem[] | null = null;
         set((s) => {
           if ((s.chests?.[type] ?? 0) <= 0) return {};
           const rewards = generateChestRewards(type, hasProAccess(s));
           const chests = { ...s.chests, [type]: s.chests[type] - 1 };
-          const now = Date.now();
           const openEntry: ChestOpenHistoryEntry = {
-            id: `chest:${type}:${now}:${s.chestOpenHistory?.length ?? 0}`,
+            id: resolvedOpeningId,
             type,
             openedAt: now,
           };
@@ -2899,6 +2930,9 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(next),
           };
         });
+        if (shouldUseServerEconomy()) {
+          void serverOpenChest(type, resolvedOpeningId);
+        }
         return openedRewards;
       },
 
@@ -2982,13 +3016,13 @@ export const useStore = create<AppState>()(
         return activeDailyEnergy(state.dailyEnergy).charges >= CHARGE_COST_ACTIVITY;
       },
 
-      consumeCharge: (activityType) => {
+      consumeCharge: (activityType, idempotencyKey) => {
         const state = get();
         if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
-        // Treino Focado ativo: treino extra não consome Carga por 24h.
         if (activityType === "extra_training" && get().hasFocusPass()) return true;
         const energy = activeDailyEnergy(state.dailyEnergy);
         if (energy.charges < CHARGE_COST_ACTIVITY) return false;
+        const previousEnergy = { ...energy };
         set((s) => {
           const current = activeDailyEnergy(s.dailyEnergy);
           if (current.charges < CHARGE_COST_ACTIVITY) return {};
@@ -3000,6 +3034,20 @@ export const useStore = create<AppState>()(
           const next = { ...s, dailyEnergy };
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
         });
+        if (shouldUseServerEconomy()) {
+          const key =
+            idempotencyKey ??
+            `consume:${activityType}:${todayKey()}:${previousEnergy.usedCharges + CHARGE_COST_ACTIVITY}`;
+          void serverConsumeCharge(activityType, key).then((result) => {
+            if (!result.ok && !result.already_applied && !result.skipped) {
+              set((s) => {
+                const next = { ...s, dailyEnergy: previousEnergy };
+                return { dailyEnergy: previousEnergy, accounts: saveCurrentAccount(next) };
+              });
+              get().setEconomySyncMessage("Carga não confirmada pelo servidor.");
+            }
+          });
+        }
         return true;
       },
 
@@ -3072,6 +3120,9 @@ export const useStore = create<AppState>()(
           const next = { ...s, dailyEnergy };
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
         });
+        if (result.granted && shouldUseServerEconomy()) {
+          void serverGrantStoryEnergy(clean, date);
+        }
         return result;
       },
 

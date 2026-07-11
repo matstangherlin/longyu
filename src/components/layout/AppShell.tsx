@@ -10,6 +10,8 @@ import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
+import { EconomySyncBanner } from "../economy/EconomySyncBanner";
+import { EconomyBootstrap } from "../economy/EconomyBootstrap";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -91,9 +93,11 @@ export function AppShell() {
       </div>
       {!focusMode && <TabBar />}
       {!focusMode && <DesktopFeedbackFab />}
+      <EconomySyncBanner />
       <AuthBootstrap />
       <CloudSyncBootstrap />
       <EntitlementBootstrap />
+      <EconomyBootstrap />
       <AchievementsWatcher />
     </div>
     </>

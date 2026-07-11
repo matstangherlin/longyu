@@ -351,7 +351,7 @@ export function ImmersionPage() {
       setSelectedSessionId(session.id);
       return;
     }
-    if (!consumeCharge("immersion_session")) {
+    if (!consumeCharge("immersion_session", sessionKey)) {
       setPaywallKind("energy");
       return;
     }

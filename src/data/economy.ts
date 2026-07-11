@@ -17,8 +17,8 @@
 // ——— Regras do plano grátis (resumo canônico) ———
 // - Cargas diárias limitadas (DAILY_CHARGES_FREE); missões devolvem cargas.
 // - Revisão básica limitada a FREE_REVIEW_SESSION_LIMIT itens por sessão.
-// - Pinyin Lab, Hànzì Builder, Imersão e histórias consomem Cargas.
-// - Histórias marcadas como premium ficam no Pro; as demais são grátis.
+// - Pinyin Lab, Hànzì Builder e sessões de áudio da Imersão consomem Cargas.
+// - Histórias introdutórias grátis não consomem Carga ao abrir; podem conceder +1 Carga (teto STORY_ENERGY_DAILY_CAP/dia).
 // - Erros detalhados (histórico + padrões) são Pro.
 // - Correção imediata do erro da lição atual é SEMPRE grátis — nunca bloquear.
 //
@@ -33,6 +33,8 @@
 export const DAILY_CHARGES_FREE = 5;
 /** Iniciar lição/atividade principal consome 1 Carga (revisão essencial: 0). */
 export const CHARGE_COST_ACTIVITY = 1;
+/** Histórias introdutórias grátis podem conceder até N cargas extras por dia. */
+export const STORY_ENERGY_DAILY_CAP = 2;
 
 /** Revisão básica do grátis: itens por sessão. Pro revisa a fila inteira. */
 export const FREE_REVIEW_SESSION_LIMIT = 20;

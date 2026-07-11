@@ -1245,7 +1245,7 @@ export function LessonPlayer() {
       setEntryChecked(true);
       return;
     }
-    if (!consumeCharge("lesson")) {
+    if (!consumeCharge("lesson", `consume:lesson:${foundLesson.id}:${todayKey()}`)) {
       setEnergyBlocked(true);
       setProPaywallKind("energy");
       playSoundFx("blocked", soundEffects);
