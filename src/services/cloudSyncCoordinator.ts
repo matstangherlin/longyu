@@ -11,6 +11,7 @@ import {
   serverMigrateLocalEconomy,
   shouldUseServerEconomy,
 } from "../lib/economyServerBridge";
+import { fetchServerIsPro } from "./entitlementService";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
@@ -122,6 +123,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
     );
     markCloudSync("synced", "Progresso sincronizado.");
     await migrateEconomyAfterCloudLogin(user.id);
+    await refreshServerEntitlementAfterLogin();
     return { ok: true, message: "Progresso restaurado da nuvem." };
   }
 
@@ -138,7 +140,10 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
       push.ok ? "synced" : "error",
       push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
     );
-    if (push.ok) await migrateEconomyAfterCloudLogin(user.id);
+    if (push.ok) {
+      await migrateEconomyAfterCloudLogin(user.id);
+      await refreshServerEntitlementAfterLogin();
+    }
     return {
       ok: push.ok,
       message: push.ok
@@ -154,7 +159,10 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
       push.ok ? "synced" : "error",
       push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
     );
-    if (push.ok) await migrateEconomyAfterCloudLogin(user.id);
+    if (push.ok) {
+      await migrateEconomyAfterCloudLogin(user.id);
+      await refreshServerEntitlementAfterLogin();
+    }
     return {
       ok: push.ok,
       message: push.ok ? "Conta na nuvem iniciada com seu progresso local." : push.message,
@@ -167,11 +175,19 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
     initialPush.ok ? "synced" : "error",
     initialPush.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
   );
-  if (initialPush.ok) await migrateEconomyAfterCloudLogin(user.id);
+  if (initialPush.ok) {
+    await migrateEconomyAfterCloudLogin(user.id);
+    await refreshServerEntitlementAfterLogin();
+  }
   return {
     ok: initialPush.ok,
     message: initialPush.ok ? "Conta na nuvem inicializada sem sobrescrever progresso existente." : initialPush.message,
   };
+}
+
+async function refreshServerEntitlementAfterLogin(): Promise<void> {
+  const isPro = await fetchServerIsPro();
+  useStore.getState().setServerEntitlement(isPro);
 }
 
 async function migrateEconomyAfterCloudLogin(userId: string): Promise<void> {

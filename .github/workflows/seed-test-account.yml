@@ -1,0 +1,26 @@
+name: Seed Test Account
+
+on:
+  workflow_dispatch:
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Apply test account SQL + entitlement RPC
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
+        run: node scripts/apply-test-account-sql.mjs
+
+      - name: Reseed progress snapshot
+        env:
+          VITE_SUPABASE_URL: https://drjcfalvlbbeblmmyhwj.supabase.co
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run seed:test-account

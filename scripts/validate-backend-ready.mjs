@@ -21,6 +21,7 @@ const migrations = [
   "supabase/migrations/004_leagues.sql",
   "supabase/migrations/006_economy_server.sql",
   "supabase/migrations/007_internal_test_pro.sql",
+  "supabase/migrations/008_server_entitlement_rpc.sql",
   "supabase/seed/test-account.sql",
 ];
 const functions = [

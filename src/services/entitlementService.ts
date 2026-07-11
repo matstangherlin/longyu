@@ -1,10 +1,10 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { isInternalTestProEmail } from "../lib/entitlements";
 import type { ServerSubscriptionSnapshot } from "./subscriptionService";
 
 const ACTIVE_STATUSES = new Set(["trialing", "active"]);
 const INACTIVE_STATUSES = new Set(["past_due", "unpaid", "incomplete", "incomplete_expired"]);
-const INTERNAL_TEST_PRO_EMAILS = new Set(["teste@longyu.app"]);
 
 export function isActiveSubscriptionStatus(status: string | null | undefined): boolean {
   if (!status) return false;
@@ -80,17 +80,31 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
   return resolveServerSubscriptionRow(data);
 }
 
+async function fetchServerEntitlementRpc(): Promise<boolean | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data, error } = await client.rpc("get_server_entitlement");
+  if (error) return null;
+  if (data && typeof data === "object" && "is_pro" in data) {
+    return Boolean((data as { is_pro?: boolean }).is_pro);
+  }
+  return null;
+}
+
 export async function fetchServerIsPro(): Promise<boolean> {
   if (!isSupabaseBackendEnabled()) return false;
   const client = getSupabaseClient();
-  if (client) {
-    const {
-      data: { user },
-    } = await client.auth.getUser();
-    if (user?.email && INTERNAL_TEST_PRO_EMAILS.has(user.email.toLowerCase())) {
-      return true;
-    }
-  }
+  if (!client) return false;
+
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+
+  if (isInternalTestProEmail(user?.email)) return true;
+
+  const rpcPro = await fetchServerEntitlementRpc();
+  if (rpcPro !== null) return rpcPro;
+
   const snapshot = await fetchServerSubscription();
   return subscriptionGrantsPro(snapshot);
 }
