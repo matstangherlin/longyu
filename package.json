@@ -43,8 +43,9 @@
     "verify:production": "node scripts/verify-production.mjs",
     "smoke:production": "node scripts/smoke-production.mjs",
     "ci": "npm run validate:beta && npm run test:e2e",
-    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:glossary-ui && npm run validate:lesson-victory-ui && npm run validate:feedback && npm run validate:plans && npm run validate:economy && npm run validate:backend-ready",
+    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:glossary-ui && npm run validate:lesson-victory-ui && npm run validate:feedback && npm run validate:error-monitoring && npm run validate:plans && npm run validate:economy && npm run validate:backend-ready",
     "validate:feedback": "node scripts/validate-feedback.mjs",
+    "validate:error-monitoring": "node scripts/validate-error-monitoring.mjs",
     "validate:lesson-victory-ui": "node scripts/validate-lesson-victory-ui.mjs",
     "test:e2e": "playwright test"
   },

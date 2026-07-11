@@ -16,6 +16,7 @@ const EDGE_FUNCTIONS = [
   "stripe-webhook",
   "delete-account",
   "submit-feedback",
+  "submit-app-error",
 ];
 
 const SECRETS = [

@@ -57,6 +57,7 @@ import {
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
+import { reportAppErrorFromUnknown } from "../../services/errorReportingService";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
 import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from "./immediateRemediation";
@@ -2505,10 +2506,17 @@ export function LessonPlayer() {
     // Resgata as recompensas no próprio card (sem uma segunda tela longa).
     function claimLessonRewards() {
       if (claimedRewardCards) return;
-      let claimed = false;
-      for (const reward of newRewards) claimed = claimReward(reward) || claimed;
-      if (claimed) playSoundFx("qiGain", soundEffects);
-      setClaimedRewardCards(true);
+      try {
+        let claimed = false;
+        for (const reward of newRewards) claimed = claimReward(reward) || claimed;
+        if (claimed) playSoundFx("qiGain", soundEffects);
+        setClaimedRewardCards(true);
+      } catch (error) {
+        reportAppErrorFromUnknown(error, {
+          source: "reward",
+          route: `/licao/${lesson.id}/player — resgate`,
+        });
+      }
     }
 
     function continueJourney() {

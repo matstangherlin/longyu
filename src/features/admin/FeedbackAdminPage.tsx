@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import {
   FEEDBACK_CATEGORIES,
@@ -151,6 +151,11 @@ export function FeedbackAdminPage() {
             {filtered.length} relato(s) · somente administradores
           </p>
         </div>
+        <Link to="/admin/health">
+          <Button variant="outline" size="sm">
+            Saúde do app
+          </Button>
+        </Link>
       </div>
 
       <Card className="grid gap-3 rounded-2xl p-4 shadow-none sm:grid-cols-2 lg:grid-cols-4">

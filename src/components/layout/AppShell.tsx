@@ -11,6 +11,7 @@ import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
 import { FeedbackProvider } from "../feedback/FeedbackContext";
+import { trackSafeAction } from "../../lib/errorReport";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -54,6 +55,7 @@ export function AppShell() {
   // Rola para o topo ao trocar de rota.
   useEffect(() => {
     window.scrollTo(0, 0);
+    trackSafeAction(`route:${location.pathname}`);
   }, [location.pathname]);
 
   if (isOnboarding || isLoginPage) {

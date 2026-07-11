@@ -32,5 +32,6 @@ const functions = [
   "stripe-webhook",
   "delete-account",
   "submit-feedback",
+  "submit-app-error",
 ];
 if (run("npx", ["supabase", "functions", "deploy", ...functions]) !== 0) process.exit(1);

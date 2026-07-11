@@ -4,6 +4,7 @@ import { mergeRemoteProgress } from "../lib/syncMerge";
 import { activeLearningRepository } from "../lib/repositories/learningRepository";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { useStore } from "../lib/store";
+import { reportAppError } from "./errorReportingService";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
@@ -11,6 +12,13 @@ let pendingPush = false;
 
 function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
   useStore.getState().setCloudSyncState(status, message);
+  if (status === "error") {
+    void reportAppError({
+      errorName: "CloudSyncError",
+      message,
+      source: "sync",
+    });
+  }
 }
 
 function snapshotBodyWithProgress(

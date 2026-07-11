@@ -74,6 +74,7 @@ for (const [name, path] of [
   ["create-billing-portal", "create-billing-portal"],
   ["delete-account", "delete-account"],
   ["submit-feedback", "submit-feedback"],
+  ["submit-app-error", "submit-app-error"],
 ]) {
   const probe = await checkUrl(
     `Edge Function ${name}`,

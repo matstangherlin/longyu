@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { fetchServerSubscription } from "./entitlementService";
+import { reportAppErrorFromUnknown } from "./errorReportingService";
 
 export type SubscriptionState =
   | "not_subscriber"
@@ -71,6 +72,7 @@ export async function createCheckoutSession(
   });
 
   if (error) {
+    reportAppErrorFromUnknown(error, { source: "checkout" });
     return { status: "error", message: error.message || CHECKOUT_PENDING_MESSAGE };
   }
 
@@ -118,6 +120,7 @@ export async function openBillingPortal(): Promise<SubscriptionServiceResult<{ u
 
   const { data, error } = await client.functions.invoke<{ url?: string }>("create-billing-portal");
   if (error) {
+    reportAppErrorFromUnknown(error, { source: "checkout" });
     return { status: "error", message: error.message };
   }
   if (data?.url) {

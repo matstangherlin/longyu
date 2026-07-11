@@ -1,5 +1,6 @@
 import type { RouteObject } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
+import { RouteErrorPage } from "./components/system/RouteErrorPage";
 import { JourneyPage } from "./features/journey/JourneyPage";
 import { TreinoPage } from "./features/treino/TreinoPage";
 import { MissoesPage } from "./features/missoes/MissoesPage";
@@ -27,43 +28,55 @@ import { AboutPage } from "./features/about/AboutPage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { LandingPage } from "./features/landing/LandingPage";
 import { FeedbackAdminPage } from "./features/admin/FeedbackAdminPage";
+import { ErrorHealthAdminPage } from "./features/admin/ErrorHealthAdminPage";
 
 export const routes: RouteObject[] = [
-  // "/" público: landing para quem ainda não tem conta/progresso.
-  // Quem já tem redireciona para /jornada dentro do próprio componente.
-  { path: "/", element: <LandingPage /> },
   {
-    element: <AppShell />,
+    errorElement: <RouteErrorPage />,
     children: [
-      { path: "jornada", element: <JourneyPage /> },
-      { path: "treino", element: <TreinoPage /> },
-      { path: "praticar", element: <TreinoPage /> },
-      { path: "missoes", element: <MissoesPage /> },
-      { path: "loja", element: <LojaPage /> },
-      { path: "som", element: <SomPage /> },
-      { path: "pinyin", element: <PinyinLabPage /> },
-      { path: "hanzi", element: <HanziPage /> },
-      { path: "ideogramas", element: <IdeogramasPage /> },
-      { path: "hanzi/atlas", element: <HanziAtlasPage /> },
-      { path: "fala", element: <FalaPage /> },
-      { path: "leitura", element: <LeituraPage /> },
-      { path: "revisao", element: <RevisaoPage /> },
-      { path: "biblioteca", element: <BibliotecaPage /> },
-      { path: "imersao", element: <ImmersionPage /> },
-      { path: "ligas", element: <LigasPage /> },
-      { path: "conquistas", element: <AchievementsPage /> },
-      { path: "pro", element: <ProPage /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "perfil", element: <AccountPage /> },
-      { path: "conta", element: <AccountPage /> },
-      { path: "config", element: <SettingsPage /> },
-      { path: "ajustes", element: <SettingsPage /> },
-      { path: "mais", element: <MorePage /> },
-      { path: "sobre", element: <AboutPage /> },
-      { path: "licao/:lessonId", element: <LessonDetailPage /> },
-      { path: "licao/:lessonId/player", element: <LessonPlayer /> },
-      { path: "teste/:unitId", element: <ModuleChallengePage /> },
-      { path: "admin/feedback", element: <FeedbackAdminPage /> },
+      { path: "/", element: <LandingPage /> },
+      {
+        element: <AppShell />,
+        errorElement: <RouteErrorPage />,
+        children: [
+          { path: "jornada", element: <JourneyPage /> },
+          { path: "treino", element: <TreinoPage /> },
+          { path: "praticar", element: <TreinoPage /> },
+          { path: "missoes", element: <MissoesPage /> },
+          { path: "loja", element: <LojaPage /> },
+          { path: "som", element: <SomPage /> },
+          { path: "pinyin", element: <PinyinLabPage /> },
+          { path: "hanzi", element: <HanziPage /> },
+          { path: "ideogramas", element: <IdeogramasPage /> },
+          { path: "hanzi/atlas", element: <HanziAtlasPage /> },
+          { path: "fala", element: <FalaPage /> },
+          { path: "leitura", element: <LeituraPage /> },
+          { path: "revisao", element: <RevisaoPage /> },
+          { path: "biblioteca", element: <BibliotecaPage /> },
+          { path: "imersao", element: <ImmersionPage /> },
+          { path: "ligas", element: <LigasPage /> },
+          { path: "conquistas", element: <AchievementsPage /> },
+          { path: "pro", element: <ProPage /> },
+          { path: "login", element: <LoginPage /> },
+          { path: "perfil", element: <AccountPage /> },
+          { path: "conta", element: <AccountPage /> },
+          { path: "config", element: <SettingsPage /> },
+          { path: "ajustes", element: <SettingsPage /> },
+          { path: "mais", element: <MorePage /> },
+          { path: "sobre", element: <AboutPage /> },
+          { path: "licao/:lessonId", element: <LessonDetailPage /> },
+          { path: "licao/:lessonId/player", element: <LessonPlayer /> },
+          { path: "teste/:unitId", element: <ModuleChallengePage /> },
+          { path: "admin/feedback", element: <FeedbackAdminPage /> },
+          { path: "admin/health", element: <ErrorHealthAdminPage /> },
+        ],
+      },
+      {
+        path: "*",
+        loader: () => {
+          throw new Response("Página não encontrada", { status: 404, statusText: "Not Found" });
+        },
+      },
     ],
   },
 ];
