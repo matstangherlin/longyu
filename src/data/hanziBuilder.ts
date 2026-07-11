@@ -996,7 +996,7 @@ export function builderPrerequisitesMet(builder: HanziBuilder, seenGlyphs?: Read
  * - nunca viu: fragmentos com guia;
  * - acertou pouco: completar peça;
  * - acertou algumas vezes: desafio sem molde (embaralhado, com distratores);
- * - dominado: reforça sem molde e, quando existir, avança para componentes/frase.
+ * - dominado: montar dentro de palavra/frase quando existir; senão, sem molde.
  *
  * `seenGlyphs` (opcional): bases já vistas. Builders compostos cujas bases não
  * foram vistas são descartados — se sobrar nada, retorna undefined (não gera).
@@ -1030,5 +1030,5 @@ export function selectHanziBuilderForStudent(
   if (!progress || correct === 0) return first(fragmentsGuide, complete, builders);
   if (correct < 2) return first(complete, fragmentsGuide, builders);
   if (!mastered) return first(challenge, components, complete, builders);
-  return first(challenge, components, sentence, complete, builders);
+  return first(sentence, challenge, components, complete, builders);
 }

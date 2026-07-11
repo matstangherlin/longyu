@@ -74,8 +74,16 @@ export function HanziBuilderExercise({
     () => (builder.components ?? []).map((piece) => piece.glyph),
     [builder]
   );
+  // Primeiro contato (nunca montou este caractere): pinyin visível e sem
+  // distratores, mesmo em builders avançados — hànzì novo é fácil; a
+  // dificuldade entra conforme o domínio cresce.
+  const isNewChar = !charProgress || charProgress.correct === 0;
+
   // Embaralhado uma vez por exercício (estável entre re-renders).
-  const pool = useMemo(() => shuffle(resolvePool(builder)), [builder]);
+  const pool = useMemo(
+    () => shuffle(resolvePool(builder, { withDistractors: !isNewChar })),
+    [builder, isNewChar]
+  );
   const pieceById = useMemo(() => new Map(pool.map((piece) => [piece.id, piece])), [pool]);
 
   const [selected, setSelected] = useState<string[]>([]);
@@ -101,7 +109,8 @@ export function HanziBuilderExercise({
   const selectedStrokeDs = selectedPieces
     .filter((piece): piece is Extract<BuilderPiece, { kind: "stroke" }> => piece.kind === "stroke")
     .map((piece) => ({ id: piece.id, d: piece.stroke.d, correct: piece.correct }));
-  const hidePromptPinyin = (builder.hidePinyinUntilCorrect ?? builder.level >= 4) && status !== "correct";
+  const hidePromptPinyin =
+    (builder.hidePinyinUntilCorrect ?? (builder.level >= 4 && !isNewChar)) && status !== "correct";
 
   function addPiece(piece: BuilderPiece) {
     if (locked || usedIds.has(piece.id)) return;
@@ -594,10 +603,14 @@ function resolveCorrectOrder(builder: HanziBuilder): string[] {
   return (builder.strokes ?? []).filter((stroke) => !fixed.has(stroke.id)).map((stroke) => stroke.id);
 }
 
-function resolvePool(builder: HanziBuilder): BuilderPiece[] {
+function resolvePool(
+  builder: HanziBuilder,
+  { withDistractors = true }: { withDistractors?: boolean } = {}
+): BuilderPiece[] {
   if (builder.mode === "components") {
     const correct = new Set((builder.components ?? []).map((piece) => piece.id));
-    return [...(builder.components ?? []), ...(builder.componentDistractors ?? [])].map((glyph) => ({
+    const distractors = withDistractors ? builder.componentDistractors ?? [] : [];
+    return [...(builder.components ?? []), ...distractors].map((glyph) => ({
       kind: "glyph" as const,
       id: glyph.id,
       glyph,
@@ -607,7 +620,8 @@ function resolvePool(builder: HanziBuilder): BuilderPiece[] {
   const fixed = new Set(builder.fixedStrokeIds ?? []);
   const playable = (builder.strokes ?? []).filter((stroke) => !fixed.has(stroke.id));
   const correct = new Set(playable.map((stroke) => stroke.id));
-  return [...playable, ...(builder.strokeDistractors ?? [])].map((stroke) => ({
+  const distractors = withDistractors ? builder.strokeDistractors ?? [] : [];
+  return [...playable, ...distractors].map((stroke) => ({
     kind: "stroke" as const,
     id: stroke.id,
     stroke,
