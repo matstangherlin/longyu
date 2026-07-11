@@ -61,7 +61,7 @@ import {
   serverOpenChest,
   serverSpendQi,
 } from "./economyServerBridge";
-import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
+import { effectivePremium, isDevPreviewAllowed, isInternalTestProEmail } from "./entitlements";
 
 export type ThemeName = "clay" | "china" | "dark";
 export type SoundTheme = "longyu_classic" | "longyu_soft" | "longyu_game";
@@ -1402,8 +1402,20 @@ function finalizeOnboardingState(
   };
 }
 
-function hasProAccess(s: Pick<AppState, "isPremium" | "serverIsPro">): boolean {
-  return effectivePremium(s.isPremium, s.serverIsPro);
+function hasProAccess(s: AppState, serverIsProOverride?: boolean): boolean {
+  const account = s.accounts[s.currentAccountId];
+  return effectivePremium(s.isPremium, serverIsProOverride ?? s.serverIsPro, {
+    accountEmail: account?.email,
+    accountAuthMode: account?.authMode,
+  });
+}
+
+function hasInternalTestCloudAccount(s: Pick<AppState, "accounts" | "currentAccountId">): boolean {
+  const current = s.accounts[s.currentAccountId];
+  if (current?.authMode === "cloud" && isInternalTestProEmail(current.email)) return true;
+  return Object.values(s.accounts).some(
+    (account) => account.authMode === "cloud" && isInternalTestProEmail(account.email)
+  );
 }
 
 interface AppState {
@@ -1745,7 +1757,7 @@ export const useStore = create<AppState>()(
         }),
       setServerEntitlement: (isPro) =>
         set((s) => {
-          const stillPro = effectivePremium(s.isPremium, isPro);
+          const stillPro = hasProAccess(s, isPro);
           const dailyEnergy = stillPro ? s.dailyEnergy : reconcileFreePlanEnergy(s.dailyEnergy);
           const next = { ...s, serverIsPro: isPro, dailyEnergy };
           return { serverIsPro: isPro, dailyEnergy, accounts: saveCurrentAccount(next) };
@@ -1781,6 +1793,7 @@ export const useStore = create<AppState>()(
         }),
       activateCloudAccount: (identity, progress) => {
         const id = cloudAccountId(identity.userId);
+        const grantInternalPro = isInternalTestProEmail(identity.email);
         set((s) => {
           const saved = saveCurrentAccount(s);
           const fallback = saved[s.currentAccountId];
@@ -1790,6 +1803,7 @@ export const useStore = create<AppState>()(
             ...accountFields(account),
             accountSetupComplete: true,
             currentAccountId: id,
+            serverIsPro: grantInternalPro ? true : s.serverIsPro,
             accounts: {
               ...saved,
               [id]: account,
@@ -3449,8 +3463,13 @@ export const useStore = create<AppState>()(
         const rootDailyEnergy = stripPreview
           ? reconcileFreePlanEnergy(root.dailyEnergy)
           : activeDailyEnergy(root.dailyEnergy);
+        const currentAccountId = root.currentAccountId ?? DEFAULT_ACCOUNT_ID;
+        const grantInternalPro =
+          root.serverIsPro === true ||
+          hasInternalTestCloudAccount({ accounts: normalized, currentAccountId });
         return {
           ...root,
+          serverIsPro: grantInternalPro,
           isPremium: stripPreview ? false : root.isPremium,
           leagueTier: normalizeLeagueTier(root.leagueTier),
           leagueJoinedAt: root.leagueJoinedAt ?? null,

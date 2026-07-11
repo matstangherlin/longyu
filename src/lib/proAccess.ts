@@ -83,19 +83,30 @@ function lessonStarsFrom(context?: ProAccessContext): Record<string, number> {
 
 export function isProUser(context?: ProAccessContext | boolean): boolean {
   const state = useStore.getState();
+  const account = state.accounts[state.currentAccountId];
+  const accountOptions = {
+    accountEmail: account?.email,
+    accountAuthMode: account?.authMode,
+  };
   if (typeof context === "boolean") {
-    return effectivePremium(context, state.serverIsPro);
+    return effectivePremium(context, state.serverIsPro, accountOptions);
   }
   const preview = context?.isPremium ?? state.isPremium;
-  return effectivePremium(preview, state.serverIsPro);
+  return effectivePremium(preview, state.serverIsPro, accountOptions);
 }
 
 /**
  * Pro efetivo para as telas: assinatura real do servidor OU preview local (só em dev).
- * Use este hook em vez de ler `s.isPremium` direto.
+ * Contas cloud de QA internas (teste@longyu.app) também contam como Pro.
  */
 export function useIsPro(): boolean {
-  return useStore((s) => effectivePremium(s.isPremium, s.serverIsPro));
+  return useStore((s) => {
+    const account = s.accounts[s.currentAccountId];
+    return effectivePremium(s.isPremium, s.serverIsPro, {
+      accountEmail: account?.email,
+      accountAuthMode: account?.authMode,
+    });
+  });
 }
 
 function hasCompleted(completed: string[], lessonId: string): boolean {
