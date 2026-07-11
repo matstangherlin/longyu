@@ -22,6 +22,7 @@ supabase/.temp/
 .DS_Store
 tmp/
 temp/
+scripts/.cache/
 *.tmp
 dev-server*.log
 preview-server*.log
