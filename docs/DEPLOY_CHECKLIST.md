@@ -11,7 +11,9 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Migration 004 (Ligas) aplicada | ✅ | `league_tiers`, RPCs, backfill Bronze — via SQL Editor (09/07/2026) |
 | Edge Functions publicadas | ✅ | checkout, billing-portal, webhook, delete-account |
 | `npm run verify:production` | ✅ | REST + functions respondendo |
-| RLS testado (usuário A ≠ B) | ⬜ | Manual no SQL Editor ou Dashboard |
+| RLS testado (usuário A ≠ B) | ✅ | `npm run test:rls` (automatizado) |
+| Portão de segurança beta | ⬜ | `npm run gate:production` (obrigatório antes de assinatura pública) |
+| Migration 007 (webhook idempotência) | ⬜ | `npm run deploy:backend -- --db` |
 | Secrets Stripe no Supabase | ✅ | Price IDs mensal/anual + trial 30 dias |
 | Webhook Stripe apontando para `stripe-webhook` | ✅ | `whsec` configurado |
 
@@ -45,6 +47,10 @@ npm run configure:supabase-auth # dev: login sem confirmar email
 npm run deploy:backend -- --all
 npm run deploy:leagues          # só migration 004 (requer SUPABASE_ACCESS_TOKEN)
 npm run verify:leagues
+npm run test:rls
+npm run test:stripe
+npm run validate:edge-security
+npm run gate:production
 npm run verify:production
 npm run validate:beta
 npm run ci

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { projectRoot } from "./lib/env-local.mjs";
 
-const migrations = ["001_initial_schema.sql", "002_client_snapshot.sql", "003_profile_trigger.sql", "004_leagues.sql"];
+const migrations = ["001_initial_schema.sql", "002_client_snapshot.sql", "003_profile_trigger.sql", "004_leagues.sql", "007_stripe_webhook_guard.sql"];
 const parts = migrations.map((file) => {
   const full = path.join(projectRoot(), "supabase", "migrations", file);
   return `-- ${file}\n${fs.readFileSync(full, "utf8")}`;

@@ -19,8 +19,10 @@ const migrations = [
   "supabase/migrations/002_client_snapshot.sql",
   "supabase/migrations/003_profile_trigger.sql",
   "supabase/migrations/004_leagues.sql",
+  "supabase/migrations/007_stripe_webhook_guard.sql",
 ];
 const functions = [
+  "supabase/functions/_shared/security.ts",
   "supabase/functions/create-checkout-session/index.ts",
   "supabase/functions/create-billing-portal/index.ts",
   "supabase/functions/stripe-webhook/index.ts",
@@ -29,12 +31,21 @@ const functions = [
 
 for (const migration of migrations) requirePath(migration, "migration");
 for (const fn of functions) requirePath(fn, "edge function");
+requirePath("scripts/test-rls.mjs", "test:rls");
+requirePath("scripts/test-stripe.mjs", "test:stripe");
+requirePath("scripts/gate-production.mjs", "gate:production");
 requirePath("supabase/config.toml", "supabase config");
 
 const envExample = path.join(root, ".env.example");
 if (fs.existsSync(envExample)) {
   const envText = fs.readFileSync(envExample, "utf8");
-  for (const key of ["VITE_BACKEND_MODE", "VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"]) {
+  for (const key of [
+    "VITE_BACKEND_MODE",
+    "VITE_SUPABASE_URL",
+    "VITE_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+  ]) {
     if (!envText.includes(key)) errors.push(`.env.example sem ${key}`);
   }
 } else {
@@ -62,7 +73,7 @@ console.log("");
 console.log("Próximos passos:");
 console.log("  npm run setup:supabase -- --init-env");
 console.log("  npm run deploy:backend -- --all");
-console.log("  npm run verify:production");
+console.log("  npm run gate:production");
 console.log("");
 console.log("Deploy manual (Supabase CLI):");
 console.log("  1. supabase login && supabase link --project-ref <ref>");
