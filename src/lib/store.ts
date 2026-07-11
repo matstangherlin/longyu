@@ -3412,12 +3412,13 @@ export const useStore = create<AppState>()(
               recentErrors: normalizeLessonMistakes(migrated.recentErrors).filter((error) => !error.recoveredAt),
             };
           }
-          if (version < 14 && !isDevPreviewAllowed()) {
-            migrated = {
-              ...migrated,
-              isPremium: false,
-              dailyEnergy: reconcileFreePlanEnergy(migrated.dailyEnergy),
-            };
+          // v14: no plano grátis (preview removido), zera isPremium e reconcilia
+          // a energia. O reconcile precisa vir na normalização final abaixo,
+          // senão o activeDailyEnergy o sobrescreveria e o teto inflado ("quase
+          // infinito") sobreviveria nas contas guardadas.
+          const stripAccountPreview = version < 14 && !isDevPreviewAllowed();
+          if (stripAccountPreview) {
+            migrated = { ...migrated, isPremium: false };
           }
           const completedLessons = normalizeCompletedLessons(migrated.completedLessons, migrated.lessonStarsById);
           migrated = {
@@ -3431,7 +3432,9 @@ export const useStore = create<AppState>()(
             recentErrors: normalizeLessonMistakes(migrated.recentErrors).filter((error) => !error.recoveredAt),
             toneTrainer: migrated.toneTrainer ?? {},
             recentActivityErrors: normalizeRecentActivityErrors(migrated.recentActivityErrors),
-            dailyEnergy: activeDailyEnergy(migrated.dailyEnergy),
+            dailyEnergy: stripAccountPreview
+              ? reconcileFreePlanEnergy(migrated.dailyEnergy)
+              : activeDailyEnergy(migrated.dailyEnergy),
             chestOpenHistory: migrated.chestOpenHistory ?? [],
             lifetimeStats: { ...freshLifetimeStats(), ...(migrated.lifetimeStats ?? {}) },
             hanziBuilderProgressByChar: normalizeHanziBuilderProgress(migrated.hanziBuilderProgressByChar),

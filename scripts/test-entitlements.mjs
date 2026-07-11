@@ -78,6 +78,10 @@ const storeSrc = read("src/lib/store.ts");
 assert(storeSrc.includes("version: 14"), "Persist deve estar na versão 14");
 assert(storeSrc.includes("reconcileFreePlanEnergy"), "Store deve reconciliar energia ao sair do Pro");
 assert(storeSrc.includes("effectivePremium"), "hasProAccess deve usar effectivePremium");
+assert(
+  storeSrc.includes("stripAccountPreview"),
+  "migração deve reconciliar a energia das contas guardadas (sem teto inflado sobrevivendo)"
+);
 
 const entitlementServiceSrc = read("src/services/entitlementService.ts");
 assert(entitlementServiceSrc.includes("resolveServerSubscriptionRow"), "entitlementService deve expor resolveServerSubscriptionRow");
