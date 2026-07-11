@@ -14,8 +14,10 @@ if (!token) {
 }
 
 const files = [
-  path.join(root, "supabase/seed/test-account.sql"),
+  path.join(root, "supabase/migrations/006_economy_server.sql"),
+  path.join(root, "supabase/migrations/007_internal_test_pro.sql"),
   path.join(root, "supabase/migrations/008_server_entitlement_rpc.sql"),
+  path.join(root, "supabase/seed/test-account.sql"),
 ];
 
 const sql = files.map((file) => readFileSync(file, "utf8")).join("\n\n");
