@@ -4,6 +4,7 @@ import type { ServerSubscriptionSnapshot } from "./subscriptionService";
 
 const ACTIVE_STATUSES = new Set(["trialing", "active"]);
 const INACTIVE_STATUSES = new Set(["past_due", "unpaid", "incomplete", "incomplete_expired"]);
+const INTERNAL_TEST_PRO_EMAILS = new Set(["teste@longyu.app"]);
 
 export function isActiveSubscriptionStatus(status: string | null | undefined): boolean {
   if (!status) return false;
@@ -80,6 +81,16 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
 }
 
 export async function fetchServerIsPro(): Promise<boolean> {
+  if (!isSupabaseBackendEnabled()) return false;
+  const client = getSupabaseClient();
+  if (client) {
+    const {
+      data: { user },
+    } = await client.auth.getUser();
+    if (user?.email && INTERNAL_TEST_PRO_EMAILS.has(user.email.toLowerCase())) {
+      return true;
+    }
+  }
   const snapshot = await fetchServerSubscription();
   return subscriptionGrantsPro(snapshot);
 }

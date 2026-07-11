@@ -28,6 +28,7 @@
     "validate:backend-ready": "node scripts/validate-backend-ready.mjs",
     "validate:plans": "node scripts/validate-plans.mjs && node scripts/test-entitlements.mjs",
     "test:entitlements": "node scripts/test-entitlements.mjs",
+    "seed:test-account": "node scripts/seed-test-account.mjs",
     "validate:economy": "node scripts/validate-economy.mjs",
     "validate:economy-server": "node scripts/validate-economy-server.mjs",
     "test:economy-server": "node scripts/test-economy-server.mjs",

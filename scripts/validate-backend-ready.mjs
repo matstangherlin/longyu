@@ -20,6 +20,8 @@ const migrations = [
   "supabase/migrations/003_profile_trigger.sql",
   "supabase/migrations/004_leagues.sql",
   "supabase/migrations/006_economy_server.sql",
+  "supabase/migrations/007_internal_test_pro.sql",
+  "supabase/seed/test-account.sql",
 ];
 const functions = [
   "supabase/functions/create-checkout-session/index.ts",
