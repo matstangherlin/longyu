@@ -37,6 +37,8 @@ import {
   type SubscriptionState,
 } from "../../services/subscriptionService";
 import { restoreCloudSessionIfPresent, syncAuthSessionProgress } from "../../services/cloudSyncCoordinator";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../../services/analyticsService";
+import { trackOnboardingCompleted, trackPlacementCompleted } from "../../lib/analytics/helpers";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
@@ -1694,12 +1696,15 @@ export function AccountPage() {
     const nextQuizSet = adaptiveQuizSet(declaredExperience, nextAnswers, hintedQuestions);
     setAnswers(nextAnswers);
     setQuizPicked(undefined);
-    if (quizIndex + 1 >= nextQuizSet.length) setStep("result");
+    if (quizIndex + 1 >= nextQuizSet.length) {
+      setStep("result");
+    }
     else setQuizIndex((index) => index + 1);
   }
 
   function chooseFinalPlacement(choice: "recommended" | "scratch") {
     setFinalChoice(choice);
+    trackPlacementCompleted(choice === "scratch" ? scratchResult.level : recommendedResult.level);
     playSoundFx("tap", soundEffects);
     setStep("account");
   }
@@ -1733,6 +1738,7 @@ export function AccountPage() {
         if (syncResult.ok) setAccountNotice("Conta criada e progresso sincronizado na nuvem.");
       }
       claimOnboardingReward();
+      trackOnboardingCompleted();
       playSoundFx("lessonComplete", soundEffects);
       navigate("/jornada");
       return;
@@ -1741,6 +1747,7 @@ export function AccountPage() {
     // persistida): passamos apenas nome + email; o placement é aplicado na store.
     createCloudAccountDraft(firstName(name), email, result);
     claimOnboardingReward();
+    trackOnboardingCompleted();
     playSoundFx("lessonComplete", soundEffects);
     navigate("/jornada");
   }
@@ -1751,6 +1758,7 @@ export function AccountPage() {
     // Conta é opcional: segue como perfil local neste dispositivo, com o nome informado.
     finishLocalOnboarding(firstName(name), result);
     claimOnboardingReward();
+    trackOnboardingCompleted();
     playSoundFx("lessonComplete", soundEffects);
     navigate("/jornada");
   }
@@ -1932,7 +1940,12 @@ export function AccountPage() {
         )}
       >
         {step === "welcome" && (
-          <WelcomeStep onStart={() => setStep("name")} />
+          <WelcomeStep
+            onStart={() => {
+              trackAnalytics({ event: ANALYTICS_EVENTS.onboarding_started });
+              setStep("name");
+            }}
+          />
         )}
 
         {step === "source" && (

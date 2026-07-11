@@ -14,6 +14,7 @@ export interface ServerSubscriptionSnapshot {
   planName?: string;
   nextBillingAt?: number;
   currentPeriodEnd?: number;
+  rawStatus?: string;
 }
 
 export type SubscriptionServiceStatus = "not_implemented" | "opened" | "error";

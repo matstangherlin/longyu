@@ -28,3 +28,7 @@ enable_signup = true
 # Stripe envia webhooks sem JWT do Supabase.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Analytics anônimo (landing/onboarding antes do login).
+[functions.submit-analytics]
+verify_jwt = false

@@ -1,4 +1,5 @@
 import { todayKey } from "./storage";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../services/analyticsService";
 
 export type ProOfferKind =
   | "success_accelerate"
@@ -235,6 +236,10 @@ export function evaluateProOffer(
 
 export function recordProOfferShown(offer: ProOfferCopy): void {
   if (offer.strength === "strong") markStrongOfferShown();
+  trackAnalytics({
+    event: ANALYTICS_EVENTS.pro_offer_shown,
+    metadata: { offer_kind: offer.kind, paywall_kind: offer.paywallKind, strength: offer.strength },
+  });
 }
 
 /** Oferta discreta (card) — sem limite diário forte. */

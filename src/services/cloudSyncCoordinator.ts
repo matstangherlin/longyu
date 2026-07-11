@@ -4,14 +4,24 @@ import { mergeRemoteProgress } from "../lib/syncMerge";
 import { activeLearningRepository } from "../lib/repositories/learningRepository";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { useStore } from "../lib/store";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../services/analyticsService";
+
+let lastSyncStatus: ReturnType<typeof useStore.getState>["cloudSyncState"]["status"] = "synced";
+
+function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
+  if (status === "error" && lastSyncStatus !== "error") {
+    trackAnalytics({ event: ANALYTICS_EVENTS.sync_failed, metadata: { message } });
+  }
+  if (status === "synced" && lastSyncStatus === "error") {
+    trackAnalytics({ event: ANALYTICS_EVENTS.sync_recovered });
+  }
+  lastSyncStatus = status;
+  useStore.getState().setCloudSyncState(status, message);
+}
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
 let pendingPush = false;
-
-function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
-  useStore.getState().setCloudSyncState(status, message);
-}
 
 function snapshotBodyWithProgress(
   base: ProgressSnapshotBody | undefined,

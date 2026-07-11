@@ -4,6 +4,7 @@ import type { ItemType } from "../data/types";
 import type { DomainTrack } from "../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS } from "../data/journey";
 import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../services/analyticsService";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
 import { todayKey, daysBetween, weekKey, monthKey } from "./storage";
 import {
@@ -1969,6 +1970,10 @@ export const useStore = create<AppState>()(
         if (xpInc > 0) {
           syncLeagueXpToServerAsync(xpInc, leagueXpKeyMission(scope, missionId, periodKeyForSync));
         }
+        trackAnalytics({
+          event: ANALYTICS_EVENTS.mission_claimed,
+          metadata: { scope, mission_id: missionId },
+        });
         return true;
       },
       createAccount: (rawName, rawEmail) => {
@@ -2439,6 +2444,12 @@ export const useStore = create<AppState>()(
           };
           const hanziBuilderProgressByChar = { ...s.hanziBuilderProgressByChar, [key]: entry };
           const next = { ...s, hanziBuilderProgressByChar };
+          if (correct) {
+            trackAnalytics({
+              event: ANALYTICS_EVENTS.hanzi_builder_completed,
+              metadata: { builder_level: safeLevel, first_try: Boolean(firstTry) },
+            });
+          }
           return { hanziBuilderProgressByChar, accounts: saveCurrentAccount(next) };
         }),
 
@@ -2988,7 +2999,13 @@ export const useStore = create<AppState>()(
         // Treino Focado ativo: treino extra não consome Carga por 24h.
         if (activityType === "extra_training" && get().hasFocusPass()) return true;
         const energy = activeDailyEnergy(state.dailyEnergy);
-        if (energy.charges < CHARGE_COST_ACTIVITY) return false;
+        if (energy.charges < CHARGE_COST_ACTIVITY) {
+          trackAnalytics({
+            event: ANALYTICS_EVENTS.charge_exhausted,
+            metadata: { activity_type: activityType },
+          });
+          return false;
+        }
         set((s) => {
           const current = activeDailyEnergy(s.dailyEnergy);
           if (current.charges < CHARGE_COST_ACTIVITY) return {};
@@ -2999,6 +3016,10 @@ export const useStore = create<AppState>()(
           };
           const next = { ...s, dailyEnergy };
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
+        });
+        trackAnalytics({
+          event: ANALYTICS_EVENTS.charge_consumed,
+          metadata: { activity_type: activityType },
         });
         return true;
       },
@@ -3072,6 +3093,12 @@ export const useStore = create<AppState>()(
           const next = { ...s, dailyEnergy };
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
         });
+        if (result.granted) {
+          trackAnalytics({
+            event: ANALYTICS_EVENTS.story_energy_granted,
+            metadata: { story_id: clean },
+          });
+        }
         return result;
       },
 
@@ -3108,6 +3135,7 @@ export const useStore = create<AppState>()(
             const next = { ...current, lessonStarsById };
             return { ...leaguePatch, lessonStarsById, accounts: saveCurrentAccount(next) };
           }
+          const wasFirst = current.completedLessons.length === 0;
           const leagueJoin = joinLeaguePatch(current);
           const week = activeWeeklyMissions(current.weeklyMissions);
           const weeklyMissions = { ...week, lessons: week.lessons + 1 };
@@ -3118,6 +3146,10 @@ export const useStore = create<AppState>()(
             lessonStarsById,
             weeklyMissions,
           };
+          if (wasFirst) {
+            trackAnalytics({ event: ANALYTICS_EVENTS.first_lesson_completed, lessonId: id });
+          }
+          trackAnalytics({ event: ANALYTICS_EVENTS.lesson_completed, lessonId: id });
           return {
             ...leaguePatch,
             ...leagueJoin,

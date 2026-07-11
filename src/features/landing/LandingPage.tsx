@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
+import { trackAnalytics, ANALYTICS_EVENTS } from "../../services/analyticsService";
 import { Button } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
@@ -25,6 +26,7 @@ export function LandingPage() {
   // A landing vive fora do AppShell, então aplica o tema por conta própria.
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    trackAnalytics({ event: ANALYTICS_EVENTS.landing_viewed });
   }, [theme]);
 
   if (accountSetupComplete || hasProgress || authMode === "cloud") {
@@ -35,7 +37,7 @@ export function LandingPage() {
     <div className="theme-transition flex min-h-dvh flex-col bg-bg">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
         <BrandLockup size={34} tagline="PT-BR → Mandarim" />
-        <Link to="/login">
+        <Link to="/login" onClick={() => trackAnalytics({ event: ANALYTICS_EVENTS.login_clicked })}>
           <Button variant="ghost" size="sm">
             Entrar
           </Button>
@@ -116,12 +118,20 @@ export function LandingPage() {
             </ul>
 
             <div className="mx-auto mt-6 grid max-w-md gap-2.5 lg:mx-0">
-              <Link to="/conta" className="block">
+              <Link
+                to="/conta"
+                className="block"
+                onClick={() => trackAnalytics({ event: ANALYTICS_EVENTS.get_started_clicked })}
+              >
                 <Button size="lg" className="w-full shadow-lift">
                   Começar agora <IconChevron width={18} height={18} />
                 </Button>
               </Link>
-              <Link to="/login" className="block">
+              <Link
+                to="/login"
+                className="block"
+                onClick={() => trackAnalytics({ event: ANALYTICS_EVENTS.login_clicked })}
+              >
                 <Button variant="outline" size="lg" className="w-full">
                   Já tenho uma conta
                 </Button>
