@@ -10,6 +10,7 @@ import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
+import { PwaUpdatePrompt } from "../pwa/PwaUpdatePrompt";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -95,6 +96,7 @@ export function AppShell() {
       <CloudSyncBootstrap />
       <EntitlementBootstrap />
       <AchievementsWatcher />
+      <PwaUpdatePrompt />
     </div>
     </>
   );

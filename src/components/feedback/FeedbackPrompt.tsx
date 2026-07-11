@@ -1,5 +1,6 @@
 import { Card } from "../ui/primitives";
 import { FeedbackButton } from "./FeedbackButton";
+import { BuildInfo } from "../system/BuildInfo";
 import type { FeedbackContext } from "../../lib/feedback";
 
 interface FeedbackPromptProps {
@@ -17,6 +18,7 @@ export function FeedbackPrompt({ context, compact = false, className }: Feedback
           <p className="mt-1 text-sm leading-6 text-ink-soft">
             Envie feedback para melhorar o Longyu Beta. Abre seu app de email — nada é enviado automaticamente.
           </p>
+          <BuildInfo compact className="mt-2" />
         </div>
         <FeedbackButton
           context={context}

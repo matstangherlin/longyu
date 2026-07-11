@@ -15,11 +15,13 @@
 # Variáveis VITE_* são públicas (entram no bundle). RLS no Supabase protege os dados.
 [context.production.environment]
   VITE_BACKEND_MODE = "supabase"
+  VITE_RELEASE_CHANNEL = "beta"
   VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
 
 [context.deploy-preview.environment]
   VITE_BACKEND_MODE = "supabase"
+  VITE_RELEASE_CHANNEL = "beta"
   VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
 
@@ -40,3 +42,20 @@
   for = "/manifest.webmanifest"
   [headers.values]
     Cache-Control = "no-cache"
+
+# HTML de entrada nunca em cache longo — evita bundle antigo após deploy.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Assets com hash podem ficar em cache longo (Vite gera nomes únicos).
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

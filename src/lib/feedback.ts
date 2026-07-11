@@ -1,4 +1,6 @@
 /** Canal de feedback beta — sem backend; abre o cliente de email do usuário. */
+import { buildInfoForReports, formatAppVersionLabel, shortCommitSha } from "./appMeta";
+
 export const BETA_LABEL = "Longyu Beta";
 
 /** Email do beta privado — configure VITE_FEEDBACK_EMAIL no deploy Netlify se mudar. */
@@ -21,12 +23,17 @@ export function buildFeedbackMailto(context?: FeedbackContext): string {
     context?.screen ??
     (typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "");
 
+  const meta = buildInfoForReports();
   const body = [
     "O que aconteceu?",
     "",
     "",
     "Em qual tela?",
     screen,
+    "",
+    "Versão do app:",
+    formatAppVersionLabel(),
+    `Build ${shortCommitSha(meta.build_sha)} · ${meta.release_channel}`,
     "",
     "Seu dispositivo:",
     deviceSummary(),

@@ -20,6 +20,7 @@ import {
   type Track,
 } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
+import { setRewardClaimInProgress } from "../../lib/sensitiveFlow";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import type { ReviewDomain } from "../../lib/srs";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
@@ -2500,10 +2501,15 @@ export function LessonPlayer() {
     // Resgata as recompensas no próprio card (sem uma segunda tela longa).
     function claimLessonRewards() {
       if (claimedRewardCards) return;
-      let claimed = false;
-      for (const reward of newRewards) claimed = claimReward(reward) || claimed;
-      if (claimed) playSoundFx("qiGain", soundEffects);
-      setClaimedRewardCards(true);
+      setRewardClaimInProgress(true);
+      try {
+        let claimed = false;
+        for (const reward of newRewards) claimed = claimReward(reward) || claimed;
+        if (claimed) playSoundFx("qiGain", soundEffects);
+        setClaimedRewardCards(true);
+      } finally {
+        window.setTimeout(() => setRewardClaimInProgress(false), 400);
+      }
     }
 
     function continueJourney() {

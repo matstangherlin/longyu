@@ -1,6 +1,8 @@
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { BuildInfo } from "../../components/system/BuildInfo";
 import { Card, SectionTitle } from "../../components/ui/primitives";
+import { RELEASE_NOTES, RELEASE_NOTE_KIND_LABEL } from "../../data/releaseNotes";
 import { BETA_LABEL } from "../../lib/feedback";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 
@@ -51,6 +53,7 @@ export function AboutPage() {
           Você está testando uma versão antecipada do Longyu. Algumas partes são experimentais, outras ainda são
           placeholders — e tudo isso é esperado nesta fase.
         </p>
+        <BuildInfo className="mt-4 rounded-xl bg-surface-2 px-3 py-2" />
       </Card>
 
       <section className="grid gap-3">
@@ -62,10 +65,32 @@ export function AboutPage() {
         ))}
       </section>
 
-      <FeedbackPrompt context={{ screen: "/sobre" }} compact />
+      <section id="changelog" className="scroll-mt-24 space-y-3">
+        <h2 className="font-serif text-xl font-semibold text-ink">Mudanças recentes</h2>
+        {RELEASE_NOTES.map((entry) => (
+          <Card key={entry.version} className="rounded-xl p-4 shadow-none">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="font-semibold text-ink">Versão {entry.version}</h3>
+              <span className="text-xs text-ink-faint">{entry.date}</span>
+            </div>
+            <ul className="mt-2 space-y-1.5 text-sm text-ink-soft">
+              {entry.highlights.map((item) => (
+                <li key={`${entry.version}-${item.text}`}>
+                  <span className="font-medium text-ink">{RELEASE_NOTE_KIND_LABEL[item.kind]}:</span> {item.text}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        ))}
+      </section>
 
+      <div id="feedback">
+        <FeedbackPrompt context={{ screen: "/sobre" }} compact />
+      </div>
+
+      <BuildInfo compact className="text-center" />
       <p className="text-center text-xs text-ink-faint">
-        Longyu (龙语) · {cloud ? "conta na nuvem disponível" : "dados salvos neste dispositivo"} · áudio via Web Speech API
+        {cloud ? "Conta na nuvem disponível" : "Dados salvos neste dispositivo"} · áudio via Web Speech API
       </p>
     </div>
   );

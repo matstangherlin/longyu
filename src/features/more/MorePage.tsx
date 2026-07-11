@@ -1,5 +1,6 @@
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { BuildInfo } from "../../components/system/BuildInfo";
 import {
   IconBook,
   IconGear,
@@ -154,6 +155,7 @@ export function MorePage() {
       ))}
 
       <FeedbackPrompt context={{ screen: "/mais" }} compact />
+      <BuildInfo compact className="text-center" />
     </HubPage>
   );
 }
