@@ -18,8 +18,15 @@ type BuildStatus = "idle" | "incomplete" | "wrong" | "correct";
 const MODE_LABEL: Record<HanziBuilder["mode"], string> = {
   fragments: "Monte por fragmentos",
   complete: "Complete a peça que falta",
-  components: "Monte por componentes",
+  components: "Monte pelas peças",
 };
+
+// "Componentes" soa técnico e sugere tradução literal. Para iniciante a bandeja
+// chama "Peças"; em níveis avançados, "Peças da forma" (pista estrutural).
+function trayLabel(builder: HanziBuilder): string {
+  if (builder.mode !== "components") return "Fragmentos";
+  return builder.level >= 4 ? "Peças da forma" : "Peças";
+}
 
 // Montar hànzì como quebra-cabeça visual: toque nas peças (traços ou
 // componentes) para preencher a carta central. Toque simples no mobile,
@@ -261,7 +268,7 @@ export function HanziBuilderExercise({
       {status !== "correct" && availablePieces.length > 0 && (
         <div className="mt-5">
           <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {builder.mode === "components" ? "Componentes" : "Fragmentos"}
+            {trayLabel(builder)}
           </div>
           <KeyboardShortcutHint />
           <div className="max-h-[34svh] overflow-y-auto rounded-2xl border border-line bg-surface-2/45 p-2">
@@ -271,6 +278,7 @@ export function HanziBuilderExercise({
                 key={piece.id}
                 piece={piece}
                 shortcut={index < 10 ? shortcutKeyForIndex(index) : undefined}
+                showInfo={!builder.context}
                 onClick={() => addPiece(piece)}
               />
             ))}
@@ -415,7 +423,7 @@ function BuildCanvas({
       <div className={[cardBase, cardBorder].join(" ")}>
         {selectedGlyphs.length === 0 ? (
           <span className="px-4 text-center text-sm font-medium text-ink-faint">
-            toque nos componentes
+            toque nas peças
           </span>
         ) : (
           <div className="flex flex-wrap items-center justify-center gap-1 px-4">
@@ -497,18 +505,23 @@ function PieceButton({
   placed = false,
   state = "idle",
   shortcut,
+  showInfo = false,
   onClick,
 }: {
   piece: BuilderPiece;
   placed?: boolean;
   state?: "idle" | "wrong";
   shortcut?: string;
+  /** Mostra nome curto + papel sob o glifo (bandeja de componentes). */
+  showInfo?: boolean;
   onClick: () => void;
 }) {
   const label =
     piece.kind === "stroke"
       ? `Fragmento: ${piece.stroke.label}`
-      : `Componente ${piece.glyph.glyph} (${piece.glyph.label})`;
+      : `Peça ${piece.glyph.glyph} (${piece.glyph.label}${piece.glyph.rolePt ? `, ${piece.glyph.rolePt}` : ""})`;
+  // Glifo + nome curto + papel, só na bandeja: peça colocada volta a ser compacta.
+  const withCaption = piece.kind === "glyph" && showInfo && !placed;
 
   return (
     <button
@@ -523,6 +536,8 @@ function PieceButton({
           ? "h-12 min-w-12 border-wrong bg-wrong-soft px-2"
           : placed
           ? "h-12 min-w-12 border-accent/60 px-2"
+          : withCaption
+          ? "min-h-14 min-w-20 border-line px-2.5 py-1.5 hover:border-accent-soft hover:bg-surface-2"
           : "h-14 min-w-14 border-line px-2 hover:border-accent-soft hover:bg-surface-2",
       ].join(" ")}
     >
@@ -542,6 +557,18 @@ function PieceButton({
             fill="none"
           />
         </svg>
+      ) : withCaption ? (
+        <span className="flex flex-col items-center gap-0.5">
+          <span className="hanzi text-3xl leading-none text-ink">{piece.glyph.glyph}</span>
+          <span className="max-w-24 text-center text-[10px] font-semibold leading-tight text-ink-soft">
+            {piece.glyph.label}
+          </span>
+          {piece.glyph.rolePt && (
+            <span className="max-w-24 text-center text-[10px] leading-tight text-ink-faint">
+              {piece.glyph.rolePt}
+            </span>
+          )}
+        </span>
       ) : (
         <span className={["hanzi leading-none", state === "wrong" ? "text-3xl text-wrong" : placed ? "text-3xl text-accent" : "text-4xl text-ink"].join(" ")}>
           {piece.glyph.glyph}

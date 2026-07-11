@@ -15,11 +15,19 @@ export interface HanziStroke {
   label: string;
 }
 
-/** Um componente inteiro (glifo), usado no modo "components". */
+/**
+ * Um componente inteiro (glifo), usado no modo "components".
+ * O label é uma pista visual/estrutural ("pessoa lateral"), nunca uma tradução
+ * literal da peça — o aluno não deve achar que cada peça "significa" algo que
+ * precisa decorar agora.
+ */
 export interface HanziGlyphPiece {
   id: string;
   glyph: string;
+  /** Nome curto da peça ("pessoa lateral", "árvore"). */
   label: string;
+  /** Papel da peça no caractere ("vem de 人", "base de 明"). */
+  rolePt?: string;
 }
 
 export interface HanziBuilder {
@@ -175,16 +183,16 @@ const cloneStroke = (stroke: HanziStroke, id: string): HanziStroke => ({ ...stro
 // Componentes (glifos) para o modo "components".
 // ---------------------------------------------------------------------------
 
-const G_MU: HanziGlyphPiece = { id: "g-mu", glyph: "木", label: "árvore" };
-const G_MU2: HanziGlyphPiece = { id: "g-mu2", glyph: "木", label: "árvore" };
-const G_MU3: HanziGlyphPiece = { id: "g-mu3", glyph: "木", label: "árvore" };
-const G_RI: HanziGlyphPiece = { id: "g-ri", glyph: "日", label: "sol / dia" };
-const G_YUE: HanziGlyphPiece = { id: "g-yue", glyph: "月", label: "lua / mês" };
-const G_NV: HanziGlyphPiece = { id: "g-nv", glyph: "女", label: "mulher" };
-const G_ZI: HanziGlyphPiece = { id: "g-zi", glyph: "子", label: "criança" };
-const G_REN_SIDE: HanziGlyphPiece = { id: "g-ren-side", glyph: "亻", label: "pessoa (lateral)" };
-const G_ER: HanziGlyphPiece = { id: "g-er", glyph: "尔", label: "tu (arcaico)" };
-const G_KOU: HanziGlyphPiece = { id: "g-kou", glyph: "口", label: "boca" };
+const G_MU: HanziGlyphPiece = { id: "g-mu", glyph: "木", label: "árvore", rolePt: "base de 林 e 森" };
+const G_MU2: HanziGlyphPiece = { id: "g-mu2", glyph: "木", label: "árvore", rolePt: "base de 林 e 森" };
+const G_MU3: HanziGlyphPiece = { id: "g-mu3", glyph: "木", label: "árvore", rolePt: "base de 林 e 森" };
+const G_RI: HanziGlyphPiece = { id: "g-ri", glyph: "日", label: "sol/dia", rolePt: "base de 明" };
+const G_YUE: HanziGlyphPiece = { id: "g-yue", glyph: "月", label: "lua/mês", rolePt: "base de 明" };
+const G_NV: HanziGlyphPiece = { id: "g-nv", glyph: "女", label: "mulher", rolePt: "base de 好" };
+const G_ZI: HanziGlyphPiece = { id: "g-zi", glyph: "子", label: "criança", rolePt: "base de 好" };
+const G_REN_SIDE: HanziGlyphPiece = { id: "g-ren-side", glyph: "亻", label: "pessoa lateral", rolePt: "vem de 人" };
+const G_ER: HanziGlyphPiece = { id: "g-er", glyph: "尔", label: "componente de forma", rolePt: "parte de 你" };
+const G_KOU: HanziGlyphPiece = { id: "g-kou", glyph: "口", label: "boca", rolePt: "aparece em hànzì de fala" };
 
 // ---------------------------------------------------------------------------
 // Exercícios.
@@ -760,7 +768,7 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     prerequisites: ["女", "子"],
     components: [G_NV, G_ZI],
     componentDistractors: [G_MU, G_RI],
-    explanationPt: "好 junta 女 + 子. Hoje significa bom ou bem.",
+    explanationPt: "好 junta 女 + 子 — uma composição histórica. Hoje, a forma inteira significa bom ou bem.",
     errorHintPt: "Primeiro 女 (mulher), depois 子 (criança).",
   },
   {
@@ -785,14 +793,15 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     meaningPt: "você",
     level: 4,
     mode: "components",
-    promptPt: "Monte o hànzì que significa 'você'.",
-    hintPt: "Pessoa + 尔.",
+    promptPt: "Monte o hànzì de 'você'.",
+    hintPt: "亻 vem de 人: ideia de pessoa. 尔 é a outra parte da forma.",
     prerequisites: ["人"],
     components: [G_REN_SIDE, G_ER],
     componentDistractors: [G_ZI, G_MU],
-    explanationPt: "你 junta 亻 (pessoa) + 尔. É o 'você' do dia a dia.",
-    relatedPt: "Aparece em 你好 (olá).",
-    errorHintPt: "亻 (pessoa) vem antes de 尔.",
+    explanationPt:
+      "你 junta 亻, a forma lateral de pessoa, com 尔. Aqui o objetivo é reconhecer a forma de 'você', que aparece em 你好.",
+    relatedPt: "As peças são pistas visuais — nenhuma delas traduz 'você' sozinha.",
+    errorHintPt: "亻 (a forma lateral de pessoa) vem antes de 尔.",
   },
   {
     id: "hb-hao-sentence",
