@@ -37,6 +37,17 @@ export function ModalOverlay({
 }) {
   useBodyScrollLock();
 
+  // ESC fecha o modal (mesmo comportamento do clique no backdrop). Centraliza a
+  // acessibilidade de teclado para todos os modais que usam este overlay.
+  useEffect(() => {
+    if (!onBackdropClick) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onBackdropClick();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onBackdropClick]);
+
   return (
     <div
       className={[

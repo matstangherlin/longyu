@@ -287,13 +287,13 @@ export function HanziBuilderExercise({
       )}
 
       {status === "incomplete" && (
-        <p className="animate-pop mt-4 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-center text-sm font-medium text-accent">
+        <p role="status" aria-live="polite" className="animate-pop mt-4 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-center text-sm font-medium text-accent">
           Ainda faltam peças. Continue montando.
         </p>
       )}
 
       {status === "wrong" && !externalRetry && (
-        <div className="animate-pop mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
+        <div role="status" aria-live="polite" className="animate-pop mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-accent">
             <IconX width={18} height={18} />
             Quase.
@@ -311,7 +311,7 @@ export function HanziBuilderExercise({
       )}
 
       {status === "correct" && (
-        <div className="animate-pop longyu-success-bloom mt-5 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
+        <div role="status" aria-live="polite" className="animate-pop longyu-success-bloom mt-5 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
             <IconCheck width={18} height={18} />
             {hadMistake ? "Boa! Hànzì montado." : "Perfeito! Hànzì montado."}

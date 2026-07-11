@@ -29,6 +29,7 @@ import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercis
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
 import { PronunciationPractice } from "./PronunciationPractice";
+import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { validateExercise } from "./exerciseValidation";
 import type { ItemType } from "../../data/types";
 
@@ -120,6 +121,8 @@ function AnswerFeedback({
 }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={[
         "animate-pop mt-4 rounded-2xl border p-3.5",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
@@ -172,6 +175,8 @@ function ToneAnswerFeedback({
 }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={[
         "animate-pop mt-4 rounded-2xl border p-3.5 text-left",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
@@ -1266,6 +1271,8 @@ function EngineFeedbackPanel({
   const correct = status === "correct";
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={[
         "animate-pop mt-4 rounded-2xl border p-3.5",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
@@ -2657,6 +2664,14 @@ function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void })
         Nada foi descontado do seu progresso.
       </p>
       <ContinueBtn onClick={() => onDone()} />
+      <div className="mt-3 flex justify-center">
+        <FeedbackButton
+          context={{ screen: "exercício pulado no player" }}
+          variant="ghost"
+          size="sm"
+          label="Reportar este exercício"
+        />
+      </div>
     </div>
   );
 }
