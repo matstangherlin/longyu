@@ -1,16 +1,24 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
-import { fetchServerSubscription } from "./entitlementService";
+import { isDevPreviewAllowed } from "../lib/entitlements";
+import { fetchServerSubscription, subscriptionGrantsPro } from "./entitlementService";
 
 export type SubscriptionState =
   | "not_subscriber"
   | "local_preview"
+  | "real_trialing"
   | "real_active"
-  | "real_canceled"
+  | "real_canceling"
+  | "real_expired";
+
+export type ServerSubscriptionState =
+  | "real_trialing"
+  | "real_active"
+  | "real_canceling"
   | "real_expired";
 
 export interface ServerSubscriptionSnapshot {
-  state: Extract<SubscriptionState, "real_active" | "real_canceled" | "real_expired">;
+  state: ServerSubscriptionState;
   planName?: string;
   nextBillingAt?: number;
   currentPeriodEnd?: number;
@@ -42,9 +50,12 @@ export function subscriptionStateFor(
   isPremiumPreview: boolean,
   snapshot: ServerSubscriptionSnapshot | null = null
 ): SubscriptionState {
-  if (snapshot?.state === "real_active") return "real_active";
-  if (snapshot) return snapshot.state;
-  return isPremiumPreview ? "local_preview" : "not_subscriber";
+  if (snapshot) {
+    if (subscriptionGrantsPro(snapshot)) return snapshot.state;
+    return snapshot.state;
+  }
+  if (isPremiumPreview && isDevPreviewAllowed()) return "local_preview";
+  return "not_subscriber";
 }
 
 export async function createCheckoutSession(

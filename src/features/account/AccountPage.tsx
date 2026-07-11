@@ -50,6 +50,8 @@ import {
 } from "../../services/authService";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useIsPro } from "../../lib/proAccess";
+import { isDevPreviewAllowed } from "../../lib/entitlements";
+import { subscriptionGrantsPro } from "../../services/entitlementService";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import {
   IconBook,
@@ -1438,22 +1440,27 @@ const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; b
   not_subscriber: {
     label: "Gratuito",
     tone: "muted",
-    blurb: "Você está usando o Longyu gratuito. O Longyu Pro ficará disponível no lançamento.",
+    blurb: "Você está usando o Longyu gratuito.",
   },
   local_preview: {
-    label: "Longyu Pro",
+    label: "Preview local",
     tone: "gold",
-    blurb: "Recursos do Longyu Pro liberados.",
+    blurb: "Preview local — não é assinatura real.",
+  },
+  real_trialing: {
+    label: "Trial ativo",
+    tone: "accent",
+    blurb: "Período de teste do Longyu Pro em andamento.",
   },
   real_active: {
-    label: "Longyu Pro ativo",
+    label: "Pro ativo",
     tone: "accent",
     blurb: "Assinatura ativa.",
   },
-  real_canceled: {
+  real_canceling: {
     label: "Pro cancelado",
     tone: "accent",
-    blurb: "Assinatura cancelada.",
+    blurb: "Acesso Pro mantido até o fim do período já pago.",
   },
   real_expired: {
     label: "Pro expirado",
@@ -2064,7 +2071,7 @@ export function AccountPage() {
           title: "Pro",
           desc: proStatus.label,
           icon: IconStar,
-          badge: proState === "local_preview" ? "Pro" : undefined,
+          badge: proState === "local_preview" && isDevPreviewAllowed() ? "Preview" : undefined,
           featured: proState === "not_subscriber",
           onClick: () => proAccountRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },
@@ -2372,7 +2379,7 @@ export function AccountPage() {
           <HubCard
             title="Longyu Pro"
             desc={
-              proState === "local_preview" || proState === "real_active"
+              isProEffective
                 ? "Longyu Pro ativo."
                 : "Estude sem limites com o Pro."
             }
@@ -2878,24 +2885,32 @@ function ProSubscriptionCard({
   onManageSubscription: () => void;
   onCancelPlan: () => void;
 }) {
+  const setPremium = useStore((state) => state.setPremium);
   const meta = PRO_STATUS[proState];
+  const periodEndLabel = serverSubscription?.currentPeriodEnd
+    ? formatAccountDate(serverSubscription.currentPeriodEnd)
+    : null;
   const metaBlurb =
-    proState === "not_subscriber" && isSupabaseBackendEnabled()
-      ? "Plano gratuito. Assine o Longyu Pro quando quiser desbloquear tudo."
-      : meta.blurb;
+    proState === "real_canceling" && periodEndLabel
+      ? `Acesso Pro até ${periodEndLabel}.`
+      : proState === "not_subscriber" && isSupabaseBackendEnabled()
+        ? "Plano gratuito. Assine o Longyu Pro quando quiser desbloquear tudo."
+        : meta.blurb;
   const isFree = proState === "not_subscriber";
   const isLocalPreview = proState === "local_preview";
-  const hasRealSubscription = Boolean(serverSubscription);
+  const hasRealSubscription = subscriptionGrantsPro(serverSubscription);
   const canManage = hasRealSubscription && isBillingPortalAvailable();
-  const canCancel = proState === "real_active" && hasRealSubscription && isBillingPortalAvailable();
-  const planName = serverSubscription?.planName ?? (isLocalPreview ? "Longyu Pro" : "Gratuito");
+  const canCancel =
+    (proState === "real_active" || proState === "real_trialing") &&
+    hasRealSubscription &&
+    isBillingPortalAvailable();
+  const planName = serverSubscription?.planName ?? (isLocalPreview ? "Preview local" : "Gratuito");
   const benefits = isFree ? getAccountFreeBenefitLines(isSupabaseBackendEnabled()) : ACCOUNT_PRO_BENEFITS;
   const nextBilling =
-    serverSubscription?.nextBillingAt
-      ? formatAccountDate(serverSubscription.nextBillingAt)
-      : proState === "real_active"
-        ? "Assinatura ativa"
-        : "Nenhuma cobrança";
+    periodEndLabel ??
+    (proState === "real_trialing" || proState === "real_active" || proState === "real_canceling"
+      ? "Assinatura ativa"
+      : "Nenhuma cobrança");
 
   return (
     <Card className="h-full overflow-hidden rounded-xl border-line/70 p-3.5 shadow-none sm:p-4">
@@ -2934,7 +2949,17 @@ function ProSubscriptionCard({
         ))}
       </div>
 
-      {isFree ? (
+      {isLocalPreview && isDevPreviewAllowed() ? (
+        <div className="mt-5 rounded-2xl border border-dashed border-gold/35 bg-gold-soft/30 px-4 py-3 text-sm text-ink-soft">
+          <p className="font-medium text-ink">Preview local — não é assinatura real</p>
+          <p className="mt-1 text-xs leading-5 text-ink-faint">
+            Este modo só existe para testes internos. Não representa uma assinatura paga.
+          </p>
+          <Button size="sm" variant="outline" className="mt-3" onClick={() => setPremium(false)}>
+            Desativar preview
+          </Button>
+        </div>
+      ) : isFree ? (
         <div className="mt-5">
           <Button className="w-full sm:w-auto" onClick={onKnowPro}>
             Ver Longyu Pro
@@ -2967,8 +2992,8 @@ function ProSubscriptionCard({
             </Button>
           </div>
           <p className="mt-3 text-xs leading-5 text-ink-faint">
-            {isLocalPreview
-              ? "Recursos do Longyu Pro liberados nesta conta."
+            {hasRealSubscription
+              ? "Gerencie ou cancele sua assinatura pelo portal de cobrança."
               : "Quando o pagamento real estiver ativo, você poderá gerenciar ou cancelar sua assinatura por aqui."}
           </p>
         </>

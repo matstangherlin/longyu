@@ -154,10 +154,33 @@ for (const dir of publicUiGlobs) {
   }
 }
 
+// ——— Entitlements: preview só em dev ———
+const entitlementsSrc = read("src/lib/entitlements.ts");
+if (!entitlementsSrc.includes("isDevPreviewAllowed")) {
+  fail("entitlements.ts deve exportar isDevPreviewAllowed");
+}
+if (!entitlementsSrc.includes("VITE_ALLOW_PRO_PREVIEW")) {
+  fail("entitlements.ts deve checar VITE_ALLOW_PRO_PREVIEW");
+}
+if (!/isPreview && isDevPreviewAllowed\(\)/.test(entitlementsSrc)) {
+  fail("effectivePremium deve exigir isDevPreviewAllowed para preview local");
+}
+
+const storeSrc = read("src/lib/store.ts");
+if (!storeSrc.includes("version: 14")) {
+  fail("store.ts persist deve estar na versão 14 (migração preview Pro)");
+}
+if (!storeSrc.includes("reconcileFreePlanEnergy")) {
+  fail("store.ts deve reconciliar cargas ao sair do Pro");
+}
+
 // ——— package.json script ———
 const pkg = JSON.parse(read("package.json"));
 if (!pkg.scripts?.["validate:plans"]) {
   fail('package.json sem script "validate:plans"');
+}
+if (!pkg.scripts?.["test:entitlements"]) {
+  fail('package.json sem script "test:entitlements"');
 }
 
 function walk(dir, acc = []) {

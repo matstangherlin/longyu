@@ -2,6 +2,7 @@ import type { LearningAccount } from "./store";
 import type { LessonStar } from "./store";
 import type { SRSItem } from "./srs";
 import { getProgressScore } from "./progressSnapshot";
+import { isDevPreviewAllowed } from "./entitlements";
 
 export type ProgressSlice = Omit<LearningAccount, "id" | "name" | "email" | "authMode" | "createdAt" | "updatedAt">;
 
@@ -129,7 +130,7 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
         ? local.leagueJoinedAt
         : Math.min(local.leagueJoinedAt, remote.leagueJoinedAt),
     leagueBots: (local.leagueBots?.length ?? 0) >= (remote.leagueBots?.length ?? 0) ? local.leagueBots : remote.leagueBots,
-    isPremium: local.isPremium || remote.isPremium,
+    isPremium: isDevPreviewAllowed() ? local.isPremium || remote.isPremium : false,
     placement: local.placement ?? remote.placement,
   };
 }

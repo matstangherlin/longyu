@@ -91,9 +91,8 @@ export function isProUser(context?: ProAccessContext | boolean): boolean {
 }
 
 /**
- * Pro efetivo para as telas: assinatura real do servidor OU preview local.
- * Use este hook em vez de ler `s.isPremium` direto — ler só o preview faz um
- * assinante real (serverIsPro) ver a UI do plano grátis.
+ * Pro efetivo para as telas: assinatura real do servidor OU preview local (só em dev).
+ * Use este hook em vez de ler `s.isPremium` direto.
  */
 export function useIsPro(): boolean {
   return useStore((s) => effectivePremium(s.isPremium, s.serverIsPro));

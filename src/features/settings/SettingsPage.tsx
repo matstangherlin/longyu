@@ -11,6 +11,7 @@ import { MandarinText } from "../../components/hanzi/MandarinText";
 import { COURSE_PROFILE } from "../../data/course";
 import { DOMAIN_META, DOMAIN_ORDER, type DomainTrack } from "../../data/domains";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { isDevPreviewAllowed } from "../../lib/entitlements";
 
 const THEMES: { id: ThemeName; name: string; desc: string; swatch: string[] }[] = [
   { id: "clay", name: "Notion Clay", desc: "Branco quente, calmo, focado.", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
@@ -413,32 +414,38 @@ export function SettingsPage() {
           </Link>
         </Card>
 
-        {/* Ferramenta interna de desenvolvimento: simular o Pro sem servidor.
-            Nunca aparece para o usuário final (só em build de DEV). */}
-        {import.meta.env.DEV && (
-          <Card className="mt-2 flex items-center justify-between gap-3 rounded-xl border-dashed border-accent/40 p-3.5 shadow-none">
+        {/* Ferramenta interna: simular Pro sem assinatura real (só dev / flag explícita). */}
+        {isDevPreviewAllowed() && (
+          <Card className="mt-2 flex flex-col gap-3 rounded-xl border-dashed border-accent/40 p-3.5 shadow-none sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="font-medium text-ink">DEV: simular Pro</div>
+              <div className="font-medium text-ink">Preview local — não é assinatura real</div>
               <div className="text-sm text-ink-soft">
-                Alterna o entitlement local para testar as telas Pro. Só existe em desenvolvimento.
+                Alterna o entitlement local para testar telas Pro. Não vale em produção beta.
               </div>
             </div>
-            <button
-              role="switch"
-              aria-checked={isPremium}
-              onClick={() => setPremium(!isPremium)}
-              className={[
-                "relative h-7 w-12 shrink-0 rounded-full transition",
-                isPremium ? "bg-accent" : "bg-line",
-              ].join(" ")}
-            >
-              <span
+            <div className="flex items-center gap-3">
+              <button
+                role="switch"
+                aria-checked={isPremium}
+                onClick={() => setPremium(!isPremium)}
                 className={[
-                  "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
-                  isPremium ? "left-5" : "left-0.5",
+                  "relative h-7 w-12 shrink-0 rounded-full transition",
+                  isPremium ? "bg-accent" : "bg-line",
                 ].join(" ")}
-              />
-            </button>
+              >
+                <span
+                  className={[
+                    "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
+                    isPremium ? "left-5" : "left-0.5",
+                  ].join(" ")}
+                />
+              </button>
+              {isPremium ? (
+                <Button size="sm" variant="outline" onClick={() => setPremium(false)}>
+                  Desativar
+                </Button>
+              ) : null}
+            </div>
           </Card>
         )}
 

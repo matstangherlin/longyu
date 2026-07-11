@@ -61,6 +61,7 @@ import {
   serverOpenChest,
   serverSpendQi,
 } from "./economyServerBridge";
+import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
 
 export type ThemeName = "clay" | "china" | "dark";
 export type SoundTheme = "longyu_classic" | "longyu_soft" | "longyu_game";
@@ -623,6 +624,28 @@ function activeDailyEnergy(energy: DailyEnergy | undefined, date = todayKey()): 
     charges: Math.max(0, Math.min(maxCharges, energy.charges ?? maxCharges)),
     usedCharges: Math.max(0, energy.usedCharges ?? 0),
     bonusChargesClaimed: energy.bonusChargesClaimed ?? {},
+  };
+}
+
+/** Bônus legítimo de histórias do dia (+1 max por história, até o cap diário). */
+function legitimateStoryBonusCount(bonusClaims: Record<string, boolean>, date: string): number {
+  const prefix = `story-energy:${date}:`;
+  return Object.keys(bonusClaims).filter((key) => key.startsWith(prefix) && bonusClaims[key]).length;
+}
+
+/** Normaliza cargas ao sair do Pro: base grátis + bônus reais do dia. */
+export function reconcileFreePlanEnergy(energy: DailyEnergy | undefined, date = todayKey()): DailyEnergy {
+  const current = energy?.date === date ? energy : freshDailyEnergy(date);
+  const bonusClaims = current.bonusChargesClaimed ?? {};
+  const freeMax = FREE_DAILY_CHARGES + legitimateStoryBonusCount(bonusClaims, date);
+  const maxCharges = Math.max(FREE_DAILY_CHARGES, freeMax);
+  const charges = Math.min(maxCharges, Math.max(0, current.charges ?? maxCharges));
+  return {
+    date,
+    maxCharges,
+    charges,
+    usedCharges: Math.max(0, current.usedCharges ?? 0),
+    bonusChargesClaimed: bonusClaims,
   };
 }
 
@@ -1380,8 +1403,7 @@ function finalizeOnboardingState(
 }
 
 function hasProAccess(s: Pick<AppState, "isPremium" | "serverIsPro">): boolean {
-  if (s.serverIsPro) return true;
-  return s.isPremium;
+  return effectivePremium(s.isPremium, s.serverIsPro);
 }
 
 interface AppState {
@@ -1721,7 +1743,13 @@ export const useStore = create<AppState>()(
           const next = { ...s, isPremium: v };
           return { isPremium: v, accounts: saveCurrentAccount(next) };
         }),
-      setServerEntitlement: (isPro) => set({ serverIsPro: isPro }),
+      setServerEntitlement: (isPro) =>
+        set((s) => {
+          const stillPro = effectivePremium(s.isPremium, isPro);
+          const dailyEnergy = stillPro ? s.dailyEnergy : reconcileFreePlanEnergy(s.dailyEnergy);
+          const next = { ...s, serverIsPro: isPro, dailyEnergy };
+          return { serverIsPro: isPro, dailyEnergy, accounts: saveCurrentAccount(next) };
+        }),
       setCloudSyncState: (status, message = "") =>
         set({
           cloudSyncState: {
@@ -3277,7 +3305,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 13,
+      version: 14,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -3293,6 +3321,7 @@ export const useStore = create<AppState>()(
       // v10: adiciona progresso do Tone Trainer por conta.
       // v11: adiciona histórico leve de erros recentes para revisão corretiva.
       // v13: adiciona progresso do HanziBuilder por caractere (guia/dificuldade).
+      // v14: remove preview Pro persistido em produção e normaliza cargas ao plano grátis.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -3383,6 +3412,13 @@ export const useStore = create<AppState>()(
               recentErrors: normalizeLessonMistakes(migrated.recentErrors).filter((error) => !error.recoveredAt),
             };
           }
+          if (version < 14 && !isDevPreviewAllowed()) {
+            migrated = {
+              ...migrated,
+              isPremium: false,
+              dailyEnergy: reconcileFreePlanEnergy(migrated.dailyEnergy),
+            };
+          }
           const completedLessons = normalizeCompletedLessons(migrated.completedLessons, migrated.lessonStarsById);
           migrated = {
             ...migrated,
@@ -3406,8 +3442,13 @@ export const useStore = create<AppState>()(
         const root = state as Partial<AppState>;
         const rootAchievements = normalizeAchievementState(root.achievementsUnlocked, root.achievementHistory);
         const rootCompletedLessons = normalizeCompletedLessons(root.completedLessons, root.lessonStarsById);
+        const stripPreview = version < 14 && !isDevPreviewAllowed();
+        const rootDailyEnergy = stripPreview
+          ? reconcileFreePlanEnergy(root.dailyEnergy)
+          : activeDailyEnergy(root.dailyEnergy);
         return {
           ...root,
+          isPremium: stripPreview ? false : root.isPremium,
           leagueTier: normalizeLeagueTier(root.leagueTier),
           leagueJoinedAt: root.leagueJoinedAt ?? null,
           leagueBots: root.leagueBots ?? [],
@@ -3423,7 +3464,7 @@ export const useStore = create<AppState>()(
           toneTrainer: root.toneTrainer ?? {},
           recentActivityErrors: normalizeRecentActivityErrors(root.recentActivityErrors),
           chestOpenHistory: root.chestOpenHistory ?? [],
-          dailyEnergy: activeDailyEnergy(root.dailyEnergy),
+          dailyEnergy: rootDailyEnergy,
           lifetimeStats: { ...freshLifetimeStats(), ...(root.lifetimeStats ?? {}) },
           hanziBuilderProgressByChar: normalizeHanziBuilderProgress(root.hanziBuilderProgressByChar),
           ...rootAchievements,
