@@ -13,8 +13,13 @@ export function isDevPreviewAllowed(): boolean {
   return import.meta.env.DEV === true || import.meta.env.VITE_ALLOW_PRO_PREVIEW === "true";
 }
 
-export function effectivePremium(isPreview: boolean, serverIsPro: boolean | null | undefined): boolean {
+export function effectivePremium(
+  isPreview: boolean,
+  serverIsPro: boolean | null | undefined,
+  options?: { accountEmail?: string | null; accountAuthMode?: string | null }
+): boolean {
   if (serverIsPro === true) return true;
+  if (options?.accountAuthMode === "cloud" && isInternalTestProEmail(options.accountEmail)) return true;
   if (isPreview && isDevPreviewAllowed()) return true;
   return false;
 }

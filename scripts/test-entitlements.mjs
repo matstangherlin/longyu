@@ -22,8 +22,9 @@ function isDevPreviewAllowed(env = process.env) {
   return env.NODE_ENV === "development" || env.VITE_ALLOW_PRO_PREVIEW === "true";
 }
 
-function effectivePremium(isPreview, serverIsPro, env = process.env) {
+function effectivePremium(isPreview, serverIsPro, env = process.env, options = {}) {
   if (serverIsPro === true) return true;
+  if (options.accountAuthMode === "cloud" && options.accountEmail === "teste@longyu.app") return true;
   if (isPreview && isDevPreviewAllowed(env)) return true;
   return false;
 }
@@ -72,7 +73,9 @@ function reconcileFreePlanEnergy(energy, date = "2026-07-11") {
 const entitlementsSrc = read("src/lib/entitlements.ts");
 assert(entitlementsSrc.includes("isDevPreviewAllowed"), "entitlements.ts sem isDevPreviewAllowed");
 assert(entitlementsSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "entitlements.ts deve checar VITE_ALLOW_PRO_PREVIEW");
-assert(entitlementsSrc.includes("isDevPreviewAllowed()"), "effectivePremium deve usar isDevPreviewAllowed");
+assert(entitlementsSrc.includes("isInternalTestProEmail"), "entitlements.ts deve expor isInternalTestProEmail");
+assert(entitlementsSrc.includes("teste@longyu.app"), "entitlements.ts deve listar conta QA interna");
+assert(entitlementsSrc.includes("accountAuthMode"), "effectivePremium deve considerar conta cloud de QA");
 
 const storeSrc = read("src/lib/store.ts");
 assert(storeSrc.includes("version: 14"), "Persist deve estar na versão 14");
@@ -101,6 +104,20 @@ assert(!effectivePremium(false, false, prodEnv), "Sem servidor nem preview = gr�
 // serverIsPro true libera Pro
 assert(effectivePremium(false, true, prodEnv), "serverIsPro true deve liberar Pro");
 assert(effectivePremium(true, true, prodEnv), "serverIsPro true prevalece sobre preview");
+
+// Conta cloud de QA interna libera Pro sem preview nem assinatura Stripe
+assert(
+  effectivePremium(false, false, prodEnv, { accountAuthMode: "cloud", accountEmail: "teste@longyu.app" }),
+  "Conta cloud teste@longyu.app deve liberar Pro em produção"
+);
+assert(
+  !effectivePremium(false, false, prodEnv, { accountAuthMode: "cloud_pending", accountEmail: "teste@longyu.app" }),
+  "Conta cloud_pending não deve liberar Pro sem login"
+);
+assert(
+  !effectivePremium(false, false, prodEnv, { accountAuthMode: "local", accountEmail: "teste@longyu.app" }),
+  "Perfil local com email de teste não deve liberar Pro sem sessão cloud"
+);
 
 // Preview só em dev / flag explícita
 const devEnv = { NODE_ENV: "development" };

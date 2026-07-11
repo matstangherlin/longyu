@@ -65,6 +65,7 @@ export function AppShell() {
         </div>
         <AuthBootstrap />
         <CloudSyncBootstrap />
+        <EntitlementBootstrap />
       </>
     );
   }

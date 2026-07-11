@@ -5,7 +5,19 @@ import { isInternalTestProEmail } from "../../lib/entitlements";
 import { useStore } from "../../lib/store";
 import { fetchRemoteEntitlements } from "../../services/syncService";
 
+function grantInternalTestProFromStore(setServerEntitlement: (isPro: boolean) => void): boolean {
+  const store = useStore.getState();
+  const account = store.accounts[store.currentAccountId];
+  if (account?.authMode === "cloud" && isInternalTestProEmail(account.email)) {
+    setServerEntitlement(true);
+    return true;
+  }
+  return false;
+}
+
 async function refreshServerEntitlement(setServerEntitlement: (isPro: boolean) => void): Promise<void> {
+  if (grantInternalTestProFromStore(setServerEntitlement)) return;
+
   const client = getSupabaseClient();
   if (!client) return;
 
@@ -29,10 +41,21 @@ export function EntitlementBootstrap() {
   useEffect(() => {
     if (!isSupabaseBackendEnabled()) return;
 
-    void refreshServerEntitlement(setServerEntitlement);
+    let unsubHydration: (() => void) | undefined;
+    if (useStore.persist.hasHydrated()) {
+      void refreshServerEntitlement(setServerEntitlement);
+    } else {
+      unsubHydration = useStore.persist.onFinishHydration(() => {
+        unsubHydration?.();
+        unsubHydration = undefined;
+        void refreshServerEntitlement(setServerEntitlement);
+      });
+    }
 
     const client = getSupabaseClient();
-    if (!client) return;
+    if (!client) {
+      return () => unsubHydration?.();
+    }
 
     const {
       data: { subscription },
@@ -45,7 +68,10 @@ export function EntitlementBootstrap() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      unsubHydration?.();
+      subscription.unsubscribe();
+    };
   }, [setServerEntitlement]);
 
   return null;
