@@ -43,6 +43,9 @@ import {
   PRO_CHEST_FOCUS_PASS_CHANCE,
   PRO_CHEST_QI_MULTIPLIER,
   PRO_CHEST_RARE_BONUS,
+  LESSON_NO_SKIP_QI,
+  LESSON_THREE_STAR_QI,
+  PRO_LESSON_QI_BONUS,
   PRO_MISSION_QI_MULTIPLIER,
   QI_PACK_AMOUNT,
   STORY_ENERGY_DAILY_CAP,
@@ -53,6 +56,7 @@ import {
   shouldUseServerEconomy,
   serverClaimMission,
   serverConsumeCharge,
+  serverGrantLessonReward,
   serverGrantStoryEnergy,
   serverOpenChest,
   serverSpendQi,
@@ -1557,6 +1561,12 @@ interface AppState {
   setLessonTaskProgress: (lessonId: string, completedTasks: number) => void;
   toggleFavoriteItem: (key: string) => void;
   claimReward: (reward: RewardGrant) => boolean;
+  grantLessonReward: (input: {
+    lessonId: string;
+    attemptId: string;
+    stars: number;
+    noSkip: boolean;
+  }) => boolean;
   claimDailyMission: (missionId: string, rewards: RewardGrant[]) => boolean;
   getActiveDailyEnergy: () => DailyEnergy;
   consumeCharge: (activityType: EnergyActivityType, idempotencyKey?: string) => boolean;
@@ -2702,6 +2712,49 @@ export const useStore = create<AppState>()(
         });
         if (reward.type === "xp" && reward.amount > 0) {
           syncLeagueXpToServerAsync(reward.amount, leagueXpKeyReward(reward.id));
+        }
+        return true;
+      },
+
+      grantLessonReward: ({ lessonId, attemptId, stars, noSkip }) => {
+        const state = get();
+        const rewardId = `lesson:${lessonId}:qi`;
+        if ((state.rewardHistory ?? []).some((entry) => entry.id === rewardId)) return false;
+
+        const qiAmount =
+          stars >= 3
+            ? LESSON_THREE_STAR_QI +
+              (noSkip ? LESSON_NO_SKIP_QI : 0) +
+              (hasProAccess(state) ? PRO_LESSON_QI_BONUS : 0)
+            : 0;
+
+        if (qiAmount <= 0) {
+          if (shouldUseServerEconomy()) {
+            void serverGrantLessonReward({ lessonId, attemptId, stars, noSkip });
+          }
+          return false;
+        }
+
+        const previousPoints = state.points;
+        const claimed = get().claimReward({
+          id: rewardId,
+          type: "qi",
+          amount: qiAmount,
+          source: "Conclusão de lição",
+        });
+        if (!claimed) return false;
+
+        if (shouldUseServerEconomy()) {
+          void serverGrantLessonReward({ lessonId, attemptId, stars, noSkip }).then((result) => {
+            if (!result.ok && !result.already_applied) {
+              set((s) => {
+                const rewardHistory = (s.rewardHistory ?? []).filter((entry) => entry.id !== rewardId);
+                const next = { ...s, points: previousPoints, rewardHistory };
+                return { points: previousPoints, rewardHistory, accounts: saveCurrentAccount(next) };
+              });
+              get().setEconomySyncMessage("Recompensa não confirmada pelo servidor.");
+            }
+          });
         }
         return true;
       },

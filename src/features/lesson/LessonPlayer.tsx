@@ -1094,6 +1094,7 @@ export function LessonPlayer() {
   const badges = useStore((s) => s.badges);
   const rewardHistory = useStore((s) => s.rewardHistory);
   const claimReward = useStore((s) => s.claimReward);
+  const grantLessonReward = useStore((s) => s.grantLessonReward);
   const points = useStore((s) => s.points);
   const spendQi = useStore((s) => s.spendQi);
   const soundEffects = useStore((s) => s.soundEffects);
@@ -2501,7 +2502,15 @@ export function LessonPlayer() {
     function claimLessonRewards() {
       if (claimedRewardCards) return;
       let claimed = false;
-      for (const reward of newRewards) claimed = claimReward(reward) || claimed;
+      const attemptId = attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`;
+      const noSkip = skippedStepsRef.current === 0;
+      const qiReward = newRewards.find((reward) => reward.type === "qi");
+      if (qiReward && qiReward.amount > 0) {
+        claimed = grantLessonReward({ lessonId: lesson.id, attemptId, stars, noSkip }) || claimed;
+      }
+      for (const reward of newRewards.filter((reward) => reward.type !== "qi")) {
+        claimed = claimReward(reward) || claimed;
+      }
       if (claimed) playSoundFx("qiGain", soundEffects);
       setClaimedRewardCards(true);
     }
