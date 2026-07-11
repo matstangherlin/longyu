@@ -10,6 +10,7 @@ import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
+import { FeedbackProvider } from "../feedback/FeedbackContext";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -57,18 +58,18 @@ export function AppShell() {
 
   if (isOnboarding || isLoginPage) {
     return (
-      <>
+      <FeedbackProvider>
         <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">
           <Outlet />
         </div>
         <AuthBootstrap />
         <CloudSyncBootstrap />
-      </>
+      </FeedbackProvider>
     );
   }
 
   return (
-    <>
+    <FeedbackProvider>
     <div className="theme-transition flex min-h-screen bg-bg">
       {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
           Só o conteúdo do exercício, como um app de idiomas. */}
@@ -96,6 +97,6 @@ export function AppShell() {
       <EntitlementBootstrap />
       <AchievementsWatcher />
     </div>
-    </>
+    </FeedbackProvider>
   );
 }

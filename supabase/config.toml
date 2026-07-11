@@ -28,3 +28,7 @@ enable_signup = true
 # Stripe envia webhooks sem JWT do Supabase.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Feedback anônimo com rate limit (sem JWT).
+[functions.submit-feedback]
+verify_jwt = false

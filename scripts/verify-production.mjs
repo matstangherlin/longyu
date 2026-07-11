@@ -73,6 +73,7 @@ for (const [name, path] of [
   ["create-checkout-session", "create-checkout-session"],
   ["create-billing-portal", "create-billing-portal"],
   ["delete-account", "delete-account"],
+  ["submit-feedback", "submit-feedback"],
 ]) {
   const probe = await checkUrl(
     `Edge Function ${name}`,

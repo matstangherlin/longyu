@@ -1,22 +1,31 @@
-import { buildFeedbackMailto, type FeedbackContext } from "../../lib/feedback";
+import { useFeedbackUiOptional } from "./FeedbackContext";
+import { openFeedbackMailto, type FeedbackContext } from "../../lib/feedback";
+import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 
-interface FeedbackLinkProps {
+export function FeedbackLink({
+  context,
+  className = "text-sm font-semibold text-accent hover:underline",
+  children = "Enviar feedback",
+}: {
   context?: FeedbackContext;
   className?: string;
-}
+  children?: string;
+}) {
+  const feedbackUi = useFeedbackUiOptional();
 
-export function FeedbackLink({ context, className }: FeedbackLinkProps) {
   return (
-    <a
-      href={buildFeedbackMailto(context)}
-      className={[
-        "text-xs font-medium text-ink-faint underline decoration-line underline-offset-2 transition hover:text-ink-soft",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+    <button
+      type="button"
+      className={className}
+      onClick={() => {
+        if (feedbackUi) {
+          feedbackUi.openFeedback(context);
+          return;
+        }
+        if (!isSupabaseBackendEnabled()) openFeedbackMailto(context);
+      }}
     >
-      Enviar feedback
-    </a>
+      {children}
+    </button>
   );
 }

@@ -39,6 +39,7 @@ import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ProgressBar } from "../../components/ui/primitives";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { FeedbackLink } from "../../components/feedback/FeedbackLink";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
@@ -1718,6 +1719,12 @@ export function LessonPlayer() {
             <Link to="/loja" className="mt-4 text-xs font-semibold text-ink-faint transition hover:text-accent">
               Ou compre uma Carga na Loja
             </Link>
+            <div className="mt-5 w-full">
+              <FeedbackPrompt
+                context={{ screen: `/licao/${foundLesson?.id ?? "?"}/player — lição bloqueada` }}
+                compact
+              />
+            </div>
           </>
         )}
         {!energyBlocked && (
@@ -2753,7 +2760,10 @@ export function LessonPlayer() {
 
             <CollapsibleInfoCard title="Deixar feedback" compactLabel="Opcional">
               <FeedbackPrompt
-                context={{ screen: `/licao/${lesson.id}/player — lição concluída` }}
+                context={{
+                  screen: `/licao/${lesson.id}/player — lição concluída`,
+                  lessonId: lesson.id,
+                }}
                 compact
                 className="border-line/70"
               />
@@ -2965,6 +2975,15 @@ export function LessonPlayer() {
             <p className="mt-3 text-xs leading-5 text-ink-faint">
               Continuar sem refazer custa 1 Fôlego e avança sem manter perfeição.
             </p>
+            <div className="mt-3 text-center">
+              <FeedbackLink
+                context={{
+                  screen: `/licao/${lesson.id}/player — erro na questão`,
+                  lessonId: lesson.id,
+                  stepId: String(idx),
+                }}
+              />
+            </div>
           </div>
         </ModalOverlay>
       )}

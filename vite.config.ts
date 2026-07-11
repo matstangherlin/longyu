@@ -36,6 +36,12 @@ export default defineConfig({
     sourcemap: false,
     emptyOutDir: true,
   },
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? "0.1.0"),
+    __BUILD_SHA__: JSON.stringify(
+      process.env.COMMIT_REF ?? process.env.GITHUB_SHA ?? process.env.VITE_BUILD_SHA ?? "dev"
+    ),
+  },
   server: {
     // Respeita a porta atribuída pelo ambiente (ex.: preview do Claude Code).
     port: process.env.PORT ? Number(process.env.PORT) : undefined,
