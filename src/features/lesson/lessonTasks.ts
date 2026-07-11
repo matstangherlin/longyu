@@ -19,7 +19,7 @@ import {
   type HanziBuilder,
   type HanziBuilderProgressMap,
 } from "../../data/hanziBuilder";
-import { numericPinyinToDiacritics } from "../../lib/pinyin";
+import { numericPinyinToDiacritics, normalizePinyinBase, isNearDuplicatePinyinSet } from "../../lib/pinyin";
 
 export type LessonMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
 
@@ -636,13 +636,17 @@ export function normalizePinyinOptionForUniqueness(value: string | undefined): s
     .replace(/\s+/g, " ");
 }
 
-function uniqueByPinyinDisplay(values: (string | undefined)[]): string[] {
+// Dedup por BASE sem tom: o primeiro de cada base entra e os demais (que só
+// diferem no tom) são descartados. Assim os distractores de uma escolha de
+// pinyin têm sempre bases diferentes (nǐ hǎo vs xièxie vs zàijiàn), nunca
+// mā/má/mǎ/mà lado a lado — que parecem iguais para o iniciante.
+function uniqueByPinyinBase(values: (string | undefined)[]): string[] {
   const seen = new Set<string>();
   const result: string[] = [];
   for (const value of values) {
     const clean = value?.trim();
     if (!clean) continue;
-    const key = normalizePinyinOptionForUniqueness(clean);
+    const key = normalizePinyinBase(clean);
     if (!key || seen.has(key)) continue;
     seen.add(key);
     result.push(clean);
@@ -1069,9 +1073,12 @@ function makeListenSelectStep(item: FocusItem, focus: FocusItem[]): LessonStep |
 }
 
 function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
-  // Dedup por forma exibida (numérico→diacrítico), para não gerar opções que
-  // parecem idênticas na tela (formas numérica e acentuada contam como uma só).
-  return uniqueByPinyinDisplay([
+  // Dedup por BASE sem tom (não por forma exibida): distractores que só diferem
+  // do alvo no tom (妈 mā vs 麻 má vs 马 mǎ vs 骂 mà, todos base "ma") são
+  // descartados, e a busca segue nos chunks/caracteres até achar bases DE FATO
+  // diferentes. Assim a escolha de pinyin nunca mostra 4 opções que parecem
+  // iguais — cada alternativa tem uma sílaba/base distinta.
+  return uniqueByPinyinBase([
     target.pinyin,
     ...focus.filter((item) => item.key !== target.key).map((item) => item.pinyin),
     ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.pinyin),
@@ -1082,10 +1089,14 @@ function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
 function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
   if (!item.pinyin?.trim()) return null;
   const options = optionPinyin(item, focus);
-  // Só gera a pergunta se houver 3+ opções visualmente diferentes; caso
-  // contrário vira pegadinha inválida (todas iguais). Quem chama tenta outra
-  // microtarefa (listen_select, tom, comprehend, par curto).
+  // Só gera a pergunta se houver 3+ opções de bases diferentes; caso contrário
+  // vira pegadinha inválida (todas iguais). Quem chama tenta outra microtarefa
+  // (listen_select, tom, comprehend, par curto).
   if (options.length < 3) return null;
+  // Rede de segurança: mesmo já deduplicando por base, nunca deixa passar um
+  // conjunto que "parece repetido" (diferenças só de tom). "Escolha o pinyin"
+  // testa a leitura da sílaba, não o tom — treino de tom tem passo próprio.
+  if (isNearDuplicatePinyinSet(options)) return null;
   const answerKey = normalizePinyinOptionForUniqueness(item.pinyin);
   if (!options.some((option) => normalizePinyinOptionForUniqueness(option) === answerKey)) return null;
   return {

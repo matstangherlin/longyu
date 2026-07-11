@@ -4,6 +4,9 @@
 //  - opções duplicadas depois de normalização (inclui pinyin numérico ⇄ diacrítico);
 //  - menos de 2 opções únicas em uma pergunta de escolha;
 //  - pergunta de pinyin com menos de 3 opções visualmente diferentes;
+//  - escolha de pinyin cujas opções só diferem no tom (parecem iguais): 3+ com a
+//    mesma base sem tom, ou menos de 3 bases distintas — salvo treino de tom
+//    explícito (título/prompt fala em tom, ou opções trazem "1º tom" etc.);
 //  - par (match_pairs/tone_pair) com lado longo demais (explicação inteira);
 //  - par com texto misto PT+hànzì longo, ou gloss (lado "pt") contendo hànzì;
 //  - a explicação "Três árvores formam ..." usada como item de par/opção.
@@ -29,11 +32,23 @@ const PAIR_SIDE_MAX = 40;
 const PAIR_MIXED_MAX = 24;
 const CHOICE_KINDS = new Set(["dialogue_choice", "comprehend", "listen_select"]);
 const PAIR_KINDS = new Set(["match_pairs", "tone_pair"]);
+const PINYIN_TONE_MARK_RE = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/iu;
+const TONE_LABEL_RE = /\b[1-5]\s*º?\s*(?:tom|tone)s?\b|\btom\s*[1-5]\b|neutro/i;
 
 const hasCjk = (s) => CJK_RE.test(String(s ?? ""));
 const hasLatin = (s) => LATIN_RE.test(String(s ?? ""));
 const isPinyinQuestion = (step) =>
   /pinyin/i.test(`${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`);
+// Treino de tom explícito: título/prompt fala em tom/acento, ou as opções trazem
+// o rótulo do tom ("nǐ hǎo — 3º + 3º tom"). Só aí opções que diferem só no tom
+// são permitidas.
+const isToneTrainingStep = (step, options) => {
+  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`.toLocaleLowerCase(
+    "pt-BR"
+  );
+  if (/\btom\b|\btons\b|\btone\b|\bacento\b/.test(label)) return true;
+  return options.some((option) => TONE_LABEL_RE.test(String(option)));
+};
 
 async function main() {
   const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-options-"));
@@ -66,7 +81,9 @@ async function main() {
 
     const tasks = require(path.join(outDir, "src/features/lesson/lessonTasks.js"));
     const journey = require(path.join(outDir, "src/data/journey.js"));
+    const pinyin = require(path.join(outDir, "src/lib/pinyin.js"));
     const { lessonRoundStepsFor, normalizePinyinOptionForUniqueness } = tasks;
+    const { isNearDuplicatePinyinSet } = pinyin;
     const lessons = journey.ALL_LESSONS;
 
     let planCount = 0;
@@ -74,7 +91,7 @@ async function main() {
       const plan = lessonRoundStepsFor(lesson, { silent: true });
       planCount += 1;
       for (const step of plan) {
-        checkChoiceStep(lesson.id, step, normalizePinyinOptionForUniqueness);
+        checkChoiceStep(lesson.id, step, normalizePinyinOptionForUniqueness, isNearDuplicatePinyinSet);
         checkPairStep(lesson.id, step);
       }
     }
@@ -91,7 +108,7 @@ async function main() {
   }
 }
 
-function checkChoiceStep(lessonId, step, normPinyin) {
+function checkChoiceStep(lessonId, step, normPinyin, isNearDup) {
   if (!CHOICE_KINDS.has(step.kind)) return;
   const options = [...(step.options ?? []), ...(step.distractors ?? [])].filter((o) => String(o ?? "").trim());
   if (options.length < 2) return; // estrutura mínima é coberta por outro validador
@@ -105,6 +122,16 @@ function checkChoiceStep(lessonId, step, normPinyin) {
   }
   if (isPinyinQuestion(step) && unique.size < 3) {
     addError(lessonId, `pergunta de pinyin com menos de 3 opções distintas [${options.join(" | ")}]`);
+  }
+  // Opções que só diferem no tom parecem 4 iguais para o iniciante. Só bloqueia
+  // conjuntos que de fato parecem pinyin tonal (3+ opções com marca de tom) e
+  // que não sejam treino de tom explícito.
+  const toned = options.filter((o) => PINYIN_TONE_MARK_RE.test(String(o)));
+  if (toned.length >= 3 && !isToneTrainingStep(step, options) && isNearDup(options)) {
+    addError(
+      lessonId,
+      `${step.kind}: opções de pinyin diferem só no tom (parecem iguais) [${options.join(" | ")}]`
+    );
   }
 }
 

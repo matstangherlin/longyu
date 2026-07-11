@@ -642,14 +642,14 @@ const PHASE1_ENGINE_LESSONS: Lesson[] = [
       },
       {
         kind: "dialogue_choice",
-        title: "Acento de 谢谢",
+        title: "Qual é o tom de 谢?",
         speaker: "Pinyin",
-        dialoguePrompt: "Escolha o pinyin correto.",
+        dialoguePrompt: "Todas leem xie. Qual tem o tom certo de 谢谢?",
         sourceText: "谢谢",
         sourcePinyin: "xièxie",
         sourceMeaning: "Obrigado(a).",
-        options: ["xièxie", "xièxiè", "xiēxie", "xiěxie"],
-        correctAnswer: "xièxie",
+        options: ["xièxie — 4º tom", "xiéxie — 2º tom", "xiěxie — 3º tom", "xiēxie — 1º tom"],
+        correctAnswer: "xièxie — 4º tom",
         explanation: "谢 usa 4º tom: xiè. O tom muda o significado e a pronúncia.",
       },
       {
@@ -1483,7 +1483,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Escolha o pinyin",
                 "Qual pinyin combina com 你好?",
                 "nǐ hǎo",
-                ["nǐ hǎo", "ní hǎo", "nī hāo", "nǐ hào"],
+                ["nǐ hǎo", "xièxie", "zàijiàn", "bù kèqi"],
                 "你好 se lê nǐ hǎo — dois 3º tons.",
                 "Pinyin"
               ),
@@ -1538,7 +1538,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Escolha o pinyin",
                 "Qual pinyin combina com 谢谢?",
                 "xièxie",
-                ["xièxie", "xiéxie", "xíexie", "xiēxie"],
+                ["xièxie", "nǐ hǎo", "zàijiàn", "bù kèqi"],
                 "谢谢 começa com xiè, 4º tom na primeira sílaba.",
                 "Pinyin"
               ),
@@ -1586,7 +1586,7 @@ export const JOURNEY: JourneyPhase[] = [
               "Escolha o pinyin",
               "Qual pinyin combina com 你好?",
               "nǐ hǎo",
-              ["nǐ hǎo", "ní hǎo", "nī hāo", "nǐ hào"],
+              ["nǐ hǎo", "xièxie", "zàijiàn", "bù kèqi"],
               "你好 = nǐ hǎo.",
               "Pinyin"
             ),

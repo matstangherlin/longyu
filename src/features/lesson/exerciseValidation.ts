@@ -3,6 +3,7 @@ import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { glossFor } from "../../data/gloss";
 import { HANZI_EVOLUTIONS } from "../../data/hanziPedagogy";
+import { isNearDuplicatePinyinSet } from "../../lib/pinyin";
 
 // ————————————————————————————————————————————————————————————————
 // validateExercise: nenhum passo de lição chega à tela sem passar aqui.
@@ -65,6 +66,37 @@ function findDuplicate(values: string[]): string | null {
   return null;
 }
 
+// Marca de tom pinyin (macron/caron/agudo/grave sobre a/e/i/o/u/ü). Serve para
+// distinguir uma escolha de pinyin de uma escolha de significado (português).
+const PINYIN_TONE_MARK_RE = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/iu;
+// Rótulo explícito de tom nas opções ("3º tom", "tom 2", "neutro").
+const TONE_LABEL_RE = /\b[1-5]\s*º?\s*(?:tom|tone)s?\b|\btom\s*[1-5]\b|neutro/i;
+
+// Uma escolha "treina tom explicitamente" quando o enunciado fala em tom/acento
+// ou quando as próprias opções trazem o rótulo do tom ("nǐ hǎo — 3º + 3º tom").
+// Nesses casos opções que só diferem no tom são intencionais e permitidas.
+function isToneTrainingChoice(step: LessonStep, options: string[]): boolean {
+  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`.toLocaleLowerCase(
+    "pt-BR"
+  );
+  if (/\btom\b|\btons\b|\btone\b|\bacento\b/.test(label)) return true;
+  return options.some((option) => TONE_LABEL_RE.test(option));
+}
+
+// Rede de segurança de renderização: nunca deixa chegar à tela uma escolha de
+// pinyin cujas opções só diferem no tom (parecem 4 opções iguais). Se detectar,
+// bloqueia com erro (o StepRenderer mostra o fallback seguro e loga em dev).
+function checkPinyinLookAlike(errors: string[], step: LessonStep, options: string[]) {
+  const toned = options.filter((option) => PINYIN_TONE_MARK_RE.test(option));
+  if (toned.length < 3) return; // opções em português (significados) não entram
+  if (isToneTrainingChoice(step, options)) return; // treino de tom explícito: ok
+  if (isNearDuplicatePinyinSet(options)) {
+    errors.push(
+      `${step.kind}: opções de pinyin diferem só no tom (parecem iguais) [${options.join(" | ")}]`
+    );
+  }
+}
+
 function checkChoice(
   errors: string[],
   label: string,
@@ -118,6 +150,7 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     case "comprehend":
       if (!step.hanzi?.trim()) errors.push("comprehend sem estímulo hanzi");
       checkChoice(errors, "comprehend", step.answer, step.options);
+      checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
 
     case "produce": {
@@ -191,6 +224,7 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (!audio?.trim()) errors.push("listen_select sem áudio (audioText/resposta)");
       const options = [...(step.options ?? []), ...(step.distractors ?? [])];
       checkChoice(errors, "listen_select", answer, options);
+      checkPinyinLookAlike(errors, step, options);
       break;
     }
 
@@ -224,6 +258,7 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
         errors.push("dialogue_choice sem fala/contexto");
       }
       checkChoice(errors, "dialogue_choice", step.correctAnswer ?? step.answer, step.options);
+      checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
   }
 

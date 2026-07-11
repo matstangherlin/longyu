@@ -151,6 +151,41 @@ export function stripPinyinTone(input: string): string {
   return input.replace(/./gu, (char) => TONE_STRIP_MAP[char] ?? char);
 }
 
+// Base de comparação SEM tom de um pinyin: tira acento de tom, número de tom,
+// separadores e caixa, e colapsa espaços. É mais agressiva que
+// normalizePinyinOptionForUniqueness (que preserva o acento): aqui
+// "xièxie", "xiéxie", "xiěxie" e "xie2xie" caem todos em "xiexie"; "nǐ hǎo",
+// "ní hǎo" e "nì hǎo" caem em "ni hao". Serve para detectar opções que, para um
+// aluno iniciante, parecem idênticas por só mudarem de tom.
+export function normalizePinyinBase(value: string | undefined): string {
+  return stripPinyinTone(numericPinyinToDiacritics(String(value ?? "")))
+    .normalize("NFC")
+    .toLocaleLowerCase("pt-BR")
+    .replace(/[0-9]/g, "") // números de tom residuais (ma3 → ma)
+    .replace(/[·・∙|/]/g, " ") // separadores viram espaço
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Um conjunto de opções "parece repetido" para um iniciante quando quase tudo
+// colapsa na mesma base sem tom. Retorna true se:
+//  - todas as opções compartilham uma única base (ex.: [mā, má, mǎ, mà]); ou
+//  - 3+ opções compartilham a mesma base; ou
+//  - há 3+ opções mas menos de 3 bases distintas (a maioria difere só no tom).
+// Usado para bloquear perguntas de pinyin confusas na geração, no runtime e na
+// validação de build.
+export function isNearDuplicatePinyinSet(options: (string | undefined)[]): boolean {
+  const bases = options
+    .map((option) => normalizePinyinBase(option))
+    .filter((base) => base.length > 0);
+  if (bases.length < 2) return false;
+  const counts = new Map<string, number>();
+  for (const base of bases) counts.set(base, (counts.get(base) ?? 0) + 1);
+  const distinct = counts.size;
+  const mostShared = Math.max(...counts.values());
+  return distinct === 1 || mostShared >= 3 || (bases.length >= 3 && distinct < 3);
+}
+
 export function containsNumericPinyin(input: string): boolean {
   NUMERIC_PINYIN_RE.lastIndex = 0;
   let match: RegExpExecArray | null;
