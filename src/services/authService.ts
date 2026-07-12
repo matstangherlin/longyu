@@ -1,5 +1,8 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { passwordRecoveryRedirectUrl } from "../lib/authRedirect";
+import type { ProfileDetails } from "./profileTypes";
+import { profileDetailsPayload } from "./profileTypes";
 
 export type AuthServiceStatus = "ok" | "error" | "not_implemented";
 
@@ -22,43 +25,45 @@ function notImplemented<T = undefined>(): AuthServiceResult<T> {
   return { status: "not_implemented", message: AUTH_NOT_IMPLEMENTED_MESSAGE };
 }
 
-async function ensureProfile(userId: string, name?: string): Promise<string | null> {
+async function ensureProfile(userId: string, profile: ProfileDetails): Promise<string | null> {
   const client = getSupabaseClient();
   if (!client) return "Cliente Supabase indisponível.";
   const { error } = await client.from("profiles").upsert(
     {
       id: userId,
-      name: name?.trim() || "Aluno Longyu",
-      native_language: "pt-BR",
-      target_language: "zh-CN",
-      updated_at: new Date().toISOString(),
+      ...profileDetailsPayload(profile),
     },
     { onConflict: "id" }
   );
   return error?.message ?? null;
 }
 
+function profileFromName(name?: string): ProfileDetails {
+  return { name: name?.trim() || "Aluno Longyu", onboardingCompleted: true };
+}
+
 export async function createAccount(
   email: string,
   password: string,
-  name?: string
+  profile?: ProfileDetails
 ): Promise<AuthServiceResult<FutureAuthUser>> {
   if (!isSupabaseBackendEnabled()) return notImplemented();
   const client = getSupabaseClient();
   if (!client) return notImplemented();
 
+  const details = profile ?? profileFromName();
   const cleanEmail = email.trim();
   const { data, error } = await client.auth.signUp({
     email: cleanEmail,
     password,
-    options: { data: { name: name?.trim() || "Aluno Longyu" } },
+    options: { data: { name: details.name } },
   });
 
   if (error) {
     const alreadyExists =
       error.message.toLowerCase().includes("already") ||
       error.message.toLowerCase().includes("registered");
-    if (alreadyExists) return login(cleanEmail, password);
+    if (alreadyExists) return login(cleanEmail, password, details);
     return { status: "error", message: error.message };
   }
 
@@ -66,7 +71,7 @@ export async function createAccount(
   if (!user) {
     if (data.session?.user) {
       const sessionUser = data.session.user;
-      const profileError = await ensureProfile(sessionUser.id, name);
+      const profileError = await ensureProfile(sessionUser.id, details);
       if (profileError) return { status: "error", message: profileError };
       return {
         status: "ok",
@@ -74,7 +79,7 @@ export async function createAccount(
         data: {
           id: sessionUser.id,
           email: sessionUser.email ?? cleanEmail,
-          name,
+          name: details.name,
         },
       };
     }
@@ -84,17 +89,21 @@ export async function createAccount(
     };
   }
 
-  const profileError = await ensureProfile(user.id, name);
+  const profileError = await ensureProfile(user.id, details);
   if (profileError) return { status: "error", message: profileError };
 
   return {
     status: "ok",
     message: "Conta criada com sucesso.",
-    data: { id: user.id, email: user.email ?? cleanEmail, name },
+    data: { id: user.id, email: user.email ?? cleanEmail, name: details.name },
   };
 }
 
-export async function login(email: string, password: string): Promise<AuthServiceResult<FutureAuthUser>> {
+export async function login(
+  email: string,
+  password: string,
+  profile?: ProfileDetails
+): Promise<AuthServiceResult<FutureAuthUser>> {
   if (!isSupabaseBackendEnabled()) return notImplemented();
   const client = getSupabaseClient();
   if (!client) return notImplemented();
@@ -106,14 +115,61 @@ export async function login(email: string, password: string): Promise<AuthServic
   const user = data.user;
   if (!user) return { status: "error", message: "Sessão não iniciada." };
 
-  const profileError = await ensureProfile(user.id, user.user_metadata?.name as string | undefined);
+  const fallbackName = (user.user_metadata?.name as string | undefined) ?? profile?.name;
+  const profileError = await ensureProfile(user.id, profile ?? profileFromName(fallbackName));
   if (profileError) return { status: "error", message: profileError };
 
   return {
     status: "ok",
     message: "Login realizado com sucesso.",
-    data: { id: user.id, email: user.email ?? cleanEmail, name: user.user_metadata?.name as string | undefined },
+    data: {
+      id: user.id,
+      email: user.email ?? cleanEmail,
+      name: fallbackName ?? profile?.name,
+    },
   };
+}
+
+export async function requestPasswordReset(email: string): Promise<AuthServiceResult> {
+  if (!isSupabaseBackendEnabled()) return notImplemented();
+  const client = getSupabaseClient();
+  if (!client) return notImplemented();
+
+  const cleanEmail = email.trim();
+  const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
+    redirectTo: passwordRecoveryRedirectUrl(),
+  });
+  if (error) return { status: "error", message: error.message };
+
+  return {
+    status: "ok",
+    message: "Se este email estiver cadastrado, você receberá um link para redefinir a senha em instantes.",
+  };
+}
+
+export async function updatePasswordAfterRecovery(password: string): Promise<AuthServiceResult> {
+  if (!isSupabaseBackendEnabled()) return notImplemented();
+  const client = getSupabaseClient();
+  if (!client) return notImplemented();
+
+  if (password.length < 6) {
+    return { status: "error", message: "A nova senha precisa ter pelo menos 6 caracteres." };
+  }
+
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+  if (!session) {
+    return {
+      status: "error",
+      message: "Link inválido ou expirado. Solicite um novo email em Esqueci minha senha.",
+    };
+  }
+
+  const { error } = await client.auth.updateUser({ password });
+  if (error) return { status: "error", message: error.message };
+
+  return { status: "ok", message: "Senha atualizada com sucesso. Você já pode entrar com a nova senha." };
 }
 
 export async function logout(): Promise<AuthServiceResult> {

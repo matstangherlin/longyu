@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { canSignInWithCredentials } from "../../lib/authForm";
 import { Button } from "../ui/primitives";
 
@@ -9,6 +10,7 @@ export function CloudLoginForm({
   notice,
   loading,
   submitLabel = "Entrar",
+  forgotPasswordHref = "/esqueci-senha",
   onEmail,
   onPassword,
   onSubmit,
@@ -19,6 +21,7 @@ export function CloudLoginForm({
   notice?: string | null;
   loading?: boolean;
   submitLabel?: string;
+  forgotPasswordHref?: string | null;
   onEmail: (value: string) => void;
   onPassword: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -45,7 +48,14 @@ export function CloudLoginForm({
         />
       </label>
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
+          {forgotPasswordHref && (
+            <Link to={forgotPasswordHref} className="text-xs font-semibold text-accent hover:underline">
+              Esqueci minha senha
+            </Link>
+          )}
+        </div>
         <input
           name="password"
           type="password"

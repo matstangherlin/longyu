@@ -20,7 +20,10 @@ export function AppShell() {
   const completedLessons = useStore((s) => s.completedLessons);
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoginPage = location.pathname === "/login";
+  const isAuthPage =
+    location.pathname === "/login" ||
+    location.pathname === "/esqueci-senha" ||
+    location.pathname === "/redefinir-senha";
   const isOnboarding = location.pathname === "/conta" && !accountSetupComplete;
   // Modo foco: durante lição e desafio o app esconde TopBar (mobile) e TabBar
   // para liberar espaço vertical — nada compete com o exercício.
@@ -46,6 +49,8 @@ export function AppShell() {
       completedLessons.length === 0 &&
       location.pathname !== "/conta" &&
       location.pathname !== "/login" &&
+      location.pathname !== "/esqueci-senha" &&
+      location.pathname !== "/redefinir-senha" &&
       location.pathname !== "/pro"
     ) {
       navigate("/", { replace: true });
@@ -57,7 +62,7 @@ export function AppShell() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  if (isOnboarding || isLoginPage) {
+  if (isOnboarding || isAuthPage) {
     return (
       <>
         <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">
