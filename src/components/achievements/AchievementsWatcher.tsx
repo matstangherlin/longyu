@@ -25,6 +25,7 @@ export function useAchievementSnapshot(): AchievementSnapshot {
   const missionHistory = useStore((s) => s.missionHistory);
   const rewardHistory = useStore((s) => s.rewardHistory);
   const mandarinDisplayMode = useStore((s) => s.mandarinDisplayMode);
+  const validatedModules = useStore((s) => s.validatedModules);
   return {
     completedLessons,
     longestStreak,
@@ -37,6 +38,7 @@ export function useAchievementSnapshot(): AchievementSnapshot {
     missionHistory: missionHistory ?? [],
     rewardHistory: rewardHistory ?? [],
     mandarinDisplayMode,
+    validatedModules: validatedModules ?? [],
   };
 }
 

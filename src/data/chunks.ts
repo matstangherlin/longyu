@@ -8,6 +8,7 @@ export const CHUNKS: Chunk[] = [
   { id: "nihao", hanzi: "你好", pinyin: "nǐ hǎo", meaningPt: "Olá.", literalPt: "você + bom", tags: ["saudacao"], domain: "saudacao", level: "seed" },
   { id: "nihaoma", hanzi: "你好吗？", pinyin: "nǐ hǎo ma?", meaningPt: "Tudo bem?", literalPt: "você bom (pergunta)", tags: ["saudacao"], domain: "saudacao", level: "seed" },
   { id: "wohenhao", hanzi: "我很好", pinyin: "wǒ hěn hǎo", meaningPt: "Estou bem.", literalPt: "eu muito bom", tags: ["saudacao"], domain: "saudacao", level: "seed" },
+  { id: "jintianhenhao", hanzi: "今天很好", pinyin: "jīntiān hěn hǎo", meaningPt: "Hoje está ótimo.", literalPt: "hoje muito bom", tags: ["saudacao"], domain: "saudacao", level: "beginner" },
   { id: "xiexie", hanzi: "谢谢", pinyin: "xièxie", meaningPt: "Obrigado(a).", tags: ["cortesia"], domain: "cortesia", level: "seed" },
   { id: "bukeqi", hanzi: "不客气", pinyin: "bú kèqi", meaningPt: "De nada.", tags: ["cortesia"], domain: "cortesia", level: "seed" },
   { id: "duibuqi", hanzi: "对不起", pinyin: "duìbuqǐ", meaningPt: "Desculpa.", tags: ["cortesia"], domain: "cortesia", level: "beginner" },
@@ -40,6 +41,8 @@ export const CHUNKS: Chunk[] = [
 
   // --- Perguntas básicas ---
   { id: "zheshishenme", hanzi: "这是什么？", pinyin: "zhè shì shénme?", meaningPt: "O que é isto?", literalPt: "isto é o quê", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
+  { id: "zheshishui", hanzi: "这是水", pinyin: "zhè shì shuǐ", meaningPt: "Isto é água.", literalPt: "isto é água", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
+  { id: "nashirenm", hanzi: "那是人吗", pinyin: "nà shì rén ma", meaningPt: "Aquilo é uma pessoa?", literalPt: "aquilo é pessoa (pergunta)", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
   { id: "zaina", hanzi: "在哪里？", pinyin: "zài nǎlǐ?", meaningPt: "Onde fica?", literalPt: "está onde", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
   { id: "nine", hanzi: "你呢？", pinyin: "nǐ ne?", meaningPt: "E você?", literalPt: "você (partícula)", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
   { id: "shenmeshihou", hanzi: "什么时候？", pinyin: "shénme shíhou?", meaningPt: "Quando?", literalPt: "o quê + momento", tags: ["pergunta"], domain: "pergunta", level: "survival" },

@@ -21,6 +21,8 @@ import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercis
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
+import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
+import { VisualConceptIcon } from "../../components/hanzi/VisualConceptIcon";
 import {
   KeyboardShortcutHint,
   ShortcutBadge,
@@ -48,6 +50,8 @@ import {
   type ReviewOption,
   type ReviewTextType,
 } from "./reviewExerciseBuilder";
+import { ALL_LESSONS } from "../../data/journey";
+import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 
 interface Resolved {
   type: SRSItem["type"];
@@ -86,6 +90,28 @@ function isDetailedReviewMode(mode: ReviewMode): boolean {
   return mode !== "all";
 }
 
+// Filtra a fila já congelada pelo modo escolhido. Não reconstrói nada.
+function filterQueueByModule(
+  queue: ReviewQueueEntry[],
+  unitId: string,
+  completedLessons: string[]
+): ReviewQueueEntry[] {
+  return queue.filter(
+    (entry) =>
+      srsItemMatchesModule(entry.item, unitId, completedLessons) ||
+      (entry.kind === "mistake" && entry.error.moduleId === unitId)
+  );
+}
+
+function latestReviewableModuleId(completedLessons: string[]): string | undefined {
+  const reviewLessons = ALL_LESSONS.filter((lesson) => lesson.isReview);
+  for (let index = reviewLessons.length - 1; index >= 0; index -= 1) {
+    const lesson = reviewLessons[index];
+    const prior = ALL_LESSONS.filter((candidate) => candidate.unitId === lesson.unitId && !candidate.isReview);
+    if (prior.every((candidate) => completedLessons.includes(candidate.id))) return lesson.unitId;
+  }
+  return reviewLessons[0]?.unitId;
+}
 // Filtra a fila já congelada pelo modo escolhido. Não reconstrói nada.
 function filterQueueByMode(queue: ReviewQueueEntry[], mode: ReviewMode): ReviewQueueEntry[] {
   if (mode === "mistakes") return queue.filter((entry) => entry.kind === "mistake");
@@ -530,7 +556,49 @@ function ReviewExercisePanel({
         />
       )}
 
-      {exercise.options && !["sentence_build", "match_pairs"].includes(exercise.kind) && (
+      {exercise.kind === "image_choice" && exercise.visualConceptId && (
+        <div className="mt-4 flex justify-center">
+          {exercise.imageChoiceMode === "choose_image" && exercise.displayText ? (
+            <MandarinText hanzi={exercise.displayText} size="lg" align="center" />
+          ) : exercise.imageChoiceMode !== "listen_and_choose_image" && exercise.imageChoiceMode !== "choose_image" ? (
+            <VisualConceptIcon conceptId={exercise.visualConceptId} size="lg" />
+          ) : null}
+        </div>
+      )}
+
+      {exercise.kind === "image_choice" && exercise.imageOptionIds && (
+        <div className="mt-5">
+          <ImageChoiceGrid
+            mode="images"
+            options={exercise.imageOptionIds}
+            answered={revealed ? selectedOption : null}
+            selected={selectedOption}
+            correctAnswer={exercise.answer}
+            onSelect={onSelectOption}
+          />
+        </div>
+      )}
+
+      {exercise.kind === "image_choice" && exercise.options && !exercise.imageOptionIds && (
+        <>
+          <KeyboardShortcutHint />
+          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            {exercise.options.map((option, index) => (
+              <ChoiceButton
+                key={option.id}
+                option={option}
+                shortcut={index < 10 ? shortcutKeyForIndex(index) : undefined}
+                selected={selectedOption}
+                revealed={revealed}
+                answer={exercise.answer}
+                onSelect={onSelectOption}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {exercise.options && !["sentence_build", "match_pairs", "image_choice"].includes(exercise.kind) && (
         <>
         <KeyboardShortcutHint />
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
@@ -927,6 +995,30 @@ function formatErrorDate(timestamp: number): string {
   return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(timestamp);
 }
 
+function ReviewInsightGroup({
+  title,
+  items,
+  tone,
+}: {
+  title: string;
+  items: { label: string; count: number }[];
+  tone: "good" | "accent";
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className="rounded-2xl border border-line bg-surface-2 p-4">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{title}</div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {items.map((item) => (
+          <Pill key={item.label} tone={tone}>
+            {item.label} · {item.count}
+          </Pill>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function RevisaoPage() {
   const [searchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);
@@ -944,6 +1036,9 @@ export function RevisaoPage() {
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
   const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
   const requestedMode = reviewModeFromSearch(searchParams.get("modo"));
+  const moduleUnitId = searchParams.get("modulo") ?? undefined;
+  const moduleUnit = moduleUnitId ? findUnitById(moduleUnitId) : undefined;
+  const suggestedModuleId = useMemo(() => latestReviewableModuleId(completedLessons), [completedLessons]);
   const detailedErrorsAccess = canAccessDetailedErrors({ isPremium });
   const detailedErrorsAllowed = detailedErrorsAccess.allowed;
   const requestedDetailedErrors = isDetailedReviewMode(requestedMode);
@@ -959,15 +1054,16 @@ export function RevisaoPage() {
     const built = buildReviewQueue(srs, detailedErrorsAllowed ? activeActivityErrors : [], {
       includeRecentWeakItems: detailedErrorsAllowed,
     });
+    const scoped = moduleUnitId ? filterQueueByModule(built, moduleUnitId, completedLessons) : built;
     if (sessionQueueRef.current === null) {
-      sessionQueueRef.current = built;
-      return built;
+      sessionQueueRef.current = scoped;
+      return scoped;
     }
-    if (sessionQueueRef.current.length === 0 && built.length > 0) {
-      sessionQueueRef.current = built;
+    if (sessionQueueRef.current.length === 0 && scoped.length > 0) {
+      sessionQueueRef.current = scoped;
     }
     return sessionQueueRef.current;
-  }, [activeActivityErrors, detailedErrorsAllowed, srs]);
+  }, [activeActivityErrors, completedLessons, detailedErrorsAllowed, moduleUnitId, srs]);
   // Modos de revisão: recuperar erros da tentativa/recentes, reforçar itens
   // fracos ou percorrer a fila inteligente inteira. O modo só filtra a fila já
   // congelada — não reconstrói SRS nem duplica nada.
@@ -1002,6 +1098,9 @@ export function RevisaoPage() {
   const [pos, setPos] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [reviewed, setReviewed] = useState(0);
+  const [sessionGrades, setSessionGrades] = useState<{ domain: ReviewDomain; correct: boolean; label: string }[]>([]);
+  const [returningItems, setReturningItems] = useState<string[]>([]);
+  const sessionInsight = useMemo(() => buildReviewSessionInsight(sessionGrades, returningItems), [returningItems, sessionGrades]);
   const [proPaywallOpen, setProPaywallOpen] = useState(false);
   const [proPaywallKind, setProPaywallKind] = useState<"review" | "errors">("review");
   const contextualOffer = useProOffer();
@@ -1108,12 +1207,14 @@ export function RevisaoPage() {
     return (
       <HubPage>
         <HubHeader
-          eyebrow="Revisão"
-          title={detailedErrorsAllowed ? "Revisão por domínio" : "Revisão básica"}
+          eyebrow={moduleUnit ? "Revisão de módulo" : "Revisão"}
+          title={moduleUnit ? moduleUnit.title : detailedErrorsAllowed ? "Revisão por domínio" : "Revisão básica"}
           desc={
-            detailedErrorsAllowed
-              ? "Som, forma, uso e frases em fila adaptativa."
-              : "Reforce o que você aprendeu. Histórico detalhado fica no Pro."
+            moduleUnit
+              ? "Fila focada no módulo atual, com reforço de erros e itens fracos."
+              : detailedErrorsAllowed
+                ? "Som, forma, uso e frases em fila adaptativa."
+                : "Reforce o que você aprendeu. Histórico detalhado fica no Pro."
           }
         />
 
@@ -1140,10 +1241,11 @@ export function RevisaoPage() {
               },
               {
                 title: "Revisão de módulo",
-                desc: "Teste de fechamento na Jornada.",
+                desc: "Foco no módulo atual da Jornada.",
                 icon: IconRefresh,
-                to: "/jornada",
-                status: "Jornada",
+                to: suggestedModuleId ? `/revisao?modulo=${suggestedModuleId}` : "/jornada",
+                status: moduleUnitId ? "Ativo" : suggestedModuleId ? "Disponível" : "Jornada",
+                featured: Boolean(moduleUnitId),
               },
               {
                 title: "Erros detalhados",
@@ -1168,9 +1270,40 @@ export function RevisaoPage() {
                 Sessão concluída
               </div>
               <p className="mt-1 text-ink-soft">
-                {reviewed} {reviewed === 1 ? "domínio revisado" : "domínios revisados"}.
-                Volte amanhã para os próximos.
+                {reviewed} {reviewed === 1 ? "item revisado" : "itens revisados"}.
+                {sessionInsight.nextFocus ? ` Próximo foco: ${sessionInsight.nextFocus}.` : " Volte amanhã para os próximos."}
               </p>
+              {(sessionInsight.strengths.length > 0 || sessionInsight.weaknesses.length > 0) && (
+                <div className="mt-5 grid gap-3 text-left sm:grid-cols-2">
+                  <ReviewInsightGroup title="Pontos fortes" items={sessionInsight.strengths} tone="good" />
+                  <ReviewInsightGroup title="Pontos fracos" items={sessionInsight.weaknesses} tone="accent" />
+                </div>
+              )}
+              {sessionInsight.returning.length > 0 && (
+                <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-left text-sm text-ink-soft">
+                  <div className="font-semibold text-ink">Voltam em breve</div>
+                  <p className="mt-1">{sessionInsight.returning.join(" · ")}</p>
+                </div>
+              )}
+              {detailedErrorsAllowed && sessionGrades.length > 0 && (
+                <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-left">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Por habilidade</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {REVIEW_DOMAIN_ORDER.map((domain) => {
+                      const domainGrades = sessionGrades.filter((entry) => entry.domain === domain);
+                      if (domainGrades.length === 0) return null;
+                      const accuracy = Math.round(
+                        (domainGrades.filter((entry) => entry.correct).length / domainGrades.length) * 100
+                      );
+                      return (
+                        <Pill key={domain} tone={accuracy >= 70 ? "good" : "accent"}>
+                          {REVIEW_DOMAIN_META[domain].shortLabel} · {accuracy}%
+                        </Pill>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {!isPremium && fullQueue.length > queue.length && (
                 <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-sm text-ink-soft">
                   Ainda há {fullQueue.length - queue.length} prioridades de revisão. {FREE_TIER_REVIEW_HINT}
@@ -1264,6 +1397,12 @@ export function RevisaoPage() {
     const effectiveGrade = exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : g;
     const xp = reviewXpForGrade(effectiveGrade);
     const qi = reviewQiForGrade(effectiveGrade);
+    const itemLabelText = data?.hanzi ?? itemLabel(item);
+    const correct = effectiveGrade !== "again";
+    setSessionGrades((items) => [...items, { domain, correct, label: itemLabelText }]);
+    if (!correct) {
+      setReturningItems((items) => (items.includes(itemLabelText) ? items : [...items, itemLabelText]));
+    }
     gradeSrs(item.type, item.itemId, effectiveGrade, item.track, item.reviewDomain);
     if (effectiveGrade === "again" && activeExercise.canAutoCheck) {
       if (sourceError) {

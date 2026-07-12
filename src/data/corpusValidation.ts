@@ -512,6 +512,7 @@ const EXPOSURE_AXES_BY_KIND: Record<StepKind, PedagogicalExposureAxis[]> = {
   hanzi_evolution: ["forma", "significado", "contexto"],
   hanzi_build: ["producao", "forma"],
   tone_pair: ["som", "significado"],
+  image_choice: ["significado", "forma", "som"],
 };
 
 function exposureTextSources(step: LessonStep): string[] {

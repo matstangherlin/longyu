@@ -9,8 +9,14 @@ import { todayKey } from "../../lib/storage";
 import { playSoundFx } from "../../lib/soundFx";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { canStartModule, useIsPro } from "../../lib/proAccess";
+import {
+  canPayModuleSkipAttempt,
+  getModuleSkipAccessInfo,
+  lessonsCompletableViaSkipTest,
+} from "../../lib/moduleSkipAccess";
+import { MODULE_SKIP_VALIDATION_QI } from "../../data/economy";
 import type { ReviewDomain } from "../../lib/srs";
-import { MODULE_PASS_QI, MODULE_RETRY_QI } from "../../data/economy";
+import { MODULE_RETRY_QI } from "../../data/economy";
 import { Card, Button, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -24,7 +30,7 @@ import {
   shortcutKeyForIndex,
   useExerciseHotkeys,
 } from "../../lib/useExerciseHotkeys";
-import { IconCheck, IconLibrary, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
+import { IconCheck, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import {
   buildModuleSkipTest,
@@ -113,12 +119,37 @@ function challengeFailureMessage(
     : "Volte para a trilha do módulo e refaça o teste quando estiver mais firme.";
 }
 
+function weakPointsReport(mistakes: ChallengeMistake[]): { label: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const mistake of mistakes) {
+    const label =
+      mistake.kind === "som"
+        ? "Tons e pronúncia"
+        : mistake.kind === "forma"
+        ? "Forma dos caracteres"
+        : mistake.kind === "significado"
+        ? "Significado"
+        : mistake.kind === "uso"
+        ? "Uso em frases"
+        : mistake.kind === "leitura"
+        ? "Leitura"
+        : "Domínio geral";
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
 export function ModuleChallengePage() {
   const { unitId } = useParams();
   const navigate = useNavigate();
   const isPremium = useIsPro();
-  const completeLesson = useStore((s) => s.completeLesson);
+  const completeLessonViaTest = useStore((s) => s.completeLessonViaTest);
   const validateModule = useStore((s) => s.validateModule);
+  const unlockAchievement = useStore((s) => s.unlockAchievement);
+  const recordModuleSkipAttempt = useStore((s) => s.recordModuleSkipAttempt);
+  const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
   const completedLessons = useStore((s) => s.completedLessons);
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
@@ -136,7 +167,18 @@ export function ModuleChallengePage() {
     () => (exam?.status === "ok" ? exam.questions : []),
     [exam]
   );
-  const hasPremium = found ? found.unit.lessons.some((lesson) => lesson.premium) : false;
+  const skipAccess = useMemo(
+    () =>
+      found
+        ? getModuleSkipAccessInfo(found.unit, {
+            isPremium,
+            moduleSkipUsage,
+            inventory,
+            points,
+          })
+        : null,
+    [found, inventory, isPremium, moduleSkipUsage, points]
+  );
   const moduleAccess = found
     ? canStartModule(found.unit.id, { isPremium, completedLessons })
     : null;
@@ -152,29 +194,53 @@ export function ModuleChallengePage() {
   const [mistakes, setMistakes] = useState<ChallengeMistake[]>([]);
   const [activityReady, setActivityReady] = useState(false);
   const [energyBlocked, setEnergyBlocked] = useState(false);
+  const [attemptPaid, setAttemptPaid] = useState(false);
 
   useEffect(() => {
-    if (!found || questions.length === 0 || (moduleAccess && !moduleAccess.allowed) || (hasPremium && !isPremium) || activityReady || energyBlocked) return;
+    if (!found || !skipAccess || questions.length === 0 || (moduleAccess && !moduleAccess.allowed) || activityReady || energyBlocked) {
+      return;
+    }
+    if (skipAccess.requiresPro && !isPremium) return;
+    if (skipAccess.requiresAttemptPayment && !attemptPaid) return;
+
     const sessionKey = `longyu-energy:challenge:${found.unit.id}:${todayKey()}`;
     if (window.sessionStorage.getItem(sessionKey) === "1") {
       setActivityReady(true);
       return;
     }
-    if (!consumeCharge("module_challenge")) {
+
+    if (skipAccess.requiresCharge && !consumeCharge("module_challenge")) {
       setEnergyBlocked(true);
       setProPaywallKind("energy");
       playSoundFx("blocked", soundEffects);
       return;
     }
+
+    recordModuleSkipAttempt(found.unit.id);
     window.sessionStorage.setItem(sessionKey, "1");
     setActivityReady(true);
-  }, [activityReady, consumeCharge, energyBlocked, found, hasPremium, isPremium, moduleAccess, questions.length, soundEffects]);
+  }, [
+    activityReady,
+    attemptPaid,
+    consumeCharge,
+    energyBlocked,
+    found,
+    isPremium,
+    moduleAccess,
+    questions.length,
+    recordModuleSkipAttempt,
+    skipAccess,
+    soundEffects,
+  ]);
 
   if (!found) return <Navigate to="/jornada" replace />;
 
   const { unit, phaseTitle } = found;
   const reviewEntries = reviewEntriesForUnit(unit);
   const uniqueReviewItems = uniqueModuleItems(reviewEntries).length;
+  const completableLessonIds = useMemo(() => lessonsCompletableViaSkipTest(unit), [unit]);
+  const retryCost = MODULE_RETRY_QI;
+  const moduleRetryItems = inventory["shop-module-retry"] ?? 0;
 
   if (moduleAccess && !moduleAccess.allowed) {
     const premiumBlocked = moduleAccess.reasonCode === "premium_required";
@@ -193,16 +259,18 @@ export function ModuleChallengePage() {
     );
   }
 
-  if (hasPremium && !isPremium) {
+  if (skipAccess?.requiresPro && !isPremium) {
     return (
       <div className="mx-auto max-w-md pt-10 text-center">
         <Pill tone="accent">Longyu Pro</Pill>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">
-          Teste premium
+          {skipAccess.band === "advanced" ? "Módulo avançado" : "Teste premium"}
         </h1>
         <p className="mt-2 text-sm text-ink-soft">
-          Este módulo tem conteúdo Pro. Ative o Longyu Pro para fazer o teste de nivelamento.
+          {skipAccess.blockedReason ??
+            "Este módulo exige Longyu Pro para o teste de pular. Você ainda pode seguir pela Jornada normalmente."}
         </p>
+        <p className="mt-2 text-xs text-ink-faint">{skipAccess.labels.pro}</p>
         <Button className="mt-6 w-full" onClick={() => setProPaywallKind("content")}>Ver Pro</Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
       </div>
@@ -225,6 +293,57 @@ export function ModuleChallengePage() {
           {exam?.status === "insufficient" ? `; este módulo gerou ${exam.validCount}.` : "."}
         </p>
         <Button className="mt-6" onClick={() => navigate("/jornada")}>Voltar</Button>
+      </div>
+    );
+  }
+
+  if (skipAccess?.requiresAttemptPayment && !attemptPaid) {
+    const canPay = canPayModuleSkipAttempt(skipAccess, points);
+    return (
+      <div className="mx-auto max-w-md space-y-4 pt-10 text-center">
+        <Pill tone="accent">Tentativa extra</Pill>
+        <h1 className="font-serif text-3xl font-semibold text-ink">Teste desta semana</h1>
+        <p className="text-sm text-ink-soft">
+          Você já usou a tentativa grátis deste módulo nesta semana. Use Qi ou um Passe de teste para tentar de novo.
+        </p>
+        <Card className="p-4 text-left text-sm text-ink-soft">
+          <div>Opções: {moduleRetryItems > 0 ? `Passe de teste (${moduleRetryItems})` : `${retryCost} Qi`}</div>
+          <div className="mt-1 text-xs text-ink-faint">No Pro, novas tentativas são inclusas.</div>
+        </Card>
+        <Button
+          className="w-full"
+          onClick={() => {
+            if (isPremium) {
+              setAttemptPaid(true);
+              return;
+            }
+            if (moduleRetryItems > 0) {
+              if (!useInventoryItem("shop-module-retry")) return;
+              playSoundFx("success", soundEffects);
+              setAttemptPaid(true);
+              return;
+            }
+            if (!spendQi(retryCost, "challenge_retry")) {
+              setProPaywallKind("qi");
+              return;
+            }
+            playSoundFx("qiSpend", soundEffects);
+            setAttemptPaid(true);
+          }}
+          disabled={!isPremium && !canPay}
+        >
+          {isPremium
+            ? "Continuar incluso no Pro"
+            : moduleRetryItems > 0
+            ? `Usar Passe de teste (${moduleRetryItems})`
+            : canPay
+            ? `Pagar ${retryCost} Qi e começar`
+            : `Juntar ${retryCost - points} Qi`}
+        </Button>
+        <Button variant="outline" className="w-full" onClick={() => navigate("/")}>
+          Voltar à jornada
+        </Button>
+        <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       </div>
     );
   }
@@ -253,8 +372,6 @@ export function ModuleChallengePage() {
   const correctIds = new Set(Object.keys(results).filter((id) => results[id]));
   const grade = gradeModuleSkipTest(questions, correctIds);
   const requiredPercent = Math.round(EXAM_PASS_RATIO * 100);
-  const retryCost = MODULE_RETRY_QI;
-  const moduleRetryItems = inventory["shop-module-retry"] ?? 0;
   const canRetry = isPremium || moduleRetryItems > 0 || points >= retryCost;
   const severeMiss = finished && grade.scoredTotal > 0 && grade.scoredCorrectCount / grade.scoredTotal < 0.5;
 
@@ -322,7 +439,8 @@ export function ModuleChallengePage() {
 
     if (finalGrade.passed) {
       validateModule(unit.id);
-      for (const lesson of unit.lessons) completeLesson(lesson.id);
+      const completable = completableLessonIds;
+      for (const lessonId of completable) completeLessonViaTest(lessonId);
       for (const entry of reviewEntries) {
         gradeReviewDomain({
           ensureSrs,
@@ -334,20 +452,15 @@ export function ModuleChallengePage() {
           grade: "good",
         });
       }
-      claimReward({
-        id: `challenge:${unit.id}:skip:qi`,
-        type: "qi",
-        amount: MODULE_PASS_QI,
-        source: "Teste de módulo",
-      });
-      if (finalGrade.correctCount === finalGrade.total) {
+      if (MODULE_SKIP_VALIDATION_QI > 0) {
         claimReward({
-          id: `challenge:${unit.id}:skip:pearl`,
-          type: "dragonPearl",
-          amount: 1,
-          source: "Domínio perfeito no teste",
+          id: `challenge:${unit.id}:skip:qi`,
+          type: "qi",
+          amount: MODULE_SKIP_VALIDATION_QI,
+          source: "Validado por teste",
         });
       }
+      unlockAchievement("jornada-validado-teste");
       playSoundFx("moduleComplete", soundEffects);
     } else {
       playSoundFx("error", soundEffects);
@@ -431,29 +544,38 @@ export function ModuleChallengePage() {
           {passed && (
             <>
               <div className="longyu-phase-pass mt-5 rounded-2xl border border-accent-soft bg-accent-soft px-4 py-3 text-sm font-semibold text-accent">
-                Módulo pulado com segurança. {unit.lessons.length} lições entraram no seu histórico.
+                Módulo validado por teste. {completableLessonIds.length} lições liberadas com 1 estrela — sem recompensa completa de aula.
               </div>
-              <div className="mt-5 grid gap-2 text-left sm:grid-cols-3">
+              <div className="mt-5 grid gap-2 text-left sm:grid-cols-2">
                 <div className="rounded-2xl border border-line bg-surface px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-                    <IconTarget width={17} height={17} /> +{MODULE_PASS_QI} Qi
+                    <IconTarget width={17} height={17} /> Medalha: Validado por teste
                   </div>
-                  <p className="mt-1 text-xs text-ink-faint">Recompensa moderada</p>
+                  <p className="mt-1 text-xs text-ink-faint">Reconhecimento leve pelo domínio comprovado</p>
                 </div>
-                <div className="rounded-2xl border border-line bg-surface px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-                    <IconStar width={17} height={17} fill={grade.correctCount === grade.total ? "currentColor" : "none"} /> {grade.correctCount === grade.total ? "+1 Pérola" : "Pérola só no 100%"}
+                {MODULE_SKIP_VALIDATION_QI > 0 && (
+                  <div className="rounded-2xl border border-line bg-surface px-4 py-3">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+                      <IconStar width={17} height={17} /> +{MODULE_SKIP_VALIDATION_QI} Qi
+                    </div>
+                    <p className="mt-1 text-xs text-ink-faint">Bem menor que fazer todas as lições</p>
                   </div>
-                  <p className="mt-1 text-xs text-ink-faint">{grade.correctCount === grade.total ? "Teste perfeito" : "Sem erro nenhum"}</p>
-                </div>
-                <div className="rounded-2xl border border-line bg-surface px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-                    <IconLibrary width={17} height={17} /> {uniqueReviewItems} itens
-                  </div>
-                  <p className="mt-1 text-xs text-ink-faint">Adicionados à revisão</p>
-                </div>
+                )}
               </div>
             </>
+          )}
+
+          {!passed && isPremium && mistakes.length > 0 && (
+            <div className="mt-5 rounded-2xl border border-line bg-surface p-4 text-left">
+              <div className="text-sm font-semibold text-ink">Relatório Pro — pontos fracos</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {weakPointsReport(mistakes).map((point) => (
+                  <span key={point.label} className="rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold text-accent">
+                    {point.label} · {point.count}
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
 
           {!passed && grade.essentialMissed.length > 0 && (

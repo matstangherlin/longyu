@@ -41,6 +41,7 @@ import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { FriendsProfileCard } from "../../components/social/FriendsProfileCard";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
@@ -2293,6 +2294,8 @@ export function AccountPage() {
           </div>
         </div>
       </HubContentCard>
+
+      <FriendsProfileCard />
 
       <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <section ref={accountProfileRef} className="scroll-mt-4">

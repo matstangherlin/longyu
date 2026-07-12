@@ -62,6 +62,7 @@ import {
   serverSpendQi,
 } from "./economyServerBridge";
 import { effectivePremium, isDevPreviewAllowed, isInternalTestProEmail } from "./entitlements";
+import type { ModuleSkipUsageWeek } from "./moduleSkipAccess";
 
 export type ThemeName = "clay" | "china" | "dark";
 export type SoundTheme = "longyu_classic" | "longyu_soft" | "longyu_game";
@@ -954,6 +955,8 @@ interface AccountSnapshot extends XpBuckets {
   focusPassUntil: number | null;
   /** Módulos liberados pelo teste de pular ("validado por teste"). */
   validatedModules: string[];
+  /** Tentativas de teste de pular por módulo na semana corrente. */
+  moduleSkipUsage: Record<string, ModuleSkipUsageWeek>;
 }
 
 /**
@@ -1037,6 +1040,7 @@ function blankSnapshot(): AccountSnapshot {
     achievementHistory: [],
     focusPassUntil: null,
     validatedModules: [],
+    moduleSkipUsage: {},
   };
 }
 
@@ -1135,6 +1139,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     achievementHistory: s.achievementHistory,
     focusPassUntil: s.focusPassUntil,
     validatedModules: s.validatedModules,
+    moduleSkipUsage: s.moduleSkipUsage ?? {},
   };
 }
 
@@ -1244,6 +1249,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     focusPassUntil:
       account.focusPassUntil && account.focusPassUntil > Date.now() ? account.focusPassUntil : null,
     validatedModules: account.validatedModules ?? [],
+    moduleSkipUsage: account.moduleSkipUsage ?? {},
     ...normalizeAchievementState(account.achievementsUnlocked, account.achievementHistory),
   };
 }
@@ -1300,6 +1306,10 @@ function settleLeagueWeek(s: AppState, now = new Date()): Partial<AppState> {
   const standings = buildLeagueStandings(s.weeklyXp, bots);
   const userRank = standings.find((row) => row.isUser)?.rank ?? standings.length;
   const outcome = leagueOutcomeForRank(userRank, standings.length, tier);
+  const promotedTier = nextLeagueTier(tier, outcome);
+  if (outcome === "promoted" && promotedTier !== tier) {
+    queueSocialFromApp("league_up", { tier: promotedTier, from: tier });
+  }
   const historyEntry: LeagueHistoryEntry = {
     id: `league:${xpWeek}:${Date.now()}`,
     weekKey: xpWeek,
@@ -1311,11 +1321,21 @@ function settleLeagueWeek(s: AppState, now = new Date()): Partial<AppState> {
   };
 
   return {
-    leagueTier: nextLeagueTier(tier, outcome),
+    leagueTier: promotedTier,
     leagueJoinedAt: null,
     leagueBots: [],
     leagueHistory: [historyEntry, ...(s.leagueHistory ?? [])].slice(0, 24),
   };
+}
+
+function queueSocialFromApp(type: import("../lib/social/types").SocialActivityType, payload: Record<string, unknown> = {}) {
+  queueMicrotask(async () => {
+    const state = useStore.getState();
+    const account = state.accounts[state.currentAccountId];
+    if (account?.authMode !== "cloud") return;
+    const { queueSocialEvent } = await import("../services/socialActivityQueue");
+    queueSocialEvent(type, payload);
+  });
 }
 
 function joinLeaguePatch(
@@ -1500,6 +1520,7 @@ interface AppState {
   achievementHistory: AchievementHistoryEntry[];
   focusPassUntil: number | null;
   validatedModules: string[];
+  moduleSkipUsage: Record<string, ModuleSkipUsageWeek>;
 
   setTheme: (t: ThemeName) => void;
   setTtsRate: (r: number) => void;
@@ -1612,6 +1633,8 @@ interface AppState {
   canStartActivity: (activityType: EnergyActivityType) => boolean;
   registerActivity: () => void;
   completeLesson: (id: string) => void;
+  /** Marca lição concluída via teste de módulo — 1 estrela, sem recompensas de aula. */
+  completeLessonViaTest: (id: string) => void;
   /**
    * Desbloqueia uma medalha geral. Idempotente: retorna false se já foi
    * desbloqueada. Aplica a recompensa (Qi via rewardHistory, baú no inventário)
@@ -1622,6 +1645,8 @@ interface AppState {
   hasFocusPass: () => boolean;
   /** Marca um módulo como "validado por teste" (pulo aprovado). Idempotente. */
   validateModule: (unitId: string) => void;
+  /** Registra uma tentativa de teste de pular módulo na semana corrente. */
+  recordModuleSkipAttempt: (unitId: string) => void;
 }
 
 function clamp01(value: number): number {
@@ -1721,6 +1746,7 @@ export const useStore = create<AppState>()(
       achievementHistory: [],
       focusPassUntil: null,
       validatedModules: [],
+      moduleSkipUsage: {},
       inventory: {},
       ownedCosmetics: [],
       purchaseHistory: [],
@@ -2725,6 +2751,10 @@ export const useStore = create<AppState>()(
           }
           return patch;
         });
+        void import("../data/achievements").then(({ ACHIEVEMENTS }) => {
+          const def = ACHIEVEMENTS.find((item) => item.id === id);
+          queueSocialFromApp("achievement", { id, title: def?.title ?? id });
+        });
         return true;
       },
 
@@ -3104,6 +3134,21 @@ export const useStore = create<AppState>()(
           return { validatedModules, accounts: saveCurrentAccount(next) };
         }),
 
+      recordModuleSkipAttempt: (unitId) =>
+        set((s) => {
+          const cleanId = unitId.trim();
+          if (!cleanId) return {};
+          const currentWeek = weekKey();
+          const previous = s.moduleSkipUsage?.[cleanId];
+          const attempts = previous?.weekKey === currentWeek ? previous.attempts + 1 : 1;
+          const moduleSkipUsage = {
+            ...(s.moduleSkipUsage ?? {}),
+            [cleanId]: { weekKey: currentWeek, attempts },
+          };
+          const next = { ...s, moduleSkipUsage };
+          return { moduleSkipUsage, accounts: saveCurrentAccount(next) };
+        }),
+
       canStartActivity: (activityType) => {
         const state = get();
         if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
@@ -3244,7 +3289,8 @@ export const useStore = create<AppState>()(
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
         }),
 
-      completeLesson: (id) =>
+      completeLesson: (id) => {
+        const wasComplete = get().completedLessons.includes(id);
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
@@ -3272,9 +3318,58 @@ export const useStore = create<AppState>()(
             weeklyMissions,
             accounts: saveCurrentAccount(next),
           };
-        }),
+        });
+        if (!wasComplete) {
+          const lesson = ALL_LESSONS.find((item) => item.id === id);
+          queueSocialFromApp("lesson_complete", {
+            lessonId: id,
+            lessonTitle: lesson?.title ?? id,
+          });
+        }
+      },
 
-      registerActivity: () =>
+      completeLessonViaTest: (id) => {
+        const wasComplete = get().completedLessons.includes(id);
+        set((s) => {
+          const leaguePatch = settleLeagueWeek(s);
+          const current = { ...s, ...leaguePatch };
+          const lessonStarsById = { ...current.lessonStarsById, [id]: 1 as LessonStar };
+          if (current.completedLessons.includes(id)) {
+            const next = { ...current, lessonStarsById };
+            return { ...leaguePatch, lessonStarsById, accounts: saveCurrentAccount(next) };
+          }
+          const leagueJoin = joinLeaguePatch(current);
+          const week = activeWeeklyMissions(current.weeklyMissions);
+          const weeklyMissions = { ...week, lessons: week.lessons + 1 };
+          const next = {
+            ...current,
+            ...leagueJoin,
+            completedLessons: [...current.completedLessons, id],
+            lessonStarsById,
+            weeklyMissions,
+          };
+          return {
+            ...leaguePatch,
+            ...leagueJoin,
+            completedLessons: next.completedLessons,
+            lessonStarsById,
+            weeklyMissions,
+            accounts: saveCurrentAccount(next),
+          };
+        });
+        if (!wasComplete) {
+          const lesson = ALL_LESSONS.find((item) => item.id === id);
+          queueSocialFromApp("lesson_complete", {
+            lessonId: id,
+            lessonTitle: lesson?.title ?? id,
+            viaTest: true,
+          });
+        }
+      },
+
+      registerActivity: () => {
+        const prevStreak = get().streak;
+        const prevLastActive = get().lastActive;
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
@@ -3315,11 +3410,16 @@ export const useStore = create<AppState>()(
               dailyEnergy,
             }),
           };
-        }),
+        });
+        const next = get();
+        if (next.lastActive !== prevLastActive && next.streak >= 2 && next.streak >= prevStreak) {
+          queueSocialFromApp("streak", { days: next.streak, streak: next.streak });
+        }
+      },
     }),
     {
       name: "longyu-v1",
-      version: 14,
+      version: 15,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -3336,6 +3436,7 @@ export const useStore = create<AppState>()(
       // v11: adiciona histórico leve de erros recentes para revisão corretiva.
       // v13: adiciona progresso do HanziBuilder por caractere (guia/dificuldade).
       // v14: remove preview Pro persistido em produção e normaliza cargas ao plano grátis.
+      // v15: adiciona moduleSkipUsage para cotas semanais do teste de pular.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -3434,6 +3535,12 @@ export const useStore = create<AppState>()(
           if (stripAccountPreview) {
             migrated = { ...migrated, isPremium: false };
           }
+          if (version < 15) {
+            migrated = {
+              ...migrated,
+              moduleSkipUsage: migrated.moduleSkipUsage ?? {},
+            };
+          }
           const completedLessons = normalizeCompletedLessons(migrated.completedLessons, migrated.lessonStarsById);
           migrated = {
             ...migrated,
@@ -3490,6 +3597,7 @@ export const useStore = create<AppState>()(
           lifetimeStats: { ...freshLifetimeStats(), ...(root.lifetimeStats ?? {}) },
           hanziBuilderProgressByChar: normalizeHanziBuilderProgress(root.hanziBuilderProgressByChar),
           ...rootAchievements,
+          moduleSkipUsage: root.moduleSkipUsage ?? {},
           accounts: normalized,
         } as AppState;
       },

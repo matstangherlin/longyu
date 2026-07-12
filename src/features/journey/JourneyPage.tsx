@@ -23,6 +23,7 @@ import {
   type ToneTrainerProgress,
 } from "../../data/toneTrainer";
 import { buildModuleSkipTest } from "../challenge/examBuilder";
+import { getModuleSkipAccessInfo } from "../../lib/moduleSkipAccess";
 import { useIsPro } from "../../lib/proAccess";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
@@ -621,6 +622,9 @@ function ModuleBlock({
   onChestOpen: (chest: JourneyChestConfig) => void;
   onChestLocked: (message: string) => void;
 }) {
+  const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
+  const inventory = useStore((s) => s.inventory);
+  const points = useStore((s) => s.points);
   const { done, total } = unitProgress(unit, completed);
   const containsCurrent = unit.lessons.some((lesson) => lesson.id === currentId);
   const hasPremium = unit.lessons.some((lesson) => lesson.premium);
@@ -629,11 +633,15 @@ function ModuleBlock({
   const currentLessonIndex = currentId ? ALL_LESSONS.findIndex((lesson) => lesson.id === currentId) : -1;
   const isFutureModule = currentLessonIndex >= 0 && firstLessonIndex > currentLessonIndex;
   const showSkipTest = !moduleComplete && (isFutureModule || done > 0);
-  const proChallenge = showSkipTest && hasPremium && !isPremium;
   const skipExam = useMemo(() => buildModuleSkipTest(unit), [unit]);
   const skipTestReady = skipExam.status === "ok";
+  const skipAccess = useMemo(
+    () => getModuleSkipAccessInfo(unit, { isPremium, moduleSkipUsage, inventory, points }),
+    [inventory, isPremium, moduleSkipUsage, points, unit]
+  );
+  const proChallenge = showSkipTest && skipAccess.requiresPro && !isPremium;
   const insufficientSkipTest = showSkipTest && !proChallenge && !skipTestReady;
-  const canChallenge = showSkipTest && !proChallenge && skipTestReady;
+  const canChallenge = showSkipTest && skipAccess.allowed && skipTestReady;
   const chestOpen = chest ? journeyChestsOpened.includes(chest.id) : false;
   const chestUnlocked = Boolean(chest && moduleComplete && !chestOpen);
 
@@ -678,45 +686,54 @@ function ModuleBlock({
         </div>
 
         {showSkipTest && (
-          <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-surface-2/80 px-2.5 py-1.5">
-            {canChallenge ? (
-              <>
-                <div className="min-w-0 text-[11px] text-ink-soft">Já sabe? Teste rápido.</div>
-                <button
-                  onClick={() => onChallenge(unit.id)}
-                  className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
-                >
-                  Teste
-                </button>
-              </>
-            ) : insufficientSkipTest ? (
-              <>
-                <div className="min-w-0 text-[11px] text-ink-faint">Teste indisponível</div>
-                <button
-                  disabled
-                  className="inline-flex h-7 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-surface px-2.5 text-[11px] font-semibold text-ink-faint"
-                >
-                  Teste
-                </button>
-              </>
-            ) : proChallenge ? (
-              <>
-                <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-ink-soft">
+          <div className="mt-2 flex flex-col gap-1.5 rounded-lg bg-surface-2/80 px-2.5 py-1.5">
+            <div className="flex items-center justify-between gap-2">
+              {canChallenge ? (
+                <>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-ink-soft">{skipAccess.labels.title}</div>
+                    <div className="truncate text-[10px] text-ink-faint">{skipAccess.labels.cost}</div>
+                  </div>
+                  <button
+                    onClick={() => onChallenge(unit.id)}
+                    className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
+                  >
+                    {skipAccess.labels.cta}
+                  </button>
+                </>
+              ) : insufficientSkipTest ? (
+                <>
+                  <div className="min-w-0 text-[11px] text-ink-faint">Teste indisponível</div>
+                  <button
+                    disabled
+                    title="Este módulo ainda não tem perguntas suficientes para teste."
+                    className="inline-flex h-7 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-surface px-2.5 text-[11px] font-semibold text-ink-faint"
+                  >
+                    Teste
+                  </button>
+                </>
+              ) : proChallenge ? (
+                <>
+                  <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-ink-soft">
+                    <IconLock width={12} height={12} className="shrink-0" />
+                    <span className="truncate">{skipAccess.labels.pro ?? skipAccess.labels.title}</span>
+                  </div>
+                  <button
+                    onClick={onProChallenge}
+                    className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
+                  >
+                    {skipAccess.labels.cta}
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-1.5 text-[11px] text-ink-faint">
                   <IconLock width={12} height={12} className="shrink-0" />
-                  <span className="truncate">Pular módulo</span>
+                  {skipAccess.blockedReason ?? "Complete o módulo anterior."}
                 </div>
-                <button
-                  onClick={onProChallenge}
-                  className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
-                >
-                  Pro
-                </button>
-              </>
-            ) : (
-              <div className="flex items-center gap-1.5 text-[11px] text-ink-faint">
-                <IconLock width={12} height={12} className="shrink-0" />
-                Complete o módulo anterior.
-              </div>
+              )}
+            </div>
+            {(canChallenge || proChallenge) && (
+              <div className="text-[10px] leading-4 text-ink-faint">{skipAccess.labels.requirement}</div>
             )}
           </div>
         )}

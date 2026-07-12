@@ -103,8 +103,10 @@ export const ECONOMY_SUMMARY = {
 } as const;
 
 // ——— Teste de pular módulo ———
-/** Qi ao passar no teste (pular com segurança é celebrado, não punido). */
+/** Qi ao passar no teste (recompensa leve — bem menor que lições completas). */
 export const MODULE_PASS_QI = 30;
+/** Qi concedido na validação por teste (uso real no app). */
+export const MODULE_SKIP_VALIDATION_QI = 5;
 
 // ——— Loja (preços em Qi, salvo indicação) ———
 export const SHOP_PRICES = {

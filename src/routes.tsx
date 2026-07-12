@@ -30,6 +30,7 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
 import { LandingPage } from "./features/landing/LandingPage";
+import { AmigosPage } from "./features/amigos/AmigosPage";
 
 export const routes: RouteObject[] = [
   // "/" público: landing para quem ainda não tem conta/progresso.
@@ -54,6 +55,7 @@ export const routes: RouteObject[] = [
       { path: "biblioteca", element: <BibliotecaPage /> },
       { path: "imersao", element: <ImmersionPage /> },
       { path: "ligas", element: <LigasPage /> },
+      { path: "amigos", element: <AmigosPage /> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },

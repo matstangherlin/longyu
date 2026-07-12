@@ -1,6 +1,12 @@
 import { CHARACTERS } from "./characters";
 import { CHUNKS } from "./chunks";
 import type { ItemType } from "./types";
+import {
+  defaultVisualDistractors,
+  resolveVisualConcept,
+  type ImageChoiceMode,
+  type VisualConceptId,
+} from "./visualVocabulary";
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -24,7 +30,8 @@ export type StepKind =
   | "dialogue_choice"
   | "hanzi_evolution"
   | "hanzi_build"
-  | "tone_pair";
+  | "tone_pair"
+  | "image_choice";
 
 export type LessonStageId = "intro" | "recognition" | "assembly" | "usage" | "consolidation";
 
@@ -57,6 +64,15 @@ export interface LessonStep {
   body?: string;
   assist?: "guided" | "quiz";
   mode?: "guided_write" | "free_reflection" | "translation_fill";
+  imageChoiceMode?: ImageChoiceMode;
+  imageId?: string;
+  iconId?: string;
+  promptPt?: string;
+  targetHanzi?: string;
+  targetPinyin?: string;
+  targetMeaningPt?: string;
+  imageOptions?: string[];
+  correctImageId?: string;
   text?: string;
   pinyin?: string;
   pt?: string;
@@ -191,6 +207,60 @@ const comp = (hanzi: string, pinyin: string, answer: string, options: string[]):
   answer,
   options,
 });
+const imageChoice = (
+  mode: ImageChoiceMode,
+  imageId: VisualConceptId,
+  promptPt: string,
+  answer: string,
+  options: string[],
+  extra: Partial<LessonStep> = {}
+): LessonStep => {
+  const visual = resolveVisualConcept(imageId);
+  const isImagePick = mode === "choose_image" || mode === "listen_and_choose_image";
+  return {
+    kind: "image_choice",
+    imageChoiceMode: mode,
+    imageId,
+    promptPt,
+    targetHanzi: visual?.hanzi,
+    targetPinyin: visual?.pinyin,
+    targetMeaningPt: extra.targetMeaningPt ?? visual?.meaningPt,
+    explanation: extra.explanation,
+    helpMode: extra.helpMode,
+    isNoHint: extra.isNoHint,
+    ...(isImagePick
+      ? { imageOptions: options, correctImageId: answer }
+      : { options, correctAnswer: answer }),
+  };
+};
+const visualImageOptions = (targetId: VisualConceptId, count = 4): string[] => {
+  const distractors = defaultVisualDistractors(targetId, count - 1);
+  return [targetId, ...distractors].slice(0, count);
+};
+const visualHanziOptions = (targetId: VisualConceptId): string[] => {
+  const target = resolveVisualConcept(targetId);
+  if (!target) return [];
+  const others = defaultVisualDistractors(targetId, 3)
+    .map((id) => resolveVisualConcept(id)?.hanzi)
+    .filter((hanzi): hanzi is string => Boolean(hanzi && hanzi !== target.hanzi));
+  return [target.hanzi, ...others].slice(0, 4);
+};
+const visualPinyinOptions = (targetId: VisualConceptId): string[] => {
+  const target = resolveVisualConcept(targetId);
+  if (!target) return [];
+  const others = defaultVisualDistractors(targetId, 3)
+    .map((id) => resolveVisualConcept(id)?.pinyin)
+    .filter((pinyin): pinyin is string => Boolean(pinyin && pinyin !== target.pinyin));
+  return [target.pinyin, ...others].slice(0, 4);
+};
+const visualMeaningOptions = (targetId: VisualConceptId): string[] => {
+  const target = resolveVisualConcept(targetId);
+  if (!target) return [];
+  const others = defaultVisualDistractors(targetId, 3)
+    .map((id) => resolveVisualConcept(id)?.meaningPt)
+    .filter((meaning): meaning is string => Boolean(meaning && meaning !== target.meaningPt));
+  return [target.meaningPt, ...others].slice(0, 4);
+};
 const produce = (target: string[], bank: string[], pt: string): LessonStep => ({ kind: "produce", target, bank, pt });
 type WriteGuide = Pick<LessonStep, "suggestion" | "requiredTerms" | "wordBank" | "accepts" | "mode">;
 const write = (
@@ -2466,6 +2536,22 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("kou"),
               recognize("mu"),
               produce(["女"], ["人", "女", "口", "木"], "mulher / feminino"),
+              imageChoice(
+                "choose_hanzi",
+                "person",
+                "Qual hànzì combina com a imagem de pessoa?",
+                "人",
+                visualHanziOptions("person"),
+                { targetMeaningPt: "pessoa", explanation: "人 (rén) significa pessoa." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "tree",
+                "Qual hànzì combina com a imagem de árvore?",
+                "木",
+                visualHanziOptions("tree"),
+                { targetMeaningPt: "árvore", explanation: "木 (mù) significa árvore." }
+              ),
               match(
                 "Peça, não desenho",
                 "Combine cada radical com a ideia que ele costuma sugerir.",
@@ -2524,6 +2610,22 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("mu"),
               recognize("huo"),
               recognize("shui"),
+              imageChoice(
+                "choose_hanzi",
+                "sun",
+                "Qual hànzì combina com o sol?",
+                "日",
+                visualHanziOptions("sun"),
+                { explanation: "日 (rì) = sol / dia." }
+              ),
+              imageChoice(
+                "choose_pinyin",
+                "tree",
+                "Qual é o pinyin de árvore?",
+                "mù",
+                visualPinyinOptions("tree"),
+                { explanation: "木 se lê mù." }
+              ),
               match(
                 "Agrupe por imagem",
                 "Combine cada peça com a imagem principal.",
@@ -2554,6 +2656,14 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("shi"),
               recognize("zhong"),
               recognize("ren"),
+              imageChoice(
+                "listen_and_choose_image",
+                "water",
+                "Ouça e escolha a imagem certa.",
+                "water",
+                visualImageOptions("water"),
+                { explanation: "水 (shuǐ) = água." }
+              ),
               comp("我不会说中文", "wǒ bú huì shuō Zhōngwén", "Não falo chinês", ["Não falo chinês", "Sou brasileiro", "Tudo bem?", "Estou bem"]),
               match(
                 "Reconheça sem traduzir tudo",
@@ -2614,6 +2724,22 @@ export const JOURNEY: JourneyPhase[] = [
             recognize("lin"),
             recognize("sen"),
             decompose("sen"),
+            imageChoice(
+              "choose_image",
+              "tree",
+              "Qual imagem combina com 木?",
+              "tree",
+              visualImageOptions("tree"),
+              { explanation: "木 = árvore." }
+            ),
+            imageChoice(
+              "choose_meaning",
+              "person",
+              "Isto é uma pessoa.",
+              "pessoa",
+              visualMeaningOptions("person"),
+              { helpMode: "disabled", isNoHint: true, explanation: "人 = pessoa." }
+            ),
             match(
               "Desmonte mentalmente",
               "Combine cada caractere com o sentido.",

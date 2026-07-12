@@ -12,6 +12,12 @@ import { COURSE_PROFILE } from "../../data/course";
 import { DOMAIN_META, DOMAIN_ORDER, type DomainTrack } from "../../data/domains";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { isDevPreviewAllowed } from "../../lib/entitlements";
+import { suggestUsernameFromName } from "../../lib/social/username";
+import {
+  fetchMySocialSettings,
+  updateShowInSearch,
+  updateUsername,
+} from "../../services/socialService";
 
 const THEMES: { id: ThemeName; name: string; desc: string; swatch: string[] }[] = [
   { id: "clay", name: "Notion Clay", desc: "Branco quente, calmo, focado.", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
@@ -137,10 +143,29 @@ export function SettingsPage() {
   const points = useStore((s) => s.points);
   const completedLessons = useStore((s) => s.completedLessons);
   const [newAccountName, setNewAccountName] = useState("");
+  const [socialUsername, setSocialUsername] = useState("");
+  const [socialShowInSearch, setSocialShowInSearch] = useState(true);
+  const [socialNotice, setSocialNotice] = useState<string | null>(null);
+  const [socialLoading, setSocialLoading] = useState(false);
 
   const voiceOk = isTTSAvailable() && hasChineseVoice();
   const accountList = Object.values(accounts).sort((a, b) => a.createdAt - b.createdAt);
+  const activeAccount = accounts[currentAccountId];
+  const cloudReady = isSupabaseBackendEnabled() && activeAccount?.authMode === "cloud";
   const location = useLocation();
+
+  useEffect(() => {
+    if (!cloudReady) return;
+    let cancelled = false;
+    void fetchMySocialSettings().then((result) => {
+      if (cancelled || !result.ok) return;
+      setSocialUsername(result.data.username ?? "");
+      setSocialShowInSearch(result.data.show_in_search);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [cloudReady, currentAccountId]);
 
   // Permite que o hub Meu (/config#exibicao, #tema, #sons, #dados) role até a seção.
   useEffect(() => {
@@ -154,6 +179,37 @@ export function SettingsPage() {
     if (newAccountName.trim().length < 2) return;
     createAccount(newAccountName);
     setNewAccountName("");
+  }
+
+  async function handleSaveUsername() {
+    setSocialLoading(true);
+    setSocialNotice(null);
+    const result = await updateUsername(socialUsername);
+    setSocialLoading(false);
+    if (!result.ok) {
+      setSocialNotice(result.message);
+      return;
+    }
+    setSocialUsername(result.data.username ?? "");
+    setSocialNotice("Apelido atualizado.");
+  }
+
+  async function handleToggleShowInSearch() {
+    const next = !socialShowInSearch;
+    setSocialLoading(true);
+    setSocialNotice(null);
+    const result = await updateShowInSearch(next);
+    setSocialLoading(false);
+    if (!result.ok) {
+      setSocialNotice(result.message);
+      return;
+    }
+    setSocialShowInSearch(result.data.show_in_search);
+    setSocialNotice(next ? "Seu perfil aparece na busca de amigos." : "Seu perfil ficou oculto na busca.");
+  }
+
+  function handleSuggestUsername() {
+    setSocialUsername(suggestUsernameFromName(activeAccount?.name ?? "aluno"));
   }
 
   return (
@@ -231,6 +287,54 @@ export function SettingsPage() {
               ? "Com conta na nuvem, o progresso sincroniza automaticamente entre dispositivos."
               : "Dados salvos só neste dispositivo. Sincronização em nuvem pode entrar depois."}
           </div>
+        </Card>
+      </HubSection>
+
+      <HubSection
+        id="privacidade"
+        className="scroll-mt-6"
+        title="Amigos e privacidade"
+        desc="Apelido público e visibilidade na busca."
+      >
+        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
+          {!cloudReady ? (
+            <p className="text-sm text-ink-soft">
+              Crie uma conta na nuvem para definir @apelido, controlar busca e seguir amigos.
+            </p>
+          ) : (
+            <>
+              <div>
+                <label htmlFor="social-username" className="text-sm font-medium text-ink">
+                  @apelido
+                </label>
+                <p className="mt-0.5 text-xs text-ink-soft">Amigos podem te encontrar por nome ou @{socialUsername || "apelido"}.</p>
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <input
+                    id="social-username"
+                    value={socialUsername}
+                    onChange={(event) => setSocialUsername(event.target.value.replace(/^@/, ""))}
+                    placeholder="seu_apelido"
+                    className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
+                  />
+                  <Button type="button" variant="outline" onClick={handleSuggestUsername} disabled={socialLoading}>
+                    Sugerir
+                  </Button>
+                  <Button type="button" onClick={() => void handleSaveUsername()} disabled={socialLoading || socialUsername.trim().length < 3}>
+                    Salvar
+                  </Button>
+                </div>
+              </div>
+
+              <SettingSwitch
+                label="Mostrar meu perfil em busca"
+                desc="Desligado: só aparece por link direto com @apelido."
+                checked={socialShowInSearch}
+                onChange={() => void handleToggleShowInSearch()}
+              />
+
+              {socialNotice && <p className="text-sm text-ink-soft">{socialNotice}</p>}
+            </>
+          )}
         </Card>
       </HubSection>
 

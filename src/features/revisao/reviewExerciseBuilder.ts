@@ -2,6 +2,13 @@ import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
 import { selectHanziBuilderForStudent, type HanziBuilderProgressMap } from "../../data/hanziBuilder";
+import {
+  defaultVisualDistractors,
+  resolveVisualConcept,
+  visualByCharId,
+  type ImageChoiceMode,
+  type VisualConceptId,
+} from "../../data/visualVocabulary";
 import { expandPairsWithLearned, type AdaptivePair } from "../../data/adaptivePairs";
 import { TONE_LABELS } from "../../data/tones";
 import type { ItemType } from "../../data/types";
@@ -23,7 +30,8 @@ export type ReviewExerciseKind =
   | "microread"
   | "tone_choice"
   | "hanzi_build"
-  | "speak";
+  | "speak"
+  | "image_choice";
 
 export type ReviewTextType = "pt" | "hanzi" | "pinyin" | "audio";
 
@@ -88,6 +96,9 @@ export interface ReviewExercise {
   mistakeReason?: string;
   /** hanzi_build: id do exercício em data/hanziBuilder.ts (carta visual). */
   builderId?: string;
+  imageChoiceMode?: ImageChoiceMode;
+  imageOptionIds?: string[];
+  visualConceptId?: string;
 }
 
 export interface ReviewExerciseBuildInput {
@@ -107,7 +118,7 @@ export interface MistakeReviewExerciseBuildInput {
   hanziBuilderProgress?: HanziBuilderProgressMap;
 }
 
-type MistakeReviewFocus = "meaning" | "pinyin" | "tone" | "hanzi" | "sentence" | "audio" | "pairs";
+type MistakeReviewFocus = "meaning" | "pinyin" | "tone" | "hanzi" | "sentence" | "audio" | "pairs" | "visual";
 
 const CORE_CHUNK_IDS = [
   "nihao",
@@ -410,6 +421,13 @@ function remediationCandidates(
   }
 
   switch (mistakeReviewFocus(mistake)) {
+    case "visual":
+      return [
+        buildImageChoiceReview(input, entity),
+        buildHanziFromMeaning(input, entity),
+        buildMeaningExercise(input, entity),
+        buildListenSelect(input, entity),
+      ];
     case "pairs":
       return [
         buildPairMeaningChoice(mistake, input, entity),
@@ -475,6 +493,11 @@ function mistakeReviewFocus(mistake: ActivityErrorRecord): MistakeReviewFocus {
   const text = `${mistake.type} ${mistake.skill} ${primaryDomain ?? ""} ${mistake.prompt} ${mistake.mistakeReason ?? ""} ${mistake.explanation ?? ""}`
     .toLocaleLowerCase("pt-BR");
 
+  if (mistake.type === "image_choice") {
+    if (mistake.skill === "pinyin" || mistake.skill === "som") return "visual";
+    if (mistake.skill === "forma" || mistake.skill === "hanzi") return "visual";
+    return "visual";
+  }
   if (mistake.type === "pair-match" || mistake.type === "match_pairs") return "pairs";
   if (mistake.type === "tone" || mistake.type === "tone_pair" || text.includes("tom") || isLikelyToneOnlyMistake(mistake)) return "tone";
   if (mistake.skill === "pinyin" || primaryDomain === "pinyin" || text.includes("pinyin")) return "pinyin";
@@ -531,14 +554,14 @@ function candidatesForDomain(
       return reps % 2 === 1
         ? [buildPinyinAssembly(input, entity), buildListenPinyinChoice(input, entity), buildPinyinExercise(input, entity), fallback]
         : [buildPinyinExercise(input, entity), buildListenPinyinChoice(input, entity), buildPinyinAssembly(input, entity), fallback];
-    case "significado":
-      return reps % 2 === 0
-        ? [buildMeaningContextChoice(input, entity), buildMeaningExercise(input, entity), fallback]
-        : [buildMeaningExercise(input, entity), buildMeaningContextChoice(input, entity), fallback];
     case "forma":
       return entity.type === "char" && reps % 2 === 1
-        ? [buildHanziBuilderExercise(input, entity), buildHanziFromMeaning(input, entity), buildFormExercise(input, entity), fallback]
-        : [buildFormExercise(input, entity), buildHanziBuilderExercise(input, entity), buildHanziFromMeaning(input, entity), fallback];
+        ? [buildImageChoiceReview(input, entity), buildHanziBuilderExercise(input, entity), buildHanziFromMeaning(input, entity), buildFormExercise(input, entity), fallback]
+        : [buildFormExercise(input, entity), buildImageChoiceReview(input, entity), buildHanziBuilderExercise(input, entity), buildHanziFromMeaning(input, entity), fallback];
+    case "significado":
+      return reps % 2 === 0
+        ? [buildImageChoiceReview(input, entity), buildMeaningContextChoice(input, entity), buildMeaningExercise(input, entity), fallback]
+        : [buildMeaningExercise(input, entity), buildImageChoiceReview(input, entity), buildMeaningContextChoice(input, entity), fallback];
     case "uso":
       return [buildUsageExercise(input, entity), fallback];
     case "leitura":
@@ -815,6 +838,109 @@ function buildHanziFromMeaning(input: ReviewExerciseBuildInput, entity: ReviewEx
     answerLabel: entity.hanzi,
     options,
     explanation: `${entity.hanzi} = ${entity.pinyin} · ${meaningForSentence(entity)}.`,
+    canAutoCheck: true,
+  };
+}
+
+function visualConceptForEntity(entity: ReviewExerciseEntity): VisualConceptId | undefined {
+  if (entity.type === "char") return visualByCharId[entity.itemId]?.id;
+  const byHanzi = Object.values(visualByCharId).find((concept) => concept?.hanzi === entity.hanzi);
+  return byHanzi?.id;
+}
+
+export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: ReviewExerciseEntity): ReviewExercise | null {
+  const conceptId = visualConceptForEntity(entity);
+  const concept = conceptId ? resolveVisualConcept(conceptId) : undefined;
+  if (!concept) return null;
+
+  const modes: ImageChoiceMode[] = ["choose_hanzi", "choose_pinyin", "choose_image", "listen_and_choose_image", "choose_meaning"];
+  const mode = modes[input.item.reps % modes.length];
+  const imageIds = [concept.id, ...defaultVisualDistractors(concept.id, 3)];
+
+  if (mode === "choose_image" || mode === "listen_and_choose_image") {
+    return {
+      kind: "image_choice",
+      domain: input.domain,
+      item: input.item,
+      entity,
+      prompt: mode === "listen_and_choose_image" ? "Revisão visual por áudio." : "Revisão visual.",
+      question: mode === "listen_and_choose_image" ? "Ouça e escolha a imagem certa." : `Qual imagem combina com ${concept.hanzi}?`,
+      displayText: mode === "choose_image" ? concept.hanzi : undefined,
+      displayType: mode === "choose_image" ? "hanzi" : undefined,
+      audioText: mode === "listen_and_choose_image" ? concept.hanzi : undefined,
+      answer: concept.id,
+      answerLabel: concept.meaningPt,
+      imageChoiceMode: mode,
+      imageOptionIds: imageIds,
+      visualConceptId: concept.id,
+      options: imageIds.map((id, index) => ({
+        id: `visual-${id}-${index}`,
+        value: id,
+        label: resolveVisualConcept(id)?.meaningPt ?? id,
+      })),
+      explanation: `${concept.hanzi} (${concept.pinyin}) = ${concept.meaningPt}.`,
+      canAutoCheck: true,
+    };
+  }
+
+  const textModes: Record<Exclude<ImageChoiceMode, "choose_image" | "listen_and_choose_image">, { question: string; answer: string; options: ReviewOption[] }> = {
+    choose_hanzi: {
+      question: "Qual hànzì combina com a imagem?",
+      answer: concept.hanzi,
+      options: imageIds
+        .map((id) => resolveVisualConcept(id))
+        .filter(Boolean)
+        .map((entry, index) => ({
+          id: `hanzi-${entry!.id}-${index}`,
+          value: entry!.hanzi,
+          label: entry!.hanzi,
+          type: "hanzi" as const,
+        })),
+    },
+    choose_pinyin: {
+      question: "Qual é o pinyin?",
+      answer: concept.pinyin,
+      options: imageIds
+        .map((id) => resolveVisualConcept(id))
+        .filter(Boolean)
+        .map((entry, index) => ({
+          id: `pinyin-${entry!.id}-${index}`,
+          value: entry!.pinyin,
+          label: entry!.pinyin,
+          type: "pinyin" as const,
+        })),
+    },
+    choose_meaning: {
+      question: "Qual é o significado?",
+      answer: concept.meaningPt,
+      options: imageIds
+        .map((id) => resolveVisualConcept(id))
+        .filter(Boolean)
+        .map((entry, index) => ({
+          id: `meaning-${entry!.id}-${index}`,
+          value: entry!.meaningPt,
+          label: entry!.meaningPt,
+          type: "pt" as const,
+        })),
+    },
+  };
+
+  const payload = textModes[mode as keyof typeof textModes];
+  if (!payload || payload.options.length < 2) return null;
+
+  return {
+    kind: "image_choice",
+    domain: input.domain,
+    item: input.item,
+    entity,
+    prompt: "Revisão visual.",
+    question: payload.question,
+    visualConceptId: concept.id,
+    imageChoiceMode: mode,
+    answer: payload.answer,
+    answerLabel: payload.answer,
+    options: payload.options,
+    explanation: `${concept.hanzi} (${concept.pinyin}) = ${concept.meaningPt}.`,
     canAutoCheck: true,
   };
 }
@@ -1415,6 +1541,16 @@ export function validateReviewExercise(exercise: ReviewExercise | null): ReviewE
     if (hasDuplicate(pairs.map((pair) => pair.left))) return null;
     if (hasDuplicate(pairs.map((pair) => pair.right))) return null;
     return exercise;
+  }
+
+  if (exercise.kind === "image_choice") {
+    if (exercise.imageOptionIds?.length) {
+      const ids = exercise.imageOptionIds;
+      if (ids.length < 2) return null;
+      if (hasDuplicate(ids)) return null;
+      if (!ids.includes(exercise.answer)) return null;
+      return exercise;
+    }
   }
 
   if (!exercise.canAutoCheck) return exercise;

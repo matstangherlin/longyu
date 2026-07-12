@@ -1,6 +1,7 @@
 import {
   ALL_LESSONS,
   FOUNDATION_LESSON_IDS,
+  JOURNEY,
   type FlatLesson,
   type Lesson,
   type LessonStage,
@@ -20,6 +21,14 @@ import {
   type HanziBuilderProgressMap,
 } from "../../data/hanziBuilder";
 import { numericPinyinToDiacritics, normalizePinyinBase, isNearDuplicatePinyinSet } from "../../lib/pinyin";
+import {
+  buildWeightedModuleReviewFocus,
+  resolveModuleFocusItems,
+  validateModuleReviewCoverage,
+  type ModuleReviewCoverageIssue,
+} from "../../lib/moduleReview";
+
+export { validateModuleReviewCoverage, type ModuleReviewCoverageIssue };
 
 export type LessonMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
 
@@ -66,6 +75,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "dialogue_choice",
   "hanzi_build",
   "tone_pair",
+  "image_choice",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -366,7 +376,7 @@ const LESSON_STAGE_ORDER: LessonStageId[] = ["intro", "recognition", "assembly",
 
 const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
   intro: ["intro", "flashcard", "listen", "hanzi_evolution", "decompose"],
-  recognition: ["listen_select", "comprehend", "recognize", "tone", "match_pairs", "tone_pair"],
+  recognition: ["listen_select", "comprehend", "recognize", "tone", "match_pairs", "tone_pair", "image_choice"],
   assembly: ["produce", "sentence_build", "translation_build", "hanzi_build", "fill_blank", "decompose"],
   usage: ["dialogue_choice", "write", "fill_blank", "microread", "produce", "comprehend"],
   consolidation: [
@@ -385,6 +395,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "dialogue_choice",
     "hanzi_build",
     "tone_pair",
+    "image_choice",
     "microread",
   ],
 };
@@ -422,6 +433,7 @@ export interface LessonPracticePlanContext {
   recentErrors?: LessonPracticeRecentError[];
   /** Domínio do HanziBuilder por caractere: escolhe a variação certa (guia → desafio). */
   hanziBuilderProgress?: HanziBuilderProgressMap;
+  srs?: Record<string, import("../../lib/srs").SRSItem>;
   silent?: boolean;
 }
 
@@ -447,6 +459,16 @@ const CORE_REVIEW_REFS = [
   "chunk:wature",
   "chunk:wobuhui",
   "chunk:nijiaoshenme",
+  "chunk:woxianghe",
+  "chunk:mingtianjian",
+  "chunk:nihaoma",
+  "chunk:jintianhenhao",
+  "chunk:zheshishui",
+  "chunk:nashirenm",
+  "char:wo",
+  "char:ni",
+  "char:ren",
+  "char:mu",
 ];
 const charByHanzi = new Map(CHARACTERS.map((char) => [char.hanzi, char]));
 
@@ -504,6 +526,7 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   hanzi_evolution: ["intro", "hanzi"],
   hanzi_build: ["hanzi", "assembly"],
   tone_pair: ["pinyin", "audio", "matching"],
+  image_choice: ["recognition", "hanzi", "meaning", "audio"],
 };
 
 const WEIGHTS_BY_SKILL: Record<Skill | "review", Partial<Record<ExerciseFamily, number>>> = {
@@ -816,7 +839,27 @@ function recentErrorFocusItems(errors: readonly LessonPracticeRecentError[] | un
   return items;
 }
 
+function moduleReviewContext(context: LessonPracticePlanContext) {
+  return {
+    completedLessons: context.completedLessons,
+    recentErrors: context.recentErrors,
+    srs: context.srs,
+  };
+}
+
 function combinedReviewFocus(lesson: Lesson, context: LessonPracticePlanContext): FocusItem[] {
+  const unitId = lessonUnitId(lesson);
+  if (lesson.isReview && unitId) {
+    return buildWeightedModuleReviewFocus(unitId, moduleReviewContext(context)).map((item) => ({
+      key: item.key,
+      hanzi: item.hanzi,
+      pinyin: item.pinyin,
+      meaningPt: item.meaningPt,
+      type: item.type,
+      itemId: item.itemId,
+    }));
+  }
+
   const items: FocusItem[] = [];
   for (const item of recentErrorFocusItems(context.recentErrors)) addFocusItem(items, item);
   for (const item of itemsFromLessons(priorLessonsFor(lesson, context)).reverse()) addFocusItem(items, item);
@@ -962,6 +1005,20 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
 function focusForPlanning(lesson: Lesson, context: LessonPracticePlanContext): FocusItem[] {
   const focus = lessonFocusItems(lesson);
   if (lesson.isReview) {
+    const unitId = lessonUnitId(lesson);
+    const unit = unitId ? JOURNEY.flatMap((phase) => phase.units).find((entry) => entry.id === unitId) : undefined;
+    if (unit) {
+      for (const item of resolveModuleFocusItems(unit)) {
+        addFocusItem(focus, {
+          key: item.key,
+          hanzi: item.hanzi,
+          pinyin: item.pinyin,
+          meaningPt: item.meaningPt,
+          type: item.type,
+          itemId: item.itemId,
+        });
+      }
+    }
     for (const item of itemsFromLessons(moduleLessonsFor(lesson))) addFocusItem(focus, item);
   }
   for (const item of recentErrorFocusItems(context.recentErrors)) addFocusItem(focus, item);
@@ -1016,6 +1073,10 @@ function lessonFocusItems(lesson: Lesson): FocusItem[] {
       addFocusItem(items, focusFromText(step.correctAnswer ?? `${step.sentenceBefore ?? ""}${step.blankAnswer ?? ""}${step.sentenceAfter ?? ""}`, undefined, step.explanation));
     }
     if (step.kind === "dialogue_choice") addFocusItem(items, focusFromText(step.correctAnswer ?? step.answer, undefined, step.explanation));
+    if (step.kind === "image_choice") {
+      addFocusItem(items, focusFromText(step.targetHanzi, step.targetPinyin, step.targetMeaningPt));
+      if (step.imageId) addFocusItem(items, focusFromText(step.targetHanzi, step.targetPinyin, step.targetMeaningPt));
+    }
     for (const line of step.lines ?? []) addFocusItem(items, focusFromText(line.hanzi, line.pinyin, line.pt));
     for (const pair of step.pairs ?? []) {
       const hanziSide = containsCjk(pair.left) ? pair.left : containsCjk(pair.right) ? pair.right : undefined;
@@ -1084,6 +1145,18 @@ function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
     ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.pinyin),
     ...CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== cleanHanzi(target.hanzi)).map((char) => char.pinyin),
   ]).slice(0, 4);
+}
+
+function makeRecognizeStep(item: FocusItem): LessonStep | null {
+  if (item.type === "char" && item.itemId) return { kind: "recognize", charId: item.itemId };
+  const char = firstKnownChar(item);
+  return char ? { kind: "recognize", charId: char.id } : null;
+}
+
+function makeDecomposeStep(item: FocusItem): LessonStep | null {
+  if (item.type === "char" && item.itemId) return { kind: "decompose", charId: item.itemId };
+  const char = firstKnownChar(item);
+  return char ? { kind: "decompose", charId: char.id } : null;
 }
 
 function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
@@ -1409,6 +1482,8 @@ function supplementalStepsForStage(
     push(makeComprehendStep(focus[0], focus));
   } else if (stageId === "recognition") {
     for (const item of focus) {
+      push(makeRecognizeStep(item));
+      push(makeDecomposeStep(item));
       push(makeListenSelectStep(item, focus));
       push(makeComprehendStep(item, focus));
       push(makePinyinChoiceStep(item, focus));
@@ -1442,6 +1517,64 @@ function supplementalStepsForStage(
   }
 
   return result;
+}
+
+function moduleReviewGapCandidates(
+  lesson: Lesson,
+  focus: FocusItem[],
+  reviewFocus: FocusItem[],
+  selected: readonly PracticeCandidate[]
+): PracticeCandidate[] {
+  if (!lesson.isReview) return [];
+  const unitId = lessonUnitId(lesson);
+  if (!unitId) return [];
+  const plan = selected.map((candidate) => candidate.step);
+  const issues = validateModuleReviewCoverage(unitId, plan, {});
+  if (issues.length === 0) return [];
+
+  const phaseOrder = lessonPhaseOrder(lesson);
+  const gapSteps: LessonStep[] = [];
+  const push = (step: LessonStep | null) => {
+    if (!step) return;
+    if (gapSteps.some((candidate) => stepSignature(candidate) === stepSignature(step))) return;
+    gapSteps.push(step);
+  };
+
+  const hanziFocus = focus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1);
+  const phraseFocus = focus.filter((item) => cleanHanzi(item.hanzi).length > 1);
+
+  for (const item of hanziFocus) {
+    push(makeRecognizeStep(item));
+    push(makeDecomposeStep(item));
+    push(makeHanziBuilderStep(item, phaseOrder));
+    push(makeToneMicroStep(item));
+  }
+  for (const item of phraseFocus) {
+    push(makeComprehendStep(item, focus));
+    push(makeFillBlankStep(item, focus));
+    push(makeSentenceBuildStep(item, focus));
+    push(makeDialogueChoiceStep(item, focus));
+  }
+  for (const item of reviewFocus.slice(0, 6)) {
+    push(makeComprehendStep(item, [...reviewFocus, ...focus]));
+    push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
+  }
+  push(makeMatchPairsStep([...reviewFocus, ...focus]));
+  push(makeTonePairStep([...reviewFocus, ...focus]));
+  const listenFocus = focus[0] ?? reviewFocus[0];
+  if (listenFocus) push(makeIntroListenStep(listenFocus));
+
+  return gapSteps.map((step) => {
+    const stageId = stageForStep(step);
+    return {
+      step,
+      stageId,
+      sourceStepIndex: -1,
+      generated: true,
+      families: exerciseFamiliesFor(step, stageId),
+      score: candidateScore(lesson, step, stageId, true, reviewFocus) + 100,
+    };
+  });
 }
 
 function selectRoundSteps(
@@ -1676,11 +1809,13 @@ function replaceLowestIfNeeded(
 }
 
 function ensureCoverage(
+  lesson: Lesson,
   selected: PracticeCandidate[],
   candidates: readonly PracticeCandidate[],
   profile: LessonPracticeProfile,
   reviewFocus: FocusItem[],
   lessonFocus: FocusItem[],
+  errorFocus: FocusItem[],
   usedSignatures: Set<string>
 ) {
   const ensure = (predicate: (candidate: PracticeCandidate) => boolean) => {
@@ -1705,6 +1840,14 @@ function ensureCoverage(
     }
   };
 
+  const ensureFocus = (items: FocusItem[]) => {
+    if (!items.length || selected.some((candidate) => stepUsesFocus(candidate.step, items))) return;
+    const candidate = candidates
+      .filter((item) => stepUsesFocus(item.step, items) && !usedSignatures.has(stepSignature(item.step)))
+      .sort((a, b) => b.score - a.score)[0];
+    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+  };
+
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
   ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
   ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
@@ -1725,6 +1868,33 @@ function ensureCoverage(
         });
       });
     }
+  }
+
+  if (lesson.isReview) {
+    const hanziFocus = lessonFocus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1);
+    const phraseFocus = lessonFocus.filter((item) => cleanHanzi(item.hanzi).length > 1);
+    ensure((candidate) => candidate.families.includes("audio"));
+    ensure((candidate) => candidate.families.includes("pinyin") || isPinyinPracticeStep(candidate.step));
+    ensure((candidate) => candidate.families.includes("meaning") || candidate.step.kind === "comprehend");
+    if (hanziFocus.length > 0) {
+      ensure(
+        (candidate) =>
+          candidate.step.kind === "hanzi_build" ||
+          candidate.step.kind === "recognize" ||
+          candidate.step.kind === "decompose"
+      );
+      ensureFocus(hanziFocus);
+    }
+    if (phraseFocus.length > 0) {
+      ensure(
+        (candidate) =>
+          candidate.families.includes("usage") ||
+          candidate.families.includes("assembly") ||
+          candidate.step.kind === "dialogue_choice"
+      );
+      ensureFocus(phraseFocus);
+    }
+    if (errorFocus.length > 0) ensureFocus(errorFocus.slice(0, 4));
   }
 }
 
@@ -1852,6 +2022,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   if (lesson.steps.length === 0) return [];
   const focus = focusForPlanning(lesson, context);
   const reviewFocus = combinedReviewFocus(lesson, context);
+  const errorFocus = recentErrorFocusItems(context.recentErrors);
   const profile = profileForLesson(lesson, focus);
   const seenGlyphs = seenGlyphsForPlanning(focus, reviewFocus, context);
   // Glifos que ESTA lição ensina (só o próprio foco, sem a revisão): composição
@@ -1894,8 +2065,18 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     }
   }
 
-  ensureCoverage(selected, candidates, profile, reviewFocus, focus, usedSignatures);
-  const balanced = balancePracticeSequence(trimToTarget(selected, profile));
+  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures);
+  const trimmed = trimToTarget(selected, profile);
+
+  for (const gap of moduleReviewGapCandidates(lesson, focus, reviewFocus, trimmed)) {
+    if (usedSignatures.has(stepSignature(gap.step))) continue;
+    trimmed.push(gap);
+    usedSignatures.add(stepSignature(gap.step));
+    const unitId = lessonUnitId(lesson);
+    if (unitId && validateModuleReviewCoverage(unitId, trimmed.map((candidate) => candidate.step), {}).length === 0) break;
+  }
+
+  const balanced = balancePracticeSequence(trimmed);
 
   const stageCounts = new Map<LessonStageId, number>();
   const plan = balanced.map((candidate) => {
@@ -2102,6 +2283,7 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   hanzi_evolution: "evolução visual",
   hanzi_build: "montar hànzì",
   tone_pair: "pares de tom",
+  image_choice: "imagem e associação",
 };
 
 function uniqueStepKinds(kinds: StepKind[]): StepKind[] {

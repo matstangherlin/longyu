@@ -197,6 +197,19 @@ try {
               checkOptions(ref, step.options, step.correctAnswer ?? step.answer);
               break;
             }
+            case "image_choice": {
+              gradedSteps += 1;
+              const imagePick =
+                step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
+              if (imagePick) {
+                checkOptions(ref, step.imageOptions, step.correctImageId);
+              } else {
+                checkOptions(ref, step.options, step.correctAnswer);
+              }
+              if (!step.imageId && !step.iconId) err("licao", ref, "image_choice sem imageId");
+              if (!step.imageChoiceMode) err("licao", ref, "image_choice sem modo");
+              break;
+            }
             case "fill_blank": {
               gradedSteps += 1;
               // A UI (StepFillBlank) usa step.bank como alternativas da lacuna.

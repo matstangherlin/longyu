@@ -31,6 +31,7 @@ import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../compo
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { validateExercise } from "./exerciseValidation";
+import { StepImageChoice } from "./StepImageChoice";
 import type { ItemType } from "../../data/types";
 
 export interface PairMistakePayload {
@@ -2755,6 +2756,7 @@ export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
       case "dialogue_choice": return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "hanzi_build": return <StepHanziBuild step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "tone_pair": return <StepTonePair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "image_choice": return <StepImageChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       default: return null;
     }
   })();

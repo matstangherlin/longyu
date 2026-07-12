@@ -4,6 +4,7 @@ import { chunkById } from "../../data/chunks";
 import { glossFor } from "../../data/gloss";
 import { HANZI_EVOLUTIONS } from "../../data/hanziPedagogy";
 import { isNearDuplicatePinyinSet } from "../../lib/pinyin";
+import { resolveVisualConcept } from "../../data/visualVocabulary";
 
 // ————————————————————————————————————————————————————————————————
 // validateExercise: nenhum passo de lição chega à tela sem passar aqui.
@@ -43,6 +44,7 @@ const KNOWN_KINDS: StepKind[] = [
   "hanzi_evolution",
   "hanzi_build",
   "tone_pair",
+  "image_choice",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -260,6 +262,28 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       checkChoice(errors, "dialogue_choice", step.correctAnswer ?? step.answer, step.options);
       checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
+
+    case "image_choice": {
+      if (!step.imageChoiceMode) errors.push("image_choice sem modo");
+      if (!step.imageId && !step.iconId) errors.push("image_choice sem imageId/iconId");
+      if (!step.promptPt?.trim() && !step.prompt?.trim()) errors.push("image_choice sem promptPt");
+      if (!resolveVisualConcept(step.imageId ?? step.iconId)) {
+        errors.push(`image_choice: conceito visual desconhecido "${step.imageId ?? step.iconId}"`);
+      }
+      const imagePick =
+        step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
+      if (imagePick) {
+        const answer = step.correctImageId;
+        const options = step.imageOptions ?? [];
+        checkChoice(errors, "image_choice", answer, options);
+        for (const option of options) {
+          if (!resolveVisualConcept(option)) errors.push(`image_choice: imageOption desconhecida "${option}"`);
+        }
+      } else {
+        checkChoice(errors, "image_choice", step.correctAnswer, step.options);
+      }
+      break;
+    }
   }
 
   // Cobertura de gloss: hànzì visível sem gloss não quebra o exercício,

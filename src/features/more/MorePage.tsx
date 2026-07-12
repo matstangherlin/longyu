@@ -103,6 +103,12 @@ export function MorePage() {
           icon: IconHanzi,
           to: "/ideogramas",
         },
+        {
+          title: "Amigos",
+          desc: "Seguir e comparar XP semanal.",
+          icon: IconUser,
+          to: "/amigos",
+        },
       ],
     },
     {

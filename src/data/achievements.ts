@@ -45,6 +45,7 @@ export interface AchievementSnapshot {
   missionHistory: MissionHistoryEntry[];
   rewardHistory: RewardHistoryEntry[];
   mandarinDisplayMode: MandarinDisplayMode;
+  validatedModules?: string[];
 }
 
 export interface AchievementDef {
@@ -194,6 +195,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     desc: "Conclua uma fase inteira da jornada.",
     reward: { chest: "dragon" },
     progress: (s) => capped(phasesCompleted(s.completedLessons), 1),
+  },
+  {
+    id: "jornada-validado-teste",
+    category: "jornada",
+    tier: "small",
+    glyph: "证",
+    title: "Validado por teste",
+    desc: "Prove domínio de um módulo sem fazer todas as lições.",
+    reward: REWARD_SMALL,
+    progress: (s) => capped((s.validatedModules ?? []).length, 1),
   },
   {
     id: "jornada-primeiro-teste",

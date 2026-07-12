@@ -32,15 +32,16 @@ export interface NavGroup {
 const PRACTICE_MATCHES = ["/treino", "/praticar", "/som", "/fala", "/pinyin", "/revisao", "/leitura"];
 const IDEOGRAM_MATCHES = ["/ideogramas", "/hanzi"];
 const PROFILE_MATCHES = ["/perfil", "/conta"];
-const MORE_MATCHES = ["/mais", "/sobre", "/biblioteca", "/config", "/ajustes", "/pro", "/conquistas"];
+const MORE_MATCHES = ["/mais", "/sobre", "/biblioteca", "/config", "/ajustes", "/pro", "/conquistas", "/amigos"];
 
 export const DESKTOP_NAV: NavItem[] = [
   { to: "/jornada", label: "Jornada", icon: IconHome, matches: ["/jornada", "/licao", "/teste"] },
   { to: "/ideogramas", label: "Ideogramas", icon: IconHanzi, matches: IDEOGRAM_MATCHES },
   { to: "/treino", label: "Praticar", icon: IconTarget, matches: PRACTICE_MATCHES },
   { to: "/imersao", label: "Imersão", icon: IconHeadphones },
-  { to: "/ligas", label: "Ligas", icon: IconTrophy },
-  { to: "/missoes", label: "Missões", icon: IconTarget },
+      { to: "/ligas", label: "Ligas", icon: IconTrophy },
+      { to: "/amigos", label: "Amigos", icon: IconUser },
+      { to: "/missoes", label: "Missões", icon: IconTarget },
   { to: "/loja", label: "Loja", icon: IconStar },
   { to: "/perfil", label: "Perfil", icon: IconUser, matches: PROFILE_MATCHES },
   { to: "/mais", label: "Mais", icon: IconMore, matches: MORE_MATCHES },

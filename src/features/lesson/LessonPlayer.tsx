@@ -85,6 +85,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "dialogue_choice",
   "hanzi_build",
   "tone_pair",
+  "image_choice",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -213,7 +214,8 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "translation_build" ||
     step.kind === "fill_blank" ||
     step.kind === "dialogue_choice" ||
-    step.kind === "hanzi_build"
+    step.kind === "hanzi_build" ||
+    step.kind === "image_choice"
   ) {
     return {
       prompt: step.prompt ?? step.dialoguePrompt ?? step.title ?? "Exercício",
@@ -435,6 +437,18 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(step.audioText ?? step.correctAnswer, "pinyin", "som");
     addText(step.correctAnswer, "significado");
   }
+  if (step.kind === "image_choice") {
+    const hanzi = step.targetHanzi ?? step.hanzi;
+    const mode = step.imageChoiceMode;
+    if (mode === "listen_and_choose_image" || mode === "choose_pinyin") {
+      addText(hanzi, "som", "som");
+      addText(hanzi, "pinyin", "som");
+    }
+    if (mode === "choose_hanzi" || mode === "choose_image" || mode === "listen_and_choose_image") {
+      addText(hanzi, "forma", "hanzi");
+    }
+    addText(hanzi, "significado");
+  }
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) {
     const source = step.sourceText ?? step.hanzi ?? step.audioText;
     addText(source, "pinyin", "som");
@@ -458,6 +472,12 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
 
 function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.kind === "tone" || step.kind === "listen_select" || step.kind === "tone_pair") return "som";
+  if (step.kind === "image_choice") {
+    const mode = step.imageChoiceMode;
+    if (mode === "choose_pinyin" || mode === "listen_and_choose_image") return "pinyin";
+    if (mode === "choose_hanzi" || mode === "choose_image") return "forma";
+    return "significado";
+  }
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "pinyin";
   if (step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build") return "forma";
   if (step.kind === "comprehend" || step.kind === "match_pairs") return "significado";
@@ -566,6 +586,7 @@ function mistakeReasonForStep(step: LessonStep): string {
   }
   if (step.kind === "fill_blank") return "Chunk de uso ainda não automatizado.";
   if (step.kind === "recognize" || step.kind === "hanzi_build") return "Reconhecimento visual do hànzì ainda frágil.";
+  if (step.kind === "image_choice") return "Associação visual com hànzì, pinyin ou significado ainda instável.";
   if (step.kind === "comprehend" || step.kind === "dialogue_choice") return "Significado em contexto ainda incerto.";
   return "Ponto precisa voltar em outro formato.";
 }
@@ -1112,6 +1133,7 @@ export function LessonPlayer() {
   const recordLessonMistake = useStore((s) => s.recordLessonMistake);
   const markMistakeRecovered = useStore((s) => s.markMistakeRecovered);
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
+  const srs = useStore((s) => s.srs);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const lessonAttemptsById = useStore((s) => s.lessonAttemptsById);
   const missionAggregates = useStore((s) => s.getMissionAggregates());
@@ -1212,12 +1234,13 @@ export function LessonPlayer() {
                   learnedChars,
                   hanziBuilderProgress,
                   recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
+                  srs,
                 }
               ),
             };
           })()
         : undefined,
-    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors]
+    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, srs]
   );
 
   useEffect(() => {

@@ -3,6 +3,8 @@ import { getProgressScore, isMeaningfulProgress, type ProgressSnapshotBody } fro
 import { mergeRemoteProgress } from "../lib/syncMerge";
 import { activeLearningRepository } from "../lib/repositories/learningRepository";
 import { getSupabaseClient } from "../lib/supabaseClient";
+import { flushSocialEventQueue } from "./socialActivityQueue";
+import { syncSocialProfileFromStore } from "./socialService";
 import { useStore } from "../lib/store";
 import {
   buildLocalEconomyMigrationPayload,
@@ -62,6 +64,10 @@ export async function pushProgressToCloud(): Promise<{ ok: boolean; message: str
     result.ok ? "synced" : "error",
     result.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
   );
+  if (result.ok) {
+    await syncSocialProfileFromStore();
+    await flushSocialEventQueue();
+  }
   return { ok: result.ok, message: result.message };
 }
 
@@ -188,6 +194,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
 async function refreshServerEntitlementAfterLogin(): Promise<void> {
   const isPro = await fetchServerIsPro();
   useStore.getState().setServerEntitlement(isPro);
+  await syncSocialProfileFromStore();
 }
 
 async function migrateEconomyAfterCloudLogin(userId: string): Promise<void> {
