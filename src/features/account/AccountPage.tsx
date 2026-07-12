@@ -40,6 +40,7 @@ import { restoreCloudSessionIfPresent, syncAuthSessionProgress } from "../../ser
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
+import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
@@ -48,6 +49,7 @@ import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services
 import {
   createAccount as createAuthAccount,
 } from "../../services/authService";
+import type { ProfileDetails } from "../../services/profileTypes";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useIsPro } from "../../lib/proAccess";
 import { isDevPreviewAllowed } from "../../lib/entitlements";
@@ -1565,6 +1567,10 @@ export function AccountPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [country, setCountry] = useState("Brasil");
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const [signupSourceForm, setSignupSourceForm] = useState("");
   const [accountError, setAccountError] = useState<string | null>(null);
   const [newProfileName, setNewProfileName] = useState("");
   const [isFinishingOnboarding, setIsFinishingOnboarding] = useState(false);
@@ -1715,6 +1721,17 @@ export function AccountPage() {
     setHintedQuestions((current) => current[index] ? current : { ...current, [index]: true });
   }
 
+  function buildSignupProfile(accountName: string): ProfileDetails {
+    return {
+      name: firstName(accountName),
+      birthDate: birthDate.trim() || null,
+      country: country.trim() || null,
+      signupSource: (source ?? signupSourceForm.trim()) || null,
+      marketingOptIn,
+      onboardingCompleted: true,
+    };
+  }
+
   async function handleCreateAccount(event: FormEvent) {
     event.preventDefault();
     if (isFinishingOnboarding || name.trim().length < 2) return;
@@ -1728,7 +1745,7 @@ export function AccountPage() {
     }
     setIsFinishingOnboarding(true);
     if (isSupabaseBackendEnabled()) {
-      const authResult = await createAuthAccount(email, password, firstName(name));
+      const authResult = await createAuthAccount(email, password, buildSignupProfile(name));
       if (authResult.status === "error") {
         setAccountError(authResult.message);
         setIsFinishingOnboarding(false);
@@ -1774,7 +1791,7 @@ export function AccountPage() {
     }
     const accountName = activeAccount?.name ?? "Aluno Longyu";
     if (isSupabaseBackendEnabled()) {
-      const authResult = await createAuthAccount(email, password, accountName);
+      const authResult = await createAuthAccount(email, password, buildSignupProfile(accountName));
       if (authResult.status === "error") {
         setAccountError(authResult.message);
         return;
@@ -2013,6 +2030,11 @@ export function AccountPage() {
             email={email}
             password={password}
             passwordConfirm={passwordConfirm}
+            birthDate={birthDate}
+            country={country}
+            marketingOptIn={marketingOptIn}
+            signupSource={signupSourceForm}
+            hideSignupSource={Boolean(source)}
             error={accountError}
             onEmail={(value) => {
               setEmail(value);
@@ -2026,6 +2048,10 @@ export function AccountPage() {
               setPasswordConfirm(value);
               setAccountError(null);
             }}
+            onBirthDate={setBirthDate}
+            onCountry={setCountry}
+            onMarketingOptIn={setMarketingOptIn}
+            onSignupSource={setSignupSourceForm}
             onSubmit={handleCreateAccount}
             onSkip={handleSkipAccount}
             disabled={isFinishingOnboarding}
@@ -2649,6 +2675,16 @@ export function AccountPage() {
                   />
                 </label>
               </div>
+              <ProfileDetailsFields
+                birthDate={birthDate}
+                country={country}
+                marketingOptIn={marketingOptIn}
+                signupSource={signupSourceForm}
+                onBirthDate={setBirthDate}
+                onCountry={setCountry}
+                onMarketingOptIn={setMarketingOptIn}
+                onSignupSource={setSignupSourceForm}
+              />
               <p className="text-xs leading-5 text-ink-faint">
                 {isSupabaseBackendEnabled()
                   ? "A senha é usada só para autenticar com o Supabase e não fica salva neste aparelho."
@@ -3936,10 +3972,19 @@ function OptionalAccountStep({
   email,
   password,
   passwordConfirm,
+  birthDate,
+  country,
+  marketingOptIn,
+  signupSource,
+  hideSignupSource,
   error,
   onEmail,
   onPassword,
   onPasswordConfirm,
+  onBirthDate,
+  onCountry,
+  onMarketingOptIn,
+  onSignupSource,
   onSubmit,
   onSkip,
   disabled,
@@ -3948,10 +3993,19 @@ function OptionalAccountStep({
   email: string;
   password: string;
   passwordConfirm: string;
+  birthDate: string;
+  country: string;
+  marketingOptIn: boolean;
+  signupSource: string;
+  hideSignupSource?: boolean;
   error: string | null;
   onEmail: (value: string) => void;
   onPassword: (value: string) => void;
   onPasswordConfirm: (value: string) => void;
+  onBirthDate: (value: string) => void;
+  onCountry: (value: string) => void;
+  onMarketingOptIn: (value: boolean) => void;
+  onSignupSource: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
   onSkip: () => void;
   disabled: boolean;
@@ -4033,9 +4087,23 @@ function OptionalAccountStep({
           </label>
         </div>
 
+        <div className="mt-3">
+          <ProfileDetailsFields
+            birthDate={birthDate}
+            country={country}
+            marketingOptIn={marketingOptIn}
+            signupSource={signupSource}
+            onBirthDate={onBirthDate}
+            onCountry={onCountry}
+            onMarketingOptIn={onMarketingOptIn}
+            onSignupSource={onSignupSource}
+            showSignupSource={!hideSignupSource}
+          />
+        </div>
+
         <p className="mt-3 text-xs leading-5 text-ink-faint">
           {cloudBackend
-            ? "A senha autentica com o Supabase e não fica salva neste aparelho."
+            ? "Nome, país e preferências ficam no seu perfil na nuvem. A senha autentica com o Supabase e não é salva neste aparelho."
             : "A senha é validada apenas nesta tela e não é salva. Data de nascimento não é solicitada."}
         </p>
         {(email || password || passwordConfirm) && !canCreate && (

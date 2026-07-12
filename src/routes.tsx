@@ -27,6 +27,8 @@ import { AchievementsPage } from "./features/conquistas/AchievementsPage";
 import { MorePage } from "./features/more/MorePage";
 import { AboutPage } from "./features/about/AboutPage";
 import { LoginPage } from "./features/auth/LoginPage";
+import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
 import { LandingPage } from "./features/landing/LandingPage";
 
 export const routes: RouteObject[] = [
@@ -56,6 +58,8 @@ export const routes: RouteObject[] = [
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },
       { path: "login", element: <LoginPage /> },
+      { path: "esqueci-senha", element: <ForgotPasswordPage /> },
+      { path: "redefinir-senha", element: <ResetPasswordPage /> },
       { path: "perfil", element: <ProfilePage /> },
       { path: "conta", element: <ContaRoute /> },
       { path: "dados-locais", element: <DadosLocaisPage /> },
