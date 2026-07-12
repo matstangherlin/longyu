@@ -167,8 +167,11 @@ if (!/isPreview && isDevPreviewAllowed\(\)/.test(entitlementsSrc)) {
 }
 
 const storeSrc = read("src/lib/store.ts");
-if (!storeSrc.includes("version: 14")) {
-  fail("store.ts persist deve estar na versão 14 (migração preview Pro)");
+if (!storeSrc.includes("version: 15")) {
+  fail("store.ts persist deve estar na versão 15 (moduleSkipUsage + migração preview Pro)");
+}
+if (!storeSrc.includes("moduleSkipUsage")) {
+  fail("store.ts deve persistir moduleSkipUsage");
 }
 if (!storeSrc.includes("reconcileFreePlanEnergy")) {
   fail("store.ts deve reconciliar cargas ao sair do Pro");

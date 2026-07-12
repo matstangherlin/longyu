@@ -78,7 +78,8 @@ assert(entitlementsSrc.includes("teste@longyu.app"), "entitlements.ts deve lista
 assert(entitlementsSrc.includes("accountAuthMode"), "effectivePremium deve considerar conta cloud de QA");
 
 const storeSrc = read("src/lib/store.ts");
-assert(storeSrc.includes("version: 14"), "Persist deve estar na versão 14");
+assert(storeSrc.includes("version: 15"), "Persist deve estar na versão 15");
+assert(storeSrc.includes("moduleSkipUsage"), "Store deve persistir moduleSkipUsage");
 assert(storeSrc.includes("reconcileFreePlanEnergy"), "Store deve reconciliar energia ao sair do Pro");
 assert(storeSrc.includes("effectivePremium"), "hasProAccess deve usar effectivePremium");
 assert(
