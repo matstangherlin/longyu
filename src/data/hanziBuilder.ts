@@ -910,16 +910,6 @@ export function buildersForCharacter(character: string): HanziBuilder[] {
   return HANZI_BUILDERS.filter((builder) => builder.character === clean);
 }
 
-/** Um builder representativo para um caractere, preferindo o modo mais simples. */
-export function preferredBuilderForCharacter(character: string): HanziBuilder | undefined {
-  const matches = buildersForCharacter(character);
-  if (matches.length === 0) return undefined;
-  const order: HanziBuilderMode[] = ["fragments", "complete", "components"];
-  return [...matches].sort(
-    (a, b) => order.indexOf(a.mode) - order.indexOf(b.mode) || a.level - b.level
-  )[0];
-}
-
 export const FRAGMENT_BUILDERS = HANZI_BUILDERS.filter((b) => b.mode === "fragments");
 export const COMPLETE_BUILDERS = HANZI_BUILDERS.filter((b) => b.mode === "complete");
 export const COMPONENT_BUILDERS = HANZI_BUILDERS.filter((b) => b.mode === "components" && !b.context);

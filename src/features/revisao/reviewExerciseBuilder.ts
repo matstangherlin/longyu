@@ -1,7 +1,7 @@
 import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
-import { preferredBuilderForCharacter } from "../../data/hanziBuilder";
+import { selectHanziBuilderForStudent, type HanziBuilderProgressMap } from "../../data/hanziBuilder";
 import { expandPairsWithLearned, type AdaptivePair } from "../../data/adaptivePairs";
 import { TONE_LABELS } from "../../data/tones";
 import type { ItemType } from "../../data/types";
@@ -96,12 +96,15 @@ export interface ReviewExerciseBuildInput {
   domain: ReviewDomain;
   errorHistory?: SRSItem[];
   activityErrors?: ActivityErrorRecord[];
+  /** Domínio do HanziBuilder por caractere: revisão de forma segue o aluno. */
+  hanziBuilderProgress?: HanziBuilderProgressMap;
 }
 
 export interface MistakeReviewExerciseBuildInput {
   mistake: ActivityErrorRecord;
   learnedItems: SRSItem[];
   remediationStep?: number;
+  hanziBuilderProgress?: HanziBuilderProgressMap;
 }
 
 type MistakeReviewFocus = "meaning" | "pinyin" | "tone" | "hanzi" | "sentence" | "audio" | "pairs";
@@ -352,6 +355,7 @@ export function buildReviewExerciseFromMistake(input: MistakeReviewExerciseBuild
     domain: target.domain,
     errorHistory: [],
     activityErrors: [input.mistake],
+    hanziBuilderProgress: input.hanziBuilderProgress,
   };
   const step = input.remediationStep ?? ((input.mistake.correctionAttempts ?? 0) + (input.mistake.wrongCount ?? 1) - 1);
   const candidates = remediationCandidates(input.mistake, buildInput, entity);
@@ -1283,12 +1287,40 @@ function buildPinyinRecognitionFromMistake(
   };
 }
 
+// Glifos que o aluno já encontrou via SRS (caracteres e radicais aprendidos).
+// Libera builders compostos na revisão sem pular as bases: 你 por componentes
+// só depois de 人/亻 terem aparecido para o aluno.
+function seenGlyphsFromLearned(learnedItems: SRSItem[]): Set<string> {
+  const set = new Set<string>();
+  for (const learned of learnedItems) {
+    if (learned.type === "char") {
+      const glyph = charById[learned.itemId]?.hanzi;
+      if (glyph) set.add(glyph);
+    } else if (learned.type === "radical") {
+      const radical = radicalById[learned.itemId];
+      if (radical?.glyph) set.add(radical.glyph);
+      if (radical?.variant) set.add(radical.variant);
+    }
+  }
+  return set;
+}
+
 // Monta o hànzì como quebra-cabeça visual (carta central), quando existe um
 // exercício de builder para o caractere errado. Renderizado pela RevisaoPage
 // com o componente HanziBuilderExercise (auto-verificável).
+//
+// A variação segue o domínio do aluno (novo → guia; dominado → desafio/frase)
+// e nunca escolhe composição cujas bases ele ainda não viu — nesse caso retorna
+// null e a fila de candidatos cai em reconhecimento simples (assembly de
+// peças mnemônicas, significado→hànzì, pinyin reverso).
 function buildHanziBuilderExercise(input: ReviewExerciseBuildInput, entity: ReviewExerciseEntity): ReviewExercise | null {
   if (entity.type !== "char") return null;
-  const builder = preferredBuilderForCharacter(cleanHanzi(entity.hanzi));
+  const character = cleanHanzi(entity.hanzi);
+  const builder = selectHanziBuilderForStudent(
+    character,
+    input.hanziBuilderProgress?.[character],
+    seenGlyphsFromLearned(input.learnedItems)
+  );
   if (!builder) return null;
   return {
     kind: "hanzi_build",

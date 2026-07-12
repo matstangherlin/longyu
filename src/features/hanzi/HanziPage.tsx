@@ -14,6 +14,7 @@ import { Card, Button, Pill, SectionTitle } from "../../components/ui/primitives
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import {
+  builderPrerequisitesMet,
   COMPLETE_BUILDERS,
   COMPONENT_BUILDERS,
   FRAGMENT_BUILDERS,
@@ -293,6 +294,8 @@ function HanziBuildTrainer() {
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const consumeCharge = useStore((s) => s.consumeCharge);
   const recordActivityError = useStore((s) => s.recordActivityError);
+  const learnedCharIds = useStore((s) => s.learnedChars);
+  const builderProgress = useStore((s) => s.hanziBuilderProgressByChar);
 
   const [modeId, setModeId] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
@@ -300,8 +303,26 @@ function HanziBuildTrainer() {
   const [done, setDone] = useState(false);
   const [energyPaywallOpen, setEnergyPaywallOpen] = useState(false);
 
+  // Glifos que o aluno já encontrou: lições concluídas + hànzì já montados aqui.
+  const seenGlyphs = useMemo(() => {
+    const learned = new Set(learnedCharIds);
+    const set = new Set(CHARACTERS.filter((char) => learned.has(char.id)).map((char) => char.hanzi));
+    for (const [char, progress] of Object.entries(builderProgress)) {
+      if (progress.correct > 0) set.add(char);
+    }
+    return set;
+  }, [builderProgress, learnedCharIds]);
+
   const mode = BUILD_MODES.find((m) => m.id === modeId) ?? null;
-  const builders = mode?.builders ?? [];
+  // Sem pular bases também no treino livre: composição (你, 明, 林…) só entra
+  // depois de o aluno ter visto as bases (人, 日+月, 木…). Se o filtro esvaziar
+  // o modo (conta nova explorando o lab), mantém a lista completa — o exercício
+  // já facilita hànzì novo (guia, pinyin visível e sem distratores).
+  const builders = useMemo(() => {
+    const all = mode?.builders ?? [];
+    const gated = all.filter((builder) => builderPrerequisitesMet(builder, seenGlyphs));
+    return gated.length > 0 ? gated : all;
+  }, [mode, seenGlyphs]);
   const current = builders[index];
   const isLast = index + 1 >= builders.length;
 

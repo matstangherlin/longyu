@@ -942,6 +942,7 @@ export function RevisaoPage() {
   const recordActivityError = useStore((s) => s.recordActivityError);
   const markActivityErrorCorrected = useStore((s) => s.markActivityErrorCorrected);
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
+  const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
   const requestedMode = reviewModeFromSearch(searchParams.get("modo"));
   const detailedErrorsAccess = canAccessDetailedErrors({ isPremium });
   const detailedErrorsAllowed = detailedErrorsAccess.allowed;
@@ -1035,6 +1036,7 @@ export function RevisaoPage() {
           ? buildReviewExerciseFromMistake({
               mistake: entry.error,
               learnedItems,
+              hanziBuilderProgress,
             })
           : buildReviewExercise({
               item: entry.item,
@@ -1042,9 +1044,10 @@ export function RevisaoPage() {
               domain,
               errorHistory: detailedErrorsAllowed ? learnedItems.filter((learned) => learned.lapses > 0) : undefined,
               activityErrors: detailedErrorsAllowed ? activeActivityErrors : undefined,
+              hanziBuilderProgress,
             })
         : null,
-    [activeActivityErrors, detailedErrorsAllowed, domain, entry, item, learnedItems]
+    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems]
   );
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { HanziBuilder, HanziGlyphPiece, HanziGuideStrength, HanziStroke } from "../../data/hanziBuilder";
-import { resolveGuideStrength } from "../../data/hanziBuilder";
+import { isCharMastered, resolveGuideStrength } from "../../data/hanziBuilder";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
@@ -78,6 +78,8 @@ export function HanziBuilderExercise({
   // distratores, mesmo em builders avançados — hànzì novo é fácil; a
   // dificuldade entra conforme o domínio cresce.
   const isNewChar = !charProgress || charProgress.correct === 0;
+  // Dominado: feedback curto no acerto (a explicação completa volta se errou).
+  const mastered = isCharMastered(charProgress);
 
   // Embaralhado uma vez por exercício (estável entre re-renders).
   const pool = useMemo(
@@ -348,8 +350,12 @@ export function HanziBuilderExercise({
             </div>
           )}
           <div className="mt-2 text-sm font-semibold text-ink">{builder.meaningPt}</div>
-          <p className="mt-1 text-sm leading-6 text-ink-soft">{builder.explanationPt}</p>
-          {builder.relatedPt && <p className="mt-1 text-sm text-ink-faint">{builder.relatedPt}</p>}
+          {(!mastered || hadMistake) && (
+            <>
+              <p className="mt-1 text-sm leading-6 text-ink-soft">{builder.explanationPt}</p>
+              {builder.relatedPt && <p className="mt-1 text-sm text-ink-faint">{builder.relatedPt}</p>}
+            </>
+          )}
           {showContinue && (
             <Button
               variant="good"
