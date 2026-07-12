@@ -102,6 +102,20 @@ try {
       if (hasDuplicate(options)) err("step", ref, "opções duplicadas");
       if (!options.some((option) => norm(option) === norm(answer))) err("step", ref, "resposta correta fora das opções");
 
+      // Proxy de renderização mobile: a grade é 2 colunas — mais de 4 opções
+      // estoura a dobra em 360×667; prompt longo empurra as opções para fora.
+      if (options.length > 4) err("mobile", ref, `${options.length} opções não cabem na grade 2×2 do mobile`);
+      const promptText = String(step.promptPt ?? step.prompt ?? "");
+      if (promptText.length > 90) err("mobile", ref, `prompt com ${promptText.length} chars (máx. 90 para mobile)`);
+
+      // Nunca imagem externa: ids internos apenas, sem URL/caminho de arquivo.
+      for (const field of [step.imageId, step.iconId, step.correctImageId, ...(step.imageOptions ?? [])]) {
+        const value = String(field ?? "");
+        if (/https?:|\/|\.png|\.jpe?g|\.webp|\.gif|\.svg/iu.test(value)) {
+          err("step", ref, `referência de imagem externa/arquivo: "${value}"`);
+        }
+      }
+
       const conceptId = step.imageId ?? step.iconId;
       if (!resolveVisualConcept(conceptId)) err("step", ref, `imageId desconhecido: ${conceptId}`);
       if (imagePick) {

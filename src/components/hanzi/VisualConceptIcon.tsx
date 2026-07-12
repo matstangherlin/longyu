@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { VisualConceptId } from "../../data/visualVocabulary";
+import { resolveVisualConcept, type VisualConceptId } from "../../data/visualVocabulary";
 
 interface VisualConceptIconProps {
   conceptId: VisualConceptId | string;
@@ -116,7 +116,7 @@ function SmallIcon({ className }: { className?: string }) {
   );
 }
 
-const ICON_BY_ID: Record<string, (props: { className?: string }) => JSX.Element> = {
+const ICON_BY_ID: Partial<Record<string, (props: { className?: string }) => JSX.Element>> = {
   person: PersonIcon,
   tree: TreeIcon,
   mouth: MouthIcon,
@@ -129,8 +129,18 @@ const ICON_BY_ID: Record<string, (props: { className?: string }) => JSX.Element>
   small: SmallIcon,
 };
 
+const EMOJI_SIZE_CLASS = {
+  sm: "text-2xl",
+  md: "text-4xl",
+  lg: "text-5xl",
+} as const;
+
 export function VisualConceptIcon({ conceptId, size = "md", className = "" }: VisualConceptIconProps) {
-  const Icon = ICON_BY_ID[conceptId] ?? PersonIcon;
+  // SVG interno primeiro; emoji do catálogo apenas como fallback. Nunca cai
+  // num ícone de outro conceito (mostrar "pessoa" para um id desconhecido
+  // ensinaria a associação errada).
+  const Icon = ICON_BY_ID[conceptId];
+  const fallbackEmoji = Icon ? undefined : resolveVisualConcept(conceptId)?.emoji;
   return (
     <div
       className={[
@@ -139,7 +149,13 @@ export function VisualConceptIcon({ conceptId, size = "md", className = "" }: Vi
         className,
       ].join(" ")}
     >
-      <Icon className="h-[70%] w-[70%]" />
+      {Icon ? (
+        <Icon className="h-[70%] w-[70%]" />
+      ) : (
+        <span className={EMOJI_SIZE_CLASS[size]} aria-hidden="true">
+          {fallbackEmoji ?? "▢"}
+        </span>
+      )}
     </div>
   );
 }
