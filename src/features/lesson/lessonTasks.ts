@@ -13,9 +13,12 @@ import {
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
-  CONVERSATION_SCENES,
-  type ConversationSceneStep as ConversationSceneDefinition,
-} from "../../data/conversationScenes";
+  buildConversationSceneForLesson,
+  conversationLineSignature,
+  conversationSceneToLessonStep,
+  type ConversationComposerContext,
+} from "../../data/conversationComposer";
+import type { ConversationLine } from "../../data/conversationScenes";
 import type { ItemType } from "../../data/types";
 import {
   buildersForCharacter,
@@ -1421,39 +1424,37 @@ function maxConversationScenesForLesson(lesson: Lesson): number {
   return 1;
 }
 
-function conversationSceneToLessonStep(scene: ConversationSceneDefinition): LessonStep {
-  return {
-    kind: "conversation_scene",
-    title: scene.title,
-    sceneId: scene.sceneId,
-    setting: scene.setting,
-    characters: scene.characters,
-    lines: scene.lines,
-    checkpoint: scene.checkpoint,
-    learnedRefs: scene.learnedRefs,
-    newRefs: scene.newRefs,
-    dedicatedLesson: scene.dedicatedLesson,
-    prompt: scene.checkpoint?.prompt,
-    options: scene.checkpoint?.options,
-    correctAnswer: scene.checkpoint?.correctAnswer,
-    explanation: scene.checkpoint?.explanation,
-    bank:
-      scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
-        ? scene.checkpoint.options
-        : undefined,
-  };
-}
 
-function makeConversationSceneStep(focus: FocusItem[], reviewFocus: FocusItem[] = []): LessonStep | null {
+function makeConversationSceneStep(
+  lesson: Lesson,
+  focus: FocusItem[],
+  reviewFocus: FocusItem[] = [],
+  planContext: LessonPracticePlanContext = {},
+  stageId?: LessonStageId
+): LessonStep | null {
   const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
-  const candidates = CONVERSATION_SCENES.filter((scene) => {
-    const needed = [...scene.learnedRefs, ...(scene.newRefs ?? [])];
-    if (needed.length === 0) return false;
-    // Só gera cena se o foco atual cobre pelo menos um learnedRef e todos os refs estão disponíveis.
-    const touchesFocus = scene.learnedRefs.some((ref) => refs.has(ref));
-    return touchesFocus && needed.every((ref) => refs.has(ref));
-  });
-  const scene = candidates[0];
+  for (const id of planContext.learnedChunks ?? []) refs.add(`chunk:${id}`);
+  for (const id of planContext.learnedChars ?? []) refs.add(`char:${id}`);
+
+  const existingScenes = (lesson.steps ?? []).filter((step) => step.kind === "conversation_scene");
+  const composerContext: ConversationComposerContext = {
+    learnedChunkRefs: [...refs].filter((ref) => ref.startsWith("chunk:")),
+    learnedCharRefs: [...refs].filter((ref) => ref.startsWith("char:")),
+    learnedVocabRefs: [...refs].filter((ref) => ref.startsWith("vocab:")),
+    recentErrors: planContext.recentErrors?.map((error) => ({ targets: error.targets })),
+    moduleId: lessonUnitId(lesson),
+    unitId: lessonUnitId(lesson),
+    phaseOrder: lessonPhaseOrder(lesson),
+    existingSceneIds: existingScenes.map((step) => step.sceneId).filter((id): id is string => Boolean(id)),
+    existingLineSignatures: existingScenes.flatMap((step) =>
+      step.lines?.length ? [conversationLineSignature(step.lines as ConversationLine[])] : []
+    ),
+    stageId,
+    isReview: lesson.isReview,
+    isImmersion: lessonAllowsImmersionScenes(lesson),
+  };
+
+  const scene = buildConversationSceneForLesson(lesson, composerContext);
   return scene ? conversationSceneToLessonStep(scene) : null;
 }
 
@@ -1525,9 +1526,11 @@ interface SupplementalStepOptions {
   seenGlyphs?: ReadonlySet<string>;
   ownFocusGlyphs?: ReadonlySet<string>;
   allowComposedFiller?: boolean;
+  planContext?: LessonPracticePlanContext;
 }
 
 function supplementalStepsForStage(
+  lesson: Lesson,
   stageId: LessonStageId,
   focus: FocusItem[],
   targetCount: number,
@@ -1577,12 +1580,12 @@ function supplementalStepsForStage(
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
-    push(makeConversationSceneStep(focus, reviewFocus));
+    push(makeConversationSceneStep(lesson, focus, reviewFocus, options.planContext ?? {}, stageId));
     push(makeOldPhraseReuseStep(focus));
   } else {
     push(makeMatchPairsStep([...reviewFocus, ...focus]));
     push(makeTonePairStep([...reviewFocus, ...focus]));
-    push(makeConversationSceneStep(focus, reviewFocus));
+    push(makeConversationSceneStep(lesson, focus, reviewFocus, options.planContext ?? {}, stageId));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
@@ -1668,7 +1671,7 @@ function selectRoundSteps(
   const seen = new Set(selected.map(stepSignature));
 
   if (selected.length < minCount) {
-    for (const supplement of supplementalStepsForStage(stageId, focus, minCount - selected.length)) {
+    for (const supplement of supplementalStepsForStage(lesson, stageId, focus, minCount - selected.length)) {
       const signature = stepSignature(supplement);
       if (seen.has(signature)) continue;
       selected.push(supplement);
@@ -1677,7 +1680,7 @@ function selectRoundSteps(
   }
 
   if (stageId === "intro" && !selected.some(isGradedStep)) {
-    for (const supplement of supplementalStepsForStage(stageId, focus, 3)) {
+    for (const supplement of supplementalStepsForStage(lesson, stageId, focus, 3)) {
       const signature = stepSignature(supplement);
       if (seen.has(signature) || !isGradedStep(supplement)) continue;
       selected.push(supplement);
@@ -1791,6 +1794,7 @@ function generatedCandidatesFor(
   focus: FocusItem[],
   reviewFocus: FocusItem[],
   profile: LessonPracticeProfile,
+  planContext: LessonPracticePlanContext = {},
   hanziBuilderProgress?: HanziBuilderProgressMap,
   seenGlyphs?: ReadonlySet<string>,
   ownFocusGlyphs?: ReadonlySet<string>
@@ -1800,7 +1804,15 @@ function generatedCandidatesFor(
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller });
+    const generated = supplementalStepsForStage(lesson, stageId, focus, target, {
+      phaseOrder,
+      reviewFocus,
+      hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      allowComposedFiller,
+      planContext,
+    });
     for (const step of generated) {
       candidates.push({
         step,
@@ -2122,7 +2134,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   for (const item of focus) for (const glyph of cleanHanzi(item.hanzi)) ownFocusGlyphs.add(glyph);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
-    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs),
+    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];

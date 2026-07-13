@@ -159,6 +159,8 @@ export interface LessonStep {
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade na cena. */
   dedicatedLesson?: boolean;
+  /** conversation_scene: nível de apoio visual (1–5). */
+  conversationDifficulty?: 1 | 2 | 3 | 4 | 5;
 }
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";
