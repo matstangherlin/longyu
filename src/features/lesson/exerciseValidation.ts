@@ -267,8 +267,12 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (!step.imageChoiceMode) errors.push("image_choice sem modo");
       if (!step.imageId && !step.iconId) errors.push("image_choice sem imageId/iconId");
       if (!step.promptPt?.trim() && !step.prompt?.trim()) errors.push("image_choice sem promptPt");
-      if (!resolveVisualConcept(step.imageId ?? step.iconId)) {
+      const visualConcept = resolveVisualConcept(step.imageId ?? step.iconId);
+      if (!visualConcept) {
         errors.push(`image_choice: conceito visual desconhecido "${step.imageId ?? step.iconId}"`);
+      } else {
+        if (!visualConcept.imageSrc && !visualConcept.emoji) errors.push("image_choice sem imagem nem fallback");
+        if (!visualConcept.imageAltPt.trim()) errors.push("image_choice com alt vazio");
       }
       const imagePick =
         step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
@@ -277,7 +281,11 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
         const options = step.imageOptions ?? [];
         checkChoice(errors, "image_choice", answer, options);
         for (const option of options) {
-          if (!resolveVisualConcept(option)) errors.push(`image_choice: imageOption desconhecida "${option}"`);
+          const optionConcept = resolveVisualConcept(option);
+          if (!optionConcept) errors.push(`image_choice: imageOption desconhecida "${option}"`);
+          else if (!optionConcept.imageSrc && !optionConcept.emoji) {
+            errors.push(`image_choice: imageOption sem imagem nem fallback "${option}"`);
+          }
         }
       } else {
         checkChoice(errors, "image_choice", step.correctAnswer, step.options);

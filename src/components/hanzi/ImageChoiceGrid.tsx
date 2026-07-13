@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { VisualConceptIcon } from "./VisualConceptIcon";
+import { VisualConceptImage } from "./VisualConceptImage";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 import { shortcutKeyForIndex, ShortcutBadge } from "../../lib/useExerciseHotkeys";
 import { MandarinText } from "./MandarinText";
@@ -18,9 +18,10 @@ interface ImageChoiceGridProps {
   textRenderer?: (value: string) => ReactNode;
 }
 
-function tileClass(state: ImageChoiceTileState): string {
+function tileClass(state: ImageChoiceTileState, imageMode: boolean): string {
   return [
-    "relative flex min-h-[4.5rem] flex-col items-center justify-center rounded-xl border px-3 py-3 text-center transition",
+    "relative flex flex-col items-center justify-center rounded-2xl border text-center transition active:scale-[0.99]",
+    imageMode ? "min-h-[10rem] p-2 sm:min-h-[11rem]" : "min-h-[4.5rem] px-3 py-3",
     state === "idle" && "border-line hover:bg-surface-2",
     state === "selected" && "border-accent bg-accent-soft text-accent",
     state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
@@ -60,6 +61,7 @@ export function ImageChoiceGrid({
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
       {options.map((option, index) => {
         const value = mode === "images" ? ids[index] ?? option : option;
+        const visual = mode === "images" ? resolveVisualConcept(value) : undefined;
         const state: ImageChoiceTileState =
           answered == null
             ? value === selected
@@ -77,14 +79,14 @@ export function ImageChoiceGrid({
             type="button"
             disabled={answered != null}
             onClick={() => onSelect(value)}
-            aria-label={`Opção ${shortcutKeyForIndex(index)}`}
-            className={tileClass(state)}
+            aria-label={`Opção ${shortcutKeyForIndex(index)}${visual ? `: ${visual.imageAltPt}` : ""}`}
+            className={tileClass(state, mode === "images")}
           >
             <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
             {mode === "images" ? (
               <>
-                <VisualConceptIcon conceptId={value} size="md" />
-                <span className="mt-2 text-[11px] text-ink-faint sr-only">{resolveVisualConcept(value)?.meaningPt}</span>
+                <VisualConceptImage conceptId={value} size="md" className="pointer-events-none max-w-none" />
+                <span className="sr-only">{visual?.meaningPt}</span>
               </>
             ) : (
               <div className="px-2 pt-3">{textRenderer(option)}</div>

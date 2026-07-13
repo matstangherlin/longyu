@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
-import { VisualConceptIcon } from "../../components/hanzi/VisualConceptIcon";
+import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { useStore } from "../../lib/store";
@@ -109,6 +109,16 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
   return (
     <div>
       <Eyebrow>Associação visual</Eyebrow>
+
+      {(mode === "choose_hanzi" || mode === "choose_pinyin" || mode === "choose_meaning") && concept && (
+        <div className="my-5 flex flex-col items-center gap-2">
+          <VisualConceptImage conceptId={concept.id} size="xl" />
+          {step.targetMeaningPt && mode !== "choose_meaning" && (
+            <p className="text-xs text-ink-faint">{step.targetMeaningPt}</p>
+          )}
+        </div>
+      )}
+
       <p className="mt-2 text-sm leading-6 text-ink-soft">{prompt}</p>
 
       {mode === "choose_image" && (step.targetHanzi ?? concept?.hanzi) && (
@@ -126,15 +136,6 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
         <div className="my-5 flex flex-col items-center gap-3">
           <SpeakButton text={audioText ?? ""} size="lg" label="Ouvir" />
           <p className="text-sm text-ink-soft">Ouça e escolha a imagem certa.</p>
-        </div>
-      )}
-
-      {(mode === "choose_hanzi" || mode === "choose_pinyin" || mode === "choose_meaning") && concept && (
-        <div className="my-5 flex flex-col items-center gap-2">
-          <VisualConceptIcon conceptId={concept.id} size="lg" />
-          {step.targetMeaningPt && mode !== "choose_meaning" && (
-            <p className="text-xs text-ink-faint">{step.targetMeaningPt}</p>
-          )}
         </div>
       )}
 

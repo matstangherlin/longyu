@@ -1,13 +1,15 @@
 import { createRequire } from "node:module";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
 
 const require = createRequire(import.meta.url);
+const sharp = require("sharp");
 const rootDir = process.cwd();
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-image-exercises-"));
+const MAX_IMAGE_BYTES = 200 * 1024;
 
 const errors = [];
 const err = (area, ref, message) => errors.push({ area, ref, message });
@@ -76,7 +78,31 @@ try {
 
   for (const concept of VISUAL_CONCEPTS) {
     if (!concept.id || !concept.charId || !concept.hanzi) err("catalog", concept.id, "Conceito visual incompleto.");
-    if (String(concept.emoji ?? "").includes("http")) err("catalog", concept.id, "Emoji/ícone externo detectado.");
+    if (!String(concept.imageAltPt ?? "").trim()) err("catalog", concept.id, "Alt da imagem está vazio.");
+    if (!["photo", "illustration", "svg_fallback"].includes(concept.imageKind)) {
+      err("catalog", concept.id, `imageKind inválido: ${concept.imageKind}`);
+    }
+    if (!concept.imageSrc && !String(concept.emoji ?? "").trim()) {
+      err("catalog", concept.id, "Conceito sem imagem nem fallback.");
+    }
+    if (/^https?:\/\//i.test(String(concept.imageSrc ?? "")) || /^https?:\/\//i.test(String(concept.emoji ?? ""))) {
+      err("catalog", concept.id, "Imagem externa via http/https detectada.");
+    }
+    if (concept.imageSrc) {
+      const localImagePath = path.join(rootDir, "src/assets/visuals", concept.imageSrc);
+      try {
+        const info = await stat(localImagePath);
+        const metadata = await sharp(localImagePath).metadata();
+        if (info.size > MAX_IMAGE_BYTES) {
+          err("catalog", concept.id, `Imagem muito pesada: ${Math.ceil(info.size / 1024)} KB (máximo ${MAX_IMAGE_BYTES / 1024} KB).`);
+        }
+        if ((metadata.width ?? 0) > 600 || (metadata.height ?? 0) > 600) {
+          err("catalog", concept.id, `Imagem acima de 600 px: ${metadata.width}x${metadata.height}.`);
+        }
+      } catch {
+        err("catalog", concept.id, `Arquivo de imagem não encontrado: ${localImagePath}`);
+      }
+    }
     if (!resolveVisualConcept(concept.id)) err("catalog", concept.id, "resolveVisualConcept falhou.");
   }
 
@@ -102,13 +128,10 @@ try {
       if (hasDuplicate(options)) err("step", ref, "opções duplicadas");
       if (!options.some((option) => norm(option) === norm(answer))) err("step", ref, "resposta correta fora das opções");
 
-      // Proxy de renderização mobile: a grade é 2 colunas — mais de 4 opções
-      // estoura a dobra em 360×667; prompt longo empurra as opções para fora.
       if (options.length > 4) err("mobile", ref, `${options.length} opções não cabem na grade 2×2 do mobile`);
       const promptText = String(step.promptPt ?? step.prompt ?? "");
       if (promptText.length > 90) err("mobile", ref, `prompt com ${promptText.length} chars (máx. 90 para mobile)`);
 
-      // Nunca imagem externa: ids internos apenas, sem URL/caminho de arquivo.
       for (const field of [step.imageId, step.iconId, step.correctImageId, ...(step.imageOptions ?? [])]) {
         const value = String(field ?? "");
         if (/https?:|\/|\.png|\.jpe?g|\.webp|\.gif|\.svg/iu.test(value)) {
@@ -117,10 +140,17 @@ try {
       }
 
       const conceptId = step.imageId ?? step.iconId;
-      if (!resolveVisualConcept(conceptId)) err("step", ref, `imageId desconhecido: ${conceptId}`);
+      const concept = resolveVisualConcept(conceptId);
+      if (!concept) err("step", ref, `imageId desconhecido: ${conceptId}`);
+      else {
+        if (!concept.imageSrc && !concept.emoji) err("step", ref, "image_choice sem imagem nem fallback");
+        if (!String(concept.imageAltPt ?? "").trim()) err("step", ref, "image_choice com alt vazio");
+      }
       if (imagePick) {
         for (const option of options) {
-          if (!resolveVisualConcept(option)) err("step", ref, `imageOption desconhecida: ${option}`);
+          const optionConcept = resolveVisualConcept(option);
+          if (!optionConcept) err("step", ref, `imageOption desconhecida: ${option}`);
+          else if (!optionConcept.imageSrc && !optionConcept.emoji) err("step", ref, `imageOption sem imagem nem fallback: ${option}`);
         }
       }
 
@@ -162,7 +192,7 @@ try {
     }
     process.exitCode = 1;
   } else {
-    console.log(`validate:image-exercises OK (${imageSteps.length} passos · ${VISUAL_CONCEPT_IDS.length} ícones).`);
+    console.log(`validate:image-exercises OK (${imageSteps.length} passos · ${VISUAL_CONCEPT_IDS.length} imagens locais).`);
   }
 } finally {
   await rm(outDir, { recursive: true, force: true });
