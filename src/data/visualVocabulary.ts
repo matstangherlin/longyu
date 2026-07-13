@@ -93,6 +93,11 @@ export function enrichVisualFromChar(concept: VisualConcept): VisualConcept {
   };
 }
 
+export function hasValidVisualImage(concept: VisualConcept | undefined): boolean {
+  if (!concept) return false;
+  return Boolean(String(concept.imageSrc ?? "").trim() || String(concept.emoji ?? "").trim());
+}
+
 export function defaultVisualDistractors(targetId: VisualConceptId, count = 3): VisualConceptId[] {
   const pool = VISUAL_CONCEPT_IDS.filter((id) => id !== targetId);
   const similar: Partial<Record<VisualConceptId, VisualConceptId[]>> = {
@@ -110,4 +115,37 @@ export function defaultVisualDistractors(targetId: VisualConceptId, count = 3): 
   const preferred = similar[targetId] ?? [];
   const ordered = [...preferred, ...pool.filter((id) => !preferred.includes(id))];
   return ordered.slice(0, count);
+}
+
+/** Distratores permitidos no índice da unidade atual (respeita afterUnitIndex + imagem válida). */
+export function defaultVisualDistractorsForUnit(
+  targetId: VisualConceptId,
+  unitIndex: number,
+  count = 3
+): VisualConceptId[] {
+  return defaultVisualDistractors(targetId, VISUAL_CONCEPT_IDS.length)
+    .filter((id) => isVisualConceptAllowed(id, unitIndex) && hasValidVisualImage(resolveVisualConcept(id)))
+    .slice(0, count);
+}
+
+/** Resolve conceito a partir de charId, hànzì ou id de conceito. */
+export function resolveVisualConceptFromFocus(input: {
+  charId?: string;
+  hanzi?: string;
+  conceptId?: string;
+}): VisualConcept | undefined {
+  if (input.conceptId) {
+    const byId = resolveVisualConcept(input.conceptId);
+    if (byId) return byId;
+  }
+  if (input.charId) {
+    const byChar = visualConceptForChar(input.charId) ?? resolveVisualConcept(input.charId);
+    if (byChar) return byChar;
+  }
+  const glyphs = String(input.hanzi ?? "").replace(/[，。！？、,.!?\s]/g, "");
+  for (const glyph of glyphs) {
+    const byGlyph = resolveVisualConcept(glyph);
+    if (byGlyph) return byGlyph;
+  }
+  return undefined;
 }

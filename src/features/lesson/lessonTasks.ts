@@ -27,10 +27,22 @@ import {
 import { numericPinyinToDiacritics, normalizePinyinBase, isNearDuplicatePinyinSet } from "../../lib/pinyin";
 import {
   buildWeightedModuleReviewFocus,
+  PROGRESSIVE_PHRASE_REFS,
   resolveModuleFocusItems,
+  unitOrderIndex,
   validateModuleReviewCoverage,
   type ModuleReviewCoverageIssue,
 } from "../../lib/moduleReview";
+import {
+  defaultVisualDistractorsForUnit,
+  hasValidVisualImage,
+  isVisualConceptAllowed,
+  resolveVisualConcept,
+  resolveVisualConceptFromFocus,
+  type ImageChoiceMode,
+  type VisualConcept,
+  type VisualConceptId,
+} from "../../data/visualVocabulary";
 
 export { validateModuleReviewCoverage, type ModuleReviewCoverageIssue };
 
@@ -383,7 +395,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
   intro: ["intro", "flashcard", "listen", "hanzi_evolution", "decompose"],
   recognition: ["listen_select", "comprehend", "recognize", "tone", "match_pairs", "tone_pair", "image_choice"],
   assembly: ["produce", "sentence_build", "translation_build", "hanzi_build", "fill_blank", "decompose"],
-  usage: ["dialogue_choice", "conversation_scene", "write", "fill_blank", "microread", "produce", "comprehend"],
+  usage: ["dialogue_choice", "conversation_scene", "write", "fill_blank", "microread", "produce", "comprehend", "image_choice"],
   consolidation: [
     "listen",
     "flashcard",
@@ -512,6 +524,10 @@ interface LessonPracticeProfile {
   needsPinyinTask: boolean;
   /** Máximo de cenas de conversa: 1 comum, 2 revisão, várias em imersão. */
   maxConversationScenes: number;
+  /** Mínimo de exercícios visuais quando a lição tem conteúdo concreto elegível. */
+  minImageChoice: number;
+  /** Máximo de exercícios visuais (comum 1; hànzì dedicado 2; revisão visual 3). */
+  maxImageChoice: number;
 }
 
 const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
@@ -890,6 +906,270 @@ function isPinyinFocusedLesson(lesson: Lesson): boolean {
   return lesson.skill === "som" || id.includes("tons-") || id.includes("pinyin") || id.includes("tom");
 }
 
+/** Lições abstratas de tom/gramática — não geram imagem aleatória. */
+function isAbstractToneOrGrammarLesson(lesson: Lesson): boolean {
+  const id = lesson.id.toLocaleLowerCase("pt-BR");
+  const title = lesson.title.toLocaleLowerCase("pt-BR");
+  if (id.startsWith("p2-ma-") || id.includes("tons-") || id.includes("sandhi") || id.includes("tom-com")) return true;
+  if (id.includes("o-que-e-tom") || id.includes("o-que-e-pinyin") || id.includes("o-que-e-mandarim")) return true;
+  if (lesson.skill === "som" && !lessonFocusHasVisualConcept(lesson)) return true;
+  if (title.includes("tom") && lesson.skill === "som") return true;
+  return false;
+}
+
+/** Lição dedicada de hànzì concreto (objeto, pessoa, natureza, tamanho). */
+function isConcreteVisualHanziLesson(lesson: Lesson): boolean {
+  return lessonFocusHasVisualConcept(lesson);
+}
+
+function lessonUnitIndex(lesson: Lesson): number {
+  const unitId = lessonUnitId(lesson);
+  if (!unitId) return -1;
+  return unitOrderIndex(unitId);
+}
+
+function visualConceptForFocusItem(item: FocusItem): VisualConcept | undefined {
+  return resolveVisualConceptFromFocus({
+    charId: item.type === "char" ? item.itemId : undefined,
+    hanzi: item.hanzi,
+    conceptId: item.itemId,
+  });
+}
+
+function lessonFocusHasVisualConcept(lesson: Lesson, unitIndex = lessonUnitIndex(lesson)): boolean {
+  for (const item of lessonFocusItems(lesson)) {
+    const concept = visualConceptForFocusItem(item);
+    if (concept && hasValidVisualImage(concept) && isVisualConceptAllowed(concept.id, unitIndex)) return true;
+  }
+  return false;
+}
+
+function isVisualConceptProgressivelyAllowed(
+  concept: VisualConcept,
+  unitIndex: number,
+  lesson?: Lesson
+): boolean {
+  const ref = `char:${concept.charId}`;
+  // A própria lição que ensina o hànzì pode usar a imagem imediatamente.
+  if (lesson && (lesson.libraryItems ?? []).includes(ref)) return true;
+  if (lesson && (lesson.reviewItems ?? []).includes(ref) && !lesson.isReview) return true;
+  const rule = PROGRESSIVE_PHRASE_REFS.find((entry) => entry.ref === ref);
+  if (!rule) return true;
+  return unitIndex >= rule.afterUnitIndex;
+}
+
+function isFocusItemProgressivelyAllowed(item: FocusItem, unitIndex: number, lesson?: Lesson): boolean {
+  if (!item.type || !item.itemId) {
+    const concept = visualConceptForFocusItem(item);
+    if (concept) return isVisualConceptProgressivelyAllowed(concept, unitIndex, lesson);
+    return true;
+  }
+  const ref = `${item.type}:${item.itemId}`;
+  if (lesson && (lesson.libraryItems ?? []).includes(ref)) return true;
+  if (lesson && (lesson.reviewItems ?? []).includes(ref) && !lesson.isReview) return true;
+  const rule = PROGRESSIVE_PHRASE_REFS.find((entry) => entry.ref === ref);
+  if (!rule) return true;
+  return unitIndex >= rule.afterUnitIndex;
+}
+
+function focusVisualItems(focus: FocusItem[], unitIndex: number, lesson?: Lesson): FocusItem[] {
+  return focus.filter((item) => {
+    if (!isFocusItemProgressivelyAllowed(item, unitIndex, lesson)) return false;
+    const concept = visualConceptForFocusItem(item);
+    return Boolean(concept && hasValidVisualImage(concept) && isVisualConceptAllowed(concept.id, unitIndex));
+  });
+}
+
+const IMAGE_MODE_PROGRESSION: ImageChoiceMode[] = [
+  "choose_meaning",
+  "choose_hanzi",
+  "listen_and_choose_image",
+  "choose_image",
+  "choose_pinyin",
+];
+
+function priorAuthoredVisualExposures(conceptId: string, lesson: Lesson): number {
+  let count = 0;
+  for (const prior of ALL_LESSONS) {
+    if (prior.id === lesson.id) break;
+    for (const step of prior.steps) {
+      if (step.kind === "image_choice" && (step.imageId === conceptId || step.iconId === conceptId)) count += 1;
+    }
+  }
+  return count;
+}
+
+function imageChoiceModeForExposure(
+  conceptId: string,
+  lesson: Lesson,
+  stageId: LessonStageId | undefined,
+  preferredMode?: ImageChoiceMode,
+  usedModes?: ReadonlySet<ImageChoiceMode>
+): ImageChoiceMode {
+  if (preferredMode) return preferredMode;
+  if (stageId === "usage") return "choose_image";
+  const exposure = priorAuthoredVisualExposures(conceptId, lesson);
+  let mode = IMAGE_MODE_PROGRESSION[Math.min(exposure, IMAGE_MODE_PROGRESSION.length - 1)];
+  if (stageId === "consolidation" && exposure === 0) mode = "listen_and_choose_image";
+  if (usedModes && usedModes.has(mode)) {
+    const next = IMAGE_MODE_PROGRESSION.find((candidate) => !usedModes.has(candidate));
+    if (next) mode = next;
+  }
+  return mode;
+}
+
+function uniqueOptionList(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    const key = value.trim().toLocaleLowerCase("pt-BR");
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(value);
+  }
+  return result;
+}
+
+function shuffleStable<T>(values: T[], seed: string): T[] {
+  const copy = [...values];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    hash = (hash * 1664525 + 1013904223) >>> 0;
+    const j = hash % (i + 1);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+export interface ImageChoiceStepContext {
+  unitIndex: number;
+  stageId?: LessonStageId;
+  usedImageIds?: ReadonlySet<string>;
+  usedModes?: ReadonlySet<ImageChoiceMode>;
+}
+
+/**
+ * Gera um passo image_choice a partir de um item de foco.
+ * Retorna null se não houver conceito visual válido/liberado.
+ */
+export function makeImageChoiceStep(
+  item: FocusItem,
+  _focus: FocusItem[],
+  lesson: Lesson,
+  context: ImageChoiceStepContext,
+  preferredMode?: ImageChoiceMode
+): LessonStep | null {
+  if (isAbstractToneOrGrammarLesson(lesson) && !isConcreteVisualHanziLesson(lesson)) return null;
+
+  const concept = visualConceptForFocusItem(item);
+  if (!concept || !hasValidVisualImage(concept)) return null;
+  if (!isVisualConceptAllowed(concept.id, context.unitIndex)) return null;
+  if (!isVisualConceptProgressivelyAllowed(concept, context.unitIndex, lesson)) return null;
+  if (!isFocusItemProgressivelyAllowed(item, context.unitIndex, lesson)) return null;
+  if (context.usedImageIds?.has(concept.id)) return null;
+
+  const mode = imageChoiceModeForExposure(
+    concept.id,
+    lesson,
+    context.stageId,
+    preferredMode,
+    context.usedModes
+  );
+
+  const distractors = defaultVisualDistractorsForUnit(concept.id as VisualConceptId, context.unitIndex, 3);
+  if (distractors.length < 1) return null;
+
+  const imageIds = uniqueOptionList(
+    shuffleStable([concept.id, ...distractors], `${lesson.id}:${concept.id}:${mode}`).slice(0, 4)
+  ) as VisualConceptId[];
+  if (imageIds.length < 2 || !imageIds.includes(concept.id as VisualConceptId)) return null;
+
+  const base: LessonStep = {
+    kind: "image_choice",
+    imageChoiceMode: mode,
+    imageId: concept.id,
+    targetHanzi: concept.hanzi,
+    targetPinyin: concept.pinyin,
+    targetMeaningPt: concept.meaningPt,
+    explanation: `${concept.hanzi} (${concept.pinyin}) = ${concept.meaningPt}.`,
+  };
+
+  if (mode === "choose_image" || mode === "listen_and_choose_image") {
+    return {
+      ...base,
+      title: mode === "listen_and_choose_image" ? "Ouça e escolha a imagem" : "Escolha a imagem",
+      promptPt:
+        mode === "listen_and_choose_image"
+          ? "Ouça e toque na imagem certa."
+          : context.stageId === "usage"
+            ? `Qual imagem combina com ${concept.hanzi}?`
+            : `Qual imagem combina com ${concept.hanzi}?`,
+      audioText: mode === "listen_and_choose_image" ? concept.hanzi : undefined,
+      imageOptions: imageIds,
+      correctImageId: concept.id,
+    };
+  }
+
+  if (mode === "choose_hanzi") {
+    const options = uniqueOptionList(
+      imageIds.map((id) => resolveVisualConcept(id)?.hanzi).filter((value): value is string => Boolean(value))
+    );
+    if (options.length < 2 || !options.includes(concept.hanzi)) return null;
+    return {
+      ...base,
+      title: "Imagem → hànzì",
+      promptPt: "Qual hànzì combina com a imagem?",
+      options: shuffleStable(options, `${lesson.id}:hanzi:${concept.id}`).slice(0, 4),
+      correctAnswer: concept.hanzi,
+    };
+  }
+
+  if (mode === "choose_pinyin") {
+    const options = uniqueOptionList(
+      imageIds.map((id) => resolveVisualConcept(id)?.pinyin).filter((value): value is string => Boolean(value))
+    );
+    if (options.length < 2 || !options.includes(concept.pinyin)) return null;
+    return {
+      ...base,
+      title: "Imagem → pinyin",
+      promptPt: "Qual é o pinyin desta imagem?",
+      options: shuffleStable(options, `${lesson.id}:pinyin:${concept.id}`).slice(0, 4),
+      correctAnswer: concept.pinyin,
+    };
+  }
+
+  const options = uniqueOptionList(
+    imageIds.map((id) => resolveVisualConcept(id)?.meaningPt).filter((value): value is string => Boolean(value))
+  );
+  if (options.length < 2 || !options.includes(concept.meaningPt)) return null;
+  return {
+    ...base,
+    title: "Imagem → significado",
+    promptPt: "O que a imagem representa?",
+    options: shuffleStable(options, `${lesson.id}:meaning:${concept.id}`).slice(0, 4),
+    correctAnswer: concept.meaningPt,
+  };
+}
+
+function maxImageChoiceForLesson(lesson: Lesson, hasVisual: boolean): number {
+  if (!hasVisual || isAbstractToneOrGrammarLesson(lesson)) return 0;
+  if (lesson.isReview) return 3;
+  if (isConcreteVisualHanziLesson(lesson) && isHanziFocusedLesson(lesson)) return 2;
+  if (isDedicatedBuilderLesson(lesson) && hasVisual) return 2;
+  return 1;
+}
+
+function minImageChoiceForLesson(lesson: Lesson, hasVisual: boolean): number {
+  if (!hasVisual || isAbstractToneOrGrammarLesson(lesson)) return 0;
+  if (lesson.isReview) return 2;
+  if (isConcreteVisualHanziLesson(lesson) && (isHanziFocusedLesson(lesson) || lesson.id.includes("pecas-natureza"))) {
+    return 1;
+  }
+  if (lessonFocusHasVisualConcept(lesson)) return 1;
+  return 0;
+}
+
 function coreReviewFocusItems(): FocusItem[] {
   return CORE_REVIEW_REFS.map(focusFromRef).filter((item): item is FocusItem => Boolean(item));
 }
@@ -943,6 +1223,15 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   const pinyinRich = focus.some((item) => Boolean(item.pinyin));
   const commonTarget = phaseOrder <= 2 ? 8 : phaseOrder <= 5 ? 9 : 10;
   const maxPinyinTasks = maxPinyinTasksForLesson(lesson, pinyinRich);
+  const unitIndex = lessonUnitIndex(lesson);
+  const visualFocus = focusVisualItems(focus, unitIndex, lesson);
+  const hasVisual = visualFocus.length > 0 || lessonFocusHasVisualConcept(lesson, unitIndex);
+  const authoredImageCount = lesson.steps.filter((step) => step.kind === "image_choice").length;
+  const maxImageChoice = Math.max(maxImageChoiceForLesson(lesson, hasVisual), authoredImageCount);
+  const minImageChoice = Math.min(
+    Math.max(minImageChoiceForLesson(lesson, hasVisual), authoredImageCount > 0 && hasVisual ? 1 : 0),
+    maxImageChoice
+  );
 
   // Aula dedicada de montagem: muitos builders, dificuldade misturada.
   if (isDedicatedBuilderLesson(lesson)) {
@@ -960,6 +1249,8 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
+      minImageChoice,
+      maxImageChoice,
     };
   }
 
@@ -975,6 +1266,8 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
+      minImageChoice,
+      maxImageChoice,
     };
   }
 
@@ -992,6 +1285,8 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
+      minImageChoice,
+      maxImageChoice,
     };
   }
 
@@ -1012,6 +1307,8 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     maxPinyinTasks: pinyinCap,
     needsPinyinTask: pinyinRich && (phaseOrder <= 4 || isPinyinFocusedLesson(lesson) || Boolean(lesson.isReview)),
     maxConversationScenes: maxConversationScenesForLesson(lesson),
+    minImageChoice,
+    maxImageChoice,
   };
 }
 
@@ -1511,6 +1808,9 @@ function stepSignature(step: LessonStep): string {
     step.charId,
     step.chunkId,
     step.sceneId,
+    step.imageId,
+    step.imageChoiceMode,
+    step.correctImageId,
     step.target?.join("|"),
     step.targetParts?.join("|"),
     step.pairs?.map((pair) => `${pair.left}=${pair.right}`).join("|"),
@@ -1525,6 +1825,8 @@ interface SupplementalStepOptions {
   seenGlyphs?: ReadonlySet<string>;
   ownFocusGlyphs?: ReadonlySet<string>;
   allowComposedFiller?: boolean;
+  lesson?: Lesson;
+  unitIndex?: number;
 }
 
 function supplementalStepsForStage(
@@ -1543,9 +1845,18 @@ function supplementalStepsForStage(
     allowComposedFiller: options.allowComposedFiller,
   };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
+  const lesson = options.lesson;
+  const unitIndex = options.unitIndex ?? (lesson ? lessonUnitIndex(lesson) : 0);
+  const usedImageIds = new Set<string>();
+  const usedModes = new Set<ImageChoiceMode>();
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
     if (result.some((candidate) => stepSignature(candidate) === stepSignature(step))) return;
+    if (step.kind === "image_choice" && step.imageId) {
+      if (usedImageIds.has(step.imageId)) return;
+      usedImageIds.add(step.imageId);
+      if (step.imageChoiceMode) usedModes.add(step.imageChoiceMode);
+    }
     result.push(step);
   };
 
@@ -1561,6 +1872,16 @@ function supplementalStepsForStage(
       push(makeComprehendStep(item, focus));
       push(makePinyinChoiceStep(item, focus));
       push(makeToneMicroStep(item));
+      if (lesson) {
+        push(
+          makeImageChoiceStep(item, focus, lesson, {
+            unitIndex,
+            stageId: "recognition",
+            usedImageIds,
+            usedModes,
+          })
+        );
+      }
       if (result.length >= targetCount) break;
     }
     push(makeTonePairStep(focus));
@@ -1575,6 +1896,22 @@ function supplementalStepsForStage(
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
       push(makeFillBlankStep(item, focus));
+      if (lesson) {
+        push(
+          makeImageChoiceStep(
+            item,
+            focus,
+            lesson,
+            {
+              unitIndex,
+              stageId: "usage",
+              usedImageIds,
+              usedModes,
+            },
+            "choose_image"
+          )
+        );
+      }
       if (result.length >= targetCount) break;
     }
     push(makeConversationSceneStep(focus, reviewFocus));
@@ -1583,6 +1920,23 @@ function supplementalStepsForStage(
     push(makeMatchPairsStep([...reviewFocus, ...focus]));
     push(makeTonePairStep([...reviewFocus, ...focus]));
     push(makeConversationSceneStep(focus, reviewFocus));
+    // Consolidação: preferir item antigo visual em modo diferente.
+    if (lesson) {
+      const oldVisual = focusVisualItems(reviewFocus, unitIndex, lesson).filter(
+        (item) => !focusVisualItems(focus, unitIndex, lesson).some((current) => visualConceptForFocusItem(current)?.id === visualConceptForFocusItem(item)?.id)
+      );
+      for (const item of [...oldVisual, ...focusVisualItems(focus, unitIndex, lesson), ...reviewFocus, ...focus]) {
+        push(
+          makeImageChoiceStep(item, [...reviewFocus, ...focus], lesson, {
+            unitIndex,
+            stageId: "consolidation",
+            usedImageIds,
+            usedModes,
+          })
+        );
+        if (usedImageIds.size >= 2) break;
+      }
+    }
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
@@ -1617,18 +1971,40 @@ function moduleReviewGapCandidates(
 
   const hanziFocus = focus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1);
   const phraseFocus = focus.filter((item) => cleanHanzi(item.hanzi).length > 1);
+  const unit = JOURNEY.flatMap((phase) => phase.units).find((entry) => entry.id === unitId);
+  if (unit) {
+    for (const item of resolveModuleFocusItems(unit)) {
+      if (cleanHanzi(item.hanzi).length > 1) {
+        phraseFocus.push({
+          key: item.key,
+          hanzi: item.hanzi,
+          pinyin: item.pinyin,
+          meaningPt: item.meaningPt,
+          type: item.type,
+          itemId: item.itemId,
+        });
+      }
+    }
+  }
 
+  // Frases do módulo primeiro — cobertura de revisão exige chunks antes de encher com hànzì.
+  for (const item of phraseFocus) {
+    push(makeComprehendStep(item, [...focus, ...phraseFocus]));
+    push(makeFillBlankStep(item, [...focus, ...phraseFocus]));
+    push(makeSentenceBuildStep(item, [...focus, ...phraseFocus]));
+    push(makeDialogueChoiceStep(item, [...focus, ...phraseFocus]));
+  }
   for (const item of hanziFocus) {
     push(makeRecognizeStep(item));
     push(makeDecomposeStep(item));
     push(makeHanziBuilderStep(item, phaseOrder));
     push(makeToneMicroStep(item));
-  }
-  for (const item of phraseFocus) {
-    push(makeComprehendStep(item, focus));
-    push(makeFillBlankStep(item, focus));
-    push(makeSentenceBuildStep(item, focus));
-    push(makeDialogueChoiceStep(item, focus));
+    push(
+      makeImageChoiceStep(item, focus, lesson, {
+        unitIndex: lessonUnitIndex(lesson),
+        stageId: "recognition",
+      })
+    );
   }
   for (const item of reviewFocus.slice(0, 6)) {
     push(makeComprehendStep(item, [...reviewFocus, ...focus]));
@@ -1769,7 +2145,8 @@ function candidateScore(
   const reviewBonus = stageId === "consolidation" || stepUsesFocus(step, reviewFocus) ? 12 : 0;
   const gradedBonus = isGradedStep(step) ? 6 : 0;
   const stageBonus = STAGE_KIND_HINTS[stageId].includes(step.kind) ? 4 : 0;
-  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus;
+  const visualBonus = step.kind === "image_choice" ? 10 : 0;
+  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus + visualBonus;
 }
 
 function authoredCandidatesFor(lesson: Lesson, reviewFocus: FocusItem[]): PracticeCandidate[] {
@@ -1796,11 +2173,21 @@ function generatedCandidatesFor(
   ownFocusGlyphs?: ReadonlySet<string>
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
+  const unitIndex = lessonUnitIndex(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller });
+    const generated = supplementalStepsForStage(stageId, focus, target, {
+      phaseOrder,
+      reviewFocus,
+      hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      allowComposedFiller,
+      lesson,
+      unitIndex,
+    });
     for (const step of generated) {
       candidates.push({
         step,
@@ -1841,6 +2228,51 @@ function countPinyinTasks(candidates: readonly PracticeCandidate[]): number {
   return candidates.filter((candidate) => isPinyinPracticeStep(candidate.step)).length;
 }
 
+function imageIdOf(step: LessonStep): string | undefined {
+  if (step.kind !== "image_choice") return undefined;
+  return step.imageId ?? step.iconId ?? step.correctImageId;
+}
+
+function selectedImageIds(candidates: readonly PracticeCandidate[]): Set<string> {
+  const ids = new Set<string>();
+  for (const candidate of candidates) {
+    const id = imageIdOf(candidate.step);
+    if (id) ids.add(id);
+  }
+  return ids;
+}
+
+function underImageChoiceCap(
+  selected: readonly PracticeCandidate[],
+  candidate: PracticeCandidate,
+  profile: LessonPracticeProfile
+): boolean {
+  if (candidate.step.kind !== "image_choice") return true;
+  if (profile.maxImageChoice <= 0) return false;
+  if (countKind(selected, "image_choice") >= profile.maxImageChoice) return false;
+  const imageId = imageIdOf(candidate.step);
+  if (imageId && selectedImageIds(selected).has(imageId)) return false;
+  const last = selected[selected.length - 1];
+  if (last && imageId && imageIdOf(last.step) === imageId) return false;
+  return true;
+}
+
+function dedupeVisualImages(selected: PracticeCandidate[], usedSignatures: Set<string>) {
+  const seen = new Set<string>();
+  for (let index = selected.length - 1; index >= 0; index -= 1) {
+    const step = selected[index].step;
+    if (step.kind !== "image_choice") continue;
+    const imageId = imageIdOf(step);
+    if (!imageId) continue;
+    if (seen.has(imageId)) {
+      usedSignatures.delete(stepSignature(step));
+      selected.splice(index, 1);
+      continue;
+    }
+    seen.add(imageId);
+  }
+}
+
 function selectBestCandidate(
   selected: readonly PracticeCandidate[],
   candidates: readonly PracticeCandidate[],
@@ -1861,6 +2293,7 @@ function selectBestCandidate(
         candidate.step.kind !== "conversation_scene" ||
         countKind(selected, "conversation_scene") < profile.maxConversationScenes
     )
+    .filter((candidate) => underImageChoiceCap(selected, candidate, profile))
     .sort((a, b) => b.score - a.score);
   return eligible.find((candidate) => !wouldMakeTriplet(selected, candidate)) ?? eligible[0];
 }
@@ -1882,6 +2315,7 @@ function replaceLowestIfNeeded(
   ) {
     return;
   }
+  if (!underImageChoiceCap(selected, candidate, profile)) return;
 
   if (selected.length < profile.targetCount) {
     selected.push(candidate);
@@ -1947,8 +2381,19 @@ function ensureCoverage(
   // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
   const minBuilds = Math.max(profile.maxHanziBuilds > 0 ? 1 : 0, profile.minHanziBuilds);
   if (minBuilds > 0) ensureCount((candidate) => candidate.step.kind === "hanzi_build", minBuilds);
+  if (profile.minImageChoice > 0) {
+    ensureCount((candidate) => candidate.step.kind === "image_choice", profile.minImageChoice);
+  }
   if (reviewFocus.length > 0) {
     ensure((candidate) => stepUsesFocus(candidate.step, reviewFocus) || candidate.stageId === "consolidation");
+    if (profile.minImageChoice >= 2) {
+      const oldVisual = focusVisualItems(reviewFocus, lessonUnitIndex(lesson), lesson);
+      if (oldVisual.length > 0) {
+        ensure(
+          (candidate) => candidate.step.kind === "image_choice" && stepUsesFocus(candidate.step, oldVisual)
+        );
+      }
+    }
     if (oldPhraseFocus(lessonFocus).length > 0) {
       ensure((candidate) => {
         const blob = cleanHanzi(stepTextBlob(candidate.step));
@@ -1964,6 +2409,22 @@ function ensureCoverage(
   if (lesson.isReview) {
     const hanziFocus = lessonFocus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1);
     const phraseFocus = lessonFocus.filter((item) => cleanHanzi(item.hanzi).length > 1);
+    const unitId = lessonUnitId(lesson);
+    const unit = unitId ? JOURNEY.flatMap((phase) => phase.units).find((entry) => entry.id === unitId) : undefined;
+    const modulePhrases: FocusItem[] = unit
+      ? resolveModuleFocusItems(unit)
+          .filter((item) => cleanHanzi(item.hanzi).length > 1)
+          .map((item) => ({
+            key: item.key,
+            hanzi: item.hanzi,
+            pinyin: item.pinyin,
+            meaningPt: item.meaningPt,
+            type: item.type,
+            itemId: item.itemId,
+          }))
+      : [];
+    const allPhrases = [...phraseFocus];
+    for (const item of modulePhrases) addFocusItem(allPhrases, item);
     ensure((candidate) => candidate.families.includes("audio"));
     ensure((candidate) => candidate.families.includes("pinyin") || isPinyinPracticeStep(candidate.step));
     ensure((candidate) => candidate.families.includes("meaning") || candidate.step.kind === "comprehend");
@@ -1976,14 +2437,16 @@ function ensureCoverage(
       );
       ensureFocus(hanziFocus);
     }
-    if (phraseFocus.length > 0) {
+    if (allPhrases.length > 0) {
       ensure(
         (candidate) =>
           candidate.families.includes("usage") ||
           candidate.families.includes("assembly") ||
-          candidate.step.kind === "dialogue_choice"
+          candidate.step.kind === "dialogue_choice" ||
+          candidate.step.kind === "fill_blank" ||
+          candidate.step.kind === "sentence_build"
       );
-      ensureFocus(phraseFocus);
+      ensureFocus(allPhrases);
     }
     if (errorFocus.length > 0) ensureFocus(errorFocus.slice(0, 4));
   }
@@ -2157,15 +2620,22 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   }
 
   ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures);
+  dedupeVisualImages(selected, usedSignatures);
+  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures);
+  dedupeVisualImages(selected, usedSignatures);
   const trimmed = trimToTarget(selected, profile);
+  dedupeVisualImages(trimmed, usedSignatures);
 
   for (const gap of moduleReviewGapCandidates(lesson, focus, reviewFocus, trimmed)) {
     if (usedSignatures.has(stepSignature(gap.step))) continue;
+    if (!underImageChoiceCap(trimmed, gap, profile) && gap.step.kind === "image_choice") continue;
     trimmed.push(gap);
     usedSignatures.add(stepSignature(gap.step));
     const unitId = lessonUnitId(lesson);
     if (unitId && validateModuleReviewCoverage(unitId, trimmed.map((candidate) => candidate.step), {}).length === 0) break;
+    if (trimmed.length >= profile.targetCount + 6) break;
   }
+  dedupeVisualImages(trimmed, usedSignatures);
 
   const balanced = balancePracticeSequence(trimmed);
 
