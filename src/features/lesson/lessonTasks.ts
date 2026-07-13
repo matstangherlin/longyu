@@ -31,8 +31,16 @@ import {
   validateModuleReviewCoverage,
   type ModuleReviewCoverageIssue,
 } from "../../lib/moduleReview";
+import {
+  hasMeaningfulTransformation,
+  lessonNoveltyIssues,
+  noveltyScoreAdjustment,
+  semanticTargetKey,
+  wouldViolateSemanticLimits,
+} from "../../lib/lessonNovelty";
 
 export { validateModuleReviewCoverage, type ModuleReviewCoverageIssue };
+export { hasMeaningfulTransformation, lessonNoveltyIssues, semanticTargetKey };
 
 export type LessonMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
 
@@ -1647,7 +1655,7 @@ function moduleReviewGapCandidates(
       sourceStepIndex: -1,
       generated: true,
       families: exerciseFamiliesFor(step, stageId),
-      score: candidateScore(lesson, step, stageId, true, reviewFocus) + 100,
+      score: candidateScore(lesson, step, stageId, true, reviewFocus, selected.map((c) => c.step)) + 100,
     };
   });
 }
@@ -1760,7 +1768,8 @@ function candidateScore(
   step: LessonStep,
   stageId: LessonStageId,
   generated: boolean,
-  reviewFocus: FocusItem[]
+  reviewFocus: FocusItem[],
+  selectedSteps: readonly LessonStep[] = []
 ): number {
   const weights = WEIGHTS_BY_SKILL[lesson.isReview ? "review" : lesson.skill];
   const families = exerciseFamiliesFor(step, stageId);
@@ -1769,7 +1778,13 @@ function candidateScore(
   const reviewBonus = stageId === "consolidation" || stepUsesFocus(step, reviewFocus) ? 12 : 0;
   const gradedBonus = isGradedStep(step) ? 6 : 0;
   const stageBonus = STAGE_KIND_HINTS[stageId].includes(step.kind) ? 4 : 0;
-  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus;
+  const reviewHanzi = new Set(reviewFocus.map((item) => cleanHanzi(item.hanzi)).filter(Boolean));
+  const noveltyBonus = noveltyScoreAdjustment(step, {
+    lesson,
+    selected: selectedSteps,
+    reviewHanzi,
+  });
+  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus + noveltyBonus;
 }
 
 function authoredCandidatesFor(lesson: Lesson, reviewFocus: FocusItem[]): PracticeCandidate[] {
@@ -1819,20 +1834,29 @@ function wouldMakeTriplet(sequence: readonly PracticeCandidate[], candidate: Pra
   const lastTwo = sequence.slice(-2);
   if (lastTwo.length < 2) return false;
   if (lastTwo.every((item) => item.step.kind === candidate.step.kind)) return true;
-  return candidate.families.some((family) => lastTwo.every((item) => item.families.includes(family)));
+  if (candidate.families.some((family) => lastTwo.every((item) => item.families.includes(family)))) return true;
+  const key = semanticTargetKey(candidate.step);
+  if (lastTwo.every((item) => semanticTargetKey(item.step) === key)) {
+    if (!hasMeaningfulTransformation(lastTwo[1].step, candidate.step)) return true;
+  }
+  return false;
 }
 
 function countKind(candidates: readonly PracticeCandidate[], kind: StepKind): number {
   return candidates.filter((candidate) => candidate.step.kind === kind).length;
 }
 
-// Quantos builders do MESMO caractere já foram escolhidos (evita 明 3× etc.).
+/** Quantos builders do MESMO caractere já foram escolhidos (evita 明 3× etc.). */
 function charBuildCount(candidates: readonly PracticeCandidate[], char: string | undefined): number {
   if (!char) return 0;
   return candidates.filter((c) => c.step.kind === "hanzi_build" && c.step.correctAnswer === char).length;
 }
 
-function underPerCharCap(selected: readonly PracticeCandidate[], candidate: PracticeCandidate, profile: LessonPracticeProfile): boolean {
+function underPerCharCap(
+  selected: readonly PracticeCandidate[],
+  candidate: PracticeCandidate,
+  profile: LessonPracticeProfile
+): boolean {
   if (candidate.step.kind !== "hanzi_build") return true;
   return charBuildCount(selected, candidate.step.correctAnswer) < profile.perCharBuildCap;
 }
@@ -1841,15 +1865,30 @@ function countPinyinTasks(candidates: readonly PracticeCandidate[]): number {
   return candidates.filter((candidate) => isPinyinPracticeStep(candidate.step)).length;
 }
 
+function semanticContextFor(
+  lesson: Lesson,
+  selected: readonly PracticeCandidate[],
+  reviewFocus: FocusItem[]
+) {
+  return {
+    lesson,
+    selected: selected.map((candidate) => candidate.step),
+    reviewHanzi: new Set(reviewFocus.map((item) => cleanHanzi(item.hanzi)).filter(Boolean)),
+  };
+}
+
 function selectBestCandidate(
   selected: readonly PracticeCandidate[],
   candidates: readonly PracticeCandidate[],
   stageId: LessonStageId,
   usedSignatures: ReadonlySet<string>,
-  profile: LessonPracticeProfile
+  profile: LessonPracticeProfile,
+  lesson: Lesson,
+  reviewFocus: FocusItem[]
 ): PracticeCandidate | undefined {
   const hanziBuildCount = countKind(selected, "hanzi_build");
   const pinyinTaskCount = countPinyinTasks(selected);
+  const noveltyContext = semanticContextFor(lesson, selected, reviewFocus);
   const eligible = candidates
     .filter((candidate) => candidate.stageId === stageId)
     .filter((candidate) => !usedSignatures.has(stepSignature(candidate.step)))
@@ -1861,6 +1900,13 @@ function selectBestCandidate(
         candidate.step.kind !== "conversation_scene" ||
         countKind(selected, "conversation_scene") < profile.maxConversationScenes
     )
+    .filter((candidate) => !wouldViolateSemanticLimits(candidate.step, noveltyContext))
+    .map((candidate) => ({
+      ...candidate,
+      score:
+        candidateScore(lesson, candidate.step, candidate.stageId, candidate.generated, reviewFocus, noveltyContext.selected) -
+        (candidate.generated ? 0 : candidate.sourceStepIndex * 0.15),
+    }))
     .sort((a, b) => b.score - a.score);
   return eligible.find((candidate) => !wouldMakeTriplet(selected, candidate)) ?? eligible[0];
 }
@@ -1869,7 +1915,9 @@ function replaceLowestIfNeeded(
   selected: PracticeCandidate[],
   candidate: PracticeCandidate,
   profile: LessonPracticeProfile,
-  usedSignatures: Set<string>
+  usedSignatures: Set<string>,
+  lesson: Lesson,
+  reviewFocus: FocusItem[]
 ) {
   const signature = stepSignature(candidate.step);
   if (usedSignatures.has(signature)) return;
@@ -1882,6 +1930,7 @@ function replaceLowestIfNeeded(
   ) {
     return;
   }
+  if (wouldViolateSemanticLimits(candidate.step, semanticContextFor(lesson, selected, reviewFocus))) return;
 
   if (selected.length < profile.targetCount) {
     selected.push(candidate);
@@ -1914,8 +1963,21 @@ function ensureCoverage(
     const candidate = candidates
       .filter(predicate)
       .filter((item) => !usedSignatures.has(stepSignature(item.step)))
+      .map((item) => ({
+        ...item,
+        score: candidateScore(
+          lesson,
+          item.step,
+          item.stageId,
+          item.generated,
+          reviewFocus,
+          selected.map((c) => c.step)
+        ),
+      }))
       .sort((a, b) => b.score - a.score)[0];
-    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+    if (candidate) {
+      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, lesson, reviewFocus);
+    }
   };
 
   // Garante ao menos `count` candidatos que casam com o predicado (respeitando
@@ -1924,10 +1986,21 @@ function ensureCoverage(
     const pool = candidates
       .filter(predicate)
       .filter((item) => !usedSignatures.has(stepSignature(item.step)))
+      .map((item) => ({
+        ...item,
+        score: candidateScore(
+          lesson,
+          item.step,
+          item.stageId,
+          item.generated,
+          reviewFocus,
+          selected.map((c) => c.step)
+        ),
+      }))
       .sort((a, b) => b.score - a.score);
     for (const candidate of pool) {
       if (selected.filter(predicate).length >= count) break;
-      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, lesson, reviewFocus);
     }
   };
 
@@ -1935,8 +2008,21 @@ function ensureCoverage(
     if (!items.length || selected.some((candidate) => stepUsesFocus(candidate.step, items))) return;
     const candidate = candidates
       .filter((item) => stepUsesFocus(item.step, items) && !usedSignatures.has(stepSignature(item.step)))
+      .map((item) => ({
+        ...item,
+        score: candidateScore(
+          lesson,
+          item.step,
+          item.stageId,
+          item.generated,
+          reviewFocus,
+          selected.map((c) => c.step)
+        ),
+      }))
       .sort((a, b) => b.score - a.score)[0];
-    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+    if (candidate) {
+      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, lesson, reviewFocus);
+    }
   };
 
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
@@ -2065,6 +2151,7 @@ function practicePlanWarnings(
     }
   }
   if (lesson.steps.length > 0 && plan.length === 0) warnings.push("plano vazio");
+  warnings.push(...lessonNoveltyIssues(lesson, plan));
   return uniqueValues(warnings);
 }
 
@@ -2131,7 +2218,15 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     const target = Math.max(1, profile.stageTargets[stageId]);
     let selectedInStage = 0;
     while (selectedInStage < target && selected.length < profile.targetCount) {
-      const candidate = selectBestCandidate(selected, candidates, stageId, usedSignatures, profile);
+      const candidate = selectBestCandidate(
+        selected,
+        candidates,
+        stageId,
+        usedSignatures,
+        profile,
+        lesson,
+        reviewFocus
+      );
       if (!candidate) break;
       selected.push(candidate);
       usedSignatures.add(stepSignature(candidate.step));

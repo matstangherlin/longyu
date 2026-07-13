@@ -42,6 +42,7 @@
     "validate:image-exercises": "node scripts/validate-image-exercises.mjs",
     "validate:conversation-scenes": "node scripts/validate-conversation-scenes.mjs",
     "validate:exercise-depth": "node scripts/validate-exercise-depth.mjs",
+    "validate:lesson-novelty": "node scripts/validate-lesson-novelty.mjs",
     "deploy:backend": "node scripts/deploy-backend.mjs",
     "deploy:leagues": "node scripts/deploy-leagues.mjs",
     "deploy:leagues:browser": "node scripts/browser-deploy-leagues.mjs",
@@ -59,7 +60,7 @@
     "verify:production": "node scripts/verify-production.mjs",
     "smoke:production": "node scripts/smoke-production.mjs",
     "ci": "npm run validate:beta && npm run test:e2e",
-    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:lesson-options && npm run validate:hanzi-builder-coverage && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:module-skip-access && npm run validate:module-review-coverage && npm run validate:image-exercises && npm run validate:conversation-scenes && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:glossary-ui && npm run validate:lesson-victory-ui && npm run validate:plans && npm run validate:economy && npm run validate:economy-server && npm run test:economy-server && npm run validate:backend-ready",
+    "validate:beta": "npm run typecheck && npm run validate:encoding && npm run validate:pinyin-display && npm run validate:lessons && npm run validate:lesson-options && npm run validate:hanzi-builder-coverage && npm run validate:corpus && npm run validate:atlas && npm run validate:lesson-recovery && npm run validate:module-skip-access && npm run validate:module-review-coverage && npm run validate:image-exercises && npm run validate:conversation-scenes && npm run validate:lesson-novelty && npm run validate:progress-snapshot && npm run validate:sync-merge && npm run validate:glossary-ui && npm run validate:lesson-victory-ui && npm run validate:plans && npm run validate:economy && npm run validate:economy-server && npm run test:economy-server && npm run validate:backend-ready",
     "validate:lesson-victory-ui": "node scripts/validate-lesson-victory-ui.mjs",
     "test:e2e": "playwright test"
   },
