@@ -16,10 +16,14 @@ try {
   const program = ts.createProgram(
     [
       "src/lib/moduleReview.ts",
+      "src/lib/lessonNovelty.ts",
+      "src/lib/pinyin.ts",
       "src/features/lesson/lessonTasks.ts",
       "src/data/journey.ts",
       "src/data/chunks.ts",
       "src/data/characters.ts",
+      "src/data/conversationScenes.ts",
+      "src/data/visualVocabulary.ts",
       "src/data/types.ts",
       "src/data/hanziBuilder.ts",
       "src/lib/srs.ts",
