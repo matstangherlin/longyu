@@ -14,6 +14,14 @@ export function isJourneyBlockingActivityError(
 }
 
 /** Passo de história que conta como prática de frase (diálogo, escolha, lacuna). */
-export function storyStepCountsAsPhrasePractice(type: string): boolean {
-  return type === "choice" || type === "fill_hanzi" || type === "fill_pinyin" || type === "short_answer";
+export function storyStepCountsAsPhrasePractice(kind: string): boolean {
+  return (
+    kind === "choose_reply" ||
+    kind === "choose_meaning" ||
+    kind === "fill_hanzi" ||
+    kind === "fill_pinyin" ||
+    kind === "listen_choice" ||
+    kind === "image_choice" ||
+    kind === "mini_review"
+  );
 }
