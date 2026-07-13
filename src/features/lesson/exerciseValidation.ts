@@ -285,16 +285,31 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (checkpoint) {
         if (!checkpoint.prompt?.trim()) errors.push("conversation_scene checkpoint sem prompt");
         if (!checkpoint.correctAnswer?.trim()) errors.push("conversation_scene checkpoint sem resposta correta");
-        if (checkpoint.type === "choose_reply" || checkpoint.type === "choose_meaning" || checkpoint.type === "fill_reply") {
+        if (
+          checkpoint.type === "choose_reply" ||
+          checkpoint.type === "choose_meaning" ||
+          checkpoint.type === "fill_reply" ||
+          checkpoint.type === "choose_intent" ||
+          (checkpoint.type === "complete_reply" &&
+            (checkpoint.options ?? []).some(
+              (option) => String(option).replace(/\s/g, "").toLocaleLowerCase("pt-BR") === String(checkpoint.correctAnswer).replace(/\s/g, "").toLocaleLowerCase("pt-BR")
+            ))
+        ) {
           checkChoice(errors, "conversation_scene checkpoint", checkpoint.correctAnswer, checkpoint.options);
           checkPinyinLookAlike(errors, step, checkpoint.options ?? []);
         }
-        if (checkpoint.type === "order_reply") {
+        if (
+          checkpoint.type === "order_reply" ||
+          (checkpoint.type === "complete_reply" &&
+            !(checkpoint.options ?? []).some(
+              (option) => String(option).replace(/\s/g, "").toLocaleLowerCase("pt-BR") === String(checkpoint.correctAnswer).replace(/\s/g, "").toLocaleLowerCase("pt-BR")
+            ))
+        ) {
           if (!checkpoint.options || checkpoint.options.length < 2) {
-            errors.push("conversation_scene order_reply sem peças");
+            errors.push("conversation_scene order/complete sem peças");
           } else {
             const duplicate = findDuplicate(checkpoint.options);
-            if (duplicate) errors.push(`conversation_scene order_reply: peça duplicada "${duplicate}"`);
+            if (duplicate) errors.push(`conversation_scene order/complete: peça duplicada "${duplicate}"`);
           }
         }
       }

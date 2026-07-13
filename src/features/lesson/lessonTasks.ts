@@ -14,8 +14,13 @@ import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
   CONVERSATION_SCENES,
+  conversationDifficultyForLessonPhase,
+  scoreConversationScene,
+  selectConversationScene,
   type ConversationSceneStep as ConversationSceneDefinition,
 } from "../../data/conversationScenes";
+
+export { scoreConversationScene, selectConversationScene };
 import type { ItemType } from "../../data/types";
 import {
   buildersForCharacter,
@@ -441,6 +446,10 @@ export interface LessonPracticePlanContext {
   hanziBuilderProgress?: HanziBuilderProgressMap;
   srs?: Record<string, import("../../lib/srs").SRSItem>;
   silent?: boolean;
+  /** Histórico recente de cenas (máx. 10) para anti-repetição. */
+  recentConversationSceneIds?: string[];
+  /** Cenas já usadas neste plano (evita duplicar na mesma lição). */
+  usedConversationSceneIds?: string[];
 }
 
 interface FocusItem {
@@ -1433,28 +1442,57 @@ function conversationSceneToLessonStep(scene: ConversationSceneDefinition): Less
     learnedRefs: scene.learnedRefs,
     newRefs: scene.newRefs,
     dedicatedLesson: scene.dedicatedLesson,
+    conversationDifficulty: scene.difficulty,
+    conversationIntent: scene.intent,
+    situationGroup: scene.situationGroup,
     prompt: scene.checkpoint?.prompt,
     options: scene.checkpoint?.options,
     correctAnswer: scene.checkpoint?.correctAnswer,
     explanation: scene.checkpoint?.explanation,
     bank:
-      scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
+      scene.checkpoint?.type === "order_reply" ||
+      scene.checkpoint?.type === "fill_reply" ||
+      scene.checkpoint?.type === "complete_reply"
         ? scene.checkpoint.options
         : undefined,
   };
 }
 
-function makeConversationSceneStep(focus: FocusItem[], reviewFocus: FocusItem[] = []): LessonStep | null {
+function makeConversationSceneCandidates(
+  lesson: Lesson,
+  focus: FocusItem[],
+  reviewFocus: FocusItem[] = [],
+  options: {
+    usedSceneIds?: readonly string[];
+    usedIntents?: readonly string[];
+    recentSceneIds?: readonly string[];
+  } = {},
+  limit = 5
+): LessonStep[] {
   const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
+  const focusOnly = [...focusRefs(focus)];
+  const reviewOnly = focusRefs(reviewFocus);
   const candidates = CONVERSATION_SCENES.filter((scene) => {
     const needed = [...scene.learnedRefs, ...(scene.newRefs ?? [])];
     if (needed.length === 0) return false;
-    // Só gera cena se o foco atual cobre pelo menos um learnedRef e todos os refs estão disponíveis.
     const touchesFocus = scene.learnedRefs.some((ref) => refs.has(ref));
     return touchesFocus && needed.every((ref) => refs.has(ref));
   });
-  const scene = candidates[0];
-  return scene ? conversationSceneToLessonStep(scene) : null;
+  const scoreContext = {
+    focusRefs: focusOnly,
+    reviewRefs: reviewOnly,
+    usedSceneIds: options.usedSceneIds,
+    usedIntents: options.usedIntents,
+    recentSceneIds: options.recentSceneIds,
+    targetDifficulty: conversationDifficultyForLessonPhase(lessonPhaseOrder(lesson)),
+    lessonId: lesson.id,
+  };
+  return [...candidates]
+    .map((scene) => ({ scene, score: scoreConversationScene(scene, scoreContext) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.max(1, limit))
+    .filter((entry) => entry.score > -40)
+    .map((entry) => conversationSceneToLessonStep(entry.scene));
 }
 
 function makeMatchPairsStep(focus: FocusItem[]): LessonStep | null {
@@ -1519,12 +1557,16 @@ function stepSignature(step: LessonStep): string {
 }
 
 interface SupplementalStepOptions {
+  lesson?: Lesson;
   phaseOrder?: number;
   reviewFocus?: FocusItem[];
   hanziBuilderProgress?: HanziBuilderProgressMap;
   seenGlyphs?: ReadonlySet<string>;
   ownFocusGlyphs?: ReadonlySet<string>;
   allowComposedFiller?: boolean;
+  usedSceneIds?: readonly string[];
+  usedIntents?: readonly string[];
+  recentSceneIds?: readonly string[];
 }
 
 function supplementalStepsForStage(
@@ -1543,6 +1585,12 @@ function supplementalStepsForStage(
     allowComposedFiller: options.allowComposedFiller,
   };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
+  const lessonForScenes = options.lesson;
+  const sceneOpts = {
+    usedSceneIds: options.usedSceneIds,
+    usedIntents: options.usedIntents,
+    recentSceneIds: options.recentSceneIds,
+  };
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
     if (result.some((candidate) => stepSignature(candidate) === stepSignature(step))) return;
@@ -1577,12 +1625,20 @@ function supplementalStepsForStage(
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
-    push(makeConversationSceneStep(focus, reviewFocus));
+    if (lessonForScenes) {
+      for (const sceneStep of makeConversationSceneCandidates(lessonForScenes, focus, reviewFocus, sceneOpts, 4)) {
+        push(sceneStep);
+      }
+    }
     push(makeOldPhraseReuseStep(focus));
   } else {
     push(makeMatchPairsStep([...reviewFocus, ...focus]));
     push(makeTonePairStep([...reviewFocus, ...focus]));
-    push(makeConversationSceneStep(focus, reviewFocus));
+    if (lessonForScenes) {
+      for (const sceneStep of makeConversationSceneCandidates(lessonForScenes, focus, reviewFocus, sceneOpts, 3)) {
+        push(sceneStep);
+      }
+    }
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
@@ -1793,14 +1849,24 @@ function generatedCandidatesFor(
   profile: LessonPracticeProfile,
   hanziBuilderProgress?: HanziBuilderProgressMap,
   seenGlyphs?: ReadonlySet<string>,
-  ownFocusGlyphs?: ReadonlySet<string>
+  ownFocusGlyphs?: ReadonlySet<string>,
+  recentSceneIds?: readonly string[]
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller });
+    const generated = supplementalStepsForStage(stageId, focus, target, {
+      lesson,
+      phaseOrder,
+      reviewFocus,
+      hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      allowComposedFiller,
+      recentSceneIds,
+    });
     for (const step of generated) {
       candidates.push({
         step,
@@ -2122,7 +2188,16 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   for (const item of focus) for (const glyph of cleanHanzi(item.hanzi)) ownFocusGlyphs.add(glyph);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
-    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs),
+    ...generatedCandidatesFor(
+      lesson,
+      focus,
+      reviewFocus,
+      profile,
+      context.hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      context.recentConversationSceneIds
+    ),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];

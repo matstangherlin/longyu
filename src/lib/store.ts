@@ -776,6 +776,18 @@ function normalizeRecentActivityErrors(errors: ActivityErrorRecord[] | undefined
     .slice(-60);
 }
 
+function normalizeRecentConversationSceneIds(ids: string[] | undefined): string[] {
+  if (!Array.isArray(ids)) return [];
+  const out: string[] = [];
+  for (const id of ids) {
+    const key = String(id ?? "").trim();
+    if (!key || out.includes(key)) continue;
+    out.push(key);
+    if (out.length >= 10) break;
+  }
+  return out;
+}
+
 function activityErrorKey(error: ActivityErrorRecord): string {
   return [
     error.lessonId,
@@ -913,6 +925,8 @@ interface AccountSnapshot extends XpBuckets {
   mistakeHistory: LessonMistakeRecord[];
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
+  /** Últimas conversation_scene vistas (máx. 10). */
+  recentConversationSceneIds: string[];
   lessonTaskProgress: Record<string, number>;
   recentActivityErrors: ActivityErrorRecord[];
   toneTrainer: ToneTrainerProgress;
@@ -1002,6 +1016,7 @@ function blankSnapshot(): AccountSnapshot {
     mistakeHistory: [],
     correctedMistakes: {},
     recentErrors: [],
+    recentConversationSceneIds: [],
     lessonTaskProgress: {},
     recentActivityErrors: [],
     toneTrainer: {},
@@ -1101,6 +1116,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     mistakeHistory: s.mistakeHistory,
     correctedMistakes: s.correctedMistakes,
     recentErrors: s.recentErrors,
+    recentConversationSceneIds: s.recentConversationSceneIds ?? [],
     lessonTaskProgress: s.lessonTaskProgress,
     recentActivityErrors: s.recentActivityErrors,
     toneTrainer: s.toneTrainer,
@@ -1211,6 +1227,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     mistakeHistory: normalizeLessonMistakes(account.mistakeHistory),
     correctedMistakes: normalizeCorrectedMistakes(account.correctedMistakes, account.mistakeHistory),
     recentErrors: normalizeLessonMistakes(account.recentErrors).filter((error) => !error.recoveredAt),
+    recentConversationSceneIds: normalizeRecentConversationSceneIds(account.recentConversationSceneIds),
     lessonTaskProgress: account.lessonTaskProgress ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
     toneTrainer: account.toneTrainer ?? {},
@@ -1468,6 +1485,7 @@ interface AppState {
   mistakeHistory: LessonMistakeRecord[];
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
+  recentConversationSceneIds: string[];
   lessonTaskProgress: Record<string, number>;
   recentActivityErrors: ActivityErrorRecord[];
   toneTrainer: ToneTrainerProgress;
@@ -1601,6 +1619,7 @@ interface AppState {
   finishLessonAttempt: (attempt: LessonAttemptRecord) => void;
   setLessonStars: (lessonId: string, stars: LessonStar) => void;
   recordLessonMistake: (mistake: LessonMistakeRecord) => void;
+  rememberConversationScene: (sceneId: string) => void;
   markMistakeRecovered: (mistakeId: string) => void;
   recordToneTrainerAttempt: (attempt: ToneTrainerAttemptInput) => void;
   markLearned: (type: ItemType, itemId: string) => void;
@@ -1714,6 +1733,7 @@ export const useStore = create<AppState>()(
       mistakeHistory: [],
       correctedMistakes: {},
       recentErrors: [],
+      recentConversationSceneIds: [],
       lessonTaskProgress: {},
       recentActivityErrors: [],
       toneTrainer: {},
@@ -2423,6 +2443,18 @@ export const useStore = create<AppState>()(
           ]).filter((error) => !error.recoveredAt);
           const next = { ...s, mistakeHistory, recentErrors };
           return { mistakeHistory, recentErrors, accounts: saveCurrentAccount(next) };
+        }),
+
+      rememberConversationScene: (sceneId) =>
+        set((s) => {
+          const clean = String(sceneId ?? "").trim();
+          if (!clean) return {};
+          const recentConversationSceneIds = normalizeRecentConversationSceneIds([
+            clean,
+            ...(s.recentConversationSceneIds ?? []),
+          ]);
+          const next = { ...s, recentConversationSceneIds };
+          return { recentConversationSceneIds, accounts: saveCurrentAccount(next) };
         }),
 
       markMistakeRecovered: (mistakeId) =>
@@ -3419,7 +3451,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 15,
+      version: 16,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -3437,6 +3469,7 @@ export const useStore = create<AppState>()(
       // v13: adiciona progresso do HanziBuilder por caractere (guia/dificuldade).
       // v14: remove preview Pro persistido em produção e normaliza cargas ao plano grátis.
       // v15: adiciona moduleSkipUsage para cotas semanais do teste de pular.
+      // v16: adiciona recentConversationSceneIds (anti-repetição de cenas).
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -3541,6 +3574,14 @@ export const useStore = create<AppState>()(
               moduleSkipUsage: migrated.moduleSkipUsage ?? {},
             };
           }
+          if (version < 16) {
+            migrated = {
+              ...migrated,
+              recentConversationSceneIds: normalizeRecentConversationSceneIds(
+                migrated.recentConversationSceneIds
+              ),
+            };
+          }
           const completedLessons = normalizeCompletedLessons(migrated.completedLessons, migrated.lessonStarsById);
           migrated = {
             ...migrated,
@@ -3551,6 +3592,9 @@ export const useStore = create<AppState>()(
             mistakeHistory: normalizeLessonMistakes(migrated.mistakeHistory),
             correctedMistakes: normalizeCorrectedMistakes(migrated.correctedMistakes, migrated.mistakeHistory),
             recentErrors: normalizeLessonMistakes(migrated.recentErrors).filter((error) => !error.recoveredAt),
+            recentConversationSceneIds: normalizeRecentConversationSceneIds(
+              migrated.recentConversationSceneIds
+            ),
             toneTrainer: migrated.toneTrainer ?? {},
             recentActivityErrors: normalizeRecentActivityErrors(migrated.recentActivityErrors),
             dailyEnergy: stripAccountPreview
@@ -3590,6 +3634,7 @@ export const useStore = create<AppState>()(
           mistakeHistory: normalizeLessonMistakes(root.mistakeHistory),
           correctedMistakes: normalizeCorrectedMistakes(root.correctedMistakes, root.mistakeHistory),
           recentErrors: normalizeLessonMistakes(root.recentErrors).filter((error) => !error.recoveredAt),
+          recentConversationSceneIds: normalizeRecentConversationSceneIds(root.recentConversationSceneIds),
           toneTrainer: root.toneTrainer ?? {},
           recentActivityErrors: normalizeRecentActivityErrors(root.recentActivityErrors),
           chestOpenHistory: root.chestOpenHistory ?? [],

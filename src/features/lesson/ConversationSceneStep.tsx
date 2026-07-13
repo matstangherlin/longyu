@@ -88,12 +88,29 @@ function SpeechBubble({
   line,
   side,
   visible,
+  difficulty,
 }: {
   line: ConversationLine;
   side: "left" | "right";
   visible: boolean;
+  difficulty?: "beginner" | "intermediate" | "advanced";
 }) {
   const audio = line.audioText ?? line.hanzi;
+  const level = difficulty ?? "beginner";
+  const showPinyin = level !== "advanced";
+  const [revealedPt, setRevealedPt] = useState(level === "beginner");
+  const wantsTapPt = level === "intermediate" || line.revealMode === "tap";
+  const showPt =
+    level === "beginner"
+      ? Boolean(line.pt)
+      : level === "intermediate"
+        ? Boolean(line.pt) && (revealedPt || !wantsTapPt)
+        : false;
+
+  useEffect(() => {
+    setRevealedPt(level === "beginner");
+  }, [line.hanzi, line.pt, level]);
+
   return (
     <div
       className={[
@@ -113,10 +130,24 @@ function SpeechBubble({
             <div className="hanzi text-[26px] font-semibold leading-tight text-ink sm:text-[30px]">
               <ExerciseText value={line.hanzi} type="hanzi" speakOnClick />
             </div>
-            <div className="mt-1">
-              <Pinyin text={line.pinyin} />
-            </div>
-            {line.pt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+            {showPinyin && (
+              <div className="mt-1">
+                <Pinyin text={line.pinyin} />
+              </div>
+            )}
+            {showPt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+            {level === "intermediate" && line.pt && !showPt && (
+              <button
+                type="button"
+                className="mt-1.5 text-xs font-semibold text-accent underline-offset-2 hover:underline"
+                onClick={() => setRevealedPt(true)}
+              >
+                Ver tradução
+              </button>
+            )}
+            {level === "advanced" && (
+              <p className="mt-1.5 text-xs text-ink-faint">Ouça e escolha a intenção — sem tradução inicial.</p>
+            )}
           </div>
           <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" />
         </div>
@@ -158,10 +189,16 @@ function CheckpointPanel({
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const answer = checkpoint.correctAnswer;
-  const isOrder = checkpoint.type === "order_reply";
+  const optionsList = checkpoint.options ?? [];
+  const answerInOptions = optionsList.some(
+    (option) => normalizeAnswer(option) === normalizeAnswer(answer)
+  );
+  const isOrder =
+    checkpoint.type === "order_reply" ||
+    (checkpoint.type === "complete_reply" && !answerInOptions);
   const options = useMemo(
-    () => (isOrder ? [...(checkpoint.options ?? [])] : shuffle([...(checkpoint.options ?? [])])),
-    [checkpoint.options, isOrder]
+    () => (isOrder ? [...optionsList] : shuffle([...optionsList])),
+    [optionsList, isOrder]
   );
   const [picked, setPicked] = useState<string | null>(null);
   const [ordered, setOrdered] = useState<string[]>([]);
@@ -383,6 +420,7 @@ export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepP
   const characters = step.characters ?? [];
   const lines = (step.lines ?? []) as ConversationLine[];
   const checkpoint = step.checkpoint;
+  const difficulty = step.conversationDifficulty ?? "beginner";
   const [lineIndex, setLineIndex] = useState(0);
   const [phase, setPhase] = useState<"dialogue" | "checkpoint" | "done">("dialogue");
 
@@ -454,6 +492,7 @@ export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepP
             line={currentLine}
             side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
             visible
+            difficulty={difficulty}
           />
         )}
 
