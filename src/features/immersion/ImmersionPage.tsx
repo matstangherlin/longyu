@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { GlossText } from "../../components/hanzi/GlossText";
+import { Link } from "react-router-dom";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Mascot } from "../../components/brand/Mascot";
-import { SpeakButton } from "../../components/ui/SpeakButton";
 import { Button, Card, HubCard, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import {
@@ -19,9 +17,7 @@ import {
   IconRefresh,
   IconSound,
   IconStar,
-  IconTarget,
 } from "../../components/ui/Icon";
-import { storyStepCountsAsPhrasePractice } from "../../lib/missionHelpers";
 import { buildMissionViews, isMissionActionable } from "../../data/missions";
 import {
   IMMERSION_SESSIONS,
@@ -31,13 +27,22 @@ import {
 import {
   INTERACTIVE_STORIES,
   type InteractiveStory,
-  type StoryStep,
 } from "../../data/interactiveStories";
+import { InteractiveStoryPlayer } from "./InteractiveStoryPlayer";
+import {
+  readStoryProgress,
+  storyCompletedCount,
+  storyStatus,
+  storyStepCount,
+  storyStepIsInteractive,
+  type StoredStoryProgress,
+  type StoryProgressMap,
+  type StoryStatus,
+} from "./interactiveStoryHelpers";
 import { playSoundFx } from "../../lib/soundFx";
-import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
+import { useStore, STORY_ENERGY_DAILY_CAP } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
-import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { useIsPro } from "../../lib/proAccess";
@@ -132,111 +137,6 @@ const UPCOMING_CATEGORY_LABELS: Record<Exclude<ImmersionCategory, "all">, string
   pro: "Pro",
 };
 
-const STORY_PROGRESS_KEY = "longyu-interactive-story-progress-v1";
-
-interface StoredStoryProgress {
-  completedStepIds: string[];
-  completed: boolean;
-  bestScore: number;
-  attempts: number;
-  updatedAt: number;
-}
-
-type StoryProgressMap = Record<string, StoredStoryProgress>;
-type StoryStatus = "novo" | "em progresso" | "concluido";
-
-function readStoryProgress(): StoryProgressMap {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = window.localStorage.getItem(STORY_PROGRESS_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    const progress: StoryProgressMap = {};
-    Object.entries(parsed as Record<string, Partial<StoredStoryProgress>>).forEach(([storyId, value]) => {
-      if (!value || typeof value !== "object") return;
-      progress[storyId] = {
-        completedStepIds: Array.isArray(value.completedStepIds)
-          ? value.completedStepIds.filter((stepId): stepId is string => typeof stepId === "string")
-          : [],
-        completed: Boolean(value.completed),
-        bestScore: typeof value.bestScore === "number" ? value.bestScore : 0,
-        attempts: typeof value.attempts === "number" ? value.attempts : 0,
-        updatedAt: typeof value.updatedAt === "number" ? value.updatedAt : 0,
-      };
-    });
-    return progress;
-  } catch {
-    return {};
-  }
-}
-
-function writeStoryProgress(progress: StoryProgressMap) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(progress));
-  } catch {
-    // Local progress is helpful, but the story should remain playable without it.
-  }
-}
-
-function updateStoredStoryProgress(
-  storyId: string,
-  update: (previous: StoredStoryProgress | undefined) => StoredStoryProgress
-) {
-  const progress = readStoryProgress();
-  progress[storyId] = update(progress[storyId]);
-  writeStoryProgress(progress);
-  return progress[storyId];
-}
-
-function storyStepIsInteractive(step: StoryStep): boolean {
-  return step.type !== "dialogue";
-}
-
-function storyAnswerText(step: StoryStep): string {
-  if (Array.isArray(step.answer)) return step.answer[0] ?? "";
-  return step.answer ?? step.hanzi ?? "";
-}
-
-function normalizeStoryAnswer(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[\s.,!?。！？、，;；:：'"“”‘’()（）-]/g, "");
-}
-
-function storyAnswerMatches(step: StoryStep, value: string): boolean {
-  const accepted = Array.isArray(step.answer) ? step.answer : [step.answer ?? ""];
-  const normalized = normalizeStoryAnswer(value);
-  return accepted.some((answer) => normalizeStoryAnswer(answer) === normalized);
-}
-
-function storyStatus(progress?: StoredStoryProgress): StoryStatus {
-  if (progress?.completed) return "concluido";
-  if ((progress?.completedStepIds.length ?? 0) > 0) return "em progresso";
-  return "novo";
-}
-
-function storyCompletedCount(story: InteractiveStory, progress?: StoredStoryProgress): number {
-  if (progress?.completed) return story.steps.length;
-  return Math.min(story.steps.length, progress?.completedStepIds.length ?? 0);
-}
-
-function initialStoryStepIndex(story: InteractiveStory, progress?: StoredStoryProgress): number {
-  if (!progress || progress.completed) return 0;
-  const completedIds = new Set(progress.completedStepIds);
-  const nextIndex = story.steps.findIndex((step) => !completedIds.has(step.id));
-  return nextIndex >= 0 ? nextIndex : 0;
-}
-
-function storySkill(step: StoryStep): ActivityErrorSkill {
-  const domain = step.reviewTarget?.domain;
-  if (domain === "forma") return "hanzi";
-  return domain ?? "uso";
-}
-
 export function ImmersionPage() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
@@ -323,9 +223,9 @@ export function ImmersionPage() {
     );
   }
 
-  const visibleSessions = IMMERSION_SESSIONS.filter((session) =>
-    activeCategory === "all" ? true : session.mode === activeCategory
-  );
+  const visibleListenSessions = IMMERSION_SESSIONS.filter((session) => session.mode === "listen_repeat");
+  const visibleGuidedSessions = IMMERSION_SESSIONS.filter((session) => session.mode === "guided_reading");
+  const visibleReviewSessions = IMMERSION_SESSIONS.filter((session) => session.mode === "auditory_review");
   const visibleStories = INTERACTIVE_STORIES.filter(() =>
     activeCategory === "all" || activeCategory === "stories" || activeCategory === "dialogues"
   );
@@ -334,11 +234,9 @@ export function ImmersionPage() {
     if (activeCategory === "pro") return session.pro;
     return session.category === activeCategory;
   });
-  const showAudioSessions =
-    activeCategory === "all" ||
-    activeCategory === "listen_repeat" ||
-    activeCategory === "auditory_review" ||
-    activeCategory === "guided_reading";
+  const showListenSessions = activeCategory === "all" || activeCategory === "listen_repeat";
+  const showGuidedSessions = activeCategory === "all" || activeCategory === "guided_reading";
+  const showReviewSessions = activeCategory === "all" || activeCategory === "auditory_review";
 
   function openSession(session: ImmersionSession) {
     const completed = activeDaily.completedSessionIds.includes(session.id);
@@ -376,7 +274,7 @@ export function ImmersionPage() {
       <HubHeader
         eyebrow="Hub"
         title="Imersão"
-        desc="Histórias, diálogos e escuta curta em contexto."
+        desc="Histórias interativas em cena, escuta guiada e revisão auditiva — pratique em contexto real."
         aside={
           <div className="flex items-center gap-2 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-xs font-semibold text-ink-soft">
             <IconHeadphones width={14} height={14} className="text-accent" />
@@ -475,7 +373,7 @@ export function ImmersionPage() {
       {visibleStories.length > 0 && (
         <HubSection
           title="Histórias interativas"
-          desc="Áudio, diálogo e escolhas curtas."
+          desc="Cenas com personagens, escolhas e recompensa de energia ao concluir."
           count={<Pill tone="accent">{visibleStories.length}</Pill>}
         >
           <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -492,15 +390,15 @@ export function ImmersionPage() {
         </HubSection>
       )}
 
-      {showAudioSessions && (
+      {showListenSessions && (
         <HubSection
-          title="Escuta e frases"
-          desc="Ouça, repita e leia junto."
-          count={<Pill tone="muted">{visibleSessions.length}</Pill>}
+          title="Escuta"
+          desc="Ouça e repita frases curtas em contexto."
+          count={<Pill tone="muted">{visibleListenSessions.length}</Pill>}
         >
-          {visibleSessions.length > 0 ? (
+          {visibleListenSessions.length > 0 ? (
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {visibleSessions.map((session) => {
+              {visibleListenSessions.map((session) => {
                 const completed = activeDaily.completedSessionIds.includes(session.id);
                 const startedToday =
                   window.sessionStorage.getItem(`longyu-energy:immersion:${session.id}:${todayKey()}`) === "1";
@@ -520,7 +418,73 @@ export function ImmersionPage() {
               })}
             </div>
           ) : (
-            <HubEmptyState title="Nenhuma sessão aqui" desc="Escolha outro filtro ou volte mais tarde." />
+            <HubEmptyState title="Nenhuma sessão de escuta" desc="Volte mais tarde." />
+          )}
+        </HubSection>
+      )}
+
+      {showGuidedSessions && (
+        <HubSection
+          title="Leitura guiada"
+          desc="Leia junto com áudio e tradução sob controle."
+          count={<Pill tone="muted">{visibleGuidedSessions.length}</Pill>}
+        >
+          {visibleGuidedSessions.length > 0 ? (
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {visibleGuidedSessions.map((session) => {
+                const completed = activeDaily.completedSessionIds.includes(session.id);
+                const startedToday =
+                  window.sessionStorage.getItem(`longyu-energy:immersion:${session.id}:${todayKey()}`) === "1";
+                const blocked = !completed && !startedToday && !canStartActivity("immersion_session");
+                return (
+                  <ImmersionSessionCard
+                    key={session.id}
+                    session={session}
+                    completed={completed}
+                    startedToday={startedToday}
+                    blocked={blocked}
+                    isPremium={isPremium}
+                    onOpen={() => openSession(session)}
+                    onBlocked={() => setPaywallKind("energy")}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <HubEmptyState title="Nenhuma leitura guiada" desc="Volte mais tarde." />
+          )}
+        </HubSection>
+      )}
+
+      {showReviewSessions && (
+        <HubSection
+          title="Revisão auditiva"
+          desc="Reconheça tons e contornos antes de ver a resposta."
+          count={<Pill tone="muted">{visibleReviewSessions.length}</Pill>}
+        >
+          {visibleReviewSessions.length > 0 ? (
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {visibleReviewSessions.map((session) => {
+                const completed = activeDaily.completedSessionIds.includes(session.id);
+                const startedToday =
+                  window.sessionStorage.getItem(`longyu-energy:immersion:${session.id}:${todayKey()}`) === "1";
+                const blocked = !completed && !startedToday && !canStartActivity("immersion_session");
+                return (
+                  <ImmersionSessionCard
+                    key={session.id}
+                    session={session}
+                    completed={completed}
+                    startedToday={startedToday}
+                    blocked={blocked}
+                    isPremium={isPremium}
+                    onOpen={() => openSession(session)}
+                    onBlocked={() => setPaywallKind("energy")}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <HubEmptyState title="Nenhuma revisão auditiva" desc="Volte mais tarde." />
           )}
         </HubSection>
       )}
@@ -559,8 +523,9 @@ function RecommendedStoryCard({
 }) {
   const status = storyStatus(progress);
   const completedSteps = storyCompletedCount(story, progress);
-  const rewardXp = story.rewards?.xp ?? 0;
-  const rewardQi = story.rewards?.qi ?? 0;
+  const totalSteps = storyStepCount(story);
+  const rewardXp = story.rewardXp;
+  const rewardQi = story.rewardQi;
   const rewardAvailable = !completedToday;
   const givesEnergy = !isPremium && !completedToday && energyRemaining > 0;
   const actionLabel =
@@ -579,17 +544,17 @@ function RecommendedStoryCard({
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">História recomendada</div>
           </div>
           <h2 className="mt-2 font-serif text-lg font-semibold leading-tight text-ink sm:text-xl">{story.title}</h2>
-          <p className="mt-1 line-clamp-2 max-w-lg text-sm leading-6 text-ink-soft">{story.descriptionPt}</p>
+          <p className="mt-1 line-clamp-2 max-w-lg text-sm leading-6 text-ink-soft">{story.description}</p>
         </div>
-        <Pill tone={story.premium ? "gold" : "accent"}>{story.premium ? "Pro" : story.level}</Pill>
+        <Pill tone={story.premium ? "gold" : "accent"}>{story.premium ? "Pro" : `Nível ${story.level}`}</Pill>
       </div>
 
       <div className="mt-3">
         <div className="mb-1 flex justify-between text-[10px] text-ink-faint">
-          <span>{completedSteps}/{story.steps.length} passos</span>
+          <span>{completedSteps}/{totalSteps} passos</span>
           <span>{story.estimatedMinutes ?? 4} min</span>
         </div>
-        <ProgressBar value={completedSteps} max={story.steps.length} className="h-1.5" />
+        <ProgressBar value={completedSteps} max={totalSteps} className="h-1.5" />
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -634,7 +599,10 @@ function InteractiveStoryCard({
 }) {
   const status = storyStatus(progress);
   const completedSteps = storyCompletedCount(story, progress);
-  const interactionCount = story.steps.filter(storyStepIsInteractive).length;
+  const totalSteps = storyStepCount(story);
+  const interactionCount = story.scenes
+    .flatMap((scene) => scene.steps)
+    .filter((step) => storyStepIsInteractive(step)).length;
   const statusLabel: Record<StoryStatus, string> = {
     novo: "Novo",
     "em progresso": "Em progresso",
@@ -657,13 +625,13 @@ function InteractiveStoryCard({
         </Pill>
       </div>
       <h3 className="mt-2 text-sm font-semibold leading-tight text-ink">{story.title}</h3>
-      <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft">{story.descriptionPt}</p>
+      <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft">{story.description}</p>
       <div className="mt-2.5">
         <div className="mb-1 flex justify-between text-[10px] text-ink-faint">
-          <span>{completedSteps}/{story.steps.length} passos</span>
-          <span>{story.level} · {story.estimatedMinutes ?? 4} min</span>
+          <span>{completedSteps}/{totalSteps} passos</span>
+          <span>Nível {story.level} · {story.estimatedMinutes ?? 4} min</span>
         </div>
-        <ProgressBar value={completedSteps} max={story.steps.length} className="h-1" />
+        <ProgressBar value={completedSteps} max={totalSteps} className="h-1" />
       </div>
       <div className="mt-2 text-[10px] text-ink-faint">
         {interactionCount} escolhas · {locked ? "história extra do Pro" : "história interativa"}
@@ -766,434 +734,6 @@ function ComingSoonCard({ session, onPro }: { session: UpcomingSession; onPro: (
   );
 }
 
-function InteractiveStoryPlayer({
-  story,
-  progress,
-  onClose,
-  onProgressChange,
-}: {
-  story: InteractiveStory;
-  progress?: StoredStoryProgress;
-  onClose: () => void;
-  onProgressChange: () => void;
-}) {
-  const navigate = useNavigate();
-  const soundEffects = useStore((state) => state.soundEffects);
-  const gradeSrs = useStore((state) => state.gradeSrs);
-  const recordActivityError = useStore((state) => state.recordActivityError);
-  const completeImmersionSession = useStore((state) => state.completeImmersionSession);
-  const grantStoryEnergy = useStore((state) => state.grantStoryEnergy);
-  const recordDailyTask = useStore((state) => state.recordDailyTask);
-  const contextualOffer = useProOffer();
-  const [currentIndex, setCurrentIndex] = useState(() => initialStoryStepIndex(story, progress));
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [shortAnswer, setShortAnswer] = useState("");
-  const [revealed, setRevealed] = useState(false);
-  const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
-  const [answerResults, setAnswerResults] = useState<Record<string, boolean>>({});
-  const [victory, setVictory] = useState<{
-    score: number;
-    total: number;
-    awarded: boolean;
-    xp: number;
-    qi: number;
-    energy: StoryEnergyResult | null;
-  } | null>(null);
-
-  const step = story.steps[currentIndex];
-  const interactiveTotal = story.steps.filter(storyStepIsInteractive).length;
-
-  useEffect(() => () => stopSpeaking(), []);
-
-  if (!step) return null;
-
-  const interactive = storyStepIsInteractive(step);
-  const completedValue = victory ? story.steps.length : Math.min(story.steps.length, currentIndex + (revealed || !interactive ? 1 : 0));
-  const supportVisible = !step.noHint || revealed || !interactive;
-  const showHanzi = Boolean(step.hanzi) && (step.type !== "listen_choice" || revealed) && !(step.type === "fill_hanzi" && step.noHint && !revealed);
-  const canSubmitShortAnswer = shortAnswer.trim().length > 0 && !revealed;
-
-  function markStepComplete(stepId: string) {
-    updateStoredStoryProgress(story.id, (previous) => {
-      const completedStepIds = Array.from(new Set([...(previous?.completedStepIds ?? []), stepId]));
-      return {
-        completedStepIds,
-        completed: previous?.completed ?? false,
-        bestScore: previous?.bestScore ?? 0,
-        attempts: previous?.attempts ?? 0,
-        updatedAt: Date.now(),
-      };
-    });
-    onProgressChange();
-  }
-
-  function recordStoryError(currentStep: StoryStep, userAnswer: string) {
-    if (!currentStep.reviewTarget) return;
-    const correctAnswer = storyAnswerText(currentStep);
-    const error: ActivityErrorRecord = {
-      id: `story:${story.id}:${currentStep.id}:${Date.now()}`,
-      lessonId: `story:${story.id}`,
-      moduleId: story.moduleId ?? "immersion-stories",
-      phaseId: "interactive-story",
-      taskId: currentStep.id,
-      questionId: currentStep.id,
-      exerciseId: currentStep.id,
-      type: currentStep.type,
-      prompt: currentStep.promptPt ?? currentStep.hanzi ?? story.title,
-      correctAnswer,
-      selectedAnswer: userAnswer,
-      topic: story.title,
-      tokens: [currentStep.hanzi, currentStep.pinyin].filter((token): token is string => Boolean(token)),
-      hanzi: currentStep.hanzi,
-      pinyin: currentStep.pinyin,
-      meaningPt: currentStep.translationPt,
-      explanation: currentStep.explanationPt,
-      timestamp: Date.now(),
-      skill: storySkill(currentStep),
-      targets: [currentStep.reviewTarget],
-    };
-    recordActivityError(error);
-  }
-
-  function gradeStoryTarget(currentStep: StoryStep, correct: boolean) {
-    const target = currentStep.reviewTarget;
-    if (!target) return;
-    gradeSrs(target.type, target.itemId, correct ? "good" : "again", target.track, target.domain);
-  }
-
-  function submitAnswer(answer: string) {
-    if (!interactive || revealed) return;
-    const cleanAnswer = answer.trim();
-    if (!cleanAnswer) return;
-    const correct = storyAnswerMatches(step, cleanAnswer);
-    setSelectedAnswer(cleanAnswer);
-    setLastCorrect(correct);
-    setRevealed(true);
-    setAnswerResults((current) => ({ ...current, [step.id]: correct }));
-    markStepComplete(step.id);
-    gradeStoryTarget(step, correct);
-    if (!correct) recordStoryError(step, cleanAnswer);
-    if (storyStepCountsAsPhrasePractice(step.type)) recordDailyTask("phrasesSpoken");
-    playSoundFx(correct ? "success" : "error", soundEffects);
-  }
-
-  function resetStepState(nextIndex: number) {
-    setCurrentIndex(nextIndex);
-    setSelectedAnswer("");
-    setShortAnswer("");
-    setRevealed(false);
-    setLastCorrect(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function finishStory() {
-    const score = Object.values(answerResults).filter(Boolean).length;
-    updateStoredStoryProgress(story.id, (previous) => ({
-      completedStepIds: story.steps.map((storyStep) => storyStep.id),
-      completed: true,
-      bestScore: Math.max(previous?.bestScore ?? 0, score),
-      attempts: (previous?.attempts ?? 0) + 1,
-      updatedAt: Date.now(),
-    }));
-    const listenSteps = story.steps.filter((storyStep) => storyStep.type === "listen_choice").length;
-    const rewardXp = story.rewards?.xp ?? 0;
-    const rewardQi = story.rewards?.qi ?? 0;
-    // Recompensa uma vez por DIA (completeImmersionSession é idempotente por
-    // dia): concluir a mesma história de novo hoje não paga de novo.
-    const awarded = completeImmersionSession(`story:${story.id}`, {
-      audioHeard: Math.max(1, listenSteps),
-      microtextsRead: 1,
-      leituraMinutes: story.estimatedMinutes ?? 4,
-      rewardXp,
-      rewardQi,
-      source: `História: ${story.title}`,
-      isPremiumStory: Boolean(story.premium),
-    });
-    // Carga extra só na primeira conclusão do dia (grátis: teto por dia; Pro
-    // dispensa, já tem cargas ilimitadas). rewardId idempotente evita farm.
-    const energy = awarded ? grantStoryEnergy(story.id) : null;
-    playSoundFx(awarded ? "lessonComplete" : "success", soundEffects);
-    onProgressChange();
-    setVictory({ score, total: interactiveTotal, awarded, xp: rewardXp, qi: rewardQi, energy });
-    if (awarded) {
-      contextualOffer.consider({ storyCompleted: true, storyPremium: Boolean(story.premium) });
-    }
-  }
-
-  function continueStory() {
-    if (interactive && !revealed) return;
-    markStepComplete(step.id);
-    if (currentIndex >= story.steps.length - 1) {
-      finishStory();
-      return;
-    }
-    resetStepState(currentIndex + 1);
-  }
-
-  function repeatStory() {
-    setVictory(null);
-    setAnswerResults({});
-    resetStepState(0);
-  }
-
-  function optionClass(option: string): string {
-    if (!revealed) {
-      return selectedAnswer === option
-        ? "border-accent bg-accent-soft text-accent"
-        : "border-line bg-surface text-ink hover:border-accent/50 hover:bg-surface-2";
-    }
-    if (storyAnswerMatches(step, option)) return "border-[rgb(var(--good)/0.45)] bg-[rgb(var(--good)/0.10)] text-[rgb(var(--good))]";
-    if (selectedAnswer === option && !lastCorrect) return "border-[#B42318]/45 bg-[#B42318]/10 text-[#B42318]";
-    return "border-line bg-surface-2 text-ink-soft";
-  }
-
-  const storyOptions = step.options ?? [];
-
-  useExerciseHotkeys({
-    enabled: Boolean(victory) || (interactive && step.type !== "short_answer" && storyOptions.length > 0),
-    mode: "story",
-    optionCount: storyOptions.length,
-    isAnswered: Boolean(victory) || revealed,
-    hasSelection: Boolean(victory) || Boolean(selectedAnswer),
-    allowNumberKeys: !victory,
-    onSelectOption: (index) => {
-      const option = storyOptions[index];
-      if (option) submitAnswer(option);
-    },
-    onContinue: victory ? onClose : continueStory,
-  });
-
-  if (victory) {
-    const energyGranted = Boolean(victory.energy?.granted);
-    return (
-      <div className="mx-auto max-w-xl py-6 text-center sm:py-12">
-        <Mascot size={126} variant="celebrate" className="mx-auto" />
-        <div className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-accent">História concluída</div>
-        <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{story.title}</h1>
-        <p className="mx-auto mt-2 max-w-md text-ink-soft">
-          Você praticou em contexto e mandou os pontos fracos para revisão.
-        </p>
-
-        <div className="mx-auto mt-6 grid max-w-sm grid-cols-3 gap-2">
-          <StoryStat label="Acertos" value={`${victory.score}/${victory.total}`} />
-          <StoryStat label="XP" value={victory.awarded ? `+${victory.xp}` : "—"} tone="accent" />
-          <StoryStat label="Qi" value={victory.awarded ? `+${victory.qi}` : "—"} tone="gold" />
-        </div>
-
-        {energyGranted ? (
-          <div className="mx-auto mt-4 flex max-w-sm items-center justify-center gap-2 rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
-            <IconHeadphones width={16} height={16} /> +1 carga extra hoje
-          </div>
-        ) : victory.awarded && victory.energy?.reason === "limit" ? (
-          <p className="mx-auto mt-4 max-w-sm text-xs text-ink-faint">
-            Você já ganhou o máximo de {victory.energy.cap} cargas por histórias hoje.
-          </p>
-        ) : victory.awarded && victory.energy?.reason === "pro" ? (
-          <p className="mx-auto mt-4 max-w-sm text-xs text-ink-faint">No Pro suas cargas já são ilimitadas.</p>
-        ) : !victory.awarded ? (
-          <p className="mx-auto mt-4 max-w-sm text-xs text-ink-faint">
-            Você já concluiu esta história hoje — a recompensa é uma vez por dia.
-          </p>
-        ) : null}
-
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button onClick={onClose}>
-            Continuar Imersão <IconChevron width={18} height={18} />
-          </Button>
-          <Button variant="outline" onClick={() => navigate("/jornada")}>
-            <IconPath width={18} height={18} /> Voltar à Jornada
-          </Button>
-        </div>
-        <button
-          type="button"
-          onClick={repeatStory}
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-faint transition hover:text-ink-soft"
-        >
-          <IconRefresh width={14} height={14} /> Repetir história
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <button
-        type="button"
-        onClick={() => {
-          stopSpeaking();
-          onClose();
-        }}
-        className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
-      >
-        <IconChevron className="rotate-180" width={18} height={18} /> Histórias de Imersão
-      </button>
-
-      <header className="flex items-end justify-between gap-3">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
-            {story.level} · {story.estimatedMinutes ?? 4} min
-          </div>
-          <h1 className="mt-1 font-serif text-[1.5rem] font-semibold leading-tight text-ink">{story.title}</h1>
-        </div>
-        <div className="text-xs font-medium text-ink-faint">{currentIndex + 1}/{story.steps.length}</div>
-      </header>
-
-      <div>
-        <div className="mb-2 flex justify-between text-xs text-ink-faint">
-          <span>{interactive ? "Responda em contexto" : "Leia e ouça"}</span>
-          <span>{currentIndex + 1} de {story.steps.length}</span>
-        </div>
-        <ProgressBar value={completedValue} max={story.steps.length} />
-      </div>
-
-      <Card className="overflow-hidden rounded-xl border-line/70 p-0 shadow-none">
-        <div className="space-y-3 p-3.5 sm:p-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
-              {(step.speaker ?? (interactive ? "V" : "N")).slice(0, 1).toUpperCase()}
-            </span>
-            <div className="text-sm font-semibold text-ink">{step.speaker ?? (interactive ? "Sua vez" : "Narrador")}</div>
-          </div>
-
-          {step.promptPt && (
-            <div className="ml-6 rounded-[22px] rounded-tl-md bg-surface-2 px-4 py-3 text-sm font-medium leading-6 text-ink sm:ml-12">
-              {step.promptPt}
-            </div>
-          )}
-
-          {step.type === "listen_choice" && (
-            <div className="ml-6 flex items-center gap-3 rounded-[22px] rounded-tl-md bg-surface-2 px-4 py-3 sm:ml-12">
-              <div>
-                <div className="text-sm font-semibold text-ink">Ouça a frase</div>
-                <p className="mt-1 text-xs text-ink-soft">Depois escolha o sentido.</p>
-              </div>
-              {step.hanzi && <SpeakButton text={step.hanzi} label="Ouvir frase" size="lg" />}
-            </div>
-          )}
-
-          {showHanzi && step.hanzi && (
-            <div className="ml-6 rounded-[26px] rounded-tl-md border border-line/70 bg-surface px-4 py-5 text-center sm:ml-12">
-              <div className="flex justify-center">
-                <GlossText
-                  text={step.hanzi}
-                  pinyin={supportVisible ? step.pinyin : undefined}
-                  meaning={supportVisible ? step.translationPt : undefined}
-                  className="hanzi text-4xl leading-tight text-ink sm:text-5xl"
-                  speakOnClick={!step.noHint || revealed}
-                  examMode={step.noHint && !revealed}
-                  disabled={step.noHint && !revealed}
-                />
-              </div>
-              {supportVisible && step.pinyin && (
-                <Pinyin text={step.pinyin} className="mt-4 block font-serif text-xl leading-relaxed text-ink-soft" />
-              )}
-              {supportVisible && step.translationPt && (
-                <div className="mt-3 text-sm text-ink-soft">{step.translationPt}</div>
-              )}
-              {step.hanzi && step.type !== "listen_choice" && (
-                <div className="mt-3">
-                  <SpeakButton text={step.hanzi} label="Ouvir frase" />
-                </div>
-              )}
-            </div>
-          )}
-
-          {interactive && step.type !== "short_answer" && step.options && (
-            <div>
-              <KeyboardShortcutHint />
-            <div className="mt-3 grid gap-2">
-              {step.options.map((option, index) => (
-                <button
-                  key={option}
-                  type="button"
-                  disabled={revealed}
-                  onClick={() => submitAnswer(option)}
-                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
-                  className={[
-                    "relative min-h-11 rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
-                    optionClass(option),
-                  ].join(" ")}
-                >
-                  <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
-                  <span className="block pl-0 sm:pl-5">
-                  {option}
-                  </span>
-                </button>
-              ))}
-            </div>
-            </div>
-          )}
-
-          {interactive && step.type === "short_answer" && (
-            <div className="grid gap-3">
-              <label className="text-sm font-semibold text-ink" htmlFor={`story-answer-${step.id}`}>
-                Sua resposta
-              </label>
-              <input
-                id={`story-answer-${step.id}`}
-                value={shortAnswer}
-                disabled={revealed}
-                onChange={(event) => setShortAnswer(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && canSubmitShortAnswer) submitAnswer(shortAnswer);
-                }}
-                className="h-12 rounded-xl border border-line bg-surface px-4 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-surface-2 disabled:text-ink-soft"
-                autoComplete="off"
-                inputMode="text"
-              />
-              <Button disabled={!canSubmitShortAnswer} onClick={() => submitAnswer(shortAnswer)}>
-                Conferir
-              </Button>
-            </div>
-          )}
-
-          {revealed && (
-            <div
-              className={[
-                "rounded-xl border px-4 py-3 text-sm leading-6",
-                lastCorrect
-                  ? "border-[rgb(var(--good)/0.35)] bg-[rgb(var(--good)/0.08)] text-ink"
-                  : "border-[#B42318]/35 bg-[#B42318]/10 text-ink",
-              ].join(" ")}
-              role="status"
-            >
-              <div className="flex items-center gap-2 font-semibold">
-                {lastCorrect ? <IconCheck width={18} height={18} /> : <IconTarget width={18} height={18} />}
-                {lastCorrect ? "Certo" : "Quase"}
-              </div>
-              {!lastCorrect && (
-                <div className="mt-2">
-                  Resposta esperada: <span className="font-semibold">{storyAnswerText(step)}</span>
-                </div>
-              )}
-              {step.explanationPt && <div className="mt-2 text-ink-soft">{step.explanationPt}</div>}
-            </div>
-          )}
-        </div>
-      </Card>
-
-      <div className="flex items-center justify-between gap-3">
-        <Button
-          variant="outline"
-          disabled={currentIndex === 0}
-          onClick={() => resetStepState(Math.max(0, currentIndex - 1))}
-        >
-          <IconChevron className="rotate-180" width={18} height={18} /> Voltar
-        </Button>
-        <Button disabled={interactive && !revealed} onClick={continueStory}>
-          {currentIndex >= story.steps.length - 1 ? "Concluir" : "Continuar"}
-          <IconChevron width={18} height={18} />
-        </Button>
-      </div>
-      <ProPaywall
-        open={contextualOffer.open}
-        kind={contextualOffer.offer?.paywallKind ?? "story"}
-        offer={contextualOffer.offer}
-        onClose={contextualOffer.dismiss}
-      />
-    </div>
-  );
-}
 
 function ImmersionPlayer({
   session,
@@ -1464,16 +1004,6 @@ function ImmersionPlayer({
           <p className="mt-3 text-xs text-ink-faint">As cores de tom estão desativadas nas configurações.</p>
         )}
       </section>
-    </div>
-  );
-}
-
-function StoryStat({ label, value, tone = "ink" }: { label: string; value: string; tone?: "ink" | "accent" | "gold" }) {
-  const valueColor = tone === "accent" ? "text-accent" : tone === "gold" ? "text-gold" : "text-ink";
-  return (
-    <div className="rounded-2xl border border-line/70 bg-surface px-3 py-3">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{label}</div>
-      <div className={["mt-1 text-lg font-bold", valueColor].join(" ")}>{value}</div>
     </div>
   );
 }
