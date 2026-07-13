@@ -662,6 +662,14 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         visualHanziOptions("tree"),
         { explanation: "木 é o caractere de árvore." }
       ),
+      imageChoice(
+        "listen_and_choose_image",
+        "tree",
+        "Ouça e escolha a imagem da árvore.",
+        "tree",
+        visualImageOptions("tree"),
+        { explanation: "Você ouviu 木 — a árvore." }
+      ),
       hanziBuild(
         "hb-mu-fragments",
         "Monte seu primeiro hànzì",
