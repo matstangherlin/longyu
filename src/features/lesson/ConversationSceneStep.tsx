@@ -88,12 +88,19 @@ function SpeechBubble({
   line,
   side,
   visible,
+  difficulty = 1,
 }: {
   line: ConversationLine;
   side: "left" | "right";
   visible: boolean;
+  difficulty?: number;
 }) {
+  const [revealed, setRevealed] = useState(false);
   const audio = line.audioText ?? line.hanzi;
+  const showHanzi = difficulty < 4 || revealed;
+  const showPinyin = difficulty <= 2 || (difficulty === 3 && revealed) || (difficulty === 4 && revealed);
+  const showPt = difficulty === 1 && (line.revealMode !== "tap" || revealed) && Boolean(line.pt);
+
   return (
     <div
       className={[
@@ -102,25 +109,39 @@ function SpeechBubble({
         visible ? "conversation-bubble-in" : "invisible",
       ].join(" ")}
     >
-      <div
+      <button
+        type="button"
+        onClick={() => {
+          if (difficulty >= 3) setRevealed(true);
+        }}
         className={[
-          "max-w-[88%] rounded-2xl border border-line bg-surface px-3.5 py-3 shadow-card sm:max-w-[80%]",
+          "max-w-[88%] rounded-2xl border border-line bg-surface px-3.5 py-3 text-left shadow-card sm:max-w-[80%]",
           side === "left" ? "rounded-tl-md" : "rounded-tr-md",
+          difficulty >= 3 ? "cursor-pointer" : "cursor-default",
         ].join(" ")}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="hanzi text-[26px] font-semibold leading-tight text-ink sm:text-[30px]">
-              <ExerciseText value={line.hanzi} type="hanzi" speakOnClick />
-            </div>
-            <div className="mt-1">
-              <Pinyin text={line.pinyin} />
-            </div>
-            {line.pt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+            {showHanzi ? (
+              <div className="hanzi text-[26px] font-semibold leading-tight text-ink sm:text-[30px]">
+                <ExerciseText value={line.hanzi} type="hanzi" speakOnClick />
+              </div>
+            ) : (
+              <p className="text-sm text-ink-soft">Ouça e toque para revelar.</p>
+            )}
+            {showPinyin && (
+              <div className="mt-1">
+                <Pinyin text={line.pinyin} />
+              </div>
+            )}
+            {showPt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+            {difficulty === 1 && line.revealMode === "tap" && !revealed && line.pt && (
+              <p className="mt-1.5 text-xs text-ink-faint">Toque para ver a tradução.</p>
+            )}
           </div>
           <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" />
         </div>
-      </div>
+      </button>
     </div>
   );
 }
@@ -454,6 +475,7 @@ export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepP
             line={currentLine}
             side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
             visible
+            difficulty={step.conversationDifficulty ?? 1}
           />
         )}
 

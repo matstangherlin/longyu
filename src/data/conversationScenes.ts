@@ -44,6 +44,8 @@ export interface ConversationSceneStep {
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade. */
   dedicatedLesson?: boolean;
+  /** Nível de dificuldade pedagógica (1 = mais apoio, 5 = montar resposta). */
+  difficultyLevel?: 1 | 2 | 3 | 4 | 5;
 }
 
 const PAIR_LIN_MEI: ConversationCharacter[] = [

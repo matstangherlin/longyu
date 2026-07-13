@@ -22,7 +22,16 @@ import { getHanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
+import { AudioChoiceGrid } from "../../components/hanzi/AudioChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
+import {
+  imageChoiceShowsAudioStimulus,
+  imageChoiceShowsHanziStimulus,
+  imageChoiceShowsImageStimulus,
+  imageChoiceShowsMeaningStimulus,
+  imageChoiceUsesAudioOptions,
+  imageChoiceUsesImageOptions,
+} from "../../data/visualVocabulary";
 import {
   KeyboardShortcutHint,
   ShortcutBadge,
@@ -558,15 +567,18 @@ function ReviewExercisePanel({
 
       {exercise.kind === "image_choice" && exercise.visualConceptId && (
         <div className="mt-4 flex justify-center">
-          {exercise.imageChoiceMode === "choose_image" && exercise.displayText ? (
+          {imageChoiceShowsHanziStimulus(exercise.imageChoiceMode) && exercise.displayText ? (
             <MandarinText hanzi={exercise.displayText} size="lg" align="center" />
-          ) : exercise.imageChoiceMode !== "listen_and_choose_image" && exercise.imageChoiceMode !== "choose_image" ? (
+          ) : imageChoiceShowsMeaningStimulus(exercise.imageChoiceMode) && exercise.displayText ? (
+            <p className="text-xl font-semibold text-ink">{exercise.displayText}</p>
+          ) : imageChoiceShowsImageStimulus(exercise.imageChoiceMode) &&
+            !imageChoiceShowsAudioStimulus(exercise.imageChoiceMode) ? (
             <VisualConceptImage conceptId={exercise.visualConceptId} size="lg" />
           ) : null}
         </div>
       )}
 
-      {exercise.kind === "image_choice" && exercise.imageOptionIds && (
+      {exercise.kind === "image_choice" && exercise.imageOptionIds && imageChoiceUsesImageOptions(exercise.imageChoiceMode) && (
         <div className="mt-5">
           <ImageChoiceGrid
             mode="images"
@@ -579,7 +591,19 @@ function ReviewExercisePanel({
         </div>
       )}
 
-      {exercise.kind === "image_choice" && exercise.options && !exercise.imageOptionIds && (
+      {exercise.kind === "image_choice" && exercise.options && imageChoiceUsesAudioOptions(exercise.imageChoiceMode) && (
+        <div className="mt-5">
+          <AudioChoiceGrid
+            options={exercise.options.map((option) => option.value)}
+            answered={revealed ? selectedOption : null}
+            selected={selectedOption}
+            correctAnswer={exercise.answer}
+            onSelect={onSelectOption}
+          />
+        </div>
+      )}
+
+      {exercise.kind === "image_choice" && exercise.options && !exercise.imageOptionIds && !imageChoiceUsesAudioOptions(exercise.imageChoiceMode) && (
         <>
           <KeyboardShortcutHint />
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
