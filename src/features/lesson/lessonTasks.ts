@@ -2108,6 +2108,22 @@ function balancePracticeSequence(selected: PracticeCandidate[]): PracticeCandida
   return result;
 }
 
+/** Remove cobranças semânticas repetidas que ainda sobreviveram aos filtros. */
+function pruneSemanticRepeats(
+  lesson: Lesson,
+  selected: PracticeCandidate[],
+  reviewFocus: FocusItem[]
+): PracticeCandidate[] {
+  const kept: PracticeCandidate[] = [];
+  for (const candidate of selected) {
+    if (wouldViolateSemanticLimits(candidate.step, semanticContextFor(lesson, kept, reviewFocus))) {
+      continue;
+    }
+    kept.push(candidate);
+  }
+  return kept.length > 0 ? kept : selected.slice(0, Math.min(selected.length, 1));
+}
+
 function practicePlanWarnings(
   lesson: Lesson,
   plan: readonly LessonRoundStep[],
@@ -2252,17 +2268,18 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   }
 
   ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures);
-  const trimmed = trimToTarget(selected, profile);
+  const trimmed = pruneSemanticRepeats(lesson, trimToTarget(selected, profile), reviewFocus);
 
   for (const gap of moduleReviewGapCandidates(lesson, focus, reviewFocus, trimmed)) {
     if (usedSignatures.has(stepSignature(gap.step))) continue;
+    if (wouldViolateSemanticLimits(gap.step, semanticContextFor(lesson, trimmed, reviewFocus))) continue;
     trimmed.push(gap);
     usedSignatures.add(stepSignature(gap.step));
     const unitId = lessonUnitId(lesson);
     if (unitId && validateModuleReviewCoverage(unitId, trimmed.map((candidate) => candidate.step), {}).length === 0) break;
   }
 
-  const balanced = balancePracticeSequence(trimmed);
+  const balanced = pruneSemanticRepeats(lesson, balancePracticeSequence(trimmed), reviewFocus);
 
   const stageCounts = new Map<LessonStageId, number>();
   const plan = balanced.map((candidate) => {
