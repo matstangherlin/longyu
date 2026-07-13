@@ -2,6 +2,14 @@ import { CHARACTERS } from "./characters";
 import { CHUNKS } from "./chunks";
 import type { ItemType } from "./types";
 import {
+  conversationSceneStepFromId,
+  type ConversationCharacter,
+  type ConversationCheckpoint,
+  type ConversationLine,
+  type ConversationSceneStep as ConversationSceneDefinition,
+  type ConversationSetting,
+} from "./conversationScenes";
+import {
   defaultVisualDistractors,
   resolveVisualConcept,
   type ImageChoiceMode,
@@ -28,10 +36,19 @@ export type StepKind =
   | "translation_build"
   | "fill_blank"
   | "dialogue_choice"
+  | "conversation_scene"
   | "hanzi_evolution"
   | "hanzi_build"
   | "tone_pair"
   | "image_choice";
+
+export type {
+  ConversationCharacter,
+  ConversationCheckpoint,
+  ConversationLine,
+  ConversationSetting,
+  ConversationSceneDefinition,
+};
 
 export type LessonStageId = "intro" | "recognition" | "assembly" | "usage" | "consolidation";
 
@@ -90,7 +107,15 @@ export interface LessonStep {
   charId?: string;
   charIds?: string[];
   chunkId?: string;
-  lines?: { hanzi: string; pinyin: string; pt: string }[];
+  lines?: {
+    hanzi: string;
+    pinyin: string;
+    pt?: string;
+    speakerId?: string;
+    emotion?: ConversationLine["emotion"];
+    audioText?: string;
+    revealMode?: ConversationLine["revealMode"];
+  }[];
   pairs?: {
     left: string;
     right: string;
@@ -121,6 +146,15 @@ export interface LessonStep {
   isNoHint?: boolean;
   /** hanzi_build: id de um exercício em data/hanziBuilder.ts (carta visual). */
   builderId?: string;
+  /** conversation_scene: id canônico da cena. */
+  sceneId?: string;
+  setting?: ConversationSetting;
+  characters?: ConversationCharacter[];
+  checkpoint?: ConversationCheckpoint;
+  learnedRefs?: string[];
+  newRefs?: string[];
+  /** Lição dedicada pode apresentar mais de 1 novidade na cena. */
+  dedicatedLesson?: boolean;
 }
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";
@@ -309,6 +343,31 @@ const dialogue = (
   correctAnswer,
   explanation,
 });
+const conversationScene = (sceneId: string): LessonStep => {
+  const scene = conversationSceneStepFromId(sceneId);
+  if (!scene) {
+    throw new Error(`conversation_scene desconhecida: ${sceneId}`);
+  }
+  return {
+    kind: "conversation_scene",
+    title: scene.title,
+    sceneId: scene.sceneId,
+    setting: scene.setting,
+    characters: scene.characters,
+    lines: scene.lines,
+    checkpoint: scene.checkpoint,
+    learnedRefs: scene.learnedRefs,
+    newRefs: scene.newRefs,
+    dedicatedLesson: scene.dedicatedLesson,
+    prompt: scene.checkpoint?.prompt,
+    options: scene.checkpoint?.options,
+    correctAnswer: scene.checkpoint?.correctAnswer,
+    explanation: scene.checkpoint?.explanation,
+    bank: scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
+      ? scene.checkpoint.options
+      : undefined,
+  };
+};
 const sentenceBuild = (
   title: string,
   prompt: string,
@@ -440,6 +499,9 @@ function refsFromSteps(steps: LessonStep[]): string[] {
     }
     if (step.kind === "flashcard" && step.chunkId) refs.add(`chunk:${step.chunkId}`);
     if (step.kind === "write" && step.chunkId) refs.add(`chunk:${step.chunkId}`);
+    if (step.kind === "conversation_scene") {
+      for (const ref of [...(step.learnedRefs ?? []), ...(step.newRefs ?? [])]) refs.add(ref);
+    }
     refsFromText(step.text, refs);
     refsFromText(step.hanzi, refs);
     refsFromText(step.answer, refs);
@@ -828,6 +890,7 @@ const PHASE1_COURTESY_MICROTASKS: Lesson[] = [
         "不客气 é a resposta natural para de nada.",
         "Pessoa"
       ),
+      conversationScene("agradecendo"),
       translationBuild(
         "Escreva em português",
         "不客气",
@@ -1540,6 +1603,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["你好", "谢谢", "再见", "不客气"],
                 "你好 é a saudação segura para encontrar ou cumprimentar alguém."
               ),
+              conversationScene("primeiro-cumprimento"),
               fillBlank(
                 "Complete o cumprimento",
                 "Complete a frase 你 ___.",
@@ -1651,6 +1715,7 @@ export const JOURNEY: JourneyPhase[] = [
           review("l1-rev", "fala", [
             flash("nihao"),
             flash("xiexie"),
+            conversationScene("primeiro-cumprimento"),
             comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "Tchau"]),
             dialogue(
               "Escolha o pinyin",
@@ -1724,6 +1789,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["再见", "你好", "谢谢", "不客气"],
                 "再见 fecha a conversa: até logo."
               ),
+              conversationScene("despedida"),
               translationBuild(
                 "Escreva em português",
                 "再见",
@@ -1777,6 +1843,8 @@ export const JOURNEY: JourneyPhase[] = [
             flash("xiexie"),
             flash("zaijian"),
             flash("qingwen"),
+            conversationScene("despedida"),
+            conversationScene("agradecendo"),
             comp("请问", "qǐng wèn", "Com licença, posso perguntar?", ["Com licença, posso perguntar?", "Obrigado(a)", "Até logo", "Olá"]),
             produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
             tone("谢", "xiè", 4, "quiz"),
@@ -2061,6 +2129,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我叫马修", "谢谢", "再见", "不客气"],
                 "Use 我叫 + seu nome para responder."
               ),
+              conversationScene("me-apresentando"),
               translationBuild(
                 "Escreva em português",
                 "我叫马修",
@@ -2113,6 +2182,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我很好", "再见", "谢谢", "我叫马修"],
                 "我很好 responde: estou bem."
               ),
+              conversationScene("perguntando-se-esta-bem"),
               match(
                 "Pergunta e resposta",
                 "Combine cada frase com o sentido.",

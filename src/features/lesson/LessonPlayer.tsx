@@ -83,6 +83,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "translation_build",
   "fill_blank",
   "dialogue_choice",
+  "conversation_scene",
   "hanzi_build",
   "tone_pair",
   "image_choice",
@@ -214,13 +215,25 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "translation_build" ||
     step.kind === "fill_blank" ||
     step.kind === "dialogue_choice" ||
+    step.kind === "conversation_scene" ||
     step.kind === "hanzi_build" ||
     step.kind === "image_choice"
   ) {
     return {
-      prompt: step.prompt ?? step.dialoguePrompt ?? step.title ?? "Exercício",
-      correction: step.correctAnswer ?? step.answer ?? step.blankAnswer ?? step.targetParts?.join("") ?? "Revise a resposta correta",
-      detail: step.explanation,
+      prompt:
+        step.prompt ??
+        step.dialoguePrompt ??
+        step.checkpoint?.prompt ??
+        step.title ??
+        "Exercício",
+      correction:
+        step.correctAnswer ??
+        step.checkpoint?.correctAnswer ??
+        step.answer ??
+        step.blankAnswer ??
+        step.targetParts?.join("") ??
+        "Revise a resposta correta",
+      detail: step.explanation ?? step.checkpoint?.explanation,
     };
   }
   return {
@@ -331,7 +344,7 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   if (hasPinyin) return "Use o pinyin como ponte para reconhecer o som.";
   if (hasHanzi) return "Observe a forma e conecte hànzì, som e sentido.";
   if (hasAssembly) return "Monte a frase em pedaços curtos.";
-  if (kinds.has("dialogue_choice")) return "Escolha a resposta que combina com a situação.";
+  if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return "Escolha a resposta que combina com a situação.";
   if (kinds.has("microread")) return "Leia um trecho curto e procure o sentido geral.";
   return "Pratique este ponto em uma rodada curta.";
 }
@@ -454,10 +467,13 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(source, "pinyin", "som");
     addText(source, "som", "som");
   }
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice") {
-    const text = step.correctAnswer ?? step.answer ?? step.targetParts?.join("");
+  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
+    const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
     addText(text, "uso");
     addText(text, "fala");
+    if (step.kind === "conversation_scene") {
+      for (const line of step.lines ?? []) addText(line.hanzi, "uso");
+    }
   }
   if (step.kind === "fill_blank") {
     addText(step.correctAnswer ?? step.answer ?? `${step.sentenceBefore ?? ""}${step.blankAnswer ?? ""}${step.sentenceAfter ?? ""}`, "uso");
@@ -481,7 +497,7 @@ function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "pinyin";
   if (step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build") return "forma";
   if (step.kind === "comprehend" || step.kind === "match_pairs") return "significado";
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "produce" || step.kind === "fill_blank" || step.kind === "dialogue_choice") return "uso";
+  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "produce" || step.kind === "fill_blank" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") return "uso";
   if (step.kind === "microread") return "leitura";
   if (step.kind === "write") return "uso";
   return "fala";
@@ -522,6 +538,10 @@ function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
 function errorHanziForStep(step: LessonStep): string | undefined {
   if (step.hanzi) return step.hanzi;
   if (step.charId) return charById.get(step.charId)?.hanzi;
+  if (step.kind === "conversation_scene") {
+    const lineHanzi = step.lines?.map((line) => line.hanzi).filter(Boolean).join(" / ");
+    if (lineHanzi) return lineHanzi;
+  }
   if (displayTextHasHanzi(step.sourceText)) return step.sourceText;
   if (displayTextHasHanzi(step.correctAnswer)) return step.correctAnswer;
   if (displayTextHasHanzi(step.answer)) return step.answer;
@@ -587,7 +607,11 @@ function mistakeReasonForStep(step: LessonStep): string {
   if (step.kind === "fill_blank") return "Chunk de uso ainda não automatizado.";
   if (step.kind === "recognize" || step.kind === "hanzi_build") return "Reconhecimento visual do hànzì ainda frágil.";
   if (step.kind === "image_choice") return "Associação visual com hànzì, pinyin ou significado ainda instável.";
-  if (step.kind === "comprehend" || step.kind === "dialogue_choice") return "Significado em contexto ainda incerto.";
+  if (step.kind === "comprehend" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
+    return step.kind === "conversation_scene"
+      ? "Resposta da conversa ainda insegura — revise a fala no contexto."
+      : "Significado em contexto ainda incerto.";
+  }
   return "Ponto precisa voltar em outro formato.";
 }
 
@@ -1485,6 +1509,15 @@ export function LessonPlayer() {
     const correction = correctionForStep(step);
     const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]);
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
+    const sceneContext =
+      step.kind === "conversation_scene"
+        ? (step.lines ?? [])
+            .map((line) => {
+              const speaker = step.characters?.find((character) => character.id === line.speakerId)?.name ?? line.speakerId;
+              return `${speaker}: ${line.hanzi}`;
+            })
+            .join(" · ")
+        : undefined;
     return {
       id,
       lessonId: lesson.id,
@@ -1494,7 +1527,7 @@ export function LessonPlayer() {
       questionId: `${lesson.id}:${stepIndex}:${step.kind}`,
       exerciseId: `${lesson.id}:${stepIndex}`,
       type: step.kind,
-      prompt: correction.prompt,
+      prompt: sceneContext ? `${correction.prompt} (cena: ${sceneContext})` : correction.prompt,
       correctAnswer: correction.correction,
       selectedAnswer: selectedAnswer?.trim() || "Resposta incorreta",
       topic: step.title ?? step.prompt ?? lesson.title,
@@ -1502,7 +1535,11 @@ export function LessonPlayer() {
       hanzi: errorHanziForStep(step),
       pinyin: errorPinyinForStep(step),
       meaningPt: errorMeaningForStep(step, correction),
-      explanation: step.explanation ?? correction.detail,
+      explanation:
+        step.explanation ??
+        step.checkpoint?.explanation ??
+        correction.detail ??
+        (correction.correction ? `Sugestão: ${correction.correction}` : undefined),
       mistakeReason: mistakeReasonForStep(step),
       timestamp: Date.now(),
       wrongCount: 1,
@@ -1994,9 +2031,12 @@ export function LessonPlayer() {
         gradeText(s.audioText ?? s.correctAnswer, "som", "som");
         gradeText(s.correctAnswer, "significado");
       }
-      if (s.kind === "sentence_build" || s.kind === "translation_build" || s.kind === "dialogue_choice") {
-        gradeText(s.correctAnswer ?? s.answer ?? s.targetParts?.join(""), "uso");
-        gradeText(s.correctAnswer ?? s.answer ?? s.targetParts?.join(""), "fala");
+      if (s.kind === "sentence_build" || s.kind === "translation_build" || s.kind === "dialogue_choice" || s.kind === "conversation_scene") {
+        gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer ?? s.targetParts?.join(""), "uso");
+        gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer ?? s.targetParts?.join(""), "fala");
+        if (s.kind === "conversation_scene") {
+          for (const line of s.lines ?? []) gradeText(line.hanzi, "uso");
+        }
       }
       if (s.kind === "fill_blank") {
         gradeText(s.correctAnswer ?? s.answer ?? `${s.sentenceBefore ?? ""}${s.blankAnswer ?? ""}${s.sentenceAfter ?? ""}`, "uso");

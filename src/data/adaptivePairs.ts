@@ -251,7 +251,7 @@ function lessonSearchText(lesson: (typeof ALL_LESSONS)[number]): string {
       step.targetParts?.join("") ?? ""
     );
     for (const pair of step.pairs ?? []) values.push(pair.left, pair.right);
-    for (const line of step.lines ?? []) values.push(line.hanzi, line.pinyin, line.pt);
+    for (const line of step.lines ?? []) values.push(line.hanzi, line.pinyin, line.pt ?? "");
     values.push(...(step.options ?? []), ...(step.bank ?? []), ...(step.wordBank ?? []), ...(step.requiredTerms ?? []));
   }
   return values.join(" ");

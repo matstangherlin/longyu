@@ -301,7 +301,7 @@ function validateStep(lesson: Lesson, index: number, step: LessonStep): CorpusIs
     }
   };
 
-  if (step.options?.length && !["comprehend", "listen_select", "dialogue_choice"].includes(step.kind)) {
+  if (step.options?.length && !["comprehend", "listen_select", "dialogue_choice", "conversation_scene"].includes(step.kind)) {
     checkOptions(step.correctAnswer ?? step.answer, step.options, step.kind);
   }
   for (const [label, values] of [
@@ -324,6 +324,19 @@ function validateStep(lesson: Lesson, index: number, step: LessonStep): CorpusIs
     case "dialogue_choice":
       checkOptions(step.correctAnswer, step.options, "dialogue_choice");
       break;
+    case "conversation_scene": {
+      const checkpoint = step.checkpoint;
+      const answer = checkpoint?.correctAnswer ?? step.correctAnswer;
+      const options = checkpoint?.options ?? step.options;
+      if (checkpoint?.type === "order_reply") {
+        const duplicate = hasDuplicates(options ?? []);
+        if (duplicate) issues.push(issue("error", "journey", ref, `conversation_scene: peça duplicada "${duplicate}"`));
+        if (!answer?.trim()) issues.push(issue("error", "journey", ref, "conversation_scene sem resposta correta"));
+      } else {
+        checkOptions(answer, options, "conversation_scene");
+      }
+      break;
+    }
     case "fill_blank": {
       if (!step.blankAnswer?.trim()) {
         issues.push(issue("error", "journey", ref, "fill_blank sem blankAnswer"));
@@ -509,6 +522,7 @@ const EXPOSURE_AXES_BY_KIND: Record<StepKind, PedagogicalExposureAxis[]> = {
   translation_build: ["significado", "producao", "contexto", "forma"],
   fill_blank: ["producao", "contexto", "forma"],
   dialogue_choice: ["contexto", "significado"],
+  conversation_scene: ["contexto", "significado", "som"],
   hanzi_evolution: ["forma", "significado", "contexto"],
   hanzi_build: ["producao", "forma"],
   tone_pair: ["som", "significado"],
@@ -563,7 +577,7 @@ function exposureTextSources(step: LessonStep): string[] {
     sources.push(chunkById[step.chunkId]?.hanzi);
   }
 
-  sources.push(
+    sources.push(
     ...(step.requiredTerms ?? []),
     ...(step.wordBank ?? []),
     ...(step.accepts ?? []),
@@ -573,7 +587,13 @@ function exposureTextSources(step: LessonStep): string[] {
     ...(step.targetParts ?? []),
     ...(step.distractors ?? []),
     ...(step.lines ?? []).flatMap((line) => [line.hanzi, line.pinyin, line.pt]),
-    ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right])
+    ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
+    ...(step.learnedRefs ?? []),
+    ...(step.newRefs ?? []),
+    step.checkpoint?.prompt,
+    step.checkpoint?.correctAnswer,
+    step.checkpoint?.explanation,
+    ...(step.checkpoint?.options ?? [])
   );
 
   return sources.filter((value): value is string => Boolean(value?.trim()));

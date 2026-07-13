@@ -197,6 +197,21 @@ try {
               checkOptions(ref, step.options, step.correctAnswer ?? step.answer);
               break;
             }
+            case "conversation_scene": {
+              gradedSteps += 1;
+              const checkpoint = step.checkpoint ?? {};
+              const answer = checkpoint.correctAnswer ?? step.correctAnswer;
+              const options = checkpoint.options ?? step.options;
+              if (!answer) err("licao", ref, "conversation_scene sem resposta correta");
+              if (checkpoint.type === "order_reply") {
+                if (!options || options.length < 2) err("licao", ref, "conversation_scene order_reply sem peças");
+              } else {
+                checkOptions(ref, options, answer);
+              }
+              if (!step.sceneId) err("licao", ref, "conversation_scene sem sceneId");
+              if (!step.lines?.length) err("licao", ref, "conversation_scene sem falas");
+              break;
+            }
             case "image_choice": {
               gradedSteps += 1;
               const imagePick =

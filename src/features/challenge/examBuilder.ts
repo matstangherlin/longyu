@@ -934,21 +934,24 @@ function questionsFromStep(ctx: BuildContext, lesson: Lesson, step: LessonStep):
 
   if (step.kind === "microread" && step.lines?.length) {
     const line = step.lines[0];
-    questions.push({
-      ...base({
-        kind: "leitura",
-        prompt: "Leia a frase e escolha a tradução.",
-        isEssential: false,
-        display: { hanzi: line.hanzi, audioText: line.hanzi },
-        feedback: { hanzi: line.hanzi, pinyin: line.pinyin, meaning: line.pt },
-      }),
-      format: "choice",
-      answer: line.pt,
-      options: buildSafeOptions(line.pt, [
-        ...step.lines.map((candidate) => candidate.pt),
-        ...moduleChunkMeanings,
-      ]),
-    });
+    const meaning = line.pt ?? "";
+    if (meaning) {
+      questions.push({
+        ...base({
+          kind: "leitura",
+          prompt: "Leia a frase e escolha a tradução.",
+          isEssential: false,
+          display: { hanzi: line.hanzi, audioText: line.hanzi },
+          feedback: { hanzi: line.hanzi, pinyin: line.pinyin, meaning },
+        }),
+        format: "choice",
+        answer: meaning,
+        options: buildSafeOptions(meaning, [
+          ...step.lines.map((candidate) => candidate.pt).filter((value): value is string => Boolean(value)),
+          ...moduleChunkMeanings,
+        ]),
+      });
+    }
   }
 
   return questions;

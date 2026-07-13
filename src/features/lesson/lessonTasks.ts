@@ -12,6 +12,10 @@ import {
 } from "../../data/journey";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
+import {
+  CONVERSATION_SCENES,
+  type ConversationSceneStep as ConversationSceneDefinition,
+} from "../../data/conversationScenes";
 import type { ItemType } from "../../data/types";
 import {
   buildersForCharacter,
@@ -73,6 +77,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "translation_build",
   "fill_blank",
   "dialogue_choice",
+  "conversation_scene",
   "hanzi_build",
   "tone_pair",
   "image_choice",
@@ -120,8 +125,8 @@ const FALA_TASKS: TaskTemplate[] = [
     motor: "fala",
     name: "Use em contexto",
     description: "Leve a frase para uma situação real.",
-    stepKinds: ["write", "comprehend", "dialogue_choice", "match_pairs"],
-    when: (steps) => hasAny(steps, ["write", "comprehend", "dialogue_choice", "match_pairs"]),
+    stepKinds: ["write", "comprehend", "dialogue_choice", "conversation_scene", "match_pairs"],
+    when: (steps) => hasAny(steps, ["write", "comprehend", "dialogue_choice", "conversation_scene", "match_pairs"]),
   },
   {
     id: "review",
@@ -129,7 +134,7 @@ const FALA_TASKS: TaskTemplate[] = [
     name: "Revisão rápida",
     description: "Feche a lição reforçando o que acabou de ganhar forma.",
     rewardQi: 3,
-    stepKinds: ["write", "comprehend", "produce", "sentence_build", "translation_build", "fill_blank", "dialogue_choice"],
+    stepKinds: ["write", "comprehend", "produce", "sentence_build", "translation_build", "fill_blank", "dialogue_choice", "conversation_scene"],
   },
 ];
 
@@ -378,7 +383,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
   intro: ["intro", "flashcard", "listen", "hanzi_evolution", "decompose"],
   recognition: ["listen_select", "comprehend", "recognize", "tone", "match_pairs", "tone_pair", "image_choice"],
   assembly: ["produce", "sentence_build", "translation_build", "hanzi_build", "fill_blank", "decompose"],
-  usage: ["dialogue_choice", "write", "fill_blank", "microread", "produce", "comprehend"],
+  usage: ["dialogue_choice", "conversation_scene", "write", "fill_blank", "microread", "produce", "comprehend"],
   consolidation: [
     "listen",
     "flashcard",
@@ -393,6 +398,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "translation_build",
     "fill_blank",
     "dialogue_choice",
+    "conversation_scene",
     "hanzi_build",
     "tone_pair",
     "image_choice",
@@ -504,6 +510,8 @@ interface LessonPracticeProfile {
   perCharBuildCap: number;
   maxPinyinTasks: number;
   needsPinyinTask: boolean;
+  /** Máximo de cenas de conversa: 1 comum, 2 revisão, várias em imersão. */
+  maxConversationScenes: number;
 }
 
 const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
@@ -523,6 +531,7 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   translation_build: ["assembly"],
   fill_blank: ["assembly", "usage"],
   dialogue_choice: ["usage", "recognition"],
+  conversation_scene: ["usage", "recognition", "review"],
   hanzi_evolution: ["intro", "hanzi"],
   hanzi_build: ["hanzi", "assembly"],
   tone_pair: ["pinyin", "audio", "matching"],
@@ -950,6 +959,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       perCharBuildCap: 3,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
+      maxConversationScenes: maxConversationScenesForLesson(lesson),
     };
   }
 
@@ -964,6 +974,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
+      maxConversationScenes: maxConversationScenesForLesson(lesson),
     };
   }
 
@@ -980,6 +991,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
+      maxConversationScenes: maxConversationScenesForLesson(lesson),
     };
   }
 
@@ -999,6 +1011,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     perCharBuildCap: 2,
     maxPinyinTasks: pinyinCap,
     needsPinyinTask: pinyinRich && (phaseOrder <= 4 || isPinyinFocusedLesson(lesson) || Boolean(lesson.isReview)),
+    maxConversationScenes: maxConversationScenesForLesson(lesson),
   };
 }
 
@@ -1073,6 +1086,12 @@ function lessonFocusItems(lesson: Lesson): FocusItem[] {
       addFocusItem(items, focusFromText(step.correctAnswer ?? `${step.sentenceBefore ?? ""}${step.blankAnswer ?? ""}${step.sentenceAfter ?? ""}`, undefined, step.explanation));
     }
     if (step.kind === "dialogue_choice") addFocusItem(items, focusFromText(step.correctAnswer ?? step.answer, undefined, step.explanation));
+    if (step.kind === "conversation_scene") {
+      for (const ref of [...(step.learnedRefs ?? []), ...(step.newRefs ?? [])]) {
+        addFocusItem(items, focusFromRef(ref));
+      }
+      addFocusItem(items, focusFromText(step.correctAnswer ?? step.checkpoint?.correctAnswer, undefined, step.explanation));
+    }
     if (step.kind === "image_choice") {
       addFocusItem(items, focusFromText(step.targetHanzi, step.targetPinyin, step.targetMeaningPt));
       if (step.imageId) addFocusItem(items, focusFromText(step.targetHanzi, step.targetPinyin, step.targetMeaningPt));
@@ -1386,6 +1405,58 @@ function makeDialogueChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep
   };
 }
 
+function focusRefs(focus: FocusItem[]): string[] {
+  return uniqueValues(focus.map((item) => `${item.type}:${item.itemId}`));
+}
+
+function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
+  const id = lesson.id.toLocaleLowerCase("pt-BR");
+  const title = lesson.title.toLocaleLowerCase("pt-BR");
+  return id.includes("immersion") || id.includes("imers") || title.includes("imersão") || title.includes("immersion");
+}
+
+function maxConversationScenesForLesson(lesson: Lesson): number {
+  if (lessonAllowsImmersionScenes(lesson)) return 99;
+  if (lesson.isReview) return 2;
+  return 1;
+}
+
+function conversationSceneToLessonStep(scene: ConversationSceneDefinition): LessonStep {
+  return {
+    kind: "conversation_scene",
+    title: scene.title,
+    sceneId: scene.sceneId,
+    setting: scene.setting,
+    characters: scene.characters,
+    lines: scene.lines,
+    checkpoint: scene.checkpoint,
+    learnedRefs: scene.learnedRefs,
+    newRefs: scene.newRefs,
+    dedicatedLesson: scene.dedicatedLesson,
+    prompt: scene.checkpoint?.prompt,
+    options: scene.checkpoint?.options,
+    correctAnswer: scene.checkpoint?.correctAnswer,
+    explanation: scene.checkpoint?.explanation,
+    bank:
+      scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
+        ? scene.checkpoint.options
+        : undefined,
+  };
+}
+
+function makeConversationSceneStep(focus: FocusItem[], reviewFocus: FocusItem[] = []): LessonStep | null {
+  const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
+  const candidates = CONVERSATION_SCENES.filter((scene) => {
+    const needed = [...scene.learnedRefs, ...(scene.newRefs ?? [])];
+    if (needed.length === 0) return false;
+    // Só gera cena se o foco atual cobre pelo menos um learnedRef e todos os refs estão disponíveis.
+    const touchesFocus = scene.learnedRefs.some((ref) => refs.has(ref));
+    return touchesFocus && needed.every((ref) => refs.has(ref));
+  });
+  const scene = candidates[0];
+  return scene ? conversationSceneToLessonStep(scene) : null;
+}
+
 function makeMatchPairsStep(focus: FocusItem[]): LessonStep | null {
   const reviewItems = CORE_REVIEW_REFS
     .map(focusFromRef)
@@ -1439,9 +1510,11 @@ function stepSignature(step: LessonStep): string {
     step.correctAnswer,
     step.charId,
     step.chunkId,
+    step.sceneId,
     step.target?.join("|"),
     step.targetParts?.join("|"),
     step.pairs?.map((pair) => `${pair.left}=${pair.right}`).join("|"),
+    step.learnedRefs?.join("|"),
   ].filter(Boolean).join("::");
 }
 
@@ -1504,10 +1577,12 @@ function supplementalStepsForStage(
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
+    push(makeConversationSceneStep(focus, reviewFocus));
     push(makeOldPhraseReuseStep(focus));
   } else {
     push(makeMatchPairsStep([...reviewFocus, ...focus]));
     push(makeTonePairStep([...reviewFocus, ...focus]));
+    push(makeConversationSceneStep(focus, reviewFocus));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
@@ -1661,6 +1736,11 @@ function stepTextBlob(step: LessonStep): string {
     ...(step.bank ?? []),
     ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
     ...(step.lines ?? []).flatMap((line) => [line.hanzi, line.pinyin, line.pt]),
+    ...(step.learnedRefs ?? []),
+    ...(step.newRefs ?? []),
+    step.checkpoint?.prompt,
+    step.checkpoint?.correctAnswer,
+    ...(step.checkpoint?.options ?? []),
   ]
     .filter(Boolean)
     .join(" ");
@@ -1776,6 +1856,11 @@ function selectBestCandidate(
     .filter((candidate) => candidate.step.kind !== "hanzi_build" || hanziBuildCount < profile.maxHanziBuilds)
     .filter((candidate) => underPerCharCap(selected, candidate, profile))
     .filter((candidate) => !isPinyinPracticeStep(candidate.step) || pinyinTaskCount < profile.maxPinyinTasks)
+    .filter(
+      (candidate) =>
+        candidate.step.kind !== "conversation_scene" ||
+        countKind(selected, "conversation_scene") < profile.maxConversationScenes
+    )
     .sort((a, b) => b.score - a.score);
   return eligible.find((candidate) => !wouldMakeTriplet(selected, candidate)) ?? eligible[0];
 }
@@ -1791,6 +1876,12 @@ function replaceLowestIfNeeded(
   if (candidate.step.kind === "hanzi_build" && countKind(selected, "hanzi_build") >= profile.maxHanziBuilds) return;
   if (!underPerCharCap(selected, candidate, profile)) return;
   if (isPinyinPracticeStep(candidate.step) && countPinyinTasks(selected) >= profile.maxPinyinTasks) return;
+  if (
+    candidate.step.kind === "conversation_scene" &&
+    countKind(selected, "conversation_scene") >= profile.maxConversationScenes
+  ) {
+    return;
+  }
 
   if (selected.length < profile.targetCount) {
     selected.push(candidate);
@@ -2280,6 +2371,7 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   translation_build: "montar tradução",
   fill_blank: "completar lacuna",
   dialogue_choice: "diálogo",
+  conversation_scene: "cena de conversa",
   hanzi_evolution: "evolução visual",
   hanzi_build: "montar hànzì",
   tone_pair: "pares de tom",

@@ -41,6 +41,7 @@ const KNOWN_KINDS: StepKind[] = [
   "translation_build",
   "fill_blank",
   "dialogue_choice",
+  "conversation_scene",
   "hanzi_evolution",
   "hanzi_build",
   "tone_pair",
@@ -262,6 +263,46 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       checkChoice(errors, "dialogue_choice", step.correctAnswer ?? step.answer, step.options);
       checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
+
+    case "conversation_scene": {
+      if (!step.sceneId?.trim()) errors.push("conversation_scene sem sceneId");
+      if (!step.title?.trim()) errors.push("conversation_scene sem título");
+      if (!step.setting) errors.push("conversation_scene sem setting");
+      if (!step.characters || step.characters.length < 2) {
+        errors.push("conversation_scene precisa de pelo menos 2 personagens");
+      }
+      const lines = step.lines ?? [];
+      if (lines.length === 0) errors.push("conversation_scene sem falas");
+      for (const [index, line] of lines.entries()) {
+        if (!line.hanzi?.trim()) errors.push(`conversation_scene fala ${index + 1} sem hanzi`);
+        if (!line.pinyin?.trim()) errors.push(`conversation_scene fala ${index + 1} sem pinyin`);
+        if (!line.speakerId?.trim()) errors.push(`conversation_scene fala ${index + 1} sem speakerId`);
+        else if (step.characters && !step.characters.some((character) => character.id === line.speakerId)) {
+          errors.push(`conversation_scene fala ${index + 1}: speakerId desconhecido "${line.speakerId}"`);
+        }
+      }
+      const checkpoint = step.checkpoint;
+      if (checkpoint) {
+        if (!checkpoint.prompt?.trim()) errors.push("conversation_scene checkpoint sem prompt");
+        if (!checkpoint.correctAnswer?.trim()) errors.push("conversation_scene checkpoint sem resposta correta");
+        if (checkpoint.type === "choose_reply" || checkpoint.type === "choose_meaning" || checkpoint.type === "fill_reply") {
+          checkChoice(errors, "conversation_scene checkpoint", checkpoint.correctAnswer, checkpoint.options);
+          checkPinyinLookAlike(errors, step, checkpoint.options ?? []);
+        }
+        if (checkpoint.type === "order_reply") {
+          if (!checkpoint.options || checkpoint.options.length < 2) {
+            errors.push("conversation_scene order_reply sem peças");
+          } else {
+            const duplicate = findDuplicate(checkpoint.options);
+            if (duplicate) errors.push(`conversation_scene order_reply: peça duplicada "${duplicate}"`);
+          }
+        }
+      }
+      if (!step.learnedRefs || step.learnedRefs.length === 0) {
+        errors.push("conversation_scene sem learnedRefs");
+      }
+      break;
+    }
 
     case "image_choice": {
       if (!step.imageChoiceMode) errors.push("image_choice sem modo");

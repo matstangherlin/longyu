@@ -474,6 +474,21 @@ a {
 }
 
 /* Exercícios: tremor curto no par/resposta errada (feedback tátil visual). */
+@keyframes conversation-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.conversation-bubble-in {
+  animation: conversation-bubble-in 0.32s ease-out both;
+}
+
 @keyframes longyu-error-shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-5px); }

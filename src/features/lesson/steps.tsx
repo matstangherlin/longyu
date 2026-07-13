@@ -32,6 +32,7 @@ import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { validateExercise } from "./exerciseValidation";
 import { StepImageChoice } from "./StepImageChoice";
+import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
 
 export interface PairMistakePayload {
@@ -301,10 +302,22 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
     correctAnswer: personalizeValue(step.correctAnswer, name),
     explanation: personalizeValue(step.explanation, name),
     lines: step.lines?.map((line) => ({
+      ...line,
       hanzi: personalizeValue(line.hanzi, name) ?? line.hanzi,
       pinyin: personalizeValue(line.pinyin, name) ?? line.pinyin,
       pt: personalizeValue(line.pt, name) ?? line.pt,
+      audioText: personalizeValue(line.audioText, name) ?? line.audioText,
     })),
+    checkpoint: step.checkpoint
+      ? {
+          ...step.checkpoint,
+          prompt: personalizeValue(step.checkpoint.prompt, name) ?? step.checkpoint.prompt,
+          correctAnswer:
+            personalizeValue(step.checkpoint.correctAnswer, name) ?? step.checkpoint.correctAnswer,
+          explanation: personalizeValue(step.checkpoint.explanation, name) ?? step.checkpoint.explanation,
+          options: step.checkpoint.options?.map((option) => personalizeValue(option, name) ?? option),
+        }
+      : step.checkpoint,
   };
 }
 
@@ -2754,6 +2767,7 @@ export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
       case "translation_build": return <StepTranslationBuild step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "fill_blank": return <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "dialogue_choice": return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "hanzi_build": return <StepHanziBuild step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "tone_pair": return <StepTonePair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "image_choice": return <StepImageChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
