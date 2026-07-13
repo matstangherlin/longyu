@@ -107,15 +107,6 @@ export interface LessonStep {
   charId?: string;
   charIds?: string[];
   chunkId?: string;
-  lines?: {
-    hanzi: string;
-    pinyin: string;
-    pt?: string;
-    speakerId?: string;
-    emotion?: ConversationLine["emotion"];
-    audioText?: string;
-    revealMode?: ConversationLine["revealMode"];
-  }[];
   pairs?: {
     left: string;
     right: string;
@@ -150,11 +141,26 @@ export interface LessonStep {
   sceneId?: string;
   setting?: ConversationSetting;
   characters?: ConversationCharacter[];
+  lines?: Array<
+    | ConversationLine
+    | {
+        hanzi: string;
+        pinyin: string;
+        pt?: string;
+        speakerId?: string;
+        emotion?: ConversationLine["emotion"];
+        audioText?: string;
+        revealMode?: ConversationLine["revealMode"];
+      }
+  >;
   checkpoint?: ConversationCheckpoint;
   learnedRefs?: string[];
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade na cena. */
   dedicatedLesson?: boolean;
+  conversationDifficulty?: import("./conversationScenes").ConversationDifficulty;
+  conversationIntent?: string;
+  situationGroup?: import("./conversationScenes").ConversationSituationGroup;
 }
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";
@@ -359,13 +365,19 @@ const conversationScene = (sceneId: string): LessonStep => {
     learnedRefs: scene.learnedRefs,
     newRefs: scene.newRefs,
     dedicatedLesson: scene.dedicatedLesson,
+    conversationDifficulty: scene.difficulty,
+    conversationIntent: scene.intent,
+    situationGroup: scene.situationGroup,
     prompt: scene.checkpoint?.prompt,
     options: scene.checkpoint?.options,
     correctAnswer: scene.checkpoint?.correctAnswer,
     explanation: scene.checkpoint?.explanation,
-    bank: scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
-      ? scene.checkpoint.options
-      : undefined,
+    bank:
+      scene.checkpoint?.type === "order_reply" ||
+      scene.checkpoint?.type === "fill_reply" ||
+      scene.checkpoint?.type === "complete_reply"
+        ? scene.checkpoint.options
+        : undefined,
   };
 };
 const sentenceBuild = (

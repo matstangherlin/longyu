@@ -1155,6 +1155,8 @@ export function LessonPlayer() {
   const setCurrentLessonAttempt = useStore((s) => s.setCurrentLessonAttempt);
   const finishLessonAttempt = useStore((s) => s.finishLessonAttempt);
   const recordLessonMistake = useStore((s) => s.recordLessonMistake);
+  const rememberConversationScene = useStore((s) => s.rememberConversationScene);
+  const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
   const markMistakeRecovered = useStore((s) => s.markMistakeRecovered);
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
   const srs = useStore((s) => s.srs);
@@ -1258,13 +1260,14 @@ export function LessonPlayer() {
                   learnedChars,
                   hanziBuilderProgress,
                   recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
+                  recentConversationSceneIds,
                   srs,
                 }
               ),
             };
           })()
         : undefined,
-    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, srs]
+    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, recentConversationSceneIds, srs]
   );
 
   useEffect(() => {
@@ -1863,6 +1866,9 @@ export function LessonPlayer() {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
+    if (currentStep?.kind === "conversation_scene" && currentStep.sceneId) {
+      rememberConversationScene(currentStep.sceneId);
+    }
     // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
     // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
     const hadRecordedMistake = currentStepHadMistakeRef.current;

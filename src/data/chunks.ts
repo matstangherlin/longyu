@@ -26,6 +26,7 @@ export const CHUNKS: Chunk[] = [
   { id: "wojiao", hanzi: "我叫马修", pinyin: "wǒ jiào Mǎxiū", meaningPt: "Meu nome é Matheus.", literalPt: "eu chamo Matheus", tags: ["apresentacao"], domain: "apresentacao", level: "beginner" },
   { id: "nijiaoshenme", hanzi: "你叫什么？", pinyin: "nǐ jiào shénme?", meaningPt: "Como você se chama?", literalPt: "você chama o quê", tags: ["apresentacao", "pergunta"], domain: "apresentacao", level: "beginner" },
   { id: "wature", hanzi: "我是巴西人", pinyin: "wǒ shì Bāxī rén", meaningPt: "Sou brasileiro.", literalPt: "eu sou Brasil pessoa", tags: ["apresentacao"], domain: "apresentacao", level: "beginner" },
+  { id: "nishinaguoren", hanzi: "你是哪国人？", pinyin: "nǐ shì nǎ guó rén?", meaningPt: "De que país você é?", literalPt: "você é qual país pessoa", tags: ["apresentacao", "pergunta"], domain: "apresentacao", level: "beginner" },
   { id: "woshixuesheng", hanzi: "我是学生", pinyin: "wǒ shì xuésheng", meaningPt: "Sou estudante.", literalPt: "eu sou estudante", tags: ["apresentacao", "estudo"], domain: "apresentacao", level: "elementary" },
   { id: "renshinihengaoxing", hanzi: "认识你很高兴", pinyin: "rènshi nǐ hěn gāoxìng", meaningPt: "Prazer em conhecer você.", literalPt: "conhecer você muito feliz", tags: ["apresentacao", "cortesia"], domain: "apresentacao", level: "elementary" },
   { id: "woyousangepengyou", hanzi: "我有三个朋友", pinyin: "wǒ yǒu sān ge péngyou", meaningPt: "Tenho três amigos.", literalPt: "eu tenho três unidades amigo", tags: ["palavras", "apresentacao"], domain: "apresentacao", level: "elementary" },
@@ -35,6 +36,7 @@ export const CHUNKS: Chunk[] = [
   { id: "wohuishuoyidian", hanzi: "我会说一点中文", pinyin: "wǒ huì shuō yìdiǎn Zhōngwén", meaningPt: "Sei falar um pouco de chinês.", literalPt: "eu sei falar um pouco chinês", tags: ["sobrevivencia"], domain: "sobrevivencia", level: "elementary" },
   { id: "tingbudong", hanzi: "我听不懂", pinyin: "wǒ tīng bù dǒng", meaningPt: "Não entendi (ouvindo).", tags: ["sobrevivencia"], domain: "sobrevivencia", level: "beginner" },
   { id: "qingzaishuoyibian", hanzi: "请再说一遍", pinyin: "qǐng zài shuō yí biàn", meaningPt: "Por favor, fale de novo.", literalPt: "por favor de novo fale uma vez", tags: ["sobrevivencia", "cortesia"], domain: "sobrevivencia", level: "beginner" },
+  { id: "shuomanyidian", hanzi: "请说慢一点", pinyin: "qǐng shuō màn yìdiǎn", meaningPt: "Fale mais devagar, por favor.", literalPt: "por favor falar lento um pouco", tags: ["sobrevivencia", "cortesia"], domain: "sobrevivencia", level: "beginner" },
   { id: "nihuishuoyingyuma", hanzi: "你会说英语吗？", pinyin: "nǐ huì shuō Yīngyǔ ma?", meaningPt: "Você fala inglês?", literalPt: "você sabe falar inglês (pergunta)", tags: ["sobrevivencia", "pergunta"], domain: "sobrevivencia", level: "survival" },
   { id: "womenzouba", hanzi: "我们走吧", pinyin: "wǒmen zǒu ba", meaningPt: "Vamos embora.", literalPt: "nós ir (vamos)", tags: ["sobrevivencia"], domain: "sobrevivencia", level: "elementary" },
   { id: "dengyixia", hanzi: "等一下", pinyin: "děng yíxià", meaningPt: "Espera um pouco.", literalPt: "esperar um momento", tags: ["sobrevivencia"], domain: "sobrevivencia", level: "survival" },
@@ -49,6 +51,10 @@ export const CHUNKS: Chunk[] = [
   { id: "zenmeyang", hanzi: "怎么样？", pinyin: "zěnmeyàng?", meaningPt: "Que tal? Como está?", tags: ["pergunta"], domain: "pergunta", level: "survival" },
 
   // --- Compras ---
+  { id: "duoshao", hanzi: "多少？", pinyin: "duōshao?", meaningPt: "Quanto? Quantos?", literalPt: "quanto", tags: ["pergunta", "numero"], domain: "pergunta", level: "beginner" },
+  { id: "nijisui", hanzi: "你几岁？", pinyin: "nǐ jǐ suì?", meaningPt: "Quantos anos você tem?", literalPt: "você quantos anos", tags: ["pergunta", "numero"], domain: "pergunta", level: "elementary" },
+  { id: "wowusui", hanzi: "我五岁", pinyin: "wǒ wǔ suì", meaningPt: "Tenho cinco anos.", literalPt: "eu cinco anos", tags: ["numero", "apresentacao"], domain: "numero", level: "elementary" },
+  { id: "woyaoliangge", hanzi: "我要两个", pinyin: "wǒ yào liǎng ge", meaningPt: "Eu quero dois.", literalPt: "eu quero dois unidades", tags: ["compras", "numero"], domain: "compras", level: "elementary" },
   { id: "duoshaoqian", hanzi: "多少钱？", pinyin: "duōshao qián?", meaningPt: "Quanto custa?", literalPt: "quanto dinheiro", tags: ["compras"], domain: "compras", level: "beginner" },
   { id: "zhegeduoshaoqian", hanzi: "这个多少钱？", pinyin: "zhège duōshao qián?", meaningPt: "Quanto custa este?", literalPt: "este quanto dinheiro", tags: ["compras"], domain: "compras", level: "elementary" },
   { id: "woyao", hanzi: "我要这个", pinyin: "wǒ yào zhège", meaningPt: "Eu quero este.", literalPt: "eu quero este", tags: ["compras"], domain: "compras", level: "beginner" },
