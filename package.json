@@ -41,6 +41,7 @@
     "validate:module-review-coverage": "node scripts/validate-module-review-coverage.mjs",
     "validate:image-exercises": "node scripts/validate-image-exercises.mjs",
     "validate:conversation-scenes": "node scripts/validate-conversation-scenes.mjs",
+    "validate:exercise-depth": "node scripts/validate-exercise-depth.mjs",
     "deploy:backend": "node scripts/deploy-backend.mjs",
     "deploy:leagues": "node scripts/deploy-leagues.mjs",
     "deploy:leagues:browser": "node scripts/browser-deploy-leagues.mjs",

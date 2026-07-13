@@ -532,8 +532,8 @@ interface EssentialItems {
 
 /** Itens centrais do módulo: primeira frase, primeiro hànzì, primeira produção. */
 export const MODULE_ESSENTIAL_ITEM_REFS: Record<string, readonly string[]> = {
-  "u1-1": ["chunk:nihao", "chunk:xiexie", "chunk:zaijian", "char:ni", "char:hao", "char:xie"],
-  "u1-2": ["chunk:wohenhao", "chunk:wobuhui", "char:wo", "char:bu", "char:shuo"],
+  "u1-1": ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "char:ni", "char:hao", "char:wo"],
+  "u1-2": ["chunk:xiexie", "chunk:bukeqi", "chunk:zaijian", "char:xie", "char:ni"],
   "u2-1": ["char:ma2", "char:ma_horse", "char:ma_hemp", "char:ma_scold"],
   "u2-2": ["chunk:nihao", "chunk:xiexie", "char:ni", "char:hao", "char:xie"],
 };

@@ -646,6 +646,22 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "O que é hànzì?",
         "Cada hànzì carrega uma ideia. Veja quatro exemplos, um de cada vez — depois você monta o primeiro."
       ),
+      imageChoice(
+        "choose_image",
+        "tree",
+        "Olhe a imagem. O que você vê?",
+        "tree",
+        visualImageOptions("tree"),
+        { explanation: "木 representa árvore ou madeira — a forma lembra um tronco com galhos." }
+      ),
+      imageChoice(
+        "choose_hanzi",
+        "tree",
+        "Qual hànzì combina com a árvore?",
+        "木",
+        visualHanziOptions("tree"),
+        { explanation: "木 é o caractere de árvore." }
+      ),
       hanziBuild(
         "hb-mu-fragments",
         "Monte seu primeiro hànzì",
@@ -723,6 +739,22 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       // composição (林/明) aqui — isso vem depois, quando as bases já foram vistas.
       intro("Monte peça por peça", "Agora você monta caracteres simples com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
       hanziBuild("hb-mu-fragments", "Monte 木", "Encaixe os traços da árvore.", "木", "árvore / madeira"),
+      imageChoice(
+        "choose_image",
+        "person",
+        "Quem aparece na foto?",
+        "person",
+        visualImageOptions("person"),
+        { explanation: "人 significa pessoa — a forma lembra alguém em pé." }
+      ),
+      imageChoice(
+        "choose_hanzi",
+        "person",
+        "Qual hànzì significa pessoa?",
+        "人",
+        visualHanziOptions("person"),
+        { explanation: "人 é o caractere de pessoa." }
+      ),
       hanziBuild("hb-ren-fragments", "Monte 人", "Monte o hànzì de pessoa.", "人", "pessoa"),
       hanziBuild("hb-kou-fragments", "Monte 口", "Monte o hànzì de boca.", "口", "boca"),
       hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol.", "日", "sol; dia"),
@@ -846,66 +878,6 @@ const PHASE1_ENGINE_LESSONS: Lesson[] = [
         ],
         explanation: "mā alto e reto é diferente de mà caindo forte.",
       },
-    ],
-  }),
-];
-
-const PHASE1_COURTESY_MICROTASKS: Lesson[] = [
-  microLesson({
-    id: "p1-bukeqi-de-nada",
-    title: "De nada: 不客气",
-    skill: "fala",
-    libraryItems: ["chunk:bukeqi", "chunk:xiexie"],
-    reviewItems: ["chunk:bukeqi", "chunk:xiexie"],
-    steps: [
-      listen("不客气", "bú kèqi", "De nada"),
-      listenSelect(
-        "Escolha o que ouviu",
-        "不客气",
-        ["谢谢", "不客气", "你好", "再见"],
-        "不客气",
-        "不客气 é usado como de nada."
-      ),
-      match(
-        "Cortesia em pares",
-        "Combine cada frase com a função.",
-        [
-          { left: "谢谢", right: "Obrigado(a)", leftType: "hanzi", rightType: "pt" },
-          { left: "不客气", right: "De nada", leftType: "hanzi", rightType: "pt" },
-        ],
-        "谢谢 agradece; 不客气 responde ao agradecimento."
-      ),
-      sentenceBuild(
-        "Monte 不客气",
-        "Monte: de nada.",
-        ["不", "客气"],
-        ["不", "客气", "谢谢", "你好"],
-        "不客气 é uma resposta natural para 谢谢."
-      ),
-      dialogue(
-        "Resposta curta",
-        "Pessoa diz: 谢谢. O que você responde?",
-        "不客气",
-        ["不客气", "谢谢", "你好", "再见"],
-        "不客气 é a resposta natural para de nada.",
-        "Pessoa"
-      ),
-      conversationScene("agradecendo"),
-      translationBuild(
-        "Escreva em português",
-        "不客气",
-        "bú kèqi",
-        ["De", "nada"],
-        ["nada", "Obrigado(a)", "De", "Olá"],
-        "不客气 significa de nada."
-      ),
-      listenSelect(
-        "Revisão rápida",
-        "不客气",
-        ["不客气", "谢谢"],
-        "不客气",
-        "Você ouviu 不客气."
-      ),
     ],
   }),
 ];
@@ -1549,55 +1521,91 @@ export const JOURNEY: JourneyPhase[] = [
     id: "p1",
     order: 1,
     title: "Primeiro Contato",
-    why: "Em 10 minutos você já vai cumprimentar alguém em mandarim — sem decorar caracteres.",
+    why: "Som → cumprimento → conversa → imagem → hànzì → revisão. Em poucos minutos você já fala com naturalidade.",
     tier: "fundamentos",
     units: [
       {
         id: "u1-1",
         title: "Seu primeiro mandarim",
-        subtitle: "Ouvir, imitar e falar",
-        goal: "Cumprimentar e agradecer em voz alta.",
+        subtitle: "Som, cumprimento e conversa",
+        goal: "Entender mandarim/pinyin/tom e cumprimentar com naturalidade.",
         color: "#2F6FB0",
-        focusChunks: ["你好", "谢谢"],
-        focusHanzi: ["你", "好", "谢"],
-        focusGrammar: ["resposta social curta", "chunk fixo antes de análise gramatical"],
-        focusSounds: ["nǐ hǎo", "xièxie", "3º tom em 你/好", "4º tom em 谢"],
-        focusSituations: ["cumprimentar alguém", "agradecer ajuda", "abrir uma conversa curta"],
+        focusChunks: ["你好", "你好吗？", "我很好"],
+        focusHanzi: ["你", "好", "我"],
+        focusGrammar: ["resposta social curta", "pergunta com 吗"],
+        focusSounds: ["nǐ hǎo", "nǐ hǎo ma?", "wǒ hěn hǎo", "3º tom em 你/好"],
+        focusSituations: ["cumprimentar alguém", "perguntar se está bem", "responder com 我很好"],
         lessons: [
           ...PHASE1_BOOTSTRAP_LESSONS,
           ...PHASE1_ENGINE_LESSONS,
           {
             id: "l1",
+            title: "Mandarim, pinyin e tom",
+            skill: "sistema",
+            libraryItems: ["chunk:nihao", "char:ma2"],
+            reviewItems: ["chunk:nihao", "char:ma2"],
+            estimatedMinutes: 3,
+            steps: [
+              intro(
+                "Bem-vindo ao mandarim",
+                "Mandarim é a língua chinesa padrão. Aqui você começa pelo som e por frases úteis — sem listas frias de exercício."
+              ),
+              intro(
+                "Pinyin: ponte para o som",
+                "Pinyin escreve o som com letras latinas: 你好 vira nǐ hǎo. É uma ponte para falar e ouvir, não um substituto para sempre."
+              ),
+              listen("你好", "nǐ hǎo", "Olá — seu primeiro som útil"),
+              intro(
+                "Tom: a curva da voz",
+                "Em mandarim, a curva da voz faz parte da palavra. O mesmo som com tom diferente pode significar outra coisa."
+              ),
+              tone("妈", "mā", 1),
+              tone("马", "mǎ", 3),
+              dialogue(
+                "O que é tom?",
+                "Em mandarim, tom é...",
+                "a curva da voz que pode mudar o sentido",
+                [
+                  "a curva da voz que pode mudar o sentido",
+                  "a tradução em português",
+                  "o desenho do caractere",
+                  "só um detalhe opcional",
+                ],
+                "Tom é parte da pronúncia: mudar a curva pode mudar a palavra inteira.",
+                "Escolha"
+              ),
+            ],
+          },
+          {
+            id: "l2",
             title: "Olá",
             skill: "fala",
+            libraryItems: ["chunk:nihao", "char:ni", "char:hao", "char:ren"],
+            reviewItems: ["chunk:nihao", "char:ni", "char:hao"],
             steps: [
               listen("你好", "nǐ hǎo", "Olá"),
               listenSelect(
-                "Toque no que ouviu",
+                "Ouça e reconheça",
                 "你好",
                 ["你好", "谢谢", "再见", "不客气"],
                 "你好",
-                "你好 / nǐ hǎo é a saudação mais segura."
+                "Você ouviu 你好 — a saudação mais segura."
               ),
-              match(
-                "Combine frase e sentido",
-                "Ligue o cumprimento ao significado.",
-                [
-                  { left: "你好", right: "Olá", leftType: "hanzi", rightType: "pt" },
-                  { left: "你", right: "você", leftType: "hanzi", rightType: "pt" },
-                  { left: "好", right: "bom; bem", leftType: "hanzi", rightType: "pt" },
-                ],
-                "你好 junta você + bom/bem para cumprimentar."
-              ),
+              comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
+              produce(["你", "好"], ["谢", "好", "你", "再"], "Olá"),
               sentenceBuild(
-                "Monte 你好",
+                "Monte o cumprimento",
                 "Monte: Olá.",
                 ["你", "好"],
                 ["好", "你", "谢", "再"],
                 "你 + 好 forma 你好."
               ),
+              intro(
+                "De pessoa a você",
+                "你 significa você — e traz a ideia de pessoa 亻 ao lado de 好. Você já viu 人 antes."
+              ),
               dialogue(
-                "Quando usar 你好?",
+                "Na prática",
                 "Você encontra alguém. O que combina dizer?",
                 "你好",
                 ["你好", "谢谢", "再见", "不客气"],
@@ -1605,261 +1613,259 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               conversationScene("primeiro-cumprimento"),
               fillBlank(
-                "Complete o cumprimento",
-                "Complete a frase 你 ___.",
+                "Use na frase",
+                "Complete o cumprimento: 你 ___.",
                 "你",
                 "好",
                 "",
                 ["好", "谢", "再", "见"],
                 "你好 = olá."
               ),
-              dialogue(
-                "Escolha o pinyin",
-                "Qual pinyin combina com 你好?",
-                "nǐ hǎo",
-                ["nǐ hǎo", "xièxie", "zàijiàn", "bù kèqi"],
-                "你好 se lê nǐ hǎo — dois 3º tons.",
-                "Pinyin"
-              ),
-              translationBuild(
-                "Revisão rápida",
-                "你好",
-                "nǐ hǎo",
-                ["Olá"],
-                ["Obrigado(a)", "Olá", "Até", "logo"],
-                "你好 significa olá."
-              ),
             ],
           },
           {
-            id: "l2",
-            title: "Obrigado",
+            id: "l3",
+            title: "Tudo bem?",
             skill: "fala",
+            libraryItems: ["chunk:nihaoma", "chunk:wohenhao", "char:wo"],
+            reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
             steps: [
-              listen("谢谢", "xièxie", "Obrigado(a)"),
-              listenSelect(
-                "Distinguir agradecimento",
-                "谢谢",
-                ["你好", "谢谢", "再见", "不客气"],
-                "谢谢",
-                "谢谢 é a forma curta e comum de agradecer."
-              ),
-              match(
-                "Combine cortesia",
-                "Ligue a frase ao sentido.",
-                [
-                  { left: "谢谢", right: "Obrigado(a)", leftType: "hanzi", rightType: "pt" },
-                  { left: "谢", right: "agradecer", leftType: "hanzi", rightType: "pt" },
-                ],
-                "谢谢 repete 谢 para agradecer."
-              ),
+              listen("你好吗？", "nǐ hǎo ma?", "Tudo bem?"),
+              listen("我很好", "wǒ hěn hǎo", "Estou bem"),
+              comp("你好吗？", "nǐ hǎo ma?", "Tudo bem?", ["Tudo bem?", "Obrigado(a)", "De nada", "Até logo"]),
+              produce(["我", "很", "好"], ["好", "你", "我", "很", "谢"], "Estou bem"),
               sentenceBuild(
-                "Monte 谢谢",
-                "Monte: Obrigado(a).",
-                ["谢", "谢"],
-                ["谢", "你", "好"],
-                "谢谢 repete 谢 para agradecer."
+                "Monte a pergunta",
+                "Monte: Tudo bem?",
+                ["你", "好", "吗"],
+                ["吗", "你", "好", "我", "很"],
+                "你 + 好 + 吗 forma 你好吗？"
               ),
               dialogue(
-                "Escolha uma resposta",
-                "Alguém te ajuda. Qual frase curta você usa?",
-                "谢谢",
-                ["谢谢", "你好", "再见", "不客气"],
-                "谢谢 é a forma curta e comum de agradecer."
+                "Escolha a resposta",
+                "Pessoa pergunta: 你好吗？ O que você responde se está bem?",
+                "我很好",
+                ["我很好", "再见", "谢谢", "不客气"],
+                "我很好 é a resposta natural: estou bem."
               ),
-              tone("谢", "xiè", 4, "quiz"),
-              dialogue(
-                "Escolha o pinyin",
-                "Qual pinyin combina com 谢谢?",
-                "xièxie",
-                ["xièxie", "nǐ hǎo", "zàijiàn", "bù kèqi"],
-                "谢谢 começa com xiè, 4º tom na primeira sílaba.",
-                "Pinyin"
-              ),
-              translationBuild(
-                "Escreva em português",
-                "谢谢",
-                "xièxie",
-                ["Obrigado(a)"],
-                ["Olá", "Obrigado(a)", "Até", "logo"],
-                "谢谢 significa obrigado(a)."
-              ),
+              conversationScene("perguntando-se-esta-bem"),
               listenSelect(
-                "Revisão rápida",
-                "谢谢",
-                ["谢谢", "你好"],
-                "谢谢",
-                "Você ouviu 谢谢."
+                "Ouça a resposta",
+                "我很好",
+                ["你好吗？", "我很好", "谢谢", "再见"],
+                "我很好",
+                "Você ouviu 我很好."
               ),
-            ],
-          },
-          {
-            id: "l2-mapa-rapido",
-            title: "Mapa rápido",
-            skill: "fala",
-            libraryItems: ["chunk:nihao", "chunk:xiexie"],
-            reviewItems: ["chunk:nihao", "chunk:xiexie"],
-            rewardQi: 2,
-            estimatedMinutes: 3,
-            steps: [
-              intro("O que é mandarim?", "Mandarim é a língua chinesa padrão. No Longyu, você começa pelo som e por frases úteis antes de encarar textos longos."),
-              intro("O que é pinyin?", "Pinyin escreve o som do mandarim com letras latinas: 你好 vira nǐ hǎo. Ele é uma ponte, não uma muleta eterna."),
-              intro("O que é tom?", "Tom é o contorno da voz. Em mandarim, mudar o tom pode mudar a palavra, então seu ouvido treina desde cedo."),
-              intro("O que é hànzì?", "Hànzì são os caracteres chineses. Você vai vê-los como peças com lógica: som, sentido e forma visual."),
-              flash("nihao"),
-              flash("xiexie"),
-              comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
-              comp("谢谢", "xièxie", "Obrigado(a)", ["Obrigado(a)", "Olá", "Com licença", "Tchau"]),
             ],
           },
           review("l1-rev", "fala", [
-            flash("nihao"),
-            flash("xiexie"),
+            intro("Revisão viva", "Vamos usar o que você já viu numa conversa curta."),
             conversationScene("primeiro-cumprimento"),
-            comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "Tchau"]),
-            dialogue(
-              "Escolha o pinyin",
-              "Qual pinyin combina com 你好?",
-              "nǐ hǎo",
-              ["nǐ hǎo", "xièxie", "zàijiàn", "bù kèqi"],
-              "你好 = nǐ hǎo.",
-              "Pinyin"
-            ),
+            conversationScene("perguntando-se-esta-bem"),
             produce(["你", "好"], ["谢", "好", "你", "再"], "Olá"),
-            tone("谢", "xiè", 4, "quiz"),
-            comp("谢谢", "xièxie", "Obrigado(a)", ["Obrigado(a)", "Olá", "De nada", "Tchau"]),
-            match(
-              "Fixe com pares",
-              "Combine frases antigas com o sentido.",
-              [
-                { left: "你好", right: "Olá", leftType: "hanzi", rightType: "pt" },
-                { left: "谢谢", right: "Obrigado(a)", leftType: "hanzi", rightType: "pt" },
-              ],
-              "Revisão mistura cumprimento e agradecimento."
+            dialogue(
+              "Resposta certa",
+              "Pessoa pergunta: 你好吗？ Qual resposta combina?",
+              "我很好",
+              ["我很好", "谢谢", "再见", "不客气"],
+              "我很好 responde que está bem."
             ),
+            listenSelect("Ouça de novo", "你好", ["你好", "我很好", "谢谢", "再见"], "你好", "Você ouviu 你好."),
           ]),
         ],
       },
       {
         id: "u1-2",
-        title: "Despedida e cortesia",
-        subtitle: "Fechar conversas com naturalidade",
-        goal: "Despedir-se e usar uma frase de cortesia.",
+        title: "Cortesia e despedida",
+        subtitle: "Agradecer, responder e fechar",
+        goal: "Agradecer, responder com cortesia e encerrar uma conversa.",
         color: "#7A3FB0",
-        focusChunks: ["再见", "不客气"],
-        focusHanzi: ["再", "见", "不"],
+        focusChunks: ["谢谢", "不客气", "再见"],
+        focusHanzi: ["谢", "再", "见", "不"],
         focusGrammar: ["resposta social curta", "frase de cortesia como bloco"],
-        focusSounds: ["zàijiàn", "bú kèqi", "4º tom em 再/见", "sandhi de 不 antes de 4º tom"],
-        focusSituations: ["encerrar uma conversa", "responder a 谢谢", "alternar saudação e despedida"],
+        focusSounds: ["xièxie", "bú kèqi", "zàijiàn", "4º tom em 谢"],
+        focusSituations: ["agradecer ajuda", "responder a 谢谢", "encerrar uma conversa"],
         lessons: [
           {
-            id: "l3",
+            id: "l4",
+            title: "Obrigado",
+            skill: "fala",
+            libraryItems: ["chunk:xiexie", "chunk:bukeqi", "char:xie"],
+            reviewItems: ["chunk:xiexie", "chunk:bukeqi"],
+            steps: [
+              listen("谢谢", "xièxie", "Obrigado(a)"),
+              listen("不客气", "bú kèqi", "De nada"),
+              listenSelect(
+                "Ouça o agradecimento",
+                "谢谢",
+                ["你好", "谢谢", "再见", "不客气"],
+                "谢谢",
+                "谢谢 é a forma curta e comum de agradecer."
+              ),
+              comp("谢谢", "xièxie", "Obrigado(a)", ["Obrigado(a)", "Olá", "De nada", "Até logo"]),
+              sentenceBuild(
+                "Monte o agradecimento",
+                "Monte: Obrigado(a).",
+                ["谢", "谢"],
+                ["谢", "你", "好", "再"],
+                "谢谢 repete 谢 para agradecer."
+              ),
+              dialogue(
+                "Na situação",
+                "Alguém te ajuda. Qual frase curta você usa?",
+                "谢谢",
+                ["谢谢", "你好", "再见", "不客气"],
+                "谢谢 agradece de forma natural."
+              ),
+              conversationScene("agradecendo"),
+              dialogue(
+                "Responda com cortesia",
+                "Pessoa diz: 谢谢. O que você responde?",
+                "不客气",
+                ["不客气", "谢谢", "你好", "再见"],
+                "不客气 é a resposta natural: de nada.",
+                "Pessoa"
+              ),
+              listenSelect(
+                "Ouça de novo",
+                "不客气",
+                ["不客气", "谢谢", "你好", "再见"],
+                "不客气",
+                "Você ouviu 不客气."
+              ),
+            ],
+          },
+          {
+            id: "p1-ate-logo",
             title: "Até logo",
             skill: "fala",
+            libraryItems: ["chunk:zaijian"],
+            reviewItems: ["chunk:zaijian", "chunk:nihao"],
             steps: [
               listen("再见", "zàijiàn", "Até logo"),
               listenSelect(
-                "Toque no que ouviu",
+                "Ouça a despedida",
                 "再见",
                 ["你好", "谢谢", "再见", "不客气"],
                 "再见",
                 "再见 fecha a conversa."
               ),
-              match(
-                "Combine despedida",
-                "Ligue as peças ao sentido.",
-                [
-                  { left: "再见", right: "Até logo", leftType: "hanzi", rightType: "pt" },
-                  { left: "再", right: "de novo", leftType: "hanzi", rightType: "pt" },
-                  { left: "见", right: "ver", leftType: "hanzi", rightType: "pt" },
-                ],
-                "再见 literalmente sugere ver de novo."
-              ),
+              comp("再见", "zàijiàn", "Até logo", ["Até logo", "Olá", "Obrigado(a)", "De nada"]),
+              produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
               sentenceBuild(
-                "Monte 再见",
+                "Monte a despedida",
                 "Monte: Até logo.",
                 ["再", "见"],
                 ["见", "谢", "再", "好"],
                 "再 + 见 forma 再见."
               ),
               dialogue(
-                "Fechar uma conversa",
+                "Hora de ir",
                 "Você vai embora. O que combina dizer?",
                 "再见",
                 ["再见", "你好", "谢谢", "不客气"],
                 "再见 fecha a conversa: até logo."
               ),
               conversationScene("despedida"),
-              translationBuild(
-                "Escreva em português",
-                "再见",
-                "zàijiàn",
-                ["Até", "logo"],
-                ["logo", "Obrigado(a)", "Até", "Olá"],
-                "再见 significa até logo."
-              ),
-              listenSelect(
-                "Revisão rápida",
-                "再见",
-                ["再见", "谢谢"],
-                "再见",
-                "Você ouviu 再见."
-              ),
               fillBlank(
-                "Frase antiga",
-                "Complete o cumprimento que você já conhece.",
+                "Volte ao cumprimento",
+                "Antes de sair, você ainda pode dizer ___ para cumprimentar.",
                 "",
                 "你好",
                 "",
                 ["你好", "再见", "谢谢", "不客气"],
-                "你好 volta como saudação base."
+                "你好 continua sendo a saudação base."
               ),
             ],
           },
-          ...PHASE1_COURTESY_MICROTASKS,
-          {
-            id: "l4",
+          microLesson({
+            id: "p1-primeira-conversa",
+            title: "Primeira conversa",
+            skill: "fala",
+            libraryItems: [
+              "chunk:nihao",
+              "chunk:nihaoma",
+              "chunk:wohenhao",
+              "chunk:xiexie",
+              "chunk:zaijian",
+              "chunk:bukeqi",
+            ],
+            reviewItems: [
+              "chunk:nihao",
+              "chunk:nihaoma",
+              "chunk:wohenhao",
+              "chunk:xiexie",
+              "chunk:zaijian",
+            ],
+            rewardQi: 3,
+            estimatedMinutes: 4,
+            steps: [
+              intro(
+                "Conversa completa",
+                "Lin e Mei vão usar tudo o que você aprendeu: cumprimento, pergunta, resposta, agradecimento e despedida."
+              ),
+              conversationScene("revisao-cumprimento-completo"),
+              dialogue(
+                "Sua vez",
+                "Alguém diz 你好！ Qual é a resposta natural?",
+                "你好",
+                ["你好", "谢谢", "再见", "不客气"],
+                "你好 também responde a um cumprimento."
+              ),
+              produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
+            ],
+          }),
+          microLesson({
+            id: "p1-qingwen-cortesia",
             title: "Com licença",
             skill: "fala",
+            libraryItems: ["chunk:qingwen"],
+            reviewItems: ["chunk:qingwen"],
+            estimatedMinutes: 2,
             steps: [
               listen("请问", "qǐng wèn", "Com licença, posso perguntar?"),
-              listen("不客气", "bú kèqi", "De nada"),
-              flash("qingwen"),
-              flash("bukeqi"),
-              comp("请问", "qǐng wèn", "Com licença, posso perguntar?", ["Com licença, posso perguntar?", "De nada", "Obrigado(a)", "Até logo"]),
-              comp("不客气", "bú kèqi", "De nada", ["De nada", "Obrigado(a)", "Com licença", "Desculpa"]),
+              listenSelect(
+                "Ouça a cortesia",
+                "请问",
+                ["请问", "谢谢", "再见", "不客气"],
+                "请问",
+                "请问 abre uma pergunta com educação."
+              ),
+              comp(
+                "请问",
+                "qǐng wèn",
+                "Com licença, posso perguntar?",
+                ["Com licença, posso perguntar?", "De nada", "Obrigado(a)", "Até logo"]
+              ),
               dialogue(
-                "Escolha uma resposta para 谢谢",
-                "Pessoa diz: 谢谢. O que você responde?",
-                "不客气",
-                ["不客气", "谢谢", "你好", "再见"],
-                "不客气 é a resposta natural para de nada.",
-                "Pessoa"
+                "Abrir uma pergunta",
+                "Você quer pedir informação com educação. O que combina?",
+                "请问",
+                ["请问", "谢谢", "再见", "不客气"],
+                "请问 abre uma pergunta com cortesia."
               ),
             ],
-          },
+          }),
           review("l2-rev", "fala", [
-            flash("nihao"),
-            flash("xiexie"),
-            flash("zaijian"),
-            flash("qingwen"),
-            conversationScene("despedida"),
+            intro("Revisão do módulo", "Vamos usar o que você já viu numa conversa."),
+            conversationScene("revisao-cumprimento-completo"),
             conversationScene("agradecendo"),
-            comp("请问", "qǐng wèn", "Com licença, posso perguntar?", ["Com licença, posso perguntar?", "Obrigado(a)", "Até logo", "Olá"]),
-            produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
-            tone("谢", "xiè", 4, "quiz"),
-            comp("谢谢", "xièxie", "Obrigado(a)", ["Obrigado(a)", "Olá", "De nada", "Até logo"]),
-            match(
-              "Revisão mista",
-              "Combine frases antigas com o sentido.",
-              [
-                { left: "你好", right: "Olá", leftType: "hanzi", rightType: "pt" },
-                { left: "再见", right: "Até logo", leftType: "hanzi", rightType: "pt" },
-                { left: "谢谢", right: "Obrigado(a)", leftType: "hanzi", rightType: "pt" },
-                { left: "不客气", right: "De nada", leftType: "hanzi", rightType: "pt" },
-              ],
-              "O módulo fecha misturando saudação, agradecimento e despedida."
+            produce(["你", "好"], ["谢", "好", "你", "再"], "Olá"),
+            sentenceBuild(
+              "Monte o agradecimento",
+              "Monte: Obrigado(a).",
+              ["谢", "谢"],
+              ["谢", "你", "好", "再"],
+              "谢谢 repete 谢 para agradecer."
             ),
+            dialogue(
+              "Resposta certa",
+              "Pessoa diz 谢谢. O que você responde?",
+              "不客气",
+              ["不客气", "你好", "再见", "我很好"],
+              "不客气 responde ao agradecimento."
+            ),
+            listenSelect("Ouça tudo junto", "再见", ["再见", "你好", "谢谢", "我很好"], "再见", "Você ouviu 再见."),
           ]),
         ],
       },

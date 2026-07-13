@@ -339,7 +339,7 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
     if (hasOldVocabulary) return "Revisão rápida com palavras que já apareceram.";
     return "Vamos fixar o ponto principal antes de seguir.";
   }
-  if (hasTone && hasOldVocabulary) return "Foco: tons + vocabulário antigo.";
+  if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que você já viu.";
   if (hasTone) return "Escute o contorno e ligue som, tom e pinyin.";
   if (hasPinyin) return "Use o pinyin como ponte para reconhecer o som.";
   if (hasHanzi) return "Observe a forma e conecte hànzì, som e sentido.";

@@ -50,8 +50,8 @@ interface JourneyChestConfig {
 }
 
 const THEME_CHECKPOINTS: Record<string, ThemeCheckpoint> = {
-  "u1-1": { title: "Primeiro contato", detail: "Comece ouvindo, imitando e falando sem pressa." },
-  "u1-2": { title: "Saudações", detail: "Cortesia básica para abrir e fechar conversas." },
+  "u1-1": { title: "Primeiro contato", detail: "Som, cumprimento e primeira conversa com Lin e Mei." },
+  "u1-2": { title: "Cortesia", detail: "Agradecer, responder e fechar conversas com naturalidade." },
   "u2-1": { title: "Tons básicos", detail: "Os quatro contornos viram mapa auditivo." },
   "u2-2": { title: "Tons em frases", detail: "Leve a escuta para palavras que você já usa." },
   "u3-1": { title: "Apresentação", detail: "Nome, origem e sobrevivência em frases curtas." },

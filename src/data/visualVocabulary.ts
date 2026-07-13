@@ -41,8 +41,8 @@ export interface VisualConcept {
 }
 
 export const VISUAL_CONCEPTS: VisualConcept[] = [
-  { id: "person", charId: "ren", hanzi: "人", pinyin: "rén", meaningPt: "pessoa", imageSrc: "people/person.webp", imageAltPt: "Foto de uma pessoa em fundo neutro", imageKind: "photo", sceneTags: ["people", "person"], emoji: "🧑", afterUnitIndex: 6 },
-  { id: "tree", charId: "mu", hanzi: "木", pinyin: "mù", meaningPt: "árvore", imageSrc: "nature/tree.webp", imageAltPt: "Foto de uma árvore isolada em um campo", imageKind: "photo", sceneTags: ["nature", "object"], emoji: "🌳", afterUnitIndex: 6 },
+  { id: "person", charId: "ren", hanzi: "人", pinyin: "rén", meaningPt: "pessoa", imageSrc: "people/person.webp", imageAltPt: "Foto de uma pessoa em fundo neutro", imageKind: "photo", sceneTags: ["people", "person"], emoji: "🧑", afterUnitIndex: 0 },
+  { id: "tree", charId: "mu", hanzi: "木", pinyin: "mù", meaningPt: "árvore", imageSrc: "nature/tree.webp", imageAltPt: "Foto de uma árvore isolada em um campo", imageKind: "photo", sceneTags: ["nature", "object"], emoji: "🌳", afterUnitIndex: 0 },
   { id: "mouth", charId: "kou", hanzi: "口", pinyin: "kǒu", meaningPt: "boca", imageSrc: "people/mouth.webp", imageAltPt: "Foto aproximada de uma boca humana", imageKind: "photo", sceneTags: ["people", "body"], emoji: "👄", afterUnitIndex: 6 },
   { id: "sun", charId: "ri", hanzi: "日", pinyin: "rì", meaningPt: "sol", imageSrc: "nature/sun.webp", imageAltPt: "Foto do sol brilhando em céu azul", imageKind: "photo", sceneTags: ["nature", "sky"], emoji: "☀️", afterUnitIndex: 6 },
   { id: "moon", charId: "yue", hanzi: "月", pinyin: "yuè", meaningPt: "lua", imageSrc: "nature/moon.webp", imageAltPt: "Foto da lua crescente no céu noturno", imageKind: "photo", sceneTags: ["nature", "sky"], emoji: "🌙", afterUnitIndex: 6 },
