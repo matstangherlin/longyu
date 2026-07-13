@@ -1,7 +1,21 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { resolveVisualConcept } from "../../data/visualVocabulary";
+import {
+  imageChoiceShowsAudioStimulus,
+  imageChoiceShowsHanziStimulus,
+  imageChoiceShowsImageStimulus,
+  imageChoiceShowsMeaningStimulus,
+  imageChoiceUsesAudioOptions,
+  imageChoiceUsesImageOptions,
+  imageChoiceUsesSentenceOptions,
+  normalizeImageChoiceMode,
+  resolveVisualConcept,
+} from "../../data/visualVocabulary";
+import { resolveVisualScene } from "../../data/visualScenes";
+import { AudioChoiceGrid } from "../../components/hanzi/AudioChoiceGrid";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
+import { VisualExerciseFeedback } from "../../components/hanzi/VisualExerciseFeedback";
+import { VisualSceneImage } from "../../components/hanzi/VisualSceneImage";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { useStore } from "../../lib/store";
@@ -23,31 +37,22 @@ function Eyebrow({ children }: { children: ReactNode }) {
   return <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{children}</div>;
 }
 
-function AnswerFeedback({
-  correct,
-  explanation,
-}: {
-  correct: boolean;
-  explanation?: string;
-}) {
-  return (
-    <div
-      className={[
-        "mt-4 rounded-xl px-4 py-3 text-sm",
-        correct ? "bg-[rgb(var(--good)/0.12)] text-ink" : "bg-wrong-soft text-ink",
-      ].join(" ")}
-    >
-      {correct ? "Correto." : "Quase — reveja a associação visual."}
-      {explanation && <p className="mt-1 text-ink-soft">{explanation}</p>}
-    </div>
-  );
-}
-
 export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
-  const mode = step.imageChoiceMode ?? "choose_hanzi";
-  const concept = resolveVisualConcept(step.imageId ?? step.iconId);
-  const isImagePick = mode === "choose_image" || mode === "listen_and_choose_image";
+  const mode = step.imageChoiceMode ?? "image_to_hanzi";
+  const normalized = normalizeImageChoiceMode(mode);
+  const scene = resolveVisualScene(step.visualSceneId);
+  const concept = resolveVisualConcept(step.imageId ?? step.iconId ?? scene?.conceptId);
+  const stimulusConceptId = step.imageId ?? step.iconId ?? scene?.conceptId ?? concept?.id;
+
+  const hanzi = step.targetHanzi ?? scene?.targetHanzi ?? concept?.hanzi ?? "";
+  const pinyin = step.targetPinyin ?? scene?.targetPinyin ?? concept?.pinyin ?? "";
+  const meaningPt = step.targetMeaningPt ?? scene?.targetMeaningPt ?? concept?.meaningPt ?? "";
+
+  const isImagePick = imageChoiceUsesImageOptions(mode);
+  const isAudioPick = imageChoiceUsesAudioOptions(mode);
+  const isSentencePick = imageChoiceUsesSentenceOptions(mode);
+
   const correctAnswer = isImagePick ? step.correctImageId ?? "" : step.correctAnswer ?? "";
   const rawOptions = isImagePick ? step.imageOptions ?? [] : step.options ?? [];
   const options = useMemo(() => shuffle([...rawOptions]), [rawOptions.join("|")]);
@@ -56,10 +61,10 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
 
-  const audioText = step.targetHanzi ?? concept?.hanzi ?? step.audioText;
+  const audioText = step.targetHanzi ?? scene?.targetHanzi ?? concept?.hanzi ?? step.audioText;
 
   useEffect(() => {
-    if (mode !== "listen_and_choose_image" || !audioText) return;
+    if (!imageChoiceShowsAudioStimulus(mode) || !audioText) return;
     const timer = window.setTimeout(() => {
       playSoundFx("pieceSelect", soundEffects);
     }, 120);
@@ -87,7 +92,7 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
   }
 
   useExerciseHotkeys({
-    enabled: true,
+    enabled: !isAudioPick,
     mode: "choice",
     optionCount: options.length,
     isAnswered: answered != null,
@@ -95,8 +100,7 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
     onSelectOption: (index) => {
       const option = options[index];
       if (!option) return;
-      if (isImagePick) selectOption(option);
-      else selectOption(option);
+      selectOption(option);
     },
     onSubmit: submitSelected,
     onContinue: () => {
@@ -105,72 +109,108 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
   });
 
   const prompt = step.promptPt ?? step.prompt ?? "Escolha a opção correta.";
+  const showTranslation =
+    normalized === "image_to_hanzi" ||
+    normalized === "image_to_meaning" ||
+    (normalized === "image_sentence_choice" && !step.isNoHint);
+
+  const wrongPrefix =
+    meaningPt && hanzi
+      ? `Esta imagem representa ${meaningPt.replace(/\.$/, "")}: ${hanzi}, ${formatPinyinForDisplay(pinyin)}.`
+      : undefined;
 
   return (
     <div>
       <Eyebrow>Associação visual</Eyebrow>
 
-      {(mode === "choose_hanzi" || mode === "choose_pinyin" || mode === "choose_meaning") && concept && (
+      {imageChoiceShowsImageStimulus(mode) && (scene || concept) && (
         <div className="my-5 flex flex-col items-center gap-2">
-          <VisualConceptImage conceptId={concept.id} size="xl" />
-          {step.targetMeaningPt && mode !== "choose_meaning" && (
-            <p className="text-xs text-ink-faint">{step.targetMeaningPt}</p>
+          {scene ? (
+            <VisualSceneImage sceneId={scene.id} size="xl" />
+          ) : stimulusConceptId ? (
+            <VisualConceptImage conceptId={stimulusConceptId} size="xl" />
+          ) : null}
+          {showTranslation && meaningPt && normalized !== "image_to_meaning" && (
+            <p className="text-xs text-ink-faint">{meaningPt}</p>
           )}
         </div>
       )}
 
       <p className="mt-2 text-sm leading-6 text-ink-soft">{prompt}</p>
 
-      {mode === "choose_image" && (step.targetHanzi ?? concept?.hanzi) && (
+      {imageChoiceShowsHanziStimulus(mode) && hanzi && (
         <div className="my-5 flex justify-center">
-          <MandarinText
-            hanzi={step.targetHanzi ?? concept!.hanzi}
-            pinyin={step.targetPinyin ?? concept?.pinyin}
-            size="lg"
-            align="center"
-          />
+          <MandarinText hanzi={hanzi} pinyin={step.isNoHint ? undefined : pinyin} size="lg" align="center" />
         </div>
       )}
 
-      {mode === "listen_and_choose_image" && (
+      {imageChoiceShowsMeaningStimulus(mode) && meaningPt && (
+        <div className="my-5 flex justify-center">
+          <p className="text-xl font-semibold text-ink">{meaningPt}</p>
+        </div>
+      )}
+
+      {imageChoiceShowsAudioStimulus(mode) && (
         <div className="my-5 flex flex-col items-center gap-3">
           <SpeakButton text={audioText ?? ""} size="lg" label="Ouvir" />
           <p className="text-sm text-ink-soft">Ouça e escolha a imagem certa.</p>
         </div>
       )}
 
-      <KeyboardShortcutHint />
+      {!isAudioPick && <KeyboardShortcutHint />}
 
-      <ImageChoiceGrid
-        mode={isImagePick ? "images" : "text"}
-        options={options}
-        imageOptionIds={imageOptionIds}
-        answered={answered}
-        selected={selected}
-        correctAnswer={correctAnswer}
-        onSelect={(value) => {
-          selectOption(value);
-          answerOption(value);
-        }}
-        textRenderer={(value) => {
-          if (mode === "choose_hanzi") return <span className="font-serif text-3xl font-semibold">{value}</span>;
-          if (mode === "choose_pinyin") return <span className="text-lg font-medium">{formatPinyinForDisplay(value)}</span>;
-          return <span className="text-sm font-medium leading-5">{value}</span>;
-        }}
-      />
+      {isAudioPick ? (
+        <AudioChoiceGrid
+          options={options}
+          answered={answered}
+          selected={selected}
+          correctAnswer={correctAnswer}
+          onSelect={(value) => {
+            selectOption(value);
+            answerOption(value);
+          }}
+        />
+      ) : (
+        <ImageChoiceGrid
+          mode={isImagePick ? "images" : "text"}
+          options={options}
+          imageOptionIds={imageOptionIds}
+          answered={answered}
+          selected={selected}
+          correctAnswer={correctAnswer}
+          onSelect={(value) => {
+            selectOption(value);
+            answerOption(value);
+          }}
+          textRenderer={(value) => {
+            if (normalized === "image_to_hanzi") {
+              return <span className="font-serif text-3xl font-semibold">{value}</span>;
+            }
+            if (normalized === "image_to_pinyin") {
+              return <span className="text-lg font-medium">{formatPinyinForDisplay(value)}</span>;
+            }
+            if (isSentencePick || /[\u3400-\u9fff]/.test(value)) {
+              return <MandarinText hanzi={value} size="sm" align="center" />;
+            }
+            return <span className="text-sm font-medium leading-5">{value}</span>;
+          }}
+        />
+      )}
 
       {answered && (
-        <AnswerFeedback
+        <VisualExerciseFeedback
           correct={answered === correctAnswer}
-          explanation={
-            step.explanation ??
-            (concept ? `${concept.hanzi} (${formatPinyinForDisplay(concept.pinyin)}) = ${concept.meaningPt}.` : undefined)
-          }
+          hanzi={hanzi}
+          pinyin={pinyin}
+          meaningPt={meaningPt}
+          conceptId={stimulusConceptId}
+          visualSceneId={step.visualSceneId}
+          wrongPrefix={wrongPrefix}
         />
       )}
 
       <div className="mt-5 flex flex-wrap gap-2">
-        {!answered && (
+        {!answered && !isAudioPick && (
           <button
             type="button"
             disabled={!selected}

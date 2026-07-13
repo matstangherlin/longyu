@@ -17,11 +17,96 @@ export const VISUAL_CONCEPT_IDS = [
 export type VisualConceptId = (typeof VISUAL_CONCEPT_IDS)[number];
 
 export type ImageChoiceMode =
+  | "image_to_hanzi"
+  | "image_to_pinyin"
+  | "image_to_meaning"
+  | "image_to_audio"
+  | "audio_to_image"
+  | "hanzi_to_image"
+  | "meaning_to_image"
+  | "image_sentence_choice"
   | "choose_hanzi"
   | "choose_pinyin"
   | "choose_meaning"
   | "listen_and_choose_image"
   | "choose_image";
+
+export type CanonicalImageChoiceMode =
+  | "image_to_hanzi"
+  | "image_to_pinyin"
+  | "image_to_meaning"
+  | "image_to_audio"
+  | "audio_to_image"
+  | "hanzi_to_image"
+  | "meaning_to_image"
+  | "image_sentence_choice";
+
+const LEGACY_MODE_MAP: Record<string, CanonicalImageChoiceMode> = {
+  choose_hanzi: "image_to_hanzi",
+  choose_pinyin: "image_to_pinyin",
+  choose_meaning: "image_to_meaning",
+  listen_and_choose_image: "audio_to_image",
+  choose_image: "hanzi_to_image",
+};
+
+export function normalizeImageChoiceMode(mode?: ImageChoiceMode): CanonicalImageChoiceMode {
+  if (!mode) return "image_to_hanzi";
+  return LEGACY_MODE_MAP[mode] ?? (mode as CanonicalImageChoiceMode);
+}
+
+/** Aluno escolhe imagem real (grade 2×2). */
+export function imageChoiceUsesImageOptions(mode?: ImageChoiceMode): boolean {
+  const normalized = normalizeImageChoiceMode(mode);
+  return normalized === "hanzi_to_image" || normalized === "audio_to_image" || normalized === "meaning_to_image";
+}
+
+/** Aluno ouve opções e escolhe o som certo. */
+export function imageChoiceUsesAudioOptions(mode?: ImageChoiceMode): boolean {
+  return normalizeImageChoiceMode(mode) === "image_to_audio";
+}
+
+/** Estímulo principal é uma foto/cena. */
+export function imageChoiceShowsImageStimulus(mode?: ImageChoiceMode): boolean {
+  const normalized = normalizeImageChoiceMode(mode);
+  return (
+    normalized === "image_to_hanzi" ||
+    normalized === "image_to_pinyin" ||
+    normalized === "image_to_meaning" ||
+    normalized === "image_to_audio" ||
+    normalized === "image_sentence_choice"
+  );
+}
+
+/** Estímulo principal é áudio (sem imagem grande). */
+export function imageChoiceShowsAudioStimulus(mode?: ImageChoiceMode): boolean {
+  return normalizeImageChoiceMode(mode) === "audio_to_image";
+}
+
+/** Estímulo principal é hànzì. */
+export function imageChoiceShowsHanziStimulus(mode?: ImageChoiceMode): boolean {
+  return normalizeImageChoiceMode(mode) === "hanzi_to_image";
+}
+
+/** Estímulo principal é significado em português. */
+export function imageChoiceShowsMeaningStimulus(mode?: ImageChoiceMode): boolean {
+  return normalizeImageChoiceMode(mode) === "meaning_to_image";
+}
+
+/** Respostas são frases completas em chinês. */
+export function imageChoiceUsesSentenceOptions(mode?: ImageChoiceMode): boolean {
+  return normalizeImageChoiceMode(mode) === "image_sentence_choice";
+}
+
+export const CANONICAL_IMAGE_CHOICE_MODES: CanonicalImageChoiceMode[] = [
+  "image_to_hanzi",
+  "image_to_pinyin",
+  "image_to_meaning",
+  "image_to_audio",
+  "audio_to_image",
+  "hanzi_to_image",
+  "meaning_to_image",
+  "image_sentence_choice",
+];
 
 export interface VisualConcept {
   id: VisualConceptId;

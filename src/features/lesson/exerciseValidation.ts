@@ -4,7 +4,13 @@ import { chunkById } from "../../data/chunks";
 import { glossFor } from "../../data/gloss";
 import { HANZI_EVOLUTIONS } from "../../data/hanziPedagogy";
 import { isNearDuplicatePinyinSet } from "../../lib/pinyin";
-import { resolveVisualConcept } from "../../data/visualVocabulary";
+import {
+  imageChoiceUsesAudioOptions,
+  imageChoiceUsesImageOptions,
+  imageChoiceUsesSentenceOptions,
+  resolveVisualConcept,
+} from "../../data/visualVocabulary";
+import { resolveVisualScene } from "../../data/visualScenes";
 
 // ————————————————————————————————————————————————————————————————
 // validateExercise: nenhum passo de lição chega à tela sem passar aqui.
@@ -306,17 +312,22 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
 
     case "image_choice": {
       if (!step.imageChoiceMode) errors.push("image_choice sem modo");
-      if (!step.imageId && !step.iconId) errors.push("image_choice sem imageId/iconId");
+      if (!step.imageId && !step.iconId && !step.visualSceneId) {
+        errors.push("image_choice sem imageId/iconId/visualSceneId");
+      }
       if (!step.promptPt?.trim() && !step.prompt?.trim()) errors.push("image_choice sem promptPt");
-      const visualConcept = resolveVisualConcept(step.imageId ?? step.iconId);
-      if (!visualConcept) {
-        errors.push(`image_choice: conceito visual desconhecido "${step.imageId ?? step.iconId}"`);
-      } else {
+      const scene = step.visualSceneId ? resolveVisualScene(step.visualSceneId) : undefined;
+      const visualConcept = resolveVisualConcept(step.imageId ?? step.iconId ?? scene?.conceptId);
+      if (!visualConcept && !scene) {
+        errors.push(`image_choice: conceito visual desconhecido "${step.imageId ?? step.iconId ?? step.visualSceneId}"`);
+      } else if (visualConcept) {
         if (!visualConcept.imageSrc && !visualConcept.emoji) errors.push("image_choice sem imagem nem fallback");
         if (!visualConcept.imageAltPt.trim()) errors.push("image_choice com alt vazio");
+      } else if (scene && !scene.imageSrc) {
+        errors.push("image_choice: cena visual sem imageSrc");
       }
-      const imagePick =
-        step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
+      const imagePick = imageChoiceUsesImageOptions(step.imageChoiceMode);
+      const audioPick = imageChoiceUsesAudioOptions(step.imageChoiceMode);
       if (imagePick) {
         const answer = step.correctImageId;
         const options = step.imageOptions ?? [];
@@ -328,6 +339,8 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
             errors.push(`image_choice: imageOption sem imagem nem fallback "${option}"`);
           }
         }
+      } else if (audioPick || imageChoiceUsesSentenceOptions(step.imageChoiceMode)) {
+        checkChoice(errors, "image_choice", step.correctAnswer, step.options);
       } else {
         checkChoice(errors, "image_choice", step.correctAnswer, step.options);
       }

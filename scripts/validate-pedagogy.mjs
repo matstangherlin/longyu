@@ -214,14 +214,20 @@ try {
             }
             case "image_choice": {
               gradedSteps += 1;
-              const imagePick =
-                step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
+              const imagePickModes = new Set([
+                "hanzi_to_image",
+                "audio_to_image",
+                "meaning_to_image",
+                "choose_image",
+                "listen_and_choose_image",
+              ]);
+              const imagePick = imagePickModes.has(step.imageChoiceMode);
               if (imagePick) {
                 checkOptions(ref, step.imageOptions, step.correctImageId);
               } else {
                 checkOptions(ref, step.options, step.correctAnswer);
               }
-              if (!step.imageId && !step.iconId) err("licao", ref, "image_choice sem imageId");
+              if (!step.imageId && !step.iconId && !step.visualSceneId) err("licao", ref, "image_choice sem imageId/visualSceneId");
               if (!step.imageChoiceMode) err("licao", ref, "image_choice sem modo");
               break;
             }
