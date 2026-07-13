@@ -27,10 +27,21 @@ import {
 import { numericPinyinToDiacritics, normalizePinyinBase, isNearDuplicatePinyinSet } from "../../lib/pinyin";
 import {
   buildWeightedModuleReviewFocus,
+  buildModuleReviewPools,
   resolveModuleFocusItems,
   validateModuleReviewCoverage,
+  unitOrderIndex,
+  PROGRESSIVE_PHRASE_REFS,
   type ModuleReviewCoverageIssue,
 } from "../../lib/moduleReview";
+import {
+  auditLessonNovelty,
+  buildLessonNoveltyProfile,
+  noveltyScoreAdjustment,
+  primaryFamilyForStep,
+  wouldBlockSequenceAddition,
+  type LessonNoveltyProfile,
+} from "../../lib/lessonNovelty";
 
 export { validateModuleReviewCoverage, type ModuleReviewCoverageIssue };
 
@@ -450,6 +461,7 @@ interface FocusItem {
   meaningPt: string;
   type?: ItemType;
   itemId?: string;
+  pool?: "new" | "prior" | "weak" | "error" | "current";
 }
 
 const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/u;
@@ -866,6 +878,7 @@ function combinedReviewFocus(lesson: Lesson, context: LessonPracticePlanContext)
       meaningPt: item.meaningPt,
       type: item.type,
       itemId: item.itemId,
+      pool: item.pool,
     }));
   }
 
@@ -1594,6 +1607,16 @@ function supplementalStepsForStage(
   return result;
 }
 
+function reviewPriorItemAllowed(item: FocusItem, unitId: string | undefined): boolean {
+  if (!unitId || !item.key) return true;
+  const unitIndex = unitOrderIndex(unitId);
+  for (const gate of PROGRESSIVE_PHRASE_REFS) {
+    if (gate.ref !== item.key) continue;
+    if (gate.afterUnitIndex > unitIndex) return false;
+  }
+  return true;
+}
+
 function moduleReviewGapCandidates(
   lesson: Lesson,
   focus: FocusItem[],
@@ -1815,11 +1838,18 @@ function generatedCandidatesFor(
   return candidates;
 }
 
-function wouldMakeTriplet(sequence: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
-  const lastTwo = sequence.slice(-2);
-  if (lastTwo.length < 2) return false;
-  if (lastTwo.every((item) => item.step.kind === candidate.step.kind)) return true;
-  return candidate.families.some((family) => lastTwo.every((item) => item.families.includes(family)));
+function wouldMakeTriplet(
+  sequence: readonly PracticeCandidate[],
+  candidate: PracticeCandidate,
+  lesson: Lesson,
+  noveltyProfile: LessonNoveltyProfile
+): boolean {
+  return wouldBlockSequenceAddition({
+    lesson,
+    profile: noveltyProfile,
+    selected: sequence,
+    candidate,
+  });
 }
 
 function countKind(candidates: readonly PracticeCandidate[], kind: StepKind): number {
@@ -1846,7 +1876,9 @@ function selectBestCandidate(
   candidates: readonly PracticeCandidate[],
   stageId: LessonStageId,
   usedSignatures: ReadonlySet<string>,
-  profile: LessonPracticeProfile
+  profile: LessonPracticeProfile,
+  lesson: Lesson,
+  noveltyProfile: LessonNoveltyProfile
 ): PracticeCandidate | undefined {
   const hanziBuildCount = countKind(selected, "hanzi_build");
   const pinyinTaskCount = countPinyinTasks(selected);
@@ -1861,18 +1893,43 @@ function selectBestCandidate(
         candidate.step.kind !== "conversation_scene" ||
         countKind(selected, "conversation_scene") < profile.maxConversationScenes
     )
+    .map((candidate) => ({
+      ...candidate,
+      score:
+        candidate.score +
+        noveltyScoreAdjustment({
+          lesson,
+          profile: noveltyProfile,
+          selected,
+          candidate,
+        }),
+    }))
     .sort((a, b) => b.score - a.score);
-  return eligible.find((candidate) => !wouldMakeTriplet(selected, candidate)) ?? eligible[0];
+  return (
+    eligible.find((candidate) => !wouldMakeTriplet(selected, candidate, lesson, noveltyProfile)) ?? eligible[0]
+  );
 }
 
 function replaceLowestIfNeeded(
   selected: PracticeCandidate[],
   candidate: PracticeCandidate,
   profile: LessonPracticeProfile,
-  usedSignatures: Set<string>
+  usedSignatures: Set<string>,
+  lesson: Lesson,
+  noveltyProfile: LessonNoveltyProfile
 ) {
   const signature = stepSignature(candidate.step);
   if (usedSignatures.has(signature)) return;
+  if (
+    wouldBlockSequenceAddition({
+      lesson,
+      profile: noveltyProfile,
+      selected,
+      candidate,
+    })
+  ) {
+    return;
+  }
   if (candidate.step.kind === "hanzi_build" && countKind(selected, "hanzi_build") >= profile.maxHanziBuilds) return;
   if (!underPerCharCap(selected, candidate, profile)) return;
   if (isPinyinPracticeStep(candidate.step) && countPinyinTasks(selected) >= profile.maxPinyinTasks) return;
@@ -1907,7 +1964,8 @@ function ensureCoverage(
   reviewFocus: FocusItem[],
   lessonFocus: FocusItem[],
   errorFocus: FocusItem[],
-  usedSignatures: Set<string>
+  usedSignatures: Set<string>,
+  noveltyProfile: LessonNoveltyProfile
 ) {
   const ensure = (predicate: (candidate: PracticeCandidate) => boolean) => {
     if (selected.some(predicate)) return;
@@ -1915,7 +1973,7 @@ function ensureCoverage(
       .filter(predicate)
       .filter((item) => !usedSignatures.has(stepSignature(item.step)))
       .sort((a, b) => b.score - a.score)[0];
-    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, lesson, noveltyProfile);
   };
 
   // Garante ao menos `count` candidatos que casam com o predicado (respeitando
@@ -1927,7 +1985,7 @@ function ensureCoverage(
       .sort((a, b) => b.score - a.score);
     for (const candidate of pool) {
       if (selected.filter(predicate).length >= count) break;
-      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, lesson, noveltyProfile);
     }
   };
 
@@ -1936,7 +1994,7 @@ function ensureCoverage(
     const candidate = candidates
       .filter((item) => stepUsesFocus(item.step, items) && !usedSignatures.has(stepSignature(item.step)))
       .sort((a, b) => b.score - a.score)[0];
-    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, lesson, noveltyProfile);
   };
 
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
@@ -1985,7 +2043,52 @@ function ensureCoverage(
       );
       ensureFocus(phraseFocus);
     }
+    const unitId = lessonUnitId(lesson);
+    if (unitId) {
+      const modulePhrases = buildModuleReviewPools(unitId, {}).current.filter(
+        (item) => cleanHanzi(item.hanzi).length > 1
+      );
+      for (const item of modulePhrases.slice(0, 3)) {
+        if (selected.some((candidate) => stepUsesFocus(candidate.step, [item]))) continue;
+        const pool = [...reviewFocus, ...lessonFocus];
+        const gapStep =
+          makeComprehendStep(item, pool) ??
+          makeFillBlankStep(item, pool) ??
+          makeSentenceBuildStep(item, pool) ??
+          makeDialogueChoiceStep(item, pool);
+        if (!gapStep) continue;
+        const stageId = stageForStep(gapStep);
+        replaceLowestIfNeeded(
+          selected,
+          {
+            step: gapStep,
+            stageId,
+            sourceStepIndex: -1,
+            generated: true,
+            families: exerciseFamiliesFor(gapStep, stageId),
+            score: 260,
+          },
+          profile,
+          usedSignatures,
+          lesson,
+          noveltyProfile
+        );
+      }
+    }
     if (errorFocus.length > 0) ensureFocus(errorFocus.slice(0, 4));
+  }
+
+  if (lesson.isReview && noveltyProfile.priorItems.length > 0) {
+    ensureFocus(noveltyProfile.priorItems.slice(0, 4));
+  }
+  if (noveltyProfile.phraseItems.length > 0) {
+    ensureFocus(noveltyProfile.phraseItems.slice(0, 3));
+  }
+  if (noveltyProfile.conversationItems.length > 0 && profile.maxConversationScenes > 0) {
+    ensure((candidate) => candidate.step.kind === "conversation_scene");
+  }
+  if (noveltyProfile.visualItems.length > 0) {
+    ensure((candidate) => candidate.step.kind === "image_choice");
   }
 }
 
@@ -2008,16 +2111,63 @@ function trimToTarget(selected: PracticeCandidate[], profile: LessonPracticeProf
   return selected.filter((_, index) => ranked.includes(index));
 }
 
-function balancePracticeSequence(selected: PracticeCandidate[]): PracticeCandidate[] {
-  const remaining = [...selected].sort(
-    (a, b) => LESSON_STAGE_ORDER.indexOf(a.stageId) - LESSON_STAGE_ORDER.indexOf(b.stageId) || b.score - a.score
-  );
+function repairPrimaryFamilyTrios(selected: PracticeCandidate[]): PracticeCandidate[] {
+  let result = [...selected];
+  for (let pass = 0; pass < 8; pass += 1) {
+    let changed = false;
+    for (let index = 2; index < result.length; index += 1) {
+      const family = primaryFamilyForStep(result[index].step);
+      if (
+        ![result[index - 2], result[index - 1], result[index]].every(
+          (item) => primaryFamilyForStep(item.step) === family
+        )
+      ) {
+        continue;
+      }
+      const swapIndex = result.findIndex(
+        (candidate, candidateIndex) =>
+          candidateIndex !== index &&
+          candidateIndex !== index - 1 &&
+          candidateIndex !== index - 2 &&
+          primaryFamilyForStep(candidate.step) !== family
+      );
+      if (swapIndex < 0) continue;
+      [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+      changed = true;
+    }
+    if (!changed) break;
+  }
+  return result;
+}
+
+function balancePracticeSequence(
+  selected: PracticeCandidate[],
+  lesson: Lesson,
+  noveltyProfile: LessonNoveltyProfile
+): PracticeCandidate[] {
+  const byStage = new Map<LessonStageId, PracticeCandidate[]>();
+  for (const stageId of LESSON_STAGE_ORDER) byStage.set(stageId, []);
+  for (const candidate of selected) {
+    const bucket = byStage.get(candidate.stageId) ?? [];
+    bucket.push(candidate);
+    byStage.set(candidate.stageId, bucket);
+  }
+  for (const bucket of byStage.values()) bucket.sort((a, b) => b.score - a.score);
+
   const result: PracticeCandidate[] = [];
-  while (remaining.length > 0) {
-    let index = remaining.findIndex((candidate) => !wouldMakeTriplet(result, candidate));
-    if (index < 0) index = 0;
-    const [candidate] = remaining.splice(index, 1);
-    result.push(candidate);
+  let progress = true;
+  while (progress) {
+    progress = false;
+    for (const stageId of LESSON_STAGE_ORDER) {
+      const bucket = byStage.get(stageId) ?? [];
+      if (bucket.length === 0) continue;
+      const pickIndex = bucket.findIndex((candidate) => !wouldMakeTriplet(result, candidate, lesson, noveltyProfile));
+      const index = pickIndex >= 0 ? pickIndex : 0;
+      const [candidate] = bucket.splice(index, 1);
+      if (!candidate) continue;
+      result.push(candidate);
+      progress = true;
+    }
   }
   return result;
 }
@@ -2026,22 +2176,12 @@ function practicePlanWarnings(
   lesson: Lesson,
   plan: readonly LessonRoundStep[],
   profile: LessonPracticeProfile,
-  reviewFocus: FocusItem[]
+  reviewFocus: FocusItem[],
+  noveltyProfile: LessonNoveltyProfile
 ): string[] {
-  const warnings: string[] = [];
-  for (let index = 2; index < plan.length; index += 1) {
-    const trio = plan.slice(index - 2, index + 1);
-    if (trio.every((step) => step.kind === trio[0].kind)) warnings.push(`3 exercícios "${trio[0].kind}" seguidos`);
-    const sharedFamilies = exerciseFamiliesFor(trio[0], trio[0].lessonStageId).filter((family) =>
-      trio.every((step) => exerciseFamiliesFor(step, step.lessonStageId).includes(family))
-    );
-    if (sharedFamilies.length > 0) warnings.push(`3 exercícios da família "${sharedFamilies[0]}" seguidos`);
-  }
+  const warnings = auditLessonNovelty({ lesson, plan, profile: noveltyProfile, reviewFocus });
   if (!plan.some((step) => step.lessonStageId === "consolidation" || step.exercises?.includes("match_pairs"))) {
     warnings.push("nenhum exercício de revisão/consolidação");
-  }
-  if (reviewFocus.length > 0 && !plan.some((step) => stepUsesFocus(step, reviewFocus))) {
-    warnings.push("nenhum item antigo reaproveitado");
   }
   if (profile.maxHanziBuilds > 0 && !plan.some((step) => step.kind === "hanzi_build")) {
     warnings.push("módulo/lição com hànzì relevante sem HanziBuilder");
@@ -2049,22 +2189,6 @@ function practicePlanWarnings(
   if (profile.needsPinyinTask && !plan.some(isPinyinPracticeStep)) {
     warnings.push("módulo/lição inicial sem microtarefa de pinyin/tom");
   }
-  if (!lesson.isReview && !isHanziFocusedLesson(lesson)) {
-    const hanziBuildCount = plan.filter((step) => step.kind === "hanzi_build").length;
-    if (hanziBuildCount > 1) warnings.push(`mais de 1 HanziBuilder (${hanziBuildCount})`);
-  }
-  if (!lesson.isReview && !isPinyinFocusedLesson(lesson)) {
-    const pinyinCount = plan.filter(isPinyinPracticeStep).length;
-    if (pinyinCount > 1) warnings.push(`mais de 1 microtarefa pinyin/tom (${pinyinCount})`);
-  }
-  const kindCounts = new Map<StepKind, number>();
-  for (const step of plan) kindCounts.set(step.kind, (kindCounts.get(step.kind) ?? 0) + 1);
-  for (const [kind, count] of kindCounts) {
-    if (plan.length >= 4 && count >= Math.ceil(plan.length * 0.45)) {
-      warnings.push(`tipo "${kind}" domina o plano (${count}/${plan.length})`);
-    }
-  }
-  if (lesson.steps.length > 0 && plan.length === 0) warnings.push("plano vazio");
   return uniqueValues(warnings);
 }
 
@@ -2079,13 +2203,14 @@ function logPracticePlanInDev(
   lesson: Lesson,
   plan: readonly LessonRoundStep[],
   profile: LessonPracticeProfile,
-  reviewFocus: FocusItem[]
+  reviewFocus: FocusItem[],
+  noveltyProfile: LessonNoveltyProfile
 ) {
   const isDev = isDevRuntime();
   if (!isDev) return;
   const outline = plan.map((step) => step.kind).join(" -> ");
   console.info(`[Longyu] Lesson plan ${lesson.id}: ${outline}`);
-  const warnings = practicePlanWarnings(lesson, plan, profile, reviewFocus);
+  const warnings = practicePlanWarnings(lesson, plan, profile, reviewFocus, noveltyProfile);
   if (warnings.length > 0) {
     console.warn(`[Longyu] Avisos de variedade em ${lesson.id}: ${warnings.join("; ")}`);
   }
@@ -2115,6 +2240,13 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const reviewFocus = combinedReviewFocus(lesson, context);
   const errorFocus = recentErrorFocusItems(context.recentErrors);
   const profile = profileForLesson(lesson, focus);
+  const noveltyProfile = buildLessonNoveltyProfile({
+    lesson,
+    focus,
+    reviewFocus,
+    errorFocus,
+    unitId: lessonUnitId(lesson),
+  });
   const seenGlyphs = seenGlyphsForPlanning(focus, reviewFocus, context);
   // Glifos que ESTA lição ensina (só o próprio foco, sem a revisão): composição
   // só é montada aqui se for do próprio conteúdo, ou em revisões.
@@ -2131,7 +2263,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     const target = Math.max(1, profile.stageTargets[stageId]);
     let selectedInStage = 0;
     while (selectedInStage < target && selected.length < profile.targetCount) {
-      const candidate = selectBestCandidate(selected, candidates, stageId, usedSignatures, profile);
+      const candidate = selectBestCandidate(selected, candidates, stageId, usedSignatures, profile, lesson, noveltyProfile);
       if (!candidate) break;
       selected.push(candidate);
       usedSignatures.add(stepSignature(candidate.step));
@@ -2156,7 +2288,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     }
   }
 
-  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures);
+  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures, noveltyProfile);
   const trimmed = trimToTarget(selected, profile);
 
   for (const gap of moduleReviewGapCandidates(lesson, focus, reviewFocus, trimmed)) {
@@ -2167,7 +2299,39 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     if (unitId && validateModuleReviewCoverage(unitId, trimmed.map((candidate) => candidate.step), {}).length === 0) break;
   }
 
-  const balanced = balancePracticeSequence(trimmed);
+  if (lesson.isReview && noveltyProfile.priorItems.length > 0) {
+    const unitId = lessonUnitId(lesson);
+    const missingPrior = noveltyProfile.priorItems.filter(
+      (item) =>
+        reviewPriorItemAllowed(item, unitId) &&
+        !trimmed.some((candidate) => stepUsesFocus(candidate.step, [item]))
+    );
+    for (const item of missingPrior.slice(0, 2)) {
+      const pool = [...reviewFocus, ...focus];
+      const gapStep =
+        makeComprehendStep(item, pool) ??
+        makeRecognizeStep(item) ??
+        makeListenSelectStep(item, pool) ??
+        makeFillBlankStep(item, pool) ??
+        makeDialogueChoiceStep(item, pool);
+      if (!gapStep || usedSignatures.has(stepSignature(gapStep))) continue;
+      const stageId = stageForStep(gapStep);
+      trimmed.push({
+        step: gapStep,
+        stageId,
+        sourceStepIndex: -1,
+        generated: true,
+        families: exerciseFamiliesFor(gapStep, stageId),
+        score: 220,
+      });
+      usedSignatures.add(stepSignature(gapStep));
+    }
+  }
+
+  ensureCoverage(lesson, trimmed, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures, noveltyProfile);
+  const reviewProfile = lesson.isReview ? { ...profile, targetCount: profile.targetCount + 4 } : profile;
+  const capped = trimToTarget(trimmed, reviewProfile);
+  const balanced = repairPrimaryFamilyTrios(balancePracticeSequence(capped, lesson, noveltyProfile));
 
   const stageCounts = new Map<LessonStageId, number>();
   const plan = balanced.map((candidate) => {
@@ -2196,8 +2360,26 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       };
     });
 
-  if (!context.silent) logPracticePlanInDev(lesson, plan, profile, reviewFocus);
+  if (!context.silent) logPracticePlanInDev(lesson, plan, profile, reviewFocus, noveltyProfile);
   return plan;
+}
+
+export function lessonNoveltyIssues(
+  lesson: Lesson,
+  plan: readonly LessonRoundStep[],
+  context: LessonPracticePlanContext = {}
+): string[] {
+  const focus = focusForPlanning(lesson, context);
+  const reviewFocus = combinedReviewFocus(lesson, context);
+  const errorFocus = recentErrorFocusItems(context.recentErrors);
+  const noveltyProfile = buildLessonNoveltyProfile({
+    lesson,
+    focus,
+    reviewFocus,
+    errorFocus,
+    unitId: lessonUnitId(lesson),
+  });
+  return auditLessonNovelty({ lesson, plan, profile: noveltyProfile, reviewFocus });
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
