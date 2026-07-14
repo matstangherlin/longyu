@@ -15,6 +15,14 @@ import {
   type ImageChoiceMode,
   type VisualConceptId,
 } from "./visualVocabulary";
+import {
+  defaultSceneDistractors,
+  resolveVisualScene,
+  sceneTargetHanzi,
+  sceneTargetPinyin,
+  sentenceOptionsForScene,
+  type VisualSceneId,
+} from "./visualScenes";
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -84,6 +92,8 @@ export interface LessonStep {
   imageChoiceMode?: ImageChoiceMode;
   imageId?: string;
   iconId?: string;
+  /** VisualScene: id canônico da cena de ação/situação (image_sentence_choice / scene_audio_choice). */
+  visualSceneId?: string;
   promptPt?: string;
   targetHanzi?: string;
   targetPinyin?: string;
@@ -267,6 +277,61 @@ const imageChoice = (
       : { options, correctAnswer: answer }),
   };
 };
+
+/** Imagem de situação → escolher frase. */
+const imageSentenceChoice = (
+  sceneId: VisualSceneId | string,
+  promptPt = "Qual frase descreve a imagem?",
+  options?: string[],
+  extra: Partial<LessonStep> = {}
+): LessonStep => {
+  const scene = resolveVisualScene(sceneId);
+  const answer = extra.correctAnswer ?? (scene ? sceneTargetHanzi(scene) : undefined) ?? "";
+  const opts = options ?? (scene ? sentenceOptionsForScene(scene.id) : [answer]);
+  return {
+    kind: "image_choice",
+    imageChoiceMode: "image_sentence_choice",
+    visualSceneId: scene?.id ?? String(sceneId),
+    imageId: scene?.id ?? String(sceneId),
+    promptPt,
+    targetHanzi: answer,
+    targetPinyin: scene ? sceneTargetPinyin(scene) : undefined,
+    targetMeaningPt: extra.targetMeaningPt ?? scene?.targetMeaningPt,
+    options: opts,
+    correctAnswer: answer,
+    explanation: extra.explanation ?? (scene ? `${answer} descreve a cena.` : undefined),
+    audioText: answer,
+  };
+};
+
+/** Áudio de fala → escolher cena. */
+const sceneAudioChoice = (
+  sceneId: VisualSceneId | string,
+  promptPt = "Ouça e escolha a imagem correspondente.",
+  options?: string[],
+  extra: Partial<LessonStep> = {}
+): LessonStep => {
+  const scene = resolveVisualScene(sceneId);
+  const answer = scene?.id ?? String(sceneId);
+  const distractors = defaultSceneDistractors(answer, 3);
+  const opts = options ?? [answer, ...distractors].slice(0, 4);
+  const hanzi = scene ? sceneTargetHanzi(scene) : undefined;
+  return {
+    kind: "image_choice",
+    imageChoiceMode: "scene_audio_choice",
+    visualSceneId: answer,
+    imageId: answer,
+    promptPt,
+    targetHanzi: hanzi,
+    targetPinyin: scene ? sceneTargetPinyin(scene) : undefined,
+    targetMeaningPt: extra.targetMeaningPt ?? scene?.targetMeaningPt,
+    imageOptions: opts,
+    correctImageId: answer,
+    audioText: hanzi,
+    explanation: extra.explanation ?? (scene ? `A fala combina com: ${scene.targetMeaningPt}.` : undefined),
+  };
+};
+
 const visualImageOptions = (targetId: VisualConceptId, count = 4): string[] => {
   const distractors = defaultVisualDistractors(targetId, count - 1);
   return [targetId, ...distractors].slice(0, count);
@@ -661,6 +726,16 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "木",
         visualHanziOptions("tree"),
         { explanation: "木 é o caractere de árvore." }
+      ),
+      imageSentenceChoice(
+        "scene-point-tree",
+        "Qual frase descreve a imagem?",
+        ["这是木", "这是水", "这是山", "你好"]
+      ),
+      imageSentenceChoice(
+        "scene-look-mountain",
+        "Qual frase descreve a imagem?",
+        ["这是山", "这是木", "这是水", "再见"]
       ),
       hanziBuild(
         "hb-mu-fragments",
@@ -1166,6 +1241,8 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
         ["请", "再", "说", "一遍", "谢谢", "中文"],
         "请再说一遍 = por favor, fale de novo."
       ),
+      imageSentenceChoice("scene-request-repeat"),
+      sceneAudioChoice("scene-request-repeat"),
     ],
   }),
 ];
@@ -1183,6 +1260,11 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
       recognize("er"),
       recognize("san"),
       produce(["一", "二", "三"], ["三", "一", "五", "二"], "um, dois, três"),
+      imageSentenceChoice(
+        "scene-count-units",
+        "Quantas unidades tem o grupo maior?",
+        ["三", "一", "二", "四"]
+      ),
     ],
   }),
   microLesson({
@@ -1295,7 +1377,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:da"],
     reviewItems: ["char:da"],
-    steps: [intro("Grande", "大 é grande. A forma lembra alguém de braços abertos."), recognize("da"), hanziBuild("hb-da-fragments", "Monte 大", "Monte o hànzì de grande.", "大", "grande"), comp("大", "dà", "grande", ["grande", "pequeno", "pessoa", "meio"])],
+    steps: [
+      intro("Grande", "大 é grande. A forma lembra alguém de braços abertos."),
+      recognize("da"),
+      hanziBuild("hb-da-fragments", "Monte 大", "Monte o hànzì de grande.", "大", "grande"),
+      imageChoice("choose_hanzi", "big", "Qual hànzì combina com a imagem?", "大", visualHanziOptions("big")),
+      comp("大", "dà", "grande", ["grande", "pequeno", "pessoa", "meio"]),
+    ],
   }),
   microLesson({
     id: "p4-char-xiao",
@@ -1303,7 +1391,17 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:xiao"],
     reviewItems: ["char:xiao"],
-    steps: [intro("Pequeno", "小 é pequeno. Contrasta com 大."), recognize("xiao"), hanziBuild("hb-xiao-fragments", "Monte 小", "Monte o hànzì de pequeno.", "小", "pequeno"), comp("小", "xiǎo", "pequeno", ["pequeno", "grande", "bom", "pessoa"])],
+    steps: [
+      intro("Pequeno", "小 é pequeno. Contrasta com 大."),
+      recognize("xiao"),
+      hanziBuild("hb-xiao-fragments", "Monte 小", "Monte o hànzì de pequeno.", "小", "pequeno"),
+      imageSentenceChoice(
+        "scene-big-small",
+        "Qual palavra descreve o objeto grande na imagem?",
+        ["大", "小", "水", "人"]
+      ),
+      comp("小", "xiǎo", "pequeno", ["pequeno", "grande", "bom", "pessoa"]),
+    ],
   }),
   microLesson({
     id: "p4-char-zhong",
@@ -1612,6 +1710,14 @@ export const JOURNEY: JourneyPhase[] = [
                 "你好 é a saudação segura para encontrar ou cumprimentar alguém."
               ),
               conversationScene("primeiro-cumprimento"),
+              imageSentenceChoice("scene-greeting", "Qual frase descreve a imagem?"),
+              sceneAudioChoice("scene-greeting"),
+              imageSentenceChoice("scene-classroom", "Qual cumprimento combina com a sala de aula?", [
+                "你好",
+                "谢谢",
+                "再见",
+                "我很好",
+              ]),
               fillBlank(
                 "Use na frase",
                 "Complete o cumprimento: 你 ___.",
@@ -1718,6 +1824,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "谢谢 agradece de forma natural."
               ),
               conversationScene("agradecendo"),
+              imageSentenceChoice("scene-thanking"),
               dialogue(
                 "Responda com cortesia",
                 "Pessoa diz: 谢谢. O que você responde?",
@@ -1767,6 +1874,8 @@ export const JOURNEY: JourneyPhase[] = [
                 "再见 fecha a conversa: até logo."
               ),
               conversationScene("despedida"),
+              imageSentenceChoice("scene-farewell"),
+              sceneAudioChoice("scene-farewell"),
               fillBlank(
                 "Volte ao cumprimento",
                 "Antes de sair, você ainda pode dizer ___ para cumprimentar.",
@@ -2236,6 +2345,8 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "叫", "什么", "马修", "你好"],
                 "我叫 + nome responde como você se chama."
               ),
+              imageSentenceChoice("scene-introduce-name"),
+              sceneAudioChoice("scene-introduce-name"),
             ],
           },
           {
@@ -2348,6 +2459,8 @@ export const JOURNEY: JourneyPhase[] = [
                 ["Não", "obrigado", "entendi", "bem"],
                 "我听不懂 = não entendi."
               ),
+              imageSentenceChoice("scene-confused"),
+              sceneAudioChoice("scene-confused"),
             ],
           },
           {
@@ -3436,14 +3549,23 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Na loja",
             skill: "fala",
             premium: true,
+            libraryItems: ["chunk:duoshaoqian", "chunk:taiguile", "chunk:woyao", "chunk:woxianghe", "chunk:woxiangheshui"],
+            reviewItems: ["chunk:duoshaoqian", "chunk:taiguile", "chunk:woyao", "chunk:woxianghe", "chunk:woxiangheshui"],
             newHanzi: ["多", "少"],
             steps: [
               flash("duoshaoqian"),
               flash("taiguile"),
               flash("woyao"),
               flash("woxianghe"),
+              flash("woxiangheshui"),
               listen("多少钱？", "duōshao qián?", "Quanto custa?"),
               listen("我要这个", "wǒ yào zhège", "Eu quero este."),
+              imageSentenceChoice(
+                "scene-drink-water",
+                "Qual frase descreve a imagem?",
+                ["我想喝水", "我很好", "谢谢", "再见"]
+              ),
+              sceneAudioChoice("scene-drink-water"),
               listenSelect(
                 "Ouça o pedido",
                 "我想喝茶",

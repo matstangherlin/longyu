@@ -23,6 +23,7 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
+import { VisualSceneImage } from "../../components/hanzi/VisualSceneImage";
 import {
   KeyboardShortcutHint,
   ShortcutBadge,
@@ -563,6 +564,12 @@ function ReviewExercisePanel({
           ) : exercise.imageChoiceMode !== "listen_and_choose_image" && exercise.imageChoiceMode !== "choose_image" ? (
             <VisualConceptImage conceptId={exercise.visualConceptId} size="lg" />
           ) : null}
+        </div>
+      )}
+
+      {exercise.kind === "image_choice" && exercise.visualSceneId && exercise.imageChoiceMode === "image_sentence_choice" && (
+        <div className="mt-4 flex justify-center">
+          <VisualSceneImage sceneId={exercise.visualSceneId} size="lg" hideAnswerInAlt />
         </div>
       )}
 

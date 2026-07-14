@@ -21,7 +21,9 @@ export type ImageChoiceMode =
   | "choose_pinyin"
   | "choose_meaning"
   | "listen_and_choose_image"
-  | "choose_image";
+  | "choose_image"
+  | "image_sentence_choice"
+  | "scene_audio_choice";
 
 export interface VisualConcept {
   id: VisualConceptId;
