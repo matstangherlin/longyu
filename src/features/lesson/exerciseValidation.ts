@@ -5,6 +5,7 @@ import { glossFor } from "../../data/gloss";
 import { HANZI_EVOLUTIONS } from "../../data/hanziPedagogy";
 import { isNearDuplicatePinyinSet } from "../../lib/pinyin";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
+import { resolveVisualScene, sceneHasExplicitTarget } from "../../data/visualScenes";
 
 // ————————————————————————————————————————————————————————————————
 // validateExercise: nenhum passo de lição chega à tela sem passar aqui.
@@ -306,26 +307,52 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
 
     case "image_choice": {
       if (!step.imageChoiceMode) errors.push("image_choice sem modo");
-      if (!step.imageId && !step.iconId) errors.push("image_choice sem imageId/iconId");
       if (!step.promptPt?.trim() && !step.prompt?.trim()) errors.push("image_choice sem promptPt");
+      const mode = step.imageChoiceMode;
+      const isSceneMode = mode === "image_sentence_choice" || mode === "scene_audio_choice";
+      const scene = resolveVisualScene(step.visualSceneId ?? step.imageId);
       const visualConcept = resolveVisualConcept(step.imageId ?? step.iconId);
-      if (!visualConcept) {
+
+      if (isSceneMode) {
+        if (!scene) errors.push(`image_choice: cena visual desconhecida "${step.visualSceneId ?? step.imageId}"`);
+        else {
+          if (!scene.imageSrc) errors.push("image_choice cena sem imagem local");
+          if (!scene.imageAltPt.trim() || !scene.exerciseAltPt.trim()) {
+            errors.push("image_choice cena com alt incompleto");
+          }
+          if (!sceneHasExplicitTarget(scene)) {
+            errors.push("image_choice cena sem relação explícita com chunk/hànzì");
+          }
+          if (/[㐀-鿿]/u.test(scene.exerciseAltPt)) {
+            errors.push("image_choice: alt do exercício revela texto da resposta");
+          }
+          if (scene.exerciseAltPt.trim() === scene.imageAltPt.trim()) {
+            errors.push("image_choice: alt do exercício não é neutra o bastante");
+          }
+        }
+      } else if (!step.imageId && !step.iconId) {
+        errors.push("image_choice sem imageId/iconId");
+      } else if (!visualConcept) {
         errors.push(`image_choice: conceito visual desconhecido "${step.imageId ?? step.iconId}"`);
       } else {
         if (!visualConcept.imageSrc && !visualConcept.emoji) errors.push("image_choice sem imagem nem fallback");
         if (!visualConcept.imageAltPt.trim()) errors.push("image_choice com alt vazio");
       }
+
       const imagePick =
-        step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
+        mode === "choose_image" || mode === "listen_and_choose_image" || mode === "scene_audio_choice";
       if (imagePick) {
         const answer = step.correctImageId;
         const options = step.imageOptions ?? [];
         checkChoice(errors, "image_choice", answer, options);
         for (const option of options) {
           const optionConcept = resolveVisualConcept(option);
-          if (!optionConcept) errors.push(`image_choice: imageOption desconhecida "${option}"`);
-          else if (!optionConcept.imageSrc && !optionConcept.emoji) {
+          const optionScene = resolveVisualScene(option);
+          if (!optionConcept && !optionScene) errors.push(`image_choice: imageOption desconhecida "${option}"`);
+          else if (optionConcept && !optionConcept.imageSrc && !optionConcept.emoji) {
             errors.push(`image_choice: imageOption sem imagem nem fallback "${option}"`);
+          } else if (optionScene && !optionScene.imageSrc) {
+            errors.push(`image_choice: imageOption cena sem imagem "${option}"`);
           }
         }
       } else {

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
+import { resolveVisualScene, sceneTargetHanzi } from "../../data/visualScenes";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
+import { VisualSceneImage } from "../../components/hanzi/VisualSceneImage";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { useStore } from "../../lib/store";
@@ -47,8 +49,13 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
   const soundEffects = useStore((s) => s.soundEffects);
   const mode = step.imageChoiceMode ?? "choose_hanzi";
   const concept = resolveVisualConcept(step.imageId ?? step.iconId);
-  const isImagePick = mode === "choose_image" || mode === "listen_and_choose_image";
-  const correctAnswer = isImagePick ? step.correctImageId ?? "" : step.correctAnswer ?? "";
+  const scene = resolveVisualScene(step.visualSceneId ?? (step.imageId?.startsWith("scene-") ? step.imageId : undefined));
+  const isImagePick =
+    mode === "choose_image" || mode === "listen_and_choose_image" || mode === "scene_audio_choice";
+  const isSentenceFromScene = mode === "image_sentence_choice";
+  const correctAnswer = isImagePick
+    ? step.correctImageId ?? ""
+    : step.correctAnswer ?? "";
   const rawOptions = isImagePick ? step.imageOptions ?? [] : step.options ?? [];
   const options = useMemo(() => shuffle([...rawOptions]), [rawOptions.join("|")]);
   const imageOptionIds = isImagePick ? options : undefined;
@@ -56,10 +63,14 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
 
-  const audioText = step.targetHanzi ?? concept?.hanzi ?? step.audioText;
+  const audioText =
+    step.audioText ??
+    step.targetHanzi ??
+    (scene ? sceneTargetHanzi(scene) : undefined) ??
+    concept?.hanzi;
 
   useEffect(() => {
-    if (mode !== "listen_and_choose_image" || !audioText) return;
+    if ((mode !== "listen_and_choose_image" && mode !== "scene_audio_choice") || !audioText) return;
     const timer = window.setTimeout(() => {
       playSoundFx("pieceSelect", soundEffects);
     }, 120);
@@ -95,8 +106,7 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
     onSelectOption: (index) => {
       const option = options[index];
       if (!option) return;
-      if (isImagePick) selectOption(option);
-      else selectOption(option);
+      selectOption(option);
     },
     onSubmit: submitSelected,
     onContinue: () => {
@@ -104,11 +114,26 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
     },
   });
 
-  const prompt = step.promptPt ?? step.prompt ?? "Escolha a opção correta.";
+  const prompt =
+    step.promptPt ??
+    step.prompt ??
+    (isSentenceFromScene
+      ? "Qual frase descreve a imagem?"
+      : mode === "scene_audio_choice"
+        ? "Ouça e escolha a imagem da situação."
+        : "Escolha a opção correta.");
+
+  const explanation =
+    step.explanation ??
+    (scene
+      ? `${sceneTargetHanzi(scene) ?? ""} — ${scene.targetMeaningPt}.`
+      : concept
+        ? `${concept.hanzi} (${formatPinyinForDisplay(concept.pinyin)}) = ${concept.meaningPt}.`
+        : undefined);
 
   return (
     <div>
-      <Eyebrow>Associação visual</Eyebrow>
+      <Eyebrow>{isSentenceFromScene || mode === "scene_audio_choice" ? "Cena visual" : "Associação visual"}</Eyebrow>
 
       {(mode === "choose_hanzi" || mode === "choose_pinyin" || mode === "choose_meaning") && concept && (
         <div className="my-5 flex flex-col items-center gap-2">
@@ -116,6 +141,12 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
           {step.targetMeaningPt && mode !== "choose_meaning" && (
             <p className="text-xs text-ink-faint">{step.targetMeaningPt}</p>
           )}
+        </div>
+      )}
+
+      {isSentenceFromScene && scene && (
+        <div className="my-5 flex flex-col items-center gap-2">
+          <VisualSceneImage sceneId={scene.id} size="xl" hideAnswerInAlt />
         </div>
       )}
 
@@ -132,10 +163,12 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
         </div>
       )}
 
-      {mode === "listen_and_choose_image" && (
+      {(mode === "listen_and_choose_image" || mode === "scene_audio_choice") && (
         <div className="my-5 flex flex-col items-center gap-3">
           <SpeakButton text={audioText ?? ""} size="lg" label="Ouvir" />
-          <p className="text-sm text-ink-soft">Ouça e escolha a imagem certa.</p>
+          <p className="text-sm text-ink-soft">
+            {mode === "scene_audio_choice" ? "Ouça a fala e escolha a cena." : "Ouça e escolha a imagem certa."}
+          </p>
         </div>
       )}
 
@@ -153,21 +186,15 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
           answerOption(value);
         }}
         textRenderer={(value) => {
-          if (mode === "choose_hanzi") return <span className="font-serif text-3xl font-semibold">{value}</span>;
+          if (mode === "choose_hanzi" || isSentenceFromScene) {
+            return <span className="font-serif text-2xl font-semibold leading-tight sm:text-3xl">{value}</span>;
+          }
           if (mode === "choose_pinyin") return <span className="text-lg font-medium">{formatPinyinForDisplay(value)}</span>;
           return <span className="text-sm font-medium leading-5">{value}</span>;
         }}
       />
 
-      {answered && (
-        <AnswerFeedback
-          correct={answered === correctAnswer}
-          explanation={
-            step.explanation ??
-            (concept ? `${concept.hanzi} (${formatPinyinForDisplay(concept.pinyin)}) = ${concept.meaningPt}.` : undefined)
-          }
-        />
-      )}
+      {answered && <AnswerFeedback correct={answered === correctAnswer} explanation={explanation} />}
 
       <div className="mt-5 flex flex-wrap gap-2">
         {!answered && (

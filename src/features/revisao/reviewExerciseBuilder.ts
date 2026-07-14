@@ -9,6 +9,14 @@ import {
   type ImageChoiceMode,
   type VisualConceptId,
 } from "../../data/visualVocabulary";
+import {
+  defaultSceneDistractors,
+  resolveVisualScene,
+  sceneTargetHanzi,
+  sentenceOptionsForScene,
+  VISUAL_SCENES,
+  type VisualScene,
+} from "../../data/visualScenes";
 import { expandPairsWithLearned, type AdaptivePair } from "../../data/adaptivePairs";
 import { TONE_LABELS } from "../../data/tones";
 import type { ItemType } from "../../data/types";
@@ -99,6 +107,7 @@ export interface ReviewExercise {
   imageChoiceMode?: ImageChoiceMode;
   imageOptionIds?: string[];
   visualConceptId?: string;
+  visualSceneId?: string;
 }
 
 export interface ReviewExerciseBuildInput {
@@ -848,10 +857,91 @@ function visualConceptForEntity(entity: ReviewExerciseEntity): VisualConceptId |
   return byHanzi?.id;
 }
 
+function visualSceneForEntity(entity: ReviewExerciseEntity): VisualScene | undefined {
+  return VISUAL_SCENES.find((scene) => {
+    if (entity.type === "chunk" && scene.targetChunkIds.includes(entity.itemId)) return true;
+    if (entity.type === "char" && (scene.targetCharIds ?? []).includes(entity.itemId)) return true;
+    const target = sceneTargetHanzi(scene);
+    return Boolean(target && target === entity.hanzi);
+  });
+}
+
+function buildSceneImageChoiceReview(
+  input: ReviewExerciseBuildInput,
+  entity: ReviewExerciseEntity,
+  scene: VisualScene
+): ReviewExercise | null {
+  const sceneModes: ImageChoiceMode[] = ["image_sentence_choice", "scene_audio_choice"];
+  const mode = sceneModes[input.item.reps % sceneModes.length];
+  const targetHanzi = sceneTargetHanzi(scene);
+  if (!targetHanzi) return null;
+
+  if (mode === "scene_audio_choice") {
+    const imageIds = [scene.id, ...defaultSceneDistractors(scene.id, 3)];
+    return {
+      kind: "image_choice",
+      domain: input.domain,
+      item: input.item,
+      entity,
+      prompt: "Revisão por cena e áudio.",
+      question: "Ouça a fala e escolha a cena correspondente.",
+      audioText: targetHanzi,
+      answer: scene.id,
+      answerLabel: scene.targetMeaningPt,
+      imageChoiceMode: mode,
+      imageOptionIds: imageIds,
+      visualSceneId: scene.id,
+      options: imageIds.map((id, index) => ({
+        id: `scene-${id}-${index}`,
+        value: id,
+        label: resolveVisualScene(id)?.targetMeaningPt ?? id,
+      })),
+      explanation: `${targetHanzi} · ${scene.targetMeaningPt}.`,
+      canAutoCheck: true,
+    };
+  }
+
+  const sentenceOptions = sentenceOptionsForScene(scene.id, 4);
+  if (sentenceOptions.length < 2 || !sentenceOptions.includes(targetHanzi)) return null;
+
+  return {
+    kind: "image_choice",
+    domain: input.domain,
+    item: input.item,
+    entity,
+    prompt: "Revisão por cena.",
+    question: "Qual frase descreve a imagem?",
+    visualSceneId: scene.id,
+    imageChoiceMode: "image_sentence_choice",
+    answer: targetHanzi,
+    answerLabel: targetHanzi,
+    options: sentenceOptions.map((hanzi, index) => ({
+      id: `scene-sentence-${index}`,
+      value: hanzi,
+      label: hanzi,
+      type: "hanzi" as const,
+    })),
+    explanation: `${targetHanzi} · ${scene.targetMeaningPt}.`,
+    canAutoCheck: true,
+  };
+}
+
 export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: ReviewExerciseEntity): ReviewExercise | null {
   const conceptId = visualConceptForEntity(entity);
   const concept = conceptId ? resolveVisualConcept(conceptId) : undefined;
-  if (!concept) return null;
+  const scene = visualSceneForEntity(entity);
+
+  // Alterna conceito isolado ↔ cena de ação/situação nas revisões.
+  const preferScene = Boolean(scene) && (input.item.reps % 2 === 1 || !concept);
+  if (preferScene && scene) {
+    const sceneExercise = buildSceneImageChoiceReview(input, entity, scene);
+    if (sceneExercise) return sceneExercise;
+  }
+
+  if (!concept) {
+    if (scene) return buildSceneImageChoiceReview(input, entity, scene);
+    return null;
+  }
 
   const modes: ImageChoiceMode[] = ["choose_hanzi", "choose_pinyin", "choose_image", "listen_and_choose_image", "choose_meaning"];
   const mode = modes[input.item.reps % modes.length];
@@ -883,7 +973,10 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
     };
   }
 
-  const textModes: Record<Exclude<ImageChoiceMode, "choose_image" | "listen_and_choose_image">, { question: string; answer: string; options: ReviewOption[] }> = {
+  const textModes: Record<
+    Exclude<ImageChoiceMode, "choose_image" | "listen_and_choose_image" | "image_sentence_choice" | "scene_audio_choice">,
+    { question: string; answer: string; options: ReviewOption[] }
+  > = {
     choose_hanzi: {
       question: "Qual hànzì combina com a imagem?",
       answer: concept.hanzi,

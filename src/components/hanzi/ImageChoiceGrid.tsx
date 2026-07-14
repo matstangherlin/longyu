@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { VisualConceptImage } from "./VisualConceptImage";
+import { VisualSceneImage } from "./VisualSceneImage";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
+import { resolveVisualScene } from "../../data/visualScenes";
 import { shortcutKeyForIndex, ShortcutBadge } from "../../lib/useExerciseHotkeys";
 import { MandarinText } from "./MandarinText";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
@@ -61,7 +63,8 @@ export function ImageChoiceGrid({
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
       {options.map((option, index) => {
         const value = mode === "images" ? ids[index] ?? option : option;
-        const visual = mode === "images" ? resolveVisualConcept(value) : undefined;
+        const concept = mode === "images" ? resolveVisualConcept(value) : undefined;
+        const scene = mode === "images" && !concept ? resolveVisualScene(value) : undefined;
         const state: ImageChoiceTileState =
           answered == null
             ? value === selected
@@ -73,20 +76,30 @@ export function ImageChoiceGrid({
                 ? "wrong"
                 : "idle";
 
+        const ariaExtra = concept
+          ? concept.imageAltPt
+          : scene
+            ? scene.exerciseAltPt
+            : "";
+
         return (
           <button
             key={`${value}-${index}`}
             type="button"
             disabled={answered != null}
             onClick={() => onSelect(value)}
-            aria-label={`Opção ${shortcutKeyForIndex(index)}${visual ? `: ${visual.imageAltPt}` : ""}`}
+            aria-label={`Opção ${shortcutKeyForIndex(index)}${ariaExtra ? `: ${ariaExtra}` : ""}`}
             className={tileClass(state, mode === "images")}
           >
             <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
             {mode === "images" ? (
               <>
-                <VisualConceptImage conceptId={value} size="md" className="pointer-events-none max-w-none" />
-                <span className="sr-only">{visual?.meaningPt}</span>
+                {concept ? (
+                  <VisualConceptImage conceptId={value} size="md" className="pointer-events-none max-w-none" />
+                ) : (
+                  <VisualSceneImage sceneId={value} size="md" className="pointer-events-none max-w-none" hideAnswerInAlt />
+                )}
+                <span className="sr-only">{concept?.meaningPt ?? scene?.targetMeaningPt}</span>
               </>
             ) : (
               <div className="px-2 pt-3">{textRenderer(option)}</div>

@@ -59,6 +59,7 @@ export const CHUNKS: Chunk[] = [
   { id: "haochi", hanzi: "很好吃", pinyin: "hěn hǎochī", meaningPt: "Muito gostoso.", literalPt: "muito bom-comer", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woele", hanzi: "我饿了", pinyin: "wǒ è le", meaningPt: "Estou com fome.", literalPt: "eu faminto (já)", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woxianghe", hanzi: "我想喝茶", pinyin: "wǒ xiǎng hē chá", meaningPt: "Quero beber chá.", literalPt: "eu querer beber chá", tags: ["comida"], domain: "bebida", level: "elementary" },
+  { id: "woxiangheshui", hanzi: "我想喝水", pinyin: "wǒ xiǎng hē shuǐ", meaningPt: "Quero beber água.", literalPt: "eu querer beber água", tags: ["comida"], domain: "bebida", level: "elementary" },
   { id: "womenchifanba", hanzi: "我们吃饭吧", pinyin: "wǒmen chīfàn ba", meaningPt: "Vamos comer.", literalPt: "nós comer refeição (vamos)", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woyaomifan", hanzi: "我要米饭", pinyin: "wǒ yào mǐfàn", meaningPt: "Quero arroz.", literalPt: "eu quero arroz", tags: ["comida"], domain: "comida", level: "survival" },
   { id: "buyaola", hanzi: "不要辣", pinyin: "búyào là", meaningPt: "Sem pimenta, por favor.", literalPt: "não querer picante", tags: ["comida"], domain: "comida", level: "survival" },

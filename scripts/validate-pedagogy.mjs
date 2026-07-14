@@ -215,13 +215,17 @@ try {
             case "image_choice": {
               gradedSteps += 1;
               const imagePick =
-                step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image";
+                step.imageChoiceMode === "choose_image" ||
+                step.imageChoiceMode === "listen_and_choose_image" ||
+                step.imageChoiceMode === "scene_audio_choice";
               if (imagePick) {
                 checkOptions(ref, step.imageOptions, step.correctImageId);
               } else {
                 checkOptions(ref, step.options, step.correctAnswer);
               }
-              if (!step.imageId && !step.iconId) err("licao", ref, "image_choice sem imageId");
+              if (!step.imageId && !step.iconId && !step.visualSceneId) {
+                err("licao", ref, "image_choice sem imageId");
+              }
               if (!step.imageChoiceMode) err("licao", ref, "image_choice sem modo");
               break;
             }
