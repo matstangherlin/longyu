@@ -37,6 +37,7 @@ import {
 } from "../../data/economy";
 import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
+import { normalizeImageChoiceMode } from "../../data/visualVocabulary";
 import { Card, Button, ProgressBar } from "../../components/ui/primitives";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
@@ -453,11 +454,12 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
   if (step.kind === "image_choice") {
     const hanzi = step.targetHanzi ?? step.hanzi;
     const mode = step.imageChoiceMode;
-    if (mode === "listen_and_choose_image" || mode === "choose_pinyin") {
+    const normalized = normalizeImageChoiceMode(mode);
+    if (normalized === "audio_to_image" || normalized === "image_to_pinyin" || normalized === "image_to_audio") {
       addText(hanzi, "som", "som");
       addText(hanzi, "pinyin", "som");
     }
-    if (mode === "choose_hanzi" || mode === "choose_image" || mode === "listen_and_choose_image") {
+    if (normalized === "image_to_hanzi" || normalized === "hanzi_to_image" || normalized === "audio_to_image") {
       addText(hanzi, "forma", "hanzi");
     }
     addText(hanzi, "significado");
@@ -490,8 +492,9 @@ function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.kind === "tone" || step.kind === "listen_select" || step.kind === "tone_pair") return "som";
   if (step.kind === "image_choice") {
     const mode = step.imageChoiceMode;
-    if (mode === "choose_pinyin" || mode === "listen_and_choose_image") return "pinyin";
-    if (mode === "choose_hanzi" || mode === "choose_image") return "forma";
+    const normalized = normalizeImageChoiceMode(mode);
+    if (normalized === "image_to_pinyin" || normalized === "audio_to_image" || normalized === "image_to_audio") return "pinyin";
+    if (normalized === "image_to_hanzi" || normalized === "hanzi_to_image") return "forma";
     return "significado";
   }
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "pinyin";

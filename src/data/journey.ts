@@ -11,10 +11,12 @@ import {
 } from "./conversationScenes";
 import {
   defaultVisualDistractors,
+  imageChoiceUsesImageOptions,
   resolveVisualConcept,
   type ImageChoiceMode,
   type VisualConceptId,
 } from "./visualVocabulary";
+import { resolveVisualScene, type VisualSceneId } from "./visualScenes";
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -84,6 +86,8 @@ export interface LessonStep {
   imageChoiceMode?: ImageChoiceMode;
   imageId?: string;
   iconId?: string;
+  /** Cena visual real (banco visualScenes) — alternativa a imageId para exercícios contextuais. */
+  visualSceneId?: string;
   promptPt?: string;
   targetHanzi?: string;
   targetPinyin?: string;
@@ -250,7 +254,7 @@ const imageChoice = (
   extra: Partial<LessonStep> = {}
 ): LessonStep => {
   const visual = resolveVisualConcept(imageId);
-  const isImagePick = mode === "choose_image" || mode === "listen_and_choose_image";
+  const isImagePick = imageChoiceUsesImageOptions(mode);
   return {
     kind: "image_choice",
     imageChoiceMode: mode,
@@ -265,6 +269,36 @@ const imageChoice = (
     ...(isImagePick
       ? { imageOptions: options, correctImageId: answer }
       : { options, correctAnswer: answer }),
+    ...extra,
+  };
+};
+
+const visualSceneChoice = (
+  mode: ImageChoiceMode,
+  sceneId: VisualSceneId,
+  promptPt: string,
+  answer: string,
+  options: string[],
+  extra: Partial<LessonStep> = {}
+): LessonStep => {
+  const scene = resolveVisualScene(sceneId);
+  const isImagePick = imageChoiceUsesImageOptions(mode);
+  return {
+    kind: "image_choice",
+    imageChoiceMode: mode,
+    visualSceneId: sceneId,
+    imageId: isImagePick ? scene?.conceptId : undefined,
+    promptPt,
+    targetHanzi: extra.targetHanzi ?? scene?.targetHanzi,
+    targetPinyin: extra.targetPinyin ?? scene?.targetPinyin,
+    targetMeaningPt: extra.targetMeaningPt ?? scene?.targetMeaningPt,
+    explanation: extra.explanation,
+    helpMode: extra.helpMode,
+    isNoHint: extra.isNoHint,
+    ...(isImagePick
+      ? { imageOptions: options, correctImageId: answer }
+      : { options, correctAnswer: answer }),
+    ...extra,
   };
 };
 const visualImageOptions = (targetId: VisualConceptId, count = 4): string[] => {
@@ -295,6 +329,16 @@ const visualMeaningOptions = (targetId: VisualConceptId): string[] => {
     .filter((meaning): meaning is string => Boolean(meaning && meaning !== target.meaningPt));
   return [target.meaningPt, ...others].slice(0, 4);
 };
+const visualAudioHanziOptions = (targetId: VisualConceptId): string[] => {
+  const target = resolveVisualConcept(targetId);
+  if (!target) return [];
+  const others = defaultVisualDistractors(targetId, 3)
+    .map((id) => resolveVisualConcept(id)?.hanzi)
+    .filter((hanzi): hanzi is string => Boolean(hanzi && hanzi !== target.hanzi));
+  return [target.hanzi, ...others].slice(0, 4);
+};
+const sceneSentenceOptions = (correct: string, distractors: string[]): string[] =>
+  [correct, ...distractors.filter((item) => item !== correct)].slice(0, 4);
 const produce = (target: string[], bank: string[], pt: string): LessonStep => ({ kind: "produce", target, bank, pt });
 type WriteGuide = Pick<LessonStep, "suggestion" | "requiredTerms" | "wordBank" | "accepts" | "mode">;
 const write = (
@@ -1962,6 +2006,14 @@ export const JOURNEY: JourneyPhase[] = [
                 ["再见", "你好", "谢谢", "不客气"],
                 "再见 fecha a conversa: até logo."
               ),
+              visualSceneChoice(
+                "image_sentence_choice",
+                "person_leaving",
+                "Qual frase descreve a cena?",
+                "再见",
+                sceneSentenceOptions("再见", ["你好", "谢谢", "不客气"]),
+                { isNoHint: true, explanation: "再见 é a despedida natural quando alguém sai." }
+              ),
               conversationScene("despedida"),
               fillBlank(
                 "Volte ao cumprimento",
@@ -2786,7 +2838,7 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("mu"),
               produce(["女"], ["人", "女", "口", "木"], "mulher / feminino"),
               imageChoice(
-                "choose_hanzi",
+                "image_to_hanzi",
                 "person",
                 "Qual hànzì combina com a imagem de pessoa?",
                 "人",
@@ -2794,7 +2846,7 @@ export const JOURNEY: JourneyPhase[] = [
                 { targetMeaningPt: "pessoa", explanation: "人 (rén) significa pessoa." }
               ),
               imageChoice(
-                "choose_hanzi",
+                "image_to_hanzi",
                 "tree",
                 "Qual hànzì combina com a imagem de árvore?",
                 "木",
@@ -2880,7 +2932,7 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("huo"),
               recognize("shui"),
               imageChoice(
-                "choose_hanzi",
+                "image_to_hanzi",
                 "sun",
                 "Qual hànzì combina com o sol?",
                 "日",
@@ -2888,7 +2940,7 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "日 (rì) = sol / dia." }
               ),
               imageChoice(
-                "choose_pinyin",
+                "image_to_pinyin",
                 "tree",
                 "Qual é o pinyin de árvore?",
                 "mù",
@@ -2926,7 +2978,7 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("zhong"),
               recognize("ren"),
               imageChoice(
-                "listen_and_choose_image",
+                "audio_to_image",
                 "water",
                 "Ouça e escolha a imagem certa.",
                 "water",
@@ -2994,7 +3046,7 @@ export const JOURNEY: JourneyPhase[] = [
             recognize("sen"),
             decompose("sen"),
             imageChoice(
-              "choose_image",
+              "hanzi_to_image",
               "tree",
               "Qual imagem combina com 木?",
               "tree",
@@ -3002,12 +3054,20 @@ export const JOURNEY: JourneyPhase[] = [
               { explanation: "木 = árvore." }
             ),
             imageChoice(
-              "choose_meaning",
+              "image_to_meaning",
               "person",
               "Isto é uma pessoa.",
               "pessoa",
               visualMeaningOptions("person"),
               { helpMode: "disabled", isNoHint: true, explanation: "人 = pessoa." }
+            ),
+            imageChoice(
+              "image_to_audio",
+              "water",
+              "Ouça as opções e escolha o som de água.",
+              "水",
+              visualAudioHanziOptions("water"),
+              { explanation: "水 (shuǐ) = água." }
             ),
             match(
               "Desmonte mentalmente",
@@ -3153,6 +3213,14 @@ export const JOURNEY: JourneyPhase[] = [
                   { left: "森", right: "floresta densa", leftType: "hanzi", rightType: "pt" },
                 ],
                 "Três árvores juntas sugerem muitas árvores."
+              ),
+              visualSceneChoice(
+                "meaning_to_image",
+                "tree_single",
+                "Qual imagem combina com árvore?",
+                "tree",
+                visualImageOptions("tree"),
+                { explanation: "木 (mù) = árvore — a foto mostra uma árvore isolada." }
               ),
             ],
           },
@@ -3643,6 +3711,14 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我想喝茶", "我要这个", "多少钱？", "我喜欢中文"],
                 "我想喝茶",
                 "我想喝茶 pede chá como desejo."
+              ),
+              visualSceneChoice(
+                "image_sentence_choice",
+                "person_drinking_water",
+                "Qual frase descreve a cena?",
+                "我想喝水",
+                sceneSentenceOptions("我想喝水", ["谢谢", "再见", "你好"]),
+                { isNoHint: true, explanation: "我想喝水 pede água de forma natural." }
               ),
               listenSelect(
                 "Ouça a pergunta de preço",

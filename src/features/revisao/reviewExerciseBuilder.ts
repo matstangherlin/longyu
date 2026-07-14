@@ -4,6 +4,8 @@ import { radicalById } from "../../data/radicals";
 import { selectHanziBuilderForStudent, type HanziBuilderProgressMap } from "../../data/hanziBuilder";
 import {
   defaultVisualDistractors,
+  imageChoiceUsesImageOptions,
+  normalizeImageChoiceMode,
   resolveVisualConcept,
   visualByCharId,
   type ImageChoiceMode,
@@ -853,21 +855,36 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
   const concept = conceptId ? resolveVisualConcept(conceptId) : undefined;
   if (!concept) return null;
 
-  const modes: ImageChoiceMode[] = ["choose_hanzi", "choose_pinyin", "choose_image", "listen_and_choose_image", "choose_meaning"];
+  const modes: ImageChoiceMode[] = [
+    "image_to_hanzi",
+    "image_to_pinyin",
+    "hanzi_to_image",
+    "audio_to_image",
+    "image_to_meaning",
+    "meaning_to_image",
+    "image_to_audio",
+  ];
   const mode = modes[input.item.reps % modes.length];
+  const normalized = normalizeImageChoiceMode(mode);
   const imageIds = [concept.id, ...defaultVisualDistractors(concept.id, 3)];
 
-  if (mode === "choose_image" || mode === "listen_and_choose_image") {
+  if (imageChoiceUsesImageOptions(mode)) {
+    const isAudio = normalized === "audio_to_image";
+    const isMeaning = normalized === "meaning_to_image";
     return {
       kind: "image_choice",
       domain: input.domain,
       item: input.item,
       entity,
-      prompt: mode === "listen_and_choose_image" ? "Revisão visual por áudio." : "Revisão visual.",
-      question: mode === "listen_and_choose_image" ? "Ouça e escolha a imagem certa." : `Qual imagem combina com ${concept.hanzi}?`,
-      displayText: mode === "choose_image" ? concept.hanzi : undefined,
-      displayType: mode === "choose_image" ? "hanzi" : undefined,
-      audioText: mode === "listen_and_choose_image" ? concept.hanzi : undefined,
+      prompt: isAudio ? "Revisão visual por áudio." : isMeaning ? "Revisão visual por significado." : "Revisão visual.",
+      question: isAudio
+        ? "Ouça e escolha a imagem certa."
+        : isMeaning
+          ? `Qual imagem combina com ${concept.meaningPt}?`
+          : `Qual imagem combina com ${concept.hanzi}?`,
+      displayText: normalized === "hanzi_to_image" ? concept.hanzi : isMeaning ? concept.meaningPt : undefined,
+      displayType: normalized === "hanzi_to_image" ? "hanzi" : isMeaning ? "pt" : undefined,
+      audioText: isAudio ? concept.hanzi : undefined,
       answer: concept.id,
       answerLabel: concept.meaningPt,
       imageChoiceMode: mode,
@@ -883,8 +900,37 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
     };
   }
 
-  const textModes: Record<Exclude<ImageChoiceMode, "choose_image" | "listen_and_choose_image">, { question: string; answer: string; options: ReviewOption[] }> = {
-    choose_hanzi: {
+  if (normalized === "image_to_audio") {
+    const hanziOptions = [concept.hanzi, ...defaultVisualDistractors(concept.id, 3)
+      .map((id) => resolveVisualConcept(id)?.hanzi)
+      .filter((value): value is string => Boolean(value && value !== concept.hanzi))].slice(0, 4);
+    return {
+      kind: "image_choice",
+      domain: input.domain,
+      item: input.item,
+      entity,
+      prompt: "Revisão visual por áudio.",
+      question: "Ouça as opções e escolha o som certo.",
+      visualConceptId: concept.id,
+      imageChoiceMode: mode,
+      answer: concept.hanzi,
+      answerLabel: concept.hanzi,
+      options: hanziOptions.map((value, index) => ({
+        id: `audio-${value}-${index}`,
+        value,
+        label: value,
+        type: "audio" as const,
+      })),
+      explanation: `${concept.hanzi} (${concept.pinyin}) = ${concept.meaningPt}.`,
+      canAutoCheck: true,
+    };
+  }
+
+  const textModes: Record<
+    "image_to_hanzi" | "image_to_pinyin" | "image_to_meaning",
+    { question: string; answer: string; options: ReviewOption[] }
+  > = {
+    image_to_hanzi: {
       question: "Qual hànzì combina com a imagem?",
       answer: concept.hanzi,
       options: imageIds
@@ -897,7 +943,7 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
           type: "hanzi" as const,
         })),
     },
-    choose_pinyin: {
+    image_to_pinyin: {
       question: "Qual é o pinyin?",
       answer: concept.pinyin,
       options: imageIds
@@ -910,7 +956,7 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
           type: "pinyin" as const,
         })),
     },
-    choose_meaning: {
+    image_to_meaning: {
       question: "Qual é o significado?",
       answer: concept.meaningPt,
       options: imageIds
@@ -925,7 +971,7 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
     },
   };
 
-  const payload = textModes[mode as keyof typeof textModes];
+  const payload = textModes[normalized as keyof typeof textModes];
   if (!payload || payload.options.length < 2) return null;
 
   return {
