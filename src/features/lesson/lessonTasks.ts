@@ -997,9 +997,10 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
 
   const targetCount = Math.max(6, Math.min(10, Math.max(authoredCount, commonTarget)));
   const hanziLesson = isHanziFocusedLesson(lesson);
-  // Lição de hànzì: 2–4 builders; lição comum: no máximo 1.
-  const maxBuilds = relevantHanzi ? (hanziLesson ? 4 : 1) : 0;
-  const minBuilds = relevantHanzi && hanziLesson ? 2 : 0;
+  // Lição de hànzì: 2–4 builders quando há 2+ caracteres; um único caractere → 1.
+  const focusCharCount = focus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1).length;
+  const maxBuilds = relevantHanzi ? (hanziLesson ? Math.min(4, Math.max(1, focusCharCount)) : 1) : 0;
+  const minBuilds = relevantHanzi && hanziLesson ? Math.min(2, Math.max(1, focusCharCount)) : 0;
   const pinyinCap = isPinyinFocusedLesson(lesson)
     ? maxPinyinTasksForLesson(lesson, pinyinRich)
     : Math.min(1, maxPinyinTasksForLesson(lesson, pinyinRich));
@@ -1826,6 +1827,24 @@ function countKind(candidates: readonly PracticeCandidate[], kind: StepKind): nu
   return candidates.filter((candidate) => candidate.step.kind === kind).length;
 }
 
+/** Resposta avaliada normalizada (mesma métrica do validate:exercise-depth). */
+function gradedAnswerKey(step: LessonStep): string {
+  const raw = step.correctAnswer ?? step.answer ?? step.checkpoint?.correctAnswer ?? "";
+  return cleanHanzi(String(raw)).toLocaleLowerCase("pt-BR");
+}
+
+function answerOccurrenceCount(candidates: readonly PracticeCandidate[], answerKey: string): number {
+  if (!answerKey) return 0;
+  return candidates.filter((candidate) => gradedAnswerKey(candidate.step) === answerKey).length;
+}
+
+/** Nenhuma resposta correta mais de 2 vezes no plano real. */
+function underAnswerRepeatCap(selected: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
+  const key = gradedAnswerKey(candidate.step);
+  if (!key) return true;
+  return answerOccurrenceCount(selected, key) < 2;
+}
+
 // Quantos builders do MESMO caractere já foram escolhidos (evita 明 3× etc.).
 function charBuildCount(candidates: readonly PracticeCandidate[], char: string | undefined): number {
   if (!char) return 0;
@@ -1855,6 +1874,7 @@ function selectBestCandidate(
     .filter((candidate) => !usedSignatures.has(stepSignature(candidate.step)))
     .filter((candidate) => candidate.step.kind !== "hanzi_build" || hanziBuildCount < profile.maxHanziBuilds)
     .filter((candidate) => underPerCharCap(selected, candidate, profile))
+    .filter((candidate) => underAnswerRepeatCap(selected, candidate))
     .filter((candidate) => !isPinyinPracticeStep(candidate.step) || pinyinTaskCount < profile.maxPinyinTasks)
     .filter(
       (candidate) =>
@@ -1875,6 +1895,7 @@ function replaceLowestIfNeeded(
   if (usedSignatures.has(signature)) return;
   if (candidate.step.kind === "hanzi_build" && countKind(selected, "hanzi_build") >= profile.maxHanziBuilds) return;
   if (!underPerCharCap(selected, candidate, profile)) return;
+  if (!underAnswerRepeatCap(selected, candidate)) return;
   if (isPinyinPracticeStep(candidate.step) && countPinyinTasks(selected) >= profile.maxPinyinTasks) return;
   if (
     candidate.step.kind === "conversation_scene" &&

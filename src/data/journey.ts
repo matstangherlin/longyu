@@ -734,19 +734,16 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     reviewItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao"],
     estimatedMinutes: 6,
     steps: [
-      // Aula dedicada de montagem básica: cada hànzì novo entra com guia e
-      // fragmentos simples; no fim, 木 volta sem silhueta como revisão. Nada de
-      // composição (林/明) aqui — isso vem depois, quando as bases já foram vistas.
       intro("Monte peça por peça", "Agora você monta caracteres simples com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
-      hanziBuild("hb-mu-fragments", "Monte 木", "Encaixe os traços da árvore.", "木", "árvore / madeira"),
       imageChoice(
         "choose_image",
-        "person",
-        "Quem aparece na foto?",
-        "person",
-        visualImageOptions("person"),
-        { explanation: "人 significa pessoa — a forma lembra alguém em pé." }
+        "tree",
+        "O que você vê na foto?",
+        "tree",
+        visualImageOptions("tree"),
+        { explanation: "木 representa árvore — a forma lembra um tronco com galhos." }
       ),
+      hanziBuild("hb-mu-fragments", "Monte 木", "Encaixe os traços da árvore.", "木", "árvore / madeira"),
       imageChoice(
         "choose_hanzi",
         "person",
@@ -758,16 +755,25 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       hanziBuild("hb-ren-fragments", "Monte 人", "Monte o hànzì de pessoa.", "人", "pessoa"),
       hanziBuild("hb-kou-fragments", "Monte 口", "Monte o hànzì de boca.", "口", "boca"),
       hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol.", "日", "sol; dia"),
+      imageChoice(
+        "listen_and_choose_image",
+        "mountain",
+        "Ouça e escolha a imagem certa.",
+        "mountain",
+        visualImageOptions("mountain"),
+        { explanation: "山 (shān) = montanha." }
+      ),
       hanziBuild("hb-shan-fragments", "Monte 山", "Encaixe os traços da montanha.", "山", "montanha"),
-      // Revisão de 木 sem silhueta e com distratores — reforça o que abriu a lição.
-      hanziBuild("hb-mu-complete", "Revise 木 sem molde", "Complete 木 sem a silhueta de fundo.", "木", "árvore / madeira"),
-      dialogue(
-        "Fechamento",
-        "Como você montou os hànzì nesta lição?",
-        "encaixando fragmentos simples",
-        ["encaixando fragmentos simples", "juntando duas palavras inteiras", "soletrando letras", "copiando pinyin"],
-        "Primeiro você aprende a montar blocos simples. Composições como 林 e 明 vêm depois.",
-        "Escolha"
+      match(
+        "Feche o mapa",
+        "Combine cada hànzì com a ideia.",
+        [
+          { left: "木", right: "árvore", leftType: "hanzi", rightType: "pt" },
+          { left: "人", right: "pessoa", leftType: "hanzi", rightType: "pt" },
+          { left: "口", right: "boca", leftType: "hanzi", rightType: "pt" },
+          { left: "日", right: "sol / dia", leftType: "hanzi", rightType: "pt" },
+        ],
+        "Você montou os blocos simples; composições como 林 e 明 vêm depois."
       ),
     ],
   }),
@@ -857,6 +863,7 @@ const PHASE1_ENGINE_LESSONS: Lesson[] = [
         correctAnswer: "不客气",
         explanation: "不客气 e a resposta natural para de nada.",
       },
+      conversationScene("agradecendo"),
       {
         kind: "hanzi_build",
         title: "Monte o hànzì 好",
@@ -1094,57 +1101,40 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-wobuhui-shuo-zhongwen",
     title: "我不会说中文",
     skill: "fala",
-    libraryItems: ["chunk:wobuhui"],
-    reviewItems: ["chunk:wobuhui"],
+    libraryItems: ["chunk:wobuhui", "chunk:nihao", "chunk:wohenhao"],
+    reviewItems: ["chunk:nihao", "chunk:wohenhao"],
     steps: [
       listen("我不会说中文", "wǒ bú huì shuō Zhōngwén", "Não sei falar chinês"),
-      listenSelect(
-        "Toque no que ouviu",
+      comp(
         "我不会说中文",
-        ["我不会说中文", "我会说一点中文", "我很好", "谢谢"],
-        "我不会说中文",
-        "我不会说中文 é uma frase de proteção."
+        "wǒ bú huì shuō Zhōngwén",
+        "Não sei falar chinês",
+        ["Não sei falar chinês", "Não entendi", "Estou bem", "Por favor, fale de novo"]
       ),
       match(
-        "Peças de proteção",
-        "Combine cada bloco com o sentido.",
+        "Três intenções",
+        "Combine cada frase com a intenção.",
         [
-          { left: "我", right: "eu", leftType: "hanzi", rightType: "pt" },
-          { left: "不会", right: "não sei / não consigo", leftType: "hanzi", rightType: "pt" },
-          { left: "说中文", right: "falar chinês", leftType: "hanzi", rightType: "pt" },
+          { left: "我不会说中文", right: "não sei falar chinês", leftType: "hanzi", rightType: "pt" },
+          { left: "我听不懂", right: "não entendi o que ouvi", leftType: "hanzi", rightType: "pt" },
+          { left: "请再说一遍", right: "peça para repetir", leftType: "hanzi", rightType: "pt" },
         ],
-        "不会 nega a habilidade; 说中文 é falar chinês."
+        "不会说 = não sei falar; 听不懂 = não entendi; 再说一遍 = repita."
       ),
-      sentenceBuild(
-        "Não sei falar chinês",
-        "Monte a frase de sobrevivência.",
-        ["我", "不会", "说", "中文"],
-        ["我", "不会", "会", "说", "中文", "一点"],
-        "我不会说中文 = não sei falar chinês."
-      ),
-      fillBlank(
-        "Complete a frase",
-        "Complete: 我 ___ 说中文.",
-        "我",
-        "不会",
-        "说中文",
-        ["不会", "会", "很", "叫"],
-        "我不会说中文 = não sei falar chinês."
-      ),
+      conversationScene("nao-falo-chinês"),
       dialogue(
-        "Conversa acelerou",
+        "Proteção",
         "A pessoa fala rápido demais. Qual frase protege você?",
         "我不会说中文",
         ["我不会说中文", "谢谢", "我很好", "再见"],
         "Use 我不会说中文 quando você não sabe falar chinês."
       ),
-      translationBuild(
-        "Escreva em português",
-        "我不会说中文",
-        "wǒ bú huì shuō Zhōngwén",
-        ["Não", "sei", "falar", "chinês"],
-        ["falar", "Não", "obrigado", "sei", "chinês"],
-        "我不会说中文 = não sei falar chinês."
+      sentenceBuild(
+        "Revisão com cumprimentos",
+        "Monte o cumprimento antigo: Olá.",
+        ["你", "好"],
+        ["你", "好", "会", "说", "中文"],
+        "你好 reaparece em contexto novo de sobrevivência."
       ),
     ],
   }),
@@ -1152,19 +1142,40 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-qing-zai-shuo-yibian",
     title: "请再说一遍",
     skill: "fala",
-    libraryItems: ["chunk:qingzaishuoyibian"],
-    reviewItems: ["chunk:qingzaishuoyibian"],
+    libraryItems: ["chunk:qingzaishuoyibian", "chunk:tingbudong", "chunk:wohenhao"],
+    reviewItems: ["chunk:tingbudong", "chunk:wohenhao", "chunk:qingzaishuoyibian"],
     steps: [
-      intro("Peça repetição", "请再说一遍 é educado e muito útil: por favor, fale de novo."),
+      intro("Peça repetição", "请再说一遍 é educado e útil: por favor, fale de novo."),
       listen("请再说一遍", "qǐng zài shuō yí biàn", "Por favor, fale de novo"),
-      flash("qingzaishuoyibian"),
-      comp("请再说一遍", "qǐng zài shuō yí biàn", "Por favor, fale de novo", ["Por favor, fale de novo", "Não sei falar chinês", "Tudo bem?", "Até logo"]),
+      comp(
+        "请再说一遍",
+        "qǐng zài shuō yí biàn",
+        "Repita, por favor",
+        ["Repita, por favor", "Não entendi", "Não sei falar chinês", "Estou bem"]
+      ),
+      conversationScene("pedir-repeticao"),
+      dialogue(
+        "Qual intenção?",
+        "Você ouviu, mas não entendeu. Escolha entre pedir repetição ou dizer que não entendeu.",
+        "我听不懂",
+        ["我听不懂", "请再说一遍", "我很好", "谢谢"],
+        "我听不懂 comunica que você não entendeu; 请再说一遍 pede a repetição."
+      ),
       sentenceBuild(
-        "Peça ajuda",
-        "Como pedir para a pessoa falar de novo?",
+        "Monte o pedido",
+        "Na mesma cena, monte: por favor, fale de novo.",
         ["请", "再", "说", "一遍"],
-        ["请", "再", "说", "一遍", "谢谢", "中文"],
+        ["请", "再", "说", "一遍", "听不懂", "很好"],
         "请再说一遍 = por favor, fale de novo."
+      ),
+      fillBlank(
+        "Revisão com frase antiga",
+        "Complete a resposta antiga: 我 ___.",
+        "我",
+        "很好",
+        "",
+        ["很好", "听不懂", "再说一遍", "谢谢"],
+        "我很好 reaparece em novo contexto de revisão."
       ),
     ],
   }),
@@ -1190,13 +1201,28 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     title: "四 五",
     skill: "hanzi",
     libraryItems: ["char:si", "char:wu"],
-    reviewItems: ["char:si", "char:wu"],
+    reviewItems: ["char:si", "char:wu", "char:san"],
     steps: [
       intro("Dois números comuns", "四 e 五 aparecem cedo em datas, preços e telefone."),
       recognize("si"),
       recognize("wu"),
+      imageChoice(
+        "choose_hanzi",
+        "tree",
+        "Revisão visual: qual hànzì combina com árvore?",
+        "木",
+        visualHanziOptions("tree"),
+        { explanation: "木 volta como revisão visual enquanto você fixa 四 e 五." }
+      ),
       comp("四", "sì", "quatro", ["quatro", "cinco", "seis", "dez"]),
       comp("五", "wǔ", "cinco", ["cinco", "quatro", "oito", "um"]),
+      dialogue(
+        "Compare com 三",
+        "Qual número vem antes de 四?",
+        "三",
+        ["三", "五", "六", "一"],
+        "三 reaparece: depois dele vem 四."
+      ),
     ],
   }),
   microLesson({
@@ -1231,7 +1257,40 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:mu"],
     reviewItems: ["char:mu"],
-    steps: [intro("Árvore", "木 é árvore ou madeira. Repetir 木 cria 林 e 森."), recognize("mu"), hanziBuild("hb-mu-fragments", "Monte 木", "Monte o hànzì de árvore.", "木", "árvore; madeira"), comp("木", "mù", "árvore; madeira", ["árvore; madeira", "água", "mulher", "dez"])],
+    steps: [
+      intro("Árvore", "木 é árvore ou madeira. A foto e a forma se apoiam."),
+      imageChoice(
+        "choose_hanzi",
+        "tree",
+        "Qual hànzì combina com a árvore?",
+        "木",
+        visualHanziOptions("tree"),
+        { explanation: "木 é o caractere de árvore." }
+      ),
+      imageChoice(
+        "listen_and_choose_image",
+        "tree",
+        "Ouça e escolha a imagem certa.",
+        "tree",
+        visualImageOptions("tree"),
+        { explanation: "木 (mù) = árvore." }
+      ),
+      hanziBuild("hb-mu-fragments", "Monte 木", "Monte o hànzì de árvore.", "木", "árvore; madeira"),
+      sentenceBuild(
+        "Frase curta",
+        "Monte: isto é árvore.",
+        ["这", "是", "木"],
+        ["这", "是", "木", "水", "人"],
+        "这是木 liga demonstrativo + 木."
+      ),
+      dialogue(
+        "Revisão de número",
+        "Qual hànzì significa três?",
+        "三",
+        ["三", "木", "人", "水"],
+        "三 reaparece como revisão antes de novos caracteres."
+      ),
+    ],
   }),
   microLesson({
     id: "p4-char-ren",
@@ -1239,7 +1298,34 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:ren"],
     reviewItems: ["char:ren"],
-    steps: [intro("Pessoa", "人 significa pessoa e aparece em brasileiro: 巴西人."), recognize("ren"), hanziBuild("hb-ren-fragments", "Monte 人", "Monte o hànzì de pessoa.", "人", "pessoa"), comp("人", "rén", "pessoa", ["pessoa", "boca", "lua", "fogo"])],
+    steps: [
+      intro("Pessoa", "人 significa pessoa e aparece em 巴西人."),
+      imageChoice(
+        "choose_hanzi",
+        "person",
+        "Qual hànzì significa pessoa?",
+        "人",
+        visualHanziOptions("person"),
+        { explanation: "人 é o caractere de pessoa." }
+      ),
+      imageChoice(
+        "listen_and_choose_image",
+        "person",
+        "Ouça e escolha a imagem certa.",
+        "person",
+        visualImageOptions("person"),
+        { explanation: "人 (rén) = pessoa." }
+      ),
+      hanziBuild("hb-ren-fragments", "Monte 人", "Monte o hànzì de pessoa.", "人", "pessoa"),
+      comp("巴西人", "Bāxī rén", "brasileiro", ["brasileiro", "árvore", "boca", "sol"]),
+      dialogue(
+        "Revisão de 木",
+        "Qual hànzì combina com árvore?",
+        "木",
+        ["木", "人", "口", "日"],
+        "木 volta como revisão antes de 口."
+      ),
+    ],
   }),
   microLesson({
     id: "p4-char-kou",
@@ -1247,7 +1333,42 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:kou"],
     reviewItems: ["char:kou"],
-    steps: [intro("Boca e fala", "口 sugere boca, abertura ou fala. Ele vai aparecer em 吗."), recognize("kou"), hanziBuild("hb-kou-fragments", "Monte 口", "Monte o hànzì de boca.", "口", "boca"), comp("口", "kǒu", "boca", ["boca", "pessoa", "árvore", "água"])],
+    steps: [
+      intro("Boca e fala", "口 sugere boca, abertura ou fala. Ele vai aparecer em 吗."),
+      imageChoice(
+        "choose_hanzi",
+        "mouth",
+        "Qual hànzì combina com a boca?",
+        "口",
+        visualHanziOptions("mouth"),
+        { explanation: "口 é o caractere de boca." }
+      ),
+      imageChoice(
+        "listen_and_choose_image",
+        "mouth",
+        "Ouça e escolha a imagem certa.",
+        "mouth",
+        visualImageOptions("mouth"),
+        { explanation: "口 (kǒu) = boca." }
+      ),
+      hanziBuild("hb-kou-fragments", "Monte 口", "Monte o hànzì de boca.", "口", "boca"),
+      match(
+        "Ideia da peça",
+        "Combine cada hànzì com a ideia.",
+        [
+          { left: "口", right: "boca / fala", leftType: "hanzi", rightType: "pt" },
+          { left: "人", right: "pessoa", leftType: "hanzi", rightType: "pt" },
+        ],
+        "口 traz pista de boca/fala; 人 é pessoa."
+      ),
+      dialogue(
+        "Revisão de 人",
+        "Qual hànzì significa pessoa?",
+        "人",
+        ["人", "口", "木", "日"],
+        "人 volta em revisão leve."
+      ),
+    ],
   }),
   microLesson({
     id: "p4-char-ri",
@@ -1255,7 +1376,40 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:ri"],
     reviewItems: ["char:ri"],
-    steps: [intro("Sol e dia", "日 significa sol ou dia. Em 明, ele se junta com 月."), recognize("ri"), hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol.", "日", "sol; dia"), comp("日", "rì", "sol; dia", ["sol; dia", "lua; mês", "água", "pessoa"])],
+    steps: [
+      intro("Sol e dia", "日 significa sol ou dia. Em 明, ele se junta com 月."),
+      imageChoice(
+        "choose_hanzi",
+        "sun",
+        "Qual hànzì combina com o sol?",
+        "日",
+        visualHanziOptions("sun"),
+        { explanation: "日 é o caractere de sol/dia." }
+      ),
+      imageChoice(
+        "listen_and_choose_image",
+        "sun",
+        "Ouça e escolha a imagem certa.",
+        "sun",
+        visualImageOptions("sun"),
+        { explanation: "日 (rì) = sol / dia." }
+      ),
+      hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol.", "日", "sol; dia"),
+      sentenceBuild(
+        "Frase curta",
+        "Monte: isto é sol.",
+        ["这", "是", "日"],
+        ["这", "是", "日", "口", "木"],
+        "这是日 usa 日 em frase mínima."
+      ),
+      dialogue(
+        "Revisão de 口",
+        "Qual hànzì combina com boca?",
+        "口",
+        ["口", "日", "人", "木"],
+        "口 volta como revisão."
+      ),
+    ],
   }),
   microLesson({
     id: "p4-char-yue",
@@ -1263,7 +1417,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:yue"],
     reviewItems: ["char:yue"],
-    steps: [intro("Lua e mês", "月 pode significar lua ou mês. Visualmente, ajuda em 明."), recognize("yue"), hanziBuild("hb-yue-fragments", "Monte 月", "Monte o hànzì de lua.", "月", "lua; mês"), comp("月", "yuè", "lua; mês", ["lua; mês", "sol; dia", "boca", "fogo"])],
+    steps: [
+      intro("Lua e mês", "月 pode significar lua ou mês. Visualmente, ajuda em 明."),
+      imageChoice("choose_hanzi", "moon", "Qual hànzì combina com a lua?", "月", visualHanziOptions("moon"), { explanation: "月 é o caractere de lua/mês." }),
+      imageChoice("listen_and_choose_image", "moon", "Ouça e escolha a imagem certa.", "moon", visualImageOptions("moon"), { explanation: "月 (yuè) = lua / mês." }),
+      hanziBuild("hb-yue-fragments", "Monte 月", "Monte o hànzì de lua.", "月", "lua; mês"),
+      dialogue("Revisão de 日", "Qual hànzì combina com sol?", "日", ["日", "月", "木", "水"], "日 e 月 se juntam em 明."),
+    ],
   }),
   microLesson({
     id: "p4-char-shan",
@@ -1271,7 +1431,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:shan"],
     reviewItems: ["char:shan"],
-    steps: [intro("Montanha", "山 é montanha. A forma lembra três picos."), recognize("shan"), hanziBuild("hb-shan-fragments", "Monte 山", "Monte o hànzì de montanha.", "山", "montanha"), comp("山", "shān", "montanha", ["montanha", "água", "fogo", "pessoa"])],
+    steps: [
+      intro("Montanha", "山 é montanha. A forma lembra três picos."),
+      imageChoice("choose_hanzi", "mountain", "Qual hànzì combina com a montanha?", "山", visualHanziOptions("mountain"), { explanation: "山 é o caractere de montanha." }),
+      imageChoice("listen_and_choose_image", "mountain", "Ouça e escolha a imagem certa.", "mountain", visualImageOptions("mountain"), { explanation: "山 (shān) = montanha." }),
+      hanziBuild("hb-shan-fragments", "Monte 山", "Monte o hànzì de montanha.", "山", "montanha"),
+      dialogue("Revisão de 月", "Qual hànzì combina com lua?", "月", ["月", "山", "水", "火"], "月 volta como revisão."),
+    ],
   }),
   microLesson({
     id: "p4-char-shui",
@@ -1279,7 +1445,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:shui"],
     reviewItems: ["char:shui"],
-    steps: [intro("Água", "水 é água. Como radical lateral, costuma aparecer em assuntos ligados a líquido."), recognize("shui"), hanziBuild("hb-shui-fragments", "Monte 水", "Monte o hànzì de água.", "水", "água"), comp("水", "shuǐ", "água", ["água", "fogo", "boca", "mulher"])],
+    steps: [
+      intro("Água", "水 é água. Como radical lateral, costuma aparecer em assuntos ligados a líquido."),
+      imageChoice("choose_hanzi", "water", "Qual hànzì combina com água?", "水", visualHanziOptions("water"), { explanation: "水 é o caractere de água." }),
+      imageChoice("listen_and_choose_image", "water", "Ouça e escolha a imagem certa.", "water", visualImageOptions("water"), { explanation: "水 (shuǐ) = água." }),
+      hanziBuild("hb-shui-fragments", "Monte 水", "Monte o hànzì de água.", "水", "água"),
+      sentenceBuild("Frase curta", "Monte: isto é água.", ["这", "是", "水"], ["这", "是", "水", "火", "山"], "这是水 usa 水 em frase mínima."),
+    ],
   }),
   microLesson({
     id: "p4-char-huo",
@@ -1287,7 +1459,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:huo"],
     reviewItems: ["char:huo"],
-    steps: [intro("Fogo", "火 é fogo. Quando aparece como peça, pode sugerir calor, luz ou energia."), recognize("huo"), hanziBuild("hb-huo-fragments", "Monte 火", "Monte o hànzì de fogo.", "火", "fogo"), comp("火", "huǒ", "fogo", ["fogo", "água", "lua", "pessoa"])],
+    steps: [
+      intro("Fogo", "火 é fogo. Quando aparece como peça, pode sugerir calor, luz ou energia."),
+      imageChoice("choose_hanzi", "fire", "Qual hànzì combina com fogo?", "火", visualHanziOptions("fire"), { explanation: "火 é o caractere de fogo." }),
+      imageChoice("listen_and_choose_image", "fire", "Ouça e escolha a imagem certa.", "fire", visualImageOptions("fire"), { explanation: "火 (huǒ) = fogo." }),
+      hanziBuild("hb-huo-fragments", "Monte 火", "Monte o hànzì de fogo.", "火", "fogo"),
+      dialogue("Revisão de 水", "Qual hànzì combina com água?", "水", ["水", "火", "山", "木"], "水 volta como contraste com 火."),
+    ],
   }),
   microLesson({
     id: "p4-char-da",
@@ -1295,7 +1473,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:da"],
     reviewItems: ["char:da"],
-    steps: [intro("Grande", "大 é grande. A forma lembra alguém de braços abertos."), recognize("da"), hanziBuild("hb-da-fragments", "Monte 大", "Monte o hànzì de grande.", "大", "grande"), comp("大", "dà", "grande", ["grande", "pequeno", "pessoa", "meio"])],
+    steps: [
+      intro("Grande", "大 é grande. A forma lembra alguém de braços abertos."),
+      imageChoice("choose_hanzi", "big", "Qual hànzì combina com grande?", "大", visualHanziOptions("big"), { explanation: "大 é o caractere de grande." }),
+      imageChoice("listen_and_choose_image", "big", "Ouça e escolha a imagem certa.", "big", visualImageOptions("big"), { explanation: "大 (dà) = grande." }),
+      hanziBuild("hb-da-fragments", "Monte 大", "Monte o hànzì de grande.", "大", "grande"),
+      dialogue("Revisão de 火", "Qual hànzì combina com fogo?", "火", ["火", "大", "小", "水"], "火 volta como revisão."),
+    ],
   }),
   microLesson({
     id: "p4-char-xiao",
@@ -1303,7 +1487,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:xiao"],
     reviewItems: ["char:xiao"],
-    steps: [intro("Pequeno", "小 é pequeno. Contrasta com 大."), recognize("xiao"), hanziBuild("hb-xiao-fragments", "Monte 小", "Monte o hànzì de pequeno.", "小", "pequeno"), comp("小", "xiǎo", "pequeno", ["pequeno", "grande", "bom", "pessoa"])],
+    steps: [
+      intro("Pequeno", "小 é pequeno. Contrasta com 大."),
+      imageChoice("choose_hanzi", "small", "Qual hànzì combina com pequeno?", "小", visualHanziOptions("small"), { explanation: "小 é o caractere de pequeno." }),
+      imageChoice("listen_and_choose_image", "small", "Ouça e escolha a imagem certa.", "small", visualImageOptions("small"), { explanation: "小 (xiǎo) = pequeno." }),
+      hanziBuild("hb-xiao-fragments", "Monte 小", "Monte o hànzì de pequeno.", "小", "pequeno"),
+      dialogue("Revisão de 大", "Qual hànzì significa grande?", "大", ["大", "小", "人", "木"], "大 e 小 formam um contraste."),
+    ],
   }),
   microLesson({
     id: "p4-char-zhong",
@@ -1311,7 +1501,13 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     skill: "hanzi",
     libraryItems: ["char:zhong"],
     reviewItems: ["char:zhong"],
-    steps: [intro("Centro e China", "中 significa meio/centro e aparece em 中文, chinês escrito/falado como língua."), recognize("zhong"), hanziBuild("hb-zhong-fragments", "Monte 中", "Monte o hànzì de centro.", "中", "meio; China"), hanziBuild("hb-zhongwen-sentence", "Complete 中文", "Complete a palavra de chinês.", "中", "meio; China"), comp("中", "zhōng", "meio; China", ["meio; China", "não", "ser", "eu"])],
+    steps: [
+      intro("Centro e China", "中 significa meio/centro e aparece em 中文, chinês escrito/falado como língua."),
+      imageChoice("choose_hanzi", "person", "Revisão visual: qual hànzì significa pessoa?", "人", visualHanziOptions("person"), { explanation: "人 volta enquanto você prepara 中文." }),
+      hanziBuild("hb-zhong-fragments", "Monte 中", "Monte o hànzì de centro.", "中", "meio; China"),
+      sentenceBuild("Palavra curta", "Monte: chinês (língua).", ["中", "文"], ["中", "文", "不", "会"], "中文 junta 中 + 文."),
+      comp("中", "zhōng", "meio; China", ["meio; China", "não", "ser", "eu"]),
+    ],
   }),
   microLesson({
     id: "p4-char-bu",
@@ -1819,31 +2015,34 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-qingwen-cortesia",
             title: "Com licença",
             skill: "fala",
-            libraryItems: ["chunk:qingwen"],
-            reviewItems: ["chunk:qingwen"],
-            estimatedMinutes: 2,
+            libraryItems: ["chunk:qingwen", "chunk:qingwen_nihaoma", "chunk:nihao", "chunk:nihaoma"],
+            reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:qingwen"],
+            estimatedMinutes: 3,
             steps: [
               listen("请问", "qǐng wèn", "Com licença, posso perguntar?"),
-              listenSelect(
-                "Ouça a cortesia",
-                "请问",
-                ["请问", "谢谢", "再见", "不客气"],
-                "请问",
-                "请问 abre uma pergunta com educação."
-              ),
+              listen("请问，你好吗？", "qǐng wèn, nǐ hǎo ma?", "Com licença, tudo bem?"),
               comp(
                 "请问",
                 "qǐng wèn",
                 "Com licença, posso perguntar?",
                 ["Com licença, posso perguntar?", "De nada", "Obrigado(a)", "Até logo"]
               ),
+              conversationScene("cortesia-loja"),
               dialogue(
-                "Abrir uma pergunta",
-                "Você quer pedir informação com educação. O que combina?",
+                "Quando usar",
+                "Você quer pedir informação na loja ou na rua. O que abre a pergunta?",
                 "请问",
-                ["请问", "谢谢", "再见", "不客气"],
-                "请问 abre uma pergunta com cortesia."
+                ["请问", "再见", "不客气", "我很好"],
+                "请问 = com licença; abre a pergunta."
               ),
+              sentenceBuild(
+                "Abertura curta",
+                "Monte a abertura: com licença + tudo bem?",
+                ["请问", "你好吗"],
+                ["请问", "你好吗", "谢谢", "再见"],
+                "请问 + 你好吗？ reutiliza o cumprimento em contexto novo."
+              ),
+              produce(["你", "好"], ["你", "好", "请", "问"], "Olá — revisão rápida"),
             ],
           }),
           review("l2-rev", "fala", [
@@ -2219,16 +2418,15 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9-qual-nome",
             title: "Como você se chama?",
             skill: "fala",
-            libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao"],
-            reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao"],
+            libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:nihao"],
+            reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:nihao"],
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
               listen("你叫什么？", "nǐ jiào shénme?", "Como você se chama?"),
               flash("nijiaoshenme"),
-              flash("wojiao"),
               comp("你叫什么？", "nǐ jiào shénme?", "Como você se chama?", ["Como você se chama?", "Meu nome é Matheus.", "Tudo bem?", "Sou brasileiro."]),
-              produce(["你", "叫", "什么"], ["叫", "你", "我", "什么"], "Como você se chama?"),
+              conversationScene("como-se-chama"),
               sentenceBuild(
                 "Responda com seu nome",
                 "Você ouviu 你叫什么？ Monte a resposta.",
@@ -2236,31 +2434,36 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "叫", "什么", "马修", "你好"],
                 "我叫 + nome responde como você se chama."
               ),
+              dialogue(
+                "Reutilize 你好",
+                "Antes de perguntar o nome, qual cumprimento cabe?",
+                "你好",
+                ["你好", "再见", "不客气", "我听不懂"],
+                "你好 abre a apresentação."
+              ),
             ],
           },
           {
             id: "l10",
             title: "De onde sou",
             skill: "fala",
+            libraryItems: ["chunk:wature", "chunk:nishinaiguoren", "chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
+            reviewItems: ["chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
+            newHanzi: ["哪"],
             steps: [
+              listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),
               listen("我是巴西人", "wǒ shì Bāxī rén", "Sou brasileiro"),
-              listenSelect(
-                "Toque no que ouviu",
-                "我是巴西人",
-                ["我是巴西人", "我叫马修", "我很好", "我听不懂"],
-                "我是巴西人",
-                "我是巴西人 diz sou brasileiro."
-              ),
               match(
-                "Mapa da frase",
+                "Mapa da resposta",
                 "Combine cada peça com o sentido.",
                 [
                   { left: "我", right: "eu", leftType: "hanzi", rightType: "pt" },
                   { left: "是", right: "sou / ser", leftType: "hanzi", rightType: "pt" },
                   { left: "巴西人", right: "brasileiro", leftType: "hanzi", rightType: "pt" },
                 ],
-                "我 + 是 + 巴西人 monta sua origem."
+                "我 + 是 + 巴西人 monta sua origem. 人 já apareceu antes."
               ),
+              conversationScene("de-onde-sou"),
               sentenceBuild(
                 "Sou brasileiro",
                 "Como você diria: “Eu sou brasileiro”?",
@@ -2268,29 +2471,12 @@ export const JOURNEY: JourneyPhase[] = [
                 ["是", "我", "你好", "巴西人", "叫"],
                 "我 = eu, 是 = ser/sou, 巴西人 = brasileiro."
               ),
-              fillBlank(
-                "Complete a origem",
-                "Complete: 我 ___ 巴西人.",
-                "我",
-                "是",
-                "巴西人",
-                ["是", "叫", "很", "吗"],
-                "我是巴西人 = sou brasileiro."
-              ),
               dialogue(
-                "Apresente sua origem",
-                "Alguém pergunta de onde você é. Qual frase responde?",
-                "我是巴西人",
-                ["我是巴西人", "我很好", "谢谢", "再见"],
-                "我是巴西人 responde sua origem."
-              ),
-              translationBuild(
-                "Escreva em português",
-                "我是巴西人",
-                "wǒ shì Bāxī rén",
-                ["Sou", "brasileiro"],
-                ["Sou", "Obrigado", "brasileiro", "bem"],
-                "我是巴西人 = sou brasileiro."
+                "Reutilize 我叫",
+                "Alguém pergunta seu nome. Qual frase responde?",
+                "我叫马修",
+                ["我叫马修", "我是巴西人", "谢谢", "再见"],
+                "我叫 volta em contexto de apresentação completa."
               ),
             ],
           },
@@ -2299,54 +2485,41 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l11",
             title: "Não entendi",
             skill: "fala",
+            libraryItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
+            reviewItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
             steps: [
               listen("我听不懂", "wǒ tīng bù dǒng", "Não entendi (ouvindo)"),
-              listenSelect(
-                "Toque no que ouviu",
-                "我听不懂",
-                ["我听不懂", "我不会说中文", "我很好", "谢谢"],
-                "我听不懂",
-                "我听不懂 é a frase curta para não entendi."
-              ),
               match(
-                "O que quebrou?",
+                "Três intenções",
                 "Combine cada frase com a situação.",
                 [
                   { left: "我听不懂", right: "não entendi o que ouvi", leftType: "hanzi", rightType: "pt" },
+                  { left: "请再说一遍", right: "peça para repetir", leftType: "hanzi", rightType: "pt" },
                   { left: "我不会说中文", right: "não sei falar chinês", leftType: "hanzi", rightType: "pt" },
                 ],
-                "听 aponta para ouvir; 说 aponta para falar."
+                "听不懂 = ouvir sem entender; 再说一遍 = repita; 不会说 = não sei falar."
               ),
-              sentenceBuild(
-                "Não entendo",
-                "Em uma conversa rápida, monte: “Não entendo”.",
-                ["我", "听不懂"],
-                ["我", "听不懂", "会", "说", "中文", "谢谢"],
-                "我听不懂 é a frase curta para quando você não entendeu o que ouviu."
-              ),
-              fillBlank(
-                "Complete a frase",
-                "Complete: 我 ___ .",
-                "我",
-                "听不懂",
-                "",
-                ["听不懂", "很好", "谢谢", "再见"],
-                "我听不懂 = não entendi."
+              conversationScene("nao-entendi-reparo"),
+              dialogue(
+                "Primeiro reparo",
+                "Você não entendeu o que ouviu. Qual frase comunica isso?",
+                "我听不懂",
+                ["我听不懂", "请再说一遍", "我不会说中文", "我很好"],
+                "我听不懂 comunica: não entendi."
               ),
               dialogue(
-                "Peça reparo",
-                "Você não entendeu o que ouviu. Qual frase combina?",
-                "我听不懂",
-                ["我听不懂", "我很好", "不客气", "再见"],
-                "我听不懂 comunica que você não entendeu."
+                "Segundo reparo",
+                "Agora peça para a pessoa falar de novo.",
+                "请再说一遍",
+                ["请再说一遍", "我听不懂", "谢谢", "再见"],
+                "请再说一遍 pede a repetição depois de 我听不懂."
               ),
-              translationBuild(
-                "Escreva em português",
-                "我听不懂",
-                "wǒ tīng bù dǒng",
-                ["Não", "entendi"],
-                ["Não", "obrigado", "entendi", "bem"],
-                "我听不懂 = não entendi."
+              sentenceBuild(
+                "Diga que não fala",
+                "Monte a terceira intenção: não sei falar chinês.",
+                ["我", "不会", "说", "中文"],
+                ["我", "不会", "说", "中文", "听不懂", "很好"],
+                "我不会说中文 é outra intenção: não sei falar."
               ),
             ],
           },
@@ -2655,8 +2828,14 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("yi"),
               recognize("er"),
               recognize("san"),
-              recognize("si"),
-              recognize("wu"),
+              imageChoice(
+                "choose_hanzi",
+                "big",
+                "Qual hànzì combina com grande? (revisão visual)",
+                "大",
+                visualHanziOptions("big"),
+                { explanation: "大 volta como revisão visual; números também têm forma." }
+              ),
               produce(["一", "二", "三"], ["三", "一", "五", "二"], "um, dois, três"),
               match(
                 "Primeira lógica visual",
@@ -2667,6 +2846,20 @@ export const JOURNEY: JourneyPhase[] = [
                   { left: "三", right: "três traços", leftType: "hanzi", rightType: "pt" },
                 ],
                 "A forma visual acompanha a quantidade."
+              ),
+              dialogue(
+                "Quantos são?",
+                "Quantos traços tem 三?",
+                "três",
+                ["três", "um", "dois", "cinco"],
+                "三 mostra três traços — a quantidade na forma."
+              ),
+              sentenceBuild(
+                "Conte em sequência",
+                "Monte a sequência: um, dois, três.",
+                ["一", "二", "三"],
+                ["一", "二", "三", "四", "五"],
+                "一 二 三 mostra a quantidade nos traços."
               ),
             ],
           },

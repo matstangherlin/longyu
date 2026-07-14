@@ -38,6 +38,7 @@ export const CHARACTERS: Character[] = [
   { id: "kan", hanzi: "看", pinyin: "kàn", toneless: "kan", tone: 4, meaningPt: "ver, olhar", freqRank: 21, components: [] },
   { id: "sheng", hanzi: "生", pinyin: "shēng", toneless: "sheng", tone: 1, meaningPt: "nascer; vida", freqRank: 22, components: [] },
   { id: "guo", hanzi: "国", pinyin: "guó", toneless: "guo", tone: 2, meaningPt: "país, nação", freqRank: 23, components: [] },
+  { id: "na_which", hanzi: "哪", pinyin: "nǎ", toneless: "na", tone: 3, meaningPt: "qual; onde", freqRank: 280, components: ["kou"] },
   { id: "lai", hanzi: "来", pinyin: "lái", toneless: "lai", tone: 2, meaningPt: "vir", freqRank: 24, components: [] },
   { id: "men", hanzi: "们", pinyin: "men", toneless: "men", tone: 5, meaningPt: "sufixo de plural (nós/eles)", freqRank: 25, components: ["ren"] },
   { id: "ye", hanzi: "也", pinyin: "yě", toneless: "ye", tone: 3, meaningPt: "também", freqRank: 26, components: [] },
