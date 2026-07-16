@@ -619,11 +619,18 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     title: "O que é tom?",
     skill: "som",
     libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2"],
+    reviewItems: ["char:ma2", "chunk:nihao"],
     steps: [
       intro("A curva da voz", "Em mandarim, o contorno da voz faz parte da palavra. mǎ e mà não soam iguais, então seu ouvido treina desde cedo."),
       tone("妈", "mā", 1),
       tone("马", "mǎ", 3),
+      listenSelect(
+        "Reta ou vale?",
+        "马",
+        ["妈", "马"],
+        "马",
+        "mǎ desce e volta a subir (3º tom); mā fica reta no alto (1º tom)."
+      ),
       match(
         "Tom muda sentido",
         "Combine som e ideia.",
@@ -632,6 +639,13 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
           { left: "马", right: "cavalo", leftType: "hanzi", rightType: "pt" },
         ],
         "Mesmo ma com outro tom pode virar outra palavra."
+      ),
+      sentenceBuild(
+        "Tons numa frase real",
+        "Monte o cumprimento que você já conhece (3º + 3º tom).",
+        ["你", "好"],
+        ["你", "好", "马"],
+        "你好 junta dois 3º tons — o tom vive dentro das frases, não só em sílabas soltas."
       ),
       dialogue(
         "Ideia principal",
@@ -908,12 +922,23 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     title: "1º tom com ma",
     skill: "som",
     libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2"],
+    reviewItems: ["char:ma2", "char:shan", "chunk:nihaoma"],
     steps: [
       intro("Alto e reto", "O 1º tom fica alto e constante. Em 妈 mā, pense em uma linha reta no alto."),
       listen("妈", "mā", "mãe"),
       tone("妈", "mā", 1, "quiz"),
-      comp("妈", "mā", "mãe (1º tom)", ["mãe (1º tom)", "cavalo (3º tom)", "xingar (4º tom)", "olá"]),
+      listen("山", "shān", "montanha (também 1º tom)"),
+      tone("山", "shān", 1, "quiz"),
+      comp("山", "shān", "montanha", ["montanha", "mãe", "cavalo", "olá"]),
+      fillBlank(
+        "A mesma sílaba, sem tom",
+        "Complete a pergunta que você já conhece: tudo bem?",
+        "你好",
+        "吗",
+        "？",
+        ["吗", "妈"],
+        "吗 é a sílaba ma SEM contorno (tom neutro) — compare com 妈 mā, alta e reta."
+      ),
       dialogue("Contorno", "Qual descrição combina com o 1º tom?", "alto e reto", ["alto e reto", "cai rápido", "sobe", "desce e sobe"], "O 1º tom fica alto e constante.", "Escolha"),
     ],
   }),
@@ -978,11 +1003,18 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     title: "Comparar 1º e 4º tom",
     skill: "som",
     libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2"],
+    reviewItems: ["char:ma2", "char:xie", "chunk:zaijian"],
     steps: [
       intro("Reto contra queda", "Compare: mā fica alto e reto; mà cai rápido. O contraste ajuda seu ouvido a decidir."),
       tone("妈", "mā", 1, "quiz"),
       tone("骂", "mà", 4, "quiz"),
+      listenSelect(
+        "Reto ou queda?",
+        "骂",
+        ["妈", "骂"],
+        "骂",
+        "mà cai rápido e firme; mā ficaria reta no alto."
+      ),
       match(
         "Compare os contornos",
         "Combine cada tom com o movimento da voz.",
@@ -991,6 +1023,14 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
           { left: "4º tom", right: "cai rápido", leftType: "pt", rightType: "pt" },
         ],
         "1º tom fica alto e reto; 4º tom cai rápido."
+      ),
+      tone("谢", "xiè", 4, "quiz"),
+      sentenceBuild(
+        "Dupla queda",
+        "Monte a despedida que você já conhece (4º + 4º tom).",
+        ["再", "见"],
+        ["再", "见", "你"],
+        "再见 zài jiàn são duas quedas seguidas — o mesmo contorno de 骂 mà."
       ),
       dialogue("Escolha o que cai", "Qual tom cai rápido?", "4º tom", ["4º tom", "1º tom", "2º tom", "3º tom"], "O 4º tom é a queda rápida.", "Escolha"),
     ],
@@ -1039,14 +1079,28 @@ const PHASE2_CONTEXT_TONE_MICROTASKS: Lesson[] = [
     title: "Tons em 谢谢",
     skill: "som",
     libraryItems: ["chunk:xiexie", "char:xie"],
-    reviewItems: ["chunk:xiexie", "char:xie"],
+    reviewItems: ["chunk:xiexie", "char:xie", "chunk:bukeqi", "chunk:zaijian"],
     steps: [
       intro("Queda e leveza", "谢谢 começa com xiè, 4º tom. A segunda sílaba fica leve na fala cotidiana."),
-      listen("谢谢", "xièxie", "Obrigado(a)"),
       listenSelect("Ouça 谢谢", "谢谢", ["你好", "谢谢", "再见"], "谢谢", "谢谢 começa com uma queda no primeiro 谢."),
       tone("谢", "xiè", 4, "quiz"),
-      comp("谢谢", "xièxie", "Obrigado(a)", ["Obrigado(a)", "De nada", "Olá", "Tudo bem?"]),
+      tone("再", "zài", 4, "quiz"),
       sentenceBuild("Monte 谢谢", "Monte: obrigado(a).", ["谢", "谢"], ["谢", "你", "好"], "谢谢 repete 谢."),
+      dialogue(
+        "Responda à gentileza",
+        "Alguém agradece você com uma queda dupla no início. Qual é a resposta educada?",
+        "不客气",
+        ["不客气", "你好", "再见", "我很好"],
+        "不客气 responde ao agradecimento: de nada.",
+        "Situação"
+      ),
+      sentenceBuild(
+        "Feche a troca",
+        "Monte a resposta: de nada.",
+        ["不", "客", "气"],
+        ["不", "客", "气", "再"],
+        "不客气 fecha a troca: bú kèqi também começa caindo."
+      ),
     ],
   }),
 ];
@@ -2139,13 +2193,29 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l6",
             title: "Treino guiado",
             skill: "som",
+            reviewItems: ["chunk:nihaoma"],
             steps: [
               intro("Forme o ouvido", "Veja a curva do tom, ouça e imite. Nas revisões, o app pode esconder as dicas."),
               tone("妈", "mā", 1),
               tone("麻", "má", 2),
               tone("马", "mǎ", 3),
               tone("骂", "mà", 4),
-              comp("马", "mǎ", "cavalo (3º tom)", ["cavalo (3º tom)", "mãe (1º tom)", "xingar (4º tom)", "olá"]),
+              listenSelect(
+                "Identifique de ouvido",
+                "骂",
+                ["妈", "麻", "马", "骂"],
+                "骂",
+                "mà é a queda firme do 4º tom — compare com a reta (mā), a subida (má) e o vale (mǎ)."
+              ),
+              fillBlank(
+                "A quinta irmã de ma",
+                "Complete a pergunta que você já conhece: tudo bem?",
+                "你好",
+                "吗",
+                "？",
+                ["吗", "麻"],
+                "吗 é ma com tom neutro — a mesma sílaba que você treinou, agora dentro de uma frase real."
+              ),
               dialogue(
                 "Dica auditiva",
                 "Qual tom parece uma queda rápida e firme?",
@@ -2189,12 +2259,22 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l7",
             title: "A sílaba yao",
             skill: "som",
+            libraryItems: ["char:yao_bite", "char:yao_shake"],
+            reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
             steps: [
+              intro("Uma sílaba, três palavras", "yáo, yǎo e yào compartilham a mesma base — só o contorno muda a palavra. Treine o ouvido antes da memória."),
               listen("要", "yào", "querer (4º tom)"),
               listen("摇", "yáo", "balançar (2º tom)"),
               tone("要", "yào", 4),
-              tone("咬", "yǎo", 3),
-              comp("要", "yào", "querer", ["querer", "balançar", "morder", "obrigado"]),
+              tone("咬", "yǎo", 3, "quiz"),
+              listenSelect(
+                "Qual você ouviu?",
+                "咬",
+                ["要", "咬", "摇"],
+                "咬",
+                "yǎo faz o vale do 3º tom; yào cai e yáo sobe."
+              ),
+              comp("摇", "yáo", "balançar", ["balançar", "querer", "morder", "obrigado"]),
               match(
                 "Ouvido antes da memória",
                 "Combine cada sílaba com o contorno.",
@@ -2203,6 +2283,22 @@ export const JOURNEY: JourneyPhase[] = [
                   { left: "yào", right: "cai no 4º tom", leftType: "pinyin", rightType: "pt" },
                 ],
                 "yáo sobe; yào cai."
+              ),
+              fillBlank(
+                "Tom neutro na frase antiga",
+                "Complete a pergunta: tudo bem?",
+                "你好",
+                "吗",
+                "？",
+                ["吗", "再"],
+                "吗 fecha a pergunta com tom neutro — contraste com as curvas fortes de yao."
+              ),
+              sentenceBuild(
+                "Três vales seguidos",
+                "Monte a resposta antiga: estou bem (três 3º tons).",
+                ["我", "很", "好"],
+                ["我", "很", "好", "见"],
+                "wǒ hěn hǎo repete o mesmo vale de yǎo três vezes seguidas."
               ),
             ],
           },
@@ -2231,7 +2327,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Compare tons",
             skill: "som",
             libraryItems: ["char:ma2"],
-            reviewItems: ["char:ma2"],
+            reviewItems: ["char:ma2", "chunk:nihaoma"],
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
@@ -2240,6 +2336,13 @@ export const JOURNEY: JourneyPhase[] = [
               tone("骂", "mà", 4, "quiz"),
               tone("麻", "má", 2, "quiz"),
               tone("马", "mǎ", 3, "quiz"),
+              listenSelect(
+                "Subida ou vale?",
+                "麻",
+                ["麻", "马"],
+                "麻",
+                "má sobe direto; mǎ desce e volta a subir."
+              ),
               match(
                 "Dois pares",
                 "Combine cada tom com o contorno.",
@@ -2251,6 +2354,13 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
                 "1º fica alto e reto; 4º cai. 2º sobe; 3º desce e sobe."
               ),
+              sentenceBuild(
+                "Do tom à frase",
+                "Monte a pergunta antiga: tudo bem?",
+                ["你", "好", "吗"],
+                ["你", "好", "吗", "麻"],
+                "你好吗 termina na sílaba ma sem tom — a quinta irmã da família que você acabou de comparar."
+              ),
             ],
           },
           {
@@ -2258,17 +2368,40 @@ export const JOURNEY: JourneyPhase[] = [
             title: "A sílaba shi",
             skill: "som",
             libraryItems: ["char:shi"],
-            reviewItems: ["char:shi"],
+            reviewItems: ["char:shi", "chunk:zaijian", "chunk:wohenhao"],
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
-              intro("Mesmo som base, tons diferentes", "shī, shí, shǐ e shì mostram como o contorno muda a palavra. Vamos usar 是 (shì), que você já viu em 我是巴西人."),
+              intro("Mesmo som base, tons diferentes", "shī, shí, shǐ e shì mostram como o contorno muda a palavra. Vamos treinar com 是 (shì), o verbo ser."),
               listen("湿", "shī", "molhado (1º tom)"),
               listen("十", "shí", "dez (2º tom)"),
               listen("使", "shǐ", "usar; fazer (3º tom)"),
               tone("是", "shì", 4),
+              listenSelect(
+                "Qual shi você ouviu?",
+                "是",
+                ["湿", "十", "使", "是"],
+                "是",
+                "shì cai firme no 4º tom — é o shi de 'ser'."
+              ),
               recognize("shi"),
-              comp("是", "shì", "ser; sim", ["ser; sim", "dez", "molhado", "obrigado"]),
+              comp("十", "shí", "dez", ["dez", "molhado", "usar; fazer", "ser; sim"]),
+              sentenceBuild(
+                "Queda dupla conhecida",
+                "Monte a despedida: até logo (duas quedas como shì).",
+                ["再", "见"],
+                ["再", "见", "十"],
+                "再见 zài jiàn repete o contorno de shì duas vezes."
+              ),
+              fillBlank(
+                "Complete o vale",
+                "Complete a resposta antiga: estou bem.",
+                "我很",
+                "好",
+                "",
+                ["好", "使"],
+                "我很好 fecha com hǎo — o mesmo vale do 3º tom de shǐ."
+              ),
             ],
           },
           ...PHASE2_CONTEXT_TONE_MICROTASKS,

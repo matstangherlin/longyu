@@ -1,6 +1,6 @@
 # Relatório de novidade cognitiva das lições
 
-Gerado em: 2026-07-16T13:42:10.464Z
+Gerado em: 2026-07-16T23:33:45.302Z
 
 ## Resumo
 
@@ -8,8 +8,8 @@ Gerado em: 2026-07-16T13:42:10.464Z
 |-----------|------:|
 | Lições analisadas | 105 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 352 |
-| Pares com transformação cognitiva | 292 (83%) |
+| Pares de repetição semântica | 354 |
+| Pares com transformação cognitiva | 293 (83%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -23,7 +23,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 |-------|-------:|----------:|-----------------:|-----------:|--------------:|---------------:|---------------------|
 | p1-o-que-e-mandarim | 9 | 8 | 15 | 3 | 3 | 4 | phrase:你好 × 2 |
 | p1-o-que-e-pinyin | 10 | 9 | 13 | 6 | 6 | 5 | phrase:你好 × 2 |
-| p1-o-que-e-tom | 10 | 9 | 15 | 1 | 1 | 6 | char:妈 × 2 |
+| p1-o-que-e-tom | 10 | 9 | 14 | 6 | 6 | 4 | phrase:你好 × 2 |
 | p1-o-que-e-hanzi | 12 | 11 | 20 | 1 | 1 | 7 | char:木 × 2 |
 | p1-primeiros-hanzi | 10 | 10 | 12 | 8 | 4 | 8 | action:assemble-hanzi × 5 |
 | p1-engine-2-lab | 10 | 9 | 20 | 4 | 4 | 5 | phrase:你好 × 2 |
@@ -36,25 +36,25 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-primeira-conversa | 8 | 8 | 17 | 7 | 7 | 5 | phrase:你好 × 2 |
 | p1-qingwen-cortesia | 8 | 7 | 17 | 4 | 4 | 4 | phrase:你好 × 2 |
 | l2-rev | 14 | 12 | 22 | 5 | 5 | 8 | intent:thank × 2 |
-| p2-ma-primeiro-tom | 7 | 6 | 5 | 1 | 1 | 3 | char:妈 × 2 |
+| p2-ma-primeiro-tom | 8 | 7 | 11 | 3 | 3 | 5 | phrase:你好吗 × 2 |
 | p2-ma-segundo-tom | 8 | 7 | 6 | 1 | 1 | 4 | char:麻 × 2 |
 | p2-ma-terceiro-tom | 8 | 7 | 6 | 1 | 1 | 4 | char:马 × 2 |
 | p2-ma-quarto-tom | 8 | 7 | 6 | 1 | 1 | 4 | char:骂 × 2 |
-| p2-comparar-tom-1-4 | 8 | 7 | 6 | 1 | 1 | 4 | char:妈 × 2 |
+| p2-comparar-tom-1-4 | 8 | 7 | 9 | 3 | 3 | 4 | phrase:再见 × 2 |
 | p2-comparar-tom-2-3 | 8 | 7 | 6 | 1 | 1 | 4 | char:麻 × 2 |
 | l5 | 10 | 9 | 11 | 2 | 1 | 4 | char:妈 × 2 |
-| l6 | 8 | 7 | 6 | 1 | 1 | 4 | char:妈 × 2 |
-| l3-rev | 12 | 11 | 9 | 6 | 6 | 6 | char:妈 × 4 |
-| l7 | 8 | 7 | 6 | 1 | 1 | 4 | char:要 × 2 |
+| l6 | 8 | 7 | 10 | 0 | 0 | 4 | — |
+| l3-rev | 14 | 11 | 14 | 6 | 5 | 7 | char:妈 × 3 |
+| l7 | 10 | 9 | 18 | 0 | 0 | 6 | — |
 | l8 | 8 | 7 | 12 | 3 | 3 | 5 | phrase:你好 × 2 |
-| l8-compare | 8 | 7 | 9 | 1 | 1 | 5 | char:妈 × 2 |
-| l8-shi | 8 | 7 | 10 | 1 | 1 | 5 | char:是 × 2 |
+| l8-compare | 8 | 7 | 11 | 3 | 3 | 5 | phrase:你好吗 × 2 |
+| l8-shi | 10 | 9 | 18 | 0 | 0 | 6 | — |
 | p2-tons-nihao | 8 | 7 | 11 | 4 | 4 | 5 | char:你 × 2 |
-| p2-tons-xiexie | 8 | 7 | 5 | 4 | 4 | 4 | char:谢 × 2 |
-| l4-rev | 14 | 13 | 14 | 5 | 5 | 8 | char:妈 × 3 |
+| p2-tons-xiexie | 8 | 7 | 12 | 1 | 1 | 4 | action:assemble-phrase × 2 |
+| l4-rev | 14 | 13 | 17 | 2 | 2 | 8 | char:妈 × 3 |
 | l9 | 9 | 8 | 17 | 3 | 3 | 6 | phrase:我叫马修 × 2 |
 | l9-tudo-bem | 9 | 8 | 17 | 3 | 3 | 6 | phrase:我很好 × 2 |
-| l9-qual-nome | 9 | 8 | 19 | 5 | 4 | 6 | phrase:我叫马修 × 2 |
+| l9-qual-nome | 9 | 8 | 17 | 5 | 4 | 6 | phrase:我叫马修 × 2 |
 | l10 | 9 | 8 | 15 | 5 | 4 | 5 | phrase:我是巴西人 × 2 |
 | p3-wohenhao | 9 | 8 | 15 | 3 | 3 | 6 | phrase:我很好 × 2 |
 | p3-wobuhui-shuo-zhongwen | 9 | 8 | 13 | 4 | 4 | 6 | action:assemble-phrase × 2 |

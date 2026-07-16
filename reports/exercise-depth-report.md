@@ -1,13 +1,13 @@
 # Relatório de profundidade de exercícios
 
-Gerado em: 2026-07-16T13:40:25.661Z
+Gerado em: 2026-07-16T23:32:09.301Z
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Lições analisadas | 105 |
-| Score médio | 90 |
+| Score médio | 91 |
 | Lições com score < 55 | 0 |
 | Revisões de módulo < 70 | 0 |
 
@@ -17,167 +17,6 @@ Gerado em: 2026-07-16T13:40:25.661Z
 |----------|-------|----------:|-----------|
 
 ## Detalhes por lição (ordenado por score)
-
-### l7 — A sílaba yao (score 66)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 14 |
-| Chunks únicos | 4 |
-| Frases reais | 1 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 要
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p1-o-que-e-tom — O que é tom? (score 72)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 4 |
-| Frases reais | 4 |
-| Contexto | 7 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈, 你, 好
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l8-shi — A sílaba shi (score 72)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 20 |
-| Chunks únicos | 3 |
-| Frases reais | 2 |
-| Contexto | 6 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 是
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p2-tons-xiexie — Tons em 谢谢 (score 72)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 4 |
-| Chunks únicos | 1 |
-| Frases reais | 2 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 0 |
-
-**Problemas:**
-- hànzì muito repetido: 谢
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-- adicionar conversation_scene com 你好 / 你好吗 / 我很好
-
-### p2-ma-primeiro-tom — 1º tom com ma (score 73)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 7 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 4 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p2-comparar-tom-1-4 — Comparar 1º e 4º tom (score 74)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l6 — Treino guiado (score 74)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 18 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l8 — Tons em 好 e 谢 (score 77)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 12 |
-| Chunks únicos | 4 |
-| Frases reais | 3 |
-| Contexto | 4 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 谢, 好, 你
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### l16 — 妈: sentido + som (score 77)
 
@@ -339,22 +178,62 @@ Gerado em: 2026-07-16T13:40:25.661Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l8-compare — Compare tons (score 80)
+### p1-o-que-e-tom — O que é tom? (score 80)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 4 |
+| Frases reais | 4 |
+| Contexto | 6 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p2-comparar-tom-1-4 — Comparar 1º e 4º tom (score 80)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 17 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 3 |
+| Hànzì únicos | 13 |
 | Chunks únicos | 4 |
-| Frases reais | 2 |
+| Frases reais | 3 |
 | Contexto | 5 |
 | Visuais | 0 |
 | Conversas | 1 |
 
 **Problemas:**
 - hànzì muito repetido: 妈
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p2-tons-xiexie — Tons em 谢谢 (score 80)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 5 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 谢
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -479,22 +358,82 @@ Gerado em: 2026-07-16T13:40:25.661Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l3-rev — Revisão do módulo (score 85)
+### p2-ma-primeiro-tom — 1º tom com ma (score 85)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 12 |
-| Tipos de exercício | 9 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 12 |
-| Chunks únicos | 1 |
-| Frases reais | 2 |
-| Contexto | 7 |
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 4 |
 | Visuais | 0 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 骂, 妈
+- hànzì muito repetido: 妈, 你
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l7 — A sílaba yao (score 85)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 20 |
+| Chunks únicos | 5 |
+| Frases reais | 4 |
+| Contexto | 6 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l8 — Tons em 好 e 谢 (score 85)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 12 |
+| Chunks únicos | 4 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 谢, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l8-compare — Compare tons (score 85)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 17 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 妈
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -979,6 +918,26 @@ Gerado em: 2026-07-16T13:40:25.661Z
 **Sugestões:**
 - manter variedade atual
 
+### l6 — Treino guiado (score 92)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 5 |
+| Frases reais | 2 |
+| Contexto | 4 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
 ### l12 — Peças da frase (score 92)
 
 | Métrica | Valor |
@@ -1119,15 +1078,35 @@ Gerado em: 2026-07-16T13:40:25.661Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
+### l8-shi — A sílaba shi (score 93)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 20 |
+| Chunks únicos | 3 |
+| Frases reais | 4 |
+| Contexto | 6 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
 ### l4-rev — Revisão do módulo (score 93)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
 | Tipos de exercício | 9 |
-| Respostas únicas | 8 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 1 |
+| Respostas únicas | 9 |
+| Hànzì únicos | 22 |
+| Chunks únicos | 5 |
 | Frases reais | 3 |
 | Contexto | 9 |
 | Visuais | 0 |
@@ -1646,7 +1625,7 @@ Gerado em: 2026-07-16T13:40:25.661Z
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 7 |
-| Hànzì únicos | 13 |
+| Hànzì únicos | 15 |
 | Chunks únicos | 2 |
 | Frases reais | 3 |
 | Contexto | 5 |
@@ -1666,7 +1645,7 @@ Gerado em: 2026-07-16T13:40:25.661Z
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 7 |
-| Hànzì únicos | 11 |
+| Hànzì únicos | 9 |
 | Chunks únicos | 3 |
 | Frases reais | 4 |
 | Contexto | 5 |
@@ -1674,7 +1653,7 @@ Gerado em: 2026-07-16T13:40:25.661Z
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 叫, 什, 么, 我
+- hànzì muito repetido: 你, 叫, 什, 么, 我, 马
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1858,6 +1837,26 @@ Gerado em: 2026-07-16T13:40:25.661Z
 
 **Sugestões:**
 - manter variedade atual
+
+### l3-rev — Revisão do módulo (score 99)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 14 |
+| Tipos de exercício | 10 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 19 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 6 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 妈
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### l3 — Tudo bem? (score 100)
 

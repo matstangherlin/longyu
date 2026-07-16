@@ -1,6 +1,6 @@
 # Relatório de cobertura de cenas de conversa
 
-Gerado em: 2026-07-16T13:42:06.775Z
+Gerado em: 2026-07-16T23:33:41.471Z
 
 ## Resumo
 
@@ -11,8 +11,8 @@ Gerado em: 2026-07-16T13:42:06.775Z
 | Cenas V1 (lines + checkpoint) | 12 |
 | Intenções distintas | 33 |
 | Passos autorais na jornada | 18 |
-| Lições com cena gerada no plano | 95 |
-| Cenas geradas distintas | 10 |
+| Lições com cena gerada no plano | 96 |
+| Cenas geradas distintas | 9 |
 | Cenas nunca usadas (autoral ou plano) | 15 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -40,14 +40,14 @@ Gerado em: 2026-07-16T13:42:06.775Z
 
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
-| primeiro-cumprimento | legacy | greet | 2 | 1 | — | 1 | 2 | 2 |
+| primeiro-cumprimento | legacy | greet | 2 | 1 | — | 1 | 2 | 0 |
 | perguntando-se-esta-bem | legacy | ask-wellbeing | 2 | 1 | — | 1 | 3 | 0 |
 | agradecendo | legacy | thank | 2 | 1 | — | 1 | 3 | 0 |
 | despedida | legacy | farewell | 2 | 1 | — | 1 | 1 | 0 |
 | me-apresentando | legacy | introduce-self | 2 | 1 | — | 1 | 1 | 0 |
 | revisao-cumprimento-completo | legacy | greet-review | 6 | 1 | — | 1 | 2 | 33 |
 | pedir-repeticao | legacy | ask-repeat | 2 | 1 | — | 1 | 1 | 0 |
-| cortesia-loja | legacy | polite-question | 2 | 1 | — | 1 | 1 | 8 |
+| cortesia-loja | legacy | polite-question | 2 | 1 | — | 1 | 1 | 11 |
 | de-onde-sou | legacy | ask-origin | 2 | 1 | — | 1 | 1 | 22 |
 | nao-entendi-reparo | legacy | repair-not-understood | 2 | 1 | — | 1 | 1 | 0 |
 | nao-falo-chinês | legacy | cannot-speak | 2 | 1 | — | 1 | 1 | 0 |
