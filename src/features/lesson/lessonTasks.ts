@@ -24,6 +24,16 @@ import {
 } from "../../data/conversationScenes";
 
 export { scoreConversationScene, type ConversationSceneLessonInfo, type ConversationSceneSelectionContext };
+import {
+  cognitiveProfile,
+  cognitiveTransformation,
+  semanticCapForKey,
+  semanticContextKey,
+  semanticHardCeilingForKey,
+  semanticTargetKeys,
+} from "./lessonNovelty";
+
+export { cognitiveProfile, cognitiveTransformation, semanticTargetKeys } from "./lessonNovelty";
 import type { ItemType } from "../../data/types";
 import {
   buildersForCharacter,
@@ -543,6 +553,8 @@ interface LessonPracticeProfile {
   maxConversationScenes: number;
   /** Máximo de exercícios visuais (image_choice) no plano: 2 comum, 3 revisão. */
   maxImageChoices: number;
+  /** Revisões podem repetir mais um pouco, desde que com transformação cognitiva. */
+  isReview: boolean;
 }
 
 const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
@@ -1024,6 +1036,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
       maxImageChoices: 2,
+      isReview: Boolean(lesson.isReview),
     };
   }
 
@@ -1040,6 +1053,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
       maxImageChoices: 3,
+      isReview: Boolean(lesson.isReview),
     };
   }
 
@@ -1058,6 +1072,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
       maxImageChoices: 2,
+      isReview: Boolean(lesson.isReview),
     };
   }
 
@@ -1080,6 +1095,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     needsPinyinTask: pinyinRich && (phaseOrder <= 4 || isPinyinFocusedLesson(lesson) || Boolean(lesson.isReview)),
     maxConversationScenes: maxConversationScenesForLesson(lesson),
     maxImageChoices: 2,
+    isReview: Boolean(lesson.isReview),
   };
 }
 
@@ -2110,6 +2126,59 @@ function stepUsesFocus(step: LessonStep, focus: readonly FocusItem[]): boolean {
   });
 }
 
+// Kinds que exigem PRODUZIR (montar/escrever) em vez de só reconhecer.
+const PRODUCTION_BONUS_KINDS: ReadonlySet<StepKind> = new Set([
+  "produce",
+  "sentence_build",
+  "translation_build",
+  "hanzi_build",
+  "fill_blank",
+  "write",
+]);
+const REAL_SENTENCE_KINDS: ReadonlySet<StepKind> = new Set([
+  "produce",
+  "sentence_build",
+  "translation_build",
+  "fill_blank",
+  "dialogue_choice",
+  "conversation_scene",
+]);
+
+function isRealSentenceStepAnswer(step: LessonStep): boolean {
+  if (!REAL_SENTENCE_KINDS.has(step.kind)) return false;
+  const target = cleanHanzi(
+    step.correctAnswer ?? step.answer ?? step.target?.join("") ?? step.targetParts?.join("") ?? step.checkpoint?.correctAnswer
+  );
+  return [...target].filter((glyph) => CJK_RE.test(glyph)).length >= 2;
+}
+
+const ownGlyphsCache = new Map<string, ReadonlySet<string>>();
+function lessonOwnGlyphs(lesson: Lesson): ReadonlySet<string> {
+  const cached = ownGlyphsCache.get(lesson.id);
+  if (cached) return cached;
+  const set = new Set<string>();
+  for (const item of lessonFocusItems(lesson)) {
+    for (const glyph of cleanHanzi(item.hanzi)) set.add(glyph);
+  }
+  ownGlyphsCache.set(lesson.id, set);
+  return set;
+}
+
+// Bônus de novidade cognitiva: produção, frase real, conversa, conteúdo
+// antigo em contexto novo, visual relevante ao foco e áudio sem texto.
+function noveltyScoreBonus(lesson: Lesson, step: LessonStep, reviewFocus: FocusItem[]): number {
+  let bonus = 0;
+  if (PRODUCTION_BONUS_KINDS.has(step.kind)) bonus += 30;
+  if (isRealSentenceStepAnswer(step)) bonus += 25;
+  if (step.kind === "conversation_scene") bonus += 25;
+  if (cognitiveProfile(step).familyRank >= 2 && stepUsesFocus(step, reviewFocus)) bonus += 20;
+  if (step.kind === "image_choice" && lessonOwnGlyphs(lesson).has(cleanHanzi(step.targetHanzi ?? ""))) bonus += 20;
+  if (step.kind === "listen_select" || (step.kind === "image_choice" && step.imageChoiceMode === "listen_and_choose_image")) {
+    bonus += 15;
+  }
+  return bonus;
+}
+
 function candidateScore(
   lesson: Lesson,
   step: LessonStep,
@@ -2124,7 +2193,7 @@ function candidateScore(
   const reviewBonus = stageId === "consolidation" || stepUsesFocus(step, reviewFocus) ? 12 : 0;
   const gradedBonus = isGradedStep(step) ? 6 : 0;
   const stageBonus = STAGE_KIND_HINTS[stageId].includes(step.kind) ? 4 : 0;
-  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus;
+  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus + noveltyScoreBonus(lesson, step, reviewFocus);
 }
 
 function authoredCandidatesFor(lesson: Lesson, reviewFocus: FocusItem[]): PracticeCandidate[] {
@@ -2209,6 +2278,82 @@ function underAnswerRepeatCap(selected: readonly PracticeCandidate[], candidate:
   return answerOccurrenceCount(selected, key) < 2;
 }
 
+// ————————————————————————————————————————————————————————————————
+// Limites semânticos: além da resposta exata (underAnswerRepeatCap, acima),
+// exercícios diferentes podem cobrar cognitivamente a mesma coisa. Cada
+// passo carrega chaves semânticas (char:/chunk:/phrase:/intent:/visual:/
+// scene:/meaning:) e repetir uma chave além do limite exige transformação
+// cognitiva real — revisões ganham folga extra, mas nunca sem transformação.
+// ————————————————————————————————————————————————————————————————
+
+const semanticKeysCache = new WeakMap<LessonStep, string[]>();
+function stepSemanticKeys(step: LessonStep): string[] {
+  const cached = semanticKeysCache.get(step);
+  if (cached) return cached;
+  const keys = semanticTargetKeys(step);
+  semanticKeysCache.set(step, keys);
+  return keys;
+}
+
+function semanticHolders(selected: readonly PracticeCandidate[], key: string): LessonStep[] {
+  const holders: LessonStep[] = [];
+  for (const candidate of selected) {
+    if (!isGradedStep(candidate.step)) continue;
+    if (stepSemanticKeys(candidate.step).includes(key)) holders.push(candidate.step);
+  }
+  return holders;
+}
+
+function underSemanticCaps(
+  selected: readonly PracticeCandidate[],
+  candidate: PracticeCandidate,
+  isReview: boolean
+): boolean {
+  if (!isGradedStep(candidate.step)) return true;
+  for (const key of stepSemanticKeys(candidate.step)) {
+    const cap = semanticCapForKey(key, isReview);
+    if (cap == null) continue;
+    const holders = semanticHolders(selected, key);
+    if (holders.length < cap) continue;
+    const ceiling = semanticHardCeilingForKey(key, isReview);
+    if (ceiling != null && holders.length >= ceiling) return false;
+    // Acima do limite: cada ocorrência extra precisa transformar a tarefa
+    // em relação a TODAS as anteriores com a mesma chave.
+    if (!holders.every((previous) => cognitiveTransformation(previous, candidate.step))) return false;
+  }
+  return true;
+}
+
+// Penalidades dinâmicas de repetição, aplicadas na ordenação da seleção:
+// -100 acima do limite semântico; -60 intenção repetida; -50 frase repetida;
+// -40 hànzì repetido — as três últimas apenas quando a repetição não traz
+// transformação cognitiva; -30 mesma moldura/contexto.
+function semanticSelectionPenalty(
+  selected: readonly PracticeCandidate[],
+  candidate: PracticeCandidate,
+  isReview: boolean
+): number {
+  if (!isGradedStep(candidate.step)) return 0;
+  let penalty = 0;
+  for (const key of stepSemanticKeys(candidate.step)) {
+    const holders = semanticHolders(selected, key);
+    if (holders.length === 0) continue;
+    const cap = semanticCapForKey(key, isReview);
+    if (cap != null && holders.length >= cap) {
+      penalty -= 100;
+      continue;
+    }
+    const transformed = holders.every((previous) => cognitiveTransformation(previous, candidate.step));
+    if (transformed) continue;
+    if (key.startsWith("intent:")) penalty -= 60;
+    else if (key.startsWith("chunk:") || key.startsWith("phrase:")) penalty -= 50;
+    else if (key.startsWith("char:")) penalty -= 40;
+  }
+  const context = semanticContextKey(candidate.step);
+  if (context && selected.some((item) => semanticContextKey(item.step) === context)) penalty -= 30;
+  return penalty;
+}
+
 // Quantos builders do MESMO caractere já foram escolhidos (evita 明 3× etc.).
 function charBuildCount(candidates: readonly PracticeCandidate[], char: string | undefined): number {
   if (!char) return 0;
@@ -2266,12 +2411,20 @@ function selectBestCandidate(
         candidate.step.kind !== "image_choice" || countKind(selected, "image_choice") < profile.maxImageChoices
     )
     .filter((candidate) => !violatesImageRepeat(selected, candidate))
+    .filter((candidate) => underSemanticCaps(selected, candidate, profile.isReview))
     .filter(
       (candidate) =>
         candidate.step.kind !== "conversation_scene" ||
         countKind(selected, "conversation_scene") < profile.maxConversationScenes
     )
-    .sort((a, b) => b.score - a.score);
+    // Penalidades de repetição semântica dependem do que JÁ foi selecionado,
+    // por isso entram aqui e não no score estático do candidato.
+    .map((candidate) => ({
+      candidate,
+      adjusted: candidate.score + semanticSelectionPenalty(selected, candidate, profile.isReview),
+    }))
+    .sort((a, b) => b.adjusted - a.adjusted)
+    .map((entry) => entry.candidate);
   return eligible.find((candidate) => !wouldMakeTriplet(selected, candidate)) ?? eligible[0];
 }
 
@@ -2289,6 +2442,7 @@ function replaceLowestIfNeeded(
   if (isPinyinPracticeStep(candidate.step) && countPinyinTasks(selected) >= profile.maxPinyinTasks) return;
   if (candidate.step.kind === "image_choice" && countKind(selected, "image_choice") >= profile.maxImageChoices) return;
   if (violatesImageRepeat(selected, candidate)) return;
+  if (!underSemanticCaps(selected, candidate, profile.isReview)) return;
   if (
     candidate.step.kind === "conversation_scene" &&
     countKind(selected, "conversation_scene") >= profile.maxConversationScenes

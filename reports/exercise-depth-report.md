@@ -1,13 +1,13 @@
 # Relatório de profundidade de exercícios
 
-Gerado em: 2026-07-16T04:33:22.820Z
+Gerado em: 2026-07-16T13:40:25.661Z
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Lições analisadas | 105 |
-| Score médio | 88 |
+| Score médio | 90 |
 | Lições com score < 55 | 0 |
 | Revisões de módulo < 70 | 0 |
 
@@ -17,26 +17,6 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |----------|-------|----------:|-----------|
 
 ## Detalhes por lição (ordenado por score)
-
-### p1-o-que-e-tom — O que é tom? (score 66)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 14 |
-| Chunks únicos | 4 |
-| Frases reais | 1 |
-| Contexto | 6 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈, 你, 好
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### l7 — A sílaba yao (score 66)
 
@@ -58,22 +38,22 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l8 — Tons em 好 e 谢 (score 70)
+### p1-o-que-e-tom — O que é tom? (score 72)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 8 |
+| Passos no plano | 10 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 12 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 15 |
 | Chunks únicos | 4 |
-| Frases reais | 1 |
-| Contexto | 4 |
+| Frases reais | 4 |
+| Contexto | 7 |
 | Visuais | 0 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 谢, 好
+- hànzì muito repetido: 妈, 你, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -98,6 +78,27 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
+### p2-tons-xiexie — Tons em 谢谢 (score 72)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 6 |
+| Respostas únicas | 3 |
+| Hànzì únicos | 4 |
+| Chunks únicos | 1 |
+| Frases reais | 2 |
+| Contexto | 5 |
+| Visuais | 0 |
+| Conversas | 0 |
+
+**Problemas:**
+- hànzì muito repetido: 谢
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- adicionar conversation_scene com 你好 / 你好吗 / 我很好
+
 ### p2-ma-primeiro-tom — 1º tom com ma (score 73)
 
 | Métrica | Valor |
@@ -109,66 +110,6 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Chunks únicos | 5 |
 | Frases reais | 1 |
 | Contexto | 4 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p2-ma-segundo-tom — 2º tom com ma (score 74)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p2-ma-terceiro-tom — 3º tom com ma (score 74)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 妈
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p2-ma-quarto-tom — 4º tom com ma (score 74)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 5 |
 | Visuais | 0 |
 | Conversas | 1 |
 
@@ -218,15 +159,55 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l8-compare — Compare tons (score 74)
+### l8 — Tons em 好 e 谢 (score 77)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 12 |
+| Chunks únicos | 4 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 谢, 好, 你
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l16 — 妈: sentido + som (score 77)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 13 |
+| Chunks únicos | 5 |
+| Frases reais | 1 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好, 吗
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p2-ma-segundo-tom — 2º tom com ma (score 78)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 8 |
 | Tipos de exercício | 6 |
 | Respostas únicas | 4 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 4 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 5 |
 | Frases reais | 1 |
 | Contexto | 5 |
 | Visuais | 0 |
@@ -238,67 +219,65 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### p4-char-yue — 月 (score 75)
+### p2-ma-terceiro-tom — 3º tom com ma (score 78)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
+| Passos no plano | 8 |
+| Tipos de exercício | 6 |
 | Respostas únicas | 4 |
-| Hànzì únicos | 23 |
-| Chunks únicos | 6 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 5 |
 | Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
+| Contexto | 5 |
+| Visuais | 0 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 日
+- hànzì muito repetido: 妈
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l21 — Nós e vocês (score 76)
+### p2-ma-quarto-tom — 4º tom com ma (score 78)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 9 |
+| Passos no plano | 8 |
 | Tipos de exercício | 6 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 5 |
+| Frases reais | 1 |
+| Contexto | 5 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 妈
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l28 — Vamos embora (score 78)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 7 |
 | Respostas únicas | 5 |
 | Hànzì únicos | 6 |
-| Chunks únicos | 2 |
-| Frases reais | 3 |
-| Contexto | 3 |
+| Chunks únicos | 1 |
+| Frases reais | 1 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 们
 - nenhuma conversa em módulo com frases
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 - adicionar conversation_scene (ex.: 你好 / 你好吗 / 我很好)
-
-### l13 — Microtexto 1 (score 79)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 18 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 6 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 人
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### p4-num-123 — 一 二 三 (score 79)
 
@@ -306,11 +285,11 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 8 |
-| Respostas únicas | 4 |
+| Respostas únicas | 5 |
 | Hànzì únicos | 21 |
 | Chunks únicos | 6 |
 | Frases reais | 2 |
-| Contexto | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -326,11 +305,11 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 8 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 19 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 18 |
 | Chunks únicos | 3 |
 | Frases reais | 1 |
-| Contexto | 2 |
+| Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -345,12 +324,12 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 9 |
-| Respostas únicas | 4 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 5 |
 | Hànzì únicos | 13 |
 | Chunks únicos | 4 |
 | Frases reais | 4 |
-| Contexto | 6 |
+| Contexto | 7 |
 | Visuais | 0 |
 | Conversas | 1 |
 
@@ -360,102 +339,22 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### p2-tons-xiexie — Tons em 谢谢 (score 80)
+### l8-compare — Compare tons (score 80)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 8 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 11 |
-| Chunks únicos | 2 |
-| Frases reais | 3 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 谢
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l5 — Quatro tons (score 81)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 7 |
+| Tipos de exercício | 6 |
 | Respostas únicas | 5 |
-| Hànzì únicos | 18 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p4-char-shui — 水 (score 81)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 18 |
-| Chunks únicos | 5 |
+| Hànzì únicos | 17 |
+| Chunks únicos | 4 |
 | Frases reais | 2 |
-| Contexto | 3 |
-| Visuais | 2 |
+| Contexto | 5 |
+| Visuais | 0 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 水
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l16 — 妈: sentido + som (score 81)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 4 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p5-nv-zi-hao — 女 + 子 = 好 (score 81)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 1 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 好
+- hànzì muito repetido: 妈
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -466,8 +365,8 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 16 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 15 |
 | Chunks únicos | 5 |
 | Frases reais | 1 |
 | Contexto | 4 |
@@ -500,6 +399,26 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
+### l5 — Quatro tons (score 82)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 5 |
+| Frases reais | 1 |
+| Contexto | 5 |
+| Visuais | 0 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
 ### p4-num-45 — 四 五 (score 83)
 
 | Métrica | Valor |
@@ -520,162 +439,22 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### p4-char-ren — 人 (score 83)
+### p5-nv-zi-hao — 女 + 子 = 好 (score 84)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 20 |
-| Chunks únicos | 3 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 人
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p4-char-shan — 山 (score 83)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p4-char-da — 大 (score 83)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p4-char-xiao — 小 (score 83)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 大
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p4-char-zhong — 中 (score 83)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 20 |
-| Chunks únicos | 3 |
-| Frases reais | 1 |
-| Contexto | 4 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 人
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l19-logica-pessoas — Pessoas juntas (score 83)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 2 |
-| Hànzì únicos | 17 |
-| Chunks únicos | 3 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p2-tons-nihao — Tons em 你好 (score 84)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 4 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 3 |
-| Frases reais | 2 |
-| Contexto | 4 |
-| Visuais | 0 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p4-char-huo — 火 (score 84)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 19 |
+| Hànzì únicos | 13 |
 | Chunks únicos | 5 |
-| Frases reais | 2 |
-| Contexto | 4 |
+| Frases reais | 1 |
+| Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 水
+- hànzì muito repetido: 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -700,33 +479,13 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l3 — Tudo bem? (score 85)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 9 |
-| Chunks únicos | 2 |
-| Frases reais | 1 |
-| Contexto | 2 |
-| Visuais | 1 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 好, 吗
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
 ### l3-rev — Revisão do módulo (score 85)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 12 |
 | Tipos de exercício | 9 |
-| Respostas únicas | 5 |
+| Respostas únicas | 6 |
 | Hànzì únicos | 12 |
 | Chunks únicos | 1 |
 | Frases reais | 2 |
@@ -740,57 +499,37 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l15 — Repetir intensifica (score 85)
+### p2-tons-nihao — Tons em 你好 (score 85)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 9 |
+| Passos no plano | 8 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 14 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 2 |
-| Visuais | 2 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 3 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 0 |
 | Conversas | 1 |
 
 **Problemas:**
-- (nenhum crítico)
+- hànzì muito repetido: 你, 好
 
 **Sugestões:**
-- manter variedade atual
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### l17 — Sol e lua (score 85)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 14 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 2 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### l19-logica-luz — Luz e bom (score 85)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
 | Tipos de exercício | 6 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 14 |
+| Respostas únicas | 3 |
+| Hànzì únicos | 16 |
 | Chunks únicos | 5 |
 | Frases reais | 1 |
-| Contexto | 2 |
+| Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -806,8 +545,8 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 13 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 14 |
 | Chunks únicos | 5 |
 | Frases reais | 1 |
 | Contexto | 2 |
@@ -820,25 +559,25 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### p5-ri-yue-ming — 日 + 月 = 明 (score 86)
+### l19-logica-rev — Revisão de peças (score 85)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 19 |
+| Passos no plano | 10 |
+| Tipos de exercício | 5 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 15 |
 | Chunks únicos | 5 |
-| Frases reais | 2 |
-| Contexto | 2 |
+| Frases reais | 1 |
+| Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 明
+- (nenhum crítico)
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- manter variedade atual
 
 ### p5-ren-ren-cong — 人 + 人 = 从 (score 86)
 
@@ -846,8 +585,8 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 19 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 18 |
 | Chunks únicos | 3 |
 | Frases reais | 1 |
 | Contexto | 4 |
@@ -886,7 +625,7 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 10 |
 | Tipos de exercício | 8 |
-| Respostas únicas | 5 |
+| Respostas únicas | 6 |
 | Hànzì únicos | 21 |
 | Chunks únicos | 5 |
 | Frases reais | 3 |
@@ -920,13 +659,33 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
+### l21 — Nós e vocês (score 87)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 17 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 5 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
 ### p1-engine-2-lab — Laboratório de exercícios (score 88)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 4 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
 | Hànzì únicos | 13 |
 | Chunks únicos | 4 |
 | Frases reais | 4 |
@@ -940,17 +699,17 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l18 — Amigo (score 88)
+### p4-char-yue — 月 (score 88)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 16 |
+| Respostas únicas | 3 |
+| Hànzì únicos | 21 |
 | Chunks únicos | 6 |
-| Frases reais | 2 |
-| Contexto | 5 |
+| Frases reais | 1 |
+| Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -960,13 +719,13 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### p5-kou-ma-pergunta — 口 + 马 = 吗 (score 88)
+### p4-char-shan — 山 (score 88)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 5 |
+| Respostas únicas | 3 |
 | Hànzì únicos | 13 |
 | Chunks únicos | 5 |
 | Frases reais | 1 |
@@ -980,14 +739,14 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### l19-logica-rev — Revisão de peças (score 88)
+### p4-char-da — 大 (score 88)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 17 |
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 3 |
+| Hànzì únicos | 13 |
 | Chunks únicos | 5 |
 | Frases reais | 1 |
 | Contexto | 3 |
@@ -1000,25 +759,25 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### p1-primeira-conversa — Primeira conversa (score 89)
+### l15 — Repetir intensifica (score 88)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 8 |
+| Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 11 |
-| Chunks únicos | 6 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 20 |
+| Chunks únicos | 5 |
 | Frases reais | 2 |
-| Contexto | 2 |
-| Visuais | 2 |
+| Contexto | 3 |
+| Visuais | 1 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 你
+- (nenhum crítico)
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- manter variedade atual
 
 ### p4-num-910 — 九 十 (score 89)
 
@@ -1040,37 +799,17 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### p4-char-mu — 木 (score 89)
+### p4-char-shui — 水 (score 89)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 27 |
-| Chunks únicos | 6 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 5 |
 | Frases reais | 2 |
 | Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 木
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p4-char-bu — 不 (score 89)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1080,22 +819,22 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### l28 — Vamos embora (score 89)
+### p4-char-huo — 火 (score 89)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 3 |
-| Hànzì únicos | 20 |
-| Chunks únicos | 6 |
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 5 |
 | Frases reais | 2 |
-| Contexto | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我
+- hànzì muito repetido: 水
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1107,8 +846,8 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Passos no plano | 8 |
 | Tipos de exercício | 8 |
 | Respostas únicas | 5 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 5 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 7 |
 | Frases reais | 3 |
 | Contexto | 3 |
 | Visuais | 1 |
@@ -1120,116 +859,16 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### p1-primeiros-hanzi — Montando primeiros hànzì (score 91)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 4 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 18 |
-| Chunks únicos | 4 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### l9-tudo-bem — Tudo bem? (score 91)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 9 |
-| Chunks únicos | 2 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 好, 吗
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l12 — Peças da frase (score 91)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 6 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 19 |
-| Chunks únicos | 3 |
-| Frases reais | 1 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 我, 人
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l13-dialogo-ola — Microdiálogo: cumprimentar (score 91)
+### p5-kou-ma-pergunta — 口 + 马 = 吗 (score 90)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 6 |
-| Hànzì únicos | 15 |
+| Hànzì únicos | 12 |
 | Chunks únicos | 5 |
-| Frases reais | 1 |
-| Contexto | 2 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p1-o-que-e-mandarim — O que é mandarim? (score 92)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 15 |
-| Chunks únicos | 4 |
-| Frases reais | 4 |
-| Contexto | 6 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 好
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l13-dialogo-nome — Microdiálogo: se apresentar (score 92)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 22 |
-| Chunks únicos | 7 |
-| Frases reais | 3 |
+| Frases reais | 2 |
 | Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
@@ -1240,14 +879,154 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### p4-char-kou — 口 (score 92)
+### p1-primeiros-hanzi — Montando primeiros hànzì (score 91)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 4 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 4 |
+| Frases reais | 1 |
+| Contexto | 3 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l10 — De onde sou (score 91)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 19 |
+| Chunks únicos | 4 |
+| Frases reais | 4 |
+| Contexto | 5 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 是, 人, 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p3-wobuhui-shuo-zhongwen — 我不会说中文 (score 91)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 4 |
+| Frases reais | 4 |
+| Contexto | 6 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 会, 说, 中, 文, 你, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l11 — Não entendi (score 91)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 8 |
 | Respostas únicas | 6 |
-| Hànzì únicos | 23 |
+| Hànzì únicos | 20 |
+| Chunks únicos | 8 |
+| Frases reais | 4 |
+| Contexto | 6 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我, 听, 不, 懂
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l18 — Amigo (score 91)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 6 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l12 — Peças da frase (score 92)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 21 |
+| Chunks únicos | 3 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p4-char-bu — 不 (score 92)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 13 |
+| Chunks únicos | 5 |
+| Frases reais | 2 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 不, 你, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l19-logica-pessoas — Pessoas juntas (score 92)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 21 |
 | Chunks únicos | 3 |
 | Frases reais | 2 |
 | Contexto | 4 |
@@ -1255,19 +1034,39 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 人
+- (nenhum crítico)
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- manter variedade atual
+
+### l22 — China e amigos (score 92)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 8 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
 
 ### l23 — Microtexto 2 (score 92)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 8 |
-| Hànzì únicos | 25 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 16 |
 | Chunks únicos | 8 |
 | Frases reais | 2 |
 | Contexto | 4 |
@@ -1275,27 +1074,47 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 好, 我
+- hànzì muito repetido: 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l27 — Na loja (score 92)
+### l29 — Eu e meus amigos (score 92)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 27 |
-| Chunks únicos | 8 |
-| Frases reais | 5 |
-| Contexto | 5 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 26 |
+| Chunks únicos | 11 |
+| Frases reais | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
 - hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p1-primeira-conversa — Primeira conversa (score 93)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 11 |
+| Chunks únicos | 6 |
+| Frases reais | 3 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1306,7 +1125,7 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 14 |
 | Tipos de exercício | 9 |
-| Respostas únicas | 7 |
+| Respostas únicas | 8 |
 | Hànzì únicos | 15 |
 | Chunks únicos | 1 |
 | Frases reais | 3 |
@@ -1320,22 +1139,62 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### p3-wobuhui-shuo-zhongwen — 我不会说中文 (score 93)
+### l13 — Microtexto 1 (score 93)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 4 |
-| Frases reais | 2 |
-| Contexto | 3 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 19 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 会, 说, 中, 文
+- hànzì muito repetido: 你, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l13-dialogo-ola — Microdiálogo: cumprimentar (score 93)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 5 |
+| Frases reais | 4 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l13-dialogo-nome — Microdiálogo: se apresentar (score 93)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 22 |
+| Chunks únicos | 7 |
+| Frases reais | 4 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 叫, 什, 么
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1380,62 +1239,22 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l22 — China e amigos (score 93)
+### p4-char-ren — 人 (score 94)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 8 |
+| Tipos de exercício | 7 |
 | Respostas únicas | 5 |
-| Hànzì únicos | 18 |
-| Chunks únicos | 8 |
+| Hànzì únicos | 17 |
+| Chunks únicos | 3 |
 | Frases reais | 2 |
 | Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### l29 — Eu e meus amigos (score 93)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 8 |
-| Hànzì únicos | 31 |
-| Chunks únicos | 11 |
-| Frases reais | 3 |
-| Contexto | 5 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 我, 有, 三, 个, 朋, 友
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p1-ate-logo — Até logo (score 94)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 8 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 8 |
-| Chunks únicos | 1 |
-| Frases reais | 3 |
-| Contexto | 3 |
-| Visuais | 1 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 再, 见, 你, 好
+- hànzì muito repetido: 人
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1446,7 +1265,7 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 4 |
+| Respostas únicas | 3 |
 | Hànzì únicos | 19 |
 | Chunks únicos | 5 |
 | Frases reais | 2 |
@@ -1465,12 +1284,12 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 7 |
+| Tipos de exercício | 6 |
 | Respostas únicas | 6 |
 | Hànzì únicos | 20 |
 | Chunks únicos | 5 |
 | Frases reais | 2 |
-| Contexto | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1485,12 +1304,12 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 7 |
+| Tipos de exercício | 6 |
 | Respostas únicas | 6 |
 | Hànzì únicos | 20 |
 | Chunks únicos | 5 |
 | Frases reais | 2 |
-| Contexto | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1505,12 +1324,12 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 7 |
+| Tipos de exercício | 6 |
 | Respostas únicas | 5 |
 | Hànzì únicos | 21 |
 | Chunks únicos | 3 |
 | Frases reais | 2 |
-| Contexto | 3 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1525,8 +1344,28 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
-| Tipos de exercício | 7 |
+| Tipos de exercício | 6 |
 | Respostas únicas | 5 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 5 |
+| Frases reais | 2 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l19-logica-luz — Luz e bom (score 94)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 6 |
+| Respostas únicas | 7 |
 | Hànzì únicos | 16 |
 | Chunks únicos | 5 |
 | Frases reais | 2 |
@@ -1540,17 +1379,97 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### l4 — Obrigado (score 95)
+### l9-tudo-bem — Tudo bem? (score 95)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 5 |
+| Frases reais | 4 |
+| Contexto | 5 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好, 吗, 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p3-wohenhao — 我很好 — Estou bem (score 95)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 17 |
+| Chunks únicos | 5 |
+| Frases reais | 4 |
+| Contexto | 5 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我, 很, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l11-falo-pouco — Falo um pouco (score 95)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 24 |
+| Chunks únicos | 7 |
+| Frases reais | 4 |
+| Contexto | 5 |
+| Visuais | 1 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我, 会, 说, 一, 点, 中, 文
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p1-o-que-e-mandarim — O que é mandarim? (score 96)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 13 |
+| Chunks únicos | 4 |
+| Frases reais | 3 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好, 谢
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l4 — Obrigado (score 96)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 10 |
-| Chunks únicos | 2 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 11 |
+| Chunks únicos | 6 |
 | Frases reais | 3 |
-| Contexto | 3 |
+| Contexto | 5 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1560,134 +1479,34 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l2 — Olá (score 96)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 9 |
-| Chunks únicos | 1 |
-| Frases reais | 3 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 好
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l9 — Me apresentar (score 96)
+### p4-char-xiao — 小 (score 96)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 21 |
-| Chunks únicos | 4 |
-| Frases reais | 3 |
-| Contexto | 4 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 我
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l9-qual-nome — Como você se chama? (score 96)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 11 |
-| Chunks únicos | 3 |
-| Frases reais | 3 |
-| Contexto | 3 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 叫, 什, 么
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l10 — De onde sou (score 96)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
 | Respostas únicas | 4 |
-| Hànzì únicos | 19 |
-| Chunks únicos | 4 |
-| Frases reais | 3 |
-| Contexto | 4 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 我
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p3-qing-zai-shuo-yibian — 请再说一遍 (score 96)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 18 |
+| Hànzì únicos | 13 |
 | Chunks únicos | 5 |
-| Frases reais | 3 |
+| Frases reais | 1 |
 | Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 请, 再, 说, 一, 遍
+- (nenhum crítico)
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l11 — Não entendi (score 96)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 16 |
-| Chunks únicos | 5 |
-| Frases reais | 2 |
-| Contexto | 4 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 我, 听, 不, 懂
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- manter variedade atual
 
 ### l14-pecas-natureza — Peças da natureza (score 96)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 18 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 19 |
 | Chunks únicos | 5 |
 | Frases reais | 1 |
 | Contexto | 3 |
@@ -1705,9 +1524,9 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 17 |
+| Tipos de exercício | 6 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 18 |
 | Chunks únicos | 3 |
 | Frases reais | 1 |
 | Contexto | 2 |
@@ -1720,27 +1539,7 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### l14-char-rev — Revisão de reconhecimento (score 96)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 20 |
-| Chunks únicos | 3 |
-| Frases reais | 1 |
-| Contexto | 2 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### l25 — Perguntas úteis (score 96)
+### l24 — Pai e mãe (score 96)
 
 | Métrica | Valor |
 |---------|------:|
@@ -1748,14 +1547,34 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Tipos de exercício | 8 |
 | Respostas únicas | 6 |
 | Hànzì únicos | 24 |
-| Chunks únicos | 8 |
-| Frases reais | 4 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
 | Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 这, 是, 爸
+- hànzì muito repetido: 是, 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l25 — Perguntas úteis (score 96)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 24 |
+| Chunks únicos | 8 |
+| Frases reais | 5 |
+| Contexto | 6 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 这, 是, 我, 爸
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1767,7 +1586,7 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Passos no plano | 10 |
 | Tipos de exercício | 8 |
 | Respostas únicas | 7 |
-| Hànzì únicos | 28 |
+| Hànzì únicos | 27 |
 | Chunks únicos | 10 |
 | Frases reais | 3 |
 | Contexto | 4 |
@@ -1785,8 +1604,8 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 5 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
 | Hànzì únicos | 19 |
 | Chunks únicos | 4 |
 | Frases reais | 4 |
@@ -1800,42 +1619,122 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### p3-wohenhao — 我很好 — Estou bem (score 97)
+### l2 — Olá (score 97)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 8 |
-| Respostas únicas | 4 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 5 |
-| Frases reais | 2 |
-| Contexto | 3 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 16 |
+| Chunks únicos | 4 |
+| Frases reais | 4 |
+| Contexto | 5 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 很, 好
+- hànzì muito repetido: 你, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l11-falo-pouco — Falo um pouco (score 97)
+### l9 — Me apresentar (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 13 |
+| Chunks únicos | 2 |
+| Frases reais | 3 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l9-qual-nome — Como você se chama? (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 11 |
+| Chunks únicos | 3 |
+| Frases reais | 4 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 叫, 什, 么, 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p3-qing-zai-shuo-yibian — 请再说一遍 (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 18 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 再, 说, 一, 遍
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p4-char-mu — 木 (score 97)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 8 |
 | Respostas únicas | 4 |
-| Hànzì únicos | 23 |
-| Chunks únicos | 7 |
+| Hànzì únicos | 24 |
+| Chunks únicos | 6 |
 | Frases reais | 2 |
 | Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 会, 说, 一, 点, 中, 文
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### p4-char-kou — 口 (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 21 |
+| Chunks únicos | 3 |
+| Frases reais | 2 |
+| Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 人
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1846,11 +1745,31 @@ Gerado em: 2026-07-16T04:33:22.820Z
 |---------|------:|
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
-| Respostas únicas | 7 |
-| Hànzì únicos | 33 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 30 |
 | Chunks únicos | 6 |
 | Frases reais | 3 |
 | Contexto | 3 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### p4-char-zhong — 中 (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 21 |
+| Chunks únicos | 3 |
+| Frases reais | 2 |
+| Contexto | 4 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1880,37 +1799,17 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - manter variedade atual
 
-### l24 — Pai e mãe (score 97)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 10 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 7 |
-| Hànzì únicos | 24 |
-| Chunks únicos | 5 |
-| Frases reais | 4 |
-| Contexto | 4 |
-| Visuais | 2 |
-| Conversas | 1 |
-
-**Problemas:**
-- hànzì muito repetido: 是, 我
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
 ### l26 — Fome e gosto (score 97)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 10 |
-| Tipos de exercício | 8 |
-| Respostas únicas | 8 |
-| Hànzì únicos | 22 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 9 |
+| Hànzì únicos | 24 |
 | Chunks únicos | 10 |
-| Frases reais | 4 |
-| Contexto | 4 |
+| Frases reais | 5 |
+| Contexto | 6 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -1920,17 +1819,77 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
+### l27 — Na loja (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 10 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 27 |
+| Chunks únicos | 8 |
+| Frases reais | 5 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p5-ri-yue-ming — 日 + 月 = 明 (score 98)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 5 |
+| Hànzì únicos | 19 |
+| Chunks únicos | 5 |
+| Frases reais | 2 |
+| Contexto | 3 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l3 — Tudo bem? (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 4 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 5 |
+| Frases reais | 3 |
+| Contexto | 3 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 你, 好, 我, 很
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
 ### l1-rev — Revisão do módulo (score 100)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 9 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 3 |
+| Tipos de exercício | 10 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 11 |
+| Chunks únicos | 4 |
 | Frases reais | 3 |
-| Contexto | 6 |
+| Contexto | 7 |
 | Visuais | 2 |
 | Conversas | 2 |
 
@@ -1940,22 +1899,42 @@ Gerado em: 2026-07-16T04:33:22.820Z
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
+### p1-ate-logo — Até logo (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 8 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 4 |
+| Frases reais | 3 |
+| Contexto | 3 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 再, 见, 你, 好
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
 ### l2-rev — Revisão do módulo (score 100)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 7 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 9 |
 | Hànzì únicos | 11 |
 | Chunks únicos | 6 |
-| Frases reais | 6 |
+| Frases reais | 5 |
 | Contexto | 8 |
-| Visuais | 1 |
+| Visuais | 2 |
 | Conversas | 2 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 好, 谢
+- hànzì muito repetido: 你, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1965,11 +1944,11 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 10 |
-| Respostas únicas | 7 |
-| Hànzì únicos | 22 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 8 |
+| Hànzì únicos | 20 |
 | Chunks únicos | 10 |
-| Frases reais | 4 |
+| Frases reais | 5 |
 | Contexto | 6 |
 | Visuais | 2 |
 | Conversas | 1 |
@@ -1991,6 +1970,26 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Chunks únicos | 3 |
 | Frases reais | 2 |
 | Contexto | 4 |
+| Visuais | 2 |
+| Conversas | 1 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l14-char-rev — Revisão de reconhecimento (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 9 |
+| Tipos de exercício | 7 |
+| Respostas únicas | 8 |
+| Hànzì únicos | 26 |
+| Chunks únicos | 3 |
+| Frases reais | 2 |
+| Contexto | 3 |
 | Visuais | 2 |
 | Conversas | 1 |
 
@@ -2025,7 +2024,7 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 10 |
+| Tipos de exercício | 9 |
 | Respostas únicas | 7 |
 | Hànzì únicos | 21 |
 | Chunks únicos | 4 |
@@ -2045,13 +2044,13 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 10 |
-| Respostas únicas | 7 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 6 |
 | Hànzì únicos | 23 |
 | Chunks únicos | 3 |
-| Frases reais | 3 |
+| Frases reais | 4 |
 | Contexto | 7 |
-| Visuais | 2 |
+| Visuais | 3 |
 | Conversas | 1 |
 
 **Problemas:**
@@ -2065,9 +2064,9 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 10 |
+| Tipos de exercício | 9 |
 | Respostas únicas | 7 |
-| Hànzì únicos | 24 |
+| Hànzì únicos | 22 |
 | Chunks únicos | 7 |
 | Frases reais | 4 |
 | Contexto | 6 |
@@ -2085,12 +2084,12 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 10 |
-| Respostas únicas | 5 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 6 |
 | Hànzì únicos | 27 |
 | Chunks únicos | 9 |
-| Frases reais | 4 |
-| Contexto | 6 |
+| Frases reais | 5 |
+| Contexto | 7 |
 | Visuais | 3 |
 | Conversas | 1 |
 
@@ -2105,17 +2104,17 @@ Gerado em: 2026-07-16T04:33:22.820Z
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 14 |
-| Tipos de exercício | 11 |
+| Tipos de exercício | 9 |
 | Respostas únicas | 7 |
 | Hànzì únicos | 29 |
 | Chunks únicos | 9 |
-| Frases reais | 3 |
-| Contexto | 6 |
+| Frases reais | 4 |
+| Contexto | 7 |
 | Visuais | 2 |
 | Conversas | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我
+- hànzì muito repetido: 我, 有, 三
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
