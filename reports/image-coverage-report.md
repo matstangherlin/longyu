@@ -1,6 +1,6 @@
 # Relatório de cobertura de exercícios visuais
 
-Gerado em: 2026-07-15T21:09:26.071Z
+Gerado em: 2026-07-16T04:35:51.111Z
 
 ## Resumo
 
@@ -53,11 +53,11 @@ Gerado em: 2026-07-15T21:09:26.071Z
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 28 |
-| imagem → pinyin (`choose_pinyin`) | 45 |
+| imagem → hànzì (`choose_hanzi`) | 30 |
+| imagem → pinyin (`choose_pinyin`) | 47 |
 | imagem → significado (`choose_meaning`) | 18 |
-| áudio → imagem (`listen_and_choose_image`) | 21 |
-| hànzì → imagem (`choose_image`) | 59 |
+| áudio → imagem (`listen_and_choose_image`) | 19 |
+| hànzì → imagem (`choose_image`) | 58 |
 
 ## Conceitos nunca utilizados
 

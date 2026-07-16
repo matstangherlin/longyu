@@ -915,6 +915,10 @@ interface AccountSnapshot extends XpBuckets {
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
   recentActivityErrors: ActivityErrorRecord[];
+  /** Últimas cenas de conversa vistas (mais recente primeiro) — evita repetição. */
+  recentConversationSceneIds?: string[];
+  /** Últimas intenções de conversa vistas (mais recente primeiro). */
+  recentConversationIntentIds?: string[];
   toneTrainer: ToneTrainerProgress;
   today: DailyProgress;
   dailyTasks: DailyTasks;
@@ -1004,6 +1008,8 @@ function blankSnapshot(): AccountSnapshot {
     recentErrors: [],
     lessonTaskProgress: {},
     recentActivityErrors: [],
+    recentConversationSceneIds: [],
+    recentConversationIntentIds: [],
     toneTrainer: {},
     today: freshDay(),
     dailyTasks: freshDailyTasks(),
@@ -1103,6 +1109,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     recentErrors: s.recentErrors,
     lessonTaskProgress: s.lessonTaskProgress,
     recentActivityErrors: s.recentActivityErrors,
+    recentConversationSceneIds: s.recentConversationSceneIds ?? [],
+    recentConversationIntentIds: s.recentConversationIntentIds ?? [],
     toneTrainer: s.toneTrainer,
     today: s.today,
     dailyTasks: s.dailyTasks,
@@ -1213,6 +1221,8 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     recentErrors: normalizeLessonMistakes(account.recentErrors).filter((error) => !error.recoveredAt),
     lessonTaskProgress: account.lessonTaskProgress ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
+    recentConversationSceneIds: (account.recentConversationSceneIds ?? []).slice(0, 10),
+    recentConversationIntentIds: (account.recentConversationIntentIds ?? []).slice(0, 10),
     toneTrainer: account.toneTrainer ?? {},
     today: account.today?.date === date ? account.today : freshDay(date),
     dailyTasks: activeDailyTasks(account.dailyTasks, date),
@@ -1470,6 +1480,10 @@ interface AppState {
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
   recentActivityErrors: ActivityErrorRecord[];
+  /** Últimas cenas de conversa vistas (mais recente primeiro) — evita repetição. */
+  recentConversationSceneIds: string[];
+  /** Últimas intenções de conversa vistas (mais recente primeiro). */
+  recentConversationIntentIds: string[];
   toneTrainer: ToneTrainerProgress;
   points: number;
   xpTotal: number;
@@ -1597,6 +1611,8 @@ interface AppState {
   markActivityErrorCorrected: (errorId: string) => void;
   /** Errou de novo na revisão: conta a tentativa sem criar erro duplicado. */
   recordActivityErrorReviewAttempt: (errorId: string) => void;
+  /** Cena de conversa concluída: alimenta a seleção sem repetição de cena/intenção. */
+  recordConversationScene: (sceneId: string, intentId?: string) => void;
   setCurrentLessonAttempt: (attempt: LessonAttemptRecord | null) => void;
   finishLessonAttempt: (attempt: LessonAttemptRecord) => void;
   setLessonStars: (lessonId: string, stars: LessonStar) => void;
@@ -1716,6 +1732,8 @@ export const useStore = create<AppState>()(
       recentErrors: [],
       lessonTaskProgress: {},
       recentActivityErrors: [],
+      recentConversationSceneIds: [],
+      recentConversationIntentIds: [],
       toneTrainer: {},
       points: 0,
       ...freshXp(),
@@ -2361,6 +2379,22 @@ export const useStore = create<AppState>()(
           );
           const next = { ...s, recentActivityErrors };
           return { recentActivityErrors, accounts: saveCurrentAccount(next) };
+        }),
+
+      recordConversationScene: (sceneId, intentId) =>
+        set((s) => {
+          const cleanScene = sceneId.trim();
+          if (!cleanScene) return {};
+          const recentConversationSceneIds = [
+            cleanScene,
+            ...(s.recentConversationSceneIds ?? []).filter((id) => id !== cleanScene),
+          ].slice(0, 10);
+          const cleanIntent = intentId?.trim();
+          const recentConversationIntentIds = cleanIntent
+            ? [cleanIntent, ...(s.recentConversationIntentIds ?? []).filter((id) => id !== cleanIntent)].slice(0, 10)
+            : s.recentConversationIntentIds ?? [];
+          const next = { ...s, recentConversationSceneIds, recentConversationIntentIds };
+          return { recentConversationSceneIds, recentConversationIntentIds, accounts: saveCurrentAccount(next) };
         }),
 
       setCurrentLessonAttempt: (attempt) =>

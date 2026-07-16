@@ -14,8 +14,16 @@ import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
   CONVERSATION_SCENES,
+  conversationSceneById,
+  normalizeConversationAnswer,
+  pickBestConversationScene,
+  scoreConversationScene,
+  type ConversationSceneLessonInfo,
+  type ConversationSceneSelectionContext,
   type ConversationSceneStep as ConversationSceneDefinition,
 } from "../../data/conversationScenes";
+
+export { scoreConversationScene, type ConversationSceneLessonInfo, type ConversationSceneSelectionContext };
 import type { ItemType } from "../../data/types";
 import {
   buildersForCharacter,
@@ -449,6 +457,10 @@ export interface LessonPracticePlanContext {
   /** Domínio do HanziBuilder por caractere: escolhe a variação certa (guia → desafio). */
   hanziBuilderProgress?: HanziBuilderProgressMap;
   srs?: Record<string, import("../../lib/srs").SRSItem>;
+  /** Últimas cenas de conversa vistas (mais recente primeiro) — persistido. */
+  recentConversationSceneIds?: string[];
+  /** Últimas intenções de conversa vistas (mais recente primeiro) — persistido. */
+  recentConversationIntentIds?: string[];
   silent?: boolean;
 }
 
@@ -1478,6 +1490,7 @@ function maxConversationScenesForLesson(lesson: Lesson): number {
 }
 
 function conversationSceneToLessonStep(scene: ConversationSceneDefinition): LessonStep {
+  const firstInteraction = scene.nodes?.map((node) => node.interaction).find(Boolean);
   return {
     kind: "conversation_scene",
     title: scene.title,
@@ -1486,13 +1499,16 @@ function conversationSceneToLessonStep(scene: ConversationSceneDefinition): Less
     characters: scene.characters,
     lines: scene.lines,
     checkpoint: scene.checkpoint,
+    nodes: scene.nodes,
+    entryNodeId: scene.entryNodeId,
+    sceneIntent: scene.intent,
     learnedRefs: scene.learnedRefs,
     newRefs: scene.newRefs,
     dedicatedLesson: scene.dedicatedLesson,
-    prompt: scene.checkpoint?.prompt,
-    options: scene.checkpoint?.options,
-    correctAnswer: scene.checkpoint?.correctAnswer,
-    explanation: scene.checkpoint?.explanation,
+    prompt: scene.checkpoint?.prompt ?? firstInteraction?.prompt,
+    options: scene.checkpoint?.options ?? firstInteraction?.options,
+    correctAnswer: scene.checkpoint?.correctAnswer ?? firstInteraction?.correctAnswer,
+    explanation: scene.checkpoint?.explanation ?? firstInteraction?.explanation,
     bank:
       scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
         ? scene.checkpoint.options
@@ -1500,16 +1516,90 @@ function conversationSceneToLessonStep(scene: ConversationSceneDefinition): Less
   };
 }
 
-function makeConversationSceneStep(focus: FocusItem[], reviewFocus: FocusItem[] = []): LessonStep | null {
+interface ConversationSceneSelection {
+  lessonInfo: ConversationSceneLessonInfo;
+  context: ConversationSceneSelectionContext;
+  /** Vocabulário já ensinado pelo currículo até a lição (refs type:id). */
+  knownRefs?: ReadonlySet<string>;
+  /** Revisão de módulo pode receber cenas de papel module_review. */
+  isReviewLesson?: boolean;
+  /** Lições de imersão liberam as cenas longas e ramificadas. */
+  allowImmersion?: boolean;
+}
+
+// Refs (chunk:/char:) ensinados pelo currículo até cada lição, acumulados na
+// ordem da jornada. Uma cena pode usar QUALQUER vocabulário já ensinado — não
+// apenas o foco da lição atual — desde que toque o foco em pelo menos 1 ref.
+let curriculumRefsCache: Map<string, ReadonlySet<string>> | null = null;
+function curriculumRefsThroughLesson(lessonId: string): ReadonlySet<string> {
+  if (!curriculumRefsCache) {
+    curriculumRefsCache = new Map();
+    const cumulative = new Set<string>();
+    for (const lesson of ALL_LESSONS) {
+      for (const ref of [...(lesson.libraryItems ?? []), ...(lesson.reviewItems ?? [])]) cumulative.add(ref);
+      for (const item of lessonFocusItems(lesson)) {
+        if (item.type && item.itemId) cumulative.add(`${item.type}:${item.itemId}`);
+      }
+      curriculumRefsCache.set(lesson.id, new Set(cumulative));
+    }
+  }
+  return curriculumRefsCache.get(lessonId) ?? new Set<string>();
+}
+
+// Info da lição usada pela pontuação de cena: intenções/respostas/cenas já
+// presentes nos passos autorais + fase para calibrar dificuldade.
+function conversationSceneLessonInfo(
+  lesson: Lesson,
+  focus: readonly FocusItem[],
+  reviewFocus: readonly FocusItem[]
+): ConversationSceneLessonInfo {
+  const usedSceneIds = new Set<string>();
+  const usedIntents = new Set<string>();
+  const usedAnswers = new Set<string>();
+  for (const step of lesson.steps) {
+    if (step.kind === "conversation_scene") {
+      if (step.sceneId) usedSceneIds.add(step.sceneId);
+      const intent = step.sceneIntent ?? (step.sceneId ? conversationSceneById[step.sceneId]?.intent : undefined);
+      if (intent) usedIntents.add(intent);
+    }
+    const answer = normalizeConversationAnswer(step.correctAnswer ?? step.answer ?? step.checkpoint?.correctAnswer);
+    if (answer) usedAnswers.add(answer);
+  }
+  return {
+    phaseOrder: lessonPhaseOrder(lesson),
+    focusRefs: new Set(focusRefs([...focus])),
+    reviewRefs: new Set(focusRefs([...reviewFocus])),
+    usedSceneIds,
+    usedIntents,
+    usedAnswers,
+  };
+}
+
+function makeConversationSceneStep(
+  focus: FocusItem[],
+  reviewFocus: FocusItem[] = [],
+  selection?: ConversationSceneSelection
+): LessonStep | null {
   const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
+  const knownRefs = selection?.knownRefs;
   const candidates = CONVERSATION_SCENES.filter((scene) => {
-    const needed = [...scene.learnedRefs, ...(scene.newRefs ?? [])];
-    if (needed.length === 0) return false;
-    // Só gera cena se o foco atual cobre pelo menos um learnedRef e todos os refs estão disponíveis.
+    if (scene.learnedRefs.length === 0) return false;
+    // Cenas com mais de 1 novidade são material dedicado (imersão autoral).
+    if ((scene.newRefs?.length ?? 0) > 1) return false;
+    // Papel pedagógico: imersão só em lições de imersão; cenas de revisão de
+    // módulo só em revisões (ou imersão).
+    const role = scene.sceneRole ?? "common";
+    if (role === "immersion" && !selection?.allowImmersion) return false;
+    if (role === "module_review" && !selection?.isReviewLesson && !selection?.allowImmersion) return false;
+    // Elegível quando toca o foco/revisão em pelo menos um learnedRef e todo o
+    // vocabulário APRENDIDO da cena está disponível (foco, revisão ou
+    // currículo até aqui); a única novidade (newRefs) é apresentada pela cena.
     const touchesFocus = scene.learnedRefs.some((ref) => refs.has(ref));
-    return touchesFocus && needed.every((ref) => refs.has(ref));
+    return touchesFocus && scene.learnedRefs.every((ref) => refs.has(ref) || Boolean(knownRefs?.has(ref)));
   });
-  const scene = candidates[0];
+  const lessonInfo: ConversationSceneLessonInfo =
+    selection?.lessonInfo ?? { focusRefs: new Set(focusRefs(focus)), reviewRefs: new Set(focusRefs(reviewFocus)) };
+  const scene = pickBestConversationScene(candidates, lessonInfo, selection?.context ?? {});
   return scene ? conversationSceneToLessonStep(scene) : null;
 }
 
@@ -1763,6 +1853,8 @@ interface SupplementalStepOptions {
   unitIndex?: number;
   /** Lições abstratas (pinyin/tom/gramática) não recebem imagem artificialmente. */
   allowImageSteps?: boolean;
+  /** Seleção de cena de conversa por pontuação (foco, intenções, recência). */
+  sceneSelection?: ConversationSceneSelection;
 }
 
 function supplementalStepsForStage(
@@ -1829,12 +1921,13 @@ function supplementalStepsForStage(
   } else if (stageId === "usage") {
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
+    // A cena de conversa entra cedo: é o exercício de uso mais rico.
+    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
-    push(makeConversationSceneStep(focus, reviewFocus));
     push(makeOldPhraseReuseStep(focus));
   } else {
     // Consolidação revisita imagens ANTIGAS (reviewFocus e núcleo) num modo diferente.
@@ -1843,7 +1936,7 @@ function supplementalStepsForStage(
     for (const item of focus) pushImage(item, 3);
     push(makeMatchPairsStep([...reviewFocus, ...focus]));
     push(makeTonePairStep([...reviewFocus, ...focus]));
-    push(makeConversationSceneStep(focus, reviewFocus));
+    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
@@ -1997,6 +2090,7 @@ function stepTextBlob(step: LessonStep): string {
     ...(step.bank ?? []),
     ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
     ...(step.lines ?? []).flatMap((line) => [line.hanzi, line.pinyin, line.pt]),
+    ...(step.nodes ?? []).flatMap((node) => [node.hanzi, node.pinyin, node.pt, node.interaction?.correctAnswer]),
     ...(step.learnedRefs ?? []),
     ...(step.newRefs ?? []),
     step.checkpoint?.prompt,
@@ -2054,16 +2148,24 @@ function generatedCandidatesFor(
   profile: LessonPracticeProfile,
   hanziBuilderProgress?: HanziBuilderProgressMap,
   seenGlyphs?: ReadonlySet<string>,
-  ownFocusGlyphs?: ReadonlySet<string>
+  ownFocusGlyphs?: ReadonlySet<string>,
+  sceneContext: ConversationSceneSelectionContext = {}
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
   const unitIndex = lessonUnitIndex(lesson);
   const allowImageSteps = lessonAllowsGeneratedImages(lesson);
+  const sceneSelection: ConversationSceneSelection = {
+    lessonInfo: conversationSceneLessonInfo(lesson, focus, reviewFocus),
+    context: sceneContext,
+    knownRefs: curriculumRefsThroughLesson(lesson.id),
+    isReviewLesson: Boolean(lesson.isReview),
+    allowImmersion: lessonAllowsImmersionScenes(lesson),
+  };
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps });
+    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection });
     for (const step of generated) {
       candidates.push({
         step,
@@ -2450,7 +2552,10 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   for (const item of focus) for (const glyph of cleanHanzi(item.hanzi)) ownFocusGlyphs.add(glyph);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
-    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs),
+    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, {
+      recentConversationSceneIds: context.recentConversationSceneIds,
+      recentConversationIntentIds: context.recentConversationIntentIds,
+    }),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];

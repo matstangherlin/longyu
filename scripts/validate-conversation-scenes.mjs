@@ -2,16 +2,22 @@
  * validate:conversation-scenes
  *
  * Falha se:
- * - cena usa palavra não ensinada sem newRefs
- * - fala sem hanzi
- * - pinyin ausente
- * - checkpoint sem resposta correta
- * - options duplicadas
- * - cena tem mais de 1 novidade sem ser lição dedicada
+ * - cena usa palavra/hànzì não coberto por learnedRefs/newRefs (inclui ramos de erro V2);
+ * - fala/nó sem hanzi ou sem pinyin;
+ * - interação/checkpoint sem resposta correta, com opções duplicadas ou com
+ *   resposta fora das opções;
+ * - mais de 1 novidade (newRefs) sem dedicatedLesson;
+ * - cena V2 com nó inalcançável, referência de nó inexistente ou loop infinito
+ *   (nó alcançável sem caminho até um terminal);
+ * - cena V2 fora dos limites do papel (comum 3–6 falas e 1–2 intervenções;
+ *   revisão 5–10 e 2–3; imersão 8–16, ramificada e com conclusões diferentes);
+ * - a Jornada continuar selecionando sempre a primeira cena (ignora contexto).
+ *
+ * Gera reports/conversation-coverage-report.md.
  */
 
 import { createRequire } from "node:module";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -19,11 +25,19 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
+const reportPath = path.join(rootDir, "reports/conversation-coverage-report.md");
 const errors = [];
 const err = (area, ref, message) => errors.push({ area, ref, message });
 
-const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/u;
-const PUNCT_RE = /[\u3000-\u303f\uff00-\uffef,.!?\s:;"'()？！。，、]/g;
+const CJK_RE = /[㐀-鿿豈-﫿]/u;
+const PUNCT_RE = /[　-〿＀-￯,.!?\s:;"'()？！。，、]/g;
+const MIN_CATALOG_SIZE = 30;
+
+const ROLE_LIMITS = {
+  common: { lines: [3, 6], interactions: [1, 2] },
+  module_review: { lines: [5, 10], interactions: [2, 3] },
+  immersion: { lines: [8, 16], interactions: [2, 99] },
+};
 
 function norm(value) {
   return String(value ?? "")
@@ -63,6 +77,7 @@ try {
         "src/data/chunks.ts",
         "src/data/types.ts",
         "src/features/lesson/exerciseValidation.ts",
+        "src/features/lesson/lessonTasks.ts",
       ],
       {
         target: ts.ScriptTarget.ES2020,
@@ -72,7 +87,7 @@ try {
         outDir,
         esModuleInterop: true,
         skipLibCheck: true,
-        strict: true,
+        strict: false,
       }
     );
     const emit = program.emit();
@@ -83,11 +98,18 @@ try {
     }
 
     const load = (rel) => require(path.join(outDir, rel));
-    const { CONVERSATION_SCENES } = load("src/data/conversationScenes.js");
+    const {
+      CONVERSATION_SCENES,
+      conversationSceneStats,
+      conversationSceneMainPath,
+      scoreConversationScene,
+      pickBestConversationScene,
+    } = load("src/data/conversationScenes.js");
     const { ALL_LESSONS } = load("src/data/journey.js");
     const { CHUNKS } = load("src/data/chunks.js");
     const { CHARACTERS } = load("src/data/characters.js");
     const { validateExercise } = load("src/features/lesson/exerciseValidation.js");
+    const { lessonRoundStepsFor } = load("src/features/lesson/lessonTasks.js");
 
     const chunkById = new Map(CHUNKS.map((chunk) => [chunk.id, chunk]));
     const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
@@ -104,10 +126,13 @@ try {
             const clean = cleanHanzi(chunk.hanzi);
             set.add(clean);
             for (const ch of extractCjkTokens(clean)) set.add(ch);
+          } else {
+            err("catalog", ref, `chunk desconhecido em refs: ${id}`);
           }
         } else if (type === "char") {
           const char = charById.get(id);
           if (char) set.add(cleanHanzi(char.hanzi));
+          else err("catalog", ref, `char desconhecido em refs: ${id}`);
         }
       }
       return set;
@@ -116,7 +141,6 @@ try {
     function uncoveredTokens(hanziText, allowed) {
       const clean = cleanHanzi(hanziText);
       if (!clean) return [];
-      // Prefer longest chunk matches first.
       const remaining = clean;
       const uncovered = [];
       let cursor = 0;
@@ -138,8 +162,117 @@ try {
       return uncovered;
     }
 
-    if (!Array.isArray(CONVERSATION_SCENES) || CONVERSATION_SCENES.length < 5) {
-      err("catalog", "conversationScenes", "Esperava ao menos 5 cenas iniciais.");
+    function checkVocabCoverage(refLabel, hanziText, allowed) {
+      if (!String(hanziText ?? "").trim()) return;
+      const missing = uncoveredTokens(hanziText, allowed);
+      if (missing.length === 0) return;
+      const unknown = missing.filter((token) => {
+        const asChunk = chunkByHanzi.get(token);
+        const asChar = charByHanzi.get(token);
+        return Boolean(asChunk || asChar || CJK_RE.test(token));
+      });
+      if (unknown.length > 0) {
+        err("pedagogy", refLabel, `palavra/hànzì não coberto por learnedRefs/newRefs: ${[...new Set(unknown)].join(" ")}`);
+      }
+    }
+
+    // Interações de escolha precisam da resposta entre as opções; order_reply
+    // precisa poder ser montada com as peças do banco.
+    function checkInteraction(refLabel, interaction, nodeIds) {
+      if (!interaction.prompt?.trim()) err("catalog", refLabel, "interação sem prompt");
+      if (!interaction.correctAnswer?.trim()) err("catalog", refLabel, "interação sem resposta correta");
+      const options = interaction.options ?? [];
+      const duplicate = hasDuplicate(options);
+      if (duplicate) err("catalog", refLabel, `options duplicadas: "${duplicate}"`);
+      if (!interaction.correctNextNodeId || !nodeIds.has(interaction.correctNextNodeId)) {
+        err("graph", refLabel, `correctNextNodeId desconhecido: "${interaction.correctNextNodeId}"`);
+      }
+      if (interaction.wrongNextNodeId && !nodeIds.has(interaction.wrongNextNodeId)) {
+        err("graph", refLabel, `wrongNextNodeId desconhecido: "${interaction.wrongNextNodeId}"`);
+      }
+      if (interaction.type === "order_reply") {
+        if (options.length < 2) err("catalog", refLabel, "order_reply sem peças suficientes");
+        // Montagem gulosa: a resposta precisa ser componível com as peças.
+        let rest = cleanHanzi(interaction.correctAnswer);
+        const pieces = options.map((piece) => cleanHanzi(piece)).filter(Boolean).sort((a, b) => b.length - a.length);
+        let guard = 0;
+        while (rest.length > 0 && guard < 60) {
+          const piece = pieces.find((candidate) => rest.startsWith(candidate));
+          if (!piece) break;
+          rest = rest.slice(piece.length);
+          guard += 1;
+        }
+        if (rest.length > 0) {
+          err("catalog", refLabel, `order_reply: resposta "${interaction.correctAnswer}" não pode ser montada com as peças`);
+        }
+      } else if (options.length >= 2) {
+        if (!options.some((option) => norm(option) === norm(interaction.correctAnswer))) {
+          err("catalog", refLabel, `resposta correta fora das options: "${interaction.correctAnswer}"`);
+        }
+      } else {
+        err("catalog", refLabel, "interação de escolha com menos de 2 opções");
+      }
+    }
+
+    // Grafo V2: todo nó precisa ser alcançável a partir da entrada, e de todo
+    // nó alcançável deve existir caminho até um terminal (sem loop infinito).
+    function checkNodeGraph(scene) {
+      const ref = scene.sceneId;
+      const nodes = scene.nodes ?? [];
+      const byId = new Map();
+      for (const node of nodes) {
+        if (!node.id?.trim()) err("graph", ref, "nó sem id");
+        else if (byId.has(node.id)) err("graph", ref, `nó duplicado: "${node.id}"`);
+        byId.set(node.id, node);
+      }
+      const entryId = scene.entryNodeId ?? nodes[0]?.id;
+      if (!entryId || !byId.has(entryId)) {
+        err("graph", ref, `entryNodeId desconhecido: "${scene.entryNodeId}"`);
+        return;
+      }
+
+      const edgesOf = (node) =>
+        [node.nextNodeId, node.interaction?.correctNextNodeId, node.interaction?.wrongNextNodeId].filter((id) =>
+          Boolean(id && byId.has(id))
+        );
+
+      const reachable = new Set();
+      const queue = [entryId];
+      while (queue.length > 0) {
+        const id = queue.shift();
+        if (reachable.has(id)) continue;
+        reachable.add(id);
+        for (const next of edgesOf(byId.get(id))) queue.push(next);
+      }
+      for (const node of nodes) {
+        if (!reachable.has(node.id)) err("graph", ref, `nó inalcançável: "${node.id}"`);
+      }
+
+      const terminals = new Set(nodes.filter((node) => edgesOf(node).length === 0).map((node) => node.id));
+      if (terminals.size === 0) {
+        err("graph", ref, "loop infinito: a cena não tem nó terminal");
+        return;
+      }
+      // Alcança terminal? Busca reversa a partir dos terminais.
+      const reverse = new Map(nodes.map((node) => [node.id, []]));
+      for (const node of nodes) {
+        for (const next of edgesOf(node)) reverse.get(next)?.push(node.id);
+      }
+      const canFinish = new Set();
+      const stack = [...terminals];
+      while (stack.length > 0) {
+        const id = stack.pop();
+        if (canFinish.has(id)) continue;
+        canFinish.add(id);
+        for (const prev of reverse.get(id) ?? []) stack.push(prev);
+      }
+      for (const id of reachable) {
+        if (!canFinish.has(id)) err("graph", ref, `loop infinito: do nó "${id}" não há caminho até um terminal`);
+      }
+    }
+
+    if (!Array.isArray(CONVERSATION_SCENES) || CONVERSATION_SCENES.length < MIN_CATALOG_SIZE) {
+      err("catalog", "conversationScenes", `Esperava ao menos ${MIN_CATALOG_SIZE} cenas (achou ${CONVERSATION_SCENES?.length ?? 0}).`);
     }
 
     const sceneIds = new Set();
@@ -152,6 +285,7 @@ try {
       if (scene.kind !== "conversation_scene") err("catalog", ref, `kind inválido: ${scene.kind}`);
       if (!scene.title?.trim()) err("catalog", ref, "cena sem título");
       if (!scene.setting) err("catalog", ref, "cena sem setting");
+      if (!scene.intent?.trim()) err("catalog", ref, "cena sem intent (necessário para seleção)");
       if (!scene.characters || scene.characters.length < 2) {
         err("catalog", ref, "cena precisa de pelo menos 2 personagens");
       }
@@ -174,24 +308,44 @@ try {
         else if (!scene.characters?.some((character) => character.id === line.speakerId)) {
           err("catalog", lineRef, `speakerId desconhecido "${line.speakerId}"`);
         }
+        checkVocabCoverage(lineRef, line.hanzi, allowed);
+      }
 
-        if (line.hanzi?.trim()) {
-          const missing = uncoveredTokens(line.hanzi, allowed);
-          if (missing.length > 0) {
-            // Also try resolving unknown chars/chunks against corpus — still fail if not in learned/new refs.
-            const unknown = missing.filter((token) => {
-              const asChunk = chunkByHanzi.get(token);
-              const asChar = charByHanzi.get(token);
-              return Boolean(asChunk || asChar || CJK_RE.test(token));
-            });
-            if (unknown.length > 0) {
-              err(
-                "pedagogy",
-                lineRef,
-                `palavra/hànzì não coberto por learnedRefs/newRefs: ${[...new Set(unknown)].join(" ")}`
-              );
-            }
+      // V2: valida TODOS os nós (inclusive ramos de erro que não estão nas lines).
+      const nodes = scene.nodes ?? [];
+      if (nodes.length > 0) {
+        checkNodeGraph(scene);
+        const nodeIds = new Set(nodes.map((node) => node.id));
+        for (const node of nodes) {
+          const nodeRef = `${ref}@${node.id}`;
+          if (!node.hanzi?.trim()) err("catalog", nodeRef, "nó sem hanzi");
+          if (!node.pinyin?.trim()) err("catalog", nodeRef, "nó sem pinyin");
+          if (!node.speakerId?.trim()) err("catalog", nodeRef, "nó sem speakerId");
+          else if (!scene.characters?.some((character) => character.id === node.speakerId)) {
+            err("catalog", nodeRef, `speakerId desconhecido "${node.speakerId}"`);
           }
+          if (node.nextNodeId && !nodeIds.has(node.nextNodeId)) {
+            err("graph", nodeRef, `nextNodeId desconhecido: "${node.nextNodeId}"`);
+          }
+          checkVocabCoverage(nodeRef, node.hanzi, allowed);
+          if (node.interaction) checkInteraction(nodeRef, node.interaction, nodeIds);
+        }
+
+        // Limites por papel pedagógico (falas do caminho principal).
+        const role = scene.sceneRole ?? "common";
+        const limits = ROLE_LIMITS[role];
+        const stats = conversationSceneStats(scene);
+        if (limits) {
+          if (stats.lineCount < limits.lines[0] || stats.lineCount > limits.lines[1]) {
+            err("role", ref, `cena "${role}" com ${stats.lineCount} falas (esperado ${limits.lines[0]}–${limits.lines[1]}).`);
+          }
+          if (stats.interactionCount < limits.interactions[0] || stats.interactionCount > limits.interactions[1]) {
+            err("role", ref, `cena "${role}" com ${stats.interactionCount} intervenções (esperado ${limits.interactions[0]}–${limits.interactions[1]}).`);
+          }
+        }
+        if (role === "immersion") {
+          if (!stats.branching) err("role", ref, "cena de imersão sem escolhas ramificadas (wrongNextNodeId).");
+          if (stats.endingCount < 2) err("role", ref, "cena de imersão precisa de conclusões diferentes (≥2 nós terminais).");
         }
       }
 
@@ -213,12 +367,18 @@ try {
           }
         }
       }
+      if (nodes.length === 0 && !checkpoint) {
+        err("catalog", ref, "cena sem interação (nem checkpoint nem nós com interaction)");
+      }
+      if (nodes.length > 0 && !nodes.some((node) => node.interaction)) {
+        err("catalog", ref, "cena V2 sem nenhuma interação do aluno");
+      }
 
       const asStep = {
         ...scene,
-        prompt: checkpoint?.prompt,
-        options: checkpoint?.options,
-        correctAnswer: checkpoint?.correctAnswer,
+        prompt: checkpoint?.prompt ?? nodes.find((node) => node.interaction)?.interaction?.prompt,
+        options: checkpoint?.options ?? nodes.find((node) => node.interaction)?.interaction?.options,
+        correctAnswer: checkpoint?.correctAnswer ?? nodes.find((node) => node.interaction)?.interaction?.correctAnswer,
         explanation: checkpoint?.explanation,
       };
       const validation = validateExercise(asStep);
@@ -227,8 +387,9 @@ try {
       }
     }
 
-    // Authored steps in journey must reference known scenes and obey caps.
+    // ————— Passos autorais na jornada —————
     let authoredCount = 0;
+    const authoredUseBySceneId = new Map();
     for (const lesson of ALL_LESSONS) {
       const scenes = (lesson.steps ?? []).filter((step) => step.kind === "conversation_scene");
       authoredCount += scenes.length;
@@ -244,6 +405,8 @@ try {
         const ref = `${lesson.id}#${stepIndex + 1}`;
         if (!step.sceneId || !sceneIds.has(step.sceneId)) {
           err("journey", ref, `sceneId desconhecido: ${step.sceneId}`);
+        } else {
+          authoredUseBySceneId.set(step.sceneId, (authoredUseBySceneId.get(step.sceneId) ?? 0) + 1);
         }
         const validation = validateExercise(step);
         if (!validation.valid) {
@@ -260,6 +423,144 @@ try {
       err("journey", "authored", `Esperava ao menos 5 conversation_scene na jornada (achou ${authoredCount}).`);
     }
 
+    // ————— Seleção: nunca "sempre a primeira cena" —————
+    // 1) A pontuação precisa reagir ao contexto: uma cena vista há pouco não
+    //    pode vencer uma equivalente ainda não vista.
+    const sample = CONVERSATION_SCENES[0];
+    if (typeof scoreConversationScene !== "function" || typeof pickBestConversationScene !== "function") {
+      err("selection", "scoring", "scoreConversationScene/pickBestConversationScene ausentes.");
+    } else if (sample) {
+      const lessonInfo = { focusRefs: new Set(sample.learnedRefs), reviewRefs: new Set() };
+      const fresh = scoreConversationScene(sample, lessonInfo, {});
+      const repeated = scoreConversationScene(sample, lessonInfo, {
+        recentConversationSceneIds: [sample.sceneId],
+        recentConversationIntentIds: [sample.intent],
+      });
+      if (repeated >= fresh) {
+        err("selection", "scoring", "cena recém-vista não é penalizada pela pontuação (esperava score menor).");
+      }
+    }
+
+    // 2) Teste de ponta a ponta nos planos reais: com a cena escolhida marcada
+    //    como recente, o plano seguinte deve escolher OUTRA cena em pelo menos
+    //    uma lição (candidatas suficientes). Se o motor ignorar o contexto
+    //    (candidates[0]), nada muda e o teste falha.
+    const generatedUseBySceneId = new Map();
+    const generatedModes = new Map();
+    let lessonsWithGeneratedScene = 0;
+    let rotationObserved = false;
+    let rotationCandidates = 0;
+    for (const lesson of ALL_LESSONS) {
+      const plan = lessonRoundStepsFor(lesson, { silent: true });
+      const generatedScenes = plan.filter((step) => step.kind === "conversation_scene" && step.generated && step.sceneId);
+      if (generatedScenes.length === 0) continue;
+      lessonsWithGeneratedScene += 1;
+      for (const step of generatedScenes) {
+        generatedUseBySceneId.set(step.sceneId, (generatedUseBySceneId.get(step.sceneId) ?? 0) + 1);
+        generatedModes.set(step.sceneIntent ?? "(sem intent)", (generatedModes.get(step.sceneIntent ?? "(sem intent)") ?? 0) + 1);
+      }
+      const first = generatedScenes[0];
+      const rerun = lessonRoundStepsFor(lesson, {
+        silent: true,
+        recentConversationSceneIds: [first.sceneId],
+        recentConversationIntentIds: first.sceneIntent ? [first.sceneIntent] : [],
+      });
+      const rerunScenes = rerun.filter((step) => step.kind === "conversation_scene" && step.generated && step.sceneId);
+      if (rerunScenes.length > 0) {
+        rotationCandidates += 1;
+        if (rerunScenes.some((step) => step.sceneId !== first.sceneId)) rotationObserved = true;
+      }
+    }
+    if (rotationCandidates > 0 && !rotationObserved) {
+      err(
+        "selection",
+        "journey",
+        "a seleção de cena ignora o contexto: mesmo marcando a cena como recente, todos os planos repetem a mesma cena."
+      );
+    }
+
+    // ————— Relatório —————
+    const roleCounts = new Map();
+    const settingCounts = new Map();
+    const intents = new Map();
+    let v2Count = 0;
+    for (const scene of CONVERSATION_SCENES) {
+      const role = scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy");
+      roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
+      settingCounts.set(scene.setting, (settingCounts.get(scene.setting) ?? 0) + 1);
+      intents.set(scene.intent, (intents.get(scene.intent) ?? 0) + 1);
+      if (scene.nodes?.length) v2Count += 1;
+    }
+    const unusedScenes = CONVERSATION_SCENES.filter(
+      (scene) => !authoredUseBySceneId.has(scene.sceneId) && !generatedUseBySceneId.has(scene.sceneId)
+    );
+
+    const lines = [
+      "# Relatório de cobertura de cenas de conversa",
+      "",
+      `Gerado em: ${new Date().toISOString()}`,
+      "",
+      "## Resumo",
+      "",
+      "| Indicador | Valor |",
+      "|-----------|------:|",
+      `| Cenas no catálogo | ${CONVERSATION_SCENES.length} |`,
+      `| Cenas V2 (nós/ramificação) | ${v2Count} |`,
+      `| Cenas V1 (lines + checkpoint) | ${CONVERSATION_SCENES.length - v2Count} |`,
+      `| Intenções distintas | ${intents.size} |`,
+      `| Passos autorais na jornada | ${authoredCount} |`,
+      `| Lições com cena gerada no plano | ${lessonsWithGeneratedScene} |`,
+      `| Cenas geradas distintas | ${generatedUseBySceneId.size} |`,
+      `| Cenas nunca usadas (autoral ou plano) | ${unusedScenes.length} |`,
+      `| Rotação sob contexto (anti "primeira cena") | ${rotationObserved ? "OK" : rotationCandidates === 0 ? "—" : "FALHOU"} |`,
+      "",
+      "## Cenas por papel",
+      "",
+      "| Papel | Cenas |",
+      "|-------|------:|",
+      ...[...roleCounts.entries()].map(([role, count]) => `| ${role} | ${count} |`),
+      "",
+      "## Cenas por cenário",
+      "",
+      "| Cenário | Cenas |",
+      "|---------|------:|",
+      ...[...settingCounts.entries()].map(([setting, count]) => `| ${setting} | ${count} |`),
+      "",
+      "## Catálogo",
+      "",
+      "| Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |",
+      "|------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|",
+    ];
+    for (const scene of CONVERSATION_SCENES) {
+      const stats = conversationSceneStats(scene);
+      const role = scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy");
+      lines.push(
+        `| ${scene.sceneId} | ${role} | ${scene.intent} | ${stats.lineCount} | ${stats.interactionCount} | ${stats.branching ? "sim" : "—"} | ${stats.endingCount} | ${authoredUseBySceneId.get(scene.sceneId) ?? 0} | ${generatedUseBySceneId.get(scene.sceneId) ?? 0} |`
+      );
+    }
+
+    lines.push("", "## Cenas nunca usadas", "");
+    if (unusedScenes.length === 0) {
+      lines.push("Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.");
+    } else {
+      lines.push("| Cena | Intenção | Refs necessários |", "|------|----------|------------------|");
+      for (const scene of unusedScenes) {
+        lines.push(`| ${scene.sceneId} | ${scene.intent} | ${[...scene.learnedRefs, ...(scene.newRefs ?? [])].join(", ")} |`);
+      }
+      lines.push("", "_Cena não usada = nenhum foco de lição cobre todos os refs dela ainda; ela fica disponível para os próximos módulos._");
+    }
+
+    lines.push(
+      "",
+      "---",
+      "",
+      "_Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade._",
+      ""
+    );
+
+    await mkdir(path.dirname(reportPath), { recursive: true });
+    await writeFile(reportPath, lines.join("\n"), "utf8");
+
     if (errors.length > 0) {
       console.error(`\nvalidate:conversation-scenes encontrou ${errors.length} problema(s):`);
       for (const item of errors.slice(0, 80)) {
@@ -269,9 +570,10 @@ try {
       process.exitCode = 1;
     } else {
       console.log(
-        `OK: validate:conversation-scenes passou (${CONVERSATION_SCENES.length} cenas, ${authoredCount} passos na jornada).`
+        `OK: validate:conversation-scenes passou (${CONVERSATION_SCENES.length} cenas · ${v2Count} V2 · ${authoredCount} passos autorais · ${generatedUseBySceneId.size} cenas geradas distintas).`
       );
     }
+    console.log(`Relatório: ${reportPath}`);
   } finally {
     await rm(outDir, { recursive: true, force: true }).catch(() => {});
   }

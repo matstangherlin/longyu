@@ -1145,6 +1145,9 @@ export function LessonPlayer() {
   const soundEffects = useStore((s) => s.soundEffects);
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
+  const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
+  const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
+  const recordConversationScene = useStore((s) => s.recordConversationScene);
   const consumeCharge = useStore((s) => s.consumeCharge);
   const inventory = useStore((s) => s.inventory);
   const useInventoryItem = useStore((s) => s.useInventoryItem);
@@ -1259,12 +1262,14 @@ export function LessonPlayer() {
                   hanziBuilderProgress,
                   recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
                   srs,
+                  recentConversationSceneIds,
+                  recentConversationIntentIds,
                 }
               ),
             };
           })()
         : undefined,
-    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, srs]
+    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
   );
 
   useEffect(() => {
@@ -1863,6 +1868,10 @@ export function LessonPlayer() {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
+    // Cena concluída alimenta a seleção futura (sem repetir cena/intenção).
+    if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
+      recordConversationScene(currentStep.sceneId, currentStep.sceneIntent);
+    }
     // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
     // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
     const hadRecordedMistake = currentStepHadMistakeRef.current;

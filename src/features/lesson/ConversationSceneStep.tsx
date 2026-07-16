@@ -1,5 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ConversationCharacter, ConversationCheckpoint, ConversationLine } from "../../data/conversationScenes";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type {
+  ConversationCharacter,
+  ConversationCheckpoint,
+  ConversationInteraction,
+  ConversationLine,
+  ConversationNode,
+} from "../../data/conversationScenes";
 import { AVATAR_TONES, SETTING_LABELS } from "../../data/conversationScenes";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -379,7 +385,404 @@ function CheckpointPanel({
   );
 }
 
+// ————————————————————————————————————————————————————————————————
+// V2: painel de UMA interação (a conversa pode ter várias).
+// Errar não encerra a cena: com ramo de erro, o personagem reage
+// (repete, corrige, demonstra confusão) e a conversa continua; sem
+// ramo, o aluno tenta de novo aqui mesmo com uma pista curta.
+// ————————————————————————————————————————————————————————————————
+function InteractionPanel({
+  interaction,
+  onCorrect,
+  onWrongBranch,
+  onLocalMistake,
+  onSkip,
+}: {
+  interaction: ConversationInteraction;
+  onCorrect: () => void;
+  /** Presente quando a interação tem wrongNextNodeId: navega no erro. */
+  onWrongBranch?: () => void;
+  onLocalMistake: () => void;
+  onSkip?: StepProps["onSkip"];
+}) {
+  const soundEffects = useStore((s) => s.soundEffects);
+  const answer = interaction.correctAnswer;
+  const isOrder = interaction.type === "order_reply";
+  const isListen = interaction.type === "listen_reply";
+  const options = useMemo(() => [...(interaction.options ?? [])], [interaction.prompt, interaction.correctAnswer]);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [ordered, setOrdered] = useState<string[]>([]);
+  const [bank, setBank] = useState(() => shuffle(options));
+  const [shuffled, setShuffled] = useState(() => shuffle(options));
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+
+  useEffect(() => {
+    setPicked(null);
+    setOrdered([]);
+    setBank(shuffle(options));
+    setShuffled(shuffle(options));
+    setFeedback(null);
+  }, [interaction.prompt, interaction.correctAnswer]);
+
+  const visibleOptions = isOrder ? bank : shuffled;
+
+  function check() {
+    const attempt = isOrder ? ordered.join("") : picked ?? "";
+    if (!attempt) return;
+    if (normalizeAnswer(attempt) === normalizeAnswer(answer)) {
+      setFeedback("correct");
+      playSoundFx("success", soundEffects);
+      return;
+    }
+    onLocalMistake();
+    playSoundFx("error", soundEffects);
+    if (onWrongBranch) {
+      onWrongBranch();
+      return;
+    }
+    setFeedback("wrong");
+  }
+
+  function retry() {
+    setPicked(null);
+    setOrdered([]);
+    setBank(shuffle(options));
+    setFeedback(null);
+  }
+
+  useExerciseHotkeys({
+    enabled: !isOrder,
+    mode: "choice",
+    optionCount: visibleOptions.length,
+    isAnswered: feedback === "correct",
+    hasSelection: Boolean(picked),
+    onSelectOption: (index) => {
+      const option = visibleOptions[index];
+      if (option && feedback !== "correct") {
+        playSoundFx("pieceSelect", soundEffects);
+        setPicked(option);
+        setFeedback(null);
+      }
+    },
+    onSubmit: check,
+    onContinue: () => {
+      if (feedback === "correct") onCorrect();
+    },
+  });
+
+  return (
+    <div className="mt-4 animate-pop rounded-2xl border border-accent-soft bg-surface p-3.5 shadow-card">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Sua vez</div>
+      <p className="mt-2 text-base font-medium leading-7 text-ink">{interaction.prompt}</p>
+
+      {isListen && (
+        <div className="mt-3 flex items-center gap-2">
+          <SpeakButton text={answer} label="Ouvir" size="sm" />
+          <span className="text-xs text-ink-faint">Ouça e escolha a resposta.</span>
+        </div>
+      )}
+
+      {isOrder ? (
+        <>
+          <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
+            {ordered.length === 0 && (
+              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
+            )}
+            {ordered.map((piece, index) => (
+              <button
+                key={`${piece}-${index}`}
+                type="button"
+                disabled={feedback === "correct"}
+                onClick={() => {
+                  if (feedback === "correct") return;
+                  setOrdered((prev) => prev.filter((_, i) => i !== index));
+                  setBank((prev) => [...prev, piece]);
+                  setFeedback(null);
+                }}
+                className={[
+                  "min-h-11 rounded-xl border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent",
+                  containsCjk(piece) ? "hanzi text-xl" : "text-sm",
+                ].join(" ")}
+              >
+                {piece}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {bank.map((piece, index) => (
+              <button
+                key={`${piece}-bank-${index}`}
+                type="button"
+                disabled={feedback === "correct"}
+                onClick={() => {
+                  if (feedback === "correct") return;
+                  playSoundFx("pieceSelect", soundEffects);
+                  setBank((prev) => {
+                    const next = [...prev];
+                    next.splice(index, 1);
+                    return next;
+                  });
+                  setOrdered((prev) => [...prev, piece]);
+                  setFeedback(null);
+                }}
+                className={[
+                  "min-h-11 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card transition hover:border-accent-soft",
+                  containsCjk(piece) ? "hanzi text-xl" : "text-sm",
+                ].join(" ")}
+              >
+                {piece}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <KeyboardShortcutHint />
+          <div className="mt-3 grid gap-2">
+            {shuffled.map((option, index) => {
+              const active = picked === option;
+              const correct = feedback && normalizeAnswer(option) === normalizeAnswer(answer);
+              const wrong = feedback === "wrong" && active;
+              return (
+                <button
+                  key={`${option}-${index}`}
+                  type="button"
+                  disabled={feedback === "correct"}
+                  onClick={() => {
+                    if (feedback === "correct") return;
+                    playSoundFx("pieceSelect", soundEffects);
+                    setPicked(option);
+                    setFeedback(null);
+                  }}
+                  className={[
+                    "relative min-h-12 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
+                    containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
+                    correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
+                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
+                    active && !correct && !wrong && "border-accent bg-accent-soft text-accent ring-2 ring-accent/15",
+                    !active && !correct && !wrong && "border-line bg-surface text-ink hover:border-accent-soft",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
+                >
+                  <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
+                  <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      <div className="mt-4 flex gap-2">
+        <Button
+          className="flex-1 shadow-lift"
+          disabled={feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)}
+          onClick={check}
+        >
+          Verificar
+        </Button>
+        {onSkip && (
+          <Button variant="ghost" onClick={onSkip}>
+            Pular
+          </Button>
+        )}
+      </div>
+
+      {feedback === "correct" && (
+        <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
+            <IconCheck width={18} height={18} /> Boa!
+          </div>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? "A conversa continua."}</p>
+          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onCorrect}>
+            Continuar <IconChevron width={18} height={18} />
+          </Button>
+        </div>
+      )}
+
+      {feedback === "wrong" && (
+        <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-accent">
+            <IconX width={18} height={18} /> Quase
+          </div>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">
+            {interaction.explanation ?? `Resposta sugerida: ${answer}`}
+          </p>
+          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
+            Tentar de novo
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
+// personagem (quando existe) e a cena segue até um nó terminal; o resultado
+// final (onDone) considera se houve algum erro no caminho.
+function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
+  const characters = step.characters ?? [];
+  const nodes = (step.nodes ?? []) as ConversationNode[];
+  const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.sceneId]);
+  const entryNodeId = step.entryNodeId ?? nodes[0]?.id ?? "";
+  const [nodeId, setNodeId] = useState(entryNodeId);
+  const [answering, setAnswering] = useState(false);
+  const [spokenCount, setSpokenCount] = useState(1);
+  const [hint, setHint] = useState<string | null>(null);
+  const hadMistakeRef = useRef(false);
+  const transitionsRef = useRef(0);
+
+  useEffect(() => {
+    setNodeId(entryNodeId);
+    setAnswering(false);
+    setSpokenCount(1);
+    setHint(null);
+    hadMistakeRef.current = false;
+    transitionsRef.current = 0;
+  }, [step.sceneId, entryNodeId]);
+
+  const node = nodeById.get(nodeId) ?? nodes[0];
+  const left = characters.find((c) => c.side === "left") ?? characters[0];
+  const right = characters.find((c) => c.side === "right") ?? characters[1];
+
+  function finish() {
+    onDone(!hadMistakeRef.current);
+  }
+
+  function goTo(targetId: string | undefined) {
+    transitionsRef.current += 1;
+    // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
+    if (!targetId || !nodeById.has(targetId) || transitionsRef.current > 60) {
+      finish();
+      return;
+    }
+    setNodeId(targetId);
+    setAnswering(false);
+    setSpokenCount((count) => count + 1);
+  }
+
+  function advance() {
+    if (node?.interaction) {
+      setAnswering(true);
+      return;
+    }
+    if (node?.nextNodeId) {
+      setHint(null);
+      goTo(node.nextNodeId);
+      return;
+    }
+    finish();
+  }
+
+  if (!node) {
+    return (
+      <div>
+        <Eyebrow>Cena</Eyebrow>
+        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
+        <Button className="mt-4 w-full" onClick={() => onDone(true)}>
+          Continuar
+        </Button>
+      </div>
+    );
+  }
+
+  const isTerminal = !node.interaction && !node.nextNodeId;
+  const line: ConversationLine = {
+    speakerId: node.speakerId,
+    hanzi: node.hanzi,
+    pinyin: node.pinyin,
+    pt: node.pt,
+    emotion: node.emotion,
+    audioText: node.audioText,
+  };
+
+  return (
+    <div>
+      <Eyebrow>Cena de conversa</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
+
+      <div className="mt-3">
+        <SettingBackdrop setting={step.setting} />
+      </div>
+
+      <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
+        <div className="mb-4 flex items-end justify-between gap-4 px-1">
+          {left && (
+            <CharacterAvatar
+              character={left}
+              active={!answering && node.speakerId === left.id}
+              emotion={node.speakerId === left.id ? node.emotion : undefined}
+            />
+          )}
+          {right && (
+            <CharacterAvatar
+              character={right}
+              active={!answering && node.speakerId === right.id}
+              emotion={node.speakerId === right.id ? node.emotion : undefined}
+            />
+          )}
+        </div>
+
+        <SpeechBubble
+          key={`${step.sceneId}-${node.id}-${spokenCount}`}
+          line={line}
+          side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
+          visible
+        />
+
+        {hint && !answering && (
+          <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-2 text-sm text-ink-soft">
+            <span className="font-semibold text-accent">Pista:</span> {hint}
+          </div>
+        )}
+
+        {!answering && (
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-ink-faint">Fala {spokenCount}</span>
+            <Button className="min-w-[9.5rem] shadow-lift" onClick={advance}>
+              {isTerminal ? "Concluir" : node.interaction ? "Responder" : "Continuar"}
+              <IconChevron width={18} height={18} />
+            </Button>
+          </div>
+        )}
+
+        {answering && node.interaction && (
+          <InteractionPanel
+            interaction={node.interaction}
+            onCorrect={() => {
+              setHint(null);
+              goTo(node.interaction!.correctNextNodeId);
+            }}
+            onWrongBranch={
+              node.interaction.wrongNextNodeId
+                ? () => {
+                    setHint(node.interaction!.explanation ?? null);
+                    goTo(node.interaction!.wrongNextNodeId);
+                  }
+                : undefined
+            }
+            onLocalMistake={() => {
+              hadMistakeRef.current = true;
+            }}
+            onSkip={onSkip}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepProps) {
+  const hasNodes = (step.nodes?.length ?? 0) > 0;
+  if (hasNodes) {
+    return <ConversationSceneV2 step={step} onDone={onDone} onSkip={onSkip} onMistake={onMistake} />;
+  }
+  return <ConversationSceneV1 step={step} onDone={onDone} onSkip={onSkip} onMistake={onMistake} />;
+}
+
+function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const characters = step.characters ?? [];
   const lines = (step.lines ?? []) as ConversationLine[];
   const checkpoint = step.checkpoint;

@@ -5,7 +5,9 @@ import {
   conversationSceneStepFromId,
   type ConversationCharacter,
   type ConversationCheckpoint,
+  type ConversationInteraction,
   type ConversationLine,
+  type ConversationNode,
   type ConversationSceneStep as ConversationSceneDefinition,
   type ConversationSetting,
 } from "./conversationScenes";
@@ -45,7 +47,9 @@ export type StepKind =
 export type {
   ConversationCharacter,
   ConversationCheckpoint,
+  ConversationInteraction,
   ConversationLine,
+  ConversationNode,
   ConversationSetting,
   ConversationSceneDefinition,
 };
@@ -151,6 +155,11 @@ export interface LessonStep {
   setting?: ConversationSetting;
   characters?: ConversationCharacter[];
   checkpoint?: ConversationCheckpoint;
+  /** conversation_scene V2: fluxo por nós com interações e ramificação. */
+  nodes?: ConversationNode[];
+  entryNodeId?: string;
+  /** Intenção comunicativa da cena — alimenta a seleção sem repetição. */
+  sceneIntent?: string;
   learnedRefs?: string[];
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade na cena. */
@@ -348,6 +357,7 @@ const conversationScene = (sceneId: string): LessonStep => {
   if (!scene) {
     throw new Error(`conversation_scene desconhecida: ${sceneId}`);
   }
+  const firstInteraction = scene.nodes?.map((node) => node.interaction).find(Boolean);
   return {
     kind: "conversation_scene",
     title: scene.title,
@@ -356,13 +366,16 @@ const conversationScene = (sceneId: string): LessonStep => {
     characters: scene.characters,
     lines: scene.lines,
     checkpoint: scene.checkpoint,
+    nodes: scene.nodes,
+    entryNodeId: scene.entryNodeId,
+    sceneIntent: scene.intent,
     learnedRefs: scene.learnedRefs,
     newRefs: scene.newRefs,
     dedicatedLesson: scene.dedicatedLesson,
-    prompt: scene.checkpoint?.prompt,
-    options: scene.checkpoint?.options,
-    correctAnswer: scene.checkpoint?.correctAnswer,
-    explanation: scene.checkpoint?.explanation,
+    prompt: scene.checkpoint?.prompt ?? firstInteraction?.prompt,
+    options: scene.checkpoint?.options ?? firstInteraction?.options,
+    correctAnswer: scene.checkpoint?.correctAnswer ?? firstInteraction?.correctAnswer,
+    explanation: scene.checkpoint?.explanation ?? firstInteraction?.explanation,
     bank: scene.checkpoint?.type === "order_reply" || scene.checkpoint?.type === "fill_reply"
       ? scene.checkpoint.options
       : undefined,

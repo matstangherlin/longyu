@@ -271,6 +271,57 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (!step.characters || step.characters.length < 2) {
         errors.push("conversation_scene precisa de pelo menos 2 personagens");
       }
+      // V2 (nós): cada nó precisa de fala completa e interações íntegras —
+      // resposta correta presente, opções sem duplicata e destinos existentes.
+      const nodes = step.nodes ?? [];
+      if (nodes.length > 0) {
+        const nodeIds = new Set<string>();
+        for (const node of nodes) {
+          if (!node.id?.trim()) errors.push("conversation_scene: nó sem id");
+          else if (nodeIds.has(node.id)) errors.push(`conversation_scene: nó duplicado "${node.id}"`);
+          nodeIds.add(node.id);
+        }
+        const entryId = step.entryNodeId ?? nodes[0]?.id;
+        if (!entryId || !nodeIds.has(entryId)) {
+          errors.push(`conversation_scene: entryNodeId desconhecido "${String(step.entryNodeId)}"`);
+        }
+        for (const node of nodes) {
+          if (!node.hanzi?.trim()) errors.push(`conversation_scene nó "${node.id}" sem hanzi`);
+          if (!node.pinyin?.trim()) errors.push(`conversation_scene nó "${node.id}" sem pinyin`);
+          if (!node.speakerId?.trim()) errors.push(`conversation_scene nó "${node.id}" sem speakerId`);
+          else if (step.characters && !step.characters.some((character) => character.id === node.speakerId)) {
+            errors.push(`conversation_scene nó "${node.id}": speakerId desconhecido "${node.speakerId}"`);
+          }
+          if (node.nextNodeId && !nodeIds.has(node.nextNodeId)) {
+            errors.push(`conversation_scene nó "${node.id}": nextNodeId desconhecido "${node.nextNodeId}"`);
+          }
+          const interaction = node.interaction;
+          if (interaction) {
+            if (!interaction.prompt?.trim()) errors.push(`conversation_scene nó "${node.id}": interação sem prompt`);
+            if (!interaction.correctAnswer?.trim()) {
+              errors.push(`conversation_scene nó "${node.id}": interação sem resposta correta`);
+            }
+            if (!interaction.correctNextNodeId || !nodeIds.has(interaction.correctNextNodeId)) {
+              errors.push(`conversation_scene nó "${node.id}": correctNextNodeId desconhecido`);
+            }
+            if (interaction.wrongNextNodeId && !nodeIds.has(interaction.wrongNextNodeId)) {
+              errors.push(`conversation_scene nó "${node.id}": wrongNextNodeId desconhecido`);
+            }
+            const options = interaction.options ?? [];
+            if (options.length > 0) {
+              const duplicate = findDuplicate(options);
+              if (duplicate) errors.push(`conversation_scene nó "${node.id}": opção duplicada "${duplicate}"`);
+            }
+            if (interaction.type === "choose_reply" || interaction.type === "choose_meaning" || interaction.type === "fill_reply" || interaction.type === "listen_reply") {
+              checkChoice(errors, `conversation_scene nó "${node.id}"`, interaction.correctAnswer, options);
+              checkPinyinLookAlike(errors, step, options);
+            }
+            if (interaction.type === "order_reply" && options.length < 2) {
+              errors.push(`conversation_scene nó "${node.id}": order_reply sem peças`);
+            }
+          }
+        }
+      }
       const lines = step.lines ?? [];
       if (lines.length === 0) errors.push("conversation_scene sem falas");
       for (const [index, line] of lines.entries()) {
