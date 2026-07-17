@@ -1,6 +1,14 @@
 # Relatório de cobertura de exercícios visuais
 
-Gerado em: 2026-07-16T23:33:36.440Z
+## Procedência
+
+| Campo | Valor |
+|-------|-------|
+| Commit | dae6025293c0ef88df3117d3ed2863e8f1638505 |
+| Versão do app | 0.1.0 |
+| Gerado em | 2026-07-17T13:58:54.729Z |
+| Lições | 105 |
+| Hash da Jornada | 11ae4e8aae85 |
 
 ## Resumo
 
@@ -54,10 +62,10 @@ Gerado em: 2026-07-16T23:33:36.440Z
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 17 |
-| imagem → pinyin (`choose_pinyin`) | 54 |
-| imagem → significado (`choose_meaning`) | 20 |
-| áudio → imagem (`listen_and_choose_image`) | 27 |
-| hànzì → imagem (`choose_image`) | 49 |
+| imagem → pinyin (`choose_pinyin`) | 61 |
+| imagem → significado (`choose_meaning`) | 30 |
+| áudio → imagem (`listen_and_choose_image`) | 21 |
+| hànzì → imagem (`choose_image`) | 39 |
 
 ## Conceitos nunca utilizados
 
@@ -80,3 +88,5 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 ---
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
+
+<!-- integridade:46317c9888cccda0 -->

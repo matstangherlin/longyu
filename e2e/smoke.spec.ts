@@ -79,6 +79,8 @@ test.describe("mobile", () => {
   test("player da primeira lição cabe em 360px", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    // O plano abre com a introdução autorada; o exercício vem depois dela.
+    await page.getByRole("button", { name: "Entendi" }).click();
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });
 

@@ -2190,10 +2190,14 @@ function candidateScore(
   const families = exerciseFamiliesFor(step, stageId);
   const familyScore = families.reduce((sum, family) => sum + (weights[family] ?? 0), 0);
   const authoredBonus = generated ? 0 : 12;
+  // A apresentação autoral abre a lição: sem isto, um passo GERADO de maior
+  // score ocupa o slot de intro e depois é canibalizado pelos ensures — a
+  // lição começa cobrando sem apresentar.
+  const introBonus = step.kind === "intro" && !generated ? 40 : 0;
   const reviewBonus = stageId === "consolidation" || stepUsesFocus(step, reviewFocus) ? 12 : 0;
   const gradedBonus = isGradedStep(step) ? 6 : 0;
   const stageBonus = STAGE_KIND_HINTS[stageId].includes(step.kind) ? 4 : 0;
-  return familyScore + authoredBonus + reviewBonus + gradedBonus + stageBonus + noveltyScoreBonus(lesson, step, reviewFocus);
+  return familyScore + authoredBonus + introBonus + reviewBonus + gradedBonus + stageBonus + noveltyScoreBonus(lesson, step, reviewFocus);
 }
 
 function authoredCandidatesFor(lesson: Lesson, reviewFocus: FocusItem[]): PracticeCandidate[] {

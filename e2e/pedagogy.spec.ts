@@ -20,8 +20,13 @@ test.describe("lição", () => {
   test("primeira lição abre o passo introdutório", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    // A introdução autorada abre o plano; o exercício com 你好 vem em seguida.
+    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible();
+    await page.getByRole("button", { name: "Entendi" }).click();
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
-    await expect(page.getByText(/Ouça e imite|Entenda o tema/i).first()).toBeVisible();
+    // Palavras em português do prompt não viram botões de glossário.
+    await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /qual/i })).toHaveCount(0);
   });
 
   test("intro de hànzì é conceitual, sem composição 林/明", async ({ page }) => {
@@ -34,7 +39,10 @@ test.describe("lição", () => {
   test("prompt misto não abre glossário em português", async ({ page }) => {
     await seedFoundationThrough(page, "p1-engine-2-lab");
     await page.goto("/licao/l1/player");
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Pinyin: ponte para o som/ })).toBeVisible();
+    await page.getByRole("button", { name: "Entendi" }).click();
+    // O prompt em português vira título/heading — nunca botão de glossário.
+    await expect(page.getByRole("heading", { name: /Qual contorno você ouviu\?/ })).toBeVisible();
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /qual/i })).toHaveCount(0);
   });
@@ -43,8 +51,13 @@ test.describe("lição", () => {
     await seedFoundationThrough(page, "p1-o-que-e-hanzi");
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await dismissBlockingOverlays(page);
-    await expect(page.getByText(/Entenda o tema|Observe a forma e conecte/i).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /木/ }).first()).toBeVisible();
+    // A lição abre com a introdução conceitual: 木/口/日 aparecem como texto.
+    await expect(page.getByRole("heading", { name: /Monte peça por peça/ })).toBeVisible();
+    await expect(page.getByText(/木/).first()).toBeVisible();
+    await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
+    // Depois da introdução vem reconhecimento simples, ainda sem composições.
+    await page.getByRole("button", { name: "Entendi" }).click();
+    await expect(page.getByText(/Observe a forma e conecte/i).first()).toBeVisible();
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
   });
 });

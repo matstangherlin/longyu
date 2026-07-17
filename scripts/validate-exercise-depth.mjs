@@ -6,8 +6,11 @@
  *
  * Gera reports/exercise-depth-report.md
  *
- * Por enquanto só emite warnings no beta (não falha por score baixo).
- * Futuro: falhar se lição principal < 55 ou revisão de módulo < 70.
+ * Portão gradual de qualidade (modo --beta, usado em validate:beta):
+ * - FALHA: lição comum < 60 · revisão de módulo < 70 · média global < 78 ·
+ *   resposta correta repetida mais de 2 vezes numa lição;
+ * - WARNING: lição comum 60–69 · revisão 70–77.
+ * Sem --beta, tudo é warning informativo (auditoria local).
  */
 
 import { createRequire } from "node:module";
@@ -16,6 +19,13 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
+
+const FAIL_COMMON = 60;
+const FAIL_REVIEW = 70;
+const WARN_COMMON = 70;
+const WARN_REVIEW = 78;
+const FAIL_AVERAGE = 78;
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -343,6 +353,7 @@ async function main() {
   const betaMode = process.argv.includes("--beta");
   const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-exercise-depth-"));
   const warnings = [];
+  const failures = [];
 
   try {
     const program = ts.createProgram(
@@ -390,32 +401,40 @@ async function main() {
       const entry = analyzeLesson(lesson, plan, unit);
       results.push(entry);
 
-      const threshold = entry.isReview ? 70 : 55;
-      if (entry.depthScore < threshold) {
-        const msg = `${entry.lessonId} (${entry.title}): score ${entry.depthScore} < ${threshold}`;
-        warnings.push(msg);
+      const failThreshold = entry.isReview ? FAIL_REVIEW : FAIL_COMMON;
+      const warnThreshold = entry.isReview ? WARN_REVIEW : WARN_COMMON;
+      const label = `${entry.lessonId} (${entry.title})`;
+      if (entry.depthScore < failThreshold) {
+        failures.push(`${label}: score ${entry.depthScore} < ${failThreshold} (${entry.isReview ? "revisão de módulo" : "lição comum"})`);
+      } else if (entry.depthScore < warnThreshold) {
+        warnings.push(`${label}: score ${entry.depthScore} abaixo do recomendado (${warnThreshold})`);
+      }
+      if (entry.metrics.repeatedAnswers > 0) {
+        failures.push(`${label}: resposta correta repetida mais de 2 vezes (${entry.metrics.repeatedAnswers} resposta(s))`);
       }
     }
 
     results.sort((a, b) => a.depthScore - b.depthScore);
 
-    const shallow = results.filter((r) => r.depthScore < 55);
-    const reviewWeak = results.filter((r) => r.isReview && r.depthScore < 70);
+    const shallow = results.filter((r) => r.depthScore < (r.isReview ? FAIL_REVIEW : FAIL_COMMON));
+    const reviewWeak = results.filter((r) => r.isReview && r.depthScore < WARN_REVIEW);
     const avg = Math.round(results.reduce((sum, r) => sum + r.depthScore, 0) / Math.max(1, results.length));
+    if (avg < FAIL_AVERAGE) {
+      failures.push(`média global ${avg} < ${FAIL_AVERAGE}`);
+    }
 
     const lines = [
       "# Relatório de profundidade de exercícios",
       "",
-      `Gerado em: ${new Date().toISOString()}`,
-      "",
+      ...reportProvenanceLines(rootDir, { lessonCount: results.length }),
       "## Resumo",
       "",
       `| Indicador | Valor |`,
       `|-----------|------:|`,
       `| Lições analisadas | ${results.length} |`,
-      `| Score médio | ${avg} |`,
-      `| Lições com score < 55 | ${shallow.length} |`,
-      `| Revisões de módulo < 70 | ${reviewWeak.length} |`,
+      `| Score médio | ${avg} (portão: ≥ ${FAIL_AVERAGE}) |`,
+      `| Lições abaixo do portão (comum < ${FAIL_COMMON} · revisão < ${FAIL_REVIEW}) | ${shallow.length} |`,
+      `| Revisões de módulo < ${WARN_REVIEW} | ${reviewWeak.length} |`,
       "",
       "## Lições mais superficiais",
       "",
@@ -437,29 +456,36 @@ async function main() {
       "",
       "---",
       "",
-      "_Nota: validate:beta ainda não falha por score baixo — apenas warnings no console. Futuro: falhar se lição principal < 55 ou revisão < 70._",
+      `_Portão beta: falha com lição comum < ${FAIL_COMMON}, revisão de módulo < ${FAIL_REVIEW}, média global < ${FAIL_AVERAGE} ou resposta correta repetida mais de 2 vezes. Warning entre ${FAIL_COMMON}–${WARN_COMMON - 1} (comum) e ${FAIL_REVIEW}–${WARN_REVIEW - 1} (revisão)._`,
       ""
     );
 
     await mkdir(path.dirname(reportPath), { recursive: true });
-    await writeFile(reportPath, lines.join("\n"), "utf8");
+    await writeFile(reportPath, finalizeReport(lines), "utf8");
 
-    console.log(`validate:exercise-depth OK — ${results.length} lições · score médio ${avg}`);
+    console.log(`validate:exercise-depth — ${results.length} lições · score médio ${avg}`);
     console.log(`Relatório: ${reportPath}`);
 
     if (warnings.length > 0) {
-      console.warn(`\n⚠ ${warnings.length} lição(ões) abaixo do limiar recomendado:`);
+      console.warn(`\n⚠ ${warnings.length} aviso(s) de profundidade (não bloqueante):`);
       for (const warning of warnings.slice(0, 40)) {
         console.warn(`  - ${warning}`);
       }
       if (warnings.length > 40) console.warn(`  ...mais ${warnings.length - 40}.`);
-      if (!betaMode) {
-        console.warn("\n(Auditoria informativa — não bloqueia o build por enquanto.)");
-      }
     }
 
-    if (betaMode && warnings.length > 0) {
-      console.warn(`\nvalidate:beta: ${warnings.length} aviso(s) de profundidade (não bloqueante).`);
+    if (failures.length > 0) {
+      if (betaMode) {
+        console.error(`\nvalidate:exercise-depth (--beta) FALHOU com ${failures.length} problema(s) abaixo do portão:`);
+        for (const failure of failures) console.error(`  - ${failure}`);
+        process.exitCode = 1;
+      } else {
+        console.warn(`\n⚠ ${failures.length} problema(s) que FALHARIAM no portão beta:`);
+        for (const failure of failures) console.warn(`  - ${failure}`);
+        console.warn("(Auditoria local sem --beta: não bloqueia.)");
+      }
+    } else if (betaMode) {
+      console.log("Portão beta de profundidade: OK.");
     }
   } finally {
     await rm(outDir, { recursive: true, force: true });

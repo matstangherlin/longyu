@@ -761,7 +761,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     reviewItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao"],
     estimatedMinutes: 6,
     steps: [
-      intro("Monte peça por peça", "Agora você monta caracteres simples com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
+      intro("Monte peça por peça", "Agora você monta caracteres simples como 木, 口 e 日 com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
       imageChoice(
         "choose_image",
         "tree",

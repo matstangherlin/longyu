@@ -22,6 +22,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -105,7 +106,7 @@ try {
       scoreConversationScene,
       pickBestConversationScene,
     } = load("src/data/conversationScenes.js");
-    const { ALL_LESSONS } = load("src/data/journey.js");
+    const { ALL_LESSONS, JOURNEY } = load("src/data/journey.js");
     const { CHUNKS } = load("src/data/chunks.js");
     const { CHARACTERS } = load("src/data/characters.js");
     const { validateExercise } = load("src/features/lesson/exerciseValidation.js");
@@ -479,6 +480,34 @@ try {
       );
     }
 
+    // ————— Módulo comunicativo inteiro sem conversa (portão beta) —————
+    // Um módulo com focusChunks é comunicativo: o conjunto dos planos das suas
+    // lições precisa conter pelo menos uma conversation_scene.
+    const sceneByLessonId = new Map();
+    for (const lesson of ALL_LESSONS) {
+      const plan = lessonRoundStepsFor(lesson, { silent: true });
+      sceneByLessonId.set(lesson.id, plan.some((step) => step.kind === "conversation_scene"));
+    }
+    for (const phase of JOURNEY) {
+      for (const unit of phase.units ?? []) {
+        if ((unit.focusChunks?.length ?? 0) === 0) continue;
+        const hasScene = unit.lessons.some((lesson) => sceneByLessonId.get(lesson.id));
+        if (!hasScene) {
+          err("coverage", unit.id, `módulo comunicativo (${unit.title}) inteiro sem conversation_scene em nenhum plano.`);
+        }
+      }
+    }
+
+    // ————— Conversa reutilizada excessivamente (warning, não bloqueia) —————
+    const overusedScenes = [...generatedUseBySceneId.entries()].filter(
+      ([, count]) => count > Math.max(12, Math.round(lessonsWithGeneratedScene * 0.3))
+    );
+    for (const [sceneId, count] of overusedScenes) {
+      console.warn(
+        `⚠ conversa reutilizada excessivamente: ${sceneId} aparece em ${count}/${lessonsWithGeneratedScene} planos gerados (rotação por aluno reduz na prática).`
+      );
+    }
+
     // ————— Relatório —————
     const roleCounts = new Map();
     const settingCounts = new Map();
@@ -498,8 +527,7 @@ try {
     const lines = [
       "# Relatório de cobertura de cenas de conversa",
       "",
-      `Gerado em: ${new Date().toISOString()}`,
-      "",
+      ...reportProvenanceLines(rootDir, { lessonCount: ALL_LESSONS.length }),
       "## Resumo",
       "",
       "| Indicador | Valor |",
@@ -559,7 +587,7 @@ try {
     );
 
     await mkdir(path.dirname(reportPath), { recursive: true });
-    await writeFile(reportPath, lines.join("\n"), "utf8");
+    await writeFile(reportPath, finalizeReport(lines), "utf8");
 
     if (errors.length > 0) {
       console.error(`\nvalidate:conversation-scenes encontrou ${errors.length} problema(s):`);

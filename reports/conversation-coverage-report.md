@@ -1,6 +1,14 @@
 # Relatório de cobertura de cenas de conversa
 
-Gerado em: 2026-07-16T23:33:41.471Z
+## Procedência
+
+| Campo | Valor |
+|-------|-------|
+| Commit | dae6025293c0ef88df3117d3ed2863e8f1638505 |
+| Versão do app | 0.1.0 |
+| Gerado em | 2026-07-17T13:59:01.720Z |
+| Lições | 105 |
+| Hash da Jornada | 11ae4e8aae85 |
 
 ## Resumo
 
@@ -99,3 +107,5 @@ _Cena não usada = nenhum foco de lição cobre todos os refs dela ainda; ela fi
 ---
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade._
+
+<!-- integridade:9d6e72c5f416cb3a -->

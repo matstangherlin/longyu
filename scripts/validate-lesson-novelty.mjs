@@ -26,6 +26,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -292,8 +293,7 @@ try {
   const lines = [
     "# Relatório de novidade cognitiva das lições",
     "",
-    `Gerado em: ${new Date().toISOString()}`,
-    "",
+    ...reportProvenanceLines(rootDir, { lessonCount: rows.length }),
     "## Resumo",
     "",
     "| Indicador | Valor |",
@@ -340,7 +340,7 @@ try {
   );
 
   await mkdir(path.dirname(reportPath), { recursive: true });
-  await writeFile(reportPath, lines.join("\n"), "utf8");
+  await writeFile(reportPath, finalizeReport(lines), "utf8");
 
   if (errors.length > 0) {
     console.error(`validate:lesson-novelty encontrou ${errors.length} problema(s):`);
