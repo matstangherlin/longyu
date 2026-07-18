@@ -1,10 +1,12 @@
 import { ProgressBar } from "../../components/ui/primitives";
-import { IconFlame, IconX } from "../../components/ui/Icon";
+import { IconChat, IconFlame, IconX } from "../../components/ui/Icon";
 
 // Barra superior do modo foco: fina como em apps de idioma.
-// [X] [progresso] [fôlego] [6/10] e, abaixo, uma linha discreta com a etapa.
+// [X] [progresso] [fôlego] [6/10] [report] e, abaixo, uma linha discreta com a etapa.
+// O report reutiliza o mesmo modal de Feedback (não é um segundo FAB).
 export function LessonFocusHeader({
   onExit,
+  onReport,
   progressValue,
   progressMax,
   lives,
@@ -13,6 +15,8 @@ export function LessonFocusHeader({
   stageLabel,
 }: {
   onExit: () => void;
+  /** Abre o FeedbackModal existente com contexto da pergunta atual. */
+  onReport?: () => void;
   progressValue: number;
   progressMax: number;
   lives: number;
@@ -37,6 +41,17 @@ export function LessonFocusHeader({
         <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-ink-faint">
           {progressValue}/{progressMax}
         </span>
+        {onReport && (
+          <button
+            type="button"
+            onClick={onReport}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
+            aria-label="Reportar problema nesta pergunta"
+            title="Reportar problema"
+          >
+            <IconChat width={15} height={15} />
+          </button>
+        )}
       </div>
       {stageLabel && (
         <div className="mt-1 truncate pl-10 pr-1 text-[11px] font-medium text-ink-faint" title={stageLabel}>

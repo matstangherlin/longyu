@@ -39,6 +39,7 @@ import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ProgressBar } from "../../components/ui/primitives";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
@@ -1168,6 +1169,7 @@ export function LessonPlayer() {
   const dailyMissions = useStore((s) => s.dailyMissions);
   const weeklyMissions = useStore((s) => s.weeklyMissions);
   const monthlyMission = useStore((s) => s.monthlyMission);
+  const { openFeedback } = useFeedbackUi();
 
   const [idx, setIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -3011,6 +3013,16 @@ export function LessonPlayer() {
       )}
       <LessonFocusHeader
         onExit={exitLesson}
+        onReport={() =>
+          openFeedback({
+            screen: `/licao/${lesson.id}/player`,
+            route: `/licao/${lesson.id}/player`,
+            lessonId: lesson.id,
+            exerciseKind: lesson.steps[idx]?.kind,
+            exerciseIndex: idx,
+            activityProblem: true,
+          })
+        }
         progressValue={idx + 1}
         progressMax={total}
         lives={lives}

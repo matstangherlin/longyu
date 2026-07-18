@@ -251,6 +251,23 @@ export async function fetchAdminFeedback(): Promise<BetaFeedbackRow[]> {
   return (data ?? []) as BetaFeedbackRow[];
 }
 
+/** Feedback do usuário logado (RLS: só o próprio). */
+export async function fetchMyFeedback(): Promise<BetaFeedbackRow[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+  const { data: sessionData } = await client.auth.getSession();
+  const uid = sessionData.session?.user?.id;
+  if (!uid) return [];
+  const { data, error } = await client
+    .from("beta_feedback")
+    .select("*")
+    .eq("user_id", uid)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return (data ?? []) as BetaFeedbackRow[];
+}
+
 export async function updateAdminFeedback(
   id: string,
   status: FeedbackStatusId,

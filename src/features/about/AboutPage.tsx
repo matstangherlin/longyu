@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { MyFeedbackList } from "../../components/feedback/MyFeedbackList";
 import { Card, SectionTitle } from "../../components/ui/primitives";
 import { BETA_LABEL } from "../../lib/feedback";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -33,6 +36,15 @@ function aboutPoints() {
 export function AboutPage() {
   const points = aboutPoints();
   const cloud = isSupabaseBackendEnabled();
+  const location = useLocation();
+
+  useEffect(() => {
+    const id = location.hash.replace("#", "");
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [location.hash]);
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
       <SectionTitle
@@ -62,7 +74,16 @@ export function AboutPage() {
         ))}
       </section>
 
-      <FeedbackPrompt context={{ screen: "/sobre" }} compact />
+      <section id="feedback" className="scroll-mt-6 space-y-3">
+        <FeedbackPrompt context={{ screen: "/sobre" }} compact />
+        <Card className="rounded-xl p-4 shadow-none">
+          <h3 className="font-serif text-lg font-semibold text-ink">Seus feedbacks</h3>
+          <p className="mt-1 mb-3 text-sm text-ink-soft">
+            Histórico dos envios desta conta (somente você vê; status é atualizado pela equipe).
+          </p>
+          <MyFeedbackList />
+        </Card>
+      </section>
 
       <p className="text-center text-xs text-ink-faint">
         Longyu (龙语) · {cloud ? "conta na nuvem disponível" : "dados salvos neste dispositivo"} · áudio via Web Speech API
