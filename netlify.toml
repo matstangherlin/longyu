@@ -9,19 +9,31 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Garante binários nativos do Rollup no Linux (evita "Cannot find module @rollup/rollup-linux-x64-gnu").
+  # Garante binários nativos do Rollup no Linux (evita "Cannot write module @rollup/rollup-linux-x64-gnu").
   NPM_FLAGS = "--include=optional"
+  VITE_APP_VERSION = "0.2.0-beta.1"
 
 # Variáveis VITE_* são públicas (entram no bundle). RLS no Supabase protege os dados.
+# Production Beta = ambiente principal da beta pública.
 [context.production.environment]
+  VITE_APP_ENV = "production_beta"
+  VITE_APP_VERSION = "0.2.0-beta.1"
   VITE_BACKEND_MODE = "supabase"
   VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
+  # Explicitamente desligado no ambiente principal.
+  VITE_ALLOW_PRO_PREVIEW = "false"
+  VITE_USE_TEST_FIXTURES = "false"
 
+# Deploy Preview — isolado; nunca misturar com production_beta.
 [context.deploy-preview.environment]
+  VITE_APP_ENV = "preview"
+  VITE_APP_VERSION = "0.2.0-beta.1"
   VITE_BACKEND_MODE = "supabase"
   VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
+  VITE_ALLOW_PRO_PREVIEW = "false"
+  VITE_USE_TEST_FIXTURES = "false"
 
 # SPA: qualquer rota (/som, /licao/:id, etc.) cai no index.html.
 # Sem isso, atualizar a página numa rota interna daria 404.

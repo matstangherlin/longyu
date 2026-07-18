@@ -3,6 +3,7 @@ import { ModalOverlay } from "../ui/ModalOverlay";
 import { Button } from "../ui/primitives";
 import {
   FEEDBACK_CATEGORIES,
+  getAppVersion,
   type FeedbackCategoryId,
   type FeedbackContext,
 } from "../../lib/feedback";
@@ -141,6 +142,8 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
             <Button type="submit" className="w-full" disabled={sending}>
               {sending ? "Enviando…" : "Enviar"}
             </Button>
+
+            <p className="text-center text-[11px] text-ink-faint">Longyu · v{getAppVersion()}</p>
           </form>
         )}
       </div>

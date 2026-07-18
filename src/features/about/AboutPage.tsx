@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { MyFeedbackList } from "../../components/feedback/MyFeedbackList";
+import { AppVersionLabel } from "../../components/system/AppVersionLabel";
+import { BetaNotice } from "../../components/system/BetaNotice";
 import { Card, SectionTitle } from "../../components/ui/primitives";
 import { BETA_LABEL } from "../../lib/feedback";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -50,12 +52,13 @@ export function AboutPage() {
       <SectionTitle
         eyebrow="Sistema"
         title="Sobre o Longyu"
-        desc="Transparência sobre o estado atual do beta privado."
+        desc="Transparência sobre o estado atual da beta pública."
       />
 
       <Card className="rounded-2xl p-5 shadow-none sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
           <BetaBadge />
+          <AppVersionLabel className="text-xs" />
           <span className="text-xs text-ink-faint">龙语 · mandarim pela lógica</span>
         </div>
         <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">{BETA_LABEL}</h2>
@@ -63,6 +66,7 @@ export function AboutPage() {
           Você está testando uma versão antecipada do Longyu. Algumas partes são experimentais, outras ainda são
           placeholders — e tudo isso é esperado nesta fase.
         </p>
+        <BetaNotice className="mt-3" />
       </Card>
 
       <section className="grid gap-3">
@@ -86,7 +90,8 @@ export function AboutPage() {
       </section>
 
       <p className="text-center text-xs text-ink-faint">
-        Longyu (龙语) · {cloud ? "conta na nuvem disponível" : "dados salvos neste dispositivo"} · áudio via Web Speech API
+        Longyu (龙语) · <AppVersionLabel /> ·{" "}
+        {cloud ? "conta na nuvem disponível" : "dados salvos neste dispositivo"} · áudio via Web Speech API
       </p>
     </div>
   );

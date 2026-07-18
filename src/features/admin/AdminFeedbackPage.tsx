@@ -5,10 +5,12 @@ import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayou
 import {
   FEEDBACK_CATEGORIES,
   FEEDBACK_STATUSES,
+  getAppVersion,
   isAdminEmail,
   type FeedbackCategoryId,
   type FeedbackStatusId,
 } from "../../lib/feedback";
+import { appEnvironmentLabel } from "../../lib/appEnvironment";
 import { useStore } from "../../lib/store";
 import {
   checkIsBetaAdmin,
@@ -198,7 +200,7 @@ export function AdminFeedbackPage() {
       <HubHeader
         eyebrow="Admin"
         title="Feedback beta"
-        desc="Painel interno — não aparece para aluno comum."
+        desc={`Painel interno — não aparece para aluno comum. ${appEnvironmentLabel()} · v${getAppVersion()}`}
         aside={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => void reload()} disabled={loading}>

@@ -5,6 +5,8 @@ import { Button } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
 import { IconCheck, IconChevron, IconSound, IconStar } from "../../components/ui/Icon";
+import { AppVersionLabel } from "../../components/system/AppVersionLabel";
+import { BetaNotice } from "../../components/system/BetaNotice";
 
 const BULLETS = [
   "Comece pelo básico",
@@ -134,6 +136,13 @@ export function LandingPage() {
           </section>
         </div>
       </main>
+
+      <footer className="mx-auto w-full max-w-5xl space-y-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 text-center sm:px-6 lg:text-left">
+        <BetaNotice />
+        <p className="text-[11px] text-ink-faint">
+          Longyu · <AppVersionLabel />
+        </p>
+      </footer>
     </div>
   );
 }

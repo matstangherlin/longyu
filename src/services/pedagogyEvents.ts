@@ -1,3 +1,4 @@
+import { isTelemetryEnabled } from "../lib/featureFlags";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { currentRoute } from "../lib/feedback";
 import { DEFAULT_ACCOUNT_ID, useStore } from "../lib/store";
@@ -123,7 +124,7 @@ async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
 }
 
 export async function flushPedagogyQueue(): Promise<number> {
-  if (!getTelemetryConsent()) return 0;
+  if (!isTelemetryEnabled() || !getTelemetryConsent()) return 0;
   if (typeof navigator !== "undefined" && navigator.onLine === false) return 0;
   const queue = readQueue();
   if (queue.length === 0) return 0;
@@ -139,7 +140,7 @@ export async function flushPedagogyQueue(): Promise<number> {
 }
 
 export async function trackPedagogyEvent(input: PedagogyEventInput): Promise<void> {
-  if (!getTelemetryConsent()) return;
+  if (!isTelemetryEnabled() || !getTelemetryConsent()) return;
 
   const event: QueuedPedagogyEvent = {
     ...input,

@@ -1,3 +1,4 @@
+import { isBetaFeedbackEnabled } from "../lib/featureFlags";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import {
   buildTechnicalContext,
@@ -144,6 +145,9 @@ export async function flushFeedbackQueue(): Promise<number> {
 }
 
 export async function submitFeedback(input: FeedbackSubmitInput): Promise<FeedbackSubmitResult> {
+  if (!isBetaFeedbackEnabled()) {
+    return { ok: false, error: "Envio de feedback temporariamente desativado." };
+  }
   const now = Date.now();
   if (now - lastSubmitAt < CLIENT_COOLDOWN_MS) {
     return { ok: false, error: "Aguarde alguns segundos antes de enviar outro feedback." };

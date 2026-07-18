@@ -18,13 +18,27 @@ function read(relativePath) {
 }
 
 // ——— Espelho da lógica pura (testável sem Vite) ———
+function resolveAppEnvironment(env = process.env) {
+  if (env.NODE_ENV === "development" || env.DEV === "true") return "development";
+  const raw = String(env.VITE_APP_ENV ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_");
+  if (raw === "preview" || raw === "deploy_preview" || raw === "staging") return "preview";
+  if (raw === "development" || raw === "dev") return "development";
+  return "production_beta";
+}
+
 function isDevPreviewAllowed(env = process.env) {
-  return env.NODE_ENV === "development" || env.VITE_ALLOW_PRO_PREVIEW === "true";
+  const appEnv = resolveAppEnvironment(env);
+  if (appEnv === "production_beta") return false;
+  if (appEnv === "development") return true;
+  return env.VITE_ALLOW_PRO_PREVIEW === "true";
 }
 
 function effectivePremium(isPreview, serverIsPro, env = process.env, options = {}) {
-  if (serverIsPro === true) return true;
   if (options.accountAuthMode === "cloud" && options.accountEmail === "teste@longyu.app") return true;
+  if (serverIsPro === true) return true;
   if (isPreview && isDevPreviewAllowed(env)) return true;
   return false;
 }
@@ -72,10 +86,14 @@ function reconcileFreePlanEnergy(energy, date = "2026-07-11") {
 // ——— Artefatos ———
 const entitlementsSrc = read("src/lib/entitlements.ts");
 assert(entitlementsSrc.includes("isDevPreviewAllowed"), "entitlements.ts sem isDevPreviewAllowed");
-assert(entitlementsSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "entitlements.ts deve checar VITE_ALLOW_PRO_PREVIEW");
+assert(entitlementsSrc.includes("isProPreviewBuildAllowed"), "entitlements.ts deve usar isProPreviewBuildAllowed");
 assert(entitlementsSrc.includes("isInternalTestProEmail"), "entitlements.ts deve expor isInternalTestProEmail");
 assert(entitlementsSrc.includes("teste@longyu.app"), "entitlements.ts deve listar conta QA interna");
 assert(entitlementsSrc.includes("accountAuthMode"), "effectivePremium deve considerar conta cloud de QA");
+
+const appEnvSrc = read("src/lib/appEnvironment.ts");
+assert(appEnvSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "appEnvironment deve checar VITE_ALLOW_PRO_PREVIEW");
+assert(appEnvSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
 
 const storeSrc = read("src/lib/store.ts");
 assert(storeSrc.includes("version: 15"), "Persist deve estar na versão 15");
@@ -93,16 +111,21 @@ assert(entitlementServiceSrc.includes("real_trialing"), "entitlementService deve
 assert(entitlementServiceSrc.includes("real_canceling"), "entitlementService deve tratar cancelamento com período futuro");
 
 // ——— Casos de entitlement ———
-const prodEnv = { NODE_ENV: "production", VITE_ALLOW_PRO_PREVIEW: undefined };
+const prodEnv = {
+  NODE_ENV: "production",
+  VITE_APP_ENV: "production_beta",
+  VITE_ALLOW_PRO_PREVIEW: "true", // flag vazada não deve liberar Pro no ambiente principal
+};
 
-// Preview antigo no localStorage não libera Pro em produção
-assert(!effectivePremium(true, false, prodEnv), "Preview persistido não deve liberar Pro em produção");
+// Preview antigo no localStorage não libera Pro em Production Beta
+assert(!effectivePremium(true, false, prodEnv), "Preview persistido não deve liberar Pro em Production Beta");
+assert(!isDevPreviewAllowed(prodEnv), "isDevPreviewAllowed deve ser false em production_beta");
 
 // serverIsPro false derruba Pro
 assert(!effectivePremium(true, false, prodEnv), "serverIsPro false deve derrubar preview em produção");
 assert(!effectivePremium(false, false, prodEnv), "Sem servidor nem preview = grátis");
 
-// serverIsPro true libera Pro
+// serverIsPro true libera Pro (assinatura real)
 assert(effectivePremium(false, true, prodEnv), "serverIsPro true deve liberar Pro");
 assert(effectivePremium(true, true, prodEnv), "serverIsPro true prevalece sobre preview");
 
@@ -119,12 +142,32 @@ assert(
   !effectivePremium(false, false, prodEnv, { accountAuthMode: "local", accountEmail: "teste@longyu.app" }),
   "Perfil local com email de teste não deve liberar Pro sem sessão cloud"
 );
+// QA não concede Pro a outro e-mail mesmo com serverIsPro residual — o caller
+// deve zerar serverIsPro ao trocar de conta (ver store.switchAccount/logout).
+assert(
+  !effectivePremium(false, false, prodEnv, {
+    accountAuthMode: "cloud",
+    accountEmail: "aluno@example.com",
+  }),
+  "Outro usuário cloud não herda Pro da conta QA sem serverIsPro"
+);
 
-// Preview só em dev / flag explícita
-const devEnv = { NODE_ENV: "development" };
-const flagEnv = { NODE_ENV: "production", VITE_ALLOW_PRO_PREVIEW: "true" };
-assert(effectivePremium(true, false, devEnv), "Preview permitido em DEV");
-assert(effectivePremium(true, false, flagEnv), "Preview permitido com VITE_ALLOW_PRO_PREVIEW=true");
+// Preview só em Development, ou Preview com flag
+const devEnv = { NODE_ENV: "development", VITE_APP_ENV: "development" };
+const previewFlagEnv = {
+  NODE_ENV: "production",
+  VITE_APP_ENV: "preview",
+  VITE_ALLOW_PRO_PREVIEW: "true",
+};
+const previewNoFlagEnv = {
+  NODE_ENV: "production",
+  VITE_APP_ENV: "preview",
+  VITE_ALLOW_PRO_PREVIEW: "false",
+};
+assert(effectivePremium(true, false, devEnv), "Preview permitido em Development");
+assert(effectivePremium(true, false, previewFlagEnv), "Preview permitido em Preview com flag");
+assert(!effectivePremium(true, false, previewNoFlagEnv), "Preview bloqueado em Preview sem flag");
+assert(!effectivePremium(true, false, prodEnv), "Preview bloqueado em Production Beta mesmo com flag");
 
 const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 const past = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();

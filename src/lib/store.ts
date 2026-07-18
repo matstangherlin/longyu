@@ -1440,12 +1440,10 @@ function hasProAccess(s: AppState, serverIsProOverride?: boolean): boolean {
   });
 }
 
+/** Pro interno de QA só para a conta cloud atual — nunca propaga para outros perfis no dispositivo. */
 function hasInternalTestCloudAccount(s: Pick<AppState, "accounts" | "currentAccountId">): boolean {
   const current = s.accounts[s.currentAccountId];
-  if (current?.authMode === "cloud" && isInternalTestProEmail(current.email)) return true;
-  return Object.values(s.accounts).some(
-    (account) => account.authMode === "cloud" && isInternalTestProEmail(account.email)
-  );
+  return Boolean(current?.authMode === "cloud" && isInternalTestProEmail(current.email));
 }
 
 interface AppState {
@@ -2193,17 +2191,27 @@ export const useStore = create<AppState>()(
         }),
       logout: () =>
         // Salva o progresso na conta atual e volta para o onboarding.
-        set((s) => ({ accounts: saveCurrentAccount(s), accountSetupComplete: false, cloudSyncState: freshCloudSyncState() })),
+        // Zera serverIsPro para a conta QA não deixar Pro ligado para o próximo perfil.
+        set((s) => ({
+          accounts: saveCurrentAccount(s),
+          accountSetupComplete: false,
+          serverIsPro: false,
+          cloudSyncState: freshCloudSyncState(),
+        })),
       switchAccount: (id) =>
         set((s) => {
           if (id === s.currentAccountId) return {};
           const target = s.accounts[id];
           if (!target) return {};
+          const nextAccounts = saveCurrentAccount(s);
+          const qaPro = target.authMode === "cloud" && isInternalTestProEmail(target.email);
           return {
             ...accountFields(target),
             accountSetupComplete: true,
             currentAccountId: id,
-            accounts: saveCurrentAccount(s),
+            // Pro de QA não acompanha troca de conta; assinatura real é revalidada no bootstrap.
+            serverIsPro: qaPro,
+            accounts: nextAccounts,
           };
         }),
       renameAccount: (id, rawName) =>

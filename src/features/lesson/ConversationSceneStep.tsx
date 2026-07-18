@@ -12,6 +12,7 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Button } from "../../components/ui/primitives";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { IconCheck, IconChevron, IconX } from "../../components/ui/Icon";
+import { isConversationV2Enabled } from "../../lib/featureFlags";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
 import {
@@ -775,7 +776,9 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 }
 
 export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepProps) {
-  const hasNodes = (step.nodes?.length ?? 0) > 0;
+  // Rollback: VITE_ENABLE_CONVERSATION_V2=false força o player V1 (lines/checkpoint).
+  // Progresso do usuário permanece intacto — só muda o motor da cena.
+  const hasNodes = isConversationV2Enabled() && (step.nodes?.length ?? 0) > 0;
   if (hasNodes) {
     return <ConversationSceneV2 step={step} onDone={onDone} onSkip={onSkip} onMistake={onMistake} />;
   }

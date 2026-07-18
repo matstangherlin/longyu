@@ -48,7 +48,7 @@ export interface FeedbackTechnicalContext {
 }
 
 export function getAppVersion(): string {
-  return String(import.meta.env.VITE_APP_VERSION ?? "0.1.0");
+  return String(import.meta.env.VITE_APP_VERSION ?? "0.2.0-beta.1");
 }
 
 export function currentRoute(): string {
