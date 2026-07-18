@@ -154,16 +154,71 @@ async function main() {
       console.log("");
       await clickGithubLogin(page);
       await screenshot(page, "02-after-github-click");
-      // Prefill email conhecido do dono do projeto para acelerar o login no Desktop.
+      // Prefill via env (GITHUB_LOGIN / GITHUB_PASSWORD) — nunca hardcoded no repo.
       try {
+        const loginUser = process.env.GITHUB_LOGIN?.trim();
+        const loginPass = process.env.GITHUB_PASSWORD ?? "";
         const login = page.locator("#login_field").first();
-        if (await login.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await login.fill("minemoostraa@gmail.com");
-          await page.locator("#password").first().click({ timeout: 2000 }).catch(() => {});
-          console.log("Email GitHub pré-preenchido: minemoostraa@gmail.com — digite a senha no Desktop.");
+        if (loginUser && (await login.isVisible({ timeout: 8000 }).catch(() => false))) {
+          await login.fill(loginUser);
+          const password = page.locator("#password").first();
+          if (loginPass && (await password.isVisible({ timeout: 3000 }).catch(() => false))) {
+            await password.fill(loginPass);
+            const submit = page.locator('input[type="submit"][name="commit"], button[type="submit"]').first();
+            if (await submit.isVisible({ timeout: 2000 }).catch(() => false)) {
+              console.log("Enviando login GitHub… (se pedir código, cole aqui no chat)");
+              await submit.click();
+              await page.waitForTimeout(2500);
+            }
+          } else {
+            console.log(`Email GitHub pré-preenchido: ${loginUser} — digite a senha no Desktop.`);
+            await password.click({ timeout: 2000 }).catch(() => {});
+          }
         }
       } catch {
         /* ignore */
+      }
+      // Se houver arquivo com OTP (device verification), preenche automaticamente.
+      const otpFile = process.env.GITHUB_OTP_FILE ?? "/tmp/github-otp.txt";
+      const otpDeadline = Date.now() + Math.min(timeoutMs, 600_000);
+      while (Date.now() < otpDeadline) {
+        const url = page.url();
+        if (url.includes(`/project/${ref}/`) && !url.includes("sign-in")) break;
+        if (
+          url.includes("sessions/two-factor") ||
+          url.includes("session") ||
+          (await page.locator("#otp, input[name='otp'], input[autocomplete='one-time-code']").first().isVisible().catch(() => false))
+        ) {
+          try {
+            const { existsSync, readFileSync, unlinkSync } = await import("node:fs");
+            if (existsSync(otpFile)) {
+              const otp = readFileSync(otpFile, "utf8").trim().replace(/\s+/g, "");
+              unlinkSync(otpFile);
+              if (otp) {
+                console.log("OTP detectado em arquivo — preenchendo…");
+                const otpInput = page.locator("#otp, input[name='otp'], input[autocomplete='one-time-code']").first();
+                await otpInput.fill(otp);
+                const verify = page.getByRole("button", { name: /verify|confirm|submit/i }).first();
+                if (await verify.isVisible({ timeout: 2000 }).catch(() => false)) {
+                  await verify.click();
+                } else {
+                  await page.keyboard.press("Enter");
+                }
+                await page.waitForTimeout(3000);
+              }
+            } else {
+              console.log(">>> AGUARDANDO CÓDIGO GitHub — cole no chat; eu gravo em", otpFile);
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+        if (url.includes(`/project/${ref}/`)) break;
+        // Continua o loop geral abaixo também
+        if (!url.includes("github.com") && !url.includes("sign-in") && url.includes("supabase.com/dashboard")) break;
+        await page.waitForTimeout(2000);
+        // Se já logou, sai
+        if ((await page.locator(".monaco-editor").first().isVisible().catch(() => false))) break;
       }
       await screenshot(page, "02b-email-prefilled");
       const loggedIn = await waitForLoggedIn(page);
