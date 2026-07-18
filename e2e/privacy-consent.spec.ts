@@ -4,6 +4,10 @@ import { seedOnboardedSession } from "./helpers";
 test.describe("privacy consent", () => {
   test("sem escolha: modal aparece e padrão não envia telemetria", async ({ page }) => {
     await seedOnboardedSession(page, []);
+    // Remove a decisão padrão dos helpers para simular primeiro acesso.
+    await page.addInitScript(() => {
+      localStorage.removeItem("longyu:telemetry-consent");
+    });
     await page.goto("/jornada");
     await expect(page.getByRole("heading", { name: /Ajude a melhorar o Longyu/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Permitir dados de melhoria/i })).toBeVisible();
@@ -16,6 +20,9 @@ test.describe("privacy consent", () => {
 
   test("Agora não grava escolha false e limpa necessidade do modal", async ({ page }) => {
     await seedOnboardedSession(page, []);
+    await page.addInitScript(() => {
+      localStorage.removeItem("longyu:telemetry-consent");
+    });
     await page.goto("/jornada");
     await page.getByRole("button", { name: /Agora não/i }).click();
     await expect(page.getByRole("heading", { name: /Ajude a melhorar o Longyu/i })).toHaveCount(0);
@@ -25,6 +32,7 @@ test.describe("privacy consent", () => {
   });
 
   test("ajustes: privacidade permite revogar e limpar fila", async ({ page }) => {
+    await seedOnboardedSession(page, []);
     await page.addInitScript(() => {
       localStorage.setItem("longyu:telemetry-consent", "1");
       localStorage.setItem(
@@ -32,7 +40,6 @@ test.describe("privacy consent", () => {
         JSON.stringify([{ eventType: "lesson_started", attempts: 0 }])
       );
     });
-    await seedOnboardedSession(page, []);
     await page.goto("/ajustes#privacidade-dados");
     await expect(page.getByText(/Privacidade e dados/i).first()).toBeVisible();
     await expect(page.getByText(/Dados pedagógicos de melhoria/i)).toBeVisible();
@@ -47,9 +54,6 @@ test.describe("privacy consent", () => {
   });
 
   test("feedback manual abre sem depender da telemetria", async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem("longyu:telemetry-consent", "0");
-    });
     await seedOnboardedSession(page, []);
     await page.goto("/jornada");
     await page.getByLabel(/Enviar feedback/i).click();

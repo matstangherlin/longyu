@@ -20,8 +20,26 @@ function isoWeekKey(d = new Date()): string {
   return `${date.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
+/** Nos e2e comuns, marca decisão de telemetria para o modal não bloquear fluxos. */
+export async function seedTelemetryDeclined(page: Page) {
+  await page.addInitScript(() => {
+    if (localStorage.getItem("longyu:telemetry-consent") === null) {
+      localStorage.setItem("longyu:telemetry-consent", "0");
+    }
+  });
+}
+
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 4; attempt += 1) {
+    const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });
+    if (await privacy.isVisible().catch(() => false)) {
+      const decline = page.getByRole("button", { name: /Agora não/i });
+      if (await decline.isVisible().catch(() => false)) {
+        await decline.click().catch(() => undefined);
+      }
+      await page.waitForTimeout(150);
+      continue;
+    }
     const achievement = page.getByRole("dialog", { name: /medalha/i });
     if (!(await achievement.isVisible().catch(() => false))) return;
     const continueBtn = page.getByRole("button", { name: /Continuar/i });
@@ -49,6 +67,7 @@ export async function clickStable(page: Page, name: RegExp, retries = 4) {
 }
 
 export async function seedOnboardedSession(page: Page, completedLessons: string[] = ["l1"]) {
+  await seedTelemetryDeclined(page);
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
@@ -59,6 +78,7 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
 
 /** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
 export async function seedFoundationThrough(page: Page, throughLessonId: string) {
+  await seedTelemetryDeclined(page);
   const foundation = [
     "p1-o-que-e-mandarim",
     "p1-o-que-e-pinyin",
@@ -84,6 +104,7 @@ export async function seedFreshJourneySession(
   page: Page,
   options: { isPremium?: boolean; points?: number } = {}
 ) {
+  await seedTelemetryDeclined(page);
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
@@ -96,6 +117,7 @@ export async function seedFreshJourneySession(
 
 /** Liga em modo demo com XP semanal local (conta não-cloud). */
 export async function seedLeagueDemoSession(page: Page, weeklyXp = 15) {
+  await seedTelemetryDeclined(page);
   const week = isoWeekKey();
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
@@ -118,6 +140,7 @@ export async function seedLessonRecoverySession(
   const stars = options.stars ?? 2;
   const isPremium = options.isPremium ?? true;
 
+  await seedTelemetryDeclined(page);
   await page.addInitScript(
     ({ payload }: { payload: string }) => {
       localStorage.setItem("longyu-v1", payload);
