@@ -58,8 +58,13 @@ export function VisualConceptImage({ conceptId, size = "md", className = "" }: V
     );
   }
 
+  // Fundo neutro/transparente: object-contain para nunca cortar o sujeito.
+  // Cena contextual: object-cover, pois recortar o cenário é aceitável.
+  const objectFit = concept?.backgroundStyle === "contextual" ? "object-cover" : "object-contain";
+
   return (
     <div className={frameClass}>
+      {/* Skeleton ocupa o quadro inteiro (altura fixa) — nada de layout shift. */}
       {!loaded && <div aria-hidden="true" className="absolute inset-0 animate-pulse bg-surface-2" />}
       <img
         src={imageSrc}
@@ -72,7 +77,8 @@ export function VisualConceptImage({ conceptId, size = "md", className = "" }: V
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
         className={[
-          "h-full w-full object-cover transition-opacity duration-200",
+          "h-full w-full transition-opacity duration-200",
+          objectFit,
           loaded ? "opacity-100" : "opacity-0",
         ].join(" ")}
       />

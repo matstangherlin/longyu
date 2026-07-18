@@ -29,6 +29,7 @@ const rootDir = process.cwd();
 const REPORTS = [
   "reports/exercise-depth-report.md",
   "reports/image-coverage-report.md",
+  "reports/visual-consistency-report.md",
   "reports/conversation-coverage-report.md",
   "reports/lesson-novelty-report.md",
 ];

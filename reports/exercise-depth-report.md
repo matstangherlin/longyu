@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | bcd5499752767d74c8e98d0daa5955be4aec1b58 |
+| Commit | 8d4c7ee01c2edae98ddf27582599bf13129dd6b3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-18T16:48:40.716Z |
+| Gerado em | 2026-07-18T17:43:48.979Z |
 | Lições | 108 |
-| Hash da Jornada | 71c8df9c0de5 |
+| Hash da Jornada | 88316737b78b |
 
 ## Resumo
 
@@ -999,7 +999,7 @@
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 7 |
-| Hànzì únicos | 26 |
+| Hànzì únicos | 27 |
 | Chunks únicos | 9 |
 | Frases reais | 3 |
 | Contexto | 4 |
@@ -1319,7 +1319,7 @@
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 7 |
-| Hànzì únicos | 16 |
+| Hànzì únicos | 17 |
 | Chunks únicos | 5 |
 | Frases reais | 4 |
 | Contexto | 5 |
@@ -1939,7 +1939,7 @@
 | Passos no plano | 9 |
 | Tipos de exercício | 7 |
 | Respostas únicas | 8 |
-| Hànzì únicos | 24 |
+| Hànzì únicos | 25 |
 | Chunks únicos | 7 |
 | Frases reais | 3 |
 | Contexto | 4 |
@@ -2197,4 +2197,4 @@
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:6c12eb2627342a4a -->
+<!-- integridade:74edd55896725794 -->

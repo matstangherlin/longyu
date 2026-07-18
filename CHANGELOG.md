@@ -7,6 +7,27 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Identidade visual consistente dos exercícios com imagem
+
+- **Guia oficial** (`docs/VISUAL_ASSET_GUIDE.md`): dois estilos — Conceito isolado
+  e Cena contextual — e a regra de ouro de não misturar famílias de estilo numa
+  mesma pergunta.
+- **Metadados** em `VisualConcept`/`VisualScene`: `visualStyle`
+  (photo/realistic_illustration/flat_illustration), `backgroundStyle`
+  (neutral/contextual/transparent) e `subjectCount`, auditados contra o arquivo real.
+- **Grades sempre consistentes**: `defaultVisualDistractors` só escolhe
+  distractores da mesma família de estilo (realistic vs flat) — nenhuma pergunta
+  mistura foto com desenho chapado, sem remover cobertura visual.
+- **Renderer**: `object-contain` para fundo neutro (sem cortar o sujeito),
+  `object-cover` para cena contextual; skeleton e quadro de altura fixa evitam
+  layout shift; fallback de ícone/emoji quando a imagem falha.
+- **Auditoria automática** (`validate:visual-consistency` →
+  `reports/visual-consistency-report.md`): dimensão, proporção, tamanho,
+  transparência, metadados, ausência de URL externa, alt e consistência de
+  distractores; lista candidatos a substituição por prioridade.
+- **Testes visuais** (`e2e/visual.spec.ts`): imagem principal, grade de opções,
+  mobile 360px, modo escuro e fallback de erro de carregamento.
+
 ### Diversidade de conversas pelo histórico real do aluno
 
 - **`conversationHistory`** no progresso do aluno (cena, intenção, lição,

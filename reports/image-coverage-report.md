@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | bcd5499752767d74c8e98d0daa5955be4aec1b58 |
+| Commit | 8d4c7ee01c2edae98ddf27582599bf13129dd6b3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-18T16:48:27.515Z |
+| Gerado em | 2026-07-18T17:43:31.850Z |
 | Lições | 108 |
-| Hash da Jornada | 71c8df9c0de5 |
+| Hash da Jornada | 88316737b78b |
 
 ## Resumo
 
@@ -91,4 +91,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:3732e9fc5dc44890 -->
+<!-- integridade:99ec1a30f3ca3541 -->

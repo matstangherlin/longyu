@@ -59,6 +59,23 @@ export type ImageChoiceMode =
   | "listen_and_choose_image"
   | "choose_image";
 
+/**
+ * Estilo de renderização declarado do asset (ver docs/VISUAL_ASSET_GUIDE.md).
+ * A consistência é garantida por FAMÍLIA de estilo (visualStyleFamily): uma
+ * pergunta nunca mistura a família "realistic" (photo/realistic_illustration)
+ * com a "flat" (flat_illustration).
+ */
+export type VisualStyle = "photo" | "realistic_illustration" | "flat_illustration";
+
+/** Estilo de fundo — controla o object-fit no renderer (contain vs cover). */
+export type VisualBackground = "neutral" | "contextual" | "transparent";
+
+export type VisualStyleFamily = "realistic" | "flat";
+
+export function visualStyleFamily(style: VisualStyle): VisualStyleFamily {
+  return style === "flat_illustration" ? "flat" : "realistic";
+}
+
 export interface VisualConcept {
   id: VisualConceptId;
   charId: string;
@@ -71,6 +88,12 @@ export interface VisualConcept {
   imageSrc?: string;
   imageAltPt: string;
   imageKind: "photo" | "illustration" | "svg_fallback";
+  /** Estilo de renderização — não misturar famílias dentro das opções de uma pergunta. */
+  visualStyle: VisualStyle;
+  /** Fundo do asset — neutro/transparente usa object-contain; contextual usa object-cover. */
+  backgroundStyle: VisualBackground;
+  /** Número de sujeitos/personagens no asset (cena contextual: no máximo 3). */
+  subjectCount: number;
   sceneTags?: string[];
   /** Fallback terciário, depois da imagem local e do SVG. */
   emoji: string;
@@ -78,52 +101,76 @@ export interface VisualConcept {
   afterUnitIndex: number;
 }
 
+/**
+ * Cena contextual (Estilo B do guia): uma ação clara com no máximo três
+ * personagens e fundo simples. Ainda sem assets dedicados — as intenções
+ * comunicativas (cumprimentar, beber, agradecer, comprar, estudar, conversar)
+ * são atendidas hoje pelo sistema de conversation_scene. O modelo fica pronto
+ * para quando houver imagens de cena.
+ */
+export interface VisualScene {
+  id: string;
+  /** Intenção/ação retratada: greet, drink, thank, buy, study, converse… */
+  intent: string;
+  imageSrc?: string;
+  imageAltPt: string;
+  visualStyle: VisualStyle;
+  backgroundStyle: VisualBackground;
+  /** No máximo três personagens numa cena. */
+  subjectCount: number;
+  emoji: string;
+}
+
+export const VISUAL_SCENES: VisualScene[] = [];
+
+// visualStyle/backgroundStyle/subjectCount refletem a AUDITORIA real dos WebP
+// (ver docs/VISUAL_ASSET_GUIDE.md e reports/visual-consistency-report.md).
 export const VISUAL_CONCEPTS: VisualConcept[] = [
   // ————— Núcleo original —————
-  { id: "person", charId: "ren", hanzi: "人", pinyin: "rén", meaningPt: "pessoa", category: "people", imageSrc: "people/person.webp", imageAltPt: "Foto de uma pessoa em fundo neutro", imageKind: "photo", sceneTags: ["people", "person"], emoji: "🧑", afterUnitIndex: 0 },
-  { id: "tree", charId: "mu", hanzi: "木", pinyin: "mù", meaningPt: "árvore", category: "nature", imageSrc: "nature/tree.webp", imageAltPt: "Foto de uma árvore isolada em um campo", imageKind: "photo", sceneTags: ["nature", "object"], emoji: "🌳", afterUnitIndex: 0 },
-  { id: "mouth", charId: "kou", hanzi: "口", pinyin: "kǒu", meaningPt: "boca", category: "people", imageSrc: "people/mouth.webp", imageAltPt: "Foto aproximada de uma boca humana", imageKind: "photo", sceneTags: ["people", "body"], emoji: "👄", afterUnitIndex: 6 },
-  { id: "sun", charId: "ri", hanzi: "日", pinyin: "rì", meaningPt: "sol", category: "nature", imageSrc: "nature/sun.webp", imageAltPt: "Foto do sol brilhando em céu azul", imageKind: "photo", sceneTags: ["nature", "sky"], emoji: "☀️", afterUnitIndex: 6 },
-  { id: "moon", charId: "yue", hanzi: "月", pinyin: "yuè", meaningPt: "lua", category: "nature", imageSrc: "nature/moon.webp", imageAltPt: "Foto da lua crescente no céu noturno", imageKind: "photo", sceneTags: ["nature", "sky"], emoji: "🌙", afterUnitIndex: 6 },
+  { id: "person", charId: "ren", hanzi: "人", pinyin: "rén", meaningPt: "pessoa", category: "people", imageSrc: "people/person.webp", imageAltPt: "Foto de uma pessoa em fundo neutro", imageKind: "photo", visualStyle: "photo", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["people", "person"], emoji: "🧑", afterUnitIndex: 0 },
+  { id: "tree", charId: "mu", hanzi: "木", pinyin: "mù", meaningPt: "árvore", category: "nature", imageSrc: "nature/tree.webp", imageAltPt: "Foto de uma árvore isolada em um campo", imageKind: "photo", visualStyle: "photo", backgroundStyle: "contextual", subjectCount: 1, sceneTags: ["nature", "object"], emoji: "🌳", afterUnitIndex: 0 },
+  { id: "mouth", charId: "kou", hanzi: "口", pinyin: "kǒu", meaningPt: "boca", category: "people", imageSrc: "people/mouth.webp", imageAltPt: "Foto aproximada de uma boca humana", imageKind: "photo", visualStyle: "photo", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["people", "body"], emoji: "👄", afterUnitIndex: 6 },
+  { id: "sun", charId: "ri", hanzi: "日", pinyin: "rì", meaningPt: "sol", category: "nature", imageSrc: "nature/sun.webp", imageAltPt: "Foto do sol brilhando em céu azul", imageKind: "photo", visualStyle: "photo", backgroundStyle: "contextual", subjectCount: 1, sceneTags: ["nature", "sky"], emoji: "☀️", afterUnitIndex: 6 },
+  { id: "moon", charId: "yue", hanzi: "月", pinyin: "yuè", meaningPt: "lua", category: "nature", imageSrc: "nature/moon.webp", imageAltPt: "Foto da lua crescente no céu noturno", imageKind: "photo", visualStyle: "photo", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["nature", "sky"], emoji: "🌙", afterUnitIndex: 6 },
   // 山 é apresentado visualmente já em p1-primeiros-hanzi (unidade 0), junto com 木 e 人.
-  { id: "mountain", charId: "shan", hanzi: "山", pinyin: "shān", meaningPt: "montanha", category: "nature", imageSrc: "nature/mountain.webp", imageAltPt: "Foto de um pico de montanha rochoso", imageKind: "photo", sceneTags: ["nature", "landscape"], emoji: "⛰️", afterUnitIndex: 0 },
-  { id: "water", charId: "shui", hanzi: "水", pinyin: "shuǐ", meaningPt: "água", category: "nature", imageSrc: "nature/water.webp", imageAltPt: "Foto de água limpa caindo e formando respingos", imageKind: "photo", sceneTags: ["nature", "liquid"], emoji: "💧", afterUnitIndex: 6 },
-  { id: "fire", charId: "huo", hanzi: "火", pinyin: "huǒ", meaningPt: "fogo", category: "nature", imageSrc: "nature/fire.webp", imageAltPt: "Foto de uma pequena fogueira controlada", imageKind: "photo", sceneTags: ["nature", "element"], emoji: "🔥", afterUnitIndex: 6 },
-  { id: "big", charId: "da", hanzi: "大", pinyin: "dà", meaningPt: "grande", category: "quantity", imageSrc: "daily-life/big.webp", imageAltPt: "Bola vermelha muito grande ao lado de um cubo pequeno", imageKind: "illustration", sceneTags: ["daily-life", "size"], emoji: "⬛", afterUnitIndex: 6 },
-  { id: "small", charId: "xiao", hanzi: "小", pinyin: "xiǎo", meaningPt: "pequeno", category: "quantity", imageSrc: "daily-life/small.webp", imageAltPt: "Bola vermelha pequena ao lado de um cubo grande", imageKind: "illustration", sceneTags: ["daily-life", "size"], emoji: "▫️", afterUnitIndex: 6 },
+  { id: "mountain", charId: "shan", hanzi: "山", pinyin: "shān", meaningPt: "montanha", category: "nature", imageSrc: "nature/mountain.webp", imageAltPt: "Foto de um pico de montanha rochoso", imageKind: "photo", visualStyle: "photo", backgroundStyle: "contextual", subjectCount: 1, sceneTags: ["nature", "landscape"], emoji: "⛰️", afterUnitIndex: 0 },
+  { id: "water", charId: "shui", hanzi: "水", pinyin: "shuǐ", meaningPt: "água", category: "nature", imageSrc: "nature/water.webp", imageAltPt: "Foto de água limpa caindo e formando respingos", imageKind: "photo", visualStyle: "photo", backgroundStyle: "contextual", subjectCount: 1, sceneTags: ["nature", "liquid"], emoji: "💧", afterUnitIndex: 6 },
+  { id: "fire", charId: "huo", hanzi: "火", pinyin: "huǒ", meaningPt: "fogo", category: "nature", imageSrc: "nature/fire.webp", imageAltPt: "Foto de uma pequena fogueira controlada", imageKind: "photo", visualStyle: "photo", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["nature", "element"], emoji: "🔥", afterUnitIndex: 6 },
+  { id: "big", charId: "da", hanzi: "大", pinyin: "dà", meaningPt: "grande", category: "quantity", imageSrc: "daily-life/big.webp", imageAltPt: "Bola vermelha muito grande ao lado de um cubo pequeno", imageKind: "illustration", visualStyle: "realistic_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["daily-life", "size"], emoji: "⬛", afterUnitIndex: 6 },
+  { id: "small", charId: "xiao", hanzi: "小", pinyin: "xiǎo", meaningPt: "pequeno", category: "quantity", imageSrc: "daily-life/small.webp", imageAltPt: "Bola vermelha pequena ao lado de um cubo grande", imageKind: "illustration", visualStyle: "realistic_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["daily-life", "size"], emoji: "▫️", afterUnitIndex: 6 },
   // ————— Pessoas e família —————
-  { id: "woman", charId: "nv", hanzi: "女", pinyin: "nǚ", meaningPt: "mulher", category: "people", imageSrc: "people/woman.webp", imageAltPt: "Ilustração de uma mulher de cabelo comprido", imageKind: "illustration", sceneTags: ["people", "person"], emoji: "👩", afterUnitIndex: 8 },
-  { id: "child", charId: "zi", hanzi: "子", pinyin: "zǐ", meaningPt: "criança", category: "people", imageSrc: "people/child.webp", imageAltPt: "Ilustração de uma criança pequena brincando com uma bola", imageKind: "illustration", sceneTags: ["people", "family"], emoji: "🧒", afterUnitIndex: 8 },
-  { id: "mother", charId: "ma2", hanzi: "妈", pinyin: "mā", meaningPt: "mãe", category: "people", imageSrc: "people/mother.webp", imageAltPt: "Ilustração de uma mãe segurando um bebê no colo", imageKind: "illustration", sceneTags: ["people", "family"], emoji: "👩‍🍼", afterUnitIndex: 8 },
-  { id: "father", charId: "ba_dad", hanzi: "爸", pinyin: "bà", meaningPt: "pai", category: "people", imageSrc: "people/father.webp", imageAltPt: "Ilustração de um pai de mãos dadas com uma criança pequena", imageKind: "illustration", sceneTags: ["people", "family"], emoji: "👨", afterUnitIndex: 11 },
-  { id: "friend", charId: "peng", hanzi: "朋", pinyin: "péng", meaningPt: "amigo", category: "people", imageSrc: "people/friend.webp", imageAltPt: "Ilustração de dois amigos lado a lado, um com o braço no ombro do outro", imageKind: "illustration", sceneTags: ["people", "friendship"], emoji: "🧑‍🤝‍🧑", afterUnitIndex: 7 },
-  { id: "crowd", charId: "zhong3", hanzi: "众", pinyin: "zhòng", meaningPt: "multidão", category: "people", imageSrc: "people/crowd.webp", imageAltPt: "Ilustração de muitas pessoas reunidas", imageKind: "illustration", sceneTags: ["people", "quantity"], emoji: "👥", afterUnitIndex: 8 },
+  { id: "woman", charId: "nv", hanzi: "女", pinyin: "nǚ", meaningPt: "mulher", category: "people", imageSrc: "people/woman.webp", imageAltPt: "Ilustração de uma mulher de cabelo comprido", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["people", "person"], emoji: "👩", afterUnitIndex: 8 },
+  { id: "child", charId: "zi", hanzi: "子", pinyin: "zǐ", meaningPt: "criança", category: "people", imageSrc: "people/child.webp", imageAltPt: "Ilustração de uma criança pequena brincando com uma bola", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["people", "family"], emoji: "🧒", afterUnitIndex: 8 },
+  { id: "mother", charId: "ma2", hanzi: "妈", pinyin: "mā", meaningPt: "mãe", category: "people", imageSrc: "people/mother.webp", imageAltPt: "Ilustração de uma mãe segurando um bebê no colo", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["people", "family"], emoji: "👩‍🍼", afterUnitIndex: 8 },
+  { id: "father", charId: "ba_dad", hanzi: "爸", pinyin: "bà", meaningPt: "pai", category: "people", imageSrc: "people/father.webp", imageAltPt: "Ilustração de um pai de mãos dadas com uma criança pequena", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["people", "family"], emoji: "👨", afterUnitIndex: 11 },
+  { id: "friend", charId: "peng", hanzi: "朋", pinyin: "péng", meaningPt: "amigo", category: "people", imageSrc: "people/friend.webp", imageAltPt: "Ilustração de dois amigos lado a lado, um com o braço no ombro do outro", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["people", "friendship"], emoji: "🧑‍🤝‍🧑", afterUnitIndex: 7 },
+  { id: "crowd", charId: "zhong3", hanzi: "众", pinyin: "zhòng", meaningPt: "multidão", category: "people", imageSrc: "people/crowd.webp", imageAltPt: "Ilustração de muitas pessoas reunidas", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 7, sceneTags: ["people", "quantity"], emoji: "👥", afterUnitIndex: 8 },
   // ————— Natureza —————
-  { id: "sky", charId: "tian_sky", hanzi: "天", pinyin: "tiān", meaningPt: "céu", category: "nature", imageSrc: "nature/sky.webp", imageAltPt: "Ilustração de céu azul com nuvens brancas e pássaros", imageKind: "illustration", sceneTags: ["nature", "sky"], emoji: "☁️", afterUnitIndex: 6 },
-  { id: "woods", charId: "lin", hanzi: "林", pinyin: "lín", meaningPt: "bosque", category: "nature", imageSrc: "nature/woods.webp", imageAltPt: "Ilustração de um bosque com poucas árvores", imageKind: "illustration", sceneTags: ["nature", "landscape"], emoji: "🌲", afterUnitIndex: 6 },
-  { id: "forest", charId: "sen", hanzi: "森", pinyin: "sēn", meaningPt: "floresta", category: "nature", imageSrc: "nature/forest.webp", imageAltPt: "Ilustração de uma floresta densa com muitas árvores", imageKind: "illustration", sceneTags: ["nature", "landscape"], emoji: "🌲", afterUnitIndex: 6 },
+  { id: "sky", charId: "tian_sky", hanzi: "天", pinyin: "tiān", meaningPt: "céu", category: "nature", imageSrc: "nature/sky.webp", imageAltPt: "Ilustração de céu azul com nuvens brancas e pássaros", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["nature", "sky"], emoji: "☁️", afterUnitIndex: 6 },
+  { id: "woods", charId: "lin", hanzi: "林", pinyin: "lín", meaningPt: "bosque", category: "nature", imageSrc: "nature/woods.webp", imageAltPt: "Ilustração de um bosque com poucas árvores", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["nature", "landscape"], emoji: "🌲", afterUnitIndex: 6 },
+  { id: "forest", charId: "sen", hanzi: "森", pinyin: "sēn", meaningPt: "floresta", category: "nature", imageSrc: "nature/forest.webp", imageAltPt: "Ilustração de uma floresta densa com muitas árvores", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["nature", "landscape"], emoji: "🌲", afterUnitIndex: 6 },
   // ————— Animais —————
-  { id: "horse", charId: "ma_horse", hanzi: "马", pinyin: "mǎ", meaningPt: "cavalo", category: "animals", imageSrc: "nature/horse.webp", imageAltPt: "Ilustração de um cavalo marrom de perfil em um campo", imageKind: "illustration", sceneTags: ["nature", "animal"], emoji: "🐴", afterUnitIndex: 2 },
-  { id: "fish", charId: "yu_fish", hanzi: "鱼", pinyin: "yú", meaningPt: "peixe", category: "animals", imageSrc: "daily-life/fish.webp", imageAltPt: "Ilustração de um peixe azul com bolhas de água", imageKind: "illustration", sceneTags: ["food", "animal"], emoji: "🐟", afterUnitIndex: 12 },
+  { id: "horse", charId: "ma_horse", hanzi: "马", pinyin: "mǎ", meaningPt: "cavalo", category: "animals", imageSrc: "nature/horse.webp", imageAltPt: "Ilustração de um cavalo marrom de perfil em um campo", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["nature", "animal"], emoji: "🐴", afterUnitIndex: 2 },
+  { id: "fish", charId: "yu_fish", hanzi: "鱼", pinyin: "yú", meaningPt: "peixe", category: "animals", imageSrc: "daily-life/fish.webp", imageAltPt: "Ilustração de um peixe azul com bolhas de água", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["food", "animal"], emoji: "🐟", afterUnitIndex: 12 },
   // ————— Comida e bebida —————
-  { id: "rice", charId: "fan_rice", hanzi: "饭", pinyin: "fàn", meaningPt: "arroz", category: "food", imageSrc: "daily-life/rice.webp", imageAltPt: "Ilustração de uma tigela de arroz com hashi", imageKind: "illustration", sceneTags: ["food", "meal"], emoji: "🍚", afterUnitIndex: 12 },
-  { id: "tea", charId: "cha_tea", hanzi: "茶", pinyin: "chá", meaningPt: "chá", category: "food", imageSrc: "daily-life/tea.webp", imageAltPt: "Ilustração de uma xícara de chá verde soltando vapor", imageKind: "illustration", sceneTags: ["food", "drink"], emoji: "🍵", afterUnitIndex: 12 },
-  { id: "meat", charId: "rou_meat", hanzi: "肉", pinyin: "ròu", meaningPt: "carne", category: "food", imageSrc: "daily-life/meat.webp", imageAltPt: "Ilustração de um corte de carne em um prato", imageKind: "illustration", sceneTags: ["food", "meal"], emoji: "🥩", afterUnitIndex: 12 },
-  { id: "vegetables", charId: "cai_dish", hanzi: "菜", pinyin: "cài", meaningPt: "verdura", category: "food", imageSrc: "daily-life/vegetables.webp", imageAltPt: "Ilustração de verduras frescas com acelga e cenoura", imageKind: "illustration", sceneTags: ["food", "meal"], emoji: "🥬", afterUnitIndex: 12 },
-  { id: "eat", charId: "chi_eat", hanzi: "吃", pinyin: "chī", meaningPt: "comer", category: "actions", imageSrc: "actions/eat.webp", imageAltPt: "Ilustração de uma pessoa comendo macarrão com hashi", imageKind: "illustration", sceneTags: ["actions", "meal"], emoji: "🍽️", afterUnitIndex: 12 },
-  { id: "drink", charId: "he_drink", hanzi: "喝", pinyin: "hē", meaningPt: "beber", category: "actions", imageSrc: "actions/drink.webp", imageAltPt: "Ilustração de uma pessoa bebendo de um copo azul", imageKind: "illustration", sceneTags: ["actions", "drink"], emoji: "🥤", afterUnitIndex: 12 },
+  { id: "rice", charId: "fan_rice", hanzi: "饭", pinyin: "fàn", meaningPt: "arroz", category: "food", imageSrc: "daily-life/rice.webp", imageAltPt: "Ilustração de uma tigela de arroz com hashi", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["food", "meal"], emoji: "🍚", afterUnitIndex: 12 },
+  { id: "tea", charId: "cha_tea", hanzi: "茶", pinyin: "chá", meaningPt: "chá", category: "food", imageSrc: "daily-life/tea.webp", imageAltPt: "Ilustração de uma xícara de chá verde soltando vapor", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["food", "drink"], emoji: "🍵", afterUnitIndex: 12 },
+  { id: "meat", charId: "rou_meat", hanzi: "肉", pinyin: "ròu", meaningPt: "carne", category: "food", imageSrc: "daily-life/meat.webp", imageAltPt: "Ilustração de um corte de carne em um prato", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["food", "meal"], emoji: "🥩", afterUnitIndex: 12 },
+  { id: "vegetables", charId: "cai_dish", hanzi: "菜", pinyin: "cài", meaningPt: "verdura", category: "food", imageSrc: "daily-life/vegetables.webp", imageAltPt: "Ilustração de verduras frescas com acelga e cenoura", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["food", "meal"], emoji: "🥬", afterUnitIndex: 12 },
+  { id: "eat", charId: "chi_eat", hanzi: "吃", pinyin: "chī", meaningPt: "comer", category: "actions", imageSrc: "actions/eat.webp", imageAltPt: "Ilustração de uma pessoa comendo macarrão com hashi", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["actions", "meal"], emoji: "🍽️", afterUnitIndex: 12 },
+  { id: "drink", charId: "he_drink", hanzi: "喝", pinyin: "hē", meaningPt: "beber", category: "actions", imageSrc: "actions/drink.webp", imageAltPt: "Ilustração de uma pessoa bebendo de um copo azul", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["actions", "drink"], emoji: "🥤", afterUnitIndex: 12 },
   // ————— Objetos e lugares —————
-  { id: "book", charId: "shu_book", hanzi: "书", pinyin: "shū", meaningPt: "livro", category: "objects", imageSrc: "objects/book.webp", imageAltPt: "Ilustração de um livro aberto", imageKind: "illustration", sceneTags: ["objects", "study"], emoji: "📖", afterUnitIndex: 12 },
-  { id: "car", charId: "che", hanzi: "车", pinyin: "chē", meaningPt: "carro", category: "objects", imageSrc: "objects/car.webp", imageAltPt: "Ilustração de um carro vermelho visto de lado", imageKind: "illustration", sceneTags: ["objects", "transport"], emoji: "🚗", afterUnitIndex: 12 },
-  { id: "home", charId: "jia", hanzi: "家", pinyin: "jiā", meaningPt: "casa", category: "objects", imageSrc: "objects/home.webp", imageAltPt: "Ilustração de uma casa com telhado vermelho e chaminé", imageKind: "illustration", sceneTags: ["objects", "place"], emoji: "🏠", afterUnitIndex: 11 },
-  { id: "money", charId: "qian_money", hanzi: "钱", pinyin: "qián", meaningPt: "dinheiro", category: "objects", imageSrc: "objects/money.webp", imageAltPt: "Ilustração de uma nota de dinheiro com moedas douradas", imageKind: "illustration", sceneTags: ["objects", "shopping"], emoji: "💰", afterUnitIndex: 12 },
-  { id: "ticket", charId: "piao_ticket", hanzi: "票", pinyin: "piào", meaningPt: "bilhete", category: "objects", imageSrc: "objects/ticket.webp", imageAltPt: "Ilustração de um bilhete laranja com picote e estrela", imageKind: "illustration", sceneTags: ["objects", "transport"], emoji: "🎫", afterUnitIndex: 12 },
+  { id: "book", charId: "shu_book", hanzi: "书", pinyin: "shū", meaningPt: "livro", category: "objects", imageSrc: "objects/book.webp", imageAltPt: "Ilustração de um livro aberto", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["objects", "study"], emoji: "📖", afterUnitIndex: 12 },
+  { id: "car", charId: "che", hanzi: "车", pinyin: "chē", meaningPt: "carro", category: "objects", imageSrc: "objects/car.webp", imageAltPt: "Ilustração de um carro vermelho visto de lado", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["objects", "transport"], emoji: "🚗", afterUnitIndex: 12 },
+  { id: "home", charId: "jia", hanzi: "家", pinyin: "jiā", meaningPt: "casa", category: "objects", imageSrc: "objects/home.webp", imageAltPt: "Ilustração de uma casa com telhado vermelho e chaminé", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["objects", "place"], emoji: "🏠", afterUnitIndex: 11 },
+  { id: "money", charId: "qian_money", hanzi: "钱", pinyin: "qián", meaningPt: "dinheiro", category: "objects", imageSrc: "objects/money.webp", imageAltPt: "Ilustração de uma nota de dinheiro com moedas douradas", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["objects", "shopping"], emoji: "💰", afterUnitIndex: 12 },
+  { id: "ticket", charId: "piao_ticket", hanzi: "票", pinyin: "piào", meaningPt: "bilhete", category: "objects", imageSrc: "objects/ticket.webp", imageAltPt: "Ilustração de um bilhete laranja com picote e estrela", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["objects", "transport"], emoji: "🎫", afterUnitIndex: 12 },
   // ————— Quantidade —————
-  { id: "one", charId: "yi", hanzi: "一", pinyin: "yī", meaningPt: "um", category: "quantity", imageSrc: "daily-life/one.webp", imageAltPt: "Ilustração de uma maçã vermelha", imageKind: "illustration", sceneTags: ["quantity", "number"], emoji: "1️⃣", afterUnitIndex: 6 },
-  { id: "two", charId: "er", hanzi: "二", pinyin: "èr", meaningPt: "dois", category: "quantity", imageSrc: "daily-life/two.webp", imageAltPt: "Ilustração de duas maçãs vermelhas", imageKind: "illustration", sceneTags: ["quantity", "number"], emoji: "2️⃣", afterUnitIndex: 6 },
-  { id: "three", charId: "san", hanzi: "三", pinyin: "sān", meaningPt: "três", category: "quantity", imageSrc: "daily-life/three.webp", imageAltPt: "Ilustração de três maçãs vermelhas", imageKind: "illustration", sceneTags: ["quantity", "number"], emoji: "3️⃣", afterUnitIndex: 6 },
-  { id: "four", charId: "si", hanzi: "四", pinyin: "sì", meaningPt: "quatro", category: "quantity", imageSrc: "daily-life/four.webp", imageAltPt: "Ilustração de quatro maçãs vermelhas", imageKind: "illustration", sceneTags: ["quantity", "number"], emoji: "4️⃣", afterUnitIndex: 6 },
-  { id: "five", charId: "wu", hanzi: "五", pinyin: "wǔ", meaningPt: "cinco", category: "quantity", imageSrc: "daily-life/five.webp", imageAltPt: "Ilustração de cinco maçãs vermelhas", imageKind: "illustration", sceneTags: ["quantity", "number"], emoji: "5️⃣", afterUnitIndex: 6 },
+  { id: "one", charId: "yi", hanzi: "一", pinyin: "yī", meaningPt: "um", category: "quantity", imageSrc: "daily-life/one.webp", imageAltPt: "Ilustração de uma maçã vermelha", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 1, sceneTags: ["quantity", "number"], emoji: "1️⃣", afterUnitIndex: 6 },
+  { id: "two", charId: "er", hanzi: "二", pinyin: "èr", meaningPt: "dois", category: "quantity", imageSrc: "daily-life/two.webp", imageAltPt: "Ilustração de duas maçãs vermelhas", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 2, sceneTags: ["quantity", "number"], emoji: "2️⃣", afterUnitIndex: 6 },
+  { id: "three", charId: "san", hanzi: "三", pinyin: "sān", meaningPt: "três", category: "quantity", imageSrc: "daily-life/three.webp", imageAltPt: "Ilustração de três maçãs vermelhas", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 3, sceneTags: ["quantity", "number"], emoji: "3️⃣", afterUnitIndex: 6 },
+  { id: "four", charId: "si", hanzi: "四", pinyin: "sì", meaningPt: "quatro", category: "quantity", imageSrc: "daily-life/four.webp", imageAltPt: "Ilustração de quatro maçãs vermelhas", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 4, sceneTags: ["quantity", "number"], emoji: "4️⃣", afterUnitIndex: 6 },
+  { id: "five", charId: "wu", hanzi: "五", pinyin: "wǔ", meaningPt: "cinco", category: "quantity", imageSrc: "daily-life/five.webp", imageAltPt: "Ilustração de cinco maçãs vermelhas", imageKind: "illustration", visualStyle: "flat_illustration", backgroundStyle: "neutral", subjectCount: 5, sceneTags: ["quantity", "number"], emoji: "5️⃣", afterUnitIndex: 6 },
 ];
 
 export const visualById = Object.fromEntries(VISUAL_CONCEPTS.map((concept) => [concept.id, concept])) as Record<
@@ -206,8 +253,14 @@ const CURATED_DISTRACTORS: Partial<Record<VisualConceptId, VisualConceptId[]>> =
 
 export function defaultVisualDistractors(targetId: VisualConceptId, count = 3): VisualConceptId[] {
   const target = visualById[targetId];
-  const pool = VISUAL_CONCEPT_IDS.filter((id) => id !== targetId);
-  const preferred = CURATED_DISTRACTORS[targetId] ?? [];
+  // Consistência visual: as opções de uma pergunta compartilham a MESMA família
+  // de estilo (realistic vs flat). Isso garante que uma grade nunca misture
+  // foto com desenho chapado (ver docs/VISUAL_ASSET_GUIDE.md).
+  const family = target ? visualStyleFamily(target.visualStyle) : undefined;
+  const pool = VISUAL_CONCEPT_IDS.filter(
+    (id) => id !== targetId && (!family || visualStyleFamily(visualById[id].visualStyle) === family)
+  );
+  const preferred = (CURATED_DISTRACTORS[targetId] ?? []).filter((id) => pool.includes(id));
   const sameCategory = target
     ? pool.filter((id) => !preferred.includes(id) && visualById[id].category === target.category)
     : [];
