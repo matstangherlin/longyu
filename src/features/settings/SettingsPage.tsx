@@ -18,6 +18,7 @@ import {
   updateShowInSearch,
   updateUsername,
 } from "../../services/socialService";
+import { getTelemetryConsent, setTelemetryConsent } from "../../services/pedagogyEvents";
 
 const THEMES: { id: ThemeName; name: string; desc: string; swatch: string[] }[] = [
   { id: "clay", name: "Notion Clay", desc: "Branco quente, calmo, focado.", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
@@ -147,6 +148,7 @@ export function SettingsPage() {
   const [socialShowInSearch, setSocialShowInSearch] = useState(true);
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
   const [socialLoading, setSocialLoading] = useState(false);
+  const [telemetryConsent, setTelemetryConsentState] = useState(() => getTelemetryConsent());
 
   const voiceOk = isTTSAvailable() && hasChineseVoice();
   const accountList = Object.values(accounts).sort((a, b) => a.createdAt - b.createdAt);
@@ -335,6 +337,17 @@ export function SettingsPage() {
               {socialNotice && <p className="text-sm text-ink-soft">{socialNotice}</p>}
             </>
           )}
+
+          <SettingSwitch
+            label="Telemetria pedagógica"
+            desc="Ajuda a melhorar lições (erros, pulos, abandonos). Sem respostas livres nem dados sensíveis."
+            checked={telemetryConsent}
+            onChange={() => {
+              const next = !telemetryConsent;
+              setTelemetryConsent(next);
+              setTelemetryConsentState(next);
+            }}
+          />
         </Card>
       </HubSection>
 

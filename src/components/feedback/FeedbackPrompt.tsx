@@ -15,7 +15,7 @@ export function FeedbackPrompt({ context, compact = false, className }: Feedback
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">Encontrou um erro ou tem uma sugestão?</p>
           <p className="mt-1 text-sm leading-6 text-ink-soft">
-            Envie feedback para melhorar o Longyu Beta. Abre seu app de email — nada é enviado automaticamente.
+            Envie feedback para melhorar o Longyu Beta. Abrimos um formulário rápido — sem e-mail obrigatório.
           </p>
         </div>
         <FeedbackButton

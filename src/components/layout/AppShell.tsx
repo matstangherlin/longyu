@@ -10,14 +10,17 @@ import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
+import { FeedbackProvider } from "../feedback/FeedbackContext";
 import { EconomySyncBanner } from "../economy/EconomySyncBanner";
 import { EconomyBootstrap } from "../economy/EconomyBootstrap";
+import { isAdminEmail } from "../../lib/feedback";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
   const registerActivity = useStore((s) => s.registerActivity);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
   const completedLessons = useStore((s) => s.completedLessons);
+  const account = useStore((s) => s.accounts[s.currentAccountId]);
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthPage =
@@ -25,6 +28,7 @@ export function AppShell() {
     location.pathname === "/esqueci-senha" ||
     location.pathname === "/redefinir-senha";
   const isOnboarding = location.pathname === "/conta" && !accountSetupComplete;
+  const isAdminRoute = location.pathname.startsWith("/admin");
   // Modo foco: durante lição e desafio o app esconde TopBar (mobile) e TabBar
   // para liberar espaço vertical — nada compete com o exercício.
   const focusMode =
@@ -51,11 +55,12 @@ export function AppShell() {
       location.pathname !== "/login" &&
       location.pathname !== "/esqueci-senha" &&
       location.pathname !== "/redefinir-senha" &&
-      location.pathname !== "/pro"
+      location.pathname !== "/pro" &&
+      !(isAdminRoute && isAdminEmail(account?.email))
     ) {
       navigate("/", { replace: true });
     }
-  }, [accountSetupComplete, completedLessons.length, location.pathname, navigate]);
+  }, [accountSetupComplete, completedLessons.length, location.pathname, navigate, isAdminRoute, account?.email]);
 
   // Rola para o topo ao trocar de rota.
   useEffect(() => {
@@ -64,19 +69,19 @@ export function AppShell() {
 
   if (isOnboarding || isAuthPage) {
     return (
-      <>
+      <FeedbackProvider>
         <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">
           <Outlet />
         </div>
         <AuthBootstrap />
         <CloudSyncBootstrap />
         <EntitlementBootstrap />
-      </>
+      </FeedbackProvider>
     );
   }
 
   return (
-    <>
+    <FeedbackProvider>
     <div className="theme-transition flex min-h-screen bg-bg">
       {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
           Só o conteúdo do exercício, como um app de idiomas. */}
@@ -106,6 +111,6 @@ export function AppShell() {
       <EconomyBootstrap />
       <AchievementsWatcher />
     </div>
-    </>
+    </FeedbackProvider>
   );
 }

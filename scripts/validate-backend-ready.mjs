@@ -22,6 +22,7 @@ const migrations = [
   "supabase/migrations/006_economy_server.sql",
   "supabase/migrations/007_internal_test_pro.sql",
   "supabase/migrations/008_server_entitlement_rpc.sql",
+  "supabase/migrations/010_beta_feedback.sql",
   "supabase/seed/test-account.sql",
 ];
 const functions = [
@@ -38,7 +39,12 @@ requirePath("supabase/config.toml", "supabase config");
 const envExample = path.join(root, ".env.example");
 if (fs.existsSync(envExample)) {
   const envText = fs.readFileSync(envExample, "utf8");
-  for (const key of ["VITE_BACKEND_MODE", "VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"]) {
+  for (const key of [
+    "VITE_BACKEND_MODE",
+    "VITE_SUPABASE_URL",
+    "VITE_SUPABASE_ANON_KEY",
+    "VITE_ADMIN_EMAILS",
+  ]) {
     if (!envText.includes(key)) errors.push(`.env.example sem ${key}`);
   }
 } else {

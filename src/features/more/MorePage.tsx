@@ -13,6 +13,7 @@ import {
   IconTrophy,
   IconUser,
 } from "../../components/ui/Icon";
+import { isAdminEmail } from "../../lib/feedback";
 import { useStore } from "../../lib/store";
 import { dueItems } from "../../lib/srs";
 import {
@@ -38,6 +39,7 @@ export function MorePage() {
 
   const account = accounts[currentAccountId];
   const due = dueItems(srs).length;
+  const showAdmin = isAdminEmail(account?.email);
 
   const sections: MoreSectionData[] = [
     {
@@ -140,6 +142,18 @@ export function MorePage() {
           to: "/sobre",
           status: "Beta",
         },
+        ...(showAdmin
+          ? [
+              {
+                title: "Feedback admin",
+                desc: "Inbox, status e sinais pedagógicos.",
+                icon: IconShield,
+                to: "/admin/feedback",
+                status: "Interno",
+                statusTone: "gold" as const,
+              },
+            ]
+          : []),
       ],
     },
   ];

@@ -1,4 +1,5 @@
-import { buildFeedbackMailto, type FeedbackContext } from "../../lib/feedback";
+import type { FeedbackContext } from "../../lib/feedback";
+import { useFeedbackUi } from "./FeedbackContext";
 
 interface FeedbackLinkProps {
   context?: FeedbackContext;
@@ -6,9 +7,11 @@ interface FeedbackLinkProps {
 }
 
 export function FeedbackLink({ context, className }: FeedbackLinkProps) {
+  const { openFeedback } = useFeedbackUi();
   return (
-    <a
-      href={buildFeedbackMailto(context)}
+    <button
+      type="button"
+      onClick={() => openFeedback(context)}
       className={[
         "text-xs font-medium text-ink-faint underline decoration-line underline-offset-2 transition hover:text-ink-soft",
         className,
@@ -17,6 +20,6 @@ export function FeedbackLink({ context, className }: FeedbackLinkProps) {
         .join(" ")}
     >
       Enviar feedback
-    </a>
+    </button>
   );
 }

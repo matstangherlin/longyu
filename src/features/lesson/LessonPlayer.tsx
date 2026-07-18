@@ -40,6 +40,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ProgressBar } from "../../components/ui/primitives";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
+import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -1306,6 +1307,11 @@ export function LessonPlayer() {
     }
     window.sessionStorage.setItem(sessionKey, "1");
     setEntryChecked(true);
+    void trackPedagogyEvent({
+      eventType: "lesson_started",
+      lessonId: foundLesson.id,
+      route: `/licao/${foundLesson.id}/player`,
+    });
   }, [completedLessons, consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonTaskProgress, soundEffects, startAccess, toneLocked]);
 
   useEffect(() => {
@@ -1871,6 +1877,39 @@ export function LessonPlayer() {
     // Cena concluída alimenta a seleção futura (sem repetir cena/intenção).
     if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
       recordConversationScene(currentStep.sceneId, currentStep.sceneIntent);
+      void trackPedagogyEvent({
+        eventType: "conversation_completed",
+        lessonId: lesson.id,
+        exerciseKind: currentStep.kind,
+        exerciseIndex: idx,
+        metadata: { sceneId: currentStep.sceneId },
+      });
+    }
+    if (currentStepIsGraded && wasCorrect !== undefined) {
+      void trackPedagogyEvent({
+        eventType: wasCorrect ? "exercise_answered" : "exercise_mistake",
+        lessonId: lesson.id,
+        exerciseKind: currentStep.kind,
+        exerciseIndex: idx,
+        metadata: {
+          correct: wasCorrect,
+          imageChoiceMode: currentStep.imageChoiceMode ?? null,
+          imageId: currentStep.imageId ?? currentStep.visualSceneId ?? null,
+        },
+      });
+      if (currentStep.kind === "image_choice") {
+        void trackPedagogyEvent({
+          eventType: "image_exercise_answered",
+          lessonId: lesson.id,
+          exerciseKind: currentStep.kind,
+          exerciseIndex: idx,
+          metadata: {
+            correct: wasCorrect,
+            imageId: currentStep.imageId ?? currentStep.visualSceneId ?? null,
+            mode: currentStep.imageChoiceMode ?? null,
+          },
+        });
+      }
     }
     // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
     // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
@@ -1938,10 +1977,26 @@ export function LessonPlayer() {
 
   function skipCurrentStep() {
     skippedStepsRef.current += 1;
+    const currentStep = lesson.steps[idx];
+    void trackPedagogyEvent({
+      eventType: "exercise_skipped",
+      lessonId: lesson.id,
+      exerciseKind: currentStep?.kind,
+      exerciseIndex: idx,
+    });
     handleDone(false);
   }
 
   function exitLesson() {
+    if (!finished) {
+      void trackPedagogyEvent({
+        eventType: "lesson_abandoned",
+        lessonId: lesson.id,
+        exerciseKind: lesson.steps[idx]?.kind,
+        exerciseIndex: idx,
+        metadata: { reason: "exit" },
+      });
+    }
     playSoundFx("phaseExit", soundEffects);
     navigate("/jornada");
   }
@@ -2142,7 +2197,21 @@ export function LessonPlayer() {
       reason === "out_of_lives" ? completedLessonStagesFromRoundStep(lesson.steps, idx + 1, lessonTasks.length) : lessonTasks.length
     );
     playSoundFx(passed ? "lessonComplete" : "blocked", soundEffects);
-    if (passed) completeLesson(lesson.id);
+    if (passed) {
+      completeLesson(lesson.id);
+      void trackPedagogyEvent({
+        eventType: "lesson_completed",
+        lessonId: lesson.id,
+        metadata: { stars, reason },
+      });
+    } else if (reason === "out_of_lives") {
+      void trackPedagogyEvent({
+        eventType: "lesson_abandoned",
+        lessonId: lesson.id,
+        exerciseIndex: idx,
+        metadata: { reason },
+      });
+    }
     if (passed && lesson.isReview && graded > 0 && finalCorrect === graded) {
       addChest("legendary", 1);
       playSoundFx("chestReady", soundEffects);
@@ -2836,7 +2905,18 @@ export function LessonPlayer() {
 
             <CollapsibleInfoCard title="Deixar feedback" compactLabel="Opcional">
               <FeedbackPrompt
-                context={{ screen: `/licao/${lesson.id}/player — lição concluída` }}
+                context={{
+                  screen: `/licao/${lesson.id}/player`,
+                  route: `/licao/${lesson.id}/player`,
+                  lessonId: lesson.id,
+                  exerciseKind: committedErrors[0]?.step?.kind ?? lesson.steps[Math.min(idx, lesson.steps.length - 1)]?.kind,
+                  exerciseIndex: (() => {
+                    const fromQuestion = committedErrors[0]?.questionId?.match(/:(\d+):/)?.[1];
+                    if (fromQuestion != null) return Number(fromQuestion);
+                    return Math.min(idx, lesson.steps.length - 1);
+                  })(),
+                  activityProblem: committedErrors.length > 0,
+                }}
                 compact
                 className="border-line/70"
               />

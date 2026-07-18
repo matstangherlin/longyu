@@ -31,6 +31,7 @@ import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
 import { LandingPage } from "./features/landing/LandingPage";
 import { AmigosPage } from "./features/amigos/AmigosPage";
+import { AdminFeedbackPage } from "./features/admin/AdminFeedbackPage";
 
 export const routes: RouteObject[] = [
   // "/" público: landing para quem ainda não tem conta/progresso.
@@ -69,6 +70,7 @@ export const routes: RouteObject[] = [
       { path: "ajustes", element: <SettingsPage /> },
       { path: "mais", element: <MorePage /> },
       { path: "sobre", element: <AboutPage /> },
+      { path: "admin/feedback", element: <AdminFeedbackPage /> },
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },
       { path: "teste/:unitId", element: <ModuleChallengePage /> },

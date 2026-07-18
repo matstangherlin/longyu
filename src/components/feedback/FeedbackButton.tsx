@@ -1,6 +1,7 @@
 import type { ComponentProps } from "react";
 import { IconChat } from "../ui/Icon";
-import { buildFeedbackMailto, type FeedbackContext } from "../../lib/feedback";
+import type { FeedbackContext } from "../../lib/feedback";
+import { useFeedbackUi } from "./FeedbackContext";
 
 type Variant = "primary" | "ghost" | "soft" | "outline";
 type Size = "sm" | "md" | "lg";
@@ -18,7 +19,7 @@ const SIZES: Record<Size, string> = {
   lg: "h-12 px-5 text-base rounded-2xl",
 };
 
-interface FeedbackButtonProps extends Omit<ComponentProps<"a">, "href"> {
+interface FeedbackButtonProps extends Omit<ComponentProps<"button">, "type"> {
   context?: FeedbackContext;
   variant?: Variant;
   size?: Size;
@@ -33,11 +34,18 @@ export function FeedbackButton({
   showIcon = true,
   label = "Enviar feedback",
   className,
+  onClick,
   ...rest
 }: FeedbackButtonProps) {
+  const { openFeedback } = useFeedbackUi();
+
   return (
-    <a
-      href={buildFeedbackMailto(context)}
+    <button
+      type="button"
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) openFeedback(context);
+      }}
       className={[
         "inline-flex select-none items-center justify-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
         VARIANTS[variant],
@@ -50,6 +58,6 @@ export function FeedbackButton({
     >
       {showIcon && <IconChat width={17} height={17} />}
       {label}
-    </a>
+    </button>
   );
 }

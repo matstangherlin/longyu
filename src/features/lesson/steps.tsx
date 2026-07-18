@@ -2680,7 +2680,12 @@ function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void })
       <ContinueBtn onClick={() => onDone()} />
       <div className="mt-3 flex justify-center">
         <FeedbackButton
-          context={{ screen: "exercício pulado no player" }}
+          context={{
+            screen: "exercício pulado no player",
+            route: typeof window !== "undefined" ? window.location.pathname : "",
+            activityProblem: true,
+            exerciseKind: "broken_step",
+          }}
           variant="ghost"
           size="sm"
           label="Reportar este exercício"
