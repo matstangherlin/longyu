@@ -154,6 +154,18 @@ async function main() {
       console.log("");
       await clickGithubLogin(page);
       await screenshot(page, "02-after-github-click");
+      // Prefill email conhecido do dono do projeto para acelerar o login no Desktop.
+      try {
+        const login = page.locator("#login_field").first();
+        if (await login.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await login.fill("minemoostraa@gmail.com");
+          await page.locator("#password").first().click({ timeout: 2000 }).catch(() => {});
+          console.log("Email GitHub pré-preenchido: minemoostraa@gmail.com — digite a senha no Desktop.");
+        }
+      } catch {
+        /* ignore */
+      }
+      await screenshot(page, "02b-email-prefilled");
       const loggedIn = await waitForLoggedIn(page);
       if (!loggedIn) throw new Error("Timeout aguardando login no Supabase.");
       console.log("Login detectado.");

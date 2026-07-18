@@ -123,7 +123,15 @@ export function adminEmailAllowlist(): string[] {
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
-  return [...new Set(["teste@longyu.app", "admin@longyu.app", ...fromEnv])];
+  return [
+    ...new Set([
+      "teste@longyu.app",
+      "admin@longyu.app",
+      "matheus.stangherlin@hotmail.com",
+      "minemoostraa@gmail.com",
+      ...fromEnv,
+    ]),
+  ];
 }
 
 export function isAdminEmail(email: string | null | undefined): boolean {

@@ -36,18 +36,28 @@ as $$
     select 1
     from auth.users u
     where u.id = auth.uid()
-      and lower(u.email) in ('teste@longyu.app', 'admin@longyu.app')
+      and lower(u.email) in (
+        'teste@longyu.app',
+        'admin@longyu.app',
+        'matheus.stangherlin@hotmail.com',
+        'minemoostraa@gmail.com'
+      )
   );
 $$;
 
 revoke all on function public.is_beta_admin() from public;
 grant execute on function public.is_beta_admin() to authenticated, anon;
 
--- Seed operacional (idempotente): promove o e-mail interno de QA se a conta existir.
+-- Seed operacional (idempotente): promove e-mails internos se a conta existir.
 insert into public.beta_admins (user_id, email)
 select u.id, lower(u.email)
 from auth.users u
-where lower(u.email) in ('teste@longyu.app', 'admin@longyu.app')
+where lower(u.email) in (
+  'teste@longyu.app',
+  'admin@longyu.app',
+  'matheus.stangherlin@hotmail.com',
+  'minemoostraa@gmail.com'
+)
 on conflict (user_id) do nothing;
 
 -- ---------------------------------------------------------------------------
