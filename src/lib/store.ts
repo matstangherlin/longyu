@@ -3,6 +3,11 @@ import { persist } from "zustand/middleware";
 import type { ItemType } from "../data/types";
 import type { DomainTrack } from "../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS } from "../data/journey";
+import {
+  CONVERSATION_HISTORY_LIMIT,
+  type ConversationHistoryEntry,
+  type ConversationResult,
+} from "../data/conversationScenes";
 import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
 import { todayKey, daysBetween, weekKey, monthKey } from "./storage";
@@ -776,6 +781,26 @@ function normalizeRecentActivityErrors(errors: ActivityErrorRecord[] | undefined
     .slice(-60);
 }
 
+const CONVERSATION_RESULTS = new Set<ConversationResult>(["completed", "mistake", "abandoned"]);
+
+function normalizeConversationHistory(
+  history: ConversationHistoryEntry[] | undefined
+): ConversationHistoryEntry[] {
+  return (history ?? [])
+    .filter((entry) => Boolean(entry?.sceneId && entry?.intent))
+    .map((entry) => ({
+      sceneId: String(entry.sceneId),
+      intent: String(entry.intent),
+      lessonId: String(entry.lessonId ?? ""),
+      completedAt: Number.isFinite(entry.completedAt) ? entry.completedAt : 0,
+      result: CONVERSATION_RESULTS.has(entry.result) ? entry.result : "completed",
+      attempts: Math.max(0, Math.round(entry.attempts ?? 0)),
+    }))
+    // Mais recente primeiro; mantém só os últimos 100 (limite local).
+    .sort((a, b) => b.completedAt - a.completedAt)
+    .slice(0, CONVERSATION_HISTORY_LIMIT);
+}
+
 function activityErrorKey(error: ActivityErrorRecord): string {
   return [
     error.lessonId,
@@ -919,6 +944,8 @@ interface AccountSnapshot extends XpBuckets {
   recentConversationSceneIds?: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro). */
   recentConversationIntentIds?: string[];
+  /** Histórico de conversas do aluno (mais recente primeiro, máx. 100). */
+  conversationHistory?: ConversationHistoryEntry[];
   toneTrainer: ToneTrainerProgress;
   today: DailyProgress;
   dailyTasks: DailyTasks;
@@ -1010,6 +1037,7 @@ function blankSnapshot(): AccountSnapshot {
     recentActivityErrors: [],
     recentConversationSceneIds: [],
     recentConversationIntentIds: [],
+    conversationHistory: [],
     toneTrainer: {},
     today: freshDay(),
     dailyTasks: freshDailyTasks(),
@@ -1111,6 +1139,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     recentActivityErrors: s.recentActivityErrors,
     recentConversationSceneIds: s.recentConversationSceneIds ?? [],
     recentConversationIntentIds: s.recentConversationIntentIds ?? [],
+    conversationHistory: s.conversationHistory ?? [],
     toneTrainer: s.toneTrainer,
     today: s.today,
     dailyTasks: s.dailyTasks,
@@ -1223,6 +1252,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
     recentConversationSceneIds: (account.recentConversationSceneIds ?? []).slice(0, 10),
     recentConversationIntentIds: (account.recentConversationIntentIds ?? []).slice(0, 10),
+    conversationHistory: normalizeConversationHistory(account.conversationHistory),
     toneTrainer: account.toneTrainer ?? {},
     today: account.today?.date === date ? account.today : freshDay(date),
     dailyTasks: activeDailyTasks(account.dailyTasks, date),
@@ -1482,6 +1512,8 @@ interface AppState {
   recentConversationSceneIds: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro). */
   recentConversationIntentIds: string[];
+  /** Histórico de conversas do aluno (mais recente primeiro, máx. 100). */
+  conversationHistory: ConversationHistoryEntry[];
   toneTrainer: ToneTrainerProgress;
   points: number;
   xpTotal: number;
@@ -1610,7 +1642,11 @@ interface AppState {
   /** Errou de novo na revisão: conta a tentativa sem criar erro duplicado. */
   recordActivityErrorReviewAttempt: (errorId: string) => void;
   /** Cena de conversa concluída: alimenta a seleção sem repetição de cena/intenção. */
-  recordConversationScene: (sceneId: string, intentId?: string) => void;
+  recordConversationScene: (
+    sceneId: string,
+    intentId?: string,
+    outcome?: { lessonId?: string; result?: ConversationResult; attempts?: number }
+  ) => void;
   setCurrentLessonAttempt: (attempt: LessonAttemptRecord | null) => void;
   finishLessonAttempt: (attempt: LessonAttemptRecord) => void;
   setLessonStars: (lessonId: string, stars: LessonStar) => void;
@@ -1732,6 +1768,7 @@ export const useStore = create<AppState>()(
       recentActivityErrors: [],
       recentConversationSceneIds: [],
       recentConversationIntentIds: [],
+      conversationHistory: [],
       toneTrainer: {},
       points: 0,
       ...freshXp(),
@@ -2391,7 +2428,7 @@ export const useStore = create<AppState>()(
           return { recentActivityErrors, accounts: saveCurrentAccount(next) };
         }),
 
-      recordConversationScene: (sceneId, intentId) =>
+      recordConversationScene: (sceneId, intentId, outcome) =>
         set((s) => {
           const cleanScene = sceneId.trim();
           if (!cleanScene) return {};
@@ -2403,8 +2440,24 @@ export const useStore = create<AppState>()(
           const recentConversationIntentIds = cleanIntent
             ? [cleanIntent, ...(s.recentConversationIntentIds ?? []).filter((id) => id !== cleanIntent)].slice(0, 10)
             : s.recentConversationIntentIds ?? [];
-          const next = { ...s, recentConversationSceneIds, recentConversationIntentIds };
-          return { recentConversationSceneIds, recentConversationIntentIds, accounts: saveCurrentAccount(next) };
+          // Histórico rico do aluno (máx. 100, mais recente primeiro) — alimenta
+          // a rotação personalizada e o nível da variante.
+          const entry: ConversationHistoryEntry = {
+            sceneId: cleanScene,
+            intent: cleanIntent ?? "",
+            lessonId: outcome?.lessonId?.trim() ?? "",
+            completedAt: Date.now(),
+            result: outcome?.result ?? "completed",
+            attempts: Math.max(1, Math.round(outcome?.attempts ?? 1)),
+          };
+          const conversationHistory = [entry, ...(s.conversationHistory ?? [])].slice(0, CONVERSATION_HISTORY_LIMIT);
+          const next = { ...s, recentConversationSceneIds, recentConversationIntentIds, conversationHistory };
+          return {
+            recentConversationSceneIds,
+            recentConversationIntentIds,
+            conversationHistory,
+            accounts: saveCurrentAccount(next),
+          };
         }),
 
       setCurrentLessonAttempt: (attempt) =>

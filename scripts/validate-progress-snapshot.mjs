@@ -73,8 +73,31 @@ fixture.snapshot.progress.weeklyMissions = {};
 fixture.snapshot.progress.monthlyMission = {};
 fixture.snapshot.progress.chests = {};
 fixture.snapshot.progress.achievementsUnlocked = {};
+// O histórico de conversas viaja no corpo do snapshot (acompanha a conta).
+fixture.snapshot.progress.conversationHistory = [
+  { sceneId: "pedir-agua", intent: "ask-water", lessonId: "l26", completedAt: 1, result: "completed", attempts: 1 },
+];
 
 const errors = validateFixture("fixture-v1", fixture);
+
+// conversationHistory precisa sobreviver ao snapshot como um array de registros
+// bem formados (mais recente primeiro, no máximo 100).
+const history = fixture.snapshot.progress.conversationHistory;
+if (!Array.isArray(history)) {
+  errors.push("progress.conversationHistory deveria ser um array");
+} else if (history.length > 100) {
+  errors.push("progress.conversationHistory deveria respeitar o limite de 100 registros");
+} else {
+  for (const [index, entry] of history.entries()) {
+    if (!entry?.sceneId || !entry?.intent) {
+      errors.push(`conversationHistory[${index}] sem sceneId/intent`);
+    }
+    if (!["completed", "mistake", "abandoned"].includes(entry?.result)) {
+      errors.push(`conversationHistory[${index}] com result inválido: ${entry?.result}`);
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error("ERRO: validate:progress-snapshot falhou.");
   for (const error of errors) console.error(`  - ${error}`);

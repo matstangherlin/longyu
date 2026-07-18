@@ -54,6 +54,20 @@ function sortByTimestampDesc<T>(items: T[], pickTimestamp: (item: T) => number):
   return [...items].sort((a, b) => pickTimestamp(b) - pickTimestamp(a));
 }
 
+/** Une dois históricos de conversa, deduplicando por (cena+lição+timestamp). */
+function mergeConversationHistory(
+  local: ProgressSlice["conversationHistory"],
+  remote: ProgressSlice["conversationHistory"]
+): ProgressSlice["conversationHistory"] {
+  const byKey = new Map<string, NonNullable<ProgressSlice["conversationHistory"]>[number]>();
+  for (const entry of [...(local ?? []), ...(remote ?? [])]) {
+    if (!entry?.sceneId) continue;
+    const key = `${entry.sceneId}:${entry.lessonId ?? ""}:${entry.completedAt ?? 0}`;
+    if (!byKey.has(key)) byKey.set(key, entry);
+  }
+  return [...byKey.values()].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)).slice(0, 100);
+}
+
 function mergeSrs(local: Record<string, SRSItem>, remote: Record<string, SRSItem>): Record<string, SRSItem> {
   const merged: Record<string, SRSItem> = { ...local };
   for (const [key, remoteItem] of Object.entries(remote)) {
@@ -120,6 +134,7 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
       uniqueById([...(local.recentActivityErrors ?? []), ...(remote.recentActivityErrors ?? [])]),
       (item) => item.timestamp ?? 0
     ),
+    conversationHistory: mergeConversationHistory(local.conversationHistory, remote.conversationHistory),
     inventory: maxRecordValues(local.inventory, remote.inventory),
     chests: mergeChestInventory(local.chests, remote.chests),
     leagueHistory: sortByTimestampDesc(uniqueById([...(local.leagueHistory ?? []), ...(remote.leagueHistory ?? [])]), (item) => item.createdAt ?? 0).slice(0, 24),

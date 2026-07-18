@@ -9,7 +9,10 @@ export const PEDAGOGY_EVENT_TYPES = [
   "exercise_answered",
   "exercise_mistake",
   "exercise_skipped",
+  "conversation_shown",
   "conversation_completed",
+  "conversation_repeated",
+  "conversation_error",
   "image_exercise_answered",
   "lesson_abandoned",
 ] as const;

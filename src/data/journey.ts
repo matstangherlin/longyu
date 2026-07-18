@@ -10,6 +10,7 @@ import {
   type ConversationNode,
   type ConversationSceneStep as ConversationSceneDefinition,
   type ConversationSetting,
+  type ConversationVariantLevel,
 } from "./conversationScenes";
 import {
   defaultVisualDistractors,
@@ -164,6 +165,8 @@ export interface LessonStep {
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade na cena. */
   dedicatedLesson?: boolean;
+  /** Nível de apresentação da cena (guided→audio_first), pelo histórico do aluno. */
+  conversationVariantLevel?: ConversationVariantLevel;
 }
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";

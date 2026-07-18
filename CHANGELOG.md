@@ -7,6 +7,26 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Diversidade de conversas pelo histórico real do aluno
+
+- **`conversationHistory`** no progresso do aluno (cena, intenção, lição,
+  resultado, tentativas; máx. 100, mais recente primeiro). Viaja no snapshot da
+  conta e é mesclado no sync (união deduplicada por cena+lição+timestamp).
+- **Rotação personalizada**: a pontuação de seleção usa o histórico real —
+  penaliza a cena da última lição, das últimas conversas, a intenção e o cenário
+  repetidos; e favorece cenas nunca realizadas, intenção/cenário pouco
+  praticados e cenas que trabalham um erro recente.
+- **`conversationVariantLevel`** (guided → assisted → independent → audio_first):
+  uma cena que reaparece volta num nível acima (sem tradução, depois só áudio),
+  nunca na mesma versão. Aluno novo recebe a versão guiada; aluno avançado, a
+  independente.
+- **Retorno pedagógico após erro**: a mesma cena não reaparece na lição seguinte;
+  primeiro o vocabulário/intenção é revisto e, mais tarde, a intenção volta em
+  outro cenário.
+- **Métricas** de conversa (sem respostas livres): `conversation_shown`,
+  `conversation_completed`, `conversation_repeated`, `conversation_error`, com
+  intenção e nível da variante.
+
 ### Integração das cenas de conversa com o currículo
 
 - **Cobertura**: todas as 33 cenas do catálogo agora aparecem em algum plano real

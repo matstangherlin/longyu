@@ -15,11 +15,14 @@ import { CHUNKS, chunkById } from "../../data/chunks";
 import {
   CONVERSATION_SCENES,
   conversationSceneById,
+  conversationSelectionContextFromHistory,
+  conversationVariantLevelFor,
   isConversationSceneEligible,
   normalizeConversationAnswer,
   pickBestConversationScene,
   resolveConversationScene,
   scoreConversationScene,
+  type ConversationHistoryEntry,
   type ConversationSceneLessonInfo,
   type ConversationSceneResolveContext,
   type ConversationSceneSelectionContext,
@@ -474,6 +477,8 @@ export interface LessonPracticePlanContext {
   recentConversationSceneIds?: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro) — persistido. */
   recentConversationIntentIds?: string[];
+  /** Histórico de conversas do aluno — personaliza a rotação e o nível da variante. */
+  conversationHistory?: readonly ConversationHistoryEntry[];
   silent?: boolean;
 }
 
@@ -1551,6 +1556,8 @@ interface ConversationSceneSelection {
   isReviewLesson?: boolean;
   /** Lições de imersão liberam as cenas longas e ramificadas. */
   allowImmersion?: boolean;
+  /** Histórico do aluno — define o nível da variante da cena escolhida. */
+  history?: readonly ConversationHistoryEntry[];
 }
 
 // Refs (chunk:/char:) ensinados pelo currículo até cada lição, acumulados na
@@ -1627,7 +1634,10 @@ function makeConversationSceneStep(
   const availableRefs = new Set(refs);
   if (knownRefs) for (const ref of knownRefs) availableRefs.add(ref);
   const resolveContext: ConversationSceneResolveContext = { availableRefs, phaseOrder: lessonInfo.phaseOrder };
-  return conversationSceneToLessonStep(scene, resolveContext);
+  const step = conversationSceneToLessonStep(scene, resolveContext);
+  // Nível de apresentação pelo histórico: uma cena que reaparece sobe de nível.
+  step.conversationVariantLevel = conversationVariantLevelFor(scene, selection?.history);
+  return step;
 }
 
 // ————————————————————————————————————————————————————————————————
@@ -2462,7 +2472,8 @@ function generatedCandidatesFor(
   hanziBuilderProgress?: HanziBuilderProgressMap,
   seenGlyphs?: ReadonlySet<string>,
   ownFocusGlyphs?: ReadonlySet<string>,
-  sceneContext: ConversationSceneSelectionContext = {}
+  sceneContext: ConversationSceneSelectionContext = {},
+  history?: readonly ConversationHistoryEntry[]
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
@@ -2474,6 +2485,7 @@ function generatedCandidatesFor(
     knownRefs: curriculumRefsThroughLesson(lesson.id),
     isReviewLesson: Boolean(lesson.isReview),
     allowImmersion: lessonAllowsImmersionScenes(lesson),
+    history,
   };
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
@@ -2948,12 +2960,27 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   // só é montada aqui se for do próprio conteúdo, ou em revisões.
   const ownFocusGlyphs = new Set<string>();
   for (const item of focus) for (const glyph of cleanHanzi(item.hanzi)) ownFocusGlyphs.add(glyph);
+  // Contexto de seleção de conversa enriquecido com o histórico real do aluno
+  // (cenas nunca vistas, intenção/cenário pouco praticados, erros recentes).
+  const recentErrorRefs = new Set(focusRefs(errorFocus));
+  const sceneContext = conversationSelectionContextFromHistory(context.conversationHistory, {
+    recentConversationSceneIds: context.recentConversationSceneIds,
+    recentConversationIntentIds: context.recentConversationIntentIds,
+    recentErrorRefs,
+  });
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
-    ...generatedCandidatesFor(lesson, focus, reviewFocus, profile, context.hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, {
-      recentConversationSceneIds: context.recentConversationSceneIds,
-      recentConversationIntentIds: context.recentConversationIntentIds,
-    }),
+    ...generatedCandidatesFor(
+      lesson,
+      focus,
+      reviewFocus,
+      profile,
+      context.hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      sceneContext,
+      context.conversationHistory
+    ),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];

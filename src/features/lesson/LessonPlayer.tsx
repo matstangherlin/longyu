@@ -1149,6 +1149,7 @@ export function LessonPlayer() {
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
   const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
   const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
+  const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
   const consumeCharge = useStore((s) => s.consumeCharge);
   const inventory = useStore((s) => s.inventory);
@@ -1267,12 +1268,13 @@ export function LessonPlayer() {
                   srs,
                   recentConversationSceneIds,
                   recentConversationIntentIds,
+                  conversationHistory,
                 }
               ),
             };
           })()
         : undefined,
-    [completedLessons, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
+    [completedLessons, conversationHistory, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
   );
 
   useEffect(() => {
@@ -1373,6 +1375,24 @@ export function LessonPlayer() {
   const lesson = adaptiveLesson;
   const total = lesson.steps.length;
   const lessonTasks = lessonTasksFor(lesson);
+
+  // Métrica scene_shown: registra a cena exibida (com nível da variante e
+  // intenção). trackPedagogyEvent deduplica reenvios na mesma janela.
+  useEffect(() => {
+    const step = lesson.steps[idx];
+    if (!step || step.kind !== "conversation_scene" || !step.sceneId) return;
+    void trackPedagogyEvent({
+      eventType: "conversation_shown",
+      lessonId: lesson.id,
+      exerciseKind: step.kind,
+      exerciseIndex: idx,
+      metadata: {
+        sceneId: step.sceneId,
+        intent: step.sceneIntent ?? "",
+        variantLevel: step.conversationVariantLevel ?? "guided",
+      },
+    });
+  }, [idx, lesson]);
   const graded = lesson.steps.filter(isGradedStep).length;
   const hasUnlimitedLives = canUseUnlimitedRetry({ isPremium });
   const showRecoveryDebugPanel = lessonRecoveryDebugPanelEnabled();
@@ -1876,16 +1896,49 @@ export function LessonPlayer() {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
-    // Cena concluída alimenta a seleção futura (sem repetir cena/intenção).
+    // Cena concluída alimenta a seleção futura (histórico personalizado): a
+    // rotação e o nível da variante seguem o histórico real do aluno.
     if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
-      recordConversationScene(currentStep.sceneId, currentStep.sceneIntent);
+      const hadMistake = wasCorrect === false;
+      const result = hadMistake ? "mistake" : "completed";
+      const repeated = (conversationHistory ?? []).some((entry) => entry.sceneId === currentStep.sceneId);
+      const variantLevel = currentStep.conversationVariantLevel ?? "guided";
+      recordConversationScene(currentStep.sceneId, currentStep.sceneIntent, {
+        lessonId: lesson.id,
+        result,
+        attempts: hadMistake ? 2 : 1,
+      });
+      const conversationMeta = {
+        sceneId: currentStep.sceneId,
+        intent: currentStep.sceneIntent ?? "",
+        variantLevel,
+        repeated,
+      };
       void trackPedagogyEvent({
         eventType: "conversation_completed",
         lessonId: lesson.id,
         exerciseKind: currentStep.kind,
         exerciseIndex: idx,
-        metadata: { sceneId: currentStep.sceneId },
+        metadata: conversationMeta,
       });
+      if (repeated) {
+        void trackPedagogyEvent({
+          eventType: "conversation_repeated",
+          lessonId: lesson.id,
+          exerciseKind: currentStep.kind,
+          exerciseIndex: idx,
+          metadata: conversationMeta,
+        });
+      }
+      if (hadMistake) {
+        void trackPedagogyEvent({
+          eventType: "conversation_error",
+          lessonId: lesson.id,
+          exerciseKind: currentStep.kind,
+          exerciseIndex: idx,
+          metadata: conversationMeta,
+        });
+      }
     }
     if (currentStepIsGraded && wasCorrect !== undefined) {
       void trackPedagogyEvent({

@@ -107,6 +107,8 @@ try {
       pickBestConversationScene,
       minimalRequiredRefs,
       isConversationSceneEligible,
+      conversationVariantLevelFor,
+      conversationSelectionContextFromHistory,
     } = load("src/data/conversationScenes.js");
     const { ALL_LESSONS, JOURNEY } = load("src/data/journey.js");
     const { CHUNKS } = load("src/data/chunks.js");
@@ -537,6 +539,71 @@ try {
       });
       if (repeated >= fresh) {
         err("selection", "scoring", "cena recém-vista não é penalizada pela pontuação (esperava score menor).");
+      }
+
+      // 1b) Diversidade pelo histórico: a cena da lição anterior não pode vencer
+      //     uma equivalente nunca realizada (não repete duas vezes seguidas).
+      const other = CONVERSATION_SCENES.find((s) => s.sceneId !== sample.sceneId && s.intent !== sample.intent);
+      if (other) {
+        const info = { focusRefs: new Set([...sample.learnedRefs, ...other.learnedRefs]), reviewRefs: new Set() };
+        const history = [
+          { sceneId: sample.sceneId, intent: sample.intent, lessonId: "lx", completedAt: Date.now(), result: "completed", attempts: 1 },
+        ];
+        const ctx = conversationSelectionContextFromHistory(history, {
+          recentConversationSceneIds: [sample.sceneId],
+          recentConversationIntentIds: [sample.intent],
+        });
+        const scoreSame = scoreConversationScene(sample, info, ctx);
+        const scoreOther = scoreConversationScene(other, info, ctx);
+        if (scoreSame >= scoreOther) {
+          err("diversity", "history", "cena da lição anterior não deve vencer uma cena nunca realizada (repetição consecutiva).");
+        }
+      }
+
+      // 1c) Nível da variante: aluno novo → guided; aluno avançado → independent+.
+      if (typeof conversationVariantLevelFor === "function") {
+        const newUser = conversationVariantLevelFor(sample, []);
+        if (newUser !== "guided") {
+          err("variant", "new-user", `usuário novo deveria receber cena básica (guided), recebeu ${newUser}.`);
+        }
+        const advancedHistory = Array.from({ length: 14 }, (_, i) => ({
+          sceneId: `s${i}`,
+          intent: `i${i}`,
+          lessonId: `l${i}`,
+          completedAt: Date.now() - i,
+          result: "completed",
+          attempts: 1,
+        }));
+        const advanced = conversationVariantLevelFor(sample, advancedHistory);
+        const rank = { guided: 0, assisted: 1, independent: 2, audio_first: 3 };
+        if ((rank[advanced] ?? 0) < rank.independent) {
+          err("variant", "advanced-user", `usuário avançado deveria receber variante independente ou acima, recebeu ${advanced}.`);
+        }
+        // Uma cena que reaparece não volta na mesma versão (sobe de nível).
+        const repeatHistory = [
+          { sceneId: sample.sceneId, intent: sample.intent, lessonId: "l1", completedAt: 1, result: "completed", attempts: 1 },
+        ];
+        const afterFirst = conversationVariantLevelFor(sample, repeatHistory);
+        if (afterFirst === "guided") {
+          err("variant", "repeat", "cena que reaparece deveria subir de nível (não repetir a mesma versão).");
+        }
+      }
+
+      // 1d) Erro permite retorno pedagógico: uma cena que trabalha o ref errado é
+      //     favorecida (+20), mas a MESMA cena não volta na lição seguinte (−100).
+      if (other) {
+        const info = { focusRefs: new Set([...sample.learnedRefs, ...other.learnedRefs]), reviewRefs: new Set() };
+        const errorRefs = new Set(other.learnedRefs);
+        const withError = scoreConversationScene(other, info, { recentErrorRefs: errorRefs });
+        const withoutError = scoreConversationScene(other, info, {});
+        if (withError <= withoutError) {
+          err("diversity", "error-return", "cena que trabalha um erro recente deveria ser favorecida (+20).");
+        }
+        const immediateRepeat = scoreConversationScene(sample, info, { lastLessonSceneIds: [sample.sceneId] });
+        const freshAgain = scoreConversationScene(sample, info, {});
+        if (immediateRepeat >= freshAgain) {
+          err("diversity", "error-return", "após erro, a mesma cena não deve reaparecer imediatamente (−100 última lição).");
+        }
       }
     }
 

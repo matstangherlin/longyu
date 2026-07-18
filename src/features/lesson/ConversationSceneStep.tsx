@@ -5,6 +5,7 @@ import type {
   ConversationInteraction,
   ConversationLine,
   ConversationNode,
+  ConversationVariantLevel,
 } from "../../data/conversationScenes";
 import { AVATAR_TONES, SETTING_LABELS } from "../../data/conversationScenes";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
@@ -91,16 +92,45 @@ function CharacterAvatar({
   );
 }
 
+/**
+ * Visibilidade por nível de apresentação (não muda o conteúdo, só o apoio):
+ * guided = pinyin + tradução; assisted = pinyin; independent = só hànzì + áudio;
+ * audio_first = áudio primeiro, texto revelado ao tocar.
+ */
+function variantVisibility(level: ConversationVariantLevel | undefined) {
+  switch (level) {
+    case "assisted":
+      return { showPinyin: true, showPt: false, audioFirst: false };
+    case "independent":
+      return { showPinyin: false, showPt: false, audioFirst: false };
+    case "audio_first":
+      return { showPinyin: false, showPt: false, audioFirst: true };
+    case "guided":
+    default:
+      return { showPinyin: true, showPt: true, audioFirst: false };
+  }
+}
+
 function SpeechBubble({
   line,
   side,
   visible,
+  variantLevel,
 }: {
   line: ConversationLine;
   side: "left" | "right";
   visible: boolean;
+  variantLevel?: ConversationVariantLevel;
 }) {
   const audio = line.audioText ?? line.hanzi;
+  const { showPinyin, showPt, audioFirst } = variantVisibility(variantLevel);
+  // audio_first: o texto começa oculto atrás de um botão de revelar (o áudio
+  // fica em destaque). Reseta quando a fala muda.
+  const [revealed, setRevealed] = useState(!audioFirst);
+  useEffect(() => {
+    setRevealed(!audioFirst);
+  }, [line.hanzi, audioFirst]);
+  const textHidden = audioFirst && !revealed;
   return (
     <div
       className={[
@@ -117,13 +147,27 @@ function SpeechBubble({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="hanzi text-[26px] font-semibold leading-tight text-ink sm:text-[30px]">
-              <ExerciseText value={line.hanzi} type="hanzi" speakOnClick />
-            </div>
-            <div className="mt-1">
-              <Pinyin text={line.pinyin} />
-            </div>
-            {line.pt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+            {textHidden ? (
+              <button
+                type="button"
+                onClick={() => setRevealed(true)}
+                className="hanzi rounded-xl border border-dashed border-accent-soft bg-accent-soft/40 px-4 py-2 text-lg font-semibold text-accent"
+              >
+                Ouça e toque para revelar
+              </button>
+            ) : (
+              <>
+                <div className="hanzi text-[26px] font-semibold leading-tight text-ink sm:text-[30px]">
+                  <ExerciseText value={line.hanzi} type="hanzi" speakOnClick />
+                </div>
+                {showPinyin && (
+                  <div className="mt-1">
+                    <Pinyin text={line.pinyin} />
+                  </div>
+                )}
+                {showPt && line.pt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+              </>
+            )}
           </div>
           <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" />
         </div>
@@ -731,6 +775,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           line={line}
           side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
           visible
+          variantLevel={step.conversationVariantLevel}
         />
 
         {hint && !answering && (
@@ -860,6 +905,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
             line={currentLine}
             side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
             visible
+            variantLevel={step.conversationVariantLevel}
           />
         )}
 

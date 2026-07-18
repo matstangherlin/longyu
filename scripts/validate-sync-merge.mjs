@@ -35,6 +35,16 @@ function sortByTimestampDesc(items, pickTimestamp) {
   return [...items].sort((a, b) => pickTimestamp(b) - pickTimestamp(a));
 }
 
+function mergeConversationHistory(local, remote) {
+  const byKey = new Map();
+  for (const entry of [...(local ?? []), ...(remote ?? [])]) {
+    if (!entry?.sceneId) continue;
+    const key = `${entry.sceneId}:${entry.lessonId ?? ""}:${entry.completedAt ?? 0}`;
+    if (!byKey.has(key)) byKey.set(key, entry);
+  }
+  return [...byKey.values()].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)).slice(0, 100);
+}
+
 function mergeSrs(local, remote) {
   const merged = { ...local };
   for (const [key, remoteItem] of Object.entries(remote)) {
@@ -153,6 +163,7 @@ function mergeRemoteProgress(local, remote) {
     mistakeHistory: sortByTimestampDesc(uniqueById([...(local.mistakeHistory ?? []), ...(remote.mistakeHistory ?? [])]), (item) => item.createdAt ?? 0),
     recentErrors: sortByTimestampDesc(uniqueById([...(local.recentErrors ?? []), ...(remote.recentErrors ?? [])]), (item) => item.createdAt ?? 0),
     recentActivityErrors: sortByTimestampDesc(uniqueById([...(local.recentActivityErrors ?? []), ...(remote.recentActivityErrors ?? [])]), (item) => item.timestamp ?? 0),
+    conversationHistory: mergeConversationHistory(local.conversationHistory, remote.conversationHistory),
     inventory: maxRecordValues(local.inventory, remote.inventory),
     chests: maxRecordValues(local.chests, remote.chests),
     leagueHistory: sortByTimestampDesc(uniqueById([...(local.leagueHistory ?? []), ...(remote.leagueHistory ?? [])]), (item) => item.createdAt ?? 0).slice(0, 24),
@@ -201,6 +212,7 @@ function baseProgress(overrides = {}) {
     mistakeHistory: [],
     recentErrors: [],
     recentActivityErrors: [],
+    conversationHistory: [],
     inventory: {},
     chests: { small: 0, dragon: 0, monthly: 0, legendary: 0 },
     leagueHistory: [],
@@ -228,6 +240,9 @@ const local = baseProgress({
   srs: { "chunk:nihao": { due: 100, reps: 1 } },
   recentActivityErrors: [{ id: "activity-local", timestamp: 100 }],
   rewardHistory: [{ id: "reward-local", claimedAt: 100, type: "qi", amount: 5, source: "local" }],
+  conversationHistory: [
+    { sceneId: "pedir-agua", intent: "ask-water", lessonId: "l26", completedAt: 100, result: "completed", attempts: 1 },
+  ],
 });
 
 const remote = baseProgress({
@@ -250,6 +265,11 @@ const remote = baseProgress({
   recentErrors: [{ id: "mistake-remote", createdAt: 300 }],
   chestOpenHistory: [{ id: "chest-remote", openedAt: 200 }],
   chests: { small: 1, dragon: 0, monthly: 0, legendary: 0 },
+  conversationHistory: [
+    { sceneId: "onde-esta", intent: "ask-where", lessonId: "l25", completedAt: 300, result: "completed", attempts: 1 },
+    // Mesma chave da entrada local (cena+lição+timestamp) — deve deduplicar.
+    { sceneId: "pedir-agua", intent: "ask-water", lessonId: "l26", completedAt: 100, result: "mistake", attempts: 2 },
+  ],
 });
 
 function decideSync(localProgress, remoteProgress) {
@@ -277,6 +297,53 @@ if ((merged.correctedMistakes["l1:q1"] ?? 0) !== 1) errors.push("correctedMistak
 if ((merged.recentActivityErrors?.length ?? 0) !== 1) errors.push("recentActivityErrors deveria ser preservado");
 if ((merged.recentErrors?.length ?? 0) !== 1) errors.push("recentErrors deveria ser preservado");
 if ((merged.chests?.small ?? 0) !== 1) errors.push("chests deveria preservar inventário relevante");
+
+// Histórico de conversas acompanha a conta na nuvem: une os dois lados,
+// deduplicando por (cena+lição+timestamp) e mantendo mais recente primeiro.
+if ((merged.conversationHistory?.length ?? 0) !== 2) {
+  errors.push(`conversationHistory deveria unir e deduplicar (esperado 2, obteve ${merged.conversationHistory?.length ?? 0})`);
+}
+if (merged.conversationHistory?.[0]?.sceneId !== "onde-esta") {
+  errors.push("conversationHistory deveria ordenar por completedAt desc (onde-esta primeiro)");
+}
+if (!merged.conversationHistory?.some((entry) => entry.sceneId === "pedir-agua")) {
+  errors.push("conversationHistory deveria preservar a entrada compartilhada (pedir-agua)");
+}
+
+// Troca de conta não mistura históricos: cada conta mescla apenas o seu próprio
+// local+remoto; o histórico de outra conta nunca aparece no resultado.
+const accountA = baseProgress({
+  completedLessons: ["l1"],
+  conversationHistory: [{ sceneId: "pedir-cha", intent: "ask-tea", lessonId: "l27", completedAt: 10, result: "completed", attempts: 1 }],
+});
+const accountB = baseProgress({
+  completedLessons: ["l2"],
+  conversationHistory: [{ sceneId: "sala-de-aula", intent: "classroom-intro", lessonId: "p3", completedAt: 20, result: "completed", attempts: 1 }],
+});
+const mergedA = mergeRemoteProgress(accountA, baseProgress({ conversationHistory: accountA.conversationHistory }));
+if (mergedA.conversationHistory?.some((entry) => entry.sceneId === "sala-de-aula")) {
+  errors.push("troca de conta: histórico da conta A não deveria conter cenas da conta B");
+}
+if (!mergedA.conversationHistory?.some((entry) => entry.sceneId === "pedir-cha")) {
+  errors.push("troca de conta: histórico da conta A deveria preservar as suas próprias cenas");
+}
+
+// Limite de 100 registros preservado no merge.
+const longHistory = Array.from({ length: 80 }, (_, i) => ({
+  sceneId: `s${i}`,
+  intent: `i${i}`,
+  lessonId: `l${i}`,
+  completedAt: 1000 + i,
+  result: "completed",
+  attempts: 1,
+}));
+const mergedLong = mergeRemoteProgress(
+  baseProgress({ conversationHistory: longHistory }),
+  baseProgress({ conversationHistory: longHistory.map((entry) => ({ ...entry, completedAt: entry.completedAt + 1000 })) })
+);
+if ((mergedLong.conversationHistory?.length ?? 0) > 100) {
+  errors.push(`conversationHistory deveria respeitar o limite de 100 (obteve ${mergedLong.conversationHistory?.length})`);
+}
 
 const emptyLocal = baseProgress();
 if (isMeaningfulProgress(emptyLocal)) errors.push("snapshot vazio não deveria ser considerado progresso significativo");

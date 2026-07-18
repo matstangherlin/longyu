@@ -10,6 +10,42 @@ export type ConversationCheckpointType = "choose_reply" | "fill_reply" | "choose
 /** Papel pedagógico da cena — define quantas falas/intervenções ela deve ter. */
 export type ConversationSceneRole = "common" | "module_review" | "immersion";
 
+/** Resultado de uma cena para o histórico do aluno. */
+export type ConversationResult = "completed" | "mistake" | "abandoned";
+
+/**
+ * Registro no histórico de conversas do aluno. Alimenta a rotação
+ * personalizada (diversidade por histórico real) e o nível da variante.
+ */
+export interface ConversationHistoryEntry {
+  sceneId: string;
+  intent: string;
+  completedAt: number;
+  lessonId: string;
+  result: ConversationResult;
+  attempts: number;
+}
+
+/** Limite local do histórico de conversas (mais recentes primeiro). */
+export const CONVERSATION_HISTORY_LIMIT = 100;
+
+/**
+ * Nível de apresentação de uma cena que reaparece — sobe a dificuldade sem
+ * mudar o conteúdo pedagógico obrigatório:
+ * - guided: com tradução e pinyin (primeira vez / aluno novo);
+ * - assisted: com pinyin, sem tradução;
+ * - independent: só hànzì + áudio (aluno avançado);
+ * - audio_first: áudio primeiro, texto revelado ao tocar.
+ */
+export type ConversationVariantLevel = "guided" | "assisted" | "independent" | "audio_first";
+
+export const CONVERSATION_VARIANT_LEVELS: readonly ConversationVariantLevel[] = [
+  "guided",
+  "assisted",
+  "independent",
+  "audio_first",
+];
+
 export interface ConversationCharacter {
   id: string;
   name: string;
@@ -413,6 +449,56 @@ export interface ConversationSceneSelectionContext {
   recentConversationSceneIds?: readonly string[];
   /** Últimas intenções vistas pelo aluno, mais recente primeiro (persistido). */
   recentConversationIntentIds?: readonly string[];
+  // ————— Sinais derivados do histórico real do aluno (diversidade) —————
+  /** Cenas mostradas na lição imediatamente anterior (para −100). */
+  lastLessonSceneIds?: readonly string[];
+  /** Cenários (settings) recentes, mais recente primeiro (para −25). */
+  recentSettings?: readonly string[];
+  /** Toda cena que o aluno JÁ realizou (para +35 quando nunca realizada). */
+  playedSceneIds?: ReadonlySet<string>;
+  /** Quantas vezes cada intenção foi praticada (para +20 pouco praticada). */
+  intentPracticeCount?: ReadonlyMap<string, number>;
+  /** Quantas vezes cada cenário foi usado (para +15 pouco utilizado). */
+  settingUsageCount?: ReadonlyMap<string, number>;
+  /** Refs (chunk:/char:) de erro recente do aluno (para +20 trabalha erro). */
+  recentErrorRefs?: ReadonlySet<string>;
+}
+
+/**
+ * Deriva os sinais de diversidade a partir do histórico real do aluno. Sem
+ * histórico, retorna apenas as listas de recência (comportamento anterior).
+ */
+export function conversationSelectionContextFromHistory(
+  history: readonly ConversationHistoryEntry[] | undefined,
+  base: Pick<ConversationSceneSelectionContext, "recentConversationSceneIds" | "recentConversationIntentIds" | "recentErrorRefs"> = {}
+): ConversationSceneSelectionContext {
+  const entries = [...(history ?? [])].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0));
+  const playedSceneIds = new Set<string>();
+  const intentPracticeCount = new Map<string, number>();
+  const settingUsageCount = new Map<string, number>();
+  const recentSettings: string[] = [];
+  for (const entry of entries) {
+    if (entry.result === "completed") playedSceneIds.add(entry.sceneId);
+    intentPracticeCount.set(entry.intent, (intentPracticeCount.get(entry.intent) ?? 0) + 1);
+    const setting = conversationSceneById[entry.sceneId]?.setting;
+    if (setting) {
+      settingUsageCount.set(setting, (settingUsageCount.get(setting) ?? 0) + 1);
+      if (recentSettings.length < 10) recentSettings.push(setting);
+    }
+  }
+  // Cenas da lição imediatamente anterior (mesmo lessonId mais recente).
+  const lastLessonId = entries[0]?.lessonId;
+  const lastLessonSceneIds = lastLessonId
+    ? entries.filter((entry) => entry.lessonId === lastLessonId).map((entry) => entry.sceneId)
+    : [];
+  return {
+    ...base,
+    lastLessonSceneIds,
+    recentSettings,
+    playedSceneIds,
+    intentPracticeCount,
+    settingUsageCount,
+  };
 }
 
 export function normalizeConversationAnswer(value: string | undefined): string {
@@ -451,22 +537,43 @@ export function scoreConversationScene(
   const phaseOrder = lesson.phaseOrder ?? 1;
   const adequate = phaseOrder <= 2 ? difficulty === 1 : phaseOrder <= 5 ? difficulty <= 2 : difficulty >= 2;
   if (adequate) score += 15;
-  // +10: cenário diferente da última cena vista.
+  // +15: combina conteúdo atual (foco) com conteúdo antigo (revisão).
+  if (matchedFocus > 0 && matchedReview > 0) score += 15;
+
+  // ————— Diversidade pelo histórico real do aluno —————
   const recentScenes = context.recentConversationSceneIds ?? [];
-  const lastScene = recentScenes[0] ? conversationSceneById[recentScenes[0]] : undefined;
-  if (!lastScene || lastScene.setting !== scene.setting) score += 10;
-  // -80: apareceu entre as três cenas mais recentes (ou já está na lição).
-  if (recentScenes.slice(0, 3).includes(scene.sceneId)) score -= 80;
-  // -25: apareceu na janela mais ampla (posições 3–9): faz a cena "esperar a
+  const recentIntents = context.recentConversationIntentIds ?? [];
+  // "Última lição": as cenas da lição anterior quando há histórico; senão a
+  // cena mais recente da lista de recência (proxy usado na rotação/validação).
+  const lastLessonSceneIds = context.lastLessonSceneIds ?? recentScenes.slice(0, 1);
+  // −100: a mesma cena apareceu na última lição.
+  if (lastLessonSceneIds.includes(scene.sceneId)) score -= 100;
+  // −70: apareceu nas últimas três conversas.
+  else if (recentScenes.slice(0, 3).includes(scene.sceneId)) score -= 70;
+  // −25: apareceu na janela mais ampla (posições 3–9). Faz a cena "esperar a
   // vez" e impede que uma única cena domine a rotação (teto ~1 a cada 10).
   else if (recentScenes.slice(3, 10).includes(scene.sceneId)) score -= 25;
-  if (lesson.usedSceneIds?.has(scene.sceneId)) score -= 80;
-  // -50: repete a mesma intenção das cenas recentes.
-  const recentIntents = context.recentConversationIntentIds ?? [];
-  if (recentIntents.slice(0, 3).includes(scene.intent)) score -= 50;
-  // -15: mesma intenção na janela ampla (espalha também por intenção).
-  else if (recentIntents.slice(3, 10).includes(scene.intent)) score -= 15;
-  // -30: repete a mesma resposta principal já usada na lição.
+  if (lesson.usedSceneIds?.has(scene.sceneId)) score -= 100;
+  // −40: a intenção apareceu nas últimas duas conversas.
+  if (recentIntents.slice(0, 2).includes(scene.intent)) score -= 40;
+  // −15: mesma intenção na janela ampla (espalha também por intenção).
+  else if (recentIntents.slice(2, 10).includes(scene.intent)) score -= 15;
+  // −25: o mesmo cenário apareceu duas vezes seguidas.
+  const recentSettings = context.recentSettings ?? recentScenes.slice(0, 2).map((id) => conversationSceneById[id]?.setting ?? "");
+  if (recentSettings.slice(0, 2).length === 2 && recentSettings.slice(0, 2).every((s) => s === scene.setting)) {
+    score -= 25;
+  }
+
+  // +35: cena nunca realizada pelo aluno (só quando há histórico conhecido).
+  if (context.playedSceneIds && !context.playedSceneIds.has(scene.sceneId)) score += 35;
+  // +20: intenção pouco praticada.
+  if (context.intentPracticeCount && (context.intentPracticeCount.get(scene.intent) ?? 0) <= 1) score += 20;
+  // +15: cenário pouco utilizado.
+  if (context.settingUsageCount && (context.settingUsageCount.get(scene.setting) ?? 0) <= 1) score += 15;
+  // +20: trabalha um erro recente do aluno (revisa o chunk/intenção errado).
+  if (context.recentErrorRefs && refs.some((ref) => context.recentErrorRefs!.has(ref))) score += 20;
+
+  // −30: repete a mesma resposta principal já usada na lição.
   const mainAnswer = normalizeConversationAnswer(conversationSceneMainAnswer(scene));
   if (mainAnswer && lesson.usedAnswers?.has(mainAnswer)) score -= 30;
 
@@ -490,6 +597,30 @@ export function pickBestConversationScene(
     }
   }
   return best;
+}
+
+/**
+ * Nível da variante de apresentação para uma cena, a partir do histórico:
+ * quanto mais o aluno já praticou a cena (ou quanto mais avançado ele é),
+ * mais a apresentação sobe de dificuldade — sem mudar o conteúdo. Uma cena que
+ * REAPARECE volta num nível acima (não exatamente a mesma versão).
+ */
+export function conversationVariantLevelFor(
+  scene: Pick<ConversationSceneStep, "sceneId" | "intent">,
+  history: readonly ConversationHistoryEntry[] | undefined
+): ConversationVariantLevel {
+  const entries = history ?? [];
+  const timesScene = entries.filter((entry) => entry.sceneId === scene.sceneId && entry.result === "completed").length;
+  const timesIntent = entries.filter((entry) => entry.intent === scene.intent && entry.result === "completed").length;
+  const totalCompleted = entries.filter((entry) => entry.result === "completed").length;
+  // Sobe um degrau por repetição da própria cena; intenção bem praticada e
+  // aluno avançado elevam o piso mesmo numa cena nova.
+  let level = timesScene;
+  if (timesIntent >= 2) level = Math.max(level, 1);
+  if (totalCompleted >= 6) level = Math.max(level, 1);
+  if (totalCompleted >= 12) level = Math.max(level, 2);
+  const index = Math.min(level, CONVERSATION_VARIANT_LEVELS.length - 1);
+  return CONVERSATION_VARIANT_LEVELS[index];
 }
 
 export const CONVERSATION_SCENES: ConversationSceneStep[] = [
