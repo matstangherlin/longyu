@@ -24,6 +24,11 @@ Primeira beta pública do Longyu.
 - Pro Preview nunca libera no ambiente principal (`production_beta`), mesmo com flag vazada.
 - Conta QA (`teste@longyu.app`) não propaga Pro para outros usuários no mesmo dispositivo (logout / troca de conta).
 - Variáveis de Preview isoladas do contexto Netlify `production`.
+- `EntitlementBootstrap` só sobrescreve Pro com resposta do servidor quando há sessão cloud.
+
+### Corrigido
+
+- Revisão Pro: hooks de atalho após early return causavam React #300 na reidratação.
 
 ### Mantido
 

@@ -21,10 +21,31 @@ function isoWeekKey(d = new Date()): string {
 }
 
 export async function dismissBlockingOverlays(page: Page) {
-  const achievement = page.getByRole("dialog", { name: /medalha/i });
-  if (await achievement.isVisible().catch(() => false)) {
-    await page.getByRole("button", { name: /Continuar/i }).click();
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const achievement = page.getByRole("dialog", { name: /medalha/i });
+    if (!(await achievement.isVisible().catch(() => false))) return;
+    const continueBtn = page.getByRole("button", { name: /Continuar/i });
+    if (await continueBtn.isVisible().catch(() => false)) {
+      await continueBtn.click().catch(() => undefined);
+    }
+    await page.waitForTimeout(150);
   }
+}
+
+/** Clique resiliente quando overlays/re-renders desanexam o botão. */
+export async function clickStable(page: Page, name: RegExp, retries = 4) {
+  for (let attempt = 0; attempt < retries; attempt += 1) {
+    await dismissBlockingOverlays(page);
+    const button = page.getByRole("button", { name });
+    await button.first().waitFor({ state: "visible", timeout: 8_000 });
+    try {
+      await button.first().click({ timeout: 4_000 });
+      return;
+    } catch {
+      await page.waitForTimeout(200);
+    }
+  }
+  await page.getByRole("button", { name }).first().click({ force: true });
 }
 
 export async function seedOnboardedSession(page: Page, completedLessons: string[] = ["l1"]) {

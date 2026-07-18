@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 2d27965ec12b0bdc016142b7f6f0765bc4a681c7 |
-| Versão do app | 0.1.0 |
-| Gerado em | 2026-07-18T03:17:11.780Z |
+| Commit | 96a0e90d41ce08ef5ccc2bc04a38865abd609a4c |
+| Versão do app | 0.2.0-beta.1 |
+| Gerado em | 2026-07-18T04:09:07.273Z |
 | Lições | 105 |
 | Hash da Jornada | 11ae4e8aae85 |
 
@@ -108,4 +108,4 @@ _Cena não usada = nenhum foco de lição cobre todos os refs dela ainda; ela fi
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade._
 
-<!-- integridade:e5b30d76288dd192 -->
+<!-- integridade:3e6741965429bb78 -->

@@ -25,7 +25,11 @@ async function refreshServerEntitlement(setServerEntitlement: (isPro: boolean) =
     data: { session },
   } = await client.auth.getSession();
 
-  if (isInternalTestProEmail(session?.user?.email)) {
+  // Sem sessão cloud: não sobrescreve serverIsPro local (ex.: seeds E2E / estado persistido).
+  // Em SIGNED_OUT o listener abaixo zera o entitlement explicitamente.
+  if (!session?.user) return;
+
+  if (isInternalTestProEmail(session.user.email)) {
     setServerEntitlement(true);
     return;
   }

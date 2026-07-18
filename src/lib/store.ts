@@ -1845,7 +1845,9 @@ export const useStore = create<AppState>()(
             ...accountFields(account),
             accountSetupComplete: true,
             currentAccountId: id,
-            serverIsPro: grantInternalPro ? true : s.serverIsPro,
+            // Não herda serverIsPro da sessão anterior (QA não concede Pro a outros).
+            // Assinatura Stripe é revalidada pelo EntitlementBootstrap.
+            serverIsPro: grantInternalPro,
             accounts: {
               ...saved,
               [id]: account,

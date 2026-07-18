@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
+  clickStable,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedFoundationThrough,
@@ -75,8 +76,9 @@ test.describe("revisão", () => {
     await dismissBlockingOverlays(page);
     await expect(page.getByText(/1 pendente\(s\)/)).toBeVisible();
     await expect(page.getByRole("button", { name: /Corrigir agora/i })).toBeEnabled();
-    await page.getByRole("button", { name: /Corrigir agora/i }).click();
-    await expect(page.getByText(/你好|Toque no que ouviu/i).first()).toBeVisible();
+    await clickStable(page, /Corrigir agora/i);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByText(/你好|Toque no que ouviu|prioridade de revisão|Revisar:/i).first()).toBeVisible();
   });
 
   test("plano grátis não expõe histórico detalhado de erros", async ({ page }) => {

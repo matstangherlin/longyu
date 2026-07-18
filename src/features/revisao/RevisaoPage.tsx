@@ -30,6 +30,7 @@ import {
   rightPairShortcut,
   shortcutKeyForIndex,
   useExerciseHotkeys,
+  type ExerciseHotkeyMode,
 } from "../../lib/useExerciseHotkeys";
 import { isJourneyBlockingActivityError } from "../../lib/missionHelpers";
 import {
@@ -1121,6 +1122,8 @@ export function RevisaoPage() {
   const [suggestedGrade, setSuggestedGrade] = useState<Grade | null>(null);
   const gradedReviewKeysRef = useRef(new Set<string>());
   const exerciseStartedAtRef = useRef(Date.now());
+  const continueReviewRef = useRef<() => void>(() => undefined);
+  const verifyReviewRef = useRef<() => void>(() => undefined);
 
   const entry = queue[pos];
   const item = entry?.item;
@@ -1165,6 +1168,62 @@ export function RevisaoPage() {
     setPos(0);
     setRetryQueue([]);
   }, [mode]);
+
+  // Hotkeys precisam rodar em todo render (antes dos early returns). Sem isso, a
+  // reidratação Pro (fila vazia → fila com itens) muda a quantidade de hooks e
+  // dispara React #300.
+  const reviewBuilderForHotkeys =
+    exercise?.kind === "hanzi_build" ? getHanziBuilder(exercise.builderId) : undefined;
+  const reviewRightOptionsForHotkeys =
+    exercise?.kind === "match_pairs" ? (exercise.pairs ?? []).map((pair) => pair.right).reverse() : [];
+  const reviewHotkeyModeForHooks: ExerciseHotkeyMode =
+    exercise?.kind === "match_pairs" ? "pairs" : exercise?.kind === "sentence_build" ? "builder" : "choice";
+  const reviewOptionCountForHooks =
+    exercise?.kind === "sentence_build" ? exercise.pieces?.length ?? 0 : exercise?.options?.length ?? 0;
+  const sessionReadyForHotkeys = Boolean(
+    entry && item && data && exercise && !(requestedDetailedErrors && !detailedErrorsAllowed)
+  );
+
+  useExerciseHotkeys({
+    enabled: sessionReadyForHotkeys && !reviewBuilderForHotkeys,
+    mode: reviewHotkeyModeForHooks,
+    optionCount: reviewOptionCountForHooks,
+    leftCount: exercise?.kind === "match_pairs" ? exercise.pairs?.length ?? 0 : 0,
+    rightCount: reviewRightOptionsForHotkeys.length,
+    isAnswered: revealed,
+    hasSelection: exercise
+      ? isExerciseComplete(exercise, selectedOption, selectedPieceIds, pairMatches)
+      : false,
+    onSelectOption: (index) => {
+      if (!exercise || revealed) return;
+      if (exercise.kind === "sentence_build") {
+        const piece = exercise.pieces?.[index];
+        if (piece) {
+          setSelectedPieceIds((ids) =>
+            ids.includes(piece.id) ? ids.filter((pieceId) => pieceId !== piece.id) : [...ids, piece.id]
+          );
+        }
+        return;
+      }
+      const option = exercise.options?.[index];
+      if (option) setSelectedOption(option.value);
+    },
+    onSelectLeft: (index) => {
+      if (!exercise || revealed || exercise.kind !== "match_pairs") return;
+      const pair = exercise.pairs?.[index];
+      if (pair) setActivePairId(pair.id);
+    },
+    onSelectRight: (index) => {
+      if (!exercise || revealed || exercise.kind !== "match_pairs") return;
+      const right = reviewRightOptionsForHotkeys[index];
+      if (!right || !activePairId) return;
+      setPairMatches((matches) => ({ ...matches, [activePairId]: right }));
+      const nextPair = (exercise.pairs ?? []).find((pair) => pair.id !== activePairId && !pairMatches[pair.id]);
+      setActivePairId(nextPair?.id ?? null);
+    },
+    onSubmit: () => verifyReviewRef.current(),
+    onContinue: () => continueReviewRef.current(),
+  });
 
   if (requestedDetailedErrors && !detailedErrorsAllowed) {
     return (
@@ -1453,43 +1512,9 @@ export function RevisaoPage() {
     setPos((p) => p + 1);
   }
 
-  const reviewRightOptions = activeExercise.kind === "match_pairs" ? (activeExercise.pairs ?? []).map((pair) => pair.right).reverse() : [];
-  const reviewHotkeyMode =
-    activeExercise.kind === "match_pairs" ? "pairs" : activeExercise.kind === "sentence_build" ? "builder" : "choice";
-  const reviewOptionCount =
-    activeExercise.kind === "sentence_build" ? activeExercise.pieces?.length ?? 0 : activeExercise.options?.length ?? 0;
-
-  useExerciseHotkeys({
-    enabled: !reviewBuilder,
-    mode: reviewHotkeyMode,
-    optionCount: reviewOptionCount,
-    leftCount: activeExercise.kind === "match_pairs" ? activeExercise.pairs?.length ?? 0 : 0,
-    rightCount: reviewRightOptions.length,
-    isAnswered: revealed,
-    hasSelection: isExerciseComplete(activeExercise, selectedOption, selectedPieceIds, pairMatches),
-    onSelectOption: (index) => {
-      if (revealed) return;
-      if (activeExercise.kind === "sentence_build") {
-        const piece = activeExercise.pieces?.[index];
-        if (piece) togglePiece(piece.id);
-        return;
-      }
-      const option = activeExercise.options?.[index];
-      if (option) setSelectedOption(option.value);
-    },
-    onSelectLeft: (index) => {
-      if (revealed) return;
-      const pair = activeExercise.kind === "match_pairs" ? activeExercise.pairs?.[index] : undefined;
-      if (pair) setActivePairId(pair.id);
-    },
-    onSelectRight: (index) => {
-      if (revealed) return;
-      const right = reviewRightOptions[index];
-      if (right) matchActivePair(right);
-    },
-    onSubmit: verifyExercise,
-    onContinue: () => grade(exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : suggestedGrade ?? "good"),
-  });
+  verifyReviewRef.current = verifyExercise;
+  continueReviewRef.current = () =>
+    grade(exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : suggestedGrade ?? "good");
 
   return (
     <HubPage>
