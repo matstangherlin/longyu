@@ -18,7 +18,15 @@ import {
   updateShowInSearch,
   updateUsername,
 } from "../../services/socialService";
-import { getTelemetryConsent, setTelemetryConsent } from "../../services/pedagogyEvents";
+import {
+  clearPedagogyEventQueue,
+  getTelemetryConsent,
+  pedagogyEventQueueSize,
+  setTelemetryConsent,
+} from "../../services/telemetryConsent";
+import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services/privacyService";
+import { ModalOverlay } from "../../components/ui/ModalOverlay";
+import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
 
 const THEMES: { id: ThemeName; name: string; desc: string; swatch: string[] }[] = [
   { id: "clay", name: "Notion Clay", desc: "Branco quente, calmo, focado.", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
@@ -149,6 +157,10 @@ export function SettingsPage() {
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
   const [socialLoading, setSocialLoading] = useState(false);
   const [telemetryConsent, setTelemetryConsentState] = useState(() => getTelemetryConsent());
+  const [queueSize, setQueueSize] = useState(() => pedagogyEventQueueSize());
+  const [privacyNotice, setPrivacyNotice] = useState<string | null>(null);
+  const [showDataDetails, setShowDataDetails] = useState(false);
+  const [privacyBusy, setPrivacyBusy] = useState(false);
 
   const voiceOk = isTTSAvailable() && hasChineseVoice();
   const accountList = Object.values(accounts).sort((a, b) => a.createdAt - b.createdAt);
@@ -337,19 +349,125 @@ export function SettingsPage() {
               {socialNotice && <p className="text-sm text-ink-soft">{socialNotice}</p>}
             </>
           )}
+        </Card>
+      </HubSection>
 
+      <HubSection
+        id="privacidade-dados"
+        className="scroll-mt-6"
+        title="Privacidade e dados"
+        desc="Controle o que o Longyu pode coletar para melhorar o curso."
+      >
+        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
           <SettingSwitch
-            label="Telemetria pedagógica"
-            desc="Ajuda a melhorar lições (erros, pulos, abandonos). Sem respostas livres nem dados sensíveis."
+            label="Dados pedagógicos de melhoria"
+            desc="Lições, tipos de exercício, acertos/erros e abandonos. Sem senhas nem texto livre."
             checked={telemetryConsent}
             onChange={() => {
               const next = !telemetryConsent;
-              setTelemetryConsent(next);
-              setTelemetryConsentState(next);
+              void (async () => {
+                await setTelemetryConsent(next);
+                setTelemetryConsentState(next);
+                setQueueSize(pedagogyEventQueueSize());
+                setPrivacyNotice(
+                  next
+                    ? "Consentimento ativado. Eventos pedagógicos podem ser enviados."
+                    : "Consentimento desligado. Fila local de eventos foi apagada. Seu progresso permanece."
+                );
+              })();
             }}
           />
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setShowDataDetails(true)}>
+              Ver quais dados são coletados
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                clearPedagogyEventQueue();
+                setQueueSize(0);
+                setPrivacyNotice("Fila de eventos pendentes apagada neste dispositivo.");
+              }}
+            >
+              Limpar fila de eventos ({queueSize})
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={privacyBusy}
+              onClick={() => {
+                void (async () => {
+                  setPrivacyBusy(true);
+                  try {
+                    const bundle = await buildPrivacyExportBundle();
+                    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = `longyu-dados-${bundle.exportedAt.slice(0, 10)}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    URL.revokeObjectURL(url);
+                    setPrivacyNotice("Exportação dos seus dados baixada neste dispositivo.");
+                  } finally {
+                    setPrivacyBusy(false);
+                  }
+                })();
+              }}
+            >
+              Solicitar exportação dos meus dados
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={privacyBusy}
+              onClick={() => {
+                void (async () => {
+                  const ok = window.confirm(
+                    "Solicitar exclusão da conta na nuvem? Progresso local neste aparelho não é apagado automaticamente."
+                  );
+                  if (!ok) return;
+                  setPrivacyBusy(true);
+                  const result = await requestAccountDeletion();
+                  setPrivacyBusy(false);
+                  setPrivacyNotice(result.message);
+                })();
+              }}
+            >
+              Solicitar exclusão da conta
+            </Button>
+          </div>
+
+          <Link
+            to="/privacidade#politica"
+            className="inline-flex text-sm font-semibold text-accent hover:underline"
+          >
+            Política de privacidade
+          </Link>
+
+          {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
         </Card>
       </HubSection>
+
+      {showDataDetails && (
+        <ModalOverlay label="Dados coletados" onBackdropClick={() => setShowDataDetails(false)}>
+          <div
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 shadow-card sm:rounded-3xl"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <TelemetryDataDetails />
+            <Button type="button" className="mt-5 w-full" onClick={() => setShowDataDetails(false)}>
+              Fechar
+            </Button>
+          </div>
+        </ModalOverlay>
+      )}
 
       <HubSection id="tema" className="scroll-mt-6" title="Tema">
         <div className="grid gap-2 sm:grid-cols-2">

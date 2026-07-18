@@ -17,6 +17,7 @@ import { SettingsPage } from "./features/settings/SettingsPage";
 import { ProfilePage } from "./features/perfil/ProfilePage";
 import { ContaRoute } from "./features/conta/ContaRoute";
 import { DadosLocaisPage } from "./features/dados/DadosLocaisPage";
+import { PrivacyPage } from "./features/privacy/PrivacyPage";
 import { LessonDetailPage } from "./features/lesson/LessonDetailPage";
 import { LessonPlayer } from "./features/lesson/LessonPlayer";
 import { ModuleChallengePage } from "./features/challenge/ModuleChallengePage";
@@ -66,6 +67,7 @@ export const routes: RouteObject[] = [
       { path: "perfil", element: <ProfilePage /> },
       { path: "conta", element: <ContaRoute /> },
       { path: "dados-locais", element: <DadosLocaisPage /> },
+      { path: "privacidade", element: <PrivacyPage /> },
       { path: "config", element: <SettingsPage /> },
       { path: "ajustes", element: <SettingsPage /> },
       { path: "mais", element: <MorePage /> },

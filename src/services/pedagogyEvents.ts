@@ -1,7 +1,16 @@
 import { isTelemetryEnabled } from "../lib/featureFlags";
 import { getSupabaseClient } from "../lib/supabaseClient";
-import { currentRoute } from "../lib/feedback";
+import { currentRoute, getAppVersion } from "../lib/feedback";
 import { DEFAULT_ACCOUNT_ID, useStore } from "../lib/store";
+import { getTelemetryConsent, PEDAGOGY_QUEUE_KEY } from "./telemetryConsent";
+
+export {
+  getTelemetryConsent,
+  setTelemetryConsent,
+  hasTelemetryConsentChoice,
+  clearPedagogyEventQueue,
+  pedagogyEventQueueSize,
+} from "./telemetryConsent";
 
 export const PEDAGOGY_EVENT_TYPES = [
   "lesson_started",
@@ -32,18 +41,17 @@ export interface PedagogyEventInput {
 interface QueuedPedagogyEvent extends PedagogyEventInput {
   dedupeKey: string;
   localProfileId: string;
+  appVersion: string;
   createdAt: number;
   attempts: number;
 }
 
-const QUEUE_KEY = "longyu:beta-pedagogy-queue";
-const CONSENT_KEY = "longyu:telemetry-consent";
 const MAX_QUEUE = 80;
 
 function readQueue(): QueuedPedagogyEvent[] {
   if (typeof localStorage === "undefined") return [];
   try {
-    const raw = localStorage.getItem(QUEUE_KEY);
+    const raw = localStorage.getItem(PEDAGOGY_QUEUE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as QueuedPedagogyEvent[];
     return Array.isArray(parsed) ? parsed.slice(-MAX_QUEUE) : [];
@@ -55,7 +63,7 @@ function readQueue(): QueuedPedagogyEvent[] {
 function writeQueue(queue: QueuedPedagogyEvent[]): void {
   if (typeof localStorage === "undefined") return;
   try {
-    localStorage.setItem(QUEUE_KEY, JSON.stringify(queue.slice(-MAX_QUEUE)));
+    localStorage.setItem(PEDAGOGY_QUEUE_KEY, JSON.stringify(queue.slice(-MAX_QUEUE)));
   } catch {
     /* quota */
   }
@@ -67,20 +75,8 @@ function localProfileId(): string {
   return account?.id ?? DEFAULT_ACCOUNT_ID;
 }
 
-/** Consentimento para telemetria pedagógica (padrão: true na beta). */
-export function getTelemetryConsent(): boolean {
-  if (typeof localStorage === "undefined") return true;
-  const raw = localStorage.getItem(CONSENT_KEY);
-  if (raw === null) return true;
-  return raw === "1" || raw === "true";
-}
-
-export function setTelemetryConsent(enabled: boolean): void {
-  if (typeof localStorage === "undefined") return;
-  localStorage.setItem(CONSENT_KEY, enabled ? "1" : "0");
-}
-
-function safeMetadata(
+/** Remove chaves sensíveis / respostas livres de metadados pedagógicos. */
+export function safeMetadata(
   metadata?: Record<string, string | number | boolean | null>
 ): Record<string, string | number | boolean | null> {
   if (!metadata) return {};
@@ -97,10 +93,15 @@ function safeMetadata(
     "freeTextAnswer",
     "answerText",
     "answer",
+    "typedAnswer",
+    "freeText",
+    "responseText",
+    "userInput",
   ]);
   const out: Record<string, string | number | boolean | null> = {};
   for (const [key, value] of Object.entries(metadata)) {
     if (blocked.has(key)) continue;
+    if (/password|senha|token|answer|freetext|userinput/i.test(key)) continue;
     if (typeof value === "string" && value.length > 80) {
       out[key] = value.slice(0, 80);
       continue;
@@ -111,6 +112,8 @@ function safeMetadata(
 }
 
 async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
+  // Defesa em profundidade: nunca envia sem consentimento explícito.
+  if (!getTelemetryConsent()) return false;
   const client = getSupabaseClient();
   if (!client) return false;
   const { error } = await client.rpc("submit_beta_pedagogy_event", {
@@ -119,7 +122,10 @@ async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
     p_lesson_id: item.lessonId ?? null,
     p_exercise_kind: item.exerciseKind ?? null,
     p_exercise_index: item.exerciseIndex ?? null,
-    p_metadata: safeMetadata(item.metadata),
+    p_metadata: {
+      ...safeMetadata(item.metadata),
+      appVersion: item.appVersion || getAppVersion(),
+    },
     p_local_profile_id: item.localProfileId,
     p_client_dedupe_key: item.dedupeKey,
   });
@@ -143,6 +149,7 @@ export async function flushPedagogyQueue(): Promise<number> {
 }
 
 export async function trackPedagogyEvent(input: PedagogyEventInput): Promise<void> {
+  // Sem escolha / recusa / flag off → não enfileira nem envia.
   if (!isTelemetryEnabled() || !getTelemetryConsent()) return;
 
   const event: QueuedPedagogyEvent = {
@@ -150,6 +157,7 @@ export async function trackPedagogyEvent(input: PedagogyEventInput): Promise<voi
     route: input.route ?? currentRoute(),
     metadata: safeMetadata(input.metadata),
     localProfileId: localProfileId(),
+    appVersion: getAppVersion(),
     createdAt: Date.now(),
     attempts: 0,
     dedupeKey: [

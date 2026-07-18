@@ -13,6 +13,8 @@ import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
 import { FeedbackProvider } from "../feedback/FeedbackContext";
 import { EconomySyncBanner } from "../economy/EconomySyncBanner";
 import { EconomyBootstrap } from "../economy/EconomyBootstrap";
+import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap";
+import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
 import { isAdminEmail } from "../../lib/feedback";
 
 export function AppShell() {
@@ -76,6 +78,7 @@ export function AppShell() {
         <AuthBootstrap />
         <CloudSyncBootstrap />
         <EntitlementBootstrap />
+        <TelemetryConsentBootstrap />
       </FeedbackProvider>
     );
   }
@@ -108,8 +111,10 @@ export function AppShell() {
       <AuthBootstrap />
       <CloudSyncBootstrap />
       <EntitlementBootstrap />
+      <TelemetryConsentBootstrap />
       <EconomyBootstrap />
       <AchievementsWatcher />
+      <TelemetryConsentWatcher />
     </div>
     </FeedbackProvider>
   );

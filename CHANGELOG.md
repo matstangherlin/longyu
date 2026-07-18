@@ -7,6 +7,15 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Privacidade — consentimento pedagógico opt-in
+
+- `getTelemetryConsent()` passa a retornar **false** sem escolha explícita; nenhum evento pedagógico é enviado antes da decisão.
+- Modal compacto “Ajude a melhorar o Longyu” após cadastro/primeiro acesso ao painel (Permitir / Agora não / Ver detalhes).
+- Ajustes → **Privacidade e dados**: toggle, detalhes do que é coletado, limpar fila, exportação, exclusão de conta e política.
+- Revogar limpa a fila local imediatamente, preserva progresso e feedback manual.
+- Perfil Supabase: `pedagogy_analytics_consent`, `consented_at`, `revoked_at` (migration `011`).
+- Validador `validate:privacy-consent` no portão `validate:beta`.
+
 ### Identidade visual consistente dos exercícios com imagem
 
 - **Guia oficial** (`docs/VISUAL_ASSET_GUIDE.md`): dois estilos — Conceito isolado
