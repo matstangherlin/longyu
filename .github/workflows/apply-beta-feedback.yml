@@ -2,6 +2,12 @@ name: Apply Beta Feedback
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "supabase/migrations/010_beta_feedback.sql"
+      - "scripts/apply-beta-feedback-sql.mjs"
+      - "scripts/verify-beta-feedback.mjs"
+      - ".github/workflows/apply-beta-feedback.yml"
 
 jobs:
   apply:
