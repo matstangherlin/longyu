@@ -99,12 +99,15 @@ export async function setTelemetryConsent(enabled: boolean): Promise<void> {
 export function applyTelemetryConsentFromProfile(allowed: boolean | null | undefined): void {
   if (typeof allowed !== "boolean") return;
   if (typeof localStorage === "undefined") return;
-  // Só aplica se ainda não houver escolha local, ou se o perfil for a fonte após login.
   localStorage.setItem(TELEMETRY_CONSENT_KEY, allowed ? "1" : "0");
   if (!allowed) clearPedagogyEventQueue();
 }
 
-/** Carrega consentimento do perfil após login cloud. */
+/**
+ * Carrega consentimento do perfil após login cloud.
+ * Default false sem timestamps = ainda não decidiu → não grava localStorage
+ * (senão o modal some e “nunca perguntou” vira “recusou”).
+ */
 export async function hydrateTelemetryConsentFromProfile(): Promise<boolean | null> {
   if (!isSupabaseBackendEnabled()) return null;
   const client = getSupabaseClient();
@@ -116,12 +119,22 @@ export async function hydrateTelemetryConsentFromProfile(): Promise<boolean | nu
 
   const { data, error } = await client
     .from("profiles")
-    .select("pedagogy_analytics_consent")
+    .select(
+      "pedagogy_analytics_consent, pedagogy_analytics_consented_at, pedagogy_analytics_revoked_at"
+    )
     .eq("id", user.id)
     .maybeSingle();
 
   if (error || !data) return null;
+
   const allowed = Boolean(data.pedagogy_analytics_consent);
+  const decided =
+    allowed ||
+    data.pedagogy_analytics_consented_at != null ||
+    data.pedagogy_analytics_revoked_at != null;
+
+  if (!decided) return null;
+
   applyTelemetryConsentFromProfile(allowed);
   return allowed;
 }

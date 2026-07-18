@@ -63,6 +63,12 @@ const consentSrc = read("src/services/telemetryConsent.ts");
 assert(consentSrc.includes('if (raw === null) return false'), "getTelemetryConsent default false");
 assert(consentSrc.includes("clearPedagogyEventQueue"), "revogação deve limpar fila");
 assert(consentSrc.includes("pedagogy_analytics_consent"), "sync de perfil deve usar pedagogy_analytics_consent");
+assert(
+  consentSrc.includes("pedagogy_analytics_consented_at") &&
+    consentSrc.includes("pedagogy_analytics_revoked_at") &&
+    consentSrc.includes("if (!decided) return null"),
+  "hydrate não deve tratar default false como decisão"
+);
 
 // Feedback manual independente da telemetria
 const feedbackSrc = read("src/services/feedbackService.ts");
