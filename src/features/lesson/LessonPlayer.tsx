@@ -1894,7 +1894,7 @@ export function LessonPlayer() {
         metadata: {
           correct: wasCorrect,
           imageChoiceMode: currentStep.imageChoiceMode ?? null,
-          imageId: currentStep.imageId ?? currentStep.visualSceneId ?? null,
+          imageId: currentStep.imageId ?? currentStep.iconId ?? null,
         },
       });
       if (currentStep.kind === "image_choice") {
@@ -1905,7 +1905,7 @@ export function LessonPlayer() {
           exerciseIndex: idx,
           metadata: {
             correct: wasCorrect,
-            imageId: currentStep.imageId ?? currentStep.visualSceneId ?? null,
+            imageId: currentStep.imageId ?? currentStep.iconId ?? null,
             mode: currentStep.imageChoiceMode ?? null,
           },
         });
