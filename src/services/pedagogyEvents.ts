@@ -129,7 +129,11 @@ async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
     p_local_profile_id: item.localProfileId,
     p_client_dedupe_key: item.dedupeKey,
   });
-  return !error;
+  if (!error) return true;
+  // Servidor rejeitou por falta de opt-in: descarta (não reenfileira).
+  const msg = error.message ?? "";
+  if (/consent_required/i.test(msg)) return true;
+  return false;
 }
 
 export async function flushPedagogyQueue(): Promise<number> {

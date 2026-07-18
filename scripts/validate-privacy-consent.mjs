@@ -90,6 +90,16 @@ assert(migration.includes("pedagogy_analytics_consented_at"), "migration deve ad
 assert(migration.includes("pedagogy_analytics_revoked_at"), "migration deve adicionar revoked_at");
 assert(migration.includes("default false"), "coluna de consentimento default false");
 
+const migrationGate = read("supabase/migrations/012_pedagogy_consent_rpc_gate.sql");
+assert(migrationGate.includes("consent_required"), "012 deve rejeitar RPC sem consentimento");
+assert(migrationGate.includes("pedagogy_analytics_consent"), "012 deve ler pedagogy_analytics_consent");
+assert(migrationGate.includes("conversation_shown"), "012 deve aceitar conversation_shown");
+assert(migrationGate.includes("conversation_repeated"), "012 deve aceitar conversation_repeated");
+assert(migrationGate.includes("conversation_error"), "012 deve aceitar conversation_error");
+assert(migrationGate.includes("admin_user_overview"), "012 deve atualizar admin_user_overview");
+
+assert(pedagogySrc.includes("consent_required"), "cliente deve tratar consent_required sem reenfileirar");
+
 const watcher = read("src/components/privacy/TelemetryConsentWatcher.tsx");
 assert(watcher.includes("hasTelemetryConsentChoice"), "watcher só abre sem escolha");
 assert(watcher.includes("accountSetupComplete"), "watcher após cadastro/painel");

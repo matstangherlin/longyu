@@ -14,6 +14,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Ajustes → **Privacidade e dados**: toggle, detalhes do que é coletado, limpar fila, exportação, exclusão de conta e política.
 - Revogar limpa a fila local imediatamente, preserva progresso e feedback manual.
 - Perfil Supabase: `pedagogy_analytics_consent`, `consented_at`, `revoked_at` (migration `011`).
+- Servidor: `submit_beta_pedagogy_event` exige consentimento no perfil autenticado; allowlist `conversation_*` alinhada ao app (migration `012`).
 - Validador `validate:privacy-consent` no portão `validate:beta`.
 
 ### Identidade visual consistente dos exercícios com imagem
