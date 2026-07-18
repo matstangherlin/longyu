@@ -30,6 +30,8 @@
     "test:entitlements": "node scripts/test-entitlements.mjs",
     "seed:test-account": "node scripts/seed-test-account.mjs",
     "apply:test-account-sql": "node scripts/apply-test-account-sql.mjs",
+    "apply:beta-feedback-sql": "node scripts/apply-beta-feedback-sql.mjs",
+    "verify:beta-feedback": "node scripts/verify-beta-feedback.mjs",
     "browser:apply:test-account-sql": "node scripts/browser-apply-test-account-sql.mjs",
     "browser:apply:sql": "node scripts/browser-apply-sql-file.mjs",
     "setup:test-account": "node scripts/setup-test-account.mjs",

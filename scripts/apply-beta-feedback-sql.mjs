@@ -10,19 +10,15 @@ const token = env.SUPABASE_ACCESS_TOKEN;
 
 if (!token) {
   console.error("SUPABASE_ACCESS_TOKEN ausente.");
+  console.error("Defina em .env.local ou no secret do GitHub Actions.");
   process.exit(1);
 }
 
-const files = [
-  path.join(root, "supabase/migrations/006_economy_server.sql"),
-  path.join(root, "supabase/migrations/007_internal_test_pro.sql"),
-  path.join(root, "supabase/migrations/008_server_entitlement_rpc.sql"),
-  path.join(root, "supabase/migrations/010_beta_feedback.sql"),
-  path.join(root, "supabase/seed/test-account.sql"),
-];
-
-const sql = files.map((file) => readFileSync(file, "utf8")).join("\n\n");
+const sqlPath = path.join(root, "supabase/migrations/010_beta_feedback.sql");
+const sql = readFileSync(sqlPath, "utf8");
 const url = `https://api.supabase.com/v1/projects/${ref}/database/query`;
+
+console.log(`Aplicando 010_beta_feedback.sql em ${ref}…`);
 
 const response = await fetch(url, {
   method: "POST",
@@ -35,9 +31,15 @@ const response = await fetch(url, {
 
 const body = await response.text();
 if (!response.ok) {
-  console.error(`Erro ${response.status}:`, body.slice(0, 2000));
-  process.exit(1);
+  const already =
+    response.status === 400 &&
+    (body.includes("already exists") || body.includes("duplicate"));
+  if (!already) {
+    console.error(`Erro ${response.status}:`, body.slice(0, 2000));
+    process.exit(1);
+  }
+  console.log("↷ migration já parcialmente aplicada — ok idempotente");
 }
 
-console.log("OK: SQL da conta de teste + entitlement RPC aplicados.");
-if (body && body !== "[]") console.log(body.slice(0, 500));
+console.log("OK: beta_feedback + pedagogy events aplicados.");
+if (body && body !== "[]" && body !== "{}") console.log(body.slice(0, 500));

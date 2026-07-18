@@ -1,0 +1,30 @@
+name: Apply Beta Feedback
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply beta feedback migration
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
+        run: node scripts/apply-beta-feedback-sql.mjs
+
+      - name: Verify beta feedback RPCs
+        env:
+          VITE_SUPABASE_URL: https://drjcfalvlbbeblmmyhwj.supabase.co
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/verify-beta-feedback.mjs
