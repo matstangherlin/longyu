@@ -105,12 +105,22 @@ try {
       conversationSceneMainPath,
       scoreConversationScene,
       pickBestConversationScene,
+      minimalRequiredRefs,
+      isConversationSceneEligible,
     } = load("src/data/conversationScenes.js");
     const { ALL_LESSONS, JOURNEY } = load("src/data/journey.js");
     const { CHUNKS } = load("src/data/chunks.js");
     const { CHARACTERS } = load("src/data/characters.js");
     const { validateExercise } = load("src/features/lesson/exerciseValidation.js");
-    const { lessonRoundStepsFor } = load("src/features/lesson/lessonTasks.js");
+    const { lessonRoundStepsFor, analyzeConversationSceneCoverage } = load("src/features/lesson/lessonTasks.js");
+
+    // Papel de imersão / lição de imersão (mesma heurística do motor).
+    const isImmersionLesson = (lesson) => {
+      const id = String(lesson.id ?? "").toLocaleLowerCase("pt-BR");
+      const title = String(lesson.title ?? "").toLocaleLowerCase("pt-BR");
+      return id.includes("immersion") || id.includes("imers") || title.includes("imersão") || title.includes("immersion");
+    };
+    const sceneRoleOf = (scene) => scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy");
 
     const chunkById = new Map(CHUNKS.map((chunk) => [chunk.id, chunk]));
     const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
@@ -217,18 +227,17 @@ try {
 
     // Grafo V2: todo nó precisa ser alcançável a partir da entrada, e de todo
     // nó alcançável deve existir caminho até um terminal (sem loop infinito).
-    function checkNodeGraph(scene) {
-      const ref = scene.sceneId;
-      const nodes = scene.nodes ?? [];
+    function checkNodeGraph(ref, nodes, entryNodeId) {
+      nodes = nodes ?? [];
       const byId = new Map();
       for (const node of nodes) {
         if (!node.id?.trim()) err("graph", ref, "nó sem id");
         else if (byId.has(node.id)) err("graph", ref, `nó duplicado: "${node.id}"`);
         byId.set(node.id, node);
       }
-      const entryId = scene.entryNodeId ?? nodes[0]?.id;
+      const entryId = entryNodeId ?? nodes[0]?.id;
       if (!entryId || !byId.has(entryId)) {
-        err("graph", ref, `entryNodeId desconhecido: "${scene.entryNodeId}"`);
+        err("graph", ref, `entryNodeId desconhecido: "${entryNodeId}"`);
         return;
       }
 
@@ -315,7 +324,7 @@ try {
       // V2: valida TODOS os nós (inclusive ramos de erro que não estão nas lines).
       const nodes = scene.nodes ?? [];
       if (nodes.length > 0) {
-        checkNodeGraph(scene);
+        checkNodeGraph(ref, nodes, scene.entryNodeId);
         const nodeIds = new Set(nodes.map((node) => node.id));
         for (const node of nodes) {
           const nodeRef = `${ref}@${node.id}`;
@@ -347,6 +356,89 @@ try {
         if (role === "immersion") {
           if (!stats.branching) err("role", ref, "cena de imersão sem escolhas ramificadas (wrongNextNodeId).");
           if (stats.endingCount < 2) err("role", ref, "cena de imersão precisa de conclusões diferentes (≥2 nós terminais).");
+        }
+      }
+
+      // ————— Variantes por estágio —————
+      // Cada variante é validada de forma independente (vocabulário, grafo,
+      // interação) contra os SEUS próprios refs. Uma variante nunca pode exigir
+      // mais vocabulário que o nível de topo (avançado), e a mais simples
+      // (beginner) precisa exigir estritamente menos — do contrário não há
+      // ganho pedagógico e a versão avançada apareceria cedo demais.
+      const variants = scene.variants ?? [];
+      const stageRank = { beginner: 0, intermediate: 1, advanced: 2 };
+      const topRefs = new Set(scene.learnedRefs ?? []);
+      for (const variant of variants) {
+        const vref = `${ref}~${variant.stage}`;
+        if (!variant.stage || !(variant.stage in stageRank)) err("variant", vref, `stage inválido: ${variant.stage}`);
+        if (!Array.isArray(variant.learnedRefs) || variant.learnedRefs.length === 0) {
+          err("variant", vref, "variante sem learnedRefs");
+        }
+        const vnodes = variant.nodes ?? [];
+        if (vnodes.length === 0) {
+          err("variant", vref, "variante sem nós");
+          continue;
+        }
+        const vallowed = refsToHanziSet([...(variant.learnedRefs ?? []), ...(variant.newRefs ?? [])]);
+        checkNodeGraph(vref, vnodes, variant.entryNodeId);
+        const vNodeIds = new Set(vnodes.map((node) => node.id));
+        let hasInteraction = false;
+        for (const node of vnodes) {
+          const nodeRef = `${vref}@${node.id}`;
+          if (!node.hanzi?.trim()) err("variant", nodeRef, "nó sem hanzi");
+          if (!node.pinyin?.trim()) err("variant", nodeRef, "nó sem pinyin");
+          if (!node.speakerId?.trim()) err("variant", nodeRef, "nó sem speakerId");
+          else if (!scene.characters?.some((character) => character.id === node.speakerId)) {
+            err("variant", nodeRef, `speakerId desconhecido "${node.speakerId}"`);
+          }
+          checkVocabCoverage(nodeRef, node.hanzi, vallowed);
+          if (node.interaction) {
+            hasInteraction = true;
+            checkInteraction(nodeRef, node.interaction, vNodeIds);
+          }
+        }
+        if (!hasInteraction) err("variant", vref, "variante sem nenhuma interação do aluno");
+        // Variante nunca pode exigir vocabulário que a versão avançada não tem.
+        const extra = (variant.learnedRefs ?? []).filter((r) => !topRefs.has(r));
+        if (extra.length > 0) {
+          err("variant", vref, `variante exige refs ausentes do nível avançado: ${extra.join(", ")}`);
+        }
+        // A variante iniciante precisa exigir MENOS que o avançado (senão a
+        // versão avançada apareceria já no primeiro momento elegível).
+        if (variant.stage === "beginner" && (variant.learnedRefs ?? []).length >= (scene.learnedRefs ?? []).length) {
+          err("variant", vref, "variante beginner não simplifica o vocabulário (não reduz requiredRefs).");
+        }
+      }
+      // optionalRefs NUNCA podem ser tratados como obrigatórios: não podem
+      // entrar no conjunto mínimo que controla a elegibilidade.
+      const minimal = new Set(minimalRequiredRefs(scene));
+      for (const opt of scene.optionalRefs ?? []) {
+        if (minimal.has(opt)) {
+          err("pedagogy", ref, `optionalRef tratado como obrigatório (entra no gate mínimo): ${opt}`);
+        }
+      }
+      // requiredRefs sem "frases desnecessárias": todo learnedRef precisa
+      // aparecer em ALGUMA camada renderizável da cena — falas, opções de
+      // interação, respostas ou checkpoint.
+      const interactionTexts = (nodeList) =>
+        nodeList.flatMap((node) => [
+          node.hanzi,
+          node.interaction?.correctAnswer,
+          ...(node.interaction?.options ?? []),
+        ]);
+      const renderedHanzi = [
+        ...lines.map((line) => line.hanzi),
+        ...interactionTexts(nodes),
+        ...variants.flatMap((variant) => interactionTexts(variant.nodes ?? [])),
+        scene.checkpoint?.correctAnswer,
+        ...(scene.checkpoint?.options ?? []),
+      ];
+      const usedTokens = new Set();
+      for (const text of renderedHanzi) for (const token of extractCjkTokens(text)) usedTokens.add(token);
+      for (const learnedRef of scene.learnedRefs ?? []) {
+        const refTokens = extractCjkTokens([...refsToHanziSet([learnedRef])].join(""));
+        if (refTokens.length > 0 && !refTokens.some((token) => usedTokens.has(token))) {
+          err("pedagogy", ref, `requiredRef desnecessário (não aparece em nenhuma fala da cena): ${learnedRef}`);
         }
       }
 
@@ -394,7 +486,8 @@ try {
     for (const lesson of ALL_LESSONS) {
       const scenes = (lesson.steps ?? []).filter((step) => step.kind === "conversation_scene");
       authoredCount += scenes.length;
-      const maxAllowed = lesson.isReview ? 2 : lesson.id.toLowerCase().includes("immersion") ? 99 : 1;
+      const immersionLesson = isImmersionLesson(lesson);
+      const maxAllowed = immersionLesson ? 99 : lesson.isReview ? 2 : 1;
       if (scenes.length > maxAllowed) {
         err(
           "engine",
@@ -408,6 +501,11 @@ try {
           err("journey", ref, `sceneId desconhecido: ${step.sceneId}`);
         } else {
           authoredUseBySceneId.set(step.sceneId, (authoredUseBySceneId.get(step.sceneId) ?? 0) + 1);
+          // Cena de imersão só pode ser inserida em lição de imersão.
+          const catalogScene = CONVERSATION_SCENES.find((s) => s.sceneId === step.sceneId);
+          if (catalogScene && sceneRoleOf(catalogScene) === "immersion" && !immersionLesson) {
+            err("coverage", ref, `cena de imersão "${step.sceneId}" inserida em lição comum (${lesson.id}).`);
+          }
         }
         const validation = validateExercise(step);
         if (!validation.valid) {
@@ -442,24 +540,24 @@ try {
       }
     }
 
-    // 2) Teste de ponta a ponta nos planos reais: com a cena escolhida marcada
-    //    como recente, o plano seguinte deve escolher OUTRA cena em pelo menos
-    //    uma lição (candidatas suficientes). Se o motor ignorar o contexto
-    //    (candidates[0]), nada muda e o teste falha.
-    const generatedUseBySceneId = new Map();
-    const generatedModes = new Map();
-    let lessonsWithGeneratedScene = 0;
+    // 2) Cobertura real dos planos, medida como um aluno realmente percorre a
+    //    jornada: com rotação encadeada (recentConversationSceneIds/Intents).
+    //    Fonte única compartilhada com o relatório (analyzeConversationSceneCoverage).
+    const coverage = analyzeConversationSceneCoverage();
+    const generatedUseBySceneId = coverage.generatedUseBySceneId;
+    const generatedModes = coverage.generatedByIntent;
+    const lessonsWithGeneratedScene = coverage.lessonsWithGeneratedScene;
+    const totalGenerated = coverage.totalGenerated;
+    const lessonCount = coverage.lessonCount;
+
+    // Rotação sob contexto (anti "sempre a primeira cena"): marcar a cena como
+    // recente deve mudar a escolha em pelo menos uma lição.
     let rotationObserved = false;
     let rotationCandidates = 0;
     for (const lesson of ALL_LESSONS) {
       const plan = lessonRoundStepsFor(lesson, { silent: true });
       const generatedScenes = plan.filter((step) => step.kind === "conversation_scene" && step.generated && step.sceneId);
       if (generatedScenes.length === 0) continue;
-      lessonsWithGeneratedScene += 1;
-      for (const step of generatedScenes) {
-        generatedUseBySceneId.set(step.sceneId, (generatedUseBySceneId.get(step.sceneId) ?? 0) + 1);
-        generatedModes.set(step.sceneIntent ?? "(sem intent)", (generatedModes.get(step.sceneIntent ?? "(sem intent)") ?? 0) + 1);
-      }
       const first = generatedScenes[0];
       const rerun = lessonRoundStepsFor(lesson, {
         silent: true,
@@ -478,6 +576,73 @@ try {
         "journey",
         "a seleção de cena ignora o contexto: mesmo marcando a cena como recente, todos os planos repetem a mesma cena."
       );
+    }
+
+    // ————— Metas de cobertura (falham no beta) —————
+    const MIN_DISTINCT_USED = 20;
+    const SCENE_DOMINANCE_CAP = 0.15; // nenhuma cena em > 15% das lições
+    const INTENT_DOMINANCE_CAP = 0.2; // nenhuma intenção em > 20% das conversas geradas
+
+    if (coverage.distinctUsed < MIN_DISTINCT_USED) {
+      err(
+        "coverage",
+        "catalog",
+        `apenas ${coverage.distinctUsed}/${coverage.distinctScenes} cenas aparecem em algum plano (mínimo ${MIN_DISTINCT_USED}).`
+      );
+    }
+
+    for (const row of coverage.rows) {
+      const isCommonish = row.role === "common" || row.role === "legacy";
+      const uses = row.authoredUses + row.generatedUses;
+      // (a) cena comum já elegível que nunca é usada.
+      if (isCommonish && row.eligibleCommon && uses === 0) {
+        err(
+          "coverage",
+          row.sceneId,
+          `cena comum elegível (desde ${row.firstEligibleLessonId}) nunca aparece em nenhum plano.`
+        );
+      }
+      // (b) cena excessivamente dominante.
+      if (uses > lessonCount * SCENE_DOMINANCE_CAP) {
+        err(
+          "dominance",
+          row.sceneId,
+          `aparece em ${uses}/${lessonCount} lições (${((uses / lessonCount) * 100).toFixed(0)}% > ${SCENE_DOMINANCE_CAP * 100}%).`
+        );
+      }
+      // (c) cena gerada sem lição elegível = pode aparecer antes do vocabulário.
+      if (row.generatedUses > 0 && row.firstEligibleLessonId === null) {
+        err("coverage", row.sceneId, "cena gerada sem primeira lição elegível (risco de vir antes do vocabulário).");
+      }
+    }
+
+    // (d) nenhuma intenção domina as conversas geradas.
+    for (const [intent, count] of coverage.generatedByIntent) {
+      if (totalGenerated > 0 && count > totalGenerated * INTENT_DOMINANCE_CAP) {
+        err(
+          "dominance",
+          intent,
+          `intenção domina ${count}/${totalGenerated} conversas geradas (${((count / totalGenerated) * 100).toFixed(0)}% > ${INTENT_DOMINANCE_CAP * 100}%).`
+        );
+      }
+    }
+
+    // (e) optionalRefs não podem bloquear a elegibilidade (tratados como
+    //     obrigatórios): a cena precisa continuar elegível SEM os optionalRefs.
+    for (const scene of CONVERSATION_SCENES) {
+      const optional = scene.optionalRefs ?? [];
+      if (optional.length === 0) continue;
+      const required = new Set(minimalRequiredRefs(scene));
+      const eligibleWithoutOptional = isConversationSceneEligible(scene, {
+        lessonRefs: required,
+        knownRefs: required,
+        isReviewLesson: true,
+        allowImmersion: true,
+        generatedContext: false,
+      });
+      if (!eligibleWithoutOptional) {
+        err("pedagogy", scene.sceneId, "optionalRefs bloqueiam a elegibilidade (tratados como obrigatórios).");
+      }
     }
 
     // ————— Módulo comunicativo inteiro sem conversa (portão beta) —————

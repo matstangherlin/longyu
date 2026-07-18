@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 96a0e90d41ce08ef5ccc2bc04a38865abd609a4c |
+| Commit | 5875689726837552196b324e6dc15ca4b23dbf9c |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-18T04:09:03.217Z |
-| Lições | 105 |
-| Hash da Jornada | 11ae4e8aae85 |
+| Gerado em | 2026-07-18T16:24:52.007Z |
+| Lições | 108 |
+| Hash da Jornada | 63af61590b71 |
 
 ## Resumo
 
@@ -16,15 +16,15 @@
 |-----------|------:|
 | Conceitos no catálogo | 37 |
 | Imagens locais (WebP) | 37 |
-| Lições na jornada | 105 |
-| Lições concretas elegíveis | 63 |
-| Lições elegíveis com imagem | 63 (100%) |
+| Lições na jornada | 108 |
+| Lições concretas elegíveis | 68 |
+| Lições elegíveis com imagem | 68 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 41 |
 | Dedicadas com imagem | 41 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 35 |
-| Conceitos nunca utilizados | 9 |
+| Conceitos nunca utilizados | 10 |
 
 ## Cobertura por fase
 
@@ -35,8 +35,8 @@
 | p3 — Frases Reais | 14 | 8 | 8 | 100% |
 | p4 — Hànzì Lógico | 30 | 25 | 25 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
-| p6 — Vida Cotidiana | 6 | 4 | 4 | 100% |
-| p7 — Leitura Graduada | 3 | 3 | 3 | 100% |
+| p6 — Vida Cotidiana | 6 | 6 | 6 | 100% |
+| p7 — Leitura Graduada | 6 | 6 | 6 | 100% |
 
 ## Cobertura por unidade
 
@@ -53,19 +53,20 @@
 | u5-0 — Construção lógica | 14 | 14 | 14 | 100% |
 | u5-1 — Números 1 a 10 | 3 | 2 | 2 | 100% |
 | u5-2 — Palavras compostas | 4 | 3 | 3 | 100% |
-| u6-1 — Família | 2 | 1 | 1 | 100% |
-| u6-2 — Comida e compras | 4 | 3 | 3 | 100% |
+| u6-1 — Família | 2 | 2 | 2 | 100% |
+| u6-2 — Comida e compras | 4 | 4 | 4 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
+| u7-2 — Imersão | 3 | 3 | 3 | 100% |
 
 ## Modos utilizados (nos planos reais)
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 17 |
-| imagem → pinyin (`choose_pinyin`) | 61 |
+| imagem → hànzì (`choose_hanzi`) | 16 |
+| imagem → pinyin (`choose_pinyin`) | 71 |
 | imagem → significado (`choose_meaning`) | 30 |
-| áudio → imagem (`listen_and_choose_image`) | 21 |
-| hànzì → imagem (`choose_image`) | 39 |
+| áudio → imagem (`listen_and_choose_image`) | 22 |
+| hànzì → imagem (`choose_image`) | 33 |
 
 ## Conceitos nunca utilizados
 
@@ -76,6 +77,7 @@
 | rice | 饭 | arroz | 12 |
 | meat | 肉 | carne | 12 |
 | vegetables | 菜 | verdura | 12 |
+| drink | 喝 | beber | 12 |
 | book | 书 | livro | 12 |
 | car | 车 | carro | 12 |
 | home | 家 | casa | 11 |
@@ -89,4 +91,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:0a635c6fdfa3811b -->
+<!-- integridade:0435892dba0b13fa -->

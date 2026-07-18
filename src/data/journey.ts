@@ -553,13 +553,14 @@ function withLessonDefaults(lesson: Lesson): Lesson {
 
 const microLesson = (lesson: Lesson): Lesson => withLessonDefaults(lesson);
 
-const review = (id: string, skill: Skill, steps: LessonStep[], premium?: boolean): Lesson =>
+const review = (id: string, skill: Skill, steps: LessonStep[], premium?: boolean, newHanzi?: string[]): Lesson =>
   withLessonDefaults({
     id,
     title: "Revisão do módulo",
     skill,
     isReview: true,
     premium,
+    newHanzi,
     steps,
   });
 
@@ -3638,6 +3639,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Pai e mãe",
             skill: "fala",
             premium: true,
+            // Visto na cena de identificar alguém à distância (那是我妈妈).
+            newHanzi: ["那"],
             steps: [
               flash("zheshibaba"),
               flash("zheshimama"),
@@ -3687,6 +3690,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "这是我妈妈 apresenta sua mãe.",
                 "Pessoa"
               ),
+              // Cena autoral: identificar alguém à distância no momento certo do
+              // módulo Família (那是我妈妈), sem antecipar vocabulário.
+              conversationScene("identificar-pessoa"),
             ],
           },
           {
@@ -3694,6 +3700,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Perguntas úteis",
             skill: "fala",
             premium: true,
+            // Vistos na cena de perguntar onde algo fica (山在哪里 → 在那里).
+            newHanzi: ["那", "里"],
             steps: [
               flash("zheshishenme"),
               flash("zaina"),
@@ -3721,6 +3729,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "Use 这是什么？ para perguntar o que é algo.",
                 "Situação"
               ),
+              // Cena autoral: perguntar onde algo fica (山在哪里？→ 在那里) — a
+              // intenção "perguntar onde está" no módulo de perguntas úteis.
+              conversationScene("onde-esta"),
             ],
           },
         ],
@@ -3768,6 +3779,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "我喜欢中文 expressa gosto ou interesse.",
                 "Situação"
               ),
+              // Cena autoral: perguntar o que é algo (这是什么？→ 这是茶 / 这是水),
+              // a intenção "o que é isto" no módulo de comida e bebida.
+              conversationScene("o-que-e-isto"),
             ],
           },
           {
@@ -3862,6 +3876,9 @@ export const JOURNEY: JourneyPhase[] = [
                   accepts: ["Quero beber chá", "Eu quero beber chá"],
                 }
               ),
+              // Cena autoral: pedir água na loja (请问 → 我要水 → 谢谢), com o
+              // vocabulário de compra já disponível neste módulo.
+              conversationScene("pedir-agua"),
             ],
           },
           {
@@ -3872,9 +3889,27 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               flash("womenzouba"),
               comp("我们走吧", "wǒmen zǒu ba", "Vamos embora.", ["Vamos embora.", "Quero chá.", "Até logo.", "Muito caro!"]),
+              // Cena autoral: reencontrar um amigo e convidá-lo a ir junto
+              // (你好，朋友！→ 我们走吧！) — a intenção central do módulo.
+              conversationScene("encontrar-amigo"),
             ],
           },
-          review("l10-rev", "fala", [flash("woxihuan"), flash("woxianghe"), flash("duoshaoqian")], true),
+          review(
+            "l10-rev",
+            "fala",
+            [
+              flash("woxihuan"),
+              flash("woxianghe"),
+              flash("duoshaoqian"),
+              // Revisão de módulo (comida e compras): negociar uma compra e
+              // uma cena de restaurante consolidam o vocabulário do módulo.
+              conversationScene("comprar-itens"),
+              conversationScene("revisao-restaurante"),
+            ],
+            true,
+            // Vistos nas cenas de compra/restaurante (多少钱, 我饿了).
+            ["多", "少", "饿"]
+          ),
         ],
       },
     ],
@@ -3905,6 +3940,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Eu e meus amigos",
             skill: "leitura",
             premium: true,
+            // Visto na cena de apontar a paisagem (那是山 / 那是日).
+            newHanzi: ["那"],
             steps: [
               read([
                 { hanzi: "我有三个朋友。", pinyin: "Wǒ yǒu sān ge péngyou.", pt: "Eu tenho três amigos." },
@@ -3940,6 +3977,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "Eu gosto de chinês.",
                 "Tenho três amigos.",
               ]),
+              // Cena autoral: aplicar os hànzì de natureza numa conversa real
+              // (这是什么？→ 这是木 / 那是日), apontando a paisagem.
+              conversationScene("apontar-natureza"),
             ],
           },
           {
@@ -3947,6 +3987,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Leitura em voz alta",
             skill: "leitura",
             premium: true,
+            // Vistos na conversa de loja (多少钱).
+            newHanzi: ["多", "少"],
             steps: [
               intro("Shadowing", "Ouça cada linha e repita em voz alta — é assim que a leitura vira fala."),
               listen("我有三个朋友。", "Wǒ yǒu sān ge péngyou.", "Eu tenho três amigos."),
@@ -3975,6 +4017,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "我们走吧 fecha a cena: vamos embora.",
                 "Narrador"
               ),
+              // Cena autoral: uma conversa rápida de loja (我要这个 → 多少钱？)
+              // aplica o vocabulário de compras aprendido, em leitura ativa.
+              conversationScene("conversa-na-loja"),
             ],
           },
           review("l11-rev", "leitura", [
@@ -3991,7 +4036,127 @@ export const JOURNEY: JourneyPhase[] = [
               ["朋友", "三", "个", "我", "有", "喜欢"],
               "我有三个朋友 reaparece como produção guiada."
             ),
-          ], true),
+            // Revisão final: consolidar a lógica dos hànzì de natureza
+            // (木+木=林, 日+月=明) — montagem + conversa de reconhecimento.
+            hanziBuild("hb-lin-components", "Monte 林", "Duas árvores viram um bosque.", "林", "bosque"),
+            conversationScene("revisao-hanzi-natureza"),
+            // Revisão de socorro comunicativo: pedir ajuda quando não se entende.
+            conversationScene("pedir-ajuda"),
+          ], true, ["米"]),
+        ],
+      },
+      {
+        id: "u7-2",
+        title: "Imersão",
+        subtitle: "Conversas inteiras, do início ao fim",
+        goal: "Sustentar uma conversa longa e ramificada em situações reais.",
+        color: "#B4451E",
+        focusChunks: ["多少钱？", "我要这个", "我想喝茶", "这是我妈妈"],
+        focusHanzi: [],
+        focusGrammar: ["conversa longa com ramificação", "recuperar-se de um erro no diálogo"],
+        focusSounds: ["duōshao qián", "wǒ yào zhège", "wǒ xiǎng hē chá"],
+        focusSituations: ["negociar no mercado", "comprar bilhete na estação", "visitar a casa de um amigo"],
+        lessons: [
+          {
+            id: "p7-imersao-mercado",
+            title: "Imersão: no mercado",
+            skill: "fala",
+            premium: true,
+            // Vocabulário visto na imersão de mercado (多少钱).
+            newHanzi: ["多", "少"],
+            steps: [
+              intro(
+                "Imersão no mercado",
+                "Uma conversa inteira: cumprimentar, pedir, perguntar o preço e negociar. Erre à vontade — o vendedor te dá outra chance."
+              ),
+              conversationScene("imersao-mercado"),
+              // Cena comum de aquecimento: dizer a quantidade (我要三个) antes da
+              // imersão longa — mesma situação de mercado.
+              conversationScene("perguntar-quantidade"),
+              comp("多少钱？", "duōshao qián?", "Quanto custa?", [
+                "Quanto custa?",
+                "Vamos embora.",
+                "Quero beber chá.",
+                "Está tudo bem.",
+              ]),
+              dialogue(
+                "Hora de negociar",
+                "O preço veio alto. Qual reação abre a pechincha?",
+                "太贵了",
+                ["太贵了", "谢谢", "你好吗？", "我喜欢中文"],
+                "太贵了 = caro demais; no mercado, negociar faz parte.",
+                "Vendedor"
+              ),
+            ],
+          },
+          {
+            id: "p7-imersao-estacao",
+            title: "Imersão: na estação",
+            skill: "fala",
+            premium: true,
+            // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下).
+            newHanzi: ["那", "里", "多", "少", "等", "下"],
+            steps: [
+              intro(
+                "Imersão na estação",
+                "Ache a estação, pergunte o preço da passagem e compre o bilhete — uma cena longa de rua, do 请问 ao 再见."
+              ),
+              conversationScene("imersao-estacao"),
+              comp("在那里", "zài nàlǐ", "Fica ali.", ["Fica ali.", "Custa dez.", "Espere um pouco.", "Não sei."]),
+              sentenceBuild(
+                "Compre o bilhete",
+                "Monte: eu quero este.",
+                ["我", "要", "这个"],
+                ["这个", "要", "我", "多少"],
+                "我要这个 fecha a compra apontando o que você quer."
+              ),
+              dialogue(
+                "Receba a passagem",
+                "O atendente te entrega o bilhete. O que você diz?",
+                "谢谢",
+                ["谢谢", "太贵了", "你好", "我们走吧"],
+                "谢谢 encerra a compra com cortesia.",
+                "Bilheteria"
+              ),
+            ],
+          },
+          {
+            id: "p7-imersao-casa-amigo",
+            title: "Imersão: visita à casa da amiga",
+            skill: "fala",
+            premium: true,
+            // Vocabulário visto na imersão de visita (认识你很高兴 e distratores).
+            newHanzi: ["认", "识", "高", "兴", "单", "饿", "多", "少"],
+            steps: [
+              intro(
+                "Imersão: uma visita",
+                "Chegue, cumprimente a família, aceite um chá e combine o reencontro — uma conversa social inteira em casa."
+              ),
+              conversationScene("imersao-casa-amigo"),
+              comp("这是我妈妈", "zhè shì wǒ māma", "Esta é minha mãe.", [
+                "Esta é minha mãe.",
+                "Este é meu pai.",
+                "Quero beber chá.",
+                "Até amanhã.",
+              ]),
+              dialogue(
+                "Aceite o chá",
+                "A anfitriã oferece chá. Como você aceita?",
+                "我想喝茶",
+                ["我想喝茶", "太贵了", "再见", "多少钱？"],
+                "我想喝茶 aceita a oferta com naturalidade.",
+                "Anfitriã"
+              ),
+              dialogue(
+                "Combine o próximo dia",
+                "Está tarde. Como você se despede já marcando o reencontro?",
+                "明天见",
+                ["明天见", "你好", "这是什么？", "我要这个"],
+                "明天见 despede e marca: até amanhã!",
+                "Amiga"
+              ),
+            ],
+          },
         ],
       },
     ],

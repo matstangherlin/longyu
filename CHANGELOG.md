@@ -5,6 +5,29 @@ Todas as mudanças notáveis do Longyu são documentadas aqui.
 Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release (`-beta.N`).
 
+## [Não lançado]
+
+### Integração das cenas de conversa com o currículo
+
+- **Cobertura**: todas as 33 cenas do catálogo agora aparecem em algum plano real
+  (antes ~18); nenhuma cena passa de 15% das lições e nenhuma intenção passa de
+  20% das conversas geradas.
+- **`optionalRefs`**: novo campo separa o vocabulário essencial (requiredRefs) do
+  auxiliar; a elegibilidade só exige o essencial, o auxiliar apenas enriquece.
+- **Variantes por estágio** (`variants`): uma cena pode ter versões iniciante /
+  intermediária / avançada; a avançada nunca aparece antes do currículo
+  correspondente (ex.: pedir água começa em 你好 + 水).
+- **Rotação justa**: penalidade de recência graduada (janela de 10) impede que
+  uma única cena domine; a cobertura é medida com rotação encadeada, como um
+  aluno real percorre a jornada.
+- **Inserções autorais**: cenas de água, identificar pessoa, onde está, sala de
+  aula, pedir ajuda, o que é isto, loja, revisões e uma unidade dedicada de
+  **Imersão** (mercado, estação, casa de amigo).
+- **`validate:conversation-scenes`** reforçado: falha se uma cena comum elegível
+  nunca é usada, se uma cena/intenção domina, se requiredRefs têm frases
+  desnecessárias, se optionalRefs são tratados como obrigatórios, ou se uma cena
+  de imersão entra em lição comum. Novo relatório `conversation-unlock-report.md`.
+
 ## [0.2.0-beta.1] — 2026-07-18
 
 Primeira beta pública do Longyu.

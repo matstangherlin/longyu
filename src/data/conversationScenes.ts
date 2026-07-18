@@ -94,10 +94,195 @@ export interface ConversationSceneStep {
   difficulty?: 1 | 2 | 3;
   /** Papel pedagógico: comum (3–6 falas), revisão de módulo (5–10), imersão (8–16, ramificada). */
   sceneRole?: ConversationSceneRole;
+  /**
+   * Vocabulário obrigatório: tudo que a cena realmente MOSTRA (caminho principal
+   * + ramos) e que precisa ter sido ensinado antes. Controla a elegibilidade —
+   * a cena só entra quando todos os requiredRefs estão disponíveis e pelo menos
+   * um toca o foco da lição. (Nome histórico do campo: `learnedRefs`.)
+   */
   learnedRefs: string[];
+  /**
+   * Vocabulário auxiliar: pode enriquecer a cena quando já foi aprendido, mas
+   * não é necessário para entender a intenção. Não bloqueia a elegibilidade e
+   * não aparece no texto renderizado quando ausente — serve de metadado para
+   * variantes e para a pontuação (um optionalRef já conhecido soma como
+   * revisão). Nunca deve conter frase essencial da intenção.
+   */
+  optionalRefs?: string[];
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade. */
   dedicatedLesson?: boolean;
+  /**
+   * Variantes por estágio da MESMA cena/intenção. O nível de topo (nodes +
+   * learnedRefs) é a versão canônica/avançada; as variantes são versões mais
+   * simples usadas enquanto o vocabulário mais rico ainda não foi aprendido.
+   * A elegibilidade usa a variante mais simples (menor vocabulário exigido),
+   * então a versão avançada nunca aparece antes do currículo correspondente.
+   */
+  variants?: ConversationSceneVariant[];
+}
+
+export type ConversationSceneVariantStage = "beginner" | "intermediate" | "advanced";
+
+export interface ConversationSceneVariant {
+  /** Estágio: beginner < intermediate < advanced (mais rico). */
+  stage: ConversationSceneVariantStage;
+  /** Fase mínima do currículo para liberar esta variante (default: sem gate). */
+  minPhaseOrder?: number;
+  /** requiredRefs desta variante — o que ELA mostra. */
+  learnedRefs: string[];
+  newRefs?: string[];
+  entryNodeId?: string;
+  nodes: ConversationNode[];
+}
+
+const VARIANT_STAGE_RANK: Record<ConversationSceneVariantStage, number> = {
+  beginner: 0,
+  intermediate: 1,
+  advanced: 2,
+};
+
+interface ResolvedConversationScene {
+  nodes?: ConversationNode[];
+  entryNodeId?: string;
+  lines: ConversationLine[];
+  learnedRefs: string[];
+  newRefs?: string[];
+  stage: ConversationSceneVariantStage;
+  minPhaseOrder: number;
+}
+
+/** Todas as "camadas" renderizáveis da cena: o topo (avançado) + as variantes. */
+function conversationSceneLayers(scene: ConversationSceneStep): ResolvedConversationScene[] {
+  const base: ResolvedConversationScene = {
+    nodes: scene.nodes,
+    entryNodeId: scene.entryNodeId,
+    lines: scene.lines,
+    learnedRefs: scene.learnedRefs,
+    newRefs: scene.newRefs,
+    stage: "advanced",
+    minPhaseOrder: 0,
+  };
+  const variants = (scene.variants ?? []).map((variant) => ({
+    nodes: variant.nodes,
+    entryNodeId: variant.entryNodeId,
+    lines: linesFromNodes(variant.nodes, variant.entryNodeId),
+    learnedRefs: variant.learnedRefs,
+    newRefs: variant.newRefs,
+    stage: variant.stage,
+    minPhaseOrder: variant.minPhaseOrder ?? 0,
+  }));
+  return [base, ...variants];
+}
+
+/** Camada mais simples (menor vocabulário) — a que controla a elegibilidade. */
+function simplestConversationLayer(scene: ConversationSceneStep): ResolvedConversationScene {
+  const layers = conversationSceneLayers(scene);
+  return layers.reduce((best, layer) => (layer.learnedRefs.length < best.learnedRefs.length ? layer : best));
+}
+
+/** Menor conjunto de requiredRefs entre as camadas — controla a elegibilidade. */
+export function minimalRequiredRefs(scene: ConversationSceneStep): string[] {
+  if (!scene.variants?.length) return scene.learnedRefs;
+  return simplestConversationLayer(scene).learnedRefs;
+}
+
+/** Fase mínima em que a cena pode aparecer (gate da variante mais simples). */
+export function minimalRequiredPhase(scene: ConversationSceneStep): number {
+  if (!scene.variants?.length) return 0;
+  return simplestConversationLayer(scene).minPhaseOrder;
+}
+
+export interface ConversationSceneResolveContext {
+  /** Refs disponíveis ao aluno (foco + revisão + currículo até aqui). */
+  availableRefs?: ReadonlySet<string>;
+  phaseOrder?: number;
+}
+
+/**
+ * Escolhe a camada mais rica cujos requiredRefs já estão disponíveis e cuja
+ * fase mínima foi alcançada. Sem variantes, retorna a cena canônica. Nunca
+ * apresenta uma versão cujo vocabulário ainda não foi ensinado.
+ */
+export function resolveConversationScene(
+  scene: ConversationSceneStep,
+  context: ConversationSceneResolveContext = {}
+): ResolvedConversationScene {
+  const layers = conversationSceneLayers(scene);
+  if (layers.length === 1) return layers[0];
+  const available = context.availableRefs;
+  const phaseOrder = context.phaseOrder ?? Number.POSITIVE_INFINITY;
+  // Uma camada só é renderizável se TODO o seu vocabulário já foi aprendido e a
+  // fase mínima foi alcançada — nunca mostramos vocabulário não ensinado.
+  const renderable = layers.filter((layer) => {
+    if (phaseOrder < layer.minPhaseOrder) return false;
+    if (!available) return layer.stage === "beginner";
+    return layer.learnedRefs.every((ref) => available.has(ref));
+  });
+  if (renderable.length > 0) {
+    // Entre as renderáveis, a mais rica.
+    return renderable.reduce((best, layer) =>
+      VARIANT_STAGE_RANK[layer.stage] > VARIANT_STAGE_RANK[best.stage] ? layer : best
+    );
+  }
+  // Nenhuma camada qualifica (ex.: fase muito cedo): caia para a MAIS SIMPLES,
+  // nunca para a avançada — o piso seguro é sempre a versão iniciante.
+  return layers.reduce((best, layer) =>
+    VARIANT_STAGE_RANK[layer.stage] < VARIANT_STAGE_RANK[best.stage] ? layer : best
+  );
+}
+
+/** Refs obrigatórios de uma cena (o que ela mostra e precisa estar aprendido). */
+export function requiredConversationRefs(scene: Pick<ConversationSceneStep, "learnedRefs" | "newRefs">): string[] {
+  return [...scene.learnedRefs, ...(scene.newRefs ?? [])];
+}
+
+export interface ConversationSceneEligibilityInput {
+  /** Refs do foco + revisão da lição atual (type:id). */
+  lessonRefs: ReadonlySet<string>;
+  /** Vocabulário já ensinado pelo currículo até a lição (type:id). */
+  knownRefs?: ReadonlySet<string>;
+  /** Revisão de módulo libera cenas module_review. */
+  isReviewLesson?: boolean;
+  /** Lição de imersão libera cenas immersion e as dedicadas. */
+  allowImmersion?: boolean;
+  /** Geração comum exclui cenas dedicadas (só entram onde foram inseridas à mão). */
+  generatedContext?: boolean;
+  /** Fase da lição — barra variantes iniciantes cedo demais (ex.: água exige 水). */
+  phaseOrder?: number;
+}
+
+/**
+ * Uma cena é elegível para uma lição quando:
+ * - todos os requiredRefs (learnedRefs) estão disponíveis (foco/revisão OU
+ *   currículo até aqui) — a única novidade (newRefs) é apresentada pela cena;
+ * - pelo menos um requiredRef toca o foco/revisão da lição;
+ * - o papel pedagógico é permitido nessa lição;
+ * - cenas dedicadas não vazam para a geração comum.
+ * optionalRefs NUNCA entram nessa conta: ausentes, são apenas omitidos.
+ */
+export function isConversationSceneEligible(
+  scene: ConversationSceneStep,
+  input: ConversationSceneEligibilityInput
+): boolean {
+  if (scene.learnedRefs.length === 0) return false;
+  const role = scene.sceneRole ?? "common";
+  if (role === "immersion" && !input.allowImmersion) return false;
+  if (role === "module_review" && !input.isReviewLesson && !input.allowImmersion) return false;
+  // Cenas dedicadas (mais de 1 novidade, ou marcadas) são material autoral: só
+  // entram na geração comum quando a lição é de imersão/dedicada.
+  const dedicated = Boolean(scene.dedicatedLesson) || (scene.newRefs?.length ?? 0) > 1;
+  if (dedicated && input.generatedContext && !input.allowImmersion) return false;
+  // A elegibilidade usa a variante mais simples: a cena pode entrar cedo na sua
+  // forma iniciante; a variante avançada só é renderizada quando seu
+  // vocabulário estiver disponível (ver resolveConversationScene). A fase
+  // mínima da variante mais simples também é respeitada (ex.: a água só entra
+  // a partir da fase em que 水 é ensinado, nunca numa lição de tom).
+  if (input.phaseOrder != null && input.phaseOrder < minimalRequiredPhase(scene)) return false;
+  const required = minimalRequiredRefs(scene);
+  const touchesFocus = required.some((ref) => input.lessonRefs.has(ref));
+  if (!touchesFocus) return false;
+  return required.every((ref) => input.lessonRefs.has(ref) || Boolean(input.knownRefs?.has(ref)));
 }
 
 const PAIR_LIN_MEI: ConversationCharacter[] = [
@@ -244,13 +429,19 @@ export function scoreConversationScene(
 ): number {
   let score = 0;
   const refs = [...scene.learnedRefs, ...(scene.newRefs ?? [])];
+  // optionalRefs só contam para revisão quando já estão disponíveis; nunca
+  // pesam no foco (a elegibilidade já garante que um requiredRef toca o foco).
+  const optional = scene.optionalRefs ?? [];
 
   // +40: trabalha o foco atual da lição (com desempate: quanto mais refs do
   // foco a cena cobre, melhor ela "trabalha" o foco).
   const matchedFocus = refs.filter((ref) => lesson.focusRefs.has(ref)).length;
   if (matchedFocus > 0) score += 40 + Math.min(8, (matchedFocus - 1) * 2);
-  // +25: reutiliza vocabulário antigo (revisão) além do foco.
-  const matchedReview = refs.filter((ref) => lesson.reviewRefs.has(ref) && !lesson.focusRefs.has(ref)).length;
+  // +25: reutiliza vocabulário antigo (revisão) além do foco — inclui
+  // optionalRefs já aprendidos (enriquecem a cena sem serem obrigatórios).
+  const matchedReview = [...refs, ...optional].filter(
+    (ref) => lesson.reviewRefs.has(ref) && !lesson.focusRefs.has(ref)
+  ).length;
   if (matchedReview > 0) score += 25 + Math.min(5, matchedReview - 1);
   // +20: a intenção ainda não apareceu na lição.
   if (!lesson.usedIntents?.has(scene.intent)) score += 20;
@@ -266,9 +457,15 @@ export function scoreConversationScene(
   if (!lastScene || lastScene.setting !== scene.setting) score += 10;
   // -80: apareceu entre as três cenas mais recentes (ou já está na lição).
   if (recentScenes.slice(0, 3).includes(scene.sceneId)) score -= 80;
+  // -25: apareceu na janela mais ampla (posições 3–9): faz a cena "esperar a
+  // vez" e impede que uma única cena domine a rotação (teto ~1 a cada 10).
+  else if (recentScenes.slice(3, 10).includes(scene.sceneId)) score -= 25;
   if (lesson.usedSceneIds?.has(scene.sceneId)) score -= 80;
   // -50: repete a mesma intenção das cenas recentes.
-  if ((context.recentConversationIntentIds ?? []).slice(0, 3).includes(scene.intent)) score -= 50;
+  const recentIntents = context.recentConversationIntentIds ?? [];
+  if (recentIntents.slice(0, 3).includes(scene.intent)) score -= 50;
+  // -15: mesma intenção na janela ampla (espalha também por intenção).
+  else if (recentIntents.slice(3, 10).includes(scene.intent)) score -= 15;
   // -30: repete a mesma resposta principal já usada na lição.
   const mainAnswer = normalizeConversationAnswer(conversationSceneMainAnswer(scene));
   if (mainAnswer && lesson.usedAnswers?.has(mainAnswer)) score -= 30;
@@ -775,7 +972,73 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
       { id: "agua-4", speakerId: "wang", hanzi: "请再说一遍。", pinyin: "qǐng zài shuō yí biàn.", pt: "Por favor, fale de novo.", emotion: "confused", nextNodeId: "agua-3" },
       { id: "agua-5", speakerId: "wang", hanzi: "不客气！再见！", pinyin: "bú kèqi! zàijiàn!", pt: "De nada! Até logo!", emotion: "happy" },
     ],
+    // Essencial da intenção: cumprimentar e pedir água. O resto (请问/我要/谢谢/
+    // 请再说一遍/不客气/再见) enriquece a cena só quando já foi aprendido.
     learnedRefs: ["chunk:nihao", "chunk:qingwen", "chunk:woyao", "char:shui", "chunk:xiexie", "chunk:qingzaishuoyibian", "chunk:bukeqi", "chunk:zaijian"],
+    optionalRefs: ["chunk:qingwen", "chunk:woyao", "chunk:xiexie", "chunk:qingzaishuoyibian", "chunk:bukeqi", "chunk:zaijian"],
+    // Variantes por estágio (a versão avançada é o nível de topo acima). A
+    // iniciante só exige 你好 + 水, então a cena aparece cedo sem antecipar
+    // vocabulário; conforme o currículo avança, a variante fica mais rica.
+    variants: [
+      {
+        stage: "beginner",
+        // 水 é ensinado na fase 4 (Hànzì Lógico); antes disso a cena não entra
+        // (não aparece em lições de tom/som das fases 1–3).
+        minPhaseOrder: 4,
+        learnedRefs: ["chunk:nihao", "char:shui"],
+        entryNodeId: "agua-b1",
+        nodes: [
+          { id: "agua-b1", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "agua-b2" },
+          { id: "agua-b2", speakerId: "wang", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "agua-b3" },
+          {
+            id: "agua-b3",
+            speakerId: "wang",
+            hanzi: "你好！",
+            pinyin: "nǐ hǎo!",
+            pt: "Olá! (o que você quer?)",
+            interaction: {
+              type: "choose_reply",
+              prompt: "Você está com sede. Qual caractere pede água?",
+              options: ["水", "火", "木", "山"],
+              correctAnswer: "水",
+              correctNextNodeId: "agua-b5",
+              wrongNextNodeId: "agua-b4",
+              explanation: "水 = água. 火 é fogo, 木 árvore, 山 montanha.",
+            },
+          },
+          { id: "agua-b4", speakerId: "wang", hanzi: "你好？", pinyin: "nǐ hǎo?", pt: "Hã? (não entendeu)", emotion: "confused", nextNodeId: "agua-b3" },
+          { id: "agua-b5", speakerId: "wang", hanzi: "好！", pinyin: "hǎo!", pt: "Está bem!", emotion: "happy" },
+        ],
+      },
+      {
+        stage: "intermediate",
+        minPhaseOrder: 6,
+        learnedRefs: ["chunk:nihao", "chunk:qingwen", "chunk:woyao", "char:shui"],
+        entryNodeId: "agua-i1",
+        nodes: [
+          { id: "agua-i1", speakerId: "lin", hanzi: "请问。", pinyin: "qǐng wèn.", pt: "Com licença.", emotion: "neutral", nextNodeId: "agua-i2" },
+          { id: "agua-i2", speakerId: "wang", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "agua-i3" },
+          {
+            id: "agua-i3",
+            speakerId: "wang",
+            hanzi: "你好！",
+            pinyin: "nǐ hǎo!",
+            pt: "Olá! (pode pedir)",
+            interaction: {
+              type: "order_reply",
+              prompt: "Peça água: eu quero água.",
+              options: ["我", "要", "水"],
+              correctAnswer: "我要水",
+              correctNextNodeId: "agua-i5",
+              wrongNextNodeId: "agua-i4",
+              explanation: "我要水 = eu quero água.",
+            },
+          },
+          { id: "agua-i4", speakerId: "wang", hanzi: "你好？", pinyin: "nǐ hǎo?", pt: "Hã? (fale de novo)", emotion: "confused", nextNodeId: "agua-i3" },
+          { id: "agua-i5", speakerId: "wang", hanzi: "好！", pinyin: "hǎo!", pt: "Está bem!", emotion: "happy" },
+        ],
+      },
+    ],
   }),
   sceneV2({
     sceneId: "pedir-cha",
@@ -1332,7 +1595,10 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
       { id: "rest-10", speakerId: "lin", hanzi: "好，谢谢！再见！", pinyin: "hǎo, xièxie! zàijiàn!", pt: "Está bem, obrigado! Até logo!", emotion: "happy", nextNodeId: "rest-11" },
       { id: "rest-11", speakerId: "wang", hanzi: "再见！", pinyin: "zàijiàn!", pt: "Até logo!" },
     ],
-    learnedRefs: ["chunk:woele", "chunk:womenchifanba", "chunk:nihao", "chunk:woyao", "chunk:zheshishenme", "chunk:qingzaishuoyibian", "chunk:woxianghe", "chunk:nihaoma", "chunk:haochi", "chunk:duoshaoqian", "char:shi10", "chunk:xiexie", "chunk:zaijian"],
+    learnedRefs: ["chunk:woele", "chunk:nihao", "chunk:woyao", "chunk:zheshishenme", "chunk:qingzaishuoyibian", "chunk:woxianghe", "chunk:nihaoma", "chunk:haochi", "chunk:duoshaoqian", "char:shi10", "chunk:xiexie", "chunk:zaijian"],
+    // 我们吃饭吧 (vamos comer) é a novidade de abertura desta revisão de
+    // restaurante — apresentada aqui, não exigida de antemão.
+    newRefs: ["chunk:womenchifanba"],
   }),
   sceneV2({
     sceneId: "revisao-numeros",
@@ -1671,8 +1937,7 @@ export function conversationSceneStepFromId(sceneId: string): ConversationSceneS
 
 export function conversationScenesForRefs(refs: readonly string[]): ConversationSceneStep[] {
   const refSet = new Set(refs);
-  return CONVERSATION_SCENES.filter((scene) => {
-    const needed = [...scene.learnedRefs, ...(scene.newRefs ?? [])];
-    return needed.every((ref) => refSet.has(ref));
-  });
+  // Só os requiredRefs (learnedRefs) precisam estar disponíveis; optionalRefs
+  // ausentes são simplesmente omitidos.
+  return CONVERSATION_SCENES.filter((scene) => scene.learnedRefs.every((ref) => refSet.has(ref)));
 }

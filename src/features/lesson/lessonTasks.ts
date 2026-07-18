@@ -15,10 +15,13 @@ import { CHUNKS, chunkById } from "../../data/chunks";
 import {
   CONVERSATION_SCENES,
   conversationSceneById,
+  isConversationSceneEligible,
   normalizeConversationAnswer,
   pickBestConversationScene,
+  resolveConversationScene,
   scoreConversationScene,
   type ConversationSceneLessonInfo,
+  type ConversationSceneResolveContext,
   type ConversationSceneSelectionContext,
   type ConversationSceneStep as ConversationSceneDefinition,
 } from "../../data/conversationScenes";
@@ -1505,21 +1508,28 @@ function maxConversationScenesForLesson(lesson: Lesson): number {
   return 1;
 }
 
-function conversationSceneToLessonStep(scene: ConversationSceneDefinition): LessonStep {
-  const firstInteraction = scene.nodes?.map((node) => node.interaction).find(Boolean);
+function conversationSceneToLessonStep(
+  scene: ConversationSceneDefinition,
+  resolveContext?: ConversationSceneResolveContext
+): LessonStep {
+  // Resolve a variante por estágio: renderiza a versão mais rica cujo
+  // vocabulário já está disponível (a iniciante quando nada mais foi aprendido).
+  const resolved = resolveConversationScene(scene, resolveContext ?? {});
+  const nodes = resolved.nodes;
+  const firstInteraction = nodes?.map((node) => node.interaction).find(Boolean);
   return {
     kind: "conversation_scene",
     title: scene.title,
     sceneId: scene.sceneId,
     setting: scene.setting,
     characters: scene.characters,
-    lines: scene.lines,
+    lines: resolved.lines,
     checkpoint: scene.checkpoint,
-    nodes: scene.nodes,
-    entryNodeId: scene.entryNodeId,
+    nodes,
+    entryNodeId: resolved.entryNodeId,
     sceneIntent: scene.intent,
-    learnedRefs: scene.learnedRefs,
-    newRefs: scene.newRefs,
+    learnedRefs: resolved.learnedRefs,
+    newRefs: resolved.newRefs,
     dedicatedLesson: scene.dedicatedLesson,
     prompt: scene.checkpoint?.prompt ?? firstInteraction?.prompt,
     options: scene.checkpoint?.options ?? firstInteraction?.options,
@@ -1598,25 +1608,255 @@ function makeConversationSceneStep(
 ): LessonStep | null {
   const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
   const knownRefs = selection?.knownRefs;
-  const candidates = CONVERSATION_SCENES.filter((scene) => {
-    if (scene.learnedRefs.length === 0) return false;
-    // Cenas com mais de 1 novidade são material dedicado (imersão autoral).
-    if ((scene.newRefs?.length ?? 0) > 1) return false;
-    // Papel pedagógico: imersão só em lições de imersão; cenas de revisão de
-    // módulo só em revisões (ou imersão).
-    const role = scene.sceneRole ?? "common";
-    if (role === "immersion" && !selection?.allowImmersion) return false;
-    if (role === "module_review" && !selection?.isReviewLesson && !selection?.allowImmersion) return false;
-    // Elegível quando toca o foco/revisão em pelo menos um learnedRef e todo o
-    // vocabulário APRENDIDO da cena está disponível (foco, revisão ou
-    // currículo até aqui); a única novidade (newRefs) é apresentada pela cena.
-    const touchesFocus = scene.learnedRefs.some((ref) => refs.has(ref));
-    return touchesFocus && scene.learnedRefs.every((ref) => refs.has(ref) || Boolean(knownRefs?.has(ref)));
-  });
+  const phaseOrder = selection?.lessonInfo?.phaseOrder;
+  const candidates = CONVERSATION_SCENES.filter((scene) =>
+    isConversationSceneEligible(scene, {
+      lessonRefs: refs,
+      knownRefs,
+      isReviewLesson: selection?.isReviewLesson,
+      allowImmersion: selection?.allowImmersion,
+      generatedContext: true,
+      phaseOrder,
+    })
+  );
   const lessonInfo: ConversationSceneLessonInfo =
     selection?.lessonInfo ?? { focusRefs: new Set(focusRefs(focus)), reviewRefs: new Set(focusRefs(reviewFocus)) };
   const scene = pickBestConversationScene(candidates, lessonInfo, selection?.context ?? {});
-  return scene ? conversationSceneToLessonStep(scene) : null;
+  if (!scene) return null;
+  // Renderiza a variante certa: refs disponíveis = foco/revisão + currículo.
+  const availableRefs = new Set(refs);
+  if (knownRefs) for (const ref of knownRefs) availableRefs.add(ref);
+  const resolveContext: ConversationSceneResolveContext = { availableRefs, phaseOrder: lessonInfo.phaseOrder };
+  return conversationSceneToLessonStep(scene, resolveContext);
+}
+
+// ————————————————————————————————————————————————————————————————
+// Análise de cobertura de cenas (fonte única para o relatório e para o
+// validador). Percorre a jornada como um aluno real percorreria — com rotação
+// (recentConversationSceneIds/Intents encadeados) — para medir dominância de
+// forma honesta, e calcula a primeira lição elegível de cada cena.
+// ————————————————————————————————————————————————————————————————
+
+export interface ConversationSceneCoverageRow {
+  sceneId: string;
+  intent: string;
+  role: ConversationSceneRoleName;
+  requiredRefs: string[];
+  optionalRefs: string[];
+  newRefs: string[];
+  firstEligibleLessonId: string | null;
+  firstEligiblePhaseOrder: number | null;
+  eligibleCommon: boolean;
+  authoredUses: number;
+  generatedUses: number;
+  generatedLessonIds: string[];
+  blockReason: string;
+  recommendedAction: string;
+}
+
+type ConversationSceneRoleName = "legacy" | "common" | "module_review" | "immersion";
+
+export interface ConversationSceneCoverage {
+  lessonCount: number;
+  lessonsWithGeneratedScene: number;
+  totalGenerated: number;
+  distinctUsed: number;
+  distinctScenes: number;
+  generatedByIntent: Map<string, number>;
+  authoredUseBySceneId: Map<string, number>;
+  generatedUseBySceneId: Map<string, number>;
+  rows: ConversationSceneCoverageRow[];
+}
+
+function conversationSceneRoleName(scene: ConversationSceneDefinition): ConversationSceneRoleName {
+  return (scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy")) as ConversationSceneRoleName;
+}
+
+/** Refs disponíveis para a cena numa lição: foco + revisão + currículo até aqui. */
+function planningRefsForLesson(lesson: Lesson): { lessonRefs: Set<string>; knownRefs: ReadonlySet<string> } {
+  const focus = focusForPlanning(lesson, {});
+  const reviewFocus = combinedReviewFocus(lesson, {});
+  const lessonRefs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
+  return { lessonRefs, knownRefs: curriculumRefsThroughLesson(lesson.id) };
+}
+
+export function analyzeConversationSceneCoverage(): ConversationSceneCoverage {
+  const authoredUseBySceneId = new Map<string, number>();
+  for (const lesson of ALL_LESSONS) {
+    for (const step of lesson.steps) {
+      if (step.kind === "conversation_scene" && step.sceneId) {
+        authoredUseBySceneId.set(step.sceneId, (authoredUseBySceneId.get(step.sceneId) ?? 0) + 1);
+      }
+    }
+  }
+
+  // Passo gerado com rotação encadeada (como um aluno real percorreria).
+  const generatedUseBySceneId = new Map<string, number>();
+  const generatedLessonIds = new Map<string, string[]>();
+  const generatedByIntent = new Map<string, number>();
+  let lessonsWithGeneratedScene = 0;
+  let totalGenerated = 0;
+  let recentSceneIds: string[] = [];
+  let recentIntentIds: string[] = [];
+  for (const lesson of ALL_LESSONS) {
+    const plan = buildLessonPracticePlan(lesson, {
+      silent: true,
+      recentConversationSceneIds: recentSceneIds,
+      recentConversationIntentIds: recentIntentIds,
+    });
+    const scenes = plan.filter((step) => step.kind === "conversation_scene" && step.generated && step.sceneId);
+    if (scenes.length > 0) lessonsWithGeneratedScene += 1;
+    for (const step of scenes) {
+      const sceneId = step.sceneId as string;
+      const intent = step.sceneIntent ?? conversationSceneById[sceneId]?.intent ?? "(sem intent)";
+      generatedUseBySceneId.set(sceneId, (generatedUseBySceneId.get(sceneId) ?? 0) + 1);
+      generatedByIntent.set(intent, (generatedByIntent.get(intent) ?? 0) + 1);
+      generatedLessonIds.set(sceneId, [...(generatedLessonIds.get(sceneId) ?? []), lesson.id]);
+      totalGenerated += 1;
+      recentSceneIds = [sceneId, ...recentSceneIds.filter((id) => id !== sceneId)].slice(0, 10);
+      recentIntentIds = [intent, ...recentIntentIds.filter((id) => id !== intent)].slice(0, 10);
+    }
+  }
+
+  // Elegibilidade por lição (primeira lição elegível de cada cena).
+  const firstEligible = new Map<string, { lessonId: string; phaseOrder: number }>();
+  const eligibleCommon = new Set<string>();
+  for (const lesson of ALL_LESSONS) {
+    const { lessonRefs, knownRefs } = planningRefsForLesson(lesson);
+    const isReviewLesson = Boolean(lesson.isReview);
+    const allowImmersion = lessonAllowsImmersionScenes(lesson);
+    const phaseOrder = lessonPhaseOrder(lesson);
+    for (const scene of CONVERSATION_SCENES) {
+      if (
+        !isConversationSceneEligible(scene, {
+          lessonRefs,
+          knownRefs,
+          isReviewLesson,
+          allowImmersion,
+          generatedContext: true,
+          phaseOrder,
+        })
+      ) {
+        continue;
+      }
+      if (!firstEligible.has(scene.sceneId)) {
+        firstEligible.set(scene.sceneId, { lessonId: lesson.id, phaseOrder });
+      }
+      if (!isReviewLesson && !allowImmersion) eligibleCommon.add(scene.sceneId);
+    }
+  }
+
+  const rows: ConversationSceneCoverageRow[] = CONVERSATION_SCENES.map((scene) => {
+    const role = conversationSceneRoleName(scene);
+    const authoredUses = authoredUseBySceneId.get(scene.sceneId) ?? 0;
+    const generatedUses = generatedUseBySceneId.get(scene.sceneId) ?? 0;
+    const elig = firstEligible.get(scene.sceneId) ?? null;
+    const requiredRefs = scene.learnedRefs;
+    const newRefs = scene.newRefs ?? [];
+    const optionalRefs = scene.optionalRefs ?? [];
+    const { blockReason, recommendedAction } = conversationBlockDiagnosis({
+      scene,
+      role,
+      authoredUses,
+      generatedUses,
+      firstEligibleLessonId: elig?.lessonId ?? null,
+      eligibleCommon: eligibleCommon.has(scene.sceneId),
+    });
+    return {
+      sceneId: scene.sceneId,
+      intent: scene.intent,
+      role,
+      requiredRefs,
+      optionalRefs,
+      newRefs,
+      firstEligibleLessonId: elig?.lessonId ?? null,
+      firstEligiblePhaseOrder: elig?.phaseOrder ?? null,
+      eligibleCommon: eligibleCommon.has(scene.sceneId),
+      authoredUses,
+      generatedUses,
+      generatedLessonIds: generatedLessonIds.get(scene.sceneId) ?? [],
+      blockReason,
+      recommendedAction,
+    };
+  });
+
+  const distinctUsed = rows.filter((row) => row.authoredUses > 0 || row.generatedUses > 0).length;
+
+  return {
+    lessonCount: ALL_LESSONS.length,
+    lessonsWithGeneratedScene,
+    totalGenerated,
+    distinctUsed,
+    distinctScenes: CONVERSATION_SCENES.length,
+    generatedByIntent,
+    authoredUseBySceneId,
+    generatedUseBySceneId,
+    rows,
+  };
+}
+
+/** Nunca ensinado no currículo: o requiredRef não aparece em nenhuma lição. */
+function conversationRefEverAvailable(ref: string): boolean {
+  const last = ALL_LESSONS[ALL_LESSONS.length - 1];
+  if (!last) return false;
+  return curriculumRefsThroughLesson(last.id).has(ref) || CORE_REVIEW_REFS.includes(ref);
+}
+
+function conversationBlockDiagnosis(input: {
+  scene: ConversationSceneDefinition;
+  role: ConversationSceneRoleName;
+  authoredUses: number;
+  generatedUses: number;
+  firstEligibleLessonId: string | null;
+  eligibleCommon: boolean;
+}): { blockReason: string; recommendedAction: string } {
+  const { scene, role, authoredUses, generatedUses, firstEligibleLessonId, eligibleCommon } = input;
+  if (authoredUses > 0 || generatedUses > 0) {
+    return { blockReason: "—", recommendedAction: "nenhuma (já aparece nos planos)" };
+  }
+  // newRefs são a novidade que a própria cena apresenta — não precisam ter sido
+  // ensinados antes; só os learnedRefs (pré-requisitos) contam como bloqueio.
+  const neverTaught = scene.learnedRefs.filter((ref) => !conversationRefEverAvailable(ref));
+  if (neverTaught.length > 0) {
+    return {
+      blockReason: `requiredRef nunca disponível no currículo: ${neverTaught.join(", ")}`,
+      recommendedAction: "corrigir refs (usar átomos ensinados), ensinar o vocabulário ou inserir à mão",
+    };
+  }
+  if (role === "immersion") {
+    return {
+      blockReason: "papel immersion: nunca entra na geração comum (só em lição de imersão)",
+      recommendedAction: "inserir à mão numa lição de imersão dedicada",
+    };
+  }
+  if (role === "module_review") {
+    return {
+      blockReason: "papel module_review: só entra em revisão de módulo",
+      recommendedAction: "inserir à mão numa lição de revisão de módulo",
+    };
+  }
+  if (Boolean(scene.dedicatedLesson) || (scene.newRefs?.length ?? 0) > 1) {
+    return {
+      blockReason: "cena dedicada: excluída da geração comum",
+      recommendedAction: "inserir à mão na lição dedicada correspondente",
+    };
+  }
+  if (firstEligibleLessonId === null) {
+    return {
+      blockReason: "nunca elegível: nenhum requiredRef toca o foco quando todos já estão disponíveis",
+      recommendedAction: "reduzir requiredRefs ao essencial da intenção ou inserir à mão",
+    };
+  }
+  if (!eligibleCommon) {
+    return {
+      blockReason: `só elegível fora de lição comum (a partir de ${firstEligibleLessonId})`,
+      recommendedAction: "reduzir requiredRefs ao essencial ou inserir à mão",
+    };
+  }
+  return {
+    blockReason: `elegível a partir de ${firstEligibleLessonId}, mas perde na pontuação para cenas dominantes`,
+    recommendedAction: "inserção autoral no momento certo e/ou reduzir dominância das cenas comuns",
+  };
 }
 
 function makeMatchPairsStep(focus: FocusItem[]): LessonStep | null {
