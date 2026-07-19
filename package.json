@@ -71,7 +71,11 @@
     "validate:pedagogy-rpc-hardening": "node scripts/validate-pedagogy-rpc-hardening.mjs",
     "validate:frontend-secrets": "node scripts/validate-frontend-secrets.mjs",
     "validate:lesson-victory-ui": "node scripts/validate-lesson-victory-ui.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test --project=chromium --project=mobile-chrome --project=tablet-portrait --project=tablet-landscape --project=reduced-motion",
+    "test:e2e:all": "playwright test",
+    "test:e2e:webkit": "playwright test --project=webkit --project=mobile-safari",
+    "test:e2e:firefox": "playwright test --project=firefox",
+    "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari --project=tablet-portrait --project=tablet-landscape"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",

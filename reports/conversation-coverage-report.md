@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 1d9aca2088f911425e7c9d675539abed34c20c1e |
+| Commit | aa4489dc90eecd41bc1259cc211fb2f37d59759e |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-18T17:59:50.635Z |
+| Gerado em | 2026-07-19T06:21:34.612Z |
 | Lições | 108 |
 | Hash da Jornada | 88316737b78b |
 
@@ -90,4 +90,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade._
 
-<!-- integridade:86314a9e36796c48 -->
+<!-- integridade:8256df59359b0da3 -->
