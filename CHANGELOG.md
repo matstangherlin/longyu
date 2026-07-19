@@ -15,7 +15,9 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Revogar limpa a fila local imediatamente, preserva progresso e feedback manual.
 - Perfil Supabase: `pedagogy_analytics_consent`, `consented_at`, `revoked_at` (migration `011`).
 - Servidor: `submit_beta_pedagogy_event` exige consentimento no perfil autenticado; allowlist `conversation_*` alinhada ao app (migration `012`).
+- Hardening pedagógico (migration `013`): rate limit (auth/anon + por tipo), whitelist de metadata, limites de tamanho, digest UA com rotação diária (sem IP), sessão anônima opcional, retenção 90 dias com agregados diários.
 - Validador `validate:privacy-consent` no portão `validate:beta`.
+- Validador `validate:pedagogy-rpc-hardening` no portão `validate:beta`.
 
 ### Identidade visual consistente dos exercícios com imagem
 

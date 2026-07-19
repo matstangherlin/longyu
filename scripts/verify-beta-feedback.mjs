@@ -77,9 +77,11 @@ const { error: pedagogyError } = await client.rpc("submit_beta_pedagogy_event", 
   p_lesson_id: "verify-l1",
   p_exercise_kind: null,
   p_exercise_index: null,
-  p_metadata: { source: "verify" },
+  p_metadata: { appVersion: "verify" },
   p_local_profile_id: "verify-local-profile",
   p_client_dedupe_key: `${dedupe}-pedagogy`,
+  p_client_context: "verify-node-ua",
+  p_anon_session_token: null,
 });
 
 if (pedagogyError) {

@@ -47,6 +47,11 @@ interface QueuedPedagogyEvent extends PedagogyEventInput {
 }
 
 const MAX_QUEUE = 80;
+const ANON_SESSION_KEY = "longyu:pedagogy-anon-session";
+
+/** Erros permanentes: descarta da fila. Rate limit reenfileira. */
+const DISCARD_RPC_ERRORS =
+  /consent_required|payload_too_large|invalid_event_type|invalid_anon_session|identity_required/i;
 
 function readQueue(): QueuedPedagogyEvent[] {
   if (typeof localStorage === "undefined") return [];
@@ -73,6 +78,54 @@ function localProfileId(): string {
   const state = useStore.getState();
   const account = state.accounts[state.currentAccountId] ?? state.accounts[DEFAULT_ACCOUNT_ID];
   return account?.id ?? DEFAULT_ACCOUNT_ID;
+}
+
+/**
+ * Resumo curto de UA para rate limit anônimo (sem IP).
+ * O servidor combina com o dia UTC — rotação diária.
+ */
+export function pedagogyClientContext(): string {
+  if (typeof navigator === "undefined") return "node";
+  const ua = navigator.userAgent || "unknown";
+  // Mantém família + plataforma; evita string enorme.
+  const short = ua.replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim().slice(0, 100);
+  const lang = typeof navigator.language === "string" ? navigator.language.slice(0, 12) : "";
+  return `${short}|${lang}`.slice(0, 120);
+}
+
+function readAnonSessionToken(): string | null {
+  if (typeof sessionStorage === "undefined") return null;
+  try {
+    return sessionStorage.getItem(ANON_SESSION_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeAnonSessionToken(token: string): void {
+  if (typeof sessionStorage === "undefined") return;
+  try {
+    sessionStorage.setItem(ANON_SESSION_KEY, token);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function ensureAnonSessionToken(): Promise<string | null> {
+  const existing = readAnonSessionToken();
+  if (existing) return existing;
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  if (user) return null;
+  const { data, error } = await client.rpc("issue_beta_pedagogy_anon_session", {
+    p_client_context: pedagogyClientContext(),
+  });
+  if (error || typeof data !== "string" || !data) return null;
+  writeAnonSessionToken(data);
+  return data;
 }
 
 /** Remove chaves sensíveis / respostas livres de metadados pedagógicos. */
@@ -102,6 +155,7 @@ export function safeMetadata(
   for (const [key, value] of Object.entries(metadata)) {
     if (blocked.has(key)) continue;
     if (/password|senha|token|answer|freetext|userinput/i.test(key)) continue;
+    if (value !== null && typeof value === "object") continue;
     if (typeof value === "string" && value.length > 80) {
       out[key] = value.slice(0, 80);
       continue;
@@ -116,23 +170,28 @@ async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
   if (!getTelemetryConsent()) return false;
   const client = getSupabaseClient();
   if (!client) return false;
+
+  const anonToken = await ensureAnonSessionToken();
+
   const { error } = await client.rpc("submit_beta_pedagogy_event", {
     p_event_type: item.eventType,
-    p_route: item.route ?? "",
-    p_lesson_id: item.lessonId ?? null,
-    p_exercise_kind: item.exerciseKind ?? null,
+    p_route: (item.route ?? "").slice(0, 300),
+    p_lesson_id: item.lessonId ? item.lessonId.slice(0, 120) : null,
+    p_exercise_kind: item.exerciseKind ? item.exerciseKind.slice(0, 80) : null,
     p_exercise_index: item.exerciseIndex ?? null,
     p_metadata: {
       ...safeMetadata(item.metadata),
       appVersion: item.appVersion || getAppVersion(),
     },
-    p_local_profile_id: item.localProfileId,
-    p_client_dedupe_key: item.dedupeKey,
+    p_local_profile_id: item.localProfileId.slice(0, 80),
+    p_client_dedupe_key: item.dedupeKey.slice(0, 200),
+    p_client_context: pedagogyClientContext(),
+    p_anon_session_token: anonToken,
   });
   if (!error) return true;
-  // Servidor rejeitou por falta de opt-in: descarta (não reenfileira).
   const msg = error.message ?? "";
-  if (/consent_required/i.test(msg)) return true;
+  // Opt-in / payload inválido: descarta. Rate limit: reenfileira (return false).
+  if (DISCARD_RPC_ERRORS.test(msg)) return true;
   return false;
 }
 
@@ -207,6 +266,26 @@ export async function fetchAdminPedagogyEvents(limit = 1000): Promise<PedagogyEv
     .limit(limit);
   if (error) throw error;
   return (data ?? []) as PedagogyEventRow[];
+}
+
+export interface PedagogyDailyMetricRow {
+  day: string;
+  event_type: string;
+  lesson_id: string;
+  event_count: number;
+}
+
+/** Agregados diários (RLS: só admin). Sobrevivem à retenção de 90 dias. */
+export async function fetchAdminPedagogyDailyMetrics(limit = 500): Promise<PedagogyDailyMetricRow[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+  const { data, error } = await client
+    .from("beta_pedagogy_daily_metrics")
+    .select("day,event_type,lesson_id,event_count")
+    .order("day", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as PedagogyDailyMetricRow[];
 }
 
 export interface PedagogyInsightBucket {

@@ -23,6 +23,9 @@ const migrations = [
   "supabase/migrations/007_internal_test_pro.sql",
   "supabase/migrations/008_server_entitlement_rpc.sql",
   "supabase/migrations/010_beta_feedback.sql",
+  "supabase/migrations/011_pedagogy_analytics_consent.sql",
+  "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+  "supabase/migrations/013_pedagogy_rpc_hardening.sql",
   "supabase/seed/test-account.sql",
 ];
 const functions = [
