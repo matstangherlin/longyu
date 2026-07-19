@@ -170,6 +170,7 @@ assert(client.includes("p_client_context"), "cliente envia p_client_context");
 assert(client.includes("pedagogyClientContext"), "cliente monta contexto UA resumido");
 assert(client.includes("issue_beta_pedagogy_anon_session"), "cliente pode pedir sessão anônima");
 assert(client.includes("payload_too_large"), "cliente descarta payload_too_large");
+assert(client.includes("invalid_anon_session"), "cliente trata sessão anônima inválida");
 assert(client.includes("fetchAdminPedagogyDailyMetrics"), "cliente lê agregados admin");
 assert(client.includes("typeof value === \"object\""), "safeMetadata rejeita nested");
 

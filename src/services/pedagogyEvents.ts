@@ -165,14 +165,12 @@ export function safeMetadata(
   return out;
 }
 
-async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
-  // Defesa em profundidade: nunca envia sem consentimento explícito.
-  if (!getTelemetryConsent()) return false;
+async function callSubmitPedagogyEvent(
+  item: QueuedPedagogyEvent,
+  anonToken: string | null
+): Promise<{ ok: boolean; message: string }> {
   const client = getSupabaseClient();
-  if (!client) return false;
-
-  const anonToken = await ensureAnonSessionToken();
-
+  if (!client) return { ok: false, message: "no_client" };
   const { error } = await client.rpc("submit_beta_pedagogy_event", {
     p_event_type: item.eventType,
     p_route: (item.route ?? "").slice(0, 300),
@@ -188,10 +186,34 @@ async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
     p_client_context: pedagogyClientContext(),
     p_anon_session_token: anonToken,
   });
-  if (!error) return true;
-  const msg = error.message ?? "";
+  if (!error) return { ok: true, message: "" };
+  return { ok: false, message: error.message ?? "" };
+}
+
+async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
+  // Defesa em profundidade: nunca envia sem consentimento explícito.
+  if (!getTelemetryConsent()) return false;
+  if (!getSupabaseClient()) return false;
+
+  let anonToken = await ensureAnonSessionToken();
+  let result = await callSubmitPedagogyEvent(item, anonToken);
+
+  // Sessão anônima expirada: renova uma vez e tenta de novo.
+  if (!result.ok && /invalid_anon_session/i.test(result.message)) {
+    if (typeof sessionStorage !== "undefined") {
+      try {
+        sessionStorage.removeItem(ANON_SESSION_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
+    anonToken = await ensureAnonSessionToken();
+    result = await callSubmitPedagogyEvent(item, anonToken);
+  }
+
+  if (result.ok) return true;
   // Opt-in / payload inválido: descarta. Rate limit: reenfileira (return false).
-  if (DISCARD_RPC_ERRORS.test(msg)) return true;
+  if (DISCARD_RPC_ERRORS.test(result.message)) return true;
   return false;
 }
 
