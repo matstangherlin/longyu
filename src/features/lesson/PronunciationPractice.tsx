@@ -19,6 +19,13 @@ export function PronunciationPractice({
   onContinue: () => void;
 }) {
   const supported = isRecognitionAvailable();
+  // No celular, gravar (MediaRecorder/getUserMedia) AO MESMO TEMPO que o
+  // reconhecimento de fala disputa o microfone e o reconhecimento falha — por
+  // isso a gravação de playback só roda em telas sem toque (desktop). No mobile
+  // o reconhecimento fica com o mic sozinho e volta a funcionar.
+  const isTouchDevice =
+    typeof navigator !== "undefined" &&
+    (navigator.maxTouchPoints > 0 || (typeof window !== "undefined" && "ontouchstart" in window));
   const [phase, setPhase] = useState<Phase>("idle");
   const [heard, setHeard] = useState("");
   const [correct, setCorrect] = useState(false);
@@ -60,7 +67,9 @@ export function PronunciationPractice({
     setPhase("listening");
     setHeard("");
     setAudioUrl(null);
-    startRecording();
+    // Só grava para playback fora de dispositivos de toque: no mobile a gravação
+    // concorre com o reconhecimento pelo microfone e o quebra.
+    if (!isTouchDevice) startRecording();
     recognizeOnce(
       (t) => {
         const r = scorePronunciation(t, target);
@@ -85,7 +94,9 @@ export function PronunciationPractice({
           Continuar <IconChevron width={18} height={18} />
         </Button>
         <p className="mt-2 text-center text-xs text-ink-faint">
-          No Chrome ou Edge você pode praticar falando — o app reconhece sua voz.
+          Este navegador não reconhece voz (o Safari do iPhone ainda não tem esse
+          recurso). No Chrome/Edge — do Android ou do computador — você pratica
+          falando. Enquanto isso, toque em ouvir e repita em voz alta.
         </p>
       </div>
     );

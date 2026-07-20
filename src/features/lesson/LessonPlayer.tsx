@@ -807,6 +807,10 @@ function ErrorReviewQuestion({
   const options = exercise.options ?? [];
   const pieces = exercise.pieces ?? [];
   const isBuild = exercise.kind === "build";
+  // Se, por algum motivo, um erro não gerar opções nem peças jogáveis, o aluno
+  // ficaria preso (nada para tocar, botão "Próximo" travado). Nesse caso raro,
+  // revelamos a resposta e liberamos o avanço em vez de prender a revisão.
+  const answerable = isBuild ? pieces.length > 0 : options.length > 0;
   const [selected, setSelected] = useState<string | null>(null);
   const [pickedPieces, setPickedPieces] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -822,6 +826,16 @@ function ErrorReviewQuestion({
     setFeedback(null);
     answeredRef.current = false;
   }, [error.id]);
+
+  useEffect(() => {
+    // Exercício degenerado (sem opções/peças): revela a resposta e conta como
+    // "ainda precisa revisar", garantindo que o botão de avançar funcione.
+    if (!answerable && !answeredRef.current) {
+      answeredRef.current = true;
+      setFeedback("wrong");
+      onNeedsMoreReview(error);
+    }
+  }, [answerable, error, onNeedsMoreReview]);
 
   const builtAnswer = pickedPieces.join(exercise.pieceJoin);
   const answerDisplay = exercise.answerDisplay ?? exercise.answer;
@@ -900,7 +914,7 @@ function ErrorReviewQuestion({
         </div>
       ) : null}
 
-      {isBuild ? (
+      {!answerable ? null : isBuild ? (
         <>
           <div className="mt-5 flex min-h-[78px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
             {pickedPieces.length === 0 ? (

@@ -16,6 +16,7 @@ import { EconomySyncBanner } from "../economy/EconomySyncBanner";
 import { EconomyBootstrap } from "../economy/EconomyBootstrap";
 import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap";
 import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
+import { ErrorBoundary } from "../system/ErrorBoundary";
 import { isAdminEmail } from "../../lib/feedback";
 
 export function AppShell() {
@@ -77,7 +78,9 @@ export function AppShell() {
     return (
       <FeedbackProvider>
         <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">
-          <Outlet />
+          <ErrorBoundary resetKey={location.pathname} area="auth">
+            <Outlet />
+          </ErrorBoundary>
         </div>
         <AuthBootstrap />
         <CloudSyncBootstrap />
@@ -106,7 +109,9 @@ export function AppShell() {
               : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5 lg:pb-12",
           ].join(" ")}
         >
-          <Outlet />
+          <ErrorBoundary resetKey={location.pathname} area="page">
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
       {!focusMode && <TabBar />}

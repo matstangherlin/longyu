@@ -7,6 +7,27 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Correções — robustez da lição e microfone no celular
+
+- **Fim da tela branca ao errar tudo**: um `ErrorBoundary`
+  (`src/components/system/ErrorBoundary.tsx`) agora envolve o conteúdo das
+  páginas (dentro do shell) e a raiz do app. Uma exceção de render — como a que
+  aparecia ao errar todas as tarefas e cair no fluxo de fim de lição — deixa de
+  desmontar a árvore inteira; em vez da tela branca o aluno vê uma recuperação
+  no estilo do site (Tentar novamente / Voltar para a Jornada / Recarregar),
+  com o progresso preservado. O boundary se reseta ao trocar de rota, então dá
+  para sair de uma tela quebrada pela navegação sem recarregar.
+- **Revisão de erros à prova de travamento**: se um erro gerar um exercício de
+  correção sem opções nem peças jogáveis, a resposta é revelada e o avanço é
+  liberado, em vez de prender o aluno numa tela sem botão utilizável.
+- **Microfone volta a funcionar no celular**: em `PronunciationPractice`, a
+  gravação de playback (`MediaRecorder`/`getUserMedia`) não roda mais em
+  dispositivos de toque — ela disputava o microfone com o reconhecimento de
+  fala e o quebrava no mobile. Agora o reconhecimento fica com o microfone
+  sozinho no celular; o playback segue disponível no desktop. A mensagem para
+  navegadores sem reconhecimento (Safari do iPhone) explica a alternativa de
+  ouvir e repetir em voz alta.
+
 ### Conversation Vocabulary Loop — reúso no plano real da lição
 
 - **A ligação altera o plano REAL** entregue ao player: `buildLessonPracticePlan`
