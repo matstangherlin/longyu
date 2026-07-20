@@ -73,6 +73,7 @@ try {
     const program = ts.createProgram(
       [
         "src/data/conversationScenes.ts",
+        "src/data/conversationVocabulary.ts",
         "src/data/journey.ts",
         "src/data/characters.ts",
         "src/data/chunks.ts",
@@ -110,6 +111,7 @@ try {
       conversationVariantLevelFor,
       conversationSelectionContextFromHistory,
     } = load("src/data/conversationScenes.js");
+    const { buildConversationVocabularyManifest } = load("src/data/conversationVocabulary.js");
     const { ALL_LESSONS, JOURNEY } = load("src/data/journey.js");
     const { CHUNKS } = load("src/data/chunks.js");
     const { CHARACTERS } = load("src/data/characters.js");
@@ -740,6 +742,50 @@ try {
       );
     }
 
+    // ————— Conversation Vocabulary Loop: cobertura reversa —————
+    // Para cada cena, monta o manifesto da variante mais simples ({}) e da mais
+    // rica (todos os refs disponíveis). O caminho DIRETO (acima) já garante que
+    // nenhuma cena mostra vocabulário não ensinado; esta camada é o caminho
+    // INVERSO: cataloga o que foi exibido e SINALIZA (sem bloquear o portão) dois
+    // itens de qualidade de dados que o validador direto não pega:
+    //  - texto exibido sem referência canônica standalone (ex.: 那/里 só existem
+    //    dentro de chunks — não há char: dedicado): registrado como não resolvido;
+    //  - ref declarado em learnedRefs/newRefs que nunca aparece no texto exibido
+    //    (over-declaração).
+    // Ambos viram AVISO + entram no relatório (nada é ignorado silenciosamente).
+    const missingRefWarnings = [];
+    const unresolvedWarnings = [];
+    let manifestScenes = 0;
+    let manifestItems = 0;
+    for (const scene of CONVERSATION_SCENES) {
+      const allRefs = new Set([
+        ...scene.learnedRefs,
+        ...(scene.newRefs ?? []),
+        ...(scene.optionalRefs ?? []),
+      ]);
+      for (const variant of scene.variants ?? []) {
+        for (const ref of variant.learnedRefs) allRefs.add(ref);
+        for (const ref of variant.newRefs ?? []) allRefs.add(ref);
+      }
+      const contexts = [{}, { availableRefs: allRefs, phaseOrder: Number.MAX_SAFE_INTEGER }];
+      const seenStages = new Set();
+      for (const ctx of contexts) {
+        const manifest = buildConversationVocabularyManifest(scene, ctx);
+        if (seenStages.has(manifest.stage)) continue;
+        seenStages.add(manifest.stage);
+        manifestScenes += 1;
+        manifestItems += manifest.items.length;
+        for (const text of manifest.coverage.unresolvedTexts) {
+          unresolvedWarnings.push(`${scene.sceneId} (${manifest.stage}): sem referência canônica → "${text}"`);
+        }
+        for (const ref of manifest.coverage.missingRefs) {
+          missingRefWarnings.push(`${scene.sceneId} (${manifest.stage}): ref declarado nunca exibido → ${ref}`);
+        }
+      }
+    }
+    for (const warning of unresolvedWarnings) console.warn(`⚠ vocabulary loop (não resolvido): ${warning}`);
+    for (const warning of missingRefWarnings) console.warn(`⚠ vocabulary loop (over-declaração): ${warning}`);
+
     // ————— Relatório —————
     const roleCounts = new Map();
     const settingCounts = new Map();
@@ -812,9 +858,39 @@ try {
 
     lines.push(
       "",
+      "## Conversation Vocabulary Loop (cobertura reversa)",
+      "",
+      "| Indicador | Valor |",
+      "|-----------|------:|",
+      `| Variantes com manifesto gerado | ${manifestScenes} |`,
+      `| Itens de vocabulário mapeados | ${manifestItems} |`,
+      `| Textos exibidos sem referência canônica (aviso) | ${unresolvedWarnings.length} |`,
+      `| Refs declarados nunca exibidos (aviso) | ${missingRefWarnings.length} |`,
+      ""
+    );
+    if (unresolvedWarnings.length > 0) {
+      lines.push(
+        "### Texto exibido sem referência canônica standalone",
+        "",
+        "_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._",
+        ""
+      );
+      for (const warning of unresolvedWarnings.slice(0, 60)) lines.push(`- ${warning}`);
+      if (unresolvedWarnings.length > 60) lines.push(`- …mais ${unresolvedWarnings.length - 60}.`);
+      lines.push("");
+    }
+    if (missingRefWarnings.length > 0) {
+      lines.push("### Refs declarados que não aparecem no texto exibido (over-declaração)", "");
+      for (const warning of missingRefWarnings.slice(0, 60)) lines.push(`- ${warning}`);
+      if (missingRefWarnings.length > 60) lines.push(`- …mais ${missingRefWarnings.length - 60}.`);
+      lines.push("");
+    }
+
+    lines.push(
+      "",
       "---",
       "",
-      "_Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade._",
+      "_Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._",
       ""
     );
 

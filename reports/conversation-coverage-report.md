@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f23f533ac9ccb41764d00afb6fc077b99408759d |
+| Commit | 285c56a885ce751eb8e70a16c75f8d964db12709 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-20T01:58:51.590Z |
+| Gerado em | 2026-07-20T14:56:03.139Z |
 | Lições | 108 |
 | Hash da Jornada | 88316737b78b |
 
@@ -86,8 +86,72 @@
 
 Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
+## Conversation Vocabulary Loop (cobertura reversa)
+
+| Indicador | Valor |
+|-----------|------:|
+| Variantes com manifesto gerado | 34 |
+| Itens de vocabulário mapeados | 410 |
+| Textos exibidos sem referência canônica (aviso) | 6 |
+| Refs declarados nunca exibidos (aviso) | 40 |
+
+### Texto exibido sem referência canônica standalone
+
+_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._
+
+- identificar-pessoa (advanced): sem referência canônica → "那"
+- onde-esta (advanced): sem referência canônica → "那"
+- onde-esta (advanced): sem referência canônica → "里"
+- apontar-natureza (advanced): sem referência canônica → "那"
+- imersao-estacao (advanced): sem referência canônica → "那"
+- imersao-estacao (advanced): sem referência canônica → "里"
+
+### Refs declarados que não aparecem no texto exibido (over-declaração)
+
+- cortesia-loja (advanced): ref declarado nunca exibido → chunk:nihaoma
+- nao-entendi-reparo (advanced): ref declarado nunca exibido → chunk:nihao
+- nao-entendi-reparo (advanced): ref declarado nunca exibido → chunk:nihaoma
+- nao-falo-chinês (advanced): ref declarado nunca exibido → chunk:nihaoma
+- pedir-cha (advanced): ref declarado nunca exibido → chunk:nihaoma
+- pedir-cha (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- perguntar-quantidade (advanced): ref declarado nunca exibido → chunk:woxianghe
+- perguntar-quantidade (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- comprar-itens (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- identificar-pessoa (advanced): ref declarado nunca exibido → chunk:nihao
+- identificar-pessoa (advanced): ref declarado nunca exibido → chunk:wohenhao
+- identificar-pessoa (advanced): ref declarado nunca exibido → chunk:zheshimama
+- encontrar-amigo (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- onde-esta (advanced): ref declarado nunca exibido → chunk:nashirenm
+- onde-esta (advanced): ref declarado nunca exibido → chunk:nihao
+- apontar-natureza (advanced): ref declarado nunca exibido → chunk:nashirenm
+- apontar-natureza (advanced): ref declarado nunca exibido → chunk:wohenhao
+- sala-de-aula (advanced): ref declarado nunca exibido → chunk:wohenhao
+- pedir-ajuda (advanced): ref declarado nunca exibido → chunk:wobuhui
+- pedir-ajuda (advanced): ref declarado nunca exibido → chunk:wohuishuoyidian
+- pedir-ajuda (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- fale-de-novo (advanced): ref declarado nunca exibido → chunk:wohenhao
+- encontro-amanha (advanced): ref declarado nunca exibido → chunk:wohenhao
+- o-que-e-isto (advanced): ref declarado nunca exibido → chunk:nihao
+- o-que-e-isto (advanced): ref declarado nunca exibido → chunk:nihaoma
+- o-que-e-isto (advanced): ref declarado nunca exibido → chunk:woxianghe
+- conversa-na-loja (advanced): ref declarado nunca exibido → chunk:taiguile
+- conversa-na-loja (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- revisao-restaurante (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- revisao-numeros (advanced): ref declarado nunca exibido → chunk:nihaoma
+- revisao-numeros (advanced): ref declarado nunca exibido → chunk:wohenhao
+- revisao-hanzi-natureza (advanced): ref declarado nunca exibido → chunk:nihaoma
+- revisao-hanzi-natureza (advanced): ref declarado nunca exibido → chunk:wohenhao
+- imersao-mercado (advanced): ref declarado nunca exibido → chunk:woxianghe
+- imersao-mercado (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- imersao-estacao (advanced): ref declarado nunca exibido → chunk:nashirenm
+- imersao-estacao (advanced): ref declarado nunca exibido → chunk:zaina
+- imersao-estacao (advanced): ref declarado nunca exibido → chunk:zheshishenme
+- imersao-casa-amigo (advanced): ref declarado nunca exibido → chunk:nihaoma
+- imersao-casa-amigo (advanced): ref declarado nunca exibido → chunk:wohenhao
+
+
 ---
 
-_Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade._
+_Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:4c4459610d828893 -->
+<!-- integridade:4b3823d4d4bc5eff -->

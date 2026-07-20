@@ -7,6 +7,31 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Conversation Vocabulary Loop — caminho inverso do vocabulário
+
+- **Núcleo** `src/data/conversationVocabulary.ts`: dado a variante EFETIVAMENTE
+  exibida de uma conversa (V1 ou V2, incluindo variantes beginner/intermediate/
+  advanced), `buildConversationVocabularyManifest` extrai de forma determinística
+  todo o vocabulário mostrado — chunks, hànzì, palavras, intenção, respostas
+  esperadas — a partir do caminho principal, ramos de erro, interações e
+  explicações, para reúso nas atividades da mesma lição e nas revisões.
+- **Referências canônicas** (`chunk:<id>` / `char:<id>`) via segmentação por
+  correspondência mais longa: um chunk cadastrado nunca é quebrado em partículas
+  soltas; os hànzì que o compõem ficam em `charRefs` (reúso granular em SRS).
+- **Papéis** por item: obrigatório, auxiliar, novo, antigo (reutilizado), apenas
+  exposto e "exige resposta" (aparece numa resposta esperada) — acumuláveis.
+- **Não resolvido nunca é ignorado**: texto exibido sem referência no catálogo é
+  registrado em `coverage.unresolvedTexts` + `warnings` (aviso de desenvolvimento
+  via `warnUnresolvedConversationVocabulary`), sem inventar IDs.
+- **Cobertura reversa** integrada ao `validate:conversation-scenes` (relatório
+  `conversation-coverage-report.md`): sinaliza refs declarados que nunca aparecem
+  no texto (over-declaração) e glifos sem `char:` standalone (ex.: 那/里, hoje só
+  dentro de chunks) — como avisos, sem quebrar o portão.
+- **Testes** `validate:conversation-vocabulary` (14 casos: V1, V2, ramificada,
+  variantes, ramo de erro, opcional ausente, item novo/antigo, texto sem
+  referência, deduplicação, chunk com vários hànzì, palavra repetida) + verificação
+  de determinismo em todas as cenas reais. Comportamento das conversas inalterado.
+
 ### Privacidade — consentimento pedagógico opt-in
 
 - `getTelemetryConsent()` passa a retornar **false** sem escolha explícita; nenhum evento pedagógico é enviado antes da decisão.
