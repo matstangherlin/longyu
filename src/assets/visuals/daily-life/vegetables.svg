@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Vegetables">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <rect y="470" width="600" height="130" fill="#D5E4D7"/>
+  <ellipse cx="230" cy="340" rx="55" ry="120" fill="#F5E8D0"/>
+  <path d="M200 220 Q220 160 230 120" fill="none" stroke="#5A8B68" stroke-width="14" stroke-linecap="round"/>
+  <path d="M230 220 Q250 150 270 110" fill="none" stroke="#8BB89A" stroke-width="14" stroke-linecap="round"/>
+  <path d="M250 220 Q280 170 300 140" fill="none" stroke="#5A8B68" stroke-width="12" stroke-linecap="round"/>
+  <path d="M380 200 L420 420 L340 420 Z" fill="#E07840"/>
+  <path d="M380 200 Q360 150 340 120" fill="none" stroke="#5A8B68" stroke-width="12" stroke-linecap="round"/>
+  <path d="M380 200 Q390 140 410 110" fill="none" stroke="#8BB89A" stroke-width="12" stroke-linecap="round"/>
+  <path d="M380 200 Q400 155 430 130" fill="none" stroke="#5A8B68" stroke-width="10" stroke-linecap="round"/>
+</svg>

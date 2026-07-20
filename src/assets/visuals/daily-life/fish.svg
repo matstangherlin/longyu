@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Fish">
+  <rect width="600" height="600" fill="#E4F0F5"/>
+  <ellipse cx="300" cy="300" rx="140" ry="80" fill="#5B9BC4"/>
+  <polygon points="160,300 90,250 90,350" fill="#7EB4D4"/>
+  <circle cx="380" cy="280" r="14" fill="#F5E8D0"/>
+  <circle cx="384" cy="280" r="7" fill="#3A3F45"/>
+  <path d="M280 300 Q300 270 320 300 Q300 330 280 300" fill="#7EB4D4"/>
+  <circle cx="460" cy="200" r="18" fill="#7EB4D4" opacity="0.45"/>
+  <circle cx="500" cy="250" r="12" fill="#7EB4D4" opacity="0.35"/>
+  <circle cx="480" cy="160" r="10" fill="#7EB4D4" opacity="0.3"/>
+</svg>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Rice">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <rect y="470" width="600" height="130" fill="#D5E4D7"/>
+  <ellipse cx="300" cy="420" rx="140" ry="40" fill="#5B9BC4"/>
+  <path d="M160 360 Q160 420 300 440 Q440 420 440 360 Z" fill="#7EB4D4"/>
+  <ellipse cx="300" cy="300" rx="130" ry="90" fill="#F5E8D0"/>
+  <circle cx="250" cy="280" r="8" fill="#EEF3EE"/>
+  <circle cx="300" cy="260" r="7" fill="#EEF3EE"/>
+  <circle cx="340" cy="290" r="8" fill="#EEF3EE"/>
+  <circle cx="280" cy="320" r="6" fill="#EEF3EE"/>
+  <circle cx="320" cy="310" r="7" fill="#EEF3EE"/>
+  <rect x="400" y="200" width="14" height="200" rx="4" fill="#8B6540" transform="rotate(18 407 300)"/>
+  <rect x="430" y="200" width="14" height="200" rx="4" fill="#6E5235" transform="rotate(18 437 300)"/>
+</svg>

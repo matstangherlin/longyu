@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Four">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <rect y="500" width="600" height="100" fill="#D5E4D7"/>
+  <circle cx="200" cy="220" r="55" fill="#B9412E"/>
+  <circle cx="186" cy="206" r="15" fill="#D46A57"/>
+  <rect x="195" y="147" width="10" height="22" rx="3" fill="#8B6540"/>
+  <ellipse cx="216" cy="157" rx="18" ry="10" fill="#5A8B68"/>
+  <circle cx="400" cy="220" r="55" fill="#B9412E"/>
+  <circle cx="386" cy="206" r="15" fill="#D46A57"/>
+  <rect x="395" y="147" width="10" height="22" rx="3" fill="#8B6540"/>
+  <ellipse cx="416" cy="157" rx="18" ry="10" fill="#5A8B68"/>
+  <circle cx="200" cy="380" r="55" fill="#B9412E"/>
+  <circle cx="186" cy="366" r="15" fill="#D46A57"/>
+  <rect x="195" y="307" width="10" height="22" rx="3" fill="#8B6540"/>
+  <ellipse cx="216" cy="317" rx="18" ry="10" fill="#5A8B68"/>
+  <circle cx="400" cy="380" r="55" fill="#B9412E"/>
+  <circle cx="386" cy="366" r="15" fill="#D46A57"/>
+  <rect x="395" y="307" width="10" height="22" rx="3" fill="#8B6540"/>
+  <ellipse cx="416" cy="317" rx="18" ry="10" fill="#5A8B68"/>
+</svg>

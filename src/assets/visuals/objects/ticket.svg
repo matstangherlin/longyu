@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Ticket">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <rect x="100" y="200" width="400" height="200" rx="16" fill="#B9412E"/>
+  <circle cx="100" cy="250" r="18" fill="#EEF3EE"/>
+  <circle cx="100" cy="300" r="18" fill="#EEF3EE"/>
+  <circle cx="100" cy="350" r="18" fill="#EEF3EE"/>
+  <circle cx="500" cy="250" r="18" fill="#EEF3EE"/>
+  <circle cx="500" cy="300" r="18" fill="#EEF3EE"/>
+  <circle cx="500" cy="350" r="18" fill="#EEF3EE"/>
+  <line x1="380" y1="220" x2="380" y2="380" stroke="#EEF3EE" stroke-width="4" stroke-dasharray="12 10"/>
+  <polygon points="220,260 250,300 220,340 190,300" fill="#F0C070"/>
+  <circle cx="440" cy="300" r="36" fill="#F5E8D0"/>
+  <circle cx="440" cy="300" r="18" fill="#B9412E"/>
+</svg>

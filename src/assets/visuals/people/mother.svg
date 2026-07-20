@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Mother">
+  <rect width="600" height="600" fill="#F5E8E6"/>
+  <rect y="470" width="600" height="130" fill="#E8D0CC"/>
+  <path d="M210 470 L240 290 L360 290 L390 470 Z" fill="#B9412E"/>
+  <circle cx="300" cy="210" r="70" fill="#5C4033"/>
+  <circle cx="300" cy="218" r="50" fill="#E8C4A8"/>
+  <circle cx="282" cy="212" r="4" fill="#3A3F45"/>
+  <circle cx="318" cy="212" r="4" fill="#3A3F45"/>
+  <path d="M288 235 Q300 244 312 235" fill="none" stroke="#3A3F45" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="340" cy="360" rx="55" ry="42" fill="#F5E8D0"/>
+  <circle cx="360" cy="330" r="28" fill="#E8C4A8"/>
+  <circle cx="352" cy="328" r="3" fill="#3A3F45"/>
+  <circle cx="368" cy="328" r="3" fill="#3A3F45"/>
+</svg>

@@ -42,8 +42,8 @@ const VALID_BACKGROUNDS = new Set(["neutral", "contextual", "transparent"]);
 const CJK_RE = /[㐀-鿿豈-﫿]/u;
 // Prioridade de revisão declarada no guia (docs/VISUAL_ASSET_GUIDE.md).
 const PRIORITY_REVIEW = new Set([
-  "big", "small", "woman", "child", "mother", "father", "friend", "crowd",
-  "woods", "forest", "horse", "fish", "rice", "tea", "meat", "vegetables", "eat", "drink",
+  // Acabamento opcional — o catálogo já é 100% flat SVG.
+  "crowd", "horse", "eat", "drink",
 ]);
 
 const errors = [];

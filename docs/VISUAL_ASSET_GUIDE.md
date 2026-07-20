@@ -6,7 +6,7 @@ boa leitura no celular. Este guia é a fonte de verdade; `validate:visual-consis
 faz cumprir as regras automaticamente.
 
 Fonte dos metadados: `src/data/visualVocabulary.ts`. Arquivos: `src/assets/visuals/`
-(SVG ou WebP local, nunca URL externa).
+(SVG local, nunca URL externa).
 
 ---
 
@@ -86,52 +86,28 @@ escolhe distractores da família do alvo, e verificado por
 
 ## 3. Estado atual do catálogo (auditoria)
 
-37 assets, todos **600×600** (SVG vetorial ou WebP opaco). Duas famílias convivem:
-
-- **flat (maioria)**: natureza em SVG chapado (montanha, árvore, sol, lua, água,
-  fogo, céu, bosque, floresta), família/pessoas, animais, comida, objetos e
-  números — o estilo **majoritário** e mais escalável.
-- **realistic (restante)**: `person`, `mouth` (fotos) e `big`, `small` (renders
-  3D realistas).
-
-As categorias `people` e `quantity` ainda contêm as duas famílias. O filtro de
-estilo isola cada família por pergunta, então **nenhuma grade mistura estilos**.
+37 assets, todos **SVG flat 600×600** na mesma linguagem visual (fundo pale mint,
+formas geométricas, paleta mutada + accent `#B9412E`). Uma única família de
+estilo: **flat_illustration**.
 
 ---
 
 ## 4. Direção e prioridade de substituição
 
-**Estilo-casa alvo: `flat_illustration`** (é a maioria, escala melhor e mantém a
-leitura consistente no mobile). Não é obrigatório transformar tudo em fotografia;
-o importante é **aparência profissional, consistência, significado claro e boa
-qualidade no mobile**.
+**Estilo-casa: `flat_illustration` em SVG.** O catálogo inteiro já está unificado
+nessa família. Novos conceitos devem nascer como SVG 600×600 na paleta do guia
+(gerar/atualizar com `scripts/generate-flat-svgs.py` quando fizer sentido).
 
-Rever primeiro (ordem sugerida) — em `reports/visual-consistency-report.md` cada
-um aparece com estilo, tamanho e problemas:
-
-1. `big`, `small` — renders 3D realistas soltos na categoria `quantity` (chapada);
-   migrar para chapado alinha com os números.
-2. `woman`, `child`, `mother`, `father`, `friend`, `crowd` — família chapada;
-   revisar proporção/expressão para acabamento profissional.
-3. `woods`, `forest`, `horse`, `fish` — natureza/animais chapados; `horse` tem
-   proporção a melhorar.
-4. `rice`, `tea`, `meat`, `vegetables`, `eat`, `drink` — comida/ações chapadas;
-   manter o mesmo traço e paleta.
-
-As fotos realistas restantes (`person`, `mouth`) e os renders 3D (`big`,
-`small`) podem permanecer **desde que nunca dividam a grade com assets
-chapados** — o que o filtro já garante. Natureza (montanha, árvore, sol, lua,
-água, fogo, céu, bosque, floresta) usa **SVG flat** na mesma linguagem visual
-do restante do catálogo chapado.
+Rever acabamento (proporção/expressão) se um asset ficar pouco legível em
+~80 px no mobile — a lista viva fica em `reports/visual-consistency-report.md`.
 
 ---
 
 ## 5. Especificação técnica
 
-- Formato **SVG** (preferido para ilustração chapada) ou **WebP**, **600×600**
-  (quadrado exato), **≤ 200 KB** (alvo: fotos até ~100 KB, chapados até ~15 KB).
+- Formato **SVG** (padrão do catálogo), **600×600** (quadrado exato), **≤ 200 KB**.
 - SVG: `viewBox="0 0 600 600"` (e `width`/`height` 600), formas planas, paleta
-  suave alinhada aos outros assets (fundo pale mint `#EEF3EE`, solo `#D5E4D7`,
+  suave alinhada (fundo pale mint `#EEF3EE`, solo `#D5E4D7`, accent `#B9412E`,
   verdes/azuis/terrosos mutados). Sem texto embutido.
 - `imageSrc` **local** relativo a `src/assets/visuals/` — **nunca** `http(s)`.
 - `imageAltPt` **obrigatório**, descritivo, em português, sem hànzì.

@@ -18,6 +18,14 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Guia (`docs/VISUAL_ASSET_GUIDE.md`) aceita SVG como formato preferido para
   ilustração chapada.
 
+### Catálogo visual 100% SVG flat
+
+- Os **37** conceitos de exercício com imagem agora usam SVG na mesma estética
+  (pessoas, objetos, comida, ações, quantidade, animais). Fotos e renders 3D
+  (`person`, `mouth`, `big`, `small`) foram substituídos.
+- Gerador: `scripts/generate-flat-svgs.py`. Validações
+  `validate:visual-consistency` / `validate:image-exercises` atualizadas.
+
 ### Correções — robustez da lição e microfone no celular
 
 - **Fim da tela branca ao errar tudo**: um `ErrorBoundary`

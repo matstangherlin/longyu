@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Mouth">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <ellipse cx="300" cy="310" rx="150" ry="90" fill="#E8C4A8"/>
+  <ellipse cx="300" cy="320" rx="88" ry="42" fill="#B9412E"/>
+  <ellipse cx="300" cy="308" rx="78" ry="22" fill="#D46A57"/>
+  <path d="M230 318 Q300 350 370 318" fill="#F5E8D0"/>
+</svg>

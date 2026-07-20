@@ -151,17 +151,17 @@ test.describe("beta smoke — aprendizagem", () => {
     if (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)) {
       await page.getByRole("button", { name: "Entendi" }).click();
     }
-    const photo = page.locator('img[src*="person"], img[alt*="pessoa" i], img[alt*="Foto" i]').first();
+    const photo = page.locator('img[src*="person"], img[alt*="pessoa" i], img[alt*="Foto" i], img[alt*="Ilustra" i]').first();
     const found = await advanceUntilVisible(page, photo, 14);
     if (!found) {
       // Plano personalizado pode adiar a foto — ainda assim o asset real precisa existir no build.
       const assetPath = await page.evaluate(async () => {
         const html = await fetch("/").then((r) => r.text());
-        // Vite embute hashes nos nomes; varremos o JS principal por person-*.webp.
+        // Vite embute hashes nos nomes; varremos o JS principal por person-*.svg.
         const script = html.match(/assets\/index-[A-Za-z0-9_-]+\.js/);
         if (!script) return null;
         const js = await fetch(`/${script[0]}`).then((r) => r.text());
-        const match = js.match(/person-[A-Za-z0-9_-]+\.webp/);
+        const match = js.match(/person-[A-Za-z0-9_-]+\.svg/);
         return match ? `/assets/${match[0]}` : null;
       });
       expect(assetPath).toBeTruthy();

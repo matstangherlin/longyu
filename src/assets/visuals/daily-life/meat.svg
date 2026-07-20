@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Meat">
+  <rect width="600" height="600" fill="#F5E8E6"/>
+  <ellipse cx="300" cy="300" rx="160" ry="110" fill="#B9412E"/>
+  <ellipse cx="300" cy="300" rx="70" ry="90" fill="#F5E8D0"/>
+  <path d="M200 260 Q240 280 200 320" fill="none" stroke="#D46A57" stroke-width="8" stroke-linecap="round"/>
+  <path d="M400 250 Q360 290 400 330" fill="none" stroke="#D46A57" stroke-width="8" stroke-linecap="round"/>
+  <path d="M280 360 Q300 380 320 360" fill="none" stroke="#D46A57" stroke-width="6" stroke-linecap="round"/>
+</svg>

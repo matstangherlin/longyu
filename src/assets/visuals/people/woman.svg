@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Woman">
+  <rect width="600" height="600" fill="#F5E8E6"/>
+  <rect y="470" width="600" height="130" fill="#E8D0CC"/>
+  <path d="M220 470 L250 300 L350 300 L380 470 Z" fill="#B9412E"/>
+  <circle cx="300" cy="220" r="78" fill="#5C4033"/>
+  <path d="M230 200 Q300 150 370 200" fill="none" stroke="#8B6540" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="300" cy="230" r="55" fill="#E8C4A8"/>
+  <circle cx="282" cy="225" r="5" fill="#3A3F45"/>
+  <circle cx="318" cy="225" r="5" fill="#3A3F45"/>
+  <path d="M288 248 Q300 258 312 248" fill="none" stroke="#3A3F45" stroke-width="3" stroke-linecap="round"/>
+</svg>
