@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 9bc7ef4f18cd744d86a3d7754dc2be39441a9e02 |
+| Commit | e5903577e10249d1423db7d32202936a08f851ac |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-20T22:59:26.623Z |
+| Gerado em | 2026-07-20T23:21:00.373Z |
 | Lições | 108 |
 | Hash da Jornada | a056a4c37761 |
 
@@ -58,7 +58,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | mother | 妈 mãe | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | father | 爸 pai | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | friend | 朋 amigo | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
-| crowd | 众 multidão | flat_illustration | neutral | 2.9 KB | 600×600 | — | — |
+| crowd | 众 multidão | flat_illustration | neutral | 73.8 KB | 600×600 | — | — |
 | sky | 天 céu | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | woods | 林 bosque | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
 | forest | 森 floresta | flat_illustration | neutral | 2.0 KB | 600×600 | — | — |
@@ -68,8 +68,8 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | tea | 茶 chá | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | meat | 肉 carne | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
 | vegetables | 菜 verdura | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
-| eat | 吃 comer | flat_illustration | neutral | 1.7 KB | 600×600 | — | — |
-| drink | 喝 beber | flat_illustration | neutral | 1.6 KB | 600×600 | — | — |
+| eat | 吃 comer | flat_illustration | neutral | 70.3 KB | 600×600 | — | — |
+| drink | 喝 beber | flat_illustration | neutral | 30.9 KB | 600×600 | — | — |
 | book | 书 livro | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | car | 车 carro | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | home | 家 casa | flat_illustration | neutral | 1.2 KB | 600×600 | — | — |
@@ -85,4 +85,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:11936bfa997323a0 -->
+<!-- integridade:9bc7bf9566e29003 -->
