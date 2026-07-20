@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 /**
- * Estado transitório (NÃO persistido) da checagem de assinatura no servidor.
+ * Estado transitório (não persistido) da checagem de assinatura no servidor.
  * Fica fora do store persistido de propósito: um "checando" nunca deve
  * sobreviver a um reload nem ser gravado no localStorage.
  *

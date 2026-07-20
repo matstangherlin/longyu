@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import {
@@ -17,6 +17,10 @@ import {
 } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
+import {
+  recordProOfferCheckoutStarted,
+  recordProOfferSubscriptionStarted,
+} from "../../lib/proOfferEngine";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { PRO_LESSON_QI_BONUS } from "../../data/economy";
 import {
@@ -75,6 +79,7 @@ const BILLING_PLANS: {
 
 export function ProPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const serverIsPro = useStore((state) => state.serverIsPro);
   // Enquanto a assinatura é consultada no servidor, evita piscar o paywall para
   // um Pro legítimo: mostra um estado curto "Verificando seu plano...".
@@ -92,12 +97,23 @@ export function ProPage() {
   const proHighlights = useMemo(() => getProPageProHighlights(), []);
   const proOnlyCount = getProOnlyFeatures().length;
 
+  // Atribuição de conversão: ao voltar do Stripe com ?checkout=success, registra
+  // a origem da oferta que levou à assinatura (métrica, sem dado sensível).
+  useEffect(() => {
+    if (searchParams.get("checkout") === "success") {
+      recordProOfferSubscriptionStarted();
+    }
+  }, [searchParams]);
+
   async function handleSubscribe(planKey = selectedPlan) {
     if (!checkoutReady) return;
     try {
       const result = await createCheckoutSession(planKey);
       setCheckoutNotice(result.message);
-      if (result.data?.url) window.location.assign(result.data.url);
+      if (result.data?.url) {
+        recordProOfferCheckoutStarted();
+        window.location.assign(result.data.url);
+      }
     } catch {
       setCheckoutNotice("Não foi possível abrir o checkout. Tente de novo.");
     }

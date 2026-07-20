@@ -19,7 +19,7 @@ import {
   type PaywallKind,
   type ProPaywallKind,
 } from "../../data/planFeatures";
-import type { ProOfferCopy } from "../../lib/proOfferEngine";
+import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
 
 export type { PaywallKind, ProPaywallKind };
 
@@ -65,6 +65,12 @@ export function ProPaywall({
   const Icon = PAYWALL_ICONS[offer?.paywallKind ?? kind];
   const realBilling = isSupabaseBackendEnabled();
 
+  // CTA da oferta: registra "clicked" (com atribuição de origem) e fecha o modal.
+  const handleCta = () => {
+    if (offer) recordProOfferClicked(offer);
+    onClose();
+  };
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -104,7 +110,7 @@ export function ProPaywall({
         <p className="mt-3 text-xs leading-5 text-ink-faint">{copy.freeContinues}</p>
         {kind === "energy" ? (
           <div className="mt-5 grid gap-2">
-            <Link to="/pro" onClick={onClose}>
+            <Link to="/pro" onClick={handleCta}>
               <Button size="lg" className="w-full">{PRO_PAYWALL_CTA}</Button>
             </Link>
             <Link to="/missoes" onClick={onClose}>
@@ -114,7 +120,7 @@ export function ProPaywall({
           </div>
         ) : (
           <div className="mt-5 grid gap-2">
-            <Link to="/pro" onClick={onClose}>
+            <Link to="/pro" onClick={handleCta}>
               <Button size="lg" className="w-full">{PRO_PAYWALL_CTA}</Button>
             </Link>
             <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>Agora não</Button>

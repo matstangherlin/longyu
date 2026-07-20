@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { warmUpVoices } from "../../lib/tts";
+import { markSessionStart } from "../../lib/proOfferEngine";
 import { Sidebar } from "./Sidebar";
 import { TabBar } from "./TabBar";
 import { TopBar } from "./TopBar";
@@ -45,6 +46,9 @@ export function AppShell() {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     registerActivity();
     warmUpVoices();
+    // Ancora do "primeiro minuto de uso": o ProOfferEngine não oferece Pro logo
+    // na entrada do app (evita interromper quem acabou de abrir).
+    markSessionStart();
   }, [registerActivity]);
 
   // Usuário sem conta/progresso em página interna volta para a landing "/",
