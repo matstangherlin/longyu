@@ -40,11 +40,8 @@ const WARN_BYTES = 80 * 1024;
 const VALID_STYLES = new Set(["photo", "realistic_illustration", "flat_illustration"]);
 const VALID_BACKGROUNDS = new Set(["neutral", "contextual", "transparent"]);
 const CJK_RE = /[㐀-鿿豈-﫿]/u;
-// Prioridade de revisão declarada no guia (docs/VISUAL_ASSET_GUIDE.md).
-const PRIORITY_REVIEW = new Set([
-  // Acabamento opcional — o catálogo já é 100% flat SVG.
-  "crowd", "horse", "eat", "drink",
-]);
+// Lista vazia: todos os assets priorizados no guia já foram revisados.
+const PRIORITY_REVIEW = new Set();
 
 const errors = [];
 const warnings = [];
