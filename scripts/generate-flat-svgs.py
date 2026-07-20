@@ -163,54 +163,7 @@ def build() -> dict[str, str]:
         "Friend",
     )
 
-    assets["people/crowd.svg"] = svg(
-        f"""  <rect width="600" height="600" fill="{BG}"/>
-  <rect y="470" width="600" height="130" fill="{GROUND}"/>
-  <ellipse cx="300" cy="474" rx="230" ry="25" fill="#BFD2C2"/>
-
-  <path d="M74 455 L88 309 Q92 276 125 272 L169 272 Q202 276 206 309 L220 455 Z" fill="{TEAL}"/>
-  <circle cx="147" cy="234" r="58" fill="{HAIR}"/>
-  <circle cx="147" cy="244" r="43" fill="{SKIN}"/>
-  <path d="M106 225 Q147 176 188 225 Q171 211 147 214 Q123 211 106 225" fill="{HAIR}"/>
-  <circle cx="132" cy="242" r="4" fill="{CHARCOAL}"/>
-  <circle cx="162" cy="242" r="4" fill="{CHARCOAL}"/>
-  <path d="M135 261 Q147 270 159 261" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
-
-  <path d="M380 455 L394 309 Q398 276 431 272 L475 272 Q508 276 512 309 L526 455 Z" fill="{ACCENT_SOFT}"/>
-  <circle cx="453" cy="234" r="58" fill="{BROWN}"/>
-  <circle cx="453" cy="244" r="43" fill="{SKIN}"/>
-  <circle cx="416" cy="207" r="24" fill="{BROWN}"/>
-  <circle cx="444" cy="190" r="26" fill="{BROWN}"/>
-  <circle cx="478" cy="204" r="25" fill="{BROWN}"/>
-  <circle cx="438" cy="242" r="4" fill="{CHARCOAL}"/>
-  <circle cx="468" cy="242" r="4" fill="{CHARCOAL}"/>
-  <path d="M441 261 Q453 270 465 261" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
-
-  <path d="M158 470 L170 367 Q174 330 211 326 L255 326 Q292 330 296 367 L308 470 Z" fill="{NAVY}"/>
-  <circle cx="233" cy="291" r="60" fill="{CHARCOAL}"/>
-  <circle cx="233" cy="300" r="44" fill="#C99573"/>
-  <path d="M191 280 Q205 231 249 234 Q276 237 279 276 Q251 255 219 263 Z" fill="{CHARCOAL}"/>
-  <circle cx="218" cy="299" r="4" fill="{CHARCOAL}"/>
-  <circle cx="248" cy="299" r="4" fill="{CHARCOAL}"/>
-  <path d="M221 319 Q233 328 245 319" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
-
-  <path d="M292 470 L304 354 Q308 315 347 311 L393 311 Q432 315 436 354 L448 470 Z" fill="{ACCENT}"/>
-  <circle cx="370" cy="272" r="63" fill="{HAIR}"/>
-  <circle cx="370" cy="282" r="46" fill="{SKIN}"/>
-  <path d="M326 265 Q336 211 388 215 Q416 218 421 264 Q394 242 359 247 Z" fill="{HAIR}"/>
-  <circle cx="354" cy="281" r="4" fill="{CHARCOAL}"/>
-  <circle cx="386" cy="281" r="4" fill="{CHARCOAL}"/>
-  <path d="M356 302 Q370 313 384 302" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
-
-  <path d="M48 470 L60 390 Q64 355 97 352 L137 352 Q170 355 174 390 L186 470 Z" fill="{GOLD}"/>
-  <circle cx="117" cy="320" r="51" fill="{BROWN_DARK}"/>
-  <circle cx="117" cy="328" r="38" fill="#8D6044"/>
-  <path d="M80 316 Q91 272 129 278 Q153 282 157 315 Q137 298 108 301 Z" fill="{BROWN_DARK}"/>
-  <circle cx="104" cy="327" r="4" fill="{CHARCOAL}"/>
-  <circle cx="130" cy="327" r="4" fill="{CHARCOAL}"/>
-  <path d="M106 344 Q117 352 128 344" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>""",
-        "Crowd",
-    )
+    # crowd.svg é um vetor curado a partir de referência gerada; preservar o arquivo existente.
 
     assets["objects/home.svg"] = svg(
         f"""{bg()}
@@ -393,62 +346,7 @@ def build() -> dict[str, str]:
         "Vegetables",
     )
 
-    assets["actions/eat.svg"] = svg(
-        f"""  <rect width="600" height="600" fill="{BG}"/>
-  <rect y="470" width="600" height="130" fill="{GROUND}"/>
-  <ellipse cx="335" cy="470" rx="220" ry="25" fill="#BFD2C2"/>
-
-  <path d="M84 470 L104 330 Q110 298 145 292 L236 292 Q270 298 279 330 L300 470 Z" fill="{TEAL}"/>
-  <circle cx="198" cy="211" r="88" fill="{HAIR}"/>
-  <circle cx="207" cy="222" r="66" fill="{SKIN}"/>
-  <path d="M126 202 Q142 129 215 130 Q278 135 290 199 Q250 168 198 174 Q157 175 126 202" fill="{HAIR}"/>
-  <circle cx="220" cy="212" r="5" fill="{CHARCOAL}"/>
-  <path d="M239 237 Q253 226 269 238" fill="{CHARCOAL}"/>
-  <ellipse cx="264" cy="241" rx="13" ry="10" fill="{ACCENT}"/>
-
-  <ellipse cx="389" cy="430" rx="142" ry="38" fill="{ACCENT}"/>
-  <path d="M267 374 Q389 414 511 374 L487 438 Q389 484 291 438 Z" fill="{CREAM}"/>
-  <ellipse cx="389" cy="374" rx="122" ry="42" fill="{ACCENT}"/>
-  <ellipse cx="389" cy="370" rx="100" ry="27" fill="{GOLD}"/>
-  <path d="M316 364 Q338 346 360 366 T404 366 T448 366" fill="none" stroke="{GOLD_SOFT}" stroke-width="10" stroke-linecap="round"/>
-
-  <path d="M226 335 Q277 318 318 344" fill="none" stroke="{SKIN}" stroke-width="32" stroke-linecap="round"/>
-  <circle cx="320" cy="344" r="20" fill="{SKIN}"/>
-  <path d="M322 340 L274 252" stroke="{BROWN}" stroke-width="10" stroke-linecap="round"/>
-  <path d="M343 331 L287 245" stroke="{BROWN_DARK}" stroke-width="10" stroke-linecap="round"/>
-  <path d="M278 251 C298 275 303 309 317 350" fill="none" stroke="{GOLD_SOFT}" stroke-width="8" stroke-linecap="round"/>
-  <path d="M290 253 C309 278 314 311 329 354" fill="none" stroke="{GOLD_SOFT}" stroke-width="7" stroke-linecap="round"/>""",
-        "Eat",
-    )
-
-    assets["actions/drink.svg"] = svg(
-        f"""  <rect width="600" height="600" fill="{BG}"/>
-  <rect y="470" width="600" height="130" fill="{GROUND}"/>
-  <ellipse cx="286" cy="474" rx="190" ry="24" fill="#BFD2C2"/>
-
-  <path d="M83 470 L104 330 Q111 294 149 288 L245 288 Q282 294 290 330 L312 470 Z" fill="{NAVY}"/>
-  <circle cx="200" cy="207" r="88" fill="{HAIR}"/>
-  <circle cx="209" cy="219" r="66" fill="{SKIN}"/>
-  <path d="M126 198 Q145 125 218 129 Q279 134 290 196 Q248 164 197 171 Q154 173 126 198" fill="{HAIR}"/>
-  <circle cx="222" cy="210" r="5" fill="{CHARCOAL}"/>
-  <ellipse cx="267" cy="236" rx="12" ry="8" fill="{ACCENT}"/>
-
-  <g transform="rotate(-12 356 254)">
-    <path d="M310 194 L417 194 L400 329 Q364 350 327 329 Z" fill="{CREAM}"/>
-    <path d="M324 241 L404 241 L393 319 Q364 335 336 319 Z" fill="{BLUE}"/>
-    <ellipse cx="364" cy="194" rx="54" ry="18" fill="#DCE9E1"/>
-    <ellipse cx="364" cy="200" rx="43" ry="11" fill="{BLUE}"/>
-  </g>
-
-  <path d="M218 334 Q278 310 329 300" fill="none" stroke="{SKIN}" stroke-width="34" stroke-linecap="round"/>
-  <circle cx="333" cy="298" r="22" fill="{SKIN}"/>
-  <path d="M245 355 Q305 354 371 322" fill="none" stroke="{SKIN}" stroke-width="30" stroke-linecap="round"/>
-  <circle cx="373" cy="321" r="20" fill="{SKIN}"/>
-  <path d="M359 181 L273 232" stroke="{ACCENT}" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="483" cy="168" r="11" fill="{BLUE}" opacity="0.45"/>
-  <circle cx="512" cy="205" r="7" fill="{BLUE}" opacity="0.3"/>""",
-        "Drink",
-    )
+    # eat.svg e drink.svg são vetores curados a partir de referências geradas; preservar os arquivos existentes.
 
     # horse.svg é um vetor curado a partir de referência gerada; preservar o arquivo existente.\n\n    return assets
 
