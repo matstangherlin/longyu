@@ -7,6 +7,34 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Conversation Vocabulary Loop — reúso no plano real da lição
+
+- **A ligação altera o plano REAL** entregue ao player: `buildLessonPracticePlan`
+  agora injeta, DEPOIS de cada conversa, tarefas que praticam o vocabulário
+  exibido (`applyConversationVocabularyLoop` em `lessonTasks.ts`). Cada item
+  relevante mostrado numa conversa aparece em ≥1 atividade posterior; itens
+  novos/errados ganham ≥2 modalidades cognitivamente diferentes, com ≥1
+  recuperação ativa; a resposta principal é reaplicada em contexto.
+- **Créditos primeiro** (não incha a lição): tarefas já existentes que reusam o
+  vocabulário contam; só o que falta é adicionado, respeitando tetos de
+  repetição semântica, o limite de "mesma resposta correta" (≤2, alinhado ao
+  `validate:exercise-depth`), transformação cognitiva, limites de Hànzì Builder e
+  a progressão de estágios. O acumulador de tetos é compartilhado entre as
+  conversas da lição (duas conversas não repetem a mesma resposta além do teto).
+- **Metadados na tarefa derivada** (consumidos pelo player): `conversationDerived`,
+  `conversationSourceSceneId`, `conversationCoveredRef`, `conversationModality`,
+  `conversationExposureNumber` e `conversationDerivedReason` (erro vs regra).
+- **Validador** `validate:conversation-loop` (no `validate:beta`): falha quando
+  vocabulário de conversa fica sem tarefa posterior, palavra nova tem uma só
+  exposição/modalidade, tarefa derivada vem antes da conversa, todas as derivadas
+  são da mesma modalidade, a resposta principal nunca é recuperada ou um item de
+  ramo de erro nunca é revisto. Relatório `reports/conversation-loop-report.md`
+  (conversas analisadas, vocabulário exibido/coberto, reúso médio, itens sem
+  cobertura, modalidades).
+- **Testes** `test:conversation-loop`: lição comum, revisão de módulo, imersão,
+  conversa sem/com novidade, com erro, V1/V2, variante beginner, plano no limite,
+  substituição de exercício superficial e preservação da ordem pedagógica.
+
 ### Conversation Vocabulary Loop — caminho inverso do vocabulário
 
 - **Núcleo** `src/data/conversationVocabulary.ts`: dado a variante EFETIVAMENTE

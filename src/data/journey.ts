@@ -167,6 +167,19 @@ export interface LessonStep {
   dedicatedLesson?: boolean;
   /** Nível de apresentação da cena (guided→audio_first), pelo histórico do aluno. */
   conversationVariantLevel?: ConversationVariantLevel;
+  // ——— Conversation Vocabulary Loop: metadados de tarefa derivada de conversa ———
+  /** Esta tarefa foi derivada de uma conversa (reúso do vocabulário exibido). */
+  conversationDerived?: boolean;
+  /** sceneId da conversa de origem. */
+  conversationSourceSceneId?: string;
+  /** Ref de vocabulário coberto por esta tarefa (chunk:/char:). */
+  conversationCoveredRef?: string;
+  /** Modalidade (kind) usada nesta reutilização. */
+  conversationModality?: StepKind;
+  /** Número da exposição desse item (1ª, 2ª…) contando a conversa como 0. */
+  conversationExposureNumber?: number;
+  /** Gerada por erro do aluno ou por regra padrão de cobertura. */
+  conversationDerivedReason?: "error" | "rule";
 }
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";

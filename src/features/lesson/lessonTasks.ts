@@ -27,7 +27,13 @@ import {
   type ConversationSceneResolveContext,
   type ConversationSceneSelectionContext,
   type ConversationSceneStep as ConversationSceneDefinition,
+  type ConversationSceneVariantStage,
 } from "../../data/conversationScenes";
+import {
+  buildManifestForResolvedVariant,
+  type ConversationVocabularyItem,
+  type ConversationVocabularyManifest,
+} from "../../data/conversationVocabulary";
 
 export { scoreConversationScene, type ConversationSceneLessonInfo, type ConversationSceneSelectionContext };
 import {
@@ -2949,6 +2955,363 @@ function seenGlyphsForPlanning(
   return set;
 }
 
+// ————————————————————————————————————————————————————————————————
+// Conversation Vocabulary Loop — reúso obrigatório do vocabulário de conversa.
+//
+// Depois de uma conversa, o aluno precisa PRATICAR o que acabou de encontrar.
+// Este pós-processamento lê o manifesto da variante exibida (fonte única:
+// src/data/conversationVocabulary.ts), calcula as obrigações pedagógicas e
+// injeta tarefas derivadas DEPOIS da conversa — creditando primeiro o que já
+// existe no plano (para não inchar), respeitando tetos de repetição, exigindo
+// transformação cognitiva e marcando metadados. Altera o plano REAL entregue
+// ao player.
+// ————————————————————————————————————————————————————————————————
+
+/** Kinds de recuperação ATIVA (produzir/montar/recuperar), não só reconhecer. */
+const ACTIVE_RECALL_KINDS: ReadonlySet<StepKind> = new Set([
+  "sentence_build",
+  "translation_build",
+  "fill_blank",
+  "produce",
+  "write",
+  "hanzi_build",
+  "listen_select",
+]);
+
+function primaryFamilyOf(step: LessonStep): ExerciseFamily {
+  return exerciseFamiliesFor(step)[0] ?? "recognition";
+}
+
+function focusItemFromRef(ref: string): FocusItem | null {
+  const [type, id] = ref.split(":");
+  if (type === "chunk") {
+    const chunk = chunkById[id];
+    return chunk ? { key: ref, hanzi: chunk.hanzi, pinyin: chunk.pinyin, meaningPt: chunk.meaningPt, type: "chunk", itemId: id } : null;
+  }
+  if (type === "char") {
+    const char = charById[id];
+    return char ? { key: ref, hanzi: char.hanzi, pinyin: char.pinyin, meaningPt: char.meaningPt, type: "char", itemId: id } : null;
+  }
+  return null;
+}
+
+/** Estágio da variante que o passo de conversa efetivamente carrega. */
+function derivedStageForStep(scene: ConversationSceneDefinition, learnedRefs: readonly string[]): ConversationSceneVariantStage {
+  const same = (a: readonly string[], b: readonly string[]) =>
+    a.length === b.length && a.every((ref) => b.includes(ref));
+  if (!scene.variants?.length || same(learnedRefs, scene.learnedRefs)) return "advanced";
+  const variant = scene.variants.find((candidate) => same(learnedRefs, candidate.learnedRefs));
+  return variant?.stage ?? "beginner";
+}
+
+/** Manifesto da conversa exibida a partir do passo já resolvido no plano. */
+export function manifestFromConversationStep(step: LessonStep): ConversationVocabularyManifest | null {
+  if (step.kind !== "conversation_scene" || !step.sceneId) return null;
+  const scene = conversationSceneById[step.sceneId];
+  if (!scene) return null;
+  const learnedRefs = step.learnedRefs ?? scene.learnedRefs;
+  return buildManifestForResolvedVariant(scene, {
+    nodes: step.nodes,
+    entryNodeId: step.entryNodeId,
+    lines: (step.lines ?? []).map((line) => ({ ...line, speakerId: line.speakerId ?? "" })),
+    learnedRefs,
+    newRefs: step.newRefs,
+    stage: derivedStageForStep(scene, learnedRefs),
+    minPhaseOrder: 0,
+  });
+}
+
+interface DerivedTaskDeps {
+  focus: FocusItem[];
+  phaseOrder: number;
+  isReview: boolean;
+  progress?: HanziBuilderProgressMap;
+  seenGlyphs?: ReadonlySet<string>;
+  ownFocusGlyphs?: ReadonlySet<string>;
+}
+
+/** Menu de makers por família, para transformar um item em tarefa posterior. */
+function derivedCandidatesForItem(item: FocusItem, deps: DerivedTaskDeps): { step: LessonStep; family: ExerciseFamily }[] {
+  const f = deps.focus.length >= 2 ? deps.focus : [item, ...deps.focus.filter((other) => other.key !== item.key)];
+  const raw: (LessonStep | null)[] = [
+    makeDialogueChoiceStep(item, f), // usage (contexto)
+    makeFillBlankStep(item, f), // assembly/usage (recuperação ativa)
+    makeSentenceBuildStep(item, f), // assembly (recuperação ativa)
+    makeListenSelectStep(item, f), // audio (recuperação ativa)
+    makeComprehendStep(item, f), // recognition/meaning
+    makeAssemblyChoiceStep(item, f), // assembly
+    makeHanziBuilderStep(item, deps.phaseOrder, deps.progress, {
+      seenGlyphs: deps.seenGlyphs,
+      ownFocusGlyphs: deps.ownFocusGlyphs,
+      allowComposedFiller: deps.isReview,
+    }), // hanzi (só quando pré-requisitos atendidos)
+    makeRecognizeStep(item), // recognition
+  ];
+  const out: { step: LessonStep; family: ExerciseFamily }[] = [];
+  const seenKinds = new Set<StepKind>();
+  for (const step of raw) {
+    if (!step || seenKinds.has(step.kind)) continue;
+    seenKinds.add(step.kind);
+    out.push({ step, family: primaryFamilyOf(step) });
+  }
+  return out;
+}
+
+function countSemanticOccurrences(steps: readonly LessonStep[], key: string): number {
+  let total = 0;
+  for (const step of steps) if (semanticTargetKeys(step).includes(key)) total += 1;
+  return total;
+}
+
+/** Um passo pode entrar sem estourar nenhum teto de repetição semântica? */
+function withinSemanticCeilings(step: LessonStep, planSoFar: readonly LessonStep[], isReview: boolean): boolean {
+  for (const key of semanticTargetKeys(step)) {
+    const ceiling = semanticHardCeilingForKey(key, isReview);
+    if (ceiling == null) continue;
+    if (countSemanticOccurrences(planSoFar, key) >= ceiling) return false;
+  }
+  return true;
+}
+
+/** Resposta normalizada de um passo (espelha validate:exercise-depth). */
+function normalizedAnswerOf(step: LessonStep): string {
+  const answer = step.correctAnswer ?? step.answer ?? step.checkpoint?.correctAnswer ?? "";
+  return cleanHanzi(answer).toLocaleLowerCase("pt-BR");
+}
+
+/** Uma resposta correta não pode aparecer mais de 2 vezes no plano. */
+function withinAnswerRepetitionCeiling(step: LessonStep, planSoFar: readonly LessonStep[]): boolean {
+  const key = normalizedAnswerOf(step);
+  if (!key) return true;
+  let count = 0;
+  for (const other of planSoFar) if (normalizedAnswerOf(other) === key) count += 1;
+  return count < 2; // após adicionar ficaria <= 2
+}
+
+interface ItemCoverage {
+  families: Set<ExerciseFamily>;
+  kinds: Set<StepKind>;
+  count: number;
+  activeRecall: boolean;
+}
+
+function emptyCoverage(): ItemCoverage {
+  return { families: new Set(), kinds: new Set(), count: 0, activeRecall: false };
+}
+
+function creditStep(cov: ItemCoverage, step: LessonStep): void {
+  cov.count += 1;
+  cov.kinds.add(step.kind);
+  for (const family of exerciseFamiliesFor(step)) cov.families.add(family);
+  if (ACTIVE_RECALL_KINDS.has(step.kind)) cov.activeRecall = true;
+}
+
+/** Um passo cobre um ref? Por hànzì no texto OU por id (charId/chunkId/refs). */
+function stepCoversRef(step: LessonStep, ref: string, focusItem: FocusItem): boolean {
+  const [type, id] = ref.split(":");
+  if (type === "char" && (step.charId === id || (step.charIds ?? []).includes(id))) return true;
+  if (type === "chunk" && step.chunkId === id) return true;
+  if ((step.learnedRefs ?? []).includes(ref) || (step.newRefs ?? []).includes(ref)) return true;
+  return stepUsesFocus(step, [focusItem]);
+}
+
+// Orçamento de crescimento por tipo de lição: comum é enxuta; revisão e imersão
+// mostram muito mais vocabulário na conversa e podem crescer mais para cobri-lo
+// (req. 9: crescer só quando não há outra forma de cumprir a cobertura).
+function conversationLoopBudget(lesson: Lesson): { perConversation: number; growth: number } {
+  // Imersão é uma história longa: a própria conversa É a prática de uso, então
+  // acrescentamos só alguns reforços-chave (novo/resposta), sem drilar cada
+  // palavra antiga. Revisão pode crescer mais para cobrir o vocabulário revisto.
+  if (lessonAllowsImmersionScenes(lesson)) return { perConversation: 10, growth: 14 };
+  if (lesson.isReview) return { perConversation: 10, growth: 14 };
+  return { perConversation: 6, growth: 8 };
+}
+
+/**
+ * Injeta tarefas de reúso do vocabulário de conversa no plano, DEPOIS de cada
+ * conversa. Retorna um novo plano (sem mutar o recebido).
+ */
+export function applyConversationVocabularyLoop(
+  plan: LessonRoundStep[],
+  lesson: Lesson,
+  deps: {
+    focus: FocusItem[];
+    reviewFocus: FocusItem[];
+    errorFocus: FocusItem[];
+    phaseOrder: number;
+    progress?: HanziBuilderProgressMap;
+    seenGlyphs?: ReadonlySet<string>;
+    ownFocusGlyphs?: ReadonlySet<string>;
+  }
+): LessonRoundStep[] {
+  const conversationIndexes = plan
+    .map((step, index) => ({ step, index }))
+    .filter(({ step }) => step.kind === "conversation_scene");
+  if (conversationIndexes.length === 0) return plan;
+
+  const isReview = Boolean(lesson.isReview);
+  const budget = conversationLoopBudget(lesson);
+  const errorRefs = new Set(focusRefs(deps.errorFocus));
+  const taskDeps: DerivedTaskDeps = {
+    focus: [...deps.focus, ...deps.reviewFocus],
+    phaseOrder: deps.phaseOrder,
+    isReview,
+    progress: deps.progress,
+    seenGlyphs: deps.seenGlyphs,
+    ownFocusGlyphs: deps.ownFocusGlyphs,
+  };
+
+  const derivedByConversationIndex = new Map<number, LessonRoundStep[]>();
+  let growthUsed = 0;
+  // Acumulador COMPARTILHADO entre todas as conversas da lição: os tetos de
+  // repetição (semântica e de resposta correta) precisam enxergar as derivadas
+  // já adicionadas por conversas anteriores, senão duas conversas repetiriam a
+  // mesma resposta (ex.: 谢谢) e estourariam o limite do validate:exercise-depth.
+  const planForCeilings: LessonRoundStep[] = [...plan];
+
+  for (const { step: conversationStep, index: ci } of conversationIndexes) {
+    const manifest = manifestFromConversationStep(conversationStep);
+    if (!manifest) continue;
+
+    const answerRefs = new Set(
+      manifest.items.filter((item) => item.roles.includes("response")).map((item) => item.ref)
+    );
+
+    // Itens pedagogicamente relevantes exibidos: obrigatório/novo/antigo/resposta.
+    const relevant = manifest.items.filter(
+      (item) =>
+        item.resolved &&
+        item.roles.some((role) => role === "required" || role === "new" || role === "reused" || role === "response")
+    );
+
+    // Créditos primeiro (evita inchar): vocabulário NOVO precisa de prática
+    // POSTERIOR (depois da conversa); vocabulário antigo já aprendido conta em
+    // qualquer ponto da lição (exceção do req. 8).
+    const laterSteps = plan.slice(ci + 1);
+    const wholeSteps = plan.filter((step, index) => index !== ci && step.kind !== "conversation_scene");
+    const coverageByRef = new Map<string, ItemCoverage>();
+    const focusByRef = new Map<string, FocusItem>();
+    for (const item of relevant) {
+      const focusItem = focusItemFromRef(item.ref);
+      if (!focusItem) continue;
+      focusByRef.set(item.ref, focusItem);
+      const cov = emptyCoverage();
+      const scanSet = item.roles.includes("new") ? laterSteps : wholeSteps;
+      for (const step of scanSet) {
+        if (step.conversationDerived) continue; // será contado ao adicionar
+        if (stepCoversRef(step, item.ref, focusItem)) creditStep(cov, step);
+      }
+      coverageByRef.set(item.ref, cov);
+    }
+
+    const addedForConversation: LessonRoundStep[] = [];
+
+    const addDerived = (
+      item: ConversationVocabularyItem,
+      focusItem: FocusItem,
+      cov: ItemCoverage,
+      wantActiveRecall: boolean
+    ): boolean => {
+      if (addedForConversation.length >= budget.perConversation) return false;
+      if (growthUsed >= budget.growth) return false;
+      // Diversidade de modalidade NA CONVERSA: prefere kinds ainda não usados
+      // nas derivadas desta conversa (evita "todas dialogue_choice").
+      const usedKinds = new Set(addedForConversation.map((s) => s.kind));
+      const candidates = derivedCandidatesForItem(focusItem, taskDeps).sort(
+        (a, b) => (usedKinds.has(a.step.kind) ? 1 : 0) - (usedKinds.has(b.step.kind) ? 1 : 0)
+      );
+      for (const candidate of candidates) {
+        // Transformação cognitiva: família nova (a não ser que precise de recall ativo).
+        const familyIsNew = !cov.families.has(candidate.family);
+        const kindIsNew = !cov.kinds.has(candidate.step.kind);
+        const givesActiveRecall = ACTIVE_RECALL_KINDS.has(candidate.step.kind);
+        if (!kindIsNew) continue;
+        if (wantActiveRecall && !givesActiveRecall) continue;
+        if (!wantActiveRecall && !familyIsNew) continue;
+        if (!withinSemanticCeilings(candidate.step, planForCeilings, isReview)) continue;
+        if (!withinAnswerRepetitionCeiling(candidate.step, planForCeilings)) continue;
+        const exposureNumber = cov.count + 1;
+        const derived: LessonRoundStep = {
+          ...candidate.step,
+          lessonStageId: conversationStep.lessonStageId ?? "usage",
+          generated: true,
+          sourceStepIndex: -1,
+          conversationDerived: true,
+          conversationSourceSceneId: manifest.sceneId,
+          conversationCoveredRef: item.ref,
+          conversationModality: candidate.step.kind,
+          conversationExposureNumber: exposureNumber,
+          conversationDerivedReason: errorRefs.has(item.ref) ? "error" : "rule",
+        };
+        addedForConversation.push(derived);
+        planForCeilings.push(derived);
+        creditStep(cov, derived);
+        growthUsed += 1;
+        return true;
+      }
+      return false;
+    };
+
+    for (const item of relevant) {
+      const focusItem = focusByRef.get(item.ref);
+      if (!focusItem) continue;
+      const cov = coverageByRef.get(item.ref)!;
+      const isNew = item.roles.includes("new");
+      const isError = errorRefs.has(item.ref);
+      const isAnswer = answerRefs.has(item.ref);
+
+      // Novo/erro: 2 exposições, 2 famílias, ≥1 recuperação ativa.
+      if (isNew || isError) {
+        if (!cov.activeRecall) addDerived(item, focusItem, cov, true);
+        while ((cov.count < 2 || cov.families.size < 2) && addDerived(item, focusItem, cov, false)) {
+          /* segue até 2 exposições em 2 famílias, ou esgotar candidatos */
+        }
+      } else {
+        // Antigo/obrigatório: ≥1 reutilização; a resposta principal prefere
+        // aplicação em contexto (montagem/produção/escolha contextual).
+        if (cov.count === 0) addDerived(item, focusItem, cov, false);
+      }
+
+      // Resposta principal: garantir montagem/produção/escolha contextual.
+      if (isAnswer) {
+        const contextual = new Set<ExerciseFamily>(["assembly", "usage"]);
+        const hasContextual = [...cov.families].some((family) => contextual.has(family));
+        if (!hasContextual) addDerived(item, focusItem, cov, true);
+      }
+    }
+
+    if (addedForConversation.length > 0) {
+      // Ordena por progressão cognitiva (reconhecimento → montagem → uso).
+      addedForConversation.sort((a, b) => cognitiveProfile(a).familyRank - cognitiveProfile(b).familyRank);
+      derivedByConversationIndex.set(ci, addedForConversation);
+    }
+  }
+
+  if (derivedByConversationIndex.size === 0) return plan;
+
+  // Reconstrói o plano inserindo as derivadas logo APÓS cada conversa.
+  const rebuilt: LessonRoundStep[] = [];
+  plan.forEach((step, index) => {
+    rebuilt.push(step);
+    const derived = derivedByConversationIndex.get(index);
+    if (derived) rebuilt.push(...derived);
+  });
+
+  // Recalcula os metadados de estágio (posição/contagem por estágio) para a UI.
+  const stageCounts = new Map<LessonStageId, number>();
+  const stageTotals = new Map<LessonStageId, number>();
+  for (const step of rebuilt) {
+    const stageId = step.lessonStageId ?? "usage";
+    stageTotals.set(stageId, (stageTotals.get(stageId) ?? 0) + 1);
+  }
+  return rebuilt.map((step) => {
+    const stageId = step.lessonStageId ?? "usage";
+    const index = stageCounts.get(stageId) ?? 0;
+    stageCounts.set(stageId, index + 1);
+    return { ...step, lessonStageQuestion: index + 1, lessonStageQuestionCount: stageTotals.get(stageId) ?? 1 };
+  });
+}
+
 export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
   if (lesson.steps.length === 0) return [];
   const focus = focusForPlanning(lesson, context);
@@ -3054,8 +3417,20 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       };
     });
 
-  if (!context.silent) logPracticePlanInDev(lesson, plan, profile, reviewFocus);
-  return plan;
+  // Conversation Vocabulary Loop: garante que o vocabulário exibido na conversa
+  // seja praticado DEPOIS dela, alterando o plano real entregue ao player.
+  const withConversationLoop = applyConversationVocabularyLoop(plan, lesson, {
+    focus,
+    reviewFocus,
+    errorFocus,
+    phaseOrder: lessonPhaseOrder(lesson),
+    progress: context.hanziBuilderProgress,
+    seenGlyphs,
+    ownFocusGlyphs,
+  });
+
+  if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
+  return withConversationLoop;
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
