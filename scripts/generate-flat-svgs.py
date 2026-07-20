@@ -163,28 +163,54 @@ def build() -> dict[str, str]:
         "Friend",
     )
 
-    crowd_parts = [bg()]
-    positions = [
-        (120, 280, 70, 150, NAVY, 38),
-        (220, 260, 70, 170, ACCENT, 38),
-        (320, 275, 70, 155, BROWN, 38),
-        (420, 265, 70, 165, TEAL, 38),
-        (170, 340, 75, 130, ACCENT_SOFT, 42),
-        (300, 330, 80, 140, MUTED_GREEN, 44),
-        (430, 335, 75, 135, GOLD, 42),
-    ]
-    for cx, top, bw, bh, color, hr in positions:
-        face_cy = top - hr + 16
-        crowd_parts.append(
-            f'  <rect x="{cx - bw // 2}" y="{top}" width="{bw}" height="{bh}" rx="16" fill="{color}"/>'
-        )
-        crowd_parts.append(f'  <circle cx="{cx}" cy="{face_cy}" r="{hr}" fill="{HAIR}"/>')
-        crowd_parts.append(
-            f'  <circle cx="{cx}" cy="{face_cy + 5}" r="{int(hr * 0.7)}" fill="{SKIN}"/>'
-        )
-        crowd_parts.append(f'  <circle cx="{cx - 8}" cy="{face_cy + 3}" r="3" fill="{CHARCOAL}"/>')
-        crowd_parts.append(f'  <circle cx="{cx + 8}" cy="{face_cy + 3}" r="3" fill="{CHARCOAL}"/>')
-    assets["people/crowd.svg"] = svg("\n".join(crowd_parts), "Crowd")
+    assets["people/crowd.svg"] = svg(
+        f"""  <rect width="600" height="600" fill="{BG}"/>
+  <rect y="470" width="600" height="130" fill="{GROUND}"/>
+  <ellipse cx="300" cy="474" rx="230" ry="25" fill="#BFD2C2"/>
+
+  <path d="M74 455 L88 309 Q92 276 125 272 L169 272 Q202 276 206 309 L220 455 Z" fill="{TEAL}"/>
+  <circle cx="147" cy="234" r="58" fill="{HAIR}"/>
+  <circle cx="147" cy="244" r="43" fill="{SKIN}"/>
+  <path d="M106 225 Q147 176 188 225 Q171 211 147 214 Q123 211 106 225" fill="{HAIR}"/>
+  <circle cx="132" cy="242" r="4" fill="{CHARCOAL}"/>
+  <circle cx="162" cy="242" r="4" fill="{CHARCOAL}"/>
+  <path d="M135 261 Q147 270 159 261" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M380 455 L394 309 Q398 276 431 272 L475 272 Q508 276 512 309 L526 455 Z" fill="{ACCENT_SOFT}"/>
+  <circle cx="453" cy="234" r="58" fill="{BROWN}"/>
+  <circle cx="453" cy="244" r="43" fill="{SKIN}"/>
+  <circle cx="416" cy="207" r="24" fill="{BROWN}"/>
+  <circle cx="444" cy="190" r="26" fill="{BROWN}"/>
+  <circle cx="478" cy="204" r="25" fill="{BROWN}"/>
+  <circle cx="438" cy="242" r="4" fill="{CHARCOAL}"/>
+  <circle cx="468" cy="242" r="4" fill="{CHARCOAL}"/>
+  <path d="M441 261 Q453 270 465 261" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M158 470 L170 367 Q174 330 211 326 L255 326 Q292 330 296 367 L308 470 Z" fill="{NAVY}"/>
+  <circle cx="233" cy="291" r="60" fill="{CHARCOAL}"/>
+  <circle cx="233" cy="300" r="44" fill="#C99573"/>
+  <path d="M191 280 Q205 231 249 234 Q276 237 279 276 Q251 255 219 263 Z" fill="{CHARCOAL}"/>
+  <circle cx="218" cy="299" r="4" fill="{CHARCOAL}"/>
+  <circle cx="248" cy="299" r="4" fill="{CHARCOAL}"/>
+  <path d="M221 319 Q233 328 245 319" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M292 470 L304 354 Q308 315 347 311 L393 311 Q432 315 436 354 L448 470 Z" fill="{ACCENT}"/>
+  <circle cx="370" cy="272" r="63" fill="{HAIR}"/>
+  <circle cx="370" cy="282" r="46" fill="{SKIN}"/>
+  <path d="M326 265 Q336 211 388 215 Q416 218 421 264 Q394 242 359 247 Z" fill="{HAIR}"/>
+  <circle cx="354" cy="281" r="4" fill="{CHARCOAL}"/>
+  <circle cx="386" cy="281" r="4" fill="{CHARCOAL}"/>
+  <path d="M356 302 Q370 313 384 302" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M48 470 L60 390 Q64 355 97 352 L137 352 Q170 355 174 390 L186 470 Z" fill="{GOLD}"/>
+  <circle cx="117" cy="320" r="51" fill="{BROWN_DARK}"/>
+  <circle cx="117" cy="328" r="38" fill="#8D6044"/>
+  <path d="M80 316 Q91 272 129 278 Q153 282 157 315 Q137 298 108 301 Z" fill="{BROWN_DARK}"/>
+  <circle cx="104" cy="327" r="4" fill="{CHARCOAL}"/>
+  <circle cx="130" cy="327" r="4" fill="{CHARCOAL}"/>
+  <path d="M106 344 Q117 352 128 344" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>""",
+        "Crowd",
+    )
 
     assets["objects/home.svg"] = svg(
         f"""{bg()}
@@ -368,47 +394,97 @@ def build() -> dict[str, str]:
     )
 
     assets["actions/eat.svg"] = svg(
-        f"""{bg()}
-  <circle cx="250" cy="220" r="70" fill="{SKIN}"/>
-  <circle cx="232" cy="210" r="5" fill="{CHARCOAL}"/>
-  <circle cx="268" cy="210" r="5" fill="{CHARCOAL}"/>
-  <ellipse cx="250" cy="245" rx="18" ry="12" fill="{CHARCOAL}"/>
-  <ellipse cx="340" cy="380" rx="120" ry="50" fill="{ACCENT}"/>
-  <ellipse cx="340" cy="360" rx="100" ry="36" fill="{GOLD}"/>
-  <rect x="360" y="180" width="12" height="160" rx="4" fill="{BROWN}" transform="rotate(25 366 260)"/>
-  <rect x="390" y="180" width="12" height="160" rx="4" fill="{BROWN_DARK}" transform="rotate(25 396 260)"/>
-  <path d="M320 280 Q360 250 400 280" fill="none" stroke="{GOLD_SOFT}" stroke-width="10" stroke-linecap="round"/>""",
+        f"""  <rect width="600" height="600" fill="{BG}"/>
+  <rect y="470" width="600" height="130" fill="{GROUND}"/>
+  <ellipse cx="335" cy="470" rx="220" ry="25" fill="#BFD2C2"/>
+
+  <path d="M84 470 L104 330 Q110 298 145 292 L236 292 Q270 298 279 330 L300 470 Z" fill="{TEAL}"/>
+  <circle cx="198" cy="211" r="88" fill="{HAIR}"/>
+  <circle cx="207" cy="222" r="66" fill="{SKIN}"/>
+  <path d="M126 202 Q142 129 215 130 Q278 135 290 199 Q250 168 198 174 Q157 175 126 202" fill="{HAIR}"/>
+  <circle cx="220" cy="212" r="5" fill="{CHARCOAL}"/>
+  <path d="M239 237 Q253 226 269 238" fill="{CHARCOAL}"/>
+  <ellipse cx="264" cy="241" rx="13" ry="10" fill="{ACCENT}"/>
+
+  <ellipse cx="389" cy="430" rx="142" ry="38" fill="{ACCENT}"/>
+  <path d="M267 374 Q389 414 511 374 L487 438 Q389 484 291 438 Z" fill="{CREAM}"/>
+  <ellipse cx="389" cy="374" rx="122" ry="42" fill="{ACCENT}"/>
+  <ellipse cx="389" cy="370" rx="100" ry="27" fill="{GOLD}"/>
+  <path d="M316 364 Q338 346 360 366 T404 366 T448 366" fill="none" stroke="{GOLD_SOFT}" stroke-width="10" stroke-linecap="round"/>
+
+  <path d="M226 335 Q277 318 318 344" fill="none" stroke="{SKIN}" stroke-width="32" stroke-linecap="round"/>
+  <circle cx="320" cy="344" r="20" fill="{SKIN}"/>
+  <path d="M322 340 L274 252" stroke="{BROWN}" stroke-width="10" stroke-linecap="round"/>
+  <path d="M343 331 L287 245" stroke="{BROWN_DARK}" stroke-width="10" stroke-linecap="round"/>
+  <path d="M278 251 C298 275 303 309 317 350" fill="none" stroke="{GOLD_SOFT}" stroke-width="8" stroke-linecap="round"/>
+  <path d="M290 253 C309 278 314 311 329 354" fill="none" stroke="{GOLD_SOFT}" stroke-width="7" stroke-linecap="round"/>""",
         "Eat",
     )
 
     assets["actions/drink.svg"] = svg(
-        f"""{bg()}
-  <circle cx="260" cy="230" r="70" fill="{SKIN}"/>
-  <circle cx="242" cy="220" r="5" fill="{CHARCOAL}"/>
-  <circle cx="278" cy="220" r="5" fill="{CHARCOAL}"/>
-  <path d="M248 250 Q260 258 272 250" fill="none" stroke="{CHARCOAL}" stroke-width="3" stroke-linecap="round"/>
-  <path d="M340 200 L360 400 Q400 420 440 400 L460 200 Z" fill="{BLUE}" transform="rotate(-18 400 300)"/>
-  <ellipse cx="400" cy="200" rx="60" ry="20" fill="{BLUE_DARK}" transform="rotate(-18 400 200)"/>
-  <circle cx="470" cy="160" r="12" fill="{BLUE}" opacity="0.4"/>
-  <circle cx="500" cy="190" r="8" fill="{BLUE}" opacity="0.3"/>
-  <circle cx="485" cy="130" r="6" fill="{BLUE}" opacity="0.25"/>""",
+        f"""  <rect width="600" height="600" fill="{BG}"/>
+  <rect y="470" width="600" height="130" fill="{GROUND}"/>
+  <ellipse cx="286" cy="474" rx="190" ry="24" fill="#BFD2C2"/>
+
+  <path d="M83 470 L104 330 Q111 294 149 288 L245 288 Q282 294 290 330 L312 470 Z" fill="{NAVY}"/>
+  <circle cx="200" cy="207" r="88" fill="{HAIR}"/>
+  <circle cx="209" cy="219" r="66" fill="{SKIN}"/>
+  <path d="M126 198 Q145 125 218 129 Q279 134 290 196 Q248 164 197 171 Q154 173 126 198" fill="{HAIR}"/>
+  <circle cx="222" cy="210" r="5" fill="{CHARCOAL}"/>
+  <ellipse cx="267" cy="236" rx="12" ry="8" fill="{ACCENT}"/>
+
+  <g transform="rotate(-12 356 254)">
+    <path d="M310 194 L417 194 L400 329 Q364 350 327 329 Z" fill="{CREAM}"/>
+    <path d="M324 241 L404 241 L393 319 Q364 335 336 319 Z" fill="{BLUE}"/>
+    <ellipse cx="364" cy="194" rx="54" ry="18" fill="#DCE9E1"/>
+    <ellipse cx="364" cy="200" rx="43" ry="11" fill="{BLUE}"/>
+  </g>
+
+  <path d="M218 334 Q278 310 329 300" fill="none" stroke="{SKIN}" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="333" cy="298" r="22" fill="{SKIN}"/>
+  <path d="M245 355 Q305 354 371 322" fill="none" stroke="{SKIN}" stroke-width="30" stroke-linecap="round"/>
+  <circle cx="373" cy="321" r="20" fill="{SKIN}"/>
+  <path d="M359 181 L273 232" stroke="{ACCENT}" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="483" cy="168" r="11" fill="{BLUE}" opacity="0.45"/>
+  <circle cx="512" cy="205" r="7" fill="{BLUE}" opacity="0.3"/>""",
         "Drink",
     )
 
     assets["nature/horse.svg"] = svg(
-        f"""{bg()}
-  <ellipse cx="300" cy="300" rx="130" ry="70" fill="{BROWN}"/>
-  <rect x="380" y="200" width="40" height="110" rx="18" fill="{BROWN}"/>
-  <ellipse cx="430" cy="190" rx="50" ry="32" fill="{BROWN}"/>
-  <ellipse cx="470" cy="195" rx="18" ry="14" fill="{BROWN_DARK}"/>
-  <circle cx="445" cy="182" r="5" fill="{CHARCOAL}"/>
-  <polygon points="420,155 430,175 410,175" fill="{BROWN_DARK}"/>
-  <path d="M380 240 Q360 220 350 260" fill="none" stroke="{BROWN_DARK}" stroke-width="16" stroke-linecap="round"/>
-  <path d="M170 280 Q140 260 130 300 Q150 320 170 300" fill="{BROWN_DARK}"/>
-  <rect x="220" y="350" width="28" height="120" rx="10" fill="{BROWN}"/>
-  <rect x="270" y="350" width="28" height="120" rx="10" fill="{BROWN}"/>
-  <rect x="320" y="350" width="28" height="120" rx="10" fill="{BROWN}"/>
-  <rect x="370" y="350" width="28" height="120" rx="10" fill="{BROWN}"/>""",
+        f"""  <rect width="600" height="600" fill="{BG}"/>
+  <rect y="470" width="600" height="130" fill="{GROUND}"/>
+  <ellipse cx="305" cy="482" rx="205" ry="24" fill="#BFD2C2"/>
+
+  <path d="M125 296 C94 280 72 292 55 329 C76 344 99 342 122 319" fill="none" stroke="{BROWN_DARK}" stroke-width="24" stroke-linecap="round"/>
+  <path d="M112 292 C89 268 65 271 48 291" fill="none" stroke="{BROWN}" stroke-width="18" stroke-linecap="round"/>
+
+  <path d="M365 291 C393 263 402 217 419 187 C436 158 466 143 500 151 C536 159 557 186 553 216 C550 241 532 258 507 262 L465 268 C457 312 438 351 405 373 L353 343 Z" fill="{BROWN}"/>
+  <ellipse cx="276" cy="320" rx="170" ry="112" fill="{BROWN}"/>
+  <ellipse cx="306" cy="298" rx="118" ry="72" fill="#9B7349"/>
+
+  <path d="M416 190 C402 213 400 254 385 285 C405 288 421 296 437 310 C455 277 460 237 470 208 Z" fill="{BROWN_DARK}"/>
+  <circle cx="416" cy="208" r="17" fill="{BROWN_DARK}"/>
+  <circle cx="410" cy="235" r="17" fill="{BROWN_DARK}"/>
+  <circle cx="404" cy="262" r="17" fill="{BROWN_DARK}"/>
+
+  <polygon points="447,160 452,121 478,157" fill="{BROWN}"/>
+  <polygon points="454,156 458,134 469,157" fill="{BROWN_DARK}"/>
+  <polygon points="488,155 510,126 514,166" fill="{BROWN}"/>
+  <polygon points="495,158 507,142 508,165" fill="{BROWN_DARK}"/>
+  <ellipse cx="538" cy="213" rx="38" ry="29" fill="{BROWN_DARK}"/>
+  <ellipse cx="548" cy="208" rx="15" ry="10" fill="#7B5B3B"/>
+  <circle cx="505" cy="185" r="7" fill="{CHARCOAL}"/>
+  <circle cx="507" cy="183" r="2" fill="{BG}"/>
+  <circle cx="548" cy="214" r="4" fill="{CHARCOAL}"/>
+
+  <path d="M164 382 L151 464 Q150 480 166 484 L184 484 Q196 480 194 465 L205 385 Z" fill="{BROWN}"/>
+  <path d="M151 458 L194 458 L193 482 Q174 492 153 482 Z" fill="{HAIR}"/>
+  <path d="M235 395 L230 470 Q230 484 245 486 L263 486 Q277 481 273 466 L280 397 Z" fill="#9B7349"/>
+  <path d="M230 461 L274 461 L273 483 Q252 493 232 483 Z" fill="{HAIR}"/>
+  <path d="M326 395 L337 468 Q338 482 353 485 L371 484 Q384 478 379 463 L371 384 Z" fill="{BROWN}"/>
+  <path d="M336 458 L379 457 L380 479 Q361 491 340 483 Z" fill="{HAIR}"/>
+  <path d="M392 371 L422 457 Q426 471 440 470 L458 465 Q470 457 461 444 L432 352 Z" fill="{BROWN}"/>
+  <path d="M419 449 L459 438 L466 459 Q452 475 430 472 Z" fill="{HAIR}"/>""",
         "Horse",
     )
 
