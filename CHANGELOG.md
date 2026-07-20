@@ -11,10 +11,16 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 - **Núcleo** `src/data/conversationVocabulary.ts`: dado a variante EFETIVAMENTE
   exibida de uma conversa (V1 ou V2, incluindo variantes beginner/intermediate/
-  advanced), `buildConversationVocabularyManifest` extrai de forma determinística
-  todo o vocabulário mostrado — chunks, hànzì, palavras, intenção, respostas
-  esperadas — a partir do caminho principal, ramos de erro, interações e
-  explicações, para reúso nas atividades da mesma lição e nas revisões.
+  advanced), extrai de forma determinística todo o vocabulário mostrado — chunks,
+  hànzì, palavras, intenção, respostas esperadas — a partir do caminho principal,
+  ramos de erro, interações e explicações, para reúso nas atividades da mesma
+  lição e nas revisões.
+- **Função central** `buildManifestForResolvedVariant(scene, resolved)`: recebe a
+  variante JÁ RESOLVIDA (a mesma que o player exibe), garantindo que o manifesto
+  represente exatamente o que foi mostrado; `buildConversationVocabularyManifest(scene, context)`
+  é o atalho que resolve e delega.
+- **`expectedAnswers`** no manifesto: respostas esperadas do aluno (texto cru),
+  além dos seletores `itemsByRole`/`itemsBySource` e `reusableRefsFromManifest`.
 - **Referências canônicas** (`chunk:<id>` / `char:<id>`) via segmentação por
   correspondência mais longa: um chunk cadastrado nunca é quebrado em partículas
   soltas; os hànzì que o compõem ficam em `charRefs` (reúso granular em SRS).

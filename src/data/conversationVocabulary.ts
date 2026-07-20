@@ -85,6 +85,8 @@ export interface ConversationVocabularyManifest {
   /** Cena V1 (lines) ou V2 (nodes). */
   format: "v1" | "v2";
   items: ConversationVocabularyItem[];
+  /** Respostas esperadas do aluno na variante exibida (texto cru, sem duplicar). */
+  expectedAnswers: string[];
   coverage: ConversationVocabularyCoverage;
   warnings: string[];
 }
@@ -320,14 +322,27 @@ interface Accumulator {
 }
 
 /**
- * Constrói o manifesto de vocabulário de uma cena, para a variante EFETIVAMENTE
- * exibida dado o contexto (refs disponíveis / fase). Determinístico.
+ * Constrói o manifesto a partir do CONTEXTO: resolve a variante efetivamente
+ * exibida (refs disponíveis / fase) e delega para a função central. Atalho
+ * conveniente para quem ainda não resolveu a cena.
  */
 export function buildConversationVocabularyManifest(
   scene: ConversationSceneStep,
   context: ConversationSceneResolveContext = {}
 ): ConversationVocabularyManifest {
-  const resolved = resolveConversationScene(scene, context);
+  return buildManifestForResolvedVariant(scene, resolveConversationScene(scene, context));
+}
+
+/**
+ * Função CENTRAL: recebe a VARIANTE JÁ RESOLVIDA de uma conversa (a mesma que o
+ * player exibe) e extrai o manifesto determinístico. Use esta quando a cena já
+ * foi resolvida, para garantir que o manifesto represente exatamente o que foi
+ * mostrado ao aluno (e não uma re-resolução possivelmente divergente).
+ */
+export function buildManifestForResolvedVariant(
+  scene: ConversationSceneStep,
+  resolved: ReturnType<typeof resolveConversationScene>
+): ConversationVocabularyManifest {
   const requiredSet = new Set(resolved.learnedRefs);
   const newSet = new Set(resolved.newRefs ?? []);
   const auxSet = new Set(scene.optionalRefs ?? []);
@@ -335,6 +350,15 @@ export function buildConversationVocabularyManifest(
 
   const dict = buildSegmentationDict(declaredRefs);
   const sourced = collectSourcedTexts(resolved, scene);
+
+  // Respostas esperadas do aluno (texto cru), na ordem de exibição, sem duplicar.
+  const expectedAnswers: string[] = [];
+  for (const { text, source } of sourced) {
+    const value = String(text ?? "").trim();
+    if (source === "expected_answer" && value && !expectedAnswers.includes(value)) {
+      expectedAnswers.push(value);
+    }
+  }
 
   const byRef = new Map<string, Accumulator>();
   const unresolvedTexts = new Set<string>();
@@ -416,6 +440,7 @@ export function buildConversationVocabularyManifest(
     stage: resolved.stage,
     format: resolved.nodes?.length ? "v2" : "v1",
     items,
+    expectedAnswers,
     coverage: {
       requiredRefs,
       coveredRefs,
@@ -432,6 +457,22 @@ export function warnUnresolvedConversationVocabulary(
   log: (message: string) => void = console.warn
 ): void {
   for (const warning of manifest.warnings) log(`[conversation-vocabulary] ${warning}`);
+}
+
+/** Itens de um papel pedagógico (obrigatório, novo, antigo, exposto, etc.). */
+export function itemsByRole(
+  manifest: ConversationVocabularyManifest,
+  role: ConversationVocabularyRole
+): ConversationVocabularyItem[] {
+  return manifest.items.filter((item) => item.roles.includes(role));
+}
+
+/** Itens que apareceram numa fonte específica (ramo de erro, explicação, etc.). */
+export function itemsBySource(
+  manifest: ConversationVocabularyManifest,
+  source: ConversationVocabularySource
+): ConversationVocabularyItem[] {
+  return manifest.items.filter((item) => item.sources.includes(source));
 }
 
 /** Refs prontos para reúso em atividades/SRS: tudo que foi realmente exibido. */

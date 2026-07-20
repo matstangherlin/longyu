@@ -51,10 +51,14 @@ try {
     process.exit(1);
   }
   const load = (rel) => require(path.join(outDir, rel));
-  const { buildConversationVocabularyManifest, reusableRefsFromManifest } = load(
-    "src/data/conversationVocabulary.js"
-  );
-  const { CONVERSATION_SCENES } = load("src/data/conversationScenes.js");
+  const {
+    buildConversationVocabularyManifest,
+    buildManifestForResolvedVariant,
+    reusableRefsFromManifest,
+    itemsByRole,
+    itemsBySource,
+  } = load("src/data/conversationVocabulary.js");
+  const { CONVERSATION_SCENES, resolveConversationScene } = load("src/data/conversationScenes.js");
 
   const CHARS = [
     { id: "lin", name: "Lin", avatar: "lin", side: "left" },
@@ -113,6 +117,15 @@ try {
     assert(items["chunk:nihao"] && items["chunk:xiexie"], "V2: extrai chunks das falas");
     assert(items["chunk:xiexie"].roles.includes("response"), "V2: 谢谢 aparece na resposta esperada → response");
     assert(items["chunk:xiexie"].sources.includes("expected_answer"), "V2: fonte expected_answer");
+    // Resposta esperada do aluno exposta como campo de primeira classe.
+    assert(m.expectedAnswers.includes("谢谢"), "V2: expectedAnswers traz a resposta esperada crua");
+    // Seletores por papel/fonte.
+    assert(itemsByRole(m, "response").some((i) => i.ref === "chunk:xiexie"), "itemsByRole(response) funciona");
+    assert(itemsBySource(m, "expected_answer").some((i) => i.ref === "chunk:xiexie"), "itemsBySource(expected_answer) funciona");
+    // Função central recebendo a variante JÁ RESOLVIDA (mesmo resultado).
+    const resolved = resolveConversationScene(scene, {});
+    const fromResolved = buildManifestForResolvedVariant(scene, resolved);
+    assert(JSON.stringify(fromResolved) === JSON.stringify(m), "buildManifestForResolvedVariant bate com o atalho por contexto");
   }
 
   // ── 3 & 7. Cena ramificada + ramo de erro ─────────────────────────────────
