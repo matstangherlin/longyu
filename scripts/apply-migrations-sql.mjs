@@ -11,6 +11,7 @@ const migrations = [
   "007_internal_test_pro.sql",
   "008_server_entitlement_rpc.sql",
   "010_beta_feedback.sql",
+  "014_subscription_event_ordering.sql",
 ];
 const parts = migrations.map((file) => {
   const full = path.join(projectRoot(), "supabase", "migrations", file);

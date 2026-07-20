@@ -16,6 +16,7 @@ import {
   IconTrophy,
 } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
+import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { PRO_LESSON_QI_BONUS } from "../../data/economy";
 import {
@@ -75,6 +76,9 @@ const BILLING_PLANS: {
 export function ProPage() {
   const navigate = useNavigate();
   const serverIsPro = useStore((state) => state.serverIsPro);
+  // Enquanto a assinatura é consultada no servidor, evita piscar o paywall para
+  // um Pro legítimo: mostra um estado curto "Verificando seu plano...".
+  const checkingPlan = useEntitlementStatus((state) => state.checking);
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<ProPlanKey>("pro_annual");
   const checkoutReady = isSupabaseBackendEnabled();
@@ -133,6 +137,17 @@ export function ProPage() {
                 Gerenciar ou cancelar assinatura
               </Button>
             )}
+          </div>
+        ) : checkingPlan ? (
+          <div className="relative mx-auto mt-5 max-w-xs">
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center justify-center gap-2 rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm font-medium text-ink-soft"
+            >
+              <span className="longyu-audio-bar h-3 w-1 rounded-full bg-gold" aria-hidden />
+              Verificando seu plano…
+            </div>
           </div>
         ) : (
           <div className="relative mx-auto mt-5 max-w-xs space-y-2">

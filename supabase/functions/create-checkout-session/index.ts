@@ -45,16 +45,39 @@ serve(async (req) => {
       });
     }
 
+    // Allowlist de planos: só chaves conhecidas viram lookup de price ID (o price
+    // vem SEMPRE do env do servidor — o cliente nunca injeta um price arbitrário).
+    const ALLOWED_PLAN_KEYS = new Set(["pro_monthly", "pro_annual"]);
     const { planKey = "pro_monthly" } = await req.json();
-    const priceId = Deno.env.get(`STRIPE_PRICE_${planKey.toUpperCase()}`);
-    if (!priceId) {
+    if (!ALLOWED_PLAN_KEYS.has(planKey)) {
       return new Response(JSON.stringify({ error: `Plano desconhecido: ${planKey}` }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const priceId = Deno.env.get(`STRIPE_PRICE_${planKey.toUpperCase()}`);
+    if (!priceId) {
+      return new Response(JSON.stringify({ error: `Plano indisponível: ${planKey}` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    const origin = req.headers.get("origin") ?? "https://longyu.app";
+    // Allowlist de URLs de retorno: o header Origin é controlado pelo cliente,
+    // então nunca redirecionamos para um domínio arbitrário. Origins permitidos
+    // vêm do env (STRIPE_ALLOWED_ORIGINS, separados por vírgula) + o canônico.
+    const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
+    const allowedOrigins = new Set(
+      [
+        CANONICAL_ORIGIN,
+        ...(Deno.env.get("STRIPE_ALLOWED_ORIGINS") ?? "")
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean),
+      ].map((value) => value.replace(/\/$/, ""))
+    );
+    const requestOrigin = (req.headers.get("origin") ?? "").replace(/\/$/, "");
+    const origin = allowedOrigins.has(requestOrigin) ? requestOrigin : CANONICAL_ORIGIN;
     const params = new URLSearchParams({
       mode: "subscription",
       "line_items[0][price]": priceId,
