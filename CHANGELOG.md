@@ -7,6 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Natureza em SVG flat (padrão visual único)
+
+- Conceitos de natureza (`mountain`, `tree`, `sun`, `moon`, `water`, `fire`,
+  `sky`, `woods`, `forest`) passaram de foto/WebP para **SVG chapado** na mesma
+  linguagem visual do restante do catálogo (fundo pale mint, formas geométricas
+  suaves, sem textura fotográfica).
+- Metadados atualizados para `flat_illustration` / `neutral`; a categoria
+  `nature` fica unificada na família flat.
+- Guia (`docs/VISUAL_ASSET_GUIDE.md`) aceita SVG como formato preferido para
+  ilustração chapada.
+
 ### Correções — robustez da lição e microfone no celular
 
 - **Fim da tela branca ao errar tudo**: um `ErrorBoundary`

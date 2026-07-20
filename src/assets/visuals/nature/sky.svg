@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Sky">
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7DB9F7"/>
+      <stop offset="100%" stop-color="#D4E9FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#skyGrad)"/>
+  <g fill="#FFFFFF">
+    <ellipse cx="160" cy="160" rx="70" ry="36"/>
+    <ellipse cx="210" cy="155" rx="55" ry="32"/>
+    <ellipse cx="400" cy="230" rx="80" ry="38"/>
+    <ellipse cx="455" cy="225" rx="60" ry="34"/>
+    <ellipse cx="360" cy="240" rx="50" ry="28"/>
+    <ellipse cx="250" cy="360" rx="65" ry="30" opacity="0.75"/>
+    <ellipse cx="300" cy="355" rx="48" ry="26" opacity="0.75"/>
+  </g>
+  <g fill="none" stroke="#4A74A5" stroke-width="6" stroke-linecap="round">
+    <path d="M140 280 Q160 260 180 280"/>
+    <path d="M180 280 Q200 260 220 280"/>
+    <path d="M420 140 Q435 125 450 140"/>
+    <path d="M450 140 Q465 125 480 140"/>
+  </g>
+</svg>

@@ -6,7 +6,7 @@ boa leitura no celular. Este guia é a fonte de verdade; `validate:visual-consis
 faz cumprir as regras automaticamente.
 
 Fonte dos metadados: `src/data/visualVocabulary.ts`. Arquivos: `src/assets/visuals/`
-(sempre WebP local, nunca URL externa).
+(SVG ou WebP local, nunca URL externa).
 
 ---
 
@@ -86,17 +86,16 @@ escolhe distractores da família do alvo, e verificado por
 
 ## 3. Estado atual do catálogo (auditoria)
 
-37 assets, todos **600×600 WebP opacos**. Duas famílias convivem:
+37 assets, todos **600×600** (SVG vetorial ou WebP opaco). Duas famílias convivem:
 
-- **realistic (10)**: `person`, `mouth` (fotos), `tree`, `sun`, `moon`,
-  `mountain`, `water`, `fire` (fotos) e `big`, `small` (renders 3D realistas).
-- **flat (27)**: família/pessoas de traço chapado, natureza estilizada,
-  animais, comida, objetos e números — o estilo **majoritário** e mais escalável.
+- **flat (maioria)**: natureza em SVG chapado (montanha, árvore, sol, lua, água,
+  fogo, céu, bosque, floresta), família/pessoas, animais, comida, objetos e
+  números — o estilo **majoritário** e mais escalável.
+- **realistic (restante)**: `person`, `mouth` (fotos) e `big`, `small` (renders
+  3D realistas).
 
-As categorias `people`, `nature` e `quantity` contêm as duas famílias. Antes da
-correção, isso produzia grades mistas (ex.: `person` fotográfico ao lado de
-`woman` chapada). Agora o filtro de estilo isola cada família por pergunta, então
-**nenhuma grade mistura estilos** — sem remover cobertura visual.
+As categorias `people` e `quantity` ainda contêm as duas famílias. O filtro de
+estilo isola cada família por pergunta, então **nenhuma grade mistura estilos**.
 
 ---
 
@@ -119,17 +118,21 @@ um aparece com estilo, tamanho e problemas:
 4. `rice`, `tea`, `meat`, `vegetables`, `eat`, `drink` — comida/ações chapadas;
    manter o mesmo traço e paleta.
 
-As fotos realistas (`person`, `tree`, `water`, `fire`, `mountain`, `sun`, `moon`,
-`mouth`) têm alta qualidade e podem permanecer, **desde que nunca dividam a grade
-com assets chapados** — o que o filtro já garante. Convertê-las para chapado é o
-caminho para 100% de unidade de estilo, mas é opcional.
+As fotos realistas restantes (`person`, `mouth`) e os renders 3D (`big`,
+`small`) podem permanecer **desde que nunca dividam a grade com assets
+chapados** — o que o filtro já garante. Natureza (montanha, árvore, sol, lua,
+água, fogo, céu, bosque, floresta) usa **SVG flat** na mesma linguagem visual
+do restante do catálogo chapado.
 
 ---
 
 ## 5. Especificação técnica
 
-- Formato **WebP**, **600×600** (quadrado exato), **≤ 200 KB** (alvo: fotos até
-  ~100 KB, chapados até ~15 KB).
+- Formato **SVG** (preferido para ilustração chapada) ou **WebP**, **600×600**
+  (quadrado exato), **≤ 200 KB** (alvo: fotos até ~100 KB, chapados até ~15 KB).
+- SVG: `viewBox="0 0 600 600"` (e `width`/`height` 600), formas planas, paleta
+  suave alinhada aos outros assets (fundo pale mint `#EEF3EE`, solo `#D5E4D7`,
+  verdes/azuis/terrosos mutados). Sem texto embutido.
 - `imageSrc` **local** relativo a `src/assets/visuals/` — **nunca** `http(s)`.
 - `imageAltPt` **obrigatório**, descritivo, em português, sem hànzì.
 - `backgroundStyle: transparent` exige canal alfa; `neutral`/`contextual` são

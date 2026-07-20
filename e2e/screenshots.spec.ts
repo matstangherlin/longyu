@@ -136,7 +136,7 @@ test("evidências — exercício com imagem e Hànzì Builder (telefone)", async
     const entendi = page.getByRole("button", { name: "Entendi" });
     if (await entendi.isVisible().catch(() => false)) await entendi.click().catch(() => undefined);
     for (let i = 0; i < 6; i += 1) {
-      if (await page.locator('img[src*=".webp"]').first().isVisible().catch(() => false)) break;
+      if (await page.locator('img[src*=".webp"], img[src*=".svg"]').first().isVisible().catch(() => false)) break;
       await dismissBlockingOverlays(page).catch(() => undefined);
       const next = page.getByRole("button", { name: /^Continuar$|^Próximo$|^Entendi$/ }).first();
       if (await next.isVisible().catch(() => false)) await next.click().catch(() => undefined);

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Water">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <path fill="#5B9BC4" d="M300 90 C300 90 180 260 180 350 C180 430 234 490 300 490 C366 490 420 430 420 350 C420 260 300 90 300 90 Z"/>
+  <path fill="#7EB4D4" d="M300 150 C300 150 220 270 220 340 C220 395 255 440 300 440 C320 440 338 428 350 410 C320 400 280 360 280 310 C280 250 300 150 300 150 Z"/>
+  <ellipse cx="250" cy="280" rx="22" ry="36" fill="#B5D8EA" opacity="0.85"/>
+</svg>

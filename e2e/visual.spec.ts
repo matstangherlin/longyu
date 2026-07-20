@@ -42,7 +42,7 @@ async function openImageExercise(page: Page) {
   if (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)) {
     await page.getByRole("button", { name: "Entendi" }).click().catch(() => undefined);
   }
-  const anyVisual = page.locator('img[alt*="Foto" i], img[alt*="Ilustra" i], img[src*=".webp"]').first();
+  const anyVisual = page.locator('img[alt*="Foto" i], img[alt*="Ilustra" i], img[src*=".webp"], img[src*=".svg"]').first();
   return advanceUntilVisible(page, anyVisual, 16);
 }
 
@@ -56,7 +56,7 @@ test.describe("visual — associação de imagem", () => {
       await page.screenshot({ path: `${SHOTS}/main-image-fallback.png` });
       return;
     }
-    const visual = page.locator('img[src*=".webp"]').first();
+    const visual = page.locator('img[src*=".webp"], img[src*=".svg"]').first();
     await expect(visual).toBeVisible();
     // Sem layout shift: a imagem carregada tem tamanho renderizado > 0.
     const box = await visual.boundingBox();
@@ -107,12 +107,12 @@ test.describe("visual — associação de imagem", () => {
       return;
     }
     await page.evaluate(() => {
-      document.querySelectorAll('img[src*=".webp"]').forEach((img) => img.dispatchEvent(new Event("error")));
+      document.querySelectorAll('img[src*=".webp"], img[src*=".svg"]').forEach((img) => img.dispatchEvent(new Event("error")));
     });
     await page.waitForTimeout(300);
     // O <img> quebrado foi substituído pelo fallback — nada de imagem sem pixels.
     const brokenVisible = await page
-      .locator('img[src*=".webp"]')
+      .locator('img[src*=".webp"], img[src*=".svg"]')
       .first()
       .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)
       .catch(() => false);

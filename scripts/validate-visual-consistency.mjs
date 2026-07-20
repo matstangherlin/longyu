@@ -152,11 +152,14 @@ try {
             problems.push("pesado");
           }
           // Transparência coerente com o backgroundStyle.
+          // SVG quase sempre reporta hasAlpha no sharp mesmo com fundo opaco —
+          // a checagem de alfa vale para raster (WebP/PNG).
+          const isSvg = String(concept.imageSrc).toLowerCase().endsWith(".svg");
           if (concept.backgroundStyle === "transparent" && !meta.hasAlpha) {
             err(ref, "backgroundStyle transparent mas o arquivo não tem canal alfa");
             problems.push("sem alfa");
           }
-          if (concept.backgroundStyle !== "transparent" && meta.hasAlpha) {
+          if (!isSvg && concept.backgroundStyle !== "transparent" && meta.hasAlpha) {
             warn(ref, "arquivo tem alfa mas backgroundStyle não é transparent");
           }
         } catch (error) {

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Fire">
+  <rect width="600" height="600" fill="#EEF3EE"/>
+  <rect y="470" width="600" height="130" fill="#D5E4D7"/>
+  <path fill="#E07840" d="M300 95 C330 170 390 210 405 290 C420 370 370 455 300 470 C230 455 180 370 195 290 C210 210 270 170 300 95 Z"/>
+  <path fill="#E8A84A" d="M300 180 C320 230 355 255 362 310 C370 360 340 410 300 422 C260 410 230 360 238 310 C245 255 280 230 300 180 Z"/>
+  <path fill="#F5D08A" d="M300 255 C312 285 330 300 332 335 C335 365 318 392 300 400 C282 392 265 365 268 335 C270 300 288 285 300 255 Z"/>
+  <rect x="230" y="455" width="140" height="22" rx="8" fill="#8B6540" transform="rotate(-8 300 466)"/>
+  <rect x="230" y="455" width="140" height="22" rx="8" fill="#A07A52" transform="rotate(10 300 466)"/>
+</svg>
