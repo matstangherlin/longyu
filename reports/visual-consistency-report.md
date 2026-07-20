@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 6c2c9a1ea6a8c47499229169871a5410e469792d |
+| Commit | 8b427eaa6a471b1af66242fbab0ad6a3b48a6737 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-20T22:51:49.938Z |
+| Gerado em | 2026-07-20T22:58:08.377Z |
 | Lições | 108 |
 | Hash da Jornada | a056a4c37761 |
 
@@ -62,7 +62,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | sky | 天 céu | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | woods | 林 bosque | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
 | forest | 森 floresta | flat_illustration | neutral | 2.0 KB | 600×600 | — | — |
-| horse | 马 cavalo | flat_illustration | neutral | 2.3 KB | 600×600 | — | — |
+| horse | 马 cavalo | flat_illustration | neutral | 67.4 KB | 600×600 | — | — |
 | fish | 鱼 peixe | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
 | rice | 饭 arroz | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | tea | 茶 chá | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
@@ -85,4 +85,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:6fae439f73b874d5 -->
+<!-- integridade:7a0e9a69a7942e86 -->
