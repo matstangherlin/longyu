@@ -7,6 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Correção — microfone no celular (reconhece de verdade)
+
+- O botão **Falar** falhava em Chrome/Edge Android: sem liberar o mic antes do
+  SpeechRecognition e com escuta curta demais (`continuous: false`), o app
+  caía em "não ouvi" / falha como se o microfone não funcionasse.
+- Agora: `getUserMedia` só para pedir permissão e **libera o stream**; em
+  seguida o reconhecimento roda sozinho com `continuous` + interim, timeout
+  maior e botão **Parar**. Erros viram mensagens claras (permissão, rede, etc.).
+- Gravação para playback continua só no desktop (no mobile gravar junto disputa
+  o mic).
+
 ### Natureza em SVG flat (padrão visual único)
 
 - Conceitos de natureza (`mountain`, `tree`, `sun`, `moon`, `water`, `fire`,

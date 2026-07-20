@@ -1,16 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  ensureMicPermission,
   isRecognitionAvailable,
+  isSecureMicContext,
   recognizeOnce,
   scorePronunciation,
+  speechErrorMessage,
+  type RecognizeErrorCode,
+  type RecognizeHandle,
 } from "../../lib/speech";
 import { Button } from "../../components/ui/primitives";
 import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
 
 type Phase = "idle" | "listening" | "result";
 
-// Prática de fala: autoriza o mic, reconhece o que foi dito, compara com o
-// alvo e deixa ouvir a própria gravação. Tudo grátis (Web Speech + MediaRecorder).
+function isTouchUi(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return navigator.maxTouchPoints > 0 || (typeof window !== "undefined" && "ontouchstart" in window);
+}
+
+// Prática de fala: autoriza o mic, reconhece o que foi dito e compara com o alvo.
+// Playback (MediaRecorder) só no desktop — no mobile gravar AO MESMO TEMPO
+// disputa o mic com o SpeechRecognition e o quebra.
 export function PronunciationPractice({
   target,
   onContinue,
@@ -18,24 +29,31 @@ export function PronunciationPractice({
   target: string;
   onContinue: () => void;
 }) {
+  const secure = isSecureMicContext();
   const supported = isRecognitionAvailable();
-  // No celular, gravar (MediaRecorder/getUserMedia) AO MESMO TEMPO que o
-  // reconhecimento de fala disputa o microfone e o reconhecimento falha — por
-  // isso a gravação de playback só roda em telas sem toque (desktop). No mobile
-  // o reconhecimento fica com o mic sozinho e volta a funcionar.
-  const isTouchDevice =
-    typeof navigator !== "undefined" &&
-    (navigator.maxTouchPoints > 0 || (typeof window !== "undefined" && "ontouchstart" in window));
+  const touchUi = isTouchUi();
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [heard, setHeard] = useState("");
   const [correct, setCorrect] = useState(false);
+  const [errorHint, setErrorHint] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const handleRef = useRef<RecognizeHandle | null>(null);
 
   useEffect(() => {
     return () => {
-      if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+      handleRef.current?.stop();
+      if (recorderRef.current?.state === "recording") {
+        try {
+          recorderRef.current.stop();
+        } catch {
+          /* ignore */
+        }
+      }
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [audioUrl]);
@@ -43,7 +61,12 @@ export function PronunciationPractice({
   async function startRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream);
+      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
+          ? "audio/webm"
+          : undefined;
+      const mr = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
       chunksRef.current = [];
       mr.ondataavailable = (e) => {
         if (e.data.size) chunksRef.current.push(e.data);
@@ -63,40 +86,86 @@ export function PronunciationPractice({
     }
   }
 
-  function start() {
+  function stopRecorder() {
+    const mr = recorderRef.current;
+    if (mr && mr.state === "recording") {
+      try {
+        mr.stop();
+      } catch {
+        /* ignore */
+      }
+    }
+    recorderRef.current = null;
+  }
+
+  function finishResult(transcript: string) {
+    const r = scorePronunciation(transcript, target);
+    setHeard(transcript);
+    setCorrect(r.correct);
+    setErrorHint(transcript ? null : speechErrorMessage("no-speech"));
+    stopRecorder();
+    handleRef.current = null;
+    setBusy(false);
+    setPhase("result");
+  }
+
+  function finishError(code: RecognizeErrorCode) {
+    setHeard("");
+    setCorrect(false);
+    setErrorHint(speechErrorMessage(code));
+    stopRecorder();
+    handleRef.current = null;
+    setBusy(false);
+    setPhase("result");
+  }
+
+  async function start() {
+    if (busy) return;
+    setBusy(true);
     setPhase("listening");
     setHeard("");
+    setErrorHint(null);
     setAudioUrl(null);
-    // Só grava para playback fora de dispositivos de toque: no mobile a gravação
-    // concorre com o reconhecimento pelo microfone e o quebra.
-    if (!isTouchDevice) startRecording();
-    recognizeOnce(
-      (t) => {
-        const r = scorePronunciation(t, target);
-        setHeard(t);
-        setCorrect(r.correct);
-        recorderRef.current?.stop();
-        setPhase("result");
-      },
-      () => {
-        setHeard("");
-        setCorrect(false);
-        recorderRef.current?.stop();
-        setPhase("result");
-      }
+    stopRecorder();
+
+    // 1) Prime da permissão + libera o stream (obrigatório no Chrome Android).
+    const permission = await ensureMicPermission();
+    if (permission === "denied") {
+      finishError("not-allowed");
+      return;
+    }
+    if (permission === "unavailable") {
+      finishError(secure ? "unsupported" : "insecure");
+      return;
+    }
+
+    // 2) Playback só no desktop, e só DEPOIS do prime (stream do prime já foi parado).
+    if (!touchUi) {
+      await startRecording();
+    }
+
+    // 3) Reconhecimento com continuous/interim — aguenta a fala no mobile.
+    handleRef.current = recognizeOnce(
+      (transcript) => finishResult(transcript),
+      (code) => finishError(code),
+      { lang: "zh-CN", timeoutMs: touchUi ? 15000 : 10000 }
     );
   }
 
-  if (!supported) {
+  function stopListening() {
+    handleRef.current?.stop();
+  }
+
+  if (!secure || !supported) {
     return (
       <div className="mt-6">
         <Button className="w-full" onClick={onContinue}>
           Continuar <IconChevron width={18} height={18} />
         </Button>
         <p className="mt-2 text-center text-xs text-ink-faint">
-          Este navegador não reconhece voz (o Safari do iPhone ainda não tem esse
-          recurso). No Chrome/Edge — do Android ou do computador — você pratica
-          falando. Enquanto isso, toque em ouvir e repita em voz alta.
+          {!secure
+            ? "O microfone só funciona em conexão segura (HTTPS)."
+            : "Este navegador não reconhece voz (o Safari do iPhone ainda não tem esse recurso). No Chrome/Edge — do Android ou do computador — você pratica falando. Enquanto isso, toque em ouvir e repita em voz alta."}
         </p>
       </div>
     );
@@ -109,6 +178,12 @@ export function PronunciationPractice({
           🎤
         </div>
         <p className="text-sm font-medium text-accent">Fale agora…</p>
+        <p className="max-w-xs text-center text-xs text-ink-faint">
+          Fale o hànzì em voz alta. Quando terminar, toque em Parar — ou espere o app reconhecer.
+        </p>
+        <Button variant="outline" onClick={stopListening}>
+          Parar
+        </Button>
       </div>
     );
   }
@@ -132,14 +207,17 @@ export function PronunciationPractice({
             {correct
               ? "Boa! Você falou certo."
               : heard
-              ? "Quase — compare e tente de novo"
-              : "Não consegui ouvir. Tente de novo."}
+                ? "Quase — compare e tente de novo"
+                : "Não consegui ouvir. Tente de novo."}
           </div>
           {heard && (
             <div className="mt-1">
               <span className="text-xs text-ink-faint">ouvi: </span>
               <span className="hanzi text-lg text-ink">{heard}</span>
             </div>
+          )}
+          {!heard && errorHint && (
+            <p className="mt-2 text-xs leading-5 text-ink-soft">{errorHint}</p>
           )}
           {audioUrl && (
             <div className="mt-2">
@@ -149,7 +227,7 @@ export function PronunciationPractice({
           )}
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Button variant="outline" onClick={start}>
+          <Button variant="outline" onClick={start} disabled={busy}>
             🎤 De novo
           </Button>
           <Button onClick={onContinue}>
@@ -163,7 +241,7 @@ export function PronunciationPractice({
   // idle
   return (
     <div className="mt-6 space-y-2">
-      <Button className="w-full" size="lg" onClick={start}>
+      <Button className="w-full" size="lg" onClick={start} disabled={busy}>
         🎤 Falar
       </Button>
       <button
