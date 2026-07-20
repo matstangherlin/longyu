@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ac085e675825f514219b2b0b58d1753b6f44d32a |
+| Commit | 6c2c9a1ea6a8c47499229169871a5410e469792d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-20T22:15:19.401Z |
+| Gerado em | 2026-07-20T22:51:49.938Z |
 | Lições | 108 |
 | Hash da Jornada | a056a4c37761 |
 
@@ -18,7 +18,7 @@
 | Estilo photo | 0 |
 | Estilo realistic_illustration | 0 |
 | Estilo flat_illustration | 37 |
-| Candidatos a substituição | 4 |
+| Candidatos a substituição | 0 |
 | Cenas contextuais (VisualScene) | 0 |
 | Erros | 0 |
 | Avisos | 0 |
@@ -58,18 +58,18 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | mother | 妈 mãe | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | father | 爸 pai | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | friend | 朋 amigo | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
-| crowd | 众 multidão | flat_illustration | neutral | 2.2 KB | 600×600 | — | sim |
+| crowd | 众 multidão | flat_illustration | neutral | 2.9 KB | 600×600 | — | — |
 | sky | 天 céu | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | woods | 林 bosque | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
 | forest | 森 floresta | flat_illustration | neutral | 2.0 KB | 600×600 | — | — |
-| horse | 马 cavalo | flat_illustration | neutral | 1.1 KB | 600×600 | — | sim |
+| horse | 马 cavalo | flat_illustration | neutral | 2.3 KB | 600×600 | — | — |
 | fish | 鱼 peixe | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
 | rice | 饭 arroz | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | tea | 茶 chá | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | meat | 肉 carne | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
 | vegetables | 菜 verdura | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
-| eat | 吃 comer | flat_illustration | neutral | 0.9 KB | 600×600 | — | sim |
-| drink | 喝 beber | flat_illustration | neutral | 0.9 KB | 600×600 | — | sim |
+| eat | 吃 comer | flat_illustration | neutral | 1.7 KB | 600×600 | — | — |
+| drink | 喝 beber | flat_illustration | neutral | 1.6 KB | 600×600 | — | — |
 | book | 书 livro | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
 | car | 车 carro | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
 | home | 家 casa | flat_illustration | neutral | 1.2 KB | 600×600 | — | — |
@@ -85,4 +85,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:05922c5d9dffbabc -->
+<!-- integridade:6fae439f73b874d5 -->
