@@ -450,45 +450,7 @@ def build() -> dict[str, str]:
         "Drink",
     )
 
-    assets["nature/horse.svg"] = svg(
-        f"""  <rect width="600" height="600" fill="{BG}"/>
-  <rect y="470" width="600" height="130" fill="{GROUND}"/>
-  <ellipse cx="305" cy="482" rx="205" ry="24" fill="#BFD2C2"/>
-
-  <path d="M125 296 C94 280 72 292 55 329 C76 344 99 342 122 319" fill="none" stroke="{BROWN_DARK}" stroke-width="24" stroke-linecap="round"/>
-  <path d="M112 292 C89 268 65 271 48 291" fill="none" stroke="{BROWN}" stroke-width="18" stroke-linecap="round"/>
-
-  <path d="M365 291 C393 263 402 217 419 187 C436 158 466 143 500 151 C536 159 557 186 553 216 C550 241 532 258 507 262 L465 268 C457 312 438 351 405 373 L353 343 Z" fill="{BROWN}"/>
-  <ellipse cx="276" cy="320" rx="170" ry="112" fill="{BROWN}"/>
-  <ellipse cx="306" cy="298" rx="118" ry="72" fill="#9B7349"/>
-
-  <path d="M416 190 C402 213 400 254 385 285 C405 288 421 296 437 310 C455 277 460 237 470 208 Z" fill="{BROWN_DARK}"/>
-  <circle cx="416" cy="208" r="17" fill="{BROWN_DARK}"/>
-  <circle cx="410" cy="235" r="17" fill="{BROWN_DARK}"/>
-  <circle cx="404" cy="262" r="17" fill="{BROWN_DARK}"/>
-
-  <polygon points="447,160 452,121 478,157" fill="{BROWN}"/>
-  <polygon points="454,156 458,134 469,157" fill="{BROWN_DARK}"/>
-  <polygon points="488,155 510,126 514,166" fill="{BROWN}"/>
-  <polygon points="495,158 507,142 508,165" fill="{BROWN_DARK}"/>
-  <ellipse cx="538" cy="213" rx="38" ry="29" fill="{BROWN_DARK}"/>
-  <ellipse cx="548" cy="208" rx="15" ry="10" fill="#7B5B3B"/>
-  <circle cx="505" cy="185" r="7" fill="{CHARCOAL}"/>
-  <circle cx="507" cy="183" r="2" fill="{BG}"/>
-  <circle cx="548" cy="214" r="4" fill="{CHARCOAL}"/>
-
-  <path d="M164 382 L151 464 Q150 480 166 484 L184 484 Q196 480 194 465 L205 385 Z" fill="{BROWN}"/>
-  <path d="M151 458 L194 458 L193 482 Q174 492 153 482 Z" fill="{HAIR}"/>
-  <path d="M235 395 L230 470 Q230 484 245 486 L263 486 Q277 481 273 466 L280 397 Z" fill="#9B7349"/>
-  <path d="M230 461 L274 461 L273 483 Q252 493 232 483 Z" fill="{HAIR}"/>
-  <path d="M326 395 L337 468 Q338 482 353 485 L371 484 Q384 478 379 463 L371 384 Z" fill="{BROWN}"/>
-  <path d="M336 458 L379 457 L380 479 Q361 491 340 483 Z" fill="{HAIR}"/>
-  <path d="M392 371 L422 457 Q426 471 440 470 L458 465 Q470 457 461 444 L432 352 Z" fill="{BROWN}"/>
-  <path d="M419 449 L459 438 L466 459 Q452 475 430 472 Z" fill="{HAIR}"/>""",
-        "Horse",
-    )
-
-    return assets
+    # horse.svg é um vetor curado a partir de referência gerada; preservar o arquivo existente.\n\n    return assets
 
 
 def main() -> None:
