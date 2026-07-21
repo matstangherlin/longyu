@@ -12,30 +12,41 @@ export function Mascot({
   className?: string;
 }) {
   const showMotion = animated && variant !== "still";
+  const frameMotion = !showMotion
+    ? ""
+    : variant === "celebrate"
+      ? "mascot-full-celebrate"
+      : "mascot-full-idle";
 
   return (
     <span
       className={`mascot-root relative inline-block overflow-visible bg-transparent ${className}`}
       style={{ width: size, height: size }}
       data-mascot-animated={showMotion ? "true" : "false"}
+      data-mascot-render="whole-frame-v3"
     >
-      <img
-        src="/longyu-mascot.png"
-        alt="Mascote Longyu"
-        draggable={false}
-        data-testid="mascot-body"
-        className="relative z-[1] h-full w-full select-none object-contain"
-      />
-      {showMotion && (
+      <span
+        data-testid="mascot-frame"
+        className={`relative block h-full w-full bg-transparent ${frameMotion}`}
+      >
         <img
-          src="/longyu-eyes-closed.svg"
-          alt=""
-          aria-hidden="true"
+          src="/longyu-mascot.png"
+          alt="Mascote Longyu"
           draggable={false}
-          data-testid="mascot-eyes-closed"
-          className="mascot-eye-blink pointer-events-none absolute inset-0 z-[2] h-full w-full select-none object-contain"
+          data-testid="mascot-body"
+          className="relative z-[1] h-full w-full select-none object-contain"
         />
-      )}
+        {showMotion && (
+          <img
+            src="/longyu-eyes-closed.svg"
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            data-testid="mascot-eyes-closed"
+            className="mascot-eye-blink pointer-events-none absolute inset-0 z-[2] h-full w-full select-none object-contain"
+          />
+        )}
+      </span>
     </span>
   );
 }
