@@ -1,4 +1,5 @@
 import process from "node:process";
+import { readFileSync } from "node:fs";
 
 const MODULE_REVIEW_PASS_ACCURACY = 0.8;
 const PASS_ACCURACY = 0.6;
@@ -73,6 +74,43 @@ if (pairExpected.length > 40 || pairUser.length > 40) {
   fail("respostas de par devem ser granulares");
 }
 assertEqual("par salva hanzi no prompt", pairPrompt.includes("木"), true);
+
+console.log("== Recuperação alternativa de cena ==");
+// A cena original era escolha de resposta; a recuperação precisa cobrar o
+// mesmo alvo por montagem, sem repetir a múltipla escolha nem o histórico todo.
+const remediationSource = readFileSync(
+  new URL("../src/features/lesson/immediateRemediation.ts", import.meta.url),
+  "utf8"
+);
+assertEqual(
+  "cena e diálogo mudam para montagem",
+  remediationSource.includes(
+    'if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";'
+  ),
+  true
+);
+assertEqual(
+  "recuperação usa enunciado curto",
+  remediationSource.includes('error.prompt.split(" (cena:")[0]?.trim()'),
+  true
+);
+assertEqual(
+  "recuperação usa peças da resposta",
+  remediationSource.includes("pieces: buildReplyPieces(error, answer)"),
+  true
+);
+
+const sceneAnswer = "明天见";
+const sceneOptions = ["明天见", "你好", "谢谢", "我饿了"];
+const sceneAnswerChars = [...sceneAnswer];
+const sceneDistractorChars = Array.from(
+  new Set(sceneOptions.flatMap((option) => [...option]).filter((char) => !sceneAnswerChars.includes(char)))
+).slice(0, 3);
+const scenePieces = [...sceneAnswerChars, ...sceneDistractorChars];
+assertEqual("mantém 明", scenePieces.includes("明"), true);
+assertEqual("mantém 天", scenePieces.includes("天"), true);
+assertEqual("mantém 见", scenePieces.includes("见"), true);
+assertEqual("não transforma pulo em opção", scenePieces.includes("Pulou ou respondeu incorretamente"), false);
 
 if (errors.length > 0) {
   console.error("\nFalhas:");
