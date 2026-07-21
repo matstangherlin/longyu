@@ -65,6 +65,44 @@ for (const sample of studentSamples) {
 const forbiddenStudentDisplay = ["ni3 hao3", "xie4xie", "Zhong1wen2", "wo3 shi4 Ba1xi1 ren2"];
 const sourceRoot = new URL("../src/", import.meta.url);
 
+const lessonStepsSource = await readFile(new URL("../src/features/lesson/steps.tsx", import.meta.url), "utf8");
+const silentPromptChecks = [
+  [
+    "const promptTestsPinyinOrTone = hintWouldRevealAnswer(step);",
+    "pergunta avaliada precisa reutilizar a regra anti-dica",
+  ],
+  [
+    "const shouldReadPrompt = !promptTestsPinyinOrTone && isCjkText(dialoguePrompt);",
+    "pergunta de pinyin/tom não pode habilitar leitura automática",
+  ],
+  [
+    "useAutoSpeak(shouldReadPrompt ? dialoguePrompt : undefined, shouldReadPrompt",
+    "hook de áudio precisa respeitar a política silenciosa",
+  ],
+  [
+    "speakOnClick={!promptTestsPinyinOrTone}",
+    "pergunta de pinyin/tom não pode oferecer leitura por clique",
+  ],
+  [
+    "disabled={promptTestsPinyinOrTone}",
+    "ajuda visual precisa continuar desativada na pergunta avaliada",
+  ],
+];
+
+for (const [required, description] of silentPromptChecks) {
+  if (!lessonStepsSource.includes(required)) {
+    failures.push(`Proteção de pergunta silenciosa ausente: ${description}`);
+  }
+}
+
+const conversationSceneSource = await readFile(
+  new URL("../src/features/lesson/ConversationSceneStep.tsx", import.meta.url),
+  "utf8"
+);
+if (!conversationSceneSource.includes("useAutoSpeak(visible && autoSpeak ? audio : undefined, visible && autoSpeak")) {
+  failures.push("Leitura automática das falas reais de diálogo precisa permanecer ativa");
+}
+
 async function sourceFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
