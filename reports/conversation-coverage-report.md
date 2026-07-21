@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
+| Commit | f8135bd4b2bee243b622480bf2fc0cb1f6b05d89 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T22:10:58.840Z |
+| Gerado em | 2026-07-21T22:31:22.781Z |
 | Lições | 110 |
 | Hash da Jornada | 889271f39a22 |
 
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:3df18fef02710166 -->
+<!-- integridade:272a5742e6efcc82 -->

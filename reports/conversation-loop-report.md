@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
+| Commit | f8135bd4b2bee243b622480bf2fc0cb1f6b05d89 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T22:11:10.627Z |
+| Gerado em | 2026-07-21T22:30:31.640Z |
 | Lições | 110 |
 | Hash da Jornada | 889271f39a22 |
 
@@ -107,4 +107,4 @@
 - p5-mu-mu-mu-sen:chunk:xiexie
 - …mais 122.
 
-<!-- integridade:5d70a14f7bff2dfa -->
+<!-- integridade:4decdcd29c4dec9c -->
