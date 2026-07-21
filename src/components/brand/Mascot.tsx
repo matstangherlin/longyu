@@ -11,23 +11,19 @@ export function Mascot({
   variant?: MascotVariant;
   className?: string;
 }) {
-  const showMotion = animated && variant !== "still";
-  const frameMotion = !showMotion
-    ? ""
-    : variant === "celebrate"
-      ? "mascot-full-celebrate"
-      : "mascot-full-idle";
+  const showBlink = animated && variant !== "still";
 
   return (
     <span
       className={`mascot-root relative inline-block overflow-visible bg-transparent ${className}`}
       style={{ width: size, height: size }}
-      data-mascot-animated={showMotion ? "true" : "false"}
-      data-mascot-render="whole-frame-v3"
+      data-mascot-animated={showBlink ? "true" : "false"}
+      data-mascot-motion="eyes-only"
+      data-mascot-render="static-body-blink-v4"
     >
       <span
         data-testid="mascot-frame"
-        className={`relative block h-full w-full bg-transparent ${frameMotion}`}
+        className="relative block h-full w-full bg-transparent"
       >
         <img
           src="/longyu-mascot.png"
@@ -36,7 +32,7 @@ export function Mascot({
           data-testid="mascot-body"
           className="relative z-[1] h-full w-full select-none object-contain"
         />
-        {showMotion && (
+        {showBlink && (
           <img
             src="/longyu-eyes-closed.svg"
             alt=""
@@ -50,3 +46,4 @@ export function Mascot({
     </span>
   );
 }
+
