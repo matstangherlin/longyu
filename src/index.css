@@ -147,31 +147,33 @@ a {
 
 /* Mascote vivo: corpo parado, mao sutil e piscada dos olhos. */
 @keyframes mascot-hand-wave {
-  0%, 55%, 100% { transform: rotate(0deg); }
-  63% { transform: rotate(-9deg); }
-  71% { transform: rotate(5deg); }
-  79% { transform: rotate(-7deg); }
-  87% { transform: rotate(3deg); }
+  0%, 58%, 100% { transform: rotate(0deg); }
+  66% { transform: rotate(-5deg); }
+  74% { transform: rotate(2deg); }
+  82% { transform: rotate(-3deg); }
+  90% { transform: rotate(1deg); }
 }
 
 @keyframes mascot-hand-celebrate {
   0%, 100% { transform: rotate(0deg); }
-  15% { transform: rotate(-11deg); }
-  30% { transform: rotate(7deg); }
-  45% { transform: rotate(-9deg); }
-  60% { transform: rotate(5deg); }
-  75% { transform: rotate(-3deg); }
+  15% { transform: rotate(-7deg); }
+  30% { transform: rotate(4deg); }
+  45% { transform: rotate(-5deg); }
+  60% { transform: rotate(3deg); }
+  75% { transform: rotate(-2deg); }
+}
+
+.mascot-hand-layer {
+  transform-origin: 96% 86%;
 }
 
 .mascot-hand-wave {
-  animation: mascot-hand-wave 3.6s ease-in-out infinite;
-  transform-origin: 50% 92%;
+  animation: mascot-hand-wave 4.6s ease-in-out infinite;
   will-change: transform;
 }
 
 .mascot-hand-celebrate {
-  animation: mascot-hand-celebrate 1.8s ease-in-out 2, mascot-hand-wave 3.6s ease-in-out 3.8s infinite;
-  transform-origin: 50% 92%;
+  animation: mascot-hand-celebrate 1.8s ease-in-out 2, mascot-hand-wave 4.6s ease-in-out 3.8s infinite;
   will-change: transform;
 }
 
