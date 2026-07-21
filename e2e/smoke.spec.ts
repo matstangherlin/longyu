@@ -33,15 +33,16 @@ test.describe("smoke", () => {
     await expect(page.getByRole("button", { name: "Ativar modo escuro" })).toHaveAttribute("aria-pressed", "false");
   });
 
-  test("mascote usa duas pálpebras sincronizadas e mão animada", async ({ page }) => {
+  test("mascote alterna o quadro de olhos fechados e mantém a mão animada", async ({ page }) => {
     await page.goto("/");
     const mascot = page.locator('[data-mascot-animated="true"]:visible').first();
     await expect(mascot).toBeVisible();
 
-    const eyelids = mascot.getByTestId("mascot-eyelid");
-    await expect(eyelids).toHaveCount(2);
-    await expect.poll(async () => eyelids.evaluateAll((nodes) =>
-      nodes.every((node) => getComputedStyle(node).animationName === "mascot-eye-blink")
+    const closedEyes = mascot.getByTestId("mascot-eyes-closed");
+    await expect(closedEyes).toHaveCount(1);
+    await expect(closedEyes).toHaveAttribute("src", "/longyu-eyes-closed.svg");
+    await expect.poll(async () => closedEyes.evaluate((node) =>
+      getComputedStyle(node).animationName === "mascot-eye-blink"
     )).toBe(true);
 
     const hand = mascot.locator('img[src="/longyu-hand-wave.png"]');

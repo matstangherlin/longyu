@@ -29,8 +29,14 @@ export function Mascot({
       />
       {showMotion && (
         <>
-          <span className="mascot-eye-blink mascot-eye-left" data-testid="mascot-eyelid" aria-hidden="true" />
-          <span className="mascot-eye-blink mascot-eye-right" data-testid="mascot-eyelid" aria-hidden="true" />
+          <img
+            src="/longyu-eyes-closed.svg"
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            data-testid="mascot-eyes-closed"
+            className="mascot-eye-blink pointer-events-none absolute inset-0 z-[2] h-full w-full select-none object-contain"
+          />
           <img
             src="/longyu-hand-wave.png"
             alt=""
