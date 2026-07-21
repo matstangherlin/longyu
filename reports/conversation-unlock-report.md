@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 6cbc973b23796b1b152145938d30813d6ba04bce |
+| Commit | 0caa45ee65d39cf979a1ab81e91be80caa5861cc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:33:29.247Z |
+| Gerado em | 2026-07-21T05:34:24.015Z |
 | Lições | 108 |
 | Hash da Jornada | 19450bf85677 |
 
@@ -131,4 +131,4 @@ Nenhuma — todas as cenas do catálogo aparecem em algum plano (autoral ou gera
 _requiredRefs = vocabulário que a cena mostra e exige aprendido; optionalRefs
 enriquecem sem bloquear; newRefs é a novidade controlada da própria cena._
 
-<!-- integridade:552ff0ba11395164 -->
+<!-- integridade:37fbf565b26b264f -->
