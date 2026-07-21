@@ -138,6 +138,7 @@ function pinyinDistractors(answer: string): string[] {
 
 function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
   if (error.type === "pair-match") return "pair";
+  if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";
   if (error.type === "tone") return "tone";
   if (error.type === "listen_select" || error.type === "tone_pair" || error.skill === "som") return "listen";
   if (error.type === "hanzi_build") return "build";
@@ -174,6 +175,43 @@ function buildPieces(error: ActivityErrorInput, fallbackAnswer: string): string[
     .filter((piece) => !baseSet.has(normalizeHanzi(piece)));
   const combined = [...base, ...extras].slice(0, Math.max(base.length + 3, 4));
   return seededOrder(combined, error.id);
+}
+
+function containsHanzi(text: string): boolean {
+  return /[\u3400-\u9fff]/u.test(text);
+}
+
+function replyTokens(text: string): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  return containsHanzi(trimmed)
+    ? [...normalizeHanzi(trimmed)]
+    : trimmed.split(/\s+/).filter(Boolean);
+}
+
+/**
+ * Cena/diálogo já testou escolha de resposta. Na recuperação, mantém a mesma
+ * intenção e o mesmo alvo, mas troca a abordagem por montagem da fala.
+ */
+function buildReplyPieces(error: ActivityErrorInput, answer: string): string[] {
+  const base = replyTokens(answer);
+  const baseSet = new Set(base.map(normalizeRemediationAnswer));
+  const distractorTokens = uniqueNonEmpty(
+    (error.step?.options ?? []).flatMap((option) => replyTokens(option))
+  ).filter((token) => !baseSet.has(normalizeRemediationAnswer(token)));
+  const extras = distractorTokens.slice(0, 3);
+  return seededOrder([...base, ...extras], error.id);
+}
+
+function originalTaskPrompt(error: ActivityErrorInput): string {
+  const step = error.step;
+  return (
+    step?.dialoguePrompt ??
+    step?.checkpoint?.prompt ??
+    step?.prompt ??
+    error.prompt.split(" (cena:")[0]?.trim() ??
+    "Responda à mesma situação."
+  );
 }
 
 /**
@@ -265,6 +303,19 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
   }
 
   if (kind === "build") {
+    if (error.type === "dialogue_choice" || error.type === "conversation_scene") {
+      const answer = error.correctAnswer;
+      return {
+        ...base,
+        kind: "build",
+        prompt: "Monte a resposta para a mesma situação.",
+        display: originalTaskPrompt(error),
+        answer,
+        pieces: buildReplyPieces(error, answer),
+        pieceJoin: containsHanzi(answer) ? "" : " ",
+      };
+    }
+
     if (error.type === "hanzi_build") {
       // As peças são componentes; o alvo é o glifo composto. Verifica a ordem
       // dos componentes, mas mostra o hànzì final no feedback.
