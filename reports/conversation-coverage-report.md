@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 0caa45ee65d39cf979a1ab81e91be80caa5861cc |
+| Commit | e10fca1a81f0573209629863a11721899308d248 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:34:16.807Z |
+| Gerado em | 2026-07-21T05:35:16.259Z |
 | Lições | 108 |
 | Hash da Jornada | 19450bf85677 |
 
@@ -109,4 +109,4 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:471e2b10efc376d5 -->
+<!-- integridade:dfad8717a8d41694 -->
