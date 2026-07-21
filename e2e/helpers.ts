@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
 
-// Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
-// antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
+// Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versÃ£o
+// antiga passam pelas migraÃ§Ãµes (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
 const STORE_VERSION = 15;
 
@@ -21,7 +21,7 @@ function isoWeekKey(d = new Date()): string {
   return `${date.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
-/** Nos e2e comuns, marca decisão de telemetria para o modal não bloquear fluxos. */
+/** Nos e2e comuns, marca decisÃ£o de telemetria para o modal nÃ£o bloquear fluxos. */
 export async function seedTelemetryDeclined(page: Page) {
   await page.addInitScript(() => {
     if (localStorage.getItem("longyu:telemetry-consent") === null) {
@@ -34,7 +34,7 @@ export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });
     if (await privacy.isVisible().catch(() => false)) {
-      const decline = page.getByRole("button", { name: /Agora não/i });
+      const decline = page.getByRole("button", { name: /Agora nÃ£o/i });
       if (await decline.isVisible().catch(() => false)) {
         await decline.click().catch(() => undefined);
       }
@@ -51,7 +51,7 @@ export async function dismissBlockingOverlays(page: Page) {
   }
 }
 
-/** Clique resiliente quando overlays/re-renders desanexam o botão. */
+/** Clique resiliente quando overlays/re-renders desanexam o botÃ£o. */
 export async function clickStable(page: Page, name: RegExp, retries = 4) {
   for (let attempt = 0; attempt < retries; attempt += 1) {
     await dismissBlockingOverlays(page);
@@ -77,7 +77,7 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
   }));
 }
 
-/** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
+/** Conclui todas as liÃ§Ãµes fundamentais atÃ© (e incluindo) `throughLessonId`. */
 export async function seedFoundationThrough(page: Page, throughLessonId: string) {
   await seedTelemetryDeclined(page);
   const foundation = [
@@ -101,8 +101,16 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
   }));
 }
 
-/** Fundação completa + pré-requisitos da jornada para abrir o player de `lessonId`. */
-export async function seedLessonPlayerReady(page: Page, lessonId: string) {
+/** FundaÃ§Ã£o completa + prÃ©-requisitos da jornada para abrir o player de `lessonId`. */
+export async function seedLessonPlayerReady(
+  page: Page,
+  lessonId: string,
+  options: {
+    isPremium?: boolean;
+    theme?: "light" | "dark";
+    conversationHistory?: Array<Record<string, unknown>>;
+  } = {}
+) {
   await seedTelemetryDeclined(page);
   const foundation = [
     "p1-o-que-e-mandarim",
@@ -125,6 +133,10 @@ export async function seedLessonPlayerReady(page: Page, lessonId: string) {
     accountSetupComplete: true,
     completedLessons,
     lessonStarsById,
+    isPremium: options.isPremium ?? false,
+    serverIsPro: options.isPremium ?? false,
+    theme: options.theme ?? "light",
+    conversationHistory: options.conversationHistory ?? [],
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));
 }
@@ -144,7 +156,7 @@ export async function seedFreshJourneySession(
   }));
 }
 
-/** Liga em modo demo com XP semanal local (conta não-cloud). */
+/** Liga em modo demo com XP semanal local (conta nÃ£o-cloud). */
 export async function seedLeagueDemoSession(page: Page, weeklyXp = 15) {
   await seedTelemetryDeclined(page);
   const week = isoWeekKey();
@@ -160,7 +172,7 @@ export async function seedLeagueDemoSession(page: Page, weeklyXp = 15) {
   }));
 }
 
-/** Sessão com lição concluída em 2★ e erro pendente para revisão (fluxo pós-lição). */
+/** SessÃ£o com liÃ§Ã£o concluÃ­da em 2â˜… e erro pendente para revisÃ£o (fluxo pÃ³s-liÃ§Ã£o). */
 export async function seedLessonRecoverySession(
   page: Page,
   options: { lessonId?: string; stars?: number; isPremium?: boolean } = {}
@@ -180,10 +192,10 @@ export async function seedLessonRecoverySession(
         completedLessons: [lessonId],
         learnedChunks: ["nihao"],
         lessonStarsById: { [lessonId]: stars },
-        // O e2e roda contra o build de produção, onde o preview local
-        // (isPremium) não concede Pro (effectivePremium exige DEV ou flag de
+        // O e2e roda contra o build de produÃ§Ã£o, onde o preview local
+        // (isPremium) nÃ£o concede Pro (effectivePremium exige DEV ou flag de
         // build). O Pro real chega via entitlement do servidor persistido em
-        // serverIsPro — é esse campo que simula um assinante aqui.
+        // serverIsPro â€” Ã© esse campo que simula um assinante aqui.
         isPremium,
         serverIsPro: isPremium,
         achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
@@ -198,13 +210,13 @@ export async function seedLessonRecoverySession(
             exerciseId: `${lessonId}:1`,
             type: "listen_select",
             prompt: "Toque no que ouviu",
-            correctAnswer: "你好",
-            selectedAnswer: "谢谢",
-            topic: "Olá",
-            tokens: ["你好", "谢谢"],
-            hanzi: "你好",
-            pinyin: "nǐ hǎo",
-            meaningPt: "Olá",
+            correctAnswer: "ä½ å¥½",
+            selectedAnswer: "è°¢è°¢",
+            topic: "OlÃ¡",
+            tokens: ["ä½ å¥½", "è°¢è°¢"],
+            hanzi: "ä½ å¥½",
+            pinyin: "nÇ hÇŽo",
+            meaningPt: "OlÃ¡",
             timestamp: Date.now(),
             wrongCount: 1,
             skill: "fala",
@@ -215,3 +227,4 @@ export async function seedLessonRecoverySession(
     }
   );
 }
+
