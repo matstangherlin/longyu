@@ -783,6 +783,12 @@ function normalizeRecentActivityErrors(errors: ActivityErrorRecord[] | undefined
 
 const CONVERSATION_RESULTS = new Set<ConversationResult>(["completed", "mistake", "abandoned"]);
 
+/**
+ * Histórico de conversas: chave estável por sceneId + lição + timestamp.
+ * A migração do catálogo V1→V2 preserva sceneIds, então entradas antigas
+ * continuam válidas para rotação e variantes de apresentação — não há
+ * reescrita de payload além da normalização de campos.
+ */
 function normalizeConversationHistory(
   history: ConversationHistoryEntry[] | undefined
 ): ConversationHistoryEntry[] {

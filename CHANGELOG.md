@@ -7,6 +7,22 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Catálogo de conversas V2 expandido
+
+- **Todas as 33 cenas** do catálogo passam a ser V2 (nós + ramificação), com
+  `sceneId` preservado para não quebrar histórico/`conversationHistory`.
+- Novos mínimos pedagógicos: comum **6–10 falas / 2–3 intervenções**; revisão de
+  módulo **10–14 / 3–5**; imersão **14–24 / 5–8**, com ≥2 caminhos e ≥2 finais.
+- Diálogos com início contextual, desenvolvimento, objetivo comunicativo, reação
+  e encerramento; ramos de erro com pista + reformulação (erro não encerra a
+  cena). Situações de reparo (não entendi / repita / confirme) entram no fluxo.
+- Compatibilidade: `sceneV2` deriva `lines` + `checkpoint` de fallback para o
+  player V1 (`VITE_ENABLE_CONVERSATION_V2=false`); o histórico continua chaveado
+  por `sceneId`.
+- `revisao-numeros` inserida à mão em `l9-rev` para manter 33/33 no destravamento.
+- Limites em `validate:conversation-scenes`, testes de vocabulário/loop, relatórios
+  de cobertura e destravamento atualizados.
+
 ### Correção — microfone no celular (reconhece de verdade)
 
 - O botão **Falar** falhava em Chrome/Edge Android: sem liberar o mic antes do

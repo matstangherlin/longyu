@@ -9,8 +9,8 @@
  * - mais de 1 novidade (newRefs) sem dedicatedLesson;
  * - cena V2 com nó inalcançável, referência de nó inexistente ou loop infinito
  *   (nó alcançável sem caminho até um terminal);
- * - cena V2 fora dos limites do papel (comum 3–6 falas e 1–2 intervenções;
- *   revisão 5–10 e 2–3; imersão 8–16, ramificada e com conclusões diferentes);
+ * - cena V2 fora dos limites do papel (comum 6–10 falas e 2–3 intervenções;
+ *   revisão 10–14 e 3–5; imersão 14–24 e 5–8, ramificada e com conclusões diferentes);
  * - a Jornada continuar selecionando sempre a primeira cena (ignora contexto).
  *
  * Gera reports/conversation-coverage-report.md.
@@ -35,9 +35,9 @@ const PUNCT_RE = /[　-〿＀-￯,.!?\s:;"'()？！。，、]/g;
 const MIN_CATALOG_SIZE = 30;
 
 const ROLE_LIMITS = {
-  common: { lines: [3, 6], interactions: [1, 2] },
-  module_review: { lines: [5, 10], interactions: [2, 3] },
-  immersion: { lines: [8, 16], interactions: [2, 99] },
+  common: { lines: [6, 10], interactions: [2, 3] },
+  module_review: { lines: [10, 14], interactions: [3, 5] },
+  immersion: { lines: [14, 24], interactions: [5, 8] },
 };
 
 function norm(value) {

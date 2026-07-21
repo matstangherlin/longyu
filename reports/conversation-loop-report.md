@@ -4,62 +4,81 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4f755d804ff44b23dfa86f1bc61f544100b1c54c |
+| Commit | 6cbc973b23796b1b152145938d30813d6ba04bce |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-20T20:05:22.926Z |
+| Gerado em | 2026-07-21T05:33:25.419Z |
 | Lições | 108 |
-| Hash da Jornada | f8985257472c |
+| Hash da Jornada | 19450bf85677 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 114 |
-| Itens de vocabulário exibidos | 445 |
-| Itens cobertos por tarefa posterior | 407 |
-| Reutilização média por item | 2.00 |
-| Itens sem cobertura | 38 |
+| Conversas analisadas (nos planos reais) | 116 |
+| Itens de vocabulário exibidos | 528 |
+| Itens cobertos por tarefa posterior | 471 |
+| Reutilização média por item | 1.98 |
+| Itens sem cobertura | 57 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, hanzi_build, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
 
-- l9-rev:char:yi
-- l9-rev:chunk:nihao
-- l9-rev:chunk:qingzaishuoyibian
+- l8:chunk:xiexie
+- l12:chunk:wojiao
+- l9-rev:char:shi10
+- l9-rev:char:si
+- l9-rev:char:wu
+- l9-rev:chunk:nihaoma
 - l27:chunk:zaijian
+- l28:chunk:zheshishenme
+- l10-rev:chunk:woele
+- l10-rev:chunk:wohenhao
 - l10-rev:chunk:xiexie
+- l10-rev:chunk:zaijian
+- l10-rev:char:mu
+- l10-rev:char:ri
+- l10-rev:char:san
+- l10-rev:char:sen
+- l10-rev:char:shan
 - l10-rev:char:shi
 - l10-rev:char:yue
+- l10-rev:chunk:wohenhao
 - l10-rev:chunk:zheshishenme
-- l29:char:yue
+- l29:char:zhe
+- l29:chunk:nashirenm
+- l29:chunk:wohenhao
 - l29:chunk:zheshishenme
+- l30:chunk:qingzaishuoyibian
+- l30:chunk:woyao
 - l30:chunk:xiexie
 - l30:chunk:zaijian
+- l11-rev:chunk:qingzaishuoyibian
+- l11-rev:chunk:zheshishenme
 - p7-imersao-mercado:chunk:woyao
 - p7-imersao-mercado:chunk:xiexie
-- p7-imersao-mercado:chunk:zaijian
 - p7-imersao-mercado:char:qi
-- p7-imersao-mercado:char:shi
+- p7-imersao-mercado:char:shi10
 - p7-imersao-mercado:char:si
 - p7-imersao-mercado:char:wu
-- p7-imersao-mercado:chunk:pengyou
+- p7-imersao-mercado:char:yi
 - p7-imersao-mercado:chunk:qingzaishuoyibian
 - p7-imersao-mercado:chunk:woyousangepengyou
-- p7-imersao-estacao:chunk:nihao
 - p7-imersao-estacao:chunk:xiexie
 - p7-imersao-estacao:chunk:zaijian
-- p7-imersao-estacao:char:liu
-- p7-imersao-estacao:char:qi
-- p7-imersao-estacao:char:si
-- p7-imersao-estacao:char:wu
-- p7-imersao-estacao:char:you
-- p7-imersao-estacao:chunk:nihao
-- p7-imersao-estacao:chunk:pengyou
-- p7-imersao-estacao:chunk:woyousangepengyou
+- p7-imersao-estacao:chunk:nihaoma
+- p7-imersao-estacao:chunk:taiguile
+- p7-imersao-estacao:chunk:wohenhao
+- p7-imersao-estacao:chunk:woxianghe
+- p7-imersao-estacao:chunk:xiexie
+- p7-imersao-estacao:chunk:zaijian
+- p7-imersao-casa-amigo:chunk:taiguile
 - p7-imersao-casa-amigo:chunk:zaijian
-- p7-imersao-casa-amigo:chunk:qingzaishuoyibian
+- p7-imersao-casa-amigo:chunk:zheshibaba
+- p7-imersao-casa-amigo:char:you
+- p7-imersao-casa-amigo:chunk:duoshaoqian
+- p7-imersao-casa-amigo:chunk:qingwen
 - p7-imersao-casa-amigo:chunk:taiguile
 - p7-imersao-casa-amigo:chunk:woyao
 - p7-imersao-casa-amigo:chunk:zaijian
 
-<!-- integridade:f69078240f017420 -->
+<!-- integridade:08a568deccab56ae -->

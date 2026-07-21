@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5875689726837552196b324e6dc15ca4b23dbf9c |
+| Commit | 6cbc973b23796b1b152145938d30813d6ba04bce |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-18T16:26:06.401Z |
+| Gerado em | 2026-07-21T05:33:29.247Z |
 | Lições | 108 |
-| Hash da Jornada | 63af61590b71 |
+| Hash da Jornada | 19450bf85677 |
 
 ## Resumo
 
@@ -17,8 +17,8 @@
 | Cenas no catálogo | 33 |
 | Cenas usadas (autoral ou gerada) | 33 |
 | Cenas nunca usadas | 0 |
-| Lições com cena gerada | 93 |
-| Conversas geradas (total) | 93 |
+| Lições com cena gerada | 96 |
+| Conversas geradas (total) | 96 |
 
 A elegibilidade e a rotação abaixo saem de `analyzeConversationSceneCoverage`
 (a mesma fonte usada pelo motor e por `validate:conversation-scenes`), então
@@ -63,9 +63,8 @@ lições e nenhuma intenção acima de 20% das conversas geradas.
 | nao-falo-chinês | cannot-speak | chunk:nihao, chunk:wobuhui, chunk:nihaoma | p1-o-que-e-mandarim | — | nenhuma (já aparece nos planos) |
 | como-se-chama | ask-name | chunk:nihao, chunk:nijiaoshenme, chunk:wojiao | p1-o-que-e-mandarim | — | nenhuma (já aparece nos planos) |
 | pedir-agua | ask-water | chunk:nihao, chunk:qingwen, chunk:woyao, char:shui, chunk:xiexie, chunk:qingzaishuoyibian, chunk:bukeqi, chunk:zaijian | l14 | — | nenhuma (já aparece nos planos) |
-| pedir-cha | ask-tea | chunk:xiexie, chunk:nihao, chunk:nihaoma, chunk:woxianghe, chunk:zheshishenme, chunk:qingzaishuoyibian, chunk:bukeqi | l25 | — | nenhuma (já aparece nos planos) |
-| perguntar-quantidade | ask-quantity | chunk:nihao, chunk:woyao, chunk:zheshishenme, chunk:woxianghe, char:san, chunk:xiexie, chunk:bukeqi, chunk:taiguile | l27 | — | nenhuma (já aparece nos planos) |
-| comprar-itens | buy-items | chunk:nihao, chunk:qingwen, chunk:duoshaoqian, char:shi10, char:bu, chunk:taiguile, chunk:woyao, chunk:qingzaishuoyibian, chunk:xiexie, chunk:zaijian, chunk:zheshishenme | l10-rev | — | nenhuma (já aparece nos planos) |
+| pedir-cha | ask-tea | chunk:nihao, chunk:nihaoma, chunk:xiexie, chunk:woxianghe, chunk:zheshishenme, chunk:qingzaishuoyibian, chunk:bukeqi | l25 | — | nenhuma (já aparece nos planos) |
+| perguntar-quantidade | ask-quantity | chunk:nihao, chunk:woyao, chunk:zheshishenme, chunk:woxianghe, char:san, chunk:duoshaoqian, chunk:taiguile, chunk:xiexie, chunk:bukeqi | l27 | — | nenhuma (já aparece nos planos) |
 | identificar-pessoa | identify-person | chunk:nashirenm, chunk:zheshimama, chunk:wohenhao, chunk:nihao, chunk:xiexie | l24 | — | nenhuma (já aparece nos planos) |
 | encontrar-amigo | meet-friend | chunk:nihao, chunk:pengyou, chunk:nihaoma, chunk:wohenhao, chunk:womenzouba, chunk:zheshishenme | l28 | — | nenhuma (já aparece nos planos) |
 | onde-esta | ask-where | chunk:qingwen, char:shan, chunk:zaina, chunk:nashirenm, chunk:nihao, chunk:xiexie, chunk:bukeqi | l25 | — | nenhuma (já aparece nos planos) |
@@ -77,50 +76,51 @@ lições e nenhuma intenção acima de 20% das conversas geradas.
 | o-que-e-isto | ask-what-object | chunk:zheshishenme, chunk:woxianghe, chunk:zheshishui, chunk:nihaoma, chunk:nihao, chunk:xiexie | l25 | — | nenhuma (já aparece nos planos) |
 | conversa-em-casa | home-chat | chunk:nihao, chunk:nihaoma, chunk:wohenhao | p1-o-que-e-mandarim | — | nenhuma (já aparece nos planos) |
 | conversa-na-loja | shop-chat | chunk:nihao, chunk:woyao, chunk:duoshaoqian, chunk:zheshishenme, char:bu, chunk:taiguile, chunk:xiexie, chunk:bukeqi, chunk:zaijian | l27 | — | nenhuma (já aparece nos planos) |
-| revisao-restaurante | restaurant-review | chunk:woele, chunk:nihao, chunk:woyao, chunk:zheshishenme, chunk:qingzaishuoyibian, chunk:woxianghe, chunk:nihaoma, chunk:haochi, chunk:duoshaoqian, char:shi10, chunk:xiexie, chunk:zaijian | l10-rev | — | nenhuma (já aparece nos planos) |
-| revisao-numeros | numbers-review | chunk:nihao, char:yi, char:er, char:san, char:si, char:wu, char:liu, char:qi, char:ba8, char:jiu, char:shi10, char:bu, char:shi, char:you, chunk:nihaoma, chunk:pengyou, chunk:woyousangepengyou, chunk:qingzaishuoyibian, chunk:wohenhao | l9-rev | — | nenhuma (já aparece nos planos) |
-| revisao-hanzi-natureza | hanzi-nature-review | chunk:wohenhao, chunk:zheshishenme, char:mu, char:lin, char:sen, char:ming, char:shan, chunk:nihaoma, char:ri, char:yue, char:shi | l10-rev | — | nenhuma (já aparece nos planos) |
-| imersao-mercado | immersion-market | chunk:nihao, chunk:nihaoma, chunk:wohenhao, chunk:qingwen, char:you, chunk:woxianghe, chunk:woyao, char:san, char:bu, chunk:duoshaoqian, char:shi10, chunk:taiguile, chunk:zheshishenme, chunk:xiexie, chunk:zaijian | p7-imersao-mercado | — | nenhuma (já aparece nos planos) |
-| imersao-estacao | immersion-station | chunk:qingwen, chunk:zaina, chunk:nashirenm, chunk:nihao, chunk:xiexie, chunk:bukeqi, char:shi10, chunk:woyao, chunk:qingzaishuoyibian, chunk:zheshishenme, chunk:zaijian | p7-imersao-mercado | — | nenhuma (já aparece nos planos) |
-| imersao-casa-amigo | immersion-visit | chunk:nihao, chunk:xiexie, chunk:zheshimama, chunk:zheshishenme, chunk:zheshibaba, chunk:woxianghe, chunk:nihaoma, char:bu, chunk:wohenhao, chunk:zaijian, chunk:mingtianjian | p7-imersao-mercado | — | nenhuma (já aparece nos planos) |
+| comprar-itens | buy-items | chunk:nihao, chunk:nihaoma, chunk:wohenhao, chunk:qingwen, chunk:woxianghe, char:you, chunk:duoshaoqian, char:shi10, chunk:taiguile, char:bu, char:shi, chunk:woyao, char:san, chunk:qingzaishuoyibian, chunk:xiexie, chunk:zaijian | l10-rev | — | nenhuma (já aparece nos planos) |
+| revisao-restaurante | restaurant-review | chunk:woele, chunk:nihao, chunk:woyao, chunk:qingzaishuoyibian, chunk:woxianghe, chunk:haochi, chunk:duoshaoqian, char:shi10, chunk:xiexie, chunk:zaijian, chunk:nihaoma, chunk:taiguile, chunk:wohenhao | l10-rev | — | nenhuma (já aparece nos planos) |
+| revisao-numeros | numbers-review | chunk:nihao, char:yi, char:er, char:san, char:si, char:wu, char:liu, char:qi, char:ba8, char:jiu, char:shi10, char:bu, char:shi, chunk:woyousangepengyou, chunk:qingzaishuoyibian, chunk:wohenhao, chunk:nihaoma | l9-rev | — | nenhuma (já aparece nos planos) |
+| revisao-hanzi-natureza | hanzi-nature-review | chunk:nihaoma, chunk:wohenhao, chunk:zheshishenme, char:mu, char:lin, char:sen, char:shan, char:ri, char:yue, char:ming, char:bu, char:shi, char:san, chunk:qingzaishuoyibian | l10-rev | — | nenhuma (já aparece nos planos) |
+| imersao-mercado | immersion-market | chunk:nihao, chunk:nihaoma, chunk:wohenhao, chunk:qingwen, chunk:woxianghe, char:you, char:san, chunk:woyao, chunk:duoshaoqian, char:shi10, chunk:taiguile, char:bu, chunk:qingzaishuoyibian, chunk:xiexie, chunk:zaijian, chunk:bukeqi | p7-imersao-mercado | — | nenhuma (já aparece nos planos) |
+| imersao-estacao | immersion-station | chunk:qingwen, chunk:nashirenm, chunk:nihao, chunk:qingzaishuoyibian, chunk:xiexie, chunk:bukeqi, char:shi10, chunk:woyao, chunk:zaijian | p7-imersao-mercado | — | nenhuma (já aparece nos planos) |
+| imersao-casa-amigo | immersion-visit | chunk:nihao, chunk:xiexie, chunk:zheshimama, chunk:qingzaishuoyibian, chunk:zheshibaba, chunk:woxianghe, char:bu, chunk:nihaoma, chunk:wohenhao, chunk:mingtianjian, chunk:zaijian, chunk:taiguile, chunk:woele | p7-imersao-mercado | — | nenhuma (já aparece nos planos) |
 
 ## Detalhe por cena
 
 | sceneId | papel | req | opt | novo | elegível comum | uso autoral | uso gerado |
 |---------|-------|----:|----:|-----:|:--------------:|------------:|-----------:|
-| primeiro-cumprimento | legacy | 1 | 0 | 0 | sim | 2 | 4 |
-| perguntando-se-esta-bem | legacy | 2 | 0 | 0 | sim | 3 | 6 |
-| agradecendo | legacy | 2 | 0 | 0 | sim | 3 | 4 |
-| despedida | legacy | 1 | 0 | 0 | sim | 1 | 1 |
-| me-apresentando | legacy | 2 | 0 | 0 | sim | 1 | 4 |
-| revisao-cumprimento-completo | legacy | 5 | 0 | 0 | sim | 2 | 8 |
-| pedir-repeticao | legacy | 4 | 0 | 0 | sim | 1 | 3 |
-| cortesia-loja | legacy | 4 | 0 | 1 | sim | 1 | 8 |
-| de-onde-sou | legacy | 5 | 0 | 1 | — | 1 | 0 |
-| nao-entendi-reparo | legacy | 5 | 0 | 0 | — | 1 | 0 |
-| nao-falo-chinês | legacy | 3 | 0 | 0 | sim | 1 | 8 |
-| como-se-chama | legacy | 3 | 0 | 0 | sim | 1 | 7 |
-| pedir-agua | common | 8 | 6 | 0 | sim | 1 | 5 |
+| primeiro-cumprimento | common | 1 | 0 | 0 | sim | 2 | 3 |
+| perguntando-se-esta-bem | common | 2 | 0 | 0 | sim | 3 | 5 |
+| agradecendo | common | 2 | 0 | 0 | sim | 3 | 5 |
+| despedida | common | 1 | 0 | 0 | sim | 1 | 1 |
+| me-apresentando | common | 2 | 0 | 0 | sim | 1 | 4 |
+| revisao-cumprimento-completo | common | 5 | 0 | 0 | sim | 2 | 8 |
+| pedir-repeticao | common | 4 | 0 | 0 | sim | 1 | 4 |
+| cortesia-loja | common | 4 | 0 | 1 | sim | 1 | 8 |
+| de-onde-sou | common | 5 | 0 | 1 | — | 1 | 0 |
+| nao-entendi-reparo | common | 5 | 0 | 0 | — | 1 | 0 |
+| nao-falo-chinês | common | 3 | 0 | 0 | sim | 1 | 9 |
+| como-se-chama | common | 3 | 0 | 0 | sim | 1 | 7 |
+| pedir-agua | common | 8 | 6 | 0 | sim | 1 | 6 |
 | pedir-cha | common | 7 | 0 | 0 | sim | 0 | 1 |
-| perguntar-quantidade | common | 8 | 0 | 0 | sim | 1 | 1 |
-| comprar-itens | module_review | 11 | 0 | 0 | — | 1 | 0 |
+| perguntar-quantidade | common | 9 | 0 | 0 | sim | 1 | 1 |
 | identificar-pessoa | common | 5 | 0 | 0 | sim | 1 | 0 |
 | encontrar-amigo | common | 6 | 0 | 0 | sim | 1 | 0 |
 | onde-esta | common | 7 | 0 | 0 | sim | 1 | 0 |
-| apontar-natureza | common | 9 | 0 | 0 | sim | 1 | 1 |
-| sala-de-aula | common | 5 | 0 | 1 | sim | 0 | 6 |
+| apontar-natureza | common | 9 | 0 | 0 | sim | 1 | 0 |
+| sala-de-aula | common | 5 | 0 | 0 | sim | 0 | 6 |
 | pedir-ajuda | common | 8 | 0 | 0 | sim | 1 | 0 |
-| fale-de-novo | common | 6 | 0 | 0 | sim | 0 | 5 |
+| fale-de-novo | common | 6 | 0 | 0 | sim | 0 | 6 |
 | encontro-amanha | common | 4 | 0 | 0 | sim | 0 | 10 |
 | o-que-e-isto | common | 6 | 0 | 0 | sim | 1 | 0 |
 | conversa-em-casa | common | 3 | 0 | 1 | sim | 0 | 8 |
 | conversa-na-loja | common | 9 | 0 | 0 | sim | 1 | 0 |
-| revisao-restaurante | module_review | 12 | 0 | 1 | — | 1 | 0 |
-| revisao-numeros | module_review | 19 | 0 | 0 | — | 0 | 1 |
-| revisao-hanzi-natureza | module_review | 11 | 0 | 0 | — | 1 | 1 |
-| imersao-mercado | immersion | 15 | 0 | 0 | — | 1 | 1 |
-| imersao-estacao | immersion | 11 | 0 | 3 | — | 1 | 0 |
-| imersao-casa-amigo | immersion | 11 | 0 | 1 | — | 1 | 0 |
+| comprar-itens | module_review | 16 | 0 | 0 | — | 1 | 1 |
+| revisao-restaurante | module_review | 13 | 0 | 1 | — | 1 | 0 |
+| revisao-numeros | module_review | 17 | 0 | 0 | — | 1 | 1 |
+| revisao-hanzi-natureza | module_review | 14 | 0 | 0 | — | 1 | 1 |
+| imersao-mercado | immersion | 16 | 0 | 0 | — | 1 | 1 |
+| imersao-estacao | immersion | 9 | 0 | 3 | — | 1 | 0 |
+| imersao-casa-amigo | immersion | 13 | 0 | 1 | — | 1 | 0 |
 
 ## Cenas ainda sem uso
 
@@ -131,4 +131,4 @@ Nenhuma — todas as cenas do catálogo aparecem em algum plano (autoral ou gera
 _requiredRefs = vocabulário que a cena mostra e exige aprendido; optionalRefs
 enriquecem sem bloquear; newRefs é a novidade controlada da própria cena._
 
-<!-- integridade:69fbdbd20cfcdd08 -->
+<!-- integridade:552ff0ba11395164 -->

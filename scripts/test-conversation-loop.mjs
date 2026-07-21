@@ -106,9 +106,8 @@ try {
     assert(immersion, "imersão com derivadas");
   }
 
-  // ── Cena V1 e V2 ambas geram manifesto + derivadas em algum plano. ─────────
+  // ── Catálogo real é V2; o manifesto V1 continua coberto pelos casos sintéticos. ─
   {
-    let v1 = false;
     let v2 = false;
     for (const lesson of lessonsWithConv) {
       const plan = planOf(lesson);
@@ -116,12 +115,10 @@ try {
         if (step.kind !== "conversation_scene") continue;
         const m = manifestFromConversationStep(step);
         if (!m) continue;
-        if (m.format === "v1") v1 = true;
         if (m.format === "v2") v2 = true;
       }
     }
-    assert(v1, "alguma conversa V1 processada");
-    assert(v2, "alguma conversa V2 processada");
+    assert(v2, "alguma conversa V2 processada no plano real");
   }
 
   // ── Conversa com uma novidade: item novo tem >= 2 tarefas posteriores. ─────
@@ -262,7 +259,7 @@ try {
     for (const e of errors.slice(0, 40)) console.error(`  - ${e}`);
     process.exit(1);
   }
-  console.log("OK: test:conversation-loop passou (comum/revisão/imersão · V1/V2 · novo/antigo/erro · beginner · ordem · limite).");
+  console.log("OK: test:conversation-loop passou (comum/revisão/imersão · V2 · novo/antigo/erro · beginner · ordem · limite).");
 } finally {
   await rm(outDir, { recursive: true, force: true });
 }

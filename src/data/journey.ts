@@ -3624,6 +3624,7 @@ export const JOURNEY: JourneyPhase[] = [
             flash("pengyou"),
             flash("woyousangepengyou"),
             produce(["我", "有", "三", "个", "朋友"], ["有", "朋友", "三", "我", "个"], "Tenho três amigos"),
+            conversationScene("revisao-numeros"),
           ], true),
         ],
       },

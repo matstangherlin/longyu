@@ -293,8 +293,10 @@ try {
         if (item.resolved && !/^(chunk|char):/.test(item.ref)) fail(`Ref não canônico em ${scene.sceneId}: ${item.ref}`);
       }
     }
-    assert(v1 > 0, "Deve haver ao menos uma cena V1 real coberta");
     assert(v2 > 0, "Deve haver ao menos uma cena V2 real coberta");
+    // Catálogo migrado para V2: cenas V1 sintéticas acima já cobrem o formato legado.
+    assert(v1 >= 0, "Contagem V1 deve ser não-negativa");
+    assert(v2 === CONVERSATION_SCENES.length, "Todas as cenas reais do catálogo devem ser V2");
   }
 
   if (errors.length > 0) {
