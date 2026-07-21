@@ -65,6 +65,7 @@ create table if not exists public.beta_pedagogy_daily_metrics (
 
 alter table public.beta_pedagogy_daily_metrics enable row level security;
 
+drop policy if exists "beta_pedagogy_daily_metrics_select_admin" on public.beta_pedagogy_daily_metrics;
 create policy "beta_pedagogy_daily_metrics_select_admin"
   on public.beta_pedagogy_daily_metrics
   for select

@@ -134,31 +134,53 @@ alter table public.user_achievements enable row level security;
 alter table public.subscriptions enable row level security;
 alter table public.transactions enable row level security;
 
+-- Idempotente: preview branches podem reaplicar migrações em schema já existente.
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles for select to authenticated using (auth.uid() = id);
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles for update to authenticated using (auth.uid() = id) with check (auth.uid() = id);
 
+drop policy if exists "user_progress_select_own" on public.user_progress;
 create policy "user_progress_select_own" on public.user_progress for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "user_progress_insert_own" on public.user_progress;
 create policy "user_progress_insert_own" on public.user_progress for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "user_progress_update_own" on public.user_progress;
 create policy "user_progress_update_own" on public.user_progress for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+drop policy if exists "user_economy_select_own" on public.user_economy;
 create policy "user_economy_select_own" on public.user_economy for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "user_economy_insert_own" on public.user_economy;
 create policy "user_economy_insert_own" on public.user_economy for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "user_economy_update_own" on public.user_economy;
 create policy "user_economy_update_own" on public.user_economy for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+drop policy if exists "user_srs_select_own" on public.user_srs;
 create policy "user_srs_select_own" on public.user_srs for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "user_srs_insert_own" on public.user_srs;
 create policy "user_srs_insert_own" on public.user_srs for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "user_srs_update_own" on public.user_srs;
 create policy "user_srs_update_own" on public.user_srs for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+drop policy if exists "user_missions_select_own" on public.user_missions;
 create policy "user_missions_select_own" on public.user_missions for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "user_missions_insert_own" on public.user_missions;
 create policy "user_missions_insert_own" on public.user_missions for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "user_missions_update_own" on public.user_missions;
 create policy "user_missions_update_own" on public.user_missions for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+drop policy if exists "user_chests_select_own" on public.user_chests;
 create policy "user_chests_select_own" on public.user_chests for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "user_chests_insert_own" on public.user_chests;
 create policy "user_chests_insert_own" on public.user_chests for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "user_chests_update_own" on public.user_chests;
 create policy "user_chests_update_own" on public.user_chests for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+drop policy if exists "user_achievements_select_own" on public.user_achievements;
 create policy "user_achievements_select_own" on public.user_achievements for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "user_achievements_insert_own" on public.user_achievements;
 create policy "user_achievements_insert_own" on public.user_achievements for insert to authenticated with check (auth.uid() = user_id);
 
+drop policy if exists "subscriptions_select_own" on public.subscriptions;
 create policy "subscriptions_select_own" on public.subscriptions for select to authenticated using (auth.uid() = user_id);
+drop policy if exists "transactions_select_own" on public.transactions;
 create policy "transactions_select_own" on public.transactions for select to authenticated using (auth.uid() = user_id);

@@ -192,26 +192,31 @@ using (
   )
 );
 
+drop policy if exists "user_follows_select_own" on public.user_follows;
 create policy "user_follows_select_own"
 on public.user_follows for select
 to authenticated
 using (follower_id = auth.uid() or following_id = auth.uid());
 
+drop policy if exists "user_follows_insert_own" on public.user_follows;
 create policy "user_follows_insert_own"
 on public.user_follows for insert
 to authenticated
 with check (follower_id = auth.uid() and following_id <> auth.uid());
 
+drop policy if exists "user_follows_delete_own" on public.user_follows;
 create policy "user_follows_delete_own"
 on public.user_follows for delete
 to authenticated
 using (follower_id = auth.uid());
 
+drop policy if exists "social_activity_insert_own" on public.social_activity_events;
 create policy "social_activity_insert_own"
 on public.social_activity_events for insert
 to authenticated
 with check (user_id = auth.uid());
 
+drop policy if exists "social_activity_select_friends" on public.social_activity_events;
 create policy "social_activity_select_friends"
 on public.social_activity_events for select
 to authenticated
