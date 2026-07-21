@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e10fca1a81f0573209629863a11721899308d248 |
+| Commit | ce2be792711c079d13431cfc6a8327e695368a5f |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:35:23.447Z |
+| Gerado em | 2026-07-21T05:41:11.243Z |
 | Lições | 108 |
-| Hash da Jornada | 19450bf85677 |
+| Hash da Jornada | 1fa264a585b4 |
 
 ## Resumo
 
@@ -42,6 +42,10 @@ ficavam eternamente sem uso. Causas identificadas e correções aplicadas:
    dedicada de **Imersão** (mercado, estação, casa de amigo).
 5. **requiredRef nunca ensinado** (`chunk:womenchifanba` em `revisao-restaurante`).
    → Reclassificado como novidade (`newRefs`) da própria revisão.
+6. **Catálogo curto (V1 de 2 falas).** → Migração integral para V2: comum 6–10
+   falas / 2–3 intervenções; revisão 10–14 / 3–5; imersão 14–24 / 5–8, com
+   ramos de erro e `sceneId` preservado. Dificuldade derivada do papel V2
+   (não mais dos limiares antigos de 4/8 falas).
 
 Resultado: **33/33 cenas** aparecem em algum plano, nenhuma acima de 15% das
 lições e nenhuma intenção acima de 20% das conversas geradas.
@@ -89,30 +93,30 @@ lições e nenhuma intenção acima de 20% das conversas geradas.
 | sceneId | papel | req | opt | novo | elegível comum | uso autoral | uso gerado |
 |---------|-------|----:|----:|-----:|:--------------:|------------:|-----------:|
 | primeiro-cumprimento | common | 1 | 0 | 0 | sim | 2 | 3 |
-| perguntando-se-esta-bem | common | 2 | 0 | 0 | sim | 3 | 5 |
-| agradecendo | common | 2 | 0 | 0 | sim | 3 | 5 |
+| perguntando-se-esta-bem | common | 2 | 0 | 0 | sim | 3 | 6 |
+| agradecendo | common | 2 | 0 | 0 | sim | 3 | 3 |
 | despedida | common | 1 | 0 | 0 | sim | 1 | 1 |
-| me-apresentando | common | 2 | 0 | 0 | sim | 1 | 4 |
+| me-apresentando | common | 2 | 0 | 0 | sim | 1 | 3 |
 | revisao-cumprimento-completo | common | 5 | 0 | 0 | sim | 2 | 8 |
-| pedir-repeticao | common | 4 | 0 | 0 | sim | 1 | 4 |
+| pedir-repeticao | common | 4 | 0 | 0 | sim | 1 | 3 |
 | cortesia-loja | common | 4 | 0 | 1 | sim | 1 | 8 |
 | de-onde-sou | common | 5 | 0 | 1 | — | 1 | 0 |
 | nao-entendi-reparo | common | 5 | 0 | 0 | — | 1 | 0 |
 | nao-falo-chinês | common | 3 | 0 | 0 | sim | 1 | 9 |
 | como-se-chama | common | 3 | 0 | 0 | sim | 1 | 7 |
 | pedir-agua | common | 8 | 6 | 0 | sim | 1 | 6 |
-| pedir-cha | common | 7 | 0 | 0 | sim | 0 | 1 |
+| pedir-cha | common | 7 | 0 | 0 | sim | 1 | 0 |
 | perguntar-quantidade | common | 9 | 0 | 0 | sim | 1 | 1 |
 | identificar-pessoa | common | 5 | 0 | 0 | sim | 1 | 0 |
 | encontrar-amigo | common | 6 | 0 | 0 | sim | 1 | 0 |
 | onde-esta | common | 7 | 0 | 0 | sim | 1 | 0 |
-| apontar-natureza | common | 9 | 0 | 0 | sim | 1 | 0 |
+| apontar-natureza | common | 9 | 0 | 0 | sim | 1 | 1 |
 | sala-de-aula | common | 5 | 0 | 0 | sim | 0 | 6 |
 | pedir-ajuda | common | 8 | 0 | 0 | sim | 1 | 0 |
 | fale-de-novo | common | 6 | 0 | 0 | sim | 0 | 6 |
-| encontro-amanha | common | 4 | 0 | 0 | sim | 0 | 10 |
+| encontro-amanha | common | 4 | 0 | 0 | sim | 0 | 12 |
 | o-que-e-isto | common | 6 | 0 | 0 | sim | 1 | 0 |
-| conversa-em-casa | common | 3 | 0 | 1 | sim | 0 | 8 |
+| conversa-em-casa | common | 3 | 0 | 1 | sim | 0 | 9 |
 | conversa-na-loja | common | 9 | 0 | 0 | sim | 1 | 0 |
 | comprar-itens | module_review | 16 | 0 | 0 | — | 1 | 1 |
 | revisao-restaurante | module_review | 13 | 0 | 1 | — | 1 | 0 |
@@ -131,4 +135,4 @@ Nenhuma — todas as cenas do catálogo aparecem em algum plano (autoral ou gera
 _requiredRefs = vocabulário que a cena mostra e exige aprendido; optionalRefs
 enriquecem sem bloquear; newRefs é a novidade controlada da própria cena._
 
-<!-- integridade:a6a0a46da1649c32 -->
+<!-- integridade:881ee76afe99220d -->

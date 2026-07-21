@@ -4149,6 +4149,8 @@ export const JOURNEY: JourneyPhase[] = [
                 "Imersão: uma visita",
                 "Chegue, cumprimente a família, aceite um chá e combine o reencontro — uma conversa social inteira em casa."
               ),
+              // Aquecimento comum: pedir chá em casa antes da imersão completa.
+              conversationScene("pedir-cha"),
               conversationScene("imersao-casa-amigo"),
               comp("这是我妈妈", "zhè shì wǒ māma", "Esta é minha mãe.", [
                 "Esta é minha mãe.",

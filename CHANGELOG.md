@@ -22,6 +22,8 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - `revisao-numeros` inserida à mão em `l9-rev` para manter 33/33 no destravamento.
 - Limites em `validate:conversation-scenes`, testes de vocabulário/loop, relatórios
   de cobertura e destravamento atualizados.
+- Dificuldade derivada do **papel V2** (comum leve → 1; comum densa/revisão → 2;
+  imersão → 3), para as fases iniciais continuarem a preferir cenas adequadas.
 
 ### Correção — microfone no celular (reconhece de verdade)
 

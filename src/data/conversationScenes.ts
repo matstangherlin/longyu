@@ -432,8 +432,14 @@ export function conversationSceneStats(scene: ConversationSceneStep): Conversati
 
 export function conversationSceneDifficulty(scene: ConversationSceneStep): 1 | 2 | 3 {
   if (scene.difficulty) return scene.difficulty;
-  const { lineCount } = conversationSceneStats(scene);
-  return lineCount <= 4 ? 1 : lineCount <= 8 ? 2 : 3;
+  // Preferir o papel pedagógico (tamanhos V2); o comprimento só afina dentro do papel.
+  const role = scene.sceneRole;
+  if (role === "immersion") return 3;
+  if (role === "module_review") return 2;
+  const { lineCount, interactionCount } = conversationSceneStats(scene);
+  // Comum: piso 6 falas / 2 intervenções → 1; cenas mais densas sobem para 2.
+  if (lineCount >= 9 || interactionCount >= 3) return 2;
+  return 1;
 }
 
 /** Resposta principal da cena: checkpoint (V1) ou primeira interação (V2). */
@@ -550,8 +556,8 @@ export function scoreConversationScene(
   if (matchedReview > 0) score += 25 + Math.min(5, matchedReview - 1);
   // +20: a intenção ainda não apareceu na lição.
   if (!lesson.usedIntents?.has(scene.intent)) score += 20;
-  // +15: dificuldade adequada à fase — cedo pede cenas curtas; fases
-  // avançadas pedem conversas mais longas (2 falas já não desafiam).
+  // +15: dificuldade adequada à fase — cedo pede cenas comuns mais leves;
+  // fases avançadas pedem revisões/imersões (e comuns mais densas).
   const difficulty = conversationSceneDifficulty(scene);
   const phaseOrder = lesson.phaseOrder ?? 1;
   const adequate = phaseOrder <= 2 ? difficulty === 1 : phaseOrder <= 5 ? difficulty <= 2 : difficulty >= 2;

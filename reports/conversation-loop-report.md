@@ -4,32 +4,33 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e10fca1a81f0573209629863a11721899308d248 |
+| Commit | ce2be792711c079d13431cfc6a8327e695368a5f |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:35:19.706Z |
+| Gerado em | 2026-07-21T05:41:07.438Z |
 | Lições | 108 |
-| Hash da Jornada | 19450bf85677 |
+| Hash da Jornada | 1fa264a585b4 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 116 |
-| Itens de vocabulário exibidos | 528 |
-| Itens cobertos por tarefa posterior | 471 |
-| Reutilização média por item | 1.98 |
-| Itens sem cobertura | 57 |
+| Itens de vocabulário exibidos | 514 |
+| Itens cobertos por tarefa posterior | 462 |
+| Reutilização média por item | 2.15 |
+| Itens sem cobertura | 52 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, hanzi_build, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
 
-- l8:chunk:xiexie
 - l12:chunk:wojiao
 - l9-rev:char:shi10
 - l9-rev:char:si
 - l9-rev:char:wu
 - l9-rev:chunk:nihaoma
 - l27:chunk:zaijian
+- l28:chunk:woyao
+- l28:chunk:xiexie
 - l28:chunk:zheshishenme
 - l10-rev:chunk:woele
 - l10-rev:chunk:wohenhao
@@ -71,14 +72,8 @@
 - p7-imersao-estacao:chunk:woxianghe
 - p7-imersao-estacao:chunk:xiexie
 - p7-imersao-estacao:chunk:zaijian
-- p7-imersao-casa-amigo:chunk:taiguile
-- p7-imersao-casa-amigo:chunk:zaijian
-- p7-imersao-casa-amigo:chunk:zheshibaba
-- p7-imersao-casa-amigo:char:you
-- p7-imersao-casa-amigo:chunk:duoshaoqian
-- p7-imersao-casa-amigo:chunk:qingwen
-- p7-imersao-casa-amigo:chunk:taiguile
+- p7-imersao-casa-amigo:chunk:wohenhao
 - p7-imersao-casa-amigo:chunk:woyao
 - p7-imersao-casa-amigo:chunk:zaijian
 
-<!-- integridade:105f418c5d53dbb2 -->
+<!-- integridade:6c506bd3378b92b2 -->

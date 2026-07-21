@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e10fca1a81f0573209629863a11721899308d248 |
+| Commit | ce2be792711c079d13431cfc6a8327e695368a5f |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:35:16.259Z |
+| Gerado em | 2026-07-21T05:41:03.963Z |
 | Lições | 108 |
-| Hash da Jornada | 19450bf85677 |
+| Hash da Jornada | 1fa264a585b4 |
 
 ## Resumo
 
@@ -18,7 +18,7 @@
 | Cenas V2 (nós/ramificação) | 33 |
 | Cenas V1 (lines + checkpoint) | 0 |
 | Intenções distintas | 33 |
-| Passos autorais na jornada | 34 |
+| Passos autorais na jornada | 35 |
 | Lições com cena gerada no plano | 96 |
 | Cenas geradas distintas | 21 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
@@ -48,30 +48,30 @@
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
 | primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 2 | 3 |
-| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 5 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 5 |
+| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 3 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
-| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
+| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 3 |
 | revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 8 |
-| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
+| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 3 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 8 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
 | nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 9 |
 | como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 1 | 7 |
 | pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
-| pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 0 | 1 |
+| pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 0 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 1 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
 | encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
 | onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 0 |
-| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 0 |
+| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 1 |
 | sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
 | pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 0 |
 | fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 10 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 12 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 0 |
-| conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 8 |
+| conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 9 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 0 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 1 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
@@ -109,4 +109,4 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:dfad8717a8d41694 -->
+<!-- integridade:183834f80c4e6b32 -->
