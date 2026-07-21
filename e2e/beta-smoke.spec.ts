@@ -185,6 +185,18 @@ test.describe("beta smoke — aprendizagem", () => {
     expect(found || (await page.getByText(/\d+\/\d+/).first().isVisible())).toBeTruthy();
   });
 
+  test("pós-conversa: transição após cena de cumprimento", async ({ page }) => {
+    await seedFoundationThrough(page, "p1-engine-2-lab");
+    await page.goto("/licao/l1/player");
+    await dismissBlockingOverlays(page);
+    if (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)) {
+      await page.getByRole("button", { name: "Entendi" }).click();
+    }
+    const postCue = page.getByText(/Pós-Conversa|O que esta frase significa|Qual resposta combina|Monte a resposta/i).first();
+    const found = await advanceUntilVisible(page, postCue, 28);
+    expect(found).toBeTruthy();
+  });
+
   test("conclusão da lição: acerto, feedback e progresso", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");

@@ -26,6 +26,7 @@ const PROTECTED = new Set([
   "answer_feedback",
   "hanzi_builder",
   "conversation_scene",
+  "post_conversation",
   "immediate_correction",
 ]);
 

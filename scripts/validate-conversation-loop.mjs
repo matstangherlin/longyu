@@ -112,6 +112,7 @@ try {
   let itemsShown = 0;
   let itemsCovered = 0;
   let reuseTotal = 0;
+  let postConversationTasks = 0;
   const uncovered = [];
   const modalitiesUsed = new Set();
 
@@ -141,6 +142,44 @@ try {
       const manifest = manifestFromConversationStep(conversationStep);
       if (!manifest) continue;
       conversationsAnalyzed += 1;
+
+      // Fase Pós-Conversa: tarefas imediatas após a conversa.
+      const postSteps = [];
+      for (let j = ci + 1; j < plan.length; j += 1) {
+        const s = plan[j];
+        if (s.kind === "conversation_scene") break;
+        if (s.postConversationPhase || s.conversationDerived) {
+          postSteps.push(s);
+          continue;
+        }
+        break;
+      }
+      postConversationTasks += postSteps.length;
+      const minPost = immersion || lesson.isReview ? 3 : 2;
+      if (postSteps.length < minPost) {
+        fail(
+          lesson.id,
+          `cena ${manifest.sceneId} com ${postSteps.length} tarefa(s) pós-conversa (mínimo ${minPost}).`
+        );
+      }
+      for (const step of postSteps) {
+        if (!step.postConversationPhase) {
+          fail(lesson.id, `derivada de ${manifest.sceneId} sem postConversationPhase`);
+        }
+        if (!step.postConversationTaskType) {
+          fail(lesson.id, `tarefa pós-conversa de ${manifest.sceneId} sem postConversationTaskType`);
+        }
+        if (step.lessonStageId !== "post_conversation") {
+          fail(lesson.id, `tarefa pós-conversa de ${manifest.sceneId} sem lessonStageId post_conversation`);
+        }
+      }
+      if (postSteps.length >= 2) {
+        const kinds = new Set(postSteps.map((s) => s.kind));
+        if (kinds.size < 2) {
+          fail(lesson.id, `todas as tarefas pós-conversa de ${manifest.sceneId} são da mesma modalidade (${[...kinds][0]})`);
+        }
+      }
+
       // Cobertura POSTERIOR (para vocabulário novo — deve vir depois da conversa)
       // e cobertura em QUALQUER PONTO do plano (para conteúdo antigo já aprendido,
       // exceção do req. 8: revisão de conteúdo antigo pode aparecer antes).
@@ -248,6 +287,8 @@ try {
     `| Itens cobertos por tarefa posterior | ${itemsCovered} |`,
     `| Reutilização média por item | ${avgReuse} |`,
     `| Itens sem cobertura | ${uncovered.length} |`,
+    `| Tarefas da fase Pós-Conversa | ${postConversationTasks} |`,
+    `| Média Pós-Conversa por conversa | ${conversationsAnalyzed > 0 ? (postConversationTasks / conversationsAnalyzed).toFixed(2) : "0"} |`,
     `| Modalidades usadas nas derivadas | ${[...modalitiesUsed].sort().join(", ") || "—"} |`,
     "",
   ];

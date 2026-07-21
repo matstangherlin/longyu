@@ -55,7 +55,7 @@ export type {
   ConversationSceneDefinition,
 };
 
-export type LessonStageId = "intro" | "recognition" | "assembly" | "usage" | "consolidation";
+export type LessonStageId = "intro" | "recognition" | "assembly" | "usage" | "post_conversation" | "consolidation";
 
 export type LessonStageMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
 
@@ -180,7 +180,47 @@ export interface LessonStep {
   conversationExposureNumber?: number;
   /** Gerada por erro do aluno ou por regra padrão de cobertura. */
   conversationDerivedReason?: "error" | "rule";
+  // ——— Fase Pós-Conversa (consolidação imediata após conversation_scene) ———
+  /** Tarefa da fase Pós-Conversa (consolida vocabulário da conversa recém-concluída). */
+  postConversationPhase?: boolean;
+  /** Tipo pedagógico da tarefa pós-conversa (para adaptação e relatórios). */
+  postConversationTaskType?: PostConversationTaskType;
+  /** Índice desta tarefa na fase (1-based). */
+  postConversationIndex?: number;
+  /** Total de tarefas na fase pós-conversa desta conversa. */
+  postConversationCount?: number;
 }
+
+/** Tipos de tarefa da fase Pós-Conversa (rótulos pedagógicos). */
+export type PostConversationTaskType =
+  | "meaning_check"
+  | "situation_reply"
+  | "build_used_answer"
+  | "fill_missing"
+  | "listen_choose"
+  | "image_match"
+  | "spot_hanzi"
+  | "alternate_scenario"
+  | "repair_repeat"
+  | "recreate_no_translation"
+  | "polite_reply"
+  | "order_dialogue";
+
+/** Rótulos curtos para UI e relatórios. */
+export const POST_CONVERSATION_TASK_LABELS: Record<PostConversationTaskType, string> = {
+  meaning_check: "O que esta frase significa?",
+  situation_reply: "Qual resposta combina com esta situação?",
+  build_used_answer: "Monte a resposta que você usou.",
+  fill_missing: "Complete a palavra que faltou.",
+  listen_choose: "Ouça e escolha a resposta.",
+  image_match: "Escolha a imagem correspondente.",
+  spot_hanzi: "Qual hànzì apareceu na conversa?",
+  alternate_scenario: "Responda em um cenário diferente.",
+  repair_repeat: "O personagem não entendeu. Como pedir repetição?",
+  recreate_no_translation: "Recrie a frase sem tradução.",
+  polite_reply: "Escolha uma resposta mais educada.",
+  order_dialogue: "Organize a conversa em ordem.",
+};
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";
 

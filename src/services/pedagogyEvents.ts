@@ -22,6 +22,8 @@ export const PEDAGOGY_EVENT_TYPES = [
   "conversation_completed",
   "conversation_repeated",
   "conversation_error",
+  "post_conversation_shown",
+  "post_conversation_completed",
   "image_exercise_answered",
   "lesson_abandoned",
 ] as const;

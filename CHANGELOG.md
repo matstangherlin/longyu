@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Fase Pós-Conversa (plano pedagógico)
+
+- Após cada `conversation_scene`, o plano injeta **2–4 tarefas adaptativas**
+  (revisão/imersão: **3–8**) com estágio `post_conversation` e metadados
+  `postConversationPhase` / `postConversationTaskType`.
+- Seleção adaptativa por desempenho (erros recentes), `conversationVariantLevel`,
+  repetição de cena e papel do vocabulário (novo vs antigo): significado, áudio,
+  produção, cenário alternativo, reparo, imagem e Hànzì Builder quando adequado.
+- Player: faixa compacta **Pós-Conversa** na primeira tarefa; rótulo na barra de
+  progresso; telemetria `post_conversation_shown`.
+- `ProOfferEngine`: momento protegido `post_conversation` (sem ofertas Pro na
+  sequência imediata após a conversa).
+- Validadores, testes de loop/migração, relatório do loop e E2E atualizados.
+
 ### Migração completa V1→V2 (conversas)
 
 - **33/33 cenas** do catálogo usam **nós + ramificação** como fonte principal;

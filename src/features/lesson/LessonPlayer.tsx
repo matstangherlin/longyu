@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
+import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import type { ItemType } from "../../data/types";
@@ -328,6 +328,17 @@ function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> 
 }
 
 function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
+  if (step.postConversationPhase) {
+    const label =
+      (step.postConversationTaskType && POST_CONVERSATION_TASK_LABELS[step.postConversationTaskType]) ||
+      step.title ||
+      "Pós-Conversa";
+    const progress =
+      step.postConversationIndex && step.postConversationCount
+        ? ` (${step.postConversationIndex}/${step.postConversationCount})`
+        : "";
+    return `Pós-Conversa${progress}: ${label}`;
+  }
   const kinds = roundKindSet(step, stage);
   const hasOldVocabulary = Boolean(step.reusesPreviousVocabulary?.length);
   const hasTone = kinds.has("tone") || kinds.has("tone_pair");
@@ -1407,6 +1418,24 @@ export function LessonPlayer() {
       },
     });
   }, [idx, lesson]);
+
+  useEffect(() => {
+    const step = lesson.steps[idx];
+    if (!step?.postConversationPhase || !step.conversationSourceSceneId) return;
+    void trackPedagogyEvent({
+      eventType: "post_conversation_shown",
+      lessonId: lesson.id,
+      exerciseKind: step.kind,
+      exerciseIndex: idx,
+      metadata: {
+        sceneId: step.conversationSourceSceneId,
+        taskType: step.postConversationTaskType ?? "",
+        taskIndex: step.postConversationIndex ?? 0,
+        taskCount: step.postConversationCount ?? 0,
+      },
+    });
+  }, [idx, lesson]);
+
   const graded = lesson.steps.filter(isGradedStep).length;
   const hasUnlimitedLives = canUseUnlimitedRetry({ isPremium });
   const showRecoveryDebugPanel = lessonRecoveryDebugPanelEnabled();
@@ -3099,6 +3128,14 @@ export function LessonPlayer() {
       />
 
       {recoveryDebugPanel}
+
+      {step.postConversationPhase && step.postConversationIndex === 1 && (
+        <div className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
+          <span className="font-semibold text-accent">Pós-Conversa</span>
+          <span className="mx-1.5 text-ink-faint">·</span>
+          Fixe o vocabulário e as respostas da conversa em tarefas curtas.
+        </div>
+      )}
 
       {retryProtected && (
         <div className="mb-3 flex justify-center">

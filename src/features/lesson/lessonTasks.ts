@@ -7,6 +7,8 @@ import {
   type LessonStage,
   type LessonStageId,
   type LessonStep,
+  type PostConversationTaskType,
+  POST_CONVERSATION_TASK_LABELS,
   type Skill,
   type StepKind,
 } from "../../data/journey";
@@ -75,7 +77,7 @@ export { validateModuleReviewCoverage, type ModuleReviewCoverageIssue };
 
 export type LessonMotor = "som" | "fala" | "hanzi" | "leitura" | "revisao";
 
-export const LESSON_STAGE_COUNT = 5;
+export const LESSON_STAGE_COUNT = 6;
 
 export interface LessonTask {
   stageId?: LessonStageId;
@@ -416,13 +418,25 @@ function legacyTaskCandidatesFor(lesson: Lesson): LessonTask[] {
       ];
 }
 
-const LESSON_STAGE_ORDER: LessonStageId[] = ["intro", "recognition", "assembly", "usage", "consolidation"];
+const LESSON_STAGE_ORDER: LessonStageId[] = ["intro", "recognition", "assembly", "usage", "post_conversation", "consolidation"];
 
 const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
   intro: ["intro", "flashcard", "listen", "hanzi_evolution", "decompose"],
   recognition: ["listen_select", "comprehend", "recognize", "tone", "match_pairs", "tone_pair", "image_choice"],
   assembly: ["produce", "sentence_build", "translation_build", "hanzi_build", "fill_blank", "decompose"],
   usage: ["dialogue_choice", "conversation_scene", "write", "fill_blank", "microread", "produce", "comprehend"],
+  post_conversation: [
+    "comprehend",
+    "dialogue_choice",
+    "sentence_build",
+    "fill_blank",
+    "listen_select",
+    "image_choice",
+    "recognize",
+    "hanzi_build",
+    "translation_build",
+    "produce",
+  ],
   consolidation: [
     "listen",
     "flashcard",
@@ -1042,7 +1056,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       targetCount,
       // Montagem entra em assembly e também na consolidação, para caber a
       // sequência sem virar uma parede de builders iguais em fila.
-      stageTargets: { intro: 1, recognition: 1, assembly: maxBuilds, usage: 1, consolidation: Math.max(2, targetCount - maxBuilds - 3) },
+      stageTargets: { intro: 1, recognition: 1, assembly: maxBuilds, usage: 1, post_conversation: 0, consolidation: Math.max(2, targetCount - maxBuilds - 3) },
       minHanziBuilds: Math.min(5, builds),
       maxHanziBuilds: maxBuilds,
       perCharBuildCap: 3,
@@ -1059,7 +1073,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     // Revisão de módulo: pelo menos 2 builders quando há hànzì relevante.
     return {
       targetCount,
-      stageTargets: { intro: 2, recognition: 3, assembly: 3, usage: 2, consolidation: targetCount - 10 },
+      stageTargets: { intro: 2, recognition: 3, assembly: 3, usage: 2, post_conversation: 0, consolidation: targetCount - 10 },
       minHanziBuilds: relevantHanzi ? 2 : 0,
       maxHanziBuilds: relevantHanzi ? (lesson.skill === "hanzi" ? 3 : 2) : 0,
       perCharBuildCap: 2,
@@ -1078,7 +1092,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi";
     return {
       targetCount,
-      stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 2, consolidation: targetCount - 7 },
+      stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 2, post_conversation: 0, consolidation: targetCount - 7 },
       minHanziBuilds: 0,
       maxHanziBuilds: conceptNonHanzi ? 0 : relevantHanzi ? 1 : 0,
       perCharBuildCap: 2,
@@ -1101,7 +1115,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     : Math.min(1, maxPinyinTasksForLesson(lesson, pinyinRich));
   return {
     targetCount,
-    stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 1, consolidation: Math.max(1, targetCount - 6) },
+    stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 1, post_conversation: 0, consolidation: Math.max(1, targetCount - 6) },
     minHanziBuilds: minBuilds,
     maxHanziBuilds: maxBuilds,
     perCharBuildCap: 2,
@@ -2967,21 +2981,6 @@ function seenGlyphsForPlanning(
 // ao player.
 // ————————————————————————————————————————————————————————————————
 
-/** Kinds de recuperação ATIVA (produzir/montar/recuperar), não só reconhecer. */
-const ACTIVE_RECALL_KINDS: ReadonlySet<StepKind> = new Set([
-  "sentence_build",
-  "translation_build",
-  "fill_blank",
-  "produce",
-  "write",
-  "hanzi_build",
-  "listen_select",
-]);
-
-function primaryFamilyOf(step: LessonStep): ExerciseFamily {
-  return exerciseFamiliesFor(step)[0] ?? "recognition";
-}
-
 function focusItemFromRef(ref: string): FocusItem | null {
   const [type, id] = ref.split(":");
   if (type === "chunk") {
@@ -2994,6 +2993,45 @@ function focusItemFromRef(ref: string): FocusItem | null {
   }
   return null;
 }
+
+/** Glifos do currículo anterior que não pertencem ao módulo atual (espelha validate:lesson-novelty). */
+function priorOldGlyphsForLesson(lesson: Lesson): Set<string> {
+  const cumulative = new Set<string>();
+  const index = lessonOrderIndex(lesson);
+  for (let i = 0; i < index; i += 1) {
+    const prior = ALL_LESSONS[i];
+    for (const ref of [...(prior.libraryItems ?? []), ...(prior.reviewItems ?? [])]) {
+      const item = focusItemFromRef(ref);
+      if (item) for (const glyph of cleanHanzi(item.hanzi)) cumulative.add(glyph);
+    }
+  }
+  const own = new Set<string>();
+  const unitId = lessonUnitId(lesson);
+  const sources = lesson.isReview && unitId ? ALL_LESSONS.filter((candidate) => candidate.unitId === unitId) : [lesson];
+  for (const source of sources) {
+    for (const ref of [...(source.libraryItems ?? []), ...(source.reviewItems ?? [])]) {
+      const item = focusItemFromRef(ref);
+      if (item) for (const glyph of cleanHanzi(item.hanzi)) own.add(glyph);
+    }
+  }
+  const old = new Set<string>();
+  for (const glyph of cumulative) if (!own.has(glyph)) old.add(glyph);
+  return old;
+}
+
+function refUsesOldCurriculum(ref: string, oldGlyphs: ReadonlySet<string>): boolean {
+  const item = focusItemFromRef(ref);
+  if (!item || oldGlyphs.size === 0) return false;
+  return [...cleanHanzi(item.hanzi)].some((glyph) => oldGlyphs.has(glyph));
+}
+
+const OLD_CURRICULUM_RECOVERY_REFS = [
+  "chunk:nijiaoshenme",
+  "chunk:zheshishenme",
+  "char:shen",
+  "char:me",
+  "char:xie",
+] as const;
 
 /** Estágio da variante que o passo de conversa efetivamente carrega. */
 function derivedStageForStep(scene: ConversationSceneDefinition, learnedRefs: readonly string[]): ConversationSceneVariantStage {
@@ -3030,33 +3068,6 @@ interface DerivedTaskDeps {
   ownFocusGlyphs?: ReadonlySet<string>;
 }
 
-/** Menu de makers por família, para transformar um item em tarefa posterior. */
-function derivedCandidatesForItem(item: FocusItem, deps: DerivedTaskDeps): { step: LessonStep; family: ExerciseFamily }[] {
-  const f = deps.focus.length >= 2 ? deps.focus : [item, ...deps.focus.filter((other) => other.key !== item.key)];
-  const raw: (LessonStep | null)[] = [
-    makeDialogueChoiceStep(item, f), // usage (contexto)
-    makeFillBlankStep(item, f), // assembly/usage (recuperação ativa)
-    makeSentenceBuildStep(item, f), // assembly (recuperação ativa)
-    makeListenSelectStep(item, f), // audio (recuperação ativa)
-    makeComprehendStep(item, f), // recognition/meaning
-    makeAssemblyChoiceStep(item, f), // assembly
-    makeHanziBuilderStep(item, deps.phaseOrder, deps.progress, {
-      seenGlyphs: deps.seenGlyphs,
-      ownFocusGlyphs: deps.ownFocusGlyphs,
-      allowComposedFiller: deps.isReview,
-    }), // hanzi (só quando pré-requisitos atendidos)
-    makeRecognizeStep(item), // recognition
-  ];
-  const out: { step: LessonStep; family: ExerciseFamily }[] = [];
-  const seenKinds = new Set<StepKind>();
-  for (const step of raw) {
-    if (!step || seenKinds.has(step.kind)) continue;
-    seenKinds.add(step.kind);
-    out.push({ step, family: primaryFamilyOf(step) });
-  }
-  return out;
-}
-
 function countSemanticOccurrences(steps: readonly LessonStep[], key: string): number {
   let total = 0;
   for (const step of steps) if (semanticTargetKeys(step).includes(key)) total += 1;
@@ -3088,48 +3099,451 @@ function withinAnswerRepetitionCeiling(step: LessonStep, planSoFar: readonly Les
   return count < 2; // após adicionar ficaria <= 2
 }
 
-interface ItemCoverage {
-  families: Set<ExerciseFamily>;
-  kinds: Set<StepKind>;
-  count: number;
-  activeRecall: boolean;
+function wouldExceedIntentLimit(
+  step: LessonStep,
+  planSoFar: readonly LessonStep[],
+  isReview: boolean
+): boolean {
+  for (const key of semanticTargetKeys(step)) {
+    if (!key.startsWith("intent:")) continue;
+    const limit = isReview ? 6 : 4;
+    let count = 0;
+    for (const other of planSoFar) {
+      if (semanticTargetKeys(other).includes(key)) count += 1;
+    }
+    if (count >= limit) return true;
+  }
+  return false;
 }
 
-function emptyCoverage(): ItemCoverage {
-  return { families: new Set(), kinds: new Set(), count: 0, activeRecall: false };
+/** Tarefas pós-conversa que reforçam sem repetir intenção comunicativa do chunk. */
+const LOW_INTENT_POST_TASKS: readonly PostConversationTaskType[] = [
+  "order_dialogue",
+  "recreate_no_translation",
+  "alternate_scenario",
+  "repair_repeat",
+  "polite_reply",
+];
+
+function newCoverageKindsForItem(
+  itemIndex: number,
+  usedModalities: ReadonlySet<StepKind>,
+  planForCeilings: readonly LessonRoundStep[],
+  isReview: boolean,
+  focusItem: FocusItem,
+  manifest: ConversationVocabularyManifest,
+  conversationStep: LessonRoundStep,
+  taskDeps: DerivedTaskDeps,
+  unitIndex: number,
+  usedImageConceptIds: ReadonlySet<string>
+): PostConversationTaskType[] {
+  const standardFirst: PostConversationTaskType[] =
+    itemIndex === 0
+      ? ["meaning_check", "listen_choose", "build_used_answer", "fill_missing", "situation_reply"]
+      : itemIndex === 1
+        ? ["listen_choose", "build_used_answer", "fill_missing", "situation_reply", "meaning_check"]
+        : ["build_used_answer", "listen_choose", "situation_reply", "fill_missing", "meaning_check"];
+
+  if (usedModalities.size === 0) return standardFirst;
+
+  const intentSafe: PostConversationTaskType[] = [];
+  for (const type of LOW_INTENT_POST_TASKS) {
+    const probe = makePostConversationStep(
+      type,
+      focusItem,
+      [],
+      manifest,
+      conversationStep,
+      taskDeps,
+      unitIndex,
+      usedImageConceptIds
+    );
+    if (!probe) continue;
+    if (!wouldExceedIntentLimit(probe, planForCeilings, isReview)) intentSafe.push(type);
+  }
+  const rest = standardFirst.filter((type) => !usedModalities.has(postConversationStepKind(type)));
+  return [...intentSafe, ...rest];
 }
 
-function creditStep(cov: ItemCoverage, step: LessonStep): void {
-  cov.count += 1;
-  cov.kinds.add(step.kind);
-  for (const family of exerciseFamiliesFor(step)) cov.families.add(family);
-  if (ACTIVE_RECALL_KINDS.has(step.kind)) cov.activeRecall = true;
+/** Evita trio do mesmo alvo sem transformação cognitiva (validate:lesson-novelty). */
+function wouldFormNonTransformativeTrio(step: LessonStep, planSoFar: readonly LessonStep[]): boolean {
+  for (const key of semanticTargetKeys(step)) {
+    if (key.startsWith("action:")) continue;
+    const prior = planSoFar.filter((other) => semanticTargetKeys(other).includes(key));
+    if (prior.length < 2) continue;
+    const a = prior[prior.length - 2];
+    const b = prior[prior.length - 1];
+    if (
+      !cognitiveTransformation(a, b) &&
+      !cognitiveTransformation(b, step) &&
+      !cognitiveTransformation(a, step)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
-/** Um passo cobre um ref? Por hànzì no texto OU por id (charId/chunkId/refs). */
-function stepCoversRef(step: LessonStep, ref: string, focusItem: FocusItem): boolean {
-  const [type, id] = ref.split(":");
-  if (type === "char" && (step.charId === id || (step.charIds ?? []).includes(id))) return true;
-  if (type === "chunk" && step.chunkId === id) return true;
-  if ((step.learnedRefs ?? []).includes(ref) || (step.newRefs ?? []).includes(ref)) return true;
-  return stepUsesFocus(step, [focusItem]);
+// ————————————————————————————————————————————————————————————————
+// Fase Pós-Conversa: 2–4 tarefas adaptativas após cada conversation_scene.
+// ————————————————————————————————————————————————————————————————
+
+const ALL_POST_CONVERSATION_TYPES: readonly PostConversationTaskType[] = [
+  "meaning_check",
+  "situation_reply",
+  "build_used_answer",
+  "fill_missing",
+  "listen_choose",
+  "image_match",
+  "spot_hanzi",
+  "alternate_scenario",
+  "repair_repeat",
+  "recreate_no_translation",
+  "polite_reply",
+  "order_dialogue",
+];
+
+/** Tarefas típicas de cada nível de apresentação — evitadas quando a cena reaparece. */
+const VARIANT_TYPICAL_TASKS: Record<import("../../data/conversationScenes").ConversationVariantLevel, PostConversationTaskType[]> = {
+  guided: ["meaning_check", "situation_reply"],
+  assisted: ["meaning_check", "fill_missing", "listen_choose"],
+  independent: ["build_used_answer", "situation_reply", "recreate_no_translation"],
+  audio_first: ["listen_choose", "recreate_no_translation", "alternate_scenario"],
+};
+
+function postConversationBounds(lesson: Lesson): { min: number; max: number } {
+  if (lessonAllowsImmersionScenes(lesson)) return { min: 3, max: 8 };
+  if (lesson.isReview) return { min: 3, max: 5 };
+  return { min: 2, max: 4 };
+}
+
+function postConversationStepKind(type: PostConversationTaskType): StepKind {
+  switch (type) {
+    case "meaning_check":
+      return "comprehend";
+    case "listen_choose":
+      return "listen_select";
+    case "image_match":
+      return "image_choice";
+    case "spot_hanzi":
+      return "recognize";
+    case "build_used_answer":
+    case "order_dialogue":
+    case "recreate_no_translation":
+      return "sentence_build";
+    case "fill_missing":
+      return "fill_blank";
+    default:
+      return "dialogue_choice";
+  }
+}
+
+function makeAlternateScenarioStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+  const options = optionHanzi(item, focus);
+  if (options.length < 2) return null;
+  return {
+    kind: "dialogue_choice",
+    title: "Outro cenário",
+    speaker: "Situação",
+    dialoguePrompt: `Em outro momento do dia, você quer dizer: ${item.meaningPt}.`,
+    options,
+    correctAnswer: item.hanzi,
+    explanation: `${item.hanzi} continua sendo a resposta certa, mesmo em outro contexto.`,
+  };
+}
+
+function makeRecreateNoTranslationStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+  const clean = cleanHanzi(item.hanzi);
+  if (!CJK_ONLY_RE.test(clean) || clean.length < 2) return null;
+  const parts = [...clean];
+  const extras = focus
+    .filter((candidate) => candidate.key !== item.key)
+    .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
+    .filter(Boolean);
+  const bank = uniqueValues([...parts, ...extras]).slice(0, Math.max(parts.length + 2, 4));
+  return {
+    kind: "sentence_build",
+    title: "Sem tradução",
+    prompt: `Monte a frase que você usou (${item.hanzi}).`,
+    targetParts: parts,
+    bank,
+    correctAnswer: clean,
+    explanation: `${item.hanzi} = ${item.meaningPt}.`,
+    isNoHint: true,
+  };
+}
+
+function makeRepairRepeatStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+  const repairChunk = CHUNKS.find((chunk) => /再说|重复|一遍/.test(chunk.hanzi));
+  const repairHanzi = repairChunk?.hanzi ?? "请再说一遍";
+  const repairMeaning = repairChunk?.meaningPt ?? "Por favor, repita.";
+  const options = uniqueValues([
+    repairHanzi,
+    item.hanzi,
+    ...focus.filter((f) => f.key !== item.key).map((f) => f.hanzi),
+    ...CHUNKS.filter((c) => cleanHanzi(c.hanzi) !== cleanHanzi(repairHanzi)).slice(0, 2).map((c) => c.hanzi),
+  ]).slice(0, 4);
+  if (options.length < 2 || !options.includes(repairHanzi)) return null;
+  return {
+    kind: "dialogue_choice",
+    title: "Peça para repetir",
+    speaker: "Situação",
+    dialoguePrompt: "O personagem não entendeu. Como pedir repetição?",
+    options,
+    correctAnswer: repairHanzi,
+    explanation: `${repairHanzi} = ${repairMeaning}`,
+  };
+}
+
+function makePoliteReplyStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+  const polite = CHUNKS.find((chunk) => /请|您|麻烦/.test(chunk.hanzi) && chunk.hanzi.length <= 6);
+  const politeHanzi = polite?.hanzi ?? item.hanzi;
+  const options = uniqueValues([politeHanzi, item.hanzi, ...optionHanzi(item, focus)]).slice(0, 4);
+  if (options.length < 2) return null;
+  return {
+    kind: "dialogue_choice",
+    title: "Tom educado",
+    speaker: "Situação",
+    dialoguePrompt: "Qual resposta soa mais educada nesta situação?",
+    options,
+    correctAnswer: politeHanzi,
+    explanation: polite ? `${politeHanzi} soa mais formal.` : `${item.hanzi} é a opção mais adequada aqui.`,
+  };
+}
+
+function makeOrderDialogueStep(lines: readonly { hanzi: string }[], focus: FocusItem[]): LessonStep | null {
+  const parts = uniqueValues(lines.map((line) => cleanHanzi(line.hanzi)).filter((h) => h.length >= 1 && CJK_ONLY_RE.test(h))).slice(0, 4);
+  if (parts.length < 2) return null;
+  const bank = uniqueValues([...parts, ...focus.flatMap((f) => [...cleanHanzi(f.hanzi)])]).slice(0, parts.length + 2);
+  const correctAnswer = parts.join("");
+  return {
+    kind: "sentence_build",
+    title: "Ordem da conversa",
+    prompt: "Organize as falas na ordem em que apareceram.",
+    targetParts: parts,
+    bank,
+    correctAnswer,
+    explanation: "A ordem ajuda a fixar o fluxo da conversa.",
+  };
+}
+
+function makePostConversationStep(
+  taskType: PostConversationTaskType,
+  item: FocusItem,
+  focus: FocusItem[],
+  _manifest: ConversationVocabularyManifest,
+  conversationStep: LessonRoundStep,
+  _taskDeps: DerivedTaskDeps,
+  unitIndex: number,
+  usedImageConceptIds?: ReadonlySet<string>
+): LessonStep | null {
+  const f = focus.length >= 2 ? focus : [item, ...focus.filter((other) => other.key !== item.key)];
+  switch (taskType) {
+    case "meaning_check":
+      return makeComprehendStep(item, f);
+    case "situation_reply":
+      return makeDialogueChoiceStep(item, f);
+    case "build_used_answer":
+      return makeSentenceBuildStep(item, f);
+    case "fill_missing":
+      return makeFillBlankStep(item, f);
+    case "listen_choose":
+      return makeListenSelectStep(item, f);
+    case "image_match":
+      return makeImageChoiceStepForFocus(item, unitIndex, "post_conversation", usedImageConceptIds);
+    case "spot_hanzi":
+      return makeRecognizeStep(item);
+    case "alternate_scenario":
+      return makeAlternateScenarioStep(item, f);
+    case "repair_repeat":
+      return makeRepairRepeatStep(item, f);
+    case "recreate_no_translation":
+      return makeRecreateNoTranslationStep(item, f);
+    case "polite_reply":
+      return makePoliteReplyStep(item, f);
+    case "order_dialogue": {
+      const lines = conversationStep.lines ?? [];
+      return makeOrderDialogueStep(lines, f);
+    }
+    default:
+      return null;
+  }
+}
+
+interface PostConversationBlueprint {
+  type: PostConversationTaskType;
+  item: ConversationVocabularyItem;
+  focusItem: FocusItem;
+  score: number;
+}
+
+function scorePostConversationTask(
+  type: PostConversationTaskType,
+  _item: ConversationVocabularyItem,
+  ctx: {
+    variantLevel: import("../../data/conversationScenes").ConversationVariantLevel;
+    hadErrors: boolean;
+    isRepeatScene: boolean;
+    isNew: boolean;
+    isAnswer: boolean;
+    hasImage: boolean;
+    hasBuilder: boolean;
+    excludeTypes: ReadonlySet<PostConversationTaskType>;
+  }
+): number {
+  if (ctx.excludeTypes.has(type)) return -1;
+  let score = 1;
+  const advanced = ctx.variantLevel === "independent" || ctx.variantLevel === "audio_first";
+  const assisted = ctx.variantLevel === "guided" || ctx.variantLevel === "assisted";
+
+  if (type === "meaning_check") score += ctx.isNew ? 4 : assisted ? 2 : 0;
+  if (type === "listen_choose") score += advanced || ctx.variantLevel === "audio_first" ? 3 : ctx.isNew ? 2 : 1;
+  if (type === "situation_reply" || type === "alternate_scenario") score += advanced ? 3 : 2;
+  if (type === "build_used_answer" || type === "recreate_no_translation") score += advanced ? 4 : ctx.isAnswer ? 2 : 1;
+  if (type === "fill_missing") score += ctx.hadErrors ? 3 : ctx.isNew ? 2 : 1;
+      if (type === "image_match") score += ctx.hasImage ? 2 : -3;
+  if (type === "spot_hanzi") score += ctx.hasBuilder ? 2 : ctx.isNew ? 1 : -1;
+  if (type === "repair_repeat") score += ctx.hadErrors ? 3 : 0;
+  if (type === "polite_reply") score += ctx.isRepeatScene ? 2 : 1;
+  if (type === "order_dialogue") score += ctx.isRepeatScene ? 2 : 0;
+
+  if (ctx.hadErrors) {
+    if (type === "meaning_check" || type === "fill_missing" || type === "listen_choose") score += 2;
+    if (type === "recreate_no_translation") score -= 2;
+  } else if (advanced) {
+    if (type === "recreate_no_translation" || type === "alternate_scenario") score += 2;
+    if (type === "meaning_check") score -= 1;
+  }
+
+  if (ctx.isRepeatScene) {
+    if (type === "meaning_check" || type === "spot_hanzi") score -= 2;
+    if (type === "alternate_scenario" || type === "order_dialogue" || type === "polite_reply") score += 2;
+  }
+
+  if (ctx.isNew) {
+    if (type === "meaning_check" || type === "listen_choose" || type === "situation_reply") score += 2;
+  } else {
+    if (type === "build_used_answer" || type === "fill_missing" || type === "recreate_no_translation") score += 2;
+    if (type === "spot_hanzi") score -= 2;
+  }
+
+  if (ctx.isAnswer && (type === "build_used_answer" || type === "situation_reply" || type === "alternate_scenario")) score += 2;
+
+  return score;
+}
+
+function selectPostConversationBlueprints(
+  manifest: ConversationVocabularyManifest,
+  conversationStep: LessonRoundStep,
+  focusByRef: Map<string, FocusItem>,
+  ctx: {
+    variantLevel: import("../../data/conversationScenes").ConversationVariantLevel;
+    hadErrors: boolean;
+    isRepeatScene: boolean;
+    unitIndex: number;
+    taskDeps: DerivedTaskDeps;
+    bounds: { min: number; max: number };
+    excludeTypes: ReadonlySet<PostConversationTaskType>;
+  }
+): PostConversationBlueprint[] {
+  const answerRefs = new Set(manifest.items.filter((i) => i.roles.includes("response")).map((i) => i.ref));
+  const relevant = manifest.items.filter(
+    (item) =>
+      item.resolved &&
+      item.roles.some((role) => role === "required" || role === "new" || role === "reused" || role === "response")
+  );
+  const hasNew = relevant.some((item) => item.roles.includes("new"));
+
+  const candidates: PostConversationBlueprint[] = [];
+  for (const type of ALL_POST_CONVERSATION_TYPES) {
+    for (const item of relevant) {
+      const focusItem = focusByRef.get(item.ref);
+      if (!focusItem) continue;
+      const hasImage = Boolean(makeImageChoiceStepForFocus(focusItem, ctx.unitIndex, "post_conversation"));
+      const hasBuilder = Boolean(
+        makeHanziBuilderStep(focusItem, ctx.taskDeps.phaseOrder, ctx.taskDeps.progress, {
+          seenGlyphs: ctx.taskDeps.seenGlyphs,
+          ownFocusGlyphs: ctx.taskDeps.ownFocusGlyphs,
+          allowComposedFiller: ctx.taskDeps.isReview,
+        })
+      );
+      const score = scorePostConversationTask(type, item, {
+        variantLevel: ctx.variantLevel,
+        hadErrors: ctx.hadErrors,
+        isRepeatScene: ctx.isRepeatScene,
+        isNew: item.roles.includes("new"),
+        isAnswer: answerRefs.has(item.ref),
+        hasImage,
+        hasBuilder,
+        excludeTypes: ctx.excludeTypes,
+      });
+      if (score < 0) continue;
+      const step = makePostConversationStep(type, focusItem, [...focusByRef.values()], manifest, conversationStep, ctx.taskDeps, ctx.unitIndex);
+      if (!step) continue;
+      candidates.push({ type, item, focusItem, score });
+    }
+  }
+
+  candidates.sort((a, b) => b.score - a.score || postConversationStepKind(a.type).localeCompare(postConversationStepKind(b.type)));
+
+  const picked: PostConversationBlueprint[] = [];
+  const usedTypes = new Set<PostConversationTaskType>();
+  const usedKinds = new Set<StepKind>();
+  const usedRefs = new Set<string>();
+
+  const tryPick = (bp: PostConversationBlueprint) => {
+    if (picked.length >= ctx.bounds.max) return false;
+    if (usedTypes.has(bp.type)) return false;
+    const kind = postConversationStepKind(bp.type);
+    if (usedKinds.has(kind) && picked.length < ctx.bounds.min) {
+      /* ainda permite repetir kind se necessário para atingir mínimo */
+    } else if (usedKinds.has(kind)) return false;
+    picked.push(bp);
+    usedTypes.add(bp.type);
+    usedKinds.add(kind);
+    usedRefs.add(bp.item.ref);
+    return true;
+  };
+
+  // Novo: significado + som/forma + aplicação.
+  if (hasNew) {
+    for (const item of relevant.filter((i) => i.roles.includes("new"))) {
+      for (const need of ["meaning_check", "listen_choose", "situation_reply"] as PostConversationTaskType[]) {
+        const best = candidates.find((c) => c.type === need && c.item.ref === item.ref);
+        if (best) tryPick(best);
+      }
+    }
+  }
+
+  for (const bp of candidates) {
+    if (picked.length >= ctx.bounds.max) break;
+    tryPick(bp);
+  }
+
+  // Garante mínimo com fallbacks.
+  for (const bp of candidates) {
+    if (picked.length >= ctx.bounds.min) break;
+    if (picked.some((p) => p.item.ref === bp.item.ref && p.type === bp.type)) continue;
+    if (usedTypes.has(bp.type)) continue;
+    picked.push(bp);
+    usedTypes.add(bp.type);
+    usedKinds.add(postConversationStepKind(bp.type));
+  }
+
+  return picked.slice(0, ctx.bounds.max);
 }
 
 // Orçamento de crescimento por tipo de lição: comum é enxuta; revisão e imersão
 // mostram muito mais vocabulário na conversa e podem crescer mais para cobri-lo
 // (req. 9: crescer só quando não há outra forma de cumprir a cobertura).
 function conversationLoopBudget(lesson: Lesson): { perConversation: number; growth: number } {
-  // Imersão é uma história longa: a própria conversa É a prática de uso, então
-  // acrescentamos só alguns reforços-chave (novo/resposta), sem drilar cada
-  // palavra antiga. Revisão pode crescer mais para cobrir o vocabulário revisto.
-  if (lessonAllowsImmersionScenes(lesson)) return { perConversation: 10, growth: 14 };
-  if (lesson.isReview) return { perConversation: 10, growth: 14 };
-  return { perConversation: 6, growth: 8 };
+  if (lessonAllowsImmersionScenes(lesson)) return { perConversation: 6, growth: 18 };
+  if (lesson.isReview) return { perConversation: 5, growth: 16 };
+  return { perConversation: 4, growth: 10 };
 }
 
 /**
- * Injeta tarefas de reúso do vocabulário de conversa no plano, DEPOIS de cada
- * conversa. Retorna um novo plano (sem mutar o recebido).
+ * Fase Pós-Conversa: injeta 2–4 tarefas adaptativas DEPOIS de cada conversa.
  */
 export function applyConversationVocabularyLoop(
   plan: LessonRoundStep[],
@@ -3142,6 +3556,7 @@ export function applyConversationVocabularyLoop(
     progress?: HanziBuilderProgressMap;
     seenGlyphs?: ReadonlySet<string>;
     ownFocusGlyphs?: ReadonlySet<string>;
+    conversationHistory?: readonly ConversationHistoryEntry[];
   }
 ): LessonRoundStep[] {
   const conversationIndexes = plan
@@ -3150,8 +3565,10 @@ export function applyConversationVocabularyLoop(
   if (conversationIndexes.length === 0) return plan;
 
   const isReview = Boolean(lesson.isReview);
+  const bounds = postConversationBounds(lesson);
   const budget = conversationLoopBudget(lesson);
   const errorRefs = new Set(focusRefs(deps.errorFocus));
+  const unitIndex = lessonUnitIndex(lesson);
   const taskDeps: DerivedTaskDeps = {
     focus: [...deps.focus, ...deps.reviewFocus],
     phaseOrder: deps.phaseOrder,
@@ -3163,125 +3580,223 @@ export function applyConversationVocabularyLoop(
 
   const derivedByConversationIndex = new Map<number, LessonRoundStep[]>();
   let growthUsed = 0;
-  // Acumulador COMPARTILHADO entre todas as conversas da lição: os tetos de
-  // repetição (semântica e de resposta correta) precisam enxergar as derivadas
-  // já adicionadas por conversas anteriores, senão duas conversas repetiriam a
-  // mesma resposta (ex.: 谢谢) e estourariam o limite do validate:exercise-depth.
   const planForCeilings: LessonRoundStep[] = [...plan];
 
   for (const { step: conversationStep, index: ci } of conversationIndexes) {
     const manifest = manifestFromConversationStep(conversationStep);
     if (!manifest) continue;
 
-    const answerRefs = new Set(
-      manifest.items.filter((item) => item.roles.includes("response")).map((item) => item.ref)
-    );
-
-    // Itens pedagogicamente relevantes exibidos: obrigatório/novo/antigo/resposta.
     const relevant = manifest.items.filter(
       (item) =>
         item.resolved &&
         item.roles.some((role) => role === "required" || role === "new" || role === "reused" || role === "response")
     );
-
-    // Créditos primeiro (evita inchar): vocabulário NOVO precisa de prática
-    // POSTERIOR (depois da conversa); vocabulário antigo já aprendido conta em
-    // qualquer ponto da lição (exceção do req. 8).
-    const laterSteps = plan.slice(ci + 1);
-    const wholeSteps = plan.filter((step, index) => index !== ci && step.kind !== "conversation_scene");
-    const coverageByRef = new Map<string, ItemCoverage>();
     const focusByRef = new Map<string, FocusItem>();
     for (const item of relevant) {
       const focusItem = focusItemFromRef(item.ref);
-      if (!focusItem) continue;
-      focusByRef.set(item.ref, focusItem);
-      const cov = emptyCoverage();
-      const scanSet = item.roles.includes("new") ? laterSteps : wholeSteps;
-      for (const step of scanSet) {
-        if (step.conversationDerived) continue; // será contado ao adicionar
-        if (stepCoversRef(step, item.ref, focusItem)) creditStep(cov, step);
-      }
-      coverageByRef.set(item.ref, cov);
+      if (focusItem) focusByRef.set(item.ref, focusItem);
     }
 
-    const addedForConversation: LessonRoundStep[] = [];
+    const variantLevel = conversationStep.conversationVariantLevel ?? "guided";
+    const sceneId = conversationStep.sceneId ?? manifest.sceneId;
+    const priorCompletions = (deps.conversationHistory ?? []).filter(
+      (entry) => entry.sceneId === sceneId && entry.result === "completed"
+    ).length;
+    const isRepeatScene = priorCompletions > 0;
+    const hadErrors = relevant.some((item) => errorRefs.has(item.ref));
+    const levels = ["guided", "assisted", "independent", "audio_first"] as const;
+    const prevLevelIndex = Math.max(0, levels.indexOf(variantLevel) - 1);
+    const excludeTypes = new Set<PostConversationTaskType>(
+      isRepeatScene ? VARIANT_TYPICAL_TASKS[levels[prevLevelIndex]] ?? [] : []
+    );
 
-    const addDerived = (
-      item: ConversationVocabularyItem,
-      focusItem: FocusItem,
-      cov: ItemCoverage,
-      wantActiveRecall: boolean
-    ): boolean => {
-      if (addedForConversation.length >= budget.perConversation) return false;
-      if (growthUsed >= budget.growth) return false;
-      // Diversidade de modalidade NA CONVERSA: prefere kinds ainda não usados
-      // nas derivadas desta conversa (evita "todas dialogue_choice").
-      const usedKinds = new Set(addedForConversation.map((s) => s.kind));
-      const candidates = derivedCandidatesForItem(focusItem, taskDeps).sort(
-        (a, b) => (usedKinds.has(a.step.kind) ? 1 : 0) - (usedKinds.has(b.step.kind) ? 1 : 0)
+    const blueprints = selectPostConversationBlueprints(manifest, conversationStep, focusByRef, {
+      variantLevel,
+      hadErrors,
+      isRepeatScene,
+      unitIndex,
+      taskDeps,
+      bounds,
+      excludeTypes,
+    });
+
+    const addedForConversation: LessonRoundStep[] = [];
+    const coveredNewRefs = new Set<string>();
+    const usedImageConceptIds = new Set(
+      planForCeilings.map((step) => imageConceptIdOfStep(step)).filter((id): id is string => Boolean(id))
+    );
+
+    const pushDerived = (bp: PostConversationBlueprint, opts: { force?: boolean; mandatoryNew?: boolean } = {}): boolean => {
+      const force = opts.force ?? false;
+      const mandatoryNew = opts.mandatoryNew ?? false;
+      const atCap = addedForConversation.length >= bounds.max;
+      if (atCap && !force) return false;
+      if (atCap && force && addedForConversation.length >= bounds.max + 4) return false;
+      if (growthUsed >= budget.growth && !mandatoryNew) return false;
+      const rawStep = makePostConversationStep(
+        bp.type,
+        bp.focusItem,
+        [...focusByRef.values()],
+        manifest,
+        conversationStep,
+        taskDeps,
+        unitIndex,
+        usedImageConceptIds
       );
-      for (const candidate of candidates) {
-        // Transformação cognitiva: família nova (a não ser que precise de recall ativo).
-        const familyIsNew = !cov.families.has(candidate.family);
-        const kindIsNew = !cov.kinds.has(candidate.step.kind);
-        const givesActiveRecall = ACTIVE_RECALL_KINDS.has(candidate.step.kind);
-        if (!kindIsNew) continue;
-        if (wantActiveRecall && !givesActiveRecall) continue;
-        if (!wantActiveRecall && !familyIsNew) continue;
-        if (!withinSemanticCeilings(candidate.step, planForCeilings, isReview)) continue;
-        if (!withinAnswerRepetitionCeiling(candidate.step, planForCeilings)) continue;
-        const exposureNumber = cov.count + 1;
-        const derived: LessonRoundStep = {
-          ...candidate.step,
-          lessonStageId: conversationStep.lessonStageId ?? "usage",
-          generated: true,
-          sourceStepIndex: -1,
-          conversationDerived: true,
-          conversationSourceSceneId: manifest.sceneId,
-          conversationCoveredRef: item.ref,
-          conversationModality: candidate.step.kind,
-          conversationExposureNumber: exposureNumber,
-          conversationDerivedReason: errorRefs.has(item.ref) ? "error" : "rule",
-        };
-        addedForConversation.push(derived);
-        planForCeilings.push(derived);
-        creditStep(cov, derived);
-        growthUsed += 1;
-        return true;
-      }
-      return false;
+      if (!rawStep) return false;
+      if (!withinSemanticCeilings(rawStep, planForCeilings, isReview) && !mandatoryNew) return false;
+      if (!withinAnswerRepetitionCeiling(rawStep, planForCeilings) && !mandatoryNew) return false;
+      if (wouldExceedIntentLimit(rawStep, planForCeilings, isReview)) return false;
+      // Trio sem transformação nunca é contornado — cobertura obrigatória usa outras modalidades.
+      if (wouldFormNonTransformativeTrio(rawStep, planForCeilings)) return false;
+
+      const derived: LessonRoundStep = {
+        ...rawStep,
+        title: POST_CONVERSATION_TASK_LABELS[bp.type],
+        lessonStageId: "post_conversation",
+        generated: true,
+        sourceStepIndex: -1,
+        postConversationPhase: true,
+        postConversationTaskType: bp.type,
+        postConversationIndex: addedForConversation.length + 1,
+        postConversationCount: bounds.max,
+        conversationDerived: true,
+        conversationSourceSceneId: manifest.sceneId,
+        conversationCoveredRef: bp.item.ref,
+        conversationModality: rawStep.kind,
+        conversationExposureNumber: addedForConversation.length + 1,
+        conversationDerivedReason: errorRefs.has(bp.item.ref) ? "error" : "rule",
+      };
+      addedForConversation.push(derived);
+      planForCeilings.push(derived);
+      const imageId = imageConceptIdOfStep(derived);
+      if (imageId) usedImageConceptIds.add(imageId);
+      growthUsed += 1;
+      if (bp.item.roles.includes("new")) coveredNewRefs.add(bp.item.ref);
+      return true;
     };
 
-    for (const item of relevant) {
+    for (const bp of blueprints) {
+      pushDerived(bp);
+    }
+
+    // Palavra nova: significado + som/forma + aplicação (≥2 tarefas em ≥2 modalidades).
+    const newItems = relevant.filter((item) => item.roles.includes("new"));
+    newItems.forEach((item, itemIndex) => {
       const focusItem = focusByRef.get(item.ref);
-      if (!focusItem) continue;
-      const cov = coverageByRef.get(item.ref)!;
-      const isNew = item.roles.includes("new");
-      const isError = errorRefs.has(item.ref);
-      const isAnswer = answerRefs.has(item.ref);
-
-      // Novo/erro: 2 exposições, 2 famílias, ≥1 recuperação ativa.
-      if (isNew || isError) {
-        if (!cov.activeRecall) addDerived(item, focusItem, cov, true);
-        while ((cov.count < 2 || cov.families.size < 2) && addDerived(item, focusItem, cov, false)) {
-          /* segue até 2 exposições em 2 famílias, ou esgotar candidatos */
+      if (!focusItem) return;
+      const usedModalities = new Set(
+        addedForConversation.filter((s) => s.conversationCoveredRef === item.ref).map((s) => s.kind)
+      );
+      let count = addedForConversation.filter((s) => s.conversationCoveredRef === item.ref).length;
+      const kinds = newCoverageKindsForItem(
+        itemIndex,
+        usedModalities,
+        planForCeilings,
+        isReview,
+        focusItem,
+        manifest,
+        conversationStep,
+        taskDeps,
+        unitIndex,
+        usedImageConceptIds
+      );
+      for (const taskType of kinds) {
+        if (count >= 2 && usedModalities.size >= 2) break;
+        const kind = postConversationStepKind(taskType);
+        if (usedModalities.has(kind)) continue;
+        if (addedForConversation.some((s) => s.conversationCoveredRef === item.ref && s.postConversationTaskType === taskType)) continue;
+        const probe = makePostConversationStep(
+          taskType,
+          focusItem,
+          [...focusByRef.values()],
+          manifest,
+          conversationStep,
+          taskDeps,
+          unitIndex,
+          usedImageConceptIds
+        );
+        if (!probe) continue;
+        if (wouldExceedIntentLimit(probe, planForCeilings, isReview) && taskType === "meaning_check") continue;
+        if (pushDerived({ type: taskType, item, focusItem, score: 10 }, { force: true, mandatoryNew: true })) {
+          count += 1;
+          usedModalities.add(kind);
         }
-      } else {
-        // Antigo/obrigatório: ≥1 reutilização; a resposta principal prefere
-        // aplicação em contexto (montagem/produção/escolha contextual).
-        if (cov.count === 0) addDerived(item, focusItem, cov, false);
+      }
+    });
+
+    // Garante mínimo da fase (revisão/imersão ≥3, comum ≥2).
+    while (addedForConversation.length < bounds.min) {
+      let progressed = false;
+      for (const type of ALL_POST_CONVERSATION_TYPES) {
+        for (const item of relevant) {
+          const focusItem = focusByRef.get(item.ref);
+          if (!focusItem) continue;
+          if (addedForConversation.some((s) => s.postConversationTaskType === type && s.conversationCoveredRef === item.ref)) continue;
+          if (pushDerived({ type, item, focusItem, score: 0 }, { force: true })) {
+            progressed = true;
+            break;
+          }
+        }
+        if (addedForConversation.length >= bounds.min) break;
+      }
+      if (!progressed) break;
+    }
+
+    if (isReview) {
+      const reviewTarget =
+        relevant.find((item) => item.roles.includes("reused")) ??
+        relevant.find((item) => !item.roles.includes("new")) ??
+        relevant[0];
+      if (reviewTarget) {
+        const focusItem = focusByRef.get(reviewTarget.ref);
+        if (focusItem) {
+          const hasTarget = addedForConversation.some((s) => s.conversationCoveredRef === reviewTarget.ref);
+          if (!hasTarget) {
+            for (const type of ["build_used_answer", "meaning_check", "fill_missing"] as PostConversationTaskType[]) {
+              if (pushDerived({ type, item: reviewTarget, focusItem, score: 5 }, { force: true })) break;
+            }
+          }
+        }
       }
 
-      // Resposta principal: garantir montagem/produção/escolha contextual.
-      if (isAnswer) {
-        const contextual = new Set<ExerciseFamily>(["assembly", "usage"]);
-        const hasContextual = [...cov.families].some((family) => contextual.has(family));
-        if (!hasContextual) addDerived(item, focusItem, cov, true);
+      const oldGlyphs = priorOldGlyphsForLesson(lesson);
+      if (oldGlyphs.size > 0) {
+        const oldRef =
+          relevant.find((item) => refUsesOldCurriculum(item.ref, oldGlyphs))?.ref ??
+          OLD_CURRICULUM_RECOVERY_REFS.find((ref) => refUsesOldCurriculum(ref, oldGlyphs));
+        if (oldRef) {
+          const focusItem = focusByRef.get(oldRef) ?? focusItemFromRef(oldRef);
+          if (focusItem) {
+            const manifestItem: ConversationVocabularyItem =
+              relevant.find((item) => item.ref === oldRef) ??
+              ({
+                ref: oldRef,
+                resolved: true,
+                roles: ["reused"],
+                text: focusItem.hanzi,
+              } as ConversationVocabularyItem);
+            const hasOldTarget = addedForConversation.some((s) => s.conversationCoveredRef === oldRef);
+            if (!hasOldTarget) {
+              const oldRecoveryTypes: PostConversationTaskType[] =
+                oldRef.startsWith("chunk:") || oldRef.startsWith("phrase:")
+                  ? ["meaning_check", "build_used_answer", "listen_choose", "fill_missing"]
+                  : ["meaning_check", "spot_hanzi", "fill_missing", "listen_choose"];
+              for (const type of oldRecoveryTypes) {
+                if (pushDerived({ type, item: manifestItem, focusItem, score: 8 }, { force: true })) break;
+              }
+            }
+          }
+        }
       }
+    }
+
+    const finalCount = addedForConversation.length;
+    for (const step of addedForConversation) {
+      step.postConversationCount = finalCount;
     }
 
     if (addedForConversation.length > 0) {
-      // Ordena por progressão cognitiva (reconhecimento → montagem → uso).
       addedForConversation.sort((a, b) => cognitiveProfile(a).familyRank - cognitiveProfile(b).familyRank);
       derivedByConversationIndex.set(ci, addedForConversation);
     }
@@ -3289,7 +3804,6 @@ export function applyConversationVocabularyLoop(
 
   if (derivedByConversationIndex.size === 0) return plan;
 
-  // Reconstrói o plano inserindo as derivadas logo APÓS cada conversa.
   const rebuilt: LessonRoundStep[] = [];
   plan.forEach((step, index) => {
     rebuilt.push(step);
@@ -3297,7 +3811,6 @@ export function applyConversationVocabularyLoop(
     if (derived) rebuilt.push(...derived);
   });
 
-  // Recalcula os metadados de estágio (posição/contagem por estágio) para a UI.
   const stageCounts = new Map<LessonStageId, number>();
   const stageTotals = new Map<LessonStageId, number>();
   for (const step of rebuilt) {
@@ -3427,6 +3940,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     progress: context.hanziBuilderProgress,
     seenGlyphs,
     ownFocusGlyphs,
+    conversationHistory: context.conversationHistory,
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
@@ -3576,6 +4090,14 @@ const STAGE_DETAILS: Record<
     description: "Aplique o item em frase, diálogo ou microcontexto.",
     motor: "fala",
     rewardQi: 3,
+  },
+  post_conversation: {
+    name: "Pós-Conversa",
+    objective: "Consolidar vocabulário, respostas e intenção da conversa que você acabou de completar.",
+    actionLabel: "Fixe a conversa",
+    description: "Tarefas curtas e adaptativas sobre o que acabou de ouvir e responder.",
+    motor: "fala",
+    rewardQi: 2,
   },
   consolidation: {
     name: "Revisão",

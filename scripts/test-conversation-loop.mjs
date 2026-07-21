@@ -72,6 +72,9 @@ try {
       if (derived.length === 0) continue;
       withDerived += 1;
       for (const step of derived) {
+        assert(step.postConversationPhase, `derivada sem postConversationPhase (${lesson.id})`);
+        assert(step.postConversationTaskType, `derivada sem postConversationTaskType (${lesson.id})`);
+        assert(step.lessonStageId === "post_conversation", `derivada sem estágio post_conversation (${lesson.id})`);
         assert(step.conversationSourceSceneId, `derivada sem sceneId de origem (${lesson.id})`);
         assert(step.conversationCoveredRef, `derivada sem ref coberto (${lesson.id})`);
         assert(step.conversationModality === step.kind, `modalidade != kind (${lesson.id})`);
@@ -247,10 +250,27 @@ try {
     }
   }
 
+  // ── Fase Pós-Conversa: mínimo 2 (comum) ou 3 (revisão/imersão) por conversa. ─
+  for (const lesson of lessonsWithConv) {
+    const plan = planOf(lesson);
+    const convIndexes = plan.map((s, i) => (s.kind === "conversation_scene" ? i : -1)).filter((i) => i >= 0);
+    const minPost = isImmersion(lesson) || lesson.isReview ? 3 : 2;
+    for (const ci of convIndexes) {
+      let count = 0;
+      for (let j = ci + 1; j < plan.length; j += 1) {
+        const s = plan[j];
+        if (s.kind === "conversation_scene") break;
+        if (s.postConversationPhase) count += 1;
+        else if (!s.conversationDerived) break;
+      }
+      assert(count >= minPost, `${lesson.id}: conversa em ${ci} com ${count} tarefas pós-conversa (mín. ${minPost})`);
+    }
+  }
+
   // ── Crescimento limitado (perto do limite / substituição): nunca explode. ──
   for (const lesson of lessonsWithConv) {
     const derived = derivedOf(planOf(lesson));
-    const cap = isImmersion(lesson) ? 14 : lesson.isReview ? 14 : 8;
+    const cap = isImmersion(lesson) ? 18 : lesson.isReview ? 16 : 10;
     assert(derived.length <= cap, `crescimento acima do orçamento em ${lesson.id}: ${derived.length} > ${cap}`);
   }
 
@@ -259,7 +279,7 @@ try {
     for (const e of errors.slice(0, 40)) console.error(`  - ${e}`);
     process.exit(1);
   }
-  console.log("OK: test:conversation-loop passou (comum/revisão/imersão · V2 · novo/antigo/erro · beginner · ordem · limite).");
+  console.log("OK: test:conversation-loop passou (Pós-Conversa · comum/revisão/imersão · V2 · novo/antigo/erro · beginner · ordem · limite).");
 } finally {
   await rm(outDir, { recursive: true, force: true });
 }

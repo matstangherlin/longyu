@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 6774590c72c517efaaaec7698c2b93bf5a7a4427 |
+| Commit | 8bb7bd7d00fcaf8168bb781062d1f07565dd574a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T06:25:35.842Z |
+| Gerado em | 2026-07-21T06:53:26.979Z |
 | Lições | 108 |
-| Hash da Jornada | 3c56f94d4ee2 |
+| Hash da Jornada | ead22051a61c |
 
 ## Resumo
 
@@ -20,8 +20,8 @@
 | Fallback V1 derivado (lines/checkpoint) | 33 |
 | Intenções distintas | 33 |
 | Passos autorais na jornada | 35 |
-| Lições com cena gerada no plano | 96 |
-| Cenas geradas distintas | 21 |
+| Lições com cena gerada no plano | 94 |
+| Cenas geradas distintas | 19 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -76,9 +76,9 @@
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 0 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 1 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
-| revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 1 |
+| revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 1 |
-| imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 1 |
+| imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 0 |
 | imersao-estacao | immersion | immersion-station | 15 | 6 | sim | 2 | 1 | 0 |
 | imersao-casa-amigo | immersion | immersion-visit | 14 | 6 | sim | 2 | 1 | 0 |
 
@@ -110,4 +110,4 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:5ca1583692f5041f -->
+<!-- integridade:a86fb71d6fa5999d -->

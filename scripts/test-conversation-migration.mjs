@@ -351,6 +351,24 @@ try {
     assert(looped.some((s) => s.conversationDerived), "applyConversationVocabularyLoop insere derivadas");
   }
 
+  // ── 11. Fase Pós-Conversa no plano real ────────────────────────────────────
+  {
+    const lesson = ALL_LESSONS.find((l) => l.id === "l1");
+    assert(lesson, "l1 existe");
+    const plan = lessonRoundStepsFor(lesson, { silent: true });
+    const ci = plan.findIndex((s) => s.kind === "conversation_scene");
+    assert(ci >= 0, "l1 tem conversa");
+    const post = [];
+    for (let j = ci + 1; j < plan.length; j += 1) {
+      if (plan[j].kind === "conversation_scene") break;
+      if (plan[j].postConversationPhase) post.push(plan[j]);
+      else if (!plan[j].conversationDerived) break;
+    }
+    assert(post.length >= 2, "l1: ao menos 2 tarefas pós-conversa");
+    assert(post.every((s) => s.lessonStageId === "post_conversation"), "metadados post_conversation");
+    assert(new Set(post.map((s) => s.kind)).size >= 2, "modalidades variadas na pós-conversa");
+  }
+
   // ── 12. Manifesto V2 cobre ramo de erro e fallback V1 ─────────────────────
   {
     const m = buildConversationVocabularyManifest(sample);

@@ -77,6 +77,7 @@ export type SessionMoment =
   | "answer_feedback"
   | "hanzi_builder"
   | "conversation_scene"
+  | "post_conversation"
   | "immediate_correction"
   // Permitidos (bons momentos):
   | "lesson_complete"
@@ -95,6 +96,7 @@ const PROTECTED_MOMENTS: ReadonlySet<SessionMoment> = new Set<SessionMoment>([
   "answer_feedback",
   "hanzi_builder",
   "conversation_scene",
+  "post_conversation",
   "immediate_correction",
 ]);
 
