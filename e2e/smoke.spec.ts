@@ -33,18 +33,22 @@ test.describe("smoke", () => {
     await expect(page.getByRole("button", { name: "Ativar modo escuro" })).toHaveAttribute("aria-pressed", "false");
   });
 
-  test("mascote anima a arte integral sem recorte ou fundo retangular", async ({ page }) => {
+  test("mascote mantém corpo e mão estáticos e anima apenas a piscada", async ({ page }) => {
     await page.goto("/");
     const mascot = page.locator('[data-mascot-animated="true"]:visible').first();
     await expect(mascot).toBeVisible();
-    await expect(mascot).toHaveAttribute("data-mascot-render", "whole-frame-v3");
+    await expect(mascot).toHaveAttribute("data-mascot-render", "static-body-blink-v4");
+    await expect(mascot).toHaveAttribute("data-mascot-motion", "eyes-only");
 
     const frame = mascot.getByTestId("mascot-frame");
     await expect(frame).toHaveCount(1);
-    await expect(frame).toHaveClass(/mascot-full-idle/);
     await expect.poll(async () => frame.evaluate((node) =>
       getComputedStyle(node).backgroundColor
     )).toBe("rgba(0, 0, 0, 0)");
+    await expect.poll(async () => frame.evaluate((node) => ({
+      animationName: getComputedStyle(node).animationName,
+      transform: getComputedStyle(node).transform,
+    }))).toEqual({ animationName: "none", transform: "none" });
 
     const closedEyes = mascot.getByTestId("mascot-eyes-closed");
     await expect(closedEyes).toHaveCount(1);
@@ -56,6 +60,10 @@ test.describe("smoke", () => {
     const body = mascot.getByTestId("mascot-body");
     await expect(body).toHaveCount(1);
     await expect(body).toHaveAttribute("src", "/longyu-mascot.png");
+    await expect.poll(async () => body.evaluate((node) => ({
+      animationName: getComputedStyle(node).animationName,
+      transform: getComputedStyle(node).transform,
+    }))).toEqual({ animationName: "none", transform: "none" });
     await expect(mascot.getByTestId("mascot-hand")).toHaveCount(0);
     await expect(mascot.locator('img[src="/longyu-body.png"]')).toHaveCount(0);
     await expect(mascot.locator('img[src="/longyu-hand-wave.png"]')).toHaveCount(0);
@@ -142,3 +150,4 @@ test.describe("mobile", () => {
     await expect(page.getByRole("button", { name: /Começar 30 dias grátis|Em breve/i })).toBeVisible();
   });
 });
+
