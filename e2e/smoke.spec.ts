@@ -33,7 +33,7 @@ test.describe("smoke", () => {
     await expect(page.getByRole("button", { name: "Ativar modo escuro" })).toHaveAttribute("aria-pressed", "false");
   });
 
-  test("mascote alterna o quadro de olhos fechados e mantém a mão animada", async ({ page }) => {
+  test("mascote pisca sobre a arte integral sem recorte de braço", async ({ page }) => {
     await page.goto("/");
     const mascot = page.locator('[data-mascot-animated="true"]:visible').first();
     await expect(mascot).toBeVisible();
@@ -45,20 +45,12 @@ test.describe("smoke", () => {
       getComputedStyle(node).animationName === "mascot-eye-blink"
     )).toBe(true);
 
-    const hand = mascot.getByTestId("mascot-hand");
-    await expect(hand).toHaveCount(1);
     const body = mascot.getByTestId("mascot-body");
     await expect(body).toHaveCount(1);
-    await expect.poll(async () => {
-      const [handLayer, bodyLayer] = await Promise.all([
-        hand.evaluate((node) => Number(getComputedStyle(node).zIndex)),
-        body.evaluate((node) => Number(getComputedStyle(node).zIndex)),
-      ]);
-      return handLayer < bodyLayer;
-    }).toBe(true);
-    await expect.poll(async () => hand.evaluate((node) =>
-      getComputedStyle(node).animationName.includes("mascot-hand-wave")
-    )).toBe(true);
+    await expect(body).toHaveAttribute("src", "/longyu-mascot.png");
+    await expect(mascot.getByTestId("mascot-hand")).toHaveCount(0);
+    await expect(mascot.locator('img[src="/longyu-body.png"]')).toHaveCount(0);
+    await expect(mascot.locator('img[src="/longyu-hand-wave.png"]')).toHaveCount(0);
   });
 
   test("landing: Começar agora vai para /conta", async ({ page }) => {
