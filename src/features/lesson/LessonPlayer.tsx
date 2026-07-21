@@ -22,6 +22,12 @@ import {
 import { todayKey } from "../../lib/storage";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import type { ReviewDomain } from "../../lib/srs";
+import {
+  registerConversationVocabularyInSrs,
+  resolveConversationErrorRefs,
+} from "../../lib/conversationVocabularySrs";
+import { conversationSceneById } from "../../data/conversationScenes";
+import { manifestFromConversationStep } from "./lessonTasks";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
   BREATH_LIVES,
@@ -1248,6 +1254,11 @@ export function LessonPlayer() {
   // não respondidos (out_of_lives) nem sofrer com a poda do histórico de erros.
   const toneHitsRef = useRef(0);
   const mistakeReviewTargetsRef = useRef<LessonReviewTarget[]>([]);
+  /** Tentativas / erros da conversa atual (antes de handleDone). */
+  const conversationAttemptsRef = useRef(1);
+  const conversationErrorTargetsRef = useRef<LessonReviewTarget[]>([]);
+  /** Cenas já enviadas ao SRS nesta sessão (evita nota dupla no finish). */
+  const conversationSrsRegisteredRef = useRef<Set<string>>(new Set());
   const activityErrorsRef = useRef<ActivityError[]>([]);
   const attemptIdRef = useRef<string | null>(null);
   const attemptStartedAtRef = useRef<number>(Date.now());
@@ -1406,6 +1417,8 @@ export function LessonPlayer() {
   useEffect(() => {
     const step = lesson.steps[idx];
     if (!step || step.kind !== "conversation_scene" || !step.sceneId) return;
+    conversationAttemptsRef.current = 1;
+    conversationErrorTargetsRef.current = [];
     void trackPedagogyEvent({
       eventType: "conversation_shown",
       lessonId: lesson.id,
@@ -1521,6 +1534,63 @@ export function LessonPlayer() {
       ...reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]),
     ];
     mistakeReviewTargetsRef.current = uniqueLessonReviewTargets(nextTargets);
+    if (step.kind === "conversation_scene") {
+      conversationAttemptsRef.current = Math.max(2, conversationAttemptsRef.current + 1);
+      conversationErrorTargetsRef.current = uniqueLessonReviewTargets([
+        ...conversationErrorTargetsRef.current,
+        ...reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]),
+      ]);
+    }
+  }
+
+  function registerConversationVocabularyLoop(
+    step: LessonStep,
+    result: "completed" | "mistake" | "abandoned",
+    attempts: number
+  ) {
+    if (step.kind !== "conversation_scene" || !step.sceneId) return;
+    if (conversationSrsRegisteredRef.current.has(step.sceneId) && result !== "abandoned") return;
+    const manifest = manifestFromConversationStep(step);
+    if (!manifest) return;
+
+    const explicitErrorRefs = conversationErrorTargetsRef.current.map(
+      (target) => `${target.type}:${target.itemId}`
+    );
+    const errorRefs = resolveConversationErrorRefs(manifest, result, explicitErrorRefs);
+    const assistanceLevel = step.conversationVariantLevel ?? "guided";
+    const setting =
+      step.setting ?? conversationSceneById[step.sceneId]?.setting;
+    const mainAnswer =
+      manifest.expectedAnswers.find((answer) => Boolean(answer?.trim()))?.trim() ??
+      step.correctAnswer ??
+      step.checkpoint?.correctAnswer;
+
+    recordConversationScene(step.sceneId, step.sceneIntent, {
+      lessonId: lesson.id,
+      result,
+      attempts: Math.max(1, attempts),
+      assistanceLevel,
+      mainAnswer,
+      errorRefs,
+      setting,
+    });
+
+    const liveSrs = useStore.getState().srs;
+    registerConversationVocabularyInSrs(
+      {
+        manifest,
+        result,
+        attempts: Math.max(1, attempts),
+        assistanceLevel,
+        errorRefs,
+        srs: liveSrs,
+        learnedChunks,
+        learnedChars,
+        track: "fala",
+      },
+      { ensureSrs, gradeSrs }
+    );
+    conversationSrsRegisteredRef.current.add(step.sceneId);
   }
 
   function taskIdForStep(stepIndex: number): string {
@@ -1940,22 +2010,26 @@ export function LessonPlayer() {
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
     // Cena concluída alimenta a seleção futura (histórico personalizado): a
-    // rotação e o nível da variante seguem o histórico real do aluno.
+    // rotação e o nível da variante seguem o histórico real do aluno. O
+    // vocabulário entra no SRS com prioridade pelo desempenho.
     if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
-      const hadMistake = wasCorrect === false;
+      const hadMistake = wasCorrect === false || conversationAttemptsRef.current > 1;
       const result = hadMistake ? "mistake" : "completed";
+      const attempts = Math.max(
+        hadMistake ? 2 : 1,
+        conversationAttemptsRef.current,
+        hadMistake ? 2 : 1
+      );
       const repeated = (conversationHistory ?? []).some((entry) => entry.sceneId === currentStep.sceneId);
       const variantLevel = currentStep.conversationVariantLevel ?? "guided";
-      recordConversationScene(currentStep.sceneId, currentStep.sceneIntent, {
-        lessonId: lesson.id,
-        result,
-        attempts: hadMistake ? 2 : 1,
-      });
+      registerConversationVocabularyLoop(currentStep, result, attempts);
       const conversationMeta = {
         sceneId: currentStep.sceneId,
         intent: currentStep.sceneIntent ?? "",
         variantLevel,
         repeated,
+        attempts,
+        result,
       };
       void trackPedagogyEvent({
         eventType: "conversation_completed",
@@ -2087,6 +2161,14 @@ export function LessonPlayer() {
 
   function exitLesson() {
     if (!finished) {
+      const currentStep = lesson.steps[idx];
+      if (currentStep?.kind === "conversation_scene" && currentStep.sceneId) {
+        registerConversationVocabularyLoop(
+          currentStep,
+          "abandoned",
+          Math.max(1, conversationAttemptsRef.current)
+        );
+      }
       void trackPedagogyEvent({
         eventType: "lesson_abandoned",
         lessonId: lesson.id,
@@ -2194,11 +2276,18 @@ export function LessonPlayer() {
         gradeText(s.correctAnswer, "significado");
       }
       if (s.kind === "sentence_build" || s.kind === "translation_build" || s.kind === "dialogue_choice" || s.kind === "conversation_scene") {
+        // Conversas já alimentam o SRS no loop de vocabulário (com prioridade e
+        // dedupe de chunk). Aqui só a resposta principal entra se a cena ainda
+        // não tiver sido registrada (legado / falha no manifesto).
+        if (s.kind === "conversation_scene") {
+          if (!s.sceneId || !conversationSrsRegisteredRef.current.has(s.sceneId)) {
+            gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer, "uso");
+            gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer, "fala");
+          }
+          continue;
+        }
         gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer ?? s.targetParts?.join(""), "uso");
         gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer ?? s.targetParts?.join(""), "fala");
-        if (s.kind === "conversation_scene") {
-          for (const line of s.lines ?? []) gradeText(line.hanzi, "uso");
-        }
       }
       if (s.kind === "fill_blank") {
         gradeText(s.correctAnswer ?? s.answer ?? `${s.sentenceBefore ?? ""}${s.blankAnswer ?? ""}${s.sentenceAfter ?? ""}`, "uso");

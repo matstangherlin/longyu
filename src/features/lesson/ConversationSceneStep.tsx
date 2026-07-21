@@ -690,7 +690,7 @@ function InteractionPanel({
 // V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
 // personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
-function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
+function ConversationSceneV2({ step, onDone, onSkip, onMistake }: StepProps) {
   const characters = step.characters ?? [];
   const nodes = (step.nodes ?? []) as ConversationNode[];
   const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.sceneId]);
@@ -848,6 +848,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
             }
             onLocalMistake={() => {
               hadMistakeRef.current = true;
+              onMistake?.();
             }}
             onSkip={onSkip}
           />

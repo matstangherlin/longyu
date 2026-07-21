@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Conversation Vocabulary Loop → SRS
+
+- Ao concluir (ou abandonar) uma conversa, o manifesto de vocabulário entra na
+  fila de revisão espaçada com **prioridade pelo desempenho**: erro, abandono,
+  várias tentativas, novidade e resposta da intenção (alta); acerto com
+  assistência / pouco praticada (média); acerto imediato / consolidada (baixa).
+- Deduplicação pedagógica: preferir **chunk** a cada hànzì isolado; preservar
+  itens SRS já existentes; alternar domínios (som, significado, forma, uso,
+  fala, leitura) nas revisões futuras.
+- Histórico enriquecido (`assistanceLevel`, `mainAnswer`, `errorRefs`, `setting`)
+  sincroniza no snapshot/merge; a mesma cena com erro não volta só por isso —
+  a intenção reabre noutro cenário depois de revisar o conteúdo.
+- Testes: `validate:conversation-vocabulary-srs` (no `validate:beta`).
+
 ### Fase Pós-Conversa (plano pedagógico)
 
 - Após cada `conversation_scene`, o plano injeta **2–4 tarefas adaptativas**

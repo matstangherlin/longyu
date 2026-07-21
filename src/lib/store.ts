@@ -5,8 +5,10 @@ import type { DomainTrack } from "../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS } from "../data/journey";
 import {
   CONVERSATION_HISTORY_LIMIT,
+  CONVERSATION_VARIANT_LEVELS,
   type ConversationHistoryEntry,
   type ConversationResult,
+  type ConversationVariantLevel,
 } from "../data/conversationScenes";
 import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
@@ -794,14 +796,34 @@ function normalizeConversationHistory(
 ): ConversationHistoryEntry[] {
   return (history ?? [])
     .filter((entry) => Boolean(entry?.sceneId && entry?.intent))
-    .map((entry) => ({
-      sceneId: String(entry.sceneId),
-      intent: String(entry.intent),
-      lessonId: String(entry.lessonId ?? ""),
-      completedAt: Number.isFinite(entry.completedAt) ? entry.completedAt : 0,
-      result: CONVERSATION_RESULTS.has(entry.result) ? entry.result : "completed",
-      attempts: Math.max(0, Math.round(entry.attempts ?? 0)),
-    }))
+    .map((entry) => {
+      const assistanceLevel = CONVERSATION_VARIANT_LEVELS.includes(
+        entry.assistanceLevel as ConversationVariantLevel
+      )
+        ? (entry.assistanceLevel as ConversationVariantLevel)
+        : undefined;
+      const errorRefs = Array.isArray(entry.errorRefs)
+        ? [...new Set(entry.errorRefs.map((ref) => String(ref).trim()).filter(Boolean))].slice(0, 24)
+        : undefined;
+      const mainAnswer =
+        typeof entry.mainAnswer === "string" && entry.mainAnswer.trim()
+          ? entry.mainAnswer.trim()
+          : undefined;
+      const setting =
+        typeof entry.setting === "string" && entry.setting.trim() ? entry.setting.trim() : undefined;
+      return {
+        sceneId: String(entry.sceneId),
+        intent: String(entry.intent),
+        lessonId: String(entry.lessonId ?? ""),
+        completedAt: Number.isFinite(entry.completedAt) ? entry.completedAt : 0,
+        result: CONVERSATION_RESULTS.has(entry.result) ? entry.result : "completed",
+        attempts: Math.max(0, Math.round(entry.attempts ?? 0)),
+        ...(assistanceLevel ? { assistanceLevel } : {}),
+        ...(mainAnswer ? { mainAnswer } : {}),
+        ...(errorRefs && errorRefs.length > 0 ? { errorRefs } : {}),
+        ...(setting ? { setting: setting as ConversationHistoryEntry["setting"] } : {}),
+      };
+    })
     // Mais recente primeiro; mantém só os últimos 100 (limite local).
     .sort((a, b) => b.completedAt - a.completedAt)
     .slice(0, CONVERSATION_HISTORY_LIMIT);
@@ -1651,7 +1673,15 @@ interface AppState {
   recordConversationScene: (
     sceneId: string,
     intentId?: string,
-    outcome?: { lessonId?: string; result?: ConversationResult; attempts?: number }
+    outcome?: {
+      lessonId?: string;
+      result?: ConversationResult;
+      attempts?: number;
+      assistanceLevel?: ConversationVariantLevel;
+      mainAnswer?: string;
+      errorRefs?: string[];
+      setting?: ConversationHistoryEntry["setting"];
+    }
   ) => void;
   setCurrentLessonAttempt: (attempt: LessonAttemptRecord | null) => void;
   finishLessonAttempt: (attempt: LessonAttemptRecord) => void;
@@ -2447,7 +2477,20 @@ export const useStore = create<AppState>()(
             ? [cleanIntent, ...(s.recentConversationIntentIds ?? []).filter((id) => id !== cleanIntent)].slice(0, 10)
             : s.recentConversationIntentIds ?? [];
           // Histórico rico do aluno (máx. 100, mais recente primeiro) — alimenta
-          // a rotação personalizada e o nível da variante.
+          // a rotação personalizada, o nível da variante e o loop → SRS.
+          const assistanceLevel = CONVERSATION_VARIANT_LEVELS.includes(
+            outcome?.assistanceLevel as ConversationVariantLevel
+          )
+            ? (outcome?.assistanceLevel as ConversationVariantLevel)
+            : undefined;
+          const errorRefs = Array.isArray(outcome?.errorRefs)
+            ? [...new Set(outcome.errorRefs.map((ref) => String(ref).trim()).filter(Boolean))].slice(0, 24)
+            : undefined;
+          const mainAnswer =
+            typeof outcome?.mainAnswer === "string" && outcome.mainAnswer.trim()
+              ? outcome.mainAnswer.trim()
+              : undefined;
+          const setting = outcome?.setting;
           const entry: ConversationHistoryEntry = {
             sceneId: cleanScene,
             intent: cleanIntent ?? "",
@@ -2455,6 +2498,10 @@ export const useStore = create<AppState>()(
             completedAt: Date.now(),
             result: outcome?.result ?? "completed",
             attempts: Math.max(1, Math.round(outcome?.attempts ?? 1)),
+            ...(assistanceLevel ? { assistanceLevel } : {}),
+            ...(mainAnswer ? { mainAnswer } : {}),
+            ...(errorRefs && errorRefs.length > 0 ? { errorRefs } : {}),
+            ...(setting ? { setting } : {}),
           };
           const conversationHistory = [entry, ...(s.conversationHistory ?? [])].slice(0, CONVERSATION_HISTORY_LIMIT);
           const next = { ...s, recentConversationSceneIds, recentConversationIntentIds, conversationHistory };

@@ -24,6 +24,14 @@ export interface ConversationHistoryEntry {
   lessonId: string;
   result: ConversationResult;
   attempts: number;
+  /** Nível de assistência da variante exibida (guided → audio_first). */
+  assistanceLevel?: ConversationVariantLevel;
+  /** Resposta principal esperada na cena (quando conhecida). */
+  mainAnswer?: string;
+  /** Refs `chunk:`/`char:` problemáticos nesta realização. */
+  errorRefs?: string[];
+  /** Cenário (setting) da cena — ajuda a reabrir a intenção noutro lugar. */
+  setting?: ConversationSetting;
 }
 
 /** Limite local do histórico de conversas (mais recentes primeiro). */
@@ -488,6 +496,16 @@ export interface ConversationSceneSelectionContext {
   settingUsageCount?: ReadonlyMap<string, number>;
   /** Refs (chunk:/char:) de erro recente do aluno (para +20 trabalha erro). */
   recentErrorRefs?: ReadonlySet<string>;
+  /**
+   * Cenas com erro/abandono recente. A mesma cena NÃO deve voltar só porque
+   * houve erro — primeiro revisa o conteúdo no SRS; a intenção reabre noutro
+   * cenário.
+   */
+  recentMistakeSceneIds?: readonly string[];
+  /** Intenções cuja recuperação deve acontecer noutro setting. */
+  pendingIntentRecovery?: ReadonlySet<string>;
+  /** Setting da última conversa com erro (para preferir setting diferente). */
+  lastMistakeSetting?: string;
 }
 
 /**
@@ -496,20 +514,36 @@ export interface ConversationSceneSelectionContext {
  */
 export function conversationSelectionContextFromHistory(
   history: readonly ConversationHistoryEntry[] | undefined,
-  base: Pick<ConversationSceneSelectionContext, "recentConversationSceneIds" | "recentConversationIntentIds" | "recentErrorRefs"> = {}
+  base: Pick<
+    ConversationSceneSelectionContext,
+    "recentConversationSceneIds" | "recentConversationIntentIds" | "recentErrorRefs"
+  > = {}
 ): ConversationSceneSelectionContext {
   const entries = [...(history ?? [])].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0));
   const playedSceneIds = new Set<string>();
   const intentPracticeCount = new Map<string, number>();
   const settingUsageCount = new Map<string, number>();
   const recentSettings: string[] = [];
+  const recentMistakeSceneIds: string[] = [];
+  const pendingIntentRecovery = new Set<string>();
+  const recentErrorRefs = new Set<string>(base.recentErrorRefs ? [...base.recentErrorRefs] : []);
+  let lastMistakeSetting: string | undefined;
+
   for (const entry of entries) {
     if (entry.result === "completed") playedSceneIds.add(entry.sceneId);
     intentPracticeCount.set(entry.intent, (intentPracticeCount.get(entry.intent) ?? 0) + 1);
-    const setting = conversationSceneById[entry.sceneId]?.setting;
+    const setting = entry.setting ?? conversationSceneById[entry.sceneId]?.setting;
     if (setting) {
       settingUsageCount.set(setting, (settingUsageCount.get(setting) ?? 0) + 1);
       if (recentSettings.length < 10) recentSettings.push(setting);
+    }
+    if (entry.result === "mistake" || entry.result === "abandoned") {
+      if (recentMistakeSceneIds.length < 8 && !recentMistakeSceneIds.includes(entry.sceneId)) {
+        recentMistakeSceneIds.push(entry.sceneId);
+      }
+      if (entry.intent) pendingIntentRecovery.add(entry.intent);
+      if (!lastMistakeSetting && setting) lastMistakeSetting = setting;
+      for (const ref of entry.errorRefs ?? []) recentErrorRefs.add(ref);
     }
   }
   // Cenas da lição imediatamente anterior (mesmo lessonId mais recente).
@@ -524,6 +558,10 @@ export function conversationSelectionContextFromHistory(
     playedSceneIds,
     intentPracticeCount,
     settingUsageCount,
+    recentMistakeSceneIds,
+    pendingIntentRecovery,
+    lastMistakeSetting,
+    recentErrorRefs: recentErrorRefs.size > 0 ? recentErrorRefs : base.recentErrorRefs,
   };
 }
 
@@ -596,8 +634,26 @@ export function scoreConversationScene(
   if (context.intentPracticeCount && (context.intentPracticeCount.get(scene.intent) ?? 0) <= 1) score += 20;
   // +15: cenário pouco utilizado.
   if (context.settingUsageCount && (context.settingUsageCount.get(scene.setting) ?? 0) <= 1) score += 15;
-  // +20: trabalha um erro recente do aluno (revisa o chunk/intenção errado).
-  if (context.recentErrorRefs && refs.some((ref) => context.recentErrorRefs!.has(ref))) score += 20;
+  // +20: trabalha um erro recente do aluno (revisa o chunk/intenção errado) —
+  // mas NÃO na mesma cena que acabou de falhar (conteúdo vai ao SRS primeiro;
+  // a intenção reabre noutro cenário).
+  const mistakeScenes = context.recentMistakeSceneIds ?? [];
+  if (mistakeScenes.includes(scene.sceneId)) {
+    score -= 80;
+  } else if (context.recentErrorRefs && refs.some((ref) => context.recentErrorRefs!.has(ref))) {
+    score += 20;
+  }
+
+  // +35: mesma intenção comunicativa, cenário diferente — recupera a intenção
+  // sem repetir a cena problemática.
+  if (
+    context.pendingIntentRecovery?.has(scene.intent) &&
+    !mistakeScenes.includes(scene.sceneId) &&
+    context.lastMistakeSetting &&
+    scene.setting !== context.lastMistakeSetting
+  ) {
+    score += 35;
+  }
 
   // −30: repete a mesma resposta principal já usada na lição.
   const mainAnswer = normalizeConversationAnswer(conversationSceneMainAnswer(scene));

@@ -625,6 +625,36 @@ try {
         if (immediateRepeat >= freshAgain) {
           err("diversity", "error-return", "após erro, a mesma cena não deve reaparecer imediatamente (−100 última lição).");
         }
+        // Mesma cena com mistake recente é penalizada; intenção em outro setting sobe.
+        const mistakeCtx = conversationSelectionContextFromHistory(
+          [
+            {
+              sceneId: sample.sceneId,
+              intent: sample.intent,
+              lessonId: "lx",
+              completedAt: Date.now(),
+              result: "mistake",
+              attempts: 2,
+              setting: sample.setting,
+              errorRefs: [...(sample.learnedRefs ?? [])].slice(0, 1),
+            },
+          ],
+          { recentConversationSceneIds: [sample.sceneId], recentConversationIntentIds: [sample.intent] }
+        );
+        const sameAfterMistake = scoreConversationScene(sample, info, mistakeCtx);
+        const otherIntentRecovery = CONVERSATION_SCENES.find(
+          (s) => s.intent === sample.intent && s.sceneId !== sample.sceneId && s.setting !== sample.setting
+        );
+        if (otherIntentRecovery) {
+          const recovered = scoreConversationScene(otherIntentRecovery, info, mistakeCtx);
+          if (recovered <= sameAfterMistake) {
+            err(
+              "diversity",
+              "intent-other-setting",
+              "após erro, a intenção deve preferir outro cenário em vez da mesma cena."
+            );
+          }
+        }
       }
     }
 

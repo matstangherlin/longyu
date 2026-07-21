@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 8bb7bd7d00fcaf8168bb781062d1f07565dd574a |
+| Commit | 00a9e683e38ed72c6f70363b0b8d045182cedbda |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T06:53:32.595Z |
+| Gerado em | 2026-07-21T15:12:33.979Z |
 | Lições | 108 |
-| Hash da Jornada | ead22051a61c |
+| Hash da Jornada | 1fb127c0c205 |
 
 ## Resumo
 
@@ -107,4 +107,4 @@
 - l11-rev:char:yue
 - …mais 18.
 
-<!-- integridade:a3cc87499880b55b -->
+<!-- integridade:94cec9db19de3895 -->

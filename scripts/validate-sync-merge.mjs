@@ -328,6 +328,46 @@ if (!mergedA.conversationHistory?.some((entry) => entry.sceneId === "pedir-cha")
   errors.push("troca de conta: histórico da conta A deveria preservar as suas próprias cenas");
 }
 
+// Campos ricos do loop → SRS sobrevivem ao merge (assistanceLevel / errorRefs / setting).
+const richLocal = baseProgress({
+  conversationHistory: [
+    {
+      sceneId: "primeiro-cumprimento",
+      intent: "greet",
+      lessonId: "l1",
+      completedAt: 50,
+      result: "mistake",
+      attempts: 2,
+      assistanceLevel: "guided",
+      mainAnswer: "你好",
+      errorRefs: ["chunk:nihao"],
+      setting: "school",
+    },
+  ],
+});
+const richRemote = baseProgress({
+  conversationHistory: [
+    {
+      sceneId: "pedir-agua",
+      intent: "ask-water",
+      lessonId: "l26",
+      completedAt: 90,
+      result: "completed",
+      attempts: 1,
+      assistanceLevel: "independent",
+      setting: "home",
+    },
+  ],
+});
+const richMerged = mergeRemoteProgress(richLocal, richRemote);
+const richGreet = richMerged.conversationHistory?.find((entry) => entry.sceneId === "primeiro-cumprimento");
+if (!richGreet || richGreet.assistanceLevel !== "guided" || richGreet.errorRefs?.[0] !== "chunk:nihao") {
+  errors.push("merge deveria preservar assistanceLevel/errorRefs do histórico de conversa");
+}
+if (!richMerged.conversationHistory?.some((entry) => entry.assistanceLevel === "independent" && entry.setting === "home")) {
+  errors.push("merge deveria preservar setting/assistanceLevel do remoto");
+}
+
 // Limite de 100 registros preservado no merge.
 const longHistory = Array.from({ length: 80 }, (_, i) => ({
   sceneId: `s${i}`,
