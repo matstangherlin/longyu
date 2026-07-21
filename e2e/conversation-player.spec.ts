@@ -35,7 +35,7 @@ async function expectButtonInsideViewport(page: Page, buttonName: RegExp) {
 }
 
 test.describe("player de conversas longas", () => {
-  test("24 falas em 360x640: progressivo, histÃ³rico recolhÃ­vel e ramo de erro", async ({ page }) => {
+  test("24 falas em 360x640: progressivo, histórico recolhível e ramo de erro", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     const player = await openConversation(page, "p7-imersao-estacao", { isPremium: true });
 
@@ -49,22 +49,22 @@ test.describe("player de conversas longas", () => {
     await page.getByRole("button", { name: /^Continuar$/ }).click();
     await expect(page.getByRole("button", { name: /Rever falas anteriores/i })).toBeVisible();
     await page.getByRole("button", { name: /Rever falas anteriores/i }).click();
-    await expect(page.getByRole("list", { name: /HistÃ³rico recente/i })).toBeVisible();
+    await expect(page.getByRole("list", { name: /Histórico recente/i })).toBeVisible();
 
     await page.getByRole("button", { name: /^Responder$/ }).click();
-    await expect(page.getByText(/Resposta do aluno Â· sua vez/i)).toBeVisible();
-    await page.getByRole("button", { name: /ChÃ¡\./i }).click();
+    await expect(page.getByText(/Resposta do aluno · sua vez/i)).toBeVisible();
+    await page.getByRole("button", { name: /Chá\./i }).click();
     await page.getByRole("button", { name: /^Verificar$/ }).click();
     await expect(page.locator('[data-conversation-kind="hint"]')).toBeVisible();
     await expect(page.locator('[data-conversation-kind="student"]')).toBeVisible();
     await expectNoHorizontalOverflow(page);
 
-    // Altura curta representa a viewport Ãºtil com teclado virtual aberto.
+    // Altura curta representa a viewport útil com teclado virtual aberto.
     await page.setViewportSize({ width: 360, height: 420 });
     await expectButtonInsideViewport(page, /^Continuar$/);
   });
 
-  test("reload, offline e troca de orientaÃ§Ã£o preservam a fala atual", async ({ page, context }) => {
+  test("reload, offline e troca de orientação preservam a fala atual", async ({ page, context }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     const player = await openConversation(page, "p7-imersao-estacao", { isPremium: true });
     await page.getByRole("button", { name: /^Continuar$/ }).click();
@@ -85,7 +85,7 @@ test.describe("player de conversas longas", () => {
     await expect(page.getByRole("button", { name: /Responder|Continuar/i }).last()).toBeVisible();
   });
 
-  test("audio_first oferece Ã¡udio e sÃ³ revela texto apÃ³s interaÃ§Ã£o", async ({ page }) => {
+  test("audio_first oferece áudio e só revela texto após interação", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     const now = Date.now();
     await openConversation(page, "p7-imersao-estacao", {
@@ -109,7 +109,7 @@ test.describe("player de conversas longas", () => {
     await expect(reveal).toHaveCount(0);
   });
 
-  test("dark mode e reduced motion mantÃªm contraste e removem transiÃ§Ã£o da fala", async ({ page }) => {
+  test("dark mode e reduced motion mantêm contraste e removem transição da fala", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "dark" });
     await page.setViewportSize({ width: 768, height: 900 });
     const player = await openConversation(page, "p7-imersao-estacao", { isPremium: true, theme: "dark" });
@@ -120,7 +120,7 @@ test.describe("player de conversas longas", () => {
     await expectNoHorizontalOverflow(page);
   });
 
-  test("tablet e desktop mantÃªm etapa, foco e controles acessÃ­veis", async ({ page }) => {
+  test("tablet e desktop mantêm etapa, foco e controles acessíveis", async ({ page }) => {
     await page.setViewportSize({ width: 820, height: 1180 });
     const player = await openConversation(page, "l2");
     await expect(player.getByTestId("conversation-stage")).toBeVisible();
@@ -131,4 +131,3 @@ test.describe("player de conversas longas", () => {
     await expectNoHorizontalOverflow(page);
   });
 });
-
