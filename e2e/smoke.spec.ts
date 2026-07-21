@@ -33,10 +33,18 @@ test.describe("smoke", () => {
     await expect(page.getByRole("button", { name: "Ativar modo escuro" })).toHaveAttribute("aria-pressed", "false");
   });
 
-  test("mascote pisca sobre a arte integral sem recorte de braço", async ({ page }) => {
+  test("mascote anima a arte integral sem recorte ou fundo retangular", async ({ page }) => {
     await page.goto("/");
     const mascot = page.locator('[data-mascot-animated="true"]:visible').first();
     await expect(mascot).toBeVisible();
+    await expect(mascot).toHaveAttribute("data-mascot-render", "whole-frame-v3");
+
+    const frame = mascot.getByTestId("mascot-frame");
+    await expect(frame).toHaveCount(1);
+    await expect(frame).toHaveClass(/mascot-full-idle/);
+    await expect.poll(async () => frame.evaluate((node) =>
+      getComputedStyle(node).backgroundColor
+    )).toBe("rgba(0, 0, 0, 0)");
 
     const closedEyes = mascot.getByTestId("mascot-eyes-closed");
     await expect(closedEyes).toHaveCount(1);

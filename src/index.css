@@ -147,6 +147,32 @@ a {
 
 /* Mascote vivo: arte integral e piscada dos olhos, sem recortes móveis. */
 
+@keyframes mascot-full-idle {
+  0%, 56%, 100% { transform: translateY(0) rotate(0deg); }
+  65% { transform: translateY(-1.5%) rotate(-0.7deg); }
+  74% { transform: translateY(0) rotate(0.4deg); }
+  83% { transform: translateY(-0.5%) rotate(-0.25deg); }
+  92% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes mascot-full-celebrate {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  24% { transform: translateY(-4%) scale(1.02) rotate(-1deg); }
+  46% { transform: translateY(0) scale(1) rotate(0.8deg); }
+  68% { transform: translateY(-2%) scale(1.01) rotate(-0.5deg); }
+  86% { transform: translateY(0) scale(1) rotate(0.2deg); }
+}
+
+.mascot-full-idle {
+  animation: mascot-full-idle 5.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: 50% 78%;
+}
+
+.mascot-full-celebrate {
+  animation: mascot-full-celebrate 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) 2;
+  transform-origin: 50% 78%;
+}
+
 @keyframes mascot-eye-blink {
   0%, 92.4%, 95.6%, 100% {
     opacity: 0;
@@ -474,6 +500,8 @@ a {
   }
 
   .animate-pop,
+  .mascot-full-idle,
+  .mascot-full-celebrate,
   .mascot-eye-blink,
   .longyu-streak-burst,
   .longyu-correct-pop,
