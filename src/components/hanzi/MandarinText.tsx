@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStore, type MandarinDisplayMode } from "../../lib/store";
-import { speak } from "../../lib/tts";
+import { scheduleAutoSpeak } from "../../lib/tts";
 import { SpeakButton } from "../ui/SpeakButton";
 import { GlossText } from "./GlossText";
 import { Pinyin } from "./Pinyin";
@@ -59,7 +59,10 @@ export function MandarinText({
   useEffect(() => {
     if (!audio || !hanzi) return;
     if (!autoPlay && !autoPlayAudio) return;
-    speak(hanzi, { rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate });
+    return scheduleAutoSpeak(hanzi, {
+      rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
+      delayMs: 0,
+    });
   }, [audio, autoPlay, autoPlayAudio, hanzi, slowAudio, ttsRate]);
 
   const hanziNode = (

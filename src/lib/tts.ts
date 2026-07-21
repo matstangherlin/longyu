@@ -6,6 +6,7 @@ import { useStore } from "./store";
 
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let warmed = false;
+let lastUserGestureAt = 0;
 
 function pickChineseVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
@@ -20,6 +21,30 @@ function pickChineseVoice(): SpeechSynthesisVoice | null {
     voices.find((v) => /chinese|mandarin|普通话|中文/i.test(v.name)) ||
     null;
   return cachedVoice;
+}
+
+function resumeSpeechSynthesis(): void {
+  if (!isTTSAvailable()) return;
+  const synth = window.speechSynthesis;
+  if (synth.paused) synth.resume();
+}
+
+/** Marca interação recente do usuário — necessário para autoplay em alguns browsers. */
+export function noteUserGesture(): void {
+  lastUserGestureAt = Date.now();
+  resumeSpeechSynthesis();
+}
+
+/** Instala listener global (idempotente) para desbloquear TTS após toque/clique. */
+export function installTTSGestureUnlock(): () => void {
+  if (typeof window === "undefined") return () => {};
+  const onGesture = () => noteUserGesture();
+  window.addEventListener("pointerdown", onGesture, true);
+  window.addEventListener("keydown", onGesture, true);
+  return () => {
+    window.removeEventListener("pointerdown", onGesture, true);
+    window.removeEventListener("keydown", onGesture, true);
+  };
 }
 
 export function isTTSAvailable(): boolean {
@@ -61,6 +86,7 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   }
   const synth = window.speechSynthesis;
   synth.cancel();
+  resumeSpeechSynthesis();
   const u = new SpeechSynthesisUtterance(text);
   const voice = cachedVoice || pickChineseVoice();
   const preferences = useStore.getState();
@@ -71,21 +97,28 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   u.volume = Math.max(0, Math.min(1, opts.volume ?? preferences.ttsVolume ?? 1));
   if (opts.onend) u.onend = opts.onend;
   synth.speak(u);
+  // Chrome às vezes ignora o primeiro speak() — um resume extra ajuda.
+  resumeSpeechSynthesis();
 }
 
 export function stopSpeaking(): void {
   if (isTTSAvailable()) window.speechSynthesis.cancel();
 }
 
+function autoSpeakDelayMs(requested?: number): number {
+  if (requested != null) return requested;
+  return Date.now() - lastUserGestureAt < 2500 ? 0 : 120;
+}
+
 /**
  * Agenda fala automática ao montar/trocar conteúdo. Retorna cleanup que cancela
- * o timer e a reprodução em andamento.
+ * o timer pendente (sem interromper fala já iniciada por outro componente).
  */
 export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?: number } = {}): () => void {
   const clean = String(text ?? "").trim();
   if (!clean) return () => {};
   let cancelled = false;
-  const delayMs = opts.delayMs ?? 160;
+  const delayMs = autoSpeakDelayMs(opts.delayMs);
   const { delayMs: _delay, ...speakOpts } = opts;
   const timer = window.setTimeout(() => {
     void warmUpVoices().then(() => {
@@ -96,7 +129,6 @@ export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?:
   return () => {
     cancelled = true;
     window.clearTimeout(timer);
-    stopSpeaking();
   };
 }
 

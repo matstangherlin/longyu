@@ -16,6 +16,8 @@ import { IconCheck, IconChevron, IconX } from "../../components/ui/Icon";
 import { isConversationV2Enabled } from "../../lib/featureFlags";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
+import { speak, noteUserGesture } from "../../lib/tts";
+import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import {
   KeyboardShortcutHint,
   ShortcutBadge,
@@ -111,19 +113,40 @@ function variantVisibility(level: ConversationVariantLevel | undefined) {
   }
 }
 
+function conversationLineAudio(line: Pick<ConversationLine, "audioText" | "hanzi"> | undefined): string {
+  return String(line?.audioText ?? line?.hanzi ?? "").trim();
+}
+
+function speakConversationLine(line: Pick<ConversationLine, "audioText" | "hanzi"> | undefined): void {
+  const audio = conversationLineAudio(line);
+  if (!audio) return;
+  noteUserGesture();
+  const { slowAudio, ttsRate } = useStore.getState();
+  speak(audio, { rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate });
+}
+
 function SpeechBubble({
   line,
   side,
   visible,
   variantLevel,
+  autoSpeak = true,
 }: {
   line: ConversationLine;
   side: "left" | "right";
   visible: boolean;
   variantLevel?: ConversationVariantLevel;
+  /** false quando o pai já disparou o áudio no gesto do usuário (evita duplicar). */
+  autoSpeak?: boolean;
 }) {
   const audio = line.audioText ?? line.hanzi;
+  const slowAudio = useStore((s) => s.slowAudio);
+  const ttsRate = useStore((s) => s.ttsRate);
   const { showPinyin, showPt, audioFirst } = variantVisibility(variantLevel);
+  useAutoSpeak(visible && autoSpeak ? audio : undefined, visible && autoSpeak, {
+    rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
+    delayMs: 0,
+  });
   // audio_first: o texto começa oculto atrás de um botão de revelar (o áudio
   // fica em destaque). Reseta quando a fala muda.
   const [revealed, setRevealed] = useState(!audioFirst);
@@ -169,7 +192,7 @@ function SpeechBubble({
               </>
             )}
           </div>
-          <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" autoPlay />
+          <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" />
         </div>
       </div>
     </div>
@@ -678,6 +701,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const [hint, setHint] = useState<string | null>(null);
   const hadMistakeRef = useRef(false);
   const transitionsRef = useRef(0);
+  const skipAutoSpeakRef = useRef(false);
 
   useEffect(() => {
     setNodeId(entryNodeId);
@@ -686,7 +710,12 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     setHint(null);
     hadMistakeRef.current = false;
     transitionsRef.current = 0;
+    skipAutoSpeakRef.current = false;
   }, [step.sceneId, entryNodeId]);
+
+  useEffect(() => {
+    skipAutoSpeakRef.current = false;
+  }, [nodeId, spokenCount]);
 
   const node = nodeById.get(nodeId) ?? nodes[0];
   const left = characters.find((c) => c.side === "left") ?? characters[0];
@@ -696,12 +725,16 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     onDone(!hadMistakeRef.current);
   }
 
-  function goTo(targetId: string | undefined) {
+  function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
     transitionsRef.current += 1;
     // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
     if (!targetId || !nodeById.has(targetId) || transitionsRef.current > 60) {
       finish();
       return;
+    }
+    if (speakTarget) {
+      skipAutoSpeakRef.current = true;
+      speakConversationLine(speakTarget);
     }
     setNodeId(targetId);
     setAnswering(false);
@@ -709,13 +742,14 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   }
 
   function advance() {
+    noteUserGesture();
     if (node?.interaction) {
       setAnswering(true);
       return;
     }
     if (node?.nextNodeId) {
       setHint(null);
-      goTo(node.nextNodeId);
+      goTo(node.nextNodeId, nodeById.get(node.nextNodeId));
       return;
     }
     finish();
@@ -776,6 +810,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
           visible
           variantLevel={step.conversationVariantLevel}
+          autoSpeak={!skipAutoSpeakRef.current}
         />
 
         {hint && !answering && (
@@ -799,13 +834,15 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
             interaction={node.interaction}
             onCorrect={() => {
               setHint(null);
-              goTo(node.interaction!.correctNextNodeId);
+              const nextId = node.interaction!.correctNextNodeId;
+              goTo(nextId, nodeById.get(nextId));
             }}
             onWrongBranch={
               node.interaction.wrongNextNodeId
                 ? () => {
                     setHint(node.interaction!.explanation ?? null);
-                    goTo(node.interaction!.wrongNextNodeId);
+                    const nextId = node.interaction!.wrongNextNodeId!;
+                    goTo(nextId, nodeById.get(nextId));
                   }
                 : undefined
             }
@@ -836,11 +873,17 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const checkpoint = step.checkpoint;
   const [lineIndex, setLineIndex] = useState(0);
   const [phase, setPhase] = useState<"dialogue" | "checkpoint" | "done">("dialogue");
+  const skipAutoSpeakRef = useRef(false);
 
   useEffect(() => {
     setLineIndex(0);
     setPhase("dialogue");
+    skipAutoSpeakRef.current = false;
   }, [step.sceneId, step.title]);
+
+  useEffect(() => {
+    skipAutoSpeakRef.current = false;
+  }, [lineIndex]);
 
   const currentLine = lines[Math.min(lineIndex, Math.max(lines.length - 1, 0))];
   const activeSpeakerId = currentLine?.speakerId;
@@ -848,7 +891,11 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const right = characters.find((c) => c.side === "right") ?? characters[1];
 
   function advanceDialogue() {
+    noteUserGesture();
     if (lineIndex < lines.length - 1) {
+      const nextLine = lines[lineIndex + 1];
+      skipAutoSpeakRef.current = true;
+      speakConversationLine(nextLine);
       setLineIndex((index) => index + 1);
       return;
     }
@@ -906,6 +953,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
             side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
             visible
             variantLevel={step.conversationVariantLevel}
+            autoSpeak={!skipAutoSpeakRef.current}
           />
         )}
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { scheduleAutoSpeak, speak } from "../../lib/tts";
+import { scheduleAutoSpeak, speak, noteUserGesture } from "../../lib/tts";
 import { useStore } from "../../lib/store";
 import { IconSound } from "./Icon";
 
@@ -32,6 +32,7 @@ export function SpeakButton({
   function play() {
     const clean = String(text ?? "").trim();
     if (!clean) return;
+    noteUserGesture();
     setPlaying(true);
     recordDailyTask("audioHeard");
     speak(clean, {
