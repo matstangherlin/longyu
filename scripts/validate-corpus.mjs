@@ -60,6 +60,13 @@ try {
   } else {
     console.log(`\nOK: corpus validado sem erros (${report.warnings.length} aviso(s)).`);
   }
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
 } finally {
   await rm(outDir, { recursive: true, force: true });
+}
+
+if (process.exitCode && process.exitCode !== 0) {
+  process.exit(process.exitCode);
 }

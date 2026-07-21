@@ -1,6 +1,6 @@
 # Roadmap Backend Longyu
 
-> **Status (jul/2026):** Fases 0–3 implementadas (auth, sync, Edge Functions, RLS). Fase 4 (economia no servidor) e Fase 5 (Stripe live) pendentes. Checklist operacional: [`docs/DEPLOY_CHECKLIST.md`](docs/DEPLOY_CHECKLIST.md).
+> **Status (jul/2026):** Fases 0–3 implementadas (auth, sync, Edge Functions, RLS). Secrets/webhook Stripe e Edge Functions de checkout estão no projeto (ver [`docs/DEPLOY_CHECKLIST.md`](docs/DEPLOY_CHECKLIST.md)). Fase 4 (economia 100% autoritativa no servidor) ainda pendente. Fase 5: validação **Stripe Test Mode live** e endurecimento operacional ainda pendentes (testes locais de webhook/entitlements já existem). Auditoria beta: [`docs/BETA_READINESS_AUDIT.md`](docs/BETA_READINESS_AUDIT.md).
 
 Objetivo: preparar o Longyu para conta real, sincronizacao, assinatura Pro e pagamento sem quebrar o MVP local atual.
 

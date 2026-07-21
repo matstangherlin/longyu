@@ -4,7 +4,7 @@ Longyu é um app para brasileiros estudarem mandarim com foco em som, pinyin, to
 
 **Modo padrão:** progresso local no navegador (`localStorage`).
 
-**Com Supabase configurado** (`VITE_BACKEND_MODE=supabase`): conta com email/senha, sessão persistente, sincronização automática do progresso na nuvem e base para assinatura Pro via Stripe (Edge Functions já publicadas; secrets do Stripe são o próximo passo).
+**Com Supabase configurado** (`VITE_BACKEND_MODE=supabase`): conta com email/senha, sessão persistente, sincronização automática do progresso na nuvem e assinatura Pro via Stripe (Edge Functions publicadas; secrets/webhook configurados no projeto — validação live em Test Mode ainda é pendência operacional; ver [`docs/SUBSCRIPTION_E2E_REPORT.md`](docs/SUBSCRIPTION_E2E_REPORT.md)).
 
 ## Requisitos
 
@@ -63,7 +63,7 @@ Antes de validar um deploy, teste como o Netlify faria:
 
 ```bash
 rm -rf node_modules dist
-npm install
+npm ci
 npm run validate:beta
 npm run build
 ```
@@ -72,12 +72,14 @@ No Windows (PowerShell):
 
 ```powershell
 Remove-Item -Recurse -Force node_modules, dist -ErrorAction SilentlyContinue
-npm install
+npm ci
 npm run validate:beta
 npm run build
 ```
 
-`validate:beta` roda typecheck e todos os validadores de conteúdo/encoding. Nunca versione `node_modules/`. Nunca versione `dist/` quando o Netlify vai gerar o build. Nunca coloque `.git/` dentro de ZIPs de entrega. Nunca coloque ZIPs na raiz do projeto ou no repositório. Use sempre uma instalação limpa com `npm install` para confirmar que `package-lock.json` e `package.json` bastam para reconstruir o app.
+`validate:beta` roda typecheck e todos os validadores de conteúdo/encoding. Nunca versione `node_modules/`. Nunca versione `dist/` quando o Netlify vai gerar o build. Nunca coloque `.git/` dentro de ZIPs de entrega. Nunca coloque ZIPs na raiz do projeto ou no repositório. Use sempre uma instalação limpa com `npm ci` (ou `npm install`) para confirmar que `package-lock.json` e `package.json` bastam para reconstruir o app.
+
+Prontidão da beta: [`docs/BETA_READINESS_AUDIT.md`](docs/BETA_READINESS_AUDIT.md) · checklist: [`docs/BETA_RELEASE_CHECKLIST.md`](docs/BETA_RELEASE_CHECKLIST.md).
 
 Se aparecer erro do Rollup (`Cannot find module @rollup/rollup-linux-x64-gnu`), `tsc: Permission denied` ou `vite: Permission denied`, não reutilize `node_modules` de ZIP. Apague `node_modules`, rode `npm install` de novo e deixe o npm instalar os `optionalDependencies` da plataforma. O `netlify.toml` usa `npm ci` e o build chama TypeScript/Vite via `node` (scripts em `scripts/`) para evitar binários sem permissão de execução no Linux.
 
@@ -170,7 +172,8 @@ Roadmap detalhado: [`ROADMAP_BACKEND.md`](ROADMAP_BACKEND.md).
 |------|--------|
 | Auth + sync de progresso | ✅ |
 | Edge Functions (checkout, webhook, LGPD) | ✅ publicadas |
-| Stripe live | ⬜ secrets + webhook |
+| Stripe secrets + webhook | ✅ configurados (ver `docs/DEPLOY_CHECKLIST.md`) |
+| Stripe Test Mode E2E live | ⬜ runbook em `docs/SUBSCRIPTION_E2E_REPORT.md` |
 | Economia autoritativa no servidor | ⬜ planejado |
 
 Comandos:

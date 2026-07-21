@@ -1,43 +1,63 @@
 # Longyu — Relatório de release `0.2.0-beta.1`
 
-**Data (UTC):** 2026-07-18  
-**Branch:** `cursor/beta-public-prep-fbab`  
+**Data (UTC):** 2026-07-21  
+**Commit base auditado:** `7d12997` (+ correções de corpus da auditoria)  
+**Branch da auditoria:** `cursor/beta-readiness-audit-0157`  
 **Versão:** `0.2.0-beta.1`  
-**Ambiente alvo:** Production Beta (`VITE_APP_ENV=production_beta`)
+**Ambiente alvo:** Production Beta (`VITE_APP_ENV=production_beta`)  
+**Auditoria completa:** [`BETA_READINESS_AUDIT.md`](./BETA_READINESS_AUDIT.md)
 
 ## Veredito
 
-**PRONTO para publicar a beta pública**, com os critérios automatizados abaixo em verde.
+**NO-GO** para anunciar a beta pública como pronta.
+
+Motivo: critérios automatizados de conteúdo/build locais estão fortes, mas **CI GitHub está inoperante (billing)**, **E2E WebKit falhou no offline PWA**, e a **RPC `submit_beta_pedagogy_event` está ausente** no Supabase remoto. Detalhes e percentuais: auditoria completa.
+
+Percentual geral desta rodada: **78%**.
 
 ## Critérios de publicação
 
 | # | Critério | Resultado | Evidência |
 |---|---|---|---|
-| 1 | `validate:beta` | ✅ | Typecheck + validadores pedagógicos + entitlements + app-environment |
-| 2 | `build` | ✅ | `npm run build` → `dist/` |
-| 3 | Testes E2E | ✅ | `39 passed` (`smoke` + `pedagogy` + `beta-smoke`) |
-| 4 | Nenhuma lição comum &lt; 60 | ✅ | `validate:exercise-depth -- --beta` — portão OK (média 91) |
-| 5 | Nenhuma revisão &lt; 70 | ✅ | Mesmo validador (fail review = 70) |
-| 6 | Feedback chega ao banco | ✅ | `npm run verify:beta-feedback` — `submit_beta_feedback` retornou id |
-| 7 | Pro expira corretamente | ✅ | `npm run test:entitlements` (trial/cancel/past_due) |
-| 8 | Nenhum segredo no frontend | ✅ | `npm run validate:frontend-secrets` |
-| 9 | Mobile 360 px | ✅ | Suíte e2e `mobile` / `beta smoke — mobile 360` |
-| 10 | Relatório salvo | ✅ | Este arquivo |
+| 1 | `validate:beta` | ✅ executado | Typecheck + cadeia pedagógica + economy + entitlements + privacy |
+| 2 | `build` | ✅ executado | `npm run build` → `dist/` + PWA |
+| 3 | Testes E2E Chromium | ✅ executado | `89 passed`, 2 skipped (`test:e2e`) |
+| 3b | E2E Firefox | ✅ executado | `56 passed`, 3 skipped |
+| 3c | E2E WebKit | ❌ executado | `61 passed`, **2 failed** (offline PWA) |
+| 4 | Nenhuma lição comum &lt; 60 | ✅ | `validate:exercise-depth -- --beta` — média 91 |
+| 5 | Nenhuma revisão &lt; 70 | ✅ | Mesmo validador |
+| 6 | Feedback chega ao banco | ⚠️ parcial | `submit_beta_feedback` ok; `submit_beta_pedagogy_event` **ausente** |
+| 7 | Pro expira corretamente | ✅ | `test:entitlements` + `test:subscription-webhook` |
+| 8 | Nenhum segredo no frontend | ✅ | `validate:frontend-secrets` |
+| 9 | Mobile 360 px | ✅ Chromium | Suite e2e mobile; WebKit offline falhou |
+| 10 | Relatório salvo | ✅ | Este arquivo + `BETA_READINESS_AUDIT.md` |
+| 11 | CI verde | ❌ operacional | GitHub Actions blocked by spending/billing |
+| 12 | Stripe Test Mode live | ❌ não executado | Sem credenciais Stripe neste ambiente |
 
-## O que entrou nesta preparação
+## Instalação limpa desta rodada
 
-- Versionamento `0.2.0-beta.1` na UI (Sobre, landing, feedback, admin)
-- Ambientes **Development / Preview / Production Beta** com guardrails Netlify
-- Feature flags de rollback (`CONVERSATION_V2`, `TELEMETRY`, `BETA_FEEDBACK`)
-- Aviso discreto de beta (landing + Sobre)
-- Smoke E2E ampliado (`e2e/beta-smoke.spec.ts`)
-- Checklist + rollback em `docs/BETA_RELEASE_CHECKLIST.md`
-- Correção: `useExerciseHotkeys` na Revisão não pode ficar depois de early returns (React #300)
-- Correção: `EntitlementBootstrap` não zera `serverIsPro` sem sessão cloud
+```bash
+rm -rf node_modules dist
+npm ci
+npm run validate:beta
+npm run build
+npm run validate:frontend-secrets
+CI=true npm run test:e2e
+CI=true npm run test:e2e:firefox
+CI=true npm run test:e2e:webkit   # falhou: offline PWA
+npm run test:subscription-webhook
+npm run test:economy-server
+npm run validate:sync-merge
+npm run validate:conversation-loop
+npm run validate:conversation-vocabulary-srs
+npm run verify:beta-feedback      # parcial
+```
 
-## Funcionalidades mantidas
+## Correções feitas na auditoria
 
-Todas as funcionalidades atuais permanecem: jornada, Hànzì Builder, imagens reais, conversation_scene V2, revisão, paywall, feedback Supabase, sync, ligas, etc.
+- Catálogo: caracteres `多`, `少`, `饿` em `CHARACTERS`
+- Jornada: distractores sem antecipar `多少钱` em `l24`/`l26b`; `饿` declarado em `l26b`
+- `validate-corpus.mjs`: exit code duro em erro (antes podia mascarar falha)
 
 ## Rollback rápido (resumo)
 
@@ -47,18 +67,18 @@ Ver `docs/BETA_RELEASE_CHECKLIST.md`:
 2. Flags: `VITE_ENABLE_CONVERSATION_V2=false`, `VITE_ENABLE_TELEMETRY=false`, `VITE_ENABLE_BETA_FEEDBACK=false`  
 3. Progresso do usuário permanece (localStorage + snapshot Supabase)
 
-## Comandos executados
+## Pendências manuais (explícitas)
 
-```bash
-npm run validate:beta
-npm run build
-npm run validate:frontend-secrets
-CI=true npx playwright test   # 39 passed
-npm run verify:beta-feedback
-npm run test:entitlements
-```
+- [ ] Restaurar billing / spending limit do GitHub Actions  
+- [ ] Aplicar migrações de pedagogia no Supabase (`submit_beta_pedagogy_event`)  
+- [ ] Reexecutar E2E WebKit após deps/CI (ou aceitar job informativo com falha conhecida documentada)  
+- [ ] Stripe Test Mode (runbook em `SUBSCRIPTION_E2E_REPORT.md`)  
+- [ ] Smoke iOS Safari + Android Chrome reais / PWA standalone  
+- [ ] Confirmar variáveis Netlify production no painel  
 
-## Pendências manuais (não bloqueiam o GO automatizado)
+## Próxima remessa recomendada
 
-- Smoke visual em dispositivo iOS Safari / Chrome Android reais antes do anúncio amplo
-- Confirmar deploy Netlify production com `VITE_APP_ENV=production_beta` e flags de preview/fixtures em `false`
+1. Operacional: CI + RPC pedagogia  
+2. Produto: review/merge #43 (player longo) e #39 (migrations Preview)  
+3. Limpeza: fechar PRs obsoletas (`OPEN_PRS_CLASSIFICATION.md`)  
+4. Só então reavaliar GO

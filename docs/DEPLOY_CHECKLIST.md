@@ -50,13 +50,12 @@ npm run validate:beta
 npm run ci
 ```
 
-## Próximo marco (Fase 5 — Stripe)
+## Próximo marco (operacional)
 
-1. `supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_PRO_MONTHLY=... STRIPE_PRICE_PRO_ANNUAL=...`
-2. Webhook no Stripe Dashboard → `https://<ref>.supabase.co/functions/v1/stripe-webhook`
-3. Prices no Stripe:
-   - mensal: `R$ 24,90/mês`
-   - anual: `R$ 120/ano` (apresentado como `R$ 10/mês`, com desconto)
-   - ambos com `30 dias grátis`
-4. Checkout de teste em `/pro` com cartão `4242…`
-5. Confirmar `serverIsPro` após webhook
+Stripe secrets + webhook + prices já estão marcados ✅ acima. Pendências reais:
+
+1. Rodar runbook Stripe Test Mode (`docs/SUBSCRIPTION_E2E_REPORT.md`) com cartão `4242…` e confirmar `serverIsPro`
+2. Aplicar/verificar migrações de pedagogia no remoto (`submit_beta_pedagogy_event` — falhou em `verify:beta-feedback` na auditoria 2026-07-21)
+3. Restaurar CI GitHub Actions (billing/spending limit)
+4. PWA em device real (iOS Safari + Android Chrome)
+5. Fase 4: Qi/Cargas autoritativos no servidor (ainda ⬜ na tabela App)

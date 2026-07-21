@@ -1,5 +1,7 @@
 # Longyu — Checklist da beta pública `0.2.0-beta.1`
 
+Atualizado na auditoria de 2026-07-21. Itens só ficam marcados com evidência desta rodada ou de produção já documentada. Ver [`BETA_READINESS_AUDIT.md`](./BETA_READINESS_AUDIT.md).
+
 ## Ambientes
 
 | Ambiente | Como identificar | Uso |
@@ -10,62 +12,68 @@
 
 ### Guardrails obrigatórios
 
-- [ ] `VITE_ALLOW_PRO_PREVIEW` **não** é `true` em Production Beta
-- [ ] `VITE_USE_TEST_FIXTURES` **não** é `true` em Production Beta
-- [ ] Deploy Preview usa `VITE_APP_ENV=preview` (nunca `production_beta`)
-- [ ] Conta QA `teste@longyu.app` tem Pro só para si (não concede a outros)
-- [ ] Nenhum `service_role` / `sk_live` / `whsec_` em variável `VITE_*`
-- [ ] Scripts `seed:test-account` só rodam localmente (nunca no build)
+- [x] `VITE_ALLOW_PRO_PREVIEW` **não** é `true` em Production Beta — evidência: `netlify.toml` `[context.production]` = `"false"`; `validate:app-environment` OK
+- [x] `VITE_USE_TEST_FIXTURES` **não** é `true` em Production Beta — evidência: `netlify.toml` = `"false"`
+- [x] Deploy Preview usa `VITE_APP_ENV=preview` (nunca `production_beta`) — evidência: `netlify.toml` `[context.deploy-preview]`
+- [ ] Conta QA `teste@longyu.app` tem Pro só para si (não concede a outros) — **pendente operacional** (não revalidado nesta rodada)
+- [x] Nenhum `service_role` / `sk_live` / `whsec_` em variável `VITE_*` — evidência: `validate:frontend-secrets` no `dist/`
+- [x] Scripts `seed:test-account` só rodam localmente (nunca no build) — evidência: código/scripts; build não invoca seed
 
 ## Versionamento na UI
 
-- [ ] Sobre mostra `v0.2.0-beta.1`
-- [ ] Rodapé da landing mostra versão
-- [ ] Modal de feedback mostra versão
-- [ ] Painel `/admin/feedback` mostra ambiente + versão
+- [x] Sobre mostra `v0.2.0-beta.1` — e2e `beta-smoke` (sobre: versão)
+- [x] Rodapé da landing mostra versão — e2e + código
+- [x] Modal de feedback mostra versão — e2e feedback modal
+- [ ] Painel `/admin/feedback` mostra ambiente + versão — **não revalidado** nesta rodada (requer admin)
 
 ## Comunicação
 
-- [ ] Aviso discreto na landing e em Sobre:
-  > O Longyu está em beta. Algumas atividades ainda estão sendo aprimoradas. Seu feedback ajuda a construir o curso.
-- [ ] Aviso **não** aparece em todas as telas (jornada, player, etc.)
+- [x] Aviso discreto na landing e em Sobre (copy de beta) — e2e beta-smoke
+- [x] Aviso **não** aparece em todas as telas (jornada, player, etc.) — e2e / inspeção de rotas
 
 ## Smoke tests (E2E)
 
-Cobertura em `e2e/smoke.spec.ts` + `e2e/beta-smoke.spec.ts` + `e2e/pedagogy.spec.ts`:
+Cobertura em `e2e/smoke.spec.ts` + `e2e/beta-smoke.spec.ts` + `e2e/pedagogy.spec.ts` (+ mobile-device):
 
-- [ ] Tela inicial (landing)
-- [ ] Cadastro (`/conta`)
-- [ ] Login (`/login`)
-- [ ] Recuperação de senha (`/esqueci-senha`)
-- [ ] Teste de nível (onboarding em `/conta`)
-- [ ] Primeira lição
-- [ ] Erro e correção (revisão Pro)
-- [ ] Hànzì Builder
-- [ ] Imagem real
-- [ ] `conversation_scene`
-- [ ] Conclusão da lição
-- [ ] Sincronização (copy de progresso / conta)
-- [ ] Revisão
-- [ ] Paywall (`/pro`, sem Pro Preview)
-- [ ] Fim do Pro (entitlements / trial expirado — `test:entitlements`)
-- [ ] Envio de feedback (modal abre)
-- [ ] Mobile 360×640
+- [x] Tela inicial (landing)
+- [x] Cadastro (`/conta`)
+- [x] Login (`/login`)
+- [x] Recuperação de senha (`/esqueci-senha`)
+- [x] Teste de nível (onboarding em `/conta`)
+- [x] Primeira lição
+- [x] Erro e correção (revisão Pro)
+- [x] Hànzì Builder
+- [x] Imagem real
+- [x] `conversation_scene`
+- [x] Conclusão da lição
+- [x] Sincronização (copy de progresso / conta)
+- [x] Revisão
+- [x] Paywall (`/pro`, sem Pro Preview)
+- [x] Fim do Pro (entitlements / trial — `test:entitlements`)
+- [x] Envio de feedback (modal abre)
+- [x] Mobile 360×640 (Chromium)
+- [ ] Mobile WebKit offline PWA — **falhou** nesta rodada
+- [ ] Device real iOS/Android — **pendente**
 
 ## Critérios para publicar
 
 Só considerar pronto quando **todos** passarem:
 
-1. `npm run validate:beta`
-2. `npm run build`
-3. `npm run test:e2e`
-4. Nenhuma lição comum abaixo de 60 (`validate:exercise-depth -- --beta`)
-5. Nenhuma revisão de módulo abaixo de 70
-6. Feedback chega ao banco (`npm run verify:beta-feedback` no ambiente com Supabase)
-7. Pro expira corretamente (`npm run test:entitlements`)
-8. Nenhum segredo no frontend (`npm run validate:frontend-secrets` após build)
-9. Mobile funciona em 360 px (suite e2e mobile)
-10. Relatório salvo em `docs/BETA_0.2.0_RELEASE_REPORT.md`
+1. [x] `npm run validate:beta` — executado OK (após correção corpus)
+2. [x] `npm run build` — OK
+3. [x] `npm run test:e2e` — 89 passed (Chromium suite)
+4. [x] Nenhuma lição comum abaixo de 60 (`validate:exercise-depth -- --beta`)
+5. [x] Nenhuma revisão de módulo abaixo de 70
+6. [ ] Feedback completo no banco (`verify:beta-feedback`) — feedback OK; **pedagogy RPC ausente**
+7. [x] Pro expira corretamente (`test:entitlements`)
+8. [x] Nenhum segredo no frontend (`validate:frontend-secrets` após build)
+9. [x] Mobile funciona em 360 px (suite e2e Chromium)
+10. [x] Relatório salvo em `docs/BETA_0.2.0_RELEASE_REPORT.md`
+11. [ ] CI GitHub Actions verde — **bloqueado por billing**
+12. [ ] E2E WebKit verde — **2 falhas offline**
+13. [ ] Stripe Test Mode live — **sem credenciais nesta rodada**
+
+**Estado agregado:** NO-GO (ver relatório de release).
 
 ## Rollback (sem apagar progresso)
 
@@ -116,10 +124,13 @@ Além do consentimento do usuário em Configurações. Eventos enfileirados para
 ## Comandos úteis
 
 ```bash
+rm -rf node_modules dist && npm ci
 npm run validate:beta
 npm run build
 npm run validate:frontend-secrets
 npm run test:e2e
+npm run test:e2e:firefox
+npm run test:e2e:webkit
 npm run test:entitlements
 npm run verify:beta-feedback   # requer env Supabase
 ```

@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f8135bd4b2bee243b622480bf2fc0cb1f6b05d89 |
+| Commit | 7d12997ce4ff06d230e9c7fcf438c9447459f2dc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T22:30:41.795Z |
+| Gerado em | 2026-07-21T23:43:39.415Z |
 | Lições | 110 |
-| Hash da Jornada | 889271f39a22 |
+| Hash da Jornada | 0d386a6a9c15 |
 
 ## Resumo
 
@@ -2231,4 +2231,4 @@
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:00b9fa6a858d5648 -->
+<!-- integridade:00ec4053fda9c47f -->

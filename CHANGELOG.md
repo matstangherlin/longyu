@@ -7,6 +7,13 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Auditoria de prontidão beta (2026-07-21)
+
+- Instalação limpa + `validate:beta` + build + E2E Chromium/Firefox; WebKit falhou no offline PWA.
+- Correção de corpus: caracteres `多`/`少`/`饿` no catálogo; distractores sem antecipar preço; exit duro em `validate-corpus`.
+- Relatórios/checklist/release atualizados; classificação de PRs abertas sem fechamento automático.
+- Veredito: **NO-GO** (78%) — ver `docs/BETA_READINESS_AUDIT.md`.
+
 ### Conversation Vocabulary Loop → SRS
 
 - Ao concluir (ou abandonar) uma conversa, o manifesto de vocabulário entra na

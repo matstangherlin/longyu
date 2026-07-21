@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f8135bd4b2bee243b622480bf2fc0cb1f6b05d89 |
+| Commit | 7d12997ce4ff06d230e9c7fcf438c9447459f2dc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T22:30:46.745Z |
+| Gerado em | 2026-07-21T23:43:44.287Z |
 | Lições | 110 |
-| Hash da Jornada | 889271f39a22 |
+| Hash da Jornada | 0d386a6a9c15 |
 
 ## Resumo
 
@@ -144,4 +144,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:13fd68c8a119a5f7 -->
+<!-- integridade:e01dbb6056b5a968 -->
