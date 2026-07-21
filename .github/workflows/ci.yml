@@ -37,6 +37,7 @@ jobs:
             reports/exercise-depth-report.md
             reports/image-coverage-report.md
             reports/conversation-coverage-report.md
+            reports/conversation-pedagogy-report.md
             reports/lesson-novelty-report.md
           if-no-files-found: error
 
