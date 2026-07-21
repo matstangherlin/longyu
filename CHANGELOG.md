@@ -7,6 +7,11 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Conversa: áudio automático ao avançar
+
+- Nas cenas de conversa, cada fala toca sozinha ao aparecer (Continuar /
+  Responder / abertura da cena). O botão de áudio permanece para ouvir de novo.
+
 ### Catálogo de conversas V2 expandido
 
 - **Todas as 33 cenas** do catálogo passam a ser V2 (nós + ramificação), com

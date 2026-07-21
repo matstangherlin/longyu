@@ -169,7 +169,7 @@ function SpeechBubble({
               </>
             )}
           </div>
-          <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" />
+          <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" autoPlay />
         </div>
       </div>
     </div>
