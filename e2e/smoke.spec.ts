@@ -123,6 +123,35 @@ test.describe("smoke", () => {
 test.describe("mobile", () => {
   test.use({ viewport: { width: 360, height: 640 } });
 
+  test("landing mantém hierarquia e CTAs acessíveis em 360px", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("landing-hero")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Começar agora" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Já tenho uma conta" })).toBeVisible();
+
+    const layout = await page.evaluate(() => {
+      const heading = document.querySelector("h1");
+      const primary = Array.from(document.querySelectorAll("button")).find((button) =>
+        button.textContent?.includes("Começar agora")
+      );
+      const secondary = Array.from(document.querySelectorAll("button")).find((button) =>
+        button.textContent?.includes("Já tenho uma conta")
+      );
+      const lineHeight = heading ? Number.parseFloat(getComputedStyle(heading).lineHeight) : 1;
+      return {
+        overflow: document.documentElement.scrollWidth > window.innerWidth,
+        headingLines: heading ? Math.round(heading.getBoundingClientRect().height / lineHeight) : 99,
+        primaryBottom: primary?.getBoundingClientRect().bottom ?? 9999,
+        secondaryBottom: secondary?.getBoundingClientRect().bottom ?? 9999,
+      };
+    });
+
+    expect(layout.overflow).toBe(false);
+    expect(layout.headingLines).toBeLessThanOrEqual(3);
+    expect(layout.primaryBottom).toBeLessThanOrEqual(640);
+    expect(layout.secondaryBottom).toBeLessThanOrEqual(640);
+  });
+
   test("jornada renderiza em 360px", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/jornada");
