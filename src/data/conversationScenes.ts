@@ -497,7 +497,7 @@ export interface ConversationSceneSelectionContext {
   /** Refs (chunk:/char:) de erro recente do aluno (para +20 trabalha erro). */
   recentErrorRefs?: ReadonlySet<string>;
   /**
-   * Cenas com erro/abandono recente. A mesma cena NÃO deve voltar só porque
+   * Cenas com erro/abandono recente. A mesma cena não deve voltar só porque
    * houve erro — primeiro revisa o conteúdo no SRS; a intenção reabre noutro
    * cenário.
    */
@@ -635,7 +635,7 @@ export function scoreConversationScene(
   // +15: cenário pouco utilizado.
   if (context.settingUsageCount && (context.settingUsageCount.get(scene.setting) ?? 0) <= 1) score += 15;
   // +20: trabalha um erro recente do aluno (revisa o chunk/intenção errado) —
-  // mas NÃO na mesma cena que acabou de falhar (conteúdo vai ao SRS primeiro;
+  // mas não na mesma cena que acabou de falhar (conteúdo vai ao SRS primeiro;
   // a intenção reabre noutro cenário).
   const mistakeScenes = context.recentMistakeSceneIds ?? [];
   if (mistakeScenes.includes(scene.sceneId)) {
