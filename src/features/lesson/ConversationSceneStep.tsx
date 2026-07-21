@@ -690,7 +690,7 @@ function InteractionPanel({
 // V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
 // personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
-function ConversationSceneV2({ step, onDone, onSkip, onMistake }: StepProps) {
+function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const characters = step.characters ?? [];
   const nodes = (step.nodes ?? []) as ConversationNode[];
   const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.sceneId]);
@@ -700,6 +700,7 @@ function ConversationSceneV2({ step, onDone, onSkip, onMistake }: StepProps) {
   const [spokenCount, setSpokenCount] = useState(1);
   const [hint, setHint] = useState<string | null>(null);
   const hadMistakeRef = useRef(false);
+  const mistakeCountRef = useRef(0);
   const transitionsRef = useRef(0);
   const skipAutoSpeakRef = useRef(false);
 
@@ -709,6 +710,7 @@ function ConversationSceneV2({ step, onDone, onSkip, onMistake }: StepProps) {
     setSpokenCount(1);
     setHint(null);
     hadMistakeRef.current = false;
+    mistakeCountRef.current = 0;
     transitionsRef.current = 0;
     skipAutoSpeakRef.current = false;
   }, [step.sceneId, entryNodeId]);
@@ -722,7 +724,8 @@ function ConversationSceneV2({ step, onDone, onSkip, onMistake }: StepProps) {
   const right = characters.find((c) => c.side === "right") ?? characters[1];
 
   function finish() {
-    onDone(!hadMistakeRef.current);
+    const attempts = Math.max(1, mistakeCountRef.current + 1);
+    onDone(!hadMistakeRef.current, { attempts });
   }
 
   function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
@@ -847,8 +850,10 @@ function ConversationSceneV2({ step, onDone, onSkip, onMistake }: StepProps) {
                 : undefined
             }
             onLocalMistake={() => {
+              // Não chama onMistake do player: isso abriria o modal de retry e
+              // quebraria o fluxo V2 (o erro já tem ramo próprio na cena).
               hadMistakeRef.current = true;
-              onMistake?.();
+              mistakeCountRef.current += 1;
             }}
             onSkip={onSkip}
           />

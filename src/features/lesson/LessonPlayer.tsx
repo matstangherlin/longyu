@@ -427,6 +427,17 @@ function textReviewTargets(text: string | undefined, domain: ReviewDomain, track
   return targets;
 }
 
+/** Prefer chunk como unidade pedagógica; só cai em chars soltos se não houver chunk. */
+function pedagogicalTextTargets(
+  text: string | undefined,
+  domain: ReviewDomain,
+  track: Track
+): LessonReviewTarget[] {
+  const chunk = findChunkByText(text);
+  if (chunk) return [{ type: "chunk", itemId: chunk.id, domain, track }];
+  return charsInText(text).map((char) => ({ type: "char" as const, itemId: char.id, domain, track }));
+}
+
 function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTarget[] {
   const targets: LessonReviewTarget[] = [];
   const addText = (text: string | undefined, domain: ReviewDomain, sourceTrack: Track = track) => {
@@ -488,10 +499,14 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
   }
   if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
     const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
-    addText(text, "uso");
-    addText(text, "fala");
     if (step.kind === "conversation_scene") {
-      for (const line of step.lines ?? []) addText(line.hanzi, "uso");
+      // Não lotar com cada linha da cena — resposta principal / chunk basta;
+      // o loop → SRS cobre o restante com dedupe.
+      targets.push(...pedagogicalTextTargets(text, "uso", track));
+      targets.push(...pedagogicalTextTargets(text, "fala", track));
+    } else {
+      addText(text, "uso");
+      addText(text, "fala");
     }
   }
   if (step.kind === "fill_blank") {
@@ -1550,21 +1565,22 @@ export function LessonPlayer() {
   ) {
     if (step.kind !== "conversation_scene" || !step.sceneId) return;
     if (conversationSrsRegisteredRef.current.has(step.sceneId) && result !== "abandoned") return;
-    const manifest = manifestFromConversationStep(step);
-    if (!manifest) return;
 
+    const assistanceLevel = step.conversationVariantLevel ?? "guided";
+    const setting = step.setting ?? conversationSceneById[step.sceneId]?.setting;
+    const manifest = manifestFromConversationStep(step);
     const explicitErrorRefs = conversationErrorTargetsRef.current.map(
       (target) => `${target.type}:${target.itemId}`
     );
-    const errorRefs = resolveConversationErrorRefs(manifest, result, explicitErrorRefs);
-    const assistanceLevel = step.conversationVariantLevel ?? "guided";
-    const setting =
-      step.setting ?? conversationSceneById[step.sceneId]?.setting;
+    const errorRefs = manifest
+      ? resolveConversationErrorRefs(manifest, result, explicitErrorRefs)
+      : explicitErrorRefs;
     const mainAnswer =
-      manifest.expectedAnswers.find((answer) => Boolean(answer?.trim()))?.trim() ??
+      manifest?.expectedAnswers.find((answer) => Boolean(answer?.trim()))?.trim() ??
       step.correctAnswer ??
       step.checkpoint?.correctAnswer;
 
+    // Histórico sempre — mesmo se o manifesto falhar (cena órfã / legado).
     recordConversationScene(step.sceneId, step.sceneIntent, {
       lessonId: lesson.id,
       result,
@@ -1574,6 +1590,11 @@ export function LessonPlayer() {
       errorRefs,
       setting,
     });
+
+    if (!manifest) {
+      conversationSrsRegisteredRef.current.add(step.sceneId);
+      return;
+    }
 
     const liveSrs = useStore.getState().srs;
     registerConversationVocabularyInSrs(
@@ -1591,6 +1612,18 @@ export function LessonPlayer() {
       { ensureSrs, gradeSrs }
     );
     conversationSrsRegisteredRef.current.add(step.sceneId);
+
+    // Evita remarcar os mesmos alvos como "again" no finish() da lição.
+    const registeredKeys = new Set(
+      conversationErrorTargetsRef.current.map(
+        (target) => `${target.type}:${target.itemId}:${target.domain}:${target.track}`
+      )
+    );
+    if (registeredKeys.size > 0) {
+      mistakeReviewTargetsRef.current = mistakeReviewTargetsRef.current.filter(
+        (target) => !registeredKeys.has(`${target.type}:${target.itemId}:${target.domain}:${target.track}`)
+      );
+    }
   }
 
   function taskIdForStep(stepIndex: number): string {
@@ -2005,7 +2038,7 @@ export function LessonPlayer() {
     handleDone(false);
   }
 
-  function handleDone(wasCorrect?: boolean) {
+  function handleDone(wasCorrect?: boolean, meta?: { attempts?: number }) {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
@@ -2013,13 +2046,12 @@ export function LessonPlayer() {
     // rotação e o nível da variante seguem o histórico real do aluno. O
     // vocabulário entra no SRS com prioridade pelo desempenho.
     if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
+      if (typeof meta?.attempts === "number" && meta.attempts > 0) {
+        conversationAttemptsRef.current = Math.max(conversationAttemptsRef.current, meta.attempts);
+      }
       const hadMistake = wasCorrect === false || conversationAttemptsRef.current > 1;
       const result = hadMistake ? "mistake" : "completed";
-      const attempts = Math.max(
-        hadMistake ? 2 : 1,
-        conversationAttemptsRef.current,
-        hadMistake ? 2 : 1
-      );
+      const attempts = Math.max(hadMistake ? 2 : 1, conversationAttemptsRef.current);
       const repeated = (conversationHistory ?? []).some((entry) => entry.sceneId === currentStep.sceneId);
       const variantLevel = currentStep.conversationVariantLevel ?? "guided";
       registerConversationVocabularyLoop(currentStep, result, attempts);

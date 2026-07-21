@@ -399,11 +399,19 @@ try {
   // ── 10. Sync-merge shape: campos ricos sobrevivem à união ────────────────
   {
     function mergeConversationHistory(local, remote) {
+      const richness = (entry) =>
+        (entry.assistanceLevel ? 1 : 0) +
+        (entry.mainAnswer ? 1 : 0) +
+        (entry.setting ? 1 : 0) +
+        (entry.errorRefs?.length ?? 0) +
+        (entry.attempts > 1 ? 1 : 0) +
+        (entry.result === "mistake" || entry.result === "abandoned" ? 1 : 0);
       const byKey = new Map();
       for (const entry of [...(local ?? []), ...(remote ?? [])]) {
         if (!entry?.sceneId) continue;
         const key = `${entry.sceneId}:${entry.lessonId ?? ""}:${entry.completedAt ?? 0}`;
-        if (!byKey.has(key)) byKey.set(key, entry);
+        const previous = byKey.get(key);
+        if (!previous || richness(entry) > richness(previous)) byKey.set(key, entry);
       }
       return [...byKey.values()].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)).slice(0, 100);
     }
@@ -439,6 +447,27 @@ try {
     assert(merged[0].assistanceLevel === "assisted", "merge preserva assistanceLevel");
     assert(merged[0].errorRefs?.[0] === "chunk:x", "merge preserva errorRefs");
     assert(merged.some((e) => e.mainAnswer === "你好"), "merge preserva mainAnswer");
+
+    // Empate de chave: entrada mais rica (mistake + errorRefs) vence a pobre.
+    const sameKey = mergeConversationHistory(
+      [{ sceneId: "x", intent: "greet", lessonId: "l", completedAt: 1, result: "completed", attempts: 1 }],
+      [
+        {
+          sceneId: "x",
+          intent: "greet",
+          lessonId: "l",
+          completedAt: 1,
+          result: "mistake",
+          attempts: 3,
+          assistanceLevel: "guided",
+          errorRefs: ["chunk:nihao"],
+          setting: "school",
+        },
+      ]
+    );
+    assert(sameKey.length === 1, "mesma chave deduplica");
+    assert(sameKey[0].result === "mistake", "merge prefere entrada mais rica");
+    assert(sameKey[0].errorRefs?.[0] === "chunk:nihao", "merge mantém errorRefs da rica");
   }
 
   if (errors.length) {

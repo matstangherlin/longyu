@@ -49,9 +49,14 @@ export interface PairMistakePayload {
   reviewItemId?: string;
 }
 
+export interface StepDoneMeta {
+  /** Tentativas reais na conversa V2 (erros de ramo contam). */
+  attempts?: number;
+}
+
 export interface StepProps {
   step: LessonStep;
-  onDone: (correct?: boolean) => void;
+  onDone: (correct?: boolean, meta?: StepDoneMeta) => void;
   onSkip?: () => void;
   onMistake?: (answer?: string, payload?: PairMistakePayload) => void;
 }

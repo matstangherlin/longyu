@@ -36,11 +36,19 @@ function sortByTimestampDesc(items, pickTimestamp) {
 }
 
 function mergeConversationHistory(local, remote) {
+  const richness = (entry) =>
+    (entry.assistanceLevel ? 1 : 0) +
+    (entry.mainAnswer ? 1 : 0) +
+    (entry.setting ? 1 : 0) +
+    (entry.errorRefs?.length ?? 0) +
+    (entry.attempts > 1 ? 1 : 0) +
+    (entry.result === "mistake" || entry.result === "abandoned" ? 1 : 0);
   const byKey = new Map();
   for (const entry of [...(local ?? []), ...(remote ?? [])]) {
     if (!entry?.sceneId) continue;
     const key = `${entry.sceneId}:${entry.lessonId ?? ""}:${entry.completedAt ?? 0}`;
-    if (!byKey.has(key)) byKey.set(key, entry);
+    const previous = byKey.get(key);
+    if (!previous || richness(entry) > richness(previous)) byKey.set(key, entry);
   }
   return [...byKey.values()].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)).slice(0, 100);
 }
@@ -308,6 +316,10 @@ if (merged.conversationHistory?.[0]?.sceneId !== "onde-esta") {
 }
 if (!merged.conversationHistory?.some((entry) => entry.sceneId === "pedir-agua")) {
   errors.push("conversationHistory deveria preservar a entrada compartilhada (pedir-agua)");
+}
+const pedirAgua = merged.conversationHistory?.find((entry) => entry.sceneId === "pedir-agua");
+if (pedirAgua && pedirAgua.result !== "mistake") {
+  errors.push("merge de histórico deveria preferir a entrada mais rica (mistake/attempts) na mesma chave");
 }
 
 // Troca de conta não mistura históricos: cada conta mescla apenas o seu próprio

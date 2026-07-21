@@ -54,16 +54,27 @@ function sortByTimestampDesc<T>(items: T[], pickTimestamp: (item: T) => number):
   return [...items].sort((a, b) => pickTimestamp(b) - pickTimestamp(a));
 }
 
-/** Une dois históricos de conversa, deduplicando por (cena+lição+timestamp). */
+/** Une dois históricos de conversa, deduplicando por (cena+lição+timestamp).
+ * Em empate de chave, preserva a entrada mais rica (assistência / erros / setting).
+ */
 function mergeConversationHistory(
   local: ProgressSlice["conversationHistory"],
   remote: ProgressSlice["conversationHistory"]
 ): ProgressSlice["conversationHistory"] {
+  const richness = (entry: NonNullable<ProgressSlice["conversationHistory"]>[number]) =>
+    (entry.assistanceLevel ? 1 : 0) +
+    (entry.mainAnswer ? 1 : 0) +
+    (entry.setting ? 1 : 0) +
+    (entry.errorRefs?.length ?? 0) +
+    (entry.attempts > 1 ? 1 : 0) +
+    (entry.result === "mistake" || entry.result === "abandoned" ? 1 : 0);
+
   const byKey = new Map<string, NonNullable<ProgressSlice["conversationHistory"]>[number]>();
   for (const entry of [...(local ?? []), ...(remote ?? [])]) {
     if (!entry?.sceneId) continue;
     const key = `${entry.sceneId}:${entry.lessonId ?? ""}:${entry.completedAt ?? 0}`;
-    if (!byKey.has(key)) byKey.set(key, entry);
+    const previous = byKey.get(key);
+    if (!previous || richness(entry) > richness(previous)) byKey.set(key, entry);
   }
   return [...byKey.values()].sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)).slice(0, 100);
 }
