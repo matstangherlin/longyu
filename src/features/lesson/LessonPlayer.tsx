@@ -144,7 +144,7 @@ function LessonRecoveryDevPanel({
 }) {
   return (
     <div className="mb-3 rounded-2xl border border-dashed border-accent-soft bg-surface-2 px-3 py-2 text-left text-xs text-ink-soft">
-      <div className="font-semibold text-ink">DEV revisÃ£o da liÃ§Ã£o</div>
+      <div className="font-semibold text-ink">DEV revisão da lição</div>
       <div className="mt-2 grid gap-1 sm:grid-cols-2">
         <span>
           lessonId: <code className="text-ink">{lessonId}</code>
@@ -152,14 +152,14 @@ function LessonRecoveryDevPanel({
         <span>estrelas: {stars}/3</span>
         <span>erros pendentes: {pendingErrors}</span>
         <span>erros recuperados: {recoveredErrors}</span>
-        <span className="sm:col-span-2">prÃ³xima liÃ§Ã£o: {nextUnlockLabel}</span>
+        <span className="sm:col-span-2">próxima lição: {nextUnlockLabel}</span>
       </div>
     </div>
   );
 }
 
 function normalizeHanzi(text: string): string {
-  return text.replace(/[ï¼Œã€‚ï¼ï¼Ÿã€,.!?ï¼Ÿ\s]/g, "");
+  return text.replace(/[，。！？、,.!?？\s]/g, "");
 }
 
 function findChunkByText(text: string | undefined) {
@@ -179,20 +179,20 @@ function correctionForStep(step: LessonStep): LessonMistake {
   if (step.kind === "tone") {
     return {
       prompt: step.hanzi ? `Tom de ${step.hanzi}` : "Tom",
-      correction: `${step.tone}Âº tom`,
+      correction: `${step.tone}º tom`,
       detail: step.pinyin,
     };
   }
   if (step.kind === "comprehend") {
     return {
-      prompt: step.hanzi ?? "CompreensÃ£o",
+      prompt: step.hanzi ?? "Compreensão",
       correction: step.answer ?? "Reveja a resposta correta",
       detail: step.pinyin,
     };
   }
   if (step.kind === "produce") {
     return {
-      prompt: step.pt ?? "ProduÃ§Ã£o",
+      prompt: step.pt ?? "Produção",
       correction: step.target?.join("") ?? "Reveja a ordem correta",
     };
   }
@@ -233,7 +233,7 @@ function correctionForStep(step: LessonStep): LessonMistake {
         step.dialoguePrompt ??
         step.checkpoint?.prompt ??
         step.title ??
-        "ExercÃ­cio",
+        "Exercício",
       correction:
         step.correctAnswer ??
         step.checkpoint?.correctAnswer ??
@@ -246,7 +246,7 @@ function correctionForStep(step: LessonStep): LessonMistake {
   }
   return {
     prompt: step.title ?? "Atividade",
-    correction: step.answer ?? step.pt ?? "Reveja este ponto na prÃ³xima tentativa",
+    correction: step.answer ?? step.pt ?? "Reveja este ponto na próxima tentativa",
   };
 }
 
@@ -259,8 +259,8 @@ function LessonSummaryStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-// Chip compacto para as mÃ©tricas do fim de liÃ§Ã£o (XP, Qi, precisÃ£o, estrelas).
-// Substitui os cards grandes: a mesma informaÃ§Ã£o em uma linha, estilo app.
+// Chip compacto para as métricas do fim de lição (XP, Qi, precisão, estrelas).
+// Substitui os cards grandes: a mesma informação em uma linha, estilo app.
 function MetricChip({
   value,
   label,
@@ -377,7 +377,7 @@ function writeLessonResume(snapshot: LessonResumeSnapshot): void {
   try {
     window.localStorage.setItem(lessonResumeStorageKey(snapshot.lessonId), JSON.stringify(snapshot));
   } catch {
-    // O store principal continua sendo a fonte de verdade se storage estiver indisponÃ­vel.
+    // O store principal continua sendo a fonte de verdade se storage estiver indisponível.
   }
 }
 
@@ -386,7 +386,7 @@ function clearLessonResume(lessonId: string | undefined): void {
   try {
     window.localStorage.removeItem(lessonResumeStorageKey(lessonId));
   } catch {
-    // A expiraÃ§Ã£o impede que uma entrada antiga seja restaurada indefinidamente.
+    // A expiração impede que uma entrada antiga seja restaurada indefinidamente.
   }
 }
 
@@ -399,12 +399,12 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
     const label =
       (step.postConversationTaskType && POST_CONVERSATION_TASK_LABELS[step.postConversationTaskType]) ||
       step.title ||
-      "PÃ³s-Conversa";
+      "Pós-Conversa";
     const progress =
       step.postConversationIndex && step.postConversationCount
         ? ` (${step.postConversationIndex}/${step.postConversationCount})`
         : "";
-    return `PÃ³s-Conversa${progress}: ${label}`;
+    return `Pós-Conversa${progress}: ${label}`;
   }
   const kinds = roundKindSet(step, stage);
   const hasOldVocabulary = Boolean(step.reusesPreviousVocabulary?.length);
@@ -414,26 +414,26 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   const hasAssembly = kinds.has("sentence_build") || kinds.has("translation_build") || kinds.has("fill_blank") || kinds.has("produce");
 
   if (step.lessonStageId === "consolidation") {
-    if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que vocÃª jÃ¡ viu.";
-    if (hasHanzi && hasOldVocabulary) return "Vamos reconhecer hÃ nzÃ¬ junto com conteÃºdo antigo.";
-    if (hasOldVocabulary) return "RevisÃ£o rÃ¡pida com palavras que jÃ¡ apareceram.";
+    if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que você já viu.";
+    if (hasHanzi && hasOldVocabulary) return "Vamos reconhecer hànzì junto com conteúdo antigo.";
+    if (hasOldVocabulary) return "Revisão rápida com palavras que já apareceram.";
     return "Vamos fixar o ponto principal antes de seguir.";
   }
-  if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que vocÃª jÃ¡ viu.";
+  if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que você já viu.";
   if (hasTone) return "Escute o contorno e ligue som, tom e pinyin.";
   if (hasPinyin) return "Use o pinyin como ponte para reconhecer o som.";
-  if (hasHanzi) return "Observe a forma e conecte hÃ nzÃ¬, som e sentido.";
-  if (hasAssembly) return "Monte a frase em pedaÃ§os curtos.";
-  if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return "Escolha a resposta que combina com a situaÃ§Ã£o.";
+  if (hasHanzi) return "Observe a forma e conecte hànzì, som e sentido.";
+  if (hasAssembly) return "Monte a frase em pedaços curtos.";
+  if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return "Escolha a resposta que combina com a situação.";
   if (kinds.has("microread")) return "Leia um trecho curto e procure o sentido geral.";
   return "Pratique este ponto em uma rodada curta.";
 }
 
 const VICTORY_TITLES = [
   "A jornada continua!",
-  "Etapa concluÃ­da!",
-  "Seu dragÃ£o ficou mais forte!",
-  "VocÃª dominou mais um passo!",
+  "Etapa concluída!",
+  "Seu dragão ficou mais forte!",
+  "Você dominou mais um passo!",
   "Mandarim ficando mais claro!",
 ];
 
@@ -449,17 +449,17 @@ function totalToday(today: Record<Track, number>): number {
 }
 
 function rewardLabel(reward: RewardGrant): string {
-  if (reward.type === "qi") return `Qi do DragÃ£o x${reward.amount}`;
-  if (reward.type === "dragonPearl") return `PÃ©rolas do DragÃ£o x${reward.amount}`;
-  if (reward.type === "streakShield") return `Escudo de sequÃªncia x${reward.amount}`;
+  if (reward.type === "qi") return `Qi do Dragão x${reward.amount}`;
+  if (reward.type === "dragonPearl") return `Pérolas do Dragão x${reward.amount}`;
+  if (reward.type === "streakShield") return `Escudo de sequência x${reward.amount}`;
   return reward.source;
 }
 
 function rewardIcon(reward: RewardGrant): string {
-  if (reward.type === "qi") return "æ°”";
-  if (reward.type === "dragonPearl") return "ç ";
-  if (reward.type === "streakShield") return "ç›¾";
-  return "ç« ";
+  if (reward.type === "qi") return "气";
+  if (reward.type === "dragonPearl") return "珠";
+  if (reward.type === "streakShield") return "盾";
+  return "章";
 }
 
 function nextStreakMilestone(streak: number): number {
@@ -488,7 +488,7 @@ function textReviewTargets(text: string | undefined, domain: ReviewDomain, track
   return targets;
 }
 
-/** Prefer chunk como unidade pedagÃ³gica; sÃ³ cai em chars soltos se nÃ£o houver chunk. */
+/** Prefer chunk como unidade pedagógica; só cai em chars soltos se não houver chunk. */
 function pedagogicalTextTargets(
   text: string | undefined,
   domain: ReviewDomain,
@@ -561,8 +561,8 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
   if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
     const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
     if (step.kind === "conversation_scene") {
-      // NÃ£o lotar com cada linha da cena â€” resposta principal / chunk basta;
-      // o loop â†’ SRS cobre o restante com dedupe.
+      // Não lotar com cada linha da cena — resposta principal / chunk basta;
+      // o loop → SRS cobre o restante com dedupe.
       targets.push(...pedagogicalTextTargets(text, "uso", track));
       targets.push(...pedagogicalTextTargets(text, "fala", track));
     } else {
@@ -616,7 +616,7 @@ function displayTextHasHanzi(value: string | undefined): boolean {
 }
 
 function hasPinyinToneMark(value: string | undefined): boolean {
-  return /[ÄÃ¡ÇŽÃ Ä“Ã©Ä›Ã¨Ä«Ã­ÇÃ¬ÅÃ³Ç’Ã²Å«ÃºÇ”Ã¹Ç–Ç˜ÇšÇœ]/iu.test(value ?? "");
+  return /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/iu.test(value ?? "");
 }
 
 function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
@@ -692,19 +692,19 @@ function errorTokensForStep(step: LessonStep): string[] {
 }
 
 function mistakeReasonForStep(step: LessonStep): string {
-  if (step.kind === "tone" || step.kind === "tone_pair") return "ConfusÃ£o de tom ou contorno sonoro.";
-  if (step.kind === "listen_select") return "ConfusÃ£o ao reconhecer o Ã¡udio.";
-  if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "ConfusÃ£o de pinyin ou acento tonal.";
-  if (step.kind === "match_pairs") return "Par de significado ou forma nÃ£o consolidado.";
+  if (step.kind === "tone" || step.kind === "tone_pair") return "Confusão de tom ou contorno sonoro.";
+  if (step.kind === "listen_select") return "Confusão ao reconhecer o áudio.";
+  if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "Confusão de pinyin ou acento tonal.";
+  if (step.kind === "match_pairs") return "Par de significado ou forma não consolidado.";
   if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "produce") {
-    return "Ordem ou montagem da frase ainda instÃ¡vel.";
+    return "Ordem ou montagem da frase ainda instável.";
   }
-  if (step.kind === "fill_blank") return "Chunk de uso ainda nÃ£o automatizado.";
-  if (step.kind === "recognize" || step.kind === "hanzi_build") return "Reconhecimento visual do hÃ nzÃ¬ ainda frÃ¡gil.";
-  if (step.kind === "image_choice") return "AssociaÃ§Ã£o visual com hÃ nzÃ¬, pinyin ou significado ainda instÃ¡vel.";
+  if (step.kind === "fill_blank") return "Chunk de uso ainda não automatizado.";
+  if (step.kind === "recognize" || step.kind === "hanzi_build") return "Reconhecimento visual do hànzì ainda frágil.";
+  if (step.kind === "image_choice") return "Associação visual com hànzì, pinyin ou significado ainda instável.";
   if (step.kind === "comprehend" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
     return step.kind === "conversation_scene"
-      ? "Resposta da conversa ainda insegura â€” revise a fala no contexto."
+      ? "Resposta da conversa ainda insegura — revise a fala no contexto."
       : "Significado em contexto ainda incerto.";
   }
   return "Ponto precisa voltar em outro formato.";
@@ -727,8 +727,8 @@ function isPairMistakePayload(payload: unknown): payload is PairMistakePayload {
 function splitPairAnswer(value: string | undefined): { pinyin?: string; meaning?: string } {
   const raw = value?.trim();
   if (!raw) return {};
-  const parts = raw.split("Â·").map((part) => part.trim()).filter(Boolean);
-  if (parts.length >= 2) return { pinyin: parts[0], meaning: parts.slice(1).join(" Â· ") };
+  const parts = raw.split("·").map((part) => part.trim()).filter(Boolean);
+  if (parts.length >= 2) return { pinyin: parts[0], meaning: parts.slice(1).join(" · ") };
   return { meaning: raw };
 }
 
@@ -753,14 +753,14 @@ function pairExplanation(payload: PairMistakePayload): string {
   const char = firstCharInfo(payload.left);
   if (char?.mnemonicPt) return char.mnemonicPt;
   const meaning = pairExpectedMeaning(payload);
-  if (payload.left === "æœ¨") return "æœ¨ representa uma Ã¡rvore. Ele tambÃ©m aparece como componente em æž— e æ£®.";
-  if (payload.left === "äºº") return "äºº representa uma pessoa e aparece em palavras sobre gente, como å·´è¥¿äºº.";
-  if (payload.left === "å£") return "å£ lembra uma boca ou abertura e aparece em caracteres ligados Ã  fala.";
-  if (payload.left === "æ°´") return "æ°´ representa Ã¡gua; como componente, costuma apontar para lÃ­quido.";
-  if (payload.left === "ç«") return "ç« representa fogo, calor ou luz.";
-  if (payload.left === "å±±") return "å±± representa montanha.";
-  if (payload.left === "æ—¥") return "æ—¥ representa sol ou dia.";
-  if (payload.left === "æœˆ") return "æœˆ pode significar lua ou mÃªs.";
+  if (payload.left === "木") return "木 representa uma árvore. Ele também aparece como componente em 林 e 森.";
+  if (payload.left === "人") return "人 representa uma pessoa e aparece em palavras sobre gente, como 巴西人.";
+  if (payload.left === "口") return "口 lembra uma boca ou abertura e aparece em caracteres ligados à fala.";
+  if (payload.left === "水") return "水 representa água; como componente, costuma apontar para líquido.";
+  if (payload.left === "火") return "火 representa fogo, calor ou luz.";
+  if (payload.left === "山") return "山 representa montanha.";
+  if (payload.left === "日") return "日 representa sol ou dia.";
+  if (payload.left === "月") return "月 pode significar lua ou mês.";
   return `${payload.left} significa ${meaning}.`;
 }
 
@@ -786,19 +786,19 @@ function ImmediateErrorReviewOffer({
           <IconRefresh width={30} height={30} />
         </div>
         <div className="mx-auto mt-5 inline-flex rounded-full bg-surface-2 px-4 py-2 text-sm font-semibold text-ink">
-          VocÃª acertou {correct} de {total}
+          Você acertou {correct} de {total}
         </div>
         <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink">
           {canRecover
-            ? `VocÃª errou ${count} ${count === 1 ? "item" : "itens"}. Corrija agora para recuperar 3 estrelas.`
-            : `VocÃª errou ${count} ${count === 1 ? "item" : "itens"}. Quer revisar agora?`}
+            ? `Você errou ${count} ${count === 1 ? "item" : "itens"}. Corrija agora para recuperar 3 estrelas.`
+            : `Você errou ${count} ${count === 1 ? "item" : "itens"}. Quer revisar agora?`}
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">
-          A correÃ§Ã£o usa exatamente o que vocÃª errou nesta tentativa.
+          A correção usa exatamente o que você errou nesta tentativa.
         </p>
         {canRecover && (
           <div className="mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-sm font-medium text-accent">
-            Corrija todos para recuperar a 3Âª estrela e liberar a prÃ³xima liÃ§Ã£o.
+            Corrija todos para recuperar a 3ª estrela e liberar a próxima lição.
           </div>
         )}
         <div className="mt-auto grid gap-2 pt-6">
@@ -846,8 +846,8 @@ function ImmediateErrorReviewSummary({
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
           {stillMissing
-            ? `VocÃª ainda pode voltar e corrigir seus erros para buscar 3 estrelas. Falta${remaining === 1 ? "" : "m"} ${remaining} ${remaining === 1 ? "erro" : "erros"}.`
-            : "VocÃª corrigiu tudo desta tentativa."}
+            ? `Você ainda pode voltar e corrigir seus erros para buscar 3 estrelas. Falta${remaining === 1 ? "" : "m"} ${remaining} ${remaining === 1 ? "erro" : "erros"}.`
+            : "Você corrigiu tudo desta tentativa."}
         </p>
         <div className="mt-6 grid grid-cols-2 gap-3 text-left">
           <LessonSummaryStat label="Corrigidos" value={`${corrected}`} />
@@ -856,12 +856,12 @@ function ImmediateErrorReviewSummary({
         <div className="mt-auto grid gap-2 pt-6">
           {stillMissing && (
             <Button size="lg" className="w-full shadow-lift" onClick={onReviewAgain}>
-              <IconRefresh width={17} height={17} /> Tentar revisÃ£o novamente
+              <IconRefresh width={17} height={17} /> Tentar revisão novamente
             </Button>
           )}
           {canRetryLesson && (
             <Button variant="outline" className="w-full" onClick={onRetryLesson}>
-              <IconRefresh width={17} height={17} /> Refazer liÃ§Ã£o
+              <IconRefresh width={17} height={17} /> Refazer lição
             </Button>
           )}
           <Button
@@ -894,15 +894,15 @@ function ErrorReviewQuestion({
   onNeedsMoreReview: (error: ActivityError) => void;
   onNext: () => void;
 }) {
-  // CorreÃ§Ã£o central: fiel ao erro real da tentativa atual.
+  // Correção central: fiel ao erro real da tentativa atual.
   const exercise = useMemo(() => buildImmediateRemediationExercise(error), [error]);
   const answer = exercise.answer;
   const options = exercise.options ?? [];
   const pieces = exercise.pieces ?? [];
   const isBuild = exercise.kind === "build";
-  // Se, por algum motivo, um erro nÃ£o gerar opÃ§Ãµes nem peÃ§as jogÃ¡veis, o aluno
-  // ficaria preso (nada para tocar, botÃ£o "PrÃ³ximo" travado). Nesse caso raro,
-  // revelamos a resposta e liberamos o avanÃ§o em vez de prender a revisÃ£o.
+  // Se, por algum motivo, um erro não gerar opções nem peças jogáveis, o aluno
+  // ficaria preso (nada para tocar, botão "Próximo" travado). Nesse caso raro,
+  // revelamos a resposta e liberamos o avanço em vez de prender a revisão.
   const answerable = isBuild ? pieces.length > 0 : options.length > 0;
   const [selected, setSelected] = useState<string | null>(null);
   const [pickedPieces, setPickedPieces] = useState<string[]>([]);
@@ -921,8 +921,8 @@ function ErrorReviewQuestion({
   }, [error.id]);
 
   useEffect(() => {
-    // ExercÃ­cio degenerado (sem opÃ§Ãµes/peÃ§as): revela a resposta e conta como
-    // "ainda precisa revisar", garantindo que o botÃ£o de avanÃ§ar funcione.
+    // Exercício degenerado (sem opções/peças): revela a resposta e conta como
+    // "ainda precisa revisar", garantindo que o botão de avançar funcione.
     if (!answerable && !answeredRef.current) {
       answeredRef.current = true;
       setFeedback("wrong");
@@ -968,8 +968,8 @@ function ErrorReviewQuestion({
       <ProgressBar value={index} max={total} className="mt-3 h-2.5" />
       <div className="mt-2 rounded-2xl bg-surface-2 px-3 py-2 text-xs font-semibold text-ink-soft">
         {remainingForRecovery === 1
-          ? "Ãšltimo erro para tentar recuperar a 3Âª estrela."
-          : `Faltam ${remainingForRecovery} erros para tentar recuperar a 3Âª estrela.`}
+          ? "Último erro para tentar recuperar a 3ª estrela."
+          : `Faltam ${remainingForRecovery} erros para tentar recuperar a 3ª estrela.`}
       </div>
       <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">{exercise.prompt}</h1>
 
@@ -1011,7 +1011,7 @@ function ErrorReviewQuestion({
         <>
           <div className="mt-5 flex min-h-[78px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
             {pickedPieces.length === 0 ? (
-              <span className="text-sm font-medium text-ink-faint">toque nas peÃ§as</span>
+              <span className="text-sm font-medium text-ink-faint">toque nas peças</span>
             ) : (
               pickedPieces.map((piece, pieceIndex) => (
                 <button
@@ -1073,23 +1073,23 @@ function ErrorReviewQuestion({
             feedback === "correct" ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]" : "border-accent-soft bg-accent-soft/45 text-ink-soft",
           ].join(" ")}
         >
-          <div className="font-semibold">{feedback === "correct" ? "Corrigido!" : "Ainda precisa de revisÃ£o."}</div>
+          <div className="font-semibold">{feedback === "correct" ? "Corrigido!" : "Ainda precisa de revisão."}</div>
           <div className="mt-1">
             Correto: <span className="font-semibold text-ink">{answerDisplay}</span>
             {exercise.displayPinyin || error.pinyin ? (
               <>
-                <span className="text-ink-faint"> Â· </span>
+                <span className="text-ink-faint"> · </span>
                 <Pinyin text={exercise.displayPinyin ?? error.pinyin ?? ""} className="text-ink-faint" />
               </>
             ) : null}
-            {exercise.meaningPt ? <span className="text-ink-faint"> Â· {exercise.meaningPt}</span> : null}
+            {exercise.meaningPt ? <span className="text-ink-faint"> · {exercise.meaningPt}</span> : null}
           </div>
           {exercise.explanation && <div className="mt-1 text-ink-soft">{exercise.explanation}</div>}
         </div>
       )}
 
       <Button className="mt-auto w-full shadow-lift" size="lg" disabled={!feedback} onClick={onNext}>
-        {index + 1 >= total ? "Ver resultado" : "PrÃ³ximo erro"} <IconChevron width={18} height={18} />
+        {index + 1 >= total ? "Ver resultado" : "Próximo erro"} <IconChevron width={18} height={18} />
       </Button>
     </Card>
   );
@@ -1135,7 +1135,7 @@ function MissionUpdateCard({ mission }: { mission: MissionView }) {
   const stateLabel = mission.claimed
     ? "Resgatada"
     : mission.complete
-      ? "MissÃ£o concluÃ­da"
+      ? "Missão concluída"
       : `${pct}%`;
 
   return (
@@ -1170,8 +1170,8 @@ interface NextFocusSuggestion {
   cta: string;
 }
 
-// PrÃ³xima recomendaÃ§Ã£o ao fim da sessÃ£o, na ordem que mais destrava a Jornada:
-// erros pendentes > tons fracos > hÃ nzÃ¬ fracos > prÃ³xima liÃ§Ã£o > revisÃ£o.
+// Próxima recomendação ao fim da sessão, na ordem que mais destrava a Jornada:
+// erros pendentes > tons fracos > hànzì fracos > próxima lição > revisão.
 function buildNextFocus({
   remainingErrorCount,
   toneErrorCount,
@@ -1186,38 +1186,38 @@ function buildNextFocus({
   if (remainingErrorCount > 0) {
     return {
       title: "Corrigir os erros de hoje",
-      desc: `${remainingErrorCount} ${remainingErrorCount === 1 ? "erro pendente" : "erros pendentes"} desta sessÃ£o entraram na revisÃ£o.`,
+      desc: `${remainingErrorCount} ${remainingErrorCount === 1 ? "erro pendente" : "erros pendentes"} desta sessão entraram na revisão.`,
       to: "/revisao",
       cta: "Revisar agora",
     };
   }
   if (toneErrorCount > 0 && toneErrorCount >= hanziErrorCount) {
     return {
-      title: "ReforÃ§ar tons",
-      desc: "Os tons foram seu ponto mais frÃ¡gil hoje. Uma rodada curta no Pinyin Lab firma o ouvido.",
+      title: "Reforçar tons",
+      desc: "Os tons foram seu ponto mais frágil hoje. Uma rodada curta no Pinyin Lab firma o ouvido.",
       to: "/pinyin",
       cta: "Treinar tons",
     };
   }
   if (hanziErrorCount > 0) {
     return {
-      title: "ReforÃ§ar hÃ nzÃ¬",
+      title: "Reforçar hànzì",
       desc: "Monte de novo os caracteres que falharam para fixar forma e significado.",
       to: "/hanzi",
-      cta: "Praticar hÃ nzÃ¬",
+      cta: "Praticar hànzì",
     };
   }
   if (nextLessonTitle) {
     return {
-      title: `PrÃ³xima liÃ§Ã£o: ${nextLessonTitle}`,
-      desc: "VocÃª estÃ¡ pronto para avanÃ§ar na Jornada.",
+      title: `Próxima lição: ${nextLessonTitle}`,
+      desc: "Você está pronto para avançar na Jornada.",
       to: "/jornada",
       cta: "Continuar Jornada",
     };
   }
   return {
-    title: "RevisÃ£o do dia",
-    desc: "Traga de volta frases e caracteres antes que enfraqueÃ§am.",
+    title: "Revisão do dia",
+    desc: "Traga de volta frases e caracteres antes que enfraqueçam.",
     to: "/revisao",
     cta: "Revisar",
   };
@@ -1234,7 +1234,7 @@ export function LessonPlayer() {
   const learnedChunks = useStore((s) => s.learnedChunks);
   const learnedChars = useStore((s) => s.learnedChars);
   const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
-  // Pro efetivo (assinatura real OU preview local) â€” nunca sÃ³ o preview.
+  // Pro efetivo (assinatura real OU preview local) — nunca só o preview.
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
   const gradeSrs = useStore((s) => s.gradeSrs);
@@ -1300,7 +1300,7 @@ export function LessonPlayer() {
   const [lessonReward, setLessonReward] = useState(0);
   const [lessonXp, setLessonXp] = useState(0);
   const [postLessonXpTotal, setPostLessonXpTotal] = useState(0);
-  // Resumo pedagÃ³gico da sessÃ£o: o que de fato foi praticado nesta rodada.
+  // Resumo pedagógico da sessão: o que de fato foi praticado nesta rodada.
   const [sessionSummary, setSessionSummary] = useState<{
     phrases: number;
     newPhrases: number;
@@ -1310,17 +1310,17 @@ export function LessonPlayer() {
   const [estimatedMinutes, setEstimatedMinutes] = useState(5);
   const [postLessonView, setPostLessonView] = useState<"victory" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
-  // Recompensas (Qi/pÃ©rola/medalha) resgatadas no prÃ³prio card de vitÃ³ria.
+  // Recompensas (Qi/pérola/medalha) resgatadas no próprio card de vitória.
   const [claimedRewardCards, setClaimedRewardCards] = useState(false);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
   const contextualOffer = useProOffer();
   const [entryChecked, setEntryChecked] = useState(false);
   const [energyBlocked, setEnergyBlocked] = useState(false);
-  // Erro aguardando decisÃ£o do aluno (abre o painel de retry e pausa o avanÃ§o).
+  // Erro aguardando decisão do aluno (abre o painel de retry e pausa o avanço).
   const [pendingMistake, setPendingMistake] = useState<LessonMistake | null>(null);
-  // A tentativa atual veio de um retry pago (Qi/Pro): o erro anterior nÃ£o conta.
+  // A tentativa atual veio de um retry pago (Qi/Pro): o erro anterior não conta.
   const [retryProtected, setRetryProtected] = useState(false);
-  // Penalidade (fÃ´lego + perfeiÃ§Ã£o) jÃ¡ aplicada neste step â€” nÃ£o cobrar de novo.
+  // Penalidade (fôlego + perfeição) já aplicada neste step — não cobrar de novo.
   const [currentStepPenaltyApplied, setCurrentStepPenaltyApplied] = useState(false);
   // Remonta o step atual quando o aluno paga para tentar de novo.
   const [stepAttempt, setStepAttempt] = useState(0);
@@ -1328,23 +1328,23 @@ export function LessonPlayer() {
   const skippedStepsRef = useRef(0);
   const retryUsesRef = useRef(0);
   const recoveryUsesRef = useRef(0);
-  // Tons acertados nesta tentativa (contados no acerto real, nÃ£o inferidos):
-  // alimenta o resumo da sessÃ£o e a missÃ£o diÃ¡ria de tons sem creditar steps
-  // nÃ£o respondidos (out_of_lives) nem sofrer com a poda do histÃ³rico de erros.
+  // Tons acertados nesta tentativa (contados no acerto real, não inferidos):
+  // alimenta o resumo da sessão e a missão diária de tons sem creditar steps
+  // não respondidos (out_of_lives) nem sofrer com a poda do histórico de erros.
   const toneHitsRef = useRef(0);
   const mistakeReviewTargetsRef = useRef<LessonReviewTarget[]>([]);
   /** Tentativas / erros da conversa atual (antes de handleDone). */
   const conversationAttemptsRef = useRef(1);
   const conversationErrorTargetsRef = useRef<LessonReviewTarget[]>([]);
-  /** Cenas jÃ¡ enviadas ao SRS nesta sessÃ£o (evita nota dupla no finish). */
+  /** Cenas já enviadas ao SRS nesta sessão (evita nota dupla no finish). */
   const conversationSrsRegisteredRef = useRef<Set<string>>(new Set());
   const activityErrorsRef = useRef<ActivityError[]>([]);
   const attemptIdRef = useRef<string | null>(null);
   const attemptStartedAtRef = useRef<number>(Date.now());
   const recordedMistakeStepRef = useRef<number | null>(null);
   const recordedPairMistakesRef = useRef<Set<string>>(new Set());
-  // Garante que a recuperaÃ§Ã£o da tentativa rode uma Ãºnica vez (sem duplicar
-  // conclusÃ£o, XP/Qi, missÃ£o ou baÃº).
+  // Garante que a recuperação da tentativa rode uma única vez (sem duplicar
+  // conclusão, XP/Qi, missão ou baú).
   const recoveryAppliedRef = useRef(false);
   const pendingReviewRestoredRef = useRef(false);
   const requiredTonePack = foundLesson ? requiredToneTrainerPackForLesson(foundLesson.id) : undefined;
@@ -1553,8 +1553,8 @@ export function LessonPlayer() {
   const total = lesson.steps.length;
   const lessonTasks = lessonTasksFor(lesson);
 
-  // MÃ©trica scene_shown: registra a cena exibida (com nÃ­vel da variante e
-  // intenÃ§Ã£o). trackPedagogyEvent deduplica reenvios na mesma janela.
+  // Métrica scene_shown: registra a cena exibida (com nível da variante e
+  // intenção). trackPedagogyEvent deduplica reenvios na mesma janela.
   useEffect(() => {
     const step = lesson.steps[idx];
     if (!step || step.kind !== "conversation_scene" || !step.sceneId) return;
@@ -1620,7 +1620,7 @@ export function LessonPlayer() {
           ? `${nextLesson.title}: ${nextUnlockDecision?.allowed ? "liberada" : "bloqueada"}${
               nextUnlockDecision?.allowed ? "" : ` (${nextUnlockDecision?.reason ?? "sem motivo informado"})`
             }`
-          : "nÃ£o hÃ¡ prÃ³xima liÃ§Ã£o"
+          : "não há próxima lição"
       }
     />
   ) : null;
@@ -1635,7 +1635,7 @@ export function LessonPlayer() {
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">{startAccess.reason}</p>
         <Button size="lg" className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/jornada"))}>
-          {premiumBlocked ? "Ver opÃ§Ãµes Pro" : "Continuar na jornada"}
+          {premiumBlocked ? "Ver opções Pro" : "Continuar na jornada"}
         </Button>
         <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
           Voltar
@@ -1653,7 +1653,7 @@ export function LessonPlayer() {
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">
-          Conclua "{requiredTonePack.shortTitle}" com nota mÃ­nima {requiredTonePack.minimumCorrect}/{requiredTonePack.requiredRounds} para liberar esta etapa.
+          Conclua "{requiredTonePack.shortTitle}" com nota mínima {requiredTonePack.minimumCorrect}/{requiredTonePack.requiredRounds} para liberar esta etapa.
         </p>
         <Card className="mt-6 w-full p-5 text-left text-sm text-ink-soft">
           <div className="font-semibold text-ink">{requiredTonePack.title}</div>
@@ -1663,7 +1663,7 @@ export function LessonPlayer() {
           Abrir treino de tons
         </Button>
         <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-          Voltar Ã  jornada
+          Voltar à jornada
         </Button>
       </div>
     );
@@ -1706,7 +1706,7 @@ export function LessonPlayer() {
       step.correctAnswer ??
       step.checkpoint?.correctAnswer;
 
-    // HistÃ³rico sempre â€” mesmo se o manifesto falhar (cena Ã³rfÃ£ / legado).
+    // Histórico sempre — mesmo se o manifesto falhar (cena órfã / legado).
     recordConversationScene(step.sceneId, step.sceneIntent, {
       lessonId: lesson.id,
       result,
@@ -1739,7 +1739,7 @@ export function LessonPlayer() {
     );
     conversationSrsRegisteredRef.current.add(step.sceneId);
 
-    // Evita remarcar os mesmos alvos como "again" no finish() da liÃ§Ã£o.
+    // Evita remarcar os mesmos alvos como "again" no finish() da lição.
     const registeredKeys = new Set(
       conversationErrorTargetsRef.current.map(
         (target) => `${target.type}:${target.itemId}:${target.domain}:${target.track}`
@@ -1799,7 +1799,7 @@ export function LessonPlayer() {
       pairRightType: payload.rightType,
       pairSelectedRightType: payload.selectedRightType,
       explanation: pairExplanation(payload),
-      mistakeReason: "Par especÃ­fico confundido no exercÃ­cio de combinar.",
+      mistakeReason: "Par específico confundido no exercício de combinar.",
       timestamp: Date.now(),
       wrongCount: 1,
       correctionAttempts: 0,
@@ -1821,7 +1821,7 @@ export function LessonPlayer() {
               const speaker = step.characters?.find((character) => character.id === line.speakerId)?.name ?? line.speakerId;
               return `${speaker}: ${line.hanzi}`;
             })
-            .join(" Â· ")
+            .join(" · ")
         : undefined;
     return {
       id,
@@ -1844,7 +1844,7 @@ export function LessonPlayer() {
         step.explanation ??
         step.checkpoint?.explanation ??
         correction.detail ??
-        (correction.correction ? `SugestÃ£o: ${correction.correction}` : undefined),
+        (correction.correction ? `Sugestão: ${correction.correction}` : undefined),
       mistakeReason: mistakeReasonForStep(step),
       timestamp: Date.now(),
       wrongCount: 1,
@@ -1961,10 +1961,10 @@ export function LessonPlayer() {
     }
   }
 
-  // RecuperaÃ§Ã£o da tentativa atual: quando o aluno corrige TODOS os erros
+  // Recuperação da tentativa atual: quando o aluno corrige TODOS os erros
   // desta tentativa (vinculados ao lessonId + lista de erros da tentativa) e a
-  // liÃ§Ã£o ainda nÃ£o havia passado, devolve a 3Âª estrela, conclui a liÃ§Ã£o e
-  // libera a prÃ³xima etapa â€” uma Ãºnica vez, sem duplicar recompensa/XP/missÃ£o.
+  // lição ainda não havia passado, devolve a 3ª estrela, conclui a lição e
+  // libera a próxima etapa — uma única vez, sem duplicar recompensa/XP/missão.
   function applyAttemptRecovery(correctedIds: string[]) {
     if (recoveryAppliedRef.current) return;
     if (finishReason === "out_of_lives") return;
@@ -1993,7 +1993,7 @@ export function LessonPlayer() {
         id: leagueXpKeyLesson(lesson.id, attemptId),
         type: "xp",
         amount: recoveredXp,
-        source: "ConclusÃ£o de liÃ§Ã£o",
+        source: "Conclusão de lição",
       });
       setLessonXp(xpClaimed ? recoveredXp : 0);
       setPostLessonXpTotal(useStore.getState().xpTotal);
@@ -2033,18 +2033,18 @@ export function LessonPlayer() {
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
         <p className="mt-3 text-sm text-ink-soft">
-          VocÃª chegou ao fim do nÃºcleo gratuito. A partir de Â«China e amigosÂ», o conteÃºdo faz parte do Longyu Pro.
+          Você chegou ao fim do núcleo gratuito. A partir de «China e amigos», o conteúdo faz parte do Longyu Pro.
         </p>
         <Card className="mt-6 w-full p-5 text-left text-sm text-ink-soft">
           <ul className="list-inside list-disc space-y-1">
-            <li>FamÃ­lia, comida e compras</li>
+            <li>Família, comida e compras</li>
             <li>Microtextos e leitura em voz alta</li>
-            <li>RevisÃ£o ilimitada (em breve)</li>
+            <li>Revisão ilimitada (em breve)</li>
           </ul>
         </Card>
-        <Button size="lg" className="mt-6 w-full" onClick={() => setProPaywallKind("content")}>Ver opÃ§Ãµes Pro</Button>
+        <Button size="lg" className="mt-6 w-full" onClick={() => setProPaywallKind("content")}>Ver opções Pro</Button>
         <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-          Voltar Ã  jornada
+          Voltar à jornada
         </Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
       </div>
@@ -2055,33 +2055,33 @@ export function LessonPlayer() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          Cargas do DragÃ£o
+          Cargas do Dragão
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">
-          {energyBlocked ? "LiÃ§Ã£o bloqueada por hoje" : "Preparando liÃ§Ã£o"}
+          {energyBlocked ? "Lição bloqueada por hoje" : "Preparando lição"}
         </h1>
         <p className="mt-3 text-sm text-ink-soft">
           {energyBlocked
-            ? "VocÃª usou as cargas de novas liÃ§Ãµes por hoje. Elas voltam amanhÃ£ â€” e ainda hÃ¡ caminhos grÃ¡tis para continuar aprendendo agora."
-            : "O Longyu estÃ¡ verificando suas cargas antes de comeÃ§ar."}
+            ? "Você usou as cargas de novas lições por hoje. Elas voltam amanhã — e ainda há caminhos grátis para continuar aprendendo agora."
+            : "O Longyu está verificando suas cargas antes de começar."}
         </p>
         {energyBlocked && (
           <>
             <Link to="/revisao" className="mt-6 block w-full">
               <Button size="lg" className="w-full shadow-lift">
-                <IconRefresh width={18} height={18} /> Revisar de graÃ§a
+                <IconRefresh width={18} height={18} /> Revisar de graça
               </Button>
             </Link>
             <Link to="/missoes" className="mt-3 block w-full">
               <Button variant="soft" className="w-full">
-                <IconTarget width={17} height={17} /> Fazer missÃ£o para ganhar Qi
+                <IconTarget width={17} height={17} /> Fazer missão para ganhar Qi
               </Button>
             </Link>
             <Button variant="outline" className="mt-3 w-full" onClick={() => setProPaywallKind("energy")}>
               Conhecer o Longyu Pro
             </Button>
             <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-              Voltar amanhÃ£
+              Voltar amanhã
             </Button>
             <Link to="/loja" className="mt-4 text-xs font-semibold text-ink-faint transition hover:text-accent">
               Ou compre uma Carga na Loja
@@ -2090,7 +2090,7 @@ export function LessonPlayer() {
         )}
         {!energyBlocked && (
           <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-            Voltar Ã  jornada
+            Voltar à jornada
           </Button>
         )}
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "energy"} onClose={() => setProPaywallKind(null)} />
@@ -2098,8 +2098,8 @@ export function LessonPlayer() {
     );
   }
 
-  // Erro em questÃ£o avaliada: nÃ£o pune na hora. Registra o erro, pausa o
-  // avanÃ§o e abre o painel para o aluno decidir (refazer por Qi ou continuar).
+  // Erro em questão avaliada: não pune na hora. Registra o erro, pausa o
+  // avanço e abre o painel para o aluno decidir (refazer por Qi ou continuar).
   function registerCurrentMistake(selectedAnswer?: string, payload?: PairMistakePayload) {
     const currentStep = lesson.steps[idx];
     if (!isGradedStep(currentStep)) return;
@@ -2107,8 +2107,8 @@ export function LessonPlayer() {
     setAnswerStreak(0);
     playSoundFx("error", soundEffects);
 
-    // Penalidade jÃ¡ aplicada neste step: erros seguintes nÃ£o cobram de novo
-    // nem reabrem o painel (o step jÃ¡ estÃ¡ imperfeito).
+    // Penalidade já aplicada neste step: erros seguintes não cobram de novo
+    // nem reabrem o painel (o step já está imperfeito).
     if (isPairMistakePayload(payload)) {
       const pairKey = `${idx}:${payload.left}:${payload.expectedRight}:${payload.userAnswer}`;
       if (!recordedPairMistakesRef.current.has(pairKey)) {
@@ -2130,8 +2130,8 @@ export function LessonPlayer() {
     setPendingMistake(correction);
   }
 
-  // "Tentar de novo por Qi": Pro refaz de graÃ§a; senÃ£o gasta Qi. O step Ã©
-  // remontado e, se o aluno acertar agora, a questÃ£o ainda conta como perfeita.
+  // "Tentar de novo por Qi": Pro refaz de graça; senão gasta Qi. O step é
+  // remontado e, se o aluno acertar agora, a questão ainda conta como perfeita.
   function retryWithQi() {
     if (!pendingMistake) return;
     if (!isPremium && !spendQi(RETRY_COST_QI, "mistake_retry")) return;
@@ -2143,8 +2143,8 @@ export function LessonPlayer() {
     setStepAttempt((attempt) => attempt + 1);
   }
 
-  // "Continuar e perder perfeiÃ§Ã£o": o erro vira permanente, custa 1 FÃ´lego
-  // e avanÃ§a para o prÃ³ximo step para evitar dois fluxos de feedback.
+  // "Continuar e perder perfeição": o erro vira permanente, custa 1 Fôlego
+  // e avança para o próximo step para evitar dois fluxos de feedback.
   function continueWithMistake() {
     if (!pendingMistake) return;
     currentStepHadMistakeRef.current = true;
@@ -2168,9 +2168,9 @@ export function LessonPlayer() {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
-    // Cena concluÃ­da alimenta a seleÃ§Ã£o futura (histÃ³rico personalizado): a
-    // rotaÃ§Ã£o e o nÃ­vel da variante seguem o histÃ³rico real do aluno. O
-    // vocabulÃ¡rio entra no SRS com prioridade pelo desempenho.
+    // Cena concluída alimenta a seleção futura (histórico personalizado): a
+    // rotação e o nível da variante seguem o histórico real do aluno. O
+    // vocabulário entra no SRS com prioridade pelo desempenho.
     if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
       if (typeof meta?.attempts === "number" && meta.attempts > 0) {
         conversationAttemptsRef.current = Math.max(conversationAttemptsRef.current, meta.attempts);
@@ -2241,8 +2241,8 @@ export function LessonPlayer() {
         });
       }
     }
-    // Penalidade sÃ³ existe se o aluno escolheu "continuar mesmo assim" (ou
-    // pulou). Retry pago limpa o erro, entÃ£o a questÃ£o volta a poder contar.
+    // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
+    // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
     const hadRecordedMistake = currentStepHadMistakeRef.current;
     const penaltyApplied = currentStepPenaltyApplied;
     const countsAsCorrect = wasCorrect === true && !hadRecordedMistake;
@@ -2270,8 +2270,8 @@ export function LessonPlayer() {
     } else if (wasCorrect === false) {
       nextStreak = 0;
       setAnswerStreak(0);
-      // Erro que chegou aqui sem passar pelo painel (ex.: pular a questÃ£o):
-      // aplica a penalidade padrÃ£o uma Ãºnica vez.
+      // Erro que chegou aqui sem passar pelo painel (ex.: pular a questão):
+      // aplica a penalidade padrão uma única vez.
       if (!hadRecordedMistake) {
         recordCommittedError(currentStep, idx, "Pulou ou respondeu incorretamente");
         if (currentStepIsGraded) rememberMistakeTargets(currentStep);
@@ -2344,10 +2344,10 @@ export function LessonPlayer() {
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
     clearLessonResume(lesson.id);
     latestLessonResumeRef.current = null;
-    // Alimenta SRS e biblioteca com os itens da liÃ§Ã£o.
+    // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
     const gradedDomains = new Set<string>();
-    // Itens distintos praticados nesta sessÃ£o â€” alimentam o resumo final.
+    // Itens distintos praticados nesta sessão — alimentam o resumo final.
     const practicedChunkIds = new Set<string>();
     const practicedCharIds = new Set<string>();
     const gradeOnce = (
@@ -2438,9 +2438,9 @@ export function LessonPlayer() {
         gradeText(s.correctAnswer, "significado");
       }
       if (s.kind === "sentence_build" || s.kind === "translation_build" || s.kind === "dialogue_choice" || s.kind === "conversation_scene") {
-        // Conversas jÃ¡ alimentam o SRS no loop de vocabulÃ¡rio (com prioridade e
-        // dedupe de chunk). Aqui sÃ³ a resposta principal entra se a cena ainda
-        // nÃ£o tiver sido registrada (legado / falha no manifesto).
+        // Conversas já alimentam o SRS no loop de vocabulário (com prioridade e
+        // dedupe de chunk). Aqui só a resposta principal entra se a cena ainda
+        // não tiver sido registrada (legado / falha no manifesto).
         if (s.kind === "conversation_scene") {
           if (!s.sceneId || !conversationSrsRegisteredRef.current.has(s.sceneId)) {
             gradeText(s.correctAnswer ?? s.checkpoint?.correctAnswer ?? s.answer, "uso");
@@ -2502,14 +2502,14 @@ export function LessonPlayer() {
     const completionXp = passed && firstCompletion
       ? LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0)
       : 0;
-    // Pro ganha um bÃ´nus fixo de Qi por conclusÃ£o (fricÃ§Ã£o menor, nÃ£o XP).
+    // Pro ganha um bônus fixo de Qi por conclusão (fricção menor, não XP).
     const completionQi = passed && firstCompletion
       ? (stars === 3 ? LESSON_THREE_STAR_QI : 0) +
         (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0) +
         (isPremium ? PRO_LESSON_QI_BONUS : 0)
       : 0;
 
-    // Resumo pedagÃ³gico: frases/hÃ nzÃ¬ praticados e tons acertados na rodada.
+    // Resumo pedagógico: frases/hànzì praticados e tons acertados na rodada.
     const tonesHit = toneHitsRef.current;
     const newPhrases = [...practicedChunkIds].filter((id) => !learnedChunks.includes(id)).length;
     setSessionSummary({
@@ -2525,7 +2525,7 @@ export function LessonPlayer() {
           id: leagueXpKeyLesson(lesson.id, attemptId),
           type: "xp",
           amount: completionXp,
-          source: "ConclusÃ£o de liÃ§Ã£o",
+          source: "Conclusão de lição",
         })
       : false;
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
@@ -2593,7 +2593,7 @@ export function LessonPlayer() {
       outOfLives: finishReason === "out_of_lives",
       isReview: lesson.isReview,
     });
-    // Recuperou a tentativa â†’ 3 estrelas e liÃ§Ã£o concluÃ­da.
+    // Recuperou a tentativa → 3 estrelas e lição concluída.
     const stars = recovered ? 3 : computedStars;
     const passed =
       recovered || (finishReason !== "out_of_lives" && canCompleteLesson(computedStars, graded, lesson.isReview, correct));
@@ -2624,7 +2624,7 @@ export function LessonPlayer() {
     const suggestsHanziLab = lesson.steps.some((step) =>
       step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build"
     );
-    // PrÃ³ximo foco + frase-resumo: dizem em uma linha o que a sessÃ£o rendeu.
+    // Próximo foco + frase-resumo: dizem em uma linha o que a sessão rendeu.
     const toneErrorCount = committedErrors.filter(
       (error) => error.skill === "som" || error.step?.kind === "tone" || error.step?.kind === "tone_pair"
     ).length;
@@ -2639,11 +2639,11 @@ export function LessonPlayer() {
     });
     const weakSkillsLabel =
       toneErrorCount > 0 && hanziErrorCount > 0
-        ? "tons e hÃ nzÃ¬"
+        ? "tons e hànzì"
         : toneErrorCount > 0
           ? "tons"
           : hanziErrorCount > 0
-            ? "hÃ nzÃ¬"
+            ? "hànzì"
             : "algumas frases";
     const summaryParts: string[] = [];
     if (sessionSummary) {
@@ -2654,14 +2654,14 @@ export function LessonPlayer() {
             : `praticou ${sessionSummary.phrases} ${sessionSummary.phrases === 1 ? "frase" : "frases"}`
         );
       }
-      if (sessionSummary.hanzi > 0) summaryParts.push(`reforÃ§ou ${sessionSummary.hanzi} hÃ nzÃ¬`);
+      if (sessionSummary.hanzi > 0) summaryParts.push(`reforçou ${sessionSummary.hanzi} hànzì`);
       if (sessionSummary.tones > 0) summaryParts.push(`acertou ${sessionSummary.tones} tons`);
     }
     if (correctedCount > 0) summaryParts.push(`corrigiu ${correctedCount} ${correctedCount === 1 ? "erro" : "erros"}`);
     const sessionSummaryLine =
       summaryParts.length > 0
-        ? `Hoje vocÃª ${summaryParts.length > 1 ? `${summaryParts.slice(0, -1).join(", ")} e ${summaryParts[summaryParts.length - 1]}` : summaryParts[0]}.`
-        : "VocÃª completou esta etapa da Jornada.";
+        ? `Hoje você ${summaryParts.length > 1 ? `${summaryParts.slice(0, -1).join(", ")} e ${summaryParts[summaryParts.length - 1]}` : summaryParts[0]}.`
+        : "Você completou esta etapa da Jornada.";
 
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
@@ -2785,8 +2785,8 @@ export function LessonPlayer() {
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
-                ? `Seu FÃ´lego do DragÃ£o chegou a zero. A revisÃ£o nÃ£o foi concluÃ­da; revise os pontos fracos e tente chegar a ${passRequirementLabel}.`
-                : "Seu FÃ´lego do DragÃ£o chegou a zero. A liÃ§Ã£o nÃ£o foi concluÃ­da; revise os pontos fracos e tente uma rodada com 3 estrelas."}
+                ? `Seu Fôlego do Dragão chegou a zero. A revisão não foi concluída; revise os pontos fracos e tente chegar a ${passRequirementLabel}.`
+                : "Seu Fôlego do Dragão chegou a zero. A lição não foi concluída; revise os pontos fracos e tente uma rodada com 3 estrelas."}
             </p>
 
             <div className="mt-5 flex justify-center">
@@ -2795,8 +2795,8 @@ export function LessonPlayer() {
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
               <LessonSummaryStat label="Progresso" value={`${stars}/3 estrelas`} />
-              <LessonSummaryStat label="PrecisÃ£o" value={`${precision}%`} />
-              <LessonSummaryStat label="FÃ´lego" value="0/5" />
+              <LessonSummaryStat label="Precisão" value={`${precision}%`} />
+              <LessonSummaryStat label="Fôlego" value="0/5" />
             </div>
 
             <Card className="mt-6 p-4 text-left">
@@ -2814,17 +2814,17 @@ export function LessonPlayer() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-ink-soft">RefaÃ§a a etapa para firmar os exercÃ­cios avaliados.</p>
+                <p className="mt-2 text-sm text-ink-soft">Refaça a etapa para firmar os exercícios avaliados.</p>
               )}
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
               <Button className="w-full" onClick={retryLesson}>
-                <IconRefresh width={17} height={17} /> Refazer liÃ§Ã£o
+                <IconRefresh width={17} height={17} /> Refazer lição
               </Button>
               <Link to="/treino">
                 <Button variant="outline" className="w-full">
-                  <IconTarget width={17} height={17} /> Treinar revisÃ£o
+                  <IconTarget width={17} height={17} /> Treinar revisão
                 </Button>
               </Link>
               <Button
@@ -2840,25 +2840,25 @@ export function LessonPlayer() {
             {(inventory["shop-breath"] ?? 0) > 0 ? (
               <Button variant="primary" className="mt-2 w-full" onClick={recoverWithBreathItem}>
                 <IconFlame width={17} height={17} />
-                Usar Recuperar FÃ´lego ({inventory["shop-breath"]})
+                Usar Recuperar Fôlego ({inventory["shop-breath"]})
               </Button>
             ) : (
               <Link to="/loja" className="mt-2 block">
                 <Button variant="outline" className="w-full">
-                  Comprar Recuperar FÃ´lego na Loja
+                  Comprar Recuperar Fôlego na Loja
                 </Button>
               </Link>
             )}
             {points < BREATH_RECOVERY_QI_COST && (
               <Link to="/missoes" className="mt-2 block">
                 <Button variant="soft" className="w-full">
-                  <IconStar width={16} height={16} /> Ganhar Qi em missÃµes
+                  <IconStar width={16} height={16} /> Ganhar Qi em missões
                 </Button>
               </Link>
             )}
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Recuperar custa {BREATH_RECOVERY_QI_COST} Qi e devolve o fÃ´lego para continuar praticando esta tentativa.
-              VocÃª tambÃ©m pode estocar o item na Loja.
+              Recuperar custa {BREATH_RECOVERY_QI_COST} Qi e devolve o fôlego para continuar praticando esta tentativa.
+              Você também pode estocar o item na Loja.
             </p>
           </section>
         </div>
@@ -2875,12 +2875,12 @@ export function LessonPlayer() {
             </div>
 
             <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-              Quase lÃ¡
+              Quase lá
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
-                ? `VocÃª precisa de ${passRequirementLabel} de precisÃ£o para passar esta revisÃ£o de mÃ³dulo.`
-                : `VocÃª precisa de ${passRequirementLabel} para concluir esta etapa.`}
+                ? `Você precisa de ${passRequirementLabel} de precisão para passar esta revisão de módulo.`
+                : `Você precisa de ${passRequirementLabel} para concluir esta etapa.`}
             </p>
 
             <div className="mt-5 flex justify-center gap-2">
@@ -2897,17 +2897,17 @@ export function LessonPlayer() {
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
               <LessonSummaryStat label="Progresso" value={`${stars}/3 estrelas`} />
-              <LessonSummaryStat label="PrecisÃ£o" value={`${precision}%`} />
-              <LessonSummaryStat label="NecessÃ¡rio" value={passRequirementLabel} />
+              <LessonSummaryStat label="Precisão" value={`${precision}%`} />
+              <LessonSummaryStat label="Necessário" value={passRequirementLabel} />
               <LessonSummaryStat label="Ajuda" value={`${helpCount}`} />
             </div>
 
             <div className="mt-6 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-left text-sm text-ink-soft">
               {lesson.isReview
-                ? "A revisÃ£o de mÃ³dulo mede domÃ­nio razoÃ¡vel. Os erros entram na revisÃ£o para vocÃª reforÃ§ar antes de tentar de novo."
+                ? "A revisão de módulo mede domínio razoável. Os erros entram na revisão para você reforçar antes de tentar de novo."
                 : stars === 2
-                ? "VocÃª chegou perto. RefaÃ§a os pontos fracos e busque uma rodada sem erros para liberar a prÃ³xima liÃ§Ã£o."
-                : "Vale revisar com calma antes de tentar de novo. O objetivo Ã© sair com a estrutura firme, nÃ£o sÃ³ avanÃ§ar."}
+                ? "Você chegou perto. Refaça os pontos fracos e busque uma rodada sem erros para liberar a próxima lição."
+                : "Vale revisar com calma antes de tentar de novo. O objetivo é sair com a estrutura firme, não só avançar."}
             </div>
 
             <Card className="mt-6 p-4 text-left">
@@ -2926,7 +2926,7 @@ export function LessonPlayer() {
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-ink-soft">
-                  RefaÃ§a a etapa para consolidar os exercÃ­cios avaliados.
+                  Refaça a etapa para consolidar os exercícios avaliados.
                 </p>
               )}
             </Card>
@@ -2941,7 +2941,7 @@ export function LessonPlayer() {
                 </Button>
               </Link>
               <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
-                Voltar Ã  jornada
+                Voltar à jornada
               </Button>
             </div>
           </section>
@@ -2954,29 +2954,29 @@ export function LessonPlayer() {
         id: `lesson:${lesson.id}:qi`,
         type: "qi" as const,
         amount: lessonReward,
-        source: "ConclusÃ£o de liÃ§Ã£o",
+        source: "Conclusão de lição",
       },
       ...(stars === 3
         ? [{
             id: `lesson:${lesson.id}:pearl`,
             type: "dragonPearl" as const,
             amount: 1,
-            source: "PrecisÃ£o alta",
+            source: "Precisão alta",
           }]
         : []),
-      ...(stars === 3 && !badges.includes("PrecisÃ£o Serena")
+      ...(stars === 3 && !badges.includes("Precisão Serena")
         ? [{
             id: "badge:precisao-serena",
             type: "badge" as const,
             amount: 1,
-            source: "PrecisÃ£o Serena",
+            source: "Precisão Serena",
           }]
         : []),
     ].filter((reward) => reward.amount > 0);
     const newRewards = allRewards.filter((reward) => !rewardHistory.some((entry) => entry.id === reward.id));
     const shouldShowStreak = dailyGoalReached;
     const saveStatusLabel = progressSaveLabel(authMode, cloudSyncState.status);
-    // Recompensas extras alÃ©m de XP/Qi (pÃ©rola, medalha) viram chips no card.
+    // Recompensas extras além de XP/Qi (pérola, medalha) viram chips no card.
     const extraRewards = allRewards.filter((reward) => reward.type !== "qi");
     const hasUnclaimedRewards = newRewards.length > 0 && !claimedRewardCards;
     const topSummaryStats = [
@@ -2984,11 +2984,11 @@ export function LessonPlayer() {
         label: "Frases",
         value: `${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${sessionSummary?.newPhrases} novas)` : ""}`,
       },
-      { label: "HÃ nzÃ¬", value: `${sessionSummary?.hanzi ?? 0}` },
+      { label: "Hànzì", value: `${sessionSummary?.hanzi ?? 0}` },
       { label: "Tons", value: `${sessionSummary?.tones ?? 0}` },
     ];
 
-    // Resgata as recompensas no prÃ³prio card (sem uma segunda tela longa).
+    // Resgata as recompensas no próprio card (sem uma segunda tela longa).
     function claimLessonRewards() {
       if (claimedRewardCards) return;
       let claimed = false;
@@ -3010,7 +3010,7 @@ export function LessonPlayer() {
       else navigate("/jornada");
     }
 
-    // BotÃ£o principal: 1Âº toque resgata (se houver), depois segue a jornada.
+    // Botão principal: 1º toque resgata (se houver), depois segue a jornada.
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
@@ -3025,14 +3025,14 @@ export function LessonPlayer() {
           id: `daily-streak:${today.date}:qi`,
           type: "qi",
           amount: DAILY_GOAL_QI,
-          source: "Meta diÃ¡ria",
+          source: "Meta diária",
         },
         ...(STREAK_MILESTONES.includes(streak)
           ? [{
               id: `daily-streak:${today.date}:pearl`,
               type: "dragonPearl" as const,
               amount: 1,
-              source: `${dayCountLabel(streak)} de sequÃªncia`,
+              source: `${dayCountLabel(streak)} de sequência`,
             }]
           : []),
         ...(streak >= 3 && (streak % 7 === 0 || isPremium)
@@ -3040,7 +3040,7 @@ export function LessonPlayer() {
               id: `daily-streak:${today.date}:shield`,
               type: "streakShield" as const,
               amount: 1,
-              source: "SequÃªncia protegida",
+              source: "Sequência protegida",
             }]
           : []),
       ];
@@ -3060,21 +3060,21 @@ export function LessonPlayer() {
               <IconFlame width={54} height={54} fill="currentColor" />
             </div>
             <h1 className="mt-5 font-serif text-3xl font-semibold text-ink">
-              {dayCountLabel(streak)} de sequÃªncia!
+              {dayCountLabel(streak)} de sequência!
             </h1>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-              Volte amanhÃ£ para manter o fogo aceso.
+              Volte amanhã para manter o fogo aceso.
             </p>
 
             <div className="mt-6 rounded-[24px] border border-line bg-surface/85 px-4 py-4 text-left shadow-card">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-ink">PrÃ³ximo marco</span>
+                <span className="font-semibold text-ink">Próximo marco</span>
                 <span className="text-ink-soft">{nextMilestone} dias</span>
               </div>
               <ProgressBar value={streak} max={nextMilestone} className="mt-3" />
               <div className="mt-3 flex items-center gap-2 text-sm text-ink-soft">
                 <IconShield width={18} height={18} className="text-accent" />
-                {daysLeft > 0 ? `Faltam ${dayCountLabel(daysLeft)}.` : "Marco alcanÃ§ado."}
+                {daysLeft > 0 ? `Faltam ${dayCountLabel(daysLeft)}.` : "Marco alcançado."}
               </div>
             </div>
 
@@ -3094,7 +3094,7 @@ export function LessonPlayer() {
             </div>
 
             <div className="mt-5 rounded-2xl bg-surface/80 px-4 py-3 text-left text-sm text-ink-soft">
-              {streakShields > 0 ? `${streakShields} escudo(s) protegendo sua sequÃªncia.` : "Escudos aparecem em marcos especiais."}
+              {streakShields > 0 ? `${streakShields} escudo(s) protegendo sua sequência.` : "Escudos aparecem em marcos especiais."}
             </div>
 
             <Button className="mt-auto w-full shadow-lift sm:mt-6" size="lg" onClick={continueAfterStreak}>
@@ -3109,7 +3109,7 @@ export function LessonPlayer() {
       <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         {recoveryDebugPanel}
         <section className="flex flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] px-4 pb-0 pt-3 text-center shadow-lift sm:px-6">
-          {/* 1 Â· Resultado principal â€” mascote pequeno, tÃ­tulo, estrelas, chips. */}
+          {/* 1 · Resultado principal — mascote pequeno, título, estrelas, chips. */}
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {lesson.title}
           </div>
@@ -3132,7 +3132,7 @@ export function LessonPlayer() {
             ))}
           </div>
           <h1 className="mt-1 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {stars === 3 ? "LiÃ§Ã£o concluÃ­da!" : "VocÃª avanÃ§ou!"}
+            {stars === 3 ? "Lição concluída!" : "Você avançou!"}
           </h1>
           <p className="mx-auto mt-0.5 text-xs text-ink-soft sm:text-sm">{victoryTitle}</p>
 
@@ -3151,15 +3151,15 @@ export function LessonPlayer() {
 
           {recovered && (
             <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]">
-              Erros corrigidos! VocÃª recuperou 3 estrelas e liberou a prÃ³xima liÃ§Ã£o.
+              Erros corrigidos! Você recuperou 3 estrelas e liberou a próxima lição.
             </div>
           )}
 
-          {/* MÃ©tricas compactas em chips (substitui os 6 cards grandes). */}
+          {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
             <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
             <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
-            <MetricChip value={`${precision}%`} label="precisÃ£o" tone={precision >= 80 ? "good" : "neutral"} />
+            <MetricChip value={`${precision}%`} label="precisão" tone={precision >= 80 ? "good" : "neutral"} />
             {extraRewards.map((reward) => (
               <MetricChip
                 key={reward.id}
@@ -3170,14 +3170,14 @@ export function LessonPlayer() {
             ))}
           </div>
           <div className="mt-2 text-[11px] text-ink-faint">
-            {saveStatusLabel} Â· XP total agora {postLessonXpTotal}
-            {claimedRewardCards && <span className="text-[rgb(var(--good))]"> Â· recompensas recebidas âœ“</span>}
+            {saveStatusLabel} · XP total agora {postLessonXpTotal}
+            {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · recompensas recebidas ✓</span>}
           </div>
 
-          {/* 2 Â· PrÃ³ximo foco â€” card compacto com CTA. */}
+          {/* 2 · Próximo foco — card compacto com CTA. */}
           <div className="mt-2.5 flex flex-col gap-2 rounded-2xl border border-line bg-surface/85 p-3 text-left shadow-card sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">PrÃ³ximo foco</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Próximo foco</div>
               <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
@@ -3188,28 +3188,28 @@ export function LessonPlayer() {
             </Link>
           </div>
 
-          {/* 4 Â· Detalhes opcionais â€” tudo em accordions, fechado por padrÃ£o. */}
+          {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
           <div className="mt-2.5 grid gap-1.5 text-left">
             <CollapsibleInfoCard title="Ver detalhes" compactLabel={`~${estimatedMinutes} min`}>
               <div className="grid grid-cols-3 gap-2">
                 {topSummaryStats.map((item) => (
                   <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
                 ))}
-                <LessonSummaryStat label="PrecisÃ£o" value={`${precision}%`} />
+                <LessonSummaryStat label="Precisão" value={`${precision}%`} />
                 <LessonSummaryStat
                   label="Erros corrigidos"
                   value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
                 />
-                <LessonSummaryStat label="P/ revisÃ£o" value={`${reviewItemsAdded}`} />
+                <LessonSummaryStat label="P/ revisão" value={`${reviewItemsAdded}`} />
               </div>
               <p className="mt-2 text-xs leading-5 text-ink-soft">
-                {sessionSummaryLine} Foram ~{estimatedMinutes} min de prÃ¡tica
-                {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na revisÃ£o.` : "."}
+                {sessionSummaryLine} Foram ~{estimatedMinutes} min de prática
+                {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na revisão.` : "."}
               </p>
             </CollapsibleInfoCard>
 
             <CollapsibleInfoCard
-              title="MissÃµes atualizadas"
+              title="Missões atualizadas"
               compactLabel={missionHighlights.length > 0 ? `${missionHighlights.length} atualizada(s)` : `${monthlyProgress}/${MONTHLY_GOAL} mensal`}
               defaultOpen={false}
             >
@@ -3222,17 +3222,17 @@ export function LessonPlayer() {
                 </div>
               ) : (
                 <div className="mt-2.5 rounded-[16px] border border-line bg-surface-2 px-3 py-2.5 text-xs text-ink-soft">
-                  Continue praticando para completar a prÃ³xima missÃ£o.
+                  Continue praticando para completar a próxima missão.
                 </div>
               )}
               <Link to="/missoes" className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-                Ver missÃµes <IconChevron width={13} height={13} />
+                Ver missões <IconChevron width={13} height={13} />
               </Link>
             </CollapsibleInfoCard>
 
             {(suggestsPinyinLab || suggestsHanziLab) && (
-              <CollapsibleInfoCard title="ReforÃ§o guiado" compactLabel="PrÃ¡tica curta">
-                <div className="text-sm font-medium text-ink">Quer reforÃ§ar este ponto?</div>
+              <CollapsibleInfoCard title="Reforço guiado" compactLabel="Prática curta">
+                <div className="text-sm font-medium text-ink">Quer reforçar este ponto?</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {suggestsPinyinLab && (
                     <Link to="/pinyin">
@@ -3244,7 +3244,7 @@ export function LessonPlayer() {
                   {suggestsHanziLab && (
                     <Link to="/hanzi">
                       <Button variant="outline" size="sm">
-                        <IconHanzi width={15} height={15} /> HÃ nzÃ¬ Lab
+                        <IconHanzi width={15} height={15} /> Hànzì Lab
                       </Button>
                     </Link>
                   )}
@@ -3275,16 +3275,16 @@ export function LessonPlayer() {
               <div className="rounded-[18px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] px-3 py-2.5 text-left shadow-card">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
                 <p className="mt-0.5 text-xs leading-5 text-ink">
-                  Dificuldade com {weakSkillsLabel}? O Pro cria uma revisÃ£o focada. Corrigir esta liÃ§Ã£o Ã© sempre grÃ¡tis.
+                  Dificuldade com {weakSkillsLabel}? O Pro cria uma revisão focada. Corrigir esta lição é sempre grátis.
                 </p>
                 <Button variant="soft" size="sm" className="mt-2" onClick={() => setProPaywallKind("weak_spots")}>
-                  Conhecer a revisÃ£o focada
+                  Conhecer a revisão focada
                 </Button>
               </div>
             )}
 
             {!recovered && mistakes.length > 0 && (
-              <CollapsibleInfoCard title="Enviado para revisÃ£o" compactLabel={`${mistakes.length} item(ns)`}>
+              <CollapsibleInfoCard title="Enviado para revisão" compactLabel={`${mistakes.length} item(ns)`}>
                 <div className="grid gap-2">
                   {mistakes.slice(0, 3).map((mistake, index) => (
                     <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-xs">
@@ -3299,7 +3299,7 @@ export function LessonPlayer() {
             )}
           </div>
 
-          {/* 3 Â· BotÃ£o principal â€” sempre visÃ­vel, resgata e depois continua. */}
+          {/* 3 · Botão principal — sempre visível, resgata e depois continua. */}
           <div className="sticky bottom-0 -mx-4 mt-auto bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 sm:static sm:mx-0 sm:bg-none sm:px-0">
             <div className="mb-1.5 flex items-center justify-center gap-4 text-xs font-medium text-ink-faint">
               <Link to="/revisao" className="inline-flex items-center gap-1 transition hover:text-ink">
@@ -3329,7 +3329,7 @@ export function LessonPlayer() {
   const activeRoundProgress = lessonRoundProgressForStep(lesson.steps, idx, lessonTasks.length);
   const activeStageIndex = Math.min(Math.max(0, lessonTasks.length - 1), activeRoundProgress.stageIndex);
   const activeStage = lessonTasks[activeStageIndex];
-  // Linha Ãºnica e discreta abaixo da barra: etapa + intenÃ§Ã£o + nÂº da pergunta.
+  // Linha única e discreta abaixo da barra: etapa + intenção + nº da pergunta.
   const stageLabel = activeStage
     ? [
         `Etapa ${activeStageIndex + 1}/${lessonTasks.length}`,
@@ -3339,7 +3339,7 @@ export function LessonPlayer() {
           : "",
       ]
         .filter(Boolean)
-        .join(" Â· ")
+        .join(" · ")
     : undefined;
 
   return (
@@ -3354,7 +3354,7 @@ export function LessonPlayer() {
       {streakBurst > 0 && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-streak-burst rounded-full border border-accent-soft bg-surface px-4 py-2 text-sm font-semibold text-accent shadow-card">
-            SequÃªncia x{streakBurst} ðŸ”¥
+            Sequência x{streakBurst} 🔥
           </div>
         </div>
       )}
@@ -3382,9 +3382,9 @@ export function LessonPlayer() {
 
       {step.postConversationPhase && step.postConversationIndex === 1 && (
         <div role="status" aria-live="polite" data-testid="post-conversation-transition" className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-accent">Conversa concluÃ­da Â· PÃ³s-Conversa</span>
-          <span className="mx-1.5 text-ink-faint">Â·</span>
-          Agora fixe o vocabulÃ¡rio e as respostas em tarefas curtas de memorizaÃ§Ã£o.
+          <span className="font-semibold text-accent">Conversa concluída · Pós-Conversa</span>
+          <span className="mx-1.5 text-ink-faint">·</span>
+          Agora fixe o vocabulário e as respostas em tarefas curtas de memorização.
         </div>
       )}
 
@@ -3406,11 +3406,11 @@ export function LessonPlayer() {
         />
       </Card>
 
-      {/* Painel de retry: pausa o avanÃ§o atÃ© o aluno decidir. Fica abaixo do
+      {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
         <ModalOverlay
-          label="VocÃª errou esta questÃ£o"
+          label="Você errou esta questão"
         >
           <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
@@ -3420,7 +3420,7 @@ export function LessonPlayer() {
               Quase. Quer tentar de novo?
             </h2>
             <p className="mt-2 text-sm leading-6 text-ink-soft">
-              RefaÃ§a esta questÃ£o sem perder a estrela.
+              Refaça esta questão sem perder a estrela.
             </p>
 
             <div className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-left text-sm">
@@ -3447,11 +3447,11 @@ export function LessonPlayer() {
               <p className="mt-3 text-sm font-semibold text-accent">Pro: refazer sem gastar Qi.</p>
             ) : canPayRetry ? (
               <p className="mt-3 text-sm text-ink-soft">
-                Custa {RETRY_COST_QI} Qi. <span className="text-ink-faint">VocÃª tem {points} Qi.</span>
+                Custa {RETRY_COST_QI} Qi. <span className="text-ink-faint">Você tem {points} Qi.</span>
               </p>
             ) : (
               <p className="mt-3 rounded-xl bg-wrong-soft px-3 py-2 text-sm font-medium text-wrong">
-                VocÃª estÃ¡ sem Qi para refazer sem perder perfeiÃ§Ã£o. MissÃµes dÃ£o Qi sem comprar progresso.
+                Você está sem Qi para refazer sem perder perfeição. Missões dão Qi sem comprar progresso.
               </p>
             )}
 
@@ -3462,7 +3462,7 @@ export function LessonPlayer() {
                     {isPremium ? "Tentar de novo sem Qi" : `Tentar de novo por ${RETRY_COST_QI} Qi`}
                   </Button>
                   <Button variant="outline" className="w-full" onClick={continueWithMistake}>
-                    Continuar e perder perfeiÃ§Ã£o
+                    Continuar e perder perfeição
                   </Button>
                   {!isPremium && (
                     <Button variant="soft" className="w-full" onClick={() => {
@@ -3476,11 +3476,11 @@ export function LessonPlayer() {
               ) : (
                 <>
                   <Button size="lg" className="w-full" onClick={continueWithMistake}>
-                    Continuar e perder perfeiÃ§Ã£o
+                    Continuar e perder perfeição
                   </Button>
                   <Link to="/missoes">
                     <Button variant="outline" className="w-full">
-                      <IconStar width={16} height={16} /> Ganhar Qi em missÃµes
+                      <IconStar width={16} height={16} /> Ganhar Qi em missões
                     </Button>
                   </Link>
                   <Button variant="soft" className="w-full" onClick={() => {
@@ -3493,7 +3493,7 @@ export function LessonPlayer() {
               )}
             </div>
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Continuar sem refazer custa 1 FÃ´lego e avanÃ§a sem manter perfeiÃ§Ã£o.
+              Continuar sem refazer custa 1 Fôlego e avança sem manter perfeição.
             </p>
           </div>
         </ModalOverlay>
