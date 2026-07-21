@@ -5,6 +5,7 @@ import { todayKey } from "../../lib/storage";
 import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { playSoundFx } from "../../lib/soundFx";
+import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { Card, Button, Pill, SectionTitle } from "../../components/ui/primitives";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -31,6 +32,8 @@ export function FalaPage() {
   const [speechNotice, setSpeechNotice] = useState<string | null>(null);
   const [sessionCharged, setSessionCharged] = useState(false);
   const chunk = CHUNKS[i];
+
+  useAutoSpeak(chunk.hanzi, true, { rate: 0.88 });
 
   function ensureTrainingCharge(): boolean {
     if (sessionCharged) return true;
@@ -112,7 +115,7 @@ export function FalaPage() {
         <div className="flex flex-col items-center gap-4 py-4 text-center">
           <GlossText text={chunk.hanzi} className="text-5xl leading-tight text-ink" />
           <Pinyin text={chunk.pinyin} className="font-serif text-xl" />
-          <SpeakButton text={chunk.hanzi} size="lg" />
+          <SpeakButton text={chunk.hanzi} size="lg" autoPlay />
 
           {revealed ? (
             <div className="animate-pop">

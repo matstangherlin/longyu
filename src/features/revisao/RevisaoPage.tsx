@@ -514,7 +514,7 @@ function ReviewExercisePanel({
       <div className="text-center text-sm font-medium text-ink-soft">{exercise.prompt}</div>
       {exercise.audioText && (
         <div className="mt-4 flex justify-center">
-          <SpeakButton text={exercise.audioText} size="lg" label="Ouvir" />
+          <SpeakButton text={exercise.audioText} size="lg" label="Ouvir" autoPlay />
         </div>
       )}
       {exercise.displayText && (

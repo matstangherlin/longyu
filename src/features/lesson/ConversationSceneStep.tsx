@@ -522,7 +522,7 @@ function InteractionPanel({
 
       {isListen && (
         <div className="mt-3 flex items-center gap-2">
-          <SpeakButton text={answer} label="Ouvir" size="sm" />
+          <SpeakButton text={answer} label="Ouvir" size="sm" autoPlay />
           <span className="text-xs text-ink-faint">Ouça e escolha a resposta.</span>
         </div>
       )}

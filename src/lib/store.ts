@@ -1754,7 +1754,7 @@ export const useStore = create<AppState>()(
       showNumericPinyin: false,
       toneColors: true,
       toneColorIntensity: 1,
-      autoPlayAudio: false,
+      autoPlayAudio: true,
       slowAudio: false,
       accountSetupComplete: false,
       currentAccountId: DEFAULT_ACCOUNT_ID,

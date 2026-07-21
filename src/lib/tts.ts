@@ -77,6 +77,29 @@ export function stopSpeaking(): void {
   if (isTTSAvailable()) window.speechSynthesis.cancel();
 }
 
+/**
+ * Agenda fala automática ao montar/trocar conteúdo. Retorna cleanup que cancela
+ * o timer e a reprodução em andamento.
+ */
+export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?: number } = {}): () => void {
+  const clean = String(text ?? "").trim();
+  if (!clean) return () => {};
+  let cancelled = false;
+  const delayMs = opts.delayMs ?? 160;
+  const { delayMs: _delay, ...speakOpts } = opts;
+  const timer = window.setTimeout(() => {
+    void warmUpVoices().then(() => {
+      if (cancelled) return;
+      speak(clean, speakOpts);
+    });
+  }, delayMs);
+  return () => {
+    cancelled = true;
+    window.clearTimeout(timer);
+    stopSpeaking();
+  };
+}
+
 /** Há uma voz chinesa dedicada disponível? (para avisar o usuário) */
 export function hasChineseVoice(): boolean {
   return Boolean(cachedVoice || pickChineseVoice());

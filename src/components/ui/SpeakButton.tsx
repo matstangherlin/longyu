@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { speak, stopSpeaking } from "../../lib/tts";
+import { scheduleAutoSpeak, speak } from "../../lib/tts";
 import { useStore } from "../../lib/store";
 import { IconSound } from "./Icon";
 
@@ -42,19 +42,17 @@ export function SpeakButton({
 
   useEffect(() => {
     if (!autoPlay) return;
-    let cancelled = false;
-    // Pequeno atraso para a fala pintar e o gesto de Continuar já ter fechado.
-    const timer = window.setTimeout(() => {
-      if (cancelled) return;
-      play();
-    }, 140);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-      stopSpeaking();
-      setPlaying(false);
-    };
-    // Só reage a texto/autoPlay — play() usa rate/slowAudio atuais do store.
+    const clean = String(text ?? "").trim();
+    if (!clean) return;
+    setPlaying(true);
+    recordDailyTask("audioHeard");
+    const playRate = slowAudio ? Math.min(rate, 0.65) : rate;
+    return scheduleAutoSpeak(clean, {
+      rate: playRate,
+      delayMs: 140,
+      onend: () => setPlaying(false),
+    });
+    // Só reage a texto/autoPlay — rate/slowAudio vêm do store no momento da fala.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPlay, text]);
 

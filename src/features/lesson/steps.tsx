@@ -6,7 +6,8 @@ import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS, TONE_NAMES } from "../../
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
-import { speak } from "../../lib/tts";
+import { speak, scheduleAutoSpeak } from "../../lib/tts";
+import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { playSoundFx } from "../../lib/soundFx";
 import {
   KeyboardShortcutHint,
@@ -1745,7 +1746,6 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
   const [audioFallback, setAudioFallback] = useState(false);
   const finishTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
-  const autoPlayedRef = useRef(false);
   const ttsRate = useStore((s) => s.ttsRate);
   const soundEffects = useStore((s) => s.soundEffects);
   const answer = step.correctAnswer ?? step.answer ?? step.audioText ?? "";
@@ -1798,12 +1798,10 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
 
   // Toca o áudio automaticamente uma vez ao abrir o exercício.
   useEffect(() => {
-    if (!audioText || audioFallback || autoPlayedRef.current) return;
-    autoPlayedRef.current = true;
-    const timer = window.setTimeout(playNormal, 320);
-    return () => window.clearTimeout(timer);
+    if (!audioText || audioFallback) return;
+    return scheduleAutoSpeak(audioText, { rate: ttsRate, delayMs: 320 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [audioText, audioFallback]);
 
   useEffect(() => {
     return () => {
@@ -2337,6 +2335,8 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
   const answer = step.correctAnswer ?? step.answer ?? "";
+  const dialoguePrompt = step.dialoguePrompt ?? step.prompt ?? "";
+  useAutoSpeak(isCjkText(dialoguePrompt) ? dialoguePrompt : undefined, true, { rate: 0.86 });
 
   function pickOption(option: string) {
     if (feedback === "correct") return;

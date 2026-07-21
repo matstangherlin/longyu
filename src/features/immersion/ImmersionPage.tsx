@@ -37,6 +37,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
+import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -805,6 +806,9 @@ function InteractiveStoryPlayer({
 
   useEffect(() => () => stopSpeaking(), []);
 
+  // Diálogo e narração: áudio inicia sozinho ao entrar em cada passo.
+  useAutoSpeak(step?.hanzi, Boolean(step?.hanzi) && !victory, { rate: 0.88 });
+
   if (!step) return null;
 
   const interactive = storyStepIsInteractive(step);
@@ -1067,7 +1071,7 @@ function InteractiveStoryPlayer({
                 <div className="text-sm font-semibold text-ink">Ouça a frase</div>
                 <p className="mt-1 text-xs text-ink-soft">Depois escolha o sentido.</p>
               </div>
-              {step.hanzi && <SpeakButton text={step.hanzi} label="Ouvir frase" size="lg" />}
+              {step.hanzi && <SpeakButton text={step.hanzi} label="Ouvir frase" size="lg" autoPlay />}
             </div>
           )}
 
@@ -1092,7 +1096,7 @@ function InteractiveStoryPlayer({
               )}
               {step.hanzi && step.type !== "listen_choice" && (
                 <div className="mt-3">
-                  <SpeakButton text={step.hanzi} label="Ouvir frase" />
+                  <SpeakButton text={step.hanzi} label="Ouvir frase" autoPlay />
                 </div>
               )}
             </div>

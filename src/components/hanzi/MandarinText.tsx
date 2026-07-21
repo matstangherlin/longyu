@@ -57,7 +57,8 @@ export function MandarinText({
   }, [translationMode, meaning, hanzi]);
 
   useEffect(() => {
-    if (!audio || !autoPlay || !autoPlayAudio || !hanzi) return;
+    if (!audio || !hanzi) return;
+    if (!autoPlay && !autoPlayAudio) return;
     speak(hanzi, { rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate });
   }, [audio, autoPlay, autoPlayAudio, hanzi, slowAudio, ttsRate]);
 
@@ -94,7 +95,7 @@ export function MandarinText({
           {mode === "hanzi_only" && hanziNode}
           {mode === "pinyin_only" && pinyinNode}
         </div>
-        {audio && <SpeakButton text={hanzi} size={styles.audio} className="shrink-0" />}
+        {audio && <SpeakButton text={hanzi} size={styles.audio} className="shrink-0" autoPlay={autoPlay} />}
       </div>
 
       {meaning && !helpDisabled && translationMode === "always" && (

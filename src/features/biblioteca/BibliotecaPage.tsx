@@ -813,6 +813,7 @@ function ChunkDetail({
             size="lg"
             audio
             className="mt-4"
+            autoPlay
           />
           {chunk.literalPt && <p className="mt-1 text-sm text-ink-faint">literal: {chunk.literalPt}</p>}
           <div className="mt-4 flex flex-wrap gap-2">
@@ -857,6 +858,8 @@ function ChunkDetail({
                     pinyin={context.line.pinyin}
                     meaning={context.line.pt}
                     size="sm"
+                    audio
+                    autoPlay
                     className="mt-1"
                   />
                 </div>
