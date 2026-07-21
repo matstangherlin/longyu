@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Migração completa V1→V2 (conversas)
+
+- **33/33 cenas** do catálogo usam **nós + ramificação** como fonte principal;
+  nenhuma cena autoral V1 (`lines` + `checkpoint` manual) restante.
+- `sceneV2` continua derivando `lines` + `checkpoint` dos nós para fallback do
+  player V1 (`VITE_ENABLE_CONVERSATION_V2=false`), feature flag e relatórios
+  antigos — sem duplicação manual no catálogo.
+- Validador exige nós em todas as cenas, confere derivação lines/checkpoint e
+  remove tratamento especial de papel `legacy`.
+- Novo `validate:conversation-migration`: flag V2 on/off, histórico antigo,
+  currículo, resposta correta/errada, repetição, abandono, fim, variantes
+  guided/independent/audio_first e Conversation Vocabulary Loop.
+- Build: limite do Workbox PWA ajustado para precache do bundle principal (~3 MB).
+
 ### Conversa: áudio automático ao avançar
 
 - Nas cenas de conversa, cada fala toca sozinha ao aparecer (Continuar /

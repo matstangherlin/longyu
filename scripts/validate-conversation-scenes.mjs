@@ -124,7 +124,7 @@ try {
       const title = String(lesson.title ?? "").toLocaleLowerCase("pt-BR");
       return id.includes("immersion") || id.includes("imers") || title.includes("imersão") || title.includes("immersion");
     };
-    const sceneRoleOf = (scene) => scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy");
+    const sceneRoleOf = (scene) => scene.sceneRole ?? "common";
 
     const chunkById = new Map(CHUNKS.map((chunk) => [chunk.id, chunk]));
     const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
@@ -311,6 +311,10 @@ try {
       }
 
       const allowed = refsToHanziSet([...(scene.learnedRefs ?? []), ...newRefs]);
+      const nodes = scene.nodes ?? [];
+      if (nodes.length === 0) {
+        err("catalog", ref, "cena do catálogo sem nós V2 (formato autoral V1 removido)");
+      }
       const lines = scene.lines ?? [];
       if (lines.length === 0) err("catalog", ref, "cena sem falas");
 
@@ -326,8 +330,23 @@ try {
       }
 
       // V2: valida TODOS os nós (inclusive ramos de erro que não estão nas lines).
-      const nodes = scene.nodes ?? [];
       if (nodes.length > 0) {
+        const main = conversationSceneMainPath(nodes, scene.entryNodeId);
+        if (main.length !== lines.length) {
+          err("catalog", ref, `lines derivadas (${lines.length}) divergem do caminho principal (${main.length})`);
+        }
+        for (let i = 0; i < main.length; i += 1) {
+          const derived = lines[i];
+          if (!derived || main[i].hanzi !== derived.hanzi || main[i].speakerId !== derived.speakerId) {
+            err("catalog", ref, `lines[${i}] diverge do nó ${main[i].id} (duplicação manual?)`);
+          }
+        }
+        const firstInteraction = main.find((node) => node.interaction)?.interaction;
+        const checkpoint = scene.checkpoint;
+        if (firstInteraction && checkpoint && norm(checkpoint.correctAnswer) !== norm(firstInteraction.correctAnswer)) {
+          err("catalog", ref, "checkpoint derivado diverge da primeira interação V2");
+        }
+
         checkNodeGraph(ref, nodes, scene.entryNodeId);
         const nodeIds = new Set(nodes.map((node) => node.id));
         for (const node of nodes) {
@@ -661,7 +680,7 @@ try {
     }
 
     for (const row of coverage.rows) {
-      const isCommonish = row.role === "common" || row.role === "legacy";
+      const isCommonish = row.role === "common";
       const uses = row.authoredUses + row.generatedUses;
       // (a) cena comum já elegível que nunca é usada.
       if (isCommonish && row.eligibleCommon && uses === 0) {
@@ -792,11 +811,12 @@ try {
     const intents = new Map();
     let v2Count = 0;
     for (const scene of CONVERSATION_SCENES) {
-      const role = scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy");
+      const role = sceneRoleOf(scene);
       roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
       settingCounts.set(scene.setting, (settingCounts.get(scene.setting) ?? 0) + 1);
       intents.set(scene.intent, (intents.get(scene.intent) ?? 0) + 1);
       if (scene.nodes?.length) v2Count += 1;
+      else err("catalog", scene.sceneId, "cena do catálogo sem nós V2 (formato autoral V1 removido).");
     }
     const unusedScenes = CONVERSATION_SCENES.filter(
       (scene) => !authoredUseBySceneId.has(scene.sceneId) && !generatedUseBySceneId.has(scene.sceneId)
@@ -812,7 +832,8 @@ try {
       "|-----------|------:|",
       `| Cenas no catálogo | ${CONVERSATION_SCENES.length} |`,
       `| Cenas V2 (nós/ramificação) | ${v2Count} |`,
-      `| Cenas V1 (lines + checkpoint) | ${CONVERSATION_SCENES.length - v2Count} |`,
+      `| Cenas V1 autorais (sem nós) | ${CONVERSATION_SCENES.length - v2Count} |`,
+      `| Fallback V1 derivado (lines/checkpoint) | ${v2Count} |`,
       `| Intenções distintas | ${intents.size} |`,
       `| Passos autorais na jornada | ${authoredCount} |`,
       `| Lições com cena gerada no plano | ${lessonsWithGeneratedScene} |`,
@@ -839,7 +860,7 @@ try {
     ];
     for (const scene of CONVERSATION_SCENES) {
       const stats = conversationSceneStats(scene);
-      const role = scene.sceneRole ?? (scene.nodes?.length ? "common" : "legacy");
+      const role = sceneRoleOf(scene);
       lines.push(
         `| ${scene.sceneId} | ${role} | ${scene.intent} | ${stats.lineCount} | ${stats.interactionCount} | ${stats.branching ? "sim" : "—"} | ${stats.endingCount} | ${authoredUseBySceneId.get(scene.sceneId) ?? 0} | ${generatedUseBySceneId.get(scene.sceneId) ?? 0} |`
       );

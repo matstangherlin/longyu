@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 683a617bcca52060c69fa36e9a8a18c64158e389 |
+| Commit | 6774590c72c517efaaaec7698c2b93bf5a7a4427 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:42:02.354Z |
+| Gerado em | 2026-07-21T06:25:35.842Z |
 | Lições | 108 |
-| Hash da Jornada | 1fa264a585b4 |
+| Hash da Jornada | 3c56f94d4ee2 |
 
 ## Resumo
 
@@ -16,7 +16,8 @@
 |-----------|------:|
 | Cenas no catálogo | 33 |
 | Cenas V2 (nós/ramificação) | 33 |
-| Cenas V1 (lines + checkpoint) | 0 |
+| Cenas V1 autorais (sem nós) | 0 |
+| Fallback V1 derivado (lines/checkpoint) | 33 |
 | Intenções distintas | 33 |
 | Passos autorais na jornada | 35 |
 | Lições com cena gerada no plano | 96 |
@@ -109,4 +110,4 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:91371146e3dd8ef7 -->
+<!-- integridade:5ca1583692f5041f -->

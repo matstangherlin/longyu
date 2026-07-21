@@ -79,7 +79,8 @@ export interface ConversationCheckpoint {
 // wrongNextNodeId — o erro nunca encerra a conversa: o ramo errado leva a um
 // nó em que o personagem repete, corrige, demonstra confusão ou dá uma
 // pista curta, e o fluxo volta (ou segue) até um nó terminal.
-// As cenas V1 (lines + checkpoint) continuam funcionando sem alteração.
+// O catálogo autoral usa só V2; `sceneV2` deriva lines + checkpoint para
+// rollback (`VITE_ENABLE_CONVERSATION_V2=false`) e relatórios legados.
 // ————————————————————————————————————————————————————————————————
 
 export type ConversationInteractionType =

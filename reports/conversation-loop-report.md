@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 683a617bcca52060c69fa36e9a8a18c64158e389 |
+| Commit | 6774590c72c517efaaaec7698c2b93bf5a7a4427 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T05:42:06.395Z |
+| Gerado em | 2026-07-21T06:25:40.766Z |
 | Lições | 108 |
-| Hash da Jornada | 1fa264a585b4 |
+| Hash da Jornada | 3c56f94d4ee2 |
 
 ## Resumo
 
@@ -76,4 +76,4 @@
 - p7-imersao-casa-amigo:chunk:woyao
 - p7-imersao-casa-amigo:chunk:zaijian
 
-<!-- integridade:e505863b57c89f8a -->
+<!-- integridade:6c18a6866b47d738 -->
