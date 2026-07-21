@@ -72,12 +72,16 @@ const silentPromptChecks = [
     "pergunta avaliada precisa reutilizar a regra anti-dica",
   ],
   [
-    "const shouldReadPrompt = !promptTestsPinyinOrTone && isCjkText(dialoguePrompt);",
-    "pergunta de pinyin/tom não pode habilitar leitura automática",
+    "const autoSpeakPrompt = autoSpeakTextForDialoguePrompt(step, dialoguePrompt);",
+    "autoplay do enunciado precisa passar pelo filtro de diálogo real",
   ],
   [
-    "useAutoSpeak(shouldReadPrompt ? dialoguePrompt : undefined, shouldReadPrompt",
+    "useAutoSpeak(autoSpeakPrompt, Boolean(autoSpeakPrompt)",
     "hook de áudio precisa respeitar a política silenciosa",
+  ],
+  [
+    "function hasInstructionalLatin(text: string): boolean",
+    "enunciado misto PT+hanzi precisa ficar mudo",
   ],
   [
     "speakOnClick={!promptTestsPinyinOrTone}",

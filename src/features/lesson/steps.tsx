@@ -2337,8 +2337,8 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
   const answer = step.correctAnswer ?? step.answer ?? "";
   const dialoguePrompt = step.dialoguePrompt ?? step.prompt ?? "";
   const promptTestsPinyinOrTone = hintWouldRevealAnswer(step);
-  const shouldReadPrompt = !promptTestsPinyinOrTone && isCjkText(dialoguePrompt);
-  useAutoSpeak(shouldReadPrompt ? dialoguePrompt : undefined, shouldReadPrompt, { rate: 0.86 });
+  const autoSpeakPrompt = autoSpeakTextForDialoguePrompt(step, dialoguePrompt);
+  useAutoSpeak(autoSpeakPrompt, Boolean(autoSpeakPrompt), { rate: 0.86 });
 
   function pickOption(option: string) {
     if (feedback === "correct") return;
@@ -2714,13 +2714,27 @@ function optionHasToneMark(value: string | undefined): boolean {
 // apenas "Sem ajuda nesta pergunta." em vez do pinyin/significado.
 function hintWouldRevealAnswer(step: LessonStep): boolean {
   if (step.kind !== "dialogue_choice" && step.kind !== "listen_select") return false;
-  const options = [step.correctAnswer, step.answer, ...(step.options ?? [])];
-  const optionsArePinyin = options.filter(optionHasToneMark).length >= 2;
-  if (!optionsArePinyin) return false;
   const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`.toLocaleLowerCase(
     "pt-BR"
   );
-  return label.includes("pinyin") || label.includes("acento") || label.includes("tom");
+  if (label.includes("pinyin") || label.includes("acento") || label.includes("tom")) return true;
+  const options = [step.correctAnswer, step.answer, ...(step.options ?? [])];
+  const optionsArePinyin = options.filter(optionHasToneMark).length >= 2;
+  if (!optionsArePinyin) return false;
+  return label.includes("qual") || label.includes("escolha") || label.includes("combine");
+}
+
+function hasInstructionalLatin(text: string): boolean {
+  return /[A-Za-zÀ-ÿ]{2,}/.test(text);
+}
+
+/** Só falas reais em mandarim entram no autoplay — enunciados em PT ficam mudos. */
+export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt: string): string | undefined {
+  if (hintWouldRevealAnswer(step)) return undefined;
+  const text = dialoguePrompt.trim();
+  if (!text || !isCjkText(text)) return undefined;
+  if (hasInstructionalLatin(text)) return undefined;
+  return text;
 }
 
 export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
