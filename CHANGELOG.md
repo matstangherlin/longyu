@@ -24,6 +24,8 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
   de cobertura e destravamento atualizados.
 - Dificuldade derivada do **papel V2** (comum leve → 1; comum densa/revisão → 2;
   imersão → 3), para as fases iniciais continuarem a preferir cenas adequadas.
+- `pedir-cha` inserida como aquecimento em `p7-imersao-casa-amigo` (33/33 no
+  destravamento após o reajuste de dificuldade).
 
 ### Correção — microfone no celular (reconhece de verdade)
 
