@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 8bb7bd7d00fcaf8168bb781062d1f07565dd574a |
+| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T06:53:15.686Z |
-| Lições | 108 |
-| Hash da Jornada | ead22051a61c |
+| Gerado em | 2026-07-21T22:11:05.720Z |
+| Lições | 110 |
+| Hash da Jornada | 889271f39a22 |
 
 ## Resumo
 
@@ -85,4 +85,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:55ea53e6cdb5062f -->
+<!-- integridade:79d8d3ad5e0f9188 -->

@@ -4,20 +4,20 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 8bb7bd7d00fcaf8168bb781062d1f07565dd574a |
+| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T06:53:42.967Z |
-| Lições | 108 |
-| Hash da Jornada | ead22051a61c |
+| Gerado em | 2026-07-21T22:10:22.196Z |
+| Lições | 110 |
+| Hash da Jornada | 889271f39a22 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições analisadas | 108 |
+| Lições analisadas | 110 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1086 |
-| Pares com transformação cognitiva | 778 (72%) |
+| Pares de repetição semântica | 1216 |
+| Pares com transformação cognitiva | 1032 (85%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -74,19 +74,20 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l13-dialogo-ola | 12 | 12 | 24 | 15 | 14 | 8 | phrase:你好 × 4 |
 | l13-dialogo-nome | 12 | 12 | 27 | 12 | 11 | 7 | action:assemble-phrase × 3 |
 | l5-rev | 17 | 14 | 22 | 16 | 14 | 9 | phrase:你好吗 × 3 |
-| l14 | 14 | 13 | 20 | 8 | 3 | 9 | char:人 × 2 |
-| p4-num-123 | 13 | 12 | 15 | 7 | 3 | 7 | char:一 × 3 |
-| p4-num-45 | 13 | 12 | 17 | 7 | 3 | 7 | char:木 × 2 |
-| p4-num-678 | 13 | 12 | 15 | 6 | 2 | 7 | char:六 × 2 |
-| p4-num-910 | 13 | 12 | 12 | 6 | 2 | 7 | char:九 × 2 |
-| p4-char-mu | 13 | 12 | 18 | 9 | 3 | 8 | char:木 × 3 |
-| p4-char-ren | 13 | 12 | 17 | 8 | 2 | 8 | char:人 × 3 |
-| p4-char-kou | 13 | 12 | 14 | 8 | 3 | 9 | char:口 × 3 |
-| p4-char-ri | 13 | 12 | 18 | 7 | 2 | 9 | char:口 × 2 |
-| p4-char-yue | 13 | 12 | 16 | 10 | 5 | 8 | char:月 × 3 |
-| p4-char-shan | 13 | 12 | 16 | 10 | 5 | 8 | char:山 × 3 |
+| l14 | 13 | 12 | 22 | 11 | 10 | 7 | char:人 × 2 |
+| p4-num-123 | 12 | 11 | 17 | 10 | 10 | 5 | char:一 × 3 |
+| p4-num-45 | 12 | 11 | 19 | 10 | 10 | 5 | intent:identify-concept × 3 |
+| p4-num-678 | 12 | 11 | 17 | 9 | 9 | 5 | char:六 × 2 |
+| p4-num-910 | 12 | 11 | 15 | 8 | 8 | 5 | char:九 × 2 |
+| p4-char-mu | 12 | 11 | 20 | 12 | 10 | 6 | char:木 × 3 |
+| p4-char-ren | 12 | 11 | 19 | 11 | 9 | 6 | char:人 × 3 |
+| p4-char-kou | 12 | 11 | 17 | 10 | 9 | 7 | char:口 × 3 |
+| p4-char-ri | 12 | 11 | 20 | 10 | 9 | 7 | char:口 × 2 |
+| p4-char-yue | 12 | 11 | 18 | 13 | 12 | 6 | char:月 × 3 |
+| p4-char-shan | 12 | 11 | 18 | 13 | 12 | 6 | char:山 × 3 |
 | p4-char-shui | 12 | 11 | 15 | 7 | 4 | 6 | char:水 × 4 |
-| p4-char-huo | 12 | 11 | 17 | 8 | 4 | 8 | char:火 × 3 |
+| p4-char-tian | 12 | 11 | 19 | 5 | 4 | 6 | char:山 × 3 |
+| p4-char-huo | 12 | 11 | 15 | 8 | 4 | 8 | char:火 × 3 |
 | p4-char-da | 13 | 12 | 15 | 11 | 6 | 8 | char:大 × 3 |
 | p4-char-xiao | 13 | 12 | 15 | 11 | 6 | 8 | char:小 × 3 |
 | p4-char-zhong | 13 | 12 | 17 | 8 | 3 | 9 | char:人 × 2 |
@@ -95,51 +96,52 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p4-char-wo | 13 | 12 | 17 | 6 | 2 | 9 | char:我 × 3 |
 | p4-char-ni | 13 | 12 | 17 | 6 | 2 | 9 | char:你 × 3 |
 | l14-numeros-visuais | 13 | 12 | 17 | 7 | 2 | 8 | char:大 × 2 |
-| l14-pecas-natureza | 14 | 13 | 19 | 8 | 2 | 8 | char:日 × 2 |
+| l14-pecas-natureza | 14 | 13 | 20 | 7 | 1 | 8 | char:日 × 2 |
 | l14-frase-minima | 14 | 13 | 16 | 9 | 2 | 10 | action:assemble-hanzi × 4 |
-| l14-char-rev | 13 | 13 | 21 | 8 | 3 | 9 | char:一 × 3 |
-| l15 | 13 | 12 | 18 | 7 | 2 | 9 | char:林 × 3 |
-| l6-rev | 18 | 16 | 18 | 12 | 10 | 10 | action:assemble-hanzi × 3 |
-| l16 | 13 | 12 | 13 | 6 | 2 | 7 | char:马 × 2 |
-| l17 | 13 | 12 | 14 | 6 | 1 | 7 | char:日 × 2 |
-| l18 | 13 | 12 | 16 | 8 | 4 | 7 | char:朋 × 2 |
+| l14-char-rev | 12 | 12 | 23 | 11 | 10 | 7 | char:一 × 3 |
+| l15 | 12 | 11 | 20 | 10 | 9 | 7 | char:林 × 3 |
+| l6-rev | 115 | 85 | 46 | 62 | 48 | 19 | action:assemble-hanzi × 12 |
+| l16 | 12 | 11 | 16 | 8 | 8 | 5 | char:马 × 2 |
+| l17 | 12 | 11 | 17 | 8 | 7 | 5 | char:日 × 2 |
+| l18 | 12 | 11 | 18 | 11 | 11 | 5 | char:朋 × 2 |
 | l7-rev | 19 | 18 | 23 | 11 | 6 | 11 | char:水 × 3 |
-| p5-mu-mu-lin | 13 | 12 | 15 | 8 | 3 | 9 | char:木 × 3 |
-| p5-mu-mu-mu-sen | 13 | 12 | 15 | 8 | 3 | 9 | char:木 × 3 |
-| p5-ri-yue-ming | 13 | 12 | 16 | 7 | 1 | 9 | char:日 × 2 |
-| p5-ren-mu-xiu | 13 | 12 | 15 | 8 | 3 | 9 | char:人 × 3 |
-| p5-nv-zi-hao | 13 | 12 | 16 | 8 | 2 | 8 | char:好 × 3 |
-| p5-ren-ren-cong | 13 | 12 | 17 | 7 | 3 | 8 | char:人 × 3 |
-| p5-ren-ren-ren-zhong | 13 | 12 | 17 | 7 | 3 | 7 | char:人 × 3 |
-| p5-nv-ma-mae | 13 | 12 | 15 | 6 | 2 | 7 | char:女 × 2 |
+| p5-mu-mu-lin | 12 | 11 | 18 | 10 | 9 | 7 | char:木 × 3 |
+| p5-mu-mu-mu-sen | 12 | 11 | 18 | 10 | 9 | 7 | char:木 × 3 |
+| p5-ri-yue-ming | 12 | 11 | 19 | 9 | 7 | 7 | char:日 × 2 |
+| p5-ren-mu-xiu | 12 | 11 | 18 | 10 | 9 | 7 | char:人 × 3 |
+| p5-nv-zi-hao | 12 | 11 | 18 | 11 | 9 | 6 | char:好 × 3 |
+| p5-ren-ren-cong | 12 | 11 | 19 | 10 | 10 | 6 | char:人 × 3 |
+| p5-ren-ren-ren-zhong | 12 | 11 | 19 | 10 | 10 | 5 | char:人 × 3 |
+| p5-nv-ma-mae | 12 | 11 | 17 | 9 | 9 | 5 | char:女 × 2 |
 | p5-kou-ma-pergunta | 12 | 11 | 21 | 9 | 8 | 6 | char:口 × 2 |
-| l19-logica-madeira | 13 | 12 | 16 | 8 | 3 | 9 | char:木 × 3 |
-| l19-logica-luz | 14 | 13 | 18 | 8 | 2 | 10 | char:日 × 3 |
-| l19-logica-pessoas | 13 | 12 | 20 | 7 | 3 | 8 | char:人 × 3 |
+| l19-logica-madeira | 12 | 11 | 19 | 10 | 9 | 7 | char:木 × 3 |
+| l19-logica-luz | 13 | 12 | 21 | 10 | 8 | 8 | char:日 × 3 |
+| l19-logica-pessoas | 12 | 11 | 22 | 10 | 10 | 6 | char:人 × 3 |
 | l19-logica-ma | 12 | 11 | 23 | 11 | 10 | 6 | intent:identify-concept × 3 |
-| l19-logica-rev | 14 | 13 | 15 | 9 | 2 | 9 | action:assemble-hanzi × 4 |
-| l19 | 14 | 13 | 19 | 6 | 1 | 7 | action:assemble-phrase × 2 |
-| l20 | 13 | 12 | 15 | 6 | 2 | 7 | char:六 × 2 |
+| l19-logica-rev | 13 | 12 | 18 | 11 | 8 | 7 | action:assemble-hanzi × 4 |
+| l19 | 13 | 12 | 21 | 9 | 8 | 5 | intent:identify-concept × 3 |
+| l20 | 12 | 11 | 17 | 9 | 9 | 5 | char:六 × 2 |
 | l8-rev | 17 | 14 | 17 | 9 | 9 | 7 | action:assemble-phrase × 3 |
-| l21 | 13 | 12 | 21 | 9 | 4 | 9 | action:assemble-phrase × 3 |
-| l22 | 13 | 12 | 19 | 6 | 2 | 8 | action:assemble-phrase × 3 |
-| l23 | 12 | 12 | 17 | 8 | 4 | 7 | phrase:你好 × 3 |
+| l21 | 12 | 11 | 23 | 12 | 11 | 7 | intent:identify-concept × 3 |
+| l22 | 12 | 11 | 22 | 8 | 8 | 6 | action:assemble-phrase × 3 |
+| l23 | 12 | 12 | 19 | 15 | 14 | 6 | phrase:你好 × 4 |
 | l9-rev | 23 | 20 | 35 | 22 | 14 | 13 | intent:identify-concept × 4 |
-| l24 | 14 | 13 | 23 | 9 | 5 | 11 | intent:introduce-family × 3 |
-| l25 | 14 | 13 | 25 | 12 | 8 | 9 | char:山 × 3 |
-| l26 | 14 | 13 | 24 | 10 | 5 | 9 | action:assemble-phrase × 3 |
-| l27 | 14 | 13 | 30 | 9 | 9 | 7 | intent:identify-concept × 4 |
-| l28 | 14 | 13 | 27 | 7 | 7 | 7 | intent:identify-concept × 3 |
-| l10-rev | 25 | 23 | 43 | 23 | 14 | 13 | intent:identify-concept × 5 |
-| l29 | 14 | 13 | 21 | 8 | 4 | 9 | phrase:我有三个朋友 × 2 |
-| l30 | 14 | 13 | 27 | 3 | 2 | 9 | action:assemble-phrase × 3 |
-| l11-rev | 22 | 20 | 35 | 24 | 14 | 12 | action:assemble-phrase × 4 |
-| p7-imersao-mercado | 16 | 15 | 27 | 5 | 4 | 10 | char:三 × 4 |
-| p7-imersao-estacao | 19 | 18 | 33 | 16 | 11 | 11 | action:assemble-phrase × 5 |
-| p7-imersao-casa-amigo | 22 | 21 | 37 | 19 | 18 | 11 | action:assemble-phrase × 4 |
+| l24 | 13 | 12 | 26 | 8 | 8 | 9 | intent:identify-concept × 2 |
+| l25 | 14 | 13 | 26 | 11 | 7 | 9 | action:assemble-phrase × 3 |
+| l26 | 14 | 13 | 26 | 11 | 6 | 10 | action:assemble-phrase × 3 |
+| l26b | 14 | 13 | 23 | 7 | 6 | 7 | action:assemble-phrase × 3 |
+| l27 | 14 | 13 | 28 | 6 | 6 | 9 | phrase:我要这个 × 2 |
+| l28 | 14 | 13 | 26 | 8 | 8 | 6 | intent:identify-concept × 4 |
+| l10-rev | 25 | 23 | 41 | 19 | 13 | 13 | intent:identify-concept × 4 |
+| l29 | 14 | 13 | 24 | 6 | 5 | 9 | action:assemble-phrase × 3 |
+| l30 | 14 | 13 | 24 | 6 | 1 | 10 | action:assemble-phrase × 3 |
+| l11-rev | 22 | 20 | 41 | 20 | 13 | 12 | action:assemble-phrase × 4 |
+| p7-imersao-mercado | 22 | 21 | 34 | 12 | 7 | 13 | char:三 × 4 |
+| p7-imersao-estacao | 16 | 15 | 25 | 6 | 5 | 9 | char:车 × 3 |
+| p7-imersao-casa-amigo | 16 | 15 | 26 | 10 | 7 | 10 | char:家 × 3 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:db7ff79cb78f48ff -->
+<!-- integridade:34bc46eebcd36dbf -->

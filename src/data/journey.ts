@@ -1578,6 +1578,61 @@ const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
     ],
   }),
   microLesson({
+    id: "p4-char-tian",
+    title: "天",
+    skill: "hanzi",
+    libraryItems: ["char:tian_sky", "chunk:nashitian", "chunk:jintianhenhao"],
+    reviewItems: ["char:tian_sky", "char:shan", "char:ri", "char:yue"],
+    steps: [
+      intro(
+        "Céu e dia",
+        "天 é céu — e também entra em 今天 (hoje). Depois de 日、月 e 山, você aponta o que está acima."
+      ),
+      listen("天", "tiān", "céu; dia"),
+      imageChoice(
+        "choose_meaning",
+        "sky",
+        "O que esta imagem mostra?",
+        "céu",
+        visualMeaningOptions("sky"),
+        { explanation: "天 (tiān) = céu (e também 'dia' em palavras como 今天)." }
+      ),
+      imageChoice(
+        "choose_hanzi",
+        "sky",
+        "Qual hànzì combina com o céu?",
+        "天",
+        visualHanziOptions("sky"),
+        { explanation: "天 é o caractere de céu." }
+      ),
+      imageChoice(
+        "listen_and_choose_image",
+        "sky",
+        "Ouça e escolha a imagem certa.",
+        "sky",
+        visualImageOptions("sky"),
+        { explanation: "天 (tiān) = céu." }
+      ),
+      flash("nashitian"),
+      listen("那是天", "nà shì tiān", "Aquilo é o céu."),
+      sentenceBuild(
+        "Aponte o céu",
+        "Monte: aquilo é o céu.",
+        ["那", "是", "天"],
+        ["那", "是", "天", "山", "日"],
+        "那是天 aponta o céu na paisagem."
+      ),
+      dialogue(
+        "Comentar o dia",
+        "O céu está limpo. Qual frase comenta o dia de forma simples?",
+        "今天很好",
+        ["今天很好", "那是山", "我很好", "再见"],
+        "今天很好 comenta o dia/clima com 天 dentro de 今天."
+      ),
+      conversationScene("comentar-ceu"),
+    ],
+  }),
+  microLesson({
     id: "p4-char-huo",
     title: "火",
     skill: "hanzi",
@@ -3685,24 +3740,40 @@ export const JOURNEY: JourneyPhase[] = [
         subtitle: "Apresentar quem é quem",
         goal: "Apresentar pai e mãe; fazer perguntas básicas.",
         color: "#B7791F",
-        focusChunks: ["这是我爸爸", "这是我妈妈", "这是什么？"],
-        focusHanzi: [],
+        focusChunks: ["这是我爸爸", "这是我妈妈", "这是什么？", "这是我家"],
+        focusHanzi: ["家"],
         focusGrammar: ["apresentação com 这是", "pergunta com 什么"],
-        focusSounds: ["zhè shì", "bàba", "māma", "shénme"],
-        focusSituations: ["apresentar familiares", "perguntar o que é algo"],
+        focusSounds: ["zhè shì", "bàba", "māma", "shénme", "jiā"],
+        focusSituations: ["apresentar familiares", "mostrar a casa", "perguntar o que é algo"],
         lessons: [
           {
             id: "l24",
             title: "Pai e mãe",
             skill: "fala",
             premium: true,
-            // Visto na cena de identificar alguém à distância (那是我妈妈).
-            newHanzi: ["那"],
+            // Visto na cena de identificar alguém à distância (那是我妈妈) e na casa (家).
+            newHanzi: ["那", "家"],
+            libraryItems: [
+              "chunk:zheshibaba",
+              "chunk:zheshimama",
+              "chunk:zheshiwodejia",
+              "chunk:wohuijia",
+              "char:jia",
+            ],
+            reviewItems: ["chunk:zheshibaba", "chunk:zheshimama", "char:jia"],
             steps: [
               flash("zheshibaba"),
               flash("zheshimama"),
               listen("这是我爸爸", "zhè shì wǒ bàba", "Este é meu pai."),
               listen("这是我妈妈", "zhè shì wǒ māma", "Esta é minha mãe."),
+              imageChoice(
+                "choose_hanzi",
+                "father",
+                "Qual hànzì combina com pai?",
+                "爸",
+                visualHanziOptions("father"),
+                { explanation: "爸 (bà) = pai — na foto da família." }
+              ),
               comp("这是我爸爸", "zhè shì wǒ bàba", "Este é meu pai.", [
                 "Este é meu pai.",
                 "Esta é minha mãe.",
@@ -3747,6 +3818,42 @@ export const JOURNEY: JourneyPhase[] = [
                 "这是我妈妈 apresenta sua mãe.",
                 "Pessoa"
               ),
+              // 家: a casa da família — conceito visual ligado a apresentar parentes.
+              intro("Casa da família", "家 é casa e também família. Depois de apresentar pai e mãe, mostre onde vocês moram."),
+              listen("家", "jiā", "casa; família"),
+              imageChoice(
+                "choose_meaning",
+                "home",
+                "O que esta imagem mostra?",
+                "casa",
+                visualMeaningOptions("home"),
+                { explanation: "家 (jiā) = casa; família." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "home",
+                "Qual hànzì combina com a casa?",
+                "家",
+                visualHanziOptions("home"),
+                { explanation: "家 é o caractere de casa." }
+              ),
+              flash("zheshiwodejia"),
+              listen("这是我家", "zhè shì wǒ jiā", "Esta é minha casa."),
+              sentenceBuild(
+                "Mostre a casa",
+                "Monte: esta é minha casa.",
+                ["这", "是", "我", "家"],
+                ["这", "是", "我", "家", "妈妈"],
+                "这是我家 apresenta a casa da família."
+              ),
+              dialogue(
+                "Na porta",
+                "Um amigo chega. Como você mostra a casa?",
+                "这是我家",
+                ["这是我家", "这是我爸爸", "多少钱？", "我们走吧"],
+                "这是我家 aponta a casa.",
+                "Amigo"
+              ),
               // Cena autoral: identificar alguém à distância no momento certo do
               // módulo Família (那是我妈妈), sem antecipar vocabulário.
               conversationScene("identificar-pessoa"),
@@ -3757,8 +3864,16 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Perguntas úteis",
             skill: "fala",
             premium: true,
-            // Vistos na cena de perguntar onde algo fica (山在哪里 → 在那里).
+            // Vistos na cena de perguntar onde algo fica (山在哪里 → 在那里) e em casa.
             newHanzi: ["那", "里"],
+            libraryItems: [
+              "chunk:zheshishenme",
+              "chunk:zaina",
+              "chunk:zheshiwodejia",
+              "chunk:wohuijia",
+              "char:jia",
+            ],
+            reviewItems: ["chunk:zheshishenme", "char:jia", "chunk:zheshiwodejia"],
             steps: [
               flash("zheshishenme"),
               flash("zaina"),
@@ -3786,6 +3901,25 @@ export const JOURNEY: JourneyPhase[] = [
                 "Use 这是什么？ para perguntar o que é algo.",
                 "Situação"
               ),
+              // Revisão visual de 家 + conversa: mostrar a casa depois de saber perguntar 这是什么？
+              imageChoice(
+                "choose_image",
+                "home",
+                "Qual imagem combina com 家?",
+                "home",
+                visualImageOptions("home"),
+                { explanation: "家 volta: casa da família." }
+              ),
+              flash("wohuijia"),
+              listen("我回家", "wǒ huí jiā", "Vou para casa."),
+              dialogue(
+                "Hora de voltar",
+                "A visita acabou. Como você diz que vai para casa?",
+                "我回家",
+                ["我回家", "这是什么？", "太贵了", "我很好"],
+                "我回家 fecha a visita.",
+                "Situação"
+              ),
               // Cena autoral: perguntar onde algo fica (山在哪里？→ 在那里) — a
               // intenção "perguntar onde está" no módulo de perguntas úteis.
               conversationScene("onde-esta"),
@@ -3799,11 +3933,11 @@ export const JOURNEY: JourneyPhase[] = [
         subtitle: "Dizer o que você quer",
         goal: "Expressar gostos, fome e fazer compras.",
         color: "#2F855A",
-        focusChunks: ["我喜欢中文", "我想喝茶", "多少钱？", "我要这个"],
-        focusHanzi: [],
-        focusGrammar: ["gosto com 喜欢", "desejo com 想/要", "pergunta de preço"],
-        focusSounds: ["xǐhuan", "xiǎng hē chá", "duōshao qián", "wǒ yào"],
-        focusSituations: ["dizer preferência", "pedir bebida", "perguntar preço"],
+        focusChunks: ["我喜欢中文", "我想喝茶", "我要饭", "我要鱼", "我想喝水", "多少钱？", "我要这个"],
+        focusHanzi: ["饭", "菜", "肉", "鱼", "喝"],
+        focusGrammar: ["gosto com 喜欢", "desejo com 想/要", "pergunta de preço", "pedido no cardápio"],
+        focusSounds: ["xǐhuan", "xiǎng hē", "fàn", "cài", "ròu", "yú", "duōshao qián", "wǒ yào"],
+        focusSituations: ["dizer preferência", "pedir no cardápio", "escolher carne ou peixe", "perguntar preço"],
         lessons: [
           {
             id: "l26",
@@ -3842,6 +3976,113 @@ export const JOURNEY: JourneyPhase[] = [
             ],
           },
           {
+            id: "l26b",
+            title: "No cardápio",
+            skill: "fala",
+            premium: true,
+            newHanzi: ["饭", "菜", "肉", "鱼", "喝"],
+            libraryItems: [
+              "char:fan_rice",
+              "char:cai_dish",
+              "char:rou_meat",
+              "char:yu_fish",
+              "char:he_drink",
+              "chunk:woyaofan",
+              "chunk:woyaocai",
+              "chunk:woyaorou",
+              "chunk:woyaoyu",
+              "chunk:woxiangheshui",
+              "chunk:womenchifanba",
+            ],
+            reviewItems: [
+              "char:fan_rice",
+              "char:cai_dish",
+              "char:rou_meat",
+              "char:yu_fish",
+              "char:he_drink",
+              "chunk:woele",
+              "chunk:woxianghe",
+            ],
+            steps: [
+              intro(
+                "Pedir no cardápio",
+                "Num restaurante você escolhe arroz ou verdura, carne ou peixe, e diz o que quer beber — tudo com frases curtas."
+              ),
+              flash("woele"),
+              flash("womenchifanba"),
+              listen("饭", "fàn", "arroz; refeição"),
+              listen("菜", "cài", "verdura; prato"),
+              listen("肉", "ròu", "carne"),
+              listen("鱼", "yú", "peixe"),
+              listen("喝", "hē", "beber"),
+              imageChoice(
+                "choose_hanzi",
+                "fish",
+                "Qual hànzì combina com peixe?",
+                "鱼",
+                visualHanziOptions("fish"),
+                { explanation: "鱼 (yú) = peixe." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "meat",
+                "Qual hànzì combina com carne?",
+                "肉",
+                visualHanziOptions("meat"),
+                { explanation: "肉 (ròu) = carne." }
+              ),
+              // 饭 / 菜 / 喝 ficam no foco (libraryItems) e aparecem em revisão / outras lições;
+              // aqui o slot visual (máx. 2) prioriza carne e peixe — a escolha do cardápio.
+              flash("woyaofan"),
+              flash("woyaocai"),
+              flash("woyaorou"),
+              flash("woyaoyu"),
+              flash("woxiangheshui"),
+              listen("我要饭", "wǒ yào fàn", "Quero arroz."),
+              listen("我要菜", "wǒ yào cài", "Quero verdura."),
+              listen("我想喝水", "wǒ xiǎng hē shuǐ", "Quero beber água."),
+              sentenceBuild(
+                "Peça arroz",
+                "Monte: quero arroz.",
+                ["我", "要", "饭"],
+                ["我", "要", "饭", "菜", "鱼"],
+                "我要饭 pede a refeição / o arroz."
+              ),
+              sentenceBuild(
+                "Peça peixe",
+                "Monte: quero peixe.",
+                ["我", "要", "鱼"],
+                ["我", "要", "鱼", "肉", "饭"],
+                "我要鱼 pede peixe no cardápio."
+              ),
+              dialogue(
+                "Arroz ou verdura?",
+                "O garçom pergunta se você quer arroz. O que você diz?",
+                "我要饭",
+                ["我要饭", "我要菜", "再见", "太贵了"],
+                "我要饭 escolhe o arroz.",
+                "Garçom"
+              ),
+              dialogue(
+                "Carne ou peixe?",
+                "Há carne e peixe. Você prefere peixe. O que diz?",
+                "我要鱼",
+                ["我要鱼", "我要肉", "我很好", "多少钱？"],
+                "我要鱼 escolhe peixe em vez de carne.",
+                "Garçom"
+              ),
+              dialogue(
+                "O que beber?",
+                "Quer beber água. Qual frase combina?",
+                "我想喝水",
+                ["我想喝水", "我要饭", "这是我家", "再见"],
+                "我想喝水 diz o que você quer beber.",
+                "Garçom"
+              ),
+              conversationScene("pedir-cardapio"),
+            ],
+          },
+          {
             id: "l27",
             title: "Na loja",
             skill: "fala",
@@ -3852,6 +4093,22 @@ export const JOURNEY: JourneyPhase[] = [
               flash("taiguile"),
               flash("woyao"),
               flash("woxianghe"),
+              imageChoice(
+                "listen_and_choose_image",
+                "drink",
+                "Ouça e escolha a ação certa.",
+                "drink",
+                visualImageOptions("drink"),
+                { explanation: "喝 (hē) = beber — pedido na loja." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "rice",
+                "O que esta imagem mostra?",
+                "arroz",
+                visualMeaningOptions("rice"),
+                { explanation: "饭 reaparece na loja: comida e compra juntas." }
+              ),
               listen("多少钱？", "duōshao qián?", "Quanto custa?"),
               listen("我要这个", "wǒ yào zhège", "Eu quero este."),
               listenSelect(
@@ -3951,22 +4208,62 @@ export const JOURNEY: JourneyPhase[] = [
               conversationScene("encontrar-amigo"),
             ],
           },
-          review(
-            "l10-rev",
-            "fala",
-            [
+          withLessonDefaults({
+            id: "l10-rev",
+            title: "Revisão do módulo",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝"],
+            // Foco em chunks (não caracteres isolados) — evita trio de comprehend
+            // intent:identify-concept sem transformação na revisão.
+            libraryItems: [
+              "chunk:woxihuan",
+              "chunk:woxianghe",
+              "chunk:duoshaoqian",
+              "chunk:woele",
+              "chunk:womenchifanba",
+              "chunk:woyaofan",
+              "chunk:woyaocai",
+              "chunk:woyaoyu",
+              "char:shui",
+              "char:mu",
+              "char:jia",
+            ],
+            reviewItems: [
+              "chunk:woxihuan",
+              "chunk:woxianghe",
+              "chunk:duoshaoqian",
+              "chunk:woele",
+              "char:shui",
+              "char:mu",
+              "char:jia",
+            ],
+            steps: [
               flash("woxihuan"),
               flash("woxianghe"),
               flash("duoshaoqian"),
-              // Revisão de módulo (comida e compras): negociar uma compra e
-              // uma cena de restaurante consolidam o vocabulário do módulo.
-              conversationScene("comprar-itens"),
+              imageChoice(
+                "choose_image",
+                "home",
+                "Revisão: qual imagem combina com 家?",
+                "home",
+                visualImageOptions("home"),
+                { explanation: "家 volta da unidade Família." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "water",
+                "Revisão: qual hànzì combina com água?",
+                "水",
+                visualHanziOptions("water"),
+                { explanation: "水 volta enquanto você revisa pedidos de bebida." }
+              ),
+              hanziBuild("hb-shui-fragments", "Monte 水", "Revisão: monte o hànzì de água.", "水", "água"),
+              hanziBuild("hb-mu-fragments", "Monte 木", "Revisão: monte o hànzì de árvore.", "木", "árvore"),
               conversationScene("revisao-restaurante"),
             ],
-            true,
-            // Vistos nas cenas de compra/restaurante (多少钱, 我饿了).
-            ["多", "少", "饿"]
-          ),
+          }),
         ],
       },
     ],
@@ -3997,8 +4294,17 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Eu e meus amigos",
             skill: "leitura",
             premium: true,
-            // Visto na cena de apontar a paisagem (那是山 / 那是日).
-            newHanzi: ["那"],
+            // Visto na cena de apontar a paisagem (那是山 / 那是日) e no livro (书).
+            newHanzi: ["那", "书"],
+            libraryItems: [
+              "chunk:woxihuan",
+              "chunk:woxianghe",
+              "chunk:womenzouba",
+              "chunk:zheshishu",
+              "chunk:wokanshu",
+              "char:shu_book",
+            ],
+            reviewItems: ["char:shu_book", "chunk:zheshishu", "chunk:wokanshu"],
             steps: [
               read([
                 { hanzi: "我有三个朋友。", pinyin: "Wǒ yǒu sān ge péngyou.", pt: "Eu tenho três amigos." },
@@ -4034,9 +4340,45 @@ export const JOURNEY: JourneyPhase[] = [
                 "Eu gosto de chinês.",
                 "Tenho três amigos.",
               ]),
-              // Cena autoral: aplicar os hànzì de natureza numa conversa real
-              // (这是什么？→ 这是木 / 那是日), apontando a paisagem.
-              conversationScene("apontar-natureza"),
+              // 书: mostrar o livro enquanto lê — leitura vira objeto concreto.
+              intro("O livro", "书 é livro. Na leitura, você também precisa apontar o objeto: isto é um livro."),
+              listen("书", "shū", "livro"),
+              imageChoice(
+                "choose_meaning",
+                "book",
+                "O que esta imagem mostra?",
+                "livro",
+                visualMeaningOptions("book"),
+                { explanation: "书 (shū) = livro." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "book",
+                "Qual hànzì combina com o livro?",
+                "书",
+                visualHanziOptions("book"),
+                { explanation: "书 é o caractere de livro." }
+              ),
+              flash("zheshishu"),
+              flash("wokanshu"),
+              listen("这是书", "zhè shì shū", "Isto é um livro."),
+              listen("我看书", "wǒ kàn shū", "Eu leio / olho o livro."),
+              sentenceBuild(
+                "Mostre o livro",
+                "Monte: isto é um livro.",
+                ["这", "是", "书"],
+                ["这", "是", "书", "水", "茶"],
+                "这是书 identifica o livro."
+              ),
+              dialogue(
+                "Na sala",
+                "O professor aponta um objeto. Como você diz que é um livro?",
+                "这是书",
+                ["这是书", "我想喝茶", "我们走吧", "太贵了"],
+                "这是书 responde apontando o livro.",
+                "Professor"
+              ),
+              conversationScene("mostrar-livro"),
             ],
           },
           {
@@ -4044,7 +4386,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Leitura em voz alta",
             skill: "leitura",
             premium: true,
-            // Vistos na conversa de loja (多少钱).
+            // Vistos na conversa de loja (多少钱) e na paisagem.
             newHanzi: ["多", "少"],
             steps: [
               intro("Shadowing", "Ouça cada linha e repita em voz alta — é assim que a leitura vira fala."),
@@ -4074,9 +4416,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "我们走吧 fecha a cena: vamos embora.",
                 "Narrador"
               ),
-              // Cena autoral: uma conversa rápida de loja (我要这个 → 多少钱？)
-              // aplica o vocabulário de compras aprendido, em leitura ativa.
-              conversationScene("conversa-na-loja"),
+              // Cena autoral: aplicar os hànzì de natureza numa conversa real
+              // (这是什么？→ 这是木 / 那是日), apontando a paisagem.
+              conversationScene("apontar-natureza"),
             ],
           },
           review("l11-rev", "leitura", [
@@ -4084,7 +4426,25 @@ export const JOURNEY: JourneyPhase[] = [
             flash("woxihuan"),
             flash("woxianghe"),
             flash("womenzouba"),
+            flash("nashitian"),
+            flash("zheshishu"),
             recognize("san"),
+            imageChoice(
+              "choose_hanzi",
+              "sky",
+              "Revisão: qual hànzì combina com o céu?",
+              "天",
+              visualHanziOptions("sky"),
+              { explanation: "天 volta na revisão de leitura e natureza." }
+            ),
+            imageChoice(
+              "choose_image",
+              "book",
+              "Revisão: qual imagem combina com 书?",
+              "book",
+              visualImageOptions("book"),
+              { explanation: "书 reaparece depois da leitura." }
+            ),
             comp("我们走吧", "Wǒmen zǒu ba", "Vamos embora.", ["Vamos embora.", "Estou com fome.", "Até logo.", "Sou brasileiro."]),
             sentenceBuild(
               "Tenho três amigos",
@@ -4127,9 +4487,10 @@ export const JOURNEY: JourneyPhase[] = [
                 "Uma conversa inteira: cumprimentar, pedir, perguntar o preço e negociar. Erre à vontade — o vendedor te dá outra chance."
               ),
               conversationScene("imersao-mercado"),
-              // Cena comum de aquecimento: dizer a quantidade (我要三个) antes da
-              // imersão longa — mesma situação de mercado.
+              // Cenas comuns de aquecimento: quantidade, loja e negociação.
               conversationScene("perguntar-quantidade"),
+              conversationScene("conversa-na-loja"),
+              conversationScene("comprar-itens"),
               comp("多少钱？", "duōshao qián?", "Quanto custa?", [
                 "Quanto custa?",
                 "Vamos embora.",
@@ -4151,13 +4512,70 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: na estação",
             skill: "fala",
             premium: true,
-            // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下).
-            newHanzi: ["那", "里", "多", "少", "等", "下"],
+            // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
+            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票"],
+            libraryItems: [
+              "char:che",
+              "char:piao_ticket",
+              "chunk:chezainali",
+              "chunk:woyaopiao",
+              "chunk:piaoduoshaoqian",
+              "chunk:huochezhanzainali",
+            ],
+            reviewItems: ["char:che", "char:piao_ticket", "chunk:chezainali", "chunk:woyaopiao"],
             steps: [
               intro(
                 "Imersão na estação",
-                "Ache a estação, pergunte o preço da passagem e compre o bilhete — uma cena longa de rua, do 请问 ao 再见."
+                "Ache o carro, pergunte o preço da passagem e compre o bilhete — uma cena longa de rua, do 请问 ao 再见."
               ),
+              listen("车", "chē", "carro; veículo"),
+              listen("票", "piào", "bilhete; passagem"),
+              imageChoice(
+                "choose_meaning",
+                "car",
+                "O que esta imagem mostra?",
+                "carro",
+                visualMeaningOptions("car"),
+                { explanation: "车 (chē) = carro / veículo." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "ticket",
+                "Qual hànzì combina com o bilhete?",
+                "票",
+                visualHanziOptions("ticket"),
+                { explanation: "票 (piào) = bilhete / passagem." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "car",
+                "Ouça e escolha a imagem certa.",
+                "car",
+                visualImageOptions("car"),
+                { explanation: "车 (chē) = carro." }
+              ),
+              flash("chezainali"),
+              flash("woyaopiao"),
+              flash("piaoduoshaoqian"),
+              listen("车在哪里？", "chē zài nǎlǐ?", "Onde está o carro?"),
+              listen("我要票", "wǒ yào piào", "Quero o bilhete."),
+              listen("票多少钱？", "piào duōshao qián?", "Quanto custa a passagem?"),
+              sentenceBuild(
+                "Onde está o carro?",
+                "Monte: onde está o carro?",
+                ["车", "在", "哪", "里"],
+                ["车", "在", "哪", "里", "票"],
+                "车在哪里？ pergunta onde está o carro."
+              ),
+              dialogue(
+                "Na rua",
+                "Você procura o carro. O que pergunta?",
+                "车在哪里？",
+                ["车在哪里？", "我要票", "我想喝茶", "这是书"],
+                "车在哪里？ localiza o veículo.",
+                "Passante"
+              ),
+              conversationScene("onde-esta-o-carro"),
               conversationScene("imersao-estacao"),
               comp("在那里", "zài nàlǐ", "Fica ali.", ["Fica ali.", "Custa dez.", "Espere um pouco.", "Não sei."]),
               sentenceBuild(
@@ -4187,9 +4605,10 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               intro(
                 "Imersão: uma visita",
-                "Chegue, cumprimente a família, aceite um chá e combine o reencontro — uma conversa social inteira em casa."
+                "Chegue, cumprimente a família, mostre a casa, aceite um chá e combine o reencontro — uma conversa social inteira em casa."
               ),
-              // Aquecimento comum: pedir chá em casa antes da imersão completa.
+              // Aquecimento: mostrar a casa e pedir chá antes da imersão completa.
+              conversationScene("esta-e-minha-casa"),
               conversationScene("pedir-cha"),
               conversationScene("imersao-casa-amigo"),
               comp("这是我妈妈", "zhè shì wǒ māma", "Esta é minha mãe.", [

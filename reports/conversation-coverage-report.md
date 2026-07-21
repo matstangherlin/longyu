@@ -4,24 +4,24 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 00a9e683e38ed72c6f70363b0b8d045182cedbda |
+| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T15:11:56.470Z |
-| Lições | 108 |
-| Hash da Jornada | 1fb127c0c205 |
+| Gerado em | 2026-07-21T22:10:58.840Z |
+| Lições | 110 |
+| Hash da Jornada | 889271f39a22 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Cenas no catálogo | 33 |
-| Cenas V2 (nós/ramificação) | 33 |
+| Cenas no catálogo | 38 |
+| Cenas V2 (nós/ramificação) | 38 |
 | Cenas V1 autorais (sem nós) | 0 |
-| Fallback V1 derivado (lines/checkpoint) | 33 |
-| Intenções distintas | 33 |
-| Passos autorais na jornada | 35 |
-| Lições com cena gerada no plano | 94 |
-| Cenas geradas distintas | 19 |
+| Fallback V1 derivado (lines/checkpoint) | 38 |
+| Intenções distintas | 38 |
+| Passos autorais na jornada | 40 |
+| Lições com cena gerada no plano | 92 |
+| Cenas geradas distintas | 18 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -29,8 +29,8 @@
 
 | Papel | Cenas |
 |-------|------:|
-| common | 26 |
-| module_review | 4 |
+| common | 30 |
+| module_review | 5 |
 | immersion | 3 |
 
 ## Cenas por cenário
@@ -38,11 +38,11 @@
 | Cenário | Cenas |
 |---------|------:|
 | school | 3 |
-| park | 5 |
-| shop | 8 |
-| street | 8 |
-| classroom | 5 |
-| home | 4 |
+| park | 6 |
+| shop | 9 |
+| street | 9 |
+| classroom | 6 |
+| home | 5 |
 
 ## Catálogo
 
@@ -50,15 +50,15 @@
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
 | primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 2 | 3 |
 | perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 3 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 2 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 3 |
 | revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 8 |
-| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 3 |
+| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 8 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
-| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 9 |
+| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
 | como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 1 | 7 |
 | pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 0 |
@@ -74,13 +74,18 @@
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 0 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 9 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 0 |
-| comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 1 |
+| comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 1 |
 | imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 0 |
 | imersao-estacao | immersion | immersion-station | 15 | 6 | sim | 2 | 1 | 0 |
 | imersao-casa-amigo | immersion | immersion-visit | 14 | 6 | sim | 2 | 1 | 0 |
+| comentar-ceu | common | comment-sky | 6 | 2 | sim | 1 | 1 | 0 |
+| esta-e-minha-casa | common | show-home | 7 | 2 | sim | 1 | 1 | 0 |
+| pedir-cardapio | module_review | order-menu | 11 | 4 | sim | 1 | 1 | 0 |
+| mostrar-livro | common | show-book | 7 | 2 | sim | 1 | 1 | 0 |
+| onde-esta-o-carro | common | ask-car-where | 7 | 2 | sim | 1 | 1 | 0 |
 
 ## Cenas nunca usadas
 
@@ -90,24 +95,14 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 | Indicador | Valor |
 |-----------|------:|
-| Variantes com manifesto gerado | 34 |
-| Itens de vocabulário mapeados | 401 |
-| Textos exibidos sem referência canônica (aviso) | 5 |
+| Variantes com manifesto gerado | 39 |
+| Itens de vocabulário mapeados | 481 |
+| Textos exibidos sem referência canônica (aviso) | 0 |
 | Refs declarados nunca exibidos (aviso) | 0 |
-
-### Texto exibido sem referência canônica standalone
-
-_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._
-
-- onde-esta (advanced): sem referência canônica → "那"
-- onde-esta (advanced): sem referência canônica → "里"
-- apontar-natureza (advanced): sem referência canônica → "那"
-- imersao-estacao (advanced): sem referência canônica → "那"
-- imersao-estacao (advanced): sem referência canônica → "里"
 
 
 ---
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:5b1fa9a5b0821c7d -->
+<!-- integridade:3df18fef02710166 -->

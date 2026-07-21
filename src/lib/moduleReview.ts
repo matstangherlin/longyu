@@ -74,6 +74,18 @@ export const PROGRESSIVE_PHRASE_REFS: readonly { ref: string; afterUnitIndex: nu
   { ref: "chunk:nijiaoshenme", afterUnitIndex: 1 },
   { ref: "chunk:zheshishui", afterUnitIndex: 5 },
   { ref: "chunk:nashirenm", afterUnitIndex: 5 },
+  { ref: "chunk:nashitian", afterUnitIndex: 6 },
+  { ref: "chunk:zheshiwodejia", afterUnitIndex: 11 },
+  { ref: "chunk:wohuijia", afterUnitIndex: 11 },
+  { ref: "chunk:woyaofan", afterUnitIndex: 12 },
+  { ref: "chunk:woyaocai", afterUnitIndex: 12 },
+  { ref: "chunk:woyaorou", afterUnitIndex: 12 },
+  { ref: "chunk:woyaoyu", afterUnitIndex: 12 },
+  { ref: "chunk:woxiangheshui", afterUnitIndex: 12 },
+  { ref: "chunk:zheshishu", afterUnitIndex: 12 },
+  { ref: "chunk:wokanshu", afterUnitIndex: 12 },
+  { ref: "chunk:chezainali", afterUnitIndex: 12 },
+  { ref: "chunk:woyaopiao", afterUnitIndex: 12 },
 ];
 
 const charByHanzi = new Map(CHARACTERS.map((char) => [char.hanzi, char]));

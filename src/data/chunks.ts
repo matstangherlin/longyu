@@ -44,8 +44,10 @@ export const CHUNKS: Chunk[] = [
   // --- Perguntas básicas ---
   { id: "zheshishenme", hanzi: "这是什么？", pinyin: "zhè shì shénme?", meaningPt: "O que é isto?", literalPt: "isto é o quê", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
   { id: "zheshishui", hanzi: "这是水", pinyin: "zhè shì shuǐ", meaningPt: "Isto é água.", literalPt: "isto é água", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
+  { id: "nashitian", hanzi: "那是天", pinyin: "nà shì tiān", meaningPt: "Aquilo é o céu.", literalPt: "aquilo é céu", tags: ["pergunta", "natureza"], domain: "pergunta", level: "beginner" },
   { id: "nashirenm", hanzi: "那是人吗", pinyin: "nà shì rén ma", meaningPt: "Aquilo é uma pessoa?", literalPt: "aquilo é pessoa (pergunta)", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
   { id: "zaina", hanzi: "在哪里？", pinyin: "zài nǎlǐ?", meaningPt: "Onde fica?", literalPt: "está onde", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
+  { id: "chezainali", hanzi: "车在哪里？", pinyin: "chē zài nǎlǐ?", meaningPt: "Onde está o carro?", literalPt: "carro está onde", tags: ["pergunta", "transporte"], domain: "transporte", level: "elementary" },
   { id: "nine", hanzi: "你呢？", pinyin: "nǐ ne?", meaningPt: "E você?", literalPt: "você (partícula)", tags: ["pergunta"], domain: "pergunta", level: "beginner" },
   { id: "shenmeshihou", hanzi: "什么时候？", pinyin: "shénme shíhou?", meaningPt: "Quando?", literalPt: "o quê + momento", tags: ["pergunta"], domain: "pergunta", level: "survival" },
   { id: "zenmeyang", hanzi: "怎么样？", pinyin: "zěnmeyàng?", meaningPt: "Que tal? Como está?", tags: ["pergunta"], domain: "pergunta", level: "survival" },
@@ -61,7 +63,12 @@ export const CHUNKS: Chunk[] = [
   { id: "haochi", hanzi: "很好吃", pinyin: "hěn hǎochī", meaningPt: "Muito gostoso.", literalPt: "muito bom-comer", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woele", hanzi: "我饿了", pinyin: "wǒ è le", meaningPt: "Estou com fome.", literalPt: "eu faminto (já)", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woxianghe", hanzi: "我想喝茶", pinyin: "wǒ xiǎng hē chá", meaningPt: "Quero beber chá.", literalPt: "eu querer beber chá", tags: ["comida"], domain: "bebida", level: "elementary" },
+  { id: "woxiangheshui", hanzi: "我想喝水", pinyin: "wǒ xiǎng hē shuǐ", meaningPt: "Quero beber água.", literalPt: "eu querer beber água", tags: ["comida"], domain: "bebida", level: "beginner" },
   { id: "womenchifanba", hanzi: "我们吃饭吧", pinyin: "wǒmen chīfàn ba", meaningPt: "Vamos comer.", literalPt: "nós comer refeição (vamos)", tags: ["comida"], domain: "comida", level: "elementary" },
+  { id: "woyaofan", hanzi: "我要饭", pinyin: "wǒ yào fàn", meaningPt: "Quero arroz / a refeição.", literalPt: "eu quero refeição", tags: ["comida"], domain: "comida", level: "elementary" },
+  { id: "woyaocai", hanzi: "我要菜", pinyin: "wǒ yào cài", meaningPt: "Quero verdura / um prato.", literalPt: "eu quero prato", tags: ["comida"], domain: "comida", level: "elementary" },
+  { id: "woyaorou", hanzi: "我要肉", pinyin: "wǒ yào ròu", meaningPt: "Quero carne.", literalPt: "eu quero carne", tags: ["comida"], domain: "comida", level: "elementary" },
+  { id: "woyaoyu", hanzi: "我要鱼", pinyin: "wǒ yào yú", meaningPt: "Quero peixe.", literalPt: "eu quero peixe", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woyaomifan", hanzi: "我要米饭", pinyin: "wǒ yào mǐfàn", meaningPt: "Quero arroz.", literalPt: "eu quero arroz", tags: ["comida"], domain: "comida", level: "survival" },
   { id: "buyaola", hanzi: "不要辣", pinyin: "búyào là", meaningPt: "Sem pimenta, por favor.", literalPt: "não querer picante", tags: ["comida"], domain: "comida", level: "survival" },
   { id: "maidan", hanzi: "买单", pinyin: "mǎidān", meaningPt: "A conta, por favor.", literalPt: "comprar + conta", tags: ["comida"], domain: "comida", level: "survival" },
@@ -70,16 +77,21 @@ export const CHUNKS: Chunk[] = [
   // --- Família ---
   { id: "zheshibaba", hanzi: "这是我爸爸", pinyin: "zhè shì wǒ bàba", meaningPt: "Este é meu pai.", literalPt: "este é meu pai", tags: ["familia"], domain: "familia", level: "elementary" },
   { id: "zheshimama", hanzi: "这是我妈妈", pinyin: "zhè shì wǒ māma", meaningPt: "Esta é minha mãe.", literalPt: "este é minha mãe", tags: ["familia"], domain: "familia", level: "elementary" },
+  { id: "zheshiwodejia", hanzi: "这是我家", pinyin: "zhè shì wǒ jiā", meaningPt: "Esta é minha casa.", literalPt: "isto é minha casa", tags: ["familia", "lugar"], domain: "familia", level: "elementary" },
+  { id: "wohuijia", hanzi: "我回家", pinyin: "wǒ huí jiā", meaningPt: "Vou para casa.", literalPt: "eu voltar casa", tags: ["familia", "lugar"], domain: "lugar", level: "elementary" },
 
   // --- Gostos e estudo ---
   { id: "woxihuan", hanzi: "我喜欢中文", pinyin: "wǒ xǐhuan Zhōngwén", meaningPt: "Eu gosto de chinês.", literalPt: "eu gostar chinês", tags: ["gostos"], domain: "gostos", level: "elementary" },
   { id: "wozaixuezhongwen", hanzi: "我在学中文", pinyin: "wǒ zài xué Zhōngwén", meaningPt: "Estou estudando chinês.", literalPt: "eu estar-em estudar chinês", tags: ["estudo"], domain: "estudo", level: "elementary" },
   { id: "woquxuexiao", hanzi: "我去学校", pinyin: "wǒ qù xuéxiào", meaningPt: "Vou para a escola.", literalPt: "eu ir escola", tags: ["estudo"], domain: "estudo", level: "elementary" },
+  { id: "zheshishu", hanzi: "这是书", pinyin: "zhè shì shū", meaningPt: "Isto é um livro.", literalPt: "isto é livro", tags: ["estudo"], domain: "estudo", level: "beginner" },
+  { id: "wokanshu", hanzi: "我看书", pinyin: "wǒ kàn shū", meaningPt: "Eu leio / olho o livro.", literalPt: "eu olhar livro", tags: ["estudo"], domain: "estudo", level: "beginner" },
 
   // --- Transporte ---
   { id: "wozuochuzuche", hanzi: "我坐出租车", pinyin: "wǒ zuò chūzūchē", meaningPt: "Vou de táxi.", literalPt: "eu sentar táxi", tags: ["transporte"], domain: "transporte", level: "survival" },
   { id: "huochezhanzainali", hanzi: "火车站在哪里？", pinyin: "huǒchēzhàn zài nǎlǐ?", meaningPt: "Onde fica a estação de trem?", literalPt: "trem-estação está onde", tags: ["transporte", "pergunta"], domain: "transporte", level: "survival" },
   { id: "piaoduoshaoqian", hanzi: "票多少钱？", pinyin: "piào duōshao qián?", meaningPt: "Quanto custa a passagem?", literalPt: "passagem quanto dinheiro", tags: ["transporte", "compras"], domain: "transporte", level: "survival" },
+  { id: "woyaopiao", hanzi: "我要票", pinyin: "wǒ yào piào", meaningPt: "Quero o bilhete.", literalPt: "eu quero bilhete", tags: ["transporte", "compras"], domain: "transporte", level: "elementary" },
 
   // --- Respostas sociais curtas ---
   { id: "haode", hanzi: "好的", pinyin: "hǎo de", meaningPt: "Está bem; ok.", literalPt: "bom (partícula)", tags: ["frase_social"], domain: "frase_social", level: "beginner" },

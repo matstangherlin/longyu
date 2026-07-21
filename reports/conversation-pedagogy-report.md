@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f39fe4715374089207bc2b0022380b0df4f540f9 |
+| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T19:39:34.141Z |
-| Lições | 108 |
-| Hash da Jornada | 1f2204110e9f |
+| Gerado em | 2026-07-21T22:11:04.140Z |
+| Lições | 110 |
+| Hash da Jornada | 889271f39a22 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 33 |
-| Média de falas | 7.91 |
-| Média de intervenções | 2.82 |
-| Número de ramificações | 93 |
-| Número de finais | 36 |
-| Vocabulário total exibido (refs únicas no plano real) | 57 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 57 |
+| Número de cenas | 38 |
+| Média de falas | 7.87 |
+| Média de intervenções | 2.76 |
+| Número de ramificações | 105 |
+| Número de finais | 41 |
+| Vocabulário total exibido (refs únicas no plano real) | 82 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 82 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 7 |
-| Média de reutilizações por ref exibida | 15.72 |
+| Palavras novas (refs únicas) | 4 |
+| Média de reutilizações por ref exibida | 10.98 |
 
 ## Cenas mais curtas
 
@@ -40,6 +40,7 @@
 | encontrar-amigo | 6 | 2 |
 | encontro-amanha | 6 | 2 |
 | conversa-em-casa | 6 | 2 |
+| comentar-ceu | 6 | 2 |
 
 ## Cenas mais longas
 
@@ -53,30 +54,31 @@
 |------|-----:|
 | encontro-amanha | 12 |
 | revisao-cumprimento-completo | 10 |
-| nao-falo-chinês | 9 |
 | conversa-em-casa | 9 |
+| nao-falo-chinês | 8 |
 | cortesia-loja | 8 |
 | como-se-chama | 7 |
 | perguntando-se-esta-bem | 7 |
-| pedir-agua | 7 |
 | sala-de-aula | 6 |
 | fale-de-novo | 6 |
+| pedir-agua | 6 |
 
 ## Cenas por cenário
 
 | Cenário | Cenas |
 |---------|------:|
-| classroom | 5 |
-| home | 4 |
-| park | 5 |
+| classroom | 6 |
+| home | 5 |
+| park | 6 |
 | school | 3 |
-| shop | 8 |
-| street | 8 |
+| shop | 9 |
+| street | 9 |
 
 ## Cenas por intenção
 
 | Intenção | Cenas |
 |----------|------:|
+| ask-car-where | 1 |
 | ask-help | 1 |
 | ask-name | 1 |
 | ask-origin | 1 |
@@ -91,6 +93,7 @@
 | buy-items | 1 |
 | cannot-speak | 1 |
 | classroom-intro | 1 |
+| comment-sky | 1 |
 | farewell | 1 |
 | greet | 1 |
 | greet-review | 1 |
@@ -103,12 +106,15 @@
 | introduce-self | 1 |
 | meet-friend | 1 |
 | numbers-review | 1 |
+| order-menu | 1 |
 | plan-tomorrow | 1 |
 | point-nature | 1 |
 | polite-question | 1 |
 | repair-not-understood | 1 |
 | restaurant-review | 1 |
 | shop-chat | 1 |
+| show-book | 1 |
+| show-home | 1 |
 | thank | 1 |
 
 ## Itens não resolvidos
@@ -127,4 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:7ef9867c7539fecf -->
+<!-- integridade:86a691ba180f0ca8 -->

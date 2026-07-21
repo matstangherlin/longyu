@@ -4,23 +4,23 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 00a9e683e38ed72c6f70363b0b8d045182cedbda |
+| Commit | fe7a78d28c23aee76cf006d8afdf1c277995c9e7 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T15:12:33.979Z |
-| Lições | 108 |
-| Hash da Jornada | 1fb127c0c205 |
+| Gerado em | 2026-07-21T22:11:10.627Z |
+| Lições | 110 |
+| Hash da Jornada | 889271f39a22 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 114 |
-| Itens de vocabulário exibidos | 481 |
-| Itens cobertos por tarefa posterior | 383 |
-| Reutilização média por item | 2.83 |
-| Itens sem cobertura | 98 |
-| Tarefas da fase Pós-Conversa | 439 |
-| Média Pós-Conversa por conversa | 3.85 |
+| Conversas analisadas (nos planos reais) | 116 |
+| Itens de vocabulário exibidos | 624 |
+| Itens cobertos por tarefa posterior | 422 |
+| Reutilização média por item | 2.04 |
+| Itens sem cobertura | 202 |
+| Tarefas da fase Pós-Conversa | 410 |
+| Média Pós-Conversa por conversa | 3.53 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
@@ -53,58 +53,58 @@
 - l13-dialogo-nome:chunk:wohuishuoyidian
 - l5-rev:chunk:xiexie
 - l5-rev:chunk:zaijian
-- p5-kou-ma-pergunta:chunk:xiexie
-- p5-kou-ma-pergunta:chunk:zaijian
-- l19-logica-ma:chunk:xiexie
-- l19-logica-ma:chunk:zaijian
-- l9-rev:chunk:wojiao
-- l9-rev:char:liu
-- l9-rev:char:shi
-- l9-rev:char:shi10
-- l9-rev:char:si
-- l9-rev:char:wu
-- l9-rev:chunk:nihaoma
-- l25:chunk:qingwen
-- l27:chunk:nihao
-- l27:chunk:qingwen
-- l27:chunk:qingzaishuoyibian
-- l27:chunk:zaijian
-- l28:chunk:duoshaoqian
-- l28:chunk:woxianghe
-- l28:chunk:woyao
-- l28:chunk:xiexie
-- l28:chunk:zheshishenme
-- l10-rev:chunk:qingzaishuoyibian
-- l10-rev:chunk:taiguile
-- l10-rev:chunk:woele
-- l10-rev:chunk:wohenhao
-- l10-rev:chunk:xiexie
-- l10-rev:chunk:zaijian
-- l10-rev:char:ri
-- l10-rev:char:san
-- l10-rev:char:sen
-- l10-rev:char:shan
-- l10-rev:char:shi
-- l10-rev:char:yue
-- l10-rev:chunk:qingzaishuoyibian
-- l10-rev:chunk:wohenhao
-- l10-rev:chunk:zheshishenme
-- l29:char:yue
-- l29:char:zhe
-- l29:chunk:wohenhao
-- l29:chunk:zheshishenme
-- l30:chunk:nihao
-- l30:chunk:qingwen
-- l30:chunk:qingzaishuoyibian
-- l30:chunk:woyao
-- l30:chunk:zaijian
-- l11-rev:chunk:xiexie
-- l11-rev:chunk:zaijian
-- l11-rev:char:ri
-- l11-rev:char:sen
-- l11-rev:char:shan
-- l11-rev:char:shi
-- l11-rev:char:yue
-- …mais 18.
+- l14:chunk:wohenhao
+- l14:chunk:wohuishuoyidian
+- l14:chunk:wojiao
+- p4-num-123:chunk:wohenhao
+- p4-num-123:chunk:wohuishuoyidian
+- p4-num-123:chunk:wojiao
+- p4-num-45:chunk:wohenhao
+- p4-num-45:chunk:wohuishuoyidian
+- p4-num-45:chunk:wojiao
+- p4-num-678:chunk:wohenhao
+- p4-num-678:chunk:wohuishuoyidian
+- p4-num-678:chunk:wojiao
+- p4-num-910:chunk:wohenhao
+- p4-num-910:chunk:wohuishuoyidian
+- p4-num-910:chunk:wojiao
+- p4-char-mu:chunk:wohenhao
+- p4-char-mu:chunk:wohuishuoyidian
+- p4-char-mu:chunk:wojiao
+- p4-char-ren:chunk:wohenhao
+- p4-char-ren:chunk:wohuishuoyidian
+- p4-char-ren:chunk:wojiao
+- p4-char-kou:chunk:wohenhao
+- p4-char-kou:chunk:wohuishuoyidian
+- p4-char-kou:chunk:wojiao
+- p4-char-ri:chunk:wohenhao
+- p4-char-ri:chunk:wohuishuoyidian
+- p4-char-ri:chunk:wojiao
+- p4-char-yue:chunk:wohenhao
+- p4-char-yue:chunk:wohuishuoyidian
+- p4-char-yue:chunk:wojiao
+- p4-char-shan:chunk:xiexie
+- p4-char-shan:chunk:zaijian
+- p4-char-tian:chunk:qingzaishuoyibian
+- p4-char-tian:chunk:wohenhao
+- p4-char-tian:chunk:zaijian
+- l14-char-rev:chunk:nihaoma
+- l14-char-rev:chunk:xiexie
+- l14-char-rev:chunk:zaijian
+- l15:chunk:nihaoma
+- l15:chunk:xiexie
+- l15:chunk:zaijian
+- l16:chunk:xiexie
+- l16:chunk:zaijian
+- l17:chunk:nihaoma
+- l17:chunk:xiexie
+- l17:chunk:zaijian
+- l18:chunk:nihaoma
+- l18:chunk:xiexie
+- l18:chunk:zaijian
+- p5-mu-mu-lin:chunk:xiexie
+- p5-mu-mu-lin:chunk:zaijian
+- p5-mu-mu-mu-sen:chunk:xiexie
+- …mais 122.
 
-<!-- integridade:94cec9db19de3895 -->
+<!-- integridade:5d70a14f7bff2dfa -->
