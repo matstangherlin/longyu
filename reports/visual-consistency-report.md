@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e5903577e10249d1423db7d32202936a08f851ac |
+| Commit | 88ef1ad8ebf8588020cd510df74e5c4cf471491d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-20T23:21:00.373Z |
+| Gerado em | 2026-07-21T00:11:17.165Z |
 | Lições | 108 |
 | Hash da Jornada | a056a4c37761 |
 
@@ -43,46 +43,46 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 | Asset | Conceito | Estilo | Fundo | Tamanho | Dimensão | Problemas | Substituir? |
 |-------|----------|--------|-------|--------:|----------|-----------|:-----------:|
-| person | 人 pessoa | flat_illustration | neutral | 0.8 KB | 600×600 | — | — |
-| tree | 木 árvore | flat_illustration | neutral | 0.6 KB | 600×600 | — | — |
-| mouth | 口 boca | flat_illustration | neutral | 0.4 KB | 600×600 | — | — |
-| sun | 日 sol | flat_illustration | neutral | 0.8 KB | 600×600 | — | — |
-| moon | 月 lua | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
-| mountain | 山 montanha | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
-| water | 水 água | flat_illustration | neutral | 0.6 KB | 600×600 | — | — |
-| fire | 火 fogo | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| big | 大 grande | flat_illustration | neutral | 0.4 KB | 600×600 | — | — |
-| small | 小 pequeno | flat_illustration | neutral | 0.5 KB | 600×600 | — | — |
-| woman | 女 mulher | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
-| child | 子 criança | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| mother | 妈 mãe | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| father | 爸 pai | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
-| friend | 朋 amigo | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
+| person | 人 pessoa | flat_illustration | neutral | 34.4 KB | 600×600 | — | — |
+| tree | 木 árvore | flat_illustration | neutral | 30.5 KB | 600×600 | — | — |
+| mouth | 口 boca | flat_illustration | neutral | 6.4 KB | 600×600 | — | — |
+| sun | 日 sol | flat_illustration | neutral | 10.9 KB | 600×600 | — | — |
+| moon | 月 lua | flat_illustration | neutral | 5.2 KB | 600×600 | — | — |
+| mountain | 山 montanha | flat_illustration | neutral | 40.4 KB | 600×600 | — | — |
+| water | 水 água | flat_illustration | neutral | 9.2 KB | 600×600 | — | — |
+| fire | 火 fogo | flat_illustration | neutral | 4.5 KB | 600×600 | — | — |
+| big | 大 grande | flat_illustration | neutral | 4.5 KB | 600×600 | — | — |
+| small | 小 pequeno | flat_illustration | neutral | 3.9 KB | 600×600 | — | — |
+| woman | 女 mulher | flat_illustration | neutral | 17.4 KB | 600×600 | — | — |
+| child | 子 criança | flat_illustration | neutral | 28.3 KB | 600×600 | — | — |
+| mother | 妈 mãe | flat_illustration | neutral | 25.7 KB | 600×600 | — | — |
+| father | 爸 pai | flat_illustration | neutral | 26.2 KB | 600×600 | — | — |
+| friend | 朋 amigo | flat_illustration | neutral | 32.4 KB | 600×600 | — | — |
 | crowd | 众 multidão | flat_illustration | neutral | 73.8 KB | 600×600 | — | — |
-| sky | 天 céu | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
-| woods | 林 bosque | flat_illustration | neutral | 1.1 KB | 600×600 | — | — |
-| forest | 森 floresta | flat_illustration | neutral | 2.0 KB | 600×600 | — | — |
+| sky | 天 céu | flat_illustration | neutral | 11.2 KB | 600×600 | — | — |
+| woods | 林 bosque | flat_illustration | neutral | 37.3 KB | 600×600 | — | — |
+| forest | 森 floresta | flat_illustration | neutral | 68.8 KB | 600×600 | — | — |
 | horse | 马 cavalo | flat_illustration | neutral | 67.4 KB | 600×600 | — | — |
-| fish | 鱼 peixe | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
-| rice | 饭 arroz | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| tea | 茶 chá | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| meat | 肉 carne | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
-| vegetables | 菜 verdura | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
+| fish | 鱼 peixe | flat_illustration | neutral | 16.7 KB | 600×600 | — | — |
+| rice | 饭 arroz | flat_illustration | neutral | 56.5 KB | 600×600 | — | — |
+| tea | 茶 chá | flat_illustration | neutral | 17.8 KB | 600×600 | — | — |
+| meat | 肉 carne | flat_illustration | neutral | 12.2 KB | 600×600 | — | — |
+| vegetables | 菜 verdura | flat_illustration | neutral | 54.3 KB | 600×600 | — | — |
 | eat | 吃 comer | flat_illustration | neutral | 70.3 KB | 600×600 | — | — |
 | drink | 喝 beber | flat_illustration | neutral | 30.9 KB | 600×600 | — | — |
-| book | 书 livro | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
-| car | 车 carro | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| home | 家 casa | flat_illustration | neutral | 1.2 KB | 600×600 | — | — |
-| money | 钱 dinheiro | flat_illustration | neutral | 0.8 KB | 600×600 | — | — |
-| ticket | 票 bilhete | flat_illustration | neutral | 0.9 KB | 600×600 | — | — |
-| one | 一 um | flat_illustration | neutral | 0.5 KB | 600×600 | — | — |
-| two | 二 dois | flat_illustration | neutral | 0.7 KB | 600×600 | — | — |
-| three | 三 três | flat_illustration | neutral | 1.0 KB | 600×600 | — | — |
-| four | 四 quatro | flat_illustration | neutral | 1.2 KB | 600×600 | — | — |
-| five | 五 cinco | flat_illustration | neutral | 1.4 KB | 600×600 | — | — |
+| book | 书 livro | flat_illustration | neutral | 24.8 KB | 600×600 | — | — |
+| car | 车 carro | flat_illustration | neutral | 35.4 KB | 600×600 | — | — |
+| home | 家 casa | flat_illustration | neutral | 51.6 KB | 600×600 | — | — |
+| money | 钱 dinheiro | flat_illustration | neutral | 33.9 KB | 600×600 | — | — |
+| ticket | 票 bilhete | flat_illustration | neutral | 7.5 KB | 600×600 | — | — |
+| one | 一 um | flat_illustration | neutral | 3.9 KB | 600×600 | — | — |
+| two | 二 dois | flat_illustration | neutral | 5.5 KB | 600×600 | — | — |
+| three | 三 três | flat_illustration | neutral | 13.6 KB | 600×600 | — | — |
+| four | 四 quatro | flat_illustration | neutral | 7.2 KB | 600×600 | — | — |
+| five | 五 cinco | flat_illustration | neutral | 14.4 KB | 600×600 | — | — |
 
 ---
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:9bc7bf9566e29003 -->
+<!-- integridade:fe36e63511822479 -->
