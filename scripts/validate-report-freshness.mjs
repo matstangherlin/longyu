@@ -31,6 +31,7 @@ const REPORTS = [
   "reports/image-coverage-report.md",
   "reports/visual-consistency-report.md",
   "reports/conversation-coverage-report.md",
+  "reports/conversation-pedagogy-report.md",
   "reports/lesson-novelty-report.md",
 ];
 
