@@ -1449,7 +1449,6 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
     { id: "agua-11", speakerId: "lin", hanzi: "再见！", pinyin: "zàijiàn!", pt: "Até logo!", emotion: "happy" },
   ],
   learnedRefs: ["chunk:nihao", "chunk:qingwen", "chunk:woyao", "char:shui", "chunk:xiexie", "chunk:qingzaishuoyibian", "chunk:bukeqi", "chunk:zaijian"],
-  optionalRefs: ["chunk:qingwen", "chunk:woyao", "chunk:xiexie", "chunk:qingzaishuoyibian", "chunk:bukeqi", "chunk:zaijian"],
   variants: [
     {
       stage: "beginner",
@@ -1713,7 +1712,8 @@ sceneV2({
     { id: "pessoa-7", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "pessoa-8" },
     { id: "pessoa-8", speakerId: "mei", hanzi: "谢谢！", pinyin: "xièxie!", pt: "Obrigada!", emotion: "happy" },
   ],
-  learnedRefs: ["chunk:nashirenm", "chunk:zheshimama", "chunk:wohenhao", "chunk:nihao", "chunk:xiexie"],
+  learnedRefs: ["chunk:zheshimama", "chunk:wohenhao", "chunk:nihao", "chunk:xiexie"],
+  newRefs: ["chunk:nashirenm"],
 }),
 sceneV2({
   sceneId: "encontrar-amigo",
@@ -3014,8 +3014,9 @@ sceneV2({
     { id: "visita-18", speakerId: "lin", hanzi: "明天见！再见！", pinyin: "míngtiān jiàn! zàijiàn!", pt: "Até amanhã! Até logo!", emotion: "happy", nextNodeId: "visita-19" },
     { id: "visita-19", speakerId: "mei", hanzi: "再见！", pinyin: "zàijiàn!", pt: "Até logo!", emotion: "happy" },
   ],
-  learnedRefs: ["chunk:nihao", "chunk:xiexie", "chunk:zheshimama", "chunk:qingzaishuoyibian", "chunk:zheshibaba", "chunk:woxianghe", "char:bu", "chunk:nihaoma", "chunk:wohenhao", "chunk:mingtianjian", "chunk:zaijian", "chunk:taiguile", "chunk:woele"],
-  newRefs: ["chunk:renshinihengaoxing"],
+  learnedRefs: ["chunk:nihao", "chunk:xiexie", "chunk:zheshimama", "chunk:qingzaishuoyibian", "chunk:zheshibaba", "chunk:woxianghe", "char:bu", "chunk:nihaoma", "chunk:wohenhao", "chunk:zaijian", "chunk:taiguile", "chunk:woele"],
+  newRefs: ["chunk:renshinihengaoxing", "chunk:mingtianjian"],
+  dedicatedLesson: true,
 }),
 ];
 
