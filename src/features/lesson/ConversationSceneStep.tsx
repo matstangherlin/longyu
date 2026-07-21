@@ -38,7 +38,7 @@ function shuffle<T>(items: T[]): T[] {
 function normalizeAnswer(value: string | undefined): string {
   return (value ?? "")
     .trim()
-    .replace(/[ï¼Œã€‚ï¼ï¼Ÿã€,.!?\s]/g, "")
+    .replace(/[，。！？、,.!?\s]/g, "")
     .toLocaleLowerCase("pt-BR");
 }
 
@@ -104,7 +104,7 @@ function writeConversationResume(snapshot: ConversationResumeSnapshot): void {
   try {
     window.localStorage.setItem(conversationResumeKey(snapshot.sceneId), JSON.stringify(snapshot));
   } catch {
-    // A cena continua utilizÃ¡vel quando o navegador bloqueia ou esgota storage.
+    // A cena continua utilizável quando o navegador bloqueia ou esgota storage.
   }
 }
 
@@ -113,7 +113,7 @@ function clearConversationResume(sceneId: string | undefined): void {
   try {
     window.localStorage.removeItem(conversationResumeKey(sceneId));
   } catch {
-    // Sem aÃ§Ã£o: a prÃ³xima leitura valida idade e sceneId antes de restaurar.
+    // Sem ação: a próxima leitura valida idade e sceneId antes de restaurar.
   }
 }
 
@@ -144,8 +144,8 @@ const HISTORY_KIND_LABEL: Record<ConversationHistoryKind, string> = {
   character: "Personagem",
   student: "Sua resposta",
   hint: "Pista",
-  correction: "CorreÃ§Ã£o",
-  narration: "NarraÃ§Ã£o",
+  correction: "Correção",
+  narration: "Narração",
 };
 
 function ConversationHistory({ items }: { items: ConversationHistoryItem[] }) {
@@ -156,7 +156,7 @@ function ConversationHistory({ items }: { items: ConversationHistoryItem[] }) {
         <span>Rever falas anteriores</span>
         <span className="text-xs font-medium text-ink-faint">{items.length} {items.length === 1 ? "item" : "itens"}</span>
       </summary>
-      <ol className="max-h-52 space-y-2 overflow-y-auto overscroll-contain border-t border-line p-2.5" aria-label="HistÃ³rico recente da conversa">
+      <ol className="max-h-52 space-y-2 overflow-y-auto overscroll-contain border-t border-line p-2.5" aria-label="Histórico recente da conversa">
         {items.slice(-12).map((item) => (
           <li
             key={item.id}
@@ -216,7 +216,7 @@ function CharacterAvatar({
   const tone = AVATAR_TONES[character.avatar] ?? AVATAR_TONES.default;
   const letter = character.name.trim().charAt(0).toUpperCase() || "?";
   const emotionMark =
-    emotion === "happy" ? "Â´â–½`" : emotion === "confused" ? "ãƒ»_ãƒ»" : emotion === "thinking" ? "â€¦" : null;
+    emotion === "happy" ? "´▽`" : emotion === "confused" ? "・_・" : emotion === "thinking" ? "…" : null;
 
   return (
     <div
@@ -250,9 +250,9 @@ function CharacterAvatar({
 }
 
 /**
- * Visibilidade por nÃ­vel de apresentaÃ§Ã£o (nÃ£o muda o conteÃºdo, sÃ³ o apoio):
- * guided = pinyin + traduÃ§Ã£o; assisted = pinyin; independent = sÃ³ hÃ nzÃ¬ + Ã¡udio;
- * audio_first = Ã¡udio primeiro, texto revelado ao tocar.
+ * Visibilidade por nível de apresentação (não muda o conteúdo, só o apoio):
+ * guided = pinyin + tradução; assisted = pinyin; independent = só hànzì + áudio;
+ * audio_first = áudio primeiro, texto revelado ao tocar.
  */
 function variantVisibility(level: ConversationVariantLevel | undefined) {
   switch (level) {
@@ -295,7 +295,7 @@ function SpeechBubble({
   variantLevel?: ConversationVariantLevel;
   speakerName?: string;
   narration?: boolean;
-  /** false quando o pai jÃ¡ disparou o Ã¡udio no gesto do usuÃ¡rio (evita duplicar). */
+  /** false quando o pai já disparou o áudio no gesto do usuário (evita duplicar). */
   autoSpeak?: boolean;
 }) {
   const audio = line.audioText ?? line.hanzi;
@@ -306,7 +306,7 @@ function SpeechBubble({
     rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
     delayMs: 0,
   });
-  // audio_first: o texto comeÃ§a oculto atrÃ¡s de um botÃ£o de revelar (o Ã¡udio
+  // audio_first: o texto começa oculto atrás de um botão de revelar (o áudio
   // fica em destaque). Reseta quando a fala muda.
   const [revealed, setRevealed] = useState(!audioFirst);
   const [translationRevealed, setTranslationRevealed] = useState(false);
@@ -333,7 +333,7 @@ function SpeechBubble({
         ].join(" ")}
       >
         <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-faint">
-          {narration ? "NarraÃ§Ã£o" : `Fala de ${speakerName ?? "personagem"}`}
+          {narration ? "Narração" : `Fala de ${speakerName ?? "personagem"}`}
         </div>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -345,7 +345,7 @@ function SpeechBubble({
                 aria-label="Revelar texto da fala depois de ouvir"
                 aria-pressed={revealed}
               >
-                OuÃ§a e toque para revelar
+                Ouça e toque para revelar
               </button>
             ) : (
               <>
@@ -365,7 +365,7 @@ function SpeechBubble({
                     onClick={() => setTranslationRevealed(true)}
                     aria-expanded={translationRevealed}
                   >
-                    Ver traduÃ§Ã£o
+                    Ver tradução
                   </button>
                 )}
                 {canRevealTranslation && translationRevealed && (
@@ -486,7 +486,7 @@ function CheckpointPanel({
         <>
           <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
             {ordered.length === 0 && (
-              <span className="self-center text-sm text-ink-faint">Toque nas peÃ§as para montar</span>
+              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
             )}
             {ordered.map((piece, index) => (
               <button
@@ -564,7 +564,7 @@ function CheckpointPanel({
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  aria-label={`OpÃ§Ã£o ${shortcutKeyForIndex(index)}: ${option}`}
+                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
                 >
                   <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
                   <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
@@ -616,8 +616,8 @@ function CheckpointPanel({
             {feedback === "correct"
               ? checkpoint.explanation ??
                 (hadMistake
-                  ? "Agora ficou certo. Como houve tentativa anterior, esta parte entra para revisÃ£o."
-                  : "VocÃª entendeu a conversa.")
+                  ? "Agora ficou certo. Como houve tentativa anterior, esta parte entra para revisão."
+                  : "Você entendeu a conversa.")
               : `Resposta sugerida: ${answer}`}
           </p>
           {feedback === "correct" ? (
@@ -635,12 +635,12 @@ function CheckpointPanel({
   );
 }
 
-// â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
-// V2: painel de UMA interaÃ§Ã£o (a conversa pode ter vÃ¡rias).
-// Errar nÃ£o encerra a cena: com ramo de erro, o personagem reage
-// (repete, corrige, demonstra confusÃ£o) e a conversa continua; sem
+// ————————————————————————————————————————————————————————————————
+// V2: painel de UMA interação (a conversa pode ter várias).
+// Errar não encerra a cena: com ramo de erro, o personagem reage
+// (repete, corrige, demonstra confusão) e a conversa continua; sem
 // ramo, o aluno tenta de novo aqui mesmo com uma pista curta.
-// â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
+// ————————————————————————————————————————————————————————————————
 function InteractionPanel({
   interaction,
   onCorrect,
@@ -650,7 +650,7 @@ function InteractionPanel({
 }: {
   interaction: ConversationInteraction;
   onCorrect: (answer: string) => void;
-  /** Presente quando a interaÃ§Ã£o tem wrongNextNodeId: navega no erro. */
+  /** Presente quando a interação tem wrongNextNodeId: navega no erro. */
   onWrongBranch?: (answer: string) => void;
   onLocalMistake: (answer: string) => void;
   onSkip?: StepProps["onSkip"];
@@ -733,13 +733,13 @@ function InteractionPanel({
       data-conversation-kind="choice"
       aria-labelledby="conversation-response-title"
     >
-      <div id="conversation-response-title" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Resposta do aluno Â· sua vez</div>
+      <div id="conversation-response-title" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Resposta do aluno · sua vez</div>
       <p className="mt-2 text-base font-medium leading-7 text-ink">{interaction.prompt}</p>
 
       {isListen && (
         <div className="mt-3 flex items-center gap-2">
           <SpeakButton text={answer} label="Ouvir" size="sm" autoPlay />
-          <span className="text-xs text-ink-faint">OuÃ§a e escolha a resposta.</span>
+          <span className="text-xs text-ink-faint">Ouça e escolha a resposta.</span>
         </div>
       )}
 
@@ -747,7 +747,7 @@ function InteractionPanel({
         <>
           <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
             {ordered.length === 0 && (
-              <span className="self-center text-sm text-ink-faint">Toque nas peÃ§as para montar</span>
+              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
             )}
             {ordered.map((piece, index) => (
               <button
@@ -825,7 +825,7 @@ function InteractionPanel({
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  aria-label={`OpÃ§Ã£o ${shortcutKeyForIndex(index)}: ${option}`}
+                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
                 >
                   <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
                   <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
@@ -880,8 +880,8 @@ function InteractionPanel({
   );
 }
 
-// V2: caminha pelos nÃ³s da conversa. O erro leva ao ramo de reaÃ§Ã£o do
-// personagem (quando existe) e a cena segue atÃ© um nÃ³ terminal; o resultado
+// V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
+// personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
 function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const characters = step.characters ?? [];
@@ -951,7 +951,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         {
           id: currentHistoryId,
           kind: speaker ? "character" : "narration",
-          speaker: speaker?.name ?? "NarraÃ§Ã£o",
+          speaker: speaker?.name ?? "Narração",
           hanzi: node.hanzi,
           pinyin: node.pinyin,
           pt: node.pt,
@@ -1001,7 +1001,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       {
         id: `answer:${nodeId}:${attemptNumber}:${status}`,
         kind: "student",
-        speaker: "VocÃª",
+        speaker: "Você",
         text: answer,
         status,
       } satisfies ConversationHistoryItem,
@@ -1017,7 +1017,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
     transitionsRef.current += 1;
-    // Rede de seguranÃ§a: nunca deixa um grafo mal formado prender o aluno.
+    // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
     if (!targetId || !nodeById.has(targetId) || transitionsRef.current > 60) {
       finish();
       return;
@@ -1049,7 +1049,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     return (
       <div>
         <Eyebrow>Cena</Eyebrow>
-        <p className="mt-3 text-ink-soft">Esta cena ainda nÃ£o tem falas.</p>
+        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
           Continuar
         </Button>
@@ -1069,16 +1069,16 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const total = Math.max(1, plannedNodeIds.length);
   const current = isTerminal ? total : Math.min(total, Math.max(1, spokenCount));
   const previousHistory = historyItems.filter((item) => item.id !== currentHistoryId);
-  const stageLabel = answering ? "Sua vez" : hint ? "CorreÃ§Ã£o" : current === 1 ? "Nova cena" : isTerminal ? "Encerramento" : "Conversa";
+  const stageLabel = answering ? "Sua vez" : hint ? "Correção" : current === 1 ? "Nova cena" : isTerminal ? "Encerramento" : "Conversa";
   const stageDetail = answering
     ? "Escolha ou monte a resposta para continuar."
     : hint
       ? "A fala anterior trouxe uma pista; observe e tente de novo."
       : current === 1
-        ? `${SETTING_LABELS[step.setting as keyof typeof SETTING_LABELS] ?? "CenÃ¡rio"} Â· ${currentSpeaker?.name ?? "NarraÃ§Ã£o"} comeÃ§a.`
+        ? `${SETTING_LABELS[step.setting as keyof typeof SETTING_LABELS] ?? "Cenário"} · ${currentSpeaker?.name ?? "Narração"} começa.`
         : isTerminal
-          ? "Ãšltima fala antes do PÃ³s-Conversa."
-          : `${currentSpeaker?.name ?? "NarraÃ§Ã£o"} estÃ¡ falando.`;
+          ? "Última fala antes do Pós-Conversa."
+          : `${currentSpeaker?.name ?? "Narração"} está falando.`;
 
   return (
     <div className="conversation-stage min-w-0 pb-[env(safe-area-inset-bottom)]" data-testid="conversation-player">
@@ -1095,7 +1095,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
       <div className="-mt-2 min-w-0 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
         <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-surface-2 px-3 py-2 text-xs">
-          <span className="font-semibold text-ink">Agora: {answering ? "vocÃª responde" : currentSpeaker?.name ?? "narraÃ§Ã£o"}</span>
+          <span className="font-semibold text-ink">Agora: {answering ? "você responde" : currentSpeaker?.name ?? "narração"}</span>
           <span className="text-ink-faint">Fala atual {current}/{total}</span>
         </div>
 
@@ -1139,9 +1139,9 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
         {!answering && (
           <div className="conversation-cta sticky bottom-0 z-10 -mx-1 mt-4 flex items-center justify-between gap-3 bg-gradient-to-t from-surface via-surface to-transparent px-1 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-4">
-            <span className="text-xs font-medium text-ink-faint">{isTerminal ? "Cena concluÃ­da" : node.interaction ? "Resposta necessÃ¡ria" : "PrÃ³xima fala"}</span>
+            <span className="text-xs font-medium text-ink-faint">{isTerminal ? "Cena concluída" : node.interaction ? "Resposta necessária" : "Próxima fala"}</span>
             <Button className="min-h-12 min-w-[9.5rem] shadow-lift" onClick={advance}>
-              {isTerminal ? "Ir ao PÃ³s-Conversa" : node.interaction ? "Responder" : "Continuar"}
+              {isTerminal ? "Ir ao Pós-Conversa" : node.interaction ? "Responder" : "Continuar"}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -1178,7 +1178,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
                 : undefined
             }
             onLocalMistake={(answer) => {
-              // NÃ£o abre o modal de retry: a prÃ³pria cena corrige e continua.
+              // Não abre o modal de retry: a própria cena corrige e continua.
               hadMistakeRef.current = true;
               mistakeCountRef.current += 1;
               appendStudentAnswer(answer, "wrong");
@@ -1199,8 +1199,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 }
 
 export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepProps) {
-  // Rollback: VITE_ENABLE_CONVERSATION_V2=false forÃ§a o player V1 (lines/checkpoint).
-  // Progresso do usuÃ¡rio permanece intacto â€” sÃ³ muda o motor da cena.
+  // Rollback: VITE_ENABLE_CONVERSATION_V2=false força o player V1 (lines/checkpoint).
+  // Progresso do usuário permanece intacto — só muda o motor da cena.
   const hasNodes = isConversationV2Enabled() && (step.nodes?.length ?? 0) > 0;
   if (hasNodes) {
     return <ConversationSceneV2 step={step} onDone={onDone} onSkip={onSkip} onMistake={onMistake} />;
@@ -1245,7 +1245,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     return {
       id: `v1:${index}:${line.speakerId}`,
       kind: speaker ? "character" : "narration",
-      speaker: speaker?.name ?? "NarraÃ§Ã£o",
+      speaker: speaker?.name ?? "Narração",
       hanzi: line.hanzi,
       pinyin: line.pinyin,
       pt: line.pt,
@@ -1305,7 +1305,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     return (
       <div>
         <Eyebrow>Cena</Eyebrow>
-        <p className="mt-3 text-ink-soft">Esta cena ainda nÃ£o tem falas.</p>
+        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => complete(true)}>
           Continuar
         </Button>
@@ -1323,7 +1323,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
       </div>
       <ConversationStageNotice
         label={phase === "checkpoint" ? "Sua vez" : lineIndex === 0 ? "Nova cena" : "Conversa"}
-        detail={phase === "checkpoint" ? "Responda para seguir ao PÃ³s-Conversa." : `${currentSpeaker?.name ?? "NarraÃ§Ã£o"} estÃ¡ falando.`}
+        detail={phase === "checkpoint" ? "Responda para seguir ao Pós-Conversa." : `${currentSpeaker?.name ?? "Narração"} está falando.`}
       />
 
       <div className="mt-3">
@@ -1332,7 +1332,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
       <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
         <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-surface-2 px-3 py-2 text-xs">
-          <span className="font-semibold text-ink">Agora: {phase === "checkpoint" ? "vocÃª responde" : currentSpeaker?.name ?? "narraÃ§Ã£o"}</span>
+          <span className="font-semibold text-ink">Agora: {phase === "checkpoint" ? "você responde" : currentSpeaker?.name ?? "narração"}</span>
           <span className="text-ink-faint">Fala atual {Math.min(lineIndex + 1, lines.length)}/{lines.length}</span>
         </div>
 
@@ -1374,7 +1374,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
               Fala {lineIndex + 1} de {lines.length}
             </span>
             <Button className="min-h-12 min-w-[9.5rem] shadow-lift" onClick={advanceDialogue}>
-              {lineIndex === lines.length - 1 && !checkpoint ? "Ir ao PÃ³s-Conversa" : "Continuar"} <IconChevron width={18} height={18} />
+              {lineIndex === lines.length - 1 && !checkpoint ? "Ir ao Pós-Conversa" : "Continuar"} <IconChevron width={18} height={18} />
             </Button>
           </div>
         )}
