@@ -12,8 +12,43 @@ test.describe("smoke", () => {
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Começar agora/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Já tenho uma conta/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Ativar modo escuro/i })).toBeVisible();
     // Página pública: sem sidebar/tab bar.
     await expect(page.locator("nav")).toHaveCount(0);
+  });
+
+  test("landing alterna e persiste os modos escuro e claro", async ({ page }) => {
+    await page.goto("/");
+    const root = page.locator("html");
+
+    await page.getByRole("button", { name: "Ativar modo escuro" }).click();
+    await expect(root).toHaveAttribute("data-theme", "dark");
+    await expect(page.getByRole("button", { name: "Ativar modo claro" })).toHaveAttribute("aria-pressed", "true");
+
+    await page.reload();
+    await expect(root).toHaveAttribute("data-theme", "dark");
+
+    await page.getByRole("button", { name: "Ativar modo claro" }).click();
+    await expect(root).toHaveAttribute("data-theme", "clay");
+    await expect(page.getByRole("button", { name: "Ativar modo escuro" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("mascote usa duas pálpebras sincronizadas e mão animada", async ({ page }) => {
+    await page.goto("/");
+    const mascot = page.locator('[data-mascot-animated="true"]:visible').first();
+    await expect(mascot).toBeVisible();
+
+    const eyelids = mascot.getByTestId("mascot-eyelid");
+    await expect(eyelids).toHaveCount(2);
+    await expect.poll(async () => eyelids.evaluateAll((nodes) =>
+      nodes.every((node) => getComputedStyle(node).animationName === "mascot-eye-blink")
+    )).toBe(true);
+
+    const hand = mascot.locator('img[src="/longyu-hand-wave.png"]');
+    await expect(hand).toHaveCount(1);
+    await expect.poll(async () => hand.evaluate((node) =>
+      getComputedStyle(node).animationName.includes("mascot-hand-wave")
+    )).toBe(true);
   });
 
   test("landing: Começar agora vai para /conta", async ({ page }) => {
@@ -79,7 +114,6 @@ test.describe("mobile", () => {
   test("player da primeira lição cabe em 360px", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
-    // O plano abre com a introdução autorada; o exercício vem depois dela.
     await page.getByRole("button", { name: "Entendi" }).click();
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });
