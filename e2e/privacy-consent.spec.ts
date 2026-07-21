@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedOnboardedSession } from "./helpers";
+import { dismissBlockingOverlays, seedOnboardedSession } from "./helpers";
 
 test.describe("privacy consent", () => {
   test("sem escolha: modal aparece e padrão não envia telemetria", async ({ page }) => {
@@ -41,9 +41,11 @@ test.describe("privacy consent", () => {
       );
     });
     await page.goto("/ajustes#privacidade-dados");
+    await dismissBlockingOverlays(page);
     await expect(page.getByText(/Privacidade e dados/i).first()).toBeVisible();
     await expect(page.getByText(/Dados pedagógicos de melhoria/i)).toBeVisible();
 
+    await dismissBlockingOverlays(page);
     await page.getByRole("switch", { name: /Dados pedagógicos de melhoria/i }).click();
     await expect
       .poll(async () => page.evaluate(() => localStorage.getItem("longyu:telemetry-consent")))

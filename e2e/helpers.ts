@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { ALL_LESSONS } from "../src/data/journey";
 
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
@@ -90,6 +91,34 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
   const index = foundation.indexOf(throughLessonId);
   const completedLessons = index >= 0 ? foundation.slice(0, index + 1) : foundation;
   const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, 3]));
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons,
+    lessonStarsById,
+    achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+  }));
+}
+
+/** Fundação completa + pré-requisitos da jornada para abrir o player de `lessonId`. */
+export async function seedLessonPlayerReady(page: Page, lessonId: string) {
+  await seedTelemetryDeclined(page);
+  const foundation = [
+    "p1-o-que-e-mandarim",
+    "p1-o-que-e-pinyin",
+    "p1-o-que-e-tom",
+    "p1-o-que-e-hanzi",
+    "p1-primeiros-hanzi",
+    "p1-engine-2-lab",
+  ];
+  const targetIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  const journeyCompleted =
+    targetIndex > 0 ? ALL_LESSONS.slice(0, targetIndex).map((lesson) => lesson.id) : [];
+  const completedLessons = [...foundation, ...journeyCompleted];
+  const lessonStarsById = Object.fromEntries(
+    completedLessons.map((id) => [id, ALL_LESSONS.find((lesson) => lesson.id === id)?.isReview ? 2 : 3])
+  );
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
