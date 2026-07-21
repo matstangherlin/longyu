@@ -4,7 +4,7 @@ import { useStore } from "../../lib/store";
 import { Button } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
-import { IconCheck, IconChevron, IconSound, IconStar } from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconSound, IconStar, IconSun } from "../../components/ui/Icon";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
 
@@ -20,9 +20,11 @@ const BULLETS = [
 // conta configurada, progresso ou sessão cloud vai direto para /jornada.
 export function LandingPage() {
   const theme = useStore((s) => s.theme);
+  const setTheme = useStore((s) => s.setTheme);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
   const hasProgress = useStore((s) => s.completedLessons.length > 0);
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
+  const isDark = theme === "dark";
 
   // A landing vive fora do AppShell, então aplica o tema por conta própria.
   useEffect(() => {
@@ -37,16 +39,27 @@ export function LandingPage() {
     <div className="theme-transition flex min-h-dvh flex-col bg-bg">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
         <BrandLockup size={34} tagline="PT-BR → Mandarim" />
-        <Link to="/login">
-          <Button variant="ghost" size="sm">
-            Entrar
-          </Button>
-        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            type="button"
+            onClick={() => setTheme(isDark ? "clay" : "dark")}
+            aria-pressed={isDark}
+            aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-semibold text-ink-soft shadow-card transition hover:border-accent-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+          >
+            <IconSun width={17} height={17} aria-hidden="true" />
+            <span className="hidden sm:inline">{isDark ? "Modo claro" : "Modo escuro"}</span>
+          </button>
+          <Link to="/login">
+            <Button variant="ghost" size="sm">
+              Entrar
+            </Button>
+          </Link>
+        </div>
       </header>
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 items-center px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-2 sm:px-6 lg:pt-0">
         <div className="grid w-full items-center gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
-          {/* Ilustração (desktop): mascote + exemplos de conteúdo real. */}
           <section
             aria-hidden="true"
             className="relative hidden overflow-hidden rounded-[32px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_58%,rgb(var(--bg))_100%)] p-8 text-center shadow-lift lg:block"
@@ -56,7 +69,7 @@ export function LandingPage() {
             </span>
 
             <div className="relative mx-auto mt-2 flex justify-center">
-              <Mascot size={168} variant="wave" />
+              <Mascot size={168} variant="wave" className="drop-shadow-[0_16px_18px_rgb(var(--accent)/0.16)]" />
             </div>
 
             <div className="relative mx-auto mt-6 flex max-w-xs flex-col gap-3">
@@ -84,10 +97,9 @@ export function LandingPage() {
             </div>
           </section>
 
-          {/* Proposta + CTAs. */}
           <section className="text-center lg:text-left">
             <div className="mb-4 flex justify-center lg:hidden">
-              <Mascot size={104} variant="wave" />
+              <Mascot size={104} variant="wave" className="drop-shadow-[0_12px_14px_rgb(var(--accent)/0.14)]" />
             </div>
 
             <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
