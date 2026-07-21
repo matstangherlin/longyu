@@ -1,3 +1,7 @@
+Exit code: 0
+Wall time: 1 seconds
+Total output lines: 1394
+Output:
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   ConversationCharacter,
@@ -38,8 +42,162 @@ function shuffle<T>(items: T[]): T[] {
 function normalizeAnswer(value: string | undefined): string {
   return (value ?? "")
     .trim()
-    .replace(/[，。！？、,.!?\s]/g, "")
+    .replace(/[ï¼Œã€‚ï¼ï¼Ÿã€,.!?\s]/g, "")
     .toLocaleLowerCase("pt-BR");
+}
+
+const CONVERSATION_RESUME_PREFIX = "longyu:conversation-resume:v2";
+const CONVERSATION_RESUME_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+type ConversationHistoryKind = "character" | "student" | "hint" | "correction" | "narration";
+
+interface ConversationHistoryItem {
+  id: string;
+  kind: ConversationHistoryKind;
+  speaker: string;
+  hanzi?: string;
+  pinyin?: string;
+  pt?: string;
+  text?: string;
+  status?: "correct" | "wrong";
+}
+
+interface ConversationResumeSnapshot {
+  version: 2;
+  sceneId: string;
+  nodeId?: string;
+  lineIndex?: number;
+  phase?: "dialogue" | "checkpoint" | "done";
+  answering?: boolean;
+  spokenCount: number;
+  hint?: string | null;
+  hadMistake: boolean;
+  mistakeCount: number;
+  transitions: number;
+  history: ConversationHistoryItem[];
+  updatedAt: number;
+}
+
+function conversationResumeKey(sceneId: string | undefined): string {
+  return `${CONVERSATION_RESUME_PREFIX}:${sceneId ?? "unknown"}`;
+}
+
+function readConversationResume(sceneId: string | undefined): ConversationResumeSnapshot | null {
+  if (!sceneId || typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(conversationResumeKey(sceneId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ConversationResumeSnapshot;
+    if (
+      parsed.version !== 2 ||
+      parsed.sceneId !== sceneId ||
+      !Number.isFinite(parsed.updatedAt) ||
+      Date.now() - parsed.updatedAt > CONVERSATION_RESUME_MAX_AGE_MS
+    ) {
+      window.localStorage.removeItem(conversationResumeKey(sceneId));
+      return null;
+    }
+    return { ...parsed, history: Array.isArray(parsed.history) ? parsed.history.slice(-30) : [] };
+  } catch {
+    return null;
+  }
+}
+
+function writeConversationResume(snapshot: ConversationResumeSnapshot): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(conversationResumeKey(snapshot.sceneId), JSON.stringify(snapshot));
+  } catch {
+    // A cena continua utilizÃ¡vel quando o navegador bloqueia ou esgota storage.
+  }
+}
+
+function clearConversationResume(sceneId: string | undefined): void {
+  if (!sceneId || typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(conversationResumeKey(sceneId));
+  } catch {
+    // Sem aÃ§Ã£o: a prÃ³xima leitura valida idade e sceneId antes de restaurar.
+  }
+}
+
+function ConversationProgress({ current, total, label }: { current: number; total: number; label: string }) {
+  const safeTotal = Math.max(1, total);
+  const safeCurrent = Math.min(Math.max(1, current), safeTotal);
+  const percent = Math.round((safeCurrent / safeTotal) * 100);
+  return (
+    <div className="rounded-2xl border border-line bg-surface-2 px-3 py-2.5" aria-label={`${label}: ${safeCurrent} de ${safeTotal}`}>
+      <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+        <span className="text-ink">{label}</span>
+        <span className="tabular-nums text-ink-faint">{safeCurrent}/{safeTotal}</span>
+      </div>
+      <div
+        className="mt-2 h-1.5 overflow-hidden rounded-full bg-line"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={safeTotal}
+        aria-valuenow={safeCurrent}
+      >
+        <div className="h-full rounded-full bg-accent transition-[width] duration-300" style={{ width: `${percent}%` }} />
+      </div>
+    </div>
+  );
+}
+
+const HISTORY_KIND_LABEL: Record<ConversationHistoryKind, string> = {
+  character: "Personagem",
+  student: "Sua resposta",
+  hint: "Pista",
+  correction: "CorreÃ§Ã£o",
+  narration: "NarraÃ§Ã£o",
+};
+
+function ConversationHistory({ items }: { items: ConversationHistoryItem[] }) {
+  if (items.length === 0) return null;
+  return (
+    <details className="group mt-3 rounded-2xl border border-line bg-surface-2/80" data-testid="conversation-history">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-3 py-2 text-sm font-semibold text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+        <span>Rever falas anteriores</span>
+        <span className="text-xs font-medium text-ink-faint">{items.length} {items.length === 1 ? "item" : "itens"}</span>
+      </summary>
+      <ol className="max-h-52 space-y-2 overflow-y-auto overscroll-contain border-t border-line p-2.5" aria-label="HistÃ³rico recente da conversa">
+        {items.slice(-12).map((item) => (
+          <li
+            key={item.id}
+            data-conversation-kind={item.kind}
+            className={[
+              "rounded-xl border px-3 py-2 text-sm",
+              item.kind === "student" ? "ml-5 border-accent-soft bg-accent-soft/35" : "mr-5 border-line bg-surface",
+              item.kind === "hint" || item.kind === "correction" ? "border-accent-soft bg-accent-soft/30" : "",
+              item.kind === "narration" ? "italic text-ink-soft" : "",
+            ].join(" ")}
+          >
+            <div className="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+              <span>{item.speaker || HISTORY_KIND_LABEL[item.kind]}</span>
+              <span>{HISTORY_KIND_LABEL[item.kind]}</span>
+            </div>
+            {item.hanzi && <div className="hanzi mt-1 text-lg font-semibold text-ink">{item.hanzi}</div>}
+            {item.text && <div className="mt-1 font-medium text-ink">{item.text}</div>}
+            {item.status === "wrong" && <div className="mt-1 text-xs font-semibold text-wrong">Tentativa incorreta</div>}
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+}
+
+function ConversationStageNotice({ label, detail }: { label: string; detail: string }) {
+  return (
+    <div
+      className="mt-3 flex items-center gap-2 rounded-xl border border-accent-soft bg-accent-soft/35 px-3 py-2 text-sm"
+      role="status"
+      aria-live="polite"
+      data-testid="conversation-stage"
+    >
+      <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white">{label}</span>
+      <span className="min-w-0 text-ink-soft">{detail}</span>
+    </div>
+  );
 }
 
 function Eyebrow({ children }: { children: string }) {
@@ -62,7 +220,7 @@ function CharacterAvatar({
   const tone = AVATAR_TONES[character.avatar] ?? AVATAR_TONES.default;
   const letter = character.name.trim().charAt(0).toUpperCase() || "?";
   const emotionMark =
-    emotion === "happy" ? "´▽`" : emotion === "confused" ? "・_・" : emotion === "thinking" ? "…" : null;
+    emotion === "happy" ? "Â´â–½`" : emotion === "confused" ? "ãƒ»_ãƒ»" : emotion === "thinking" ? "â€¦" : null;
 
   return (
     <div
@@ -70,6 +228,7 @@ function CharacterAvatar({
         "flex flex-col items-center gap-1.5 transition-all duration-300",
         active ? "scale-105 opacity-100" : "scale-95 opacity-45",
       ].join(" ")}
+      aria-label={`${character.name}${active ? ", personagem falando agora" : ""}`}
     >
       <div
         className={[
@@ -95,9 +254,9 @@ function CharacterAvatar({
 }
 
 /**
- * Visibilidade por nível de apresentação (não muda o conteúdo, só o apoio):
- * guided = pinyin + tradução; assisted = pinyin; independent = só hànzì + áudio;
- * audio_first = áudio primeiro, texto revelado ao tocar.
+ * Visibilidade por nÃ­vel de apresentaÃ§Ã£o (nÃ£o muda o conteÃºdo, sÃ³ o apoio):
+ * guided = pinyin + traduÃ§Ã£o; assisted = pinyin; independent = sÃ³ hÃ nzÃ¬ + Ã¡udio;
+ * audio_first = Ã¡udio primeiro, texto revelado ao tocar.
  */
 function variantVisibility(level: ConversationVariantLevel | undefined) {
   switch (level) {
@@ -130,13 +289,17 @@ function SpeechBubble({
   side,
   visible,
   variantLevel,
+  speakerName,
+  narration = false,
   autoSpeak = true,
 }: {
   line: ConversationLine;
   side: "left" | "right";
   visible: boolean;
   variantLevel?: ConversationVariantLevel;
-  /** false quando o pai já disparou o áudio no gesto do usuário (evita duplicar). */
+  speakerName?: string;
+  narration?: boolean;
+  /** false quando o pai jÃ¡ disparou o Ã¡udio no gesto do usuÃ¡rio (evita duplicar). */
   autoSpeak?: boolean;
 }) {
   const audio = line.audioText ?? line.hanzi;
@@ -147,13 +310,16 @@ function SpeechBubble({
     rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
     delayMs: 0,
   });
-  // audio_first: o texto começa oculto atrás de um botão de revelar (o áudio
+  // audio_first: o texto comeÃ§a oculto atrÃ¡s de um botÃ£o de revelar (o Ã¡udio
   // fica em destaque). Reseta quando a fala muda.
   const [revealed, setRevealed] = useState(!audioFirst);
+  const [translationRevealed, setTranslationRevealed] = useState(false);
   useEffect(() => {
     setRevealed(!audioFirst);
+    setTranslationRevealed(false);
   }, [line.hanzi, audioFirst]);
   const textHidden = audioFirst && !revealed;
+  const canRevealTranslation = variantLevel === "assisted" && Boolean(line.pt);
   return (
     <div
       className={[
@@ -161,22 +327,29 @@ function SpeechBubble({
         side === "left" ? "justify-start" : "justify-end",
         visible ? "conversation-bubble-in" : "invisible",
       ].join(" ")}
+      data-conversation-kind={narration ? "narration" : "character"}
     >
       <div
         className={[
           "max-w-[88%] rounded-2xl border border-line bg-surface px-3.5 py-3 shadow-card sm:max-w-[80%]",
           side === "left" ? "rounded-tl-md" : "rounded-tr-md",
+          narration ? "max-w-full border-dashed bg-surface-2 italic sm:max-w-full" : "",
         ].join(" ")}
       >
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-faint">
+          {narration ? "NarraÃ§Ã£o" : `Fala de ${speakerName ?? "personagem"}`}
+        </div>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {textHidden ? (
               <button
                 type="button"
                 onClick={() => setRevealed(true)}
-                className="hanzi rounded-xl border border-dashed border-accent-soft bg-accent-soft/40 px-4 py-2 text-lg font-semibold text-accent"
+                className="hanzi min-h-11 rounded-xl border border-dashed border-accent-soft bg-accent-soft/40 px-4 py-2 text-lg font-semibold text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                aria-label="Revelar texto da fala depois de ouvir"
+                aria-pressed={revealed}
               >
-                Ouça e toque para revelar
+                OuÃ§a e toque para revelar
               </button>
             ) : (
               <>
@@ -189,6 +362,19 @@ function SpeechBubble({
                   </div>
                 )}
                 {showPt && line.pt && <p className="mt-1.5 text-sm text-ink-soft">{line.pt}</p>}
+                {canRevealTranslation && !translationRevealed && (
+                  <button
+                    type="button"
+                    className="mt-2 min-h-9 rounded-lg px-2 text-xs font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    onClick={() => setTranslationRevealed(true)}
+                    aria-expanded={translationRevealed}
+                  >
+                    Ver traduÃ§Ã£o
+                  </button>
+                )}
+                {canRevealTranslation && translationRevealed && (
+                  <p className="mt-1.5 text-sm text-ink-soft" data-conversation-kind="translation">{line.pt}</p>
+                )}
               </>
             )}
           </div>
@@ -304,7 +490,7 @@ function CheckpointPanel({
         <>
           <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
             {ordered.length === 0 && (
-              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
+              <span className="self-center text-sm text-ink-faint">Toque nas peÃ§as para montar</span>
             )}
             {ordered.map((piece, index) => (
               <button
@@ -331,406 +517,129 @@ function CheckpointPanel({
               <button
                 key={`${piece}-bank-${index}`}
                 type="button"
-                disabled={feedback === "correct"}
-                onClick={() => {
-                  if (feedback === "correct") return;
-                  playSoundFx("pieceSelect", soundEffects);
-                  setBank((prev) => {
-                    const next = [...prev];
-                    next.splice(index, 1);
-                    return next;
-                  });
-                  setOrdered((prev) => [...prev, piece]);
-                  setFeedback(null);
-                }}
-                className={[
-                  "min-h-11 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card transition hover:border-accent-soft",
-                  containsCjk(piece) ? "hanzi text-xl" : "text-sm",
-                ].join(" ")}
-              >
-                {piece}
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <KeyboardShortcutHint />
-          <div className="mt-3 grid gap-2">
-            {options.map((option, index) => {
-              const active = picked === option;
-              const correct = feedback && normalizeAnswer(option) === normalizeAnswer(answer);
-              const wrong = feedback === "wrong" && active;
-              return (
-                <button
-                  key={`${option}-${index}`}
-                  type="button"
-                  disabled={feedback === "correct"}
-                  onClick={() => {
-                    if (feedback === "correct") return;
-                    playSoundFx("pieceSelect", soundEffects);
-                    setPicked(option);
-                    setFeedback(null);
-                  }}
-                  className={[
-                    "relative min-h-12 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
-                    containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
-                    correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
-                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
-                    active && !correct && !wrong && "border-accent bg-accent-soft text-accent ring-2 ring-accent/15",
-                    !active && !correct && !wrong && "border-line bg-surface text-ink hover:border-accent-soft",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
-                >
-                  <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
-                  <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      <div className="mt-4 flex gap-2">
-        <Button
-          className="flex-1 shadow-lift"
-          disabled={
-            feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)
-          }
-          onClick={check}
-        >
-          Verificar
-        </Button>
-        {onSkip && (
-          <Button variant="ghost" onClick={onSkip}>
-            Pular
-          </Button>
-        )}
-      </div>
-
-      {feedback && !(feedback === "wrong" && onMistake) && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={[
-            "animate-pop mt-4 rounded-2xl border p-3.5",
-            feedback === "correct"
-              ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom"
-              : "border-accent-soft bg-accent-soft/45",
-          ].join(" ")}
-        >
-          <div
-            className={[
-              "flex items-center gap-2 text-sm font-semibold",
-              feedback === "correct" ? "text-[rgb(var(--good))]" : "text-accent",
-            ].join(" ")}
-          >
-            {feedback === "correct" ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-            {feedback === "correct" ? "Boa! +Qi" : "Quase"}
-          </div>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">
-            {feedback === "correct"
-              ? checkpoint.explanation ??
-                (hadMistake
-                  ? "Agora ficou certo. Como houve tentativa anterior, esta parte entra para revisão."
-                  : "Você entendeu a conversa.")
-              : `Resposta sugerida: ${answer}`}
-          </p>
-          {feedback === "correct" ? (
-            <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(!hadMistake)}>
-              Continuar <IconChevron width={18} height={18} />
-            </Button>
-          ) : (
-            <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
-              Tentar de novo
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ————————————————————————————————————————————————————————————————
-// V2: painel de UMA interação (a conversa pode ter várias).
-// Errar não encerra a cena: com ramo de erro, o personagem reage
-// (repete, corrige, demonstra confusão) e a conversa continua; sem
-// ramo, o aluno tenta de novo aqui mesmo com uma pista curta.
-// ————————————————————————————————————————————————————————————————
-function InteractionPanel({
-  interaction,
-  onCorrect,
-  onWrongBranch,
-  onLocalMistake,
-  onSkip,
-}: {
-  interaction: ConversationInteraction;
-  onCorrect: () => void;
-  /** Presente quando a interação tem wrongNextNodeId: navega no erro. */
-  onWrongBranch?: () => void;
-  onLocalMistake: () => void;
-  onSkip?: StepProps["onSkip"];
-}) {
-  const soundEffects = useStore((s) => s.soundEffects);
-  const answer = interaction.correctAnswer;
-  const isOrder = interaction.type === "order_reply";
-  const isListen = interaction.type === "listen_reply";
-  const options = useMemo(() => [...(interaction.options ?? [])], [interaction.prompt, interaction.correctAnswer]);
-  const [picked, setPicked] = useState<string | null>(null);
-  const [ordered, setOrdered] = useState<string[]>([]);
-  const [bank, setBank] = useState(() => shuffle(options));
-  const [shuffled, setShuffled] = useState(() => shuffle(options));
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
-
-  useEffect(() => {
-    setPicked(null);
-    setOrdered([]);
-    setBank(shuffle(options));
-    setShuffled(shuffle(options));
-    setFeedback(null);
-  }, [interaction.prompt, interaction.correctAnswer]);
-
-  const visibleOptions = isOrder ? bank : shuffled;
-
-  function check() {
-    const attempt = isOrder ? ordered.join("") : picked ?? "";
-    if (!attempt) return;
-    if (normalizeAnswer(attempt) === normalizeAnswer(answer)) {
-      setFeedback("correct");
-      playSoundFx("success", soundEffects);
-      return;
+                d…4085 tokens truncated…  const nextId = current.interaction?.correctNextNodeId ?? current.nextNodeId;
+      current = nextId ? nodeById.get(nextId) : undefined;
     }
-    onLocalMistake();
-    playSoundFx("error", soundEffects);
-    if (onWrongBranch) {
-      onWrongBranch();
-      return;
-    }
-    setFeedback("wrong");
-  }
-
-  function retry() {
-    setPicked(null);
-    setOrdered([]);
-    setBank(shuffle(options));
-    setFeedback(null);
-  }
-
-  useExerciseHotkeys({
-    enabled: !isOrder,
-    mode: "choice",
-    optionCount: visibleOptions.length,
-    isAnswered: feedback === "correct",
-    hasSelection: Boolean(picked),
-    onSelectOption: (index) => {
-      const option = visibleOptions[index];
-      if (option && feedback !== "correct") {
-        playSoundFx("pieceSelect", soundEffects);
-        setPicked(option);
-        setFeedback(null);
-      }
-    },
-    onSubmit: check,
-    onContinue: () => {
-      if (feedback === "correct") onCorrect();
-    },
-  });
-
-  return (
-    <div className="mt-4 animate-pop rounded-2xl border border-accent-soft bg-surface p-3.5 shadow-card">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Sua vez</div>
-      <p className="mt-2 text-base font-medium leading-7 text-ink">{interaction.prompt}</p>
-
-      {isListen && (
-        <div className="mt-3 flex items-center gap-2">
-          <SpeakButton text={answer} label="Ouvir" size="sm" autoPlay />
-          <span className="text-xs text-ink-faint">Ouça e escolha a resposta.</span>
-        </div>
-      )}
-
-      {isOrder ? (
-        <>
-          <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
-            {ordered.length === 0 && (
-              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
-            )}
-            {ordered.map((piece, index) => (
-              <button
-                key={`${piece}-${index}`}
-                type="button"
-                disabled={feedback === "correct"}
-                onClick={() => {
-                  if (feedback === "correct") return;
-                  setOrdered((prev) => prev.filter((_, i) => i !== index));
-                  setBank((prev) => [...prev, piece]);
-                  setFeedback(null);
-                }}
-                className={[
-                  "min-h-11 rounded-xl border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent",
-                  containsCjk(piece) ? "hanzi text-xl" : "text-sm",
-                ].join(" ")}
-              >
-                {piece}
-              </button>
-            ))}
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {bank.map((piece, index) => (
-              <button
-                key={`${piece}-bank-${index}`}
-                type="button"
-                disabled={feedback === "correct"}
-                onClick={() => {
-                  if (feedback === "correct") return;
-                  playSoundFx("pieceSelect", soundEffects);
-                  setBank((prev) => {
-                    const next = [...prev];
-                    next.splice(index, 1);
-                    return next;
-                  });
-                  setOrdered((prev) => [...prev, piece]);
-                  setFeedback(null);
-                }}
-                className={[
-                  "min-h-11 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card transition hover:border-accent-soft",
-                  containsCjk(piece) ? "hanzi text-xl" : "text-sm",
-                ].join(" ")}
-              >
-                {piece}
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <KeyboardShortcutHint />
-          <div className="mt-3 grid gap-2">
-            {shuffled.map((option, index) => {
-              const active = picked === option;
-              const correct = feedback && normalizeAnswer(option) === normalizeAnswer(answer);
-              const wrong = feedback === "wrong" && active;
-              return (
-                <button
-                  key={`${option}-${index}`}
-                  type="button"
-                  disabled={feedback === "correct"}
-                  onClick={() => {
-                    if (feedback === "correct") return;
-                    playSoundFx("pieceSelect", soundEffects);
-                    setPicked(option);
-                    setFeedback(null);
-                  }}
-                  className={[
-                    "relative min-h-12 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
-                    containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
-                    correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
-                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
-                    active && !correct && !wrong && "border-accent bg-accent-soft text-accent ring-2 ring-accent/15",
-                    !active && !correct && !wrong && "border-line bg-surface text-ink hover:border-accent-soft",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
-                >
-                  <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
-                  <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      <div className="mt-4 flex gap-2">
-        <Button
-          className="flex-1 shadow-lift"
-          disabled={feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)}
-          onClick={check}
-        >
-          Verificar
-        </Button>
-        {onSkip && (
-          <Button variant="ghost" onClick={onSkip}>
-            Pular
-          </Button>
-        )}
-      </div>
-
-      {feedback === "correct" && (
-        <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
-          <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
-            <IconCheck width={18} height={18} /> Boa!
-          </div>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? "A conversa continua."}</p>
-          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onCorrect}>
-            Continuar <IconChevron width={18} height={18} />
-          </Button>
-        </div>
-      )}
-
-      {feedback === "wrong" && (
-        <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
-          <div className="flex items-center gap-2 text-sm font-semibold text-accent">
-            <IconX width={18} height={18} /> Quase
-          </div>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">
-            {interaction.explanation ?? `Resposta sugerida: ${answer}`}
-          </p>
-          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
-            Tentar de novo
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
-// personagem (quando existe) e a cena segue até um nó terminal; o resultado
-// final (onDone) considera se houve algum erro no caminho.
-function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
-  const characters = step.characters ?? [];
-  const nodes = (step.nodes ?? []) as ConversationNode[];
-  const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.sceneId]);
-  const entryNodeId = step.entryNodeId ?? nodes[0]?.id ?? "";
+    return ids;
+  }, [entryNodeId, nodeById]);
   const [nodeId, setNodeId] = useState(entryNodeId);
   const [answering, setAnswering] = useState(false);
   const [spokenCount, setSpokenCount] = useState(1);
   const [hint, setHint] = useState<string | null>(null);
+  const [historyItems, setHistoryItems] = useState<ConversationHistoryItem[]>([]);
+  const [resumeReady, setResumeReady] = useState(false);
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
   const transitionsRef = useRef(0);
   const skipAutoSpeakRef = useRef(false);
+  const sceneHeadingRef = useRef<HTMLHeadingElement>(null);
+  const latestSnapshotRef = useRef<ConversationResumeSnapshot | null>(null);
 
   useEffect(() => {
-    setNodeId(entryNodeId);
-    setAnswering(false);
-    setSpokenCount(1);
-    setHint(null);
-    hadMistakeRef.current = false;
-    mistakeCountRef.current = 0;
-    transitionsRef.current = 0;
+    setResumeReady(false);
+    const saved = readConversationResume(step.sceneId);
+    const savedNodeIsValid = Boolean(saved?.nodeId && nodeById.has(saved.nodeId));
+    setNodeId(savedNodeIsValid ? saved!.nodeId! : entryNodeId);
+    setAnswering(savedNodeIsValid ? Boolean(saved?.answering) : false);
+    setSpokenCount(savedNodeIsValid ? Math.max(1, saved?.spokenCount ?? 1) : 1);
+    setHint(savedNodeIsValid ? saved?.hint ?? null : null);
+    setHistoryItems(savedNodeIsValid ? saved?.history ?? [] : []);
+    hadMistakeRef.current = savedNodeIsValid ? Boolean(saved?.hadMistake) : false;
+    mistakeCountRef.current = savedNodeIsValid ? Math.max(0, saved?.mistakeCount ?? 0) : 0;
+    transitionsRef.current = savedNodeIsValid ? Math.max(0, saved?.transitions ?? 0) : 0;
     skipAutoSpeakRef.current = false;
-  }, [step.sceneId, entryNodeId]);
+    setResumeReady(true);
+  }, [entryNodeId, nodeById, step.sceneId]);
 
   useEffect(() => {
     skipAutoSpeakRef.current = false;
-  }, [nodeId, spokenCount]);
+    if (!resumeReady) return;
+    window.requestAnimationFrame(() => sceneHeadingRef.current?.focus({ preventScroll: true }));
+  }, [nodeId, spokenCount, resumeReady]);
 
   const node = nodeById.get(nodeId) ?? nodes[0];
   const left = characters.find((c) => c.side === "left") ?? characters[0];
   const right = characters.find((c) => c.side === "right") ?? characters[1];
+  const currentSpeaker = characters.find((character) => character.id === node?.speakerId);
+  const currentHistoryId = node ? `node:${node.id}:${spokenCount}` : "";
+
+  useEffect(() => {
+    if (!resumeReady || !node) return;
+    const speaker = characters.find((character) => character.id === node.speakerId);
+    setHistoryItems((previous) => {
+      if (previous.some((item) => item.id === currentHistoryId)) return previous;
+      return [
+        ...previous,
+        {
+          id: currentHistoryId,
+          kind: speaker ? "character" : "narration",
+          speaker: speaker?.name ?? "NarraÃ§Ã£o",
+          hanzi: node.hanzi,
+          pinyin: node.pinyin,
+          pt: node.pt,
+        } satisfies ConversationHistoryItem,
+      ].slice(-30);
+    });
+  }, [characters, currentHistoryId, node, resumeReady]);
+
+  useEffect(() => {
+    if (!resumeReady || !step.sceneId) return;
+    const snapshot: ConversationResumeSnapshot = {
+      version: 2,
+      sceneId: step.sceneId,
+      nodeId,
+      answering,
+      spokenCount,
+      hint,
+      hadMistake: hadMistakeRef.current,
+      mistakeCount: mistakeCountRef.current,
+      transitions: transitionsRef.current,
+      history: historyItems.slice(-30),
+      updatedAt: Date.now(),
+    };
+    latestSnapshotRef.current = snapshot;
+    writeConversationResume(snapshot);
+  }, [answering, hint, historyItems, nodeId, resumeReady, spokenCount, step.sceneId]);
+
+  useEffect(() => {
+    const flush = () => {
+      if (latestSnapshotRef.current) writeConversationResume({ ...latestSnapshotRef.current, updatedAt: Date.now() });
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  function appendStudentAnswer(answer: string, status: "correct" | "wrong") {
+    const attemptNumber = mistakeCountRef.current + (status === "correct" ? 1 : 0);
+    setHistoryItems((previous) => [
+      ...previous,
+      {
+        id: `answer:${nodeId}:${attemptNumber}:${status}`,
+        kind: "student",
+        speaker: "VocÃª",
+        text: answer,
+        status,
+      } satisfies ConversationHistoryItem,
+    ].slice(-30));
+  }
 
   function finish() {
     const attempts = Math.max(1, mistakeCountRef.current + 1);
+    clearConversationResume(step.sceneId);
+    latestSnapshotRef.current = null;
     onDone(!hadMistakeRef.current, { attempts });
   }
 
   function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
     transitionsRef.current += 1;
-    // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
+    // Rede de seguranÃ§a: nunca deixa um grafo mal formado prender o aluno.
     if (!targetId || !nodeById.has(targetId) || transitionsRef.current > 60) {
       finish();
       return;
@@ -762,7 +671,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     return (
       <div>
         <Eyebrow>Cena</Eyebrow>
-        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
+        <p className="mt-3 text-ink-soft">Esta cena ainda nÃ£o tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
           Continuar
         </Button>
@@ -779,18 +688,42 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     emotion: node.emotion,
     audioText: node.audioText,
   };
+  const total = Math.max(1, plannedNodeIds.length);
+  const current = isTerminal ? total : Math.min(total, Math.max(1, spokenCount));
+  const previousHistory = historyItems.filter((item) => item.id !== currentHistoryId);
+  const stageLabel = answering ? "Sua vez" : hint ? "CorreÃ§Ã£o" : current === 1 ? "Nova cena" : isTerminal ? "Encerramento" : "Conversa";
+  const stageDetail = answering
+    ? "Escolha ou monte a resposta para continuar."
+    : hint
+      ? "A fala anterior trouxe uma pista; observe e tente de novo."
+      : current === 1
+        ? `${SETTING_LABELS[step.setting as keyof typeof SETTING_LABELS] ?? "CenÃ¡rio"} Â· ${currentSpeaker?.name ?? "NarraÃ§Ã£o"} comeÃ§a.`
+        : isTerminal
+          ? "Ãšltima fala antes do PÃ³s-Conversa."
+          : `${currentSpeaker?.name ?? "NarraÃ§Ã£o"} estÃ¡ falando.`;
 
   return (
-    <div>
+    <div className="conversation-stage min-w-0 pb-[env(safe-area-inset-bottom)]" data-testid="conversation-player">
       <Eyebrow>Cena de conversa</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
+      <h2 ref={sceneHeadingRef} tabIndex={-1} className="mt-2 font-serif text-lg font-semibold text-ink outline-none sm:text-xl">{step.title}</h2>
+      <div className="mt-3">
+        <ConversationProgress current={current} total={total} label="Progresso da conversa" />
+      </div>
+      <ConversationStageNotice label={stageLabel} detail={stageDetail} />
 
       <div className="mt-3">
         <SettingBackdrop setting={step.setting} />
       </div>
 
-      <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
-        <div className="mb-4 flex items-end justify-between gap-4 px-1">
+      <div className="-mt-2 min-w-0 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-surface-2 px-3 py-2 text-xs">
+          <span className="font-semibold text-ink">Agora: {answering ? "vocÃª responde" : currentSpeaker?.name ?? "narraÃ§Ã£o"}</span>
+          <span className="text-ink-faint">Fala atual {current}/{total}</span>
+        </div>
+
+        <ConversationHistory items={previousHistory} />
+
+        <div className="mb-4 mt-4 flex items-end justify-between gap-4 px-1" aria-label="Personagens da cena">
           {left && (
             <CharacterAvatar
               character={left}
@@ -807,26 +740,30 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           )}
         </div>
 
-        <SpeechBubble
-          key={`${step.sceneId}-${node.id}-${spokenCount}`}
-          line={line}
-          side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
-          visible
-          variantLevel={step.conversationVariantLevel}
-          autoSpeak={!skipAutoSpeakRef.current}
-        />
+        <div aria-live="polite" aria-atomic="true">
+          <SpeechBubble
+            key={`${step.sceneId}-${node.id}-${spokenCount}`}
+            line={line}
+            side={currentSpeaker?.side ?? "left"}
+            visible
+            variantLevel={step.conversationVariantLevel}
+            speakerName={currentSpeaker?.name}
+            narration={!currentSpeaker}
+            autoSpeak={!skipAutoSpeakRef.current}
+          />
+        </div>
 
         {hint && !answering && (
-          <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-2 text-sm text-ink-soft">
+          <div data-conversation-kind="hint" role="note" className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-2 text-sm text-ink-soft">
             <span className="font-semibold text-accent">Pista:</span> {hint}
           </div>
         )}
 
         {!answering && (
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-ink-faint">Fala {spokenCount}</span>
-            <Button className="min-w-[9.5rem] shadow-lift" onClick={advance}>
-              {isTerminal ? "Concluir" : node.interaction ? "Responder" : "Continuar"}
+          <div className="conversation-cta sticky bottom-0 z-10 -mx-1 mt-4 flex items-center justify-between gap-3 bg-gradient-to-t from-surface via-surface to-transparent px-1 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-4">
+            <span className="text-xs font-medium text-ink-faint">{isTerminal ? "Cena concluÃ­da" : node.interaction ? "Resposta necessÃ¡ria" : "PrÃ³xima fala"}</span>
+            <Button className="min-h-12 min-w-[9.5rem] shadow-lift" onClick={advance}>
+              {isTerminal ? "Ir ao PÃ³s-Conversa" : node.interaction ? "Responder" : "Continuar"}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -835,7 +772,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         {answering && node.interaction && (
           <InteractionPanel
             interaction={node.interaction}
-            onCorrect={() => {
+            onCorrect={(answer) => {
+              appendStudentAnswer(answer, "correct");
               setHint(null);
               const nextId = node.interaction!.correctNextNodeId;
               goTo(nextId, nodeById.get(nextId));
@@ -843,19 +781,38 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
             onWrongBranch={
               node.interaction.wrongNextNodeId
                 ? () => {
-                    setHint(node.interaction!.explanation ?? null);
+                    const explanation = node.interaction!.explanation ?? null;
+                    setHint(explanation);
+                    if (explanation) {
+                      setHistoryItems((previous) => [
+                        ...previous,
+                        {
+                          id: `hint:${node.id}:${mistakeCountRef.current}`,
+                          kind: "hint",
+                          speaker: "Pista",
+                          text: explanation,
+                        } satisfies ConversationHistoryItem,
+                      ].slice(-30));
+                    }
                     const nextId = node.interaction!.wrongNextNodeId!;
                     goTo(nextId, nodeById.get(nextId));
                   }
                 : undefined
             }
-            onLocalMistake={() => {
-              // Não chama onMistake do player: isso abriria o modal de retry e
-              // quebraria o fluxo V2 (o erro já tem ramo próprio na cena).
+            onLocalMistake={(answer) => {
+              // NÃ£o abre o modal de retry: a prÃ³pria cena corrige e continua.
               hadMistakeRef.current = true;
               mistakeCountRef.current += 1;
+              appendStudentAnswer(answer, "wrong");
             }}
-            onSkip={onSkip}
+            onSkip={
+              onSkip
+                ? () => {
+                    clearConversationResume(step.sceneId);
+                    onSkip();
+                  }
+                : undefined
+            }
           />
         )}
       </div>
@@ -864,8 +821,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 }
 
 export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepProps) {
-  // Rollback: VITE_ENABLE_CONVERSATION_V2=false força o player V1 (lines/checkpoint).
-  // Progresso do usuário permanece intacto — só muda o motor da cena.
+  // Rollback: VITE_ENABLE_CONVERSATION_V2=false forÃ§a o player V1 (lines/checkpoint).
+  // Progresso do usuÃ¡rio permanece intacto â€” sÃ³ muda o motor da cena.
   const hasNodes = isConversationV2Enabled() && (step.nodes?.length ?? 0) > 0;
   if (hasNodes) {
     return <ConversationSceneV2 step={step} onDone={onDone} onSkip={onSkip} onMistake={onMistake} />;
@@ -879,22 +836,75 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const checkpoint = step.checkpoint;
   const [lineIndex, setLineIndex] = useState(0);
   const [phase, setPhase] = useState<"dialogue" | "checkpoint" | "done">("dialogue");
+  const [resumeReady, setResumeReady] = useState(false);
   const skipAutoSpeakRef = useRef(false);
+  const sceneHeadingRef = useRef<HTMLHeadingElement>(null);
+  const latestSnapshotRef = useRef<ConversationResumeSnapshot | null>(null);
 
   useEffect(() => {
-    setLineIndex(0);
-    setPhase("dialogue");
+    setResumeReady(false);
+    const saved = readConversationResume(step.sceneId);
+    const restoredIndex = Math.min(Math.max(0, saved?.lineIndex ?? 0), Math.max(0, lines.length - 1));
+    setLineIndex(restoredIndex);
+    setPhase(saved?.phase === "checkpoint" && checkpoint ? "checkpoint" : "dialogue");
     skipAutoSpeakRef.current = false;
-  }, [step.sceneId, step.title]);
+    setResumeReady(true);
+  }, [checkpoint, lines.length, step.sceneId, step.title]);
 
   useEffect(() => {
     skipAutoSpeakRef.current = false;
-  }, [lineIndex]);
+    if (!resumeReady) return;
+    window.requestAnimationFrame(() => sceneHeadingRef.current?.focus({ preventScroll: true }));
+  }, [lineIndex, phase, resumeReady]);
 
   const currentLine = lines[Math.min(lineIndex, Math.max(lines.length - 1, 0))];
   const activeSpeakerId = currentLine?.speakerId;
   const left = characters.find((c) => c.side === "left") ?? characters[0];
   const right = characters.find((c) => c.side === "right") ?? characters[1];
+  const currentSpeaker = characters.find((character) => character.id === currentLine?.speakerId);
+  const historyItems = lines.slice(0, lineIndex).map((line, index) => {
+    const speaker = characters.find((character) => character.id === line.speakerId);
+    return {
+      id: `v1:${index}:${line.speakerId}`,
+      kind: speaker ? "character" : "narration",
+      speaker: speaker?.name ?? "NarraÃ§Ã£o",
+      hanzi: line.hanzi,
+      pinyin: line.pinyin,
+      pt: line.pt,
+    } satisfies ConversationHistoryItem;
+  });
+
+  useEffect(() => {
+    if (!resumeReady || !step.sceneId) return;
+    const snapshot: ConversationResumeSnapshot = {
+      version: 2,
+      sceneId: step.sceneId,
+      lineIndex,
+      phase,
+      spokenCount: lineIndex + 1,
+      hadMistake: false,
+      mistakeCount: 0,
+      transitions: lineIndex,
+      history: historyItems.slice(-30),
+      updatedAt: Date.now(),
+    };
+    latestSnapshotRef.current = snapshot;
+    writeConversationResume(snapshot);
+  }, [historyItems, lineIndex, phase, resumeReady, step.sceneId]);
+
+  useEffect(() => {
+    const flush = () => {
+      if (latestSnapshotRef.current) writeConversationResume({ ...latestSnapshotRef.current, updatedAt: Date.now() });
+    };
+    window.addEventListener("pagehide", flush);
+    return () => window.removeEventListener("pagehide", flush);
+  }, []);
+
+  function complete(correct = true) {
+    clearConversationResume(step.sceneId);
+    latestSnapshotRef.current = null;
+    onDone(correct);
+  }
 
   function advanceDialogue() {
     noteUserGesture();
@@ -910,15 +920,15 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
       return;
     }
     setPhase("done");
-    onDone(true);
+    complete(true);
   }
 
   if (lines.length === 0) {
     return (
       <div>
         <Eyebrow>Cena</Eyebrow>
-        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
-        <Button className="mt-4 w-full" onClick={() => onDone(true)}>
+        <p className="mt-3 text-ink-soft">Esta cena ainda nÃ£o tem falas.</p>
+        <Button className="mt-4 w-full" onClick={() => complete(true)}>
           Continuar
         </Button>
       </div>
@@ -926,15 +936,30 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   return (
-    <div>
+    <div className="conversation-stage min-w-0 pb-[env(safe-area-inset-bottom)]" data-testid="conversation-player">
       <Eyebrow>Cena de conversa</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
+      <h2 ref={sceneHeadingRef} tabIndex={-1} className="mt-2 font-serif text-lg font-semibold text-ink outline-none sm:text-xl">{step.title}</h2>
+
+      <div className="mt-3">
+        <ConversationProgress current={phase === "checkpoint" ? lines.length : lineIndex + 1} total={lines.length} label="Progresso da conversa" />
+      </div>
+      <ConversationStageNotice
+        label={phase === "checkpoint" ? "Sua vez" : lineIndex === 0 ? "Nova cena" : "Conversa"}
+        detail={phase === "checkpoint" ? "Responda para seguir ao PÃ³s-Conversa." : `${currentSpeaker?.name ?? "NarraÃ§Ã£o"} estÃ¡ falando.`}
+      />
 
       <div className="mt-3">
         <SettingBackdrop setting={step.setting} />
       </div>
 
       <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-surface-2 px-3 py-2 text-xs">
+          <span className="font-semibold text-ink">Agora: {phase === "checkpoint" ? "vocÃª responde" : currentSpeaker?.name ?? "narraÃ§Ã£o"}</span>
+          <span className="text-ink-faint">Fala atual {Math.min(lineIndex + 1, lines.length)}/{lines.length}</span>
+        </div>
+
+        <ConversationHistory items={historyItems} />
+
         <div className="mb-4 flex items-end justify-between gap-4 px-1">
           {left && (
             <CharacterAvatar
@@ -959,17 +984,19 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
             side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
             visible
             variantLevel={step.conversationVariantLevel}
+            speakerName={currentSpeaker?.name}
+            narration={!currentSpeaker}
             autoSpeak={!skipAutoSpeakRef.current}
           />
         )}
 
         {phase === "dialogue" && (
-          <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="conversation-cta sticky bottom-0 z-10 -mx-1 mt-4 flex items-center justify-between gap-3 bg-gradient-to-t from-surface via-surface to-transparent px-1 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-4">
             <span className="text-xs font-medium text-ink-faint">
               Fala {lineIndex + 1} de {lines.length}
             </span>
-            <Button className="min-w-[9.5rem] shadow-lift" onClick={advanceDialogue}>
-              Continuar <IconChevron width={18} height={18} />
+            <Button className="min-h-12 min-w-[9.5rem] shadow-lift" onClick={advanceDialogue}>
+              {lineIndex === lines.length - 1 && !checkpoint ? "Ir ao PÃ³s-Conversa" : "Continuar"} <IconChevron width={18} height={18} />
             </Button>
           </div>
         )}
@@ -978,11 +1005,12 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
           <CheckpointPanel
             checkpoint={checkpoint}
             onMistake={onMistake}
-            onDone={onDone}
-            onSkip={onSkip}
+            onDone={(correct) => complete(correct)}
+            onSkip={onSkip ? () => { clearConversationResume(step.sceneId); onSkip(); } : undefined}
           />
         )}
       </div>
     </div>
   );
 }
+
