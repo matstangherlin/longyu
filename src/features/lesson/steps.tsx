@@ -2336,7 +2336,9 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
   const [hadMistake, setHadMistake] = useState(false);
   const answer = step.correctAnswer ?? step.answer ?? "";
   const dialoguePrompt = step.dialoguePrompt ?? step.prompt ?? "";
-  useAutoSpeak(isCjkText(dialoguePrompt) ? dialoguePrompt : undefined, true, { rate: 0.86 });
+  const promptTestsPinyinOrTone = hintWouldRevealAnswer(step);
+  const shouldReadPrompt = !promptTestsPinyinOrTone && isCjkText(dialoguePrompt);
+  useAutoSpeak(shouldReadPrompt ? dialoguePrompt : undefined, shouldReadPrompt, { rate: 0.86 });
 
   function pickOption(option: string) {
     if (feedback === "correct") return;
@@ -2388,7 +2390,12 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
           <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-accent">{step.speaker}</div>
         )}
         <p className="text-base font-medium leading-7 text-ink">
-          <ExerciseText value={step.dialoguePrompt ?? step.prompt ?? ""} type={isCjkText(step.dialoguePrompt ?? step.prompt) ? "hanzi" : "pt"} speakOnClick />
+          <ExerciseText
+            value={dialoguePrompt}
+            type={isCjkText(dialoguePrompt) ? "hanzi" : "pt"}
+            speakOnClick={!promptTestsPinyinOrTone}
+            disabled={promptTestsPinyinOrTone}
+          />
         </p>
       </div>
 
