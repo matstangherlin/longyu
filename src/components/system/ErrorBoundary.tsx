@@ -97,7 +97,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <button
               type="button"
               onClick={this.handleReload}
-              className="mt-1 py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+              className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
               Recarregar o app
             </button>
