@@ -451,7 +451,11 @@ export function SettingsPage() {
             Política de privacidade
           </Link>
 
-          {privacyNotice && <p className="text-sm text…24 tokens truncated…(
+          {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
+        </Card>
+      </HubSection>
+
+      {showDataDetails && (
         <ModalOverlay label="Dados coletados" onBackdropClick={() => setShowDataDetails(false)}>
           <div
             className="max-h-[calc(100dvh_-_env(safe-area-inset-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
@@ -532,8 +536,6 @@ export function SettingsPage() {
                 return (
                   <button
                     key={option.id}
-                    type="button"
-                    aria-pressed={active}
                     onClick={() => setMandarinDisplayMode(option.id)}
                     className={[
                       "min-h-[92px] rounded-2xl border px-4 py-3 text-left transition",
@@ -771,6 +773,7 @@ export function SettingsPage() {
                   <button
                     key={option.id}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => {
                       setSoundTheme(option.id);
                       window.setTimeout(() => playSoundFx("tap", soundEffects), 0);
