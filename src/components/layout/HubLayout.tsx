@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { Link } from "react-router-dom";
-import { Button, Card, Pill } from "../ui/primitives";
+import { Card, EmptyState, PageHeader, Pill, SectionHeader } from "../ui/primitives";
 import { IconChevron, IconStar } from "../ui/Icon";
 
 function cx(...parts: (string | false | undefined)[]): string {
@@ -9,7 +9,7 @@ function cx(...parts: (string | false | undefined)[]): string {
 
 export function HubPage({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cx("mx-auto max-w-5xl space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]", className)}>
+    <div className={cx("mx-auto min-w-0 max-w-5xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]", className)}>
       {children}
     </div>
   );
@@ -28,21 +28,7 @@ export function HubHeader({
   badge?: ReactNode;
   aside?: ReactNode;
 }) {
-  return (
-    <header className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{eyebrow}</div>
-          {badge}
-        </div>
-        <h1 className="mt-0.5 font-serif text-[1.45rem] font-semibold leading-tight text-ink sm:text-[1.65rem]">
-          {title}
-        </h1>
-        {desc && <p className="mt-0.5 max-w-xl text-xs leading-5 text-ink-soft sm:text-sm">{desc}</p>}
-      </div>
-      {aside}
-    </header>
-  );
+  return <PageHeader eyebrow={eyebrow} title={title} desc={desc} actions={badge || aside ? <>{badge}{aside}</> : undefined} />;
 }
 
 export function HubSection({
@@ -61,14 +47,8 @@ export function HubSection({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className={cx(className ?? (id ? "scroll-mt-20" : undefined))}>
-      <div className="mb-2 flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="font-serif text-base font-semibold text-ink sm:text-lg">{title}</h2>
-          {desc && <p className="mt-0.5 text-[11px] text-ink-faint sm:text-xs">{desc}</p>}
-        </div>
-        {count}
-      </div>
+    <section id={id} className={cx(id ? "scroll-mt-20" : undefined, className)}>
+      <SectionHeader title={title} desc={desc} action={count} className="mb-3" />
       {children}
     </section>
   );
@@ -89,7 +69,7 @@ export interface HubNavItem {
 
 export function HubNavGrid({
   items,
-  columns = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+  columns = "grid-cols-1 min-[390px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
 }: {
   items: HubNavItem[];
   columns?: string;
@@ -107,8 +87,9 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
   const Icon = item.icon;
   const inner = (
     <Card
+      variant={item.disabled ? "basic" : "interactive"}
       className={cx(
-        "flex h-full min-h-[88px] flex-col p-2.5 transition sm:min-h-[92px] sm:p-3",
+        "flex h-full min-h-[96px] flex-col p-3 transition",
         item.disabled ? "bg-surface-2/60 opacity-80" : "",
         item.featured && !item.disabled ? "border-accent/30 bg-accent-soft/20" : ""
       )}
@@ -116,7 +97,7 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
       <div className="flex items-start justify-between gap-2">
         <span
           className={cx(
-            "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
             item.featured && !item.disabled ? "bg-accent text-white" : "bg-surface-2 text-accent/80"
           )}
         >
@@ -131,22 +112,22 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
           )}
         </div>
       </div>
-      <h3 className="mt-2 text-[13px] font-semibold leading-tight text-ink">{item.title}</h3>
-      <p className="mt-0.5 line-clamp-1 text-[11px] leading-4 text-ink-faint">{item.desc}</p>
+      <h3 className="mt-2 text-sm font-semibold leading-tight text-ink">{item.title}</h3>
+      <p className="mt-1 line-clamp-2 text-xs leading-4 text-ink-faint">{item.desc}</p>
     </Card>
   );
 
   if (item.disabled) return <div aria-disabled="true">{inner}</div>;
   if (item.onClick) {
     return (
-      <button type="button" onClick={item.onClick} className="group h-full w-full text-left">
+      <button type="button" onClick={item.onClick} className="group h-full w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
         {inner}
       </button>
     );
   }
   if (!item.to) return <div>{inner}</div>;
   return (
-    <Link to={item.to} className="group">
+    <Link to={item.to} className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
       {inner}
     </Link>
   );
@@ -187,10 +168,8 @@ export function HubHeroCard({
             {footer}
           </div>
         </div>
-        <Link to={ctaTo} className="shrink-0">
-          <Button size="sm" className="w-full sm:w-auto">
+        <Link to={ctaTo} className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:bg-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 sm:w-auto">
             {cta} <IconChevron width={15} height={15} />
-          </Button>
         </Link>
       </div>
     </Card>
@@ -207,10 +186,8 @@ export function HubProStrip({ isPremium }: { isPremium: boolean }) {
         <div className="min-w-0 flex-1 text-[13px] font-semibold text-ink">
           {isPremium ? "Pro ativo" : "Pro: revisão ilimitada e sem cargas"}
         </div>
-        <Link to="/pro" className="shrink-0">
-          <Button size="sm" variant={isPremium ? "soft" : "outline"}>
+        <Link to="/pro" className={cx("inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45", isPremium ? "border-transparent bg-accent-soft text-accent" : "border-line/65 bg-transparent text-ink hover:bg-surface-2")}>
             {isPremium ? "Plano" : "Ver Pro"}
-          </Button>
         </Link>
       </div>
     </Card>
@@ -226,13 +203,7 @@ export function HubEmptyState({
   desc: string;
   action?: ReactNode;
 }) {
-  return (
-    <Card className="border-dashed p-5 text-center">
-      <div className="font-serif text-base font-semibold text-ink sm:text-lg">{title}</div>
-      <p className="mt-1 text-xs text-ink-soft sm:text-sm">{desc}</p>
-      {action && <div className="mt-3 flex justify-center">{action}</div>}
-    </Card>
-  );
+  return <EmptyState title={title} desc={desc} action={action} />;
 }
 
 export function HubContentCard({
