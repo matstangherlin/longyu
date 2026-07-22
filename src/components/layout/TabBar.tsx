@@ -28,7 +28,7 @@ export function TabBar() {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-line/60 bg-surface/95 shadow-[0_-4px_20px_rgb(0_0_0/0.05)] backdrop-blur-xl lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-around px-1 pb-0.5 pt-0.5">
+      <div className="mx-auto flex min-h-16 max-w-md items-stretch justify-around px-1 py-1">
         {NAV_MOBILE.map((item) => {
           const active = isNavItemActive(item, location.pathname);
           const badge = badges[item.to] ?? 0;
@@ -38,13 +38,13 @@ export function TabBar() {
               to={item.to}
               aria-current={active ? "page" : undefined}
               className={[
-                "flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1.5 text-[9px] font-semibold transition active:scale-[0.98] sm:text-[10px]",
+                "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1 text-[10px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45 active:scale-[0.98]",
                 active ? "text-accent" : "text-ink-faint",
               ].join(" ")}
             >
               <span
                 className={[
-                  "relative flex h-9 w-12 items-center justify-center rounded-full transition sm:h-10 sm:w-14",
+                  "relative flex h-9 w-12 items-center justify-center rounded-full transition sm:w-14",
                   active ? "bg-accent text-white shadow-card" : "",
                 ].join(" ")}
               >
