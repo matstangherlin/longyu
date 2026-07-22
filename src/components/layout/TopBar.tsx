@@ -22,7 +22,7 @@ function StatPill({
   const inner = (
     <span
       className={[
-        "inline-flex items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 py-1 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs",
+        "inline-flex min-h-11 items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs",
         className,
       ].join(" ")}
       aria-label={label}
@@ -33,7 +33,7 @@ function StatPill({
   );
   if (!to) return inner;
   return (
-    <Link to={to} className="transition hover:opacity-80">
+    <Link to={to} className="rounded-full transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
       {inner}
     </Link>
   );
@@ -50,9 +50,9 @@ export function TopBar() {
   const { signOut, canSignOut } = useCloudSignOut();
 
   return (
-    <header className="sticky top-0 z-20 flex h-12 items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 backdrop-blur-md sm:px-5 lg:h-14">
+    <header className="sticky top-0 z-20 flex min-h-14 items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 backdrop-blur-md sm:px-5">
       <div className="min-w-0 shrink lg:hidden">
-        <Link to="/jornada" aria-label="Longyu">
+        <Link to="/jornada" aria-label="Longyu" className="flex min-h-11 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
           <BrandWordmark className="text-[1.2rem] sm:text-[1.3rem]" />
         </Link>
       </div>
@@ -77,7 +77,7 @@ export function TopBar() {
         />
         <Link
           to="/perfil"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition hover:bg-surface-2 sm:h-9 sm:w-9"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           aria-label={account?.name ? `Conta: ${account.name}` : "Conta"}
         >
           <IconUser width={15} height={15} className="sm:h-4 sm:w-4" />
@@ -86,7 +86,7 @@ export function TopBar() {
           <button
             type="button"
             onClick={() => void signOut()}
-            className="hidden h-8 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-2.5 text-[11px] font-semibold text-wrong transition hover:bg-wrong/10 sm:flex"
+            className="hidden min-h-11 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-3 text-xs font-semibold text-wrong transition hover:bg-wrong/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/35 sm:flex"
           >
             Sair
           </button>
