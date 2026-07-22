@@ -3,9 +3,15 @@ import { seedOnboardedSession } from "./helpers";
 
 async function dismissAchievementModal(page: Page) {
   const rewardDialog = page.getByRole("dialog", { name: "Nova medalha desbloqueada" });
-  while (await rewardDialog.isVisible().catch(() => false)) {
+  for (let index = 0; index < 8; index += 1) {
+    const appeared = await rewardDialog
+      .waitFor({ state: "visible", timeout: index === 0 ? 1_500 : 500 })
+      .then(() => true)
+      .catch(() => false);
+    if (!appeared) return;
     await rewardDialog.getByRole("button", { name: "Continuar" }).click();
   }
+  throw new Error("Fila de medalhas não encerrou durante o setup do teste.");
 }
 
 async function expectNoHorizontalOverflow(page: Page, route: string) {
