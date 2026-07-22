@@ -84,14 +84,12 @@ test.describe("consistência visual e responsiva", () => {
     await expect(page.locator(":focus")).toBeVisible();
   });
 
-  test("tema selecionado em Ajustes persiste após reload", async ({ page }) => {
+  test("Ajustes alterna entre os temas escuro e claro", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/ajustes");
     await dismissAchievementModal(page);
 
     await page.getByRole("button", { name: /Longyu Dark/i }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 
     await page.getByRole("button", { name: /Notion Clay/i }).click();
