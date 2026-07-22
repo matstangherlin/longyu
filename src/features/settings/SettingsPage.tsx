@@ -446,19 +446,15 @@ export function SettingsPage() {
 
           <Link
             to="/privacidade#politica"
-            className="inline-flex text-sm font-semibold text-accent hover:underline"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           >
             Política de privacidade
           </Link>
 
-          {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
-        </Card>
-      </HubSection>
-
-      {showDataDetails && (
+          {privacyNotice && <p className="text-sm text…24 tokens truncated…(
         <ModalOverlay label="Dados coletados" onBackdropClick={() => setShowDataDetails(false)}>
           <div
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 shadow-card sm:rounded-3xl"
+            className="max-h-[calc(100dvh_-_env(safe-area-inset-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <TelemetryDataDetails />
@@ -472,8 +468,15 @@ export function SettingsPage() {
       <HubSection id="tema" className="scroll-mt-6" title="Tema">
         <div className="grid gap-2 sm:grid-cols-2">
           {THEMES.map((t) => (
-            <button key={t.id} onClick={() => setTheme(t.id)} className="text-left">
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTheme(t.id)}
+              aria-pressed={theme === t.id}
+              className="group min-h-11 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            >
               <Card
+                variant="interactive"
                 className={[
                   "flex items-center gap-4 p-4 transition",
                   theme === t.id ? "ring-2 ring-accent" : "hover:bg-surface-2",
@@ -529,6 +532,8 @@ export function SettingsPage() {
                 return (
                   <button
                     key={option.id}
+                    type="button"
+                    aria-pressed={active}
                     onClick={() => setMandarinDisplayMode(option.id)}
                     className={[
                       "min-h-[92px] rounded-2xl border px-4 py-3 text-left transition",
@@ -660,20 +665,25 @@ export function SettingsPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 role="switch"
                 aria-checked={isPremium}
+                aria-label="Preview local Pro"
                 onClick={() => setPremium(!isPremium)}
-                className={[
-                  "relative h-7 w-12 shrink-0 rounded-full transition",
-                  isPremium ? "bg-accent" : "bg-line",
-                ].join(" ")}
+                className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
               >
                 <span
+                  aria-hidden="true"
                   className={[
-                    "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
-                    isPremium ? "left-5" : "left-0.5",
+                    "relative block h-7 w-12 rounded-full transition",
+                    isPremium ? "bg-accent" : "bg-line",
                   ].join(" ")}
-                />
+                >
+                  <span className={[
+                    "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                    isPremium ? "translate-x-5" : "translate-x-0",
+                  ].join(" ")} />
+                </span>
               </button>
               {isPremium ? (
                 <Button size="sm" variant="outline" onClick={() => setPremium(false)}>
@@ -727,20 +737,25 @@ export function SettingsPage() {
               </div>
             </div>
             <button
+              type="button"
               role="switch"
               aria-checked={soundEffects}
+              aria-label="Sons de progresso"
               onClick={() => setSoundEffects(!soundEffects)}
-              className={[
-                "relative h-7 w-12 shrink-0 rounded-full transition",
-                soundEffects ? "bg-accent" : "bg-line",
-              ].join(" ")}
+              className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
               <span
+                aria-hidden="true"
                 className={[
-                  "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
-                  soundEffects ? "left-5" : "left-0.5",
+                  "relative block h-7 w-12 rounded-full transition",
+                  soundEffects ? "bg-accent" : "bg-line",
                 ].join(" ")}
-              />
+              >
+                <span className={[
+                  "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                  soundEffects ? "translate-x-5" : "translate-x-0",
+                ].join(" ")} />
+              </span>
             </button>
           </div>
 
@@ -761,7 +776,7 @@ export function SettingsPage() {
                       window.setTimeout(() => playSoundFx("tap", soundEffects), 0);
                     }}
                     className={[
-                      "rounded-2xl border px-3 py-3 text-left transition",
+                      "min-h-11 rounded-2xl border px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
                       active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink hover:bg-surface",
                     ].join(" ")}
                   >
@@ -900,21 +915,27 @@ function SettingSwitch({
         <div className="mt-0.5 text-sm leading-5 text-ink-soft">{desc}</div>
       </div>
       <button
+        type="button"
         role="switch"
         aria-checked={checked}
         aria-label={label}
         onClick={onChange}
-        className={[
-          "relative h-7 w-12 shrink-0 rounded-full transition",
-          checked ? "bg-accent" : "bg-line",
-        ].join(" ")}
+        className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
       >
         <span
+          aria-hidden="true"
           className={[
-            "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition",
-            checked ? "left-5" : "left-0.5",
+            "relative block h-7 w-12 rounded-full transition",
+            checked ? "bg-accent" : "bg-line",
           ].join(" ")}
-        />
+        >
+          <span
+            className={[
+              "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+              checked ? "translate-x-5" : "translate-x-0",
+            ].join(" ")}
+          />
+        </span>
       </button>
     </div>
   );
