@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { Card, Button } from "../../components/ui/primitives";
+import { Card, ButtonLink } from "../../components/ui/primitives";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
 
@@ -11,11 +10,9 @@ export function PrivacyPage() {
         title="Privacidade e dados"
         desc="Transparência sobre o que o Longyu coleta e como você controla."
         aside={
-          <Link to="/ajustes#privacidade-dados">
-            <Button variant="outline" size="sm">
-              Abrir ajustes
-            </Button>
-          </Link>
+          <ButtonLink to="/ajustes#privacidade-dados" variant="outline" size="sm">
+            Abrir ajustes
+          </ButtonLink>
         }
       />
 

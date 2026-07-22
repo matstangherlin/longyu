@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
-import { Button } from "../../components/ui/primitives";
+import { ButtonLink } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
 import { IconCheck, IconChevron, IconSound, IconStar, IconSun } from "../../components/ui/Icon";
@@ -50,11 +50,9 @@ export function LandingPage() {
             <IconSun width={17} height={17} aria-hidden="true" />
             <span className="hidden sm:inline">{isDark ? "Modo claro" : "Modo escuro"}</span>
           </button>
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              Entrar
-            </Button>
-          </Link>
+          <ButtonLink to="/login" variant="ghost" size="sm">
+            Entrar
+          </ButtonLink>
         </div>
       </header>
 
@@ -141,16 +139,12 @@ export function LandingPage() {
             </ul>
 
             <div className="mx-auto mt-5 grid max-w-lg gap-2.5 lg:mx-0">
-              <Link to="/conta" className="block">
-                <Button size="lg" className="w-full shadow-lift">
-                  Começar agora <IconChevron width={18} height={18} />
-                </Button>
-              </Link>
-              <Link to="/login" className="block">
-                <Button variant="outline" size="lg" className="w-full">
-                  Já tenho uma conta
-                </Button>
-              </Link>
+              <ButtonLink to="/conta" size="lg" className="w-full shadow-lift">
+                Começar agora <IconChevron width={18} height={18} />
+              </ButtonLink>
+              <ButtonLink to="/login" variant="outline" size="lg" className="w-full">
+                Já tenho uma conta
+              </ButtonLink>
             </div>
 
             <p className="mt-2.5 text-[11px] leading-4 text-ink-faint sm:text-xs">

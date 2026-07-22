@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Mascot } from "../../components/brand/Mascot";
 import { SpeakButton } from "../../components/ui/SpeakButton";
-import { Button, Card, HubCard, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Button, ButtonLink, Card, HubCard, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import {
   IconBook,
@@ -424,11 +424,9 @@ export function ImmersionPage() {
                 {missionFocus.desc} Progresso: {missionFocus.progress}/{missionFocus.goal}.
               </p>
             </div>
-            <Link to="/missoes" className="shrink-0">
-              <Button variant="outline" className="w-full sm:w-auto">
-                Ver missões <IconChevron width={18} height={18} />
-              </Button>
-            </Link>
+            <ButtonLink to="/missoes" variant="outline" className="w-full shrink-0 sm:w-auto">
+              Ver missões <IconChevron width={18} height={18} />
+            </ButtonLink>
           </div>
         </Card>
       )}
@@ -442,12 +440,8 @@ export function ImmersionPage() {
               <p className="mt-0.5 text-xs text-ink-soft">Complete uma missão ou libere com Pro.</p>
             </div>
             <div className="flex gap-2">
-              <Link to="/missoes">
-                <Button size="sm">Missões</Button>
-              </Link>
-              <Link to="/pro">
-                <Button size="sm" variant="outline">Ver Pro</Button>
-              </Link>
+              <ButtonLink to="/missoes" size="sm">Missões</ButtonLink>
+              <ButtonLink to="/pro" size="sm" variant="outline">Ver Pro</ButtonLink>
             </div>
           </div>
         </Card>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { CHARACTERS, DECOMPOSABLE } from "../../data/characters";
 import { hanziLessonFor } from "../../data/hanziPedagogy";
 import { RADICALS } from "../../data/radicals";
@@ -10,7 +10,7 @@ import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { canAccessHanziLab, useIsPro } from "../../lib/proAccess";
 import { playSoundFx } from "../../lib/soundFx";
-import { Card, Button, Pill, SectionTitle } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink, Pill, SectionTitle } from "../../components/ui/primitives";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import {
@@ -59,16 +59,12 @@ export function HanziPage() {
             <p className="mt-1 text-sm text-ink-soft">Consulte frequência, radical, tom e revisão.</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Link to="/ideogramas">
-              <Button variant="soft" className="w-full sm:w-auto">
-                <IconHanzi width={17} height={17} /> Hub Ideogramas
-              </Button>
-            </Link>
-            <Link to="/hanzi/atlas">
-              <Button variant="outline" className="w-full sm:w-auto">
-                <IconLibrary width={17} height={17} /> Abrir Atlas
-              </Button>
-            </Link>
+            <ButtonLink to="/ideogramas" variant="soft" className="w-full sm:w-auto">
+              <IconHanzi width={17} height={17} /> Hub Ideogramas
+            </ButtonLink>
+            <ButtonLink to="/hanzi/atlas" variant="outline" className="w-full sm:w-auto">
+              <IconLibrary width={17} height={17} /> Abrir Atlas
+            </ButtonLink>
           </div>
         </div>
       </section>

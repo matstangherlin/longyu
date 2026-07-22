@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, Card, Pill } from "../../components/ui/primitives";
+import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
 import { IconChevron, IconFlame, IconStar, IconTrophy } from "../../components/ui/Icon";
 import { useLeagueData } from "../../hooks/useLeagueData";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -130,9 +130,7 @@ export function LigasPage() {
           <p className="mt-1 text-xs leading-5 text-ink-soft">
             Lições, revisão e imersão somam XP semanal. O ranking atualiza assim que você estuda.
           </p>
-          <Link to="/jornada" className="mt-3 inline-block">
-            <Button size="sm">Fazer uma lição</Button>
-          </Link>
+          <ButtonLink to="/jornada" size="sm" className="mt-3">Fazer uma lição</ButtonLink>
         </Card>
       )}
 
@@ -205,11 +203,12 @@ export function LigasPage() {
           )}
         </div>
 
-        <Link to="/jornada" className="relative mt-3 block">
-          <Button className="w-full !bg-white !text-ink hover:!bg-white/90">
-            {joined ? "Estudar agora para subir" : "Fazer uma lição"} <IconChevron width={16} height={16} />
-          </Button>
-        </Link>
+        <ButtonLink
+          to="/jornada"
+          className="relative mt-3 w-full !bg-white !text-ink hover:!bg-white/90"
+        >
+          {joined ? "Estudar agora para subir" : "Fazer uma lição"} <IconChevron width={16} height={16} />
+        </ButtonLink>
       </div>
 
       {joined && podium.length >= 3 && (

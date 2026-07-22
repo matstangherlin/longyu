@@ -1,10 +1,12 @@
 import type {
+  AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   ComponentType,
   HTMLAttributes,
   ReactNode,
   SVGProps,
 } from "react";
+import { Link, type LinkProps } from "react-router-dom";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -52,7 +54,7 @@ export function Card({
   );
 }
 
-type Variant =
+export type ButtonVariant =
   | "primary"
   | "secondary"
   | "ghost"
@@ -62,9 +64,49 @@ type Variant =
   | "danger"
   | "premium"
   | "text";
+export type ButtonSize = "sm" | "md" | "lg" | "icon";
+
+// Base compartilhada por Button e ButtonLink para que um CTA fique idêntico
+// quer seja <button> quer seja um link de navegação.
+const BUTTON_BASE =
+  "inline-flex select-none items-center justify-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-soft disabled:opacity-70 disabled:shadow-none";
+
+const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
+  primary:
+    "bg-accent text-white shadow-card hover:bg-accent-strong active:scale-[.98]",
+  secondary:
+    "border border-line/65 bg-surface text-ink shadow-card hover:border-accent/25 hover:bg-surface-2 active:scale-[.98]",
+  ghost: "text-ink-soft hover:bg-surface-2 active:scale-[.98]",
+  soft: "bg-accent-soft text-accent hover:brightness-95 active:scale-[.98]",
+  outline:
+    "border border-line/65 bg-transparent text-ink hover:border-accent/25 hover:bg-surface-2 active:scale-[.98]",
+  good:
+    "bg-[rgb(var(--good))] text-white shadow-card hover:brightness-95 active:scale-[.98]",
+  danger:
+    "bg-[rgb(var(--wrong))] text-white shadow-card hover:brightness-95 active:scale-[.98]",
+  premium:
+    "bg-gold text-white shadow-card hover:brightness-95 active:scale-[.98]",
+  text: "px-1 text-accent hover:text-accent-strong hover:underline active:opacity-75",
+};
+
+const BUTTON_SIZES: Record<ButtonSize, string> = {
+  sm: "min-h-11 px-3 text-sm rounded-xl",
+  md: "min-h-11 px-4 text-[15px] rounded-xl",
+  lg: "min-h-12 px-5 text-base rounded-2xl",
+  icon: "h-11 w-11 shrink-0 rounded-xl p-0",
+};
+
+export function buttonClasses(
+  variant: ButtonVariant = "primary",
+  size: ButtonSize = "md",
+  className?: string
+): string {
+  return cx(BUTTON_BASE, BUTTON_VARIANTS[variant], BUTTON_SIZES[size], className);
+}
+
 interface BtnProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant;
-  size?: "sm" | "md" | "lg" | "icon";
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
 }
 export function Button({
@@ -76,37 +118,9 @@ export function Button({
   disabled,
   ...rest
 }: BtnProps) {
-  const variants: Record<Variant, string> = {
-    primary:
-      "bg-accent text-white shadow-card hover:bg-accent-strong active:scale-[.98]",
-    secondary:
-      "border border-line/65 bg-surface text-ink shadow-card hover:border-accent/25 hover:bg-surface-2 active:scale-[.98]",
-    ghost: "text-ink-soft hover:bg-surface-2 active:scale-[.98]",
-    soft: "bg-accent-soft text-accent hover:brightness-95 active:scale-[.98]",
-    outline:
-      "border border-line/65 bg-transparent text-ink hover:border-accent/25 hover:bg-surface-2 active:scale-[.98]",
-    good:
-      "bg-[rgb(var(--good))] text-white shadow-card hover:brightness-95 active:scale-[.98]",
-    danger:
-      "bg-[rgb(var(--wrong))] text-white shadow-card hover:brightness-95 active:scale-[.98]",
-    premium:
-      "bg-gold text-white shadow-card hover:brightness-95 active:scale-[.98]",
-    text: "px-1 text-accent hover:text-accent-strong hover:underline active:opacity-75",
-  };
-  const sizes = {
-    sm: "min-h-11 px-3 text-sm rounded-xl",
-    md: "min-h-11 px-4 text-[15px] rounded-xl",
-    lg: "min-h-12 px-5 text-base rounded-2xl",
-    icon: "h-11 w-11 shrink-0 rounded-xl p-0",
-  };
   return (
     <button
-      className={cx(
-        "inline-flex select-none items-center justify-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-soft disabled:opacity-70 disabled:shadow-none",
-        variants[variant],
-        sizes[size],
-        className
-      )}
+      className={buttonClasses(variant, size, className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
@@ -119,6 +133,48 @@ export function Button({
       )}
       <span className={cx(loading && "opacity-90")}>{children}</span>
     </button>
+  );
+}
+
+// CTA de navegação: mesmo visual do Button, mas renderiza um link real.
+// Evita o antipadrão <Link><Button/></Link> (um <button> aninhado em <a>,
+// que é HTML inválido e confunde o teclado e leitores de tela).
+interface ButtonLinkProps extends Omit<LinkProps, "className"> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+}
+export function ButtonLink({
+  variant = "primary",
+  size = "md",
+  className,
+  children,
+  ...rest
+}: ButtonLinkProps) {
+  return (
+    <Link className={buttonClasses(variant, size, className)} {...rest}>
+      {children}
+    </Link>
+  );
+}
+
+// Variante para âncoras nativas (href externo, mailto, download).
+interface AnchorButtonProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "className"> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+}
+export function AnchorButton({
+  variant = "primary",
+  size = "md",
+  className,
+  children,
+  ...rest
+}: AnchorButtonProps) {
+  return (
+    <a className={buttonClasses(variant, size, className)} {...rest}>
+      {children}
+    </a>
   );
 }
 

@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { Button, Card } from "../ui/primitives";
+import { ButtonLink, Card } from "../ui/primitives";
 import { IconChevron, IconFlame, IconStar, IconUser } from "../ui/Icon";
 import type { PublicProfile } from "../../lib/social/types";
 import { leagueLabel } from "../../services/socialService";
@@ -163,17 +162,13 @@ export function FriendsProfileSummary({
       ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link to="/amigos">
-          <Button size="sm">
-            Encontrar amigos <IconChevron width={16} height={16} />
-          </Button>
-        </Link>
+        <ButtonLink to="/amigos" size="sm">
+          Encontrar amigos <IconChevron width={16} height={16} />
+        </ButtonLink>
         {!username && cloudReady && (
-          <Link to="/config#privacidade">
-            <Button size="sm" variant="outline">
-              Criar @apelido
-            </Button>
-          </Link>
+          <ButtonLink to="/config#privacidade" size="sm" variant="outline">
+            Criar @apelido
+          </ButtonLink>
         )}
       </div>
     </Card>

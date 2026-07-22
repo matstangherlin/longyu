@@ -49,6 +49,36 @@ test.describe("consistência visual e responsiva", () => {
     }
   });
 
+  test("CTAs de navegação não aninham elementos interativos (sem <button> em <a>)", async ({ page }) => {
+    // Percorre várias rotas com reload completo; marca como lento para caber o
+    // orçamento em ambientes sem rede (o bundle é recarregado a cada navegação).
+    test.slow();
+    await page.setViewportSize({ width: 360, height: 640 });
+    await seedOnboardedSession(page);
+
+    for (const route of [
+      "/jornada",
+      "/treino",
+      "/revisao",
+      "/missoes",
+      "/perfil",
+      "/conta",
+      "/plano",
+      "/ajustes",
+    ]) {
+      // domcontentloaded + heading visível cobre a estrutura do DOM sem depender
+      // de recursos de rede (Supabase, áudio) que atrasam o evento `load`.
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+      await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+      const nested = await page.evaluate(() => ({
+        buttonInAnchor: document.querySelectorAll("a button").length,
+        anchorInButton: document.querySelectorAll("button a").length,
+      }));
+      expect(nested.buttonInAnchor, `${route} aninha <button> dentro de <a>`).toBe(0);
+      expect(nested.anchorInButton, `${route} aninha <a> dentro de <button>`).toBe(0);
+    }
+  });
+
   test("navegação mobile mantém alvos de toque de pelo menos 44 px", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     await seedOnboardedSession(page);

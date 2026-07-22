@@ -158,6 +158,10 @@ Todos possuem foco visível e altura mínima de 44 px.
 
 - `Card`
 - `Button`
+- `ButtonLink` (CTA de navegação com o visual do `Button`)
+- `AnchorButton` (âncora nativa com o visual do `Button`)
+- `buttonClasses` (base de estilo compartilhada por Button/ButtonLink/AnchorButton)
+- `ActionButton` (do sistema `page.tsx`, agora sobre `ButtonLink`)
 - `Pill`
 - `ProgressBar`
 - `PageHeader`
@@ -189,14 +193,68 @@ Todos possuem foco visível e altura mínima de 44 px.
 
 Os testes existentes da landing, modo foco, player, mascote e tema continuam fazendo parte da cobertura.
 
+## Segunda entrega — CTAs de navegação e densidade (2026-07-22)
+
+Continuação incremental da padronização, focada em corrigir um antipadrão
+transversal e reduzir densidade sem tocar em currículo, SRS, autenticação,
+Supabase, Stripe ou segurança.
+
+### Problema estrutural corrigido: `<button>` dentro de `<a>`
+
+A auditoria inicial já apontava links que pareciam botões com `button` aninhado
+em `Link`. Uma varredura completa encontrou **~39 ocorrências** de
+`<Link><Button/></Link>` em 14 telas e, além disso, dois geradores centrais do
+padrão:
+
+- `ActionButton` (do sistema `src/components/ui/page.tsx`) embrulhava um
+  `<Button>` em `<Link>` sempre que recebia `to` — reproduzindo o aninhamento em
+  Conta, Perfil, Plano e Dados locais;
+- `ContaPage` ainda embrulhava um `ActionButton` em `<Link>`.
+
+Um `<button>` dentro de um `<a>` é HTML inválido, quebra a navegação por teclado
+(dois alvos focáveis sobrepostos), confunde leitores de tela e produz largura
+imprevisível quando o âncora é inline e o botão é `w-full`.
+
+### Solução: primitivos de CTA compartilhados
+
+- `buttonClasses(variant, size, className)` extrai a base de estilo do `Button`.
+- `ButtonLink` renderiza um `Link` do React Router com o visual do `Button`.
+- `AnchorButton` cobre âncoras nativas (href externo, `mailto`, download).
+- `ActionButton` passou a usar `ButtonLink` quando há `to`.
+
+Resultado: um CTA fica idêntico seja `<button>` ou link, com um único ponto de
+verdade para o estilo. Nenhum rótulo, rota ou ação foi alterado.
+
+### Densidade de Missões
+
+O `MissionCard` exibia até cinco badges (Pro + estado + três recompensas). O
+badge de estado era redundante (o estado já aparece no ícone, na borda do card,
+na barra de progresso e no rótulo do botão) e foi removido; as três pílulas de
+recompensa foram consolidadas em um único selo. O card passou de até 5 para no
+máximo 2 badges, preservando toda a informação.
+
+### Verificação
+
+- `typecheck` e `build` limpos.
+- Sonda de DOM em 360 × 640 nas rotas principais: **zero** `a button` /
+  `button a` (Conta caiu de 1 para 0) e **zero** overflow horizontal.
+- Novo teste E2E `CTAs de navegação não aninham elementos interativos`.
+- Validadores `validate:lesson-victory-ui` e `validate:glossary-ui` passam.
+
 ## Pendências visuais
 
 ### P1
 
-- Reduzir microbadges simultâneos em Missões e Jornada sem ocultar estado.
-- Migrar todas as ações inline restantes de Perfil, Loja, Sobre e estados bloqueados para Button/SettingsRow.
+- ~~Reduzir microbadges simultâneos em Missões~~ (feito nesta entrega). Jornada
+  já não concentra microbadges após a primeira entrega; revisitar se surgirem.
+- ~~Migrar ações inline de navegação que embrulhavam botões em `Link`~~ (feito:
+  primitivos `ButtonLink`/`ActionButton`). Restam ações inline puramente textuais
+  em Loja e Sobre que podem virar `Button`/`SettingsRow` quando conveniente.
 - Criar uma variante móvel em cards para a comparação do Plano Pro, evitando depender de scroll de tabela em 320 px.
-- Aplicar `SettingsRow` compartilhado a todas as seções de Ajustes, Conta e Dados locais.
+- Aplicar um `SettingsRow` compartilhado às seções de Ajustes, Conta e Dados
+  locais. Observação: os dois toggles existentes (Ajustes e Imersão) são
+  visualmente distintos por intenção; unificá-los exige decisão de design antes
+  de consolidar, então a extração ficou adiada para não alterar a aparência atual.
 
 ### P2
 

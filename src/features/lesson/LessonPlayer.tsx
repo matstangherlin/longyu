@@ -43,7 +43,7 @@ import {
 } from "../../data/economy";
 import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
-import { Card, Button, ProgressBar } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
@@ -1941,16 +1941,12 @@ export function LessonPlayer() {
         </p>
         {energyBlocked && (
           <>
-            <Link to="/revisao" className="mt-6 block w-full">
-              <Button size="lg" className="w-full shadow-lift">
-                <IconRefresh width={18} height={18} /> Revisar de graça
-              </Button>
-            </Link>
-            <Link to="/missoes" className="mt-3 block w-full">
-              <Button variant="soft" className="w-full">
-                <IconTarget width={17} height={17} /> Fazer missão para ganhar Qi
-              </Button>
-            </Link>
+            <ButtonLink to="/revisao" size="lg" className="mt-6 w-full shadow-lift">
+              <IconRefresh width={18} height={18} /> Revisar de graça
+            </ButtonLink>
+            <ButtonLink to="/missoes" variant="soft" className="mt-3 w-full">
+              <IconTarget width={17} height={17} /> Fazer missão para ganhar Qi
+            </ButtonLink>
             <Button variant="outline" className="mt-3 w-full" onClick={() => setProPaywallKind("energy")}>
               Conhecer o Longyu Pro
             </Button>
@@ -2692,11 +2688,9 @@ export function LessonPlayer() {
               <Button className="w-full" onClick={retryLesson}>
                 <IconRefresh width={17} height={17} /> Refazer lição
               </Button>
-              <Link to="/treino">
-                <Button variant="outline" className="w-full">
-                  <IconTarget width={17} height={17} /> Treinar revisão
-                </Button>
-              </Link>
+              <ButtonLink to="/treino" variant="outline" className="w-full">
+                <IconTarget width={17} height={17} /> Treinar revisão
+              </ButtonLink>
               <Button
                 variant="soft"
                 className="w-full"
@@ -2713,18 +2707,14 @@ export function LessonPlayer() {
                 Usar Recuperar Fôlego ({inventory["shop-breath"]})
               </Button>
             ) : (
-              <Link to="/loja" className="mt-2 block">
-                <Button variant="outline" className="w-full">
-                  Comprar Recuperar Fôlego na Loja
-                </Button>
-              </Link>
+              <ButtonLink to="/loja" variant="outline" className="mt-2 w-full">
+                Comprar Recuperar Fôlego na Loja
+              </ButtonLink>
             )}
             {points < BREATH_RECOVERY_QI_COST && (
-              <Link to="/missoes" className="mt-2 block">
-                <Button variant="soft" className="w-full">
-                  <IconStar width={16} height={16} /> Ganhar Qi em missões
-                </Button>
-              </Link>
+              <ButtonLink to="/missoes" variant="soft" className="mt-2 w-full">
+                <IconStar width={16} height={16} /> Ganhar Qi em missões
+              </ButtonLink>
             )}
             <p className="mt-3 text-xs leading-5 text-ink-faint">
               Recuperar custa {BREATH_RECOVERY_QI_COST} Qi e devolve o fôlego para continuar praticando esta tentativa.
@@ -2805,11 +2795,9 @@ export function LessonPlayer() {
               <Button className="w-full" onClick={retryLesson}>
                 <IconRefresh width={17} height={17} /> Refazer partes fracas
               </Button>
-              <Link to="/treino">
-                <Button variant="outline" className="w-full">
-                  <IconTarget width={17} height={17} /> Treinar antes
-                </Button>
-              </Link>
+              <ButtonLink to="/treino" variant="outline" className="w-full">
+                <IconTarget width={17} height={17} /> Treinar antes
+              </ButtonLink>
               <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
                 Voltar à jornada
               </Button>
@@ -3051,11 +3039,9 @@ export function LessonPlayer() {
               <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
-            <Link to={nextFocus.to} className="shrink-0">
-              <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                {nextFocus.cta} <IconChevron width={15} height={15} />
-              </Button>
-            </Link>
+            <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
+              {nextFocus.cta} <IconChevron width={15} height={15} />
+            </ButtonLink>
           </div>
 
           {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
@@ -3105,18 +3091,14 @@ export function LessonPlayer() {
                 <div className="text-sm font-medium text-ink">Quer reforçar este ponto?</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {suggestsPinyinLab && (
-                    <Link to="/pinyin">
-                      <Button variant="outline" size="sm">
-                        <IconSound width={15} height={15} /> Pinyin Lab
-                      </Button>
-                    </Link>
+                    <ButtonLink to="/pinyin" variant="outline" size="sm">
+                      <IconSound width={15} height={15} /> Pinyin Lab
+                    </ButtonLink>
                   )}
                   {suggestsHanziLab && (
-                    <Link to="/hanzi">
-                      <Button variant="outline" size="sm">
-                        <IconHanzi width={15} height={15} /> Hànzì Lab
-                      </Button>
-                    </Link>
+                    <ButtonLink to="/hanzi" variant="outline" size="sm">
+                      <IconHanzi width={15} height={15} /> Hànzì Lab
+                    </ButtonLink>
                   )}
                 </div>
               </CollapsibleInfoCard>
@@ -3348,11 +3330,9 @@ export function LessonPlayer() {
                   <Button size="lg" className="w-full" onClick={continueWithMistake}>
                     Continuar e perder perfeição
                   </Button>
-                  <Link to="/missoes">
-                    <Button variant="outline" className="w-full">
-                      <IconStar width={16} height={16} /> Ganhar Qi em missões
-                    </Button>
-                  </Link>
+                  <ButtonLink to="/missoes" variant="outline" className="w-full">
+                    <IconStar width={16} height={16} /> Ganhar Qi em missões
+                  </ButtonLink>
                   <Button variant="soft" className="w-full" onClick={() => {
                     playSoundFx("blocked", soundEffects);
                     setProPaywallKind("qi");

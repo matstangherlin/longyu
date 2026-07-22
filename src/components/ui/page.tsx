@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { Link } from "react-router-dom";
-import { Button, Card, ProgressBar } from "./primitives";
+import { Button, ButtonLink, Card, ProgressBar } from "./primitives";
 import { IconChevron } from "./Icon";
 
 function cx(...parts: (string | false | undefined)[]): string {
@@ -213,25 +213,33 @@ export function ActionButton({
   disabled?: boolean;
   className?: string;
 }) {
-  const btn = (
-    <Button
-      variant={variant === "secondary" ? "outline" : "primary"}
-      size={size}
-      onClick={onClick}
-      disabled={disabled}
-      className={cx(block && "w-full", variant === "primary" && "shadow-lift", className)}
-    >
+  const resolvedVariant = variant === "secondary" ? "outline" : "primary";
+  const classes = cx(block && "w-full", variant === "primary" && "shadow-lift", className);
+  const content = (
+    <>
       {icon}
       {children}
       {trailingChevron && <IconChevron width={size === "sm" ? 15 : 17} height={size === "sm" ? 15 : 17} />}
-    </Button>
+    </>
   );
+  // Com `to`, renderiza um link real (ButtonLink) em vez de <Link><Button/></Link>,
+  // que aninharia um <button> dentro de um <a> (HTML inválido e ruim para o teclado).
   if (to && !disabled) {
     return (
-      <Link to={to} className={cx(block && "block")}>
-        {btn}
-      </Link>
+      <ButtonLink to={to} variant={resolvedVariant} size={size} className={classes}>
+        {content}
+      </ButtonLink>
     );
   }
-  return btn;
+  return (
+    <Button
+      variant={resolvedVariant}
+      size={size}
+      onClick={onClick}
+      disabled={disabled}
+      className={classes}
+    >
+      {content}
+    </Button>
+  );
 }

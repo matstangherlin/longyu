@@ -7,6 +7,23 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Padronização de CTAs e densidade de missões (2026-07-22)
+
+- Novos primitivos `ButtonLink` e `AnchorButton` (mesmo visual de `Button`) e
+  helper `buttonClasses`, eliminando o antipadrão `<Link><Button/></Link>` — um
+  `<button>` aninhado em `<a>`, que é HTML inválido e prejudica teclado e
+  leitores de tela. Migrados ~39 CTAs em 14 telas (Jornada, Missões, Revisão,
+  Liga, Hànzì, Imersão, Landing, Ajustes, player de lição, paywall Pro e mais).
+- `ActionButton` (sistema `page.tsx`) passou a renderizar um link real quando
+  recebe `to`, corrigindo o mesmo aninhamento nas telas de Conta, Perfil, Plano
+  e Dados locais de uma só vez; `ContaPage` deixou de embrulhar o botão em `Link`.
+- Cards de missão mais leves: removido o badge de estado redundante (já indicado
+  por ícone, borda, barra de progresso e rótulo do botão) e as três pílulas de
+  recompensa consolidadas em um único selo — de até 5 badges para no máximo 2.
+- Novo teste E2E garante ausência de elementos interativos aninhados
+  (`a button` / `button a`) nas rotas principais, incluindo os dois sistemas de
+  componentes.
+
 ### Padronização visual e acessibilidade (2026-07-22)
 
 - Design system incremental com variantes semânticas de Card, Button e Pill,

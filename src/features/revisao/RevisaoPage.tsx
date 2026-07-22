@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
 import { todayKey } from "../../lib/storage";
 import { useStore, type Track } from "../../lib/store";
@@ -12,7 +12,7 @@ import { charById } from "../../data/characters";
 import { IconRefresh, IconTarget } from "../../components/ui/Icon";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
-import { Card, Button, Pill } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink, Pill } from "../../components/ui/primitives";
 import { HubHeader, HubNavGrid, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { MandarinText } from "../../components/hanzi/MandarinText";
@@ -1381,12 +1381,8 @@ export function RevisaoPage() {
                 Aprenda caracteres no Hànzì ou chunks na Fala para alimentar a fila.
               </p>
               <div className="mt-4 flex justify-center gap-3">
-                <Link to="/hanzi">
-                  <Button variant="outline">Ir para Hànzì</Button>
-                </Link>
-                <Link to="/fala">
-                  <Button>Ir para Fala</Button>
-                </Link>
+                <ButtonLink to="/hanzi" variant="outline">Ir para Hànzì</ButtonLink>
+                <ButtonLink to="/fala">Ir para Fala</ButtonLink>
               </div>
             </>
           )}

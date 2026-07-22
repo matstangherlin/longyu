@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { Card, Button, Pill } from "../../components/ui/primitives";
+import { Navigate } from "react-router-dom";
+import { Card, Button, ButtonLink, Pill } from "../../components/ui/primitives";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import {
   FEEDBACK_CATEGORIES,
@@ -209,11 +209,9 @@ export function AdminFeedbackPage() {
             <Button variant="soft" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
               Exportar CSV
             </Button>
-            <Link to="/mais">
-              <Button variant="ghost" size="sm">
-                Voltar
-              </Button>
-            </Link>
+            <ButtonLink to="/mais" variant="ghost" size="sm">
+              Voltar
+            </ButtonLink>
           </div>
         }
       />

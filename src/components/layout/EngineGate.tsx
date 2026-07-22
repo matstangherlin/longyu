@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useStore } from "../../lib/store";
 import {
@@ -7,7 +6,7 @@ import {
   type EngineTrack,
 } from "../../lib/journeyUnlocks";
 import { canUsePracticeTool, useIsPro } from "../../lib/proAccess";
-import { Card, Button } from "../ui/primitives";
+import { Card, ButtonLink } from "../ui/primitives";
 import { IconLock } from "../ui/Icon";
 
 interface EngineGateProps {
@@ -51,17 +50,13 @@ export function EngineGate({ track, mode = "engine", children }: EngineGateProps
         A jornada é a trilha principal. Cada competência abre quando você já praticou o básico na ordem certa —
         som depois das primeiras frases, hànzì depois dos tons, leitura depois do vocabulário fechado.
       </Card>
-      <Link to="/jornada">
-        <Button size="lg" className="w-full sm:w-auto">
-          Continuar na jornada
-        </Button>
-      </Link>
+      <ButtonLink to="/jornada" size="lg" className="w-full sm:w-auto">
+        Continuar na jornada
+      </ButtonLink>
       {hub && (
-        <Link to={hub.to}>
-          <Button size="lg" variant="outline" className="w-full sm:w-auto">
-            {hub.label}
-          </Button>
-        </Link>
+        <ButtonLink to={hub.to} size="lg" variant="outline" className="w-full sm:w-auto">
+          {hub.label}
+        </ButtonLink>
       )}
     </div>
   );

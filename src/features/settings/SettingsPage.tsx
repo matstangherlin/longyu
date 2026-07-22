@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useStore, type MandarinDisplayMode, type SoundTheme, type ThemeName, type TranslationMode } from "../../lib/store";
 import { hasChineseVoice, isTTSAvailable, speak } from "../../lib/tts";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
-import { Card, Button } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink } from "../../components/ui/primitives";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
@@ -639,11 +639,9 @@ export function SettingsPage() {
       <HubSection
         title="Longyu Pro"
         count={
-          <Link to="/pro">
-            <Button size="sm" variant="outline">
-              Ver Pro
-            </Button>
-          </Link>
+          <ButtonLink to="/pro" size="sm" variant="outline">
+            Ver Pro
+          </ButtonLink>
         }
       >
         <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
@@ -651,9 +649,7 @@ export function SettingsPage() {
             O Longyu Pro remove os limites diários, libera a revisão inteligente e as ferramentas avançadas. A Jornada
             e a revisão essencial continuam grátis para sempre.
           </div>
-          <Link to="/pro" className="mt-3 inline-block">
-            <Button size="sm">Ver planos Pro</Button>
-          </Link>
+          <ButtonLink to="/pro" size="sm" className="mt-3">Ver planos Pro</ButtonLink>
         </Card>
 
         {/* Ferramenta interna: simular Pro sem assinatura real (só dev / flag explícita). */}

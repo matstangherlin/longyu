@@ -15,7 +15,7 @@ import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { makeKey, type SRSItem } from "../../lib/srs";
 import { todayKey } from "../../lib/storage";
 import { useStore } from "../../lib/store";
-import { Card, Button, Pill, SectionTitle } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink, Pill, SectionTitle } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -174,16 +174,12 @@ export function HanziAtlasPage() {
           desc="Explore os caracteres chineses por frequência, som, radical e significado."
         />
         <div className="grid gap-2 sm:grid-cols-2 lg:flex">
-        <Link to="/biblioteca">
-          <Button variant="outline" className="w-full lg:w-auto">
-            <IconLibrary width={17} height={17} /> Ver minha biblioteca
-          </Button>
-        </Link>
-        <Link to="/hanzi">
-          <Button variant="outline" className="w-full lg:w-auto">
-            <IconBook width={17} height={17} /> Treinar Hànzì
-          </Button>
-        </Link>
+        <ButtonLink to="/biblioteca" variant="outline" className="w-full lg:w-auto">
+          <IconLibrary width={17} height={17} /> Ver minha biblioteca
+        </ButtonLink>
+        <ButtonLink to="/hanzi" variant="outline" className="w-full lg:w-auto">
+          <IconBook width={17} height={17} /> Treinar Hànzì
+        </ButtonLink>
         </div>
       </div>
 
@@ -194,11 +190,9 @@ export function HanziAtlasPage() {
             title="O que é Hànzì?"
             desc="Hànzì são os caracteres do chinês escrito. Pinyin mostra o som; hànzì mostra a forma real usada para ler e escrever."
           />
-          <Link to="/licao/p1-o-que-e-hanzi">
-            <Button variant="soft" className="w-full lg:w-auto">
-              <IconBook width={17} height={17} /> Aula guiada
-            </Button>
-          </Link>
+          <ButtonLink to="/licao/p1-o-que-e-hanzi" variant="soft" className="w-full lg:w-auto">
+            <IconBook width={17} height={17} /> Aula guiada
+          </ButtonLink>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -745,11 +739,9 @@ function HanziDetailModal({
               <IconLibrary width={17} height={17} /> Ver palavras
             </Button>
             {lessonLinks[0] && (
-              <Link to={`/licao/${lessonLinks[0].id}`}>
-                <Button variant="outline">
-                  Ver na jornada
-                </Button>
-              </Link>
+              <ButtonLink to={`/licao/${lessonLinks[0].id}`} variant="outline">
+                Ver na jornada
+              </ButtonLink>
             )}
           </div>
 

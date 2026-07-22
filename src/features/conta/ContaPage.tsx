@@ -78,9 +78,7 @@ export function ContaPage() {
             </div>
             {account?.email && <div className="mt-0.5 truncate text-xs text-ink-soft">{account.email}</div>}
           </div>
-          <Link to="/perfil">
-            <ActionButton variant="secondary" size="sm" trailingChevron>Ver perfil</ActionButton>
-          </Link>
+          <ActionButton to="/perfil" variant="secondary" size="sm" trailingChevron>Ver perfil</ActionButton>
         </div>
         <p className="mt-2 text-[13px] leading-5 text-ink-soft">{status.blurb}</p>
       </CompactCard>

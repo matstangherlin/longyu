@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import { monthKey } from "../../lib/storage";
@@ -20,7 +20,7 @@ import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
-import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Button, ButtonLink, Card, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
@@ -375,11 +375,9 @@ export function MissoesPage() {
               </span>
             ))}
           </div>
-          <Link to="/conquistas" className="mt-4 block">
-            <Button variant="soft" className="w-full sm:w-auto">
-              Ver todas as conquistas
-            </Button>
-          </Link>
+          <ButtonLink to="/conquistas" variant="soft" className="mt-4 w-full sm:w-auto">
+            Ver todas as conquistas
+          </ButtonLink>
         </Card>
       </HubSection>
 
@@ -528,13 +526,7 @@ function MissionCard({
   lockedPro?: boolean;
 }) {
   const Icon = MISSION_ICONS[mission.iconKey];
-  const state = mission.claimed
-    ? "resgatada"
-    : mission.complete
-    ? "concluída"
-    : mission.progress > 0
-    ? "em andamento"
-    : "disponível";
+  const rewards = rewardLabel(mission.reward);
 
   return (
     <Card
@@ -558,20 +550,19 @@ function MissionCard({
         >
           {mission.claimed ? <IconCheck width={17} height={17} /> : <Icon width={17} height={17} />}
         </span>
-        <div className="flex flex-col items-end gap-1">
-          {mission.pro && <Pill tone="gold" className="text-[10px]">Pro</Pill>}
-          <Pill tone="muted" className="text-[10px]">{state}</Pill>
-        </div>
+        {mission.pro && <Pill tone="gold" className="text-[10px]">Pro</Pill>}
       </div>
 
       <h3 className="mt-2 text-sm font-semibold text-ink">{mission.title}</h3>
       <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft">{mission.desc}</p>
 
-      <div className="mt-2 flex flex-wrap gap-1">
-        {mission.reward.xp ? <Pill tone="accent">+{mission.reward.xp} XP</Pill> : null}
-        {mission.reward.qi ? <Pill tone="muted">+{mission.reward.qi} Qi</Pill> : null}
-        {mission.reward.charges ? <Pill tone="good">+{mission.reward.charges} Cargas</Pill> : null}
-      </div>
+      {rewards && (
+        <div className="mt-2">
+          <span className="inline-flex max-w-full items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold leading-4 text-accent">
+            {rewards}
+          </span>
+        </div>
+      )}
 
       <div className="mt-4">
         <div className="mb-1 flex items-center justify-between text-xs text-ink-faint">
@@ -591,11 +582,14 @@ function MissionCard({
             {lockedPro ? "Resgatar com Pro" : "Resgatar"}
           </Button>
         ) : (
-          <Link to={mission.to}>
-            <Button size="sm" variant={mission.progress > 0 ? "soft" : "primary"} className="w-full">
-              Praticar <IconChevron width={15} height={15} />
-            </Button>
-          </Link>
+          <ButtonLink
+            to={mission.to}
+            size="sm"
+            variant={mission.progress > 0 ? "soft" : "primary"}
+            className="w-full"
+          >
+            Praticar <IconChevron width={15} height={15} />
+          </ButtonLink>
         )}
       </div>
     </Card>

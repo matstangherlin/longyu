@@ -1,7 +1,6 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { ModalOverlay } from "../ui/ModalOverlay";
-import { Button } from "../ui/primitives";
+import { Button, ButtonLink } from "../ui/primitives";
 import {
   IconBook,
   IconChat,
@@ -110,19 +109,19 @@ export function ProPaywall({
         <p className="mt-3 text-xs leading-5 text-ink-faint">{copy.freeContinues}</p>
         {kind === "energy" ? (
           <div className="mt-5 grid gap-2">
-            <Link to="/pro" onClick={handleCta}>
-              <Button size="lg" className="w-full">{PRO_PAYWALL_CTA}</Button>
-            </Link>
-            <Link to="/missoes" onClick={onClose}>
-              <Button size="lg" variant="outline" className="w-full">Ir para missões</Button>
-            </Link>
+            <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
+              {PRO_PAYWALL_CTA}
+            </ButtonLink>
+            <ButtonLink to="/missoes" onClick={onClose} size="lg" variant="outline" className="w-full">
+              Ir para missões
+            </ButtonLink>
             <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>Voltar amanhã</Button>
           </div>
         ) : (
           <div className="mt-5 grid gap-2">
-            <Link to="/pro" onClick={handleCta}>
-              <Button size="lg" className="w-full">{PRO_PAYWALL_CTA}</Button>
-            </Link>
+            <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
+              {PRO_PAYWALL_CTA}
+            </ButtonLink>
             <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>Agora não</Button>
           </div>
         )}
