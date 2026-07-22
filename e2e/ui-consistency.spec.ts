@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import { seedOnboardedSession } from "./helpers";
 
+async function dismissAchievementModal(page: Page) {
+  const rewardDialog = page.getByRole("dialog", { name: "Nova medalha desbloqueada" });
+  while (await rewardDialog.isVisible().catch(() => false)) {
+    await rewardDialog.getByRole("button", { name: "Continuar" }).click();
+  }
+}
+
 async function expectNoHorizontalOverflow(page: Page, route: string) {
   await page.goto(route);
   await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
@@ -74,6 +81,7 @@ test.describe("consistência visual e responsiva", () => {
   test("tema selecionado em Ajustes persiste após reload", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/ajustes");
+    await dismissAchievementModal(page);
 
     await page.getByRole("button", { name: /Longyu Dark/i }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -107,6 +115,7 @@ test.describe("consistência visual e responsiva", () => {
   test("modal prende o foco, fecha com Escape e restaura o acionador", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/ajustes");
+    await dismissAchievementModal(page);
 
     const opener = page.getByRole("button", { name: "Ver quais dados são coletados" });
     await opener.focus();
