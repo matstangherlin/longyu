@@ -67,10 +67,12 @@ html,
 body,
 #root {
   height: 100%;
+  max-width: 100%;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
   background-color: rgb(var(--bg));
   color: rgb(var(--text));
   font-family: "Inter", system-ui, sans-serif;
@@ -106,16 +108,54 @@ html {
 }
 
 [data-theme="dark"] .shadow-card {
-  box-shadow: 0 12px 34px rgb(0 0 0 / 0.28);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
 }
 
 [data-theme="dark"] .shadow-lift {
-  box-shadow: 0 22px 60px rgb(0 0 0 / 0.38);
+  box-shadow: 0 18px 46px rgb(0 0 0 / 0.3);
 }
 
 button,
 a {
   touch-action: manipulation;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--accent) / 0.68);
+  outline-offset: 2px;
+}
+
+:where(p, h1, h2, h3, h4, a, button, span) {
+  overflow-wrap: break-word;
+}
+
+.ui-scroll-tabs {
+  display: flex;
+  max-width: 100%;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 0.125rem;
+  scrollbar-width: thin;
+  scroll-snap-type: inline proximity;
+}
+
+.ui-scroll-tabs > * {
+  min-height: 2.75rem;
+  scroll-snap-align: start;
+}
+
+@supports (padding: max(0px)) {
+  [aria-modal="true"] {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* Transição suave de tema */
@@ -493,8 +533,7 @@ a {
     animation: none !important;
   }
 
-  .longyu-audio-bar {
+.longyu-audio-bar {
     animation: none !important;
   }
 }
-
