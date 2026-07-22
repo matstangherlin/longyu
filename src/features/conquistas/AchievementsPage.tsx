@@ -7,7 +7,7 @@ import {
 } from "../../data/achievements";
 import { useAchievementSnapshot } from "../../components/achievements/AchievementsWatcher";
 import { useStore } from "../../lib/store";
-import { Card, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
+import { Card, EmptyState, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
 
 type AchievementFilter = "todas" | "desbloqueadas" | "bloqueadas" | "proximas";
 
@@ -74,15 +74,16 @@ export function AchievementsPage() {
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div className="ui-scroll-tabs min-w-0 flex-1">
           <div className="flex min-w-max gap-2">
             {FILTERS.map((option) => (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => setFilter(option.id)}
+                aria-pressed={filter === option.id}
                 className={[
-                  "inline-flex h-10 items-center rounded-full border px-3.5 text-sm font-semibold transition",
+                  "inline-flex min-h-11 items-center rounded-full border px-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
                   filter === option.id
                     ? "border-accent bg-accent text-white shadow-card"
                     : "border-line bg-surface text-ink-soft hover:bg-surface-2 hover:text-ink",
@@ -99,14 +100,16 @@ export function AchievementsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_300px] lg:items-start">
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 xl:grid-cols-3">
           {visible.map((view) => (
             <AchievementCard key={view.def.id} view={view} />
           ))}
           {visible.length === 0 && (
-            <Card className="col-span-full p-6 text-center text-sm text-ink-soft">
-              Nada por aqui ainda. Continue estudando — as medalhas vêm com a prática.
-            </Card>
+            <EmptyState
+              className="col-span-full"
+              title="Nada por aqui ainda"
+              desc="Continue estudando — as medalhas vêm com a prática."
+            />
           )}
         </div>
 
