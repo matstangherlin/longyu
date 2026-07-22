@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Padronização visual e acessibilidade (2026-07-22)
+
+- Design system incremental com variantes semânticas de Card, Button e Pill,
+  cabeçalhos compartilhados e estados Empty/Loading/Error.
+- Shell desktop/mobile com alvos de toque de 44 px, foco visível e proteção
+  contra overflow horizontal; safe areas e modo foco do player preservados.
+- Biblioteca e Conquistas com filtros horizontais contidos e semântica de
+  seleção; hubs mais legíveis em telas de 320–360 px.
+- Onboarding com navegação acessível, progresso semântico e CTA protegido da
+  safe area; Login e Ajustes com hierarquia e controles consistentes.
+- Modais com foco inicial, contenção de Tab, Escape e restauração de foco.
+- Auditoria documentada em `docs/UI_UX_AUDIT.md` e nova suíte E2E de
+  responsividade, tema, reduced motion e teclado.
+
 ### Auditoria de prontidão beta (2026-07-21)
 
 - Instalação limpa + `validate:beta` + build + E2E Chromium/Firefox; WebKit falhou no offline PWA.
