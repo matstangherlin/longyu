@@ -240,7 +240,7 @@ export function BibliotecaPage() {
         <NotebookStat label="Fracos" value={library.all.filter((item) => item.weak).length} total={Math.max(1, library.all.length)} icon={<IconShield width={18} height={18} />} />
       </section>
 
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div className="ui-scroll-tabs">
         <div className="flex min-w-max gap-2">
           {TABS.map((tab) => {
             const active = activeTab === tab.id;
@@ -248,9 +248,11 @@ export function BibliotecaPage() {
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
+                aria-pressed={active}
                 className={[
-                  "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition",
+                  "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
                   active ? "border-accent bg-accent text-white shadow-card" : "border-line bg-surface text-ink-soft hover:text-ink",
                 ].join(" ")}
               >
@@ -1048,9 +1050,11 @@ function FilterSelect({
 function FilterToggle({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
+      type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={[
-        "inline-flex h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition",
+        "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
         active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink-soft hover:text-ink",
       ].join(" ")}
     >

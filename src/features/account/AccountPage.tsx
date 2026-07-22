@@ -3435,19 +3435,27 @@ function OnboardingShell({
   const progress = Math.max(1, index + 1);
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-9rem)] w-full max-w-2xl flex-col">
-      <header className="flex items-center gap-3 pb-6">
+    <div className="mx-auto flex min-h-[calc(100dvh_-_3rem_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] w-full max-w-2xl flex-col">
+      <header className="flex items-center gap-3 pb-4 sm:pb-6">
         <button
+          type="button"
           onClick={onBack}
           disabled={!canGoBack}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-lg text-ink-faint transition hover:bg-surface-2 disabled:opacity-30"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg text-ink-faint transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 disabled:opacity-30"
           aria-label="Voltar"
         >
           ←
         </button>
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-line">
+        <div
+          className="h-2.5 flex-1 overflow-hidden rounded-full bg-line"
+          role="progressbar"
+          aria-label="Progresso da configuração"
+          aria-valuemin={1}
+          aria-valuemax={ONBOARDING_STEPS.length}
+          aria-valuenow={progress}
+        >
           <div
-            className="h-full rounded-full bg-accent transition-all duration-500"
+            className="h-full rounded-full bg-accent transition-[width] duration-300 motion-reduce:transition-none"
             style={{ width: `${(progress / ONBOARDING_STEPS.length) * 100}%` }}
           />
         </div>
@@ -3456,7 +3464,11 @@ function OnboardingShell({
 
       <div className="flex flex-1 flex-col justify-start pt-4 sm:pt-10">{children}</div>
 
-      {footer && <div className="pt-8">{footer}</div>}
+      {footer && (
+        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-6">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }
@@ -3552,7 +3564,9 @@ function QuestionStep<T extends string>({
           return (
             <button
               key={choice.id}
+              type="button"
               onClick={() => onPick(choice.id)}
+              aria-pressed={active}
               className={[
                 "group flex min-h-[76px] items-center gap-4 rounded-2xl border px-5 py-4 text-left shadow-card transition active:scale-[.99]",
                 active
@@ -3707,7 +3721,9 @@ function QuizStep({
             return (
               <button
                 key={option}
+                type="button"
                 onClick={() => onPick(option)}
+                aria-pressed={active}
                 aria-label={`Opção ${shortcut}: ${option}`}
                 className={[
                   "relative rounded-2xl border px-5 py-4 text-left font-medium shadow-card transition active:scale-[.99]",

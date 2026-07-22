@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 let bodyLockCount = 0;
 let previousBodyOverflow = "";
@@ -20,6 +20,15 @@ function useBodyScrollLock() {
   }, []);
 }
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
 export function ModalOverlay({
   children,
   className = "",
@@ -35,23 +44,61 @@ export function ModalOverlay({
   label?: string;
   onBackdropClick?: () => void;
 }) {
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const onBackdropClickRef = useRef(onBackdropClick);
+  onBackdropClickRef.current = onBackdropClick;
   useBodyScrollLock();
 
-  // ESC fecha o modal (mesmo comportamento do clique no backdrop). Centraliza a
-  // acessibilidade de teclado para todos os modais que usam este overlay.
   useEffect(() => {
-    if (!onBackdropClick) return undefined;
+    if (role !== "dialog") return undefined;
+
+    const overlay = overlayRef.current;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusable = Array.from(overlay?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []);
+    (focusable[0] ?? overlay)?.focus({ preventScroll: true });
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onBackdropClick();
+      if (event.key === "Escape" && onBackdropClickRef.current) {
+        event.preventDefault();
+        onBackdropClickRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !overlay) return;
+
+      const items = Array.from(overlay.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+        (item) => !item.hasAttribute("disabled") && item.getAttribute("aria-hidden") !== "true"
+      );
+      if (items.length === 0) {
+        event.preventDefault();
+        overlay.focus();
+        return;
+      }
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || active === overlay)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onBackdropClick]);
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previousFocus?.focus({ preventScroll: true });
+    };
+  }, [role]);
 
   return (
     <div
+      ref={overlayRef}
+      tabIndex={role === "dialog" ? -1 : undefined}
       className={[
-        "fixed inset-0 z-[80] flex items-end justify-center overscroll-contain bg-ink/65 p-0 backdrop-blur-md sm:items-center sm:p-4",
+        "fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto overscroll-contain bg-ink/65 p-0 backdrop-blur-md sm:items-center sm:p-4",
         className,
       ].filter(Boolean).join(" ")}
       role={role}

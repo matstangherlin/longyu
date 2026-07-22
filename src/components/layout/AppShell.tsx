@@ -79,7 +79,7 @@ export function AppShell() {
   if (isOnboarding || isAuthPage) {
     return (
       <FeedbackProvider>
-        <div className="theme-transition min-h-screen bg-bg px-4 py-6 sm:px-6">
+        <div className="theme-transition min-h-screen overflow-x-clip bg-bg px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6">
           <ErrorBoundary resetKey={location.pathname} area="auth">
             <Outlet />
           </ErrorBoundary>
@@ -94,7 +94,7 @@ export function AppShell() {
 
   return (
     <FeedbackProvider>
-    <div className="theme-transition flex min-h-screen bg-bg">
+    <div className="theme-transition flex min-h-screen min-w-0 overflow-x-clip bg-bg">
       {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
           Só o conteúdo do exercício, como um app de idiomas. */}
       {!focusMode && <Sidebar />}
@@ -105,7 +105,7 @@ export function AppShell() {
             tab bar some, então o padding encolhe. */}
         <main
           className={[
-            "mx-auto w-full max-w-content flex-1 px-3 sm:px-5 lg:px-6",
+            "mx-auto min-w-0 w-full max-w-content flex-1 px-3 sm:px-5 lg:px-6",
             focusMode
               ? "pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:pt-3 lg:pb-6"
               : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5 lg:pb-12",

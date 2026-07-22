@@ -79,19 +79,19 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-md flex-col justify-center py-8">
+    <div className="mx-auto flex min-h-[70dvh] w-full max-w-md flex-col justify-center py-6 sm:py-8">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-4 flex justify-center">
           <Mascot size={88} variant="wave" />
         </div>
         <Pill tone="accent">Longyu</Pill>
-        <h1 className="mt-3 font-serif text-3xl font-semibold text-ink">Entrar na conta</h1>
+        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">Entrar na conta</h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">
           Acesse sua conta e continue de onde parou — sem passar pelo tutorial.
         </p>
       </div>
 
-      <Card className="border-line/80 p-6 shadow-card">
+      <Card className="p-5 sm:p-6">
         <CloudLoginForm
           email={email}
           password={password}
@@ -109,10 +109,10 @@ export function LoginPage() {
         />
       </Card>
 
-      <div className="mt-6 space-y-3 text-center text-sm text-ink-soft">
-        <p>
-          Primeira vez aqui?{" "}
-          <Link to="/conta" className="font-semibold text-accent hover:underline">
+      <div className="mt-5 flex flex-col items-center gap-2 text-center text-sm text-ink-soft">
+        <p className="flex flex-wrap items-center justify-center gap-1">
+          <span>Primeira vez aqui?</span>
+          <Link to="/conta" className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
             Criar conta
           </Link>
         </p>
