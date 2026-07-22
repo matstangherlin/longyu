@@ -95,8 +95,8 @@ test.describe("beta smoke — fluxos públicos", () => {
       page.getByText(/O Longyu está em beta\. Algumas atividades ainda estão sendo aprimoradas/i)
     ).toBeVisible();
     await expect(page.getByText(/v0\.2\.0-beta\.1/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /Começar agora/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Já tenho uma conta/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Já tenho uma conta/i })).toBeVisible();
   });
 
   test("cadastro: /conta inicia onboarding / teste de nível", async ({ page }) => {

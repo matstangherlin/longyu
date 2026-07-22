@@ -7,6 +7,28 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Navegação progressiva e descoberta de recursos (2026-07-22)
+
+- Estágio do aluno **derivado** de dados que já existem (lições, SRS, medalhas,
+  liga, sequência) — sem nova fonte de verdade. `src/lib/learnerStage.ts`
+  reaproveita as regras de desbloqueio de `journeyUnlocks`/`proAccess`.
+- Navegação principal adaptativa: barra inferior mobile com no máximo 5 destinos,
+  variando por estágio (novo: Jornada · Perfil · Mais; recorrente: + Missões);
+  sidebar desktop cresce conforme o progresso. Todas as rotas continuam
+  acessíveis por URL direta e pelo menu "Mais".
+- Menu "Mais" reorganizado em **Aprender · Motivação · Conta**, com estados
+  derivados por área (recomendada, nova, bloqueada com explicação do quê/quando,
+  Pro) — áreas bloqueadas explicam em vez de mostrar só um cadeado.
+- Descoberta de recursos: card discreto no hub da Jornada (com o mascote) anuncia
+  uma área recém-liberada por vez, dispensável e persistido. Nunca modal, nunca
+  em sequência, nunca durante uma lição.
+- Migração segura de usuários antigos: a memória de "já apresentado" vive em
+  `localStorage` (fora do store, sem tocar sync/merge) e é semeada com o que já
+  é relevante — sem enxurrada de anúncios ao atualizar.
+- Testes: `e2e/progressive-nav.spec.ts` (novo/treino/recorrente/rota direta/
+  descoberta/migração/desktop). Asserções de CTA da landing atualizadas para
+  `role: "link"` (os CTAs viraram links na entrega anterior).
+
 ### Padronização de CTAs e densidade de missões (2026-07-22)
 
 - Novos primitivos `ButtonLink` e `AnchorButton` (mesmo visual de `Button`) e

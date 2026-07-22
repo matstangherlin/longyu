@@ -10,8 +10,8 @@ test.describe("smoke", () => {
   test("usuário novo vê landing pública em /", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Começar agora/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Já tenho uma conta/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Já tenho uma conta/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Ativar modo escuro/i })).toBeVisible();
     // Página pública: sem sidebar/tab bar.
     await expect(page.locator("nav")).toHaveCount(0);
@@ -71,14 +71,14 @@ test.describe("smoke", () => {
 
   test("landing: Começar agora vai para /conta", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: /Começar agora/i }).click();
+    await page.getByRole("link", { name: /Começar agora/i }).click();
     await page.waitForURL("**/conta");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
   });
 
   test("landing: Já tenho uma conta vai para /login", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: /Já tenho uma conta/i }).click();
+    await page.getByRole("link", { name: /Já tenho uma conta/i }).click();
     await page.waitForURL("**/login");
     await expect(page.getByRole("heading", { name: /Entrar na conta/i })).toBeVisible();
   });
@@ -126,17 +126,15 @@ test.describe("mobile", () => {
   test("landing mantém hierarquia e CTAs acessíveis em 360px", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("landing-hero")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Começar agora" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Já tenho uma conta" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Começar agora" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Já tenho uma conta" })).toBeVisible();
 
     const layout = await page.evaluate(() => {
       const heading = document.querySelector("h1");
-      const primary = Array.from(document.querySelectorAll("button")).find((button) =>
-        button.textContent?.includes("Começar agora")
-      );
-      const secondary = Array.from(document.querySelectorAll("button")).find((button) =>
-        button.textContent?.includes("Já tenho uma conta")
-      );
+      // CTAs da landing são links de navegação (ButtonLink), não <button>.
+      const ctas = Array.from(document.querySelectorAll("a, button"));
+      const primary = ctas.find((el) => el.textContent?.includes("Começar agora"));
+      const secondary = ctas.find((el) => el.textContent?.includes("Já tenho uma conta"));
       const lineHeight = heading ? Number.parseFloat(getComputedStyle(heading).lineHeight) : 1;
       return {
         overflow: document.documentElement.scrollWidth > window.innerWidth,

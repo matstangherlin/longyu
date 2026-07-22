@@ -23,7 +23,7 @@ test.describe("dispositivo — toque", () => {
       test.skip(true, "Sem toque neste projeto (motor de mesa).");
     }
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
-    await page.getByRole("button", { name: /Começar agora/i }).tap();
+    await page.getByRole("link", { name: /Começar agora/i }).tap();
     await page.waitForURL("**/conta");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
   });
@@ -191,7 +191,7 @@ test.describe("dispositivo — rede lenta", () => {
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible({
       timeout: 45_000,
     });
-    await expect(page.getByRole("button", { name: /Começar agora/i })).toBeVisible({
+    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible({
       timeout: 45_000,
     });
     await client.detach().catch(() => undefined);

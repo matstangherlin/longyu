@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FocusEvent as ReactFocusEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { DESKTOP_NAV, MORE_DROPDOWN_GROUPS, isNavItemActive } from "./nav";
+import { desktopNavForStage, MORE_DROPDOWN_GROUPS, isNavItemActive } from "./nav";
 import type { NavItem } from "./nav";
 import { BrandLockup } from "./Brand";
 import { COURSE_PROFILE } from "../../data/course";
+import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 
 const MORE_DROPDOWN_ID = "desktop-more-dropdown";
 const MORE_DROPDOWN_LEFT = "13.75rem";
@@ -22,6 +23,8 @@ function linkClass(active: boolean) {
 
 export function Sidebar() {
   const location = useLocation();
+  const profile = useLearnerProfile();
+  const items = desktopNavForStage(profile.stage);
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[13.5rem] shrink-0 flex-col border-r border-line/60 bg-surface px-2.5 py-4 lg:flex">
@@ -30,7 +33,7 @@ export function Sidebar() {
       </div>
 
       <nav className="mt-1 flex-1 space-y-0.5 overflow-y-auto">
-        {DESKTOP_NAV.map((item) => {
+        {items.map((item) => {
           const active = isNavItemActive(item, location.pathname);
           if (item.to === "/mais") {
             return (

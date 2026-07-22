@@ -25,6 +25,7 @@ import {
 import { buildModuleSkipTest } from "../challenge/examBuilder";
 import { getModuleSkipAccessInfo } from "../../lib/moduleSkipAccess";
 import { useIsPro } from "../../lib/proAccess";
+import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -252,6 +253,8 @@ export function JourneyPage() {
             currentLessonTitle={currentLesson?.title}
             onContinue={currentId ? () => navigate(`/licao/${currentId}`) : undefined}
           />
+
+          <FeatureDiscoveryCard />
 
           <JourneyMobileChips
             mission={primaryMission}

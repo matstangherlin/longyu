@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { NAV_MOBILE, isNavItemActive } from "./nav";
+import { mobileNavForStage, isNavItemActive } from "./nav";
 import { useStore } from "../../lib/store";
 import { useIsPro } from "../../lib/proAccess";
+import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 import { dueItems } from "../../lib/srs";
 import { buildMissionViews, isMissionActionable } from "../../data/missions";
 
@@ -12,13 +13,15 @@ export function TabBar() {
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyMissions = useStore((s) => s.dailyMissions);
   const isPro = useIsPro();
+  const profile = useLearnerProfile();
+  const items = mobileNavForStage(profile.stage);
   const due = dueItems(srs).length;
   const readyChests = (chests.small ?? 0) + (chests.dragon ?? 0) + (chests.monthly ?? 0) + (chests.legendary ?? 0);
   const readyMissions = buildMissionViews("daily", aggregates, dailyMissions.claimed).filter(
     (mission) => mission.complete && !mission.claimed && isMissionActionable(mission, isPro)
   ).length;
   const badges: Record<string, number> = {
-    "/treino": due,
+    "/revisao": due,
     "/missoes": readyMissions,
     "/mais": readyChests,
   };
@@ -29,7 +32,7 @@ export function TabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="mx-auto flex min-h-16 max-w-md items-stretch justify-around px-1 py-1">
-        {NAV_MOBILE.map((item) => {
+        {items.map((item) => {
           const active = isNavItemActive(item, location.pathname);
           const badge = badges[item.to] ?? 0;
           return (
