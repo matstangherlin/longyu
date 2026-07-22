@@ -13,7 +13,7 @@ const MORE_DROPDOWN_CLOSE_DELAY = 180;
 
 function linkClass(active: boolean) {
   return [
-    "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+    "flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
     active
       ? "bg-accent-soft text-accent"
       : "text-ink-soft hover:bg-surface-2 hover:text-ink",
@@ -233,7 +233,7 @@ function MoreSidebarItem({
                     <Link
                       key={`${group.title}:${shortcut.label}`}
                       to={shortcut.to}
-                      className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+                      className="flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
                       onClick={closeNow}
                     >
                       <ShortcutIcon width={17} height={17} aria-hidden="true" />
