@@ -7,6 +7,26 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Reformulação da Jornada (2026-07-23)
+
+- Cabeçalho funcional (`JourneyHeader`): Fase · Unidade, objetivo curto, anel de
+  progresso acessível, ação principal `Continuar`/`Começar` e ação recomendada
+  secundária `Revisar N itens` (só com SRS pendente), além de indicador offline
+  e estado de Jornada concluída (com mascote).
+- Unidades concluídas e futuras ficam **compactas** e expansíveis; só a unidade
+  atual abre o caminho de nós — de 110+ nós para ~10 no desktop de um aluno
+  avançado, melhorando densidade e performance. O checkpoint temático foi
+  incorporado ao card da unidade (um separador a menos).
+- Continuidade robusta: rola até a lição atual só quando ela não está visível
+  (sem saltos de layout); a lição atual expõe `aria-current="step"`.
+- Revisão de SRS (recomendada, positiva) separada visualmente da revisão
+  curricular (nó dourado no caminho). Painel lateral desktop enxuto (Revisão,
+  Missão, Progresso geral), sem duplicar o cabeçalho.
+- Acessibilidade e movimento: nós são botões reais, barras/anel com rótulo, e o
+  pulso da lição atual respeita `prefers-reduced-motion`. Novo hook `useOnline`.
+- Testes: `e2e/journey-redesign.spec.ts` (novo, progresso, revisão, concluída,
+  unidades compactas, expandir, offline, reduced motion, painel, teclado).
+
 ### Navegação progressiva e descoberta de recursos (2026-07-22)
 
 - Estágio do aluno **derivado** de dados que já existem (lições, SRS, medalhas,

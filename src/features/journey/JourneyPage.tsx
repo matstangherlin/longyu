@@ -6,11 +6,14 @@ import {
 } from "../../data/journey";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
-import { Card, Button, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
   IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame,
 } from "../../components/ui/Icon";
+import { Mascot } from "../../components/brand/Mascot";
+import { dueItems } from "../../lib/srs";
+import { useOnline } from "../../hooks/useOnline";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { CHEST_VISUALS } from "../../components/chests/chestMeta";
 import { LongyuChest } from "../../components/chests/LongyuChest";
@@ -184,15 +187,24 @@ export function JourneyPage() {
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyMissions = useStore((s) => s.dailyMissions);
   const streak = useStore((s) => s.streak);
+  const srs = useStore((s) => s.srs);
+  const online = useOnline();
 
   const currentId = currentLessonId(completed, isPremium);
   const currentLesson = ALL_LESSONS.find((l) => l.id === currentId);
   const doneCount = completed.length;
+  const journeyComplete = !currentId;
   const currentContext = currentUnitContext(currentId);
   const currentProgress = currentContext ? unitProgress(currentContext.unit, completed) : null;
+  const currentCheckpoint = currentContext ? THEME_CHECKPOINTS[currentContext.unit.id] : undefined;
   const currentModuleTitle = currentContext
-    ? THEME_CHECKPOINTS[currentContext.unit.id]?.title ?? currentContext.unit.title
+    ? currentCheckpoint?.title ?? currentContext.unit.title
     : "Jornada concluída";
+  // Objetivo curto do módulo atual — usa o detalhe do checkpoint ou a meta da unidade.
+  const currentObjective = currentContext
+    ? currentCheckpoint?.detail ?? currentContext.unit.goal
+    : "Você concluiu todas as lições disponíveis.";
+  const reviewCount = useMemo(() => dueItems(srs).length, [srs]);
 
   const todayMinutes = today.som + today.fala + today.hanzi + today.leitura;
   const primaryMission = useMemo(
@@ -209,7 +221,17 @@ export function JourneyPage() {
   const [lockedHint, setLockedHint] = useState<string | null>(null);
   const [proPaywallOpen, setProPaywallOpen] = useState(false);
   const [activeChest, setActiveChest] = useState<JourneyChestConfig | null>(null);
-  const [showFullJourney, setShowFullJourney] = useState(false);
+  // Unidades concluídas/futuras ficam compactas; o aluno pode expandir cada uma.
+  const [expandedUnits, setExpandedUnits] = useState<Set<string>>(() => new Set());
+  const allUnitIds = useMemo(() => JOURNEY.flatMap((phase) => phase.units.map((unit) => unit.id)), []);
+  const anyExpanded = expandedUnits.size > 0;
+  const toggleUnit = (id: string) =>
+    setExpandedUnits((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const lockedTimer = useRef<ReturnType<typeof setTimeout>>();
   function notifyLocked(lesson: Lesson, state: LessonState) {
     if (state === "premium" || lesson.premium) {
@@ -226,12 +248,16 @@ export function JourneyPage() {
     auditJourneyModuleCoverageInDev();
   }, []);
   // Rola até a lição atual ao abrir (quando já há progresso) — jornada longa.
+  // Só rola se o nó atual não estiver já visível, para evitar saltos de layout.
   const didScroll = useRef(false);
   useEffect(() => {
     if (didScroll.current || doneCount === 0) return;
     didScroll.current = true;
     const el = document.querySelector('[data-current="true"]');
-    el?.scrollIntoView({ block: "center" });
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const alreadyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+    if (!alreadyVisible) el.scrollIntoView({ block: "center" });
   }, [doneCount]);
 
   // índice global para alternar o offset ao longo de toda a jornada
@@ -241,17 +267,22 @@ export function JourneyPage() {
     <>
       <div className="mx-auto grid w-full max-w-[1180px] gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start">
         <div className="min-w-0 space-y-5">
-          <JourneyHeroCard
+          <JourneyHeader
             phaseLabel={
               currentContext
                 ? `Fase ${currentContext.phase.order} · Unidade ${currentContext.unitNumber}`
                 : "Jornada"
             }
             title={currentModuleTitle}
+            objective={currentObjective}
             done={currentProgress?.done ?? ALL_LESSONS.length}
             total={currentProgress?.total ?? ALL_LESSONS.length}
             currentLessonTitle={currentLesson?.title}
             onContinue={currentId ? () => navigate(`/licao/${currentId}`) : undefined}
+            journeyComplete={journeyComplete}
+            reviewCount={reviewCount}
+            streak={streak}
+            offline={!online}
           />
 
           <FeatureDiscoveryCard />
@@ -263,15 +294,15 @@ export function JourneyPage() {
             totalLessons={ALL_LESSONS.length}
           />
 
-          <div className="flex justify-end lg:hidden">
+          <div className="flex justify-end">
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setShowFullJourney((value) => !value)}
-              aria-expanded={showFullJourney}
+              onClick={() => setExpandedUnits(anyExpanded ? new Set() : new Set(allUnitIds))}
+              aria-expanded={anyExpanded}
               className="h-8 text-xs"
             >
-              {showFullJourney ? "Focar atual" : "Ver tudo"}
+              {anyExpanded ? "Focar atual" : "Ver tudo"}
             </Button>
           </div>
 
@@ -303,29 +334,24 @@ export function JourneyPage() {
                 {phase.units.map((unit) => {
                   const checkpoint = THEME_CHECKPOINTS[unit.id];
                   const chest = JOURNEY_CHESTS[unit.id];
-                  const progress = unitProgress(unit, completed);
                   const containsCurrent = unit.lessons.some((lesson) => lesson.id === currentId);
-                  const showCheckpointOnMobile = showFullJourney || containsCurrent;
+                  // A unidade atual fica aberta; concluídas/futuras ficam compactas
+                  // (menos densidade, menos nós renderizados) até o aluno expandir.
+                  const expanded = containsCurrent || expandedUnits.has(unit.id);
                   return (
                     <div key={unit.id}>
-                      {checkpoint && (
-                        <ThemeCheckpointCard
-                          checkpoint={checkpoint}
-                          color={unit.color}
-                          complete={progress.done >= progress.total}
-                          active={containsCurrent}
-                          visibleOnMobile={showCheckpointOnMobile}
-                        />
-                      )}
                       <ModuleBlock
                         unit={unit}
+                        checkpoint={checkpoint}
                         completed={completed}
                         lessonStarsById={lessonStarsById}
                         lessonTaskProgress={lessonTaskProgress}
                         toneTrainer={toneTrainer}
                         isPremium={isPremium}
                         currentId={currentId}
-                        mobileExpanded={showFullJourney || containsCurrent}
+                        expanded={expanded}
+                        containsCurrent={containsCurrent}
+                        onToggle={() => toggleUnit(unit.id)}
                         nextIndex={() => (globalIndex += 1)}
                         chest={chest}
                         journeyChestsOpened={journeyChestsOpened}
@@ -353,10 +379,10 @@ export function JourneyPage() {
 
         <JourneySidePanel
           mission={primaryMission}
-          streak={streak}
           todayMinutes={todayMinutes}
           completedCount={doneCount}
           totalLessons={ALL_LESSONS.length}
+          reviewCount={reviewCount}
         />
       </div>
 
@@ -384,7 +410,11 @@ function UnitProgressRing({ done, total }: { done: number; total: number }) {
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <div className="relative grid h-14 w-14 shrink-0 place-items-center sm:h-[72px] sm:w-[72px]">
+    <div
+      className="relative grid h-14 w-14 shrink-0 place-items-center sm:h-[72px] sm:w-[72px]"
+      role="img"
+      aria-label={`Progresso da unidade: ${done} de ${safeTotal} lições`}
+    >
       <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
         <circle cx="32" cy="32" r={radius} fill="none" stroke="rgb(var(--line))" strokeWidth="5" strokeOpacity="0.6" />
         <circle
@@ -396,61 +426,112 @@ function UnitProgressRing({ done, total }: { done: number; total: number }) {
           strokeWidth="5"
           strokeLinecap="round"
           strokeDasharray={`${circumference * pct} ${circumference}`}
-          className="transition-all duration-700"
+          className="transition-all duration-700 motion-reduce:transition-none"
         />
       </svg>
-      <span className="font-serif text-xs font-semibold tabular-nums text-ink sm:text-sm">
+      <span className="font-serif text-xs font-semibold tabular-nums text-ink sm:text-sm" aria-hidden="true">
         {done}/{safeTotal}
       </span>
     </div>
   );
 }
 
-function JourneyHeroCard({
+function JourneyHeader({
   phaseLabel,
   title,
+  objective,
   done,
   total,
   currentLessonTitle,
   onContinue,
+  journeyComplete,
+  reviewCount,
+  streak,
+  offline,
 }: {
   phaseLabel: string;
   title: string;
+  objective: string;
   done: number;
   total: number;
   currentLessonTitle?: string;
   onContinue?: () => void;
+  journeyComplete: boolean;
+  reviewCount: number;
+  streak: number;
+  offline: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[22px] border border-accent/15 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5">
+    <Card
+      className="relative overflow-hidden border-accent/15 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
+    >
       <div
         className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
         aria-hidden
       />
-      <div className="relative flex items-center gap-4">
-        <div className="min-w-0 flex-1">
-          <span className="inline-flex items-center rounded-full bg-surface/85 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent shadow-card">
-            {phaseLabel}
-          </span>
-          <h1 className="mt-1.5 truncate font-serif text-2xl font-semibold leading-tight text-ink sm:text-[1.7rem]">
-            {title}
-          </h1>
-          {currentLessonTitle ? (
-            <p className="mt-0.5 truncate text-xs text-ink-soft sm:text-sm">
-              Próxima: <span className="font-semibold text-ink">{currentLessonTitle}</span>
-            </p>
-          ) : (
-            <p className="mt-0.5 text-xs text-ink-faint">{done}/{Math.max(1, total)} lições concluídas</p>
+
+      {/* Contexto + estado (fase, sequência, offline) */}
+      <div className="relative flex items-center justify-between gap-2">
+        <span className="inline-flex items-center rounded-full bg-surface/85 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent shadow-card">
+          {phaseLabel}
+        </span>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {offline && (
+            <Pill tone="muted" className="gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" aria-hidden /> Offline
+            </Pill>
+          )}
+          {streak > 0 && (
+            <Pill tone="accent" className="gap-1" aria-label={`Sequência de ${streak} dias`}>
+              <IconFlame width={12} height={12} /> {streak}d
+            </Pill>
           )}
         </div>
-        <UnitProgressRing done={done} total={total} />
       </div>
+
+      <div className="relative mt-2 flex items-start gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-serif text-2xl font-semibold leading-tight text-ink sm:text-[1.7rem]">
+            {title}
+          </h1>
+          <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft sm:text-sm">{objective}</p>
+          {!journeyComplete && currentLessonTitle && (
+            <p className="mt-1 truncate text-xs text-ink-faint sm:text-sm">
+              Próxima: <span className="font-semibold text-ink">{currentLessonTitle}</span>
+            </p>
+          )}
+        </div>
+        {journeyComplete ? (
+          <Mascot size={64} variant="celebrate" className="shrink-0" />
+        ) : (
+          <UnitProgressRing done={done} total={total} />
+        )}
+      </div>
+
+      {/* Ação principal — prioridade máxima */}
       {onContinue && (
         <Button className="relative mt-3.5 w-full shadow-lift" size="lg" onClick={onContinue}>
-          {done === 0 ? "Começar" : "Continuar"} <IconChevron width={18} height={18} />
+          {done === 0 ? "Começar primeira lição" : "Continuar"} <IconChevron width={18} height={18} />
         </Button>
       )}
-    </div>
+      {journeyComplete && (
+        <p className="relative mt-3 rounded-xl bg-surface/70 px-3 py-2 text-xs leading-5 text-ink-soft">
+          Você concluiu a Jornada disponível. Continue revisando para fixar o que aprendeu.
+        </p>
+      )}
+
+      {/* Ação recomendada secundária — revisão pendente, sem competir com Continuar */}
+      {reviewCount > 0 && (
+        <div className="relative mt-2">
+          <ButtonLink to="/revisao" variant="soft" size="sm" className="w-full">
+            <IconRefresh width={16} height={16} /> Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
+          </ButtonLink>
+          <p className="mt-1 px-1 text-[11px] leading-4 text-ink-faint">
+            Reforça o que você já aprendeu — leva poucos minutos.
+          </p>
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -489,20 +570,39 @@ function JourneyMobileChips({
 
 function JourneySidePanel({
   mission,
-  streak,
   todayMinutes,
   completedCount,
   totalLessons,
+  reviewCount,
 }: {
   mission?: MissionView;
-  streak: number;
   todayMinutes: number;
   completedCount: number;
   totalLessons: number;
+  reviewCount: number;
 }) {
   const pct = Math.round((completedCount / Math.max(1, totalLessons)) * 100);
   return (
-    <aside className="sticky top-16 hidden space-y-2 xl:block">
+    <aside className="sticky top-16 hidden space-y-2 xl:block" aria-label="Resumo da jornada">
+      {/* Revisão pendente — só quando há itens (evita duplicar o cabeçalho). */}
+      {reviewCount > 0 && (
+        <Card variant="info" className="p-3">
+          <Link to="/revisao" className="group flex w-full items-center gap-2">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
+              <IconRefresh width={14} height={14} />
+            </span>
+            <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+              Revisão
+            </span>
+            <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
+          </Link>
+          <div className="mt-2 text-xs font-semibold text-ink">
+            {reviewCount} {reviewCount === 1 ? "item pronto" : "itens prontos"}
+          </div>
+          <p className="mt-0.5 text-[11px] leading-4 text-ink-faint">Reforça o que você já aprendeu.</p>
+        </Card>
+      )}
+
       <Card className="p-3">
         <Link to="/missoes" className="group flex w-full items-center gap-2">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
@@ -534,7 +634,7 @@ function JourneySidePanel({
             <IconFlame width={14} height={14} />
           </span>
           <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-            Progresso
+            Progresso geral
           </span>
           <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
         </Link>
@@ -542,49 +642,12 @@ function JourneySidePanel({
           <span className="text-xs font-semibold text-ink">{completedCount}/{totalLessons}</span>
           <span className="text-[10px] font-medium tabular-nums text-ink-faint">{pct}%</span>
         </div>
-        <ProgressBar value={completedCount} max={totalLessons} className="mt-1.5" />
+        <ProgressBar value={completedCount} max={totalLessons} className="mt-1.5" label="Progresso geral da jornada" />
         <div className="mt-2 flex items-center gap-2 border-t border-line/40 pt-2 text-[11px] text-ink-faint">
-          <span className="flex items-center gap-1 font-semibold text-ink">
-            <IconFlame width={12} height={12} className="text-accent" />
-            {streak}d
-          </span>
-          <span>·</span>
-          <span>{todayMinutes} min</span>
+          <span>Hoje: {todayMinutes} min</span>
         </div>
       </Card>
     </aside>
-  );
-}
-
-function ThemeCheckpointCard({
-  checkpoint,
-  color,
-  complete,
-  active,
-  visibleOnMobile,
-}: {
-  checkpoint: ThemeCheckpoint;
-  color: string;
-  complete: boolean;
-  active: boolean;
-  visibleOnMobile: boolean;
-}) {
-  return (
-    <div className={["mx-auto mb-3 mt-5 max-w-sm items-center gap-2 lg:flex lg:max-w-md", visibleOnMobile ? "flex" : "hidden"].join(" ")}>
-      <div className="h-px flex-1 bg-line/40" />
-      <div className="flex min-w-0 items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em]">
-        <span
-          className="h-1 w-1 shrink-0 rounded-full"
-          style={{ background: complete ? color : active ? "rgb(var(--accent))" : "rgb(var(--text-faint))" }}
-          aria-hidden
-        />
-        <span className={["truncate", active ? "text-accent" : complete ? "text-ink-soft" : "text-ink-faint"].join(" ")}>
-          {checkpoint.title}
-        </span>
-        {complete && <IconCheck width={10} height={10} className="shrink-0 text-ink-faint" />}
-      </div>
-      <div className="h-px flex-1 bg-line/40" />
-    </div>
   );
 }
 
@@ -596,7 +659,10 @@ function ModuleBlock({
   toneTrainer,
   isPremium,
   currentId,
-  mobileExpanded,
+  checkpoint,
+  expanded,
+  containsCurrent,
+  onToggle,
   nextIndex,
   chest,
   journeyChestsOpened,
@@ -608,13 +674,16 @@ function ModuleBlock({
   onChestLocked,
 }: {
   unit: Unit;
+  checkpoint?: ThemeCheckpoint;
   completed: string[];
   lessonStarsById: Record<string, number>;
   lessonTaskProgress: Record<string, number>;
   toneTrainer: ToneTrainerProgress;
   isPremium: boolean;
   currentId: string | undefined;
-  mobileExpanded: boolean;
+  expanded: boolean;
+  containsCurrent: boolean;
+  onToggle: () => void;
   nextIndex: () => number;
   chest?: JourneyChestConfig;
   journeyChestsOpened: string[];
@@ -629,9 +698,10 @@ function ModuleBlock({
   const inventory = useStore((s) => s.inventory);
   const points = useStore((s) => s.points);
   const { done, total } = unitProgress(unit, completed);
-  const containsCurrent = unit.lessons.some((lesson) => lesson.id === currentId);
   const hasPremium = unit.lessons.some((lesson) => lesson.premium);
   const moduleComplete = done >= total;
+  const unitTitle = checkpoint?.title ?? unit.title;
+  const objective = checkpoint?.detail ?? unit.goal;
   const firstLessonIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === unit.lessons[0]?.id);
   const currentLessonIndex = currentId ? ALL_LESSONS.findIndex((lesson) => lesson.id === currentId) : -1;
   const isFutureModule = currentLessonIndex >= 0 && firstLessonIndex > currentLessonIndex;
@@ -652,41 +722,74 @@ function ModuleBlock({
     <div className="mb-6">
       <div
         className={[
-          "mx-auto max-w-sm rounded-xl border bg-surface px-3 py-2 shadow-card lg:max-w-md",
-          containsCurrent ? "border-accent/35 shadow-glow" : "border-line/50",
-          isFutureModule ? "opacity-60" : "",
+          "mx-auto max-w-sm rounded-xl border bg-surface px-3 py-2 shadow-card transition lg:max-w-md",
+          containsCurrent
+            ? "border-accent/35 shadow-glow"
+            : moduleComplete
+            ? "border-line/40 bg-surface-2/25"
+            : "border-line/50",
+          isFutureModule ? "opacity-70" : "",
         ].join(" ")}
       >
-        <div className="flex items-center gap-2.5">
-          <span
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white"
-            style={{ background: isFutureModule ? "rgb(var(--surface-2))" : unit.color }}
-          >
-            {moduleComplete ? (
-              <IconCheck width={14} height={14} />
-            ) : isFutureModule ? (
-              <IconLock width={13} height={13} className="text-ink-faint" />
-            ) : (
-              <IconShield width={14} height={14} />
-            )}
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0 truncate text-[13px] font-semibold leading-tight text-ink">{unit.title}</div>
-              <div className="flex shrink-0 items-center gap-1">
-                {hasPremium && (
-                  <span className="rounded-full bg-gold/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold">
-                    Pro
-                  </span>
+        {(() => {
+          const headerInner = (
+            <>
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white"
+                style={{ background: isFutureModule ? "rgb(var(--surface-2))" : unit.color }}
+              >
+                {moduleComplete ? (
+                  <IconCheck width={14} height={14} />
+                ) : isFutureModule ? (
+                  <IconLock width={13} height={13} className="text-ink-faint" />
+                ) : (
+                  <IconShield width={14} height={14} />
                 )}
-                <span className="text-[10px] font-semibold tabular-nums text-ink-faint">
-                  {done}/{total}
-                </span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 truncate text-[13px] font-semibold leading-tight text-ink">{unitTitle}</div>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {hasPremium && (
+                      <span className="rounded-full bg-gold/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold">
+                        Pro
+                      </span>
+                    )}
+                    <span className="text-[10px] font-semibold tabular-nums text-ink-faint">
+                      {done}/{total}
+                    </span>
+                    {!containsCurrent && (
+                      <IconChevron
+                        width={14}
+                        height={14}
+                        aria-hidden
+                        className={["text-ink-faint transition-transform motion-reduce:transition-none", expanded ? "rotate-90" : ""].join(" ")}
+                      />
+                    )}
+                  </div>
+                </div>
+                <ProgressBar value={done} max={total} className="mt-1.5" label={`Progresso de ${unitTitle}`} />
               </div>
-            </div>
-            <ProgressBar value={done} max={total} className="mt-1.5" />
-          </div>
-        </div>
+            </>
+          );
+          return containsCurrent ? (
+            <div className="flex items-center gap-2.5">{headerInner}</div>
+          ) : (
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-expanded={expanded}
+              aria-label={`${unitTitle}: ${done} de ${total} lições. ${expanded ? "Recolher" : "Expandir"}.`}
+              className="flex w-full items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            >
+              {headerInner}
+            </button>
+          );
+        })()}
+
+        {expanded && objective && (
+          <p className="mt-2 text-[11px] leading-4 text-ink-soft">{objective}</p>
+        )}
 
         {showSkipTest && (
           <div className="mt-2 flex flex-col gap-1.5 rounded-lg bg-surface-2/80 px-2.5 py-1.5">
@@ -742,7 +845,8 @@ function ModuleBlock({
         )}
       </div>
 
-      <div className={["relative flex-col items-center gap-4 py-4 lg:flex", mobileExpanded ? "flex" : "hidden"].join(" ")}>
+      {expanded && (
+      <div className="relative flex flex-col items-center gap-4 py-4">
         <div
           className="pointer-events-none absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-line/50 to-transparent"
           aria-hidden
@@ -791,6 +895,7 @@ function ModuleBlock({
           />
         )}
       </div>
+      )}
     </div>
   );
 }
@@ -1052,13 +1157,14 @@ function LessonNode({
       )}
       <div className={["relative grid place-items-center", ringSizeClass].join(" ")}>
         {isCurrent && (
-          <span className="absolute inset-0 animate-pulse rounded-full bg-accent/15" aria-hidden />
+          <span className="absolute inset-0 animate-pulse rounded-full bg-accent/15 motion-reduce:animate-none" aria-hidden />
         )}
         <LessonStageRing value={safeStageProgress} total={safeStageTotal} color={bg ?? "rgb(var(--accent))"} locked={locked} />
         <button
           onClick={onClick}
           aria-label={title}
           aria-disabled={locked}
+          aria-current={isCurrent ? "step" : undefined}
           data-current={isCurrent ? "true" : undefined}
           className={[
             "relative flex items-center justify-center rounded-full transition active:scale-95",
