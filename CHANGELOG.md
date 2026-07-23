@@ -7,6 +7,12 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### CTAs com ícone alinhado
+
+- Corrige o chevron empilhado sob o rótulo em botões (`Continuar`, `Rever lição`,
+  `Entendi`): o Preflight do Tailwind marca `svg` como `block`, e o `Button`
+  agora mantém rótulo+ícone em linha.
+
 ### Sidebar compacta estilo Duolingo
 
 - Barra lateral com abas principais; **Loja** na barra no estágio recorrente.

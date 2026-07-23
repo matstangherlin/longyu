@@ -128,10 +128,21 @@ export function Button({
       {loading && (
         <span
           aria-hidden="true"
-          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent motion-reduce:animate-none"
+          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-r-transparent motion-reduce:animate-none"
         />
       )}
-      <span className={cx(loading && "opacity-90")}>{children}</span>
+      {/*
+        inline-flex evita o SVG (display:block no Preflight do Tailwind)
+        cair na linha de baixo do rótulo — o bug do chevron sob "Continuar".
+      */}
+      <span
+        className={cx(
+          "inline-flex items-center justify-center gap-2",
+          loading && "opacity-90"
+        )}
+      >
+        {children}
+      </span>
     </button>
   );
 }

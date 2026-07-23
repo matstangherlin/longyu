@@ -65,8 +65,26 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await seed(page, firstLessons(3));
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("button", { name: /^Continuar$/ })).toBeVisible();
+    const continueBtn = page.getByRole("button", { name: /^Continuar$/ });
+    await expect(continueBtn).toBeVisible();
+    // Chevron ao lado do texto — não empilhado (botão baixo, não "torre").
+    const box = await continueBtn.boundingBox();
+    expect(box).toBeTruthy();
+    expect(box!.height).toBeLessThan(64);
     await noOverflow(page);
+  });
+
+  test("Rever lição mantém chevron ao lado do rótulo", async ({ page }) => {
+    await seed(page, firstLessons(3));
+    const lessonId = ALL_LESSONS[0]?.id;
+    expect(lessonId).toBeTruthy();
+    await page.goto(`/licao/${lessonId}`);
+    await dismissBlockingOverlays(page);
+    const reviewBtn = page.getByRole("button", { name: /^Rever lição$/ });
+    await expect(reviewBtn).toBeVisible();
+    const box = await reviewBtn.boundingBox();
+    expect(box).toBeTruthy();
+    expect(box!.height).toBeLessThan(64);
   });
 
   test("revisão pendente aparece como ação recomendada secundária", async ({ page }) => {

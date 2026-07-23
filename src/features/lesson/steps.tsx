@@ -80,7 +80,8 @@ function ToneCurve({ tone, size = 16 }: { tone: ToneN; size?: number }) {
 function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; label?: string }) {
   return (
     <Button className="mt-4 w-full animate-pop shadow-lift" onClick={onClick}>
-      {label} <IconChevron width={18} height={18} />
+      {label}
+      <IconChevron width={18} height={18} aria-hidden="true" />
     </Button>
   );
 }

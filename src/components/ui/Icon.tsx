@@ -2,7 +2,7 @@
 import type { SVGProps } from "react";
 
 type P = SVGProps<SVGSVGElement>;
-const base = (props: P) => ({
+const base = ({ className, ...props }: P) => ({
   width: 20,
   height: 20,
   viewBox: "0 0 24 24",
@@ -11,6 +11,9 @@ const base = (props: P) => ({
   strokeWidth: 1.8,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
+  // inline-block: o Preflight do Tailwind marca svg como block e quebra
+  // rótulo+ícone em duas linhas dentro de spans/botões.
+  className: ["inline-block shrink-0", className].filter(Boolean).join(" "),
   ...props,
 });
 

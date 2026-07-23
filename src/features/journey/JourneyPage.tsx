@@ -511,7 +511,8 @@ function JourneyHeader({
       {/* Ação principal — prioridade máxima */}
       {onContinue && (
         <Button className="relative mt-3.5 w-full shadow-lift" size="lg" onClick={onContinue}>
-          {done === 0 ? "Começar primeira lição" : "Continuar"} <IconChevron width={18} height={18} />
+          {done === 0 ? "Começar primeira lição" : "Continuar"}
+          <IconChevron width={18} height={18} aria-hidden="true" />
         </Button>
       )}
       {journeyComplete && (
@@ -523,8 +524,9 @@ function JourneyHeader({
       {/* Ação recomendada secundária — revisão pendente, sem competir com Continuar */}
       {reviewCount > 0 && (
         <div className="relative mt-2">
-          <ButtonLink to="/revisao" variant="soft" size="sm" className="w-full">
-            <IconRefresh width={16} height={16} /> Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
+          <ButtonLink to="/revisao" variant="soft" size="md" className="w-full justify-center">
+            <IconRefresh width={16} height={16} aria-hidden="true" />
+            Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
           </ButtonLink>
           <p className="mt-1 px-1 text-[11px] leading-4 text-ink-faint">
             Reforça o que você já aprendeu — leva poucos minutos.
