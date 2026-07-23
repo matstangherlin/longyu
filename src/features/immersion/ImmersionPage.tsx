@@ -34,6 +34,7 @@ import {
   type StoryStep,
 } from "../../data/interactiveStories";
 import { playSoundFx } from "../../lib/soundFx";
+import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
@@ -198,6 +199,23 @@ function storyStepIsInteractive(step: StoryStep): boolean {
 function storyAnswerText(step: StoryStep): string {
   if (Array.isArray(step.answer)) return step.answer[0] ?? "";
   return step.answer ?? step.hanzi ?? "";
+}
+
+/** Troca o nome-modelo pelo nome do aluno nas falas/opções/respostas da história. */
+function personalizeStoryStep(step: StoryStep, name: string | undefined): StoryStep {
+  if (!name) return step;
+  return {
+    ...step,
+    hanzi: personalizeName(step.hanzi, name) ?? step.hanzi,
+    pinyin: personalizeName(step.pinyin, name) ?? step.pinyin,
+    translationPt: personalizeName(step.translationPt, name) ?? step.translationPt,
+    promptPt: personalizeName(step.promptPt, name) ?? step.promptPt,
+    explanationPt: personalizeName(step.explanationPt, name) ?? step.explanationPt,
+    options: step.options?.map((option) => personalizeName(option, name) ?? option),
+    answer: Array.isArray(step.answer)
+      ? step.answer.map((value) => personalizeName(value, name) ?? value)
+      : personalizeName(step.answer, name) ?? step.answer,
+  };
 }
 
 function normalizeStoryAnswer(value: string): string {
@@ -795,7 +813,8 @@ function InteractiveStoryPlayer({
     energy: StoryEnergyResult | null;
   } | null>(null);
 
-  const step = story.steps[currentIndex];
+  const studentName = useStudentFirstName();
+  const step = personalizeStoryStep(story.steps[currentIndex], studentName);
   const interactiveTotal = story.steps.filter(storyStepIsInteractive).length;
 
   useEffect(() => () => stopSpeaking(), []);

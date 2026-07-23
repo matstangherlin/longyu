@@ -18,6 +18,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
   aluno — antes rotulado "Lin" (que já é personagem das histórias), ele dizia
   "meu nome é Matheus". Agora leva o nome do usuário (padrão "Matheus"),
   personalizado em runtime nas falas, prompts e no rótulo do personagem.
+- **Nome do usuário em todas as superfícies**: a troca do nome-modelo virou um
+  utilitário compartilhado (`lib/personalize`) e passou a valer também nas
+  histórias interativas (Imersão) e na Revisão — antes elas mostravam "我叫马修 /
+  meu nome é Matheus" mesmo com o nome do aluno definido.
 - **Primeira frase de sobrevivência mais suave**: `我不会说中文` deixa de abrir
   com quiz frio e comparação com frases ainda não ensinadas (`听不懂`,
   `请再说一遍`); ganha introdução, reconhecimento com apoio e distratores

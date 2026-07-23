@@ -8,6 +8,7 @@ import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPe
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
+import { personalizeName as personalizeValue, useStudentFirstName } from "../../lib/personalize";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { playSoundFx } from "../../lib/soundFx";
 import {
@@ -247,27 +248,6 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-
-function studentFirstName(name?: string): string | undefined {
-  const first = name?.trim().split(/\s+/)[0];
-  if (!first || ["Aluno", "Novo"].includes(first)) return undefined;
-  return first;
-}
-
-function useStudentFirstName(): string | undefined {
-  const account = useStore((s) => s.accounts?.[s.currentAccountId]);
-  return studentFirstName(account?.name);
-}
-
-function personalizeValue(value: string | undefined, name: string | undefined): string | undefined {
-  if (!value || !name) return value;
-  return value
-    .replaceAll("我叫马修", `我叫 ${name}`)
-    .replaceAll("我叫马修。", `我叫 ${name}。`)
-    .replaceAll("马修", name)
-    .replaceAll("Mǎxiū", name)
-    .replaceAll("Matheus", name);
 }
 
 function personalizeNode(node: ConversationNode, name: string): ConversationNode {

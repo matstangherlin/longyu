@@ -53,6 +53,47 @@ import {
 } from "./reviewExerciseBuilder";
 import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
+import { personalizeName, useStudentFirstName } from "../../lib/personalize";
+
+/** Troca o nome-modelo (马修/Matheus) pelo nome do aluno nas frases da revisão. */
+function personalizeReviewExercise(
+  exercise: ReviewExercise | null,
+  name: string | undefined
+): ReviewExercise | null {
+  if (!exercise || !name) return exercise;
+  const p = (value: string | undefined) => personalizeName(value, name);
+  return {
+    ...exercise,
+    prompt: p(exercise.prompt) ?? exercise.prompt,
+    question: p(exercise.question) ?? exercise.question,
+    displayText: p(exercise.displayText) ?? exercise.displayText,
+    audioText: p(exercise.audioText) ?? exercise.audioText,
+    answer: p(exercise.answer) ?? exercise.answer,
+    answerLabel: p(exercise.answerLabel) ?? exercise.answerLabel,
+    explanation: p(exercise.explanation) ?? exercise.explanation,
+    options: exercise.options?.map((option) => ({
+      ...option,
+      value: p(option.value) ?? option.value,
+      label: p(option.label) ?? option.label,
+      detail: p(option.detail) ?? option.detail,
+    })),
+    pieces: exercise.pieces?.map((piece) => ({ ...piece, value: p(piece.value) ?? piece.value })),
+    targetValues: exercise.targetValues?.map((value) => p(value) ?? value),
+    pairs: exercise.pairs?.map((pair) => ({
+      ...pair,
+      left: p(pair.left) ?? pair.left,
+      right: p(pair.right) ?? pair.right,
+    })),
+    entity: {
+      ...exercise.entity,
+      hanzi: p(exercise.entity.hanzi) ?? exercise.entity.hanzi,
+      pinyin: p(exercise.entity.pinyin) ?? exercise.entity.pinyin,
+      meaningPt: p(exercise.entity.meaningPt) ?? exercise.entity.meaningPt,
+      literalPt: p(exercise.entity.literalPt) ?? exercise.entity.literalPt,
+      mnemonicPt: p(exercise.entity.mnemonicPt) ?? exercise.entity.mnemonicPt,
+    },
+  };
+}
 
 /** Tamanho de cada rodada no drill de pontos fracos. */
 const WEAK_ROUND_SIZE = 5;
@@ -1174,25 +1215,29 @@ export function RevisaoPage() {
   const data = item ? resolve(item) : null;
   const domain = entry ? domainForEntry(entry) : "significado";
   const learnedItems = useMemo(() => Object.values(srs), [srs]);
+  const studentName = useStudentFirstName();
   const exercise = useMemo(
     () =>
-      entry
-        ? entry.kind === "mistake"
-          ? buildReviewExerciseFromMistake({
-              mistake: entry.error,
-              learnedItems,
-              hanziBuilderProgress,
-            })
-          : buildReviewExercise({
-              item: entry.item,
-              learnedItems,
-              domain,
-              errorHistory: detailedErrorsAllowed ? learnedItems.filter((learned) => learned.lapses > 0) : undefined,
-              activityErrors: detailedErrorsAllowed ? activeActivityErrors : undefined,
-              hanziBuilderProgress,
-            })
-        : null,
-    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems]
+      personalizeReviewExercise(
+        entry
+          ? entry.kind === "mistake"
+            ? buildReviewExerciseFromMistake({
+                mistake: entry.error,
+                learnedItems,
+                hanziBuilderProgress,
+              })
+            : buildReviewExercise({
+                item: entry.item,
+                learnedItems,
+                domain,
+                errorHistory: detailedErrorsAllowed ? learnedItems.filter((learned) => learned.lapses > 0) : undefined,
+                activityErrors: detailedErrorsAllowed ? activeActivityErrors : undefined,
+                hanziBuilderProgress,
+              })
+          : null,
+        studentName
+      ),
+    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems, studentName]
   );
 
   useEffect(() => {
