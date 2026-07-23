@@ -7,6 +7,34 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Player de conversas longas (2026-07-23)
+
+Traz para a `main` o comportamento útil do PR #43 (criado sobre uma base antiga),
+adaptado ao design system e à Jornada atuais, sem tocar em currículo, SRS,
+pagamentos, autenticação ou sincronização.
+
+- Apresentação progressiva: uma fala por vez, com barra de progresso acessível
+  ("Progresso da conversa"), etapa/personagem sempre visíveis ("Agora: …") e
+  indicação clara da vez do aluno.
+- Histórico recente recolhível (`<details>` nativo, dobrável por teclado) e
+  limitado (renderiza as últimas falas), com diferenciação visual por tipo
+  (`data-conversation-kind`: personagem, aluno, pista, correção, narração,
+  escolha).
+- Feedback de erro sem encerrar a cena: pista/correção e continuidade natural,
+  com foco transferido para a nova interação.
+- Persistência local por dispositivo (reload, background, offline, orientação,
+  atualização do service worker) para o passo da lição e a cena da conversa,
+  sem reiniciar silenciosamente nem concluir uma cena incompleta.
+- CTA protegido por safe-area/teclado, sem overflow horizontal em 360×640;
+  paywall Pro suprimido durante a conversa; transição explícita para a
+  Pós-Conversa (`aria-live`).
+- Correção: a barra de progresso da conversa passou a expor `aria-label`
+  (o `role="progressbar"` estava sem nome acessível).
+- Testes E2E `e2e/conversation-player.spec.ts` reescritos para o currículo
+  atual (as cenas de imersão ganharam exercícios antes do diálogo): conversa
+  longa progressiva com histórico e ramo de erro, persistência em
+  reload/offline/orientação, dark mode + reduced motion, tablet e desktop.
+
 ### Reformulação da Jornada (2026-07-23)
 
 - Cabeçalho funcional (`JourneyHeader`): Fase · Unidade, objetivo curto, anel de
