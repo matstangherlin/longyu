@@ -7,7 +7,8 @@ import { BrandLockup } from "./Brand";
 import { COURSE_PROFILE } from "../../data/course";
 import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 
-const MORE_DROPDOWN_FALLBACK_HEIGHT = 360;
+const MORE_DROPDOWN_FALLBACK_HEIGHT = 280;
+const MORE_DROPDOWN_CLOSE_DELAY = 160;
 
 function linkClass(active: boolean) {
   return [
@@ -79,12 +80,20 @@ function MoreSidebarItem({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownTop, setDropdownTop] = useState(12);
+  const closeTimerRef = useRef<number>();
   const itemRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLElement | null>(null);
   const dropdownId = useId();
   const Icon = item.icon;
   const flyoutGroups = moreFlyoutGroups(primaryNav);
+
+  const clearCloseTimer = useCallback(() => {
+    if (closeTimerRef.current !== undefined) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = undefined;
+    }
+  }, []);
 
   const syncDropdownPosition = useCallback(() => {
     const itemRect = itemRef.current?.getBoundingClientRect();
@@ -99,21 +108,23 @@ function MoreSidebarItem({
   }, []);
 
   const closeNow = useCallback(() => {
+    clearCloseTimer();
     setIsOpen(false);
-  }, []);
+  }, [clearCloseTimer]);
 
   const openNow = useCallback(() => {
+    clearCloseTimer();
     syncDropdownPosition();
     setIsOpen(true);
-  }, [syncDropdownPosition]);
+  }, [clearCloseTimer, syncDropdownPosition]);
 
-  const toggle = useCallback(() => {
-    setIsOpen((prev) => {
-      if (prev) return false;
-      // Position sync runs after open via layout effect.
-      return true;
-    });
-  }, []);
+  const scheduleClose = useCallback(() => {
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsOpen(false);
+      closeTimerRef.current = undefined;
+    }, MORE_DROPDOWN_CLOSE_DELAY);
+  }, [clearCloseTimer]);
 
   useLayoutEffect(() => {
     if (isOpen) syncDropdownPosition();
@@ -125,6 +136,7 @@ function MoreSidebarItem({
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target;
       if (target instanceof Node && itemRef.current?.contains(target)) return;
+      if (target instanceof Node && dropdownRef.current?.contains(target)) return;
       closeNow();
     };
 
@@ -160,13 +172,18 @@ function MoreSidebarItem({
   }, [isOpen, syncDropdownPosition]);
 
   useEffect(() => {
+    return () => clearCloseTimer();
+  }, [clearCloseTimer]);
+
+  useEffect(() => {
     closeNow();
   }, [closeNow, routeKey]);
 
   function handleBlur(event: ReactFocusEvent<HTMLDivElement>) {
     const nextFocus = event.relatedTarget;
     if (nextFocus instanceof Node && event.currentTarget.contains(nextFocus)) return;
-    closeNow();
+    if (nextFocus instanceof Node && dropdownRef.current?.contains(nextFocus)) return;
+    scheduleClose();
   }
 
   function handleButtonKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
@@ -177,7 +194,14 @@ function MoreSidebarItem({
   }
 
   return (
-    <div ref={itemRef} className="relative" onBlur={handleBlur}>
+    <div
+      ref={itemRef}
+      className="relative"
+      onMouseEnter={openNow}
+      onMouseLeave={scheduleClose}
+      onFocus={openNow}
+      onBlur={handleBlur}
+    >
       <button
         ref={buttonRef}
         type="button"
@@ -185,7 +209,7 @@ function MoreSidebarItem({
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={dropdownId}
-        onClick={toggle}
+        onClick={openNow}
         onKeyDown={handleButtonKeyDown}
       >
         <Icon width={22} height={22} aria-hidden="true" />
@@ -198,8 +222,10 @@ function MoreSidebarItem({
           ref={dropdownRef}
           role="menu"
           aria-label="Mais opções"
-          className="fixed z-50 w-60 overflow-y-auto rounded-2xl border border-line/70 bg-surface p-2 text-ink shadow-lift animate-pop max-h-[min(28rem,calc(100vh-1.5rem))]"
+          className="fixed z-50 w-56 overflow-y-auto rounded-2xl border border-line/70 bg-surface p-2 text-ink shadow-lift animate-pop max-h-[min(22rem,calc(100vh-1.5rem))]"
           style={{ top: dropdownTop, left: "14.35rem" }}
+          onMouseEnter={openNow}
+          onMouseLeave={scheduleClose}
         >
           {flyoutGroups.map((group, groupIndex) => (
             <div
@@ -218,7 +244,7 @@ function MoreSidebarItem({
                       key={`${group.title}:${shortcut.label}`}
                       role="menuitem"
                       to={shortcut.to}
-                      className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                      className="flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
                       onClick={closeNow}
                     >
                       <ShortcutIcon width={18} height={18} aria-hidden="true" />
@@ -230,11 +256,11 @@ function MoreSidebarItem({
             </div>
           ))}
 
-          <div className="mt-2 border-t border-line/70 pt-2">
+          <div className={flyoutGroups.length ? "mt-2 border-t border-line/70 pt-2" : ""}>
             <Link
               role="menuitem"
               to={item.to}
-              className="flex min-h-11 items-center justify-center rounded-xl bg-surface-2 px-3 py-2 text-sm font-bold text-accent transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              className="flex min-h-10 items-center justify-center rounded-xl bg-surface-2 px-3 py-2 text-sm font-bold text-accent transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
               onClick={closeNow}
             >
               Ver menu completo

@@ -205,7 +205,7 @@ test.describe("navegação progressiva — desktop", () => {
     expect(heights.every((h) => h >= 44)).toBe(true);
   });
 
-  test("Mais abre popover compacto no clique, sem segundo painel gigante", async ({ page }) => {
+  test("Mais abre popover curto no hover, só com atalhos de conta", async ({ page }) => {
     await seedStage(page, {
       completedLessons: ["l1", "l2", "l1-rev"],
       streak: 5,
@@ -216,17 +216,20 @@ test.describe("navegação progressiva — desktop", () => {
 
     const moreButton = page.locator("aside").getByRole("button", { name: /^Mais$/i });
     await expect(moreButton).toBeVisible();
-    await moreButton.click();
+    await moreButton.hover();
 
     const menu = page.getByRole("menu", { name: "Mais opções" });
     await expect(menu).toBeVisible();
-    await expect(menu.getByRole("menuitem", { name: "Hànzì" })).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Ajustes" })).toBeVisible();
     await expect(menu.getByRole("menuitem", { name: "Ver menu completo" })).toBeVisible();
-    // Popover curto: bem menos que o catálogo completo (~20).
+    // Sem lista longa de explorar (Hànzì/Imersão etc. ficam em /mais).
+    await expect(menu.getByRole("menuitem", { name: "Hànzì" })).toHaveCount(0);
+    await expect(menu.getByRole("menuitem", { name: "Imersão" })).toHaveCount(0);
     const shortcutCount = await menu.getByRole("menuitem").count();
-    expect(shortcutCount).toBeLessThanOrEqual(14);
+    expect(shortcutCount).toBeLessThanOrEqual(7);
 
-    await page.keyboard.press("Escape");
-    await expect(menu).toHaveCount(0);
+    // Sai do hover: o popover fecha (delay curto + mouse longe da sidebar).
+    await page.locator("main").hover({ position: { x: 40, y: 40 } });
+    await expect(menu).toHaveCount(0, { timeout: 3_000 });
   });
 });

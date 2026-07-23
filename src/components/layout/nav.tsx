@@ -117,8 +117,9 @@ export const MORE_CATALOG: NavGroup[] = [
 ];
 
 /**
- * Popover compacto do "Mais" na sidebar (estilo Duolingo).
- * Só atalhos que NÃO estão na barra principal — o catálogo completo vive em `/mais`.
+ * Popover curto do "Mais" na sidebar (estilo Duolingo).
+ * Só atalhos de conta/sistema — áreas de estudo (Hànzì, Imersão, …) ficam
+ * no menu completo em `/mais`, via “Ver menu completo”.
  */
 export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
   const primaryTos = new Set(
@@ -126,15 +127,8 @@ export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to);
 
-  const explore = [NAV.ideogramas, NAV.imersao, NAV.biblioteca, NAV.pinyin, NAV.loja, NAV.conquistas, NAV.amigos].filter(
-    keep
-  );
   const account = [NAV.conta, NAV.plano, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
-
-  const groups: NavGroup[] = [];
-  if (explore.length) groups.push({ title: "Explorar", items: explore });
-  if (account.length) groups.push({ title: "Conta", items: account });
-  return groups;
+  return account.length ? [{ title: "Conta", items: account }] : [];
 }
 
 // ── Exports estáveis mantidos para consumidores existentes ──────────────

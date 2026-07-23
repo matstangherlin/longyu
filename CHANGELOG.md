@@ -12,8 +12,8 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Barra lateral desktop limitada a poucas abas de alta frequência (teto 7):
   Jornada, Praticar, Revisão, Missões, Ligas, Perfil, Mais — conforme o estágio.
 - Hànzì, Imersão e satélites saem da barra principal e entram no popover/página Mais.
-- Popover do Mais abre no **clique** (não no hover), lista atalhos curtos e
-  “Ver menu completo”; o catálogo completo permanece em `/mais`.
+- Popover do Mais abre no **hover** (também clique/teclado), lista só atalhos de
+  conta e “Ver menu completo”; o catálogo completo permanece em `/mais`.
 
 ### Reformulação da Jornada (2026-07-23)
 

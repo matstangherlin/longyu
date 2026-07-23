@@ -58,8 +58,10 @@ Poucas abas de alta frequência (teto **7**, incluindo Mais). Hànzì, Imersão 
 | 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
 | 5 | Jornada · Praticar · Revisão · Missões · Ligas · Perfil · Mais |
 
-O item **Mais** abre um **popover curto** (clique, não hover) com atalhos que
-ainda não estão na barra + link “Ver menu completo” para `/mais`.
+O item **Mais** abre um **popover curto no hover** (também teclado/clique) com
+atalhos de conta (Conta, Plano Pro, Ajustes, Ajuda, Sobre) + “Ver menu
+completo” para `/mais`. Áreas de estudo (Hànzì, Imersão, …) não incham o
+popover — ficam no menu completo.
 
 ### Menu "Mais" — catálogo completo, agrupado por objetivo
 
