@@ -9,11 +9,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ### Sidebar compacta estilo Duolingo
 
-- Barra lateral desktop limitada a poucas abas de alta frequência (teto 7):
-  Jornada, Praticar, Revisão, Missões, Ligas, Perfil, Mais — conforme o estágio.
-- Hànzì, Imersão e satélites saem da barra principal e entram no popover/página Mais.
-- Popover do Mais abre no **hover** (também clique/teclado), lista só atalhos de
-  conta e “Ver menu completo”; o catálogo completo permanece em `/mais`.
+- Barra lateral com abas principais; **Loja** na barra no estágio recorrente.
+- Hover em **Praticar** → Hànzì, Pinyin Lab, Fala, Leitura, Biblioteca, Imersão.
+- Hover em **Perfil** → Amigos, Conta, Plano Pro.
+- Mais permanece curto (sistema) + “Ver menu completo”.
 
 ### Reformulação da Jornada (2026-07-23)
 

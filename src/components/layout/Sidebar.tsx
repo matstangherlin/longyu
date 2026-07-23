@@ -1,14 +1,21 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { desktopNavForStage, moreFlyoutGroups, isNavItemActive } from "./nav";
+import {
+  desktopNavForStage,
+  moreFlyoutGroups,
+  practiceFlyoutItems,
+  profileFlyoutItems,
+  isNavItemActive,
+} from "./nav";
 import type { NavItem } from "./nav";
 import { BrandLockup } from "./Brand";
 import { COURSE_PROFILE } from "../../data/course";
 import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 
-const MORE_DROPDOWN_FALLBACK_HEIGHT = 280;
-const MORE_DROPDOWN_CLOSE_DELAY = 160;
+const FLYOUT_FALLBACK_HEIGHT = 320;
+const FLYOUT_CLOSE_DELAY = 160;
+const FLYOUT_LEFT = "14.35rem";
 
 function linkClass(active: boolean) {
   return [
@@ -23,6 +30,7 @@ export function Sidebar() {
   const location = useLocation();
   const profile = useLearnerProfile();
   const items = desktopNavForStage(profile.stage);
+  const routeKey = `${location.pathname}${location.hash}`;
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[14rem] shrink-0 flex-col border-r border-line/60 bg-surface px-3 py-5 lg:flex">
@@ -33,14 +41,49 @@ export function Sidebar() {
       <nav className="mt-1 flex-1 space-y-1.5 overflow-y-auto" aria-label="Principal">
         {items.map((item) => {
           const active = isNavItemActive(item, location.pathname);
-          if (item.to === "/mais") {
+
+          if (item.to === "/treino") {
             return (
-              <MoreSidebarItem
+              <FlyoutNavItem
                 key={item.to}
                 item={item}
                 active={active}
-                primaryNav={items}
-                routeKey={`${location.pathname}${location.hash}`}
+                pathname={location.pathname}
+                routeKey={routeKey}
+                menuLabel="Praticar"
+                shortcuts={practiceFlyoutItems()}
+                footer={{ to: item.to, label: "Abrir Praticar" }}
+              />
+            );
+          }
+
+          if (item.to === "/perfil") {
+            return (
+              <FlyoutNavItem
+                key={item.to}
+                item={item}
+                active={active}
+                pathname={location.pathname}
+                routeKey={routeKey}
+                menuLabel="Perfil"
+                shortcuts={profileFlyoutItems()}
+                footer={{ to: item.to, label: "Abrir Perfil" }}
+              />
+            );
+          }
+
+          if (item.to === "/mais") {
+            return (
+              <FlyoutNavItem
+                key={item.to}
+                item={item}
+                active={active}
+                pathname={location.pathname}
+                routeKey={routeKey}
+                menuLabel="Mais opções"
+                groups={moreFlyoutGroups(items)}
+                footer={{ to: item.to, label: "Ver menu completo" }}
+                triggerAsButton
               />
             );
           }
@@ -67,26 +110,44 @@ function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-function MoreSidebarItem({
+type FlyoutGroup = { title: string; items: NavItem[] };
+
+function FlyoutNavItem({
   item,
   active,
-  primaryNav,
+  pathname,
   routeKey,
+  menuLabel,
+  shortcuts,
+  groups,
+  footer,
+  triggerAsButton = false,
 }: {
   item: NavItem;
   active: boolean;
-  primaryNav: NavItem[];
+  pathname: string;
   routeKey: string;
+  menuLabel: string;
+  shortcuts?: NavItem[];
+  groups?: FlyoutGroup[];
+  footer: { to: string; label: string };
+  /** Mais usa botão (página opcional); Praticar/Perfil usam link + hover. */
+  triggerAsButton?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownTop, setDropdownTop] = useState(12);
   const closeTimerRef = useRef<number>();
   const itemRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const dropdownRef = useRef<HTMLElement | null>(null);
   const dropdownId = useId();
   const Icon = item.icon;
-  const flyoutGroups = moreFlyoutGroups(primaryNav);
+
+  const resolvedGroups: FlyoutGroup[] =
+    groups ??
+    (shortcuts?.length
+      ? [{ title: menuLabel, items: shortcuts }]
+      : []);
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current !== undefined) {
@@ -99,11 +160,10 @@ function MoreSidebarItem({
     const itemRect = itemRef.current?.getBoundingClientRect();
     if (!itemRect) return;
 
-    const dropdownHeight = dropdownRef.current?.offsetHeight ?? MORE_DROPDOWN_FALLBACK_HEIGHT;
+    const dropdownHeight = dropdownRef.current?.offsetHeight ?? FLYOUT_FALLBACK_HEIGHT;
     const viewportGutter = 12;
     const lowestTop = Math.max(viewportGutter, window.innerHeight - dropdownHeight - viewportGutter);
     const nextTop = Math.min(Math.max(viewportGutter, itemRect.top - 8), lowestTop);
-
     setDropdownTop(nextTop);
   }, []);
 
@@ -123,7 +183,7 @@ function MoreSidebarItem({
     closeTimerRef.current = window.setTimeout(() => {
       setIsOpen(false);
       closeTimerRef.current = undefined;
-    }, MORE_DROPDOWN_CLOSE_DELAY);
+    }, FLYOUT_CLOSE_DELAY);
   }, [clearCloseTimer]);
 
   useLayoutEffect(() => {
@@ -144,12 +204,11 @@ function MoreSidebarItem({
       if (event.key !== "Escape") return;
       event.preventDefault();
       closeNow();
-      buttonRef.current?.focus();
+      triggerRef.current?.focus();
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
@@ -158,12 +217,10 @@ function MoreSidebarItem({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const nav = itemRef.current?.closest("nav");
     window.addEventListener("resize", syncDropdownPosition);
     window.addEventListener("scroll", syncDropdownPosition, { passive: true });
     nav?.addEventListener("scroll", syncDropdownPosition, { passive: true });
-
     return () => {
       window.removeEventListener("resize", syncDropdownPosition);
       window.removeEventListener("scroll", syncDropdownPosition);
@@ -171,10 +228,7 @@ function MoreSidebarItem({
     };
   }, [isOpen, syncDropdownPosition]);
 
-  useEffect(() => {
-    return () => clearCloseTimer();
-  }, [clearCloseTimer]);
-
+  useEffect(() => () => clearCloseTimer(), [clearCloseTimer]);
   useEffect(() => {
     closeNow();
   }, [closeNow, routeKey]);
@@ -186,12 +240,14 @@ function MoreSidebarItem({
     scheduleClose();
   }
 
-  function handleButtonKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+  function handleTriggerKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
     if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       openNow();
     }
   }
+
+  const triggerClass = `${linkClass(active || isOpen)} w-full text-left`;
 
   return (
     <div
@@ -202,32 +258,48 @@ function MoreSidebarItem({
       onFocus={openNow}
       onBlur={handleBlur}
     >
-      <button
-        ref={buttonRef}
-        type="button"
-        className={`${linkClass(active || isOpen)} w-full text-left`}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-controls={dropdownId}
-        onClick={openNow}
-        onKeyDown={handleButtonKeyDown}
-      >
-        <Icon width={22} height={22} aria-hidden="true" />
-        <span className="truncate">{item.label}</span>
-      </button>
+      {triggerAsButton ? (
+        <button
+          ref={triggerRef as React.RefObject<HTMLButtonElement>}
+          type="button"
+          className={triggerClass}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={dropdownId}
+          onClick={openNow}
+          onKeyDown={handleTriggerKeyDown}
+        >
+          <Icon width={22} height={22} aria-hidden="true" />
+          <span className="truncate">{item.label}</span>
+        </button>
+      ) : (
+        <Link
+          ref={triggerRef as React.RefObject<HTMLAnchorElement>}
+          to={item.to}
+          className={triggerClass}
+          aria-current={active ? "page" : undefined}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={dropdownId}
+          onKeyDown={handleTriggerKeyDown}
+        >
+          <Icon width={22} height={22} aria-hidden="true" />
+          <span className="truncate">{item.label}</span>
+        </Link>
+      )}
 
       {isOpen && (
         <nav
           id={dropdownId}
           ref={dropdownRef}
           role="menu"
-          aria-label="Mais opções"
-          className="fixed z-50 w-56 overflow-y-auto rounded-2xl border border-line/70 bg-surface p-2 text-ink shadow-lift animate-pop max-h-[min(22rem,calc(100vh-1.5rem))]"
-          style={{ top: dropdownTop, left: "14.35rem" }}
+          aria-label={menuLabel}
+          className="fixed z-50 w-56 overflow-y-auto rounded-2xl border border-line/70 bg-surface p-2 text-ink shadow-lift animate-pop max-h-[min(24rem,calc(100vh-1.5rem))]"
+          style={{ top: dropdownTop, left: FLYOUT_LEFT }}
           onMouseEnter={openNow}
           onMouseLeave={scheduleClose}
         >
-          {flyoutGroups.map((group, groupIndex) => (
+          {resolvedGroups.map((group, groupIndex) => (
             <div
               key={group.title}
               className={groupIndex === 0 ? "" : "mt-2 border-t border-line/70 pt-2"}
@@ -238,13 +310,19 @@ function MoreSidebarItem({
               <div className="space-y-0.5">
                 {group.items.map((shortcut) => {
                   const ShortcutIcon = shortcut.icon;
+                  const shortcutActive = isNavItemActive(shortcut, pathname);
 
                   return (
                     <Link
-                      key={`${group.title}:${shortcut.label}`}
+                      key={`${group.title}:${shortcut.to}`}
                       role="menuitem"
                       to={shortcut.to}
-                      className="flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                      className={[
+                        "flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                        shortcutActive
+                          ? "bg-accent-soft text-accent"
+                          : "text-ink-soft hover:bg-surface-2 hover:text-ink",
+                      ].join(" ")}
                       onClick={closeNow}
                     >
                       <ShortcutIcon width={18} height={18} aria-hidden="true" />
@@ -256,14 +334,14 @@ function MoreSidebarItem({
             </div>
           ))}
 
-          <div className={flyoutGroups.length ? "mt-2 border-t border-line/70 pt-2" : ""}>
+          <div className={resolvedGroups.length ? "mt-2 border-t border-line/70 pt-2" : ""}>
             <Link
               role="menuitem"
-              to={item.to}
+              to={footer.to}
               className="flex min-h-10 items-center justify-center rounded-xl bg-surface-2 px-3 py-2 text-sm font-bold text-accent transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
               onClick={closeNow}
             >
-              Ver menu completo
+              {footer.label}
             </Link>
           </div>
         </nav>

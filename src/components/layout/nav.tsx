@@ -34,15 +34,34 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-const PRACTICE_MATCHES = ["/treino", "/praticar", "/som", "/fala", "/pinyin", "/revisao", "/leitura"];
+/** Rotas filhas do hub Praticar (aparecem no hover). Revisão fica na barra. */
+const PRACTICE_MATCHES = [
+  "/treino",
+  "/praticar",
+  "/som",
+  "/fala",
+  "/pinyin",
+  "/leitura",
+  "/ideogramas",
+  "/hanzi",
+  "/biblioteca",
+  "/imersao",
+];
 const IDEOGRAM_MATCHES = ["/ideogramas", "/hanzi"];
-const PROFILE_MATCHES = ["/perfil", "/conta"];
-const MORE_MATCHES = ["/mais", "/sobre", "/biblioteca", "/config", "/ajustes", "/pro", "/plano", "/conquistas", "/amigos", "/loja", "/ligas", "/dados-locais", "/imersao", ...IDEOGRAM_MATCHES];
+const PROFILE_MATCHES = ["/perfil", "/conta", "/amigos"];
+const MORE_MATCHES = [
+  "/mais",
+  "/sobre",
+  "/config",
+  "/ajustes",
+  "/pro",
+  "/plano",
+  "/conquistas",
+  "/dados-locais",
+];
 
 // ─────────────────────────────────────────────────────────────────────────
-// Catálogo único de itens de navegação por área. Tudo o que a navegação
-// principal, o menu "Mais" e a sidebar mostram sai daqui — uma só definição
-// por área evita rótulos/ícones divergentes entre superfícies.
+// Catálogo único de itens de navegação por área.
 // ─────────────────────────────────────────────────────────────────────────
 export const NAV: Record<string, NavItem> = {
   jornada: { to: "/jornada", label: "Jornada", icon: IconHome, matches: ["/jornada", "/licao", "/teste"], feature: "jornada" },
@@ -69,10 +88,6 @@ export const NAV: Record<string, NavItem> = {
   mais: { to: "/mais", label: "Mais", icon: IconMore, matches: MORE_MATCHES },
 };
 
-// ── Navegação principal adaptativa ──────────────────────────────────────
-// Poucas ações de alta frequência. Novas áreas ganham presença conforme o
-// estágio; tudo continua acessível pelo "Mais" e por URL direta.
-
 /** Barra inferior mobile: no máximo 5 destinos, adaptados ao estágio. */
 export function mobileNavForStage(stage: LearnerStage): NavItem[] {
   if (stage <= 1) {
@@ -81,26 +96,33 @@ export function mobileNavForStage(stage: LearnerStage): NavItem[] {
   if (stage >= 5) {
     return [NAV.jornada, NAV.treino, NAV.revisao, NAV.missoes, NAV.mais];
   }
-  // Estágios 2–4: prática e revisão entram; novas áreas aparecem no "Mais".
   return [NAV.jornada, NAV.treino, NAV.revisao, NAV.perfil, NAV.mais];
 }
 
 /**
- * Sidebar desktop — inspirada no Duolingo: poucas abas de alta frequência.
- * Hànzì, Imersão, Biblioteca e o resto ficam no popover/página "Mais".
- * Teto duro: 7 destinos (incluindo Mais).
+ * Sidebar desktop — abas principais + flyouts:
+ * - Praticar → Hànzì, Pinyin Lab, Fala, …
+ * - Perfil → Amigos, Conta, …
+ * - Loja na barra (estágio recorrente)
  */
 export function desktopNavForStage(stage: LearnerStage): NavItem[] {
   const items: NavItem[] = [NAV.jornada];
   if (stage >= 2) items.push(NAV.treino, NAV.revisao);
-  if (stage >= 5) items.push(NAV.missoes, NAV.ligas);
+  if (stage >= 5) items.push(NAV.missoes, NAV.ligas, NAV.loja);
   items.push(NAV.perfil, NAV.mais);
   return items;
 }
 
-// ── Menu "Mais": catálogo completo agrupado ─────────────────────────────
-// Sempre exaustivo — nenhuma rota deixa de ser alcançável só porque não está
-// na navegação principal do estágio atual. Usado pela página `/mais`.
+/** Hover de Praticar: competências e hubs de estudo. */
+export function practiceFlyoutItems(): NavItem[] {
+  return [NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao];
+}
+
+/** Hover de Perfil: social e conta. */
+export function profileFlyoutItems(): NavItem[] {
+  return [NAV.amigos, NAV.conta, NAV.plano];
+}
+
 export const MORE_CATALOG: NavGroup[] = [
   {
     title: "Aprender",
@@ -116,28 +138,24 @@ export const MORE_CATALOG: NavGroup[] = [
   },
 ];
 
-/**
- * Popover curto do "Mais" na sidebar (estilo Duolingo).
- * Só atalhos de conta/sistema — áreas de estudo (Hànzì, Imersão, …) ficam
- * no menu completo em `/mais`, via “Ver menu completo”.
- */
+/** Popover Mais: só sistema — estudo/social já estão nos flyouts Praticar/Perfil. */
 export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
   const primaryTos = new Set(
     primaryNav.filter((item) => item.to !== "/mais").map((item) => item.to)
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to);
 
-  const account = [NAV.conta, NAV.plano, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
-  return account.length ? [{ title: "Conta", items: account }] : [];
+  const account = [NAV.conquistas, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
+  return account.length ? [{ title: "Mais", items: account }] : [];
 }
 
-// ── Exports estáveis mantidos para consumidores existentes ──────────────
 export const DESKTOP_NAV: NavItem[] = [
   NAV.jornada,
   NAV.treino,
   NAV.revisao,
   NAV.missoes,
   NAV.ligas,
+  NAV.loja,
   NAV.perfil,
   NAV.mais,
 ];
@@ -151,9 +169,6 @@ export const NAV_MOBILE: NavItem[] = [
 ];
 
 export const MORE_NAV: NavItem = NAV.mais;
-
-// Compatibilidade: consumidores antigos do dropdown recebem o catálogo completo;
-// a sidebar usa `moreFlyoutGroups()` (popover compacto).
 export const MORE_DROPDOWN_GROUPS: NavGroup[] = MORE_CATALOG;
 
 export const IMMERSION_NAV: NavItem = NAV.imersao;
@@ -171,7 +186,6 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
   return Boolean(item.matches?.some((match) => pathname === match || pathname.startsWith(`${match}/`)));
 }
 
-// As 4 competências centrais vivem dentro do hub Praticar.
 export const ENGINES: (NavItem & { color: string; tagline: string })[] = [
   ...DOMAIN_ORDER.map((track) => {
     const meta = DOMAIN_META[track];

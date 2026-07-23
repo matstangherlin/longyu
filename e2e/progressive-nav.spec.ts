@@ -194,10 +194,11 @@ test.describe("navegação progressiva — desktop", () => {
     const advanced = advancedLabels.length + advancedButtons;
 
     expect(advanced).toBeGreaterThan(early);
-    expect(advanced).toBeLessThanOrEqual(7);
-    // Hànzì e Imersão não poluem a barra principal — ficam no Mais.
+    expect(advanced).toBeLessThanOrEqual(8);
+    // Hànzì e Imersão não poluem a barra principal — ficam no hover de Praticar.
     expect(advancedLabels).not.toContain("Hànzì");
     expect(advancedLabels).not.toContain("Imersão");
+    expect(advancedLabels).not.toContain("Amigos");
     // Alvos de toque adequados em todos os links/botões da sidebar.
     const heights = await sidebar.locator("a, button").evaluateAll((els) =>
       els.map((el) => el.getBoundingClientRect().height)
@@ -205,7 +206,7 @@ test.describe("navegação progressiva — desktop", () => {
     expect(heights.every((h) => h >= 44)).toBe(true);
   });
 
-  test("Mais abre popover curto no hover, só com atalhos de conta", async ({ page }) => {
+  test("Mais abre popover curto no hover, só com atalhos de sistema", async ({ page }) => {
     await seedStage(page, {
       completedLessons: ["l1", "l2", "l1-rev"],
       streak: 5,
@@ -222,14 +223,38 @@ test.describe("navegação progressiva — desktop", () => {
     await expect(menu).toBeVisible();
     await expect(menu.getByRole("menuitem", { name: "Ajustes" })).toBeVisible();
     await expect(menu.getByRole("menuitem", { name: "Ver menu completo" })).toBeVisible();
-    // Sem lista longa de explorar (Hànzì/Imersão etc. ficam em /mais).
     await expect(menu.getByRole("menuitem", { name: "Hànzì" })).toHaveCount(0);
-    await expect(menu.getByRole("menuitem", { name: "Imersão" })).toHaveCount(0);
-    const shortcutCount = await menu.getByRole("menuitem").count();
-    expect(shortcutCount).toBeLessThanOrEqual(7);
+    await expect(menu.getByRole("menuitem", { name: "Amigos" })).toHaveCount(0);
 
-    // Sai do hover: o popover fecha (delay curto + mouse longe da sidebar).
     await page.locator("main").hover({ position: { x: 40, y: 40 } });
     await expect(menu).toHaveCount(0, { timeout: 3_000 });
+  });
+
+  test("hover em Praticar mostra Hànzì e Pinyin Lab; Perfil mostra Amigos; Loja na barra", async ({
+    page,
+  }) => {
+    await seedStage(page, {
+      completedLessons: ["l1", "l2", "l1-rev"],
+      streak: 5,
+      medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
+    });
+    await page.goto("/jornada");
+    await dismissBlockingOverlays(page);
+
+    const sidebar = page.locator("aside").first();
+    await expect(sidebar.getByRole("link", { name: /^Loja$/i })).toBeVisible();
+
+    await sidebar.getByRole("link", { name: /^Praticar$/i }).hover();
+    const practiceMenu = page.getByRole("menu", { name: "Praticar" });
+    await expect(practiceMenu).toBeVisible();
+    await expect(practiceMenu.getByRole("menuitem", { name: "Hànzì" })).toBeVisible();
+    await expect(practiceMenu.getByRole("menuitem", { name: "Pinyin Lab" })).toBeVisible();
+    await expect(practiceMenu.getByRole("menuitem", { name: "Imersão" })).toBeVisible();
+
+    await sidebar.getByRole("link", { name: /^Perfil$/i }).hover();
+    const profileMenu = page.getByRole("menu", { name: "Perfil" });
+    await expect(profileMenu).toBeVisible();
+    await expect(profileMenu.getByRole("menuitem", { name: "Amigos" })).toBeVisible();
+    await expect(profileMenu.getByRole("menuitem", { name: "Conta" })).toBeVisible();
   });
 });

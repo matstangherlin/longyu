@@ -47,21 +47,21 @@ fixo que envelhece (`l1-rev`, `l5-rev`, `l13`).
 | 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
 | 5 | Jornada · Praticar · Revisão · Missões · Mais |
 
-### Sidebar (desktop) — compacta, estilo Duolingo
+### Sidebar (desktop) — compacta, com flyouts
 
-Poucas abas de alta frequência (teto **7**, incluindo Mais). Hànzì, Imersão e
-áreas satélite ficam no popover/página "Mais" — não na barra principal.
+Poucas abas de alta frequência. Subáreas abrem no **hover**:
 
-| Estágio | Destinos |
+| Estágio | Destinos na barra |
 | --- | --- |
 | 1 | Jornada · Perfil · Mais |
 | 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
-| 5 | Jornada · Praticar · Revisão · Missões · Ligas · Perfil · Mais |
+| 5 | Jornada · Praticar · Revisão · Missões · Ligas · Loja · Perfil · Mais |
 
-O item **Mais** abre um **popover curto no hover** (também teclado/clique) com
-atalhos de conta (Conta, Plano Pro, Ajustes, Ajuda, Sobre) + “Ver menu
-completo” para `/mais`. Áreas de estudo (Hànzì, Imersão, …) não incham o
-popover — ficam no menu completo.
+Flyouts (hover):
+
+- **Praticar** → Hànzì, Pinyin Lab, Fala, Leitura, Biblioteca, Imersão (+ Abrir Praticar)
+- **Perfil** → Amigos, Conta, Plano Pro (+ Abrir Perfil)
+- **Mais** → Conquistas, Dados locais, Ajustes, Ajuda, Sobre (+ Ver menu completo)
 
 ### Menu "Mais" — catálogo completo, agrupado por objetivo
 
