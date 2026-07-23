@@ -330,18 +330,27 @@ export function isConversationSceneEligible(
   return required.every((ref) => input.lessonRefs.has(ref) || Boolean(input.knownRefs?.has(ref)));
 }
 
+// O personagem à esquerda (id "lin") é o AVATAR DO ALUNO: é ele quem monta e
+// diz as próprias falas ("我叫马修", "我不会说中文"…). Por isso o nome padrão é
+// "Matheus" (o nome-modelo usado em toda a jornada) e é personalizado com o
+// nome do usuário em runtime (ver personalizeStep). Antes ele se chamava "Lin"
+// — que já é uma personagem à parte nas histórias interativas —, o que fazia a
+// tela mostrar "Lin: meu nome é Matheus". Os personagens à direita (Mei, Wang,
+// Prof. Hua) são os interlocutores.
+const STUDENT_NAME = "Matheus";
+
 const PAIR_LIN_MEI: ConversationCharacter[] = [
-  { id: "lin", name: "Lin", avatar: "lin", side: "left" },
+  { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left" },
   { id: "mei", name: "Mei", avatar: "mei", side: "right" },
 ];
 
 const PAIR_LIN_WANG: ConversationCharacter[] = [
-  { id: "lin", name: "Lin", avatar: "lin", side: "left" },
+  { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left" },
   { id: "wang", name: "Wang", avatar: "wang", side: "right" },
 ];
 
 const PAIR_LIN_HUA: ConversationCharacter[] = [
-  { id: "lin", name: "Lin", avatar: "lin", side: "left" },
+  { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left" },
   { id: "hua", name: "Prof. Hua", avatar: "hua", side: "right" },
 ];
 

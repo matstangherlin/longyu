@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LessonStep, StepTextType } from "../../data/journey";
+import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS, TONE_NAMES } from "../../data/tones";
@@ -269,10 +270,38 @@ function personalizeValue(value: string | undefined, name: string | undefined): 
     .replaceAll("Matheus", name);
 }
 
+function personalizeNode(node: ConversationNode, name: string): ConversationNode {
+  const interaction = node.interaction;
+  return {
+    ...node,
+    hanzi: personalizeValue(node.hanzi, name) ?? node.hanzi,
+    pinyin: personalizeValue(node.pinyin, name) ?? node.pinyin,
+    pt: personalizeValue(node.pt, name) ?? node.pt,
+    audioText: personalizeValue(node.audioText, name) ?? node.audioText,
+    interaction: interaction
+      ? {
+          ...interaction,
+          prompt: personalizeValue(interaction.prompt, name) ?? interaction.prompt,
+          correctAnswer: personalizeValue(interaction.correctAnswer, name) ?? interaction.correctAnswer,
+          explanation: personalizeValue(interaction.explanation, name) ?? interaction.explanation,
+          options: interaction.options?.map((option) => personalizeValue(option, name) ?? option),
+        }
+      : interaction,
+  };
+}
+
 function personalizeStep(step: LessonStep, name: string | undefined): LessonStep {
   if (!name) return step;
   return {
     ...step,
+    // Personagens da cena: o avatar do aluno (esquerda) recebe o nome do usuário.
+    characters: step.characters?.map((character) => ({
+      ...character,
+      name: personalizeValue(character.name, name) ?? character.name,
+    })),
+    // Fluxo V2 por nós (o que o player realmente renderiza hoje): as falas e as
+    // interações também precisam trocar "马修/Matheus" pelo nome do usuário.
+    nodes: step.nodes?.map((node) => personalizeNode(node, name)),
     title: personalizeValue(step.title, name),
     body: personalizeValue(step.body, name),
     text: personalizeValue(step.text, name),

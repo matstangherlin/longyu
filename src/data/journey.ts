@@ -1228,22 +1228,28 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     libraryItems: ["chunk:wobuhui", "chunk:nihao", "chunk:wohenhao"],
     reviewItems: ["chunk:nihao", "chunk:wohenhao"],
     steps: [
+      // Antes esta lição abria fria: um `listen` de uma frase longa (5 hànzì
+      // novos) seguido direto de um quiz — e ainda comparava com 听不懂 e
+      // 请再说一遍, que só são ensinados nas lições seguintes. Isso travava o
+      // aluno. Agora ela apresenta a frase, deixa acertar com apoio e só depois
+      // cobra; as outras frases de sobrevivência ficam para as próximas lições.
+      intro(
+        "Sua frase de emergência",
+        "Se alguém falar rápido demais, uma única frase te protege: 我不会说中文 (wǒ bú huì shuō Zhōngwén) — “não sei falar chinês”. Você já conhece 我 (eu) e 不 (não); aqui elas se juntam a 会说 (saber falar) e 中文 (a língua chinesa). Por enquanto, guarde a frase inteira como um bloco — as peças você destrincha nas próximas lições."
+      ),
       listen("我不会说中文", "wǒ bú huì shuō Zhōngwén", "Não sei falar chinês"),
+      listenSelect(
+        "Reconheça a frase",
+        "我不会说中文",
+        ["我不会说中文", "你好", "我很好"],
+        "我不会说中文",
+        "Essa é a frase que te protege quando não dá para entender: 我不会说中文."
+      ),
       comp(
         "我不会说中文",
         "wǒ bú huì shuō Zhōngwén",
         "Não sei falar chinês",
-        ["Não sei falar chinês", "Não entendi", "Estou bem", "Por favor, fale de novo"]
-      ),
-      match(
-        "Três intenções",
-        "Combine cada frase com a intenção.",
-        [
-          { left: "我不会说中文", right: "não sei falar chinês", leftType: "hanzi", rightType: "pt" },
-          { left: "我听不懂", right: "não entendi o que ouvi", leftType: "hanzi", rightType: "pt" },
-          { left: "请再说一遍", right: "peça para repetir", leftType: "hanzi", rightType: "pt" },
-        ],
-        "不会说 = não sei falar; 听不懂 = não entendi; 再说一遍 = repita."
+        ["Não sei falar chinês", "Estou bem", "Olá", "Até logo"]
       ),
       conversationScene("nao-falo-chinês"),
       dialogue(

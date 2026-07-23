@@ -7,6 +7,24 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Compatibilidade de áudio e ajustes pedagógicos
+
+- **Áudio repete em qualquer navegador**: o TTS não enfileira mais o `speak()`
+  na mesma tick do `cancel()` (o que fazia Firefox/Safari descartarem a fala e o
+  áudio "só repetir no Chrome"); quando há fala em curso, o reinício é adiado um
+  tick. O estado "tocando" também encerra no evento `error`, então o botão nunca
+  fica preso e sempre repete.
+- **Aluno é personagem da conversa**: o avatar à esquerda das cenas é o próprio
+  aluno — antes rotulado "Lin" (que já é personagem das histórias), ele dizia
+  "meu nome é Matheus". Agora leva o nome do usuário (padrão "Matheus"),
+  personalizado em runtime nas falas, prompts e no rótulo do personagem.
+- **Primeira frase de sobrevivência mais suave**: `我不会说中文` deixa de abrir
+  com quiz frio e comparação com frases ainda não ensinadas (`听不懂`,
+  `请再说一遍`); ganha introdução, reconhecimento com apoio e distratores
+  conhecidos antes de cobrar.
+- **3 estrelas = desempenho perfeito**: revisões não fecham mais em 3 estrelas
+  com 90% — a 3ª estrela exige 100% sem erros, igual às lições normais.
+
 ### Revisão — rodadas de pontos fracos
 
 - **Corrigir pontos fracos** abre sessão focada em rodadas (5 tarefas) com

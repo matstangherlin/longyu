@@ -7,6 +7,15 @@ import { useStore } from "./store";
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let warmed = false;
 let lastUserGestureAt = 0;
+// Timer da fala adiada (ver speak): cancelamos o anterior antes de agendar outro.
+let pendingSpeakTimer: number | null = null;
+
+function clearPendingSpeak(): void {
+  if (pendingSpeakTimer != null) {
+    window.clearTimeout(pendingSpeakTimer);
+    pendingSpeakTimer = null;
+  }
+}
 
 function pickChineseVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
@@ -85,8 +94,7 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     return;
   }
   const synth = window.speechSynthesis;
-  synth.cancel();
-  resumeSpeechSynthesis();
+  clearPendingSpeak();
   const u = new SpeechSynthesisUtterance(text);
   const voice = cachedVoice || pickChineseVoice();
   const preferences = useStore.getState();
@@ -95,13 +103,41 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   u.rate = opts.rate ?? (preferences.slowAudio ? Math.min(preferences.ttsRate ?? 0.85, 0.65) : preferences.ttsRate ?? 0.85);
   u.pitch = opts.pitch ?? 1;
   u.volume = Math.max(0, Math.min(1, opts.volume ?? preferences.ttsVolume ?? 1));
-  if (opts.onend) u.onend = opts.onend;
-  synth.speak(u);
-  // Chrome às vezes ignora o primeiro speak() — um resume extra ajuda.
-  resumeSpeechSynthesis();
+  // Sempre encerra o estado "tocando", mesmo quando o navegador dispara `error`
+  // (interrupção) em vez de `end` — comum no Firefox/Safari. Sem isto, o botão
+  // fica preso em "tocando" e a fala não repete.
+  if (opts.onend) {
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      opts.onend?.();
+    };
+    u.onend = settle;
+    u.onerror = settle;
+  }
+
+  // Enfileirar `speak()` na MESMA tick de `cancel()` faz o Firefox/Safari
+  // descartarem a nova fala — a causa de o áudio "só repetir no Chrome". Quando
+  // há algo tocando/pendente, cancelamos e adiamos o início um tick para o
+  // motor esvaziar a fila; caso contrário, falamos direto.
+  const wasBusy = synth.speaking || synth.pending;
+  synth.cancel();
+  const start = () => {
+    pendingSpeakTimer = null;
+    synth.speak(u);
+    // Chrome às vezes ignora o primeiro speak() — um resume extra ajuda.
+    resumeSpeechSynthesis();
+  };
+  if (wasBusy) {
+    pendingSpeakTimer = window.setTimeout(start, 90);
+  } else {
+    start();
+  }
 }
 
 export function stopSpeaking(): void {
+  clearPendingSpeak();
   if (isTTSAvailable()) window.speechSynthesis.cancel();
 }
 
