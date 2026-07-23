@@ -45,7 +45,7 @@ fixo que envelhece (`l1-rev`, `l5-rev`, `l13`).
 | --- | --- |
 | 1 | Jornada · Perfil · Mais |
 | 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
-| 5 | Jornada · Praticar · Revisão · Missões · Mais |
+| 5 | Jornada · Praticar · Missões · Perfil · Mais |
 
 ### Sidebar (desktop) — compacta, com flyouts
 

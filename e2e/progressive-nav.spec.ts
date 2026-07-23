@@ -93,7 +93,7 @@ test.describe("navegação progressiva — mobile", () => {
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toContain("Missões");
+    expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
   });
 
   test("rota direta funciona mesmo quando não está na barra do estágio", async ({ page }) => {
@@ -199,6 +199,14 @@ test.describe("navegação progressiva — desktop", () => {
     expect(advancedLabels).not.toContain("Hànzì");
     expect(advancedLabels).not.toContain("Imersão");
     expect(advancedLabels).not.toContain("Amigos");
+    // Perfil imediatamente acima de Mais (rodapé da rail).
+    const profileTop = await sidebar.getByRole("link", { name: /^Perfil$/i }).evaluate(
+      (el) => el.getBoundingClientRect().top
+    );
+    const moreTop = await sidebar.getByRole("button", { name: /^Mais$/i }).evaluate(
+      (el) => el.getBoundingClientRect().top
+    );
+    expect(profileTop).toBeLessThan(moreTop);
     // Alvos de toque adequados em todos os links/botões da sidebar.
     const heights = await sidebar.locator("a, button").evaluateAll((els) =>
       els.map((el) => el.getBoundingClientRect().height)

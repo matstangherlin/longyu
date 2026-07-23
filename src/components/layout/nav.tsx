@@ -94,7 +94,8 @@ export function mobileNavForStage(stage: LearnerStage): NavItem[] {
     return [NAV.jornada, NAV.perfil, NAV.mais];
   }
   if (stage >= 5) {
-    return [NAV.jornada, NAV.treino, NAV.revisao, NAV.missoes, NAV.mais];
+    // Missões entra; Revisão fica no hub/Mais. Perfil permanece acima de Mais.
+    return [NAV.jornada, NAV.treino, NAV.missoes, NAV.perfil, NAV.mais];
   }
   return [NAV.jornada, NAV.treino, NAV.revisao, NAV.perfil, NAV.mais];
 }

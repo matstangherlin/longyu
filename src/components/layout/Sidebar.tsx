@@ -32,64 +32,73 @@ export function Sidebar() {
   const items = desktopNavForStage(profile.stage);
   const routeKey = `${location.pathname}${location.hash}`;
 
+  // Perfil sempre imediatamente acima de Mais, fixos no rodapé da rail.
+  const primaryItems = items.filter((item) => item.to !== "/perfil" && item.to !== "/mais");
+  const bottomItems = items.filter((item) => item.to === "/perfil" || item.to === "/mais");
+
+  function renderItem(item: NavItem) {
+    const active = isNavItemActive(item, location.pathname);
+
+    if (item.to === "/treino") {
+      return (
+        <FlyoutNavItem
+          key={item.to}
+          item={item}
+          active={active}
+          pathname={location.pathname}
+          routeKey={routeKey}
+          menuLabel="Praticar"
+          shortcuts={practiceFlyoutItems()}
+          footer={{ to: item.to, label: "Abrir Praticar" }}
+        />
+      );
+    }
+
+    if (item.to === "/perfil") {
+      return (
+        <FlyoutNavItem
+          key={item.to}
+          item={item}
+          active={active}
+          pathname={location.pathname}
+          routeKey={routeKey}
+          menuLabel="Perfil"
+          shortcuts={profileFlyoutItems()}
+          footer={{ to: item.to, label: "Abrir Perfil" }}
+        />
+      );
+    }
+
+    if (item.to === "/mais") {
+      return (
+        <FlyoutNavItem
+          key={item.to}
+          item={item}
+          active={active}
+          pathname={location.pathname}
+          routeKey={routeKey}
+          menuLabel="Mais opções"
+          groups={moreFlyoutGroups(items)}
+          footer={{ to: item.to, label: "Ver menu completo" }}
+          triggerAsButton
+        />
+      );
+    }
+
+    return <SidebarLink key={item.to} item={item} active={active} />;
+  }
+
   return (
     <aside className="sticky top-0 hidden h-screen w-[14rem] shrink-0 flex-col border-r border-line/60 bg-surface px-3 py-5 lg:flex">
       <div className="px-2 pb-4">
         <BrandLockup tagline={COURSE_PROFILE.shortTagline} />
       </div>
 
-      <nav className="mt-1 flex-1 space-y-1.5 overflow-y-auto" aria-label="Principal">
-        {items.map((item) => {
-          const active = isNavItemActive(item, location.pathname);
-
-          if (item.to === "/treino") {
-            return (
-              <FlyoutNavItem
-                key={item.to}
-                item={item}
-                active={active}
-                pathname={location.pathname}
-                routeKey={routeKey}
-                menuLabel="Praticar"
-                shortcuts={practiceFlyoutItems()}
-                footer={{ to: item.to, label: "Abrir Praticar" }}
-              />
-            );
-          }
-
-          if (item.to === "/perfil") {
-            return (
-              <FlyoutNavItem
-                key={item.to}
-                item={item}
-                active={active}
-                pathname={location.pathname}
-                routeKey={routeKey}
-                menuLabel="Perfil"
-                shortcuts={profileFlyoutItems()}
-                footer={{ to: item.to, label: "Abrir Perfil" }}
-              />
-            );
-          }
-
-          if (item.to === "/mais") {
-            return (
-              <FlyoutNavItem
-                key={item.to}
-                item={item}
-                active={active}
-                pathname={location.pathname}
-                routeKey={routeKey}
-                menuLabel="Mais opções"
-                groups={moreFlyoutGroups(items)}
-                footer={{ to: item.to, label: "Ver menu completo" }}
-                triggerAsButton
-              />
-            );
-          }
-
-          return <SidebarLink key={item.to} item={item} active={active} />;
-        })}
+      <nav className="mt-1 flex flex-1 flex-col overflow-y-auto" aria-label="Principal">
+        <div className="space-y-1.5">{primaryItems.map(renderItem)}</div>
+        <div className="mt-auto space-y-1.5 border-t border-line/50 pt-3">
+          {bottomItems.map(renderItem)}
+        </div>
       </nav>
     </aside>
   );

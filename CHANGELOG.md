@@ -12,7 +12,9 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Barra lateral com abas principais; **Loja** na barra no estágio recorrente.
 - Hover em **Praticar** → Hànzì, Pinyin Lab, Fala, Leitura, Biblioteca, Imersão.
 - Hover em **Perfil** → Amigos, Conta, Plano Pro.
+- **Perfil** fica no rodapé da rail, imediatamente acima de **Mais**.
 - Mais permanece curto (sistema) + “Ver menu completo”.
+- Mobile estágio 5: Jornada · Praticar · Missões · Perfil · Mais.
 
 ### Reformulação da Jornada (2026-07-23)
 
