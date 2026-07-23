@@ -7,6 +7,14 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Sidebar compacta estilo Duolingo
+
+- Barra lateral desktop limitada a poucas abas de alta frequência (teto 7):
+  Jornada, Praticar, Revisão, Missões, Ligas, Perfil, Mais — conforme o estágio.
+- Hànzì, Imersão e satélites saem da barra principal e entram no popover/página Mais.
+- Popover do Mais abre no **clique** (não no hover), lista atalhos curtos e
+  “Ver menu completo”; o catálogo completo permanece em `/mais`.
+
 ### Reformulação da Jornada (2026-07-23)
 
 - Cabeçalho funcional (`JourneyHeader`): Fase · Unidade, objetivo curto, anel de
