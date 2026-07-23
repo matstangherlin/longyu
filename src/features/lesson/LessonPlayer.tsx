@@ -329,6 +329,67 @@ function progressSaveLabel(
   return "Progresso salvo neste dispositivo";
 }
 
+const LESSON_RESUME_PREFIX = "longyu:lesson-resume:v1";
+const LESSON_RESUME_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface LessonResumeSnapshot {
+  version: 1;
+  lessonId: string;
+  stepIndex: number;
+  stepKey: string;
+  correct: number;
+  lives: number;
+  updatedAt: number;
+}
+
+function lessonResumeStorageKey(lessonId: string): string {
+  return `${LESSON_RESUME_PREFIX}:${lessonId}`;
+}
+
+function lessonStepResumeKey(step: LessonStep | undefined): string {
+  if (!step) return "missing";
+  return [step.kind, step.sceneId ?? "", step.title ?? "", step.postConversationTaskType ?? ""].join(":");
+}
+
+function readLessonResume(lessonId: string): LessonResumeSnapshot | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(lessonResumeStorageKey(lessonId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as LessonResumeSnapshot;
+    if (
+      parsed.version !== 1 ||
+      parsed.lessonId !== lessonId ||
+      !Number.isFinite(parsed.updatedAt) ||
+      Date.now() - parsed.updatedAt > LESSON_RESUME_MAX_AGE_MS
+    ) {
+      window.localStorage.removeItem(lessonResumeStorageKey(lessonId));
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeLessonResume(snapshot: LessonResumeSnapshot): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(lessonResumeStorageKey(snapshot.lessonId), JSON.stringify(snapshot));
+  } catch {
+    // O store principal continua sendo a fonte de verdade se storage estiver indisponível.
+  }
+}
+
+function clearLessonResume(lessonId: string | undefined): void {
+  if (!lessonId || typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(lessonResumeStorageKey(lessonId));
+  } catch {
+    // A expiração impede que uma entrada antiga seja restaurada indefinidamente.
+  }
+}
+
 function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> {
   return new Set([...(step.exercises ?? []), ...(stage?.stepKinds ?? []), step.kind]);
 }
@@ -1221,6 +1282,9 @@ export function LessonPlayer() {
   const [idx, setIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
+  const [lessonResumeReady, setLessonResumeReady] = useState(false);
+  const latestLessonResumeRef = useRef<LessonResumeSnapshot | null>(null);
+  const lessonResumeLessonRef = useRef<string | null>(null);
   const [finished, setFinished] = useState(false);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
   const [answerStreak, setAnswerStreak] = useState(0);
@@ -1327,6 +1391,71 @@ export function LessonPlayer() {
         : undefined,
     [completedLessons, conversationHistory, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
   );
+
+  // Retomada leve por dispositivo: restaura passo/acertos/vidas após reload,
+  // ida para background, offline ou atualização do service worker. O store
+  // continua sendo a fonte de verdade do progresso salvo.
+  useEffect(() => {
+    if (!foundLesson || !adaptiveLesson || !entryChecked) return;
+    if (lessonResumeLessonRef.current === foundLesson.id) return;
+    lessonResumeLessonRef.current = foundLesson.id;
+    setLessonResumeReady(false);
+    const saved = readLessonResume(foundLesson.id);
+    const savedStep = saved ? adaptiveLesson.steps[saved.stepIndex] : undefined;
+    const valid = Boolean(
+      savedStep &&
+      saved &&
+      saved.stepIndex >= 0 &&
+      saved.stepIndex < adaptiveLesson.steps.length &&
+      lessonStepResumeKey(savedStep) === saved.stepKey
+    );
+    if (valid && saved) {
+      setIdx(saved.stepIndex);
+      setCorrect(Math.max(0, saved.correct));
+      setLives(Math.min(DRAGON_BREATH_LIVES, Math.max(0, saved.lives)));
+    }
+    setLessonResumeReady(true);
+  }, [adaptiveLesson, entryChecked, foundLesson]);
+
+  useEffect(() => {
+    if (!foundLesson || !adaptiveLesson || !entryChecked || !lessonResumeReady || finished) return;
+    const step = adaptiveLesson.steps[idx];
+    if (!step) return;
+    const snapshot: LessonResumeSnapshot = {
+      version: 1,
+      lessonId: foundLesson.id,
+      stepIndex: idx,
+      stepKey: lessonStepResumeKey(step),
+      correct,
+      lives,
+      updatedAt: Date.now(),
+    };
+    latestLessonResumeRef.current = snapshot;
+    writeLessonResume(snapshot);
+  }, [adaptiveLesson, correct, entryChecked, finished, foundLesson, idx, lessonResumeReady, lives]);
+
+  useEffect(() => {
+    const flush = () => {
+      if (latestLessonResumeRef.current) {
+        writeLessonResume({ ...latestLessonResumeRef.current, updatedAt: Date.now() });
+      }
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!foundLesson || !finished) return;
+    clearLessonResume(foundLesson.id);
+    latestLessonResumeRef.current = null;
+  }, [finished, foundLesson]);
 
   useEffect(() => {
     if (!foundLesson) return undefined;
@@ -2205,11 +2334,15 @@ export function LessonPlayer() {
         metadata: { reason: "exit" },
       });
     }
+    clearLessonResume(lesson.id);
+    latestLessonResumeRef.current = null;
     playSoundFx("phaseExit", soundEffects);
     navigate("/jornada");
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
+    clearLessonResume(lesson.id);
+    latestLessonResumeRef.current = null;
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
     const gradedDomains = new Set<string>();
@@ -3233,10 +3366,10 @@ export function LessonPlayer() {
       {recoveryDebugPanel}
 
       {step.postConversationPhase && step.postConversationIndex === 1 && (
-        <div className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-accent">Pós-Conversa</span>
+        <div role="status" aria-live="polite" data-testid="post-conversation-transition" className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
+          <span className="font-semibold text-accent">Conversa concluída · Pós-Conversa</span>
           <span className="mx-1.5 text-ink-faint">·</span>
-          Fixe o vocabulário e as respostas da conversa em tarefas curtas.
+          Agora fixe o vocabulário e as respostas em tarefas curtas de memorização.
         </div>
       )}
 
@@ -3348,9 +3481,9 @@ export function LessonPlayer() {
           </div>
         </ModalOverlay>
       )}
-      <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
+      <ProPaywall open={step.kind !== "conversation_scene" && proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       <ProPaywall
-        open={contextualOffer.open && proPaywallKind === null}
+        open={step.kind !== "conversation_scene" && contextualOffer.open && proPaywallKind === null}
         kind={contextualOffer.offer?.paywallKind ?? "training"}
         offer={contextualOffer.offer}
         onClose={contextualOffer.dismiss}

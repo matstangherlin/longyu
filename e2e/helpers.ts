@@ -102,7 +102,16 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
 }
 
 /** Fundação completa + pré-requisitos da jornada para abrir o player de `lessonId`. */
-export async function seedLessonPlayerReady(page: Page, lessonId: string) {
+export async function seedLessonPlayerReady(
+  page: Page,
+  lessonId: string,
+  options: {
+    isPremium?: boolean;
+    // Temas reais do Longyu (o "claro" é `clay`); `light` do PR #43 não existe.
+    theme?: "clay" | "china" | "dark";
+    conversationHistory?: Array<Record<string, unknown>>;
+  } = {}
+) {
   await seedTelemetryDeclined(page);
   const foundation = [
     "p1-o-que-e-mandarim",
@@ -125,6 +134,11 @@ export async function seedLessonPlayerReady(page: Page, lessonId: string) {
     accountSetupComplete: true,
     completedLessons,
     lessonStarsById,
+    // O preview local não concede Pro no build; serverIsPro simula o assinante.
+    isPremium: options.isPremium ?? false,
+    serverIsPro: options.isPremium ?? false,
+    theme: options.theme ?? "clay",
+    conversationHistory: options.conversationHistory ?? [],
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));
 }

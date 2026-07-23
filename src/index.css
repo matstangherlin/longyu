@@ -483,6 +483,56 @@ textarea {
   animation: conversation-bubble-in 0.32s ease-out both;
 }
 
+/* Player de conversa: uma fala por vez, histórico limitado e CTA protegido
+   por safe-area/teclado. As regras usam apenas tokens do Longyu, inclusive no
+   tema escuro, e evitam que hànzì ou respostas longas criem overflow lateral. */
+.conversation-stage {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 7rem);
+}
+
+.conversation-stage button,
+.conversation-stage summary {
+  touch-action: manipulation;
+}
+
+.conversation-stage [data-conversation-kind="character"],
+.conversation-stage [data-conversation-kind="student"],
+.conversation-stage [data-conversation-kind="hint"],
+.conversation-stage [data-conversation-kind="correction"],
+.conversation-stage [data-conversation-kind="narration"],
+.conversation-stage [data-conversation-kind="choice"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.conversation-cta {
+  bottom: max(env(safe-area-inset-bottom), 0.25rem);
+}
+
+@media (max-width: 400px) {
+  .conversation-stage [data-testid="conversation-history"] ol {
+    max-height: 9rem;
+  }
+
+  .conversation-stage .conversation-cta > span {
+    max-width: 7rem;
+  }
+}
+
+@media (orientation: portrait) and (max-height: 700px) {
+  .conversation-stage {
+    scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 6rem);
+  }
+
+  .conversation-stage .conversation-cta {
+    padding-top: 0.75rem;
+  }
+}
+
 @keyframes longyu-error-shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-5px); }
@@ -522,6 +572,7 @@ textarea {
   .longyu-star-spark,
   .longyu-reward-rise,
   .longyu-claim-float,
+  .conversation-bubble-in,
   .longyu-success-bloom,
   .longyu-error-shake,
   .longyu-chest-shake,
