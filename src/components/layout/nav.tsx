@@ -85,12 +85,14 @@ export function mobileNavForStage(stage: LearnerStage): NavItem[] {
   return [NAV.jornada, NAV.treino, NAV.revisao, NAV.perfil, NAV.mais];
 }
 
-/** Sidebar desktop: pode mostrar mais, também de forma progressiva. */
+/**
+ * Sidebar desktop — inspirada no Duolingo: poucas abas de alta frequência.
+ * Hànzì, Imersão, Biblioteca e o resto ficam no popover/página "Mais".
+ * Teto duro: 7 destinos (incluindo Mais).
+ */
 export function desktopNavForStage(stage: LearnerStage): NavItem[] {
   const items: NavItem[] = [NAV.jornada];
   if (stage >= 2) items.push(NAV.treino, NAV.revisao);
-  if (stage >= 3) items.push(NAV.ideogramas);
-  if (stage >= 4) items.push(NAV.imersao);
   if (stage >= 5) items.push(NAV.missoes, NAV.ligas);
   items.push(NAV.perfil, NAV.mais);
   return items;
@@ -98,7 +100,7 @@ export function desktopNavForStage(stage: LearnerStage): NavItem[] {
 
 // ── Menu "Mais": catálogo completo agrupado ─────────────────────────────
 // Sempre exaustivo — nenhuma rota deixa de ser alcançável só porque não está
-// na navegação principal do estágio atual.
+// na navegação principal do estágio atual. Usado pela página `/mais`.
 export const MORE_CATALOG: NavGroup[] = [
   {
     title: "Aprender",
@@ -114,16 +116,34 @@ export const MORE_CATALOG: NavGroup[] = [
   },
 ];
 
+/**
+ * Popover compacto do "Mais" na sidebar (estilo Duolingo).
+ * Só atalhos que NÃO estão na barra principal — o catálogo completo vive em `/mais`.
+ */
+export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
+  const primaryTos = new Set(
+    primaryNav.filter((item) => item.to !== "/mais").map((item) => item.to)
+  );
+  const keep = (item: NavItem) => !primaryTos.has(item.to);
+
+  const explore = [NAV.ideogramas, NAV.imersao, NAV.biblioteca, NAV.pinyin, NAV.loja, NAV.conquistas, NAV.amigos].filter(
+    keep
+  );
+  const account = [NAV.conta, NAV.plano, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
+
+  const groups: NavGroup[] = [];
+  if (explore.length) groups.push({ title: "Explorar", items: explore });
+  if (account.length) groups.push({ title: "Conta", items: account });
+  return groups;
+}
+
 // ── Exports estáveis mantidos para consumidores existentes ──────────────
 export const DESKTOP_NAV: NavItem[] = [
   NAV.jornada,
-  NAV.ideogramas,
   NAV.treino,
-  NAV.imersao,
-  NAV.ligas,
-  NAV.amigos,
+  NAV.revisao,
   NAV.missoes,
-  NAV.loja,
+  NAV.ligas,
   NAV.perfil,
   NAV.mais,
 ];
@@ -138,7 +158,8 @@ export const NAV_MOBILE: NavItem[] = [
 
 export const MORE_NAV: NavItem = NAV.mais;
 
-// Compatibilidade: o dropdown desktop usa o catálogo completo.
+// Compatibilidade: consumidores antigos do dropdown recebem o catálogo completo;
+// a sidebar usa `moreFlyoutGroups()` (popover compacto).
 export const MORE_DROPDOWN_GROUPS: NavGroup[] = MORE_CATALOG;
 
 export const IMMERSION_NAV: NavItem = NAV.imersao;

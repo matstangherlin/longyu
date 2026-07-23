@@ -169,27 +169,64 @@ test.describe("descoberta progressiva de recursos", () => {
 test.describe("navegação progressiva — desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test("sidebar mostra mais destinos conforme o progresso", async ({ page }) => {
+  test("sidebar fica compacta e cresce com o progresso sem explodir opções", async ({ page }) => {
     test.slow();
     await establishOrigin(page);
     await setStore(page, { completedLessons: [] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
     const sidebar = page.locator("aside nav").first();
-    const early = await sidebar.getByRole("link").count();
+    const earlyLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
+    const earlyButtons = await sidebar.getByRole("button").count();
+    const early = earlyLabels.length + earlyButtons;
+    expect(early).toBeLessThanOrEqual(4);
+    expect(earlyLabels).toContain("Jornada");
 
     await setStore(page, {
       completedLessons: ["l1", "l2", "l1-rev", "l2-rev", "l3", "l4", "l5", "l5-rev"],
+      streak: 5,
+      medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
     });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    const advanced = await sidebar.getByRole("link").count();
+    const advancedLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
+    const advancedButtons = await sidebar.getByRole("button").count();
+    const advanced = advancedLabels.length + advancedButtons;
 
     expect(advanced).toBeGreaterThan(early);
-    // Alvos de toque adequados em todos os links da sidebar.
-    const heights = await sidebar.getByRole("link").evaluateAll((links) =>
-      links.map((l) => l.getBoundingClientRect().height)
+    expect(advanced).toBeLessThanOrEqual(7);
+    // Hànzì e Imersão não poluem a barra principal — ficam no Mais.
+    expect(advancedLabels).not.toContain("Hànzì");
+    expect(advancedLabels).not.toContain("Imersão");
+    // Alvos de toque adequados em todos os links/botões da sidebar.
+    const heights = await sidebar.locator("a, button").evaluateAll((els) =>
+      els.map((el) => el.getBoundingClientRect().height)
     );
     expect(heights.every((h) => h >= 44)).toBe(true);
+  });
+
+  test("Mais abre popover compacto no clique, sem segundo painel gigante", async ({ page }) => {
+    await seedStage(page, {
+      completedLessons: ["l1", "l2", "l1-rev"],
+      streak: 5,
+      medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
+    });
+    await page.goto("/jornada");
+    await dismissBlockingOverlays(page);
+
+    const moreButton = page.locator("aside").getByRole("button", { name: /^Mais$/i });
+    await expect(moreButton).toBeVisible();
+    await moreButton.click();
+
+    const menu = page.getByRole("menu", { name: "Mais opções" });
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Hànzì" })).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Ver menu completo" })).toBeVisible();
+    // Popover curto: bem menos que o catálogo completo (~20).
+    const shortcutCount = await menu.getByRole("menuitem").count();
+    expect(shortcutCount).toBeLessThanOrEqual(14);
+
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
   });
 });

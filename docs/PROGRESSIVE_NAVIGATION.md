@@ -47,10 +47,19 @@ fixo que envelhece (`l1-rev`, `l5-rev`, `l13`).
 | 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
 | 5 | Jornada · Praticar · Revisão · Missões · Mais |
 
-### Sidebar (desktop) — progressiva, cabe mais
+### Sidebar (desktop) — compacta, estilo Duolingo
 
-Base: Jornada · … · Perfil · Mais. Entram conforme o estágio: Praticar +
-Revisão (≥2), Hànzì (≥3), Imersão (≥4), Missões + Ligas (≥5).
+Poucas abas de alta frequência (teto **7**, incluindo Mais). Hànzì, Imersão e
+áreas satélite ficam no popover/página "Mais" — não na barra principal.
+
+| Estágio | Destinos |
+| --- | --- |
+| 1 | Jornada · Perfil · Mais |
+| 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
+| 5 | Jornada · Praticar · Revisão · Missões · Ligas · Perfil · Mais |
+
+O item **Mais** abre um **popover curto** (clique, não hover) com atalhos que
+ainda não estão na barra + link “Ver menu completo” para `/mais`.
 
 ### Menu "Mais" — catálogo completo, agrupado por objetivo
 
@@ -124,7 +133,8 @@ Novos:
 Alterados:
 
 - `src/components/layout/nav.tsx` — catálogo único `NAV`, `mobileNavForStage`,
-  `desktopNavForStage`, `MORE_CATALOG` (Aprender/Motivação/Conta).
+  `desktopNavForStage` (teto 7), `moreFlyoutGroups` (popover), `MORE_CATALOG`
+  (página `/mais`: Aprender/Motivação/Conta).
 - `src/components/layout/TabBar.tsx` — barra inferior adaptativa; badge de SRS
   movido para Revisão.
 - `src/components/layout/Sidebar.tsx` — sidebar adaptativa por estágio.
