@@ -89,7 +89,7 @@ export function TreinoPage() {
         ? "Corrija erros recentes com foco."
         : "Histórico e padrões de erro no Pro.",
       icon: IconTarget,
-      to: detailedErrorsAccess.allowed ? "/revisao?modo=erros" : undefined,
+      to: detailedErrorsAccess.allowed ? "/revisao?modo=erros&sessao=corrigir" : undefined,
       onClick: detailedErrorsAccess.allowed ? undefined : () => setPaywallKind("errors"),
       status: detailedErrorsAccess.allowed && recentErrors > 0 ? `${recentErrors} erros` : "Pro",
       statusTone: "gold",

@@ -169,7 +169,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await expect(page.getByText(/1 pendente\(s\)/)).toBeVisible();
     await clickStable(page, /Corrigir agora/i);
     await dismissBlockingOverlays(page);
-    await expect(page.getByText(/你好|Toque no que ouviu|prioridade de revisão|Revisar:/i).first()).toBeVisible();
+    await expect(page.getByText(/你好|Toque no que ouviu|prioridade de revisão|Revisar:|Tarefa|Corrigir pontos fracos/i).first()).toBeVisible();
   });
 
   test("Hànzì Builder: lição de primeiros hànzì carrega montagem", async ({ page }) => {

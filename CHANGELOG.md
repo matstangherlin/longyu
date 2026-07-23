@@ -7,6 +7,14 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Revisão — rodadas de pontos fracos
+
+- **Corrigir pontos fracos** abre sessão focada em rodadas (5 tarefas) com
+  formatos variados sobre erros/itens fracos.
+- Se o aluno falhar de novo, o item volta para a fila (e erros da Jornada
+  continuam alimentando esta ala).
+- UI da `/revisao` mais limpa: CTA forte, métricas claras, histórico recolhido.
+
 ### CTAs com ícone alinhado
 
 - Corrige o chevron empilhado sob o rótulo em botões (`Continuar`, `Rever lição`,

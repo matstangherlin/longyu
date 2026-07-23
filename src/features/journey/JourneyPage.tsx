@@ -520,24 +520,19 @@ function JourneyHeader({
             <IconChevron width={18} height={18} aria-hidden="true" />
           </Button>
           {reviewCount > 0 && (
-            <ButtonLink
-              to="/revisao"
-              variant="soft"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
-            >
-              <IconRefresh width={16} height={16} aria-hidden="true" />
-              <span className="leading-none">
-                Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
-              </span>
-            </ButtonLink>
+            <ButtonLink to="/revisao?modo=fracos&sessao=corrigir" variant="soft" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5">
+            <IconRefresh width={16} height={16} aria-hidden="true" />
+            <span className="leading-none">
+              Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
+            </span>
+          </ButtonLink>
           )}
         </div>
       )}
       {!onContinue && reviewCount > 0 && (
         <div className="relative mt-3.5">
           <ButtonLink
-            to="/revisao"
+            to="/revisao?modo=fracos&sessao=corrigir"
             variant="soft"
             size="lg"
             className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
@@ -615,7 +610,7 @@ function JourneySidePanel({
       {/* Revisão pendente — só quando há itens (evita duplicar o cabeçalho). */}
       {reviewCount > 0 && (
         <Card variant="info" className="p-3">
-          <Link to="/revisao" className="group flex w-full items-center gap-2">
+          <Link to="/revisao?modo=fracos&sessao=corrigir" className="group flex w-full items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
               <IconRefresh width={14} height={14} />
             </span>

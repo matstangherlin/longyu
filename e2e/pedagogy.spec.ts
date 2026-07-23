@@ -78,7 +78,19 @@ test.describe("revisão", () => {
     await expect(page.getByRole("button", { name: /Corrigir agora/i })).toBeEnabled();
     await clickStable(page, /Corrigir agora/i);
     await dismissBlockingOverlays(page);
-    await expect(page.getByText(/你好|Toque no que ouviu|prioridade de revisão|Revisar:/i).first()).toBeVisible();
+    await expect(page.getByText(/你好|Toque no que ouviu|prioridade de revisão|Revisar:|Tarefa|Corrigir pontos fracos/i).first()).toBeVisible();
+  });
+
+  test("Corrigir pontos fracos abre rodadas focadas", async ({ page }) => {
+    await seedLessonRecoverySession(page, { lessonId: "l1", stars: 2, isPremium: true });
+    await page.goto("/revisao");
+    await dismissBlockingOverlays(page);
+    await expect(page.getByRole("heading", { name: /Pontos fracos/i })).toBeVisible();
+    await clickStable(page, /Corrigir pontos fracos/i);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByRole("heading", { name: /Corrigir pontos fracos/i })).toBeVisible();
+    await expect(page.getByText(/Rodada \d+ de \d+/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /Voltar à revisão/i })).toBeVisible();
   });
 
   test("plano grátis não expõe histórico detalhado de erros", async ({ page }) => {

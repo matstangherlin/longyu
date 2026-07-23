@@ -99,7 +99,7 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     // Revisão como link secundário positivo.
     const review = page.getByRole("link", { name: /Revisar \d+ ite/i });
     await expect(review).toBeVisible();
-    await expect(review).toHaveAttribute("href", "/revisao");
+    await expect(review).toHaveAttribute("href", "/revisao?modo=fracos&sessao=corrigir");
     await expect(page.getByText(/Reforça o que você já aprendeu — leva/i)).toBeVisible();
     await noOverflow(page);
   });

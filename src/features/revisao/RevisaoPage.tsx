@@ -9,10 +9,10 @@ import { primaryReviewDomain } from "../../lib/reviewPlan";
 import { REVIEW_DOMAIN_META, REVIEW_DOMAIN_ORDER } from "../../data/reviewDomains";
 import { reviewExampleFor, type ReviewExample } from "../../data/reviewExamples";
 import { charById } from "../../data/characters";
-import { IconRefresh, IconTarget } from "../../components/ui/Icon";
+import { IconChevron, IconRefresh, IconTarget } from "../../components/ui/Icon";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
-import { Card, Button, ButtonLink, Pill } from "../../components/ui/primitives";
+import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubHeader, HubNavGrid, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { MandarinText } from "../../components/hanzi/MandarinText";
@@ -54,6 +54,8 @@ import {
 import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 
+/** Tamanho de cada rodada no drill de pontos fracos. */
+const WEAK_ROUND_SIZE = 5;
 interface Resolved {
   type: SRSItem["type"];
   itemId: string;
@@ -854,66 +856,86 @@ function DetailedErrorsPanel({
     label: REVIEW_DOMAIN_META[domain].shortLabel,
     count: errors.filter((error) => errorDomain(error) === domain).length,
   })).filter((group) => group.count > 0);
-  const lessonGroups = topCounts(errors.map((error) => error.lessonId || error.moduleId || "sem lição"), 4);
-  const hanziGroups = topCounts(errors.map(errorHanziLabel).filter(Boolean), 4);
-  const pinyinGroups = topCounts(
-    errors
-      .filter((error) => ["som", "pinyin"].includes(errorDomain(error)) || Boolean(error.pinyin))
-      .map((error) => error.pinyin || REVIEW_DOMAIN_META[errorDomain(error)].shortLabel),
-    4
-  );
 
   return (
-    <section className="rounded-xl border border-line bg-surface p-4 shadow-card">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-serif text-xl font-semibold text-ink">Erros detalhados</h2>
-            <Pill tone="gold">Pro</Pill>
+    <section className="overflow-hidden rounded-2xl border border-line/70 bg-surface shadow-card">
+      <div className="bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,transparent_55%)] p-4 sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-serif text-xl font-semibold text-ink sm:text-2xl">Pontos fracos</h2>
+              <Pill tone="gold">Pro</Pill>
+            </div>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-ink-soft">
+              Erros da Jornada e treinos voltam aqui. Resolva em rodadas curtas — se falhar de novo, o item reaparece.
+            </p>
           </div>
-          <p className="mt-1 text-sm leading-6 text-ink-soft">
-            Veja seus erros recentes e corrija pontos fracos.
-          </p>
+          <Button
+            size="lg"
+            className="w-full shrink-0 border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[12rem] sm:px-6"
+            disabled={activeErrors.length === 0}
+            onClick={onCorrectWeakness}
+          >
+            <span className="leading-none">Corrigir pontos fracos</span>
+            <IconChevron width={18} height={18} aria-hidden="true" />
+          </Button>
         </div>
-        <Button size="sm" disabled={activeErrors.length === 0} onClick={onCorrectWeakness}>
-          Corrigir pontos fracos
-        </Button>
+
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <ErrorMetric label="Pendentes" value={activeErrors.length} highlight={activeErrors.length > 0} />
+          <ErrorMetric label="Histórico" value={errors.length} />
+          <ErrorMetric label="Repetidos" value={repeatedCount} highlight={repeatedCount > 0} />
+          <ErrorMetric label="Corrigidos" value={correctedCount} />
+        </div>
+
+        {domainGroups.length > 0 && (
+          <div className="mt-4">
+            <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
+              Por competência
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {domainGroups.map((group) => (
+                <Pill key={group.label} tone={group.count >= 3 ? "accent" : "muted"}>
+                  {group.label} · {group.count}
+                </Pill>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {priorityError && (
+          <div className="mt-4 rounded-xl border border-accent/25 bg-accent-soft/40 px-3 py-2.5 text-sm text-ink-soft">
+            <span className="font-semibold text-ink">Prioridade:</span>{" "}
+            {errorSummary(priorityError)}
+            <span className="text-ink-faint"> · {(priorityError.wrongCount ?? 1)}x</span>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-4">
-        <ErrorMetric label="Pendentes" value={activeErrors.length} />
-        <ErrorMetric label="Histórico" value={errors.length} />
-        <ErrorMetric label="Repetidos" value={repeatedCount} />
-        <ErrorMetric label="Corrigidos" value={correctedCount} />
-      </div>
-
-      <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <ErrorGroup label="Por competência" groups={domainGroups} empty="Sem competência dominante." />
-        <ErrorGroup label="Por lição" groups={lessonGroups} empty="Sem lição associada." />
-        <ErrorGroup label="Por hànzì" groups={hanziGroups} empty="Sem hànzì específico." />
-        <ErrorGroup label="Por pinyin/tom" groups={pinyinGroups} empty="Sem padrão de som ainda." />
-      </div>
-
-      {priorityError && (
-        <div className="mt-4 rounded-xl border border-accent-soft bg-accent-soft/30 px-3 py-2 text-sm text-ink-soft">
-          <span className="font-semibold text-ink">Prioridade:</span>{" "}
-          {errorSummary(priorityError)} · {(priorityError.wrongCount ?? 1)}x
-        </div>
-      )}
-
-      <div className="mt-4">
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-          Histórico completo
-        </div>
-        <div className="max-h-80 overflow-y-auto rounded-xl border border-line">
+      <details className="group border-t border-line/60">
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink sm:px-5 [&::-webkit-details-marker]:hidden">
+          <span className="inline-flex items-center gap-2">
+            Histórico completo
+            <span className="text-xs font-normal text-ink-faint">{sortedErrors.length}</span>
+            <IconChevron
+              width={14}
+              height={14}
+              className="text-ink-faint transition group-open:rotate-90"
+              aria-hidden="true"
+            />
+          </span>
+        </summary>
+        <div className="max-h-72 overflow-y-auto border-t border-line/50 px-2 pb-3 sm:px-3">
           {sortedErrors.length === 0 ? (
-            <div className="p-4 text-sm text-ink-soft">Os erros detalhados aparecem depois das próximas revisões e lições.</div>
+            <div className="p-3 text-sm text-ink-soft">Os erros detalhados aparecem depois das próximas revisões e lições.</div>
           ) : (
             sortedErrors.map((error) => (
-              <div key={error.id} className="border-b border-line px-3 py-3 last:border-b-0">
+              <div key={error.id} className="border-b border-line/40 px-2 py-3 last:border-b-0">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm font-semibold text-ink">{errorSummary(error)}</div>
-                  <Pill tone={error.correctedAt ? "good" : "accent"}>{error.correctedAt ? "Corrigido" : "Pendente"}</Pill>
+                  <Pill tone={error.correctedAt ? "good" : "accent"}>
+                    {error.correctedAt ? "Corrigido" : "Pendente"}
+                  </Pill>
                 </div>
                 <div className="mt-1 text-xs leading-5 text-ink-soft">
                   Esperado: {error.correctAnswer} · Resposta: {error.selectedAnswer}
@@ -928,43 +950,29 @@ function DetailedErrorsPanel({
             ))
           )}
         </div>
-      </div>
+      </details>
     </section>
   );
 }
 
-function ErrorMetric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-line bg-surface-2 px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-      <div className="mt-1 font-serif text-xl font-semibold text-ink">{value}</div>
-    </div>
-  );
-}
-
-function ErrorGroup({
+function ErrorMetric({
   label,
-  groups,
-  empty,
+  value,
+  highlight = false,
 }: {
   label: string;
-  groups: { label: string; count: number }[];
-  empty: string;
+  value: number;
+  highlight?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface-2 px-3 py-3">
+    <div
+      className={[
+        "rounded-xl border px-3 py-2.5",
+        highlight ? "border-accent/35 bg-accent-soft/35" : "border-line/60 bg-surface-2/80",
+      ].join(" ")}
+    >
       <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {groups.length === 0 ? (
-          <span className="text-xs text-ink-faint">{empty}</span>
-        ) : (
-          groups.map((group) => (
-            <Pill key={group.label} tone="muted">
-              {group.label} · {group.count}
-            </Pill>
-          ))
-        )}
-      </div>
+      <div className="mt-1 font-serif text-xl font-semibold text-ink">{value}</div>
     </div>
   );
 }
@@ -973,23 +981,8 @@ function errorDomain(error: ActivityErrorRecord): ReviewDomain {
   return error.targets[0]?.domain ?? (error.skill === "hanzi" ? "forma" : error.skill);
 }
 
-function errorHanziLabel(error: ActivityErrorRecord): string {
-  if (error.hanzi) return error.hanzi;
-  const hanziToken = (error.tokens ?? []).find((token) => isHanziText(token));
-  return hanziToken ?? "";
-}
-
 function errorSummary(error: ActivityErrorRecord): string {
   return error.hanzi || error.meaningPt || error.prompt || error.correctAnswer;
-}
-
-function topCounts(values: string[], limit: number): { label: string; count: number }[] {
-  const counts = new Map<string, number>();
-  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
-  return [...counts.entries()]
-    .map(([label, count]) => ({ label, count }))
-    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
-    .slice(0, limit);
 }
 
 function formatErrorDate(timestamp: number): string {
@@ -1021,7 +1014,7 @@ function ReviewInsightGroup({
 }
 
 export function RevisaoPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);
   const gradeSrs = useStore((s) => s.gradeSrs);
   const addXp = useStore((s) => s.addXp);
@@ -1034,9 +1027,11 @@ export function RevisaoPage() {
   const completedLessons = useStore((s) => s.completedLessons);
   const recordActivityError = useStore((s) => s.recordActivityError);
   const markActivityErrorCorrected = useStore((s) => s.markActivityErrorCorrected);
+  const recordActivityErrorReviewAttempt = useStore((s) => s.recordActivityErrorReviewAttempt);
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
   const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
   const requestedMode = reviewModeFromSearch(searchParams.get("modo"));
+  const wantsCorrectionSession = searchParams.get("sessao") === "corrigir";
   const moduleUnitId = searchParams.get("modulo") ?? undefined;
   const moduleUnit = moduleUnitId ? findUnitById(moduleUnitId) : undefined;
   const suggestedModuleId = useMemo(() => latestReviewableModuleId(completedLessons), [completedLessons]);
@@ -1070,6 +1065,9 @@ export function RevisaoPage() {
   // congelada — não reconstrói SRS nem duplica nada.
   const [mode, setMode] = useState<ReviewMode>(() =>
     detailedErrorsAllowed || !requestedDetailedErrors ? requestedMode : "all"
+  );
+  const [correctionDrill, setCorrectionDrill] = useState(
+    () => wantsCorrectionSession && detailedErrorsAllowed
   );
   const modeCounts = useMemo(() => countByMode(fullQueue), [fullQueue]);
   const modeQueue = useMemo(
@@ -1113,7 +1111,52 @@ export function RevisaoPage() {
     setProPaywallKind(kind);
     setProPaywallOpen(true);
   }, [contextualOffer]);
-  const handleCorrectWeakness = useCallback(() => setMode("mistakes"), []);
+
+  const startCorrectionDrill = useCallback(
+    (preferred: ReviewMode = "weak") => {
+      if (!detailedErrorsAllowed) {
+        openPaywall("errors");
+        return;
+      }
+      const nextMode =
+        preferred === "mistakes"
+          ? modeCounts.mistakes > 0
+            ? "mistakes"
+            : "weak"
+          : modeCounts.weak > 0
+            ? "weak"
+            : "mistakes";
+      if (filterQueueByMode(fullQueue, nextMode).length === 0) return;
+      setMode(nextMode);
+      setCorrectionDrill(true);
+      setPos(0);
+      setRetryQueue([]);
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set("modo", nextMode === "mistakes" ? "erros" : "fracos");
+          next.set("sessao", "corrigir");
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [detailedErrorsAllowed, fullQueue, modeCounts.mistakes, modeCounts.weak, openPaywall, setSearchParams]
+  );
+
+  const exitCorrectionDrill = useCallback(() => {
+    setCorrectionDrill(false);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("sessao");
+        return next;
+      },
+      { replace: true }
+    );
+  }, [setSearchParams]);
+
+  const handleCorrectWeakness = useCallback(() => startCorrectionDrill("weak"), [startCorrectionDrill]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>([]);
   const [pairMatches, setPairMatches] = useState<Record<string, string>>({});
@@ -1326,12 +1369,17 @@ export function RevisaoPage() {
           {reviewed > 0 ? (
             <>
               <div className="font-serif text-2xl font-semibold text-ink">
-                Sessão concluída
+                {correctionDrill ? "Rodadas concluídas" : "Sessão concluída"}
               </div>
               <p className="mt-1 text-ink-soft">
                 {reviewed} {reviewed === 1 ? "item revisado" : "itens revisados"}.
                 {sessionInsight.nextFocus ? ` Próximo foco: ${sessionInsight.nextFocus}.` : " Volte amanhã para os próximos."}
               </p>
+              {correctionDrill && returningItems.length > 0 && (
+                <p className="mt-3 rounded-xl border border-accent/25 bg-accent-soft/30 px-3 py-2 text-sm text-ink-soft">
+                  {returningItems.length} ponto(s) fraco(s) voltam para esta ala se você errar de novo na Jornada.
+                </p>
+              )}
               {(sessionInsight.strengths.length > 0 || sessionInsight.weaknesses.length > 0) && (
                 <div className="mt-5 grid gap-3 text-left sm:grid-cols-2">
                   <ReviewInsightGroup title="Pontos fortes" items={sessionInsight.strengths} tone="good" />
@@ -1363,6 +1411,11 @@ export function RevisaoPage() {
                   </div>
                 </div>
               )}
+              {correctionDrill && (
+                <Button className="mt-5" onClick={exitCorrectionDrill}>
+                  Voltar à revisão
+                </Button>
+              )}
               {!isPremium && fullQueue.length > queue.length && (
                 <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-sm text-ink-soft">
                   Ainda há {fullQueue.length - queue.length} prioridades de revisão. {FREE_TIER_REVIEW_HINT}
@@ -1381,8 +1434,14 @@ export function RevisaoPage() {
                 Aprenda caracteres no Hànzì ou chunks na Fala para alimentar a fila.
               </p>
               <div className="mt-4 flex justify-center gap-3">
-                <ButtonLink to="/hanzi" variant="outline">Ir para Hànzì</ButtonLink>
-                <ButtonLink to="/fala">Ir para Fala</ButtonLink>
+                {correctionDrill ? (
+                  <Button onClick={exitCorrectionDrill}>Voltar à revisão</Button>
+                ) : (
+                  <>
+                    <ButtonLink to="/hanzi" variant="outline">Ir para Hànzì</ButtonLink>
+                    <ButtonLink to="/fala">Ir para Fala</ButtonLink>
+                  </>
+                )}
               </div>
             </>
           )}
@@ -1461,6 +1520,7 @@ export function RevisaoPage() {
     gradeSrs(item.type, item.itemId, effectiveGrade, item.track, item.reviewDomain);
     if (effectiveGrade === "again" && activeExercise.canAutoCheck) {
       if (sourceError) {
+        recordActivityErrorReviewAttempt(sourceError.id);
         recordActivityError({
           ...sourceError,
           selectedAnswer: (selectedOption ?? selectedPieceIds.join("")) || "Erro na revisão",
@@ -1512,15 +1572,56 @@ export function RevisaoPage() {
   continueReviewRef.current = () =>
     grade(exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : suggestedGrade ?? "good");
 
+  const totalRounds = Math.max(1, Math.ceil(queue.length / WEAK_ROUND_SIZE));
+  const currentRound = Math.min(totalRounds, Math.floor(pos / WEAK_ROUND_SIZE) + 1);
+  const taskInRound = (pos % WEAK_ROUND_SIZE) + 1;
+  const roundProgress = ((pos % WEAK_ROUND_SIZE) / WEAK_ROUND_SIZE) * 100;
+
   return (
     <HubPage>
-      <HubHeader
-        eyebrow="Revisão"
-        title={detailedErrorsAllowed ? "Sessão ativa" : "Revisão básica"}
-        desc={detailedErrorsAllowed ? domainMeta.weaknessLabel : "Responda e revele a resposta."}
-      />
+      {correctionDrill ? (
+        <div className="mb-4 flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={exitCorrectionDrill}
+            className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-xl px-1 text-sm font-semibold text-ink-soft transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          >
+            <IconChevron width={16} height={16} className="rotate-180" aria-hidden="true" />
+            Voltar à revisão
+          </button>
+          <div className="rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] p-4 shadow-card sm:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+                  Rodada {currentRound} de {totalRounds}
+                </div>
+                <h1 className="mt-1 font-serif text-2xl font-semibold text-ink">Corrigir pontos fracos</h1>
+                <p className="mt-1 text-sm text-ink-soft">
+                  Tarefas variadas sobre o que você errou. Se falhar de novo, o item volta nesta fila.
+                </p>
+              </div>
+              <Pill tone="accent">
+                {taskInRound}/{Math.min(WEAK_ROUND_SIZE, queue.length - (currentRound - 1) * WEAK_ROUND_SIZE)} nesta rodada
+              </Pill>
+            </div>
+            <ProgressBar value={roundProgress} max={100} className="mt-4 h-2" />
+            <div className="mt-2 flex items-center justify-between text-xs text-ink-faint">
+              <span>
+                Sessão {pos + 1}/{queue.length}
+              </span>
+              <span>{reviewed} resolvido(s)</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <HubHeader
+          eyebrow="Revisão"
+          title={detailedErrorsAllowed ? "Sessão ativa" : "Revisão básica"}
+          desc={detailedErrorsAllowed ? domainMeta.weaknessLabel : "Responda e revele a resposta."}
+        />
+      )}
 
-      {detailedErrorsAllowed && (
+      {detailedErrorsAllowed && !correctionDrill && (
         <DetailedErrorsPanel
           errors={recentActivityErrors}
           activeErrors={activeActivityErrors}
@@ -1528,6 +1629,7 @@ export function RevisaoPage() {
         />
       )}
 
+      {!correctionDrill && (
       <section className={detailedErrorsAllowed ? "grid gap-3 sm:grid-cols-2 lg:grid-cols-4" : "grid gap-3 sm:grid-cols-2"}>
         <ReviewSummaryTile
           label="Revisão de hoje"
@@ -1554,16 +1656,16 @@ export function RevisaoPage() {
           </div>
           <p className="mt-2 text-sm leading-5 text-ink-soft">
             {activeActivityErrors.length > 0
-              ? "A fila começa pelos erros reais recentes."
+              ? "Abre rodadas curtas só com pontos fracos."
               : "Sem erro pendente no momento."}
           </p>
           <Button
             size="sm"
             className="mt-3 w-full"
-            disabled={modeCounts.mistakes === 0}
-            onClick={() => setMode("mistakes")}
+            disabled={modeCounts.mistakes === 0 && modeCounts.weak === 0}
+            onClick={() => startCorrectionDrill("mistakes")}
           >
-            {modeCounts.mistakes > 0 ? "Corrigir agora" : "Tudo certo"}
+            {modeCounts.mistakes > 0 || modeCounts.weak > 0 ? "Corrigir agora" : "Tudo certo"}
           </Button>
         </Card>
           </>
@@ -1582,14 +1684,16 @@ export function RevisaoPage() {
           </Card>
         )}
       </section>
+      )}
 
-      {detailedErrorsAllowed && (
+      {detailedErrorsAllowed && !correctionDrill && (
         <>
           <ReviewModeTabs mode={mode} counts={modeCounts} onSelect={setMode} />
           <p className="-mt-2 text-xs text-ink-faint">{REVIEW_MODES.find((option) => option.id === mode)?.hint}</p>
         </>
       )}
 
+      {!correctionDrill && (
       <Card className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -1617,8 +1721,10 @@ export function RevisaoPage() {
           </div>
         </div>
       </Card>
+      )}
 
       <div className="mx-auto max-w-xl">
+        {!correctionDrill && (
         <Card className="mb-4 p-4">
           <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {detailedErrorsAllowed ? "Fila inteligente" : "Fila básica"}
@@ -1646,30 +1752,38 @@ export function RevisaoPage() {
               : "Erros detalhados fazem parte do Longyu Pro."}
           </p>
         </Card>
+        )}
 
         <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-faint">
           <div className="flex flex-wrap items-center gap-2">
-            <Pill tone="accent">{detailedErrorsAllowed ? domainMeta.label : "Revisão"}</Pill>
+            <Pill tone="accent">{correctionDrill ? "Pontos fracos" : detailedErrorsAllowed ? domainMeta.label : "Revisão"}</Pill>
             {detailedErrorsAllowed && sourceError && <Pill tone="accent">Erro real</Pill>}
             <Pill>{itemLabel(item)}</Pill>
-            {detailedErrorsAllowed && <Pill tone="muted">{domainMeta.cardLabel}</Pill>}
+            {detailedErrorsAllowed && !correctionDrill && <Pill tone="muted">{domainMeta.cardLabel}</Pill>}
             {detailedErrorsAllowed && (
               <Pill tone={item.lapses > 0 && item.reps === 0 ? "accent" : "muted"}>
                 {reviewStateLabel(item)}
               </Pill>
             )}
           </div>
-          <span className="tabular-nums">
-            {pos + 1} / {queue.length}
-          </span>
+          {!correctionDrill && (
+            <span className="tabular-nums">
+              {pos + 1} / {queue.length}
+            </span>
+          )}
         </div>
 
         <Card className="p-6 sm:p-8">
           <div className="mb-3 text-center text-sm font-medium text-ink-soft">
-            {detailedErrorsAllowed ? domainMeta.helper : "Responda, confira e siga para o proximo item."}
+            {correctionDrill
+              ? "Responda com atenção — formatos variam para fixar o ponto fraco."
+              : detailedErrorsAllowed
+                ? domainMeta.helper
+                : "Responda, confira e siga para o proximo item."}
           </div>
           <div className="mb-4 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint">
-            Revisar: {describeNextDue(item)} · {activeExercise.fallback ? "fallback flashcard" : "tarefa ativa"}
+            {correctionDrill ? `Tarefa · ${domainMeta.shortLabel}` : `Revisar: ${describeNextDue(item)}`} ·{" "}
+            {activeExercise.fallback ? "fallback flashcard" : "tarefa ativa"}
           </div>
           {/* Revisão de forma via carta de montagem (HanziBuilderExercise). */}
           {reviewBuilder ? (
