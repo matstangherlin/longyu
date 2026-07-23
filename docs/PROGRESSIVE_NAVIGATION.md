@@ -47,6 +47,12 @@ fixo que envelhece (`l1-rev`, `l5-rev`, `l13`).
 | 2–4 | Jornada · Praticar · Revisão · Perfil · Mais |
 | 5 | Jornada · Praticar · Missões · Perfil · Mais |
 
+Toque (estilo Duolingo mobile) abre **sheet** inferior:
+
+- **Praticar** → Hànzì, Pinyin Lab, Fala, Leitura, Biblioteca, Imersão (+ Revisão se não estiver na barra) + Abrir Praticar
+- **Perfil** → Amigos, Conta, Plano Pro + Abrir Perfil
+- **Mais** → Loja, Ligas, Conquistas, Dados, Ajustes, Ajuda, Sobre + Ver menu completo
+
 ### Sidebar (desktop) — compacta, com flyouts
 
 Poucas abas de alta frequência. Subáreas abrem no **hover**:
@@ -135,11 +141,11 @@ Novos:
 Alterados:
 
 - `src/components/layout/nav.tsx` — catálogo único `NAV`, `mobileNavForStage`,
-  `desktopNavForStage` (teto 7), `moreFlyoutGroups` (popover), `MORE_CATALOG`
-  (página `/mais`: Aprender/Motivação/Conta).
-- `src/components/layout/TabBar.tsx` — barra inferior adaptativa; badge de SRS
-  movido para Revisão.
-- `src/components/layout/Sidebar.tsx` — sidebar adaptativa por estágio.
+  `desktopNavForStage` (teto 7), `moreFlyoutGroups` / `moreMobileSheetGroups`,
+  `MORE_CATALOG` (página `/mais`: Aprender/Motivação/Conta).
+- `src/components/layout/TabBar.tsx` — barra inferior adaptativa + sheets no
+  toque (Praticar/Perfil/Mais); badge de SRS em Revisão.
+- `src/components/layout/Sidebar.tsx` — sidebar adaptativa por estágio + flyouts.
 - `src/features/more/MorePage.tsx` — grupos por objetivo + estados derivados.
 - `src/features/journey/JourneyPage.tsx` — insere o card de descoberta abaixo do
   CTA principal (hierarquia: ação principal → descoberta → resto).

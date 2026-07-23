@@ -15,6 +15,8 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - **Perfil** fica no rodapé da rail, imediatamente acima de **Mais**.
 - Mais permanece curto (sistema) + “Ver menu completo”.
 - Mobile estágio 5: Jornada · Praticar · Missões · Perfil · Mais.
+- Mobile: toque em **Praticar / Perfil / Mais** abre sheet inferior com os mesmos
+  atalhos (sem hover), para o aluno acessar Hànzì, Loja, Amigos etc.
 
 ### Reformulação da Jornada (2026-07-23)
 

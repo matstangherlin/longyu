@@ -84,9 +84,9 @@ test.describe("consistência visual e responsiva", () => {
     await seedOnboardedSession(page);
     await page.goto("/jornada");
 
-    const sizes = await page.locator("nav").last().getByRole("link").evaluateAll((links) =>
-      links.map((link) => {
-        const rect = link.getBoundingClientRect();
+    const sizes = await page.locator("nav").last().locator("a, button").evaluateAll((els) =>
+      els.map((el) => {
+        const rect = el.getBoundingClientRect();
         return { width: rect.width, height: rect.height };
       })
     );

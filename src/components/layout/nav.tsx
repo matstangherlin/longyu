@@ -119,6 +119,16 @@ export function practiceFlyoutItems(): NavItem[] {
   return [NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao];
 }
 
+/**
+ * Sheet mobile de Praticar: mesmos hubs do desktop + Revisão quando ela
+ * não está na barra inferior (estágio recorrente).
+ */
+export function practiceMobileSheetItems(primaryNav: NavItem[]): NavItem[] {
+  const onBar = new Set(primaryNav.map((item) => item.to));
+  const items = practiceFlyoutItems();
+  return onBar.has("/revisao") ? items : [NAV.revisao, ...items];
+}
+
 /** Hover de Perfil: social e conta. */
 export function profileFlyoutItems(): NavItem[] {
   return [NAV.amigos, NAV.conta, NAV.plano];
@@ -148,6 +158,24 @@ export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
 
   const account = [NAV.conquistas, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
   return account.length ? [{ title: "Mais", items: account }] : [];
+}
+
+/**
+ * Sheet mobile de Mais: atalhos que não cabem na barra (Loja, Ligas, …)
+ * + sistema. O catálogo completo continua em `/mais`.
+ */
+export function moreMobileSheetGroups(primaryNav: NavItem[]): NavGroup[] {
+  const primaryTos = new Set(
+    primaryNav.filter((item) => item.to !== "/mais").map((item) => item.to)
+  );
+  const keep = (item: NavItem) => !primaryTos.has(item.to);
+
+  const explore = [NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
+  const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
+  const groups: NavGroup[] = [];
+  if (explore.length) groups.push({ title: "Explorar", items: explore });
+  if (system.length) groups.push({ title: "Sistema", items: system });
+  return groups;
 }
 
 export const DESKTOP_NAV: NavItem[] = [

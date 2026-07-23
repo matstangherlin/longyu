@@ -49,7 +49,7 @@ async function setStore(page: Page, state: SeedState) {
 async function bottomTabLabels(page: Page): Promise<string[]> {
   const nav = page.locator("nav.fixed").first();
   await expect(nav).toBeVisible();
-  return nav.locator("a").allInnerTexts();
+  return nav.locator("a, button").allInnerTexts();
 }
 
 test.describe("navegação progressiva — mobile", () => {
@@ -94,6 +94,46 @@ test.describe("navegação progressiva — mobile", () => {
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
     expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
+  });
+
+  test("toque em Praticar/Perfil/Mais abre sheet com atalhos (estilo Duolingo)", async ({ page }) => {
+    await seedStage(page, {
+      completedLessons: ["l1", "l2", "l1-rev"],
+      streak: 5,
+      medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
+    });
+    await page.goto("/jornada");
+    await dismissBlockingOverlays(page);
+
+    const tabBar = page.locator("nav.fixed").first();
+
+    await tabBar.getByRole("button", { name: /^Praticar$/i }).click();
+    const practiceSheet = page.getByRole("dialog", { name: "Praticar" });
+    await expect(practiceSheet).toBeVisible();
+    await expect(practiceSheet.getByRole("link", { name: "Hànzì" })).toBeVisible();
+    await expect(practiceSheet.getByRole("link", { name: "Pinyin Lab" })).toBeVisible();
+    await expect(practiceSheet.getByRole("link", { name: "Revisão" })).toBeVisible();
+    await expect(practiceSheet.getByRole("link", { name: "Abrir Praticar" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(practiceSheet).toHaveCount(0);
+
+    await tabBar.getByRole("button", { name: /^Perfil$/i }).click();
+    const profileSheet = page.getByRole("dialog", { name: "Perfil" });
+    await expect(profileSheet).toBeVisible();
+    await expect(profileSheet.getByRole("link", { name: "Amigos" })).toBeVisible();
+    await expect(profileSheet.getByRole("link", { name: "Conta" })).toBeVisible();
+    await expect(profileSheet.getByRole("link", { name: "Abrir Perfil" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(profileSheet).toHaveCount(0);
+
+    await tabBar.getByRole("button", { name: /^Mais$/i }).click();
+    const moreSheet = page.getByRole("dialog", { name: "Mais opções" });
+    await expect(moreSheet).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Loja" })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Ajustes" })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Ver menu completo" })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Hànzì" })).toHaveCount(0);
+    await expect(moreSheet.getByRole("link", { name: "Amigos" })).toHaveCount(0);
   });
 
   test("rota direta funciona mesmo quando não está na barra do estágio", async ({ page }) => {
