@@ -269,7 +269,12 @@ export function LessonDetailPage() {
           </div>
         )}
 
-        <ActionButton onClick={startLesson} size="lg" block trailingChevron className="mt-4">
+        <ActionButton
+          onClick={startLesson}
+          size="lg"
+          trailingChevron
+          className="mt-4 w-full border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:px-6"
+        >
           {primaryLabel}
         </ActionButton>
       </Card>

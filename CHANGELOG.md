@@ -12,6 +12,8 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Corrige o chevron empilhado sob o rótulo em botões (`Continuar`, `Rever lição`,
   `Entendi`): o Preflight do Tailwind marca `svg` como `block`, e o `Button`
   agora mantém rótulo+ícone em linha.
+- No desktop, `Continuar` / `Rever lição` / `Revisar N itens` ficam **compactos**
+  (não esticam em faixa vermelha vazia); no mobile permanecem full-width.
 
 ### Sidebar compacta estilo Duolingo
 

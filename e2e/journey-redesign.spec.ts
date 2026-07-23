@@ -71,6 +71,8 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     const box = await continueBtn.boundingBox();
     expect(box).toBeTruthy();
     expect(box!.height).toBeLessThan(64);
+    // No mobile o CTA continua full-width (área de toque ampla).
+    expect(box!.width).toBeGreaterThan(280);
     await noOverflow(page);
   });
 
@@ -85,6 +87,7 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     const box = await reviewBtn.boundingBox();
     expect(box).toBeTruthy();
     expect(box!.height).toBeLessThan(64);
+    expect(box!.width).toBeGreaterThan(280);
   });
 
   test("revisão pendente aparece como ação recomendada secundária", async ({ page }) => {
@@ -111,6 +114,33 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await expect(page.getByText(/Você concluiu a Jornada disponível/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /Continuar|Começar/i })).toHaveCount(0);
     await noOverflow(page);
+  });
+});
+
+test.describe("Jornada — CTAs compactos no desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+
+  test("Continuar e Rever lição não esticam em faixa vazia", async ({ page }) => {
+    await seed(page, firstLessons(3));
+    await page.goto("/jornada");
+    await dismissBlockingOverlays(page);
+
+    const continueBtn = page.getByRole("button", { name: /^Continuar$/ });
+    await expect(continueBtn).toBeVisible();
+    const continueBox = await continueBtn.boundingBox();
+    expect(continueBox).toBeTruthy();
+    expect(continueBox!.height).toBeLessThan(64);
+    expect(continueBox!.width).toBeLessThan(280);
+
+    const lessonId = ALL_LESSONS[0]?.id;
+    await page.goto(`/licao/${lessonId}`);
+    await dismissBlockingOverlays(page);
+    const reviewBtn = page.getByRole("button", { name: /^Rever lição$/ });
+    await expect(reviewBtn).toBeVisible();
+    const reviewBox = await reviewBtn.boundingBox();
+    expect(reviewBox).toBeTruthy();
+    expect(reviewBox!.height).toBeLessThan(64);
+    expect(reviewBox!.width).toBeLessThan(280);
   });
 });
 

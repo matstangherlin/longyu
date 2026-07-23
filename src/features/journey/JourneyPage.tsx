@@ -508,30 +508,56 @@ function JourneyHeader({
         )}
       </div>
 
-      {/* Ação principal — prioridade máxima */}
+      {/* Ação principal — full-width no mobile; compacta no desktop (evita faixa vermelha vazia). */}
       {onContinue && (
-        <Button className="relative mt-3.5 w-full shadow-lift" size="lg" onClick={onContinue}>
-          {done === 0 ? "Começar primeira lição" : "Continuar"}
-          <IconChevron width={18} height={18} aria-hidden="true" />
-        </Button>
+        <div className="relative mt-3.5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <Button
+            className="w-full border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:px-6"
+            size="lg"
+            onClick={onContinue}
+          >
+            <span className="leading-none">{done === 0 ? "Começar primeira lição" : "Continuar"}</span>
+            <IconChevron width={18} height={18} aria-hidden="true" />
+          </Button>
+          {reviewCount > 0 && (
+            <ButtonLink
+              to="/revisao"
+              variant="soft"
+              size="lg"
+              className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
+            >
+              <IconRefresh width={16} height={16} aria-hidden="true" />
+              <span className="leading-none">
+                Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
+              </span>
+            </ButtonLink>
+          )}
+        </div>
+      )}
+      {!onContinue && reviewCount > 0 && (
+        <div className="relative mt-3.5">
+          <ButtonLink
+            to="/revisao"
+            variant="soft"
+            size="lg"
+            className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
+          >
+            <IconRefresh width={16} height={16} aria-hidden="true" />
+            <span className="leading-none">
+              Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
+            </span>
+          </ButtonLink>
+        </div>
       )}
       {journeyComplete && (
         <p className="relative mt-3 rounded-xl bg-surface/70 px-3 py-2 text-xs leading-5 text-ink-soft">
           Você concluiu a Jornada disponível. Continue revisando para fixar o que aprendeu.
         </p>
       )}
-
-      {/* Ação recomendada secundária — revisão pendente, sem competir com Continuar */}
       {reviewCount > 0 && (
-        <div className="relative mt-2">
-          <ButtonLink to="/revisao" variant="soft" size="md" className="w-full justify-center">
-            <IconRefresh width={16} height={16} aria-hidden="true" />
-            Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
-          </ButtonLink>
-          <p className="mt-1 px-1 text-[11px] leading-4 text-ink-faint">
-            Reforça o que você já aprendeu — leva poucos minutos.
-          </p>
-        </div>
+        <p className="relative mt-1.5 text-[11px] leading-4 text-ink-faint">
+          Reforça o que você já aprendeu — leva poucos minutos.
+        </p>
       )}
     </Card>
   );
