@@ -45,6 +45,7 @@ create index if not exists economy_ledger_operation_day_idx
 
 alter table public.economy_ledger enable row level security;
 
+drop policy if exists "economy_ledger_select_own" on public.economy_ledger;
 create policy "economy_ledger_select_own"
   on public.economy_ledger
   for select

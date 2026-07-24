@@ -14,6 +14,7 @@ create table if not exists public.beta_admins (
 
 alter table public.beta_admins enable row level security;
 
+drop policy if exists "beta_admins_select_self" on public.beta_admins;
 create policy "beta_admins_select_self"
   on public.beta_admins
   for select
@@ -124,6 +125,7 @@ create index if not exists beta_feedback_user_idx
 
 alter table public.beta_feedback enable row level security;
 
+drop policy if exists "beta_feedback_select_own" on public.beta_feedback;
 create policy "beta_feedback_select_own"
   on public.beta_feedback
   for select
@@ -175,6 +177,7 @@ create index if not exists beta_pedagogy_events_lesson_idx
 
 alter table public.beta_pedagogy_events enable row level security;
 
+drop policy if exists "beta_pedagogy_events_select_admin" on public.beta_pedagogy_events;
 create policy "beta_pedagogy_events_select_admin"
   on public.beta_pedagogy_events
   for select
