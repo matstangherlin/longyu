@@ -71,8 +71,8 @@ export const CATEGORY_ORDER: ShopCategory[] = ["uteis", "baus", "sequencia", "co
 export const SHOP_ITEMS: ShopItem[] = [
   {
     id: "shop-breath",
-    name: "Recuperar Fôlego",
-    desc: "Repõe o Fôlego do Dragão na lição atual ou na próxima.",
+    name: "Recuperar Vidas",
+    desc: "Repõe as Vidas do Dragão na lição atual ou na próxima.",
     category: "uteis",
     currency: "qi",
     cost: SHOP_PRICES.breath,

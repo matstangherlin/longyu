@@ -3,6 +3,27 @@ import type { LessonStar } from "./store";
 import type { SRSItem } from "./srs";
 import { getProgressScore } from "./progressSnapshot";
 import { isDevPreviewAllowed } from "./entitlements";
+import { FOLEGO_START, FOLEGO_MAX_FREE } from "../data/economy";
+
+/**
+ * Une as estrelas pendentes de dois dispositivos. Lições já dominadas (3★ no
+ * merge de estrelas) saem da lista; para as demais, une os refs pendentes (o
+ * lado que ainda não dominou mantém a pendência).
+ */
+function mergeLessonPendingStars(
+  local: Record<string, string[]> | undefined,
+  remote: Record<string, string[]> | undefined,
+  mergedStars: Record<string, LessonStar>
+): Record<string, string[]> {
+  const merged: Record<string, string[]> = {};
+  const keys = new Set([...Object.keys(local ?? {}), ...Object.keys(remote ?? {})]);
+  for (const lessonId of keys) {
+    if ((mergedStars[lessonId] ?? 0) >= 3) continue;
+    const refs = [...new Set([...(local?.[lessonId] ?? []), ...(remote?.[lessonId] ?? [])])];
+    if (refs.length > 0) merged[lessonId] = refs;
+  }
+  return merged;
+}
 
 export type ProgressSlice = Omit<LearningAccount, "id" | "name" | "email" | "authMode" | "createdAt" | "updatedAt">;
 
@@ -99,6 +120,8 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
   const primary = getProgressScore(local) >= getProgressScore(remote) ? local : remote;
   const secondary = primary === local ? remote : local;
 
+  const lessonStarsById = maxLessonStars(local.lessonStarsById, remote.lessonStarsById);
+
   return {
     ...secondary,
     ...primary,
@@ -110,7 +133,9 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
     journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
     validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),
-    lessonStarsById: maxLessonStars(local.lessonStarsById, remote.lessonStarsById),
+    lessonStarsById,
+    lessonPendingStars: mergeLessonPendingStars(local.lessonPendingStars, remote.lessonPendingStars, lessonStarsById),
+    folego: Math.min(FOLEGO_MAX_FREE, Math.max(local.folego ?? FOLEGO_START, remote.folego ?? FOLEGO_START)),
     lessonTaskProgress: maxRecordValues(local.lessonTaskProgress, remote.lessonTaskProgress),
     correctedMistakes: maxRecordValues(local.correctedMistakes, remote.correctedMistakes),
     points: Math.max(local.points, remote.points),

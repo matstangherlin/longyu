@@ -33,6 +33,7 @@ import {
   BREATH_LIVES,
   BREATH_RECOVERY_QI,
   DAILY_GOAL_QI,
+  FOLEGO_PERFECT_ROUND_REWARD,
   LESSON_BASE_XP,
   LESSON_NO_SKIP_QI,
   LESSON_THREE_STAR_QI,
@@ -48,7 +49,7 @@ import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
-import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { StepRenderer, type PairMistakePayload } from "./steps";
@@ -818,6 +819,34 @@ function ImmediateErrorReviewSummary({
   );
 }
 
+// Fôlego esgotado ao tentar pular: convida ao Pro (skips ilimitados) e lembra
+// que dá para recarregar Fôlego fazendo rodadas perfeitas.
+function FolegoUpsellModal({ onClose, onSeePro }: { onClose: () => void; onSeePro: () => void }) {
+  return (
+    <ModalOverlay label="Fôlego esgotado" onBackdropClick={onClose}>
+      <div className="mx-auto w-full max-w-sm rounded-[26px] border border-line bg-surface p-6 text-center shadow-lift">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+          <IconLock width={26} height={26} />
+        </div>
+        <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">Seu Fôlego acabou</h2>
+        <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">
+          O Fôlego deixa você pular uma tarefa difícil e resolvê-la depois na revisão. Você recarrega
+          Fôlego fazendo <span className="font-semibold text-ink">rodadas perfeitas</span> — ou libera
+          skips ilimitados com o Longyu Pro.
+        </p>
+        <div className="mt-6 grid gap-2">
+          <Button size="lg" className="w-full shadow-lift" onClick={onSeePro}>
+            Ver Longyu Pro <IconChevron width={18} height={18} />
+          </Button>
+          <Button variant="outline" className="w-full" onClick={onClose}>
+            Voltar e tentar acertar
+          </Button>
+        </div>
+      </div>
+    </ModalOverlay>
+  );
+}
+
 function ErrorReviewQuestion({
   error,
   index,
@@ -1188,6 +1217,12 @@ export function LessonPlayer() {
   const rewardHistory = useStore((s) => s.rewardHistory);
   const claimReward = useStore((s) => s.claimReward);
   const grantLessonReward = useStore((s) => s.grantLessonReward);
+  const folego = useStore((s) => s.folego);
+  const spendFolego = useStore((s) => s.spendFolego);
+  const earnFolego = useStore((s) => s.earnFolego);
+  const setLessonStars = useStore((s) => s.setLessonStars);
+  const setLessonPendingStars = useStore((s) => s.setLessonPendingStars);
+  const lessonPendingStars = useStore((s) => s.lessonPendingStars);
   const points = useStore((s) => s.points);
   const spendQi = useStore((s) => s.spendQi);
   const soundEffects = useStore((s) => s.soundEffects);
@@ -1233,6 +1268,8 @@ export function LessonPlayer() {
   // Estrela recuperada: o aluno corrigiu TODOS os erros da tentativa atual.
   const [recovered, setRecovered] = useState(false);
   const [reviewItemsAdded, setReviewItemsAdded] = useState(0);
+  // Fôlego esgotado ao tentar pular: abre o convite ao Pro (skips ilimitados).
+  const [showFolegoUpsell, setShowFolegoUpsell] = useState(false);
   const [lessonReward, setLessonReward] = useState(0);
   const [lessonXp, setLessonXp] = useState(0);
   const [postLessonXpTotal, setPostLessonXpTotal] = useState(0);
@@ -1262,6 +1299,10 @@ export function LessonPlayer() {
   const [stepAttempt, setStepAttempt] = useState(0);
   const currentStepHadMistakeRef = useRef(false);
   const skippedStepsRef = useRef(0);
+  // Skips pagos com Fôlego nesta tentativa: contagem + refs (type:itemId) que
+  // ficam com a 3ª estrela pendente até serem dominados na revisão.
+  const folegoSkipCountRef = useRef(0);
+  const folegoSkipRefsRef = useRef<Set<string>>(new Set());
   const retryUsesRef = useRef(0);
   const recoveryUsesRef = useRef(0);
   // Tons acertados nesta tentativa (contados no acerto real, não inferidos):
@@ -2175,16 +2216,41 @@ export function LessonPlayer() {
     else setIdx(idx + 1);
   }
 
+  // Pular com Fôlego: gasta 1 Fôlego (Pro pula sem gastar), sem contar como erro
+  // nem tirar Vida. A tarefa vai para a revisão adaptativa (reset para exigir
+  // domínio real depois) e a lição fica com a 3ª estrela pendente — a lição
+  // conclui e destrava a próxima na hora; a estrela volta ao dominar na revisão.
   function skipCurrentStep() {
-    skippedStepsRef.current += 1;
     const currentStep = lesson.steps[idx];
+    if (!currentStep) return;
+    if (!isPremium && !spendFolego()) {
+      setShowFolegoUpsell(true);
+      return;
+    }
+    const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill]);
+    for (const target of targets) {
+      gradeReviewDomain({
+        ensureSrs,
+        gradeSrs,
+        type: target.type,
+        itemId: target.itemId,
+        track: target.track,
+        domain: target.domain,
+        grade: "again",
+      });
+      folegoSkipRefsRef.current.add(`${target.type}:${target.itemId}`);
+    }
+    folegoSkipCountRef.current += 1;
+    skippedStepsRef.current += 1;
     void trackPedagogyEvent({
       eventType: "exercise_skipped",
       lessonId: lesson.id,
-      exerciseKind: currentStep?.kind,
+      exerciseKind: currentStep.kind,
       exerciseIndex: idx,
+      metadata: { via: "folego" },
     });
-    handleDone(false);
+    // undefined = avança sem contar acerto/erro nem descontar Vida.
+    handleDone(undefined);
   }
 
   function exitLesson() {
@@ -2356,14 +2422,23 @@ export function LessonPlayer() {
     const goalMin = DAILY_GOAL_PER_TRACK * 4;
     const totalBefore = totalToday(today);
     addMinutes(track, minutesEarned);
+    const hadRealMistakes = activityErrorsRef.current.length > 0;
+    const folegoSkips = folegoSkipCountRef.current;
+    const folegoSkipRefs = [...folegoSkipRefsRef.current];
     const stars = lessonStars({
       correct: finalCorrect,
       graded,
-      hadMistakes: activityErrorsRef.current.length > 0,
+      hadMistakes: hadRealMistakes,
       outOfLives: reason === "out_of_lives",
       isReview: lesson.isReview,
     });
-    const passed = reason !== "out_of_lives" && canCompleteLesson(stars, graded, lesson.isReview, finalCorrect);
+    // Pular com Fôlego conclui a lição (e destrava a próxima) mesmo em 2★, desde
+    // que não tenha havido erro real — a 3ª estrela fica pendente até dominar o
+    // item pulado na revisão.
+    const folegoSkipPass =
+      reason !== "out_of_lives" && !lesson.isReview && folegoSkips > 0 && !hadRealMistakes;
+    const passed =
+      folegoSkipPass || (reason !== "out_of_lives" && canCompleteLesson(stars, graded, lesson.isReview, finalCorrect));
     const firstCompletion = !completedLessons.includes(lesson.id);
     const completionXp = passed && firstCompletion
       ? LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0)
@@ -2413,11 +2488,21 @@ export function LessonPlayer() {
     );
     playSoundFx(passed ? "lessonComplete" : "blocked", soundEffects);
     if (passed) {
+      // Conclusão por skip: fixa 2★ (senão completeLesson assumiria 3★) e marca
+      // a estrela pendente com os refs pulados, para a revisão recuperá-la.
+      if (folegoSkipPass && folegoSkipRefs.length > 0) {
+        setLessonStars(lesson.id, 2 as LessonStar);
+        setLessonPendingStars(lesson.id, folegoSkipRefs);
+      }
       completeLesson(lesson.id);
+      // Rodada perfeita (3★, sem erro e sem pular) recarrega Fôlego (teto grátis).
+      if (stars === 3 && folegoSkips === 0 && !hadRealMistakes) {
+        earnFolego(FOLEGO_PERFECT_ROUND_REWARD);
+      }
       void trackPedagogyEvent({
         eventType: "lesson_completed",
         lessonId: lesson.id,
-        metadata: { stars, reason },
+        metadata: { stars, reason, folegoSkips },
       });
     } else if (reason === "out_of_lives") {
       void trackPedagogyEvent({
@@ -2598,6 +2683,8 @@ export function LessonPlayer() {
       setPostLessonXpTotal(0);
       setSessionSummary(null);
       skippedStepsRef.current = 0;
+      folegoSkipCountRef.current = 0;
+      folegoSkipRefsRef.current = new Set();
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
@@ -2651,8 +2738,8 @@ export function LessonPlayer() {
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
-                ? `Seu Fôlego do Dragão chegou a zero. A revisão não foi concluída; revise os pontos fracos e tente chegar a ${passRequirementLabel}.`
-                : "Seu Fôlego do Dragão chegou a zero. A lição não foi concluída; revise os pontos fracos e tente uma rodada com 3 estrelas."}
+                ? `Suas Vidas do Dragão chegaram a zero. A revisão não foi concluída; revise os pontos fracos e tente chegar a ${passRequirementLabel}.`
+                : "Suas Vidas do Dragão chegaram a zero. A lição não foi concluída; revise os pontos fracos e tente uma rodada com 3 estrelas."}
             </p>
 
             <div className="mt-5 flex justify-center">
@@ -2662,7 +2749,7 @@ export function LessonPlayer() {
             <div className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
               <LessonSummaryStat label="Progresso" value={`${stars}/3 estrelas`} />
               <LessonSummaryStat label="Precisão" value={`${precision}%`} />
-              <LessonSummaryStat label="Fôlego" value="0/5" />
+              <LessonSummaryStat label="Vidas" value="0/5" />
             </div>
 
             <Card className="mt-6 p-4 text-left">
@@ -2704,11 +2791,11 @@ export function LessonPlayer() {
             {(inventory["shop-breath"] ?? 0) > 0 ? (
               <Button variant="primary" className="mt-2 w-full" onClick={recoverWithBreathItem}>
                 <IconFlame width={17} height={17} />
-                Usar Recuperar Fôlego ({inventory["shop-breath"]})
+                Usar Recuperar Vidas ({inventory["shop-breath"]})
               </Button>
             ) : (
               <ButtonLink to="/loja" variant="outline" className="mt-2 w-full">
-                Comprar Recuperar Fôlego na Loja
+                Comprar Recuperar Vidas na Loja
               </ButtonLink>
             )}
             {points < BREATH_RECOVERY_QI_COST && (
@@ -3013,6 +3100,13 @@ export function LessonPlayer() {
             </div>
           )}
 
+          {(lessonPendingStars[lesson.id]?.length ?? 0) > 0 && (
+            <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
+              Você pulou com Fôlego: a próxima lição já está liberada. A 3ª estrela fica{" "}
+              <span className="font-semibold">pendente</span> — domine o item na revisão e ela volta sozinha.
+            </div>
+          )}
+
           {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
             <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
@@ -3227,8 +3321,20 @@ export function LessonPlayer() {
         lives={lives}
         maxLives={DRAGON_BREATH_LIVES}
         unlimitedLives={hasUnlimitedLives}
+        folego={folego}
+        folegoUnlimited={isPremium}
         stageLabel={stageLabel}
       />
+
+      {showFolegoUpsell && (
+        <FolegoUpsellModal
+          onClose={() => setShowFolegoUpsell(false)}
+          onSeePro={() => {
+            setShowFolegoUpsell(false);
+            navigate("/pro");
+          }}
+        />
+      )}
 
       {recoveryDebugPanel}
 
@@ -3343,7 +3449,7 @@ export function LessonPlayer() {
               )}
             </div>
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Continuar sem refazer custa 1 Fôlego e avança sem manter perfeição.
+              Continuar sem refazer custa 1 Vida e avança sem manter perfeição.
             </p>
           </div>
         </ModalOverlay>

@@ -59,7 +59,7 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
     charge: "Bateria diária",
     shield: "Protege sua sequência",
     pearl: "Moeda rara de jade",
-    breath: "Recupera o Fôlego numa lição",
+    breath: "Recupera as Vidas numa lição",
     focus_pass: "Revisão profunda por 24h",
   };
   return captions[kind];

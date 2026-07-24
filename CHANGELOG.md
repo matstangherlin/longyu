@@ -7,6 +7,25 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Fôlego do Dragão — pular vira mecânica com sentido
+
+- **Fôlego** deixa de ser só as vidas da lição e vira uma **reserva persistente
+  da conta** (começa em 5, teto 5 no grátis; Pro = ilimitado). As vidas da lição
+  (gastas em erros) passam a se chamar **Vidas do Dragão** — recursos separados.
+- **Pular gasta 1 Fôlego** (não tira Vida nem conta como erro). A tarefa pulada
+  vai para a **revisão adaptativa** (reaparece em outros formatos até ser
+  dominada) e a lição **conclui na hora, destravando a próxima**, com a 3ª
+  estrela **pendente**.
+- **Estrela retroativa**: ao dominar o item pulado na revisão (2 acertos), a
+  lição sobe de 2★ para 3★ sozinha — "pegar as 3 estrelas sem revisar na aula
+  específica".
+- **Ganhar Fôlego**: concluir uma rodada perfeita (3★, sem erro e sem pular)
+  recarrega +1 Fôlego (até o teto).
+- **Fôlego esgotado** ao tentar pular abre um convite ao **Longyu Pro** (skips
+  ilimitados), lembrando que dá para recarregar jogando bem.
+- Medidor de Fôlego no cabeçalho da lição; estado persistido e mesclado entre
+  dispositivos (estrelas pendentes e Fôlego).
+
 ### Compatibilidade de áudio e ajustes pedagógicos
 
 - **Áudio repete em qualquer navegador**: o TTS não enfileira mais o `speak()`

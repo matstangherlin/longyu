@@ -56,6 +56,10 @@ import {
   PRO_MISSION_QI_MULTIPLIER,
   QI_PACK_AMOUNT,
   STORY_ENERGY_DAILY_CAP,
+  FOLEGO_START,
+  FOLEGO_MAX_FREE,
+  FOLEGO_SKIP_COST,
+  FOLEGO_PENDING_MASTERY_REPS,
 } from "../data/economy";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import type { ProgressSnapshotBody } from "./progressSnapshot";
@@ -452,7 +456,7 @@ export interface EconomySummary {
 function qiSpendName(source: string): string {
   if (source === "mistake_retry") return "Refazer sem perder perfeição";
   if (source === "challenge_retry") return "Refazer desafio";
-  if (source === "breath_recovery") return "Recuperar Fôlego";
+  if (source === "breath_recovery") return "Recuperar Vidas";
   return source.replaceAll("_", " ");
 }
 
@@ -505,14 +509,14 @@ function generateChestRewards(type: ChestType, pro = false): ChestRewardItem[] {
     if (pick < 0.8) return [{ kind: "xp", amount: randBetween(5, 15), label: "XP" }];
     if (pick < 0.92 + rareBonus) return [{ kind: "charge", amount: 1, label: "Carga do Dragão" }];
     if (pick < 0.97 + rareBonus * 0.5) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
-    return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
+    return [{ kind: "breath", amount: 1, label: "Recuperar Vidas" }];
   }
   if (type === "dragon") {
     if (pick < 0.35 + rareBonus * 0.2) return [{ kind: "qi", amount: boostQi(randBetween(80, 150)), label: "Qi" }];
     if (pick < 0.55) return [{ kind: "xp", amount: randBetween(25, 50), label: "XP" }];
     if (pick < 0.72 + rareBonus) return [{ kind: "shield", amount: 1, label: "Escudo de Sequência" }];
     if (pick < 0.86) return [{ kind: "charge", amount: pro ? 3 : 2, label: "Cargas do Dragão" }];
-    if (pick < 0.93) return [{ kind: "breath", amount: 1, label: "Tentativa extra (Fôlego)" }];
+    if (pick < 0.93) return [{ kind: "breath", amount: 1, label: "Recuperar Vidas" }];
     if (pro && Math.random() < PRO_CHEST_FOCUS_PASS_CHANCE) {
       return [{ kind: "focus_pass", amount: 1, label: "Pass de revisão profunda" }];
     }
@@ -857,9 +861,25 @@ function lessonCompletionRequiredStars(lessonId: string): LessonStar {
   return lesson?.isReview ? 2 : 3;
 }
 
+/** Limpa o mapa de estrelas pendentes: só lições com refs (`type:itemId`) reais. */
+function normalizeLessonPendingStars(
+  pending: Record<string, string[]> | undefined
+): Record<string, string[]> {
+  const normalized: Record<string, string[]> = {};
+  for (const [lessonId, refs] of Object.entries(pending ?? {})) {
+    if (!lessonId?.trim()) continue;
+    const clean = [
+      ...new Set((refs ?? []).map((ref) => ref?.trim()).filter((ref): ref is string => Boolean(ref))),
+    ];
+    if (clean.length > 0) normalized[lessonId.trim()] = clean;
+  }
+  return normalized;
+}
+
 function normalizeCompletedLessons(
   completedLessons: string[] | undefined,
-  stars: Record<string, LessonStar> | undefined
+  stars: Record<string, LessonStar> | undefined,
+  pendingLessonIds?: ReadonlySet<string>
 ): string[] {
   const seen = new Set<string>();
   const normalized: string[] = [];
@@ -867,6 +887,12 @@ function normalizeCompletedLessons(
     const lessonId = rawId.trim();
     if (!lessonId || seen.has(lessonId)) continue;
     seen.add(lessonId);
+    // Lição concluída com skip (estrela pendente) fica concluída mesmo em 2★ —
+    // ela destrava a próxima; a 3ª estrela vem depois, pela revisão.
+    if (pendingLessonIds?.has(lessonId)) {
+      normalized.push(lessonId);
+      continue;
+    }
     const currentStar = normalizeLessonStar(stars?.[lessonId]);
     const requiredStars = lessonCompletionRequiredStars(lessonId);
     if (currentStar > 0 && currentStar < requiredStars) continue;
@@ -877,7 +903,8 @@ function normalizeCompletedLessons(
 
 function normalizeLessonStars(
   stars: Record<string, LessonStar> | undefined,
-  completedLessons: string[] | undefined
+  completedLessons: string[] | undefined,
+  pendingLessonIds?: ReadonlySet<string>
 ): Record<string, LessonStar> {
   const normalized: Record<string, LessonStar> = {};
   Object.entries(stars ?? {}).forEach(([lessonId, value]) => {
@@ -885,8 +912,14 @@ function normalizeLessonStars(
     if (lessonId && star > 0) normalized[lessonId] = star;
   });
   for (const lessonId of completedLessons ?? []) {
+    if (!lessonId) continue;
+    // Estrela pendente: mantém em 2★ (não sobe para o requerido) até dominar na revisão.
+    if (pendingLessonIds?.has(lessonId)) {
+      if ((normalized[lessonId] ?? 0) < 2) normalized[lessonId] = 2 as LessonStar;
+      continue;
+    }
     const requiredStars = lessonCompletionRequiredStars(lessonId);
-    if (lessonId && (normalized[lessonId] ?? 0) < requiredStars) normalized[lessonId] = requiredStars;
+    if ((normalized[lessonId] ?? 0) < requiredStars) normalized[lessonId] = requiredStars;
   }
   return normalized;
 }
@@ -963,6 +996,14 @@ interface AccountSnapshot extends XpBuckets {
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
   currentLessonAttempt: LessonAttemptRecord | null;
+  /** Fôlego persistente da conta (reserva de skip). Grátis: limitado; Pro: ilimitado. */
+  folego: number;
+  /**
+   * Lições concluídas pulando uma tarefa com Fôlego: mapeia lessonId → refs
+   * (`type:itemId`) ainda não dominados. Enquanto houver refs, a lição fica em
+   * 2★ com "estrela pendente"; ao dominar todos na revisão, sobe para 3★.
+   */
+  lessonPendingStars: Record<string, string[]>;
   mistakeHistory: LessonMistakeRecord[];
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
@@ -1058,6 +1099,8 @@ function blankSnapshot(): AccountSnapshot {
     lessonStarsById: {},
     lessonAttemptsById: {},
     currentLessonAttempt: null,
+    folego: FOLEGO_START,
+    lessonPendingStars: {},
     mistakeHistory: [],
     correctedMistakes: {},
     recentErrors: [],
@@ -1160,6 +1203,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
     currentLessonAttempt: s.currentLessonAttempt,
+    folego: s.folego,
+    lessonPendingStars: s.lessonPendingStars,
     mistakeHistory: s.mistakeHistory,
     correctedMistakes: s.correctedMistakes,
     recentErrors: s.recentErrors,
@@ -1262,7 +1307,9 @@ function normalizeHanziBuilderProgress(
 
 function accountFields(account: LearningAccount): AccountSnapshot {
   const date = todayKey();
-  const completedLessons = normalizeCompletedLessons(account.completedLessons, account.lessonStarsById);
+  const lessonPendingStars = normalizeLessonPendingStars(account.lessonPendingStars);
+  const pendingLessonIds = new Set(Object.keys(lessonPendingStars));
+  const completedLessons = normalizeCompletedLessons(account.completedLessons, account.lessonStarsById, pendingLessonIds);
   return {
     ...activeXp(account),
     srs: account.srs,
@@ -1270,9 +1317,11 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     learnedChunks: account.learnedChunks,
     hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
     completedLessons,
-    lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons),
+    lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
     currentLessonAttempt: normalizeCurrentLessonAttempt(account.currentLessonAttempt),
+    folego: Math.min(FOLEGO_MAX_FREE, Math.max(0, Math.round(account.folego ?? FOLEGO_START))),
+    lessonPendingStars,
     mistakeHistory: normalizeLessonMistakes(account.mistakeHistory),
     correctedMistakes: normalizeCorrectedMistakes(account.correctedMistakes, account.mistakeHistory),
     recentErrors: normalizeLessonMistakes(account.recentErrors).filter((error) => !error.recoveredAt),
@@ -1531,6 +1580,10 @@ interface AppState {
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
   currentLessonAttempt: LessonAttemptRecord | null;
+  /** Fôlego persistente da conta (reserva de skip). Grátis: limitado; Pro: ilimitado. */
+  folego: number;
+  /** lessonId → refs (`type:itemId`) pulados com estrela pendente até dominar na revisão. */
+  lessonPendingStars: Record<string, string[]>;
   mistakeHistory: LessonMistakeRecord[];
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
@@ -1686,6 +1739,12 @@ interface AppState {
   setCurrentLessonAttempt: (attempt: LessonAttemptRecord | null) => void;
   finishLessonAttempt: (attempt: LessonAttemptRecord) => void;
   setLessonStars: (lessonId: string, stars: LessonStar) => void;
+  /** Fôlego: gasta o custo de pular. Retorna false quando não há Fôlego (grátis). */
+  spendFolego: () => boolean;
+  /** Fôlego: ganha (rodada perfeita), respeitando o teto do plano grátis. */
+  earnFolego: (amount?: number) => void;
+  /** Registra refs (`type:itemId`) com 3ª estrela pendente numa lição concluída por skip. */
+  setLessonPendingStars: (lessonId: string, refs: string[]) => void;
   recordLessonMistake: (mistake: LessonMistakeRecord) => void;
   markMistakeRecovered: (mistakeId: string) => void;
   recordToneTrainerAttempt: (attempt: ToneTrainerAttemptInput) => void;
@@ -1797,6 +1856,8 @@ export const useStore = create<AppState>()(
       lessonStarsById: {},
       lessonAttemptsById: {},
       currentLessonAttempt: null,
+      folego: FOLEGO_START,
+      lessonPendingStars: {},
       mistakeHistory: [],
       correctedMistakes: {},
       recentErrors: [],
@@ -2396,8 +2457,32 @@ export const useStore = create<AppState>()(
           reviewDomain: current.reviewDomain ?? reviewDomain,
         };
         set((s) => {
-          const next = { ...s, srs: { ...s.srs, [key]: review(item, grade) } };
-          return { srs: next.srs, accounts: saveCurrentAccount(next) };
+          const reviewed = review(item, grade);
+          const srs = { ...s.srs, [key]: reviewed };
+          // Estrela pendente: dominar um item pulado na revisão recupera a 3ª
+          // estrela da lição onde ele foi adiado.
+          let lessonPendingStars = s.lessonPendingStars;
+          let lessonStarsById = s.lessonStarsById;
+          const ref = `${type}:${itemId}`;
+          const mastered = grade !== "again" && reviewed.reps >= FOLEGO_PENDING_MASTERY_REPS;
+          const affected = mastered
+            ? Object.entries(s.lessonPendingStars).filter(([, refs]) => refs.includes(ref))
+            : [];
+          if (affected.length > 0) {
+            lessonPendingStars = { ...s.lessonPendingStars };
+            lessonStarsById = { ...s.lessonStarsById };
+            for (const [pendingLessonId, refs] of affected) {
+              const remaining = refs.filter((current) => current !== ref);
+              if (remaining.length === 0) {
+                delete lessonPendingStars[pendingLessonId];
+                lessonStarsById[pendingLessonId] = 3 as LessonStar;
+              } else {
+                lessonPendingStars[pendingLessonId] = remaining;
+              }
+            }
+          }
+          const next = { ...s, srs, lessonPendingStars, lessonStarsById };
+          return { srs, lessonPendingStars, lessonStarsById, accounts: saveCurrentAccount(next) };
         });
         get().markLearned(type, itemId);
       },
@@ -2557,6 +2642,43 @@ export const useStore = create<AppState>()(
           if (nextStar === 0) delete lessonStarsById[cleanId];
           const next = { ...s, lessonStarsById };
           return { lessonStarsById, accounts: saveCurrentAccount(next) };
+        }),
+
+      spendFolego: () => {
+        let spent = false;
+        set((s) => {
+          if (s.folego < FOLEGO_SKIP_COST) return {};
+          spent = true;
+          const folego = Math.max(0, s.folego - FOLEGO_SKIP_COST);
+          const next = { ...s, folego };
+          return { folego, accounts: saveCurrentAccount(next) };
+        });
+        return spent;
+      },
+
+      earnFolego: (amount = 1) => {
+        const inc = Math.max(0, Math.round(amount));
+        if (inc === 0) return;
+        set((s) => {
+          const folego = Math.min(FOLEGO_MAX_FREE, s.folego + inc);
+          if (folego === s.folego) return {};
+          const next = { ...s, folego };
+          return { folego, accounts: saveCurrentAccount(next) };
+        });
+      },
+
+      setLessonPendingStars: (lessonId, refs) =>
+        set((s) => {
+          const cleanId = lessonId.trim();
+          if (!cleanId) return {};
+          const cleanRefs = [
+            ...new Set((refs ?? []).map((ref) => ref?.trim()).filter((ref): ref is string => Boolean(ref))),
+          ];
+          const lessonPendingStars = { ...s.lessonPendingStars };
+          if (cleanRefs.length === 0) delete lessonPendingStars[cleanId];
+          else lessonPendingStars[cleanId] = cleanRefs;
+          const next = { ...s, lessonPendingStars };
+          return { lessonPendingStars, accounts: saveCurrentAccount(next) };
         }),
 
       recordLessonMistake: (mistake) =>
@@ -3131,7 +3253,7 @@ export const useStore = create<AppState>()(
           // breath / module_retry: consumidos no contexto certo (lição/teste).
           result = {
             itemId,
-            message: item.kind === "breath" ? "Fôlego recuperado" : "Tentativa liberada",
+            message: item.kind === "breath" ? "Vidas recuperadas" : "Tentativa liberada",
           };
           const next = { ...s, inventory };
           return { inventory, accounts: saveCurrentAccount(next) };

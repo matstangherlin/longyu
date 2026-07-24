@@ -12,6 +12,8 @@ export function LessonFocusHeader({
   lives,
   maxLives,
   unlimitedLives,
+  folego,
+  folegoUnlimited,
   stageLabel,
 }: {
   onExit: () => void;
@@ -22,6 +24,10 @@ export function LessonFocusHeader({
   lives: number;
   maxLives: number;
   unlimitedLives: boolean;
+  /** Fôlego persistente (reserva de skip) do aluno. */
+  folego: number;
+  /** Pro: Fôlego ilimitado. */
+  folegoUnlimited: boolean;
   stageLabel?: string;
 }) {
   return (
@@ -37,6 +43,7 @@ export function LessonFocusHeader({
         <div className="min-w-0 flex-1">
           <ProgressBar value={progressValue} max={progressMax} className="h-2.5 min-w-0 shadow-inner" />
         </div>
+        <FolegoMeter folego={folego} unlimited={folegoUnlimited} />
         <DragonBreathMeter lives={lives} maxLives={maxLives} unlimited={unlimitedLives} />
         <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-ink-faint">
           {progressValue}/{progressMax}
@@ -62,6 +69,31 @@ export function LessonFocusHeader({
   );
 }
 
+/** Ícone de sopro/fôlego (distinto das chamas das Vidas). */
+function IconBreath({ width = 13, height = 13 }: { width?: number; height?: number }) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+      <path d="M4 8h9a2.5 2.5 0 1 0-2.5-2.5" />
+      <path d="M3 12h13a3 3 0 1 1-3 3" />
+      <path d="M5 16h6a2 2 0 1 1-2 2" />
+    </svg>
+  );
+}
+
+/** Fôlego persistente (reserva de skip). Distinto das Vidas (chamas). */
+export function FolegoMeter({ folego, unlimited }: { folego: number; unlimited: boolean }) {
+  return (
+    <div
+      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line bg-surface/95 px-2 py-1 text-accent shadow-card"
+      aria-label={unlimited ? "Fôlego ilimitado" : `Fôlego: ${folego}`}
+      title="Fôlego: use para pular uma tarefa difícil (vai para a revisão). Ganhe recarga em rodadas perfeitas."
+    >
+      <IconBreath width={13} height={13} />
+      <span className="tabular-nums text-[11px] font-semibold text-ink-soft">{unlimited ? "∞" : folego}</span>
+    </div>
+  );
+}
+
 export function DragonBreathMeter({
   lives,
   maxLives,
@@ -75,7 +107,7 @@ export function DragonBreathMeter({
     return (
       <div
         className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/70 px-2.5 py-1 text-xs font-semibold text-accent shadow-card"
-        aria-label="Fôlego do Dragão ilimitado"
+        aria-label="Vidas do Dragão ilimitadas"
       >
         <IconFlame width={13} height={13} />
         <span>∞</span>
@@ -86,7 +118,7 @@ export function DragonBreathMeter({
   return (
     <div
       className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line bg-surface/95 px-2 py-1 shadow-card"
-      aria-label={`Fôlego do Dragão: ${lives} de ${maxLives}`}
+      aria-label={`Vidas do Dragão: ${lives} de ${maxLives}`}
     >
       <div className="flex items-center gap-0.5">
         {Array.from({ length: maxLives }, (_, index) => {

@@ -40,6 +40,8 @@ export interface ProAccessContext {
   isPremium?: boolean;
   completedLessons?: string[];
   lessonStarsById?: Record<string, number>;
+  /** Lições concluídas por skip com 3ª estrela pendente — destravam a próxima mesmo em 2★. */
+  lessonPendingStars?: Record<string, string[]>;
 }
 
 export interface AccessDecision {
@@ -79,6 +81,9 @@ function completedFrom(context?: ProAccessContext): string[] {
 
 function lessonStarsFrom(context?: ProAccessContext): Record<string, number> {
   return context?.lessonStarsById ?? useStore.getState().lessonStarsById;
+}
+function lessonPendingStarsFrom(context?: ProAccessContext): Record<string, string[]> {
+  return context?.lessonPendingStars ?? useStore.getState().lessonPendingStars;
 }
 
 export function isProUser(context?: ProAccessContext | boolean): boolean {
@@ -120,9 +125,13 @@ function requiredStarsForJourney(lesson: { isReview?: boolean }): number {
 function lessonMeetsJourneyRequirement(
   lesson: { id: string; isReview?: boolean },
   completed: string[],
-  lessonStarsById: Record<string, number>
+  lessonStarsById: Record<string, number>,
+  lessonPendingStars?: Record<string, string[]>
 ): boolean {
   if (!completed.includes(lesson.id)) return false;
+  // Concluída por skip (estrela pendente) destrava a próxima mesmo em 2★:
+  // a 3ª estrela vem depois, ao dominar o item na revisão.
+  if ((lessonPendingStars?.[lesson.id]?.length ?? 0) > 0) return true;
   const requiredStars = requiredStarsForJourney(lesson);
   const currentStars = lessonStarsById[lesson.id] ?? requiredStars;
   return currentStars >= requiredStars;
@@ -131,12 +140,13 @@ function lessonMeetsJourneyRequirement(
 function missingLessonBefore(
   lessonId: string,
   completed: string[],
-  lessonStarsById: Record<string, number>
+  lessonStarsById: Record<string, number>,
+  lessonPendingStars?: Record<string, string[]>
 ) {
   const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
   if (index < 0) return undefined;
   return ALL_LESSONS.slice(0, index).find(
-    (lesson) => !lessonMeetsJourneyRequirement(lesson, completed, lessonStarsById)
+    (lesson) => !lessonMeetsJourneyRequirement(lesson, completed, lessonStarsById, lessonPendingStars)
   );
 }
 
@@ -243,6 +253,7 @@ export function canUsePracticeTool(toolId: PracticeToolId, context?: ProAccessCo
 export function canStartLesson(lessonId: string, context?: ProAccessContext): AccessDecision {
   const completed = completedFrom(context);
   const lessonStarsById = lessonStarsFrom(context);
+  const lessonPendingStars = lessonPendingStarsFrom(context);
   const pro = isProUser(context);
   const lesson = getLesson(lessonId);
 
@@ -274,7 +285,7 @@ export function canStartLesson(lessonId: string, context?: ProAccessContext): Ac
     };
   }
 
-  const missing = missingLessonBefore(lessonId, completed, lessonStarsById);
+  const missing = missingLessonBefore(lessonId, completed, lessonStarsById, lessonPendingStars);
   if (!missing) {
     return {
       allowed: true,

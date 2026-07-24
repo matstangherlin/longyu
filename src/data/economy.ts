@@ -39,11 +39,27 @@ export const STORY_ENERGY_DAILY_CAP = 2;
 /** Revisão básica do grátis: itens por sessão. Pro revisa a fila inteira. */
 export const FREE_REVIEW_SESSION_LIMIT = 20;
 
-// ——— Fôlego (vidas dentro da lição) ———
-/** Fôlego inicial por lição. Cada erro confirmado consome 1. */
+// ——— Vidas do Dragão (dentro da lição) ———
+/** Vidas iniciais por lição. Cada erro confirmado consome 1. */
 export const BREATH_LIVES = 5;
-/** Recuperar o Fôlego no meio da tentativa (escolha do aluno). */
+/** Recuperar as vidas no meio da tentativa (escolha do aluno). */
 export const BREATH_RECOVERY_QI = 50;
+
+// ——— Fôlego do Dragão (reserva PERSISTENTE de skip, da conta) ———
+// O Fôlego é gasto para PULAR uma tarefa difícil: a tarefa é concluída na hora
+// (a lição destrava a próxima) e mandada para a revisão adaptativa, com a 3ª
+// estrela "pendente" até o item ser dominado. É recarregado jogando bem e, no
+// grátis, é limitado — quando zera, o Pro entra como skips ilimitados.
+/** Fôlego inicial da conta (grátis). */
+export const FOLEGO_START = 5;
+/** Teto de Fôlego acumulável no plano grátis. */
+export const FOLEGO_MAX_FREE = 5;
+/** Custo em Fôlego para pular uma tarefa. */
+export const FOLEGO_SKIP_COST = 1;
+/** Fôlego ganho ao concluir uma rodada/lição sem erros e sem pular. */
+export const FOLEGO_PERFECT_ROUND_REWARD = 1;
+/** Acertos seguidos na revisão para "dominar" um item pulado e recuperar a estrela. */
+export const FOLEGO_PENDING_MASTERY_REPS = 2;
 
 // ——— Qi: custos de atalho ———
 /** Refazer a questão errada na hora, sem perder a perfeição. */
@@ -88,7 +104,7 @@ export const ECONOMY_SUMMARY = {
     reviewItemsPerSession: FREE_REVIEW_SESSION_LIMIT,
     chestSmall: "Qi, carga, escudo ou tentativa extra",
     missions: "Missões diárias de hábito, revisão, tons e lições",
-    qiUses: "Retry extra, teste de módulo e recuperar Fôlego",
+    qiUses: "Retry extra, teste de módulo e recuperar Vidas",
   },
   pro: {
     charges: "Ilimitadas",
