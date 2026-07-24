@@ -1061,6 +1061,7 @@ export function RevisaoPage() {
   const addXp = useStore((s) => s.addXp);
   const addQi = useStore((s) => s.addQi);
   const addMinutes = useStore((s) => s.addMinutes);
+  const recordStudyDay = useStore((s) => s.recordStudyDay);
   const isPremium = useIsPro();
   const soundEffects = useStore((s) => s.soundEffects);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
@@ -1601,6 +1602,7 @@ export function RevisaoPage() {
     addXp(xp, leagueXpKeyActivity("review", `${todayKey()}:${item.type}:${item.itemId}`));
     addQi(qi, "Revisão");
     addMinutes(reviewTrack(domain), 1);
+    recordStudyDay({ tasks: 1, xp, minutes: 1 });
     playSoundFx(isLast && effectiveGrade !== "again" ? "lessonComplete" : gradeSound(effectiveGrade), soundEffects);
     setReviewed((n) => n + 1);
     setRevealed(false);

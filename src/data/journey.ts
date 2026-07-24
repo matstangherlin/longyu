@@ -2183,7 +2183,7 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               intro(
                 "Conversa completa",
-                "Lin e Mei vão usar tudo o que você aprendeu: cumprimento, pergunta, resposta, agradecimento e despedida."
+                "Você e Mei vão usar tudo o que você aprendeu: cumprimento, pergunta, resposta, agradecimento e despedida."
               ),
               conversationScene("revisao-cumprimento-completo"),
               dialogue(

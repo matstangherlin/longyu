@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
-import { useStore } from "../../lib/store";
+import { Link, useLocation } from "react-router-dom";
+import { useStore, type DailyStudyRecord } from "../../lib/store";
+import { todayKey } from "../../lib/storage";
 import { ALL_LESSONS } from "../../data/journey";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
 import { engineInsights } from "../../lib/engineIntelligence";
@@ -54,6 +55,27 @@ function relativeTime(ts: number): string {
   return `${d} d`;
 }
 
+/** Últimos 28 dias (4 semanas) no fuso local do aluno. */
+function buildStudyCalendar(activityByDay: Record<string, DailyStudyRecord>) {
+  const days: { key: string; record?: DailyStudyRecord; isToday: boolean }[] = [];
+  const today = todayKey();
+  for (let offset = 27; offset >= 0; offset -= 1) {
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() - offset);
+    const key = todayKey(d);
+    days.push({ key, record: activityByDay[key], isToday: key === today });
+  }
+  return days;
+}
+
+function studyLevel(record?: DailyStudyRecord): 0 | 1 | 2 | 3 {
+  if (!record || (record.tasks <= 0 && record.xp <= 0 && record.minutes <= 0)) return 0;
+  if (record.xp >= 40 || record.tasks >= 3 || record.minutes >= 15) return 3;
+  if (record.xp >= 15 || record.tasks >= 2 || record.minutes >= 8) return 2;
+  return 1;
+}
+
 interface HistoryEvent {
   icon: ReactNode;
   label: string;
@@ -62,11 +84,14 @@ interface HistoryEvent {
 }
 
 export function ProfilePage() {
+  const location = useLocation();
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const streak = useStore((s) => s.streak);
   const xpTotal = useStore((s) => s.xpTotal);
   const completedLessons = useStore((s) => s.completedLessons);
+  const activityByDay = useStore((s) => s.activityByDay ?? {});
+  const lastStudyDate = useStore((s) => s.lastStudyDate);
   const srs = useStore((s) => s.srs);
   const rewardHistory = useStore((s) => s.rewardHistory);
   const achievementsUnlocked = useStore((s) => s.achievementsUnlocked ?? {});
@@ -98,6 +123,14 @@ export function ProfilePage() {
     () => ACHIEVEMENTS.filter((def) => achievementsUnlocked[def.id]).length,
     [achievementsUnlocked]
   );
+
+  const calendarDays = useMemo(() => buildStudyCalendar(activityByDay), [activityByDay]);
+  const todayStudy = lastStudyDate ? activityByDay[lastStudyDate] : undefined;
+
+  useEffect(() => {
+    if (location.hash !== "#ofensiva") return;
+    document.getElementById("ofensiva")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [location.hash]);
 
   const history: HistoryEvent[] = useMemo(() => {
     return [...(rewardHistory ?? [])]
@@ -227,6 +260,64 @@ export function ProfilePage() {
         {stats.map((s) => (
           <StatTile key={s.label} icon={s.icon} value={s.value} label={s.label} tone={s.tone} />
         ))}
+      </div>
+
+      {/* 2b · Ofensiva — calendário de desempenho (fuso local). */}
+      <div id="ofensiva" className="scroll-mt-20">
+      <CompactCard>
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Ofensiva</div>
+          <div className="text-xs font-semibold text-ink">
+            <IconFlame width={12} height={12} className="mr-1 inline text-accent" />
+            {streak} {streak === 1 ? "dia" : "dias"}
+          </div>
+        </div>
+        <p className="mb-3 text-xs leading-5 text-ink-soft">
+          Conta à meia-noite do seu horário local. Só sobe quando você faz uma tarefa — entrar no site não conta.
+        </p>
+        <div className="grid grid-cols-7 gap-1.5">
+          {calendarDays.map((day) => {
+            const level = studyLevel(day.record);
+            const tone =
+              level === 0
+                ? "bg-surface-2"
+                : level === 1
+                ? "bg-accent/35"
+                : level === 2
+                ? "bg-accent/65"
+                : "bg-accent";
+            const title = day.record
+              ? `${day.key}: ${day.record.xp} XP · ${day.record.tasks} tarefa(s) · ${day.record.minutes} min`
+              : `${day.key}: sem estudo`;
+            return (
+              <div
+                key={day.key}
+                title={title}
+                className={[
+                  "aspect-square rounded-md",
+                  tone,
+                  day.isToday ? "ring-2 ring-accent ring-offset-1 ring-offset-surface" : "",
+                ].join(" ")}
+                aria-label={title}
+              />
+            );
+          })}
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
+          <div className="rounded-xl bg-surface-2 px-2 py-1.5">
+            <div className="font-semibold tabular-nums text-ink">{todayStudy?.xp ?? 0}</div>
+            <div className="text-ink-faint">XP hoje</div>
+          </div>
+          <div className="rounded-xl bg-surface-2 px-2 py-1.5">
+            <div className="font-semibold tabular-nums text-ink">{todayStudy?.tasks ?? 0}</div>
+            <div className="text-ink-faint">Tarefas</div>
+          </div>
+          <div className="rounded-xl bg-surface-2 px-2 py-1.5">
+            <div className="font-semibold tabular-nums text-ink">{todayStudy?.minutes ?? 0}m</div>
+            <div className="text-ink-faint">Estudo</div>
+          </div>
+        </div>
+      </CompactCard>
       </div>
 
       {/* 3 · Progresso de aprendizado — barras por competência. */}

@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { dismissBlockingOverlays, seedTelemetryDeclined } from "./helpers";
 import { ACHIEVEMENTS } from "../src/data/achievements";
 
-const STORE_VERSION = 15;
+const STORE_VERSION = 16;
 
 type SeedState = Record<string, unknown>;
 
@@ -55,7 +55,7 @@ async function bottomTabLabels(page: Page): Promise<string[]> {
 test.describe("navegação progressiva — mobile", () => {
   test.use({ viewport: { width: 360, height: 640 } });
 
-  test("usuário novo vê poucos destinos, com a Jornada em foco", async ({ page }) => {
+  test("usuário novo já vê a navegação completa na barra", async ({ page }) => {
     await seedStage(page, { completedLessons: [] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
@@ -63,7 +63,7 @@ test.describe("navegação progressiva — mobile", () => {
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toEqual(["Jornada", "Perfil", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
 
     // Sem overflow horizontal.
     const overflow = await page.evaluate(
@@ -72,17 +72,17 @@ test.describe("navegação progressiva — mobile", () => {
     expect(overflow).toBeLessThanOrEqual(2);
   });
 
-  test("após liberar o Treino, prática e revisão entram na barra", async ({ page }) => {
+  test("após liberar o Treino, a barra continua completa", async ({ page }) => {
     await seedStage(page, { completedLessons: ["l1", "l2", "l1-rev"] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toEqual(["Jornada", "Praticar", "Revisão", "Perfil", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
   });
 
-  test("usuário recorrente ganha Missões na barra principal", async ({ page }) => {
+  test("usuário recorrente mantém Missões na barra principal", async ({ page }) => {
     await seedStage(page, {
       completedLessons: ["l1", "l2", "l1-rev"],
       streak: 5,
@@ -209,7 +209,7 @@ test.describe("descoberta progressiva de recursos", () => {
 test.describe("navegação progressiva — desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test("sidebar fica compacta e cresce com o progresso sem explodir opções", async ({ page }) => {
+  test("sidebar completa desde o início, sem esconder destinos por estágio", async ({ page }) => {
     test.slow();
     await establishOrigin(page);
     await setStore(page, { completedLessons: [] });
@@ -217,28 +217,14 @@ test.describe("navegação progressiva — desktop", () => {
     await dismissBlockingOverlays(page);
     const sidebar = page.locator("aside nav").first();
     const earlyLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
-    const earlyButtons = await sidebar.getByRole("button").count();
-    const early = earlyLabels.length + earlyButtons;
-    expect(early).toBeLessThanOrEqual(4);
     expect(earlyLabels).toContain("Jornada");
-
-    await setStore(page, {
-      completedLessons: ["l1", "l2", "l1-rev", "l2-rev", "l3", "l4", "l5", "l5-rev"],
-      streak: 5,
-      medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
-    });
-    await page.goto("/jornada");
-    await dismissBlockingOverlays(page);
-    const advancedLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
-    const advancedButtons = await sidebar.getByRole("button").count();
-    const advanced = advancedLabels.length + advancedButtons;
-
-    expect(advanced).toBeGreaterThan(early);
-    expect(advanced).toBeLessThanOrEqual(8);
+    expect(earlyLabels).toContain("Praticar");
+    expect(earlyLabels).toContain("Missões");
+    expect(earlyLabels).toContain("Perfil");
     // Hànzì e Imersão não poluem a barra principal — ficam no hover de Praticar.
-    expect(advancedLabels).not.toContain("Hànzì");
-    expect(advancedLabels).not.toContain("Imersão");
-    expect(advancedLabels).not.toContain("Amigos");
+    expect(earlyLabels).not.toContain("Hànzì");
+    expect(earlyLabels).not.toContain("Imersão");
+    expect(earlyLabels).not.toContain("Amigos");
     // Perfil imediatamente acima de Mais (rodapé da rail).
     const profileTop = await sidebar.getByRole("link", { name: /^Perfil$/i }).evaluate(
       (el) => el.getBoundingClientRect().top

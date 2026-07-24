@@ -4,7 +4,7 @@ import { ALL_LESSONS } from "../src/data/journey";
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
-const STORE_VERSION = 15;
+const STORE_VERSION = 16;
 
 type SeedState = Record<string, unknown>;
 

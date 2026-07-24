@@ -54,7 +54,7 @@ interface JourneyChestConfig {
 }
 
 const THEME_CHECKPOINTS: Record<string, ThemeCheckpoint> = {
-  "u1-1": { title: "Primeiro contato", detail: "Som, cumprimento e primeira conversa com Lin e Mei." },
+  "u1-1": { title: "Primeiro contato", detail: "Som, cumprimento e primeira conversa com você e Mei." },
   "u1-2": { title: "Cortesia", detail: "Agradecer, responder e fechar conversas com naturalidade." },
   "u2-1": { title: "Tons básicos", detail: "Os quatro contornos viram mapa auditivo." },
   "u2-2": { title: "Tons em frases", detail: "Leve a escuta para palavras que você já usa." },

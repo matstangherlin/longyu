@@ -151,6 +151,14 @@ export interface LifetimeStats {
   reviewDays: string[];
 }
 
+/** Desempenho diário para o calendário da ofensiva (XP, tarefas, minutos). */
+export interface DailyStudyRecord {
+  date: string;
+  xp: number;
+  tasks: number;
+  minutes: number;
+}
+
 export function freshLifetimeStats(): LifetimeStats {
   return {
     audioHeard: 0,
@@ -884,20 +892,31 @@ function normalizeCompletedLessons(
 ): string[] {
   const seen = new Set<string>();
   const normalized: string[] = [];
-  for (const rawId of completedLessons ?? []) {
-    const lessonId = rawId.trim();
-    if (!lessonId || seen.has(lessonId)) continue;
-    seen.add(lessonId);
-    // Lição concluída com skip (estrela pendente) fica concluída mesmo em 2★ —
-    // ela destrava a próxima; a 3ª estrela vem depois, pela revisão.
+
+  const pushIfEligible = (rawId: string | undefined, fromStarsOnly: boolean) => {
+    const lessonId = rawId?.trim();
+    if (!lessonId || seen.has(lessonId)) return;
     if (pendingLessonIds?.has(lessonId)) {
+      seen.add(lessonId);
       normalized.push(lessonId);
-      continue;
+      return;
     }
     const currentStar = normalizeLessonStar(stars?.[lessonId]);
     const requiredStars = lessonCompletionRequiredStars(lessonId);
-    if (currentStar > 0 && currentStar < requiredStars) continue;
+    if (fromStarsOnly && currentStar < requiredStars) return;
+    // Lista de concluídas: descarta só se tiver estrela explícita abaixo do mínimo.
+    if (!fromStarsOnly && currentStar > 0 && currentStar < requiredStars) return;
+    seen.add(lessonId);
     normalized.push(lessonId);
+  };
+
+  for (const rawId of completedLessons ?? []) {
+    pushIfEligible(rawId, false);
+  }
+  // Cura contas antigas: 2★ sob a regra antiga sem completeLesson — agora 1★+
+  // já conclui a aula e libera a próxima.
+  for (const lessonId of Object.keys(stars ?? {})) {
+    pushIfEligible(lessonId, true);
   }
   return normalized;
 }
@@ -1026,6 +1045,12 @@ interface AccountSnapshot extends XpBuckets {
   streak: number;
   longestStreak: number;
   lastActive: string | null;
+  /** Último dia (local) em que o aluno ESTUDOU — base da ofensiva. */
+  lastStudyDate: string | null;
+  /** Histórico diário de estudo (calendário da ofensiva). */
+  activityByDay: Record<string, DailyStudyRecord>;
+  /** Dias de ofensiva a celebrar no modal (null = nada pendente). */
+  pendingStreakCelebration: number | null;
   points: number;
   dragonPearls: number;
   streakShields: number;
@@ -1120,6 +1145,9 @@ function blankSnapshot(): AccountSnapshot {
     streak: 0,
     longestStreak: 0,
     lastActive: null,
+    lastStudyDate: null,
+    activityByDay: {},
+    pendingStreakCelebration: null,
     points: 0,
     dragonPearls: 0,
     streakShields: 0,
@@ -1224,6 +1252,9 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     streak: s.streak,
     longestStreak: s.longestStreak,
     lastActive: s.lastActive,
+    lastStudyDate: s.lastStudyDate ?? null,
+    activityByDay: s.activityByDay ?? {},
+    pendingStreakCelebration: s.pendingStreakCelebration ?? null,
     points: s.points,
     dragonPearls: s.dragonPearls,
     streakShields: s.streakShields,
@@ -1341,6 +1372,9 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     streak: account.streak,
     longestStreak: account.longestStreak,
     lastActive: account.lastActive,
+    lastStudyDate: account.lastStudyDate ?? null,
+    activityByDay: account.activityByDay ?? {},
+    pendingStreakCelebration: account.pendingStreakCelebration ?? null,
     points: account.points,
     dragonPearls: account.dragonPearls ?? 0,
     streakShields: account.streakShields ?? 0,
@@ -1616,6 +1650,9 @@ interface AppState {
   streak: number;
   longestStreak: number;
   lastActive: string | null;
+  lastStudyDate: string | null;
+  activityByDay: Record<string, DailyStudyRecord>;
+  pendingStreakCelebration: number | null;
   dragonPearls: number;
   streakShields: number;
   badges: string[];
@@ -1783,6 +1820,9 @@ interface AppState {
   refillDailyCharges: () => void;
   canStartActivity: (activityType: EnergyActivityType) => boolean;
   registerActivity: () => void;
+  /** Conta um dia de ofensiva: só estudo (lição/revisão), não visita. */
+  recordStudyDay: (delta?: { xp?: number; tasks?: number; minutes?: number }) => void;
+  clearStreakCelebration: () => void;
   completeLesson: (id: string) => void;
   /** Marca lição concluída via teste de módulo — 1 estrela, sem recompensas de aula. */
   completeLessonViaTest: (id: string) => void;
@@ -1883,6 +1923,9 @@ export const useStore = create<AppState>()(
       streak: 0,
       longestStreak: 0,
       lastActive: null,
+      lastStudyDate: null,
+      activityByDay: {},
+      pendingStreakCelebration: null,
       dragonPearls: 0,
       streakShields: 0,
       badges: [],
@@ -3605,6 +3648,7 @@ export const useStore = create<AppState>()(
             lessonId: id,
             lessonTitle: lesson?.title ?? id,
           });
+          get().recordStudyDay({ tasks: 1, minutes: lesson?.estimatedMinutes ?? 5 });
         }
       },
 
@@ -3644,62 +3688,130 @@ export const useStore = create<AppState>()(
             lessonTitle: lesson?.title ?? id,
             viaTest: true,
           });
+          get().recordStudyDay({ tasks: 1, minutes: lesson?.estimatedMinutes ?? 5 });
         }
       },
 
-      registerActivity: () => {
+      recordStudyDay: (delta) => {
         const prevStreak = get().streak;
-        const prevLastActive = get().lastActive;
+        const prevStudy = get().lastStudyDate;
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
           const t = todayKey();
-          if (current.lastActive === t) return { ...leaguePatch, accounts: saveCurrentAccount(current) };
+          const xpGain = Math.max(0, Math.round(delta?.xp ?? 0));
+          const taskGain = Math.max(0, Math.round(delta?.tasks ?? 1));
+          const minuteGain = Math.max(0, Math.round(delta?.minutes ?? 0));
+          const prevDay = current.activityByDay?.[t] ?? { date: t, xp: 0, tasks: 0, minutes: 0 };
+          const activityByDay = {
+            ...(current.activityByDay ?? {}),
+            [t]: {
+              date: t,
+              xp: prevDay.xp + xpGain,
+              tasks: prevDay.tasks + taskGain,
+              minutes: prevDay.minutes + minuteGain,
+            },
+          };
+          if (current.lastStudyDate === t) {
+            const next = { ...current, activityByDay, lastActive: t };
+            return {
+              ...leaguePatch,
+              activityByDay,
+              lastActive: t,
+              accounts: saveCurrentAccount(next),
+            };
+          }
           let streak = 1;
           let streakShields = current.streakShields;
-          if (current.lastActive) {
-            const gap = daysBetween(current.lastActive, t);
+          if (current.lastStudyDate) {
+            const gap = daysBetween(current.lastStudyDate, t);
             if (gap === 1) {
               streak = current.streak + 1;
             } else if (gap === 2 && streakShields > 0) {
               streak = current.streak + 1;
               streakShields -= 1;
             }
+          } else if (current.lastActive && daysBetween(current.lastActive, t) <= 1 && current.streak > 0) {
+            // Migração suave: primeira contagem por estudo herda sequência recente.
+            streak = current.streak;
           }
+          const longestStreak = Math.max(current.longestStreak, streak);
+          const pendingStreakCelebration =
+            streak > prevStreak || (prevStudy !== t && streak >= 1)
+              ? streak
+              : current.pendingStreakCelebration;
           const today = current.today.date === t ? current.today : freshDay(t);
           const dailyTasks = activeDailyTasks(current.dailyTasks, t);
           const dailyEnergy = activeDailyEnergy(current.dailyEnergy, t);
-          const longestStreak = Math.max(current.longestStreak, streak);
-          return {
-            ...leaguePatch,
+          const next = {
+            ...current,
+            activityByDay,
+            lastStudyDate: t,
             lastActive: t,
             streak,
             streakShields,
             longestStreak,
+            pendingStreakCelebration,
             today,
             dailyTasks,
             dailyEnergy,
-            accounts: saveCurrentAccount({
-              ...current,
-              lastActive: t,
-              streak,
-              streakShields,
-              longestStreak,
-              today,
-              dailyTasks,
-              dailyEnergy,
-            }),
+          };
+          return {
+            ...leaguePatch,
+            activityByDay,
+            lastStudyDate: t,
+            lastActive: t,
+            streak,
+            streakShields,
+            longestStreak,
+            pendingStreakCelebration,
+            today,
+            dailyTasks,
+            dailyEnergy,
+            accounts: saveCurrentAccount(next),
           };
         });
         const next = get();
-        if (next.lastActive !== prevLastActive && next.streak >= 2 && next.streak >= prevStreak) {
+        if (next.lastStudyDate !== prevStudy && next.streak >= 2 && next.streak >= prevStreak) {
           queueSocialFromApp("streak", { days: next.streak, streak: next.streak });
         }
+      },
+
+      clearStreakCelebration: () =>
+        set((s) => {
+          if (s.pendingStreakCelebration == null) return {};
+          const next = { ...s, pendingStreakCelebration: null };
+          return { pendingStreakCelebration: null, accounts: saveCurrentAccount(next) };
+        }),
+
+      registerActivity: () => {
+        // Rollover de dia (energia/tarefas). Ofensiva sobe só com recordStudyDay.
+        set((s) => {
+          const leaguePatch = settleLeagueWeek(s);
+          const current = { ...s, ...leaguePatch };
+          const t = todayKey();
+          if (current.today.date === t && current.dailyTasks.date === t && current.dailyEnergy.date === t) {
+            return { ...leaguePatch, accounts: saveCurrentAccount(current) };
+          }
+          const today = current.today.date === t ? current.today : freshDay(t);
+          const dailyTasks = activeDailyTasks(current.dailyTasks, t);
+          const dailyEnergy = activeDailyEnergy(current.dailyEnergy, t);
+          const immersionDaily = activeImmersionDaily(current.immersionDaily, t);
+          const next = { ...current, today, dailyTasks, dailyEnergy, immersionDaily };
+          return {
+            ...leaguePatch,
+            today,
+            dailyTasks,
+            dailyEnergy,
+            immersionDaily,
+            accounts: saveCurrentAccount(next),
+          };
+        });
       },
     }),
     {
       name: "longyu-v1",
-      version: 15,
+      version: 16,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -3717,6 +3829,7 @@ export const useStore = create<AppState>()(
       // v13: adiciona progresso do HanziBuilder por caractere (guia/dificuldade).
       // v14: remove preview Pro persistido em produção e normaliza cargas ao plano grátis.
       // v15: adiciona moduleSkipUsage para cotas semanais do teste de pular.
+      // v16: ofensiva por estudo (lastStudyDate/activityByDay) + cura de aulas 1★+.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -3821,7 +3934,19 @@ export const useStore = create<AppState>()(
               moduleSkipUsage: migrated.moduleSkipUsage ?? {},
             };
           }
-          const completedLessons = normalizeCompletedLessons(migrated.completedLessons, migrated.lessonStarsById);
+          if (version < 16) {
+            migrated = {
+              ...migrated,
+              lastStudyDate: migrated.lastStudyDate ?? null,
+              activityByDay: migrated.activityByDay ?? {},
+              pendingStreakCelebration: migrated.pendingStreakCelebration ?? null,
+            };
+          }
+          const completedLessons = normalizeCompletedLessons(
+            migrated.completedLessons,
+            migrated.lessonStarsById,
+            new Set(Object.keys(normalizeLessonPendingStars(migrated.lessonPendingStars)))
+          );
           migrated = {
             ...migrated,
             completedLessons,
@@ -3879,6 +4004,9 @@ export const useStore = create<AppState>()(
           hanziBuilderProgressByChar: normalizeHanziBuilderProgress(root.hanziBuilderProgressByChar),
           ...rootAchievements,
           moduleSkipUsage: root.moduleSkipUsage ?? {},
+          lastStudyDate: root.lastStudyDate ?? null,
+          activityByDay: root.activityByDay ?? {},
+          pendingStreakCelebration: root.pendingStreakCelebration ?? null,
           accounts: normalized,
         } as AppState;
       },

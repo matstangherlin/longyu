@@ -88,30 +88,18 @@ export const NAV: Record<string, NavItem> = {
   mais: { to: "/mais", label: "Mais", icon: IconMore, matches: MORE_MATCHES },
 };
 
-/** Barra inferior mobile: no máximo 5 destinos, adaptados ao estágio. */
-export function mobileNavForStage(stage: LearnerStage): NavItem[] {
-  if (stage <= 1) {
-    return [NAV.jornada, NAV.perfil, NAV.mais];
-  }
-  if (stage >= 5) {
-    // Missões entra; Revisão fica no hub/Mais. Perfil permanece acima de Mais.
-    return [NAV.jornada, NAV.treino, NAV.missoes, NAV.perfil, NAV.mais];
-  }
-  return [NAV.jornada, NAV.treino, NAV.revisao, NAV.perfil, NAV.mais];
+/** Barra inferior mobile: no máximo 5 destinos (navegação completa). */
+export function mobileNavForStage(_stage: LearnerStage): NavItem[] {
+  return [NAV.jornada, NAV.treino, NAV.missoes, NAV.perfil, NAV.mais];
 }
 
 /**
- * Sidebar desktop — abas principais + flyouts:
+ * Sidebar desktop — abas principais + flyouts (sempre completa).
  * - Praticar → Hànzì, Pinyin Lab, Fala, …
  * - Perfil → Amigos, Conta, …
- * - Loja na barra (estágio recorrente)
  */
-export function desktopNavForStage(stage: LearnerStage): NavItem[] {
-  const items: NavItem[] = [NAV.jornada];
-  if (stage >= 2) items.push(NAV.treino, NAV.revisao);
-  if (stage >= 5) items.push(NAV.missoes, NAV.ligas, NAV.loja);
-  items.push(NAV.perfil, NAV.mais);
-  return items;
+export function desktopNavForStage(_stage: LearnerStage): NavItem[] {
+  return DESKTOP_NAV;
 }
 
 /** Hover de Praticar: competências e hubs de estudo. */

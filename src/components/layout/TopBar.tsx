@@ -71,6 +71,7 @@ export function TopBar() {
           label={`Qi: ${points}`}
         />
         <StatPill
+          to="/perfil#ofensiva"
           icon={IconFlame}
           value={streak}
           label={`Sequência: ${streak} ${streak === 1 ? "dia" : "dias"}`}

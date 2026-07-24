@@ -145,6 +145,27 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     monthlyXp: Math.max(local.monthlyXp, remote.monthlyXp),
     streak: Math.max(local.streak, remote.streak),
     longestStreak: Math.max(local.longestStreak, remote.longestStreak),
+    lastStudyDate:
+      !local.lastStudyDate ? remote.lastStudyDate ?? null
+      : !remote.lastStudyDate ? local.lastStudyDate
+      : local.lastStudyDate >= remote.lastStudyDate ? local.lastStudyDate : remote.lastStudyDate,
+    activityByDay: (() => {
+      const merged: Record<string, { date: string; xp: number; tasks: number; minutes: number }> = {
+        ...(remote.activityByDay ?? {}),
+      };
+      for (const [date, entry] of Object.entries(local.activityByDay ?? {})) {
+        const other = merged[date];
+        merged[date] = other
+          ? {
+              date,
+              xp: Math.max(entry.xp ?? 0, other.xp ?? 0),
+              tasks: Math.max(entry.tasks ?? 0, other.tasks ?? 0),
+              minutes: Math.max(entry.minutes ?? 0, other.minutes ?? 0),
+            }
+          : entry;
+      }
+      return merged;
+    })(),
     dragonPearls: Math.max(local.dragonPearls, remote.dragonPearls),
     streakShields: Math.max(local.streakShields, remote.streakShields),
     srs: mergeSrs(local.srs, remote.srs),

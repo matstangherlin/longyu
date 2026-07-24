@@ -7,6 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Sidebar, ofensiva e cura de 2★
+
+- **Netlify / progresso**: aulas com 1–2★ que ficaram "QUASE" sem concluir
+  passam a contar como concluídas (cura de contas antigas) e liberam a próxima
+  aula na mesma fase.
+- **Sidebar completa**: a barra esquerda (e a inferior no mobile) mostra a
+  navegação normal desde o início — não espera mais “passar de etapa”.
+- **Ofensiva com sentido**: só sobe ao fazer tarefa (lição/revisão), não ao
+  entrar no site. Dia vira à meia-noite do **horário local**. Modal de celebração
+  (estilo medalha) ao completar o dia; calendário de XP/tarefas/minutos no Perfil.
+
 ### Ajustes de diálogo, medalhas, Enter e estrelas
 
 - **Nome no diálogo**: prompts de conversa que ainda diziam "Lin" passam a usar

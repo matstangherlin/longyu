@@ -1,10 +1,10 @@
 /**
- * learnerStage — divulgação progressiva derivada de dados que já existem.
+ * learnerStage — divulgacao progressiva derivada de dados que ja existem.
  *
- * NÃO é uma segunda fonte de verdade: o estágio e a disponibilidade de cada
- * área são calculados a partir de `completedLessons`, do SRS e de sinais de
- * engajamento já persistidos (medalhas, liga, sequência). As regras de
- * desbloqueio reaproveitam `journeyUnlocks`/`proAccess` — nada é duplicado.
+ * Nao e uma segunda fonte de verdade: o estagio e a disponibilidade de cada
+ * area sao calculados a partir de `completedLessons`, do SRS e de sinais de
+ * engajamento ja persistidos (medalhas, liga, sequencia). As regras de
+ * desbloqueio reaproveitam `journeyUnlocks`/`proAccess` — nada e duplicado.
  */
 import {
   isEngineUnlocked,

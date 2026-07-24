@@ -7,6 +7,7 @@ import { Sidebar } from "./Sidebar";
 import { TabBar } from "./TabBar";
 import { TopBar } from "./TopBar";
 import { AchievementsWatcher } from "../achievements/AchievementsWatcher";
+import { StreakWatcher } from "../achievements/StreakWatcher";
 import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
@@ -125,6 +126,7 @@ export function AppShell() {
       <TelemetryConsentBootstrap />
       <EconomyBootstrap />
       <AchievementsWatcher />
+      <StreakWatcher />
       <TelemetryConsentWatcher />
     </div>
     </FeedbackProvider>

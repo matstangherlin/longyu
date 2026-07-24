@@ -1,10 +1,13 @@
 // Helpers de data para ofensiva (streak) e metas diárias.
+// O dia vira à meia-noite do fuso LOCAL do dispositivo (ex.: horário de Brasília
+// se o aluno estiver no Brasil). Entrar no site não conta ofensiva — só estudo.
 
 export function todayKey(d = new Date()): string {
+  // Usa o calendário local do aluno (getFullYear/Month/Date), não UTC.
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`; // YYYY-MM-DD, local time
+  return `${year}-${month}-${day}`; // YYYY-MM-DD, horário local
 }
 
 export function daysBetween(a: string, b: string): number {

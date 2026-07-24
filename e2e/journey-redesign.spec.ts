@@ -3,7 +3,7 @@ import { dismissBlockingOverlays, seedTelemetryDeclined } from "./helpers";
 import { ALL_LESSONS } from "../src/data/journey";
 import { ACHIEVEMENTS } from "../src/data/achievements";
 
-const STORE_VERSION = 15;
+const STORE_VERSION = 16;
 
 type SeedState = Record<string, unknown>;
 
