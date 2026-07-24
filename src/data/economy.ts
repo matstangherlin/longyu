@@ -4,8 +4,9 @@
 // Filosofia (free-to-play ético, sem cassino):
 // - A economia nunca vende progresso: Qi compra tentativas, conforto e
 //   cosméticos — nunca lições concluídas nem XP.
-// - Errar custa Fôlego (recurso da sessão), não Qi. O Qi só entra quando o
-//   aluno ESCOLHE um atalho (refazer na hora, recuperar fôlego, retry de teste).
+// - Errar custa Vidas do Dragão (sessão) e, em sequência, pode gastar 1 Carga.
+//   O Qi só entra quando o aluno ESCOLHE um atalho (refazer na hora, recuperar
+//   vidas, retry de teste). Pular custa Fôlego (reserva da conta).
 // - O plano grátis sempre tem um caminho sem pagar: missões dão Qi, cargas
 //   voltam todo dia, revisão essencial nunca é bloqueada.
 // - Pro remove fricção (cargas/fôlego/retry ilimitados), não adiciona poder.
@@ -35,6 +36,13 @@ export const DAILY_CHARGES_FREE = 5;
 export const CHARGE_COST_ACTIVITY = 1;
 /** Histórias introdutórias grátis podem conceder até N cargas extras por dia. */
 export const STORY_ENERGY_DAILY_CAP = 2;
+/**
+ * Erros confirmados seguidos na mesma lição: ao atingir este limiar, perde 1 Carga.
+ * (2 = mais rígido; 4 = mais tolerante — usamos 4 como padrão.)
+ */
+export const CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD = 4;
+/** Cargas perdidas ao atingir o limiar de erros seguidos. */
+export const CONSECUTIVE_MISTAKE_CHARGE_COST = 1;
 
 /** Revisão básica do grátis: itens por sessão. Pro revisa a fila inteira. */
 export const FREE_REVIEW_SESSION_LIMIT = 20;
@@ -51,13 +59,20 @@ export const BREATH_RECOVERY_QI = 50;
 // estrela "pendente" até o item ser dominado. É recarregado jogando bem e, no
 // grátis, é limitado — quando zera, o Pro entra como skips ilimitados.
 /** Fôlego inicial da conta (grátis). */
-export const FOLEGO_START = 5;
+export const FOLEGO_START = 3;
 /** Teto de Fôlego acumulável no plano grátis. */
 export const FOLEGO_MAX_FREE = 5;
 /** Custo em Fôlego para pular uma tarefa. */
 export const FOLEGO_SKIP_COST = 1;
 /** Fôlego ganho ao concluir uma rodada/lição sem erros e sem pular. */
 export const FOLEGO_PERFECT_ROUND_REWARD = 1;
+/**
+ * Chance (0–1) de ganhar Fôlego numa rodada perfeita. Nem sempre recarrega —
+ * mantém o skip como recurso escasso.
+ */
+export const FOLEGO_PERFECT_EARN_CHANCE = 0.4;
+/** No máximo N ganhos de Fôlego por dia (grátis), além do teto da conta. */
+export const FOLEGO_DAILY_EARN_CAP = 2;
 /** Acertos seguidos na revisão para "dominar" um item pulado e recuperar a estrela. */
 export const FOLEGO_PENDING_MASTERY_REPS = 2;
 

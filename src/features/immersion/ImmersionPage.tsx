@@ -1127,14 +1127,12 @@ function InteractiveStoryPlayer({
                   onClick={() => submitAnswer(option)}
                   aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
                   className={[
-                    "relative min-h-11 rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+                    "relative flex min-h-11 items-center gap-2.5 rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
                     optionClass(option),
                   ].join(" ")}
                 >
-                  <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
-                  <span className="block pl-0 sm:pl-5">
-                  {option}
-                  </span>
+                  <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
+                  <span className="min-w-0 flex-1">{option}</span>
                 </button>
               ))}
             </div>

@@ -520,7 +520,7 @@ function ChoiceButton({
       aria-label={shortcut ? `Opção ${shortcut}: ${option.label}` : option.label}
       className={["relative min-h-12 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
     >
-      {shortcut && <ShortcutBadge className="absolute left-2 top-2">{shortcut}</ShortcutBadge>}
+      {shortcut && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
       <TypedValue value={option.label} type={option.type} className={isHanziText(option.label) ? "text-2xl" : ""} examMode={!revealed} />
       {option.detail && revealed && <span className="mt-0.5 block text-xs font-normal opacity-75">{formatPinyinForDisplay(option.detail)}</span>}
     </button>
@@ -710,7 +710,7 @@ function SentenceBuildExercise({
                 isHanziText(piece.value) ? "text-xl" : "",
               ].join(" ")}
             >
-              {index < 10 && <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>}
+              {index < 10 && <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>}
               <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} examMode={!revealed} />
             </button>
           );
@@ -763,7 +763,7 @@ function MatchPairsExercise({
                 bad ? "border-danger bg-[rgb(var(--danger)/0.10)]" : "",
               ].join(" ")}
             >
-              <ShortcutBadge className="absolute left-2 top-2">{leftPairShortcut(index)}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
               <div className="font-semibold text-ink">
                 <TypedValue value={pair.left} type={pair.leftType} className={isHanziText(pair.left) ? "text-2xl" : ""} examMode={!revealed} />
               </div>
@@ -781,7 +781,7 @@ function MatchPairsExercise({
             onClick={() => onMatchPair(right)}
             className="relative min-h-11 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:border-accent hover:bg-accent-soft disabled:opacity-55"
           >
-            <ShortcutBadge className="absolute left-2 top-2">{rightPairShortcut(index)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
             {right}
           </button>
         ))}

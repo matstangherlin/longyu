@@ -7,6 +7,16 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Atalhos, Fôlego e energia por erros
+
+- **Números 1–9**: badges de atalho ficam ao lado do texto (não cobrem mais a
+  primeira letra das opções).
+- **Fôlego mais escasso**: começa em 3 (teto 5); rodada perfeita tem ~40% de
+  chance de +1 Fôlego, no máximo 2 ganhos/dia — dá para acumular skips, mas
+  nem sempre.
+- **Cargas (5/dia)**: mantidas. Errar **4 vezes seguidas** na lição gasta
+  **1 Carga** extra (Pro isento).
+
 ### Sidebar, ofensiva e cura de 2★
 
 - **Netlify / progresso**: aulas com 1–2★ que ficaram "QUASE" sem concluir

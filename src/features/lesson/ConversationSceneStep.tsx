@@ -375,7 +375,7 @@ function CheckpointPanel({
                     setFeedback(null);
                   }}
                   className={[
-                    "relative min-h-12 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
+                    "relative flex min-h-12 items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
                     containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
                     correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
                     wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
@@ -386,8 +386,10 @@ function CheckpointPanel({
                     .join(" ")}
                   aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
                 >
-                  <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
-                  <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
+                  <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
+                  <span className="min-w-0 flex-1">
+                    <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
+                  </span>
                 </button>
               );
             })}
@@ -627,7 +629,7 @@ function InteractionPanel({
                     setFeedback(null);
                   }}
                   className={[
-                    "relative min-h-12 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
+                    "relative flex min-h-12 items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
                     containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
                     correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
                     wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
@@ -638,8 +640,10 @@ function InteractionPanel({
                     .join(" ")}
                   aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
                 >
-                  <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
-                  <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
+                  <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
+                  <span className="min-w-0 flex-1">
+                    <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
+                  </span>
                 </button>
               );
             })}

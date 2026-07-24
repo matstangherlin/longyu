@@ -625,7 +625,7 @@ function ToneOptionButton({
         .filter(Boolean)
         .join(" ")}
     >
-      {shortcut && <ShortcutBadge className="absolute left-2 top-2">{shortcut}</ShortcutBadge>}
+      {shortcut && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
       <span
         className={tone === 5 ? "text-base font-semibold leading-none" : "font-serif text-4xl font-semibold leading-none"}
         style={{ color: TONE_COLOR[tone] }}

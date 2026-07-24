@@ -134,7 +134,8 @@ export function ShortcutBadge({ children, className = "" }: { children: ReactNod
     <span
       aria-hidden="true"
       className={[
-        "hidden h-5 min-w-5 items-center justify-center rounded-full bg-surface-2 px-1.5 text-[10px] font-bold leading-none text-ink-faint ring-1 ring-line/60 sm:inline-flex",
+        // Inline com o texto (nunca absolute por cima da primeira letra).
+        "hidden h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-surface-2 px-1.5 text-[10px] font-bold leading-none text-ink-faint ring-1 ring-line/60 sm:inline-flex",
         className,
       ].filter(Boolean).join(" ")}
     >

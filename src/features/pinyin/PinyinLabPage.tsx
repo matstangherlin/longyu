@@ -581,7 +581,7 @@ function PinyinAccentTrainer() {
                     .filter(Boolean)
                     .join(" ")}
                   >
-                  <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
+                  <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
                   <Pinyin text={option} />
                 </button>
               );
@@ -925,7 +925,7 @@ function ToneChoiceGroup({
               value === tone ? "border-accent bg-accent text-white" : "border-line bg-surface-2 text-ink-soft hover:text-ink",
             ].join(" ")}
           >
-            <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             <span className="font-serif text-xl font-semibold leading-none">{tone === 5 ? "sem" : PINYIN_TONE_GUIDE[tone - 1]?.symbol}</span>
             <span className="mt-1 text-[11px] font-semibold">{tone === 5 ? "neutro" : `tom ${tone}`}</span>
           </button>

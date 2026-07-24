@@ -60,6 +60,9 @@ import {
   FOLEGO_MAX_FREE,
   FOLEGO_SKIP_COST,
   FOLEGO_PENDING_MASTERY_REPS,
+  FOLEGO_PERFECT_ROUND_REWARD,
+  FOLEGO_PERFECT_EARN_CHANCE,
+  FOLEGO_DAILY_EARN_CAP,
 } from "../data/economy";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import type { ProgressSnapshotBody } from "./progressSnapshot";
@@ -199,6 +202,8 @@ export interface DailyEnergy {
   maxCharges: number;
   usedCharges: number;
   bonusChargesClaimed: Record<string, boolean>;
+  /** Quantos Fôlegos já ganhos hoje (teto FOLEGO_DAILY_EARN_CAP). */
+  folegoEarned?: number;
 }
 
 export interface ImmersionDailyProgress {
@@ -288,6 +293,7 @@ function freshDailyEnergy(date = todayKey()): DailyEnergy {
     maxCharges: FREE_DAILY_CHARGES,
     usedCharges: 0,
     bonusChargesClaimed: {},
+    folegoEarned: 0,
   };
 }
 
@@ -1786,6 +1792,8 @@ interface AppState {
   spendFolego: () => boolean;
   /** Fôlego: ganha (rodada perfeita), respeitando o teto do plano grátis. */
   earnFolego: (amount?: number) => void;
+  /** Tenta ganhar Fôlego após rodada perfeita (chance + teto diário). */
+  tryEarnFolegoFromPerfect: () => boolean;
   /** Registra refs (`type:itemId`) com 3ª estrela pendente numa lição concluída por skip. */
   setLessonPendingStars: (lessonId: string, refs: string[]) => void;
   recordLessonMistake: (mistake: LessonMistakeRecord) => void;
@@ -2716,6 +2724,27 @@ export const useStore = create<AppState>()(
           const next = { ...s, folego };
           return { folego, accounts: saveCurrentAccount(next) };
         });
+      },
+
+      tryEarnFolegoFromPerfect: () => {
+        let earned = false;
+        set((s) => {
+          const energy = activeDailyEnergy(s.dailyEnergy);
+          const earnedToday = energy.folegoEarned ?? 0;
+          if (earnedToday >= FOLEGO_DAILY_EARN_CAP) return {};
+          if (s.folego >= FOLEGO_MAX_FREE) return {};
+          if (Math.random() >= FOLEGO_PERFECT_EARN_CHANCE) return {};
+          const folego = Math.min(FOLEGO_MAX_FREE, s.folego + FOLEGO_PERFECT_ROUND_REWARD);
+          if (folego === s.folego) return {};
+          earned = true;
+          const dailyEnergy: DailyEnergy = {
+            ...energy,
+            folegoEarned: earnedToday + 1,
+          };
+          const next = { ...s, folego, dailyEnergy };
+          return { folego, dailyEnergy, accounts: saveCurrentAccount(next) };
+        });
+        return earned;
       },
 
       setLessonPendingStars: (lessonId, refs) =>

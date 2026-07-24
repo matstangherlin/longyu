@@ -554,7 +554,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               ].filter(Boolean).join(" ")}
               aria-label={`Opção ${t}: ${t}º tom`}
             >
-              <ShortcutBadge className="absolute left-1.5 top-1.5">{t}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{t}</ShortcutBadge>
               <ToneCurve tone={t} />
               <span className="text-xs font-medium text-ink sm:text-sm">{t}º tom</span>
             </button>
@@ -643,15 +643,15 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
               disabled={answered != null}
               aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
               className={[
-                "relative flex items-center min-h-12 justify-between rounded-xl border px-4 py-2.5 text-left transition",
+                "relative flex min-h-12 items-center gap-2.5 rounded-xl border px-4 py-2.5 text-left transition",
                 state === "idle" && "border-line hover:bg-surface-2",
                 state === "selected" && "border-accent bg-accent-soft text-accent",
                 state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
                 state === "wrong" && "border-transparent bg-wrong-soft",
               ].filter(Boolean).join(" ")}
             >
-              <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
-              <span className="pl-0 sm:pl-5">{o}</span>
+              <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
+              <span className="min-w-0 flex-1">{o}</span>
               {state === "right" && <IconCheck className="text-[rgb(var(--good))]" />}
               {state === "wrong" && <IconX className="text-wrong" />}
             </button>
@@ -737,7 +737,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
             className={[engineTileClass({ cjk: isCjkText(b) }), "relative"].join(" ")}
             aria-label={`Peça ${shortcutKeyForIndex(i)}: ${b}`}
           >
-            <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(i)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(i)}</ShortcutBadge>
             <ExerciseText value={b} type={isCjkText(b) ? "hanzi" : "pt"} speakOnClick />
           </button>
         ))}
@@ -1584,7 +1584,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                   }),
                 ].join(" ")}
               >
-                <ShortcutBadge className="absolute left-2 top-2">{leftPairShortcut(index)}</ShortcutBadge>
+                <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
                 <span className="px-3">{renderPairSide(pair.left, pair.leftType, Boolean(matched))}</span>
                 {matched && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
               </button>
@@ -1627,7 +1627,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                   }),
                 ].join(" ")}
               >
-                <ShortcutBadge className="absolute left-2 top-2">{rightPairShortcut(index)}</ShortcutBadge>
+                <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
                 <span className="px-3">{renderPairSide(item.value, item.type, Boolean(matched))}</span>
                 {matched && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
               </button>
@@ -1908,7 +1908,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
                 engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) }),
               ].join(" ")}
             >
-              <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="px-3">{renderTypedValue(option, isCjkText(option) ? "hanzi" : "pt")}</span>
               {correct && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
               {wrong && <IconX className="absolute right-2 top-2 text-wrong" width={16} height={16} />}
@@ -2139,7 +2139,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
               ].join(" ")}
               aria-label={index < 10 ? `Peça ${shortcutKeyForIndex(index)}: ${token.value}` : token.value}
             >
-              {index < 10 && <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>}
+              {index < 10 && <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>}
               <ExerciseText value={token.value} type={isCjkText(token.value) ? "hanzi" : "pt"} speakOnClick />
             </button>
           );
@@ -2333,7 +2333,7 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
             className={[engineTileClass({ active: picked === piece, cjk: isCjkText(piece) }), "relative"].join(" ")}
             aria-label={`Opção ${shortcutKeyForIndex(index)}: ${piece}`}
           >
-            <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             <ExerciseText value={piece} type={isCjkText(piece) ? "hanzi" : "pt"} speakOnClick />
           </button>
         ))}
@@ -2436,11 +2436,13 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
               type="button"
               disabled={feedback === "correct"}
               onClick={() => pickOption(option)}
-              className={[engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) }), "relative"].join(" ")}
+              className={[engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) }), "relative flex items-center gap-2.5"].join(" ")}
               aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
             >
-              <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
-              <ExerciseText value={option} type={isCjkText(option) ? "hanzi" : "pt"} speakOnClick />
+              <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
+              <span className="min-w-0 flex-1">
+                <ExerciseText value={option} type={isCjkText(option) ? "hanzi" : "pt"} speakOnClick />
+              </span>
             </button>
           );
         })}
@@ -2529,15 +2531,15 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
               onClick={() => answerOption(o)}
               aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
               className={[
-                "relative flex items-center min-h-12 justify-between rounded-xl border px-4 py-2.5 transition",
+                "relative flex min-h-12 items-center gap-2.5 rounded-xl border px-4 py-2.5 transition",
                 state === "idle" && "border-line hover:bg-surface-2",
                 state === "selected" && "border-accent bg-accent-soft text-accent",
                 state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
                 state === "wrong" && "border-transparent bg-wrong-soft",
               ].filter(Boolean).join(" ")}
             >
-              <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
-              <span className="pl-0 sm:pl-5">{o}</span>
+              <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
+              <span className="min-w-0 flex-1">{o}</span>
               {state === "right" && <IconCheck className="text-[rgb(var(--good))]" />}
               {state === "wrong" && <IconX className="text-wrong" />}
             </button>

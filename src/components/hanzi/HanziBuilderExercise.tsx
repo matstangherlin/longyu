@@ -556,7 +556,7 @@ function PieceButton({
           : "h-14 min-w-14 border-line px-2 hover:border-accent-soft hover:bg-surface-2",
       ].join(" ")}
     >
-      {shortcut && !placed && <ShortcutBadge className="absolute left-1 top-1">{shortcut}</ShortcutBadge>}
+      {shortcut && !placed && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
       {piece.kind === "stroke" ? (
         <svg
           viewBox="0 0 100 100"

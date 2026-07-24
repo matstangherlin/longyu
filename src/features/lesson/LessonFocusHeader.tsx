@@ -86,7 +86,7 @@ export function FolegoMeter({ folego, unlimited }: { folego: number; unlimited: 
     <div
       className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line bg-surface/95 px-2 py-1 text-accent shadow-card"
       aria-label={unlimited ? "Fôlego ilimitado" : `Fôlego: ${folego}`}
-      title="Fôlego: use para pular uma tarefa difícil (vai para a revisão). Ganhe recarga em rodadas perfeitas."
+      title="Fôlego: pule uma tarefa difícil (vai para a revisão). Rodadas perfeitas às vezes recarregam (+1, teto diário)."
     >
       <IconBreath width={13} height={13} />
       <span className="tabular-nums text-[11px] font-semibold text-ink-soft">{unlimited ? "∞" : folego}</span>

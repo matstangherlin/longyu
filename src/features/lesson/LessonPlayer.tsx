@@ -32,8 +32,9 @@ import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView 
 import {
   BREATH_LIVES,
   BREATH_RECOVERY_QI,
+  CONSECUTIVE_MISTAKE_CHARGE_COST,
+  CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD,
   DAILY_GOAL_QI,
-  FOLEGO_PERFECT_ROUND_REWARD,
   LESSON_BASE_XP,
   LESSON_NO_SKIP_QI,
   LESSON_THREE_STAR_QI,
@@ -1219,7 +1220,7 @@ export function LessonPlayer() {
   const grantLessonReward = useStore((s) => s.grantLessonReward);
   const folego = useStore((s) => s.folego);
   const spendFolego = useStore((s) => s.spendFolego);
-  const earnFolego = useStore((s) => s.earnFolego);
+  const tryEarnFolegoFromPerfect = useStore((s) => s.tryEarnFolegoFromPerfect);
   const setLessonStars = useStore((s) => s.setLessonStars);
   const setLessonPendingStars = useStore((s) => s.setLessonPendingStars);
   const lessonPendingStars = useStore((s) => s.lessonPendingStars);
@@ -1304,6 +1305,10 @@ export function LessonPlayer() {
   // ficam com a 3ª estrela pendente até serem dominados na revisão.
   const folegoSkipCountRef = useRef(0);
   const folegoSkipRefsRef = useRef<Set<string>>(new Set());
+  /** Erros confirmados seguidos — ao atingir o limiar, perde 1 Carga. */
+  const errorStreakRef = useRef(0);
+  const mistakeChargeHitsRef = useRef(0);
+  const [chargePenaltyNotice, setChargePenaltyNotice] = useState<string | null>(null);
   const retryUsesRef = useRef(0);
   const recoveryUsesRef = useRef(0);
   // Tons acertados nesta tentativa (contados no acerto real, não inferidos):
@@ -2065,8 +2070,32 @@ export function LessonPlayer() {
     setStepAttempt((attempt) => attempt + 1);
   }
 
-  // "Continuar e perder perfeição": o erro vira permanente, custa 1 Fôlego
+  // "Continuar e perder perfeição": o erro vira permanente, custa 1 Vida
   // e avança para o próximo step para evitar dois fluxos de feedback.
+  function noteConfirmedMistake() {
+    if (hasUnlimitedLives) return;
+    errorStreakRef.current += 1;
+    if (
+      errorStreakRef.current >= CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD &&
+      CONSECUTIVE_MISTAKE_CHARGE_COST > 0
+    ) {
+      const hit = mistakeChargeHitsRef.current + 1;
+      const spent = consumeCharge(
+        "lesson",
+        `consume:mistake-streak:${lesson.id}:${todayKey()}:${hit}`
+      );
+      errorStreakRef.current = 0;
+      if (spent) {
+        mistakeChargeHitsRef.current = hit;
+        setChargePenaltyNotice(
+          `−${CONSECUTIVE_MISTAKE_CHARGE_COST} Carga: ${CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD} erros seguidos.`
+        );
+        window.setTimeout(() => setChargePenaltyNotice(null), 3200);
+        playSoundFx("blocked", soundEffects);
+      }
+    }
+  }
+
   function continueWithMistake() {
     if (!pendingMistake) return;
     currentStepHadMistakeRef.current = true;
@@ -2077,6 +2106,7 @@ export function LessonPlayer() {
       handleDone(false);
       return;
     }
+    noteConfirmedMistake();
     const nextLives = Math.max(0, lives - 1);
     setLives(nextLives);
     if (nextLives <= 0) {
@@ -2174,6 +2204,7 @@ export function LessonPlayer() {
     if (countsAsCorrect) {
       if (currentStep.kind === "tone") toneHitsRef.current += 1;
       else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
+      errorStreakRef.current = 0;
       nextStreak = answerStreak + 1;
       setAnswerStreak(nextStreak);
       setCorrectBurst(nextStreak % 2 === 0 ? "Boa!" : "Certo");
@@ -2199,6 +2230,7 @@ export function LessonPlayer() {
         if (currentStepIsGraded) rememberMistakeTargets(currentStep);
       }
       if (currentStepIsGraded && !hasUnlimitedLives && !penaltyApplied) {
+        noteConfirmedMistake();
         nextLives = Math.max(0, lives - 1);
         setLives(nextLives);
       }
@@ -2506,9 +2538,9 @@ export function LessonPlayer() {
         setLessonPendingStars(lesson.id, folegoSkipRefs);
       }
       completeLesson(lesson.id);
-      // Rodada perfeita (3★, sem erro e sem pular) recarrega Fôlego (teto grátis).
+      // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
       if (stars === 3 && folegoSkips === 0 && !hadRealMistakes) {
-        earnFolego(FOLEGO_PERFECT_ROUND_REWARD);
+        tryEarnFolegoFromPerfect();
       }
       void trackPedagogyEvent({
         eventType: "lesson_completed",
@@ -2696,6 +2728,9 @@ export function LessonPlayer() {
       skippedStepsRef.current = 0;
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
+      errorStreakRef.current = 0;
+      mistakeChargeHitsRef.current = 0;
+      setChargePenaltyNotice(null);
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
@@ -3318,6 +3353,13 @@ export function LessonPlayer() {
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-streak-burst rounded-full border border-accent-soft bg-surface px-4 py-2 text-sm font-semibold text-accent shadow-card">
             Sequência x{streakBurst} 🔥
+          </div>
+        </div>
+      )}
+      {chargePenaltyNotice && (
+        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
+          <div className="longyu-error-shake rounded-full border border-wrong/30 bg-wrong-soft px-4 py-2 text-sm font-semibold text-wrong shadow-card">
+            {chargePenaltyNotice}
           </div>
         </div>
       )}

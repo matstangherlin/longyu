@@ -889,7 +889,7 @@ function ChoiceQuestionView({ question, answered, onAnswer }: QuestionViewProps<
             aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
             className={["relative", optionButtonClass(state, answered != null)].join(" ")}
           >
-            <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             <span className={/[㐀-鿿]/.test(option) ? "hanzi text-xl" : ""}>{formatPinyinForDisplay(option)}</span>
             {state === "right" && <IconCheck className="text-[rgb(var(--good))]" />}
             {state === "wrong" && <IconX className="text-wrong" />}
@@ -953,7 +953,7 @@ function ClozeQuestionView({ question, answered, onAnswer }: QuestionViewProps<C
                 .filter(Boolean)
                 .join(" ")}
             >
-              <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               {option}
             </button>
           );
@@ -1008,7 +1008,7 @@ function OrderQuestionView({ question, answered, onAnswer }: QuestionViewProps<O
             aria-label={`Peça ${shortcutKeyForIndex(index)}: ${piece}`}
             className="hanzi relative min-h-12 rounded-xl border border-line bg-surface px-4 py-2.5 text-xl transition hover:bg-surface-2 active:scale-95"
           >
-            <ShortcutBadge className="absolute left-1.5 top-1.5">{shortcutKeyForIndex(index)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             {piece}
           </button>
         ))}
@@ -1102,7 +1102,7 @@ function MatchQuestionView({ question, answered, onAnswer }: QuestionViewProps<M
                   : "border-line bg-surface hover:bg-surface-2",
               ].join(" ")}
             >
-              <ShortcutBadge className="absolute left-1.5 top-1.5">{leftPairShortcut(index)}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
               {left}
             </button>
           );
@@ -1126,7 +1126,7 @@ function MatchQuestionView({ question, answered, onAnswer }: QuestionViewProps<M
                   : "border-line bg-surface hover:bg-surface-2",
               ].join(" ")}
             >
-              <ShortcutBadge className="absolute left-1.5 top-1.5">{rightPairShortcut(index)}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
               {right}
             </button>
           );

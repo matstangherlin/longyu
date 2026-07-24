@@ -82,7 +82,7 @@ export function ImageChoiceGrid({
             aria-label={`Opção ${shortcutKeyForIndex(index)}${visual ? `: ${visual.imageAltPt}` : ""}`}
             className={tileClass(state, mode === "images")}
           >
-            <ShortcutBadge className="absolute left-2 top-2">{shortcutKeyForIndex(index)}</ShortcutBadge>
+            <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             {mode === "images" ? (
               <>
                 <VisualConceptImage conceptId={value} size="md" className="pointer-events-none max-w-none" />
