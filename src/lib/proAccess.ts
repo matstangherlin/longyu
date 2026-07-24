@@ -1,9 +1,17 @@
 import type { DomainTrack } from "../data/domains";
 import { FREE_REVIEW_SESSION_LIMIT } from "../data/economy";
 import { getPlanFeature } from "../data/planFeatures";
-import { ALL_LESSONS, JOURNEY, getLesson } from "../data/journey";
+import { ALL_LESSONS, JOURNEY, getLesson, getPhaseById } from "../data/journey";
 import { effectivePremium } from "./entitlements";
 import { useStore } from "./store";
+
+/** Mínimo para a aula contar como concluída (libera próxima aula). */
+function requiredStarsForLessonPass(isReview?: boolean): number {
+  return isReview ? 2 : 1;
+}
+
+/** 3★ em todas as aulas da fase para liberar a próxima fase. */
+const PHASE_MASTERY_STARS = 3;
 
 export const TOOL_UNLOCK_LESSONS = {
   fala: "l1",
@@ -118,23 +126,54 @@ function hasCompleted(completed: string[], lessonId: string): boolean {
   return completed.includes(lessonId);
 }
 
-function requiredStarsForJourney(lesson: { isReview?: boolean }): number {
-  return lesson.isReview ? 2 : 3;
-}
-
+/** Aula concluída basta para liberar a próxima aula (na mesma fase). */
 function lessonMeetsJourneyRequirement(
   lesson: { id: string; isReview?: boolean },
+  completed: string[],
+  _lessonStarsById: Record<string, number>,
+  lessonPendingStars?: Record<string, string[]>
+): boolean {
+  if (!completed.includes(lesson.id)) return false;
+  // Skip com estrela pendente também destrava a próxima aula.
+  if ((lessonPendingStars?.[lesson.id]?.length ?? 0) > 0) return true;
+  return true;
+}
+
+/** Fase só libera a seguinte quando todas as aulas têm 3★ (sem pendência de skip). */
+function phaseMeetsMasteryRequirement(
+  phaseId: string,
   completed: string[],
   lessonStarsById: Record<string, number>,
   lessonPendingStars?: Record<string, string[]>
 ): boolean {
-  if (!completed.includes(lesson.id)) return false;
-  // Concluída por skip (estrela pendente) destrava a próxima mesmo em 2★:
-  // a 3ª estrela vem depois, ao dominar o item na revisão.
-  if ((lessonPendingStars?.[lesson.id]?.length ?? 0) > 0) return true;
-  const requiredStars = requiredStarsForJourney(lesson);
-  const currentStars = lessonStarsById[lesson.id] ?? requiredStars;
-  return currentStars >= requiredStars;
+  const phase = getPhaseById(phaseId);
+  if (!phase) return true;
+  const lessons = phase.units.flatMap((unit) => unit.lessons);
+  const needed = PHASE_MASTERY_STARS;
+  return lessons.every((lesson) => {
+    if (!completed.includes(lesson.id)) return false;
+    if ((lessonPendingStars?.[lesson.id]?.length ?? 0) > 0) return false;
+    const stars = lessonStarsById[lesson.id] ?? 0;
+    return stars >= needed;
+  });
+}
+
+function firstIncompleteLessonInPhase(
+  phaseId: string,
+  completed: string[],
+  lessonStarsById: Record<string, number>,
+  lessonPendingStars?: Record<string, string[]>
+) {
+  const phase = getPhaseById(phaseId);
+  if (!phase) return undefined;
+  const needed = PHASE_MASTERY_STARS;
+  return phase.units
+    .flatMap((unit) => unit.lessons)
+    .find((lesson) => {
+      if (!completed.includes(lesson.id)) return true;
+      if ((lessonPendingStars?.[lesson.id]?.length ?? 0) > 0) return true;
+      return (lessonStarsById[lesson.id] ?? 0) < needed;
+    });
 }
 
 function missingLessonBefore(
@@ -287,6 +326,29 @@ export function canStartLesson(lessonId: string, context?: ProAccessContext): Ac
 
   const missing = missingLessonBefore(lessonId, completed, lessonStarsById, lessonPendingStars);
   if (!missing) {
+    // Cruzar de fase exige 3★ em todas as aulas da fase anterior.
+    const lessonIndex = ALL_LESSONS.findIndex((item) => item.id === lessonId);
+    const previous = lessonIndex > 0 ? ALL_LESSONS[lessonIndex - 1] : undefined;
+    if (previous && previous.phaseId !== lesson.phaseId) {
+      if (!phaseMeetsMasteryRequirement(previous.phaseId, completed, lessonStarsById, lessonPendingStars)) {
+        const weak = firstIncompleteLessonInPhase(
+          previous.phaseId,
+          completed,
+          lessonStarsById,
+          lessonPendingStars
+        );
+        const phaseTitle = previous.phaseTitle;
+        return {
+          allowed: false,
+          pro,
+          reasonCode: "missing_lesson",
+          reason: weak
+            ? `Consiga 3 estrelas em "${weak.title}" (e nas demais aulas da fase ${phaseTitle}) para avançar de fase.`
+            : `Consiga 3 estrelas em todas as aulas da fase ${phaseTitle} para avançar de fase.`,
+          cta: "Buscar 3 estrelas",
+        };
+      }
+    }
     return {
       allowed: true,
       pro,
@@ -306,7 +368,7 @@ export function canStartLesson(lessonId: string, context?: ProAccessContext): Ac
   }
 
   const missingStars = lessonStarsById[missing.id] ?? 0;
-  const requiredStars = requiredStarsForJourney(missing);
+  const requiredStars = requiredStarsForLessonPass(Boolean(missing.isReview));
   if (missingStars > 0 && missingStars < requiredStars) {
     return {
       allowed: false,
@@ -314,8 +376,8 @@ export function canStartLesson(lessonId: string, context?: ProAccessContext): Ac
       reasonCode: "missing_lesson",
       reason: missing.isReview
         ? `Conclua "${missing.title}" com pelo menos 80% de precisão para liberar esta lição.`
-        : `Consiga 3 estrelas em "${missing.title}" para liberar esta lição.`,
-      cta: missing.isReview ? "Refazer revisão" : "Revisar erros agora",
+        : `Conclua "${missing.title}" para liberar esta lição.`,
+      cta: missing.isReview ? "Refazer revisão" : "Continuar na Jornada",
     };
   }
 

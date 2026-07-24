@@ -45,14 +45,18 @@ export function useAchievementSnapshot(): AchievementSnapshot {
 // Observa o progresso e desbloqueia medalhas completas. O unlockAchievement é
 // idempotente na store, então nenhuma medalha (nem recompensa) duplica — mesmo
 // que o efeito rode duas vezes.
+// Durante a lição (holdAchievementModals), o desbloqueio acontece em silêncio e
+// o modal só aparece ao concluir a tarefa / sair do modo exercício.
 export function AchievementsWatcher() {
   const snapshot = useAchievementSnapshot();
   const achievementsUnlocked = useStore((s) => s.achievementsUnlocked);
   const unlockAchievement = useStore((s) => s.unlockAchievement);
   const soundEffects = useStore((s) => s.soundEffects);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
+  const holdAchievementModals = useStore((s) => s.holdAchievementModals);
 
   const [queue, setQueue] = useState<AchievementDef[]>([]);
+  const [pendingShow, setPendingShow] = useState<AchievementDef[]>([]);
 
   useEffect(() => {
     if (!accountSetupComplete) return;
@@ -60,8 +64,12 @@ export function AchievementsWatcher() {
       (def) => !(achievementsUnlocked ?? {})[def.id] && isAchievementComplete(def, snapshot)
     ).filter((def) => unlockAchievement(def.id, def.reward));
     if (unlockedNow.length > 0) {
-      playSoundFx("medal", soundEffects);
-      setQueue((current) => [...current, ...unlockedNow]);
+      if (holdAchievementModals) {
+        setPendingShow((current) => [...current, ...unlockedNow]);
+      } else {
+        playSoundFx("medal", soundEffects);
+        setQueue((current) => [...current, ...unlockedNow]);
+      }
     }
     // O snapshot é recriado por render, mas os campos internos são referências
     // estáveis da store — as deps abaixo cobrem tudo que muda progresso.
@@ -69,6 +77,7 @@ export function AchievementsWatcher() {
   }, [
     accountSetupComplete,
     achievementsUnlocked,
+    holdAchievementModals,
     snapshot.completedLessons,
     snapshot.learnedChars,
     snapshot.learnedChunks,
@@ -84,8 +93,15 @@ export function AchievementsWatcher() {
     unlockAchievement,
   ]);
 
+  useEffect(() => {
+    if (holdAchievementModals || pendingShow.length === 0) return;
+    playSoundFx("medal", soundEffects);
+    setQueue((current) => [...current, ...pendingShow]);
+    setPendingShow([]);
+  }, [holdAchievementModals, pendingShow, soundEffects]);
+
   const current = queue[0];
-  if (!current) return null;
+  if (!current || holdAchievementModals) return null;
 
   return (
     <AchievementUnlockModal

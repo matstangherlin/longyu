@@ -30,3 +30,17 @@ export function personalizeName(value: string | undefined, name: string | undefi
     .replaceAll("Mǎxiū", name)
     .replaceAll("Matheus", name);
 }
+
+/**
+ * Personaliza prompts de conversa da Jornada: o avatar do aluno já se chama
+ * Matheus (ou o nome real), mas textos legados ainda podem dizer "Lin".
+ * Não usar em Imersão — lá "Lin" é NPC (林).
+ */
+export function personalizeConversationPrompt(
+  value: string | undefined,
+  name: string | undefined
+): string | undefined {
+  if (!value) return value;
+  const withStudentAlias = value.replace(/\bLin\b/g, "Matheus");
+  return personalizeName(withStudentAlias, name) ?? withStudentAlias;
+}

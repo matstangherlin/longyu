@@ -1093,7 +1093,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         emotion: "happy",
         interaction: {
           type: "choose_meaning",
-          prompt: "Depois da repetição, o que Lin acrescenta?",
+          prompt: "Depois da repetição, o que Matheus acrescenta?",
           options: ["Meu nome é Matheus.", "Estou bem.", "Por favor, fale de novo.", "Tudo bem?"],
           correctAnswer: "Meu nome é Matheus.",
           correctNextNodeId: "pedir-repeticao-9",
@@ -1199,7 +1199,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         emotion: "neutral",
         interaction: {
           type: "choose_reply",
-          prompt: "Agora Lin pergunta a Mei. Como Mei responde que é brasileira?",
+          prompt: "Agora Matheus pergunta a Mei. Como Mei responde que é brasileira?",
           options: ["我是巴西人", "我叫马修", "我听不懂", "谢谢"],
           correctAnswer: "我是巴西人",
           correctNextNodeId: "de-onde-sou-8",
@@ -1234,7 +1234,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         emotion: "confused",
         interaction: {
           type: "choose_reply",
-          prompt: "Lin não entendeu no parque. O que ele pede para reparar a conversa?",
+          prompt: "Matheus não entendeu no parque. O que ele pede para reparar a conversa?",
           options: ["请再说一遍", "我很好", "你好", "谢谢"],
           correctAnswer: "请再说一遍",
           correctNextNodeId: "nao-entendi-reparo-5",
@@ -1254,7 +1254,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         emotion: "confused",
         interaction: {
           type: "choose_meaning",
-          prompt: "O que Lin esclarece com 我不会说中文?",
+          prompt: "O que Matheus esclarece com 我不会说中文?",
           options: ["Não sei falar chinês.", "Estou bem.", "Tudo bem?", "Obrigado(a)."],
           correctAnswer: "Não sei falar chinês.",
           correctNextNodeId: "nao-entendi-reparo-9",
@@ -1306,7 +1306,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         emotion: "confused",
         interaction: {
           type: "choose_meaning",
-          prompt: "O que Lin comunica com 我不会说中文?",
+          prompt: "O que Matheus comunica com 我不会说中文?",
           options: ["Não sei falar chinês.", "Estou bem.", "Tudo bem?", "Até logo."],
           correctAnswer: "Não sei falar chinês.",
           correctNextNodeId: "nao-falo-chinês-5",
@@ -1358,7 +1358,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         emotion: "happy",
         interaction: {
           type: "choose_meaning",
-          prompt: "O que Lin responde com 我叫马修?",
+          prompt: "O que Matheus responde com 我叫马修?",
           options: ["Meu nome é Matheus.", "Como você se chama?", "Tudo bem?", "Até logo."],
           correctAnswer: "Meu nome é Matheus.",
           correctNextNodeId: "como-se-chama-5",
@@ -1539,7 +1539,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
           pt: "Eu quero água.",
           interaction: {
             type: "choose_meaning",
-            prompt: "O que Lin pediu?",
+            prompt: "O que Matheus pediu?",
             options: ["água", "chá", "este", "olá"],
             correctAnswer: "água",
             correctNextNodeId: "agua-i8",
@@ -1641,7 +1641,7 @@ sceneV2({
       pt: "Quanto custa?",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin perguntou?",
+        prompt: "O que Matheus perguntou?",
         options: ["Quanto custa?", "O que é isto?", "Quero três.", "Caro demais."],
         correctAnswer: "Quanto custa?",
         correctNextNodeId: "qtd-8",
@@ -1690,7 +1690,7 @@ sceneV2({
       pt: "Sim.",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin perguntou?",
+        prompt: "O que Matheus perguntou?",
         options: ["Aquilo é uma pessoa?", "Isto é água.", "Estou bem.", "Obrigado."],
         correctAnswer: "Aquilo é uma pessoa?",
         correctNextNodeId: "pessoa-4",
@@ -1744,7 +1744,7 @@ sceneV2({
       emotion: "happy",
       interaction: {
         type: "choose_meaning",
-        prompt: "Como Lin está?",
+        prompt: "Como Matheus está?",
         options: ["Estou bem.", "O que é isto?", "Até amanhã.", "Caro demais."],
         correctAnswer: "Estou bem.",
         correctNextNodeId: "amigo-5",
@@ -1813,7 +1813,7 @@ sceneV2({
       emotion: "thinking",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin perguntou ao olhar para a trilha?",
+        prompt: "O que Matheus perguntou ao olhar para a trilha?",
         options: ["Aquilo é uma pessoa?", "Onde fica a montanha?", "Obrigado.", "De nada."],
         correctAnswer: "Aquilo é uma pessoa?",
         correctNextNodeId: "onde-8",
@@ -1969,7 +1969,7 @@ sceneV2({
       emotion: "confused",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin disse?",
+        prompt: "O que Matheus disse?",
         options: ["Não entendi.", "Falo um pouco de chinês.", "O que é isto?", "Obrigado."],
         correctAnswer: "Não entendi.",
         correctNextNodeId: "ajuda-5",
@@ -2091,7 +2091,7 @@ sceneV2({
       emotion: "thinking",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin propôs?",
+        prompt: "O que Matheus propôs?",
         options: ["Até amanhã?", "Tudo bem?", "Obrigado.", "De nada."],
         correctAnswer: "Até amanhã?",
         correctNextNodeId: "amanha-5",
@@ -2142,7 +2142,7 @@ sceneV2({
       emotion: "thinking",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin perguntou?",
+        prompt: "O que Matheus perguntou?",
         options: ["O que é isto?", "Isto é água.", "Quero beber chá.", "Tudo bem?"],
         correctAnswer: "O que é isto?",
         correctNextNodeId: "isto-5",
@@ -2264,7 +2264,7 @@ sceneV2({
       pt: "Quanto custa?",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin perguntou?",
+        prompt: "O que Matheus perguntou?",
         options: ["Quanto custa?", "O que é isto?", "Obrigado.", "De nada."],
         correctAnswer: "Quanto custa?",
         correctNextNodeId: "loja-7",
@@ -2315,7 +2315,7 @@ sceneV2({
       pt: "Estou bem! Com licença, eu quero beber chá.",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin disse que quer?",
+        prompt: "O que Matheus disse que quer?",
         options: ["Beber chá.", "Ir embora.", "Três amigos.", "A montanha."],
         correctAnswer: "Beber chá.",
         correctNextNodeId: "comprar-4",
@@ -2370,7 +2370,7 @@ sceneV2({
       pt: "Não, eu quero este.",
       interaction: {
         type: "choose_meaning",
-        prompt: "Lin aceitou três itens?",
+        prompt: "Matheus aceitou três itens?",
         options: ["Não, ele quer este.", "Sim, ele quer três.", "Ele quer sair.", "Ele pediu água."],
         correctAnswer: "Não, ele quer este.",
         correctNextNodeId: "comprar-13",
@@ -2440,7 +2440,7 @@ sceneV2({
       emotion: "happy",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin achou da comida?",
+        prompt: "O que Matheus achou da comida?",
         options: ["Muito gostosa.", "Muito cara.", "Ele não entendeu.", "Ele quer três."],
         correctAnswer: "Muito gostosa.",
         correctNextNodeId: "rest-9",
@@ -2665,7 +2665,7 @@ sceneV2({
       pt: "Estou bem! Com licença, quero beber chá.",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin procura no mercado?",
+        prompt: "O que Matheus procura no mercado?",
         options: ["Chá.", "Uma passagem.", "Uma montanha.", "A mãe de Wang."],
         correctAnswer: "Chá.",
         correctNextNodeId: "mercado-4",
@@ -2701,7 +2701,7 @@ sceneV2({
       pt: "Quanto custa?",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin perguntou?",
+        prompt: "O que Matheus perguntou?",
         options: ["O preço.", "O nome.", "Onde fica.", "Se está tudo bem."],
         correctAnswer: "O preço.",
         correctNextNodeId: "mercado-9",
@@ -2791,7 +2791,7 @@ sceneV2({
       emotion: "thinking",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin está procurando?",
+        prompt: "O que Matheus está procurando?",
         options: ["A estação de trem.", "Chá.", "A casa da amiga.", "Três amigos."],
         correctAnswer: "A estação de trem.",
         correctNextNodeId: "estacao-3",
@@ -2827,7 +2827,7 @@ sceneV2({
       pt: "Com licença, quanto custa a passagem?",
       interaction: {
         type: "choose_meaning",
-        prompt: "Agora Lin pergunta sobre o quê?",
+        prompt: "Agora Matheus pergunta sobre o quê?",
         options: ["O preço da passagem.", "Onde fica a casa.", "Se tem chá.", "Se Wang está bem."],
         correctAnswer: "O preço da passagem.",
         correctNextNodeId: "estacao-9",
@@ -3351,7 +3351,7 @@ sceneV2({
       emotion: "thinking",
       interaction: {
         type: "choose_meaning",
-        prompt: "O que Lin está procurando?",
+        prompt: "O que Matheus está procurando?",
         options: ["O carro.", "O bilhete.", "Água.", "Chá."],
         correctAnswer: "O carro.",
         correctNextNodeId: "carro-5",

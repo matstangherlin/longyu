@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 9438be2b2f03d688532f157df6b367d74bc67def |
+| Commit | 4da2e82d515d86d8deec57d427f035d064f43323 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T23:45:11.957Z |
+| Gerado em | 2026-07-24T01:25:09.930Z |
 | Lições | 110 |
-| Hash da Jornada | 0d386a6a9c15 |
+| Hash da Jornada | b50a479c59d4 |
 
 ## Resumo
 
@@ -52,15 +52,15 @@
 | perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
 | agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 2 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
-| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 3 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 8 |
-| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
+| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 2 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 9 |
+| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 5 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 8 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
 | nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
 | como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 1 | 7 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 5 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 0 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 1 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:f41c0b3e88cab2cc -->
+<!-- integridade:3562c86473af414d -->

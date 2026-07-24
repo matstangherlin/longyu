@@ -141,30 +141,31 @@ function lockedLessonMessage(
     return "Esta área é liberada no Longyu Pro.";
   }
 
+  const flat = ALL_LESSONS.find((item) => item.id === lesson.id);
   const index = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
-  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((item) => {
-    if (!completed.includes(item.id)) return true;
-    const requiredStars = item.isReview ? 2 : 3;
-    const currentStars = lessonStarsById[item.id] ?? requiredStars;
-    return currentStars < requiredStars;
-  });
+  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((item) => !completed.includes(item.id));
 
   if (missing?.premium) {
     return "Esta lição depende de uma etapa do Longyu Pro.";
   }
 
   if (missing) {
-    const missingStars = lessonStarsById[missing.id] ?? 0;
-    const requiredStars = missing.isReview ? 2 : 3;
-    if (missingStars > 0 && missingStars < requiredStars) {
-      return missing.isReview
-        ? `Conclua "${missing.title}" com pelo menos 80% de precisão para liberar esta lição.`
-        : `Consiga 3 estrelas em "${missing.title}" para liberar esta lição.`;
-    }
     const taskCount = lessonTasksFor(missing).length;
     const attempted = taskCount > 0 && Math.min(taskCount, lessonTaskProgress[missing.id] ?? 0) >= taskCount;
-    if (attempted) return `Consiga 3 estrelas em "${missing.title}" para liberar esta lição.`;
+    if (attempted) return `Conclua "${missing.title}" para liberar esta lição.`;
     return `Complete "${missing.title}" para liberar esta lição.`;
+  }
+
+  const previous = index > 0 ? ALL_LESSONS[index - 1] : undefined;
+  if (flat && previous && previous.phaseId !== flat.phaseId) {
+    const phaseLessons = ALL_LESSONS.filter((item) => item.phaseId === previous.phaseId);
+    const weak = phaseLessons.find((item) => {
+      if (!completed.includes(item.id)) return true;
+      return (lessonStarsById[item.id] ?? 0) < 3;
+    });
+    if (weak) {
+      return `Consiga 3 estrelas em "${weak.title}" (e nas demais aulas da fase ${previous.phaseTitle}) para avançar de fase.`;
+    }
   }
 
   const requiredTonePack = requiredToneTrainerPackForLesson(lesson.id);

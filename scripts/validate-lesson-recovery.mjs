@@ -37,7 +37,8 @@ function canCompleteLesson(stars, graded, isReview = false, correctCount) {
           : 0;
     return accuracy >= MODULE_REVIEW_PASS_ACCURACY;
   }
-  return stars >= (isReview ? 2 : 3);
+  // Aula: 1★+ conclui e libera a próxima aula. 3★ trava só o avanço de fase.
+  return stars >= 1;
 }
 
 function assertEqual(label, actual, expected) {
@@ -52,8 +53,9 @@ assertEqual("revisão 90%", computeLessonStars({ correct: 9, graded: 10, isRevie
 assertEqual("revisão abaixo de 80%", computeLessonStars({ correct: 7, graded: 10, isReview: true }), 1);
 
 console.log("== Desbloqueio ==");
-assertEqual("lição normal exige 3 estrelas", canCompleteLesson(2, 10, false, 10), false);
+assertEqual("lição normal com 2 estrelas conclui aula", canCompleteLesson(2, 10, false, 10), true);
 assertEqual("lição normal com 3 estrelas", canCompleteLesson(3, 10, false, 10), true);
+assertEqual("lição normal com 0 estrelas não conclui", canCompleteLesson(0, 10, false, 0), false);
 assertEqual("revisão passa com 80%", canCompleteLesson(2, 10, true, 8), true);
 assertEqual("revisão falha abaixo de 80%", canCompleteLesson(1, 10, true, 7), false);
 

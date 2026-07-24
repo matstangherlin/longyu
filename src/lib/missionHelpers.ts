@@ -1,6 +1,6 @@
 import type { ActivityErrorRecord, LessonStar } from "./store";
 
-/** Erro de lição que ainda trava a Jornada (menos de 3 estrelas em lição concluída). */
+/** Erro de lição em aula com menos de 3 estrelas (ainda vale buscar domínio da fase). */
 export function isJourneyBlockingActivityError(
   error: ActivityErrorRecord,
   lessonStarsById: Record<string, LessonStar>,

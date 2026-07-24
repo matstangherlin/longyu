@@ -34,8 +34,14 @@ export function computeLessonStars({
   return 1;
 }
 
+/** Estrelas mínimas para concluir a aula (desbloqueia a próxima aula da fase). */
 export function requiredStarsForLesson(isReview = false): number {
-  return isReview ? 2 : 3;
+  return isReview ? 2 : 1;
+}
+
+/** 3 estrelas em todas as aulas da fase para liberar a próxima fase. */
+export function requiredStarsForPhaseAdvance(): number {
+  return 3;
 }
 
 export function canCompleteLesson(
@@ -54,5 +60,7 @@ export function canCompleteLesson(
           : 0;
     return accuracy >= MODULE_REVIEW_PASS_ACCURACY;
   }
+  // Aula normal: concluir (1★+) libera a próxima aula. A 3ª estrela é o alvo
+  // de domínio e só trava o avanço de fase (ver requiredStarsForPhaseAdvance).
   return stars >= requiredStarsForLesson(isReview);
 }

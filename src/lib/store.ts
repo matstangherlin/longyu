@@ -858,7 +858,8 @@ function normalizeLessonStar(value: unknown): LessonStar {
 
 function lessonCompletionRequiredStars(lessonId: string): LessonStar {
   const lesson = ALL_LESSONS.find((item) => item.id === lessonId);
-  return lesson?.isReview ? 2 : 3;
+  // Mínimo para a aula contar como concluída (libera próxima aula, não a fase).
+  return lesson?.isReview ? 2 : 1;
 }
 
 /** Limpa o mapa de estrelas pendentes: só lições com refs (`type:itemId`) reais. */
@@ -913,11 +914,13 @@ function normalizeLessonStars(
   });
   for (const lessonId of completedLessons ?? []) {
     if (!lessonId) continue;
-    // Estrela pendente: mantém em 2★ (não sobe para o requerido) até dominar na revisão.
+    // Estrela pendente: mantém em 2★ (não sobe para 3★) até dominar na revisão.
     if (pendingLessonIds?.has(lessonId)) {
       if ((normalized[lessonId] ?? 0) < 2) normalized[lessonId] = 2 as LessonStar;
       continue;
     }
+    // Não inflar estrelas de aulas já concluídas: 1★/2★ são válidos para
+    // avançar de aula; só a fase exige 3★ em todas.
     const requiredStars = lessonCompletionRequiredStars(lessonId);
     if ((normalized[lessonId] ?? 0) < requiredStars) normalized[lessonId] = requiredStars;
   }
@@ -1569,6 +1572,8 @@ interface AppState {
   autoPlayAudio: boolean;
   slowAudio: boolean;
   accountSetupComplete: boolean;
+  /** Durante exercícios da lição: desbloqueia medalhas sem mostrar o modal. */
+  holdAchievementModals: boolean;
   currentAccountId: string;
   accounts: Record<string, LearningAccount>;
   // progresso
@@ -1661,6 +1666,7 @@ interface AppState {
   setAutoPlayAudio: (enabled: boolean) => void;
   setSlowAudio: (enabled: boolean) => void;
   setAccountSetupComplete: (v: boolean) => void;
+  setHoldAchievementModals: (v: boolean) => void;
   setPremium: (v: boolean) => void;
   setServerEntitlement: (isPro: boolean) => void;
   setCloudSyncState: (status: CloudSyncStatus, message?: string) => void;
@@ -1846,6 +1852,7 @@ export const useStore = create<AppState>()(
       autoPlayAudio: true,
       slowAudio: false,
       accountSetupComplete: false,
+      holdAchievementModals: false,
       currentAccountId: DEFAULT_ACCOUNT_ID,
       accounts: { [DEFAULT_ACCOUNT_ID]: makeAccount(DEFAULT_ACCOUNT_ID, "Aluno local") },
       srs: {},
@@ -1926,6 +1933,7 @@ export const useStore = create<AppState>()(
           const next = { ...s, accountSetupComplete: v };
           return { accountSetupComplete: v, accounts: saveCurrentAccount(next) };
         }),
+      setHoldAchievementModals: (v) => set({ holdAchievementModals: v }),
       setPremium: (v) =>
         set((s) => {
           const next = { ...s, isPremium: v };
@@ -3848,6 +3856,7 @@ export const useStore = create<AppState>()(
           hasInternalTestCloudAccount({ accounts: normalized, currentAccountId });
         return {
           ...root,
+          holdAchievementModals: false,
           serverIsPro: grantInternalPro,
           isPremium: stripPreview ? false : root.isPremium,
           leagueTier: normalizeLeagueTier(root.leagueTier),

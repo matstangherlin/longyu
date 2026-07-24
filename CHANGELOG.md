@@ -7,6 +7,19 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Ajustes de diálogo, medalhas, Enter e estrelas
+
+- **Nome no diálogo**: prompts de conversa que ainda diziam "Lin" passam a usar
+  o nome do aluno (modelo "Matheus", personalizado em runtime) — simulação de
+  diálogo com o próprio usuário.
+- **Medalha no fim da tarefa**: o modal "Nova medalha!" não interrompe mais o
+  meio do exercício; o desbloqueio fica em fila e só aparece ao concluir a
+  lição (ou ao sair do player).
+- **Enter para avançar**: Continuar / Responder / Verificar (incluindo montagem
+  de ordem) aceitam Enter nas cenas de conversa e nos passos de introdução.
+- **Estrelas: aula vs fase**: concluir a aula com 1–2★ já libera a **próxima
+  aula**. Exigir **3★ em todas as aulas da fase** só para avançar de **fase**.
+
 ### Fôlego do Dragão — pular vira mecânica com sentido
 
 - **Fôlego** deixa de ser só as vidas da lição e vira uma **reserva persistente

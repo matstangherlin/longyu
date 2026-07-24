@@ -50,24 +50,23 @@ const SKILL_ICON: Record<Skill, typeof IconSound> = {
 
 function lockedLessonMessage(lessonId: string, completed: string[], lessonStarsById: Record<string, number>): string {
   const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
-  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((lesson) => {
-    if (!completed.includes(lesson.id)) return true;
-    const requiredStars = lesson.isReview ? 2 : 3;
-    const currentStars = lessonStarsById[lesson.id] ?? requiredStars;
-    return currentStars < requiredStars;
-  });
+  const target = ALL_LESSONS[index];
+  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((lesson) => !completed.includes(lesson.id));
   if (missing?.premium) return "Esta lição depende de uma etapa do Longyu Pro.";
-  if (missing) {
-    const missingStars = lessonStarsById[missing.id] ?? 0;
-    const requiredStars = missing.isReview ? 2 : 3;
-    if (missingStars > 0 && missingStars < requiredStars) {
-      return missing.isReview
-        ? `Conclua "${missing.title}" com pelo menos 80% de precisão para liberar esta lição.`
-        : `Consiga 3 estrelas em "${missing.title}" para liberar esta lição.`;
+  if (missing) return `Complete "${missing.title}" para liberar esta lição.`;
+
+  const previous = index > 0 ? ALL_LESSONS[index - 1] : undefined;
+  if (target && previous && previous.phaseId !== target.phaseId) {
+    const phaseLessons = ALL_LESSONS.filter((lesson) => lesson.phaseId === previous.phaseId);
+    const weak = phaseLessons.find((lesson) => {
+      if (!completed.includes(lesson.id)) return true;
+      return (lessonStarsById[lesson.id] ?? 0) < 3;
+    });
+    if (weak) {
+      return `Consiga 3 estrelas em "${weak.title}" (e nas demais aulas da fase ${previous.phaseTitle}) para avançar de fase.`;
     }
   }
 
-  if (missing) return `Complete "${missing.title}" para liberar esta lição.`;
   return "Complete a lição atual para liberar esta etapa.";
 }
 

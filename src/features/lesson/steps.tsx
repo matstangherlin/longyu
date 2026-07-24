@@ -8,7 +8,11 @@ import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPe
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
-import { personalizeName as personalizeValue, useStudentFirstName } from "../../lib/personalize";
+import {
+  personalizeConversationPrompt,
+  personalizeName as personalizeValue,
+  useStudentFirstName,
+} from "../../lib/personalize";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { playSoundFx } from "../../lib/soundFx";
 import {
@@ -80,6 +84,12 @@ function ToneCurve({ tone, size = 16 }: { tone: ToneN; size?: number }) {
 }
 
 function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; label?: string }) {
+  useExerciseHotkeys({
+    enabled: true,
+    mode: "choice",
+    isAnswered: true,
+    onContinue: onClick,
+  });
   return (
     <Button className="mt-4 w-full animate-pop shadow-lift" onClick={onClick}>
       {label}
@@ -250,7 +260,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function personalizeNode(node: ConversationNode, name: string): ConversationNode {
+function personalizeNode(node: ConversationNode, name: string | undefined): ConversationNode {
   const interaction = node.interaction;
   return {
     ...node,
@@ -261,9 +271,9 @@ function personalizeNode(node: ConversationNode, name: string): ConversationNode
     interaction: interaction
       ? {
           ...interaction,
-          prompt: personalizeValue(interaction.prompt, name) ?? interaction.prompt,
+          prompt: personalizeConversationPrompt(interaction.prompt, name) ?? interaction.prompt,
           correctAnswer: personalizeValue(interaction.correctAnswer, name) ?? interaction.correctAnswer,
-          explanation: personalizeValue(interaction.explanation, name) ?? interaction.explanation,
+          explanation: personalizeConversationPrompt(interaction.explanation, name) ?? interaction.explanation,
           options: interaction.options?.map((option) => personalizeValue(option, name) ?? option),
         }
       : interaction,
@@ -271,7 +281,6 @@ function personalizeNode(node: ConversationNode, name: string): ConversationNode
 }
 
 function personalizeStep(step: LessonStep, name: string | undefined): LessonStep {
-  if (!name) return step;
   return {
     ...step,
     // Personagens da cena: o avatar do aluno (esquerda) recebe o nome do usuário.
@@ -280,7 +289,7 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
       name: personalizeValue(character.name, name) ?? character.name,
     })),
     // Fluxo V2 por nós (o que o player realmente renderiza hoje): as falas e as
-    // interações também precisam trocar "马修/Matheus" pelo nome do usuário.
+    // interações também precisam trocar "马修/Matheus" (e "Lin" legado) pelo nome.
     nodes: step.nodes?.map((node) => personalizeNode(node, name)),
     title: personalizeValue(step.title, name),
     body: personalizeValue(step.body, name),
@@ -304,7 +313,7 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
     })),
     audioText: personalizeValue(step.audioText, name),
     slowAudioText: personalizeValue(step.slowAudioText, name),
-    prompt: personalizeValue(step.prompt, name),
+    prompt: personalizeConversationPrompt(step.prompt, name),
     sourceText: personalizeValue(step.sourceText, name),
     sourcePinyin: personalizeValue(step.sourcePinyin, name),
     sourceMeaning: personalizeValue(step.sourceMeaning, name),
@@ -314,9 +323,9 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
     sentenceAfter: personalizeValue(step.sentenceAfter, name),
     blankAnswer: personalizeValue(step.blankAnswer, name),
     speaker: personalizeValue(step.speaker, name),
-    dialoguePrompt: personalizeValue(step.dialoguePrompt, name),
+    dialoguePrompt: personalizeConversationPrompt(step.dialoguePrompt, name),
     correctAnswer: personalizeValue(step.correctAnswer, name),
-    explanation: personalizeValue(step.explanation, name),
+    explanation: personalizeConversationPrompt(step.explanation, name),
     lines: step.lines?.map((line) => ({
       ...line,
       hanzi: personalizeValue(line.hanzi, name) ?? line.hanzi,
@@ -327,10 +336,11 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
     checkpoint: step.checkpoint
       ? {
           ...step.checkpoint,
-          prompt: personalizeValue(step.checkpoint.prompt, name) ?? step.checkpoint.prompt,
+          prompt: personalizeConversationPrompt(step.checkpoint.prompt, name) ?? step.checkpoint.prompt,
           correctAnswer:
             personalizeValue(step.checkpoint.correctAnswer, name) ?? step.checkpoint.correctAnswer,
-          explanation: personalizeValue(step.checkpoint.explanation, name) ?? step.checkpoint.explanation,
+          explanation:
+            personalizeConversationPrompt(step.checkpoint.explanation, name) ?? step.checkpoint.explanation,
           options: step.checkpoint.options?.map((option) => personalizeValue(option, name) ?? option),
         }
       : step.checkpoint,

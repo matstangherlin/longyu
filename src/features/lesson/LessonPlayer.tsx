@@ -70,7 +70,7 @@ import { enrichMatchPairsStep } from "../../data/adaptivePairs";
 import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from "./immediateRemediation";
 import { getPendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
-import { canCompleteLesson, computeLessonStars as lessonStars, requiredStarsForLesson } from "./lessonStarRules";
+import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -738,7 +738,7 @@ function ImmediateErrorReviewOffer({
         </p>
         {canRecover && (
           <div className="mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-sm font-medium text-accent">
-            Corrija todos para recuperar a 3ª estrela e liberar a próxima lição.
+            Corrija todos para recuperar a 3ª estrela. Ela conta para liberar a próxima fase.
           </div>
         )}
         <div className="mt-auto grid gap-2 pt-6">
@@ -1241,6 +1241,7 @@ export function LessonPlayer() {
   const recordActivityErrorReviewAttempt = useStore((s) => s.recordActivityErrorReviewAttempt);
   const setCurrentLessonAttempt = useStore((s) => s.setCurrentLessonAttempt);
   const finishLessonAttempt = useStore((s) => s.finishLessonAttempt);
+  const setHoldAchievementModals = useStore((s) => s.setHoldAchievementModals);
   const recordLessonMistake = useStore((s) => s.recordLessonMistake);
   const markMistakeRecovered = useStore((s) => s.markMistakeRecovered);
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
@@ -1383,6 +1384,16 @@ export function LessonPlayer() {
       };
     });
   }, [correctedErrorIds, foundLesson]);
+
+  // Segura o modal de medalha durante os exercícios; libera ao concluir (ou ao sair).
+  useEffect(() => {
+    setHoldAchievementModals(true);
+    return () => setHoldAchievementModals(false);
+  }, [setHoldAchievementModals]);
+
+  useEffect(() => {
+    if (finishReason) setHoldAchievementModals(false);
+  }, [finishReason, setHoldAchievementModals]);
 
   useEffect(() => {
     if (!foundLesson || toneLocked || entryChecked || energyBlocked) return;
@@ -2548,9 +2559,9 @@ export function LessonPlayer() {
     const stars = recovered ? 3 : computedStars;
     const passed =
       recovered || (finishReason !== "out_of_lives" && canCompleteLesson(computedStars, graded, lesson.isReview, correct));
-    const requiredStars = requiredStarsForLesson(lesson.isReview);
+    const masteryStars = 3;
     const requiredAccuracy = Math.round(MODULE_REVIEW_PASS_ACCURACY * 100);
-    const passRequirementLabel = lesson.isReview ? `${requiredAccuracy}%` : `${requiredStars} estrelas`;
+    const passRequirementLabel = lesson.isReview ? `${requiredAccuracy}%` : `${masteryStars} estrelas`;
     const helpCount = skippedStepsRef.current + retryUsesRef.current + recoveryUsesRef.current;
     const precision = graded === 0 ? 100 : Math.round((correct / graded) * 100);
     const victoryTitle = VICTORY_TITLES[Math.abs(lesson.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % VICTORY_TITLES.length];
@@ -2568,7 +2579,7 @@ export function LessonPlayer() {
     const correctedCount = committedErrors.filter((error) => correctedErrorIds.includes(error.id)).length;
     const remainingErrors = committedErrors.filter((error) => !correctedErrorIds.includes(error.id));
     const reviewQueue = errorReviewMode === "review" && remainingErrors.length > 0 ? remainingErrors : committedErrors;
-    const canRetryAfterReview = !passed || (!lesson.isReview && stars < requiredStars);
+    const canRetryAfterReview = !passed || (!lesson.isReview && stars < masteryStars);
     const suggestsPinyinLab = lesson.steps.some((step) =>
       step.kind === "tone" || step.kind === "tone_pair" || step.kind === "listen_select"
     );
@@ -2827,7 +2838,7 @@ export function LessonPlayer() {
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
                 ? `Você precisa de ${passRequirementLabel} de precisão para passar esta revisão de módulo.`
-                : `Você precisa de ${passRequirementLabel} para concluir esta etapa.`}
+                : `Você precisa concluir esta etapa para avançar. A 3ª estrela é o alvo de domínio da fase.`}
             </p>
 
             <div className="mt-5 flex justify-center gap-2">
@@ -2853,7 +2864,7 @@ export function LessonPlayer() {
               {lesson.isReview
                 ? "A revisão de módulo mede domínio razoável. Os erros entram na revisão para você reforçar antes de tentar de novo."
                 : stars === 2
-                ? "Você chegou perto. Refaça os pontos fracos e busque uma rodada sem erros para liberar a próxima lição."
+                ? "Você chegou perto. Refaça os pontos fracos e busque uma rodada sem erros para fechar 3 estrelas nesta aula."
                 : "Vale revisar com calma antes de tentar de novo. O objetivo é sair com a estrutura firme, não só avançar."}
             </div>
 
@@ -3096,14 +3107,20 @@ export function LessonPlayer() {
 
           {recovered && (
             <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]">
-              Erros corrigidos! Você recuperou 3 estrelas e liberou a próxima lição.
+              Erros corrigidos! Você recuperou 3 estrelas nesta aula.
             </div>
           )}
 
           {(lessonPendingStars[lesson.id]?.length ?? 0) > 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              Você pulou com Fôlego: a próxima lição já está liberada. A 3ª estrela fica{" "}
+              Você pulou com Fôlego: a próxima aula já está liberada. A 3ª estrela fica{" "}
               <span className="font-semibold">pendente</span> — domine o item na revisão e ela volta sozinha.
+            </div>
+          )}
+
+          {!recovered && stars === 2 && (lessonPendingStars[lesson.id]?.length ?? 0) === 0 && (
+            <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
+              Próxima aula liberada. Busque 3 estrelas nas aulas da fase para avançar de fase.
             </div>
           )}
 

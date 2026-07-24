@@ -278,12 +278,14 @@ function CheckpointPanel({
   }
 
   useExerciseHotkeys({
-    enabled: !isOrder,
+    enabled: true,
     mode: "choice",
-    optionCount: options.length,
+    optionCount: isOrder ? 0 : options.length,
+    allowNumberKeys: !isOrder,
     isAnswered: feedback === "correct",
-    hasSelection: Boolean(picked),
+    hasSelection: isOrder ? ordered.length > 0 : Boolean(picked),
     onSelectOption: (index) => {
+      if (isOrder) return;
       const option = options[index];
       if (option && feedback !== "correct") {
         playSoundFx("pieceSelect", soundEffects);
@@ -519,12 +521,14 @@ function InteractionPanel({
   }
 
   useExerciseHotkeys({
-    enabled: !isOrder,
+    enabled: true,
     mode: "choice",
-    optionCount: visibleOptions.length,
+    optionCount: isOrder ? 0 : visibleOptions.length,
+    allowNumberKeys: !isOrder,
     isAnswered: feedback === "correct",
-    hasSelection: Boolean(picked),
+    hasSelection: isOrder ? ordered.length > 0 : Boolean(picked),
     onSelectOption: (index) => {
+      if (isOrder) return;
       const option = visibleOptions[index];
       if (option && feedback !== "correct") {
         playSoundFx("pieceSelect", soundEffects);
@@ -758,6 +762,13 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     finish();
   }
 
+  useExerciseHotkeys({
+    enabled: Boolean(node) && !answering,
+    mode: "choice",
+    isAnswered: true,
+    onContinue: advance,
+  });
+
   if (!node) {
     return (
       <div>
@@ -912,6 +923,13 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     setPhase("done");
     onDone(true);
   }
+
+  useExerciseHotkeys({
+    enabled: lines.length > 0 && phase === "dialogue",
+    mode: "choice",
+    isAnswered: true,
+    onContinue: advanceDialogue,
+  });
 
   if (lines.length === 0) {
     return (
