@@ -102,7 +102,15 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
 }
 
 /** Fundação completa + pré-requisitos da jornada para abrir o player de `lessonId`. */
-export async function seedLessonPlayerReady(page: Page, lessonId: string) {
+export async function seedLessonPlayerReady(
+  page: Page,
+  lessonId: string,
+  options: {
+    isPremium?: boolean;
+    theme?: "light" | "dark";
+    conversationHistory?: Array<Record<string, unknown>>;
+  } = {}
+) {
   await seedTelemetryDeclined(page);
   const foundation = [
     "p1-o-que-e-mandarim",
@@ -125,6 +133,10 @@ export async function seedLessonPlayerReady(page: Page, lessonId: string) {
     accountSetupComplete: true,
     completedLessons,
     lessonStarsById,
+    isPremium: options.isPremium ?? false,
+    serverIsPro: options.isPremium ?? false,
+    theme: options.theme ?? "light",
+    conversationHistory: options.conversationHistory ?? [],
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));
 }
