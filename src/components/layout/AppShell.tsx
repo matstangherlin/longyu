@@ -8,6 +8,7 @@ import { TabBar } from "./TabBar";
 import { TopBar } from "./TopBar";
 import { AchievementsWatcher } from "../achievements/AchievementsWatcher";
 import { StreakWatcher } from "../achievements/StreakWatcher";
+import { StreakRecoveryWatcher } from "../achievements/StreakRecoveryWatcher";
 import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
@@ -23,6 +24,7 @@ import { isAdminEmail } from "../../lib/feedback";
 export function AppShell() {
   const theme = useStore((s) => s.theme);
   const registerActivity = useStore((s) => s.registerActivity);
+  const reconcileStreak = useStore((s) => s.reconcileStreak);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
   const completedLessons = useStore((s) => s.completedLessons);
   const account = useStore((s) => s.accounts[s.currentAccountId]);
@@ -47,13 +49,16 @@ export function AppShell() {
   useEffect(() => {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     registerActivity();
+    // Ao abrir a tela: zera a ofensiva se passou 24h sem estudo e abre a janela
+    // de recuperação (aviso + recuperar fazendo um exercício).
+    reconcileStreak();
     warmUpVoices();
     const removeTTSUnlock = installTTSGestureUnlock();
     // Ancora do "primeiro minuto de uso": o ProOfferEngine não oferece Pro logo
     // na entrada do app (evita interromper quem acabou de abrir).
     markSessionStart();
     return removeTTSUnlock;
-  }, [registerActivity]);
+  }, [registerActivity, reconcileStreak]);
 
   // Usuário sem conta/progresso em página interna volta para a landing "/",
   // que dá contexto antes do onboarding (/conta continua acessível direto).
@@ -127,6 +132,7 @@ export function AppShell() {
       <EconomyBootstrap />
       <AchievementsWatcher />
       <StreakWatcher />
+      <StreakRecoveryWatcher />
       <TelemetryConsentWatcher />
     </div>
     </FeedbackProvider>

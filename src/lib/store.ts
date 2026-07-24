@@ -12,7 +12,13 @@ import {
 } from "../data/conversationScenes";
 import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
-import { todayKey, daysBetween, weekKey, monthKey } from "./storage";
+import { todayKey, weekKey, monthKey } from "./storage";
+import {
+  reconcileStreak as reconcileStreakState,
+  computeStudyStreak,
+  type StreakRecovery,
+} from "./streak";
+export type { StreakRecovery } from "./streak";
 import {
   type MissionScope,
   type MissionAggregates,
@@ -1057,6 +1063,10 @@ interface AccountSnapshot extends XpBuckets {
   activityByDay: Record<string, DailyStudyRecord>;
   /** Dias de ofensiva a celebrar no modal (null = nada pendente). */
   pendingStreakCelebration: number | null;
+  /** Janela de recuperação aberta após a ofensiva quebrar (null = sem recuperação). */
+  streakRecovery: StreakRecovery | null;
+  /** Ofensiva a avisar no modal de recuperação ao abrir o app (null = nada pendente). */
+  pendingStreakRecovery: number | null;
   points: number;
   dragonPearls: number;
   streakShields: number;
@@ -1154,6 +1164,8 @@ function blankSnapshot(): AccountSnapshot {
     lastStudyDate: null,
     activityByDay: {},
     pendingStreakCelebration: null,
+    streakRecovery: null,
+    pendingStreakRecovery: null,
     points: 0,
     dragonPearls: 0,
     streakShields: 0,
@@ -1261,6 +1273,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     lastStudyDate: s.lastStudyDate ?? null,
     activityByDay: s.activityByDay ?? {},
     pendingStreakCelebration: s.pendingStreakCelebration ?? null,
+    streakRecovery: s.streakRecovery ?? null,
+    pendingStreakRecovery: s.pendingStreakRecovery ?? null,
     points: s.points,
     dragonPearls: s.dragonPearls,
     streakShields: s.streakShields,
@@ -1381,6 +1395,8 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     lastStudyDate: account.lastStudyDate ?? null,
     activityByDay: account.activityByDay ?? {},
     pendingStreakCelebration: account.pendingStreakCelebration ?? null,
+    streakRecovery: account.streakRecovery ?? null,
+    pendingStreakRecovery: account.pendingStreakRecovery ?? null,
     points: account.points,
     dragonPearls: account.dragonPearls ?? 0,
     streakShields: account.streakShields ?? 0,
@@ -1659,6 +1675,8 @@ interface AppState {
   lastStudyDate: string | null;
   activityByDay: Record<string, DailyStudyRecord>;
   pendingStreakCelebration: number | null;
+  streakRecovery: StreakRecovery | null;
+  pendingStreakRecovery: number | null;
   dragonPearls: number;
   streakShields: number;
   badges: string[];
@@ -1831,6 +1849,10 @@ interface AppState {
   /** Conta um dia de ofensiva: só estudo (lição/revisão), não visita. */
   recordStudyDay: (delta?: { xp?: number; tasks?: number; minutes?: number }) => void;
   clearStreakCelebration: () => void;
+  /** Reconcilia a ofensiva ao abrir o app: zera após 24h sem estudo, abre recuperação. */
+  reconcileStreak: () => void;
+  /** Fecha o aviso de recuperação de ofensiva (a janela continua aberta até estudar). */
+  clearStreakRecovery: () => void;
   completeLesson: (id: string) => void;
   /** Marca lição concluída via teste de módulo — 1 estrela, sem recompensas de aula. */
   completeLessonViaTest: (id: string) => void;
@@ -1934,6 +1956,8 @@ export const useStore = create<AppState>()(
       lastStudyDate: null,
       activityByDay: {},
       pendingStreakCelebration: null,
+      streakRecovery: null,
+      pendingStreakRecovery: null,
       dragonPearls: 0,
       streakShields: 0,
       badges: [],
@@ -3750,20 +3774,10 @@ export const useStore = create<AppState>()(
               accounts: saveCurrentAccount(next),
             };
           }
-          let streak = 1;
-          let streakShields = current.streakShields;
-          if (current.lastStudyDate) {
-            const gap = daysBetween(current.lastStudyDate, t);
-            if (gap === 1) {
-              streak = current.streak + 1;
-            } else if (gap === 2 && streakShields > 0) {
-              streak = current.streak + 1;
-              streakShields -= 1;
-            }
-          } else if (current.lastActive && daysBetween(current.lastActive, t) <= 1 && current.streak > 0) {
-            // Migração suave: primeira contagem por estudo herda sequência recente.
-            streak = current.streak;
-          }
+          // Decisão da ofensiva (inclui recuperar a sequência se a janela de 24h
+          // ainda estiver aberta hoje). Estudar sempre encerra o aviso pendente.
+          const { streak, streakShields, streakRecovery, pendingStreakRecovery } =
+            computeStudyStreak(current, t);
           const longestStreak = Math.max(current.longestStreak, streak);
           const pendingStreakCelebration =
             streak > prevStreak || (prevStudy !== t && streak >= 1)
@@ -3779,6 +3793,8 @@ export const useStore = create<AppState>()(
             lastActive: t,
             streak,
             streakShields,
+            streakRecovery,
+            pendingStreakRecovery,
             longestStreak,
             pendingStreakCelebration,
             today,
@@ -3792,6 +3808,8 @@ export const useStore = create<AppState>()(
             lastActive: t,
             streak,
             streakShields,
+            streakRecovery,
+            pendingStreakRecovery,
             longestStreak,
             pendingStreakCelebration,
             today,
@@ -3811,6 +3829,35 @@ export const useStore = create<AppState>()(
           if (s.pendingStreakCelebration == null) return {};
           const next = { ...s, pendingStreakCelebration: null };
           return { pendingStreakCelebration: null, accounts: saveCurrentAccount(next) };
+        }),
+
+      // Reconcilia a ofensiva com o tempo real (chamado ao abrir o app).
+      // Se o aluno passou 24h (um dia inteiro) sem estudar, a ofensiva ZERA;
+      // no dia da quebra abre uma janela de recuperação (aviso + recuperar
+      // estudando). Passado esse dia, a recuperação expira de vez.
+      reconcileStreak: () =>
+        set((s) => {
+          const result = reconcileStreakState(s, todayKey());
+          if (!result.changed) return {};
+          const next = {
+            ...s,
+            streak: result.streak,
+            streakRecovery: result.streakRecovery,
+            pendingStreakRecovery: result.pendingStreakRecovery,
+          };
+          return {
+            streak: result.streak,
+            streakRecovery: result.streakRecovery,
+            pendingStreakRecovery: result.pendingStreakRecovery,
+            accounts: saveCurrentAccount(next),
+          };
+        }),
+
+      clearStreakRecovery: () =>
+        set((s) => {
+          if (s.pendingStreakRecovery == null) return {};
+          const next = { ...s, pendingStreakRecovery: null };
+          return { pendingStreakRecovery: null, accounts: saveCurrentAccount(next) };
         }),
 
       registerActivity: () => {

@@ -168,6 +168,16 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     })(),
     dragonPearls: Math.max(local.dragonPearls, remote.dragonPearls),
     streakShields: Math.max(local.streakShields, remote.streakShields),
+    // Recuperação de ofensiva é uma janela local de 24h: mantém a que quebrou
+    // mais recentemente (e o aviso pendente correspondente), sem perdê-la no sync.
+    streakRecovery: (() => {
+      const l = local.streakRecovery ?? null;
+      const r = remote.streakRecovery ?? null;
+      if (!l) return r;
+      if (!r) return l;
+      return l.brokenOn >= r.brokenOn ? l : r;
+    })(),
+    pendingStreakRecovery: local.pendingStreakRecovery ?? remote.pendingStreakRecovery ?? null,
     srs: mergeSrs(local.srs, remote.srs),
     achievementsUnlocked: { ...remote.achievementsUnlocked, ...local.achievementsUnlocked },
     achievementHistory: sortByTimestampDesc(

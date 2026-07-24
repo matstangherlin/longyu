@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Ofensiva zera após 24h e recuperação em 24h
+
+- **Zera de verdade**: passar **24h (um dia inteiro) sem estudar** zera a
+  ofensiva ao abrir o app — não fica mais congelada no valor antigo até o
+  próximo estudo. O escudo continua protegendo uma folga de 1 dia.
+- **Aviso ao abrir a tela**: se a ofensiva quebrou por perder exatamente 1 dia,
+  um modal aparece assim que a tela abre avisando que ela zerou e que há **até o
+  fim do dia (24h)** para recuperá-la.
+- **Recuperar fazendo um exercício**: o botão "Recuperar ofensiva" leva direto à
+  revisão; concluir um exercício no dia da quebra **restaura a sequência
+  anterior** (e conta o dia de hoje). Passado esse dia, a janela expira.
+- **Atalho no Perfil**: enquanto a janela está aberta, o card de Ofensiva mostra
+  o mesmo aviso e o botão de recuperar.
+
 ### Atalhos, Fôlego e energia por erros
 
 - **Números 1–9**: badges de atalho ficam ao lado do texto (não cobrem mais a

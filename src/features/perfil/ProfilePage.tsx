@@ -88,6 +88,8 @@ export function ProfilePage() {
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const streak = useStore((s) => s.streak);
+  const streakRecovery = useStore((s) => s.streakRecovery);
+  const clearStreakRecovery = useStore((s) => s.clearStreakRecovery);
   const xpTotal = useStore((s) => s.xpTotal);
   const completedLessons = useStore((s) => s.completedLessons);
   const activityByDay = useStore((s) => s.activityByDay ?? {});
@@ -274,7 +276,26 @@ export function ProfilePage() {
         </div>
         <p className="mb-3 text-xs leading-5 text-ink-soft">
           Conta à meia-noite do seu horário local. Só sobe quando você faz uma tarefa — entrar no site não conta.
+          Passou 24h sem estudar? A ofensiva zera, mas você tem o dia todo para recuperá-la fazendo um exercício.
         </p>
+        {streakRecovery && streakRecovery.brokenOn === todayKey() && (
+          <div className="mb-3 flex flex-col gap-2 rounded-2xl border border-accent-soft bg-accent-soft/60 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-2">
+              <IconFlame width={16} height={16} className="mt-0.5 shrink-0 text-accent" />
+              <p className="text-xs leading-5 text-ink">
+                Sua ofensiva de {streakRecovery.streak} {streakRecovery.streak === 1 ? "dia" : "dias"} zerou por 24h sem estudo.
+                Faça um exercício hoje e ela volta.
+              </p>
+            </div>
+            <Link
+              to="/revisao"
+              onClick={() => clearStreakRecovery()}
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            >
+              <IconRefresh width={15} height={15} /> Recuperar ofensiva
+            </Link>
+          </div>
+        )}
         <div className="grid grid-cols-7 gap-1.5">
           {calendarDays.map((day) => {
             const level = studyLevel(day.record);
