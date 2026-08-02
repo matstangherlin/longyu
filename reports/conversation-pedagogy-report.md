@@ -4,19 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-<<<<<<< HEAD
-| Commit | 9438be2b2f03d688532f157df6b367d74bc67def |
+| Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T23:45:17.045Z |
-| Lições | 110 |
-| Hash da Jornada | 0d386a6a9c15 |
-=======
-| Commit | (sem git) |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-02T02:18:00.815Z |
+| Gerado em | 2026-08-02T03:19:48.830Z |
 | Lições | 114 |
-| Hash da Jornada | 4ac488b563bc |
->>>>>>> 0f8c760 (Adiciona nova foto)
+| Hash da Jornada | 874b10e87e55 |
 
 ## Resumo
 
@@ -30,13 +22,8 @@
 | Vocabulário total exibido (refs únicas no plano real) | 82 |
 | Vocabulário coberto por tarefas posteriores (plano ou SRS) | 82 |
 | Porcentagem de cobertura | 100.0% |
-<<<<<<< HEAD
-| Palavras novas (refs únicas) | 4 |
-| Média de reutilizações por ref exibida | 10.98 |
-=======
 | Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 11.72 |
->>>>>>> 0f8c760 (Adiciona nova foto)
+| Média de reutilizações por ref exibida | 11.65 |
 
 ## Cenas mais curtas
 
@@ -66,27 +53,15 @@
 | Cena | Usos |
 |------|-----:|
 | encontro-amanha | 12 |
-<<<<<<< HEAD
 | revisao-cumprimento-completo | 10 |
-| conversa-em-casa | 9 |
-| nao-falo-chinês | 8 |
-| cortesia-loja | 8 |
-| como-se-chama | 7 |
-| perguntando-se-esta-bem | 7 |
-| sala-de-aula | 6 |
-| fale-de-novo | 6 |
-| pedir-agua | 6 |
-=======
-| revisao-cumprimento-completo | 11 |
-| nao-falo-chinês | 9 |
 | cortesia-loja | 9 |
+| nao-falo-chinês | 8 |
 | conversa-em-casa | 8 |
+| perguntando-se-esta-bem | 8 |
 | como-se-chama | 7 |
-| perguntando-se-esta-bem | 7 |
-| agradecendo | 6 |
-| sala-de-aula | 6 |
 | fale-de-novo | 6 |
->>>>>>> 0f8c760 (Adiciona nova foto)
+| sala-de-aula | 6 |
+| pedir-agua | 6 |
 
 ## Cenas por cenário
 
@@ -158,8 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<<<<<<< HEAD
-<!-- integridade:0825a5d27f0cf7f9 -->
-=======
-<!-- integridade:195ca1bdce72c022 -->
->>>>>>> 0f8c760 (Adiciona nova foto)
+<!-- integridade:789629fd59a43f34 -->

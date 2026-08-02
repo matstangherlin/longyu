@@ -149,11 +149,8 @@ export interface LessonStep {
   helpMode?: StepHelpMode;
   /** Pergunta sem dica: hover/toque mostra aviso neutro, sem pinyin/traducao. */
   isNoHint?: boolean;
-<<<<<<< HEAD
-=======
   /** "Som primeiro": mostra só o pinyin/áudio nesta exposição; o hànzì vem depois. */
   hanziMode?: "pinyin_first";
->>>>>>> 0f8c760 (Adiciona nova foto)
   /** hanzi_build: id de um exercício em data/hanziBuilder.ts (carta visual). */
   builderId?: string;
   /** conversation_scene: id canônico da cena. */
@@ -297,11 +294,7 @@ export const TIERS = [
 export type Tier = (typeof TIERS)[number]["id"];
 
 const intro = (title: string, body: string): LessonStep => ({ kind: "intro", title, body });
-<<<<<<< HEAD
-const listen = (text: string, pinyin: string, pt: string): LessonStep => ({ kind: "listen", text, pinyin, pt });
-=======
 const listen = (text: string, pinyin: string, pt: string, hanziMode?: "pinyin_first"): LessonStep => ({ kind: "listen", text, pinyin, pt, ...(hanziMode ? { hanziMode } : {}) });
->>>>>>> 0f8c760 (Adiciona nova foto)
 const tone = (
   hanzi: string,
   pinyin: string,
@@ -652,15 +645,11 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     reviewItems: ["chunk:nihao"],
     steps: [
       intro("A língua padrão", "Mandarim é a forma padrão do chinês falado. No Longyu, você começa por frases úteis antes de estudar explicações longas."),
-<<<<<<< HEAD
-      listen("你好", "nǐ hǎo", "Olá"),
-=======
       listen("你好", "nǐ hǎo", "Olá", "pinyin_first"),
       intro(
         "Como soa de verdade",
         "O áudio que você acabou de ouvir fala “ní hǎo”, não “nǐ hǎo”. Quando dois 3º tons se juntam, o primeiro sobe para 2º tom — é o tone sandhi. O dicionário continua escrevendo nǐ hǎo, mas você ouve e fala a forma real desde já."
       ),
->>>>>>> 0f8c760 (Adiciona nova foto)
       listenSelect("Primeiro som", "你好", ["你好", "谢谢", "再见"], "你好", "Você ouviu 你好."),
       comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
       sentenceBuild("Primeira montagem", "Monte: Olá.", ["你", "好"], ["好", "你", "谢"], "你好 é sua primeira frase útil."),
@@ -722,8 +711,6 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "你好 junta dois 3º tons — o tom vive dentro das frases, não só em sílabas soltas."
       ),
       dialogue(
-<<<<<<< HEAD
-=======
         "Como soa na fala?",
         "O dicionário escreve 你好 como nǐ hǎo (dois 3º tons). Como soa na fala real?",
         "ní hǎo — o 3º tom de 你 sobe antes de 好",
@@ -736,7 +723,6 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "Quando dois 3º tons se encontram, o primeiro sobe para 2º tom: nǐ hǎo soa ní hǎo na fala."
       ),
       dialogue(
->>>>>>> 0f8c760 (Adiciona nova foto)
         "Ideia principal",
         "Em mandarim, tom é...",
         "a curva da voz que pode mudar sentido",
@@ -1156,12 +1142,6 @@ const PHASE2_CONTEXT_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["chunk:nihao", "char:ni", "char:hao"],
     reviewItems: ["chunk:nihao", "char:ni", "char:hao"],
     steps: [
-<<<<<<< HEAD
-      intro("Dois 3º tons", "你好 tem dois 3º tons no pinyin: nǐ hǎo. Na fala natural eles ficam mais leves, mas no começo foque em reconhecer o 3º tom."),
-      listen("你好", "nǐ hǎo", "Olá"),
-      tone("你", "nǐ", 3, "quiz"),
-      tone("好", "hǎo", 3, "quiz"),
-=======
       intro(
         "Dois 3º tons viram 2º + 3º",
         "O dicionário escreve 你好 como nǐ hǎo (dois 3º tons), mas na fala real o primeiro sobe: soa “ní hǎo”. Esse é o tone sandhi 3º + 3º → 2º + 3º."
@@ -1181,7 +1161,6 @@ const PHASE2_CONTEXT_TONE_MICROTASKS: Lesson[] = [
         ],
         "3º + 3º vira 2º + 3º: nǐ hǎo soa ní hǎo. A boca evita dois vales seguidos."
       ),
->>>>>>> 0f8c760 (Adiciona nova foto)
       comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "Sou brasileiro"]),
     ],
   }),
@@ -1292,13 +1271,10 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
         "Se alguém falar rápido demais, uma única frase te protege: 我不会说中文 (wǒ bú huì shuō Zhōngwén) — “não sei falar chinês”. Você já conhece 我 (eu) e 不 (não); aqui elas se juntam a 会说 (saber falar) e 中文 (a língua chinesa). Por enquanto, guarde a frase inteira como um bloco — as peças você destrincha nas próximas lições."
       ),
       listen("我不会说中文", "wǒ bú huì shuō Zhōngwén", "Não sei falar chinês"),
-<<<<<<< HEAD
-=======
       intro(
         "不 sobe antes de 4º tom",
         "Você já ouviu 不客气 soar “bú kèqi”. Em 不会 acontece o mesmo: 不 (bù) antes de 会 (huì, 4º tom) sobe para bú. Por isso a frase soa “wǒ bú huì shuō Zhōngwén”."
       ),
->>>>>>> 0f8c760 (Adiciona nova foto)
       listenSelect(
         "Reconheça a frase",
         "我不会说中文",
@@ -1996,15 +1972,11 @@ export const JOURNEY: JourneyPhase[] = [
                 "Pinyin: ponte para o som",
                 "Pinyin escreve o som com letras latinas: 你好 vira nǐ hǎo. É uma ponte para falar e ouvir, não um substituto para sempre."
               ),
-<<<<<<< HEAD
-              listen("你好", "nǐ hǎo", "Olá — seu primeiro som útil"),
-=======
               listen("你好", "nǐ hǎo", "Olá — seu primeiro som útil", "pinyin_first"),
               intro(
                 "Soa “ní hǎo”",
                 "Na fala real, 你好 soa “ní hǎo”: quando dois 3º tons se encontram, o primeiro sobe para 2º tom. É o tone sandhi — você ouve isso em praticamente todo cumprimento."
               ),
->>>>>>> 0f8c760 (Adiciona nova foto)
               intro(
                 "Tom: a curva da voz",
                 "Em mandarim, a curva da voz faz parte da palavra. O mesmo som com tom diferente pode significar outra coisa."
@@ -2077,13 +2049,8 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l3",
             title: "Tudo bem?",
             skill: "fala",
-<<<<<<< HEAD
-            libraryItems: ["chunk:nihaoma", "chunk:wohenhao", "char:wo"],
-            reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
-=======
             libraryItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:nine", "char:wo"],
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:nine"],
->>>>>>> 0f8c760 (Adiciona nova foto)
             steps: [
               listen("你好吗？", "nǐ hǎo ma?", "Tudo bem?"),
               listen("我很好", "wǒ hěn hǎo", "Estou bem"),
@@ -2103,8 +2070,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我很好", "再见", "谢谢", "不客气"],
                 "我很好 é a resposta natural: estou bem."
               ),
-<<<<<<< HEAD
-=======
               dialogue(
                 "Devolva a pergunta",
                 "Você respondeu 我很好. Como devolver a pergunta para a pessoa?",
@@ -2112,7 +2077,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["你呢？", "你好吗？", "谢谢", "再见"],
                 "你呢？ devolve a pergunta: “e você?”."
               ),
->>>>>>> 0f8c760 (Adiciona nova foto)
               conversationScene("perguntando-se-esta-bem"),
               listenSelect(
                 "Ouça a resposta",
@@ -2160,8 +2124,6 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               listen("谢谢", "xièxie", "Obrigado(a)"),
               listen("不客气", "bú kèqi", "De nada"),
-<<<<<<< HEAD
-=======
               intro(
                 "Por que “bú kèqi”?",
                 "不 é bù (4º tom), mas antes de outra sílaba de 4º tom ele sobe para bú. Por isso 不客气 soa “bú kèqi”, mesmo 不 sozinho sendo bù."
@@ -2173,7 +2135,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["antes de outra sílaba de 4º tom", "antes de um 1º tom", "no fim da frase", "sempre, em qualquer posição"],
                 "Antes de 4º tom, 不 sobe para 2º tom: 不客气 soa bú kèqi."
               ),
->>>>>>> 0f8c760 (Adiciona nova foto)
               listenSelect(
                 "Ouça o agradecimento",
                 "谢谢",
@@ -2423,14 +2384,11 @@ export const JOURNEY: JourneyPhase[] = [
                 "骂",
                 "mà é a queda firme do 4º tom — compare com a reta (mā), a subida (má) e o vale (mǎ)."
               ),
-<<<<<<< HEAD
-=======
               listen(
                 "吗",
                 "ma",
                 "吗 é a “quinta irmã” de ma: tom neutro, curto e leve, sem contorno — é ele que fecha 你好吗？"
               ),
->>>>>>> 0f8c760 (Adiciona nova foto)
               fillBlank(
                 "A quinta irmã de ma",
                 "Complete a pergunta que você já conhece: tudo bem?",
@@ -2629,8 +2587,6 @@ export const JOURNEY: JourneyPhase[] = [
             ],
           },
           ...PHASE2_CONTEXT_TONE_MICROTASKS,
-<<<<<<< HEAD
-=======
           {
             id: "p2-sons-brasileiros",
             title: "Sons que brasileiros confundem",
@@ -2740,7 +2696,6 @@ export const JOURNEY: JourneyPhase[] = [
               ),
             ],
           },
->>>>>>> 0f8c760 (Adiciona nova foto)
           review("l4-rev", "som", [
             tone("妈", "mā", 1, "quiz"),
             tone("麻", "má", 2, "quiz"),
@@ -2773,11 +2728,7 @@ export const JOURNEY: JourneyPhase[] = [
         subtitle: "Apresentação e sobrevivência",
         goal: "Dizer seu nome, origem e pedir ajuda.",
         color: "#B42318",
-<<<<<<< HEAD
         focusChunks: ["你叫什么？", "我叫马修", "你好吗？", "我很好"],
-=======
-        focusChunks: ["你叫什么？", "我叫Matheus", "你好吗？", "我很好"],
->>>>>>> 0f8c760 (Adiciona nova foto)
         focusHanzi: ["我", "你", "叫", "什", "么", "吗"],
         focusGrammar: ["pergunta com 吗", "pergunta com 什么", "resposta com 我叫", "resposta social curta"],
         focusSounds: ["nǐ jiào shénme", "wǒ jiào", "nǐ hǎo ma", "wǒ hěn hǎo"],
@@ -2788,21 +2739,12 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Me apresentar",
             skill: "fala",
             steps: [
-<<<<<<< HEAD
               listen("我叫马修", "wǒ jiào Mǎxiū", "Meu nome é Matheus"),
               listenSelect(
                 "Toque no que ouviu",
                 "我叫马修",
                 ["我叫马修", "我是巴西人", "我很好", "谢谢"],
                 "我叫马修",
-=======
-              listen("我叫Matheus", "wǒ jiào Matheus", "Meu nome é Matheus"),
-              listenSelect(
-                "Toque no que ouviu",
-                "我叫Matheus",
-                ["我叫Matheus", "我是巴西人", "我很好", "谢谢"],
-                "我叫Matheus",
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "我叫 + nome apresenta quem você é."
               ),
               match(
@@ -2811,42 +2753,27 @@ export const JOURNEY: JourneyPhase[] = [
                 [
                   { left: "我", right: "eu", leftType: "hanzi", rightType: "pt" },
                   { left: "叫", right: "chamar-se", leftType: "hanzi", rightType: "pt" },
-<<<<<<< HEAD
                   { left: "我叫马修", right: "Meu nome é Matheus", leftType: "hanzi", rightType: "pt" },
-=======
-                  { left: "我叫Matheus", right: "Meu nome é Matheus", leftType: "hanzi", rightType: "pt" },
->>>>>>> 0f8c760 (Adiciona nova foto)
                 ],
                 "我叫 + nome é a forma curta para dizer seu nome."
               ),
               sentenceBuild(
                 "Meu nome é...",
                 "Monte em mandarim: meu nome é Matheus.",
-<<<<<<< HEAD
                 ["我", "叫", "马修"],
                 ["我", "叫", "是", "你好", "马修"],
-=======
-                ["我", "叫", "Matheus"],
-                ["我", "叫", "是", "你好", "Matheus"],
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "我叫 + nome é a forma curta para se apresentar."
               ),
               dialogue(
                 "Responda a pergunta",
                 "Alguém pergunta: 你叫什么？ Como você responde?",
-<<<<<<< HEAD
                 "我叫马修",
                 ["我叫马修", "谢谢", "再见", "不客气"],
-=======
-                "我叫Matheus",
-                ["我叫Matheus", "谢谢", "再见", "不客气"],
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "Use 我叫 + seu nome para responder."
               ),
               conversationScene("me-apresentando"),
               translationBuild(
                 "Escreva em português",
-<<<<<<< HEAD
                 "我叫马修",
                 "wǒ jiào Mǎxiū",
                 ["Meu", "nome", "é", "Matheus"],
@@ -2861,22 +2788,6 @@ export const JOURNEY: JourneyPhase[] = [
                 "马修",
                 ["叫", "是", "好", "谢"],
                 "我叫马修 = eu me chamo Matheus."
-=======
-                "我叫Matheus",
-                "wǒ jiào Matheus",
-                ["Meu", "nome", "é", "Matheus"],
-                ["Matheus", "Meu", "sou", "nome", "é"],
-                "我叫Matheus = meu nome é Matheus."
-              ),
-              fillBlank(
-                "Complete a apresentação",
-                "Complete: 我 ___ Matheus.",
-                "我",
-                "叫",
-                "Matheus",
-                ["叫", "是", "好", "谢"],
-                "我叫Matheus = eu me chamo Matheus."
->>>>>>> 0f8c760 (Adiciona nova foto)
               ),
             ],
           },
@@ -2910,11 +2821,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Escolha a resposta",
                 "Pessoa pergunta: 你好吗？ O que você responde se está bem?",
                 "我很好",
-<<<<<<< HEAD
                 ["我很好", "再见", "谢谢", "我叫马修"],
-=======
-                ["我很好", "再见", "谢谢", "我叫Matheus"],
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "我很好 responde: estou bem."
               ),
               conversationScene("perguntando-se-esta-bem"),
@@ -2960,13 +2867,8 @@ export const JOURNEY: JourneyPhase[] = [
               sentenceBuild(
                 "Responda com seu nome",
                 "Você ouviu 你叫什么？ Monte a resposta.",
-<<<<<<< HEAD
                 ["我", "叫", "马修"],
                 ["我", "叫", "什么", "马修", "你好"],
-=======
-                ["我", "叫", "Matheus"],
-                ["我", "叫", "什么", "Matheus", "你好"],
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "我叫 + nome responde como você se chama."
               ),
               dialogue(
@@ -3009,13 +2911,8 @@ export const JOURNEY: JourneyPhase[] = [
               dialogue(
                 "Reutilize 我叫",
                 "Alguém pergunta seu nome. Qual frase responde?",
-<<<<<<< HEAD
                 "我叫马修",
                 ["我叫马修", "我是巴西人", "谢谢", "再见"],
-=======
-                "我叫Matheus",
-                ["我叫Matheus", "我是巴西人", "谢谢", "再见"],
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "我叫 volta em contexto de apresentação completa."
               ),
             ],
@@ -3059,11 +2956,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Monte a terceira intenção: não sei falar chinês.",
                 ["我", "不会", "说", "中文"],
                 ["我", "不会", "说", "中文", "听不懂", "很好"],
-<<<<<<< HEAD
-                "我不会说中文 é outra intenção: não sei falar."
-=======
                 "我不会说中文 é outra intenção: não sei falar. Repare no som: 不 antes de 会 (4º tom) sobe — “wǒ bú huì”."
->>>>>>> 0f8c760 (Adiciona nova foto)
               ),
             ],
           },
@@ -3256,11 +3149,7 @@ export const JOURNEY: JourneyPhase[] = [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
                 { hanzi: "你叫什么？", pinyin: "Nǐ jiào shénme?", pt: "Como você se chama?" },
-<<<<<<< HEAD
                 { hanzi: "我叫马修。", pinyin: "Wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus." },
-=======
-                { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
->>>>>>> 0f8c760 (Adiciona nova foto)
                 { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
                 { hanzi: "请再说一遍。", pinyin: "Qǐng zài shuō yí biàn.", pt: "Por favor, fale de novo." },
               ]),
@@ -3271,19 +3160,12 @@ export const JOURNEY: JourneyPhase[] = [
               sentenceBuild(
                 "Resposta natural",
                 "Como você responderia 你叫什么？",
-<<<<<<< HEAD
                 ["我", "叫", "马修"],
                 ["我", "叫", "马修", "你", "什么"],
-=======
-                ["我", "叫", "Matheus"],
-                ["我", "叫", "Matheus", "你", "什么"],
->>>>>>> 0f8c760 (Adiciona nova foto)
                 "我叫 + nome responde “eu me chamo...”."
               ),
             ],
           },
-<<<<<<< HEAD
-=======
           {
             id: "p3-ordem-das-palavras",
             title: "A ordem importa",
@@ -3344,7 +3226,6 @@ export const JOURNEY: JourneyPhase[] = [
               ),
             ],
           },
->>>>>>> 0f8c760 (Adiciona nova foto)
           review("l5-rev", "fala", [
             flash("nihaoma"),
             flash("wohenhao"),
@@ -3359,13 +3240,8 @@ export const JOURNEY: JourneyPhase[] = [
             sentenceBuild(
               "Produção guiada",
               "Monte uma apresentação curta com saudação e nome.",
-<<<<<<< HEAD
               ["你好", "我", "叫", "马修"],
               ["你好", "我", "叫", "马修", "是", "巴西人"],
-=======
-              ["你好", "我", "叫", "Matheus"],
-              ["你好", "我", "叫", "Matheus", "是", "巴西人"],
->>>>>>> 0f8c760 (Adiciona nova foto)
               "你好 abre a conversa; 我叫 + nome apresenta você."
             ),
           ]),
@@ -3723,8 +3599,6 @@ export const JOURNEY: JourneyPhase[] = [
             ],
           },
           review("l7-rev", "hanzi", [decompose("ma2"), recognize("ming"), flash("pengyou")]),
-<<<<<<< HEAD
-=======
           {
             id: "p4-checkpoint-fundamentos",
             title: "Checkpoint dos fundamentos",
@@ -3764,7 +3638,6 @@ export const JOURNEY: JourneyPhase[] = [
               ),
             ],
           },
->>>>>>> 0f8c760 (Adiciona nova foto)
         ],
       },
     ],
@@ -4102,24 +3975,15 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
-<<<<<<< HEAD
                 { hanzi: "我叫马修。", pinyin: "Wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus." },
-=======
-                { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
->>>>>>> 0f8c760 (Adiciona nova foto)
                 { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
                 { hanzi: "我有三个朋友。", pinyin: "Wǒ yǒu sān ge péngyou.", pt: "Tenho três amigos." },
               ]),
               comp("我有三个朋友。", "Wǒ yǒu sān ge péngyou.", "Tenho três amigos.", ["Tenho três amigos.", "Sou brasileiro.", "Meu nome é Matheus.", "Obrigado."]),
               translationBuild(
                 "Resumo do texto",
-<<<<<<< HEAD
                 "你好！我叫马修。我是巴西人。我有三个朋友。",
                 "Nǐ hǎo! Wǒ jiào Mǎxiū. Wǒ shì Bāxī rén. Wǒ yǒu sān ge péngyou.",
-=======
-                "你好！我叫Matheus。我是巴西人。我有三个朋友。",
-                "Nǐ hǎo! Wǒ jiào Matheus. Wǒ shì Bāxī rén. Wǒ yǒu sān ge péngyou.",
->>>>>>> 0f8c760 (Adiciona nova foto)
                 ["Olá.", "Meu nome é Matheus.", "Sou brasileiro.", "Tenho três amigos."],
                 ["Sou brasileiro.", "Obrigado.", "Olá.", "Tenho três amigos.", "Meu nome é Matheus."],
                 "O texto cumprimenta, apresenta nome, origem e três amigos."

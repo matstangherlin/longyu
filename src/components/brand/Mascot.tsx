@@ -46,8 +46,4 @@ export function Mascot({
     </span>
   );
 }
-<<<<<<< HEAD
 
-=======
-
->>>>>>> 0f8c760 (Adiciona nova foto)

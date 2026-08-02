@@ -180,15 +180,9 @@ const CHUNK_DIALOGUES: Record<string, { prompt: string; answer: string; explanat
     answer: "再见",
     explanation: "再见 fecha a conversa: até logo.",
   },
-<<<<<<< HEAD
   "我叫马修": {
     prompt: "Alguém pergunta 你叫什么？ Como você responde?",
     answer: "我叫马修",
-=======
-  "我叫Matheus": {
-    prompt: "Alguém pergunta 你叫什么？ Como você responde?",
-    answer: "我叫Matheus",
->>>>>>> 0f8c760 (Adiciona nova foto)
     explanation: "我叫 + nome responde como você se chama.",
   },
   "我很好": {
@@ -252,15 +246,9 @@ const CHAR_FILL_TEMPLATES: Record<
   "我": {
     prompt: "Complete a apresentação.",
     sentenceBefore: "",
-<<<<<<< HEAD
     sentenceAfter: "叫马修",
     options: ["我", "你", "是", "不"],
     explanation: "我叫马修 significa meu nome é Matheus.",
-=======
-    sentenceAfter: "叫Matheus",
-    options: ["我", "你", "是", "不"],
-    explanation: "我叫Matheus significa meu nome é Matheus.",
->>>>>>> 0f8c760 (Adiciona nova foto)
   },
   "是": {
     prompt: "Complete a frase de identidade.",
@@ -280,32 +268,18 @@ const CHAR_FILL_TEMPLATES: Record<
 
 const MICROREAD_BY_HANZI: Record<string, { text: string; pinyin: string; question: string; answer: string; explanation: string }> = {
   "你好": {
-<<<<<<< HEAD
     text: "你好，我叫马修。",
     pinyin: "Nǐ hǎo, wǒ jiào Mǎxiū.",
-=======
-    text: "你好，我叫Matheus。",
-    pinyin: "Nǐ hǎo, wǒ jiào Matheus.",
->>>>>>> 0f8c760 (Adiciona nova foto)
     question: "Que frase abre a apresentação?",
     answer: "你好",
     explanation: "你好 abre o microtexto como saudação.",
   },
-<<<<<<< HEAD
   "我叫马修": {
     text: "你好，我叫马修。",
     pinyin: "Nǐ hǎo, wǒ jiào Mǎxiū.",
     question: "Quem está se apresentando?",
     answer: "马修",
     explanation: "我叫马修 apresenta o nome Matheus.",
-=======
-  "我叫Matheus": {
-    text: "你好，我叫Matheus。",
-    pinyin: "Nǐ hǎo, wǒ jiào Matheus.",
-    question: "Quem está se apresentando?",
-    answer: "Matheus",
-    explanation: "我叫Matheus apresenta o nome Matheus.",
->>>>>>> 0f8c760 (Adiciona nova foto)
   },
   "谢谢": {
     text: "谢谢。不客气。",
@@ -1778,11 +1752,7 @@ function targetPartsFor(clean: string): string[] {
   if (clean === "再见") return ["再", "见"];
   if (clean === "你好") return ["你", "好"];
   if (clean === "你好吗") return ["你", "好", "吗"];
-<<<<<<< HEAD
   if (clean === "我叫马修") return ["我", "叫", "马修"];
-=======
-  if (clean === "我叫Matheus") return ["我", "叫", "Matheus"];
->>>>>>> 0f8c760 (Adiciona nova foto)
   if (clean === "我很好") return ["我", "很", "好"];
   if (clean === "我不会说中文") return ["我", "不会", "说", "中文"];
   if (clean === "我会说一点中文") return ["我", "会", "说", "一点", "中文"];

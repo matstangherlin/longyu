@@ -36,11 +36,7 @@ export const TONE_SANDHI_RULES: ToneSandhiRule[] = [
       { hanzi: "很好", pinyin: "hén hǎo", citation: "hěn hǎo", pt: "muito bom" },
       { hanzi: "我很好", pinyin: "wǒ hén hǎo", citation: "wǒ hěn hǎo", pt: "eu estou bem" },
     ],
-<<<<<<< HEAD
-    relevantFromLesson: "l3",
-=======
     relevantFromLesson: "p1-o-que-e-mandarim",
->>>>>>> 0f8c760 (Adiciona nova foto)
   },
   {
     id: "bu-sandhi",
@@ -54,11 +50,7 @@ export const TONE_SANDHI_RULES: ToneSandhiRule[] = [
       { hanzi: "不客气", pinyin: "bú kèqi", citation: "bù kèqi", pt: "de nada" },
       { hanzi: "不好", pinyin: "bù hǎo", citation: "bù hǎo", pt: "não é bom (sem mudança)" },
     ],
-<<<<<<< HEAD
-    relevantFromLesson: "l8",
-=======
     relevantFromLesson: "l4",
->>>>>>> 0f8c760 (Adiciona nova foto)
   },
   {
     id: "yi-sandhi",

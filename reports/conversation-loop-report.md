@@ -4,23 +4,23 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 83302775ee7c1eb085a4f636f5376884060fa7f0 |
+| Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T23:44:41.811Z |
-| Lições | 110 |
-| Hash da Jornada | 0d386a6a9c15 |
+| Gerado em | 2026-08-02T03:19:43.670Z |
+| Lições | 114 |
+| Hash da Jornada | 874b10e87e55 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 116 |
-| Itens de vocabulário exibidos | 624 |
-| Itens cobertos por tarefa posterior | 422 |
-| Reutilização média por item | 2.04 |
-| Itens sem cobertura | 202 |
-| Tarefas da fase Pós-Conversa | 410 |
-| Média Pós-Conversa por conversa | 3.53 |
+| Conversas analisadas (nos planos reais) | 119 |
+| Itens de vocabulário exibidos | 636 |
+| Itens cobertos por tarefa posterior | 438 |
+| Reutilização média por item | 2.06 |
+| Itens sem cobertura | 198 |
+| Tarefas da fase Pós-Conversa | 417 |
+| Média Pós-Conversa por conversa | 3.50 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
@@ -40,6 +40,7 @@
 - p3-wobuhui-shuo-zhongwen:chunk:nihaoma
 - p3-wobuhui-shuo-zhongwen:chunk:xiexie
 - p3-wobuhui-shuo-zhongwen:chunk:zaijian
+- p3-qing-zai-shuo-yibian:chunk:tingbudong
 - p3-qing-zai-shuo-yibian:chunk:wojiao
 - l11:chunk:nihaoma
 - l11-falo-pouco:chunk:wohenhao
@@ -51,6 +52,8 @@
 - l13-dialogo-ola:chunk:xiexie
 - l13-dialogo-nome:chunk:wohenhao
 - l13-dialogo-nome:chunk:wohuishuoyidian
+- p3-ordem-das-palavras:chunk:wohenhao
+- p3-ordem-das-palavras:chunk:wohuishuoyidian
 - l5-rev:chunk:xiexie
 - l5-rev:chunk:zaijian
 - l14:chunk:wohenhao
@@ -102,9 +105,6 @@
 - l18:chunk:nihaoma
 - l18:chunk:xiexie
 - l18:chunk:zaijian
-- p5-mu-mu-lin:chunk:xiexie
-- p5-mu-mu-lin:chunk:zaijian
-- p5-mu-mu-mu-sen:chunk:xiexie
-- …mais 122.
+- …mais 118.
 
-<!-- integridade:af4f170bb6b7f7f4 -->
+<!-- integridade:1ff529fa8410a9d1 -->
