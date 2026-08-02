@@ -96,7 +96,7 @@ assert(appEnvSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "appEnvironment deve checar
 assert(appEnvSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
 
 const storeSrc = read("src/lib/store.ts");
-assert(storeSrc.includes("version: 15"), "Persist deve estar na versão 15");
+assert(storeSrc.includes("version: 16"), "Persist deve estar na versão 16");
 assert(storeSrc.includes("moduleSkipUsage"), "Store deve persistir moduleSkipUsage");
 assert(storeSrc.includes("reconcileFreePlanEnergy"), "Store deve reconciliar energia ao sair do Pro");
 assert(storeSrc.includes("effectivePremium"), "hasProAccess deve usar effectivePremium");

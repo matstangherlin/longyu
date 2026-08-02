@@ -167,8 +167,8 @@ if (!/isPreview && isDevPreviewAllowed\(\)/.test(entitlementsSrc)) {
 }
 
 const storeSrc = read("src/lib/store.ts");
-if (!storeSrc.includes("version: 15")) {
-  fail("store.ts persist deve estar na versão 15 (moduleSkipUsage + migração preview Pro)");
+if (!storeSrc.includes("version: 16")) {
+  fail("store.ts persist deve estar na versão 16 (moduleSkipUsage + ofensiva por estudo)");
 }
 if (!storeSrc.includes("moduleSkipUsage")) {
   fail("store.ts deve persistir moduleSkipUsage");

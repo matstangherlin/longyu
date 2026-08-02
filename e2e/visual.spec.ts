@@ -84,7 +84,7 @@ test.describe("visual — associação de imagem", () => {
   test("modo escuro", async ({ page }) => {
     await page.addInitScript(() => {
       const raw = localStorage.getItem("longyu-v1");
-      const parsed = raw ? JSON.parse(raw) : { state: {}, version: 15 };
+      const parsed = raw ? JSON.parse(raw) : { state: {}, version: 16 };
       parsed.state = { ...parsed.state, theme: "dark" };
       localStorage.setItem("longyu-v1", JSON.stringify(parsed));
     });
