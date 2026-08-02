@@ -24,9 +24,15 @@ export const REVIEW_EXAMPLES: Record<string, ReviewExample> = {
     pt: "sol + lua = claro, brilhante",
     note: "forma lógica: duas fontes de luz",
   },
+<<<<<<< HEAD
   "我叫马修": {
     hanzi: "我叫马修。",
     pinyin: "Wǒ jiào Mǎxiū.",
+=======
+  "我叫Matheus": {
+    hanzi: "我叫Matheus。",
+    pinyin: "Wǒ jiào Matheus.",
+>>>>>>> 0f8c760 (Adiciona nova foto)
     pt: "Meu nome é Matheus.",
     note: "frase de apresentação",
   },

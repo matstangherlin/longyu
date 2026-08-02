@@ -145,7 +145,12 @@ export const CHARACTERS: Character[] = [
     id: "jiao_call", hanzi: "叫", pinyin: "jiào", toneless: "jiao", tone: 4, meaningPt: "chamar(-se)", freqRank: 299, components: ["kou"],
     exampleWords: [{ hanzi: "我叫…", pinyin: "wǒ jiào…", pt: "meu nome é…" }],
   },
+<<<<<<< HEAD
   { id: "xiu_name", hanzi: "修", pinyin: "xiū", toneless: "xiu", tone: 1, meaningPt: "reparar; Xiū (nome)", freqRank: 950, components: ["ren"], exampleWords: [{ hanzi: "马修", pinyin: "Mǎxiū", pt: "Matheus" }] },
+=======
+  { id: "xiu_name", hanzi: "修", pinyin: "xiū", toneless: "xiu", tone: 1, meaningPt: "reparar; consertar", freqRank: 950, components: ["ren"], exampleWords: [{ hanzi: "修理", pinyin: "xiūlǐ", pt: "consertar" }] },
+  { id: "ne_particle", hanzi: "呢", pinyin: "ne", toneless: "ne", tone: 5, meaningPt: "partícula (em 你呢)", freqRank: 952, components: ["kou"], exampleWords: [{ hanzi: "你呢", pinyin: "nǐ ne", pt: "e você?" }] },
+>>>>>>> 0f8c760 (Adiciona nova foto)
   { id: "ba_brazil", hanzi: "巴", pinyin: "bā", toneless: "ba", tone: 1, meaningPt: "Ba (em 巴西, Brasil)", freqRank: 951, components: [], exampleWords: [{ hanzi: "巴西", pinyin: "Bāxī", pt: "Brasil" }] },
   { id: "xi_west", hanzi: "西", pinyin: "xī", toneless: "xi", tone: 1, meaningPt: "oeste; Xi (em 巴西)", freqRank: 76, components: [], exampleWords: [{ hanzi: "巴西", pinyin: "Bāxī", pt: "Brasil" }] },
   { id: "shen", hanzi: "什", pinyin: "shén", toneless: "shen", tone: 2, meaningPt: "o quê (em 什么)", freqRank: 106, components: ["ren"] },

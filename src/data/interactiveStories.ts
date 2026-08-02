@@ -94,12 +94,21 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
         id: "nome-lacuna",
         type: "fill_hanzi",
         speaker: "Você",
+<<<<<<< HEAD
         hanzi: "我叫马修。",
         pinyin: "wǒ jiào Mǎxiū",
         translationPt: "Eu me chamo Matheus.",
         promptPt: "Complete a frase: 我叫 ___。",
         options: ["马修", "谢谢", "水", "好"],
         answer: "马修",
+=======
+        hanzi: "我叫Matheus。",
+        pinyin: "wǒ jiào Matheus",
+        translationPt: "Eu me chamo Matheus.",
+        promptPt: "Complete a frase: 我叫 ___。",
+        options: ["Matheus", "谢谢", "水", "好"],
+        answer: "Matheus",
+>>>>>>> 0f8c760 (Adiciona nova foto)
         explanationPt: "我叫... é a forma simples de dizer seu nome.",
         noHint: true,
         reviewTarget: { type: "chunk", itemId: "wojiao", domain: "uso", track: "fala" },
@@ -213,7 +222,11 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
         pinyin: "wǒ hē shuǐ",
         translationPt: "Eu bebo água.",
         promptPt: "Qual frase você ouviu?",
+<<<<<<< HEAD
         options: ["我喝水。", "我叫马修。", "谢谢。", "你好。"],
+=======
+        options: ["我喝水。", "我叫Matheus。", "谢谢。", "你好。"],
+>>>>>>> 0f8c760 (Adiciona nova foto)
         answer: "我喝水。",
         explanationPt: "我喝水 junta 我, 喝 e 水: eu bebo água.",
         noHint: true,

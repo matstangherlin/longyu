@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="clay">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Longyu · Protótipo UI/UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Longyu · Protótipo UI/UX (tokens do app — src/index.css)
+   ============================================================ */
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #faf9f6;
+  --text: #2f3437;
+  --text-soft: #5a6064;
+  --text-faint: #8c9194;
+  --border: #e9e5df;
+  --accent: #b9412e;
+  --accent-strong: #8f3122;
+  --accent-soft: #f4e6e2;
+  --good: #2f855a;
+  --good-soft: #e7f2ec;
+  --gold: #8a5a17;
+  --gold-soft: #f6efdf;
+  --wrong: #c64e36;
+  --shadow-card: 0 8px 24px rgba(47,52,55,.07);
+  --shadow-lift: 0 18px 46px rgba(47,52,55,.14);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: #efece7;
+  color: var(--text);
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.hanzi { font-family: "Noto Serif SC", "Songti SC", serif; line-height: 1; }
+
+/* ================= Prototype toolbar ================= */
+.toolbar {
+  position: fixed; inset: 0 0 auto 0; z-index: 100;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 10px 16px;
+  background: rgba(47,52,55,.96); color: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,.25);
+}
+.toolbar .brand { font-weight: 800; font-size: 13px; letter-spacing: .2px; display:flex; align-items:center; gap:8px; margin-right: 6px;}
+.toolbar .brand .logo { width: 26px; height: 26px; border-radius: 8px; background: var(--accent); color:#fff; display:grid; place-items:center; font-family:"Noto Serif SC"; font-size:15px; font-weight:700;}
+.toolbar .brand small { color:#c9c4bd; font-weight:500; }
+.toolbar .sep { width:1px; height:22px; background: rgba(255,255,255,.18); margin: 0 4px; }
+.toolbar .pages { display:flex; gap:6px; flex-wrap:wrap; }
+.toolbar button.pill {
+  border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.08);
+  color: #eee; font: 600 12px Inter; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: .15s;
+}
+.toolbar button.pill:hover { background: rgba(255,255,255,.16); }
+.toolbar button.pill.active { background: var(--accent); border-color: var(--accent); color:#fff; }
+.toolbar .spacer { flex: 1; }
+.toolbar .switch { display:flex; align-items:center; gap:6px; font:500 11px Inter; color:#c9c4bd; }
+.toolbar .seg { display:inline-flex; background: rgba(255,255,255,.1); border-radius: 999px; padding: 3px; }
+.toolbar .seg button { border:none; background:transparent; color:#c9c4bd; font:600 11px Inter; padding:5px 10px; border-radius:999px; cursor:pointer; }
+.toolbar .seg button.active { background: #fff; color:#2f3437; }
+.toolbar .hint { font: 400 11px Inter; color:#a9a49d; }
+
+/* ================= Stage ================= */
+.stage { padding: 74px 20px 60px; display: flex; justify-content: center; min-height: 100vh; }
+
+/* Phone frame */
+.phone {
+  width: 400px; max-width: 100%;
+  background: var(--bg); border-radius: 38px;
+  box-shadow: var(--shadow-lift), 0 0 0 10px #2f3437, 0 0 0 12px rgba(255,255,255,.5);
+  overflow: hidden; position: relative; height: 800px;
+  transition: width .3s ease;
+}
+.phone .notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:26px; background:#2f3437; border-radius:0 0 16px 16px; z-index: 30; }
+.phone .phone-screen { position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; background: var(--bg); }
+.phone .phone-screen::-webkit-scrollbar { width: 0; }
+
+/* Desktop stage */
+.desktop { width: 1080px; max-width: 100%; background: var(--bg); border-radius: 16px; box-shadow: var(--shadow-lift); height: 800px; display: flex; overflow: hidden; position: relative; }
+.desktop .sidebar { width: 250px; border-right: 1px solid var(--border); background: var(--surface); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; }
+.desktop .content { flex:1; overflow-y:auto; padding: 24px 32px 48px; }
+.desktop .content::-webkit-scrollbar { width: 8px; }
+
+/* ================= Shared UI ================= */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.card-interactive { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: transform .12s ease, box-shadow .12s ease, border-color .12s; cursor: pointer; }
+.card-interactive:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); border-color: #ddd6cd; }
+
+.pill { display:inline-flex; align-items:center; gap:4px; font:600 10px Inter; padding: 3px 8px; border-radius:999px; letter-spacing:.2px; }
+.pill.accent { background: var(--accent-soft); color: var(--accent); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.gold { background: var(--gold-soft); color: var(--gold); }
+.pill.muted { background: var(--surface-2); color: var(--text-faint); border:1px solid var(--border); }
+.pill.wrong { background:#f8e8e2; color: var(--wrong); }
+
+.eyebrow { font: 700 10px Inter; letter-spacing: 1.4px; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: 22px; font-weight: 800; margin: 2px 0; letter-spacing:-.3px; }
+.sub { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; }
+
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer; font: 700 14px Inter; border-radius: 14px; padding: 14px 18px; transition: .15s; }
+.btn-primary { background: var(--accent); color:#fff; box-shadow: 0 10px 22px rgba(185,65,46,.32); }
+.btn-primary:hover { background: var(--accent-strong); }
+.btn-soft { background: var(--accent-soft); color: var(--accent); }
+.btn-soft:hover { background:#eddbd5; }
+.btn-ghost { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--surface-2); }
+
+.input {
+  width: 100%; border: 1.5px solid var(--border); background: var(--surface); border-radius: 14px;
+  padding: 12px 14px; font: 500 13.5px Inter; color: var(--text); outline: none; transition: .15s;
+}
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(185,65,46,.12); }
+.input::placeholder { color: var(--text-faint); }
+
+.row { display:flex; align-items:center; gap: 12px; }
+.row .grow { flex:1; min-width:0; }
+
+.section-title { font: 700 13px Inter; color: var(--text); display:flex; align-items:center; gap:8px; margin: 0 0 10px; letter-spacing:.2px; }
+.section-title .count { font: 600 11px Inter; color: var(--text-faint); }
+
+/* App top bar */
+.appbar { position: sticky; top: 0; z-index: 20; display:flex; align-items:center; gap:10px; padding: 14px 16px 8px; background: linear-gradient(var(--bg) 78%, transparent); }
+.appbar .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display:grid; place-items:center; font: 700 13px Inter; }
+.appbar .grow { flex:1; }
+.appbar .chip { display:inline-flex; align-items:center; gap:5px; font:700 12px Inter; color: var(--text); }
+.appbar .chip.flame svg { color: var(--accent); }
+.offline { display:inline-flex; align-items:center; gap:4px; font:600 10px Inter; color: var(--text-faint); background: var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 8px; }
+
+/* Bottom tab bar */
+.tabbar { position: sticky; bottom: 0; display:flex; justify-content:space-around; align-items:stretch; padding: 6px 8px calc(8px); background: rgba(255,255,255,.92); backdrop-filter: blur(14px); border-top: 1px solid var(--border); }
+.tabbar .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding: 6px 0; border:none; background:none; cursor:pointer; font: 600 10px Inter; color: var(--text-faint); border-radius: 12px; position: relative; }
+.tabbar .tab .ic { position:relative; width: 40px; height: 26px; display:grid; place-items:center; border-radius: 999px; transition: .15s; }
+.tabbar .tab.active { color: var(--accent); }
+.tabbar .tab.active .ic { background: var(--accent); color:#fff; box-shadow: 0 6px 14px rgba(185,65,46,.35); }
+.tabbar .tab .badge { position:absolute; top:-3px; right:-4px; min-width:15px; height:15px; padding:0 3px; border-radius:999px; background: var(--accent); color:#fff; font: 800 8.5px Inter; display:grid; place-items:center; }
+.tabbar .tab:not(.active) .badge { background: var(--accent); }
+
+/* progress ring */
+.ring { --p: 0; position: relative; }
+.ring svg { transform: rotate(-90deg); }
+.ring .label { position:absolute; inset:0; display:grid; place-items:center; font: 800 15px Inter; color: var(--text); }
+
+/* list row (compact nav) */
+.navrow { display:flex; align-items:center; gap: 12px; padding: 12px; border-radius: 14px; cursor: pointer; transition: .12s; }
+.navrow:hover { background: var(--surface-2); }
+.navrow .ico { width: 38px; height: 38px; border-radius: 12px; display:grid; place-items:center; flex-shrink:0; background: var(--surface-2); color: var(--accent); }
+.navrow .t { font: 600 13.5px Inter; color: var(--text); }
+.navrow .d { font: 500 11.5px Inter; color: var(--text-faint); margin-top:1px; }
+.navrow .chev { color: var(--text-faint); }
+
+/* big nav card */
+.bigcard { padding: 14px; display:flex; flex-direction:column; gap: 10px; }
+.bigcard .head { display:flex; align-items:center; justify-content: space-between; }
+.bigcard .ico { width: 42px; height: 42px; border-radius: 13px; display:grid; place-items:center; }
+.bigcard .ico.accent { background: var(--accent); color:#fff; }
+.bigcard .ico.soft { background: var(--accent-soft); color: var(--accent); }
+.bigcard .ico.gold { background: var(--gold-soft); color: var(--gold); }
+.bigcard .ico.good { background: var(--good-soft); color: var(--good); }
+.bigcard .t { font: 700 14px Inter; color: var(--text); }
+.bigcard .d { font: 500 12px Inter; color: var(--text-faint); line-height:1.45; }
+
+/* accordion */
+.acc { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.acc + .acc { margin-top: 10px; }
+.acc > button { width:100%; display:flex; align-items:center; gap: 12px; padding: 14px 16px; border:none; background:none; cursor:pointer; font: 700 13.5px Inter; color: var(--text); text-align:left; }
+.acc > button .chev { margin-left:auto; color: var(--text-faint); transition: transform .2s; }
+.acc.open > button .chev { transform: rotate(90deg); }
+.acc .body { display:none; padding: 0 10px 10px; }
+.acc.open .body { display:block; animation: fade .18s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(-4px);} to { opacity:1; transform:none; } }
+
+/* hero resume */
+.hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%); color:#fff; border-radius: 20px; padding: 18px; box-shadow: 0 14px 30px rgba(185,65,46,.35); }
+.hero .hanzi-bg { position:absolute; right:-8px; top:-26px; font-family:"Noto Serif SC"; font-size: 120px; font-weight:700; color: rgba(255,255,255,.09); pointer-events:none; }
+.hero .ctx { font: 700 10.5px Inter; letter-spacing: 1.2px; text-transform: uppercase; opacity:.85; }
+.hero h2 { margin: 6px 0 4px; font-size: 20px; font-weight:800; letter-spacing:-.3px; }
+.hero .goal { font: 500 12.5px Inter; opacity:.9; line-height:1.5; }
+.hero .actions { display:flex; gap: 10px; margin-top: 16px; }
+.hero .btn-light { background:#fff; color: var(--accent); box-shadow: 0 8px 18px rgba(0,0,0,.18); }
+.hero .btn-outline-light { background: rgba(255,255,255,.14); color:#fff; border:1.5px solid rgba(255,255,255,.45); }
+
+/* unit card */
+.unit { border: 1.5px solid var(--border); border-radius: 18px; background: var(--surface); overflow: hidden; }
+.unit.current { border-color: rgba(185,65,46,.45); box-shadow: 0 0 0 3px rgba(185,65,46,.08), var(--shadow-card); }
+.unit .uh { display:flex; align-items:center; gap:12px; padding: 14px 16px; }
+.unit .uh .phase { font: 700 10px Inter; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+.unit .uh .ut { font: 700 14px Inter; margin-top:2px; }
+.unit .uh .ud { font: 500 11.5px Inter; color: var(--text-faint); margin-top:2px; }
+.unit .bar { height: 6px; background: var(--surface-2); border-radius: 999px; overflow:hidden; margin-top: 10px; }
+.unit .bar > i { display:block; height:100%; background: linear-gradient(90deg, var(--accent), #d96a52); border-radius: 999px; }
+
+/* path nodes */
+.path { padding: 6px 16px 16px; display:flex; flex-direction:column; gap: 8px; }
+.node { display:flex; align-items:center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); cursor: pointer; }
+.node.done { opacity:.72; }
+.node .dot { width: 34px; height: 34px; border-radius: 50%; display:grid; place-items:center; flex-shrink:0; font-weight: 700; }
+.node.available .dot { background: var(--accent); color:#fff; box-shadow: 0 6px 14px rgba(185,65,46,.35); }
+.node.done .dot { background: var(--good); color:#fff; }
+.node.locked .dot { background: var(--border); color: var(--text-faint); }
+.node .nt { font: 600 13px Inter; }
+.node .nd { font: 500 11px Inter; color: var(--text-faint); }
+.node .now { margin-left:auto; }
+.node.available { border-color: rgba(185,65,46,.5); background: #fff; animation: pulse 2.4s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(185,65,46,.14);} 50% { box-shadow: 0 0 0 6px rgba(185,65,46,0);} }
+
+/* search results */
+.search-hint { font: 500 11.5px Inter; color: var(--text-faint); text-align:center; padding: 18px 0; }
+
+/* comparison mode */
+.compare { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.compare .col { }
+.compare .col .tag { font: 700 11px Inter; letter-spacing:1px; text-transform: uppercase; margin-bottom: 8px; display:flex; align-items:center; gap:6px; }
+.compare .col.old .tag { color: var(--wrong); }
+.compare .col.new .tag { color: var(--good); }
+.compare .col.old .sc { background: repeating-linear-gradient(135deg, transparent, transparent 14px, rgba(198,78,54,.05) 14px, rgba(198,78,54,.05) 28px); border: 1.5px dashed rgba(198,78,54,.4); border-radius: 20px; padding: 14px; }
+.compare .col.new .sc { background: #fff; border: 1.5px solid var(--good); border-radius: 20px; padding: 14px; box-shadow: var(--shadow-card); }
+
+/* desktop sidebar */
+.dside .brand { display:flex; align-items:center; gap:10px; padding: 4px 8px 18px; }
+.dside .brand .logo { width: 34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; display:grid; place-items:center; font-family:"Noto Serif SC"; font-weight:700; }
+.dside .brand b { font-size:17px; }
+.dside .navitem { display:flex; align-items:center; gap:10px; padding: 10px 12px; border-radius: 12px; font: 600 13px Inter; color: var(--text-soft); cursor:pointer; }
+.dside .navitem:hover { background: var(--surface-2); }
+.dside .navitem.active { background: var(--accent-soft); color: var(--accent); font-weight:700; }
+.dside .navitem .ico { width: 22px; height:22px; display:grid; place-items:center; }
+.dside .navgroup { font: 700 10px Inter; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-faint); padding: 16px 12px 6px; }
+.dside .spacer { flex:1; }
+.dside .profile { display:flex; align-items:center; gap:10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.dside .profile .avatar { width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:700 12px Inter; }
+
+/* desktop content */
+.dcontent h1 { font-size: 26px; }
+.dsearch { max-width: 380px; }
+
+/* toast */
+.toast { position:fixed; bottom: 30px; left:50%; transform: translateX(-50%) translateY(20px); background:#2f3437; color:#fff; font:600 12.5px Inter; padding: 11px 18px; border-radius: 999px; opacity:0; pointer-events:none; transition:.25s; z-index: 200; box-shadow: var(--shadow-lift); }
+.toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* screens */
+.screen { display:none; }
+.screen.active { display:block; }
+#stage-desktop .screen-mob-only { display:none; }
+</style>
+</head>
+<body>
+
+<!-- ============ Prototype toolbar ============ -->
+<div class="toolbar">
+  <div class="brand"><span class="logo">龙</span> Longyu <small>· protótipo UI/UX</small></div>
+  <div class="sep"></div>
+  <div class="pages" id="pagePills">
+    <button class="pill active" data-page="home">🏠 Jornada</button>
+    <button class="pill" data-page="mais">🧭 Mais · novo</button>
+    <button class="pill" data-page="praticar">🎯 Praticar</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="switch">Modo
+    <div class="seg" id="deviceSeg">
+      <button data-device="mobile" class="active">📱 Mobile</button>
+      <button data-device="desktop">🖥️ Desktop</button>
+    </div>
+  </div>
+  <span class="hint" style="margin-left:8px">(protótipo clicável — use os cartões e abas)</span>
+</div>
+
+<div class="stage" id="stage">
+  <!-- ============ PHONE ============ -->
+  <div class="phone" id="phoneFrame">
+    <div class="notch"></div>
+    <div class="phone-screen" id="phoneScreen">
+
+      <!-- ============ SCREEN: HOME / JORNADA ============ -->
+      <section class="screen active" id="screen-home" data-scrolltop="0">
+        <div class="appbar">
+          <span class="avatar">M</span>
+          <div class="grow"></div>
+          <span class="chip flame">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z"/></svg>
+            7 dias
+          </span>
+          <span class="offline"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19h.01M4 9a11 11 0 0116 0M7 12.5a7 7 0 0110 0"/></svg> offline</span>
+        </div>
+
+        <div style="padding: 4px 16px 0;">
+          <!-- Hero -->
+          <div class="hero">
+            <span class="hanzi-bg">龙</span>
+            <div class="ctx">Fase 2 · Unidade 5 · Viagem</div>
+            <h2>Boa tarde, Marina 👋</h2>
+            <div class="goal">Você está a <b>2 lições</b> de concluir a unidade <b>“Na estação”</b>.</div>
+            <div class="actions">
+              <button class="btn btn-light" onclick="go('/licao')">▶ Continuar</button>
+              <button class="btn btn-outline-light" onclick="toast('Revisão SRS: 4 itens prontos')">Revisar 4 itens</button>
+            </div>
+          </div>
+
+          <!-- Stats strip -->
+          <div class="row" style="gap:10px; margin-top:14px;">
+            <div class="card" style="flex:1; padding:12px;">
+              <div class="row"><span class="pill good">✓</span><span style="font:700 15px Inter">68%</span></div>
+              <div style="font:500 10.5px Inter; color:var(--text-faint); margin-top:2px;">da unidade</div>
+            </div>
+            <div class="card" style="flex:1; padding:12px;">
+              <div class="row"><span class="pill gold">★</span><span style="font:700 15px Inter">1.240</span></div>
+              <div style="font:500 10.5px Inter; color:var(--text-faint); margin-top:2px;">XP esta semana</div>
+            </div>
+            <div class="card" style="flex:1; padding:12px;">
+              <div class="row"><span class="pill accent">↻</span><span style="font:700 15px Inter">4</span></div>
+              <div style="font:500 10.5px Inter; color:var(--text-faint); margin-top:2px;">revisões</div>
+            </div>
+          </div>
+
+          <!-- Current unit -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin: 18px 2px 10px;">
+            <h3 class="section-title" style="margin:0">Sua unidade</h3>
+            <button class="pill muted" style="background:none;border:1px solid var(--border);cursor:pointer" onclick="toast('Focando no seu progresso')">Ver tudo ▾</button>
+          </div>
+
+          <div class="unit current">
+            <div class="uh">
+              <div class="ring" style="width:44px;height:44px; --p:68;">
+                <svg width="44" height="44" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#efe9e2" stroke-width="5"/>
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#b9412e" stroke-width="5" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="36.2"/>
+                </svg>
+                <span class="label" style="font-size:11px">68%</span>
+              </div>
+              <div class="grow">
+                <div class="phase">Unidade 5 · Viagem</div>
+                <div class="ut">Na estação 🚆</div>
+                <div class="ud">Perguntar caminhos, comprar bilhete e entender avisos.</div>
+              </div>
+            </div>
+            <div style="padding:0 16px 4px;"><div class="bar"><i style="width:68%"></i></div></div>
+            <div class="path">
+              <div class="node done"><span class="dot">✓</span><div class="grow"><div class="nt">Táxi e metrô</div><div class="nd">8/9 · 2 estrelas</div></div></div>
+              <div class="node done"><span class="dot">✓</span><div class="grow"><div class="nt">Comprando o bilhete</div><div class="nd">concluída · 3 estrelas</div></div></div>
+              <div class="node available" onclick="go('/licao')"><span class="dot">▶</span><div class="grow"><div class="nt">Perguntando o caminho</div><div class="nd">ouvir · falar · 8 min</div></div><span class="pill accent now">AGORA</span></div>
+              <div class="node locked"><span class="dot">🔒</span><div class="grow"><div class="nt">No aeroporto</div><div class="nd">complete a lição anterior</div></div></div>
+              <div class="node" style="border-color:transparent; background:transparent; justify-content:center;">
+                <button class="pill muted" style="cursor:pointer" onclick="toast('Unidade 4 e 6 recolhidas')">▾ 2 unidades concluídas / futuras</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily mission -->
+          <div style="margin-top:18px;">
+            <h3 class="section-title">Missão do dia <span class="count">2/3</span></h3>
+            <div class="card card-interactive" style="padding:14px;" onclick="toast('Missões: 2 de 3 concluídas')">
+              <div class="row">
+                <span class="ico" style="width:36px;height:36px;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+                </span>
+                <div class="grow">
+                  <div style="font:700 13px Inter">Ganhe 20 XP em Fala</div>
+                  <div class="bar" style="margin-top:6px"><i style="width:66%"></i></div>
+                  <div style="font:500 10.5px Inter; color:var(--text-faint); margin-top:4px">Faltam 7 XP · +15 XP de bônus</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="color:var(--text-faint)"><path d="M9 6l6 6-6 6"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:14px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab active" onclick="go('home')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1V11z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg></span>Praticar</button>
+          <button class="tab" onclick="toast('Missões do dia')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</button>
+          <button class="tab" onclick="toast('Perfil e progresso')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab" onclick="go('mais')"><span class="ic"><span class="badge">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN: MAIS (REDESENHADA) ============ -->
+      <section class="screen" id="screen-mais" data-scrolltop="0">
+        <div class="appbar">
+          <span class="avatar">M</span>
+          <div class="grow"></div>
+          <span class="chip flame">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z"/></svg>
+            7 dias
+          </span>
+        </div>
+
+        <div style="padding: 4px 16px 0;">
+          <div class="eyebrow">Menu</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <h1 style="margin:0">Explorar</h1>
+            <div class="seg" style="background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px; display:inline-flex;">
+              <button class="mais-ver active" data-v="novo" onclick="setMaisView('novo')" style="border:none;background:transparent;font:700 11px Inter;padding:6px 12px;border-radius:999px;cursor:pointer;color:var(--text-faint);">✨ Novo</button>
+              <button class="mais-ver" data-v="old" onclick="setMaisView('old')" style="border:none;background:transparent;font:700 11px Inter;padding:6px 12px;border-radius:999px;cursor:pointer;color:var(--text-faint);">Hoje</button>
+            </div>
+          </div>
+          <div class="sub">Tudo que o Longyu oferece, na ordem que faz sentido para você.</div>
+
+          <!-- ===== NOVO design ===== -->
+          <div id="maisView-novo">
+          <!-- Search -->
+          <div style="margin-top:14px;">
+            <input class="input" id="maisSearch" type="search" placeholder="Buscar: pinyin, loja, revisão…" oninput="filterMais(this.value)" />
+          </div>
+
+          <!-- Continue card -->
+          <div class="card card-interactive" style="margin-top:12px; padding:14px; display:flex; align-items:center; gap:12px;" onclick="go('/licao')">
+            <span class="ico" style="width:42px;height:42px;border-radius:13px;background:var(--accent);color:#fff;display:grid;place-items:center;flex-shrink:0;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7-11-7z"/></svg>
+            </span>
+            <div class="grow">
+              <div style="font:700 13.5px Inter">Continuar: “Perguntando o caminho”</div>
+              <div style="font:500 11.5px Inter; color:var(--text-faint); margin-top:2px">Unidade 5 · 8 min restantes</div>
+            </div>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="color:var(--accent)"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+
+          <!-- Destaques -->
+          <h3 class="section-title" style="margin-top:18px;">Para você agora</h3>
+          <div class="row" style="gap:10px; align-items:stretch;">
+            <div class="bigcard card card-interactive" style="flex:1;" onclick="toast('Revisão SRS: 4 itens')">
+              <div class="head"><span class="ico accent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span><span class="pill good">4 prontos</span></div>
+              <div><div class="t">Revisão</div><div class="d">Reforce o que você aprendeu hoje.</div></div>
+            </div>
+            <div class="bigcard card card-interactive" style="flex:1;" onclick="toast('1 baú pronto para abrir!')">
+              <div class="head"><span class="ico gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.4 4.8L20 8.6l-4 3.9.9 5.5L12 15.6 7.1 18l.9-5.5-4-3.9 5.6-.8L12 3z"/></svg></span><span class="pill gold">1 baú</span></div>
+              <div><div class="t">Loja & Baús</div><div class="d">Um baú pronto para abrir.</div></div>
+            </div>
+            <div class="bigcard card card-interactive" style="flex:1;" onclick="toast('Ligas: você está na Liga Bronze')">
+              <div class="head"><span class="ico soft"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/><path d="M7 6H4a3 3 0 003 3M17 6h3a3 3 0 01-3 3"/></svg></span><span class="pill accent">#12</span></div>
+              <div><div class="t">Ligas</div><div class="d">3 dias para subir de liga.</div></div>
+            </div>
+          </div>
+
+          <!-- All sections (accordion, compact rows) -->
+          <h3 class="section-title" style="margin-top:18px;">Tudo em um lugar</h3>
+
+          <div class="acc open" id="acc-estudar">
+            <button onclick="toggleAcc('acc-estudar')">
+              <span class="ico" style="width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19V5m0 14l16-5V5L4 10"/></svg>
+              </span>
+              Estudar <span class="count" style="margin-left:4px; font:600 11px Inter; color:var(--text-faint)">6 áreas</span>
+              <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></span>
+            </button>
+            <div class="body">
+              <div class="navrow" onclick="toast('Hànzì: 3 novas peças')"><span class="ico">字</span><div class="grow"><div class="t">Hànzì</div><div class="d">Caracteres como peças lógicas</div></div><span class="pill good">3 novas</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Pinyin Lab')"><span class="ico">声</span><div class="grow"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Fala em blocos')"><span class="ico">语</span><div class="grow"><div class="t">Fala</div><div class="d">Frases em blocos, em voz alta</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Leitura guiada')"><span class="ico">读</span><div class="grow"><div class="t">Leitura</div><div class="d">Textos guiados, palavra a palavra</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Biblioteca')"><span class="ico">库</span><div class="grow"><div class="t">Biblioteca</div><div class="d">Palavras e caracteres já vistos</div></div><span class="pill muted">312 itens</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Imersão')"><span class="ico">听</span><div class="grow"><div class="t">Imersão</div><div class="d">Histórias e áudio para o ouvido</div></div><span class="pill muted">2 novos</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+          </div>
+
+          <div class="acc" id="acc-motivacao">
+            <button onclick="toggleAcc('acc-motivacao')">
+              <span class="ico" style="width:30px;height:30px;border-radius:9px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l2.9 5.9 6.5.9-4.7 4.6 1.1 6.4L12 17l-5.8 3 1.1-6.4L2.6 8.8l6.5-.9L12 2z"/></svg>
+              </span>
+              Motivação <span class="count" style="margin-left:4px; font:600 11px Inter; color:var(--text-faint)">5 itens</span>
+              <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></span>
+            </button>
+            <div class="body">
+              <div class="navrow" onclick="toast('Missões do dia')"><span class="ico">🎯</span><div class="grow"><div class="t">Missões</div><div class="d">Metas curtas e recompensas</div></div><span class="pill good">2/3</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Conquistas')"><span class="ico">🏅</span><div class="grow"><div class="t">Conquistas</div><div class="d">Marcos e medalhas</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Ligas: Bronze · #12')"><span class="ico">🏆</span><div class="grow"><div class="t">Ligas</div><div class="d">Ranking semanal por XP</div></div><span class="pill accent">#12</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Loja & Baús')"><span class="ico">🛍️</span><div class="grow"><div class="t">Loja</div><div class="d">Cargas, itens e cosméticos</div></div><span class="pill gold">1 baú</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Amigos')"><span class="ico">👥</span><div class="grow"><div class="t">Amigos</div><div class="d">Seguir e comparar XP semanal</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+          </div>
+
+          <div class="acc" id="acc-conta">
+            <button onclick="toggleAcc('acc-conta')">
+              <span class="ico" style="width:30px;height:30px;border-radius:9px;background:var(--surface-2);color:var(--text-soft);display:grid;place-items:center;border:1px solid var(--border);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+              </span>
+              Conta e sistema <span class="count" style="margin-left:4px; font:600 11px Inter; color:var(--text-faint)">6 itens</span>
+              <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></span>
+            </button>
+            <div class="body">
+              <div class="navrow" onclick="toast('Perfil de Marina')"><span class="ico">👤</span><div class="grow"><div class="t">Perfil</div><div class="d">Identidade e progresso</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Plano Pro')"><span class="ico">⭐</span><div class="grow"><div class="t">Plano Pro</div><div class="d">Revisão ilimitada e sem cargas</div></div><span class="pill gold">Opcional</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Ajustes')"><span class="ico">⚙️</span><div class="grow"><div class="t">Ajustes</div><div class="d">Áudio, aparência e preferências</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Ajuda e feedback')"><span class="ico">💬</span><div class="grow"><div class="t">Ajuda & Feedback</div><div class="d">Suporte, feedback e atalhos</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow" onclick="toast('Sobre o beta')"><span class="ico">ℹ️</span><div class="grow"><div class="t">Sobre</div><div class="d">Estado do beta Longyu</div></div><span class="pill muted">Beta 0.2</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+          </div>
+          </div>
+
+          <!-- ===== VERSÃO ATUAL (poluída) ===== -->
+          <div id="maisView-old" style="display:none; margin-top:14px;">
+            <div class="sub" style="margin-bottom:4px;">Como é hoje: 20 atalhos com o mesmo peso, sem busca nem prioridade.</div>
+            <div id="maisOldGrid"></div>
+          </div>
+
+          <div style="height:16px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('home')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1V11z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg></span>Praticar</button>
+          <button class="tab" onclick="toast('Missões do dia')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</button>
+          <button class="tab" onclick="toast('Perfil e progresso')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab active" onclick="go('mais')"><span class="ic"><span class="badge">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN: PRATICAR ============ -->
+      <section class="screen" id="screen-praticar" data-scrolltop="0">
+        <div class="appbar">
+          <span class="avatar">M</span>
+          <div class="grow"></div>
+          <span class="chip flame">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z"/></svg>
+            7 dias
+          </span>
+        </div>
+
+        <div style="padding: 4px 16px 0;">
+          <div class="eyebrow">Praticar</div>
+          <h1>Escolha uma habilidade</h1>
+          <div class="sub">Cada área treina um pedaço do mandarim. Comece pelo que está em destaque.</div>
+
+          <div class="row" style="gap:10px; align-items:stretch; margin-top:16px;">
+            <div class="bigcard card card-interactive" style="flex:1;" onclick="toast('Fala: 8 min')">
+              <div class="head"><span class="ico accent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a3 3 0 013 3v6a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 11a7 7 0 01-14 0M12 18v4"/></svg></span><span class="pill accent">Recomendado</span></div>
+              <div><div class="t">Fala</div><div class="d">Frases em blocos, em voz alta.</div></div>
+              <div class="bar" style="margin-top:2px"><i style="width:40%"></i></div>
+              <div style="font:500 10.5px Inter; color:var(--text-faint); margin-top:4px">40% da semana</div>
+            </div>
+            <div class="bigcard card card-interactive" style="flex:1;" onclick="toast('Hànzì: 3 novas peças')">
+              <div class="head"><span class="ico soft"><span class="hanzi" style="font-size:17px; font-weight:700">字</span></span><span class="pill good">3 novas</span></div>
+              <div><div class="t">Hànzì</div><div class="d">Caracteres como peças lógicas.</div></div>
+              <div class="bar" style="margin-top:2px; background:var(--accent-soft)"><i style="width:65%; background:var(--accent)"></i></div>
+              <div style="font:500 10.5px Inter; color:var(--text-faint); margin-top:4px">65% da unidade</div>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-top:18px;">Ouvir e falar</h3>
+          <div class="acc open" style="border:none; background:transparent;">
+            <div class="body" style="display:block; padding:0;">
+              <div class="navrow card" style="border:1px solid var(--border); margin-bottom:8px;" onclick="toast('Pinyin Lab')"><span class="ico">声</span><div class="grow"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div><span class="pill muted">7 lições</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow card" style="border:1px solid var(--border); margin-bottom:8px;" onclick="toast('Imersão')"><span class="ico">听</span><div class="grow"><div class="t">Imersão</div><div class="d">Histórias e áudio para o ouvido</div></div><span class="pill muted">2 novos</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-top:6px;">Ler e escrever</h3>
+          <div class="acc open" style="border:none; background:transparent;">
+            <div class="body" style="display:block; padding:0;">
+              <div class="navrow card" style="border:1px solid var(--border); margin-bottom:8px;" onclick="toast('Leitura guiada')"><span class="ico">读</span><div class="grow"><div class="t">Leitura</div><div class="d">Textos guiados, palavra a palavra</div></div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+              <div class="navrow card" style="border:1px solid var(--border); margin-bottom:8px;" onclick="toast('Biblioteca')"><span class="ico">库</span><div class="grow"><div class="t">Biblioteca</div><div class="d">Palavras e caracteres já vistos</div></div><span class="pill muted">312 itens</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+          </div>
+
+          <div style="height:14px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('home')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1V11z"/></svg></span>Jornada</button>
+          <button class="tab active" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg></span>Praticar</button>
+          <button class="tab" onclick="toast('Missões do dia')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</button>
+          <button class="tab" onclick="toast('Perfil e progresso')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab" onclick="go('mais')"><span class="ic"><span class="badge">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============ DESKTOP (same content, sidebar layout) ============ -->
+  <div class="desktop" id="desktopFrame" style="display:none;">
+    <aside class="sidebar dside">
+      <div class="brand"><span class="logo">龙</span><b>Longyu</b></div>
+      <div class="navgroup">Estudar</div>
+      <div class="navitem active"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1V11z"/></svg></span>Jornada</div>
+      <div class="navitem" onclick="toast('Praticar')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg></span>Praticar</div>
+      <div class="navitem" onclick="toast('Revisão: 4 itens')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span>Revisão <span class="pill good" style="margin-left:auto">4</span></div>
+      <div class="navitem" onclick="toast('Missões')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</div>
+      <div class="navitem" onclick="toast('Ligas')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span>Ligas</div>
+      <div class="navitem" onclick="toast('Loja')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l2.4 4.8L20 8.6l-4 3.9.9 5.5L12 15.6 7.1 18l.9-5.5-4-3.9 5.6-.8L12 3z"/></svg></span>Loja <span class="pill gold" style="margin-left:auto">1 baú</span></div>
+      <div class="navgroup">Descobrir</div>
+      <div class="navitem" onclick="toast('Hànzì')"><span class="ico" style="font-family:'Noto Serif SC'; font-size:15px">字</span>Hànzì</div>
+      <div class="navitem" onclick="toast('Pinyin Lab')"><span class="ico">声</span>Pinyin Lab</div>
+      <div class="navitem" onclick="toast('Imersão')"><span class="ico">听</span>Imersão</div>
+      <div class="navgroup">Você</div>
+      <div class="navitem" onclick="toast('Perfil')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</div>
+      <div class="navitem" onclick="toast('Ajustes')"><span class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 00-2-1.2L14 3h-4l-.5 2.6a7 7 0 00-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 005 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 002 1.2L10 21h4l.5-2.6a7 7 0 002-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg></span>Ajustes</div>
+      <div class="spacer"></div>
+      <div class="profile"><span class="avatar">M</span><div style="flex:1; min-width:0"><div style="font:700 12.5px Inter">Marina</div><div style="font:500 10.5px Inter; color:var(--text-faint)">1.240 XP · 7 dias</div></div><span class="pill good">Pro</span></div>
+    </aside>
+    <div class="content dcontent" id="desktopContent">
+      <!-- desktop: Mais -->
+      <div class="screen active" id="dscreen-mais">
+        <div class="eyebrow">Menu</div>
+        <h1>Explorar</h1>
+        <div class="sub" style="margin-bottom:16px;">Tudo que o Longyu oferece, na ordem que faz sentido para você.</div>
+        <input class="input dsearch" type="search" placeholder="Buscar: pinyin, loja, revisão…" oninput="filterMaisDesktop(this.value)" />
+        <div class="row" style="gap:10px; margin-top:14px; align-items:stretch;">
+          <div class="bigcard card card-interactive" style="flex:1; max-width:320px;" onclick="toast('Revisão SRS: 4 itens')">
+            <div class="head"><span class="ico accent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span><span class="pill good">4 prontos</span></div>
+            <div><div class="t">Revisão</div><div class="d">Reforce o que você aprendeu hoje.</div></div>
+          </div>
+          <div class="bigcard card card-interactive" style="flex:1; max-width:320px;" onclick="toast('1 baú pronto!')">
+            <div class="head"><span class="ico gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.4 4.8L20 8.6l-4 3.9.9 5.5L12 15.6 7.1 18l.9-5.5-4-3.9 5.6-.8L12 3z"/></svg></span><span class="pill gold">1 baú</span></div>
+            <div><div class="t">Loja & Baús</div><div class="d">Um baú pronto para abrir.</div></div>
+          </div>
+          <div class="bigcard card card-interactive" style="flex:1; max-width:320px;" onclick="toast('Ligas: Bronze #12')">
+            <div class="head"><span class="ico soft"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span><span class="pill accent">#12</span></div>
+            <div><div class="t">Ligas</div><div class="d">3 dias para subir de liga.</div></div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; margin-top:18px;">
+          <div>
+            <h3 class="section-title">Estudar</h3>
+            <div class="card" style="padding:6px;">
+              <div class="navrow" onclick="toast('Hànzì')"><span class="ico">字</span><div class="grow"><div class="t">Hànzì</div><div class="d">Caracteres como peças</div></div><span class="pill good">3 novas</span></div>
+              <div class="navrow" onclick="toast('Pinyin Lab')"><span class="ico">声</span><div class="grow"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div></div>
+              <div class="navrow" onclick="toast('Fala')"><span class="ico">语</span><div class="grow"><div class="t">Fala</div><div class="d">Frases em blocos</div></div></div>
+              <div class="navrow" onclick="toast('Leitura')"><span class="ico">读</span><div class="grow"><div class="t">Leitura</div><div class="d">Textos guiados</div></div></div>
+              <div class="navrow" onclick="toast('Biblioteca')"><span class="ico">库</span><div class="grow"><div class="t">Biblioteca</div><div class="d">Palavras já vistas</div></div></div>
+              <div class="navrow" onclick="toast('Imersão')"><span class="ico">听</span><div class="grow"><div class="t">Imersão</div><div class="d">Áudio e histórias</div></div></div>
+            </div>
+          </div>
+          <div>
+            <h3 class="section-title">Motivação</h3>
+            <div class="card" style="padding:6px;">
+              <div class="navrow" onclick="toast('Missões')"><span class="ico">🎯</span><div class="grow"><div class="t">Missões</div><div class="d">Metas e recompensas</div></div><span class="pill good">2/3</span></div>
+              <div class="navrow" onclick="toast('Conquistas')"><span class="ico">🏅</span><div class="grow"><div class="t">Conquistas</div><div class="d">Marcos e medalhas</div></div></div>
+              <div class="navrow" onclick="toast('Ligas')"><span class="ico">🏆</span><div class="grow"><div class="t">Ligas</div><div class="d">Ranking semanal</div></div></div>
+              <div class="navrow" onclick="toast('Loja')"><span class="ico">🛍️</span><div class="grow"><div class="t">Loja</div><div class="d">Itens e cosméticos</div></div></div>
+              <div class="navrow" onclick="toast('Amigos')"><span class="ico">👥</span><div class="grow"><div class="t">Amigos</div><div class="d">XP semanal</div></div></div>
+            </div>
+          </div>
+          <div>
+            <h3 class="section-title">Conta e sistema</h3>
+            <div class="card" style="padding:6px;">
+              <div class="navrow" onclick="toast('Perfil')"><span class="ico">👤</span><div class="grow"><div class="t">Perfil</div><div class="d">Identidade e progresso</div></div></div>
+              <div class="navrow" onclick="toast('Plano Pro')"><span class="ico">⭐</span><div class="grow"><div class="t">Plano Pro</div><div class="d">Revisão ilimitada</div></div><span class="pill gold">Opcional</span></div>
+              <div class="navrow" onclick="toast('Ajustes')"><span class="ico">⚙️</span><div class="grow"><div class="t">Ajustes</div><div class="d">Preferências</div></div></div>
+              <div class="navrow" onclick="toast('Ajuda & Feedback')"><span class="ico">💬</span><div class="grow"><div class="t">Ajuda & Feedback</div><div class="d">Suporte e atalhos</div></div></div>
+              <div class="navrow" onclick="toast('Sobre')"><span class="ico">ℹ️</span><div class="grow"><div class="t">Sobre</div><div class="d">Estado do beta</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- desktop: Jornada -->
+      <div class="screen" id="dscreen-home">
+        <div class="eyebrow">Fase 2 · Unidade 5 · Viagem</div>
+        <h1>Na estação 🚆</h1>
+        <div class="sub" style="margin-bottom:18px;">Perguntar caminhos, comprar bilhete e entender avisos.</div>
+        <div class="hero" style="max-width:640px;">
+          <span class="hanzi-bg">龙</span>
+          <div class="ctx">Continue de onde parou</div>
+          <h2>“Perguntando o caminho”</h2>
+          <div class="goal">8 min restantes · ouvir e falar</div>
+          <div class="actions">
+            <button class="btn btn-light" onclick="toast('Abrindo lição…')">▶ Continuar</button>
+            <button class="btn btn-outline-light" onclick="toast('Revisão SRS: 4 itens')">Revisar 4 itens</button>
+          </div>
+        </div>
+        <div class="row" style="gap:10px; margin-top:14px; max-width:640px;">
+          <div class="card" style="flex:1; padding:14px;"><div class="row"><span class="pill good">✓</span><span style="font:700 16px Inter">68%</span></div><div style="font:500 11px Inter; color:var(--text-faint); margin-top:2px;">da unidade</div></div>
+          <div class="card" style="flex:1; padding:14px;"><div class="row"><span class="pill gold">★</span><span style="font:700 16px Inter">1.240</span></div><div style="font:500 11px Inter; color:var(--text-faint); margin-top:2px;">XP na semana</div></div>
+          <div class="card" style="flex:1; padding:14px;"><div class="row"><span class="pill accent">↻</span><span style="font:700 16px Inter">4</span></div><div style="font:500 11px Inter; color:var(--text-faint); margin-top:2px;">revisões</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PHONE = 'home';
+let currentPage = 'home';
+let device = 'mobile';
+
+const screenMap = {
+  home:   { mobile: 'screen-home',   desktop: 'dscreen-home' },
+  mais:   { mobile: 'screen-mais',   desktop: 'dscreen-mais' },
+  praticar:{ mobile: 'screen-praticar', desktop: 'dscreen-mais' },
+};
+
+function parseHash() {
+  const parts = (location.hash || '').replace(/^#\/?/, '').split('/');
+  const page = screenMap[parts[0]] ? parts[0] : 'home';
+  const dev = parts[1] === 'desktop' ? 'desktop' : 'mobile';
+  return { page, dev };
+}
+
+function activate(page, dev) {
+  currentPage = page; device = dev;
+  history.replaceState(null, '', '#' + page + '/' + dev);
+  document.querySelectorAll('.toolbar .pages .pill').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  document.querySelectorAll('#deviceSeg button').forEach(b => b.classList.toggle('active', b.dataset.device === dev));
+
+  const phone = document.getElementById('phoneFrame');
+  const desktop = document.getElementById('desktopFrame');
+  phone.style.display = dev === 'mobile' ? '' : 'none';
+  desktop.style.display = dev === 'desktop' ? '' : 'none';
+
+  const map = screenMap[page] || screenMap.home;
+  document.querySelectorAll('#phoneScreen .screen').forEach(s => s.classList.toggle('active', s.id === map.mobile));
+  document.querySelectorAll('#desktopContent .screen').forEach(s => s.classList.toggle('active', s.id === map.desktop));
+  const scr = dev === 'mobile' ? document.getElementById('phoneScreen') : document.querySelector('.desktop .content');
+  if (scr) scr.scrollTop = 0;
+}
+
+function go(target) {
+  if (target.startsWith('/')) { toast('Abrindo "' + target + '" (demo)'); return; }
+  if (screenMap[target]) activate(target, device);
+}
+
+function toggleAcc(id) { document.getElementById(id).classList.toggle('open'); }
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function filterMais(q) {
+  q = (q || '').toLowerCase().trim();
+  const root = document.getElementById('screen-mais');
+  const items = root.querySelectorAll('.navrow, .bigcard, .card-interactive');
+  let any = false;
+  items.forEach(el => {
+    const txt = (el.textContent || '').toLowerCase();
+    const match = !q || txt.includes(q);
+    el.style.display = match ? '' : 'none';
+    if (match && el.classList.contains('navrow')) any = true;
+  });
+  // accordion headers: hide when nothing inside
+  root.querySelectorAll('.acc').forEach(acc => {
+    const has = [...acc.querySelectorAll('.navrow')].some(el => el.style.display !== 'none');
+    acc.style.display = has ? '' : 'none';
+    if (has) acc.classList.add('open');
+  });
+  const hint = document.getElementById('maisSearchHint');
+  if (hint) hint.style.display = any ? 'none' : '';
+}
+function filterMaisDesktop(q) { filterMais(q); }
+
+/* ============ Comparativo: versão atual (grade poluída) ============ */
+const OLD_CATALOG = [
+  { title: "Aprender", items: [
+    { t: "Praticar", d: "Pratique cada competência à vontade." },
+    { t: "Revisão", d: "Reforce o que você aprendeu.", s: "4 prontos", st: "accent" },
+    { t: "Pinyin Lab", d: "Sons, sílabas e tons." },
+    { t: "Hànzì", d: "Caracteres como peças lógicas." },
+    { t: "Fala", d: "Frases em blocos, em voz alta." },
+    { t: "Leitura", d: "Textos guiados, palavra a palavra." },
+    { t: "Biblioteca", d: "Palavras e caracteres já vistos." },
+    { t: "Imersão", d: "Histórias e áudio para o ouvido." },
+  ]},
+  { title: "Motivação", items: [
+    { t: "Missões", d: "Metas curtas e recompensas.", s: "2/3", st: "good" },
+    { t: "Conquistas", d: "Marcos e medalhas." },
+    { t: "Ligas", d: "Ranking semanal por XP.", s: "#12", st: "accent" },
+    { t: "Loja", d: "Cargas, itens e cosméticos.", s: "1 baú", st: "gold" },
+    { t: "Amigos", d: "Seguir e comparar XP semanal." },
+  ]},
+  { title: "Conta", items: [
+    { t: "Perfil", d: "Identidade e progresso." },
+    { t: "Conta", d: "Login, email e sessão." },
+    { t: "Plano Pro", d: "Assinatura e benefícios.", s: "Opcional", st: "gold" },
+    { t: "Dados locais", d: "Backup, exportação e perfis." },
+    { t: "Ajustes", d: "Áudio, aparência e preferências." },
+    { t: "Ajuda", d: "Suporte, feedback e atalhos." },
+    { t: "Sobre", d: "Estado do beta Longyu.", s: "Beta 0.2", st: "muted" },
+  ]},
+];
+const OLD_ICONS = ["🎯","↻","声","字","语","读","库","听","🎯","🏅","🏆","🛍️","👥","👤","🔐","⭐","💾","⚙️","💬","ℹ️"];
+
+function renderOldGrid() {
+  const root = document.getElementById('maisOldGrid');
+  if (!root || root.dataset.rendered) return;
+  root.dataset.rendered = '1';
+  let i = 0;
+  root.innerHTML = OLD_CATALOG.map(g => `
+    <h3 class="section-title" style="margin:16px 0 8px;">${g.title} <span class="count">${g.items.length}</span></h3>
+    <div class="row" style="gap:8px; flex-wrap:wrap;">
+      ${g.items.map(it => {
+        const s = it.s ? `<span class="pill ${it.st||'muted'}" style="margin-left:auto;">${it.s}</span>` : '';
+        return `<div class="bigcard card" style="flex:1 1 42%; min-width:140px; padding:11px; cursor:pointer;" onclick="toast('${it.t} (demo)')">
+          <div class="head"><span class="ico soft" style="width:32px;height:32px;border-radius:10px;">${OLD_ICONS[i++]}</span>${s}</div>
+          <div><div class="t" style="font-size:13px;">${it.t}</div><div class="d" style="font-size:11px;">${it.d}</div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function setMaisView(v) {
+  const novo = document.getElementById('maisView-novo');
+  const old = document.getElementById('maisView-old');
+  novo.style.display = v === 'novo' ? '' : 'none';
+  old.style.display = v === 'old' ? '' : 'none';
+  document.querySelectorAll('.mais-ver').forEach(b => {
+    const on = b.dataset.v === v;
+    b.classList.toggle('active', on);
+    b.style.background = on ? '#2f3437' : 'transparent';
+    b.style.color = on ? '#fff' : 'var(--text-faint)';
+  });
+  if (v === 'old') renderOldGrid();
+}
+
+document.querySelectorAll('.toolbar .pages .pill').forEach(b => b.addEventListener('click', () => activate(b.dataset.page, device)));
+document.querySelectorAll('#deviceSeg button').forEach(b => b.addEventListener('click', () => activate(currentPage, b.dataset.device)));
+window.addEventListener('hashchange', () => { const s = parseHash(); activate(s.page, s.dev); });
+
+const initial = parseHash();
+activate(initial.page, initial.dev);
+setMaisView('novo');
+</script>
+</body>
+</html>

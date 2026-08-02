@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Longyu · Protótipo v4 — Duolingo em vermelho (melhorado)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Noto+Serif+SC:wght@500;600;700;900&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Longyu v4 · Duolingo em vermelho — versão polida e ampliada
+   ============================================================ */
+:root {
+  --bg: #fff9f5;
+  --bg-soft: #fdf3ec;
+  --card: #ffffff;
+  --ink: #3b3632;
+  --ink-soft: #6f6862;
+  --ink-faint: #a9a19a;
+  --line: #f0e8e1;
+  --line-2: #e7ddd4;
+
+  --red: #f2543f;
+  --red-dark: #d63e28;
+  --red-deep: #b52e1c;
+  --red-soft: #ffe3dc;
+  --red-grad: linear-gradient(180deg, #ff6b55 0%, #f2543f 55%, #e84832 100%);
+  --red-shine: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 45%);
+
+  --blue: #3fb2f0;
+  --blue-dark: #2b93d1;
+  --blue-soft: #e3f3fd;
+  --purple: #a968f5;
+  --purple-dark: #8f47e0;
+  --purple-soft: #f0e6fc;
+  --orange: #ffa53c;
+  --orange-dark: #f08c14;
+  --orange-soft: #fff0dd;
+  --gold: #ffc847;
+  --gold-dark: #e5a400;
+  --gold-soft: #fff4d6;
+  --jade: #45bd7e;
+  --jade-dark: #2da363;
+  --jade-soft: #e2f5ea;
+  --pink: #ff7fa5;
+  --pink-soft: #ffe8ef;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin:0; padding:0; }
+body { background:#2b2622; color:var(--ink); font-family:"Nunito", system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+.hanzi { font-family:"Noto Serif SC", "Songti SC", serif; line-height:1; }
+
+/* ================= Toolbar ================= */
+.toolbar {
+  position:fixed; inset:0 0 auto 0; z-index:100;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+  padding:10px 16px; background:var(--red-deep); color:#fff;
+  box-shadow:0 2px 14px rgba(0,0,0,.3);
+}
+.toolbar .brand { display:flex; align-items:center; gap:9px; font:900 15px Nunito; letter-spacing:.3px; margin-right:6px; }
+.toolbar .brand .logo { width:26px; height:26px; border-radius:50%; background:#fff; color:var(--red-deep); display:grid; place-items:center; font:900 13px Nunito; }
+.toolbar .brand small { font:800 11px Nunito; color:#ffd5cc; letter-spacing:.4px; }
+.toolbar .sep { width:1px; height:22px; background:rgba(255,255,255,.25); margin:0 4px; }
+.toolbar .pages { display:flex; gap:6px; flex-wrap:wrap; }
+.toolbar button.pill { border:none; background:rgba(255,255,255,.16); color:#fff; font:800 12px Nunito; padding:6px 13px; border-radius:12px; cursor:pointer; transition:.15s; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18); }
+.toolbar button.pill:hover { background:rgba(255,255,255,.28); }
+.toolbar button.pill.active { background:#fff; color:var(--red-deep); box-shadow:inset 0 -2px 0 #e5d5cc; }
+.toolbar .spacer { flex:1; }
+.toolbar .switch { display:flex; align-items:center; gap:6px; font:800 11px Nunito; color:#ffd5cc; }
+.toolbar .seg { display:inline-flex; background:rgba(0,0,0,.16); border-radius:12px; padding:3px; }
+.toolbar .seg button { border:none; background:transparent; color:#ffd5cc; font:800 11px Nunito; padding:5px 10px; border-radius:10px; cursor:pointer; }
+.toolbar .seg button.active { background:#fff; color:var(--red-deep); }
+.toolbar .hint { font:700 11px Nunito; color:#f4b7ac; margin-left:8px; }
+
+/* ================= Stage ================= */
+.stage { padding:74px 20px 60px; display:flex; justify-content:center; min-height:100vh; }
+.phone { width:404px; max-width:100%; height:824px; background:var(--bg); border-radius:34px; box-shadow:0 30px 70px rgba(0,0,0,.45); overflow:hidden; position:relative; border:8px solid #1d1916; }
+.phone .ear { position:absolute; top:0; left:50%; transform:translateX(-50%); width:110px; height:26px; background:#1d1916; border-radius:0 0 16px 16px; z-index:40; }
+.phone .phone-screen { position:absolute; inset:0; top:26px; bottom:0; overflow-y:auto; overflow-x:hidden; background:var(--bg); }
+.phone .phone-screen::-webkit-scrollbar { width:0; }
+
+.desktop { width:1120px; max-width:100%; height:824px; background:var(--bg); border-radius:18px; box-shadow:0 30px 70px rgba(0,0,0,.45); display:flex; overflow:hidden; position:relative; }
+.desktop .sidebar { width:250px; background:#fff; border-right:2px solid var(--line); padding:24px 16px; display:flex; flex-direction:column; }
+.desktop .content { flex:1; overflow-y:auto; padding:30px 44px 60px; }
+.desktop .content::-webkit-scrollbar { width:9px; }
+.desktop .content::-webkit-scrollbar-thumb { background:var(--line-2); border-radius:8px; }
+
+/* ================= Botões ================= */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer; font:900 15px Nunito; letter-spacing:.3px; border-radius:16px; padding:14px 22px; transition:transform .06s, filter .15s, box-shadow .06s; }
+.btn:active { transform:translateY(3px); }
+.btn-red { background:var(--red-grad); color:#fff; border-bottom:5px solid var(--red-deep); box-shadow:0 5px 14px rgba(181,46,28,.35), inset 0 2px 0 var(--red-shine); }
+.btn-red:active { border-bottom-width:2px; box-shadow:0 2px 6px rgba(181,46,28,.3); }
+.btn-red:disabled { filter:grayscale(.55) brightness(.95); cursor:not-allowed; box-shadow:none; border-bottom-color:#b9a59e; }
+.btn-jade { background:linear-gradient(180deg,#5fd89a 0%,#45bd7e 55%,#38ad71 100%); color:#fff; border-bottom:5px solid var(--jade-dark); box-shadow:0 5px 14px rgba(45,163,99,.35), inset 0 2px 0 rgba(255,255,255,.25); }
+.btn-jade:active { border-bottom-width:2px; }
+.btn-white { background:#fff; color:var(--ink); border:2px solid var(--line-2); border-bottom:4px solid var(--line-2); box-shadow:0 3px 8px rgba(59,54,50,.05); }
+.btn-white:active { border-bottom-width:2px; }
+.btn-ghost-red { background:var(--red-soft); color:var(--red-deep); border-bottom:4px solid #f5c3b6; }
+.btn-ghost-red:active { border-bottom-width:2px; }
+.btn-sm { padding:10px 16px; font-size:13px; border-radius:13px; }
+
+/* ================= Cards ================= */
+.card { background:var(--card); border:2px solid var(--line); border-bottom:4px solid var(--line-2); border-radius:20px; }
+.card-flat { background:var(--card); border:2px solid var(--line); border-radius:18px; }
+.shadow-hover { transition:transform .14s, box-shadow .14s, border-color .14s; }
+.shadow-hover:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(59,54,50,.09); border-color:var(--line-2); }
+.shadow-hover:active { transform:translateY(1px); }
+
+/* chips de estado */
+.chip { display:inline-flex; align-items:center; gap:4px; font:900 10px Nunito; letter-spacing:.6px; text-transform:uppercase; padding:4px 10px; border-radius:999px; }
+.chip.red { background:var(--red-soft); color:var(--red-deep); }
+.chip.jade { background:var(--jade-soft); color:var(--jade-dark); }
+.chip.gold { background:var(--gold-soft); color:var(--gold-dark); }
+.chip.blue { background:var(--blue-soft); color:var(--blue-dark); }
+.chip.purple { background:var(--purple-soft); color:var(--purple-dark); }
+.chip.orange { background:var(--orange-soft); color:var(--orange-dark); }
+.chip.gray { background:#f4f1ee; color:var(--ink-faint); }
+
+/* ================= Cabeçalho gamificado ================= */
+.topbar { display:flex; align-items:center; gap:8px; padding:14px 16px 8px; background:linear-gradient(var(--bg) 82%, transparent); position:sticky; top:0; z-index:20; }
+.topbar .av { width:42px; height:42px; border-radius:50%; background:#fff; border:2px solid var(--line-2); display:grid; place-items:center; box-shadow:0 3px 8px rgba(59,54,50,.08); overflow:hidden; flex-shrink:0; }
+.topbar .stat { display:flex; align-items:center; gap:5px; font:900 13.5px Nunito; color:var(--ink); background:#fff; border:2px solid var(--line); border-bottom:3px solid var(--line-2); border-radius:14px; padding:4px 10px 5px; }
+.topbar .stat .ic { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; }
+.topbar .grow { flex:1; }
+.topbar .bell { width:38px; height:38px; border-radius:14px; background:#fff; border:2px solid var(--line); display:grid; place-items:center; color:var(--ink-soft); position:relative; }
+.topbar .bell .dot { position:absolute; top:-4px; right:-4px; width:17px; height:17px; border-radius:50%; background:var(--red); color:#fff; font:900 9px Nunito; display:grid; place-items:center; border:2px solid #fff; }
+
+/* ================= Banner festivo ================= */
+.hero { position:relative; margin:14px 16px 0; border-radius:24px; overflow:hidden; background:linear-gradient(160deg,#ff8a73 0%, #f2543f 55%, #e84832 100%); box-shadow:0 14px 34px rgba(214,62,40,.35); color:#fff; }
+.hero .confetti { position:absolute; inset:0; pointer-events:none; }
+.hero .confetti i { position:absolute; border-radius:3px; opacity:.8; animation:floaty 5s ease-in-out infinite; }
+.hero .confetti i:nth-child(1){ left:8%; top:18%; width:7px; height:12px; background:#ffc847; transform:rotate(20deg); }
+.hero .confetti i:nth-child(2){ left:22%; top:60%; width:6px; height:6px; background:#fff; border-radius:50%; animation-delay:.6s; }
+.hero .confetti i:nth-child(3){ left:38%; top:12%; width:8px; height:10px; background:#ff7fa5; transform:rotate(-15deg); animation-delay:1.2s; }
+.hero .confetti i:nth-child(4){ left:52%; top:55%; width:5px; height:9px; background:#fff; transform:rotate(40deg); animation-delay:.3s; }
+.hero .confetti i:nth-child(5){ left:66%; top:16%; width:6px; height:6px; background:#ffc847; border-radius:50%; animation-delay:1.8s; }
+.hero .confetti i:nth-child(6){ left:82%; top:64%; width:8px; height:11px; background:#ff7fa5; transform:rotate(-25deg); animation-delay:.9s; }
+.hero .confetti i:nth-child(7){ left:92%; top:28%; width:5px; height:5px; background:#fff; border-radius:50%; animation-delay:2.2s; }
+@keyframes floaty { 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(-9px) rotate(12deg);} }
+.hero .inner { position:relative; z-index:2; padding:18px 18px 20px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+.hero .mascot { width:92px; height:92px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.2)); margin-top:2px; }
+.hero .speech { background:#fff; color:var(--ink); border-radius:16px; padding:10px 16px; margin-top:-6px; position:relative; box-shadow:0 6px 14px rgba(0,0,0,.14); max-width:86%; }
+.hero .speech::before { content:""; position:absolute; top:-8px; left:50%; transform:translateX(-50%); border:8px solid transparent; border-bottom-color:#fff; }
+.hero .speech .bt { font:900 14.5px Nunito; color:var(--ink); }
+.hero .speech .bd { font:800 11.5px Nunito; color:var(--ink-soft); margin-top:1px; }
+.hero .actions { display:flex; gap:10px; width:100%; margin-top:16px; }
+.hero .actions .btn { flex:1; }
+.hero .progress { width:100%; margin-top:16px; display:flex; align-items:center; gap:10px; }
+.hero .progress .lab { font:900 10.5px Nunito; letter-spacing:1px; opacity:.95; white-space:nowrap; }
+.hero .progress .track { flex:1; height:10px; background:rgba(255,255,255,.28); border-radius:999px; overflow:hidden; }
+.hero .progress .track > i { display:block; height:100%; background:#fff; border-radius:999px; }
+
+/* ================= Caminho de nós ================= */
+.pathwrap { padding:22px 18px 6px; }
+.pathhead { display:flex; align-items:center; justify-content:space-between; padding:0 6px 14px; }
+.pathhead .t { font:900 13px Nunito; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-soft); }
+.pathhead .t b { color:var(--red); }
+.pathhead .n { font:900 12px Nunito; color:var(--ink-faint); }
+.path { display:flex; flex-direction:column; align-items:center; }
+.node { position:relative; width:66px; height:66px; border-radius:50%; display:grid; place-items:center; z-index:1; transition:transform .15s; }
+.node:active { transform:scale(.96); }
+.node .inner { width:48px; height:48px; border-radius:50%; display:grid; place-items:center; color:#fff; }
+.node .label { position:absolute; top:calc(100% + 5px); font:900 9.5px Nunito; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-faint); white-space:nowrap; }
+.conn { width:5px; height:32px; border-radius:4px; z-index:0; }
+.node.done { background:var(--red-grad); border:2px solid var(--red-deep); box-shadow:0 5px 12px rgba(214,62,40,.3), inset 0 2px 0 rgba(255,255,255,.3); }
+.node.done .inner { background:rgba(255,255,255,.14); }
+.node.done .badge { position:absolute; right:-2px; bottom:-2px; width:22px; height:22px; border-radius:50%; background:var(--jade); border:2px solid #fff; display:grid; place-items:center; color:#fff; }
+.node.cur { width:78px; height:78px; background:#fff; border:5px solid var(--red); color:var(--red-deep); animation:glow 2.2s infinite; }
+.node.cur .inner { background:var(--red-soft); }
+.node.cur .label { color:var(--red-deep); font-size:10px; }
+@keyframes glow { 0%,100%{ box-shadow:0 0 0 5px rgba(242,84,63,.16);} 50%{ box-shadow:0 0 0 12px rgba(242,84,63,.26);} }
+.node.chest { background:linear-gradient(180deg,#ffd166 0%,#ffc847 55%,#f5b92e 100%); border:2px solid var(--gold-dark); box-shadow:0 5px 12px rgba(229,164,0,.35); }
+.node.chest .spark { position:absolute; width:7px; height:7px; border-radius:50%; background:#fff; }
+.node.chest .spark.s1 { top:8px; left:12px; }
+.node.chest .spark.s2 { top:16px; right:10px; width:5px; height:5px; }
+.node.locked { background:#f1ece7; border:2px solid var(--line-2); color:var(--ink-faint); }
+.conn.done { background:linear-gradient(180deg, var(--red), var(--red)); }
+.conn.pending { background:var(--line-2); }
+
+/* ================= Seções ================= */
+.sec { margin-top:20px; padding:0 16px; }
+.sec-head { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.sec-head h3 { font:900 16px Nunito; margin:0; color:var(--ink); }
+.sec-head .rule { flex:1; height:2px; background:linear-gradient(90deg, var(--line-2), transparent); border-radius:2px; }
+.sec-head .more { font:900 11px Nunito; color:var(--red); cursor:pointer; }
+
+/* missão */
+.quest { display:flex; align-items:center; gap:13px; padding:14px 16px; }
+.quest .qic { width:46px; height:46px; border-radius:14px; display:grid; place-items:center; flex-shrink:0; color:#fff; }
+.quest .qt { font:900 14px Nunito; }
+.quest .qd { font:800 11px Nunito; color:var(--ink-faint); margin-top:1px; }
+.quest .xpbar { height:9px; background:var(--bg-soft); border-radius:999px; overflow:hidden; margin-top:8px; }
+.quest .xpbar > i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--red),#ff8a73); }
+
+/* ================= Tab bar ================= */
+.tabbar { position:sticky; bottom:0; display:flex; justify-content:space-around; align-items:center; padding:6px 8px 10px; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); border-top:2px solid var(--line); }
+.tabbar .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:5px 0; border:none; background:none; cursor:pointer; font:900 9.5px Nunito; letter-spacing:.3px; color:var(--ink-faint); position:relative; }
+.tabbar .tab .ic { width:38px; height:32px; display:grid; place-items:center; border-radius:14px; transition:.15s; color:var(--ink-faint); }
+.tabbar .tab.active { color:var(--red); }
+.tabbar .tab.active .ic { background:var(--red-soft); color:var(--red); }
+.tabbar .tab .dot { position:absolute; top:0; right:calc(50% - 24px); min-width:17px; height:17px; border-radius:999px; background:var(--red); color:#fff; font:900 9px Nunito; display:grid; place-items:center; border:2px solid #fff; padding:0 3px; }
+
+/* ================= Linhas de menu ================= */
+.mrow { display:flex; align-items:center; gap:13px; padding:13px 14px; cursor:pointer; }
+.mrow .sq { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; flex-shrink:0; color:#fff; font:900 16px Nunito; box-shadow:inset 0 -3px 0 rgba(0,0,0,.14); }
+.mrow .sq.han { font-family:"Noto Serif SC"; font-weight:700; font-size:17px; }
+.sq.red { background:var(--red-grad); }
+.sq.blue { background:linear-gradient(180deg,#5cc3f4,#3fb2f0); }
+.sq.purple { background:linear-gradient(180deg,#bd85f9,#a968f5); }
+.sq.orange { background:linear-gradient(180deg,#ffb75e,#ffa53c); }
+.sq.gold { background:linear-gradient(180deg,#ffd76e,#ffc847); }
+.sq.jade { background:linear-gradient(180deg,#5fd89a,#45bd7e); }
+.sq.pink { background:linear-gradient(180deg,#ff96b4,#ff7fa5); }
+.sq.gray { background:linear-gradient(180deg,#d9d3cc,#c9c2ba); }
+.mrow .t { font:900 13.5px Nunito; color:var(--ink); }
+.mrow .d { font:800 11.5px Nunito; color:var(--ink-soft); margin-top:1px; }
+.mrow .arr { color:var(--ink-faint); font-weight:900; font-size:16px; }
+.mrow + .mrow { border-top:2px solid var(--line); }
+
+/* ================= Accordion ================= */
+.acc { border:2px solid var(--line); border-bottom:4px solid var(--line-2); border-radius:18px; background:#fff; margin-bottom:11px; overflow:hidden; }
+.acc > button { width:100%; display:flex; align-items:center; gap:12px; padding:14px; border:none; background:none; cursor:pointer; text-align:left; font:900 14px Nunito; color:var(--ink); }
+.acc > button .sq { width:38px; height:38px; border-radius:12px; font-size:14px; }
+.acc > button .cnt { font:800 12px Nunito; color:var(--ink-faint); }
+.acc > button .chev { margin-left:auto; color:var(--ink-faint); font-weight:900; transition:transform .2s; }
+.acc.open > button .chev { transform:rotate(90deg); }
+.acc .body { display:none; }
+.acc.open .body { display:block; }
+.acc .body .mrow { border-bottom:2px solid var(--line); }
+.acc .body .mrow:last-child { border-bottom:none; }
+
+/* ================= Input ================= */
+.dinput { width:100%; border:2px solid var(--line-2); border-bottom:4px solid var(--line-2); border-radius:16px; background:#fff; padding:13px 16px; font:800 14px Nunito; color:var(--ink); outline:none; transition:.15s; }
+.dinput:focus { border-color:var(--red); border-bottom-color:var(--red-deep); box-shadow:0 0 0 4px var(--red-soft); }
+.dinput::placeholder { color:var(--ink-faint); font-weight:800; }
+
+/* ================= Destaques ================= */
+.feat { padding:15px; }
+.feat .head { display:flex; align-items:center; justify-content:space-between; }
+.feat .t { font:900 14px Nunito; color:var(--ink); margin-top:9px; }
+.feat .d { font:800 11.5px Nunito; color:var(--ink-soft); margin-top:1px; line-height:1.4; }
+
+/* ================= Habilidades (Praticar) ================= */
+.skill { padding:16px; display:flex; flex-direction:column; gap:9px; }
+.skill .t { font:900 14px Nunito; }
+.skill .d { font:800 11.5px Nunito; color:var(--ink-soft); line-height:1.4; }
+.skill .xpbar { height:9px; background:var(--bg-soft); border-radius:999px; overflow:hidden; }
+.skill .xpbar > i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--red),#ff8a73); }
+
+/* ================= Ligas ================= */
+.liga-hero { background:linear-gradient(160deg,#ffd76e 0%, #ffc847 50%, #f5b92e 100%); border-radius:22px; padding:18px; text-align:center; color:#7a5410; box-shadow:0 12px 28px rgba(229,164,0,.3); position:relative; overflow:hidden; }
+.liga-hero .medal { font-size:40px; }
+.liga-hero h2 { font:900 17px Nunito; margin:6px 0 2px; color:#6b4a0c; }
+.liga-hero p { font:800 12px Nunito; margin:0; opacity:.85; }
+.liga-hero .promo { display:inline-block; margin-top:10px; background:#fff; border-radius:999px; padding:6px 14px; font:900 12px Nunito; color:#b88700; box-shadow:0 3px 8px rgba(0,0,0,.1); }
+.lboard .prow { display:flex; align-items:center; gap:12px; padding:12px 14px; }
+.lboard .prow .rank { width:30px; font:900 15px Nunito; color:var(--ink-faint); text-align:center; }
+.lboard .prow.me { background:var(--red-soft); border-radius:16px; }
+.lboard .prow .pav { width:38px; height:38px; border-radius:50%; background:var(--bg-soft); border:2px solid var(--line); display:grid; place-items:center; font:900 12px Nunito; color:var(--ink-soft); flex-shrink:0; }
+.lboard .prow.me .pav { background:var(--red); border-color:var(--red-deep); color:#fff; }
+.lboard .prow .pn { font:900 13px Nunito; flex:1; min-width:0; }
+.lboard .prow .pxp { font:900 12px Nunito; color:var(--ink-faint); }
+
+/* ================= Quiz (lição) ================= */
+.quiz { display:flex; flex-direction:column; min-height:100%; padding:14px 16px 0; }
+.quiz-top { display:flex; align-items:center; gap:12px; padding-bottom:12px; }
+.quiz-top .x { width:38px; height:38px; border-radius:12px; background:#fff; border:2px solid var(--line); display:grid; place-items:center; color:var(--ink-faint); cursor:pointer; flex-shrink:0; }
+.quiz-top .qbar { flex:1; height:12px; background:var(--line); border-radius:999px; overflow:hidden; }
+.quiz-top .qbar > i { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--red),#ff8a73); border-radius:999px; transition:width .4s ease; }
+.quiz-top .hearts { display:flex; gap:2px; }
+.quiz-top .hearts .heart { width:24px; height:24px; transition:.25s; }
+.quiz-top .hearts .heart.lost { filter:grayscale(1); opacity:.35; transform:scale(.85); }
+.quiz-q { text-align:center; margin:18px 0 20px; }
+.quiz-q .ql { font:900 12px Nunito; letter-spacing:1.4px; text-transform:uppercase; color:var(--ink-faint); }
+.quiz-q .qhan { font:900 58px "Noto Serif SC"; color:var(--ink); margin-top:8px; line-height:1; }
+.quiz-q .qp { font:800 17px Nunito; color:var(--ink-soft); margin-top:6px; }
+.quiz-opts { display:flex; flex-direction:column; gap:11px; margin-bottom:16px; }
+.opt { display:flex; align-items:center; gap:12px; padding:15px 16px; border:2px solid var(--line-2); border-bottom:4px solid var(--line-2); border-radius:16px; background:#fff; cursor:pointer; font:900 14.5px Nunito; color:var(--ink); transition:.12s; }
+.opt:hover { border-color:#d8c9c0; }
+.opt:active { transform:scale(.99); }
+.opt .omark { width:24px; height:24px; border-radius:50%; border:2px solid var(--line-2); display:grid; place-items:center; font:900 12px Nunito; color:var(--ink-faint); flex-shrink:0; }
+.opt.dim { opacity:.5; pointer-events:none; }
+.opt.ok { border-color:var(--jade); border-bottom-color:var(--jade-dark); background:var(--jade-soft); box-shadow:0 0 0 4px rgba(69,189,126,.18); }
+.opt.ok .omark { background:var(--jade); border-color:var(--jade-dark); color:#fff; }
+.opt.no { border-color:var(--red); border-bottom-color:var(--red-deep); background:var(--red-soft); animation:shake .4s; }
+.opt.no .omark { background:var(--red); border-color:var(--red-deep); color:#fff; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-7px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(3px);} }
+.quiz-foot { margin-top:auto; padding:0 0 14px; }
+.quiz-foot .btn { width:100%; }
+.quiz-foot .qmsg { font:900 13px Nunito; text-align:center; padding:8px 0 12px; }
+.quiz-foot .qmsg.ok { color:var(--jade-dark); }
+.quiz-foot .qmsg.no { color:var(--red-deep); }
+.hide { display:none !important; }
+
+/* ================= Mascote ================= */
+.mascot-svg { width:100%; height:100%; display:block; }
+
+/* ================= screens ================= */
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* ================= comparativo ================= */
+.cmpnote { font:800 12px/1.6 Nunito; color:var(--ink-soft); border-left:4px solid var(--line-2); padding-left:10px; margin:14px 2px; }
+.oldcard { background:#fff; border:2px solid var(--line); border-bottom:4px solid var(--line-2); border-radius:16px; padding:12px; cursor:pointer; }
+.oldcard .oc-t { font:900 12.5px Nunito; }
+.oldcard .oc-d { font:800 10.5px Nunito; color:var(--ink-faint); margin-top:2px; }
+
+/* ================= toast ================= */
+.toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#3b3632; color:#fff; font:900 12.5px Nunito; padding:12px 20px; border-radius:16px; opacity:0; pointer-events:none; transition:.25s; z-index:200; box-shadow:0 10px 24px rgba(0,0,0,.25); }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ================= sidebar desktop ================= */
+.dside .d-brand { display:flex; align-items:center; gap:11px; padding:2px 8px 20px; }
+.dside .d-brand .logo { width:38px; height:38px; border-radius:13px; background:var(--red-grad); border-bottom:3px solid var(--red-deep); color:#fff; display:grid; place-items:center; font:900 19px Nunito; }
+.dside .d-brand b { font:900 19px Nunito; color:var(--ink); }
+.dside .d-brand small { font:900 9px Nunito; letter-spacing:1.6px; color:var(--ink-faint); display:block; }
+.dside .dgroup { font:900 10px Nunito; letter-spacing:1.6px; text-transform:uppercase; color:var(--ink-faint); padding:16px 10px 6px; }
+.dside .ditem { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:13px; font:800 13px Nunito; color:var(--ink-soft); cursor:pointer; transition:.12s; }
+.dside .ditem:hover { background:var(--bg-soft); }
+.dside .ditem.active { background:var(--red-soft); color:var(--red-deep); }
+.dside .ditem .g { width:28px; height:28px; border-radius:9px; display:grid; place-items:center; color:#fff; font-weight:900; font-size:13px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.14); }
+.dside .spacer { flex:1; }
+.dside .dprofile { display:flex; align-items:center; gap:11px; padding:12px; border:2px solid var(--line); border-radius:16px; }
+.dside .dprofile .av { width:34px; height:34px; border-radius:50%; background:var(--bg-soft); display:grid; place-items:center; overflow:hidden; }
+.dside .dprofile b { font:900 12.5px Nunito; display:block; color:var(--ink); }
+.dside .dprofile span { font:800 10.5px Nunito; color:var(--ink-faint); }
+
+/* desktop hero */
+.dhero { display:flex; gap:26px; align-items:flex-start; }
+.dhero .main { flex:1; }
+</style>
+</head>
+<body>
+
+<!-- ============ Toolbar ============ -->
+<div class="toolbar">
+  <div class="brand"><span class="logo">龙</span> Longyu <small>v4 · DUOLINGO VERMELHO · POLIDO</small></div>
+  <div class="sep"></div>
+  <div class="pages" id="pagePills">
+    <button class="pill active" data-page="jornada">Jornada</button>
+    <button class="pill" data-page="licao">Lição</button>
+    <button class="pill" data-page="praticar">Praticar</button>
+    <button class="pill" data-page="ligas">Ligas</button>
+    <button class="pill" data-page="mais">Mais</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="switch">MODO
+    <div class="seg" id="deviceSeg">
+      <button data-device="mobile" class="active">Telefone</button>
+      <button data-device="desktop">Desktop</button>
+    </div>
+  </div>
+  <span class="hint">protótipo clicável — responda a lição!</span>
+</div>
+
+<div class="stage">
+
+  <!-- ============ TELEFONE ============ -->
+  <div class="phone" id="phoneFrame">
+    <div class="ear"></div>
+    <div class="phone-screen" id="phoneScreen">
+
+      <!-- ===== JORNADA ===== -->
+      <section class="screen active" id="v4-jornada">
+        <div class="topbar">
+          <div class="av"><div class="mascot-svg" id="mascotAv"></div></div>
+          <div class="stat"><span class="ic" style="background:var(--gold-soft);"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc847"/></svg></span>235</div>
+          <div class="stat"><span class="ic" style="background:var(--red-soft);"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z" fill="#f2543f"/></svg></span>7</div>
+          <div class="grow"></div>
+          <div class="stat" style="padding:4px 8px 5px;"><span class="ic" style="background:var(--blue-soft);"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 3l2.4 4.8L20 8.6l-4 3.9.9 5.5L12 15.6 7.1 18l.9-5.5-4-3.9 5.6-.8L12 3z" fill="#3fb2f0"/></svg></span>500</div>
+          <div class="bell" onclick="toast('Sem notificações novas')"><span class="dot">2</span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6M10 20a2 2 0 004 0"/></svg></div>
+        </div>
+
+        <!-- Banner festivo -->
+        <div class="hero">
+          <div class="confetti"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="inner">
+            <div class="mascot" id="mascotHero"></div>
+            <div class="speech">
+              <div class="bt">Boa, Marina! Continue sua jornada 🚀</div>
+              <div class="bd">“Perguntando o caminho” · ouvir e falar</div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-red" onclick="go('licao')">CONTINUAR</button>
+              <button class="btn btn-white btn-sm" onclick="toast('Revisão SRS: 4 itens')">复习</button>
+            </div>
+            <div class="progress">
+              <span class="lab">UNIDADE 5</span>
+              <div class="track"><i style="width:68%"></i></div>
+              <span class="lab">2/9</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Caminho -->
+        <div class="pathwrap">
+          <div class="pathhead"><div class="t">Viagem · <b>2/9</b></div><div class="n">Unidade 5</div></div>
+          <div class="path">
+            <div class="node done" onclick="toast('Revisar: Táxi e metrô')">
+              <span class="inner"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg></span>
+              <span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4"><path d="M5 13l4 4L19 7"/></svg></span>
+              <span class="label">Táxi e metrô</span>
+            </div>
+            <div class="conn done"></div>
+            <div class="node done" onclick="toast('Revisar: Comprando o bilhete')">
+              <span class="inner"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg></span>
+              <span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4"><path d="M5 13l4 4L19 7"/></svg></span>
+              <span class="label">Comprando o bilhete</span>
+            </div>
+            <div class="conn done"></div>
+            <div class="node cur" onclick="go('licao')">
+              <span class="inner"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#f2543f"/></svg></span>
+              <span class="label">Perguntando o caminho</span>
+            </div>
+            <div class="conn pending"></div>
+            <div class="node locked"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="label">No aeroporto</span></div>
+            <div class="conn pending"></div>
+            <div class="node locked"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="label">Passaporte</span></div>
+            <div class="conn pending"></div>
+            <div class="node chest" onclick="toast('Baú da unidade 🎁')">
+              <span class="spark s1"></span><span class="spark s2"></span>
+              <span class="inner"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></span>
+              <span class="label">Baú da unidade</span>
+            </div>
+            <div class="conn pending"></div>
+            <div class="node locked"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="label">Imersão final</span></div>
+          </div>
+        </div>
+
+        <!-- Missão -->
+        <div class="sec">
+          <div class="sec-head"><h3>Missão do dia</h3><span class="rule"></span><span class="more" onclick="toast('Missões diárias')">ver todas ›</span></div>
+          <div class="card quest shadow-hover" onclick="toast('Missões: 2 de 3 concluídas')">
+            <span class="qic" style="background:var(--orange-grad, linear-gradient(180deg,#ffb75e,#ffa53c));"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+            <div style="flex:1">
+              <div class="qt">Ganhe 20 XP em Fala</div>
+              <div class="xpbar"><i style="width:66%"></i></div>
+              <div class="qd" style="margin-top:4px;">faltam 7 XP · bônus +15</div>
+            </div>
+            <span class="chip jade">2/3</span>
+          </div>
+        </div>
+        <div style="height:14px"></div>
+
+        <div class="tabbar">
+          <button class="tab active" onclick="go('jornada')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="go('licao')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8 5v14l11-7-11-7z" fill="currentColor" stroke="none"/></svg></span>Ler</button>
+          <button class="tab" onclick="toast('Perfil de Marina')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ===== LIÇÃO (quiz interativo) ===== -->
+      <section class="screen" id="v4-licao">
+        <div class="quiz">
+          <div class="quiz-top">
+            <div class="x" onclick="go('jornada')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+            <div class="qbar"><i id="qBar"></i></div>
+            <div class="hearts" id="hearts">
+              <span class="heart" id="h1"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.2C.4 8.5 2.4 4.5 6.2 4.5c2.3 0 4 .9 5.8 3 1.8-2.1 3.5-3 5.8-3 3.8 0 5.8 4 4.2 7.3C19.5 16.4 12 21 12 21z" fill="#f2543f"/></svg></span>
+              <span class="heart" id="h2"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.2C.4 8.5 2.4 4.5 6.2 4.5c2.3 0 4 .9 5.8 3 1.8-2.1 3.5-3 5.8-3 3.8 0 5.8 4 4.2 7.3C19.5 16.4 12 21 12 21z" fill="#f2543f"/></svg></span>
+              <span class="heart" id="h3"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.2C.4 8.5 2.4 4.5 6.2 4.5c2.3 0 4 .9 5.8 3 1.8-2.1 3.5-3 5.8-3 3.8 0 5.8 4 4.2 7.3C19.5 16.4 12 21 12 21z" fill="#f2543f"/></svg></span>
+            </div>
+          </div>
+
+          <div class="quiz-q">
+            <div class="ql">Traduza esta frase</div>
+            <div class="qhan">你好</div>
+            <div class="qp">nǐ hǎo</div>
+          </div>
+
+          <div class="quiz-opts" id="quizOpts">
+            <div class="opt" onclick="pickOpt(this,true)"><span class="omark">1</span>Olá</div>
+            <div class="opt" onclick="pickOpt(this,false)"><span class="omark">2</span>Obrigado</div>
+            <div class="opt" onclick="pickOpt(this,false)"><span class="omark">3</span>Adeus</div>
+            <div class="opt" onclick="pickOpt(this,false)"><span class="omark">4</span>Sim</div>
+          </div>
+
+          <div class="quiz-foot">
+            <div class="qmsg" id="qMsg"></div>
+            <button class="btn btn-red" id="qCheck" onclick="tryAgain()">CONFERIR</button>
+            <button class="btn btn-jade hide" id="qNext" onclick="toast('Aula concluída! +10 XP ✨')">CONTINUAR</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PRATICAR ===== -->
+      <section class="screen" id="v4-praticar">
+        <div class="topbar">
+          <div class="av"><div class="mascot-svg" id="mascotAvP"></div></div>
+          <div class="stat"><span class="ic" style="background:var(--gold-soft);"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc847"/></svg></span>235</div>
+          <div class="stat"><span class="ic" style="background:var(--red-soft);"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z" fill="#f2543f"/></svg></span>7</div>
+          <div class="grow"></div>
+        </div>
+        <div style="padding:6px 16px 0;">
+          <h1 style="font:900 26px Nunito; color:var(--ink); margin:2px 0 2px;">Praticar</h1>
+          <div style="font:800 13px Nunito; color:var(--ink-soft);">escolha uma habilidade para treinar</div>
+
+          <div style="display:flex; gap:11px; margin-top:16px;">
+            <div class="card skill shadow-hover" style="flex:1; cursor:pointer;" onclick="go('licao')">
+              <span class="sq orange han" style="width:48px;height:48px;border-radius:15px;font-size:20px;">语</span>
+              <div><div class="t">Fala</div><div class="d">Frases em blocos, em voz alta</div></div>
+              <div class="xpbar"><i style="width:40%"></i></div>
+              <div style="font:800 10px Nunito; color:var(--ink-faint);">40% da semana</div>
+            </div>
+            <div class="card skill shadow-hover" style="flex:1; cursor:pointer;" onclick="toast('Hànzì: 3 novas peças')">
+              <span class="sq red han" style="width:48px;height:48px;border-radius:15px;font-size:20px;">字</span>
+              <div><div class="t">Hànzì</div><div class="d">Caracteres como peças lógicas</div></div>
+              <div class="xpbar"><i style="width:65%"></i></div>
+              <div style="font:800 10px Nunito; color:var(--ink-faint);">65% da unidade</div>
+            </div>
+          </div>
+
+          <div class="sec" style="padding:0;">
+            <div class="sec-head" style="margin-top:22px;"><h3>Ouvir &amp; falar</h3><span class="rule"></span></div>
+            <div class="card" style="padding:4px 6px;">
+              <div class="mrow" onclick="toast('Pinyin Lab')"><span class="sq blue han">声</span><div style="flex:1"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div><span class="chip gray">7 lições</span><span class="arr">›</span></div>
+              <div class="mrow" onclick="toast('Imersão')"><span class="sq purple han">听</span><div style="flex:1"><div class="t">Imersão</div><div class="d">Histórias e áudio para o ouvido</div></div><span class="chip blue">2 novos</span><span class="arr">›</span></div>
+            </div>
+          </div>
+
+          <div class="sec" style="padding:0;">
+            <div class="sec-head" style="margin-top:22px;"><h3>Ler &amp; escrever</h3><span class="rule"></span></div>
+            <div class="card" style="padding:4px 6px;">
+              <div class="mrow" onclick="toast('Leitura guiada')"><span class="sq blue han">读</span><div style="flex:1"><div class="t">Leitura</div><div class="d">Textos guiados, palavra a palavra</div></div><span class="arr">›</span></div>
+              <div class="mrow" onclick="toast('Biblioteca')"><span class="sq gray han">库</span><div style="flex:1"><div class="t">Biblioteca</div><div class="d">Palavras e caracteres já vistos</div></div><span class="chip gray">312 itens</span><span class="arr">›</span></div>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('jornada')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab active" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="go('licao')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8 5v14l11-7-11-7z" fill="currentColor" stroke="none"/></svg></span>Ler</button>
+          <button class="tab" onclick="toast('Perfil de Marina')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ===== LIGAS ===== -->
+      <section class="screen" id="v4-ligas">
+        <div class="topbar">
+          <div class="av"><div class="mascot-svg" id="mascotAvL"></div></div>
+          <div class="stat"><span class="ic" style="background:var(--gold-soft);"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc847"/></svg></span>235</div>
+          <div class="grow"></div>
+        </div>
+        <div style="padding:6px 16px 0;">
+          <div class="liga-hero">
+            <div class="medal">🥉</div>
+            <h2>Liga Bronze</h2>
+            <p>Você está em <b>12º</b> lugar · faltam <b>3 dias</b> para subir</p>
+            <div class="promo">1.240 XP esta semana</div>
+          </div>
+          <div class="sec" style="padding:0;">
+            <div class="sec-head" style="margin-top:20px;"><h3>Classificação</h3><span class="rule"></span></div>
+            <div class="card lboard" style="padding:6px;">
+              <div class="prow"><span class="rank">1</span><span class="pav" style="background:var(--gold-soft); color:#b88700;">R</span><span class="pn">Rafa</span><span class="pxp">2.410</span></div>
+              <div class="prow"><span class="rank">2</span><span class="pav" style="background:var(--bg-soft);">J</span><span class="pn">Julia</span><span class="pxp">2.205</span></div>
+              <div class="prow"><span class="rank">3</span><span class="pav" style="background:var(--bg-soft);">T</span><span class="pn">Théo</span><span class="pxp">1.980</span></div>
+              <div class="prow"><span class="rank">4</span><span class="pav" style="background:var(--bg-soft);">B</span><span class="pn">Bia</span><span class="pxp">1.742</span></div>
+              <div class="prow me"><span class="rank" style="color:var(--red-deep); font-weight:900;">12</span><span class="pav">M</span><span class="pn" style="color:var(--red-deep); font-weight:900;">Você</span><span class="pxp" style="color:var(--red-deep); font-weight:900;">1.240</span></div>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('jornada')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="go('licao')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8 5v14l11-7-11-7z" fill="currentColor" stroke="none"/></svg></span>Ler</button>
+          <button class="tab" onclick="toast('Perfil de Marina')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab active" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ===== MAIS ===== -->
+      <section class="screen" id="v4-mais">
+        <div class="topbar">
+          <div class="av"><div class="mascot-svg" id="mascotAvM"></div></div>
+          <div class="stat"><span class="ic" style="background:var(--gold-soft);"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc847"/></svg></span>235</div>
+          <div class="grow"></div>
+        </div>
+        <div style="padding:6px 16px 0;">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:10px;">
+            <div>
+              <h1 style="font:900 26px Nunito; color:var(--ink); margin:0;">Explorar</h1>
+              <div style="font:800 12.5px Nunito; color:var(--ink-soft);">tudo o que o Longyu oferece</div>
+            </div>
+            <div style="display:inline-flex; border:2px solid var(--line-2); border-radius:14px; overflow:hidden; background:#fff;">
+              <button class="v4ver active" data-v="novo" onclick="setMaisView('novo')" style="border:none;background:var(--red-grad);color:#fff;font:900 11px Nunito;padding:7px 13px;cursor:pointer;">NOVO</button>
+              <button class="v4ver" data-v="old" onclick="setMaisView('old')" style="border:none;background:transparent;color:var(--ink-soft);font:900 11px Nunito;padding:7px 13px;cursor:pointer;">HOJE</button>
+            </div>
+          </div>
+
+          <div id="v4View-novo">
+            <div style="margin-top:14px;">
+              <input class="dinput" id="v4Search" type="search" placeholder="Buscar: pinyin, loja, revisão…" oninput="filterMais(this.value)" />
+            </div>
+
+            <div class="card mrow shadow-hover" style="margin-top:14px;" onclick="go('licao')">
+              <span class="sq red han">续</span>
+              <div style="flex:1; min-width:0">
+                <div class="t">Continuar: “Perguntando o caminho”</div>
+                <div class="d">Unidade 5 · 8 min restantes</div>
+              </div>
+              <span class="chip red">agora</span>
+            </div>
+
+            <div class="sec" style="padding:0;">
+              <div class="sec-head" style="margin-top:22px;"><h3>Para você agora</h3><span class="rule"></span></div>
+              <div style="display:flex; gap:11px;">
+                <div class="card feat shadow-hover" style="flex:1; cursor:pointer;" onclick="toast('Revisão SRS: 4 itens')">
+                  <div class="head"><span class="sq blue" style="width:42px;height:42px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span><span class="chip jade">4 prontos</span></div>
+                  <div class="t">Revisão</div>
+                  <div class="d">Reforce o que aprendeu hoje.</div>
+                </div>
+                <div class="card feat shadow-hover" style="flex:1; cursor:pointer;" onclick="toast('1 baú pronto! 🎁')">
+                  <div class="head"><span class="sq gold" style="width:42px;height:42px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></span><span class="chip gold">1 baú</span></div>
+                  <div class="t">Loja &amp; Baús</div>
+                  <div class="d">Um baú pronto para abrir.</div>
+                </div>
+                <div class="card feat shadow-hover" style="flex:1; cursor:pointer;" onclick="go('ligas')">
+                  <div class="head"><span class="sq orange" style="width:42px;height:42px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span><span class="chip red">#12</span></div>
+                  <div class="t">Ligas</div>
+                  <div class="d">3 dias para subir de liga.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec" style="padding:0;">
+              <div class="sec-head" style="margin-top:22px;"><h3>Tudo em um lugar</h3><span class="rule"></span></div>
+
+              <div class="acc open" id="v4acc-estudar">
+                <button onclick="toggleAcc('v4acc-estudar')"><span class="sq red han">学</span> Estudar <span class="cnt">· 6 áreas</span><span class="chev">›</span></button>
+                <div class="body">
+                  <div class="mrow" onclick="toast('Hànzì: 3 novas peças')"><span class="sq red han">字</span><div style="flex:1"><div class="t">Hànzì</div><div class="d">Caracteres como peças lógicas</div></div><span class="chip jade">3 novas</span><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Pinyin Lab')"><span class="sq blue han">声</span><div style="flex:1"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="go('licao')"><span class="sq orange han">语</span><div style="flex:1"><div class="t">Fala</div><div class="d">Frases em blocos, em voz alta</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Leitura guiada')"><span class="sq blue han">读</span><div style="flex:1"><div class="t">Leitura</div><div class="d">Textos guiados, palavra a palavra</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Biblioteca')"><span class="sq gray han">库</span><div style="flex:1"><div class="t">Biblioteca</div><div class="d">Palavras e caracteres já vistos</div></div><span class="chip gray">312 itens</span><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Imersão')"><span class="sq purple han">听</span><div style="flex:1"><div class="t">Imersão</div><div class="d">Histórias e áudio para o ouvido</div></div><span class="chip blue">2 novos</span><span class="arr">›</span></div>
+                </div>
+              </div>
+
+              <div class="acc" id="v4acc-motivacao">
+                <button onclick="toggleAcc('v4acc-motivacao')"><span class="sq orange han">志</span> Motivação <span class="cnt">· 5 itens</span><span class="chev">›</span></button>
+                <div class="body">
+                  <div class="mrow" onclick="toast('Missões do dia')"><span class="sq orange han">任</span><div style="flex:1"><div class="t">Missões</div><div class="d">Metas curtas e recompensas</div></div><span class="chip jade">2/3</span><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Conquistas')"><span class="sq gold han">勋</span><div style="flex:1"><div class="t">Conquistas</div><div class="d">Marcos e medalhas</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="go('ligas')"><span class="sq orange han">赛</span><div style="flex:1"><div class="t">Ligas</div><div class="d">Ranking semanal por XP</div></div><span class="chip red">#12</span><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Loja & Baús')"><span class="sq gold han">商</span><div style="flex:1"><div class="t">Loja</div><div class="d">Cargas, itens e cosméticos</div></div><span class="chip gold">1 baú</span><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Amigos')"><span class="sq blue han">友</span><div style="flex:1"><div class="t">Amigos</div><div class="d">Seguir e comparar XP semanal</div></div><span class="arr">›</span></div>
+                </div>
+              </div>
+
+              <div class="acc" id="v4acc-conta">
+                <button onclick="toggleAcc('v4acc-conta')"><span class="sq gray han">帐</span> Conta &amp; sistema <span class="cnt">· 5 itens</span><span class="chev">›</span></button>
+                <div class="body">
+                  <div class="mrow" onclick="toast('Perfil de Marina')"><span class="sq blue han">人</span><div style="flex:1"><div class="t">Perfil</div><div class="d">Identidade e progresso</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Plano Pro')"><span class="sq gold han">金</span><div style="flex:1"><div class="t">Plano Pro</div><div class="d">Revisão ilimitada e sem cargas</div></div><span class="chip gold">opcional</span><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Ajustes')"><span class="sq gray han">设</span><div style="flex:1"><div class="t">Ajustes</div><div class="d">Áudio, aparência e preferências</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Ajuda & Feedback')"><span class="sq blue han">助</span><div style="flex:1"><div class="t">Ajuda &amp; Feedback</div><div class="d">Suporte, feedback e atalhos</div></div><span class="arr">›</span></div>
+                  <div class="mrow" onclick="toast('Sobre o beta')"><span class="sq gray han">于</span><div style="flex:1"><div class="t">Sobre</div><div class="d">Estado do beta Longyu</div></div><span class="chip gray">Beta 0.2</span><span class="arr">›</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="v4View-old" style="display:none;">
+            <p class="cmpnote">Como é hoje: vinte atalhos do mesmo tamanho e peso, sem busca nem prioridade.</p>
+            <div id="v4OldGrid"></div>
+          </div>
+          <div style="height:12px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('jornada')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="go('licao')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8 5v14l11-7-11-7z" fill="currentColor" stroke="none"/></svg></span>Ler</button>
+          <button class="tab" onclick="toast('Perfil de Marina')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab active" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============ DESKTOP ============ -->
+  <div class="desktop" id="desktopFrame" style="display:none;">
+    <aside class="sidebar dside">
+      <div class="d-brand"><span class="logo">龙</span><div><b>Longyu</b><small>MANDARIM</small></div></div>
+      <div class="dgroup">Estudar</div>
+      <div class="ditem active" onclick="go('jornada')"><span class="g" style="background:var(--red-grad);">家</span>Jornada</div>
+      <div class="ditem" onclick="go('praticar')"><span class="g" style="background:var(--blue);">练</span>Praticar</div>
+      <div class="ditem" onclick="go('licao')"><span class="g" style="background:var(--orange);">复</span>Revisão <span class="chip jade" style="margin-left:auto">4</span></div>
+      <div class="ditem" onclick="toast('Missões')"><span class="g" style="background:var(--orange);">任</span>Missões</div>
+      <div class="ditem" onclick="go('ligas')"><span class="g" style="background:var(--gold);">赛</span>Ligas</div>
+      <div class="ditem" onclick="toast('Loja')"><span class="g" style="background:var(--gold);">商</span>Loja <span class="chip gold" style="margin-left:auto">1 baú</span></div>
+      <div class="dgroup">Descobrir</div>
+      <div class="ditem" onclick="toast('Hànzì')"><span class="g" style="background:var(--red-grad);">字</span>Hànzì</div>
+      <div class="ditem" onclick="toast('Pinyin Lab')"><span class="g" style="background:var(--blue);">声</span>Pinyin Lab</div>
+      <div class="ditem" onclick="toast('Imersão')"><span class="g" style="background:var(--purple);">听</span>Imersão</div>
+      <div class="dgroup">Você</div>
+      <div class="ditem" onclick="toast('Perfil')"><span class="g" style="background:var(--blue);">人</span>Perfil</div>
+      <div class="ditem" onclick="toast('Ajustes')"><span class="g" style="background:#c9c2ba;">设</span>Ajustes</div>
+      <div class="spacer"></div>
+      <div class="dprofile"><div class="av"><div class="mascot-svg" id="mascotDesk"></div></div><div><b>Marina</b><span>1.240 XP · 7 dias · Pro</span></div></div>
+    </aside>
+    <div class="content" id="desktopContent">
+
+      <!-- desktop: Jornada -->
+      <div class="screen" id="v4d-home">
+        <div class="dhero">
+          <div class="main">
+            <div class="sec-head" style="margin-bottom:8px;"><h3 style="font-size:26px; color:var(--ink);">Unidade 5 · Viagem</h3><span class="rule"></span></div>
+            <p style="font:800 14px Nunito; color:var(--ink-soft); margin:0 0 18px;">Perguntar caminhos, comprar bilhete e entender avisos. Faltam duas lições para fechar a unidade.</p>
+            <div class="card" style="padding:20px; display:flex; align-items:center; gap:18px; max-width:700px;">
+              <div style="width:84px; height:84px; flex-shrink:0;" id="mascotDeskHero"></div>
+              <div style="flex:1">
+                <div style="font:900 18px Nunito; color:var(--ink);">Continue sua jornada!</div>
+                <div style="font:800 13px Nunito; color:var(--ink-soft); margin-top:2px;">“Perguntando o caminho” · 8 min · ouvir e falar</div>
+                <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
+                  <div class="progress" style="flex:1; display:block; max-width:320px;">
+                    <div class="track" style="height:12px; background:var(--bg-soft); border-radius:999px; overflow:hidden;"><i style="display:block; height:100%; width:68%; background:var(--red-grad); border-radius:999px;"></i></div>
+                  </div>
+                  <span style="font:900 12px Nunito; color:var(--ink-faint);">2/9</span>
+                </div>
+              </div>
+              <button class="btn btn-red" onclick="go('licao')">CONTINUAR</button>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; max-width:700px;">
+              <div class="card quest" style="flex:1;"><span class="qic" style="background:var(--orange);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span><div style="flex:1"><div class="qt">Missão do dia · 2/3</div><div class="xpbar"><i style="width:66%"></i></div></div></div>
+              <div class="card quest" style="flex:1;" onclick="go('ligas')"><span class="qic" style="background:var(--gold);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span><div style="flex:1"><div class="qt">Liga Bronze</div><div class="qd">12º lugar · 3 dias restantes</div></div><span class="chip red">#12</span></div>
+            </div>
+            <div class="sec" style="padding:0;">
+              <div class="sec-head" style="margin-top:26px;"><h3>Caminho da unidade</h3><span class="rule"></span><span class="more">2/9 lições</span></div>
+              <div style="display:flex; align-items:center; gap:0; flex-wrap:wrap;">
+                <div class="node done" style="width:62px;height:62px;"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg></span><span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4"><path d="M5 13l4 4L19 7"/></svg></span></div>
+                <div class="conn done" style="width:46px;height:6px;border-radius:4px;margin:0 -10px;"></div>
+                <div class="node done" style="width:62px;height:62px;"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg></span><span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4"><path d="M5 13l4 4L19 7"/></svg></span></div>
+                <div class="conn done" style="width:46px;height:6px;border-radius:4px;margin:0 -10px;"></div>
+                <div class="node cur" style="width:76px;height:76px;" onclick="go('licao')"><span class="inner"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#f2543f"/></svg></span></div>
+                <div class="conn pending" style="width:46px;height:6px;border-radius:4px;margin:0 -10px;"></div>
+                <div class="node locked" style="width:62px;height:62px;"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span></div>
+                <div class="conn pending" style="width:46px;height:6px;border-radius:4px;margin:0 -10px;"></div>
+                <div class="node locked" style="width:62px;height:62px;"><span class="inner"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span></div>
+                <div class="conn pending" style="width:46px;height:6px;border-radius:4px;margin:0 -10px;"></div>
+                <div class="node chest" style="width:62px;height:62px;"><span class="spark s1"></span><span class="spark s2"></span><span class="inner"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- desktop: Ligas -->
+      <div class="screen" id="v4d-ligas">
+        <h1 style="font:900 30px Nunito; margin:0 0 4px; color:var(--ink);">Ligas</h1>
+        <div style="font:800 13px Nunito; color:var(--ink-soft); margin-bottom:18px;">Ranking semanal da Liga Bronze</div>
+        <div class="liga-hero" style="max-width:520px; text-align:left; display:flex; align-items:center; gap:18px;">
+          <div class="medal">🥉</div>
+          <div style="flex:1"><h2 style="margin:0;">Liga Bronze</h2><p>Você está em 12º · faltam 3 dias para subir</p></div>
+          <div class="promo">1.240 XP</div>
+        </div>
+        <div class="card lboard" style="margin-top:18px; max-width:520px; padding:8px;">
+          <div class="prow"><span class="rank">1</span><span class="pav" style="background:var(--gold-soft); color:#b88700;">R</span><span class="pn">Rafa</span><span class="pxp">2.410</span></div>
+          <div class="prow"><span class="rank">2</span><span class="pav">J</span><span class="pn">Julia</span><span class="pxp">2.205</span></div>
+          <div class="prow"><span class="rank">3</span><span class="pav">T</span><span class="pn">Théo</span><span class="pxp">1.980</span></div>
+          <div class="prow me"><span class="rank" style="color:var(--red-deep); font-weight:900;">12</span><span class="pav">M</span><span class="pn" style="color:var(--red-deep); font-weight:900;">Você</span><span class="pxp" style="color:var(--red-deep); font-weight:900;">1.240</span></div>
+        </div>
+      </div>
+
+      <!-- desktop: Mais -->
+      <div class="screen" id="v4d-mais">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1 style="font:900 30px Nunito; margin:0; color:var(--ink);">Explorar</h1>
+            <div style="font:800 13px Nunito; color:var(--ink-soft);">tudo o que o Longyu oferece</div>
+          </div>
+          <div style="display:inline-flex; border:2px solid var(--line-2); border-radius:14px; overflow:hidden; background:#fff;">
+            <button class="v4ver active" data-v="novo" onclick="setMaisView('novo')" style="border:none;background:var(--red-grad);color:#fff;font:900 11px Nunito;padding:7px 13px;cursor:pointer;">NOVO</button>
+            <button class="v4ver" data-v="old" onclick="setMaisView('old')" style="border:none;background:transparent;color:var(--ink-soft);font:900 11px Nunito;padding:7px 13px;cursor:pointer;">HOJE</button>
+          </div>
+        </div>
+        <div id="v4View-novo">
+          <input class="dinput" id="v4dSearch" type="search" style="max-width:380px; margin-top:14px;" placeholder="Buscar: pinyin, loja, revisão…" oninput="filterMais(this.value)" />
+          <div style="display:flex; gap:12px; margin-top:16px;">
+            <div class="card feat shadow-hover" style="flex:1; cursor:pointer;" onclick="toast('Revisão SRS: 4 itens')">
+              <div class="head"><span class="sq blue" style="width:42px;height:42px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span><span class="chip jade">4 prontos</span></div>
+              <div class="t">Revisão</div><div class="d">Reforce o que aprendeu hoje.</div>
+            </div>
+            <div class="card feat shadow-hover" style="flex:1; cursor:pointer;" onclick="toast('1 baú pronto! 🎁')">
+              <div class="head"><span class="sq gold" style="width:42px;height:42px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></span><span class="chip gold">1 baú</span></div>
+              <div class="t">Loja &amp; Baús</div><div class="d">Um baú pronto para abrir.</div>
+            </div>
+            <div class="card feat shadow-hover" style="flex:1; cursor:pointer;" onclick="go('ligas')">
+              <div class="head"><span class="sq orange" style="width:42px;height:42px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span><span class="chip red">#12</span></div>
+              <div class="t">Ligas</div><div class="d">3 dias para subir de liga.</div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:22px;">
+            <div>
+              <div class="sec-head"><h3>Estudar</h3><span class="rule"></span></div>
+              <div class="card" style="padding:4px 6px;">
+                <div class="mrow" onclick="toast('Hànzì')"><span class="sq red han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">字</span><div style="flex:1"><div class="t" style="font-size:13px;">Hànzì</div></div><span class="chip jade">3 novas</span></div>
+                <div class="mrow" onclick="toast('Pinyin Lab')"><span class="sq blue han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">声</span><div style="flex:1"><div class="t" style="font-size:13px;">Pinyin Lab</div></div></div>
+                <div class="mrow" onclick="go('licao')"><span class="sq orange han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">语</span><div style="flex:1"><div class="t" style="font-size:13px;">Fala</div></div></div>
+                <div class="mrow" onclick="toast('Leitura')"><span class="sq blue han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">读</span><div style="flex:1"><div class="t" style="font-size:13px;">Leitura</div></div></div>
+                <div class="mrow" onclick="toast('Biblioteca')"><span class="sq gray han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">库</span><div style="flex:1"><div class="t" style="font-size:13px;">Biblioteca</div></div></div>
+                <div class="mrow" onclick="toast('Imersão')"><span class="sq purple han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">听</span><div style="flex:1"><div class="t" style="font-size:13px;">Imersão</div></div><span class="chip blue">2 novos</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="sec-head"><h3>Motivação</h3><span class="rule"></span></div>
+              <div class="card" style="padding:4px 6px;">
+                <div class="mrow" onclick="toast('Missões')"><span class="sq orange han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">任</span><div style="flex:1"><div class="t" style="font-size:13px;">Missões</div></div><span class="chip jade">2/3</span></div>
+                <div class="mrow" onclick="toast('Conquistas')"><span class="sq gold han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">勋</span><div style="flex:1"><div class="t" style="font-size:13px;">Conquistas</div></div></div>
+                <div class="mrow" onclick="go('ligas')"><span class="sq orange han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">赛</span><div style="flex:1"><div class="t" style="font-size:13px;">Ligas</div></div><span class="chip red">#12</span></div>
+                <div class="mrow" onclick="toast('Loja')"><span class="sq gold han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">商</span><div style="flex:1"><div class="t" style="font-size:13px;">Loja</div></div><span class="chip gold">1 baú</span></div>
+                <div class="mrow" onclick="toast('Amigos')"><span class="sq blue han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">友</span><div style="flex:1"><div class="t" style="font-size:13px;">Amigos</div></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="sec-head"><h3>Conta &amp; sistema</h3><span class="rule"></span></div>
+              <div class="card" style="padding:4px 6px;">
+                <div class="mrow" onclick="toast('Perfil')"><span class="sq blue han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">人</span><div style="flex:1"><div class="t" style="font-size:13px;">Perfil</div></div></div>
+                <div class="mrow" onclick="toast('Plano Pro')"><span class="sq gold han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">金</span><div style="flex:1"><div class="t" style="font-size:13px;">Plano Pro</div></div><span class="chip gold">opcional</span></div>
+                <div class="mrow" onclick="toast('Ajustes')"><span class="sq gray han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">设</span><div style="flex:1"><div class="t" style="font-size:13px;">Ajustes</div></div></div>
+                <div class="mrow" onclick="toast('Ajuda')"><span class="sq blue han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">助</span><div style="flex:1"><div class="t" style="font-size:13px;">Ajuda &amp; Feedback</div></div></div>
+                <div class="mrow" onclick="toast('Sobre')"><span class="sq gray han" style="width:34px;height:34px;border-radius:10px;font-size:14px;">于</span><div style="flex:1"><div class="t" style="font-size:13px;">Sobre</div></div><span class="chip gray">Beta 0.2</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="v4View-old" style="display:none;">
+          <p class="cmpnote" style="margin-top:18px;">Como é hoje: vinte atalhos do mesmo tamanho e peso, sem busca nem prioridade.</p>
+          <div id="v4OldGridDesktop"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ navegação por hash ============ */
+const screenMap = {
+  jornada:  { mobile: 'v4-jornada',  desktop: 'v4d-home' },
+  licao:    { mobile: 'v4-licao',    desktop: 'v4d-home' },
+  praticar: { mobile: 'v4-praticar', desktop: 'v4d-mais' },
+  ligas:    { mobile: 'v4-ligas',    desktop: 'v4d-ligas' },
+  mais:     { mobile: 'v4-mais',     desktop: 'v4d-mais' },
+};
+let currentPage = 'jornada', device = 'mobile';
+
+function parseHash() {
+  const parts = (location.hash || '').replace(/^#\/?/, '').split('/');
+  return { page: screenMap[parts[0]] ? parts[0] : 'jornada', dev: parts[1] === 'desktop' ? 'desktop' : 'mobile' };
+}
+function activate(page, dev) {
+  currentPage = page; device = dev;
+  history.replaceState(null, '', '#' + page + '/' + dev);
+  document.querySelectorAll('.toolbar .pages .pill').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  document.querySelectorAll('#deviceSeg button').forEach(b => b.classList.toggle('active', b.dataset.device === dev));
+  const phone = document.getElementById('phoneFrame');
+  const desktop = document.getElementById('desktopFrame');
+  phone.style.display = dev === 'mobile' ? '' : 'none';
+  desktop.style.display = dev === 'desktop' ? '' : 'none';
+  const map = screenMap[page] || screenMap.jornada;
+  document.querySelectorAll('#phoneScreen .screen').forEach(s => s.classList.toggle('active', s.id === map.mobile));
+  document.querySelectorAll('#desktopContent .screen').forEach(s => s.classList.toggle('active', s.id === map.desktop));
+  if (page === 'licao' && typeof resetQuiz === 'function') resetQuiz();
+  const scr = dev === 'mobile' ? document.getElementById('phoneScreen') : document.querySelector('.desktop .content');
+  if (scr) scr.scrollTop = 0;
+}
+function go(target) {
+  if (target.startsWith('/')) { toast('Abrindo "' + target + '" (demo)'); return; }
+  if (screenMap[target]) activate(target, device);
+}
+function toggleAcc(id) { document.getElementById(id).classList.toggle('open'); }
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ============ Quiz interativo ============ */
+let quizAnswered = false, quizHearts = 3;
+function resetQuizUi(keepHearts) {
+  document.querySelectorAll('#v4-licao .opt').forEach(o => { o.classList.remove('dim','no','ok'); });
+  document.getElementById('qMsg').textContent = '';
+  document.getElementById('qMsg').className = 'qmsg';
+  document.getElementById('qCheck').textContent = 'CONFERIR';
+  document.getElementById('qCheck').classList.remove('hide');
+  document.getElementById('qNext').classList.add('hide');
+  document.getElementById('qBar').style.width = '0';
+  quizAnswered = false;
+  if (!keepHearts) {
+    quizHearts = 3;
+    ['h1','h2','h3'].forEach(id => document.getElementById(id).classList.remove('lost'));
+  }
+}
+function resetQuiz() { resetQuizUi(false); }
+function tryAgain() { resetQuizUi(true); }
+function pickOpt(el, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  document.querySelectorAll('#v4-licao .opt').forEach(o => o.classList.add('dim'));
+  const msg = document.getElementById('qMsg');
+  if (correct) {
+    el.classList.add('ok');
+    document.getElementById('qBar').style.width = '100%';
+    document.getElementById('qCheck').classList.add('hide');
+    document.getElementById('qNext').classList.remove('hide');
+    msg.textContent = 'Muito bem! 你好 = Olá · +10 XP';
+    msg.className = 'qmsg ok';
+  } else {
+    el.classList.add('no');
+    quizHearts = Math.max(0, quizHearts - 1);
+    ['h1','h2','h3'].forEach((id, i) => {
+      document.getElementById(id).classList.toggle('lost', i >= 3 - quizHearts);
+    });
+    document.getElementById('qCheck').textContent = 'TENTAR DE NOVO';
+    msg.textContent = 'Quase! Tente de novo.';
+    msg.className = 'qmsg no';
+  }
+}
+
+/* ============ busca ============ */
+function filterMais(q) {
+  q = (q || '').toLowerCase().trim();
+  document.querySelectorAll('#v4View-novo').forEach(root => {
+    root.querySelectorAll('.mrow').forEach(el => {
+      const txt = (el.textContent || '').toLowerCase();
+      el.style.display = (!q || txt.includes(q)) ? '' : 'none';
+    });
+    root.querySelectorAll('.acc').forEach(acc => {
+      const has = [...acc.querySelectorAll('.mrow')].some(el => el.style.display !== 'none');
+      acc.style.display = has ? '' : 'none';
+      if (has) acc.classList.add('open');
+    });
+  });
+}
+
+/* ============ comparativo HOJE ============ */
+const OLD_CATALOG = [
+  { title: 'Aprender', items: ['Praticar','Revisão','Pinyin Lab','Hànzì','Fala','Leitura','Biblioteca','Imersão'] },
+  { title: 'Motivação', items: ['Missões','Conquistas','Ligas','Loja','Amigos'] },
+  { title: 'Conta', items: ['Perfil','Conta','Plano Pro','Dados locais','Ajustes','Ajuda','Sobre'] },
+];
+const OLD_COLORS = ['red','blue','purple','orange','gold','gray','red','blue'];
+const OLD_GLYPHS = ['练','复','声','字','语','读','库','听','任','勋','赛','商','友','人','帐','金','存','设','助','于'];
+const SQ_BG = { red:'var(--red-grad)', blue:'var(--blue)', purple:'var(--purple)', orange:'var(--orange)', gold:'var(--gold)', gray:'#c9c2ba' };
+function renderOldGrid(containerId) {
+  const root = document.getElementById(containerId);
+  if (!root || root.dataset.rendered) return;
+  root.dataset.rendered = '1';
+  let i = 0;
+  root.innerHTML = OLD_CATALOG.map(g => `
+    <div class="sec-head" style="margin-top:18px;"><h3 style="font-size:14px;">${g.title}</h3><span class="rule"></span><span class="more">${g.items.length}</span></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px;">
+      ${g.items.map(it => {
+        const bg = SQ_BG[OLD_COLORS[i % OLD_COLORS.length]];
+        return `<div class="oldcard" onclick="toast('${it} (demo)')">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <span class="sq han" style="width:28px;height:28px;border-radius:9px;font-size:13px;background:${bg};color:#fff;">${OLD_GLYPHS[i++]}</span>
+            <div class="oc-t">${it}</div>
+          </div>
+          <div class="oc-d">atalho de menu</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+function setMaisView(v) {
+  const isNew = v === 'novo';
+  document.querySelectorAll('#v4View-novo').forEach(el => el.style.display = isNew ? '' : 'none');
+  document.querySelectorAll('#v4View-old').forEach(el => el.style.display = isNew ? 'none' : '');
+  document.querySelectorAll('.v4ver').forEach(b => {
+    const on = b.dataset.v === v;
+    b.style.background = on ? 'var(--red-grad)' : 'transparent';
+    b.style.color = on ? '#fff' : 'var(--ink-soft)';
+  });
+  if (!isNew) { renderOldGrid('v4OldGrid'); renderOldGrid('v4OldGridDesktop'); }
+}
+
+/* ============ mascote ============ */
+const MASCOT_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="62" r="44" fill="#f2543f"/>
+  <circle cx="60" cy="62" r="44" fill="none" stroke="#d63e28" stroke-width="3"/>
+  <path d="M34 38 Q22 22 40 12 Q50 26 42 36" fill="#ffc847" stroke="#e5a400" stroke-width="2"/>
+  <path d="M86 38 Q98 22 80 12 Q70 26 78 36" fill="#ffc847" stroke="#e5a400" stroke-width="2"/>
+  <ellipse cx="44" cy="54" rx="11" ry="13" fill="#fff"/>
+  <ellipse cx="76" cy="54" rx="11" ry="13" fill="#fff"/>
+  <circle cx="47" cy="56" r="5.5" fill="#3b3632"/>
+  <circle cx="73" cy="56" r="5.5" fill="#3b3632"/>
+  <circle cx="49.5" cy="53" r="2" fill="#fff"/>
+  <circle cx="75.5" cy="53" r="2" fill="#fff"/>
+  <path d="M46 84 Q60 96 74 84" stroke="#3b3632" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <circle cx="26" cy="74" r="7.5" fill="#ff9b8a" opacity=".65"/>
+  <circle cx="94" cy="74" r="7.5" fill="#ff9b8a" opacity=".65"/>
+  <path d="M20 50 Q6 42 12 28 Q24 38 26 44" fill="#ff8f6b" opacity=".95"/>
+  <path d="M100 50 Q114 42 108 28 Q96 38 94 44" fill="#ff8f6b" opacity=".95"/>
+</svg>`;
+function mountMascots() {
+  document.querySelectorAll('.mascot-svg').forEach(el => { el.innerHTML = MASCOT_SVG; });
+  ['mascotHero','mascotDeskHero'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = MASCOT_SVG; });
+}
+
+document.querySelectorAll('.toolbar .pages .pill').forEach(b => b.addEventListener('click', () => activate(b.dataset.page, device)));
+document.querySelectorAll('#deviceSeg button').forEach(b => b.addEventListener('click', () => activate(currentPage, b.dataset.device)));
+window.addEventListener('hashchange', () => { const s = parseHash(); activate(s.page, s.dev); });
+
+mountMascots();
+const initial = parseHash();
+activate(initial.page, initial.dev);
+setMaisView('novo');
+</script>
+</body>
+</html>

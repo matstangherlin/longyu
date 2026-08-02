@@ -331,7 +331,11 @@ export function isConversationSceneEligible(
 }
 
 // O personagem à esquerda (id "lin") é o AVATAR DO ALUNO: é ele quem monta e
+<<<<<<< HEAD
 // diz as próprias falas ("我叫马修", "我不会说中文"…). Por isso o nome padrão é
+=======
+// diz as próprias falas ("我叫Matheus", "我不会说中文"…). Por isso o nome padrão é
+>>>>>>> 0f8c760 (Adiciona nova foto)
 // "Matheus" (o nome-modelo usado em toda a jornada) e é personalizado com o
 // nome do usuário em runtime (ver personalizeStep). Antes ele se chamava "Lin"
 // — que já é uma personagem à parte nas histórias interativas —, o que fazia a
@@ -950,6 +954,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         interaction: {
           type: "order_reply",
           prompt: "Apresente-se para Mei: meu nome é Matheus.",
+<<<<<<< HEAD
           options: ["我", "叫", "马修", "你好"],
           correctAnswer: "我叫马修",
           correctNextNodeId: "me-apresentando-5",
@@ -964,11 +969,31 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         speakerId: "mei",
         hanzi: "你好，马修！",
         pinyin: "nǐ hǎo, Mǎxiū!",
+=======
+          options: ["我", "叫", "Matheus", "你好"],
+          correctAnswer: "我叫Matheus",
+          correctNextNodeId: "me-apresentando-5",
+          wrongNextNodeId: "me-apresentando-4",
+          explanation: "我叫Matheus = meu nome é Matheus.",
+        },
+      },
+      { id: "me-apresentando-4", speakerId: "mei", hanzi: "我叫Matheus？", pinyin: "wǒ jiào Matheus?", pt: "Meu nome é Matheus?", emotion: "confused", nextNodeId: "me-apresentando-3" },
+      { id: "me-apresentando-5", speakerId: "lin", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "me-apresentando-6" },
+      {
+        id: "me-apresentando-6",
+        speakerId: "mei",
+        hanzi: "你好，Matheus！",
+        pinyin: "nǐ hǎo, Matheus!",
+>>>>>>> 0f8c760 (Adiciona nova foto)
         pt: "Olá, Matheus!",
         emotion: "happy",
         interaction: {
           type: "choose_meaning",
+<<<<<<< HEAD
           prompt: "O que 我叫马修 comunica?",
+=======
+          prompt: "O que 我叫Matheus comunica?",
+>>>>>>> 0f8c760 (Adiciona nova foto)
           options: ["Meu nome é Matheus.", "Tudo bem?", "Até logo.", "De nada."],
           correctAnswer: "Meu nome é Matheus.",
           correctNextNodeId: "me-apresentando-8",
@@ -976,7 +1001,11 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
           explanation: "我叫 + nome apresenta quem fala.",
         },
       },
+<<<<<<< HEAD
       { id: "me-apresentando-7", speakerId: "mei", hanzi: "我叫马修。", pinyin: "wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus.", emotion: "thinking", nextNodeId: "me-apresentando-6" },
+=======
+      { id: "me-apresentando-7", speakerId: "mei", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "thinking", nextNodeId: "me-apresentando-6" },
+>>>>>>> 0f8c760 (Adiciona nova foto)
       { id: "me-apresentando-8", speakerId: "lin", hanzi: "你好。", pinyin: "nǐ hǎo.", pt: "Olá.", emotion: "happy" },
     ],
     learnedRefs: ["chunk:nihao", "chunk:wojiao"],
@@ -1062,7 +1091,11 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
     sceneRole: "common",
     entryNodeId: "pedir-repeticao-1",
     nodes: [
+<<<<<<< HEAD
       { id: "pedir-repeticao-1", speakerId: "lin", hanzi: "你好吗？我叫马修。", pinyin: "nǐ hǎo ma? wǒ jiào Mǎxiū.", pt: "Tudo bem? Meu nome é Matheus.", emotion: "happy", nextNodeId: "pedir-repeticao-2" },
+=======
+      { id: "pedir-repeticao-1", speakerId: "lin", hanzi: "你好吗？我叫Matheus。", pinyin: "nǐ hǎo ma? wǒ jiào Matheus.", pt: "Tudo bem? Meu nome é Matheus.", emotion: "happy", nextNodeId: "pedir-repeticao-2" },
+>>>>>>> 0f8c760 (Adiciona nova foto)
       {
         id: "pedir-repeticao-2",
         speakerId: "mei",
@@ -1087,8 +1120,13 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
       {
         id: "pedir-repeticao-7",
         speakerId: "lin",
+<<<<<<< HEAD
         hanzi: "我叫马修。",
         pinyin: "wǒ jiào Mǎxiū.",
+=======
+        hanzi: "我叫Matheus。",
+        pinyin: "wǒ jiào Matheus.",
+>>>>>>> 0f8c760 (Adiciona nova foto)
         pt: "Meu nome é Matheus.",
         emotion: "happy",
         interaction: {
@@ -1098,7 +1136,11 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
           correctAnswer: "Meu nome é Matheus.",
           correctNextNodeId: "pedir-repeticao-9",
           wrongNextNodeId: "pedir-repeticao-8",
+<<<<<<< HEAD
           explanation: "我叫马修 apresenta o nome Matheus.",
+=======
+          explanation: "我叫Matheus apresenta o nome Matheus.",
+>>>>>>> 0f8c760 (Adiciona nova foto)
         },
       },
       { id: "pedir-repeticao-8", speakerId: "mei", hanzi: "我听不懂。", pinyin: "wǒ tīng bù dǒng.", pt: "Não entendi.", emotion: "confused", nextNodeId: "pedir-repeticao-7" },
@@ -1200,7 +1242,11 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         interaction: {
           type: "choose_reply",
           prompt: "Agora Matheus pergunta a Mei. Como Mei responde que é brasileira?",
+<<<<<<< HEAD
           options: ["我是巴西人", "我叫马修", "我听不懂", "谢谢"],
+=======
+          options: ["我是巴西人", "我叫Matheus", "我听不懂", "谢谢"],
+>>>>>>> 0f8c760 (Adiciona nova foto)
           correctAnswer: "我是巴西人",
           correctNextNodeId: "de-onde-sou-8",
           wrongNextNodeId: "de-onde-sou-7",
@@ -1352,21 +1398,37 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
       {
         id: "como-se-chama-3",
         speakerId: "lin",
+<<<<<<< HEAD
         hanzi: "我叫马修。",
         pinyin: "wǒ jiào Mǎxiū.",
+=======
+        hanzi: "我叫Matheus。",
+        pinyin: "wǒ jiào Matheus.",
+>>>>>>> 0f8c760 (Adiciona nova foto)
         pt: "Meu nome é Matheus.",
         emotion: "happy",
         interaction: {
           type: "choose_meaning",
+<<<<<<< HEAD
           prompt: "O que Matheus responde com 我叫马修?",
+=======
+          prompt: "O que Matheus responde com 我叫Matheus?",
+>>>>>>> 0f8c760 (Adiciona nova foto)
           options: ["Meu nome é Matheus.", "Como você se chama?", "Tudo bem?", "Até logo."],
           correctAnswer: "Meu nome é Matheus.",
           correctNextNodeId: "como-se-chama-5",
           wrongNextNodeId: "como-se-chama-4",
+<<<<<<< HEAD
           explanation: "我叫马修 apresenta o nome Matheus.",
         },
       },
       { id: "como-se-chama-4", speakerId: "mei", hanzi: "我叫马修？", pinyin: "wǒ jiào Mǎxiū?", pt: "Meu nome é Matheus?", emotion: "confused", nextNodeId: "como-se-chama-3" },
+=======
+          explanation: "我叫Matheus apresenta o nome Matheus.",
+        },
+      },
+      { id: "como-se-chama-4", speakerId: "mei", hanzi: "我叫Matheus？", pinyin: "wǒ jiào Matheus?", pt: "Meu nome é Matheus?", emotion: "confused", nextNodeId: "como-se-chama-3" },
+>>>>>>> 0f8c760 (Adiciona nova foto)
       {
         id: "como-se-chama-5",
         speakerId: "mei",
@@ -1377,6 +1439,7 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
         interaction: {
           type: "order_reply",
           prompt: "Responda à pergunta com o nome Matheus.",
+<<<<<<< HEAD
           options: ["我", "叫", "马修", "你好"],
           correctAnswer: "我叫马修",
           correctNextNodeId: "como-se-chama-7",
@@ -1387,6 +1450,18 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
       { id: "como-se-chama-6", speakerId: "mei", hanzi: "你叫什么？", pinyin: "nǐ jiào shénme?", pt: "Como você se chama?", emotion: "confused", nextNodeId: "como-se-chama-5" },
       { id: "como-se-chama-7", speakerId: "lin", hanzi: "我叫马修。", pinyin: "wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "como-se-chama-8" },
       { id: "como-se-chama-8", speakerId: "mei", hanzi: "你好，马修！", pinyin: "nǐ hǎo, Mǎxiū!", pt: "Olá, Matheus!", emotion: "happy" },
+=======
+          options: ["我", "叫", "Matheus", "你好"],
+          correctAnswer: "我叫Matheus",
+          correctNextNodeId: "como-se-chama-7",
+          wrongNextNodeId: "como-se-chama-6",
+          explanation: "我叫Matheus responde 你叫什么？",
+        },
+      },
+      { id: "como-se-chama-6", speakerId: "mei", hanzi: "你叫什么？", pinyin: "nǐ jiào shénme?", pt: "Como você se chama?", emotion: "confused", nextNodeId: "como-se-chama-5" },
+      { id: "como-se-chama-7", speakerId: "lin", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "como-se-chama-8" },
+      { id: "como-se-chama-8", speakerId: "mei", hanzi: "你好，Matheus！", pinyin: "nǐ hǎo, Matheus!", pt: "Olá, Matheus!", emotion: "happy" },
+>>>>>>> 0f8c760 (Adiciona nova foto)
     ],
     learnedRefs: ["chunk:nihao", "chunk:nijiaoshenme", "chunk:wojiao"],
   }),
@@ -1917,6 +1992,7 @@ sceneV2({
       interaction: {
         type: "order_reply",
         prompt: "Apresente-se ao professor: meu nome é Matheus.",
+<<<<<<< HEAD
         options: ["我", "叫", "马修", "你好"],
         correctAnswer: "我叫马修",
         correctNextNodeId: "aula-5",
@@ -1926,6 +2002,17 @@ sceneV2({
     },
     { id: "aula-4", speakerId: "hua", hanzi: "请再说一遍。你叫什么？", pinyin: "qǐng zài shuō yí biàn. nǐ jiào shénme?", pt: "Fale de novo, por favor. Responda 你叫什么？", emotion: "thinking", nextNodeId: "aula-3" },
     { id: "aula-5", speakerId: "lin", hanzi: "我叫马修。", pinyin: "wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "aula-6" },
+=======
+        options: ["我", "叫", "Matheus", "你好"],
+        correctAnswer: "我叫Matheus",
+        correctNextNodeId: "aula-5",
+        wrongNextNodeId: "aula-4",
+        explanation: "我叫Matheus responde: meu nome é Matheus.",
+      },
+    },
+    { id: "aula-4", speakerId: "hua", hanzi: "请再说一遍。你叫什么？", pinyin: "qǐng zài shuō yí biàn. nǐ jiào shénme?", pt: "Fale de novo, por favor. Responda 你叫什么？", emotion: "thinking", nextNodeId: "aula-3" },
+    { id: "aula-5", speakerId: "lin", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "aula-6" },
+>>>>>>> 0f8c760 (Adiciona nova foto)
     {
       id: "aula-6",
       speakerId: "hua",
@@ -2040,6 +2127,7 @@ sceneV2({
       interaction: {
         type: "order_reply",
         prompt: "Agora responda com seu nome: meu nome é Matheus.",
+<<<<<<< HEAD
         options: ["我", "叫", "马修", "你好"],
         correctAnswer: "我叫马修",
         correctNextNodeId: "devagar-7",
@@ -2049,6 +2137,17 @@ sceneV2({
     },
     { id: "devagar-6", speakerId: "hua", hanzi: "请再说一遍。我叫马修？", pinyin: "qǐng zài shuō yí biàn. wǒ jiào Mǎxiū?", pt: "Tente de novo. Use 我叫马修.", emotion: "thinking", nextNodeId: "devagar-5" },
     { id: "devagar-7", speakerId: "lin", hanzi: "我叫马修。", pinyin: "wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "devagar-8" },
+=======
+        options: ["我", "叫", "Matheus", "你好"],
+        correctAnswer: "我叫Matheus",
+        correctNextNodeId: "devagar-7",
+        wrongNextNodeId: "devagar-6",
+        explanation: "我叫Matheus = meu nome é Matheus.",
+      },
+    },
+    { id: "devagar-6", speakerId: "hua", hanzi: "请再说一遍。我叫Matheus？", pinyin: "qǐng zài shuō yí biàn. wǒ jiào Matheus?", pt: "Tente de novo. Use 我叫Matheus.", emotion: "thinking", nextNodeId: "devagar-5" },
+    { id: "devagar-7", speakerId: "lin", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "devagar-8" },
+>>>>>>> 0f8c760 (Adiciona nova foto)
     {
       id: "devagar-8",
       speakerId: "hua",

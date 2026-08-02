@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Longyu · Protótipo v3 — estilo Duolingo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Noto+Serif+SC:wght@500;600;700;900&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Longyu v3 · linguagem visual "Duolingo"
+   Verde, botões de pressão, cards de borda grossa, nós de caminho.
+   ============================================================ */
+:root {
+  --green: #58cc02;
+  --green-dark: #46a302;
+  --green-light: #d7ffb8;
+  --blue: #1cb0f6;
+  --blue-dark: #1899d6;
+  --red: #ff4b4b;
+  --red-dark: #ea2b2b;
+  --orange: #ff9600;
+  --orange-dark: #e08600;
+  --gold: #ffc800;
+  --gold-dark: #e5a400;
+  --ink: #4b4b4b;
+  --ink-soft: #777777;
+  --ink-faint: #afafaf;
+  --line: #e5e5e5;
+  --bg: #ffffff;
+  --bg-soft: #f7f9f8;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin:0; padding:0; }
+body {
+  background: #f0efe7;
+  color: var(--ink);
+  font-family: "Nunito", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.hanzi { font-family: "Noto Serif SC", "Songti SC", serif; line-height:1; }
+
+/* ================= Toolbar ================= */
+.toolbar {
+  position: fixed; inset:0 0 auto 0; z-index:100;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+  padding:10px 16px; background: var(--green-dark); color:#fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,.25);
+}
+.toolbar .brand { display:flex; align-items:center; gap:9px; font:900 15px Nunito; letter-spacing:.3px; margin-right:6px; }
+.toolbar .brand .logo { width:26px; height:26px; border-radius:50%; background:#fff; color:var(--green-dark); display:grid; place-items:center; font:900 13px Nunito; }
+.toolbar .brand small { font:800 11px Nunito; color:#d9ffb5; letter-spacing:.5px; }
+.toolbar .sep { width:1px; height:22px; background:rgba(255,255,255,.25); margin:0 4px; }
+.toolbar .pages { display:flex; gap:6px; flex-wrap:wrap; }
+.toolbar button.pill {
+  border:none; background:rgba(255,255,255,.16); color:#fff; font:800 12px Nunito;
+  padding:6px 13px; border-radius:12px; cursor:pointer; transition:.15s;
+  border-bottom: 2px solid rgba(0,0,0,.18);
+}
+.toolbar button.pill:hover { background:rgba(255,255,255,.28); }
+.toolbar button.pill.active { background:#fff; color:var(--green-dark); border-bottom:2px solid #c7c7c7; }
+.toolbar .spacer { flex:1; }
+.toolbar .switch { display:flex; align-items:center; gap:6px; font:800 11px Nunito; color:#d9ffb5; }
+.toolbar .seg { display:inline-flex; background:rgba(0,0,0,.15); border-radius:12px; padding:3px; }
+.toolbar .seg button { border:none; background:transparent; color:#d9ffb5; font:800 11px Nunito; padding:5px 10px; border-radius:10px; cursor:pointer; }
+.toolbar .seg button.active { background:#fff; color:var(--green-dark); }
+.toolbar .hint { font:700 11px Nunito; color:#c6e99a; margin-left:8px; }
+
+/* ================= Stage ================= */
+.stage { padding:72px 20px 60px; display:flex; justify-content:center; min-height:100vh; }
+
+.phone {
+  width:402px; max-width:100%; height:820px;
+  background:#fff; border-radius:30px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  overflow:hidden; position:relative; border:8px solid #1d1d1d;
+}
+.phone .ear { position:absolute; top:0; left:50%; transform:translateX(-50%); width:110px; height:26px; background:#1d1d1d; border-radius:0 0 16px 16px; z-index:40; }
+.phone .phone-screen { position:absolute; inset:0; top:26px; bottom:0; overflow-y:auto; overflow-x:hidden; background:var(--bg); }
+.phone .phone-screen::-webkit-scrollbar { width:0; }
+
+.desktop { width:1100px; max-width:100%; height:820px; background:var(--bg); border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,.35); display:flex; overflow:hidden; position:relative; }
+.desktop .sidebar { width:240px; background:#fff; border-right:2px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; }
+.desktop .content { flex:1; overflow-y:auto; padding:28px 40px 60px; }
+.desktop .content::-webkit-scrollbar { width:8px; }
+.desktop .content::-webkit-scrollbar-thumb { background:var(--line); border-radius:8px; }
+
+/* ================= Botões Duolingo ================= */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer; font:800 15px Nunito; border-radius:16px; padding:14px 22px; letter-spacing:.2px; transition:transform .05s; }
+.btn:active { transform:translateY(2px); }
+.btn-green { background:var(--green); color:#fff; border-bottom:4px solid var(--green-dark); }
+.btn-green:active { border-bottom-width:2px; }
+.btn-blue { background:var(--blue); color:#fff; border-bottom:4px solid var(--blue-dark); }
+.btn-blue:active { border-bottom-width:2px; }
+.btn-white { background:#fff; color:var(--ink); border:2px solid var(--line); border-bottom:4px solid var(--line); }
+.btn-white:active { border-bottom-width:2px; }
+.btn-green-ghost { background:var(--green-light); color:#58a700; border-bottom:4px solid #b9e77a; }
+.btn-green-ghost:active { border-bottom-width:2px; }
+
+/* ================= Cards ================= */
+.dcard { background:#fff; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:16px; }
+
+/* ================= Header stats ================= */
+.topbar { display:flex; align-items:center; gap:8px; padding:12px 14px 6px; background:#fff; border-bottom:2px solid var(--line); }
+.topbar .mascot-av { width:38px; height:38px; border-radius:50%; background:var(--green-light); display:grid; place-items:center; overflow:hidden; }
+.topbar .stat { display:flex; align-items:center; gap:4px; font:900 14px Nunito; color:var(--ink); }
+.topbar .stat .ic { width:24px; height:24px; border-radius:50%; display:grid; place-items:center; }
+.topbar .grow { flex:1; }
+
+/* ================= Banner continue ================= */
+.banner { margin:16px 16px 0; }
+.banner .bubble { background:#fff; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:18px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+.banner .bubble .speech { flex:1; }
+.banner .bubble .bt { font:900 14.5px Nunito; color:var(--ink); }
+.banner .bubble .bd { font:700 12px Nunito; color:var(--ink-soft); margin-top:2px; }
+.banner .mascot { width:58px; height:58px; flex-shrink:0; }
+.banner .btn-green { width:100%; margin-top:12px; font-size:16px; padding:15px; }
+
+/* ================= Path nodes ================= */
+.path { padding:16px 22px 8px; display:flex; flex-direction:column; align-items:center; }
+.path .node { position:relative; width:64px; height:64px; border-radius:50%; display:grid; place-items:center; z-index:1; }
+.path .conn { width:5px; height:30px; border-radius:4px; z-index:0; }
+.path .conn.done { background:var(--green); }
+.path .conn.pending { background:var(--line); }
+.node.done { background:var(--green); border:2px solid var(--green-dark); color:#fff; }
+.node.chest { background:var(--gold); border:2px solid var(--gold-dark); color:#fff; }
+.node.locked { background:#e5e5e5; border:2px solid #d5d5d5; color:#afafaf; }
+.node.cur { background:#fff; border:5px solid var(--green); color:var(--green-dark); box-shadow:0 0 0 6px var(--green-light); animation:glow 2.4s infinite; }
+@keyframes glow { 0%,100% { box-shadow:0 0 0 4px var(--green-light);} 50% { box-shadow:0 0 0 10px rgba(88,204,2,.22);} }
+.node .node-label { position:absolute; top:100%; margin-top:4px; font:900 10px Nunito; letter-spacing:.5px; color:var(--ink-faint); text-transform:uppercase; white-space:nowrap; }
+.node.cur .node-label { color:var(--green-dark); }
+
+/* ================= Duolingo list rows ================= */
+.drow { display:flex; align-items:center; gap:12px; padding:12px; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:14px; background:#fff; cursor:pointer; transition:.1s; }
+.drow:hover { border-color:#cfcfcf; }
+.drow .sq { width:42px; height:42px; border-radius:12px; display:grid; place-items:center; flex-shrink:0; color:#fff; font:900 18px Nunito; }
+.drow .sq.han { font-family:"Noto Serif SC"; font-weight:700; font-size:18px; }
+.sq.green { background:var(--green); border-bottom:3px solid var(--green-dark); }
+.sq.blue { background:var(--blue); border-bottom:3px solid var(--blue-dark); }
+.sq.red { background:var(--red); border-bottom:3px solid var(--red-dark); }
+.sq.orange { background:var(--orange); border-bottom:3px solid var(--orange-dark); }
+.sq.gold { background:var(--gold); border-bottom:3px solid var(--gold-dark); }
+.sq.gray { background:#cfcfcf; border-bottom:3px solid #afafaf; }
+.drow .t { font:900 14px Nunito; color:var(--ink); }
+.drow .d { font:700 11.5px Nunito; color:var(--ink-soft); margin-top:1px; }
+.drow .arr { color:var(--ink-faint); font-weight:900; }
+
+/* chips de estado */
+.chip { display:inline-flex; align-items:center; gap:4px; font:900 10px Nunito; letter-spacing:.5px; text-transform:uppercase; padding:4px 9px; border-radius:10px; }
+.chip.green { background:var(--green-light); color:#4a9e00; }
+.chip.gold { background:#fff3d1; color:#b88700; }
+.chip.blue { background:#d9f2ff; color:#0089c9; }
+.chip.red { background:#ffdfdf; color:#d93434; }
+.chip.gray { background:#f0f0f0; color:var(--ink-faint); }
+
+/* ================= Accordion ================= */
+.dacc { border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:16px; background:#fff; margin-bottom:10px; overflow:hidden; }
+.dacc > button { width:100%; display:flex; align-items:center; gap:12px; padding:14px 14px; border:none; background:none; cursor:pointer; text-align:left; font:900 14.5px Nunito; color:var(--ink); }
+.dacc > button .sq { width:36px; height:36px; border-radius:10px; font-size:15px; }
+.dacc > button .cnt { font:800 12px Nunito; color:var(--ink-faint); }
+.dacc > button .chev { margin-left:auto; color:var(--ink-faint); transition:transform .2s; font-weight:900; }
+.dacc.open > button .chev { transform:rotate(90deg); }
+.dacc .body { display:none; padding:0 10px 10px; }
+.dacc.open .body { display:block; }
+.dacc .body .drow { border:none; border-bottom:2px solid var(--line); border-radius:0; }
+.dacc .body .drow:last-child { border-bottom:none; }
+
+/* ================= Input ================= */
+.dinput { width:100%; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:14px; background:#fff; padding:12px 14px; font:800 14px Nunito; color:var(--ink); outline:none; }
+.dinput:focus { border-color:var(--green); border-bottom-color:var(--green-dark); }
+.dinput::placeholder { color:var(--ink-faint); font-weight:700; }
+
+/* ================= Section ================= */
+.dsec { margin-top:20px; }
+.dsec-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.dsec-head h3 { font:900 16px Nunito; margin:0; color:var(--ink); }
+.dsec-head .rule { flex:1; height:2px; background:var(--line); border-radius:2px; }
+.dsec-head .more { font:900 11px Nunito; color:var(--green-dark); cursor:pointer; }
+
+/* ================= Tab bar ================= */
+.tabbar { position:sticky; bottom:0; display:flex; justify-content:space-around; align-items:center; padding:6px 8px 10px; background:#fff; border-top:2px solid var(--line); }
+.tabbar .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 0; border:none; background:none; cursor:pointer; font:900 9.5px Nunito; letter-spacing:.3px; color:var(--ink-faint); position:relative; }
+.tabbar .tab .ic { width:34px; height:30px; display:grid; place-items:center; border-radius:50%; }
+.tabbar .tab.active { color:var(--green-dark); }
+.tabbar .tab.active .ic { background:var(--green-light); }
+.tabbar .tab .dot { position:absolute; top:2px; right:calc(50% - 22px); width:16px; height:16px; border-radius:50%; background:var(--red); color:#fff; font:900 9px Nunito; display:grid; place-items:center; border:2px solid #fff; }
+
+/* ================= Mais destaques ================= */
+.feat { padding:14px; }
+.feat .head { display:flex; align-items:center; justify-content:space-between; }
+.feat .t { font:900 14px Nunito; color:var(--ink); margin-top:8px; }
+.feat .d { font:700 11.5px Nunito; color:var(--ink-soft); margin-top:1px; }
+
+/* ================= Praticar ================= */
+.skill { padding:14px; display:flex; flex-direction:column; gap:8px; }
+.skill .t { font:900 14px Nunito; color:var(--ink); }
+.skill .d { font:700 11.5px Nunito; color:var(--ink-soft); }
+.skill .xpbar { height:8px; background:#eef3ea; border-radius:6px; overflow:hidden; }
+.skill .xpbar > i { display:block; height:100%; background:var(--green); border-radius:6px; }
+
+/* mascote dragãozinho */
+.mascot-svg { width:100%; height:100%; }
+
+/* screens */
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* comparativo */
+.cmpnote { font:700 12px/1.6 Nunito; color:var(--ink-soft); border-left:4px solid var(--line); padding-left:10px; margin:14px 2px; }
+.oldcard { background:#fff; border:2px solid var(--line); border-bottom:4px solid var(--line); border-radius:14px; padding:12px; cursor:pointer; }
+.oldcard .oc-t { font:900 12.5px Nunito; }
+.oldcard .oc-d { font:700 10.5px Nunito; color:var(--ink-faint); margin-top:2px; }
+
+/* toast */
+.toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#4b4b4b; color:#fff; font:800 12.5px Nunito; padding:12px 20px; border-radius:14px; opacity:0; pointer-events:none; transition:.25s; z-index:200; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* sidebar desktop */
+.dside .d-brand { display:flex; align-items:center; gap:10px; padding:2px 8px 18px; }
+.dside .d-brand .logo { width:36px; height:36px; border-radius:12px; background:var(--green); border-bottom:3px solid var(--green-dark); color:#fff; display:grid; place-items:center; font:900 18px Nunito; }
+.dside .d-brand b { font:900 18px Nunito; color:var(--ink); }
+.dside .d-brand small { font:900 9px Nunito; letter-spacing:1.5px; color:var(--ink-faint); display:block; }
+.dside .dgroup { font:900 10px Nunito; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-faint); padding:16px 10px 6px; }
+.dside .ditem { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:12px; font:800 13px Nunito; color:var(--ink-soft); cursor:pointer; }
+.dside .ditem:hover { background:var(--bg-soft); }
+.dside .ditem.active { background:var(--green-light); color:var(--green-dark); }
+.dside .ditem .g { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; color:#fff; font-weight:900; font-size:13px; }
+.dside .spacer { flex:1; }
+.dside .dprofile { display:flex; align-items:center; gap:10px; padding:12px; border:2px solid var(--line); border-radius:14px; }
+.dside .dprofile .mascot-av { width:32px; height:32px; border-radius:50%; background:var(--green-light); display:grid; place-items:center; }
+.dside .dprofile b { font:900 12.5px Nunito; display:block; color:var(--ink); }
+.dside .dprofile span { font:700 10.5px Nunito; color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<!-- ============ Toolbar ============ -->
+<div class="toolbar">
+  <div class="brand"><span class="logo">龙</span> Longyu <small>v3 · ESTILO DUOLINGO</small></div>
+  <div class="sep"></div>
+  <div class="pages" id="pagePills">
+    <button class="pill active" data-page="home">Jornada</button>
+    <button class="pill" data-page="mais">Mais</button>
+    <button class="pill" data-page="praticar">Praticar</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="switch">MODO
+    <div class="seg" id="deviceSeg">
+      <button data-device="mobile" class="active">Telefone</button>
+      <button data-device="desktop">Desktop</button>
+    </div>
+  </div>
+  <span class="hint">protótipo clicável · estilo Duolingo</span>
+</div>
+
+<div class="stage">
+
+  <!-- ============ TELEFONE ============ -->
+  <div class="phone" id="phoneFrame">
+    <div class="ear"></div>
+    <div class="phone-screen" id="phoneScreen">
+
+      <!-- ===== JORNADA ===== -->
+      <section class="screen active" id="v3-home">
+        <div class="topbar">
+          <div class="mascot-av"><div class="mascot-svg" id="mascotMini"></div></div>
+          <div class="stat"><span class="ic" style="background:#fff3d1;"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc800"/></svg></span>235</div>
+          <div class="stat"><span class="ic" style="background:#ffdfdf;"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z" fill="#ff4b4b"/></svg></span>7</div>
+          <div class="grow"></div>
+          <div class="stat"><span class="ic" style="background:#d9f2ff;"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 3l2.4 4.8L20 8.6l-4 3.9.9 5.5L12 15.6 7.1 18l.9-5.5-4-3.9 5.6-.8L12 3z" fill="#1cb0f6"/></svg></span>500</div>
+        </div>
+
+        <!-- Banner continuar -->
+        <div class="banner">
+          <div class="bubble">
+            <div class="mascot" id="mascotBanner"></div>
+            <div class="speech">
+              <div class="bt">Continue sua jornada!</div>
+              <div class="bd">Unidade 5 · você está quase lá 💪</div>
+            </div>
+          </div>
+          <button class="btn btn-green" onclick="toast('Abrindo lição…')">CONTINUAR</button>
+        </div>
+
+        <!-- Path -->
+        <div class="path" style="margin-top:18px;">
+          <div style="width:100%; margin-bottom:6px; padding:0 6px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font:900 12px Nunito; color:var(--ink-faint); text-transform:uppercase; letter-spacing:1px;">Unidade 5 · Viagem</span>
+            <span style="font:900 12px Nunito; color:var(--green-dark);">2/9</span>
+          </div>
+
+          <div class="node done" onclick="toast('Revisar lição')"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg><span class="node-label">Táxi e metrô</span></div>
+          <div class="conn done"></div>
+          <div class="node done" onclick="toast('Revisar lição')"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg><span class="node-label">Comprando o bilhete</span></div>
+          <div class="conn done"></div>
+          <div class="node cur" onclick="toast('Abrindo “Perguntando o caminho”')">
+            <svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#58cc02"/></svg>
+            <span class="node-label">Perguntando o caminho</span>
+          </div>
+          <div class="conn pending"></div>
+          <div class="node locked"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span class="node-label">No aeroporto</span></div>
+          <div class="conn pending"></div>
+          <div class="node locked"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span class="node-label">Passaporte</span></div>
+          <div class="conn pending"></div>
+          <div class="node chest" onclick="toast('Baú da unidade')"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg><span class="node-label">Baú da unidade</span></div>
+          <div class="conn pending"></div>
+          <div class="node locked"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span class="node-label">Imersão final</span></div>
+        </div>
+
+        <!-- Missão -->
+        <div style="padding:6px 16px 10px;">
+          <div class="dsec">
+            <div class="dsec-head"><h3>Missão do dia</h3><span class="rule"></span><span class="more">2/3</span></div>
+            <div class="dcard" style="padding:14px; display:flex; align-items:center; gap:12px;" onclick="toast('Missões: 2 de 3')">
+              <span class="sq orange han" style="width:44px;height:44px;font-size:20px;">任</span>
+              <div style="flex:1">
+                <div class="t" style="font:900 13.5px Nunito;">Ganhe 20 XP em Fala</div>
+                <div class="xpbar" style="margin-top:7px;"><i style="width:66%"></i></div>
+                <div style="font:700 10.5px Nunito; color:var(--ink-faint); margin-top:4px;">faltam 7 XP · bônus +15</div>
+              </div>
+              <span class="arr" style="color:var(--ink-faint); font-weight:900;">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab active" onclick="go('home')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="toast('Missões do dia')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</button>
+          <button class="tab" onclick="toast('Perfil')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ===== MAIS ===== -->
+      <section class="screen" id="v3-mais">
+        <div class="topbar">
+          <div class="mascot-av"><div class="mascot-svg" id="mascotMini2"></div></div>
+          <div class="stat"><span class="ic" style="background:#fff3d1;"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc800"/></svg></span>235</div>
+          <div class="stat"><span class="ic" style="background:#ffdfdf;"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z" fill="#ff4b4b"/></svg></span>7</div>
+          <div class="grow"></div>
+        </div>
+
+        <div style="padding:14px 16px 0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div>
+              <h1 style="font:900 24px Nunito; color:var(--ink); margin:0;">Explorar</h1>
+              <div style="font:700 12px Nunito; color:var(--ink-soft);">tudo o que o Longyu oferece</div>
+            </div>
+            <div style="display:inline-flex; border:2px solid var(--line); border-radius:14px; overflow:hidden; background:#fff;">
+              <button class="v3ver active" data-v="novo" onclick="setMaisView('novo')" style="border:none;background:var(--green);color:#fff;font:900 11px Nunito;padding:7px 12px;cursor:pointer;">NOVO</button>
+              <button class="v3ver" data-v="old" onclick="setMaisView('old')" style="border:none;background:transparent;color:var(--ink-soft);font:900 11px Nunito;padding:7px 12px;cursor:pointer;">HOJE</button>
+            </div>
+          </div>
+
+          <!-- NOVO -->
+          <div id="v3View-novo">
+            <div style="margin-top:14px;">
+              <input class="dinput" id="v3Search" type="search" placeholder="Buscar: pinyin, loja, revisão…" oninput="filterMais(this.value)" />
+            </div>
+
+            <!-- Continuar -->
+            <div class="drow" style="margin-top:14px;" onclick="go('/licao')">
+              <span class="sq green han">续</span>
+              <div style="flex:1; min-width:0">
+                <div class="t">Continuar: “Perguntando o caminho”</div>
+                <div class="d">Unidade 5 · 8 min restantes</div>
+              </div>
+              <span class="arr">›</span>
+            </div>
+
+            <!-- Destaques -->
+            <div class="dsec">
+              <div class="dsec-head"><h3>Para você agora</h3><span class="rule"></span></div>
+              <div style="display:flex; gap:10px;">
+                <div class="dcard feat" style="flex:1; cursor:pointer;" onclick="toast('Revisão SRS: 4 itens')">
+                  <div class="head"><span class="sq blue" style="width:40px;height:40px;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span><span class="chip green">4 prontos</span></div>
+                  <div class="t">Revisão</div>
+                  <div class="d">Reforce o que aprendeu hoje.</div>
+                </div>
+                <div class="dcard feat" style="flex:1; cursor:pointer;" onclick="toast('1 baú pronto!')">
+                  <div class="head"><span class="sq gold" style="width:40px;height:40px;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></span><span class="chip gold">1 baú</span></div>
+                  <div class="t">Loja &amp; Baús</div>
+                  <div class="d">Um baú pronto para abrir.</div>
+                </div>
+                <div class="dcard feat" style="flex:1; cursor:pointer;" onclick="toast('Ligas: Bronze · #12')">
+                  <div class="head"><span class="sq red" style="width:40px;height:40px;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span><span class="chip red">#12</span></div>
+                  <div class="t">Ligas</div>
+                  <div class="d">3 dias para subir de liga.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accordions -->
+            <div class="dsec">
+              <div class="dsec-head"><h3>Tudo em um lugar</h3><span class="rule"></span></div>
+
+              <div class="dacc open" id="v3acc-estudar">
+                <button onclick="toggleAcc('v3acc-estudar')">
+                  <span class="sq green han">学</span> Estudar <span class="cnt">· 6 áreas</span>
+                  <span class="chev">›</span>
+                </button>
+                <div class="body">
+                  <div class="drow" onclick="toast('Hànzì: 3 novas peças')"><span class="sq red han">字</span><div style="flex:1"><div class="t">Hànzì</div><div class="d">Caracteres como peças lógicas</div></div><span class="chip green">3 novas</span></div>
+                  <div class="drow" onclick="toast('Pinyin Lab')"><span class="sq blue han">声</span><div style="flex:1"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Fala em blocos')"><span class="sq orange han">语</span><div style="flex:1"><div class="t">Fala</div><div class="d">Frases em blocos, em voz alta</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Leitura guiada')"><span class="sq blue han">读</span><div style="flex:1"><div class="t">Leitura</div><div class="d">Textos guiados, palavra a palavra</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Biblioteca')"><span class="sq gray han">库</span><div style="flex:1"><div class="t">Biblioteca</div><div class="d">Palavras e caracteres já vistos</div></div><span class="chip gray">312 itens</span></div>
+                  <div class="drow" onclick="toast('Imersão')"><span class="sq red han">听</span><div style="flex:1"><div class="t">Imersão</div><div class="d">Histórias e áudio para o ouvido</div></div><span class="chip blue">2 novos</span></div>
+                </div>
+              </div>
+
+              <div class="dacc" id="v3acc-motivacao">
+                <button onclick="toggleAcc('v3acc-motivacao')">
+                  <span class="sq orange han">志</span> Motivação <span class="cnt">· 5 itens</span>
+                  <span class="chev">›</span>
+                </button>
+                <div class="body">
+                  <div class="drow" onclick="toast('Missões do dia')"><span class="sq orange han">任</span><div style="flex:1"><div class="t">Missões</div><div class="d">Metas curtas e recompensas</div></div><span class="chip green">2/3</span></div>
+                  <div class="drow" onclick="toast('Conquistas')"><span class="sq gold han">勋</span><div style="flex:1"><div class="t">Conquistas</div><div class="d">Marcos e medalhas</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Ligas: Bronze · #12')"><span class="sq red han">赛</span><div style="flex:1"><div class="t">Ligas</div><div class="d">Ranking semanal por XP</div></div><span class="chip red">#12</span></div>
+                  <div class="drow" onclick="toast('Loja & Baús')"><span class="sq gold han">商</span><div style="flex:1"><div class="t">Loja</div><div class="d">Cargas, itens e cosméticos</div></div><span class="chip gold">1 baú</span></div>
+                  <div class="drow" onclick="toast('Amigos')"><span class="sq blue han">友</span><div style="flex:1"><div class="t">Amigos</div><div class="d">Seguir e comparar XP semanal</div></div><span class="arr">›</span></div>
+                </div>
+              </div>
+
+              <div class="dacc" id="v3acc-conta">
+                <button onclick="toggleAcc('v3acc-conta')">
+                  <span class="sq gray han">帐</span> Conta &amp; sistema <span class="cnt">· 5 itens</span>
+                  <span class="chev">›</span>
+                </button>
+                <div class="body">
+                  <div class="drow" onclick="toast('Perfil de Marina')"><span class="sq blue han">人</span><div style="flex:1"><div class="t">Perfil</div><div class="d">Identidade e progresso</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Plano Pro')"><span class="sq gold han">金</span><div style="flex:1"><div class="t">Plano Pro</div><div class="d">Revisão ilimitada e sem cargas</div></div><span class="chip gold">opcional</span></div>
+                  <div class="drow" onclick="toast('Ajustes')"><span class="sq gray han">设</span><div style="flex:1"><div class="t">Ajustes</div><div class="d">Áudio, aparência e preferências</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Ajuda & Feedback')"><span class="sq blue han">助</span><div style="flex:1"><div class="t">Ajuda &amp; Feedback</div><div class="d">Suporte, feedback e atalhos</div></div><span class="arr">›</span></div>
+                  <div class="drow" onclick="toast('Sobre o beta')"><span class="sq gray han">于</span><div style="flex:1"><div class="t">Sobre</div><div class="d">Estado do beta Longyu</div></div><span class="chip gray">Beta 0.2</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HOJE -->
+          <div id="v3View-old" style="display:none;">
+            <p class="cmpnote">Como é hoje: vinte atalhos do mesmo tamanho e peso, sem busca nem prioridade.</p>
+            <div id="v3OldGrid"></div>
+          </div>
+          <div style="height:10px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('home')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="toast('Missões do dia')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</button>
+          <button class="tab" onclick="toast('Perfil')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab active" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+      <!-- ===== PRATICAR ===== -->
+      <section class="screen" id="v3-praticar">
+        <div class="topbar">
+          <div class="mascot-av"><div class="mascot-svg" id="mascotMini3"></div></div>
+          <div class="stat"><span class="ic" style="background:#fff3d1;"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#ffc800"/></svg></span>235</div>
+          <div class="stat"><span class="ic" style="background:#ffdfdf;"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-.6-.2-1.1-.5-1.6C17 11 19 13.5 19 16a7 7 0 11-14 0c0-4 4-6 7-14z" fill="#ff4b4b"/></svg></span>7</div>
+          <div class="grow"></div>
+        </div>
+
+        <div style="padding:14px 16px 0;">
+          <h1 style="font:900 24px Nunito; color:var(--ink); margin:0;">Praticar</h1>
+          <div style="font:700 12px Nunito; color:var(--ink-soft);">escolha uma habilidade para treinar</div>
+
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <div class="dcard skill" style="flex:1; cursor:pointer;" onclick="toast('Fala: 8 min')">
+              <span class="sq orange han" style="width:46px;height:46px;font-size:20px;">语</span>
+              <div><div class="t">Fala</div><div class="d">Frases em blocos, em voz alta</div></div>
+              <div class="xpbar"><i style="width:40%"></i></div>
+              <div style="font:700 10px Nunito; color:var(--ink-faint);">40% da semana</div>
+            </div>
+            <div class="dcard skill" style="flex:1; cursor:pointer;" onclick="toast('Hànzì: 3 novas peças')">
+              <span class="sq red han" style="width:46px;height:46px;font-size:20px;">字</span>
+              <div><div class="t">Hànzì</div><div class="d">Caracteres como peças lógicas</div></div>
+              <div class="xpbar"><i style="width:65%"></i></div>
+              <div style="font:700 10px Nunito; color:var(--ink-faint);">65% da unidade</div>
+            </div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-head"><h3>Ouvir &amp; falar</h3><span class="rule"></span></div>
+            <div class="dcard" style="padding:6px 10px;">
+              <div class="drow" onclick="toast('Pinyin Lab')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq blue han">声</span><div style="flex:1"><div class="t">Pinyin Lab</div><div class="d">Sons, sílabas e tons</div></div><span class="chip gray">7 lições</span><span class="arr">›</span></div>
+              <div class="drow" onclick="toast('Imersão')" style="border:none;"><span class="sq red han">听</span><div style="flex:1"><div class="t">Imersão</div><div class="d">Histórias e áudio para o ouvido</div></div><span class="chip blue">2 novos</span><span class="arr">›</span></div>
+            </div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-head"><h3>Ler &amp; escrever</h3><span class="rule"></span></div>
+            <div class="dcard" style="padding:6px 10px;">
+              <div class="drow" onclick="toast('Leitura guiada')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq blue han">读</span><div style="flex:1"><div class="t">Leitura</div><div class="d">Textos guiados, palavra a palavra</div></div><span class="arr">›</span></div>
+              <div class="drow" onclick="toast('Biblioteca')" style="border:none;"><span class="sq gray han">库</span><div style="flex:1"><div class="t">Biblioteca</div><div class="d">Palavras e caracteres já vistos</div></div><span class="chip gray">312 itens</span><span class="arr">›</span></div>
+            </div>
+          </div>
+          <div style="height:10px"></div>
+        </div>
+
+        <div class="tabbar">
+          <button class="tab" onclick="go('home')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 2z"/></svg></span>Jornada</button>
+          <button class="tab active" onclick="go('praticar')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg></span>Praticar</button>
+          <button class="tab" onclick="toast('Missões do dia')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>Missões</button>
+          <button class="tab" onclick="toast('Perfil')"><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</button>
+          <button class="tab" onclick="go('mais')"><span class="ic"><span class="dot">1</span><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>Mais</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============ DESKTOP ============ -->
+  <div class="desktop" id="desktopFrame" style="display:none;">
+    <aside class="sidebar dside">
+      <div class="d-brand"><span class="logo">龙</span><div><b>Longyu</b><small>MANDARIM</small></div></div>
+      <div class="dgroup">Estudar</div>
+      <div class="ditem active" onclick="go('home')"><span class="g" style="background:var(--green);">家</span>Jornada</div>
+      <div class="ditem" onclick="go('praticar')"><span class="g" style="background:var(--blue);">练</span>Praticar</div>
+      <div class="ditem" onclick="toast('Revisão: 4 itens')"><span class="g" style="background:var(--orange);">复</span>Revisão <span class="chip green" style="margin-left:auto">4</span></div>
+      <div class="ditem" onclick="toast('Missões')"><span class="g" style="background:var(--red);">任</span>Missões</div>
+      <div class="ditem" onclick="toast('Ligas')"><span class="g" style="background:var(--gold);">赛</span>Ligas</div>
+      <div class="ditem" onclick="toast('Loja')"><span class="g" style="background:var(--green);">商</span>Loja <span class="chip gold" style="margin-left:auto">1 baú</span></div>
+      <div class="dgroup">Descobrir</div>
+      <div class="ditem" onclick="toast('Hànzì')"><span class="g" style="background:var(--red);">字</span>Hànzì</div>
+      <div class="ditem" onclick="toast('Pinyin Lab')"><span class="g" style="background:var(--blue);">声</span>Pinyin Lab</div>
+      <div class="ditem" onclick="toast('Imersão')"><span class="g" style="background:var(--orange);">听</span>Imersão</div>
+      <div class="dgroup">Você</div>
+      <div class="ditem" onclick="toast('Perfil')"><span class="g" style="background:var(--blue);">人</span>Perfil</div>
+      <div class="ditem" onclick="toast('Ajustes')"><span class="g" style="background:var(--gray, #cfcfcf);">设</span>Ajustes</div>
+      <div class="spacer"></div>
+      <div class="dprofile">
+        <div class="mascot-av"><div class="mascot-svg" id="mascotDesktop"></div></div>
+        <div><b>Marina</b><span>1.240 XP · 7 dias · Pro</span></div>
+      </div>
+    </aside>
+    <div class="content" id="desktopContent">
+
+      <!-- desktop: Jornada -->
+      <div class="screen" id="v3d-home">
+        <h1 style="font:900 30px Nunito; margin:0 0 4px; color:var(--ink);">Unidade 5 · Viagem</h1>
+        <div style="font:800 13px Nunito; color:var(--ink-soft); margin-bottom:18px;">Perguntar caminhos, comprar bilhete e entender avisos.</div>
+        <div class="dcard" style="padding:18px; display:flex; align-items:center; gap:16px; max-width:680px;">
+          <div style="width:70px;height:70px;flex-shrink:0;" id="mascotDeskBanner"></div>
+          <div style="flex:1">
+            <div style="font:900 17px Nunito; color:var(--ink);">Continue sua jornada!</div>
+            <div style="font:800 12.5px Nunito; color:var(--ink-soft); margin-top:2px;">“Perguntando o caminho” · 8 min · ouvir e falar</div>
+            <div class="xpbar" style="margin-top:10px; max-width:360px;"><i style="width:68%"></i></div>
+          </div>
+          <button class="btn btn-green" onclick="toast('Abrindo lição…')">CONTINUAR</button>
+        </div>
+        <div class="path" style="align-items:flex-start; margin-top:10px; padding:16px 0 0;">
+          <div style="width:100%; margin-bottom:8px; display:flex; justify-content:space-between;">
+            <span style="font:900 11px Nunito; color:var(--ink-faint); text-transform:uppercase; letter-spacing:1px;">Caminho da unidade</span>
+            <span style="font:900 12px Nunito; color:var(--green-dark);">2/9 lições</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0;">
+            <div class="node done" style="width:58px;height:58px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg></div>
+            <div class="conn done" style="width:44px;height:6px;border-radius:4px;margin:0 -8px;"></div>
+            <div class="node done" style="width:58px;height:58px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#fff"/></svg></div>
+            <div class="conn done" style="width:44px;height:6px;border-radius:4px;margin:0 -8px;"></div>
+            <div class="node cur" style="width:72px;height:72px;" onclick="toast('Abrindo lição')"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 14.9 6.7 17.6l1.1-6L3.4 7.4l6-.8L12 1z" fill="#58cc02"/></svg></div>
+            <div class="conn pending" style="width:44px;height:6px;border-radius:4px;margin:0 -8px;"></div>
+            <div class="node locked" style="width:58px;height:58px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div>
+            <div class="conn pending" style="width:44px;height:6px;border-radius:4px;margin:0 -8px;"></div>
+            <div class="node locked" style="width:58px;height:58px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div>
+            <div class="conn pending" style="width:44px;height:6px;border-radius:4px;margin:0 -8px;"></div>
+            <div class="node chest" style="width:58px;height:58px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- desktop: Mais -->
+      <div class="screen" id="v3d-mais">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1 style="font:900 30px Nunito; margin:0; color:var(--ink);">Explorar</h1>
+            <div style="font:800 13px Nunito; color:var(--ink-soft);">tudo o que o Longyu oferece</div>
+          </div>
+          <div style="display:inline-flex; border:2px solid var(--line); border-radius:14px; overflow:hidden; background:#fff;">
+            <button class="v3ver active" data-v="novo" onclick="setMaisView('novo')" style="border:none;background:var(--green);color:#fff;font:900 11px Nunito;padding:7px 12px;cursor:pointer;">NOVO</button>
+            <button class="v3ver" data-v="old" onclick="setMaisView('old')" style="border:none;background:transparent;color:var(--ink-soft);font:900 11px Nunito;padding:7px 12px;cursor:pointer;">HOJE</button>
+          </div>
+        </div>
+        <div id="v3View-novo">
+          <input class="dinput" id="v3dSearch" type="search" style="max-width:360px; margin-top:14px;" placeholder="Buscar: pinyin, loja, revisão…" oninput="filterMais(this.value)" />
+          <div style="display:flex; gap:12px; margin-top:16px;">
+            <div class="dcard feat" style="flex:1; cursor:pointer;" onclick="toast('Revisão SRS: 4 itens')">
+              <div class="head"><span class="sq blue" style="width:40px;height:40px;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M21 12a9 9 0 11-9-9" stroke-linecap="round"/><path d="M12 7v5l3 2"/></svg></span><span class="chip green">4 prontos</span></div>
+              <div class="t">Revisão</div><div class="d">Reforce o que aprendeu hoje.</div>
+            </div>
+            <div class="dcard feat" style="flex:1; cursor:pointer;" onclick="toast('1 baú pronto!')">
+              <div class="head"><span class="sq gold" style="width:40px;height:40px;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2M3 14h18M12 8v6"/></svg></span><span class="chip gold">1 baú</span></div>
+              <div class="t">Loja &amp; Baús</div><div class="d">Um baú pronto para abrir.</div>
+            </div>
+            <div class="dcard feat" style="flex:1; cursor:pointer;" onclick="toast('Ligas: Bronze · #12')">
+              <div class="head"><span class="sq red" style="width:40px;height:40px;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z"/></svg></span><span class="chip red">#12</span></div>
+              <div class="t">Ligas</div><div class="d">3 dias para subir de liga.</div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:20px;">
+            <div>
+              <div class="dsec-head"><h3>Estudar</h3><span class="rule"></span></div>
+              <div class="dcard" style="padding:6px 8px;">
+                <div class="drow" onclick="toast('Hànzì')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq red han" style="width:34px;height:34px;font-size:14px;">字</span><div style="flex:1"><div class="t" style="font-size:13px;">Hànzì</div></div><span class="chip green">3 novas</span></div>
+                <div class="drow" onclick="toast('Pinyin Lab')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq blue han" style="width:34px;height:34px;font-size:14px;">声</span><div style="flex:1"><div class="t" style="font-size:13px;">Pinyin Lab</div></div></div>
+                <div class="drow" onclick="toast('Fala')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq orange han" style="width:34px;height:34px;font-size:14px;">语</span><div style="flex:1"><div class="t" style="font-size:13px;">Fala</div></div></div>
+                <div class="drow" onclick="toast('Leitura')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq blue han" style="width:34px;height:34px;font-size:14px;">读</span><div style="flex:1"><div class="t" style="font-size:13px;">Leitura</div></div></div>
+                <div class="drow" onclick="toast('Biblioteca')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq gray han" style="width:34px;height:34px;font-size:14px;">库</span><div style="flex:1"><div class="t" style="font-size:13px;">Biblioteca</div></div></div>
+                <div class="drow" onclick="toast('Imersão')" style="border:none;"><span class="sq red han" style="width:34px;height:34px;font-size:14px;">听</span><div style="flex:1"><div class="t" style="font-size:13px;">Imersão</div></div><span class="chip blue">2 novos</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="dsec-head"><h3>Motivação</h3><span class="rule"></span></div>
+              <div class="dcard" style="padding:6px 8px;">
+                <div class="drow" onclick="toast('Missões')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq orange han" style="width:34px;height:34px;font-size:14px;">任</span><div style="flex:1"><div class="t" style="font-size:13px;">Missões</div></div><span class="chip green">2/3</span></div>
+                <div class="drow" onclick="toast('Conquistas')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq gold han" style="width:34px;height:34px;font-size:14px;">勋</span><div style="flex:1"><div class="t" style="font-size:13px;">Conquistas</div></div></div>
+                <div class="drow" onclick="toast('Ligas')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq red han" style="width:34px;height:34px;font-size:14px;">赛</span><div style="flex:1"><div class="t" style="font-size:13px;">Ligas</div></div></div>
+                <div class="drow" onclick="toast('Loja')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq gold han" style="width:34px;height:34px;font-size:14px;">商</span><div style="flex:1"><div class="t" style="font-size:13px;">Loja</div></div><span class="chip gold">1 baú</span></div>
+                <div class="drow" onclick="toast('Amigos')" style="border:none;"><span class="sq blue han" style="width:34px;height:34px;font-size:14px;">友</span><div style="flex:1"><div class="t" style="font-size:13px;">Amigos</div></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="dsec-head"><h3>Conta &amp; sistema</h3><span class="rule"></span></div>
+              <div class="dcard" style="padding:6px 8px;">
+                <div class="drow" onclick="toast('Perfil')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq blue han" style="width:34px;height:34px;font-size:14px;">人</span><div style="flex:1"><div class="t" style="font-size:13px;">Perfil</div></div></div>
+                <div class="drow" onclick="toast('Plano Pro')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq gold han" style="width:34px;height:34px;font-size:14px;">金</span><div style="flex:1"><div class="t" style="font-size:13px;">Plano Pro</div></div><span class="chip gold">opcional</span></div>
+                <div class="drow" onclick="toast('Ajustes')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq gray han" style="width:34px;height:34px;font-size:14px;">设</span><div style="flex:1"><div class="t" style="font-size:13px;">Ajustes</div></div></div>
+                <div class="drow" onclick="toast('Ajuda')" style="border:none;border-bottom:2px solid var(--line);border-radius:0;"><span class="sq blue han" style="width:34px;height:34px;font-size:14px;">助</span><div style="flex:1"><div class="t" style="font-size:13px;">Ajuda &amp; Feedback</div></div></div>
+                <div class="drow" onclick="toast('Sobre')" style="border:none;"><span class="sq gray han" style="width:34px;height:34px;font-size:14px;">于</span><div style="flex:1"><div class="t" style="font-size:13px;">Sobre</div></div><span class="chip gray">Beta 0.2</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="v3View-old" style="display:none;">
+          <p class="cmpnote" style="margin-top:18px;">Como é hoje: vinte atalhos do mesmo tamanho e peso, sem busca nem prioridade.</p>
+          <div id="v3OldGridDesktop"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ navegação por hash ============ */
+const screenMap = {
+  home:   { mobile: 'v3-home',   desktop: 'v3d-home' },
+  mais:   { mobile: 'v3-mais',   desktop: 'v3d-mais' },
+  praticar:{ mobile: 'v3-praticar', desktop: 'v3d-mais' },
+};
+let currentPage = 'home', device = 'mobile';
+
+function parseHash() {
+  const parts = (location.hash || '').replace(/^#\/?/, '').split('/');
+  return { page: screenMap[parts[0]] ? parts[0] : 'home', dev: parts[1] === 'desktop' ? 'desktop' : 'mobile' };
+}
+function activate(page, dev) {
+  currentPage = page; device = dev;
+  history.replaceState(null, '', '#' + page + '/' + dev);
+  document.querySelectorAll('.toolbar .pages .pill').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  document.querySelectorAll('#deviceSeg button').forEach(b => b.classList.toggle('active', b.dataset.device === dev));
+  const phone = document.getElementById('phoneFrame');
+  const desktop = document.getElementById('desktopFrame');
+  phone.style.display = dev === 'mobile' ? '' : 'none';
+  desktop.style.display = dev === 'desktop' ? '' : 'none';
+  const map = screenMap[page] || screenMap.home;
+  document.querySelectorAll('#phoneScreen .screen').forEach(s => s.classList.toggle('active', s.id === map.mobile));
+  document.querySelectorAll('#desktopContent .screen').forEach(s => s.classList.toggle('active', s.id === map.desktop));
+  const scr = dev === 'mobile' ? document.getElementById('phoneScreen') : document.querySelector('.desktop .content');
+  if (scr) scr.scrollTop = 0;
+}
+function go(target) {
+  if (target.startsWith('/')) { toast('Abrindo "' + target + '" (demo)'); return; }
+  if (screenMap[target]) activate(target, device);
+}
+function toggleAcc(id) { document.getElementById(id).classList.toggle('open'); }
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ============ busca ============ */
+function filterMais(q) {
+  q = (q || '').toLowerCase().trim();
+  document.querySelectorAll('#v3View-novo').forEach(root => {
+    root.querySelectorAll('.drow').forEach(el => {
+      const txt = (el.textContent || '').toLowerCase();
+      el.style.display = (!q || txt.includes(q)) ? '' : 'none';
+    });
+    root.querySelectorAll('.dacc').forEach(acc => {
+      const has = [...acc.querySelectorAll('.drow')].some(el => el.style.display !== 'none');
+      acc.style.display = has ? '' : 'none';
+      if (has) acc.classList.add('open');
+    });
+  });
+}
+
+/* ============ comparativo HOJE ============ */
+const OLD_CATALOG = [
+  { title: 'Aprender', items: ['Praticar','Revisão','Pinyin Lab','Hànzì','Fala','Leitura','Biblioteca','Imersão'] },
+  { title: 'Motivação', items: ['Missões','Conquistas','Ligas','Loja','Amigos'] },
+  { title: 'Conta', items: ['Perfil','Conta','Plano Pro','Dados locais','Ajustes','Ajuda','Sobre'] },
+];
+const OLD_COLORS = ['green','blue','red','orange','gold','gray','green','blue'];
+const OLD_GLYPHS = ['练','复','声','字','语','读','库','听','任','勋','赛','商','友','人','帐','金','存','设','助','于'];
+const SQ_CLASS = { green:'var(--green)', blue:'var(--blue)', red:'var(--red)', orange:'var(--orange)', gold:'var(--gold)', gray:'#cfcfcf' };
+function renderOldGrid(containerId) {
+  const root = document.getElementById(containerId);
+  if (!root || root.dataset.rendered) return;
+  root.dataset.rendered = '1';
+  let i = 0;
+  root.innerHTML = OLD_CATALOG.map(g => `
+    <div class="dsec-head" style="margin-top:18px;"><h3 style="font-size:14px;">${g.title}</h3><span class="rule"></span><span class="more">${g.items.length}</span></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      ${g.items.map(it => {
+        const bg = SQ_CLASS[OLD_COLORS[i % OLD_COLORS.length]];
+        return `<div class="oldcard" onclick="toast('${it} (demo)')">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <span class="sq han" style="width:28px;height:28px;font-size:13px;background:${bg};color:#fff;border-bottom:2px solid rgba(0,0,0,.15);">${OLD_GLYPHS[i++]}</span>
+            <div class="oc-t">${it}</div>
+          </div>
+          <div class="oc-d">atalho de menu</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+function setMaisView(v) {
+  const isNew = v === 'novo';
+  document.querySelectorAll('#v3View-novo').forEach(el => el.style.display = isNew ? '' : 'none');
+  document.querySelectorAll('#v3View-old').forEach(el => el.style.display = isNew ? 'none' : '');
+  document.querySelectorAll('.v3ver').forEach(b => {
+    const on = b.dataset.v === v;
+    b.style.background = on ? 'var(--green)' : 'transparent';
+    b.style.color = on ? '#fff' : 'var(--ink-soft)';
+  });
+  if (!isNew) { renderOldGrid('v3OldGrid'); renderOldGrid('v3OldGridDesktop'); }
+}
+
+/* ============ mascote (dragãozinho SVG) ============ */
+const MASCOT_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="62" r="44" fill="#58cc02"/>
+  <circle cx="60" cy="62" r="44" fill="none" stroke="#46a302" stroke-width="3"/>
+  <path d="M34 36 Q24 22 38 14 Q46 26 40 34" fill="#ffc800" stroke="#e5a400" stroke-width="2"/>
+  <path d="M86 36 Q96 22 82 14 Q74 26 80 34" fill="#ffc800" stroke="#e5a400" stroke-width="2"/>
+  <ellipse cx="44" cy="54" rx="10" ry="12" fill="#fff"/>
+  <ellipse cx="76" cy="54" rx="10" ry="12" fill="#fff"/>
+  <circle cx="46" cy="56" r="5" fill="#26221b"/>
+  <circle cx="74" cy="56" r="5" fill="#26221b"/>
+  <circle cx="48" cy="53" r="1.8" fill="#fff"/>
+  <circle cx="76" cy="53" r="1.8" fill="#fff"/>
+  <path d="M46 86 Q60 98 74 86" stroke="#26221b" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="28" cy="74" r="7" fill="#ff8f6b"/>
+  <circle cx="92" cy="74" r="7" fill="#ff8f6b"/>
+  <circle cx="31" cy="72" r="1.6" fill="#c9603f"/>
+  <circle cx="89" cy="72" r="1.6" fill="#c9603f"/>
+  <path d="M52 96 L60 104 L68 96" stroke="#46a302" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+function mountMascots() {
+  document.querySelectorAll('.mascot-svg').forEach(el => { el.innerHTML = MASCOT_SVG; });
+  const banner = document.getElementById('mascotBanner');
+  if (banner) banner.innerHTML = MASCOT_SVG;
+  const db = document.getElementById('mascotDeskBanner');
+  if (db) db.innerHTML = MASCOT_SVG;
+}
+
+document.querySelectorAll('.toolbar .pages .pill').forEach(b => b.addEventListener('click', () => activate(b.dataset.page, device)));
+document.querySelectorAll('#deviceSeg button').forEach(b => b.addEventListener('click', () => activate(currentPage, b.dataset.device)));
+window.addEventListener('hashchange', () => { const s = parseHash(); activate(s.page, s.dev); });
+
+mountMascots();
+const initial = parseHash();
+activate(initial.page, initial.dev);
+setMaisView('novo');
+</script>
+</body>
+</html>

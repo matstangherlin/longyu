@@ -50,7 +50,11 @@ export const MICROTEXTS: MicroText[] = [
     lines: [
       { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
       { hanzi: "你叫什么？", pinyin: "Nǐ jiào shénme?", pt: "Como você se chama?" },
+<<<<<<< HEAD
       { hanzi: "我叫马修。", pinyin: "Wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus." },
+=======
+      { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
+>>>>>>> 0f8c760 (Adiciona nova foto)
       { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
       { hanzi: "请再说一遍。", pinyin: "Qǐng zài shuō yí biàn.", pt: "Por favor, fale de novo." },
     ],
@@ -90,7 +94,11 @@ export const MICROTEXTS: MicroText[] = [
     requiredItems: ["chunk:nihao", "chunk:wojiao", "chunk:wature", "chunk:woyousangepengyou"],
     lines: [
       { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
+<<<<<<< HEAD
       { hanzi: "我叫马修。", pinyin: "Wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus." },
+=======
+      { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
+>>>>>>> 0f8c760 (Adiciona nova foto)
       { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
       { hanzi: "我有三个朋友。", pinyin: "Wǒ yǒu sān ge péngyou.", pt: "Tenho três amigos." },
     ],
