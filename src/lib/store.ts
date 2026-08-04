@@ -2135,7 +2135,8 @@ export const useStore = create<AppState>()(
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
-          const base = activeXp(current);
+          const leagueJoin = joinLeaguePatch(current);
+          const base = activeXp({ ...current, ...leagueJoin });
           const nextXp: XpBuckets = {
             ...base,
             xpTotal: base.xpTotal + inc,
@@ -2143,8 +2144,8 @@ export const useStore = create<AppState>()(
             weeklyXp: base.weeklyXp + inc,
             monthlyXp: base.monthlyXp + inc,
           };
-          const next = { ...current, ...nextXp };
-          return { ...leaguePatch, ...nextXp, accounts: saveCurrentAccount(next) };
+          const next = { ...current, ...leagueJoin, ...nextXp };
+          return { ...leaguePatch, ...leagueJoin, ...nextXp, accounts: saveCurrentAccount(next) };
         });
         syncLeagueXpToServerAsync(inc, key);
       },
@@ -2157,15 +2158,15 @@ export const useStore = create<AppState>()(
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
           const joinedThisWeek = joinedLeagueThisWeek(current.leagueJoinedAt);
-          const nextLeague =
-            joinedThisWeek && current.leagueBots.length === 0
-              ? joinLeaguePatch(current)
-              : {
-                  leagueTier: normalizeLeagueTier(current.leagueTier),
-                  leagueJoinedAt: current.leagueJoinedAt,
-                  leagueBots: current.leagueBots ?? [],
-                  leagueHistory: current.leagueHistory ?? [],
-                };
+          const shouldJoin = joinedThisWeek || Math.max(0, Math.round(current.weeklyXp ?? 0)) > 0;
+          const nextLeague = shouldJoin
+            ? joinLeaguePatch(current)
+            : {
+                leagueTier: normalizeLeagueTier(current.leagueTier),
+                leagueJoinedAt: current.leagueJoinedAt,
+                leagueBots: current.leagueBots ?? [],
+                leagueHistory: current.leagueHistory ?? [],
+              };
           const next = { ...current, ...nextLeague };
           return { ...leaguePatch, ...nextLeague, accounts: saveCurrentAccount(next) };
         }),
@@ -3138,8 +3139,19 @@ export const useStore = create<AppState>()(
         const state = get();
         if ((state.rewardHistory ?? []).some((entry) => entry.id === reward.id)) return false;
         set((s) => {
-          const next = applyRewardToState(s, reward);
+          const leaguePatch = settleLeagueWeek(s);
+          const withLeague = { ...s, ...leaguePatch };
+          const joined =
+            reward.type === "xp" && reward.amount > 0
+              ? { ...withLeague, ...joinLeaguePatch(withLeague) }
+              : withLeague;
+          const next = applyRewardToState(joined, reward);
           return {
+            ...leaguePatch,
+            leagueTier: next.leagueTier,
+            leagueJoinedAt: next.leagueJoinedAt,
+            leagueBots: next.leagueBots,
+            leagueHistory: next.leagueHistory,
             points: next.points,
             dragonPearls: next.dragonPearls,
             streakShields: next.streakShields,

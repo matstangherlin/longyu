@@ -28,6 +28,7 @@ export function LigasPage() {
     demoMessage,
     leagueTier,
     meta,
+    currentWeek,
     joined,
     standings,
     userWeeklyXp,
@@ -90,9 +91,24 @@ export function LigasPage() {
 
       {isDemo && (
         <div className="rounded-xl border border-line/50 bg-surface-2/80 px-3 py-2 text-center text-[11px] leading-4 text-ink-soft">
-          <span className="font-semibold text-ink">Demonstração</span>
+          <span className="font-semibold text-ink">
+            {demoMessage?.includes("login") || demoMessage?.includes("Demonstração")
+              ? "Demonstração"
+              : loading
+                ? "Sincronizando"
+                : "Liga indisponível"}
+          </span>
           {" · "}
           {demoMessage ?? "Alunos simulados. Não representam pessoas reais."}
+          {!loading && demoMessage && !demoMessage.includes("login") && !demoMessage.includes("Demonstração") && (
+            <button
+              type="button"
+              className="mt-1 block w-full font-semibold text-accent hover:underline"
+              onClick={() => void refreshLive()}
+            >
+              Tentar de novo
+            </button>
+          )}
         </div>
       )}
 
@@ -104,7 +120,7 @@ export function LigasPage() {
 
       <header className="lg:px-1">
         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
-          Ligas · semana {loading && isLive ? "…" : ""}
+          Ligas · semana {currentWeek || (loading ? "…" : "")}
         </div>
         <h1 className="mt-0.5 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl lg:text-3xl">
           {meta.name}
