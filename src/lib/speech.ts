@@ -326,7 +326,7 @@ export interface PronunciationAnalysis {
 
 /**
  * Análise estruturada: quais caracteres do alvo foram reconhecidos e quais
- * faltaram. O reconhecedor (Web Speech) compara caracteres — ele NÃO valida
+ * faltaram. O reconhecedor (Web Speech) compara caracteres — ele nao valida
  * tom; a UI deve deixar isso claro e encaminhar o tom para o treinador.
  */
 export function analyzePronunciation(heard: string, target: string): PronunciationAnalysis {
