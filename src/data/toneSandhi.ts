@@ -28,7 +28,7 @@ export const TONE_SANDHI_RULES: ToneSandhiRule[] = [
     id: "third-third",
     title: "3º tom + 3º tom → 2º + 3º",
     rulePt:
-      "Quando duas sílabas de 3º tom vêm juntas, a primeira vira 2º tom. É por isso que 你好 soa \"ní hǎo\", mesmo que se escreva nǐ hǎo.",
+      "Quando duas sílabas de 3º tom vêm juntas, a primeira vira 2º. Por isso 你好 soa ní hǎo (escrito nǐ hǎo).",
     tipPt:
       "Não tente fazer dois vales seguidos — a boca não gosta. Deixe a primeira sílaba subir e faça o vale só na segunda.",
     examples: [

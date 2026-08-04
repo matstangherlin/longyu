@@ -89,7 +89,7 @@ export function LandingPage() {
               <div className="longyu-reward-rise flex items-center justify-between rounded-2xl border border-line/80 bg-surface/95 px-4 py-3 text-left shadow-card">
                 <div>
                   <div className="hanzi text-2xl leading-tight text-ink">你好</div>
-                  <div className="mt-0.5 font-serif text-sm text-ink-soft">nǐ hǎo · olá</div>
+                  <div className="mt-0.5 pinyin text-sm text-ink-soft">nǐ hǎo · olá</div>
                 </div>
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-accent-soft text-accent">
                   <IconSound width={17} height={17} />
@@ -101,7 +101,7 @@ export function LandingPage() {
               >
                 <div>
                   <div className="hanzi text-2xl leading-tight text-ink">谢谢</div>
-                  <div className="mt-0.5 font-serif text-sm text-ink-soft">xièxie · obrigado(a)</div>
+                  <div className="mt-0.5 pinyin text-sm text-ink-soft">xièxie · obrigado(a)</div>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
                   <IconCheck width={13} height={13} /> +15 XP

@@ -1332,22 +1332,22 @@ function EngineFeedbackPanel({
         {correct
           ? explanation ??
             (hadMistake
-              ? "Agora ficou certo. Como houve tentativa anterior, esta parte entra para revisão."
-              : "Você montou a estrutura certa.")
-          : explanation ?? "A resposta certa está abaixo. Monte de novo para avançar."}
+              ? "Certo agora — esta parte entra na revisão."
+              : "Estrutura certa.")
+          : explanation ?? "Veja o modelo e tente de novo."}
       </p>
-      {correct && hadMistake && explanation && (
-        <p className="mt-1 text-xs leading-5 text-ink-faint">
-          Como houve tentativa anterior, esta parte entra para revisão.
-        </p>
-      )}
       {model && (
         <div className="mt-3 rounded-xl bg-surface/75 px-3 py-2">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Resposta modelo
+            Modelo
           </div>
           <div className={["mt-1 font-semibold text-ink", isCjkText(model) ? "text-2xl" : "text-sm"].join(" ")}>
-            <ExerciseText value={model} type={isCjkText(model) ? "hanzi" : "pt"} speakOnClick />
+            <ExerciseText
+              value={model}
+              type={isCjkText(model) ? "hanzi" : "pt"}
+              speakOnClick
+              helpMode="disabled"
+            />
           </div>
         </div>
       )}
@@ -1405,7 +1405,13 @@ function renderTypedValue(value: string, type?: StepTextType, className = "") {
     return (
       <span className="inline-flex items-center justify-center gap-2">
         <IconSound width={18} height={18} />
-        <ExerciseText value={value} type={containsCjk(value) ? "hanzi" : type} speakOnClick className={className || "text-[26px] sm:text-3xl"} />
+        <ExerciseText
+          value={value}
+          type={containsCjk(value) ? "hanzi" : type}
+          speakOnClick
+          helpMode="disabled"
+          className={className || "text-[26px] sm:text-3xl"}
+        />
       </span>
     );
   }
@@ -1418,20 +1424,29 @@ function renderTypedValue(value: string, type?: StepTextType, className = "") {
       <ExerciseText
         value={value}
         speakOnClick={isCjkText(value)}
+        helpMode="disabled"
         className={className || "block max-w-[16rem] text-[13px] font-medium leading-snug line-clamp-2"}
       />
     );
   }
 
   if (type === "hanzi" || containsCjk(value)) {
-    return <ExerciseText value={value} type="hanzi" speakOnClick className={className || "text-[26px] sm:text-3xl"} />;
+    return (
+      <ExerciseText
+        value={value}
+        type="hanzi"
+        speakOnClick
+        helpMode="disabled"
+        className={className || "text-[26px] sm:text-3xl"}
+      />
+    );
   }
 
   if (type === "pinyin") {
-    return <ExerciseText value={value} type="pinyin" className={className || "font-serif text-lg"} />;
+    return <ExerciseText value={value} type="pinyin" className={className || "pinyin text-lg"} />;
   }
 
-  return <ExerciseText value={value} type={type} className={className} />;
+  return <ExerciseText value={value} type={type} className={className} helpMode="disabled" />;
 }
 
 // Lado de par tipo "audio": só o alto-falante enquanto não casar — o aluno
@@ -1935,11 +1950,11 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {audioFallback
-              ? "A resposta certa está abaixo. Compare com o pinyin e tente mais uma vez."
-              : "A resposta certa está abaixo. Ouça de novo e tente mais uma vez."}
+              ? "Compare com o modelo e tente de novo."
+              : "Ouça de novo e tente outra vez."}
           </p>
           <div className={["mt-2 rounded-xl bg-surface/75 px-3 py-3 text-center font-semibold text-ink", isCjkText(answer) ? "hanzi text-3xl" : "text-base"].join(" ")}>
-            <ExerciseText value={answer} type={isCjkText(answer) ? "hanzi" : "pt"} speakOnClick />
+            <ExerciseText value={answer} type={isCjkText(answer) ? "hanzi" : "pt"} speakOnClick helpMode="disabled" />
           </div>
           {step.explanation && <p className="mt-3 text-sm leading-6 text-ink-soft">{step.explanation}</p>}
           <Button className="mt-4 w-full shadow-lift" variant="good" onClick={retry}>
@@ -2442,7 +2457,11 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="min-w-0 flex-1">
-                <ExerciseText value={option} type={isCjkText(option) ? "hanzi" : "pt"} speakOnClick />
+                <ExerciseText
+                  value={option}
+                  type={isCjkText(option) ? "hanzi" : "pt"}
+                  helpMode="disabled"
+                />
               </span>
             </button>
           );

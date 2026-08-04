@@ -648,7 +648,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       listen("你好", "nǐ hǎo", "Olá", "pinyin_first"),
       intro(
         "Como soa de verdade",
-        "O áudio que você acabou de ouvir fala “ní hǎo”, não “nǐ hǎo”. Quando dois 3º tons se juntam, o primeiro sobe para 2º tom — é o tone sandhi. O dicionário continua escrevendo nǐ hǎo, mas você ouve e fala a forma real desde já."
+        "Na fala, 3º + 3º vira 2º + 3º: você ouve ní hǎo, mesmo que o dicionário escreva nǐ hǎo."
       ),
       listenSelect("Primeiro som", "你好", ["你好", "谢谢", "再见"], "你好", "Você ouviu 你好."),
       comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
@@ -666,12 +666,12 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       listen("你好", "nǐ hǎo", "nǐ hǎo é o pinyin de 你好"),
       match(
         "Pinyin e frase",
-        "Combine som escrito e caracteres.",
+        "Combine pinyin, hànzì e sentido.",
         [
           { left: "nǐ hǎo", right: "你好", leftType: "pinyin", rightType: "hanzi" },
           { left: "你好", right: "Olá", leftType: "hanzi", rightType: "pt" },
         ],
-        "Pinyin mostra o som; hànzì mostra a escrita chinesa."
+        "Pinyin = som. Hànzì = escrita."
       ),
       comp("nǐ hǎo", "pinyin", "som escrito com letras latinas", ["som escrito com letras latinas", "tradução literal", "radical", "número"]),
       dialogue("Uso do pinyin", "Pinyin serve principalmente para...", "guiar a pronúncia", ["guiar a pronúncia", "substituir hànzì para sempre", "marcar pontos", "traduzir para inglês"], "Pinyin é uma ponte para falar e ouvir."),
@@ -735,22 +735,22 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       ),
       dialogue(
         "Como soa na fala?",
-        "O dicionário escreve 你好 como nǐ hǎo (dois 3º tons). Como soa na fala real?",
-        "ní hǎo — o 3º tom de 你 sobe antes de 好",
+        "O dicionário escreve nǐ hǎo. Como soa na fala?",
+        "ní hǎo",
         [
-          "ní hǎo — o 3º tom de 你 sobe antes de 好",
-          "nǐ hǎo — dois 3º tons cheios",
-          "nì hào — duas quedas firmes",
-          "nī hāo — dois 1º tons",
+          "ní hǎo",
+          "nǐ hǎo",
+          "nì hào",
+          "nī hāo",
         ],
-        "Quando dois 3º tons se encontram, o primeiro sobe para 2º tom: nǐ hǎo soa ní hǎo na fala."
+        "3º + 3º → o primeiro sobe: soa ní hǎo."
       ),
       dialogue(
         "Ideia principal",
         "Em mandarim, tom é...",
         "a curva da voz que pode mudar sentido",
         ["a curva da voz que pode mudar sentido", "a tradução em português", "o desenho do caractere", "o nome da pessoa"],
-        "Tom é parte da pronúncia: mudar a curva pode mudar a palavra inteira.",
+        "Mudar o tom pode mudar a palavra.",
         "Escolha"
       ),
       comp("妈妈", "māma", "Mãe; mamãe.", ["Mãe; mamãe.", "Obrigado(a).", "Olá.", "Sou brasileiro."]),
@@ -1185,14 +1185,14 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
         "Monte o cumprimento 你好 (3º + 3º tom).",
         ["你", "好"],
         ["你", "好", "马", "麻"],
-        "你好 junta dois 3º tons; na fala o primeiro sobe para 2º tom — é por isso que o 2º tom importa."
+        "你好 junta dois 3º tons — na fala o primeiro sobe."
       ),
       dialogue(
         "Como soa na fala?",
-        "Dois 3º tons seguidos (nǐ hǎo) na fala real soam como...",
+        "Dois 3º tons seguidos (nǐ hǎo) soam como...",
         "2º + 3º (ní hǎo)",
         ["2º + 3º (ní hǎo)", "3º + 3º completos", "1º + 3º", "4º + 3º"],
-        "3º + 3º vira 2º + 3º: nǐ hǎo soa ní hǎo na fala."
+        "3º + 3º → 2º + 3º: soa ní hǎo."
       ),
     ],
   }),
@@ -1208,22 +1208,22 @@ const PHASE2_CONTEXT_TONE_MICROTASKS: Lesson[] = [
     steps: [
       intro(
         "Dois 3º tons viram 2º + 3º",
-        "O dicionário escreve 你好 como nǐ hǎo (dois 3º tons), mas na fala real o primeiro sobe: soa “ní hǎo”. Esse é o tone sandhi 3º + 3º → 2º + 3º."
+        "Escrito: nǐ hǎo. Falado: ní hǎo. O primeiro 3º sobe."
       ),
       listen("你好", "nǐ hǎo", "Olá"),
       tone("你", "nǐ", 3, "quiz"),
       tone("好", "hǎo", 3, "quiz"),
       dialogue(
         "Escrito vs. falado",
-        "O dicionário escreve nǐ hǎo. Como 你好 soa na fala real?",
-        "ní hǎo — o 3º tom de 你 sobe para 2º tom",
+        "O dicionário escreve nǐ hǎo. Como soa na fala?",
+        "ní hǎo",
         [
-          "ní hǎo — o 3º tom de 你 sobe para 2º tom",
-          "nǐ hǎo — os dois 3º tons completos",
-          "nì hào — duas quedas firmes",
-          "nī hāo — dois 1º tons",
+          "ní hǎo",
+          "nǐ hǎo",
+          "nì hào",
+          "nī hāo",
         ],
-        "3º + 3º vira 2º + 3º: nǐ hǎo soa ní hǎo. A boca evita dois vales seguidos."
+        "3º + 3º → soa ní hǎo."
       ),
       comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "Sou brasileiro"]),
     ],
