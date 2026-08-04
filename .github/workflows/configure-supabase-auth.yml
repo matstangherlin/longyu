@@ -11,6 +11,12 @@ on:
         description: "URL extra de redirect (opcional)"
         required: false
         default: "https://longyu.app"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/configure-supabase-auth.mjs"
+      - ".github/workflows/configure-supabase-auth.yml"
+      - "ops/ENABLE_EMAIL_CONFIRMATION"
 
 jobs:
   configure:
@@ -26,14 +32,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Resolve auth URLs
+        id: urls
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "site_url=${{ inputs.site_url }}" >> "$GITHUB_OUTPUT"
+            echo "add_prod_url=${{ inputs.add_prod_url }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "site_url=https://singular-meringue-7838cd.netlify.app" >> "$GITHUB_OUTPUT"
+            echo "add_prod_url=https://longyu.app" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Enable email confirmation (mailer_autoconfirm=false)
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
         run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "SUPABASE_ACCESS_TOKEN secret ausente"
+            exit 1
+          fi
           npm run configure:supabase-auth -- \
-            --site-url "${{ inputs.site_url }}" \
-            --add-prod-url "${{ inputs.add_prod_url }}" \
+            --site-url "${{ steps.urls.outputs.site_url }}" \
+            --add-prod-url "${{ steps.urls.outputs.add_prod_url }}" \
             --add-prod-url "https://singular-meringue-7838cd.netlify.app"
 
       - name: Verify auth config

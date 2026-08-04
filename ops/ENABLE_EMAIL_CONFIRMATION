@@ -1,0 +1,4 @@
+# Marker: push deste arquivo (ou do configure script) dispara
+# o workflow "Configure Supabase Auth" na main.
+# Ativa mailer_autoconfirm=false no MandarimProject.
+enabled_at: 2026-08-04
