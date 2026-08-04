@@ -94,6 +94,19 @@ assert(turnstile.includes("getTurnstileToken"), "turnstile helper: export");
 assert(checklist.includes("001–017") || checklist.includes("001-017"), "checklist: 017 documentado");
 assert(checklist.includes("018"), "checklist: 018 documentado");
 
+const rulesSmoke = read("scripts/sql/referral-rules-smoke.sql");
+assert(rulesSmoke.includes("self-referral"), "rules-smoke: autoindicação");
+assert(rulesSmoke.includes("already_rewarded"), "rules-smoke: already_rewarded");
+assert(rulesSmoke.includes("monthly_cap"), "rules-smoke: monthly_cap");
+assert(rulesSmoke.includes("queued"), "rules-smoke: fila Pro");
+assert(rulesSmoke.includes("referral_email_blocks"), "rules-smoke: email_blocks");
+
+const cleanupMig = read("supabase/migrations/020_signup_cleanup_job.sql");
+assert(cleanupMig.includes("run_signup_cleanup_job"), "020: cleanup job");
+assert(cleanupMig.includes("signup_cleanup_runs"), "020: cleanup log table");
+
+assert(fs.existsSync(path.join(root, "ops/REFERRAL_E2E.md")), "ops: REFERRAL_E2E runbook");
+
 // —— Rotas / UI mínimas ——
 const routes = read("src/routes.tsx");
 assert(routes.includes("confirmar-email"), "rota /confirmar-email");
