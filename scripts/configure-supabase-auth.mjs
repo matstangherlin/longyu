@@ -57,6 +57,10 @@ const redirectEntries = new Set([
   "http://127.0.0.1:5173/**",
   "http://localhost:4173/**",
   "http://127.0.0.1:4173/**",
+  "https://longyu.com.br/**",
+  "https://www.longyu.com.br/**",
+  "https://longyu.netlify.app/**",
+  "https://singular-meringue-7838cd.netlify.app/**",
   `${siteUrl}/**`,
 ]);
 for (const url of extraUrls) {

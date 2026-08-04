@@ -71,8 +71,8 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Admin API: email_confirm=false deixa o usuário pendente mesmo com
-    // mailer_autoconfirm=true no projeto (signUp público auto-confirma).
+    // Admin API: email_confirm=false garante usuário pendente mesmo se
+    // mailer_autoconfirm for religado no Dashboard.
     const { data: created, error: createError } =
       await admin.auth.admin.createUser({
         email,

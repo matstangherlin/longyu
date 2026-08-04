@@ -15,7 +15,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |
 | Secrets Stripe no Supabase | ✅ | Webhook 400 sem assinatura (não 501) |
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
-| Confirmação de email | ✅ | App `/confirmar-email` + Edge `create-account` (Admin `email_confirm=false`) + workflow `Configure Supabase Auth` (`mailer_autoconfirm=false`; precisa secret `SUPABASE_ACCESS_TOKEN`) |
+| Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04: signUp sem sessão). App `/confirmar-email` + Edge `create-account`. Workflow Auth opcional (`SUPABASE_ACCESS_TOKEN`) para redirects/CI |
 
 ## App / Netlify
 

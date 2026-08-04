@@ -59,8 +59,7 @@ export async function createAccount(
   const details = profile ?? profileFromName();
   const cleanEmail = email.trim().toLowerCase();
 
-  // Edge Function com Admin API (email_confirm=false) — o signUp público
-  // auto-confirma quando mailer_autoconfirm ainda está true no projeto.
+  // Edge create-account: Admin API com email_confirm=false + resend do link.
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
     code?: string;
