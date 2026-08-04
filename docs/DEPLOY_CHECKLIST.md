@@ -9,13 +9,13 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Projeto produção (`drjcfalvlbbeblmmyhwj`) | ✅ | MandarimProject |
 | Projeto preview (`wpnmygzxqvmpdlcuwrjp`) | ✅ | `longyu-preview` — schema 001–015 aplicado; Netlify Preview ainda em `local` até configurar anon key |
 | Migrations 001–016 no produção | ✅ | Pedagogia + Stripe ordering + `fix_leagues_cohort_finalize` |
-| Edge Functions produção | ✅ | checkout v10, billing/delete/webhook v9 (redeploy 2026-08-04) |
+| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` (confirmação de email; verify_jwt=false) |
 | `npm run verify:production` | ✅ | |
 | `npm run verify:beta-feedback` | ✅ | |
 | RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |
 | Secrets Stripe no Supabase | ✅ | Webhook 400 sem assinatura (não 501) |
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
-| Confirmação de email | ✅ | App `/confirmar-email` + workflow `Configure Supabase Auth` (mailer_autoconfirm=false) |
+| Confirmação de email | ✅ | App `/confirmar-email` + Edge `create-account` (Admin `email_confirm=false`) + workflow `Configure Supabase Auth` (`mailer_autoconfirm=false`; precisa secret `SUPABASE_ACCESS_TOKEN`) |
 
 ## App / Netlify
 
