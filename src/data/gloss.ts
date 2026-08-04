@@ -313,7 +313,7 @@ const PINYIN_FINALS = new Set([
 ]);
 
 const PROPER_NAMES: GlossEntry[] = [
-  { text: "马修", pinyin: "Mǎxiū", meaningPt: "Matheus", role: "nome próprio", rank: 4 },
+  { text: "Matheus", pinyin: "Matheus", meaningPt: "Matheus", role: "nome próprio", rank: 4 },
 ];
 
 const charEntries: GlossEntry[] = CHARACTERS.map((char) => ({

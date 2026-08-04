@@ -19,7 +19,7 @@ if (source.includes('meaningPt: "nome próprio"') && !source.includes("PROPER_NA
 
 const commonPortuguese = ["qual", "combina", "escolha", "correto", "frase", "resposta", "completar", "significado", "diálogo", "pergunta", "com"];
 const pinyinLike = ["nǐ", "hǎo", "ma3", "zhong", "xué"];
-const properNames = ["马修"];
+const properNames = ["Matheus"];
 
 const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/u;
 const LATIN_TOKEN_RE = /^[\p{Script=Latin}][\p{Script=Latin}'’.-]*[1-5]?$/u;

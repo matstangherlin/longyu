@@ -117,6 +117,31 @@ export function review(item: SRSItem, grade: Grade, now = Date.now()): SRSItem {
     return { ...item, ease, intervalDays, reps, lapses, due: now + 10 * 60 * 1000, reviewedAt: now };
   }
 
+  // Fase de aprendizado: item que ainda não graduou para um intervalo de dia
+  // (novo ou que voltou a zero após "again"). Passos intra-dia em vez de pular
+  // direto para 1 dia: hard repete o passo em 10 min; o 1º "good" agenda 1 h;
+  // o 2º "good" (ou "easy") gradua para um intervalo de dia.
+  const inLearning = intervalDays === 0;
+
+  if (inLearning) {
+    reps += 1;
+    if (grade === "hard") {
+      ease = Math.max(1.3, ease - 0.18);
+      return { ...item, ease, intervalDays: 0, reps, lapses, due: now + 10 * 60 * 1000, reviewedAt: now };
+    }
+    if (grade === "easy") {
+      ease = ease + 0.18;
+      intervalDays = Math.max(1, Number((3 * intervalWeight).toFixed(2)));
+    } else {
+      ease = Math.max(1.3, ease + 0.02);
+      if (reps === 1) {
+        return { ...item, ease, intervalDays: 0, reps, lapses, due: now + 60 * 60 * 1000, reviewedAt: now };
+      }
+      intervalDays = Math.max(1, Number((1 * intervalWeight).toFixed(2)));
+    }
+    return { ...item, ease, intervalDays, reps, lapses, due: now + intervalDays * DAY, reviewedAt: now };
+  }
+
   reps += 1;
   if (grade === "hard") ease = Math.max(1.3, ease - 0.18);
   if (grade === "good") ease = Math.max(1.3, ease + 0.02);

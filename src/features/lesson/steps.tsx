@@ -289,7 +289,7 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
       name: personalizeValue(character.name, name) ?? character.name,
     })),
     // Fluxo V2 por nós (o que o player realmente renderiza hoje): as falas e as
-    // interações também precisam trocar "马修/Matheus" (e "Lin" legado) pelo nome.
+    // interações também precisam trocar "Matheus/Matheus" (e "Lin" legado) pelo nome.
     nodes: step.nodes?.map((node) => personalizeNode(node, name)),
     title: personalizeValue(step.title, name),
     body: personalizeValue(step.body, name),

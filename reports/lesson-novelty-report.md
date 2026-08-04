@@ -6,9 +6,9 @@
 |-------|-------|
 | Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-02T03:20:00.438Z |
+| Gerado em | 2026-08-03T21:49:05.095Z |
 | Lições | 114 |
-| Hash da Jornada | 874b10e87e55 |
+| Hash da Jornada | 61ac9c5a7fc7 |
 
 ## Resumo
 
@@ -16,8 +16,8 @@
 |-----------|------:|
 | Lições analisadas | 114 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1258 |
-| Pares com transformação cognitiva | 1080 (86%) |
+| Pares de repetição semântica | 1276 |
+| Pares com transformação cognitiva | 1095 (86%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -62,22 +62,22 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p2-sons-brasileiros | 10 | 9 | 11 | 3 | 3 | 6 | phrase:谢谢 × 2 |
 | p2-numeros-1-5 | 14 | 13 | 19 | 9 | 9 | 7 | intent:plan-tomorrow × 3 |
 | l4-rev | 20 | 18 | 27 | 14 | 11 | 11 | intent:polite-question × 5 |
-| l9 | 11 | 10 | 17 | 6 | 6 | 6 | phrase:我叫马修 × 2 |
-| l9-tudo-bem | 12 | 11 | 19 | 10 | 10 | 7 | intent:polite-question × 4 |
-| l9-qual-nome | 12 | 11 | 24 | 8 | 7 | 8 | action:assemble-phrase × 3 |
-| l10 | 12 | 11 | 24 | 8 | 7 | 7 | action:assemble-phrase × 3 |
+| l9 | 12 | 11 | 20 | 13 | 13 | 7 | phrase:你好 × 3 |
+| l9-tudo-bem | 12 | 11 | 18 | 10 | 10 | 6 | intent:polite-question × 4 |
+| l9-qual-nome | 12 | 11 | 22 | 12 | 11 | 7 | action:assemble-phrase × 3 |
+| l10 | 12 | 11 | 26 | 8 | 7 | 8 | action:assemble-phrase × 3 |
 | p3-wohenhao | 13 | 12 | 19 | 12 | 12 | 9 | intent:plan-tomorrow × 3 |
 | p3-wobuhui-shuo-zhongwen | 12 | 11 | 22 | 14 | 14 | 6 | phrase:你好 × 3 |
-| p3-qing-zai-shuo-yibian | 11 | 10 | 23 | 6 | 6 | 7 | phrase:请再说一遍 × 2 |
+| p3-qing-zai-shuo-yibian | 12 | 11 | 25 | 11 | 8 | 8 | phrase:请再说一遍 × 2 |
 | l11 | 12 | 11 | 21 | 8 | 7 | 7 | action:assemble-phrase × 3 |
 | l11-falo-pouco | 12 | 11 | 24 | 10 | 10 | 8 | phrase:我会说一点中文 × 2 |
 | l12 | 12 | 11 | 22 | 8 | 7 | 8 | action:assemble-hanzi × 2 |
 | l13 | 12 | 11 | 21 | 11 | 10 | 7 | phrase:你好 × 3 |
 | l13-dialogo-ola | 12 | 12 | 24 | 15 | 14 | 8 | phrase:你好 × 4 |
 | l13-dialogo-nome | 12 | 12 | 27 | 12 | 11 | 7 | action:assemble-phrase × 3 |
-| p3-ordem-das-palavras | 13 | 12 | 29 | 8 | 7 | 8 | action:assemble-phrase × 3 |
-| l5-rev | 17 | 14 | 22 | 16 | 14 | 9 | phrase:你好吗 × 3 |
-| l14 | 13 | 12 | 20 | 11 | 10 | 7 | char:人 × 2 |
+| p3-ordem-das-palavras | 13 | 12 | 24 | 11 | 10 | 9 | action:assemble-phrase × 3 |
+| l5-rev | 17 | 15 | 22 | 16 | 14 | 9 | phrase:你好吗 × 3 |
+| l14 | 13 | 12 | 21 | 10 | 9 | 8 | char:人 × 2 |
 | p4-num-123 | 12 | 11 | 17 | 10 | 10 | 5 | char:一 × 3 |
 | p4-num-45 | 12 | 11 | 19 | 10 | 10 | 5 | intent:identify-concept × 3 |
 | p4-num-678 | 12 | 11 | 17 | 9 | 9 | 5 | char:六 × 2 |
@@ -148,4 +148,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:c902cfe1c6a4d02c -->
+<!-- integridade:c792450ed28a25a8 -->

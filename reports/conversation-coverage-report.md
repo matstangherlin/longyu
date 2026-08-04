@@ -6,9 +6,9 @@
 |-------|-------|
 | Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-02T03:19:36.267Z |
+| Gerado em | 2026-08-03T21:48:17.770Z |
 | Lições | 114 |
-| Hash da Jornada | 874b10e87e55 |
+| Hash da Jornada | 61ac9c5a7fc7 |
 
 ## Resumo
 
@@ -20,7 +20,7 @@
 | Fallback V1 derivado (lines/checkpoint) | 38 |
 | Intenções distintas | 38 |
 | Passos autorais na jornada | 40 |
-| Lições com cena gerada no plano | 95 |
+| Lições com cena gerada no plano | 98 |
 | Cenas geradas distintas | 19 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
@@ -49,16 +49,16 @@
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
 | primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 2 | 3 |
-| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 7 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 2 |
+| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 4 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 8 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 9 |
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 9 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
-| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
+| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 9 |
 | como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 1 | 7 |
 | pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 0 |
@@ -96,7 +96,7 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 | Indicador | Valor |
 |-----------|------:|
 | Variantes com manifesto gerado | 39 |
-| Itens de vocabulário mapeados | 481 |
+| Itens de vocabulário mapeados | 473 |
 | Textos exibidos sem referência canônica (aviso) | 0 |
 | Refs declarados nunca exibidos (aviso) | 0 |
 
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:7f22ae69f7da9ead -->
+<!-- integridade:d8e0ce6eb2a3d764 -->

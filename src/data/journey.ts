@@ -2728,7 +2728,7 @@ export const JOURNEY: JourneyPhase[] = [
         subtitle: "Apresentação e sobrevivência",
         goal: "Dizer seu nome, origem e pedir ajuda.",
         color: "#B42318",
-        focusChunks: ["你叫什么？", "我叫马修", "你好吗？", "我很好"],
+        focusChunks: ["你叫什么？", "我叫Matheus", "你好吗？", "我很好"],
         focusHanzi: ["我", "你", "叫", "什", "么", "吗"],
         focusGrammar: ["pergunta com 吗", "pergunta com 什么", "resposta com 我叫", "resposta social curta"],
         focusSounds: ["nǐ jiào shénme", "wǒ jiào", "nǐ hǎo ma", "wǒ hěn hǎo"],
@@ -2739,12 +2739,12 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Me apresentar",
             skill: "fala",
             steps: [
-              listen("我叫马修", "wǒ jiào Mǎxiū", "Meu nome é Matheus"),
+              listen("我叫Matheus", "wǒ jiào Matheus", "Meu nome é Matheus"),
               listenSelect(
                 "Toque no que ouviu",
-                "我叫马修",
-                ["我叫马修", "我是巴西人", "我很好", "谢谢"],
-                "我叫马修",
+                "我叫Matheus",
+                ["我叫Matheus", "我是巴西人", "我很好", "谢谢"],
+                "我叫Matheus",
                 "我叫 + nome apresenta quem você é."
               ),
               match(
@@ -2753,41 +2753,41 @@ export const JOURNEY: JourneyPhase[] = [
                 [
                   { left: "我", right: "eu", leftType: "hanzi", rightType: "pt" },
                   { left: "叫", right: "chamar-se", leftType: "hanzi", rightType: "pt" },
-                  { left: "我叫马修", right: "Meu nome é Matheus", leftType: "hanzi", rightType: "pt" },
+                  { left: "我叫Matheus", right: "Meu nome é Matheus", leftType: "hanzi", rightType: "pt" },
                 ],
                 "我叫 + nome é a forma curta para dizer seu nome."
               ),
               sentenceBuild(
                 "Meu nome é...",
                 "Monte em mandarim: meu nome é Matheus.",
-                ["我", "叫", "马修"],
-                ["我", "叫", "是", "你好", "马修"],
+                ["我", "叫", "Matheus"],
+                ["我", "叫", "是", "你好", "Matheus"],
                 "我叫 + nome é a forma curta para se apresentar."
               ),
               dialogue(
                 "Responda a pergunta",
                 "Alguém pergunta: 你叫什么？ Como você responde?",
-                "我叫马修",
-                ["我叫马修", "谢谢", "再见", "不客气"],
+                "我叫Matheus",
+                ["我叫Matheus", "谢谢", "再见", "不客气"],
                 "Use 我叫 + seu nome para responder."
               ),
               conversationScene("me-apresentando"),
               translationBuild(
                 "Escreva em português",
-                "我叫马修",
-                "wǒ jiào Mǎxiū",
+                "我叫Matheus",
+                "wǒ jiào Matheus",
                 ["Meu", "nome", "é", "Matheus"],
                 ["Matheus", "Meu", "sou", "nome", "é"],
-                "我叫马修 = meu nome é Matheus."
+                "我叫Matheus = meu nome é Matheus."
               ),
               fillBlank(
                 "Complete a apresentação",
-                "Complete: 我 ___ 马修.",
+                "Complete: 我 ___ Matheus.",
                 "我",
                 "叫",
-                "马修",
+                "Matheus",
                 ["叫", "是", "好", "谢"],
-                "我叫马修 = eu me chamo Matheus."
+                "我叫Matheus = eu me chamo Matheus."
               ),
             ],
           },
@@ -2821,7 +2821,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Escolha a resposta",
                 "Pessoa pergunta: 你好吗？ O que você responde se está bem?",
                 "我很好",
-                ["我很好", "再见", "谢谢", "我叫马修"],
+                ["我很好", "再见", "谢谢", "我叫Matheus"],
                 "我很好 responde: estou bem."
               ),
               conversationScene("perguntando-se-esta-bem"),
@@ -2867,8 +2867,8 @@ export const JOURNEY: JourneyPhase[] = [
               sentenceBuild(
                 "Responda com seu nome",
                 "Você ouviu 你叫什么？ Monte a resposta.",
-                ["我", "叫", "马修"],
-                ["我", "叫", "什么", "马修", "你好"],
+                ["我", "叫", "Matheus"],
+                ["我", "叫", "什么", "Matheus", "你好"],
                 "我叫 + nome responde como você se chama."
               ),
               dialogue(
@@ -2911,8 +2911,8 @@ export const JOURNEY: JourneyPhase[] = [
               dialogue(
                 "Reutilize 我叫",
                 "Alguém pergunta seu nome. Qual frase responde?",
-                "我叫马修",
-                ["我叫马修", "我是巴西人", "谢谢", "再见"],
+                "我叫Matheus",
+                ["我叫Matheus", "我是巴西人", "谢谢", "再见"],
                 "我叫 volta em contexto de apresentação completa."
               ),
             ],
@@ -3149,7 +3149,7 @@ export const JOURNEY: JourneyPhase[] = [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
                 { hanzi: "你叫什么？", pinyin: "Nǐ jiào shénme?", pt: "Como você se chama?" },
-                { hanzi: "我叫马修。", pinyin: "Wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus." },
+                { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
                 { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
                 { hanzi: "请再说一遍。", pinyin: "Qǐng zài shuō yí biàn.", pt: "Por favor, fale de novo." },
               ]),
@@ -3160,8 +3160,8 @@ export const JOURNEY: JourneyPhase[] = [
               sentenceBuild(
                 "Resposta natural",
                 "Como você responderia 你叫什么？",
-                ["我", "叫", "马修"],
-                ["我", "叫", "马修", "你", "什么"],
+                ["我", "叫", "Matheus"],
+                ["我", "叫", "Matheus", "你", "什么"],
                 "我叫 + nome responde “eu me chamo...”."
               ),
             ],
@@ -3240,8 +3240,8 @@ export const JOURNEY: JourneyPhase[] = [
             sentenceBuild(
               "Produção guiada",
               "Monte uma apresentação curta com saudação e nome.",
-              ["你好", "我", "叫", "马修"],
-              ["你好", "我", "叫", "马修", "是", "巴西人"],
+              ["你好", "我", "叫", "Matheus"],
+              ["你好", "我", "叫", "Matheus", "是", "巴西人"],
               "你好 abre a conversa; 我叫 + nome apresenta você."
             ),
           ]),
@@ -3975,15 +3975,15 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
-                { hanzi: "我叫马修。", pinyin: "Wǒ jiào Mǎxiū.", pt: "Meu nome é Matheus." },
+                { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
                 { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
                 { hanzi: "我有三个朋友。", pinyin: "Wǒ yǒu sān ge péngyou.", pt: "Tenho três amigos." },
               ]),
               comp("我有三个朋友。", "Wǒ yǒu sān ge péngyou.", "Tenho três amigos.", ["Tenho três amigos.", "Sou brasileiro.", "Meu nome é Matheus.", "Obrigado."]),
               translationBuild(
                 "Resumo do texto",
-                "你好！我叫马修。我是巴西人。我有三个朋友。",
-                "Nǐ hǎo! Wǒ jiào Mǎxiū. Wǒ shì Bāxī rén. Wǒ yǒu sān ge péngyou.",
+                "你好！我叫Matheus。我是巴西人。我有三个朋友。",
+                "Nǐ hǎo! Wǒ jiào Matheus. Wǒ shì Bāxī rén. Wǒ yǒu sān ge péngyou.",
                 ["Olá.", "Meu nome é Matheus.", "Sou brasileiro.", "Tenho três amigos."],
                 ["Sou brasileiro.", "Obrigado.", "Olá.", "Tenho três amigos.", "Meu nome é Matheus."],
                 "O texto cumprimenta, apresenta nome, origem e três amigos."

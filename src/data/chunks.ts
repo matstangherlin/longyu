@@ -23,7 +23,7 @@ export const CHUNKS: Chunk[] = [
   { id: "qingjin", hanzi: "请进", pinyin: "qǐng jìn", meaningPt: "Entre, por favor.", literalPt: "por favor + entrar", tags: ["cortesia"], domain: "cortesia", level: "elementary" },
 
   // --- Apresentação ---
-  { id: "wojiao", hanzi: "我叫马修", pinyin: "wǒ jiào Mǎxiū", meaningPt: "Meu nome é Matheus.", literalPt: "eu chamo Matheus", tags: ["apresentacao"], domain: "apresentacao", level: "beginner" },
+  { id: "wojiao", hanzi: "我叫Matheus", pinyin: "wǒ jiào Matheus", meaningPt: "Meu nome é Matheus.", literalPt: "eu chamo Matheus", tags: ["apresentacao"], domain: "apresentacao", level: "beginner" },
   { id: "nijiaoshenme", hanzi: "你叫什么？", pinyin: "nǐ jiào shénme?", meaningPt: "Como você se chama?", literalPt: "você chama o quê", tags: ["apresentacao", "pergunta"], domain: "apresentacao", level: "beginner" },
   { id: "wature", hanzi: "我是巴西人", pinyin: "wǒ shì Bāxī rén", meaningPt: "Sou brasileiro.", literalPt: "eu sou Brasil pessoa", tags: ["apresentacao"], domain: "apresentacao", level: "beginner" },
   { id: "nishinaiguoren", hanzi: "你是哪国人？", pinyin: "nǐ shì nǎ guó rén?", meaningPt: "De que país você é?", literalPt: "você é qual país pessoa", tags: ["apresentacao", "pergunta"], domain: "apresentacao", level: "beginner" },
