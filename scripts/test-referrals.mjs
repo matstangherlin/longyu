@@ -62,12 +62,27 @@ assert(createAccount.includes("already_exists") === false || !/code:\s*[\"']alre
 assert(!createAccount.includes('code: already ? "already_exists"'), "create-account: sem code already_exists");
 assert(createAccount.includes("ALLOWED_EMAIL_REDIRECTS"), "create-account: allowlist redirect");
 assert(createAccount.includes("sanitizeEmailRedirect"), "create-account: sanitize redirect");
+assert(
+  createAccount.includes("singular-meringue-7838cd.netlify.app/confirmar-email"),
+  "create-account: canônico Netlify (sem domínio próprio ainda)",
+);
 assert(createAccount.includes("check_and_record_signup_rate"), "create-account: chama rate RPC");
 assert(createAccount.includes("verifyTurnstile"), "create-account: Turnstile");
 assert(createAccount.includes("TURNSTILE_SECRET_KEY"), "create-account: secret Turnstile");
+assert(createAccount.includes("_edge_get_turnstile_secret"), "create-account: vault fallback");
 assert(createAccount.includes("rate_limited"), "create-account: code rate_limited");
 assert(createAccount.includes("email_confirm: false"), "create-account: email_confirm false");
 
+const turnstileMig = read("supabase/migrations/019_turnstile_vault_secret.sql");
+assert(turnstileMig.includes("_edge_get_turnstile_secret"), "019: vault RPC");
+assert(!/0x4AAAAA/.test(turnstileMig), "019: sem secret hardcoded");
+
+const netlifyToml = read("netlify.toml");
+assert(netlifyToml.includes("VITE_TURNSTILE_SITE_KEY"), "netlify: site key Turnstile");
+assert(
+  /https:\/\/challenges\.cloudflare\.com/.test(netlifyToml),
+  "netlify: CSP Turnstile (host canônico)",
+);
 assert(authService.includes("GENERIC_PENDING_MESSAGE") || authService.includes("Se o endereço puder ser utilizado"), "authService: mensagem genérica");
 assert(authService.includes("getTurnstileToken"), "authService: turnstile token");
 assert(authService.includes("rate_limited"), "authService: trata rate_limited");

@@ -24,6 +24,8 @@
   # Explicitamente desligado no ambiente principal.
   VITE_ALLOW_PRO_PREVIEW = "false"
   VITE_USE_TEST_FIXTURES = "false"
+  # Cloudflare Turnstile (site key pública — secret fica no Vault/Edge).
+  VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAEGV_S_bAef1PlRY"
 
 # Deploy Preview — NÃO usa o Supabase de produção.
 # Preview em modo local (progresso só no browser).
@@ -58,7 +60,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "microphone=(self), camera=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://*.netlify.app; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; form-action 'self' https://checkout.stripe.com https://billing.stripe.com"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://*.netlify.app https://challenges.cloudflare.com; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://challenges.cloudflare.com; form-action 'self' https://checkout.stripe.com https://billing.stripe.com"
 
 # Service worker e manifest sempre frescos.
 [[headers]]
