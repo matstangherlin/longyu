@@ -159,8 +159,9 @@ function patchHtml(html, page) {
     `<meta name="twitter:image" content="${image}" />`
   );
 
-  // Conteúdo estático visível a crawlers sem JS (irmão do #root; o React sobrescreve a UI).
-  const seoBlock = `<div id="seo-static" data-seo-path="${escapeHtml(page.path)}" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0"><h1>${title}</h1><p>${crawler}</p><p>${description}</p></div>`;
+  // Conteúdo estático para crawlers que leem o HTML sem JS.
+  // aria-hidden evita conflito com o H1 real da SPA na árvore de acessibilidade.
+  const seoBlock = `<div id="seo-static" data-seo-path="${escapeHtml(page.path)}" aria-hidden="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0"><h1>${title}</h1><p>${crawler}</p><p>${description}</p></div>`;
   if (out.includes('id="root"')) {
     out = out.replace(/<div id="root"><\/div>/, `${seoBlock}<div id="root"></div>`);
   }
