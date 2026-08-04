@@ -55,7 +55,7 @@ step("B", "Instalar Supabase CLI", [
 step("C", "Login e link do projeto", [
   "supabase login",
   "supabase link --project-ref <seu-project-ref>",
-  "npm run configure:supabase-auth  # login imediato sem confirmar email",
+  "npm run configure:supabase-auth  # exige confirmação de email no cadastro",
   `Link local: ${isLinked() ? "projeto linkado ✓" : "ainda não linkado"}`,
 ]);
 

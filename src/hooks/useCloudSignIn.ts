@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { canSignInWithCredentials } from "../lib/authForm";
+import { storePendingConfirmEmail } from "../lib/authRedirect";
 import { isInternalTestProEmail } from "../lib/entitlements";
 import { useStore } from "../lib/store";
 import { login as authLogin } from "../services/authService";
@@ -10,13 +11,20 @@ export function useCloudSignIn() {
   const setServerEntitlement = useStore((s) => s.setServerEntitlement);
 
   const signIn = useCallback(
-    async (email: string, password: string): Promise<{ ok: boolean; message: string }> => {
+    async (
+      email: string,
+      password: string
+    ): Promise<{ ok: boolean; message: string; pendingConfirmation?: boolean }> => {
       if (!canSignInWithCredentials(email, password)) {
         return { ok: false, message: "Informe um email válido e senha com pelo menos 6 caracteres." };
       }
       const authResult = await authLogin(email, password);
       if (authResult.status === "error") {
         return { ok: false, message: authResult.message };
+      }
+      if (authResult.status === "pending_confirmation") {
+        storePendingConfirmEmail(email);
+        return { ok: false, message: authResult.message, pendingConfirmation: true };
       }
       if (isInternalTestProEmail(email)) {
         setServerEntitlement(true);

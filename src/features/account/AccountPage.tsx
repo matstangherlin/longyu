@@ -28,6 +28,7 @@ import { GlossText } from "../../components/hanzi/GlossText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { playSoundFx } from "../../lib/soundFx";
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
+import { confirmEmailPath, storePendingConfirmEmail } from "../../lib/authRedirect";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import {
   cancelSubscription,
@@ -1876,6 +1877,13 @@ export function AccountPage() {
         setIsFinishingOnboarding(false);
         return;
       }
+      if (authResult.status === "pending_confirmation") {
+        storePendingConfirmEmail(email);
+        claimOnboardingReward();
+        playSoundFx("lessonComplete", soundEffects);
+        navigate(confirmEmailPath(email));
+        return;
+      }
       createCloudAccountDraft(firstName(name), email, result);
       if (authResult.status === "ok") {
         await attributeStoredReferralCode();
@@ -1920,6 +1928,12 @@ export function AccountPage() {
       const authResult = await createAuthAccount(email, password, buildSignupProfile(accountName));
       if (authResult.status === "error") {
         setAccountError(authResult.message);
+        return;
+      }
+      if (authResult.status === "pending_confirmation") {
+        storePendingConfirmEmail(email);
+        setAccountNotice(authResult.message);
+        navigate(confirmEmailPath(email));
         return;
       }
       if (authResult.status === "ok") {

@@ -34,7 +34,8 @@ export function AppShell() {
   const isAuthPage =
     location.pathname === "/login" ||
     location.pathname === "/esqueci-senha" ||
-    location.pathname === "/redefinir-senha";
+    location.pathname === "/redefinir-senha" ||
+    location.pathname === "/confirmar-email";
   const isOnboarding = location.pathname === "/conta" && !accountSetupComplete;
   const isAdminRoute = location.pathname.startsWith("/admin");
   // Modo foco: durante lição e desafio o app esconde TopBar (mobile) e TabBar
@@ -71,6 +72,7 @@ export function AppShell() {
       location.pathname !== "/login" &&
       location.pathname !== "/esqueci-senha" &&
       location.pathname !== "/redefinir-senha" &&
+      location.pathname !== "/confirmar-email" &&
       location.pathname !== "/pro" &&
       !(isAdminRoute && isAdminEmail(account?.email))
     ) {

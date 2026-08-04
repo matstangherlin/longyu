@@ -1,10 +1,10 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
-import { passwordRecoveryRedirectUrl } from "../lib/authRedirect";
+import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
 
-export type AuthServiceStatus = "ok" | "error" | "not_implemented";
+export type AuthServiceStatus = "ok" | "error" | "not_implemented" | "pending_confirmation";
 
 export interface FutureAuthUser {
   id: string;
@@ -42,6 +42,11 @@ function profileFromName(name?: string): ProfileDetails {
   return { name: name?.trim() || "Aluno Longyu", onboardingCompleted: true };
 }
 
+function isUnconfirmedEmailError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes("email not confirmed") || lower.includes("email_not_confirmed");
+}
+
 export async function createAccount(
   email: string,
   password: string,
@@ -56,7 +61,10 @@ export async function createAccount(
   const { data, error } = await client.auth.signUp({
     email: cleanEmail,
     password,
-    options: { data: { name: details.name } },
+    options: {
+      data: { name: details.name },
+      emailRedirectTo: emailConfirmationRedirectUrl(),
+    },
   });
 
   if (error) {
@@ -67,28 +75,27 @@ export async function createAccount(
     return { status: "error", message: error.message };
   }
 
-  const user = data.user;
-  if (!user) {
-    if (data.session?.user) {
-      const sessionUser = data.session.user;
-      const profileError = await ensureProfile(sessionUser.id, details);
-      if (profileError) return { status: "error", message: profileError };
+  // Sem sessão: confirmação de email obrigatória (ou usuário já existia).
+  if (!data.session) {
+    const identities = data.user?.identities ?? [];
+    // Supabase retorna user sem identities quando o email já está cadastrado
+    // (anti-enumeration). Trate como conta existente.
+    if (data.user && identities.length === 0) {
       return {
-        status: "ok",
-        message: "Conta criada com sucesso.",
-        data: {
-          id: sessionUser.id,
-          email: sessionUser.email ?? cleanEmail,
-          name: details.name,
-        },
+        status: "error",
+        message: "Este email já tem conta. Entre com sua senha ou recupere o acesso.",
       };
     }
     return {
-      status: "ok",
-      message: "Verifique seu email para confirmar a conta, se solicitado pelo provedor.",
+      status: "pending_confirmation",
+      message: "Enviamos um link de confirmação para o seu email. Abra o link para ativar a conta.",
+      data: data.user
+        ? { id: data.user.id, email: data.user.email ?? cleanEmail, name: details.name }
+        : { id: "", email: cleanEmail, name: details.name },
     };
   }
 
+  const user = data.session.user;
   const profileError = await ensureProfile(user.id, details);
   if (profileError) return { status: "error", message: profileError };
 
@@ -110,7 +117,16 @@ export async function login(
 
   const cleanEmail = email.trim();
   const { data, error } = await client.auth.signInWithPassword({ email: cleanEmail, password });
-  if (error) return { status: "error", message: error.message };
+  if (error) {
+    if (isUnconfirmedEmailError(error.message)) {
+      return {
+        status: "pending_confirmation",
+        message: "Confirme seu email antes de entrar. Reenvie o link se precisar.",
+        data: { id: "", email: cleanEmail, name: profile?.name },
+      };
+    }
+    return { status: "error", message: error.message };
+  }
 
   const user = data.user;
   if (!user) return { status: "error", message: "Sessão não iniciada." };
@@ -127,6 +143,29 @@ export async function login(
       email: user.email ?? cleanEmail,
       name: fallbackName ?? profile?.name,
     },
+  };
+}
+
+export async function resendConfirmationEmail(email: string): Promise<AuthServiceResult> {
+  if (!isSupabaseBackendEnabled()) return notImplemented();
+  const client = getSupabaseClient();
+  if (!client) return notImplemented();
+
+  const cleanEmail = email.trim();
+  if (!cleanEmail.includes("@")) {
+    return { status: "error", message: "Informe um email válido para reenviar a confirmação." };
+  }
+
+  const { error } = await client.auth.resend({
+    type: "signup",
+    email: cleanEmail,
+    options: { emailRedirectTo: emailConfirmationRedirectUrl() },
+  });
+  if (error) return { status: "error", message: error.message };
+
+  return {
+    status: "ok",
+    message: "Se este email estiver pendente, enviamos um novo link de confirmação.",
   };
 }
 

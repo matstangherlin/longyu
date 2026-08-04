@@ -37,6 +37,7 @@ const AboutPage = lazy(() => import("./features/about/AboutPage").then((m) => ({
 const LoginPage = lazy(() => import("./features/auth/LoginPage").then((m) => ({ default: m.LoginPage })));
 const ForgotPasswordPage = lazy(() => import("./features/auth/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage })));
 const ResetPasswordPage = lazy(() => import("./features/auth/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage })));
+const ConfirmEmailPage = lazy(() => import("./features/auth/ConfirmEmailPage").then((m) => ({ default: m.ConfirmEmailPage })));
 const ReferralPage = lazy(() => import("./features/referral/ReferralPage").then((m) => ({ default: m.ReferralPage })));
 const ReferralInvitePage = lazy(() => import("./features/referral/ReferralInvitePage").then((m) => ({ default: m.ReferralInvitePage })));
 const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) => ({ default: m.AmigosPage })));
@@ -77,6 +78,7 @@ export const routes: RouteObject[] = [
       { path: "login", element: <LoginPage /> },
       { path: "esqueci-senha", element: <ForgotPasswordPage /> },
       { path: "redefinir-senha", element: <ResetPasswordPage /> },
+      { path: "confirmar-email", element: <ConfirmEmailPage /> },
       { path: "perfil", element: <ProfilePage /> },
       { path: "conta", element: <ContaRoute /> },
       { path: "dados-locais", element: <DadosLocaisPage /> },

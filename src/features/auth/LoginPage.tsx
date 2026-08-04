@@ -6,6 +6,7 @@ import { Button, Card, Pill } from "../../components/ui/primitives";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { resolvePostAuthPath, subscribeAccountPath } from "../../lib/subscribeAuthRedirect";
+import { confirmEmailPath } from "../../lib/authRedirect";
 import { useStore } from "../../lib/store";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
 
@@ -73,6 +74,10 @@ export function LoginPage() {
     const result = await signIn(formEmail, formPassword);
     setLoading(false);
     if (!result.ok) {
+      if (result.pendingConfirmation) {
+        navigate(confirmEmailPath(formEmail), { replace: true });
+        return;
+      }
       setError(result.message);
       return;
     }

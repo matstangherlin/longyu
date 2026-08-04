@@ -45,7 +45,8 @@ if (!token) {
 const body = {
   site_url: siteUrl,
   uri_allow_list: redirectEntries.join(","),
-  mailer_autoconfirm: true,
+  // Confirmação de email obrigatória (requerida pelo programa de indicação).
+  mailer_autoconfirm: false,
   disable_signup: false,
 };
 
@@ -64,9 +65,11 @@ if (!response.ok) {
   process.exit(1);
 }
 
-console.log("Auth configurado para contas imediatas (sem confirmação de email).");
+console.log("Auth configurado com confirmação de email obrigatória.");
+console.log("mailer_autoconfirm: false");
 console.log("site_url:", body.site_url);
 console.log("redirects:", body.uri_allow_list);
+console.log("Redirect de confirmação no app: /confirmar-email");
 if (addProdUrl) {
   console.log("\nProdução incluída nos redirects:", addProdUrl);
 } else {
