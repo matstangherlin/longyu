@@ -90,11 +90,26 @@ function sanitizeEmailRedirect(raw: string | undefined): string {
   return CANONICAL_CONFIRM_REDIRECT;
 }
 
+async function resolveTurnstileSecret(
+  admin: ReturnType<typeof createClient>,
+): Promise<string | null> {
+  const fromEnv = Deno.env.get("TURNSTILE_SECRET_KEY")?.trim();
+  if (fromEnv) return fromEnv;
+  // Fallback: Vault via RPC (quando supabase secrets set ainda não rodou).
+  const { data, error } = await admin.rpc("_edge_get_turnstile_secret");
+  if (error) {
+    console.error("turnstile vault rpc:", error.message);
+    return null;
+  }
+  const secret = typeof data === "string" ? data.trim() : "";
+  return secret || null;
+}
+
 async function verifyTurnstile(
   token: string | undefined,
   ip: string,
+  secret: string | null,
 ): Promise<{ ok: boolean; skipped: boolean; error?: string }> {
-  const secret = Deno.env.get("TURNSTILE_SECRET_KEY")?.trim();
   if (!secret) {
     // Sem secret configurado: não bloqueia (dev / pré-marketing).
     return { ok: true, skipped: true };
@@ -162,8 +177,13 @@ Deno.serve(async (req) => {
       return json(req, { error: "Senha deve ter ao menos 6 caracteres." }, 400);
     }
 
+    const admin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
     const ip = clientIp(req);
-    const captcha = await verifyTurnstile(captchaToken, ip);
+    const turnstileSecret = await resolveTurnstileSecret(admin);
+    const captcha = await verifyTurnstile(captchaToken, ip, turnstileSecret);
     if (!captcha.ok) {
       return json(
         req,
@@ -178,11 +198,6 @@ Deno.serve(async (req) => {
 
     const ipHash = await sha256Hex(ip);
     const emailHash = await sha256Hex(email);
-
-    const admin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-
     const { data: rateData, error: rateError } = await admin.rpc(
       "check_and_record_signup_rate",
       { p_ip_hash: ipHash, p_email_hash: emailHash },

@@ -42,7 +42,8 @@ async function invoke(body, extraHeaders = {}) {
 
 const errors = [];
 
-// Conta conhecida (seed QA) — não deve revelar already_exists.
+// Conta conhecida (seed QA) — sem captcha: deve falhar com captcha_failed
+// (Turnstile enforced via Vault) OU, se secret ausente, responder genérico.
 {
   const { status, json, text } = await invoke({
     email: "teste@longyu.app",
@@ -50,20 +51,24 @@ const errors = [];
     displayName: "Enum Check",
     emailRedirectTo: "https://evil.example/phish",
   });
-  if (status !== 200) errors.push(`existing email HTTP ${status}: ${text.slice(0, 200)}`);
-  if (!json?.ok || !json?.pendingConfirmation) {
-    errors.push(`existing email sem pending genérico: ${text.slice(0, 200)}`);
+  if (status === 400 && json?.code === "captcha_failed") {
+    console.log("OK: create-account exige Turnstile (captcha_failed sem token).");
+  } else {
+    if (status !== 200) errors.push(`existing email HTTP ${status}: ${text.slice(0, 200)}`);
+    if (!json?.ok || !json?.pendingConfirmation) {
+      errors.push(`existing email sem pending genérico: ${text.slice(0, 200)}`);
+    }
+    if (json?.code === "already_exists" || /already_exists/i.test(text)) {
+      errors.push("existing email vazou already_exists");
+    }
+    if (!String(json?.message ?? "").includes(genericSnippet)) {
+      errors.push("existing email sem mensagem genérica");
+    }
+    if (json?.userId) errors.push("existing email não deveria retornar userId");
   }
-  if (json?.code === "already_exists" || /already_exists/i.test(text)) {
-    errors.push("existing email vazou already_exists");
-  }
-  if (!String(json?.message ?? "").includes(genericSnippet)) {
-    errors.push("existing email sem mensagem genérica");
-  }
-  if (json?.userId) errors.push("existing email não deveria retornar userId");
 }
 
-// Redirect maligno: ainda deve responder ok (redirect sanitizado no server).
+// Redirect maligno + sem captcha: captcha_failed (enforced) ou ok genérico (dev).
 {
   const email = `harden-live-${Date.now()}@example.com`;
   const { status, json, text } = await invoke({
@@ -72,11 +77,11 @@ const errors = [];
     displayName: "Harden Live",
     emailRedirectTo: "https://evil.example/steal",
   });
-  // example.com pode falhar no envio de email, mas a conta/resposta pública deve ser genérica.
-  if (![200, 429].includes(status)) {
+  if (status === 400 && json?.code === "captcha_failed") {
+    // Turnstile ligado — esperado em produção.
+  } else if (![200, 429].includes(status)) {
     errors.push(`new signup HTTP ${status}: ${text.slice(0, 200)}`);
-  }
-  if (status === 200) {
+  } else if (status === 200) {
     if (!json?.ok || !json?.pendingConfirmation) {
       errors.push(`new signup sem pending: ${text.slice(0, 200)}`);
     }

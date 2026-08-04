@@ -24,6 +24,8 @@
   # Explicitamente desligado no ambiente principal.
   VITE_ALLOW_PRO_PREVIEW = "false"
   VITE_USE_TEST_FIXTURES = "false"
+  # Cloudflare Turnstile (site key pública — secret fica no Vault/Edge).
+  VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAEGV_S_bAef1PlRY"
 
 # Deploy Preview — NÃO usa o Supabase de produção.
 # Preview em modo local (progresso só no browser).

@@ -1,62 +1,52 @@
 # Ativar Cloudflare Turnstile no cadastro público
 
-O código já valida Turnstile na Edge `create-account` e obtém o token no frontend.
-Sem secrets, a verificação é **pulada** (pré-marketing).
+Estado (2026-08-04): **ligado em produção**.
+
+- Site key: `VITE_TURNSTILE_SITE_KEY` no `netlify.toml` (contexto production)
+- Secret: Vault `TURNSTILE_SECRET_KEY` + RPC `public._edge_get_turnstile_secret()` (service_role)
+- Edge `create-account` lê env `TURNSTILE_SECRET_KEY` **ou** o Vault e valida no siteverify
+- Probe sem token → `captcha_failed`
 
 ## Domínios (sem domínio próprio ainda)
 
-O site público está no Netlify. No widget Turnstile use **somente**:
+Widget Turnstile só com:
 
 - `singular-meringue-7838cd.netlify.app`
-- `longyu.netlify.app` (se o alias existir)
-- `localhost`
-- `127.0.0.1`
+- `longyu.netlify.app`
+- `localhost` / `127.0.0.1`
 
-**Não** adicione `longyu.com.br` até comprar e apontar o DNS.
-Depois de comprar o domínio, edite o widget e inclua `longyu.com.br` / `www.longyu.com.br`.
+Quando comprar `longyu.com.br`, edite o widget e inclua o domínio.
 
-## 1. Criar widget no Cloudflare
+## Espelhar no Edge Secrets (opcional)
 
-1. Abra [Turnstile neste account](https://dash.cloudflare.com/078363b269748bdf721535c08b1e37ea/turnstile).
-2. **Add widget**.
-3. Nome: `longyu-signup`.
-4. Modo: **Invisible**.
-5. Hostnames: a lista Netlify acima.
-6. Create → copie **Site Key** e **Secret Key**.
-
-## 2. Secret na Edge (Supabase)
+Se tiver `SUPABASE_ACCESS_TOKEN`:
 
 ```bash
 supabase secrets set TURNSTILE_SECRET_KEY=<secret> --project-ref drjcfalvlbbeblmmyhwj
 ```
 
-Com o secret definido, requests **sem** token válido passam a retornar `captcha_failed`.
+A Edge prefere o env; o Vault continua como fallback.
 
-## 3. Site Key no Netlify (build)
+## Redeploy Netlify
 
-Production (e local `.env.local` se for testar):
+Após merge deste PR (site key no `netlify.toml`), rode **Clear cache and deploy**
+no Netlify para o front obter o token Turnstile no `/conta`.
 
-```text
-VITE_TURNSTILE_SITE_KEY=<sitekey>
-```
-
-Netlify → Site settings → Environment variables → Add (contexto **production**).
-Depois: **Clear cache and deploy**.
-
-## 4. Smoke
-
-No site Netlify, criar conta em `/conta` (Turnstile invisible no submit).
-Cadastro deve retornar a mensagem genérica de confirmação por e-mail.
+## Smoke
 
 ```bash
-# Probe HTTP (sem token) — com secret ativo espera captcha_failed ou rate_limited
+# Sem token → captcha_failed
 npm run test:create-account-hardening
 ```
 
+No browser (após deploy): criar conta em `/conta` deve passar o desafio invisible.
+
 ## Desligar (rollback)
 
-```bash
-supabase secrets unset TURNSTILE_SECRET_KEY --project-ref drjcfalvlbbeblmmyhwj
+```sql
+-- remove do Vault
+delete from vault.secrets where name = 'TURNSTILE_SECRET_KEY';
 ```
 
-Remova `VITE_TURNSTILE_SITE_KEY` do Netlify e redeploy. A Edge volta a pular captcha.
+Remova `VITE_TURNSTILE_SITE_KEY` do `netlify.toml` / Netlify e redeploy.
+Opcional: `supabase secrets unset TURNSTILE_SECRET_KEY`.
