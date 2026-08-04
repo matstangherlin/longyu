@@ -2600,7 +2600,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Três famílias de consoantes",
                 "O mandarim separa sons que o português não separa: j/q/x (língua alta), zh/ch/sh (língua enrolada) e z/c/s (língua baixa). Brasileiros trocam x por sh e j por zh. Vamos treinar com palavras que você já conhece."
               ),
-              listen("谢", "xiè", "xiè — x com a língua alta, como um “chi” suave"),
+              listen("谢", "xiè", "xiè — x com a língua alta e bem à frente (fricativa suave)"),
               listen("是", "shì", "shì — sh retroflexo, com a língua enrolada para trás"),
               listenSelect(
                 "xiè ou shì?",
@@ -2616,7 +2616,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "是",
                 "是 começa com sh — o som de “x” com a língua enrolada."
               ),
-              listen("请", "qǐng", "qǐng — q é um “tch” soprado com a língua alta"),
+              listen("请", "qǐng", "qǐng — q: língua alta e bem à frente, africada com sopro"),
               listen("中", "zhōng", "zhōng — zh é retroflexo, como um “dj/tch” sem sopro"),
               listenSelect(
                 "qǐng ou zhōng?",
@@ -2632,7 +2632,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "中",
                 "中 começa com zh retroflexo — a língua sobe e se enrola."
               ),
-              listen("女", "nǚ", "nǚ — ü é o “u” de lua com a boca arredondada"),
+              listen("女", "nǚ", "nǚ — ü: diga “i” e arredonde os lábios (não é o u de lua)"),
               listen("人", "rén", "rén — r retroflexo, entre um r suave e um “j” (não é o rr do português)"),
               match(
                 "Famílias de som",

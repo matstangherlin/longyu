@@ -453,7 +453,7 @@ const consonantRounds: ToneTrainerRound[] = [
     answerTone: 4,
     answerInitial: "x",
     focusSyllable: "x",
-    explanation: "x com a língua alta, como um “chi” suave — o primeiro som de 谢谢.",
+    explanation: "x: língua alta e bem à frente (perto do céu da boca), fricativa suave — o primeiro som de 谢谢. Não é o “chi” do português.",
     itemRef: "char:xie",
   },
   {
@@ -518,7 +518,7 @@ const consonantRounds: ToneTrainerRound[] = [
     answerTone: 3,
     answerInitial: "q",
     focusSyllable: "q",
-    explanation: "q soprado com a língua alta — o início de 请问.",
+    explanation: "q: língua alta e bem à frente, africada com sopro — o início de 请问. Parece um “tch”, mas a língua fica mais alta e anterior.",
     itemRef: "char:qing_pls",
   },
   {
@@ -544,7 +544,7 @@ const consonantRounds: ToneTrainerRound[] = [
     answerTone: 3,
     answerInitial: "ü",
     focusSyllable: "ü",
-    explanation: "ü é o “u” de lua com a boca arredondada — como em 女 nǚ.",
+    explanation: "ü: produza o som de “i” (língua na mesma posição) e arredonde os lábios — como em 女 nǚ. Não é o “u” de lua.",
     itemRef: "char:nv",
   },
   {
@@ -557,7 +557,7 @@ const consonantRounds: ToneTrainerRound[] = [
     answerTone: 1,
     answerInitial: "j",
     focusSyllable: "j",
-    explanation: "j é um “dj” sem sopro, com a língua alta — o início de 家.",
+    explanation: "j: língua alta e bem à frente, africada sem sopro — o início de 家. Parece um “dj”, mas a língua fica mais alta e anterior.",
     itemRef: "char:jia",
   },
   {
@@ -583,7 +583,7 @@ const consonantRounds: ToneTrainerRound[] = [
     answerTone: 4,
     answerInitial: "z",
     focusSyllable: "z",
-    explanation: "z é um “dz” sem sopro, como o z de “zebra” — o início de 再见.",
+    explanation: "z: africada alveolar sem sopro (como “ts” sem sopro) — o início de 再见. Não é o z de “zebra” do português.",
     itemRef: "char:zai",
   },
   {

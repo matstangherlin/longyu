@@ -334,15 +334,18 @@ export function analyzePronunciation(heard: string, target: string): Pronunciati
   const t = normalizeHan(target);
   if (!t) return { correct: false, ratio: 0, matched: [], missing: [] };
   if (!h) return { correct: false, ratio: 0, matched: [], missing: [...t] };
+  // Contagem a partir do texto OUVIDO: cada caractere do alvo consome uma
+  // ocorrência reconhecida. Contar a partir do alvo faria matched === alvo
+  // sempre que houvesse qualquer hànzì reconhecido.
   const counts = new Map<string, number>();
-  for (const c of t) counts.set(c, (counts.get(c) || 0) + 1);
+  for (const c of h) counts.set(c, (counts.get(c) || 0) + 1);
   const matched: string[] = [];
   const missing: string[] = [];
   for (const c of t) {
-    const n = counts.get(c) || 0;
-    if (n > 0) {
+    const available = counts.get(c) || 0;
+    if (available > 0) {
       matched.push(c);
-      counts.set(c, n - 1);
+      counts.set(c, available - 1);
     } else {
       missing.push(c);
     }
