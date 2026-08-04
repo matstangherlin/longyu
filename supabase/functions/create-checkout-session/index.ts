@@ -65,11 +65,17 @@ serve(async (req) => {
 
     // Allowlist de URLs de retorno: o header Origin é controlado pelo cliente,
     // então nunca redirecionamos para um domínio arbitrário. Origins permitidos
-    // vêm do env (STRIPE_ALLOWED_ORIGINS, separados por vírgula) + o canônico.
+    // vêm do env (STRIPE_ALLOWED_ORIGINS, separados por vírgula) + canônicos.
     const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
+    const DEFAULT_BETA_ORIGINS = [
+      "https://singular-meringue-7838cd.netlify.app",
+      "http://127.0.0.1:5173",
+      "http://localhost:5173",
+    ];
     const allowedOrigins = new Set(
       [
         CANONICAL_ORIGIN,
+        ...DEFAULT_BETA_ORIGINS,
         ...(Deno.env.get("STRIPE_ALLOWED_ORIGINS") ?? "")
           .split(",")
           .map((value) => value.trim())
