@@ -64,21 +64,34 @@ export function AppShell() {
 
   // Usuário sem conta/progresso em página interna volta para a landing "/",
   // que dá contexto antes do onboarding (/conta continua acessível direto).
+  // Páginas públicas (privacidade, sobre) ficam acessíveis sem conta — SEO/legal.
   useEffect(() => {
+    const publicGuestPaths = new Set([
+      "/conta",
+      "/login",
+      "/esqueci-senha",
+      "/redefinir-senha",
+      "/confirmar-email",
+      "/pro",
+      "/privacidade",
+      "/sobre",
+    ]);
     if (
       !accountSetupComplete &&
       completedLessons.length === 0 &&
-      location.pathname !== "/conta" &&
-      location.pathname !== "/login" &&
-      location.pathname !== "/esqueci-senha" &&
-      location.pathname !== "/redefinir-senha" &&
-      location.pathname !== "/confirmar-email" &&
-      location.pathname !== "/pro" &&
+      !publicGuestPaths.has(location.pathname) &&
       !(isAdminRoute && isAdminEmail(account?.email))
     ) {
       navigate("/", { replace: true });
     }
-  }, [accountSetupComplete, completedLessons.length, location.pathname, navigate, isAdminRoute, account?.email]);
+  }, [
+    accountSetupComplete,
+    completedLessons.length,
+    location.pathname,
+    navigate,
+    isAdminRoute,
+    account?.email,
+  ]);
 
   // Rola para o topo ao trocar de rota.
   useEffect(() => {

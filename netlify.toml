@@ -26,6 +26,8 @@
   VITE_USE_TEST_FIXTURES = "false"
   # Cloudflare Turnstile (site key pública — secret fica no Vault/Edge).
   VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAEGV_S_bAef1PlRY"
+  # Canonical / Open Graph / sitemap (trocar ao apontar domínio próprio).
+  VITE_SITE_URL = "https://longyu.netlify.app"
 
 # Deploy Preview — NÃO usa o Supabase de produção.
 # Preview em modo local (progresso só no browser).

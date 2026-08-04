@@ -13,8 +13,8 @@ test.describe("smoke", () => {
     await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Já tenho uma conta/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Ativar modo escuro/i })).toBeVisible();
-    // Página pública: sem sidebar/tab bar.
-    await expect(page.locator("nav")).toHaveCount(0);
+    // Página pública: sem chrome do app (sidebar/tab bar). Rodapé pode ter links SEO.
+    await expect(page.getByRole("navigation", { name: "Principal" })).toHaveCount(0);
   });
 
   test("landing alterna e persiste os modos escuro e claro", async ({ page }) => {

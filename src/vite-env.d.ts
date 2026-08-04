@@ -18,6 +18,10 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_TELEMETRY?: string;
   /** Rollback: false desliga envio de feedback. */
   readonly VITE_ENABLE_BETA_FEEDBACK?: string;
+  /** Site key pública do Cloudflare Turnstile. */
+  readonly VITE_TURNSTILE_SITE_KEY?: string;
+  /** URL canônica do site (SEO: canonical, Open Graph, sitemap). */
+  readonly VITE_SITE_URL?: string;
 }
 
 interface ImportMeta {

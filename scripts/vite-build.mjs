@@ -29,4 +29,15 @@ const result = spawnSync(process.execPath, [viteEntry, "build", ...extraArgs], {
   env: process.env,
 });
 
-process.exit(result.status ?? 1);
+if ((result.status ?? 1) !== 0) {
+  process.exit(result.status ?? 1);
+}
+
+// Meta tags por rota pública + sitemap.xml no dist/.
+const prerender = spawnSync(process.execPath, [path.join(root, "scripts", "seo-prerender.mjs")], {
+  cwd: root,
+  stdio: "inherit",
+  env: process.env,
+});
+
+process.exit(prerender.status ?? 1);
