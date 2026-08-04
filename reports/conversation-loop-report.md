@@ -4,22 +4,39 @@
 
 | Campo | Valor |
 |-------|-------|
+<<<<<<< HEAD
 | Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
 | Versão do app | 0.2.0-beta.1 |
 | Gerado em | 2026-08-04T04:51:59.281Z |
 | Lições | 114 |
 | Hash da Jornada | e29b6e8d9bda |
+=======
+| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
+| Versão do app | 0.2.0-beta.1 |
+| Gerado em | 2026-08-04T03:16:23.434Z |
+| Lições | 114 |
+| Hash da Jornada | 75120b753bbd |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
+<<<<<<< HEAD
 | Conversas analisadas (nos planos reais) | 120 |
 | Itens de vocabulário exibidos | 644 |
 | Itens cobertos por tarefa posterior | 443 |
 | Reutilização média por item | 2.04 |
 | Itens sem cobertura | 201 |
 | Tarefas da fase Pós-Conversa | 423 |
+=======
+| Conversas analisadas (nos planos reais) | 119 |
+| Itens de vocabulário exibidos | 640 |
+| Itens cobertos por tarefa posterior | 441 |
+| Reutilização média por item | 2.05 |
+| Itens sem cobertura | 199 |
+| Tarefas da fase Pós-Conversa | 419 |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 | Média Pós-Conversa por conversa | 3.52 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
 
@@ -104,7 +121,13 @@
 - l17:chunk:xiexie
 - l17:chunk:zaijian
 - l18:chunk:nihaoma
+<<<<<<< HEAD
 - l18:chunk:xiexie
 - …mais 121.
 
 <!-- integridade:19d26efe271ae77f -->
+=======
+- …mais 119.
+
+<!-- integridade:39cbc0442ce163f4 -->
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59

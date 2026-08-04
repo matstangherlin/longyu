@@ -4,11 +4,19 @@
 
 | Campo | Valor |
 |-------|-------|
+<<<<<<< HEAD
 | Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
 | Versão do app | 0.2.0-beta.1 |
 | Gerado em | 2026-08-04T06:02:18.018Z |
 | Lições | 122 |
 | Hash da Jornada | dbf712321bc6 |
+=======
+| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
+| Versão do app | 0.2.0-beta.1 |
+| Gerado em | 2026-08-04T03:16:42.652Z |
+| Lições | 114 |
+| Hash da Jornada | 75120b753bbd |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Resumo
 
@@ -16,8 +24,13 @@
 |-----------|------:|
 | Lições analisadas | 122 |
 | Lições com problemas | 0 |
+<<<<<<< HEAD
 | Pares de repetição semântica | 1337 |
 | Pares com transformação cognitiva | 1142 (85%) |
+=======
+| Pares de repetição semântica | 1276 |
+| Pares com transformação cognitiva | 1095 (86%) |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -156,4 +169,8 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
+<<<<<<< HEAD
 <!-- integridade:ad24183bfe2d3d29 -->
+=======
+<!-- integridade:981ab2d4424326bf -->
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59

@@ -4,11 +4,19 @@
 
 | Campo | Valor |
 |-------|-------|
+<<<<<<< HEAD
 | Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
 | Versão do app | 0.2.0-beta.1 |
 | Gerado em | 2026-08-04T06:05:48.973Z |
 | Lições | 122 |
 | Hash da Jornada | dbf712321bc6 |
+=======
+| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
+| Versão do app | 0.2.0-beta.1 |
+| Gerado em | 2026-08-04T03:15:57.958Z |
+| Lições | 114 |
+| Hash da Jornada | 75120b753bbd |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Resumo
 
@@ -16,9 +24,15 @@
 |-----------|------:|
 | Conceitos no catálogo | 37 |
 | Imagens locais (WebP) | 37 |
+<<<<<<< HEAD
 | Lições na jornada | 122 |
 | Lições concretas elegíveis | 73 |
 | Lições elegíveis com imagem | 73 (100%) |
+=======
+| Lições na jornada | 114 |
+| Lições concretas elegíveis | 69 |
+| Lições elegíveis com imagem | 69 (100%) |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
@@ -66,7 +80,11 @@
 | imagem → pinyin (`choose_pinyin`) | 85 |
 | imagem → significado (`choose_meaning`) | 39 |
 | áudio → imagem (`listen_and_choose_image`) | 18 |
+<<<<<<< HEAD
 | hànzì → imagem (`choose_image`) | 20 |
+=======
+| hànzì → imagem (`choose_image`) | 19 |
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Conceitos nunca utilizados
 
@@ -80,4 +98,8 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
+<<<<<<< HEAD
 <!-- integridade:ff519b15a7a379c1 -->
+=======
+<!-- integridade:e5f4eee40b983edf -->
+>>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
