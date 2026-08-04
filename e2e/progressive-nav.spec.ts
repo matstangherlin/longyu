@@ -172,6 +172,9 @@ test.describe("descoberta progressiva de recursos", () => {
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
     await expect(page.getByText("Você liberou o Treino")).toHaveCount(0);
+    // Estado determinístico: "memória de anúncios" inicializada, mas sem
+    // marcar o Treino como visto. Evita herdar ruído de seeds/migrações.
+    await page.evaluate(() => localStorage.setItem("longyu:seen-intros", JSON.stringify(["__init__"])));
 
     // 2) Progride no mesmo aparelho → anuncia o Treino.
     await setStore(page, { completedLessons: ["l1", "l2", "l1-rev"] });
