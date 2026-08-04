@@ -27,6 +27,7 @@ import { BrandWordmark } from "../../components/layout/Brand";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { playSoundFx } from "../../lib/soundFx";
+import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import {
   cancelSubscription,
@@ -1485,6 +1486,13 @@ export function AccountPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const relevelRequested = searchParams.get("relevel") === "1";
+  const subscribeIntent = isSubscribeIntent(searchParams);
+  const postAuthPath = resolvePostAuthPath(searchParams);
+  const loginHref = `/login?${new URLSearchParams({
+    next: postAuthPath,
+    ...(subscribeIntent ? { intent: "subscribe" } : {}),
+    ...(searchParams.get("plan") ? { plan: String(searchParams.get("plan")) } : {}),
+  }).toString()}`;
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
@@ -1869,7 +1877,7 @@ export function AccountPage() {
       }
       claimOnboardingReward();
       playSoundFx("lessonComplete", soundEffects);
-      navigate("/jornada");
+      navigate(postAuthPath);
       return;
     }
     // Autenticação real virá no backend. A senha é validada só em memória (nunca
@@ -1877,7 +1885,7 @@ export function AccountPage() {
     createCloudAccountDraft(firstName(name), email, result);
     claimOnboardingReward();
     playSoundFx("lessonComplete", soundEffects);
-    navigate("/jornada");
+    navigate(postAuthPath);
   }
 
   function handleSkipAccount() {
@@ -1887,7 +1895,7 @@ export function AccountPage() {
     finishLocalOnboarding(firstName(name), result);
     claimOnboardingReward();
     playSoundFx("lessonComplete", soundEffects);
-    navigate("/jornada");
+    navigate(subscribeIntent ? postAuthPath : "/jornada");
   }
 
   async function handleAttachEmail(event: FormEvent) {
@@ -1914,6 +1922,10 @@ export function AccountPage() {
             ? `${authResult.message} Progresso sincronizado na nuvem.`
             : `${authResult.message} Seu progresso continua neste dispositivo até você migrar.`
         );
+        if (subscribeIntent) {
+          navigate(postAuthPath);
+          return;
+        }
       } else {
         setAccountNotice(authResult.message);
       }
@@ -1949,9 +1961,11 @@ export function AccountPage() {
   function openCreateAccountPreparation() {
     setShowCloudPrompt(true);
     setAccountNotice(
-      isSupabaseBackendEnabled()
-        ? "Crie sua conta com email e senha. O progresso passa a salvar na nuvem automaticamente."
-        : "Este fluxo prepara sua conta neste dispositivo. Nada é enviado e nenhuma senha é salva."
+      subscribeIntent
+        ? "Crie sua conta para assinar o Longyu Pro. Depois disso, o checkout abre automaticamente."
+        : isSupabaseBackendEnabled()
+          ? "Crie sua conta com email e senha. O progresso passa a salvar na nuvem automaticamente."
+          : "Este fluxo prepara sua conta neste dispositivo. Nada é enviado e nenhuma senha é salva."
     );
     accountToolsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
@@ -2021,6 +2035,7 @@ export function AccountPage() {
     setAccountNotice(result.message);
     setPassword("");
     setAccountError(null);
+    if (subscribeIntent) navigate(postAuthPath);
   }
 
   async function handleCloudSignOut() {
@@ -2187,9 +2202,24 @@ export function AccountPage() {
     void restoreCloudSessionIfPresent().then((result) => {
       if (result.ok) {
         setAccountNotice("Sessão restaurada. Seu progresso sincroniza automaticamente na nuvem.");
+        if (subscribeIntent) navigate(postAuthPath, { replace: true });
       }
     });
   }, [authMode]);
+
+  useEffect(() => {
+    if (!subscribeIntent) return;
+    if (authMode === "cloud") {
+      navigate(postAuthPath, { replace: true });
+      return;
+    }
+    if (authMode === "local") {
+      openCreateAccountPreparation();
+    }
+    // Abre o formulário de criação uma vez ao chegar via checkout.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subscribeIntent, authMode]);
+
   const proState = subscriptionStateFor(isPremium, serverSubscription);
   const proStatus = PRO_STATUS[proState];
   const canAttachEmail = canRegisterWithCredentials(email, password, passwordConfirm);
@@ -2286,14 +2316,25 @@ export function AccountPage() {
       {!canSignOut && authMode === "cloud_pending" && isSupabaseBackendEnabled() && (
         <div className="flex flex-col gap-3 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent-soft/80 to-surface px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Pill tone="accent">Entrar na conta</Pill>
+            <Pill tone="accent">{subscribeIntent ? "Conta necessária para assinar" : "Entrar na conta"}</Pill>
             <p className="mt-1.5 text-sm leading-6 text-ink-soft">
-              Você saiu da sessão na nuvem. Entre com email e senha para continuar sincronizando.
+              {subscribeIntent
+                ? "Entre com email e senha para continuar a assinatura do Longyu Pro."
+                : "Você saiu da sessão na nuvem. Entre com email e senha para continuar sincronizando."}
             </p>
           </div>
-          <Button size="sm" onClick={() => navigate("/login")}>
+          <Button size="sm" onClick={() => navigate(loginHref)}>
             Ir para login
           </Button>
+        </div>
+      )}
+
+      {subscribeIntent && authMode === "local" && (
+        <div className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink-soft">
+          <Pill tone="gold">Assinatura Pro</Pill>
+          <p className="mt-1.5 leading-6">
+            Crie sua conta abaixo para começar os 30 dias grátis. O checkout abre assim que a conta estiver pronta.
+          </p>
         </div>
       )}
 
@@ -2371,7 +2412,7 @@ export function AccountPage() {
                   </Button>
                 )}
                 {authMode === "cloud_pending" && isSupabaseBackendEnabled() && (
-                  <Button size="sm" variant="soft" onClick={() => navigate("/login")}>
+                  <Button size="sm" variant="soft" onClick={() => navigate(loginHref)}>
                     Entrar na conta
                   </Button>
                 )}
@@ -2840,7 +2881,7 @@ export function AccountPage() {
                 <button
                   type="button"
                   className="font-semibold text-accent hover:underline"
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(loginHref)}
                 >
                   /login
                 </button>{" "}

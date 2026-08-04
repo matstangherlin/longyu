@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, Card, Pill } from "../../components/ui/primitives";
@@ -37,6 +37,14 @@ import {
   isBillingPortalAvailable,
   type ProPlanKey,
 } from "../../services/subscriptionService";
+import {
+  parseProPlanKey,
+  peekPendingCheckoutPlan,
+  savePendingCheckoutPlan,
+  subscribeAccountPath,
+  takePendingCheckoutPlan,
+} from "../../lib/subscribeAuthRedirect";
+import { getSupabaseClient } from "../../lib/supabaseClient";
 
 const BENEFIT_ICONS: Record<string, typeof IconStar> = {
   cargas: IconFlame,
@@ -85,8 +93,11 @@ export function ProPage() {
   // um Pro legítimo: mostra um estado curto "Verificando seu plano...".
   const checkingPlan = useEntitlementStatus((state) => state.checking);
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<ProPlanKey>("pro_annual");
+  const [selectedPlan, setSelectedPlan] = useState<ProPlanKey>(() => {
+    return parseProPlanKey(searchParams.get("plan")) ?? peekPendingCheckoutPlan() ?? "pro_annual";
+  });
   const checkoutReady = isSupabaseBackendEnabled();
+  const resumeCheckoutAttempted = useRef(false);
 
   const selectedPlanMeta = useMemo(
     () => BILLING_PLANS.find((plan) => plan.key === selectedPlan) ?? BILLING_PLANS[0],
@@ -109,6 +120,11 @@ export function ProPage() {
     if (!checkoutReady) return;
     try {
       const result = await createCheckoutSession(planKey);
+      if (result.status === "auth_required") {
+        savePendingCheckoutPlan(planKey);
+        navigate(subscribeAccountPath(planKey));
+        return;
+      }
       setCheckoutNotice(result.message);
       if (result.data?.url) {
         recordProOfferCheckoutStarted();
@@ -118,6 +134,36 @@ export function ProPage() {
       setCheckoutNotice("Não foi possível abrir o checkout. Tente de novo.");
     }
   }
+
+  // Voltou da criação/login de conta: se já há sessão, retoma o checkout.
+  useEffect(() => {
+    if (!checkoutReady || serverIsPro || checkingPlan || resumeCheckoutAttempted.current) return;
+    const pending = peekPendingCheckoutPlan() ?? parseProPlanKey(searchParams.get("plan"));
+    if (!pending) return;
+
+    resumeCheckoutAttempted.current = true;
+    setSelectedPlan(pending);
+
+    void (async () => {
+      const client = getSupabaseClient();
+      if (!client) {
+        resumeCheckoutAttempted.current = false;
+        return;
+      }
+      const {
+        data: { session },
+      } = await client.auth.getSession();
+      if (!session) {
+        resumeCheckoutAttempted.current = false;
+        return;
+      }
+      takePendingCheckoutPlan();
+      setCheckoutNotice("Conta pronta. Abrindo o checkout…");
+      await handleSubscribe(pending);
+    })();
+    // Resume one-shot após auth; handleSubscribe fecha sobre selectedPlan atual.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutReady, serverIsPro, checkingPlan, searchParams]);
 
   async function handleManageBilling() {
     if (!isBillingPortalAvailable()) return;
