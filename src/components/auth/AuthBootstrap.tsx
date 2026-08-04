@@ -3,6 +3,8 @@ import { getSupabaseClient } from "../../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useStore } from "../../lib/store";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
+import { flushPendingLeagueXpSync } from "../../lib/leagueXpSync";
+import { syncLeagueWeekOnServer } from "../../services/leagueService";
 
 function waitForStoreHydration(): Promise<void> {
   if (useStore.persist.hasHydrated()) return Promise.resolve();
@@ -12,6 +14,11 @@ function waitForStoreHydration(): Promise<void> {
       resolve();
     });
   });
+}
+
+async function syncLeagueAfterAuth(): Promise<void> {
+  await flushPendingLeagueXpSync();
+  await syncLeagueWeekOnServer();
 }
 
 /** Restaura sessão Supabase após hidratar a store, promove perfil para cloud e sincroniza. */
@@ -27,6 +34,7 @@ export function AuthBootstrap() {
     const applySession = async () => {
       await waitForStoreHydration();
       await restoreCloudSessionIfPresent();
+      await syncLeagueAfterAuth();
     };
 
     void applySession();
@@ -36,7 +44,9 @@ export function AuthBootstrap() {
     } = client.auth.onAuthStateChange((event, session) => {
       const userId = session?.user?.id;
       if (userId && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")) {
-        void waitForStoreHydration().then(() => restoreCloudSessionIfPresent());
+        void waitForStoreHydration()
+          .then(() => restoreCloudSessionIfPresent())
+          .then(() => syncLeagueAfterAuth());
         return;
       }
       if (event === "SIGNED_OUT") {

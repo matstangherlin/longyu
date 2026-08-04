@@ -52,6 +52,7 @@ export function useLeagueData() {
 
   const [now, setNow] = useState(() => new Date());
   const [live, setLive] = useState<LeagueDataPayload | null>(null);
+  const [liveStatusMessage, setLiveStatusMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(isCloudLeagueAvailable());
   const [syncing, setSyncing] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
@@ -61,6 +62,11 @@ export function useLeagueData() {
   const refreshLive = useCallback(async () => {
     if (!isCloudLeagueAvailable() || authMode !== "cloud") {
       setLive(null);
+      setLiveStatusMessage(
+        authMode === "cloud"
+          ? "Backend em nuvem indisponível."
+          : "Demonstração — faça login para competir com alunos reais."
+      );
       setLoading(false);
       setSyncing(false);
       setPendingCount(0);
@@ -70,7 +76,18 @@ export function useLeagueData() {
     setSyncing(true);
     await flushPendingLeagueXpSync();
     const data = await fetchLiveLeagueData();
-    setLive(data.mode === "live" ? data : null);
+    if (data.mode === "live") {
+      setLive(data);
+      setLiveStatusMessage(null);
+    } else {
+      setLive(null);
+      setLiveStatusMessage(
+        data.message ??
+          (data.mode === "error"
+            ? "Não foi possível carregar a liga real."
+            : "Carregando liga real…")
+      );
+    }
     setPendingCount(getPendingLeagueXpCount());
     setLoading(false);
     setSyncing(false);
@@ -160,9 +177,12 @@ export function useLeagueData() {
     isLive,
     isDemo,
     demoMessage: isDemo
-      ? authMode === "cloud"
-        ? live?.message ?? "Carregando liga real…"
-        : "Demonstração — faça login para competir com alunos reais."
+      ? liveStatusMessage ??
+        (authMode === "cloud"
+          ? loading
+            ? "Carregando liga real…"
+            : "Não foi possível carregar a liga real."
+          : "Demonstração — faça login para competir com alunos reais.")
       : undefined,
     leagueTier,
     meta,
