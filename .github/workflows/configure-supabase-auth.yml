@@ -1,0 +1,43 @@
+name: Configure Supabase Auth
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: "site_url do Auth"
+        required: true
+        default: "https://singular-meringue-7838cd.netlify.app"
+      add_prod_url:
+        description: "URL extra de redirect (opcional)"
+        required: false
+        default: "https://longyu.app"
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enable email confirmation (mailer_autoconfirm=false)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
+        run: |
+          npm run configure:supabase-auth -- \
+            --site-url "${{ inputs.site_url }}" \
+            --add-prod-url "${{ inputs.add_prod_url }}" \
+            --add-prod-url "https://singular-meringue-7838cd.netlify.app"
+
+      - name: Verify auth config
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
+        run: npm run audit:supabase
