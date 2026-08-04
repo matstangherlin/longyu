@@ -37,8 +37,16 @@ A `main` já corrige isso (Edge `create-account` + RPC `ensure_own_profile`), ma
 4. Testar cadastro real → e-mail → confirmar → login → 1 lição
 5. Restaurar Turnstile (`ops/ENABLE_TURNSTILE.md`)
 
-## Não fazer
+## Bounce de e-mail (aviso Supabase)
 
-- Divulgar `longyu.netlify.app` enquanto 404
-- Ligar Turnstile no Vault antes do bundle de produção ter a site key
-- Prometer cadastro cloud enquanto o site vivo ainda servir o bundle antigo
+O Auth interno do Supabase alerta se muitos confirmation mails bounced.
+
+**Causa comum:** probes `harden-live-*@example.com` / smokes com e-mail inventado
+enquanto Turnstile está pausado (create-account envia `auth.resend`).
+
+**Mitigação no repo:**
+- `npm run test:create-account-hardening` **não cria** usuários novos por padrão
+- Só cria se `ALLOW_LIVE_USER_CREATE_PROBES=1`
+- Apague lixo em Auth: usuários `@example.com` / `betasmoke*`
+
+Para beta real: configure SMTP custom (Resend/Postmark) no Dashboard Auth.
