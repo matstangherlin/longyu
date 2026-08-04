@@ -26,13 +26,12 @@
   VITE_USE_TEST_FIXTURES = "false"
 
 # Deploy Preview — NÃO usa o Supabase de produção.
-# Projeto preview criado: longyu-preview (wpnmygzxqvmpdlcuwrjp).
-# Enquanto o Netlify não tiver as chaves do preview, o build usa modo local
-# (progresso só no browser; sem escrita no banco principal).
-# Para ligar o preview isolado depois:
+# Preview em modo local (progresso só no browser).
+# Se precisar de nuvem isolada de novo: criar projeto Free separado
+# (cuidado com cota de 2 projetos ativos) e setar:
 #   VITE_BACKEND_MODE=supabase
-#   VITE_SUPABASE_URL=https://wpnmygzxqvmpdlcuwrjp.supabase.co
-#   VITE_SUPABASE_ANON_KEY=<anon do longyu-preview>
+#   VITE_SUPABASE_URL=https://<ref>.supabase.co
+#   VITE_SUPABASE_ANON_KEY=<anon do preview>
 [context.deploy-preview.environment]
   VITE_APP_ENV = "preview"
   VITE_APP_VERSION = "0.2.0-beta.1"
