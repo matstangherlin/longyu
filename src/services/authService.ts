@@ -32,14 +32,51 @@ function notImplemented<T = undefined>(): AuthServiceResult<T> {
 async function ensureProfile(userId: string, profile: ProfileDetails): Promise<string | null> {
   const client = getSupabaseClient();
   if (!client) return "Cliente Supabase indisponível.";
-  const { error } = await client.from("profiles").upsert(
-    {
-      id: userId,
-      ...profileDetailsPayload(profile),
-    },
-    { onConflict: "id" }
-  );
-  return error?.message ?? null;
+
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+  if (!session?.user?.id) {
+    return "Confirme seu email antes de continuar. Depois entre de novo.";
+  }
+  if (session.user.id !== userId) {
+    return "Sessão inválida para atualizar o perfil.";
+  }
+
+  const payload = profileDetailsPayload(profile);
+  // RPC security definer: evita "violates row-level security policy" no upsert
+  // direto (comum quando o INSERT do trigger e o upsert do cliente colidem).
+  const { error: rpcError } = await client.rpc("ensure_own_profile", {
+    p_name: payload.name,
+    p_birth_date: payload.birth_date,
+    p_country: payload.country,
+    p_signup_source: payload.signup_source,
+    p_marketing_opt_in: payload.marketing_opt_in,
+    p_onboarding_completed: payload.onboarding_completed,
+  });
+
+  if (!rpcError) return null;
+
+  // Fallback para ambientes sem a migration 021 ainda aplicada.
+  if (/ensure_own_profile|could not find|pgrst|404|42883/i.test(rpcError.message)) {
+    const { error } = await client.from("profiles").upsert(
+      {
+        id: userId,
+        ...payload,
+      },
+      { onConflict: "id" }
+    );
+    if (!error) return null;
+    if (/row-level security|rls/i.test(error.message)) {
+      return "Não foi possível salvar o perfil. Confirme o email e entre de novo.";
+    }
+    return error.message;
+  }
+
+  if (/not_authenticated|42501|row-level security|rls/i.test(rpcError.message)) {
+    return "Confirme seu email antes de continuar. Depois entre de novo.";
+  }
+  return rpcError.message;
 }
 
 function profileFromName(name?: string): ProfileDetails {
