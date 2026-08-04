@@ -33,6 +33,7 @@ const FEATURE_DESC: Record<string, string> = {
   ligas: "Ranking semanal por XP.",
   loja: "Cargas, itens e cosméticos.",
   amigos: "Seguir e comparar XP semanal.",
+  convide: "Ganhe semanas de Pro ao convidar amigos.",
   perfil: "Identidade e progresso.",
   conta: "Login, email e sessão.",
   plano: "Assinatura e benefícios.",

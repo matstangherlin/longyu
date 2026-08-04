@@ -14,6 +14,7 @@ import {
   shouldUseServerEconomy,
 } from "../lib/economyServerBridge";
 import { fetchServerIsPro } from "./entitlementService";
+import { attributeStoredReferralCode, processReferralPipeline } from "./referralService";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
@@ -67,6 +68,10 @@ export async function pushProgressToCloud(): Promise<{ ok: boolean; message: str
   if (result.ok) {
     await syncSocialProfileFromStore();
     await flushSocialEventQueue();
+    await attributeStoredReferralCode();
+    await processReferralPipeline();
+    const isPro = await fetchServerIsPro();
+    useStore.getState().setServerEntitlement(isPro);
   }
   return { ok: result.ok, message: result.message };
 }
@@ -192,6 +197,8 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
 }
 
 async function refreshServerEntitlementAfterLogin(): Promise<void> {
+  await attributeStoredReferralCode();
+  await processReferralPipeline();
   const isPro = await fetchServerIsPro();
   useStore.getState().setServerEntitlement(isPro);
   await syncSocialProfileFromStore();

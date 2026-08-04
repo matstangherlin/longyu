@@ -37,6 +37,8 @@ const AboutPage = lazy(() => import("./features/about/AboutPage").then((m) => ({
 const LoginPage = lazy(() => import("./features/auth/LoginPage").then((m) => ({ default: m.LoginPage })));
 const ForgotPasswordPage = lazy(() => import("./features/auth/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage })));
 const ResetPasswordPage = lazy(() => import("./features/auth/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage })));
+const ReferralPage = lazy(() => import("./features/referral/ReferralPage").then((m) => ({ default: m.ReferralPage })));
+const ReferralInvitePage = lazy(() => import("./features/referral/ReferralInvitePage").then((m) => ({ default: m.ReferralInvitePage })));
 const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) => ({ default: m.AmigosPage })));
 const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage").then((m) => ({ default: m.AdminFeedbackPage })));
 
@@ -47,6 +49,7 @@ export const routes: RouteObject[] = [
   // "/" público: landing para quem ainda não tem conta/progresso.
   // Quem já tem redireciona para /jornada dentro do próprio componente.
   { path: "/", element: <LandingPage /> },
+  { path: "/convite/:code", element: <ReferralInvitePage /> },
   {
     element: <AppShell />,
     children: [
@@ -67,6 +70,7 @@ export const routes: RouteObject[] = [
       { path: "imersao", element: <ImmersionPage /> },
       { path: "ligas", element: <LigasPage /> },
       { path: "amigos", element: <AmigosPage /> },
+      { path: "convide", element: <ReferralPage /> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },

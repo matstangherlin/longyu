@@ -39,6 +39,8 @@ import {
   type SubscriptionState,
 } from "../../services/subscriptionService";
 import { restoreCloudSessionIfPresent, syncAuthSessionProgress } from "../../services/cloudSyncCoordinator";
+import { attributeStoredReferralCode } from "../../services/referralService";
+import { captureReferralFromSearch } from "../../lib/referralCapture";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
@@ -1607,6 +1609,10 @@ export function AccountPage() {
   }>(null);
 
   useEffect(() => {
+    captureReferralFromSearch(searchParams.toString());
+  }, [searchParams]);
+
+  useEffect(() => {
     const mode = accountAuthMode(accounts?.[currentAccountId] ?? accountList[0]);
     if (!isSupabaseBackendEnabled() || mode !== "cloud") {
       setServerSubscription(null);
@@ -1872,6 +1878,7 @@ export function AccountPage() {
       }
       createCloudAccountDraft(firstName(name), email, result);
       if (authResult.status === "ok") {
+        await attributeStoredReferralCode();
         const syncResult = await syncAuthSessionProgress();
         if (syncResult.ok) setAccountNotice("Conta criada e progresso sincronizado na nuvem.");
       }
@@ -1916,6 +1923,7 @@ export function AccountPage() {
         return;
       }
       if (authResult.status === "ok") {
+        await attributeStoredReferralCode();
         const syncResult = await syncAuthSessionProgress();
         setAccountNotice(
           syncResult.ok

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
+import { captureReferralFromSearch } from "../../lib/referralCapture";
 import { ButtonLink } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
@@ -19,6 +20,7 @@ const BULLETS = [
 // Sem sidebar/topbar/tab bar — só marca, proposta e dois CTAs. Quem já tem
 // conta configurada, progresso ou sessão cloud vai direto para /jornada.
 export function LandingPage() {
+  const [searchParams] = useSearchParams();
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
@@ -30,6 +32,10 @@ export function LandingPage() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  useEffect(() => {
+    captureReferralFromSearch(searchParams.toString());
+  }, [searchParams]);
 
   if (accountSetupComplete || hasProgress || authMode === "cloud") {
     return <Navigate to="/jornada" replace />;

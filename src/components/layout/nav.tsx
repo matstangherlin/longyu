@@ -78,6 +78,7 @@ export const NAV: Record<string, NavItem> = {
   ligas: { to: "/ligas", label: "Ligas", icon: IconTrophy, feature: "ligas" },
   loja: { to: "/loja", label: "Loja", icon: IconStar, feature: "loja" },
   amigos: { to: "/amigos", label: "Amigos", icon: IconUser },
+  convide: { to: "/convide", label: "Convide amigos", icon: IconStar },
   perfil: { to: "/perfil", label: "Perfil", icon: IconUser, matches: PROFILE_MATCHES, feature: "perfil" },
   conta: { to: "/conta", label: "Conta", icon: IconShield, feature: "conta" },
   plano: { to: "/plano", label: "Plano Pro", icon: IconStar, feature: "plano" },
@@ -119,7 +120,7 @@ export function practiceMobileSheetItems(primaryNav: NavItem[]): NavItem[] {
 
 /** Hover de Perfil: social e conta. */
 export function profileFlyoutItems(): NavItem[] {
-  return [NAV.amigos, NAV.conta, NAV.plano];
+  return [NAV.amigos, NAV.convide, NAV.conta, NAV.plano];
 }
 
 export const MORE_CATALOG: NavGroup[] = [
@@ -129,7 +130,7 @@ export const MORE_CATALOG: NavGroup[] = [
   },
   {
     title: "Motivação",
-    items: [NAV.missoes, NAV.conquistas, NAV.ligas, NAV.loja, NAV.amigos],
+    items: [NAV.missoes, NAV.conquistas, NAV.ligas, NAV.loja, NAV.amigos, NAV.convide],
   },
   {
     title: "Conta",
