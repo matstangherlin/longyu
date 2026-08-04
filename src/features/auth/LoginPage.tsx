@@ -1,10 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { resolvePostAuthPath, subscribeAccountPath } from "../../lib/subscribeAuthRedirect";
 import { useStore } from "../../lib/store";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
 
@@ -14,6 +15,17 @@ function accountAuthMode(account?: { authMode?: string; email?: string }) {
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const postAuthPath = resolvePostAuthPath(searchParams);
+  const createAccountHref = (() => {
+    if (searchParams.get("intent") === "subscribe" || searchParams.get("next")) {
+      const params = new URLSearchParams({ intent: "subscribe", next: postAuthPath });
+      const plan = searchParams.get("plan");
+      if (plan) params.set("plan", plan);
+      return `/conta?${params.toString()}`;
+    }
+    return "/conta";
+  })();
   const { signIn } = useCloudSignIn();
   const activeAccount = useStore((s) => s.accounts[s.currentAccountId]);
   const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
@@ -34,16 +46,16 @@ export function LoginPage() {
   useEffect(() => {
     if (!cloudEnabled) return;
     if (authMode === "cloud") {
-      navigate("/jornada", { replace: true });
+      navigate(postAuthPath, { replace: true });
       return;
     }
     void restoreCloudSessionIfPresent().then((result) => {
       if (result.ok) {
         setAccountSetupComplete(true);
-        navigate("/jornada", { replace: true });
+        navigate(postAuthPath, { replace: true });
       }
     });
-  }, [authMode, cloudEnabled, navigate, setAccountSetupComplete]);
+  }, [authMode, cloudEnabled, navigate, postAuthPath, setAccountSetupComplete]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,7 +76,7 @@ export function LoginPage() {
       setError(result.message);
       return;
     }
-    navigate("/jornada", { replace: true });
+    navigate(postAuthPath, { replace: true });
   }
 
   if (!cloudEnabled) {
@@ -112,7 +124,10 @@ export function LoginPage() {
       <div className="mt-5 flex flex-col items-center gap-2 text-center text-sm text-ink-soft">
         <p className="flex flex-wrap items-center justify-center gap-1">
           <span>Primeira vez aqui?</span>
-          <Link to="/conta" className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+          <Link
+            to={createAccountHref}
+            className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          >
             Criar conta
           </Link>
         </p>
@@ -121,7 +136,7 @@ export function LoginPage() {
           size="sm"
           onClick={() => {
             createAccount(activeAccount?.name?.trim() || "Aluno Longyu");
-            navigate("/jornada", { replace: true });
+            navigate(postAuthPath === "/pro" ? subscribeAccountPath() : "/jornada", { replace: true });
           }}
         >
           Continuar sem login

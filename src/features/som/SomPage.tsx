@@ -159,6 +159,7 @@ export function ToneTrainer() {
   const [results, setResults] = useState<ToneTrainerAnswer[]>([]);
   const [errorsByTone, setErrorsByTone] = useState(emptyToneErrors);
   const [errorsByInitial, setErrorsByInitial] = useState<Record<string, number>>({});
+  const [confusions, setConfusions] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
   const [passed, setPassed] = useState(false);
   const [rewarded, setRewarded] = useState(false);
@@ -182,6 +183,9 @@ export function ToneTrainer() {
     : (stats?.errorsByTone?.[currentRound.answerTone] ?? 0) > 0;
   const weakInitial = consonantPack
     ? (Object.entries(errorsByInitial).sort((a, b) => b[1] - a[1])[0] ?? null)
+    : null;
+  const topConfusion = consonantPack
+    ? (Object.entries(confusions).sort((a, b) => b[1] - a[1])[0] ?? null)
     : null;
   const visibleFocusSyllable = answered ? currentRound.focusSyllable : stripPinyinTone(currentRound.focusSyllable);
 
@@ -223,6 +227,7 @@ export function ToneTrainer() {
     setResults([]);
     setErrorsByTone(emptyToneErrors());
     setErrorsByInitial({});
+    setConfusions({});
     setDone(false);
     setPassed(false);
     setRewarded(false);
@@ -274,9 +279,21 @@ export function ToneTrainer() {
     setResults((current) => [...current, nextResult]);
     if (!correct) {
       if (consonantPack) {
-        const initial = String(value);
-        setErrorsByInitial((current) => ({ ...current, [initial]: (current[initial] ?? 0) + 1 }));
-        recordConsonantMistake(currentRound, initial, recordActivityError);
+        const correctInitial = currentRound.answerInitial ?? "";
+        const selectedInitial = String(value);
+        // Conta o som que o aluno falhou em reconhecer (não a opção errada).
+        if (correctInitial) {
+          setErrorsByInitial((current) => ({
+            ...current,
+            [correctInitial]: (current[correctInitial] ?? 0) + 1,
+          }));
+          const confusionKey = `${correctInitial}->${selectedInitial}`;
+          setConfusions((current) => ({
+            ...current,
+            [confusionKey]: (current[confusionKey] ?? 0) + 1,
+          }));
+        }
+        recordConsonantMistake(currentRound, selectedInitial, recordActivityError);
       } else {
         setErrorsByTone((current) => ({
           ...current,
@@ -372,12 +389,14 @@ export function ToneTrainer() {
                 ))}
           </div>
 
-          {!passed && (consonantPack ? weakInitial : suggestedPack) && (
+          {!passed && (consonantPack ? weakInitial || topConfusion : suggestedPack) && (
             <div className="mx-auto mt-5 max-w-md rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-left">
               <div className="text-sm font-semibold text-ink">Sugestão</div>
               <p className="mt-1 text-sm leading-5 text-ink-soft">
                 {consonantPack
-                  ? `O som inicial mais instável foi "${weakInitial?.[0] ?? "—"}". Refaça o pack prestando atenção nele.`
+                  ? topConfusion
+                    ? `Você está confundindo ${topConfusion[0].replace("->", " com ")}. O som inicial mais instável foi "${weakInitial?.[0] ?? topConfusion[0].split("->")[0]}".`
+                    : `O som inicial mais instável foi "${weakInitial?.[0] ?? "—"}". Refaça o pack prestando atenção nele.`
                   : `Refazer ${suggestedPack?.shortTitle} ajuda a atacar o tom mais instável desta tentativa.`}
               </p>
             </div>

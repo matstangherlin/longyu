@@ -1,38 +1,47 @@
+import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
-import { JourneyPage } from "./features/journey/JourneyPage";
-import { TreinoPage } from "./features/treino/TreinoPage";
-import { MissoesPage } from "./features/missoes/MissoesPage";
-import { LojaPage } from "./features/loja/LojaPage";
-import { SomPage } from "./features/som/SomPage";
-import { PinyinLabPage } from "./features/pinyin/PinyinLabPage";
-import { HanziPage } from "./features/hanzi/HanziPage";
-import { IdeogramasPage } from "./features/hanzi/IdeogramasPage";
-import { HanziAtlasPage } from "./features/hanzi/HanziAtlasPage";
-import { FalaPage } from "./features/fala/FalaPage";
-import { LeituraPage } from "./features/leitura/LeituraPage";
-import { RevisaoPage } from "./features/revisao/RevisaoPage";
-import { BibliotecaPage } from "./features/biblioteca/BibliotecaPage";
-import { SettingsPage } from "./features/settings/SettingsPage";
-import { ProfilePage } from "./features/perfil/ProfilePage";
-import { ContaRoute } from "./features/conta/ContaRoute";
-import { DadosLocaisPage } from "./features/dados/DadosLocaisPage";
-import { PrivacyPage } from "./features/privacy/PrivacyPage";
-import { LessonDetailPage } from "./features/lesson/LessonDetailPage";
-import { LessonPlayer } from "./features/lesson/LessonPlayer";
-import { ModuleChallengePage } from "./features/challenge/ModuleChallengePage";
-import { ImmersionPage } from "./features/immersion/ImmersionPage";
-import { ProPage } from "./features/pro/ProPage";
-import { LigasPage } from "./features/ligas/LigasPage";
-import { AchievementsPage } from "./features/conquistas/AchievementsPage";
-import { MorePage } from "./features/more/MorePage";
-import { AboutPage } from "./features/about/AboutPage";
-import { LoginPage } from "./features/auth/LoginPage";
-import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
-import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
+
+// Code-splitting por rota: cada página vira um chunk próprio, carregado só
+// quando o usuário navega até ela. AppShell e LandingPage ficam no bundle
+// inicial (primeira pintura); o resto chega sob demanda.
+// O mapeamento de export nomeado → default é explícito para manter tipos.
+
+const JourneyPage = lazy(() => import("./features/journey/JourneyPage").then((m) => ({ default: m.JourneyPage })));
+const TreinoPage = lazy(() => import("./features/treino/TreinoPage").then((m) => ({ default: m.TreinoPage })));
+const MissoesPage = lazy(() => import("./features/missoes/MissoesPage").then((m) => ({ default: m.MissoesPage })));
+const LojaPage = lazy(() => import("./features/loja/LojaPage").then((m) => ({ default: m.LojaPage })));
+const SomPage = lazy(() => import("./features/som/SomPage").then((m) => ({ default: m.SomPage })));
+const PinyinLabPage = lazy(() => import("./features/pinyin/PinyinLabPage").then((m) => ({ default: m.PinyinLabPage })));
+const HanziPage = lazy(() => import("./features/hanzi/HanziPage").then((m) => ({ default: m.HanziPage })));
+const IdeogramasPage = lazy(() => import("./features/hanzi/IdeogramasPage").then((m) => ({ default: m.IdeogramasPage })));
+const HanziAtlasPage = lazy(() => import("./features/hanzi/HanziAtlasPage").then((m) => ({ default: m.HanziAtlasPage })));
+const FalaPage = lazy(() => import("./features/fala/FalaPage").then((m) => ({ default: m.FalaPage })));
+const LeituraPage = lazy(() => import("./features/leitura/LeituraPage").then((m) => ({ default: m.LeituraPage })));
+const RevisaoPage = lazy(() => import("./features/revisao/RevisaoPage").then((m) => ({ default: m.RevisaoPage })));
+const BibliotecaPage = lazy(() => import("./features/biblioteca/BibliotecaPage").then((m) => ({ default: m.BibliotecaPage })));
+const SettingsPage = lazy(() => import("./features/settings/SettingsPage").then((m) => ({ default: m.SettingsPage })));
+const ProfilePage = lazy(() => import("./features/perfil/ProfilePage").then((m) => ({ default: m.ProfilePage })));
+const ContaRoute = lazy(() => import("./features/conta/ContaRoute").then((m) => ({ default: m.ContaRoute })));
+const DadosLocaisPage = lazy(() => import("./features/dados/DadosLocaisPage").then((m) => ({ default: m.DadosLocaisPage })));
+const PrivacyPage = lazy(() => import("./features/privacy/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
+const LessonDetailPage = lazy(() => import("./features/lesson/LessonDetailPage").then((m) => ({ default: m.LessonDetailPage })));
+const LessonPlayer = lazy(() => import("./features/lesson/LessonPlayer").then((m) => ({ default: m.LessonPlayer })));
+const ModuleChallengePage = lazy(() => import("./features/challenge/ModuleChallengePage").then((m) => ({ default: m.ModuleChallengePage })));
+const ImmersionPage = lazy(() => import("./features/immersion/ImmersionPage").then((m) => ({ default: m.ImmersionPage })));
+const ProPage = lazy(() => import("./features/pro/ProPage").then((m) => ({ default: m.ProPage })));
+const LigasPage = lazy(() => import("./features/ligas/LigasPage").then((m) => ({ default: m.LigasPage })));
+const AchievementsPage = lazy(() => import("./features/conquistas/AchievementsPage").then((m) => ({ default: m.AchievementsPage })));
+const MorePage = lazy(() => import("./features/more/MorePage").then((m) => ({ default: m.MorePage })));
+const AboutPage = lazy(() => import("./features/about/AboutPage").then((m) => ({ default: m.AboutPage })));
+const LoginPage = lazy(() => import("./features/auth/LoginPage").then((m) => ({ default: m.LoginPage })));
+const ForgotPasswordPage = lazy(() => import("./features/auth/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import("./features/auth/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage })));
+const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) => ({ default: m.AmigosPage })));
+const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage").then((m) => ({ default: m.AdminFeedbackPage })));
+
+// Landing (pública) fica estática: é a primeira pintura para novos visitantes.
 import { LandingPage } from "./features/landing/LandingPage";
-import { AmigosPage } from "./features/amigos/AmigosPage";
-import { AdminFeedbackPage } from "./features/admin/AdminFeedbackPage";
 
 export const routes: RouteObject[] = [
   // "/" público: landing para quem ainda não tem conta/progresso.

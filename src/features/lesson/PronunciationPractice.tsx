@@ -20,13 +20,19 @@ function isTouchUi(): boolean {
   return navigator.maxTouchPoints > 0 || (typeof window !== "undefined" && "ontouchstart" in window);
 }
 
-/** Veredito textual para acerto parcial/erro — usado quando !correct. */
-function verdictCopy(heard: string, analysis: PronunciationAnalysis | null): string {
+/** Veredito textual — usado no resultado da prática de fala. */
+function verdictCopy(heard: string, analysis: PronunciationAnalysis | null, correct: boolean): string {
   if (!heard || !analysis || !analysis.ratio) {
     return "Não reconheci o que você falou. Ouça o áudio e tente de novo.";
   }
-  const total = analysis.matched.length + analysis.missing.length;
-  return `Quase — acertou ${analysis.matched.length} de ${total}. Compare os que faltaram e tente de novo.`;
+  if (correct) {
+    if (analysis.hasExtra) {
+      return "Reconheci os caracteres na ordem certa, com conteúdo a mais. Confira o tom no Treino de tons.";
+    }
+    return "Reconheci os caracteres na ordem certa. O microfone não confirma o tom — use o Treino de tons para afinar.";
+  }
+  const total = analysis.matchedMask.length;
+  return `Quase — acertou ${analysis.matched.length} de ${total} na ordem. Compare os que faltaram e tente de novo.`;
 }
 
 // Prática de fala: autoriza o mic, reconhece o que foi dito e compara com o alvo.
@@ -217,7 +223,7 @@ export function PronunciationPractice({
             ].join(" ")}
           >
             {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-            {correct ? "Boa! Você falou tudo certo." : verdictCopy(heard, analysis)}
+            {verdictCopy(heard, analysis, correct)}
           </div>
           {heard && analysis && (
             <div className="mt-2 space-y-1.5 text-left">
@@ -228,21 +234,24 @@ export function PronunciationPractice({
               <div className="flex items-center gap-2 text-sm">
                 <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">Alvo</span>
                 <span className="flex flex-wrap gap-1">
-                  {[...target].map((ch, i) => {
-                    const cjk = /[\u3400-\u9fff\uf900-\ufaff]/.test(ch);
-                    const ok = cjk && analysis.matched.includes(ch);
-                    return (
-                      <span
-                        key={i}
-                        className={[
-                          "hanzi rounded px-1 text-lg",
-                          ok ? "text-[rgb(var(--good))]" : cjk ? "text-accent" : "text-ink-faint",
-                        ].join(" ")}
-                      >
-                        {ch}
-                      </span>
-                    );
-                  })}
+                  {(() => {
+                    let hanziIdx = 0;
+                    return [...target].map((ch, i) => {
+                      const cjk = /[\u3400-\u9fff\uf900-\ufaff]/.test(ch);
+                      const ok = cjk ? Boolean(analysis.matchedMask[hanziIdx++]) : false;
+                      return (
+                        <span
+                          key={i}
+                          className={[
+                            "hanzi rounded px-1 text-lg",
+                            ok ? "text-[rgb(var(--good))]" : cjk ? "text-accent" : "text-ink-faint",
+                          ].join(" ")}
+                        >
+                          {ch}
+                        </span>
+                      );
+                    });
+                  })()}
                 </span>
               </div>
             </div>
@@ -252,7 +261,8 @@ export function PronunciationPractice({
           )}
           {heard && (
             <p className="mt-2 text-[11px] leading-4 text-ink-faint">
-              O reconhecedor compara os caracteres e não valida o tom — para afinar o tom, use o Treino de tons.
+              O reconhecedor compara caracteres na ordem — nao confirma tom nem pronúncia perfeita.
+              Para afinar o tom, use o Treino de tons.
             </p>
           )}
           {audioUrl && (

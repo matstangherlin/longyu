@@ -38,6 +38,15 @@ export default defineConfig({
   build: {
     sourcemap: false,
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Code-splitting: núcleo React num chunk cacheável, páginas em chunks
+        // próprios (ver routes.tsx — carregamento lazy por rota).
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom", "zustand"],
+        },
+      },
+    },
   },
   server: {
     // Respeita a porta atribuída pelo ambiente (ex.: preview do Claude Code).

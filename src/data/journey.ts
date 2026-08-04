@@ -687,6 +687,8 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       intro("A curva da voz", "Em mandarim, o contorno da voz faz parte da palavra. mǎ e mà não soam iguais, então seu ouvido treina desde cedo."),
       tone("妈", "mā", 1),
       tone("马", "mǎ", 3),
+      tone("麻", "má", 2, "quiz"),
+      tone("骂", "mà", 4, "quiz"),
       listenSelect(
         "Reta ou vale?",
         "马",
@@ -702,6 +704,27 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
           { left: "马", right: "cavalo", leftType: "hanzi", rightType: "pt" },
         ],
         "Mesmo ma com outro tom pode virar outra palavra."
+      ),
+      match(
+        "Três tons numa família",
+        "Combine cada palavra com o sentido — cada uma usa um tom diferente.",
+        [
+          { left: "妈", right: "mãe", leftType: "hanzi", rightType: "pt" },
+          { left: "马", right: "cavalo", leftType: "hanzi", rightType: "pt" },
+          { left: "骂", right: "xingar", leftType: "hanzi", rightType: "pt" },
+        ],
+        "妈 mā (1º), 马 mǎ (3º) e 骂 mà (4º): só o contorno da voz muda o sentido."
+      ),
+      match(
+        "Quatro tons de ma",
+        "A família completa: um mesmo som em quatro curvas. Combine.",
+        [
+          { left: "妈", right: "mãe — 1º tom", leftType: "hanzi", rightType: "pt" },
+          { left: "麻", right: "dormente — 2º tom", leftType: "hanzi", rightType: "pt" },
+          { left: "马", right: "cavalo — 3º tom", leftType: "hanzi", rightType: "pt" },
+          { left: "骂", right: "xingar — 4º tom", leftType: "hanzi", rightType: "pt" },
+        ],
+        "妈 mā, 麻 má, 马 mǎ e 骂 mà: quatro curvas, quatro sentidos."
       ),
       sentenceBuild(
         "Tons numa frase real",
@@ -730,6 +753,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "Tom é parte da pronúncia: mudar a curva pode mudar a palavra inteira.",
         "Escolha"
       ),
+      comp("妈妈", "māma", "Mãe; mamãe.", ["Mãe; mamãe.", "Obrigado(a).", "Olá.", "Sou brasileiro."]),
     ],
   }),
   microLesson({
@@ -1100,6 +1124,32 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
         "1º tom fica alto e reto; 4º tom cai rápido."
       ),
       tone("谢", "xiè", 4, "quiz"),
+      comp("谢谢", "xièxie", "Obrigado(a).", ["Obrigado(a).", "Até logo.", "Estou bem.", "Quero isto."]),
+      listenSelect(
+        "Queda em palavra real",
+        "谢",
+        ["谢", "妈", "骂", "马"],
+        "谢",
+        "谢 começa com 4º tom — a mesma queda rápida de 骂 mà."
+      ),
+      dialogue(
+        "Queda em contexto",
+        "Você quer agradecer com educação. Qual frase começa com a queda do 4º tom?",
+        "谢谢",
+        ["谢谢", "妈", "骂", "马"],
+        "谢谢 começa com xiè, 4º tom."
+      ),
+      match(
+        "Quatro quedas",
+        "Combine cada palavra com o sentido — todas começam com a queda do 4º tom.",
+        [
+          { left: "谢", right: "agradecer", leftType: "hanzi", rightType: "pt" },
+          { left: "骂", right: "xingar", leftType: "hanzi", rightType: "pt" },
+          { left: "是", right: "ser", leftType: "hanzi", rightType: "pt" },
+          { left: "去", right: "ir", leftType: "hanzi", rightType: "pt" },
+        ],
+        "谢 xiè, 骂 mà, 是 shì, 去 qù: quatro quedas em palavras que você já usa."
+      ),
       sentenceBuild(
         "Dupla queda",
         "Monte a despedida que você já conhece (4º + 4º tom).",
@@ -1130,6 +1180,20 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
         "2º tom sobe; 3º tom desce e sobe."
       ),
       dialogue("Escolha o vale", "Qual tom desce e sobe?", "3º tom", ["3º tom", "2º tom", "1º tom", "4º tom"], "O 3º tom faz um vale.", "Escolha"),
+      sentenceBuild(
+        "Dois vales numa frase",
+        "Monte o cumprimento 你好 (3º + 3º tom).",
+        ["你", "好"],
+        ["你", "好", "马", "麻"],
+        "你好 junta dois 3º tons; na fala o primeiro sobe para 2º tom — é por isso que o 2º tom importa."
+      ),
+      dialogue(
+        "Como soa na fala?",
+        "Dois 3º tons seguidos (nǐ hǎo) na fala real soam como...",
+        "2º + 3º (ní hǎo)",
+        ["2º + 3º (ní hǎo)", "3º + 3º completos", "1º + 3º", "4º + 3º"],
+        "3º + 3º vira 2º + 3º: nǐ hǎo soa ní hǎo na fala."
+      ),
     ],
   }),
 ];
@@ -2600,7 +2664,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "Três famílias de consoantes",
                 "O mandarim separa sons que o português não separa: j/q/x (língua alta), zh/ch/sh (língua enrolada) e z/c/s (língua baixa). Brasileiros trocam x por sh e j por zh. Vamos treinar com palavras que você já conhece."
               ),
-              listen("谢", "xiè", "xiè — x com a língua alta, como um “chi” suave"),
+              listen("谢", "xiè", "xiè — x com a língua alta e bem à frente (fricativa suave)"),
               listen("是", "shì", "shì — sh retroflexo, com a língua enrolada para trás"),
               listenSelect(
                 "xiè ou shì?",
@@ -2616,7 +2680,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "是",
                 "是 começa com sh — o som de “x” com a língua enrolada."
               ),
-              listen("请", "qǐng", "qǐng — q é um “tch” soprado com a língua alta"),
+              listen("请", "qǐng", "qǐng — q: língua alta e bem à frente, africada com sopro"),
               listen("中", "zhōng", "zhōng — zh é retroflexo, como um “dj/tch” sem sopro"),
               listenSelect(
                 "qǐng ou zhōng?",
@@ -2632,8 +2696,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "中",
                 "中 começa com zh retroflexo — a língua sobe e se enrola."
               ),
-              listen("女", "nǚ", "nǚ — ü é o “u” de lua com a boca arredondada"),
+              listen("女", "nǚ", "nǚ — ü: diga “i” e arredonde os lábios (não é o u de lua)"),
               listen("人", "rén", "rén — r retroflexo, entre um r suave e um “j” (não é o rr do português)"),
+              conversationScene("primeiro-cumprimento"),
               match(
                 "Famílias de som",
                 "Combine cada consoante com a palavra que começa com ela.",
@@ -4488,6 +4553,755 @@ export const JOURNEY: JourneyPhase[] = [
               conversationScene("encontrar-amigo"),
             ],
           },
+          withLessonDefaults({
+            id: "p6-rotina-trabalho",
+            title: "Rotina e trabalho",
+            skill: "fala",
+            premium: true,
+            // Chars de rotina/trabalho que ainda não têm entrada própria em
+            // CHARACTERS (têm gloss) — declarados aqui para o corpus aceitar.
+            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉"],
+            // Vocabulário novo de rotina/trabalho (chunks); os antigos (你好/谢谢)
+            // aparecem como distratores para misturar repertório.
+            libraryItems: [
+              "chunk:woqichuang",
+              "chunk:shangban",
+              "chunk:xiaban",
+              "chunk:woyaogongzuo",
+              "chunk:woshujiao",
+              "chunk:wozuofeiji",
+            ],
+            reviewItems: [
+              "chunk:woqichuang",
+              "chunk:shangban",
+              "chunk:xiaban",
+              "chunk:woyaogongzuo",
+              "chunk:woshujiao",
+              "chunk:nihao",
+              "chunk:xiexie",
+            ],
+            steps: [
+              intro(
+                "Dia a dia",
+                "Rotina e trabalho entram cedo na conversa: acordar, ir trabalhar, sair e dormir. São blocos curtos que você monta a partir do que já sabe."
+              ),
+              listen("我起床", "wǒ qǐchuáng", "Eu acordo"),
+              listen("我上班", "wǒ shàngbān", "Vou para o trabalho"),
+              listen("我下班", "wǒ xiàbān", "Saio do trabalho"),
+              listen("我要工作", "wǒ yào gōngzuò", "Quero trabalhar"),
+              listen("我睡觉", "wǒ shuìjiào", "Eu durmo"),
+              match(
+                "A rotina em ordem",
+                "Combine cada frase com o momento do dia.",
+                [
+                  { left: "我起床", right: "acordar", leftType: "hanzi", rightType: "pt" },
+                  { left: "我上班", right: "ir trabalhar", leftType: "hanzi", rightType: "pt" },
+                  { left: "我下班", right: "sair do trabalho", leftType: "hanzi", rightType: "pt" },
+                  { left: "我睡觉", right: "dormir", leftType: "hanzi", rightType: "pt" },
+                ],
+                "Acordar → trabalhar → sair → dormir: a rotina em ordem."
+              ),
+              listenSelect(
+                "Qual frase?",
+                "下班",
+                ["起床", "上班", "下班", "睡觉"],
+                "下班",
+                "下班 é sair do trabalho."
+              ),
+              comp("我上班", "wǒ shàngbān", "Vou para o trabalho.", ["Vou para o trabalho.", "Eu durmo.", "Quero trabalhar.", "Estou bem."]),
+              sentenceBuild(
+                "Monte: eu acordo",
+                "Monte a frase de acordar.",
+                ["我", "起", "床"],
+                ["我", "起", "床", "班"],
+                "我起床 = eu acordo."
+              ),
+              sentenceBuild(
+                "Monte: quero trabalhar",
+                "Monte a frase de querer trabalhar.",
+                ["我", "要", "工", "作"],
+                ["我", "要", "工", "作", "睡"],
+                "我要工作 = quero trabalhar."
+              ),
+              fillBlank(
+                "Complete: vou trabalhar",
+                "Complete: eu vou para o trabalho.",
+                "我",
+                "上",
+                "班",
+                ["上", "下"],
+                "我上班 = vou para o trabalho."
+              ),
+              dialogue(
+                "Sobre o trabalho",
+                "Você quer trabalhar. O que diz?",
+                "我要工作",
+                ["我要工作", "我睡觉", "我下班", "谢谢"],
+                "我要工作 = quero trabalhar.",
+                "Situação"
+              ),
+              dialogue(
+                "Fim do expediente",
+                "Terminou o expediente. O que você diz?",
+                "我下班",
+                ["我下班", "我起床", "我要工作", "你好"],
+                "我下班 = saio do trabalho.",
+                "Situação"
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-cidade-lugares",
+            title: "Cidade e lugares",
+            skill: "fala",
+            premium: true,
+            // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
+            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园"],
+            libraryItems: [
+              "chunk:chaoshizainali",
+              "chunk:yinhangzainali",
+              "chunk:yiyuanzainali",
+              "chunk:gongyuanzainali",
+              "chunk:woquchaoshi",
+              "chunk:woquyiyuan",
+            ],
+            reviewItems: [
+              "chunk:chaoshizainali",
+              "chunk:yinhangzainali",
+              "chunk:yiyuanzainali",
+              "chunk:gongyuanzainali",
+              "chunk:zaina",
+              "chunk:wozuofeiji",
+            ],
+            steps: [
+              intro(
+                "Na cidade",
+                "Na cidade você precisa achar lugares: supermercado, banco, hospital e parque. A pergunta “onde fica?” já é sua — agora é só trocar o lugar."
+              ),
+              listen("超市在哪里？", "chāoshì zài nǎlǐ?", "Onde fica o supermercado?"),
+              listen("银行在哪里？", "yínháng zài nǎlǐ?", "Onde fica o banco?"),
+              listen("医院在哪里？", "yīyuàn zài nǎlǐ?", "Onde fica o hospital?"),
+              listen("公园在哪里？", "gōngyuán zài nǎlǐ?", "Onde fica o parque?"),
+              match(
+                "Onde fica o quê?",
+                "Combine o lugar com o que você faz nele.",
+                [
+                  { left: "超市", right: "comprar comida", leftType: "hanzi", rightType: "pt" },
+                  { left: "银行", right: "trocar dinheiro", leftType: "hanzi", rightType: "pt" },
+                  { left: "医院", right: "ver o médico", leftType: "hanzi", rightType: "pt" },
+                  { left: "公园", right: "passear", leftType: "hanzi", rightType: "pt" },
+                ],
+                "Cada lugar tem um uso: mercado compra, banco troca dinheiro, hospital cuida, parque é para passear."
+              ),
+              listenSelect("Qual lugar?", "医院", ["超市", "银行", "医院", "公园"], "医院", "医院 é o hospital."),
+              comp("我去超市", "wǒ qù chāoshì", "Vou ao supermercado.", ["Vou ao supermercado.", "Vou ao hospital.", "Onde fica o banco?", "Estou doente."]),
+              sentenceBuild(
+                "Monte: onde fica o banco?",
+                "Monte a pergunta.",
+                ["银", "行", "在", "哪", "里"],
+                ["银", "行", "在", "哪", "里", "超"],
+                "银行在哪里？ pergunta onde fica o banco."
+              ),
+              sentenceBuild(
+                "Monte: vou ao hospital",
+                "Monte a frase.",
+                ["我", "去", "医", "院"],
+                ["我", "去", "医", "院", "园"],
+                "我去医院 = vou ao hospital."
+              ),
+              fillBlank(
+                "Complete: vou ao mercado",
+                "Complete: vou ao supermercado.",
+                "我去",
+                "超",
+                "市",
+                ["超", "医"],
+                "我去超市 = vou ao supermercado."
+              ),
+              dialogue(
+                "Onde comprar?",
+                "Você precisa comprar comida. Onde você pergunta?",
+                "超市在哪里？",
+                ["超市在哪里？", "医院在哪里？", "我要工作", "我很好"],
+                "超市在哪里？ acha o supermercado.",
+                "Situação"
+              ),
+              dialogue(
+                "Achando o parque",
+                "Quer passear no parque. O que você pergunta?",
+                "公园在哪里？",
+                ["公园在哪里？", "银行在哪里？", "谢谢", "再见"],
+                "公园在哪里？ acha o parque.",
+                "Situação"
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-saude",
+            title: "Saúde",
+            skill: "fala",
+            premium: true,
+            // Chars de saúde que só têm gloss (院, 下 e 班 entram via 医院/我下班).
+            newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班"],
+            libraryItems: [
+              "chunk:wobingle",
+              "chunk:wotouteng",
+              "chunk:woyaokanyisheng",
+              "chunk:yiyuanzainali",
+            ],
+            reviewItems: [
+              "chunk:wobingle",
+              "chunk:wotouteng",
+              "chunk:woyaokanyisheng",
+              "chunk:yiyuanzainali",
+              "chunk:xiexie",
+              "chunk:nihao",
+            ],
+            steps: [
+              intro(
+                "Estar doente",
+                "Para falar de saúde você precisa de três blocos: dizer que está doente, apontar a dor e pedir o médico. E saber onde fica o hospital."
+              ),
+              listen("我病了", "wǒ bìng le", "Estou doente"),
+              listen("我头疼", "wǒ tóu téng", "Estou com dor de cabeça"),
+              listen("我要看医生", "wǒ yào kàn yīshēng", "Quero ver um médico"),
+              match(
+                "O que dizer?",
+                "Combine a situação com a frase.",
+                [
+                  { left: "我病了", right: "estou doente", leftType: "hanzi", rightType: "pt" },
+                  { left: "我头疼", right: "dor de cabeça", leftType: "hanzi", rightType: "pt" },
+                  { left: "我要看医生", right: "quero ver médico", leftType: "hanzi", rightType: "pt" },
+                  { left: "医院在哪里？", right: "onde fica o hospital", leftType: "hanzi", rightType: "pt" },
+                ],
+                "Doente → dor → médico → hospital: o caminho da saúde."
+              ),
+              listenSelect("O que você ouviu?", "我头疼", ["我病了", "我头疼", "我要看医生", "谢谢"], "我头疼", "我头疼 é dor de cabeça."),
+              comp("我病了", "wǒ bìng le", "Estou doente.", ["Estou doente.", "Estou com dor de cabeça.", "Quero ver um médico.", "Estou bem."]),
+              sentenceBuild(
+                "Monte: quero ver o médico",
+                "Monte a frase.",
+                ["我", "要", "看", "医", "生"],
+                ["我", "要", "看", "医", "生", "病"],
+                "我要看医生 = quero ver um médico."
+              ),
+              sentenceBuild(
+                "Monte: dor de cabeça",
+                "Monte a frase.",
+                ["我", "头", "疼"],
+                ["我", "头", "疼", "病"],
+                "我头疼 = estou com dor de cabeça."
+              ),
+              fillBlank(
+                "Complete: estou doente",
+                "Complete: estou doente.",
+                "我",
+                "病",
+                "了",
+                ["病", "疼"],
+                "我病了 = estou doente."
+              ),
+              dialogue(
+                "Na emergência",
+                "Você precisa de médico. O que diz?",
+                "我要看医生",
+                ["我要看医生", "我头疼", "我下班", "谢谢"],
+                "我要看医生 pede o médico.",
+                "Situação"
+              ),
+              dialogue(
+                "Onde há médico?",
+                "Quer saber onde fica o hospital. O que pergunta?",
+                "医院在哪里？",
+                ["医院在哪里？", "现在几点？", "我很好", "再见"],
+                "医院在哪里？ acha o hospital.",
+                "Situação"
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-horarios",
+            title: "Que horas são?",
+            skill: "fala",
+            premium: true,
+            // 午 é o único char só-gloss usado aqui (中 está em CHARACTERS).
+            newHanzi: ["午"],
+            libraryItems: [
+              "chunk:xianzaijidian",
+              "chunk:xianzaibadian",
+              "chunk:xianzaijiudian",
+              "chunk:zhongwu",
+            ],
+            reviewItems: [
+              "chunk:xianzaijidian",
+              "chunk:xianzaibadian",
+              "chunk:xianzaijiudian",
+              "chunk:zhongwu",
+              "chunk:zaoshanghao",
+              "chunk:wanan",
+            ],
+            steps: [
+              intro(
+                "Que horas são?",
+                "Perguntar a hora é essencial: 现在几点？ (que horas são?). As respostas usam os números que você já sabe, com 点 (hora)."
+              ),
+              listen("现在几点？", "xiànzài jǐ diǎn?", "Que horas são?"),
+              listen("现在八点", "xiànzài bā diǎn", "São oito horas"),
+              listen("现在九点", "xiànzài jiǔ diǎn", "São nove horas"),
+              listen("中午", "zhōngwǔ", "Meio-dia"),
+              match(
+                "Combine a hora",
+                "Combine cada relógio com a frase.",
+                [
+                  { left: "八点", right: "8 horas", leftType: "hanzi", rightType: "pt" },
+                  { left: "九点", right: "9 horas", leftType: "hanzi", rightType: "pt" },
+                  { left: "中午", right: "meio-dia", leftType: "hanzi", rightType: "pt" },
+                ],
+                "八点 é 8h, 九点 é 9h, 中午 é meio-dia."
+              ),
+              listenSelect("Que horas?", "九点", ["八点", "九点", "中午", "现在几点"], "九点", "九点 = 9 horas."),
+              comp("现在几点？", "xiànzài jǐ diǎn?", "Que horas são?", ["Que horas são?", "São oito horas.", "Meio-dia.", "Estou bem."]),
+              sentenceBuild(
+                "Monte a pergunta",
+                "Monte: que horas são?",
+                ["现", "在", "几", "点"],
+                ["现", "在", "几", "点", "八"],
+                "现在几点？ pergunta a hora."
+              ),
+              sentenceBuild(
+                "Monte: são oito",
+                "Monte: são oito horas.",
+                ["现", "在", "八", "点"],
+                ["现", "在", "八", "点", "九"],
+                "现在八点 = são oito horas."
+              ),
+              fillBlank(
+                "Complete: meio-dia",
+                "Complete: meio-dia.",
+                "中",
+                "午",
+                "",
+                ["午", "点"],
+                "中午 = meio-dia."
+              ),
+              dialogue(
+                "Pergunte a hora",
+                "Você quer saber as horas. O que pergunta?",
+                "现在几点？",
+                ["现在几点？", "现在八点", "中午", "再见"],
+                "现在几点？ pergunta as horas.",
+                "Situação"
+              ),
+              dialogue(
+                "Responda a hora",
+                "São nove horas. O que você diz?",
+                "现在九点",
+                ["现在九点", "现在八点", "中午", "我很好"],
+                "现在九点 = são nove horas.",
+                "Situação"
+              ),
+            ],
+          }),
+          microLesson({
+            id: "p6-natureza",
+            title: "A natureza",
+            skill: "fala",
+            premium: true,
+            // Elementos vistos em lições antigas (山/水/火/木/日/月/林/森) + os novos.
+            newHanzi: ["云", "雨", "树", "花", "星", "上", "下"],
+            libraryItems: [
+              "chunk:tianshangyouyun",
+              "chunk:shanshangyoushu",
+              "chunk:shuililiyouyu",
+              "chunk:xiayule",
+              "chunk:huahaokan",
+              "chunk:tianshangdexingxing",
+            ],
+            reviewItems: [
+              "chunk:tianshangyouyun",
+              "chunk:shanshangyoushu",
+              "chunk:shuililiyouyu",
+              "chunk:xiayule",
+              "chunk:huahaokan",
+              "chunk:tianshangdexingxing",
+              "char:shan",
+              "char:shui",
+              "char:mu",
+            ],
+            steps: [
+              intro(
+                "O mundo ao redor",
+                "Natureza em mandarim usa elementos que você já conhece: 山 (montanha), 水 (água), 木 (árvore). Agora você junta tudo em frases sobre o céu, a chuva e as estrelas."
+              ),
+              listen("山", "shān", "montanha"),
+              listen("水", "shuǐ", "água"),
+              listen("木", "mù", "árvore; madeira"),
+              imageChoice(
+                "choose_meaning",
+                "mountain",
+                "O que esta imagem mostra?",
+                "montanha",
+                visualMeaningOptions("mountain"),
+                { explanation: "山 (shān) = montanha." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "water",
+                "Qual hànzì combina com a água?",
+                "水",
+                visualHanziOptions("water"),
+                { explanation: "水 (shuǐ) = água." }
+              ),
+              match(
+                "Elementos da natureza",
+                "Combine cada elemento com o sentido.",
+                [
+                  { left: "山", right: "montanha", leftType: "hanzi", rightType: "pt" },
+                  { left: "水", right: "água", leftType: "hanzi", rightType: "pt" },
+                  { left: "木", right: "árvore", leftType: "hanzi", rightType: "pt" },
+                ],
+                "山 é montanha, 水 é água, 木 é árvore."
+              ),
+              listen("天上有云", "tiān shàng yǒu yún", "Há nuvens no céu"),
+              listen("山上有树", "shān shàng yǒu shù", "Há árvores na montanha"),
+              listen("水里有鱼", "shuǐ lǐ yǒu yú", "Há peixes na água"),
+              comp("下雨了", "xià yǔ le", "Está chovendo.", ["Está chovendo.", "Está ventando.", "Há nuvens.", "Estou bem."]),
+              listen("花好看", "huā hǎo kàn", "A flor é bonita"),
+              listen("天上的星星", "tiān shàng de xīngxing", "As estrelas no céu"),
+              sentenceBuild(
+                "Monte: nuvens no céu",
+                "Monte: há nuvens no céu.",
+                ["天", "上", "有", "云"],
+                ["天", "上", "有", "云", "雨"],
+                "天上有云 = há nuvens no céu."
+              ),
+              sentenceBuild(
+                "Monte: chuva",
+                "Monte: está chovendo.",
+                ["下", "雨", "了"],
+                ["下", "雨", "了", "云"],
+                "下雨了 = está chovendo."
+              ),
+              fillBlank(
+                "Complete: árvores",
+                "Complete: há árvores na montanha.",
+                "山上",
+                "有树",
+                "",
+                ["有树", "有云", "有鱼"],
+                "山上有树 = há árvores na montanha."
+              ),
+              dialogue(
+                "Descreva o dia",
+                "O céu está cheio de nuvens. O que você diz?",
+                "天上有云",
+                ["天上有云", "下雨了", "水里有鱼", "花好看"],
+                "天上有云 descreve as nuvens no céu.",
+                "Situação"
+              ),
+              dialogue(
+                "Chuva chegando",
+                "Começa a chover. O que você diz?",
+                "下雨了",
+                ["下雨了", "天上有云", "山上有树", "我很好"],
+                "下雨了 = está chovendo.",
+                "Situação"
+              ),
+            ],
+          }),
+          microLesson({
+            id: "p6-clima",
+            title: "O tempo (clima)",
+            skill: "fala",
+            premium: true,
+            // 雨/云/下 já vistos em p6-natureza; novos: 冷/晴/雪/风.
+            newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热"],
+            libraryItems: [
+              "chunk:jintiantianqihenhao",
+              "chunk:tianqihenre",
+              "chunk:tianqihenleng",
+              "chunk:xiaxuele",
+              "chunk:tianqingle",
+              "chunk:youfeng",
+              "chunk:xiayule",
+            ],
+            reviewItems: [
+              "chunk:jintiantianqihenhao",
+              "chunk:tianqihenre",
+              "chunk:tianqihenleng",
+              "chunk:xiaxuele",
+              "chunk:tianqingle",
+              "chunk:youfeng",
+              "chunk:xiayule",
+              "chunk:jintianhenhao",
+            ],
+            steps: [
+              intro(
+                "Que tempo faz?",
+                "Para falar do clima: 天气 (o tempo) + 很热 (quente) ou 很冷 (frio). E 下雨了 / 下雪了 dizem que está chovendo ou nevando."
+              ),
+              listen("天气很热", "tiānqì hěn rè", "O tempo está quente"),
+              listen("天气很冷", "tiānqì hěn lěng", "O tempo está frio"),
+              listen("有风", "yǒu fēng", "Está ventando"),
+              match(
+                "Quente ou frio?",
+                "Combine cada clima com a sensação.",
+                [
+                  { left: "热", right: "quente", leftType: "hanzi", rightType: "pt" },
+                  { left: "冷", right: "frio", leftType: "hanzi", rightType: "pt" },
+                  { left: "风", right: "vento", leftType: "hanzi", rightType: "pt" },
+                ],
+                "热 é quente, 冷 é frio, 风 é vento."
+              ),
+              listen("今天天气很好", "jīntiān tiānqì hěn hǎo", "Hoje o tempo está ótimo"),
+              listen("下雨了", "xià yǔ le", "Está chovendo"),
+              listen("下雪了", "xià xuě le", "Está nevando"),
+              listen("天晴了", "tiān qíng le", "O céu abriu"),
+              comp("今天天气很好", "jīntiān tiānqì hěn hǎo", "Hoje o tempo está ótimo.", [
+                "Hoje o tempo está ótimo.",
+                "Está nevando.",
+                "Está ventando.",
+                "São nove horas.",
+              ]),
+              sentenceBuild(
+                "Monte: quente",
+                "Monte: o tempo está quente.",
+                ["天", "气", "很", "热"],
+                ["天", "气", "很", "热", "冷"],
+                "天气很热 = o tempo está quente."
+              ),
+              sentenceBuild(
+                "Monte: frio",
+                "Monte: o tempo está frio.",
+                ["天", "气", "很", "冷"],
+                ["天", "气", "很", "冷", "热"],
+                "天气很冷 = o tempo está frio."
+              ),
+              fillBlank(
+                "Complete: nevando",
+                "Complete: está nevando.",
+                "下",
+                "雪",
+                "了",
+                ["雪", "雨", "风"],
+                "下雪了 = está nevando."
+              ),
+              dialogue(
+                "Como está o dia?",
+                "Alguém pergunta como está o tempo hoje. O que você responde?",
+                "今天天气很好",
+                ["今天天气很好", "下雪了", "天晴了", "天气很冷"],
+                "今天天气很好 comenta o tempo de hoje.",
+                "Amigo"
+              ),
+              dialogue(
+                "Que calor!",
+                "Está muito quente. O que você diz?",
+                "天气很热",
+                ["天气很热", "天气很冷", "有风", "下雨了"],
+                "天气很热 = o tempo está quente.",
+                "Situação"
+              ),
+            ],
+          }),
+          microLesson({
+            id: "p6-direcoes",
+            title: "Direções",
+            skill: "fala",
+            premium: true,
+            // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路.
+            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面"],
+            libraryItems: [
+              "chunk:zuobian",
+              "chunk:youbian",
+              "chunk:qianmian",
+              "chunk:houmian",
+              "chunk:zhizou",
+              "chunk:wangzuozou",
+              "chunk:wangyouzou",
+              "chunk:nanbian",
+            ],
+            reviewItems: [
+              "chunk:zuobian",
+              "chunk:youbian",
+              "chunk:qianmian",
+              "chunk:houmian",
+              "chunk:zhizou",
+              "chunk:wangzuozou",
+              "chunk:wangyouzou",
+              "chunk:nanbian",
+              "chunk:zaina",
+              "chunk:chezainali",
+            ],
+            steps: [
+              intro(
+                "Para onde vou?",
+                "Pedir e dar direções: 左边 (à esquerda), 右边 (à direita), 前面 (em frente), 后面 (atrás). E 直走 (siga em frente) ou 往左走 (vá para a esquerda)."
+              ),
+              listen("左边", "zuǒbiān", "À esquerda"),
+              listen("右边", "yòubiān", "À direita"),
+              listen("前面", "qiánmiàn", "Em frente"),
+              listen("后面", "hòumiàn", "Atrás"),
+              match(
+                "Lados e posições",
+                "Combine cada direção com o sentido.",
+                [
+                  { left: "左边", right: "à esquerda", leftType: "hanzi", rightType: "pt" },
+                  { left: "右边", right: "à direita", leftType: "hanzi", rightType: "pt" },
+                  { left: "前面", right: "em frente", leftType: "hanzi", rightType: "pt" },
+                  { left: "后面", right: "atrás", leftType: "hanzi", rightType: "pt" },
+                ],
+                "左边/右边/前面/后面 cobrem os quatro lados."
+              ),
+              listen("直走", "zhí zǒu", "Siga em frente"),
+              listen("往左走", "wǎng zuǒ zǒu", "Vá para a esquerda"),
+              listen("往右走", "wǎng yòu zǒu", "Vá para a direita"),
+              listen("南边", "nánbiān", "Ao sul"),
+              comp("直走", "zhí zǒu", "Siga em frente.", ["Siga em frente.", "Vá para a esquerda.", "Atrás.", "Está ventando."]),
+              sentenceBuild(
+                "Monte: à esquerda",
+                "Monte: à esquerda.",
+                ["左", "边"],
+                ["左", "边", "右"],
+                "左边 = à esquerda."
+              ),
+              sentenceBuild(
+                "Monte: siga em frente",
+                "Monte: siga em frente.",
+                ["直", "走"],
+                ["直", "走", "左"],
+                "直走 = siga em frente."
+              ),
+              sentenceBuild(
+                "Monte: vá para a direita",
+                "Monte: vá para a direita.",
+                ["往", "右", "走"],
+                ["往", "右", "走", "左"],
+                "往右走 = vá para a direita."
+              ),
+              dialogue(
+                "Aonde é o banco?",
+                "Você procura o banco. A pessoa responde: à direita. O que ela diz?",
+                "右边",
+                ["右边", "左边", "前面", "南边"],
+                "右边 = à direita.",
+                "Passante"
+              ),
+              dialogue(
+                "Siga em frente",
+                "A pessoa orienta: siga em frente. O que ela diz?",
+                "直走",
+                ["直走", "往右走", "后面", "我很好"],
+                "直走 = siga em frente.",
+                "Passante"
+              ),
+            ],
+          }),
+          microLesson({
+            id: "p6-compras",
+            title: "Compras: roupas e itens",
+            skill: "fala",
+            premium: true,
+            // 买/这/个/多/少/钱/水/机 já existem; novos: 衣/服/鞋/双/件/苹/果/香/蕉/牛/奶/手.
+            newHanzi: ["衣", "服", "鞋", "双", "件", "苹", "果", "香", "蕉", "牛", "奶", "手"],
+            libraryItems: [
+              "chunk:woyaomaiyifu",
+              "chunk:zhejianyifuduoshaoqian",
+              "chunk:woyaozheshuangxie",
+              "chunk:woyaozhegepingguo",
+              "chunk:woyaoxiangjiao",
+              "chunk:woyaoniunai",
+              "chunk:woyaoshouji",
+              "chunk:duoshaoqian",
+            ],
+            reviewItems: [
+              "chunk:woyaomaiyifu",
+              "chunk:zhejianyifuduoshaoqian",
+              "chunk:woyaozheshuangxie",
+              "chunk:woyaozhegepingguo",
+              "chunk:woyaoxiangjiao",
+              "chunk:woyaoniunai",
+              "chunk:woyaoshouji",
+              "chunk:duoshaoqian",
+              "chunk:zhegeduoshaoqian",
+              "char:mai_buy",
+            ],
+            steps: [
+              intro(
+                "Fazendo compras",
+                "Você já sabe pedir com 我要. Agora entra o vocabulário de loja: 买 (comprar), roupas (衣服, 鞋) e itens do dia a dia (苹果, 香蕉, 牛奶, 手机)."
+              ),
+              listen("我要买衣服", "wǒ yào mǎi yīfu", "Quero comprar roupa"),
+              listen("这件衣服多少钱？", "zhè jiàn yīfu duōshao qián?", "Quanto custa esta roupa?"),
+              listen("我要这双鞋", "wǒ yào zhè shuāng xié", "Quero estes sapatos"),
+              match(
+                "O que comprar",
+                "Combine cada item com o sentido.",
+                [
+                  { left: "衣服", right: "roupa", leftType: "hanzi", rightType: "pt" },
+                  { left: "鞋", right: "sapato", leftType: "hanzi", rightType: "pt" },
+                  { left: "手机", right: "celular", leftType: "hanzi", rightType: "pt" },
+                ],
+                "衣服 é roupa, 鞋 é sapato, 手机 é celular."
+              ),
+              listen("我要这个苹果", "wǒ yào zhège píngguǒ", "Quero esta maçã"),
+              listen("我要香蕉", "wǒ yào xiāngjiāo", "Quero banana"),
+              listen("我要牛奶", "wǒ yào niúnǎi", "Quero leite"),
+              comp("这件衣服多少钱？", "zhè jiàn yīfu duōshao qián?", "Quanto custa esta roupa?", [
+                "Quanto custa esta roupa?",
+                "Quero estes sapatos.",
+                "Siga em frente.",
+                "Está chovendo.",
+              ]),
+              sentenceBuild(
+                "Monte: comprar roupa",
+                "Monte: quero comprar roupa.",
+                ["我", "要", "买", "衣", "服"],
+                ["我", "要", "买", "衣", "服", "鞋"],
+                "我要买衣服 = quero comprar roupa."
+              ),
+              sentenceBuild(
+                "Monte: sapatos",
+                "Monte: quero estes sapatos.",
+                ["我", "要", "这", "双", "鞋"],
+                ["我", "要", "这", "双", "鞋", "衣"],
+                "我要这双鞋 = quero estes sapatos."
+              ),
+              fillBlank(
+                "Complete: maçã",
+                "Complete: quero esta maçã.",
+                "我要这个",
+                "苹果",
+                "",
+                ["苹果", "香蕉", "牛奶"],
+                "我要这个苹果 = quero esta maçã."
+              ),
+              dialogue(
+                "Entre na loja",
+                "Você entra na loja e quer comprar roupa. O que diz?",
+                "我要买衣服",
+                ["我要买衣服", "我要这双鞋", "我要香蕉", "我要牛奶"],
+                "我要买衣服 anuncia o que você procura.",
+                "Vendedor"
+              ),
+              dialogue(
+                "Pergunte o preço",
+                "Você gostou de uma roupa. O que pergunta?",
+                "这件衣服多少钱？",
+                ["这件衣服多少钱？", "我要香蕉", "我要牛奶", "我要手机"],
+                "这件衣服多少钱？ pergunta o preço da peça.",
+                "Vendedor"
+              ),
+              dialogue(
+                "Feche a compra",
+                "A maçã te agradou. O que você diz ao vendedor?",
+                "我要这个苹果",
+                ["我要这个苹果", "我要买衣服", "我要香蕉", "我要牛奶"],
+                "我要这个苹果 fecha a compra apontando o item.",
+                "Vendedor"
+              ),
+            ],
+          }),
           withLessonDefaults({
             id: "l10-rev",
             title: "Revisão do módulo",

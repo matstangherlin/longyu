@@ -1,22 +1,45 @@
 # Longyu — Auditoria de prontidão beta (`0.2.0-beta.1`)
 
-**Data (UTC):** 2026-07-21  
+## Atualização operacional — 2026-08-04
+
+**Commit `main`:** `1686403` (+ PR de estabilização em andamento)  
+**Método desta atualização:** correções de pronúncia/ordem, gates npm, Preview isolado, projeto `longyu-preview`, script RLS, CI no commit da main.
+
+| Critério | Evidência 2026-08-04 |
+|---|---|
+| CI na `main` (`1686403`) | ✅ `Portão de qualidade` + `Testes E2E` verdes ([run 30875232130](https://github.com/matstangherlin/longyu/actions/runs/30875232130)); WebKit informativo ainda falha |
+| Pronúncia (contagem) | ✅ Corrigido; agora também exige **ordem** (`好你` ≠ `你好`) |
+| RPC pedagogia no remoto | ✅ `verify:beta-feedback` verde |
+| Stripe webhook + RPC ordering | ✅ Functions v8–v9; secrets presentes |
+| Deploy Preview ≠ produção | ✅ Preview em `VITE_BACKEND_MODE=local`; projeto `longyu-preview` criado (`wpnmygzxqvmpdlcuwrjp`) com schema |
+| Portão único | ✅ `npm run gate:public-beta` / `gate:production` |
+| RLS A≠B automatizado | 🟡 Script `npm run test:rls` (precisa `SUPABASE_SERVICE_ROLE_KEY`) |
+| Stripe Test Mode E2E humano | 🟡 Runbook + `npm run test:stripe` (precisa `sk_test_`) |
+| Branch protection na `main` | ⬜ Ativar no GitHub (token do agente sem permissão) |
+| Device real iOS/Android | ⬜ |
+| Auditoria completa refeita (install limpa + %) | ⬜ Próximo passo após portão verde |
+
+**Veredito atualizado:** continuar em **beta fechada por convite**. Não abrir beta pública ampla até RLS + Stripe runbook + proteção da `main` + devices.
+
+---
+
+**Data (UTC) da auditoria original:** 2026-07-21  
 **Commit auditado (base):** `7d12997` + correções desta auditoria (ver PR)  
 **Branch da auditoria:** `cursor/beta-readiness-audit-0157`  
 **Método:** instalação limpa (`rm -rf node_modules dist` + `npm ci`), validadores, build, E2E multi-browser, inspeção de código/docs/PRs.  
 **Regra:** nada marcado como aprovado sem execução real nesta rodada.
 
-## Veredito
+## Veredito (21 de julho — histórico)
 
 ### **NO-GO** para declarar a beta pública “pronta”
 
-Percentual geral objetivo: **78%**.
+Percentual geral objetivo na época: **78%**.
 
 Os critérios automatizados de conteúdo/pedagogia e o build local estão fortes, mas os critérios de lançamento listados pelo produto **não** estão todos verdes: CI GitHub falha por billing, WebKit E2E falhou no offline PWA, RPC de telemetria pedagógica ausente no Supabase remoto, Stripe Test Mode real e devices físicos ainda pendentes.
 
 ---
 
-## Percentuais por área
+## Percentuais por área (21 de julho — histórico)
 
 Critério: média ponderada de evidência (teste automatizado = peso cheio; código/docs = parcial; não executado = 0 no item).
 

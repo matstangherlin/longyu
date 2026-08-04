@@ -93,6 +93,76 @@ export const CHUNKS: Chunk[] = [
   { id: "piaoduoshaoqian", hanzi: "票多少钱？", pinyin: "piào duōshao qián?", meaningPt: "Quanto custa a passagem?", literalPt: "passagem quanto dinheiro", tags: ["transporte", "compras"], domain: "transporte", level: "survival" },
   { id: "woyaopiao", hanzi: "我要票", pinyin: "wǒ yào piào", meaningPt: "Quero o bilhete.", literalPt: "eu quero bilhete", tags: ["transporte", "compras"], domain: "transporte", level: "elementary" },
 
+  // --- Trabalho, rotina e viagem ---
+  { id: "woyaogongzuo", hanzi: "我要工作", pinyin: "wǒ yào gōngzuò", meaningPt: "Quero trabalhar.", literalPt: "eu querer trabalho", tags: ["trabalho"], domain: "trabalho", level: "elementary" },
+  { id: "shangban", hanzi: "上班", pinyin: "shàngbān", meaningPt: "Ir para o trabalho.", literalPt: "subir + turno", tags: ["trabalho"], domain: "trabalho", level: "elementary" },
+  { id: "xiaban", hanzi: "下班", pinyin: "xiàbān", meaningPt: "Sair do trabalho.", literalPt: "descer + turno", tags: ["trabalho"], domain: "trabalho", level: "elementary" },
+  { id: "woqichuang", hanzi: "我起床", pinyin: "wǒ qǐchuáng", meaningPt: "Eu acordo.", literalPt: "eu levantar + cama", tags: ["rotina"], domain: "verbo", level: "elementary" },
+  { id: "woshujiao", hanzi: "我睡觉", pinyin: "wǒ shuìjiào", meaningPt: "Eu durmo.", literalPt: "eu dormir + sono", tags: ["rotina"], domain: "verbo", level: "elementary" },
+  { id: "wozuofeiji", hanzi: "我坐飞机", pinyin: "wǒ zuò fēijī", meaningPt: "Vou de avião.", literalPt: "eu andar + avião", tags: ["transporte", "viagem"], domain: "transporte", level: "survival" },
+  { id: "feijichangzainali", hanzi: "飞机场在哪里？", pinyin: "fēijīchǎng zài nǎlǐ?", meaningPt: "Onde fica o aeroporto?", literalPt: "avião-local está onde", tags: ["transporte", "pergunta"], domain: "transporte", level: "survival" },
+  { id: "jiudianzainali", hanzi: "酒店在哪里？", pinyin: "jiǔdiàn zài nǎlǐ?", meaningPt: "Onde fica o hotel?", literalPt: "bebida-loja está onde", tags: ["viagem", "pergunta"], domain: "lugar", level: "survival" },
+
+  // --- Cidade e lugares ---
+  { id: "chaoshizainali", hanzi: "超市在哪里？", pinyin: "chāoshì zài nǎlǐ?", meaningPt: "Onde fica o supermercado?", literalPt: "super-mercado está onde", tags: ["lugar", "pergunta"], domain: "lugar", level: "survival" },
+  { id: "yinhangzainali", hanzi: "银行在哪里？", pinyin: "yínháng zài nǎlǐ?", meaningPt: "Onde fica o banco?", literalPt: "prata-firma está onde", tags: ["lugar", "pergunta"], domain: "lugar", level: "survival" },
+  { id: "yiyuanzainali", hanzi: "医院在哪里？", pinyin: "yīyuàn zài nǎlǐ?", meaningPt: "Onde fica o hospital?", literalPt: "medicina-instituição está onde", tags: ["lugar", "pergunta"], domain: "lugar", level: "survival" },
+  { id: "gongyuanzainali", hanzi: "公园在哪里？", pinyin: "gōngyuán zài nǎlǐ?", meaningPt: "Onde fica o parque?", literalPt: "público-jardim está onde", tags: ["lugar", "pergunta"], domain: "lugar", level: "survival" },
+  { id: "woquchaoshi", hanzi: "我去超市", pinyin: "wǒ qù chāoshì", meaningPt: "Vou ao supermercado.", literalPt: "eu ir super-mercado", tags: ["lugar", "compras"], domain: "lugar", level: "elementary" },
+  { id: "woquyiyuan", hanzi: "我去医院", pinyin: "wǒ qù yīyuàn", meaningPt: "Vou ao hospital.", literalPt: "eu ir medicina-instituição", tags: ["lugar"], domain: "lugar", level: "elementary" },
+
+  // --- Família estendida ---
+  { id: "wodeyeye", hanzi: "我爷爷", pinyin: "wǒ yéye", meaningPt: "Meu avô.", literalPt: "meu avô", tags: ["familia"], domain: "familia", level: "elementary" },
+  { id: "wodenainai", hanzi: "我奶奶", pinyin: "wǒ nǎinai", meaningPt: "Minha avó.", literalPt: "minha avó", tags: ["familia"], domain: "familia", level: "elementary" },
+  { id: "woyoujiejie", hanzi: "我有姐姐", pinyin: "wǒ yǒu jiějie", meaningPt: "Tenho irmã mais velha.", literalPt: "eu ter irmã mais velha", tags: ["familia"], domain: "familia", level: "elementary" },
+  { id: "woyoudidi", hanzi: "我有弟弟", pinyin: "wǒ yǒu dìdi", meaningPt: "Tenho irmão mais novo.", literalPt: "eu ter irmão mais novo", tags: ["familia"], domain: "familia", level: "elementary" },
+
+  // --- Saúde ---
+  { id: "wobingle", hanzi: "我病了", pinyin: "wǒ bìng le", meaningPt: "Estou doente.", literalPt: "eu doente (já)", tags: ["saude"], domain: "verbo", level: "survival" },
+  { id: "wotouteng", hanzi: "我头疼", pinyin: "wǒ tóu téng", meaningPt: "Estou com dor de cabeça.", literalPt: "eu cabeça dor", tags: ["saude"], domain: "verbo", level: "survival" },
+  { id: "woyaokanyisheng", hanzi: "我要看医生", pinyin: "wǒ yào kàn yīshēng", meaningPt: "Quero ver um médico.", literalPt: "eu querer ver medicina-pessoa", tags: ["saude"], domain: "verbo", level: "survival" },
+
+  // --- Horários e tempo ---
+  { id: "xianzaijidian", hanzi: "现在几点？", pinyin: "xiànzài jǐ diǎn?", meaningPt: "Que horas são?", literalPt: "agora quantos ponto", tags: ["tempo", "pergunta"], domain: "tempo", level: "survival" },
+  { id: "xianzaibadian", hanzi: "现在八点", pinyin: "xiànzài bā diǎn", meaningPt: "São oito horas.", literalPt: "agora oito ponto", tags: ["tempo"], domain: "tempo", level: "survival" },
+  { id: "xianzaijiudian", hanzi: "现在九点", pinyin: "xiànzài jiǔ diǎn", meaningPt: "São nove horas.", literalPt: "agora nove ponto", tags: ["tempo"], domain: "tempo", level: "survival" },
+  { id: "zhongwu", hanzi: "中午", pinyin: "zhōngwǔ", meaningPt: "Meio-dia.", literalPt: "meio + meio-dia", tags: ["tempo"], domain: "tempo", level: "survival" },
+
+  // --- Natureza ---
+  { id: "tianshangyouyun", hanzi: "天上有云", pinyin: "tiān shàng yǒu yún", meaningPt: "Há nuvens no céu.", literalPt: "céu em cima ter nuvem", tags: ["natureza"], domain: "verbo", level: "elementary" },
+  { id: "shanshangyoushu", hanzi: "山上有树", pinyin: "shān shàng yǒu shù", meaningPt: "Há árvores na montanha.", literalPt: "montanha em cima ter árvore", tags: ["natureza"], domain: "verbo", level: "elementary" },
+  { id: "shuililiyouyu", hanzi: "水里有鱼", pinyin: "shuǐ lǐ yǒu yú", meaningPt: "Há peixes na água.", literalPt: "água dentro ter peixe", tags: ["natureza"], domain: "verbo", level: "elementary" },
+  { id: "xiayule", hanzi: "下雨了", pinyin: "xià yǔ le", meaningPt: "Está chovendo.", literalPt: "descer chuva (já)", tags: ["natureza", "clima"], domain: "verbo", level: "elementary" },
+  { id: "huahaokan", hanzi: "花好看", pinyin: "huā hǎo kàn", meaningPt: "A flor é bonita.", literalPt: "flor bom ver", tags: ["natureza"], domain: "verbo", level: "elementary" },
+  { id: "tianshangdexingxing", hanzi: "天上的星星", pinyin: "tiān shàng de xīngxing", meaningPt: "As estrelas no céu.", literalPt: "céu em cima (de) estrela", tags: ["natureza"], domain: "verbo", level: "elementary" },
+
+  // --- Clima ---
+  { id: "jintiantianqihenhao", hanzi: "今天天气很好", pinyin: "jīntiān tiānqì hěn hǎo", meaningPt: "Hoje o tempo está ótimo.", literalPt: "hoje céu-ar muito bom", tags: ["clima"], domain: "tempo", level: "elementary" },
+  { id: "tianqihenre", hanzi: "天气很热", pinyin: "tiānqì hěn rè", meaningPt: "O tempo está quente.", literalPt: "céu-ar muito quente", tags: ["clima"], domain: "tempo", level: "elementary" },
+  { id: "tianqihenleng", hanzi: "天气很冷", pinyin: "tiānqì hěn lěng", meaningPt: "O tempo está frio.", literalPt: "céu-ar muito frio", tags: ["clima"], domain: "tempo", level: "elementary" },
+  { id: "xiaxuele", hanzi: "下雪了", pinyin: "xià xuě le", meaningPt: "Está nevando.", literalPt: "descer neve (já)", tags: ["clima"], domain: "tempo", level: "survival" },
+  { id: "tianqingle", hanzi: "天晴了", pinyin: "tiān qíng le", meaningPt: "O céu abriu; está limpo.", literalPt: "céu limpo (já)", tags: ["clima"], domain: "tempo", level: "elementary" },
+  { id: "youfeng", hanzi: "有风", pinyin: "yǒu fēng", meaningPt: "Está ventando.", literalPt: "ter vento", tags: ["clima"], domain: "tempo", level: "elementary" },
+
+  // --- Direções ---
+  { id: "zuobian", hanzi: "左边", pinyin: "zuǒbiān", meaningPt: "À esquerda.", literalPt: "esquerda lado", tags: ["direcao"], domain: "lugar", level: "elementary" },
+  { id: "youbian", hanzi: "右边", pinyin: "yòubiān", meaningPt: "À direita.", literalPt: "direita lado", tags: ["direcao"], domain: "lugar", level: "elementary" },
+  { id: "qianmian", hanzi: "前面", pinyin: "qiánmiàn", meaningPt: "Em frente.", literalPt: "frente lado", tags: ["direcao"], domain: "lugar", level: "elementary" },
+  { id: "houmian", hanzi: "后面", pinyin: "hòumiàn", meaningPt: "Atrás.", literalPt: "atrás lado", tags: ["direcao"], domain: "lugar", level: "elementary" },
+  { id: "zhizou", hanzi: "直走", pinyin: "zhí zǒu", meaningPt: "Siga em frente.", literalPt: "reto andar", tags: ["direcao"], domain: "lugar", level: "elementary" },
+  { id: "wangzuozou", hanzi: "往左走", pinyin: "wǎng zuǒ zǒu", meaningPt: "Vá para a esquerda.", literalPt: "em direção a esquerda andar", tags: ["direcao"], domain: "lugar", level: "survival" },
+  { id: "wangyouzou", hanzi: "往右走", pinyin: "wǎng yòu zǒu", meaningPt: "Vá para a direita.", literalPt: "em direção a direita andar", tags: ["direcao"], domain: "lugar", level: "survival" },
+  { id: "nanbian", hanzi: "南边", pinyin: "nánbiān", meaningPt: "Ao sul.", literalPt: "sul lado", tags: ["direcao"], domain: "lugar", level: "survival" },
+
+  // --- Compras variadas ---
+  { id: "woyaomaiyifu", hanzi: "我要买衣服", pinyin: "wǒ yào mǎi yīfu", meaningPt: "Quero comprar roupa.", literalPt: "eu querer comprar roupa", tags: ["compras"], domain: "compras", level: "elementary" },
+  { id: "zhejianyifuduoshaoqian", hanzi: "这件衣服多少钱？", pinyin: "zhè jiàn yīfu duōshao qián?", meaningPt: "Quanto custa esta roupa?", literalPt: "esta peça roupa quanto dinheiro", tags: ["compras", "pergunta"], domain: "compras", level: "survival" },
+  { id: "woyaozheshuangxie", hanzi: "我要这双鞋", pinyin: "wǒ yào zhè shuāng xié", meaningPt: "Quero estes sapatos.", literalPt: "eu querer este par sapato", tags: ["compras"], domain: "compras", level: "survival" },
+  { id: "woyaozhegepingguo", hanzi: "我要这个苹果", pinyin: "wǒ yào zhège píngguǒ", meaningPt: "Quero esta maçã.", literalPt: "eu querer este (unidade) maçã", tags: ["compras", "comida"], domain: "compras", level: "elementary" },
+  { id: "woyaoxiangjiao", hanzi: "我要香蕉", pinyin: "wǒ yào xiāngjiāo", meaningPt: "Quero banana.", literalPt: "eu querer banana", tags: ["compras", "comida"], domain: "compras", level: "elementary" },
+  { id: "woyaoniunai", hanzi: "我要牛奶", pinyin: "wǒ yào niúnǎi", meaningPt: "Quero leite.", literalPt: "eu querer vaca-leite", tags: ["compras", "bebida"], domain: "compras", level: "elementary" },
+  { id: "woyaoshouji", hanzi: "我要手机", pinyin: "wǒ yào shǒujī", meaningPt: "Quero um celular.", literalPt: "eu querer mão-máquina", tags: ["compras"], domain: "compras", level: "survival" },
+
   // --- Respostas sociais curtas ---
   { id: "haode", hanzi: "好的", pinyin: "hǎo de", meaningPt: "Está bem; ok.", literalPt: "bom (partícula)", tags: ["frase_social"], domain: "frase_social", level: "beginner" },
   { id: "meiwenti", hanzi: "没问题", pinyin: "méi wèntí", meaningPt: "Sem problema.", literalPt: "não ter problema", tags: ["frase_social"], domain: "frase_social", level: "elementary" },

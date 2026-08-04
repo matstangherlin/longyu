@@ -292,61 +292,78 @@ export function normalizeHan(s: string): string {
   return (s.match(HAN) || []).join("");
 }
 
-/** Compara o que foi falado com o alvo (por sobreposição de caracteres). */
+/** Compara o que foi falado com o alvo preservando a ORDEM dos caracteres. */
 export function scorePronunciation(
   heard: string,
   target: string
-): { correct: boolean; ratio: number } {
-  const h = normalizeHan(heard);
-  const t = normalizeHan(target);
-  if (!t || !h) return { correct: false, ratio: 0 };
-  if (h === t) return { correct: true, ratio: 1 };
-  const counts = new Map<string, number>();
-  for (const c of t) counts.set(c, (counts.get(c) || 0) + 1);
-  let hit = 0;
-  for (const c of h) {
-    const n = counts.get(c) || 0;
-    if (n > 0) {
-      hit += 1;
-      counts.set(c, n - 1);
-    }
-  }
-  const ratio = hit / t.length;
-  return { correct: ratio >= 0.6, ratio };
+): { correct: boolean; ratio: number; hasExtra: boolean } {
+  const analysis = analyzePronunciation(heard, target);
+  return { correct: analysis.correct, ratio: analysis.ratio, hasExtra: analysis.hasExtra };
 }
 
 export interface PronunciationAnalysis {
   correct: boolean;
   ratio: number;
-  /** Caracteres do ALVO reconhecidos na fala (ordem do alvo). */
+  /**
+   * Por posição no hànzì normalizado do ALVO: true se aquele caractere
+   * foi encontrado na fala na ordem correta (ex.: 谢谢 + "谢" → [true, false]).
+   */
+  matchedMask: boolean[];
+  /** Caracteres do alvo reconhecidos na ordem (só os acertos). */
   matched: string[];
-  /** Caracteres do alvo que não foram reconhecidos. */
+  /** Caracteres do alvo que faltaram na ordem. */
   missing: string[];
+  /** A fala tinha hànzì sobrando depois de cobrir o alvo. */
+  hasExtra: boolean;
 }
 
 /**
- * Análise estruturada: quais caracteres do alvo foram reconhecidos e quais
- * faltaram. O reconhecedor (Web Speech) compara caracteres — ele NÃO valida
- * tom; a UI deve deixar isso claro e encaminhar o tom para o treinador.
+ * Análise estruturada com ordem. O reconhecedor (Web Speech) compara
+ * caracteres — ele nao valida tom; a UI deve deixar isso claro.
+ *
+ * `好你` nao cobre `你好`: cada caractere do alvo consome a próxima
+ * ocorrência na fala a partir do cursor (subsequência ordenada).
  */
 export function analyzePronunciation(heard: string, target: string): PronunciationAnalysis {
   const h = normalizeHan(heard);
   const t = normalizeHan(target);
-  if (!t) return { correct: false, ratio: 0, matched: [], missing: [] };
-  if (!h) return { correct: false, ratio: 0, matched: [], missing: [...t] };
-  const counts = new Map<string, number>();
-  for (const c of t) counts.set(c, (counts.get(c) || 0) + 1);
+  if (!t) {
+    return { correct: false, ratio: 0, matchedMask: [], matched: [], missing: [], hasExtra: false };
+  }
+  if (!h) {
+    return {
+      correct: false,
+      ratio: 0,
+      matchedMask: Array.from(t, () => false),
+      matched: [],
+      missing: [...t],
+      hasExtra: false,
+    };
+  }
+
+  const matchedMask: boolean[] = [];
   const matched: string[] = [];
   const missing: string[] = [];
+  let cursor = 0;
+  let consumed = 0;
+
   for (const c of t) {
-    const n = counts.get(c) || 0;
-    if (n > 0) {
+    const idx = h.indexOf(c, cursor);
+    if (idx >= 0) {
+      matchedMask.push(true);
       matched.push(c);
-      counts.set(c, n - 1);
+      cursor = idx + 1;
+      consumed += 1;
     } else {
+      matchedMask.push(false);
       missing.push(c);
     }
   }
+
+  const hasExtra = h.length > consumed;
   const ratio = t.length ? matched.length / t.length : 0;
-  return { correct: ratio >= 0.6, ratio, matched, missing };
+  // Correto só se TODOS os caracteres do alvo aparecem na ordem.
+  // Extras (你好世界) sao permitidos com aviso — nao invalidam o alvo.
+  const correct = missing.length === 0;
+  return { correct, ratio, matchedMask, matched, missing, hasExtra };
 }

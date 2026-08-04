@@ -137,6 +137,7 @@ const EXTRA: Record<string, Gloss> = {
   咖: { pinyin: "kā", pt: "café (em 咖啡)" },
   啡: { pinyin: "fēi", pt: "café (em 咖啡)" },
   奶: { pinyin: "nǎi", pt: "leite" },
+  爷: { pinyin: "yé", pt: "avô (em 爷爷)" },
   汁: { pinyin: "zhī", pt: "suco" },
   啤: { pinyin: "pí", pt: "cerveja (em 啤酒)" },
   酒: { pinyin: "jiǔ", pt: "bebida alcoólica" },
@@ -161,7 +162,9 @@ const EXTRA: Record<string, Gloss> = {
   行: { pinyin: "xíng/háng", pt: "andar; firma (em 银行)" },
   洗: { pinyin: "xǐ", pt: "lavar" },
   手: { pinyin: "shǒu", pt: "mão" },
+  头: { pinyin: "tóu", pt: "cabeça" },
   场: { pinyin: "chǎng", pt: "local aberto (em 机场)" },
+  园: { pinyin: "yuán", pt: "jardim; parque (em 公园)" },
   那: { pinyin: "nà", pt: "aquele; aquilo" },
   附: { pinyin: "fù", pt: "junto a (em 附近)" },
   近: { pinyin: "jìn", pt: "perto" },
@@ -189,6 +192,9 @@ const EXTRA: Record<string, Gloss> = {
   司: { pinyin: "sī", pt: "administrar (em 公司)" },
   忙: { pinyin: "máng", pt: "ocupado" },
   累: { pinyin: "lèi", pt: "cansado" },
+  病: { pinyin: "bìng", pt: "doente; doença" },
+  疼: { pinyin: "téng", pt: "dor; doer" },
+  班: { pinyin: "bān", pt: "turno; classe (em 上班)" },
   // Sentimentos e opinião
   高: { pinyin: "gāo", pt: "alto; (em 高兴) feliz" },
   兴: { pinyin: "xìng", pt: "ânimo (em 高兴)" },
@@ -222,6 +228,7 @@ const EXTRA: Record<string, Gloss> = {
   找: { pinyin: "zhǎo", pt: "procurar; dar troco" },
   用: { pinyin: "yòng", pt: "usar" },
   睡: { pinyin: "shuì", pt: "dormir" },
+  床: { pinyin: "chuáng", pt: "cama (em 起床)" },
   知: { pinyin: "zhī", pt: "saber (em 知道)" },
   进: { pinyin: "jìn", pt: "entrar" },
   迎: { pinyin: "yíng", pt: "receber (em 欢迎)" },
@@ -245,6 +252,31 @@ const EXTRA: Record<string, Gloss> = {
   分: { pinyin: "fēn", pt: "minuto; dividir" },
   牙: { pinyin: "yá", pt: "dente; (em 葡萄牙) Portugal" },
   久: { pinyin: "jiǔ", pt: "muito tempo (em 好久不见)" },
+  // Natureza
+  云: { pinyin: "yún", pt: "nuvem" },
+  雨: { pinyin: "yǔ", pt: "chuva" },
+  树: { pinyin: "shù", pt: "árvore" },
+  花: { pinyin: "huā", pt: "flor" },
+  草: { pinyin: "cǎo", pt: "grama; capim" },
+  // Clima
+  冷: { pinyin: "lěng", pt: "frio" },
+  晴: { pinyin: "qíng", pt: "ensolarado; céu limpo" },
+  雪: { pinyin: "xuě", pt: "neve" },
+  风: { pinyin: "fēng", pt: "vento" },
+  // Direções
+  左: { pinyin: "zuǒ", pt: "esquerda" },
+  右: { pinyin: "yòu", pt: "direita" },
+  前: { pinyin: "qián", pt: "frente; antes" },
+  后: { pinyin: "hòu", pt: "atrás; depois" },
+  边: { pinyin: "biān", pt: "lado; beira" },
+  直: { pinyin: "zhí", pt: "reto; em frente" },
+  往: { pinyin: "wǎng", pt: "em direção a" },
+  南: { pinyin: "nán", pt: "sul" },
+  路: { pinyin: "lù", pt: "rua; caminho" },
+  // Compras (roupas e itens)
+  鞋: { pinyin: "xié", pt: "sapato" },
+  双: { pinyin: "shuāng", pt: "par (classificador de pares)" },
+  件: { pinyin: "jiàn", pt: "peça (classificador de roupas)" },
 };
 
 const LOOKUP: Record<string, Gloss> = { ...EXTRA, ...radicalByGlyph, ...charByHanzi };

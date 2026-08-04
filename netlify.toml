@@ -25,15 +25,24 @@
   VITE_ALLOW_PRO_PREVIEW = "false"
   VITE_USE_TEST_FIXTURES = "false"
 
-# Deploy Preview — isolado; nunca misturar com production_beta.
+# Deploy Preview — NÃO usa o Supabase de produção.
+# Projeto preview criado: longyu-preview (wpnmygzxqvmpdlcuwrjp).
+# Enquanto o Netlify não tiver as chaves do preview, o build usa modo local
+# (progresso só no browser; sem escrita no banco principal).
+# Para ligar o preview isolado depois:
+#   VITE_BACKEND_MODE=supabase
+#   VITE_SUPABASE_URL=https://wpnmygzxqvmpdlcuwrjp.supabase.co
+#   VITE_SUPABASE_ANON_KEY=<anon do longyu-preview>
 [context.deploy-preview.environment]
   VITE_APP_ENV = "preview"
   VITE_APP_VERSION = "0.2.0-beta.1"
-  VITE_BACKEND_MODE = "supabase"
-  VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
+  VITE_BACKEND_MODE = "local"
+  VITE_SUPABASE_URL = ""
+  VITE_SUPABASE_ANON_KEY = ""
   VITE_ALLOW_PRO_PREVIEW = "false"
   VITE_USE_TEST_FIXTURES = "false"
+  VITE_ENABLE_TELEMETRY = "false"
+  VITE_ENABLE_BETA_FEEDBACK = "false"
 
 # SPA: qualquer rota (/som, /licao/:id, etc.) cai no index.html.
 # Sem isso, atualizar a página numa rota interna daria 404.
@@ -41,6 +50,15 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Headers de segurança básicos (beta pública).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "microphone=(self), camera=(), geolocation=()"
 
 # Service worker e manifest sempre frescos.
 [[headers]]

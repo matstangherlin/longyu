@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
@@ -8,6 +8,7 @@ import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { IconChevron, IconShield, IconStar, IconLibrary, IconGear } from "../../components/ui/Icon";
+import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 
 type AuthMode = "local" | "cloud_pending" | "cloud";
 
@@ -22,6 +23,10 @@ function statusFor(authMode: AuthMode): { label: string; tone: "muted" | "accent
 }
 
 export function ContaPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const subscribeIntent = isSubscribeIntent(searchParams);
+  const postAuthPath = resolvePostAuthPath(searchParams);
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts[currentAccountId];
@@ -50,6 +55,9 @@ export function ContaPage() {
     }
     setNotice(result.message);
     setPassword("");
+    if (subscribeIntent || searchParams.get("next")) {
+      navigate(postAuthPath);
+    }
   }
 
   async function onSignOut() {
@@ -99,9 +107,13 @@ export function ContaPage() {
         </CompactCard>
       ) : showLoginForm ? (
         <CompactCard>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Entrar ou criar conta</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
+            {subscribeIntent ? "Conta para assinar o Pro" : "Entrar ou criar conta"}
+          </div>
           <p className="mt-1 mb-3 text-[13px] leading-5 text-ink-soft">
-            Use email e senha para salvar seu progresso na nuvem. Sem cartão, sem tutorial.
+            {subscribeIntent
+              ? "Entre ou crie sua conta com email e senha para continuar a assinatura."
+              : "Use email e senha para salvar seu progresso na nuvem. Sem cartão, sem tutorial."}
           </p>
           <CloudLoginForm
             email={email}

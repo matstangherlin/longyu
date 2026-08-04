@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
+import { PageFallback } from "../system/PageFallback";
 import { warmUpVoices, installTTSGestureUnlock } from "../../lib/tts";
 import { markSessionStart } from "../../lib/proOfferEngine";
 import { Sidebar } from "./Sidebar";
@@ -87,7 +88,9 @@ export function AppShell() {
       <FeedbackProvider>
         <div className="theme-transition min-h-screen overflow-x-clip bg-bg px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6">
           <ErrorBoundary resetKey={location.pathname} area="auth">
-            <Outlet />
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
           </ErrorBoundary>
         </div>
         <AuthBootstrap />
@@ -118,7 +121,9 @@ export function AppShell() {
           ].join(" ")}
         >
           <ErrorBoundary resetKey={location.pathname} area="page">
-            <Outlet />
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
           </ErrorBoundary>
         </main>
       </div>

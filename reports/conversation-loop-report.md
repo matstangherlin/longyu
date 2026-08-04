@@ -4,28 +4,27 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
+| Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-03T21:49:27.599Z |
+| Gerado em | 2026-08-04T04:51:59.281Z |
 | Lições | 114 |
-| Hash da Jornada | 61ac9c5a7fc7 |
+| Hash da Jornada | e29b6e8d9bda |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 119 |
-| Itens de vocabulário exibidos | 640 |
-| Itens cobertos por tarefa posterior | 441 |
-| Reutilização média por item | 2.05 |
-| Itens sem cobertura | 199 |
-| Tarefas da fase Pós-Conversa | 419 |
+| Conversas analisadas (nos planos reais) | 120 |
+| Itens de vocabulário exibidos | 644 |
+| Itens cobertos por tarefa posterior | 443 |
+| Reutilização média por item | 2.04 |
+| Itens sem cobertura | 201 |
+| Tarefas da fase Pós-Conversa | 423 |
 | Média Pós-Conversa por conversa | 3.52 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
 
-- p1-o-que-e-hanzi:chunk:wohenhao
 - l4:chunk:nihaoma
 - p1-ate-logo:chunk:wohenhao
 - p1-primeira-conversa:chunk:xiexie
@@ -105,6 +104,7 @@
 - l17:chunk:xiexie
 - l17:chunk:zaijian
 - l18:chunk:nihaoma
-- …mais 119.
+- l18:chunk:xiexie
+- …mais 121.
 
-<!-- integridade:f822663f74abf978 -->
+<!-- integridade:19d26efe271ae77f -->

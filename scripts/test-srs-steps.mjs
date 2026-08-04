@@ -6,9 +6,9 @@ import process from "node:process";
 import ts from "typescript";
 
 // Testa os learning steps intra-dia do SRS: item novo deixa de pular direto
-// para 1 dia. hard repete o passo em 10 min; o 1º "good" agenda 1 h; o 2º
-// "good" (ou "easy") gradua para um intervalo de dia. Itens graduados mantêm
-// o SM-2 original.
+// para 1 dia. hard repete o passo em 10 min sem avançar a graduação; somente
+// "good" conta — o 1º agenda 1 h; o 2º (ou "easy") gradua para um intervalo
+// de dia. Itens graduados mantêm o SM-2 original.
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-srs-steps-"));
@@ -70,11 +70,19 @@ try {
     assert(r.due === NOW + HOUR + 1 * 24 * 60 * 60 * 1000, "2º good → due +1 dia");
   }
 
-  // 3. Novo item + hard → repete o passo em 10 min.
+  // 3. Novo item + hard → repete o passo em 10 min (sem avançar reps).
   {
     const r = review(newItem("chunk", "nihao", { now: NOW }), "hard", NOW);
-    assert(r.intervalDays === 0 && r.reps === 1, "novo+hard → continua em learning");
+    assert(r.intervalDays === 0 && r.reps === 0, "novo+hard → continua em learning sem avançar reps");
     assert(r.due === NOW + 10 * MIN, "novo+hard → due +10min");
+  }
+
+  // 3b. novo → hard → good: hard não conta; o good seguinte ainda é o 1º passo (1 h).
+  {
+    const hard = review(newItem("chunk", "nihao", { now: NOW }), "hard", NOW);
+    const r = review(hard, "good", NOW + 10 * MIN);
+    assert(r.intervalDays === 0 && r.reps === 1, "hard→good → ainda passo de 1h (não gradua)");
+    assert(r.due === NOW + 10 * MIN + HOUR, "hard→good → due +1h após o good");
   }
 
   // 4. Novo item + easy → gradua direto (3 dias, comportamento original).

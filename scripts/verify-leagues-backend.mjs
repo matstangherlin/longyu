@@ -35,11 +35,18 @@ async function checkViaManagementApi() {
         select
           (select count(*)::int from public.league_tiers) as tiers,
           (select count(*)::int from public.league_memberships) as members,
+          (select count(*)::int from public.league_memberships where current_week_key = public.iso_week_key()) as members_this_week,
+          (select count(*)::int from public.league_memberships where current_week_key <> public.iso_week_key()) as members_stale,
           exists (
             select 1 from pg_proc p
             join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'get_league_standings'
-          ) as has_rpc
+          ) as has_rpc,
+          exists (
+            select 1 from pg_proc p
+            join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public' and p.proname = 'finalize_league_cohort'
+          ) as has_cohort_finalize
       `,
     }),
   });
@@ -71,13 +78,23 @@ const mgmt = await checkViaManagementApi();
 if (mgmt?.error) {
   console.log(`Management API: ${mgmt.error}`);
 } else if (mgmt) {
-  console.log(`OK: ${mgmt.tiers} divisões, ${mgmt.members} membros, RPC=${mgmt.has_rpc ? "sim" : "não"}`);
+  console.log(
+    `OK: ${mgmt.tiers} divisões, ${mgmt.members} membros (${mgmt.members_this_week} na semana atual), RPC=${mgmt.has_rpc ? "sim" : "não"}, cohort=${mgmt.has_cohort_finalize ? "sim" : "não"}`
+  );
   if (Number(mgmt.tiers) < 7) {
     console.error("ERRO: esperadas 7 divisões (Bronze → Celestial).");
     process.exit(1);
   }
   if (!mgmt.has_rpc) {
     console.error("ERRO: RPC get_league_standings ausente.");
+    process.exit(1);
+  }
+  if (!mgmt.has_cohort_finalize) {
+    console.error("ERRO: finalize_league_cohort ausente — rode migration 016.");
+    process.exit(1);
+  }
+  if (Number(mgmt.members_stale) > 0) {
+    console.error(`ERRO: ${mgmt.members_stale} membros ainda em semana antiga.`);
     process.exit(1);
   }
 } else if (!token) {

@@ -24,7 +24,7 @@ export interface ServerSubscriptionSnapshot {
   currentPeriodEnd?: number;
 }
 
-export type SubscriptionServiceStatus = "not_implemented" | "opened" | "error";
+export type SubscriptionServiceStatus = "not_implemented" | "opened" | "error" | "auth_required";
 
 export interface SubscriptionServiceResult<T = undefined> {
   status: SubscriptionServiceStatus;
@@ -44,7 +44,7 @@ const MANAGE_PENDING_MESSAGE =
 const CHECKOUT_PENDING_MESSAGE =
   "Assinaturas reais ainda não estão ativas nesta versão. Quando o Stripe for integrado, o checkout abrirá aqui de forma segura.";
 
-const CHECKOUT_LOGIN_REQUIRED = "Faça login na sua conta para assinar o Longyu Pro.";
+export const CHECKOUT_LOGIN_REQUIRED = "Faça login na sua conta para assinar o Longyu Pro.";
 
 export function subscriptionStateFor(
   isPremiumPreview: boolean,
@@ -74,7 +74,7 @@ export async function createCheckoutSession(
     data: { session },
   } = await client.auth.getSession();
   if (!session) {
-    return { status: "not_implemented", message: CHECKOUT_LOGIN_REQUIRED };
+    return { status: "auth_required", message: CHECKOUT_LOGIN_REQUIRED };
   }
 
   const { data, error } = await client.functions.invoke<{ url?: string }>("create-checkout-session", {
