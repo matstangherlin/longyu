@@ -8,14 +8,16 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 |------|--------|-------|
 | Projeto produção (`drjcfalvlbbeblmmyhwj`) | ✅ | MandarimProject |
 | Projeto preview (`longyu-preview`) | 🗑️ | Pausado/removido 2026-08-04 — liberou cota Free (reativou `atomurus`). Netlify Preview fica em `local` |
-| Migrations 001–016 no produção | ✅ | Pedagogia + Stripe ordering + `fix_leagues_cohort_finalize` |
-| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` (confirmação de email; verify_jwt=false) |
+| Migrations 001–017 no produção | ✅ | Inclui `017_referrals` (referrals, rewards, entitlement_grants) — verificado 2026-08-04 |
+| Migration 018 signup rate limits | ✅ | Aplicada 2026-08-04: `signup_rate_events` + `check_and_record_signup_rate` + `admin_cleanup_unconfirmed_signups` |
+| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` (confirmação; `verify_jwt=false`; hardening rate limit/anti-enum/redirect allowlist) |
 | `npm run verify:production` | ✅ | |
 | `npm run verify:beta-feedback` | ✅ | |
 | RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |
 | Secrets Stripe no Supabase | ✅ | Webhook 400 sem assinatura (não 501) |
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
-| Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04: signUp sem sessão). App `/confirmar-email` + Edge `create-account`. Workflow Auth opcional (`SUPABASE_ACCESS_TOKEN`) para redirects/CI |
+| Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account`. Turnstile opcional (`TURNSTILE_SECRET_KEY` + `VITE_TURNSTILE_SITE_KEY`) |
+| Referral operacional | 🟡 | Schema 017 em produção (0 linhas). Falta E2E com 2 contas reais |
 
 ## App / Netlify
 
