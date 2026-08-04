@@ -39,11 +39,17 @@ mustExist("scripts/seo-prerender.mjs");
 const robots = read("public/robots.txt");
 if (robots.includes("Sitemap:")) ok("robots.txt tem Sitemap");
 else fail("robots.txt sem Sitemap");
+if (robots.includes("singular-meringue-7838cd.netlify.app")) ok("robots.txt usa domínio vivo");
+else fail("robots.txt sem domínio de produção vivo");
+if (robots.includes("longyu.netlify.app")) fail("robots.txt ainda aponta para longyu.netlify.app (404)");
 if (robots.includes("Disallow: /jornada") && robots.includes("Disallow: /conta")) {
   ok("robots.txt bloqueia rotas privadas");
 } else fail("robots.txt incompleto nas rotas privadas");
 
 const indexHtml = read("index.html");
+if (indexHtml.includes("singular-meringue-7838cd.netlify.app")) ok("index.html usa domínio vivo");
+else fail("index.html sem domínio de produção vivo");
+if (indexHtml.includes("longyu.netlify.app")) fail("index.html ainda aponta para longyu.netlify.app (404)");
 for (const needle of [
   'property="og:title"',
   'property="og:image"',

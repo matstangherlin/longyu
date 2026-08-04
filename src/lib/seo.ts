@@ -1,10 +1,11 @@
 /**
  * Metadados SEO do Longyu.
- * Domínio canônico atual: longyu.netlify.app (sem domínio próprio ainda).
+ * Domínio canônico atual: singular-meringue-7838cd.netlify.app (site vivo).
+ * Não use longyu.netlify.app até existir alias Netlify ativo.
  * Quando existir longyu.com.br, defina VITE_SITE_URL no Netlify.
  */
 
-export const DEFAULT_SITE_URL = "https://longyu.netlify.app";
+export const DEFAULT_SITE_URL = "https://singular-meringue-7838cd.netlify.app";
 
 export const SITE_NAME = "Longyu";
 export const SITE_NAME_HANZI = "龙语";

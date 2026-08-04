@@ -33,6 +33,30 @@ try {
     if (!bundle.includes("drjcfalvlbbeblmmyhwj")) errors.push("bundle sem host Supabase de produção");
     if (bundle.includes("Pro Preview")) errors.push("bundle ainda expõe Pro Preview");
   }
+
+  // SEO mínimo no deploy publicado
+  const robots = await fetchText(`${PRODUCTION_URL}/robots.txt`);
+  if (!/Sitemap:/i.test(robots)) errors.push("robots.txt sem Sitemap");
+  if (!/Disallow:\s*\/jornada/.test(robots)) errors.push("robots.txt sem Disallow /jornada");
+
+  const sitemapRes = await fetch(`${PRODUCTION_URL}/sitemap.xml`, { redirect: "follow" });
+  if (!sitemapRes.ok) errors.push(`sitemap.xml HTTP ${sitemapRes.status}`);
+  else {
+    const xml = await sitemapRes.text();
+    if (!xml.includes("<urlset") || !xml.includes("aprender-mandarim")) {
+      errors.push("sitemap.xml incompleto");
+    }
+    if (xml.includes("longyu.netlify.app")) {
+      errors.push("sitemap.xml ainda aponta para longyu.netlify.app (404)");
+    }
+  }
+
+  const og = await fetch(`${PRODUCTION_URL}/og-image.png`, { redirect: "follow" });
+  if (!og.ok) errors.push(`og-image.png HTTP ${og.status}`);
+
+  if (/longyu\.netlify\.app/.test(html) && !/singular-meringue-7838cd\.netlify\.app/.test(html)) {
+    errors.push("HTML canônico aponta só para longyu.netlify.app (domínio morto)");
+  }
 } catch (error) {
   errors.push(error instanceof Error ? error.message : "falha ao buscar deploy");
 }

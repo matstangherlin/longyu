@@ -6,13 +6,16 @@ Implementado o pacote mínimo de SEO técnico + páginas públicas de conteúdo.
 
 ## Domínio
 
-Canônico atual: `https://longyu.netlify.app` (`VITE_SITE_URL`).
+Canônico atual (site vivo): `https://singular-meringue-7838cd.netlify.app` (`VITE_SITE_URL`).
+
+> `longyu.netlify.app` **não** está ativo (404). Não use como canonical até existir alias Netlify + redirect 301 para o principal.
 
 Quando existir domínio próprio (ex.: `longyu.com.br`):
 
 1. Atualizar `VITE_SITE_URL` no Netlify / `netlify.toml`
-2. Atualizar `Sitemap:` em `public/robots.txt` e URLs em `index.html` (ou regenerar build)
-3. Incluir o domínio no widget Turnstile
+2. Atualizar `Sitemap:` em `public/robots.txt` (ou regenerar build)
+3. Incluir o domínio no widget Turnstile e nos redirects do Supabase Auth
+4. Garantir um único domínio público (os outros só redirecionam)
 
 ## Artefatos
 

@@ -47,4 +47,4 @@ Disallow: /licao
 Disallow: /teste
 Disallow: /convite
 
-Sitemap: https://longyu.netlify.app/sitemap.xml
+Sitemap: https://singular-meringue-7838cd.netlify.app/sitemap.xml
