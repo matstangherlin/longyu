@@ -38,24 +38,62 @@ async function clickIfEnabled(locator: Locator, timeout = 1_500): Promise<boolea
   }
 }
 
+/** Ordem correta de componentes do Hànzì Builder para prompts comuns no smoke. */
+function hanziBuilderOrder(prompt: string): string[] {
+  if (/você|nǐ|你/i.test(prompt)) return ["亻", "尔"];
+  if (/bom|boa|hǎo|好/i.test(prompt)) return ["女", "子"];
+  if (/pessoa|rén|人/i.test(prompt)) return ["人"];
+  if (/madeira|árvore|mù|木/i.test(prompt)) return ["木"];
+  if (/montanha|shān|山/i.test(prompt)) return ["山"];
+  return [];
+}
+
 /** Avança passos genéricos até o seletor aparecer (smoke, não prova pedagógica profunda). */
 async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): Promise<boolean> {
+  const deadline = Date.now() + Math.min(25_000, Math.max(6_000, maxSteps * 1_200));
   for (let step = 0; step < maxSteps; step += 1) {
+    if (Date.now() > deadline) break;
     await dismissBlockingOverlays(page);
     await page.keyboard.press("Escape").catch(() => undefined);
     if (await target.isVisible().catch(() => false)) return true;
 
     // Produce concluído: o CTA é "Certo! +Qi", não "Continuar".
     if (await clickIfEnabled(page.getByRole("button", { name: /Certo!|\+Qi/i }).first())) {
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(150);
       continue;
     }
 
-    const produceMonte = page.getByText(/Monte .+ na ordem certa|toque nas peças/i).first();
-    if (await produceMonte.isVisible().catch(() => false)) {
+    // Hànzì Builder ("Monte pelas peças") — NÃO confundir com produce ("Monte … na ordem certa").
+    const hanziBuilder = page.getByText(/Monte pelas peças|Monte o hànzì/i).first();
+    if (await hanziBuilder.isVisible().catch(() => false)) {
       const prompt =
-        (await page.locator("p").filter({ hasText: /Monte/i }).first().textContent().catch(() => "")) ?? "";
-      // Ordem correta das peças — clicar em qualquer ordem deixa o produce travado.
+        (await page.locator("h2, p, [class*='eyebrow']").allTextContents().then((t) => t.join(" ")).catch(() => "")) ??
+        "";
+      const order = hanziBuilderOrder(prompt);
+      let placed = 0;
+      for (const glyph of order) {
+        const token = page.getByRole("button", { name: new RegExp(`^Peça \\d+: Peça ${glyph}\\b`) }).first();
+        if (await clickIfEnabled(token)) placed += 1;
+      }
+      if (placed === 0) {
+        // Sem ordem conhecida: tenta atalho numérico na ordem do banco.
+        const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
+        const count = await pieces.count();
+        for (let i = 0; i < count; i += 1) await clickIfEnabled(pieces.nth(i));
+      }
+      if (!(await clickIfEnabled(page.getByRole("button", { name: /^Verificar$/ }).first()))) {
+        await clickFirstVisible(page, [/^Pular/, /^Continuar$/, /Certo!|\+Qi/]);
+      } else {
+        await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Tentar de novo$/]);
+      }
+      await page.waitForTimeout(150);
+      continue;
+    }
+
+    // Produce (banco de sílabas/caracteres): "Monte “olá” na ordem certa."
+    const produceMonte = page.getByText(/Monte [“"'].+[”"'] na ordem certa/i).first();
+    if (await produceMonte.isVisible().catch(() => false)) {
+      const prompt = (await produceMonte.textContent().catch(() => "")) ?? "";
       let order = ["你", "好"];
       if (/estou bem|muito bem/i.test(prompt)) order = ["我", "很", "好"];
       else if (/até logo|tchau/i.test(prompt)) order = ["再", "见"];
@@ -75,12 +113,11 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
         !(await clickIfEnabled(page.getByRole("button", { name: /Certo!|\+Qi/i }).first())) &&
         !(await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/]))
       ) {
-        // Banco cheio/errado ou ordem falhou — pula para não estourar o timeout do teste.
         if (picked === 0 || step >= 2) {
           await clickFirstVisible(page, [/^Pular/, /^Tentar de novo$/]);
         }
       }
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(150);
       continue;
     }
 
@@ -92,8 +129,8 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
         await clickIfEnabled(pieces.nth(i));
       }
       await clickFirstVisible(page, [/Certo!|\+Qi/, /^Verificar$/, /^Confirmar$/]);
-      await clickFirstVisible(page, [/^Continuar$/, /^Conferir$/]);
-      await page.waitForTimeout(200);
+      await clickFirstVisible(page, [/^Continuar$/, /^Conferir$/, /^Pular/]);
+      await page.waitForTimeout(150);
       continue;
     }
 
@@ -128,7 +165,7 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
         }
       }
     }
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(150);
   }
   return target.isVisible().catch(() => false);
 }
@@ -268,7 +305,7 @@ test.describe("beta smoke — aprendizagem", () => {
   });
 
   test("pós-conversa: transição após cena de cumprimento", async ({ page }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(60_000);
     await seedLessonPlayerReady(page, "l2");
     await page.goto("/licao/l2/player");
     await waitForLazyPage(page);
@@ -288,7 +325,6 @@ test.describe("beta smoke — aprendizagem", () => {
       for (const entry of performance.getEntriesByType("resource")) {
         if (entry.name.endsWith(".js")) urls.add(entry.name);
       }
-      // Também puxa o HTML e scripts referenciados (chunks ainda não visitados).
       try {
         const html = await fetch("/").then((r) => r.text());
         for (const match of html.matchAll(/assets\/[A-Za-z0-9_.-]+\.js/g)) {
@@ -318,10 +354,8 @@ test.describe("beta smoke — aprendizagem", () => {
         /Pós-Conversa|O que esta frase significa|Qual resposta combina|Monte a resposta|Ouça e escolha|Complete a palavra|Use na frase|Complete o cumprimento/i
       )
       .first();
-    const found = await advanceUntilVisible(page, postCue, 16);
-    if (found) {
-      await expect(postCue).toBeVisible();
-    }
+    // Tentativa curta na UI — plano adaptativo pode adiar a fase; o assert forte é o pipeline.
+    await advanceUntilVisible(page, postCue, 10);
     await expect(page.locator("body")).not.toContainText("Unexpected Application Error");
   });
 
