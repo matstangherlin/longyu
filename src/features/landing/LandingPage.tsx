@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { captureReferralFromSearch } from "../../lib/referralCapture";
 import { ButtonLink } from "../../components/ui/primitives";
@@ -162,6 +162,26 @@ export function LandingPage() {
 
       <footer className="relative z-[1] mx-auto w-full max-w-6xl space-y-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 text-center sm:px-8 lg:text-left">
         <BetaNotice />
+        <nav
+          aria-label="Aprenda mais"
+          className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] text-ink-faint sm:justify-start sm:text-xs"
+        >
+          <Link to="/metodo-longyu" className="hover:text-ink-soft">
+            Método
+          </Link>
+          <Link to="/como-funciona" className="hover:text-ink-soft">
+            Como funciona
+          </Link>
+          <Link to="/aprender-mandarim" className="hover:text-ink-soft">
+            Aprender mandarim
+          </Link>
+          <Link to="/tons-do-mandarim" className="hover:text-ink-soft">
+            Tons
+          </Link>
+          <Link to="/privacidade" className="hover:text-ink-soft">
+            Privacidade
+          </Link>
+        </nav>
         <p className="text-[11px] text-ink-faint">
           Longyu · <AppVersionLabel />
         </p>

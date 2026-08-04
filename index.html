@@ -9,6 +9,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#B42318" />
     <meta name="description" content="Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://longyu.netlify.app/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Longyu" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Longyu — aprenda mandarim pela lógica" />
+    <meta property="og:description" content="Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada." />
+    <meta property="og:url" content="https://longyu.netlify.app/" />
+    <meta property="og:image" content="https://longyu.netlify.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Longyu — aprenda mandarim pela lógica" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Longyu — aprenda mandarim pela lógica" />
+    <meta name="twitter:description" content="Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada." />
+    <meta name="twitter:image" content="https://longyu.netlify.app/og-image.png" />
+
+    <script type="application/ld+json" id="longyu-jsonld">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://longyu.netlify.app/#website",
+            "url": "https://longyu.netlify.app",
+            "name": "Longyu",
+            "alternateName": ["龙语", "Longyu Mandarim"],
+            "description": "Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+            "inLanguage": "pt-BR",
+            "publisher": { "@id": "https://longyu.netlify.app/#organization" }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://longyu.netlify.app/#organization",
+            "name": "Longyu",
+            "url": "https://longyu.netlify.app",
+            "logo": "https://longyu.netlify.app/logo.png",
+            "description": "Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada."
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://longyu.netlify.app/#app",
+            "name": "Longyu (龙语)",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "pt-BR",
+            "url": "https://longyu.netlify.app",
+            "description": "Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "BRL",
+              "description": "Começar grátis; planos Pro opcionais."
+            },
+            "educationalUse": "language learning",
+            "learningResourceType": "interactive lesson",
+            "audience": {
+              "@type": "EducationalAudience",
+              "educationalRole": "student",
+              "geographicArea": "Brazil"
+            }
+          }
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,6 +89,23 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main style="max-width:40rem;margin:2rem auto;padding:0 1rem;font-family:Georgia,serif;line-height:1.6;color:#2F3437">
+        <h1>Longyu (龙语)</h1>
+        <p>Aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada.</p>
+        <p>Ative o JavaScript para usar o aplicativo, ou explore as páginas públicas:</p>
+        <ul>
+          <li><a href="/aprender-mandarim">Aprender mandarim</a></li>
+          <li><a href="/curso-de-mandarim-online">Curso de mandarim online</a></li>
+          <li><a href="/tons-do-mandarim">Tons do mandarim</a></li>
+          <li><a href="/aprender-pinyin">Aprender pinyin</a></li>
+          <li><a href="/aprender-hanzi">Aprender hànzì</a></li>
+          <li><a href="/mandarim-para-brasileiros">Mandarim para brasileiros</a></li>
+          <li><a href="/como-funciona">Como funciona</a></li>
+          <li><a href="/metodo-longyu">Método Longyu</a></li>
+        </ul>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

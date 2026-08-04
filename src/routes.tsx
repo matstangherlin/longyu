@@ -42,6 +42,7 @@ const ReferralPage = lazy(() => import("./features/referral/ReferralPage").then(
 const ReferralInvitePage = lazy(() => import("./features/referral/ReferralInvitePage").then((m) => ({ default: m.ReferralInvitePage })));
 const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) => ({ default: m.AmigosPage })));
 const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage").then((m) => ({ default: m.AdminFeedbackPage })));
+const MarketingPage = lazy(() => import("./features/marketing/MarketingPage").then((m) => ({ default: m.MarketingPage })));
 
 // Landing (pública) fica estática: é a primeira pintura para novos visitantes.
 import { LandingPage } from "./features/landing/LandingPage";
@@ -50,6 +51,15 @@ export const routes: RouteObject[] = [
   // "/" público: landing para quem ainda não tem conta/progresso.
   // Quem já tem redireciona para /jornada dentro do próprio componente.
   { path: "/", element: <LandingPage /> },
+  // Páginas públicas de conteúdo (SEO) — fora do AppShell.
+  { path: "/aprender-mandarim", element: <MarketingPage /> },
+  { path: "/curso-de-mandarim-online", element: <MarketingPage /> },
+  { path: "/tons-do-mandarim", element: <MarketingPage /> },
+  { path: "/aprender-pinyin", element: <MarketingPage /> },
+  { path: "/aprender-hanzi", element: <MarketingPage /> },
+  { path: "/mandarim-para-brasileiros", element: <MarketingPage /> },
+  { path: "/como-funciona", element: <MarketingPage /> },
+  { path: "/metodo-longyu", element: <MarketingPage /> },
   { path: "/convite/:code", element: <ReferralInvitePage /> },
   {
     element: <AppShell />,
