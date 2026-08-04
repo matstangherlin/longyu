@@ -28,3 +28,7 @@ enable_signup = true
 # Stripe envia webhooks sem JWT do Supabase.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Cadastro público: Admin API cria usuário pendente de confirmação.
+[functions.create-account]
+verify_jwt = false
