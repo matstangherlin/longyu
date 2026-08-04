@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
+| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-03T21:49:27.599Z |
+| Gerado em | 2026-08-04T03:16:23.434Z |
 | Lições | 114 |
-| Hash da Jornada | 61ac9c5a7fc7 |
+| Hash da Jornada | 75120b753bbd |
 
 ## Resumo
 
@@ -107,4 +107,4 @@
 - l18:chunk:nihaoma
 - …mais 119.
 
-<!-- integridade:f822663f74abf978 -->
+<!-- integridade:39cbc0442ce163f4 -->
