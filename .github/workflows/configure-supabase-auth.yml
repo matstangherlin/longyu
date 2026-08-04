@@ -39,8 +39,8 @@ jobs:
             echo "site_url=${{ inputs.site_url }}" >> "$GITHUB_OUTPUT"
             echo "add_prod_url=${{ inputs.add_prod_url }}" >> "$GITHUB_OUTPUT"
           else
-            echo "site_url=https://singular-meringue-7838cd.netlify.app" >> "$GITHUB_OUTPUT"
-            echo "add_prod_url=https://longyu.app" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://longyu.com.br" >> "$GITHUB_OUTPUT"
+            echo "add_prod_url=https://longyu.com.br" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Enable email confirmation (mailer_autoconfirm=false)
@@ -55,6 +55,8 @@ jobs:
           npm run configure:supabase-auth -- \
             --site-url "${{ steps.urls.outputs.site_url }}" \
             --add-prod-url "${{ steps.urls.outputs.add_prod_url }}" \
+            --add-prod-url "https://www.longyu.com.br" \
+            --add-prod-url "https://longyu.netlify.app" \
             --add-prod-url "https://singular-meringue-7838cd.netlify.app"
 
       - name: Verify auth config
