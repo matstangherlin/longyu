@@ -100,6 +100,19 @@ export function chestOpenSound(type: string): SoundKind {
   return CHEST_OPEN_SOUND[type] ?? "chestOpenCommon";
 }
 
+/**
+ * Desbloqueia o AudioContext sob gesto do usuário (Safari/iOS suspende até
+ * a primeira interação). Chamado pelo unlock global de TTS/SFX.
+ */
+export function unlockAudio(): void {
+  if (typeof window === "undefined") return;
+  const AudioContextCtor = window.AudioContext ?? window.webkitAudioContext;
+  if (!AudioContextCtor) return;
+  const context = getSharedContext(AudioContextCtor);
+  if (!context) return;
+  if (context.state === "suspended") void context.resume();
+}
+
 export function playSoundFx(kind: SoundKind, enabled: boolean) {
   if (!enabled || typeof window === "undefined") return;
   const AudioContextCtor = window.AudioContext ?? window.webkitAudioContext;

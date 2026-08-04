@@ -8,7 +8,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 |------|--------|-------|
 | Projeto produção (`drjcfalvlbbeblmmyhwj`) | ✅ | MandarimProject |
 | Projeto preview (`wpnmygzxqvmpdlcuwrjp`) | ✅ | `longyu-preview` — schema 001–015 aplicado; Netlify Preview ainda em `local` até configurar anon key |
-| Migrations 001–015 no produção | ✅ | Pedagogia + Stripe ordering |
+| Migrations 001–016 no produção | ✅ | Pedagogia + Stripe ordering + `fix_leagues_cohort_finalize` |
 | Edge Functions produção | ✅ | checkout/webhook/billing/delete v8–v9 |
 | `npm run verify:production` | ✅ | |
 | `npm run verify:beta-feedback` | ✅ | |

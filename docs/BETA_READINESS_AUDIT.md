@@ -1,6 +1,26 @@
 # Longyu — Auditoria de prontidão beta (`0.2.0-beta.1`)
 
-## Atualização operacional — 2026-08-04
+## Atualização operacional — 2026-08-04 (noite)
+
+**Commit `main`:** `274b35d`  
+**Método desta atualização:** CI Chromium verde no push; migration 016 confirmada no remoto; fixes de áudio cross-browser e WebKit em andamento.
+
+| Critério | Evidência 2026-08-04 |
+|---|---|
+| CI na `main` (`274b35d`) | ✅ `Portão de qualidade` + `Testes E2E` verdes ([run 30885211329](https://github.com/matstangherlin/longyu/actions/runs/30885211329)); WebKit informativo ainda falha (offline reload / medalha); Firefox ficava skipped — workflow corrigido para rodar Firefox mesmo assim |
+| Pedagogia / conteúdo | ✅ 122 lições; depth média 91; novelty 85%; validate:beta verde |
+| Migration 016 (ligas) | ✅ `fix_leagues_cohort_finalize` aplicada no MandarimProject |
+| Áudio Safari/iOS | 🟡 Unlock unificado TTS+SFX + anti-cancel Firefox; validar em device |
+| RLS A≠B automatizado | 🟡 Script `npm run test:rls` (precisa `SUPABASE_SERVICE_ROLE_KEY`) |
+| Stripe Test Mode E2E humano | 🟡 Runbook + `npm run test:stripe` (precisa `sk_test_`) |
+| Branch protection na `main` | ⬜ Ativar no GitHub |
+| Device real iOS/Android | ⬜ Áudio, PWA, offline, mic |
+
+**Veredito atualizado:** **beta fechada por convite** pronta. Beta pública gratuita aguarda RLS + devices + WebKit mais estável.
+
+---
+
+## Atualização operacional — 2026-08-04 (manhã)
 
 **Commit `main`:** `1686403` (+ PR de estabilização em andamento)  
 **Método desta atualização:** correções de pronúncia/ordem, gates npm, Preview isolado, projeto `longyu-preview`, script RLS, CI no commit da main.

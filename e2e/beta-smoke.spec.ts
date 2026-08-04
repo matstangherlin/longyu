@@ -305,7 +305,7 @@ test.describe("beta smoke — aprendizagem", () => {
   });
 
   test("pós-conversa: transição após cena de cumprimento", async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(90_000);
     await seedLessonPlayerReady(page, "l2");
     await page.goto("/licao/l2/player");
     await waitForLazyPage(page);
@@ -314,8 +314,7 @@ test.describe("beta smoke — aprendizagem", () => {
       await page.getByRole("button", { name: "Entendi" }).click();
     }
 
-    // Com code-splitting, fase/cena podem estar em chunks distintos — valida o
-    // pipeline no bundle cedo, sem depender de avançar dezenas de passos na UI.
+    // Pipeline no bundle (code-splitting espalha fase/cena em chunks).
     const hasPostConversationPipeline = await page.evaluate(async () => {
       const urls = new Set<string>();
       for (const el of document.querySelectorAll("script[src]")) {
@@ -354,8 +353,10 @@ test.describe("beta smoke — aprendizagem", () => {
         /Pós-Conversa|O que esta frase significa|Qual resposta combina|Monte a resposta|Ouça e escolha|Complete a palavra|Use na frase|Complete o cumprimento/i
       )
       .first();
-    // Tentativa curta na UI — plano adaptativo pode adiar a fase; o assert forte é o pipeline.
-    await advanceUntilVisible(page, postCue, 10);
+    // Agora o advanceUntilVisible trata Hànzì Builder — exige chegar na UI.
+    const found = await advanceUntilVisible(page, postCue, 22);
+    expect(found).toBeTruthy();
+    await expect(postCue).toBeVisible();
     await expect(page.locator("body")).not.toContainText("Unexpected Application Error");
   });
 

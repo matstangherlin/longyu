@@ -176,12 +176,16 @@ test.describe("descoberta progressiva de recursos", () => {
     // 2) Progride no mesmo aparelho → anuncia o Treino.
     await setStore(page, { completedLessons: ["l1", "l2", "l1-rev"] });
     await page.goto("/jornada");
-    await dismissBlockingOverlays(page);
+    // Medalha de "3 lições" pode cobrir o card no WebKit — drena antes de assertar.
+    for (let i = 0; i < 8; i += 1) {
+      await dismissBlockingOverlays(page);
+      if ((await page.locator('[role="dialog"][aria-modal="true"]').count()) === 0) break;
+      await page.waitForTimeout(150);
+    }
     const card = page.getByText("Você liberou o Treino");
-    await expect(card).toBeVisible();
+    await expect(card).toBeVisible({ timeout: 10_000 });
 
     // 3) Dispensa ("Depois") → não reaparece após recarregar.
-    // A medalha de "3 lições" pode enfileirar modais sobre o card; drena antes.
     for (let i = 0; i < 6; i += 1) {
       await dismissBlockingOverlays(page);
       if ((await page.getByRole("dialog").count()) === 0) break;

@@ -22,6 +22,7 @@ export function SpeakButton({
 }) {
   const rate = useStore((s) => s.ttsRate);
   const slowAudio = useStore((s) => s.slowAudio);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const [playing, setPlaying] = useState(false);
 
@@ -42,7 +43,9 @@ export function SpeakButton({
   }
 
   useEffect(() => {
-    if (!autoPlay) return;
+    // Respeita o toggle global — sem isso Safari/iOS dispara fala fora do gesto
+    // e o usuário não consegue desligar o autoplay.
+    if (!autoPlay || !autoPlayAudio) return;
     const clean = String(text ?? "").trim();
     if (!clean) return;
     setPlaying(true);
@@ -55,7 +58,7 @@ export function SpeakButton({
     });
     // Só reage a texto/autoPlay — rate/slowAudio vêm do store no momento da fala.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoPlay, text]);
+  }, [autoPlay, autoPlayAudio, text]);
 
   return (
     <button

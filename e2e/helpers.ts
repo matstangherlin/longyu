@@ -31,23 +31,40 @@ export async function seedTelemetryDeclined(page: Page) {
 }
 
 export async function dismissBlockingOverlays(page: Page) {
-  for (let attempt = 0; attempt < 4; attempt += 1) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
     const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });
     if (await privacy.isVisible().catch(() => false)) {
       const decline = page.getByRole("button", { name: /Agora não/i });
       if (await decline.isVisible().catch(() => false)) {
-        await decline.click().catch(() => undefined);
+        await decline.click({ timeout: 2_000 }).catch(() => undefined);
       }
-      await page.waitForTimeout(150);
+      await page.waitForTimeout(120);
       continue;
     }
-    const achievement = page.getByRole("dialog", { name: /medalha/i });
-    if (!(await achievement.isVisible().catch(() => false))) return;
-    const continueBtn = page.getByRole("button", { name: /Continuar/i });
-    if (await continueBtn.isVisible().catch(() => false)) {
-      await continueBtn.click().catch(() => undefined);
+    const achievement = page.getByRole("dialog", { name: /medalha|conquista/i });
+    if (await achievement.isVisible().catch(() => false)) {
+      const continueBtn = page.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
+      if (await continueBtn.isVisible().catch(() => false)) {
+        await continueBtn.click({ timeout: 2_000 }).catch(() => undefined);
+      } else {
+        await page.keyboard.press("Escape").catch(() => undefined);
+      }
+      await page.waitForTimeout(120);
+      continue;
     }
-    await page.waitForTimeout(150);
+    // Qualquer outro dialog modal que bloqueie cliques (WebKit é mais sensível).
+    const otherDialog = page.locator('[role="dialog"][aria-modal="true"]').first();
+    if (await otherDialog.isVisible().catch(() => false)) {
+      const dismiss = otherDialog.getByRole("button", { name: /Continuar|Fechar|Ok|Depois|Entendi/i }).first();
+      if (await dismiss.isVisible().catch(() => false)) {
+        await dismiss.click({ timeout: 2_000 }).catch(() => undefined);
+      } else {
+        await page.keyboard.press("Escape").catch(() => undefined);
+      }
+      await page.waitForTimeout(120);
+      continue;
+    }
+    return;
   }
 }
 

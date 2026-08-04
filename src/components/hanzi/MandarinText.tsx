@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useStore, type MandarinDisplayMode } from "../../lib/store";
-import { scheduleAutoSpeak } from "../../lib/tts";
 import { SpeakButton } from "../ui/SpeakButton";
 import { GlossText } from "./GlossText";
 import { Pinyin } from "./Pinyin";
@@ -42,9 +41,6 @@ export function MandarinText({
 }) {
   const globalDisplayMode = useStore((s) => s.mandarinDisplayMode);
   const translationMode = useStore((s) => s.translationMode);
-  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
-  const slowAudio = useStore((s) => s.slowAudio);
-  const ttsRate = useStore((s) => s.ttsRate);
   const help = useMandarinHelpSettings({ helpMode, disabled });
   const helpDisabled = help.disabled || help.helpMode === "disabled";
   const preferredMode = displayMode ?? globalDisplayMode;
@@ -56,14 +52,8 @@ export function MandarinText({
     setTranslationOpen(translationMode === "always");
   }, [translationMode, meaning, hanzi]);
 
-  useEffect(() => {
-    if (!audio || !hanzi) return;
-    if (!autoPlay && !autoPlayAudio) return;
-    return scheduleAutoSpeak(hanzi, {
-      rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
-      delayMs: 0,
-    });
-  }, [audio, autoPlay, autoPlayAudio, hanzi, slowAudio, ttsRate]);
+  // Autoplay só via SpeakButton — o effect antigo + autoPlay do botão
+  // cancelavam um ao outro (Firefox/Safari descartavam a 2ª fala).
 
   const hanziNode = (
     <GlossText

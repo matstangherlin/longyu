@@ -161,9 +161,15 @@ test.describe("dispositivo — offline (PWA)", () => {
     }
 
     // Corta a rede e recarrega: o shell precacheado deve renderizar mesmo assim.
+    const offlineUrl = page.url();
     await context.setOffline(true);
     try {
-      await page.reload();
+      // WebKit às vezes estoura "internal error" em reload offline — cai para goto.
+      try {
+        await page.reload({ waitUntil: "domcontentloaded", timeout: 15_000 });
+      } catch {
+        await page.goto(offlineUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
+      }
       await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible({
         timeout: 15_000,
       });

@@ -10,13 +10,14 @@ export function useAutoSpeak(
 ): void {
   const slowAudio = useStore((s) => s.slowAudio);
   const ttsRate = useStore((s) => s.ttsRate);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !autoPlayAudio) return;
     const clean = String(text ?? "").trim();
     if (!clean) return;
     const rate = opts.rate ?? (slowAudio ? Math.min(ttsRate, 0.65) : ttsRate);
     return scheduleAutoSpeak(clean, { ...opts, rate });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, enabled, slowAudio, ttsRate, opts.rate, opts.delayMs]);
+  }, [text, enabled, autoPlayAudio, slowAudio, ttsRate, opts.rate, opts.delayMs]);
 }

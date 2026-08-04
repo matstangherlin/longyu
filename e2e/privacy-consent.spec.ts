@@ -45,8 +45,15 @@ test.describe("privacy consent", () => {
     await expect(page.getByText(/Privacidade e dados/i).first()).toBeVisible();
     await expect(page.getByText(/Dados pedagógicos de melhoria/i)).toBeVisible();
 
-    await dismissBlockingOverlays(page);
-    await page.getByRole("switch", { name: /Dados pedagógicos de melhoria/i }).click();
+    // Medalhas podem reaparecer após hidratação (WebKit) e bloquear o switch.
+    for (let i = 0; i < 6; i += 1) {
+      await dismissBlockingOverlays(page);
+      if ((await page.locator('[role="dialog"][aria-modal="true"]').count()) === 0) break;
+      await page.waitForTimeout(150);
+    }
+    const toggle = page.getByRole("switch", { name: /Dados pedagógicos de melhoria/i });
+    await expect(toggle).toBeVisible();
+    await toggle.click({ timeout: 5_000 });
     await expect
       .poll(async () => page.evaluate(() => localStorage.getItem("longyu:telemetry-consent")))
       .toBe("0");
