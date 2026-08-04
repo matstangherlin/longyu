@@ -55,11 +55,7 @@ import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 
-<<<<<<< HEAD
-/** Troca o nome-modelo (马修/Matheus) pelo nome do aluno nas frases da revisão. */
-=======
 /** Troca o nome-modelo (Matheus/Matheus) pelo nome do aluno nas frases da revisão. */
->>>>>>> 0f8c760 (Adiciona nova foto)
 function personalizeReviewExercise(
   exercise: ReviewExercise | null,
   name: string | undefined

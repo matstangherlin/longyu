@@ -314,3 +314,39 @@ export function scorePronunciation(
   const ratio = hit / t.length;
   return { correct: ratio >= 0.6, ratio };
 }
+
+export interface PronunciationAnalysis {
+  correct: boolean;
+  ratio: number;
+  /** Caracteres do ALVO reconhecidos na fala (ordem do alvo). */
+  matched: string[];
+  /** Caracteres do alvo que não foram reconhecidos. */
+  missing: string[];
+}
+
+/**
+ * Análise estruturada: quais caracteres do alvo foram reconhecidos e quais
+ * faltaram. O reconhecedor (Web Speech) compara caracteres — ele NÃO valida
+ * tom; a UI deve deixar isso claro e encaminhar o tom para o treinador.
+ */
+export function analyzePronunciation(heard: string, target: string): PronunciationAnalysis {
+  const h = normalizeHan(heard);
+  const t = normalizeHan(target);
+  if (!t) return { correct: false, ratio: 0, matched: [], missing: [] };
+  if (!h) return { correct: false, ratio: 0, matched: [], missing: [...t] };
+  const counts = new Map<string, number>();
+  for (const c of t) counts.set(c, (counts.get(c) || 0) + 1);
+  const matched: string[] = [];
+  const missing: string[] = [];
+  for (const c of t) {
+    const n = counts.get(c) || 0;
+    if (n > 0) {
+      matched.push(c);
+      counts.set(c, n - 1);
+    } else {
+      missing.push(c);
+    }
+  }
+  const ratio = t.length ? matched.length / t.length : 0;
+  return { correct: ratio >= 0.6, ratio, matched, missing };
+}

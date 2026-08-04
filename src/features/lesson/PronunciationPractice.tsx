@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  analyzePronunciation,
   ensureMicPermission,
   isRecognitionAvailable,
   isSecureMicContext,
   recognizeOnce,
-  scorePronunciation,
   speechErrorMessage,
+  type PronunciationAnalysis,
   type RecognizeErrorCode,
   type RecognizeHandle,
 } from "../../lib/speech";
@@ -17,6 +18,15 @@ type Phase = "idle" | "listening" | "result";
 function isTouchUi(): boolean {
   if (typeof navigator === "undefined") return false;
   return navigator.maxTouchPoints > 0 || (typeof window !== "undefined" && "ontouchstart" in window);
+}
+
+/** Veredito textual para acerto parcial/erro — usado quando !correct. */
+function verdictCopy(heard: string, analysis: PronunciationAnalysis | null): string {
+  if (!heard || !analysis || !analysis.ratio) {
+    return "Não reconheci o que você falou. Ouça o áudio e tente de novo.";
+  }
+  const total = analysis.matched.length + analysis.missing.length;
+  return `Quase — acertou ${analysis.matched.length} de ${total}. Compare os que faltaram e tente de novo.`;
 }
 
 // Prática de fala: autoriza o mic, reconhece o que foi dito e compara com o alvo.
@@ -36,6 +46,7 @@ export function PronunciationPractice({
   const [phase, setPhase] = useState<Phase>("idle");
   const [heard, setHeard] = useState("");
   const [correct, setCorrect] = useState(false);
+  const [analysis, setAnalysis] = useState<PronunciationAnalysis | null>(null);
   const [errorHint, setErrorHint] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -99,9 +110,10 @@ export function PronunciationPractice({
   }
 
   function finishResult(transcript: string) {
-    const r = scorePronunciation(transcript, target);
+    const r = analyzePronunciation(transcript, target);
     setHeard(transcript);
     setCorrect(r.correct);
+    setAnalysis(r);
     setErrorHint(transcript ? null : speechErrorMessage("no-speech"));
     stopRecorder();
     handleRef.current = null;
@@ -124,6 +136,7 @@ export function PronunciationPractice({
     setBusy(true);
     setPhase("listening");
     setHeard("");
+    setAnalysis(null);
     setErrorHint(null);
     setAudioUrl(null);
     stopRecorder();
@@ -204,20 +217,43 @@ export function PronunciationPractice({
             ].join(" ")}
           >
             {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-            {correct
-              ? "Boa! Você falou certo."
-              : heard
-                ? "Quase — compare e tente de novo"
-                : "Não consegui ouvir. Tente de novo."}
+            {correct ? "Boa! Você falou tudo certo." : verdictCopy(heard, analysis)}
           </div>
-          {heard && (
-            <div className="mt-1">
-              <span className="text-xs text-ink-faint">ouvi: </span>
-              <span className="hanzi text-lg text-ink">{heard}</span>
+          {heard && analysis && (
+            <div className="mt-2 space-y-1.5 text-left">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">Você</span>
+                <span className="hanzi text-lg text-ink">{heard}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">Alvo</span>
+                <span className="flex flex-wrap gap-1">
+                  {[...target].map((ch, i) => {
+                    const cjk = /[\u3400-\u9fff\uf900-\ufaff]/.test(ch);
+                    const ok = cjk && analysis.matched.includes(ch);
+                    return (
+                      <span
+                        key={i}
+                        className={[
+                          "hanzi rounded px-1 text-lg",
+                          ok ? "text-[rgb(var(--good))]" : cjk ? "text-accent" : "text-ink-faint",
+                        ].join(" ")}
+                      >
+                        {ch}
+                      </span>
+                    );
+                  })}
+                </span>
+              </div>
             </div>
           )}
           {!heard && errorHint && (
             <p className="mt-2 text-xs leading-5 text-ink-soft">{errorHint}</p>
+          )}
+          {heard && (
+            <p className="mt-2 text-[11px] leading-4 text-ink-faint">
+              O reconhecedor compara os caracteres e não valida o tom — para afinar o tom, use o Treino de tons.
+            </p>
           )}
           {audioUrl && (
             <div className="mt-2">

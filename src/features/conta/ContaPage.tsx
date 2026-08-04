@@ -131,6 +131,17 @@ export function ContaPage() {
         <AccountLink to="/ajustes" icon={IconGear} title="Ajustes" desc="Áudio, aparência e mais." />
       </div>
 
+      {/* Re-nivelamento leve: reposiciona o ponto de partida sem apagar progresso */}
+      <CompactCard>
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Nivelamento</div>
+        <p className="mt-1 text-[13px] leading-5 text-ink-soft">
+          Voltou depois de um tempo? Refazer o teste reposiciona seu ponto de partida na jornada — sem apagar lições, estrelas ou revisões já feitas.
+        </p>
+        <ActionButton to="/conta?relevel=1" variant="secondary" size="sm" className="mt-3" trailingChevron>
+          Refazer nivelamento
+        </ActionButton>
+      </CompactCard>
+
       <p className="flex items-center gap-1.5 px-1 text-[11px] leading-5 text-ink-faint">
         <IconShield width={13} height={13} /> Sua senha nunca é salva neste dispositivo. A anon key do backend é pública por design; o RLS protege os dados.
       </p>

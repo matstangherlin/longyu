@@ -4,23 +4,23 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 83302775ee7c1eb085a4f636f5376884060fa7f0 |
+| Commit | 1cd1a48cdc1305c727b7faed1394539a6914eeb8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-07-21T23:44:41.811Z |
-| Lições | 110 |
-| Hash da Jornada | 0d386a6a9c15 |
+| Gerado em | 2026-08-03T21:49:27.599Z |
+| Lições | 114 |
+| Hash da Jornada | 61ac9c5a7fc7 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 116 |
-| Itens de vocabulário exibidos | 624 |
-| Itens cobertos por tarefa posterior | 422 |
-| Reutilização média por item | 2.04 |
-| Itens sem cobertura | 202 |
-| Tarefas da fase Pós-Conversa | 410 |
-| Média Pós-Conversa por conversa | 3.53 |
+| Conversas analisadas (nos planos reais) | 119 |
+| Itens de vocabulário exibidos | 640 |
+| Itens cobertos por tarefa posterior | 441 |
+| Reutilização média por item | 2.05 |
+| Itens sem cobertura | 199 |
+| Tarefas da fase Pós-Conversa | 419 |
+| Média Pós-Conversa por conversa | 3.52 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
@@ -31,6 +31,8 @@
 - p1-primeira-conversa:chunk:xiexie
 - l2-rev:chunk:zaijian
 - p2-comparar-tom-1-4:chunk:wohenhao
+- l9:chunk:nihaoma
+- l9:chunk:zaijian
 - l9-qual-nome:chunk:nihaoma
 - l9-qual-nome:chunk:xiexie
 - l9-qual-nome:chunk:zaijian
@@ -51,6 +53,9 @@
 - l13-dialogo-ola:chunk:xiexie
 - l13-dialogo-nome:chunk:wohenhao
 - l13-dialogo-nome:chunk:wohuishuoyidian
+- p3-ordem-das-palavras:chunk:wohenhao
+- p3-ordem-das-palavras:chunk:wohuishuoyidian
+- p3-ordem-das-palavras:chunk:wojiao
 - l5-rev:chunk:xiexie
 - l5-rev:chunk:zaijian
 - l14:chunk:wohenhao
@@ -100,11 +105,6 @@
 - l17:chunk:xiexie
 - l17:chunk:zaijian
 - l18:chunk:nihaoma
-- l18:chunk:xiexie
-- l18:chunk:zaijian
-- p5-mu-mu-lin:chunk:xiexie
-- p5-mu-mu-lin:chunk:zaijian
-- p5-mu-mu-mu-sen:chunk:xiexie
-- …mais 122.
+- …mais 119.
 
-<!-- integridade:af4f170bb6b7f7f4 -->
+<!-- integridade:f822663f74abf978 -->

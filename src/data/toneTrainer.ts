@@ -2,7 +2,7 @@ export type MandarinTone = 1 | 2 | 3 | 4 | 5;
 
 export const MANDARIN_TONES: MandarinTone[] = [1, 2, 3, 4, 5];
 
-export type ToneTrainerRoundKind = "isolated" | "minimal_pair" | "word" | "phrase" | "sandhi";
+export type ToneTrainerRoundKind = "isolated" | "minimal_pair" | "word" | "phrase" | "sandhi" | "consonant";
 
 export interface ToneTrainerRound {
   id: string;
@@ -14,6 +14,8 @@ export interface ToneTrainerRound {
   answerTone: MandarinTone;
   focusSyllable: string;
   explanation: string;
+  /** Rodada de consoante: som inicial correto (ex.: "x", "sh", "ü"). */
+  answerInitial?: string;
   itemRef?: `char:${string}` | `chunk:${string}`;
 }
 
@@ -23,12 +25,21 @@ export interface ToneTrainerPack {
   title: string;
   shortTitle: string;
   focus: string;
+  /** "tone" (padrão) ou "consonant" (resposta por som inicial, ex.: x/sh/ü). */
+  kind?: "tone" | "consonant";
   options: MandarinTone[];
+  /** Opções de resposta dos packs de consoante (ex.: ["x", "s", "sh", "q", "zh", "r", "ü"]). */
+  consonantOptions?: string[];
   rounds: ToneTrainerRound[];
   minimumCorrect: number;
   requiredRounds: number;
   rewardQi: number;
   unlockCopy: string;
+}
+
+/** Opções de resposta do pack: tons (padrão) ou consoantes. */
+export function packAnswerOptions(pack: ToneTrainerPack): (MandarinTone | string)[] {
+  return pack.kind === "consonant" ? (pack.consonantOptions ?? []) : pack.options;
 }
 
 export interface ToneTrainerPackStats {
@@ -431,6 +442,165 @@ const sandhiRounds: ToneTrainerRound[] = [
   },
 ];
 
+const consonantRounds: ToneTrainerRound[] = [
+  {
+    id: "consonant-xie-x",
+    kind: "consonant",
+    audioText: "谢",
+    displayText: "谢",
+    pinyin: "xiè",
+    meaningPt: "agradecer",
+    answerTone: 4,
+    answerInitial: "x",
+    focusSyllable: "x",
+    explanation: "x com a língua alta, como um “chi” suave — o primeiro som de 谢谢.",
+    itemRef: "char:xie",
+  },
+  {
+    id: "consonant-si-s",
+    kind: "consonant",
+    audioText: "四",
+    displayText: "四",
+    pinyin: "sì",
+    meaningPt: "quatro",
+    answerTone: 4,
+    answerInitial: "s",
+    focusSyllable: "s",
+    explanation: "s com a língua baixa, perto do s de “sapo”.",
+    itemRef: "char:si",
+  },
+  {
+    id: "consonant-shi-sh",
+    kind: "consonant",
+    audioText: "是",
+    displayText: "是",
+    pinyin: "shì",
+    meaningPt: "ser; sim",
+    answerTone: 4,
+    answerInitial: "sh",
+    focusSyllable: "sh",
+    explanation: "sh retroflexo: a língua se enrola, como um “x” de xícara dobrado.",
+    itemRef: "char:shi",
+  },
+  {
+    id: "consonant-shi10-sh",
+    kind: "consonant",
+    audioText: "十",
+    displayText: "十",
+    pinyin: "shí",
+    meaningPt: "dez",
+    answerTone: 2,
+    answerInitial: "sh",
+    focusSyllable: "sh",
+    explanation: "Mais um sh: 十 também começa com a língua enrolada.",
+    itemRef: "char:shi10",
+  },
+  {
+    id: "consonant-zhong-zh",
+    kind: "consonant",
+    audioText: "中",
+    displayText: "中",
+    pinyin: "zhōng",
+    meaningPt: "meio; China",
+    answerTone: 1,
+    answerInitial: "zh",
+    focusSyllable: "zh",
+    explanation: "zh retroflexo, como um “dj/tch” sem sopro — o início de 中文.",
+    itemRef: "char:zhong",
+  },
+  {
+    id: "consonant-qing-q",
+    kind: "consonant",
+    audioText: "请",
+    displayText: "请",
+    pinyin: "qǐng",
+    meaningPt: "por favor",
+    answerTone: 3,
+    answerInitial: "q",
+    focusSyllable: "q",
+    explanation: "q soprado com a língua alta — o início de 请问.",
+    itemRef: "char:qing_pls",
+  },
+  {
+    id: "consonant-ren-r",
+    kind: "consonant",
+    audioText: "人",
+    displayText: "人",
+    pinyin: "rén",
+    meaningPt: "pessoa",
+    answerTone: 2,
+    answerInitial: "r",
+    focusSyllable: "r",
+    explanation: "r retroflexo suave, entre um r e um “j” — diferente do rr brasileiro.",
+    itemRef: "char:ren",
+  },
+  {
+    id: "consonant-nv-u",
+    kind: "consonant",
+    audioText: "女",
+    displayText: "女",
+    pinyin: "nǚ",
+    meaningPt: "mulher",
+    answerTone: 3,
+    answerInitial: "ü",
+    focusSyllable: "ü",
+    explanation: "ü é o “u” de lua com a boca arredondada — como em 女 nǚ.",
+    itemRef: "char:nv",
+  },
+  {
+    id: "consonant-jia-j",
+    kind: "consonant",
+    audioText: "家",
+    displayText: "家",
+    pinyin: "jiā",
+    meaningPt: "casa",
+    answerTone: 1,
+    answerInitial: "j",
+    focusSyllable: "j",
+    explanation: "j é um “dj” sem sopro, com a língua alta — o início de 家.",
+    itemRef: "char:jia",
+  },
+  {
+    id: "consonant-chi-ch",
+    kind: "consonant",
+    audioText: "吃",
+    displayText: "吃",
+    pinyin: "chī",
+    meaningPt: "comer",
+    answerTone: 1,
+    answerInitial: "ch",
+    focusSyllable: "ch",
+    explanation: "ch retroflexo com sopro forte — o início de 吃饭.",
+    itemRef: "char:chi_eat",
+  },
+  {
+    id: "consonant-zai-z",
+    kind: "consonant",
+    audioText: "在",
+    displayText: "在",
+    pinyin: "zài",
+    meaningPt: "estar em; em",
+    answerTone: 4,
+    answerInitial: "z",
+    focusSyllable: "z",
+    explanation: "z é um “dz” sem sopro, como o z de “zebra” — o início de 再见.",
+    itemRef: "char:zai",
+  },
+  {
+    id: "consonant-cai-c",
+    kind: "consonant",
+    audioText: "菜",
+    displayText: "菜",
+    pinyin: "cài",
+    meaningPt: "prato; verdura",
+    answerTone: 4,
+    answerInitial: "c",
+    focusSyllable: "c",
+    explanation: "c é um “ts” soprado — o início de 中国菜.",
+    itemRef: "char:cai_dish",
+  },
+];
+
 function cycleRounds(rounds: ToneTrainerRound[], target: number): ToneTrainerRound[] {
   return Array.from({ length: target }, (_, index) => rounds[index % rounds.length]);
 }
@@ -542,6 +712,21 @@ export const TONE_TRAINER_PACKS: ToneTrainerPack[] = [
     requiredRounds: TONE_TRAINER_ROUNDS,
     rewardQi: 8,
     unlockCopy: "Mostra por que o pinyin de dicionário nem sempre soa igual.",
+  },
+  {
+    id: "tone-consonants",
+    order: 9,
+    title: "Pack 9 — Consoantes que brasileiros confundem",
+    shortTitle: "Consoantes",
+    kind: "consonant",
+    focus: "j/q/x, zh/ch/sh, z/c/s, r e ü em palavras que você já conhece.",
+    options: [],
+    consonantOptions: ["x", "s", "sh", "q", "zh", "j", "ch", "z", "c", "r", "ü"],
+    rounds: cycleRounds(consonantRounds, TONE_TRAINER_ROUNDS),
+    minimumCorrect: TONE_TRAINER_MINIMUM,
+    requiredRounds: TONE_TRAINER_ROUNDS,
+    rewardQi: 8,
+    unlockCopy: "Discrimina as consoantes mais difíceis para brasileiros.",
   },
 ];
 

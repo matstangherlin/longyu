@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { DOMAIN_META, type DomainTrack } from "../../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS, JOURNEY, type Lesson } from "../../data/journey";
 import { charById } from "../../data/characters";
@@ -17,6 +17,7 @@ import {
 } from "../../lib/store";
 import type { SRSItem } from "../../lib/srs";
 import { Button, Card, HubCard, Pill, ProgressBar } from "../../components/ui/primitives";
+import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { HubContentCard, HubHeader, HubPage } from "../../components/layout/HubLayout";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { ACHIEVEMENTS } from "../../data/achievements";
@@ -72,6 +73,7 @@ import {
   IconTarget,
   IconTrophy,
   IconUser,
+  IconX,
 } from "../../components/ui/Icon";
 
 type Experience = "zero" | "words" | "studied" | "phrases" | "advanced";
@@ -1481,6 +1483,8 @@ function accountAuthMode(account?: LearningAccount): AuthMode {
 
 export function AccountPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const relevelRequested = searchParams.get("relevel") === "1";
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
@@ -1515,6 +1519,7 @@ export function AccountPage() {
   const endCloudSession = useStore((s) => s.endCloudSession);
   const setServerEntitlement = useStore((s) => s.setServerEntitlement);
   const switchAccount = useStore((s) => s.switchAccount);
+  const applyPlacement = useStore((s) => s.applyPlacement);
   const { signOut: signOutCloud, canSignOut } = useCloudSignOut();
   const { signIn: signInCloud } = useCloudSignIn();
   const claimReward = useStore((s) => s.claimReward);
@@ -1581,6 +1586,17 @@ export function AccountPage() {
   const [dataNotice, setDataNotice] = useState<string | null>(null);
   const [cancelPlanNotice, setCancelPlanNotice] = useState<string | null>(null);
   const [serverSubscription, setServerSubscription] = useState<ServerSubscriptionSnapshot | null>(null);
+
+  // Re-nivelamento leve para quem volta: roda o mesmo quiz, mas SÓ libera
+  // lições (nunca remove progresso) e preserva SRS/estrelas/conquistas.
+  const [relevel, setRelevel] = useState<null | {
+    step: "level" | "quiz" | "result";
+    experience?: Experience;
+    quizIndex: number;
+    answers: Record<number, string>;
+    hintedQuestions: Record<number, boolean>;
+    quizPicked?: string;
+  }>(null);
 
   useEffect(() => {
     const mode = accountAuthMode(accounts?.[currentAccountId] ?? accountList[0]);
@@ -1675,6 +1691,32 @@ export function AccountPage() {
   const todayMinutes = today.som + today.fala + today.hanzi + today.leitura;
   const placementTargetLesson = placement ? ALL_LESSONS.find((lesson) => lesson.id === placement.targetLessonId) : undefined;
 
+  // ——— Re-nivelamento leve ———————————————————————————————————————————
+  const relevelExperience = relevel?.experience ?? "zero";
+  const relevelQuizSet = relevel ? adaptiveQuizSet(relevelExperience, relevel.answers, relevel.hintedQuestions) : [];
+  const relevelAnalysis = relevel
+    ? analyzePlacement(relevelExperience, relevelQuizSet, relevel.answers, relevel.hintedQuestions)
+    : null;
+  const relevelResult: PlacementResult | null = relevel && relevelAnalysis
+    ? {
+        ...relevelAnalysis.placement,
+        score: relevelAnalysis.score,
+        questionsAnswered: relevelAnalysis.questionsAnswered,
+        correctWithoutHint: relevelAnalysis.correctWithoutHint,
+        correctWithHint: relevelAnalysis.correctWithHint,
+        wrong: relevelAnalysis.wrong,
+        hintsUsed: relevelAnalysis.hintCount,
+        categoriesCorrect: relevelAnalysis.categoriesCorrect,
+        categoriesWeak: relevelAnalysis.categoriesWeak,
+        takenAt: Date.now(),
+      }
+    : null;
+  const relevelTargetLesson = relevelResult
+    ? ALL_LESSONS.find((lesson) => lesson.id === relevelResult.targetLessonId)
+    : undefined;
+  const relevelEntryPoint = relevelResult ? entryPointForLesson(relevelResult.targetLessonId) : undefined;
+  const relevelSkippedCount = relevelResult ? (relevelResult.skippedLessonIds ?? []).length : 0;
+
   function nextStep() {
     if (step === "level") {
       playSoundFx("tap", soundEffects);
@@ -1720,6 +1762,74 @@ export function AccountPage() {
 
   function markQuizHintUsed(index: number) {
     setHintedQuestions((current) => current[index] ? current : { ...current, [index]: true });
+  }
+
+  function startRelevel() {
+    setRelevel({ step: "level", quizIndex: 0, answers: {}, hintedQuestions: {} });
+    playSoundFx("tap", soundEffects);
+  }
+
+  // Acesso via /conta?relevel=1: usuário já com conta reabre o fluxo direto.
+  useEffect(() => {
+    if (accountSetupComplete && relevelRequested && !relevel) {
+      startRelevel();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function relevelPickExperience(choice: Experience) {
+    if (!relevel) return;
+    setRelevel({ ...relevel, experience: choice, step: "quiz", quizIndex: 0 });
+    playSoundFx("tap", soundEffects);
+  }
+
+  function relevelFinishQuizQuestion() {
+    if (!relevel || !relevel.quizPicked) return;
+    playSoundFx("tap", soundEffects);
+    const nextAnswers = { ...relevel.answers, [relevel.quizIndex]: relevel.quizPicked };
+    const nextQuizSet = adaptiveQuizSet(relevelExperience, nextAnswers, relevel.hintedQuestions);
+    setRelevel((current) =>
+      current
+        ? {
+            ...current,
+            answers: nextAnswers,
+            quizPicked: undefined,
+            quizIndex: current.quizIndex + 1,
+            step: current.quizIndex + 1 >= nextQuizSet.length ? "result" : "quiz",
+          }
+        : current
+    );
+  }
+
+  function relevelMarkHint(index: number) {
+    setRelevel((current) =>
+      current
+        ? {
+            ...current,
+            hintedQuestions: current.hintedQuestions[index]
+              ? current.hintedQuestions
+              : { ...current.hintedQuestions, [index]: true },
+          }
+        : current
+    );
+  }
+
+  function applyRelevel() {
+    if (!relevelResult) return;
+    // SÓ adiciona: união das lições já concluídas com as liberadas pelo novo
+    // nivelamento. Nunca remove progresso, estrelas, SRS ou conquistas.
+    const union = [...new Set([...completedLessons, ...(relevelResult.skippedLessonIds ?? [])])];
+    applyPlacement(union, relevelResult);
+    playSoundFx("qiGain", soundEffects);
+    setRelevel(null);
+    setAccountNotice("Nivelamento atualizado. Suas lições concluídas e estrelas foram preservadas.");
+    if (relevelRequested) navigate("/conta");
+  }
+
+  function cancelRelevel() {
+    setRelevel(null);
+    playSoundFx("tap", soundEffects);
+    if (relevelRequested) navigate("/conta");
   }
 
   function buildSignupProfile(accountName: string): ProfileDetails {
@@ -2495,6 +2605,13 @@ export function AccountPage() {
                 </div>
                 <ProgressBar value={completedLessons.length} max={ALL_LESSONS.length} className="mt-3" />
               </div>
+              <Button size="sm" variant="soft" className="mt-3 w-full" onClick={startRelevel}>
+                <IconRefresh width={16} height={16} />
+                Refazer nivelamento
+              </Button>
+              <p className="mt-2 text-xs leading-5 text-ink-faint">
+                Voltou depois de um tempo? Refazer é leve: só ajusta seu ponto de partida — nunca remove progresso.
+              </p>
             </div>
           </div>
         </Card>
@@ -2779,6 +2896,79 @@ export function AccountPage() {
         </Card>
       </div>
       <ProPaywall open={reportPaywallOpen} kind="reports" onClose={() => setReportPaywallOpen(false)} />
+
+      {relevel && (
+        <ModalOverlay label="Refazer nivelamento" onBackdropClick={cancelRelevel}>
+          <div className="flex min-h-full w-full items-center justify-center sm:p-4">
+            <Card className="relative w-full max-w-2xl overflow-hidden p-0 shadow-lift">
+              <div className="flex items-center justify-between gap-3 border-b border-line bg-surface-2/60 px-5 py-4 sm:px-6">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                    Re-nivelamento leve
+                  </div>
+                  <h2 className="mt-1 font-serif text-xl font-semibold text-ink">
+                    Encontre de novo seu ponto de partida
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={cancelRelevel}
+                  aria-label="Fechar"
+                  className="rounded-xl border border-line bg-surface p-2 text-ink-soft transition hover:text-ink"
+                >
+                  <IconX width={18} height={18} />
+                </button>
+              </div>
+              <div className="max-h-[72vh] overflow-y-auto px-5 py-5 sm:px-6">
+                {relevel.step === "level" && (
+                  <QuestionStep
+                    prompt="Quanto mandarim você lembra hoje?"
+                    choices={EXPERIENCE_OPTIONS}
+                    value={relevel.experience}
+                    onPick={relevelPickExperience}
+                  />
+                )}
+
+                {relevel.step === "quiz" && relevelQuizSet[relevel.quizIndex] && (
+                  <>
+                    <QuizStep
+                      index={relevel.quizIndex}
+                      total={relevelQuizSet.length}
+                      question={relevelQuizSet[relevel.quizIndex]}
+                      declaredLevel={relevelExperience}
+                      picked={relevel.quizPicked}
+                      onPick={(answer) => setRelevel((r) => (r ? { ...r, quizPicked: answer } : r))}
+                      onSubmit={relevelFinishQuizQuestion}
+                      onUseHint={() => relevelMarkHint(relevel.quizIndex)}
+                    />
+                    <div className="mt-5 flex justify-center">
+                      <Button size="lg" disabled={!relevel.quizPicked} onClick={relevelFinishQuizQuestion}>
+                        Responder
+                      </Button>
+                    </div>
+                  </>
+                )}
+
+                {relevel.step === "result" && relevelResult && relevelAnalysis && (
+                  <PlacementResultStep
+                    variant="relevel"
+                    result={relevelResult}
+                    targetLesson={relevelTargetLesson}
+                    entryPoint={relevelEntryPoint}
+                    analysis={relevelAnalysis}
+                    declaredLevel={relevelExperience}
+                    rewardQi={0}
+                    skippedCount={relevelSkippedCount}
+                    recommendedLessons={recommendedFrom(relevelResult.targetLessonId)}
+                    onFollowRecommended={applyRelevel}
+                    onStartScratch={cancelRelevel}
+                  />
+                )}
+              </div>
+            </Card>
+          </div>
+        </ModalOverlay>
+      )}
     </HubPage>
   );
 }
@@ -3752,6 +3942,7 @@ function PlacementResultStep({
   rewardQi,
   skippedCount,
   recommendedLessons,
+  variant = "onboarding",
   onFollowRecommended,
   onStartScratch,
 }: {
@@ -3763,6 +3954,8 @@ function PlacementResultStep({
   rewardQi: number;
   skippedCount: number;
   recommendedLessons: Lesson[];
+  /** "relevel": rótulos de reposicionamento (nunca remove progresso). */
+  variant?: "onboarding" | "relevel";
   onFollowRecommended: () => void;
   onStartScratch: () => void;
 }) {
@@ -3925,15 +4118,17 @@ function PlacementResultStep({
         )}
 
         <div className="mt-5 rounded-2xl bg-accent-soft px-4 py-3 text-center text-sm font-medium text-accent">
-          +{rewardQi} Qi de boas-vindas pelo diagnóstico
+          {variant === "relevel"
+            ? "Ao aplicar, seu ponto de partida é atualizado sem apagar lições já feitas."
+            : `+${rewardQi} Qi de boas-vindas pelo diagnóstico`}
         </div>
 
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           <Button size="lg" className="w-full" onClick={onFollowRecommended}>
-            Seguir daqui
+            {variant === "relevel" ? "Aplicar novo ponto de partida" : "Seguir daqui"}
           </Button>
           <Button size="lg" variant="outline" className="w-full" onClick={onStartScratch}>
-            Começar do zero
+            {variant === "relevel" ? "Manter atual" : "Começar do zero"}
           </Button>
         </div>
       </Card>

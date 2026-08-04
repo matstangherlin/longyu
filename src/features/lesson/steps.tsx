@@ -289,11 +289,7 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
       name: personalizeValue(character.name, name) ?? character.name,
     })),
     // Fluxo V2 por nós (o que o player realmente renderiza hoje): as falas e as
-<<<<<<< HEAD
-    // interações também precisam trocar "马修/Matheus" (e "Lin" legado) pelo nome.
-=======
     // interações também precisam trocar "Matheus/Matheus" (e "Lin" legado) pelo nome.
->>>>>>> 0f8c760 (Adiciona nova foto)
     nodes: step.nodes?.map((node) => personalizeNode(node, name)),
     title: personalizeValue(step.title, name),
     body: personalizeValue(step.body, name),
@@ -376,10 +372,7 @@ function StepListen({ step, onDone }: StepProps) {
           size="lg"
           audio
           align="center"
-<<<<<<< HEAD
-=======
           displayMode={step.hanziMode === "pinyin_first" ? "pinyin_only" : undefined}
->>>>>>> 0f8c760 (Adiciona nova foto)
         />
       </div>
       <PronunciationPractice target={step.text!} onContinue={() => onDone()} />

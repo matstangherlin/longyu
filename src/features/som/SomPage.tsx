@@ -9,6 +9,7 @@ import {
   TONE_SHORT_LABEL,
   TONE_TRAINER_PACKS,
   MANDARIN_TONES,
+  packAnswerOptions,
   weakestToneFromProgress,
   type MandarinTone,
   type ToneTrainerPack,
@@ -45,7 +46,7 @@ const TONES = MANDARIN_TONES;
 interface ToneTrainerAnswer {
   roundId: string;
   tone: MandarinTone;
-  selected: MandarinTone;
+  selected: MandarinTone | string;
   correct: boolean;
 }
 
@@ -154,9 +155,10 @@ export function ToneTrainer() {
 
   const [selectedPackId, setSelectedPackId] = useState(TONE_TRAINER_PACKS[0].id);
   const [roundIndex, setRoundIndex] = useState(0);
-  const [picked, setPicked] = useState<MandarinTone | null>(null);
+  const [picked, setPicked] = useState<MandarinTone | string | null>(null);
   const [results, setResults] = useState<ToneTrainerAnswer[]>([]);
   const [errorsByTone, setErrorsByTone] = useState(emptyToneErrors);
+  const [errorsByInitial, setErrorsByInitial] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
   const [passed, setPassed] = useState(false);
   const [rewarded, setRewarded] = useState(false);
@@ -172,8 +174,15 @@ export function ToneTrainer() {
   const nextPack = TONE_TRAINER_PACKS.find((item) => item.order === pack.order + 1);
   const suggestedPack = useMemo(() => suggestedPackForErrors(errorsByTone), [errorsByTone]);
   const answered = picked !== null;
-  const pickedCorrect = picked === currentRound.answerTone;
-  const hadPriorToneError = (stats?.errorsByTone?.[currentRound.answerTone] ?? 0) > 0;
+  const consonantPack = pack.kind === "consonant";
+  const answerOptions = packAnswerOptions(pack);
+  const pickedCorrect = consonantPack ? picked === currentRound.answerInitial : picked === currentRound.answerTone;
+  const hadPriorError = consonantPack
+    ? (errorsByInitial[currentRound.answerInitial ?? ""] ?? 0) > 0
+    : (stats?.errorsByTone?.[currentRound.answerTone] ?? 0) > 0;
+  const weakInitial = consonantPack
+    ? (Object.entries(errorsByInitial).sort((a, b) => b[1] - a[1])[0] ?? null)
+    : null;
   const visibleFocusSyllable = answered ? currentRound.focusSyllable : stripPinyinTone(currentRound.focusSyllable);
 
   useEffect(() => {
@@ -196,12 +205,12 @@ export function ToneTrainer() {
   useExerciseHotkeys({
     enabled: !done,
     mode: "choice",
-    optionCount: pack.options.length,
+    optionCount: answerOptions.length,
     isAnswered: answered,
     hasSelection: answered,
     onSelectOption: (index) => {
-      const tone = pack.options[index];
-      if (tone) answer(tone);
+      const value = answerOptions[index];
+      if (value != null) answer(value);
     },
     onContinue: nextRound,
   });
@@ -213,6 +222,7 @@ export function ToneTrainer() {
     setPicked(null);
     setResults([]);
     setErrorsByTone(emptyToneErrors());
+    setErrorsByInitial({});
     setDone(false);
     setPassed(false);
     setRewarded(false);
@@ -249,25 +259,31 @@ export function ToneTrainer() {
     });
   }
 
-  function answer(tone: MandarinTone) {
+  function answer(value: MandarinTone | string) {
     if (answered || done) return;
     if (!ensureTrainingCharge()) return;
 
-    const correct = tone === currentRound.answerTone;
+    const correct = consonantPack ? value === currentRound.answerInitial : value === currentRound.answerTone;
     const nextResult = {
       roundId: currentRound.id,
       tone: currentRound.answerTone,
-      selected: tone,
+      selected: value,
       correct,
     };
-    setPicked(tone);
+    setPicked(value);
     setResults((current) => [...current, nextResult]);
     if (!correct) {
-      setErrorsByTone((current) => ({
-        ...current,
-        [currentRound.answerTone]: current[currentRound.answerTone] + 1,
-      }));
-      recordToneTrainerMistake(currentRound, tone, recordActivityError);
+      if (consonantPack) {
+        const initial = String(value);
+        setErrorsByInitial((current) => ({ ...current, [initial]: (current[initial] ?? 0) + 1 }));
+        recordConsonantMistake(currentRound, initial, recordActivityError);
+      } else {
+        setErrorsByTone((current) => ({
+          ...current,
+          [currentRound.answerTone]: current[currentRound.answerTone] + 1,
+        }));
+        recordToneTrainerMistake(currentRound, value as MandarinTone, recordActivityError);
+      }
     }
     gradeRound(currentRound, correct);
     playSoundFx(correct ? "success" : "error", soundEffects);
@@ -296,7 +312,7 @@ export function ToneTrainer() {
       totalRounds: pack.requiredRounds,
       correct: finalScore,
       passed: passedNow,
-      errorsByTone,
+      errorsByTone: consonantPack ? emptyToneErrors() : errorsByTone,
     });
     addMinutes("som", passedNow ? 7 : 5);
     if (firstCompletion) {
@@ -337,21 +353,32 @@ export function ToneTrainer() {
           )}
 
           <div className="mx-auto mt-6 grid w-full max-w-md grid-cols-4 gap-2">
-            {TONES.map((tone) => (
-              <ToneMiniStat
-                key={tone}
-                label={TONE_SHORT_LABEL[tone]}
-                value={`${errorsByTone[tone]} erro(s)`}
-                active={errorsByTone[tone] > 0}
-              />
-            ))}
+            {consonantPack
+              ? (pack.consonantOptions ?? []).map((initial) => (
+                  <ToneMiniStat
+                    key={initial}
+                    label={initial}
+                    value={`${errorsByInitial[initial] ?? 0} erro(s)`}
+                    active={(errorsByInitial[initial] ?? 0) > 0}
+                  />
+                ))
+              : TONES.map((tone) => (
+                  <ToneMiniStat
+                    key={tone}
+                    label={TONE_SHORT_LABEL[tone]}
+                    value={`${errorsByTone[tone]} erro(s)`}
+                    active={errorsByTone[tone] > 0}
+                  />
+                ))}
           </div>
 
-          {!passed && suggestedPack && (
+          {!passed && (consonantPack ? weakInitial : suggestedPack) && (
             <div className="mx-auto mt-5 max-w-md rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-left">
               <div className="text-sm font-semibold text-ink">Sugestão</div>
               <p className="mt-1 text-sm leading-5 text-ink-soft">
-                Refazer {suggestedPack.shortTitle} ajuda a atacar o tom mais instável desta tentativa.
+                {consonantPack
+                  ? `O som inicial mais instável foi "${weakInitial?.[0] ?? "—"}". Refaça o pack prestando atenção nele.`
+                  : `Refazer ${suggestedPack?.shortTitle} ajuda a atacar o tom mais instável desta tentativa.`}
               </p>
             </div>
           )}
@@ -412,7 +439,7 @@ export function ToneTrainer() {
                 <IconHeadphones width={38} height={38} />
               </div>
               <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                Ouça e escolha o tom
+                {consonantPack ? "Ouça e escolha o som" : "Ouça e escolha o tom"}
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 <GlossText text={currentRound.displayText} className="hanzi text-3xl font-semibold text-ink" />
@@ -445,29 +472,52 @@ export function ToneTrainer() {
             <div className="grid grid-cols-3 gap-2 text-center lg:grid-cols-1">
               <ToneMiniStat label="Nota" value={`${score}/${pack.requiredRounds}`} active={score >= pack.minimumCorrect} />
               <ToneMiniStat label="Melhor" value={stats ? `${stats.bestScore}/${stats.bestTotal}` : "-"} />
-              <ToneMiniStat label="Fraco" value={weakTone ? TONE_SHORT_LABEL[weakTone] : "estável"} active={Boolean(weakTone)} />
+              <ToneMiniStat
+                label="Fraco"
+                value={consonantPack ? (weakInitial ? weakInitial[0] : "estável") : weakTone ? TONE_SHORT_LABEL[weakTone] : "estável"}
+                active={Boolean(consonantPack ? weakInitial : weakTone)}
+              />
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {pack.options.map((tone, index) => (
-              <ToneOptionButton
-                key={tone}
-                tone={tone}
-                shortcut={shortcutKeyForIndex(index)}
-                disabled={answered}
-                state={
-                  !answered
-                    ? "idle"
-                    : tone === currentRound.answerTone
-                    ? "right"
-                    : tone === picked
-                    ? "wrong"
-                    : "idle"
-                }
-                onClick={() => answer(tone)}
-              />
-            ))}
+            {consonantPack
+              ? (pack.consonantOptions ?? []).map((initial, index) => (
+                  <ConsonantOptionButton
+                    key={initial}
+                    initial={initial}
+                    shortcut={shortcutKeyForIndex(index)}
+                    disabled={answered}
+                    state={
+                      !answered
+                        ? "idle"
+                        : initial === currentRound.answerInitial
+                          ? "right"
+                          : initial === picked
+                            ? "wrong"
+                            : "idle"
+                    }
+                    onClick={() => answer(initial)}
+                  />
+                ))
+              : pack.options.map((tone, index) => (
+                  <ToneOptionButton
+                    key={tone}
+                    tone={tone}
+                    shortcut={shortcutKeyForIndex(index)}
+                    disabled={answered}
+                    state={
+                      !answered
+                        ? "idle"
+                        : tone === currentRound.answerTone
+                          ? "right"
+                          : tone === picked
+                            ? "wrong"
+                            : "idle"
+                    }
+                    onClick={() => answer(tone)}
+                  />
+                ))}
           </div>
 
           {answered && (
@@ -490,10 +540,18 @@ export function ToneTrainer() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-ink">
-                    {pickedCorrect ? (hadPriorToneError ? "Corrigido!" : "Certo!") : `Resposta correta: ${TONE_SHORT_LABEL[currentRound.answerTone]}`}
+                    {pickedCorrect
+                      ? hadPriorError
+                        ? "Corrigido!"
+                        : "Certo!"
+                      : `Resposta correta: ${consonantPack ? currentRound.answerInitial : TONE_SHORT_LABEL[currentRound.answerTone]}`}
                   </div>
                   <p className="mt-1 text-sm leading-6 text-ink-soft">
-                    {pickedCorrect ? currentRound.explanation : `${TONE_EXPLANATION[currentRound.answerTone]} ${currentRound.explanation}`}
+                    {pickedCorrect
+                      ? currentRound.explanation
+                      : consonantPack
+                        ? currentRound.explanation
+                        : `${TONE_EXPLANATION[currentRound.answerTone]} ${currentRound.explanation}`}
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                     <Pinyin text={currentRound.pinyin} className="font-serif text-lg text-accent" />
@@ -590,7 +648,11 @@ function TonePackButton({
         </span>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-ink-faint">
-        <span>{pack.options.map((tone) => toneMarkLabel(tone)).join(" ")}</span>
+        <span>
+          {pack.kind === "consonant"
+            ? (pack.consonantOptions ?? []).join(" · ")
+            : pack.options.map((tone) => toneMarkLabel(tone)).join(" ")}
+        </span>
         <span>{stats?.attempts ? `${stats.attempts} tentativa(s)` : "novo"}</span>
       </div>
     </button>
@@ -634,6 +696,41 @@ function ToneOptionButton({
       </span>
       <ToneCurve tone={tone} />
       <span className="text-sm font-semibold text-ink">{TONE_SHORT_LABEL[tone]}</span>
+    </button>
+  );
+}
+
+function ConsonantOptionButton({
+  initial,
+  state,
+  disabled = false,
+  shortcut,
+  onClick,
+}: {
+  initial: string;
+  state: "idle" | "right" | "wrong";
+  disabled?: boolean;
+  shortcut?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled || state !== "idle"}
+      aria-label={shortcut ? `Opção ${shortcut}: ${initial}` : initial}
+      className={[
+        "relative flex min-h-24 flex-col items-center justify-center gap-1 rounded-2xl border px-3 py-4 text-center transition active:scale-[.98] sm:min-h-28",
+        state === "idle" && "border-line bg-surface hover:border-accent-soft hover:bg-surface-2",
+        state === "right" && "border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.12)]",
+        state === "wrong" && "border-wrong/30 bg-wrong-soft",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {shortcut && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
+      <span className="font-serif text-4xl font-semibold leading-none text-accent">{initial}</span>
+      <span className="text-sm font-semibold text-ink">{initial === "ü" ? "ü (arredondado)" : initial}</span>
     </button>
   );
 }
@@ -723,6 +820,43 @@ function recordToneTrainerMistake(
     meaningPt: round.meaningPt,
     explanation: `${TONE_EXPLANATION[round.answerTone]} ${round.explanation}`,
     mistakeReason: "tone-review",
+    timestamp: now,
+    wrongCount: 1,
+    correctionAttempts: 0,
+    correctedSuccessDates: [],
+    skill: "som",
+    targets: toneReviewTargets(target),
+  });
+}
+
+function recordConsonantMistake(
+  round: ToneTrainerRound,
+  selectedInitial: string,
+  recordActivityError: ReturnType<typeof useStore.getState>["recordActivityError"]
+) {
+  const target = targetFromToneRound(round);
+  if (!target) return;
+  const now = Date.now();
+  const hanzi = cleanMandarinText(round.displayText) || cleanMandarinText(round.audioText);
+  recordActivityError({
+    id: `consonant-review:${round.id}:${now}`,
+    lessonId: "pinyin-lab",
+    moduleId: "pinyin-lab",
+    phaseId: "lab",
+    taskId: "tone-trainer",
+    questionId: round.id,
+    exerciseId: `consonant-trainer:${round.id}`,
+    type: "tone-review",
+    prompt: `Ouça ${round.displayText} e escolha o som inicial.`,
+    correctAnswer: round.answerInitial ?? "?",
+    selectedAnswer: selectedInitial,
+    topic: "consoantes",
+    tokens: [hanzi, round.pinyin, round.answerInitial ?? ""],
+    hanzi,
+    pinyin: round.pinyin,
+    meaningPt: round.meaningPt,
+    explanation: round.explanation,
+    mistakeReason: "consonant-review",
     timestamp: now,
     wrongCount: 1,
     correctionAttempts: 0,
