@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
+import { getTurnstileToken } from "../lib/turnstile";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
 
@@ -20,6 +21,9 @@ export interface AuthServiceResult<T = undefined> {
 
 const AUTH_NOT_IMPLEMENTED_MESSAGE =
   "Contas reais ainda não estão ativas nesta versão. Quando o backend estiver conectado, autenticação e sincronização usarão um serviço seguro.";
+
+const GENERIC_PENDING_MESSAGE =
+  "Se o endereço puder ser utilizado, enviaremos as próximas instruções por e-mail.";
 
 function notImplemented<T = undefined>(): AuthServiceResult<T> {
   return { status: "not_implemented", message: AUTH_NOT_IMPLEMENTED_MESSAGE };
@@ -58,16 +62,15 @@ export async function createAccount(
 
   const details = profile ?? profileFromName();
   const cleanEmail = email.trim().toLowerCase();
+  const captchaToken = await getTurnstileToken();
 
-  // Edge create-account: Admin API com email_confirm=false + resend do link.
+  // Edge create-account: rate limit + anti-enum + Admin email_confirm=false.
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
     code?: string;
-    userId?: string;
     email?: string;
     pendingConfirmation?: boolean;
-    emailed?: boolean;
-    emailError?: string | null;
+    message?: string;
     error?: string;
   }>("create-account", {
     body: {
@@ -75,37 +78,57 @@ export async function createAccount(
       password,
       displayName: details.name,
       emailRedirectTo: emailConfirmationRedirectUrl(),
+      captchaToken: captchaToken ?? undefined,
     },
   });
 
   if (error && !data) {
-    return { status: "error", message: error.message || "Falha ao criar conta." };
+    const msg = error.message || "Falha ao criar conta.";
+    if (/429|rate.?limit/i.test(msg)) {
+      return {
+        status: "error",
+        message: "Muitas tentativas. Aguarde e tente novamente mais tarde.",
+      };
+    }
+    return { status: "error", message: msg };
   }
 
-  if (data?.code === "already_exists" || (data?.error && /already|registered|exists/i.test(data.error))) {
-    return login(cleanEmail, password, details);
+  if (data?.code === "rate_limited") {
+    return {
+      status: "error",
+      message: data.error || "Muitas tentativas. Aguarde e tente novamente mais tarde.",
+    };
+  }
+
+  if (data?.code === "captcha_failed") {
+    return {
+      status: "error",
+      message: data.error || "Não foi possível validar o desafio de segurança. Tente de novo.",
+    };
   }
 
   if (data?.error || data?.ok === false) {
     return { status: "error", message: data.error || "Falha ao criar conta." };
   }
 
+  // Resposta genérica (mesmo para email já cadastrado) — evita enumeração.
   if (data?.ok && data.pendingConfirmation) {
     return {
       status: "pending_confirmation",
-      message: data.emailed === false
-        ? "Conta criada, mas o email de confirmação não foi enviado. Use Reenviar na próxima tela."
-        : "Enviamos um link de confirmação para o seu email. Abra o link para ativar a conta.",
+      message: data.message || GENERIC_PENDING_MESSAGE,
       data: {
-        id: data.userId ?? "",
+        id: "",
         email: data.email ?? cleanEmail,
         name: details.name,
       },
     };
   }
 
-  // Fallback raro: se a function retornar sem pending, tente login.
-  return login(cleanEmail, password, details);
+  return {
+    status: "pending_confirmation",
+    message: GENERIC_PENDING_MESSAGE,
+    data: { id: "", email: cleanEmail, name: details.name },
+  };
 }
 
 export async function login(
