@@ -77,7 +77,29 @@ if (isDeployPreview) {
       "AVISO: Deploy Preview sem VITE_APP_ENV — defina VITE_APP_ENV=preview no contexto deploy-preview."
     );
   }
-  console.log("OK: Deploy Preview — contexto isolado do ambiente principal.");
+
+  const backendMode = String(process.env.VITE_BACKEND_MODE ?? "").trim().toLowerCase();
+  const supabaseUrl = String(process.env.VITE_SUPABASE_URL ?? "").trim();
+  const productionRef = "drjcfalvlbbeblmmyhwj";
+
+  // Preview não pode escrever no projeto de produção.
+  if (supabaseUrl.includes(productionRef)) {
+    fail(
+      "Deploy Preview aponta para o Supabase de produção. Use VITE_BACKEND_MODE=local ou um projeto preview separado."
+    );
+  }
+  if (backendMode === "supabase" && !supabaseUrl) {
+    fail('Deploy Preview com VITE_BACKEND_MODE=supabase exige VITE_SUPABASE_URL do projeto preview.');
+  }
+  if (backendMode && backendMode !== "local" && backendMode !== "supabase") {
+    fail(`VITE_BACKEND_MODE="${backendMode}" inválido no Deploy Preview.`);
+  }
+
+  console.log(
+    backendMode === "local" || !backendMode
+      ? "OK: Deploy Preview — modo local (sem escrita no Supabase de produção)."
+      : "OK: Deploy Preview — Supabase preview isolado do ambiente principal."
+  );
   process.exit(0);
 }
 
