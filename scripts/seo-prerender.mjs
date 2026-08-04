@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const distDir = path.join(root, "dist");
-const siteUrl = (process.env.VITE_SITE_URL || "https://longyu.netlify.app").replace(/\/$/, "");
+const siteUrl = (process.env.VITE_SITE_URL || "https://singular-meringue-7838cd.netlify.app").replace(/\/$/, "");
 
 /** Espelha PUBLIC_SEO_PAGES de src/lib/seo.ts (Node sem TS). */
 const PAGES = [

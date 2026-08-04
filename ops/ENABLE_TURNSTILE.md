@@ -29,12 +29,12 @@ Estado quando ligado:
 - Edge `create-account` lê env `TURNSTILE_SECRET_KEY` **ou** o Vault e valida no siteverify
 - Probe sem token → `captcha_failed`
 
-## Domínios (sem domínio próprio ainda)
+## Domínios
 
 Widget Turnstile só com:
 
-- `singular-meringue-7838cd.netlify.app`
-- `longyu.netlify.app`
+- `singular-meringue-7838cd.netlify.app` ← **principal (vivo)**
+- `longyu.netlify.app` ← só se/quando o alias Netlify existir
 - `localhost` / `127.0.0.1`
 
 Quando comprar `longyu.com.br`, edite o widget e inclua o domínio.
