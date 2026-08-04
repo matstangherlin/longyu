@@ -1,22 +1,7 @@
--- Ordenação e idempotência de eventos de assinatura Stripe.
---
--- Problema: o webhook fazia upsert incondicional na tabela subscriptions, então
--- um evento ANTIGO entregue fora de ordem (comum no Stripe) podia reverter um
--- estado NOVO — por exemplo, um customer.subscription.updated atrasado (active)
--- sobrescrevendo um customer.subscription.deleted já processado (canceled),
--- deixando Pro ligado indevidamente.
---
--- Solução: guardamos o timestamp do evento (event.created, em segundos) e só
--- aplicamos a escrita se o evento recebido for igual ou mais novo que o último
--- já persistido. A checagem é ATÔMICA (ON CONFLICT ... WHERE), sem janela de
--- corrida entre leitura e escrita. Reprocessar o MESMO evento é idempotente
--- (mesmos dados, event.created igual → aplica de novo sem efeito colateral).
+-- Corrige apply_subscription_event: GET DIAGNOSTICS row_count é integer,
+-- não boolean. A versão anterior quebrava o ramo updated/deleted sem user_id
+-- (boolean > integer).
 
-alter table public.subscriptions
-  add column if not exists stripe_event_created bigint;
-
--- Aplica um evento de assinatura respeitando a ordem por event.created.
--- Chamada apenas pelo webhook (service role) — nunca pelo cliente.
 create or replace function public.apply_subscription_event(
   p_user_id uuid,
   p_customer_id text,
@@ -40,8 +25,6 @@ begin
     return jsonb_build_object('ok', false, 'applied', false, 'reason', 'missing_subscription_id');
   end if;
 
-  -- Sem user_id conhecido (ex.: updated/deleted de assinatura que nunca passou
-  -- por checkout aqui): só atualiza uma linha existente, nunca cria órfã.
   if p_user_id is null then
     update public.subscriptions s
     set

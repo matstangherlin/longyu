@@ -1,4 +1,4 @@
-# Checklist — Fase C (backend Supabase, pré-Stripe)
+# Checklist — Fase C (backend Supabase + Stripe)
 
 Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacional.
 
@@ -9,11 +9,13 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Projeto criado (`drjcfalvlbbeblmmyhwj`) | ✅ | |
 | Migrations 001–003 aplicadas | ✅ | `user_progress`, RLS, `client_snapshot`, trigger de perfil |
 | Migration 004 (Ligas) aplicada | ✅ | `league_tiers`, RPCs, backfill Bronze — via SQL Editor (09/07/2026) |
-| Edge Functions publicadas | ✅ | checkout, billing-portal, webhook, delete-account |
-| `npm run verify:production` | ✅ | REST + functions respondendo |
+| Migrations 011–013 (pedagogia) no remoto | ✅ | Aplicadas 2026-08-04 via MCP; `verify:beta-feedback` verde |
+| Migration 014–015 (ordenação Stripe) no remoto | ✅ | `apply_subscription_event` + fix row_count; webhook v8+ |
+| Edge Functions publicadas | ✅ | checkout v9, billing-portal/webhook/delete-account v8 (2026-08-04) |
+| `npm run verify:production` | ✅ | REST + functions respondendo (2026-08-04) |
 | RLS testado (usuário A ≠ B) | ⬜ | Manual no SQL Editor ou Dashboard |
-| Secrets Stripe no Supabase | ✅ | Price IDs mensal/anual + trial 30 dias |
-| Webhook Stripe apontando para `stripe-webhook` | ✅ | `whsec` configurado |
+| Secrets Stripe no Supabase | ✅ | Presentes (webhook responde 400 sem assinatura, não 501) |
+| Webhook Stripe apontando para `stripe-webhook` | ✅ | `whsec` configurado; usa `constructEventAsync` + RPC |
 
 ## App (frontend)
 
@@ -46,16 +48,16 @@ npm run deploy:backend -- --all
 npm run deploy:leagues          # só migration 004 (requer SUPABASE_ACCESS_TOKEN)
 npm run verify:leagues
 npm run verify:production
+npm run verify:beta-feedback
 npm run validate:beta
 npm run ci
 ```
 
 ## Próximo marco (operacional)
 
-Stripe secrets + webhook + prices já estão marcados ✅ acima. Pendências reais:
+Backend pedagogia + webhook Stripe atualizados no remoto (2026-08-04). Pendências reais:
 
-1. Rodar runbook Stripe Test Mode (`docs/SUBSCRIPTION_E2E_REPORT.md`) com cartão `4242…` e confirmar `serverIsPro`
-2. Aplicar/verificar migrações de pedagogia no remoto (`submit_beta_pedagogy_event` — falhou em `verify:beta-feedback` na auditoria 2026-07-21)
-3. Restaurar CI GitHub Actions (billing/spending limit)
-4. PWA em device real (iOS Safari + Android Chrome)
-5. Fase 4: Qi/Cargas autoritativos no servidor (ainda ⬜ na tabela App)
+1. Rodar runbook Stripe Test Mode (`docs/SUBSCRIPTION_E2E_REPORT.md`) com cartão `4242…` e confirmar `serverIsPro` — precisa de `STRIPE_SECRET_KEY=sk_test_…` no ambiente local (secrets já estão no Supabase)
+2. PWA em device real (iOS Safari + Android Chrome)
+3. Fase 4: Qi/Cargas autoritativos no servidor (ainda ⬜ na tabela App)
+4. Opcional: `STRIPE_ALLOWED_ORIGINS` / `APP_CANONICAL_ORIGIN` no Supabase secrets (checkout já inclui Netlify beta + localhost por padrão)
