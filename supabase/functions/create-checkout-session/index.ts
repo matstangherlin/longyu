@@ -1,14 +1,43 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
+const DEFAULT_BETA_ORIGINS = [
+  "https://singular-meringue-7838cd.netlify.app",
+  "http://127.0.0.1:5173",
+  "http://localhost:5173",
+];
+
+function allowedOrigins(): Set<string> {
+  return new Set(
+    [
+      CANONICAL_ORIGIN,
+      ...DEFAULT_BETA_ORIGINS,
+      ...(Deno.env.get("STRIPE_ALLOWED_ORIGINS") ?? "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ].map((value) => value.replace(/\/$/, ""))
+  );
+}
+
+function requestOrigin(req: Request): string {
+  const incoming = (req.headers.get("origin") ?? "").replace(/\/$/, "");
+  return allowedOrigins().has(incoming) ? incoming : CANONICAL_ORIGIN;
+}
+
+function corsHeaders(req: Request): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": requestOrigin(req),
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Vary": "Origin",
+  };
+}
 
 serve(async (req) => {
+  const headers = corsHeaders(req);
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers });
   }
 
   try {
@@ -18,7 +47,7 @@ serve(async (req) => {
         JSON.stringify({
           error: "Stripe ainda não configurado no servidor. Defina STRIPE_SECRET_KEY no Supabase.",
         }),
-        { status: 501, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 501, headers: { ...headers, "Content-Type": "application/json" } }
       );
     }
 
@@ -28,7 +57,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Não autenticado." }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
       });
     }
 
@@ -41,7 +70,7 @@ serve(async (req) => {
     if (!user) {
       return new Response(JSON.stringify({ error: "Sessão inválida." }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
       });
     }
 
@@ -52,38 +81,21 @@ serve(async (req) => {
     if (!ALLOWED_PLAN_KEYS.has(planKey)) {
       return new Response(JSON.stringify({ error: `Plano desconhecido: ${planKey}` }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
       });
     }
     const priceId = Deno.env.get(`STRIPE_PRICE_${planKey.toUpperCase()}`);
     if (!priceId) {
       return new Response(JSON.stringify({ error: `Plano indisponível: ${planKey}` }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
       });
     }
 
     // Allowlist de URLs de retorno: o header Origin é controlado pelo cliente,
     // então nunca redirecionamos para um domínio arbitrário. Origins permitidos
     // vêm do env (STRIPE_ALLOWED_ORIGINS, separados por vírgula) + canônicos.
-    const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
-    const DEFAULT_BETA_ORIGINS = [
-      "https://singular-meringue-7838cd.netlify.app",
-      "http://127.0.0.1:5173",
-      "http://localhost:5173",
-    ];
-    const allowedOrigins = new Set(
-      [
-        CANONICAL_ORIGIN,
-        ...DEFAULT_BETA_ORIGINS,
-        ...(Deno.env.get("STRIPE_ALLOWED_ORIGINS") ?? "")
-          .split(",")
-          .map((value) => value.trim())
-          .filter(Boolean),
-      ].map((value) => value.replace(/\/$/, ""))
-    );
-    const requestOrigin = (req.headers.get("origin") ?? "").replace(/\/$/, "");
-    const origin = allowedOrigins.has(requestOrigin) ? requestOrigin : CANONICAL_ORIGIN;
+    const origin = requestOrigin(req);
     const params = new URLSearchParams({
       mode: "subscription",
       "line_items[0][price]": priceId,
@@ -108,18 +120,18 @@ serve(async (req) => {
     if (!stripeResponse.ok) {
       return new Response(JSON.stringify({ error: session.error?.message ?? "Erro no Stripe." }), {
         status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
       });
     }
 
     return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "application/json" },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro inesperado.";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "application/json" },
     });
   }
 });

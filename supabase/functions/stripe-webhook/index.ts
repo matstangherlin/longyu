@@ -2,10 +2,17 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
-};
+const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
+
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = (req.headers.get("origin") ?? "").replace(/\/$/, "");
+  return {
+    // Webhook é server-to-server; para requests de browser, só ecoamos origem canônica.
+    "Access-Control-Allow-Origin": origin === CANONICAL_ORIGIN ? origin : CANONICAL_ORIGIN,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
+    "Vary": "Origin",
+  };
+}
 
 // Status que refletimos direto do Stripe. Mantemos o valor cru (trialing,
 // active, past_due, unpaid, canceled, incomplete...) — o RPC get_server_entitlement
@@ -23,8 +30,9 @@ function priceIdOf(subscription: Stripe.Subscription): string | null {
 }
 
 serve(async (req) => {
+  const headers = corsHeaders(req);
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers });
   }
 
   const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY");
@@ -35,13 +43,16 @@ serve(async (req) => {
   if (!stripeSecret || !webhookSecret || !serviceRole || !supabaseUrl) {
     return new Response(JSON.stringify({ error: "Webhook não configurado no servidor." }), {
       status: 501,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "application/json" },
     });
   }
 
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
-    return new Response(JSON.stringify({ error: "Assinatura Stripe ausente." }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Assinatura Stripe ausente." }), {
+      status: 400,
+      headers: { ...headers, "Content-Type": "application/json" },
+    });
   }
 
   const body = await req.text();
@@ -56,7 +67,7 @@ serve(async (req) => {
     const message = error instanceof Error ? error.message : "Assinatura inválida.";
     return new Response(JSON.stringify({ error: message }), {
       status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "application/json" },
     });
   }
 
@@ -142,14 +153,13 @@ serve(async (req) => {
         await applySubscription(subscription, userId);
       } else if (userId) {
         // Fallback resiliente: o checkout é o ÚNICO evento com o vínculo
-        // user↔assinatura (client_reference_id). Se o retrieve falhar, ainda
-        // gravamos o vínculo e concedemos Pro (como antes) para não deixar um
-        // pagante sem Pro; um customer.subscription.updated corrige status/período.
+        // user↔assinatura (client_reference_id). Se o retrieve falhar, gravamos
+        // vínculo em estado conservador; updated/created posterior corrige.
         await admin.rpc("apply_subscription_event", {
           p_user_id: userId,
           p_customer_id: typeof session.customer === "string" ? session.customer : null,
           p_subscription_id: subscriptionId,
-          p_status: "active",
+          p_status: "incomplete",
           p_price_id: null,
           p_current_period_start: null,
           p_current_period_end: null,
@@ -196,6 +206,6 @@ serve(async (req) => {
   }
 
   return new Response(JSON.stringify({ received: true }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...headers, "Content-Type": "application/json" },
   });
 });
