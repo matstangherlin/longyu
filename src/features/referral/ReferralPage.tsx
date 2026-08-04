@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -10,6 +11,7 @@ import {
 } from "../../services/referralService";
 
 export function ReferralPage() {
+  const accountSetupComplete = useStore((s) => s.accountSetupComplete);
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const cloudReady = isSupabaseBackendEnabled() && authMode === "cloud";
 
@@ -63,6 +65,10 @@ export function ReferralPage() {
       }
     }
     await copyLink();
+  }
+
+  if (!accountSetupComplete) {
+    return <Navigate to="/conta" replace />;
   }
 
   if (!cloudReady) {

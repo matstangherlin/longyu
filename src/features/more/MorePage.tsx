@@ -52,6 +52,7 @@ export function MorePage() {
   const profile = useLearnerProfile();
 
   const account = accounts[currentAccountId];
+  const isCloudAccount = account?.authMode === "cloud";
   const due = dueItems(srs).length;
   const showAdmin = isAdminEmail(account?.email);
   const seen = useMemo(() => getSeenIntros(), []);
@@ -93,7 +94,9 @@ export function MorePage() {
 
   const sections = MORE_CATALOG.map((group) => ({
     title: group.title,
-    items: group.items.map(toHubItem),
+    items: group.items
+      .filter((nav) => (isCloudAccount ? true : nav.to !== "/convide"))
+      .map(toHubItem),
   }));
 
   // Admin (interno) fica fora do catálogo público.

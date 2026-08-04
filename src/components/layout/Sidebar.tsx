@@ -12,6 +12,7 @@ import type { NavItem } from "./nav";
 import { BrandLockup } from "./Brand";
 import { COURSE_PROFILE } from "../../data/course";
 import { useLearnerProfile } from "../../hooks/useLearnerProfile";
+import { useStore } from "../../lib/store";
 
 const FLYOUT_FALLBACK_HEIGHT = 320;
 const FLYOUT_CLOSE_DELAY = 160;
@@ -29,6 +30,8 @@ function linkClass(active: boolean) {
 export function Sidebar() {
   const location = useLocation();
   const profile = useLearnerProfile();
+  const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
+  const canUseReferral = authMode === "cloud";
   const items = desktopNavForStage(profile.stage);
   const routeKey = `${location.pathname}${location.hash}`;
 
@@ -55,6 +58,9 @@ export function Sidebar() {
     }
 
     if (item.to === "/perfil") {
+      const profileShortcuts = canUseReferral
+        ? profileFlyoutItems()
+        : profileFlyoutItems().filter((shortcut) => shortcut.to !== "/convide");
       return (
         <FlyoutNavItem
           key={item.to}
@@ -63,7 +69,7 @@ export function Sidebar() {
           pathname={location.pathname}
           routeKey={routeKey}
           menuLabel="Perfil"
-          shortcuts={profileFlyoutItems()}
+          shortcuts={profileShortcuts}
           footer={{ to: item.to, label: "Abrir Perfil" }}
         />
       );
