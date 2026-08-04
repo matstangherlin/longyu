@@ -86,6 +86,15 @@ async function signIn(email) {
 async function cleanup(userIds) {
   for (const id of userIds) {
     if (!id) continue;
+    await admin.from("beta_feedback").delete().eq("user_id", id);
+    await admin.from("beta_pedagogy_events").delete().eq("user_id", id);
+    await admin.from("league_xp_events").delete().eq("user_id", id);
+    await admin.from("league_weekly_results").delete().eq("user_id", id);
+    await admin.from("league_memberships").delete().eq("user_id", id);
+    await admin.from("user_srs").delete().eq("user_id", id);
+    await admin.from("user_missions").delete().eq("user_id", id);
+    await admin.from("user_chests").delete().eq("user_id", id);
+    await admin.from("user_achievements").delete().eq("user_id", id);
     await admin.from("user_progress").delete().eq("user_id", id);
     await admin.from("user_economy").delete().eq("user_id", id);
     await admin.from("subscriptions").delete().eq("user_id", id);
@@ -95,6 +104,22 @@ async function cleanup(userIds) {
 }
 
 const createdIds = [];
+
+function blockedReadOk(rows, error, label) {
+  if (error) {
+    console.log(`· ${label}: leitura bloqueada com erro (${error.message.slice(0, 80)})`);
+    return true;
+  }
+  return (rows ?? []).length === 0;
+}
+
+function blockedWriteOk(rows, error, label) {
+  if (error) {
+    console.log(`· ${label}: escrita bloqueada com erro (${error.message.slice(0, 80)})`);
+    return true;
+  }
+  return (rows ?? []).length === 0;
+}
 
 try {
   console.log("== test:rls ==");
@@ -130,6 +155,110 @@ try {
   }, { onConflict: "stripe_subscription_id" });
   assert(!subErr, `seed subscriptions B (${subErr?.message ?? "ok"})`);
 
+  // Seed adicionais para ampliar cobertura de isolamento.
+  const { error: srsErr } = await admin.from("user_srs").upsert({
+    user_id: userB.id,
+    item_type: "chunk",
+    item_id: `rls_item_${stamp}`,
+    domain: "meaning",
+    track: "speak",
+    ease: 2.5,
+    interval_days: 1,
+    repetitions: 1,
+    lapses: 0,
+    due_at: new Date(Date.now() + 3600000).toISOString(),
+    last_grade: "good",
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id,item_type,item_id,domain" });
+  assert(!srsErr, `seed user_srs B (${srsErr?.message ?? "ok"})`);
+
+  const { error: missionErr } = await admin.from("user_missions").upsert({
+    user_id: userB.id,
+    scope: "daily",
+    mission_id: "missao-diaria-1",
+    period_key: "2026-08-04",
+    progress: 1,
+    claimed: false,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id,scope,mission_id,period_key" });
+  assert(!missionErr, `seed user_missions B (${missionErr?.message ?? "ok"})`);
+
+  const { error: chestErr } = await admin.from("user_chests").upsert({
+    user_id: userB.id,
+    chest_type: "small",
+    quantity: 2,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id,chest_type" });
+  assert(!chestErr, `seed user_chests B (${chestErr?.message ?? "ok"})`);
+
+  const { error: achievementErr } = await admin.from("user_achievements").upsert({
+    user_id: userB.id,
+    achievement_id: "jornada-primeira-licao",
+    unlocked_at: new Date().toISOString(),
+    reward: { qi: 10 },
+  }, { onConflict: "user_id,achievement_id" });
+  assert(!achievementErr, `seed user_achievements B (${achievementErr?.message ?? "ok"})`);
+
+  const weekKey = "2026-W32";
+  const { error: membershipErr } = await admin.from("league_memberships").upsert({
+    user_id: userB.id,
+    league_tier_id: "bronze",
+    current_week_key: weekKey,
+    weekly_xp: 42,
+    rank_position: 7,
+    joined_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id" });
+  assert(!membershipErr, `seed league_memberships B (${membershipErr?.message ?? "ok"})`);
+
+  const { error: weeklyErr } = await admin.from("league_weekly_results").insert({
+    week_key: weekKey,
+    user_id: userB.id,
+    league_tier_id: "bronze",
+    weekly_xp: 42,
+    final_rank: 7,
+    movement: "stay",
+    reward_claimed: false,
+    reward_qi: 0,
+    reward_chest_type: null,
+  });
+  assert(!weeklyErr, `seed league_weekly_results B (${weeklyErr?.message ?? "ok"})`);
+
+  const { error: xpEventErr } = await admin.from("league_xp_events").insert({
+    user_id: userB.id,
+    week_key: weekKey,
+    source_key: `rls_test_${stamp}`,
+    amount: 10,
+  });
+  assert(!xpEventErr, `seed league_xp_events B (${xpEventErr?.message ?? "ok"})`);
+
+  const { error: feedbackErr } = await admin.from("beta_feedback").insert({
+    user_id: userB.id,
+    local_profile_id: "rls",
+    category: "bug",
+    message: "RLS seed",
+    route: "/jornada",
+    app_version: "test",
+    browser: "test",
+    viewport: "390x844",
+    status: "open",
+    client_dedupe_key: `rls_feedback_${stamp}`,
+  });
+  assert(!feedbackErr, `seed beta_feedback B (${feedbackErr?.message ?? "ok"})`);
+
+  const { error: pedagogyErr } = await admin.from("beta_pedagogy_events").insert({
+    user_id: userB.id,
+    local_profile_id: "rls",
+    event_type: "lesson_started",
+    lesson_id: "l1",
+    route: "/licao/l1/player",
+    metadata: {},
+    client_dedupe_key: `rls_pedagogy_${stamp}`,
+    client_context_digest: "rls",
+    rate_bucket_key: "rls",
+  });
+  assert(!pedagogyErr, `seed beta_pedagogy_events B (${pedagogyErr?.message ?? "ok"})`);
+
   const sessionA = await signIn(emailA);
   const clientA = userClient(sessionA.access_token);
 
@@ -159,6 +288,75 @@ try {
     .eq("user_id", userB.id);
   assert((foreignSub ?? []).length === 0, "A não lê assinatura de B");
 
+  const { data: foreignSrs, error: foreignSrsErr } = await clientA
+    .from("user_srs")
+    .select("user_id,item_id")
+    .eq("user_id", userB.id);
+  assert(blockedReadOk(foreignSrs, foreignSrsErr, "user_srs"), "A não lê user_srs de B");
+
+  const { data: foreignMissions, error: foreignMissionsErr } = await clientA
+    .from("user_missions")
+    .select("user_id,mission_id")
+    .eq("user_id", userB.id);
+  assert(blockedReadOk(foreignMissions, foreignMissionsErr, "user_missions"), "A não lê user_missions de B");
+
+  const { data: foreignChests, error: foreignChestsErr } = await clientA
+    .from("user_chests")
+    .select("user_id,chest_type")
+    .eq("user_id", userB.id);
+  assert(blockedReadOk(foreignChests, foreignChestsErr, "user_chests"), "A não lê user_chests de B");
+
+  const { data: foreignAchievements, error: foreignAchievementsErr } = await clientA
+    .from("user_achievements")
+    .select("user_id,achievement_id")
+    .eq("user_id", userB.id);
+  assert(
+    blockedReadOk(foreignAchievements, foreignAchievementsErr, "user_achievements"),
+    "A não lê user_achievements de B"
+  );
+
+  const { data: foreignLeagueMembership, error: foreignLeagueMembershipErr } = await clientA
+    .from("league_memberships")
+    .select("user_id,league_tier_id")
+    .eq("user_id", userB.id);
+  assert(
+    blockedReadOk(foreignLeagueMembership, foreignLeagueMembershipErr, "league_memberships"),
+    "A não lê membership da liga de B"
+  );
+
+  const { data: foreignLeagueResults, error: foreignLeagueResultsErr } = await clientA
+    .from("league_weekly_results")
+    .select("user_id,week_key")
+    .eq("user_id", userB.id);
+  assert(
+    blockedReadOk(foreignLeagueResults, foreignLeagueResultsErr, "league_weekly_results"),
+    "A não lê resultado semanal de B"
+  );
+
+  const { data: foreignLeagueEvents, error: foreignLeagueEventsErr } = await clientA
+    .from("league_xp_events")
+    .select("user_id,source_key")
+    .eq("user_id", userB.id);
+  assert(
+    blockedReadOk(foreignLeagueEvents, foreignLeagueEventsErr, "league_xp_events"),
+    "A não lê eventos de XP de B"
+  );
+
+  const { data: foreignFeedback, error: foreignFeedbackErr } = await clientA
+    .from("beta_feedback")
+    .select("user_id,id")
+    .eq("user_id", userB.id);
+  assert(blockedReadOk(foreignFeedback, foreignFeedbackErr, "beta_feedback"), "A não lê feedback de B");
+
+  const { data: foreignPedagogy, error: foreignPedagogyErr } = await clientA
+    .from("beta_pedagogy_events")
+    .select("user_id,id")
+    .eq("user_id", userB.id);
+  assert(
+    blockedReadOk(foreignPedagogy, foreignPedagogyErr, "beta_pedagogy_events"),
+    "A não lê telemetria pedagógica de B"
+  );
+
   // A NÃO atualiza perfil de B.
   const { data: updatedProfile, error: updateProfileErr } = await clientA
     .from("profiles")
@@ -186,6 +384,27 @@ try {
     .eq("user_id", userB.id)
     .select("user_id");
   assert((updatedEco ?? []).length === 0, "A não altera economia de B");
+
+  const { data: updatedSrs, error: updatedSrsErr } = await clientA
+    .from("user_srs")
+    .update({ interval_days: 99 })
+    .eq("user_id", userB.id)
+    .select("user_id");
+  assert(blockedWriteOk(updatedSrs, updatedSrsErr, "user_srs"), "A não altera user_srs de B");
+
+  const { data: updatedMissions, error: updatedMissionsErr } = await clientA
+    .from("user_missions")
+    .update({ progress: 99 })
+    .eq("user_id", userB.id)
+    .select("user_id");
+  assert(blockedWriteOk(updatedMissions, updatedMissionsErr, "user_missions"), "A não altera user_missions de B");
+
+  const { data: updatedChests, error: updatedChestsErr } = await clientA
+    .from("user_chests")
+    .update({ quantity: 0 })
+    .eq("user_id", userB.id)
+    .select("user_id");
+  assert(blockedWriteOk(updatedChests, updatedChestsErr, "user_chests"), "A não altera user_chests de B");
 
   // Endpoint admin: is_beta_admin deve ser false para usuário comum.
   const { data: isAdmin, error: adminErr } = await clientA.rpc("is_beta_admin");
