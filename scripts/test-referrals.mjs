@@ -62,6 +62,10 @@ assert(createAccount.includes("already_exists") === false || !/code:\s*[\"']alre
 assert(!createAccount.includes('code: already ? "already_exists"'), "create-account: sem code already_exists");
 assert(createAccount.includes("ALLOWED_EMAIL_REDIRECTS"), "create-account: allowlist redirect");
 assert(createAccount.includes("sanitizeEmailRedirect"), "create-account: sanitize redirect");
+assert(
+  createAccount.includes("singular-meringue-7838cd.netlify.app/confirmar-email"),
+  "create-account: canônico Netlify (sem domínio próprio ainda)",
+);
 assert(createAccount.includes("check_and_record_signup_rate"), "create-account: chama rate RPC");
 assert(createAccount.includes("verifyTurnstile"), "create-account: Turnstile");
 assert(createAccount.includes("TURNSTILE_SECRET_KEY"), "create-account: secret Turnstile");

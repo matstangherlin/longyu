@@ -18,7 +18,8 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
 | Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account` |
 | Hardening create-account | ✅ | Rate limit Postgres (018), anti-enum, allowlist `emailRedirectTo`, cleanup dry-run — PRs #93/#94; `signup_rate_events` ativo em prod |
-| Cloudflare Turnstile | ⬜ | Código pronto; **secrets ainda não configurados** — sem `TURNSTILE_SECRET_KEY` a Edge pula captcha. Ver `ops/ENABLE_TURNSTILE.md` |
+| Cloudflare Turnstile | ⬜ | Código + CSP prontos; **falta widget + secrets**. Domínio próprio ainda não comprado → widget só com hostnames Netlify. Ver `ops/ENABLE_TURNSTILE.md` |
+| Redirect canônico de e-mail | ✅ | Fallback da Edge = `singular-meringue-7838cd.netlify.app/confirmar-email` (não longyu.com.br até ter DNS) |
 | Referral operacional | 🟡 | Schema 017 ok; 0 referrals / 0 rewards / 0 codes em prod (2026-08-04). Falta E2E humano 48h/2 contas |
 | Testes referral/hardening | ✅ | `npm run test:referrals` + `test:create-account-hardening` no `validate:beta` |
 

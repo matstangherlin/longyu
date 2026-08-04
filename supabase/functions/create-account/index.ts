@@ -18,14 +18,19 @@ const ALLOWED_EMAIL_REDIRECTS = new Set([
   "http://127.0.0.1:5173/confirmar-email",
 ]);
 
-const CANONICAL_CONFIRM_REDIRECT = "https://longyu.com.br/confirmar-email";
+// Produção atual é Netlify (domínio próprio ainda não comprado).
+// longyu.com.br permanece na allowlist para quando o DNS for apontado.
+const CANONICAL_CONFIRM_REDIRECT =
+  "https://singular-meringue-7838cd.netlify.app/confirmar-email";
 const GENERIC_PENDING_MESSAGE =
   "Se o endereço puder ser utilizado, enviaremos as próximas instruções por e-mail.";
 
 function corsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin");
   const allowOrigin =
-    origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://longyu.com.br";
+    origin && ALLOWED_ORIGINS.has(origin)
+      ? origin
+      : "https://singular-meringue-7838cd.netlify.app";
   return {
     "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Headers":
