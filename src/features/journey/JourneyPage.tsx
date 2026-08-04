@@ -478,7 +478,7 @@ function JourneyHeader({
         </span>
         <div className="flex shrink-0 items-center gap-1.5">
           {offline && (
-            <Pill tone="muted" className="gap-1">
+            <Pill tone="muted" className="gap-1" data-testid="offline-indicator">
               <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" aria-hidden /> Offline
             </Pill>
           )}

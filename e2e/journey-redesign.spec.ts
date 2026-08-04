@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { dismissBlockingOverlays, seedTelemetryDeclined } from "./helpers";
+import { dismissBlockingOverlays, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 import { ALL_LESSONS } from "../src/data/journey";
 import { ACHIEVEMENTS } from "../src/data/achievements";
 
@@ -151,11 +151,15 @@ test.describe("Jornada — densidade e unidades compactas", () => {
     // 24 lições concluídas, mas só a unidade atual expande.
     await seed(page, firstLessons(24));
     await page.goto("/jornada");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    // Unidades não-atuais expõem um controle de expandir dedicado.
+    // Com code-splitting, .count() imediato via Suspense pode ver 0 — espera o botão.
+    await expect(page.getByRole("button", { name: /Expandir/i }).first()).toBeVisible();
     const rendered = await page.locator("main [aria-disabled]").count();
     // Muito menor que o total de lições — as unidades concluídas não renderizam nós.
     expect(rendered).toBeLessThan(ALL_LESSONS.length / 2);
-    // Unidades não-atuais expõem um controle de expandir dedicado.
     const collapsed = await page.getByRole("button", { name: /Expandir/i }).count();
     expect(collapsed).toBeGreaterThan(0);
     await noOverflow(page);
@@ -165,7 +169,9 @@ test.describe("Jornada — densidade e unidades compactas", () => {
     test.slow();
     await seed(page, firstLessons(24));
     await page.goto("/jornada");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await expect(page.getByRole("button", { name: /Expandir/i }).first()).toBeVisible();
     const before = await page.locator("main [aria-disabled]").count();
     // Foco + Enter aciona o botão real sem depender de estabilidade de scroll
     // (a imagem do mascote pode deslocar o layout durante o carregamento).
@@ -181,13 +187,16 @@ test.describe("Jornada — offline, reduced motion e desktop", () => {
     await page.setViewportSize({ width: 360, height: 640 });
     await seed(page, firstLessons(3));
     await page.goto("/jornada");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.context().setOffline(true);
     await page.evaluate(() => window.dispatchEvent(new Event("offline")));
-    await expect(page.getByText(/Offline/i).first()).toBeVisible();
+    await expect(page.getByTestId("offline-indicator")).toBeVisible();
     // Conteúdo local continua acessível: a ação principal segue visível.
     await expect(page.getByRole("button", { name: /^Continuar$/ })).toBeVisible();
     await page.context().setOffline(false);
+    await page.evaluate(() => window.dispatchEvent(new Event("online")));
   });
 
   test("reduced motion desliga o pulso da lição atual", async ({ page }) => {

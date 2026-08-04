@@ -224,11 +224,12 @@ export function Pill({
   children,
   tone = "muted",
   className,
+  ...rest
 }: {
   children: ReactNode;
   tone?: "muted" | "accent" | "good" | "gold" | "warning" | "wrong";
   className?: string;
-}) {
+} & HTMLAttributes<HTMLSpanElement>) {
   const tones = {
     muted: "border-line bg-surface-2 text-ink-soft",
     accent: "border-transparent bg-accent-soft text-accent",
@@ -244,6 +245,7 @@ export function Pill({
         tones[tone],
         className
       )}
+      {...rest}
     >
       {children}
     </span>

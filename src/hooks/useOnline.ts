@@ -11,13 +11,15 @@ export function useOnline(): boolean {
   );
 
   useEffect(() => {
-    const goOnline = () => setOnline(true);
-    const goOffline = () => setOnline(false);
-    window.addEventListener("online", goOnline);
-    window.addEventListener("offline", goOffline);
+    const sync = () => setOnline(typeof navigator === "undefined" ? true : navigator.onLine);
+    // Re-sincroniza no mount: em testes/Playwright o offline pode ser armado
+    // antes do chunk lazy da página montar (o evento "offline" já passou).
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
     return () => {
-      window.removeEventListener("online", goOnline);
-      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
     };
   }, []);
 

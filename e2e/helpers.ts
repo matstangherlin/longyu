@@ -51,6 +51,15 @@ export async function dismissBlockingOverlays(page: Page) {
   }
 }
 
+/**
+ * Aguarda o fim do Suspense de rotas lazy (code-splitting).
+ * Sem isso, testes podem inspecionar o fallback "Carregando…" e falhar.
+ */
+export async function waitForLazyPage(page: Page) {
+  await page.locator('[aria-label="Carregando página"]').waitFor({ state: "detached", timeout: 20_000 }).catch(() => undefined);
+  await page.getByText("Carregando…").first().waitFor({ state: "hidden", timeout: 5_000 }).catch(() => undefined);
+}
+
 /** Clique resiliente quando overlays/re-renders desanexam o botão. */
 export async function clickStable(page: Page, name: RegExp, retries = 4) {
   for (let attempt = 0; attempt < retries; attempt += 1) {
