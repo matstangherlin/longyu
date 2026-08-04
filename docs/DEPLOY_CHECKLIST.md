@@ -47,10 +47,11 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 
 Ordem alinhada à prontidão de marketing (Cloudflare já disponível):
 
-1. **Ativar Turnstile** (`ops/ENABLE_TURNSTILE.md`):
-   - Widget Invisible no Cloudflare (domínios longyu + netlify + localhost)
+1. **Ativar Turnstile** (`ops/ENABLE_TURNSTILE.md`) — **só hostnames Netlify** (domínio próprio ainda não comprado):
+   - Widget Invisible: `singular-meringue-7838cd.netlify.app`, `longyu.netlify.app`, `localhost`
    - `supabase secrets set TURNSTILE_SECRET_KEY=... --project-ref drjcfalvlbbeblmmyhwj`
    - `VITE_TURNSTILE_SITE_KEY=...` no Netlify production → Clear cache and deploy
+   - Quando comprar `longyu.com.br`, editar o widget e incluir o domínio
 2. **Smoke de cadastro real** (1 conta inédita): criar → e-mail → confirmar → entrar
 3. **E2E referral** (2 contas): A indica → B confirma → 3 lições → 48h → `referrals.status=rewarded` + grant Pro
 4. **Branch protection na `main`**:
