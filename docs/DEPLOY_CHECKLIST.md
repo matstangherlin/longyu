@@ -17,7 +17,8 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Secrets Stripe no Supabase | ✅ | Webhook 400 sem assinatura (não 501) |
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
 | Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account`. Turnstile opcional (`TURNSTILE_SECRET_KEY` + `VITE_TURNSTILE_SITE_KEY`) |
-| Referral operacional | 🟡 | Schema 017 em produção (0 linhas). Falta E2E com 2 contas reais |
+| Referral operacional | 🟡 | Schema 017 + smoke SQL de reward/grant ok; falta E2E humano 48h/2 dias com e-mail real |
+| Testes referral/hardening | ✅ | `npm run test:referrals` + `test:create-account-hardening` no `validate:beta` |
 
 ## App / Netlify
 
