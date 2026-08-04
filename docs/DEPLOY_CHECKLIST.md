@@ -18,7 +18,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
 | Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account` |
 | Hardening create-account | ✅ | Rate limit Postgres (018), anti-enum, allowlist `emailRedirectTo`, cleanup dry-run — PRs #93/#94; `signup_rate_events` ativo em prod |
-| Cloudflare Turnstile | ✅ | Site key no Netlify (`VITE_TURNSTILE_SITE_KEY`); secret no Vault (`TURNSTILE_SECRET_KEY`) + RPC `_edge_get_turnstile_secret`; Edge valida siteverify. Domínio próprio ainda não — widget só Netlify |
+| Cloudflare Turnstile | ⏸️ | Código na `main` (#95). **Pausado no Vault** até Netlify pago + deploy (front sem site key quebrava o cadastro). Restaurar: ver `ops/ENABLE_TURNSTILE.md` |
 | Redirect canônico de e-mail | ✅ | Fallback da Edge = `singular-meringue-7838cd.netlify.app/confirmar-email` (não longyu.com.br até ter DNS) |
 | Migration 019 Turnstile vault RPC | ✅ | Aplicada 2026-08-04 |
 | Referral operacional | 🟡 | Schema 017 ok; 0 referrals / 0 rewards / 0 codes em prod (2026-08-04). Falta E2E humano 48h/2 contas |
@@ -48,8 +48,8 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 
 Ordem alinhada à prontidão de marketing (Cloudflare já disponível):
 
-1. ~~Ativar Turnstile~~ ✅ (Vault + site key Netlify). Opcional: espelhar também com `supabase secrets set TURNSTILE_SECRET_KEY=...`
-2. **Smoke de cadastro real** (1 conta inédita) no site Netlify após o próximo deploy (precisa da site key no build)
+1. **Amanhã:** pagar Netlify → Clear cache and deploy → restaurar secret Turnstile (`ops/ENABLE_TURNSTILE.md`) → smoke `/conta`
+2. **Smoke de cadastro real** (1 conta inédita) no site Netlify
 3. **E2E referral** (2 contas): A indica → B confirma → 3 lições → 48h → `referrals.status=rewarded` + grant Pro
 4. **Branch protection na `main`**:
    ```bash

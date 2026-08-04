@@ -1,6 +1,28 @@
 # Ativar Cloudflare Turnstile no cadastro público
 
-Estado (2026-08-04): **ligado em produção**.
+## Estado atual (2026-08-04)
+
+**Temporariamente pausado** até o Netlify pago fazer deploy com a site key.
+
+- Secret renomeado no Vault: `TURNSTILE_SECRET_KEY_PAUSED_UNTIL_NETLIFY`
+- Edge sem secret → **não** exige captcha (cadastro funciona)
+- Código + site key no `netlify.toml` já estão na `main` (#95)
+
+### Restaurar amanhã (depois de pagar Netlify + deploy)
+
+1. Netlify → **Clear cache and deploy** (confirma que o bundle tem `VITE_TURNSTILE_SITE_KEY`)
+2. No SQL Editor do Supabase:
+   ```sql
+   select vault.update_secret(
+     (select id from vault.secrets where name = 'TURNSTILE_SECRET_KEY_PAUSED_UNTIL_NETLIFY'),
+     new_name := 'TURNSTILE_SECRET_KEY'
+   );
+   ```
+3. Probe sem token deve voltar a `captcha_failed`.
+
+---
+
+Estado quando ligado:
 
 - Site key: `VITE_TURNSTILE_SITE_KEY` no `netlify.toml` (contexto production)
 - Secret: Vault `TURNSTILE_SECRET_KEY` + RPC `public._edge_get_turnstile_secret()` (service_role)
@@ -27,15 +49,10 @@ supabase secrets set TURNSTILE_SECRET_KEY=<secret> --project-ref drjcfalvlbbeblm
 
 A Edge prefere o env; o Vault continua como fallback.
 
-## Redeploy Netlify
-
-Após merge deste PR (site key no `netlify.toml`), rode **Clear cache and deploy**
-no Netlify para o front obter o token Turnstile no `/conta`.
-
 ## Smoke
 
 ```bash
-# Sem token → captcha_failed
+# Sem token → captcha_failed (quando ligado)
 npm run test:create-account-hardening
 ```
 
@@ -44,9 +61,10 @@ No browser (após deploy): criar conta em `/conta` deve passar o desafio invisib
 ## Desligar (rollback)
 
 ```sql
--- remove do Vault
-delete from vault.secrets where name = 'TURNSTILE_SECRET_KEY';
+select vault.update_secret(
+  (select id from vault.secrets where name = 'TURNSTILE_SECRET_KEY'),
+  new_name := 'TURNSTILE_SECRET_KEY_PAUSED_UNTIL_NETLIFY'
+);
 ```
 
-Remova `VITE_TURNSTILE_SITE_KEY` do `netlify.toml` / Netlify e redeploy.
-Opcional: `supabase secrets unset TURNSTILE_SECRET_KEY`.
+Ou delete do Vault. Remova `VITE_TURNSTILE_SITE_KEY` do Netlify e redeploy.
