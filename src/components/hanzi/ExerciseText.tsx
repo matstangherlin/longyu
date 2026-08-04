@@ -40,14 +40,22 @@ export function ExerciseText({
       <span className={className}>
         {parts.map((part, index) =>
           containsCjk(part) ? (
-            <GlossText key={`${part}-${index}`} text={part} speakOnClick={speakOnClick} helpMode={helpMode} disabled={disabled} />
+            <GlossText
+              key={`${part}-${index}`}
+              text={part}
+              speakOnClick={speakOnClick}
+              helpMode={helpMode}
+              disabled={disabled}
+            />
           ) : (
-            <span key={`${part}-${index}`}>{formatPinyinForDisplay(part)}</span>
+            <span key={`${part}-${index}`} className="pinyin">
+              {formatPinyinForDisplay(part)}
+            </span>
           )
         )}
       </span>
     );
   }
 
-  return <span className={className}>{formatPinyinForDisplay(value)}</span>;
+  return <span className={["pinyin", className].filter(Boolean).join(" ")}>{formatPinyinForDisplay(value)}</span>;
 }

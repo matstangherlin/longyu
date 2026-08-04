@@ -31,7 +31,7 @@ export function Pinyin({
   const displayText = formatPinyinForDisplay(text);
   const tokens = displayText.split(/(\s+)/); // mantém espaços
   return (
-    <span className={className}>
+    <span className={["pinyin", className].filter(Boolean).join(" ")}>
       {tokens.map((tok, i) =>
         tok.trim() === "" ? (
           <span key={i}>{tok}</span>

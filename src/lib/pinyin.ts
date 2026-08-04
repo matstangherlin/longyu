@@ -196,7 +196,9 @@ export function containsNumericPinyin(input: string): boolean {
 }
 
 export function formatPinyinForDisplay(input: string, options?: { numeric?: boolean }): string {
-  return options?.numeric ? input : numericPinyinToDiacritics(input);
+  const raw = options?.numeric ? input : numericPinyinToDiacritics(input);
+  // NFC evita ǎ → a + ˇ (NFD), que em algumas fontes aparece como "haˇ o".
+  return raw.normalize("NFC");
 }
 
 export function displayedPinyinHasToneNumbers(input: string, options?: { numeric?: boolean }): boolean {

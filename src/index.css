@@ -92,6 +92,15 @@ html {
   line-height: 1;
 }
 
+/* Pinyin com diacríticos (ǎ ǐ ǒ ǔ): Noto Serif SC falha no 3º tom e
+   decompõe para "haˇ o" / "niˇ". Inter cobre Latin Extended Additional. */
+.pinyin {
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "kern" 1;
+  font-variant-ligatures: none;
+  letter-spacing: 0.01em;
+}
+
 /* Scrollbar discreta */
 ::-webkit-scrollbar {
   width: 10px;

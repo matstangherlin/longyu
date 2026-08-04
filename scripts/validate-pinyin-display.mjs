@@ -62,6 +62,29 @@ for (const sample of studentSamples) {
   }
 }
 
+// 3º tom precisa sair NFC (ǎ/ǐ), nunca NFD (a + combining caron → "haˇ o").
+for (const [input, expected] of [
+  ["hao3", "hǎo"],
+  ["ni3", "nǐ"],
+  ["ni3 hao3", "nǐ hǎo"],
+]) {
+  const actual = pinyin.formatPinyinForDisplay(input);
+  if (actual !== expected) {
+    failures.push(`formatPinyinForDisplay(${input}) -> ${actual}; esperado ${expected}`);
+  }
+  if (actual.normalize("NFC") !== actual) {
+    failures.push(`formatPinyinForDisplay(${input}) não está em NFC`);
+  }
+  if (actual.includes("\u030C") || actual.includes("\u02C7")) {
+    failures.push(`formatPinyinForDisplay(${input}) ainda tem caron separado: ${JSON.stringify(actual)}`);
+  }
+}
+
+const css = await readFile(new URL("../src/index.css", import.meta.url), "utf8");
+if (!css.includes(".pinyin")) {
+  failures.push("CSS precisa da classe .pinyin (Inter) para diacríticos do 3º tom");
+}
+
 const forbiddenStudentDisplay = ["ni3 hao3", "xie4xie", "Zhong1wen2", "wo3 shi4 Ba1xi1 ren2"];
 const sourceRoot = new URL("../src/", import.meta.url);
 

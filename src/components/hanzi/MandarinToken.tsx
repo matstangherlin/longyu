@@ -121,11 +121,16 @@ export function MandarinToken({
     <span
       ref={ref}
       className={[
-        "cursor-help select-none border-b border-dotted transition-colors",
+        "select-none transition-colors",
+        helpDisabled
+          ? "cursor-default"
+          : "cursor-help border-b border-dotted",
         showPinyinRuby ? "inline-flex flex-col items-center leading-none" : "inline-block",
-        open ? "border-accent text-accent" : "border-ink-faint/45",
+        !helpDisabled && (open ? "border-accent text-accent" : "border-ink-faint/45"),
         className,
-      ].join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onPointerEnter={(event) => {
         if (event.pointerType === "mouse") openHint({ event });
       }}
@@ -161,7 +166,7 @@ export function MandarinToken({
     >
       <span className="hanzi">{text}</span>
       {showPinyinRuby && !helpDisabled && entry?.pinyin && (
-        <span className="mt-1 font-serif leading-none" style={{ fontSize: "0.42em" }}>
+        <span className="mt-1 pinyin leading-none" style={{ fontSize: "0.42em" }}>
           <Pinyin text={entry.pinyin} />
         </span>
       )}
