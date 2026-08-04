@@ -4,19 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-<<<<<<< HEAD
-| Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
+| Commit | 97dd0f1c977e54a7bda7ed817a372941193fa9fe |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T06:01:34.058Z |
+| Gerado em | 2026-08-04T06:27:11.084Z |
 | Lições | 122 |
 | Hash da Jornada | dbf712321bc6 |
-=======
-| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T03:16:37.165Z |
-| Lições | 114 |
-| Hash da Jornada | 75120b753bbd |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Resumo
 
@@ -794,7 +786,6 @@
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-<<<<<<< HEAD
 ### p6-compras — Compras: roupas e itens (score 87)
 
 | Métrica | Valor |
@@ -815,8 +806,6 @@
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-=======
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 ### p1-engine-2-lab — Laboratório de exercícios (score 88)
 
 | Métrica | Valor |
@@ -2482,8 +2471,4 @@
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<<<<<<< HEAD
-<!-- integridade:276b61e9312eb9e7 -->
-=======
-<!-- integridade:00359ccef24d604a -->
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
+<!-- integridade:4daca8a8aaca3f82 -->

@@ -4,19 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-<<<<<<< HEAD
-| Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
+| Commit | 97dd0f1c977e54a7bda7ed817a372941193fa9fe |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T06:04:23.359Z |
+| Gerado em | 2026-08-04T06:27:05.163Z |
 | Lições | 122 |
 | Hash da Jornada | dbf712321bc6 |
-=======
-| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T03:16:29.567Z |
-| Lições | 114 |
-| Hash da Jornada | 75120b753bbd |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Resumo
 
@@ -31,11 +23,7 @@
 | Vocabulário coberto por tarefas posteriores (plano ou SRS) | 82 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 5 |
-<<<<<<< HEAD
 | Média de reutilizações por ref exibida | 12.78 |
-=======
-| Média de reutilizações por ref exibida | 11.72 |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Cenas mais curtas
 
@@ -65,7 +53,6 @@
 | Cena | Usos |
 |------|-----:|
 | encontro-amanha | 12 |
-<<<<<<< HEAD
 | revisao-cumprimento-completo | 12 |
 | cortesia-loja | 10 |
 | nao-falo-chinês | 9 |
@@ -75,17 +62,6 @@
 | fale-de-novo | 7 |
 | agradecendo | 6 |
 | sala-de-aula | 6 |
-=======
-| revisao-cumprimento-completo | 11 |
-| nao-falo-chinês | 9 |
-| cortesia-loja | 9 |
-| conversa-em-casa | 8 |
-| como-se-chama | 7 |
-| perguntando-se-esta-bem | 7 |
-| agradecendo | 6 |
-| sala-de-aula | 6 |
-| fale-de-novo | 6 |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Cenas por cenário
 
@@ -157,8 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<<<<<<< HEAD
-<!-- integridade:c3e196234b080496 -->
-=======
-<!-- integridade:f14752d47e645e8f -->
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
+<!-- integridade:ca34ad179cd229ea -->

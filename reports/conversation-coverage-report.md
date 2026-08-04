@@ -4,19 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-<<<<<<< HEAD
-| Commit | 1e4f70aaa61a2bac3897fce515cb3085c150bec5 |
+| Commit | 97dd0f1c977e54a7bda7ed817a372941193fa9fe |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T06:05:17.710Z |
+| Gerado em | 2026-08-04T06:26:53.086Z |
 | Lições | 122 |
 | Hash da Jornada | dbf712321bc6 |
-=======
-| Commit | d0050aa4b345bc0450638346d323714f9b8e95b7 |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T03:16:14.702Z |
-| Lições | 114 |
-| Hash da Jornada | 75120b753bbd |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 
 ## Resumo
 
@@ -27,15 +19,9 @@
 | Cenas V1 autorais (sem nós) | 0 |
 | Fallback V1 derivado (lines/checkpoint) | 38 |
 | Intenções distintas | 38 |
-<<<<<<< HEAD
 | Passos autorais na jornada | 41 |
 | Lições com cena gerada no plano | 106 |
 | Cenas geradas distintas | 21 |
-=======
-| Passos autorais na jornada | 40 |
-| Lições com cena gerada no plano | 98 |
-| Cenas geradas distintas | 19 |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -62,20 +48,12 @@
 
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
-<<<<<<< HEAD
 | primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 3 |
-=======
-| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 2 | 3 |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 | perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
 | agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 4 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
-<<<<<<< HEAD
 | revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 10 |
-=======
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 9 |
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 10 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
@@ -127,8 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<<<<<<< HEAD
-<!-- integridade:d8b963eb38c6a3ed -->
-=======
-<!-- integridade:d9c3a9e48b31b8e2 -->
->>>>>>> 319d48a7d563909f394858379fd1c5d467a07f59
+<!-- integridade:837ea34603df8a25 -->
