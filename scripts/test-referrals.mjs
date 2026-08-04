@@ -79,7 +79,10 @@ assert(!/0x4AAAAA/.test(turnstileMig), "019: sem secret hardcoded");
 
 const netlifyToml = read("netlify.toml");
 assert(netlifyToml.includes("VITE_TURNSTILE_SITE_KEY"), "netlify: site key Turnstile");
-assert(netlifyToml.includes("challenges.cloudflare.com"), "netlify: CSP Turnstile");
+assert(
+  /https:\/\/challenges\.cloudflare\.com/.test(netlifyToml),
+  "netlify: CSP Turnstile (host canônico)",
+);
 assert(authService.includes("GENERIC_PENDING_MESSAGE") || authService.includes("Se o endereço puder ser utilizado"), "authService: mensagem genérica");
 assert(authService.includes("getTurnstileToken"), "authService: turnstile token");
 assert(authService.includes("rate_limited"), "authService: trata rate_limited");
