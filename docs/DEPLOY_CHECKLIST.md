@@ -16,8 +16,10 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |
 | Secrets Stripe no Supabase | ✅ | Webhook 400 sem assinatura (não 501) |
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
-| Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account`. Turnstile opcional (`TURNSTILE_SECRET_KEY` + `VITE_TURNSTILE_SITE_KEY`) |
-| Referral operacional | 🟡 | Schema 017 + smoke SQL de reward/grant ok; falta E2E humano 48h/2 dias com e-mail real |
+| Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account` |
+| Hardening create-account | ✅ | Rate limit Postgres (018), anti-enum, allowlist `emailRedirectTo`, cleanup dry-run — PRs #93/#94; `signup_rate_events` ativo em prod |
+| Cloudflare Turnstile | ⬜ | Código pronto; **secrets ainda não configurados** — sem `TURNSTILE_SECRET_KEY` a Edge pula captcha. Ver `ops/ENABLE_TURNSTILE.md` |
+| Referral operacional | 🟡 | Schema 017 ok; 0 referrals / 0 rewards / 0 codes em prod (2026-08-04). Falta E2E humano 48h/2 contas |
 | Testes referral/hardening | ✅ | `npm run test:referrals` + `test:create-account-hardening` no `validate:beta` |
 
 ## App / Netlify
@@ -42,12 +44,19 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 
 ## Próximo marco
 
-1. **Ativar branch protection na `main`**:
+Ordem alinhada à prontidão de marketing (Cloudflare já disponível):
+
+1. **Ativar Turnstile** (`ops/ENABLE_TURNSTILE.md`):
+   - Widget Invisible no Cloudflare (domínios longyu + netlify + localhost)
+   - `supabase secrets set TURNSTILE_SECRET_KEY=... --project-ref drjcfalvlbbeblmmyhwj`
+   - `VITE_TURNSTILE_SITE_KEY=...` no Netlify production → Clear cache and deploy
+2. **Smoke de cadastro real** (1 conta inédita): criar → e-mail → confirmar → entrar
+3. **E2E referral** (2 contas): A indica → B confirma → 3 lições → 48h → `referrals.status=rewarded` + grant Pro
+4. **Branch protection na `main`**:
    ```bash
    export GITHUB_TOKEN=ghp_...   # PAT pessoal com admin no repo
    node scripts/setup-branch-protection.mjs
    ```
-   Ou manualmente em Settings → Branches: exigir `Portão de qualidade`, `Testes E2E`, `npm audit`, `CodeQL`, `Secret scan`.
-2. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`) — áudio/PWA/offline após o fix TTS
-3. Rodar runbook Stripe Test Mode completo (`npm run test:stripe` com `sk_test_`) se a beta for paga
-4. Opcional: `npm run test:rls` com service_role (espelho HTTP do SQL já verde)
+5. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`)
+6. Stripe Test Mode live (`npm run test:stripe` com `sk_test_`) se a beta for paga
+7. Marketing progressivo (só depois de 1–3)
