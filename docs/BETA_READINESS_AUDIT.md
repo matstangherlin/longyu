@@ -1,5 +1,25 @@
 # Longyu — Auditoria de prontidão beta (`0.2.0-beta.1`)
 
+## Atualização operacional — 2026-08-04 (noite²)
+
+**Commit `main`:** `9265b57`  
+**Método:** merge do PR #71 (áudio + WebKit); RLS A≠B via SQL no MandarimProject; `verify:leagues` parcial + RPCs confirmadas.
+
+| Critério | Evidência |
+|---|---|
+| CI PR #71 | ✅ Portão + E2E Chromium + **WebKit** + **Firefox** verdes ([run 30886483874](https://github.com/matstangherlin/longyu/actions/runs/30886483874)) |
+| Merge na `main` | ✅ `9265b57` (áudio cross-browser, pós-conversa UI, dismiss de medalhas) |
+| Migration 016 / ligas | ✅ `finalize_league_cohort` + `sync_league_week` + 7 tiers no prod; `npm run verify:leagues` OK |
+| RLS A≠B | ✅ SQL `scripts/sql/rls-a-ne-b.sql` executado no prod: A não lê/altera progresso/economia/assinatura/perfil de B; `is_beta_admin=false`; `apply_subscription_event` negado |
+| Áudio Safari/iOS | 🟡 Código corrigido na main; falta validação em **device físico** |
+| Stripe Test Mode E2E humano | 🟡 Precisa `sk_test_` no ambiente local |
+| Branch protection na `main` | ⬜ Ativar no GitHub (Settings → Branches): exigir `Portão de qualidade` + `Testes E2E`; bloquear push direto |
+| Device real iOS/Android | ⬜ Ver `docs/REAL_DEVICE_QA.md` |
+
+**Veredito:** beta fechada por convite **pronta**. Beta pública gratuita: falta device real + branch protection (+ Stripe se for paga).
+
+---
+
 ## Atualização operacional — 2026-08-04 (noite)
 
 **Commit `main`:** `274b35d`  

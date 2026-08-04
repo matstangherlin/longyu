@@ -92,7 +92,8 @@
     "test:e2e:all": "playwright test",
     "test:e2e:webkit": "playwright test --project=webkit --project=mobile-safari",
     "test:e2e:firefox": "playwright test --project=firefox",
-    "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari --project=tablet-portrait --project=tablet-landscape"
+    "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari --project=tablet-portrait --project=tablet-landscape",
+    "test:rls:sql": "echo \"Rode scripts/sql/rls-a-ne-b.sql no SQL Editor do Supabase (ou MCP execute_sql). Ver docs/DEPLOY_CHECKLIST.md.\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",

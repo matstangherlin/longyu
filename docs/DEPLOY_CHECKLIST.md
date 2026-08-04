@@ -12,7 +12,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Edge Functions produção | ✅ | checkout/webhook/billing/delete v8–v9 |
 | `npm run verify:production` | ✅ | |
 | `npm run verify:beta-feedback` | ✅ | |
-| RLS testado (usuário A ≠ B) | 🟡 | Script `npm run test:rls` pronto; exige `SUPABASE_SERVICE_ROLE_KEY` local |
+| RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |
 | Secrets Stripe no Supabase | ✅ | Webhook 400 sem assinatura (não 501) |
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
 
@@ -38,9 +38,10 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 
 ## Próximo marco
 
-1. Ativar branch protection na `main` (checks obrigatórios)
-2. Configurar Netlify Preview com anon key do `longyu-preview` (ou manter local)
-3. Rodar runbook Stripe Test Mode completo
-4. Rodar `npm run test:rls` com service_role
-5. Device real iOS + Android
-6. Regenerar auditoria oficial após o portão verde
+1. **Ativar branch protection na `main`** (Settings → Branches → Add rule):
+   - Require status checks: `Portão de qualidade (validate:beta + build)` + `Testes E2E (Playwright)`
+   - Require branch up to date
+   - Restrict who can push (sem push direto)
+2. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`) — áudio/PWA/offline após o fix TTS
+3. Rodar runbook Stripe Test Mode completo (`npm run test:stripe` com `sk_test_`) se a beta for paga
+4. Opcional: `npm run test:rls` com service_role (espelho HTTP do SQL já verde)
