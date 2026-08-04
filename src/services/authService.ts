@@ -57,53 +57,55 @@ export async function createAccount(
   if (!client) return notImplemented();
 
   const details = profile ?? profileFromName();
-  const cleanEmail = email.trim();
-  const { data, error } = await client.auth.signUp({
-    email: cleanEmail,
-    password,
-    options: {
-      data: { name: details.name },
+  const cleanEmail = email.trim().toLowerCase();
+
+  // Edge create-account: Admin API com email_confirm=false + resend do link.
+  const { data, error } = await client.functions.invoke<{
+    ok?: boolean;
+    code?: string;
+    userId?: string;
+    email?: string;
+    pendingConfirmation?: boolean;
+    emailed?: boolean;
+    emailError?: string | null;
+    error?: string;
+  }>("create-account", {
+    body: {
+      email: cleanEmail,
+      password,
+      displayName: details.name,
       emailRedirectTo: emailConfirmationRedirectUrl(),
     },
   });
 
-  if (error) {
-    const alreadyExists =
-      error.message.toLowerCase().includes("already") ||
-      error.message.toLowerCase().includes("registered");
-    if (alreadyExists) return login(cleanEmail, password, details);
-    return { status: "error", message: error.message };
+  if (error && !data) {
+    return { status: "error", message: error.message || "Falha ao criar conta." };
   }
 
-  // Sem sessão: confirmação de email obrigatória (ou usuário já existia).
-  if (!data.session) {
-    const identities = data.user?.identities ?? [];
-    // Supabase retorna user sem identities quando o email já está cadastrado
-    // (anti-enumeration). Trate como conta existente.
-    if (data.user && identities.length === 0) {
-      return {
-        status: "error",
-        message: "Este email já tem conta. Entre com sua senha ou recupere o acesso.",
-      };
-    }
+  if (data?.code === "already_exists" || (data?.error && /already|registered|exists/i.test(data.error))) {
+    return login(cleanEmail, password, details);
+  }
+
+  if (data?.error || data?.ok === false) {
+    return { status: "error", message: data.error || "Falha ao criar conta." };
+  }
+
+  if (data?.ok && data.pendingConfirmation) {
     return {
       status: "pending_confirmation",
-      message: "Enviamos um link de confirmação para o seu email. Abra o link para ativar a conta.",
-      data: data.user
-        ? { id: data.user.id, email: data.user.email ?? cleanEmail, name: details.name }
-        : { id: "", email: cleanEmail, name: details.name },
+      message: data.emailed === false
+        ? "Conta criada, mas o email de confirmação não foi enviado. Use Reenviar na próxima tela."
+        : "Enviamos um link de confirmação para o seu email. Abra o link para ativar a conta.",
+      data: {
+        id: data.userId ?? "",
+        email: data.email ?? cleanEmail,
+        name: details.name,
+      },
     };
   }
 
-  const user = data.session.user;
-  const profileError = await ensureProfile(user.id, details);
-  if (profileError) return { status: "error", message: profileError };
-
-  return {
-    status: "ok",
-    message: "Conta criada com sucesso.",
-    data: { id: user.id, email: user.email ?? cleanEmail, name: details.name },
-  };
+  // Fallback raro: se a function retornar sem pending, tente login.
+  return login(cleanEmail, password, details);
 }
 
 export async function login(
