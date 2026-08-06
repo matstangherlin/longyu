@@ -1473,11 +1473,17 @@ export function RevisaoPage() {
             </>
           ) : (
             <>
+              {/* A fila pode ter itens e ainda assim não render exercício —
+                  acontece quando um item guardado aponta para conteúdo que não
+                  existe mais. Dizer "nada para revisar" ali contradiz a
+                  contagem exibida logo acima e manda alimentar uma fila cheia. */}
               <div className="font-serif text-2xl font-semibold text-ink">
-                Nada para revisar agora
+                {fullQueue.length > 0 ? "Não consegui montar esta revisão" : "Nada para revisar agora"}
               </div>
               <p className="mt-1 text-ink-soft">
-                Aprenda caracteres no Hànzì ou chunks na Fala para alimentar a fila.
+                {fullQueue.length > 0
+                  ? `Há ${fullQueue.length} ${fullQueue.length === 1 ? "item" : "itens"} na fila, mas nenhum deles pôde virar exercício agora. Estude um pouco para renovar a fila — os itens antigos saem sozinhos.`
+                  : "Aprenda caracteres no Hànzì ou chunks na Fala para alimentar a fila."}
               </p>
               <div className="mt-4 flex justify-center gap-3">
                 {correctionDrill ? (
@@ -1676,15 +1682,14 @@ export function RevisaoPage() {
         />
       )}
 
-      {!correctionDrill && (
-      <section className={detailedErrorsAllowed ? "grid gap-3 sm:grid-cols-2 lg:grid-cols-4" : "grid gap-3 sm:grid-cols-2"}>
+      {!correctionDrill && detailedErrorsAllowed && (
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ReviewSummaryTile
           label="Revisão de hoje"
           value={queue.length}
           detail={focus ? `Foco: ${REVIEW_DOMAIN_META[focus.domain].shortLabel}` : "Fila adaptativa"}
         />
-        {detailedErrorsAllowed && (
-          <>
+        <>
         <ReviewSummaryTile
           label="Erros recentes"
           value={recentErrorsCount}
@@ -1715,22 +1720,46 @@ export function RevisaoPage() {
             {modeCounts.mistakes > 0 || modeCounts.weak > 0 ? "Corrigir agora" : "Tudo certo"}
           </Button>
         </Card>
-          </>
-        )}
-        {!detailedErrorsAllowed && (
-          <Card className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              Revisão básica
-            </div>
-            <p className="mt-2 text-sm leading-5 text-ink-soft">
-              Reforce o que você aprendeu. Histórico, filtros e padrões de erro ficam no Longyu Pro.
-            </p>
-            <Button size="sm" variant="outline" className="mt-3 w-full" onClick={() => openPaywall("errors")}>
-              Ver Erros detalhados
-            </Button>
-          </Card>
-        )}
+        </>
       </section>
+      )}
+
+      {/* Plano grátis: antes eram quatro cartões antes do exercício — quadro de
+          contagem, "Revisão básica", "Plano de hoje" e "Fila básica" — repetindo
+          o mesmo número três vezes e a mesma frase sobre o Pro outras três.
+          Vira uma faixa só, com tudo que eles diziam. */}
+      {!correctionDrill && !detailedErrorsAllowed && (
+        <Card className="p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+                Revisão de hoje
+              </div>
+              <div className="mt-0.5 flex items-baseline gap-2">
+                <span className="font-serif text-2xl font-semibold tabular-nums text-ink">{queue.length}</span>
+                <span className="text-sm text-ink-soft">
+                  {queue.length === 1 ? "prioridade" : "prioridades"} na fila gratuita
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Pill tone="muted">Básica</Pill>
+              {!isPremium && fullQueue.length > FREE_REVIEW_LIMIT && (
+                <Pill tone="muted">Grátis: {FREE_REVIEW_LIMIT}/{fullQueue.length}</Pill>
+              )}
+            </div>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">
+            A fila gratuita prioriza os itens vencidos do dia.{" "}
+            <button
+              type="button"
+              onClick={() => openPaywall("errors")}
+              className="font-medium text-gold underline decoration-gold/35 underline-offset-2 transition hover:decoration-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            >
+              Histórico, filtros e padrões de erro ficam no Pro.
+            </button>
+          </p>
+        </Card>
       )}
 
       {detailedErrorsAllowed && !correctionDrill && (
@@ -1740,7 +1769,7 @@ export function RevisaoPage() {
         </>
       )}
 
-      {!correctionDrill && (
+      {!correctionDrill && detailedErrorsAllowed && (
       <Card className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -1751,16 +1780,14 @@ export function RevisaoPage() {
               {queue.length} {queue.length === 1 ? "prioridade de revisão" : "prioridades de revisão"}
             </h2>
             <p className="mt-1 text-sm text-ink-soft">
-              {detailedErrorsAllowed
-                ? focus
-                  ? `Foco principal: ${REVIEW_DOMAIN_META[focus.domain].weaknessLabel}. O Longyu mistura formatos para evitar repetição.`
-                  : "Sem fraqueza clara nesta sessão. O Longyu mistura formatos para evitar repetição."
-                : `${FREE_TIER_REVIEW_HINT} Erros detalhados e filtros avançados ficam no Pro.`}
+              {focus
+                ? `Foco principal: ${REVIEW_DOMAIN_META[focus.domain].weaknessLabel}. O Longyu mistura formatos para evitar repetição.`
+                : "Sem fraqueza clara nesta sessão. O Longyu mistura formatos para evitar repetição."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Pill tone={focus ? "accent" : "muted"}>
-              {detailedErrorsAllowed ? (focus ? REVIEW_DOMAIN_META[focus.domain].cardLabel : "Fila limpa") : "Básica"}
+              {focus ? REVIEW_DOMAIN_META[focus.domain].cardLabel : "Fila limpa"}
             </Pill>
             {!isPremium && fullQueue.length > FREE_REVIEW_LIMIT && (
               <Pill tone="muted">Grátis: {FREE_REVIEW_LIMIT}/{fullQueue.length}</Pill>
@@ -1771,32 +1798,25 @@ export function RevisaoPage() {
       )}
 
       <div className="mx-auto max-w-xl">
-        {!correctionDrill && (
+        {!correctionDrill && detailedErrorsAllowed && (
         <Card className="mb-4 p-4">
           <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {detailedErrorsAllowed ? "Fila inteligente" : "Fila básica"}
+            Fila inteligente
           </div>
-          {detailedErrorsAllowed ? (
-            <div className="flex flex-wrap gap-2">
-              {REVIEW_DOMAIN_ORDER.map((domain) => {
-                const count = domainCounts[domain] ?? 0;
-                if (count === 0) return null;
-                return (
-                  <Pill key={domain} tone={domain === domainForEntry(entry) ? "accent" : "muted"}>
-                    {REVIEW_DOMAIN_META[domain].shortLabel} · {count}
-                  </Pill>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm leading-6 text-ink-soft">
-              A revisão gratuita prioriza itens vencidos sem abrir histórico, filtros ou padrões de erro.
-            </p>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {REVIEW_DOMAIN_ORDER.map((domain) => {
+              const count = domainCounts[domain] ?? 0;
+              if (count === 0) return null;
+              return (
+                <Pill key={domain} tone={domain === domainForEntry(entry) ? "accent" : "muted"}>
+                  {REVIEW_DOMAIN_META[domain].shortLabel} · {count}
+                </Pill>
+              );
+            })}
+          </div>
           <p className="mt-2 text-xs text-ink-faint">
-            {detailedErrorsAllowed
-              ? "Itens com erro e domínios fracos vêm primeiro, mas o Longyu intercala para não repetir o mesmo cartão em sequência."
-              : "Erros detalhados fazem parte do Longyu Pro."}
+            Itens com erro e domínios fracos vêm primeiro, mas o Longyu intercala para não repetir o mesmo cartão em
+            sequência.
           </p>
         </Card>
         )}
