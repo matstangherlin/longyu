@@ -5,6 +5,7 @@ import { IconChevron, IconFlame, IconStar, IconTrophy } from "../../components/u
 import { useLeagueData } from "../../hooks/useLeagueData";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import {
   LEAGUE_META,
   leagueOutcomeLabel,
@@ -79,6 +80,15 @@ export function LigasPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0">
+      {/* A oferta automática desta página é pedida como "card" (discreta), mas
+          vinha saindo como modal — interrompia quem só queria ver o ranking.
+          Agora a força escolhe o formato: card vira faixa aqui no topo, strong
+          segue modal (o clique em "Ver como o Pro ajuda" continua modal). */}
+      <ProOfferBanner
+        offer={contextualOffer.offer?.strength === "card" ? contextualOffer.offer : null}
+        onDismiss={contextualOffer.dismiss}
+      />
+
       {!isPro && isLive && (
         <p className="rounded-xl border border-line/40 bg-surface-2/60 px-3 py-2 text-center text-[11px] text-ink-soft">
           {getPlanFeature("ligas").freeTier}{" "}
@@ -366,7 +376,7 @@ export function LigasPage() {
       </div>
 
       <ProPaywall
-        open={contextualOffer.open}
+        open={contextualOffer.open && contextualOffer.offer?.strength !== "card"}
         kind={contextualOffer.offer?.paywallKind ?? "leagues"}
         offer={contextualOffer.offer}
         onClose={contextualOffer.dismiss}

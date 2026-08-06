@@ -28,6 +28,8 @@ import {
 import { buildModuleSkipTest } from "../challenge/examBuilder";
 import { getModuleSkipAccessInfo } from "../../lib/moduleSkipAccess";
 import { useIsPro } from "../../lib/proAccess";
+import { useProOffer } from "../../hooks/useProOffer";
+import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
@@ -189,7 +191,9 @@ export function JourneyPage() {
   const dailyMissions = useStore((s) => s.dailyMissions);
   const streak = useStore((s) => s.streak);
   const srs = useStore((s) => s.srs);
+  const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
   const online = useOnline();
+  const contextualOffer = useProOffer();
 
   const currentId = currentLessonId(completed, isPremium);
   const currentLesson = ALL_LESSONS.find((l) => l.id === currentId);
@@ -206,6 +210,28 @@ export function JourneyPage() {
     ? currentCheckpoint?.detail ?? currentContext.unit.goal
     : "Você concluiu todas as lições disponíveis.";
   const reviewCount = useMemo(() => dueItems(srs).length, [srs]);
+
+  // Faixa do Pro na Jornada. Quem decide se aparece é o proOfferEngine: Pro
+  // nunca vê, o primeiro minuto de sessão é poupado e cada tipo de oferta tem
+  // cooldown de 24h depois de dispensado. Passamos só o contexto verdadeiro —
+  // sem cargas, ou um dia de estudo que já rendeu — para a mensagem casar com
+  // a situação em vez de ser propaganda genérica.
+  const outOfCharges = !isPremium && dailyEnergy.charges <= 0;
+  // claimed é Record<string, boolean>, não lista: conta só as de valor true.
+  const missionClaimed = Object.values(dailyMissions.claimed).some(Boolean);
+  useEffect(() => {
+    if (isPremium) return;
+    contextualOffer.consider(
+      {
+        sessionMoment: "hub",
+        origin: "jornada",
+        energyDepleted: outOfCharges,
+        missionClaimed,
+        reviewCompleted: reviewCount === 0 && completed.length > 0,
+      },
+      "card"
+    );
+  }, [isPremium, outOfCharges, missionClaimed, reviewCount, completed.length]);
 
   const todayMinutes = today.som + today.fala + today.hanzi + today.leitura;
   const primaryMission = useMemo(
@@ -268,6 +294,8 @@ export function JourneyPage() {
     <>
       <div className="mx-auto grid w-full max-w-[1180px] gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start">
         <div className="min-w-0 space-y-5">
+          <ProOfferBanner offer={contextualOffer.offer} onDismiss={contextualOffer.dismiss} />
+
           <JourneyHeader
             phaseLabel={
               currentContext

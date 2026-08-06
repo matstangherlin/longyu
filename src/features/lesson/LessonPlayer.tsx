@@ -65,6 +65,7 @@ import {
 } from "./lessonTasks";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
+import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
@@ -2569,14 +2570,20 @@ export function LessonPlayer() {
     const hanziErrorCount = sessionErrors.filter(
       (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
     ).length;
-    contextualOffer.consider({
-      lessonThreeStars: passed && stars === 3,
-      twoStars: passed && stars === 2,
-      errorCount: sessionErrors.length,
-      outOfBreath: reason === "out_of_lives",
-      repeatedToneErrors: toneErrorCount >= 2,
-      repeatedHanziErrors: hanziErrorCount >= 2,
-    });
+    // Oferta pós-lição em faixa, não em modal: aparece na tela de conclusão,
+    // depois da tarefa terminada, sem cobrir o resultado nem exigir um clique
+    // para sair. O motor continua decidindo se deve aparecer.
+    contextualOffer.consider(
+      {
+        lessonThreeStars: passed && stars === 3,
+        twoStars: passed && stars === 2,
+        errorCount: sessionErrors.length,
+        outOfBreath: reason === "out_of_lives",
+        repeatedToneErrors: toneErrorCount >= 2,
+        repeatedHanziErrors: hanziErrorCount >= 2,
+      },
+      "card"
+    );
   }
 
   if (finished) {
@@ -3297,6 +3304,12 @@ export function LessonPlayer() {
             )}
           </div>
 
+          <ProOfferBanner
+            offer={contextualOffer.offer}
+            onDismiss={contextualOffer.dismiss}
+            className="mt-4"
+          />
+
           {/* 3 · Botão principal — sempre visível, resgata e depois continua. */}
           <div className="sticky bottom-0 -mx-4 mt-auto bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 sm:static sm:mx-0 sm:bg-none sm:px-0">
             <div className="mb-1.5 flex items-center justify-center gap-4 text-xs font-medium text-ink-faint">
@@ -3515,7 +3528,7 @@ export function LessonPlayer() {
       )}
       <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       <ProPaywall
-        open={contextualOffer.open && proPaywallKind === null}
+        open={contextualOffer.open && contextualOffer.offer?.strength !== "card" && proPaywallKind === null}
         kind={contextualOffer.offer?.paywallKind ?? "training"}
         offer={contextualOffer.offer}
         onClose={contextualOffer.dismiss}
