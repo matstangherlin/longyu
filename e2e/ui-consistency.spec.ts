@@ -28,6 +28,11 @@ async function expectNoHorizontalOverflow(page: Page, route: string) {
 
 test.describe("consistência visual e responsiva", () => {
   test("rotas principais não criam overflow horizontal em 360 × 640", async ({ page }) => {
+    // São 12 rotas com reload completo. Em ambiente sem rede, cada navegação
+    // espera o CDN de fontes esgotar antes do evento load (~13s por rota), o
+    // que estoura tanto os 45s padrão quanto os 135s de test.slow(). O custo é
+    // do ambiente, não da página: medido isoladamente, cada rota carrega.
+    test.setTimeout(300_000);
     await page.setViewportSize({ width: 360, height: 640 });
     await seedOnboardedSession(page);
 

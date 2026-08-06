@@ -258,6 +258,32 @@ assert(paywall.includes("recordProOfferClicked"), "ProPaywall deve registrar cli
 const proPage = read("src/features/pro/ProPage.tsx");
 assert(proPage.includes("recordProOfferCheckoutStarted") && proPage.includes("recordProOfferSubscriptionStarted"), "ProPage deve registrar checkout/assinatura iniciados");
 
+// ── Banner: a oferta discreta precisa existir como faixa, não como modal ────
+const banner = read("src/components/pro/ProOfferBanner.tsx");
+assert(banner.includes("recordProOfferClicked"), "ProOfferBanner deve registrar clique na oferta");
+assert(banner.includes("offer.freeContinues"), "ProOfferBanner deve manter visível a promessa do grátis");
+assert(banner.includes("onDismiss"), "ProOfferBanner deve permitir dispensar (arma o cooldown)");
+assert(!banner.includes("ModalOverlay"), "ProOfferBanner não pode virar modal");
+
+// A oferta pós-lição fica na tela de conclusão, em faixa: nunca interrompe o
+// estudo nem cobre o resultado com um modal.
+const lessonPlayer = read("src/features/lesson/LessonPlayer.tsx");
+assert(lessonPlayer.includes("ProOfferBanner"), "LessonPlayer deve renderizar a oferta como faixa");
+assert(
+  /contextualOffer\.consider\(\s*\{[\s\S]*?\},\s*"card"\s*\)/.test(lessonPlayer),
+  "oferta pós-lição deve ser pedida como \"card\" (faixa), não como modal"
+);
+
+// Quem pede oferta discreta não pode receber modal no lugar.
+for (const [arquivo, rotulo] of [
+  ["src/features/ligas/LigasPage.tsx", "LigasPage"],
+  ["src/features/journey/JourneyPage.tsx", "JourneyPage"],
+]) {
+  const src = read(arquivo);
+  assert(src.includes('"card"'), `${rotulo} deve pedir a oferta discreta ("card")`);
+  assert(src.includes("ProOfferBanner"), `${rotulo} deve renderizar a faixa`);
+}
+
 if (errors.length > 0) {
   console.error("ERRO: test:pro-offer-engine falhou.");
   for (const e of errors) console.error(`  - ${e}`);
