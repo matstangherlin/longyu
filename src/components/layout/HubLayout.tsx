@@ -104,7 +104,9 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
           <Icon width={15} height={15} />
         </span>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          {item.pro && <Pill tone="gold">Pro</Pill>}
+          {/* Quando o próprio status já diz "Pro", o selo separado viraria um
+              segundo pill idêntico empilhado — mostra só um. */}
+          {item.pro && item.status !== "Pro" && <Pill tone="gold">Pro</Pill>}
           {item.status && (
             <Pill tone={item.statusTone ?? (item.featured ? "accent" : "muted")} className="max-w-[88px] truncate">
               {item.status}

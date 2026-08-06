@@ -221,7 +221,10 @@ export function PinyinLabPage() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          {/* No celular este painel ficava depois da lista inteira: você tocava
+              numa sílaba no topo e o detalhe aparecia milhares de px abaixo.
+              Vai para o topo no telefone e acompanha a rolagem no desktop. */}
+          <Card className="order-first p-5 lg:order-none lg:sticky lg:top-20">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Selecionada</div>
@@ -325,17 +328,19 @@ function MobileSyllableGrid({
       .filter((cell): cell is PinyinSyllableCell => Boolean(cell)),
   })).filter((group) => group.cells.length > 0);
 
+  // Um cartão por final gastava uma tela inteira para grupos de uma sílaba, e
+  // repetia o rótulo "final" a cada bloco. Vira uma tabela só: o próprio glifo
+  // do final rotula a linha.
   return (
-    <div className="grid gap-3 md:hidden">
+    <Card className="divide-y divide-line p-0 md:hidden">
       {groups.map((group) => (
-        <Card key={group.final} className="p-3">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <div className="font-serif text-2xl font-semibold text-accent">{group.final}</div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              final
-            </div>
+        <div key={group.final} className="flex items-start gap-3 px-3 py-2.5">
+          <div className="w-8 shrink-0 pt-1.5 font-serif text-lg font-semibold text-accent">
+            {group.final}
           </div>
-          <div className="grid grid-cols-2 gap-2 min-[390px]:grid-cols-3">
+          {/* 4 colunas só a partir de 480px: em 390px a célula fica estreita
+              demais e sílabas longas como "guāng" quebram em duas linhas. */}
+          <div className="grid flex-1 grid-cols-3 gap-1.5 min-[480px]:grid-cols-4">
             {group.cells.map((cell) => (
               <button
                 key={cell.id}
@@ -343,24 +348,29 @@ function MobileSyllableGrid({
                 onClick={() => onSelect(cell)}
                 aria-label={`${cell.pinyin}, ${cell.initial || "sem inicial"} + ${cell.final}`}
                 className={[
-                  "min-h-14 rounded-2xl border px-2 py-2 text-left transition active:scale-[.98]",
+                  "min-h-11 rounded-xl border px-1.5 py-1.5 text-center transition active:scale-[.98]",
                   selectedId === cell.id
                     ? "border-accent bg-accent text-white shadow-card"
                     : "border-line bg-surface hover:border-accent-soft hover:bg-surface-2",
                 ].join(" ")}
               >
-                <span className="block font-serif text-xl font-semibold leading-tight">
+                <span className="block font-serif text-base font-semibold leading-tight">
                   <Pinyin text={cell.pinyin} />
                 </span>
-                <span className={selectedId === cell.id ? "text-xs text-white/80" : "text-xs text-ink-faint"}>
-                  {cell.initial || "sem inicial"} + {cell.final}
+                <span
+                  className={[
+                    "block text-[10px] leading-tight",
+                    selectedId === cell.id ? "text-white/75" : "text-ink-faint",
+                  ].join(" ")}
+                >
+                  {cell.initial ? `${cell.initial} + ${cell.final}` : `só ${cell.final}`}
                 </span>
               </button>
             ))}
           </div>
-        </Card>
+        </div>
       ))}
-    </div>
+    </Card>
   );
 }
 

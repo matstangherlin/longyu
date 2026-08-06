@@ -62,6 +62,12 @@ const DEFAULT_FILTERS: AtlasFilters = {
 
 const LESSON_BY_ID = new Map(ALL_LESSONS.map((lesson) => [lesson.id, lesson]));
 
+// O atlas inteiro numa página só passava de 23 mil px de altura no celular
+// (~28 telas de rolagem). Mostra um lote por vez; "Ver mais" amplia.
+// No telefone a grade tem uma coluna, então o lote precisa ser curto: cada
+// card ocupa ~250 px e 24 já enchem umas 7 telas.
+const PAGE_SIZE = 24;
+
 const DOMAIN_OPTIONS: Array<[DomainFilter, string]> = [
   ["all", "Todos"],
   ["natureza", "Natureza"],
@@ -104,6 +110,10 @@ export function HanziAtlasPage() {
   const [filters, setFilters] = useState<AtlasFilters>(DEFAULT_FILTERS);
   const [selected, setSelected] = useState<HanziAtlasItem | null>(() => findAtlasFromParam(requestedChar));
   const [showWords, setShowWords] = useState(false);
+  const [shown, setShown] = useState(PAGE_SIZE);
+  // A seção "O que é Hànzì?" é aula, não dicionário: fica recolhida por padrão
+  // para a busca aparecer sem rolagem.
+  const [showLogic, setShowLogic] = useState(false);
   const learnedSet = useMemo(() => new Set(learnedChars), [learnedChars]);
   const favoriteSet = useMemo(() => new Set(favoriteItems), [favoriteItems]);
   const reviewedCharIds = useMemo(
@@ -115,6 +125,10 @@ export function HanziAtlasPage() {
     () => passesAtlasFilters(filters, completedLessons, learnedSet, favoriteSet, srs),
     [completedLessons, favoriteSet, filters, learnedSet, srs]
   );
+  // Novo filtro recomeça do primeiro lote: senão a lista abre já gigante.
+  useEffect(() => setShown(PAGE_SIZE), [filters]);
+  const page = useMemo(() => visible.slice(0, shown), [visible, shown]);
+  const remaining = visible.length - page.length;
 
   useEffect(() => {
     const next = findAtlasFromParam(requestedChar);
@@ -183,49 +197,75 @@ export function HanziAtlasPage() {
         </div>
       </div>
 
+      {/* Cabeçalho de uma linha: a busca do dicionário fica acima da dobra.
+          Todo o conteúdo didático continua aqui dentro, a um toque. */}
       <section className="space-y-4 rounded-2xl border border-line bg-surface p-4 shadow-card sm:p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <SectionTitle
-            eyebrow="Entenda a lógica"
-            title="O que é Hànzì?"
-            desc="Hànzì são os caracteres do chinês escrito. Pinyin mostra o som; hànzì mostra a forma real usada para ler e escrever."
+        <button
+          type="button"
+          onClick={() => setShowLogic((current) => !current)}
+          aria-expanded={showLogic}
+          className="flex w-full items-center justify-between gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+        >
+          <span>
+            <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
+              Entenda a lógica
+            </span>
+            <span className="mt-0.5 block font-serif text-lg font-semibold text-ink">O que é Hànzì?</span>
+          </span>
+          <IconChevron
+            width={18}
+            height={18}
+            className={`shrink-0 text-ink-faint transition-transform ${showLogic ? "-rotate-90" : "rotate-90"}`}
           />
-          <ButtonLink to="/licao/p1-o-que-e-hanzi" variant="soft" className="w-full lg:w-auto">
-            <IconBook width={17} height={17} /> Aula guiada
-          </ButtonLink>
-        </div>
+        </button>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <LogicTile title="Não é alfabeto" example="你 ≠ n" body="Um caractere pode representar ideia, palavra, parte de palavra ou função." />
-          <LogicTile title="Pinyin é som" example="sān" body="O pinyin guia a pronúncia e os tons; ele não substitui a escrita chinesa." />
-          <LogicTile title="Como número" example="3 · 三" body="3 não é a palavra 'três', mas comunica a ideia; 三 faz isso em chinês." />
-        </div>
+        {showLogic && (
+          <>
+            <p className="text-sm leading-6 text-ink-soft">
+              Hànzì são os caracteres do chinês escrito. Pinyin mostra o som; hànzì mostra a forma real usada para ler
+              e escrever.
+            </p>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {HANZI_LOGIC_CARDS.map((card) => (
-            <LogicTile key={card.title} title={card.title} example={card.example} body={card.body} />
-          ))}
-        </div>
+            <ButtonLink to="/licao/p1-o-que-e-hanzi" variant="soft" className="w-full lg:w-auto">
+              <IconBook width={17} height={17} /> Aula guiada
+            </ButtonLink>
 
-        <div className="rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-6 text-ink-soft">
-          Nem todo caractere moderno é um desenho. Muitos hànzì combinam uma peça de sentido com outra que sugere o som, como 妈: 女 ajuda no campo de sentido e 马 aponta para o som ma.
-        </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <LogicTile title="Não é alfabeto" example="你 ≠ n" body="Um caractere pode representar ideia, palavra, parte de palavra ou função." />
+              <LogicTile title="Pinyin é som" example="sān" body="O pinyin guia a pronúncia e os tons; ele não substitui a escrita chinesa." />
+              <LogicTile title="Como número" example="3 · 三" body="3 não é a palavra 'três', mas comunica a ideia; 三 faz isso em chinês." />
+            </div>
 
-        <div className="grid gap-4">
-          {HANZI_EVOLUTION_CORE_IDS.map((charId) => {
-            const model = HANZI_EVOLUTIONS[charId];
-            return (
-              <HanziEvolutionCard
-                key={charId}
-                model={model}
-                compact
-                onTrain={() => navigate(`/hanzi?char=${model.charId}`)}
-              />
-            );
-          })}
-        </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {HANZI_LOGIC_CARDS.map((card) => (
+                <LogicTile key={card.title} title={card.title} example={card.example} body={card.body} />
+              ))}
+            </div>
+
+            <div className="rounded-2xl bg-surface-2 px-4 py-3 text-sm leading-6 text-ink-soft">
+              Nem todo caractere moderno é um desenho. Muitos hànzì combinam uma peça de sentido com outra que sugere o som, como 妈: 女 ajuda no campo de sentido e 马 aponta para o som ma.
+            </div>
+
+            <div className="grid gap-4">
+              {HANZI_EVOLUTION_CORE_IDS.map((charId) => {
+                const model = HANZI_EVOLUTIONS[charId];
+                return (
+                  <HanziEvolutionCard
+                    key={charId}
+                    model={model}
+                    compact
+                    onTrain={() => navigate(`/hanzi?char=${model.charId}`)}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
       </section>
 
+      {/* Um único bloco de filtros para todos os tamanhos de tela. Antes havia
+          duas cópias (uma md:hidden, outra hidden md:grid) com os mesmos
+          controles — e um campo de busca morto marcado "hidden". */}
       <section className="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Busca</span>
@@ -237,84 +277,7 @@ export function HanziAtlasPage() {
           />
         </label>
 
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:hidden">
-          <FilterChip active={filters.frequency === "300"} onClick={() => updateFilter("frequency", filters.frequency === "300" ? "all" : "300")}>Top 300</FilterChip>
-          <FilterChip active={filters.frequency === "1000"} onClick={() => updateFilter("frequency", filters.frequency === "1000" ? "all" : "1000")}>Top 1000</FilterChip>
-          {(["1", "2", "3", "4", "5"] as ToneFilter[]).map((tone) => (
-            <FilterChip key={tone} active={filters.tone === tone} onClick={() => updateFilter("tone", filters.tone === tone ? "all" : tone)}>
-              {tone === "5" ? "Neutro" : `${tone}º tom`}
-            </FilterChip>
-          ))}
-          <select
-            aria-label="Radical"
-            value={filters.radical}
-            onChange={(event) => updateFilter("radical", event.target.value)}
-            className="h-9 shrink-0 rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink-soft outline-none transition focus:ring-2 focus:ring-accent/25"
-          >
-            <option value="all">Radical</option>
-            {RADICALS.map((radical) => (
-              <option key={radical.id} value={radical.id}>{radical.glyph} {radical.namePt}</option>
-            ))}
-          </select>
-          <select
-            aria-label="Domínio"
-            value={filters.domain}
-            onChange={(event) => updateFilter("domain", event.target.value as DomainFilter)}
-            className="h-9 shrink-0 rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink-soft outline-none transition focus:ring-2 focus:ring-accent/25"
-          >
-            {DOMAIN_OPTIONS.map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-          <select
-            aria-label="Ordenação"
-            value={filters.sort}
-            onChange={(event) => updateFilter("sort", event.target.value as SortMode)}
-            className="h-9 shrink-0 rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink-soft outline-none transition focus:ring-2 focus:ring-accent/25"
-          >
-            {SORT_OPTIONS.map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-          <FilterChip active={filters.learned === "learned"} onClick={() => updateFilter("learned", filters.learned === "learned" ? "all" : "learned")}>Aprendidos</FilterChip>
-          <FilterChip active={filters.learned === "available"} onClick={() => updateFilter("learned", filters.learned === "available" ? "all" : "available")}>Disponíveis</FilterChip>
-          <FilterChip active={filters.learned === "future"} onClick={() => updateFilter("learned", filters.learned === "future" ? "all" : "future")}>Futuros</FilterChip>
-          <FilterChip active={filters.decomposable} onClick={() => updateFilter("decomposable", !filters.decomposable)}>Decomponíveis</FilterChip>
-          <FilterChip active={filters.phonetic} onClick={() => updateFilter("phonetic", !filters.phonetic)}>Pista sonora</FilterChip>
-          <FilterChip active={filters.favorites} onClick={() => updateFilter("favorites", !filters.favorites)}>Favoritos</FilterChip>
-          <FilterChip active={filters.weak} onClick={() => updateFilter("weak", !filters.weak)}>Fracos</FilterChip>
-          <FilterChip active={filters.reviewedToday} onClick={() => updateFilter("reviewedToday", !filters.reviewedToday)}>Hoje</FilterChip>
-          <button
-            type="button"
-            onClick={() => setFilters(DEFAULT_FILTERS)}
-            className="h-9 shrink-0 rounded-full px-3 text-xs font-semibold text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-          >
-            Limpar
-          </button>
-        </div>
-      </section>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-        <AtlasStat label="Conhecidos" value={stats.known} detail="no seu repertório" />
-        <AtlasStat label="Disponíveis" value={stats.available} detail="liberados agora" />
-        <AtlasStat label="Top 300" value={stats.top300} detail="alta frequência" />
-        <AtlasStat label="Top 1000" value={stats.top1000} detail="consulta ampliada" />
-        <AtlasStat label="Em revisão" value={stats.review} detail={`${stats.reviewedToday} revisado(s) hoje`} />
-        <AtlasStat label="Fracos" value={stats.weak} detail="pedem treino" />
-      </div>
-
-      <section className="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
-        <div className="hidden gap-3 md:grid md:grid-cols-5">
-          <label className="hidden">
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Busca</span>
-            <input
-              value={filters.query}
-              onChange={(event) => updateFilter("query", event.target.value)}
-              placeholder="Caractere, pinyin ou significado"
-              className="mt-1 h-11 w-full rounded-xl border border-line bg-surface-2 px-3 text-sm text-ink outline-none transition focus:ring-2 focus:ring-accent/25"
-            />
-          </label>
-
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
           <SelectFilter
             label="Frequência"
             value={filters.frequency}
@@ -325,7 +288,6 @@ export function HanziAtlasPage() {
               ["1000", "Top 1000"],
             ]}
           />
-
           <SelectFilter
             label="Tom"
             value={filters.tone}
@@ -339,7 +301,6 @@ export function HanziAtlasPage() {
               ["5", "Neutro"],
             ]}
           />
-
           <SelectFilter
             label="Radical"
             value={filters.radical}
@@ -349,14 +310,12 @@ export function HanziAtlasPage() {
               ...RADICALS.map((radical) => [radical.id, `${radical.glyph} ${radical.namePt}`] as [string, string]),
             ]}
           />
-
           <SelectFilter
             label="Domínio"
             value={filters.domain}
             onChange={(value) => updateFilter("domain", value as DomainFilter)}
             options={DOMAIN_OPTIONS}
           />
-
           <SelectFilter
             label="Ordem"
             value={filters.sort}
@@ -365,7 +324,7 @@ export function HanziAtlasPage() {
           />
         </div>
 
-        <div className="-mx-1 hidden gap-2 overflow-x-auto px-1 pb-1 md:flex">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
           <SegmentedButton active={filters.learned === "all"} onClick={() => updateFilter("learned", "all")}>Todos</SegmentedButton>
           <SegmentedButton active={filters.learned === "learned"} onClick={() => updateFilter("learned", "learned")}>Aprendidos</SegmentedButton>
           <SegmentedButton active={filters.learned === "available"} onClick={() => updateFilter("learned", "available")}>Disponíveis</SegmentedButton>
@@ -385,6 +344,16 @@ export function HanziAtlasPage() {
         </div>
       </section>
 
+      {/* Os mesmos seis números, numa faixa compacta em vez de seis cartões. */}
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        <AtlasStat label="Conhecidos" value={stats.known} detail="no seu repertório" />
+        <AtlasStat label="Disponíveis" value={stats.available} detail="liberados agora" />
+        <AtlasStat label="Top 300" value={stats.top300} detail="alta frequência" />
+        <AtlasStat label="Top 1000" value={stats.top1000} detail="consulta ampliada" />
+        <AtlasStat label="Em revisão" value={stats.review} detail={`${stats.reviewedToday} hoje`} />
+        <AtlasStat label="Fracos" value={stats.weak} detail="pedem treino" />
+      </div>
+
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm text-ink-soft">
           {visible.length.toLocaleString("pt-BR")} caracteres chineses encontrados ·{" "}
@@ -396,7 +365,7 @@ export function HanziAtlasPage() {
       </div>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {visible.map((item) => {
+        {page.map((item) => {
           const favorite = favoriteSet.has(`char:${item.id}`);
           const weak = isWeakChar(item.id, srs);
           const availability = atlasContentAvailability(item, completedLessons, learnedSet);
@@ -416,6 +385,14 @@ export function HanziAtlasPage() {
           );
         })}
       </section>
+
+      {remaining > 0 && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => setShown((current) => current + PAGE_SIZE)}>
+            Ver mais {Math.min(remaining, PAGE_SIZE)} de {remaining.toLocaleString("pt-BR")}
+          </Button>
+        </div>
+      )}
 
       {visible.length === 0 && (
         <Card className="p-8 text-center text-sm text-ink-soft">
@@ -444,10 +421,10 @@ export function HanziAtlasPage() {
 
 function AtlasStat({ label, value, detail }: { label: string; value: number; detail: string }) {
   return (
-    <div className="rounded-2xl border border-line bg-surface px-4 py-3 shadow-card">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-      <div className="mt-1 font-serif text-2xl font-semibold text-ink">{value.toLocaleString("pt-BR")}</div>
-      <div className="text-xs text-ink-soft">{detail}</div>
+    <div className="rounded-xl border border-line bg-surface px-3 py-2 shadow-card">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-faint">{label}</div>
+      <div className="font-serif text-lg font-semibold tabular-nums text-ink">{value.toLocaleString("pt-BR")}</div>
+      <div className="truncate text-[11px] text-ink-soft" title={detail}>{detail}</div>
     </div>
   );
 }
