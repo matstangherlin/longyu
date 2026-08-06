@@ -427,6 +427,14 @@ export function ImmersionPage() {
             </div>
           </div>
           <div className="min-w-36 sm:w-40">
+            {/* A barra sozinha era um traço sem significado: nada dizia o que
+                ela media nem quanto restava. */}
+            <div className="mb-1 flex justify-between text-[10px] font-medium text-ink-faint">
+              <span>Cargas</span>
+              <span className="tabular-nums">
+                {isPremium ? "Ilimitadas" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
+              </span>
+            </div>
             <ProgressBar value={isPremium ? 1 : dailyEnergy.charges} max={isPremium ? 1 : dailyEnergy.maxCharges} className="h-1" />
           </div>
         </div>

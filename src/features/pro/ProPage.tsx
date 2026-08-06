@@ -93,6 +93,9 @@ export function ProPage() {
   // um Pro legítimo: mostra um estado curto "Verificando seu plano...".
   const checkingPlan = useEntitlementStatus((state) => state.checking);
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
+  // A matriz repete, linha a linha, o mesmo texto dos blocos de "O que você
+  // ganha" (ambos usam feature.proBenefit). Fica recolhida como referência.
+  const [showMatrix, setShowMatrix] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<ProPlanKey>(() => {
     return parseProPlanKey(searchParams.get("plan")) ?? peekPendingCheckoutPlan() ?? "pro_annual";
   });
@@ -349,8 +352,10 @@ export function ProPage() {
                       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/10 text-gold">
                         <Icon width={18} height={18} />
                       </span>
-                      <h4 className="mt-2 text-[11px] font-semibold leading-tight text-ink">{feature.nome}</h4>
-                      <p className="mt-1 text-[10px] leading-4 text-ink-faint">{feature.proBenefit}</p>
+                      <h4 className="mt-2 text-xs font-semibold leading-tight text-ink">{feature.nome}</h4>
+                      {/* text-ink-faint em 10px ficava quase ilegível sobre o
+                          cartão claro; sobe para o tom de corpo. */}
+                      <p className="mt-1 text-[11px] leading-4 text-ink-soft">{feature.proBenefit}</p>
                     </Card>
                   );
                 })}
@@ -361,8 +366,18 @@ export function ProPage() {
       </section>
 
       <section className="rounded-xl border border-line/50 bg-surface p-4">
-        <h2 className="font-serif text-base font-semibold text-ink">Matriz completa</h2>
-        <div className="mt-3 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setShowMatrix((current) => !current)}
+          aria-expanded={showMatrix}
+          className="flex w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+        >
+          <span className="font-serif text-base font-semibold text-ink">Matriz completa</span>
+          <span className="text-xs font-semibold text-ink-faint">
+            {showMatrix ? "Ocultar" : `Comparar ${PLAN_FEATURES.length} recursos`}
+          </span>
+        </button>
+        <div className={showMatrix ? "mt-3 overflow-x-auto" : "hidden"}>
           <table className="w-full min-w-[520px] text-left text-xs">
             <thead>
               <tr className="border-b border-line text-ink-faint">

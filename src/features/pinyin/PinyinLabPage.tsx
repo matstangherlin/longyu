@@ -92,7 +92,7 @@ export function PinyinLabPage() {
 
   return (
     <HubPage className="space-y-5">
-      <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+      <section className="space-y-3">
         <div className="min-w-0">
           <HubHeader
             eyebrow="Pinyin Lab"
@@ -127,38 +127,51 @@ export function PinyinLabPage() {
           </div>
         </div>
 
+        {/* Antes este cartão ficava numa coluna de 280px ao lado do cabeçalho.
+            Como ele é bem mais alto que o título, a linha do grid esticava e
+            sobravam ~260px de vazio à esquerda antes da primeira tabela.
+            Vira uma faixa horizontal: mesmo conteúdo, sem buraco. */}
         <Card className="hidden rounded-xl border-line/70 p-4 shadow-none md:block">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Padrão visual</div>
-              <div className="mt-3 space-y-2 font-serif text-2xl font-semibold text-ink">
-                <Pinyin text="nǐ hǎo" />
-                <Pinyin text="xièxie" />
-                <Pinyin text="Zhōngwén" />
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <IconSound width={22} height={22} />
+              </span>
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                  Padrão visual
+                </div>
+                {/* Pinyin renderiza um <span> inline: sem separação explícita as
+                    três amostras grudavam ("hǎoxièxieZhōngwén"). */}
+                <div className="mt-1 flex flex-wrap items-baseline gap-x-5 gap-y-1 font-serif text-xl font-semibold text-ink">
+                  <span><Pinyin text="nǐ hǎo" /></span>
+                  <span><Pinyin text="xièxie" /></span>
+                  <span><Pinyin text="Zhōngwén" /></span>
+                </div>
               </div>
             </div>
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-              <IconSound width={24} height={24} />
-            </span>
-          </div>
-          <p className="mt-4 text-sm leading-6 text-ink-soft">
-            O Longyu mostra pinyin com acento para o aluno comum. Formas numéricas ficam só como formato interno e são convertidas antes de aparecer.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Pill tone={access.pro ? "gold" : "muted"}>{access.pro ? "Pro liberado" : "Grátis com Cargas"}</Pill>
-            {!hasVoice && <Pill tone="accent">Sem voz zh-CN dedicada</Pill>}
+
+            <p className="min-w-[18rem] flex-1 text-sm leading-6 text-ink-soft">
+              O Longyu mostra pinyin com acento para o aluno comum. Formas numéricas ficam só como formato interno e são
+              convertidas antes de aparecer.
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Pill tone={access.pro ? "gold" : "muted"}>{access.pro ? "Pro liberado" : "Grátis com Cargas"}</Pill>
+              {!hasVoice && <Pill tone="accent">Sem voz zh-CN dedicada</Pill>}
+            </div>
           </div>
         </Card>
       </section>
 
       <section id="iniciais" className={["scroll-mt-20", mobileView === "iniciais" ? "block" : "hidden md:block"].join(" ")}>
         <LabSectionHeader title="Tabela de iniciais" desc="A inicial abre a sílaba. O sopro faz diferença em pares como b/p, d/t, g/k e z/c." />
-        <ReferenceGrid items={PINYIN_INITIALS} kind="initial" />
+        <ReferenceGrid items={PINYIN_INITIALS} />
       </section>
 
       <section id="finais" className={["scroll-mt-20", mobileView === "finais" ? "block" : "hidden md:block"].join(" ")}>
         <LabSectionHeader title="Tabela de finais" desc="A final carrega a vogal e, muitas vezes, o fechamento nasal ou arredondado da sílaba." />
-        <ReferenceGrid items={PINYIN_FINALS} kind="final" />
+        <ReferenceGrid items={PINYIN_FINALS} />
       </section>
 
       <section id="silabas" className={["scroll-mt-20", mobileView === "silabas" ? "block" : "hidden md:block"].join(" ")}>
@@ -374,13 +387,7 @@ function MobileSyllableGrid({
   );
 }
 
-function ReferenceGrid({
-  items,
-  kind,
-}: {
-  items: Array<PinyinInitial | PinyinFinal>;
-  kind: "initial" | "final";
-}) {
+function ReferenceGrid({ items }: { items: Array<PinyinInitial | PinyinFinal> }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {items.map((item) => (
@@ -390,13 +397,12 @@ function ReferenceGrid({
               {item.label}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-                  {kind === "initial" ? "Inicial" : "Final"}
-                </div>
+              {/* O rótulo "Inicial"/"Final" repetia em todos os cards da grade,
+                  já dito pelo título da seção. A descrição sobe para o topo. */}
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm leading-5 text-ink-soft">{item.approxPt}</p>
                 <SpeakButton text={item.example.audioText ?? item.example.hanzi} size="sm" />
               </div>
-              <p className="mt-1 text-sm leading-5 text-ink-soft">{item.approxPt}</p>
               <div className="mt-3 rounded-lg bg-surface-2 px-3 py-2">
                 <ExampleRow example={item.example} compact />
               </div>
