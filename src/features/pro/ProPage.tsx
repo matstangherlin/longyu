@@ -2,19 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, Card, Pill } from "../../components/ui/primitives";
-import {
-  IconBook,
-  IconCheck,
-  IconChevron,
-  IconFlame,
-  IconHeadphones,
-  IconLock,
-  IconRefresh,
-  IconShield,
-  IconStar,
-  IconTarget,
-  IconTrophy,
-} from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconLock } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import {
@@ -45,18 +33,6 @@ import {
   takePendingCheckoutPlan,
 } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
-
-const BENEFIT_ICONS: Record<string, typeof IconStar> = {
-  cargas: IconFlame,
-  revisao_ilimitada: IconRefresh,
-  erros_detalhados: IconTarget,
-  plano_estudo_inteligente: IconShield,
-  pinyin_lab: IconStar,
-  hanzi_lab: IconBook,
-  imersao: IconHeadphones,
-  qi_bonus: IconCheck,
-  ligas_estatisticas: IconTrophy,
-};
 
 const BILLING_PLANS: {
   key: ProPlanKey;
@@ -319,10 +295,11 @@ export function ProPage() {
           {checkoutReady && (
             <Card className="border-gold/20 bg-gold/[0.05] p-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+                {/* Nome e detalhe do plano já estão no cartão selecionado logo
+                    acima; aqui repetiam palavra por palavra. Fica só a ação. */}
+                <div className="flex items-center gap-2">
                   <Pill tone="gold">30 dias grátis</Pill>
-                  <h3 className="mt-1.5 font-serif text-lg font-semibold text-ink">{selectedPlanMeta.name}</h3>
-                  <p className="mt-0.5 text-xs text-ink-soft">{selectedPlanMeta.detail}</p>
+                  <span className="text-sm text-ink-soft">no plano {selectedPlanMeta.name.toLowerCase()}</span>
                 </div>
                 <Button
                   size="lg"
@@ -339,27 +316,26 @@ export function ProPage() {
 
       <section>
         <h2 className="mb-3 text-center font-serif text-lg font-semibold text-ink">O que você ganha</h2>
-        <div className="space-y-4">
+        {/* Eram 14 cartões com ícone, um por recurso, ocupando quatro faixas da
+            página para repetir o mesmo proBenefit que a matriz já lista. Vira
+            uma lista agrupada: mesmo conteúdo, uma fração da altura. */}
+        <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
           {PRO_BENEFIT_GROUPS.map((group) => (
             <div key={group.title}>
               <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{group.title}</h3>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <ul className="space-y-1.5">
                 {group.featureIds.map((featureId) => {
                   const feature = getPlanFeature(featureId);
-                  const Icon = BENEFIT_ICONS[featureId] ?? IconStar;
                   return (
-                    <Card key={featureId} className="flex flex-col items-center p-3 text-center">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/10 text-gold">
-                        <Icon width={18} height={18} />
+                    <li key={featureId} className="flex gap-2 text-xs leading-5">
+                      <IconCheck width={13} height={13} className="mt-1 shrink-0 text-gold" />
+                      <span className="text-ink-soft">
+                        <span className="font-semibold text-ink">{feature.nome}.</span> {feature.proBenefit}
                       </span>
-                      <h4 className="mt-2 text-xs font-semibold leading-tight text-ink">{feature.nome}</h4>
-                      {/* text-ink-faint em 10px ficava quase ilegível sobre o
-                          cartão claro; sobe para o tom de corpo. */}
-                      <p className="mt-1 text-[11px] leading-4 text-ink-soft">{feature.proBenefit}</p>
-                    </Card>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </div>
           ))}
         </div>
