@@ -92,8 +92,8 @@ assert(!authService.includes("already_exists"), "authService: sem ramo already_e
 
 assert(turnstile.includes("VITE_TURNSTILE_SITE_KEY"), "turnstile helper: site key");
 assert(turnstile.includes("getTurnstileToken"), "turnstile helper: export");
-assert(turnstile.includes("invisible"), "turnstile helper: modo invisible");
-assert(turnstile.includes('"normal"') || turnstile.includes("'normal'"), "turnstile helper: fallback normal");
+assert(turnstile.includes("interaction-only") || turnstile.includes("normal"), "turnstile helper: managed widget");
+assert(!/size:\s*["']invisible["']/.test(turnstile), "turnstile helper: sem size invisible (API atual)");
 
 const pipelineSmoke = read("scripts/sql/referral-pipeline-smoke.sql");
 assert(pipelineSmoke.includes("_referral_try_qualify"), "pipeline-smoke: qualify");

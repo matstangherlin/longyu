@@ -7,13 +7,16 @@ declare global {
         el: HTMLElement | string,
         options: {
           sitekey: string;
-          size?: "normal" | "flexible" | "compact" | "invisible";
+          size?: "normal" | "flexible" | "compact";
+          theme?: "auto" | "light" | "dark";
+          appearance?: "always" | "execute" | "interaction-only";
+          execution?: "render" | "execute";
           callback?: (token: string) => void;
           "error-callback"?: () => void;
           "expired-callback"?: () => void;
         }
       ) => string;
-      execute: (widgetId: string) => void;
+      execute: (widgetId: string | HTMLElement) => void;
       remove: (widgetId: string) => void;
       reset: (widgetId?: string) => void;
     };
@@ -53,87 +56,65 @@ function loadTurnstileScript(): Promise<void> {
   });
 }
 
-function renderToken(
-  turnstile: NonNullable<Window["turnstile"]>,
-  sitekey: string,
-  size: "invisible" | "normal"
-): Promise<string | null> {
-  return new Promise((resolve) => {
-    const host = document.createElement("div");
-    if (size === "invisible") {
-      host.style.position = "fixed";
-      host.style.left = "-9999px";
-      host.setAttribute("aria-hidden", "true");
-    } else {
-      // Fallback visível: canto inferior, sem atrapalhar o formulário.
-      host.style.position = "fixed";
-      host.style.right = "12px";
-      host.style.bottom = "12px";
-      host.style.zIndex = "9999";
-    }
-    document.body.appendChild(host);
-
-    let settled = false;
-    let widgetId = "";
-    const finish = (token: string | null) => {
-      if (settled) return;
-      settled = true;
-      try {
-        if (widgetId) turnstile.remove(widgetId);
-      } catch {
-        // ignore
-      }
-      host.remove();
-      resolve(token);
-    };
-
-    // Invisible: falha rápido e cai no widget normal. Visível: dá tempo ao humano.
-    const timer = window.setTimeout(() => finish(null), size === "invisible" ? 3_000 : 90_000);
-
-    widgetId = turnstile.render(host, {
-      sitekey,
-      size,
-      callback: (token) => {
-        window.clearTimeout(timer);
-        finish(token || null);
-      },
-      "error-callback": () => {
-        window.clearTimeout(timer);
-        finish(null);
-      },
-      "expired-callback": () => {
-        window.clearTimeout(timer);
-        finish(null);
-      },
-    });
-
-    if (size === "invisible") {
-      try {
-        turnstile.execute(widgetId);
-      } catch {
-        window.clearTimeout(timer);
-        finish(null);
-      }
-    }
-  });
-}
-
 /**
- * Obtém token Turnstile.
- * 1) Invisible (padrão)
- * 2) Se falhar, widget normal visível (usuário pode completar o desafio)
- * Sem site key → null (backend pode pular verificação).
+ * Obtém token Turnstile (Managed).
+ * size só aceita normal|flexible|compact — "invisible" foi removido da API client.
+ * appearance interaction-only: humanos limpos quase não veem o widget; bots veem o desafio.
  */
 export async function getTurnstileToken(): Promise<string | null> {
   const sitekey = turnstileSiteKey();
   if (!sitekey) return null;
 
-  await loadTurnstileScript();
+  try {
+    await loadTurnstileScript();
+  } catch {
+    return null;
+  }
+
   const turnstile = window.turnstile;
   if (!turnstile) return null;
 
-  const invisible = await renderToken(turnstile, sitekey, "invisible");
-  if (invisible) return invisible;
+  return new Promise((resolve) => {
+    const host = document.createElement("div");
+    host.setAttribute("data-longyu-turnstile", "1");
+    host.style.position = "fixed";
+    host.style.right = "12px";
+    host.style.bottom = "12px";
+    host.style.zIndex = "9999";
+    document.body.appendChild(host);
 
-  return renderToken(turnstile, sitekey, "normal");
+    let settled = false;
+    let widgetId = "";
+
+    const finish = (token: string | null) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      try {
+        if (widgetId) turnstile.remove(widgetId);
+      } catch {
+        /* ignore */
+      }
+      host.remove();
+      resolve(token);
+    };
+
+    const timer = window.setTimeout(() => finish(null), 90_000);
+
+    try {
+      widgetId = turnstile.render(host, {
+        sitekey,
+        size: "normal",
+        theme: "auto",
+        appearance: "interaction-only",
+        execution: "execute",
+        callback: (token) => finish(token || null),
+        "error-callback": () => finish(null),
+        "expired-callback": () => finish(null),
+      });
+      turnstile.execute(widgetId);
+    } catch {
+      finish(null);
+    }
+  });
 }
