@@ -137,7 +137,8 @@ export function ContaPage() {
       )}
 
       {/* Atalhos para as áreas que saíram da conta */}
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <AccountLink to="/convide" icon={IconStar} title="Convide amigos" desc="Ganhe semanas de Pro." />
         <AccountLink to="/dados-locais" icon={IconLibrary} title="Dados locais" desc="Exportar, backup e apagar." />
         <AccountLink to="/plano" icon={IconStar} title="Plano Pro" desc="Assinatura e benefícios." />
         <AccountLink to="/ajustes" icon={IconGear} title="Ajustes" desc="Áudio, aparência e mais." />
