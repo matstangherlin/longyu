@@ -15,7 +15,13 @@ Use **Managed** (recomendado). A site key de widget Invisible antigo ainda funci
 mas o client só configura `size: normal|flexible|compact` (a opção `size: invisible`
 foi removida da API).
 
-Domínios do widget:
+## Domínios do widget
+
+- `singular-meringue-7838cd.netlify.app` ← principal
+- `longyu.netlify.app` ← se/quando o alias existir
+- `localhost` / `127.0.0.1`
+
+Quando comprar `longyu.com.br`, edite o widget e inclua o domínio.
 
 ## Pausar (rollback)
 
