@@ -99,7 +99,12 @@ export async function createAccount(
 
   const details = profile ?? profileFromName();
   const cleanEmail = email.trim().toLowerCase();
-  const captchaToken = await getTurnstileToken();
+  let captchaToken: string | null = null;
+  try {
+    captchaToken = await getTurnstileToken();
+  } catch {
+    captchaToken = null;
+  }
 
   // Site key no build → token obrigatório (Edge também exige).
   if (turnstileSiteKey() && !captchaToken) {

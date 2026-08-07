@@ -7,7 +7,13 @@
 - Site key no bundle Netlify (`VITE_TURNSTILE_SITE_KEY`)
 - Secret no Vault: `TURNSTILE_SECRET_KEY` (restaurado)
 - Edge `create-account` exige siteverify → probe sem token = `captcha_failed`
-- App obtém token via `getTurnstileToken()`: tenta **invisible** (~3s) e, se falhar, mostra widget **normal** no canto da tela
+- App obtém token via `getTurnstileToken()`: widget **Managed** (`size: normal`, `appearance: interaction-only`) — a API client não aceita mais `size: invisible`
+
+## Tipo do widget no dashboard Cloudflare
+
+Use **Managed** (recomendado). A site key de widget Invisible antigo ainda funciona,
+mas o client só configura `size: normal|flexible|compact` (a opção `size: invisible`
+foi removida da API).
 
 ## Domínios do widget
 
