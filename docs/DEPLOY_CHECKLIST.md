@@ -18,7 +18,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
 | Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account` |
 | Hardening create-account | ✅ | Rate limit Postgres (018), anti-enum, allowlist `emailRedirectTo`, cleanup dry-run — PRs #93/#94; `signup_rate_events` ativo em prod |
-| Cloudflare Turnstile | ✅ | Restaurado 2026-08-07: Vault `TURNSTILE_SECRET_KEY` + site key no bundle Netlify; probe sem token = `captcha_failed` |
+| Cloudflare Turnstile | ✅ | Managed no client (`size: normal`); Vault secret + site key Netlify; probe sem token = `captcha_failed` |
 | Redirect canônico de e-mail | ✅ | Fallback da Edge = `singular-meringue-7838cd.netlify.app/confirmar-email` (não longyu.com.br até ter DNS) |
 | Migration 019 Turnstile vault RPC | ✅ | Aplicada 2026-08-04 |
 | Migration 020 signup cleanup job | ✅ | `run_signup_cleanup_job` + log `signup_cleanup_runs` (+ pg_cron dry-run se disponível) |
