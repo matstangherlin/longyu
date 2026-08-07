@@ -18,7 +18,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Webhook Stripe | ✅ | `constructEventAsync` + `apply_subscription_event` |
 | Confirmação de email | ✅ | Dashboard **Confirm email ON** (verificado 2026-08-04). App `/confirmar-email` + Edge `create-account` |
 | Hardening create-account | ✅ | Rate limit Postgres (018), anti-enum, allowlist `emailRedirectTo`, cleanup dry-run — PRs #93/#94; `signup_rate_events` ativo em prod |
-| Cloudflare Turnstile | ⏸️ | Código na `main` (#95). **Pausado no Vault** até Netlify pago + deploy (front sem site key quebrava o cadastro). Restaurar: ver `ops/ENABLE_TURNSTILE.md` |
+| Cloudflare Turnstile | ✅ | Restaurado 2026-08-07: Vault `TURNSTILE_SECRET_KEY` + site key no bundle Netlify; probe sem token = `captcha_failed` |
 | Redirect canônico de e-mail | ✅ | Fallback da Edge = `singular-meringue-7838cd.netlify.app/confirmar-email` (não longyu.com.br até ter DNS) |
 | Migration 019 Turnstile vault RPC | ✅ | Aplicada 2026-08-04 |
 | Migration 020 signup cleanup job | ✅ | `run_signup_cleanup_job` + log `signup_cleanup_runs` (+ pg_cron dry-run se disponível) |
@@ -47,19 +47,17 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 
 ## Próximo marco
 
-O pacote de hardening do relatório (rate limit, anti-enum, allowlist, cleanup, Turnstile código) **já está na main**. Hoje falta só o que depende de humano/pagamento:
-
-1. **Amanhã:** pagar Netlify → Clear cache and deploy → restaurar secret Turnstile (`ops/ENABLE_TURNSTILE.md`) → smoke `/conta`
-2. **Smoke de cadastro real** (1 conta inédita)
-3. **E2E referral** 2 contas + 48h — runbook `ops/REFERRAL_E2E.md` (smoke SQL de regras já verde)
-4. **Branch protection na `main`** (precisa PAT admin):
+1. ~~Pagar Netlify + restaurar Turnstile~~ ✅ (2026-08-07)
+2. **Smoke de cadastro real** (1 conta inédita humana em `/conta`)
+3. **E2E referral** 2 contas + 48h — `ops/REFERRAL_E2E.md`
+4. **Branch protection na `main`** (precisa PAT admin do owner):
    ```bash
    export GITHUB_TOKEN=ghp_...
    node scripts/setup-branch-protection.mjs
    ```
 5. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`)
 6. Stripe Test Mode live se beta paga
-7. Marketing progressivo (depois de 1–3)
+7. Marketing progressivo (depois de 2–3)
 
 ### Pacote mínimo create-account (relatório) — status
 
@@ -68,5 +66,5 @@ O pacote de hardening do relatório (rate limit, anti-enum, allowlist, cleanup, 
 | Rate limit IP/email/combo (Postgres) | ✅ 018 |
 | Resposta genérica (anti-enum) | ✅ |
 | Allowlist `emailRedirectTo` | ✅ canônico Netlify |
-| Turnstile na Edge | ⏸️ código+Vault prontos; pausado até Netlify pago |
+| Turnstile na Edge | ✅ ligado (Vault + Netlify) |
 | Limpeza contas abandonadas | ✅ RPC + job 020 (dry-run default) |

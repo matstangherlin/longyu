@@ -85,7 +85,9 @@ assert(
 );
 assert(authService.includes("GENERIC_PENDING_MESSAGE") || authService.includes("Se o endereço puder ser utilizado"), "authService: mensagem genérica");
 assert(authService.includes("getTurnstileToken"), "authService: turnstile token");
+assert(authService.includes("turnstileSiteKey"), "authService: exige token quando site key existe");
 assert(authService.includes("rate_limited"), "authService: trata rate_limited");
+assert(authService.includes("captcha_failed"), "authService: trata captcha_failed");
 assert(!authService.includes("already_exists"), "authService: sem ramo already_exists");
 
 assert(turnstile.includes("VITE_TURNSTILE_SITE_KEY"), "turnstile helper: site key");
