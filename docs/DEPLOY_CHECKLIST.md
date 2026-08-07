@@ -23,7 +23,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Migration 019 Turnstile vault RPC | ✅ | Aplicada 2026-08-04 |
 | Migration 020 signup cleanup job | ✅ | `run_signup_cleanup_job` + log `signup_cleanup_runs` (+ pg_cron dry-run se disponível) |
 | Migration 022 fix `_referral_try_qualify` | ✅ | Alias `u` colidia com record → qualify quebrava; aplicado 2026-08-07 |
-| Referral operacional | 🟡 | 017 + 022; rules + **pipeline smoke verde** (2026-08-07). Falta E2E humano 48h (`ops/REFERRAL_E2E.md`) |
+| Referral operacional | ✅ | 017 + 022; rules + pipeline smoke; **E2E acelerado prod** 2026-08-07 (Conta B + attribute + qualify/grant → Conta A Pro). Calendário 48h real ainda opcional |
 | Testes referral/hardening | ✅ | `test:referrals` + `test:create-account-hardening` + `referral-rules-smoke` + `referral-pipeline-smoke` |
 
 ## App / Netlify
@@ -51,7 +51,7 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 1. ~~Pagar Netlify + restaurar Turnstile~~ ✅ (2026-08-07)
 2. ~~Fix Turnstile `size:invisible` (#103)~~ ✅ (2026-08-07) — client Managed
 3. ~~Smoke de cadastro real~~ ✅ (2026-08-07) — conta `longyu1786128776@web-library.net` criada via Edge + e-mail confirmado + login OK (Turnstile pausado só durante o smoke; já restaurado)
-4. **E2E referral** 2 contas + 48h — `ops/REFERRAL_E2E.md` (pipeline SQL já verde)
+4. ~~E2E referral~~ ✅ (2026-08-07) — Conta A `…8776@web-library.net` + Conta B `longyurefb1786129685@web-library.net`; referral `rewarded`; A com Pro (`user_has_entitlement_grant`). Acelerado: confirm/idade 48h via SQL (e-mail B não chegou no mail.tm)
 5. **Branch protection na `main`** (token do agente = 403; precisa PAT admin):
    ```bash
    export GITHUB_TOKEN=ghp_...

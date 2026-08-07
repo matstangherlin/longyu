@@ -75,3 +75,15 @@ Ainda humano (precisa Auth real):
 
 Não use e-mails `@longyu.invalid` no fluxo humano (só no smoke SQL).
 Contas QA humanas: apagar pelo painel Auth ou `delete-account` quando terminar.
+
+
+## E2E acelerado em produção (2026-08-07)
+
+Executado pelo agente (não espera calendário 48h):
+
+- Conta A: `longyu1786128776@web-library.net` (código `DRAGAOEHRY5J`)
+- Conta B: `longyurefb1786129685@web-library.net` — `attribute_referral` → pending
+- Progresso 3 lições + 2 dias injetado; `created_at`/`email_confirmed_at` de B backdatados 3 dias
+- `_referral_try_qualify` + `_referral_grant_reward` → `rewarded`; A com entitlement grant ativo
+
+Turnstile foi pausado só para criar B e restaurado em seguida.
