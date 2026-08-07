@@ -44,6 +44,17 @@ Esperado:
 - `entitlement_grants.status` = `active` ou `pending`
 - `get_server_entitlement()` → `is_pro=true` (quando grant ativo)
 
+## Smoke SQL do pipeline (sem e-mail real)
+
+Roda no SQL Editor (service role / dashboard) o script
+`scripts/sql/referral-pipeline-smoke.sql`:
+
+- cria 2 usuários `@longyu.invalid` já confirmados
+- attribute → progresso (3 lições + 2 dias) → qualify → grant
+- limpa os usuários ao final
+
+Complementa `referral-rules-smoke.sql` (casos negativos / caps).
+
 ## Casos negativos (smoke SQL já cobre a maior parte)
 
 Automatizado em `scripts/sql/referral-rules-smoke.sql` (rode no SQL Editor):

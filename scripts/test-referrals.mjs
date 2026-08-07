@@ -92,6 +92,13 @@ assert(!authService.includes("already_exists"), "authService: sem ramo already_e
 
 assert(turnstile.includes("VITE_TURNSTILE_SITE_KEY"), "turnstile helper: site key");
 assert(turnstile.includes("getTurnstileToken"), "turnstile helper: export");
+assert(turnstile.includes("invisible"), "turnstile helper: modo invisible");
+assert(turnstile.includes('"normal"') || turnstile.includes("'normal'"), "turnstile helper: fallback normal");
+
+const pipelineSmoke = read("scripts/sql/referral-pipeline-smoke.sql");
+assert(pipelineSmoke.includes("_referral_try_qualify"), "pipeline-smoke: qualify");
+assert(pipelineSmoke.includes("_referral_grant_reward"), "pipeline-smoke: grant");
+assert(pipelineSmoke.includes("@longyu.invalid"), "pipeline-smoke: e-mails de teste");
 
 assert(checklist.includes("001–017") || checklist.includes("001-017"), "checklist: 017 documentado");
 assert(checklist.includes("018"), "checklist: 018 documentado");
@@ -106,6 +113,10 @@ assert(rulesSmoke.includes("referral_email_blocks"), "rules-smoke: email_blocks"
 const cleanupMig = read("supabase/migrations/020_signup_cleanup_job.sql");
 assert(cleanupMig.includes("run_signup_cleanup_job"), "020: cleanup job");
 assert(cleanupMig.includes("signup_cleanup_runs"), "020: cleanup log table");
+
+const qualifyFix = read("supabase/migrations/022_fix_referral_try_qualify.sql");
+assert(qualifyFix.includes("invitee_user"), "022: rename record var");
+assert(qualifyFix.includes("_referral_try_qualify"), "022: qualify function");
 
 assert(fs.existsSync(path.join(root, "ops/REFERRAL_E2E.md")), "ops: REFERRAL_E2E runbook");
 

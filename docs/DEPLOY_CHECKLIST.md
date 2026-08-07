@@ -22,8 +22,9 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Redirect canônico de e-mail | ✅ | Fallback da Edge = `singular-meringue-7838cd.netlify.app/confirmar-email` (não longyu.com.br até ter DNS) |
 | Migration 019 Turnstile vault RPC | ✅ | Aplicada 2026-08-04 |
 | Migration 020 signup cleanup job | ✅ | `run_signup_cleanup_job` + log `signup_cleanup_runs` (+ pg_cron dry-run se disponível) |
-| Referral operacional | 🟡 | Schema 017 ok; smoke SQL de regras verde em prod (2026-08-04). Falta E2E humano 48h/2 contas (`ops/REFERRAL_E2E.md`) |
-| Testes referral/hardening | ✅ | `test:referrals` + `test:create-account-hardening` + `scripts/sql/referral-rules-smoke.sql` |
+| Migration 022 fix `_referral_try_qualify` | ✅ | Alias `u` colidia com record → qualify quebrava; aplicado 2026-08-07 |
+| Referral operacional | 🟡 | 017 + 022; rules + **pipeline smoke verde** (2026-08-07). Falta E2E humano 48h (`ops/REFERRAL_E2E.md`) |
+| Testes referral/hardening | ✅ | `test:referrals` + `test:create-account-hardening` + `referral-rules-smoke` + `referral-pipeline-smoke` |
 
 ## App / Netlify
 
