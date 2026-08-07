@@ -1,7 +1,7 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
-import { getTurnstileToken } from "../lib/turnstile";
+import { getTurnstileToken, turnstileSiteKey } from "../lib/turnstile";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
 
@@ -101,6 +101,15 @@ export async function createAccount(
   const cleanEmail = email.trim().toLowerCase();
   const captchaToken = await getTurnstileToken();
 
+  // Site key no build → token obrigatório (Edge também exige).
+  if (turnstileSiteKey() && !captchaToken) {
+    return {
+      status: "error",
+      message:
+        "Não foi possível validar o desafio de segurança. Recarregue a página e tente de novo.",
+    };
+  }
+
   // Edge create-account: rate limit + anti-enum + Admin email_confirm=false.
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
@@ -119,7 +128,34 @@ export async function createAccount(
     },
   });
 
-  if (error && !data) {
+  // Em HTTP 4xx o client às vezes preenche só `error`; tenta ler o JSON do contexto.
+  let body = data;
+  if (!body && error) {
+    try {
+      const ctx = (error as { context?: Response }).context;
+      if (ctx && typeof ctx.json === "function") {
+        body = (await ctx.json()) as typeof data;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (body?.code === "rate_limited") {
+    return {
+      status: "error",
+      message: body.error || "Muitas tentativas. Aguarde e tente novamente mais tarde.",
+    };
+  }
+
+  if (body?.code === "captcha_failed") {
+    return {
+      status: "error",
+      message: body.error || "Não foi possível validar o desafio de segurança. Tente de novo.",
+    };
+  }
+
+  if (error && !body) {
     const msg = error.message || "Falha ao criar conta.";
     if (/429|rate.?limit/i.test(msg)) {
       return {
@@ -127,35 +163,27 @@ export async function createAccount(
         message: "Muitas tentativas. Aguarde e tente novamente mais tarde.",
       };
     }
+    if (/non-2xx|edge function/i.test(msg)) {
+      return {
+        status: "error",
+        message: "Não foi possível criar a conta agora. Tente de novo em instantes.",
+      };
+    }
     return { status: "error", message: msg };
   }
 
-  if (data?.code === "rate_limited") {
-    return {
-      status: "error",
-      message: data.error || "Muitas tentativas. Aguarde e tente novamente mais tarde.",
-    };
-  }
-
-  if (data?.code === "captcha_failed") {
-    return {
-      status: "error",
-      message: data.error || "Não foi possível validar o desafio de segurança. Tente de novo.",
-    };
-  }
-
-  if (data?.error || data?.ok === false) {
-    return { status: "error", message: data.error || "Falha ao criar conta." };
+  if (body?.error || body?.ok === false) {
+    return { status: "error", message: body.error || "Falha ao criar conta." };
   }
 
   // Resposta genérica (mesmo para email já cadastrado) — evita enumeração.
-  if (data?.ok && data.pendingConfirmation) {
+  if (body?.ok && body.pendingConfirmation) {
     return {
       status: "pending_confirmation",
-      message: data.message || GENERIC_PENDING_MESSAGE,
+      message: body.message || GENERIC_PENDING_MESSAGE,
       data: {
         id: "",
-        email: data.email ?? cleanEmail,
+        email: body.email ?? cleanEmail,
         name: details.name,
       },
     };
