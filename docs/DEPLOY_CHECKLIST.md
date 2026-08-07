@@ -49,16 +49,17 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 ## Próximo marco
 
 1. ~~Pagar Netlify + restaurar Turnstile~~ ✅ (2026-08-07)
-2. **Smoke de cadastro real** (1 conta inédita humana em `/conta`)
-3. **E2E referral** 2 contas + 48h — `ops/REFERRAL_E2E.md`
-4. **Branch protection na `main`** (precisa PAT admin do owner):
+2. ~~Fix Turnstile `size:invisible` (#103)~~ ✅ (2026-08-07) — client Managed
+3. **Smoke de cadastro real** (1 conta humana em `/conta`) — agente bloqueado pelo desafio; precisa você
+4. **E2E referral** 2 contas + 48h — `ops/REFERRAL_E2E.md` (pipeline SQL já verde)
+5. **Branch protection na `main`** (token do agente = 403; precisa PAT admin):
    ```bash
    export GITHUB_TOKEN=ghp_...
    node scripts/setup-branch-protection.mjs
    ```
-5. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`)
-6. Stripe Test Mode live se beta paga
-7. Marketing progressivo (depois de 2–3)
+6. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`)
+7. Stripe Test Mode live se beta paga
+8. Marketing progressivo (depois de 2–3)
 
 ### Pacote mínimo create-account (relatório) — status
 
