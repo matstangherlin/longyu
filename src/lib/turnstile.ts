@@ -1,4 +1,4 @@
-/** Cloudflare Turnstile — opcional até VITE_TURNSTILE_SITE_KEY estar definido. */
+/** Cloudflare Turnstile — site key via VITE_TURNSTILE_SITE_KEY. */
 
 declare global {
   interface Window {
@@ -53,60 +53,87 @@ function loadTurnstileScript(): Promise<void> {
   });
 }
 
-/** Obtém token invisible. Sem site key → null (backend pode pular verificação). */
-export async function getTurnstileToken(): Promise<string | null> {
-  const sitekey = turnstileSiteKey();
-  if (!sitekey) return null;
-
-  await loadTurnstileScript();
-    const turnstile = window.turnstile;
-    if (!turnstile) return null;
-
-    return new Promise((resolve) => {
-      const host = document.createElement("div");
+function renderToken(
+  turnstile: NonNullable<Window["turnstile"]>,
+  sitekey: string,
+  size: "invisible" | "normal"
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    const host = document.createElement("div");
+    if (size === "invisible") {
       host.style.position = "fixed";
       host.style.left = "-9999px";
       host.setAttribute("aria-hidden", "true");
-      document.body.appendChild(host);
+    } else {
+      // Fallback visível: canto inferior, sem atrapalhar o formulário.
+      host.style.position = "fixed";
+      host.style.right = "12px";
+      host.style.bottom = "12px";
+      host.style.zIndex = "9999";
+    }
+    document.body.appendChild(host);
 
-      let settled = false;
-      let widgetId = "";
-      const finish = (token: string | null) => {
-        if (settled) return;
-        settled = true;
-        try {
-          if (widgetId) turnstile.remove(widgetId);
-        } catch {
-          // ignore
-        }
-        host.remove();
-        resolve(token);
-      };
+    let settled = false;
+    let widgetId = "";
+    const finish = (token: string | null) => {
+      if (settled) return;
+      settled = true;
+      try {
+        if (widgetId) turnstile.remove(widgetId);
+      } catch {
+        // ignore
+      }
+      host.remove();
+      resolve(token);
+    };
 
-      const timer = window.setTimeout(() => finish(null), 12_000);
+    // Invisible: falha rápido e cai no widget normal. Visível: dá tempo ao humano.
+    const timer = window.setTimeout(() => finish(null), size === "invisible" ? 3_000 : 90_000);
 
-      widgetId = turnstile.render(host, {
-        sitekey,
-        size: "invisible",
-        callback: (token) => {
-          window.clearTimeout(timer);
-          finish(token || null);
-        },
-        "error-callback": () => {
-          window.clearTimeout(timer);
-          finish(null);
-        },
-        "expired-callback": () => {
-          window.clearTimeout(timer);
-          finish(null);
-        },
-      });
+    widgetId = turnstile.render(host, {
+      sitekey,
+      size,
+      callback: (token) => {
+        window.clearTimeout(timer);
+        finish(token || null);
+      },
+      "error-callback": () => {
+        window.clearTimeout(timer);
+        finish(null);
+      },
+      "expired-callback": () => {
+        window.clearTimeout(timer);
+        finish(null);
+      },
+    });
 
+    if (size === "invisible") {
       try {
         turnstile.execute(widgetId);
       } catch {
         window.clearTimeout(timer);
         finish(null);
       }
-    });
-  }
+    }
+  });
+}
+
+/**
+ * Obtém token Turnstile.
+ * 1) Invisible (padrão)
+ * 2) Se falhar, widget normal visível (usuário pode completar o desafio)
+ * Sem site key → null (backend pode pular verificação).
+ */
+export async function getTurnstileToken(): Promise<string | null> {
+  const sitekey = turnstileSiteKey();
+  if (!sitekey) return null;
+
+  await loadTurnstileScript();
+  const turnstile = window.turnstile;
+  if (!turnstile) return null;
+
+  const invisible = await renderToken(turnstile, sitekey, "invisible");
+  if (invisible) return invisible;
+
+  return renderToken(turnstile, sitekey, "normal");
+}

@@ -7,7 +7,7 @@
 - Site key no bundle Netlify (`VITE_TURNSTILE_SITE_KEY`)
 - Secret no Vault: `TURNSTILE_SECRET_KEY` (restaurado)
 - Edge `create-account` exige siteverify → probe sem token = `captcha_failed`
-- Scripts Turnstile carregam em `/conta`
+- App obtém token via `getTurnstileToken()`: tenta **invisible** (~3s) e, se falhar, mostra widget **normal** no canto da tela
 
 ## Domínios do widget
 
