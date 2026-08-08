@@ -9,6 +9,7 @@ import {
   type FeedbackStatusId,
 } from "../lib/feedback";
 import { useStore, DEFAULT_ACCOUNT_ID } from "../lib/store";
+import { escapeCsvCell } from "../lib/csv";
 
 const QUEUE_KEY = "longyu:beta-feedback-queue";
 const MAX_QUEUE = 30;
@@ -313,11 +314,6 @@ export function feedbackToCsv(rows: BetaFeedbackRow[]): string {
     "local_profile_id",
     "admin_note",
   ];
-  const escape = (value: unknown) => {
-    const text = String(value ?? "");
-    if (/[",\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
-    return text;
-  };
   const lines = rows.map((row) =>
     [
       row.id,
@@ -336,7 +332,7 @@ export function feedbackToCsv(rows: BetaFeedbackRow[]): string {
       row.local_profile_id,
       row.admin_note,
     ]
-      .map(escape)
+      .map(escapeCsvCell)
       .join(",")
   );
   return [header.join(","), ...lines].join("\n");
