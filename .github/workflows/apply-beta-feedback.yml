@@ -2,16 +2,14 @@ name: Apply Beta Feedback
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "supabase/migrations/010_beta_feedback.sql"
-      - "scripts/apply-beta-feedback-sql.mjs"
-      - "scripts/verify-beta-feedback.mjs"
-      - ".github/workflows/apply-beta-feedback.yml"
+
+permissions:
+  contents: read
 
 jobs:
   apply:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
 
@@ -23,11 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Apply beta feedback migration
+      - name: Apply pending database migrations
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
-        run: node scripts/apply-beta-feedback-sql.mjs
+        run: npm run db:apply-api
 
       - name: Verify beta feedback RPCs
         env:

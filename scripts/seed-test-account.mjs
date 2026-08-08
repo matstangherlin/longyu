@@ -21,10 +21,9 @@ const require = createRequire(import.meta.url);
 const root = projectRoot();
 const env = mergedEnv();
 
-const TEST_EMAIL = "teste@longyu.app";
-const TEST_PASSWORD = "teste999";
-const TEST_NAME = "Conta Teste Longyu";
-const TEST_USER_ID = "8fb6237b-5c98-4169-8331-b36efd228769";
+const TEST_EMAIL = String(env.LONGYU_QA_EMAIL ?? "").trim().toLowerCase();
+const TEST_PASSWORD = String(env.LONGYU_QA_PASSWORD ?? "");
+const TEST_NAME = String(env.LONGYU_QA_NAME ?? "Conta QA Longyu").trim();
 
 const url = (env.VITE_SUPABASE_URL ?? "https://drjcfalvlbbeblmmyhwj.supabase.co").replace(/\/$/, "");
 const anon = env.VITE_SUPABASE_ANON_KEY;
@@ -34,6 +33,12 @@ const projectRef = env.SUPABASE_PROJECT_REF ?? "drjcfalvlbbeblmmyhwj";
 
 if (!anon) {
   console.error("VITE_SUPABASE_ANON_KEY ausente.");
+  process.exit(1);
+}
+
+if (!TEST_EMAIL || !TEST_PASSWORD) {
+  console.error("LONGYU_QA_EMAIL / LONGYU_QA_PASSWORD ausentes.");
+  console.error("Defina-os apenas em .env.local ou nos secrets do ambiente de CI.");
   process.exit(1);
 }
 
@@ -245,7 +250,7 @@ async function rest(token, table, method, payload, extraHeaders = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-async function applySubscriptionSql() {
+async function applySubscriptionSql(userId) {
   const sql = fs.readFileSync(path.join(root, "supabase/seed/test-account.sql"), "utf8");
   if (serviceRole) {
     const adminToken = serviceRole;
@@ -258,7 +263,7 @@ async function applySubscriptionSql() {
         Prefer: "resolution=merge-duplicates,return=representation",
       },
       body: JSON.stringify({
-        user_id: TEST_USER_ID,
+        user_id: userId,
         status: "active",
         stripe_subscription_id: "internal_test_longyu_pro",
         current_period_start: new Date().toISOString(),
@@ -306,7 +311,8 @@ async function main() {
     headers: { apikey: anon, Authorization: `Bearer ${token}` },
   });
   const userBody = await userResponse.json();
-  const userId = userBody?.id ?? userBody?.user?.id ?? TEST_USER_ID;
+  const userId = userBody?.id ?? userBody?.user?.id;
+  if (!userId) throw new Error("Auth nao retornou o ID da conta QA.");
   console.log(`User ID: ${userId}`);
 
   await rest(
@@ -356,7 +362,7 @@ async function main() {
   });
   console.log("OK: progresso completo enviado para user_progress.");
 
-  const proApplied = await applySubscriptionSql();
+  const proApplied = await applySubscriptionSql(userId);
   if (!proApplied) {
     console.log("");
     console.log("Aviso: assinatura Pro no servidor não foi aplicada automaticamente.");
@@ -369,7 +375,7 @@ async function main() {
   console.log("");
   console.log("Conta pronta para teste:");
   console.log(`  Email: ${TEST_EMAIL}`);
-  console.log(`  Senha: ${TEST_PASSWORD}`);
+  console.log("  Senha: configurada pelo ambiente (nao exibida)");
 }
 
 main().catch((error) => {

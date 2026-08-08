@@ -104,6 +104,8 @@ async function cleanup(userIds) {
 }
 
 const createdIds = [];
+let socialSchemaAvailable = false;
+let socialUsername = "";
 
 function blockedReadOk(rows, error, label) {
   if (error) {
@@ -128,6 +130,28 @@ try {
   const userA = await createUser(emailA);
   const userB = await createUser(emailB);
   createdIds.push(userA.id, userB.id);
+
+  socialUsername = `rls_b_${stamp}`;
+  const { error: socialSeedErr } = await admin
+    .from("profiles")
+    .update({
+      username: socialUsername,
+      show_in_search: true,
+      phone: "+5500000000000",
+      marketing_opt_in: true,
+    })
+    .eq("id", userB.id);
+  if (!socialSeedErr) {
+    socialSchemaAvailable = true;
+    assert(true, "seed perfil social publico + campos privados de B");
+  } else if (
+    socialSeedErr.code === "PGRST204" ||
+    /show_in_search|username/i.test(socialSeedErr.message)
+  ) {
+    console.log("· modulo social ainda nao implantado; testes sociais condicionais serao ignorados");
+  } else {
+    assert(false, `seed perfil social B (${socialSeedErr.message})`);
+  }
 
   // Seed progresso/economia/assinatura via service_role (bypass RLS).
   const { error: progErr } = await admin.from("user_progress").upsert({
@@ -265,6 +289,64 @@ try {
   // A lê o próprio perfil (ou vazio se trigger não criou — sem erro).
   const { error: ownProfileErr } = await clientA.from("profiles").select("id").eq("id", userA.id);
   assert(!ownProfileErr, `A lê próprio perfil (${ownProfileErr?.message ?? "ok"})`);
+
+  const { data: foreignProfile, error: foreignProfileErr } = await clientA
+    .from("profiles")
+    .select("*")
+    .eq("id", userB.id);
+  assert(
+    blockedReadOk(foreignProfile, foreignProfileErr, "profiles"),
+    "A nao le nenhuma coluna do perfil-base de B"
+  );
+
+  if (socialSchemaAvailable) {
+    const { data: publicSearch, error: publicSearchErr } = await clientA.rpc(
+      "search_public_profiles",
+      { search_query: socialUsername.slice(0, 8) }
+    );
+    assert(!publicSearchErr, `busca social responde (${publicSearchErr?.message ?? "ok"})`);
+    const searched = (publicSearch ?? []).find((row) => row.user_id === userB.id);
+    assert(Boolean(searched), "perfil publico pesquisavel de B aparece na busca");
+    assert(
+      searched && !("phone" in searched) && !("birth_date" in searched) && !("marketing_opt_in" in searched),
+      "busca social retorna somente colunas publicas"
+    );
+
+    const { error: hideErr } = await admin
+      .from("profiles")
+      .update({ show_in_search: false })
+      .eq("id", userB.id);
+    assert(!hideErr, `oculta perfil B (${hideErr?.message ?? "ok"})`);
+
+    const { data: hiddenDirect, error: hiddenDirectErr } = await clientA.rpc(
+      "get_public_profile_by_username",
+      { target_username: socialUsername }
+    );
+    assert(!hiddenDirectErr, `lookup oculto responde (${hiddenDirectErr?.message ?? "ok"})`);
+    assert((hiddenDirect ?? []).length === 0, "perfil oculto de B nao aparece por lookup direto");
+
+    const { error: followErr } = await clientA.from("user_follows").insert({
+      follower_id: userA.id,
+      following_id: userB.id,
+    });
+    assert(!followErr, `A segue B (${followErr?.message ?? "ok"})`);
+
+    const { data: relatedProfiles, error: relatedProfilesErr } = await clientA.rpc(
+      "get_public_profiles_by_ids",
+      { target_user_ids: [userB.id] }
+    );
+    assert(!relatedProfilesErr, `batch de perfis relacionados responde (${relatedProfilesErr?.message ?? "ok"})`);
+    assert((relatedProfiles ?? []).length === 1, "A ve campos publicos do perfil oculto que segue");
+
+    const { data: relatedBaseProfile, error: relatedBaseProfileErr } = await clientA
+      .from("profiles")
+      .select("*")
+      .eq("id", userB.id);
+    assert(
+      blockedReadOk(relatedBaseProfile, relatedBaseProfileErr, "profiles relacionado"),
+      "seguir B nao libera nenhuma coluna do perfil-base"
+    );
+  }
 
   // A NÃO lê progresso de B.
   const { data: foreignProgress, error: foreignProgressErr } = await clientA

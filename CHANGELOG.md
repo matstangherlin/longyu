@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Segurança de banco e automações de produção
+
+- RPCs `SECURITY DEFINER` agora seguem bloqueio por padrão: somente os endpoints
+  públicos necessários recebem `EXECUTE` para `anon` ou `authenticated`.
+- Helpers internos de Vault, limpeza, rate limit, webhooks, ledger e referrals
+  ficam restritos ao backend; RPCs de liga validam o usuário autenticado.
+- A conta QA deixa de ser administradora e suas credenciais passam a existir
+  somente em variáveis locais ou secrets protegidos do GitHub Actions.
+- Workflows que alteram produção são manuais, usam o environment `production` e
+  aplicam somente migrations pendentes, sem reaplicar SQL histórico inseguro.
+- Perfis sociais deixam de abrir a tabela de conta para outros usuários: busca,
+  lookup e listas retornam somente campos públicos por RPC, respeitam a opção de
+  aparecer na busca e mantêm telefone, nascimento e consentimentos privados.
+
 ### Ofensiva zera após 24h e recuperação em 24h
 
 - **Zera de verdade**: passar **24h (um dia inteiro) sem estudar** zera a

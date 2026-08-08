@@ -125,7 +125,6 @@ export function adminEmailAllowlist(): string[] {
     .filter(Boolean);
   return [
     ...new Set([
-      "teste@longyu.app",
       "admin@longyu.app",
       "matheus.stangherlin@hotmail.com",
       "minemoostraa@gmail.com",

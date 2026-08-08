@@ -16,7 +16,7 @@ if (!token) {
 
 const migrationsDir = path.join(root, "supabase", "migrations");
 const files = readdirSync(migrationsDir)
-  .filter((f) => /^\d{3}_.+\.sql$/.test(f))
+  .filter((f) => /^\d+_.+\.sql$/.test(f))
   .sort();
 
 if (files.length === 0) {
