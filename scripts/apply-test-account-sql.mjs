@@ -14,10 +14,6 @@ if (!token) {
 }
 
 const files = [
-  path.join(root, "supabase/migrations/006_economy_server.sql"),
-  path.join(root, "supabase/migrations/007_internal_test_pro.sql"),
-  path.join(root, "supabase/migrations/008_server_entitlement_rpc.sql"),
-  path.join(root, "supabase/migrations/010_beta_feedback.sql"),
   path.join(root, "supabase/seed/test-account.sql"),
 ];
 

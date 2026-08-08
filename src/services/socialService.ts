@@ -201,14 +201,15 @@ async function listFollowProfiles(direction: "following" | "followers"): Promise
   const ids = followRows.map((row) =>
     String(direction === "following" ? row.following_id : row.follower_id)
   );
-  const { data: profiles, error: profileError } = await gate.client
-    .from("public_profiles")
-    .select("user_id, display_name, username, avatar_key, league_tier, weekly_xp, streak")
-    .in("user_id", ids);
+  const { data: profiles, error: profileError } = await gate.client.rpc(
+    "get_public_profiles_by_ids",
+    { target_user_ids: ids }
+  );
 
   if (profileError) return { ok: false, message: profileError.message };
 
-  const profileMap = new Map((profiles ?? []).map((p) => [String(p.user_id), p]));
+  const publicProfileRows = (profiles ?? []) as Array<Record<string, unknown>>;
+  const profileMap = new Map(publicProfileRows.map((p) => [String(p.user_id), p]));
   const rows: SocialFollowRow[] = followRows
     .map((follow) => {
       const id = String(direction === "following" ? follow.following_id : follow.follower_id);

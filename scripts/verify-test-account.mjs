@@ -6,8 +6,8 @@ import { mergedEnv } from "./lib/env-local.mjs";
 const env = mergedEnv();
 const url = (env.VITE_SUPABASE_URL ?? "https://drjcfalvlbbeblmmyhwj.supabase.co").replace(/\/$/, "");
 const anon = env.VITE_SUPABASE_ANON_KEY;
-const TEST_EMAIL = "teste@longyu.app";
-const TEST_PASSWORD = "teste999";
+const TEST_EMAIL = String(env.LONGYU_QA_EMAIL ?? "").trim().toLowerCase();
+const TEST_PASSWORD = String(env.LONGYU_QA_PASSWORD ?? "");
 
 const errors = [];
 const checks = [];
@@ -60,6 +60,11 @@ console.log("== verify:test-account ==");
 
 if (!anon) {
   console.error("VITE_SUPABASE_ANON_KEY ausente.");
+  process.exit(1);
+}
+
+if (!TEST_EMAIL || !TEST_PASSWORD) {
+  console.error("LONGYU_QA_EMAIL / LONGYU_QA_PASSWORD ausentes.");
   process.exit(1);
 }
 
