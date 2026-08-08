@@ -4,6 +4,7 @@ import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../li
 import { getTurnstileToken, turnstileSiteKey } from "../lib/turnstile";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
+import { requestAccountDeletion } from "./privacyService";
 
 export type AuthServiceStatus = "ok" | "error" | "not_implemented" | "pending_confirmation";
 
@@ -336,15 +337,10 @@ export async function getCurrentUser(): Promise<AuthServiceResult<FutureAuthUser
   };
 }
 
-export async function deleteAccount(): Promise<AuthServiceResult> {
-  if (!isSupabaseBackendEnabled()) return notImplemented();
-
-  const client = getSupabaseClient();
-  if (!client) return notImplemented();
-
-  const { error } = await client.functions.invoke("delete-account", { body: { confirm: true } });
-  if (error) return { status: "error", message: error.message };
-
-  await client.auth.signOut();
-  return { status: "ok", message: "Conta excluída na nuvem. Os dados locais deste dispositivo permanecem até você apagá-los." };
+export async function deleteAccount(confirmationText: string): Promise<AuthServiceResult> {
+  const result = await requestAccountDeletion(confirmationText);
+  return {
+    status: result.ok ? "ok" : "error",
+    message: result.message,
+  };
 }

@@ -52,6 +52,7 @@ import { activeLearningRepository } from "../../lib/repositories/learningReposit
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services/privacyService";
+import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 import {
   createAccount as createAuthAccount,
 } from "../../services/authService";
@@ -2033,7 +2034,12 @@ export function AccountPage() {
   }
 
   async function handleRequestAccountDeletion() {
-    const result = await requestAccountDeletion();
+    const confirmationText = window.prompt(
+      `Esta ação é permanente. Digite ${ACCOUNT_DELETION_CONFIRMATION_TEXT} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.`
+    );
+    if (confirmationText === null) return;
+
+    const result = await requestAccountDeletion(confirmationText);
     setDataNotice(result.message);
     if (result.ok) {
       endCloudSession();
