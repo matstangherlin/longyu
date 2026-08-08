@@ -52,11 +52,8 @@ async function hasValidProjectApiKey(req: Request, supabaseUrl: string): Promise
 }
 
 function trustedClientIp(req: Request): string | null {
-  const cloudflareIp = req.headers.get("cf-connecting-ip")?.trim();
-  if (cloudflareIp) return cloudflareIp;
-
-  // Supabase's trusted proxy appends its hop. Never trust the leftmost value,
-  // because callers can supply it themselves.
+  // Ignore forgeable client IP headers on direct Edge URLs.
+  // Prefer the rightmost X-Forwarded-For hop appended by the platform proxy.
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
     const hops = forwarded.split(",").map((part) => part.trim()).filter(Boolean);

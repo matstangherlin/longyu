@@ -69,7 +69,10 @@ assert(
   "pedagogy quotas use the trusted bucket"
 );
 
-assert(edge.includes("cf-connecting-ip"), "Edge Function reads trusted proxy metadata");
+assert(
+  edge.includes("x-forwarded-for") && edge.includes("x-real-ip") && !edge.includes('headers.get("cf-connecting-ip")'),
+  "Edge Function reads trusted proxy metadata"
+);
 assert(edge.includes("hops[hops.length - 1]"), "forwarded chain ignores caller-controlled first hop");
 assert(edge.includes("HMAC") && edge.includes("SHA-256"), "edge identity is a keyed HMAC");
 assert(edge.includes("new Date().toISOString().slice(0, 10)"), "network bucket rotates daily");
