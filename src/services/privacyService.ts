@@ -3,6 +3,10 @@ import { activeLearningRepository } from "../lib/repositories/learningRepository
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { fetchRemoteEntitlements, type SyncServiceResult } from "./syncService";
+import {
+  accountDeletionRequestBody,
+  ACCOUNT_DELETION_CONFIRMATION_TEXT,
+} from "../../supabase/functions/_shared/accountDeletion";
 
 export interface PrivacyExportBundle {
   exportedAt: string;
@@ -22,7 +26,28 @@ export async function buildPrivacyExportBundle(): Promise<PrivacyExportBundle> {
   };
 }
 
-export async function requestAccountDeletion(): Promise<{ ok: boolean; message: string }> {
+interface AccountDeletionResponse {
+  ok?: boolean;
+  error?: string;
+}
+
+async function accountDeletionErrorMessage(error: unknown): Promise<string> {
+  try {
+    const context = (error as { context?: Response })?.context;
+    if (context && typeof context.json === "function") {
+      const body = (await context.json()) as AccountDeletionResponse;
+      if (body?.error) return body.error;
+    }
+  } catch {
+    // O corpo pode já ter sido consumido; nesse caso usamos a mensagem genérica.
+  }
+
+  return (error as { message?: string })?.message || "Não foi possível excluir a conta.";
+}
+
+export async function requestAccountDeletion(
+  confirmationText: string
+): Promise<{ ok: boolean; message: string }> {
   if (!isSupabaseBackendEnabled()) {
     return {
       ok: false,
@@ -42,9 +67,22 @@ export async function requestAccountDeletion(): Promise<{ ok: boolean; message: 
     return { ok: false, message: "Faça login para solicitar exclusão da conta na nuvem." };
   }
 
-  const { error } = await client.functions.invoke("delete-account", { body: { confirm: true } });
+  const body = accountDeletionRequestBody(confirmationText);
+  if (!body) {
+    return {
+      ok: false,
+      message: `Confirmação inválida. Digite exatamente ${ACCOUNT_DELETION_CONFIRMATION_TEXT}.`,
+    };
+  }
+
+  const { data, error } = await client.functions.invoke<AccountDeletionResponse>("delete-account", {
+    body,
+  });
   if (error) {
-    return { ok: false, message: error.message };
+    return { ok: false, message: await accountDeletionErrorMessage(error) };
+  }
+  if (!data?.ok) {
+    return { ok: false, message: data?.error || "O servidor não confirmou a exclusão da conta." };
   }
 
   await client.auth.signOut();

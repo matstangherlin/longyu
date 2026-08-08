@@ -1,5 +1,9 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import {
+  accountDeletionRequestBody,
+  ACCOUNT_DELETION_CONFIRMATION_TEXT,
+} from "../_shared/accountDeletion.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -7,7 +11,6 @@ const DEFAULT_ALLOWED_ORIGINS = [
   "http://127.0.0.1:5173",
   "http://localhost:5173",
 ];
-const DELETE_CONFIRM_TEXT = "EXCLUIR CONTA";
 
 function allowedOrigins(): Set<string> {
   return new Set(
@@ -86,10 +89,12 @@ serve(async (req) => {
   // Step-up de segurança: exige confirmação explícita e token recente.
   const maxTokenAgeSec = Number(Deno.env.get("DELETE_ACCOUNT_MAX_TOKEN_AGE_SECONDS") ?? "900");
   const body = await req.json().catch(() => ({} as Record<string, unknown>));
-  const confirmation = String(body?.confirmationText ?? "").trim();
-  if (confirmation !== DELETE_CONFIRM_TEXT) {
+  const deletionRequest = accountDeletionRequestBody(String(body?.confirmationText ?? ""));
+  if (!deletionRequest) {
     return new Response(
-      JSON.stringify({ error: `Confirmação inválida. Envie confirmationText="${DELETE_CONFIRM_TEXT}".` }),
+      JSON.stringify({
+        error: `Confirmação inválida. Envie confirmationText="${ACCOUNT_DELETION_CONFIRMATION_TEXT}".`,
+      }),
       { status: 400, headers: { ...headers, "Content-Type": "application/json" } }
     );
   }
@@ -125,23 +130,12 @@ serve(async (req) => {
   }
 
   const admin = createClient(supabaseUrl, serviceRole);
-  const userId = user.id;
-
-  await admin.from("league_xp_events").delete().eq("user_id", userId);
-  await admin.from("league_weekly_results").delete().eq("user_id", userId);
-  await admin.from("league_memberships").delete().eq("user_id", userId);
-  await admin.from("user_progress").delete().eq("user_id", userId);
-  await admin.from("user_economy").delete().eq("user_id", userId);
-  await admin.from("user_srs").delete().eq("user_id", userId);
-  await admin.from("user_missions").delete().eq("user_id", userId);
-  await admin.from("user_chests").delete().eq("user_id", userId);
-  await admin.from("user_achievements").delete().eq("user_id", userId);
-  await admin.from("subscriptions").delete().eq("user_id", userId);
-  await admin.from("profiles").delete().eq("id", userId);
-
-  const { error: authError } = await admin.auth.admin.deleteUser(userId);
+  // A trigger no auth.users remove dados pessoais e deixa somente o mínimo
+  // financeiro anonimizado, na mesma transação do hard delete do usuário.
+  const { error: authError } = await admin.auth.admin.deleteUser(user.id, false);
   if (authError) {
-    return new Response(JSON.stringify({ error: authError.message }), {
+    console.error("delete-account failed", { code: authError.code, status: authError.status });
+    return new Response(JSON.stringify({ error: "Não foi possível concluir a exclusão da conta." }), {
       status: 500,
       headers: { ...headers, "Content-Type": "application/json" },
     });

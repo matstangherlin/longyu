@@ -25,6 +25,7 @@ import {
   setTelemetryConsent,
 } from "../../services/telemetryConsent";
 import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services/privacyService";
+import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
 
@@ -429,12 +430,12 @@ export function SettingsPage() {
               disabled={privacyBusy}
               onClick={() => {
                 void (async () => {
-                  const ok = window.confirm(
-                    "Solicitar exclusão da conta na nuvem? Progresso local neste aparelho não é apagado automaticamente."
+                  const confirmationText = window.prompt(
+                    `Esta ação é permanente. Digite ${ACCOUNT_DELETION_CONFIRMATION_TEXT} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.`
                   );
-                  if (!ok) return;
+                  if (confirmationText === null) return;
                   setPrivacyBusy(true);
-                  const result = await requestAccountDeletion();
+                  const result = await requestAccountDeletion(confirmationText);
                   setPrivacyBusy(false);
                   setPrivacyNotice(result.message);
                 })();

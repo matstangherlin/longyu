@@ -91,7 +91,7 @@ serve(async (req) => {
   ) => {
     // Idempotente por stripe_event_id: o mesmo evento entregue duas vezes não
     // duplica a transação (upsert no índice único stripe_event_id).
-    await admin.from("transactions").upsert(
+    const { error } = await admin.from("transactions").upsert(
       {
         stripe_event_id: event.id,
         user_id: userId,
@@ -106,6 +106,7 @@ serve(async (req) => {
       },
       { onConflict: "stripe_event_id" }
     );
+    if (error) throw new Error("transaction_persist_failed");
   };
 
   const lookupUserId = async (subscriptionId: string | null): Promise<string | null> => {
@@ -174,7 +175,10 @@ serve(async (req) => {
       amount: session.amount_total ?? 0,
       currency: session.currency ?? "brl",
       status: "paid",
-      metadata: session as unknown as Record<string, unknown>,
+      metadata: {
+        mode: session.mode,
+        payment_status: session.payment_status,
+      },
       checkoutSessionId: session.id,
       subscriptionId: subscriptionId ?? undefined,
     });
@@ -199,7 +203,12 @@ serve(async (req) => {
       amount: invoice.amount_paid ?? invoice.amount_due ?? 0,
       currency: invoice.currency ?? "brl",
       status: event.type === "invoice.paid" ? "paid" : "failed",
-      metadata: invoice as unknown as Record<string, unknown>,
+      metadata: {
+        billing_reason: invoice.billing_reason,
+        collection_method: invoice.collection_method,
+        attempt_count: invoice.attempt_count,
+        paid: invoice.paid,
+      },
       invoiceId: invoice.id,
       subscriptionId: subscriptionId ?? undefined,
     });

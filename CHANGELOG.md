@@ -20,6 +20,11 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Perfis sociais deixam de abrir a tabela de conta para outros usuários: busca,
   lookup e listas retornam somente campos públicos por RPC, respeitam a opção de
   aparecer na busca e mantêm telefone, nascimento e consentimentos privados.
+- Exclusão de conta passa a exigir a frase explícita `EXCLUIR CONTA`, usa um
+  contrato único entre app e Edge Function e exibe o erro real de reautenticação.
+- O hard delete agora apaga feedback, telemetria e hashes de referral na mesma
+  transação; lançamentos financeiros restantes são anonimizados e os webhooks
+  deixam de persistir objetos Stripe completos com dados pessoais.
 
 ### Ofensiva zera após 24h e recuperação em 24h
 
