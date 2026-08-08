@@ -35,7 +35,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Headers de segurança básicos | ✅ | X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy |
 | Stripe Test Mode E2E completo | 🟡 | Espelho A–F verde; runbook humano + `npm run test:stripe` com `sk_test_` |
 | PWA iPhone/Android reais | ⬜ | Ver `docs/REAL_DEVICE_QA.md` |
-| Proteção da branch `main` | ⬜ | `GITHUB_TOKEN=ghp_... node scripts/setup-branch-protection.mjs` (precisa admin) |
+| Proteção da branch `main` | ✅ | Ruleset **Protect main branch** ativo (2026-08-08): PR + checks + sem force-push/delete |
 
 ## Portões
 
@@ -52,11 +52,7 @@ npm run test:stripe        # API test mode + probe webhook (precisa sk_test_)
 2. ~~Fix Turnstile `size:invisible` (#103)~~ ✅ (2026-08-07) — client Managed
 3. ~~Smoke de cadastro real~~ ✅ (2026-08-07) — conta `longyu1786128776@web-library.net` criada via Edge + e-mail confirmado + login OK (Turnstile pausado só durante o smoke; já restaurado)
 4. ~~E2E referral~~ ✅ (2026-08-07) — Conta A `…8776@web-library.net` + Conta B `longyurefb1786129685@web-library.net`; referral `rewarded`; A com Pro (`user_has_entitlement_grant`). Acelerado: confirm/idade 48h via SQL (e-mail B não chegou no mail.tm)
-5. **Branch protection na `main`** (token do agente = 403; precisa PAT admin):
-   ```bash
-   export GITHUB_TOKEN=ghp_...
-   node scripts/setup-branch-protection.mjs
-   ```
+5. ~~Branch protection na `main`~~ ✅ (2026-08-08) — Ruleset **Protect main branch**
 6. Device real iOS + Android (`docs/REAL_DEVICE_QA.md`)
 7. Stripe Test Mode live se beta paga
 8. Marketing progressivo (depois de 2–3)
