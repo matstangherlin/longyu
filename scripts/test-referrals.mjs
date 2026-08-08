@@ -118,6 +118,20 @@ const qualifyFix = read("supabase/migrations/022_fix_referral_try_qualify.sql");
 assert(qualifyFix.includes("invitee_user"), "022: rename record var");
 assert(qualifyFix.includes("_referral_try_qualify"), "022: qualify function");
 
+const referralQualificationHardening = read(
+  "supabase/migrations/20260808093000_harden_referral_qualification.sql"
+);
+assert(
+  referralQualificationHardening.includes("_referral_verified_progress"),
+  "referral: qualification uses server-verified progress"
+);
+assert(
+  !referralQualificationHardening
+    .slice(referralQualificationHardening.indexOf("create or replace function public._referral_try_qualify"))
+    .includes("_referral_progress_from_snapshot"),
+  "referral: current qualification ignores client snapshot"
+);
+
 assert(fs.existsSync(path.join(root, "ops/REFERRAL_E2E.md")), "ops: REFERRAL_E2E runbook");
 
 // —— Rotas / UI mínimas ——

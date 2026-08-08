@@ -50,6 +50,10 @@ import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
+import {
+  beginReferralLessonAttestation,
+  completeReferralLessonAttestation,
+} from "../../services/referralLearningAttestation";
 import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -1480,6 +1484,11 @@ export function LessonPlayer() {
     });
   }, [adaptiveLesson, entryChecked, finished, foundLesson, setCurrentLessonAttempt]);
 
+  useEffect(() => {
+    if (!foundLesson || !entryChecked || finished) return;
+    void beginReferralLessonAttestation(foundLesson.id);
+  }, [entryChecked, finished, foundLesson]);
+
   if (!foundLesson || !adaptiveLesson) return <Navigate to="/jornada" replace />;
   const lesson = adaptiveLesson;
   const total = lesson.steps.length;
@@ -1918,6 +1927,7 @@ export function LessonPlayer() {
     finishLessonAttempt(buildStoredAttempt(3, correct, correctedIds));
     const firstCompletion = !completedLessons.includes(lesson.id);
     completeLesson(lesson.id);
+    void completeReferralLessonAttestation(lesson.id);
     if (firstCompletion) {
       const recoveredXp = LESSON_BASE_XP + LESSON_THREE_STAR_XP_BONUS;
       const attemptId = attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`;
@@ -2539,6 +2549,7 @@ export function LessonPlayer() {
         setLessonPendingStars(lesson.id, folegoSkipRefs);
       }
       completeLesson(lesson.id);
+      void completeReferralLessonAttestation(lesson.id);
       // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
       if (stars === 3 && folegoSkips === 0 && !hadRealMistakes) {
         tryEarnFolegoFromPerfect();
