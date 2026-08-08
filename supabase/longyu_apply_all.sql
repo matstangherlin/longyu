@@ -8094,3 +8094,23 @@ $$;
 
 commit;
 
+-- 20260808160000_revoke_economy_user_is_pro_client.sql
+-- Residual abuse hardening: clients must not probe arbitrary UUIDs for Pro status.
+
+begin;
+
+REVOKE ALL ON FUNCTION public.economy_user_is_pro(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.economy_user_is_pro(uuid) FROM anon;
+REVOKE ALL ON FUNCTION public.economy_user_is_pro(uuid) FROM authenticated;
+
+DO $$
+BEGIN
+  IF to_regprocedure('public.user_has_entitlement_grant(uuid, text)') IS NOT NULL THEN
+    EXECUTE 'REVOKE ALL ON FUNCTION public.user_has_entitlement_grant(uuid, text) FROM PUBLIC';
+    EXECUTE 'REVOKE ALL ON FUNCTION public.user_has_entitlement_grant(uuid, text) FROM anon';
+    EXECUTE 'REVOKE ALL ON FUNCTION public.user_has_entitlement_grant(uuid, text) FROM authenticated';
+  END IF;
+END $$;
+
+commit;
+

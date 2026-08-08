@@ -189,6 +189,39 @@ assert(
   "bundle SQL descobre todas as migrations sem lista obsoleta"
 );
 
+const revokeProOracle = fs
+  .readdirSync(path.join(root, "supabase", "migrations"))
+  .find((name) => name.endsWith("_revoke_economy_user_is_pro_client.sql"));
+assert(Boolean(revokeProOracle), "migration revoga economy_user_is_pro do cliente");
+const revokeProSql = revokeProOracle
+  ? fs.readFileSync(path.join(root, "supabase", "migrations", revokeProOracle), "utf8")
+  : "";
+assert(
+  /revoke all on function public\.economy_user_is_pro\(uuid\) from authenticated/i.test(
+    revokeProSql
+  ),
+  "economy_user_is_pro nao fica executavel por authenticated"
+);
+assert(
+  /revoke all on function public\.economy_user_is_pro\(uuid\) from anon/i.test(revokeProSql),
+  "economy_user_is_pro nao fica executavel por anon"
+);
+
+const netlifyToml = fs.readFileSync(path.join(root, "netlify.toml"), "utf8");
+const cspMatch = netlifyToml.match(/Content-Security-Policy\s*=\s*"([^"]+)"/);
+assert(Boolean(cspMatch), "netlify.toml define Content-Security-Policy");
+const csp = cspMatch?.[1] ?? "";
+assert(/script-src\s[^;]*'self'/.test(csp), "CSP script-src inclui 'self'");
+assert(
+  !/script-src\s[^;]*'unsafe-inline'/.test(csp),
+  "CSP script-src nao usa 'unsafe-inline'"
+);
+assert(
+  /script-src\s[^;]*'sha256-vywfNn7vNkB5YuzZDNSdCsVZoLK8nb8AQLe\+06V8ku4='/.test(csp),
+  "CSP script-src allowlista o hash do JSON-LD"
+);
+assert(/script-src-attr\s+'none'/.test(csp), "CSP bloqueia handlers inline via script-src-attr");
+
 if (failures.length) {
   console.error("validate:security-boundaries FALHOU:");
   for (const failure of failures) console.error(` - ${failure}`);
