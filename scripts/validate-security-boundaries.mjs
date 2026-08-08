@@ -19,6 +19,15 @@ assert(Boolean(migrationName), "migration harden_function_privileges existe");
 const migration = migrationName
   ? fs.readFileSync(path.join(root, "supabase", "migrations", migrationName), "utf8")
   : "";
+const anonymousIngestionMigration = fs.readFileSync(
+  path.join(
+    root,
+    "supabase",
+    "migrations",
+    "20260808081000_harden_anonymous_ingestion.sql"
+  ),
+  "utf8"
+);
 const seed = fs.readFileSync(path.join(root, "scripts", "seed-test-account.mjs"), "utf8");
 const verify = fs.readFileSync(path.join(root, "scripts", "verify-test-account.mjs"), "utf8");
 const adminUi = fs.readFileSync(path.join(root, "src", "lib", "feedback.ts"), "utf8");
@@ -61,13 +70,22 @@ const anonBlock = migration.split("-- Endpoints anonimos intencionais.")[1]?.spl
 )[0] ?? "";
 const authenticatedBlock = migration.split("-- API autenticada do produto.")[1] ?? "";
 
-for (const fn of [
-  "issue_beta_pedagogy_anon_session",
-  "submit_beta_feedback",
-  "submit_beta_pedagogy_event",
-]) {
+for (const fn of ["submit_beta_feedback", "submit_beta_pedagogy_event"]) {
   assert(anonBlock.includes(`public.${fn}(`), `${fn} permanece disponivel para anon`);
 }
+assert(
+  anonBlock.includes("public.issue_beta_pedagogy_anon_session(") &&
+    /revoke execute on function public\.issue_beta_pedagogy_anon_session\(text\)[\s\S]*?from public, anon, authenticated/i.test(
+      anonymousIngestionMigration
+    ),
+  "issuer anon legado e explicitamente fechado pela migration atual"
+);
+assert(
+  /grant execute on function public\.issue_beta_anon_ingestion_session\(text\) to service_role/i.test(
+    anonymousIngestionMigration
+  ),
+  "issuer atual fica restrito a service_role"
+);
 
 for (const fn of [
   "get_server_entitlement",

@@ -43,10 +43,33 @@ console.log("URL:", supabaseUrl);
 
 await checkRpc("is_beta_admin");
 
+const { data: sessionData, error: sessionError } = await client.functions.invoke(
+  "issue-anon-ingestion-session",
+  { body: {} }
+);
+const anonSessionToken =
+  typeof sessionData?.token === "string" ? sessionData.token : null;
+const sessionStatus = Number(sessionError?.context?.status ?? 0);
+const sessionRateLimited =
+  sessionError &&
+  (sessionStatus === 429 || /rate.?limit|429/i.test(sessionError.message ?? ""));
+
+if (sessionError && !sessionRateLimited) {
+  errors.push(`issue-anon-ingestion-session falhou: ${sessionError.message ?? sessionError}`);
+} else if (sessionRateLimited) {
+  console.log("· issue-anon-ingestion-session: rate_limited (Edge Function viva)");
+} else if (!anonSessionToken || anonSessionToken.length !== 64) {
+  errors.push("issue-anon-ingestion-session retornou capacidade inválida");
+} else {
+  console.log("· issue-anon-ingestion-session: ok");
+}
+
 const dedupe = `verify-agent-${Date.now()}`;
-const { data: feedbackId, error: submitError } = await client.rpc("submit_beta_feedback", {
+const { data: feedbackId, error: submitError } = anonSessionToken
+  ? await client.rpc("submit_beta_feedback", {
   p_category: "sugestao",
   p_message: "Smoke verify beta feedback — pode ignorar.",
+  p_anon_session_token: anonSessionToken,
   p_route: "/verify-beta-feedback",
   p_lesson_id: null,
   p_exercise_kind: null,
@@ -56,9 +79,12 @@ const { data: feedbackId, error: submitError } = await client.rpc("submit_beta_f
   p_viewport: "0x0",
   p_local_profile_id: "verify-local-profile",
   p_client_dedupe_key: dedupe,
-});
+  })
+  : { data: null, error: null };
 
-if (submitError) {
+if (!anonSessionToken) {
+  console.log("· submit_beta_feedback: não executado sem nova capability");
+} else if (submitError) {
   const msg = submitError.message ?? String(submitError);
   if (/Could not find the function|PGRST202|schema cache/i.test(msg)) {
     errors.push(`submit_beta_feedback ausente: ${msg}`);
@@ -71,7 +97,8 @@ if (submitError) {
   console.log("· submit_beta_feedback: ok id=", feedbackId);
 }
 
-const { error: pedagogyError } = await client.rpc("submit_beta_pedagogy_event", {
+const { error: pedagogyError } = anonSessionToken
+  ? await client.rpc("submit_beta_pedagogy_event", {
   p_event_type: "lesson_started",
   p_route: "/verify-beta-feedback",
   p_lesson_id: "verify-l1",
@@ -81,10 +108,13 @@ const { error: pedagogyError } = await client.rpc("submit_beta_pedagogy_event", 
   p_local_profile_id: "verify-local-profile",
   p_client_dedupe_key: `${dedupe}-pedagogy`,
   p_client_context: "verify-node-ua",
-  p_anon_session_token: null,
-});
+  p_anon_session_token: anonSessionToken,
+  })
+  : { error: null };
 
-if (pedagogyError) {
+if (!anonSessionToken) {
+  console.log("· submit_beta_pedagogy_event: não executado sem nova capability");
+} else if (pedagogyError) {
   const msg = pedagogyError.message ?? String(pedagogyError);
   if (/Could not find the function|PGRST202|schema cache/i.test(msg)) {
     errors.push(`submit_beta_pedagogy_event ausente: ${msg}`);

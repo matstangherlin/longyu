@@ -1,105 +1,92 @@
--- Smoke manual (SQL Editor) após aplicar 013.
--- Não grava IP. Limpa linhas de teste ao final.
+-- Manual smoke after 20260808081000_harden_anonymous_ingestion.sql.
+-- Runs in a transaction and leaves no events, feedback, sessions, or counters.
+
+begin;
 
 do $$
 declare
-  v_id uuid;
-  v_dup uuid;
-  v_meta jsonb;
+  v_bucket text := repeat('a', 64);
   v_token text;
+  v_event_id uuid;
+  v_feedback_id uuid;
+  v_meta jsonb;
 begin
-  -- 1) Evento válido (anônimo)
-  v_id := public.submit_beta_pedagogy_event(
-    'exercise_answered',
-    '/test/pedagogy-hardening',
-    'lesson-test-hardening',
-    'image_choice',
-    0,
-    '{"correct": true, "attempt": 1, "stage": "practice", "responseTimeBucket": "0-2s", "password": "nope", "nested": {"x": 1}}'::jsonb,
-    'hardening-local-a',
-    'hardening-dedupe-1',
-    'Mozilla/5.0 TestUA',
-    null
+  -- Simulates the service_role call made by the Edge Function. The value is an
+  -- HMAC bucket in production; this fixture is deliberately synthetic.
+  v_token := public.issue_beta_anon_ingestion_session(v_bucket);
+  if v_token is null or length(v_token) <> 64 then
+    raise exception 'trusted anonymous capability was not issued';
+  end if;
+
+  v_event_id := public.submit_beta_pedagogy_event(
+    p_event_type => 'exercise_answered',
+    p_route => '/test/anonymous-ingestion',
+    p_lesson_id => 'lesson-test-hardening',
+    p_exercise_kind => 'image_choice',
+    p_exercise_index => 0,
+    p_metadata => '{"correct":true,"password":"blocked","nested":{"x":1}}'::jsonb,
+    p_local_profile_id => 'rotatable-local-a',
+    p_client_dedupe_key => 'anonymous-ingestion-event-1',
+    p_client_context => 'rotatable-context-a',
+    p_anon_session_token => v_token
   );
-  if v_id is null then
-    raise exception 'evento válido deve inserir';
+
+  select metadata into strict v_meta
+  from public.beta_pedagogy_events
+  where id = v_event_id;
+  if not (v_meta ? 'correct') or v_meta ? 'password' or v_meta ? 'nested' then
+    raise exception 'pedagogy metadata sanitizer regressed';
   end if;
 
-  select metadata into v_meta
-  from public.beta_pedagogy_events where id = v_id;
-  if not (v_meta ? 'correct') then
-    raise exception 'whitelist mantém correct';
-  end if;
-  if v_meta ? 'password' then
-    raise exception 'whitelist remove password';
-  end if;
-  if v_meta ? 'nested' then
-    raise exception 'whitelist remove nested';
-  end if;
-
-  -- 2) Dedupe
-  v_dup := public.submit_beta_pedagogy_event(
-    'exercise_answered',
-    '/test/pedagogy-hardening',
-    'lesson-test-hardening',
-    'image_choice',
-    0,
-    '{"correct": true}'::jsonb,
-    'hardening-local-a',
-    'hardening-dedupe-1',
-    'Mozilla/5.0 TestUA',
-    null
+  v_feedback_id := public.submit_beta_feedback(
+    p_category => 'sugestao',
+    p_message => 'Anonymous ingestion security smoke.',
+    p_anon_session_token => v_token,
+    p_route => '/test/anonymous-ingestion',
+    p_local_profile_id => 'rotatable-local-a',
+    p_client_dedupe_key => 'anonymous-ingestion-feedback-1'
   );
-  if v_dup is distinct from v_id then
-    raise exception 'dedupe deve devolver o mesmo id';
+  if v_feedback_id is null then
+    raise exception 'feedback with trusted capability was not inserted';
   end if;
 
-  -- 3) Payload grande
+  -- Rotating every browser-controlled identifier cannot evade the trusted
+  -- per-origin one-per-minute feedback quota.
   begin
-    perform public.submit_beta_pedagogy_event(
-      'lesson_started',
-      '/test/pedagogy-hardening',
-      'lesson-test-hardening',
-      null,
-      null,
-      jsonb_build_object('appVersion', repeat('z', 3000)),
-      'hardening-local-a',
-      'hardening-big-1',
-      'Mozilla/5.0 TestUA',
-      null
+    perform public.submit_beta_feedback(
+      p_category => 'sugestao',
+      p_message => 'Rotated browser identity must still be limited.',
+      p_anon_session_token => v_token,
+      p_route => '/test/anonymous-ingestion-rotated',
+      p_local_profile_id => 'rotatable-local-b',
+      p_client_dedupe_key => 'anonymous-ingestion-feedback-2'
     );
-    raise exception 'payload grande deveria falhar';
+    raise exception 'rotated local id bypassed trusted feedback quota';
   exception
     when others then
-      if sqlerrm not like '%payload_too_large%' then
+      if sqlerrm not like '%rate_limited%' then
         raise;
       end if;
   end;
 
-  -- 4) Sessão anônima
-  v_token := public.issue_beta_pedagogy_anon_session('Mozilla/5.0 TestUA');
-  if v_token is null or length(v_token) <= 20 then
-    raise exception 'token anônimo inválido';
-  end if;
+  begin
+    perform public.submit_beta_pedagogy_event(
+      p_event_type => 'lesson_started',
+      p_route => '/test/anonymous-ingestion-missing-token',
+      p_local_profile_id => 'rotatable-local-c',
+      p_client_context => 'rotatable-context-c',
+      p_anon_session_token => null
+    );
+    raise exception 'anonymous event without capability was accepted';
+  exception
+    when others then
+      if sqlerrm not like '%anon_session_required%' then
+        raise;
+      end if;
+  end;
 
-  perform public.submit_beta_pedagogy_event(
-    'lesson_started',
-    '/test/pedagogy-hardening',
-    'lesson-test-hardening',
-    null,
-    null,
-    '{"appVersion":"smoke"}'::jsonb,
-    'hardening-local-b',
-    'hardening-session-1',
-    'Mozilla/5.0 TestUA',
-    v_token
-  );
+  raise notice 'OK: trusted anonymous ingestion smoke passed';
+end;
+$$;
 
-  -- Limpeza
-  delete from public.beta_pedagogy_events
-  where route = '/test/pedagogy-hardening';
-  delete from public.beta_pedagogy_anon_sessions
-  where client_context_digest = public.beta_pedagogy_context_digest('Mozilla/5.0 TestUA');
-
-  raise notice 'OK: smoke 013 pedagogy hardening';
-end $$;
+rollback;

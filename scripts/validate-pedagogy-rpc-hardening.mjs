@@ -135,6 +135,9 @@ assert(!payloadTooLarge({ correct: true, appVersion: "0.2.0" }), "payload pequen
 
 // ——— Migration SQL ———
 const mig = read("supabase/migrations/013_pedagogy_rpc_hardening.sql");
+const trustedAnonMig = read(
+  "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql"
+);
 assert(mig.includes("beta_pedagogy_event_rate_limited"), "migration define rate limit geral");
 assert(mig.includes("120"), "limite autenticado / minuto");
 assert(mig.includes("3000"), "limite autenticado / dia");
@@ -166,9 +169,23 @@ assert(
 
 // Cliente alinhado
 const client = read("src/services/pedagogyEvents.ts");
+const anonSessionClient = read("src/services/anonymousIngestionSession.ts");
 assert(client.includes("p_client_context"), "cliente envia p_client_context");
 assert(client.includes("pedagogyClientContext"), "cliente monta contexto UA resumido");
-assert(client.includes("issue_beta_pedagogy_anon_session"), "cliente pode pedir sessão anônima");
+assert(
+  anonSessionClient.includes('functions.invoke("issue-anon-ingestion-session"'),
+  "cliente pede sessão anônima na Edge Function confiável"
+);
+assert(
+  !client.includes("issue_beta_pedagogy_anon_session") &&
+    trustedAnonMig.includes("revoke execute on function public.issue_beta_pedagogy_anon_session"),
+  "issuer legado controlado pelo navegador está fechado"
+);
+assert(
+  trustedAnonMig.includes("'pedagogy_minute', 60, 60, 600") &&
+    trustedAnonMig.includes("raise exception 'anon_session_required'"),
+  "ingestão anônima exige capability e quota confiável"
+);
 assert(client.includes("payload_too_large"), "cliente descarta payload_too_large");
 assert(client.includes("invalid_anon_session"), "cliente trata sessão anônima inválida");
 assert(client.includes("fetchAdminPedagogyDailyMetrics"), "cliente lê agregados admin");

@@ -10,6 +10,10 @@ import {
 } from "../lib/feedback";
 import { useStore, DEFAULT_ACCOUNT_ID } from "../lib/store";
 import { escapeCsvCell } from "../lib/csv";
+import {
+  getAnonymousIngestionSessionToken,
+  invalidateAnonymousIngestionSession,
+} from "./anonymousIngestionSession";
 
 const QUEUE_KEY = "longyu:beta-feedback-queue";
 const MAX_QUEUE = 30;
@@ -90,13 +94,14 @@ export function listQueuedFeedback(): QueuedFeedback[] {
   return readQueue();
 }
 
-async function insertRemote(item: QueuedFeedback): Promise<{ id?: string; error?: string }> {
+async function callSubmitFeedback(item: QueuedFeedback, anonToken: string | null) {
   const client = getSupabaseClient();
-  if (!client) return { error: "backend_unavailable" };
+  if (!client) return { data: null, error: new Error("backend_unavailable") };
 
-  const { data, error } = await client.rpc("submit_beta_feedback", {
+  return client.rpc("submit_beta_feedback", {
     p_category: item.category,
     p_message: item.message,
+    p_anon_session_token: anonToken,
     p_route: item.route,
     p_lesson_id: item.lessonId ?? null,
     p_exercise_kind: item.exerciseKind ?? null,
@@ -107,6 +112,19 @@ async function insertRemote(item: QueuedFeedback): Promise<{ id?: string; error?
     p_local_profile_id: item.localProfileId,
     p_client_dedupe_key: item.dedupeKey,
   });
+}
+
+async function insertRemote(item: QueuedFeedback): Promise<{ id?: string; error?: string }> {
+  if (!getSupabaseClient()) return { error: "backend_unavailable" };
+
+  let anonToken = await getAnonymousIngestionSessionToken();
+  let { data, error } = await callSubmitFeedback(item, anonToken);
+
+  if (error && /invalid_anon_session|anon_session_required/i.test(error.message ?? "")) {
+    invalidateAnonymousIngestionSession();
+    anonToken = await getAnonymousIngestionSessionToken();
+    ({ data, error } = await callSubmitFeedback(item, anonToken));
+  }
 
   if (error) {
     const message = error.message ?? "submit_failed";
