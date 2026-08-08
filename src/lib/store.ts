@@ -28,6 +28,7 @@ import {
   MONTHLY_MEDAL_REWARD,
   monthlyMedalLabel,
   medalEmoji,
+  SERVER_VERIFIED_MISSION_IDS,
 } from "../data/missions";
 import { type ShopCurrency, type ShopItem, findShopItem } from "../data/shop";
 import {
@@ -2230,6 +2231,11 @@ export const useStore = create<AppState>()(
         const xpInc = def.reward.xp ?? 0;
         const periodKeyForSync =
           scope === "daily" ? todayKey() : activeWeeklyMissions(state.weeklyMissions).weekKey;
+        // Com economia no servidor, só paga Qi local se a missão tiver evidência
+        // server-side. Caso contrário o cliente poderia mentir a métrica.
+        const serverEconomy = shouldUseServerEconomy();
+        const serverVerifiedMission = SERVER_VERIFIED_MISSION_IDS.has(missionId);
+        const previousPoints = state.points;
 
         set((s) => {
           const date = todayKey();
@@ -2241,10 +2247,13 @@ export const useStore = create<AppState>()(
 
           const xpIncInner = def.reward.xp ?? 0;
           const baseQi = def.reward.qi ?? 0;
-          const qiInc = hasProAccess(s)
-            ? Math.round(baseQi * PRO_MISSION_QI_MULTIPLIER)
-            : baseQi;
-          const chargeInc = def.reward.charges ?? 0;
+          const allowLocalQi = !serverEconomy || serverVerifiedMission;
+          const qiInc = allowLocalQi
+            ? hasProAccess(s)
+              ? Math.round(baseQi * PRO_MISSION_QI_MULTIPLIER)
+              : baseQi
+            : 0;
+          const chargeInc = allowLocalQi ? def.reward.charges ?? 0 : 0;
 
           const xpBase = activeXp(s);
           const nextXp: XpBuckets = {
@@ -2308,10 +2317,51 @@ export const useStore = create<AppState>()(
         if (xpInc > 0) {
           syncLeagueXpToServerAsync(xpInc, leagueXpKeyMission(scope, missionId, periodKeyForSync));
         }
-        if (shouldUseServerEconomy()) {
+        if (serverEconomy && serverVerifiedMission) {
           const metric = metricValue(def.metric, missionAggregates(get()));
-          const periodKey = scope === "daily" ? todayKey() : activeWeeklyMissions(get().weeklyMissions).weekKey;
-          void serverClaimMission({ scope, missionId, periodKey, metricValue: metric });
+          const periodKey =
+            scope === "daily" ? todayKey() : activeWeeklyMissions(get().weeklyMissions).weekKey;
+          void serverClaimMission({ scope, missionId, periodKey, metricValue: metric }).then(
+            (result) => {
+              if (!result.ok && !result.already_applied) {
+                set((s) => {
+                  const date = todayKey();
+                  const day = activeDailyMissions(s.dailyMissions, date);
+                  const week = activeWeeklyMissions(s.weeklyMissions);
+                  const stripClaim = (claimed: Record<string, boolean>) => {
+                    const next = { ...claimed };
+                    delete next[missionId];
+                    return next;
+                  };
+                  const historyId = `${scope}:${missionId}:${periodKey}`;
+                  const missionHistory = (s.missionHistory ?? []).filter(
+                    (entry) => entry.id !== historyId
+                  );
+                  const dailyMissions =
+                    scope === "daily" ? { ...day, claimed: stripClaim(day.claimed) } : day;
+                  const weeklyMissions =
+                    scope === "weekly" ? { ...week, claimed: stripClaim(week.claimed) } : week;
+                  const next = {
+                    ...s,
+                    points: previousPoints,
+                    missionHistory,
+                    dailyMissions,
+                    weeklyMissions,
+                  };
+                  return {
+                    points: previousPoints,
+                    missionHistory,
+                    dailyMissions,
+                    weeklyMissions,
+                    accounts: saveCurrentAccount(next),
+                  };
+                });
+                get().setEconomySyncMessage(
+                  "Missão ainda sem evidência no servidor. Continue praticando e tente de novo."
+                );
+              }
+            }
+          );
         }
         return true;
       },

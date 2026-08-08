@@ -38,6 +38,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
   cliente; `migrate_local_economy` é one-shot com tetos; missões, energia de
   história, recompensas de lição e XP de liga validam janelas/prefixos e tetos
   diários no servidor.
+- Recompensa de lição passa a ser **uma por lição** (não por `attempt_id`);
+  resgate de missão **ignora** a métrica enviada pelo app e só paga Qi com
+  evidência no ledger/liga. Missões sem evidência server-side não pagam Qi na
+  nuvem.
 - Webhook Stripe ordena por `event.created` + `event.id` e trata `canceled` no
   mesmo segundo como terminal, evitando ressuscitar Pro com evento atrasado.
 
