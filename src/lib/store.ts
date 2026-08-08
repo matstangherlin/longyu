@@ -44,6 +44,11 @@ import {
   normalizeLeagueTier,
 } from "./leagues";
 import { syncLeagueXpToServerAsync } from "./leagueXpSync";
+import { completeReferralLessonAttestation } from "../services/referralLearningAttestation";
+import {
+  awaitStoryEnergyAttestation,
+  clearStoryEnergyAttestation,
+} from "../services/storyEnergyAttestation";
 import {
   leagueXpKeyImmersion,
   leagueXpKeyMission,
@@ -3239,9 +3244,8 @@ export const useStore = create<AppState>()(
             : 0;
 
         if (qiAmount <= 0) {
-          if (shouldUseServerEconomy()) {
-            void serverGrantLessonReward({ lessonId, attemptId, stars, noSkip });
-          }
+          // Abaixo de 3★ localmente: não chama o servidor (ele ignora métricas do
+          // cliente e só paga pacote attestado uma vez por lição).
           return false;
         }
 
@@ -3255,16 +3259,23 @@ export const useStore = create<AppState>()(
         if (!claimed) return false;
 
         if (shouldUseServerEconomy()) {
-          void serverGrantLessonReward({ lessonId, attemptId, stars, noSkip }).then((result) => {
+          void (async () => {
+            // Servidor exige attestação (referral session). Espera antes do grant.
+            await completeReferralLessonAttestation(lessonId);
+            const result = await serverGrantLessonReward({ lessonId, attemptId, stars, noSkip });
             if (!result.ok && !result.already_applied) {
               set((s) => {
                 const rewardHistory = (s.rewardHistory ?? []).filter((entry) => entry.id !== rewardId);
                 const next = { ...s, points: previousPoints, rewardHistory };
                 return { points: previousPoints, rewardHistory, accounts: saveCurrentAccount(next) };
               });
-              get().setEconomySyncMessage("Recompensa não confirmada pelo servidor.");
+              get().setEconomySyncMessage(
+                result.error === "attestation_required"
+                  ? "Conclua a lição de verdade para liberar o Qi."
+                  : "Recompensa não confirmada pelo servidor."
+              );
             }
-          });
+          })();
         }
         return true;
       },
@@ -3699,7 +3710,28 @@ export const useStore = create<AppState>()(
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
         });
         if (result.granted && shouldUseServerEconomy()) {
-          void serverGrantStoryEnergy(clean, date);
+          void (async () => {
+            await awaitStoryEnergyAttestation(clean);
+            const serverResult = await serverGrantStoryEnergy(clean, date);
+            if (!serverResult.ok && !serverResult.already_applied && serverResult.granted !== true) {
+              set((s) => {
+                const current = activeDailyEnergy(s.dailyEnergy, date);
+                const claimed = { ...current.bonusChargesClaimed };
+                delete claimed[rewardId];
+                const dailyEnergy: DailyEnergy = {
+                  ...current,
+                  maxCharges: Math.max(DAILY_CHARGES_FREE, current.maxCharges - 1),
+                  charges: Math.max(0, current.charges - 1),
+                  bonusChargesClaimed: claimed,
+                };
+                const next = { ...s, dailyEnergy };
+                return { dailyEnergy, accounts: saveCurrentAccount(next) };
+              });
+              get().setEconomySyncMessage("Energia da história não confirmada pelo servidor.");
+            } else {
+              clearStoryEnergyAttestation(clean);
+            }
+          })();
         }
         return result;
       },
