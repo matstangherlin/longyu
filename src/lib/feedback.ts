@@ -118,18 +118,19 @@ export function openFeedbackMailto(context?: FeedbackContext): void {
   window.location.href = buildFeedbackMailto(context);
 }
 
+/**
+ * Dica de UX para mostrar atalho do painel. A autorização real é
+ * `is_beta_admin()` / `beta_admins(user_id)` no servidor.
+ * Configure `VITE_ADMIN_EMAILS` no deploy se quiser o atalho na UI.
+ */
 export function adminEmailAllowlist(): string[] {
-  const fromEnv = String(import.meta.env.VITE_ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
   return [
-    ...new Set([
-      "admin@longyu.app",
-      "matheus.stangherlin@hotmail.com",
-      "minemoostraa@gmail.com",
-      ...fromEnv,
-    ]),
+    ...new Set(
+      String(import.meta.env.VITE_ADMIN_EMAILS ?? "")
+        .split(",")
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+    ),
   ];
 }
 

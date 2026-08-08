@@ -6295,3 +6295,1226 @@ notify pgrst, 'reload schema';
 
 commit;
 
+
+-- 20260808093000_harden_referral_qualification.sql
+-- Referral rewards must never be derived from client-writable progress JSON.
+-- A lesson counts only after an authenticated, server-timed attempt for a
+-- catalogued lesson is completed. The browser can request an attempt, but it
+-- cannot choose the start/completion timestamps or write the evidence tables.
+
+create table if not exists public.referral_eligible_lessons (
+  lesson_id text primary key,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  constraint referral_eligible_lesson_id_check
+    check (lesson_id = trim(lesson_id) and char_length(lesson_id) between 1 and 80)
+);
+
+insert into public.referral_eligible_lessons (lesson_id)
+select lesson_id
+from unnest(array[
+  'p1-o-que-e-mandarim', 'p1-o-que-e-pinyin', 'p1-o-que-e-tom',
+  'p1-o-que-e-hanzi', 'p1-primeiros-hanzi', 'p1-engine-2-lab',
+  'l1', 'l2', 'l3', 'l1-rev', 'l4', 'p1-ate-logo',
+  'p1-primeira-conversa', 'p1-qingwen-cortesia', 'l2-rev',
+  'p2-ma-primeiro-tom', 'p2-ma-segundo-tom', 'p2-ma-terceiro-tom',
+  'p2-ma-quarto-tom', 'p2-comparar-tom-1-4', 'p2-comparar-tom-2-3',
+  'l5', 'l6', 'l3-rev', 'l7', 'l8', 'l8-compare', 'l8-shi',
+  'p2-tons-nihao', 'p2-tons-xiexie', 'p2-sons-brasileiros',
+  'p2-numeros-1-5', 'l4-rev', 'l9', 'l9-tudo-bem', 'l9-qual-nome',
+  'l10', 'p3-wohenhao', 'p3-wobuhui-shuo-zhongwen',
+  'p3-qing-zai-shuo-yibian', 'l11', 'l11-falo-pouco', 'l12', 'l13',
+  'l13-dialogo-ola', 'l13-dialogo-nome', 'p3-ordem-das-palavras',
+  'l5-rev', 'l14', 'p4-num-123', 'p4-num-45', 'p4-num-678',
+  'p4-num-910', 'p4-char-mu', 'p4-char-ren', 'p4-char-kou',
+  'p4-char-ri', 'p4-char-yue', 'p4-char-shan', 'p4-char-shui',
+  'p4-char-tian', 'p4-char-huo', 'p4-char-da', 'p4-char-xiao',
+  'p4-char-zhong', 'p4-char-bu', 'p4-char-shi', 'p4-char-wo',
+  'p4-char-ni', 'l14-numeros-visuais', 'l14-pecas-natureza',
+  'l14-frase-minima', 'l14-char-rev', 'l15', 'l6-rev', 'l16', 'l17',
+  'l18', 'l7-rev', 'p4-checkpoint-fundamentos', 'p5-mu-mu-lin',
+  'p5-mu-mu-mu-sen', 'p5-ri-yue-ming', 'p5-ren-mu-xiu',
+  'p5-nv-zi-hao', 'p5-ren-ren-cong', 'p5-ren-ren-ren-zhong',
+  'p5-nv-ma-mae', 'p5-kou-ma-pergunta', 'l19-logica-madeira',
+  'l19-logica-luz', 'l19-logica-pessoas', 'l19-logica-ma',
+  'l19-logica-rev', 'l19', 'l20', 'l8-rev', 'l21', 'l22', 'l23',
+  'l9-rev', 'l24', 'l25', 'l26', 'l26b', 'l27', 'l28',
+  'p6-rotina-trabalho', 'p6-cidade-lugares', 'p6-saude', 'p6-horarios',
+  'p6-natureza', 'p6-clima', 'p6-direcoes', 'p6-compras', 'l10-rev',
+  'l29', 'l30', 'l11-rev', 'p7-imersao-mercado', 'p7-imersao-estacao',
+  'p7-imersao-casa-amigo'
+]::text[]) as catalog(lesson_id)
+on conflict (lesson_id) do update set enabled = true;
+
+create table if not exists public.referral_lesson_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  lesson_id text not null references public.referral_eligible_lessons(lesson_id),
+  started_at timestamptz not null default now(),
+  not_before timestamptz not null,
+  expires_at timestamptz not null,
+  completed_at timestamptz,
+  constraint referral_lesson_session_window_check check (
+    not_before > started_at
+    and expires_at > not_before
+    and (completed_at is null or completed_at >= not_before)
+  )
+);
+
+create unique index if not exists referral_lesson_sessions_active_uidx
+  on public.referral_lesson_sessions (user_id, lesson_id)
+  where completed_at is null;
+
+create index if not exists referral_lesson_sessions_user_started_idx
+  on public.referral_lesson_sessions (user_id, started_at desc);
+
+create index if not exists referral_lesson_sessions_lesson_idx
+  on public.referral_lesson_sessions (lesson_id);
+
+create table if not exists public.referral_verified_lesson_completions (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  lesson_id text not null references public.referral_eligible_lessons(lesson_id),
+  source_session_id uuid not null unique references public.referral_lesson_sessions(id) on delete restrict,
+  completed_at timestamptz not null,
+  primary key (user_id, lesson_id)
+);
+
+create index if not exists referral_verified_completion_user_time_idx
+  on public.referral_verified_lesson_completions (user_id, completed_at desc);
+
+create index if not exists referral_verified_completion_lesson_idx
+  on public.referral_verified_lesson_completions (lesson_id);
+
+alter table public.referral_eligible_lessons enable row level security;
+alter table public.referral_lesson_sessions enable row level security;
+alter table public.referral_verified_lesson_completions enable row level security;
+
+-- No table policy is intentional: all mutation and reads cross the narrow RPCs.
+revoke all on table public.referral_eligible_lessons from public, anon, authenticated;
+revoke all on table public.referral_lesson_sessions from public, anon, authenticated;
+revoke all on table public.referral_verified_lesson_completions from public, anon, authenticated;
+
+create or replace function public.start_referral_lesson_session(p_lesson_id text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_lesson text := left(trim(coalesce(p_lesson_id, '')), 80);
+  v_existing public.referral_lesson_sessions%rowtype;
+  v_started_today integer;
+  v_day_start timestamptz := (timezone('utc', now())::date at time zone 'utc');
+begin
+  if v_uid is null then
+    return jsonb_build_object('ok', false, 'error', 'not_authenticated');
+  end if;
+  if v_lesson = '' or not exists (
+    select 1
+    from public.referral_eligible_lessons lesson
+    where lesson.lesson_id = v_lesson and lesson.enabled
+  ) then
+    return jsonb_build_object('ok', false, 'error', 'unknown_lesson');
+  end if;
+
+  -- Serialize starts for one user/day so the daily ceiling is race-safe.
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(v_uid::text || '|' || v_day_start::text, 0)
+  );
+
+  if exists (
+    select 1
+    from public.referral_verified_lesson_completions completion
+    where completion.user_id = v_uid and completion.lesson_id = v_lesson
+  ) then
+    return jsonb_build_object('ok', true, 'already_completed', true);
+  end if;
+
+  delete from public.referral_lesson_sessions session
+  where session.user_id = v_uid
+    and session.lesson_id = v_lesson
+    and session.completed_at is null
+    and session.expires_at <= now();
+
+  select session.* into v_existing
+  from public.referral_lesson_sessions session
+  where session.user_id = v_uid
+    and session.lesson_id = v_lesson
+    and session.completed_at is null
+    and session.expires_at > now()
+  limit 1;
+
+  if found then
+    return jsonb_build_object(
+      'ok', true,
+      'session_id', v_existing.id,
+      'not_before', v_existing.not_before,
+      'expires_at', v_existing.expires_at,
+      'reused', true
+    );
+  end if;
+
+  select count(*)::integer into v_started_today
+  from public.referral_lesson_sessions session
+  where session.user_id = v_uid and session.started_at >= v_day_start;
+
+  if v_started_today >= 24 then
+    return jsonb_build_object('ok', false, 'error', 'daily_limit');
+  end if;
+
+  insert into public.referral_lesson_sessions (
+    user_id, lesson_id, not_before, expires_at
+  ) values (
+    v_uid, v_lesson, now() + interval '45 seconds', now() + interval '4 hours'
+  ) returning * into v_existing;
+
+  return jsonb_build_object(
+    'ok', true,
+    'session_id', v_existing.id,
+    'not_before', v_existing.not_before,
+    'expires_at', v_existing.expires_at,
+    'reused', false
+  );
+end;
+$$;
+
+create or replace function public.complete_referral_lesson_session(p_session_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_session public.referral_lesson_sessions%rowtype;
+  v_inserted integer := 0;
+begin
+  if v_uid is null then
+    return jsonb_build_object('ok', false, 'error', 'not_authenticated');
+  end if;
+
+  select session.* into v_session
+  from public.referral_lesson_sessions session
+  where session.id = p_session_id and session.user_id = v_uid
+  for update;
+
+  if not found then
+    return jsonb_build_object('ok', false, 'error', 'invalid_session');
+  end if;
+  if v_session.completed_at is not null then
+    return jsonb_build_object('ok', true, 'already_completed', true);
+  end if;
+  if v_session.expires_at <= now() then
+    return jsonb_build_object('ok', false, 'error', 'session_expired');
+  end if;
+  if v_session.not_before > now() then
+    return jsonb_build_object(
+      'ok', false,
+      'error', 'too_soon',
+      'retry_after_seconds', greatest(1, ceil(extract(epoch from (v_session.not_before - now())))::integer)
+    );
+  end if;
+
+  insert into public.referral_verified_lesson_completions (
+    user_id, lesson_id, source_session_id, completed_at
+  ) values (
+    v_uid, v_session.lesson_id, v_session.id, now()
+  ) on conflict (user_id, lesson_id) do nothing;
+  get diagnostics v_inserted = row_count;
+
+  update public.referral_lesson_sessions
+  set completed_at = now()
+  where id = v_session.id;
+
+  return jsonb_build_object(
+    'ok', true,
+    'verified', v_inserted = 1,
+    'already_completed', v_inserted = 0
+  );
+end;
+$$;
+
+create or replace function public._referral_verified_progress(
+  p_user_id uuid,
+  p_since timestamptz
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select jsonb_build_object(
+    'lesson_count', count(distinct completion.lesson_id)::integer,
+    'active_days', count(distinct (timezone('utc', completion.completed_at))::date)::integer
+  )
+  from public.referral_verified_lesson_completions completion
+  join public.referral_eligible_lessons lesson
+    on lesson.lesson_id = completion.lesson_id and lesson.enabled
+  where completion.user_id = p_user_id
+    and completion.completed_at >= p_since;
+$$;
+
+create or replace function public._referral_try_qualify(p_referral_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  r public.referrals%rowtype;
+  invitee_user record;
+  stats jsonb;
+  lesson_count integer;
+  active_days integer;
+  flags jsonb := '[]'::jsonb;
+begin
+  select * into r
+  from public.referrals referral
+  where referral.id = p_referral_id
+  for update;
+
+  if not found or r.status not in ('pending', 'under_review') then
+    return jsonb_build_object('ok', false, 'reason', 'not_pending');
+  end if;
+
+  select account.id, account.created_at, account.email_confirmed_at
+  into invitee_user
+  from auth.users account
+  where account.id = r.invitee_id;
+
+  if not found then
+    return jsonb_build_object('ok', false, 'reason', 'invitee_missing');
+  end if;
+  if invitee_user.email_confirmed_at is null then
+    return jsonb_build_object('ok', false, 'reason', 'email_unconfirmed');
+  end if;
+  if invitee_user.created_at > now() - interval '48 hours' then
+    return jsonb_build_object('ok', false, 'reason', 'account_too_new');
+  end if;
+  if invitee_user.created_at < now() - interval '14 days' then
+    update public.referrals
+    set status = 'rejected',
+        rejected_at = now(),
+        risk_flags = flags || '["window_expired"]'::jsonb
+    where id = r.id;
+    return jsonb_build_object('ok', false, 'reason', 'window_expired');
+  end if;
+
+  stats := public._referral_verified_progress(r.invitee_id, r.attributed_at);
+  lesson_count := coalesce((stats ->> 'lesson_count')::integer, 0);
+  active_days := coalesce((stats ->> 'active_days')::integer, 0);
+
+  if lesson_count < 3 then
+    return jsonb_build_object('ok', false, 'reason', 'lessons', 'need', 3, 'have', lesson_count);
+  end if;
+  if active_days < 2 then
+    return jsonb_build_object('ok', false, 'reason', 'active_days', 'need', 2, 'have', active_days);
+  end if;
+
+  update public.referrals
+  set status = 'qualified', qualified_at = now()
+  where id = r.id;
+
+  return jsonb_build_object('ok', true, 'qualified', true);
+end;
+$$;
+
+revoke all on function public.start_referral_lesson_session(text)
+  from public, anon, authenticated;
+grant execute on function public.start_referral_lesson_session(text) to authenticated;
+
+revoke all on function public.complete_referral_lesson_session(uuid)
+  from public, anon, authenticated;
+grant execute on function public.complete_referral_lesson_session(uuid) to authenticated;
+
+revoke all on function public._referral_verified_progress(uuid, timestamptz)
+  from public, anon, authenticated;
+grant execute on function public._referral_verified_progress(uuid, timestamptz) to service_role;
+
+revoke all on function public._referral_try_qualify(uuid)
+  from public, anon, authenticated;
+grant execute on function public._referral_try_qualify(uuid) to service_role;
+
+comment on table public.referral_verified_lesson_completions is
+  'Server-timed evidence used for referral qualification; never written through table APIs.';
+comment on function public.start_referral_lesson_session(text) is
+  'Starts a bounded authenticated referral-learning attestation for a catalogued lesson.';
+comment on function public.complete_referral_lesson_session(uuid) is
+  'Completes an owned, unexpired and sufficiently aged lesson attestation.';
+
+
+-- 20260808130000_harden_economy_reward_trust.sql
+-- Fecha escrita direta em tabelas de economia/inventário e endurece RPCs
+-- que ainda confiavam em métricas, chaves e saldos enviados pelo cliente.
+
+begin;
+
+-- ---------------------------------------------------------------------------
+-- A. RLS: cliente autenticado só lê; mutação só via SECURITY DEFINER
+-- ---------------------------------------------------------------------------
+
+drop policy if exists "user_economy_insert_own" on public.user_economy;
+drop policy if exists "user_economy_update_own" on public.user_economy;
+
+drop policy if exists "user_chests_insert_own" on public.user_chests;
+drop policy if exists "user_chests_update_own" on public.user_chests;
+
+drop policy if exists "user_missions_insert_own" on public.user_missions;
+drop policy if exists "user_missions_update_own" on public.user_missions;
+
+drop policy if exists "user_achievements_insert_own" on public.user_achievements;
+
+revoke insert, update, delete on table public.user_economy from authenticated;
+revoke insert, update, delete on table public.user_chests from authenticated;
+revoke insert, update, delete on table public.user_missions from authenticated;
+revoke insert, update, delete on table public.user_achievements from authenticated;
+revoke insert, update, delete on table public.economy_ledger from authenticated;
+
+revoke insert, update, delete on table public.league_memberships from authenticated;
+revoke insert, update, delete on table public.league_weekly_results from authenticated;
+revoke insert, update, delete on table public.league_xp_events from authenticated;
+
+grant select on table public.user_economy to authenticated;
+grant select on table public.user_chests to authenticated;
+grant select on table public.user_missions to authenticated;
+grant select on table public.user_achievements to authenticated;
+grant select on table public.economy_ledger to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Helpers de validação
+-- ---------------------------------------------------------------------------
+
+create or replace function public.economy_period_key_acceptable(
+  p_scope text,
+  p_period_key text
+)
+returns boolean
+language plpgsql
+stable
+set search_path = public
+as $$
+declare
+  v_key text := trim(coalesce(p_period_key, ''));
+  v_today date := (timezone('utc', now()))::date;
+  v_day date;
+  v_current_iso text := to_char(timezone('utc', now()), 'IYYY-"W"IW');
+begin
+  if p_scope = 'daily' then
+    if v_key !~ '^\d{4}-\d{2}-\d{2}$' then
+      return false;
+    end if;
+    begin
+      v_day := v_key::date;
+    exception when others then
+      return false;
+    end;
+    -- Aceita ontem/hoje/amanhã (fuso local do aluno vs UTC do servidor).
+    return v_day between (v_today - 1) and (v_today + 1);
+  end if;
+
+  if p_scope = 'weekly' then
+    if v_key !~ '^\d{4}-W\d{2}$' then
+      return false;
+    end if;
+    -- Semana corrente ou anterior (ISO), evitando period_key arbitrários.
+    return v_key = v_current_iso
+      or v_key = to_char(timezone('utc', now()) - interval '7 days', 'IYYY-"W"IW');
+  end if;
+
+  return false;
+end;
+$$;
+
+revoke all on function public.economy_period_key_acceptable(text, text) from public;
+grant execute on function public.economy_period_key_acceptable(text, text) to service_role;
+
+create or replace function public.league_source_key_acceptable(p_source_key text)
+returns boolean
+language sql
+immutable
+set search_path = public
+as $$
+  select
+    length(trim(coalesce(p_source_key, ''))) between 3 and 160
+    and trim(p_source_key) ~
+      '^(lesson|review|story|immersion|mission|activity|backfill:week|qi|chest|medal|achievement|journey-chest|monthly|league|qi_pack):';
+$$;
+
+revoke all on function public.league_source_key_acceptable(text) from public;
+grant execute on function public.league_source_key_acceptable(text) to service_role;
+
+-- ---------------------------------------------------------------------------
+-- B. migrate_local_economy: uma vez por conta + tetos duros
+-- ---------------------------------------------------------------------------
+
+create or replace function public.migrate_local_economy(
+  p_payload jsonb,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_row public.user_economy;
+  v_key text := left(trim(coalesce(p_idempotency_key, '')), 128);
+  v_qi integer;
+  v_pearls integer;
+  v_shields integer;
+  v_charges integer;
+  v_max integer;
+  v_cap_qi constant integer := 5000;
+  v_cap_pearls constant integer := 50;
+  v_cap_shields constant integer := 10;
+  v_cap_charges constant integer := 20;
+begin
+  if v_uid is null then raise exception 'not authenticated'; end if;
+  if v_key = '' then raise exception 'idempotency_key obrigatório'; end if;
+
+  v_row := public.economy_ensure_row(v_uid);
+
+  if exists (
+    select 1
+    from public.economy_ledger
+    where user_id = v_uid
+      and operation = 'migrate_local_economy'
+  ) then
+    return jsonb_build_object(
+      'ok', true,
+      'already_applied', true,
+      'economy', public.economy_row_to_json(v_row),
+      'reason', 'already_migrated'
+    );
+  end if;
+
+  if public.economy_ledger_exists(v_uid, v_key) then
+    return jsonb_build_object('ok', true, 'already_applied', true, 'economy', public.economy_row_to_json(v_row));
+  end if;
+
+  v_qi := least(v_cap_qi, greatest(0, coalesce((p_payload->>'qi')::integer, 0)));
+  v_pearls := least(v_cap_pearls, greatest(0, coalesce((p_payload->>'dragon_pearls')::integer, 0)));
+  v_shields := least(v_cap_shields, greatest(0, coalesce((p_payload->>'streak_shields')::integer, 0)));
+  v_charges := least(v_cap_charges, greatest(0, coalesce((p_payload->>'current_charges')::integer, 0)));
+  v_max := least(
+    v_cap_charges,
+    greatest(v_charges, coalesce((p_payload->>'max_charges')::integer, v_charges), v_row.max_charges)
+  );
+
+  update public.user_economy
+  set
+    qi = greatest(qi, v_qi),
+    dragon_pearls = greatest(dragon_pearls, v_pearls),
+    streak_shields = greatest(streak_shields, v_shields),
+    current_charges = greatest(current_charges, least(v_max, v_charges)),
+    max_charges = greatest(max_charges, v_max),
+    updated_at = now()
+  where user_id = v_uid
+  returning * into v_row;
+
+  perform public.economy_insert_ledger(
+    v_uid, 'migrate_local_economy', 0, 'migration', v_uid::text, v_key,
+    jsonb_build_object(
+      'migrated', true,
+      'once_per_user', true,
+      'capped', true
+    )
+  );
+
+  return jsonb_build_object('ok', true, 'already_applied', false, 'economy', public.economy_row_to_json(v_row));
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- C. claim_mission: period_key precisa ser janela recente válidaada
+-- ---------------------------------------------------------------------------
+
+create or replace function public.claim_mission(
+  p_scope text,
+  p_mission_id text,
+  p_period_key text,
+  p_metric_value integer default 0
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_row public.user_economy;
+  v_key text;
+  v_reward jsonb;
+  v_goal integer;
+  v_qi integer;
+  v_charges integer;
+  v_is_pro boolean;
+  v_metric integer := greatest(0, least(coalesce(p_metric_value, 0), 100000));
+begin
+  if v_uid is null then raise exception 'not authenticated'; end if;
+  if coalesce(p_scope, '') not in ('daily', 'weekly') then raise exception 'scope inválido'; end if;
+  if coalesce(p_mission_id, '') = '' or coalesce(p_period_key, '') = '' then
+    raise exception 'mission_id e period_key obrigatórios';
+  end if;
+  if not public.economy_period_key_acceptable(p_scope, p_period_key) then
+    return jsonb_build_object('ok', false, 'error', 'invalid_period_key');
+  end if;
+
+  v_key := left('mission:' || p_scope || ':' || p_mission_id || ':' || p_period_key, 128);
+  v_row := public.economy_ensure_row(v_uid);
+  v_is_pro := public.economy_user_is_pro(v_uid);
+
+  if public.economy_ledger_exists(v_uid, v_key) then
+    return jsonb_build_object('ok', true, 'already_applied', true, 'economy', public.economy_row_to_json(v_row));
+  end if;
+
+  v_reward := public.economy_mission_reward(p_scope, p_mission_id);
+  v_goal := public.economy_mission_goal(p_scope, p_mission_id);
+  if v_reward is null or v_goal is null then
+    raise exception 'missão desconhecida';
+  end if;
+  if public.economy_mission_is_pro(p_mission_id) and not v_is_pro then
+    return jsonb_build_object('ok', false, 'error', 'pro_required', 'economy', public.economy_row_to_json(v_row));
+  end if;
+  if v_metric < v_goal then
+    return jsonb_build_object('ok', false, 'error', 'mission_incomplete', 'economy', public.economy_row_to_json(v_row));
+  end if;
+
+  v_qi := coalesce((v_reward->>'qi')::integer, 0);
+  if v_is_pro and v_qi > 0 then
+    v_qi := round(v_qi * (public.economy_constants()->>'pro_mission_qi_multiplier')::numeric)::integer;
+  end if;
+  v_charges := case when v_is_pro then 0 else coalesce((v_reward->>'charges')::integer, 0) end;
+
+  update public.user_economy
+  set
+    qi = qi + v_qi,
+    current_charges = least(max_charges, current_charges + v_charges),
+    updated_at = now()
+  where user_id = v_uid
+  returning * into v_row;
+
+  insert into public.user_missions (user_id, scope, mission_id, period_key, claimed, claimed_at)
+  values (v_uid, p_scope, p_mission_id, p_period_key, true, now())
+  on conflict (user_id, scope, mission_id, period_key)
+  do update set claimed = true, claimed_at = excluded.claimed_at, updated_at = now();
+
+  perform public.economy_insert_ledger(
+    v_uid, 'claim_mission', v_qi, 'qi', p_mission_id, v_key,
+    jsonb_build_object('scope', p_scope, 'period_key', p_period_key, 'charges', v_charges)
+  );
+
+  return jsonb_build_object(
+    'ok', true,
+    'already_applied', false,
+    'economy', public.economy_row_to_json(v_row),
+    'rewards', jsonb_build_object('qi', v_qi, 'charges', v_charges)
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- D. grant_story_energy: day_key precisa estar na janela ±1 dia
+-- ---------------------------------------------------------------------------
+
+create or replace function public.grant_story_energy(
+  p_story_id text,
+  p_day_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_row public.user_economy;
+  v_day text := left(trim(coalesce(p_day_key, to_char((timezone('utc', now()))::date, 'YYYY-MM-DD'))), 16);
+  v_story text := left(trim(coalesce(p_story_id, '')), 64);
+  v_key text;
+  v_cap integer := (public.economy_constants()->>'story_energy_daily_cap')::integer;
+  v_granted_today integer;
+  v_premium jsonb := public.economy_constants()->'premium_story_ids';
+begin
+  if v_uid is null then raise exception 'not authenticated'; end if;
+  if v_story = '' then raise exception 'story_id obrigatório'; end if;
+  if not public.economy_period_key_acceptable('daily', v_day) then
+    return jsonb_build_object('ok', false, 'error', 'invalid_day_key', 'granted', false);
+  end if;
+
+  if v_premium ? v_story then
+    return jsonb_build_object('ok', false, 'error', 'premium_story', 'granted', false);
+  end if;
+
+  v_row := public.economy_ensure_row(v_uid);
+
+  if public.economy_user_is_pro(v_uid) then
+    return jsonb_build_object('ok', true, 'granted', false, 'reason', 'pro', 'economy', public.economy_row_to_json(v_row));
+  end if;
+
+  v_key := left('story-energy:' || v_day || ':' || v_story, 128);
+
+  if public.economy_ledger_exists(v_uid, v_key) then
+    return jsonb_build_object('ok', true, 'already_applied', true, 'granted', false, 'reason', 'claimed', 'economy', public.economy_row_to_json(v_row));
+  end if;
+
+  select count(*)::integer into v_granted_today
+  from public.economy_ledger
+  where user_id = v_uid
+    and operation = 'grant_story_energy'
+    and metadata->>'day_key' = v_day;
+
+  if v_granted_today >= v_cap then
+    return jsonb_build_object('ok', false, 'granted', false, 'reason', 'limit', 'economy', public.economy_row_to_json(v_row));
+  end if;
+
+  update public.user_economy
+  set
+    max_charges = max_charges + 1,
+    current_charges = current_charges + 1,
+    bonus_claims = bonus_claims || jsonb_build_object(v_key, true),
+    updated_at = now()
+  where user_id = v_uid
+  returning * into v_row;
+
+  perform public.economy_insert_ledger(
+    v_uid, 'grant_story_energy', 1, 'charge', v_story, v_key,
+    jsonb_build_object('story_id', v_story, 'day_key', v_day)
+  );
+
+  return jsonb_build_object(
+    'ok', true,
+    'already_applied', false,
+    'granted', true,
+    'reason', 'granted',
+    'granted_today', v_granted_today + 1,
+    'cap', v_cap,
+    'economy', public.economy_row_to_json(v_row)
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- E. grant_lesson_reward: limita mint diário por tentativa fabricada
+-- ---------------------------------------------------------------------------
+
+create or replace function public.grant_lesson_reward(
+  p_lesson_id text,
+  p_attempt_id text,
+  p_stars integer default 3,
+  p_no_skip boolean default true
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_row public.user_economy;
+  v_key text;
+  v_qi integer := 0;
+  v_is_pro boolean;
+  v_stars integer := greatest(1, least(3, coalesce(p_stars, 3)));
+  v_lesson text := left(trim(coalesce(p_lesson_id, '')), 64);
+  v_attempt text := left(trim(coalesce(p_attempt_id, '')), 64);
+  v_day_count integer;
+  v_daily_cap constant integer := 40;
+begin
+  if v_uid is null then raise exception 'not authenticated'; end if;
+  if v_lesson = '' or v_attempt = '' then
+    raise exception 'lesson_id e attempt_id obrigatórios';
+  end if;
+  if length(v_attempt) < 8 then
+    raise exception 'attempt_id inválido';
+  end if;
+
+  v_key := left('lesson-reward:' || v_lesson || ':' || v_attempt, 128);
+  v_row := public.economy_ensure_row(v_uid);
+  v_is_pro := public.economy_user_is_pro(v_uid);
+
+  if public.economy_ledger_exists(v_uid, v_key) then
+    return jsonb_build_object('ok', true, 'already_applied', true, 'economy', public.economy_row_to_json(v_row), 'rewards', '[]'::jsonb);
+  end if;
+
+  select count(*)::integer into v_day_count
+  from public.economy_ledger
+  where user_id = v_uid
+    and operation = 'grant_lesson_reward'
+    and created_at >= date_trunc('day', timezone('utc', now()));
+
+  if v_day_count >= v_daily_cap then
+    return jsonb_build_object(
+      'ok', false,
+      'error', 'daily_reward_cap',
+      'economy', public.economy_row_to_json(v_row)
+    );
+  end if;
+
+  if v_stars >= 3 then
+    v_qi := (public.economy_constants()->>'lesson_three_star_qi')::integer;
+    if coalesce(p_no_skip, false) then
+      v_qi := v_qi + (public.economy_constants()->>'lesson_no_skip_qi')::integer;
+    end if;
+    if v_is_pro then
+      v_qi := v_qi + (public.economy_constants()->>'pro_lesson_qi_bonus')::integer;
+    end if;
+  end if;
+
+  if v_qi > 0 then
+    update public.user_economy
+    set qi = qi + v_qi, updated_at = now()
+    where user_id = v_uid
+    returning * into v_row;
+  end if;
+
+  perform public.economy_insert_ledger(
+    v_uid, 'grant_lesson_reward', v_qi, 'qi', v_lesson, v_key,
+    jsonb_build_object('lesson_id', v_lesson, 'attempt_id', v_attempt, 'stars', v_stars, 'no_skip', coalesce(p_no_skip, false))
+  );
+
+  return jsonb_build_object(
+    'ok', true,
+    'already_applied', false,
+    'economy', public.economy_row_to_json(v_row),
+    'rewards', jsonb_build_array(jsonb_build_object('type', 'qi', 'amount', v_qi))
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- F. add_league_weekly_xp: só aceita source_key com prefixo conhecido
+-- ---------------------------------------------------------------------------
+
+create or replace function public.add_league_weekly_xp(
+  p_amount integer,
+  p_source_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_week text := public.iso_week_key();
+  v_amount integer;
+  v_m public.league_memberships;
+  v_weekly_cap constant integer := 5000;
+  v_row_count integer;
+  v_source text := trim(coalesce(p_source_key, ''));
+  v_day_events integer;
+  v_daily_event_cap constant integer := 80;
+begin
+  if v_user_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not public.league_source_key_acceptable(v_source) then
+    raise exception 'invalid source key';
+  end if;
+
+  v_amount := greatest(0, least(coalesce(p_amount, 0), 500));
+  if v_amount <= 0 then
+    return jsonb_build_object('added', 0, 'reason', 'zero_amount');
+  end if;
+
+  select count(*)::integer into v_day_events
+  from public.league_xp_events
+  where user_id = v_user_id
+    and created_at >= date_trunc('day', timezone('utc', now()));
+
+  if v_day_events >= v_daily_event_cap then
+    return jsonb_build_object('added', 0, 'reason', 'daily_event_cap');
+  end if;
+
+  perform public.sync_league_week(v_user_id);
+
+  select * into v_m from public.league_memberships where user_id = v_user_id;
+
+  if v_m.weekly_xp >= v_weekly_cap then
+    return jsonb_build_object('added', 0, 'reason', 'weekly_cap');
+  end if;
+
+  v_amount := least(v_amount, v_weekly_cap - v_m.weekly_xp);
+
+  insert into public.league_xp_events (user_id, week_key, source_key, amount)
+  values (v_user_id, v_week, v_source, v_amount)
+  on conflict (user_id, source_key) do nothing;
+
+  get diagnostics v_row_count = row_count;
+
+  if v_row_count > 0 then
+    update public.league_memberships
+    set weekly_xp = weekly_xp + v_amount, updated_at = now()
+    where user_id = v_user_id;
+
+    update public.user_progress
+    set weekly_xp = least(v_weekly_cap, weekly_xp + v_amount), updated_at = now()
+    where user_id = v_user_id;
+
+    perform public.recalculate_league_ranks(v_m.league_tier_id, v_week);
+
+    return jsonb_build_object('added', v_amount, 'weekly_xp', v_m.weekly_xp + v_amount);
+  end if;
+
+  return jsonb_build_object('added', 0, 'reason', 'duplicate_source');
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- G. claim_league_week_reward: também concede o baú no inventário servidor
+-- ---------------------------------------------------------------------------
+
+create or replace function public.claim_league_week_reward(p_week_key text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_row public.league_weekly_results;
+  v_qi integer;
+  v_is_pro boolean := false;
+  v_pro_bonus constant integer := 15;
+  v_chest text;
+begin
+  if v_user_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  select * into v_row
+  from public.league_weekly_results
+  where user_id = v_user_id and week_key = p_week_key
+  for update;
+
+  if not found then
+    raise exception 'result not found';
+  end if;
+
+  if v_row.reward_claimed then
+    return jsonb_build_object('claimed', false, 'reason', 'already_claimed');
+  end if;
+
+  select exists (
+    select 1 from public.subscriptions s
+    where s.user_id = v_user_id
+      and s.status in ('active', 'trialing')
+  ) into v_is_pro;
+
+  v_qi := v_row.reward_qi + case when v_is_pro then v_pro_bonus else 0 end;
+  v_chest := nullif(trim(coalesce(v_row.reward_chest_type, '')), '');
+
+  update public.league_weekly_results
+  set reward_claimed = true
+  where id = v_row.id;
+
+  update public.user_economy
+  set qi = qi + v_qi, updated_at = now()
+  where user_id = v_user_id;
+
+  if v_chest is not null then
+    insert into public.user_chests (user_id, chest_type, quantity)
+    values (v_user_id, v_chest, 1)
+    on conflict (user_id, chest_type)
+    do update set quantity = public.user_chests.quantity + 1, updated_at = now();
+  end if;
+
+  return jsonb_build_object(
+    'claimed', true,
+    'qi', v_qi,
+    'chest_type', v_chest,
+    'is_pro_bonus', v_is_pro
+  );
+end;
+$$;
+
+revoke all on function public.migrate_local_economy(jsonb, text) from public;
+grant execute on function public.migrate_local_economy(jsonb, text) to authenticated;
+
+revoke all on function public.claim_mission(text, text, text, integer) from public;
+grant execute on function public.claim_mission(text, text, text, integer) to authenticated;
+
+revoke all on function public.grant_story_energy(text, text) from public;
+grant execute on function public.grant_story_energy(text, text) to authenticated;
+
+revoke all on function public.grant_lesson_reward(text, text, integer, boolean) from public;
+grant execute on function public.grant_lesson_reward(text, text, integer, boolean) to authenticated;
+
+revoke all on function public.add_league_weekly_xp(integer, text) from public;
+grant execute on function public.add_league_weekly_xp(integer, text) to authenticated;
+
+revoke all on function public.claim_league_week_reward(text) from public;
+grant execute on function public.claim_league_week_reward(text) to authenticated;
+
+commit;
+
+
+-- 20260808130100_harden_subscription_event_ordering.sql
+-- Ordenação composta de eventos Stripe + cancelamento terminal no mesmo segundo.
+
+begin;
+
+alter table public.subscriptions
+  add column if not exists stripe_event_id text;
+
+comment on column public.subscriptions.stripe_event_id is
+  'Último Stripe event.id aplicado; desempata eventos com o mesmo event.created.';
+
+drop function if exists public.apply_subscription_event(
+  uuid, text, text, text, text, timestamptz, timestamptz, boolean, bigint
+);
+
+create or replace function public.apply_subscription_event(
+  p_user_id uuid,
+  p_customer_id text,
+  p_subscription_id text,
+  p_status text,
+  p_price_id text,
+  p_current_period_start timestamptz,
+  p_current_period_end timestamptz,
+  p_cancel_at_period_end boolean,
+  p_event_created bigint,
+  p_event_id text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_row public.subscriptions;
+  v_row_count integer := 0;
+  v_event_id text := nullif(trim(coalesce(p_event_id, '')), '');
+  v_is_newer boolean := false;
+  v_same_event boolean := false;
+begin
+  if p_subscription_id is null then
+    return jsonb_build_object('ok', false, 'applied', false, 'reason', 'missing_subscription_id');
+  end if;
+
+  select * into v_row
+  from public.subscriptions s
+  where s.stripe_subscription_id = p_subscription_id
+  for update;
+
+  if found then
+    v_same_event :=
+      v_event_id is not null
+      and v_row.stripe_event_id is not null
+      and v_event_id = v_row.stripe_event_id;
+
+    v_is_newer :=
+      v_row.stripe_event_created is null
+      or p_event_created > v_row.stripe_event_created
+      or (
+        p_event_created = v_row.stripe_event_created
+        and v_event_id is not null
+        and (
+          v_row.stripe_event_id is null
+          or v_event_id > v_row.stripe_event_id
+        )
+      );
+
+    -- Idempotência: o mesmo event.id pode ser reprocessado sem mudar a ordem.
+    if v_same_event then
+      return jsonb_build_object('ok', true, 'applied', false, 'reason', 'duplicate_event');
+    end if;
+
+    -- Cancelamento terminal no mesmo segundo: um active/trialing atrasado
+    -- com created <= ao canceled persistido não pode ressuscitar Pro.
+    if v_row.status = 'canceled'
+       and coalesce(p_status, '') is distinct from 'canceled'
+       and p_event_created <= coalesce(v_row.stripe_event_created, -1) then
+      return jsonb_build_object('ok', true, 'applied', false, 'reason', 'terminal_canceled');
+    end if;
+
+    if not v_is_newer then
+      return jsonb_build_object('ok', true, 'applied', false, 'reason', 'stale');
+    end if;
+  end if;
+
+  if p_user_id is null then
+    if not found then
+      return jsonb_build_object('ok', true, 'applied', false, 'reason', 'stale_or_missing');
+    end if;
+
+    update public.subscriptions s
+    set
+      stripe_customer_id = coalesce(p_customer_id, s.stripe_customer_id),
+      status = p_status,
+      price_id = coalesce(p_price_id, s.price_id),
+      current_period_start = coalesce(p_current_period_start, s.current_period_start),
+      current_period_end = coalesce(p_current_period_end, s.current_period_end),
+      cancel_at_period_end = coalesce(p_cancel_at_period_end, s.cancel_at_period_end),
+      stripe_event_created = p_event_created,
+      stripe_event_id = coalesce(v_event_id, s.stripe_event_id),
+      updated_at = now()
+    where s.stripe_subscription_id = p_subscription_id;
+
+    get diagnostics v_row_count = row_count;
+    return jsonb_build_object(
+      'ok', true,
+      'applied', v_row_count > 0,
+      'reason', case when v_row_count > 0 then 'updated' else 'stale_or_missing' end
+    );
+  end if;
+
+  insert into public.subscriptions (
+    user_id, stripe_customer_id, stripe_subscription_id, status, price_id,
+    current_period_start, current_period_end, cancel_at_period_end,
+    stripe_event_created, stripe_event_id, updated_at
+  ) values (
+    p_user_id, p_customer_id, p_subscription_id, p_status, p_price_id,
+    p_current_period_start, p_current_period_end, coalesce(p_cancel_at_period_end, false),
+    p_event_created, v_event_id, now()
+  )
+  on conflict (stripe_subscription_id) do update set
+    user_id = coalesce(excluded.user_id, public.subscriptions.user_id),
+    stripe_customer_id = coalesce(excluded.stripe_customer_id, public.subscriptions.stripe_customer_id),
+    status = excluded.status,
+    price_id = coalesce(excluded.price_id, public.subscriptions.price_id),
+    current_period_start = excluded.current_period_start,
+    current_period_end = excluded.current_period_end,
+    cancel_at_period_end = excluded.cancel_at_period_end,
+    stripe_event_created = excluded.stripe_event_created,
+    stripe_event_id = coalesce(excluded.stripe_event_id, public.subscriptions.stripe_event_id),
+    updated_at = now();
+
+  get diagnostics v_row_count = row_count;
+  return jsonb_build_object(
+    'ok', true,
+    'applied', v_row_count > 0,
+    'reason', case when v_row_count > 0 then 'upserted' else 'stale' end
+  );
+end;
+$$;
+
+revoke all on function public.apply_subscription_event(
+  uuid, text, text, text, text, timestamptz, timestamptz, boolean, bigint, text
+) from public;
+grant execute on function public.apply_subscription_event(
+  uuid, text, text, text, text, timestamptz, timestamptz, boolean, bigint, text
+) to service_role;
+
+commit;
+
+
+-- 20260808130200_admin_roles_user_id.sql
+-- Admin passa a ser só beta_admins(user_id). Pro de QA deixa de depender de
+-- short-circuit por e-mail nas RPCs e usa a assinatura interna já seedada.
+
+begin;
+
+-- Operadores conhecidos → tabela de papéis por user_id (se a conta existir).
+insert into public.beta_admins (user_id, email)
+select u.id, lower(u.email)
+from auth.users u
+where lower(u.email) in (
+  'admin@longyu.app',
+  'matheus.stangherlin@hotmail.com',
+  'minemoostraa@gmail.com'
+)
+on conflict (user_id) do update
+set email = excluded.email;
+
+-- QA nunca é admin.
+delete from public.beta_admins a
+using auth.users u
+where a.user_id = u.id
+  and lower(u.email) = 'teste@longyu.app';
+
+create or replace function public.is_beta_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.beta_admins a where a.user_id = auth.uid()
+  );
+$$;
+
+revoke all on function public.is_beta_admin() from public;
+grant execute on function public.is_beta_admin() to authenticated;
+
+-- Pro: Stripe ativo OU grant ativo. Sem short-circuit por e-mail.
+create or replace function public.get_server_entitlement()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_is_pro boolean := false;
+  v_source text := 'none';
+begin
+  if v_uid is null then
+    return jsonb_build_object('ok', false, 'is_pro', false, 'source', 'none');
+  end if;
+
+  if public._user_stripe_pro_active(v_uid) then
+    v_is_pro := true;
+    v_source := 'stripe';
+  elsif public.user_has_entitlement_grant(v_uid) then
+    v_is_pro := true;
+    v_source := 'grant';
+  end if;
+
+  return jsonb_build_object('ok', true, 'is_pro', v_is_pro, 'source', v_source);
+end;
+$$;
+
+create or replace function public.economy_user_is_pro(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public._user_stripe_pro_active(p_user_id)
+      or public.user_has_entitlement_grant(p_user_id);
+$$;
+
+revoke all on function public.get_server_entitlement() from public;
+grant execute on function public.get_server_entitlement() to authenticated;
+
+revoke all on function public.economy_user_is_pro(uuid) from public;
+grant execute on function public.economy_user_is_pro(uuid) to authenticated;
+
+-- Garante a assinatura interna da conta QA (resolve e-mail → user_id uma vez).
+insert into public.subscriptions (
+  user_id,
+  status,
+  stripe_subscription_id,
+  current_period_start,
+  current_period_end,
+  cancel_at_period_end,
+  updated_at
+)
+select
+  u.id,
+  'active',
+  'internal_test_longyu_pro',
+  now(),
+  '2030-01-01T00:00:00+00'::timestamptz,
+  false,
+  now()
+from auth.users u
+where lower(u.email) = lower('teste@longyu.app')
+on conflict (stripe_subscription_id) do update
+set
+  user_id = excluded.user_id,
+  status = 'active',
+  current_period_end = excluded.current_period_end,
+  cancel_at_period_end = false,
+  updated_at = now();
+
+commit;
+

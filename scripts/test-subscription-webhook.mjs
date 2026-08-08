@@ -27,36 +27,55 @@ const NOW = Date.parse("2026-07-20T12:00:00Z");
 const iso = (ms) => new Date(ms).toISOString();
 
 // ————————————————————————————————————————————————————————————————
-// Espelho do RPC apply_subscription_event (migração 014):
-// escreve só se o evento recebido for >= ao último persistido (event.created),
-// e nunca cria linha órfã sem user_id.
+// Espelho do RPC apply_subscription_event (ordenação composta created + id):
+// escreve só se o evento for mais novo; cancelamento no mesmo segundo é terminal.
 // ————————————————————————————————————————————————————————————————
 function applySubscriptionEvent(rows, evt) {
   if (!evt.subscriptionId) return { applied: false, reason: "missing_subscription_id" };
   const existing = rows[evt.subscriptionId];
-  const fresh = !existing || existing.eventCreated == null || evt.eventCreated >= existing.eventCreated;
+
+  if (existing) {
+    if (evt.eventId && existing.eventId && evt.eventId === existing.eventId) {
+      return { applied: false, reason: "duplicate_event" };
+    }
+    const newer =
+      existing.eventCreated == null ||
+      evt.eventCreated > existing.eventCreated ||
+      (evt.eventCreated === existing.eventCreated &&
+        Boolean(evt.eventId) &&
+        (!existing.eventId || evt.eventId > existing.eventId));
+
+    if (
+      existing.status === "canceled" &&
+      evt.status !== "canceled" &&
+      evt.eventCreated <= existing.eventCreated
+    ) {
+      return { applied: false, reason: "terminal_canceled" };
+    }
+    if (!newer) return { applied: false, reason: "stale" };
+  }
 
   if (evt.userId == null) {
     // updated/deleted de assinatura desconhecida: só atualiza linha existente.
     if (!existing) return { applied: false, reason: "missing" };
-    if (!fresh) return { applied: false, reason: "stale" };
     rows[evt.subscriptionId] = {
       ...existing,
       status: evt.status,
       currentPeriodEnd: evt.periodEnd ?? existing.currentPeriodEnd,
       cancelAtPeriodEnd: evt.cancelAtPeriodEnd ?? existing.cancelAtPeriodEnd,
       eventCreated: evt.eventCreated,
+      eventId: evt.eventId ?? existing.eventId ?? null,
     };
     return { applied: true, reason: "updated" };
   }
 
-  if (!fresh) return { applied: false, reason: "stale" };
   rows[evt.subscriptionId] = {
     userId: evt.userId,
     status: evt.status,
     currentPeriodEnd: evt.periodEnd ?? existing?.currentPeriodEnd ?? null,
     cancelAtPeriodEnd: evt.cancelAtPeriodEnd ?? existing?.cancelAtPeriodEnd ?? false,
     eventCreated: evt.eventCreated,
+    eventId: evt.eventId ?? existing?.eventId ?? null,
   };
   return { applied: true, reason: "upserted" };
 }
@@ -245,12 +264,55 @@ function persistTransaction(txns, eventId, payload) {
   assert(rows.sub_O.status === "canceled", "Ordem: deleted aplica canceled");
   // updated ANTIGO (active) chega atrasado — NÃO pode reverter.
   const res = applySubscriptionEvent(rows, { subscriptionId: "sub_O", userId: null, status: "active", periodEnd: iso(NOW + 5 * DAY), cancelAtPeriodEnd: false, eventCreated: 8050 });
-  assert(res.applied === false && res.reason === "stale", "Ordem: evento antigo é descartado");
+  assert(
+    res.applied === false && (res.reason === "stale" || res.reason === "terminal_canceled"),
+    "Ordem: evento antigo é descartado"
+  );
   assert(rows.sub_O.status === "canceled", "Ordem: estado novo (canceled) preservado");
   assert(!serverGrantsPro(rows.sub_O), "Ordem: assinatura removida não permanece ativa");
   // update genuinamente mais novo aplica (reativação real numa nova cobrança).
   applySubscriptionEvent(rows, { subscriptionId: "sub_O", userId: null, status: "active", periodEnd: iso(NOW + 40 * DAY), cancelAtPeriodEnd: false, eventCreated: 8200 });
   assert(rows.sub_O.status === "active", "Ordem: evento mais novo aplica normalmente");
+}
+
+// ————————————————————————————————————————————————————————————————
+// Mesmo segundo: canceled terminal não pode ser sobrescrito por active atrasado.
+// ————————————————————————————————————————————————————————————————
+{
+  const rows = {
+    sub_S: {
+      userId: "user-S",
+      status: "active",
+      currentPeriodEnd: iso(NOW + 5 * DAY),
+      cancelAtPeriodEnd: false,
+      eventCreated: 9000,
+      eventId: "evt_active_old",
+    },
+  };
+  applySubscriptionEvent(rows, {
+    subscriptionId: "sub_S",
+    userId: null,
+    status: "canceled",
+    periodEnd: iso(NOW + 5 * DAY),
+    cancelAtPeriodEnd: true,
+    eventCreated: 9000,
+    eventId: "evt_canceled_same_second",
+  });
+  assert(rows.sub_S.status === "canceled", "Mesmo segundo: canceled aplica");
+  const resurrect = applySubscriptionEvent(rows, {
+    subscriptionId: "sub_S",
+    userId: null,
+    status: "active",
+    periodEnd: iso(NOW + 5 * DAY),
+    cancelAtPeriodEnd: false,
+    eventCreated: 9000,
+    eventId: "evt_active_late",
+  });
+  assert(
+    resurrect.applied === false && resurrect.reason === "terminal_canceled",
+    "Mesmo segundo: active atrasado não ressuscita Pro"
+  );
+  assert(rows.sub_S.status === "canceled", "Mesmo segundo: canceled preservado");
 }
 
 // ————————————————————————————————————————————————————————————————
@@ -262,6 +324,7 @@ assert(webhookSrc.includes("apply_subscription_event"), "webhook deve usar o RPC
 assert(webhookSrc.includes("constructEventAsync"), "webhook deve verificar assinatura Stripe com constructEventAsync (Deno)");
 assert(webhookSrc.includes("subscriptions.retrieve"), "webhook deve buscar o status real da assinatura no checkout");
 assert(webhookSrc.includes("event.created") || webhookSrc.includes("eventCreated"), "webhook deve passar event.created para ordenar");
+assert(webhookSrc.includes("p_event_id: eventId"), "webhook deve passar event.id para desempate");
 // O caminho principal deve refletir o status REAL do Stripe (não um "active" fixo).
 assert(
   webhookSrc.includes("p_status: subscriptionStatus(subscription.status)"),
@@ -280,6 +343,14 @@ assert(migrationSrc.includes("apply_subscription_event"), "migração 014 deve c
 assert(/excluded\.stripe_event_created\s*>=\s*public\.subscriptions\.stripe_event_created/.test(migrationSrc), "migração 014 deve ter guarda de ordem no ON CONFLICT");
 assert(migrationSrc.includes("to service_role"), "apply_subscription_event deve ser executável só pelo service_role");
 
+const orderingMigration = fs
+  .readdirSync(path.join(root, "supabase", "migrations"))
+  .find((name) => name.endsWith("_harden_subscription_event_ordering.sql"));
+assert(Boolean(orderingMigration), "migração de ordenação composta deve existir");
+const orderingSrc = read(`supabase/migrations/${orderingMigration}`);
+assert(orderingSrc.includes("stripe_event_id"), "migração nova deve persistir stripe_event_id");
+assert(orderingSrc.includes("terminal_canceled"), "migração nova deve tratar canceled como terminal no mesmo segundo");
+assert(orderingSrc.includes("p_event_id"), "migração nova deve aceitar p_event_id");
 const checkoutSrc = read("supabase/functions/create-checkout-session/index.ts");
 assert(checkoutSrc.includes("STRIPE_ALLOWED_ORIGINS"), "checkout deve validar origin contra allowlist");
 assert(checkoutSrc.includes("ALLOWED_PLAN_KEYS"), "checkout deve validar planKey contra allowlist");

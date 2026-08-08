@@ -133,6 +133,25 @@ assert(
   !/teste@longyu\.app/.test(adminUi),
   "frontend nao apresenta painel admin para a conta QA"
 );
+assert(
+  /VITE_ADMIN_EMAILS/.test(adminUi) &&
+    !adminUi.includes("matheus.stangherlin@hotmail.com"),
+  "atalho admin da UI nao hardcoda e-mails de operadores"
+);
+
+const economyTrust = fs
+  .readdirSync(path.join(root, "supabase", "migrations"))
+  .find((name) => name.endsWith("_harden_economy_reward_trust.sql"));
+const adminRoles = fs
+  .readdirSync(path.join(root, "supabase", "migrations"))
+  .find((name) => name.endsWith("_admin_roles_user_id.sql"));
+const stripeOrdering = fs
+  .readdirSync(path.join(root, "supabase", "migrations"))
+  .find((name) => name.endsWith("_harden_subscription_event_ordering.sql"));
+
+assert(Boolean(economyTrust), "migration de trust boundary da economia existe");
+assert(Boolean(adminRoles), "migration de admin por user_id existe");
+assert(Boolean(stripeOrdering), "migration de ordenacao Stripe composta existe");
 
 for (const [label, source] of [
   ["seed", seed],

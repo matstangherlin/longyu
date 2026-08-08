@@ -20,7 +20,6 @@ import { EconomyBootstrap } from "../economy/EconomyBootstrap";
 import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap";
 import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
 import { ErrorBoundary } from "../system/ErrorBoundary";
-import { isAdminEmail } from "../../lib/feedback";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -28,7 +27,6 @@ export function AppShell() {
   const reconcileStreak = useStore((s) => s.reconcileStreak);
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
   const completedLessons = useStore((s) => s.completedLessons);
-  const account = useStore((s) => s.accounts[s.currentAccountId]);
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthPage =
@@ -80,7 +78,7 @@ export function AppShell() {
       !accountSetupComplete &&
       completedLessons.length === 0 &&
       !publicGuestPaths.has(location.pathname) &&
-      !(isAdminRoute && isAdminEmail(account?.email))
+      !(isAdminRoute)
     ) {
       navigate("/", { replace: true });
     }
@@ -90,7 +88,6 @@ export function AppShell() {
     location.pathname,
     navigate,
     isAdminRoute,
-    account?.email,
   ]);
 
   // Rola para o topo ao trocar de rota.

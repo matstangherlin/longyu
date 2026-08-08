@@ -71,10 +71,10 @@ serve(async (req) => {
     });
   }
 
-  // event.created (segundos) ordena eventos do MESMO objeto: um evento antigo
-  // entregue fora de ordem não pode reverter um estado mais novo (ver o RPC
-  // apply_subscription_event, que aplica a escrita só se for >= ao persistido).
+  // Ordenação composta: event.created (segundos) + event.id. O RPC rejeita
+  // eventos mais antigos e trata cancelamento no mesmo segundo como terminal.
   const eventCreated = event.created;
+  const eventId = event.id;
 
   const persistTransaction = async (
     userId: string | null,
@@ -133,6 +133,7 @@ serve(async (req) => {
       p_current_period_end: toIso(subscription.current_period_end),
       p_cancel_at_period_end: subscription.cancel_at_period_end ?? false,
       p_event_created: eventCreated,
+      p_event_id: eventId,
     });
   };
 
@@ -166,6 +167,7 @@ serve(async (req) => {
           p_current_period_end: null,
           p_cancel_at_period_end: false,
           p_event_created: eventCreated,
+          p_event_id: eventId,
         });
       }
     }
