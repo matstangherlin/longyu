@@ -12,6 +12,9 @@ declare
   attr jsonb;
   qual jsonb;
   grant_res jsonb;
+  session1 uuid := gen_random_uuid();
+  session2 uuid := gen_random_uuid();
+  session3 uuid := gen_random_uuid();
   day1 text := to_char((now() - interval '2 days')::date, 'YYYY-MM-DD');
   day2 text := to_char((now() - interval '1 day')::date, 'YYYY-MM-DD');
   snap jsonb;
@@ -72,6 +75,29 @@ begin
     client_snapshot = excluded.client_snapshot,
     last_active = excluded.last_active,
     updated_at = excluded.updated_at;
+
+  qual := public._referral_try_qualify(ref_id);
+  if coalesce((qual->>'qualified')::boolean, false) is true then
+    raise exception 'FAIL: forged client_snapshot qualified referral: %', qual;
+  end if;
+
+  -- Evidencia server-owned: tres licoes catalogadas em dois dias UTC.
+  insert into public.referral_lesson_sessions (
+    id, user_id, lesson_id, started_at, not_before, expires_at, completed_at
+  ) values
+    (session1, invitee, 'l1', now() - interval '2 days 3 minutes',
+     now() - interval '2 days 2 minutes', now() - interval '1 day 20 hours', now() - interval '2 days'),
+    (session2, invitee, 'l2', now() - interval '2 days 3 minutes',
+     now() - interval '2 days 2 minutes', now() - interval '1 day 20 hours', now() - interval '2 days'),
+    (session3, invitee, 'l3', now() - interval '1 day 3 minutes',
+     now() - interval '1 day 2 minutes', now() - interval '20 hours', now() - interval '1 day');
+
+  insert into public.referral_verified_lesson_completions (
+    user_id, lesson_id, source_session_id, completed_at
+  ) values
+    (invitee, 'l1', session1, now() - interval '2 days'),
+    (invitee, 'l2', session2, now() - interval '2 days'),
+    (invitee, 'l3', session3, now() - interval '1 day');
 
   qual := public._referral_try_qualify(ref_id);
   if coalesce((qual->>'qualified')::boolean, false) is not true then
