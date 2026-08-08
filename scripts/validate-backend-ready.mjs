@@ -26,6 +26,7 @@ const migrations = [
   "supabase/migrations/011_pedagogy_analytics_consent.sql",
   "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
   "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+  "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
   "supabase/seed/test-account.sql",
 ];
 const functions = [
@@ -33,6 +34,7 @@ const functions = [
   "supabase/functions/create-billing-portal/index.ts",
   "supabase/functions/stripe-webhook/index.ts",
   "supabase/functions/delete-account/index.ts",
+  "supabase/functions/issue-anon-ingestion-session/index.ts",
 ];
 
 for (const migration of migrations) requirePath(migration, "migration");

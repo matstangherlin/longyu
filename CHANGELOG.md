@@ -27,6 +27,9 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
   deixam de persistir objetos Stripe completos com dados pessoais.
 - Exportações CSV do painel neutralizam prefixos de fórmula, inclusive com
   espaços e caracteres de controle, antes que o arquivo seja aberto em planilhas.
+- Feedback e telemetria anônimos passam a exigir uma capacidade efêmera emitida
+  pela Edge Function; as quotas usam HMAC de rede calculado no servidor, contadores
+  atômicos e tetos globais, sem armazenar IP bruto nem confiar no ID do navegador.
 
 ### Ofensiva zera após 24h e recuperação em 24h
 

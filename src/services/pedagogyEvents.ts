@@ -2,6 +2,11 @@ import { isTelemetryEnabled } from "../lib/featureFlags";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { currentRoute, getAppVersion } from "../lib/feedback";
 import { DEFAULT_ACCOUNT_ID, useStore } from "../lib/store";
+import {
+  anonymousIngestionClientContext,
+  getAnonymousIngestionSessionToken,
+  invalidateAnonymousIngestionSession,
+} from "./anonymousIngestionSession";
 import { getTelemetryConsent, PEDAGOGY_QUEUE_KEY } from "./telemetryConsent";
 
 export {
@@ -49,11 +54,10 @@ interface QueuedPedagogyEvent extends PedagogyEventInput {
 }
 
 const MAX_QUEUE = 80;
-const ANON_SESSION_KEY = "longyu:pedagogy-anon-session";
 
 /** Erros permanentes: descarta da fila. Rate limit reenfileira. */
 const DISCARD_RPC_ERRORS =
-  /consent_required|payload_too_large|invalid_event_type|invalid_anon_session|identity_required/i;
+  /consent_required|payload_too_large|invalid_event_type|identity_required/i;
 
 function readQueue(): QueuedPedagogyEvent[] {
   if (typeof localStorage === "undefined") return [];
@@ -82,53 +86,8 @@ function localProfileId(): string {
   return account?.id ?? DEFAULT_ACCOUNT_ID;
 }
 
-/**
- * Resumo curto de UA para rate limit anônimo (sem IP).
- * O servidor combina com o dia UTC — rotação diária.
- */
-export function pedagogyClientContext(): string {
-  if (typeof navigator === "undefined") return "node";
-  const ua = navigator.userAgent || "unknown";
-  // Mantém família + plataforma; evita string enorme.
-  const short = ua.replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim().slice(0, 100);
-  const lang = typeof navigator.language === "string" ? navigator.language.slice(0, 12) : "";
-  return `${short}|${lang}`.slice(0, 120);
-}
-
-function readAnonSessionToken(): string | null {
-  if (typeof sessionStorage === "undefined") return null;
-  try {
-    return sessionStorage.getItem(ANON_SESSION_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function writeAnonSessionToken(token: string): void {
-  if (typeof sessionStorage === "undefined") return;
-  try {
-    sessionStorage.setItem(ANON_SESSION_KEY, token);
-  } catch {
-    /* ignore */
-  }
-}
-
-async function ensureAnonSessionToken(): Promise<string | null> {
-  const existing = readAnonSessionToken();
-  if (existing) return existing;
-  const client = getSupabaseClient();
-  if (!client) return null;
-  const {
-    data: { user },
-  } = await client.auth.getUser();
-  if (user) return null;
-  const { data, error } = await client.rpc("issue_beta_pedagogy_anon_session", {
-    p_client_context: pedagogyClientContext(),
-  });
-  if (error || typeof data !== "string" || !data) return null;
-  writeAnonSessionToken(data);
-  return data;
-}
+/** Contexto curto para agrupamento analítico; não é identidade de segurança. */
+export const pedagogyClientContext = anonymousIngestionClientContext;
 
 /** Remove chaves sensíveis / respostas livres de metadados pedagógicos. */
 export function safeMetadata(
@@ -197,19 +156,13 @@ async function insertRemote(item: QueuedPedagogyEvent): Promise<boolean> {
   if (!getTelemetryConsent()) return false;
   if (!getSupabaseClient()) return false;
 
-  let anonToken = await ensureAnonSessionToken();
+  let anonToken = await getAnonymousIngestionSessionToken();
   let result = await callSubmitPedagogyEvent(item, anonToken);
 
   // Sessão anônima expirada: renova uma vez e tenta de novo.
-  if (!result.ok && /invalid_anon_session/i.test(result.message)) {
-    if (typeof sessionStorage !== "undefined") {
-      try {
-        sessionStorage.removeItem(ANON_SESSION_KEY);
-      } catch {
-        /* ignore */
-      }
-    }
-    anonToken = await ensureAnonSessionToken();
+  if (!result.ok && /invalid_anon_session|anon_session_required/i.test(result.message)) {
+    invalidateAnonymousIngestionSession();
+    anonToken = await getAnonymousIngestionSessionToken();
     result = await callSubmitPedagogyEvent(item, anonToken);
   }
 

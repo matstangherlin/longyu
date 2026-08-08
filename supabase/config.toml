@@ -32,3 +32,7 @@ verify_jwt = false
 # Cadastro público: Admin API cria usuário pendente de confirmação.
 [functions.create-account]
 verify_jwt = false
+
+# Aceita JWT anon legado e sb_publishable_*; o handler valida o header apikey.
+[functions.issue-anon-ingestion-session]
+verify_jwt = false
