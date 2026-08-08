@@ -36,6 +36,7 @@ import {
 import { playSoundFx } from "../../lib/soundFx";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
+import { beginStoryEnergyAttestation } from "../../services/storyEnergyAttestation";
 import { todayKey } from "../../lib/storage";
 import { speak, stopSpeaking } from "../../lib/tts";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
@@ -826,6 +827,11 @@ function InteractiveStoryPlayer({
   const interactiveTotal = story.steps.filter(storyStepIsInteractive).length;
 
   useEffect(() => () => stopSpeaking(), []);
+
+  useEffect(() => {
+    if (story.premium) return;
+    void beginStoryEnergyAttestation(story.id);
+  }, [story.id, story.premium]);
 
   // Diálogo e narração: áudio inicia sozinho ao entrar em cada passo.
   useAutoSpeak(step?.hanzi, Boolean(step?.hanzi) && !victory, { rate: 0.88 });
