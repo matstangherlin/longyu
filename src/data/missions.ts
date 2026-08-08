@@ -8,6 +8,26 @@ import { monthKey } from "../lib/storage";
 
 export type MissionScope = "daily" | "weekly" | "monthly";
 
+/**
+ * Missões cujo Qi pode ser pago com economia no servidor: a métrica é
+ * reconstruída no Postgres a partir do ledger/liga, sem confiar no cliente.
+ */
+export const SERVER_VERIFIED_MISSION_IDS = new Set<string>([
+  "daily-three-star",
+  "daily-immersion",
+  "daily-pro-immersion",
+  "daily-xp",
+  "daily-reviews",
+  "daily-pro-review",
+  "weekly-lessons",
+  "weekly-review-days",
+  "weekly-xp",
+  "weekly-immersion",
+  "weekly-pro-xp",
+  "weekly-pro-immersion",
+  "weekly-pro-story",
+]);
+
 // Chaves de métrica: casam 1:1 com o objeto de agregados (metricValue faz agg[metric]).
 export type MissionMetric =
   | "xpToday"
