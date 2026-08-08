@@ -56,7 +56,26 @@ assert(
 );
 assert(/parts\.length - 1/i.test(createAccount), "create-account usa hop direito do XFF");
 assert(/hops\.length - 1/i.test(anonSession), "anon-ingestion usa hop direito do XFF");
-assert(/canonicalizeEmail/i.test(createAccount), "create-account canonicaliza e-mail");
+assert(
+  /const emailRaw\s*=/.test(createAccount) &&
+    /const emailKey\s*=\s*canonicalizeEmail\(emailRaw\)/.test(createAccount),
+  "create-account separa email cru e canônico"
+);
+assert(/sha256Hex\(emailKey\)/.test(createAccount), "rate-limit usa hash do e-mail canônico");
+assert(
+  /createUser\(\{\s*email:\s*emailRaw\b/.test(createAccount),
+  "createUser recebe o e-mail cru (não o canônico)"
+);
+assert(
+  /resend\(\{[\s\S]*?email:\s*emailRaw\b/.test(createAccount) &&
+    /email:\s*emailRaw\b/.test(createAccount),
+  "resend/resposta usam e-mail cru"
+);
+assert(
+  !/createUser\(\{\s*email:\s*emailKey\b/.test(createAccount) &&
+    !/createUser\(\{\s*email,\s*$/m.test(createAccount),
+  "createUser não grava o e-mail canônico"
+);
 assert(
   /TURNSTILE_ALLOW_SKIP/i.test(createAccount) &&
     /captcha_unavailable/i.test(createAccount),
