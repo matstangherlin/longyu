@@ -60,9 +60,8 @@ async function sha256Hex(value: string): Promise<string> {
 }
 
 function clientIp(req: Request): string {
-  const cf = req.headers.get("cf-connecting-ip")?.trim();
-  if (cf) return cf;
-  // Prefer the rightmost hop (adicionado pelo proxy confiável); o cliente pode forjar o primeiro.
+  // Não confiar em headers de IP forjáveis em chamada direta ao Edge.
+  // Só o hop direito do XFF / x-real-ip anexado pelo proxy da plataforma.
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
     const parts = forwarded.split(",").map((p) => p.trim()).filter(Boolean);
@@ -71,6 +70,20 @@ function clientIp(req: Request): string {
   const realIp = req.headers.get("x-real-ip")?.trim();
   if (realIp) return realIp;
   return "unknown";
+}
+
+/** Canonicaliza e-mail para rate-limit / anti-farming (plus-address + Gmail dots). */
+function canonicalizeEmail(raw: string): string {
+  const email = raw.trim().toLowerCase();
+  const at = email.lastIndexOf("@");
+  if (at < 1) return email;
+  let local = email.slice(0, at);
+  let domain = email.slice(at + 1);
+  const plus = local.indexOf("+");
+  if (plus >= 0) local = local.slice(0, plus);
+  if (domain === "googlemail.com") domain = "gmail.com";
+  if (domain === "gmail.com") local = local.replace(/\./g, "");
+  return `${local}@${domain}`;
 }
 
 function sanitizeEmailRedirect(raw: string | undefined): string {
@@ -111,8 +124,10 @@ async function verifyTurnstile(
   secret: string | null,
 ): Promise<{ ok: boolean; skipped: boolean; error?: string }> {
   if (!secret) {
-    // Sem secret configurado: não bloqueia (dev / pré-marketing).
-    return { ok: true, skipped: true };
+    // Fail-closed em produção. Dev local: TURNSTILE_ALLOW_SKIP=1.
+    const allowSkip = Deno.env.get("TURNSTILE_ALLOW_SKIP")?.trim() === "1";
+    if (allowSkip) return { ok: true, skipped: true };
+    return { ok: false, skipped: false, error: "captcha_unavailable" };
   }
   if (!token) {
     return { ok: false, skipped: false, error: "captcha_required" };
@@ -164,7 +179,7 @@ Deno.serve(async (req) => {
       captchaToken?: string;
     };
 
-    const email = String(body.email ?? "").trim().toLowerCase();
+    const email = canonicalizeEmail(String(body.email ?? ""));
     const password = String(body.password ?? "");
     const displayName = String(body.displayName ?? "").trim() || "Aluno Longyu";
     const emailRedirectTo = sanitizeEmailRedirect(body.emailRedirectTo);

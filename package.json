@@ -91,7 +91,7 @@
     "validate:privacy-consent": "node scripts/validate-privacy-consent.mjs",
     "validate:pedagogy-rpc-hardening": "node scripts/validate-pedagogy-rpc-hardening.mjs",
     "validate:frontend-secrets": "node scripts/validate-frontend-secrets.mjs",
-    "validate:security-boundaries": "node scripts/validate-security-boundaries.mjs && node scripts/test-feedback-csv-safety.mjs && node scripts/test-anonymous-ingestion-hardening.mjs && node scripts/test-referral-qualification-hardening.mjs && node scripts/test-economy-reward-trust.mjs && node scripts/test-subscription-event-ordering.mjs && node scripts/test-admin-roles-user-id.mjs && node scripts/test-economy-anti-cheat.mjs",
+    "validate:security-boundaries": "node scripts/validate-security-boundaries.mjs && node scripts/test-feedback-csv-safety.mjs && node scripts/test-anonymous-ingestion-hardening.mjs && node scripts/test-referral-qualification-hardening.mjs && node scripts/test-economy-reward-trust.mjs && node scripts/test-subscription-event-ordering.mjs && node scripts/test-admin-roles-user-id.mjs && node scripts/test-economy-anti-cheat.mjs && node scripts/test-abuse-controls.mjs",
     "test:feedback-csv-safety": "node scripts/test-feedback-csv-safety.mjs",
     "test:anonymous-ingestion-hardening": "node scripts/test-anonymous-ingestion-hardening.mjs",
     "validate:social-profile-security": "node scripts/validate-social-profile-security.mjs && node scripts/validate-account-deletion-security.mjs",
@@ -111,7 +111,7 @@
     "@supabase/supabase-js": "^2.110.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2",
+    "react-router-dom": "^7.18.2",
     "zustand": "^4.5.5"
   },
   "devDependencies": {

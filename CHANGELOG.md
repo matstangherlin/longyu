@@ -7,6 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Controles de abuso (2ª passagem)
+
+- Helpers de IP nas Edge Functions deixam de confiar em headers forjáveis em
+  chamada direta a `*.supabase.co`; usam o hop direito de `X-Forwarded-For`.
+- Turnstile em `create-account` falha fechado sem secret (exceto
+  `TURNSTILE_ALLOW_SKIP=1` em dev local).
+- Hash de e-mail de referral canoniciza plus-address e pontos do Gmail.
+- Self-update de perfil limita `league_tier` (allowlist), tamanho do nome e
+  snapshot do cliente (≤256KB); revoke residual de `is_beta_admin` para `anon`.
+- CI `npm audit` passa a `--audit-level=moderate`; `react-router-dom` ≥ 7.18.2.
+
 ### Segurança de banco e automações de produção
 
 - RPCs `SECURITY DEFINER` agora seguem bloqueio por padrão: somente os endpoints
