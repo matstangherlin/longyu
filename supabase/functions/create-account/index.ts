@@ -179,13 +179,17 @@ Deno.serve(async (req) => {
       captchaToken?: string;
     };
 
-    const email = canonicalizeEmail(String(body.email ?? ""));
+    // emailRaw: o que o usuário digitou (normalizado só trim/lowercase) — vai para Auth.
+    // emailKey: forma canônica só para rate-limit / anti-farming (plus + Gmail dots).
+    // O SQL (_user_email_hash) canonicaliza na leitura a partir de auth.users.email cru.
+    const emailRaw = String(body.email ?? "").trim().toLowerCase();
+    const emailKey = canonicalizeEmail(emailRaw);
     const password = String(body.password ?? "");
     const displayName = String(body.displayName ?? "").trim() || "Aluno Longyu";
     const emailRedirectTo = sanitizeEmailRedirect(body.emailRedirectTo);
     const captchaToken = String(body.captchaToken ?? "").trim() || undefined;
 
-    if (!email || !email.includes("@") || !password) {
+    if (!emailRaw || !emailRaw.includes("@") || !password) {
       return json(req, { error: "Dados inválidos." }, 400);
     }
     if (password.length < 6) {
@@ -212,7 +216,7 @@ Deno.serve(async (req) => {
     }
 
     const ipHash = await sha256Hex(ip);
-    const emailHash = await sha256Hex(email);
+    const emailHash = await sha256Hex(emailKey);
     const { data: rateData, error: rateError } = await admin.rpc(
       "check_and_record_signup_rate",
       { p_ip_hash: ipHash, p_email_hash: emailHash },
@@ -241,13 +245,13 @@ Deno.serve(async (req) => {
       json(req, {
         ok: true,
         pendingConfirmation: true,
-        email,
+        email: emailRaw,
         message: GENERIC_PENDING_MESSAGE,
       });
 
     const { data: created, error: createError } =
       await admin.auth.admin.createUser({
-        email,
+        email: emailRaw,
         password,
         email_confirm: false,
         user_metadata: { name: displayName, display_name: displayName },
@@ -260,7 +264,7 @@ Deno.serve(async (req) => {
         // Conta existente: tenta reenviar confirmação se ainda pendente; não revela.
         const { error: resendError } = await admin.auth.resend({
           type: "signup",
-          email,
+          email: emailRaw,
           options: { emailRedirectTo },
         });
         if (resendError) {
@@ -291,7 +295,7 @@ Deno.serve(async (req) => {
 
     const { error: resendError } = await admin.auth.resend({
       type: "signup",
-      email,
+      email: emailRaw,
       options: { emailRedirectTo },
     });
     if (resendError) {
