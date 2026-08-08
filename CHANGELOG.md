@@ -25,6 +25,8 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - O hard delete agora apaga feedback, telemetria e hashes de referral na mesma
   transação; lançamentos financeiros restantes são anonimizados e os webhooks
   deixam de persistir objetos Stripe completos com dados pessoais.
+- Exportações CSV do painel neutralizam prefixos de fórmula, inclusive com
+  espaços e caracteres de controle, antes que o arquivo seja aberto em planilhas.
 
 ### Ofensiva zera após 24h e recuperação em 24h
 
