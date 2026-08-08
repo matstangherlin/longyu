@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
-import { Button, Card, Pill } from "../../components/ui/primitives";
+import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useStore } from "../../lib/store";
 import {
@@ -31,6 +31,7 @@ export function ReferralPage() {
     setLoading(false);
     if (res.ok && res.data) {
       setDashboard(res.data);
+      setNotice(null);
     } else {
       setNotice(res.message);
     }
@@ -72,11 +73,28 @@ export function ReferralPage() {
   }
 
   if (!cloudReady) {
+    const needsLogin = authMode === "cloud_pending";
     return (
       <HubPage>
-        <HubHeader eyebrow="Indicações" title="Convide amigos" desc="Disponível com conta na nuvem." />
-        <Card className="p-4 text-sm text-ink-soft">
-          Crie uma conta com email e senha para gerar seu link de convite e ganhar semanas de Longyu Pro.
+        <HubHeader
+          eyebrow="Indicações"
+          title="Convide amigos"
+          desc="Ganhe 7 dias de Longyu Pro por amigo que realmente estudar."
+        />
+        <Card className="space-y-3 p-4 text-sm text-ink-soft">
+          <p>
+            {needsLogin
+              ? "Entre com email e senha para gerar seu link de convite."
+              : "Crie uma conta com email e senha para gerar seu link de convite e ganhar semanas de Longyu Pro."}
+          </p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>amigo cria conta pelo seu link;</li>
+            <li>confirma o e-mail;</li>
+            <li>completa 3 lições em 2 dias diferentes.</li>
+          </ul>
+          <ButtonLink to="/conta" size="sm">
+            {needsLogin ? "Entrar na conta" : "Criar conta na nuvem"}
+          </ButtonLink>
         </Card>
       </HubPage>
     );

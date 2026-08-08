@@ -19,8 +19,6 @@ type SheetKind = "praticar" | "perfil" | "mais";
 
 export function TabBar() {
   const location = useLocation();
-  const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
-  const canUseReferral = authMode === "cloud";
   const srs = useStore((s) => s.srs);
   const chests = useStore((s) => s.chests);
   const aggregates = useStore((s) => s.getMissionAggregates());
@@ -66,9 +64,7 @@ export function TabBar() {
           groups: [
             {
               title: "Perfil",
-              items: canUseReferral
-                ? profileFlyoutItems()
-                : profileFlyoutItems().filter((item) => item.to !== "/convide"),
+              items: profileFlyoutItems(),
             },
           ] as NavGroup[],
           footer: { to: "/perfil", label: "Abrir Perfil" },
