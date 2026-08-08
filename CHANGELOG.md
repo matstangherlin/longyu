@@ -15,6 +15,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
   ficam restritos ao backend; RPCs de liga validam o usuário autenticado.
 - A conta QA deixa de ser administradora e suas credenciais passam a existir
   somente em variáveis locais ou secrets protegidos do GitHub Actions.
+- Admin do painel beta passa a depender só de `beta_admins(user_id)`; e-mails
+  hard-coded saem do servidor e o atalho da UI usa apenas `VITE_ADMIN_EMAILS`.
+- Pro da conta QA deixa de ter short-circuit por e-mail nas RPCs e continua via
+  assinatura interna `internal_test_longyu_pro` seedada por `user_id`.
 - Workflows que alteram produção são manuais, usam o environment `production` e
   aplicam somente migrations pendentes, sem reaplicar SQL histórico inseguro.
 - Perfis sociais deixam de abrir a tabela de conta para outros usuários: busca,
@@ -30,6 +34,12 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Feedback e telemetria anônimos passam a exigir uma capacidade efêmera emitida
   pela Edge Function; as quotas usam HMAC de rede calculado no servidor, contadores
   atômicos e tetos globais, sem armazenar IP bruto nem confiar no ID do navegador.
+- Tabelas de economia/inventário deixam de aceitar INSERT/UPDATE direto do
+  cliente; `migrate_local_economy` é one-shot com tetos; missões, energia de
+  história, recompensas de lição e XP de liga validam janelas/prefixos e tetos
+  diários no servidor.
+- Webhook Stripe ordena por `event.created` + `event.id` e trata `canceled` no
+  mesmo segundo como terminal, evitando ressuscitar Pro com evento atrasado.
 
 ### Ofensiva zera após 24h e recuperação em 24h
 

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { IconShield } from "../../components/ui/Icon";
@@ -17,6 +17,7 @@ import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 import { MORE_CATALOG, type NavItem } from "../../components/layout/nav";
 import { featureAvailability, isFeatureNewlyRelevant, type FeatureId } from "../../lib/learnerStage";
 import { getSeenIntros } from "../../lib/featureDiscovery";
+import { checkIsBetaAdmin } from "../../services/feedbackService";
 
 // Descrições curtas por área — uma frase que responde "o que é isto?".
 const FEATURE_DESC: Record<string, string> = {
@@ -54,8 +55,19 @@ export function MorePage() {
   const account = accounts[currentAccountId];
   const isCloudAccount = account?.authMode === "cloud";
   const due = dueItems(srs).length;
-  const showAdmin = isAdminEmail(account?.email);
+  const [serverAdmin, setServerAdmin] = useState(false);
+  const showAdmin = serverAdmin || isAdminEmail(account?.email);
   const seen = useMemo(() => getSeenIntros(), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void checkIsBetaAdmin().then((ok) => {
+      if (!cancelled) setServerAdmin(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [account?.email, account?.authMode]);
 
   function toHubItem(nav: NavItem): HubNavItem {
     const feature = nav.feature as FeatureId | undefined;
