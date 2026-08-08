@@ -82,8 +82,8 @@ assert(!edge.includes("console.log") && !edge.includes("console.error"), "edge l
 assert(
   /\[functions\.issue-anon-ingestion-session\]\s*verify_jwt\s*=\s*false/m.test(config) &&
     edge.includes("hasValidProjectApiKey") &&
-    edge.includes("SUPABASE_PUBLISHABLE_KEYS") &&
-    edge.includes("SUPABASE_ANON_KEY"),
+    edge.includes("/auth/v1/settings") &&
+    edge.includes("headers: { apikey: supplied }"),
   "Edge Function authenticates both legacy anon and modern publishable API keys"
 );
 assert(deploy.includes('"issue-anon-ingestion-session"'), "deployment script includes the new function");

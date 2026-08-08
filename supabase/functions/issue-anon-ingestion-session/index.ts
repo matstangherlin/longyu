@@ -36,32 +36,19 @@ function requestOriginAllowed(req: Request): boolean {
   return !origin || ALLOWED_ORIGINS.has(origin);
 }
 
-function configuredPublicApiKeys(): Set<string> {
-  const keys = new Set<string>();
-  const legacyAnonKey = Deno.env.get("SUPABASE_ANON_KEY")?.trim();
-  if (legacyAnonKey) keys.add(legacyAnonKey);
+async function hasValidProjectApiKey(req: Request, supabaseUrl: string): Promise<boolean> {
+  const supplied = req.headers.get("apikey")?.trim();
+  if (!supplied) return false;
 
   try {
-    const aliases = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") ?? "{}") as Record<
-      string,
-      unknown
-    >;
-    for (const rawAlias of Object.values(aliases)) {
-      if (typeof rawAlias !== "string") continue;
-      const alias = rawAlias.trim();
-      const resolved = Deno.env.get(alias)?.trim() || alias;
-      if (resolved.startsWith("sb_publishable_")) keys.add(resolved);
-    }
+    const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, {
+      method: "GET",
+      headers: { apikey: supplied },
+    });
+    return response.ok;
   } catch {
-    // Legacy projects may not expose SUPABASE_PUBLISHABLE_KEYS yet.
+    return false;
   }
-
-  return keys;
-}
-
-function hasValidProjectApiKey(req: Request): boolean {
-  const supplied = req.headers.get("apikey")?.trim();
-  return Boolean(supplied && configuredPublicApiKeys().has(supplied));
 }
 
 function trustedClientIp(req: Request): string | null {
@@ -102,12 +89,14 @@ Deno.serve(async (req) => {
   }
   if (req.method !== "POST") return json(req, { error: "method_not_allowed" }, 405);
   if (!requestOriginAllowed(req)) return json(req, { error: "origin_not_allowed" }, 403);
-  if (!hasValidProjectApiKey(req)) return json(req, { error: "invalid_api_key" }, 401);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")?.trim();
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")?.trim();
   if (!supabaseUrl || !serviceRoleKey) {
     return json(req, { error: "backend_unavailable" }, 503);
+  }
+  if (!(await hasValidProjectApiKey(req, supabaseUrl))) {
+    return json(req, { error: "invalid_api_key" }, 401);
   }
 
   const ip = trustedClientIp(req);

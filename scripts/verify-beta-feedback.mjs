@@ -43,6 +43,55 @@ console.log("URL:", supabaseUrl);
 
 await checkRpc("is_beta_admin");
 
+for (const [label, headers] of [
+  ["sem apikey", {}],
+  ["apikey inválida", { apikey: "not-a-longyu-project-key" }],
+]) {
+  const response = await fetch(`${supabaseUrl}/functions/v1/issue-anon-ingestion-session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: "https://singular-meringue-7838cd.netlify.app",
+      ...headers,
+    },
+    body: "{}",
+  });
+  if (response.status !== 401) {
+    errors.push(`issue-anon-ingestion-session ${label}: HTTP ${response.status}, esperado 401`);
+  } else {
+    console.log(`· issue-anon-ingestion-session ${label}: 401`);
+  }
+}
+
+const missingTokenDedupe = `verify-missing-token-${Date.now()}`;
+const { error: missingFeedbackTokenError } = await client.rpc("submit_beta_feedback", {
+  p_category: "sugestao",
+  p_message: "This request must not be stored without a trusted capability.",
+  p_anon_session_token: null,
+  p_route: "/verify-beta-feedback-missing-token",
+  p_local_profile_id: "rotated-local-profile",
+  p_client_dedupe_key: missingTokenDedupe,
+});
+if (!/anon_session_required/i.test(missingFeedbackTokenError?.message ?? "")) {
+  errors.push("submit_beta_feedback aceitou ou mascarou ausência de capability");
+} else {
+  console.log("· submit_beta_feedback sem capability: bloqueado");
+}
+
+const { error: missingPedagogyTokenError } = await client.rpc("submit_beta_pedagogy_event", {
+  p_event_type: "lesson_started",
+  p_route: "/verify-beta-feedback-missing-token",
+  p_local_profile_id: "rotated-local-profile",
+  p_client_dedupe_key: `${missingTokenDedupe}-pedagogy`,
+  p_client_context: "rotated-client-context",
+  p_anon_session_token: null,
+});
+if (!/anon_session_required/i.test(missingPedagogyTokenError?.message ?? "")) {
+  errors.push("submit_beta_pedagogy_event aceitou ou mascarou ausência de capability");
+} else {
+  console.log("· submit_beta_pedagogy_event sem capability: bloqueado");
+}
+
 const { data: sessionData, error: sessionError } = await client.functions.invoke(
   "issue-anon-ingestion-session",
   { body: {} }
