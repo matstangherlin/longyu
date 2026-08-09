@@ -85,7 +85,8 @@ begin
   end if;
 
   update public.referral_lesson_sessions
-  set not_before = now() - interval '1 second'
+  set started_at = now() - interval '2 minutes',
+      not_before = now() - interval '1 minute'
   where id = session_id;
   result := public.complete_referral_lesson_session(session_id);
   if coalesce((result ->> 'verified')::boolean, false) is not true then
@@ -109,13 +110,38 @@ begin
     (invitee, 'l3', newer_session_id, now() - interval '1 minute');
 
   result := public._referral_try_qualify(referral_id);
-  if coalesce((result ->> 'qualified')::boolean, false) is not true then
-    raise exception 'FAIL: three verified lessons over two server days did not qualify: %', result;
+  if coalesce((result ->> 'review_required')::boolean, false) is not true then
+    raise exception 'FAIL: verified lessons were not queued for independent review: %', result;
+  end if;
+  if exists (
+    select 1 from public.entitlement_grants
+    where user_id = inviter and source = 'referral'
+  ) then
+    raise exception 'FAIL: learning evidence bypassed independent review';
   end if;
 
-  result := public._referral_grant_reward(referral_id);
-  if coalesce((result ->> 'ok')::boolean, false) is not true then
-    raise exception 'FAIL: legitimate qualified referral was not rewarded: %', result;
+  -- The original exploit called only authenticated RPCs. Retrying the public
+  -- pipeline must remain parked in under_review and must not mint Pro.
+  result := public.process_referral_pipeline();
+  if exists (
+    select 1 from public.entitlement_grants
+    where user_id = inviter and source = 'referral'
+  ) then
+    raise exception 'FAIL: authenticated pipeline bypassed independent review';
+  end if;
+  if (select status from public.referrals where id = referral_id) <> 'under_review' then
+    raise exception 'FAIL: referral did not remain under_review after pipeline retry';
+  end if;
+
+  -- Privileged fixture for the legitimate control: an independent operator
+  -- approves after reviewing the server evidence and leaves an audit note.
+  result := public.review_referral_qualification(
+    referral_id,
+    true,
+    'Smoke test: server evidence reviewed independently.'
+  );
+  if coalesce((result ->> 'approved')::boolean, false) is not true then
+    raise exception 'FAIL: independently reviewed referral was not rewarded: %', result;
   end if;
   if not exists (
     select 1 from public.entitlement_grants
@@ -130,6 +156,24 @@ begin
   end if;
   if has_function_privilege('anon', 'public.start_referral_lesson_session(text)', 'EXECUTE') then
     raise exception 'FAIL: anonymous role can start referral lesson sessions';
+  end if;
+  if has_function_privilege(
+    'authenticated',
+    'public.review_referral_qualification(uuid,boolean,text)',
+    'EXECUTE'
+  ) or has_function_privilege(
+    'anon',
+    'public.review_referral_qualification(uuid,boolean,text)',
+    'EXECUTE'
+  ) then
+    raise exception 'FAIL: browser role can approve referral qualification';
+  end if;
+  if has_function_privilege(
+    'authenticated',
+    'public._referral_grant_reward(uuid)',
+    'EXECUTE'
+  ) then
+    raise exception 'FAIL: authenticated role can call the reward sink directly';
   end if;
 end $$;
 

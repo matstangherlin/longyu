@@ -18,6 +18,20 @@ function assert(condition, message) {
 const migration = read(
   "supabase/migrations/20260808093000_harden_referral_qualification.sql"
 );
+const rewardReview = read(
+  "supabase/migrations/20260809160306_require_referral_reward_review.sql"
+);
+const reviewIndex = read(
+  "supabase/migrations/20260809161134_index_referral_review_reviewer.sql"
+);
+const pipelineStart = rewardReview.indexOf(
+  "create or replace function public.process_referral_pipeline"
+);
+const pipelineEnd = rewardReview.indexOf(
+  "-- Preserve and queue any legacy qualified row",
+  pipelineStart
+);
+const browserPipeline = rewardReview.slice(pipelineStart, pipelineEnd);
 const client = read("src/services/referralLearningAttestation.ts");
 const lessonPlayer = read("src/features/lesson/LessonPlayer.tsx");
 const smoke = read("scripts/sql/referral-qualification-hardening-smoke.sql");
@@ -114,6 +128,43 @@ assert(
     smoke.includes("referral_verified_lesson_completions"),
   "SQL smoke covers forged snapshots, early completion and legitimate evidence"
 );
+assert(
+  rewardReview.includes("create table if not exists public.referral_qualification_reviews") &&
+    rewardReview.includes("alter table public.referral_qualification_reviews enable row level security") &&
+    rewardReview.includes("revoke all on table public.referral_qualification_reviews"),
+  "manual referral reviews have a deny-by-default audit table"
+);
+assert(
+  reviewIndex.includes("referral_qualification_reviews_reviewer_idx") &&
+    reviewIndex.includes("where reviewer_id is not null"),
+  "manual review audit foreign keys have a covering index"
+);
+assert(
+  rewardReview.includes("'learning_attestation_review'") &&
+    rewardReview.includes("'review_required', true") &&
+    !rewardReview.includes("'qualified', true"),
+  "client-driven qualification stops at independent review"
+);
+assert(
+  rewardReview.includes("create or replace function public.review_referral_qualification") &&
+    /grant execute on function public\.review_referral_qualification\(uuid, boolean, text\)\s+to service_role/.test(rewardReview) &&
+    /revoke all on function public\.review_referral_qualification\(uuid, boolean, text\)\s+from public, anon, authenticated/.test(rewardReview) &&
+    !/review_referral_qualification\(uuid, boolean, text\)\s+to authenticated/.test(rewardReview),
+  "only service_role can approve a referral reward"
+);
+assert(
+  pipelineStart >= 0 &&
+    pipelineEnd > pipelineStart &&
+    browserPipeline.includes("public._referral_try_qualify") &&
+    !browserPipeline.includes("public._referral_grant_reward"),
+  "authenticated pipeline cannot reach the reward sink"
+);
+assert(
+  smoke.includes("authenticated pipeline bypassed independent review") &&
+    smoke.includes("review_referral_qualification") &&
+    smoke.includes("independently reviewed referral was not rewarded"),
+  "SQL smoke rejects the original RPC exploit and preserves reviewed rewards"
+);
 
 if (errors.length) {
   console.error("test:referral-qualification-hardening failed:");
@@ -121,4 +172,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("OK: referral rewards depend on server-timed, catalogued lesson evidence.");
+console.log("OK: referral rewards require server evidence plus independent service-role review.");
