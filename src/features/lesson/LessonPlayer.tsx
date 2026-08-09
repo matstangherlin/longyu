@@ -102,6 +102,10 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "audio_discrimination",
+  "dictation",
+  "odd_one_out",
+  "spot_error",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -523,12 +527,38 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(step.correctAnswer ?? step.answer, "forma", "hanzi");
     addText(step.targetParts?.join(""), "forma", "hanzi");
   }
+  if (step.kind === "audio_discrimination") {
+    // Par mínimo alimenta só o domínio de SOM dos dois lados: o aluno não
+    // viu significado nem forma aqui.
+    for (const side of step.pairReveal ?? []) {
+      addText(side.hanzi, "som", "som");
+      addText(side.hanzi, "pinyin", "som");
+    }
+  }
+  if (step.kind === "dictation") {
+    const written = step.hanzi ?? step.correctAnswer ?? step.targetParts?.join("");
+    addText(written, "som", "som");
+    if (step.dictationMode === "pinyin") addText(written, "pinyin", "som");
+    if (step.dictationMode === "hanzi" || step.dictationMode === "blocks") addText(written, "forma", "hanzi");
+  }
+  if (step.kind === "odd_one_out") {
+    // Todas as opções foram julgadas por sentido, não só a resposta.
+    for (const option of step.options ?? []) addText(option, "significado");
+  }
+  if (step.kind === "spot_error") {
+    addText(step.correctAnswer ?? step.answer, "uso");
+    addText(step.correctAnswer ?? step.answer, "fala");
+  }
 
   return uniqueLessonReviewTargets(targets);
 }
 
 function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.kind === "tone" || step.kind === "listen_select" || step.kind === "tone_pair") return "som";
+  if (step.kind === "audio_discrimination") return "som";
+  if (step.kind === "dictation") return step.dictationMode === "pinyin" ? "pinyin" : step.dictationMode === "hanzi" ? "forma" : "som";
+  if (step.kind === "odd_one_out") return "significado";
+  if (step.kind === "spot_error") return "uso";
   if (step.kind === "image_choice") {
     const mode = step.imageChoiceMode;
     if (mode === "choose_pinyin" || mode === "listen_and_choose_image") return "pinyin";
@@ -639,6 +669,14 @@ function errorTokensForStep(step: LessonStep): string[] {
 
 function mistakeReasonForStep(step: LessonStep): string {
   if (step.kind === "tone" || step.kind === "tone_pair") return "Confusão de tom ou contorno sonoro.";
+  if (step.kind === "audio_discrimination") {
+    return step.contrastLabel
+      ? `Contraste sonoro ainda não distinguido (${step.contrastLabel}).`
+      : "Contraste sonoro ainda não distinguido.";
+  }
+  if (step.kind === "dictation") return "O som chegou, mas a escrita ainda não acompanha.";
+  if (step.kind === "odd_one_out") return "Agrupamento por sentido ainda incerto.";
+  if (step.kind === "spot_error") return "Estrutura da frase ainda insegura.";
   if (step.kind === "listen_select") return "Confusão ao reconhecer o áudio.";
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "Confusão de pinyin ou acento tonal.";
   if (step.kind === "match_pairs") return "Par de significado ou forma não consolidado.";
@@ -2215,6 +2253,9 @@ export function LessonPlayer() {
     if (countsAsCorrect) {
       if (currentStep.kind === "tone") toneHitsRef.current += 1;
       else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
+      else if (currentStep.kind === "audio_discrimination" && currentStep.contrastLabel?.includes("tom")) {
+        toneHitsRef.current += 1;
+      }
       errorStreakRef.current = 0;
       nextStreak = answerStreak + 1;
       setAnswerStreak(nextStreak);

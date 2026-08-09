@@ -140,6 +140,11 @@ function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
   if (error.type === "pair-match") return "pair";
   if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";
   if (error.type === "tone") return "tone";
+  // Errou o par mínimo ou o ditado: o problema é ouvido, então a remediação
+  // imediata volta pelo áudio, nunca por leitura.
+  if (error.type === "audio_discrimination") return "listen";
+  if (error.type === "dictation") return error.step?.dictationMode === "blocks" ? "build" : "listen";
+  if (error.type === "spot_error") return "build";
   if (error.type === "listen_select" || error.type === "tone_pair" || error.skill === "som") return "listen";
   if (error.type === "hanzi_build") return "build";
   if (

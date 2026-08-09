@@ -43,7 +43,12 @@ export type StepKind =
   | "hanzi_evolution"
   | "hanzi_build"
   | "tone_pair"
-  | "image_choice";
+  | "image_choice"
+  // ——— Motores de percepção e sentido (src/data/perceptionDrills.ts) ———
+  | "audio_discrimination"
+  | "dictation"
+  | "odd_one_out"
+  | "spot_error";
 
 export type {
   ConversationCharacter,
@@ -191,6 +196,20 @@ export interface LessonStep {
   postConversationIndex?: number;
   /** Total de tarefas na fase pós-conversa desta conversa. */
   postConversationCount?: number;
+  // ——— audio_discrimination: par mínimo "iguais ou diferentes?" ———
+  /** Segundo áudio do par (o primeiro continua em audioText). */
+  audioTextB?: string;
+  /** O que muda entre os dois sons ("2º × 3º tom", "-en × -eng"). */
+  contrastLabel?: string;
+  /** Par mínimo de origem (src/data/perceptionDrills.ts). */
+  minimalPairId?: string;
+  /** Lados do par, revelados só depois da resposta. */
+  pairReveal?: { hanzi: string; pinyin: string; meaningPt: string }[];
+  // ——— dictation: ouvir e escrever ———
+  /** Canal cobrado no ditado: montar com peças, escrever pinyin ou escrever hànzì. */
+  dictationMode?: "blocks" | "pinyin" | "hanzi";
+  /** Modo imersão: velocidade natural e uma única reprodução. */
+  singlePlayback?: boolean;
 }
 
 /** Tipos de tarefa da fase Pós-Conversa (rótulos pedagógicos). */
@@ -206,7 +225,11 @@ export type PostConversationTaskType =
   | "repair_repeat"
   | "recreate_no_translation"
   | "polite_reply"
-  | "order_dialogue";
+  | "order_dialogue"
+  // ——— Motores de percepção na fase pós-conversa ———
+  | "sound_contrast"
+  | "write_heard"
+  | "group_meaning";
 
 /** Rótulos curtos para UI e relatórios. */
 export const POST_CONVERSATION_TASK_LABELS: Record<PostConversationTaskType, string> = {
@@ -222,6 +245,9 @@ export const POST_CONVERSATION_TASK_LABELS: Record<PostConversationTaskType, str
   recreate_no_translation: "Recrie a frase sem tradução.",
   polite_reply: "Escolha uma resposta mais educada.",
   order_dialogue: "Organize a conversa em ordem.",
+  sound_contrast: "Estes dois sons são iguais?",
+  write_heard: "Escreva o que você ouviu.",
+  group_meaning: "Qual não pertence ao grupo?",
 };
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";
