@@ -28,6 +28,8 @@ const migrations = [
   "supabase/migrations/013_pedagogy_rpc_hardening.sql",
   "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
   "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+  "supabase/migrations/20260809160306_require_referral_reward_review.sql",
+  "supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
   "supabase/seed/test-account.sql",
 ];
 const functions = [
