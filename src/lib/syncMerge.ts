@@ -201,6 +201,12 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
       uniqueById([...(local.recentActivityErrors ?? []), ...(remote.recentActivityErrors ?? [])]),
       (item) => item.timestamp ?? 0
     ),
+    // Log de auditoria: as duas pontas se somam. Ficar só com a do aparelho
+    // "vencedor" jogaria fora justamente as respostas que faltam ao corpus.
+    unrecognizedProductions: sortByTimestampDesc(
+      uniqueById([...(local.unrecognizedProductions ?? []), ...(remote.unrecognizedProductions ?? [])]),
+      (item) => item.timestamp ?? 0
+    ).slice(0, 40),
     conversationHistory: mergeConversationHistory(local.conversationHistory, remote.conversationHistory),
     inventory: maxRecordValues(local.inventory, remote.inventory),
     chests: mergeChestInventory(local.chests, remote.chests),

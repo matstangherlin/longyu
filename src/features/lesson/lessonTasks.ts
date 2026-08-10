@@ -546,6 +546,8 @@ export interface LessonPracticeRecentError {
   timestamp?: number;
   /** Causa linguística diagnosticada — alimenta o perfil de fraqueza. */
   diagnosis?: ErrorCause;
+  /** Confiança da causa: palpite fraco não pode desviar o currículo. */
+  diagnosisConfidence?: "high" | "medium" | "low";
   wrongCount?: number;
   correctedAt?: number;
 }

@@ -3,6 +3,7 @@ import type { LessonStep, StepTextType } from "../../data/journey";
 import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
+import { diagnoseError, isUnexplainedProduction } from "../../data/errorDiagnosis";
 import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS, TONE_NAMES } from "../../data/tones";
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
@@ -75,6 +76,12 @@ export interface StepProps {
   onDone: (correct?: boolean, meta?: StepDoneMeta) => void;
   onSkip?: () => void;
   onMistake?: (answer?: string, payload?: PairMistakePayload) => void;
+  /**
+   * Produção: o aluno escreveu uma tentativa bem formada que o motor não sabe
+   * julgar. Não é erro — não custa estrela, não entra no SRS nem no perfil de
+   * fraqueza. Fica registrado para auditoria e para o corpus crescer.
+   */
+  onUnrecognized?: (answer: string) => void;
 }
 
 type ToneN = 1 | 2 | 3 | 4;
@@ -1291,7 +1298,7 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake }: StepProps) {
   );
 }
 
-type EngineFeedback = "correct" | "wrong" | null;
+type EngineFeedback = "correct" | "wrong" | "unrecognized" | null;
 
 function normalizeEngineAnswer(value: string | undefined): string {
   return normalizeWriteText(value ?? "");
@@ -1442,23 +1449,31 @@ function EngineFeedbackPanel({
   if (status === "wrong" && deferMistakeToParent) return null;
 
   const correct = status === "correct";
+  // "Não reconheci" não é erro: o motor está admitindo o limite dele, não
+  // apontando o do aluno. Por isso não usa o X nem a cor de erro — a diferença
+  // visual é o que impede a mensagem de ser lida como reprovação.
+  const unrecognized = status === "unrecognized";
   return (
     <div
       role="status"
       aria-live="polite"
       className={[
         "animate-pop mt-4 rounded-2xl border p-3.5",
-        correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
+        correct
+          ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom"
+          : unrecognized
+            ? "border-line bg-surface-2"
+            : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
       <div
         className={[
           "flex items-center gap-2 text-sm font-semibold",
-          correct ? "text-[rgb(var(--good))]" : "text-accent",
+          correct ? "text-[rgb(var(--good))]" : unrecognized ? "text-ink-soft" : "text-accent",
         ].join(" ")}
       >
-        {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-        {correct ? "Boa! +Qi" : "Quase"}
+        {correct ? <IconCheck width={18} height={18} /> : unrecognized ? null : <IconX width={18} height={18} />}
+        {correct ? "Boa! +Qi" : unrecognized ? "Não reconheci essa forma" : "Quase"}
       </div>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
         {correct
@@ -1466,7 +1481,9 @@ function EngineFeedbackPanel({
             (hadMistake
               ? "Certo agora — esta parte entra na revisão."
               : "Estrutura certa.")
-          : explanation ?? "Veja o modelo e tente de novo."}
+          : unrecognized
+            ? "Isto não contou como erro. Se a sua frase estiver certa, ela foi registrada para entrar no curso. Uma resposta esperada seria:"
+            : explanation ?? "Veja o modelo e tente de novo."}
       </p>
       {model && (
         <div className="mt-3 rounded-xl bg-surface/75 px-3 py-2">
@@ -3679,7 +3696,7 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
 }
 
 /** free_production e transfer_task compartilham a mesma mecânica. */
-function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
+function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const isTransfer = step.kind === "transfer_task";
   const isOpen = Boolean(step.productionOpen);
@@ -3718,6 +3735,23 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
       playSoundFx("success", soundEffects);
       return;
     }
+
+    // O corpus nunca vai enumerar todas as frases certas do mandarim. Quando o
+    // diagnóstico não encontra padrão que explique uma tentativa bem formada, o
+    // honesto é admitir que não reconheceu — não cobrar como erro. Cobrar
+    // custaria estrela, entraria no SRS e ainda desviaria as próximas lições.
+    const diagnosis = diagnoseError({
+      kind: step.kind,
+      expected: model,
+      given: candidate,
+      hasCommunicativeGoal: true,
+    });
+    if (isUnexplainedProduction(diagnosis, candidate)) {
+      setFeedback("unrecognized");
+      onUnrecognized?.(candidate);
+      return;
+    }
+
     setHadMistake(true);
     setFeedback("wrong");
     onMistake?.(candidate);
@@ -3779,7 +3813,11 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
         // Na produção aberta não existe "o modelo": chamar de modelo uma frase
         // diferente da que o aluno acertou sugeriria que ele escolheu errado.
         // Ali o modelo só aparece quando a tentativa não foi aceita.
-        model={feedback === "wrong" || hadMistake || (!isOpen && locked) ? model : undefined}
+        model={
+          feedback === "wrong" || feedback === "unrecognized" || hadMistake || (!isOpen && locked)
+            ? model
+            : undefined
+        }
         explanation={step.explanation}
         hadMistake={hadMistake}
         deferMistakeToParent={Boolean(onMistake)}
@@ -4020,7 +4058,7 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
   return text;
 }
 
-export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
+export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized }: StepProps) {
   const name = useStudentFirstName();
   const personalizedStep = useMemo(() => personalizeStep(step, name), [step, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
@@ -4091,7 +4129,7 @@ export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
       case "odd_one_out": return <StepOddOneOut step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "spot_error": return <StepSpotError step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "free_production":
-      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} onUnrecognized={onUnrecognized} />;
       case "conversation_repair": return <StepConversationRepair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       default: return null;
     }

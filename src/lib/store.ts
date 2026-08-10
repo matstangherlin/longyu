@@ -779,6 +779,28 @@ export interface ActivityErrorRecord {
   correctedAt?: number;
 }
 
+/**
+ * Resposta de produção que o motor não soube julgar.
+ *
+ * Não é erro — é o limite do corpus aparecendo. Fica registrada porque é
+ * exatamente o material para auditar o diagnóstico com respostas humanas reais
+ * e para decidir quais formas o curso ainda precisa aceitar.
+ */
+export interface UnrecognizedProductionRecord {
+  id: string;
+  lessonId: string;
+  stepKind: string;
+  /** A situação em pt-BR que o aluno estava respondendo. */
+  situationPt?: string;
+  /** A frase que o curso esperava. */
+  expected: string;
+  /** O que o aluno escreveu. */
+  answer: string;
+  timestamp: number;
+  /** Quantas vezes esta mesma forma apareceu (sinal de que vale aceitar). */
+  seenCount?: number;
+}
+
 export type LessonStar = 0 | 1 | 2 | 3;
 export type MistakeSourceSkill = "som" | "fala" | "hanzi" | "leitura" | "pinyin" | "grammar";
 
@@ -1064,6 +1086,8 @@ interface AccountSnapshot extends XpBuckets {
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
   recentActivityErrors: ActivityErrorRecord[];
+  /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
+  unrecognizedProductions?: UnrecognizedProductionRecord[];
   /** Últimas cenas de conversa vistas (mais recente primeiro) — evita repetição. */
   recentConversationSceneIds?: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro). */
@@ -1171,6 +1195,7 @@ function blankSnapshot(): AccountSnapshot {
     recentErrors: [],
     lessonTaskProgress: {},
     recentActivityErrors: [],
+    unrecognizedProductions: [],
     recentConversationSceneIds: [],
     recentConversationIntentIds: [],
     conversationHistory: [],
@@ -1280,6 +1305,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     recentErrors: s.recentErrors,
     lessonTaskProgress: s.lessonTaskProgress,
     recentActivityErrors: s.recentActivityErrors,
+    unrecognizedProductions: s.unrecognizedProductions ?? [],
     recentConversationSceneIds: s.recentConversationSceneIds ?? [],
     recentConversationIntentIds: s.recentConversationIntentIds ?? [],
     conversationHistory: s.conversationHistory ?? [],
@@ -1402,6 +1428,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     recentErrors: normalizeLessonMistakes(account.recentErrors).filter((error) => !error.recoveredAt),
     lessonTaskProgress: account.lessonTaskProgress ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
+    unrecognizedProductions: (account.unrecognizedProductions ?? []).slice(-40),
     recentConversationSceneIds: (account.recentConversationSceneIds ?? []).slice(0, 10),
     recentConversationIntentIds: (account.recentConversationIntentIds ?? []).slice(0, 10),
     conversationHistory: normalizeConversationHistory(account.conversationHistory),
@@ -1671,6 +1698,8 @@ interface AppState {
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
   recentActivityErrors: ActivityErrorRecord[];
+  /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
+  unrecognizedProductions: UnrecognizedProductionRecord[];
   /** Últimas cenas de conversa vistas (mais recente primeiro) — evita repetição. */
   recentConversationSceneIds: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro). */
@@ -1807,6 +1836,14 @@ interface AppState {
   ensureSrs: (type: ItemType, itemId: string, track?: Track, reviewDomain?: ReviewDomain) => void;
   gradeSrs: (type: ItemType, itemId: string, grade: Grade, track?: Track, reviewDomain?: ReviewDomain) => void;
   recordActivityError: (error: ActivityErrorRecord) => void;
+  /**
+   * Produção bem formada que o motor não soube julgar. Deliberadamente não
+   * toca em estrela, SRS nem perfil de fraqueza: é registro de auditoria, não
+   * de desempenho.
+   */
+  registerUnrecognizedProduction: (
+    record: Omit<UnrecognizedProductionRecord, "id" | "timestamp" | "seenCount">
+  ) => void;
   markActivityErrorCorrected: (errorId: string) => void;
   /** Errou de novo na revisão: conta a tentativa sem criar erro duplicado. */
   recordActivityErrorReviewAttempt: (errorId: string) => void;
@@ -1961,6 +1998,7 @@ export const useStore = create<AppState>()(
       recentErrors: [],
       lessonTaskProgress: {},
       recentActivityErrors: [],
+      unrecognizedProductions: [],
       recentConversationSceneIds: [],
       recentConversationIntentIds: [],
       conversationHistory: [],
@@ -2640,6 +2678,33 @@ export const useStore = create<AppState>()(
         });
         get().markLearned(type, itemId);
       },
+
+      registerUnrecognizedProduction: (record) =>
+        set((s) => {
+          const answer = record.answer?.trim();
+          if (!answer || !record.lessonId) return {};
+          const previous = s.unrecognizedProductions ?? [];
+          // Mesma forma na mesma situação só conta uma vez, com contador: o que
+          // interessa é "quantos alunos escreveram isto", não o volume de linhas.
+          const key = (item: UnrecognizedProductionRecord) =>
+            `${item.lessonId}:${item.expected}:${item.answer.toLocaleLowerCase("pt-BR")}`;
+          const candidate: UnrecognizedProductionRecord = {
+            ...record,
+            answer,
+            id: `${record.lessonId}:${answer}:${Date.now()}`,
+            timestamp: Date.now(),
+            seenCount: 1,
+          };
+          const existing = previous.find((item) => key(item) === key(candidate));
+          const unrecognizedProductions = [
+            ...previous.filter((item) => key(item) !== key(candidate)),
+            existing
+              ? { ...existing, timestamp: candidate.timestamp, seenCount: (existing.seenCount ?? 1) + 1 }
+              : candidate,
+          ].slice(-40);
+          const next = { ...s, unrecognizedProductions };
+          return { unrecognizedProductions, accounts: saveCurrentAccount(next) };
+        }),
 
       recordActivityError: (error) =>
         set((s) => {
@@ -4090,6 +4155,7 @@ export const useStore = create<AppState>()(
             migrated = {
               ...migrated,
               recentActivityErrors: [],
+              unrecognizedProductions: [],
             };
           }
           if (version < 12) {
