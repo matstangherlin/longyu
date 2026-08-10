@@ -22,10 +22,14 @@ telemetria para o beta.
 - **Estados de falha:** banner offline na lição; botão de áudio desabilitado com
   aviso quando TTS falta; sync com CTA “tentar de novo” na tela de vitória;
   microinteração leve (tap + bloom) em forma não reconhecida.
-- **Telemetria beta:** `durationMs`, hints, replays de áudio, `diagnosis` no
-  erro, evento `unrecognized_answer` com hash (sem texto cru), pós-conversa
-  finalmente aceita no RPC. Admin mostra diagnósticos, formas não reconhecidas
-  (nuvem + conta local), funil das 20 primeiras e atividade diária.
+- **Telemetria beta:** `wallClockMs` (relógio de parede, não tempo ativo),
+  `toneHintUses`, `audioManualPlays`, `diagnosis` no erro, evento
+  `unrecognized_answer` com **SHA-256** da forma (sem texto cru; ainda
+  vulnerável a dicionário em frases curtas — HMAC de backend fica para depois),
+  pós-conversa finalmente aceita no RPC. Admin mostra diagnósticos, formas não
+  reconhecidas (nuvem + conta local), funil das 20 primeiras e atividade diária.
+- **Offline honesto:** conta cloud promete sync depois; conta local só afirma
+  salvamento neste dispositivo.
 - Migration `20260810170000_beta_experience_telemetry.sql` amplia a whitelist
   de metadados e tipos de evento.
 

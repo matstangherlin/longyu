@@ -27,9 +27,9 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "appVersion",
       "stars",
       "reason",
-      "durationMs",
-      "hintUses",
-      "audioReplays",
+      "wallClockMs",
+      "toneHintUses",
+      "audioManualPlays",
       "folegoSkips",
       "stepIndex",
       "mistakes",
@@ -37,9 +37,9 @@ function sanitizePedagogyMetadata(eventType, metadata) {
     lesson_abandoned: [
       "appVersion",
       "reason",
-      "durationMs",
-      "hintUses",
-      "audioReplays",
+      "wallClockMs",
+      "toneHintUses",
+      "audioManualPlays",
       "stepIndex",
     ],
     exercise_answered: [
@@ -196,13 +196,16 @@ assert(unrecognized.answer === undefined, "texto cru não passa no unrecognized_
 const completed = sanitizePedagogyMetadata("lesson_completed", {
   stars: 3,
   reason: "completed",
-  durationMs: 120000,
-  hintUses: 2,
-  audioReplays: 5,
+  wallClockMs: 120000,
+  toneHintUses: 2,
+  audioManualPlays: 5,
 });
-assert(completed.durationMs === 120000, "lesson_completed preserva durationMs");
-assert(completed.hintUses === 2, "lesson_completed preserva hintUses");
-
+assert(completed.wallClockMs === 120000, "lesson_completed preserva wallClockMs");
+assert(completed.toneHintUses === 2, "lesson_completed preserva toneHintUses");
+assert(completed.audioManualPlays === 5, "lesson_completed preserva audioManualPlays");
+assert(completed.durationMs === undefined, "durationMs legado não passa");
+assert(completed.hintUses === undefined, "hintUses genérico não passa");
+assert(completed.audioReplays === undefined, "audioReplays ambíguo não passa");
 // ——— Migration SQL ———
 const mig = read("supabase/migrations/013_pedagogy_rpc_hardening.sql");
 const trustedAnonMig = read(
@@ -231,7 +234,9 @@ assert(mig.includes("rate_limited"), "exceção rate_limited");
 assert(mig.includes("event_rate_limited"), "exceção event_rate_limited");
 assert(
   betaExperienceMig.includes("unrecognized_answer") &&
-    betaExperienceMig.includes("durationMs") &&
+    betaExperienceMig.includes("wallClockMs") &&
+    betaExperienceMig.includes("toneHintUses") &&
+    betaExperienceMig.includes("audioManualPlays") &&
     betaExperienceMig.includes("diagnosis") &&
     betaExperienceMig.includes("post_conversation_shown"),
   "migration beta experience amplia whitelist e tipos"

@@ -50,7 +50,7 @@ import {
   type RecognizeHandle,
 } from "../../lib/speech";
 import { useKeyboardBottomInset } from "../../hooks/useKeyboardBottomInset";
-import { noteHintUse } from "../../lib/lessonSessionMetrics";
+import { noteToneHintUse } from "../../lib/lessonSessionMetrics";
 import { StepImageChoice } from "./StepImageChoice";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
@@ -553,7 +553,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               size="sm"
               className="mt-3 w-full"
               onClick={() => {
-                noteHintUse();
+                noteToneHintUse();
                 setHintLevel(2);
               }}
             >

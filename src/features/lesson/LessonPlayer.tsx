@@ -2275,18 +2275,21 @@ export function LessonPlayer() {
       answer,
     });
     const trimmed = answer.trim();
-    void trackPedagogyEvent({
-      eventType: "unrecognized_answer",
-      lessonId: lesson.id,
-      exerciseKind: currentStep.kind,
-      exerciseIndex: idx,
-      metadata: {
-        answerNormHash: hashAnswerNorm(trimmed),
-        answerLen: trimmed.length,
-        expectedLen: expected.length,
-        hasCjk: /[\u3400-\u9fff\uf900-\ufaff]/u.test(trimmed),
-      },
-    });
+    void (async () => {
+      const answerNormHash = await hashAnswerNorm(trimmed);
+      await trackPedagogyEvent({
+        eventType: "unrecognized_answer",
+        lessonId: lesson.id,
+        exerciseKind: currentStep.kind,
+        exerciseIndex: idx,
+        metadata: {
+          answerNormHash,
+          answerLen: trimmed.length,
+          expectedLen: expected.length,
+          hasCjk: /[\u3400-\u9fff\uf900-\ufaff]/u.test(trimmed),
+        },
+      });
+    })();
   }
 
   // "Tentar de novo por Qi": Pro refaz de graça; senão gasta Qi. O step é
@@ -2557,7 +2560,7 @@ export function LessonPlayer() {
         exerciseIndex: idx,
         metadata: {
           reason: "exit",
-          durationMs: Date.now() - attemptStartedAtRef.current,
+          wallClockMs: Date.now() - attemptStartedAtRef.current,
           stepIndex: idx,
           ...peekLessonSessionMetrics(),
         },
@@ -2799,7 +2802,7 @@ export function LessonPlayer() {
           stars,
           reason,
           folegoSkips,
-          durationMs: Date.now() - attemptStartedAtRef.current,
+          wallClockMs: Date.now() - attemptStartedAtRef.current,
           stepIndex: idx,
           mistakes: activityErrorsRef.current.length,
           ...peekLessonSessionMetrics(),
@@ -2812,7 +2815,7 @@ export function LessonPlayer() {
         exerciseIndex: idx,
         metadata: {
           reason,
-          durationMs: Date.now() - attemptStartedAtRef.current,
+          wallClockMs: Date.now() - attemptStartedAtRef.current,
           stepIndex: idx,
           ...peekLessonSessionMetrics(),
         },
@@ -3695,7 +3698,9 @@ export function LessonPlayer() {
         <div className="mb-3 rounded-2xl border border-line bg-surface-2 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
           <span className="font-semibold text-ink">Sem conexão</span>
           <span className="mx-1.5 text-ink-faint">·</span>
-          Você pode continuar; o progresso fica neste dispositivo e sobe depois.
+          {authMode === "cloud"
+            ? "Você pode continuar. O progresso será sincronizado quando a conexão voltar."
+            : "Você pode continuar. O progresso continua salvo neste dispositivo."}
         </div>
       )}
 

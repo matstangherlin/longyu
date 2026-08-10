@@ -1,6 +1,7 @@
 -- Beta Experience Hardening: amplia whitelist de metadados pedagógicos e
 -- aceita eventos que o app já emitia (pós-conversa) + unrecognized_answer.
--- Sem PII / respostas livres — só enums, contagens e hash de forma.
+-- Metadados usam wallClockMs / toneHintUses / audioManualPlays (nomes honestos).
+-- Sem texto de resposta livre — só enums, contagens e hash SHA-256 da forma.
 
 create or replace function public.sanitize_pedagogy_metadata(
   p_event_type text,
@@ -26,11 +27,11 @@ begin
   v_allowed := case p_event_type
     when 'lesson_started' then array['appVersion']
     when 'lesson_completed' then array[
-      'appVersion', 'stars', 'reason', 'durationMs', 'hintUses', 'audioReplays',
+      'appVersion', 'stars', 'reason', 'wallClockMs', 'toneHintUses', 'audioManualPlays',
       'folegoSkips', 'stepIndex', 'mistakes'
     ]
     when 'lesson_abandoned' then array[
-      'appVersion', 'reason', 'durationMs', 'hintUses', 'audioReplays', 'stepIndex'
+      'appVersion', 'reason', 'wallClockMs', 'toneHintUses', 'audioManualPlays', 'stepIndex'
     ]
     when 'exercise_answered' then array[
       'appVersion', 'correct', 'attempt', 'stage', 'responseTimeBucket',

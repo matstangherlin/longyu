@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { scheduleAutoSpeak, speak, noteUserGesture, isTTSAvailable } from "../../lib/tts";
 import { useStore } from "../../lib/store";
-import { noteAudioReplay } from "../../lib/lessonSessionMetrics";
+import { noteAudioManualPlay } from "../../lib/lessonSessionMetrics";
 import { IconSound } from "./Icon";
 
 // Botão de áudio reutilizável. Acessível e com feedback de "tocando".
@@ -42,7 +42,7 @@ export function SpeakButton({
     noteUserGesture();
     setPlaying(true);
     setUnavailable(false);
-    noteAudioReplay();
+    noteAudioManualPlay();
     recordDailyTask("audioHeard");
     speak(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
