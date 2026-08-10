@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 957ad3d9187f8646517b24d7fcf581beb36f2fff |
+| Commit | 55a5417963c0208a62264e370b6fac4b277e58d0 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T05:24:46.398Z |
+| Gerado em | 2026-08-10T05:33:20.282Z |
 | Lições | 122 |
 | Hash da Jornada | dd19e9f99101 |
 
@@ -201,4 +201,4 @@
 - l28:chunk:woyao
 - …mais 71.
 
-<!-- integridade:6e4bbaef49cae90b -->
+<!-- integridade:ac0bdcaad37982a2 -->

@@ -33,7 +33,9 @@ const assert = (condition, message) => {
   if (!condition) fail(message);
 };
 
-const CJK_RE = /[㐀-鿿豈-﫿]/u;
+// Escapes explícitos: com os caracteres literais, U+F900 normaliza para U+8C48
+// em NFC e a classe passa a aceitar Hangul e uso privado.
+const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/u;
 const PUNCT_RE = /[　-〿＀-￯,.!?\s:;"'()]/g;
 const clean = (value) => String(value ?? "").replace(PUNCT_RE, "").trim();
 

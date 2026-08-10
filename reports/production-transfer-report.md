@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 957ad3d9187f8646517b24d7fcf581beb36f2fff |
+| Commit | 55a5417963c0208a62264e370b6fac4b277e58d0 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T05:25:06.005Z |
+| Gerado em | 2026-08-10T05:34:18.668Z |
 | Lições | 122 |
 | Hash da Jornada | dd19e9f99101 |
 
@@ -55,4 +55,4 @@
 - 苹果多少钱
 - 茶多少钱
 
-<!-- integridade:18e19a896c35265e -->
+<!-- integridade:6168b6c2ffc8e7b4 -->

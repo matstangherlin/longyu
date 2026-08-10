@@ -30,7 +30,11 @@ import { VOCABULARY } from "./vocabulary";
 // para gerar situação comunicativa boa a partir de tabela de frequência.
 // ————————————————————————————————————————————————————————————————
 
-const HANZI_ONLY_RE = /^[㐀-鿿豈-﫿]+$/u;
+// Escapes explícitos, não os caracteres literais: escrito com literais, o
+// início do segundo intervalo (U+F900) normaliza para U+8C48 em NFC e a classe
+// passa a cobrir U+8C48–U+FAFF, engolindo Yi, Hangul e uso privado. Mesma
+// correção já aplicada em perceptionDrills.ts.
+const HANZI_ONLY_RE = /^[\u3400-\u9fff\uf900-\ufaff]+$/u;
 const PUNCT_RE = /[　-〿＀-￯,.!?\s:;"'()]/g;
 
 function cleanSentence(value: string): string {
