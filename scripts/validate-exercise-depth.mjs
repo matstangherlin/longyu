@@ -44,6 +44,7 @@ const CONTEXT_KINDS = new Set([
   "translation_build",
   "match_pairs",
   "microread",
+  "spot_error",
 ]);
 const SENTENCE_KINDS = new Set(["sentence_build", "translation_build", "conversation_scene", "produce"]);
 const USAGE_KINDS = new Set([
@@ -54,9 +55,11 @@ const USAGE_KINDS = new Set([
   "fill_blank",
   "sentence_build",
   "translation_build",
+  "spot_error",
+  "dictation",
 ]);
 const MEANING_ONLY_KINDS = new Set(["comprehend", "recognize", "flashcard", "tone", "tone_pair"]);
-const LISTEN_KINDS = new Set(["listen", "listen_select"]);
+const LISTEN_KINDS = new Set(["listen", "listen_select", "audio_discrimination", "dictation"]);
 const VISUAL_KINDS = new Set(["image_choice"]);
 const CONVERSATION_KINDS = new Set(["conversation_scene"]);
 const BUILDER_KINDS = new Set(["hanzi_build"]);

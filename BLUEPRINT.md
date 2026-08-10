@@ -45,6 +45,33 @@ ouvir / imitar  →  compreender  →  produzir guiado  →  SÓ ENTÃO ver o h�
 
 O aluno primeiro entende **som e uso**; depois reconhece **forma**; só por último se cobra na **escrita**.
 
+### O mesmo item por caminhos diferentes
+
+Uma lição não é uma fila de perguntas sobre o item novo. O construtor de plano
+(`buildLessonPracticePlan`) monta cada rodada a partir de candidatos e **exige
+transformação cognitiva** para cobrar o mesmo alvo duas vezes. A consequência
+prática é que uma palavra circula por modalidades em vez de reaparecer igual:
+
+```
+aprende 茶 → ouve 茶 → distingue de 咖啡 → completa 我要一杯茶
+   → pede chá numa conversa → ouve o garçom → fala a frase → reencontra no SRS
+```
+
+Além dos motores clássicos (escolha, montagem, lacuna, pares, conversa,
+HanziBuilder, imagem, tom, microleitura), quatro motores de **percepção e
+sentido** cobram o vocabulário por caminhos que a escolha múltipla não alcança:
+
+| Motor | Cobra | Conteúdo |
+|---|---|---|
+| **Par mínimo** (`audio_discrimination`) | ouvido puro — "iguais ou diferentes?", sem escrita na pergunta | derivado do corpus: tons por sílaba (妈/麻/马/骂) e contrastes que enganam brasileiro (`sh×x`, `-en×-eng`, `u×ü`) |
+| **Ditado** (`dictation`) | som → escrita, em três níveis (blocos → pinyin → hànzì) e um nível de imersão com uma reprodução só | o áudio que a lição já tem |
+| **Qual não pertence** (`odd_one_out`) | sentido e categoria, não tradução decorada | grupos derivados dos domínios do vocabulário |
+| **Qual frase funciona** (`spot_error`) | estrutura e intenção; a correção entrega a regra em uma frase | banco curado de erros reais de quem fala português (`我是水`, `我有二十岁`, `我不有钱`) |
+
+Fonte de conteúdo: `src/data/perceptionDrills.ts`. Portão:
+`npm run validate:perception-drills`. Direção completa e ondas seguintes em
+[`docs/PEDAGOGIA_EXPANSAO.md`](docs/PEDAGOGIA_EXPANSAO.md).
+
 ---
 
 ## 3. Roadmap pedagógico (as 7 fases)

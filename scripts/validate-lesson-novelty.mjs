@@ -54,6 +54,10 @@ const GRADED_KINDS = new Set([
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "audio_discrimination",
+  "dictation",
+  "odd_one_out",
+  "spot_error",
 ]);
 const isGraded = (step) => GRADED_KINDS.has(step.kind) && !(step.kind === "write" && step.mode === "free_reflection");
 

@@ -527,6 +527,12 @@ const EXPOSURE_AXES_BY_KIND: Record<StepKind, PedagogicalExposureAxis[]> = {
   hanzi_build: ["producao", "forma"],
   tone_pair: ["som", "significado"],
   image_choice: ["significado", "forma", "som"],
+  // Percepção pura: o par mínimo não mostra escrita antes da resposta.
+  audio_discrimination: ["som"],
+  // Ditado fecha o circuito som → forma → produção.
+  dictation: ["som", "forma", "producao"],
+  odd_one_out: ["significado", "contexto"],
+  spot_error: ["contexto", "producao", "significado"],
 };
 
 function exposureTextSources(step: LessonStep): string[] {

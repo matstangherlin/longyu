@@ -46,6 +46,10 @@ const KNOWN_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "audio_discrimination",
+  "dictation",
+  "odd_one_out",
+  "spot_error",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -228,6 +232,70 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       const options = [...(step.options ?? []), ...(step.distractors ?? [])];
       checkChoice(errors, "listen_select", answer, options);
       checkPinyinLookAlike(errors, step, options);
+      break;
+    }
+
+    case "audio_discrimination": {
+      // Par mínimo: dois áudios e uma decisão binária. Sem o segundo áudio o
+      // exercício não existe; com os dois iguais por engano, a resposta mente.
+      if (!step.audioText?.trim()) errors.push("audio_discrimination sem primeiro áudio");
+      if (!step.audioTextB?.trim()) errors.push("audio_discrimination sem segundo áudio");
+      const answer = step.correctAnswer ?? step.answer;
+      if (answer !== "same" && answer !== "different") {
+        errors.push(`audio_discrimination: resposta precisa ser "same" ou "different" (veio "${String(answer)}")`);
+      }
+      const identical =
+        Boolean(step.audioText) && normalize(step.audioText!) === normalize(step.audioTextB ?? "");
+      if (identical && answer === "different") {
+        errors.push("audio_discrimination: os dois áudios são idênticos mas a resposta diz 'diferentes'");
+      }
+      if (!identical && answer === "same") {
+        errors.push("audio_discrimination: os dois áudios são diferentes mas a resposta diz 'iguais'");
+      }
+      break;
+    }
+
+    case "dictation": {
+      const audio = step.audioText ?? step.hanzi;
+      if (!audio?.trim()) errors.push("dictation sem áudio");
+      const mode = step.dictationMode ?? "blocks";
+      if (mode === "blocks") {
+        const parts = step.targetParts ?? [];
+        if (parts.length === 0) errors.push("dictation (blocos) sem targetParts");
+        if (parts.some((piece) => !piece?.trim())) errors.push("dictation (blocos) com peça vazia");
+        const bank = step.bank ?? [];
+        for (const piece of parts) {
+          if (!bank.some((candidate) => normalize(candidate) === normalize(piece))) {
+            errors.push(`dictation (blocos): banco não contém a peça "${piece}"`);
+          }
+        }
+      } else if (!(step.correctAnswer ?? step.answer)?.trim()) {
+        errors.push(`dictation (${mode}) sem resposta escrita`);
+      }
+      break;
+    }
+
+    case "odd_one_out": {
+      const answer = step.correctAnswer ?? step.answer;
+      checkChoice(errors, "odd_one_out", answer, step.options);
+      if ((step.options ?? []).length < 4) {
+        // Com 3 opções o "não pertence" fica frouxo: 2 do grupo não formam grupo.
+        errors.push("odd_one_out precisa de 4 alternativas (3 do grupo + 1 intruso)");
+      }
+      if (!step.explanation?.trim()) errors.push("odd_one_out sem explicação do grupo");
+      break;
+    }
+
+    case "spot_error": {
+      const answer = step.correctAnswer ?? step.answer;
+      checkChoice(errors, "spot_error", answer, step.options);
+      if ((step.options ?? []).length !== 2) {
+        errors.push("spot_error compara exatamente 2 frases");
+      }
+      if (!step.prompt?.trim() && !step.dialoguePrompt?.trim()) {
+        errors.push("spot_error sem intenção em português");
+      }
+      if (!step.explanation?.trim()) errors.push("spot_error sem a regra explicada");
       break;
     }
 

@@ -7,6 +7,35 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Expansão pedagógica — motores de percepção e sentido
+
+- Quatro motores novos entram no plano real de todas as lições, sem currículo
+  novo escrito: **par mínimo** (`audio_discrimination`, "iguais ou diferentes?"),
+  **ditado** (`dictation`, em blocos / pinyin / hànzì e um nível de imersão com
+  uma reprodução só), **qual não pertence** (`odd_one_out`) e **qual frase
+  funciona** (`spot_error`).
+- Conteúdo em `src/data/perceptionDrills.ts`. Pares mínimos e grupos semânticos
+  são **derivados do corpus** (69 pares de tom, inicial e final; grupos por
+  domínio de vocabulário); só o banco de frases erradas é curado — cada uma é um
+  erro real de quem fala português (`我是水`, `我有二十岁`, `我不有钱`,
+  `我们去明天`, classificador ausente, `吗` fora do fim).
+- Os motores estão ligados ao SRS por domínio (par mínimo alimenta só *som*;
+  ditado alimenta som/forma/pinyin), à remediação imediata (erro de ouvido volta
+  por áudio, nunca por leitura), ao perfil cognitivo de novidade e à fase
+  pós-conversa, com três tipos novos: `sound_contrast`, `write_heard` e
+  `group_meaning`.
+- A fase pós-conversa deixa de poder empilhar a mesma modalidade para atingir o
+  mínimo de tarefas — três múltiplas escolhas seguidas eram possíveis antes.
+- A **resposta principal de uma cena volta obrigatoriamente numa tarefa em que o
+  aluno produz ou aplica** (montar, responder à situação, completar, escrever o
+  que ouviu); antes isso dependia da ordenação por score.
+- Portão novo `validate:perception-drills` (dentro de `validate:beta`): confere
+  contraste real de cada par mínimo, integridade dos grupos e frases, validação
+  de renderização de todo passo gerado e cobertura mínima por lição.
+- Resultado: 114 de 122 lições passam a ter pelo menos uma modalidade nova;
+  profundidade média 91 → 92, sem nenhuma lição abaixo do score recomendado.
+- Direção completa das ondas seguintes em `docs/PEDAGOGIA_EXPANSAO.md`.
+
 ### Controles de abuso (2ª passagem)
 
 - Helpers de IP nas Edge Functions deixam de confiar em headers forjáveis em

@@ -58,6 +58,12 @@ import {
 } from "../../data/hanziBuilder";
 import { numericPinyinToDiacritics, normalizePinyinBase, isNearDuplicatePinyinSet } from "../../lib/pinyin";
 import {
+  dictationModeForPhase,
+  minimalPairsFor,
+  oddOneOutSetsFor,
+  spotErrorDrillsFor,
+} from "../../data/perceptionDrills";
+import {
   defaultVisualDistractors,
   visualByCharId,
   visualByHanzi,
@@ -122,6 +128,10 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "audio_discrimination",
+  "dictation",
+  "odd_one_out",
+  "spot_error",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -422,9 +432,28 @@ const LESSON_STAGE_ORDER: LessonStageId[] = ["intro", "recognition", "assembly",
 
 const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
   intro: ["intro", "flashcard", "listen", "hanzi_evolution", "decompose"],
-  recognition: ["listen_select", "comprehend", "recognize", "tone", "match_pairs", "tone_pair", "image_choice"],
-  assembly: ["produce", "sentence_build", "translation_build", "hanzi_build", "fill_blank", "decompose"],
-  usage: ["dialogue_choice", "conversation_scene", "write", "fill_blank", "microread", "produce", "comprehend"],
+  recognition: [
+    "listen_select",
+    "comprehend",
+    "recognize",
+    "tone",
+    "match_pairs",
+    "tone_pair",
+    "image_choice",
+    "audio_discrimination",
+    "odd_one_out",
+  ],
+  assembly: ["produce", "sentence_build", "translation_build", "hanzi_build", "fill_blank", "decompose", "dictation"],
+  usage: [
+    "dialogue_choice",
+    "conversation_scene",
+    "write",
+    "fill_blank",
+    "microread",
+    "produce",
+    "comprehend",
+    "spot_error",
+  ],
   post_conversation: [
     "comprehend",
     "dialogue_choice",
@@ -456,6 +485,10 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "tone_pair",
     "image_choice",
     "microread",
+    "audio_discrimination",
+    "dictation",
+    "odd_one_out",
+    "spot_error",
   ],
 };
 
@@ -607,6 +640,10 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   hanzi_build: ["hanzi", "assembly"],
   tone_pair: ["pinyin", "audio", "matching"],
   image_choice: ["recognition", "hanzi", "meaning", "audio"],
+  audio_discrimination: ["audio", "pinyin"],
+  dictation: ["audio", "assembly", "hanzi"],
+  odd_one_out: ["meaning", "recognition"],
+  spot_error: ["usage", "assembly"],
 };
 
 const WEIGHTS_BY_SKILL: Record<Skill | "review", Partial<Record<ExerciseFamily, number>>> = {
@@ -1362,6 +1399,174 @@ function makeTonePairStep(focus: FocusItem[]): LessonStep | null {
     body: "Combine hànzì, tom e pinyin sem usar pinyin numérico.",
     pairs,
     explanation: "Tons voltam em blocos curtos para fortalecer ouvido e leitura.",
+  };
+}
+
+// ————————————————————————————————————————————————————————————————
+// Motores de percepção e sentido
+//
+// Estes quatro geradores fazem o vocabulário da lição voltar por caminhos
+// que a jornada não cobria: discriminar dois sons, escrever o que ouviu,
+// agrupar por sentido e julgar estrutura. Conteúdo em perceptionDrills.ts —
+// aqui só entra a decisão pedagógica de QUANDO cada um cabe.
+// ————————————————————————————————————————————————————————————————
+
+/**
+ * Glifos que o currículo já apresentou até esta lição (inclusive). Serve de
+ * piso para liberar os drills mesmo quando o estado do aluno ainda não foi
+ * carregado — a progressão é a mesma da jornada, não uma lista paralela.
+ */
+let curriculumGlyphsCache: Map<string, Set<string>> | null = null;
+function curriculumGlyphsThroughLesson(lessonId: string | undefined): ReadonlySet<string> {
+  if (!lessonId) return new Set<string>();
+  if (!curriculumGlyphsCache) {
+    curriculumGlyphsCache = new Map();
+    const cumulative = new Set<string>();
+    for (const lesson of ALL_LESSONS) {
+      for (const item of lessonFocusItems(lesson)) {
+        for (const glyph of cleanHanzi(item.hanzi)) cumulative.add(glyph);
+      }
+      curriculumGlyphsCache.set(lesson.id, new Set(cumulative));
+    }
+  }
+  return curriculumGlyphsCache.get(lessonId) ?? new Set<string>();
+}
+
+/** Semente estável por lição+estágio: gira os drills sem virar sorteio. */
+function drillSeedFor(lessonId: string | undefined, stageId: LessonStageId): number {
+  let hash = 0;
+  for (const char of `${lessonId ?? ""}|${stageId}`) hash = (hash * 31 + char.charCodeAt(0)) % 100000;
+  return hash;
+}
+
+function knownGlyphsFor(options: SupplementalStepOptions): ReadonlySet<string> {
+  const glyphs = new Set<string>(curriculumGlyphsThroughLesson(options.lessonId));
+  for (const glyph of options.seenGlyphs ?? []) glyphs.add(glyph);
+  return glyphs;
+}
+
+/**
+ * Par mínimo "iguais ou diferentes?". Metade das rodadas repete o MESMO som
+ * dos dois lados — sem isso o aluno aprende a responder "diferentes" sempre e
+ * o exercício deixa de medir ouvido.
+ */
+function makeAudioDiscriminationStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number
+): LessonStep | null {
+  const drills = minimalPairsFor(knownGlyphs, { limit: 12 });
+  if (drills.length === 0) return null;
+  const drill = drills[seed % drills.length];
+  const identical = seed % 2 === 0;
+  const first = drill.a;
+  const second = identical ? drill.a : drill.b;
+  return {
+    kind: "audio_discrimination",
+    title: "Iguais ou diferentes?",
+    prompt: "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
+    audioText: first.hanzi,
+    audioTextB: second.hanzi,
+    correctAnswer: identical ? "same" : "different",
+    contrastLabel: drill.contrastLabelPt,
+    minimalPairId: drill.id,
+    pairReveal: [
+      { hanzi: first.hanzi, pinyin: first.pinyin, meaningPt: first.meaningPt },
+      { hanzi: second.hanzi, pinyin: second.pinyin, meaningPt: second.meaningPt },
+    ],
+    explanation: identical
+      ? `Era o mesmo som duas vezes: ${first.pinyin}. ${drill.notePt}`
+      : `${first.pinyin} × ${second.pinyin} — ${drill.contrastLabelPt}. ${drill.notePt}`,
+    isNoHint: true,
+  };
+}
+
+/** Ditado: o mesmo áudio da lição cobrado por montagem, pinyin ou hànzì. */
+function makeDictationStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  phaseOrder: number,
+  options: { immersion?: boolean } = {}
+): LessonStep | null {
+  const clean = cleanHanzi(item.hanzi);
+  if (!CJK_ONLY_RE.test(clean) || clean.length < 2 || clean.length > 8) return null;
+  const mode = dictationModeForPhase(phaseOrder);
+  if (mode === "pinyin" && !item.pinyin?.trim()) return null;
+
+  // As peças de montagem acompanham TODOS os níveis: no modo hànzì elas são a
+  // saída para quem não tem teclado chinês, e a tela oferece a troca.
+  const parts = [...clean];
+  const extras = focus
+    .filter((candidate) => candidate.key !== item.key)
+    .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
+    .filter(Boolean);
+  const bank = uniqueValues([...parts, ...extras]).slice(0, Math.max(parts.length + 2, 4));
+
+  if (mode === "blocks") {
+    return {
+      kind: "dictation",
+      title: "Ouça e monte",
+      dictationMode: "blocks",
+      audioText: clean,
+      hanzi: clean,
+      targetParts: parts,
+      bank,
+      correctAnswer: clean,
+      singlePlayback: options.immersion,
+      explanation: `${clean} — ${item.meaningPt}.`,
+      isNoHint: true,
+    };
+  }
+
+  const answer = mode === "pinyin" ? item.pinyin!.trim() : clean;
+  return {
+    kind: "dictation",
+    title: mode === "pinyin" ? "Ouça e escreva o pinyin" : "Ouça e escreva o hànzì",
+    dictationMode: mode,
+    audioText: clean,
+    hanzi: clean,
+    correctAnswer: answer,
+    // Pinyin sem acento é aceito: aqui se cobra o que o ouvido pegou, não
+    // a digitação de diacríticos.
+    accepts: mode === "pinyin" ? uniqueValues([answer, answer.replace(/\s+/g, "")]) : undefined,
+    targetParts: mode === "hanzi" ? parts : undefined,
+    bank: mode === "hanzi" ? bank : undefined,
+    singlePlayback: options.immersion,
+    explanation: `${clean} · ${item.pinyin ?? ""} — ${item.meaningPt}.`,
+    isNoHint: true,
+  };
+}
+
+/** "Qual não pertence?" — grupos derivados dos domínios do corpus. */
+function makeOddOneOutStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
+  const sets = oddOneOutSetsFor(knownGlyphs, { limit: 8 });
+  if (sets.length === 0) return null;
+  const set = sets[seed % sets.length];
+  const options = uniqueValues([...set.members.map((member) => member.hanzi), set.intruder.hanzi]);
+  if (options.length < 4) return null;
+  return {
+    kind: "odd_one_out",
+    title: "Qual não pertence?",
+    prompt: "Três são do mesmo grupo. Toque na que sobra.",
+    options,
+    correctAnswer: set.intruder.hanzi,
+    explanation: `${set.members.map((member) => member.hanzi).join("、")} são ${set.groupLabelPt}. ${set.intruder.hanzi} (${set.intruder.meaningPt}) é ${set.intruderGroupLabelPt}.`,
+    isNoHint: true,
+  };
+}
+
+/** "Qual frase faz isso?" — duas frases plausíveis, uma regra por trás. */
+function makeSpotErrorStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
+  const drills = spotErrorDrillsFor(knownGlyphs);
+  if (drills.length === 0) return null;
+  const drill = drills[seed % drills.length];
+  return {
+    kind: "spot_error",
+    title: "Qual frase faz isso?",
+    prompt: drill.intentPt,
+    options: [drill.right.hanzi, drill.wrong.hanzi],
+    correctAnswer: drill.right.hanzi,
+    explanation: `${drill.right.hanzi} (${drill.right.pinyin}) — ${drill.whyPt}`,
+    isNoHint: true,
   };
 }
 
@@ -2141,6 +2346,8 @@ interface SupplementalStepOptions {
   allowImageSteps?: boolean;
   /** Seleção de cena de conversa por pontuação (foco, intenções, recência). */
   sceneSelection?: ConversationSceneSelection;
+  /** Lição atual: libera os motores de percepção pelo currículo já percorrido. */
+  lessonId?: string;
 }
 
 function supplementalStepsForStage(
@@ -2159,6 +2366,11 @@ function supplementalStepsForStage(
     allowComposedFiller: options.allowComposedFiller,
   };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
+  // Motores de percepção: um "seed" estável por lição faz o par mínimo, o
+  // grupo semântico e a frase certa girarem entre lições em vez de repetir
+  // sempre o primeiro item do banco.
+  const knownGlyphs = knownGlyphsFor(options);
+  const drillSeed = drillSeedFor(options.lessonId, stageId);
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
     if (result.some((candidate) => stepSignature(candidate) === stepSignature(step))) return;
@@ -2187,6 +2399,11 @@ function supplementalStepsForStage(
   } else if (stageId === "recognition") {
     // Imagem → hànzì/significado/pinyin: reconhecer o conceito concreto pela imagem.
     for (const item of focus) pushImage(item, 2);
+    // Ouvido e sentido entram ANTES da bateria de reconhecimento: se ficassem
+    // no fim, o orçamento do estágio já teria acabado e a lição voltaria a ser
+    // só múltipla escolha.
+    push(makeAudioDiscriminationStep(knownGlyphs, drillSeed));
+    push(makeOddOneOutStep(knownGlyphs, drillSeed));
     for (const item of focus) {
       push(makeRecognizeStep(item));
       push(makeDecomposeStep(item));
@@ -2198,9 +2415,14 @@ function supplementalStepsForStage(
     }
     push(makeTonePairStep(focus));
   } else if (stageId === "assembly") {
+    // O ditado do primeiro item abre o estágio: escrever o que se ouviu é a
+    // ponte entre som e forma, e precisa vir antes de a montagem visual
+    // consumir o orçamento.
+    if (focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
     for (const item of focus) {
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeSentenceBuildStep(item, focus));
+      push(makeDictationStep(item, focus, phaseOrder));
       push(makeAssemblyChoiceStep(item, focus));
       if (result.length >= targetCount) break;
     }
@@ -2214,6 +2436,8 @@ function supplementalStepsForStage(
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
+    // Julgar estrutura é uso, não reconhecimento: entra depois do diálogo.
+    push(makeSpotErrorStep(knownGlyphs, drillSeed));
     push(makeOldPhraseReuseStep(focus));
   } else {
     // Consolidação revisita imagens ANTIGAS (reviewFocus e núcleo) num modo diferente.
@@ -2222,11 +2446,17 @@ function supplementalStepsForStage(
     for (const item of focus) pushImage(item, 3);
     push(makeMatchPairsStep([...reviewFocus, ...focus]));
     push(makeTonePairStep([...reviewFocus, ...focus]));
+    push(makeAudioDiscriminationStep(knownGlyphs, drillSeed + 1));
+    push(makeOddOneOutStep(knownGlyphs, drillSeed + 1));
+    push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
     push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
+      // Na consolidação o ditado sobe para imersão: velocidade natural,
+      // uma reprodução só.
+      push(makeDictationStep(item, [...reviewFocus, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
       if (result.length >= targetCount) break;
     }
   }
@@ -2510,7 +2740,7 @@ function generatedCandidatesFor(
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection });
+    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id });
     for (const step of generated) {
       candidates.push({
         step,
@@ -3068,6 +3298,22 @@ interface DerivedTaskDeps {
   ownFocusGlyphs?: ReadonlySet<string>;
 }
 
+/**
+ * Glifos disponíveis para um drill derivado de conversa: o que o aluno já
+ * viu, mais o vocabulário da própria conversa (que ele acabou de encontrar).
+ */
+function postConversationKnownGlyphs(
+  item: FocusItem,
+  focus: readonly FocusItem[],
+  deps: DerivedTaskDeps
+): ReadonlySet<string> {
+  const glyphs = new Set<string>(deps.seenGlyphs ?? []);
+  for (const candidate of [item, ...focus, ...deps.focus]) {
+    for (const glyph of cleanHanzi(candidate.hanzi)) glyphs.add(glyph);
+  }
+  return glyphs;
+}
+
 function countSemanticOccurrences(steps: readonly LessonStep[], key: string): number {
   let total = 0;
   for (const step of steps) if (semanticTargetKeys(step).includes(key)) total += 1;
@@ -3201,6 +3447,9 @@ const ALL_POST_CONVERSATION_TYPES: readonly PostConversationTaskType[] = [
   "recreate_no_translation",
   "polite_reply",
   "order_dialogue",
+  "sound_contrast",
+  "write_heard",
+  "group_meaning",
 ];
 
 /** Tarefas típicas de cada nível de apresentação — evitadas quando a cena reaparece. */
@@ -3233,6 +3482,12 @@ function postConversationStepKind(type: PostConversationTaskType): StepKind {
       return "sentence_build";
     case "fill_missing":
       return "fill_blank";
+    case "sound_contrast":
+      return "audio_discrimination";
+    case "write_heard":
+      return "dictation";
+    case "group_meaning":
+      return "odd_one_out";
     default:
       return "dialogue_choice";
   }
@@ -3365,6 +3620,19 @@ function makePostConversationStep(
       const lines = conversationStep.lines ?? [];
       return makeOrderDialogueStep(lines, f);
     }
+    // A conversa acabou de expor estas palavras: cobrá-las pelo ouvido e pelo
+    // sentido (não só por escolha de significado) é o que evita a fase virar
+    // três múltiplas escolhas seguidas.
+    case "sound_contrast": {
+      const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
+      return makeAudioDiscriminationStep(glyphs, drillSeedFor(item.key, "post_conversation"));
+    }
+    case "write_heard":
+      return makeDictationStep(item, f, _taskDeps.phaseOrder);
+    case "group_meaning": {
+      const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
+      return makeOddOneOutStep(glyphs, drillSeedFor(item.key, "post_conversation"));
+    }
     default:
       return null;
   }
@@ -3404,6 +3672,11 @@ function scorePostConversationTask(
       if (type === "image_match") score += ctx.hasImage ? 2 : -3;
   if (type === "spot_hanzi") score += ctx.hasBuilder ? 2 : ctx.isNew ? 1 : -1;
   if (type === "repair_repeat") score += ctx.hadErrors ? 3 : 0;
+  // Ouvido e sentido: valem mais quando a cena foi apresentada por áudio ou
+  // quando o aluno já viu a cena antes (aí a múltipla escolha cansa).
+  if (type === "sound_contrast") score += ctx.variantLevel === "audio_first" ? 3 : ctx.isRepeatScene ? 2 : 1;
+  if (type === "write_heard") score += advanced ? 3 : ctx.isNew ? 2 : 1;
+  if (type === "group_meaning") score += ctx.isRepeatScene ? 3 : ctx.isNew ? 1 : 2;
   if (type === "polite_reply") score += ctx.isRepeatScene ? 2 : 1;
   if (type === "order_dialogue") score += ctx.isRepeatScene ? 2 : 0;
 
@@ -3491,19 +3764,47 @@ function selectPostConversationBlueprints(
   const usedKinds = new Set<StepKind>();
   const usedRefs = new Set<string>();
 
-  const tryPick = (bp: PostConversationBlueprint) => {
+  // Uma modalidade por fase. Antes o mínimo podia ser atingido repetindo o
+  // mesmo kind, e a fase virava três múltiplas escolhas seguidas — que é
+  // exatamente o que "mesma palavra por caminhos diferentes" quer evitar.
+  // Repetir kind agora só acontece no passe de relaxamento no fim, quando
+  // não sobrou nenhuma modalidade nova.
+  const tryPick = (bp: PostConversationBlueprint, allowRepeatKind = false) => {
     if (picked.length >= ctx.bounds.max) return false;
     if (usedTypes.has(bp.type)) return false;
     const kind = postConversationStepKind(bp.type);
-    if (usedKinds.has(kind) && picked.length < ctx.bounds.min) {
-      /* ainda permite repetir kind se necessário para atingir mínimo */
-    } else if (usedKinds.has(kind)) return false;
+    if (usedKinds.has(kind) && !allowRepeatKind) return false;
     picked.push(bp);
     usedTypes.add(bp.type);
     usedKinds.add(kind);
     usedRefs.add(bp.item.ref);
     return true;
   };
+
+  // A resposta principal da cena volta obrigatoriamente numa tarefa em que o
+  // aluno PRODUZ ou APLICA (montar, responder a situação, completar), nunca
+  // só reconhecer. Antes isso saía por sorte da ordenação por score; agora é
+  // garantido — é o núcleo do "usou na conversa, usa de novo".
+  const CONTEXTUAL_ANSWER_TYPES: PostConversationTaskType[] = [
+    "build_used_answer",
+    "situation_reply",
+    "fill_missing",
+    "recreate_no_translation",
+    "alternate_scenario",
+    "write_heard",
+  ];
+  for (const ref of answerRefs) {
+    if (picked.some((bp) => bp.item.ref === ref && CONTEXTUAL_ANSWER_TYPES.includes(bp.type))) break;
+    let done = false;
+    for (const type of CONTEXTUAL_ANSWER_TYPES) {
+      const best = candidates.find((candidate) => candidate.type === type && candidate.item.ref === ref);
+      if (best && tryPick(best)) {
+        done = true;
+        break;
+      }
+    }
+    if (done) break;
+  }
 
   // Novo: significado + som/forma + aplicação.
   if (hasNew) {
@@ -3520,14 +3821,15 @@ function selectPostConversationBlueprints(
     tryPick(bp);
   }
 
-  // Garante mínimo com fallbacks.
+  // Garante mínimo com fallbacks — primeiro ainda exigindo modalidade nova,
+  // e só depois relaxando o kind se não houver mais nenhuma disponível.
   for (const bp of candidates) {
     if (picked.length >= ctx.bounds.min) break;
-    if (picked.some((p) => p.item.ref === bp.item.ref && p.type === bp.type)) continue;
-    if (usedTypes.has(bp.type)) continue;
-    picked.push(bp);
-    usedTypes.add(bp.type);
-    usedKinds.add(postConversationStepKind(bp.type));
+    tryPick(bp);
+  }
+  for (const bp of candidates) {
+    if (picked.length >= ctx.bounds.min) break;
+    tryPick(bp, true);
   }
 
   return picked.slice(0, ctx.bounds.max);
@@ -3726,19 +4028,30 @@ export function applyConversationVocabularyLoop(
     });
 
     // Garante mínimo da fase (revisão/imersão ≥3, comum ≥2).
+    //
+    // Sempre preferindo uma modalidade que a fase ainda não usou: percorrer a
+    // lista de tipos sempre do início fazia o mínimo ser preenchido com
+    // meaning_check para um item atrás do outro — três múltiplas escolhas
+    // seguidas sobre palavras diferentes. Só relaxa (2ª passada) quando não
+    // sobrou nenhum kind novo que gere passo válido.
     while (addedForConversation.length < bounds.min) {
       let progressed = false;
-      for (const type of ALL_POST_CONVERSATION_TYPES) {
-        for (const item of relevant) {
-          const focusItem = focusByRef.get(item.ref);
-          if (!focusItem) continue;
-          if (addedForConversation.some((s) => s.postConversationTaskType === type && s.conversationCoveredRef === item.ref)) continue;
-          if (pushDerived({ type, item, focusItem, score: 0 }, { force: true })) {
-            progressed = true;
-            break;
+      for (const requireNewKind of [true, false]) {
+        for (const type of ALL_POST_CONVERSATION_TYPES) {
+          const kind = postConversationStepKind(type);
+          if (requireNewKind && addedForConversation.some((step) => step.kind === kind)) continue;
+          for (const item of relevant) {
+            const focusItem = focusByRef.get(item.ref);
+            if (!focusItem) continue;
+            if (addedForConversation.some((s) => s.postConversationTaskType === type && s.conversationCoveredRef === item.ref)) continue;
+            if (pushDerived({ type, item, focusItem, score: 0 }, { force: true })) {
+              progressed = true;
+              break;
+            }
           }
+          if (progressed || addedForConversation.length >= bounds.min) break;
         }
-        if (addedForConversation.length >= bounds.min) break;
+        if (progressed || addedForConversation.length >= bounds.min) break;
       }
       if (!progressed) break;
     }
@@ -4131,6 +4444,10 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   hanzi_build: "montar hànzì",
   tone_pair: "pares de tom",
   image_choice: "imagem e associação",
+  audio_discrimination: "par mínimo",
+  dictation: "ditado",
+  odd_one_out: "qual não pertence",
+  spot_error: "qual frase funciona",
 };
 
 function uniqueStepKinds(kinds: StepKind[]): StepKind[] {

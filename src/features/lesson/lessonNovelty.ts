@@ -199,6 +199,21 @@ export function semanticTargetKeys(step: LessonStep): string[] {
   if (ASSEMBLY_KINDS.has(step.kind)) keys.add("action:assemble-phrase");
   if (step.kind === "write") keys.add("action:write");
 
+  // Par mínimo: o alvo é o CONTRASTE, não a palavra. Dois pares diferentes
+  // que treinam "2º × 3º tom" cobram a mesma coisa e por isso dividem chave.
+  if (step.kind === "audio_discrimination") {
+    keys.add("action:discriminate-sound");
+    if (step.contrastLabel) keys.add(`contrast:${norm(step.contrastLabel)}`);
+  }
+  if (step.kind === "dictation") {
+    keys.add(`action:dictation-${step.dictationMode ?? "blocks"}`);
+  }
+  if (step.kind === "odd_one_out") keys.add("action:group-by-meaning");
+  if (step.kind === "spot_error") {
+    keys.add("action:judge-structure");
+    if (step.prompt) keys.add(`intent:${norm(step.prompt)}`);
+  }
+
   return [...keys];
 }
 
@@ -237,9 +252,17 @@ function stimulusOf(step: LessonStep): CognitiveStimulus {
     if (step.imageChoiceMode === "choose_image") return "hanzi";
     return "image";
   }
-  if (step.kind === "listen" || step.kind === "listen_select" || step.kind === "tone" || step.kind === "tone_pair") {
+  if (
+    step.kind === "listen" ||
+    step.kind === "listen_select" ||
+    step.kind === "tone" ||
+    step.kind === "tone_pair" ||
+    step.kind === "audio_discrimination" ||
+    step.kind === "dictation"
+  ) {
     return "audio";
   }
+  if (step.kind === "spot_error") return "situation";
   if (step.kind === "produce" || step.kind === "translation_build" || step.kind === "write") return "meaning";
   if (step.kind === "dialogue_choice" || step.kind === "conversation_scene") return "situation";
   return "hanzi";
@@ -248,6 +271,14 @@ function stimulusOf(step: LessonStep): CognitiveStimulus {
 function responseOf(step: LessonStep): CognitiveResponse {
   if (step.kind === "tone") return "tone";
   if (step.kind === "match_pairs" || step.kind === "tone_pair") return "match";
+  // Par mínimo responde "igual/diferente": é decisão sobre o som, não sobre
+  // significado nem forma.
+  if (step.kind === "audio_discrimination") return "tone";
+  if (step.kind === "dictation") {
+    if (step.dictationMode === "pinyin") return "pinyin";
+    if (step.dictationMode === "hanzi") return "text";
+    return "assembly";
+  }
   if (step.kind === "hanzi_build" || ASSEMBLY_KINDS.has(step.kind) || step.kind === "fill_blank") return "assembly";
   if (step.kind === "write") return "text";
   if (step.kind === "image_choice") {
@@ -278,7 +309,13 @@ function familyRankOf(step: LessonStep): CognitiveProfile["familyRank"] {
     case "tone_pair":
     case "match_pairs":
     case "image_choice":
+    case "audio_discrimination":
+    case "odd_one_out":
       return 1;
+    case "dictation":
+      return 2;
+    case "spot_error":
+      return 3;
     case "produce":
     case "sentence_build":
     case "translation_build":
@@ -305,6 +342,10 @@ export function cognitiveProfile(step: LessonStep): CognitiveProfile {
     mixesOld:
       step.kind === "match_pairs" ||
       step.kind === "tone_pair" ||
+      // Estes três montam a pergunta com itens de várias lições por definição.
+      step.kind === "odd_one_out" ||
+      step.kind === "audio_discrimination" ||
+      step.kind === "spot_error" ||
       (step.reusesPreviousVocabulary?.length ?? 0) > 0,
   };
 }
@@ -389,6 +430,9 @@ export function semanticCapForKey(key: string, isReview: boolean): number | null
   if (key.startsWith("visual:")) return 1 + slack;
   if (key.startsWith("scene:")) return 1;
   if (key.startsWith("meaning:")) return 2 + slack;
+  // Mesmo contraste sonoro duas vezes já é bastante; o ouvido cansa antes de
+  // aprender se a lição virar drill do mesmo par.
+  if (key.startsWith("contrast:")) return 2 + slack;
   return null; // action:* não tem teto próprio (coberto pelos caps de tipo do motor)
 }
 

@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4dde286486d21ae1d48c5cb6b128ffa6d6218988 |
+| Commit | c6576c3d09ae1c8d32389b47c6f9a4d849b68f8d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T08:08:15.421Z |
+| Gerado em | 2026-08-10T02:03:55.802Z |
 | Lições | 122 |
-| Hash da Jornada | dbf712321bc6 |
+| Hash da Jornada | 88205c22322a |
 
 ## Resumo
 
@@ -20,8 +20,8 @@
 | Fallback V1 derivado (lines/checkpoint) | 38 |
 | Intenções distintas | 38 |
 | Passos autorais na jornada | 41 |
-| Lições com cena gerada no plano | 106 |
-| Cenas geradas distintas | 21 |
+| Lições com cena gerada no plano | 108 |
+| Cenas geradas distintas | 23 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -74,11 +74,11 @@
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 0 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 8 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
-| comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
+| comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 1 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 1 |
-| imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 0 |
+| imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 1 |
 | imersao-estacao | immersion | immersion-station | 15 | 6 | sim | 2 | 1 | 0 |
 | imersao-casa-amigo | immersion | immersion-visit | 14 | 6 | sim | 2 | 1 | 0 |
 | comentar-ceu | common | comment-sky | 6 | 2 | sim | 1 | 1 | 0 |
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:657c08aa19827ab9 -->
+<!-- integridade:7ccc0e6926c06bdc -->

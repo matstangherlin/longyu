@@ -4,31 +4,31 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4dde286486d21ae1d48c5cb6b128ffa6d6218988 |
+| Commit | c6576c3d09ae1c8d32389b47c6f9a4d849b68f8d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T08:08:24.064Z |
+| Gerado em | 2026-08-10T02:04:11.790Z |
 | Lições | 122 |
-| Hash da Jornada | dbf712321bc6 |
+| Hash da Jornada | 88205c22322a |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 128 |
-| Itens de vocabulário exibidos | 717 |
-| Itens cobertos por tarefa posterior | 487 |
-| Reutilização média por item | 2.02 |
-| Itens sem cobertura | 230 |
-| Tarefas da fase Pós-Conversa | 454 |
-| Média Pós-Conversa por conversa | 3.55 |
-| Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
+| Conversas analisadas (nos planos reais) | 130 |
+| Itens de vocabulário exibidos | 749 |
+| Itens cobertos por tarefa posterior | 506 |
+| Reutilização média por item | 1.91 |
+| Itens sem cobertura | 243 |
+| Tarefas da fase Pós-Conversa | 472 |
+| Média Pós-Conversa por conversa | 3.63 |
+| Modalidades usadas nas derivadas | audio_discrimination, comprehend, dialogue_choice, dictation, fill_blank, image_choice, listen_select, odd_one_out, recognize, sentence_build |
 
 ## Itens sem cobertura
 
+- p1-o-que-e-tom:chunk:wohenhao
 - l4:chunk:nihaoma
 - p1-ate-logo:chunk:wohenhao
-- p1-primeira-conversa:chunk:xiexie
-- l2-rev:chunk:zaijian
+- p1-qingwen-cortesia:chunk:wohenhao
 - p2-comparar-tom-1-4:chunk:wohenhao
 - l9:chunk:nihaoma
 - l9:chunk:zaijian
@@ -50,11 +50,10 @@
 - l12:chunk:wojiao
 - l13:chunk:nihaoma
 - l13-dialogo-ola:chunk:xiexie
+- l13-dialogo-ola:chunk:zaijian
 - l13-dialogo-nome:chunk:wohenhao
 - l13-dialogo-nome:chunk:wohuishuoyidian
-- p3-ordem-das-palavras:chunk:wohenhao
 - p3-ordem-das-palavras:chunk:wohuishuoyidian
-- p3-ordem-das-palavras:chunk:wojiao
 - l5-rev:chunk:xiexie
 - l5-rev:chunk:zaijian
 - l14:chunk:wohenhao
@@ -75,10 +74,8 @@
 - p4-char-mu:chunk:wohenhao
 - p4-char-mu:chunk:wohuishuoyidian
 - p4-char-mu:chunk:wojiao
-- p4-char-ren:chunk:wohenhao
 - p4-char-ren:chunk:wohuishuoyidian
 - p4-char-ren:chunk:wojiao
-- p4-char-kou:chunk:wohenhao
 - p4-char-kou:chunk:wohuishuoyidian
 - p4-char-kou:chunk:wojiao
 - p4-char-ri:chunk:wohenhao
@@ -105,6 +102,9 @@
 - l17:chunk:zaijian
 - l18:chunk:nihaoma
 - l18:chunk:xiexie
-- …mais 150.
+- l18:chunk:zaijian
+- l7-rev:chunk:xiexie
+- l7-rev:chunk:zaijian
+- …mais 163.
 
-<!-- integridade:923cad085f14626e -->
+<!-- integridade:35fb14506af4a9de -->
