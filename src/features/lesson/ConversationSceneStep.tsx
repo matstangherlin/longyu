@@ -13,6 +13,8 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Button } from "../../components/ui/primitives";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { IconCheck, IconChevron, IconX } from "../../components/ui/Icon";
+import type { ConversationRepairBeat } from "../../data/journey";
+import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/productionTasks";
 import { isConversationV2Enabled } from "../../lib/featureFlags";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
@@ -734,6 +736,127 @@ function InteractionPanel({
   );
 }
 
+// ————————————————————————————————————————————————————————————————
+// Quebra de comunicação dentro da cena.
+//
+// O primeiro erro o personagem absorve — ele repete, corrige, demonstra
+// confusão, e a conversa segue. A partir do segundo, a comunicação quebra de
+// verdade: ele para e o aluno precisa REPARAR antes de continuar. Escolher o
+// movimento certo e conseguir dizê-lo são duas coisas, então são duas fases.
+// ————————————————————————————————————————————————————————————————
+function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; onRecovered: () => void }) {
+  const soundEffects = useStore((s) => s.soundEffects);
+  const [picked, setPicked] = useState<RepairStrategy | null>(null);
+  const [strategyLocked, setStrategyLocked] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [done, setDone] = useState(false);
+  const [missed, setMissed] = useState(false);
+
+  function chooseStrategy(strategy: RepairStrategy) {
+    if (strategyLocked) return;
+    setPicked(strategy);
+    if (strategy === beat.strategy) {
+      setStrategyLocked(true);
+      playSoundFx("success", soundEffects);
+      return;
+    }
+    setMissed(true);
+    playSoundFx("error", soundEffects);
+  }
+
+  function check() {
+    const attempt = draft.trim();
+    if (!attempt || done) return;
+    const ok = beat.accepts.some((accepted) => normalizeAnswer(attempt) === normalizeAnswer(accepted));
+    if (ok) {
+      setDone(true);
+      playSoundFx("success", soundEffects);
+      return;
+    }
+    playSoundFx("error", soundEffects);
+    setMissed(true);
+  }
+
+  return (
+    <div className="mt-4 animate-pop rounded-2xl border border-accent bg-surface p-3.5 shadow-card">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+        A conversa travou
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3">
+        <div className="hanzi text-2xl text-ink">
+          <ExerciseText value={beat.npcHanzi} type="hanzi" speakOnClick />
+        </div>
+        <p className="mt-1 text-sm text-ink-soft">{beat.npcPt}</p>
+      </div>
+
+      <p className="mt-3 text-sm leading-6 text-ink-soft">{beat.promptPt}</p>
+      <div className="mt-2 grid gap-2">
+        {beat.strategyOptions.map((strategy) => {
+          const isRight = strategy === beat.strategy;
+          const chosen = picked === strategy;
+          return (
+            <button
+              key={strategy}
+              type="button"
+              disabled={strategyLocked}
+              onClick={() => chooseStrategy(strategy)}
+              className={[
+                "rounded-2xl border p-3 text-left text-sm font-medium transition",
+                strategyLocked && isRight
+                  ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+                  : chosen && !isRight
+                    ? "border-accent-soft bg-accent-soft/45 text-accent"
+                    : "border-line bg-surface-2 text-ink hover:border-accent-soft",
+              ].join(" ")}
+            >
+              {REPAIR_STRATEGY_LABELS[strategy]}
+            </button>
+          );
+        })}
+      </div>
+      {missed && !strategyLocked && (
+        <p className="mt-2 text-sm text-accent">Esse movimento não resolve aqui. Releia o que a pessoa disse.</p>
+      )}
+
+      {strategyLocked && !done && (
+        <>
+          <p className="mt-4 text-sm font-medium text-ink">Agora diga isso em mandarim, sem alternativas.</p>
+          <textarea
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                check();
+              }
+            }}
+            rows={2}
+            placeholder="Escreva em hànzì ou pinyin…"
+            aria-label="Sua recuperação"
+            className="mt-2 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft"
+          />
+          <Button className="mt-3 w-full shadow-lift" disabled={draft.trim().length === 0} onClick={check}>
+            Verificar
+          </Button>
+        </>
+      )}
+
+      {done && (
+        <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
+            <IconCheck width={18} height={18} /> Recuperado
+          </div>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">{beat.whyPt}</p>
+          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onRecovered}>
+            Voltar à conversa <IconChevron width={18} height={18} />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
 // personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
@@ -750,15 +873,22 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const mistakeCountRef = useRef(0);
   const transitionsRef = useRef(0);
   const skipAutoSpeakRef = useRef(false);
+  // Quebra de comunicação: o segundo erro na mesma cena para a conversa e
+  // cobra reparo. Uma vez por cena — o objetivo é ensinar a recuperar, não
+  // punir quem está com dificuldade.
+  const [repairPending, setRepairPending] = useState<null | { resumeNodeId?: string }>(null);
+  const repairUsedRef = useRef(false);
 
   useEffect(() => {
     setNodeId(entryNodeId);
     setAnswering(false);
     setSpokenCount(1);
     setHint(null);
+    setRepairPending(null);
     hadMistakeRef.current = false;
     mistakeCountRef.current = 0;
     transitionsRef.current = 0;
+    repairUsedRef.current = false;
     skipAutoSpeakRef.current = false;
   }, [step.sceneId, entryNodeId]);
 
@@ -806,7 +936,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   }
 
   useExerciseHotkeys({
-    enabled: Boolean(node) && !answering,
+    enabled: Boolean(node) && !answering && !repairPending,
     mode: "choice",
     isAnswered: true,
     onContinue: advance,
@@ -876,7 +1006,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           </div>
         )}
 
-        {!answering && (
+        {!answering && !repairPending && (
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">Fala {spokenCount}</span>
             <Button className="min-w-[9.5rem] shadow-lift" onClick={advance}>
@@ -886,7 +1016,18 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           </div>
         )}
 
-        {answering && node.interaction && (
+        {repairPending && step.conversationRepairBeat && (
+          <RepairBeatPanel
+            beat={step.conversationRepairBeat}
+            onRecovered={() => {
+              const resumeId = repairPending.resumeNodeId;
+              setRepairPending(null);
+              goTo(resumeId, resumeId ? nodeById.get(resumeId) : undefined);
+            }}
+          />
+        )}
+
+        {!repairPending && answering && node.interaction && (
           <InteractionPanel
             interaction={node.interaction}
             onCorrect={() => {
@@ -899,6 +1040,18 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
                 ? () => {
                     setHint(node.interaction!.explanation ?? null);
                     const nextId = node.interaction!.wrongNextNodeId!;
+                    // Segundo tropeço: a comunicação quebra antes do ramo de
+                    // erro. O aluno repara e só então a conversa retoma.
+                    if (
+                      step.conversationRepairBeat &&
+                      !repairUsedRef.current &&
+                      mistakeCountRef.current >= 2
+                    ) {
+                      repairUsedRef.current = true;
+                      setAnswering(false);
+                      setRepairPending({ resumeNodeId: nextId });
+                      return;
+                    }
                     goTo(nextId, nodeById.get(nextId));
                   }
                 : undefined

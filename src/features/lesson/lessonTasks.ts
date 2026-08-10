@@ -7,6 +7,7 @@ import {
   type LessonStage,
   type LessonStageId,
   type LessonStep,
+  type ConversationRepairBeat,
   type PedagogyVariant,
   type PostConversationTaskType,
   POST_CONVERSATION_TASK_LABELS,
@@ -2317,10 +2318,38 @@ function conversationSceneLessonInfo(
   };
 }
 
+/**
+ * A batida de reparo da cena: o que o personagem faz quando o aluno erra de
+ * novo. O primeiro erro já tem ramo autoral (ele repete, corrige, demonstra
+ * confusão); a partir do segundo a comunicação quebra de verdade e o aluno
+ * precisa se recuperar antes de a conversa continuar.
+ *
+ * Só existe quando o aluno já tem como reparar — 请再说一遍 / 我听不懂 entram
+ * no currículo depois da metade do curso, e cobrar reparo antes disso seria
+ * pedir uma frase que ele não viu.
+ */
+function conversationRepairBeatFor(knownGlyphs: ReadonlySet<string>): ConversationRepairBeat | undefined {
+  const [task] = repairTasksFor(knownGlyphs, { limit: 1 });
+  if (!task) return undefined;
+  return {
+    npcHanzi: task.npc.hanzi,
+    npcPinyin: task.npc.pinyin,
+    npcPt: task.npc.meaningPt,
+    promptPt: task.promptPt,
+    strategy: task.strategy,
+    strategyOptions: task.strategyOptions,
+    targetHanzi: task.targetHanzi,
+    targetPinyin: task.targetPinyin,
+    accepts: uniqueValues([task.targetHanzi, ...task.accepts]),
+    whyPt: task.whyPt,
+  };
+}
+
 function makeConversationSceneStep(
   focus: FocusItem[],
   reviewFocus: FocusItem[] = [],
-  selection?: ConversationSceneSelection
+  selection?: ConversationSceneSelection,
+  knownGlyphs?: ReadonlySet<string>
 ): LessonStep | null {
   const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
   const knownRefs = selection?.knownRefs;
@@ -2348,6 +2377,7 @@ function makeConversationSceneStep(
   const level = conversationVariantLevelFor(scene, selection?.history);
   const step = withUnaidedReplies(baseStep, level);
   step.conversationVariantLevel = level;
+  if (knownGlyphs) step.conversationRepairBeat = conversationRepairBeatFor(knownGlyphs);
   return step;
 }
 
@@ -2953,7 +2983,7 @@ function supplementalStepsForStage(
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
-    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
+    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
     // Julgar estrutura, produzir sozinho e sobreviver ao mal-entendido entram
     // antes da bateria de escolha. Quando ficavam no fim, o orçamento do
     // estágio já tinha acabado e o "uso" voltava a ser escolher alternativa.
@@ -2998,7 +3028,7 @@ function supplementalStepsForStage(
     push(makeOpenProductionStep(knownGlyphs, variantSeed));
     push(makeFreeProductionStep(knownGlyphs, variantSeed));
     push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
-    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
+    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
