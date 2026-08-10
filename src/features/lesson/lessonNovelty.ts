@@ -138,6 +138,10 @@ function primaryHanziTarget(step: LessonStep): string {
       return cleanHanzi(step.correctAnswer ?? step.checkpoint?.correctAnswer);
     case "image_choice":
       return cleanHanzi(step.targetHanzi);
+    case "free_production":
+    case "transfer_task":
+    case "conversation_repair":
+      return cleanHanzi(step.correctAnswer ?? step.answer);
     case "flashcard": {
       const chunk = CHUNKS.find((candidate) => candidate.id === step.chunkId);
       return cleanHanzi(chunk?.hanzi);
@@ -209,6 +213,18 @@ export function semanticTargetKeys(step: LessonStep): string[] {
     keys.add(`action:dictation-${step.dictationMode ?? "blocks"}`);
   }
   if (step.kind === "odd_one_out") keys.add("action:group-by-meaning");
+  // Produzir do zero e transferir a estrutura são ações distintas de montar
+  // com peças: sem chave própria, o motor as trataria como "mais uma
+  // montagem" e cortaria uma delas por repetição.
+  if (step.kind === "free_production") keys.add("action:produce-unaided");
+  if (step.kind === "transfer_task") {
+    keys.add("action:transfer-pattern");
+    if (step.productionFrameId) keys.add(`pattern:${step.productionFrameId}`);
+  }
+  if (step.kind === "conversation_repair") {
+    keys.add("action:repair-conversation");
+    if (step.repairStrategy) keys.add(`repair:${step.repairStrategy}`);
+  }
   if (step.kind === "spot_error") {
     keys.add("action:judge-structure");
     if (step.prompt) keys.add(`intent:${norm(step.prompt)}`);
@@ -269,6 +285,13 @@ function stimulusOf(step: LessonStep): CognitiveStimulus {
     return "audio";
   }
   if (step.kind === "spot_error") return "situation";
+  if (
+    step.kind === "free_production" ||
+    step.kind === "transfer_task" ||
+    step.kind === "conversation_repair"
+  ) {
+    return "situation";
+  }
   if (step.kind === "produce" || step.kind === "translation_build" || step.kind === "write") return "meaning";
   if (step.kind === "dialogue_choice" || step.kind === "conversation_scene") return "situation";
   return "hanzi";
@@ -292,6 +315,15 @@ function responseOf(step: LessonStep): CognitiveResponse {
     return "assembly";
   }
   if (step.kind === "hanzi_build" || ASSEMBLY_KINDS.has(step.kind) || step.kind === "fill_blank") return "assembly";
+  // Sem banco de peças a resposta é texto livre, não montagem — é o que
+  // separa cognitivamente a produção da ordenação de blocos.
+  if (
+    step.kind === "free_production" ||
+    step.kind === "transfer_task" ||
+    step.kind === "conversation_repair"
+  ) {
+    return "text";
+  }
   if (step.kind === "write") return "text";
   if (step.kind === "image_choice") {
     if (step.imageChoiceMode === "choose_image" || step.imageChoiceMode === "listen_and_choose_image") return "image";
@@ -339,7 +371,10 @@ function familyRankOf(step: LessonStep): CognitiveProfile["familyRank"] {
     case "write":
       return 2;
     case "dialogue_choice":
+    case "free_production":
       return 3;
+    case "transfer_task":
+    case "conversation_repair":
     case "conversation_scene":
       return 4;
     default:
@@ -361,6 +396,8 @@ export function cognitiveProfile(step: LessonStep): CognitiveProfile {
       step.kind === "odd_one_out" ||
       step.kind === "audio_discrimination" ||
       step.kind === "spot_error" ||
+      // Transferência cruza estrutura antiga com item novo por definição.
+      step.kind === "transfer_task" ||
       (step.reusesPreviousVocabulary?.length ?? 0) > 0,
   };
 }

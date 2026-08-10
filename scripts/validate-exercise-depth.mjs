@@ -45,8 +45,21 @@ const CONTEXT_KINDS = new Set([
   "match_pairs",
   "microread",
   "spot_error",
+  // Produção sem apoio, transferência e reparo: situação em português e
+  // frase inteira produzida pelo aluno — contexto e uso, não reconhecimento.
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ]);
-const SENTENCE_KINDS = new Set(["sentence_build", "translation_build", "conversation_scene", "produce"]);
+const SENTENCE_KINDS = new Set([
+  "sentence_build",
+  "translation_build",
+  "conversation_scene",
+  "produce",
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
+]);
 const USAGE_KINDS = new Set([
   "dialogue_choice",
   "conversation_scene",
@@ -57,12 +70,19 @@ const USAGE_KINDS = new Set([
   "translation_build",
   "spot_error",
   "dictation",
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ]);
 const MEANING_ONLY_KINDS = new Set(["comprehend", "recognize", "flashcard", "tone", "tone_pair"]);
 const LISTEN_KINDS = new Set(["listen", "listen_select", "audio_discrimination", "dictation"]);
 const VISUAL_KINDS = new Set(["image_choice"]);
 const CONVERSATION_KINDS = new Set(["conversation_scene"]);
 const BUILDER_KINDS = new Set(["hanzi_build"]);
+// Produção sem apoio e reparo: o aluno responde sem banco e sem alternativas.
+// É um eixo próprio — a rubrica não o tinha porque o motor não existia.
+const UNAIDED_KINDS = new Set(["free_production", "transfer_task", "conversation_repair"]);
+const TRANSFER_KINDS = new Set(["transfer_task"]);
 
 const OBJECT_HANZI = new Set(["木", "水", "火", "山", "日", "月", "人", "口", "大", "小"]);
 const GREETING_CHUNKS = new Set(["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaijian"]);
@@ -132,6 +152,8 @@ function analyzeLesson(lesson, plan, unit) {
   let listenCount = 0;
   let builderCount = 0;
   let usageCount = 0;
+  let unaidedCount = 0;
+  let transferCount = 0;
   let meaningOnlyCount = 0;
   let mixedOldNew = false;
 
@@ -152,6 +174,8 @@ function analyzeLesson(lesson, plan, unit) {
     if (LISTEN_KINDS.has(step.kind)) listenCount += 1;
     if (BUILDER_KINDS.has(step.kind)) builderCount += 1;
     if (USAGE_KINDS.has(step.kind)) usageCount += 1;
+    if (UNAIDED_KINDS.has(step.kind)) unaidedCount += 1;
+    if (TRANSFER_KINDS.has(step.kind)) transferCount += 1;
     if (MEANING_ONLY_KINDS.has(step.kind)) meaningOnlyCount += 1;
 
     for (const ref of step.learnedRefs ?? []) {
@@ -277,6 +301,10 @@ function analyzeLesson(lesson, plan, unit) {
   if (mixedOldNew) score += 8;
   if (listenCount > 0) score += Math.min(8, listenCount * 4);
   if (usageCount > 0) score += Math.min(10, usageCount * 3);
+  // Produzir sem apoio e transferir a estrutura são os dois eixos mais caros
+  // cognitivamente: valem como conversa e visual, não como "mais um uso".
+  if (unaidedCount > 0) score += Math.min(6, unaidedCount * 3);
+  if (transferCount > 0) score += Math.min(4, transferCount * 4);
   if (lesson.isReview && kinds.size >= 4) score += 5;
   if (sentenceCount >= 2) score += 6;
 
@@ -318,6 +346,8 @@ function analyzeLesson(lesson, plan, unit) {
       listenCount,
       builderCount,
       usageCount,
+      unaidedCount,
+      transferCount,
       repeatedAnswers: repeatedAnswers.length,
     },
     problems,
@@ -343,6 +373,8 @@ function formatReportRow(entry) {
 | Contexto | ${entry.metrics.contextCount} |
 | Visuais | ${entry.metrics.visualCount} |
 | Conversas | ${entry.metrics.conversationCount} |
+| Produção sem apoio | ${entry.metrics.unaidedCount} |
+| Transferência | ${entry.metrics.transferCount} |
 
 **Problemas:**
 ${problems}

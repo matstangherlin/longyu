@@ -533,6 +533,11 @@ const EXPOSURE_AXES_BY_KIND: Record<StepKind, PedagogicalExposureAxis[]> = {
   dictation: ["som", "forma", "producao"],
   odd_one_out: ["significado", "contexto"],
   spot_error: ["contexto", "producao", "significado"],
+  // Produção sem apoio: situação → frase inteira, escrita do zero. É o eixo
+  // de produção na forma mais pura, e o contexto vem do enunciado.
+  free_production: ["producao", "contexto", "forma"],
+  transfer_task: ["producao", "contexto", "forma", "significado"],
+  conversation_repair: ["contexto", "producao", "significado"],
 };
 
 function exposureTextSources(step: LessonStep): string[] {

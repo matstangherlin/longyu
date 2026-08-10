@@ -50,6 +50,9 @@ const KNOWN_KINDS: StepKind[] = [
   "dictation",
   "odd_one_out",
   "spot_error",
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -449,6 +452,58 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (!step.learnedRefs || step.learnedRefs.length === 0) {
         errors.push("conversation_scene sem learnedRefs");
       }
+      break;
+    }
+
+    case "free_production":
+    case "transfer_task": {
+      // O ponto inteiro destes dois motores é a AUSÊNCIA de apoio. Uma opção,
+      // um banco de peças ou hànzì no enunciado transformam produção em
+      // reconhecimento — por isso aqui isso é erro, não estilo.
+      if (!step.situationPt?.trim()) errors.push(`${step.kind} sem situação em português`);
+      else if (CJK_RE.test(step.situationPt)) {
+        errors.push(`${step.kind}: a situação mostra hànzì (viraria cópia, não produção)`);
+      }
+      const answer = step.correctAnswer ?? step.answer;
+      if (!answer?.trim()) errors.push(`${step.kind} sem resposta modelo`);
+      else if (!CJK_RE.test(answer)) errors.push(`${step.kind}: a resposta modelo não tem hànzì`);
+      if ((step.options ?? []).length > 0) errors.push(`${step.kind} não pode oferecer alternativas`);
+      if ((step.bank ?? []).length > 0 || (step.wordBank ?? []).length > 0) {
+        errors.push(`${step.kind} não pode oferecer banco de peças`);
+      }
+      if ((step.targetParts ?? []).length > 0) errors.push(`${step.kind} não pode entregar a frase em peças`);
+      if (!step.isNoHint && step.helpMode !== "disabled") errors.push(`${step.kind} precisa estar sem dica`);
+      if (step.kind === "transfer_task") {
+        if (!step.transferAnchorHanzi?.trim()) errors.push("transfer_task sem frase-âncora ensinada");
+        if (step.isNovelCombination !== true) {
+          errors.push("transfer_task precisa cobrar uma combinação inédita (isNovelCombination)");
+        }
+        if (
+          step.transferAnchorHanzi &&
+          answer &&
+          normalize(step.transferAnchorHanzi) === normalize(answer)
+        ) {
+          errors.push("transfer_task: a resposta é a própria âncora — não há transferência");
+        }
+      }
+      break;
+    }
+
+    case "conversation_repair": {
+      if (!step.repairNpcHanzi?.trim()) errors.push("conversation_repair sem a fala que travou a conversa");
+      if (!step.repairStrategy) errors.push("conversation_repair sem estratégia correta");
+      const strategies = step.repairStrategyOptions ?? [];
+      if (strategies.length < 3) errors.push("conversation_repair precisa de pelo menos 3 estratégias");
+      if (new Set(strategies).size !== strategies.length) {
+        errors.push("conversation_repair com estratégia repetida");
+      }
+      if (step.repairStrategy && !strategies.includes(step.repairStrategy)) {
+        errors.push("conversation_repair: a estratégia correta não está entre as oferecidas");
+      }
+      const recovery = step.correctAnswer ?? step.answer;
+      if (!recovery?.trim()) errors.push("conversation_repair sem a fala de recuperação");
+      else if (!CJK_RE.test(recovery)) errors.push("conversation_repair: fala de recuperação sem hànzì");
+      if (!step.explanation?.trim()) errors.push("conversation_repair sem o porquê da estratégia");
       break;
     }
 

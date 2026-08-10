@@ -38,6 +38,15 @@ import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../compo
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { validateExercise } from "./exerciseValidation";
+import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/productionTasks";
+import {
+  ensureMicPermission,
+  isRecognitionAvailable,
+  isSecureMicContext,
+  recognizeOnce,
+  speechErrorMessage,
+  type RecognizeHandle,
+} from "../../lib/speech";
 import { StepImageChoice } from "./StepImageChoice";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
@@ -3545,6 +3554,330 @@ function StepSpotError(props: StepProps) {
   );
 }
 
+// ————————————————————————————————————————————————————————————————
+// Produção sem apoio, transferência e reparo (onda 2).
+//
+// A tela destes três motores é definida pelo que ela não tem: nenhum banco de
+// peças, nenhuma alternativa, nenhuma tradução do alvo. Só a situação em
+// português e um campo vazio. O modelo aparece depois da tentativa — nunca
+// antes, senão o exercício vira cópia.
+// ————————————————————————————————————————————————————————————————
+
+/** Campo de resposta livre com opção de falar em vez de digitar. */
+function FreeAnswerField({
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  onSubmit,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  disabled: boolean;
+  placeholder: string;
+  onSubmit: () => void;
+}) {
+  const [listening, setListening] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
+  const handleRef = useRef<RecognizeHandle | null>(null);
+  const speechSupported = isRecognitionAvailable() && isSecureMicContext();
+
+  useEffect(() => () => handleRef.current?.stop(), []);
+
+  async function startListening() {
+    if (disabled || listening) return;
+    setMicError(null);
+    const permission = await ensureMicPermission();
+    if (permission !== "granted") {
+      setMicError(speechErrorMessage(permission === "denied" ? "denied" : "unsupported"));
+      return;
+    }
+    setListening(true);
+    handleRef.current = recognizeOnce(
+      (transcript) => {
+        setListening(false);
+        if (transcript) onChange(transcript);
+      },
+      (code) => {
+        setListening(false);
+        setMicError(speechErrorMessage(code));
+      },
+      { lang: "zh-CN" }
+    );
+  }
+
+  return (
+    <div className="mt-3.5">
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            onSubmit();
+          }
+        }}
+        disabled={disabled}
+        rows={2}
+        placeholder={placeholder}
+        aria-label="Sua resposta"
+        className="w-full resize-none rounded-2xl border border-line bg-surface-2 p-3.5 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
+      />
+      {speechSupported && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" disabled={disabled || listening} onClick={startListening}>
+            <IconSound width={16} height={16} />
+            {listening ? "Ouvindo…" : "Falar a resposta"}
+          </Button>
+          <span className="text-xs text-ink-faint">Pinyin também vale — com ou sem acentos.</span>
+        </div>
+      )}
+      {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Pinyin também vale — com ou sem acentos.</p>}
+      {micError && <p className="mt-2 text-xs text-accent">{micError}</p>}
+    </div>
+  );
+}
+
+/** free_production e transfer_task compartilham a mesma mecânica. */
+function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
+  const soundEffects = useStore((s) => s.soundEffects);
+  const isTransfer = step.kind === "transfer_task";
+  const model = step.correctAnswer ?? step.answer ?? "";
+  const acceptedAnswers = useMemo(
+    () => uniqueStrings([model, ...(step.accepts ?? [])]),
+    [model, step.accepts]
+  );
+  const [draft, setDraft] = useState("");
+  const [feedback, setFeedback] = useState<EngineFeedback>(null);
+  const [hadMistake, setHadMistake] = useState(false);
+  const locked = feedback === "correct";
+
+  function check() {
+    const candidate = draft.trim();
+    if (!candidate || locked) return;
+    const normalized = normalizeEngineAnswer(candidate);
+    if (acceptedAnswers.some((accepted) => normalizeEngineAnswer(accepted) === normalized)) {
+      setFeedback("correct");
+      playSoundFx("success", soundEffects);
+      return;
+    }
+    setHadMistake(true);
+    setFeedback("wrong");
+    onMistake?.(candidate);
+    if (!onMistake) playSoundFx("error", soundEffects);
+  }
+
+  return (
+    <div>
+      <Eyebrow>{isTransfer ? "Transferência" : "Produção livre"}</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
+        {step.title ?? (isTransfer ? "Mesma estrutura, situação nova" : "Produza você")}
+      </h2>
+
+      {isTransfer && step.transferAnchorHanzi && (
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+            Você já aprendeu
+          </div>
+          <div className="mt-1 hanzi text-2xl text-ink">
+            <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+          </div>
+          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 text-sm" />}
+          {step.transferAnchorPt && <p className="mt-1 text-sm text-ink-soft">{step.transferAnchorPt}</p>}
+          {step.patternPt && (
+            <p className="mt-2 text-xs text-ink-faint">
+              Estrutura: <span className="font-semibold text-ink-soft">{step.patternPt}</span>
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
+        <p className="mt-1 text-base leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
+      </div>
+      <p className="mt-2 text-sm text-ink-soft">
+        {isTransfer
+          ? "Nenhuma alternativa e nenhuma peça: esta frase exata você nunca viu. Monte pela estrutura."
+          : "Nenhuma alternativa e nenhuma peça. Escreva (ou fale) a frase inteira."}
+      </p>
+
+      <FreeAnswerField
+        value={draft}
+        onChange={(next) => {
+          setDraft(next);
+          if (feedback !== "correct") setFeedback(null);
+        }}
+        disabled={locked}
+        placeholder="Escreva em hànzì ou pinyin…"
+        onSubmit={check}
+      />
+
+      <EngineFeedbackPanel
+        status={feedback}
+        model={feedback === "wrong" || hadMistake || locked ? model : undefined}
+        explanation={step.explanation}
+        hadMistake={hadMistake}
+        deferMistakeToParent={Boolean(onMistake)}
+        onRetry={() => {
+          setDraft("");
+          setFeedback(null);
+        }}
+        onContinue={() => onDone(!hadMistake)}
+      />
+
+      {!locked && (
+        <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Reparo conversacional em duas fases: primeiro o aluno escolhe o MOVIMENTO
+ * (repetir, simplificar, pedir de novo, assumir que não entendeu) e só depois
+ * produz a fala. Escolher a estratégia certa e não conseguir dizê-la são
+ * falhas diferentes — por isso as duas fases existem.
+ */
+function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) {
+  const soundEffects = useStore((s) => s.soundEffects);
+  const strategies = useMemo(() => step.repairStrategyOptions ?? [], [step.repairStrategyOptions]);
+  const model = step.correctAnswer ?? step.answer ?? "";
+  const acceptedAnswers = useMemo(
+    () => uniqueStrings([model, ...(step.accepts ?? [])]),
+    [model, step.accepts]
+  );
+  const [pickedStrategy, setPickedStrategy] = useState<RepairStrategy | null>(null);
+  const [strategyLocked, setStrategyLocked] = useState(false);
+  const [strategyMissed, setStrategyMissed] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [feedback, setFeedback] = useState<EngineFeedback>(null);
+  const [hadMistake, setHadMistake] = useState(false);
+  const locked = feedback === "correct";
+
+  function chooseStrategy(strategy: RepairStrategy) {
+    if (strategyLocked) return;
+    setPickedStrategy(strategy);
+    if (strategy === step.repairStrategy) {
+      setStrategyLocked(true);
+      playSoundFx("success", soundEffects);
+      return;
+    }
+    setStrategyMissed(true);
+    setHadMistake(true);
+    if (!onMistake) playSoundFx("error", soundEffects);
+  }
+
+  function check() {
+    const candidate = draft.trim();
+    if (!candidate || locked) return;
+    const normalized = normalizeEngineAnswer(candidate);
+    if (acceptedAnswers.some((accepted) => normalizeEngineAnswer(accepted) === normalized)) {
+      setFeedback("correct");
+      playSoundFx("success", soundEffects);
+      return;
+    }
+    setHadMistake(true);
+    setFeedback("wrong");
+    onMistake?.(candidate);
+    if (!onMistake) playSoundFx("error", soundEffects);
+  }
+
+  return (
+    <div>
+      <Eyebrow>Reparo</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
+        {step.title ?? "A conversa travou"}
+      </h2>
+
+      <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+          A pessoa diz
+        </div>
+        <div className="mt-1 hanzi text-2xl text-ink">
+          <ExerciseText value={step.repairNpcHanzi ?? ""} type="hanzi" speakOnClick />
+        </div>
+        {step.repairNpcPinyin && <Pinyin text={step.repairNpcPinyin} className="mt-0.5 text-sm" />}
+        {step.repairNpcPt && <p className="mt-1 text-sm text-ink-soft">{step.repairNpcPt}</p>}
+      </div>
+
+      <p className="mt-3.5 text-sm leading-6 text-ink-soft">{step.prompt}</p>
+      <div className="mt-2 grid gap-2">
+        {strategies.map((strategy) => {
+          const chosen = pickedStrategy === strategy;
+          const isRight = strategy === step.repairStrategy;
+          const tone = strategyLocked && isRight ? "good" : chosen && !isRight ? "wrong" : chosen ? "active" : "idle";
+          return (
+            <button
+              key={strategy}
+              type="button"
+              disabled={strategyLocked}
+              onClick={() => chooseStrategy(strategy)}
+              className={[
+                "rounded-2xl border p-3 text-left text-sm font-medium transition",
+                tone === "good"
+                  ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+                  : tone === "wrong"
+                    ? "border-accent-soft bg-accent-soft/45 text-accent"
+                    : tone === "active"
+                      ? "border-accent bg-surface-2 text-ink"
+                      : "border-line bg-surface-2 text-ink hover:border-accent-soft",
+                strategyLocked ? "cursor-default" : "",
+              ].join(" ")}
+            >
+              {REPAIR_STRATEGY_LABELS[strategy]}
+            </button>
+          );
+        })}
+      </div>
+      {strategyMissed && !strategyLocked && (
+        <p className="mt-2 text-sm text-accent">
+          Esse movimento não resolve aqui. Leia de novo o que a pessoa disse e escolha outro.
+        </p>
+      )}
+
+      {strategyLocked && (
+        <>
+          <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Agora diga</div>
+            <p className="mt-1 text-base leading-6 text-ink">
+              {REPAIR_STRATEGY_LABELS[step.repairStrategy ?? "repeat"]} — em mandarim, sem alternativas.
+            </p>
+          </div>
+          <FreeAnswerField
+            value={draft}
+            onChange={(next) => {
+              setDraft(next);
+              if (feedback !== "correct") setFeedback(null);
+            }}
+            disabled={locked}
+            placeholder="Escreva em hànzì ou pinyin…"
+            onSubmit={check}
+          />
+        </>
+      )}
+
+      <EngineFeedbackPanel
+        status={feedback}
+        model={feedback === "wrong" || hadMistake || locked ? model : undefined}
+        explanation={step.explanation}
+        hadMistake={hadMistake}
+        deferMistakeToParent={Boolean(onMistake)}
+        onRetry={() => {
+          setDraft("");
+          setFeedback(null);
+        }}
+        onContinue={() => onDone(!hadMistake)}
+      />
+
+      {!locked && strategyLocked && (
+        <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
+      )}
+      {!strategyLocked && <SkipStepButton onSkip={onSkip} className="mt-4" />}
+    </div>
+  );
+}
+
 // Fallback seguro: exercício quebrado nunca aparece — o aluno segue adiante
 // sem punição e o problema fica registrado no console em dev.
 function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void }) {
@@ -3678,6 +4011,9 @@ export function StepRenderer({ step, onDone, onSkip, onMistake }: StepProps) {
       case "dictation": return <StepDictation step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "odd_one_out": return <StepOddOneOut step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "spot_error": return <StepSpotError step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "free_production":
+      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "conversation_repair": return <StepConversationRepair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       default: return null;
     }
   })();

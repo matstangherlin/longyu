@@ -7,6 +7,47 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Expansão pedagógica — produção sem apoio, transferência e reparo
+
+- Três motores novos, todos definidos pelo que **não** oferecem: nenhum banco de
+  peças, nenhuma alternativa, nenhum hànzì no enunciado.
+  **Produção livre** (`free_production`): uma situação em português e um campo
+  vazio — o aluno escreve ou fala a frase inteira.
+  **Transferência** (`transfer_task`): a estrutura já ensinada aparece como
+  âncora e o app pede uma combinação que o currículo **nunca** mostrou.
+  **Reparo conversacional** (`conversation_repair`): a comunicação falha e o
+  aluno precisa continuar — repetir, simplificar, pedir para a pessoa repetir
+  ou assumir que não entendeu, em duas fases (escolher o movimento e dizê-lo).
+- Conteúdo em `src/data/productionTasks.ts`. Onze estruturas curadas, cada uma
+  ancorada numa frase real do currículo; as peças saem de `vocabulary.ts` pelo
+  id. A divisão entre produção e transferência é automática: se a frase montada
+  já existe em `chunks.ts`, `vocabulary.ts` ou em qualquer passo autoral, é
+  produção; se não existe, é transferência.
+- Respostas alternativas gramaticalmente válidas contam como certas — 我想喝茶 e
+  我要茶 pedem a mesma coisa, e o app não pune quem produziu a outra.
+- **Loop pós-conversa**: a seleção passa a dar a primeira tarefa a cada item
+  ainda descoberto antes de dar a segunda a qualquer um, e resposta principal da
+  cena, palavra nova e item errado ganham um passe dedicado de fechamento. A
+  cobertura sai de 67,6 % para 78,3 % (bruta) e o reúso médio de 1,91 para 2,19.
+- **Novo indicador de cobertura relevante** em `validate:conversation-loop`:
+  o portão mede os itens que ainda precisam voltar (novo, resposta da cena,
+  pouco exposto) e deixa fora o núcleo saturado — repetir `谢谢` pela 105ª vez
+  não consolida nada. Hoje em 80,2 %, com portão em 76 %.
+- **Cobertura garantida agora é protegida no plano.** `ensureCoverage` colocava
+  o exercício e a chamada seguinte o derrubava: o único visual da lição, o
+  segundo HanziBuilder ou a cena de conversa podiam sumir para caber um passo de
+  score maior.
+- **Cota rotativa dos motores de percepção e dos jogos semânticos**, para que
+  par mínimo, ditado, intruso e estrutura não percam todas as vagas para a
+  produção, que pontua mais alto.
+- A guarda de repetição do gerador passa a varrer **todos** os trios de uma
+  chave semântica, como `validate:lesson-novelty` já fazia — antes olhava só as
+  duas últimas ocorrências e deixava passar quatro escolhas de significado.
+- Portão novo: `npm run validate:production-transfer` (dentro de
+  `validate:beta`), com relatório em `reports/production-transfer-report.md`.
+  Ele confere, entre outras coisas, que **todo alvo de transferência é inédito**
+  no currículo e que nenhum motor cobra glifo que a jornada ainda não apresentou.
+
 ### Expansão pedagógica — motores de percepção e sentido
 
 - Quatro motores novos entram no plano real de todas as lições, sem currículo

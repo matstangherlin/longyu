@@ -58,6 +58,9 @@ const GRADED_KINDS = new Set([
   "dictation",
   "odd_one_out",
   "spot_error",
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ]);
 const isGraded = (step) => GRADED_KINDS.has(step.kind) && !(step.kind === "write" && step.mode === "free_reflection");
 

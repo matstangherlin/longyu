@@ -1,7 +1,9 @@
 # Expansão pedagógica do Longyu
 
-> Documento de direção. A onda 1 já está no código; as demais estão descritas
-> aqui para não se perderem e para que cada uma entre sabendo onde encaixa.
+> Documento de direção. As ondas 1 e 2 já estão no código; as demais estão
+> descritas aqui para não se perderem e para que cada uma entre sabendo onde
+> encaixa. Os números de cada onda saem dos relatórios em `reports/`, gerados
+> pelos portões — não são estimativas.
 
 ---
 
@@ -100,9 +102,151 @@ que nenhum motor sumiu do plano real.
 
 ---
 
-## 3. Ondas seguintes
+## 3. Onda 2 — implementada
 
-### Onda 2 — beta inicial
+A onda 1 resolveu **variedade**. O que continuava fraco era o outro eixo:
+
+```
+percepção + compreensão + construção   →  forte
+produção independente + transferência  →  ainda apoiado em alternativas
+```
+
+Praticamente toda tarefa terminava em *escolher* ou *ordenar peças que o app
+entregou*. Três motores novos tiram o apoio.
+
+| Motor | `StepKind` | O que cobra | Onde entra |
+|---|---|---|---|
+| ✍️ Produção livre | `free_production` | Situação em pt-BR → frase inteira, sem banco e sem alternativas | uso, consolidação, pós-conversa |
+| 🔀 Transferência | `transfer_task` | Mesma estrutura, combinação que o currículo **nunca** mostrou | consolidação, pós-conversa |
+| 🩹 Reparo | `conversation_repair` | Continuar depois do mal-entendido: repetir, simplificar, pedir de novo | uso, consolidação, pós-conversa |
+
+### Como o conteúdo é gerado
+
+`src/data/productionTasks.ts`, mesma regra de ouro do módulo de percepção:
+**nada inventa vocabulário.**
+
+- **Frames de frase** (11) são curados, e cada um tem **âncora real no
+  currículo**: `我要 ___` ancora em 我要这个, `___在哪里？` em 火车站在哪里？,
+  `我有 N 个 ___` em 我有三个朋友. É a âncora que autoriza cobrar a estrutura.
+- **As peças** saem de `vocabulary.ts` pelo id — hànzì e pinyin nunca são
+  escritos à mão no frame. Só o enunciado em português é curado, porque não dá
+  para gerar situação comunicativa a partir de tabela de frequência.
+- **A partição produção × transferência é automática.** Monta-se a frase; se
+  ela já existe em `chunks.ts`, `vocabulary.ts` ou em qualquer passo autoral,
+  é **produção** (produzir do zero o que antes vinha montado). Se não existe,
+  é **transferência**. 58 tarefas hoje: 14 de produção, 44 inéditas.
+- **Frases irmãs**: 我想喝茶 e 我要茶 pedem a mesma coisa no balcão. Um frame
+  declara `alsoAcceptFrameIds` e as duas contam como certas. O app não pune o
+  aluno por ter produzido outra frase correta.
+- **Reparo** é um banco curado de situações com direção explícita: quem não
+  entendeu quem. Se o personagem não entendeu, repetir e simplificar resolvem
+  e *pedir para ele repetir* é o movimento errado; se foi o aluno que não
+  entendeu, é o contrário. O distrator é sempre o movimento certo da outra
+  direção — nenhum absurdo.
+
+### A tela é definida pelo que ela não tem
+
+Nenhum banco de peças, nenhuma alternativa, nenhum hànzì no enunciado, nenhum
+modelo antes da resposta. Digitar ou falar (o reconhecimento de fala já
+existia na prática de pronúncia); pinyin com ou sem acento é aceito.
+`validateExercise` **bloqueia** o passo que oferecer opção, banco ou alvo em
+peças — produção com alternativa é reconhecimento com outro nome.
+
+O reparo tem duas fases porque são duas falhas diferentes: escolher o
+movimento errado e não conseguir dizer o movimento certo.
+
+### Correção de um efeito colateral
+
+Os motores novos pontuam alto (produção + frase real) e começaram a **expulsar
+do plano** exercícios que a lição precisava: o único visual, o segundo
+HanziBuilder, a cena de conversa, o jogo de estrutura. Três consertos, todos
+válidos independentemente desta onda:
+
+- **cobertura garantida agora é protegida.** `ensureCoverage` colocava o
+  exercício e o passo seguinte o derrubava; a garantia valia até a próxima
+  chamada. Agora o que entra por garantia estreita (visual, HanziBuilder,
+  cena, variante) não é candidato a substituição nem ao corte final.
+- **cota rotativa dos motores de percepção.** Par mínimo, ditado, intruso e
+  estrutura pontuam menos que produção; sem reserva, o de maior score levava
+  todas as vagas. A rotação por lição dá ~30 lições a cada um. Mesma correção
+  para os três jogos semânticos: pedir "algum `meaning_`" fazia o de maior
+  score vencer sempre, e `meaning_spot_error` tinha praticamente sumido.
+- **guarda de trio alinhada ao portão.** O gerador olhava só as duas últimas
+  ocorrências de uma chave; `validate:lesson-novelty` varre **todos** os trios.
+  Passavam quatro escolhas de significado seguidas quando duas diferiam no
+  escopo. Agora o gerador varre igual ao portão.
+
+### O loop pós-conversa — o ponto que estava travado
+
+Era o dado mais incômodo do diagnóstico: a onda 1 deixou o pós-conversa muito
+mais variado, e mesmo assim a cobertura ficou parada em ~68 %. Mais
+modalidades não fecham o loop sozinhas.
+
+Duas causas reais, as duas consertadas:
+
+1. **A fase gastava as vagas nos itens mais bem pontuados.** A seleção ordenava
+   candidatos por score e nunca perguntava se o item já tinha tarefa — havia
+   até um `usedRefs` calculado e nunca lido. Agora existe um passe que dá a
+   **primeira** tarefa a cada item ainda descoberto antes de qualquer segunda.
+2. **Não havia prioridade declarada.** Agora há: resposta principal da cena,
+   item novo e item que o aluno errou ganham um passe dedicado de fechamento,
+   sempre por uma modalidade que a fase ainda não usou na lição.
+
+E o indicador mudou, porque o antigo media a coisa errada. Cobertura bruta
+trata `你好` e `我会说一点中文` como o mesmo problema, e não são: o primeiro
+aparece em **576** passos ao longo do curso, o segundo em 21. Exigir 100 % do
+bruto empurraria o app a repetir `谢谢` sem fim — o oposto de consolidar.
+
+O portão agora cobra **cobertura relevante**: item novo, resposta principal da
+cena, ou item de baixa exposição. Fica fora só o **núcleo saturado** — 19 refs
+com 40+ exposições no curso inteiro, listados no relatório para auditoria.
+
+### Efeito medido
+
+| Métrica | Onda 1 | Onda 2 |
+|---|---:|---:|
+| Lições com transferência | 0 | 108 / 122 |
+| Lições com produção livre | 0 | 70 / 122 |
+| Lições com reparo conversacional | 0 | 25 / 122 |
+| Frases inéditas cobradas no plano real | 0 | 22 |
+| Cobertura do loop (bruta) | 67,6 % | 78,3 % |
+| **Cobertura relevante** (portão ≥ 76 %) | — | **80,2 %** |
+| Reutilização média por item | 1,91 | 2,19 |
+| Itens sem cobertura | 243 | 151 |
+| Profundidade média (`validate:exercise-depth`) | 92 | 95 |
+| Lições abaixo do portão de profundidade | 0 | 0 |
+
+Duas ressalvas honestas sobre a tabela:
+
+- **A média de profundidade não é comparável ponto a ponto.** A rubrica ganhou
+  um eixo que não existia (produção sem apoio e transferência, com peso
+  deliberadamente pequeno: +6 e +4 no máximo). Parte da subida de 92 → 95 é
+  tarefa nova, parte é o eixo novo. As lições que o diagnóstico citou como
+  rasas subiram de verdade — 你好 tons 73 → 80, comparar 1º e 4º tom 72 → 82,
+  六七八 74 → 84 — e todas ganharam produção e transferência no plano.
+- **O reparo só existe a partir do meio do curso**, e isso é proposital: não dá
+  para pedir que o aluno peça repetição antes de a jornada ensinar
+  请再说一遍 / 我听不懂. 25 lições é o teto real do currículo atual, não uma
+  meta frouxa.
+
+Portão novo: `npm run validate:production-transfer`, dentro de `validate:beta`.
+Ele confere que produção livre não tem apoio nenhum, que **cada alvo de
+transferência não existe no currículo** (chunk, microfrase ou passo autoral),
+que o reparo oferece estratégias distintas e coerentes, que nenhum motor cobra
+glifo que a jornada ainda não apresentou, e que os três aparecem no plano real
+de uma fração mínima das lições — motor declarado que nunca roda não conta.
+
+### O que a onda 2 deliberadamente não fez
+
+O diagnóstico pedia produção sem alternativas, transferência, reparo e loop —
+não mais dez minigames. Nenhum motor novo foi criado além desses três, e nenhum
+currículo novo foi escrito.
+
+---
+
+## 4. Ondas seguintes
+
+### Onda 3 — beta inicial
 
 | Motor | Ideia | Nota de implementação |
 |---|---|---|
@@ -112,7 +256,7 @@ que nenhum motor sumiu do plano real.
 | 🔊 Audio Memory / Quem disse? | Sequência de áudios ou conversa curta; depois, perguntas de memória | Reaproveita o áudio das cenas |
 | 🎧 Real World Listening | Mesmo áudio em 4 níveis: claro, natural, rua, hardcore | O nível "imersão" do ditado já é o primeiro degrau |
 
-### Onda 3 — recurso grande, pós-beta
+### Onda 4 — recurso grande, pós-beta
 
 - **Story Mode** — personagens recorrentes, temporada 1 "Primeira viagem à
   China": aeroporto → metrô → hotel → restaurante → mercado → fazer um amigo →
@@ -128,7 +272,7 @@ que nenhum motor sumiu do plano real.
 - **Detetive Longyu** — depoimentos curtos em mandarim e perguntas de dedução.
   Ensina sem parecer exercício.
 
-### Onda 4 — depois
+### Onda 5 — depois
 
 Tone Trace (desenhar o contorno do tom com o dedo), Hanzi Draw (escrita à mão
 avaliando forma → número de traços → direção → ordem → proporção), conversação
@@ -136,7 +280,7 @@ aberta com IA, geração adaptativa controlada de situações.
 
 ---
 
-## 4. Longyu Arcade
+## 5. Longyu Arcade
 
 Jogos que usam **somente o que o aluno já desbloqueou** — nunca um jogo
 separado do curso.
@@ -157,7 +301,7 @@ Todos alimentam XP, SRS e ligas — senão viram distração.
 
 ---
 
-## 5. Personalização adaptativa
+## 6. Personalização adaptativa
 
 Mais importante do que criar cinquenta jogos. Detectado que o aluno erra
 听 / 说 / 看 / 想, a sessão seguinte **não** mostra quatro flashcards:
@@ -173,20 +317,29 @@ que escolhe **modalidade por tipo de erro**, e não só item por urgência.
 
 ---
 
-## 6. Sistema de variantes
+## 7. Sistema de variantes
 
-Cada lição com três experiências (Tentativa A / Revisão B / Revisão C) — mesma
+**Implementado na onda 1** — esta seção descrevia o sistema como pendente e
+ficou desatualizada; o que segue é o que a `main` faz hoje.
+
+Cada lição tem três experiências (Tentativa A / Revisão B / Revisão C): mesma
 habilidade, caminho diferente. 122 lições × 3 = 366 combinações **sem escrever
 366 currículos**.
 
-Isto é uma extensão natural do que já roda: `buildLessonPracticePlan` já monta
-a rodada a partir de candidatos. Falta declarar o *perfil de variante* e passá-lo
-como contexto. A onda 1 é o pré-requisito: sem motores suficientes, três
-variantes seriam a mesma coisa três vezes.
+`practiceVariantForAttempt` mapeia tentativa 0 → A, 1 → B, 2 → C e 3 volta
+para A; `buildLessonPracticePlan` recebe o perfil como contexto e monta a
+rodada a partir dele. Não é um rótulo em cima da mesma lição:
+`validate:pedagogy-wave-one` compara as assinaturas das três rodadas e exige
+**rotação real** em pelo menos 65 % das lições (hoje: 118/122) e prática nova
+em pelo menos 75 % (hoje: 122/122).
+
+A onda 2 entrou na rotação: o deslocamento por variante faz A, B e C cobrarem
+**frases inéditas diferentes** na transferência — sem isso, refazer a lição
+repetia a mesma frase e o motor viraria mais uma coisa decorada.
 
 ---
 
-## 7. Surpresas e missão diária
+## 8. Surpresas e missão diária
 
 Nem toda atividade precisa estar no mapa: ⚡ desafio relâmpago, 🕵️ pista
 encontrada, 🎧 escuta surpresa, 🔥 combo de tons, 🐉 desafio Longyu.
@@ -200,7 +353,7 @@ E a missão diária deixa de ser "complete 3 lições":
 
 ---
 
-## 8. Arquitetura alvo
+## 9. Arquitetura alvo
 
 ```
 LONGYU
@@ -218,7 +371,7 @@ e passa a parecer um **ecossistema para aprender mandarim**.
 
 ---
 
-## 9. Expansão internacional
+## 10. Expansão internacional
 
 Sequência: **PT-BR → ES → EN**, depois **ID → TH → FR/DE**.
 
