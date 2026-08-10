@@ -11,6 +11,7 @@ import {
   type ConversationVariantLevel,
 } from "../data/conversationScenes";
 import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
+import { ERROR_CAUSE_ORDER, type ErrorCause } from "../data/errorDiagnosis";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
 import { todayKey, weekKey, monthKey } from "./storage";
 import {
@@ -759,6 +760,15 @@ export interface ActivityErrorRecord {
   pairSelectedRightType?: string;
   explanation?: string;
   mistakeReason?: string;
+  /**
+   * Causa linguística do erro (onda 4), obtida comparando a resposta dada com a
+   * esperada. É o que dirige a remediação e a rota A/B/C. Opcional porque
+   * registros anteriores à onda 4 não têm — o perfil de fraqueza simplesmente
+   * os ignora em vez de tratá-los como causa desconhecida.
+   */
+  diagnosis?: ErrorCause;
+  /** Quanto o padrão observado sustenta a causa. */
+  diagnosisConfidence?: "high" | "medium" | "low";
   timestamp: number;
   wrongCount?: number;
   correctionAttempts?: number;
@@ -809,6 +819,11 @@ function normalizeRecentActivityErrors(errors: ActivityErrorRecord[] | undefined
       wrongCount: Math.max(1, error.wrongCount ?? 1),
       correctionAttempts: Math.max(0, error.correctionAttempts ?? 0),
       correctedSuccessDates: Array.from(new Set(error.correctedSuccessDates ?? [])).slice(-4),
+      // Causa vinda do storage é dado externo: só sobrevive se for da taxonomia.
+      // Uma string inventada aqui viraria um eixo fantasma no perfil.
+      ...(error.diagnosis && ERROR_CAUSE_ORDER.includes(error.diagnosis)
+        ? { diagnosis: error.diagnosis }
+        : { diagnosis: undefined }),
     }))
     .slice(-60);
 }

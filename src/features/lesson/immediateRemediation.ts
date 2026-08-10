@@ -1,6 +1,7 @@
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import type { LessonStep } from "../../data/journey";
+import { REMEDIATION_BY_CAUSE } from "../../data/errorDiagnosis";
 import type { ActivityErrorRecord } from "../../lib/store";
 
 /**
@@ -136,7 +137,66 @@ function pinyinDistractors(answer: string): string[] {
   );
 }
 
+/** A pergunta já cobrava um tom — só aí "qual é o tom?" é uma correção coerente. */
+function isToneQuestion(error: ActivityErrorInput): boolean {
+  return error.type === "tone" || /\d\s*º?\s*tom/i.test(error.correctAnswer);
+}
+
+/** Há material sonoro para tocar? Sem isto, "ouça de novo" tocaria a resposta escrita. */
+function canReplayAudio(error: ActivityErrorInput): boolean {
+  return Boolean(error.hanzi || error.step?.audioText);
+}
+
+/** A correção por hànzì pergunta o SIGNIFICADO — precisa de glifo e de resposta em pt. */
+function canAskHanziMeaning(error: ActivityErrorInput): boolean {
+  return Boolean(error.hanzi) && !containsHanzi(error.correctAnswer);
+}
+
+/**
+ * Formato da correção a partir da CAUSA do erro (onda 4).
+ *
+ * Antes, o formato saía do tipo do exercício: errar por tom dentro de uma
+ * montagem de frase devolvia outra montagem de frase, que é justamente o que
+ * não treina tom. A causa sabe qual motor ataca o problema.
+ *
+ * Devolve `undefined` quando o formato indicado pela causa não tem dado para
+ * existir — aí vale o formato pelo tipo do exercício. Redirecionar sem os dados
+ * produziria uma correção quebrada (perguntar "qual é o tom?" e aceitar um
+ * significado como resposta), e uma correção quebrada é pior que uma genérica.
+ */
+function remediationKindForCause(error: ActivityErrorInput): ImmediateRemediationKind | undefined {
+  const cause = error.diagnosis;
+  // Sem sinal de causa não há o que dirigir: quem decide é o tipo do exercício.
+  if (!cause || cause === "no_answer" || cause === "unclassified") return undefined;
+
+  switch (REMEDIATION_BY_CAUSE[cause]) {
+    case "tone_contrast":
+      if (isToneQuestion(error)) return "tone";
+      return canReplayAudio(error) ? "listen" : undefined;
+    case "audio_discrimination":
+    case "dictation":
+      return canReplayAudio(error) ? "listen" : undefined;
+    case "hanzi_form":
+      return canAskHanziMeaning(error) ? "hanzi" : undefined;
+    // Ordem e objetivo voltam montando: é o formato que expõe a estrutura.
+    case "slot_order":
+    case "spot_error":
+    case "goal_production":
+      return "build";
+    // A lacuna só existe se o exercício de origem tinha lacuna; senão, montar.
+    case "fill_gap":
+      return error.step?.blankAnswer ? "blank" : "build";
+    case "meaning_pair":
+      if (error.type === "pair-match") return "pair";
+      return canAskHanziMeaning(error) ? "hanzi" : "choice";
+    default:
+      return undefined;
+  }
+}
+
 function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
+  const byCause = remediationKindForCause(error);
+  if (byCause) return byCause;
   if (error.type === "pair-match") return "pair";
   if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";
   if (error.type === "tone") return "tone";

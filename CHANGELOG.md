@@ -7,6 +7,42 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Expansão pedagógica — diagnóstico de erro e rota pela fraqueza
+
+- **O app passa a saber por que o aluno errou, não só que errou.** O motivo do
+  erro era derivado do FORMATO do exercício: quem escrevia 我茶要 (ordem
+  trocada) e quem escrevia 我要水 (item errado) recebiam o mesmo motivo e a
+  mesma correção, porque erraram na mesma tela. Agora `diagnoseError` compara a
+  resposta DADA com a esperada e devolve uma causa linguística — tom, homófono,
+  grafia do pinyin, escuta, hànzì parecido, ordem, peça faltando, peça sobrando,
+  partícula, classificador, escolha da palavra, significado, objetivo da fala.
+- **A correção imediata passa a ser escolhida pela causa.** Errar por tom dentro
+  de uma montagem de frase devolvia outra montagem de frase — o formato que
+  justamente não treina tom. Cada causa aponta a modalidade que a ataca (tom →
+  contraste sonoro; ordem → montagem por slots; homófono → par mínimo; grafema →
+  forma do hànzì). Quando o formato indicado não tem dado para existir, vale o
+  formato antigo: correção genérica é ruim, correção quebrada é pior.
+- **A rotação A/B/C deixa de ser cega.** Girava por contagem de tentativa. Agora
+  um perfil de fraqueza — derivado dos erros já persistidos, com decaimento por
+  recência — roteia a variante para a causa em que o aluno erra de verdade. Sem
+  causa dominante (aluno novo, erros espalhados, empate técnico) o rodízio de
+  sempre é preservado: fingir diagnóstico é pior que rodízio cego. A primeira
+  tentativa continua sendo o percurso autoral. 109 das 122 lições mudam de plano
+  conforme a fraqueza.
+- O perfil é **derivado, não persistido**: lê `recentActivityErrors` e se corrige
+  sozinho. Perfil salvo à parte congelaria um diagnóstico velho. Erros anteriores
+  a esta onda não têm causa e são ignorados, em vez de contarem como ruído.
+- **Novidade desacoplada da variante.** As sementes de geração saíam da letra da
+  variante, então repetir a variante repetia a frase de transferência — e frase
+  inédita repetida vira frase decorada. A novidade agora vem da contagem de
+  tentativas: 107 das 122 lições renovam o conteúdo mesmo na mesma variante.
+- **Portão `validate:error-diagnosis`** na cadeia `validate:beta`, com
+  `reports/error-diagnosis-report.md`. Cobre a totalidade da taxonomia, 19 casos
+  curados (incluindo o mesmo exercício com erros diferentes rendendo causas
+  diferentes), os limiares que impedem rota sem evidência, a preservação do
+  rodízio original e o acoplamento com o roteamento da revisão por
+  palavra-chave.
+
 ### Expansão pedagógica — padrões gerativos (slots, cadeia, aspecto, tempo)
 
 - **Scaffold STPVO-light**: cada frame declara `slots` nomeados (sujeito · tempo ·

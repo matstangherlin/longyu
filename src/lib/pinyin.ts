@@ -91,7 +91,7 @@ function normalizeUmlautSyntax(syllable: string): string {
     .replace(/V/g, "Ü");
 }
 
-function isLikelyPinyinSyllable(syllable: string): boolean {
+export function isLikelyPinyinSyllable(syllable: string): boolean {
   const normalized = normalizeUmlautSyntax(syllable).toLowerCase();
   return PINYIN_INITIALS.some((initial) => {
     if (!normalized.startsWith(initial)) return false;
