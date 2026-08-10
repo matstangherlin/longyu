@@ -34,6 +34,7 @@ import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
+import { PATTERN_SLOT_LABELS, type PatternSlot } from "../../data/productionTasks";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
@@ -3638,6 +3639,45 @@ function FreeAnswerField({
   );
 }
 
+/** Scaffold STPVO-light: ordem nomeada da frase, sem revelar a resposta. */
+function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patternPt?: string }) {
+  if (slots && slots.length > 0) {
+    return (
+      <div className="mt-2">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Ordem</div>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {slots.map((slot, index) => (
+            <div key={`${slot.role}-${index}`} className="flex items-center gap-1.5">
+              {index > 0 && <span className="text-ink-faint/70" aria-hidden>·</span>}
+              <span
+                className={[
+                  "inline-flex min-w-[3.25rem] items-center justify-center rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide",
+                  slot.hole
+                    ? "border border-dashed border-accent/50 bg-accent-soft/50 text-accent"
+                    : "border border-line bg-surface text-ink-soft",
+                ].join(" ")}
+              >
+                {slot.hole ? "___" : PATTERN_SLOT_LABELS[slot.role]}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">
+          {slots
+            .map((slot) => (slot.hole ? `___ (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role]))
+            .join(" → ")}
+        </p>
+      </div>
+    );
+  }
+  if (!patternPt) return null;
+  return (
+    <p className="mt-2 text-xs text-ink-faint">
+      Estrutura: <span className="font-semibold text-ink-soft">{patternPt}</span>
+    </p>
+  );
+}
+
 /** free_production e transfer_task compartilham a mesma mecânica. */
 function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
@@ -3701,11 +3741,13 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
           {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 text-sm" />}
           {step.transferAnchorPt && <p className="mt-1 text-sm text-ink-soft">{step.transferAnchorPt}</p>}
-          {step.patternPt && (
-            <p className="mt-2 text-xs text-ink-faint">
-              Estrutura: <span className="font-semibold text-ink-soft">{step.patternPt}</span>
-            </p>
-          )}
+          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+        </div>
+      )}
+
+      {!isTransfer && !isOpen && (step.patternSlots?.length || step.patternPt) && (
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
         </div>
       )}
 

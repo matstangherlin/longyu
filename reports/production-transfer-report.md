@@ -4,34 +4,34 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 9803b4274bf20a216ec0ce3294d0b822ac6912f9 |
+| Commit | 2301b8db9be3b8b6b17c36ec7cfab610fd1434f0 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T08:04:31.421Z |
+| Gerado em | 2026-08-10T08:26:14.000Z |
 | Lições | 122 |
-| Hash da Jornada | df8b3e741d61 |
+| Hash da Jornada | 1613be78fe3f |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Estruturas (frames) declaradas | 14 |
-| Tarefas geradas pelos frames | 72 |
-| — produção (frase já ensinada) | 14 |
-| — transferência (combinação inédita) | 58 |
-| Objetivos comunicativos | 10 |
+| Estruturas (frames) declaradas | 18 |
+| Tarefas geradas pelos frames | 97 |
+| — produção (frase já ensinada) | 16 |
+| — transferência (combinação inédita) | 81 |
+| Objetivos comunicativos | 14 |
 | Tarefas que aceitam frase irmã | 34 |
-| Objetivos de produção aberta declarados | 8 |
-| Objetivos de produção aberta no plano real | 7 |
+| Objetivos de produção aberta declarados | 12 |
+| Objetivos de produção aberta no plano real | 8 |
 | Lições com produção aberta | 41 / 122 |
 | Falas de conversa sem apoio (aluno veterano) | 153 |
 | Lições com conversa sem apoio | 106 / 122 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 451 |
+| Passos auditados no plano real (3 tentativas) | 452 |
 | Lições com produção livre | 71 / 122 |
 | Lições com transferência | 110 / 122 |
-| Lições com reparo conversacional | 20 / 122 |
-| Estruturas diferentes no plano real | 14 |
-| Frases inéditas cobradas | 23 |
+| Lições com reparo conversacional | 22 / 122 |
+| Estruturas diferentes no plano real | 15 |
+| Frases inéditas cobradas | 32 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -39,28 +39,37 @@
 
 ## Frases inéditas cobradas por transferência
 
+- 书多少钱
 - 你要水吗
 - 你要茶吗
-- 我不吃肉
 - 我不喝水
-- 我不喝牛奶
 - 我不喝茶
+- 我今天去医院
+- 我今天去超市
+- 我今天回家吃饭
+- 我今天回家睡觉
 - 我去银行
+- 我喜欢中国
 - 我喜欢茶
+- 我回家了
+- 我在吃饭
+- 我在喝水
+- 我在睡觉
+- 我坐飞机去超市
 - 我想买书
+- 我想买牛奶
 - 我想买苹果
-- 我想吃肉
-- 我想吃香蕉
-- 我想喝热水
+- 我想吃牛肉
+- 我想吃鱼
+- 我明天去超市
+- 我明天去银行
+- 我明天回家吃饭
+- 我明天回家睡觉
 - 我有一个朋友
-- 我有一个苹果
 - 我有五个朋友
-- 我有五个香蕉
 - 我有四个朋友
-- 我要买苹果
-- 我要热水
+- 我睡觉了
 - 我要苹果
-- 苹果多少钱
-- 请问银行在哪里
+- 请问超市在哪里
 
-<!-- integridade:d6e9a8748c28adf5 -->
+<!-- integridade:f2ece0adb396cc21 -->

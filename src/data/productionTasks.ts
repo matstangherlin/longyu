@@ -81,7 +81,49 @@ export type CommunicativeGoal =
   | "offer_item"
   | "refuse_drink"
   | "refuse_food"
-  | "count_possession";
+  | "count_possession"
+  | "chain_actions"
+  | "travel_by"
+  | "state_ongoing"
+  | "state_change";
+
+/**
+ * Papel de um slot na moldura da frase. É o STPVO-light: o aluno vê a ordem
+ * (sujeito · tempo · lugar · verbo · objeto) em vez de só o buraco "___".
+ */
+export type PatternSlotRole =
+  | "subject"
+  | "time"
+  | "place"
+  | "verb"
+  | "object"
+  | "quantity"
+  | "classifier"
+  | "particle"
+  | "polite"
+  | "negation"
+  | "other";
+
+export const PATTERN_SLOT_LABELS: Record<PatternSlotRole, string> = {
+  subject: "sujeito",
+  time: "tempo",
+  place: "lugar",
+  verb: "verbo",
+  object: "objeto",
+  quantity: "quantidade",
+  classifier: "classificador",
+  particle: "partícula",
+  polite: "cortesia",
+  negation: "negação",
+  other: "peça",
+};
+
+/** Um degrau nomeado da estrutura — buraco ou peça fixa do padrão. */
+export interface PatternSlot {
+  role: PatternSlotRole;
+  /** true = é o buraco que o aluno preenche nesta tarefa. */
+  hole?: boolean;
+}
 
 export interface SentenceFrame {
   id: string;
@@ -91,6 +133,11 @@ export interface SentenceFrame {
   labelPt: string;
   /** Como a estrutura aparece na tela da transferência: "我要 ___". */
   patternPt: string;
+  /**
+   * Ordem nomeada da frase (STPVO-light). Aparece na produção e na
+   * transferência para o aluno montar por slots, não por tradução.
+   */
+  slots: PatternSlot[];
   prefix: string;
   prefixPinyin: string;
   suffix: string;
@@ -102,10 +149,22 @@ export interface SentenceFrame {
    * quantidade — nunca aparece hànzì aqui: a tarefa é produzir, não copiar.
    */
   situationTemplatePt: string;
+  /**
+   * Quando o frame aceita tempo opcional, este template usa `{time}` + `{item}`.
+   * Sem ele, a variante com tempo reaproveita `situationTemplatePt` e injeta
+   * o tempo no português de forma genérica.
+   */
+  situationWithTimeTemplatePt?: string;
   /** A regra que a estrutura carrega — é isto que a transferência prova. */
   grammarNotePt: string;
   fillers: FrameFiller[];
   quantifiers?: FrameQuantifier[];
+  /**
+   * Tempo opcional (今天/明天/昨天…) inserido depois do sujeito 我.
+   * Só faz sentido em frames cujo prefix começa com 我 — a ordem chinesa
+   * pede sujeito → tempo → resto.
+   */
+  timeFillers?: FrameFiller[];
 }
 
 /**
@@ -118,6 +177,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "request_item",
     labelPt: "pedir uma coisa",
     patternPt: "我要 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我要",
     prefixPinyin: "wǒ yào",
     suffix: "。",
@@ -141,6 +201,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "request_item",
     labelPt: "dizer o que quer beber",
     patternPt: "我想喝 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我想喝",
     prefixPinyin: "wǒ xiǎng hē",
     suffix: "。",
@@ -160,6 +221,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "ask_location",
     labelPt: "perguntar onde algo fica",
     patternPt: "___ 在哪里？",
+    slots: [{ role: "place", hole: true }, { role: "verb" }],
     prefix: "",
     prefixPinyin: "",
     suffix: "在哪里？",
@@ -180,6 +242,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "ask_location",
     labelPt: "perguntar onde algo fica, com licença",
     patternPt: "请问，___ 在哪里？",
+    slots: [{ role: "polite" }, { role: "place", hole: true }, { role: "verb" }],
     prefix: "请问，",
     prefixPinyin: "qǐng wèn,",
     suffix: "在哪里？",
@@ -200,6 +263,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "request_item",
     labelPt: "dizer o que quer comer",
     patternPt: "我想吃 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我想吃",
     prefixPinyin: "wǒ xiǎng chī",
     suffix: "。",
@@ -220,6 +284,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "buy_item",
     labelPt: "dizer o que quer comprar",
     patternPt: "我想买 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我想买",
     prefixPinyin: "wǒ xiǎng mǎi",
     suffix: "。",
@@ -239,6 +304,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "ask_price",
     labelPt: "perguntar o preço",
     patternPt: "___ 多少钱？",
+    slots: [{ role: "object", hole: true }, { role: "other" }],
     prefix: "",
     prefixPinyin: "",
     suffix: "多少钱？",
@@ -260,6 +326,13 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "count_possession",
     labelPt: "dizer quantos você tem",
     patternPt: "我有 ___ 个 ___",
+    slots: [
+      { role: "subject" },
+      { role: "verb" },
+      { role: "quantity", hole: true },
+      { role: "classifier" },
+      { role: "object", hole: true },
+    ],
     prefix: "我有",
     prefixPinyin: "wǒ yǒu",
     suffix: "。",
@@ -284,6 +357,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "state_preference",
     labelPt: "dizer do que você gosta",
     patternPt: "我喜欢 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我喜欢",
     prefixPinyin: "wǒ xǐhuan",
     suffix: "。",
@@ -304,18 +378,24 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "state_destination",
     labelPt: "dizer para onde você vai",
     patternPt: "我去 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "place", hole: true }],
     prefix: "我去",
     prefixPinyin: "wǒ qù",
     suffix: "。",
     suffixPinyin: ".",
     anchorChunkId: "woquxuexiao",
     situationTemplatePt: "Um amigo pergunta onde você vai agora. Responda que vai {item}.",
-    grammarNotePt: "去 já significa 'ir a' — o destino vem colado, sem 到 no meio.",
+    situationWithTimeTemplatePt: "Alguém pergunta seus planos. Diga que {time} você vai {item}.",
+    grammarNotePt: "去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre o sujeito e o verbo.",
     fillers: [
       { vocabId: "v_chaoshi", promptPt: "ao supermercado" },
       { vocabId: "v_yiyuan", promptPt: "ao hospital" },
       { vocabId: "v_yinhang", promptPt: "ao banco" },
       { vocabId: "v_huochezhan", promptPt: "à estação de trem" },
+    ],
+    timeFillers: [
+      { vocabId: "v_jintian", promptPt: "hoje" },
+      { vocabId: "v_mingtian", promptPt: "amanhã" },
     ],
   },
   {
@@ -323,6 +403,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "buy_item",
     labelPt: "dizer o que quer comprar",
     patternPt: "我要买 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我要买",
     prefixPinyin: "wǒ yào mǎi",
     suffix: "。",
@@ -342,6 +423,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "offer_item",
     labelPt: "oferecer alguma coisa",
     patternPt: "你要 ___ 吗？",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }, { role: "particle" }],
     prefix: "你要",
     prefixPinyin: "nǐ yào",
     suffix: "吗？",
@@ -361,6 +443,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "refuse_drink",
     labelPt: "recusar uma bebida",
     patternPt: "我不喝 ___",
+    slots: [{ role: "subject" }, { role: "negation" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我不喝",
     prefixPinyin: "wǒ bù hē",
     suffix: "。",
@@ -379,6 +462,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     goal: "refuse_food",
     labelPt: "recusar uma comida",
     patternPt: "我不吃 ___",
+    slots: [{ role: "subject" }, { role: "negation" }, { role: "verb" }, { role: "object", hole: true }],
     prefix: "我不吃",
     prefixPinyin: "wǒ bù chī",
     suffix: "。",
@@ -390,6 +474,90 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
       { vocabId: "v_rou", promptPt: "carne" },
       { vocabId: "v_yu", promptPt: "peixe" },
       { vocabId: "v_niurou", promptPt: "carne de boi" },
+    ],
+  },
+  // ——— Cadeia de ações: empilhar verbos na ordem real, sem "to/by/with" ———
+  {
+    id: "frame_huijia_action",
+    goal: "chain_actions",
+    labelPt: "encadear voltar para casa + ação",
+    patternPt: "我回家 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "verb", hole: true }],
+    prefix: "我回家",
+    prefixPinyin: "wǒ huí jiā",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "wohuijia",
+    situationTemplatePt: "Você conta o que vai fazer em seguida. Diga que volta para casa para {item}.",
+    situationWithTimeTemplatePt: "Você conta o plano. Diga que {time} volta para casa para {item}.",
+    grammarNotePt: "Em mandarim as ações se empilham na ordem real — sem 'para' no meio: 回家 + dormir = 回家睡觉.",
+    fillers: [
+      { vocabId: "v_shuijiao", promptPt: "dormir" },
+      { vocabId: "v_chifan", promptPt: "comer" },
+    ],
+    timeFillers: [
+      { vocabId: "v_jintian", promptPt: "hoje" },
+      { vocabId: "v_mingtian", promptPt: "amanhã" },
+    ],
+  },
+  {
+    id: "frame_zuofeijiqu",
+    goal: "travel_by",
+    labelPt: "ir de avião a um lugar",
+    patternPt: "我坐飞机去 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object" }, { role: "verb" }, { role: "place", hole: true }],
+    prefix: "我坐飞机去",
+    prefixPinyin: "wǒ zuò fēijī qù",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "wozuofeiji",
+    situationTemplatePt: "Você conta a viagem. Diga que vai de avião {item}.",
+    grammarNotePt: "O meio vem ANTES do destino, na ordem do que acontece: 坐飞机 (pegar o avião) + 去 + lugar. Sem 'de avião' no fim.",
+    fillers: [
+      { vocabId: "v_zhongguo", promptPt: "para a China" },
+      { vocabId: "v_chaoshi", promptPt: "ao supermercado" },
+      { vocabId: "v_yiyuan", promptPt: "ao hospital" },
+      { vocabId: "v_huochezhan", promptPt: "à estação de trem" },
+    ],
+  },
+  // ——— Filtros de aspecto: a frase-base ganha 在 / 了 sem mudar o verbo ———
+  {
+    id: "frame_wozai",
+    goal: "state_ongoing",
+    labelPt: "dizer o que está acontecendo agora",
+    patternPt: "我在 ___",
+    slots: [{ role: "subject" }, { role: "particle" }, { role: "verb", hole: true }],
+    prefix: "我在",
+    prefixPinyin: "wǒ zài",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "wozaixuezhongwen",
+    situationTemplatePt: "Alguém pergunta o que você está fazendo agora. Responda que está {item}.",
+    grammarNotePt: "在 antes do verbo marca 'agora / em progresso': 在 + ação. O verbo não muda de forma.",
+    fillers: [
+      { vocabId: "v_xuezhongwen", promptPt: "estudando chinês" },
+      { vocabId: "v_chifan", promptPt: "comendo" },
+      { vocabId: "v_heshui", promptPt: "bebendo água" },
+      { vocabId: "v_shuijiao", promptPt: "dormindo" },
+    ],
+  },
+  {
+    id: "frame_wo_le",
+    goal: "state_change",
+    labelPt: "marcar mudança de estado com 了",
+    patternPt: "我 ___ 了",
+    slots: [{ role: "subject" }, { role: "other", hole: true }, { role: "particle" }],
+    prefix: "我",
+    prefixPinyin: "wǒ",
+    suffix: "了。",
+    suffixPinyin: "le.",
+    anchorChunkId: "woele",
+    situationTemplatePt: "Conte como você está agora. Diga que {item}.",
+    grammarNotePt: "了 no fim marca mudança / conclusão — o verbo (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
+    fillers: [
+      { vocabId: "v_e_fome", promptPt: "está com fome" },
+      { vocabId: "v_huijia", promptPt: "já voltou para casa" },
+      { vocabId: "v_shuijiao", promptPt: "já foi dormir" },
     ],
   },
 ];
@@ -418,13 +586,15 @@ export interface FrameTask {
   /** Peça que preenche o buraco. */
   vocabId: string;
   /**
-   * Chave de conteúdo: peça + quantidade. É o que casa realizações irmãs —
-   * "diga que tem 3 amigos" não pode aceitar 我有五个朋友, então a quantidade
-   * entra na chave junto com a peça.
+   * Chave de conteúdo: peça + quantidade + tempo. É o que casa realizações
+   * irmãs — "diga que tem 3 amigos" não pode aceitar 我有五个朋友, e
+   * "amanhã vou ao banco" não aceita "hoje vou ao banco".
    */
   contentKey: string;
   frameLabelPt: string;
   patternPt: string;
+  /** Ordem nomeada da frase (STPVO-light) para o scaffold na UI. */
+  slots: PatternSlot[];
   /** Enunciado em pt-BR. Nunca contém hànzì: o aluno tem que produzir. */
   situationPt: string;
   targetHanzi: string;
@@ -454,46 +624,106 @@ function joinPinyin(...parts: string[]): string {
     .replace(/\s+([.?!])/g, "$1");
 }
 
+/**
+ * Insere tempo depois do sujeito 我 no prefixo. Só é chamado quando o frame
+ * declara timeFillers e o prefixo começa com 我 — a ordem chinesa é
+ * sujeito → tempo → resto.
+ */
+function withTimePrefix(
+  prefix: string,
+  prefixPinyin: string,
+  timeHanzi: string,
+  timePinyin: string
+): { prefix: string; prefixPinyin: string } {
+  if (!prefix.startsWith("我")) {
+    return { prefix, prefixPinyin };
+  }
+  const restHanzi = prefix.slice(1);
+  const restPinyin = prefixPinyin.replace(/^wǒ\s*/i, "");
+  return {
+    prefix: `我${timeHanzi}${restHanzi}`,
+    prefixPinyin: joinPinyin("wǒ", timePinyin, restPinyin),
+  };
+}
+
+function slotsForTask(frame: SentenceFrame, hasTime: boolean): PatternSlot[] {
+  if (!hasTime) return frame.slots;
+  // Tempo entra depois do sujeito, se houver; senão no início.
+  const slots = [...frame.slots];
+  const subjectIdx = slots.findIndex((slot) => slot.role === "subject");
+  const insertAt = subjectIdx >= 0 ? subjectIdx + 1 : 0;
+  if (!slots.some((slot) => slot.role === "time")) {
+    slots.splice(insertAt, 0, { role: "time" });
+  }
+  return slots;
+}
+
 function frameTasks(frame: SentenceFrame): FrameTask[] {
   const anchorChunk = chunkById.get(frame.anchorChunkId);
   if (!anchorChunk) return [];
   const quantifiers: (FrameQuantifier | null)[] = frame.quantifiers?.length ? frame.quantifiers : [null];
+  const timeOptions: (FrameFiller | null)[] = frame.timeFillers?.length
+    ? [null, ...frame.timeFillers]
+    : [null];
   const tasks: FrameTask[] = [];
 
   for (const filler of frame.fillers) {
     const entry = vocabById.get(filler.vocabId);
     if (!entry || !HANZI_ONLY_RE.test(entry.hanzi)) continue;
     for (const quantifier of quantifiers) {
-      const targetHanzi = `${frame.prefix}${quantifier?.hanzi ?? ""}${entry.hanzi}${frame.suffix}`;
-      const targetPinyin = joinPinyin(
-        frame.prefixPinyin,
-        quantifier?.pinyin ?? "",
-        entry.pinyin,
-        frame.suffixPinyin
-      );
-      const bare = cleanSentence(targetHanzi);
-      const itemPt = quantifier?.singular ? filler.promptSingularPt ?? filler.promptPt : filler.promptPt;
-      const situationPt = frame.situationTemplatePt
-        .replace("{item}", itemPt)
-        .replace("{qty}", quantifier?.promptPt ?? "");
-      tasks.push({
-        id: `${frame.id}__${filler.vocabId}${quantifier ? `__${quantifier.pinyin.replace(/\s+/g, "")}` : ""}`,
-        frameId: frame.id,
-        goal: frame.goal,
-        vocabId: filler.vocabId,
-        contentKey: `${filler.vocabId}|${quantifier?.hanzi ?? ""}`,
-        frameLabelPt: frame.labelPt,
-        patternPt: frame.patternPt,
-        situationPt,
-        targetHanzi,
-        targetPinyin,
-        accepts: [bare, targetPinyin],
-        siblingAnswers: [],
-        grammarNotePt: frame.grammarNotePt,
-        anchor: { hanzi: anchorChunk.hanzi, pinyin: anchorChunk.pinyin, meaningPt: anchorChunk.meaningPt },
-        isNovelCombination: !CORPUS_SENTENCES.has(bare),
-        requiredGlyphs: [...bare],
-      });
+      for (const timeFiller of timeOptions) {
+        const timeEntry = timeFiller ? vocabById.get(timeFiller.vocabId) : null;
+        if (timeFiller && (!timeEntry || !HANZI_ONLY_RE.test(timeEntry.hanzi))) continue;
+
+        const builtPrefix = timeEntry
+          ? withTimePrefix(frame.prefix, frame.prefixPinyin, timeEntry.hanzi, timeEntry.pinyin)
+          : { prefix: frame.prefix, prefixPinyin: frame.prefixPinyin };
+
+        const targetHanzi = `${builtPrefix.prefix}${quantifier?.hanzi ?? ""}${entry.hanzi}${frame.suffix}`;
+        const targetPinyin = joinPinyin(
+          builtPrefix.prefixPinyin,
+          quantifier?.pinyin ?? "",
+          entry.pinyin,
+          frame.suffixPinyin
+        );
+        const bare = cleanSentence(targetHanzi);
+        const itemPt = quantifier?.singular ? filler.promptSingularPt ?? filler.promptPt : filler.promptPt;
+        const situationPt = timeEntry
+          ? (frame.situationWithTimeTemplatePt ?? frame.situationTemplatePt)
+              .replace("{time}", timeFiller?.promptPt ?? "")
+              .replace("{item}", itemPt)
+              .replace("{qty}", quantifier?.promptPt ?? "")
+          : frame.situationTemplatePt
+              .replace("{item}", itemPt)
+              .replace("{qty}", quantifier?.promptPt ?? "")
+              .replace("{time}", "");
+
+        const patternPt = timeEntry
+          ? frame.patternPt.replace(/^我/, `我${timeEntry.hanzi}`)
+          : frame.patternPt;
+
+        tasks.push({
+          id: `${frame.id}__${filler.vocabId}${quantifier ? `__${quantifier.pinyin.replace(/\s+/g, "")}` : ""}${
+            timeEntry ? `__t_${timeFiller?.vocabId}` : ""
+          }`,
+          frameId: frame.id,
+          goal: frame.goal,
+          vocabId: filler.vocabId,
+          contentKey: `${filler.vocabId}|${quantifier?.hanzi ?? ""}|${timeEntry?.hanzi ?? ""}`,
+          frameLabelPt: frame.labelPt,
+          patternPt,
+          slots: slotsForTask(frame, Boolean(timeEntry)),
+          situationPt,
+          targetHanzi,
+          targetPinyin,
+          accepts: [bare, targetPinyin],
+          siblingAnswers: [],
+          grammarNotePt: frame.grammarNotePt,
+          anchor: { hanzi: anchorChunk.hanzi, pinyin: anchorChunk.pinyin, meaningPt: anchorChunk.meaningPt },
+          isNovelCombination: !CORPUS_SENTENCES.has(bare),
+          requiredGlyphs: [...bare],
+        });
+      }
     }
   }
   return tasks;
@@ -637,6 +867,26 @@ export const OPEN_PRODUCTION_GOALS: OpenProductionGoalCopy[] = [
     goal: "refuse_food",
     situationPt: "No restaurante, avise que existe uma comida que você não come.",
     hintPt: "Escolha a comida que você quiser recusar.",
+  },
+  {
+    goal: "chain_actions",
+    situationPt: "Alguém pergunta o que você vai fazer ao chegar em casa. Conte a sequência.",
+    hintPt: "Empilhe as ações na ordem em que acontecem — sem 'para' no meio.",
+  },
+  {
+    goal: "travel_by",
+    situationPt: "Conte como você vai chegar a algum lugar — o meio de transporte faz parte da frase.",
+    hintPt: "Meio primeiro, destino depois: é a ordem do que acontece de verdade.",
+  },
+  {
+    goal: "state_ongoing",
+    situationPt: "Alguém pergunta o que você está fazendo neste momento. Responda.",
+    hintPt: "Marque que a ação está acontecendo agora. Qualquer ação que você já saiba serve.",
+  },
+  {
+    goal: "state_change",
+    situationPt: "Conte uma mudança de estado — como você está agora, ou o que acabou de acontecer com você.",
+    hintPt: "A partícula no fim marca a mudança. Escolha o estado que fizer sentido.",
   },
 ];
 

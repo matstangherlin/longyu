@@ -358,6 +358,26 @@ quando o aluno já as viu o bastante.
   encadeadas.
 - **Produção fora dos frames.** O aluno só pode ser avaliado no que o catálogo
   sabe conferir. Sair disso exige avaliação de mandarim livre — outro problema.
+- **Pontes lógicas (`因为…所以`, `但是`).** O vocab já tem as peças em
+  `advancedPreview`, mas o currículo ainda não as ensina — sem âncora na
+  jornada, não há o que transferir.
+
+---
+
+## 4.4 Padrões gerativos — slots, cadeia, aspecto, tempo
+
+Incremento sobre a onda 3: a produção já cobrava frase sem apoio; faltava
+tornar o **padrão** visível e cobrir as três famílias que destravam montagem
+(STPVO / cadeia de ações / filtros de tempo).
+
+| Camada | O que entrou | Onde |
+|---|---|---|
+| Scaffold | `slots` em todo frame + UI "Ordem" | `productionTasks.ts`, `steps.tsx` |
+| Cadeia | `我回家 ___`, `我坐飞机去 ___` | novos frames |
+| Aspecto | `我在 ___`, `我 ___ 了` | novos frames + 我在学中文 na jornada |
+| Tempo | `timeFillers` em `我去` / `我回家` | geração de variantes |
+
+Não é um modo "3 patterns" separado — é profundidade no motor de produção.
 
 ---
 

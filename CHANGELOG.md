@@ -7,6 +7,18 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Expansão pedagógica — padrões gerativos (slots, cadeia, aspecto, tempo)
+
+- **Scaffold STPVO-light**: cada frame declara `slots` nomeados (sujeito · tempo ·
+  lugar · verbo · objeto…). A produção e a transferência mostram a ordem na UI
+  — o aluno monta por padrão, não por tradução. Portão exige buraco no scaffold.
+- **Cadeia de ações**: `我回家 ___` (回家睡觉 / 回家吃饭) e `我坐飞机去 ___` —
+  empilhar verbos na ordem real, sem "para/de/com" do português.
+- **Filtros de aspecto**: `我在 ___` (em progresso; âncora 我在学中文 entra na
+  lição "Falo um pouco") e `我 ___ 了` (mudança de estado: 饿了 / 回家了 / 睡觉了).
+- **Tempo como slot opcional**: em `我去 ___` e `我回家 ___`, 今天/明天 entram
+  entre sujeito e verbo (`我明天去银行`), com template de situação próprio.
+
 ### Expansão pedagógica — objetivo comunicativo, produção aberta e conversa sem apoio
 
 - **O que conta como certo passa a ser o objetivo, não a frase esperada.** Cada

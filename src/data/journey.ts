@@ -18,7 +18,7 @@ import {
   type ImageChoiceMode,
   type VisualConceptId,
 } from "./visualVocabulary";
-import type { CommunicativeGoal, RepairDirection, RepairStrategy } from "./productionTasks";
+import type { CommunicativeGoal, PatternSlot, RepairDirection, RepairStrategy } from "./productionTasks";
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -244,6 +244,11 @@ export interface LessonStep {
   situationPt?: string;
   /** Estrutura visível na transferência ("我要 ___") — nunca a resposta. */
   patternPt?: string;
+  /**
+   * Scaffold STPVO-light: ordem nomeada da frase (sujeito · tempo · verbo…).
+   * Aparece na produção e na transferência; nunca revela a resposta.
+   */
+  patternSlots?: PatternSlot[];
   /** Frame de origem (src/data/productionTasks.ts), para relatório e SRS. */
   productionFrameId?: string;
   /** Objetivo comunicativo: define o que conta como resposta certa. */
@@ -3126,8 +3131,8 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l11-falo-pouco",
             title: "Falo um pouco",
             skill: "fala",
-            libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian"],
-            reviewItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian"],
+            libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
+            reviewItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             rewardQi: 2,
             estimatedMinutes: 5,
             steps: [
@@ -3157,6 +3162,21 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "会", "说", "一点", "中文", "不会", "听不懂"],
                 "我会说一点中文 = sei falar um pouco de chinês."
               ),
+              listen("我在学中文", "wǒ zài xué Zhōngwén", "Estou estudando chinês"),
+              listenSelect(
+                "O que você ouviu?",
+                "我在学中文",
+                ["我在学中文", "我会说一点中文", "我不会说中文", "谢谢"],
+                "我在学中文",
+                "在 antes do verbo marca o que está acontecendo agora."
+              ),
+              sentenceBuild(
+                "Estou estudando chinês",
+                "Monte: estou estudando chinês agora.",
+                ["我", "在", "学", "中文"],
+                ["我", "在", "学", "中文", "会", "一点"],
+                "我在学中文: 在 + ação = acontecendo agora. O verbo não muda de forma."
+              ),
               fillBlank(
                 "Complete o meio",
                 "Complete: 我会说 ___ 中文.",
@@ -3172,6 +3192,13 @@ export const JOURNEY: JourneyPhase[] = [
                 "我会说一点中文",
                 ["我会说一点中文", "我不会说中文", "再见", "不客气"],
                 "Essa frase ajuda a ajustar a expectativa da conversa."
+              ),
+              dialogue(
+                "O que você está fazendo?",
+                "Alguém pergunta o que você faz neste momento. O que você diz?",
+                "我在学中文",
+                ["我在学中文", "我会说一点中文", "再见", "谢谢"],
+                "我在学中文 responde com o que está acontecendo agora."
               ),
               translationBuild(
                 "Escreva em português",
