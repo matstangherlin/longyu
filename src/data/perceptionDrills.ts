@@ -296,7 +296,9 @@ function tooClose(a: VocabDomain, b: VocabDomain): boolean {
   return TOO_CLOSE.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 }
 
-const HANZI_ONLY_RE = /^[㐀-鿿豈-﫿]+$/u;
+// Escapes explícitos: com os caracteres literais, o início do segundo
+// intervalo normaliza para U+8C48 e a classe deixa de ser "só hànzì".
+const HANZI_ONLY_RE = /^[\u3400-\u9fff\uf900-\ufaff]+$/u;
 
 function vocabDrillItems(domain: VocabDomain, seenGlyphs: ReadonlySet<string>): DrillItem[] {
   return VOCABULARY.filter(

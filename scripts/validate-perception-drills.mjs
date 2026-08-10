@@ -25,7 +25,10 @@ const rootDir = process.cwd();
 const errors = [];
 const addError = (ref, message) => errors.push(`[${ref}] ${message}`);
 
-const CJK_RE = /[㐀-鿿豈-﫿]/u;
+// Escapes explícitos, não caracteres literais. Escrito à mão, o início do
+// segundo intervalo normaliza de U+F900 para U+8C48 (a forma canônica) e a
+// classe passa a engolir tudo entre os ideogramas e os de compatibilidade.
+const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/u;
 const PUNCT_RE = /[　-〿＀-￯,.!?\s:;"'()？！。，、]/g;
 const cleanHanzi = (value) => String(value ?? "").replace(PUNCT_RE, "").trim();
 
@@ -54,8 +57,12 @@ function splitSyllable(toneless) {
 function stripTone(pinyin) {
   return String(pinyin ?? "")
     .normalize("NFD")
-    .replace(/[̀-̏]/g, "")
-    .replace(/ü/g, "ü")
+    // Só as quatro marcas de tom: macron, agudo, caron e grave. O trema
+    // (U+0308) FICA — "u" e "ü" são sílabas diferentes, e o contraste entre
+    // elas depende disso. Tirar a faixa inteira U+0300–U+030F levava junto o
+    // trema e fazia lù e lǜ virarem a mesma coisa.
+    .replace(/[\u0300\u0301\u0304\u030c]/g, "")
+    .normalize("NFC")
     .toLowerCase()
     .trim();
 }

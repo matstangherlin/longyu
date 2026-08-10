@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ead4646c1af70c7f7dbed5268bb96f9642cc5f44 |
+| Commit | c6576c3d09ae1c8d32389b47c6f9a4d849b68f8d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-09T17:41:37.604Z |
+| Gerado em | 2026-08-10T02:04:11.790Z |
 | Lições | 122 |
 | Hash da Jornada | 88205c22322a |
 
@@ -107,4 +107,4 @@
 - l7-rev:chunk:zaijian
 - …mais 163.
 
-<!-- integridade:0e30b425c6243fcb -->
+<!-- integridade:35fb14506af4a9de -->
