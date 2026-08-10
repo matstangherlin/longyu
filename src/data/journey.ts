@@ -18,7 +18,7 @@ import {
   type ImageChoiceMode,
   type VisualConceptId,
 } from "./visualVocabulary";
-import type { RepairDirection, RepairStrategy } from "./productionTasks";
+import type { CommunicativeGoal, RepairDirection, RepairStrategy } from "./productionTasks";
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -246,6 +246,17 @@ export interface LessonStep {
   patternPt?: string;
   /** Frame de origem (src/data/productionTasks.ts), para relatório e SRS. */
   productionFrameId?: string;
+  /** Objetivo comunicativo: define o que conta como resposta certa. */
+  productionGoal?: CommunicativeGoal;
+  /**
+   * Produção ABERTA: o enunciado dá só o objetivo e a situação, e o conteúdo
+   * é escolha do aluno. Qualquer realização conhecida do objetivo vale.
+   */
+  productionOpen?: boolean;
+  /** Lembrete de que a escolha é do aluno (só na produção aberta). */
+  productionHintPt?: string;
+  /** Outras respostas certas, mostradas DEPOIS da tentativa — nunca antes. */
+  productionExamples?: { hanzi: string; pinyin: string }[];
   /** Frase-âncora já ensinada que sustenta a transferência. */
   transferAnchorHanzi?: string;
   transferAnchorPinyin?: string;

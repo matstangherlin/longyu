@@ -65,6 +65,7 @@ import {
   spotErrorDrillsFor,
 } from "../../data/perceptionDrills";
 import {
+  openProductionTasksFor,
   productionTasksFor,
   repairTasksFor,
   transferTasksFor,
@@ -1653,12 +1654,46 @@ function frameTaskStepBase(task: FrameTask) {
   return {
     situationPt: task.situationPt,
     productionFrameId: task.frameId,
+    productionGoal: task.goal,
     correctAnswer: task.targetHanzi,
     answer: task.targetHanzi,
     pinyin: task.targetPinyin,
     accepts: uniqueValues([task.targetHanzi, ...task.accepts]),
+    // As frases irmãs aparecem só na correção: "isto também valia". Mostrar
+    // antes entregaria a resposta; não mostrar nunca esconde do aluno que
+    // existe mais de um jeito certo de dizer a mesma coisa.
+    productionExamples: task.siblingAnswers.map((hanzi) => ({ hanzi, pinyin: "" })),
     isNoHint: true,
     helpMode: "disabled" as const,
+  };
+}
+
+/**
+ * Produção ABERTA: o enunciado dá o objetivo e a situação, e o aluno escolhe o
+ * conteúdo. É o degrau que faltava — as outras produções ainda combinavam a
+ * frase de antemão, o que treina montar mas não treina escolher o que dizer.
+ */
+function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
+  const tasks = openProductionTasksFor(knownGlyphs);
+  if (tasks.length === 0) return null;
+  const task = tasks[seed % tasks.length];
+  const [model] = task.examples;
+  if (!model) return null;
+  return {
+    kind: "free_production",
+    title: "Você escolhe o que dizer",
+    situationPt: task.situationPt,
+    productionGoal: task.goal,
+    productionOpen: true,
+    productionHintPt: task.hintPt,
+    productionExamples: task.examples,
+    correctAnswer: model.hanzi,
+    answer: model.hanzi,
+    pinyin: model.pinyin,
+    accepts: uniqueValues(task.accepts),
+    explanation: `Qualquer uma destas cumpre a situação. ${task.hintPt}`,
+    isNoHint: true,
+    helpMode: "disabled",
   };
 }
 
@@ -2856,6 +2891,7 @@ function supplementalStepsForStage(
     // → continuar quando o outro não entende.
     push(makeSpotErrorStep(knownGlyphs, drillSeed));
     push(makeFreeProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 5));
+    push(makeOpenProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 3));
     push(makeConversationRepairStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0), primary));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
@@ -2889,6 +2925,7 @@ function supplementalStepsForStage(
     // lição repetiria a mesma transferência e ela viraria frase decorada.
     const variantSeed = drillSeed + 1 + practiceVariant.charCodeAt(0) * 7;
     push(makeTransferStep(knownGlyphs, variantSeed));
+    push(makeOpenProductionStep(knownGlyphs, variantSeed));
     push(makeFreeProductionStep(knownGlyphs, variantSeed));
     push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));

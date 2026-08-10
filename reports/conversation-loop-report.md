@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 55a5417963c0208a62264e370b6fac4b277e58d0 |
+| Commit | 4ee4623927159a24c11f88a39d9ee227cacd244e |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T05:33:20.282Z |
+| Gerado em | 2026-08-10T07:33:30.777Z |
 | Lições | 122 |
-| Hash da Jornada | dd19e9f99101 |
+| Hash da Jornada | b3cb4d8b44ab |
 
 ## Resumo
 
@@ -16,13 +16,13 @@
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 126 |
 | Itens de vocabulário exibidos | 695 |
-| Itens cobertos por tarefa posterior | 544 |
-| Cobertura bruta | 78.3 % |
-| **Itens de prioridade** (novo · resposta · pouco exposto) | 334 |
-| **Cobertura relevante** (portão ≥ 76 %) | **80.2 %** |
-| Itens do núcleo saturado (≥ 40 exposições no curso) | 18 refs |
-| Reutilização média por item | 2.19 |
-| Itens sem cobertura | 151 |
+| Itens cobertos por tarefa posterior | 545 |
+| Cobertura bruta | 78.4 % |
+| **Itens de prioridade** (novo · resposta · pouco exposto) | 331 |
+| **Cobertura relevante** (portão ≥ 76 %) | **81.0 %** |
+| Itens do núcleo saturado (≥ 40 exposições no curso) | 19 refs |
+| Reutilização média por item | 2.18 |
+| Itens sem cobertura | 150 |
 | Tarefas da fase Pós-Conversa | 521 |
 | Média Pós-Conversa por conversa | 4.13 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
@@ -34,22 +34,23 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- chunk:nihao — 556 exposições ao longo dos 122 planos
-- char:ma_question — 377 exposições ao longo dos 122 planos
-- chunk:wohenhao — 262 exposições ao longo dos 122 planos
+- chunk:nihao — 555 exposições ao longo dos 122 planos
+- char:ma_question — 376 exposições ao longo dos 122 planos
+- chunk:wohenhao — 261 exposições ao longo dos 122 planos
 - chunk:nihaoma — 241 exposições ao longo dos 122 planos
-- chunk:zaijian — 174 exposições ao longo dos 122 planos
-- char:bu — 167 exposições ao longo dos 122 planos
-- char:he_drink — 123 exposições ao longo dos 122 planos
-- char:shi — 108 exposições ao longo dos 122 planos
-- chunk:xiexie — 105 exposições ao longo dos 122 planos
+- chunk:zaijian — 173 exposições ao longo dos 122 planos
+- char:bu — 172 exposições ao longo dos 122 planos
+- char:he_drink — 144 exposições ao longo dos 122 planos
+- char:shi — 105 exposições ao longo dos 122 planos
+- chunk:xiexie — 104 exposições ao longo dos 122 planos
 - chunk:nijiaoshenme — 74 exposições ao longo dos 122 planos
 - char:tian_sky — 70 exposições ao longo dos 122 planos
 - chunk:qingzaishuoyibian — 69 exposições ao longo dos 122 planos
-- chunk:qingwen — 64 exposições ao longo dos 122 planos
-- chunk:bukeqi — 60 exposições ao longo dos 122 planos
-- char:san — 56 exposições ao longo dos 122 planos
+- chunk:qingwen — 66 exposições ao longo dos 122 planos
+- chunk:bukeqi — 59 exposições ao longo dos 122 planos
+- char:san — 55 exposições ao longo dos 122 planos
 - char:mu — 52 exposições ao longo dos 122 planos
+- chunk:woxianghe — 50 exposições ao longo dos 122 planos
 - chunk:mingtianjian — 47 exposições ao longo dos 122 planos
 - char:shan — 45 exposições ao longo dos 122 planos
 
@@ -84,38 +85,38 @@
 - l26b:chunk:woele (4 exposições no curso)
 - l26b:chunk:womenchifanba (5 exposições no curso)
 - l26b:chunk:woyaorou (1 exposições no curso)
-- l27:chunk:zaijian (174 exposições no curso)
+- l27:chunk:zaijian (173 exposições no curso)
 - l28:chunk:duoshaoqian (11 exposições no curso)
-- l28:chunk:woxianghe (22 exposições no curso)
 - l28:chunk:woyao (16 exposições no curso)
 - l28:chunk:zheshishenme (11 exposições no curso)
 - p6-rotina-trabalho:chunk:woyao (16 exposições no curso)
-- p6-rotina-trabalho:chunk:zaijian (174 exposições no curso)
+- p6-rotina-trabalho:chunk:zaijian (173 exposições no curso)
 - p6-saude:chunk:woyao (16 exposições no curso)
-- p6-saude:chunk:zaijian (174 exposições no curso)
+- p6-saude:chunk:zaijian (173 exposições no curso)
 - p6-horarios:chunk:woyao (16 exposições no curso)
-- p6-horarios:chunk:zaijian (174 exposições no curso)
-- p6-natureza:char:zhe (51 exposições no curso)
+- p6-horarios:chunk:zaijian (173 exposições no curso)
+- p6-natureza:char:zhe (50 exposições no curso)
 - p6-natureza:chunk:zheshishenme (11 exposições no curso)
 - p6-clima:chunk:woyao (16 exposições no curso)
-- p6-clima:chunk:zaijian (174 exposições no curso)
+- p6-clima:chunk:zaijian (173 exposições no curso)
 - p6-compras:chunk:duoshaoqian (11 exposições no curso)
-- p6-compras:chunk:woxianghe (22 exposições no curso)
 - p6-compras:chunk:zheshishenme (11 exposições no curso)
 - l10-rev:chunk:taiguile (9 exposições no curso)
 - l29:chunk:duoshaoqian (11 exposições no curso)
 - l29:chunk:taiguile (9 exposições no curso)
 - l29:chunk:zheshishenme (11 exposições no curso)
-- l29:chunk:zheshishui (6 exposições no curso)
-- l30:char:yue (24 exposições no curso)
+- l29:chunk:zheshishui (5 exposições no curso)
+- l30:char:yue (22 exposições no curso)
 - l30:chunk:zheshishenme (11 exposições no curso)
 - l11-rev:char:sen (11 exposições no curso)
 - l11-rev:chunk:zheshishenme (11 exposições no curso)
 - p7-imersao-mercado:chunk:duoshaoqian (11 exposições no curso)
-- p7-imersao-mercado:chunk:woxianghe (22 exposições no curso)
 - p7-imersao-mercado:chunk:woyao (16 exposições no curso)
 - p7-imersao-mercado:chunk:zheshishenme (11 exposições no curso)
-- …mais 6.
+- p7-imersao-mercado:char:ri (31 exposições no curso)
+- p7-imersao-mercado:char:sen (11 exposições no curso)
+- p7-imersao-mercado:char:yue (22 exposições no curso)
+- …mais 3.
 
 ## Itens sem cobertura (bruto)
 
@@ -199,6 +200,6 @@
 - l28:chunk:duoshaoqian
 - l28:chunk:woxianghe
 - l28:chunk:woyao
-- …mais 71.
+- …mais 70.
 
-<!-- integridade:ac0bdcaad37982a2 -->
+<!-- integridade:b7266134f317deee -->

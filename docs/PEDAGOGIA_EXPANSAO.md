@@ -1,6 +1,6 @@
 # Expansão pedagógica do Longyu
 
-> Documento de direção. As ondas 1 e 2 já estão no código; as demais estão
+> Documento de direção. As ondas 1, 2 e 3 já estão no código; as demais estão
 > descritas aqui para não se perderem e para que cada uma entre sabendo onde
 > encaixa. Os números de cada onda saem dos relatórios em `reports/`, gerados
 > pelos portões — não são estimativas.
@@ -244,7 +244,96 @@ currículo novo foi escrito.
 
 ---
 
-## 4. Ondas seguintes
+## 4. Onda 3 — implementada
+
+A onda 2 tirou o apoio: sem banco, sem alternativas. Mas ainda restava um
+apoio invisível — **o alvo combinado**. Toda produção era "diga *esta* frase
+sem ajuda", e o app conferia contra ela. Isso treina montar; não treina
+escolher o que dizer. Escolher é metade de falar.
+
+Duas mudanças, uma consequência da outra.
+
+### 4.1 Objetivo comunicativo em vez de frase esperada
+
+Cada estrutura agora declara **o que ela faz**, não só como ela é:
+
+```
+request_item      我要X · 我想喝X · 我想吃X
+ask_location      X在哪里？ · 请问，X在哪里？
+buy_item          我要买X · 我想买X
+ask_price · state_preference · state_destination · offer_item
+refuse_drink · refuse_food · count_possession
+```
+
+O que conta como certo passa a ser decidido pelo par **(objetivo, conteúdo)**,
+não pela estrutura. Pedimos "diga que quer beber chá": 我想喝茶 vale, e 我要茶
+vale igual — as duas pedem chá no balcão. Antes a segunda levava errado.
+
+Isso substituiu uma lista manual de pares (`alsoAcceptFrameIds`) que precisava
+ser lembrada a cada estrutura nova. Agora uma estrutura entra no conjunto de
+respostas certas só por declarar o objetivo.
+
+A quantidade entra na chave junto com a peça: "diga que tem 3 amigos" não
+aceita 我有五个朋友 — mesmo objetivo, conteúdo diferente.
+
+Três estruturas novas existem justamente para dar ao objetivo mais de uma
+realização: 请问，X在哪里？ (pergunta educada), 我想买X e 我想吃X. Hoje **34 das
+72 tarefas** aceitam pelo menos uma frase irmã, e a correção mostra as outras
+("isto também valia") — o aluno descobre que havia mais de um jeito certo,
+em vez de só levar um check.
+
+### 4.2 Produção aberta: objetivo sem alvo
+
+O enunciado dá a situação e o objetivo. O conteúdo é escolha do aluno:
+
+> Você senta no restaurante e o garçom vem até a mesa. Peça alguma coisa para
+> comer ou beber.
+
+Não há resposta esperada. Qualquer realização daquele objetivo que o aluno já
+tenha condições de escrever conta — **17 frases diferentes** cumprem essa
+situação hoje. E continua verificável: o conjunto de respostas sai inteiro dos
+frames, então nada aqui aceita mandarim que o app não saiba que é correto.
+
+Oito objetivos têm situação aberta. Contar ficou de fora de propósito: o
+enunciado teria que dizer o número, e o alvo voltaria a ser único.
+
+Uma produção aberta só é oferecida quando existem **pelo menos três** respostas
+possíveis com o vocabulário que o aluno já viu. Com uma ou duas, "diga o que
+quiser" é alvo único disfarçado — e o portão reprova.
+
+### Efeito medido
+
+| Métrica | Onda 2 | Onda 3 |
+|---|---:|---:|
+| Estruturas de frase | 11 | 14 |
+| Objetivos comunicativos | — | 10 |
+| Tarefas que aceitam frase irmã | 8 (par manual) | 34 |
+| Lições com produção aberta | 0 | 41 / 122 |
+| Objetivos abertos no plano real | 0 | 7 |
+| Lições com produção livre | 70 / 122 | 71 / 122 |
+| Lições com transferência | 108 / 122 | 110 / 122 |
+| Profundidade média | 95 | 96 |
+| Cobertura relevante do loop | 80,2 % | 81,0 % |
+
+O portão `validate:production-transfer` ganhou duas regras: **objetivo com mais
+de uma estrutura precisa aceitar as duas frases** (senão o objetivo é
+decorativo) e **produção aberta precisa de 3+ respostas certas**, com o gate de
+glifos aplicado a *todas* elas — qualquer uma é uma frase que o aluno pode
+legitimamente escolher escrever.
+
+### O que continua faltando
+
+- **Conversa menos controlada.** O reparo cobre o mal-entendido isolado; falta
+  a conversa que segue errando e exige recuperação em sequência.
+- **Reparo cedo.** Continua em ~20-25 lições porque a jornada só ensina
+  请再说一遍 / 我听不懂 depois da metade. Subir isso é decisão de currículo,
+  não de motor.
+- **Produção fora dos frames.** O aluno só pode ser avaliado no que o catálogo
+  sabe conferir. Sair disso exige avaliação de mandarim livre — outro problema.
+
+---
+
+## 5. Ondas seguintes
 
 ### Onda 3 — beta inicial
 
@@ -280,7 +369,7 @@ aberta com IA, geração adaptativa controlada de situações.
 
 ---
 
-## 5. Longyu Arcade
+## 6. Longyu Arcade
 
 Jogos que usam **somente o que o aluno já desbloqueou** — nunca um jogo
 separado do curso.
@@ -301,7 +390,7 @@ Todos alimentam XP, SRS e ligas — senão viram distração.
 
 ---
 
-## 6. Personalização adaptativa
+## 7. Personalização adaptativa
 
 Mais importante do que criar cinquenta jogos. Detectado que o aluno erra
 听 / 说 / 看 / 想, a sessão seguinte **não** mostra quatro flashcards:
@@ -317,7 +406,7 @@ que escolhe **modalidade por tipo de erro**, e não só item por urgência.
 
 ---
 
-## 7. Sistema de variantes
+## 8. Sistema de variantes
 
 **Implementado na onda 1** — esta seção descrevia o sistema como pendente e
 ficou desatualizada; o que segue é o que a `main` faz hoje.
@@ -339,7 +428,7 @@ repetia a mesma frase e o motor viraria mais uma coisa decorada.
 
 ---
 
-## 8. Surpresas e missão diária
+## 9. Surpresas e missão diária
 
 Nem toda atividade precisa estar no mapa: ⚡ desafio relâmpago, 🕵️ pista
 encontrada, 🎧 escuta surpresa, 🔥 combo de tons, 🐉 desafio Longyu.
@@ -353,7 +442,7 @@ E a missão diária deixa de ser "complete 3 lições":
 
 ---
 
-## 9. Arquitetura alvo
+## 10. Arquitetura alvo
 
 ```
 LONGYU
@@ -371,7 +460,7 @@ e passa a parecer um **ecossistema para aprender mandarim**.
 
 ---
 
-## 10. Expansão internacional
+## 11. Expansão internacional
 
 Sequência: **PT-BR → ES → EN**, depois **ID → TH → FR/DE**.
 

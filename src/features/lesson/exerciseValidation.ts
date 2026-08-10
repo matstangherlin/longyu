@@ -473,6 +473,18 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       }
       if ((step.targetParts ?? []).length > 0) errors.push(`${step.kind} não pode entregar a frase em peças`);
       if (!step.isNoHint && step.helpMode !== "disabled") errors.push(`${step.kind} precisa estar sem dica`);
+      if (step.productionOpen) {
+        // Aberta: o valor está em existir escolha. Com uma ou duas respostas
+        // possíveis, "diga o que quiser" é alvo único disfarçado.
+        const answers = (step.accepts ?? []).filter((value) => CJK_RE.test(value ?? ""));
+        if (new Set(answers.map(normalize)).size < 3) {
+          errors.push("produção aberta com menos de 3 respostas certas possíveis");
+        }
+        if ((step.productionExamples ?? []).length < 3) {
+          errors.push("produção aberta sem exemplos suficientes para a correção");
+        }
+        if (!step.productionGoal) errors.push("produção aberta sem objetivo comunicativo");
+      }
       if (step.kind === "transfer_task") {
         if (!step.transferAnchorHanzi?.trim()) errors.push("transfer_task sem frase-âncora ensinada");
         if (step.isNovelCombination !== true) {

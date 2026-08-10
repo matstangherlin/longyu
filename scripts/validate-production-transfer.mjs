@@ -11,8 +11,12 @@
  *  3. o reparo conversacional precisa oferecer estratégias distintas e uma
  *     fala de recuperação que o aluno consiga escrever com o que já viu;
  *  4. nada é gerado com glifo que o aluno ainda não encontrou;
- *  5. os três motores precisam aparecer no PLANO REAL de uma fração mínima
- *     das lições — declarar motor que nunca roda não vale.
+ *  5. os motores precisam aparecer no PLANO REAL de uma fração mínima das
+ *     lições — declarar motor que nunca roda não vale;
+ *  6. objetivo comunicativo com mais de uma estrutura precisa ACEITAR as duas
+ *     frases: se 我要茶 e 我想喝茶 não valem as duas, o objetivo é decorativo;
+ *  7. produção ABERTA precisa oferecer escolha real (3+ respostas certas) e
+ *     nunca revelar uma resposta esperada no enunciado.
  *
  * Gera reports/production-transfer-report.md.
  */
@@ -44,6 +48,11 @@ const clean = (value) => String(value ?? "").replace(PUNCT_RE, "").trim();
 // já conhecer 请再说一遍 / 我听不懂 — vocabulário que só entra depois da
 // metade do curso, e por isso o piso dele é menor de propósito.
 const MIN_LESSON_SHARE = { free_production: 0.5, transfer_task: 0.6, conversation_repair: 0.15 };
+// Produção aberta depende de o aluno já ter três formas de cumprir um mesmo
+// objetivo, o que só acontece depois de o vocabulário crescer um pouco.
+const MIN_OPEN_PRODUCTION_LESSONS = 0.2;
+// Uma resposta certa não basta para chamar de escolha.
+const MIN_OPEN_ANSWERS = 3;
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-production-"));
 try {
@@ -85,6 +94,8 @@ try {
     REPAIR_SITUATIONS,
     REPAIR_STRATEGY_LABELS,
     CORPUS_SENTENCES,
+    OPEN_PRODUCTION_GOALS,
+    openProductionTasksFor,
   } = load("src/data/productionTasks.js");
 
   // ——— 1. Integridade do catálogo ———
@@ -92,6 +103,7 @@ try {
   const chunkById = new Map(CHUNKS.map((chunk) => [chunk.id, chunk]));
 
   for (const frame of SENTENCE_FRAMES) {
+    assert(Boolean(frame.goal), `${frame.id}: estrutura sem objetivo comunicativo`);
     assert(chunkById.has(frame.anchorChunkId), `${frame.id}: âncora inexistente no corpus (${frame.anchorChunkId})`);
     assert(frame.fillers.length > 0, `${frame.id}: frame sem peças`);
     assert(!CJK_RE.test(frame.situationTemplatePt), `${frame.id}: o enunciado da situação mostra hànzì`);
@@ -133,6 +145,34 @@ try {
         clean(task.anchor.hanzi) !== clean(task.targetHanzi),
         `${task.id}: âncora igual ao alvo — não há o que transferir`
       );
+    }
+  }
+
+  // (6) Objetivo com mais de uma estrutura tem que valer para as duas frases.
+  // Um objetivo declarado que nunca faz duas realizações se aceitarem é só um
+  // rótulo — e o aluno continua sendo punido por dizer certo de outro jeito.
+  const framesByGoal = new Map();
+  for (const frame of SENTENCE_FRAMES) {
+    framesByGoal.set(frame.goal, [...(framesByGoal.get(frame.goal) ?? []), frame.id]);
+  }
+  for (const [goal, frameIds] of framesByGoal) {
+    if (frameIds.length < 2) continue;
+    const withSiblings = FRAME_TASKS.filter((task) => task.goal === goal && task.siblingAnswers.length > 0);
+    assert(
+      withSiblings.length > 0,
+      `objetivo ${goal} tem ${frameIds.length} estruturas mas nenhuma tarefa aceita a frase irmã`
+    );
+    for (const task of withSiblings) {
+      for (const sibling of task.siblingAnswers) {
+        assert(
+          task.accepts.some((value) => clean(value) === clean(sibling)),
+          `${task.id}: frase irmã "${sibling}" listada mas não aceita`
+        );
+        assert(
+          clean(sibling) !== clean(task.targetHanzi),
+          `${task.id}: frase irmã igual ao próprio alvo`
+        );
+      }
     }
   }
 
@@ -187,6 +227,8 @@ try {
     conversation_repair: new Set(),
   };
   const framesSeen = new Set();
+  const openGoalsSeen = new Set();
+  const lessonsWithOpen = new Set();
   const strategiesSeen = new Set();
   const novelTargets = new Set();
   let stepsAudited = 0;
@@ -287,6 +329,30 @@ try {
         assert(Boolean(step.situationPt?.trim()), `${ref}: sem situação em português`);
         assert(!CJK_RE.test(step.situationPt ?? ""), `${ref}: situação com hànzì`);
 
+        // (7) Produção aberta: escolha real e nada de alvo escondido no texto.
+        if (step.productionOpen) {
+          openGoalsSeen.add(step.productionGoal);
+          lessonsWithOpen.add(lesson.id);
+          const distinct = new Set(
+            (step.accepts ?? []).filter((value) => CJK_RE.test(value ?? "")).map((value) => clean(value))
+          );
+          assert(
+            distinct.size >= MIN_OPEN_ANSWERS,
+            `${ref}: produção aberta com só ${distinct.size} resposta(s) certa(s) — mínimo ${MIN_OPEN_ANSWERS}`
+          );
+          assert(Boolean(step.productionGoal), `${ref}: produção aberta sem objetivo`);
+          assert(
+            !CJK_RE.test(step.productionHintPt ?? ""),
+            `${ref}: a dica da produção aberta mostra hànzì`
+          );
+          assert(
+            (step.productionExamples ?? []).length >= MIN_OPEN_ANSWERS,
+            `${ref}: produção aberta sem exemplos para a correção`
+          );
+          // O aluno escolhe o conteúdo: o enunciado não pode nomear um item só.
+          assert(!step.productionFrameId, `${ref}: produção aberta presa a uma estrutura única`);
+        }
+
         if (step.kind === "transfer_task") {
           const target = clean(answer);
           novelTargets.add(target);
@@ -299,10 +365,18 @@ try {
           );
         }
 
-        // (4) Nada exige glifo que o currículo ainda não apresentou.
-        for (const glyph of clean(answer)) {
-          if (!CJK_RE.test(glyph)) continue;
-          assert(knownSoFar.has(glyph), `${ref}: cobra o glifo "${glyph}" antes de a jornada apresentá-lo`);
+        // (4) Nada exige glifo que o currículo ainda não apresentou. Na
+        // produção aberta a checagem vale para TODAS as respostas aceitas —
+        // qualquer uma delas é uma frase que o aluno pode legitimamente
+        // escolher escrever.
+        const gated = step.productionOpen
+          ? [...new Set((step.accepts ?? []).filter((value) => CJK_RE.test(value ?? "")))]
+          : [answer];
+        for (const sentence of gated) {
+          for (const glyph of clean(sentence)) {
+            if (!CJK_RE.test(glyph)) continue;
+            assert(knownSoFar.has(glyph), `${ref}: cobra o glifo "${glyph}" antes de a jornada apresentá-lo`);
+          }
         }
       }
     }
@@ -321,6 +395,19 @@ try {
     assert(reachable, `${frame.id}: frame não gera nenhuma tarefa`);
   }
   assert(framesSeen.size >= 5, `só ${framesSeen.size} estruturas diferentes chegaram ao plano real (mínimo 5)`);
+  const minOpenLessons = Math.floor(ALL_LESSONS.length * MIN_OPEN_PRODUCTION_LESSONS);
+  assert(
+    lessonsWithOpen.size >= minOpenLessons,
+    `produção aberta em só ${lessonsWithOpen.size}/${ALL_LESSONS.length} lições (mínimo ${minOpenLessons})`
+  );
+  assert(
+    openGoalsSeen.size >= 4,
+    `só ${openGoalsSeen.size} objetivo(s) de produção aberta no plano real (mínimo 4)`
+  );
+  for (const copy of OPEN_PRODUCTION_GOALS) {
+    assert(!CJK_RE.test(copy.situationPt), `${copy.goal}: situação aberta mostra hànzì`);
+    assert(copy.situationPt.trim().length > 0, `${copy.goal}: situação aberta vazia`);
+  }
   assert(strategiesSeen.size >= 2, `só ${strategiesSeen.size} estratégia(s) de reparo no plano real (mínimo 2)`);
 
   const lines = [
@@ -335,6 +422,11 @@ try {
     `| Tarefas geradas pelos frames | ${FRAME_TASKS.length} |`,
     `| — produção (frase já ensinada) | ${FRAME_TASKS.filter((task) => !task.isNovelCombination).length} |`,
     `| — transferência (combinação inédita) | ${FRAME_TASKS.filter((task) => task.isNovelCombination).length} |`,
+    `| Objetivos comunicativos | ${framesByGoal.size} |`,
+    `| Tarefas que aceitam frase irmã | ${FRAME_TASKS.filter((task) => task.siblingAnswers.length > 0).length} |`,
+    `| Objetivos de produção aberta declarados | ${OPEN_PRODUCTION_GOALS.length} |`,
+    `| Objetivos de produção aberta no plano real | ${openGoalsSeen.size} |`,
+    `| Lições com produção aberta | ${lessonsWithOpen.size} / ${ALL_LESSONS.length} |`,
     `| Situações de reparo | ${REPAIR_SITUATIONS.length} |`,
     `| Passos auditados no plano real (3 tentativas) | ${stepsAudited} |`,
     `| Lições com produção livre | ${lessonsWith.free_production.size} / ${ALL_LESSONS.length} |`,
@@ -367,7 +459,10 @@ try {
       `OK: validate:production-transfer passou (${SENTENCE_FRAMES.length} estruturas · ${FRAME_TASKS.length} tarefas · ${novelTargets.size} frases inéditas · ${stepsAudited} passos no plano real).`
     );
     console.log(
-      `     lições: produção ${lessonsWith.free_production.size} · transferência ${lessonsWith.transfer_task.size} · reparo ${lessonsWith.conversation_repair.size}.`
+      `     lições: produção ${lessonsWith.free_production.size} · transferência ${lessonsWith.transfer_task.size} · reparo ${lessonsWith.conversation_repair.size} · aberta ${lessonsWithOpen.size}.`
+    );
+    console.log(
+      `     objetivos: ${framesByGoal.size} declarados · ${openGoalsSeen.size} abertos no plano · ${FRAME_TASKS.filter((task) => task.siblingAnswers.length > 0).length} tarefas com frase irmã.`
     );
   }
   console.log(`Relatório: ${reportPath}`);
