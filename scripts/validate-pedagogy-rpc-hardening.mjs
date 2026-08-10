@@ -23,8 +23,27 @@ function sanitizePedagogyMetadata(eventType, metadata) {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return {};
   const allowedByType = {
     lesson_started: ["appVersion"],
-    lesson_completed: ["appVersion", "stars", "reason"],
-    lesson_abandoned: ["appVersion", "reason"],
+    lesson_completed: [
+      "appVersion",
+      "stars",
+      "reason",
+      "wallClockMs",
+      "activeMs",
+      "toneHintUses",
+      "audioManualPlays",
+      "folegoSkips",
+      "stepIndex",
+      "mistakes",
+    ],
+    lesson_abandoned: [
+      "appVersion",
+      "reason",
+      "wallClockMs",
+      "activeMs",
+      "toneHintUses",
+      "audioManualPlays",
+      "stepIndex",
+    ],
     exercise_answered: [
       "appVersion",
       "correct",
@@ -34,6 +53,12 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "imageId",
       "imageChoiceMode",
       "mode",
+      "diagnosis",
+      "diagnosisConfidence",
+      "unrecognized",
+      "answerNormHash",
+      "answerLen",
+      "hasCjk",
     ],
     exercise_mistake: [
       "appVersion",
@@ -44,8 +69,10 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "imageId",
       "imageChoiceMode",
       "mode",
+      "diagnosis",
+      "diagnosisConfidence",
     ],
-    exercise_skipped: ["appVersion", "stage"],
+    exercise_skipped: ["appVersion", "stage", "via"],
     conversation_shown: ["appVersion", "sceneId", "intent", "variantLevel"],
     conversation_completed: [
       "appVersion",
@@ -54,6 +81,8 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "variantLevel",
       "mistakes",
       "repeated",
+      "attempts",
+      "result",
     ],
     conversation_repeated: [
       "appVersion",
@@ -62,6 +91,8 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "variantLevel",
       "mistakes",
       "repeated",
+      "attempts",
+      "result",
     ],
     conversation_error: [
       "appVersion",
@@ -70,8 +101,20 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "variantLevel",
       "mistakes",
       "repeated",
+      "attempts",
+      "result",
+    ],
+    post_conversation_shown: ["appVersion", "sceneId", "taskType", "taskIndex", "taskCount"],
+    post_conversation_completed: [
+      "appVersion",
+      "sceneId",
+      "taskType",
+      "taskIndex",
+      "taskCount",
+      "correct",
     ],
     image_exercise_answered: ["appVersion", "imageId", "mode", "correct", "imageChoiceMode"],
+    unrecognized_answer: ["appVersion", "answerNormHash", "answerLen", "expectedLen", "hasCjk"],
   };
   const allowed = new Set(allowedByType[eventType] ?? ["appVersion"]);
   const out = {};
@@ -133,10 +176,47 @@ assert(longStr.reason.length === 80, "strings limitadas a 80");
 assert(payloadTooLarge({ blob: "y".repeat(3000) }), "payload > 2KB detectado");
 assert(!payloadTooLarge({ correct: true, appVersion: "0.2.0" }), "payload pequeno ok");
 
+const mistakeMeta = sanitizePedagogyMetadata("exercise_mistake", {
+  correct: false,
+  diagnosis: "word_order",
+  diagnosisConfidence: "high",
+  freeTextAnswer: "nope",
+});
+assert(mistakeMeta.diagnosis === "word_order", "exercise_mistake preserva diagnosis");
+assert(mistakeMeta.freeTextAnswer === undefined, "resposta livre continua bloqueada");
+
+const unrecognized = sanitizePedagogyMetadata("unrecognized_answer", {
+  answerNormHash: "deadbeef",
+  answerLen: 4,
+  expectedLen: 3,
+  hasCjk: true,
+  answer: "secret",
+});
+assert(unrecognized.answerNormHash === "deadbeef", "unrecognized_answer preserva hash");
+assert(unrecognized.answer === undefined, "texto cru não passa no unrecognized_answer");
+
+const completed = sanitizePedagogyMetadata("lesson_completed", {
+  stars: 3,
+  reason: "completed",
+  wallClockMs: 120000,
+  activeMs: 90000,
+  toneHintUses: 2,
+  audioManualPlays: 5,
+});
+assert(completed.wallClockMs === 120000, "lesson_completed preserva wallClockMs");
+assert(completed.activeMs === 90000, "lesson_completed preserva activeMs");
+assert(completed.toneHintUses === 2, "lesson_completed preserva toneHintUses");
+assert(completed.audioManualPlays === 5, "lesson_completed preserva audioManualPlays");
+assert(completed.durationMs === undefined, "durationMs legado não passa");
+assert(completed.hintUses === undefined, "hintUses genérico não passa");
+assert(completed.audioReplays === undefined, "audioReplays ambíguo não passa");
 // ——— Migration SQL ———
 const mig = read("supabase/migrations/013_pedagogy_rpc_hardening.sql");
 const trustedAnonMig = read(
   "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql"
+);
+const betaExperienceMig = read(
+  "supabase/migrations/20260810170000_beta_experience_telemetry.sql"
 );
 assert(mig.includes("beta_pedagogy_event_rate_limited"), "migration define rate limit geral");
 assert(mig.includes("120"), "limite autenticado / minuto");
@@ -156,7 +236,16 @@ assert(mig.includes("beta_pedagogy_daily_metrics"), "métricas agregadas");
 assert(mig.includes("p_client_context"), "RPC aceita client context");
 assert(mig.includes("rate_limited"), "exceção rate_limited");
 assert(mig.includes("event_rate_limited"), "exceção event_rate_limited");
-
+assert(
+  betaExperienceMig.includes("unrecognized_answer") &&
+    betaExperienceMig.includes("wallClockMs") &&
+    betaExperienceMig.includes("activeMs") &&
+    betaExperienceMig.includes("toneHintUses") &&
+    betaExperienceMig.includes("audioManualPlays") &&
+    betaExperienceMig.includes("diagnosis") &&
+    betaExperienceMig.includes("post_conversation_shown"),
+  "migration beta experience amplia whitelist e tipos"
+);
 // RLS: select admin only on raw events (já em 010) + metrics admin
 assert(
   mig.includes("beta_pedagogy_daily_metrics_select_admin"),
@@ -190,6 +279,8 @@ assert(client.includes("payload_too_large"), "cliente descarta payload_too_large
 assert(client.includes("invalid_anon_session"), "cliente trata sessão anônima inválida");
 assert(client.includes("fetchAdminPedagogyDailyMetrics"), "cliente lê agregados admin");
 assert(client.includes("typeof value === \"object\""), "safeMetadata rejeita nested");
+assert(client.includes("unrecognized_answer"), "cliente declara unrecognized_answer");
+assert(client.includes("buildLessonFunnelInsights"), "cliente agrega funil L5/L10/L20");
 
 // Feedback não é limpo pela retenção pedagógica
 assert(

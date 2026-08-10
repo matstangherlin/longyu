@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a9d82571d5428a44371e280d19d5f61814edab55 |
+| Commit | beab91b29bf152f3c194f1f13f0ad17139d4eaf4 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T16:22:04.747Z |
+| Gerado em | 2026-08-10T17:16:57.595Z |
 | Lições | 122 |
 | Hash da Jornada | a3cf7cc2ff44 |
 
@@ -34,20 +34,20 @@
 
 | Causa | Eixo | Remediação | Variante | O que o aluno lê |
 |-------|------|------------|----------|------------------|
-| Tom | som | tone_contrast | C | As sílabas estavam certas — o que escorregou foi o tom. |
-| Homófono | som | audio_discrimination | C | Você ouviu certo. O hànzì escolhido tem o mesmo som, mas outro sentido. |
-| Grafia do pinyin | som | dictation | C | O som estava quase lá; a grafia do pinyin é que saiu diferente. |
-| Escuta | som | dictation | C | O áudio ainda não chegou inteiro. Vale ouvir de novo antes de escrever. |
+| Tom | som | tone_contrast | C | O som estava certo — o que mudou foi o tom. |
+| Homófono | som | audio_discrimination | C | Você ouviu certo. O hànzì tem o mesmo som, mas outro sentido. |
+| Grafia do pinyin | som | dictation | C | O som estava quase certo; a grafia do pinyin saiu diferente. |
+| Escuta | som | dictation | C | O áudio ainda não chegou inteiro. Ouça de novo antes de escrever. |
 | Hànzì parecido | forma | hanzi_form | C | Esse hànzì se parece com o certo, mas o componente muda o sentido. |
-| Ordem da frase | estrutura | slot_order | B | As peças estavam todas certas — faltou a ordem. |
+| Ordem da frase | estrutura | slot_order | B | As palavras estavam certas. A ordem mudou. |
 | Peça faltando | estrutura | fill_gap | B | Faltou uma peça na frase. |
 | Peça sobrando | estrutura | spot_error | B | Sobrou uma peça na frase. |
-| Partícula | estrutura | fill_gap | B | O que mudou foi a partícula — ela é pequena, mas carrega a gramática. |
-| Classificador | estrutura | fill_gap | B | O classificador é que não combinou com o que você estava contando. |
-| Escolha da palavra | sentido | meaning_pair | C | A estrutura estava certa; o item que entrou no buraco é que era outro. |
+| Partícula | estrutura | fill_gap | B | A partícula é que mudou — pequena, mas carrega a gramática. |
+| Classificador | estrutura | fill_gap | B | O classificador não combinou com o que você estava contando. |
+| Escolha da palavra | sentido | meaning_pair | C | A estrutura estava certa; a palavra no buraco é que era outra. |
 | Significado | sentido | meaning_pair | C | A ligação entre a forma e o significado ainda não está firme. |
-| Objetivo da fala | sentido | goal_production | B | A frase está correta em mandarim — mas não é isso que a situação pedia. |
-| Sem resposta | nenhum | meaning_pair | B | Ficou sem resposta. Não tem problema: vamos passar por isso de novo. |
+| Objetivo da fala | sentido | goal_production | B | A frase está correta — mas não é o que a situação pedia. |
+| Sem resposta | nenhum | meaning_pair | B | Ficou sem resposta. Vamos passar por isso de novo. |
 | Não classificado | nenhum | meaning_pair | B | Vale rever este ponto em outro formato. |
 
 ## Casos curados
@@ -106,4 +106,4 @@ Fica registrada para auditoria e para o corpus crescer.
 
 Nenhum.
 
-<!-- integridade:4e10d18f2bb6de2a -->
+<!-- integridade:e303f67b95129e71 -->

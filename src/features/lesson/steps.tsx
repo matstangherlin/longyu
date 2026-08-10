@@ -49,6 +49,8 @@ import {
   speechErrorMessage,
   type RecognizeHandle,
 } from "../../lib/speech";
+import { useKeyboardBottomInset } from "../../hooks/useKeyboardBottomInset";
+import { noteToneHintUse } from "../../lib/lessonSessionMetrics";
 import { StepImageChoice } from "./StepImageChoice";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
@@ -550,7 +552,10 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               variant="soft"
               size="sm"
               className="mt-3 w-full"
-              onClick={() => setHintLevel(2)}
+              onClick={() => {
+                noteToneHintUse();
+                setHintLevel(2);
+              }}
             >
               Estou travado · mostrar pinyin e tom
             </Button>
@@ -1432,6 +1437,7 @@ function EngineFeedbackPanel({
   status,
   model,
   explanation,
+  causeFeedback,
   hadMistake,
   deferMistakeToParent = false,
   onRetry,
@@ -1440,6 +1446,8 @@ function EngineFeedbackPanel({
   status: EngineFeedback;
   model?: string;
   explanation?: string;
+  /** Frase curta da causa linguística — prioridade sobre explanation no erro. */
+  causeFeedback?: string;
   hadMistake: boolean;
   deferMistakeToParent?: boolean;
   onRetry: () => void;
@@ -1453,6 +1461,7 @@ function EngineFeedbackPanel({
   // apontando o do aluno. Por isso não usa o X nem a cor de erro — a diferença
   // visual é o que impede a mensagem de ser lida como reprovação.
   const unrecognized = status === "unrecognized";
+  const wrongCopy = causeFeedback?.trim() || explanation || "Veja o modelo e tente de novo.";
   return (
     <div
       role="status"
@@ -1483,7 +1492,7 @@ function EngineFeedbackPanel({
               : "Estrutura certa.")
           : unrecognized
             ? "Isto não contou como erro. Se a sua frase estiver certa, ela foi registrada para entrar no curso. Uma resposta esperada seria:"
-            : explanation ?? "Veja o modelo e tente de novo."}
+            : wrongCopy}
       </p>
       {model && (
         <div className="mt-3 rounded-xl bg-surface/75 px-3 py-2">
@@ -1526,8 +1535,17 @@ function EngineActions({
   onClear?: () => void;
   canClear?: boolean;
 }) {
+  const keyboardInset = useKeyboardBottomInset();
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0">
+    <div
+      className="sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0"
+      style={{
+        paddingBottom:
+          keyboardInset > 0
+            ? keyboardInset + 8
+            : "calc(env(safe-area-inset-bottom) + 0.45rem)",
+      }}
+    >
       <div className={onClear ? "grid gap-2 sm:grid-cols-[0.8fr_1.2fr]" : ""}>
         {onClear && (
           <Button size="lg" variant="outline" className="w-full" disabled={!canClear} onClick={onClear}>
@@ -3597,8 +3615,10 @@ function FreeAnswerField({
 }) {
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
+  const [composing, setComposing] = useState(false);
   const handleRef = useRef<RecognizeHandle | null>(null);
   const speechSupported = isRecognitionAvailable() && isSecureMicContext();
+  const keyboardInset = useKeyboardBottomInset();
 
   useEffect(() => () => handleRef.current?.stop(), []);
 
@@ -3625,12 +3645,20 @@ function FreeAnswerField({
   }
 
   return (
-    <div className="mt-3.5">
+    <div className="mt-3.5" style={keyboardInset > 0 ? { marginBottom: keyboardInset } : undefined}>
       <textarea
         value={value}
+        lang="zh-CN"
+        inputMode="text"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
         onChange={(event) => onChange(event.target.value)}
+        onCompositionStart={() => setComposing(true)}
+        onCompositionEnd={() => setComposing(false)}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
+            if (composing || event.nativeEvent.isComposing) return;
             event.preventDefault();
             onSubmit();
           }
@@ -3709,6 +3737,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
   const [accepted, setAccepted] = useState<string | null>(null);
+  const [causeFeedback, setCauseFeedback] = useState<string | undefined>(undefined);
   const locked = feedback === "correct";
 
   // "Isto também valia": as outras frases certas, sem repetir a que o aluno
@@ -3732,6 +3761,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
     if (acceptedAnswers.some((value) => normalizeEngineAnswer(value) === normalized)) {
       setAccepted(candidate);
       setFeedback("correct");
+      setCauseFeedback(undefined);
       playSoundFx("success", soundEffects);
       return;
     }
@@ -3748,11 +3778,14 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
     });
     if (isUnexplainedProduction(diagnosis, candidate)) {
       setFeedback("unrecognized");
+      setCauseFeedback(undefined);
+      playSoundFx("tap", soundEffects);
       onUnrecognized?.(candidate);
       return;
     }
 
     setHadMistake(true);
+    setCauseFeedback(diagnosis.feedbackPt);
     setFeedback("wrong");
     onMistake?.(candidate);
     if (!onMistake) playSoundFx("error", soundEffects);
@@ -3819,11 +3852,13 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
             : undefined
         }
         explanation={step.explanation}
+        causeFeedback={causeFeedback}
         hadMistake={hadMistake}
         deferMistakeToParent={Boolean(onMistake)}
         onRetry={() => {
           setDraft("");
           setFeedback(null);
+          setCauseFeedback(undefined);
         }}
         onContinue={() => onDone(!hadMistake)}
       />

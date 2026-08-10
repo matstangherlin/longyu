@@ -31,6 +31,7 @@ export const PEDAGOGY_EVENT_TYPES = [
   "post_conversation_completed",
   "image_exercise_answered",
   "lesson_abandoned",
+  "unrecognized_answer",
 ] as const;
 
 export type PedagogyEventType = (typeof PEDAGOGY_EVENT_TYPES)[number];
@@ -296,7 +297,11 @@ export function buildPedagogyInsights(events: PedagogyEventRow[]) {
     ),
     mostAbandoned: countBy(
       (event) => event.event_type === "lesson_abandoned",
-      (event) => event.lesson_id ?? "?"
+      (event) => {
+        const step = event.exercise_index != null ? ` · passo ${event.exercise_index + 1}` : "";
+        const kind = event.exercise_kind ? ` · ${event.exercise_kind}` : "";
+        return `${event.lesson_id ?? "?"}${kind}${step}`;
+      }
     ),
     imageErrors: countBy(
       (event) => event.event_type === "image_exercise_answered" && event.metadata?.correct === false,
@@ -306,7 +311,51 @@ export function buildPedagogyInsights(events: PedagogyEventRow[]) {
       (event) => event.event_type === "conversation_completed",
       (event) => String(event.metadata?.sceneId ?? event.lesson_id ?? "?")
     ),
+    diagnosisFrequency: countBy(
+      (event) =>
+        event.event_type === "exercise_mistake" && typeof event.metadata?.diagnosis === "string",
+      (event) => String(event.metadata?.diagnosis)
+    ),
+    unrecognizedForms: countBy(
+      (event) =>
+        event.event_type === "unrecognized_answer" ||
+        (event.event_type === "exercise_answered" && event.metadata?.unrecognized === true),
+      (event) => {
+        const hash = String(event.metadata?.answerNormHash ?? "?");
+        const lesson = event.lesson_id ?? "?";
+        const kind = event.exercise_kind ?? "?";
+        return `${lesson} · ${kind} · ${hash}`;
+      }
+    ),
   };
+}
+
+/** Funil L5/L10/L20 a partir da ordem canônica do currículo (volume de conclusões). */
+export function buildLessonFunnelInsights(
+  events: PedagogyEventRow[],
+  lessonOrderIds: readonly string[]
+): PedagogyInsightBucket[] {
+  const order = new Map(lessonOrderIds.map((id, index) => [id, index]));
+  let any = 0;
+  let first5 = 0;
+  let first10 = 0;
+  let first20 = 0;
+  for (const event of events) {
+    if (event.event_type !== "lesson_completed" || !event.lesson_id) continue;
+    const index = order.get(event.lesson_id);
+    if (index == null) continue;
+    any += 1;
+    if (index < 5) first5 += 1;
+    if (index < 10) first10 += 1;
+    if (index < 20) first20 += 1;
+  }
+  if (any === 0) return [];
+  return [
+    { key: "conclusões (todas)", count: any },
+    { key: "conclusões nas 5 primeiras", count: first5 },
+    { key: "conclusões nas 10 primeiras", count: first10 },
+    { key: "conclusões nas 20 primeiras", count: first20 },
+  ];
 }
 
 export function installPedagogyOnlineFlush(): () => void {

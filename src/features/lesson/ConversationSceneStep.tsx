@@ -1167,14 +1167,20 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         </div>
 
         {phase === "dialogue" && currentLine && (
-          <SpeechBubble
-            key={`${step.sceneId}-${lineIndex}`}
-            line={currentLine}
-            side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
-            visible
-            variantLevel={step.conversationVariantLevel}
-            autoSpeak={!skipAutoSpeakRef.current}
-          />
+          <div
+            ref={(node) => {
+              node?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }}
+          >
+            <SpeechBubble
+              key={`${step.sceneId}-${lineIndex}`}
+              line={currentLine}
+              side={characters.find((c) => c.id === currentLine.speakerId)?.side ?? "left"}
+              visible
+              variantLevel={step.conversationVariantLevel}
+              autoSpeak={!skipAutoSpeakRef.current}
+            />
+          </div>
         )}
 
         {phase === "dialogue" && (
