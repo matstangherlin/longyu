@@ -60,6 +60,13 @@ import {
   type HanziBuilderProgressMap,
 } from "../../data/hanziBuilder";
 import { numericPinyinToDiacritics, normalizePinyinBase, isNearDuplicatePinyinSet } from "../../lib/pinyin";
+import type { ErrorCause } from "../../data/errorDiagnosis";
+import {
+  practiceVariantForAttempt,
+  variantSeedOffsetForAttempt,
+  weaknessProfile,
+  type WeaknessProfile,
+} from "../../lib/weaknessProfile";
 import {
   dictationModeForPhase,
   minimalPairsFor,
@@ -537,6 +544,10 @@ export interface LessonPracticeRecentError {
   targets?: { type: ItemType; itemId: string }[];
   skill?: string;
   timestamp?: number;
+  /** Causa linguística diagnosticada — alimenta o perfil de fraqueza. */
+  diagnosis?: ErrorCause;
+  wrongCount?: number;
+  correctedAt?: number;
 }
 
 export interface LessonPracticePlanContext {
@@ -555,12 +566,22 @@ export interface LessonPracticePlanContext {
   conversationHistory?: readonly ConversationHistoryEntry[];
   /** Número de tentativas já registradas; gira automaticamente as variantes A/B/C. */
   attemptNumber?: number;
+  /**
+   * Perfil de fraqueza já calculado. Normalmente omitido — o plano o deriva de
+   * `recentErrors`. Existe para o validador e para testes poderem fixar um
+   * perfil sem ter de forjar um histórico de erros inteiro.
+   */
+  weaknessProfile?: WeaknessProfile;
   silent?: boolean;
 }
 
-export function practiceVariantForAttempt(attemptNumber = 0): "A" | "B" | "C" {
-  return (["A", "B", "C"] as const)[Math.abs(Math.trunc(attemptNumber)) % 3];
-}
+/**
+ * Reexportado de lib/weaknessProfile: a escolha da variante virou decisão
+ * pedagógica (rota pela fraqueza) e não pertence mais ao módulo de montagem de
+ * plano. Chamado sem perfil, devolve o rodízio A/B/C original — é isto que
+ * mantém compatível quem já dependia da assinatura de um argumento só.
+ */
+export { practiceVariantForAttempt, variantSeedOffsetForAttempt } from "../../lib/weaknessProfile";
 
 interface FocusItem {
   key: string;
@@ -2869,6 +2890,13 @@ interface SupplementalStepOptions {
   /** Lição atual: libera os motores de percepção pelo currículo já percorrido. */
   lessonId?: string;
   practiceVariant?: "A" | "B" | "C";
+  /**
+   * Deslocamento de novidade da tentativa. Vem da CONTAGEM de tentativas, não
+   * da variante: com a rota dirigida pela fraqueza, a variante pode repetir
+   * legitimamente, e se a semente ainda saísse dela a mesma frase inédita
+   * voltaria — frase inédita repetida vira frase decorada.
+   */
+  variantSeedOffset?: number;
   /** Revisões de módulo preservam a matriz de cobertura autoral completa. */
   enablePedagogyVariants?: boolean;
 }
@@ -2895,6 +2923,10 @@ function supplementalStepsForStage(
   const knownGlyphs = knownGlyphsFor(options);
   const drillSeed = drillSeedFor(options.lessonId, stageId);
   const practiceVariant = options.practiceVariant ?? "A";
+  // Base numérica da novidade. Mantém o mesmo passo do esquema anterior
+  // (65/66/67 de "A"/"B"/"C") para que a 1ª tentativa gere exatamente o mesmo
+  // plano de antes; o que muda é de ONDE o número vem.
+  const variantSeedBase = 65 + (options.variantSeedOffset ?? 0);
   const enablePedagogyVariants = options.enablePedagogyVariants ?? true;
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
@@ -2926,7 +2958,7 @@ function supplementalStepsForStage(
     // introduzem a discriminação auditiva sem alterar o ciclo pós-conversa.
     if (enablePedagogyVariants && practiceVariant !== "A") {
       for (const [index, item] of focus.entries()) {
-        push(makeVariantAudioSameDifferentStep(item, focus, (index + practiceVariant.charCodeAt(0)) % 2 === 0));
+        push(makeVariantAudioSameDifferentStep(item, focus, (index + variantSeedBase) % 2 === 0));
         if (result.length >= Math.min(2, targetCount)) break;
       }
     }
@@ -2990,9 +3022,9 @@ function supplementalStepsForStage(
     // A ordem é pedagógica: reconhecer qual frase funciona → montá-la sozinho
     // → continuar quando o outro não entende.
     push(makeSpotErrorStep(knownGlyphs, drillSeed));
-    push(makeFreeProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 5));
-    push(makeOpenProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 3));
-    push(makeConversationRepairStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0), primary));
+    push(makeFreeProductionStep(knownGlyphs, drillSeed + variantSeedBase * 5));
+    push(makeOpenProductionStep(knownGlyphs, drillSeed + variantSeedBase * 3));
+    push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
       push(makeFillBlankStep(item, focus));
@@ -3023,7 +3055,7 @@ function supplementalStepsForStage(
     // uma combinação que o currículo nunca mostrou. E cada rodada A/B/C cobra
     // uma frase inédita diferente — sem o deslocamento por variante, refazer a
     // lição repetiria a mesma transferência e ela viraria frase decorada.
-    const variantSeed = drillSeed + 1 + practiceVariant.charCodeAt(0) * 7;
+    const variantSeed = drillSeed + 1 + variantSeedBase * 7;
     push(makeTransferStep(knownGlyphs, variantSeed));
     push(makeOpenProductionStep(knownGlyphs, variantSeed));
     push(makeFreeProductionStep(knownGlyphs, variantSeed));
@@ -3312,7 +3344,8 @@ function generatedCandidatesFor(
   ownFocusGlyphs?: ReadonlySet<string>,
   sceneContext: ConversationSceneSelectionContext = {},
   history?: readonly ConversationHistoryEntry[],
-  practiceVariant: "A" | "B" | "C" = "A"
+  practiceVariant: "A" | "B" | "C" = "A",
+  variantSeedOffset = 0
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
@@ -3333,7 +3366,7 @@ function generatedCandidatesFor(
     // teto apertado deixava o gerador parar antes de produzir HanziBuilder e
     // exercício visual — e a garantia de cobertura não tinha o que garantir.
     const target = Math.max(8, profile.stageTargets[stageId] * 4);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id, practiceVariant, enablePedagogyVariants: !lesson.isReview });
+    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id, practiceVariant, variantSeedOffset, enablePedagogyVariants: !lesson.isReview });
     for (const step of generated) {
       candidates.push({
         step,
@@ -4904,7 +4937,12 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const reviewFocus = combinedReviewFocus(lesson, context);
   const errorFocus = recentErrorFocusItems(context.recentErrors);
   const profile = profileForLesson(lesson, focus);
-  const practiceVariant = practiceVariantForAttempt(context.attemptNumber);
+  // Onda 4: a variante deixa de ser rodízio cego e passa a apontar para a causa
+  // em que este aluno erra de verdade. Sem causa dominante — aluno novo, erros
+  // espalhados, histórico curto — o rodízio A/B/C de sempre é preservado.
+  const weakness = context.weaknessProfile ?? weaknessProfile(context.recentErrors);
+  const practiceVariant = practiceVariantForAttempt(context.attemptNumber, weakness);
+  const variantSeedOffset = variantSeedOffsetForAttempt(context.attemptNumber);
   const seenGlyphs = seenGlyphsForPlanning(focus, reviewFocus, context);
   // Glifos que ESTA lição ensina (só o próprio foco, sem a revisão): composição
   // só é montada aqui se for do próprio conteúdo, ou em revisões.
@@ -4930,7 +4968,8 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       ownFocusGlyphs,
       sceneContext,
       context.conversationHistory,
-      practiceVariant
+      practiceVariant,
+      variantSeedOffset
     ),
   ];
   const usedSignatures = new Set<string>();

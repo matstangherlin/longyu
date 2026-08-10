@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
+import { diagnoseError, type ErrorDiagnosis } from "../../data/errorDiagnosis";
 import type { ItemType } from "../../data/types";
 import { canAccessLesson } from "../../lib/journeyUnlocks";
 import { canStartLesson, canUseUnlimitedRetry, useIsPro } from "../../lib/proAccess";
@@ -733,6 +734,50 @@ function errorTokensForStep(step: LessonStep): string[] {
     for (const char of charsInText(value)) tokens.add(char.hanzi);
   }
   return [...tokens].slice(0, 12);
+}
+
+/**
+ * A tarefa avalia o som sem a forma na tela — nesses casos um desvio que não
+ * tem padrão estrutural é falha de ESCUTA, não de conhecimento do item.
+ */
+function isAudioOnlyStep(step: LessonStep): boolean {
+  if (step.kind === "dictation" || step.kind === "listen_select" || step.kind === "audio_discrimination") return true;
+  return (
+    step.pedagogyVariant === "dragon_dictation" ||
+    step.pedagogyVariant === "audio_same_different" ||
+    step.pedagogyVariant === "sentence_lab_audio"
+  );
+}
+
+/** A tarefa cobra um OBJETIVO, então uma frase válida fora do alvo é erro de intenção. */
+function hasCommunicativeGoal(step: LessonStep): boolean {
+  return Boolean(
+    step.productionGoal ||
+      step.productionOpen ||
+      step.kind === "free_production" ||
+      step.kind === "transfer_task" ||
+      step.kind === "conversation_repair"
+  );
+}
+
+/**
+ * Causa do erro a partir da RESPOSTA do aluno.
+ *
+ * Substitui a leitura antiga, que derivava o motivo do FORMATO do exercício e
+ * portanto dava o mesmo motivo para 我茶要 (ordem) e 我要咖啡 (item) — dois
+ * problemas diferentes que precisam voltar por caminhos diferentes.
+ * `mistakeReasonForStep` fica como recurso final: quando o diagnóstico não
+ * reconhece padrão nenhum, o motivo pelo formato ainda é melhor que silêncio.
+ */
+function diagnosisForAnswer(step: LessonStep, expected: string, given: string | undefined): ErrorDiagnosis {
+  return diagnoseError({
+    kind: step.kind,
+    pedagogyVariant: step.pedagogyVariant,
+    expected,
+    given,
+    audioOnly: isAudioOnlyStep(step),
+    hasCommunicativeGoal: hasCommunicativeGoal(step),
+  });
 }
 
 function mistakeReasonForStep(step: LessonStep): string {
@@ -1830,6 +1875,14 @@ export function LessonPlayer() {
     const pinyin = pairPinyin(payload);
     const targets = reviewTargetsForPairMistake(payload, SKILL_TRACK[lesson.skill]);
     const id = `${lesson.id}:${stepIndex}:pair-match:${payload.pairIndex}:${Date.now()}`;
+    // Combinar par também tem causa: escolher um pinyin de mesma base é erro de
+    // TOM, não "par confundido". A comparação é entre os lados direitos.
+    const pairDiagnosis = diagnoseError({
+      kind: step.kind,
+      expected,
+      given: selected,
+      audioOnly: payload.leftType === "audio",
+    });
     return {
       id,
       lessonId: lesson.id,
@@ -1854,7 +1907,11 @@ export function LessonPlayer() {
       pairRightType: payload.rightType,
       pairSelectedRightType: payload.selectedRightType,
       explanation: pairExplanation(payload),
-      mistakeReason: "Par específico confundido no exercício de combinar.",
+      mistakeReason: pairDiagnosis.cause === "unclassified"
+        ? "Par específico confundido no exercício de combinar."
+        : pairDiagnosis.feedbackPt,
+      diagnosis: pairDiagnosis.cause,
+      diagnosisConfidence: pairDiagnosis.confidence,
       timestamp: Date.now(),
       wrongCount: 1,
       correctionAttempts: 0,
@@ -1869,6 +1926,7 @@ export function LessonPlayer() {
     const correction = correctionForStep(step);
     const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]);
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
+    const diagnosis = diagnosisForAnswer(step, correction.correction, selectedAnswer);
     const sceneContext =
       step.kind === "conversation_scene"
         ? (step.lines ?? [])
@@ -1900,7 +1958,9 @@ export function LessonPlayer() {
         step.checkpoint?.explanation ??
         correction.detail ??
         (correction.correction ? `Sugestão: ${correction.correction}` : undefined),
-      mistakeReason: mistakeReasonForStep(step),
+      mistakeReason: diagnosis.cause === "unclassified" ? mistakeReasonForStep(step) : diagnosis.feedbackPt,
+      diagnosis: diagnosis.cause,
+      diagnosisConfidence: diagnosis.confidence,
       timestamp: Date.now(),
       wrongCount: 1,
       correctionAttempts: 0,
