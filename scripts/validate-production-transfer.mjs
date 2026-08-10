@@ -19,7 +19,10 @@
  *     nunca revelar uma resposta esperada no enunciado;
  *  8. a CONVERSA sem apoio (produce_reply) tem que existir de verdade no topo
  *     da escada de variantes — se a cena "independente" continua entregando
- *     alternativas, o nível é rótulo.
+ *     alternativas, o nível é rótulo;
+ *  9. a batida de reparo da cena (quebra de comunicação depois do 2º erro)
+ *     precisa ser jogável: estratégias distintas, movimento certo entre elas e
+ *     fala de recuperação que o aluno já consiga escrever.
  *
  * Gera reports/production-transfer-report.md.
  */
@@ -59,6 +62,9 @@ const MIN_OPEN_ANSWERS = 3;
 // Aluno com histórico: é ele que alcança os níveis altos da variante, e só
 // nesses níveis a conversa perde as alternativas.
 const MIN_UNAIDED_CONVERSATION_LESSONS = 0.3;
+// A batida de reparo depende do vocabulário de reparo, que a jornada só ensina
+// depois da metade — daí o piso baixo.
+const MIN_REPAIR_BEAT_LESSONS = 0.3;
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-production-"));
 try {
@@ -255,6 +261,7 @@ try {
   const openGoalsSeen = new Set();
   const lessonsWithOpen = new Set();
   const lessonsWithUnaidedConversation = new Set();
+  const lessonsWithRepairBeat = new Set();
   let unaidedReplies = 0;
   const strategiesSeen = new Set();
   const novelTargets = new Set();
@@ -338,6 +345,31 @@ try {
     // dele é a única forma de saber se o topo da escada existe.
     for (const step of lessonRoundStepsFor(lesson, { conversationHistory: veteranHistory, silent: true })) {
       if (step.kind !== "conversation_scene") continue;
+
+      // Batida de reparo: a conversa que quebra tem que ter saída. Uma quebra
+      // sem movimento certo, ou pedindo uma fala que o aluno não viu, deixaria
+      // a cena presa — pior do que não quebrar.
+      const beat = step.conversationRepairBeat;
+      if (beat) {
+        lessonsWithRepairBeat.add(lesson.id);
+        const beatRef = `${lesson.id}/${step.sceneId}/reparo`;
+        assert((beat.strategyOptions ?? []).length >= 3, `${beatRef}: menos de 3 estratégias`);
+        assert(
+          new Set(beat.strategyOptions ?? []).size === (beat.strategyOptions ?? []).length,
+          `${beatRef}: estratégia repetida`
+        );
+        assert(beat.strategyOptions?.includes(beat.strategy), `${beatRef}: movimento certo fora das opções`);
+        assert(CJK_RE.test(beat.targetHanzi ?? ""), `${beatRef}: recuperação sem hànzì`);
+        for (const glyph of clean(beat.targetHanzi)) {
+          if (!CJK_RE.test(glyph)) continue;
+          assert(knownSoFar.has(glyph), `${beatRef}: pede o glifo "${glyph}" antes de a jornada apresentá-lo`);
+        }
+        for (const glyph of clean(beat.npcHanzi)) {
+          if (!CJK_RE.test(glyph)) continue;
+          assert(knownSoFar.has(glyph), `${beatRef}: a fala que trava usa o glifo "${glyph}" não apresentado`);
+        }
+      }
+
       for (const node of step.nodes ?? []) {
         const interaction = node.interaction;
         if (interaction?.type !== "produce_reply") continue;
@@ -472,6 +504,11 @@ try {
     lessonsWithUnaidedConversation.size >= minUnaidedLessons,
     `conversa sem apoio em só ${lessonsWithUnaidedConversation.size}/${ALL_LESSONS.length} lições (mínimo ${minUnaidedLessons})`
   );
+  const minRepairBeatLessons = Math.floor(ALL_LESSONS.length * MIN_REPAIR_BEAT_LESSONS);
+  assert(
+    lessonsWithRepairBeat.size >= minRepairBeatLessons,
+    `batida de reparo em só ${lessonsWithRepairBeat.size}/${ALL_LESSONS.length} lições (mínimo ${minRepairBeatLessons})`
+  );
   assert(strategiesSeen.size >= 2, `só ${strategiesSeen.size} estratégia(s) de reparo no plano real (mínimo 2)`);
 
   const lines = [
@@ -493,6 +530,7 @@ try {
     `| Lições com produção aberta | ${lessonsWithOpen.size} / ${ALL_LESSONS.length} |`,
     `| Falas de conversa sem apoio (aluno veterano) | ${unaidedReplies} |`,
     `| Lições com conversa sem apoio | ${lessonsWithUnaidedConversation.size} / ${ALL_LESSONS.length} |`,
+    `| Lições com quebra de comunicação jogável | ${lessonsWithRepairBeat.size} / ${ALL_LESSONS.length} |`,
     `| Situações de reparo | ${REPAIR_SITUATIONS.length} |`,
     `| Passos auditados no plano real (3 tentativas) | ${stepsAudited} |`,
     `| Lições com produção livre | ${lessonsWith.free_production.size} / ${ALL_LESSONS.length} |`,
@@ -531,7 +569,7 @@ try {
       `     objetivos: ${framesByGoal.size} declarados · ${openGoalsSeen.size} abertos no plano · ${FRAME_TASKS.filter((task) => task.siblingAnswers.length > 0).length} tarefas com frase irmã.`
     );
     console.log(
-      `     conversa sem apoio: ${unaidedReplies} falas em ${lessonsWithUnaidedConversation.size} lições.`
+      `     conversa sem apoio: ${unaidedReplies} falas em ${lessonsWithUnaidedConversation.size} lições · quebra de comunicação em ${lessonsWithRepairBeat.size}.`
     );
   }
   console.log(`Relatório: ${reportPath}`);

@@ -50,12 +50,22 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
   curta, em hànzì, e com ramo de erro — sem ele uma produção falha travaria a
   cena, e com ele o personagem reage e a conversa continua. Para o aluno
   veterano: 153 falas sem apoio em 106 lições, sem nenhuma cena nova.
-- `validate:production-transfer` ganhou três regras: objetivo com mais de uma
+- **Quebra de comunicação dentro da cena.** O reparo existia como exercício
+  isolado e a conversa sobrevivia a um erro; faltava juntar os dois. Agora a
+  cena tem dois estágios de falha: o primeiro erro o personagem absorve (ramo de
+  erro autoral, como antes), e a partir do segundo a comunicação quebra — ele
+  para, diz que não entendeu, e o aluno precisa escolher o movimento de reparo e
+  produzi-lo antes de a conversa retomar. Uma vez por cena: o objetivo é ensinar
+  a recuperar, não punir quem está com dificuldade. Só é montada quando o aluno
+  já conhece 请再说一遍 / 我听不懂 — 74 das 126 cenas do plano.
+- `validate:production-transfer` ganhou quatro regras: objetivo com mais de uma
   estrutura precisa aceitar as duas frases; produção aberta precisa de 3+
   respostas certas (com o gate de glifos aplicado a todas elas, não só à do
   modelo); e a conversa sem apoio precisa existir de verdade no plano de um
   aluno com histórico — auditado com histórico simulado, porque o topo da
-  escada não aparece para quem abriu o app hoje.
+  escada não aparece para quem abriu o app hoje; e a batida de reparo precisa
+  ser jogável — estratégias distintas, movimento certo entre elas e fala de
+  recuperação que a jornada já apresentou.
 
 ### Expansão pedagógica — produção sem apoio, transferência e reparo
 

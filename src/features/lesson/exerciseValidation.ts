@@ -465,6 +465,29 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
           }
         }
       }
+      // Batida de reparo: só entra se for jogável. Uma quebra de comunicação
+      // sem movimento certo, ou com uma fala que o aluno não pode escrever,
+      // deixaria a conversa presa — pior do que não ter reparo nenhum.
+      const beat = step.conversationRepairBeat;
+      if (beat) {
+        if (!beat.npcHanzi?.trim()) errors.push("conversation_scene: batida de reparo sem a fala que trava");
+        if (!CJK_RE.test(beat.targetHanzi ?? "")) {
+          errors.push("conversation_scene: batida de reparo sem fala de recuperação em hànzì");
+        }
+        if ((beat.strategyOptions ?? []).length < 3) {
+          errors.push("conversation_scene: batida de reparo com menos de 3 estratégias");
+        }
+        if (!beat.strategyOptions?.includes(beat.strategy)) {
+          errors.push("conversation_scene: a estratégia correta do reparo não está entre as oferecidas");
+        }
+        if (new Set(beat.strategyOptions ?? []).size !== (beat.strategyOptions ?? []).length) {
+          errors.push("conversation_scene: batida de reparo com estratégia repetida");
+        }
+        if (!(beat.accepts ?? []).some((value) => value?.trim())) {
+          errors.push("conversation_scene: batida de reparo sem respostas aceitas");
+        }
+        if (!beat.whyPt?.trim()) errors.push("conversation_scene: batida de reparo sem o porquê");
+      }
       if (!step.learnedRefs || step.learnedRefs.length === 0) {
         errors.push("conversation_scene sem learnedRefs");
       }

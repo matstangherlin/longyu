@@ -279,6 +279,27 @@ export interface LessonStep {
   repairStrategy?: RepairStrategy;
   /** Estratégias oferecidas na 1ª fase (a certa incluída). */
   repairStrategyOptions?: RepairStrategy[];
+  /**
+   * conversation_scene: o que acontece quando a comunicação quebra DENTRO da
+   * cena. O primeiro erro o personagem absorve (ramo de erro autoral); a
+   * partir do segundo ele para a conversa e o aluno precisa reparar antes de
+   * seguir. Ausente quando o aluno ainda não tem vocabulário de reparo.
+   */
+  conversationRepairBeat?: ConversationRepairBeat;
+}
+
+/** Batida de reparo disparada por falha repetida numa cena. */
+export interface ConversationRepairBeat {
+  npcHanzi: string;
+  npcPinyin: string;
+  npcPt: string;
+  promptPt: string;
+  strategy: RepairStrategy;
+  strategyOptions: RepairStrategy[];
+  targetHanzi: string;
+  targetPinyin: string;
+  accepts: string[];
+  whyPt: string;
 }
 
 /** Tipos de tarefa da fase Pós-Conversa (rótulos pedagógicos). */

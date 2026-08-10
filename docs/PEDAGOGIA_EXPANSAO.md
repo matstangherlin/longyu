@@ -348,14 +348,40 @@ quando o aluno já as viu o bastante.
 | Falas de conversa sem alternativas | 0 | 153 |
 | Lições com conversa sem apoio | 0 | 106 / 122 |
 
+### 4.4 Quebra de comunicação dentro da cena
+
+O reparo existia como exercício isolado; a conversa, como fluxo que sobrevive a
+um erro. Faltava juntar os dois: **a conversa que degrada**.
+
+Agora a cena tem dois estágios de falha:
+
+1. **Primeiro erro** — o personagem absorve. Ele repete, corrige ou demonstra
+   confusão (ramo de erro autoral, que já existia) e a conversa segue.
+2. **Segundo erro** — a comunicação quebra. O personagem para, diz que não
+   entendeu, e o aluno precisa **reparar antes de continuar**: escolher o
+   movimento (repetir, simplificar, pedir de novo, assumir que não entendeu) e
+   depois produzir a fala, sem alternativas. Só então a conversa retoma de onde
+   parou.
+
+Uma vez por cena, de propósito: o objetivo é ensinar a recuperar, não punir
+quem está com dificuldade.
+
+A batida só é montada quando o aluno **já tem como reparar** — 请再说一遍 e
+我听不懂 entram no currículo depois da metade do curso, e cobrar reparo antes
+disso seria pedir uma frase que ele nunca viu. Hoje: **74 das 126 cenas** do
+plano carregam a quebra.
+
+| Métrica | Antes | Agora |
+|---|---:|---:|
+| Cenas em que a comunicação pode quebrar de verdade | 0 | 74 / 126 |
+
 ### O que continua faltando
 
-- **Reparo cedo.** Continua em ~20 lições porque a jornada só ensina
-  请再说一遍 / 我听不懂 depois da metade. Subir isso é decisão de currículo,
-  não de motor.
-- **Falha em sequência.** A conversa já sobrevive a um erro; ainda não existe a
-  conversa que degrada progressivamente e exige duas ou três recuperações
-  encadeadas.
+- **Reparo cedo.** O reparo como exercício avulso continua em ~20 lições porque
+  a jornada só ensina 请再说一遍 / 我听不懂 depois da metade. Subir isso é
+  decisão de currículo, não de motor.
+- **Falha encadeada.** A cena agora quebra uma vez. Uma conversa que degrada em
+  dois ou três estágios, cada um mais exigente, ainda não existe.
 - **Produção fora dos frames.** O aluno só pode ser avaliado no que o catálogo
   sabe conferir. Sair disso exige avaliação de mandarim livre — outro problema.
 - **Pontes lógicas (`因为…所以`, `但是`).** O vocab já tem as peças em
