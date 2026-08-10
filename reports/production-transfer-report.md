@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 2301b8db9be3b8b6b17c36ec7cfab610fd1434f0 |
+| Commit | 3d16d8c95a89a958624f636c6d4e0e2ab3a5057b |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T08:26:14.000Z |
+| Gerado em | 2026-08-10T08:28:57.977Z |
 | Lições | 122 |
 | Hash da Jornada | 1613be78fe3f |
 
@@ -72,4 +72,4 @@
 - 我要苹果
 - 请问超市在哪里
 
-<!-- integridade:f2ece0adb396cc21 -->
+<!-- integridade:7ed8e36b89b8d6e0 -->
