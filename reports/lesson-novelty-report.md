@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 28df65aefabcb754cbf84c7da21f05a01ea8ea6d |
+| Commit | a9d82571d5428a44371e280d19d5f61814edab55 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T15:27:33.742Z |
+| Gerado em | 2026-08-10T16:20:55.198Z |
 | Lições | 122 |
 | Hash da Jornada | a3cf7cc2ff44 |
 
@@ -16,8 +16,8 @@
 |-----------|------:|
 | Lições analisadas | 122 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 942 |
-| Pares com transformação cognitiva | 767 (81%) |
+| Pares de repetição semântica | 959 |
+| Pares com transformação cognitiva | 780 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -29,20 +29,20 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 | Lição | Passos | Avaliados | Chaves distintas | Repetições | Transformadas | Aplicação real | Chave mais repetida |
 |-------|-------:|----------:|-----------------:|-----------:|--------------:|---------------:|---------------------|
-| p1-o-que-e-mandarim | 14 | 13 | 30 | 8 | 8 | 9 | phrase:你好 × 3 |
-| p1-o-que-e-pinyin | 14 | 13 | 26 | 8 | 8 | 10 | phrase:你好 × 3 |
-| p1-o-que-e-tom | 16 | 15 | 33 | 11 | 8 | 11 | phrase:你好 × 3 |
-| p1-o-que-e-hanzi | 16 | 15 | 32 | 5 | 5 | 12 | char:木 × 2 |
+| p1-o-que-e-mandarim | 14 | 13 | 26 | 9 | 9 | 8 | phrase:你好 × 3 |
+| p1-o-que-e-pinyin | 14 | 13 | 21 | 11 | 8 | 10 | phrase:你好 × 3 |
+| p1-o-que-e-tom | 16 | 15 | 26 | 15 | 11 | 11 | phrase:你好 × 3 |
+| p1-o-que-e-hanzi | 16 | 15 | 30 | 5 | 5 | 11 | char:木 × 2 |
 | p1-primeiros-hanzi | 14 | 13 | 27 | 7 | 3 | 9 | action:assemble-hanzi × 5 |
-| p1-engine-2-lab | 13 | 13 | 28 | 12 | 9 | 10 | phrase:不客气 × 3 |
-| l1 | 14 | 13 | 32 | 5 | 5 | 9 | phrase:你好 × 2 |
-| l2 | 13 | 12 | 30 | 8 | 8 | 9 | phrase:你好 × 3 |
-| l3 | 13 | 12 | 29 | 9 | 9 | 8 | phrase:我很好 × 3 |
+| p1-engine-2-lab | 13 | 13 | 24 | 12 | 9 | 8 | phrase:不客气 × 3 |
+| l1 | 14 | 13 | 30 | 9 | 9 | 9 | phrase:你好 × 3 |
+| l2 | 13 | 12 | 26 | 9 | 9 | 8 | phrase:你好 × 3 |
+| l3 | 13 | 12 | 27 | 10 | 10 | 8 | phrase:我很好 × 3 |
 | l1-rev | 17 | 16 | 21 | 19 | 18 | 9 | intent:ask-wellbeing × 4 |
-| l4 | 14 | 13 | 32 | 9 | 9 | 9 | action:assemble-phrase × 3 |
-| p1-ate-logo | 12 | 11 | 26 | 8 | 8 | 8 | phrase:再见 × 3 |
-| p1-primeira-conversa | 12 | 11 | 26 | 11 | 8 | 8 | action:assemble-phrase × 3 |
-| p1-qingwen-cortesia | 10 | 9 | 22 | 8 | 8 | 7 | action:assemble-phrase × 3 |
+| l4 | 13 | 12 | 29 | 8 | 8 | 8 | phrase:谢谢 × 2 |
+| p1-ate-logo | 12 | 11 | 21 | 12 | 12 | 8 | phrase:再见 × 3 |
+| p1-primeira-conversa | 12 | 11 | 23 | 11 | 8 | 8 | action:assemble-phrase × 3 |
+| p1-qingwen-cortesia | 10 | 9 | 19 | 8 | 8 | 6 | action:assemble-phrase × 3 |
 | l2-rev | 22 | 21 | 35 | 20 | 18 | 13 | action:assemble-phrase × 3 |
 | p2-ma-primeiro-tom | 12 | 11 | 22 | 11 | 11 | 8 | intent:polite-question × 4 |
 | p2-ma-segundo-tom | 12 | 11 | 17 | 8 | 8 | 6 | intent:polite-question × 4 |
@@ -156,4 +156,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:337ebff4682072df -->
+<!-- integridade:19ac335dc3f10ebb -->
