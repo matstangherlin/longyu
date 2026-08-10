@@ -90,6 +90,8 @@ try {
     REMEDIATION_BY_CAUSE,
     PRACTICE_VARIANT_BY_CAUSE,
     AXIS_BY_CAUSE,
+    isUnexplainedProduction,
+    isWellFormedAttempt,
   } = load("src/data/errorDiagnosis.js");
   const {
     weaknessProfile,
@@ -419,7 +421,106 @@ try {
   );
 
   // ————————————————————————————————————————————————————————————
-  // 8. A remediação dirigida nunca produz correção quebrada
+  // 8. Resposta bem formada que o motor não explica não é erro
+  //
+  // Produção livre e aberta cobram uma frase inteira, e o corpus nunca vai
+  // enumerar todas as frases certas do mandarim. Punir o que ele não conhece
+  // seria transformar o limite do curso em culpa do aluno — e, desde a onda 4,
+  // ainda desviaria as próximas lições.
+  // ————————————————————————————————————————————————————————————
+  const UNRECOGNIZED_CASES = [
+    {
+      name: "frase válida fora do corpus",
+      expected: "我要茶",
+      given: "我想喝一点茶",
+      unexplained: true,
+    },
+    {
+      name: "outra construção válida fora do corpus",
+      expected: "我去银行",
+      given: "我明天想去一个银行",
+      unexplained: true,
+    },
+    // Estes o motor EXPLICA, então continuam sendo erro de verdade.
+    { name: "item trocado no buraco", expected: "我要茶", given: "我要水", unexplained: false },
+    { name: "ordem trocada", expected: "我要茶", given: "我茶要", unexplained: false },
+    { name: "partícula omitida", expected: "我回家了", given: "我回家", unexplained: false },
+    { name: "frase do corpus fora do objetivo", expected: "我要茶", given: "谢谢", unexplained: false },
+    { name: "sem resposta", expected: "我要茶", given: "", unexplained: false },
+    { name: "rabisco em letras latinas", expected: "我要茶", given: "asdfgh", unexplained: false },
+  ];
+  const unrecognizedRows = [];
+  for (const testCase of UNRECOGNIZED_CASES) {
+    const diagnosis = diagnoseError({
+      kind: "free_production",
+      expected: testCase.expected,
+      given: testCase.given,
+      hasCommunicativeGoal: true,
+    });
+    const unexplained = isUnexplainedProduction(diagnosis, testCase.given);
+    assert(
+      unexplained === testCase.unexplained,
+      `${testCase.name}: esperava ${testCase.unexplained ? "não reconhecida" : "erro"}, veio o contrário (causa ${diagnosis.cause}/${diagnosis.confidence})`
+    );
+    unrecognizedRows.push({
+      name: testCase.name,
+      given: testCase.given || "(vazio)",
+      cause: diagnosis.cause,
+      confidence: diagnosis.confidence,
+      outcome: unexplained ? "não reconhecida" : "erro",
+    });
+  }
+  // Uma tentativa bem formada é hànzì puro ou pinyin plausível — nada mais.
+  assert(isWellFormedAttempt("我要茶"), "hànzì puro deveria ser tentativa bem formada");
+  assert(isWellFormedAttempt("wǒ yào chá"), "pinyin plausível deveria ser tentativa bem formada");
+  assert(!isWellFormedAttempt(""), "vazio não é tentativa");
+  assert(!isWellFormedAttempt("asdfgh"), "rabisco latino não é tentativa bem formada");
+  assert(!isWellFormedAttempt("我要tea"), "mistura de hànzì com latim não é tentativa bem formada");
+
+  // ————————————————————————————————————————————————————————————
+  // 9. Confiança pesa: palpite fraco não desvia o currículo
+  // ————————————————————————————————————————————————————————————
+  const lowConfidence = weaknessProfile(
+    errorsOf("lexical_choice", 6, { diagnosisConfidence: "low" }),
+    now
+  );
+  const highConfidence = weaknessProfile(
+    errorsOf("lexical_choice", 6, { diagnosisConfidence: "high" }),
+    now
+  );
+  assert(
+    highConfidence.totalWeight > lowConfidence.totalWeight * 2,
+    "confiança não está pesando: palpite fraco vale quase o mesmo que padrão inequívoco"
+  );
+  assert(
+    Boolean(highConfidence.dominant),
+    "seis erros de confiança alta deveriam dar causa dominante"
+  );
+  // O piso é de PESO, não de contagem: muitos palpites fracos continuam sendo
+  // palpites, e não podem desviar o currículo só por serem muitos.
+  assert(
+    lowConfidence.dominant === undefined,
+    "seis palpites de confiança baixa não deveriam bastar para dirigir a rota"
+  );
+  assert(
+    Boolean(weaknessProfile(errorsOf("lexical_choice", 12, { diagnosisConfidence: "low" }), now).dominant),
+    "evidência fraca mas muito repetida deveria acabar contando"
+  );
+  // O empate entre um padrão claro e um palpite não pode ser decidido pelo palpite.
+  const mixed = weaknessProfile(
+    [
+      ...errorsOf("tone", 4, { diagnosisConfidence: "high" }),
+      ...errorsOf("lexical_choice", 4, { diagnosisConfidence: "low" }),
+    ],
+    now
+  );
+  assert(
+    mixed.dominant?.cause === "tone",
+    `empate por contagem deveria ser resolvido pela confiança (veio ${mixed.dominant?.cause ?? "nenhuma"})`
+  );
+
+  // ————————————————————————————————————————————————————————————
+  // 10. A remediação dirigida nunca produz correção quebrada
   // ————————————————————————————————————————————————————————————
   const remediationRows = [];
   const REMEDIATION_CASES = [
@@ -521,6 +622,10 @@ try {
   lines.push(`| Maior concentração numa causa | ${(biggestShare * 100).toFixed(0)}% |`);
   lines.push(`| Lições que mudam de plano com a fraqueza | ${routedLessons} / ${ALL_LESSONS.length} |`);
   lines.push(`| Lições que renovam o conteúdo na mesma variante | ${noveltyLessons} / ${comparableLessons} |`);
+  lines.push(`| Casos de resposta não reconhecida auditados | ${UNRECOGNIZED_CASES.length} |`);
+  lines.push(
+    `| Peso de um palpite fraco vs. padrão claro | ${(lowConfidence.totalWeight / highConfidence.totalWeight).toFixed(2)}× |`
+  );
   lines.push("");
   lines.push(
     "> Uma causa só é aceita quando a resposta DADA sustenta o padrão — o formato",
@@ -545,6 +650,22 @@ try {
   lines.push("|------|----------|------------|-------|-----------|");
   for (const row of caseRows) {
     lines.push(`| ${row.name} | ${row.expected} | ${row.given} | ${row.cause} | ${row.confidence} |`);
+  }
+  lines.push("");
+
+  lines.push("## Resposta que o motor não explica", "");
+  lines.push(
+    "O corpus nunca vai enumerar todas as frases certas do mandarim. Quando a",
+    "resposta é uma tentativa bem formada e o diagnóstico sai com confiança",
+    "baixa, o aluno vê \"não reconheci essa forma\" e a tentativa **não** conta",
+    "como erro: sem perda de estrela, sem SRS e sem entrar no perfil de fraqueza.",
+    "Fica registrada para auditoria e para o corpus crescer.",
+    ""
+  );
+  lines.push("| Caso | Respondido | Causa | Confiança | Resultado |");
+  lines.push("|------|------------|-------|-----------|-----------|");
+  for (const row of unrecognizedRows) {
+    lines.push(`| ${row.name} | ${row.given} | ${row.cause} | ${row.confidence} | ${row.outcome} |`);
   }
   lines.push("");
 

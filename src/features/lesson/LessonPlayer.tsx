@@ -1401,6 +1401,7 @@ export function LessonPlayer() {
   const useInventoryItem = useStore((s) => s.useInventoryItem);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const recordActivityError = useStore((s) => s.recordActivityError);
+  const registerUnrecognizedProduction = useStore((s) => s.registerUnrecognizedProduction);
   const markActivityErrorCorrected = useStore((s) => s.markActivityErrorCorrected);
   const recordActivityErrorReviewAttempt = useStore((s) => s.recordActivityErrorReviewAttempt);
   const setCurrentLessonAttempt = useStore((s) => s.setCurrentLessonAttempt);
@@ -2240,6 +2241,25 @@ export function LessonPlayer() {
 
     const correction = correctionForStep(currentStep);
     setPendingMistake(correction);
+  }
+
+  /**
+   * O aluno escreveu mandarim bem formado que o motor não sabe julgar.
+   *
+   * Não passa por registerCurrentMistake de propósito: não zera o streak, não
+   * toca a estrela, não entra no SRS e não alimenta o perfil de fraqueza. Só
+   * fica registrado — é o material para auditar o diagnóstico com respostas
+   * reais e para decidir que formas o curso ainda precisa aceitar.
+   */
+  function registerUnrecognizedAnswer(answer: string) {
+    const currentStep = lesson.steps[idx];
+    registerUnrecognizedProduction({
+      lessonId: lesson.id,
+      stepKind: currentStep.kind,
+      situationPt: currentStep.situationPt ?? currentStep.prompt,
+      expected: currentStep.correctAnswer ?? currentStep.answer ?? "",
+      answer,
+    });
   }
 
   // "Tentar de novo por Qi": Pro refaz de graça; senão gasta Qi. O step é
@@ -3621,6 +3641,7 @@ export function LessonPlayer() {
           onDone={handleDone}
           onSkip={canSkipStep ? skipCurrentStep : undefined}
           onMistake={canSkipStep ? registerCurrentMistake : undefined}
+          onUnrecognized={registerUnrecognizedAnswer}
         />
       </Card>
 

@@ -386,6 +386,43 @@ export interface ErrorDiagnosis {
   changed?: string[];
 }
 
+/**
+ * A resposta é uma tentativa BEM FORMADA na língua alvo?
+ *
+ * Só hànzì, ou só pinyin plausível. Serve para separar "escreveu mandarim que
+ * eu não conheço" de "escreveu qualquer coisa": a primeira merece o benefício
+ * da dúvida, a segunda não.
+ */
+export function isWellFormedAttempt(value: string | undefined): boolean {
+  const raw = cleanHanzi(value);
+  if (raw.length === 0) return false;
+  const glyphs = glyphsOf(raw);
+  if (glyphs.length > 0) return glyphs.length === [...raw].length;
+  return looksLikePinyin(value);
+}
+
+/**
+ * O motor não consegue explicar esta resposta de produção.
+ *
+ * Produção livre e aberta cobram uma frase inteira, e o corpus nunca vai
+ * enumerar todas as frases certas do mandarim. Quando a resposta é uma
+ * tentativa bem formada e o diagnóstico saiu com confiança baixa — ou seja, o
+ * próprio motor não achou padrão que a explique —, o honesto é dizer "não
+ * reconheci", não "você errou".
+ *
+ * Tratar isso como erro custaria estrela, entraria no SRS e, desde a onda 4,
+ * ainda envenenaria o perfil de fraqueza: mandarim possivelmente correto
+ * desviando as próximas lições do aluno.
+ */
+export function isUnexplainedProduction(
+  diagnosis: Pick<ErrorDiagnosis, "cause" | "confidence">,
+  given: string | undefined
+): boolean {
+  if (diagnosis.cause === "no_answer") return false;
+  if (diagnosis.confidence !== "low") return false;
+  return isWellFormedAttempt(given);
+}
+
 /** Placeholders gravados quando o aluno não respondeu nada. */
 const EMPTY_ANSWERS = new Set(["", "resposta incorreta", "sem resposta", "-", "—"]);
 
@@ -480,7 +517,15 @@ export function diagnoseError(input: DiagnosisInput): ErrorDiagnosis {
     // 3d. Sobrou peça.
     if (isSubmultiset(expectedGlyphs, givenGlyphs)) {
       const extra = multisetDifference(givenGlyphs, expectedGlyphs);
-      return build(functionWordCause(extra) ?? "intrusion", "high", extra);
+      const functionCause = functionWordCause(extra);
+      if (functionCause) return build(functionCause, "high", extra);
+      // Numa tarefa com OBJETIVO, uma resposta que contém tudo o que se pedia e
+      // ainda acrescenta conteúdo não é erro de forma — é uma frase mais rica
+      // ("amanhã quero ir a um banco" para "diga que vai ao banco"). O motor não
+      // tem como decidir se está certa, então marca confiança baixa e deixa o
+      // benefício da dúvida para o aluno em vez de cobrar "peça sobrando".
+      if (input.hasCommunicativeGoal) return build("intrusion", "low", extra);
+      return build("intrusion", "high", extra);
     }
 
     // 3e. Frase inteiramente outra, mas que EXISTE no corpus: o aluno produziu

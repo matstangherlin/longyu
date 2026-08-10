@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 85b5b31d2d1b6c7f2149a9c23fee654047ce9e8a |
+| Commit | 28df65aefabcb754cbf84c7da21f05a01ea8ea6d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T14:11:07.843Z |
+| Gerado em | 2026-08-10T15:28:41.276Z |
 | Lições | 122 |
 | Hash da Jornada | a3cf7cc2ff44 |
 
@@ -22,6 +22,8 @@
 | Maior concentração numa causa | 16% |
 | Lições que mudam de plano com a fraqueza | 109 / 122 |
 | Lições que renovam o conteúdo na mesma variante | 107 / 122 |
+| Casos de resposta não reconhecida auditados | 8 |
+| Peso de um palpite fraco vs. padrão claro | 0.25× |
 
 > Uma causa só é aceita quando a resposta DADA sustenta o padrão — o formato
 > do exercício não decide mais o motivo do erro. Por isso o mesmo exercício
@@ -72,6 +74,25 @@
 | sem resposta | 我要茶 | (vazio) | no_answer | high |
 | placeholder de resposta ausente | 我要茶 | Resposta incorreta | no_answer | high |
 
+## Resposta que o motor não explica
+
+O corpus nunca vai enumerar todas as frases certas do mandarim. Quando a
+resposta é uma tentativa bem formada e o diagnóstico sai com confiança
+baixa, o aluno vê "não reconheci essa forma" e a tentativa **não** conta
+como erro: sem perda de estrela, sem SRS e sem entrar no perfil de fraqueza.
+Fica registrada para auditoria e para o corpus crescer.
+
+| Caso | Respondido | Causa | Confiança | Resultado |
+|------|------------|-------|-----------|-----------|
+| frase válida fora do corpus | 我想喝一点茶 | lexical_choice | low | não reconhecida |
+| outra construção válida fora do corpus | 我明天想去一个银行 | intrusion | low | não reconhecida |
+| item trocado no buraco | 我要水 | lexical_choice | medium | erro |
+| ordem trocada | 我茶要 | word_order | high | erro |
+| partícula omitida | 我回家 | particle | high | erro |
+| frase do corpus fora do objetivo | 谢谢 | communicative | medium | erro |
+| sem resposta | (vazio) | no_answer | high | erro |
+| rabisco em letras latinas | asdfgh | meaning | medium | erro |
+
 ## Formato da correção por causa
 
 | Caso | Causa | Formato escolhido |
@@ -85,4 +106,4 @@
 
 Nenhum.
 
-<!-- integridade:b538a2f0ebe263a2 -->
+<!-- integridade:245310e468131430 -->

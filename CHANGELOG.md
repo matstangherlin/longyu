@@ -7,6 +7,38 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Correção pedagógica — o limite do corpus não é culpa do aluno
+
+- **Produção válida que o motor não conhece deixa de ser erro.** Produção livre
+  e aberta cobram uma frase inteira, e o corpus nunca vai enumerar todas as
+  frases certas do mandarim. Até aqui, qualquer resposta fora de `accepts`
+  levava "Quase" com um X, custava estrela, entrava no SRS e — desde o
+  diagnóstico de erro — ainda envenenava o perfil de fraqueza, desviando as
+  próximas lições por causa de mandarim possivelmente correto. Agora, quando a
+  resposta é uma tentativa bem formada (só hànzì, ou pinyin plausível) e o
+  diagnóstico sai com confiança baixa — ou seja, o próprio motor não achou
+  padrão que a explique —, o aluno vê **"Não reconheci essa forma"** em tom
+  neutro, sem X e sem cor de erro, com a resposta esperada logo abaixo.
+- A tentativa não resolve o passo: o aluno vê o modelo e responde de novo. Não
+  conceder crédito é deliberado — dar acerto a uma resposta que o app não sabe
+  julgar transformaria "não reconheci" em atalho.
+- **Dizer mais do que se pediu deixa de ser "peça sobrando".** Numa tarefa com
+  objetivo comunicativo, uma resposta que contém tudo o que foi pedido e ainda
+  acrescenta conteúdo (`我明天想去一个银行` para "diga que vai ao banco") é uma
+  frase mais rica, não um erro de forma. Passa a ter confiança baixa e entra no
+  caminho neutro. Fora de tarefas com objetivo, onde o alvo é exato, continua
+  sendo intrusão.
+- **As respostas não reconhecidas ficam registradas** (`unrecognizedProductions`,
+  com contador por forma repetida). É o material para auditar o diagnóstico com
+  respostas humanas reais e para decidir que formas o curso ainda precisa
+  aceitar. Não toca em estrela, SRS nem perfil.
+- **A confiança do diagnóstico passa a pesar no perfil de fraqueza.**
+  `diagnosisConfidence` era gravado e nunca lido: um palpite que o próprio motor
+  marcou como fraco roteava o currículo com a mesma força de um padrão
+  inequívoco. Agora `high`/`medium`/`low` valem 1 / 0,6 / 0,25, então quatro
+  palpites fracos não alcançam sozinhos o limiar de dominância, e um empate por
+  contagem entre padrão claro e palpite é resolvido pelo padrão claro.
+
 ### Expansão pedagógica — diagnóstico de erro e rota pela fraqueza
 
 - **O app passa a saber por que o aluno errou, não só que errou.** O motivo do

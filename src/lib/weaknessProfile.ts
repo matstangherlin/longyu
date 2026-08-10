@@ -46,8 +46,33 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  */
 const RESOLVED_FACTOR = 0.35;
 
+/**
+ * Peso por confiança do diagnóstico.
+ *
+ * `diagnoseError` já dizia o quanto sustenta cada causa, mas o perfil ignorava:
+ * um palpite que o próprio motor marcou como fraco roteava o currículo com a
+ * mesma força de um padrão inequívoco. É justamente o caso da resposta válida
+ * que o corpus não conhece — ela cai em `lexical_choice` com confiança baixa
+ * exatamente porque o motor sabe que está chutando, e o chute virava fraqueza.
+ *
+ * Com o fator, quatro palpites fracos não alcançam o limiar de dominância
+ * sozinhos: para desviar o currículo é preciso evidência que se explique.
+ */
+const CONFIDENCE_FACTOR: Record<"high" | "medium" | "low", number> = {
+  high: 1,
+  medium: 0.6,
+  low: 0.25,
+};
+
 /** Amostra mínima de erros diagnosticados para haver rota dirigida. */
 const MIN_SAMPLE = 4;
+/**
+ * Peso mínimo da causa líder. Contar ocorrências não basta: sem um piso de
+ * PESO, seis palpites de confiança baixa (6 × 0,25 = 1,5) desviariam o
+ * currículo só por serem muitos. Em 2,0, é preciso ~2 padrões inequívocos,
+ * ~4 medianos ou ~8 palpites fracos — ou seja, evidência que se explique.
+ */
+const MIN_WEIGHT = 2;
 /** Fração mínima do peso total para uma causa ser considerada dominante. */
 const MIN_SHARE = 0.3;
 /** Vantagem mínima sobre a 2ª colocada — evita rotear no cara ou coroa. */
@@ -64,6 +89,8 @@ const NON_ROUTABLE = new Set<ErrorCause>(["no_answer", "unclassified"]);
 /** Erro como o perfil precisa dele. Compatível com ActivityErrorRecord. */
 export interface WeaknessErrorInput {
   diagnosis?: ErrorCause;
+  /** Quanto o motor sustenta a causa. Ausente é lido como "medium". */
+  diagnosisConfidence?: "high" | "medium" | "low";
   timestamp?: number;
   wrongCount?: number;
   correctedAt?: number;
@@ -101,13 +128,16 @@ export const EMPTY_WEAKNESS_PROFILE: WeaknessProfile = {
   totalWeight: 0,
 };
 
-/** Peso de um erro: repetições × recência × recuperação. */
+/** Peso de um erro: repetições × recência × recuperação × confiança. */
 function weightOf(error: WeaknessErrorInput, now: number): number {
   const repetitions = Math.max(1, Math.min(5, Math.trunc(error.wrongCount ?? 1)));
   const ageDays = Math.max(0, (now - (error.timestamp ?? now)) / DAY_MS);
   const recency = Math.pow(0.5, ageDays / HALF_LIFE_DAYS);
   const resolved = error.correctedAt ? RESOLVED_FACTOR : 1;
-  return repetitions * recency * resolved;
+  // Registros anteriores ao campo de confiança ficam no meio: nem promovidos a
+  // certeza, nem descartados como palpite.
+  const confidence = CONFIDENCE_FACTOR[error.diagnosisConfidence ?? "medium"];
+  return repetitions * recency * resolved * confidence;
 }
 
 /**
@@ -161,6 +191,7 @@ export function weaknessProfile(
   const hasDominance =
     Boolean(leader) &&
     routableSample >= MIN_SAMPLE &&
+    leader.weight >= MIN_WEIGHT &&
     leader.share >= MIN_SHARE &&
     (!runnerUp || leader.weight >= runnerUp.weight * MIN_MARGIN);
 
