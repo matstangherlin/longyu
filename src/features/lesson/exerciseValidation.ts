@@ -412,7 +412,23 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
               const duplicate = findDuplicate(options);
               if (duplicate) errors.push(`conversation_scene nó "${node.id}": opção duplicada "${duplicate}"`);
             }
-            if (interaction.type === "choose_reply" || interaction.type === "choose_meaning" || interaction.type === "fill_reply" || interaction.type === "listen_reply") {
+            if (interaction.type === "produce_reply") {
+              // Sem apoio: qualquer alternativa na tela desfaz o exercício.
+              if (options.length > 0) {
+                errors.push(`conversation_scene nó "${node.id}": produce_reply não pode ter alternativas`);
+              }
+              if (!CJK_RE.test(interaction.correctAnswer ?? "")) {
+                errors.push(`conversation_scene nó "${node.id}": produce_reply sem resposta em hànzì`);
+              }
+              if (!(interaction.accepts ?? []).some((value) => value?.trim())) {
+                errors.push(`conversation_scene nó "${node.id}": produce_reply sem respostas aceitas`);
+              }
+              // Produzir sem rede: se errar e a conversa não tiver para onde
+              // ir, o aluno fica preso numa tela que não perdoa.
+              if (!interaction.wrongNextNodeId) {
+                errors.push(`conversation_scene nó "${node.id}": produce_reply sem ramo de erro`);
+              }
+            } else if (interaction.type === "choose_reply" || interaction.type === "choose_meaning" || interaction.type === "fill_reply" || interaction.type === "listen_reply") {
               checkChoice(errors, `conversation_scene nó "${node.id}"`, interaction.correctAnswer, options);
               checkPinyinLookAlike(errors, step, options);
             }
@@ -473,6 +489,18 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       }
       if ((step.targetParts ?? []).length > 0) errors.push(`${step.kind} não pode entregar a frase em peças`);
       if (!step.isNoHint && step.helpMode !== "disabled") errors.push(`${step.kind} precisa estar sem dica`);
+      if (step.productionOpen) {
+        // Aberta: o valor está em existir escolha. Com uma ou duas respostas
+        // possíveis, "diga o que quiser" é alvo único disfarçado.
+        const answers = (step.accepts ?? []).filter((value) => CJK_RE.test(value ?? ""));
+        if (new Set(answers.map(normalize)).size < 3) {
+          errors.push("produção aberta com menos de 3 respostas certas possíveis");
+        }
+        if ((step.productionExamples ?? []).length < 3) {
+          errors.push("produção aberta sem exemplos suficientes para a correção");
+        }
+        if (!step.productionGoal) errors.push("produção aberta sem objetivo comunicativo");
+      }
       if (step.kind === "transfer_task") {
         if (!step.transferAnchorHanzi?.trim()) errors.push("transfer_task sem frase-âncora ensinada");
         if (step.isNovelCombination !== true) {

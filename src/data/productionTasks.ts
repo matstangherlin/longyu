@@ -64,8 +64,29 @@ export interface FrameQuantifier {
   singular?: boolean;
 }
 
+/**
+ * O que o aluno está TENTANDO FAZER com a frase. Duas estruturas diferentes
+ * podem cumprir o mesmo objetivo (我要茶 e 我想喝茶 pedem chá do mesmo jeito),
+ * e é por isso que o objetivo — não a estrutura — decide o que conta como
+ * resposta certa. Sem isto, produzir uma frase correta que não é a esperada
+ * é punido, que é o oposto de treinar produção.
+ */
+export type CommunicativeGoal =
+  | "request_item"
+  | "ask_location"
+  | "ask_price"
+  | "state_preference"
+  | "state_destination"
+  | "buy_item"
+  | "offer_item"
+  | "refuse_drink"
+  | "refuse_food"
+  | "count_possession";
+
 export interface SentenceFrame {
   id: string;
+  /** O que esta estrutura faz. Define o conjunto de respostas aceitas. */
+  goal: CommunicativeGoal;
   /** Nome da estrutura em pt-BR, para relatórios e para a correção. */
   labelPt: string;
   /** Como a estrutura aparece na tela da transferência: "我要 ___". */
@@ -85,12 +106,6 @@ export interface SentenceFrame {
   grammarNotePt: string;
   fillers: FrameFiller[];
   quantifiers?: FrameQuantifier[];
-  /**
-   * Outros frames cujo resultado também responde à mesma situação. O aluno
-   * não pode ser punido por produzir outra frase correta: 我想喝茶 e 我要茶
-   * pedem a mesma coisa.
-   */
-  alsoAcceptFrameIds?: string[];
 }
 
 /**
@@ -100,6 +115,7 @@ export interface SentenceFrame {
 export const SENTENCE_FRAMES: SentenceFrame[] = [
   {
     id: "frame_woyao",
+    goal: "request_item",
     labelPt: "pedir uma coisa",
     patternPt: "我要 ___",
     prefix: "我要",
@@ -109,7 +125,6 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woyao",
     situationTemplatePt: "Você está pedindo no balcão. Diga que quer {item}.",
     grammarNotePt: "要 é o pedido direto: 我要 + o que você quer. Nada de 是 aqui.",
-    alsoAcceptFrameIds: ["frame_woxianghe"],
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -123,6 +138,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_woxianghe",
+    goal: "request_item",
     labelPt: "dizer o que quer beber",
     patternPt: "我想喝 ___",
     prefix: "我想喝",
@@ -132,7 +148,6 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com sede. Diga que quer beber {item}.",
     grammarNotePt: "想 é a vontade ('quero/queria'), e o verbo vem logo depois: 想喝 + bebida.",
-    alsoAcceptFrameIds: ["frame_woyao"],
     fillers: [
       { vocabId: "v_shui", promptPt: "água" },
       { vocabId: "v_cha", promptPt: "chá" },
@@ -142,6 +157,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_zainali",
+    goal: "ask_location",
     labelPt: "perguntar onde algo fica",
     patternPt: "___ 在哪里？",
     prefix: "",
@@ -160,7 +176,67 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     ],
   },
   {
+    id: "frame_qingwenzainali",
+    goal: "ask_location",
+    labelPt: "perguntar onde algo fica, com licença",
+    patternPt: "请问，___ 在哪里？",
+    prefix: "请问，",
+    prefixPinyin: "qǐng wèn,",
+    suffix: "在哪里？",
+    suffixPinyin: "zài nǎlǐ?",
+    anchorChunkId: "qingwen",
+    situationTemplatePt: "Você aborda um desconhecido na rua. Pergunte com licença onde fica {item}.",
+    grammarNotePt: "请问 abre a pergunta educadamente e não muda o resto: 请问 + LUGAR + 在哪里？",
+    fillers: [
+      { vocabId: "v_yinhang", promptPt: "o banco" },
+      { vocabId: "v_chaoshi", promptPt: "o supermercado" },
+      { vocabId: "v_yiyuan", promptPt: "o hospital" },
+      { vocabId: "v_huochezhan", promptPt: "a estação de trem" },
+      { vocabId: "v_chezhan", promptPt: "o ponto de ônibus" },
+    ],
+  },
+  {
+    id: "frame_woxiangchi",
+    goal: "request_item",
+    labelPt: "dizer o que quer comer",
+    patternPt: "我想吃 ___",
+    prefix: "我想吃",
+    prefixPinyin: "wǒ xiǎng chī",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "woxianghe",
+    situationTemplatePt: "Você está com fome. Diga que quer comer {item}.",
+    grammarNotePt: "Mesma estrutura de 想喝, trocando o verbo: 想 + verbo + o que você quer.",
+    fillers: [
+      { vocabId: "v_rou", promptPt: "carne" },
+      { vocabId: "v_yu", promptPt: "peixe" },
+      { vocabId: "v_niurou", promptPt: "carne de boi" },
+      { vocabId: "v_pingguo", promptPt: "uma maçã" },
+      { vocabId: "v_xiangjiao", promptPt: "uma banana" },
+    ],
+  },
+  {
+    id: "frame_woxiangmai",
+    goal: "buy_item",
+    labelPt: "dizer o que quer comprar",
+    patternPt: "我想买 ___",
+    prefix: "我想买",
+    prefixPinyin: "wǒ xiǎng mǎi",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "woyaomaiyifu",
+    situationTemplatePt: "Na loja, diga o que você está querendo comprar: {item}.",
+    grammarNotePt: "想买 é o mesmo pedido de 要买, um grau mais suave — as duas funcionam na loja.",
+    fillers: [
+      { vocabId: "v_shu", promptPt: "um livro" },
+      { vocabId: "v_piao", promptPt: "uma passagem" },
+      { vocabId: "v_pingguo", promptPt: "maçãs" },
+      { vocabId: "v_niunai", promptPt: "leite" },
+    ],
+  },
+  {
     id: "frame_duoshaoqian",
+    goal: "ask_price",
     labelPt: "perguntar o preço",
     patternPt: "___ 多少钱？",
     prefix: "",
@@ -181,6 +257,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_woyouge",
+    goal: "count_possession",
     labelPt: "dizer quantos você tem",
     patternPt: "我有 ___ 个 ___",
     prefix: "我有",
@@ -204,6 +281,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_woxihuan",
+    goal: "state_preference",
     labelPt: "dizer do que você gosta",
     patternPt: "我喜欢 ___",
     prefix: "我喜欢",
@@ -223,6 +301,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_woqu",
+    goal: "state_destination",
     labelPt: "dizer para onde você vai",
     patternPt: "我去 ___",
     prefix: "我去",
@@ -241,6 +320,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_woyaomai",
+    goal: "buy_item",
     labelPt: "dizer o que quer comprar",
     patternPt: "我要买 ___",
     prefix: "我要买",
@@ -259,6 +339,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_niyaoma",
+    goal: "offer_item",
     labelPt: "oferecer alguma coisa",
     patternPt: "你要 ___ 吗？",
     prefix: "你要",
@@ -277,6 +358,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_wobuhe",
+    goal: "refuse_drink",
     labelPt: "recusar uma bebida",
     patternPt: "我不喝 ___",
     prefix: "我不喝",
@@ -294,6 +376,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
   },
   {
     id: "frame_wobuchi",
+    goal: "refuse_food",
     labelPt: "recusar uma comida",
     patternPt: "我不吃 ___",
     prefix: "我不吃",
@@ -330,14 +413,29 @@ export const CORPUS_SENTENCES: ReadonlySet<string> = new Set(
 export interface FrameTask {
   id: string;
   frameId: string;
+  /** O que a frase faz. Tarefas do mesmo objetivo aceitam a resposta uma da outra. */
+  goal: CommunicativeGoal;
+  /** Peça que preenche o buraco. */
+  vocabId: string;
+  /**
+   * Chave de conteúdo: peça + quantidade. É o que casa realizações irmãs —
+   * "diga que tem 3 amigos" não pode aceitar 我有五个朋友, então a quantidade
+   * entra na chave junto com a peça.
+   */
+  contentKey: string;
   frameLabelPt: string;
   patternPt: string;
   /** Enunciado em pt-BR. Nunca contém hànzì: o aluno tem que produzir. */
   situationPt: string;
   targetHanzi: string;
   targetPinyin: string;
-  /** Respostas gramaticalmente válidas além do alvo (frases irmãs, sem pontuação, pinyin). */
+  /**
+   * Tudo que conta como certo: o alvo, o alvo sem pontuação, o pinyin, e as
+   * outras realizações do MESMO objetivo com a MESMA peça.
+   */
   accepts: string[];
+  /** As frases irmãs, em hànzì, para mostrar depois da resposta. */
+  siblingAnswers: string[];
   grammarNotePt: string;
   /** Frase-âncora já ensinada — mostrada só na transferência. */
   anchor: { hanzi: string; pinyin: string; meaningPt: string };
@@ -381,12 +479,16 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
       tasks.push({
         id: `${frame.id}__${filler.vocabId}${quantifier ? `__${quantifier.pinyin.replace(/\s+/g, "")}` : ""}`,
         frameId: frame.id,
+        goal: frame.goal,
+        vocabId: filler.vocabId,
+        contentKey: `${filler.vocabId}|${quantifier?.hanzi ?? ""}`,
         frameLabelPt: frame.labelPt,
         patternPt: frame.patternPt,
         situationPt,
         targetHanzi,
         targetPinyin,
         accepts: [bare, targetPinyin],
+        siblingAnswers: [],
         grammarNotePt: frame.grammarNotePt,
         anchor: { hanzi: anchorChunk.hanzi, pinyin: anchorChunk.pinyin, meaningPt: anchorChunk.meaningPt },
         isNovelCombination: !CORPUS_SENTENCES.has(bare),
@@ -398,26 +500,36 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
 }
 
 /**
- * Frases irmãs: quando dois frames respondem à mesma situação, a resposta de
- * um vale para o outro. É o que impede o app de punir 我要茶 quando pediu
- * "diga que quer beber chá" — as duas frases funcionam no balcão.
+ * Realizações irmãs: duas frases que cumprem o MESMO objetivo com a MESMA
+ * peça são as duas certas. 我要茶 e 我想喝茶 pedem chá igual; 银行在哪里？ e
+ * 请问，银行在哪里？ perguntam a mesma coisa. Punir a segunda porque o
+ * enunciado "esperava" a primeira é exatamente o que trava produção.
+ *
+ * A chave é (objetivo, peça) — não a estrutura. Assim um frame novo entra no
+ * conjunto de respostas certas só por declarar o objetivo, sem ninguém
+ * precisar lembrar de atualizar uma lista de pares.
  */
 function withSiblingAnswers(tasks: FrameTask[]): FrameTask[] {
-  const byFrameAndVocab = new Map<string, FrameTask>();
-  for (const task of tasks) byFrameAndVocab.set(task.id, task);
+  const byGoalAndContent = new Map<string, FrameTask[]>();
+  for (const task of tasks) {
+    const key = `${task.goal}|${task.contentKey}`;
+    byGoalAndContent.set(key, [...(byGoalAndContent.get(key) ?? []), task]);
+  }
   return tasks.map((task) => {
-    const frame = SENTENCE_FRAMES.find((candidate) => candidate.id === task.frameId);
-    if (!frame?.alsoAcceptFrameIds?.length) return task;
-    const [, vocabPart] = task.id.split("__");
-    const siblings = frame.alsoAcceptFrameIds
-      .map((siblingId) => byFrameAndVocab.get(`${siblingId}__${vocabPart}`))
-      .filter((sibling): sibling is FrameTask => Boolean(sibling));
+    const siblings = (byGoalAndContent.get(`${task.goal}|${task.contentKey}`) ?? []).filter(
+      (candidate) => cleanSentence(candidate.targetHanzi) !== cleanSentence(task.targetHanzi)
+    );
     if (siblings.length === 0) return task;
     return {
       ...task,
+      siblingAnswers: siblings.map((sibling) => sibling.targetHanzi),
       accepts: [
         ...task.accepts,
-        ...siblings.flatMap((sibling) => [sibling.targetHanzi, cleanSentence(sibling.targetHanzi), sibling.targetPinyin]),
+        ...siblings.flatMap((sibling) => [
+          sibling.targetHanzi,
+          cleanSentence(sibling.targetHanzi),
+          sibling.targetPinyin,
+        ]),
       ],
     };
   });
@@ -462,7 +574,130 @@ export function transferTasksFor(
 }
 
 // ————————————————————————————————————————————————————————————————
-// 2. Reparo conversacional
+// 2. Produção aberta: objetivo sem alvo
+// ————————————————————————————————————————————————————————————————
+
+/**
+ * Até aqui toda produção tinha UM item combinado ("diga que quer chá"), e o
+ * app conferia contra a frase esperada. Isso treina montar a frase, mas não
+ * treina escolher o que dizer — e escolher é metade de falar.
+ *
+ * Na produção aberta o enunciado dá só o OBJETIVO e a situação; o conteúdo é
+ * do aluno. Qualquer realização daquele objetivo que ele já tenha condições
+ * de escrever conta como certa. Continua sendo verificável: o conjunto de
+ * respostas vem inteiro dos frames, então nada aqui aceita mandarim que o app
+ * não saiba que é correto.
+ */
+export interface OpenProductionGoalCopy {
+  goal: CommunicativeGoal;
+  situationPt: string;
+  /** Lembrete de que a escolha é do aluno — nunca sugere um item específico. */
+  hintPt: string;
+}
+
+/** Objetivos que funcionam sem item combinado. Contar, por exemplo, não funciona:
+ *  o enunciado teria que dizer o número, e aí o alvo volta a ser único. */
+export const OPEN_PRODUCTION_GOALS: OpenProductionGoalCopy[] = [
+  {
+    goal: "request_item",
+    situationPt: "Você senta no restaurante e o garçom vem até a mesa. Peça alguma coisa para comer ou beber.",
+    hintPt: "Qualquer pedido que você já saiba fazer serve — quem escolhe é você.",
+  },
+  {
+    goal: "ask_location",
+    situationPt: "Você está perdido numa cidade chinesa e precisa chegar a algum lugar. Pergunte onde fica.",
+    hintPt: "Escolha um lugar que você já sabe dizer.",
+  },
+  {
+    goal: "ask_price",
+    situationPt: "Você está numa loja e uma coisa te interessa. Pergunte quanto custa.",
+    hintPt: "Vale perguntar o preço de qualquer coisa que você já saiba nomear.",
+  },
+  {
+    goal: "state_preference",
+    situationPt: "Alguém que acabou de te conhecer pergunta do que você gosta. Responda.",
+    hintPt: "Diga algo de que você goste de verdade, com as palavras que já tem.",
+  },
+  {
+    goal: "state_destination",
+    situationPt: "Um amigo te encontra na rua e pergunta para onde você está indo. Responda.",
+    hintPt: "Escolha um destino que você já sabe dizer.",
+  },
+  {
+    goal: "buy_item",
+    situationPt: "Você entra numa loja decidido a comprar alguma coisa. Diga ao vendedor o que quer.",
+    hintPt: "Você escolhe o que comprar.",
+  },
+  {
+    goal: "offer_item",
+    situationPt: "Você recebe uma visita em casa. Ofereça alguma coisa à pessoa.",
+    hintPt: "Ofereça o que quiser, perguntando se a pessoa aceita.",
+  },
+  {
+    goal: "refuse_food",
+    situationPt: "No restaurante, avise que existe uma comida que você não come.",
+    hintPt: "Escolha a comida que você quiser recusar.",
+  },
+];
+
+export interface OpenProductionTask {
+  id: string;
+  goal: CommunicativeGoal;
+  situationPt: string;
+  hintPt: string;
+  /** Tudo que conta como certo (hànzì com e sem pontuação, e pinyin). */
+  accepts: string[];
+  /** Realizações em hànzì, para mostrar DEPOIS da resposta. */
+  examples: { hanzi: string; pinyin: string }[];
+}
+
+/**
+ * Uma produção aberta só existe quando o aluno tem escolha real: com menos de
+ * três realizações possíveis, "diga o que quiser" é uma pergunta de alvo único
+ * disfarçada.
+ */
+const MIN_OPEN_ANSWERS = 3;
+
+export function openProductionTasksFor(
+  seenGlyphs: ReadonlySet<string>,
+  options: { limit?: number } = {}
+): OpenProductionTask[] {
+  const reachable = availableTasks(seenGlyphs);
+  const tasks: OpenProductionTask[] = [];
+
+  for (const copy of OPEN_PRODUCTION_GOALS) {
+    const forGoal = reachable
+      .filter((task) => task.goal === copy.goal)
+      .sort((a, b) => a.id.localeCompare(b.id));
+    // Uma realização por frase distinta: 我要茶 e 我想喝茶 são escolhas
+    // diferentes; 我要茶 gerado por dois caminhos não é.
+    const byText = new Map<string, FrameTask>();
+    for (const task of forGoal) {
+      const key = cleanSentence(task.targetHanzi);
+      if (!byText.has(key)) byText.set(key, task);
+    }
+    const distinct = [...byText.values()];
+    if (distinct.length < MIN_OPEN_ANSWERS) continue;
+
+    tasks.push({
+      id: `open_${copy.goal}`,
+      goal: copy.goal,
+      situationPt: copy.situationPt,
+      hintPt: copy.hintPt,
+      accepts: distinct.flatMap((task) => [
+        task.targetHanzi,
+        cleanSentence(task.targetHanzi),
+        task.targetPinyin,
+      ]),
+      examples: distinct.map((task) => ({ hanzi: task.targetHanzi, pinyin: task.targetPinyin })),
+    });
+  }
+
+  return options.limit ? tasks.slice(0, options.limit) : tasks;
+}
+
+// ————————————————————————————————————————————————————————————————
+// 3. Reparo conversacional
 // ————————————————————————————————————————————————————————————————
 
 /**

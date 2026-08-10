@@ -7,6 +7,44 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Expansão pedagógica — objetivo comunicativo, produção aberta e conversa sem apoio
+
+- **O que conta como certo passa a ser o objetivo, não a frase esperada.** Cada
+  estrutura declara o que faz (`request_item`, `ask_location`, `buy_item`…), e
+  duas realizações do mesmo objetivo com o mesmo conteúdo valem as duas: pedimos
+  "diga que quer beber chá" e tanto 我想喝茶 quanto 我要茶 são aceitas. Antes a
+  segunda levava errado — punir uma frase correta é o oposto de treinar produção.
+  Substitui a lista manual de pares, que precisava ser lembrada a cada estrutura
+  nova. A quantidade entra na chave junto com a peça, então "diga que tem 3
+  amigos" continua não aceitando 我有五个朋友.
+- Três estruturas novas dão ao objetivo mais de uma realização: 请问，X在哪里？,
+  我想买X e 我想吃X. Hoje 34 das 72 tarefas aceitam ao menos uma frase irmã, e a
+  correção mostra as outras ("isto também valia").
+- **Produção aberta (`productionOpen`)**: o enunciado dá a situação e o objetivo,
+  e o conteúdo é escolha do aluno — "no restaurante, peça alguma coisa para comer
+  ou beber" tem 17 respostas certas. Continua verificável: o conjunto de
+  respostas sai inteiro dos frames. Oito objetivos têm situação aberta; contar
+  ficou de fora porque o enunciado precisaria dizer o número e o alvo voltaria a
+  ser único. Em 41 das 122 lições.
+- Uma produção aberta só é oferecida com **3+ respostas possíveis** no
+  vocabulário que o aluno já viu — com uma ou duas, "diga o que quiser" é alvo
+  único disfarçado.
+- **Conversa sem apoio (`produce_reply`)**: a escada de variantes
+  (`guided → assisted → independent → audio_first`) existia, mas no topo dela a
+  cena continuava entregando alternativas — o aluno "avançava" e continuava
+  reconhecendo. Nos dois níveis mais altos a interação perde as opções e o aluno
+  escreve a própria fala dentro da conversa, com as realizações irmãs do mesmo
+  objetivo aceitas. A conversão só acontece quando é justo cobrar: resposta
+  curta, em hànzì, e com ramo de erro — sem ele uma produção falha travaria a
+  cena, e com ele o personagem reage e a conversa continua. Para o aluno
+  veterano: 153 falas sem apoio em 106 lições, sem nenhuma cena nova.
+- `validate:production-transfer` ganhou três regras: objetivo com mais de uma
+  estrutura precisa aceitar as duas frases; produção aberta precisa de 3+
+  respostas certas (com o gate de glifos aplicado a todas elas, não só à do
+  modelo); e a conversa sem apoio precisa existir de verdade no plano de um
+  aluno com histórico — auditado com histórico simulado, porque o topo da
+  escada não aparece para quem abriu o app hoje.
+
 ### Expansão pedagógica — produção sem apoio, transferência e reparo
 
 - Três motores novos, todos definidos pelo que **não** oferecem: nenhum banco de

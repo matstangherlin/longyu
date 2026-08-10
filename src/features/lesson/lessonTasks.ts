@@ -26,6 +26,7 @@ import {
   resolveConversationScene,
   scoreConversationScene,
   type ConversationHistoryEntry,
+  type ConversationInteraction,
   type ConversationSceneLessonInfo,
   type ConversationSceneResolveContext,
   type ConversationSceneSelectionContext,
@@ -65,6 +66,8 @@ import {
   spotErrorDrillsFor,
 } from "../../data/perceptionDrills";
 import {
+  FRAME_TASKS,
+  openProductionTasksFor,
   productionTasksFor,
   repairTasksFor,
   transferTasksFor,
@@ -1653,12 +1656,46 @@ function frameTaskStepBase(task: FrameTask) {
   return {
     situationPt: task.situationPt,
     productionFrameId: task.frameId,
+    productionGoal: task.goal,
     correctAnswer: task.targetHanzi,
     answer: task.targetHanzi,
     pinyin: task.targetPinyin,
     accepts: uniqueValues([task.targetHanzi, ...task.accepts]),
+    // As frases irmãs aparecem só na correção: "isto também valia". Mostrar
+    // antes entregaria a resposta; não mostrar nunca esconde do aluno que
+    // existe mais de um jeito certo de dizer a mesma coisa.
+    productionExamples: task.siblingAnswers.map((hanzi) => ({ hanzi, pinyin: "" })),
     isNoHint: true,
     helpMode: "disabled" as const,
+  };
+}
+
+/**
+ * Produção ABERTA: o enunciado dá o objetivo e a situação, e o aluno escolhe o
+ * conteúdo. É o degrau que faltava — as outras produções ainda combinavam a
+ * frase de antemão, o que treina montar mas não treina escolher o que dizer.
+ */
+function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
+  const tasks = openProductionTasksFor(knownGlyphs);
+  if (tasks.length === 0) return null;
+  const task = tasks[seed % tasks.length];
+  const [model] = task.examples;
+  if (!model) return null;
+  return {
+    kind: "free_production",
+    title: "Você escolhe o que dizer",
+    situationPt: task.situationPt,
+    productionGoal: task.goal,
+    productionOpen: true,
+    productionHintPt: task.hintPt,
+    productionExamples: task.examples,
+    correctAnswer: model.hanzi,
+    answer: model.hanzi,
+    pinyin: model.pinyin,
+    accepts: uniqueValues(task.accepts),
+    explanation: `Qualquer uma destas cumpre a situação. ${task.hintPt}`,
+    isNoHint: true,
+    helpMode: "disabled",
   };
 }
 
@@ -2153,6 +2190,71 @@ function conversationSceneToLessonStep(
   };
 }
 
+/**
+ * Conversa sem apoio.
+ *
+ * A escada de variantes (guided → assisted → independent → audio_first) já
+ * existia, mas no topo dela a cena continuava entregando alternativas para
+ * escolher. Ou seja: o aluno "avançava" e continuava reconhecendo. Aqui, nos
+ * dois níveis mais altos, a interação perde as opções e vira produção — o
+ * aluno escreve a própria fala no meio da conversa.
+ *
+ * Só converte o que é justo cobrar: resposta curta, em hànzì, e com o ramo de
+ * erro presente (se errar, o personagem reage e a conversa continua em vez de
+ * travar). O resto fica como está.
+ */
+const UNAIDED_CONVERSATION_LEVELS = new Set(["independent", "audio_first"]);
+const UNAIDED_REPLY_MAX_GLYPHS = 6;
+
+function unaidedInteraction(interaction: ConversationInteraction): ConversationInteraction | null {
+  if (interaction.type !== "choose_reply") return null;
+  const answer = cleanHanzi(interaction.correctAnswer);
+  if (!answer || !CJK_ONLY_RE.test(answer)) return null;
+  if ([...answer].length > UNAIDED_REPLY_MAX_GLYPHS) return null;
+  // Sem ramo de erro a conversa trava numa produção falha; ali o apoio fica.
+  if (!interaction.wrongNextNodeId) return null;
+
+  // As outras formas certas de dizer a mesma coisa entram como aceitas: o
+  // aluno não pode perder a conversa por escolher outra frase correta.
+  const siblings = FRAME_TASKS.filter(
+    (task) => cleanHanzi(task.targetHanzi) === answer
+  ).flatMap((task) => task.siblingAnswers);
+
+  return {
+    ...interaction,
+    type: "produce_reply",
+    options: undefined,
+    removedOptions: interaction.options,
+    accepts: uniqueValues([interaction.correctAnswer, answer, ...siblings]),
+  };
+}
+
+function withUnaidedReplies(
+  step: LessonStep,
+  level: import("../../data/conversationScenes").ConversationVariantLevel
+): LessonStep {
+  if (!UNAIDED_CONVERSATION_LEVELS.has(level) || !step.nodes?.length) return step;
+  let converted = 0;
+  const nodes = step.nodes.map((node) => {
+    if (!node.interaction) return node;
+    const unaided = unaidedInteraction(node.interaction);
+    if (!unaided) return node;
+    converted += 1;
+    return { ...node, interaction: unaided };
+  });
+  if (converted === 0) return step;
+  // O passo espelha prompt/opções da primeira interação para relatórios e para
+  // o motor de novidade. Se essa interação perdeu as alternativas, o espelho
+  // não pode continuar mostrando as antigas.
+  const firstInteraction = nodes.map((node) => node.interaction).find(Boolean);
+  const mirrorsFirstInteraction = !step.checkpoint;
+  return {
+    ...step,
+    nodes,
+    options: mirrorsFirstInteraction ? firstInteraction?.options : step.options,
+  };
+}
+
 interface ConversationSceneSelection {
   lessonInfo: ConversationSceneLessonInfo;
   context: ConversationSceneSelectionContext;
@@ -2240,9 +2342,11 @@ function makeConversationSceneStep(
   const availableRefs = new Set(refs);
   if (knownRefs) for (const ref of knownRefs) availableRefs.add(ref);
   const resolveContext: ConversationSceneResolveContext = { availableRefs, phaseOrder: lessonInfo.phaseOrder };
-  const step = conversationSceneToLessonStep(scene, resolveContext);
+  const baseStep = conversationSceneToLessonStep(scene, resolveContext);
   // Nível de apresentação pelo histórico: uma cena que reaparece sobe de nível.
-  step.conversationVariantLevel = conversationVariantLevelFor(scene, selection?.history);
+  const level = conversationVariantLevelFor(scene, selection?.history);
+  const step = withUnaidedReplies(baseStep, level);
+  step.conversationVariantLevel = level;
   return step;
 }
 
@@ -2856,6 +2960,7 @@ function supplementalStepsForStage(
     // → continuar quando o outro não entende.
     push(makeSpotErrorStep(knownGlyphs, drillSeed));
     push(makeFreeProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 5));
+    push(makeOpenProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 3));
     push(makeConversationRepairStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0), primary));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
@@ -2889,6 +2994,7 @@ function supplementalStepsForStage(
     // lição repetiria a mesma transferência e ela viraria frase decorada.
     const variantSeed = drillSeed + 1 + practiceVariant.charCodeAt(0) * 7;
     push(makeTransferStep(knownGlyphs, variantSeed));
+    push(makeOpenProductionStep(knownGlyphs, variantSeed));
     push(makeFreeProductionStep(knownGlyphs, variantSeed));
     push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));

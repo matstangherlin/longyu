@@ -3642,6 +3642,7 @@ function FreeAnswerField({
 function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const isTransfer = step.kind === "transfer_task";
+  const isOpen = Boolean(step.productionOpen);
   const model = step.correctAnswer ?? step.answer ?? "";
   const acceptedAnswers = useMemo(
     () => uniqueStrings([model, ...(step.accepts ?? [])]),
@@ -3650,13 +3651,29 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
   const [draft, setDraft] = useState("");
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
+  const [accepted, setAccepted] = useState<string | null>(null);
   const locked = feedback === "correct";
+
+  // "Isto também valia": as outras frases certas, sem repetir a que o aluno
+  // escreveu nem a mostrada como modelo. Só aparece depois da tentativa.
+  const otherAnswers = useMemo(() => {
+    const shown = new Set([normalizeEngineAnswer(accepted ?? model)]);
+    const list: string[] = [];
+    for (const example of step.productionExamples ?? []) {
+      const key = normalizeEngineAnswer(example.hanzi);
+      if (!example.hanzi || shown.has(key)) continue;
+      shown.add(key);
+      list.push(example.hanzi);
+    }
+    return list.slice(0, 4);
+  }, [step.productionExamples, accepted, model]);
 
   function check() {
     const candidate = draft.trim();
     if (!candidate || locked) return;
     const normalized = normalizeEngineAnswer(candidate);
-    if (acceptedAnswers.some((accepted) => normalizeEngineAnswer(accepted) === normalized)) {
+    if (acceptedAnswers.some((value) => normalizeEngineAnswer(value) === normalized)) {
+      setAccepted(candidate);
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       return;
@@ -3669,7 +3686,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>{isTransfer ? "Transferência" : "Produção livre"}</Eyebrow>
+      <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? (isTransfer ? "Mesma estrutura, situação nova" : "Produza você")}
       </h2>
@@ -3699,7 +3716,9 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
       <p className="mt-2 text-sm text-ink-soft">
         {isTransfer
           ? "Nenhuma alternativa e nenhuma peça: esta frase exata você nunca viu. Monte pela estrutura."
-          : "Nenhuma alternativa e nenhuma peça. Escreva (ou fale) a frase inteira."}
+          : isOpen
+            ? step.productionHintPt ?? "Não existe uma resposta esperada: diga o que você quiser dizer."
+            : "Nenhuma alternativa e nenhuma peça. Escreva (ou fale) a frase inteira."}
       </p>
 
       <FreeAnswerField
@@ -3715,7 +3734,10 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
 
       <EngineFeedbackPanel
         status={feedback}
-        model={feedback === "wrong" || hadMistake || locked ? model : undefined}
+        // Na produção aberta não existe "o modelo": chamar de modelo uma frase
+        // diferente da que o aluno acertou sugeriria que ele escolheu errado.
+        // Ali o modelo só aparece quando a tentativa não foi aceita.
+        model={feedback === "wrong" || hadMistake || (!isOpen && locked) ? model : undefined}
         explanation={step.explanation}
         hadMistake={hadMistake}
         deferMistakeToParent={Boolean(onMistake)}
@@ -3725,6 +3747,21 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake }: StepProps) {
         }}
         onContinue={() => onDone(!hadMistake)}
       />
+
+      {feedback !== null && otherAnswers.length > 0 && (
+        <div className="animate-pop mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+            {isOpen ? "Outras respostas que valiam" : "Isto também valia"}
+          </div>
+          <ul className="mt-2 grid gap-1.5">
+            {otherAnswers.map((answer) => (
+              <li key={answer} className="hanzi text-lg text-ink">
+                <ExerciseText value={answer} type="hanzi" speakOnClick helpMode="disabled" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {!locked && (
         <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />

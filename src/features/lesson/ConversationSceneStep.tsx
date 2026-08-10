@@ -481,8 +481,16 @@ function InteractionPanel({
   const answer = interaction.correctAnswer;
   const isOrder = interaction.type === "order_reply";
   const isListen = interaction.type === "listen_reply";
+  // Sem apoio: a conversa não oferece alternativa nenhuma e o aluno escreve a
+  // própria fala. Aparece nos níveis altos da variante (ver withUnaidedReplies).
+  const isProduce = interaction.type === "produce_reply";
   const options = useMemo(() => [...(interaction.options ?? [])], [interaction.prompt, interaction.correctAnswer]);
+  const acceptedAnswers = useMemo(
+    () => [...new Set([answer, ...(interaction.accepts ?? [])])].filter(Boolean),
+    [answer, interaction.accepts]
+  );
   const [picked, setPicked] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
   const [ordered, setOrdered] = useState<string[]>([]);
   const [bank, setBank] = useState(() => shuffle(options));
   const [shuffled, setShuffled] = useState(() => shuffle(options));
@@ -490,6 +498,7 @@ function InteractionPanel({
 
   useEffect(() => {
     setPicked(null);
+    setDraft("");
     setOrdered([]);
     setBank(shuffle(options));
     setShuffled(shuffle(options));
@@ -499,9 +508,12 @@ function InteractionPanel({
   const visibleOptions = isOrder ? bank : shuffled;
 
   function check() {
-    const attempt = isOrder ? ordered.join("") : picked ?? "";
+    const attempt = isOrder ? ordered.join("") : isProduce ? draft.trim() : picked ?? "";
     if (!attempt) return;
-    if (normalizeAnswer(attempt) === normalizeAnswer(answer)) {
+    const matches = isProduce
+      ? acceptedAnswers.some((accepted) => normalizeAnswer(attempt) === normalizeAnswer(accepted))
+      : normalizeAnswer(attempt) === normalizeAnswer(answer);
+    if (matches) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       return;
@@ -525,12 +537,12 @@ function InteractionPanel({
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
-    optionCount: isOrder ? 0 : visibleOptions.length,
-    allowNumberKeys: !isOrder,
+    optionCount: isOrder || isProduce ? 0 : visibleOptions.length,
+    allowNumberKeys: !isOrder && !isProduce,
     isAnswered: feedback === "correct",
-    hasSelection: isOrder ? ordered.length > 0 : Boolean(picked),
+    hasSelection: isOrder ? ordered.length > 0 : isProduce ? draft.trim().length > 0 : Boolean(picked),
     onSelectOption: (index) => {
-      if (isOrder) return;
+      if (isOrder || isProduce) return;
       const option = visibleOptions[index];
       if (option && feedback !== "correct") {
         playSoundFx("pieceSelect", soundEffects);
@@ -556,7 +568,31 @@ function InteractionPanel({
         </div>
       )}
 
-      {isOrder ? (
+      {isProduce ? (
+        <>
+          <p className="mt-2 text-sm text-ink-soft">
+            Sem alternativas desta vez: responda com as suas palavras.
+          </p>
+          <textarea
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              if (feedback !== "correct") setFeedback(null);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                check();
+              }
+            }}
+            disabled={feedback === "correct"}
+            rows={2}
+            placeholder="Escreva em hànzì ou pinyin…"
+            aria-label="Sua resposta na conversa"
+            className="mt-3 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
+          />
+        </>
+      ) : isOrder ? (
         <>
           <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
             {ordered.length === 0 && (
@@ -654,7 +690,10 @@ function InteractionPanel({
       <div className="mt-4 flex gap-2">
         <Button
           className="flex-1 shadow-lift"
-          disabled={feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)}
+          disabled={
+            feedback === "correct" ||
+            (isOrder ? ordered.length === 0 : isProduce ? draft.trim().length === 0 : !picked)
+          }
           onClick={check}
         >
           Verificar
