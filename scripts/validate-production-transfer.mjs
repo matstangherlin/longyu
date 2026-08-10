@@ -112,6 +112,11 @@ try {
     assert(Boolean(frame.goal), `${frame.id}: estrutura sem objetivo comunicativo`);
     assert(chunkById.has(frame.anchorChunkId), `${frame.id}: âncora inexistente no corpus (${frame.anchorChunkId})`);
     assert(frame.fillers.length > 0, `${frame.id}: frame sem peças`);
+    assert(Array.isArray(frame.slots) && frame.slots.length > 0, `${frame.id}: frame sem scaffold de slots`);
+    assert(
+      frame.slots.some((slot) => slot.hole),
+      `${frame.id}: scaffold sem buraco — a ordem não mostra o que preencher`
+    );
     assert(!CJK_RE.test(frame.situationTemplatePt), `${frame.id}: o enunciado da situação mostra hànzì`);
     assert(frame.situationTemplatePt.includes("{item}"), `${frame.id}: situação sem o buraco {item}`);
     if (frame.quantifiers?.length) {
@@ -119,6 +124,19 @@ try {
         frame.situationTemplatePt.includes("{qty}"),
         `${frame.id}: frame com quantidade mas sem {qty} no enunciado`
       );
+    }
+    if (frame.timeFillers?.length) {
+      assert(
+        frame.prefix.startsWith("我"),
+        `${frame.id}: timeFillers só fazem sentido com prefixo começando em 我 (sujeito → tempo → resto)`
+      );
+      assert(
+        Boolean(frame.situationWithTimeTemplatePt?.includes("{time}")),
+        `${frame.id}: timeFillers sem situationWithTimeTemplatePt com {time}`
+      );
+      for (const timeFiller of frame.timeFillers) {
+        assert(vocabById.has(timeFiller.vocabId), `${frame.id}: tempo fora do corpus (${timeFiller.vocabId})`);
+      }
     }
     for (const filler of frame.fillers) {
       assert(vocabById.has(filler.vocabId), `${frame.id}: peça fora do corpus (${filler.vocabId})`);
@@ -139,6 +157,7 @@ try {
     assert(CJK_RE.test(task.targetHanzi), `${task.id}: alvo sem hànzì`);
     assert(!CJK_RE.test(task.situationPt), `${task.id}: situação com hànzì (viraria cópia)`);
     assert(Boolean(task.targetPinyin.trim()), `${task.id}: alvo sem pinyin`);
+    assert(Array.isArray(task.slots) && task.slots.length > 0, `${task.id}: tarefa sem scaffold de slots`);
     assert(
       task.isNovelCombination === !CORPUS_SENTENCES.has(clean(task.targetHanzi)),
       `${task.id}: rótulo de combinação inédita não bate com o corpus`

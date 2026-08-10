@@ -500,6 +500,14 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
           errors.push("produção aberta sem exemplos suficientes para a correção");
         }
         if (!step.productionGoal) errors.push("produção aberta sem objetivo comunicativo");
+      } else if (step.productionFrameId) {
+        // Scaffold STPVO-light: produção/transferência ancoradas em frame
+        // precisam mostrar a ordem nomeada — senão o padrão volta a ser só "___".
+        if (!step.patternSlots?.length) {
+          errors.push(`${step.kind} com frame sem scaffold de slots (patternSlots)`);
+        } else if (!step.patternSlots.some((slot) => slot.hole)) {
+          errors.push(`${step.kind}: scaffold sem buraco`);
+        }
       }
       if (step.kind === "transfer_task") {
         if (!step.transferAnchorHanzi?.trim()) errors.push("transfer_task sem frase-âncora ensinada");

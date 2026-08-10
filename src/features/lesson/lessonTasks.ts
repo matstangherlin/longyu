@@ -1657,6 +1657,7 @@ function frameTaskStepBase(task: FrameTask) {
     situationPt: task.situationPt,
     productionFrameId: task.frameId,
     productionGoal: task.goal,
+    patternSlots: task.slots,
     correctAnswer: task.targetHanzi,
     answer: task.targetHanzi,
     pinyin: task.targetPinyin,
