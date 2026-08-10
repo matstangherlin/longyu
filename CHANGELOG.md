@@ -7,6 +7,48 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Ritmo — a entrada do curso deixa de abrir no volume máximo
+
+- **A lição 1 pedia produção livre e transferência.** A auditoria do plano real
+  de um aluno **novo** encontrou "O que é mandarim?" cobrando `我想喝水` (produção
+  livre, sem apoio) e `我不喝水` (transferência, com a âncora `我不会说中文`) de
+  quem tinha acabado de encontrar `你好`. Nenhum validador via isso: todos mediam
+  o curso inteiro ou a média, e um começo brutal fica escondido atrás de 122
+  lições saudáveis.
+- **Causa raiz**: `CORE_REVIEW_REFS` — lista fixa de frases-âncora — entra no
+  foco de revisão de toda lição, e o mesmo foco de revisão vira `seenGlyphs`, a
+  porta que libera produção livre, transferência e pares mínimos. Frases de
+  lições distantes passavam a contar como "o aluno já viu isto" desde a lição 1.
+- **A separação é entre ver e ter de produzir.** Uma cena de conversa
+  *apresenta* vocabulário — conhecer `你好` basta para jogá-la —, então a lição
+  continua enxergando o núcleo inteiro para cenas, revisão e imagens. Só a porta
+  da produção passou a contar apenas o que o currículo já apresentou até ali.
+  Restringir o foco de revisão inteiro (primeira tentativa desta correção)
+  esvaziava o pool de conversa e deixava lições legítimas sem cena nenhuma.
+- **Vale na primeira fase**, de propósito: depois dela a mesma lista também
+  funciona como canal de introdução de vocabulário (`我想喝茶` só aparece em
+  passo autoral muito adiante), e restringir o curso inteiro esvaziaria a
+  produção aberta em vez de consertar o começo.
+- **Cena repetida em lições seguidas dá lugar a nenhuma cena.** A pontuação já
+  penalizava a cena da lição anterior, mas penalidade não resolve pool de um
+  candidato só. Também corrigido um `??` que nunca caía no fallback porque
+  `lastLessonSceneIds` vem sempre preenchido (vazio, não ausente).
+- Resultado na entrada: produção livre e transferência passam da lição 1 para a
+  **20**; a digitação nas 20 primeiras lições cai de **26 para 10** passos. No
+  curso inteiro a cobertura fica preservada — produção aberta segue em 41/122,
+  conversa sem apoio em 106/122, reparo em 22/122; produção livre (71→64) e
+  transferência (110→98) perdem exatamente as lições da abertura que as
+  cobravam cedo demais.
+- A simulação de `validate:conversation-pedagogy` passou a registrar a recência
+  de **toda** cena jogada, autoral ou gerada — é o que `recordConversationScene`
+  faz no app. Contando só as geradas, a simulação "esquecia" a cena autoral
+  recém-jogada e acusava repetições que o runtime não teria.
+- **Portão `validate:onboarding-pace`** na cadeia `validate:beta`, com
+  `reports/onboarding-pace-report.md`. Mede o plano de um aluno novo nas 20
+  primeiras lições: motor exigente não abre curso, carga de digitação sobe aos
+  poucos, nenhuma lição é longa demais, o salto entre lições consecutivas é
+  suave, há variedade mínima de motores e a entrada não fica muda.
+
 ### Correção pedagógica — o limite do corpus não é culpa do aluno
 
 - **Produção válida que o motor não conhece deixa de ser erro.** Produção livre

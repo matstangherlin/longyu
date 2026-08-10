@@ -219,8 +219,12 @@ try {
         step.__transformsConversation = cognitiveTransformation(activeConversation, step);
       }
     });
-    const generated = steps.filter((step) => step.kind === "conversation_scene" && step.generated && step.sceneId);
-    for (const step of generated) {
+    // Recência como o APP a registra: recordConversationScene() roda para toda
+    // cena concluída, autoral ou gerada. Contar só as geradas fazia a simulação
+    // esquecer as autorais, e o seletor da lição seguinte "não via" a cena que
+    // o aluno tinha acabado de jogar — repetição que o runtime não teria.
+    const played = steps.filter((step) => step.kind === "conversation_scene" && step.sceneId);
+    for (const step of played) {
       const scene = sceneById.get(step.sceneId);
       recentSceneIds = [step.sceneId, ...recentSceneIds.filter((id) => id !== step.sceneId)].slice(0, 10);
       if (scene?.intent) recentIntentIds = [scene.intent, ...recentIntentIds.filter((id) => id !== scene.intent)].slice(0, 10);

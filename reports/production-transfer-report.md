@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 28df65aefabcb754cbf84c7da21f05a01ea8ea6d |
+| Commit | a9d82571d5428a44371e280d19d5f61814edab55 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T15:28:09.512Z |
+| Gerado em | 2026-08-10T16:21:34.275Z |
 | Lições | 122 |
 | Hash da Jornada | a3cf7cc2ff44 |
 
@@ -27,9 +27,9 @@
 | Lições com conversa sem apoio | 106 / 122 |
 | Lições com quebra de comunicação jogável | 74 / 122 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 452 |
-| Lições com produção livre | 71 / 122 |
-| Lições com transferência | 110 / 122 |
+| Passos auditados no plano real (3 tentativas) | 414 |
+| Lições com produção livre | 64 / 122 |
+| Lições com transferência | 98 / 122 |
 | Lições com reparo conversacional | 22 / 122 |
 | Estruturas diferentes no plano real | 15 |
 | Frases inéditas cobradas | 32 |
@@ -73,4 +73,4 @@
 - 我要苹果
 - 请问超市在哪里
 
-<!-- integridade:de83d922c07c7912 -->
+<!-- integridade:0cede9b6ae19ecd8 -->

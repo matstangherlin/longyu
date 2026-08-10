@@ -1044,6 +1044,37 @@ function combinedReviewFocus(lesson: Lesson, context: LessonPracticePlanContext)
   return items;
 }
 
+/**
+ * Foco de revisão restrito ao que o aluno REALMENTE já encontrou — usado só
+ * para montar `seenGlyphs`, nunca para montar a lição.
+ *
+ * `CORE_REVIEW_REFS` é uma lista fixa de frases-âncora que entra no foco de
+ * revisão de toda lição, inclusive a primeira. Isso é bom para a conversa: uma
+ * cena APRESENTA vocabulário, e conhecer 你好 basta para jogá-la. Mas o mesmo
+ * foco de revisão também vira `seenGlyphs`, e `seenGlyphs` é a porta que libera
+ * produção livre, transferência e pares mínimos — motores que EXIGEM produzir.
+ *
+ * Misturados, o resultado era a abertura do curso pedir 我想喝水 e 我不喝水 —
+ * 我, 想, 喝, 水, com a âncora 我不会说中文 — a quem tinha acabado de encontrar
+ * 你好. Apresentar cedo é ensinar; cobrar cedo é reprovar de véspera.
+ *
+ * A separação é essa: a lição continua vendo o núcleo inteiro (cenas, revisão,
+ * imagens), mas a porta da produção só conta o que o currículo já apresentou
+ * até aqui. Vale na PRIMEIRA FASE; depois dela a mesma lista também funciona
+ * como canal de introdução de vocabulário (我想喝茶 só aparece em passo autoral
+ * muito adiante), e restringir o curso inteiro esvaziaria a produção aberta em
+ * vez de consertar o começo.
+ */
+function seenFocusForProduction(lesson: Lesson, reviewFocus: readonly FocusItem[]): FocusItem[] {
+  if (lessonPhaseOrder(lesson) > 1) return [...reviewFocus];
+  const introduced = curriculumRefsThroughLesson(lesson.id);
+  return reviewFocus.filter((item) => {
+    // Item sem ref veio do texto da própria lição — já está na tela do aluno.
+    if (!item.type || !item.itemId) return true;
+    return introduced.has(`${item.type}:${item.itemId}`);
+  });
+}
+
 function hasBuilderForFocusItem(item: FocusItem): boolean {
   return [...cleanHanzi(item.hanzi)].some((glyph) => buildersForCharacter(glyph).length > 0);
 }
@@ -2389,7 +2420,19 @@ function makeConversationSceneStep(
   );
   const lessonInfo: ConversationSceneLessonInfo =
     selection?.lessonInfo ?? { focusRefs: new Set(focusRefs(focus)), reviewRefs: new Set(focusRefs(reviewFocus)) };
-  const scene = pickBestConversationScene(candidates, lessonInfo, selection?.context ?? {});
+  // A pontuação já penaliza a cena da lição anterior (−100), mas penalidade não
+  // resolve pool de um candidato só: no começo do curso o aluno conhece três
+  // cumprimentos, e a mesma cena voltava em lições seguidas. Sem alternativa, a
+  // lição fica sem conversa — repetir a mesma cena três vezes seguidas ensina
+  // menos que não ter conversa nenhuma, e a abertura já é leve de propósito.
+  const selectionContext = selection?.context ?? {};
+  // `lastLessonSceneIds` vem SEMPRE preenchido (vazio quando não há histórico),
+  // então `??` não serve de fallback aqui — só o vazio decide usar a recência.
+  const previousSceneIds = selectionContext.lastLessonSceneIds?.length
+    ? selectionContext.lastLessonSceneIds
+    : (selectionContext.recentConversationSceneIds ?? []).slice(0, 1);
+  const fresh = candidates.filter((candidate) => !previousSceneIds.includes(candidate.sceneId));
+  const scene = pickBestConversationScene(fresh, lessonInfo, selectionContext);
   if (!scene) return null;
   // Renderiza a variante certa: refs disponíveis = foco/revisão + currículo.
   const availableRefs = new Set(refs);
@@ -4945,7 +4988,9 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const weakness = context.weaknessProfile ?? weaknessProfile(context.recentErrors);
   const practiceVariant = practiceVariantForAttempt(context.attemptNumber, weakness);
   const variantSeedOffset = variantSeedOffsetForAttempt(context.attemptNumber);
-  const seenGlyphs = seenGlyphsForPlanning(focus, reviewFocus, context);
+  // A lição enxerga o foco de revisão inteiro; a porta que libera os motores de
+  // produzir enxerga só o que o currículo já apresentou. Ver ≠ ter de produzir.
+  const seenGlyphs = seenGlyphsForPlanning(focus, seenFocusForProduction(lesson, reviewFocus), context);
   // Glifos que ESTA lição ensina (só o próprio foco, sem a revisão): composição
   // só é montada aqui se for do próprio conteúdo, ou em revisões.
   const ownFocusGlyphs = new Set<string>();
