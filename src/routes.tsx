@@ -9,6 +9,7 @@ import { AppShell } from "./components/layout/AppShell";
 
 const JourneyPage = lazy(() => import("./features/journey/JourneyPage").then((m) => ({ default: m.JourneyPage })));
 const TreinoPage = lazy(() => import("./features/treino/TreinoPage").then((m) => ({ default: m.TreinoPage })));
+const MandarinBlitzPage = lazy(() => import("./features/arcade/MandarinBlitzPage").then((m) => ({ default: m.MandarinBlitzPage })));
 const MissoesPage = lazy(() => import("./features/missoes/MissoesPage").then((m) => ({ default: m.MissoesPage })));
 const LojaPage = lazy(() => import("./features/loja/LojaPage").then((m) => ({ default: m.LojaPage })));
 const SomPage = lazy(() => import("./features/som/SomPage").then((m) => ({ default: m.SomPage })));
@@ -67,6 +68,7 @@ export const routes: RouteObject[] = [
       { path: "jornada", element: <JourneyPage /> },
       { path: "treino", element: <TreinoPage /> },
       { path: "praticar", element: <TreinoPage /> },
+      { path: "arcade/blitz", element: <MandarinBlitzPage /> },
       { path: "missoes", element: <MissoesPage /> },
       { path: "loja", element: <LojaPage /> },
       { path: "som", element: <SomPage /> },

@@ -532,7 +532,13 @@ export interface LessonPracticePlanContext {
   recentConversationIntentIds?: string[];
   /** Histórico de conversas do aluno — personaliza a rotação e o nível da variante. */
   conversationHistory?: readonly ConversationHistoryEntry[];
+  /** Número de tentativas já registradas; gira automaticamente as variantes A/B/C. */
+  attemptNumber?: number;
   silent?: boolean;
+}
+
+export function practiceVariantForAttempt(attemptNumber = 0): "A" | "B" | "C" {
+  return (["A", "B", "C"] as const)[Math.abs(Math.trunc(attemptNumber)) % 3];
 }
 
 interface FocusItem {
@@ -1722,6 +1728,194 @@ function makeDialogueChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep
   };
 }
 
+function makeVariantAudioSameDifferentStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  same: boolean
+): LessonStep | null {
+  if (!item.hanzi || !item.pinyin) return null;
+  const contrast = focus
+    .filter((candidate) => candidate.key !== item.key && Boolean(candidate.hanzi && candidate.pinyin))
+    .sort((a, b) => {
+      const aNear = normalizePinyinBase(a.pinyin ?? "") === normalizePinyinBase(item.pinyin ?? "") ? 0 : 1;
+      const bNear = normalizePinyinBase(b.pinyin ?? "") === normalizePinyinBase(item.pinyin ?? "") ? 0 : 1;
+      return aNear - bNear || a.key.localeCompare(b.key);
+    })[0];
+  if (!same && !contrast) return null;
+  const second = same ? item : contrast!;
+  return {
+    kind: "listen_select",
+    pedagogyVariant: "audio_same_different",
+    title: "Os dois áudios são iguais?",
+    prompt: "Compare a pronúncia completa, incluindo os tons.",
+    audioSequence: [item.hanzi, second.hanzi],
+    options: ["Iguais", "Diferentes"],
+    correctAnswer: same ? "Iguais" : "Diferentes",
+    explanation: same
+      ? `Os dois áudios eram ${item.hanzi} (${item.pinyin}).`
+      : `A era ${item.hanzi} (${item.pinyin}); B era ${second.hanzi} (${second.pinyin}).`,
+    isNoHint: true,
+    helpMode: "disabled",
+  };
+}
+
+function sentenceAlternatives(clean: string): string[][] {
+  const curated: Record<string, string[][]> = {
+    "我想喝茶": [["我", "想", "喝", "茶"], ["我", "要", "喝", "茶"]],
+    "我想喝水": [["我", "想", "喝", "水"], ["我", "要", "喝", "水"]],
+    "这是水": [["这", "是", "水"], ["这个", "是", "水"]],
+    "这是书": [["这", "是", "书"], ["这个", "是", "书"]],
+  };
+  return curated[clean] ?? [[...clean]];
+}
+
+function makeDragonDictationStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  mode: NonNullable<LessonStep["dictationMode"]>
+): LessonStep | null {
+  const clean = cleanHanzi(item.hanzi);
+  if (!clean || !item.pinyin || !CJK_ONLY_RE.test(clean)) return null;
+  if (mode === "blocks") {
+    if (clean.length < 2 || clean.length > 10) return null;
+    const sequences = sentenceAlternatives(clean);
+    const distractors = uniqueValues(
+      focus
+        .filter((candidate) => candidate.key !== item.key)
+        .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
+        .filter((piece) => !clean.includes(piece))
+    ).slice(0, 2);
+    return {
+      kind: "sentence_build",
+      pedagogyVariant: "dragon_dictation",
+      dictationMode: "blocks",
+      title: "Ouça e monte a fala",
+      prompt: "Sem tradução: use apenas o áudio.",
+      audioText: item.hanzi,
+      targetParts: sequences[0],
+      acceptedTargetParts: sequences.slice(1),
+      accepts: sequences.map((parts) => parts.join("")),
+      bank: uniqueValues(sequences.flat()),
+      distractors,
+      correctAnswer: clean,
+      explanation: `${item.hanzi} = ${item.meaningPt}.`,
+      isNoHint: true,
+      helpMode: "disabled",
+    };
+  }
+  const answer = mode === "pinyin" ? numericPinyinToDiacritics(item.pinyin) : clean;
+  return {
+    kind: "write",
+    mode: "translation_fill",
+    pedagogyVariant: "dragon_dictation",
+    dictationMode: mode,
+    title: mode === "pinyin" ? "Escreva o que ouviu em pinyin" : "Escreva o que ouviu em hànzì",
+    audioText: item.hanzi,
+    answer,
+    accepts: mode === "pinyin" ? [item.pinyin] : uniqueValues([clean, item.hanzi]),
+    playbackLimit: mode === "immersion" ? 1 : undefined,
+    explanation: `${item.hanzi} · ${item.pinyin} · ${item.meaningPt}`,
+    isNoHint: true,
+    helpMode: "disabled",
+  };
+}
+
+function makeVariantOddOneOutStep(focus: FocusItem[]): LessonStep | null {
+  const chunks = focus
+    .map((item) => ({ item, chunk: item.type === "chunk" && item.itemId ? chunkById[item.itemId] : undefined }))
+    .filter((entry): entry is { item: FocusItem; chunk: NonNullable<typeof entry.chunk> } => Boolean(entry.chunk?.domain));
+  const byDomain = new Map<string, typeof chunks>();
+  for (const entry of chunks) {
+    const current = byDomain.get(entry.chunk.domain!) ?? [];
+    if (!current.some((candidate) => cleanHanzi(candidate.item.hanzi) === cleanHanzi(entry.item.hanzi))) {
+      byDomain.set(entry.chunk.domain!, [...current, entry]);
+    }
+  }
+  const related = [...byDomain.values()].filter((entries) => entries.length >= 3).sort((a, b) => b.length - a.length)[0];
+  if (!related) return null;
+  const relatedHanzi = new Set(related.map((entry) => cleanHanzi(entry.item.hanzi)));
+  const outsider = chunks.find(
+    (entry) => entry.chunk.domain !== related[0].chunk.domain && !relatedHanzi.has(cleanHanzi(entry.item.hanzi))
+  );
+  if (!outsider) return null;
+  const options = uniqueValues([...related.slice(0, 3).map((entry) => entry.item.hanzi), outsider.item.hanzi]);
+  if (options.length !== 4) return null;
+  return {
+    kind: "dialogue_choice",
+    pedagogyVariant: "meaning_odd_one_out",
+    title: "Qual não pertence ao grupo?",
+    speaker: "Jogo de significado",
+    dialoguePrompt: `Três opções pertencem a “${related[0].chunk.domain}”. Qual é a intrusa?`,
+    options,
+    correctAnswer: outsider.item.hanzi,
+    explanation: `${outsider.item.hanzi} significa ${outsider.item.meaningPt}; as outras compartilham o mesmo contexto.`,
+  };
+}
+
+function makeVariantSpotErrorStep(item: FocusItem): LessonStep | null {
+  const clean = cleanHanzi(item.hanzi);
+  const replacements: [string, string][] = [
+    ["喝", "吃"], ["吃", "喝"], ["水", "茶"], ["茶", "水"],
+    ["是", "在"], ["在", "是"], ["要", "想"], ["想", "要"],
+  ];
+  const pair = replacements.find(([from]) => clean.includes(from));
+  if (!pair || clean.length < 2) return null;
+  const changed = clean.replace(pair[0], pair[1]);
+  if (changed === clean) return null;
+  return {
+    kind: "dialogue_choice",
+    pedagogyVariant: "meaning_spot_error",
+    title: "Encontre a frase certa",
+    speaker: "Detector de erro",
+    dialoguePrompt: `Qual opção preserva a intenção “${item.meaningPt}”?`,
+    options: [changed, clean],
+    correctAnswer: clean,
+    explanation: `${pair[0]} é a peça necessária em ${item.hanzi}; trocar por ${pair[1]} muda a mensagem.`,
+  };
+}
+
+function makeSentenceLabStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  variant: Extract<NonNullable<LessonStep["pedagogyVariant"]>, `sentence_lab_${string}`>
+): LessonStep | null {
+  const clean = cleanHanzi(item.hanzi);
+  if (!CJK_ONLY_RE.test(clean) || clean.length < 2 || clean.length > 10) return null;
+  const sequences = sentenceAlternatives(clean);
+  const distractors = uniqueValues(
+    focus
+      .filter((candidate) => candidate.key !== item.key)
+      .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
+      .filter((piece) => !clean.includes(piece))
+  ).slice(0, variant === "sentence_lab_distractors" ? 3 : 1);
+  const repairText = [...sequences[0]].reverse().join("");
+  return {
+    kind: "sentence_build",
+    pedagogyVariant: variant,
+    title: variant === "sentence_lab_repair" ? "Conserte a frase" : "Sentence Lab",
+    prompt:
+      variant === "sentence_lab_no_translation"
+        ? "Recupere de memória o chunk praticado nesta lição."
+        : variant === "sentence_lab_audio"
+          ? "Ouça e monte uma frase natural."
+          : variant === "sentence_lab_repair"
+            ? "Reorganize as peças da frase quebrada."
+            : `Monte “${item.meaningPt}” e ignore os intrusos.`,
+    sourceText: variant === "sentence_lab_repair" ? repairText : undefined,
+    sourceMeaning: variant === "sentence_lab_distractors" ? item.meaningPt : undefined,
+    audioText: variant === "sentence_lab_audio" ? item.hanzi : undefined,
+    targetParts: sequences[0],
+    acceptedTargetParts: sequences.slice(1),
+    accepts: sequences.map((parts) => parts.join("")),
+    bank: uniqueValues([...(variant === "sentence_lab_repair" ? [...sequences[0]].reverse() : sequences.flat())]),
+    distractors,
+    correctAnswer: clean,
+    explanation: `${item.hanzi} · ${item.pinyin ?? ""} · ${item.meaningPt}`,
+    isNoHint: variant === "sentence_lab_audio" || variant === "sentence_lab_no_translation",
+    helpMode: variant === "sentence_lab_audio" || variant === "sentence_lab_no_translation" ? "disabled" : undefined,
+  };
+}
+
 function focusRefs(focus: FocusItem[]): string[] {
   return uniqueValues(focus.map((item) => `${item.type}:${item.itemId}`));
 }
@@ -2314,6 +2508,8 @@ function isPriorUnitImageStep(step: LessonStep, unitIndex: number): boolean {
 function stepSignature(step: LessonStep): string {
   return [
     step.kind,
+    step.pedagogyVariant,
+    step.dictationMode,
     step.title,
     step.text,
     step.hanzi,
@@ -2328,6 +2524,8 @@ function stepSignature(step: LessonStep): string {
     step.correctImageId,
     step.target?.join("|"),
     step.targetParts?.join("|"),
+    step.acceptedTargetParts?.map((parts) => parts.join("+")).join("|"),
+    step.audioSequence?.join("|"),
     step.pairs?.map((pair) => `${pair.left}=${pair.right}`).join("|"),
     step.learnedRefs?.join("|"),
   ].filter(Boolean).join("::");
@@ -2348,6 +2546,9 @@ interface SupplementalStepOptions {
   sceneSelection?: ConversationSceneSelection;
   /** Lição atual: libera os motores de percepção pelo currículo já percorrido. */
   lessonId?: string;
+  practiceVariant?: "A" | "B" | "C";
+  /** Revisões de módulo preservam a matriz de cobertura autoral completa. */
+  enablePedagogyVariants?: boolean;
 }
 
 function supplementalStepsForStage(
@@ -2371,6 +2572,8 @@ function supplementalStepsForStage(
   // sempre o primeiro item do banco.
   const knownGlyphs = knownGlyphsFor(options);
   const drillSeed = drillSeedFor(options.lessonId, stageId);
+  const practiceVariant = options.practiceVariant ?? "A";
+  const enablePedagogyVariants = options.enablePedagogyVariants ?? true;
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
     if (result.some((candidate) => stepSignature(candidate) === stepSignature(step))) return;
@@ -2397,6 +2600,14 @@ function supplementalStepsForStage(
     if (focus[1]) push(makeIntroListenStep(focus[1]));
     push(makeComprehendStep(focus[0], focus));
   } else if (stageId === "recognition") {
+    // A primeira tentativa preserva o percurso autoral. As tentativas B/C
+    // introduzem a discriminação auditiva sem alterar o ciclo pós-conversa.
+    if (enablePedagogyVariants && practiceVariant !== "A") {
+      for (const [index, item] of focus.entries()) {
+        push(makeVariantAudioSameDifferentStep(item, focus, (index + practiceVariant.charCodeAt(0)) % 2 === 0));
+        if (result.length >= Math.min(2, targetCount)) break;
+      }
+    }
     // Imagem → hànzì/significado/pinyin: reconhecer o conceito concreto pela imagem.
     for (const item of focus) pushImage(item, 2);
     // Ouvido e sentido entram ANTES da bateria de reconhecimento: se ficassem
@@ -2419,6 +2630,17 @@ function supplementalStepsForStage(
     // ponte entre som e forma, e precisa vir antes de a montagem visual
     // consumir o orçamento.
     if (focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
+    const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
+    if (enablePedagogyVariants) {
+      if (practiceVariant === "B") {
+        push(makeSentenceLabStep(primary, focus, "sentence_lab_distractors"));
+        push(makeDragonDictationStep(primary, focus, "blocks"));
+      }
+      if (practiceVariant === "C") {
+        push(makeSentenceLabStep(primary, focus, "sentence_lab_audio"));
+        push(makeVariantOddOneOutStep([...focus, ...reviewFocus]));
+      }
+    }
     for (const item of focus) {
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeSentenceBuildStep(item, focus));
@@ -2427,6 +2649,15 @@ function supplementalStepsForStage(
       if (result.length >= targetCount) break;
     }
   } else if (stageId === "usage") {
+    const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
+    if (enablePedagogyVariants && practiceVariant === "B") {
+      const intention = makeDialogueChoiceStep(primary, focus);
+      push(intention ? { ...intention, pedagogyVariant: "meaning_intention_match" } : null);
+      push(makeVariantSpotErrorStep(primary));
+    }
+    if (enablePedagogyVariants && practiceVariant === "C") {
+      push(makeVariantSpotErrorStep(primary));
+    }
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
@@ -2440,6 +2671,16 @@ function supplementalStepsForStage(
     push(makeSpotErrorStep(knownGlyphs, drillSeed));
     push(makeOldPhraseReuseStep(focus));
   } else {
+    const combined = [...reviewFocus, ...focus];
+    const primary = combined.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? combined[0];
+    if (enablePedagogyVariants && practiceVariant === "B") {
+      push(makeDragonDictationStep(primary, combined, "pinyin"));
+      push(makeSentenceLabStep(primary, combined, "sentence_lab_no_translation"));
+    }
+    if (enablePedagogyVariants && practiceVariant === "C") {
+      push(makeDragonDictationStep(primary, combined, phaseOrder >= 6 ? "immersion" : "hanzi"));
+      push(makeSentenceLabStep(primary, combined, "sentence_lab_repair"));
+    }
     // Consolidação revisita imagens ANTIGAS (reviewFocus e núcleo) num modo diferente.
     for (const item of reviewFocus) pushImage(item, 2);
     for (const item of oldPhraseFocus([...focus, ...reviewFocus])) pushImage(item, 3);
@@ -2590,6 +2831,7 @@ function stepTextBlob(step: LessonStep): string {
     step.hanzi,
     step.answer,
     step.audioText,
+    ...(step.audioSequence ?? []),
     step.slowAudioText,
     step.prompt,
     step.sourceText,
@@ -2602,6 +2844,7 @@ function stepTextBlob(step: LessonStep): string {
     step.dialoguePrompt,
     step.target?.join(""),
     step.targetParts?.join(""),
+    ...(step.acceptedTargetParts ?? []).map((parts) => parts.join("")),
     ...(step.options ?? []),
     ...(step.bank ?? []),
     ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
@@ -2676,6 +2919,7 @@ function noveltyScoreBonus(lesson: Lesson, step: LessonStep, reviewFocus: FocusI
   if (step.kind === "listen_select" || (step.kind === "image_choice" && step.imageChoiceMode === "listen_and_choose_image")) {
     bonus += 15;
   }
+  if (step.pedagogyVariant) bonus += 28;
   return bonus;
 }
 
@@ -2723,7 +2967,8 @@ function generatedCandidatesFor(
   seenGlyphs?: ReadonlySet<string>,
   ownFocusGlyphs?: ReadonlySet<string>,
   sceneContext: ConversationSceneSelectionContext = {},
-  history?: readonly ConversationHistoryEntry[]
+  history?: readonly ConversationHistoryEntry[],
+  practiceVariant: "A" | "B" | "C" = "A"
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
@@ -2740,7 +2985,7 @@ function generatedCandidatesFor(
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = Math.max(4, profile.stageTargets[stageId] * 3);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id });
+    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id, practiceVariant, enablePedagogyVariants: !lesson.isReview });
     for (const step of generated) {
       candidates.push({
         step,
@@ -3012,6 +3257,10 @@ function ensureCoverage(
     if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
   };
 
+  if (!lesson.isReview) ensure((candidate) => Boolean(candidate.step.pedagogyVariant));
+  // Quando o vocabulário permite, cada rodada inclui também um jogo semântico
+  // (intenção, intruso ou detecção de erro), não apenas uma variação de áudio.
+  if (!lesson.isReview) ensure((candidate) => Boolean(candidate.step.pedagogyVariant?.startsWith("meaning_")));
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
   ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
   ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
@@ -3773,6 +4022,8 @@ function selectPostConversationBlueprints(
     if (picked.length >= ctx.bounds.max) return false;
     if (usedTypes.has(bp.type)) return false;
     const kind = postConversationStepKind(bp.type);
+    // A seleção principal deve variar a modalidade. Se não existir alternativa,
+    // o fallback abaixo ainda pode repetir um kind para cumprir o mínimo.
     if (usedKinds.has(kind) && !allowRepeatKind) return false;
     picked.push(bp);
     usedTypes.add(bp.type);
@@ -4144,6 +4395,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const reviewFocus = combinedReviewFocus(lesson, context);
   const errorFocus = recentErrorFocusItems(context.recentErrors);
   const profile = profileForLesson(lesson, focus);
+  const practiceVariant = practiceVariantForAttempt(context.attemptNumber);
   const seenGlyphs = seenGlyphsForPlanning(focus, reviewFocus, context);
   // Glifos que ESTA lição ensina (só o próprio foco, sem a revisão): composição
   // só é montada aqui se for do próprio conteúdo, ou em revisões.
@@ -4168,7 +4420,8 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       seenGlyphs,
       ownFocusGlyphs,
       sceneContext,
-      context.conversationHistory
+      context.conversationHistory,
+      practiceVariant
     ),
   ];
   const usedSignatures = new Set<string>();
@@ -4231,6 +4484,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
           : vocabulary.reusesPreviousVocabulary);
       return {
         ...candidate.step,
+        practiceVariant,
         objective: candidate.step.objective ?? stageObjectiveFor(stageId),
         exercises: candidate.step.exercises ?? [candidate.step.kind],
         introducesNewVocabulary: candidate.step.introducesNewVocabulary ?? vocabulary.introducesNewVocabulary,
@@ -4257,7 +4511,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
-  return withConversationLoop;
+  return withConversationLoop.map((step) => ({ ...step, practiceVariant }));
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
