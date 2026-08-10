@@ -18,6 +18,7 @@ import {
   type ImageChoiceMode,
   type VisualConceptId,
 } from "./visualVocabulary";
+import type { RepairDirection, RepairStrategy } from "./productionTasks";
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -48,7 +49,11 @@ export type StepKind =
   | "audio_discrimination"
   | "dictation"
   | "odd_one_out"
-  | "spot_error";
+  | "spot_error"
+  // ——— Motores de produção e sobrevivência (src/data/productionTasks.ts) ———
+  | "free_production"
+  | "transfer_task"
+  | "conversation_repair";
 
 export type {
   ConversationCharacter,
@@ -231,6 +236,33 @@ export interface LessonStep {
   // dictationMode já declarado acima (DictationMode inclui immersion).
   /** Modo imersão: velocidade natural e uma única reprodução. */
   singlePlayback?: boolean;
+  // ——— free_production / transfer_task: produzir sem apoio ———
+  /**
+   * Situação em pt-BR ("Peça duas águas."). Nunca contém hànzì nem pinyin:
+   * se contivesse, o exercício viraria cópia em vez de produção.
+   */
+  situationPt?: string;
+  /** Estrutura visível na transferência ("我要 ___") — nunca a resposta. */
+  patternPt?: string;
+  /** Frame de origem (src/data/productionTasks.ts), para relatório e SRS. */
+  productionFrameId?: string;
+  /** Frase-âncora já ensinada que sustenta a transferência. */
+  transferAnchorHanzi?: string;
+  transferAnchorPinyin?: string;
+  transferAnchorPt?: string;
+  /** A frase alvo não existe no currículo: acertar exige aplicar o padrão. */
+  isNovelCombination?: boolean;
+  // ——— conversation_repair: continuar depois do mal-entendido ———
+  /** Fala do personagem que trava a conversa (你说什么？/我听不懂). */
+  repairNpcHanzi?: string;
+  repairNpcPinyin?: string;
+  repairNpcPt?: string;
+  /** Quem não entendeu quem. */
+  repairDirection?: RepairDirection;
+  /** Estratégia correta nesta rodada. */
+  repairStrategy?: RepairStrategy;
+  /** Estratégias oferecidas na 1ª fase (a certa incluída). */
+  repairStrategyOptions?: RepairStrategy[];
 }
 
 /** Tipos de tarefa da fase Pós-Conversa (rótulos pedagógicos). */
@@ -250,7 +282,11 @@ export type PostConversationTaskType =
   // ——— Motores de percepção na fase pós-conversa ———
   | "sound_contrast"
   | "write_heard"
-  | "group_meaning";
+  | "group_meaning"
+  // ——— Motores de produção na fase pós-conversa ———
+  | "produce_free"
+  | "transfer_context"
+  | "repair_recover";
 
 /** Rótulos curtos para UI e relatórios. */
 export const POST_CONVERSATION_TASK_LABELS: Record<PostConversationTaskType, string> = {
@@ -269,6 +305,9 @@ export const POST_CONVERSATION_TASK_LABELS: Record<PostConversationTaskType, str
   sound_contrast: "Estes dois sons são iguais?",
   write_heard: "Escreva o que você ouviu.",
   group_meaning: "Qual não pertence ao grupo?",
+  produce_free: "Diga isto sozinho, sem alternativas.",
+  transfer_context: "Mesma estrutura, situação nova.",
+  repair_recover: "A conversa travou. Recupere.",
 };
 
 export type Skill = "som" | "fala" | "hanzi" | "leitura" | "sistema";

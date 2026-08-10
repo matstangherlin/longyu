@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f6ddd3471971377ac0e32366eb416daa3c41b7da |
+| Commit | 957ad3d9187f8646517b24d7fcf581beb36f2fff |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T03:14:45.037Z |
+| Gerado em | 2026-08-10T05:23:39.249Z |
 | Lições | 122 |
-| Hash da Jornada | cc3d91b0db31 |
+| Hash da Jornada | dd19e9f99101 |
 
 ## Resumo
 
@@ -19,11 +19,11 @@
 | Média de intervenções | 2.76 |
 | Número de ramificações | 105 |
 | Número de finais | 41 |
-| Vocabulário total exibido (refs únicas no plano real) | 83 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 83 |
+| Vocabulário total exibido (refs únicas no plano real) | 80 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 80 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 11.92 |
+| Média de reutilizações por ref exibida | 13.49 |
 
 ## Cenas mais curtas
 
@@ -60,8 +60,8 @@
 | como-se-chama | 7 |
 | perguntando-se-esta-bem | 7 |
 | fale-de-novo | 7 |
+| pedir-agua | 7 |
 | agradecendo | 6 |
-| sala-de-aula | 6 |
 
 ## Cenas por cenário
 
@@ -133,4 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:0ee07b442cd8c2d1 -->
+<!-- integridade:c9d0418b6dde7a56 -->

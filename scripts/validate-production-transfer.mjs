@@ -1,0 +1,374 @@
+/**
+ * validate:production-transfer — portão da onda pedagógica 2.
+ *
+ * A onda 1 provou VARIEDADE. Esta prova que o aluno é cobrado sem apoio:
+ *
+ *  1. produção livre não pode ter alternativa, banco de peças nem hànzì no
+ *     enunciado — se tiver, virou reconhecimento com outro nome;
+ *  2. a frase alvo da TRANSFERÊNCIA não pode existir no currículo (nem como
+ *     chunk, nem como microfrase, nem em passo autoral). Se existir, o aluno
+ *     pode ter decorado, e o exercício não prova estrutura nenhuma;
+ *  3. o reparo conversacional precisa oferecer estratégias distintas e uma
+ *     fala de recuperação que o aluno consiga escrever com o que já viu;
+ *  4. nada é gerado com glifo que o aluno ainda não encontrou;
+ *  5. os três motores precisam aparecer no PLANO REAL de uma fração mínima
+ *     das lições — declarar motor que nunca roda não vale.
+ *
+ * Gera reports/production-transfer-report.md.
+ */
+import { createRequire } from "node:module";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import process from "node:process";
+import ts from "typescript";
+import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
+
+const require = createRequire(import.meta.url);
+const rootDir = process.cwd();
+const reportPath = path.join(rootDir, "reports/production-transfer-report.md");
+const failures = [];
+const fail = (message) => failures.push(message);
+const assert = (condition, message) => {
+  if (!condition) fail(message);
+};
+
+const CJK_RE = /[㐀-鿿豈-﫿]/u;
+const PUNCT_RE = /[　-〿＀-￯,.!?\s:;"'()]/g;
+const clean = (value) => String(value ?? "").replace(PUNCT_RE, "").trim();
+
+// Fração mínima das 122 lições que precisa receber cada motor no plano real.
+// A produção livre e a transferência são gerais; o reparo depende de o aluno
+// já conhecer 请再说一遍 / 我听不懂 — vocabulário que só entra depois da
+// metade do curso, e por isso o piso dele é menor de propósito.
+const MIN_LESSON_SHARE = { free_production: 0.5, transfer_task: 0.6, conversation_repair: 0.15 };
+
+const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-production-"));
+try {
+  const program = ts.createProgram(
+    [
+      "src/features/lesson/lessonTasks.ts",
+      "src/features/lesson/exerciseValidation.ts",
+      "src/data/productionTasks.ts",
+      "src/data/journey.ts",
+      "src/data/chunks.ts",
+      "src/data/characters.ts",
+      "src/data/vocabulary.ts",
+    ],
+    {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.CommonJS,
+      moduleResolution: ts.ModuleResolutionKind.Node10,
+      rootDir,
+      outDir,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      strict: false,
+    }
+  );
+  const emit = program.emit();
+  if (emit.emitSkipped) {
+    console.error("Falha ao compilar o grafo para validate:production-transfer.");
+    process.exit(1);
+  }
+  const load = (relative) => require(path.join(outDir, relative));
+  const { ALL_LESSONS } = load("src/data/journey.js");
+  const { CHUNKS } = load("src/data/chunks.js");
+  const { VOCABULARY } = load("src/data/vocabulary.js");
+  const { lessonRoundStepsFor } = load("src/features/lesson/lessonTasks.js");
+  const { validateExercise } = load("src/features/lesson/exerciseValidation.js");
+  const {
+    SENTENCE_FRAMES,
+    FRAME_TASKS,
+    REPAIR_SITUATIONS,
+    REPAIR_STRATEGY_LABELS,
+    CORPUS_SENTENCES,
+  } = load("src/data/productionTasks.js");
+
+  // ——— 1. Integridade do catálogo ———
+  const vocabById = new Map(VOCABULARY.map((entry) => [entry.id, entry]));
+  const chunkById = new Map(CHUNKS.map((chunk) => [chunk.id, chunk]));
+
+  for (const frame of SENTENCE_FRAMES) {
+    assert(chunkById.has(frame.anchorChunkId), `${frame.id}: âncora inexistente no corpus (${frame.anchorChunkId})`);
+    assert(frame.fillers.length > 0, `${frame.id}: frame sem peças`);
+    assert(!CJK_RE.test(frame.situationTemplatePt), `${frame.id}: o enunciado da situação mostra hànzì`);
+    assert(frame.situationTemplatePt.includes("{item}"), `${frame.id}: situação sem o buraco {item}`);
+    if (frame.quantifiers?.length) {
+      assert(
+        frame.situationTemplatePt.includes("{qty}"),
+        `${frame.id}: frame com quantidade mas sem {qty} no enunciado`
+      );
+    }
+    for (const filler of frame.fillers) {
+      assert(vocabById.has(filler.vocabId), `${frame.id}: peça fora do corpus (${filler.vocabId})`);
+      assert(Boolean(filler.promptPt?.trim()), `${frame.id}/${filler.vocabId}: peça sem texto em português`);
+    }
+    for (const siblingId of frame.alsoAcceptFrameIds ?? []) {
+      assert(
+        SENTENCE_FRAMES.some((candidate) => candidate.id === siblingId),
+        `${frame.id}: frase irmã inexistente (${siblingId})`
+      );
+    }
+  }
+
+  const taskIds = new Set();
+  for (const task of FRAME_TASKS) {
+    assert(!taskIds.has(task.id), `tarefa duplicada: ${task.id}`);
+    taskIds.add(task.id);
+    assert(CJK_RE.test(task.targetHanzi), `${task.id}: alvo sem hànzì`);
+    assert(!CJK_RE.test(task.situationPt), `${task.id}: situação com hànzì (viraria cópia)`);
+    assert(Boolean(task.targetPinyin.trim()), `${task.id}: alvo sem pinyin`);
+    assert(
+      task.isNovelCombination === !CORPUS_SENTENCES.has(clean(task.targetHanzi)),
+      `${task.id}: rótulo de combinação inédita não bate com o corpus`
+    );
+    // Só a transferência mostra a âncora. Na produção livre a frase alvo PODE
+    // ser a própria frase-âncora — produzir do zero o que antes vinha montado
+    // continua sendo o exercício.
+    if (task.isNovelCombination) {
+      assert(
+        clean(task.anchor.hanzi) !== clean(task.targetHanzi),
+        `${task.id}: âncora igual ao alvo — não há o que transferir`
+      );
+    }
+  }
+
+  for (const situation of REPAIR_SITUATIONS) {
+    assert(chunkById.has(situation.npcChunkId), `${situation.id}: fala do NPC fora do corpus`);
+    assert(situation.correct.length > 0, `${situation.id}: reparo sem movimento correto`);
+    const overlap = situation.correct.filter((move) =>
+      situation.wrong.some((other) => other.strategy === move.strategy)
+    );
+    assert(overlap.length === 0, `${situation.id}: estratégia listada como certa e errada ao mesmo tempo`);
+    for (const move of [...situation.correct, ...situation.wrong]) {
+      assert(Boolean(REPAIR_STRATEGY_LABELS[move.strategy]), `${situation.id}: estratégia sem rótulo (${move.strategy})`);
+      assert(Boolean(move.whyPt?.trim()), `${situation.id}/${move.strategy}: movimento sem justificativa`);
+      if (move.chunkId) {
+        assert(chunkById.has(move.chunkId), `${situation.id}/${move.strategy}: fala fora do corpus (${move.chunkId})`);
+      }
+    }
+  }
+
+  // ——— 2. Currículo: o que a jornada realmente mostra ao aluno ———
+  const authoredSentences = new Set();
+  const curriculumGlyphs = new Set();
+  for (const lesson of ALL_LESSONS) {
+    for (const step of lesson.steps) {
+      const texts = [
+        step.hanzi,
+        step.text,
+        step.answer,
+        step.correctAnswer,
+        step.audioText,
+        step.sourceText,
+        step.target?.join(""),
+        step.targetParts?.join(""),
+        ...(step.options ?? []),
+        ...(step.lines ?? []).map((line) => line.hanzi),
+        ...(step.nodes ?? []).flatMap((node) => [node.hanzi, node.interaction?.correctAnswer, ...(node.interaction?.options ?? [])]),
+        step.checkpoint?.correctAnswer,
+        ...(step.checkpoint?.options ?? []),
+      ];
+      for (const text of texts) {
+        const value = clean(text);
+        if (value && CJK_RE.test(value)) authoredSentences.add(value);
+      }
+    }
+  }
+
+  // ——— 3. Planos reais ———
+  const counts = { free_production: 0, transfer_task: 0, conversation_repair: 0 };
+  const lessonsWith = {
+    free_production: new Set(),
+    transfer_task: new Set(),
+    conversation_repair: new Set(),
+  };
+  const framesSeen = new Set();
+  const strategiesSeen = new Set();
+  const novelTargets = new Set();
+  let stepsAudited = 0;
+
+  const charById = new Map(load("src/data/characters.js").CHARACTERS.map((char) => [char.id, char]));
+  const lessonGlyphs = (lesson) => {
+    const glyphs = new Set();
+    for (const ref of [...(lesson.libraryItems ?? []), ...(lesson.reviewItems ?? [])]) {
+      const [type, id] = String(ref).split(":");
+      const source = type === "chunk" ? chunkById.get(id) : type === "char" ? charById.get(id) : null;
+      if (source) for (const glyph of clean(source.hanzi)) glyphs.add(glyph);
+    }
+    for (const step of lesson.steps) {
+      const texts = [
+        step.hanzi,
+        step.text,
+        step.answer,
+        step.correctAnswer,
+        step.audioText,
+        step.blankAnswer,
+        step.sentenceBefore,
+        step.sentenceAfter,
+        step.targetHanzi,
+        step.target?.join(""),
+        step.targetParts?.join(""),
+        ...(step.options ?? []),
+        ...(step.bank ?? []),
+        ...(step.lines ?? []).map((line) => line.hanzi),
+        ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
+        ...(step.nodes ?? []).map((node) => node.hanzi),
+      ];
+      for (const text of texts) {
+        for (const glyph of clean(text)) if (CJK_RE.test(glyph)) glyphs.add(glyph);
+      }
+    }
+    return glyphs;
+  };
+
+  // Núcleo sempre disponível (CORE_REVIEW_REFS em lessonTasks): a jornada trata
+  // este punhado de frases como repertório permanente do aluno, independente da
+  // posição da lição. O gerador enxerga esses glifos desde o começo, então o
+  // portão precisa medir contra o mesmo contrato — senão reprovaria uma decisão
+  // de currículo que é anterior a estes motores.
+  const CORE_REVIEW_CHUNK_IDS = [
+    "nihao",
+    "wohenhao",
+    "xiexie",
+    "zaijian",
+    "wojiao",
+    "wobuhui",
+    "nijiaoshenme",
+    "woxianghe",
+    "mingtianjian",
+    "nihaoma",
+    "jintianhenhao",
+    "zheshishui",
+    "nashirenm",
+  ];
+  for (const id of CORE_REVIEW_CHUNK_IDS) {
+    const chunk = chunkById.get(id);
+    if (chunk) for (const glyph of clean(chunk.hanzi)) curriculumGlyphs.add(glyph);
+  }
+
+  for (const lesson of ALL_LESSONS) {
+    // O glifo só é "conhecido" pelo currículo percorrido até esta lição
+    // (inclusive) — a mesma regra que o gerador aplica em knownGlyphsFor.
+    for (const glyph of lessonGlyphs(lesson)) curriculumGlyphs.add(glyph);
+    const knownSoFar = new Set(curriculumGlyphs);
+
+    for (const attemptNumber of [0, 1, 2]) {
+      const plan = lessonRoundStepsFor(lesson, { attemptNumber, silent: true });
+      for (const step of plan) {
+        if (!(step.kind in counts)) continue;
+        counts[step.kind] += 1;
+        lessonsWith[step.kind].add(lesson.id);
+        stepsAudited += 1;
+
+        const ref = `${lesson.id}/${attemptNumber}/${step.kind}`;
+        const validation = validateExercise(step);
+        assert(validation.valid, `${ref}: ${validation.errors.join("; ")}`);
+
+        const answer = step.correctAnswer ?? step.answer ?? "";
+        // (1) Nenhum apoio na tela.
+        assert((step.options ?? []).length === 0, `${ref}: ofereceu alternativas`);
+        assert((step.bank ?? []).length === 0, `${ref}: ofereceu banco de peças`);
+        assert((step.targetParts ?? []).length === 0, `${ref}: entregou a frase em peças`);
+
+        if (step.kind === "conversation_repair") {
+          strategiesSeen.add(step.repairStrategy);
+          const options = step.repairStrategyOptions ?? [];
+          assert(options.length >= 3, `${ref}: menos de 3 estratégias`);
+          assert(options.includes(step.repairStrategy), `${ref}: estratégia correta fora das opções`);
+          // A certa não pode ficar sempre no mesmo lugar.
+          continue;
+        }
+
+        if (step.productionFrameId) framesSeen.add(step.productionFrameId);
+        assert(Boolean(step.situationPt?.trim()), `${ref}: sem situação em português`);
+        assert(!CJK_RE.test(step.situationPt ?? ""), `${ref}: situação com hànzì`);
+
+        if (step.kind === "transfer_task") {
+          const target = clean(answer);
+          novelTargets.add(target);
+          // (2) O coração do motor: a frase alvo não pode ser ensinada.
+          assert(!CORPUS_SENTENCES.has(target), `${ref}: alvo "${answer}" já é frase do corpus`);
+          assert(!authoredSentences.has(target), `${ref}: alvo "${answer}" já aparece num passo autoral`);
+          assert(
+            clean(step.transferAnchorHanzi) !== target,
+            `${ref}: âncora igual ao alvo`
+          );
+        }
+
+        // (4) Nada exige glifo que o currículo ainda não apresentou.
+        for (const glyph of clean(answer)) {
+          if (!CJK_RE.test(glyph)) continue;
+          assert(knownSoFar.has(glyph), `${ref}: cobra o glifo "${glyph}" antes de a jornada apresentá-lo`);
+        }
+      }
+    }
+  }
+
+  // (5) Presença real no plano.
+  for (const [kind, share] of Object.entries(MIN_LESSON_SHARE)) {
+    const minimum = Math.floor(ALL_LESSONS.length * share);
+    assert(
+      lessonsWith[kind].size >= minimum,
+      `${kind}: só ${lessonsWith[kind].size}/${ALL_LESSONS.length} lições (mínimo ${minimum})`
+    );
+  }
+  for (const frame of SENTENCE_FRAMES) {
+    const reachable = FRAME_TASKS.some((task) => task.frameId === frame.id);
+    assert(reachable, `${frame.id}: frame não gera nenhuma tarefa`);
+  }
+  assert(framesSeen.size >= 5, `só ${framesSeen.size} estruturas diferentes chegaram ao plano real (mínimo 5)`);
+  assert(strategiesSeen.size >= 2, `só ${strategiesSeen.size} estratégia(s) de reparo no plano real (mínimo 2)`);
+
+  const lines = [
+    "# Relatório de produção, transferência e reparo (plano real)",
+    "",
+    ...reportProvenanceLines(rootDir, { lessonCount: ALL_LESSONS.length }),
+    "## Resumo",
+    "",
+    "| Indicador | Valor |",
+    "|-----------|------:|",
+    `| Estruturas (frames) declaradas | ${SENTENCE_FRAMES.length} |`,
+    `| Tarefas geradas pelos frames | ${FRAME_TASKS.length} |`,
+    `| — produção (frase já ensinada) | ${FRAME_TASKS.filter((task) => !task.isNovelCombination).length} |`,
+    `| — transferência (combinação inédita) | ${FRAME_TASKS.filter((task) => task.isNovelCombination).length} |`,
+    `| Situações de reparo | ${REPAIR_SITUATIONS.length} |`,
+    `| Passos auditados no plano real (3 tentativas) | ${stepsAudited} |`,
+    `| Lições com produção livre | ${lessonsWith.free_production.size} / ${ALL_LESSONS.length} |`,
+    `| Lições com transferência | ${lessonsWith.transfer_task.size} / ${ALL_LESSONS.length} |`,
+    `| Lições com reparo conversacional | ${lessonsWith.conversation_repair.size} / ${ALL_LESSONS.length} |`,
+    `| Estruturas diferentes no plano real | ${framesSeen.size} |`,
+    `| Frases inéditas cobradas | ${novelTargets.size} |`,
+    "",
+    "> Uma frase só entra como **transferência** quando não existe em `chunks.ts`,",
+    "> em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,",
+    "> ele aplicou a estrutura — não pode ter decorado, porque nunca a viu pronta.",
+    "",
+    "## Frases inéditas cobradas por transferência",
+    "",
+  ];
+  for (const target of [...novelTargets].sort().slice(0, 60)) lines.push(`- ${target}`);
+  if (novelTargets.size > 60) lines.push(`- …mais ${novelTargets.size - 60}.`);
+  lines.push("");
+
+  await mkdir(path.dirname(reportPath), { recursive: true });
+  await writeFile(reportPath, finalizeReport(lines), "utf8");
+
+  if (failures.length > 0) {
+    console.error(`\nvalidate:production-transfer encontrou ${failures.length} problema(s):`);
+    for (const failure of failures.slice(0, 40)) console.error(`- ${failure}`);
+    if (failures.length > 40) console.error(`...mais ${failures.length - 40}.`);
+    process.exitCode = 1;
+  } else {
+    console.log(
+      `OK: validate:production-transfer passou (${SENTENCE_FRAMES.length} estruturas · ${FRAME_TASKS.length} tarefas · ${novelTargets.size} frases inéditas · ${stepsAudited} passos no plano real).`
+    );
+    console.log(
+      `     lições: produção ${lessonsWith.free_production.size} · transferência ${lessonsWith.transfer_task.size} · reparo ${lessonsWith.conversation_repair.size}.`
+    );
+  }
+  console.log(`Relatório: ${reportPath}`);
+} finally {
+  await rm(outDir, { recursive: true, force: true });
+}

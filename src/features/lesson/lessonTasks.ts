@@ -7,6 +7,7 @@ import {
   type LessonStage,
   type LessonStageId,
   type LessonStep,
+  type PedagogyVariant,
   type PostConversationTaskType,
   POST_CONVERSATION_TASK_LABELS,
   type Skill,
@@ -63,6 +64,12 @@ import {
   oddOneOutSetsFor,
   spotErrorDrillsFor,
 } from "../../data/perceptionDrills";
+import {
+  productionTasksFor,
+  repairTasksFor,
+  transferTasksFor,
+  type FrameTask,
+} from "../../data/productionTasks";
 import {
   defaultVisualDistractors,
   visualByCharId,
@@ -132,6 +139,9 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "dictation",
   "odd_one_out",
   "spot_error",
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -453,6 +463,9 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "produce",
     "comprehend",
     "spot_error",
+    "free_production",
+    "transfer_task",
+    "conversation_repair",
   ],
   post_conversation: [
     "comprehend",
@@ -465,6 +478,8 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "hanzi_build",
     "translation_build",
     "produce",
+    "free_production",
+    "conversation_repair",
   ],
   consolidation: [
     "listen",
@@ -489,6 +504,8 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "dictation",
     "odd_one_out",
     "spot_error",
+    "free_production",
+    "transfer_task",
   ],
 };
 
@@ -605,6 +622,12 @@ interface PracticeCandidate {
   generated: boolean;
   families: ExerciseFamily[];
   score: number;
+  /**
+   * Entrou por ensureCoverage (visual obrigatório, HanziBuilder mínimo,
+   * variante pedagógica...). O corte final não pode derrubá-lo: a garantia
+   * de cobertura existia justamente para ele estar no plano.
+   */
+  ensured?: boolean;
 }
 
 interface LessonPracticeProfile {
@@ -650,6 +673,10 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   dictation: ["audio", "assembly", "hanzi"],
   odd_one_out: ["meaning", "recognition"],
   spot_error: ["usage", "assembly"],
+  // Produção sem apoio é montagem + uso, mas sem banco: pesa como as duas.
+  free_production: ["assembly", "usage"],
+  transfer_task: ["assembly", "usage", "review"],
+  conversation_repair: ["usage", "review"],
 };
 
 const WEIGHTS_BY_SKILL: Record<Skill | "review", Partial<Record<ExerciseFamily, number>>> = {
@@ -1573,6 +1600,166 @@ function makeSpotErrorStep(knownGlyphs: ReadonlySet<string>, seed: number): Less
     correctAnswer: drill.right.hanzi,
     explanation: `${drill.right.hanzi} (${drill.right.pinyin}) — ${drill.whyPt}`,
     isNoHint: true,
+  };
+}
+
+// ————————————————————————————————————————————————————————————————
+// Produção sem apoio, transferência e reparo (src/data/productionTasks.ts).
+//
+// Os três motores da onda 2. O que eles têm em comum é o que foi TIRADO:
+// não há banco de peças, não há alternativas e o enunciado não mostra hànzì.
+// O aluno tem que trazer a frase de dentro.
+// ————————————————————————————————————————————————————————————————
+
+/**
+ * Frases que o currículo autoral já mostra ao aluno. A transferência precisa
+ * disso para provar o que promete: se a frase alvo aparece em qualquer passo
+ * escrito à mão, ela não é combinação inédita — é memória.
+ */
+let authoredSentencesCache: Set<string> | null = null;
+function authoredCurriculumSentences(): ReadonlySet<string> {
+  if (authoredSentencesCache) return authoredSentencesCache;
+  const sentences = new Set<string>();
+  const add = (value: string | undefined) => {
+    const clean = cleanHanzi(value);
+    if (clean && CJK_RE.test(clean)) sentences.add(clean);
+  };
+  for (const lesson of ALL_LESSONS) {
+    for (const step of lesson.steps) {
+      add(step.hanzi);
+      add(step.text);
+      add(step.answer);
+      add(step.correctAnswer);
+      add(step.audioText);
+      add(step.sourceText);
+      add(step.target?.join(""));
+      add(step.targetParts?.join(""));
+      for (const option of step.options ?? []) add(option);
+      for (const line of step.lines ?? []) add(line.hanzi);
+      for (const node of step.nodes ?? []) {
+        add(node.hanzi);
+        add(node.interaction?.correctAnswer);
+        for (const option of node.interaction?.options ?? []) add(option);
+      }
+      add(step.checkpoint?.correctAnswer);
+      for (const option of step.checkpoint?.options ?? []) add(option);
+    }
+  }
+  authoredSentencesCache = sentences;
+  return sentences;
+}
+
+function frameTaskStepBase(task: FrameTask) {
+  return {
+    situationPt: task.situationPt,
+    productionFrameId: task.frameId,
+    correctAnswer: task.targetHanzi,
+    answer: task.targetHanzi,
+    pinyin: task.targetPinyin,
+    accepts: uniqueValues([task.targetHanzi, ...task.accepts]),
+    isNoHint: true,
+    helpMode: "disabled" as const,
+  };
+}
+
+/**
+ * Filtra tarefas que usam uma palavra específica. É assim que a produção e a
+ * transferência entram no loop pós-conversa: a palavra que acabou de aparecer
+ * volta dentro de uma frase que o aluno precisa produzir inteira.
+ */
+function frameTasksUsing(tasks: readonly FrameTask[], item: FocusItem | undefined): FrameTask[] {
+  const needle = cleanHanzi(item?.hanzi);
+  if (!needle) return [...tasks];
+  const matching = tasks.filter((task) => cleanHanzi(task.targetHanzi).includes(needle));
+  return matching.length > 0 ? matching : [];
+}
+
+/**
+ * Produção livre: só a situação em português. Sem peças, sem alternativas,
+ * sem a frase na tela. É o único formato em que o app não pode ser resolvido
+ * por eliminação.
+ */
+function makeFreeProductionStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  usingItem?: FocusItem
+): LessonStep | null {
+  const pool = productionTasksFor(knownGlyphs);
+  const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
+  if (tasks.length === 0) return null;
+  const task = tasks[seed % tasks.length];
+  return {
+    kind: "free_production",
+    title: "Produza você",
+    patternPt: task.patternPt,
+    ...frameTaskStepBase(task),
+    explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
+  };
+}
+
+/**
+ * Transferência: o app mostra a frase-âncora já ensinada e pede outra
+ * combinação da MESMA estrutura — uma que o currículo nunca mostrou. Acertar
+ * aqui só é possível aplicando o padrão.
+ */
+function makeTransferStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  usingItem?: FocusItem
+): LessonStep | null {
+  const pool = transferTasksFor(knownGlyphs, { extraTaughtSentences: authoredCurriculumSentences() });
+  const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
+  if (tasks.length === 0) return null;
+  const task = tasks[seed % tasks.length];
+  return {
+    kind: "transfer_task",
+    title: "Mesma estrutura, situação nova",
+    patternPt: task.patternPt,
+    transferAnchorHanzi: task.anchor.hanzi,
+    transferAnchorPinyin: task.anchor.pinyin,
+    transferAnchorPt: task.anchor.meaningPt,
+    isNovelCombination: true,
+    ...frameTaskStepBase(task),
+    explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Você nunca viu esta frase pronta: montou pela estrutura.`,
+  };
+}
+
+/**
+ * Reparo conversacional: o personagem não entendeu (ou o aluno não entendeu).
+ * Primeiro o aluno escolhe o MOVIMENTO (repetir, simplificar, pedir de novo,
+ * assumir que não entendeu); depois produz a fala. Saber continuar quando a
+ * comunicação falha é parte de falar a língua.
+ */
+function makeConversationRepairStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  utterance?: FocusItem
+): LessonStep | null {
+  const clean = cleanHanzi(utterance?.hanzi);
+  const core = clean.length > 2 ? [...clean].slice(-2).join("") : clean;
+  const tasks = repairTasksFor(knownGlyphs, {
+    utterance: clean && utterance?.pinyin ? { hanzi: `${clean}。`, pinyin: utterance.pinyin } : undefined,
+    utteranceCore: core && core !== clean ? { hanzi: `${core}。`, pinyin: core } : undefined,
+  });
+  if (tasks.length === 0) return null;
+  const task = tasks[seed % tasks.length];
+  return {
+    kind: "conversation_repair",
+    title: "A conversa travou",
+    prompt: task.promptPt,
+    repairNpcHanzi: task.npc.hanzi,
+    repairNpcPinyin: task.npc.pinyin,
+    repairNpcPt: task.npc.meaningPt,
+    repairDirection: task.direction,
+    repairStrategy: task.strategy,
+    repairStrategyOptions: task.strategyOptions,
+    correctAnswer: task.targetHanzi,
+    answer: task.targetHanzi,
+    pinyin: task.targetPinyin,
+    accepts: uniqueValues([task.targetHanzi, ...task.accepts]),
+    explanation: task.whyPt,
+    isNoHint: true,
+    helpMode: "disabled",
   };
 }
 
@@ -2662,13 +2849,19 @@ function supplementalStepsForStage(
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
     push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
+    // Julgar estrutura, produzir sozinho e sobreviver ao mal-entendido entram
+    // antes da bateria de escolha. Quando ficavam no fim, o orçamento do
+    // estágio já tinha acabado e o "uso" voltava a ser escolher alternativa.
+    // A ordem é pedagógica: reconhecer qual frase funciona → montá-la sozinho
+    // → continuar quando o outro não entende.
+    push(makeSpotErrorStep(knownGlyphs, drillSeed));
+    push(makeFreeProductionStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0) * 5));
+    push(makeConversationRepairStep(knownGlyphs, drillSeed + practiceVariant.charCodeAt(0), primary));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
-    // Julgar estrutura é uso, não reconhecimento: entra depois do diálogo.
-    push(makeSpotErrorStep(knownGlyphs, drillSeed));
     push(makeOldPhraseReuseStep(focus));
   } else {
     const combined = [...reviewFocus, ...focus];
@@ -2690,6 +2883,14 @@ function supplementalStepsForStage(
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed + 1));
     push(makeOddOneOutStep(knownGlyphs, drillSeed + 1));
     push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
+    // Consolidar é provar que o padrão saiu da lição: a transferência cobra
+    // uma combinação que o currículo nunca mostrou. E cada rodada A/B/C cobra
+    // uma frase inédita diferente — sem o deslocamento por variante, refazer a
+    // lição repetiria a mesma transferência e ela viraria frase decorada.
+    const variantSeed = drillSeed + 1 + practiceVariant.charCodeAt(0) * 7;
+    push(makeTransferStep(knownGlyphs, variantSeed));
+    push(makeFreeProductionStep(knownGlyphs, variantSeed));
+    push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection));
     for (const item of [...reviewFocus, ...focus]) {
       push(makeComprehendStep(item, [...reviewFocus, ...focus]));
@@ -2877,6 +3078,12 @@ const PRODUCTION_BONUS_KINDS: ReadonlySet<StepKind> = new Set([
   "hanzi_build",
   "fill_blank",
   "write",
+  // Sem banco e sem alternativas: é a forma mais exigente de produção que o
+  // app tem. Se não pontuasse como produção, perderia o slot justamente para
+  // os exercícios que ela veio substituir.
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ]);
 const REAL_SENTENCE_KINDS: ReadonlySet<StepKind> = new Set([
   "produce",
@@ -2984,7 +3191,11 @@ function generatedCandidatesFor(
   };
   const candidates: PracticeCandidate[] = [];
   for (const stageId of LESSON_STAGE_ORDER) {
-    const target = Math.max(4, profile.stageTargets[stageId] * 3);
+    // Pool de candidatos, não tamanho do plano: quanto maior, mais escolha o
+    // seletor tem. Com os motores da onda 2 disputando as mesmas vagas, um
+    // teto apertado deixava o gerador parar antes de produzir HanziBuilder e
+    // exercício visual — e a garantia de cobertura não tinha o que garantir.
+    const target = Math.max(8, profile.stageTargets[stageId] * 4);
     const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id, practiceVariant, enablePedagogyVariants: !lesson.isReview });
     for (const step of generated) {
       candidates.push({
@@ -3183,7 +3394,8 @@ function replaceLowestIfNeeded(
   selected: PracticeCandidate[],
   candidate: PracticeCandidate,
   profile: LessonPracticeProfile,
-  usedSignatures: Set<string>
+  usedSignatures: Set<string>,
+  protect = false
 ) {
   const signature = stepSignature(candidate.step);
   if (usedSignatures.has(signature)) return;
@@ -3202,18 +3414,18 @@ function replaceLowestIfNeeded(
   }
 
   if (selected.length < profile.targetCount) {
-    selected.push(candidate);
+    selected.push(protect ? { ...candidate, ensured: true } : candidate);
     usedSignatures.add(signature);
     return;
   }
 
   const replaceIndex = selected
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => item.stageId === candidate.stageId || item.generated)
+    .filter(({ item }) => !item.ensured && (item.stageId === candidate.stageId || item.generated))
     .sort((a, b) => a.item.score - b.item.score)[0]?.index;
   if (replaceIndex === undefined) return;
   usedSignatures.delete(stepSignature(selected[replaceIndex].step));
-  selected[replaceIndex] = candidate;
+  selected[replaceIndex] = protect ? { ...candidate, ensured: true } : candidate;
   usedSignatures.add(signature);
 }
 
@@ -3227,25 +3439,47 @@ function ensureCoverage(
   errorFocus: FocusItem[],
   usedSignatures: Set<string>
 ) {
-  const ensure = (predicate: (candidate: PracticeCandidate) => boolean) => {
-    if (selected.some(predicate)) return;
+  // "Já está coberto" precisa também PROTEGER o passo que cobre. Sem isto, a
+  // garantia valia só até a próxima chamada: um ensure posterior derrubava o
+  // exercício visual (ou o HanziBuilder) que este acabara de confirmar, e a
+  // lição terminava sem o eixo que a regra exigia.
+  const protectExisting = (predicate: (candidate: PracticeCandidate) => boolean, count = 1) => {
+    let protectedCount = 0;
+    for (const [index, candidate] of selected.entries()) {
+      if (protectedCount >= count) break;
+      if (!predicate(candidate) || candidate.ensured) continue;
+      selected[index] = { ...candidate, ensured: true };
+      protectedCount += 1;
+    }
+  };
+
+  // `protect` só é usado nas garantias ESTREITAS (um tipo de exercício
+  // específico: visual, HanziBuilder, variante). As garantias largas de
+  // estágio/família continuam substituíveis — protegê-las travaria o próprio
+  // ensureCoverage, que precisa de alguém para trocar.
+  const ensure = (predicate: (candidate: PracticeCandidate) => boolean, protect = false) => {
+    if (selected.some(predicate)) {
+      if (protect) protectExisting(predicate);
+      return;
+    }
     const candidate = candidates
       .filter(predicate)
       .filter((item) => !usedSignatures.has(stepSignature(item.step)))
       .sort((a, b) => b.score - a.score)[0];
-    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+    if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, protect);
   };
 
   // Garante ao menos `count` candidatos que casam com o predicado (respeitando
   // os tetos por tipo dentro de replaceLowestIfNeeded).
-  const ensureCount = (predicate: (candidate: PracticeCandidate) => boolean, count: number) => {
+  const ensureCount = (predicate: (candidate: PracticeCandidate) => boolean, count: number, protect = false) => {
+    if (protect) protectExisting(predicate, count);
     const pool = candidates
       .filter(predicate)
       .filter((item) => !usedSignatures.has(stepSignature(item.step)))
       .sort((a, b) => b.score - a.score);
     for (const candidate of pool) {
       if (selected.filter(predicate).length >= count) break;
-      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
+      replaceLowestIfNeeded(selected, candidate, profile, usedSignatures, protect);
     }
   };
 
@@ -3257,10 +3491,37 @@ function ensureCoverage(
     if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
   };
 
-  if (!lesson.isReview) ensure((candidate) => Boolean(candidate.step.pedagogyVariant));
+  if (!lesson.isReview) ensure((candidate) => Boolean(candidate.step.pedagogyVariant), true);
   // Quando o vocabulário permite, cada rodada inclui também um jogo semântico
   // (intenção, intruso ou detecção de erro), não apenas uma variação de áudio.
-  if (!lesson.isReview) ensure((candidate) => Boolean(candidate.step.pedagogyVariant?.startsWith("meaning_")));
+  if (!lesson.isReview) {
+    // Os três jogos semânticos (intruso, intenção, estrutura) revezam por
+    // lição. Só pedir "algum meaning_" fazia o de maior score vencer sempre e
+    // um dos jogos praticamente sumia do curso — variedade declarada que não
+    // acontecia no plano real.
+    const MEANING_VARIANTS: PedagogyVariant[] = [
+      "meaning_odd_one_out",
+      "meaning_intention_match",
+      "meaning_spot_error",
+    ];
+    const preferred = MEANING_VARIANTS[Math.abs(lessonOrderIndex(lesson)) % MEANING_VARIANTS.length];
+    ensure((candidate) => candidate.step.pedagogyVariant === preferred, true);
+    ensure((candidate) => Boolean(candidate.step.pedagogyVariant?.startsWith("meaning_")));
+  }
+  // A cena de conversa é o exercício mais rico do plano e a origem de todo o
+  // loop pós-conversa: quando ela cai, caem junto as tarefas derivadas dela.
+  // Nunca pode ser a peça sacrificada para caber mais um exercício.
+  if (profile.maxConversationScenes > 0) {
+    ensure((candidate) => candidate.step.kind === "conversation_scene", true);
+  }
+  // Cota rotativa dos motores de percepção. Eles cobram eixos que a produção
+  // não cobre (ouvido, som→escrita, categoria, estrutura) e pontuam menos que
+  // ela — sem reserva, o motor de maior score levava todas as vagas e um eixo
+  // inteiro sumia do curso. A rotação por lição dá ~30 lições a cada um em vez
+  // de concentrar tudo no vencedor do score.
+  const PERCEPTION_ROTATION: StepKind[] = ["audio_discrimination", "dictation", "odd_one_out", "spot_error"];
+  const perceptionSlot = PERCEPTION_ROTATION[Math.abs(lessonOrderIndex(lesson)) % PERCEPTION_ROTATION.length];
+  ensure((candidate) => candidate.step.kind === perceptionSlot, true);
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
   ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
   ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
@@ -3268,17 +3529,22 @@ function ensureCoverage(
   if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) ensure((candidate) => candidate.families.includes("pinyin"));
   // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
   const minBuilds = Math.max(profile.maxHanziBuilds > 0 ? 1 : 0, profile.minHanziBuilds);
-  if (minBuilds > 0) ensureCount((candidate) => candidate.step.kind === "hanzi_build", minBuilds);
+  if (minBuilds > 0) ensureCount((candidate) => candidate.step.kind === "hanzi_build", minBuilds, true);
   // Cobertura visual: lição concreta elegível tem pelo menos 1 image_choice;
   // revisão de módulo com itens concretos tem 2, sendo 1 de conteúdo anterior.
   const imageInfo = lessonImageCoverageInfo(lesson);
+  // Mesmo fora da cobertura obrigatória: se o pool tem um visual válido, ele
+  // fica. O pool só oferece imagem quando a lição as permite, então isto não
+  // força visual em lição abstrata — só impede que um passo de score alto
+  // derrube o único exercício visual que a lição tinha.
+  ensure((candidate) => candidate.step.kind === "image_choice", true);
   if (imageInfo.eligible) {
-    ensure((candidate) => candidate.step.kind === "image_choice");
     if (lesson.isReview) {
-      ensureCount((candidate) => candidate.step.kind === "image_choice", 2);
+      ensureCount((candidate) => candidate.step.kind === "image_choice", 2, true);
       const unitIndex = lessonUnitIndex(lesson);
       ensure(
-        (candidate) => candidate.step.kind === "image_choice" && isPriorUnitImageStep(candidate.step, unitIndex)
+        (candidate) => candidate.step.kind === "image_choice" && isPriorUnitImageStep(candidate.step, unitIndex),
+        true
       );
     }
   }
@@ -3331,6 +3597,12 @@ function trimToTarget(selected: PracticeCandidate[], profile: LessonPracticeProf
     const first = selected.findIndex((candidate) => candidate.stageId === stageId);
     if (first >= 0) keep.add(first);
   }
+  // Cobertura garantida sobrevive ao corte. Sem isto, um passo de score alto
+  // (produção, conversa) derruba o exercício visual ou o HanziBuilder que o
+  // ensureCoverage tinha acabado de colocar — e a lição perde um eixo inteiro.
+  selected.forEach((candidate, index) => {
+    if (candidate.ensured) keep.add(index);
+  });
   const ranked = selected
     .map((candidate, index) => ({ candidate, index }))
     .sort((a, b) => {
@@ -3551,6 +3823,21 @@ interface DerivedTaskDeps {
  * Glifos disponíveis para um drill derivado de conversa: o que o aluno já
  * viu, mais o vocabulário da própria conversa (que ele acabou de encontrar).
  */
+/**
+ * Um passo cobre um item de vocabulário? Espelha a regra de
+ * validate:conversation-loop: vale pelo texto visível OU pela referência
+ * (charId/chunkId/learnedRefs/newRefs) — assim um reconhecimento por id conta
+ * do mesmo jeito que uma frase que mostra o hànzì.
+ */
+function stepCoversVocabularyRef(step: LessonStep, ref: string, text: string): boolean {
+  const [type, id] = ref.split(":");
+  if (type === "char" && (step.charId === id || (step.charIds ?? []).includes(id))) return true;
+  if (type === "chunk" && step.chunkId === id) return true;
+  if ((step.learnedRefs ?? []).includes(ref) || (step.newRefs ?? []).includes(ref)) return true;
+  const needle = cleanHanzi(text);
+  return Boolean(needle && cleanHanzi(stepTextBlob(step)).includes(needle));
+}
+
 function postConversationKnownGlyphs(
   item: FocusItem,
   focus: readonly FocusItem[],
@@ -3617,6 +3904,7 @@ const LOW_INTENT_POST_TASKS: readonly PostConversationTaskType[] = [
   "recreate_no_translation",
   "alternate_scenario",
   "repair_repeat",
+  "repair_recover",
   "polite_reply",
 ];
 
@@ -3666,14 +3954,17 @@ function wouldFormNonTransformativeTrio(step: LessonStep, planSoFar: readonly Le
     if (key.startsWith("action:")) continue;
     const prior = planSoFar.filter((other) => semanticTargetKeys(other).includes(key));
     if (prior.length < 2) continue;
-    const a = prior[prior.length - 2];
-    const b = prior[prior.length - 1];
-    if (
-      !cognitiveTransformation(a, b) &&
-      !cognitiveTransformation(b, step) &&
-      !cognitiveTransformation(a, step)
-    ) {
-      return true;
+    // O portão (validate:lesson-novelty) varre TODOS os trios da chave, não só
+    // os dois últimos. Olhar apenas o fim deixava passar quatro escolhas de
+    // significado seguidas quando duas delas diferiam no escopo: o par do meio
+    // "transformava", o trio inteiro não.
+    for (let a = 0; a < prior.length - 1; a += 1) {
+      for (let b = a + 1; b < prior.length; b += 1) {
+        if (cognitiveTransformation(prior[a], prior[b])) continue;
+        if (!cognitiveTransformation(prior[a], step) && !cognitiveTransformation(prior[b], step)) {
+          return true;
+        }
+      }
     }
   }
   return false;
@@ -3699,14 +3990,17 @@ const ALL_POST_CONVERSATION_TYPES: readonly PostConversationTaskType[] = [
   "sound_contrast",
   "write_heard",
   "group_meaning",
+  "produce_free",
+  "transfer_context",
+  "repair_recover",
 ];
 
 /** Tarefas típicas de cada nível de apresentação — evitadas quando a cena reaparece. */
 const VARIANT_TYPICAL_TASKS: Record<import("../../data/conversationScenes").ConversationVariantLevel, PostConversationTaskType[]> = {
   guided: ["meaning_check", "situation_reply"],
   assisted: ["meaning_check", "fill_missing", "listen_choose"],
-  independent: ["build_used_answer", "situation_reply", "recreate_no_translation"],
-  audio_first: ["listen_choose", "recreate_no_translation", "alternate_scenario"],
+  independent: ["build_used_answer", "situation_reply", "recreate_no_translation", "produce_free"],
+  audio_first: ["listen_choose", "recreate_no_translation", "alternate_scenario", "transfer_context"],
 };
 
 function postConversationBounds(lesson: Lesson): { min: number; max: number } {
@@ -3737,6 +4031,12 @@ function postConversationStepKind(type: PostConversationTaskType): StepKind {
       return "dictation";
     case "group_meaning":
       return "odd_one_out";
+    case "produce_free":
+      return "free_production";
+    case "transfer_context":
+      return "transfer_task";
+    case "repair_recover":
+      return "conversation_repair";
     default:
       return "dialogue_choice";
   }
@@ -3882,6 +4182,20 @@ function makePostConversationStep(
       const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
       return makeOddOneOutStep(glyphs, drillSeedFor(item.key, "post_conversation"));
     }
+    // Fechar o loop produzindo: a palavra que acabou de aparecer volta
+    // dentro de uma frase que o aluno escreve inteira, sem peças na tela.
+    case "produce_free": {
+      const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
+      return makeFreeProductionStep(glyphs, drillSeedFor(item.key, "post_conversation"), item);
+    }
+    case "transfer_context": {
+      const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
+      return makeTransferStep(glyphs, drillSeedFor(item.key, "post_conversation"), item);
+    }
+    case "repair_recover": {
+      const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
+      return makeConversationRepairStep(glyphs, drillSeedFor(item.key, "post_conversation"), item);
+    }
     default:
       return null;
   }
@@ -3928,6 +4242,13 @@ function scorePostConversationTask(
   if (type === "group_meaning") score += ctx.isRepeatScene ? 3 : ctx.isNew ? 1 : 2;
   if (type === "polite_reply") score += ctx.isRepeatScene ? 2 : 1;
   if (type === "order_dialogue") score += ctx.isRepeatScene ? 2 : 0;
+  // Produção e transferência são o degrau mais alto do loop: valem muito
+  // quando a cena já foi apresentada sem apoio ou já foi vista antes, e quase
+  // nada quando a palavra é NOVA (produzir sozinho o que acabou de conhecer
+  // não ensina, só frustra).
+  if (type === "produce_free") score += ctx.isNew ? -2 : advanced ? 4 : ctx.isRepeatScene ? 3 : 1;
+  if (type === "transfer_context") score += ctx.isNew ? -3 : advanced ? 4 : ctx.isRepeatScene ? 3 : 0;
+  if (type === "repair_recover") score += ctx.hadErrors ? 4 : advanced ? 3 : ctx.isRepeatScene ? 2 : 1;
 
   if (ctx.hadErrors) {
     if (type === "meaning_check" || type === "fill_missing" || type === "listen_choose") score += 2;
@@ -4037,6 +4358,7 @@ function selectPostConversationBlueprints(
   // só reconhecer. Antes isso saía por sorte da ordenação por score; agora é
   // garantido — é o núcleo do "usou na conversa, usa de novo".
   const CONTEXTUAL_ANSWER_TYPES: PostConversationTaskType[] = [
+    "produce_free",
     "build_used_answer",
     "situation_reply",
     "fill_missing",
@@ -4065,6 +4387,16 @@ function selectPostConversationBlueprints(
         if (best) tryPick(best);
       }
     }
+  }
+
+  // Antes de repetir palavra, cobrir palavra. A ordenação por score sozinha
+  // gastava a fase inteira nos dois itens mais bem pontuados e deixava o
+  // resto da conversa sem nenhuma tarefa — é a raiz da cobertura travada em
+  // dois terços. Este passe dá a primeira tarefa a cada item ainda descoberto.
+  for (const bp of candidates) {
+    if (picked.length >= ctx.bounds.max) break;
+    if (usedRefs.has(bp.item.ref)) continue;
+    tryPick(bp);
   }
 
   for (const bp of candidates) {
@@ -4277,6 +4609,46 @@ export function applyConversationVocabularyLoop(
         }
       }
     });
+
+    // ——— Fechamento prioritário do loop ———
+    //
+    // Mais modalidades não fecharam o loop sozinhas: a fase gastava as vagas
+    // nos itens mais bem pontuados e deixava a resposta da cena (ou a palavra
+    // que o aluno errou) sem nenhuma tarefa. A prioridade aqui é explícita e
+    // curta — resposta principal, item errado, item novo — e de propósito não
+    // inclui o núcleo de altíssima frequência: 你好/谢谢/再见 já estão no teto
+    // de repetição, e insistir neles é o oposto de consolidar.
+    const priorityRefs: string[] = [];
+    for (const item of relevant) {
+      const isPriority = item.roles.includes("response") || item.roles.includes("new") || errorRefs.has(item.ref);
+      if (isPriority && !priorityRefs.includes(item.ref)) priorityRefs.push(item.ref);
+    }
+    for (const ref of priorityRefs) {
+      const manifestItem = relevant.find((item) => item.ref === ref);
+      const focusItem = focusByRef.get(ref);
+      if (!manifestItem || !focusItem) continue;
+      const alreadyCovered = [...planForCeilings, ...addedForConversation].some((step) =>
+        stepCoversVocabularyRef(step, ref, manifestItem.text ?? focusItem.hanzi)
+      );
+      if (alreadyCovered) continue;
+      // A modalidade tem que ser nova na fase pós-conversa da lição inteira,
+      // não só desta cena: numa revisão com várias conversas, contar por cena
+      // deixava passar quatro "o que significa?" seguidos em cenas diferentes.
+      // Se nenhuma modalidade nova serve, o item fica descoberto de propósito —
+      // cobrir repetindo o mesmo formato não é cobrir.
+      const usedKinds = new Set(
+        [...planForCeilings, ...addedForConversation]
+          .filter((step) => step.postConversationPhase)
+          .map((step) => step.kind)
+      );
+      for (const type of ALL_POST_CONVERSATION_TYPES) {
+        if (usedKinds.has(postConversationStepKind(type))) continue;
+        if (addedForConversation.some((step) => step.postConversationTaskType === type && step.conversationCoveredRef === ref)) {
+          continue;
+        }
+        if (pushDerived({ type, item: manifestItem, focusItem, score: 9 }, { force: true })) break;
+      }
+    }
 
     // Garante mínimo da fase (revisão/imersão ≥3, comum ≥2).
     //
@@ -4702,6 +5074,9 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   dictation: "ditado",
   odd_one_out: "qual não pertence",
   spot_error: "qual frase funciona",
+  free_production: "produzir sem apoio",
+  transfer_task: "transferir a estrutura",
+  conversation_repair: "reparar a conversa",
 };
 
 function uniqueStepKinds(kinds: StepKind[]): StepKind[] {

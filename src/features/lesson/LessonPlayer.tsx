@@ -106,6 +106,9 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "dictation",
   "odd_one_out",
   "spot_error",
+  "free_production",
+  "transfer_task",
+  "conversation_repair",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -219,6 +222,20 @@ function correctionForStep(step: LessonStep): LessonMistake {
     return {
       prompt: step.title ?? "Resposta curta",
       correction: step.answer ?? "Compare com a resposta modelo",
+    };
+  }
+  if (step.kind === "free_production" || step.kind === "transfer_task") {
+    return {
+      prompt: step.situationPt ?? step.title ?? "Produção",
+      correction: step.correctAnswer ?? step.answer ?? "Compare com o modelo",
+      detail: step.pinyin,
+    };
+  }
+  if (step.kind === "conversation_repair") {
+    return {
+      prompt: step.repairNpcHanzi ? `Reparo depois de “${step.repairNpcHanzi}”` : "Reparo da conversa",
+      correction: step.correctAnswer ?? step.answer ?? "Compare com o modelo",
+      detail: step.explanation,
     };
   }
   if (step.kind === "match_pairs" || step.kind === "tone_pair") {
@@ -362,6 +379,7 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   const hasPinyin = hasTone || kinds.has("dialogue_choice") || kinds.has("listen_select");
   const hasHanzi = kinds.has("hanzi_build") || kinds.has("recognize") || kinds.has("decompose") || kinds.has("hanzi_evolution");
   const hasAssembly = kinds.has("sentence_build") || kinds.has("translation_build") || kinds.has("fill_blank") || kinds.has("produce");
+  const hasUnaided = kinds.has("free_production") || kinds.has("transfer_task") || kinds.has("conversation_repair");
 
   if (step.lessonStageId === "consolidation") {
     if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que você já viu.";
@@ -373,6 +391,7 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   if (hasTone) return "Escute o contorno e ligue som, tom e pinyin.";
   if (hasPinyin) return "Use o pinyin como ponte para reconhecer o som.";
   if (hasHanzi) return "Observe a forma e conecte hànzì, som e sentido.";
+  if (hasUnaided) return "Agora sem alternativas: a frase sai de você.";
   if (hasAssembly) return "Monte a frase em pedaços curtos.";
   if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return "Escolha a resposta que combina com a situação.";
   if (kinds.has("microread")) return "Leia um trecho curto e procure o sentido geral.";
@@ -574,6 +593,19 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(step.correctAnswer ?? step.answer, "uso");
     addText(step.correctAnswer ?? step.answer, "fala");
   }
+  // Produzir a frase inteira sem apoio cobra USO, FALA e — porque o aluno
+  // escreveu de cabeça, sem peças na tela — também a FORMA.
+  if (step.kind === "free_production" || step.kind === "transfer_task") {
+    const produced = step.correctAnswer ?? step.answer;
+    addText(produced, "uso");
+    addText(produced, "fala");
+    addText(produced, "forma", "hanzi");
+  }
+  if (step.kind === "conversation_repair") {
+    const recovery = step.correctAnswer ?? step.answer;
+    addText(recovery, "uso");
+    addText(recovery, "fala");
+  }
 
   return uniqueLessonReviewTargets(targets);
 }
@@ -589,6 +621,8 @@ function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.kind === "dictation") return step.dictationMode === "pinyin" ? "pinyin" : step.dictationMode === "hanzi" ? "forma" : "som";
   if (step.kind === "odd_one_out") return "significado";
   if (step.kind === "spot_error") return "uso";
+  if (step.kind === "free_production" || step.kind === "transfer_task") return "uso";
+  if (step.kind === "conversation_repair") return "fala";
   if (step.kind === "image_choice") {
     const mode = step.imageChoiceMode;
     if (mode === "choose_pinyin" || mode === "listen_and_choose_image") return "pinyin";
@@ -715,6 +749,9 @@ function mistakeReasonForStep(step: LessonStep): string {
   if (step.kind === "dictation") return "O som chegou, mas a escrita ainda não acompanha.";
   if (step.kind === "odd_one_out") return "Agrupamento por sentido ainda incerto.";
   if (step.kind === "spot_error") return "Estrutura da frase ainda insegura.";
+  if (step.kind === "free_production") return "Reconhece a frase, mas ainda não a produz sozinho.";
+  if (step.kind === "transfer_task") return "A estrutura ainda não se solta da frase original.";
+  if (step.kind === "conversation_repair") return "Recuperar a conversa depois do mal-entendido ainda trava.";
   if (step.kind === "listen_select") return "Confusão ao reconhecer o áudio.";
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "Confusão de pinyin ou acento tonal.";
   if (step.kind === "match_pairs") return "Par de significado ou forma não consolidado.";

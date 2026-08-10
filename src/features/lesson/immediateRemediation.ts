@@ -145,6 +145,16 @@ function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
   if (error.type === "audio_discrimination") return "listen";
   if (error.type === "dictation") return error.step?.dictationMode === "blocks" ? "build" : "listen";
   if (error.type === "spot_error") return "build";
+  // Falhou produzindo sozinho: a remediação imediata devolve o apoio (montar
+  // com peças) em vez de cobrar de novo o que acabou de não sair. Cobrar duas
+  // vezes a mesma produção livre ensina frustração, não a frase.
+  if (
+    error.type === "free_production" ||
+    error.type === "transfer_task" ||
+    error.type === "conversation_repair"
+  ) {
+    return "build";
+  }
   if (error.type === "listen_select" || error.type === "tone_pair" || error.skill === "som") return "listen";
   if (error.type === "hanzi_build") return "build";
   if (

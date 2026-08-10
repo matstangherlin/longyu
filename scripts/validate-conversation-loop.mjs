@@ -76,6 +76,18 @@ function stepTextBlob(step) {
   );
 }
 
+// Um passo cobre um item se o hànzì aparece no texto OU se o passo o
+// referencia por id (charId/chunkId/learnedRefs/newRefs). Assim créditos de
+// passos por id (recognize/flashcard/hanzi_build) contam de verdade.
+function stepCoversItem(step, blob, item) {
+  const [type, id] = item.ref.split(":");
+  if (type === "char" && (step.charId === id || (step.charIds ?? []).includes(id))) return true;
+  if (type === "chunk" && step.chunkId === id) return true;
+  if ((step.learnedRefs ?? []).includes(item.ref) || (step.newRefs ?? []).includes(item.ref)) return true;
+  const needle = clean(item.text);
+  return Boolean(needle && blob.includes(needle));
+}
+
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-conv-loop-"));
 try {
   const program = ts.createProgram(
@@ -116,9 +128,42 @@ try {
   const uncovered = [];
   const modalitiesUsed = new Set();
 
+  // ——— Cobertura RELEVANTE ———
+  //
+  // Cobertura bruta trata 你好 e 我会说一点中文 como o mesmo problema, e não
+  // são: o primeiro já foi praticado no curso inteiro (o loop se recusa a
+  // drilar de novo, e faz bem), o segundo apareceu duas vezes na vida do
+  // aluno. Exigir 100% do bruto empurraria o app para repetir 谢谢 sem fim —
+  // exatamente o contrário de consolidar.
+  //
+  // Por isso o portão mede a cobertura dos itens que ainda PRECISAM voltar:
+  //   · palavra nova na cena;
+  //   · resposta principal da cena;
+  //   · item cuja exposição no curso inteiro ainda é baixa.
+  // Fica de fora o núcleo saturado — item já praticado em muitos passos ao
+  // longo dos 122 planos, e que por isso não ganha nada com mais um drill.
+  const SATURATION_EXPOSURES = 40;
+  const plans = new Map();
+  for (const lesson of ALL_LESSONS) plans.set(lesson.id, lessonRoundStepsFor(lesson, { silent: true }));
+  const allSteps = [...plans.values()].flat().map((step) => ({ step, blob: stepTextBlob(step) }));
+
+  const exposureCache = new Map();
+  const curriculumExposures = (item) => {
+    if (exposureCache.has(item.ref)) return exposureCache.get(item.ref);
+    let total = 0;
+    for (const entry of allSteps) if (stepCoversItem(entry.step, entry.blob, item)) total += 1;
+    exposureCache.set(item.ref, total);
+    return total;
+  };
+
+  let priorityShown = 0;
+  let priorityCovered = 0;
+  const priorityUncovered = [];
+  const saturatedSkipped = new Map();
+
   for (const lesson of ALL_LESSONS) {
     const immersion = isImmersionLesson(lesson);
-    const plan = lessonRoundStepsFor(lesson, { silent: true });
+    const plan = plans.get(lesson.id);
     const conversationIndexes = plan
       .map((step, index) => ({ step, index }))
       .filter(({ step }) => step.kind === "conversation_scene");
@@ -194,17 +239,6 @@ try {
           item.roles.some((r) => r === "required" || r === "new" || r === "reused" || r === "response")
       );
 
-      // Um passo cobre um item se o hànzì aparece no texto OU se o passo o
-      // referencia por id (charId/chunkId/learnedRefs/newRefs). Assim créditos
-      // de passos por id (recognize/flashcard/hanzi_build) contam de verdade.
-      const stepCoversItem = (step, blob, item) => {
-        const [type, id] = item.ref.split(":");
-        if (type === "char" && (step.charId === id || (step.charIds ?? []).includes(id))) return true;
-        if (type === "chunk" && step.chunkId === id) return true;
-        if ((step.learnedRefs ?? []).includes(item.ref) || (step.newRefs ?? []).includes(item.ref)) return true;
-        const needle = clean(item.text);
-        return Boolean(needle && blob.includes(needle));
-      };
       const coverIn = (blobs, item) => blobs.filter(({ step, blob }) => stepCoversItem(step, blob, item)).map(({ step }) => step);
 
       for (const item of relevant) {
@@ -213,6 +247,19 @@ try {
         const later = coverIn(laterBlobs, item);
         const whole = coverIn(wholeBlobs, item);
         reuseTotal += Math.max(later.length, whole.length);
+
+        // Classificação de prioridade (ver comentário do portão acima).
+        const exposures = curriculumExposures(item);
+        const saturated =
+          !isNew && !item.roles.includes("response") && exposures >= SATURATION_EXPOSURES;
+        const coveredHere = isNew ? later.length > 0 : whole.length > 0;
+        if (saturated) {
+          saturatedSkipped.set(item.ref, exposures);
+        } else {
+          priorityShown += 1;
+          if (coveredHere) priorityCovered += 1;
+          else priorityUncovered.push(`${lesson.id}:${item.ref} (${exposures} exposições no curso)`);
+        }
 
         if (isNew) {
           // (1)+(2) Palavra NOVA: >= 2 exposições POSTERIORES em >= 2 modalidades.
@@ -274,6 +321,18 @@ try {
   }
 
   const avgReuse = itemsShown > 0 ? (reuseTotal / itemsShown).toFixed(2) : "0";
+  const rawRate = itemsShown > 0 ? (itemsCovered / itemsShown) * 100 : 100;
+  const priorityRate = priorityShown > 0 ? (priorityCovered / priorityShown) * 100 : 100;
+  // Alvo de projeto: 80–85 %. O portão fica alguns pontos abaixo do medido —
+  // um portão colado no valor atual quebra na primeira mudança de conteúdo e
+  // deixa de significar "piorou". Antes desta onda a cobertura bruta era 67,6 %.
+  const PRIORITY_GATE = 76;
+  if (priorityRate < PRIORITY_GATE) {
+    fail(
+      "loop",
+      `cobertura relevante em ${priorityRate.toFixed(1)}% (${priorityCovered}/${priorityShown}) — portão ${PRIORITY_GATE}%.`
+    );
+  }
   const lines = [
     "# Relatório do Conversation Vocabulary Loop (plano real)",
     "",
@@ -285,6 +344,10 @@ try {
     `| Conversas analisadas (nos planos reais) | ${conversationsAnalyzed} |`,
     `| Itens de vocabulário exibidos | ${itemsShown} |`,
     `| Itens cobertos por tarefa posterior | ${itemsCovered} |`,
+    `| Cobertura bruta | ${rawRate.toFixed(1)} % |`,
+    `| **Itens de prioridade** (novo · resposta · pouco exposto) | ${priorityShown} |`,
+    `| **Cobertura relevante** (portão ≥ ${PRIORITY_GATE} %) | **${priorityRate.toFixed(1)} %** |`,
+    `| Itens do núcleo saturado (≥ ${SATURATION_EXPOSURES} exposições no curso) | ${saturatedSkipped.size} refs |`,
     `| Reutilização média por item | ${avgReuse} |`,
     `| Itens sem cobertura | ${uncovered.length} |`,
     `| Tarefas da fase Pós-Conversa | ${postConversationTasks} |`,
@@ -292,8 +355,28 @@ try {
     `| Modalidades usadas nas derivadas | ${[...modalitiesUsed].sort().join(", ") || "—"} |`,
     "",
   ];
+  lines.push(
+    "> **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata",
+    "> `你好` e `我会说一点中文` como o mesmo problema; o primeiro já foi praticado no curso",
+    "> inteiro e o segundo apareceu duas vezes. Itens do núcleo saturado saem do",
+    "> denominador de propósito: forçá-los de volta seria repetir `谢谢` sem fim.",
+    ""
+  );
+  if (saturatedSkipped.size > 0) {
+    lines.push("## Núcleo saturado (fora do denominador)", "");
+    for (const [ref, exposures] of [...saturatedSkipped].sort((a, b) => b[1] - a[1])) {
+      lines.push(`- ${ref} — ${exposures} exposições ao longo dos ${ALL_LESSONS.length} planos`);
+    }
+    lines.push("");
+  }
+  if (priorityUncovered.length > 0) {
+    lines.push("## Itens de prioridade sem cobertura", "");
+    for (const item of priorityUncovered.slice(0, 60)) lines.push(`- ${item}`);
+    if (priorityUncovered.length > 60) lines.push(`- …mais ${priorityUncovered.length - 60}.`);
+    lines.push("");
+  }
   if (uncovered.length > 0) {
-    lines.push("## Itens sem cobertura", "");
+    lines.push("## Itens sem cobertura (bruto)", "");
     for (const item of uncovered.slice(0, 80)) lines.push(`- ${item}`);
     if (uncovered.length > 80) lines.push(`- …mais ${uncovered.length - 80}.`);
     lines.push("");
@@ -313,7 +396,7 @@ try {
     process.exitCode = 1;
   } else {
     console.log(
-      `OK: validate:conversation-loop passou (${conversationsAnalyzed} conversas · ${itemsCovered}/${itemsShown} itens cobertos · reúso médio ${avgReuse} · ${warnings.length} aviso(s)).`
+      `OK: validate:conversation-loop passou (${conversationsAnalyzed} conversas · cobertura relevante ${priorityRate.toFixed(1)}% (${priorityCovered}/${priorityShown}) · bruta ${rawRate.toFixed(1)}% (${itemsCovered}/${itemsShown}) · reúso médio ${avgReuse} · ${warnings.length} aviso(s)).`
     );
   }
   console.log(`Relatório: ${reportPath}`);
