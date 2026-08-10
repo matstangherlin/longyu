@@ -96,7 +96,11 @@ export type ConversationInteractionType =
   | "order_reply"
   | "choose_meaning"
   | "fill_reply"
-  | "listen_reply";
+  | "listen_reply"
+  // Sem alternativas: o aluno escreve (ou fala) a própria resposta dentro da
+  // conversa. Não é autoral — nasce de um choose_reply quando o aluno já viu a
+  // cena o bastante para merecer perder o apoio (ver unaidedConversationScene).
+  | "produce_reply";
 
 export interface ConversationInteraction {
   type: ConversationInteractionType;
@@ -106,6 +110,14 @@ export interface ConversationInteraction {
   correctNextNodeId: string;
   wrongNextNodeId?: string;
   explanation?: string;
+  /**
+   * produce_reply: tudo que conta como certo. Inclui a resposta autoral e as
+   * outras realizações do mesmo objetivo comunicativo — na conversa, como no
+   * balcão, existe mais de um jeito certo de dizer a mesma coisa.
+   */
+  accepts?: string[];
+  /** Alternativas que o passo TINHA antes de perder o apoio (para a correção). */
+  removedOptions?: string[];
 }
 
 export interface ConversationNode {

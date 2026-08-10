@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4ee4623927159a24c11f88a39d9ee227cacd244e |
+| Commit | 9803b4274bf20a216ec0ce3294d0b822ac6912f9 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T07:34:27.400Z |
+| Gerado em | 2026-08-10T08:04:31.421Z |
 | Lições | 122 |
-| Hash da Jornada | b3cb4d8b44ab |
+| Hash da Jornada | df8b3e741d61 |
 
 ## Resumo
 
@@ -23,6 +23,8 @@
 | Objetivos de produção aberta declarados | 8 |
 | Objetivos de produção aberta no plano real | 7 |
 | Lições com produção aberta | 41 / 122 |
+| Falas de conversa sem apoio (aluno veterano) | 153 |
+| Lições com conversa sem apoio | 106 / 122 |
 | Situações de reparo | 2 |
 | Passos auditados no plano real (3 tentativas) | 451 |
 | Lições com produção livre | 71 / 122 |
@@ -61,4 +63,4 @@
 - 苹果多少钱
 - 请问银行在哪里
 
-<!-- integridade:471df2558b1c212a -->
+<!-- integridade:d6e9a8748c28adf5 -->

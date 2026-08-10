@@ -321,13 +321,41 @@ decorativo) e **produção aberta precisa de 3+ respostas certas**, com o gate d
 glifos aplicado a *todas* elas — qualquer uma é uma frase que o aluno pode
 legitimamente escolher escrever.
 
+### 4.3 Conversa sem apoio
+
+A escada de variantes (`guided → assisted → independent → audio_first`) já
+existia, mas no topo dela a cena **continuava entregando alternativas**. O
+aluno "avançava" e continuava reconhecendo — o nível era rótulo.
+
+Nos dois níveis mais altos a interação agora perde as opções e vira produção:
+o aluno escreve a própria fala no meio da conversa (`produce_reply`). As
+realizações irmãs do mesmo objetivo entram como aceitas, então responder certo
+de outro jeito não derruba a conversa.
+
+A conversão é conservadora de propósito — só acontece quando é justo cobrar:
+
+- resposta curta (até 6 hànzì) e só em hànzì;
+- **ramo de erro presente**. Sem ele, uma produção falha travaria a cena; com
+  ele, o personagem reage e a conversa continua, que é o comportamento que
+  interessa treinar.
+
+Para o aluno veterano, isso dá **153 falas sem apoio em 106 lições**. Nada
+disso é conteúdo novo: são as mesmas 38 cenas, cobradas de um jeito mais duro
+quando o aluno já as viu o bastante.
+
+| Métrica | Antes | Agora |
+|---|---:|---:|
+| Falas de conversa sem alternativas | 0 | 153 |
+| Lições com conversa sem apoio | 0 | 106 / 122 |
+
 ### O que continua faltando
 
-- **Conversa menos controlada.** O reparo cobre o mal-entendido isolado; falta
-  a conversa que segue errando e exige recuperação em sequência.
-- **Reparo cedo.** Continua em ~20-25 lições porque a jornada só ensina
+- **Reparo cedo.** Continua em ~20 lições porque a jornada só ensina
   请再说一遍 / 我听不懂 depois da metade. Subir isso é decisão de currículo,
   não de motor.
+- **Falha em sequência.** A conversa já sobrevive a um erro; ainda não existe a
+  conversa que degrada progressivamente e exige duas ou três recuperações
+  encadeadas.
 - **Produção fora dos frames.** O aluno só pode ser avaliado no que o catálogo
   sabe conferir. Sair disso exige avaliação de mandarim livre — outro problema.
 

@@ -16,7 +16,10 @@
  *  6. objetivo comunicativo com mais de uma estrutura precisa ACEITAR as duas
  *     frases: se 我要茶 e 我想喝茶 não valem as duas, o objetivo é decorativo;
  *  7. produção ABERTA precisa oferecer escolha real (3+ respostas certas) e
- *     nunca revelar uma resposta esperada no enunciado.
+ *     nunca revelar uma resposta esperada no enunciado;
+ *  8. a CONVERSA sem apoio (produce_reply) tem que existir de verdade no topo
+ *     da escada de variantes — se a cena "independente" continua entregando
+ *     alternativas, o nível é rótulo.
  *
  * Gera reports/production-transfer-report.md.
  */
@@ -53,6 +56,9 @@ const MIN_LESSON_SHARE = { free_production: 0.5, transfer_task: 0.6, conversatio
 const MIN_OPEN_PRODUCTION_LESSONS = 0.2;
 // Uma resposta certa não basta para chamar de escolha.
 const MIN_OPEN_ANSWERS = 3;
+// Aluno com histórico: é ele que alcança os níveis altos da variante, e só
+// nesses níveis a conversa perde as alternativas.
+const MIN_UNAIDED_CONVERSATION_LESSONS = 0.3;
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-production-"));
 try {
@@ -229,6 +235,8 @@ try {
   const framesSeen = new Set();
   const openGoalsSeen = new Set();
   const lessonsWithOpen = new Set();
+  const lessonsWithUnaidedConversation = new Set();
+  let unaidedReplies = 0;
   const strategiesSeen = new Set();
   const novelTargets = new Set();
   let stepsAudited = 0;
@@ -292,11 +300,43 @@ try {
     if (chunk) for (const glyph of clean(chunk.hanzi)) curriculumGlyphs.add(glyph);
   }
 
+  // Histórico simulado de um aluno que já completou bastante conversa: é o que
+  // faz a variante subir para independent/audio_first. Sem isto o portão só
+  // veria a experiência de quem abriu o app hoje.
+  const veteranHistory = Array.from({ length: 14 }, (_, index) => ({
+    sceneId: `history-scene-${index}`,
+    intent: `history-intent-${index}`,
+    result: "completed",
+  }));
+
   for (const lesson of ALL_LESSONS) {
     // O glifo só é "conhecido" pelo currículo percorrido até esta lição
     // (inclusive) — a mesma regra que o gerador aplica em knownGlyphsFor.
     for (const glyph of lessonGlyphs(lesson)) curriculumGlyphs.add(glyph);
     const knownSoFar = new Set(curriculumGlyphs);
+
+    // A conversa sem apoio só aparece para o aluno veterano; auditar o plano
+    // dele é a única forma de saber se o topo da escada existe.
+    for (const step of lessonRoundStepsFor(lesson, { conversationHistory: veteranHistory, silent: true })) {
+      if (step.kind !== "conversation_scene") continue;
+      for (const node of step.nodes ?? []) {
+        const interaction = node.interaction;
+        if (interaction?.type !== "produce_reply") continue;
+        unaidedReplies += 1;
+        lessonsWithUnaidedConversation.add(lesson.id);
+        const ref = `${lesson.id}/${step.sceneId}/${node.id}`;
+        assert((interaction.options ?? []).length === 0, `${ref}: conversa sem apoio ainda mostra alternativas`);
+        assert(
+          (interaction.accepts ?? []).some((value) => CJK_RE.test(value ?? "")),
+          `${ref}: conversa sem apoio sem resposta aceita em hànzì`
+        );
+        assert(Boolean(interaction.wrongNextNodeId), `${ref}: conversa sem apoio sem ramo de erro`);
+        for (const glyph of clean(interaction.correctAnswer)) {
+          if (!CJK_RE.test(glyph)) continue;
+          assert(knownSoFar.has(glyph), `${ref}: pede o glifo "${glyph}" antes de a jornada apresentá-lo`);
+        }
+      }
+    }
 
     for (const attemptNumber of [0, 1, 2]) {
       const plan = lessonRoundStepsFor(lesson, { attemptNumber, silent: true });
@@ -408,6 +448,11 @@ try {
     assert(!CJK_RE.test(copy.situationPt), `${copy.goal}: situação aberta mostra hànzì`);
     assert(copy.situationPt.trim().length > 0, `${copy.goal}: situação aberta vazia`);
   }
+  const minUnaidedLessons = Math.floor(ALL_LESSONS.length * MIN_UNAIDED_CONVERSATION_LESSONS);
+  assert(
+    lessonsWithUnaidedConversation.size >= minUnaidedLessons,
+    `conversa sem apoio em só ${lessonsWithUnaidedConversation.size}/${ALL_LESSONS.length} lições (mínimo ${minUnaidedLessons})`
+  );
   assert(strategiesSeen.size >= 2, `só ${strategiesSeen.size} estratégia(s) de reparo no plano real (mínimo 2)`);
 
   const lines = [
@@ -427,6 +472,8 @@ try {
     `| Objetivos de produção aberta declarados | ${OPEN_PRODUCTION_GOALS.length} |`,
     `| Objetivos de produção aberta no plano real | ${openGoalsSeen.size} |`,
     `| Lições com produção aberta | ${lessonsWithOpen.size} / ${ALL_LESSONS.length} |`,
+    `| Falas de conversa sem apoio (aluno veterano) | ${unaidedReplies} |`,
+    `| Lições com conversa sem apoio | ${lessonsWithUnaidedConversation.size} / ${ALL_LESSONS.length} |`,
     `| Situações de reparo | ${REPAIR_SITUATIONS.length} |`,
     `| Passos auditados no plano real (3 tentativas) | ${stepsAudited} |`,
     `| Lições com produção livre | ${lessonsWith.free_production.size} / ${ALL_LESSONS.length} |`,
@@ -463,6 +510,9 @@ try {
     );
     console.log(
       `     objetivos: ${framesByGoal.size} declarados · ${openGoalsSeen.size} abertos no plano · ${FRAME_TASKS.filter((task) => task.siblingAnswers.length > 0).length} tarefas com frase irmã.`
+    );
+    console.log(
+      `     conversa sem apoio: ${unaidedReplies} falas em ${lessonsWithUnaidedConversation.size} lições.`
     );
   }
   console.log(`Relatório: ${reportPath}`);

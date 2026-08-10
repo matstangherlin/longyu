@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4ee4623927159a24c11f88a39d9ee227cacd244e |
+| Commit | 9803b4274bf20a216ec0ce3294d0b822ac6912f9 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T07:33:39.766Z |
+| Gerado em | 2026-08-10T08:03:37.543Z |
 | Lições | 122 |
-| Hash da Jornada | b3cb4d8b44ab |
+| Hash da Jornada | df8b3e741d61 |
 
 ## Resumo
 
@@ -133,4 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:4738ee9300d3137c -->
+<!-- integridade:3f8d35f6ae42480e -->

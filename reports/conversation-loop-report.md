@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4ee4623927159a24c11f88a39d9ee227cacd244e |
+| Commit | 9803b4274bf20a216ec0ce3294d0b822ac6912f9 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T07:33:30.777Z |
+| Gerado em | 2026-08-10T08:03:28.569Z |
 | Lições | 122 |
-| Hash da Jornada | b3cb4d8b44ab |
+| Hash da Jornada | df8b3e741d61 |
 
 ## Resumo
 
@@ -202,4 +202,4 @@
 - l28:chunk:woyao
 - …mais 70.
 
-<!-- integridade:b7266134f317deee -->
+<!-- integridade:542ed50a0e7e67f7 -->

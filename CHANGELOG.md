@@ -7,7 +7,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
-### Expansão pedagógica — objetivo comunicativo e produção aberta
+### Expansão pedagógica — objetivo comunicativo, produção aberta e conversa sem apoio
 
 - **O que conta como certo passa a ser o objetivo, não a frase esperada.** Cada
   estrutura declara o que faz (`request_item`, `ask_location`, `buy_item`…), e
@@ -29,10 +29,21 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 - Uma produção aberta só é oferecida com **3+ respostas possíveis** no
   vocabulário que o aluno já viu — com uma ou duas, "diga o que quiser" é alvo
   único disfarçado.
-- `validate:production-transfer` ganhou duas regras: objetivo com mais de uma
-  estrutura precisa aceitar as duas frases, e produção aberta precisa de 3+
-  respostas certas — com o gate de glifos aplicado a todas elas, não só à do
-  modelo.
+- **Conversa sem apoio (`produce_reply`)**: a escada de variantes
+  (`guided → assisted → independent → audio_first`) existia, mas no topo dela a
+  cena continuava entregando alternativas — o aluno "avançava" e continuava
+  reconhecendo. Nos dois níveis mais altos a interação perde as opções e o aluno
+  escreve a própria fala dentro da conversa, com as realizações irmãs do mesmo
+  objetivo aceitas. A conversão só acontece quando é justo cobrar: resposta
+  curta, em hànzì, e com ramo de erro — sem ele uma produção falha travaria a
+  cena, e com ele o personagem reage e a conversa continua. Para o aluno
+  veterano: 153 falas sem apoio em 106 lições, sem nenhuma cena nova.
+- `validate:production-transfer` ganhou três regras: objetivo com mais de uma
+  estrutura precisa aceitar as duas frases; produção aberta precisa de 3+
+  respostas certas (com o gate de glifos aplicado a todas elas, não só à do
+  modelo); e a conversa sem apoio precisa existir de verdade no plano de um
+  aluno com histórico — auditado com histórico simulado, porque o topo da
+  escada não aparece para quem abriu o app hoje.
 
 ### Expansão pedagógica — produção sem apoio, transferência e reparo
 
