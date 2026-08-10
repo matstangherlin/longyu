@@ -22,9 +22,9 @@ telemetria para o beta.
 - **Estados de falha:** banner offline na lição; botão de áudio desabilitado com
   aviso quando TTS falta; sync com CTA “tentar de novo” na tela de vitória;
   microinteração leve (tap + bloom) em forma não reconhecida.
-- **Telemetria beta:** `wallClockMs` (relógio de parede, não tempo ativo),
-  `toneHintUses`, `audioManualPlays`, `diagnosis` no erro, evento
-  `unrecognized_answer` com **SHA-256** da forma (sem texto cru; ainda
+- **Telemetria beta:** `wallClockMs` (relógio de parede) + `activeMs` (pausa com
+  aba em background), `toneHintUses`, `audioManualPlays`, `diagnosis` no erro,
+  evento `unrecognized_answer` com **SHA-256** da forma (sem texto cru; ainda
   vulnerável a dicionário em frases curtas — HMAC de backend fica para depois),
   pós-conversa finalmente aceita no RPC. Admin mostra diagnósticos, formas não
   reconhecidas (nuvem + conta local), funil das 20 primeiras e atividade diária.

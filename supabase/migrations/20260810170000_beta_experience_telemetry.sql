@@ -27,11 +27,11 @@ begin
   v_allowed := case p_event_type
     when 'lesson_started' then array['appVersion']
     when 'lesson_completed' then array[
-      'appVersion', 'stars', 'reason', 'wallClockMs', 'toneHintUses', 'audioManualPlays',
+      'appVersion', 'stars', 'reason', 'wallClockMs', 'activeMs', 'toneHintUses', 'audioManualPlays',
       'folegoSkips', 'stepIndex', 'mistakes'
     ]
     when 'lesson_abandoned' then array[
-      'appVersion', 'reason', 'wallClockMs', 'toneHintUses', 'audioManualPlays', 'stepIndex'
+      'appVersion', 'reason', 'wallClockMs', 'activeMs', 'toneHintUses', 'audioManualPlays', 'stepIndex'
     ]
     when 'exercise_answered' then array[
       'appVersion', 'correct', 'attempt', 'stage', 'responseTimeBucket',

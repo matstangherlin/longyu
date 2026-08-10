@@ -5,6 +5,10 @@
 
 let audioManualPlays = 0;
 let toneHintUses = 0;
+let activeMs = 0;
+let segmentStartedAt = 0;
+let segmentRunning = false;
+let activityUnsub: (() => void) | null = null;
 
 /** Clique manual no SpeakButton (não inclui autoplay). */
 export function noteAudioManualPlay(): void {
@@ -16,16 +20,56 @@ export function noteToneHintUse(): void {
   toneHintUses += 1;
 }
 
+function pauseActiveSegment(now = Date.now()): void {
+  if (!segmentRunning) return;
+  activeMs += Math.max(0, now - segmentStartedAt);
+  segmentRunning = false;
+}
+
+function resumeActiveSegment(now = Date.now()): void {
+  if (segmentRunning) return;
+  segmentStartedAt = now;
+  segmentRunning = true;
+}
+
+/**
+ * Conta tempo com a aba/app visível. Pausa em `visibilitychange` / background.
+ * Retorna cleanup para o LessonPlayer.
+ */
+export function installLessonActivityClock(): () => void {
+  if (typeof document === "undefined") return () => undefined;
+  activityUnsub?.();
+  resumeActiveSegment();
+  const onVisibility = () => {
+    if (document.visibilityState === "hidden") pauseActiveSegment();
+    else resumeActiveSegment();
+  };
+  document.addEventListener("visibilitychange", onVisibility);
+  activityUnsub = () => {
+    pauseActiveSegment();
+    document.removeEventListener("visibilitychange", onVisibility);
+    activityUnsub = null;
+  };
+  return activityUnsub;
+}
+
 export function resetLessonSessionMetrics(): void {
+  pauseActiveSegment();
   audioManualPlays = 0;
   toneHintUses = 0;
+  activeMs = 0;
+  segmentStartedAt = 0;
+  segmentRunning = false;
 }
 
 export function peekLessonSessionMetrics(): {
   audioManualPlays: number;
   toneHintUses: number;
+  activeMs: number;
 } {
-  return { audioManualPlays, toneHintUses };
+  pauseActiveSegment();
+  resumeActiveSegment();
+  return { audioManualPlays, toneHintUses, activeMs };
 }
 
 function normalizeAnswerForHash(answer: string): string {

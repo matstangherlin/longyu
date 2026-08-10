@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
@@ -55,6 +55,7 @@ import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
 import { useOnline } from "../../hooks/useOnline";
 import {
   hashAnswerNorm,
+  installLessonActivityClock,
   peekLessonSessionMetrics,
   resetLessonSessionMetrics,
 } from "../../lib/lessonSessionMetrics";
@@ -1601,6 +1602,11 @@ export function LessonPlayer() {
   }, [completedLessons, consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonTaskProgress, soundEffects, startAccess, toneLocked]);
 
   useEffect(() => {
+    if (!entryChecked || finished || energyBlocked) return undefined;
+    return installLessonActivityClock();
+  }, [energyBlocked, entryChecked, finished]);
+
+  useEffect(() => {
     if (!foundLesson || !entryChecked || finished || pendingReviewRestoredRef.current) return;
     const pending = getPendingAttemptReview(foundLesson.id, lessonAttemptsById, foundLesson);
     if (!pending) return;
@@ -1658,7 +1664,19 @@ export function LessonPlayer() {
     void beginReferralLessonAttestation(foundLesson.id);
   }, [entryChecked, finished, foundLesson]);
 
-  if (!foundLesson || !adaptiveLesson) return <Navigate to="/jornada" replace />;
+  if (!foundLesson || !adaptiveLesson) {
+    return (
+      <div className="mx-auto flex min-h-[60dvh] max-w-md flex-col items-center justify-center px-6 py-10 text-center">
+        <h1 className="font-serif text-2xl font-semibold text-ink">Lição indisponível</h1>
+        <p className="mt-2 text-sm leading-6 text-ink-soft">
+          Esta lição não existe ou não está disponível agora. Volte à jornada e escolha outra.
+        </p>
+        <ButtonLink to="/jornada" className="mt-5 shadow-lift">
+          Voltar à jornada <IconChevron width={16} height={16} />
+        </ButtonLink>
+      </div>
+    );
+  }
   const lesson = adaptiveLesson;
   const total = lesson.steps.length;
   const lessonTasks = lessonTasksFor(lesson);

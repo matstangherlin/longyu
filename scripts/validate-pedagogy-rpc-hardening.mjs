@@ -28,6 +28,7 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "stars",
       "reason",
       "wallClockMs",
+      "activeMs",
       "toneHintUses",
       "audioManualPlays",
       "folegoSkips",
@@ -38,6 +39,7 @@ function sanitizePedagogyMetadata(eventType, metadata) {
       "appVersion",
       "reason",
       "wallClockMs",
+      "activeMs",
       "toneHintUses",
       "audioManualPlays",
       "stepIndex",
@@ -197,10 +199,12 @@ const completed = sanitizePedagogyMetadata("lesson_completed", {
   stars: 3,
   reason: "completed",
   wallClockMs: 120000,
+  activeMs: 90000,
   toneHintUses: 2,
   audioManualPlays: 5,
 });
 assert(completed.wallClockMs === 120000, "lesson_completed preserva wallClockMs");
+assert(completed.activeMs === 90000, "lesson_completed preserva activeMs");
 assert(completed.toneHintUses === 2, "lesson_completed preserva toneHintUses");
 assert(completed.audioManualPlays === 5, "lesson_completed preserva audioManualPlays");
 assert(completed.durationMs === undefined, "durationMs legado não passa");
@@ -235,6 +239,7 @@ assert(mig.includes("event_rate_limited"), "exceção event_rate_limited");
 assert(
   betaExperienceMig.includes("unrecognized_answer") &&
     betaExperienceMig.includes("wallClockMs") &&
+    betaExperienceMig.includes("activeMs") &&
     betaExperienceMig.includes("toneHintUses") &&
     betaExperienceMig.includes("audioManualPlays") &&
     betaExperienceMig.includes("diagnosis") &&
