@@ -7,6 +7,28 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Beta Experience Hardening — estabilizar, polir, observar
+
+Sem motores pedagógicos novos. Foco em sensação humana, mobile, falhas e
+telemetria para o beta.
+
+- **Feedback curto no erro.** A causa linguística (`ERROR_CAUSE_FEEDBACK`) passa
+  a aparecer no modal de retry e no painel de produção — frases como “As
+  palavras estavam certas. A ordem mudou.” em vez da explicação longa do
+  exercício.
+- **Mobile:** IME chinês não submete no meio da composição; `lang="zh-CN"` no
+  campo livre; teclado virtual empurra a área de digitação; conversa faz
+  `scrollIntoView` na fala ativa.
+- **Estados de falha:** banner offline na lição; botão de áudio desabilitado com
+  aviso quando TTS falta; sync com CTA “tentar de novo” na tela de vitória;
+  microinteração leve (tap + bloom) em forma não reconhecida.
+- **Telemetria beta:** `durationMs`, hints, replays de áudio, `diagnosis` no
+  erro, evento `unrecognized_answer` com hash (sem texto cru), pós-conversa
+  finalmente aceita no RPC. Admin mostra diagnósticos, formas não reconhecidas
+  (nuvem + conta local), funil das 20 primeiras e atividade diária.
+- Migration `20260810170000_beta_experience_telemetry.sql` amplia a whitelist
+  de metadados e tipos de evento.
+
 ### Ritmo — a entrada do curso deixa de abrir no volume máximo
 
 - **A lição 1 pedia produção livre e transferência.** A auditoria do plano real

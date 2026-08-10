@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { scheduleAutoSpeak, speak, noteUserGesture } from "../../lib/tts";
+import { scheduleAutoSpeak, speak, noteUserGesture, isTTSAvailable } from "../../lib/tts";
 import { useStore } from "../../lib/store";
+import { noteAudioReplay } from "../../lib/lessonSessionMetrics";
 import { IconSound } from "./Icon";
 
 // Botão de áudio reutilizável. Acessível e com feedback de "tocando".
@@ -25,6 +26,7 @@ export function SpeakButton({
   const autoPlayAudio = useStore((s) => s.autoPlayAudio);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const [playing, setPlaying] = useState(false);
+  const [unavailable, setUnavailable] = useState(() => !isTTSAvailable());
 
   const dims =
     size === "sm" ? "h-9 w-9" : size === "lg" ? "h-14 w-14" : "h-11 w-11";
@@ -33,8 +35,14 @@ export function SpeakButton({
   function play() {
     const clean = String(text ?? "").trim();
     if (!clean) return;
+    if (!isTTSAvailable()) {
+      setUnavailable(true);
+      return;
+    }
     noteUserGesture();
     setPlaying(true);
+    setUnavailable(false);
+    noteAudioReplay();
     recordDailyTask("audioHeard");
     speak(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
@@ -46,6 +54,10 @@ export function SpeakButton({
     // Respeita o toggle global — sem isso Safari/iOS dispara fala fora do gesto
     // e o usuário não consegue desligar o autoplay.
     if (!autoPlay || !autoPlayAudio) return;
+    if (!isTTSAvailable()) {
+      setUnavailable(true);
+      return;
+    }
     const clean = String(text ?? "").trim();
     if (!clean) return;
     setPlaying(true);
@@ -63,10 +75,15 @@ export function SpeakButton({
   return (
     <button
       type="button"
-      aria-label={`${label}: ${text}`}
+      aria-label={unavailable ? "Áudio indisponível neste navegador" : `${label}: ${text}`}
+      title={unavailable ? "Áudio indisponível neste navegador" : label}
       onClick={play}
+      disabled={unavailable}
       className={[
-        "inline-flex items-center justify-center rounded-full bg-accent text-white shadow-sm transition hover:bg-accent-strong active:scale-95",
+        "inline-flex items-center justify-center rounded-full shadow-sm transition active:scale-95",
+        unavailable
+          ? "cursor-not-allowed bg-surface-2 text-ink-faint"
+          : "bg-accent text-white hover:bg-accent-strong",
         dims,
         playing ? "ring-4 ring-accent-soft" : "",
         className || "",

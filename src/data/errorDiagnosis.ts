@@ -126,20 +126,20 @@ export const ERROR_CAUSE_LABELS: Record<ErrorCause, string> = {
  * entre "reveja este ponto" e "o som estava certo; o que escorregou foi o tom".
  */
 export const ERROR_CAUSE_FEEDBACK: Record<ErrorCause, string> = {
-  tone: "As sílabas estavam certas — o que escorregou foi o tom.",
-  homophone: "Você ouviu certo. O hànzì escolhido tem o mesmo som, mas outro sentido.",
-  pinyin_spelling: "O som estava quase lá; a grafia do pinyin é que saiu diferente.",
-  listening: "O áudio ainda não chegou inteiro. Vale ouvir de novo antes de escrever.",
+  tone: "O som estava certo — o que mudou foi o tom.",
+  homophone: "Você ouviu certo. O hànzì tem o mesmo som, mas outro sentido.",
+  pinyin_spelling: "O som estava quase certo; a grafia do pinyin saiu diferente.",
+  listening: "O áudio ainda não chegou inteiro. Ouça de novo antes de escrever.",
   grapheme: "Esse hànzì se parece com o certo, mas o componente muda o sentido.",
-  word_order: "As peças estavam todas certas — faltou a ordem.",
+  word_order: "As palavras estavam certas. A ordem mudou.",
   omission: "Faltou uma peça na frase.",
   intrusion: "Sobrou uma peça na frase.",
-  particle: "O que mudou foi a partícula — ela é pequena, mas carrega a gramática.",
-  classifier: "O classificador é que não combinou com o que você estava contando.",
-  lexical_choice: "A estrutura estava certa; o item que entrou no buraco é que era outro.",
+  particle: "A partícula é que mudou — pequena, mas carrega a gramática.",
+  classifier: "O classificador não combinou com o que você estava contando.",
+  lexical_choice: "A estrutura estava certa; a palavra no buraco é que era outra.",
   meaning: "A ligação entre a forma e o significado ainda não está firme.",
-  communicative: "A frase está correta em mandarim — mas não é isso que a situação pedia.",
-  no_answer: "Ficou sem resposta. Não tem problema: vamos passar por isso de novo.",
+  communicative: "A frase está correta — mas não é o que a situação pedia.",
+  no_answer: "Ficou sem resposta. Vamos passar por isso de novo.",
   unclassified: "Vale rever este ponto em outro formato.",
 };
 

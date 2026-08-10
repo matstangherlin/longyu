@@ -51,6 +51,13 @@ import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
+import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
+import { useOnline } from "../../hooks/useOnline";
+import {
+  hashAnswerNorm,
+  peekLessonSessionMetrics,
+  resetLessonSessionMetrics,
+} from "../../lib/lessonSessionMetrics";
 import {
   beginReferralLessonAttestation,
   completeReferralLessonAttestation,
@@ -352,7 +359,7 @@ function progressSaveLabel(
 ): string {
   if (authMode === "cloud") {
     if (syncStatus === "pending" || syncStatus === "loading") return "Sincronizando progresso...";
-    if (syncStatus === "error") return "Progresso local seguro";
+    if (syncStatus === "error") return "Progresso local seguro — toque para tentar de novo";
     return "Progresso salvo na nuvem";
   }
   return "Progresso salvo neste dispositivo";
@@ -1374,6 +1381,7 @@ export function LessonPlayer() {
   const addMinutes = useStore((s) => s.addMinutes);
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const cloudSyncState = useStore((s) => s.cloudSyncState);
+  const online = useOnline();
   const today = useStore((s) => s.today);
   const streak = useStore((s) => s.streak);
   const streakShields = useStore((s) => s.streakShields);
@@ -1584,6 +1592,7 @@ export function LessonPlayer() {
     }
     window.sessionStorage.setItem(sessionKey, "1");
     setEntryChecked(true);
+    resetLessonSessionMetrics();
     void trackPedagogyEvent({
       eventType: "lesson_started",
       lessonId: foundLesson.id,
@@ -2049,7 +2058,7 @@ export function LessonPlayer() {
     const correction: LessonMistake = {
       prompt: error.prompt,
       correction: error.correctAnswer,
-      detail: error.pinyin ?? error.explanation,
+      detail: error.mistakeReason ?? error.pinyin ?? error.explanation,
     };
     setMistakes((items) => [...items, correction].slice(-6));
     activityErrorsRef.current = [...activityErrorsRef.current, error].slice(-12);
@@ -2239,8 +2248,12 @@ export function LessonPlayer() {
     }
     currentStepHadMistakeRef.current = true;
 
+    const lastError = activityErrorsRef.current[activityErrorsRef.current.length - 1];
     const correction = correctionForStep(currentStep);
-    setPendingMistake(correction);
+    setPendingMistake({
+      ...correction,
+      detail: lastError?.mistakeReason ?? correction.detail,
+    });
   }
 
   /**
@@ -2253,12 +2266,26 @@ export function LessonPlayer() {
    */
   function registerUnrecognizedAnswer(answer: string) {
     const currentStep = lesson.steps[idx];
+    const expected = currentStep.correctAnswer ?? currentStep.answer ?? "";
     registerUnrecognizedProduction({
       lessonId: lesson.id,
       stepKind: currentStep.kind,
       situationPt: currentStep.situationPt ?? currentStep.prompt,
-      expected: currentStep.correctAnswer ?? currentStep.answer ?? "",
+      expected,
       answer,
+    });
+    const trimmed = answer.trim();
+    void trackPedagogyEvent({
+      eventType: "unrecognized_answer",
+      lessonId: lesson.id,
+      exerciseKind: currentStep.kind,
+      exerciseIndex: idx,
+      metadata: {
+        answerNormHash: hashAnswerNorm(trimmed),
+        answerLen: trimmed.length,
+        expectedLen: expected.length,
+        hasCjk: /[\u3400-\u9fff\uf900-\ufaff]/u.test(trimmed),
+      },
     });
   }
 
@@ -2373,6 +2400,9 @@ export function LessonPlayer() {
       }
     }
     if (currentStepIsGraded && wasCorrect !== undefined) {
+      const lastError = [...activityErrorsRef.current]
+        .reverse()
+        .find((error) => error.questionId?.startsWith(`${lesson.id}:${idx}:`));
       void trackPedagogyEvent({
         eventType: wasCorrect ? "exercise_answered" : "exercise_mistake",
         lessonId: lesson.id,
@@ -2382,6 +2412,12 @@ export function LessonPlayer() {
           correct: wasCorrect,
           imageChoiceMode: currentStep.imageChoiceMode ?? null,
           imageId: currentStep.imageId ?? currentStep.iconId ?? null,
+          ...(wasCorrect
+            ? {}
+            : {
+                diagnosis: lastError?.diagnosis ?? null,
+                diagnosisConfidence: lastError?.diagnosisConfidence ?? null,
+              }),
         },
       });
       if (currentStep.kind === "image_choice") {
@@ -2519,7 +2555,12 @@ export function LessonPlayer() {
         lessonId: lesson.id,
         exerciseKind: lesson.steps[idx]?.kind,
         exerciseIndex: idx,
-        metadata: { reason: "exit" },
+        metadata: {
+          reason: "exit",
+          durationMs: Date.now() - attemptStartedAtRef.current,
+          stepIndex: idx,
+          ...peekLessonSessionMetrics(),
+        },
       });
     }
     playSoundFx("phaseExit", soundEffects);
@@ -2754,14 +2795,27 @@ export function LessonPlayer() {
       void trackPedagogyEvent({
         eventType: "lesson_completed",
         lessonId: lesson.id,
-        metadata: { stars, reason, folegoSkips },
+        metadata: {
+          stars,
+          reason,
+          folegoSkips,
+          durationMs: Date.now() - attemptStartedAtRef.current,
+          stepIndex: idx,
+          mistakes: activityErrorsRef.current.length,
+          ...peekLessonSessionMetrics(),
+        },
       });
     } else if (reason === "out_of_lives") {
       void trackPedagogyEvent({
         eventType: "lesson_abandoned",
         lessonId: lesson.id,
         exerciseIndex: idx,
-        metadata: { reason },
+        metadata: {
+          reason,
+          durationMs: Date.now() - attemptStartedAtRef.current,
+          stepIndex: idx,
+          ...peekLessonSessionMetrics(),
+        },
       });
     }
     if (passed && lesson.isReview && graded > 0 && finalCorrect === graded) {
@@ -3389,7 +3443,18 @@ export function LessonPlayer() {
             ))}
           </div>
           <div className="mt-2 text-[11px] text-ink-faint">
-            {saveStatusLabel} · XP total agora {postLessonXpTotal}
+            {authMode === "cloud" && cloudSyncState.status === "error" ? (
+              <button
+                type="button"
+                className="underline decoration-dotted underline-offset-2 hover:text-ink-soft"
+                onClick={() => void flushCloudProgressPush()}
+              >
+                {saveStatusLabel}
+              </button>
+            ) : (
+              saveStatusLabel
+            )}{" "}
+            · XP total agora {postLessonXpTotal}
             {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · recompensas recebidas ✓</span>}
           </div>
 
@@ -3626,6 +3691,14 @@ export function LessonPlayer() {
         </div>
       )}
 
+      {!online && (
+        <div className="mb-3 rounded-2xl border border-line bg-surface-2 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
+          <span className="font-semibold text-ink">Sem conexão</span>
+          <span className="mx-1.5 text-ink-faint">·</span>
+          Você pode continuar; o progresso fica neste dispositivo e sobe depois.
+        </div>
+      )}
+
       {retryProtected && (
         <div className="mb-3 flex justify-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
@@ -3651,7 +3724,7 @@ export function LessonPlayer() {
         <ModalOverlay
           label="Você errou esta questão"
         >
-          <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
+          <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
               <IconX width={24} height={24} />
             </div>
@@ -3659,7 +3732,9 @@ export function LessonPlayer() {
               Quase. Quer tentar de novo?
             </h2>
             <p className="mt-2 text-sm leading-6 text-ink-soft">
-              Refaça esta questão sem perder a estrela.
+              {pendingMistake.detail?.trim()
+                ? pendingMistake.detail
+                : "Refaça esta questão sem perder a estrela."}
             </p>
 
             <div className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-left text-sm">
@@ -3667,9 +3742,6 @@ export function LessonPlayer() {
               <div className="mt-2 text-ink-soft">
                 Resposta correta: <span className="font-medium text-ink">{pendingMistake.correction}</span>
               </div>
-              {pendingMistake.detail ? (
-                <p className="mt-1 text-ink-faint">{pendingMistake.detail}</p>
-              ) : null}
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <div className="rounded-xl bg-surface px-3 py-2">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Custo</div>

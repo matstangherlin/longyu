@@ -11,6 +11,8 @@ import {
   type FeedbackStatusId,
 } from "../../lib/feedback";
 import { appEnvironmentLabel } from "../../lib/appEnvironment";
+import { ALL_LESSONS } from "../../data/journey";
+import { ERROR_CAUSE_LABELS, type ErrorCause } from "../../data/errorDiagnosis";
 import { useStore } from "../../lib/store";
 import {
   checkIsBetaAdmin,
@@ -20,9 +22,11 @@ import {
   type BetaFeedbackRow,
 } from "../../services/feedbackService";
 import {
+  buildLessonFunnelInsights,
   buildPedagogyInsights,
+  fetchAdminPedagogyDailyMetrics,
   fetchAdminPedagogyEvents,
-  type PedagogyEventRow,
+  type PedagogyDailyMetricRow,
   type PedagogyInsightBucket,
 } from "../../services/pedagogyEvents";
 
@@ -62,7 +66,9 @@ export function AdminFeedbackPage() {
   const emailAllowed = isAdminEmail(account?.email);
   const [serverAdmin, setServerAdmin] = useState<boolean | null>(null);
   const [rows, setRows] = useState<BetaFeedbackRow[]>([]);
-  const [events, setEvents] = useState<PedagogyEventRow[]>([]);
+  const [events, setEvents] = useState<Awaited<ReturnType<typeof fetchAdminPedagogyEvents>>>([]);
+  const [dailyMetrics, setDailyMetrics] = useState<PedagogyDailyMetricRow[]>([]);
+  const unrecognizedLocal = useStore((s) => s.unrecognizedProductions ?? []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -86,9 +92,14 @@ export function AdminFeedbackPage() {
     setLoading(true);
     setError(null);
     try {
-      const [feedback, pedagogy] = await Promise.all([fetchAdminFeedback(), fetchAdminPedagogyEvents()]);
+      const [feedback, pedagogy, daily] = await Promise.all([
+        fetchAdminFeedback(),
+        fetchAdminPedagogyEvents(),
+        fetchAdminPedagogyDailyMetrics().catch(() => [] as PedagogyDailyMetricRow[]),
+      ]);
       setRows(feedback);
       setEvents(pedagogy);
+      setDailyMetrics(daily);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao carregar feedback.");
     } finally {
@@ -101,6 +112,38 @@ export function AdminFeedbackPage() {
   }, [serverAdmin, emailAllowed]);
 
   const insights = useMemo(() => buildPedagogyInsights(events), [events]);
+  const funnel = useMemo(
+    () => buildLessonFunnelInsights(events, ALL_LESSONS.map((lesson) => lesson.id)),
+    [events]
+  );
+  const diagnosisLabels = useMemo(
+    () =>
+      insights.diagnosisFrequency.map((item) => ({
+        key: ERROR_CAUSE_LABELS[item.key as ErrorCause] ?? item.key,
+        count: item.count,
+      })),
+    [insights.diagnosisFrequency]
+  );
+  const localUnrecognized = useMemo(() => {
+    const map = new Map<string, { key: string; count: number }>();
+    for (const item of unrecognizedLocal) {
+      const key = `${item.lessonId} · ${item.expected} → ${item.answer}`;
+      const prev = map.get(key);
+      map.set(key, { key, count: (prev?.count ?? 0) + (item.seenCount ?? 1) });
+    }
+    return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 12);
+  }, [unrecognizedLocal]);
+  const dailyActivity = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of dailyMetrics) {
+      if (row.event_type !== "lesson_completed" && row.event_type !== "lesson_started") continue;
+      map.set(row.day, (map.get(row.day) ?? 0) + row.event_count);
+    }
+    return [...map.entries()]
+      .map(([key, count]) => ({ key, count }))
+      .sort((a, b) => b.key.localeCompare(a.key))
+      .slice(0, 14);
+  }, [dailyMetrics]);
   const allowed = serverAdmin === true || emailAllowed;
 
   const filtered = useMemo(() => {
@@ -254,6 +297,11 @@ export function AdminFeedbackPage() {
           <InsightList title="Lições mais abandonadas" items={insights.mostAbandoned} />
           <InsightList title="Imagens com maior erro" items={insights.imageErrors} />
           <InsightList title="Cenas mais repetidas" items={insights.repeatedScenes} />
+          <InsightList title="Diagnósticos mais frequentes" items={diagnosisLabels} />
+          <InsightList title="Formas não reconhecidas (nuvem, hash)" items={insights.unrecognizedForms} />
+          <InsightList title="Formas não reconhecidas (esta conta)" items={localUnrecognized} />
+          <InsightList title="Funil primeiras 20 lições" items={funnel} />
+          <InsightList title="Atividade diária (started/completed)" items={dailyActivity} />
         </div>
       </HubSection>
 
