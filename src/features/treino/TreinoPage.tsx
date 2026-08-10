@@ -4,6 +4,7 @@ import { JOURNEY, currentLessonId } from "../../data/journey";
 import { ProgressBar } from "../../components/ui/primitives";
 import {
   IconChat,
+  IconFlame,
   IconRefresh,
   IconShield,
   IconSound,
@@ -35,6 +36,7 @@ export function TreinoPage() {
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
   const learnedChunks = useStore((s) => s.learnedChunks);
+  const learnedChars = useStore((s) => s.learnedChars);
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyClaimed = useStore((s) => s.dailyMissions.claimed);
   const [paywallKind, setPaywallKind] = useState<"errors" | "training" | null>(null);
@@ -64,6 +66,14 @@ export function TreinoPage() {
   });
 
   const practiceItems: HubNavItem[] = [
+    {
+      title: "Mandarin Blitz",
+      desc: "Cinco desafios em uma rodada rápida.",
+      icon: IconFlame,
+      to: "/arcade/blitz",
+      status: "60 s",
+      featured: learnedChunks.length + learnedChars.length >= 2,
+    },
     {
       title: "Revisão básica",
       desc: "Reforce o que você aprendeu.",

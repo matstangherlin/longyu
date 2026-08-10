@@ -455,6 +455,28 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     targets.push(...textReviewTargets(text, domain, sourceTrack));
   };
 
+  if (step.pedagogyVariant === "audio_same_different") {
+    for (const audio of step.audioSequence ?? []) {
+      addText(audio, "som", "som");
+      addText(audio, "pinyin", "som");
+    }
+    return uniqueLessonReviewTargets(targets);
+  }
+  if (step.pedagogyVariant === "dragon_dictation") {
+    addText(step.audioText, "som", "som");
+    if (step.dictationMode === "pinyin") addText(step.audioText, "pinyin", "som");
+    else {
+      addText(step.audioText ?? step.answer, "uso");
+      addText(step.audioText ?? step.answer, "forma", "hanzi");
+    }
+    return uniqueLessonReviewTargets(targets);
+  }
+  if (step.pedagogyVariant?.startsWith("meaning_")) {
+    addText(step.correctAnswer ?? step.answer, "significado");
+    addText(step.correctAnswer ?? step.answer, "uso");
+    return uniqueLessonReviewTargets(targets);
+  }
+
   if (step.kind === "tone") {
     addText(step.hanzi, "som", "som");
     addText(step.hanzi, "pinyin", "som");
@@ -520,6 +542,9 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
       addText(text, "fala");
     }
   }
+  if (step.pedagogyVariant === "sentence_lab_audio") {
+    addText(step.audioText ?? step.correctAnswer, "som", "som");
+  }
   if (step.kind === "fill_blank") {
     addText(step.correctAnswer ?? step.answer ?? `${step.sentenceBefore ?? ""}${step.blankAnswer ?? ""}${step.sentenceAfter ?? ""}`, "uso");
   }
@@ -554,6 +579,11 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
 }
 
 function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
+  if (step.pedagogyVariant === "dragon_dictation") {
+    return step.dictationMode === "pinyin" ? "pinyin" : step.dictationMode === "blocks" ? "uso" : "forma";
+  }
+  if (step.pedagogyVariant === "audio_same_different") return "som";
+  if (step.pedagogyVariant?.startsWith("meaning_")) return "significado";
   if (step.kind === "tone" || step.kind === "listen_select" || step.kind === "tone_pair") return "som";
   if (step.kind === "audio_discrimination") return "som";
   if (step.kind === "dictation") return step.dictationMode === "pinyin" ? "pinyin" : step.dictationMode === "hanzi" ? "forma" : "som";
@@ -616,6 +646,8 @@ function errorHanziForStep(step: LessonStep): string | undefined {
   if (displayTextHasHanzi(step.sourceText)) return step.sourceText;
   if (displayTextHasHanzi(step.correctAnswer)) return step.correctAnswer;
   if (displayTextHasHanzi(step.answer)) return step.answer;
+  const audioSequence = step.audioSequence?.find(displayTextHasHanzi);
+  if (audioSequence) return audioSequence;
   const target = step.target?.join("") ?? step.targetParts?.join("");
   return displayTextHasHanzi(target) ? target : undefined;
 }
@@ -652,9 +684,11 @@ function errorTokensForStep(step: LessonStep): string[] {
     step.answer,
     step.blankAnswer,
     step.audioText,
+    ...(step.audioSequence ?? []),
     step.charId ? charById.get(step.charId)?.hanzi : undefined,
     step.target?.join(""),
     step.targetParts?.join(""),
+    ...(step.acceptedTargetParts ?? []).map((parts) => parts.join("")),
     ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
   ];
   const tokens = new Set<string>();
@@ -668,6 +702,10 @@ function errorTokensForStep(step: LessonStep): string[] {
 }
 
 function mistakeReasonForStep(step: LessonStep): string {
+  if (step.pedagogyVariant === "audio_same_different") return "Contraste auditivo e tonal ainda instável.";
+  if (step.pedagogyVariant === "dragon_dictation") return "Mapeamento entre áudio e escrita ainda precisa de recuperação.";
+  if (step.pedagogyVariant?.startsWith("meaning_")) return "Relação de significado ou intenção ainda incerta.";
+  if (step.pedagogyVariant?.startsWith("sentence_lab_")) return "Ordem natural da frase ainda instável.";
   if (step.kind === "tone" || step.kind === "tone_pair") return "Confusão de tom ou contorno sonoro.";
   if (step.kind === "audio_discrimination") {
     return step.contrastLabel
@@ -1410,12 +1448,13 @@ export function LessonPlayer() {
                   recentConversationSceneIds,
                   recentConversationIntentIds,
                   conversationHistory,
+                  attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
                 }
               ),
             };
           })()
         : undefined,
-    [completedLessons, conversationHistory, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
+    [completedLessons, conversationHistory, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, lessonAttemptsById, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
   );
 
   useEffect(() => {
