@@ -171,6 +171,18 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (mode !== "free_reflection" && !step.answer?.trim() && !(step.accepts ?? []).some((a) => a?.trim())) {
         errors.push("write guiado sem resposta nem variantes aceitas");
       }
+      if (step.pedagogyVariant === "dragon_dictation") {
+        if (!step.audioText?.trim()) errors.push("dragon_dictation sem audioText");
+        if (!step.dictationMode || step.dictationMode === "blocks") {
+          errors.push("dragon_dictation escrito precisa de modo pinyin, hanzi ou immersion");
+        }
+        if (!step.isNoHint && step.helpMode !== "disabled") {
+          errors.push("dragon_dictation precisa estar sem dica");
+        }
+        if (step.dictationMode === "immersion" && step.playbackLimit !== 1) {
+          errors.push("dragon_dictation de imersão precisa limitar o áudio a 1 reprodução");
+        }
+      }
       break;
     }
 
@@ -224,7 +236,14 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     case "listen_select": {
       const answer = step.correctAnswer ?? step.answer;
       const audio = step.audioText ?? answer;
-      if (!audio?.trim()) errors.push("listen_select sem áudio (audioText/resposta)");
+      if (step.pedagogyVariant === "audio_same_different") {
+        if (step.audioSequence?.length !== 2 || step.audioSequence.some((item) => !item?.trim())) {
+          errors.push("audio_same_different precisa de exatamente 2 áudios");
+        }
+        if (!step.isNoHint && step.helpMode !== "disabled") {
+          errors.push("audio_same_different precisa estar sem dica");
+        }
+      } else if (!audio?.trim()) errors.push("listen_select sem áudio (audioText/resposta)");
       const options = [...(step.options ?? []), ...(step.distractors ?? [])];
       checkChoice(errors, "listen_select", answer, options);
       checkPinyinLookAlike(errors, step, options);
@@ -238,6 +257,16 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (parts.length === 0) errors.push(`${step.kind} sem targetParts`);
       if (parts.some((piece) => !piece?.trim())) errors.push(`${step.kind} com peça vazia`);
       if ((step.bank ?? []).some((piece) => !piece?.trim())) errors.push(`${step.kind} com peça vazia no banco`);
+      for (const [index, accepted] of (step.acceptedTargetParts ?? []).entries()) {
+        if (accepted.length === 0 || accepted.some((piece) => !piece?.trim())) {
+          errors.push(`${step.kind}: acceptedTargetParts ${index + 1} inválido`);
+        }
+      }
+      if (step.pedagogyVariant === "dragon_dictation") {
+        if (step.dictationMode !== "blocks") errors.push("dragon_dictation por peças precisa do modo blocks");
+        if (!step.audioText?.trim()) errors.push("dragon_dictation por peças sem audioText");
+        if (!step.isNoHint && step.helpMode !== "disabled") errors.push("dragon_dictation precisa estar sem dica");
+      }
       break;
     }
 

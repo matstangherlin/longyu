@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4dde286486d21ae1d48c5cb6b128ffa6d6218988 |
+| Commit | ead4646c1af70c7f7dbed5268bb96f9642cc5f44 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T08:08:44.406Z |
+| Gerado em | 2026-08-10T02:55:52.454Z |
 | Lições | 122 |
-| Hash da Jornada | dbf712321bc6 |
+| Hash da Jornada | 227b4e533306 |
 
 ## Resumo
 
@@ -16,8 +16,8 @@
 |-----------|------:|
 | Lições analisadas | 122 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1337 |
-| Pares com transformação cognitiva | 1142 (85%) |
+| Pares de repetição semântica | 1358 |
+| Pares com transformação cognitiva | 1176 (87%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -31,7 +31,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 |-------|-------:|----------:|-----------------:|-----------:|--------------:|---------------:|---------------------|
 | p1-o-que-e-mandarim | 14 | 13 | 22 | 12 | 12 | 7 | intent:plan-tomorrow × 3 |
 | p1-o-que-e-pinyin | 14 | 13 | 18 | 15 | 15 | 8 | intent:plan-tomorrow × 3 |
-| p1-o-que-e-tom | 15 | 14 | 26 | 11 | 8 | 10 | intent:plan-tomorrow × 3 |
+| p1-o-que-e-tom | 15 | 14 | 25 | 12 | 9 | 10 | intent:plan-tomorrow × 3 |
 | p1-o-que-e-hanzi | 16 | 15 | 24 | 11 | 11 | 9 | intent:plan-tomorrow × 3 |
 | p1-primeiros-hanzi | 14 | 13 | 20 | 15 | 11 | 10 | action:assemble-hanzi × 5 |
 | p1-engine-2-lab | 12 | 11 | 22 | 13 | 13 | 6 | intent:identify-concept × 3 |
@@ -52,7 +52,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p2-comparar-tom-2-3 | 12 | 11 | 18 | 11 | 11 | 6 | intent:polite-question × 4 |
 | l5 | 14 | 13 | 17 | 11 | 10 | 5 | intent:polite-question × 4 |
 | l6 | 13 | 12 | 20 | 8 | 8 | 5 | intent:polite-question × 4 |
-| l3-rev | 20 | 17 | 25 | 20 | 20 | 9 | intent:polite-question × 5 |
+| l3-rev | 20 | 17 | 25 | 17 | 16 | 10 | intent:polite-question × 5 |
 | l7 | 14 | 13 | 22 | 13 | 9 | 6 | intent:polite-question × 4 |
 | l8 | 12 | 11 | 18 | 11 | 11 | 8 | intent:plan-tomorrow × 3 |
 | l8-compare | 12 | 11 | 18 | 11 | 11 | 6 | intent:polite-question × 4 |
@@ -76,7 +76,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l13-dialogo-ola | 12 | 12 | 24 | 15 | 14 | 8 | phrase:你好 × 4 |
 | l13-dialogo-nome | 12 | 12 | 27 | 12 | 11 | 7 | action:assemble-phrase × 3 |
 | p3-ordem-das-palavras | 13 | 12 | 24 | 11 | 10 | 9 | action:assemble-phrase × 3 |
-| l5-rev | 17 | 15 | 22 | 16 | 14 | 9 | phrase:你好吗 × 3 |
+| l5-rev | 17 | 15 | 21 | 15 | 13 | 9 | phrase:你好 × 3 |
 | l14 | 13 | 12 | 21 | 10 | 9 | 8 | char:人 × 2 |
 | p4-num-123 | 12 | 11 | 17 | 10 | 10 | 5 | char:一 × 3 |
 | p4-num-45 | 12 | 11 | 19 | 10 | 10 | 5 | intent:identify-concept × 3 |
@@ -88,26 +88,26 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p4-char-ri | 12 | 11 | 20 | 12 | 11 | 6 | intent:identify-concept × 3 |
 | p4-char-yue | 12 | 11 | 18 | 13 | 12 | 6 | char:月 × 3 |
 | p4-char-shan | 12 | 11 | 18 | 13 | 12 | 6 | char:山 × 3 |
-| p4-char-shui | 12 | 11 | 15 | 7 | 4 | 6 | char:水 × 4 |
+| p4-char-shui | 13 | 12 | 17 | 8 | 5 | 6 | char:水 × 5 |
 | p4-char-tian | 12 | 11 | 19 | 5 | 4 | 6 | char:山 × 3 |
-| p4-char-huo | 12 | 11 | 15 | 8 | 4 | 8 | char:火 × 3 |
-| p4-char-da | 13 | 12 | 15 | 11 | 6 | 8 | char:大 × 3 |
-| p4-char-xiao | 13 | 12 | 15 | 11 | 6 | 8 | char:小 × 3 |
-| p4-char-zhong | 13 | 12 | 17 | 8 | 3 | 9 | char:人 × 2 |
-| p4-char-bu | 12 | 11 | 14 | 6 | 2 | 6 | char:不 × 3 |
-| p4-char-shi | 13 | 12 | 20 | 5 | 1 | 7 | action:assemble-phrase × 2 |
-| p4-char-wo | 13 | 12 | 17 | 6 | 2 | 9 | char:我 × 3 |
-| p4-char-ni | 13 | 12 | 17 | 6 | 2 | 9 | char:你 × 3 |
-| l14-numeros-visuais | 13 | 12 | 17 | 7 | 2 | 8 | char:大 × 2 |
-| l14-pecas-natureza | 14 | 13 | 20 | 7 | 1 | 8 | char:日 × 2 |
-| l14-frase-minima | 14 | 13 | 16 | 9 | 2 | 10 | action:assemble-hanzi × 4 |
+| p4-char-huo | 13 | 12 | 15 | 11 | 7 | 8 | char:水 × 4 |
+| p4-char-da | 13 | 12 | 16 | 12 | 8 | 7 | char:大 × 3 |
+| p4-char-xiao | 13 | 12 | 16 | 12 | 8 | 7 | char:小 × 3 |
+| p4-char-zhong | 13 | 12 | 18 | 9 | 5 | 8 | char:人 × 2 |
+| p4-char-bu | 12 | 11 | 15 | 7 | 4 | 5 | char:不 × 3 |
+| p4-char-shi | 13 | 12 | 21 | 6 | 3 | 6 | action:assemble-phrase × 2 |
+| p4-char-wo | 13 | 12 | 19 | 6 | 3 | 8 | char:我 × 3 |
+| p4-char-ni | 13 | 12 | 19 | 6 | 3 | 8 | char:你 × 3 |
+| l14-numeros-visuais | 13 | 12 | 18 | 8 | 4 | 7 | char:大 × 2 |
+| l14-pecas-natureza | 14 | 13 | 21 | 8 | 3 | 7 | intent:identify-concept × 3 |
+| l14-frase-minima | 14 | 13 | 18 | 9 | 3 | 9 | action:assemble-hanzi × 4 |
 | l14-char-rev | 12 | 12 | 23 | 11 | 10 | 7 | char:一 × 3 |
 | l15 | 12 | 11 | 20 | 10 | 9 | 7 | char:林 × 3 |
-| l6-rev | 115 | 85 | 46 | 62 | 48 | 19 | action:assemble-hanzi × 12 |
+| l6-rev | 116 | 86 | 47 | 65 | 51 | 19 | action:assemble-hanzi × 12 |
 | l16 | 12 | 11 | 16 | 8 | 8 | 5 | char:马 × 2 |
 | l17 | 12 | 11 | 17 | 8 | 7 | 5 | char:日 × 2 |
 | l18 | 12 | 11 | 18 | 11 | 11 | 5 | char:朋 × 2 |
-| l7-rev | 18 | 17 | 28 | 13 | 12 | 9 | intent:identify-concept × 3 |
+| l7-rev | 19 | 18 | 28 | 16 | 15 | 9 | intent:identify-concept × 3 |
 | p4-checkpoint-fundamentos | 17 | 16 | 27 | 16 | 14 | 10 | phrase:你好 × 3 |
 | p5-mu-mu-lin | 12 | 11 | 20 | 9 | 8 | 7 | char:木 × 2 |
 | p5-mu-mu-mu-sen | 12 | 11 | 20 | 9 | 8 | 7 | char:木 × 2 |
@@ -129,10 +129,10 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l21 | 12 | 11 | 23 | 12 | 11 | 7 | intent:identify-concept × 3 |
 | l22 | 12 | 11 | 22 | 8 | 8 | 6 | action:assemble-phrase × 3 |
 | l23 | 12 | 12 | 19 | 15 | 14 | 6 | phrase:你好 × 4 |
-| l9-rev | 23 | 20 | 35 | 22 | 14 | 13 | intent:identify-concept × 4 |
+| l9-rev | 25 | 22 | 39 | 22 | 14 | 13 | intent:identify-concept × 4 |
 | l24 | 13 | 12 | 26 | 8 | 8 | 9 | intent:identify-concept × 2 |
 | l25 | 14 | 13 | 26 | 11 | 7 | 9 | action:assemble-phrase × 3 |
-| l26 | 14 | 13 | 26 | 11 | 6 | 10 | action:assemble-phrase × 3 |
+| l26 | 14 | 13 | 27 | 12 | 8 | 9 | intent:identify-concept × 3 |
 | l26b | 14 | 13 | 23 | 7 | 6 | 7 | action:assemble-phrase × 3 |
 | l27 | 14 | 13 | 28 | 6 | 6 | 9 | phrase:我要这个 × 2 |
 | l28 | 14 | 13 | 26 | 8 | 8 | 6 | intent:identify-concept × 4 |
@@ -140,15 +140,15 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p6-cidade-lugares | 14 | 13 | 23 | 6 | 6 | 11 | phrase:我去超市 × 2 |
 | p6-saude | 14 | 13 | 24 | 2 | 2 | 11 | action:assemble-phrase × 2 |
 | p6-horarios | 14 | 13 | 26 | 2 | 2 | 10 | action:assemble-phrase × 2 |
-| p6-natureza | 14 | 13 | 24 | 6 | 2 | 11 | char:山 × 2 |
+| p6-natureza | 14 | 13 | 26 | 6 | 3 | 10 | char:山 × 2 |
 | p6-clima | 14 | 13 | 26 | 4 | 3 | 10 | action:assemble-phrase × 3 |
 | p6-direcoes | 14 | 13 | 25 | 8 | 8 | 7 | intent:identify-concept × 3 |
 | p6-compras | 14 | 13 | 28 | 3 | 3 | 11 | intent:identify-concept × 2 |
-| l10-rev | 24 | 23 | 45 | 26 | 19 | 13 | intent:identify-concept × 5 |
+| l10-rev | 25 | 24 | 45 | 29 | 22 | 13 | intent:identify-concept × 5 |
 | l29 | 14 | 13 | 28 | 7 | 6 | 10 | action:assemble-phrase × 3 |
-| l30 | 14 | 13 | 26 | 6 | 1 | 10 | action:assemble-phrase × 3 |
-| l11-rev | 22 | 20 | 41 | 20 | 13 | 12 | action:assemble-phrase × 4 |
-| p7-imersao-mercado | 22 | 21 | 34 | 12 | 7 | 13 | char:三 × 4 |
+| l30 | 14 | 13 | 29 | 5 | 1 | 9 | action:assemble-phrase × 3 |
+| l11-rev | 24 | 22 | 42 | 24 | 17 | 12 | action:assemble-phrase × 4 |
+| p7-imersao-mercado | 22 | 21 | 34 | 12 | 8 | 12 | char:三 × 4 |
 | p7-imersao-estacao | 16 | 15 | 25 | 6 | 5 | 9 | char:车 × 3 |
 | p7-imersao-casa-amigo | 16 | 15 | 26 | 10 | 7 | 10 | char:家 × 3 |
 
@@ -156,4 +156,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:e13906c6a754bf56 -->
+<!-- integridade:0488a95c39123659 -->

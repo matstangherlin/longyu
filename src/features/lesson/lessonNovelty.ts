@@ -232,6 +232,12 @@ function scopeOf(step: LessonStep): CognitiveScope {
 }
 
 function stimulusOf(step: LessonStep): CognitiveStimulus {
+  if (
+    step.pedagogyVariant === "dragon_dictation" ||
+    step.pedagogyVariant === "audio_same_different" ||
+    step.pedagogyVariant === "sentence_lab_audio"
+  ) return "audio";
+  if (step.pedagogyVariant === "sentence_lab_no_translation") return "hanzi";
   if (step.kind === "image_choice") {
     if (step.imageChoiceMode === "listen_and_choose_image") return "audio";
     if (step.imageChoiceMode === "choose_image") return "hanzi";
@@ -246,6 +252,12 @@ function stimulusOf(step: LessonStep): CognitiveStimulus {
 }
 
 function responseOf(step: LessonStep): CognitiveResponse {
+  if (step.pedagogyVariant === "dragon_dictation") {
+    if (step.dictationMode === "blocks") return "assembly";
+    if (step.dictationMode === "pinyin") return "pinyin";
+    return "hanzi";
+  }
+  if (step.pedagogyVariant === "audio_same_different") return "meaning";
   if (step.kind === "tone") return "tone";
   if (step.kind === "match_pairs" || step.kind === "tone_pair") return "match";
   if (step.kind === "hanzi_build" || ASSEMBLY_KINDS.has(step.kind) || step.kind === "fill_blank") return "assembly";
@@ -263,6 +275,9 @@ function responseOf(step: LessonStep): CognitiveResponse {
 }
 
 function familyRankOf(step: LessonStep): CognitiveProfile["familyRank"] {
+  if (step.pedagogyVariant === "dragon_dictation" || step.pedagogyVariant?.startsWith("sentence_lab_")) {
+    return 2;
+  }
   switch (step.kind) {
     case "intro":
     case "flashcard":

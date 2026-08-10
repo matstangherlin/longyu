@@ -75,6 +75,17 @@ export interface LessonStage {
 
 export type StepTextType = "pt" | "hanzi" | "pinyin" | "audio";
 export type StepHelpMode = "character" | "word" | "sentence" | "progressive" | "disabled";
+export type DictationMode = "blocks" | "pinyin" | "hanzi" | "immersion";
+export type PedagogyVariant =
+  | "audio_same_different"
+  | "dragon_dictation"
+  | "meaning_odd_one_out"
+  | "meaning_spot_error"
+  | "meaning_intention_match"
+  | "sentence_lab_distractors"
+  | "sentence_lab_no_translation"
+  | "sentence_lab_audio"
+  | "sentence_lab_repair";
 
 export interface LessonStep {
   kind: StepKind;
@@ -86,6 +97,17 @@ export interface LessonStep {
   body?: string;
   assist?: "guided" | "quiz";
   mode?: "guided_write" | "free_reflection" | "translation_fill";
+  /** Variation inside an existing engine; keeps grading/SRS on the canonical kind. */
+  pedagogyVariant?: PedagogyVariant;
+  /** Automatic lesson rotation: first attempt, review attempt, challenge attempt. */
+  practiceVariant?: "A" | "B" | "C";
+  dictationMode?: DictationMode;
+  /** Audio discrimination can compare two hidden stimuli without leaking hanzi. */
+  audioSequence?: string[];
+  /** Sentence Lab accepts alternate grammatically valid piece sequences. */
+  acceptedTargetParts?: string[][];
+  /** Immersion dictation can limit playback to one attempt. */
+  playbackLimit?: number;
   imageChoiceMode?: ImageChoiceMode;
   imageId?: string;
   iconId?: string;

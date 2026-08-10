@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4dde286486d21ae1d48c5cb6b128ffa6d6218988 |
+| Commit | ead4646c1af70c7f7dbed5268bb96f9642cc5f44 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-04T08:08:24.064Z |
+| Gerado em | 2026-08-10T02:55:52.536Z |
 | Lições | 122 |
-| Hash da Jornada | dbf712321bc6 |
+| Hash da Jornada | 227b4e533306 |
 
 ## Resumo
 
@@ -16,11 +16,11 @@
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 128 |
 | Itens de vocabulário exibidos | 717 |
-| Itens cobertos por tarefa posterior | 487 |
+| Itens cobertos por tarefa posterior | 494 |
 | Reutilização média por item | 2.02 |
-| Itens sem cobertura | 230 |
-| Tarefas da fase Pós-Conversa | 454 |
-| Média Pós-Conversa por conversa | 3.55 |
+| Itens sem cobertura | 223 |
+| Tarefas da fase Pós-Conversa | 463 |
+| Média Pós-Conversa por conversa | 3.62 |
 | Modalidades usadas nas derivadas | comprehend, dialogue_choice, fill_blank, image_choice, listen_select, recognize, sentence_build |
 
 ## Itens sem cobertura
@@ -55,7 +55,6 @@
 - p3-ordem-das-palavras:chunk:wohenhao
 - p3-ordem-das-palavras:chunk:wohuishuoyidian
 - p3-ordem-das-palavras:chunk:wojiao
-- l5-rev:chunk:xiexie
 - l5-rev:chunk:zaijian
 - l14:chunk:wohenhao
 - l14:chunk:wohuishuoyidian
@@ -105,6 +104,7 @@
 - l17:chunk:zaijian
 - l18:chunk:nihaoma
 - l18:chunk:xiexie
-- …mais 150.
+- l18:chunk:zaijian
+- …mais 143.
 
-<!-- integridade:923cad085f14626e -->
+<!-- integridade:e90bf415dc57feae -->
