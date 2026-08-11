@@ -89,6 +89,12 @@ html[data-lesson-player="1"] #root {
   height: 100%;
   max-height: 100dvh;
   overscroll-behavior: none;
+  touch-action: none;
+}
+
+html[data-lesson-player="1"] [data-lesson-activity-scroll] {
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
 }
 
 html {

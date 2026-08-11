@@ -21,11 +21,19 @@ test.describe("lesson player — viewport & scroll", () => {
       docScroll: document.documentElement.scrollTop,
       bodyOverflow: getComputedStyle(document.body).overflow,
       rootOverflow: getComputedStyle(document.documentElement).overflow,
+      bodyPosition: document.body.style.position,
     }));
     expect(pageScroll.scrollY).toBe(0);
     expect(pageScroll.docScroll).toBe(0);
     expect(pageScroll.bodyOverflow).toBe("hidden");
     expect(pageScroll.rootOverflow).toBe("hidden");
+    expect(pageScroll.bodyPosition).toBe("fixed");
+
+    const frameBox = await page.locator("[data-lesson-player-frame]").evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { position: style.position, top: style.top };
+    });
+    expect(frameBox.position).toBe("fixed");
 
     // Simula arrastar para baixo no body — scroll da página não deve mover.
     await page.evaluate(() => {

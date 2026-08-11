@@ -19,6 +19,7 @@ import { EconomyBootstrap } from "../economy/EconomyBootstrap";
 import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap";
 import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
 import { ErrorBoundary } from "../system/ErrorBoundary";
+import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -95,6 +96,8 @@ export function AppShell() {
   }, [location.pathname]);
 
   // Lesson Player: trava scroll da página — só a região da atividade rola.
+  useLessonPlayerScrollLock(isLessonPlayer);
+
   useEffect(() => {
     if (!isLessonPlayer) {
       delete document.documentElement.dataset.lessonPlayer;

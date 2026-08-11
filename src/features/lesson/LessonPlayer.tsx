@@ -53,7 +53,7 @@ import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
 import { useOnline } from "../../hooks/useOnline";
-import { useVisualViewportHeight } from "../../hooks/useVisualViewportHeight";
+import { useVisualViewportFrame } from "../../hooks/useVisualViewportFrame";
 import { resetLessonPlayerScroll } from "../../lib/lessonPlayerScroll";
 import {
   hashAnswerNorm,
@@ -1507,7 +1507,7 @@ export function LessonPlayer() {
   const pendingReviewRestoredRef = useRef(false);
   /** Região rolável da atividade: scroll fica aqui, não na página. */
   const activityScrollRef = useRef<HTMLDivElement>(null);
-  const viewportHeight = useVisualViewportHeight();
+  const viewportFrame = useVisualViewportFrame();
   const requiredTonePack = foundLesson ? requiredToneTrainerPackForLesson(foundLesson.id) : undefined;
   const toneLocked = Boolean(
     foundLesson &&
@@ -3660,14 +3660,29 @@ export function LessonPlayer() {
 
   return (
     <div
-      className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0"
+      className="fixed z-40 flex flex-col overflow-hidden bg-bg"
       data-lesson-player-frame
       style={
-        viewportHeight
-          ? { height: `${viewportHeight}px`, maxHeight: `${viewportHeight}px` }
-          : undefined
+        viewportFrame
+          ? {
+              top: viewportFrame.offsetTop,
+              left: viewportFrame.offsetLeft,
+              width: viewportFrame.width,
+              height: viewportFrame.height,
+              maxHeight: viewportFrame.height,
+            }
+          : {
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: "100dvh",
+              maxHeight: "100dvh",
+              width: "100%",
+            }
       }
     >
+    <div className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0">
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
@@ -3865,6 +3880,7 @@ export function LessonPlayer() {
         offer={contextualOffer.offer}
         onClose={contextualOffer.dismiss}
       />
+    </div>
     </div>
   );
 }

@@ -34,7 +34,7 @@ Use o log em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) (copie linhas; não apague o
 - [ ] Feedback: saber onde está o botão / reportar no player  
 
 > **2026-08-11:** proxy desktop `e2e/runbook-20-lessons.spec.ts` adicionado (Chromium headless — **não** substitui §1 humano).  
-> **B001** (scroll da página no mobile) corrigido — revalidar no Android físico.
+> **B001** (rubber-band Android) **reaberto** após #138 — aguardando fix reforçado + revalidação física.
 
 Comandos úteis no repo (antes da RC, não no meio do uso):
 
