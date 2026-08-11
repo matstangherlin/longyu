@@ -97,6 +97,15 @@ import {
   reviewModeLabel,
   reviewProgressLabel,
 } from "./reviewCopy";
+import {
+  AssemblyCheckActions,
+  AssemblyHintBanner,
+  PieceAssemblyBank,
+  PieceAssemblyBoard,
+  PieceAssemblyTray,
+  type AssemblyPiece,
+} from "./PieceAssembly";
+import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -1078,17 +1087,32 @@ function ErrorReviewQuestion({
   const exercise = useMemo(() => buildImmediateRemediationExercise(error), [error]);
   const answer = exercise.answer;
   const options = exercise.options ?? [];
-  const pieces = exercise.pieces ?? [];
   const isBuild = exercise.kind === "build";
+  const bankPieces = useMemo<AssemblyPiece[]>(() => {
+    const raw = exercise.pieces ?? [];
+    // IDs únicos: evita reusar a mesma peça duas vezes (como na lição).
+    const counts = new Map<string, number>();
+    return raw.map((value) => {
+      const n = counts.get(value) ?? 0;
+      counts.set(value, n + 1);
+      return { id: `${value}#${n}`, value };
+    });
+  }, [exercise.pieces]);
+  const targetParts = useMemo(() => {
+    if (error.step?.targetParts?.length) return error.step.targetParts;
+    if (exercise.pieceJoin === " ") return answer.split(/\s+/).filter(Boolean);
+    return displayTextHasHanzi(answer) ? [...answer.replace(/\s+/g, "")] : answer.split(/\s+/).filter(Boolean);
+  }, [answer, error.step?.targetParts, exercise.pieceJoin]);
   // Se, por algum motivo, um erro não gerar opções nem peças jogáveis, o aluno
-  // ficaria preso (nada para tocar, botão "Próximo" travado). Nesse caso raro,
-  // revelamos a resposta e liberamos o avanço em vez de prender a revisão.
-  const answerable = isBuild ? pieces.length > 0 : options.length > 0;
+  // ficaria preso. Nesse caso raro, revelamos a resposta e liberamos o avanço.
+  const answerable = isBuild ? bankPieces.length > 0 : options.length > 0;
   const [selected, setSelected] = useState<string | null>(null);
-  const [pickedPieces, setPickedPieces] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [pickedPieces, setPickedPieces] = useState<AssemblyPiece[]>([]);
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | "incomplete" | null>(null);
+  const [assemblyHint, setAssemblyHint] = useState<string | null>(null);
+  const [matchPrefix, setMatchPrefix] = useState(0);
   const answeredRef = useRef(false);
-  const answered = feedback !== null;
+  const answered = feedback === "correct" || feedback === "wrong";
   const isLastItem = index + 1 >= total;
   const remainingForRecovery = total - index;
   const modeLabel = reviewModeLabel({ canRecover, isLastItem });
@@ -1100,20 +1124,29 @@ function ErrorReviewQuestion({
   const pinyinWouldCueAnswer =
     exercise.kind === "tone" || exercise.kind === "listen" || exercise.kind === "pinyin" || error.type === "tone_pair";
   const showPromptPinyin = Boolean(exercise.displayPinyin && (!pinyinWouldCueAnswer || answered));
-  // Feedback só usa pinyin da RESPOSTA — nunca dump do erro original.
   const feedbackPinyin =
     exercise.answerPinyin && !/[\/|]/.test(exercise.answerPinyin) ? exercise.answerPinyin : undefined;
+  const usedIds = useMemo(() => new Set(pickedPieces.map((piece) => piece.id)), [pickedPieces]);
+  const requiredCount = Math.max(targetParts.length, 1);
+  const wrongIndexes = useMemo(() => {
+    if (feedback !== "wrong") return new Set<number>();
+    const wrong = new Set<number>();
+    pickedPieces.forEach((piece, i) => {
+      if (targetParts[i] !== piece.value) wrong.add(i);
+    });
+    return wrong;
+  }, [feedback, pickedPieces, targetParts]);
 
   useEffect(() => {
     setSelected(null);
     setPickedPieces([]);
     setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
     answeredRef.current = false;
   }, [error.id]);
 
   useEffect(() => {
-    // Exercício degenerado (sem opções/peças): revela a resposta e conta como
-    // "ainda precisa revisar", garantindo que o botão de avançar funcione.
     if (!answerable && !answeredRef.current) {
       answeredRef.current = true;
       setFeedback("wrong");
@@ -1121,7 +1154,7 @@ function ErrorReviewQuestion({
     }
   }, [answerable, error, onNeedsMoreReview]);
 
-  const builtAnswer = pickedPieces.join(exercise.pieceJoin);
+  const builtAnswer = pickedPieces.map((piece) => piece.value).join(exercise.pieceJoin);
   const answerDisplay = exercise.answerDisplay ?? exercise.answer;
   const displayIsHanzi = displayTextHasHanzi(exercise.display);
 
@@ -1136,12 +1169,38 @@ function ErrorReviewQuestion({
   }
 
   function checkBuild() {
-    if (answeredRef.current) return;
-    answeredRef.current = true;
+    if (answeredRef.current || pickedPieces.length === 0) return;
     const correct = normalizeRemediationAnswer(builtAnswer) === normalizeRemediationAnswer(answer);
-    setFeedback(correct ? "correct" : "wrong");
-    if (correct) onCorrect(error);
-    else onNeedsMoreReview(error);
+    if (correct) {
+      answeredRef.current = true;
+      setFeedback("correct");
+      setAssemblyHint(null);
+      onCorrect(error);
+      return;
+    }
+    const hint = buildAssemblyFeedback({
+      picked: pickedPieces.map((piece) => piece.value),
+      target: targetParts,
+      requiredCount,
+      kind: error.type,
+    });
+    setMatchPrefix(hint.prefixMatch);
+    setAssemblyHint(hint.message);
+    if (pickedPieces.length < requiredCount) {
+      setFeedback("incomplete");
+      return;
+    }
+    answeredRef.current = true;
+    setFeedback("wrong");
+    onNeedsMoreReview(error);
+  }
+
+  function clearBuild() {
+    if (answered) return;
+    setPickedPieces([]);
+    setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
   }
 
   function playReviewAudio() {
@@ -1157,7 +1216,6 @@ function ErrorReviewQuestion({
       data-review-kind={exercise.kind}
       data-review-mode={canRecover ? (isLastItem ? "last_chance" : "recovery") : "review"}
     >
-      {/* Cabeçalho simples — consistente com eyebrow do Lesson Player */}
       <div className="flex flex-wrap items-center justify-between gap-2" data-review-progress>
         <div className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
           {REVIEW_QUESTION.eyebrow}
@@ -1184,7 +1242,6 @@ function ErrorReviewQuestion({
         </p>
       )}
 
-      {/* Prompt — sem rótulo “Pergunta” extra */}
       <h1 className="mt-4 font-serif text-xl font-semibold leading-snug text-ink sm:text-2xl" data-review-prompt>
         {exercise.prompt}
       </h1>
@@ -1192,7 +1249,6 @@ function ErrorReviewQuestion({
         {isBuild ? REVIEW_QUESTION.doNowBuild : REVIEW_QUESTION.doNowChoice}
       </p>
 
-      {/* Estímulo único */}
       {exercise.kind === "blank" ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           <div className="hanzi text-2xl leading-relaxed text-ink">
@@ -1210,7 +1266,7 @@ function ErrorReviewQuestion({
               {exercise.display}
             </div>
           ) : (
-            <div className="text-base font-medium leading-6 text-ink" data-review-display>
+            <div className="mt-0 text-base font-medium leading-6 text-ink" data-review-display>
               {exercise.display}
             </div>
           )}
@@ -1231,40 +1287,50 @@ function ErrorReviewQuestion({
         </section>
       ) : null}
 
-      {/* Interação */}
       {!answerable ? null : isBuild ? (
-        <section className="mt-4" data-review-options>
-          <div className="flex min-h-[72px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
-            {pickedPieces.length === 0 ? (
-              <span className="text-sm font-medium text-ink-faint">toque nas peças</span>
-            ) : (
-              pickedPieces.map((piece, pieceIndex) => (
-                <button
-                  key={`${piece}-${pieceIndex}`}
-                  type="button"
-                  className="min-h-11 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-white"
-                  onClick={() => setPickedPieces((items) => items.filter((_, itemIndex) => itemIndex !== pieceIndex))}
-                  disabled={answered}
-                >
-                  {piece}
-                </button>
-              ))
-            )}
-          </div>
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            {pieces.map((piece, pieceIndex) => (
-              <button
-                key={`${piece}-${pieceIndex}`}
-                type="button"
-                className="min-h-12 rounded-xl border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2 disabled:opacity-40"
-                onClick={() => setPickedPieces((items) => [...items, piece])}
-                disabled={answered}
-              >
-                {piece}
-              </button>
-            ))}
-          </div>
-        </section>
+        <div data-review-options>
+          <PieceAssemblyBoard
+            trayLabel="Sua resposta"
+            bankLabel="Peças para usar"
+            tray={
+              <PieceAssemblyTray
+                pieces={pickedPieces}
+                emptySlots={Math.max(0, requiredCount - pickedPieces.length)}
+                locked={answered}
+                wrongIndexes={wrongIndexes}
+                matchPrefix={matchPrefix}
+                showWrong={feedback === "wrong"}
+                emptyHint="Toque nas peças abaixo para montar aqui"
+                onRemove={(pieceIndex) => {
+                  if (answered) return;
+                  setPickedPieces((items) => items.filter((_, i) => i !== pieceIndex));
+                  setFeedback(null);
+                  setAssemblyHint(null);
+                  setMatchPrefix(0);
+                }}
+              />
+            }
+            bank={
+              <PieceAssemblyBank
+                pieces={bankPieces}
+                usedIds={usedIds}
+                locked={answered}
+                onAdd={(piece) => {
+                  if (answered || usedIds.has(piece.id)) return;
+                  setPickedPieces((items) => [...items, piece]);
+                  setFeedback(null);
+                  setAssemblyHint(null);
+                  setMatchPrefix(0);
+                }}
+              />
+            }
+            hint={
+              (feedback === "incomplete" || feedback === "wrong") && assemblyHint ? (
+                <AssemblyHintBanner message={assemblyHint} tone="accent" />
+              ) : null
+            }
+          />
+        </div>
       ) : (
         <section className="mt-4 grid gap-2" data-review-options>
           {options.map((option) => (
@@ -1288,8 +1354,7 @@ function ErrorReviewQuestion({
         </section>
       )}
 
-      {/* Feedback limpo */}
-      {feedback && (
+      {feedback && feedback !== "incomplete" && (
         <section
           className={[
             "mt-4 rounded-2xl border px-4 py-3 text-left",
@@ -1330,24 +1395,21 @@ function ErrorReviewQuestion({
         </section>
       )}
 
-      {/* CTA padronizado — sticky visual no rodapé do card */}
       <div className="mt-auto pt-5">
         {isBuild && !answered ? (
-          <Button
-            className="w-full shadow-lift"
-            size="lg"
-            disabled={pickedPieces.length === 0}
-            onClick={checkBuild}
-            data-review-check
-          >
-            {REVIEW_QUESTION.ctaCheck}
-          </Button>
+          <AssemblyCheckActions
+            canCheck={pickedPieces.length > 0}
+            canClear={pickedPieces.length > 0}
+            onCheck={checkBuild}
+            onClear={clearBuild}
+            checkLabel={REVIEW_QUESTION.ctaCheck}
+          />
         ) : (
           <Button
             className="w-full shadow-lift"
             size="lg"
             variant={feedback === "correct" ? "good" : "primary"}
-            disabled={!feedback}
+            disabled={!feedback || feedback === "incomplete"}
             onClick={onNext}
             data-review-next
           >
