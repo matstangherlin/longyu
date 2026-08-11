@@ -368,8 +368,17 @@ export function HanziBuilderExercise({
         </div>
       )}
 
+      {/* Na lição (externalRetry) não existe tab bar: o CTA gruda no fim da
+          região da atividade, sem o vão de 5.25rem que reserva a tab bar. */}
       {(status === "idle" || status === "incomplete") && (
-        <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none lg:bottom-4">
+        <div
+          className={[
+            "sticky z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none lg:bottom-4",
+            externalRetry
+              ? "bottom-[calc(env(safe-area-inset-bottom)+0.5rem)]"
+              : "bottom-[calc(env(safe-area-inset-bottom)+5.25rem)]",
+          ].join(" ")}
+        >
           {selected.length > 0 && (
             <Button variant="ghost" onClick={clearPieces} className="min-w-24">
               Limpar

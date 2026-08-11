@@ -7,6 +7,35 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Lesson Player Viewport & Scroll Hardening — avançar sem procurar a atividade
+
+Duas regras de UX passam a valer no player: **avançar nunca pode exigir que o
+aluno procure a próxima atividade** e **scroll deve existir por conteúdo, não
+por acidente de layout**.
+
+- **A atividade nova nasce enquadrada.** Ao trocar de etapa (e a cada nova
+  tentativa), o player volta a região da atividade ao topo e leva o foco para
+  lá — sem roubar campo de digitação em andamento. O topo fica seguro por uma
+  janela curta (`ACTIVITY_SCROLL_PIN_MS`), porque logo depois do commit o
+  navegador ainda revela o elemento clicado na etapa anterior; qualquer gesto
+  do aluno encerra a janela na hora.
+- **A rolagem mudou de lugar.** O exercício vive num frame do tamanho da
+  viewport visível, com a atividade numa região de rolagem própria
+  (`overscroll-behavior: contain`). Enquanto o exercício está na tela, a página
+  inteira não rola (`html[data-lesson-frame="locked"]`) — nada de página longa
+  por acidente, e a rolagem herdada da atividade anterior deixa de existir.
+- **`dvh` real, não `100vh`.** `useLessonViewportFrame` mede `visualViewport` e
+  recalcula quando a barra do navegador aparece/some, quando a tela gira e
+  quando o teclado chinês abre; com o teclado aberto a atividade se reorganiza
+  dentro do que sobrou em vez de empurrar o CTA para fora.
+- **CTA acessível.** Feedback e “Continuar” recém-montados são trazidos para a
+  tela sozinhos — exceto no primeiro quadro de uma atividade nova, onde a regra
+  de começar pelo enunciado vence. Na lição, o CTA do montador de hanzi deixa de
+  reservar o vão da tab bar (que não existe no modo foco).
+- Cobertura: `npm run validate:lesson-viewport` (invariantes de código) e
+  `e2e/lesson-viewport.spec.ts` (mede, dentro da página, a posição de cada
+  atividade nova).
+
 ### Beta Experience Hardening — estabilizar, polir, observar
 
 Sem motores pedagógicos novos. Foco em sensação humana, mobile, falhas e

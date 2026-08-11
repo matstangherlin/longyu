@@ -40,6 +40,7 @@ import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../compo
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { validateExercise } from "./exerciseValidation";
+import { isActivitySettling } from "./lessonViewport";
 import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/productionTasks";
 import {
   ensureMicPermission,
@@ -102,7 +103,29 @@ function ToneCurve({ tone, size = 16 }: { tone: ToneN; size?: number }) {
   );
 }
 
+/**
+ * Traz para a tela o bloco que acabou de aparecer (feedback, CTA) sem que o
+ * aluno precise procurar. `block: "nearest"` rola o mínimo — dentro da região
+ * da atividade quando ela existe — em vez de sacudir a tela inteira.
+ */
+function useRevealOnMount<T extends HTMLElement>(active = true) {
+  const ref = useRef<T | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!active || !el) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      // Numa atividade recém-aberta a regra é outra: ela começa pelo enunciado,
+      // não pelo CTA. Revelar só vale para o que nasce em resposta ao aluno.
+      if (isActivitySettling()) return;
+      el.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [active]);
+  return ref;
+}
+
 function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; label?: string }) {
+  const revealRef = useRevealOnMount<HTMLDivElement>();
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
@@ -110,10 +133,12 @@ function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; la
     onContinue: onClick,
   });
   return (
-    <Button className="mt-4 w-full animate-pop shadow-lift" onClick={onClick}>
-      {label}
-      <IconChevron width={18} height={18} aria-hidden="true" />
-    </Button>
+    <div ref={revealRef} className="mt-4">
+      <Button className="w-full animate-pop shadow-lift" onClick={onClick}>
+        {label}
+        <IconChevron width={18} height={18} aria-hidden="true" />
+      </Button>
+    </div>
   );
 }
 
@@ -159,8 +184,10 @@ function AnswerFeedback({
   hint?: string;
   onContinue: () => void;
 }) {
+  const revealRef = useRevealOnMount<HTMLDivElement>();
   return (
     <div
+      ref={revealRef}
       role="status"
       aria-live="polite"
       className={[
@@ -213,8 +240,10 @@ function ToneAnswerFeedback({
   meaning?: string;
   onContinue: () => void;
 }) {
+  const revealRef = useRevealOnMount<HTMLDivElement>();
   return (
     <div
+      ref={revealRef}
       role="status"
       aria-live="polite"
       className={[
@@ -1453,8 +1482,9 @@ function EngineFeedbackPanel({
   onRetry: () => void;
   onContinue: () => void;
 }) {
-  if (!status) return null;
-  if (status === "wrong" && deferMistakeToParent) return null;
+  const visible = Boolean(status) && !(status === "wrong" && deferMistakeToParent);
+  const revealRef = useRevealOnMount<HTMLDivElement>(visible);
+  if (!visible) return null;
 
   const correct = status === "correct";
   // "Não reconheci" não é erro: o motor está admitindo o limite dele, não
@@ -1464,6 +1494,7 @@ function EngineFeedbackPanel({
   const wrongCopy = causeFeedback?.trim() || explanation || "Veja o modelo e tente de novo.";
   return (
     <div
+      ref={revealRef}
       role="status"
       aria-live="polite"
       className={[
@@ -1538,7 +1569,7 @@ function EngineActions({
   const keyboardInset = useKeyboardBottomInset();
   return (
     <div
-      className="sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0"
+      className="sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--surface))] from-60% via-[rgb(var(--surface)/0.97)] to-transparent px-4 pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0"
       style={{
         paddingBottom:
           keyboardInset > 0
@@ -2131,7 +2162,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {!feedback && (
-        <div className="sticky bottom-0 z-20 -mx-4 mt-4 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5 sm:static sm:mx-0 sm:grid-cols-[1fr_1fr_1.25fr] sm:bg-none sm:px-0 sm:pb-0">
+        <div className="sticky bottom-0 z-20 -mx-4 mt-4 grid gap-2 bg-gradient-to-t from-[rgb(var(--surface))] from-60% via-[rgb(var(--surface)/0.97)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5 sm:static sm:mx-0 sm:grid-cols-[1fr_1fr_1.25fr] sm:bg-none sm:px-0 sm:pb-0">
           {!audioFallback ? (
             <Button
               variant="outline"

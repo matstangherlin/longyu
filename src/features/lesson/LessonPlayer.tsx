@@ -53,6 +53,8 @@ import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
 import { useOnline } from "../../hooks/useOnline";
+import { useLessonViewportFrame } from "../../hooks/useLessonViewportFrame";
+import { resetActivityScroll } from "./lessonViewport";
 import {
   hashAnswerNorm,
   installLessonActivityClock,
@@ -1473,6 +1475,10 @@ export function LessonPlayer() {
   // Remonta o step atual quando o aluno paga para tentar de novo.
   const [stepAttempt, setStepAttempt] = useState(0);
   const currentStepHadMistakeRef = useRef(false);
+  // Enquadramento e rolagem do player: a atividade vive dentro de uma região
+  // com altura da viewport visível, e cada etapa nova nasce no topo dela.
+  const [lessonFrameNode, setLessonFrameNode] = useState<HTMLDivElement | null>(null);
+  const [activityRegionNode, setActivityRegionNode] = useState<HTMLDivElement | null>(null);
   const skippedStepsRef = useRef(0);
   // Skips pagos com Fôlego nesta tentativa: contagem + refs (type:itemId) que
   // ficam com a 3ª estrela pendente até serem dominados na revisão.
@@ -1563,6 +1569,21 @@ export function LessonPlayer() {
       };
     });
   }, [correctedErrorIds, foundLesson]);
+
+  // Enquadra o exercício na viewport visível (dvh real + teclado). Na tela de
+  // vitória o enquadramento sai: aquele conteúdo é uma página, não um exercício.
+  const lessonFrameHeight = useLessonViewportFrame(lessonFrameNode, !finished);
+
+  // Avançar nunca pode exigir que o aluno procure a próxima atividade: a cada
+  // troca de etapa (e a cada nova tentativa) a região volta ao topo e recebe o
+  // foco. Sem isso, a etapa nova nasce na rolagem herdada da etapa anterior.
+  // A região entra nas dependências de propósito: o player troca de árvore em
+  // alguns estados (painel de erro, revisão imediata) e remonta a região. Com
+  // um ref simples, a volta do exercício ficaria sem reposicionamento.
+  useEffect(() => {
+    if (finished || !activityRegionNode) return undefined;
+    return resetActivityScroll(activityRegionNode);
+  }, [idx, stepAttempt, finished, activityRegionNode]);
 
   // Segura o modal de medalha durante os exercícios; libera ao concluir (ou ao sair).
   useEffect(() => {
@@ -3648,7 +3669,15 @@ export function LessonPlayer() {
     : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0">
+    // Enquadramento: header fixo no topo do frame, atividade na região que rola.
+    // A altura vem da viewport visível (não de 100vh), então o CTA continua
+    // dentro da tela quando a barra do navegador ou o teclado mudam de tamanho.
+    <div
+      ref={setLessonFrameNode}
+      data-testid="lesson-frame"
+      className="mx-auto flex w-full max-w-2xl flex-col px-2 sm:px-0"
+      style={lessonFrameHeight ? { height: `${lessonFrameHeight}px` } : undefined}
+    >
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
@@ -3704,42 +3733,54 @@ export function LessonPlayer() {
 
       {recoveryDebugPanel}
 
-      {step.postConversationPhase && step.postConversationIndex === 1 && (
-        <div className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-accent">Pós-Conversa</span>
-          <span className="mx-1.5 text-ink-faint">·</span>
-          Fixe o vocabulário e as respostas da conversa em tarefas curtas.
-        </div>
-      )}
+      {/* Região da atividade: é aqui — e só aqui — que a rolagem acontece.
+          Quando o exercício cabe, nada rola; quando não cabe, rola o exercício,
+          não a página inteira. */}
+      <div
+        ref={setActivityRegionNode}
+        data-testid="lesson-activity"
+        tabIndex={-1}
+        role="group"
+        aria-label={`Atividade ${idx + 1} de ${total}`}
+        className="lesson-activity -mx-1 min-h-0 flex-1 px-1 pb-2 outline-none"
+      >
+        {step.postConversationPhase && step.postConversationIndex === 1 && (
+          <div className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
+            <span className="font-semibold text-accent">Pós-Conversa</span>
+            <span className="mx-1.5 text-ink-faint">·</span>
+            Fixe o vocabulário e as respostas da conversa em tarefas curtas.
+          </div>
+        )}
 
-      {!online && (
-        <div className="mb-3 rounded-2xl border border-line bg-surface-2 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-ink">Sem conexão</span>
-          <span className="mx-1.5 text-ink-faint">·</span>
-          {authMode === "cloud"
-            ? "Você pode continuar. O progresso será sincronizado quando a conexão voltar."
-            : "Você pode continuar. O progresso continua salvo neste dispositivo."}
-        </div>
-      )}
+        {!online && (
+          <div className="mb-3 rounded-2xl border border-line bg-surface-2 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
+            <span className="font-semibold text-ink">Sem conexão</span>
+            <span className="mx-1.5 text-ink-faint">·</span>
+            {authMode === "cloud"
+              ? "Você pode continuar. O progresso será sincronizado quando a conexão voltar."
+              : "Você pode continuar. O progresso continua salvo neste dispositivo."}
+          </div>
+        )}
 
-      {retryProtected && (
-        <div className="mb-3 flex justify-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
-            <IconShield width={13} height={13} /> Tentativa protegida
-          </span>
-        </div>
-      )}
+        {retryProtected && (
+          <div className="mb-3 flex justify-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
+              <IconShield width={13} height={13} /> Tentativa protegida
+            </span>
+          </div>
+        )}
 
-      <Card className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-6">
-        <StepRenderer
-          key={`${idx}:${stepAttempt}`}
-          step={step}
-          onDone={handleDone}
-          onSkip={canSkipStep ? skipCurrentStep : undefined}
-          onMistake={canSkipStep ? registerCurrentMistake : undefined}
-          onUnrecognized={registerUnrecognizedAnswer}
-        />
-      </Card>
+        <Card className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-6">
+          <StepRenderer
+            key={`${idx}:${stepAttempt}`}
+            step={step}
+            onDone={handleDone}
+            onSkip={canSkipStep ? skipCurrentStep : undefined}
+            onMistake={canSkipStep ? registerCurrentMistake : undefined}
+            onUnrecognized={registerUnrecognizedAnswer}
+          />
+        </Card>
+      </div>
 
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}

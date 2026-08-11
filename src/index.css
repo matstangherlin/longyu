@@ -167,6 +167,28 @@ textarea {
   }
 }
 
+/* Player da lição — enquadramento e rolagem.
+   Enquanto um exercício está na tela, a página não rola: a rolagem existe por
+   conteúdo (exercício alto demais), dentro da região da atividade, e não por
+   acidente de layout. O frame é medido em JS a partir da viewport visível
+   (useLessonViewportFrame), o que também cobre o teclado chinês no mobile. */
+html[data-lesson-frame="locked"],
+html[data-lesson-frame="locked"] body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.lesson-activity {
+  overflow-y: auto;
+  /* A rolagem para na região: não encadeia para a página nem dispara
+     pull-to-refresh no meio de um exercício. */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  /* CTAs sticky dos exercícios (Verificar/Continuar) param acima da safe area. */
+  scroll-padding-bottom: 1rem;
+}
+
 /* Transição suave de tema */
 .theme-transition,
 .theme-transition * {
