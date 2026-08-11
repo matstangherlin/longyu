@@ -23,16 +23,15 @@ function isTouchUi(): boolean {
 /** Veredito textual — usado no resultado da prática de fala. */
 function verdictCopy(heard: string, analysis: PronunciationAnalysis | null, correct: boolean): string {
   if (!heard || !analysis || !analysis.ratio) {
-    return "Não reconheci o que você falou. Ouça o áudio e tente de novo.";
+    return "Não reconheci. Ouça e tente de novo.";
   }
   if (correct) {
-    if (analysis.hasExtra) {
-      return "Reconheci os caracteres na ordem certa, com conteúdo a mais. Confira o tom no Treino de tons.";
-    }
-    return "Reconheci os caracteres na ordem certa. O microfone não confirma o tom — use o Treino de tons para afinar.";
+    return analysis.hasExtra
+      ? "Caracteres ok. Havia um pouco a mais — afine o tom no Treino de tons."
+      : "Caracteres ok. Para afinar o tom, use o Treino de tons.";
   }
   const total = analysis.matchedMask.length;
-  return `Quase — acertou ${analysis.matched.length} de ${total} na ordem. Compare os que faltaram e tente de novo.`;
+  return `Quase — ${analysis.matched.length} de ${total} na ordem.`;
 }
 
 // Prática de fala: autoriza o mic, reconhece o que foi dito e compara com o alvo.
@@ -183,8 +182,8 @@ export function PronunciationPractice({
         </Button>
         <p className="mt-2 text-center text-xs text-ink-faint">
           {!secure
-            ? "O microfone só funciona em conexão segura (HTTPS)."
-            : "Este navegador não reconhece voz (o Safari do iPhone ainda não tem esse recurso). No Chrome/Edge — do Android ou do computador — você pratica falando. Enquanto isso, toque em ouvir e repita em voz alta."}
+            ? "O microfone só funciona em HTTPS."
+            : "Voz não disponível aqui. Ouça e repita em voz alta."}
         </p>
       </div>
     );
@@ -194,11 +193,11 @@ export function PronunciationPractice({
     return (
       <div className="mt-6 flex flex-col items-center gap-3 py-2">
         <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-accent text-2xl text-white ring-4 ring-accent-soft">
-          🎤
+          ···
         </div>
-        <p className="text-sm font-medium text-accent">Fale agora…</p>
+        <p className="text-sm font-medium text-accent">Fale agora</p>
         <p className="max-w-xs text-center text-xs text-ink-faint">
-          Fale o hànzì em voz alta. Quando terminar, toque em Parar — ou espere o app reconhecer.
+          Toque em Parar quando terminar.
         </p>
         <Button variant="outline" onClick={stopListening}>
           Parar
@@ -259,22 +258,16 @@ export function PronunciationPractice({
           {!heard && errorHint && (
             <p className="mt-2 text-xs leading-5 text-ink-soft">{errorHint}</p>
           )}
-          {heard && (
-            <p className="mt-2 text-[11px] leading-4 text-ink-faint">
-              O reconhecedor compara caracteres na ordem — nao confirma tom nem pronúncia perfeita.
-              Para afinar o tom, use o Treino de tons.
-            </p>
-          )}
           {audioUrl && (
             <div className="mt-2">
-              <div className="mb-1 text-[11px] text-ink-faint">sua gravação:</div>
+              <div className="mb-1 text-[11px] text-ink-faint">Sua gravação</div>
               <audio controls src={audioUrl} className="mx-auto w-full max-w-xs" />
             </div>
           )}
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Button variant="outline" onClick={start} disabled={busy}>
-            🎤 De novo
+            De novo
           </Button>
           <Button onClick={onContinue}>
             Continuar <IconChevron width={18} height={18} />
@@ -288,7 +281,7 @@ export function PronunciationPractice({
   return (
     <div className="mt-6 space-y-2">
       <Button className="w-full" size="lg" onClick={start} disabled={busy}>
-        🎤 Falar
+        Falar
       </Button>
       <button
         onClick={onContinue}

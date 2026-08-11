@@ -65,7 +65,7 @@ import {
   beginReferralLessonAttestation,
   completeReferralLessonAttestation,
 } from "../../services/referralLearningAttestation";
-import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { StepRenderer, type PairMistakePayload } from "./steps";
@@ -904,20 +904,24 @@ function ImmediateErrorReviewOffer({
         </div>
         <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink">
           {canRecover
-            ? `Você errou ${count} ${count === 1 ? "item" : "itens"}. Corrija agora para recuperar 3 estrelas.`
-            : `Você errou ${count} ${count === 1 ? "item" : "itens"}. Quer revisar agora?`}
+            ? count === 1
+              ? "1 ponto para revisar. Corrija e recupere 3 estrelas."
+              : `${count} pontos para revisar. Corrija e recupere 3 estrelas.`
+            : count === 1
+              ? "1 ponto para revisar. Quer ver agora?"
+              : `${count} pontos para revisar. Quer ver agora?`}
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">
-          A correção usa exatamente o que você errou nesta tentativa.
+          Só o que ficou para trás nesta tentativa — curto e no mesmo contexto.
         </p>
         {canRecover && (
           <div className="mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-sm font-medium text-accent">
-            Corrija todos para recuperar a 3ª estrela. Ela conta para liberar a próxima fase.
+            Acerte todos para recuperar a 3ª estrela.
           </div>
         )}
         <div className="mt-auto grid gap-2 pt-6">
           <Button size="lg" className="w-full shadow-lift" onClick={onStart}>
-            Revisar erros agora <IconChevron width={18} height={18} />
+            Começar revisão <IconChevron width={18} height={18} />
           </Button>
           <Button variant="outline" className="w-full" onClick={onLater}>
             Continuar com 2 estrelas
@@ -956,35 +960,37 @@ function ImmediateErrorReviewSummary({
           {stillMissing ? <IconRefresh width={30} height={30} /> : <IconCheck width={30} height={30} />}
         </div>
         <h1 className="mt-5 font-serif text-3xl font-semibold text-ink">
-          {stillMissing ? "Ainda falta revisar" : "Erros corrigidos!"}
+          {stillMissing ? "Ainda falta um pouco" : "Revisão concluída"}
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
           {stillMissing
-            ? `Você ainda pode voltar e corrigir seus erros para buscar 3 estrelas. Falta${remaining === 1 ? "" : "m"} ${remaining} ${remaining === 1 ? "erro" : "erros"}.`
+            ? remaining === 1
+              ? "Falta 1 item. Você pode tentar de novo para buscar a 3ª estrela."
+              : `Faltam ${remaining} itens. Você pode tentar de novo para buscar a 3ª estrela.`
             : "Você corrigiu tudo desta tentativa."}
         </p>
         <div className="mt-6 grid grid-cols-2 gap-3 text-left">
           <LessonSummaryStat label="Corrigidos" value={`${corrected}`} />
-          <LessonSummaryStat label="Ainda revisar" value={`${remaining}`} />
+          <LessonSummaryStat label="Ainda falta" value={`${remaining}`} />
         </div>
         <div className="mt-auto grid gap-2 pt-6">
           {stillMissing && (
             <Button size="lg" className="w-full shadow-lift" onClick={onReviewAgain}>
-              <IconRefresh width={17} height={17} /> Tentar revisão novamente
+              Continuar revisão <IconChevron width={18} height={18} />
             </Button>
           )}
           {canRetryLesson && (
             <Button variant="outline" className="w-full" onClick={onRetryLesson}>
-              <IconRefresh width={17} height={17} /> Refazer lição
+              Refazer lição
             </Button>
           )}
           <Button
             variant={stillMissing ? "outline" : "primary"}
             size={stillMissing ? undefined : "lg"}
-            className="w-full"
+            className="w-full shadow-lift"
             onClick={onContinue}
           >
-            {stillMissing ? "Continuar com 2 estrelas" : "Continuar jornada"}
+            {stillMissing ? "Continuar com 2 estrelas" : "Continuar"}
             <IconChevron width={18} height={18} />
           </Button>
         </div>
@@ -1004,16 +1010,14 @@ function FolegoUpsellModal({ onClose, onSeePro }: { onClose: () => void; onSeePr
         </div>
         <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">Seu Fôlego acabou</h2>
         <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">
-          O Fôlego deixa você pular uma tarefa difícil e resolvê-la depois na revisão. Você recarrega
-          Fôlego fazendo <span className="font-semibold text-ink">rodadas perfeitas</span> — ou libera
-          skips ilimitados com o Longyu Pro.
+          Fôlego = pular agora e revisar depois. Rodada perfeita recarrega — ou use o Pro.
         </p>
         <div className="mt-6 grid gap-2">
           <Button size="lg" className="w-full shadow-lift" onClick={onSeePro}>
             Ver Longyu Pro <IconChevron width={18} height={18} />
           </Button>
           <Button variant="outline" className="w-full" onClick={onClose}>
-            Voltar e tentar acertar
+            Voltar
           </Button>
         </div>
       </div>
@@ -1215,7 +1219,7 @@ function ErrorReviewQuestion({
             feedback === "correct" ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]" : "border-accent-soft bg-accent-soft/45 text-ink-soft",
           ].join(" ")}
         >
-          <div className="font-semibold">{feedback === "correct" ? "Corrigido!" : "Ainda precisa de revisão."}</div>
+          <div className="font-semibold">{feedback === "correct" ? "Isso mesmo!" : "Quase — veja a resposta certa."}</div>
           <div className="mt-1">
             Correto: <span className="font-semibold text-ink">{answerDisplay}</span>
             {exercise.displayPinyin || error.pinyin ? (
@@ -1231,7 +1235,7 @@ function ErrorReviewQuestion({
       )}
 
       <Button className="mt-auto w-full shadow-lift" size="lg" disabled={!feedback} onClick={onNext}>
-        {index + 1 >= total ? "Ver resultado" : "Próximo erro"} <IconChevron width={18} height={18} />
+        {index + 1 >= total ? "Ver resultado" : "Continuar"} <IconChevron width={18} height={18} />
       </Button>
     </Card>
   );
@@ -2334,7 +2338,7 @@ export function LessonPlayer() {
     setStepAttempt((attempt) => attempt + 1);
   }
 
-  // "Continuar e perder perfeição": o erro vira permanente, custa 1 Vida
+  // "Continuar": o erro vira permanente, custa 1 Vida
   // e avança para o próximo step para evitar dois fluxos de feedback.
   function noteConfirmedMistake() {
     if (hasUnlimitedLives) return;
@@ -2352,7 +2356,7 @@ export function LessonPlayer() {
       if (spent) {
         mistakeChargeHitsRef.current = hit;
         setChargePenaltyNotice(
-          `−${CONSECUTIVE_MISTAKE_CHARGE_COST} Carga: ${CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD} erros seguidos.`
+          `−${CONSECUTIVE_MISTAKE_CHARGE_COST} Carga (erros seguidos)`
         );
         window.setTimeout(() => setChargePenaltyNotice(null), 3200);
         playSoundFx("blocked", soundEffects);
@@ -3645,16 +3649,14 @@ export function LessonPlayer() {
   const activeStageIndex = Math.min(Math.max(0, lessonTasks.length - 1), activeRoundProgress.stageIndex);
   const activeStage = lessonTasks[activeStageIndex];
   // Linha única e discreta abaixo da barra: etapa + intenção + nº da pergunta.
+  // Cabeçalho leve: pós-conversa mantém o rótulo útil; demais etapas só o índice
+  // (o objetivo já aparece no Eyebrow/H2 do step).
   const stageLabel = activeStage
-    ? [
-        `Etapa ${activeStageIndex + 1}/${lessonTasks.length}`,
-        roundSummary(step, activeStage),
-        activeRoundProgress.questionCount > 1
-          ? `pergunta ${activeRoundProgress.questionIndex}/${activeRoundProgress.questionCount}`
-          : "",
-      ]
-        .filter(Boolean)
-        .join(" · ")
+    ? step.postConversationPhase
+      ? roundSummary(step, activeStage)
+      : activeRoundProgress.questionCount > 1
+        ? `Etapa ${activeStageIndex + 1}/${lessonTasks.length} · ${activeRoundProgress.questionIndex}/${activeRoundProgress.questionCount}`
+        : `Etapa ${activeStageIndex + 1}/${lessonTasks.length}`
     : undefined;
 
   return (
@@ -3786,12 +3788,10 @@ export function LessonPlayer() {
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
-        <ModalOverlay
-          label="Você errou esta questão"
-        >
+        <ModalOverlay label="Quer tentar de novo?">
           <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
-              <IconX width={24} height={24} />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+              <IconRefresh width={24} height={24} />
             </div>
             <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">
               Quase. Quer tentar de novo?
@@ -3799,7 +3799,7 @@ export function LessonPlayer() {
             <p className="mt-2 text-sm leading-6 text-ink-soft">
               {pendingMistake.detail?.trim()
                 ? pendingMistake.detail
-                : "Refaça esta questão sem perder a estrela."}
+                : "Refaça agora para manter a estrela."}
             </p>
 
             <div className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-left text-sm">
@@ -3826,8 +3826,8 @@ export function LessonPlayer() {
                 Custa {RETRY_COST_QI} Qi. <span className="text-ink-faint">Você tem {points} Qi.</span>
               </p>
             ) : (
-              <p className="mt-3 rounded-xl bg-wrong-soft px-3 py-2 text-sm font-medium text-wrong">
-                Você está sem Qi para refazer sem perder perfeição. Missões dão Qi sem comprar progresso.
+              <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-sm font-medium text-ink-soft">
+                Sem Qi para refazer agora. Ganhe Qi em missões ou avance.
               </p>
             )}
 
@@ -3835,10 +3835,10 @@ export function LessonPlayer() {
               {canPayRetry ? (
                 <>
                   <Button size="lg" className="w-full" onClick={retryWithQi}>
-                    {isPremium ? "Tentar de novo sem Qi" : `Tentar de novo por ${RETRY_COST_QI} Qi`}
+                    {isPremium ? "Tentar de novo" : `Tentar de novo · ${RETRY_COST_QI} Qi`}
                   </Button>
                   <Button variant="outline" className="w-full" onClick={continueWithMistake}>
-                    Continuar e perder perfeição
+                    Continuar
                   </Button>
                   {!isPremium && (
                     <Button variant="soft" className="w-full" onClick={() => {
@@ -3852,7 +3852,7 @@ export function LessonPlayer() {
               ) : (
                 <>
                   <Button size="lg" className="w-full" onClick={continueWithMistake}>
-                    Continuar e perder perfeição
+                    Continuar
                   </Button>
                   <ButtonLink to="/missoes" variant="outline" className="w-full">
                     <IconStar width={16} height={16} /> Ganhar Qi em missões
@@ -3867,7 +3867,7 @@ export function LessonPlayer() {
               )}
             </div>
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Continuar sem refazer custa 1 Vida e avança sem manter perfeição.
+              Avançar sem refazer gasta 1 vida.
             </p>
           </div>
         </ModalOverlay>
