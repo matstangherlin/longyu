@@ -124,12 +124,17 @@ test.describe("QA regression guard — revisão / estrela", () => {
     expect(optionTexts.every((t) => !/[\u3400-\u9fff].*\/.*[\u3400-\u9fff]/.test(t))).toBe(true);
 
     await page.getByRole("button", { name: /^我很好$/ }).click();
-    await expect(page.locator('[data-review-feedback-status="correct"]')).toBeVisible({ timeout: 8_000 });
-    await page.locator("[data-review-next]").click();
-
-    await expect(
-      page.locator("[data-review-summary], [data-review-recovered], [data-review-offer]")
-    ).toBeVisible({ timeout: 10_000 });
+    // Item único: ou mostra feedback "correto", ou (último item) recupera 3★ na hora.
+    const feedbackOk = page.locator('[data-review-feedback-status="correct"]');
+    const recovered = page.locator("[data-review-recovered]");
+    const victoryStars = page.getByText(/3 estrelas recuperadas/i);
+    await expect(feedbackOk.or(recovered).or(victoryStars).first()).toBeVisible({ timeout: 10_000 });
+    if (await feedbackOk.isVisible().catch(() => false)) {
+      await page.locator("[data-review-next]").click();
+      await expect(
+        page.locator("[data-review-summary], [data-review-recovered]").or(victoryStars).first()
+      ).toBeVisible({ timeout: 10_000 });
+    }
   });
 
   test("sentence build em revisão: peças corretas (sem dump)", async ({ page }) => {
@@ -152,8 +157,9 @@ test.describe("QA regression guard — revisão / estrela", () => {
     await expect(page.locator("body")).not.toContainText(/你好\s*\/\s*你好吗\s*\/\s*我很好/);
     await expect(page.getByRole("button", { name: /Pulou ou respondeu incorretamente/i })).toHaveCount(0);
 
+    const bank = page.locator("[data-review-options]");
     for (const piece of ["你", "好", "吗"]) {
-      await expect(page.getByRole("button", { name: new RegExp(`Peça \\d+: ${piece}`) }).first()).toBeVisible();
+      await expect(bank.getByRole("button", { name: piece, exact: true }).first()).toBeVisible();
     }
   });
 });
@@ -219,8 +225,8 @@ test.describe("QA regression guard — transferência", () => {
       }
     }
 
-    await expect(transfer.or(transferCopy.first())).toBeVisible({ timeout: 5_000 });
-    await expect(page.locator("[data-production-learned], [data-production-situation]").first()).toBeVisible();
+    await expect(transfer).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator("[data-production-learned]")).toBeVisible();
     await expect(page.locator("[data-production-situation]")).toBeVisible();
     await expect(page.locator("[data-production-goal]")).toBeVisible();
     await expect(page.locator("[data-production-answer] input, [data-production-answer] textarea").first()).toBeVisible();
