@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button, Card } from "../ui/primitives";
 import { IconHome, IconRefresh } from "../ui/Icon";
+import { recordClientDiagnostic, requestFeedbackOpen } from "../../lib/clientDiagnostics";
 
 /**
  * Rede de segurança contra tela branca.
@@ -36,9 +37,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    // Diagnóstico: fica no console (e nas ferramentas de dev) sem vazar nada
-    // para o aluno. Ajuda a rastrear a origem real de um crash raro.
-    console.error(`[ErrorBoundary${this.props.area ? `:${this.props.area}` : ""}]`, error, info.componentStack);
+    const area = this.props.area ?? "app";
+    console.error(`[ErrorBoundary${area ? `:${area}` : ""}]`, error, info.componentStack);
+    recordClientDiagnostic({
+      kind: "render_error",
+      area,
+      message: error.message || error.name || "render_error",
+    });
   }
 
   componentDidUpdate(prev: ErrorBoundaryProps) {
@@ -54,6 +59,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   private handleReload = () => {
     if (typeof window !== "undefined") window.location.reload();
+  };
+
+  private handleReport = () => {
+    const area = this.props.area ?? "app";
+    const message = this.state.error?.message ?? "erro de render";
+    recordClientDiagnostic({
+      kind: "render_error",
+      area,
+      message,
+    });
+    requestFeedbackOpen({
+      activityProblem: true,
+      preferTechnical: true,
+      screen: typeof window !== "undefined" ? window.location.pathname : undefined,
+      route: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : undefined,
+    });
   };
 
   render() {
@@ -88,6 +109,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <div className="mt-6 grid gap-2">
             <Button size="lg" className="w-full" onClick={this.handleRetry}>
               <IconRefresh width={17} height={17} /> Tentar novamente
+            </Button>
+            <Button variant="soft" className="w-full" onClick={this.handleReport}>
+              Reportar problema
             </Button>
             <a href="/jornada" className="block">
               <Button variant="outline" className="w-full">

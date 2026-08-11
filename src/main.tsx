@@ -4,6 +4,8 @@ import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import "./index.css";
 import { routes } from "./routes";
 import { ErrorBoundary } from "./components/system/ErrorBoundary";
+import { PwaUpdateBanner } from "./components/system/PwaUpdateBanner";
+import { FeedbackProvider } from "./components/feedback/FeedbackContext";
 import { SeoHead } from "./components/seo/SeoHead";
 import { PageFallback } from "./components/system/PageFallback";
 
@@ -23,8 +25,11 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary fullScreen area="root">
-      <RouterProvider router={router} />
-    </ErrorBoundary>
+    <FeedbackProvider>
+      <ErrorBoundary fullScreen area="root">
+        <RouterProvider router={router} />
+      </ErrorBoundary>
+      <PwaUpdateBanner />
+    </FeedbackProvider>
   </React.StrictMode>
 );

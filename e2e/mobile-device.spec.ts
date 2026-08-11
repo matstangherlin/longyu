@@ -77,6 +77,12 @@ test.describe("dispositivo — safe-area / barra inferior", () => {
       .locator('meta[name="viewport"]')
       .getAttribute("content");
     expect(viewportMeta ?? "").toContain("viewport-fit=cover");
+    // Zoom acessível: não bloquear user-scalable.
+    expect(viewportMeta ?? "").not.toMatch(/user-scalable\s*=\s*no/i);
+    await expect(page.locator('meta[name="apple-mobile-web-app-capable"]')).toHaveAttribute(
+      "content",
+      "yes"
+    );
 
     // 2) Num hub, a barra inferior fixa (mobile/tablet) usa
     // env(safe-area-inset-bottom) e o <main> reserva padding para ela, então

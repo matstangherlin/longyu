@@ -14,7 +14,6 @@ import { AuthBootstrap } from "../auth/AuthBootstrap";
 import { CloudSyncBootstrap } from "../auth/CloudSyncBootstrap";
 import { EntitlementBootstrap } from "../auth/EntitlementBootstrap";
 import { DesktopFeedbackFab } from "../feedback/DesktopFeedbackFab";
-import { FeedbackProvider } from "../feedback/FeedbackContext";
 import { EconomySyncBanner } from "../economy/EconomySyncBanner";
 import { EconomyBootstrap } from "../economy/EconomyBootstrap";
 import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap";
@@ -97,7 +96,7 @@ export function AppShell() {
 
   if (isOnboarding || isAuthPage) {
     return (
-      <FeedbackProvider>
+      <>
         <div className="theme-transition min-h-screen overflow-x-clip bg-bg px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6">
           <ErrorBoundary resetKey={location.pathname} area="auth">
             <Suspense fallback={<PageFallback />}>
@@ -109,12 +108,11 @@ export function AppShell() {
         <CloudSyncBootstrap />
         <EntitlementBootstrap />
         <TelemetryConsentBootstrap />
-      </FeedbackProvider>
+      </>
     );
   }
 
   return (
-    <FeedbackProvider>
     <div className="theme-transition flex min-h-screen min-w-0 overflow-x-clip bg-bg">
       {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
           Só o conteúdo do exercício, como um app de idiomas. */}
@@ -155,6 +153,5 @@ export function AppShell() {
       <StreakRecoveryWatcher />
       <TelemetryConsentWatcher />
     </div>
-    </FeedbackProvider>
   );
 }

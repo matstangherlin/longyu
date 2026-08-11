@@ -22,6 +22,15 @@ let pendingPush = false;
 
 function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
   useStore.getState().setCloudSyncState(status, message);
+  if (status === "error") {
+    void import("../lib/clientDiagnostics").then(({ recordClientDiagnostic }) => {
+      recordClientDiagnostic({
+        kind: "sync_error",
+        area: "cloud_sync",
+        message,
+      });
+    });
+  }
 }
 
 function snapshotBodyWithProgress(

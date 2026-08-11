@@ -24,7 +24,8 @@ Atualizado na auditoria de 2026-07-21. Itens só ficam marcados com evidência d
 - [x] Sobre mostra `v0.2.0-beta.1` — e2e `beta-smoke` (sobre: versão)
 - [x] Rodapé da landing mostra versão — e2e + código
 - [x] Modal de feedback mostra versão — e2e feedback modal
-- [ ] Painel `/admin/feedback` mostra ambiente + versão — **não revalidado** nesta rodada (requer admin)
+- [x] Painel `/admin/feedback` mostra ambiente + versão — evidência: `AdminFeedbackPage` HubHeader (`appEnvironmentLabel` + `getAppVersion`)
+
 
 ## Comunicação
 

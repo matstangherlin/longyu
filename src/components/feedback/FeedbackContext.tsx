@@ -11,6 +11,8 @@ interface FeedbackUiValue {
 
 const FeedbackUiContext = createContext<FeedbackUiValue | null>(null);
 
+type OpenFeedbackDetail = FeedbackCtx & { preferTechnical?: boolean };
+
 export function FeedbackProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [context, setContext] = useState<FeedbackCtx | undefined>();
@@ -32,6 +34,15 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
   const closeFeedback = useCallback(() => {
     setOpen(false);
   }, []);
+
+  useEffect(() => {
+    const onOpen = (event: Event) => {
+      const detail = (event as CustomEvent<OpenFeedbackDetail>).detail;
+      openFeedback(detail);
+    };
+    window.addEventListener("longyu:open-feedback", onOpen as EventListener);
+    return () => window.removeEventListener("longyu:open-feedback", onOpen as EventListener);
+  }, [openFeedback]);
 
   const value = useMemo(() => ({ openFeedback, closeFeedback }), [openFeedback, closeFeedback]);
 
