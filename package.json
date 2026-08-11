@@ -85,6 +85,7 @@
     "deploy:functions": "node scripts/deploy-functions-env.mjs",
     "setup:supabase": "node scripts/setup-supabase.mjs",
     "verify:production": "node scripts/verify-production.mjs",
+    "beta:rc-status": "node scripts/beta-rc-status.mjs",
     "smoke:production": "node scripts/smoke-production.mjs",
     "test:rls": "node scripts/test-rls-smoke.mjs",
     "test:stripe": "node scripts/test-stripe-e2e.mjs",
