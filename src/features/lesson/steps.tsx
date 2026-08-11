@@ -115,7 +115,7 @@ function StickyActionBar({
     <div
       data-lesson-sticky-actions
       className={cx(
-        "sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5",
+        "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5",
         className
       )}
     >
