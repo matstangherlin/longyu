@@ -64,7 +64,7 @@ export const CHUNKS: Chunk[] = [
   { id: "woele", hanzi: "我饿了", pinyin: "wǒ è le", meaningPt: "Estou com fome.", literalPt: "eu faminto (já)", tags: ["comida"], domain: "comida", level: "elementary" },
   { id: "woxianghe", hanzi: "我想喝茶", pinyin: "wǒ xiǎng hē chá", meaningPt: "Quero beber chá.", literalPt: "eu querer beber chá", tags: ["comida"], domain: "bebida", level: "elementary" },
   { id: "woxiangheshui", hanzi: "我想喝水", pinyin: "wǒ xiǎng hē shuǐ", meaningPt: "Quero beber água.", literalPt: "eu querer beber água", tags: ["comida"], domain: "bebida", level: "beginner" },
-  // Âncoras de transferência para recusa (不 + verbo) — não usar 我不会说中文.
+  // Ancoras de transferencia para recusa (不 + verbo) — nao usar 我不会说中文.
   { id: "wobuheta", hanzi: "我不喝茶", pinyin: "wǒ bù hē chá", meaningPt: "Eu não bebo chá.", literalPt: "eu não beber chá", tags: ["comida"], domain: "bebida", level: "beginner" },
   { id: "wobuchirou", hanzi: "我不吃肉", pinyin: "wǒ bù chī ròu", meaningPt: "Eu não como carne.", literalPt: "eu não comer carne", tags: ["comida"], domain: "comida", level: "beginner" },
   { id: "womenchifanba", hanzi: "我们吃饭吧", pinyin: "wǒmen chīfàn ba", meaningPt: "Vamos comer.", literalPt: "nós comer refeição (vamos)", tags: ["comida"], domain: "comida", level: "elementary" },
