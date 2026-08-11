@@ -88,6 +88,15 @@ import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from ".
 import { getPendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
+import {
+  REVIEW_OFFER,
+  REVIEW_QUESTION,
+  REVIEW_RECOVERED,
+  REVIEW_SUMMARY,
+  reviewGoalLine,
+  reviewModeLabel,
+  reviewProgressLabel,
+} from "./reviewCopy";
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -904,33 +913,45 @@ function ImmediateErrorReviewOffer({
   onLater: () => void;
 }) {
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-      <section className="flex flex-1 flex-col rounded-[30px] border border-accent-soft bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-          <IconRefresh width={30} height={30} />
+    <div
+      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      data-review-offer
+      data-review-can-recover={canRecover ? "true" : "false"}
+    >
+      <section className="flex flex-1 flex-col rounded-[30px] border border-line bg-surface px-5 py-6 shadow-lift sm:p-7">
+        <div className="inline-flex w-fit rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          {REVIEW_OFFER.eyebrow}
         </div>
-        <div className="mx-auto mt-5 inline-flex rounded-full bg-surface-2 px-4 py-2 text-sm font-semibold text-ink">
-          Você acertou {correct} de {total}
+        <div className="mt-4 inline-flex w-fit rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink-soft">
+          {REVIEW_OFFER.score(correct, total)}
         </div>
-        <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink">
-          {canRecover
-            ? `Você errou ${count} ${count === 1 ? "item" : "itens"}. Corrija agora para recuperar 3 estrelas.`
-            : `Você errou ${count} ${count === 1 ? "item" : "itens"}. Quer revisar agora?`}
+        <h1 className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+          {REVIEW_OFFER.title(count, canRecover)}
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">
-          Cada correção revisa só o item que você errou — pergunta, resposta e pinyin alinhados.
-        </p>
-        {canRecover && (
-          <div className="mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-sm font-medium text-accent">
-            Acerte todos desta revisão para recuperar a 3ª estrela (vale para liberar a próxima fase).
+
+        <div className="mt-5 grid gap-3 text-left">
+          <div className="rounded-2xl border border-line bg-surface-2/80 px-3.5 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">O que aconteceu</div>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">{REVIEW_OFFER.happened}</p>
           </div>
-        )}
+          <div className="rounded-2xl border border-line bg-surface-2/80 px-3.5 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">O que fazer agora</div>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">{REVIEW_OFFER.nextStep}</p>
+          </div>
+          <div className="rounded-2xl border border-accent-soft bg-accent-soft/40 px-3.5 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Objetivo</div>
+            <p className="mt-1 text-sm font-medium leading-6 text-ink">
+              {canRecover ? REVIEW_OFFER.goalRecover : REVIEW_OFFER.goalReview}
+            </p>
+          </div>
+        </div>
+
         <div className="mt-auto grid gap-2 pt-6">
-          <Button size="lg" className="w-full shadow-lift" onClick={onStart}>
-            Revisar erros agora <IconChevron width={18} height={18} />
+          <Button size="lg" className="w-full shadow-lift" onClick={onStart} data-review-start>
+            {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>
           <Button variant="outline" className="w-full" onClick={onLater}>
-            Continuar com 2 estrelas
+            {REVIEW_OFFER.ctaLater}
           </Button>
         </div>
       </section>
@@ -955,46 +976,51 @@ function ImmediateErrorReviewSummary({
 }) {
   const stillMissing = remaining > 0;
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div
+      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      data-review-summary
+      data-review-summary-complete={stillMissing ? "false" : "true"}
+    >
       <section className="flex flex-1 flex-col rounded-[30px] border border-line bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
+        <div className="inline-flex mx-auto rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          Revisão
+        </div>
         <div
           className={[
-            "mx-auto flex h-16 w-16 items-center justify-center rounded-2xl",
+            "mx-auto mt-4 flex h-14 w-14 items-center justify-center rounded-2xl",
             stillMissing ? "bg-accent-soft text-accent" : "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
           ].join(" ")}
         >
-          {stillMissing ? <IconRefresh width={30} height={30} /> : <IconCheck width={30} height={30} />}
+          {stillMissing ? <IconRefresh width={26} height={26} /> : <IconCheck width={26} height={26} />}
         </div>
-        <h1 className="mt-5 font-serif text-3xl font-semibold text-ink">
-          {stillMissing ? "Ainda falta revisar" : "Erros corrigidos!"}
+        <h1 className="mt-4 font-serif text-2xl font-semibold text-ink sm:text-3xl">
+          {stillMissing ? REVIEW_SUMMARY.titlePartial : REVIEW_SUMMARY.titleOk}
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-          {stillMissing
-            ? `Você ainda pode voltar e corrigir seus erros para buscar 3 estrelas. Falta${remaining === 1 ? "" : "m"} ${remaining} ${remaining === 1 ? "erro" : "erros"}.`
-            : "Você corrigiu tudo desta tentativa."}
+          {stillMissing ? REVIEW_SUMMARY.bodyPartial(remaining) : REVIEW_SUMMARY.bodyOk}
         </p>
         <div className="mt-6 grid grid-cols-2 gap-3 text-left">
-          <LessonSummaryStat label="Corrigidos" value={`${corrected}`} />
-          <LessonSummaryStat label="Ainda revisar" value={`${remaining}`} />
+          <LessonSummaryStat label={REVIEW_SUMMARY.correctedLabel} value={`${corrected}`} />
+          <LessonSummaryStat label={REVIEW_SUMMARY.remainingLabel} value={`${remaining}`} />
         </div>
         <div className="mt-auto grid gap-2 pt-6">
           {stillMissing && (
             <Button size="lg" className="w-full shadow-lift" onClick={onReviewAgain}>
-              <IconRefresh width={17} height={17} /> Tentar revisão novamente
+              {REVIEW_SUMMARY.ctaRetry} <IconChevron width={18} height={18} />
             </Button>
           )}
           {canRetryLesson && (
             <Button variant="outline" className="w-full" onClick={onRetryLesson}>
-              <IconRefresh width={17} height={17} /> Refazer lição
+              {REVIEW_SUMMARY.ctaRetryLesson}
             </Button>
           )}
           <Button
             variant={stillMissing ? "outline" : "primary"}
             size={stillMissing ? undefined : "lg"}
-            className="w-full"
+            className="w-full shadow-lift"
             onClick={onContinue}
           >
-            {stillMissing ? "Continuar com 2 estrelas" : "Continuar jornada"}
+            {stillMissing ? REVIEW_SUMMARY.ctaContinueTwo : REVIEW_SUMMARY.ctaContinue}
             <IconChevron width={18} height={18} />
           </Button>
         </div>
@@ -1035,6 +1061,7 @@ function ErrorReviewQuestion({
   error,
   index,
   total,
+  canRecover,
   onCorrect,
   onNeedsMoreReview,
   onNext,
@@ -1042,6 +1069,7 @@ function ErrorReviewQuestion({
   error: ActivityError;
   index: number;
   total: number;
+  canRecover: boolean;
   onCorrect: (error: ActivityError) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onNext: () => void;
@@ -1061,10 +1089,17 @@ function ErrorReviewQuestion({
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const answeredRef = useRef(false);
   const answered = feedback !== null;
+  const isLastItem = index + 1 >= total;
+  const remainingForRecovery = total - index;
+  const modeLabel = reviewModeLabel({ canRecover, isLastItem });
+  const goalLine = reviewGoalLine({
+    canRecover,
+    isLastItem,
+    remaining: remainingForRecovery,
+  });
   const pinyinWouldCueAnswer =
     exercise.kind === "tone" || exercise.kind === "listen" || exercise.kind === "pinyin" || error.type === "tone_pair";
   const showPromptPinyin = Boolean(exercise.displayPinyin && (!pinyinWouldCueAnswer || answered));
-  const remainingForRecovery = total - index;
   // Feedback só usa pinyin da RESPOSTA — nunca dump do erro original.
   const feedbackPinyin =
     exercise.answerPinyin && !/[\/|]/.test(exercise.answerPinyin) ? exercise.answerPinyin : undefined;
@@ -1117,36 +1152,50 @@ function ErrorReviewQuestion({
 
   return (
     <Card
-      className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-7"
+      className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-6"
       data-review-question
       data-review-kind={exercise.kind}
+      data-review-mode={canRecover ? (isLastItem ? "last_chance" : "recovery") : "review"}
     >
+      {/* Cabeçalho simples — consistente com eyebrow do Lesson Player */}
       <div className="flex flex-wrap items-center justify-between gap-2" data-review-progress>
-        <span className="rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-          Erro {index + 1} de {total}
-        </span>
-        <span className="text-xs font-semibold text-ink-faint">Recuperar 3ª estrela</span>
+        <div className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          {REVIEW_QUESTION.eyebrow}
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className={[
+              "rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]",
+              isLastItem && canRecover
+                ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                : "bg-surface-2 text-ink-faint",
+            ].join(" ")}
+            data-review-mode-label
+          >
+            {modeLabel}
+          </span>
+          <span className="text-xs font-semibold text-ink-soft">{reviewProgressLabel(index, total)}</span>
+        </div>
       </div>
-      <ProgressBar value={index} max={total} className="mt-3 h-2.5" />
-      <p className="mt-2 text-xs font-medium leading-5 text-ink-faint" data-review-recovery-hint>
-        {remainingForRecovery === 1
-          ? "Último item — acerte para tentar recuperar a 3ª estrela."
-          : `${remainingForRecovery} itens nesta revisão. Acerte todos para recuperar a 3ª estrela.`}
+      <ProgressBar value={index} max={Math.max(total, 1)} className="mt-3 h-2" />
+      {goalLine && (
+        <p className="mt-2 text-xs leading-5 text-ink-faint" data-review-recovery-hint>
+          {goalLine}
+        </p>
+      )}
+
+      {/* Prompt — sem rótulo “Pergunta” extra */}
+      <h1 className="mt-4 font-serif text-xl font-semibold leading-snug text-ink sm:text-2xl" data-review-prompt>
+        {exercise.prompt}
+      </h1>
+      <p className="mt-1 text-sm text-ink-faint">
+        {isBuild ? REVIEW_QUESTION.doNowBuild : REVIEW_QUESTION.doNowChoice}
       </p>
 
-      {/* 1 · Pergunta */}
-      <section className="mt-4" data-review-prompt>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Pergunta</div>
-        <h1 className="mt-1.5 font-serif text-xl font-semibold leading-snug text-ink sm:text-2xl">
-          {exercise.prompt}
-        </h1>
-      </section>
-
-      {/* 2 · Contexto / estímulo (um único item) */}
+      {/* Estímulo único */}
       {exercise.kind === "blank" ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Contexto</div>
-          <div className="hanzi mt-2 text-2xl leading-relaxed text-ink">
+          <div className="hanzi text-2xl leading-relaxed text-ink">
             {exercise.blankBefore}
             <span className="mx-1 inline-block min-w-[2.5rem] border-b-2 border-dashed border-accent align-baseline text-accent">
               ?
@@ -1156,13 +1205,12 @@ function ErrorReviewQuestion({
         </section>
       ) : exercise.display ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Contexto</div>
           {displayIsHanzi ? (
-            <div className="hanzi mt-2 text-4xl text-ink" data-review-display>
+            <div className="hanzi text-4xl text-ink" data-review-display>
               {exercise.display}
             </div>
           ) : (
-            <div className="mt-2 text-base font-medium leading-6 text-ink" data-review-display>
+            <div className="text-base font-medium leading-6 text-ink" data-review-display>
               {exercise.display}
             </div>
           )}
@@ -1177,18 +1225,16 @@ function ErrorReviewQuestion({
         </section>
       ) : exercise.kind === "listen" ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Áudio</div>
-          <Button variant="soft" className="mt-3" onClick={playReviewAudio}>
+          <Button variant="soft" onClick={playReviewAudio}>
             <IconSound width={17} height={17} /> Ouvir novamente
           </Button>
         </section>
       ) : null}
 
-      {/* 3 · Alternativas / peças */}
+      {/* Interação */}
       {!answerable ? null : isBuild ? (
         <section className="mt-4" data-review-options>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Monte a resposta</div>
-          <div className="mt-2 flex min-h-[78px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
+          <div className="flex min-h-[72px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
             {pickedPieces.length === 0 ? (
               <span className="text-sm font-medium text-ink-faint">toque nas peças</span>
             ) : (
@@ -1218,62 +1264,56 @@ function ErrorReviewQuestion({
               </button>
             ))}
           </div>
-          <Button className="mt-4 w-full shadow-lift" size="lg" disabled={pickedPieces.length === 0 || answered} onClick={checkBuild}>
-            Verificar
-          </Button>
         </section>
       ) : (
-        <section className="mt-4" data-review-options>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Alternativas</div>
-          <div className="mt-2 grid gap-2">
-            {options.map((option) => (
-              <button
-                key={option}
-                type="button"
-                disabled={answered}
-                onClick={() => checkChoice(option)}
-                className={[
-                  "min-h-12 rounded-2xl border px-4 text-left text-sm font-semibold transition",
-                  selected === option && feedback === "correct"
-                    ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
-                    : selected === option && feedback === "wrong"
-                    ? "border-transparent bg-wrong-soft text-wrong"
-                    : "border-line bg-surface text-ink hover:bg-surface-2",
-                ].join(" ")}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
+        <section className="mt-4 grid gap-2" data-review-options>
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              disabled={answered}
+              onClick={() => checkChoice(option)}
+              className={[
+                "min-h-12 rounded-2xl border px-4 text-left text-sm font-semibold transition",
+                selected === option && feedback === "correct"
+                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                  : selected === option && feedback === "wrong"
+                  ? "border-transparent bg-wrong-soft text-wrong"
+                  : "border-line bg-surface text-ink hover:bg-surface-2",
+              ].join(" ")}
+            >
+              {option}
+            </button>
+          ))}
         </section>
       )}
 
-      {/* 4 · Feedback + resposta correta (bloco separado) */}
+      {/* Feedback limpo */}
       {feedback && (
         <section
           className={[
-            "mt-4 rounded-2xl border px-4 py-3 text-left text-sm",
+            "mt-4 rounded-2xl border px-4 py-3 text-left",
             feedback === "correct"
               ? "border-transparent bg-[rgb(var(--good)/0.12)]"
-              : "border-accent-soft bg-accent-soft/45",
+              : "border-line bg-surface-2",
           ].join(" ")}
           data-review-feedback
           data-review-feedback-status={feedback}
         >
           <div
             className={[
-              "font-semibold",
+              "text-sm font-semibold",
               feedback === "correct" ? "text-[rgb(var(--good))]" : "text-ink",
             ].join(" ")}
           >
-            {feedback === "correct" ? "Muito bem — corrigido!" : "Quase. Veja a resposta certa."}
+            {feedback === "correct" ? REVIEW_QUESTION.feedbackOk : REVIEW_QUESTION.feedbackRetry}
           </div>
-          <div className="mt-3 rounded-xl bg-surface/80 px-3 py-2.5" data-review-correct-answer>
+          <div className="mt-2.5" data-review-correct-answer>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              Resposta correta
+              {REVIEW_QUESTION.correctLabel}
             </div>
             <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="font-semibold text-ink">{answerDisplay}</span>
+              <span className="text-base font-semibold text-ink">{answerDisplay}</span>
               {feedbackPinyin ? <Pinyin text={feedbackPinyin} className="text-sm text-ink-soft" /> : null}
             </div>
             {exercise.meaningPt ? (
@@ -1290,10 +1330,31 @@ function ErrorReviewQuestion({
         </section>
       )}
 
+      {/* CTA padronizado — sticky visual no rodapé do card */}
       <div className="mt-auto pt-5">
-        <Button className="w-full shadow-lift" size="lg" disabled={!feedback} onClick={onNext} data-review-next>
-          {index + 1 >= total ? "Ver resultado" : "Próximo erro"} <IconChevron width={18} height={18} />
-        </Button>
+        {isBuild && !answered ? (
+          <Button
+            className="w-full shadow-lift"
+            size="lg"
+            disabled={pickedPieces.length === 0}
+            onClick={checkBuild}
+            data-review-check
+          >
+            {REVIEW_QUESTION.ctaCheck}
+          </Button>
+        ) : (
+          <Button
+            className="w-full shadow-lift"
+            size="lg"
+            variant={feedback === "correct" ? "good" : "primary"}
+            disabled={!feedback}
+            onClick={onNext}
+            data-review-next
+          >
+            {isLastItem ? REVIEW_QUESTION.ctaResult : REVIEW_QUESTION.ctaContinue}
+            <IconChevron width={18} height={18} />
+          </Button>
+        )}
       </div>
     </Card>
   );
@@ -1301,11 +1362,13 @@ function ErrorReviewQuestion({
 
 function ImmediateErrorReviewSession({
   errors,
+  canRecover,
   onCorrect,
   onNeedsMoreReview,
   onDone,
 }: {
   errors: ActivityError[];
+  canRecover: boolean;
   onCorrect: (error: ActivityError) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onDone: () => void;
@@ -1318,11 +1381,12 @@ function ImmediateErrorReviewSession({
   }
 
   return (
-    <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]" data-review-session>
       <ErrorReviewQuestion
         error={current}
         index={index}
         total={errors.length}
+        canRecover={canRecover}
         onCorrect={onCorrect}
         onNeedsMoreReview={onNeedsMoreReview}
         onNext={() => {
@@ -3040,6 +3104,7 @@ export function LessonPlayer() {
         <ImmediateErrorReviewSession
           key={`review-${correctedErrorIds.join("|")}-${reviewQueue.length}`}
           errors={reviewQueue}
+          canRecover={!passed}
           onCorrect={markErrorCorrected}
           onNeedsMoreReview={markErrorNeedsMoreReview}
           onDone={() => setErrorReviewMode("summary")}
@@ -3502,8 +3567,11 @@ export function LessonPlayer() {
           </div>
 
           {recovered && (
-            <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]">
-              Erros corrigidos! Você recuperou 3 estrelas nesta aula.
+            <div
+              className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]"
+              data-review-recovered
+            >
+              {REVIEW_RECOVERED.banner}
             </div>
           )}
 
