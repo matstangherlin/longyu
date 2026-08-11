@@ -1764,8 +1764,18 @@ export function LessonPlayer() {
   }, [setHoldAchievementModals]);
 
   useEffect(() => {
-    if (finishReason) setHoldAchievementModals(false);
-  }, [finishReason, setHoldAchievementModals]);
+    // Durante oferta/revisão/resumo pós-erro, mantém medalhas seguras —
+    // senão o modal cobria o CTA de recuperação (regressão de QA).
+    if (!finishReason) return;
+    if (
+      errorReviewMode === "offer" ||
+      errorReviewMode === "review" ||
+      errorReviewMode === "summary"
+    ) {
+      return;
+    }
+    setHoldAchievementModals(false);
+  }, [errorReviewMode, finishReason, setHoldAchievementModals]);
 
   useEffect(() => {
     if (!foundLesson || toneLocked || entryChecked || energyBlocked) return;

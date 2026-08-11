@@ -341,6 +341,11 @@ try {
     /canRecoverStar\s*=\s*!recovered\s*&&\s*stars\s*<\s*masteryStars/.test(playerSource),
     "canRecoverStar = 3ª estrela (não !passed)"
   );
+  assert(
+    /errorReviewMode === "offer"/.test(playerSource) &&
+      /setHoldAchievementModals\(false\)/.test(playerSource),
+    "medalhas não liberam durante oferta/revisão"
+  );
 
   // ── 9–10) Contratos mobile: CTA sticky + frame ────────────────────────
   assert(playerSource.includes("data-lesson-player-frame") || playerSource.includes("data-lesson-player"), "frame do player");

@@ -322,12 +322,14 @@ export async function seedPendingStarRecoverySession(
         isPremium,
         serverIsPro: isPremium,
         folego: 20,
-        // Evita modal de medalha no meio da oferta de revisão.
+        holdAchievementModals: true,
+        // Pré-desbloqueia medalhas que a jornada completa dispararia ao liberar o hold.
         achievementsUnlocked: {
           "jornada-primeira-licao": Date.now(),
+          "jornada-primeira-unidade": Date.now(),
+          "jornada-primeira-fase": Date.now(),
           "som-primeiro-audio": Date.now(),
         },
-        lifetimeStats: { audioHeard: 3, lessonsCompleted: completedLessons.length },
         toneTrainer: buildCompletedToneTrainer(),
         lessonAttemptsById: {
           [lessonId]: [
