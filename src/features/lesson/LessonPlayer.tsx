@@ -3398,10 +3398,9 @@ export function LessonPlayer() {
     }
 
     return (
-      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+      <div className="flex h-full min-h-0 max-w-xl mx-auto w-full flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         {recoveryDebugPanel}
-        <section className="flex flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] px-4 pb-0 pt-3 text-center shadow-lift sm:px-6">
-          {/* 1 · Resultado principal — mascote pequeno, título, estrelas, chips. */}
+        <section data-lesson-activity-scroll className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] px-4 pb-0 pt-3 text-center shadow-lift sm:px-6">
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {lesson.title}
           </div>
@@ -3771,7 +3770,7 @@ export function LessonPlayer() {
 
       <Card
         data-lesson-step-frame
-        className="mx-auto min-h-0 overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
+        className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
         <StepRenderer
           key={`${idx}:${stepAttempt}`}
