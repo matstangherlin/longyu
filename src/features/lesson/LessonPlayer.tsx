@@ -918,11 +918,11 @@ function ImmediateErrorReviewOffer({
             : `Você errou ${count} ${count === 1 ? "item" : "itens"}. Quer revisar agora?`}
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">
-          A correção usa exatamente o que você errou nesta tentativa.
+          Cada correção revisa só o item que você errou — pergunta, resposta e pinyin alinhados.
         </p>
         {canRecover && (
           <div className="mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-sm font-medium text-accent">
-            Corrija todos para recuperar a 3ª estrela. Ela conta para liberar a próxima fase.
+            Acerte todos desta revisão para recuperar a 3ª estrela (vale para liberar a próxima fase).
           </div>
         )}
         <div className="mt-auto grid gap-2 pt-6">
@@ -1061,9 +1061,13 @@ function ErrorReviewQuestion({
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const answeredRef = useRef(false);
   const answered = feedback !== null;
-  const pinyinWouldCueAnswer = exercise.kind === "tone" || exercise.kind === "listen" || error.type === "tone_pair";
+  const pinyinWouldCueAnswer =
+    exercise.kind === "tone" || exercise.kind === "listen" || exercise.kind === "pinyin" || error.type === "tone_pair";
   const showPromptPinyin = Boolean(exercise.displayPinyin && (!pinyinWouldCueAnswer || answered));
   const remainingForRecovery = total - index;
+  // Feedback só usa pinyin da RESPOSTA — nunca dump do erro original.
+  const feedbackPinyin =
+    exercise.answerPinyin && !/[\/|]/.test(exercise.answerPinyin) ? exercise.answerPinyin : undefined;
 
   useEffect(() => {
     setSelected(null);
@@ -1106,41 +1110,61 @@ function ErrorReviewQuestion({
   }
 
   function playReviewAudio() {
-    speak(exercise.audioText ?? error.hanzi ?? error.correctAnswer, { rate: 0.86 });
+    const audio = exercise.audioText ?? error.hanzi ?? error.correctAnswer;
+    if (!audio || /[\/|]/.test(audio)) return;
+    speak(audio, { rate: 0.86 });
   }
 
   return (
-    <Card className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <Card
+      className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-7"
+      data-review-question
+      data-review-kind={exercise.kind}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2" data-review-progress>
         <span className="rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
           Erro {index + 1} de {total}
         </span>
-        <span className="text-xs font-semibold text-ink-faint">{error.skill}</span>
+        <span className="text-xs font-semibold text-ink-faint">Recuperar 3ª estrela</span>
       </div>
       <ProgressBar value={index} max={total} className="mt-3 h-2.5" />
-      <div className="mt-2 rounded-2xl bg-surface-2 px-3 py-2 text-xs font-semibold text-ink-soft">
+      <p className="mt-2 text-xs font-medium leading-5 text-ink-faint" data-review-recovery-hint>
         {remainingForRecovery === 1
-          ? "Último erro para tentar recuperar a 3ª estrela."
-          : `Faltam ${remainingForRecovery} erros para tentar recuperar a 3ª estrela.`}
-      </div>
-      <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">{exercise.prompt}</h1>
+          ? "Último item — acerte para tentar recuperar a 3ª estrela."
+          : `${remainingForRecovery} itens nesta revisão. Acerte todos para recuperar a 3ª estrela.`}
+      </p>
 
+      {/* 1 · Pergunta */}
+      <section className="mt-4" data-review-prompt>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Pergunta</div>
+        <h1 className="mt-1.5 font-serif text-xl font-semibold leading-snug text-ink sm:text-2xl">
+          {exercise.prompt}
+        </h1>
+      </section>
+
+      {/* 2 · Contexto / estímulo (um único item) */}
       {exercise.kind === "blank" ? (
-        <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-center">
-          <div className="hanzi text-2xl leading-relaxed text-ink">
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Contexto</div>
+          <div className="hanzi mt-2 text-2xl leading-relaxed text-ink">
             {exercise.blankBefore}
             <span className="mx-1 inline-block min-w-[2.5rem] border-b-2 border-dashed border-accent align-baseline text-accent">
               ?
             </span>
             {exercise.blankAfter}
           </div>
-        </div>
+        </section>
       ) : exercise.display ? (
-        <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-center">
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Contexto</div>
           {displayIsHanzi ? (
-            <div className="hanzi text-4xl text-ink">{exercise.display}</div>
+            <div className="hanzi mt-2 text-4xl text-ink" data-review-display>
+              {exercise.display}
+            </div>
           ) : (
-            <div className="text-base font-medium leading-6 text-ink">{exercise.display}</div>
+            <div className="mt-2 text-base font-medium leading-6 text-ink" data-review-display>
+              {exercise.display}
+            </div>
           )}
           {showPromptPinyin && (
             <Pinyin text={exercise.displayPinyin ?? ""} className="mt-1 block font-serif text-lg text-accent" />
@@ -1150,18 +1174,21 @@ function ErrorReviewQuestion({
               <IconSound width={17} height={17} /> Ouvir novamente
             </Button>
           )}
-        </div>
+        </section>
       ) : exercise.kind === "listen" ? (
-        <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-center">
-          <Button variant="soft" onClick={playReviewAudio}>
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Áudio</div>
+          <Button variant="soft" className="mt-3" onClick={playReviewAudio}>
             <IconSound width={17} height={17} /> Ouvir novamente
           </Button>
-        </div>
+        </section>
       ) : null}
 
+      {/* 3 · Alternativas / peças */}
       {!answerable ? null : isBuild ? (
-        <>
-          <div className="mt-5 flex min-h-[78px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
+        <section className="mt-4" data-review-options>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Monte a resposta</div>
+          <div className="mt-2 flex min-h-[78px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
             {pickedPieces.length === 0 ? (
               <span className="text-sm font-medium text-ink-faint">toque nas peças</span>
             ) : (
@@ -1178,7 +1205,7 @@ function ErrorReviewQuestion({
               ))
             )}
           </div>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
             {pieces.map((piece, pieceIndex) => (
               <button
                 key={`${piece}-${pieceIndex}`}
@@ -1191,63 +1218,83 @@ function ErrorReviewQuestion({
               </button>
             ))}
           </div>
-          <Button className="mt-5 w-full" disabled={pickedPieces.length === 0 || answered} onClick={checkBuild}>
+          <Button className="mt-4 w-full shadow-lift" size="lg" disabled={pickedPieces.length === 0 || answered} onClick={checkBuild}>
             Verificar
           </Button>
-        </>
+        </section>
       ) : (
-        <div className="mt-5 grid gap-2">
-          {options.map((option) => (
-            <button
-              key={option}
-              type="button"
-              disabled={answered}
-              onClick={() => checkChoice(option)}
-              className={[
-                "min-h-12 rounded-2xl border px-4 text-left text-sm font-semibold transition",
-                selected === option && feedback === "correct"
-                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
-                  : selected === option && feedback === "wrong"
-                  ? "border-transparent bg-wrong-soft text-wrong"
-                  : "border-line bg-surface text-ink hover:bg-surface-2",
-              ].join(" ")}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {feedback && (
-        <div
-          className={[
-            "mt-5 rounded-2xl border px-4 py-3 text-left text-sm",
-            feedback === "correct" ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]" : "border-accent-soft bg-accent-soft/45 text-ink-soft",
-          ].join(" ")}
-        >
-          <div className="font-semibold">{feedback === "correct" ? "Corrigido!" : "Ainda precisa de revisão."}</div>
-          <div className="mt-1">
-            Correto: <span className="font-semibold text-ink">{answerDisplay}</span>
-            {exercise.answerPinyin || exercise.displayPinyin ? (
-              <>
-                <span className="text-ink-faint"> · </span>
-                <Pinyin
-                  text={exercise.answerPinyin ?? exercise.displayPinyin ?? ""}
-                  className="text-ink-faint"
-                />
-              </>
-            ) : null}
-            {exercise.meaningPt ? <span className="text-ink-faint"> · {exercise.meaningPt}</span> : null}
+        <section className="mt-4" data-review-options>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Alternativas</div>
+          <div className="mt-2 grid gap-2">
+            {options.map((option) => (
+              <button
+                key={option}
+                type="button"
+                disabled={answered}
+                onClick={() => checkChoice(option)}
+                className={[
+                  "min-h-12 rounded-2xl border px-4 text-left text-sm font-semibold transition",
+                  selected === option && feedback === "correct"
+                    ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                    : selected === option && feedback === "wrong"
+                    ? "border-transparent bg-wrong-soft text-wrong"
+                    : "border-line bg-surface text-ink hover:bg-surface-2",
+                ].join(" ")}
+              >
+                {option}
+              </button>
+            ))}
           </div>
-          {exercise.explanation && !/[\/|]/.test(exercise.explanation) && (
-            <div className="mt-1 text-ink-soft">{exercise.explanation}</div>
-          )}
-        </div>
+        </section>
       )}
 
-      <Button className="mt-auto w-full shadow-lift" size="lg" disabled={!feedback} onClick={onNext}>
-        {index + 1 >= total ? "Ver resultado" : "Próximo erro"} <IconChevron width={18} height={18} />
-      </Button>
+      {/* 4 · Feedback + resposta correta (bloco separado) */}
+      {feedback && (
+        <section
+          className={[
+            "mt-4 rounded-2xl border px-4 py-3 text-left text-sm",
+            feedback === "correct"
+              ? "border-transparent bg-[rgb(var(--good)/0.12)]"
+              : "border-accent-soft bg-accent-soft/45",
+          ].join(" ")}
+          data-review-feedback
+          data-review-feedback-status={feedback}
+        >
+          <div
+            className={[
+              "font-semibold",
+              feedback === "correct" ? "text-[rgb(var(--good))]" : "text-ink",
+            ].join(" ")}
+          >
+            {feedback === "correct" ? "Muito bem — corrigido!" : "Quase. Veja a resposta certa."}
+          </div>
+          <div className="mt-3 rounded-xl bg-surface/80 px-3 py-2.5" data-review-correct-answer>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              Resposta correta
+            </div>
+            <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="font-semibold text-ink">{answerDisplay}</span>
+              {feedbackPinyin ? <Pinyin text={feedbackPinyin} className="text-sm text-ink-soft" /> : null}
+            </div>
+            {exercise.meaningPt ? (
+              <div className="mt-0.5 text-sm text-ink-soft" data-review-meaning>
+                {exercise.meaningPt}
+              </div>
+            ) : null}
+          </div>
+          {exercise.explanation ? (
+            <p className="mt-2 text-sm leading-5 text-ink-soft" data-review-explanation>
+              {exercise.explanation}
+            </p>
+          ) : null}
+        </section>
+      )}
+
+      <div className="mt-auto pt-5">
+        <Button className="w-full shadow-lift" size="lg" disabled={!feedback} onClick={onNext} data-review-next>
+          {index + 1 >= total ? "Ver resultado" : "Próximo erro"} <IconChevron width={18} height={18} />
+        </Button>
+      </div>
     </Card>
   );
 }

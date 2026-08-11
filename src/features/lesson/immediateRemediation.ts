@@ -11,6 +11,12 @@ import type { ActivityErrorRecord } from "../../lib/store";
  * `step` original anexado) vira UM exercício de correção diretamente ligado ao
  * que o aluno errou. Nada de revisão aleatória, nada de flashcard genérico
  * quando há forma melhor: o tipo do erro decide o formato da correção.
+ *
+ * Regras de coerência (B002+):
+ * - um único contexto (nunca dump "你好 / 你好吗 / …");
+ * - pinyin só da frase/alvo mostrado;
+ * - status de pulo nunca vira alternativa;
+ * - explicação pedagógica, sem cara de debug.
  */
 export type ImmediateRemediationKind =
   | "choice"
@@ -80,7 +86,7 @@ function uniqueNonEmpty(values: (string | undefined)[]): string[] {
 }
 
 /** Status de pulo/erro genérico — nunca vira alternativa do exercício. */
-function isNonOptionAnswer(value: string | undefined): boolean {
+export function isNonOptionAnswer(value: string | undefined): boolean {
   if (!value?.trim()) return true;
   const text = value.trim();
   return (
@@ -91,10 +97,51 @@ function isNonOptionAnswer(value: string | undefined): boolean {
   );
 }
 
-/** Display corrompido: várias frases coladas com / ou ·. */
-function isConcatenatedDump(value: string | undefined): boolean {
+/** Display corrompido: várias frases CJK/pinyin coladas (nunca glossário pt curto). */
+export function isConcatenatedDump(value: string | undefined): boolean {
   if (!value) return false;
-  return /[\/|]/.test(value) || (value.match(/[·•]/g) ?? []).length >= 2;
+  // Ex.: "你好 / 你好吗 / 我很好"
+  if (/[\u3400-\u9fff].*[\/|].*[\u3400-\u9fff]/.test(value)) return true;
+  // Ex.: "nǐ hǎo / nǐ hǎo ma / wǒ hěn hǎo"
+  const slashParts = value
+    .split(/\s*[\/|]\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (slashParts.length >= 2) {
+    const looksPinyin = (part: string) =>
+      /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/.test(part) ||
+      (/^[a-zü]+(\s+[a-zü]+){1,}$/i.test(part) && part.split(/\s+/).length >= 2);
+    if (slashParts.filter(looksPinyin).length >= 2) return true;
+  }
+  // Vários · em texto com hànzì costuma ser dump de campos colados.
+  if ((value.match(/[·•]/g) ?? []).length >= 2 && /[\u3400-\u9fff]/.test(value)) return true;
+  return false;
+}
+
+/** Explicação com cara de debug / dump — não mostrar ao aluno. */
+export function isDebugExplanation(value: string | undefined): boolean {
+  if (!value?.trim()) return true;
+  if (isConcatenatedDump(value)) return true;
+  const text = value.trim();
+  if (/^sugestão:/i.test(text)) return true;
+  if (/\b(unclassified|diagnosis|debug|stack|TODO|FIXME)\b/i.test(text)) return true;
+  if (/^\[.*\]$/.test(text)) return true;
+  return false;
+}
+
+function cleanDisplay(value: string | undefined): string | undefined {
+  if (!value?.trim() || isConcatenatedDump(value)) return undefined;
+  return value.trim();
+}
+
+function pedagogicalExplanation(
+  ...candidates: (string | undefined)[]
+): string | undefined {
+  for (const candidate of candidates) {
+    if (!candidate || isDebugExplanation(candidate)) continue;
+    return candidate.trim();
+  }
+  return undefined;
 }
 
 function pinyinForSinglePhrase(hanzi: string | undefined, fallback?: string): string | undefined {
@@ -118,6 +165,14 @@ function findChunkByText(text: string | undefined) {
   if (!text) return undefined;
   const normalized = normalizeHanzi(text);
   return CHUNKS.find((chunk) => normalizeHanzi(chunk.hanzi) === normalized);
+}
+
+function containsHanzi(text: string): boolean {
+  return /[\u3400-\u9fff]/u.test(text);
+}
+
+function sameScriptAs(answer: string, option: string): boolean {
+  return containsHanzi(answer) === containsHanzi(option);
 }
 
 /**
@@ -152,8 +207,13 @@ function buildChoiceOptions(answer: string, distractorPools: (string | undefined
     .filter((option) => !isNonOptionAnswer(option))
     .filter((option) => normalizeRemediationAnswer(option) !== answerNorm)
     .filter((option) => !isConcatenatedDump(option))
+    .filter((option) => sameScriptAs(answer, option))
     .slice(0, 3);
-  return seededOrder(uniqueNonEmpty([answer, ...distractors]), seed);
+  const options = seededOrder(uniqueNonEmpty([answer, ...distractors]), seed).filter(
+    (option) => !isNonOptionAnswer(option) && !isConcatenatedDump(option)
+  );
+  // Estado parcial: se só sobrou a resposta, ainda assim devolve jogável.
+  return options.length > 0 ? options : [answer].filter(Boolean);
 }
 
 function meaningDistractors(answer: string): string[] {
@@ -176,12 +236,12 @@ function isToneQuestion(error: ActivityErrorInput): boolean {
 
 /** Há material sonoro para tocar? Sem isto, "ouça de novo" tocaria a resposta escrita. */
 function canReplayAudio(error: ActivityErrorInput): boolean {
-  return Boolean(error.hanzi || error.step?.audioText);
+  return Boolean(cleanDisplay(error.hanzi) || error.step?.audioText);
 }
 
 /** A correção por hànzì pergunta o SIGNIFICADO — precisa de glifo e de resposta em pt. */
 function canAskHanziMeaning(error: ActivityErrorInput): boolean {
-  return Boolean(error.hanzi) && !containsHanzi(error.correctAnswer);
+  return Boolean(cleanDisplay(error.hanzi)) && !containsHanzi(error.correctAnswer);
 }
 
 /**
@@ -227,11 +287,13 @@ function remediationKindForCause(error: ActivityErrorInput): ImmediateRemediatio
 }
 
 function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
+  // Diálogo/cena: SEMPRE escolha situacional — causa não pode forçar montagem
+  // (que misturava dump de falas e opções estranhas).
+  if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "choice";
+
   const byCause = remediationKindForCause(error);
   if (byCause) return byCause;
   if (error.type === "pair-match") return "pair";
-  // Diálogo/cena: remediação por escolha contextual (mesmo alvo, opções do step).
-  if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "choice";
   if (error.type === "tone") return "tone";
   // Errou o par mínimo ou o ditado: o problema é ouvido, então a remediação
   // imediata volta pelo áudio, nunca por leitura.
@@ -280,35 +342,12 @@ function buildPieces(error: ActivityErrorInput, fallbackAnswer: string): string[
   const baseSet = new Set(base.map(normalizeHanzi));
   const extras = [...(step?.bank ?? []), ...(step?.distractors ?? [])]
     .filter(Boolean)
+    .filter((piece) => !isNonOptionAnswer(piece) && !isConcatenatedDump(piece))
     .filter((piece) => !baseSet.has(normalizeHanzi(piece)));
-  const combined = [...base, ...extras].slice(0, Math.max(base.length + 3, 4));
+  const combined = [...base, ...extras]
+    .filter((piece) => !isNonOptionAnswer(piece) && !isConcatenatedDump(piece))
+    .slice(0, Math.max(base.length + 3, 4));
   return seededOrder(combined, error.id);
-}
-
-function containsHanzi(text: string): boolean {
-  return /[\u3400-\u9fff]/u.test(text);
-}
-
-function replyTokens(text: string): string[] {
-  const trimmed = text.trim();
-  if (!trimmed) return [];
-  return containsHanzi(trimmed)
-    ? [...normalizeHanzi(trimmed)]
-    : trimmed.split(/\s+/).filter(Boolean);
-}
-
-/**
- * Cena/diálogo já testou escolha de resposta. Na recuperação, mantém a mesma
- * intenção e o mesmo alvo, mas troca a abordagem por montagem da fala.
- */
-function buildReplyPieces(error: ActivityErrorInput, answer: string): string[] {
-  const base = replyTokens(answer);
-  const baseSet = new Set(base.map(normalizeRemediationAnswer));
-  const distractorTokens = uniqueNonEmpty(
-    (error.step?.options ?? []).flatMap((option) => replyTokens(option))
-  ).filter((token) => !baseSet.has(normalizeRemediationAnswer(token)));
-  const extras = distractorTokens.slice(0, 3);
-  return seededOrder([...base, ...extras], error.id);
 }
 
 function promptWithoutSceneSuffix(prompt: string | undefined): string | undefined {
@@ -320,10 +359,10 @@ function promptWithoutSceneSuffix(prompt: string | undefined): string | undefine
 function originalTaskPrompt(error: ActivityErrorInput): string {
   const step = error.step;
   return (
-    step?.dialoguePrompt ??
-    step?.checkpoint?.prompt ??
-    step?.prompt ??
-    promptWithoutSceneSuffix(error.prompt) ??
+    cleanDisplay(step?.dialoguePrompt) ??
+    cleanDisplay(step?.checkpoint?.prompt) ??
+    cleanDisplay(step?.prompt) ??
+    cleanDisplay(promptWithoutSceneSuffix(error.prompt)) ??
     "Responda à mesma situação."
   );
 }
@@ -338,20 +377,41 @@ function situationalDisplay(error: ActivityErrorInput): string | undefined {
     promptWithoutSceneSuffix(error.prompt),
   ];
   for (const candidate of candidates) {
-    if (!candidate || isConcatenatedDump(candidate)) continue;
-    return candidate;
+    const cleaned = cleanDisplay(candidate);
+    if (!cleaned) continue;
+    return cleaned;
   }
-  if (error.hanzi && !isConcatenatedDump(error.hanzi)) return error.hanzi;
-  return undefined;
+  return cleanDisplay(error.hanzi);
 }
 
 function situationalPrompt(error: ActivityErrorInput): string {
   const context = situationalDisplay(error);
-  if (!context) return "Escolha a resposta correta.";
+  if (!context) return "Escolha a resposta certa para a situação.";
   if (containsHanzi(context) && context.length <= 24) {
     return `Alguém diz: ${context}. Qual resposta combina?`;
   }
-  return context.length > 80 ? "Escolha a resposta correta para a mesma situação." : context;
+  return context.length > 80 ? "Escolha a resposta certa para a mesma situação." : context;
+}
+
+function singleTargetHanzi(error: ActivityErrorInput): string | undefined {
+  const fromAnswer = cleanDisplay(error.correctAnswer);
+  if (fromAnswer && containsHanzi(fromAnswer)) return fromAnswer;
+  const fromStep =
+    cleanDisplay(error.step?.correctAnswer) ??
+    cleanDisplay(error.step?.checkpoint?.correctAnswer) ??
+    cleanDisplay(error.step?.answer) ??
+    cleanDisplay(error.step?.blankAnswer) ??
+    cleanDisplay(error.step?.hanzi);
+  if (fromStep && containsHanzi(fromStep)) return fromStep;
+  return cleanDisplay(error.hanzi);
+}
+
+function coherentMeaning(error: ActivityErrorInput, answer: string): string | undefined {
+  if (error.meaningPt && !isConcatenatedDump(error.meaningPt) && !isNonOptionAnswer(error.meaningPt)) {
+    return error.meaningPt;
+  }
+  const chunk = findChunkByText(containsHanzi(answer) ? answer : singleTargetHanzi(error));
+  return chunk?.meaningPt;
 }
 
 /**
@@ -364,18 +424,24 @@ function situationalPrompt(error: ActivityErrorInput): string {
 export function buildImmediateRemediationExercise(error: ActivityErrorInput): ImmediateRemediationExercise {
   const kind = remediationKind(error);
   const step = error.step;
+  const safeAnswer = (error.correctAnswer ?? step?.correctAnswer ?? step?.checkpoint?.correctAnswer ?? "").trim();
   const base = {
     sourceErrorId: error.id,
     canRecoverStar: true as const,
-    explanation: error.explanation ?? error.mistakeReason,
-    meaningPt: error.meaningPt,
+    explanation: pedagogicalExplanation(
+      step?.explanation,
+      step?.checkpoint?.explanation,
+      error.explanation,
+      error.mistakeReason
+    ),
+    meaningPt: coherentMeaning(error, safeAnswer),
     pieceJoin: "",
   };
 
   if (kind === "pair") {
     // match_pairs / tone_pair: revisar SÓ o par errado, nunca a tabela inteira.
-    const answer = error.correctAnswer;
-    const left = error.pairLeft ?? error.hanzi;
+    const answer = safeAnswer || "—";
+    const left = cleanDisplay(error.pairLeft) ?? cleanDisplay(error.hanzi);
     const pairMeanings = (step?.pairs ?? []).map((pair) => {
       const parts = pair.right.split("·").map((part) => part.trim()).filter(Boolean);
       return parts.length >= 2 ? parts.slice(1).join(" · ") : pair.right;
@@ -384,9 +450,11 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
       ...base,
       kind: "pair",
       prompt: left ? `O que significa ${left}?` : "Combine com o significado correto.",
-      display: error.hanzi ?? left,
-      displayPinyin: error.pinyin,
+      display: left,
+      displayPinyin: pinyinForSinglePhrase(left, error.pinyin),
       answer,
+      answerDisplay: answer,
+      answerPinyin: pinyinForSinglePhrase(left, error.pinyin),
       options: buildChoiceOptions(
         answer,
         [error.selectedAnswer, ...pairMeanings, ...meaningDistractors(answer)],
@@ -396,30 +464,42 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
   }
 
   if (kind === "tone") {
-    const answer = error.correctAnswer;
+    const answer = safeAnswer || "1º tom";
+    const hanzi = singleTargetHanzi(error);
     return {
       ...base,
       kind: "tone",
-      prompt: error.hanzi ? `Qual é o tom de ${error.hanzi}?` : "Escolha o tom correto.",
-      display: error.hanzi,
-      displayPinyin: error.pinyin,
+      prompt: hanzi ? `Qual é o tom de ${hanzi}?` : "Escolha o tom correto.",
+      display: hanzi,
+      // Não mostrar pinyin no estímulo — revelaria o tom.
+      displayPinyin: undefined,
       answer,
+      answerDisplay: answer,
+      answerPinyin: pinyinForSinglePhrase(hanzi, error.pinyin),
       options: buildChoiceOptions(answer, [error.selectedAnswer, ...TONE_OPTIONS], error.id),
     };
   }
 
   if (kind === "listen") {
-    const answer = error.correctAnswer;
+    const answer = safeAnswer || "—";
     const stepOptions = step?.options ?? [];
+    const audioHanzi = cleanDisplay(error.hanzi) ?? cleanDisplay(step?.audioText) ?? (containsHanzi(answer) ? answer : undefined);
     return {
       ...base,
       kind: "listen",
-      prompt: "Ouça de novo e escolha a resposta correta.",
-      audioText: error.hanzi ?? step?.audioText ?? answer,
+      prompt: "Ouça de novo e escolha a resposta certa.",
+      audioText: audioHanzi ?? answer,
       answer,
+      answerDisplay: answer,
+      answerPinyin: pinyinForSinglePhrase(containsHanzi(answer) ? answer : audioHanzi, error.pinyin),
       options: buildChoiceOptions(
         answer,
-        [error.selectedAnswer, ...stepOptions, error.meaningPt, ...meaningDistractors(answer)],
+        [
+          error.selectedAnswer,
+          ...stepOptions,
+          // Só mistura significados se a resposta também for significado (pt).
+          ...(containsHanzi(answer) ? [] : [error.meaningPt, ...meaningDistractors(answer)]),
+        ],
         error.id
       ),
     };
@@ -432,61 +512,52 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
     return {
       ...base,
       kind: "blank",
-      prompt: step.prompt ?? "Complete a lacuna que você errou.",
+      prompt: cleanDisplay(step.prompt) ?? "Complete a lacuna que você errou.",
       blankBefore: step.sentenceBefore,
       blankAfter: step.sentenceAfter,
-      display: error.hanzi ?? error.correctAnswer,
+      display: singleTargetHanzi(error) ?? cleanDisplay(error.correctAnswer),
       answer,
-      answerDisplay: error.correctAnswer,
+      answerDisplay: error.correctAnswer || answer,
+      answerPinyin: pinyinForSinglePhrase(containsHanzi(answer) ? answer : undefined, error.pinyin),
       options: buildChoiceOptions(answer, [error.selectedAnswer, ...bankDistractors], error.id),
     };
   }
 
   if (kind === "build") {
-    if (error.type === "dialogue_choice" || error.type === "conversation_scene") {
-      const answer = error.correctAnswer;
-      return {
-        ...base,
-        kind: "build",
-        prompt: "Monte a resposta para a mesma situação.",
-        display: situationalDisplay(error) ?? originalTaskPrompt(error),
-        displayPinyin: pinyinForSinglePhrase(answer, error.pinyin),
-        answer,
-        pieces: buildReplyPieces(error, answer),
-        pieceJoin: containsHanzi(answer) ? "" : " ",
-        meaningPt: error.meaningPt,
-      };
-    }
-
     if (error.type === "hanzi_build") {
       // As peças são componentes; o alvo é o glifo composto. Verifica a ordem
       // dos componentes, mas mostra o hànzì final no feedback.
       const targetParts = step?.targetParts ?? step?.target ?? [];
-      const answer = targetParts.length > 0 ? targetParts.join("") : error.hanzi ?? error.correctAnswer;
-      const targetChar = error.hanzi ?? error.correctAnswer;
+      const answer = targetParts.length > 0 ? targetParts.join("") : singleTargetHanzi(error) ?? safeAnswer;
+      const targetChar = singleTargetHanzi(error) ?? safeAnswer;
       return {
         ...base,
         kind: "build",
-        prompt: "Monte novamente este hànzì com os componentes.",
+        prompt: "Monte de novo este hànzì com as peças.",
         display: targetChar,
-        displayPinyin: error.pinyin,
+        displayPinyin: pinyinForSinglePhrase(targetChar, error.pinyin),
         answer,
         answerDisplay: targetChar,
+        answerPinyin: pinyinForSinglePhrase(targetChar, error.pinyin),
         pieces: buildPieces(error, answer),
         pieceJoin: "",
       };
     }
 
     const isTranslation = error.type === "translation_build";
-    const answer = error.correctAnswer;
+    const answer = safeAnswer || "—";
+    const display = isTranslation
+      ? singleTargetHanzi(error) ?? cleanDisplay(error.prompt)
+      : cleanDisplay(promptWithoutSceneSuffix(error.prompt)) ?? cleanDisplay(step?.prompt) ?? originalTaskPrompt(error);
     return {
       ...base,
       kind: "build",
-      prompt: isTranslation ? "Monte novamente a tradução com as peças." : "Monte novamente a resposta com as peças.",
-      // Tradução parte do texto-fonte (chinês); montagem de frase parte da instrução.
-      display: isTranslation ? error.hanzi ?? error.prompt : error.prompt,
-      displayPinyin: isTranslation ? error.pinyin : undefined,
+      prompt: isTranslation ? "Monte de novo a tradução com as peças." : "Monte de novo a resposta com as peças.",
+      display,
+      displayPinyin: isTranslation ? pinyinForSinglePhrase(singleTargetHanzi(error), error.pinyin) : undefined,
       answer,
+      answerDisplay: answer,
+      answerPinyin: pinyinForSinglePhrase(containsHanzi(answer) ? answer : undefined, error.pinyin),
       pieces: buildPieces(error, answer),
       pieceJoin: isTranslation ? " " : "",
     };
@@ -494,16 +565,19 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
 
   if (kind === "hanzi") {
     // recognize / decompose: revisar o mesmo caractere pelo significado.
-    const answer = error.correctAnswer;
-    const relatedMeanings = charsInText(error.hanzi).map((char) => char.meaningPt);
-    const chunkMeaning = findChunkByText(error.hanzi)?.meaningPt;
+    const answer = safeAnswer || "—";
+    const hanzi = singleTargetHanzi(error);
+    const relatedMeanings = charsInText(hanzi).map((char) => char.meaningPt);
+    const chunkMeaning = findChunkByText(hanzi)?.meaningPt;
     return {
       ...base,
       kind: "hanzi",
       prompt: "Qual é o significado deste hànzì?",
-      display: error.hanzi,
-      displayPinyin: error.pinyin,
+      display: hanzi,
+      displayPinyin: pinyinForSinglePhrase(hanzi, error.pinyin),
       answer,
+      answerDisplay: answer,
+      answerPinyin: pinyinForSinglePhrase(hanzi, error.pinyin),
       options: buildChoiceOptions(
         answer,
         [error.selectedAnswer, chunkMeaning, ...relatedMeanings, ...meaningDistractors(answer)],
@@ -513,49 +587,58 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
   }
 
   if (kind === "pinyin") {
-    const answer = error.pinyin ?? error.correctAnswer;
+    const hanzi = singleTargetHanzi(error);
+    const answer = cleanDisplay(error.pinyin) ?? (safeAnswer || "—");
     return {
       ...base,
       kind: "pinyin",
       prompt: "Escolha o pinyin correto.",
-      display: error.hanzi,
+      display: hanzi,
+      displayPinyin: undefined,
       answer,
+      answerDisplay: answer,
+      answerPinyin: answer,
       options: buildChoiceOptions(answer, [error.selectedAnswer, ...pinyinDistractors(answer)], error.id),
     };
   }
 
   // choice (dialogue_choice e afins): manter a mesma intenção comunicativa.
-  const answer = error.correctAnswer;
+  const answer = safeAnswer || "—";
   const stepOptions = (step?.options ?? step?.checkpoint?.options ?? []).filter(
     (option) => !isNonOptionAnswer(option) && !isConcatenatedDump(option)
   );
   const isDialogue = error.type === "dialogue_choice" || error.type === "conversation_scene";
   const display = isDialogue
     ? situationalDisplay(error)
-    : error.hanzi && !isConcatenatedDump(error.hanzi)
-      ? error.hanzi
-      : situationalDisplay(error) ?? error.prompt;
+    : singleTargetHanzi(error) ?? situationalDisplay(error) ?? cleanDisplay(error.prompt);
   const answerPinyin = pinyinForSinglePhrase(containsHanzi(answer) ? answer : undefined, error.pinyin);
+  const displayPinyin = isDialogue
+    ? undefined
+    : pinyinForSinglePhrase(display && containsHanzi(display) ? display : undefined, error.pinyin);
+
   return {
     ...base,
     kind: "choice",
     prompt: isDialogue ? situationalPrompt(error) : "Escolha a resposta correta.",
     display,
-    // Pinyin sob o display só quando o próprio display é o hànzì revisado (não a pergunta).
-    displayPinyin: isDialogue
-      ? undefined
-      : pinyinForSinglePhrase(display && containsHanzi(display) ? display : undefined, error.pinyin),
+    displayPinyin,
     answer,
     answerDisplay: answer,
     answerPinyin,
     options: buildChoiceOptions(
       answer,
-      [error.selectedAnswer, ...stepOptions, ...meaningDistractors(answer)],
+      [
+        error.selectedAnswer,
+        ...stepOptions,
+        ...(containsHanzi(answer) ? [] : meaningDistractors(answer)),
+      ],
       error.id
     ),
-    explanation:
-      step?.explanation ??
-      step?.checkpoint?.explanation ??
-      (error.explanation && !isConcatenatedDump(error.explanation) ? error.explanation : undefined),
+    explanation: pedagogicalExplanation(
+      step?.explanation,
+      step?.checkpoint?.explanation,
+      error.explanation,
+      error.mistakeReason
+    ),
   };
 }

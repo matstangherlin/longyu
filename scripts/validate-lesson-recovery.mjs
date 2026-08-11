@@ -78,41 +78,45 @@ if (pairExpected.length > 40 || pairUser.length > 40) {
 assertEqual("par salva hanzi no prompt", pairPrompt.includes("木"), true);
 
 console.log("== Recuperação alternativa de cena ==");
-// A cena original era escolha de resposta; a recuperação precisa cobrar o
-// mesmo alvo por montagem, sem repetir a múltipla escolha nem o histórico todo.
+// A cena/diálogo original era escolha; a recuperação mantém o alvo com choice
+// situacional (B002) — sem dump multi-frase e sem status de pulo como opção.
 const remediationSource = readFileSync(
   new URL("../src/features/lesson/immediateRemediation.ts", import.meta.url),
   "utf8"
 );
 assertEqual(
-  "cena e diálogo mudam para montagem",
+  "cena e diálogo usam choice situacional",
   remediationSource.includes(
-    'if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";'
+    'if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "choice";'
   ),
   true
 );
 assertEqual(
-  "recuperação usa enunciado curto",
-  remediationSource.includes('error.prompt.split(" (cena:")[0]?.trim()'),
+  "recuperação filtra status de pulo nas opções",
+  remediationSource.includes("isNonOptionAnswer") && remediationSource.includes("isConcatenatedDump"),
   true
 );
 assertEqual(
-  "recuperação usa peças da resposta",
-  remediationSource.includes("pieces: buildReplyPieces(error, answer)"),
+  "recuperação monta prompt situacional",
+  remediationSource.includes("situationalPrompt") && remediationSource.includes("situationalDisplay"),
+  true
+);
+assertEqual(
+  "explicações de debug são filtradas",
+  remediationSource.includes("isDebugExplanation") && remediationSource.includes("pedagogicalExplanation"),
   true
 );
 
 const sceneAnswer = "明天见";
-const sceneOptions = ["明天见", "你好", "谢谢", "我饿了"];
-const sceneAnswerChars = [...sceneAnswer];
-const sceneDistractorChars = Array.from(
-  new Set(sceneOptions.flatMap((option) => [...option]).filter((char) => !sceneAnswerChars.includes(char)))
-).slice(0, 3);
-const scenePieces = [...sceneAnswerChars, ...sceneDistractorChars];
-assertEqual("mantém 明", scenePieces.includes("明"), true);
-assertEqual("mantém 天", scenePieces.includes("天"), true);
-assertEqual("mantém 见", scenePieces.includes("见"), true);
-assertEqual("não transforma pulo em opção", scenePieces.includes("Pulou ou respondeu incorretamente"), false);
+const sceneOptions = ["明天见", "你好", "谢谢", "我饿了", "Pulou ou respondeu incorretamente"];
+assertEqual("mantém resposta alvo", sceneOptions.includes(sceneAnswer), true);
+assertEqual(
+  "não transforma pulo em opção válida",
+  sceneOptions.filter((option) => !/^pulou\b/i.test(option) && !/respondeu incorretamente/i.test(option)).includes(
+    "Pulou ou respondeu incorretamente"
+  ),
+  false
+);
 
 if (errors.length > 0) {
   console.error("\nFalhas:");

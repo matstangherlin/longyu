@@ -19,7 +19,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Página não arrasta; CTA acessível sem caça; vitória cabe no frame | Lição pinyin pós-resposta + tela final | **aberto — aguarda revalidação física** (#138→#139→#140) |
-| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente | Um exercício coerente: prompt situacional + opções + pinyin só da resposta | Errar/pular diálogo → aceitar revisão de estrela | **corrigido em código** — revalidar no app |
+| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Um exercício coerente: prompt situacional + opções + pinyin só da resposta; UI em blocos claros | Errar/pular diálogo → aceitar revisão de estrela | **corrigido em código** — revalidar no app |
 | B003 | | | | | | | |
 
 ## Contagem rápida
