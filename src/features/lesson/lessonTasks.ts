@@ -1750,6 +1750,7 @@ function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number):
     pinyin: model.pinyin,
     accepts: uniqueValues(task.accepts),
     explanation: `Qualquer uma destas cumpre a situação. ${task.hintPt}`,
+    assist: "guided",
     isNoHint: true,
     helpMode: "disabled",
   };
@@ -1783,8 +1784,9 @@ function makeFreeProductionStep(
   const task = tasks[seed % tasks.length];
   return {
     kind: "free_production",
-    title: "Produza você",
+    title: "Produza a frase",
     patternPt: task.patternPt,
+    assist: "guided",
     ...frameTaskStepBase(task),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
   };
@@ -1812,8 +1814,9 @@ function makeTransferStep(
     transferAnchorPinyin: task.anchor.pinyin,
     transferAnchorPt: task.anchor.meaningPt,
     isNovelCombination: true,
+    assist: "guided",
     ...frameTaskStepBase(task),
-    explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Você nunca viu esta frase pronta: montou pela estrutura.`,
+    explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
   };
 }
 

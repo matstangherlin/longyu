@@ -87,6 +87,24 @@ export type CommunicativeGoal =
   | "state_ongoing"
   | "state_change";
 
+/** Microcopy amigável do objetivo comunicativo (produção / transferência). */
+export const COMMUNICATIVE_GOAL_LABELS: Record<CommunicativeGoal, string> = {
+  request_item: "Peça o que você quer",
+  ask_location: "Pergunte onde fica",
+  ask_price: "Pergunte o preço",
+  state_preference: "Diga o que você gosta",
+  state_destination: "Diga para onde vai",
+  buy_item: "Diga o que quer comprar",
+  offer_item: "Ofereça algo a alguém",
+  refuse_drink: "Recuse uma bebida",
+  refuse_food: "Recuse uma comida",
+  count_possession: "Diga quantos você tem",
+  chain_actions: "Combine duas ações em sequência",
+  travel_by: "Diga como vai viajar",
+  state_ongoing: "Diga o que está acontecendo agora",
+  state_change: "Diga uma mudança / conclusão",
+};
+
 /**
  * Papel de um slot na moldura da frase. É o STPVO-light: o aluno vê a ordem
  * (sujeito · tempo · lugar · verbo · objeto) em vez de só o buraco "___".

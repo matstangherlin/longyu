@@ -90,23 +90,23 @@ function mapError(code?: string): RecognizeErrorCode {
 export function speechErrorMessage(code: RecognizeErrorCode | string): string {
   switch (mapError(code)) {
     case "not-allowed":
-      return "Permissão do microfone negada. Autorize o mic nas configurações do navegador e tente de novo.";
+      return "Preciso da permissão do microfone. Autorize nas configurações do navegador e toque em Falar de novo.";
     case "insecure":
       return "O microfone só funciona em conexão segura (HTTPS).";
     case "unsupported":
-      return "Este navegador não reconhece voz. No Chrome/Edge do Android ou do computador funciona.";
+      return "Este navegador não reconhece voz. No Chrome ou Edge costuma funcionar bem.";
     case "network":
       return "Sem conexão com o serviço de voz. Confira a internet e tente de novo.";
     case "audio-capture":
-      return "Não consegui acessar o microfone. Feche outros apps que estejam usando o mic.";
+      return "Não consegui acessar o microfone. Feche outros apps que estejam usando o mic e tente de novo.";
     case "aborted":
-      return "A escuta foi interrompida. Toque em De novo e fale logo em seguida.";
+      return "A escuta foi interrompida. Toque em Falar e fale logo em seguida.";
     case "no-speech":
-      return "Não consegui ouvir. Fale mais perto do mic e um pouco mais alto.";
+      return "Não consegui entender sua fala. Tente novamente falando um pouco mais devagar e perto do mic.";
     case "start-failed":
       return "Não deu para iniciar o microfone. Toque de novo em Falar.";
     default:
-      return "Não consegui ouvir. Tente de novo.";
+      return "Não consegui entender sua fala. Tente novamente falando um pouco mais devagar.";
   }
 }
 

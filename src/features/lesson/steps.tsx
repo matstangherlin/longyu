@@ -35,7 +35,7 @@ import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
-import { PATTERN_SLOT_LABELS, type PatternSlot } from "../../data/productionTasks";
+import { PATTERN_SLOT_LABELS, COMMUNICATIVE_GOAL_LABELS, type PatternSlot } from "../../data/productionTasks";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
@@ -3625,12 +3625,15 @@ function FreeAnswerField({
   disabled,
   placeholder,
   onSubmit,
+  hint,
 }: {
   value: string;
   onChange: (next: string) => void;
   disabled: boolean;
   placeholder: string;
   onSubmit: () => void;
+  /** Linha curta sob o campo (regras de aceite). */
+  hint?: string;
 }) {
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
@@ -3663,7 +3666,10 @@ function FreeAnswerField({
   }
 
   return (
-    <div className="mt-3.5">
+    <div className="mt-4" data-production-answer>
+      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+        Sua resposta
+      </label>
       <textarea
         value={value}
         lang="zh-CN"
@@ -3688,22 +3694,27 @@ function FreeAnswerField({
           }
         }}
         disabled={disabled}
-        rows={2}
+        rows={3}
         placeholder={placeholder}
         aria-label="Sua resposta"
-        className="w-full resize-none rounded-2xl border border-line bg-surface-2 p-3.5 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
+        className="w-full resize-none rounded-[20px] border-2 border-line bg-surface px-4 py-3.5 text-xl leading-relaxed text-ink shadow-card outline-none transition placeholder:text-ink-faint/80 focus:border-accent focus:ring-4 focus:ring-accent-soft disabled:opacity-60"
       />
-      {speechSupported && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {speechSupported && (
           <Button variant="outline" size="sm" disabled={disabled || listening} onClick={startListening}>
             <IconSound width={16} height={16} />
             {listening ? "Ouvindo…" : "Falar a resposta"}
           </Button>
-          <span className="text-xs text-ink-faint">Pinyin também vale — com ou sem acentos.</span>
-        </div>
+        )}
+        <p className="text-xs leading-5 text-ink-faint">
+          {hint ?? "Vale hànzì ou pinyin — com ou sem tom."}
+        </p>
+      </div>
+      {micError && (
+        <p className="mt-2 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-2 text-xs leading-5 text-ink-soft" role="status">
+          {micError}
+        </p>
       )}
-      {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Pinyin também vale — com ou sem acentos.</p>}
-      {micError && <p className="mt-2 text-xs text-accent">{micError}</p>}
     </div>
   );
 }
@@ -3712,8 +3723,8 @@ function FreeAnswerField({
 function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patternPt?: string }) {
   if (slots && slots.length > 0) {
     return (
-      <div className="mt-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Ordem</div>
+      <div className="mt-2" data-production-scaffold>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Ordem da frase</div>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {slots.map((slot, index) => (
             <div key={`${slot.role}-${index}`} className="flex items-center gap-1.5">
@@ -3741,13 +3752,13 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
   }
   if (!patternPt) return null;
   return (
-    <p className="mt-2 text-xs text-ink-faint">
+    <p className="mt-2 text-xs text-ink-faint" data-production-scaffold>
       Estrutura: <span className="font-semibold text-ink-soft">{patternPt}</span>
     </p>
   );
 }
 
-/** free_production e transfer_task compartilham a mesma mecânica. */
+/** free_production e transfer_task — layout guiado, scaffold opcional, CTA forte. */
 function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const isTransfer = step.kind === "transfer_task";
@@ -3757,6 +3768,9 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
     () => uniqueStrings([model, ...(step.accepts ?? [])]),
     [model, step.accepts]
   );
+  const hasScaffold = Boolean(step.patternSlots?.length || step.patternPt);
+  // Primeiras ocorrências (assist guided) abrem a dica; o aluno pode fechar.
+  const [hintOpen, setHintOpen] = useState(() => step.assist === "guided" && hasScaffold && !isOpen);
   const [draft, setDraft] = useState("");
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
@@ -3764,8 +3778,6 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
   const [causeFeedback, setCauseFeedback] = useState<string | undefined>(undefined);
   const locked = feedback === "correct";
 
-  // "Isto também valia": as outras frases certas, sem repetir a que o aluno
-  // escreveu nem a mostrada como modelo. Só aparece depois da tentativa.
   const otherAnswers = useMemo(() => {
     const shown = new Set([normalizeEngineAnswer(accepted ?? model)]);
     const list: string[] = [];
@@ -3777,6 +3789,20 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
     }
     return list.slice(0, 4);
   }, [step.productionExamples, accepted, model]);
+
+  const goalLine = step.productionGoal
+    ? COMMUNICATIVE_GOAL_LABELS[step.productionGoal] ?? "Produza a frase da situação."
+    : isTransfer
+      ? "Use a mesma estrutura em uma situação nova."
+      : isOpen
+        ? "Diga o que você quiser — desde que cumpra a situação."
+        : "Escreva (ou fale) a frase completa.";
+
+  const placeholder = isTransfer
+    ? "Ex.: wo yao cha — ou em hànzì"
+    : isOpen
+      ? "Escreva sua frase em hànzì ou pinyin…"
+      : "Escreva a frase em hànzì ou pinyin…";
 
   function check() {
     const candidate = draft.trim();
@@ -3790,10 +3816,6 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
       return;
     }
 
-    // O corpus nunca vai enumerar todas as frases certas do mandarim. Quando o
-    // diagnóstico não encontra padrão que explique uma tentativa bem formada, o
-    // honesto é admitir que não reconheceu — não cobrar como erro. Cobrar
-    // custaria estrela, entraria no SRS e ainda desviaria as próximas lições.
     const diagnosis = diagnoseError({
       kind: step.kind,
       expected: model,
@@ -3816,43 +3838,79 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
   }
 
   return (
-    <div>
-      <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
+    <div data-production-step={step.kind}>
+      <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? (isTransfer ? "Mesma estrutura, situação nova" : "Produza você")}
       </h2>
 
+      {/* 1 · O que já aprendeu */}
       {isTransfer && step.transferAnchorHanzi && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-learned>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             Você já aprendeu
           </div>
-          <div className="mt-1 hanzi text-2xl text-ink">
-            <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="hanzi text-2xl text-ink">
+              <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+            </span>
+            {step.transferAnchorPt && (
+              <span className="text-sm text-ink-soft">= {step.transferAnchorPt}</span>
+            )}
           </div>
-          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 text-sm" />}
-          {step.transferAnchorPt && <p className="mt-1 text-sm text-ink-soft">{step.transferAnchorPt}</p>}
-          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+          {step.transferAnchorPinyin && (
+            <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm" />
+          )}
         </div>
       )}
 
-      {!isTransfer && !isOpen && (step.patternSlots?.length || step.patternPt) && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
-          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+      {/* 2 · Situação nova */}
+      <div className="mt-3 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5" data-production-situation>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+          {isTransfer ? "Agora, situação nova" : "Situação"}
         </div>
-      )}
-
-      <div className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
-        <p className="mt-1 text-base leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
+        <p className="mt-1.5 text-base font-medium leading-6 text-ink">
+          {step.situationPt ?? step.prompt}
+        </p>
       </div>
-      <p className="mt-2 text-sm text-ink-soft">
-        {isTransfer
-          ? "Nenhuma alternativa e nenhuma peça: esta frase exata você nunca viu. Monte pela estrutura."
-          : isOpen
-            ? step.productionHintPt ?? "Não existe uma resposta esperada: diga o que você quiser dizer."
-            : "Nenhuma alternativa e nenhuma peça. Escreva (ou fale) a frase inteira."}
-      </p>
+
+      {/* 3 · O que produzir */}
+      <div className="mt-3 rounded-2xl border border-line bg-surface px-3.5 py-3" data-production-goal>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+          O que fazer
+        </div>
+        <p className="mt-1 text-sm leading-6 text-ink-soft">{goalLine}</p>
+        {isTransfer && (
+          <p className="mt-1 text-xs leading-5 text-ink-faint">
+            Sem alternativas e sem peças — monte pela estrutura que você já viu.
+          </p>
+        )}
+        {isOpen && step.productionHintPt && (
+          <p className="mt-1 text-xs leading-5 text-ink-faint">{step.productionHintPt}</p>
+        )}
+      </div>
+
+      {/* 4 · Scaffold opcional (não entrega a resposta) */}
+      {hasScaffold && !isOpen && (
+        <div className="mt-3">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-accent transition hover:bg-accent-soft/60"
+            aria-expanded={hintOpen}
+            onClick={() => setHintOpen((open) => !open)}
+          >
+            {hintOpen ? "Esconder dica de estrutura" : "Ver dica de estrutura"}
+          </button>
+          {hintOpen && (
+            <div className="mt-2 rounded-2xl border border-dashed border-accent-soft bg-accent-soft/25 p-3.5">
+              <p className="text-xs leading-5 text-ink-soft">
+                Só a ordem / esqueleto — a resposta completa continua com você.
+              </p>
+              <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+            </div>
+          )}
+        </div>
+      )}
 
       <FreeAnswerField
         value={draft}
@@ -3861,15 +3919,13 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
           if (feedback !== "correct") setFeedback(null);
         }}
         disabled={locked}
-        placeholder="Escreva em hànzì ou pinyin…"
+        placeholder={placeholder}
+        hint="Vale hànzì ou pinyin — com ou sem tom."
         onSubmit={check}
       />
 
       <EngineFeedbackPanel
         status={feedback}
-        // Na produção aberta não existe "o modelo": chamar de modelo uma frase
-        // diferente da que o aluno acertou sugeriria que ele escolheu errado.
-        // Ali o modelo só aparece quando a tentativa não foi aceita.
         model={
           feedback === "wrong" || feedback === "unrecognized" || hadMistake || (!isOpen && locked)
             ? model

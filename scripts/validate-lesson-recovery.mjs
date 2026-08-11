@@ -78,27 +78,27 @@ if (pairExpected.length > 40 || pairUser.length > 40) {
 assertEqual("par salva hanzi no prompt", pairPrompt.includes("木"), true);
 
 console.log("== Recuperação alternativa de cena ==");
-// A cena original era escolha de resposta; a recuperação precisa cobrar o
-// mesmo alvo por montagem, sem repetir a múltipla escolha nem o histórico todo.
+// A cena/diálogo original era escolha; a recuperação mantém o alvo com choice
+// situacional (B002) — sem dump multi-frase e sem status de pulo como opção.
 const remediationSource = readFileSync(
   new URL("../src/features/lesson/immediateRemediation.ts", import.meta.url),
   "utf8"
 );
 assertEqual(
-  "cena e diálogo mudam para montagem",
+  "cena e diálogo usam choice situacional",
   remediationSource.includes(
-    'if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";'
+    'if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "choice";'
   ),
   true
 );
 assertEqual(
-  "recuperação usa enunciado curto",
-  remediationSource.includes('error.prompt.split(" (cena:")[0]?.trim()'),
+  "recuperação filtra status de pulo nas opções",
+  remediationSource.includes("isNonOptionAnswer") && remediationSource.includes("isConcatenatedDump"),
   true
 );
 assertEqual(
-  "recuperação usa peças da resposta",
-  remediationSource.includes("pieces: buildReplyPieces(error, answer)"),
+  "recuperação monta prompt situacional",
+  remediationSource.includes("situationalPrompt") && remediationSource.includes("situationalDisplay"),
   true
 );
 
