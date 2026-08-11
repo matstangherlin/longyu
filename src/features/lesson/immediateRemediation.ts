@@ -311,13 +311,19 @@ function buildReplyPieces(error: ActivityErrorInput, answer: string): string[] {
   return seededOrder([...base, ...extras], error.id);
 }
 
+function promptWithoutSceneSuffix(prompt: string | undefined): string | undefined {
+  if (!prompt) return undefined;
+  const trimmed = prompt.split(" (cena:")[0]?.trim();
+  return trimmed || undefined;
+}
+
 function originalTaskPrompt(error: ActivityErrorInput): string {
   const step = error.step;
   return (
     step?.dialoguePrompt ??
     step?.checkpoint?.prompt ??
     step?.prompt ??
-    error.prompt.split(" (cena:")[0]?.trim() ??
+    promptWithoutSceneSuffix(error.prompt) ??
     "Responda à mesma situação."
   );
 }
@@ -329,7 +335,7 @@ function situationalDisplay(error: ActivityErrorInput): string | undefined {
     step?.dialoguePrompt,
     step?.checkpoint?.prompt,
     step?.prompt,
-    error.prompt.split(" (cena:")[0]?.trim(),
+    promptWithoutSceneSuffix(error.prompt),
   ];
   for (const candidate of candidates) {
     if (!candidate || isConcatenatedDump(candidate)) continue;

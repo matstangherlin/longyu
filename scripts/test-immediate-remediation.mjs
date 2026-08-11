@@ -134,6 +134,27 @@ try {
     !(sceneEx.options ?? []).some((o) => /pulou|incorretamente/i.test(o)),
     `cena opções com status: ${(sceneEx.options ?? []).join(" | ")}`
   );
+
+  // validate:error-diagnosis cobre erros sem prompt — não pode crashar.
+  const bareError = {
+    id: "test-bare-1",
+    lessonId: "l2",
+    moduleId: "u1",
+    phaseId: "p1",
+    taskId: "t1",
+    questionId: "q1",
+    exerciseId: "e1",
+    type: "dialogue_choice",
+    correctAnswer: "我很好",
+    selectedAnswer: "谢谢",
+    timestamp: Date.now(),
+    wrongCount: 1,
+    skill: "fala",
+    targets: [{ type: "chunk", itemId: "wohenhao", domain: "significado", track: "fala" }],
+  };
+  const bareEx = buildImmediateRemediationExercise(bareError);
+  assert(Boolean(bareEx.prompt), `prompt ausente no bare: ${bareEx.prompt}`);
+  assert(bareEx.answer === "我很好", `bare answer: ${bareEx.answer}`);
 } finally {
   await rm(outDir, { recursive: true, force: true });
 }
