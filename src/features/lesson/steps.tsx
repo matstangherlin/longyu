@@ -3818,54 +3818,68 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
   }
 
   return (
-    <div>
+    <div data-production-step={step.kind}>
       <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? (isTransfer ? "Mesma estrutura, situação nova" : "Produza você")}
       </h2>
 
       {isTransfer && step.transferAnchorHanzi && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-learned>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             Você já aprendeu
           </div>
-          <div className="mt-1 hanzi text-2xl text-ink">
-            <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="hanzi text-2xl text-ink">
+              <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+            </span>
+            {step.transferAnchorPt && <span className="text-sm text-ink-soft">= {step.transferAnchorPt}</span>}
           </div>
-          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 text-sm" />}
-          {step.transferAnchorPt && <p className="mt-1 text-sm text-ink-soft">{step.transferAnchorPt}</p>}
-          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm" />}
+          <div data-production-scaffold>
+            <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+          </div>
         </div>
       )}
 
       {!isTransfer && !isOpen && (step.patternSlots?.length || step.patternPt) && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-scaffold>
           <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
         </div>
       )}
 
-      <div className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
-        <p className="mt-1 text-base leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
+      <div
+        className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5"
+        data-production-situation
+      >
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+          {isTransfer ? "Agora, situação nova" : "Situação"}
+        </div>
+        <p className="mt-1 text-base font-medium leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
       </div>
-      <p className="mt-2 text-sm text-ink-soft">
-        {isTransfer
-          ? "Nenhuma alternativa e nenhuma peça: esta frase exata você nunca viu. Monte pela estrutura."
-          : isOpen
-            ? step.productionHintPt ?? "Não existe uma resposta esperada: diga o que você quiser dizer."
-            : "Nenhuma alternativa e nenhuma peça. Escreva (ou fale) a frase inteira."}
-      </p>
+      <div className="mt-3 rounded-2xl border border-line bg-surface px-3.5 py-3" data-production-goal>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">O que fazer</div>
+        <p className="mt-1 text-sm leading-6 text-ink-soft">
+          {isTransfer
+            ? "Use a mesma estrutura nesta situação."
+            : isOpen
+              ? step.productionHintPt ?? "Diga o que você quiser — desde que cumpra a situação."
+              : "Escreva (ou fale) a frase completa."}
+        </p>
+      </div>
 
-      <FreeAnswerField
-        value={draft}
-        onChange={(next) => {
-          setDraft(next);
-          if (feedback !== "correct") setFeedback(null);
-        }}
-        disabled={locked}
-        placeholder="Escreva em hànzì ou pinyin…"
-        onSubmit={check}
-      />
+      <div data-production-answer>
+        <FreeAnswerField
+          value={draft}
+          onChange={(next) => {
+            setDraft(next);
+            if (feedback !== "correct") setFeedback(null);
+          }}
+          disabled={locked}
+          placeholder={isTransfer ? "Ex.: wo yao cha — ou em hànzì" : "Escreva em hànzì ou pinyin…"}
+          onSubmit={check}
+        />
+      </div>
 
       <EngineFeedbackPanel
         status={feedback}
