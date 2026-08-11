@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -53,6 +53,8 @@ import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
 import { useOnline } from "../../hooks/useOnline";
+import { useVisualViewportHeight } from "../../hooks/useVisualViewportHeight";
+import { resetLessonPlayerScroll } from "../../lib/lessonPlayerScroll";
 import {
   hashAnswerNorm,
   installLessonActivityClock,
@@ -1503,6 +1505,9 @@ export function LessonPlayer() {
   // conclusão, XP/Qi, missão ou baú).
   const recoveryAppliedRef = useRef(false);
   const pendingReviewRestoredRef = useRef(false);
+  /** Região rolável da atividade: scroll fica aqui, não na página. */
+  const activityScrollRef = useRef<HTMLDivElement>(null);
+  const viewportHeight = useVisualViewportHeight();
   const requiredTonePack = foundLesson ? requiredToneTrainerPackForLesson(foundLesson.id) : undefined;
   const toneLocked = Boolean(
     foundLesson &&
@@ -1605,6 +1610,12 @@ export function LessonPlayer() {
     if (!entryChecked || finished || energyBlocked) return undefined;
     return installLessonActivityClock();
   }, [energyBlocked, entryChecked, finished]);
+
+  // Avançar N→N+1 (ou retry) nunca herda o scroll da atividade anterior.
+  useLayoutEffect(() => {
+    if (finished || energyBlocked || !entryChecked) return;
+    resetLessonPlayerScroll(activityScrollRef.current);
+  }, [idx, stepAttempt, finished, energyBlocked, entryChecked]);
 
   useEffect(() => {
     if (!foundLesson || !entryChecked || finished || pendingReviewRestoredRef.current) return;
@@ -3648,7 +3659,14 @@ export function LessonPlayer() {
     : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0">
+    <div
+      className="mx-auto flex w-full max-w-2xl flex-col overflow-hidden px-2 sm:px-0"
+      data-lesson-player-frame
+      style={{
+        height: viewportHeight ? `${viewportHeight}px` : "100dvh",
+        maxHeight: viewportHeight ? `${viewportHeight}px` : "100dvh",
+      }}
+    >
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
@@ -3702,6 +3720,11 @@ export function LessonPlayer() {
         />
       )}
 
+      <div
+        ref={activityScrollRef}
+        data-lesson-activity-scroll
+        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-2 [-webkit-overflow-scrolling:touch]"
+      >
       {recoveryDebugPanel}
 
       {step.postConversationPhase && step.postConversationIndex === 1 && (
@@ -3730,7 +3753,10 @@ export function LessonPlayer() {
         </div>
       )}
 
-      <Card className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-6">
+      <Card
+        data-lesson-step-frame
+        className="mx-auto min-h-full overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
+      >
         <StepRenderer
           key={`${idx}:${stepAttempt}`}
           step={step}
@@ -3740,6 +3766,7 @@ export function LessonPlayer() {
           onUnrecognized={registerUnrecognizedAnswer}
         />
       </Card>
+      </div>
 
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}

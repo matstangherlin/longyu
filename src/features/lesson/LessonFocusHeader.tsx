@@ -31,7 +31,7 @@ export function LessonFocusHeader({
   stageLabel?: string;
 }) {
   return (
-    <div className="sticky top-0 z-30 -mx-2 mb-3 bg-bg/95 px-2 pb-1.5 pt-1 backdrop-blur sm:mx-0 sm:px-0">
+    <div className="sticky top-0 z-30 shrink-0 bg-bg/95 px-2 pb-1.5 pt-[max(0.25rem,env(safe-area-inset-top))] backdrop-blur sm:px-0 sm:pt-1">
       <div className="flex items-center gap-2 text-sm sm:gap-2.5">
         <button
           onClick={onExit}
