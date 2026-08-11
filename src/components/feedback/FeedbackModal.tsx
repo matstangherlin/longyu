@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { Button } from "../ui/primitives";
 import {
@@ -7,23 +7,44 @@ import {
   type FeedbackCategoryId,
   type FeedbackContext,
 } from "../../lib/feedback";
+import { formatDiagnosticsForFeedback } from "../../lib/clientDiagnostics";
 import { submitFeedback } from "../../services/feedbackService";
 
 interface FeedbackModalProps {
-  context?: FeedbackContext;
+  context?: FeedbackContext & { preferTechnical?: boolean };
   onClose: () => void;
 }
 
 export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
+  const preferTechnical = Boolean(context?.preferTechnical);
   const [category, setCategory] = useState<FeedbackCategoryId>(
-    context?.activityProblem ? "exercicio_confuso" : "erro_conteudo"
+    preferTechnical ? "erro_tecnico" : context?.activityProblem ? "exercicio_confuso" : "erro_conteudo"
   );
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(() => {
+    if (!preferTechnical) return "";
+    const diagnostics = formatDiagnosticsForFeedback();
+    return diagnostics
+      ? `Erro técnico automaticamente capturado:\n${diagnostics}\n\n(O que você estava fazendo?)`
+      : "";
+  });
   const [activityProblem, setActivityProblem] = useState(Boolean(context?.activityProblem));
   const [includeTechnical, setIncludeTechnical] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (!preferTechnical) return;
+    const diagnostics = formatDiagnosticsForFeedback();
+    if (!diagnostics) return;
+    setCategory("erro_tecnico");
+    setIncludeTechnical(true);
+    setMessage((current) =>
+      current.trim()
+        ? current
+        : `Erro técnico automaticamente capturado:\n${diagnostics}\n\n(O que você estava fazendo?)`
+    );
+  }, [preferTechnical]);
 
   const lessonHint = useMemo(() => {
     if (!context?.lessonId) return null;
@@ -134,7 +155,7 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
                 onChange={(event) => setIncludeTechnical(event.target.checked)}
                 className="mt-1"
               />
-              <span>Incluir contexto técnico (rota, versão, navegador, viewport)</span>
+              <span>Incluir contexto técnico (rota, versão, ambiente, navegador, viewport)</span>
             </label>
 
             {error && <p className="text-sm text-[rgb(var(--wrong))]">{error}</p>}

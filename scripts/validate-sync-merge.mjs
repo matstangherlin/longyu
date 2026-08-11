@@ -423,6 +423,57 @@ if ((tabA.completedLessons?.length ?? 0) === 0 || countObjectKeys(tabA.lessonSta
   errors.push("restauração remota deve manter completedLessons, lessonStarsById e lessonTaskProgress");
 }
 
+// Dois dispositivos divergiram offline: celular avançou lição A, notebook avançou
+// lição B + mais estrelas na mesma lição. Merge deve unir sem perder nenhum lado.
+const phone = baseProgress({
+  completedLessons: ["l1", "l3"],
+  lessonStarsById: { l1: 2, l3: 1 },
+  lessonTaskProgress: { l1: 4, l3: 2 },
+  points: 40,
+  xpTotal: 120,
+  streak: 4,
+  srs: { "chunk:nihao": { due: 500, reps: 3 }, "char:ren": { due: 400, reps: 1 } },
+  conversationHistory: [
+    { sceneId: "pedir-agua", intent: "ask-water", lessonId: "l26", completedAt: 700, result: "completed", attempts: 1 },
+  ],
+});
+const laptop = baseProgress({
+  completedLessons: ["l1", "l2"],
+  lessonStarsById: { l1: 3, l2: 2 },
+  lessonTaskProgress: { l1: 6, l2: 5 },
+  points: 55,
+  xpTotal: 90,
+  streak: 2,
+  longestStreak: 6,
+  srs: { "chunk:nihao": { due: 450, reps: 2 }, "chunk:xiexie": { due: 480, reps: 1 } },
+  conversationHistory: [
+    { sceneId: "onde-esta", intent: "ask-where", lessonId: "l25", completedAt: 650, result: "mistake", attempts: 2 },
+  ],
+});
+const multiDevice = mergeRemoteProgress(phone, laptop);
+if (!multiDevice.completedLessons.includes("l1") || !multiDevice.completedLessons.includes("l2") || !multiDevice.completedLessons.includes("l3")) {
+  errors.push("multi-device: completedLessons deveria unir l1+l2+l3");
+}
+if ((multiDevice.lessonStarsById.l1 ?? 0) !== 3) errors.push("multi-device: estrelas de l1 deveriam preferir o máximo (3)");
+if ((multiDevice.lessonStarsById.l2 ?? 0) !== 2 || (multiDevice.lessonStarsById.l3 ?? 0) !== 1) {
+  errors.push("multi-device: estrelas de l2/l3 deveriam sobreviver dos dois lados");
+}
+if (multiDevice.points !== 55 || multiDevice.xpTotal !== 120 || multiDevice.streak !== 4 || multiDevice.longestStreak !== 6) {
+  errors.push("multi-device: counters deveriam usar max (points/xp/streak/longest)");
+}
+if (!multiDevice.srs["chunk:nihao"] || !multiDevice.srs["char:ren"] || !multiDevice.srs["chunk:xiexie"]) {
+  errors.push("multi-device: SRS deveria unir itens dos dois dispositivos");
+}
+if ((multiDevice.srs["chunk:nihao"]?.due ?? 0) !== 500) {
+  errors.push("multi-device: SRS de chunk:nihao deveria preferir due mais recente (phone)");
+}
+if ((multiDevice.conversationHistory?.length ?? 0) !== 2) {
+  errors.push("multi-device: conversationHistory deveria unir cenas dos dois dispositivos");
+}
+if (decideSync(phone, laptop) !== "merge_and_push") {
+  errors.push("multi-device: dois lados com progresso deveriam mesclar e enviar");
+}
+
 if (errors.length > 0) {
   console.error("ERRO: validate:sync-merge falhou.");
   for (const error of errors) console.error(`  - ${error}`);

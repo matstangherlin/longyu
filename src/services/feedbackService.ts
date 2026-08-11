@@ -209,7 +209,9 @@ export async function submitFeedback(input: FeedbackSubmitInput): Promise<Feedba
     exerciseKind,
     exerciseIndex,
     appVersion: input.includeTechnicalContext ? tech.appVersion : "",
-    browser: input.includeTechnicalContext ? tech.browser : "",
+    browser: input.includeTechnicalContext
+      ? [tech.browser, tech.displayMode, tech.appEnv].filter(Boolean).join(" · ").slice(0, 320)
+      : "",
     viewport: input.includeTechnicalContext ? tech.viewport : "",
     localProfileId: localProfileId(),
     createdAt: now,

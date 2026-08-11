@@ -42,9 +42,11 @@ export interface FeedbackContext {
 
 export interface FeedbackTechnicalContext {
   appVersion: string;
+  appEnv: string;
   browser: string;
   viewport: string;
   route: string;
+  displayMode: string;
 }
 
 export function getAppVersion(): string {
@@ -56,19 +58,50 @@ export function currentRoute(): string {
   return `${window.location.pathname}${window.location.search}`;
 }
 
+function sanitizeUserAgent(ua: string): string {
+  // Mantém família do browser/OS sem query strings longas.
+  return ua
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+}
+
+function currentDisplayMode(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    if (window.matchMedia("(display-mode: standalone)").matches) return "standalone";
+    if (window.matchMedia("(display-mode: minimal-ui)").matches) return "minimal-ui";
+    // iOS Safari instalado
+    if ((navigator as Navigator & { standalone?: boolean }).standalone) return "ios-standalone";
+  } catch {
+    /* ignore */
+  }
+  return "browser";
+}
+
 export function buildTechnicalContext(context?: FeedbackContext): FeedbackTechnicalContext {
   const route = context?.route ?? context?.screen ?? currentRoute();
   const viewport =
     typeof window !== "undefined" ? `${window.innerWidth}×${window.innerHeight}` : "";
   const browser =
     typeof navigator !== "undefined"
-      ? [navigator.language, navigator.platform].filter(Boolean).join(" · ").slice(0, 240)
+      ? [
+          navigator.language,
+          navigator.platform,
+          typeof navigator.userAgent === "string" ? sanitizeUserAgent(navigator.userAgent) : "",
+        ]
+          .filter(Boolean)
+          .join(" · ")
+          .slice(0, 320)
       : "";
   return {
     appVersion: getAppVersion(),
+    appEnv: String(import.meta.env.VITE_APP_ENV ?? (import.meta.env.DEV ? "development" : "production_beta")),
     browser,
     viewport,
     route: route.slice(0, 300),
+    displayMode: currentDisplayMode(),
   };
 }
 
@@ -100,6 +133,8 @@ export function buildFeedbackMailto(context?: FeedbackContext): string {
     "Dispositivo:",
     tech.browser,
     tech.viewport,
+    `Modo: ${tech.displayMode}`,
+    `Ambiente: ${tech.appEnv}`,
     `Versão: ${tech.appVersion}`,
     "",
   ]
