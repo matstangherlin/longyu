@@ -30,15 +30,27 @@ test.describe("auth surface — beta readiness", () => {
 
     await page.goto("/redefinir-senha");
     await expect(page.locator("body")).not.toContainText("Unexpected Application Error");
-    await expect(page.getByRole("heading", { name: /senha|redefinir|indisponível|nova/i })).toBeVisible();
+    // Sem token: link inválido/expirado; com sessão: Nova senha; sem backend: indisponível.
+    await expect(
+      page.getByRole("heading", {
+        name: /Link inválido|expirado|Nova senha|Redefinição indisponível|senha/i,
+      })
+    ).toBeVisible();
   });
 
-  test("conta local mostra seção Sair da conta", async ({ page }) => {
+  test("conta local mostra login/sessão e atalho de recuperação", async ({ page }) => {
     await seedOnboardedSession(page, ["l1"]);
     await page.goto("/conta");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /Sair da conta/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Sem sessão ativa|Sair da conta/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Sua conta/i })).toBeVisible();
+    await expect(page.getByText(/Neste dispositivo|Nuvem/i).first()).toBeVisible();
+    // Conta local: formulário de entrar/criar (backend ativo) ou CTA de sessão cloud.
+    await expect(
+      page
+        .getByRole("button", { name: /Entrar \/ criar conta|Sair da conta/i })
+        .or(page.getByRole("link", { name: /Esqueci minha senha/i }))
+        .first()
+    ).toBeVisible();
   });
 
   test("feedback no player inclui versão e contexto da lição", async ({ page }) => {
