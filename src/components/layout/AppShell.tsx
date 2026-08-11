@@ -38,8 +38,8 @@ export function AppShell() {
   const isAdminRoute = location.pathname.startsWith("/admin");
   // Modo foco: durante lição e desafio o app esconde TopBar (mobile) e TabBar
   // para liberar espaço vertical — nada compete com o exercício.
-  const focusMode =
-    /^\/licao\/[^/]+\/player$/.test(location.pathname) || location.pathname.startsWith("/teste/");
+  const isLessonPlayer = /^\/licao\/[^/]+\/player$/.test(location.pathname);
+  const focusMode = isLessonPlayer || location.pathname.startsWith("/teste/");
 
   // Aplica o tema no <html> e prepara as vozes de TTS.
   useEffect(() => {
@@ -119,17 +119,20 @@ export function AppShell() {
       {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
           Só o conteúdo do exercício, como um app de idiomas. */}
       {!focusMode && <Sidebar />}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={["flex min-w-0 flex-1 flex-col", focusMode ? "min-h-0" : ""].join(" ")}>
         {!focusMode && <TopBar />}
         {/* Padding bottom cobre a altura da tab bar + safe area: nenhum botão
             principal pode ficar escondido atrás dela no mobile. No modo foco a
-            tab bar some, então o padding encolhe. */}
+            tab bar some e o player assume o enquadramento (100dvh / visualViewport). */}
         <main
           className={[
-            "mx-auto min-w-0 w-full max-w-content flex-1 px-3 sm:px-5 lg:px-6",
+            "mx-auto min-w-0 w-full max-w-content flex-1",
             focusMode
-              ? "pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:pt-3 lg:pb-6"
-              : "pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:pt-5 lg:pb-12",
+              ? isLessonPlayer
+                ? // Lesson Player dono do viewport (100dvh / visualViewport).
+                  "flex min-h-0 flex-col p-0"
+                : "px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:px-5 sm:pt-3 lg:px-6 lg:pb-6"
+              : "px-3 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-12",
           ].join(" ")}
         >
           <ErrorBoundary resetKey={location.pathname} area="page">

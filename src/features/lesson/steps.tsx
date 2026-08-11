@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LessonStep, StepTextType } from "../../data/journey";
 import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
@@ -26,7 +26,7 @@ import {
 } from "../../lib/useExerciseHotkeys";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { useStore } from "../../lib/store";
-import { Button } from "../../components/ui/primitives";
+import { Button, cx } from "../../components/ui/primitives";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { MandarinHelpProvider, useMandarinHelpSettings } from "../../components/hanzi/helpMode";
@@ -49,7 +49,6 @@ import {
   speechErrorMessage,
   type RecognizeHandle,
 } from "../../lib/speech";
-import { useKeyboardBottomInset } from "../../hooks/useKeyboardBottomInset";
 import { noteToneHintUse } from "../../lib/lessonSessionMetrics";
 import { StepImageChoice } from "./StepImageChoice";
 import { ConversationSceneStep } from "./ConversationSceneStep";
@@ -102,6 +101,29 @@ function ToneCurve({ tone, size = 16 }: { tone: ToneN; size?: number }) {
   );
 }
 
+/** CTA sticky na base da região da atividade (mobile + desktop).
+ * O shell do LessonPlayer já acompanha `visualViewport` (teclado/barras);
+ * aqui só preservamos safe-area — sem somar o inset do teclado de novo. */
+function StickyActionBar({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-lesson-sticky-actions
+      className={cx(
+        "sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; label?: string }) {
   useExerciseHotkeys({
     enabled: true,
@@ -110,10 +132,12 @@ function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; la
     onContinue: onClick,
   });
   return (
-    <Button className="mt-4 w-full animate-pop shadow-lift" onClick={onClick}>
-      {label}
-      <IconChevron width={18} height={18} aria-hidden="true" />
-    </Button>
+    <StickyActionBar>
+      <Button className="w-full animate-pop shadow-lift" onClick={onClick}>
+        {label}
+        <IconChevron width={18} height={18} aria-hidden="true" />
+      </Button>
+    </StickyActionBar>
   );
 }
 
@@ -1510,13 +1534,17 @@ function EngineFeedbackPanel({
         </div>
       )}
       {correct ? (
-        <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onContinue}>
-          Continuar <IconChevron width={18} height={18} />
-        </Button>
+        <StickyActionBar>
+          <Button variant="good" className="w-full shadow-lift" onClick={onContinue}>
+            Continuar <IconChevron width={18} height={18} />
+          </Button>
+        </StickyActionBar>
       ) : (
-        <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onRetry}>
-          Tentar de novo
-        </Button>
+        <StickyActionBar>
+          <Button variant="good" className="w-full shadow-lift" onClick={onRetry}>
+            Tentar de novo
+          </Button>
+        </StickyActionBar>
       )}
     </div>
   );
@@ -1535,17 +1563,8 @@ function EngineActions({
   onClear?: () => void;
   canClear?: boolean;
 }) {
-  const keyboardInset = useKeyboardBottomInset();
   return (
-    <div
-      className="sticky bottom-0 z-20 -mx-4 mt-4 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pt-5 sm:static sm:mx-0 sm:bg-none sm:px-0 sm:pb-0"
-      style={{
-        paddingBottom:
-          keyboardInset > 0
-            ? keyboardInset + 8
-            : "calc(env(safe-area-inset-bottom) + 0.45rem)",
-      }}
-    >
+    <StickyActionBar>
       <div className={onClear ? "grid gap-2 sm:grid-cols-[0.8fr_1.2fr]" : ""}>
         {onClear && (
           <Button size="lg" variant="outline" className="w-full" disabled={!canClear} onClick={onClear}>
@@ -1563,7 +1582,7 @@ function EngineActions({
         </Button>
       </div>
       <SkipStepButton onSkip={onSkip} className="mt-3" />
-    </div>
+    </StickyActionBar>
   );
 }
 
@@ -2131,7 +2150,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {!feedback && (
-        <div className="sticky bottom-0 z-20 -mx-4 mt-4 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5 sm:static sm:mx-0 sm:grid-cols-[1fr_1fr_1.25fr] sm:bg-none sm:px-0 sm:pb-0">
+        <StickyActionBar className="grid gap-2 sm:grid-cols-[1fr_1fr_1.25fr]">
           {!audioFallback ? (
             <Button
               variant="outline"
@@ -2161,7 +2180,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
           >
             Verificar
           </Button>
-        </div>
+        </StickyActionBar>
       )}
     </div>
   );
@@ -3618,7 +3637,6 @@ function FreeAnswerField({
   const [composing, setComposing] = useState(false);
   const handleRef = useRef<RecognizeHandle | null>(null);
   const speechSupported = isRecognitionAvailable() && isSecureMicContext();
-  const keyboardInset = useKeyboardBottomInset();
 
   useEffect(() => () => handleRef.current?.stop(), []);
 
@@ -3645,7 +3663,7 @@ function FreeAnswerField({
   }
 
   return (
-    <div className="mt-3.5" style={keyboardInset > 0 ? { marginBottom: keyboardInset } : undefined}>
+    <div className="mt-3.5">
       <textarea
         value={value}
         lang="zh-CN"
@@ -3656,6 +3674,12 @@ function FreeAnswerField({
         onChange={(event) => onChange(event.target.value)}
         onCompositionStart={() => setComposing(true)}
         onCompositionEnd={() => setComposing(false)}
+        onFocus={(event) => {
+          const target = event.currentTarget;
+          window.requestAnimationFrame(() => {
+            target.scrollIntoView({ block: "center", behavior: "smooth" });
+          });
+        }}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
             if (composing || event.nativeEvent.isComposing) return;
