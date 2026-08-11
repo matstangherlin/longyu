@@ -7,17 +7,17 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 | Campo | Valor |
 | --- | --- |
-| Data início | |
-| URL / ambiente | |
-| Versão (Sobre / landing) | |
+| Data início | 2026-08-11 |
+| URL / ambiente | preview / Netlify beta |
+| Versão (Sobre / landing) | v0.2.0-beta.1 |
 | SHA congelada (RC) | _preencher só na RC_ |
-| Executor | |
+| Executor | Cloud Agent + QA humano (Matheus) |
 
 ## Log
 
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B001 | | | | | | | aberto |
+| B001 | P1 | `/licao/*/player` · dialogue_choice pinyin | Android Chrome | Página arrasta pra baixo (rubber-band); gap entre header e card | Só a região da atividade rola; CTA fixo na viewport | Qualquer lição com feedback “Boa! +Qi” | **corrigido** (body lock + h-dvh) |
 | B002 | | | | | | | |
 | B003 | | | | | | | |
 
@@ -26,7 +26,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | Sev | Abertos | Fechados |
 | --- | ---: | ---: |
 | P0 | 0 | 0 |
-| P1 | 0 | 0 |
+| P1 | 0 | 1 |
 | P2 | 0 | 0 |
 
 ## Critério para RC

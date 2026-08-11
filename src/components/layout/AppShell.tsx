@@ -94,6 +94,19 @@ export function AppShell() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  // Lesson Player: trava scroll da página — só a região da atividade rola.
+  useEffect(() => {
+    if (!isLessonPlayer) {
+      delete document.documentElement.dataset.lessonPlayer;
+      return undefined;
+    }
+    document.documentElement.dataset.lessonPlayer = "1";
+    window.scrollTo(0, 0);
+    return () => {
+      delete document.documentElement.dataset.lessonPlayer;
+    };
+  }, [isLessonPlayer]);
+
   if (isOnboarding || isAuthPage) {
     return (
       <>
@@ -113,11 +126,16 @@ export function AppShell() {
   }
 
   return (
-    <div className="theme-transition flex min-h-screen min-w-0 overflow-x-clip bg-bg">
+    <div
+      className={[
+        "theme-transition flex min-w-0 overflow-x-clip bg-bg",
+        focusMode ? "h-dvh max-h-dvh overflow-hidden" : "min-h-screen",
+      ].join(" ")}
+    >
       {/* Modo foco = lição/desafio: nada de sidebar, topbar, tab bar ou FAB.
           Só o conteúdo do exercício, como um app de idiomas. */}
       {!focusMode && <Sidebar />}
-      <div className={["flex min-w-0 flex-1 flex-col", focusMode ? "min-h-0" : ""].join(" ")}>
+      <div className={["flex min-w-0 flex-1 flex-col", focusMode ? "h-full min-h-0" : ""].join(" ")}>
         {!focusMode && <TopBar />}
         {/* Padding bottom cobre a altura da tab bar + safe area: nenhum botão
             principal pode ficar escondido atrás dela no mobile. No modo foco a
@@ -128,7 +146,7 @@ export function AppShell() {
             focusMode
               ? isLessonPlayer
                 ? // Lesson Player dono do viewport (100dvh / visualViewport).
-                  "flex min-h-0 flex-col p-0"
+                  "flex h-full min-h-0 flex-col overflow-hidden p-0"
                 : "px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:px-5 sm:pt-3 lg:px-6 lg:pb-6"
               : "px-3 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-12",
           ].join(" ")}

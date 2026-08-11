@@ -81,6 +81,16 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Lesson Player: página não rola — só a região da atividade. */
+html[data-lesson-player="1"],
+html[data-lesson-player="1"] body,
+html[data-lesson-player="1"] #root {
+  overflow: hidden;
+  height: 100%;
+  max-height: 100dvh;
+  overscroll-behavior: none;
+}
+
 html {
   scroll-behavior: smooth;
 }

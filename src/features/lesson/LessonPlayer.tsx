@@ -3660,12 +3660,13 @@ export function LessonPlayer() {
 
   return (
     <div
-      className="mx-auto flex w-full max-w-2xl flex-col overflow-hidden px-2 sm:px-0"
+      className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0"
       data-lesson-player-frame
-      style={{
-        height: viewportHeight ? `${viewportHeight}px` : "100dvh",
-        maxHeight: viewportHeight ? `${viewportHeight}px` : "100dvh",
-      }}
+      style={
+        viewportHeight
+          ? { height: `${viewportHeight}px`, maxHeight: `${viewportHeight}px` }
+          : undefined
+      }
     >
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
@@ -3723,7 +3724,7 @@ export function LessonPlayer() {
       <div
         ref={activityScrollRef}
         data-lesson-activity-scroll
-        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-2 [-webkit-overflow-scrolling:touch]"
+        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-2 [-webkit-overflow-scrolling:touch] [touch-action:pan-y]"
       >
       {recoveryDebugPanel}
 
@@ -3755,7 +3756,7 @@ export function LessonPlayer() {
 
       <Card
         data-lesson-step-frame
-        className="mx-auto min-h-full overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
+        className="mx-auto min-h-0 overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
         <StepRenderer
           key={`${idx}:${stepAttempt}`}

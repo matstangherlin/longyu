@@ -27,11 +27,14 @@ Use o log em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) (copie linhas; não apague o
 
 ## 0. Preparo (5 min)
 
-- [ ] Abrir a **produção beta** (ou preview estável) em janela anônima  
-- [ ] Anotar: URL · versão na landing/Sobre · navegador · SO  
+- [x] Abrir a **produção beta** (ou preview estável) em janela anônima  
+- [x] Anotar: URL · versão na landing/Sobre · navegador · SO  
 - [ ] Conta **nova** (e-mail real que você controla) **ou** perfil local zerado  
 - [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
 - [ ] Feedback: saber onde está o botão / reportar no player  
+
+> **2026-08-11:** proxy desktop `e2e/runbook-20-lessons.spec.ts` adicionado (Chromium headless — **não** substitui §1 humano).  
+> **B001** (scroll da página no mobile) corrigido — revalidar no Android físico.
 
 Comandos úteis no repo (antes da RC, não no meio do uso):
 

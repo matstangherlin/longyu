@@ -6,6 +6,37 @@ import { dismissBlockingOverlays, seedFreshJourneySession } from "./helpers";
  * Regra: avançar nunca herda o scroll da atividade anterior.
  */
 test.describe("lesson player — viewport & scroll", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("página não rola no mobile — só a região da atividade", async ({ page }) => {
+    await seedFreshJourneySession(page);
+    await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await dismissBlockingOverlays(page);
+
+    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-lesson-player", "1");
+
+    const pageScroll = await page.evaluate(() => ({
+      scrollY: window.scrollY,
+      docScroll: document.documentElement.scrollTop,
+      bodyOverflow: getComputedStyle(document.body).overflow,
+      rootOverflow: getComputedStyle(document.documentElement).overflow,
+    }));
+    expect(pageScroll.scrollY).toBe(0);
+    expect(pageScroll.docScroll).toBe(0);
+    expect(pageScroll.bodyOverflow).toBe("hidden");
+    expect(pageScroll.rootOverflow).toBe("hidden");
+
+    // Simula arrastar para baixo no body — scroll da página não deve mover.
+    await page.evaluate(() => {
+      window.scrollTo(0, 120);
+      document.documentElement.scrollTop = 120;
+      document.body.scrollTop = 120;
+    });
+    const afterDrag = await page.evaluate(() => window.scrollY);
+    expect(afterDrag).toBe(0);
+  });
+
   test("após avançar, a nova atividade começa no topo da região rolável", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
