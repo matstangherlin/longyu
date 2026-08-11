@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
+import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
@@ -127,6 +128,26 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
   }));
 }
 
+function buildCompletedToneTrainer() {
+  const now = Date.now();
+  return Object.fromEntries(
+    TONE_TRAINER_PACKS.map((pack) => [
+      pack.id,
+      {
+        packId: pack.id,
+        attempts: 1,
+        bestScore: 12,
+        bestTotal: 12,
+        completed: true,
+        lastAttemptAt: now,
+        totalRounds: 12,
+        totalCorrect: 12,
+        errorsByTone: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      },
+    ])
+  );
+}
+
 /** Fundação completa + pré-requisitos da jornada para abrir o player de `lessonId`. */
 export async function seedLessonPlayerReady(page: Page, lessonId: string) {
   await seedTelemetryDeclined(page);
@@ -142,15 +163,14 @@ export async function seedLessonPlayerReady(page: Page, lessonId: string) {
   const journeyCompleted =
     targetIndex > 0 ? ALL_LESSONS.slice(0, targetIndex).map((lesson) => lesson.id) : [];
   const completedLessons = [...foundation, ...journeyCompleted];
-  const lessonStarsById = Object.fromEntries(
-    completedLessons.map((id) => [id, ALL_LESSONS.find((lesson) => lesson.id === id)?.isReview ? 2 : 3])
-  );
+  const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, 3]));
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
     completedLessons,
     lessonStarsById,
+    toneTrainer: buildCompletedToneTrainer(),
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));
 }

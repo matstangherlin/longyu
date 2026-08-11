@@ -11,6 +11,8 @@ const chromiumLaunch: { launchOptions?: { executablePath: string } } =
 // projetos mobile/tablet/reduced-motion focam no arquivo dedicado de QA real
 // de dispositivo — mais rápido e sem reexecutar asserts pensados para desktop.
 const DEVICE_SPEC = "**/mobile-device.spec.ts";
+// Proxy L1–L20 do runbook humano — rodar à parte: npx playwright test e2e/runbook-20-lessons.spec.ts
+const RUNBOOK_SPEC = "**/runbook-20-lessons.spec.ts";
 // Captura de evidências (docs/screenshots) — só no projeto `screenshots`.
 const SCREENSHOT_SPEC = "**/screenshots.spec.ts";
 
@@ -40,19 +42,19 @@ export default defineConfig({
     // Chromium é o portão padrão (roda em qualquer ambiente, inclusive só-Chromium).
     {
       name: "chromium",
-      testIgnore: SCREENSHOT_SPEC,
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
       use: { ...devices["Desktop Chrome"], ...chromiumLaunch },
     },
     // Gecko real (Firefox). Exige `npx playwright install firefox`.
     {
       name: "firefox",
-      testIgnore: SCREENSHOT_SPEC,
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
       use: { ...devices["Desktop Firefox"] },
     },
     // WebKit ≈ motor do Safari (macOS e iOS). Exige `npx playwright install webkit`.
     {
       name: "webkit",
-      testIgnore: SCREENSHOT_SPEC,
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
       use: { ...devices["Desktop Safari"] },
     },
 
@@ -103,6 +105,14 @@ export default defineConfig({
         ...chromiumLaunch,
         contextOptions: { reducedMotion: "reduce" },
       },
+    },
+
+    // Proxy runbook L1–L20 (QA manual). Rodar: npx playwright test --project=runbook
+    {
+      name: "runbook",
+      testMatch: RUNBOOK_SPEC,
+      timeout: 600_000,
+      use: { ...devices["Desktop Chrome"], ...chromiumLaunch },
     },
 
     // Evidências para docs/REAL_DEVICE_QA.md. Roda por demanda:
