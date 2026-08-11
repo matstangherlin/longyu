@@ -44,7 +44,7 @@ export async function dismissBlockingOverlays(page: Page) {
     }
     const achievement = page.getByRole("dialog", { name: /medalha|conquista/i });
     if (await achievement.isVisible().catch(() => false)) {
-      const continueBtn = page.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
+      const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click({ timeout: 2_000 }).catch(() => undefined);
       } else {
@@ -321,7 +321,13 @@ export async function seedPendingStarRecoverySession(
         lessonStarsById,
         isPremium,
         serverIsPro: isPremium,
-        achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+        folego: 20,
+        // Evita modal de medalha no meio da oferta de revisão.
+        achievementsUnlocked: {
+          "jornada-primeira-licao": Date.now(),
+          "som-primeiro-audio": Date.now(),
+        },
+        lifetimeStats: { audioHeard: 3, lessonsCompleted: completedLessons.length },
         toneTrainer: buildCompletedToneTrainer(),
         lessonAttemptsById: {
           [lessonId]: [

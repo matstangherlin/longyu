@@ -53,7 +53,10 @@ try {
   assert(player.includes("data-review-offer"), "offer marcado");
   assert(player.includes("data-review-mode"), "question com modo");
   assert(player.includes("REVIEW_OFFER"), "player usa REVIEW_OFFER");
-  assert(player.includes("canRecover={!passed}"), "session recebe canRecover");
+  assert(
+    player.includes("canRecover={canRecoverStar}") || /canRecoverStar\s*=\s*!recovered/.test(player),
+    "session recebe canRecoverStar (3ª estrela)"
+  );
   assert(!player.includes("Próximo erro"), "sem CTA Próximo erro");
   assert(!player.includes("Revisar erros agora"), "sem CTA duro Revisar erros agora");
   assert(!player.includes("Ainda precisa de revisão"), "sem feedback duro");

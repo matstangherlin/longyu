@@ -102,7 +102,9 @@ test.describe("QA regression guard — revisão / estrela", () => {
     await dismissBlockingOverlays(page);
 
     await expect(page.locator("[data-review-offer]")).toBeVisible({ timeout: 15_000 });
+    await dismissBlockingOverlays(page);
     await expect(page.locator('[data-review-can-recover="true"]')).toBeVisible();
+    await dismissBlockingOverlays(page);
     await page.locator("[data-review-start]").click();
     await dismissBlockingOverlays(page);
 
@@ -142,6 +144,7 @@ test.describe("QA regression guard — revisão / estrela", () => {
     await dismissBlockingOverlays(page);
 
     await expect(page.locator("[data-review-offer]")).toBeVisible({ timeout: 15_000 });
+    await dismissBlockingOverlays(page);
     await page.locator("[data-review-start]").click();
     await dismissBlockingOverlays(page);
 
@@ -161,7 +164,22 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(120_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
+    // Pro: Pular não gasta Fôlego — necessário para chegar ao transfer (~passo 12).
     await seedLessonPlayerReady(page, "l5");
+    await page.addInitScript(() => {
+      try {
+        const raw = localStorage.getItem("longyu-v1");
+        if (!raw) return;
+        const parsed = JSON.parse(raw) as { state?: Record<string, unknown>; version?: number };
+        if (!parsed.state) return;
+        parsed.state.isPremium = true;
+        parsed.state.serverIsPro = true;
+        parsed.state.folego = 20;
+        localStorage.setItem("longyu-v1", JSON.stringify(parsed));
+      } catch {
+        /* ignore */
+      }
+    });
     await page.goto("/licao/l5/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -169,9 +187,14 @@ test.describe("QA regression guard — transferência", () => {
     const transfer = page.locator('[data-production-step="transfer_task"]');
     const deadline = Date.now() + 90_000;
     let steps = 0;
-    while (!(await transfer.isVisible().catch(() => false)) && Date.now() < deadline && steps < 28) {
+    while (!(await transfer.isVisible().catch(() => false)) && Date.now() < deadline && steps < 30) {
       steps += 1;
       await dismissBlockingOverlays(page);
+      // Fecha modal de Fôlego se aparecer (resposta: tentar acertar / pular com Pro).
+      const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
+      if (await folegoBack.isVisible().catch(() => false)) {
+        await folegoBack.click().catch(() => undefined);
+      }
       const advanced = await advanceOneStep(page);
       if (!advanced) await page.waitForTimeout(200);
     }

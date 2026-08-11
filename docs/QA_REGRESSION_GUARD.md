@@ -21,7 +21,7 @@ Incluído em `validate:beta` via `test:qa-regression-guard`.
 | 4 | “Correto” vem de outro item | answer/display sem `/` e coerentes |
 | 5 | Dump concatenado `你好 / 你好吗 / …` no prompt | `isConcatenatedDump` + source guard no `LessonPlayer` |
 | 6 | Status (“Pulou…”) como alternativa | `isNonOptionAnswer` + e2e opções |
-| 7 | Recuperação de estrela quebrada | `activityErrorFromMistake` → pending → e2e offer→correct |
+| 7 | Recuperação de estrela quebrada / `canRecover={!passed}` escondendo 3ª★ | `canRecoverStar` + pending → e2e offer→correct |
 | 8 | Sentence build de revisão sem peças certas | kind `build` + e2e peças |
 | 9 | CTA inacessível no mobile | sticky actions no viewport |
 | 10 | Player desalinhado ao avançar steps | frame fixed + scroll reset |

@@ -337,6 +337,10 @@ try {
 
   assert(playerSource.includes("PieceAssemblyBoard") || playerSource.includes("PieceAssemblyTray"), "revisão usa PieceAssembly");
   assert(stepsSource.includes("PieceAssemblyBoard") || stepsSource.includes("buildAssemblyFeedback"), "lição usa assembly UX");
+  assert(
+    /canRecoverStar\s*=\s*!recovered\s*&&\s*stars\s*<\s*masteryStars/.test(playerSource),
+    "canRecoverStar = 3ª estrela (não !passed)"
+  );
 
   // ── 9–10) Contratos mobile: CTA sticky + frame ────────────────────────
   assert(playerSource.includes("data-lesson-player-frame") || playerSource.includes("data-lesson-player"), "frame do player");

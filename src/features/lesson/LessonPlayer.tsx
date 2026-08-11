@@ -3145,13 +3145,17 @@ export function LessonPlayer() {
         ? `Hoje você ${summaryParts.length > 1 ? `${summaryParts.slice(0, -1).join(", ")} e ${summaryParts[summaryParts.length - 1]}` : summaryParts[0]}.`
         : "Você completou esta etapa da Jornada.";
 
+    // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
+    // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
+    const canRecoverStar = !recovered && stars < masteryStars;
+
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
         <ImmediateErrorReviewOffer
           count={committedErrors.length}
           correct={correct}
           total={graded}
-          canRecover={!passed}
+          canRecover={canRecoverStar}
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
@@ -3166,7 +3170,7 @@ export function LessonPlayer() {
         <ImmediateErrorReviewSession
           key={`review-${correctedErrorIds.join("|")}-${reviewQueue.length}`}
           errors={reviewQueue}
-          canRecover={!passed}
+          canRecover={canRecoverStar}
           onCorrect={markErrorCorrected}
           onNeedsMoreReview={markErrorNeedsMoreReview}
           onDone={() => setErrorReviewMode("summary")}
