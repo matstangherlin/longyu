@@ -51,6 +51,8 @@ export interface ImmediateRemediationExercise {
   audioText?: string;
   explanation?: string;
   meaningPt?: string;
+  /** Pinyin exclusivo da resposta correta (feedback) — nunca misturar com o display. */
+  answerPinyin?: string;
   /** Erro de origem — permite marcar como corrigido e recuperar a estrela. */
   sourceErrorId: string;
   canRecoverStar: true;
@@ -75,6 +77,34 @@ function uniqueNonEmpty(values: (string | undefined)[]): string[] {
   return Array.from(
     new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))
   );
+}
+
+/** Status de pulo/erro genérico — nunca vira alternativa do exercício. */
+function isNonOptionAnswer(value: string | undefined): boolean {
+  if (!value?.trim()) return true;
+  const text = value.trim();
+  return (
+    /^pulou\b/i.test(text) ||
+    /^resposta incorreta$/i.test(text) ||
+    /respondeu incorretamente/i.test(text) ||
+    /^skip\b/i.test(text)
+  );
+}
+
+/** Display corrompido: várias frases coladas com / ou ·. */
+function isConcatenatedDump(value: string | undefined): boolean {
+  if (!value) return false;
+  return /[\/|]/.test(value) || (value.match(/[·•]/g) ?? []).length >= 2;
+}
+
+function pinyinForSinglePhrase(hanzi: string | undefined, fallback?: string): string | undefined {
+  if (fallback && !isConcatenatedDump(fallback)) return fallback;
+  if (!hanzi || isConcatenatedDump(hanzi)) return undefined;
+  const chunk = findChunkByText(hanzi);
+  if (chunk?.pinyin) return chunk.pinyin;
+  const chars = charsInText(hanzi);
+  if (chars.length > 0 && chars.length <= 8) return chars.map((char) => char.pinyin).join(" ");
+  return undefined;
 }
 
 function charsInText(text: string | undefined) {
@@ -119,7 +149,9 @@ function seededOrder<T>(items: T[], seed: string): T[] {
 function buildChoiceOptions(answer: string, distractorPools: (string | undefined)[], seed: string): string[] {
   const answerNorm = normalizeRemediationAnswer(answer);
   const distractors = uniqueNonEmpty(distractorPools)
+    .filter((option) => !isNonOptionAnswer(option))
     .filter((option) => normalizeRemediationAnswer(option) !== answerNorm)
+    .filter((option) => !isConcatenatedDump(option))
     .slice(0, 3);
   return seededOrder(uniqueNonEmpty([answer, ...distractors]), seed);
 }
@@ -198,7 +230,8 @@ function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
   const byCause = remediationKindForCause(error);
   if (byCause) return byCause;
   if (error.type === "pair-match") return "pair";
-  if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "build";
+  // Diálogo/cena: remediação por escolha contextual (mesmo alvo, opções do step).
+  if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "choice";
   if (error.type === "tone") return "tone";
   // Errou o par mínimo ou o ditado: o problema é ouvido, então a remediação
   // imediata volta pelo áudio, nunca por leitura.
@@ -287,6 +320,32 @@ function originalTaskPrompt(error: ActivityErrorInput): string {
     error.prompt.split(" (cena:")[0]?.trim() ??
     "Responda à mesma situação."
   );
+}
+
+/** Contexto situacional único para diálogo/cena — nunca o dump multi-frase. */
+function situationalDisplay(error: ActivityErrorInput): string | undefined {
+  const step = error.step;
+  const candidates = [
+    step?.dialoguePrompt,
+    step?.checkpoint?.prompt,
+    step?.prompt,
+    error.prompt.split(" (cena:")[0]?.trim(),
+  ];
+  for (const candidate of candidates) {
+    if (!candidate || isConcatenatedDump(candidate)) continue;
+    return candidate;
+  }
+  if (error.hanzi && !isConcatenatedDump(error.hanzi)) return error.hanzi;
+  return undefined;
+}
+
+function situationalPrompt(error: ActivityErrorInput): string {
+  const context = situationalDisplay(error);
+  if (!context) return "Escolha a resposta correta.";
+  if (containsHanzi(context) && context.length <= 24) {
+    return `Alguém diz: ${context}. Qual resposta combina?`;
+  }
+  return context.length > 80 ? "Escolha a resposta correta para a mesma situação." : context;
 }
 
 /**
@@ -384,10 +443,12 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
         ...base,
         kind: "build",
         prompt: "Monte a resposta para a mesma situação.",
-        display: originalTaskPrompt(error),
+        display: situationalDisplay(error) ?? originalTaskPrompt(error),
+        displayPinyin: pinyinForSinglePhrase(answer, error.pinyin),
         answer,
         pieces: buildReplyPieces(error, answer),
         pieceJoin: containsHanzi(answer) ? "" : " ",
+        meaningPt: error.meaningPt,
       };
     }
 
@@ -459,18 +520,36 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
 
   // choice (dialogue_choice e afins): manter a mesma intenção comunicativa.
   const answer = error.correctAnswer;
-  const stepOptions = step?.options ?? [];
+  const stepOptions = (step?.options ?? step?.checkpoint?.options ?? []).filter(
+    (option) => !isNonOptionAnswer(option) && !isConcatenatedDump(option)
+  );
+  const isDialogue = error.type === "dialogue_choice" || error.type === "conversation_scene";
+  const display = isDialogue
+    ? situationalDisplay(error)
+    : error.hanzi && !isConcatenatedDump(error.hanzi)
+      ? error.hanzi
+      : situationalDisplay(error) ?? error.prompt;
+  const answerPinyin = pinyinForSinglePhrase(containsHanzi(answer) ? answer : undefined, error.pinyin);
   return {
     ...base,
     kind: "choice",
-    prompt: "Escolha a resposta correta.",
-    display: error.hanzi ?? error.prompt,
-    displayPinyin: error.pinyin,
+    prompt: isDialogue ? situationalPrompt(error) : "Escolha a resposta correta.",
+    display,
+    // Pinyin sob o display só quando o próprio display é o hànzì revisado (não a pergunta).
+    displayPinyin: isDialogue
+      ? undefined
+      : pinyinForSinglePhrase(display && containsHanzi(display) ? display : undefined, error.pinyin),
     answer,
+    answerDisplay: answer,
+    answerPinyin,
     options: buildChoiceOptions(
       answer,
       [error.selectedAnswer, ...stepOptions, ...meaningDistractors(answer)],
       error.id
     ),
+    explanation:
+      step?.explanation ??
+      step?.checkpoint?.explanation ??
+      (error.explanation && !isConcatenatedDump(error.explanation) ? error.explanation : undefined),
   };
 }
