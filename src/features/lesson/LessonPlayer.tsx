@@ -937,25 +937,11 @@ function ImmediateErrorReviewOffer({
         <h1 className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
           {REVIEW_OFFER.title(count, canRecover)}
         </h1>
+        <p className="mt-3 max-w-md text-sm leading-6 text-ink-soft" data-review-offer-support>
+          {REVIEW_OFFER.supportLine(canRecover)}
+        </p>
 
-        <div className="mt-5 grid gap-3 text-left">
-          <div className="rounded-2xl border border-line bg-surface-2/80 px-3.5 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">O que aconteceu</div>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">{REVIEW_OFFER.happened}</p>
-          </div>
-          <div className="rounded-2xl border border-line bg-surface-2/80 px-3.5 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">O que fazer agora</div>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">{REVIEW_OFFER.nextStep}</p>
-          </div>
-          <div className="rounded-2xl border border-accent-soft bg-accent-soft/40 px-3.5 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Objetivo</div>
-            <p className="mt-1 text-sm font-medium leading-6 text-ink">
-              {canRecover ? REVIEW_OFFER.goalRecover : REVIEW_OFFER.goalReview}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-auto grid gap-2 pt-6">
+        <div className="mt-auto grid gap-2 pt-8">
           <Button size="lg" className="w-full shadow-lift" onClick={onStart} data-review-start>
             {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>

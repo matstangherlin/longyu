@@ -3715,7 +3715,7 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
   if (slots && slots.length > 0) {
     return (
       <div className="mt-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Ordem</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {slots.map((slot, index) => (
             <div key={`${slot.role}-${index}`} className="flex items-center gap-1.5">
@@ -3728,23 +3728,23 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
                     : "border border-line bg-surface text-ink-soft",
                 ].join(" ")}
               >
-                {slot.hole ? "___" : PATTERN_SLOT_LABELS[slot.role]}
+                {slot.hole ? `___ (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role]}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">
-          {slots
-            .map((slot) => (slot.hole ? `___ (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role]))
-            .join(" → ")}
-        </p>
+        {patternPt && (
+          <p className="mt-1.5 text-xs text-ink-faint">
+            Modelo: <span className="font-semibold text-ink-soft">{patternPt}</span>
+          </p>
+        )}
       </div>
     );
   }
   if (!patternPt) return null;
   return (
     <p className="mt-2 text-xs text-ink-faint">
-      Estrutura: <span className="font-semibold text-ink-soft">{patternPt}</span>
+      Modelo: <span className="font-semibold text-ink-soft">{patternPt}</span>
     </p>
   );
 }
@@ -3817,12 +3817,42 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
     if (!onMistake) playSoundFx("error", soundEffects);
   }
 
+  const goalHint = isTransfer
+    ? "Mesma estrutura — só muda a situação."
+    : isOpen
+      ? step.productionHintPt ?? "Qualquer resposta que cumpra a situação vale."
+      : null;
+  const answerPlaceholder = isTransfer
+    ? step.patternPt
+      ? `Ex.: ${step.patternPt.replace("___", "…")} — hànzì ou pinyin`
+      : "Ex.: wo yao cha — ou em hànzì"
+    : isOpen
+      ? "Escreva o que você diria…"
+      : step.patternPt
+        ? `Complete: ${step.patternPt} — hànzì ou pinyin`
+        : "Escreva em hànzì ou pinyin…";
+
   return (
     <div data-production-step={step.kind}>
       <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {step.title ?? (isTransfer ? "Mesma estrutura, situação nova" : "Produza você")}
+        {step.title ?? (isTransfer ? "Use o que já sabe" : isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
       </h2>
+
+      {/* Situação primeiro: o aluno entende o pedido antes de ver a âncora. */}
+      <div
+        className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5"
+        data-production-situation
+      >
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
+        <p className="mt-1 text-base font-medium leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
+        {goalHint && (
+          <p className="mt-1.5 text-sm leading-5 text-ink-soft" data-production-goal>
+            {goalHint}
+          </p>
+        )}
+        {!goalHint && <span className="sr-only" data-production-goal>Escreva a frase completa.</span>}
+      </div>
 
       {isTransfer && step.transferAnchorHanzi && (
         <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-learned>
@@ -3848,26 +3878,6 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
         </div>
       )}
 
-      <div
-        className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5"
-        data-production-situation
-      >
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-          {isTransfer ? "Agora, situação nova" : "Situação"}
-        </div>
-        <p className="mt-1 text-base font-medium leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
-      </div>
-      <div className="mt-3 rounded-2xl border border-line bg-surface px-3.5 py-3" data-production-goal>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">O que fazer</div>
-        <p className="mt-1 text-sm leading-6 text-ink-soft">
-          {isTransfer
-            ? "Use a mesma estrutura nesta situação."
-            : isOpen
-              ? step.productionHintPt ?? "Diga o que você quiser — desde que cumpra a situação."
-              : "Escreva (ou fale) a frase completa."}
-        </p>
-      </div>
-
       <div data-production-answer>
         <FreeAnswerField
           value={draft}
@@ -3876,7 +3886,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
             if (feedback !== "correct") setFeedback(null);
           }}
           disabled={locked}
-          placeholder={isTransfer ? "Ex.: wo yao cha — ou em hànzì" : "Escreva em hànzì ou pinyin…"}
+          placeholder={answerPlaceholder}
           onSubmit={check}
         />
       </div>

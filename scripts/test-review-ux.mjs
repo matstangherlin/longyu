@@ -37,22 +37,29 @@ try {
   assert(copy.REVIEW_OFFER.eyebrow === "Revisão da lição", "eyebrow da oferta");
   assert(/juntos/.test(copy.REVIEW_OFFER.title(2, true)), "título acolhedor na oferta");
   assert(!/você errou/i.test(copy.REVIEW_OFFER.title(2, true)), "oferta sem culpa");
+  assert(!/ficaram para trás/i.test(copy.REVIEW_OFFER.title(2, true)), "oferta sem tom de atraso");
+  assert(typeof copy.REVIEW_OFFER.supportLine === "function", "supportLine único");
+  assert(/mais apoio/.test(copy.REVIEW_OFFER.supportLine(true)), "oferta promete mais apoio");
   assert(copy.REVIEW_OFFER.ctaPrimary === "Começar revisão", "CTA primário da oferta");
   assert(copy.REVIEW_QUESTION.ctaContinue === "Continuar", "CTA Continuar");
   assert(copy.REVIEW_QUESTION.ctaResult === "Ver resultado", "CTA Ver resultado");
   assert(copy.REVIEW_QUESTION.ctaCheck === "Verificar", "CTA Verificar");
   assert(copy.REVIEW_QUESTION.feedbackOk === "Isso mesmo!", "feedback ok curto");
   assert(!/ainda precisa de revisão/i.test(copy.REVIEW_QUESTION.feedbackRetry), "feedback sem dureza");
-  assert(copy.reviewModeLabel({ canRecover: true, isLastItem: false }) === "Recuperação", "modo recuperação");
-  assert(copy.reviewModeLabel({ canRecover: true, isLastItem: true }) === "Última chance", "modo última chance");
+  assert(/peças/.test(copy.REVIEW_QUESTION.doNowBuild), "build com microajuda");
+  assert(copy.reviewModeLabel({ canRecover: true, isLastItem: false }) === "Apoio", "modo apoio");
+  assert(copy.reviewModeLabel({ canRecover: true, isLastItem: true }) === "Quase lá", "modo quase lá");
   assert(copy.reviewModeLabel({ canRecover: false, isLastItem: false }) === "Revisão", "modo revisão");
   assert(/3ª estrela/.test(copy.reviewGoalLine({ canRecover: true, isLastItem: true, remaining: 1 })), "goal última");
+  assert(!/Última chance/i.test(copy.reviewModeLabel({ canRecover: true, isLastItem: true })), "sem 'última chance'");
   assert(/3 estrelas recuperadas/.test(copy.REVIEW_RECOVERED.banner), "banner recovered");
 
   const player = await readFile(path.join(rootDir, "src/features/lesson/LessonPlayer.tsx"), "utf8");
   assert(player.includes("data-review-offer"), "offer marcado");
   assert(player.includes("data-review-mode"), "question com modo");
   assert(player.includes("REVIEW_OFFER"), "player usa REVIEW_OFFER");
+  assert(player.includes("supportLine"), "oferta usa supportLine (sem 3 cards)");
+  assert(!player.includes("O que aconteceu"), "sem card O que aconteceu");
   assert(
     player.includes("canRecover={canRecoverStar}") || /canRecoverStar\s*=\s*!recovered/.test(player),
     "session recebe canRecoverStar (3ª estrela)"

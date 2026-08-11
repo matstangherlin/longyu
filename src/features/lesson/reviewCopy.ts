@@ -1,6 +1,6 @@
 /**
  * Copy da revisão imediata pós-erro / recuperação de estrela.
- * Tom: acolhedor, curto, objetivo — sem culpa e sem debug.
+ * Tom: acolhedor, curto, objetivo — apoio real, sem culpa e sem dump.
  */
 
 export type ReviewPhase = "offer" | "review" | "last_chance" | "summary" | "recovered";
@@ -9,8 +9,8 @@ export function reviewModeLabel(args: {
   canRecover: boolean;
   isLastItem: boolean;
 }): string {
-  if (args.isLastItem && args.canRecover) return "Última chance";
-  if (args.canRecover) return "Recuperação";
+  if (args.isLastItem && args.canRecover) return "Quase lá";
+  if (args.canRecover) return "Apoio";
   return "Revisão";
 }
 
@@ -27,9 +27,9 @@ export function reviewGoalLine(args: {
     return args.isLastItem ? "Último item desta revisão." : undefined;
   }
   if (args.isLastItem) {
-    return "Último item — acerte para recuperar a 3ª estrela.";
+    return "Último passo — acerte e a 3ª estrela volta.";
   }
-  return "Acerte todos para recuperar a 3ª estrela.";
+  return "Revise com calma: a 3ª estrela volta se você acertar.";
 }
 
 export const REVIEW_OFFER = {
@@ -38,23 +38,24 @@ export const REVIEW_OFFER = {
   title: (count: number, canRecover: boolean) =>
     canRecover
       ? count === 1
-        ? "Um item ficou para trás. Vamos recuperar juntos."
-        : `${count} itens ficaram para trás. Vamos recuperar juntos.`
+        ? "Um ponto para firmar. Vamos juntos?"
+        : `${count} pontos para firmar. Vamos juntos?`
       : count === 1
-        ? "Um item ficou para trás. Quer revisar agora?"
-        : `${count} itens ficaram para trás. Quer revisar agora?`,
-  happened: "O que aconteceu: você chegou perto, mas alguns pontos ainda travaram.",
-  nextStep: "O que fazer agora: revisar só o que errou — curto e no mesmo contexto.",
-  goalRecover: "Objetivo: acertar todos e recuperar a 3ª estrela.",
-  goalReview: "Objetivo: firmar o que ainda está inseguro.",
+        ? "Um ponto para firmar. Quer revisar agora?"
+        : `${count} pontos para firmar. Quer revisar agora?`,
+  /** Uma linha só — a oferta antiga tinha 3 cards redundantes. */
+  supportLine: (canRecover: boolean) =>
+    canRecover
+      ? "Só o que travou, com mais apoio do que na lição. Acerte e recupera a 3ª estrela."
+      : "Só o que travou — curto, no mesmo contexto, com mais apoio.",
   ctaPrimary: "Começar revisão",
   ctaLater: "Continuar com 2 estrelas",
 } as const;
 
 export const REVIEW_QUESTION = {
   eyebrow: "Revisão",
-  doNowChoice: "Escolha a resposta certa.",
-  doNowBuild: "Monte a resposta com as peças.",
+  doNowChoice: "Toque na resposta certa.",
+  doNowBuild: "Monte com as peças — é mais fácil que digitar do zero.",
   feedbackOk: "Isso mesmo!",
   feedbackRetry: "Quase — veja a resposta certa.",
   correctLabel: "Resposta certa",
@@ -64,14 +65,14 @@ export const REVIEW_QUESTION = {
 } as const;
 
 export const REVIEW_SUMMARY = {
-  titleOk: "Revisão concluída",
+  titleOk: "Pronto — você firmou estes pontos",
   titlePartial: "Ainda falta um pouco",
-  bodyOk: "Você corrigiu tudo desta tentativa.",
+  bodyOk: "Você corrigiu tudo desta tentativa. Bom trabalho.",
   bodyPartial: (remaining: number) =>
     remaining === 1
-      ? "Falta 1 item. Você pode tentar de novo para buscar a 3ª estrela."
-      : `Faltam ${remaining} itens. Você pode tentar de novo para buscar a 3ª estrela.`,
-  correctedLabel: "Corrigidos",
+      ? "Falta 1 item. Pode tentar de novo quando quiser a 3ª estrela."
+      : `Faltam ${remaining} itens. Pode tentar de novo quando quiser a 3ª estrela.`,
+  correctedLabel: "Firmados",
   remainingLabel: "Ainda falta",
   ctaRetry: "Continuar revisão",
   ctaRetryLesson: "Refazer lição",
