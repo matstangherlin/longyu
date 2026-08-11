@@ -15,6 +15,7 @@ import {
 } from "../lib/economyServerBridge";
 import { fetchServerIsPro } from "./entitlementService";
 import { attributeStoredReferralCode, processReferralPipeline } from "./referralService";
+import { recordClientDiagnostic } from "../lib/clientDiagnostics";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
@@ -23,12 +24,10 @@ let pendingPush = false;
 function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
   useStore.getState().setCloudSyncState(status, message);
   if (status === "error") {
-    void import("../lib/clientDiagnostics").then(({ recordClientDiagnostic }) => {
-      recordClientDiagnostic({
-        kind: "sync_error",
-        area: "cloud_sync",
-        message,
-      });
+    recordClientDiagnostic({
+      kind: "sync_error",
+      area: "cloud_sync",
+      message,
     });
   }
 }
