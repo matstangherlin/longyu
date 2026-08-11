@@ -6,7 +6,7 @@ import { dismissBlockingOverlays, seedFreshJourneySession } from "./helpers";
  * Regra: avançar nunca herda o scroll da atividade anterior.
  */
 test.describe("lesson player — viewport & scroll", () => {
-  test("após Continuar, a nova atividade começa no topo da região rolável", async ({ page }) => {
+  test("após avançar, a nova atividade começa no topo da região rolável", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await dismissBlockingOverlays(page);
@@ -27,31 +27,27 @@ test.describe("lesson player — viewport & scroll", () => {
     expect(heights.frame).toBeGreaterThan(200);
     expect(Math.abs(heights.frame - heights.vv)).toBeLessThan(8);
 
+    // Força conteúdo alto e scroll no meio/fim — simula aluno que terminou rolando.
+    await scroller.evaluate((node) => {
+      const spacer = document.createElement("div");
+      spacer.dataset.testSpacer = "1";
+      spacer.style.height = "1600px";
+      node.appendChild(spacer);
+      node.scrollTop = 900;
+    });
+    await expect
+      .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 3_000 })
+      .toBeGreaterThan(100);
+
     await page.getByRole("button", { name: "Entendi" }).click();
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
 
-    // Simula aluno que rolou até embaixo na atividade atual.
-    await scroller.evaluate((node) => {
-      node.scrollTop = node.scrollHeight;
-    });
-
-    await page.getByRole("button", { name: /你好/ }).first().click();
-    const verificar = page.getByRole("button", { name: /^Verificar$/ }).first();
-    if (await verificar.isVisible().catch(() => false)) {
-      await verificar.click();
-    }
-
-    const continuar = page.getByRole("button", { name: /^Continuar$/ }).first();
-    await expect(continuar).toBeVisible({ timeout: 8_000 });
-    await continuar.click();
-
-    // Nova atividade montada: scroll da região deve voltar ao início.
+    // Nova atividade montada: scroll da região e da janela voltam ao início.
     await expect
       .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 5_000 })
       .toBe(0);
-
-    await expect(page.locator("[data-lesson-step-frame]")).toBeVisible();
     const windowScroll = await page.evaluate(() => window.scrollY);
     expect(windowScroll).toBe(0);
+    await expect(page.locator("[data-lesson-step-frame]")).toBeVisible();
   });
 });
