@@ -1,5 +1,9 @@
 # Longyu 0.2.0-beta.1 — QA mobile real
 
+> **Rodada atual (humana):** use [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md).  
+> Este arquivo documenta a rodada de **2026-07-19** (emulação + gaps honestos).  
+> Emulação Chromium **não** substitui iPhone/Android físicos.
+
 Rodada de QA focada em **validar o app fora do desktop e do Chromium padrão do
 Playwright**, antes da beta pública ampla.
 
