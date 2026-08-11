@@ -8,8 +8,9 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | Campo | Valor |
 | --- | --- |
 | Data início | 2026-08-11 |
-| URL / ambiente | preview / Netlify beta |
+| URL / ambiente | produção Netlify / preview |
 | Versão (Sobre / landing) | v0.2.0-beta.1 |
+| SHA tip `main` | `d294764` (#140) |
 | SHA congelada (RC) | _preencher só na RC_ |
 | Executor | Cloud Agent + QA humano (Matheus) |
 
@@ -17,7 +18,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B001 | P1 | `/licao/*/player` · dialogue_choice pinyin | Android Chrome | Página arrasta pra baixo (rubber-band/gap no header) | Só `[data-lesson-activity-scroll]` rola | Qualquer lição pinyin pós-resposta | **aberto** — #138 insuficiente; fix #139 body fixed + frame fixed |
+| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Página não arrasta; CTA acessível sem caça; vitória cabe no frame | Lição pinyin pós-resposta + tela final | **aberto — aguarda revalidação física** (#138→#139→#140 no código) |
 | B002 | | | | | | | |
 | B003 | | | | | | | |
 
@@ -28,6 +29,19 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | P0 | 0 | 0 |
 | P1 | 1 | 0 |
 | P2 | 0 | 0 |
+
+## Checklist de revalidação B001 (Android físico)
+
+Tip a testar: `d294764` (ou tip `main` após #140). Force refresh / limpe cache.
+
+- [ ] Arrastar página inteira → **não move**
+- [ ] Avançar atividade → atividade (curta e longa)
+- [ ] Após acerto: Continuar visível sem caça
+- [ ] Após erro: Verificar / Tentar de novo acessível
+- [ ] Teclado aberto e fechado
+- [ ] Tela de vitória: Continuar Jornada acessível sem caça
+
+Se tudo OK → marcar B001 **fechado** e zerar P1 abertos.
 
 ## Critério para RC
 
