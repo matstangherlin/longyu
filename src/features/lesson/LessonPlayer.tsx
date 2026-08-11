@@ -682,30 +682,40 @@ function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
 }
 
 function errorHanziForStep(step: LessonStep): string | undefined {
+  // Sempre um ÚNICO alvo coerente — nunca concatenar falas da cena ("你好 / 你好吗 / …").
   if (step.hanzi) return step.hanzi;
   if (step.charId) return charById.get(step.charId)?.hanzi;
-  if (step.kind === "conversation_scene") {
-    const lineHanzi = step.lines?.map((line) => line.hanzi).filter(Boolean).join(" / ");
-    if (lineHanzi) return lineHanzi;
-  }
+  const reply =
+    step.correctAnswer ??
+    step.checkpoint?.correctAnswer ??
+    step.answer ??
+    step.blankAnswer;
+  if (displayTextHasHanzi(reply)) return reply;
   if (displayTextHasHanzi(step.sourceText)) return step.sourceText;
-  if (displayTextHasHanzi(step.correctAnswer)) return step.correctAnswer;
-  if (displayTextHasHanzi(step.answer)) return step.answer;
+  if (step.kind === "conversation_scene") {
+    // Preferir a fala do checkpoint / última linha com hànzì — não o diálogo inteiro.
+    const checkpointLine = step.lines?.find((line) => displayTextHasHanzi(line.hanzi) && line.hanzi === reply);
+    if (checkpointLine?.hanzi) return checkpointLine.hanzi;
+    const lastHanziLine = [...(step.lines ?? [])].reverse().find((line) => displayTextHasHanzi(line.hanzi));
+    if (lastHanziLine?.hanzi) return lastHanziLine.hanzi;
+  }
   const audioSequence = step.audioSequence?.find(displayTextHasHanzi);
   if (audioSequence) return audioSequence;
   const target = step.target?.join("") ?? step.targetParts?.join("");
   return displayTextHasHanzi(target) ? target : undefined;
 }
 
-function errorPinyinForStep(step: LessonStep): string | undefined {
+function errorPinyinForStep(step: LessonStep, preferredHanzi?: string): string | undefined {
   if (step.pinyin) return step.pinyin;
   if (step.sourcePinyin) return step.sourcePinyin;
   if (step.charId) return charById.get(step.charId)?.pinyin;
-  const hanzi = errorHanziForStep(step);
+  // Pinyin só do alvo único — nunca de um dump multi-frase.
+  const hanzi = preferredHanzi ?? errorHanziForStep(step);
+  if (!hanzi || /[\/|]/.test(hanzi)) return undefined;
   const chunk = findChunkByText(hanzi);
   if (chunk?.pinyin) return chunk.pinyin;
   const chars = charsInText(hanzi);
-  if (chars.length > 0) return chars.map((char) => char.pinyin).join(" ");
+  if (chars.length > 0 && chars.length <= 8) return chars.map((char) => char.pinyin).join(" ");
   return undefined;
 }
 
@@ -1218,15 +1228,20 @@ function ErrorReviewQuestion({
           <div className="font-semibold">{feedback === "correct" ? "Corrigido!" : "Ainda precisa de revisão."}</div>
           <div className="mt-1">
             Correto: <span className="font-semibold text-ink">{answerDisplay}</span>
-            {exercise.displayPinyin || error.pinyin ? (
+            {exercise.answerPinyin || exercise.displayPinyin ? (
               <>
                 <span className="text-ink-faint"> · </span>
-                <Pinyin text={exercise.displayPinyin ?? error.pinyin ?? ""} className="text-ink-faint" />
+                <Pinyin
+                  text={exercise.answerPinyin ?? exercise.displayPinyin ?? ""}
+                  className="text-ink-faint"
+                />
               </>
             ) : null}
             {exercise.meaningPt ? <span className="text-ink-faint"> · {exercise.meaningPt}</span> : null}
           </div>
-          {exercise.explanation && <div className="mt-1 text-ink-soft">{exercise.explanation}</div>}
+          {exercise.explanation && !/[\/|]/.test(exercise.explanation) && (
+            <div className="mt-1 text-ink-soft">{exercise.explanation}</div>
+          )}
         </div>
       )}
 
@@ -1966,15 +1981,14 @@ export function LessonPlayer() {
     const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]);
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
     const diagnosis = diagnosisForAnswer(step, correction.correction, selectedAnswer);
-    const sceneContext =
-      step.kind === "conversation_scene"
-        ? (step.lines ?? [])
-            .map((line) => {
-              const speaker = step.characters?.find((character) => character.id === line.speakerId)?.name ?? line.speakerId;
-              return `${speaker}: ${line.hanzi}`;
-            })
-            .join(" · ")
-        : undefined;
+    const hanzi = errorHanziForStep(step);
+    const rawSelected = selectedAnswer?.trim();
+    // Pulo/status não é resposta de exercício — não vira opção na remediação.
+    const isStatusAnswer =
+      !rawSelected ||
+      /^pulou\b/i.test(rawSelected) ||
+      /^resposta incorreta$/i.test(rawSelected) ||
+      /respondeu incorretamente/i.test(rawSelected);
     return {
       id,
       lessonId: lesson.id,
@@ -1984,13 +1998,13 @@ export function LessonPlayer() {
       questionId: `${lesson.id}:${stepIndex}:${step.kind}`,
       exerciseId: `${lesson.id}:${stepIndex}`,
       type: step.kind,
-      prompt: sceneContext ? `${correction.prompt} (cena: ${sceneContext})` : correction.prompt,
+      prompt: correction.prompt,
       correctAnswer: correction.correction,
-      selectedAnswer: selectedAnswer?.trim() || "Resposta incorreta",
+      selectedAnswer: isStatusAnswer ? "Resposta incorreta" : rawSelected,
       topic: step.title ?? step.prompt ?? lesson.title,
       tokens: errorTokensForStep(step),
-      hanzi: errorHanziForStep(step),
-      pinyin: errorPinyinForStep(step),
+      hanzi,
+      pinyin: errorPinyinForStep(step, hanzi),
       meaningPt: errorMeaningForStep(step, correction),
       explanation:
         step.explanation ??

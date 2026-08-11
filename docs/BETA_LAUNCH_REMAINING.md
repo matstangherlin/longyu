@@ -16,7 +16,7 @@ Tip `main`: `d294764` (#140).
 | L1–L20 completo como aluno novo | 15% | **~0–5%** — proxy E2E não conta |
 | 5–15 testadores reais + telemetria | 15% | **0%** |
 | Sync/offline/multi-device | 10% | Fixture OK (#133); **2 aparelhos = humano** §6 |
-| Corrigir P0/P1 encontrados | 10% | B001 aberto até revalidação física |
+| Corrigir P0/P1 encontrados | 10% | B001 + B002 abertos até revalidação humana |
 | Auth + conta + recuperação | 8% | E2E superfície OK; **e-mail live = humano** §4 |
 | Stripe/Pro/entitlements | 7% | Testes de lógica OK; **Test Mode live = humano** §5 |
 | RC + `gate:public-beta` + Security Scan | 7% | Scripts prontos; rodar na SHA congelada |
