@@ -492,28 +492,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div className="text-center">
       <Eyebrow>{guided ? "Ouvido tonal" : "Qual é o tom?"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">Qual contorno você ouviu?</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
-        Escute primeiro, compare com as curvas e só peça a dica forte se travar.
-      </p>
-
-      <div className="mx-auto mt-3 grid max-w-md grid-cols-3 gap-2 text-xs font-medium">
-        {["1. Ouça", "2. Compare", "3. Escolha"].map((label, i) => (
-          <div
-            key={label}
-            className={[
-              "rounded-full px-3 py-1.5",
-              (i === 0 && listenCount > 0) ||
-              (i === 1 && hintLevel >= 1) ||
-              (i === 2 && picked != null)
-                ? "bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
-                : "bg-surface-2 text-ink-faint",
-            ].join(" ")}
-          >
-            {label}
-          </div>
-        ))}
-      </div>
+      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">Ouça e escolha o tom</h2>
 
       <div className="mx-auto my-3 grid max-w-md gap-3 sm:my-4 sm:max-w-xl sm:grid-cols-[112px_1fr] sm:items-start">
         <button
@@ -588,7 +567,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 setHintLevel(2);
               }}
             >
-              Estou travado · mostrar pinyin e tom
+              Mostrar dica
             </Button>
           )}
         </div>
@@ -1042,7 +1021,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       {composing && (
         <div className="mt-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
           {pickedPieces.length === 0 && (
-            <span className="text-sm font-medium text-ink-faint">toque nas peças para montar a resposta</span>
+            <span className="text-sm font-medium text-ink-faint">Toque nas peças abaixo</span>
           )}
           {pickedPieces.map((piece, index) => (
             <button
@@ -1155,7 +1134,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
 
           <Button className="mt-3 w-full" disabled={!canCheck} onClick={checkAnswer}>
-            Conferir
+            Verificar
           </Button>
         </>
       )}
@@ -1522,7 +1501,7 @@ function EngineFeedbackPanel({
               ? "Certo agora — esta parte entra na revisão."
               : "Estrutura certa.")
           : unrecognized
-            ? "Isto não contou como erro. Se a sua frase estiver certa, ela foi registrada para entrar no curso. Uma resposta esperada seria:"
+            ? "Não entendi essa forma — não contou como erro. Exemplo:"
             : wrongCopy}
       </p>
       {model && (
@@ -2067,7 +2046,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
         {audioFallback
-          ? "Sem áudio agora, tudo bem: responda pela leitura do pinyin. Esta parte de escuta volta depois na revisão."
+          ? "Sem áudio — responda pelo pinyin. A escuta volta na revisão."
           : step.prompt ?? "Toque no que escutar:"}
       </p>
 
@@ -2552,10 +2531,10 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
 function StepSentenceBuild(props: StepProps) {
   const labels: Partial<Record<NonNullable<LessonStep["pedagogyVariant"]>, string>> = {
     dragon_dictation: "Ditado Dragão",
-    sentence_lab_distractors: "Sentence Lab · intrusos",
-    sentence_lab_no_translation: "Sentence Lab · sem tradução",
-    sentence_lab_audio: "Sentence Lab · por áudio",
-    sentence_lab_repair: "Sentence Lab · conserte a frase",
+    sentence_lab_distractors: "Monte · com intrusos",
+    sentence_lab_no_translation: "Monte · sem tradução",
+    sentence_lab_audio: "Monte · por áudio",
+    sentence_lab_repair: "Monte · conserte a frase",
   };
   const label = props.step.pedagogyVariant ? labels[props.step.pedagogyVariant] : undefined;
   return <BuildExercise {...props} kindLabel={label ?? "Monte a frase"} />;
@@ -3642,22 +3621,34 @@ function FreeAnswerField({
 
   useEffect(() => () => handleRef.current?.stop(), []);
 
+  function stopListening() {
+    handleRef.current?.stop();
+    handleRef.current = null;
+    setListening(false);
+  }
+
   async function startListening() {
-    if (disabled || listening) return;
+    if (disabled) return;
+    if (listening) {
+      stopListening();
+      return;
+    }
     setMicError(null);
     const permission = await ensureMicPermission();
     if (permission !== "granted") {
-      setMicError(speechErrorMessage(permission === "denied" ? "denied" : "unsupported"));
+      setMicError(speechErrorMessage(permission === "denied" ? "not-allowed" : "unsupported"));
       return;
     }
     setListening(true);
     handleRef.current = recognizeOnce(
       (transcript) => {
         setListening(false);
+        handleRef.current = null;
         if (transcript) onChange(transcript);
       },
       (code) => {
         setListening(false);
+        handleRef.current = null;
         setMicError(speechErrorMessage(code));
       },
       { lang: "zh-CN" }
@@ -3697,15 +3688,21 @@ function FreeAnswerField({
       />
       {speechSupported && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" disabled={disabled || listening} onClick={startListening}>
+          <Button
+            variant={listening ? "soft" : "outline"}
+            size="sm"
+            disabled={disabled}
+            onClick={startListening}
+            aria-pressed={listening}
+          >
             <IconSound width={16} height={16} />
-            {listening ? "Ouvindo…" : "Falar a resposta"}
+            {listening ? "Ouvindo… toque para parar" : "Falar"}
           </Button>
-          <span className="text-xs text-ink-faint">Pinyin também vale — com ou sem acentos.</span>
+          <span className="text-xs text-ink-faint">Vale hànzì ou pinyin.</span>
         </div>
       )}
-      {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Pinyin também vale — com ou sem acentos.</p>}
-      {micError && <p className="mt-2 text-xs text-accent">{micError}</p>}
+      {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Vale hànzì ou pinyin.</p>}
+      {micError && <p className="mt-2 text-xs text-ink-soft">{micError}</p>}
     </div>
   );
 }

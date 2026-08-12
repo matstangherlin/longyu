@@ -113,7 +113,7 @@ try {
   assert.equal(scorePronunciation("你好世界", "你好").correct, true);
   assert.equal(scorePronunciation("你好世界", "你好").hasExtra, true);
 
-  assert.match(speechErrorMessage("not-allowed"), /permissão/i);
+  assert.match(speechErrorMessage("not-allowed"), /mic|bloqueado|autorize/i);
   assert.match(speechErrorMessage("no-speech"), /ouvir/i);
   assert.match(speechErrorMessage("network"), /internet|conexão|conex/i);
 
