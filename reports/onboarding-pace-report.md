@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a15e6dd45ddd105d296b3ab7f60434f6a76cb9b0 |
+| Commit | ee6ccccd0b06aab93b01646a1cebf6d022efb79f |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T22:21:38.541Z |
+| Gerado em | 2026-08-12T23:33:12.314Z |
 | Lições | 123 |
 | Hash da Jornada | 4a56ec34a066 |
 
@@ -83,4 +83,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:e7b3d7363dcf1fed -->
+<!-- integridade:081f7ea0b644d37b -->
