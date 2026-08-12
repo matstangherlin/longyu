@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedLeagueDemoSession, seedOnboardedSession } from "./helpers";
+import { seedLeagueDemoSession, seedOnboardedSession, waitForLazyPage } from "./helpers";
 
 test.describe("smoke", () => {
   test("app abre onboarding ou jornada", async ({ page }) => {
@@ -86,9 +86,10 @@ test.describe("smoke", () => {
   test("modo foco esconde chrome na lição", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await expect(page.locator("nav")).toHaveCount(0);
     await expect(page.getByLabel(/Enviar feedback/i)).toHaveCount(0);
-    await expect(page.getByLabel(/Sair/i)).toBeVisible();
+    await expect(page.getByLabel(/Sair/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText(/\d+\/\d+/).first()).toBeVisible();
   });
 

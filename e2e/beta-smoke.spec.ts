@@ -262,8 +262,11 @@ test.describe("beta smoke — aprendizagem", () => {
   test("Hànzì Builder: lição de primeiros hànzì carrega montagem", async ({ page }) => {
     await seedFoundationThrough(page, "p1-o-que-e-hanzi");
     await page.goto("/licao/p1-primeiros-hanzi/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /Monte peça por peça/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Monte peça por peça/ })).toBeVisible({
+      timeout: 20_000,
+    });
     const builderCue = page.getByText(/toque nas peças|Monte |peça por peça|componentes/i).first();
     const found = await advanceUntilVisible(page, builderCue, 10);
     expect(found).toBeTruthy();
@@ -367,8 +370,11 @@ test.describe("beta smoke — aprendizagem", () => {
   test("conclusão da lição: acerto, feedback e progresso", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible({
+      timeout: 20_000,
+    });
     await page.getByRole("button", { name: "Entendi" }).click();
 
     const correct = page.getByRole("button", { name: /你好/ }).first();

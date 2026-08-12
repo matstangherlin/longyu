@@ -3,6 +3,7 @@ import {
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedOnboardedSession,
+  waitForLazyPage,
 } from "./helpers";
 
 // QA real de dispositivo: toque, safe-area, prefers-reduced-motion, offline (PWA)
@@ -31,12 +32,13 @@ test.describe("dispositivo — toque", () => {
   test("primeira lição avança por toque (Entendi → opção)", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     if (!(await hasTouch(page))) {
       test.skip(true, "Sem toque neste projeto (motor de mesa).");
     }
     const entendi = page.getByRole("button", { name: "Entendi" });
-    await expect(entendi).toBeVisible();
+    await expect(entendi).toBeVisible({ timeout: 20_000 });
     await entendi.tap();
     const option = page.getByRole("button", { name: /你好/ }).first();
     await expect(option).toBeVisible();
@@ -50,6 +52,7 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
   test("número seleciona opção; sem digitar em input", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await page.getByRole("button", { name: "Entendi" }).click();
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
@@ -61,6 +64,7 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
   test("Enter aciona o botão em foco (avançar)", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const entendi = page.getByRole("button", { name: "Entendi" });
     await entendi.focus();

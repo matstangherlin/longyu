@@ -19,10 +19,11 @@ test.describe("QA regression guard — player mobile", () => {
   test("CTA sticky permanece acessível e no viewport", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
-    await expect(sticky).toBeVisible();
+    await expect(sticky).toBeVisible({ timeout: 20_000 });
     const cta = sticky.locator("button:visible").first();
     await expect(cta).toBeVisible();
 
@@ -45,10 +46,11 @@ test.describe("QA regression guard — player mobile", () => {
   test("ao avançar steps, o player continua enquadrado", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const frame = page.locator("[data-lesson-player-frame]");
-    await expect(frame).toBeVisible();
+    await expect(frame).toBeVisible({ timeout: 20_000 });
 
     const before = await page.evaluate(() => {
       const el = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;
