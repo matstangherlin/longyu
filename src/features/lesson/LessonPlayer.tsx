@@ -2517,7 +2517,7 @@ export function LessonPlayer() {
     setStepAttempt((attempt) => attempt + 1);
   }
 
-  // "Continuar e perder perfeição": o erro vira permanente, custa 1 Vida
+  // Continuar sem refazer: o erro vira permanente, custa 1 Vida
   // e avança para o próximo step para evitar dois fluxos de feedback.
   function noteConfirmedMistake() {
     if (hasUnlimitedLives) return;
@@ -3977,15 +3977,13 @@ export function LessonPlayer() {
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
-        <ModalOverlay
-          label="Você errou esta questão"
-        >
+        <ModalOverlay label="Quer tentar de novo?">
           <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
               <IconX width={24} height={24} />
             </div>
             <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">
-              Quase. Quer tentar de novo?
+              Quer tentar de novo?
             </h2>
             <p className="mt-2 text-sm leading-6 text-ink-soft">
               {pendingMistake.detail?.trim()
@@ -4018,7 +4016,7 @@ export function LessonPlayer() {
               </p>
             ) : (
               <p className="mt-3 rounded-xl bg-wrong-soft px-3 py-2 text-sm font-medium text-wrong">
-                Você está sem Qi para refazer sem perder perfeição. Missões dão Qi sem comprar progresso.
+                Sem Qi para refazer agora. Ganhe Qi em missões ou avance.
               </p>
             )}
 
@@ -4029,7 +4027,7 @@ export function LessonPlayer() {
                     {isPremium ? "Tentar de novo sem Qi" : `Tentar de novo por ${RETRY_COST_QI} Qi`}
                   </Button>
                   <Button variant="outline" className="w-full" onClick={continueWithMistake}>
-                    Continuar e perder perfeição
+                    Continuar
                   </Button>
                   {!isPremium && (
                     <Button variant="soft" className="w-full" onClick={() => {
@@ -4043,7 +4041,7 @@ export function LessonPlayer() {
               ) : (
                 <>
                   <Button size="lg" className="w-full" onClick={continueWithMistake}>
-                    Continuar e perder perfeição
+                    Continuar
                   </Button>
                   <ButtonLink to="/missoes" variant="outline" className="w-full">
                     <IconStar width={16} height={16} /> Ganhar Qi em missões
@@ -4058,7 +4056,7 @@ export function LessonPlayer() {
               )}
             </div>
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Continuar sem refazer custa 1 Vida e avança sem manter perfeição.
+              Avançar sem refazer gasta 1 vida.
             </p>
           </div>
         </ModalOverlay>
