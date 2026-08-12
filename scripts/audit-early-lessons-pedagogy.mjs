@@ -202,7 +202,7 @@ try {
             stepKind: step.kind,
             stepTitle: title,
             problem: `Termo gramatical “${match}” antes da introdução formal.`,
-            missingPrerequisite: `Introdução do conceito em lição dedicada (ex.: p3-ordem-das-palavras).`,
+            missingPrerequisite: `Introdução do conceito em lição dedicada (ex.: p3-nomes-da-frase).`,
             recommendedFix: "Remover jargão ou adiar o step até depois da intro do conceito.",
           });
         }

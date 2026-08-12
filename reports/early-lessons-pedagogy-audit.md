@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e0027b6a3d2c86f7843dcde4d82295f8013c0387 |
+| Commit | 6fa13704a60428926bcf85aa704748ee61f1d292 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T17:30:14.109Z |
+| Gerado em | 2026-08-12T17:37:38.554Z |
 | Lições | 20 |
-| Hash da Jornada | 2e9647f83624 |
+| Hash da Jornada | b781403be692 |
 
 
 ## Escopo
@@ -61,17 +61,4 @@ _Nenhum problema objetivo encontrado._
 - **18.** `p2-ma-quarto-tom` — 4º tom com ma
 - **19.** `p2-comparar-tom-1-4` — Comparar 1º e 4º tom
 
-
-## Correções aplicadas (objetivas)
-
-| Problema | Correção |
-|----------|----------|
-| `ensureCoverage` forçava CORE_REVIEW (谢谢/再见…) nas primeiras lições | Gate `earlyPedagogy`: sem força de núcleo/produção pesada em fundação/fase ≤2 |
-| Ditado/conversa/`spot_error` gerados em lições-conceito | `foundationLite` + perfil de fundação sem assembly/usage gerados |
-| `makeOldPhraseReuseStep` injetava fill_blank de 谢谢 | Só fora de `foundationLite` |
-| Jargão (verbo/objeto/sujeito) em `spot_error` | Copy reescrita em linguagem intuitiva; spot_error só a partir da fase 3 |
-| “tone sandhi” em `l1` | Explicação em PT-BR sem jargão inglês |
-
-Auditoria automatizada: `npm run audit:early-lessons` → este relatório.
-
-<!-- integridade:e80cdc4f0708e66f -->
+<!-- integridade:9ca7c61749a91172 -->

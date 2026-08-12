@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e0027b6a3d2c86f7843dcde4d82295f8013c0387 |
+| Commit | 6fa13704a60428926bcf85aa704748ee61f1d292 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T17:28:57.955Z |
-| Lições | 122 |
-| Hash da Jornada | 2e9647f83624 |
+| Gerado em | 2026-08-12T17:37:24.082Z |
+| Lições | 123 |
+| Hash da Jornada | b781403be692 |
 
 ## Política de rótulos
 
@@ -22,12 +22,12 @@
 
 | Conceito | Intuitivo | Técnico | Intro | Prática | Frames |
 |----------|-----------|---------|-------|---------|--------|
-| `basic_word_order` | ordem da frase | ordem básica | p3-ordem-das-palavras | l5-rev | 6 |
-| `subject` | quem | sujeito | p3-ordem-das-palavras | l5-rev | 10 |
-| `verb` | ação | verbo | p3-ordem-das-palavras | l5-rev | 10 |
-| `object` | coisa | objeto | p3-ordem-das-palavras | l5-rev | 9 |
-| `particle` | marca | partícula | p3-ordem-das-palavras | p5-kou-ma-pergunta | 4 |
-| `question_ma` | pergunta | pergunta com 吗 | p3-ordem-das-palavras | p5-kou-ma-pergunta | 1 |
+| `basic_word_order` | ordem da frase | ordem básica | p3-nomes-da-frase | l5-rev | 6 |
+| `subject` | quem | sujeito | p3-nomes-da-frase | l5-rev | 10 |
+| `verb` | ação | verbo | p3-nomes-da-frase | l5-rev | 10 |
+| `object` | coisa | objeto | p3-nomes-da-frase | l5-rev | 9 |
+| `particle` | marca | partícula | p3-nomes-da-frase | p5-kou-ma-pergunta | 4 |
+| `question_ma` | pergunta | pergunta com 吗 | p3-nomes-da-frase | p5-kou-ma-pergunta | 1 |
 | `negation_bu` | não | negação com 不 | p4-char-bu | l14-frase-minima | 2 |
 | `aspect_zai` | agora | aspecto (em progresso) | l11-falo-pouco | l12 | 1 |
 | `aspect_le` | mudança | aspecto (mudança) | l26 | p6-direcoes | 1 |
@@ -41,17 +41,18 @@
 
 | Estágio | Contagens (conceito×passo) |
 |---------|---------------------------:|
-| intuitivo | 27 |
-| pareado | 20 |
-| técnico | 621 |
-| Passos de produção com slots | 159 |
+| intuitivo | 33 |
+| pareado | 17 |
+| técnico | 632 |
+| Passos de produção com slots | 163 |
 
 ## Exemplos de rótulo por lição
 
 - **l5**: quem · ação · coisa · marca
-- **p3-ordem-das-palavras**: quem (sujeito) · ação (verbo) · coisa (objeto) · marca (partícula)
+- **p3-ordem-das-palavras**: quem · ação · coisa · marca
+- **p3-nomes-da-frase**: quem (sujeito) · ação (verbo) · coisa (objeto) · marca (partícula)
 - **l5-rev**: quem (sujeito) · ação (verbo) · coisa (objeto) · marca (partícula)
 - **l26b**: sujeito · verbo · objeto · partícula
 - **l11-rev**: sujeito · verbo · objeto · partícula
 
-<!-- integridade:745946e0f9ac473b -->
+<!-- integridade:4e03871027d8f0cc -->

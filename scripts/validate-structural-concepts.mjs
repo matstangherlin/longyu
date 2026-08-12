@@ -25,6 +25,7 @@ try {
   const program = ts.createProgram(
     [
       "src/data/structuralConcepts.ts",
+      "src/data/sentenceStructureIntro.ts",
       "src/data/productionTasks.ts",
       "src/data/journey.ts",
       "src/data/chunks.ts",
@@ -60,10 +61,45 @@ try {
     conceptsAssumedByFrame,
     resolveSlotLabel,
   } = load("src/data/structuralConcepts.js");
+  const {
+    SENTENCE_STRUCTURE_INTRO,
+    SENTENCE_STRUCTURE_REINFORCEMENT,
+    STRUCTURE_NAMES_LESSON_ID,
+    STRUCTURE_LOGIC_LESSON_ID,
+    STRUCTURE_TECHNICAL_LESSON_ID,
+  } = load("src/data/sentenceStructureIntro.js");
   const { lessonRoundStepsFor } = load("src/features/lesson/lessonTasks.js");
 
   const lessonIndex = new Map(ALL_LESSONS.map((lesson, index) => [lesson.id, index]));
   const frameById = new Map(SENTENCE_FRAMES.map((frame) => [frame.id, frame]));
+
+  // ——— 0. Progressão pedagógica etapa → lição ———
+  for (const stage of SENTENCE_STRUCTURE_INTRO) {
+    assert(lessonIndex.has(stage.lessonId), `intro etapa ${stage.stage}: lição inexistente (${stage.lessonId})`);
+  }
+  assert(lessonIndex.has(SENTENCE_STRUCTURE_REINFORCEMENT.lessonId), "reforço 我要…: lição inexistente");
+  assert(
+    lessonIndex.get(STRUCTURE_LOGIC_LESSON_ID) < lessonIndex.get(STRUCTURE_NAMES_LESSON_ID),
+    "lógica (etapas 1–3) deve vir antes dos nomes (etapa 4)"
+  );
+  assert(
+    lessonIndex.get(STRUCTURE_NAMES_LESSON_ID) < lessonIndex.get(STRUCTURE_TECHNICAL_LESSON_ID),
+    "nomes (etapa 4) devem vir antes da prática técnica (etapa 5 / l5-rev)"
+  );
+  // Etapas 1–3: sem jargão na lição de lógica.
+  const logicLesson = ALL_LESSONS.find((lesson) => lesson.id === STRUCTURE_LOGIC_LESSON_ID);
+  if (logicLesson) {
+    const blob = (logicLesson.steps ?? [])
+      .flatMap((step) => [step.title, step.body, step.prompt, step.explanation, ...(step.options ?? [])])
+      .filter(Boolean)
+      .join("\n");
+    for (const { conceptId, pattern } of TECHNICAL_TERM_PATTERNS) {
+      if (!["subject", "verb", "object", "particle", "basic_word_order", "question_ma"].includes(conceptId)) {
+        continue;
+      }
+      assert(!pattern.test(blob), `${STRUCTURE_LOGIC_LESSON_ID}: jargão “${conceptId}” nas etapas 1–3`);
+    }
+  }
 
   // ——— 1. Integridade do catálogo ———
   const conceptIds = new Set();
@@ -213,7 +249,14 @@ try {
     "## Exemplos de rótulo por lição",
     ""
   );
-  for (const lessonId of ["l5", "p3-ordem-das-palavras", "l5-rev", "l26b", "l11-rev"]) {
+  for (const lessonId of [
+    "l5",
+    "p3-ordem-das-palavras",
+    "p3-nomes-da-frase",
+    "l5-rev",
+    "l26b",
+    "l11-rev",
+  ]) {
     const lesson = ALL_LESSONS.find((item) => item.id === lessonId);
     if (!lesson) continue;
     const subject = formatConceptLabel("subject", lessonId);

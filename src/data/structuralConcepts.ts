@@ -4,10 +4,15 @@
  * A UI do Longyu não pode pressupor jargão gramatical (sujeito, verbo,
  * partícula…) antes de o curso ensinar esses conceitos. Cada conceito tem:
  *
- *   introducedAt  — lição que apresenta o conceito formalmente
- *   practicedAt   — lição em que o aluno pratica o termo de novo
+ *   introducedAt  — lição que apresenta o conceito formalmente (etapa 4)
+ *   practicedAt   — lição em que o aluno pratica o termo de novo (etapa 5)
  *   masteryRequiredFor — frames/superfícies que podem usar o termo técnico sozinho
  *   usedByFrames  — estruturas que dependem deste conceito
+ *
+ * Progressão pedagógica (ver sentenceStructureIntro.ts):
+ *   1–3 lógica visual em p3-ordem-das-palavras (sem nomes técnicos)
+ *   4   nomes em p3-nomes-da-frase (= introducedAt)
+ *   5   termos técnicos nas atividades a partir de practicedAt
  *
  * Estágios de rótulo na interface:
  *   intuitive → antes de introducedAt   (quem · ação · coisa)
@@ -16,6 +21,10 @@
  */
 import { ALL_LESSONS } from "./journey";
 import type { PatternSlot, PatternSlotRole } from "./productionTasks";
+import {
+  STRUCTURE_NAMES_LESSON_ID,
+  STRUCTURE_TECHNICAL_LESSON_ID,
+} from "./sentenceStructureIntro";
 
 export type StructuralConceptId =
   | "subject"
@@ -60,8 +69,8 @@ export const STRUCTURAL_CONCEPTS: StructuralConcept[] = [
     id: "basic_word_order",
     technicalLabelPt: "ordem básica",
     intuitiveLabelPt: "ordem da frase",
-    introducedAt: "p3-ordem-das-palavras",
-    practicedAt: "l5-rev",
+    introducedAt: STRUCTURE_NAMES_LESSON_ID,
+    practicedAt: STRUCTURE_TECHNICAL_LESSON_ID,
     masteryRequiredFor: ["frame_woyao", "frame_woxianghe", "frame_woqu"],
     usedByFrames: [
       "frame_woyao",
@@ -76,8 +85,8 @@ export const STRUCTURAL_CONCEPTS: StructuralConcept[] = [
     id: "subject",
     technicalLabelPt: "sujeito",
     intuitiveLabelPt: "quem",
-    introducedAt: "p3-ordem-das-palavras",
-    practicedAt: "l5-rev",
+    introducedAt: STRUCTURE_NAMES_LESSON_ID,
+    practicedAt: STRUCTURE_TECHNICAL_LESSON_ID,
     masteryRequiredFor: ["frame_woyao", "frame_niyao", "frame_niyaoma"],
     usedByFrames: [
       "frame_woyao",
@@ -96,8 +105,8 @@ export const STRUCTURAL_CONCEPTS: StructuralConcept[] = [
     id: "verb",
     technicalLabelPt: "verbo",
     intuitiveLabelPt: "ação",
-    introducedAt: "p3-ordem-das-palavras",
-    practicedAt: "l5-rev",
+    introducedAt: STRUCTURE_NAMES_LESSON_ID,
+    practicedAt: STRUCTURE_TECHNICAL_LESSON_ID,
     masteryRequiredFor: ["frame_woyao", "frame_woxianghe", "frame_woqu"],
     usedByFrames: [
       "frame_woyao",
@@ -116,8 +125,8 @@ export const STRUCTURAL_CONCEPTS: StructuralConcept[] = [
     id: "object",
     technicalLabelPt: "objeto",
     intuitiveLabelPt: "coisa",
-    introducedAt: "p3-ordem-das-palavras",
-    practicedAt: "l5-rev",
+    introducedAt: STRUCTURE_NAMES_LESSON_ID,
+    practicedAt: STRUCTURE_TECHNICAL_LESSON_ID,
     masteryRequiredFor: ["frame_woyao", "frame_woxianghe"],
     usedByFrames: [
       "frame_woyao",
@@ -135,7 +144,7 @@ export const STRUCTURAL_CONCEPTS: StructuralConcept[] = [
     id: "particle",
     technicalLabelPt: "partícula",
     intuitiveLabelPt: "marca",
-    introducedAt: "p3-ordem-das-palavras",
+    introducedAt: STRUCTURE_NAMES_LESSON_ID,
     practicedAt: "p5-kou-ma-pergunta",
     masteryRequiredFor: ["frame_niyaoma", "frame_wo_le", "frame_wozai"],
     usedByFrames: ["frame_niyaoma", "frame_wozai", "frame_wo_le", "frame_zainali"],
@@ -144,7 +153,7 @@ export const STRUCTURAL_CONCEPTS: StructuralConcept[] = [
     id: "question_ma",
     technicalLabelPt: "pergunta com 吗",
     intuitiveLabelPt: "pergunta",
-    introducedAt: "p3-ordem-das-palavras",
+    introducedAt: STRUCTURE_NAMES_LESSON_ID,
     practicedAt: "p5-kou-ma-pergunta",
     masteryRequiredFor: ["frame_niyaoma"],
     usedByFrames: ["frame_niyaoma"],

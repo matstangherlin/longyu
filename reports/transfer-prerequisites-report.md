@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e0027b6a3d2c86f7843dcde4d82295f8013c0387 |
+| Commit | 6fa13704a60428926bcf85aa704748ee61f1d292 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T17:27:27.714Z |
-| Lições | 122 |
-| Hash da Jornada | 2e9647f83624 |
+| Gerado em | 2026-08-12T17:37:52.994Z |
+| Lições | 123 |
+| Hash da Jornada | b781403be692 |
 
 ## Política
 
@@ -22,9 +22,9 @@
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições | 122 |
+| Lições | 123 |
 | Lições com transfer_task | 75 |
-| Lições com free_production guiada | 78 |
+| Lições com free_production guiada | 79 |
 | Lições com produção aberta | 18 |
 | Transfers precoces | 0 |
 | Opens precoces | 0 |
@@ -33,7 +33,7 @@
 
 | Frame | Padrão | Exposta | Guided | Transfer |
 |-------|--------|---------|--------|----------|
-| `frame_woyao` | 我要 ___ | l26b | l28 | l10-rev |
+| `frame_woyao` | 我要 ___ | l26b | l26b | l10-rev |
 | `frame_woxianghe` | 我想喝 ___ | l26 | l26 | l29 |
 | `frame_zainali` | ___ 在哪里？ | l25 | — | — |
 | `frame_qingwenzainali` | 请问，___ 在哪里？ | l25 | — | — |
@@ -67,7 +67,7 @@
 - **l11-falo-pouco** · `frame_wozai` · `我在学中文。`
 - **l22** · `frame_woyouge` · `我有三个朋友。`
 - **l26** · `frame_woxianghe` · `我想喝水。`
-- **l28** · `frame_woyao` · `我要鱼。`
+- **l26b** · `frame_woyao` · `我要鱼。`
 - **p6-clima** · `frame_woqu` · `我去超市。`
 - **p6-direcoes** · `frame_wo_le` · `我饿了。`
 
@@ -78,4 +78,4 @@
 - **l10-rev** · objetivo `state_destination` · modelo `我去超市。`
 - **l29** · objetivo `state_change` · modelo `我饿了。`
 
-<!-- integridade:7469f3330f3b5ebf -->
+<!-- integridade:02428c4a944e47ec -->
