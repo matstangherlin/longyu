@@ -3,7 +3,7 @@
 **Objetivo:** provar o produto em pessoas e aparelhos reais.  
 **Regra:** **automação não substitui QA humano** — nada aqui é substituível por Playwright, emulação, fixture ou `test:qa-regression-guard`.
 
-Atualizado: 2026-08-12 · tip `main` `3622885` (#148).  
+Atualizado: 2026-08-12 · tip `main` `5636e48` (#158).  
 Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).  
 Log de bugs: [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
 
@@ -35,7 +35,7 @@ Execute **nesta ordem**. Não pule B001/B002 para ir direto a L1–L20.
 
 **Estado do código (não confundir com QA feito):**
 
-- Tip a testar: `3622885` (#148).  
+- Tip a testar: `5636e48` (#158).  
 - B001: **corrigido em código**, aguardando revalidação Android física.  
 - B002: **corrigido em código**, aguardando revalidação humana.  
 - Produção/transferência friendliness, PieceAssembly e guarda QA: **entregues em código**.  
@@ -55,7 +55,7 @@ Antes de qualquer revalidação:
 
 - [ ] Abrir produção beta (ou preview estável) em **janela anônima**  
 - [ ] **Force refresh** (Android Chrome: menu → atualizar; se preciso, limpar dados do site)  
-- [ ] Confirmar tip / versão: landing ou Sobre = `v0.2.0-beta.1` · tip esperado `3622885`  
+- [ ] Confirmar tip / versão: landing ou Sobre = `v0.2.0-beta.1` · tip esperado `5636e48`  
 - [ ] Anotar: URL · navegador · SO · aparelho  
 - [ ] Conta **nova** (e-mail real) **ou** perfil local zerado — para L1–L20  
 - [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
@@ -67,7 +67,7 @@ Antes de qualquer revalidação:
 
 ## B001 — revalidar no Android real
 
-Aparelho: ________ · Chrome: ________ · Tip confirmada: ☐ `3622885`
+Aparelho: ________ · Chrome: ________ · Tip confirmada: ☐ `5636e48`
 
 Abra uma lição no player (`/licao/*/player`). Registre falhas em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
 
@@ -85,7 +85,7 @@ Abra uma lição no player (`/licao/*/player`). Registre falhas em [`BETA_BUG_LO
 
 ## B002 — revalidar no app real
 
-Ambiente: ________ (desktop e/ou mobile) · Tip: ☐ `3622885`
+Ambiente: ________ (desktop e/ou mobile) · Tip: ☐ `5636e48`
 
 Fluxo: errar ou pular um diálogo → aceitar a oferta de revisão / recuperação de estrela.
 

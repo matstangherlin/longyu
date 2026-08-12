@@ -17,6 +17,7 @@ import {
 import { clickFirstVisible } from "./lesson-player-helpers";
 import {
   MOBILE_VIEWPORTS,
+  assertBankAboveSticky,
   assertFrameFillsViewport,
   assertModalActionAccessible,
   assertPageScrollLocked,
@@ -25,6 +26,7 @@ import {
   assertReviewLayoutStable,
   assertVictoryWithoutPageScroll,
   injectLongActivityScroll,
+  openDenseSentenceBuild,
   openPostListenGradedStep,
   openOpenProductionStep,
   openPlayer,
@@ -32,6 +34,32 @@ import {
   openTransferStep,
   simulateVirtualKeyboard,
 } from "./lesson-player-mobile-helpers";
+
+/** B001 — sentence_build denso: StickyActionBar não cobre a última fileira. */
+for (const viewport of [
+  { label: "Android 360×640", width: 360, height: 640 },
+  { label: "iPhone 390×844", width: 390, height: 844 },
+] as const) {
+  test.describe(`B001 StickyActionBar × sentence_build — ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("banco denso não fica sob o sticky (teclado fechado)", async ({ page }) => {
+      test.setTimeout(150_000);
+      await openDenseSentenceBuild(page);
+      await assertPageScrollLocked(page);
+      await assertBankAboveSticky(page);
+    });
+
+    test("banco denso + teclado simulado — sticky e última peça alcançáveis", async ({ page }) => {
+      test.setTimeout(150_000);
+      await openDenseSentenceBuild(page);
+      const shrunk = Math.max(280, Math.floor(viewport.height * 0.52));
+      await simulateVirtualKeyboard(page, shrunk);
+      await assertPageScrollLocked(page);
+      await assertBankAboveSticky(page);
+    });
+  });
+}
 
 for (const viewport of MOBILE_VIEWPORTS) {
   test.describe(`Lesson Player mobile — ${viewport.label}`, () => {

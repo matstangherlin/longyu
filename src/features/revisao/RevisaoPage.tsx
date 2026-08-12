@@ -517,6 +517,10 @@ function ChoiceButton({
       type="button"
       disabled={revealed}
       onClick={() => onSelect(option.value)}
+      data-review-option={option.value}
+      data-review-option-correct={
+        normalizeReviewAnswer(option.value) === normalizeReviewAnswer(answer) ? "1" : "0"
+      }
       aria-label={shortcut ? `Opção ${shortcut}: ${option.label}` : option.label}
       className={["relative min-h-12 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
     >
@@ -626,7 +630,7 @@ function ReviewExercisePanel({
       {exercise.kind === "image_choice" && exercise.options && !exercise.imageOptionIds && (
         <>
           <KeyboardShortcutHint />
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2" data-review-options>
             {exercise.options.map((option, index) => (
               <ChoiceButton
                 key={option.id}
@@ -645,7 +649,7 @@ function ReviewExercisePanel({
       {exercise.options && !["sentence_build", "match_pairs", "image_choice"].includes(exercise.kind) && (
         <>
         <KeyboardShortcutHint />
-        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+        <div className="mt-5 grid gap-2 sm:grid-cols-2" data-review-options data-review-expected={exercise.answer}>
           {exercise.options.map((option, index) => (
             <ChoiceButton
               key={option.id}
@@ -694,7 +698,7 @@ function SentenceBuildExercise({
         )}
       </div>
       <KeyboardShortcutHint />
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="flex flex-wrap justify-center gap-2" data-review-bank>
         {(exercise.pieces ?? []).map((piece, index) => {
           const used = selectedPieceIds.includes(piece.id);
           return (
