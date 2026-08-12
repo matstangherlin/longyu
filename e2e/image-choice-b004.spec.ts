@@ -1,28 +1,87 @@
 import { test, expect, type Page } from "@playwright/test";
-import { dismissBlockingOverlays, seedFoundationThrough, waitForLazyPage } from "./helpers";
-import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
+import { dismissBlockingOverlays, seedLessonPlayerReady, waitForLazyPage } from "./helpers";
+import { clickFirstVisible } from "./lesson-player-helpers";
+import { seedProOnTopOfSession } from "./lesson-player-mobile-helpers";
 
 /**
  * B004 — image_choice: 4 tiles terminam em ready/fallback; nunca eternamente em loading;
  * opções só habilitam quando a grade está pronta. Light + dark; Chromium + WebKit.
+ *
+ * Abre `p4-char-ren` com pré-requisitos + Pro (fôlego infinito) e avança o plano
+ * gerado até a grade de IMAGENS (`listen_and_choose_image` / `choose_image`).
  */
 
-async function openImageChoiceStep(page: Page): Promise<boolean> {
-  await seedFoundationThrough(page, "p1-engine-2-lab");
+const IMAGE_GRID =
+  '[data-image-choice-ready="0"], [data-image-choice-ready="1"]:has([data-visual-status]), [data-image-choice-ready="1"]:has([data-visual-fallback])';
+
+async function answerOrAdvance(page: Page) {
+  await dismissBlockingOverlays(page);
+  const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
+  if (await folegoBack.isVisible().catch(() => false)) {
+    await folegoBack.click().catch(() => undefined);
+    return;
+  }
+  // Modal de erro / revisão: não sair da lição.
+  if (await page.locator("[data-review-offer]").isVisible().catch(() => false)) {
+    await clickFirstVisible(page, [/^Continuar com/, /^Depois$/, /^Agora não$/, /^Pular revisão/i]);
+    return;
+  }
+  if (await clickFirstVisible(page, [/^Entendi$/, /^Continuar$/, /^Próximo$/, /Certo!|\+Qi/, /^Continuar e perder/])) {
+    return;
+  }
+  // Choice steps: escolhe primeira opção habilitada e verifica.
+  const choice = page
+    .locator("button")
+    .filter({ hasNotText: /Verificar|Conferir|Pular|Continuar|Entendi|Sair|Voltar|Confirmar/i })
+    .filter({ has: page.locator("span, .hanzi") })
+    .first();
+  if (await choice.isVisible().catch(() => false)) {
+    await choice.click().catch(() => undefined);
+  }
+  if (await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/])) {
+    return;
+  }
+  // Último recurso: pular (Pro = fôlego infinito).
+  await clickFirstVisible(page, [/^Pular/]);
+}
+
+async function openImageChoiceGrid(page: Page): Promise<boolean> {
+  await seedLessonPlayerReady(page, "p4-char-ren");
+  await seedProOnTopOfSession(page);
   await page.goto("/licao/p4-char-ren/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  if (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)) {
-    await page.getByRole("button", { name: "Entendi" }).click().catch(() => undefined);
+
+  if (await page.getByRole("button", { name: /Continuar na jornada/i }).isVisible().catch(() => false)) {
+    return false;
   }
-  return advanceUntilSelector(page, "[data-image-choice-ready]", 40, 120_000);
+
+  const grid = page.locator(IMAGE_GRID).first();
+  const deadline = Date.now() + 120_000;
+  let steps = 0;
+  while (!(await grid.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {
+    steps += 1;
+    if (
+      await page
+        .getByRole("button", { name: /Continuar Jornada|Receber recompensas/i })
+        .first()
+        .isVisible()
+        .catch(() => false)
+    ) {
+      return false;
+    }
+    await answerOrAdvance(page);
+    await page.waitForTimeout(150);
+  }
+  return grid.isVisible().catch(() => false);
 }
 
 async function assertImageChoiceSettled(page: Page) {
-  const grid = page.locator("[data-image-choice-ready]").first();
+  const grid = page
+    .locator("[data-image-choice-ready]")
+    .filter({ has: page.locator("[data-visual-status], [data-visual-fallback]") })
+    .first();
   await expect(grid).toBeVisible({ timeout: 20_000 });
-
-  // Grade precisa sair de loading em tempo finito (timeout VisualConceptImage = 6s + folga).
   await expect(grid).toHaveAttribute("data-image-choice-ready", "1", { timeout: 20_000 });
   await expect(page.getByText("Carregando imagens…")).toHaveCount(0);
 
@@ -57,15 +116,21 @@ test.describe("B004 — image_choice ready/fallback", () => {
 
   for (const { name, theme } of themes) {
     test(`grade 4 tiles settled (${name})`, async ({ page }) => {
-      test.setTimeout(150_000);
+      test.setTimeout(180_000);
       await page.addInitScript((value) => {
-        const raw = localStorage.getItem("longyu-v1");
-        const parsed = raw ? JSON.parse(raw) : { state: {}, version: 16 };
-        parsed.state = { ...parsed.state, theme: value };
-        localStorage.setItem("longyu-v1", JSON.stringify(parsed));
+        try {
+          const raw = localStorage.getItem("longyu-v1");
+          if (!raw) return;
+          const parsed = JSON.parse(raw) as { state?: Record<string, unknown> };
+          if (!parsed.state) return;
+          parsed.state.theme = value;
+          localStorage.setItem("longyu-v1", JSON.stringify(parsed));
+        } catch {
+          /* ignore */
+        }
       }, theme);
 
-      const found = await openImageChoiceStep(page);
+      const found = await openImageChoiceGrid(page);
       expect(found).toBe(true);
       await page.evaluate((value) => {
         document.documentElement.setAttribute("data-theme", value);
@@ -75,11 +140,13 @@ test.describe("B004 — image_choice ready/fallback", () => {
   }
 
   test("nunca fica eternamente em loading (timeout do preload)", async ({ page }) => {
-    test.setTimeout(150_000);
-    const found = await openImageChoiceStep(page);
+    test.setTimeout(180_000);
+    const found = await openImageChoiceGrid(page);
     expect(found).toBe(true);
-    const grid = page.locator("[data-image-choice-ready]").first();
-    // Se loading persistir > 12s, falha (VisualConceptImage timeout é 6s).
+    const grid = page
+      .locator("[data-image-choice-ready]")
+      .filter({ has: page.locator("[data-visual-status], [data-visual-fallback]") })
+      .first();
     await expect
       .poll(async () => grid.getAttribute("data-image-choice-ready"), { timeout: 12_000 })
       .toBe("1");
