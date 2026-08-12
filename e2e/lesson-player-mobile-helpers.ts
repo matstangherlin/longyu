@@ -339,9 +339,10 @@ export async function openReviewFlow(page: Page) {
 }
 
 export async function openTransferStep(page: Page) {
-  await seedLessonPlayerReady(page, "l5");
+  // Transferência só aparece depois da progressão de estrutura (por volta de l23+).
+  await seedLessonPlayerReady(page, "l23");
   await seedProOnTopOfSession(page);
-  await page.goto("/licao/l5/player");
+  await page.goto("/licao/l23/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   const ok = await advanceUntilSelector(page, '[data-production-step="transfer_task"]');
@@ -349,15 +350,31 @@ export async function openTransferStep(page: Page) {
 }
 
 export async function openOpenProductionStep(page: Page) {
-  await seedLessonPlayerReady(page, "p2-numeros-1-5");
+  // Produção aberta (productionOpen) exige estrutura já praticada — l26b+.
+  await seedLessonPlayerReady(page, "l26b");
   await seedProOnTopOfSession(page);
-  await page.goto("/licao/p2-numeros-1-5/player");
+  await page.goto("/licao/l26b/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  const ok = await advanceUntilSelector(
-    page,
-    '[data-production-step="free_production"]'
-  );
-  expect(ok).toBe(true);
-  await expect(page.getByText(/Diga do seu jeito|Você escolhe/i).first()).toBeVisible();
+  const openCopy = page.getByText(/Diga do seu jeito|Você escolhe/i).first();
+  const deadline = Date.now() + 120_000;
+  let steps = 0;
+  while (!(await openCopy.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {
+    steps += 1;
+    await dismissBlockingOverlays(page);
+    if (
+      await page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i }).isVisible().catch(() => false)
+    ) {
+      break;
+    }
+    const skipped = await clickFirstVisible(page, [/^Pular/]);
+    if (!skipped) {
+      const advanced = await advanceOneStep(page);
+      if (!advanced) await page.waitForTimeout(180);
+    } else {
+      await page.waitForTimeout(120);
+    }
+  }
+  await expect(openCopy).toBeVisible({ timeout: 5_000 });
+  await expect(page.locator('[data-production-step="free_production"]')).toBeVisible();
 }
