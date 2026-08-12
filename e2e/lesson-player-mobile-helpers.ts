@@ -1,0 +1,363 @@
+import { expect, type Page } from "@playwright/test";
+import {
+  dismissBlockingOverlays,
+  seedFreshJourneySession,
+  seedLessonPlayerReady,
+  seedPendingStarRecoverySession,
+  waitForLazyPage,
+} from "./helpers";
+import { advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
+
+/** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
+export const MOBILE_VIEWPORTS = [
+  { label: "360×640", width: 360, height: 640 },
+  { label: "375×667", width: 375, height: 667 },
+  { label: "390×844", width: 390, height: 844 },
+  { label: "667×360 landscape", width: 667, height: 360 },
+] as const;
+
+export type PlayerGeometry = {
+  scrollY: number;
+  docScroll: number;
+  bodyOverflow: string;
+  rootOverflow: string;
+  bodyPosition: string;
+  frameTop: number;
+  frameHeight: number;
+  vvHeight: number;
+  headerTop: number;
+  headerBottom: number;
+  horizontalOverflow: number;
+};
+
+export async function readPlayerGeometry(page: Page): Promise<PlayerGeometry> {
+  return page.evaluate(() => {
+    const frame = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;
+    const exitBtn = document.querySelector('button[aria-label="Sair"]');
+    const header = exitBtn?.closest(".sticky") as HTMLElement | null;
+    const frameRect = frame?.getBoundingClientRect();
+    const headerRect = header?.getBoundingClientRect();
+    return {
+      scrollY: window.scrollY,
+      docScroll: document.documentElement.scrollTop,
+      bodyOverflow: getComputedStyle(document.body).overflow,
+      rootOverflow: getComputedStyle(document.documentElement).overflow,
+      bodyPosition: document.body.style.position,
+      frameTop: frameRect?.top ?? -1,
+      frameHeight: frameRect?.height ?? 0,
+      vvHeight: window.visualViewport?.height ?? window.innerHeight,
+      headerTop: headerRect?.top ?? -1,
+      headerBottom: headerRect?.bottom ?? -1,
+      horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+}
+
+/** Página não deve rolar por fora do frame fixo (#132 / B001). */
+export async function assertPageScrollLocked(page: Page) {
+  const geo = await readPlayerGeometry(page);
+  expect(geo.scrollY, "window.scrollY").toBe(0);
+  expect(geo.docScroll, "documentElement.scrollTop").toBe(0);
+  expect(geo.bodyOverflow).toBe("hidden");
+  expect(geo.rootOverflow).toBe("hidden");
+  expect(geo.bodyPosition).toBe("fixed");
+  expect(geo.horizontalOverflow).toBeLessThanOrEqual(1);
+}
+
+/** Frame ocupa a visualViewport — sem gap acima (#138–#140). */
+export async function assertFrameFillsViewport(page: Page, tolerancePx = 8) {
+  const geo = await readPlayerGeometry(page);
+  expect(geo.frameTop).toBeLessThanOrEqual(2);
+  expect(Math.abs(geo.frameHeight - geo.vvHeight)).toBeLessThanOrEqual(tolerancePx);
+  if (geo.headerTop >= 0) {
+    expect(geo.headerTop).toBeGreaterThanOrEqual(geo.frameTop - 1);
+    expect(geo.headerBottom).toBeLessThanOrEqual(geo.frameTop + 120);
+  }
+}
+
+/** CTA principal visível dentro da viewport ou sticky bar. */
+export async function assertPrimaryCtaInViewport(page: Page) {
+  const sticky = page.locator("[data-lesson-sticky-actions]");
+  const cta = sticky.locator("button:visible").first();
+  await expect(cta).toBeVisible();
+  await assertElementInViewport(cta);
+}
+
+/** Botão visível dentro da visualViewport (tolerância pequena). */
+export async function assertElementInViewport(
+  locator: import("@playwright/test").Locator,
+  tolerancePx = 4
+) {
+  await expect(locator).toBeVisible();
+  const box = await locator.evaluate((el, tolerance) => {
+    const rect = el.getBoundingClientRect();
+    const vv = window.visualViewport?.height ?? window.innerHeight;
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      height: rect.height,
+      vv,
+      inView: rect.top >= -2 && rect.bottom <= vv + tolerance,
+    };
+  }, tolerancePx);
+  expect(box.height).toBeGreaterThan(20);
+  expect(box.inView).toBe(true);
+}
+
+/** Revisão: sem spill horizontal; topo ancorado; scroll da página bloqueado. */
+export async function assertReviewLayoutStable(page: Page) {
+  await expect(
+    page.locator("[data-review-session], [data-review-offer], [data-review-question]").first()
+  ).toBeVisible();
+  const layout = await page.evaluate(() => {
+    const review = document.querySelector(
+      "[data-review-session], [data-review-offer], [data-review-question]"
+    ) as HTMLElement | null;
+    const rr = review?.getBoundingClientRect();
+    return {
+      horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      reviewTop: rr?.top ?? -1,
+      reviewBottom: rr?.bottom ?? 0,
+      vv: window.visualViewport?.height ?? window.innerHeight,
+    };
+  });
+  expect(layout.horizontalOverflow).toBeLessThanOrEqual(1);
+  expect(layout.reviewTop).toBeGreaterThanOrEqual(-2);
+  expect(layout.reviewTop).toBeLessThan(140);
+  await assertPageScrollLocked(page);
+}
+
+/**
+ * Revisão pós-erro não estoura o shell mobile.
+ * Oferta/sessão renderiza fora de `[data-lesson-player-frame]` — valida viewport/frame + scroll lock.
+ */
+export async function assertReviewContainedInFrame(page: Page) {
+  const review = page.locator("[data-review-session], [data-review-offer], [data-review-question]").first();
+  await expect(review).toBeVisible();
+  const contained = await page.evaluate(() => {
+    const frame = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;
+    const reviewNode = document.querySelector(
+      "[data-review-session], [data-review-offer], [data-review-question]"
+    ) as HTMLElement | null;
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (!reviewNode) return { ok: false, reason: "no review node" };
+    const rr = reviewNode.getBoundingClientRect();
+    const vv = window.visualViewport?.height ?? window.innerHeight;
+    const boundsTop = frame ? frame.getBoundingClientRect().top : 0;
+    const boundsBottom = frame ? frame.getBoundingClientRect().bottom : vv;
+    const horizontalOverflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+    const topOk = rr.top >= boundsTop - 2 && rr.top < boundsTop + 140;
+    const bottomOk =
+      rr.bottom <= boundsBottom + 4 ||
+      Boolean(scroller && scroller.scrollHeight > scroller.clientHeight + 8);
+    return {
+      ok: topOk && (bottomOk || horizontalOverflow <= 1),
+      mode: frame ? "frame" : "viewport",
+      boundsBottom,
+      reviewBottom: rr.bottom,
+      horizontalOverflow,
+      scrollerScrollable: scroller ? scroller.scrollHeight > scroller.clientHeight : false,
+    };
+  });
+  expect(contained.ok, JSON.stringify(contained)).toBe(true);
+  await assertPageScrollLocked(page);
+}
+
+/** Modal de erro / overlay: botão de ação acessível na viewport ou no scroller do modal. */
+export async function assertModalActionAccessible(page: Page) {
+  const heading = page.getByRole("heading", { name: /Quer tentar de novo|Quase/i });
+  const feedbackWrong = page.getByText(/^Quase$/).first();
+  await expect(heading.or(feedbackWrong)).toBeVisible({ timeout: 8_000 });
+  const action = page.getByRole("button", {
+    name: /^Continuar$|^Tentar de novo|^Verificar$|^Continuar e perder perfeição|^Tentar de novo por|^Tentar de novo sem Qi/i,
+  }).first();
+  await expect(action).toBeVisible();
+  await action.scrollIntoViewIfNeeded();
+  const reachable = await action.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    const vv = window.visualViewport?.height ?? window.innerHeight;
+    if (rect.top >= 0 && rect.bottom <= vv + 8) return true;
+    const modal = el.closest("[class*='overflow-y-auto']") as HTMLElement | null;
+    if (!modal) return false;
+    const mr = modal.getBoundingClientRect();
+    return rect.top >= mr.top - 4 && rect.bottom <= mr.bottom + 8;
+  });
+  expect(reachable).toBe(true);
+}
+
+/** Vitória: CTA principal sem exigir scroll da página (scroll interno da atividade é ok). */
+export async function assertVictoryWithoutPageScroll(page: Page) {
+  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
+  await expect(victoryCta).toBeVisible();
+  await assertPageScrollLocked(page);
+  const reachable = await victoryCta.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    const vv = window.visualViewport?.height ?? window.innerHeight;
+    if (rect.top >= 0 && rect.bottom <= vv + 4) {
+      return { ok: true, mode: "visible" as const };
+    }
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (scroller) {
+      const sr = scroller.getBoundingClientRect();
+      const ctaTopInScroller = rect.top - sr.top + scroller.scrollTop;
+      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      const canScrollToCta = ctaTopInScroller + rect.height <= maxScroll + scroller.clientHeight + 4;
+      if (canScrollToCta) return { ok: true, mode: "internal-scroll" as const };
+    }
+    return { ok: false, mode: "unreachable" as const, bottom: rect.bottom, vv };
+  });
+  expect(reachable.ok, JSON.stringify(reachable)).toBe(true);
+}
+
+/** Avança até o passo listen_select da lição p1 (你好 / 谢谢 / 再见). */
+export async function openListenSelectStep(page: Page) {
+  await openPlayer(page);
+  const hasChoices = async () => {
+    const nihao = page.getByRole("button", { name: /你好/ }).first();
+    const xiexie = page.getByRole("button", { name: /谢谢/ }).first();
+    return (await nihao.isVisible().catch(() => false)) && (await xiexie.isVisible().catch(() => false));
+  };
+  for (let i = 0; i < 10; i += 1) {
+    if (await hasChoices()) return;
+    await clickFirstVisible(page, [/^Entendi$/, /^Ouvir$/, /^Continuar$/, /^Próximo$/]);
+    await page.waitForTimeout(180);
+  }
+  await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("button", { name: /谢谢/ }).first()).toBeVisible();
+}
+
+/** Completa listen_select e abre o próximo passo avaliado (pinyin / comp). */
+export async function openPostListenGradedStep(page: Page) {
+  await openListenSelectStep(page);
+  await page.getByRole("button", { name: /你好/ }).first().click();
+  await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+  await expect(
+    page
+      .getByRole("button", { name: /Opção \d+/ })
+      .or(page.getByRole("button", { name: /^Olá$|^Obrigado|^Até logo|^De nada$/i }))
+      .first()
+  ).toBeVisible({ timeout: 12_000 });
+}
+
+export async function openPlayerPro(page: Page, lessonId = "p1-o-que-e-mandarim") {
+  await seedFreshJourneySession(page, { isPremium: true });
+  await seedProOnTopOfSession(page);
+  await page.goto(`/licao/${lessonId}/player`);
+  await waitForLazyPage(page);
+  await dismissBlockingOverlays(page);
+  await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+}
+
+export async function openPlayer(page: Page, lessonId = "p1-o-que-e-mandarim") {
+  await seedFreshJourneySession(page);
+  await page.goto(`/licao/${lessonId}/player`);
+  await waitForLazyPage(page);
+  await dismissBlockingOverlays(page);
+  await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+}
+
+export async function seedProOnTopOfSession(page: Page) {
+  await page.addInitScript(() => {
+    try {
+      const raw = localStorage.getItem("longyu-v1");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { state?: Record<string, unknown> };
+      if (!parsed.state) return;
+      parsed.state.isPremium = true;
+      parsed.state.serverIsPro = true;
+      parsed.state.folego = 20;
+      parsed.state.holdAchievementModals = true;
+      localStorage.setItem("longyu-v1", JSON.stringify(parsed));
+    } catch {
+      /* ignore */
+    }
+  });
+}
+
+/** Simula teclado virtual encolhendo a viewport (Chromium headless). */
+export async function simulateVirtualKeyboard(page: Page, targetHeight: number) {
+  const size = page.viewportSize();
+  if (!size) return;
+  await page.setViewportSize({ width: size.width, height: Math.max(280, targetHeight) });
+  await page.waitForTimeout(120);
+}
+
+export async function injectLongActivityScroll(page: Page, scrollTop = 900) {
+  const scroller = page.locator("[data-lesson-activity-scroll]");
+  await scroller.evaluate((node, top) => {
+    const spacer = document.createElement("div");
+    spacer.dataset.testSpacer = "1";
+    spacer.style.height = "1600px";
+    node.appendChild(spacer);
+    node.scrollTop = top;
+  }, scrollTop);
+  await expect.poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 3_000 }).toBeGreaterThan(100);
+  return scroller;
+}
+
+export async function advanceUntilSelector(
+  page: Page,
+  selector: string,
+  maxSteps = 45,
+  timeoutMs = 120_000
+): Promise<boolean> {
+  const target = page.locator(selector);
+  const deadline = Date.now() + timeoutMs;
+  let steps = 0;
+  while (!(await target.isVisible().catch(() => false)) && Date.now() < deadline && steps < maxSteps) {
+    steps += 1;
+    await dismissBlockingOverlays(page);
+    if (
+      await page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i }).isVisible().catch(() => false)
+    ) {
+      return false;
+    }
+    const skipped = await clickFirstVisible(page, [/^Pular/]);
+    if (!skipped) {
+      const advanced = await advanceOneStep(page);
+      if (!advanced) await page.waitForTimeout(180);
+    } else {
+      await page.waitForTimeout(120);
+    }
+  }
+  return target.isVisible().catch(() => false);
+}
+
+export async function openReviewFlow(page: Page) {
+  await seedPendingStarRecoverySession(page, {
+    lessonId: "l3",
+    stepIndex: 5,
+    exerciseType: "dialogue_choice",
+    expectedAnswer: "我很好",
+  });
+  await page.goto("/licao/l3/player");
+  await waitForLazyPage(page);
+  await dismissBlockingOverlays(page);
+  await expect(page.locator("[data-review-offer]")).toBeVisible({ timeout: 15_000 });
+  await page.locator("[data-review-start]").click();
+  await dismissBlockingOverlays(page);
+}
+
+export async function openTransferStep(page: Page) {
+  await seedLessonPlayerReady(page, "l5");
+  await seedProOnTopOfSession(page);
+  await page.goto("/licao/l5/player");
+  await waitForLazyPage(page);
+  await dismissBlockingOverlays(page);
+  const ok = await advanceUntilSelector(page, '[data-production-step="transfer_task"]');
+  expect(ok).toBe(true);
+}
+
+export async function openOpenProductionStep(page: Page) {
+  await seedLessonPlayerReady(page, "p2-numeros-1-5");
+  await seedProOnTopOfSession(page);
+  await page.goto("/licao/p2-numeros-1-5/player");
+  await waitForLazyPage(page);
+  await dismissBlockingOverlays(page);
+  const ok = await advanceUntilSelector(
+    page,
+    '[data-production-step="free_production"]'
+  );
+  expect(ok).toBe(true);
+  await expect(page.getByText(/Diga do seu jeito|Você escolhe/i).first()).toBeVisible();
+}
