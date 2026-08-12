@@ -2748,7 +2748,7 @@ export const JOURNEY: JourneyPhase[] = [
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
-              intro("Mesmo som base, tons diferentes", "shī, shí, shǐ e shì mostram como o contorno muda a palavra. Vamos treinar com 是 (shì), o verbo ser."),
+              intro("Mesmo som base, tons diferentes", "shī, shí, shǐ e shì mostram como o contorno muda a palavra. Vamos treinar com 是 (shì), a peça de ‘ser/estar’."),
               listen("湿", "shī", "molhado (1º tom)"),
               listen("十", "shí", "dez (2º tom)"),
               listen("使", "shǐ", "usar; fazer (3º tom)"),
@@ -3196,14 +3196,14 @@ export const JOURNEY: JourneyPhase[] = [
                 "我在学中文",
                 ["我在学中文", "我会说一点中文", "我不会说中文", "谢谢"],
                 "我在学中文",
-                "在 antes do verbo marca o que está acontecendo agora."
+                "在 antes da ação marca o que está acontecendo agora."
               ),
               sentenceBuild(
                 "Estou estudando chinês",
                 "Monte: estou estudando chinês agora.",
                 ["我", "在", "学", "中文"],
                 ["我", "在", "学", "中文", "会", "一点"],
-                "我在学中文: 在 + ação = acontecendo agora. O verbo não muda de forma."
+                "我在学中文: 在 + ação = acontecendo agora. A ação não muda de forma."
               ),
               fillBlank(
                 "Complete o meio",

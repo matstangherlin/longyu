@@ -35,7 +35,8 @@ import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
-import { PATTERN_SLOT_LABELS, type PatternSlot } from "../../data/productionTasks";
+import { type PatternSlot } from "../../data/productionTasks";
+import { resolveSlotLabel } from "../../data/structuralConcepts";
 import {
   AssemblyHintBanner,
   PieceAssemblyBank,
@@ -90,6 +91,8 @@ export interface StepProps {
    * fraqueza. Fica registrado para auditoria e para o corpus crescer.
    */
   onUnrecognized?: (answer: string) => void;
+  /** Lição atual — resolve rótulos de estrutura (intuitivo → técnico). */
+  lessonId?: string;
 }
 
 type ToneN = 1 | 2 | 3 | 4;
@@ -3707,31 +3710,31 @@ function FreeAnswerField({
   );
 }
 
-/** Scaffold da estrutura: prioriza o modelo (我要 ___) sem jargão de papéis. */
-function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patternPt?: string }) {
-  // O aluno monta pela lógica do padrão visível — não por rótulos
-  // "sujeito/verbo/objeto/partícula" antes desses conceitos existirem no curso.
-  if (patternPt) {
-    return (
-      <div className="mt-2" data-production-scaffold-pattern>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
+/** Scaffold da estrutura: rótulos sobem intuitivo → pareado → técnico. */
+function PatternSlotScaffold({
+  slots,
+  patternPt,
+  lessonId,
+  frameId,
+}: {
+  slots?: PatternSlot[];
+  patternPt?: string;
+  lessonId?: string;
+  frameId?: string;
+}) {
+  const labelFor = (slot: PatternSlot) =>
+    resolveSlotLabel(slot, { lessonId, frameId, patternPt, hole: slot.hole });
+
+  return (
+    <div className="mt-2" data-production-scaffold-pattern data-concept-lesson={lessonId ?? ""}>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
+      {patternPt && (
         <p className="mt-1.5 font-serif text-base font-semibold text-ink">
           <span className="hanzi">{patternPt}</span>
         </p>
-        {slots && slots.length > 0 && (
-          <p className="sr-only">
-            Ordem:{" "}
-            {slots.map((slot) => (slot.hole ? `lacuna (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role])).join(" · ")}
-          </p>
-        )}
-      </div>
-    );
-  }
-  if (slots && slots.length > 0) {
-    return (
-      <div className="mt-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
-        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+      )}
+      {slots && slots.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5" data-production-slot-labels>
           {slots.map((slot, index) => (
             <div key={`${slot.role}-${index}`} className="flex items-center gap-1.5">
               {index > 0 && <span className="text-ink-faint/70" aria-hidden>·</span>}
@@ -3742,20 +3745,20 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
                     ? "border border-dashed border-accent/50 bg-accent-soft/50 text-accent"
                     : "border border-line bg-surface text-ink-soft",
                 ].join(" ")}
+                data-slot-role={slot.role}
               >
-                {slot.hole ? "___" : "·"}
+                {labelFor(slot)}
               </span>
             </div>
           ))}
         </div>
-      </div>
-    );
-  }
-  return null;
+      )}
+    </div>
+  );
 }
 
 /** free_production e transfer_task compartilham a mesma mecânica. */
-function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }: StepProps) {
+function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const isTransfer = step.kind === "transfer_task";
   const isOpen = Boolean(step.productionOpen);
@@ -3910,14 +3913,24 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
             </p>
           )}
           <div data-production-scaffold>
-            <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+            <PatternSlotScaffold
+              slots={step.patternSlots}
+              patternPt={step.patternPt}
+              lessonId={lessonId}
+              frameId={step.productionFrameId}
+            />
           </div>
         </div>
       )}
 
       {!isTransfer && !isOpen && (step.patternSlots?.length || step.patternPt) && (
         <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-scaffold>
-          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+          <PatternSlotScaffold
+            slots={step.patternSlots}
+            patternPt={step.patternPt}
+            lessonId={lessonId}
+            frameId={step.productionFrameId}
+          />
         </div>
       )}
 
@@ -4186,7 +4199,7 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
   return text;
 }
 
-export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized }: StepProps) {
+export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId }: StepProps) {
   const name = useStudentFirstName();
   const personalizedStep = useMemo(() => personalizeStep(step, name), [step, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
@@ -4257,7 +4270,7 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized }
       case "odd_one_out": return <StepOddOneOut step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "spot_error": return <StepSpotError step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "free_production":
-      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} onUnrecognized={onUnrecognized} />;
+      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} onUnrecognized={onUnrecognized} lessonId={lessonId} />;
       case "conversation_repair": return <StepConversationRepair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       default: return null;
     }

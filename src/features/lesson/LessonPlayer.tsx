@@ -3966,6 +3966,7 @@ export function LessonPlayer() {
         <StepRenderer
           key={`${idx}:${stepAttempt}`}
           step={step}
+          lessonId={lesson.id}
           onDone={handleDone}
           onSkip={canSkipStep ? skipCurrentStep : undefined}
           onMistake={canSkipStep ? registerCurrentMistake : undefined}
