@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 1c5791b393d3741a751caf070585abd1bfec9110 |
+| Commit | a15e6dd45ddd105d296b3ab7f60434f6a76cb9b0 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:25:31.169Z |
+| Gerado em | 2026-08-12T22:20:23.675Z |
 | Lições | 123 |
-| Hash da Jornada | b781403be692 |
+| Hash da Jornada | 4a56ec34a066 |
 
 ## Resumo
 
@@ -24,7 +24,7 @@
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 57 |
-| Conceitos nunca utilizados | 2 |
+| Conceitos nunca utilizados | 4 |
 
 ## Cobertura por fase
 
@@ -62,18 +62,20 @@
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 22 |
+| imagem → hànzì (`choose_hanzi`) | 18 |
 | imagem → pinyin (`choose_pinyin`) | 49 |
-| imagem → significado (`choose_meaning`) | 31 |
-| áudio → imagem (`listen_and_choose_image`) | 25 |
-| hànzì → imagem (`choose_image`) | 26 |
+| imagem → significado (`choose_meaning`) | 25 |
+| áudio → imagem (`listen_and_choose_image`) | 29 |
+| hànzì → imagem (`choose_image`) | 31 |
 
 ## Conceitos nunca utilizados
 
 | Conceito | Hànzì | Significado | Liberado após unidade |
 |----------|-------|-------------|----------------------:|
 | child | 子 | criança | 8 |
+| mother | 妈 | mãe | 8 |
 | vegetables | 菜 | verdura | 12 |
+| eat | 吃 | comer | 12 |
 
 ## Lições concretas sem imagem
 
@@ -83,4 +85,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:bcd00bfe5451bc8f -->
+<!-- integridade:0c4bd9e84b01d4b3 -->
