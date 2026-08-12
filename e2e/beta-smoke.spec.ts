@@ -240,7 +240,11 @@ test.describe("beta smoke — aprendizagem", () => {
   test("primeira lição abre e mostra exercício", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
-    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible();
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible({
+      timeout: 20_000,
+    });
     await page.getByRole("button", { name: "Entendi" }).click();
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });

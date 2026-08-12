@@ -169,7 +169,8 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    await seedLessonPlayerReady(page, "l5");
+    // Transferência só aparece depois da progressão de estrutura (por volta de l23+).
+    await seedLessonPlayerReady(page, "l23");
     await page.addInitScript(() => {
       try {
         const raw = localStorage.getItem("longyu-v1");
@@ -185,7 +186,7 @@ test.describe("QA regression guard — transferência", () => {
         /* ignore */
       }
     });
-    await page.goto("/licao/l5/player");
+    await page.goto("/licao/l23/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
