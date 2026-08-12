@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 944a2614a5d0b1d928dc643f7d45fd887375faeb |
+| Commit | 842e2495e46c9e9625617dda6235b43a821a6ed3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:03:42.656Z |
+| Gerado em | 2026-08-12T19:23:31.497Z |
 | Lições | 20 |
 | Hash da Jornada | b781403be692 |
 
@@ -30,13 +30,19 @@
 | Severidade | Qtd |
 |------------|----:|
 | high | 0 |
-| medium | 0 |
+| medium | 5 |
 | low | 0 |
-| **total** | **0** |
+| **total** | **5** |
 
 ## Achados
 
-_Nenhum problema objetivo encontrado._
+| Severidade | Lição | Step | Problema | Pré-requisito ausente | Correção recomendada |
+|------------|-------|------|----------|----------------------|----------------------|
+| medium | `l1` (6) Mandarim, pinyin e tom | `fill_blank` Complete a palavra que faltou. | Resposta com glifos fora do currículo precoce: 天. | Glifos no cumulative curriculum | Restringir banco gerado aos glifos conhecidos. |
+| medium | `l2` (7) Olá | `fill_blank` Complete a palavra que faltou. | Resposta com glifos fora do currículo precoce: 天. | Glifos no cumulative curriculum | Restringir banco gerado aos glifos conhecidos. |
+| medium | `l3` (8) Tudo bem? | `fill_blank` Complete a palavra que faltou. | Resposta com glifos fora do currículo precoce: 天. | Glifos no cumulative curriculum | Restringir banco gerado aos glifos conhecidos. |
+| medium | `p1-ate-logo` (11) Até logo | `fill_blank` Complete a palavra que faltou. | Resposta com glifos fora do currículo precoce: 天. | Glifos no cumulative curriculum | Restringir banco gerado aos glifos conhecidos. |
+| medium | `p2-comparar-tom-1-4` (19) Comparar 1º e 4º tom | `fill_blank` Complete a palavra que faltou. | Resposta com glifos fora do currículo precoce: 天. | Glifos no cumulative curriculum | Restringir banco gerado aos glifos conhecidos. |
 
 ## Lições auditadas
 
@@ -61,4 +67,4 @@ _Nenhum problema objetivo encontrado._
 - **18.** `p2-ma-quarto-tom` — 4º tom com ma
 - **19.** `p2-comparar-tom-1-4` — Comparar 1º e 4º tom
 
-<!-- integridade:14f4e3706d759e05 -->
+<!-- integridade:0c83d18e292b4f76 -->

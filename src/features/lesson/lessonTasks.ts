@@ -3360,7 +3360,10 @@ function supplementalStepsForStage(
     phaseOrder <= 2 || FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
   const practiceFocus = foundationLite ? focus : reviewFocus;
   const allowDictation = !foundationLite && phaseOrder >= 3;
-  const allowConversation = !FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") && phaseOrder >= 2;
+  // Conversa em lições de língua desde a fase 1; só as lições-conceito de
+  // fundação ficam de fora. Exigir phaseOrder >= 2 esvaziava o rodízio cedo
+  // (l1–l4) e colidia com cenas autorais em l1-rev.
+  const allowConversation = !FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
   const allowSpotError = phaseOrder >= 3;
   // Motores de percepção: um "seed" estável por lição faz o par mínimo, o
   // grupo semântico e a frase certa girarem entre lições em vez de repetir
@@ -3460,8 +3463,11 @@ function supplementalStepsForStage(
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
+    // Usa reviewFocus real (não practiceFocus da fundação): o pool de cenas
+    // precisa enxergar itens já do currículo para diversificar; foundationLite
+    // só bloqueia fill/ditado com CORE_REVIEW prematuro.
     if (allowConversation) {
-      push(makeConversationSceneStep(focus, practiceFocus, options.sceneSelection, knownGlyphs));
+      push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
     }
     // Escada: julgar → completar → produzir com apoio.
     // Transferência e produção aberta ficam para consolidação / lições seguintes.
@@ -3525,7 +3531,7 @@ function supplementalStepsForStage(
       push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     }
     if (allowConversation) {
-      push(makeConversationSceneStep(focus, practiceFocus, options.sceneSelection, knownGlyphs));
+      push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
     }
     const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
     for (const item of [...reviewForDrills, ...focus]) {
