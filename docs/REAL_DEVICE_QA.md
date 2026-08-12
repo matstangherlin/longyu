@@ -1,6 +1,7 @@
 # Longyu 0.2.0-beta.1 — QA mobile real
 
 > **Rodada atual (humana):** use [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md).  
+> **Status pós-#148 (`3622885`):** B001 corrigido em código (#138–#140); B002 + produção/transferência + PieceAssembly + guarda QA entregues em código (#148). **Automação não substitui QA humano** — Android físico, iPhone físico e L1–L20 como aluno novo continuam pendentes.  
 > Este arquivo documenta a rodada de **2026-07-19** (emulação + gaps honestos).  
 > Emulação Chromium **não** substitui iPhone/Android físicos.
 
@@ -145,7 +146,7 @@ Colunas conforme solicitado. Severidade: Bloqueador > Alta > Média > Baixa.
 | 10 | iPhone | iOS | Safari | Global (standalone) | Meta iOS legada | ⚠️ ausente | — | Baixa | Sem `apple-mobile-web-app-capable`/status-bar meta | Adicionar metas iOS de web-app (fast-follow) |
 | 11 | Android | Android | Chrome | Instalação | Ícone 192 dedicado | ⚠️ por escala | — | Baixa | Manifest sem ícone 192×192 dedicado (`logo.png any` cobre) | Adicionar ícone 192 (fast-follow) |
 | 12 | Global | — | — | Global | Toggle in-app "reduzir movimento" | ⚠️ ausente | — | Baixa | Só respeita a preferência do SO | Adicionar toggle nas configurações (fast-follow) |
-| 13 | iPhone/Android | iOS/Android | Safari/Chrome reais | Todos | **Verificação em device físico** | ⏳ pendente | — | — | Emulação não substitui device real (ver §8) | Rodar a matriz em iPhone + Android reais e WebKit/Firefox no CI |
+| 13 | iPhone/Android | iOS/Android | Safari/Chrome reais | Todos | **Verificação em device físico** | ⏳ pendente | — | — | Emulação/guarda QA (#148) não substituem device real (ver §8) | Rodar a matriz em iPhone + Android reais; revalidar B001 (Android) e B002 (revisão) na tip `3622885` |
 
 **Nenhum bloqueador e nenhum item de severidade Alta em aberto** na automação
 desta rodada. Itens 9–12 são fast-follow (Média/Baixa) herdados/ratificados;
@@ -242,7 +243,8 @@ matriz da §1 em **um iPhone real (Safari) e um Android real (Chrome)** e habili
 | PWA atualiza sem interromper | ✅ (código) · ⏳ device | `autoUpdate` (skipWaiting+clientsClaim) |
 
 **Veredito automatizado: GO condicional.** A automação (motor Chromium, PWA real,
-throttling real) não achou bloqueador nem botão inacessível. **Antes da beta
-pública ampla**, fechar a verificação em **device físico** dos dois itens `⏳`
-(teclado cobrindo ação; áudio/standalone no Safari iOS real) e rodar WebKit +
-Firefox no CI. Fast-follows 9–12 não bloqueiam.
+throttling real, guarda QA #148) não achou bloqueador nem botão inacessível em CI.
+**Automação não substitui QA humano.** Antes da beta pública ampla, fechar a
+verificação em **device físico** (B001 Android, B002 revisão, L1–L20 humano) e
+rodar WebKit + Firefox no CI. Fast-follows 9–12 não bloqueiam. RC e full security
+scan final **não** concluídos.

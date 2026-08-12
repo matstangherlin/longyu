@@ -1,9 +1,9 @@
-# Longyu — Runbook de QA humano (pós #133)
+# Longyu — Runbook de QA humano (pós #148)
 
 **Objetivo:** provar o produto em pessoas e aparelhos reais.  
-**Regra:** nada aqui é substituível por Playwright, emulação ou fixture.
+**Regra:** **automação não substitui QA humano** — nada aqui é substituível por Playwright, emulação, fixture ou `test:qa-regression-guard`.
 
-Atualizado: 2026-08-11 · tip `main` `d294764` (#140).  
+Atualizado: 2026-08-12 · tip `main` `3622885` (#148).  
 Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).
 
 ---
@@ -33,9 +33,12 @@ Use o log em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) (copie linhas; não apague o
 - [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
 - [ ] Feedback: saber onde está o botão / reportar no player  
 
+> **2026-08-12 · tip `3622885` (#148):** B002, produção/transferência friendliness, PieceAssembly e guarda QA (`test:qa-regression-guard`) estão **entregues em código** — ainda exigem confirmação humana.  
 > **2026-08-11:** proxy desktop `e2e/runbook-20-lessons.spec.ts` (Chromium — **não** substitui §1 humano).  
-> **B001:** código em #138→#139→#140; **ainda aberto** até revalidação Android ([checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b001-android-físico)).  
-> **Prioridade agora:** Android físico → se OK, fechar B001 → L1–L20 humano.
+> **B001:** corrigido em código (#138→#139→#140); **aguarda revalidação Android física** ([checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b001-android-físico)).  
+> **B002:** corrigido em código (#148); **aguarda revalidação humana** ([checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b002-revisão--estrela)).  
+> **#146 / PR #149:** hardening de copy/mic/CTAs ainda **pendente de merge** na `main`.  
+> **Prioridade agora:** Android físico (B001) → revisão/estrela no app (B002) → L1–L20 humano §1.
 
 Comandos úteis no repo (antes da RC, não no meio do uso):
 
@@ -197,11 +200,11 @@ Pedido mínimo aos testadores:
 
 ## 9. Depois dos bugs → RC
 
-1. Corrigir **todos** P0 e os P1 que afetam fluxo principal  
+1. Corrigir **todos** P0 e os P1 que afetam fluxo principal (B001/B002 só fecham após revalidação humana — ver [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md))  
 2. Congelar SHA: `git rev-parse HEAD` → anotar em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md)  
 3. `npm run beta:rc-status`  
 4. `npm run gate:public-beta` nessa SHA  
-5. Security workflow verde + (recomendado) full security scan da RC  
+5. Security workflow verde + **full security scan final** da RC (**pendente**)  
 6. Tag sugerida: `0.2.0-beta.1-rc1`  
 
-**Só então** abrir beta fechado amplo.
+**Só então** abrir beta fechado amplo. Até lá: automação verde **não** conta como RC concluída.
