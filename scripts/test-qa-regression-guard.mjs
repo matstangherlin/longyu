@@ -96,20 +96,24 @@ try {
   let freeCount = 0;
   let transferWithAnchor = 0;
   let transferWithSituation = 0;
-  for (const lesson of ALL_LESSONS.slice(0, 100)) {
+  // Amostra ampla: transferência só aparece depois da progressão de estrutura
+  // (por volta de l23+). Um teto em 100 falhava ao acrescentar lições-conceito
+  // cedo no currículo (ex.: p3-nomes-da-frase), deslocando o primeiro transfer
+  // para fora da janela.
+  for (const lesson of ALL_LESSONS) {
     const steps = lessonRoundStepsFor(lesson, emptyCtx);
     for (const step of steps) {
       if (step.kind === "transfer_task") {
         transferCount += 1;
         if (step.transferAnchorHanzi) transferWithAnchor += 1;
         if (step.situationPt || step.prompt) transferWithSituation += 1;
-        assert(Boolean(step.transferAnchorHanzi), `transfer sem âncora: ${lesson.id}`);
-        assert(Boolean(step.situationPt || step.prompt), `transfer sem situação: ${lesson.id}`);
+        assert(Boolean(step.transferAnchorHanzi), `transfer sem ancora: ${lesson.id}`);
+        assert(Boolean(step.situationPt || step.prompt), `transfer sem situacao: ${lesson.id}`);
         assert(Boolean(step.correctAnswer || step.answer), `transfer sem resposta: ${lesson.id}`);
       }
       if (step.kind === "free_production") {
         freeCount += 1;
-        assert(Boolean(step.situationPt || step.prompt), `free sem situação: ${lesson.id}`);
+        assert(Boolean(step.situationPt || step.prompt), `free sem situacao: ${lesson.id}`);
       }
     }
   }
@@ -124,7 +128,13 @@ try {
   assert(stepsSource.includes("data-production-situation"), "hook data-production-situation");
   assert(stepsSource.includes("data-production-goal"), "hook data-production-goal");
   assert(stepsSource.includes("data-production-answer"), "hook data-production-answer");
-  assert(stepsSource.includes("Você já aprendeu"), "copy âncora transferência");
+  assert(stepsSource.includes("Você já conhece"), "copy âncora transferência");
+  assert(stepsSource.includes("Ver como a frase funciona"), "breakdown sob demanda na transferência");
+  assert(stepsSource.includes("Use este padrão"), "hierarquia: padrão na transferência");
+  assert(stepsSource.includes("Preciso de uma dica"), "ajuda opcional progressiva");
+  assert(stepsSource.includes("production_help_requested"), "telemetria de scaffold");
+  assert(stepsSource.includes("data-production-help-level"), "hook nível de ajuda");
+  assert(!stepsSource.includes("Mesma estrutura — só muda a situação."), "copy redundante de transferência removida");
   assert(!/Nenhuma alternativa e nenhuma peça/.test(stepsSource), "meta-copy pesada removida");
 
   // ── 2–6) Revisão: item único, pinyin↔hanzi, sem dump, sem status ──────

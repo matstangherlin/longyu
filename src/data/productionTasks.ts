@@ -91,6 +91,24 @@ export type CommunicativeGoal =
  * Papel de um slot na moldura da frase. É o STPVO-light: o aluno vê a ordem
  * (sujeito · tempo · lugar · verbo · objeto) em vez de só o buraco "___".
  */
+/**
+ * Escada de scaffold da transferência (e da produção aberta no degrau final).
+ * Uma transformação nova por vez nas primeiras ocorrências.
+ *
+ * - guided:    só troca UMA peça (ex.: 我要这个 → 我要茶)
+ * - supported: duas transformações já ensinadas, com dica visual (ex.: 我→你)
+ * - question:  acrescenta 吗 só depois de o padrão interrogativo existir
+ * - open:      situação nova sem estrutura exposta (produção aberta)
+ */
+export type ProductionAssist = "guided" | "supported" | "question" | "open";
+
+export const PRODUCTION_ASSIST_RANK: Record<ProductionAssist, number> = {
+  guided: 1,
+  supported: 2,
+  question: 3,
+  open: 4,
+};
+
 export type PatternSlotRole =
   | "subject"
   | "time"
@@ -165,6 +183,23 @@ export interface SentenceFrame {
    * pede sujeito → tempo → resto.
    */
   timeFillers?: FrameFiller[];
+  /**
+   * Degrau desta estrutura na escada de transferência.
+   * Default: guided (uma troca de slot vs a âncora).
+   */
+  transferAssist?: ProductionAssist;
+  /**
+   * Frames mais simples que precisam estar praticáveis (glifos ok) antes
+   * deste degrau aparecer como transferência.
+   */
+  transferRequiresFrameIds?: string[];
+  /** Exige 吗 já conhecido (visto em glifos) — para degrau question. */
+  transferRequiresMa?: boolean;
+  /**
+   * Dica visual de transformação (supported): o que muda vs a âncora.
+   * Ex.: { from: "我", to: "你" }.
+   */
+  transferTransformHint?: { from: string; to: string };
 }
 
 /**
@@ -185,6 +220,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woyao",
     situationTemplatePt: "No balcão, diga que você quer {item}.",
     grammarNotePt: "要 é o pedido direto: 我要 + o que você quer. Nada de 是 aqui.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -208,7 +244,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com sede. Diga que quer beber {item}.",
-    grammarNotePt: "想 + verbo: 想喝 + bebida.",
+    grammarNotePt: "想 + ação: 想喝 + bebida.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_shui", promptPt: "água" },
       { vocabId: "v_cha", promptPt: "chá" },
@@ -229,6 +266,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "huochezhanzainali",
     situationTemplatePt: "Você se perdeu na cidade. Pergunte onde fica {item}.",
     grammarNotePt: "Em mandarim o lugar vem primeiro e a pergunta fecha a frase: LUGAR + 在哪里？",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_yinhang", promptPt: "o banco" },
       { vocabId: "v_chaoshi", promptPt: "o supermercado" },
@@ -250,6 +288,9 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "qingwen",
     situationTemplatePt: "Você aborda um desconhecido na rua. Pergunte com licença onde fica {item}.",
     grammarNotePt: "请问 abre a pergunta educadamente e não muda o resto: 请问 + LUGAR + 在哪里？",
+    transferAssist: "supported",
+    transferRequiresFrameIds: ["frame_zainali"],
+    transferTransformHint: { from: "…在哪里？", to: "请问，…在哪里？" },
     fillers: [
       { vocabId: "v_yinhang", promptPt: "o banco" },
       { vocabId: "v_chaoshi", promptPt: "o supermercado" },
@@ -270,7 +311,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com fome. Diga que quer comer {item}.",
-    grammarNotePt: "Mesma estrutura de 想喝, trocando o verbo: 想 + verbo + o que você quer.",
+    grammarNotePt: "Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
       { vocabId: "v_yu", promptPt: "peixe" },
@@ -364,7 +406,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxihuan",
     situationTemplatePt: "Alguém pergunta sobre seus gostos. Diga do que você gosta: {item}.",
-    grammarNotePt: "喜欢 vem direto depois do sujeito, sem preposição: 我喜欢 + coisa.",
+    grammarNotePt: "喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa.",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_yu", promptPt: "peixe" },
@@ -386,7 +428,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woquxuexiao",
     situationTemplatePt: "Um amigo pergunta onde você vai agora. Responda que vai {item}.",
     situationWithTimeTemplatePt: "Alguém pergunta seus planos. Diga que {time} você vai {item}.",
-    grammarNotePt: "去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre o sujeito e o verbo.",
+    grammarNotePt: "去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação.",
     fillers: [
       { vocabId: "v_chaoshi", promptPt: "ao supermercado" },
       { vocabId: "v_yiyuan", promptPt: "ao hospital" },
@@ -410,12 +452,35 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woyaomaiyifu",
     situationTemplatePt: "Você entra numa loja. Diga que quer comprar {item}.",
-    grammarNotePt: "要 + verbo é a intenção ('vou/quero fazer'): 要买 + coisa.",
+    grammarNotePt: "要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
     fillers: [
       { vocabId: "v_shu", promptPt: "um livro" },
       { vocabId: "v_piao", promptPt: "uma passagem" },
       { vocabId: "v_pingguo", promptPt: "maçãs" },
       { vocabId: "v_niunai", promptPt: "leite" },
+    ],
+  },
+  {
+    id: "frame_niyao",
+    goal: "offer_item",
+    labelPt: "dizer o que a outra pessoa quer",
+    patternPt: "你要 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
+    prefix: "你要",
+    prefixPinyin: "nǐ yào",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "woyao",
+    situationTemplatePt: "Agora é a outra pessoa: diga que ela quer {item}.",
+    grammarNotePt: "Troque só quem age: 我要 → 你要. O resto da estrutura continua igual.",
+    transferAssist: "supported",
+    transferRequiresFrameIds: ["frame_woyao"],
+    transferTransformHint: { from: "我", to: "你" },
+    fillers: [
+      { vocabId: "v_cha", promptPt: "chá" },
+      { vocabId: "v_shui", promptPt: "água" },
+      { vocabId: "v_pingguo", promptPt: "uma maçã" },
+      { vocabId: "v_cai", promptPt: "um prato de comida" },
     ],
   },
   {
@@ -431,6 +496,10 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woyao",
     situationTemplatePt: "Você recebe uma visita em casa. Ofereça {item}, perguntando se a pessoa quer.",
     grammarNotePt: "吗 transforma a afirmação em pergunta de sim/não — e vai sempre no FIM.",
+    transferAssist: "question",
+    transferRequiresFrameIds: ["frame_woyao", "frame_niyao"],
+    transferRequiresMa: true,
+    transferTransformHint: { from: "你要…", to: "你要…吗？" },
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -450,7 +519,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "wobuheta",
     situationTemplatePt: "Ofereceram {item}. Recuse: diga que você não bebe isso.",
-    grammarNotePt: "不 vem ANTES do verbo: 不喝, nunca 喝不.",
+    grammarNotePt: "不 vem ANTES da ação: 不喝, nunca 喝不.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -469,7 +539,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "wobuchirou",
     situationTemplatePt: "No restaurante, diga que você não come {item}.",
-    grammarNotePt: "A negação fica grudada no verbo: 不吃 + comida.",
+    grammarNotePt: "A negação fica grudada na ação: 不吃 + comida.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
       { vocabId: "v_yu", promptPt: "peixe" },
@@ -533,7 +604,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "wozaixuezhongwen",
     situationTemplatePt: "Alguém pergunta o que você está fazendo agora. Responda que está {item}.",
-    grammarNotePt: "在 antes do verbo marca 'agora / em progresso': 在 + ação. O verbo não muda de forma.",
+    grammarNotePt: "在 antes da ação marca 'agora / em progresso': 在 + ação. A ação não muda de forma.",
     fillers: [
       { vocabId: "v_xuezhongwen", promptPt: "estudando chinês" },
       { vocabId: "v_chifan", promptPt: "comendo" },
@@ -553,7 +624,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: "le.",
     anchorChunkId: "woele",
     situationTemplatePt: "Conte como você está agora. Diga que {item}.",
-    grammarNotePt: "了 no fim marca mudança / conclusão — o verbo (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
+    grammarNotePt: "了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
     fillers: [
       { vocabId: "v_e_fome", promptPt: "está com fome" },
       { vocabId: "v_huijia", promptPt: "já voltou para casa" },
@@ -613,6 +684,14 @@ export interface FrameTask {
   isNovelCombination: boolean;
   /** Glifos exigidos pela resposta — o gate de "o aluno já viu isto". */
   requiredGlyphs: string[];
+  /** Degrau na escada de transferência (guided → supported → question). */
+  transferAssist: ProductionAssist;
+  /** Frames que precisam estar praticáveis antes deste degrau. */
+  transferRequiresFrameIds: string[];
+  /** Exige 吗 nos glifos conhecidos. */
+  transferRequiresMa: boolean;
+  /** Dica visual de transformação (supported / question). */
+  transferTransformHint?: { from: string; to: string };
 }
 
 function joinPinyin(...parts: string[]): string {
@@ -722,6 +801,10 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
           anchor: { hanzi: anchorChunk.hanzi, pinyin: anchorChunk.pinyin, meaningPt: anchorChunk.meaningPt },
           isNovelCombination: !CORPUS_SENTENCES.has(bare),
           requiredGlyphs: [...bare],
+          transferAssist: frame.transferAssist ?? "guided",
+          transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
+          transferRequiresMa: Boolean(frame.transferRequiresMa),
+          transferTransformHint: frame.transferTransformHint,
         });
       }
     }
@@ -772,21 +855,230 @@ function availableTasks(seenGlyphs: ReadonlySet<string>): FrameTask[] {
   return FRAME_TASKS.filter((task) => task.requiredGlyphs.every((glyph) => seenGlyphs.has(glyph)));
 }
 
+// ————————————————————————————————————————————————————————————————
+// Política de prerequisites de estrutura (transfer / free / open)
+//
+// Vocabulário conhecido ≠ estrutura praticada. A escada pedida pelo QA:
+//   exposição → reconhecimento/completion → sentence build →
+//   produção guiada → transferência → produção aberta
+//
+// Glifos continuam necessários; esta camada exige histórico da ESTRUTURA.
+// ————————————————————————————————————————————————————————————————
+
+/** Degraus de prática de uma estrutura antes de transferir. */
+export interface StructurePracticeRungs {
+  /** Ancora ou frase no padrao ja apareceu no curriculo (foco/autoral). */
+  exposed: boolean;
+  /** Já houve fill_blank (ou equivalente) no padrão. */
+  completion: boolean;
+  /** Já houve sentence_build / lab no padrão. */
+  build: boolean;
+  /** Já houve free_production guiada deste frame. */
+  guidedProduction: boolean;
+}
+
+export type StructureExposureMap = Map<string, StructurePracticeRungs>;
+
+export function emptyStructureRungs(): StructurePracticeRungs {
+  return { exposed: false, completion: false, build: false, guidedProduction: false };
+}
+
+export function cloneStructureExposure(map: StructureExposureMap): StructureExposureMap {
+  const next: StructureExposureMap = new Map();
+  for (const [frameId, rungs] of map) {
+    next.set(frameId, { ...rungs });
+  }
+  return next;
+}
+
+export function ensureStructureRungs(
+  map: StructureExposureMap,
+  frameId: string
+): StructurePracticeRungs {
+  let rungs = map.get(frameId);
+  if (!rungs) {
+    rungs = emptyStructureRungs();
+    map.set(frameId, rungs);
+  }
+  return rungs;
+}
+
+export function mergeStructureExposure(into: StructureExposureMap, from: StructureExposureMap): void {
+  for (const [frameId, rungs] of from) {
+    const target = ensureStructureRungs(into, frameId);
+    target.exposed = target.exposed || rungs.exposed;
+    target.completion = target.completion || rungs.completion;
+    target.build = target.build || rungs.build;
+    target.guidedProduction = target.guidedProduction || rungs.guidedProduction;
+  }
+}
+
+/** A frase casa com o esqueleto do frame (prefixo/sufixo fixos)? */
+export function sentenceMatchesFrame(hanzi: string, frame: SentenceFrame): boolean {
+  const clean = cleanSentence(hanzi);
+  if (!clean) return false;
+  const prefix = cleanSentence(frame.prefix);
+  const suffix = cleanSentence(frame.suffix);
+  if (prefix && !clean.startsWith(prefix)) return false;
+  if (suffix && !clean.endsWith(suffix)) return false;
+
+  // Afirmação vs pergunta: 吗 no texto precisa bater com o frame.
+  // Senão 你要饭吗？ “casa” com 你要 ___ só porque o sufixo 。 some na limpeza.
+  // Atenção: slots com role "particle" também cobrem 在/了 — só 吗 conta aqui.
+  const frameHasMa = /吗/.test(frame.suffix) || /吗/.test(frame.patternPt);
+  const textHasMa = /吗/.test(clean);
+  if (frameHasMa !== textHasMa) return false;
+
+  // Sufixo só pontuação (limpo vazio): ainda exige conteúdo depois do prefixo.
+  if (prefix && !suffix && clean.length <= prefix.length) return false;
+  // Prefixo vazio (___ 在哪里): exige mais que o sufixo sozinho.
+  if (!prefix && suffix && clean.length <= suffix.length) return false;
+
+  return Boolean(prefix || suffix);
+}
+
+export function framesMatchingSentence(hanzi: string): SentenceFrame[] {
+  return SENTENCE_FRAMES.filter((frame) => sentenceMatchesFrame(hanzi, frame));
+}
+
+/** Palavras úteis do frame (já vistas), sem montar a resposta completa. */
+export function productionHelpVocabForTask(
+  task: FrameTask,
+  seenGlyphs: ReadonlySet<string>,
+  limit = 4
+): { hanzi: string; pinyin: string; meaningPt: string }[] {
+  const frame = frameById(task.frameId);
+  if (!frame) return [];
+  const out: { hanzi: string; pinyin: string; meaningPt: string }[] = [];
+  const seen = new Set<string>();
+  const push = (hanzi: string, pinyin: string, meaningPt: string) => {
+    const key = cleanSentence(hanzi);
+    if (!key || seen.has(key) || out.length >= limit) return;
+    if (![...key].every((glyph) => seenGlyphs.has(glyph))) return;
+    // Não oferecer a frase-alvo inteira como "vocabulário".
+    if (key === cleanSentence(task.targetHanzi)) return;
+    seen.add(key);
+    out.push({ hanzi: key, pinyin, meaningPt });
+  };
+
+  // Peças do padrão (sujeito/verbo curtos) quando forem vocabulário real.
+  for (const filler of frame.fillers) {
+    const entry = vocabById.get(filler.vocabId);
+    if (!entry) continue;
+    push(entry.hanzi, entry.pinyin, filler.promptPt || entry.meaningPt);
+  }
+  for (const time of frame.timeFillers ?? []) {
+    const entry = vocabById.get(time.vocabId);
+    if (!entry) continue;
+    push(entry.hanzi, entry.pinyin, time.promptPt || entry.meaningPt);
+  }
+  // Pronomes / núcleos curtos do prefixo, se o aluno já os viu.
+  if (frame.prefix.includes("我")) push("我", "wǒ", "eu");
+  if (frame.prefix.includes("你")) push("你", "nǐ", "você");
+  if (frame.suffix.includes("吗") || frame.patternPt.includes("吗")) push("吗", "ma", "pergunta");
+
+  return out.slice(0, limit);
+}
+
+/** Banco de peças para o nível 4 (sentence build) — alvo + distratores do frame. */
+export function productionHelpBuildBank(task: FrameTask, seed = 0): string[] {
+  const target = [...cleanSentence(task.targetHanzi)];
+  if (target.length < 2) return target;
+  const frame = frameById(task.frameId);
+  const extras: string[] = [];
+  for (const filler of frame?.fillers ?? []) {
+    const entry = vocabById.get(filler.vocabId);
+    if (!entry) continue;
+    for (const glyph of entry.hanzi) {
+      if (!target.includes(glyph) && !extras.includes(glyph)) extras.push(glyph);
+    }
+  }
+  const bank = [...target, ...extras].slice(0, Math.max(target.length + 3, 4));
+  // Embaralhamento estável pelo seed (Fisher-Yates determinístico).
+  const order = bank.map((piece, index) => ({ piece, key: (seed * 31 + index * 17) % 997 }));
+  order.sort((a, b) => a.key - b.key);
+  return order.map((entry) => entry.piece);
+}
+
+export function frameById(frameId: string): SentenceFrame | undefined {
+  return SENTENCE_FRAMES.find((frame) => frame.id === frameId);
+}
+
+/** Produção guiada: estrutura exposta + (completion OU build). */
+export function canGuidedProduceStructure(rungs: StructurePracticeRungs | undefined): boolean {
+  if (!rungs?.exposed) return false;
+  return rungs.completion || rungs.build;
+}
+
+/**
+ * Transferência: só depois de produção guiada da mesma estrutura.
+ * Completion/build já são pré-requisito da produção guiada.
+ */
+export function canTransferStructure(rungs: StructurePracticeRungs | undefined): boolean {
+  return Boolean(rungs?.exposed && rungs.guidedProduction && (rungs.completion || rungs.build));
+}
+
+/** Produção aberta de um objetivo: já produziu com apoio ao menos um frame do goal. */
+export function canOpenProduceGoal(
+  goal: CommunicativeGoal,
+  exposure: StructureExposureMap
+): boolean {
+  return SENTENCE_FRAMES.some(
+    (frame) => frame.goal === goal && exposure.get(frame.id)?.guidedProduction
+  );
+}
+
+/**
+ * Marca exposição a partir de um texto (foco ou passo autoral).
+ * `rung` diz qual degrau este encontro conta.
+ */
+export function creditStructureText(
+  map: StructureExposureMap,
+  hanzi: string | undefined,
+  rung: keyof StructurePracticeRungs = "exposed"
+): void {
+  if (!hanzi) return;
+  for (const frame of framesMatchingSentence(hanzi)) {
+    const rungs = ensureStructureRungs(map, frame.id);
+    rungs.exposed = true;
+    if (rung !== "exposed") rungs[rung] = true;
+  }
+}
+
+/** Credita o frame quando o chunk de âncora entra no foco E casa com o padrão. */
+export function creditStructureAnchorChunk(map: StructureExposureMap, chunkId: string): void {
+  const chunk = chunkById.get(chunkId);
+  if (!chunk) return;
+  for (const frame of SENTENCE_FRAMES) {
+    if (frame.anchorChunkId !== chunkId) continue;
+    // Compartilhar âncora (ex.: woyao em niyaoma) não expõe o degrau avançado:
+    // só a estrutura cujo esqueleto a frase-âncora realiza.
+    if (!sentenceMatchesFrame(chunk.hanzi, frame)) continue;
+    ensureStructureRungs(map, frame.id).exposed = true;
+  }
+}
+
 /**
  * Ordem pedagógica: primeiro contato com produção/transferência deve usar
- * frames curtos e âncoras próximas (我要 ___), não recusa/negação avançada.
+ * frames curtos e âncoras próximas (我要 ___), não pergunta com 吗 nem
+ * recusa/negação avançada.
  * Quanto menor o número, mais cedo o frame aparece.
  */
 const FRAME_INTRO_EASE: Record<string, number> = {
+  // Pedido afirmativo primeiro (1 slot: objeto) — o exemplo canônico de guided.
   frame_woyao: 0,
   frame_woxianghe: 1,
   frame_woxiangchi: 2,
-  frame_niyaoma: 3,
-  frame_woyaomai: 4,
-  frame_zainali: 5,
-  frame_qingwenzainali: 6,
+  frame_woyaomai: 3,
+  frame_zainali: 4,
+  // Sujeito 我→你 e cortesia: só depois da afirmação base.
+  frame_niyao: 6,
+  frame_qingwenzainali: 7,
+  // Negação: guided, mas cognitivamente mais pesada que trocar o objeto.
   frame_wobuhe: 10,
   frame_wobuchi: 11,
+  // Pergunta com 吗: último degrau da escada 要.
+  frame_niyaoma: 14,
 };
 
 function frameEase(frameId: string): number {
@@ -795,42 +1087,107 @@ function frameEase(frameId: string): number {
 
 function sortByPedagogicalEase(tasks: FrameTask[]): FrameTask[] {
   return [...tasks].sort((a, b) => {
+    const rung =
+      PRODUCTION_ASSIST_RANK[a.transferAssist] - PRODUCTION_ASSIST_RANK[b.transferAssist];
+    if (rung !== 0) return rung;
     const ease = frameEase(a.frameId) - frameEase(b.frameId);
     if (ease !== 0) return ease;
     return a.id.localeCompare(b.id);
   });
 }
 
+/** Frames cujos glifos de âncora+padrão mínimo já estão disponíveis. */
+function framePracticable(frameId: string, seenGlyphs: ReadonlySet<string>): boolean {
+  return FRAME_TASKS.some(
+    (task) =>
+      task.frameId === frameId && task.requiredGlyphs.every((glyph) => seenGlyphs.has(glyph))
+  );
+}
+
+/**
+ * Degrau máximo permitido nesta tentativa.
+ * Tentativa 0 (primeira): só guided. Depois sobe um degrau por vez.
+ */
+export function maxTransferAssistForAttempt(attemptNumber = 0): ProductionAssist {
+  if (attemptNumber <= 0) return "guided";
+  if (attemptNumber === 1) return "supported";
+  return "question";
+}
+
+/** A tarefa pode aparecer como transferência neste conjunto de glifos/degrau? */
+export function isTransferTaskEligible(
+  task: FrameTask,
+  seenGlyphs: ReadonlySet<string>,
+  maxAssist: ProductionAssist = "question",
+  structureExposure?: StructureExposureMap
+): boolean {
+  if (PRODUCTION_ASSIST_RANK[task.transferAssist] > PRODUCTION_ASSIST_RANK[maxAssist]) {
+    return false;
+  }
+  if (task.transferRequiresMa && !seenGlyphs.has("吗")) return false;
+  for (const requiredId of task.transferRequiresFrameIds) {
+    if (!framePracticable(requiredId, seenGlyphs)) return false;
+  }
+  if (structureExposure && !canTransferStructure(structureExposure.get(task.frameId))) {
+    return false;
+  }
+  return true;
+}
+
 /**
  * Produção livre: a frase alvo JÁ foi ensinada, mas aqui o aluno a produz do
  * zero — sem banco, sem alternativas, sem tradução na tela. Só a situação.
+ * Com `structureExposure`, só libera frames já expostos + completion/build.
  */
 export function productionTasksFor(
   seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number } = {}
+  options: { limit?: number; structureExposure?: StructureExposureMap } = {}
 ): FrameTask[] {
+  const exposure = options.structureExposure;
   const available = sortByPedagogicalEase(
-    availableTasks(seenGlyphs).filter((task) => !task.isNovelCombination)
+    availableTasks(seenGlyphs)
+      .filter((task) => !task.isNovelCombination)
+      .filter(
+        (task) => !exposure || canGuidedProduceStructure(exposure.get(task.frameId))
+      )
   );
   return options.limit ? available.slice(0, options.limit) : available;
 }
 
 /**
  * Transferência: mesma estrutura, combinação que o currículo NUNCA mostrou.
- * Acertar aqui só é possível aplicando o padrão — é a prova de que o aluno
- * aprendeu a estrutura e não a frase.
+ * Escada guided → supported → question + prerequisites de estrutura:
+ * exposição → completion/build → produção guiada → só então transferir.
  */
 export function transferTasksFor(
   seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number; extraTaughtSentences?: ReadonlySet<string> } = {}
+  options: {
+    limit?: number;
+    extraTaughtSentences?: ReadonlySet<string>;
+    maxAssist?: ProductionAssist;
+    /** Se true, devolve só o degrau mais baixo elegível (1ª ocorrência). */
+    preferLowestRung?: boolean;
+    structureExposure?: StructureExposureMap;
+  } = {}
 ): FrameTask[] {
   const taught = options.extraTaughtSentences;
+  const maxAssist = options.maxAssist ?? "question";
+  const exposure = options.structureExposure;
   const available = sortByPedagogicalEase(
     availableTasks(seenGlyphs)
       .filter((task) => task.isNovelCombination)
       .filter((task) => !taught || !taught.has(cleanSentence(task.targetHanzi)))
+      .filter((task) => isTransferTaskEligible(task, seenGlyphs, maxAssist, exposure))
   );
-  return options.limit ? available.slice(0, options.limit) : available;
+  if (available.length === 0) return [];
+  const pool =
+    options.preferLowestRung === false
+      ? available
+      : (() => {
+          const minRank = Math.min(...available.map((task) => PRODUCTION_ASSIST_RANK[task.transferAssist]));
+          return available.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === minRank);
+        })();
+  return options.limit ? pool.slice(0, options.limit) : pool;
 }
 
 // ————————————————————————————————————————————————————————————————
@@ -940,12 +1297,14 @@ const MIN_OPEN_ANSWERS = 3;
 
 export function openProductionTasksFor(
   seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number } = {}
+  options: { limit?: number; structureExposure?: StructureExposureMap } = {}
 ): OpenProductionTask[] {
   const reachable = availableTasks(seenGlyphs);
+  const exposure = options.structureExposure;
   const tasks: OpenProductionTask[] = [];
 
   for (const copy of OPEN_PRODUCTION_GOALS) {
+    if (exposure && !canOpenProduceGoal(copy.goal, exposure)) continue;
     const forGoal = reachable
       .filter((task) => task.goal === copy.goal)
       .sort((a, b) => a.id.localeCompare(b.id));

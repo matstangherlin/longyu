@@ -32,6 +32,7 @@ export const PEDAGOGY_EVENT_TYPES = [
   "image_exercise_answered",
   "lesson_abandoned",
   "unrecognized_answer",
+  "production_help_requested",
 ] as const;
 
 export type PedagogyEventType = (typeof PEDAGOGY_EVENT_TYPES)[number];

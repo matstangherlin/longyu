@@ -268,6 +268,25 @@ export interface LessonStep {
   transferAnchorPt?: string;
   /** A frase alvo não existe no currículo: acertar exige aplicar o padrão. */
   isNovelCombination?: boolean;
+  /** Degrau de scaffold da produção/transferência:
+   * guided → supported → question → open.
+   */
+  productionAssist?: "guided" | "supported" | "question" | "open";
+  /** Dica visual de transformação (ex.: 我 → 你) no degrau supported. */
+  transferTransformHint?: { from: string; to: string };
+  /**
+   * Scaffolding visual progressivo (0–4), independente de `productionAssist`.
+   * 0 situação+input · 1 padrão · 2 estrutura · 3 vocabulário · 4 montagem
+   */
+  productionHelpInitial?: 0 | 1 | 2 | 3 | 4;
+  /** Teto pedível sem erro repetido (nível 4 só após dificuldade repetida). */
+  productionHelpCeiling?: 0 | 1 | 2 | 3 | 4;
+  /** Primeira transferência desta estrutura no currículo. */
+  productionHelpFirstOfStructure?: boolean;
+  /** Vocabulário útil já aprendido (nível 3) — não monta a frase. */
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  /** Banco de peças para o nível 4 (sentence build). */
+  productionHelpBuildBank?: string[];
   // ——— conversation_repair: continuar depois do mal-entendido ———
   /** Fala do personagem que trava a conversa (你说什么？/我听不懂). */
   repairNpcHanzi?: string;
@@ -2162,7 +2181,7 @@ export const JOURNEY: JourneyPhase[] = [
               listen("你好", "nǐ hǎo", "Olá — seu primeiro som útil", "pinyin_first"),
               intro(
                 "Soa “ní hǎo”",
-                "Na fala real, 你好 soa “ní hǎo”: quando dois 3º tons se encontram, o primeiro sobe para 2º tom. É o tone sandhi — você ouve isso em praticamente todo cumprimento."
+                "Na fala real, 你好 soa “ní hǎo”: quando dois 3º tons se encontram, o primeiro sobe para 2º tom. Você ouve isso em praticamente todo cumprimento."
               ),
               intro(
                 "Tom: a curva da voz",
@@ -2741,7 +2760,7 @@ export const JOURNEY: JourneyPhase[] = [
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
-              intro("Mesmo som base, tons diferentes", "shī, shí, shǐ e shì mostram como o contorno muda a palavra. Vamos treinar com 是 (shì), o verbo ser."),
+              intro("Mesmo som base, tons diferentes", "shī, shí, shǐ e shì mostram como o contorno muda a palavra. Vamos treinar com 是 (shì), a peça de ‘ser/estar’."),
               listen("湿", "shī", "molhado (1º tom)"),
               listen("十", "shí", "dez (2º tom)"),
               listen("使", "shǐ", "usar; fazer (3º tom)"),
@@ -3189,14 +3208,14 @@ export const JOURNEY: JourneyPhase[] = [
                 "我在学中文",
                 ["我在学中文", "我会说一点中文", "我不会说中文", "谢谢"],
                 "我在学中文",
-                "在 antes do verbo marca o que está acontecendo agora."
+                "在 antes da ação marca o que está acontecendo agora."
               ),
               sentenceBuild(
                 "Estou estudando chinês",
                 "Monte: estou estudando chinês agora.",
                 ["我", "在", "学", "中文"],
                 ["我", "在", "学", "中文", "会", "一点"],
-                "我在学中文: 在 + ação = acontecendo agora. O verbo não muda de forma."
+                "我在学中文: 在 + ação = acontecendo agora. A ação não muda de forma."
               ),
               fillBlank(
                 "Complete o meio",
@@ -3383,56 +3402,128 @@ export const JOURNEY: JourneyPhase[] = [
             libraryItems: ["chunk:wature", "chunk:wojiao", "chunk:nihaoma"],
             reviewItems: ["chunk:wature", "chunk:wojiao", "chunk:nihaoma"],
             rewardQi: 2,
-            estimatedMinutes: 5,
+            estimatedMinutes: 6,
             steps: [
+              // ——— ETAPA 1: ver a frase + perguntas (sem nomes técnicos) ———
               intro(
-                "SVO: sujeito + verbo + objeto",
-                "Em mandarim, a ordem básica é igual à do português: 我 (eu) 是 (sou) 巴西人 (brasileiro). O que muda é que a ordem carrega muito significado — trocar as peças pode mudar a frase inteira."
-              ),
-              sentenceBuild(
-                "SVO na prática",
-                "Monte: eu sou brasileiro.",
-                ["我", "是", "巴西人"],
-                ["巴西人", "是", "我", "你", "好"],
-                "我 + 是 + 巴西人 = eu sou brasileiro (SVO)."
+                "Olhe a frase",
+                "我 是 巴西人\n\nQuem? · O que faz? · O quê?\n\nNão traduza palavra por palavra — veja as peças e a ordem."
               ),
               match(
-                "Papel de cada peça",
-                "Combine a peça com o papel na frase 我是巴西人.",
+                "Quem? O que faz? O quê?",
+                "Na frase 我是巴西人, combine cada peça com a pergunta.",
                 [
-                  { left: "我", right: "sujeito (eu)", leftType: "hanzi", rightType: "pt" },
-                  { left: "是", right: "verbo (sou)", leftType: "hanzi", rightType: "pt" },
-                  { left: "巴西人", right: "predicado (brasileiro)", leftType: "hanzi", rightType: "pt" },
+                  { left: "我", right: "Quem?", leftType: "hanzi", rightType: "pt" },
+                  { left: "是", right: "O que faz?", leftType: "hanzi", rightType: "pt" },
+                  { left: "巴西人", right: "O quê?", leftType: "hanzi", rightType: "pt" },
                 ],
-                "SVO: sujeito + verbo + predicado."
+                "我 = Quem? · 是 = O que faz? · 巴西人 = O quê?"
+              ),
+              match(
+                "Outra frase, mesmas perguntas",
+                "Agora em 我叫Matheus — mesmas perguntas.",
+                [
+                  { left: "我", right: "Quem?", leftType: "hanzi", rightType: "pt" },
+                  { left: "叫", right: "O que faz?", leftType: "hanzi", rightType: "pt" },
+                  { left: "Matheus", right: "O quê?", leftType: "hanzi", rightType: "pt" },
+                ],
+                "De novo: Quem? · O que faz? · O quê?"
+              ),
+              // ——— ETAPA 2: a lógica do padrão ———
+              intro(
+                "A lógica",
+                "quem + ação + coisa\n\n我 + 是 + 巴西人\n我 + 叫 + Matheus\n\nMesma ordem. Trocar as peças muda o sentido."
+              ),
+              sentenceBuild(
+                "Monte na ordem",
+                "Monte: 我是巴西人 (quem + ação + coisa).",
+                ["我", "是", "巴西人"],
+                ["巴西人", "是", "我", "你", "好"],
+                "Ordem: quem → ação → coisa."
               ),
               dialogue(
-                "Ordem certa",
-                "Qual frase tem a ordem certa para dizer “sou brasileiro”?",
+                "Qual segue o padrão?",
+                "Qual frase segue quem + ação + coisa?",
                 "我是巴西人",
                 ["我是巴西人", "巴西人是我", "是巴西人我", "我巴西人是"],
-                "我是巴西人 mantém SVO: sujeito 我, verbo 是, predicado 巴西人."
+                "Só 我是巴西人 mantém quem + ação + coisa."
               ),
               sentenceBuild(
-                "Pergunta com 吗",
-                "Monte a pergunta: tudo bem? (você + bom + partícula de pergunta)",
-                ["你", "好", "吗"],
-                ["吗", "你", "好", "我"],
-                "你好吗 termina em 吗: a partícula de pergunta fica no fim da frase."
-              ),
-              dialogue(
-                "Onde fica 吗?",
-                "Na pergunta 你好吗？, onde fica a partícula 吗?",
-                "no fim da frase",
-                ["no fim da frase", "no começo da frase", "no meio da frase", "depois do verbo"],
-                "吗 fecha a pergunta: você + bom + 吗? — a partícula vem por último."
-              ),
-              sentenceBuild(
-                "Apresentação SVO",
-                "Monte a apresentação: eu me chamo Matheus.",
+                "Mesma lógica",
+                "Monte: 我叫Matheus (quem + ação + coisa).",
                 ["我", "叫", "Matheus"],
                 ["我", "叫", "Matheus", "你", "什么"],
-                "我叫Matheus = sujeito 我 + verbo 叫 + nome."
+                "Mesmo padrão: quem → ação → coisa."
+              ),
+              // ——— ETAPA 3: + pergunta ———
+              intro(
+                "E a pergunta?",
+                "你 好 吗？\n\nquem + ação + pergunta\n\n吗 no fim transforma em pergunta — a ordem das outras peças não muda."
+              ),
+              sentenceBuild(
+                "Feche com pergunta",
+                "Monte: 你好吗？ (quem + ação + pergunta).",
+                ["你", "好", "吗"],
+                ["吗", "你", "好", "我"],
+                "吗 fica no fim: quem + ação + pergunta."
+              ),
+              dialogue(
+                "Onde entra a pergunta?",
+                "Em 你好吗？, onde fica 吗?",
+                "no fim",
+                ["no fim", "no começo", "no meio", "antes de 你"],
+                "A marca de pergunta fecha a frase."
+              ),
+            ],
+          },
+          {
+            id: "p3-nomes-da-frase",
+            title: "Nomes das peças",
+            skill: "sistema",
+            libraryItems: ["chunk:wature", "chunk:wojiao", "chunk:nihaoma"],
+            reviewItems: ["chunk:wature", "chunk:wojiao", "chunk:nihaoma"],
+            rewardQi: 2,
+            estimatedMinutes: 4,
+            steps: [
+              // ——— ETAPA 4: dar os nomes (só depois da lógica) ———
+              intro(
+                "Agora os nomes",
+                "Você já viu o padrão. Os nomes só ajudam a falar sobre ele:\n\nquem = sujeito\nação = verbo\ncoisa = objeto\n吗 = partícula de pergunta"
+              ),
+              match(
+                "Ligue pergunta → nome",
+                "Combine a pergunta que você já usa com o nome da peça.",
+                [
+                  { left: "Quem?", right: "sujeito", leftType: "pt", rightType: "pt" },
+                  { left: "O que faz?", right: "verbo", leftType: "pt", rightType: "pt" },
+                  { left: "O quê?", right: "objeto", leftType: "pt", rightType: "pt" },
+                  { left: "吗 no fim", right: "partícula de pergunta", leftType: "pt", rightType: "pt" },
+                ],
+                "quem→sujeito · ação→verbo · coisa→objeto · 吗→partícula."
+              ),
+              match(
+                "Peças de 我是巴西人",
+                "Combine o hànzì com o nome (você já sabe o papel).",
+                [
+                  { left: "我", right: "sujeito", leftType: "hanzi", rightType: "pt" },
+                  { left: "是", right: "verbo", leftType: "hanzi", rightType: "pt" },
+                  { left: "巴西人", right: "objeto", leftType: "hanzi", rightType: "pt" },
+                ],
+                "我 sujeito · 是 verbo · 巴西人 objeto — mesma ordem de sempre."
+              ),
+              dialogue(
+                "吗 na pergunta",
+                "Em 你好吗？, 吗 é…",
+                "partícula de pergunta",
+                ["partícula de pergunta", "sujeito", "verbo", "objeto"],
+                "吗 é a partícula que marca a pergunta no fim."
+              ),
+              sentenceBuild(
+                "Use o padrão com nome",
+                "Monte de novo: 我是巴西人 (sujeito + verbo + objeto).",
+                ["我", "是", "巴西人"],
+                ["巴西人", "是", "我", "吗", "好"],
+                "Os nomes descrevem o padrão que você já montava."
               ),
             ],
           },
@@ -3446,6 +3537,17 @@ export const JOURNEY: JourneyPhase[] = [
             flash("qingzaishuoyibian"),
             recognize("wo"),
             recognize("shi"),
+            // ——— ETAPA 5: termos técnicos nas atividades ———
+            match(
+              "Sujeito · verbo · objeto",
+              "Em 我是巴西人, combine cada peça com o termo.",
+              [
+                { left: "我", right: "sujeito", leftType: "hanzi", rightType: "pt" },
+                { left: "是", right: "verbo", leftType: "hanzi", rightType: "pt" },
+                { left: "巴西人", right: "objeto", leftType: "hanzi", rightType: "pt" },
+              ],
+              "Daqui em diante as atividades usam esses nomes com naturalidade."
+            ),
             comp("我是巴西人", "wǒ shì Bāxī rén", "Sou brasileiro", ["Sou brasileiro", "Meu nome é Matheus", "Não entendi", "Olá"]),
             sentenceBuild(
               "Produção guiada",
@@ -4537,6 +4639,21 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "要", "饭"],
                 ["我", "要", "饭", "菜", "鱼"],
                 "我要饭 pede a refeição / o arroz."
+              ),
+              // Reforço do padrão (etapas 1–2) com vocabulário 要 + coisa — chinês primeiro.
+              intro(
+                "Mesma lógica",
+                "我 要 饭\n我 要 茶\n\nquem + ação + coisa\n\nIgual a 我是巴西人: quem → ação → coisa. Você troca a coisa (饭 / 茶), não a ordem."
+              ),
+              match(
+                "Quem? Ação? Coisa?",
+                "Em 我要茶, combine cada peça com o papel do padrão.",
+                [
+                  { left: "我", right: "quem", leftType: "hanzi", rightType: "pt" },
+                  { left: "要", right: "ação", leftType: "hanzi", rightType: "pt" },
+                  { left: "茶", right: "coisa", leftType: "hanzi", rightType: "pt" },
+                ],
+                "我要茶 = quem + ação + coisa — mesmo padrão do cardápio."
               ),
               sentenceBuild(
                 "Peça peixe",

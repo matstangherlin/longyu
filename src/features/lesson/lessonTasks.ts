@@ -75,12 +75,26 @@ import {
 } from "../../data/perceptionDrills";
 import {
   FRAME_TASKS,
+  SENTENCE_FRAMES,
+  cloneStructureExposure,
+  creditStructureAnchorChunk,
+  creditStructureText,
+  ensureStructureRungs,
+  framesMatchingSentence,
+  maxTransferAssistForAttempt,
+  mergeStructureExposure,
   openProductionTasksFor,
+  PRODUCTION_ASSIST_RANK,
+  productionHelpBuildBank,
+  productionHelpVocabForTask,
   productionTasksFor,
   repairTasksFor,
   transferTasksFor,
   type FrameTask,
+  type ProductionAssist,
+  type StructureExposureMap,
 } from "../../data/productionTasks";
+import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
   defaultVisualDistractors,
   visualByCharId,
@@ -575,6 +589,17 @@ export interface LessonPracticePlanContext {
    */
   weaknessProfile?: WeaknessProfile;
   silent?: boolean;
+  /**
+   * Exposição acumulada de estruturas ANTES desta lição (e currículo desta).
+   * Omitido = calculado pelo índice lazy. Usado pelo builder do índice e testes.
+   */
+  structureExposure?: StructureExposureMap;
+  /** Exposição só do histórico anterior — gate de transferência (sem a lição atual). */
+  structureExposureForTransfer?: StructureExposureMap;
+  /** Frames com transfer em lição anterior — define scaffold inicial. */
+  priorTransferredFrames?: ReadonlySet<string>;
+  /** Evita reentrada ao montar o índice de exposição. */
+  skipStructureExposureIndex?: boolean;
 }
 
 /**
@@ -1054,19 +1079,14 @@ function combinedReviewFocus(lesson: Lesson, context: LessonPracticePlanContext)
  * foco de revisão também vira `seenGlyphs`, e `seenGlyphs` é a porta que libera
  * produção livre, transferência e pares mínimos — motores que EXIGEM produzir.
  *
- * Misturados, o resultado era a abertura do curso pedir 我想喝水 e 我不喝水 —
- * 我, 想, 喝, 水, com a âncora 我不会说中文 — a quem tinha acabado de encontrar
- * 你好. Apresentar cedo é ensinar; cobrar cedo é reprovar de véspera.
+ * Misturados, o resultado era cobrar 喝/水 (via chunk:woxianghe no núcleo) em
+ * transferências muito antes do currículo ensinar 要/喝. Apresentar cedo é
+ * ensinar; cobrar cedo é reprovar de véspera.
  *
- * A separação é essa: a lição continua vendo o núcleo inteiro (cenas, revisão,
- * imagens), mas a porta da produção só conta o que o currículo já apresentou
- * até aqui. Vale na PRIMEIRA FASE; depois dela a mesma lista também funciona
- * como canal de introdução de vocabulário (我想喝茶 só aparece em passo autoral
- * muito adiante), e restringir o curso inteiro esvaziaria a produção aberta em
- * vez de consertar o começo.
+ * A porta da produção conta só refs que o currículo já apresentou até aqui
+ * (em qualquer fase). Conversas/revisão visual continuam vendo o núcleo inteiro.
  */
 function seenFocusForProduction(lesson: Lesson, reviewFocus: readonly FocusItem[]): FocusItem[] {
-  if (lessonPhaseOrder(lesson) > 1) return [...reviewFocus];
   const introduced = curriculumRefsThroughLesson(lesson.id);
   return reviewFocus.filter((item) => {
     // Item sem ref veio do texto da própria lição — já está na tela do aluno.
@@ -1125,13 +1145,31 @@ function coreReviewFocusItems(): FocusItem[] {
   return CORE_REVIEW_REFS.map(focusFromRef).filter((item): item is FocusItem => Boolean(item));
 }
 
-function oldPhraseFocus(currentFocus: readonly FocusItem[]): FocusItem[] {
+function oldPhraseFocus(currentFocus: readonly FocusItem[], lesson?: Lesson): FocusItem[] {
   const current = new Set(currentFocus.map((item) => cleanHanzi(item.hanzi)));
-  return coreReviewFocusItems().filter((item) => !current.has(cleanHanzi(item.hanzi)));
+  const introduced = lesson ? curriculumRefsThroughLesson(lesson.id) : null;
+  return coreReviewFocusItems().filter((item) => {
+    if (current.has(cleanHanzi(item.hanzi))) return false;
+    // Só reusa frases do núcleo que o currículo já apresentou — senão 明天/这
+    // vazam para fill_blank antes de existir no curso.
+    if (!introduced) return true;
+    if (!item.type || !item.itemId) return true;
+    return introduced.has(`${item.type}:${item.itemId}`);
+  });
 }
 
-function makeOldPhraseReuseStep(currentFocus: FocusItem[]): LessonStep | null {
-  const oldItems = oldPhraseFocus(currentFocus);
+/** Itens de revisão seguros para drills que COBRAM produção (fill/ditado). */
+function focusSafeForProductionDrills(items: readonly FocusItem[], lessonId?: string): FocusItem[] {
+  if (!lessonId) return [...items];
+  const introduced = curriculumRefsThroughLesson(lessonId);
+  return items.filter((item) => {
+    if (!item.type || !item.itemId) return true;
+    return introduced.has(`${item.type}:${item.itemId}`);
+  });
+}
+
+function makeOldPhraseReuseStep(currentFocus: FocusItem[], lesson?: Lesson): LessonStep | null {
+  const oldItems = oldPhraseFocus(currentFocus, lesson);
   if (oldItems.length === 0) return null;
   const pool = [...currentFocus, ...oldItems];
   for (const item of oldItems) {
@@ -1214,20 +1252,38 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   }
 
   if (isFoundation || lesson.skill === "sistema") {
-    const targetCount = Math.max(8, Math.min(12, Math.max(authoredCount, 10)));
-    // Lições-conceito de fundação que não são de hànzì (mandarim/pinyin/tom) não
-    // montam nada — evita composição solta numa aula puramente conceitual.
-    const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi";
+    const authoredCount = lesson.steps.length;
+    // Lições-conceito: sem conversa/ditado gerados (R9). Para passar
+    // validate:exercise-depth, sobra reconhecimento + consolidação com
+    // kinds permitidos (comprehend, dialogue_choice, match_pairs…).
+    const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi" && lesson.id !== "p1-engine-2-lab";
+    const recognition = conceptNonHanzi ? 2 : 2;
+    // assembly 1: preserva sentence_build autoral (profundidade / frase real).
+    // usage 1: dialogue/fill permitidos; maxConversationScenes=0 bloqueia cena.
+    const assembly = conceptNonHanzi ? 1 : lesson.skill === "hanzi" ? 2 : 1;
+    const usage = lesson.id === "p1-primeiros-hanzi" ? 0 : 1;
+    const targetCount = Math.max(
+      authoredCount + (conceptNonHanzi ? 4 : 2),
+      Math.min(authoredCount + 5, conceptNonHanzi ? 11 : 12)
+    );
+    const consolidation = Math.max(2, targetCount - 1 - recognition - assembly - usage);
     return {
       targetCount,
-      stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 2, post_conversation: 0, consolidation: targetCount - 7 },
+      stageTargets: {
+        intro: 1,
+        recognition,
+        assembly,
+        usage,
+        post_conversation: 0,
+        consolidation,
+      },
       minHanziBuilds: 0,
       maxHanziBuilds: conceptNonHanzi ? 0 : relevantHanzi ? 1 : 0,
       perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
-      maxImageChoices: 2,
+      maxImageChoices: conceptNonHanzi ? 0 : 2,
       isReview: Boolean(lesson.isReview),
     };
   }
@@ -1508,7 +1564,7 @@ function makeTonePairStep(focus: FocusItem[]): LessonStep | null {
  * carregado — a progressão é a mesma da jornada, não uma lista paralela.
  */
 let curriculumGlyphsCache: Map<string, Set<string>> | null = null;
-function curriculumGlyphsThroughLesson(lessonId: string | undefined): ReadonlySet<string> {
+export function curriculumGlyphsThroughLesson(lessonId: string | undefined): ReadonlySet<string> {
   if (!lessonId) return new Set<string>();
   if (!curriculumGlyphsCache) {
     curriculumGlyphsCache = new Map();
@@ -1534,6 +1590,234 @@ function knownGlyphsFor(options: SupplementalStepOptions): ReadonlySet<string> {
   const glyphs = new Set<string>(curriculumGlyphsThroughLesson(options.lessonId));
   for (const glyph of options.seenGlyphs ?? []) glyphs.add(glyph);
   return glyphs;
+}
+
+// ————————————————————————————————————————————————————————————————
+// Índice de exposição de estruturas
+//
+// Política: transfer_task só depois de exposição + completion/build +
+// free_production guiada da MESMA estrutura. Vocabulário sozinho não basta.
+// ————————————————————————————————————————————————————————————————
+
+const COMPLETION_KINDS = new Set<string>(["fill_blank"]);
+const BUILD_KINDS = new Set<string>([
+  "sentence_build",
+  "translation_build",
+  "sentence_lab_distractors",
+  "sentence_lab_audio",
+  "sentence_lab_no_translation",
+  "sentence_lab_repair",
+  "produce",
+]);
+const EXPOSURE_KINDS = new Set<string>([
+  "recognize",
+  "comprehend",
+  "listen_select",
+  "listen",
+  "flash",
+  "read",
+  "dialogue_choice",
+]);
+
+function stepHanziBlob(step: {
+  hanzi?: string;
+  text?: string;
+  answer?: string;
+  correctAnswer?: string;
+  targetParts?: string[];
+  target?: string[];
+  productionFrameId?: string;
+}): string {
+  return cleanHanzi(
+    step.hanzi ||
+      step.text ||
+      step.correctAnswer ||
+      step.answer ||
+      step.targetParts?.join("") ||
+      step.target?.join("") ||
+      ""
+  );
+}
+
+/** Credita rungs a partir de um passo (autoral ou gerado). */
+/** Credita rungs a partir de um passo (autoral ou gerado). */
+export function creditStructureFromStep(map: StructureExposureMap, step: LessonStep): void {
+  if (step.productionFrameId) {
+    const rungs = ensureStructureRungs(map, step.productionFrameId);
+    rungs.exposed = true;
+    if (step.kind === "free_production" && !step.productionOpen) {
+      rungs.guidedProduction = true;
+      rungs.completion = true;
+      rungs.build = true;
+    }
+    if (step.kind === "transfer_task") {
+      rungs.guidedProduction = true;
+    }
+  }
+
+  const blobs = [
+    stepHanziBlob(step),
+    ...(step.lines ?? []).map((line) => cleanHanzi(line.hanzi)),
+    ...(step.nodes ?? []).map((node) => cleanHanzi(node.hanzi)),
+  ].filter(Boolean);
+
+  for (const blob of blobs) {
+    if (EXPOSURE_KINDS.has(step.kind) || step.kind === "conversation_scene") {
+      creditStructureText(map, blob, "exposed");
+    }
+    if (COMPLETION_KINDS.has(step.kind)) creditStructureText(map, blob, "completion");
+    if (BUILD_KINDS.has(step.kind)) creditStructureText(map, blob, "build");
+    if (step.kind === "free_production" && !step.productionOpen) {
+      creditStructureText(map, blob, "guidedProduction");
+      creditStructureText(map, blob, "completion");
+      creditStructureText(map, blob, "build");
+    }
+  }
+}
+
+/** Exposição só do currículo autoral + foco (sem planos gerados). */
+function curriculumStructureExposureForLesson(lesson: Lesson): StructureExposureMap {
+  const map: StructureExposureMap = new Map();
+  for (const item of lessonFocusItems(lesson)) {
+    creditStructureText(map, item.hanzi, "exposed");
+    if (item.type === "chunk" && item.itemId) creditStructureAnchorChunk(map, item.itemId);
+    // Foco da lição: assembly vai oferecer sentence_build → build prospectivo.
+    for (const frame of framesMatchingSentence(item.hanzi)) {
+      const rungs = ensureStructureRungs(map, frame.id);
+      rungs.exposed = true;
+      rungs.build = true;
+      rungs.completion = true;
+    }
+  }
+  for (const step of lesson.steps) {
+    creditStructureFromStep(map, step);
+  }
+  return map;
+}
+
+interface StructureExposureBundle {
+  /** Prior + currículo desta lição (gate de free/open). */
+  forFree: StructureExposureMap;
+  /** Só histórico anterior, incluindo planos gerados (gate de transfer). */
+  forTransfer: StructureExposureMap;
+}
+
+let structureExposureIndex: Map<string, StructureExposureBundle> | null = null;
+let structureExposureIndexBuilding = false;
+/** Frames que já tiveram transfer_task em lição ANTERIOR (por lessonId). */
+let priorTransferredFramesIndex: Map<string, ReadonlySet<string>> | null = null;
+
+function emptyExposureBundle(): StructureExposureBundle {
+  return { forFree: new Map(), forTransfer: new Map() };
+}
+
+/**
+ * Monta o índice lição a lição. Transferência exige produção guiada em lição
+ * ANTERIOR; free na lição atual pode usar foco/autoral da própria lição.
+ */
+function ensureStructureExposureIndex(): void {
+  if (structureExposureIndex || structureExposureIndexBuilding) return;
+  structureExposureIndexBuilding = true;
+  const index = new Map<string, StructureExposureBundle>();
+  const priorTransferByLesson = new Map<string, ReadonlySet<string>>();
+  let prior: StructureExposureMap = new Map();
+  const transferredSoFar = new Set<string>();
+  try {
+    for (const lesson of ALL_LESSONS) {
+      priorTransferByLesson.set(lesson.id, new Set(transferredSoFar));
+      const forTransfer = cloneStructureExposure(prior);
+      const forFree = cloneStructureExposure(prior);
+      mergeStructureExposure(forFree, curriculumStructureExposureForLesson(lesson));
+      index.set(lesson.id, {
+        forFree: cloneStructureExposure(forFree),
+        forTransfer: cloneStructureExposure(forTransfer),
+      });
+      const plan = buildLessonPracticePlan(lesson, {
+        silent: true,
+        skipStructureExposureIndex: true,
+        structureExposure: forFree,
+        structureExposureForTransfer: forTransfer,
+        priorTransferredFrames: priorTransferByLesson.get(lesson.id),
+      });
+      const fromPlan: StructureExposureMap = new Map();
+      for (const step of plan) {
+        creditStructureFromStep(fromPlan, step);
+        if (step.kind === "transfer_task" && step.productionFrameId) {
+          transferredSoFar.add(step.productionFrameId);
+        }
+      }
+      mergeStructureExposure(prior, fromPlan);
+      // Currículo desta lição também alimenta o histórico da próxima.
+      mergeStructureExposure(prior, curriculumStructureExposureForLesson(lesson));
+    }
+    structureExposureIndex = index;
+    priorTransferredFramesIndex = priorTransferByLesson;
+  } finally {
+    structureExposureIndexBuilding = false;
+  }
+}
+
+function priorTransferredFramesForLesson(lessonId: string | undefined): ReadonlySet<string> {
+  if (!lessonId) return new Set();
+  ensureStructureExposureIndex();
+  return priorTransferredFramesIndex?.get(lessonId) ?? new Set();
+}
+
+function structureExposureForLesson(lessonId: string | undefined): StructureExposureBundle {
+  if (!lessonId) return emptyExposureBundle();
+  ensureStructureExposureIndex();
+  return structureExposureIndex?.get(lessonId) ?? emptyExposureBundle();
+}
+
+/** Snapshot público para validators / auditoria. */
+export function structureExposureSnapshotForLesson(lessonId: string): StructureExposureBundle {
+  return structureExposureForLesson(lessonId);
+}
+
+export function structureFirstOccurrenceReport(): Array<{
+  frameId: string;
+  patternPt: string;
+  firstExposedLessonId: string | null;
+  firstGuidedProductionLessonId: string | null;
+  firstTransferLessonId: string | null;
+}> {
+  ensureStructureExposureIndex();
+  const firstExposed = new Map<string, string>();
+  const firstGuided = new Map<string, string>();
+  const firstTransfer = new Map<string, string>();
+  let prior: StructureExposureMap = new Map();
+  for (const lesson of ALL_LESSONS) {
+    const curriculum = curriculumStructureExposureForLesson(lesson);
+    for (const [frameId, rungs] of curriculum) {
+      if (rungs.exposed && !firstExposed.has(frameId)) firstExposed.set(frameId, lesson.id);
+    }
+    const bundle = structureExposureIndex?.get(lesson.id);
+    const plan = buildLessonPracticePlan(lesson, {
+      silent: true,
+      skipStructureExposureIndex: true,
+      structureExposure: bundle?.forFree ?? curriculum,
+      structureExposureForTransfer: bundle?.forTransfer ?? prior,
+    });
+    for (const step of plan) {
+      if (step.kind === "free_production" && !step.productionOpen && step.productionFrameId) {
+        if (!firstGuided.has(step.productionFrameId)) firstGuided.set(step.productionFrameId, lesson.id);
+      }
+      if (step.kind === "transfer_task" && step.productionFrameId) {
+        if (!firstTransfer.has(step.productionFrameId)) firstTransfer.set(step.productionFrameId, lesson.id);
+      }
+    }
+    const fromPlan: StructureExposureMap = new Map();
+    for (const step of plan) creditStructureFromStep(fromPlan, step);
+    mergeStructureExposure(prior, fromPlan);
+    mergeStructureExposure(prior, curriculum);
+  }
+  return SENTENCE_FRAMES.map((frame) => ({
+    frameId: frame.id,
+    patternPt: frame.patternPt,
+    firstExposedLessonId: firstExposed.get(frame.id) ?? null,
+    firstGuidedProductionLessonId: firstGuided.get(frame.id) ?? null,
+    firstTransferLessonId: firstTransfer.get(frame.id) ?? null,
+  }));
 }
 
 /**
@@ -1731,8 +2015,12 @@ function frameTaskStepBase(task: FrameTask) {
  * conteúdo. É o degrau que faltava — as outras produções ainda combinavam a
  * frase de antemão, o que treina montar mas não treina escolher o que dizer.
  */
-function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
-  const tasks = openProductionTasksFor(knownGlyphs);
+function makeOpenProductionStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  structureExposure?: StructureExposureMap
+): LessonStep | null {
+  const tasks = openProductionTasksFor(knownGlyphs, { structureExposure });
   if (tasks.length === 0) return null;
   const task = tasks[seed % tasks.length];
   const [model] = task.examples;
@@ -1743,6 +2031,7 @@ function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number):
     situationPt: task.situationPt,
     productionGoal: task.goal,
     productionOpen: true,
+    productionAssist: "open",
     productionHintPt: task.hintPt,
     productionExamples: task.examples,
     correctAnswer: model.hanzi,
@@ -1750,6 +2039,9 @@ function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number):
     pinyin: model.pinyin,
     accepts: uniqueValues(task.accepts),
     explanation: `Qualquer uma destas cumpre a situação. ${task.hintPt}`,
+    productionHelpInitial: 0,
+    productionHelpCeiling: 1,
+    productionHelpFirstOfStructure: false,
     isNoHint: true,
     helpMode: "disabled",
   };
@@ -1772,48 +2064,144 @@ function frameTasksUsing(tasks: readonly FrameTask[], item: FocusItem | undefine
  * sem a frase na tela. É o único formato em que o app não pode ser resolvido
  * por eliminação.
  */
+function attachProductionHelpFields(
+  task: FrameTask,
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  plan: ReturnType<typeof resolveProductionHelpPlan>
+): Pick<
+  LessonStep,
+  | "productionHelpInitial"
+  | "productionHelpCeiling"
+  | "productionHelpFirstOfStructure"
+  | "productionHelpVocab"
+  | "productionHelpBuildBank"
+> {
+  return {
+    productionHelpInitial: plan.initial,
+    productionHelpCeiling: plan.softCeiling,
+    productionHelpFirstOfStructure: plan.firstOfStructure,
+    productionHelpVocab: productionHelpVocabForTask(task, knownGlyphs, 4),
+    productionHelpBuildBank: productionHelpBuildBank(task, seed),
+  };
+}
+
 function makeFreeProductionStep(
   knownGlyphs: ReadonlySet<string>,
   seed: number,
-  usingItem?: FocusItem
+  usingItem?: FocusItem,
+  structureExposure?: StructureExposureMap
 ): LessonStep | null {
-  const pool = productionTasksFor(knownGlyphs);
+  const pool = productionTasksFor(knownGlyphs, { structureExposure });
   const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
   if (tasks.length === 0) return null;
   const task = tasks[seed % tasks.length];
+  const help = resolveProductionHelpPlan({
+    kind: "free_production",
+    firstOfStructure: false,
+  });
   return {
     kind: "free_production",
     title: "Sua vez de produzir",
     patternPt: task.patternPt,
+    productionAssist: "guided",
+    assist: "guided",
     ...frameTaskStepBase(task),
+    ...attachProductionHelpFields(task, knownGlyphs, seed, help),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
   };
 }
 
+function pickTransferCandidates(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  usingItem: FocusItem | undefined,
+  attemptNumber: number,
+  structureExposure?: StructureExposureMap
+): FrameTask[] {
+  const taught = authoredCurriculumSentences();
+  const maxAssist = maxTransferAssistForAttempt(attemptNumber);
+  const preferLowestRung = attemptNumber <= 0;
+
+  const select = (preferLowest: boolean) => {
+    const pool = transferTasksFor(knownGlyphs, {
+      extraTaughtSentences: taught,
+      maxAssist,
+      preferLowestRung: preferLowest,
+      structureExposure,
+    });
+    return usingItem ? frameTasksUsing(pool, usingItem) : pool;
+  };
+
+  let tasks = select(preferLowestRung);
+  // Pós-conversa pode filtrar demais: relaxa o "só o degrau mais baixo".
+  if (tasks.length === 0 && usingItem) {
+    tasks = select(false);
+  }
+  if (tasks.length === 0) {
+    tasks = transferTasksFor(knownGlyphs, {
+      extraTaughtSentences: taught,
+      maxAssist,
+      preferLowestRung: true,
+      structureExposure,
+    });
+  }
+  if (tasks.length === 0) return [];
+
+  // Em tentativas seguintes, sobe para o degrau mais alto permitido e elegível.
+  if (!preferLowestRung) {
+    const maxRank = Math.max(...tasks.map((task) => PRODUCTION_ASSIST_RANK[task.transferAssist]));
+    tasks = tasks.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === maxRank);
+  }
+
+  // Estável: seed escolhe dentro do degrau, não mistura rungs.
+  void seed;
+  return tasks;
+}
+
 /**
- * Transferência: o app mostra a frase-âncora já ensinada e pede outra
- * combinação da MESMA estrutura — uma que o currículo nunca mostrou. Acertar
- * aqui só é possível aplicando o padrão.
+ * Transferência com scaffold progressivo:
+ * guided (1 slot) → supported (dica de transformação) → question (吗).
+ * Só depois de produção guiada da mesma estrutura.
  */
 function makeTransferStep(
   knownGlyphs: ReadonlySet<string>,
   seed: number,
-  usingItem?: FocusItem
+  usingItem?: FocusItem,
+  attemptNumber = 0,
+  structureExposure?: StructureExposureMap,
+  priorTransferredFrames?: ReadonlySet<string>
 ): LessonStep | null {
-  const pool = transferTasksFor(knownGlyphs, { extraTaughtSentences: authoredCurriculumSentences() });
-  const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
+  const tasks = pickTransferCandidates(knownGlyphs, seed, usingItem, attemptNumber, structureExposure);
   if (tasks.length === 0) return null;
-  // Com pool ordenado por facilidade, seed baixo favorece frames introdutórios.
   const task = tasks[seed % tasks.length];
+  const productionAssist: ProductionAssist = task.transferAssist;
+  const firstOfStructure = !priorTransferredFrames?.has(task.frameId);
+  const help = resolveProductionHelpPlan({
+    kind: "transfer_task",
+    firstOfStructure,
+    attemptNumber,
+  });
   return {
     kind: "transfer_task",
-    title: "Use o que já sabe",
+    title:
+      productionAssist === "guided"
+        ? "Troque só uma parte"
+        : productionAssist === "supported"
+          ? "Aplique a transformação"
+          : productionAssist === "question"
+            ? "Transforme em pergunta"
+            : "Use o que já sabe",
     patternPt: task.patternPt,
     transferAnchorHanzi: task.anchor.hanzi,
     transferAnchorPinyin: task.anchor.pinyin,
     transferAnchorPt: task.anchor.meaningPt,
     isNovelCombination: true,
+    productionAssist,
+    assist: productionAssist === "guided" ? "guided" : undefined,
+    transferTransformHint: task.transferTransformHint,
     ...frameTaskStepBase(task),
+    ...attachProductionHelpFields(task, knownGlyphs, seed, help),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Combinação nova: você montou pela estrutura.`,
   };
 }
@@ -2208,6 +2596,8 @@ function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
 }
 
 function maxConversationScenesForLesson(lesson: Lesson): number {
+  // Lições-conceito de fundação: R9 / audit pedem só autoral leve — sem cena gerada.
+  if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
   return 1;
@@ -2945,6 +3335,14 @@ interface SupplementalStepOptions {
   variantSeedOffset?: number;
   /** Revisões de módulo preservam a matriz de cobertura autoral completa. */
   enablePedagogyVariants?: boolean;
+  /** Tentativa da lição (0 = primeira): controla o degrau máximo de transferência. */
+  attemptNumber?: number;
+  /** Exposição de estruturas para gate de free/open (inclui foco da lição). */
+  structureExposure?: StructureExposureMap;
+  /** Exposição só do histórico anterior — gate de transferência. */
+  structureExposureForTransfer?: StructureExposureMap;
+  /** Frames com transfer em lição anterior — scaffold inicial mais/menos guiado. */
+  priorTransferredFrames?: ReadonlySet<string>;
 }
 
 function supplementalStepsForStage(
@@ -2963,6 +3361,17 @@ function supplementalStepsForStage(
     allowComposedFiller: options.allowComposedFiller,
   };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
+  // Na fundação / fases 1–2, CORE_REVIEW (再见/谢谢/明天…) não pode virar
+  // fill/build/ditado — o aluno ainda não aprendeu esses chunks.
+  const foundationLite =
+    phaseOrder <= 2 || FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
+  const practiceFocus = foundationLite ? focus : reviewFocus;
+  const allowDictation = !foundationLite && phaseOrder >= 3;
+  // Conversa permanece em todas as lições (como na main): sem ela as
+  // lições-conceito caem no portão validate:exercise-depth e o rodízio
+  // precoce de cenas fica pobre. foundationLite só segura fill/ditado.
+  const allowConversation = true;
+  const allowSpotError = phaseOrder >= 3;
   // Motores de percepção: um "seed" estável por lição faz o par mínimo, o
   // grupo semântico e a frase certa girarem entre lições em vez de repetir
   // sempre o primeiro item do banco.
@@ -3028,92 +3437,125 @@ function supplementalStepsForStage(
   } else if (stageId === "assembly") {
     // O ditado do primeiro item abre o estágio: escrever o que se ouviu é a
     // ponte entre som e forma, e precisa vir antes de a montagem visual
-    // consumir o orçamento.
-    if (focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
+    // consumir o orçamento — mas não nas lições-conceito de fundação.
+    if (allowDictation && focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
     const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
-    if (enablePedagogyVariants) {
+    if (enablePedagogyVariants && !foundationLite) {
       if (practiceVariant === "B") {
         push(makeSentenceLabStep(primary, focus, "sentence_lab_distractors"));
         push(makeDragonDictationStep(primary, focus, "blocks"));
       }
       if (practiceVariant === "C") {
         push(makeSentenceLabStep(primary, focus, "sentence_lab_audio"));
-        push(makeVariantOddOneOutStep([...focus, ...reviewFocus]));
+        push(makeVariantOddOneOutStep([...focus, ...practiceFocus]));
       }
     }
     for (const item of focus) {
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeSentenceBuildStep(item, focus));
-      push(makeDictationStep(item, focus, phaseOrder));
+      if (allowDictation) push(makeDictationStep(item, focus, phaseOrder));
       push(makeAssemblyChoiceStep(item, focus));
       if (result.length >= targetCount) break;
     }
   } else if (stageId === "usage") {
     const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
-    if (enablePedagogyVariants && practiceVariant === "B") {
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "B") {
       const intention = makeDialogueChoiceStep(primary, focus);
       push(intention ? { ...intention, pedagogyVariant: "meaning_intention_match" } : null);
-      push(makeVariantSpotErrorStep(primary));
+      if (allowSpotError) push(makeVariantSpotErrorStep(primary));
     }
-    if (enablePedagogyVariants && practiceVariant === "C") {
-      push(makeVariantSpotErrorStep(primary));
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "C") {
+      if (allowSpotError) push(makeVariantSpotErrorStep(primary));
     }
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
-    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
-    // Julgar estrutura, produzir sozinho e sobreviver ao mal-entendido entram
-    // antes da bateria de escolha. Quando ficavam no fim, o orçamento do
-    // estágio já tinha acabado e o "uso" voltava a ser escolher alternativa.
-    // A ordem é pedagógica: reconhecer qual frase funciona → montá-la sozinho
-    // → continuar quando o outro não entende.
-    push(makeSpotErrorStep(knownGlyphs, drillSeed));
-    push(makeFreeProductionStep(knownGlyphs, drillSeed + variantSeedBase * 5));
-    push(makeOpenProductionStep(knownGlyphs, drillSeed + variantSeedBase * 3));
-    push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
+    // Em lições-conceito de fundação, não misturar CORE_REVIEW no pool da cena.
+    if (allowConversation) {
+      const conversationReview = FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") &&
+        options.lessonId !== "p1-engine-2-lab"
+        ? focus
+        : reviewFocus;
+      push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+    }
+    // Escada: julgar → completar → produzir com apoio.
+    // Transferência e produção aberta ficam para consolidação / lições seguintes.
+    if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
-    push(makeOldPhraseReuseStep(focus));
+    if (!foundationLite) {
+      push(
+        makeFreeProductionStep(
+          knownGlyphs,
+          drillSeed + variantSeedBase * 5,
+          undefined,
+          options.structureExposure
+        )
+      );
+      push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
+      push(makeOldPhraseReuseStep(focus, options.lessonId ? ALL_LESSONS.find((item) => item.id === options.lessonId) : undefined));
+    }
   } else {
-    const combined = [...reviewFocus, ...focus];
+    const combined = [...practiceFocus, ...focus];
     const primary = combined.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? combined[0];
-    if (enablePedagogyVariants && practiceVariant === "B") {
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "B") {
       push(makeDragonDictationStep(primary, combined, "pinyin"));
       push(makeSentenceLabStep(primary, combined, "sentence_lab_no_translation"));
     }
-    if (enablePedagogyVariants && practiceVariant === "C") {
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "C") {
       push(makeDragonDictationStep(primary, combined, phaseOrder >= 6 ? "immersion" : "hanzi"));
       push(makeSentenceLabStep(primary, combined, "sentence_lab_repair"));
     }
-    // Consolidação revisita imagens ANTIGAS (reviewFocus e núcleo) num modo diferente.
-    for (const item of reviewFocus) pushImage(item, 2);
-    for (const item of oldPhraseFocus([...focus, ...reviewFocus])) pushImage(item, 3);
+    // Consolidação revisita imagens ANTIGAS (practiceFocus e núcleo) num modo diferente.
+    for (const item of practiceFocus) pushImage(item, 2);
+    for (const item of oldPhraseFocus(
+      [...focus, ...practiceFocus],
+      options.lessonId ? ALL_LESSONS.find((entry) => entry.id === options.lessonId) : undefined
+    ))
+      pushImage(item, 3);
     for (const item of focus) pushImage(item, 3);
-    push(makeMatchPairsStep([...reviewFocus, ...focus]));
-    push(makeTonePairStep([...reviewFocus, ...focus]));
+    push(makeMatchPairsStep([...practiceFocus, ...focus]));
+    push(makeTonePairStep([...practiceFocus, ...focus]));
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed + 1));
     push(makeOddOneOutStep(knownGlyphs, drillSeed + 1));
-    push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
-    // Consolidar é provar que o padrão saiu da lição: a transferência cobra
-    // uma combinação que o currículo nunca mostrou. E cada rodada A/B/C cobra
-    // uma frase inédita diferente — sem o deslocamento por variante, refazer a
-    // lição repetiria a mesma transferência e ela viraria frase decorada.
+    if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
+    // Consolidar: transferência só se a estrutura já teve produção guiada antes.
     const variantSeed = drillSeed + 1 + variantSeedBase * 7;
-    push(makeTransferStep(knownGlyphs, variantSeed));
-    push(makeOpenProductionStep(knownGlyphs, variantSeed));
-    push(makeFreeProductionStep(knownGlyphs, variantSeed));
-    push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
-    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
-    for (const item of [...reviewFocus, ...focus]) {
-      push(makeComprehendStep(item, [...reviewFocus, ...focus]));
+    if (!foundationLite) {
+      push(
+        makeTransferStep(
+          knownGlyphs,
+          variantSeed,
+          undefined,
+          options.attemptNumber ?? 0,
+          options.structureExposureForTransfer ?? options.structureExposure,
+          options.priorTransferredFrames
+        )
+      );
+      push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure));
+      push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure));
+      push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
+    }
+    if (allowConversation) {
+      const conversationReview = FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") &&
+        options.lessonId !== "p1-engine-2-lab"
+        ? focus
+        : reviewFocus;
+      push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+    }
+    const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
+    for (const item of [...reviewForDrills, ...focus]) {
+      push(makeComprehendStep(item, [...reviewForDrills, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
-      push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
+      push(makeFillBlankStep(item, [...reviewForDrills, ...focus]));
       // Na consolidação o ditado sobe para imersão: velocidade natural,
       // uma reprodução só.
-      push(makeDictationStep(item, [...reviewFocus, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+      if (allowDictation) {
+        push(makeDictationStep(item, [...reviewForDrills, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+      }
       if (result.length >= targetCount) break;
     }
   }
@@ -3334,6 +3776,7 @@ function lessonOwnGlyphs(lesson: Lesson): ReadonlySet<string> {
 function noveltyScoreBonus(lesson: Lesson, step: LessonStep, reviewFocus: FocusItem[]): number {
   let bonus = 0;
   if (PRODUCTION_BONUS_KINDS.has(step.kind)) bonus += 30;
+  if (step.kind === "free_production" && step.productionOpen) bonus += 18;
   if (isRealSentenceStepAnswer(step)) bonus += 25;
   if (step.kind === "conversation_scene") bonus += 25;
   if (cognitiveProfile(step).familyRank >= 2 && stepUsesFocus(step, reviewFocus)) bonus += 20;
@@ -3391,16 +3834,25 @@ function generatedCandidatesFor(
   sceneContext: ConversationSceneSelectionContext = {},
   history?: readonly ConversationHistoryEntry[],
   practiceVariant: "A" | "B" | "C" = "A",
-  variantSeedOffset = 0
+  variantSeedOffset = 0,
+  attemptNumber = 0,
+  structureExposure?: StructureExposureMap,
+  structureExposureForTransfer?: StructureExposureMap,
+  priorTransferredFrames?: ReadonlySet<string>
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
   const unitIndex = lessonUnitIndex(lesson);
   const allowImageSteps = lessonAllowsGeneratedImages(lesson);
+  // Lições-conceito de fundação: o catálogo inteiro do currículo precoce
+  // liberava cenas com 再见/明天见 e o loop pós-conversa gerava high no
+  // audit:early-lessons. Restringe knownRefs ao foco da própria lição.
+  const foundationConcept =
+    FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
   const sceneSelection: ConversationSceneSelection = {
-    lessonInfo: conversationSceneLessonInfo(lesson, focus, reviewFocus),
+    lessonInfo: conversationSceneLessonInfo(lesson, focus, foundationConcept ? focus : reviewFocus),
     context: sceneContext,
-    knownRefs: curriculumRefsThroughLesson(lesson.id),
+    knownRefs: foundationConcept ? new Set(focusRefs(focus)) : curriculumRefsThroughLesson(lesson.id),
     isReviewLesson: Boolean(lesson.isReview),
     allowImmersion: lessonAllowsImmersionScenes(lesson),
     history,
@@ -3412,7 +3864,25 @@ function generatedCandidatesFor(
     // teto apertado deixava o gerador parar antes de produzir HanziBuilder e
     // exercício visual — e a garantia de cobertura não tinha o que garantir.
     const target = Math.max(8, profile.stageTargets[stageId] * 4);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id, practiceVariant, variantSeedOffset, enablePedagogyVariants: !lesson.isReview });
+    const generated = supplementalStepsForStage(stageId, focus, target, {
+      phaseOrder,
+      reviewFocus,
+      hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      allowComposedFiller,
+      unitIndex,
+      allowImageSteps,
+      sceneSelection,
+      lessonId: lesson.id,
+      practiceVariant,
+      variantSeedOffset,
+      enablePedagogyVariants: !lesson.isReview,
+      attemptNumber,
+      structureExposure,
+      structureExposureForTransfer,
+      priorTransferredFrames,
+    });
     for (const step of generated) {
       candidates.push({
         step,
@@ -3451,6 +3921,10 @@ function answerOccurrenceCount(candidates: readonly PracticeCandidate[], answerK
 
 /** Nenhuma resposta correta mais de 2 vezes no plano real. */
 function underAnswerRepeatCap(selected: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
+  // Conversa não compete no teto de resposta idêntica: o valor pedagógico é o
+  // diálogo, não a string da opção. Em lições de um único chunk (你好) o teto
+  // matava conversation_scene depois de listen/build.
+  if (candidate.step.kind === "conversation_scene") return true;
   const key = gradedAnswerKey(candidate.step);
   if (!key) return true;
   return answerOccurrenceCount(selected, key) < 2;
@@ -3487,6 +3961,11 @@ function underSemanticCaps(
   candidate: PracticeCandidate,
   isReview: boolean
 ): boolean {
+  // Conversa é outra modalidade cognitiva: se a cota de cenas ainda cabe,
+  // não pode ser bloqueada só porque listen/build já tocaram o mesmo chunk
+  // (ex.: p1-o-que-e-mandarim com 你好). Sem isto o ensure de conversation_scene
+  // falha e validate:exercise-depth cai no portão.
+  if (candidate.step.kind === "conversation_scene") return true;
   if (!isGradedStep(candidate.step)) return true;
   for (const key of stepSemanticKeys(candidate.step)) {
     const cap = semanticCapForKey(key, isReview);
@@ -3730,17 +4209,24 @@ function ensureCoverage(
   if (profile.maxConversationScenes > 0) {
     ensure((candidate) => candidate.step.kind === "conversation_scene", true);
   }
-  // Cota rotativa dos motores de percepção. Eles cobram eixos que a produção
-  // não cobre (ouvido, som→escrita, categoria, estrutura) e pontuam menos que
-  // ela — sem reserva, o motor de maior score levava todas as vagas e um eixo
-  // inteiro sumia do curso. A rotação por lição dá ~30 lições a cada um em vez
-  // de concentrar tudo no vencedor do score.
-  const PERCEPTION_ROTATION: StepKind[] = ["audio_discrimination", "dictation", "odd_one_out", "spot_error"];
-  const perceptionSlot = PERCEPTION_ROTATION[Math.abs(lessonOrderIndex(lesson)) % PERCEPTION_ROTATION.length];
-  ensure((candidate) => candidate.step.kind === perceptionSlot, true);
+  // Cota rotativa dos motores de percepção — só depois da fundação/fase 2.
+  // Antes disso, forçar dictation/spot_error injeta formatos e glifos prematuros.
+  const phaseOrder = lessonPhaseOrder(lesson);
+  const isFoundation = FOUNDATION_LESSON_IDS.includes(lesson.id);
+  const earlyPedagogy = isFoundation || phaseOrder <= 2;
+
+  if (!earlyPedagogy) {
+    const PERCEPTION_ROTATION: StepKind[] = ["audio_discrimination", "dictation", "odd_one_out", "spot_error"];
+    const perceptionSlot = PERCEPTION_ROTATION[Math.abs(lessonOrderIndex(lesson)) % PERCEPTION_ROTATION.length];
+    ensure((candidate) => candidate.step.kind === perceptionSlot, true);
+  }
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
-  ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
-  ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
+  if (!earlyPedagogy || profile.stageTargets.assembly > 0) {
+    ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
+  }
+  if (!earlyPedagogy || profile.stageTargets.usage > 0) {
+    ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
+  }
   ensure((candidate) => candidate.stageId === "consolidation" || candidate.families.includes("review"));
   if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) ensure((candidate) => candidate.families.includes("pinyin"));
   // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
@@ -3764,18 +4250,41 @@ function ensureCoverage(
       );
     }
   }
-  if (reviewFocus.length > 0) {
+  // Núcleo de revisão (再见/谢谢…) só depois que o aluno já saiu da fundação
+  // E só com frases que o currículo já apresentou (senão vaza 明天/这 cedo).
+  if (reviewFocus.length > 0 && !earlyPedagogy) {
     ensure((candidate) => stepUsesFocus(candidate.step, reviewFocus) || candidate.stageId === "consolidation");
-    if (oldPhraseFocus(lessonFocus).length > 0) {
+    const safeOld = oldPhraseFocus(lessonFocus, lesson);
+    if (safeOld.length > 0) {
       ensure((candidate) => {
         const blob = cleanHanzi(stepTextBlob(candidate.step));
-        return coreReviewFocusItems().some((item) => {
+        return safeOld.some((item) => {
           const hanzi = cleanHanzi(item.hanzi);
           if (!hanzi || !blob.includes(hanzi)) return false;
           return !lessonFocus.some((focusItem) => cleanHanzi(focusItem.hanzi) === hanzi);
         });
       });
     }
+  }
+
+  // Produção aberta e transferência: só entram no pool quando a estrutura já
+  // foi praticada. Sem reserva, o score de outros motores as engolia e o
+  // degrau final da escada sumia do plano real.
+  if (!earlyPedagogy) {
+    ensure(
+      (candidate) => candidate.step.kind === "free_production" && Boolean(candidate.step.productionOpen),
+      true
+    );
+    ensure((candidate) => candidate.step.kind === "transfer_task", true);
+    ensure(
+      (candidate) => candidate.step.kind === "free_production" && !candidate.step.productionOpen,
+      true
+    );
+    ensure((candidate) => candidate.step.kind === "conversation_repair", true);
+    // Ditado Dragão (modos blocks/pinyin/hanzi/immersion na rodada B/C): as
+    // reservas acima de transfer/free engoliam o slot de consolidação e a
+    // onda 1 perdia cobertura real de immersion. Reserva depois delas.
+    ensure((candidate) => candidate.step.pedagogyVariant === "dragon_dictation", true);
   }
 
   if (lesson.isReview) {
@@ -4033,6 +4542,10 @@ interface DerivedTaskDeps {
   progress?: HanziBuilderProgressMap;
   seenGlyphs?: ReadonlySet<string>;
   ownFocusGlyphs?: ReadonlySet<string>;
+  structureExposure?: StructureExposureMap;
+  structureExposureForTransfer?: StructureExposureMap;
+  priorTransferredFrames?: ReadonlySet<string>;
+  lessonId?: string;
 }
 
 /**
@@ -4402,11 +4915,23 @@ function makePostConversationStep(
     // dentro de uma frase que o aluno escreve inteira, sem peças na tela.
     case "produce_free": {
       const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
-      return makeFreeProductionStep(glyphs, drillSeedFor(item.key, "post_conversation"), item);
+      return makeFreeProductionStep(
+        glyphs,
+        drillSeedFor(item.key, "post_conversation"),
+        item,
+        _taskDeps.structureExposure
+      );
     }
     case "transfer_context": {
       const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
-      return makeTransferStep(glyphs, drillSeedFor(item.key, "post_conversation"), item);
+      return makeTransferStep(
+        glyphs,
+        drillSeedFor(item.key, "post_conversation"),
+        item,
+        0,
+        _taskDeps.structureExposureForTransfer ?? _taskDeps.structureExposure,
+        _taskDeps.priorTransferredFrames
+      );
     }
     case "repair_recover": {
       const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
@@ -4658,6 +5183,9 @@ export function applyConversationVocabularyLoop(
     seenGlyphs?: ReadonlySet<string>;
     ownFocusGlyphs?: ReadonlySet<string>;
     conversationHistory?: readonly ConversationHistoryEntry[];
+    structureExposure?: StructureExposureMap;
+    structureExposureForTransfer?: StructureExposureMap;
+    priorTransferredFrames?: ReadonlySet<string>;
   }
 ): LessonRoundStep[] {
   const conversationIndexes = plan
@@ -4677,6 +5205,10 @@ export function applyConversationVocabularyLoop(
     progress: deps.progress,
     seenGlyphs: deps.seenGlyphs,
     ownFocusGlyphs: deps.ownFocusGlyphs,
+    structureExposure: deps.structureExposure,
+    structureExposureForTransfer: deps.structureExposureForTransfer,
+    priorTransferredFrames: deps.priorTransferredFrames,
+    lessonId: lesson.id,
   };
 
   const derivedByConversationIndex = new Map<number, LessonRoundStep[]>();
@@ -5004,6 +5536,17 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     recentConversationIntentIds: context.recentConversationIntentIds,
     recentErrorRefs,
   });
+  const exposureBundle = context.skipStructureExposureIndex
+    ? {
+        forFree: context.structureExposure ?? new Map(),
+        forTransfer: context.structureExposureForTransfer ?? context.structureExposure ?? new Map(),
+      }
+    : structureExposureForLesson(lesson.id);
+  const structureExposure = context.structureExposure ?? exposureBundle.forFree;
+  const structureExposureForTransfer =
+    context.structureExposureForTransfer ?? exposureBundle.forTransfer;
+  const priorTransferredFrames =
+    context.priorTransferredFrames ?? priorTransferredFramesForLesson(lesson.id);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
     ...generatedCandidatesFor(
@@ -5017,14 +5560,19 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       sceneContext,
       context.conversationHistory,
       practiceVariant,
-      variantSeedOffset
+      variantSeedOffset,
+      context.attemptNumber ?? 0,
+      structureExposure,
+      structureExposureForTransfer,
+      priorTransferredFrames
     ),
   ];
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];
 
   for (const stageId of LESSON_STAGE_ORDER) {
-    const target = Math.max(1, profile.stageTargets[stageId]);
+    const target = profile.stageTargets[stageId];
+    if (target <= 0) continue;
     let selectedInStage = 0;
     while (selectedInStage < target && selected.length < profile.targetCount) {
       const candidate = selectBestCandidate(selected, candidates, stageId, usedSignatures, profile);
@@ -5095,15 +5643,20 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
 
   // Conversation Vocabulary Loop: garante que o vocabulário exibido na conversa
   // seja praticado DEPOIS dela, alterando o plano real entregue ao player.
+  const foundationConcept =
+    FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
   const withConversationLoop = applyConversationVocabularyLoop(plan, lesson, {
     focus,
-    reviewFocus,
+    reviewFocus: foundationConcept ? focus : reviewFocus,
     errorFocus,
     phaseOrder: lessonPhaseOrder(lesson),
     progress: context.hanziBuilderProgress,
     seenGlyphs,
     ownFocusGlyphs,
     conversationHistory: context.conversationHistory,
+    structureExposure,
+    structureExposureForTransfer,
+    priorTransferredFrames,
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);

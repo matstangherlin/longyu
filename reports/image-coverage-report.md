@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a9d82571d5428a44371e280d19d5f61814edab55 |
+| Commit | 1c5791b393d3741a751caf070585abd1bfec9110 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-10T16:19:39.077Z |
-| Lições | 122 |
-| Hash da Jornada | a3cf7cc2ff44 |
+| Gerado em | 2026-08-12T19:25:31.169Z |
+| Lições | 123 |
+| Hash da Jornada | b781403be692 |
 
 ## Resumo
 
@@ -16,15 +16,15 @@
 |-----------|------:|
 | Conceitos no catálogo | 37 |
 | Imagens locais (WebP) | 37 |
-| Lições na jornada | 122 |
-| Lições concretas elegíveis | 73 |
-| Lições elegíveis com imagem | 73 (100%) |
+| Lições na jornada | 123 |
+| Lições concretas elegíveis | 74 |
+| Lições elegíveis com imagem | 74 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 57 |
-| Conceitos nunca utilizados | 3 |
+| Conceitos nunca utilizados | 2 |
 
 ## Cobertura por fase
 
@@ -32,7 +32,7 @@
 |------|-------:|----------:|-----------:|----------:|
 | p1 — Primeiro Contato | 15 | 4 | 4 | 100% |
 | p2 — Som e Tons | 18 | 0 | 0 | — |
-| p3 — Frases Reais | 15 | 6 | 6 | 100% |
+| p3 — Frases Reais | 16 | 7 | 7 | 100% |
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
 | p6 — Vida Cotidiana | 15 | 11 | 11 | 100% |
@@ -47,7 +47,7 @@
 | u2-1 — Os quatro contornos | 9 | 0 | 0 | — |
 | u2-2 — Tons na prática | 9 | 0 | 0 | — |
 | u3-1 — Quem sou eu | 9 | 1 | 1 | 100% |
-| u3-2 — Primeira leitura | 6 | 5 | 5 | 100% |
+| u3-2 — Primeira leitura | 7 | 6 | 6 | 100% |
 | u4-1 — Peças que dão sentido | 27 | 22 | 22 | 100% |
 | u4-2 — Quando uma peça dá som | 5 | 5 | 5 | 100% |
 | u5-0 — Construção lógica | 14 | 14 | 14 | 100% |
@@ -62,11 +62,11 @@
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 23 |
-| imagem → pinyin (`choose_pinyin`) | 51 |
-| imagem → significado (`choose_meaning`) | 34 |
-| áudio → imagem (`listen_and_choose_image`) | 26 |
-| hànzì → imagem (`choose_image`) | 24 |
+| imagem → hànzì (`choose_hanzi`) | 22 |
+| imagem → pinyin (`choose_pinyin`) | 49 |
+| imagem → significado (`choose_meaning`) | 31 |
+| áudio → imagem (`listen_and_choose_image`) | 25 |
+| hànzì → imagem (`choose_image`) | 26 |
 
 ## Conceitos nunca utilizados
 
@@ -74,7 +74,6 @@
 |----------|-------|-------------|----------------------:|
 | child | 子 | criança | 8 |
 | vegetables | 菜 | verdura | 12 |
-| eat | 吃 | comer | 12 |
 
 ## Lições concretas sem imagem
 
@@ -84,4 +83,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:f8f84c8dcaccd238 -->
+<!-- integridade:bcd00bfe5451bc8f -->

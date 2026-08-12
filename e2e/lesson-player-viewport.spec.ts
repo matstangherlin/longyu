@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissBlockingOverlays, seedFreshJourneySession } from "./helpers";
+import { dismissBlockingOverlays, seedFreshJourneySession, waitForLazyPage } from "./helpers";
 
 /**
  * Lesson Player Viewport & Scroll Hardening
@@ -11,9 +11,10 @@ test.describe("lesson player — viewport & scroll", () => {
   test("página não rola no mobile — só a região da atividade", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 20_000 });
     await expect(page.locator("html")).toHaveAttribute("data-lesson-player", "1");
 
     const pageScroll = await page.evaluate(() => ({
@@ -48,11 +49,12 @@ test.describe("lesson player — viewport & scroll", () => {
   test("após avançar, a nova atividade começa no topo da região rolável", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const frame = page.locator("[data-lesson-player-frame]");
     const scroller = page.locator("[data-lesson-activity-scroll]");
-    await expect(frame).toBeVisible();
+    await expect(frame).toBeVisible({ timeout: 20_000 });
     await expect(scroller).toBeVisible();
 
     // Shell do player usa visualViewport / 100dvh (sem página longa por acidente).

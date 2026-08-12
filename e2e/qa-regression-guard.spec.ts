@@ -19,10 +19,11 @@ test.describe("QA regression guard — player mobile", () => {
   test("CTA sticky permanece acessível e no viewport", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
-    await expect(sticky).toBeVisible();
+    await expect(sticky).toBeVisible({ timeout: 20_000 });
     const cta = sticky.locator("button:visible").first();
     await expect(cta).toBeVisible();
 
@@ -45,10 +46,11 @@ test.describe("QA regression guard — player mobile", () => {
   test("ao avançar steps, o player continua enquadrado", async ({ page }) => {
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const frame = page.locator("[data-lesson-player-frame]");
-    await expect(frame).toBeVisible();
+    await expect(frame).toBeVisible({ timeout: 20_000 });
 
     const before = await page.evaluate(() => {
       const el = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;
@@ -169,7 +171,8 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    await seedLessonPlayerReady(page, "l5");
+    // Transferência só aparece depois da progressão de estrutura (por volta de l23+).
+    await seedLessonPlayerReady(page, "l23");
     await page.addInitScript(() => {
       try {
         const raw = localStorage.getItem("longyu-v1");
@@ -185,12 +188,12 @@ test.describe("QA regression guard — transferência", () => {
         /* ignore */
       }
     });
-    await page.goto("/licao/l5/player");
+    await page.goto("/licao/l23/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
-    const transferCopy = page.getByText(/Transferência|Use o que já sabe|Mesma estrutura/i);
+    const transferCopy = page.getByText(/Transferência|Você já conhece|Use este padrão/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
     while (

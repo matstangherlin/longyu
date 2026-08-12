@@ -4,68 +4,86 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 1035a21d2c487cbe88c7761fbfc39c6ae1e067d6 |
+| Commit | 944a2614a5d0b1d928dc643f7d45fd887375faeb |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-11T23:49:10.665Z |
-| Lições | 122 |
-| Hash da Jornada | 35a93a96f3d7 |
+| Gerado em | 2026-08-12T19:12:10.815Z |
+| Lições | 123 |
+| Hash da Jornada | b781403be692 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Estruturas (frames) declaradas | 18 |
-| Tarefas geradas pelos frames | 97 |
+| Estruturas (frames) declaradas | 19 |
+| Tarefas geradas pelos frames | 101 |
 | — produção (frase já ensinada) | 18 |
-| — transferência (combinação inédita) | 79 |
+| — transferência (combinação inédita) | 83 |
 | Objetivos comunicativos | 14 |
-| Tarefas que aceitam frase irmã | 34 |
+| Tarefas que aceitam frase irmã | 42 |
 | Objetivos de produção aberta declarados | 12 |
-| Objetivos de produção aberta no plano real | 8 |
-| Lições com produção aberta | 45 / 122 |
-| Falas de conversa sem apoio (aluno veterano) | 153 |
-| Lições com conversa sem apoio | 106 / 122 |
-| Lições com quebra de comunicação jogável | 74 / 122 |
+| Objetivos de produção aberta no plano real | 4 |
+| Lições com produção aberta | 18 / 123 |
+| Falas de conversa sem apoio (aluno veterano) | 135 |
+| Lições com conversa sem apoio | 90 / 123 |
+| Lições com quebra de comunicação jogável | 74 / 123 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 414 |
-| Lições com produção livre | 69 / 122 |
-| Lições com transferência | 98 / 122 |
-| Lições com reparo conversacional | 21 / 122 |
-| Estruturas diferentes no plano real | 14 |
-| Frases inéditas cobradas | 27 |
+| Passos auditados no plano real (3 tentativas) | 582 |
+| Lições com produção livre | 82 / 123 |
+| Lições com transferência | 23 / 123 |
+| Lições com reparo conversacional | 77 / 123 |
+| Estruturas diferentes no plano real | 7 |
+| Frases inéditas cobradas | 21 |
+| Transfer guided / supported / question | 66 / 0 / 0 |
+| 1ªs transferências (attempt 0) | 22 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
 > ele aplicou a estrutura — não pode ter decorado, porque nunca a viu pronta.
 
+> **Scaffold progressivo:** na tentativa 0 a transferência fica só em guided
+> (1 mudança). Supported e `frame_niyaoma` (sujeito+objeto+吗) sobem nas tentativas seguintes.
+
+## Primeiras transferências (attempt 0)
+
+- **l23** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **l9-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l24** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l25** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **l26** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l26b** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- **l27** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **l28** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p6-rotina-trabalho** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p6-cidade-lugares** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
+- **p6-saude** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- **p6-natureza** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
+- **p6-clima** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p6-direcoes** · `frame_woqu` · guided · âncora 我去学校 → `我今天去银行。`
+- **p6-compras** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
+- …mais 7.
+
 ## Frases inéditas cobradas por transferência
 
-- 你要水吗
-- 你要茶吗
-- 我不吃鱼
-- 我不喝水
 - 我今天去医院
+- 我今天去火车站
+- 我今天去超市
 - 我今天去银行
-- 我今天回家睡觉
 - 我去银行
-- 我喜欢茶
-- 我喜欢鱼
-- 我回家吃饭
-- 我回家睡觉
+- 我回家了
+- 我在吃饭
 - 我在喝水
-- 我想买苹果
-- 我想吃肉
-- 我想吃苹果
-- 我想喝热水
+- 我在睡觉
+- 我想喝牛奶
+- 我明天去医院
 - 我明天去超市
-- 我明天回家吃饭
 - 我有一个朋友
-- 我有三个香蕉
+- 我有一个苹果
+- 我有三个苹果
 - 我有五个朋友
 - 我有四个朋友
-- 我要买书
-- 我要买牛奶
-- 请问医院在哪里
-- 请问超市在哪里
+- 我有四个香蕉
+- 我睡觉了
+- 我要牛肉
+- 我要苹果
 
-<!-- integridade:ada30894114c6a1a -->
+<!-- integridade:dbf286dc994529e7 -->
