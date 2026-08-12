@@ -244,7 +244,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com sede. Diga que quer beber {item}.",
-    grammarNotePt: "想 + verbo: 想喝 + bebida.",
+    grammarNotePt: "想 + ação: 想喝 + bebida.",
     transferAssist: "guided",
     fillers: [
       { vocabId: "v_shui", promptPt: "água" },
@@ -311,7 +311,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com fome. Diga que quer comer {item}.",
-    grammarNotePt: "Mesma estrutura de 想喝, trocando o verbo: 想 + verbo + o que você quer.",
+    grammarNotePt: "Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
     transferAssist: "guided",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
@@ -406,7 +406,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxihuan",
     situationTemplatePt: "Alguém pergunta sobre seus gostos. Diga do que você gosta: {item}.",
-    grammarNotePt: "喜欢 vem direto depois do sujeito, sem preposição: 我喜欢 + coisa.",
+    grammarNotePt: "喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa.",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_yu", promptPt: "peixe" },
@@ -428,7 +428,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woquxuexiao",
     situationTemplatePt: "Um amigo pergunta onde você vai agora. Responda que vai {item}.",
     situationWithTimeTemplatePt: "Alguém pergunta seus planos. Diga que {time} você vai {item}.",
-    grammarNotePt: "去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre o sujeito e o verbo.",
+    grammarNotePt: "去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação.",
     fillers: [
       { vocabId: "v_chaoshi", promptPt: "ao supermercado" },
       { vocabId: "v_yiyuan", promptPt: "ao hospital" },
@@ -452,7 +452,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woyaomaiyifu",
     situationTemplatePt: "Você entra numa loja. Diga que quer comprar {item}.",
-    grammarNotePt: "要 + verbo é a intenção ('vou/quero fazer'): 要买 + coisa.",
+    grammarNotePt: "要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
     fillers: [
       { vocabId: "v_shu", promptPt: "um livro" },
       { vocabId: "v_piao", promptPt: "uma passagem" },
@@ -472,7 +472,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woyao",
     situationTemplatePt: "Agora é a outra pessoa: diga que ela quer {item}.",
-    grammarNotePt: "Troque só o sujeito: 我要 → 你要. O resto da estrutura continua igual.",
+    grammarNotePt: "Troque só quem age: 我要 → 你要. O resto da estrutura continua igual.",
     transferAssist: "supported",
     transferRequiresFrameIds: ["frame_woyao"],
     transferTransformHint: { from: "我", to: "你" },
@@ -519,7 +519,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "wobuheta",
     situationTemplatePt: "Ofereceram {item}. Recuse: diga que você não bebe isso.",
-    grammarNotePt: "不 vem ANTES do verbo: 不喝, nunca 喝不.",
+    grammarNotePt: "不 vem ANTES da ação: 不喝, nunca 喝不.",
     transferAssist: "guided",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
@@ -539,7 +539,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "wobuchirou",
     situationTemplatePt: "No restaurante, diga que você não come {item}.",
-    grammarNotePt: "A negação fica grudada no verbo: 不吃 + comida.",
+    grammarNotePt: "A negação fica grudada na ação: 不吃 + comida.",
     transferAssist: "guided",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
@@ -604,7 +604,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "wozaixuezhongwen",
     situationTemplatePt: "Alguém pergunta o que você está fazendo agora. Responda que está {item}.",
-    grammarNotePt: "在 antes do verbo marca 'agora / em progresso': 在 + ação. O verbo não muda de forma.",
+    grammarNotePt: "在 antes da ação marca 'agora / em progresso': 在 + ação. A ação não muda de forma.",
     fillers: [
       { vocabId: "v_xuezhongwen", promptPt: "estudando chinês" },
       { vocabId: "v_chifan", promptPt: "comendo" },
@@ -624,7 +624,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: "le.",
     anchorChunkId: "woele",
     situationTemplatePt: "Conte como você está agora. Diga que {item}.",
-    grammarNotePt: "了 no fim marca mudança / conclusão — o verbo (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
+    grammarNotePt: "了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
     fillers: [
       { vocabId: "v_e_fome", promptPt: "está com fome" },
       { vocabId: "v_huijia", promptPt: "já voltou para casa" },

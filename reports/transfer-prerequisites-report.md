@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 6fa13704a60428926bcf85aa704748ee61f1d292 |
+| Commit | 0fd59a4d513aa0fc4a28539c97bfe7e44a07d4bc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T17:37:52.994Z |
+| Gerado em | 2026-08-12T17:57:54.079Z |
 | Lições | 123 |
 | Hash da Jornada | b781403be692 |
 
@@ -23,8 +23,8 @@
 | Indicador | Valor |
 |-----------|------:|
 | Lições | 123 |
-| Lições com transfer_task | 75 |
-| Lições com free_production guiada | 79 |
+| Lições com transfer_task | 22 |
+| Lições com free_production guiada | 80 |
 | Lições com produção aberta | 18 |
 | Transfers precoces | 0 |
 | Opens precoces | 0 |
@@ -50,13 +50,13 @@
 | `frame_wobuchi` | 我不吃 ___ | — | — | — |
 | `frame_huijia_action` | 我回家 ___ | p7-imersao-casa-amigo | — | — |
 | `frame_zuofeijiqu` | 我坐飞机去 ___ | — | — | — |
-| `frame_wozai` | 我在 ___ | l11-falo-pouco | l11-falo-pouco | l12 |
+| `frame_wozai` | 我在 ___ | l11-falo-pouco | l11-falo-pouco | l26b |
 | `frame_wo_le` | 我 ___ 了 | l26 | p6-direcoes | l11-rev |
 
 ## Primeiras transferências (por frame)
 
-- **l12** · `frame_wozai` · guided · `我在喝水。`
 - **l23** · `frame_woyouge` · guided · `我有五个朋友。`
+- **l26b** · `frame_wozai` · guided · `我在吃饭。`
 - **p6-direcoes** · `frame_woqu` · guided · `我今天去银行。`
 - **l10-rev** · `frame_woyao` · guided · `我要苹果。`
 - **l29** · `frame_woxianghe` · guided · `我想喝牛奶。`
@@ -78,4 +78,4 @@
 - **l10-rev** · objetivo `state_destination` · modelo `我去超市。`
 - **l29** · objetivo `state_change` · modelo `我饿了。`
 
-<!-- integridade:02428c4a944e47ec -->
+<!-- integridade:c611c497691dac79 -->

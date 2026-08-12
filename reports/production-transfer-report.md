@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | cdbaf4ab3af331d521f8f993f3a2c881ae7fb4b8 |
+| Commit | 0fd59a4d513aa0fc4a28539c97bfe7e44a07d4bc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T16:38:55.589Z |
-| Lições | 122 |
-| Hash da Jornada | bd7d7c172c09 |
+| Gerado em | 2026-08-12T17:57:29.168Z |
+| Lições | 123 |
+| Hash da Jornada | b781403be692 |
 
 ## Resumo
 
@@ -22,19 +22,19 @@
 | Tarefas que aceitam frase irmã | 42 |
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 4 |
-| Lições com produção aberta | 18 / 122 |
-| Falas de conversa sem apoio (aluno veterano) | 150 |
-| Lições com conversa sem apoio | 105 / 122 |
-| Lições com quebra de comunicação jogável | 73 / 122 |
+| Lições com produção aberta | 18 / 123 |
+| Falas de conversa sem apoio (aluno veterano) | 135 |
+| Lições com conversa sem apoio | 90 / 123 |
+| Lições com quebra de comunicação jogável | 74 / 123 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 668 |
-| Lições com produção livre | 81 / 122 |
-| Lições com transferência | 75 / 122 |
-| Lições com reparo conversacional | 68 / 122 |
+| Passos auditados no plano real (3 tentativas) | 582 |
+| Lições com produção livre | 82 / 123 |
+| Lições com transferência | 23 / 123 |
+| Lições com reparo conversacional | 77 / 123 |
 | Estruturas diferentes no plano real | 7 |
 | Frases inéditas cobradas | 21 |
-| Transfer guided / supported / question | 221 / 0 / 0 |
-| 1ªs transferências (attempt 0) | 75 |
+| Transfer guided / supported / question | 66 / 0 / 0 |
+| 1ªs transferências (attempt 0) | 22 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -45,22 +45,22 @@
 
 ## Primeiras transferências (attempt 0)
 
-- **l12** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **l13** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **l13-dialogo-ola** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **l13-dialogo-nome** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p3-ordem-das-palavras** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **l14** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-num-123** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-num-45** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-num-678** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-num-910** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-char-mu** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-char-ren** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-char-kou** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-char-ri** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- **p4-char-yue** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
-- …mais 60.
+- **l23** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **l9-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l24** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l25** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **l26** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l26b** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- **l27** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **l28** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p6-rotina-trabalho** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p6-cidade-lugares** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
+- **p6-saude** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- **p6-natureza** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
+- **p6-clima** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p6-direcoes** · `frame_woqu` · guided · âncora 我去学校 → `我今天去银行。`
+- **p6-compras** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
+- …mais 7.
 
 ## Frases inéditas cobradas por transferência
 
@@ -86,4 +86,4 @@
 - 我要牛肉
 - 我要苹果
 
-<!-- integridade:042e1d609ff9711b -->
+<!-- integridade:1ac9721f00498e00 -->

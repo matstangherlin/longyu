@@ -1079,19 +1079,14 @@ function combinedReviewFocus(lesson: Lesson, context: LessonPracticePlanContext)
  * foco de revisão também vira `seenGlyphs`, e `seenGlyphs` é a porta que libera
  * produção livre, transferência e pares mínimos — motores que EXIGEM produzir.
  *
- * Misturados, o resultado era a abertura do curso pedir 我想喝水 e 我不喝水 —
- * 我, 想, 喝, 水, com a âncora 我不会说中文 — a quem tinha acabado de encontrar
- * 你好. Apresentar cedo é ensinar; cobrar cedo é reprovar de véspera.
+ * Misturados, o resultado era cobrar 喝/水 (via chunk:woxianghe no núcleo) em
+ * transferências muito antes do currículo ensinar 要/喝. Apresentar cedo é
+ * ensinar; cobrar cedo é reprovar de véspera.
  *
- * A separação é essa: a lição continua vendo o núcleo inteiro (cenas, revisão,
- * imagens), mas a porta da produção só conta o que o currículo já apresentou
- * até aqui. Vale na PRIMEIRA FASE; depois dela a mesma lista também funciona
- * como canal de introdução de vocabulário (我想喝茶 só aparece em passo autoral
- * muito adiante), e restringir o curso inteiro esvaziaria a produção aberta em
- * vez de consertar o começo.
+ * A porta da produção conta só refs que o currículo já apresentou até aqui
+ * (em qualquer fase). Conversas/revisão visual continuam vendo o núcleo inteiro.
  */
 function seenFocusForProduction(lesson: Lesson, reviewFocus: readonly FocusItem[]): FocusItem[] {
-  if (lessonPhaseOrder(lesson) > 1) return [...reviewFocus];
   const introduced = curriculumRefsThroughLesson(lesson.id);
   return reviewFocus.filter((item) => {
     // Item sem ref veio do texto da própria lição — já está na tela do aluno.
@@ -1150,13 +1145,31 @@ function coreReviewFocusItems(): FocusItem[] {
   return CORE_REVIEW_REFS.map(focusFromRef).filter((item): item is FocusItem => Boolean(item));
 }
 
-function oldPhraseFocus(currentFocus: readonly FocusItem[]): FocusItem[] {
+function oldPhraseFocus(currentFocus: readonly FocusItem[], lesson?: Lesson): FocusItem[] {
   const current = new Set(currentFocus.map((item) => cleanHanzi(item.hanzi)));
-  return coreReviewFocusItems().filter((item) => !current.has(cleanHanzi(item.hanzi)));
+  const introduced = lesson ? curriculumRefsThroughLesson(lesson.id) : null;
+  return coreReviewFocusItems().filter((item) => {
+    if (current.has(cleanHanzi(item.hanzi))) return false;
+    // Só reusa frases do núcleo que o currículo já apresentou — senão 明天/这
+    // vazam para fill_blank antes de existir no curso.
+    if (!introduced) return true;
+    if (!item.type || !item.itemId) return true;
+    return introduced.has(`${item.type}:${item.itemId}`);
+  });
 }
 
-function makeOldPhraseReuseStep(currentFocus: FocusItem[]): LessonStep | null {
-  const oldItems = oldPhraseFocus(currentFocus);
+/** Itens de revisão seguros para drills que COBRAM produção (fill/ditado). */
+function focusSafeForProductionDrills(items: readonly FocusItem[], lessonId?: string): FocusItem[] {
+  if (!lessonId) return [...items];
+  const introduced = curriculumRefsThroughLesson(lessonId);
+  return items.filter((item) => {
+    if (!item.type || !item.itemId) return true;
+    return introduced.has(`${item.type}:${item.itemId}`);
+  });
+}
+
+function makeOldPhraseReuseStep(currentFocus: FocusItem[], lesson?: Lesson): LessonStep | null {
+  const oldItems = oldPhraseFocus(currentFocus, lesson);
   if (oldItems.length === 0) return null;
   const pool = [...currentFocus, ...oldItems];
   for (const item of oldItems) {
@@ -3468,7 +3481,7 @@ function supplementalStepsForStage(
         )
       );
       push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
-      push(makeOldPhraseReuseStep(focus));
+      push(makeOldPhraseReuseStep(focus, options.lessonId ? ALL_LESSONS.find((item) => item.id === options.lessonId) : undefined));
     }
   } else {
     const combined = [...practiceFocus, ...focus];
@@ -3483,7 +3496,11 @@ function supplementalStepsForStage(
     }
     // Consolidação revisita imagens ANTIGAS (practiceFocus e núcleo) num modo diferente.
     for (const item of practiceFocus) pushImage(item, 2);
-    for (const item of oldPhraseFocus([...focus, ...practiceFocus])) pushImage(item, 3);
+    for (const item of oldPhraseFocus(
+      [...focus, ...practiceFocus],
+      options.lessonId ? ALL_LESSONS.find((entry) => entry.id === options.lessonId) : undefined
+    ))
+      pushImage(item, 3);
     for (const item of focus) pushImage(item, 3);
     push(makeMatchPairsStep([...practiceFocus, ...focus]));
     push(makeTonePairStep([...practiceFocus, ...focus]));
@@ -3510,14 +3527,15 @@ function supplementalStepsForStage(
     if (allowConversation) {
       push(makeConversationSceneStep(focus, practiceFocus, options.sceneSelection, knownGlyphs));
     }
-    for (const item of [...practiceFocus, ...focus]) {
-      push(makeComprehendStep(item, [...practiceFocus, ...focus]));
+    const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
+    for (const item of [...reviewForDrills, ...focus]) {
+      push(makeComprehendStep(item, [...reviewForDrills, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
-      push(makeFillBlankStep(item, [...practiceFocus, ...focus]));
+      push(makeFillBlankStep(item, [...reviewForDrills, ...focus]));
       // Na consolidação o ditado sobe para imersão: velocidade natural,
       // uma reprodução só.
       if (allowDictation) {
-        push(makeDictationStep(item, [...practiceFocus, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+        push(makeDictationStep(item, [...reviewForDrills, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
       }
       if (result.length >= targetCount) break;
     }
@@ -4199,14 +4217,15 @@ function ensureCoverage(
       );
     }
   }
-  // Núcleo de revisão (再见/谢谢…) só depois que o aluno já saiu da fundação.
-  // Forçar CORE_REVIEW em L1–L5 pedia glifos e frases ainda não ensinados.
+  // Núcleo de revisão (再见/谢谢…) só depois que o aluno já saiu da fundação
+  // E só com frases que o currículo já apresentou (senão vaza 明天/这 cedo).
   if (reviewFocus.length > 0 && !earlyPedagogy) {
     ensure((candidate) => stepUsesFocus(candidate.step, reviewFocus) || candidate.stageId === "consolidation");
-    if (oldPhraseFocus(lessonFocus).length > 0) {
+    const safeOld = oldPhraseFocus(lessonFocus, lesson);
+    if (safeOld.length > 0) {
       ensure((candidate) => {
         const blob = cleanHanzi(stepTextBlob(candidate.step));
-        return coreReviewFocusItems().some((item) => {
+        return safeOld.some((item) => {
           const hanzi = cleanHanzi(item.hanzi);
           if (!hanzi || !blob.includes(hanzi)) return false;
           return !lessonFocus.some((focusItem) => cleanHanzi(focusItem.hanzi) === hanzi);

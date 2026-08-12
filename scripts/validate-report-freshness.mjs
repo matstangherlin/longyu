@@ -35,6 +35,7 @@ const REPORTS = [
   "reports/lesson-novelty-report.md",
   "reports/error-diagnosis-report.md",
   "reports/onboarding-pace-report.md",
+  "reports/prerequisite-progression-report.md",
 ];
 
 // Tolerância para o fluxo normal "regenera → commita": um relatório gerado

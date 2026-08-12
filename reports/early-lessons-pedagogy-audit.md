@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 6fa13704a60428926bcf85aa704748ee61f1d292 |
+| Commit | 0fd59a4d513aa0fc4a28539c97bfe7e44a07d4bc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T17:37:38.554Z |
+| Gerado em | 2026-08-12T17:54:01.098Z |
 | Lições | 20 |
 | Hash da Jornada | b781403be692 |
 
@@ -61,4 +61,4 @@ _Nenhum problema objetivo encontrado._
 - **18.** `p2-ma-quarto-tom` — 4º tom com ma
 - **19.** `p2-comparar-tom-1-4` — Comparar 1º e 4º tom
 
-<!-- integridade:9ca7c61749a91172 -->
+<!-- integridade:2a1311bb8c876a3e -->
