@@ -99,13 +99,15 @@ export function MandarinToken({
   }
 
   function openHint(options: { pin?: boolean; event?: ReactPointerEvent<HTMLSpanElement> } = {}) {
+    // Ajuda desligada: nunca abrir sheet/tooltip — cobria o CTA sticky (B001/e2e mobile).
+    if (helpDisabled) return;
     cancelClose();
     window.dispatchEvent(new CustomEvent(GLOSS_OPEN_EVENT, { detail: tokenId }));
     setMobile(prefersSheet(options.event));
     setPinned(Boolean(options.pin));
     setView("term");
     setOpen((wasOpen) => {
-      if (!wasOpen && !helpDisabled) onHintOpen?.();
+      if (!wasOpen) onHintOpen?.();
       return true;
     });
   }
@@ -117,16 +119,31 @@ export function MandarinToken({
     setView("term");
   }
 
+  // Termo sem ajuda: texto puro (sem role=button aninhado dentro de opções).
+  if (helpDisabled) {
+    return (
+      <span
+        ref={ref}
+        className={[
+          "inline-block cursor-default select-none",
+          showPinyinRuby ? "inline-flex flex-col items-center leading-none" : "",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <span className="hanzi">{text}</span>
+      </span>
+    );
+  }
+
   return (
     <span
       ref={ref}
       className={[
-        "select-none transition-colors",
-        helpDisabled
-          ? "cursor-default"
-          : "cursor-help border-b border-dotted",
+        "select-none transition-colors cursor-help border-b border-dotted",
         showPinyinRuby ? "inline-flex flex-col items-center leading-none" : "inline-block",
-        !helpDisabled && (open ? "border-accent text-accent" : "border-ink-faint/45"),
+        open ? "border-accent text-accent" : "border-ink-faint/45",
         className,
       ]
         .filter(Boolean)
@@ -162,10 +179,10 @@ export function MandarinToken({
       tabIndex={0}
       aria-expanded={open}
       aria-haspopup="dialog"
-      aria-label={helpDisabled ? `${text}: sem ajuda nesta pergunta` : entry ? `${text}: ${entry.meaningPt}` : text}
+      aria-label={entry ? `${text}: ${entry.meaningPt}` : text}
     >
       <span className="hanzi">{text}</span>
-      {showPinyinRuby && !helpDisabled && entry?.pinyin && (
+      {showPinyinRuby && entry?.pinyin && (
         <span className="mt-1 pinyin leading-none" style={{ fontSize: "0.42em" }}>
           <Pinyin text={entry.pinyin} />
         </span>
@@ -181,7 +198,7 @@ export function MandarinToken({
           text={text}
           entry={entry}
           phrase={phrase ?? null}
-          disabled={helpDisabled}
+          disabled={false}
           canShowPhrase={canShowPhrase}
           canSpeak={canSpeak}
           onViewDetails={() => setView("details")}

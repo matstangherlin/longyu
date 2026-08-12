@@ -42,6 +42,11 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 > B001 **reaberto** (regressão física). B002/B003/B004/PED-005: código + testes; **abertos para RC** até humano.  
 > **Não marcar como fechado** só porque a automação passou.
 
+## Nota B001 / glossário (2026-08-12)
+
+Com `helpMode=disabled` em opções de escuta, o token **não** abre mais sheet
+“Sem ajuda nesta pergunta” — cobria o CTA sticky Verificar no mobile.
+
 ## Checklist de revalidação B001 (Android físico)
 
 Tip: `5998fbd`. Force refresh / cache limpo **antes**. Ver runbook §B001.
