@@ -4248,6 +4248,10 @@ function ensureCoverage(
       true
     );
     ensure((candidate) => candidate.step.kind === "conversation_repair", true);
+    // Ditado Dragão (modos blocks/pinyin/hanzi/immersion na rodada B/C): as
+    // reservas acima de transfer/free engoliam o slot de consolidação e a
+    // onda 1 perdia cobertura real de immersion. Reserva depois delas.
+    ensure((candidate) => candidate.step.pedagogyVariant === "dragon_dictation", true);
   }
 
   if (lesson.isReview) {
