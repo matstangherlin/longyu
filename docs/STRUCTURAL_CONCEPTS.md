@@ -17,7 +17,9 @@ Cada conceito tem `introducedAt`, `practicedAt`, `masteryRequiredFor`, `usedByFr
 
 ## UI
 
-`PatternSlotScaffold` resolve rótulos com `resolveSlotLabel(..., { lessonId, frameId })`.  
+`PatternSlotScaffold` (produção guiada) e o breakdown sob demanda da transferência
+(`Ver como a frase funciona`) resolvem rótulos com `formatConceptLabel` /
+`resolveSlotLabel(..., { lessonId, frameId })`.  
 `LessonPlayer` passa `lessonId` ao `StepRenderer`.
 
 ## Validação

@@ -190,7 +190,7 @@ test.describe("QA regression guard — transferência", () => {
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
-    const transferCopy = page.getByText(/Transferência|Use o que já sabe|Mesma estrutura/i);
+    const transferCopy = page.getByText(/Transferência|Você já conhece|Use este padrão/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
     while (

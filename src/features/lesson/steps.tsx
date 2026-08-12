@@ -36,7 +36,7 @@ import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { type PatternSlot } from "../../data/productionTasks";
-import { resolveSlotLabel } from "../../data/structuralConcepts";
+import { conceptForSlot, formatConceptLabel, resolveSlotLabel } from "../../data/structuralConcepts";
 import {
   AssemblyHintBanner,
   PieceAssemblyBank,
@@ -3602,19 +3602,22 @@ function StepSpotError(props: StepProps) {
 // antes, senão o exercício vira cópia.
 // ————————————————————————————————————————————————————————————————
 
-/** Campo de resposta livre com opção de falar em vez de digitar. */
+/** Campo de resposta livre — fala é alternativa, não competição com o input. */
 function FreeAnswerField({
   value,
   onChange,
   disabled,
   placeholder,
   onSubmit,
+  speechAsAlternative = false,
 }: {
   value: string;
   onChange: (next: string) => void;
   disabled: boolean;
   placeholder: string;
   onSubmit: () => void;
+  /** Se true, o mic vira link discreto em vez de botão ao lado do campo. */
+  speechAsAlternative?: boolean;
 }) {
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
@@ -3659,7 +3662,7 @@ function FreeAnswerField({
   }
 
   return (
-    <div className="mt-3.5">
+    <div className={speechAsAlternative ? "mt-2" : "mt-3.5"}>
       <textarea
         value={value}
         lang="zh-CN"
@@ -3689,25 +3692,105 @@ function FreeAnswerField({
         aria-label="Sua resposta"
         className="w-full resize-none rounded-2xl border border-line bg-surface-2 p-3.5 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
       />
-      {speechSupported && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Button
-            variant={listening ? "soft" : "outline"}
-            size="sm"
-            disabled={disabled}
-            onClick={startListening}
-            aria-pressed={listening}
-          >
-            <IconSound width={16} height={16} />
-            {listening ? "Ouvindo… toque para parar" : "Falar"}
-          </Button>
+      {speechAsAlternative ? (
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {speechSupported ? (
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={startListening}
+              aria-pressed={listening}
+              className="text-xs font-medium text-ink-mute underline decoration-line underline-offset-2 transition hover:text-ink disabled:opacity-50"
+            >
+              {listening ? "Ouvindo… toque para parar" : "Ou falar a resposta"}
+            </button>
+          ) : null}
           <span className="text-xs text-ink-faint">Vale hànzì ou pinyin.</span>
         </div>
+      ) : (
+        <>
+          {speechSupported && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Button
+                variant={listening ? "soft" : "outline"}
+                size="sm"
+                disabled={disabled}
+                onClick={startListening}
+                aria-pressed={listening}
+              >
+                <IconSound width={16} height={16} />
+                {listening ? "Ouvindo… toque para parar" : "Falar"}
+              </Button>
+              <span className="text-xs text-ink-faint">Vale hànzì ou pinyin.</span>
+            </div>
+          )}
+          {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Vale hànzì ou pinyin.</p>}
+        </>
       )}
-      {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Vale hànzì ou pinyin.</p>}
       {micError && <p className="mt-2 text-xs text-ink-soft">{micError}</p>}
     </div>
   );
+}
+
+type PatternPiece = { text: string; hole: boolean; slot?: PatternSlot };
+
+/**
+ * Quebra o padrão visual (ex.: 你要 ___ 吗？) em peças alinhadas aos slots
+ * quando o trecho fixo tem 1 caractere por papel consecutivo.
+ */
+function decomposePatternPieces(patternPt: string | undefined, slots?: PatternSlot[]): PatternPiece[] {
+  if (!patternPt) return [];
+  const parts = patternPt.split(/(___)/);
+  const pieces: PatternPiece[] = [];
+  let slotIndex = 0;
+
+  for (const part of parts) {
+    if (part === "___") {
+      const slot = slots?.[slotIndex++];
+      pieces.push({ text: "___", hole: true, slot });
+      continue;
+    }
+
+    const glyphs = Array.from(part.replace(/[?\s。？，,！!．.、]/g, ""));
+    if (!glyphs.length) continue;
+
+    if (!slots?.length) {
+      pieces.push({ text: glyphs.join(""), hole: false });
+      continue;
+    }
+
+    let run = 0;
+    while (slotIndex + run < slots.length && !slots[slotIndex + run]?.hole) run += 1;
+
+    if (run <= 0) {
+      pieces.push({ text: glyphs.join(""), hole: false });
+      continue;
+    }
+
+    if (glyphs.length === run) {
+      for (let i = 0; i < run; i += 1) {
+        pieces.push({ text: glyphs[i] ?? "", hole: false, slot: slots[slotIndex++] });
+      }
+      continue;
+    }
+
+    if (glyphs.length > run) {
+      for (let i = 0; i < run - 1; i += 1) {
+        pieces.push({ text: glyphs[i] ?? "", hole: false, slot: slots[slotIndex++] });
+      }
+      pieces.push({
+        text: glyphs.slice(run - 1).join(""),
+        hole: false,
+        slot: slots[slotIndex++],
+      });
+      continue;
+    }
+
+    pieces.push({ text: glyphs.join(""), hole: false, slot: slots[slotIndex] });
+    slotIndex += run;
+  }
+
+  return pieces;
 }
 
 /** Scaffold da estrutura: rótulos sobem intuitivo → pareado → técnico. */
@@ -3753,6 +3836,79 @@ function PatternSlotScaffold({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Breakdown sob demanda: peças do padrão + rótulos (intuitivos até o termo técnico estar pronto). */
+function StructureHowItWorks({
+  patternPt,
+  slots,
+  lessonId,
+  frameId,
+}: {
+  patternPt?: string;
+  slots?: PatternSlot[];
+  lessonId?: string;
+  frameId?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const pieces = useMemo(() => decomposePatternPieces(patternPt, slots), [patternPt, slots]);
+  if (!patternPt && !slots?.length) return null;
+
+  return (
+    <div className="mt-2" data-production-scaffold>
+      <button
+        type="button"
+        className="text-left text-xs font-semibold text-ink-mute underline decoration-line underline-offset-2 transition hover:text-ink"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? "Ocultar como a frase funciona" : "Ver como a frase funciona"}
+      </button>
+      {open ? (
+        <div
+          className="mt-2 rounded-2xl border border-line/70 bg-white/55 px-3 py-3"
+          data-production-scaffold-pattern
+          data-concept-lesson={lessonId ?? ""}
+        >
+          <div className="flex flex-wrap items-end gap-1.5" data-production-slot-labels>
+            {(pieces.length > 0
+              ? pieces
+              : (slots ?? []).map((slot) => ({
+                  text: slot.hole ? "___" : "·",
+                  hole: Boolean(slot.hole),
+                  slot,
+                }))
+            ).map((piece, index) => {
+              const slot = piece.slot;
+              const label = slot
+                ? formatConceptLabel(conceptForSlot(slot, { frameId, patternPt }), lessonId)
+                : undefined;
+              return (
+                <div key={`${piece.text}-${index}`} className="min-w-[2.75rem] text-center">
+                  <div
+                    className={[
+                      "hanzi rounded-xl px-2.5 py-2 text-lg font-semibold leading-none",
+                      piece.hole
+                        ? "border border-dashed border-gold/55 bg-[rgb(var(--gold)/0.08)] text-gold"
+                        : "border border-line bg-surface-2 text-ink",
+                    ].join(" ")}
+                    data-slot-role={slot?.role}
+                  >
+                    {piece.text}
+                  </div>
+                  {label ? (
+                    <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.06em] text-ink-mute">
+                      {label}
+                    </p>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -3825,105 +3981,176 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     if (!onMistake) playSoundFx("error", soundEffects);
   }
 
-  const goalHint = isTransfer
-    ? step.productionAssist === "guided"
-      ? "Mude só o que a situação pede — o resto da estrutura fica."
-      : step.productionAssist === "supported"
-        ? "Aplique a transformação marcada e complete o buraco."
-        : step.productionAssist === "question"
-          ? "Monte a afirmação e feche com 吗."
-          : "Mesma estrutura — só muda a situação."
-    : isOpen
-      ? step.productionHintPt ?? "Qualquer resposta que cumpra a situação vale."
-      : null;
   const answerPlaceholder = isTransfer
-    ? step.patternPt
-      ? `Ex.: ${step.patternPt.replace("___", "…")} — hànzì ou pinyin`
-      : "Ex.: wo yao cha — ou em hànzì"
+    ? "hànzì ou pinyin"
     : isOpen
       ? "Escreva o que você diria…"
       : step.patternPt
-        ? `Complete: ${step.patternPt} — hànzì ou pinyin`
-        : "Escreva em hànzì ou pinyin…";
-  const assistLabel =
-    step.productionAssist === "guided"
-      ? "Guiada · 1 mudança"
-      : step.productionAssist === "supported"
-        ? "Apoiada · transformação"
-        : step.productionAssist === "question"
-          ? "Pergunta · +吗"
-          : step.productionAssist === "open"
-            ? "Aberta"
-            : null;
+        ? `Complete: ${step.patternPt}`
+        : "hànzì ou pinyin";
+
+  const feedbackPanel = (
+    <EngineFeedbackPanel
+      status={feedback}
+      // Na produção aberta não existe "o modelo": chamar de modelo uma frase
+      // diferente da que o aluno acertou sugeriria que ele escolheu errado.
+      // Ali o modelo só aparece quando a tentativa não foi aceita.
+      model={
+        feedback === "wrong" || feedback === "unrecognized" || hadMistake || (!isOpen && locked)
+          ? model
+          : undefined
+      }
+      explanation={step.explanation}
+      causeFeedback={causeFeedback}
+      hadMistake={hadMistake}
+      deferMistakeToParent={Boolean(onMistake)}
+      onRetry={() => {
+        setDraft("");
+        setFeedback(null);
+        setCauseFeedback(undefined);
+      }}
+      onContinue={() => onDone(!hadMistake)}
+    />
+  );
+
+  const otherAnswersPanel =
+    feedback !== null && otherAnswers.length > 0 ? (
+      <div className="animate-pop mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+          {isOpen ? "Outras respostas que valiam" : "Isto também valia"}
+        </div>
+        <ul className="mt-2 grid gap-1.5">
+          {otherAnswers.map((answer) => (
+            <li key={answer} className="hanzi text-lg text-ink">
+              <ExerciseText value={answer} type="hanzi" speakOnClick helpMode="disabled" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
+
+  // Transferência: hierarquia curta — situação → âncora → padrão → resposta.
+  // Estrutura (quem/ação/…) só sob demanda.
+  if (isTransfer) {
+    return (
+      <div
+        data-production-step={step.kind}
+        data-production-assist={step.productionAssist ?? "guided"}
+        className="mx-auto w-full max-w-lg"
+      >
+        <Eyebrow>Transferência</Eyebrow>
+
+        <section
+          className="mt-3 rounded-2xl border border-accent-soft bg-accent-soft/40 px-3.5 py-3"
+          data-production-situation
+        >
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
+          <p className="mt-1 text-base font-medium leading-6 text-ink sm:text-[1.05rem]">
+            {step.situationPt ?? step.prompt}
+          </p>
+        </section>
+
+        {step.transferAnchorHanzi ? (
+          <section className="mt-3" data-production-learned>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              Você já conhece
+            </div>
+            <p className="mt-1 hanzi text-2xl leading-tight text-ink sm:text-[1.7rem]">
+              <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+            </p>
+            {step.transferAnchorPinyin ? (
+              <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm text-ink-soft" />
+            ) : null}
+            {step.transferTransformHint ? (
+              <div
+                className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft"
+                data-production-transform-hint
+              >
+                <span className="hanzi text-base text-ink">{step.transferTransformHint.from}</span>
+                <span aria-hidden>→</span>
+                <span className="hanzi text-base text-ink">{step.transferTransformHint.to}</span>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+
+        <section className="mt-3.5" data-production-goal>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+            Use este padrão
+          </div>
+          {step.patternPt ? (
+            <p className="mt-1 hanzi text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-[1.7rem]">
+              {step.patternPt}
+            </p>
+          ) : (
+            <p className="mt-1 text-sm text-ink-soft">Escreva a frase completa para a situação.</p>
+          )}
+          {step.productionAssist === "question" ? (
+            <p className="sr-only" data-production-question-hint>
+              Monte a frase e feche com 吗 no final.
+            </p>
+          ) : null}
+          <StructureHowItWorks
+            patternPt={step.patternPt}
+            slots={step.patternSlots}
+            lessonId={lessonId}
+            frameId={step.productionFrameId}
+          />
+        </section>
+
+        <section className="mt-4" data-production-answer>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Responda</div>
+          <FreeAnswerField
+            value={draft}
+            onChange={(next) => {
+              setDraft(next);
+              if (feedback !== "correct") setFeedback(null);
+            }}
+            disabled={locked}
+            placeholder={answerPlaceholder}
+            onSubmit={check}
+            speechAsAlternative
+          />
+        </section>
+
+        {feedbackPanel}
+        {otherAnswersPanel}
+
+        {!locked && (
+          <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
       data-production-step={step.kind}
-      data-production-assist={step.productionAssist ?? (isOpen ? "open" : isTransfer ? "guided" : undefined)}
+      data-production-assist={step.productionAssist ?? (isOpen ? "open" : undefined)}
     >
-      <Eyebrow>
-        {`${isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}${
-          assistLabel ? ` · ${assistLabel}` : ""
-        }`}
-      </Eyebrow>
+      <Eyebrow>{isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {step.title ?? (isTransfer ? "Use o que já sabe" : isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
+        {step.title ?? (isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
       </h2>
 
-      {/* Situação primeiro: o aluno entende o pedido antes de ver a âncora. */}
       <div
         className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5"
         data-production-situation
       >
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
         <p className="mt-1 text-base font-medium leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
-        {goalHint && (
+        {isOpen && step.productionHintPt ? (
           <p className="mt-1.5 text-sm leading-5 text-ink-soft" data-production-goal>
-            {goalHint}
+            {step.productionHintPt}
           </p>
+        ) : (
+          <span className="sr-only" data-production-goal>
+            Escreva a frase completa.
+          </span>
         )}
-        {!goalHint && <span className="sr-only" data-production-goal>Escreva a frase completa.</span>}
       </div>
 
-      {isTransfer && step.transferAnchorHanzi && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-learned>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Você já aprendeu
-          </div>
-          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="hanzi text-2xl text-ink">
-              <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
-            </span>
-            {step.transferAnchorPt && <span className="text-sm text-ink-soft">= {step.transferAnchorPt}</span>}
-          </div>
-          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm" />}
-          {step.transferTransformHint && (
-            <div
-              className="mt-2.5 inline-flex items-center gap-2 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-1.5 text-sm font-semibold text-accent"
-              data-production-transform-hint
-            >
-              <span className="hanzi text-base text-ink">{step.transferTransformHint.from}</span>
-              <span aria-hidden>→</span>
-              <span className="hanzi text-base text-ink">{step.transferTransformHint.to}</span>
-            </div>
-          )}
-          {step.productionAssist === "question" && (
-            <p className="mt-2 text-xs leading-5 text-ink-soft" data-production-question-hint>
-              Monte a frase e feche com <span className="hanzi font-semibold text-ink">吗</span> no final.
-            </p>
-          )}
-          <div data-production-scaffold>
-            <PatternSlotScaffold
-              slots={step.patternSlots}
-              patternPt={step.patternPt}
-              lessonId={lessonId}
-              frameId={step.productionFrameId}
-            />
-          </div>
-        </div>
-      )}
-
-      {!isTransfer && !isOpen && (step.patternSlots?.length || step.patternPt) && (
+      {!isOpen && (step.patternSlots?.length || step.patternPt) && (
         <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-scaffold>
           <PatternSlotScaffold
             slots={step.patternSlots}
@@ -3944,45 +4171,12 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
           disabled={locked}
           placeholder={answerPlaceholder}
           onSubmit={check}
+          speechAsAlternative
         />
       </div>
 
-      <EngineFeedbackPanel
-        status={feedback}
-        // Na produção aberta não existe "o modelo": chamar de modelo uma frase
-        // diferente da que o aluno acertou sugeriria que ele escolheu errado.
-        // Ali o modelo só aparece quando a tentativa não foi aceita.
-        model={
-          feedback === "wrong" || feedback === "unrecognized" || hadMistake || (!isOpen && locked)
-            ? model
-            : undefined
-        }
-        explanation={step.explanation}
-        causeFeedback={causeFeedback}
-        hadMistake={hadMistake}
-        deferMistakeToParent={Boolean(onMistake)}
-        onRetry={() => {
-          setDraft("");
-          setFeedback(null);
-          setCauseFeedback(undefined);
-        }}
-        onContinue={() => onDone(!hadMistake)}
-      />
-
-      {feedback !== null && otherAnswers.length > 0 && (
-        <div className="animate-pop mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {isOpen ? "Outras respostas que valiam" : "Isto também valia"}
-          </div>
-          <ul className="mt-2 grid gap-1.5">
-            {otherAnswers.map((answer) => (
-              <li key={answer} className="hanzi text-lg text-ink">
-                <ExerciseText value={answer} type="hanzi" speakOnClick helpMode="disabled" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {feedbackPanel}
+      {otherAnswersPanel}
 
       {!locked && (
         <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
