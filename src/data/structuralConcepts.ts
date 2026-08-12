@@ -359,7 +359,7 @@ export function canUseTechnicalLabelAlone(
   return concept.masteryRequiredFor.includes(frameId) || concept.usedByFrames.includes(frameId);
 }
 
-/** Termos técnicos que NÃO podem aparecer como pressuposto antes da intro. */
+/** Termos tecnicos que NAO podem aparecer como pressuposto antes da intro. */
 export const TECHNICAL_TERM_PATTERNS: Array<{ conceptId: StructuralConceptId; pattern: RegExp }> = [
   { conceptId: "subject", pattern: /\bsujeito\b/i },
   { conceptId: "verb", pattern: /\bverbo\b/i },

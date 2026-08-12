@@ -867,7 +867,7 @@ function availableTasks(seenGlyphs: ReadonlySet<string>): FrameTask[] {
 
 /** Degraus de prática de uma estrutura antes de transferir. */
 export interface StructurePracticeRungs {
-  /** Âncora ou frase no padrão já apareceu no currículo (foco/autoral). */
+  /** Ancora ou frase no padrao ja apareceu no curriculo (foco/autoral). */
   exposed: boolean;
   /** Já houve fill_blank (ou equivalente) no padrão. */
   completion: boolean;
