@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 1c5791b393d3741a751caf070585abd1bfec9110 |
+| Commit | 5998fbd1ed570004bdd9da3c72e69f8d1796b5a3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:25:32.748Z |
+| Gerado em | 2026-08-12T22:17:34.111Z |
 | Lições | 123 |
-| Hash da Jornada | b781403be692 |
+| Hash da Jornada | 4a56ec34a066 |
 
 ## Resumo
 
@@ -43,46 +43,46 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 | Asset | Conceito | Estilo | Fundo | Tamanho | Dimensão | Problemas | Substituir? |
 |-------|----------|--------|-------|--------:|----------|-----------|:-----------:|
-| person | 人 pessoa | flat_illustration | neutral | 34.4 KB | 600×600 | — | — |
-| tree | 木 árvore | flat_illustration | neutral | 30.5 KB | 600×600 | — | — |
-| mouth | 口 boca | flat_illustration | neutral | 6.4 KB | 600×600 | — | — |
-| sun | 日 sol | flat_illustration | neutral | 10.9 KB | 600×600 | — | — |
-| moon | 月 lua | flat_illustration | neutral | 5.2 KB | 600×600 | — | — |
-| mountain | 山 montanha | flat_illustration | neutral | 40.4 KB | 600×600 | — | — |
-| water | 水 água | flat_illustration | neutral | 9.2 KB | 600×600 | — | — |
-| fire | 火 fogo | flat_illustration | neutral | 4.5 KB | 600×600 | — | — |
-| big | 大 grande | flat_illustration | neutral | 4.5 KB | 600×600 | — | — |
-| small | 小 pequeno | flat_illustration | neutral | 3.9 KB | 600×600 | — | — |
-| woman | 女 mulher | flat_illustration | neutral | 17.4 KB | 600×600 | — | — |
-| child | 子 criança | flat_illustration | neutral | 28.3 KB | 600×600 | — | — |
-| mother | 妈 mãe | flat_illustration | neutral | 25.7 KB | 600×600 | — | — |
-| father | 爸 pai | flat_illustration | neutral | 26.2 KB | 600×600 | — | — |
-| friend | 朋 amigo | flat_illustration | neutral | 32.4 KB | 600×600 | — | — |
-| crowd | 众 multidão | flat_illustration | neutral | 73.8 KB | 600×600 | — | — |
-| sky | 天 céu | flat_illustration | neutral | 11.2 KB | 600×600 | — | — |
-| woods | 林 bosque | flat_illustration | neutral | 37.3 KB | 600×600 | — | — |
-| forest | 森 floresta | flat_illustration | neutral | 68.8 KB | 600×600 | — | — |
-| horse | 马 cavalo | flat_illustration | neutral | 67.4 KB | 600×600 | — | — |
-| fish | 鱼 peixe | flat_illustration | neutral | 16.7 KB | 600×600 | — | — |
-| rice | 饭 arroz | flat_illustration | neutral | 56.5 KB | 600×600 | — | — |
-| tea | 茶 chá | flat_illustration | neutral | 17.8 KB | 600×600 | — | — |
-| meat | 肉 carne | flat_illustration | neutral | 12.2 KB | 600×600 | — | — |
-| vegetables | 菜 verdura | flat_illustration | neutral | 54.3 KB | 600×600 | — | — |
-| eat | 吃 comer | flat_illustration | neutral | 70.3 KB | 600×600 | — | — |
-| drink | 喝 beber | flat_illustration | neutral | 30.9 KB | 600×600 | — | — |
-| book | 书 livro | flat_illustration | neutral | 24.8 KB | 600×600 | — | — |
-| car | 车 carro | flat_illustration | neutral | 35.4 KB | 600×600 | — | — |
-| home | 家 casa | flat_illustration | neutral | 51.6 KB | 600×600 | — | — |
-| money | 钱 dinheiro | flat_illustration | neutral | 33.9 KB | 600×600 | — | — |
-| ticket | 票 bilhete | flat_illustration | neutral | 7.5 KB | 600×600 | — | — |
-| one | 一 um | flat_illustration | neutral | 3.9 KB | 600×600 | — | — |
-| two | 二 dois | flat_illustration | neutral | 5.5 KB | 600×600 | — | — |
-| three | 三 três | flat_illustration | neutral | 13.6 KB | 600×600 | — | — |
-| four | 四 quatro | flat_illustration | neutral | 7.2 KB | 600×600 | — | — |
-| five | 五 cinco | flat_illustration | neutral | 14.4 KB | 600×600 | — | — |
+| person | 人 pessoa | flat_illustration | transparent | 34.2 KB | 600×600 | — | — |
+| tree | 木 árvore | flat_illustration | transparent | 30.3 KB | 600×600 | — | — |
+| mouth | 口 boca | flat_illustration | transparent | 6.3 KB | 600×600 | — | — |
+| sun | 日 sol | flat_illustration | transparent | 10.8 KB | 600×600 | — | — |
+| moon | 月 lua | flat_illustration | transparent | 3.9 KB | 600×600 | — | — |
+| mountain | 山 montanha | flat_illustration | transparent | 40.3 KB | 600×600 | — | — |
+| water | 水 água | flat_illustration | transparent | 9.1 KB | 600×600 | — | — |
+| fire | 火 fogo | flat_illustration | transparent | 4.3 KB | 600×600 | — | — |
+| big | 大 grande | flat_illustration | transparent | 4.3 KB | 600×600 | — | — |
+| small | 小 pequeno | flat_illustration | transparent | 3.7 KB | 600×600 | — | — |
+| woman | 女 mulher | flat_illustration | transparent | 17.2 KB | 600×600 | — | — |
+| child | 子 criança | flat_illustration | transparent | 28.1 KB | 600×600 | — | — |
+| mother | 妈 mãe | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
+| father | 爸 pai | flat_illustration | transparent | 26.0 KB | 600×600 | — | — |
+| friend | 朋 amigo | flat_illustration | transparent | 32.2 KB | 600×600 | — | — |
+| crowd | 众 multidão | flat_illustration | transparent | 73.6 KB | 600×600 | — | — |
+| sky | 天 céu | flat_illustration | transparent | 9.8 KB | 600×600 | — | — |
+| woods | 林 bosque | flat_illustration | transparent | 37.1 KB | 600×600 | — | — |
+| forest | 森 floresta | flat_illustration | transparent | 68.6 KB | 600×600 | — | — |
+| horse | 马 cavalo | flat_illustration | transparent | 67.3 KB | 600×600 | — | — |
+| fish | 鱼 peixe | flat_illustration | transparent | 16.6 KB | 600×600 | — | — |
+| rice | 饭 arroz | flat_illustration | transparent | 56.4 KB | 600×600 | — | — |
+| tea | 茶 chá | flat_illustration | transparent | 17.7 KB | 600×600 | — | — |
+| meat | 肉 carne | flat_illustration | transparent | 12.1 KB | 600×600 | — | — |
+| vegetables | 菜 verdura | flat_illustration | transparent | 54.2 KB | 600×600 | — | — |
+| eat | 吃 comer | flat_illustration | transparent | 70.1 KB | 600×600 | — | — |
+| drink | 喝 beber | flat_illustration | transparent | 30.7 KB | 600×600 | — | — |
+| book | 书 livro | flat_illustration | transparent | 24.7 KB | 600×600 | — | — |
+| car | 车 carro | flat_illustration | transparent | 35.3 KB | 600×600 | — | — |
+| home | 家 casa | flat_illustration | transparent | 51.4 KB | 600×600 | — | — |
+| money | 钱 dinheiro | flat_illustration | transparent | 33.8 KB | 600×600 | — | — |
+| ticket | 票 bilhete | flat_illustration | transparent | 7.4 KB | 600×600 | — | — |
+| one | 一 um | flat_illustration | transparent | 3.8 KB | 600×600 | — | — |
+| two | 二 dois | flat_illustration | transparent | 5.3 KB | 600×600 | — | — |
+| three | 三 três | flat_illustration | transparent | 13.5 KB | 600×600 | — | — |
+| four | 四 quatro | flat_illustration | transparent | 7.1 KB | 600×600 | — | — |
+| five | 五 cinco | flat_illustration | transparent | 14.3 KB | 600×600 | — | — |
 
 ---
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:ac1bb337f9eeb877 -->
+<!-- integridade:81a2c95f923f20a4 -->

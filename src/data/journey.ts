@@ -132,6 +132,8 @@ export interface LessonStep {
   pt?: string;
   hanzi?: string;
   tone?: 1 | 2 | 3 | 4;
+  /** PED-005 — subset of tones for early contrast drills (e.g. [1, 3]). */
+  toneChoices?: Array<1 | 2 | 3 | 4>;
   answer?: string;
   suggestion?: string;
   requiredTerms?: string[];
@@ -441,8 +443,16 @@ const tone = (
   hanzi: string,
   pinyin: string,
   t: 1 | 2 | 3 | 4,
-  assist: "guided" | "quiz" = "guided"
-): LessonStep => ({ kind: "tone", hanzi, pinyin, tone: t, assist });
+  assist: "guided" | "quiz" = "guided",
+  toneChoices?: Array<1 | 2 | 3 | 4>
+): LessonStep => ({
+  kind: "tone",
+  hanzi,
+  pinyin,
+  tone: t,
+  assist,
+  ...(toneChoices ? { toneChoices } : {}),
+});
 const comp = (hanzi: string, pinyin: string, answer: string, options: string[]): LessonStep => ({
   kind: "comprehend",
   hanzi,
@@ -826,11 +836,13 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2", "chunk:nihao"],
     steps: [
-      intro("A curva da voz", "Em mandarim, o contorno da voz faz parte da palavra. mǎ e mà não soam iguais, então seu ouvido treina desde cedo."),
-      tone("妈", "mā", 1),
-      tone("马", "mǎ", 3),
-      tone("麻", "má", 2, "quiz"),
-      tone("骂", "mà", 4, "quiz"),
+      intro(
+        "A curva da voz",
+        "Em mandarim, o contorno da voz faz parte da palavra. Comece só ouvindo dois tons bem diferentes — depois entram os quatro contornos."
+      ),
+      // PED-005: primeiro 2 tons contrastantes (1º × 3º), sem misturar significado.
+      tone("妈", "mā", 1, "guided", [1, 3]),
+      tone("马", "mǎ", 3, "guided", [1, 3]),
       listenSelect(
         "Reta ou vale?",
         "马",
@@ -838,55 +850,21 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "马",
         "mǎ desce e volta a subir (3º tom); mā fica reta no alto (1º tom)."
       ),
+      // Depois: quatro contornos, ainda com ajuda.
+      tone("麻", "má", 2, "guided"),
+      tone("骂", "mà", 4, "guided"),
       match(
         "Tom muda sentido",
-        "Combine som e ideia.",
+        "Combine som e ideia — só duas palavras.",
         [
           { left: "妈", right: "mãe", leftType: "hanzi", rightType: "pt" },
           { left: "马", right: "cavalo", leftType: "hanzi", rightType: "pt" },
         ],
         "Mesmo ma com outro tom pode virar outra palavra."
       ),
-      match(
-        "Três tons numa família",
-        "Combine cada palavra com o sentido — cada uma usa um tom diferente.",
-        [
-          { left: "妈", right: "mãe", leftType: "hanzi", rightType: "pt" },
-          { left: "马", right: "cavalo", leftType: "hanzi", rightType: "pt" },
-          { left: "骂", right: "xingar", leftType: "hanzi", rightType: "pt" },
-        ],
-        "妈 mā (1º), 马 mǎ (3º) e 骂 mà (4º): só o contorno da voz muda o sentido."
-      ),
-      match(
-        "Quatro tons de ma",
-        "A família completa: um mesmo som em quatro curvas. Combine.",
-        [
-          { left: "妈", right: "mãe — 1º tom", leftType: "hanzi", rightType: "pt" },
-          { left: "麻", right: "dormente — 2º tom", leftType: "hanzi", rightType: "pt" },
-          { left: "马", right: "cavalo — 3º tom", leftType: "hanzi", rightType: "pt" },
-          { left: "骂", right: "xingar — 4º tom", leftType: "hanzi", rightType: "pt" },
-        ],
-        "妈 mā, 麻 má, 马 mǎ e 骂 mà: quatro curvas, quatro sentidos."
-      ),
-      sentenceBuild(
-        "Tons numa frase real",
-        "Monte o cumprimento que você já conhece (3º + 3º tom).",
-        ["你", "好"],
-        ["你", "好", "马"],
-        "你好 junta dois 3º tons — o tom vive dentro das frases, não só em sílabas soltas."
-      ),
-      dialogue(
-        "Como soa na fala?",
-        "O dicionário escreve nǐ hǎo. Como soa na fala?",
-        "ní hǎo",
-        [
-          "ní hǎo",
-          "nǐ hǎo",
-          "nì hào",
-          "nī hāo",
-        ],
-        "3º + 3º → o primeiro sobe: soa ní hǎo."
-      ),
+      // Quiz leve no fim (palavra conhecida + tom), sem a família completa de uma vez.
+      tone("妈", "mā", 1, "quiz", [1, 4]),
+      tone("骂", "mà", 4, "quiz", [1, 4]),
       dialogue(
         "Ideia principal",
         "Em mandarim, tom é...",

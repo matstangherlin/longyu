@@ -164,6 +164,7 @@ Dispositivo: ________ · Chrome: ________ · PWA: ☐ sim ☐ não
 ## 3. iPhone / Safari (físico)
 
 Dispositivo: ________ · iOS: ________ · “Adicionar à Tela de Início”: ☐  
+SHA tip: ________ · Force refresh / cache limpo **antes**: ☐  
 
 | Check | OK |
 | --- | :---: |
@@ -172,6 +173,24 @@ Dispositivo: ________ · iOS: ________ · “Adicionar à Tela de Início”: �
 | `100dvh` / teclado Safari não empurra CTA para fora | ☐ |
 | Standalone: sem chrome do Safari “quebrando” layout | ☐ |
 | Confirmar e-mail / reset abrem no Safari e voltam ao app | ☐ |
+
+### 3.1 Remessa device (B001 / B003 / B004) — activity-by-activity
+
+Use o deploy tip da PR (ou `main` pós-merge). Marque só após ver no aparelho.
+
+| # | Fluxo | OK | Nota |
+| ---: | --- | :---: | --- |
+| 1 | Abrir lição com StickyActionBar → Conteúdo não fica sob o CTA; scroll chega ao fim | ☐ | B001 |
+| 2 | Verificar / Continuar sticky em light + dark; teclado aberto não some o CTA | ☐ | B001 |
+| 3 | `/revisao` → Corrigir agora → Verificar → **Certo/Errado** imediato | ☐ | B003 |
+| 4 | Após revelar: **Continuar** (ou Errei — continuar) visível na viewport sem caça | ☐ | B003 |
+| 5 | Continuar avança ao próximo item (ou fim de sessão) | ☐ | B003 |
+| 6 | Associação visual (`image_choice`): 4 imagens visíveis **antes** de responder | ☐ | B004 |
+| 7 | Asset quebrado → fallback (ícone/emoji), nunca 4 tiles vazios | ☐ | B004 |
+| 8 | Lição de tom (`p1-o-que-e-tom`): escada clara (tom → pinyin → palavra) | ☐ | PED-005 |
+| 9 | Ilustrações light/dark sem fundo mint sólido | ☐ | VIS-006 |
+
+Automação: `e2e/review-continue-iphone.spec.ts` (Chromium + WebKit no CI) cobre B003 em viewport iPhone — **não** substitui o físico.
 
 ---
 

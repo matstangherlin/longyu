@@ -229,8 +229,13 @@ export async function openListenSelectStep(page: Page) {
 /** Completa listen_select e abre o próximo passo avaliado (pinyin / comp). */
 export async function openPostListenGradedStep(page: Page) {
   await openListenSelectStep(page);
+  // Tile da opção (hanzi) — com helpMode=disabled o token não abre sheet por cima do CTA.
   await page.getByRole("button", { name: /你好/ }).first().click();
-  await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+  await page.keyboard.press("Escape").catch(() => undefined);
+  const verify = page.getByRole("button", { name: /^Verificar$|^Confirmar$|^Conferir$/ }).first();
+  await expect(verify).toBeEnabled({ timeout: 5_000 });
+  await verify.scrollIntoViewIfNeeded();
+  await verify.click();
   await expect(
     page
       .getByRole("button", { name: /Opção \d+/ })

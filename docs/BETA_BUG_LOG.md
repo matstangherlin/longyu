@@ -13,7 +13,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | Data início | 2026-08-11 |
 | URL / ambiente | produção Netlify / preview |
 | Versão (Sobre / landing) | v0.2.0-beta.1 |
-| SHA tip `main` | `3622885` (#148 — produção/revisão/PieceAssembly/guarda QA) |
+| SHA tip `main` | `5998fbd` (#156 pedagogia + remessa B003/B004/B001/PED-005/VIS) |
 | SHA congelada (RC) | _preencher só na RC_ |
 | Executor | Cloud Agent + QA humano (Matheus) |
 
@@ -21,25 +21,35 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Body não arrasta; CTA acessível; teclado ok; vitória correta | Lição pinyin pós-resposta + tela final | **corrigido em código**, aguardando revalidação Android física (#138→#139→#140; tip `3622885`) |
-| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Errar/pular → revisão; um prompt; pinyin coerente; status ≠ alternativa; sentence build ok; estrela recupera | Errar/pular diálogo → aceitar revisão | **corrigido em código**, aguardando revalidação humana (#148 / tip `3622885`) |
-| B003 | | | | | | | |
+| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Body não arrasta; CTA acessível; teclado ok; vitória correta | Lição pinyin pós-resposta + tela final | **REABERTO** — StickyActionBar ainda cobre banco de peças no celular real; reserva de padding + safe-area na remessa device-bugs; tip `5998fbd` · aguarda Android/iPhone|
+| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Errar/pular → revisão; um prompt; pinyin coerente; status ≠ alternativa; sentence build ok; estrela recupera | Errar/pular diálogo → aceitar revisão | **corrigido em código**, aguardando revalidação humana (#148; tip `5998fbd`) |
+| B003 | P0 | `/revisao` após Verificar | iPhone Safari / PWA | Resposta não mostra Certo/Errado claro; sem CTA Continuar visível (estado `revealed` sem ação sticky) | Feedback imediato + Continuar sticky na viewport; scroll/foco no feedback | Responder item de revisão no iPhone | **corrigido em código** (`RevisaoPage` sticky Continuar + e2e); aguarda iPhone físico |
+| B004 | P1 | Associação visual (`image_choice`) | Mobile | Quatro tiles vazios (opacity-0 / lazy); lógica de acerto funciona | Imagens eager + preload; fallback; não responder com tiles vazios | Lição com image_choice | **corrigido em código** (`VisualConceptImage` / `ImageChoiceGrid`); aguarda aparelho |
+| PED-005 | P1 | Tons (`p1-o-que-e-tom` / `StepTone`) | Pedagógico | Carga cognitiva alta (áudio+vocábulo+tom+sentido juntos) | Escada 2 tons → 4 → pinyin → palavra → mistura | Lição de tom | **corrigido em código** (`toneChoices` + lição); aguarda humano |
+| VIS-006 | P2 | Ilustrações light/dark | Mobile/Desktop | Mint `#EDF2ED` opaco não acompanha tema | SVG transparente + frame `bg-surface-2` | Alternar tema | **corrigido em código** (fundos removidos; catálogo `transparent`) |
+| VIS-007 | P2 | Bundle de assets | Performance | SVGs grandes como data URI no JS | URLs Vite hasheadas | Build / Network | **corrigido em código** (`visuals/index.ts`) |
+| QA-008 | P1 | iPhone atividade×atividade | iPhone | QA Safari incompleto | Checklist choice/imagem/áudio/tons/build/pares/produção/revisão light+dark | Runbook §iPhone | **aberto** — humano |
+| QA-009 | P2 | Docs release | — | Docs ainda citavam SHA antiga | SHA `5998fbd` + bugs novos no log | — | **corrigido em docs** nesta remessa |
 
 ## Contagem rápida
 
 | Sev | Abertos | Fechados |
 | --- | ---: | ---: |
-| P0 | 0 | 0 |
-| P1 | 2 | 0 |
-| P2 | 0 | 0 |
+| P0 | 1 | 0 |
+| P1 | 5 | 0 |
+| P2 | 2 | 0 |
 
-> B001 e B002: código + testes automatizados verdes.  
-> Contam como **abertos para RC** até confirmação humana.  
+> B001 **reaberto** (regressão física). B002/B003/B004/PED-005: código + testes; **abertos para RC** até humano.  
 > **Não marcar como fechado** só porque a automação passou.
+
+## Nota B001 / glossário (2026-08-12)
+
+Com `helpMode=disabled` em opções de escuta, o token **não** abre mais sheet
+“Sem ajuda nesta pergunta” — cobria o CTA sticky Verificar no mobile.
 
 ## Checklist de revalidação B001 (Android físico)
 
-Tip: `3622885`. Force refresh / cache limpo **antes**. Ver runbook §B001.
+Tip: `5998fbd`. Force refresh / cache limpo **antes**. Ver runbook §B001.
 
 - [ ] **Body não arrasta** — documento não move ao puxar a página  
 - [ ] **CTA acessível** — Continuar / Verificar / Tentar de novo sem caça (acerto e erro)  
@@ -49,7 +59,7 @@ Tip: `3622885`. Force refresh / cache limpo **antes**. Ver runbook §B001.
 
 ## Checklist de revalidação B002 (revisão / estrela)
 
-Tip: `3622885`. Force refresh / cache limpo **antes**. Ver runbook §B002.
+Tip: `5998fbd`. Force refresh / cache limpo **antes**. Ver runbook §B002.
 
 - [ ] **Errar / pular** dispara a oferta de revisão  
 - [ ] **Aceitar revisão** abre a sessão  
@@ -58,6 +68,22 @@ Tip: `3622885`. Force refresh / cache limpo **antes**. Ver runbook §B002.
 - [ ] **Status não vira alternativa** — “Pulou…” / “incorretamente” ausente nas opções  
 - [ ] **Sentence build correto** — peças certas, sem dump (PieceAssembly)  
 - [ ] **Recuperação da estrela funciona** — acertar recupera 3ª estrela / feedback coerente  
+
+
+## Checklist de revalidação B003 (iPhone físico)
+
+Tip: `5998fbd`. Force refresh / cache limpo **antes**.
+
+- [ ] Responder item em `/revisao` → aparece **Certo** ou **Errado** imediatamente  
+- [ ] CTA **Continuar** (ou Errei — continuar) visível sem scroll caça  
+- [ ] Continuar avança para o próximo item  
+- [ ] Light + dark; teclado aberto/fechado; PWA e Safari  
+
+## Checklist de revalidação B004 (imagens)
+
+- [ ] Associação visual: quatro imagens visíveis antes de responder  
+- [ ] Se asset falhar, fallback (ícone/emoji) — nunca quatro quadrados vazios  
+- [ ] Light + dark  
 
 ## Critério para RC
 
