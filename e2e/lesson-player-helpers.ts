@@ -48,7 +48,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     // Modal de erro: prefere continuar sem perfeição para não travar o smoke.
     const mistake = page.getByRole("heading", { name: /Quase\. Quer tentar de novo/i });
     if (await mistake.isVisible().catch(() => false)) {
-      await clickFirstVisible(page, [/^Continuar e perder perfeição$/, /^Tentar de novo$/]);
+      await clickFirstVisible(page, [/^Continuar$/, /^Continuar e perder perfeição$/, /^Tentar de novo$/]);
       await page.waitForTimeout(150);
       continue;
     }
