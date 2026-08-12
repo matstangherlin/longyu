@@ -71,6 +71,7 @@
     "validate:production-transfer": "node scripts/validate-production-transfer.mjs",
     "test:transfer-scaffold": "node scripts/test-transfer-scaffold.mjs",
     "test:production-help": "node scripts/test-production-help.mjs",
+    "audit:early-lessons": "node scripts/audit-early-lessons-pedagogy.mjs",
     "validate:error-diagnosis": "node scripts/validate-error-diagnosis.mjs",
     "validate:onboarding-pace": "node scripts/validate-onboarding-pace.mjs",
     "validate:report-freshness": "node scripts/validate-report-freshness.mjs",

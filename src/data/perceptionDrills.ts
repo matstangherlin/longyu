@@ -406,7 +406,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que você não tem dinheiro.",
     right: { hanzi: "我没有钱。", pinyin: "wǒ méiyǒu qián." },
     wrong: { hanzi: "我不有钱。", pinyin: "wǒ bù yǒu qián." },
-    whyPt: "有 é o único verbo que nega com 没, nunca com 不.",
+    whyPt: "Com 有 (ter), diga não com 没 — não com 不.",
     errorTag: "negacao",
   },
   {
@@ -414,7 +414,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que você não bebe chá.",
     right: { hanzi: "我不喝茶。", pinyin: "wǒ bù hē chá." },
     wrong: { hanzi: "我喝不茶。", pinyin: "wǒ hē bù chá." },
-    whyPt: "不 vem ANTES do verbo, nunca depois.",
+    whyPt: "不 fica na frente da ação, nunca depois.",
     errorTag: "negacao",
   },
   {
@@ -422,7 +422,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que você tem um amigo.",
     right: { hanzi: "我有一个朋友。", pinyin: "wǒ yǒu yí ge péngyou." },
     wrong: { hanzi: "我有一朋友。", pinyin: "wǒ yǒu yī péngyou." },
-    whyPt: "Entre número e substantivo entra sempre um classificador — aqui, 个.",
+    whyPt: "Entre número e substantivo entra sempre uma medida — aqui, 个.",
     errorTag: "classificador",
   },
   {
@@ -430,7 +430,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que este é o seu livro.",
     right: { hanzi: "这是我的书。", pinyin: "zhè shì wǒ de shū." },
     wrong: { hanzi: "这是我书。", pinyin: "zhè shì wǒ shū." },
-    whyPt: "Posse com objeto pede 的: 我的书. (Família e pessoas próximas podem dispensar.)",
+    whyPt: "Para dizer 'meu livro', use 的: 我的书. (Família e pessoas próximas podem dispensar.)",
     errorTag: "posse",
   },
   {
@@ -438,7 +438,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que vocês vão amanhã.",
     right: { hanzi: "我们明天去。", pinyin: "wǒmen míngtiān qù." },
     wrong: { hanzi: "我们去明天。", pinyin: "wǒmen qù míngtiān." },
-    whyPt: "Tempo vem antes do verbo em mandarim — o contrário do português.",
+    whyPt: "Tempo vem antes da ação em mandarim — o contrário do português.",
     errorTag: "ordem",
   },
   {
@@ -446,7 +446,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que você quer comer arroz.",
     right: { hanzi: "我想吃米饭。", pinyin: "wǒ xiǎng chī mǐfàn." },
     wrong: { hanzi: "我想米饭吃。", pinyin: "wǒ xiǎng mǐfàn chī." },
-    whyPt: "A ordem básica é sujeito → verbo → objeto. O objeto fica DEPOIS do verbo.",
+    whyPt: "A ordem básica é quem → ação → coisa. A coisa fica DEPOIS da ação.",
     errorTag: "ordem",
   },
   {
@@ -462,7 +462,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que ele está em casa.",
     right: { hanzi: "他在家。", pinyin: "tā zài jiā." },
     wrong: { hanzi: "他是在家。", pinyin: "tā shì zài jiā." },
-    whyPt: "在 já é o verbo 'estar em'. Não precisa de 是 na frente.",
+    whyPt: "在 já diz 'estar em'. Não precisa de 是 na frente.",
     errorTag: "copula",
   },
   {
@@ -478,7 +478,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer seu nome.",
     right: { hanzi: "我叫小明。", pinyin: "wǒ jiào Xiǎomíng." },
     wrong: { hanzi: "我是叫小明。", pinyin: "wǒ shì jiào Xiǎomíng." },
-    whyPt: "叫 já é o verbo 'chamar-se'. Dois verbos seguidos não funcionam aqui.",
+    whyPt: "叫 já é a ação 'chamar-se'. Duas ações seguidas não funcionam aqui.",
     errorTag: "copula",
   },
   {
@@ -494,7 +494,7 @@ export const SPOT_ERROR_DRILLS: SpotErrorDrill[] = [
     intentPt: "Dizer que você fala um pouco de chinês.",
     right: { hanzi: "我会说中文。", pinyin: "wǒ huì shuō zhōngwén." },
     wrong: { hanzi: "我会中文说。", pinyin: "wǒ huì zhōngwén shuō." },
-    whyPt: "会 acompanha o verbo, e o objeto continua depois dele: 会说中文.",
+    whyPt: "会 acompanha a ação, e a coisa continua depois: 会说中文.",
     errorTag: "ordem",
   },
   {

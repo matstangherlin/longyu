@@ -1239,20 +1239,32 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   }
 
   if (isFoundation || lesson.skill === "sistema") {
-    const targetCount = Math.max(8, Math.min(12, Math.max(authoredCount, 10)));
-    // Lições-conceito de fundação que não são de hànzì (mandarim/pinyin/tom) não
-    // montam nada — evita composição solta numa aula puramente conceitual.
-    const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi";
+    const authoredCount = lesson.steps.length;
+    const targetCount = Math.max(authoredCount, Math.min(authoredCount + 2, 10));
+    // Lições-conceito de fundação (mandarim/pinyin/tom) ficam no autoral +
+    // reconhecimento leve. Sem ditado/conversa/montagem gerada com CORE_REVIEW.
+    const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi" && lesson.id !== "p1-engine-2-lab";
+    const recognition = conceptNonHanzi ? 2 : 2;
+    const assembly = conceptNonHanzi ? 0 : lesson.skill === "hanzi" ? 2 : 1;
+    const usage = conceptNonHanzi || lesson.id === "p1-primeiros-hanzi" ? 0 : 1;
+    const consolidation = Math.max(0, targetCount - 1 - recognition - assembly - usage);
     return {
       targetCount,
-      stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 2, post_conversation: 0, consolidation: targetCount - 7 },
+      stageTargets: {
+        intro: 1,
+        recognition,
+        assembly,
+        usage,
+        post_conversation: 0,
+        consolidation,
+      },
       minHanziBuilds: 0,
       maxHanziBuilds: conceptNonHanzi ? 0 : relevantHanzi ? 1 : 0,
       perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
       maxConversationScenes: maxConversationScenesForLesson(lesson),
-      maxImageChoices: 2,
+      maxImageChoices: conceptNonHanzi ? 0 : 2,
       isReview: Boolean(lesson.isReview),
     };
   }
@@ -1533,7 +1545,7 @@ function makeTonePairStep(focus: FocusItem[]): LessonStep | null {
  * carregado — a progressão é a mesma da jornada, não uma lista paralela.
  */
 let curriculumGlyphsCache: Map<string, Set<string>> | null = null;
-function curriculumGlyphsThroughLesson(lessonId: string | undefined): ReadonlySet<string> {
+export function curriculumGlyphsThroughLesson(lessonId: string | undefined): ReadonlySet<string> {
   if (!lessonId) return new Set<string>();
   if (!curriculumGlyphsCache) {
     curriculumGlyphsCache = new Map();
@@ -2565,6 +2577,7 @@ function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
 }
 
 function maxConversationScenesForLesson(lesson: Lesson): number {
+  if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
   return 1;
@@ -3328,6 +3341,14 @@ function supplementalStepsForStage(
     allowComposedFiller: options.allowComposedFiller,
   };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
+  // Na fundação / fases 1–2, CORE_REVIEW (再见/谢谢/明天…) não pode virar
+  // fill/build/ditado — o aluno ainda não aprendeu esses chunks.
+  const foundationLite =
+    phaseOrder <= 2 || FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
+  const practiceFocus = foundationLite ? focus : reviewFocus;
+  const allowDictation = !foundationLite && phaseOrder >= 3;
+  const allowConversation = !FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") && phaseOrder >= 2;
+  const allowSpotError = phaseOrder >= 3;
   // Motores de percepção: um "seed" estável por lição faz o par mínimo, o
   // grupo semântico e a frase certa girarem entre lições em vez de repetir
   // sempre o primeiro item do banco.
@@ -3393,101 +3414,111 @@ function supplementalStepsForStage(
   } else if (stageId === "assembly") {
     // O ditado do primeiro item abre o estágio: escrever o que se ouviu é a
     // ponte entre som e forma, e precisa vir antes de a montagem visual
-    // consumir o orçamento.
-    if (focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
+    // consumir o orçamento — mas não nas lições-conceito de fundação.
+    if (allowDictation && focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
     const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
-    if (enablePedagogyVariants) {
+    if (enablePedagogyVariants && !foundationLite) {
       if (practiceVariant === "B") {
         push(makeSentenceLabStep(primary, focus, "sentence_lab_distractors"));
         push(makeDragonDictationStep(primary, focus, "blocks"));
       }
       if (practiceVariant === "C") {
         push(makeSentenceLabStep(primary, focus, "sentence_lab_audio"));
-        push(makeVariantOddOneOutStep([...focus, ...reviewFocus]));
+        push(makeVariantOddOneOutStep([...focus, ...practiceFocus]));
       }
     }
     for (const item of focus) {
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
       push(makeSentenceBuildStep(item, focus));
-      push(makeDictationStep(item, focus, phaseOrder));
+      if (allowDictation) push(makeDictationStep(item, focus, phaseOrder));
       push(makeAssemblyChoiceStep(item, focus));
       if (result.length >= targetCount) break;
     }
   } else if (stageId === "usage") {
     const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
-    if (enablePedagogyVariants && practiceVariant === "B") {
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "B") {
       const intention = makeDialogueChoiceStep(primary, focus);
       push(intention ? { ...intention, pedagogyVariant: "meaning_intention_match" } : null);
-      push(makeVariantSpotErrorStep(primary));
+      if (allowSpotError) push(makeVariantSpotErrorStep(primary));
     }
-    if (enablePedagogyVariants && practiceVariant === "C") {
-      push(makeVariantSpotErrorStep(primary));
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "C") {
+      if (allowSpotError) push(makeVariantSpotErrorStep(primary));
     }
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
-    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
+    if (allowConversation) {
+      push(makeConversationSceneStep(focus, practiceFocus, options.sceneSelection, knownGlyphs));
+    }
     // Escada: julgar → completar → produzir com apoio.
     // Transferência e produção aberta ficam para consolidação / lições seguintes.
-    push(makeSpotErrorStep(knownGlyphs, drillSeed));
+    if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed));
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus));
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
-    push(
-      makeFreeProductionStep(
-        knownGlyphs,
-        drillSeed + variantSeedBase * 5,
-        undefined,
-        options.structureExposure
-      )
-    );
-    push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
-    push(makeOldPhraseReuseStep(focus));
+    if (!foundationLite) {
+      push(
+        makeFreeProductionStep(
+          knownGlyphs,
+          drillSeed + variantSeedBase * 5,
+          undefined,
+          options.structureExposure
+        )
+      );
+      push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
+      push(makeOldPhraseReuseStep(focus));
+    }
   } else {
-    const combined = [...reviewFocus, ...focus];
+    const combined = [...practiceFocus, ...focus];
     const primary = combined.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? combined[0];
-    if (enablePedagogyVariants && practiceVariant === "B") {
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "B") {
       push(makeDragonDictationStep(primary, combined, "pinyin"));
       push(makeSentenceLabStep(primary, combined, "sentence_lab_no_translation"));
     }
-    if (enablePedagogyVariants && practiceVariant === "C") {
+    if (enablePedagogyVariants && !foundationLite && practiceVariant === "C") {
       push(makeDragonDictationStep(primary, combined, phaseOrder >= 6 ? "immersion" : "hanzi"));
       push(makeSentenceLabStep(primary, combined, "sentence_lab_repair"));
     }
-    // Consolidação revisita imagens ANTIGAS (reviewFocus e núcleo) num modo diferente.
-    for (const item of reviewFocus) pushImage(item, 2);
-    for (const item of oldPhraseFocus([...focus, ...reviewFocus])) pushImage(item, 3);
+    // Consolidação revisita imagens ANTIGAS (practiceFocus e núcleo) num modo diferente.
+    for (const item of practiceFocus) pushImage(item, 2);
+    for (const item of oldPhraseFocus([...focus, ...practiceFocus])) pushImage(item, 3);
     for (const item of focus) pushImage(item, 3);
-    push(makeMatchPairsStep([...reviewFocus, ...focus]));
-    push(makeTonePairStep([...reviewFocus, ...focus]));
+    push(makeMatchPairsStep([...practiceFocus, ...focus]));
+    push(makeTonePairStep([...practiceFocus, ...focus]));
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed + 1));
     push(makeOddOneOutStep(knownGlyphs, drillSeed + 1));
-    push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
+    if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
     // Consolidar: transferência só se a estrutura já teve produção guiada antes.
     const variantSeed = drillSeed + 1 + variantSeedBase * 7;
-    push(
-      makeTransferStep(
-        knownGlyphs,
-        variantSeed,
-        undefined,
-        options.attemptNumber ?? 0,
-        options.structureExposureForTransfer ?? options.structureExposure,
-        options.priorTransferredFrames
-      )
-    );
-    push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure));
-    push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure));
-    push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
-    push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
-    for (const item of [...reviewFocus, ...focus]) {
-      push(makeComprehendStep(item, [...reviewFocus, ...focus]));
+    if (!foundationLite) {
+      push(
+        makeTransferStep(
+          knownGlyphs,
+          variantSeed,
+          undefined,
+          options.attemptNumber ?? 0,
+          options.structureExposureForTransfer ?? options.structureExposure,
+          options.priorTransferredFrames
+        )
+      );
+      push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure));
+      push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure));
+      push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
+    }
+    if (allowConversation) {
+      push(makeConversationSceneStep(focus, practiceFocus, options.sceneSelection, knownGlyphs));
+    }
+    for (const item of [...practiceFocus, ...focus]) {
+      push(makeComprehendStep(item, [...practiceFocus, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
-      push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
+      push(makeFillBlankStep(item, [...practiceFocus, ...focus]));
       // Na consolidação o ditado sobe para imersão: velocidade natural,
       // uma reprodução só.
-      push(makeDictationStep(item, [...reviewFocus, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+      if (allowDictation) {
+        push(makeDictationStep(item, [...practiceFocus, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+      }
       if (result.length >= targetCount) break;
     }
   }
@@ -4127,17 +4158,24 @@ function ensureCoverage(
   if (profile.maxConversationScenes > 0) {
     ensure((candidate) => candidate.step.kind === "conversation_scene", true);
   }
-  // Cota rotativa dos motores de percepção. Eles cobram eixos que a produção
-  // não cobre (ouvido, som→escrita, categoria, estrutura) e pontuam menos que
-  // ela — sem reserva, o motor de maior score levava todas as vagas e um eixo
-  // inteiro sumia do curso. A rotação por lição dá ~30 lições a cada um em vez
-  // de concentrar tudo no vencedor do score.
-  const PERCEPTION_ROTATION: StepKind[] = ["audio_discrimination", "dictation", "odd_one_out", "spot_error"];
-  const perceptionSlot = PERCEPTION_ROTATION[Math.abs(lessonOrderIndex(lesson)) % PERCEPTION_ROTATION.length];
-  ensure((candidate) => candidate.step.kind === perceptionSlot, true);
+  // Cota rotativa dos motores de percepção — só depois da fundação/fase 2.
+  // Antes disso, forçar dictation/spot_error injeta formatos e glifos prematuros.
+  const phaseOrder = lessonPhaseOrder(lesson);
+  const isFoundation = FOUNDATION_LESSON_IDS.includes(lesson.id);
+  const earlyPedagogy = isFoundation || phaseOrder <= 2;
+
+  if (!earlyPedagogy) {
+    const PERCEPTION_ROTATION: StepKind[] = ["audio_discrimination", "dictation", "odd_one_out", "spot_error"];
+    const perceptionSlot = PERCEPTION_ROTATION[Math.abs(lessonOrderIndex(lesson)) % PERCEPTION_ROTATION.length];
+    ensure((candidate) => candidate.step.kind === perceptionSlot, true);
+  }
   ensure((candidate) => candidate.stageId === "recognition" || candidate.families.includes("recognition"));
-  ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
-  ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
+  if (!earlyPedagogy || profile.stageTargets.assembly > 0) {
+    ensure((candidate) => candidate.stageId === "assembly" || candidate.families.includes("assembly"));
+  }
+  if (!earlyPedagogy || profile.stageTargets.usage > 0) {
+    ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
+  }
   ensure((candidate) => candidate.stageId === "consolidation" || candidate.families.includes("review"));
   if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) ensure((candidate) => candidate.families.includes("pinyin"));
   // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
@@ -4161,7 +4199,9 @@ function ensureCoverage(
       );
     }
   }
-  if (reviewFocus.length > 0) {
+  // Núcleo de revisão (再见/谢谢…) só depois que o aluno já saiu da fundação.
+  // Forçar CORE_REVIEW em L1–L5 pedia glifos e frases ainda não ensinados.
+  if (reviewFocus.length > 0 && !earlyPedagogy) {
     ensure((candidate) => stepUsesFocus(candidate.step, reviewFocus) || candidate.stageId === "consolidation");
     if (oldPhraseFocus(lessonFocus).length > 0) {
       ensure((candidate) => {
@@ -4178,16 +4218,18 @@ function ensureCoverage(
   // Produção aberta e transferência: só entram no pool quando a estrutura já
   // foi praticada. Sem reserva, o score de outros motores as engolia e o
   // degrau final da escada sumia do plano real.
-  ensure(
-    (candidate) => candidate.step.kind === "free_production" && Boolean(candidate.step.productionOpen),
-    true
-  );
-  ensure((candidate) => candidate.step.kind === "transfer_task", true);
-  ensure(
-    (candidate) => candidate.step.kind === "free_production" && !candidate.step.productionOpen,
-    true
-  );
-  ensure((candidate) => candidate.step.kind === "conversation_repair", true);
+  if (!earlyPedagogy) {
+    ensure(
+      (candidate) => candidate.step.kind === "free_production" && Boolean(candidate.step.productionOpen),
+      true
+    );
+    ensure((candidate) => candidate.step.kind === "transfer_task", true);
+    ensure(
+      (candidate) => candidate.step.kind === "free_production" && !candidate.step.productionOpen,
+      true
+    );
+    ensure((candidate) => candidate.step.kind === "conversation_repair", true);
+  }
 
   if (lesson.isReview) {
     const hanziFocus = lessonFocus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1);

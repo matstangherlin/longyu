@@ -37,9 +37,10 @@ const cleanHanzi = (value) => String(value ?? "").replace(PUNCT_RE, "").trim();
 // jornada inteira, o portão avisa antes de o aluno perceber.
 const MIN_LESSONS_WITH_ENGINE = {
   audio_discrimination: 10,
-  dictation: 10,
+  // Fundação/fase ≤2 não forçam ditado/spot_error (audit L1–L20).
+  dictation: 8,
   odd_one_out: 8,
-  spot_error: 30,
+  spot_error: 25,
 };
 
 const PINYIN_INITIALS = [

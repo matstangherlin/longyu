@@ -2181,7 +2181,7 @@ export const JOURNEY: JourneyPhase[] = [
               listen("你好", "nǐ hǎo", "Olá — seu primeiro som útil", "pinyin_first"),
               intro(
                 "Soa “ní hǎo”",
-                "Na fala real, 你好 soa “ní hǎo”: quando dois 3º tons se encontram, o primeiro sobe para 2º tom. É o tone sandhi — você ouve isso em praticamente todo cumprimento."
+                "Na fala real, 你好 soa “ní hǎo”: quando dois 3º tons se encontram, o primeiro sobe para 2º tom. Você ouve isso em praticamente todo cumprimento."
               ),
               intro(
                 "Tom: a curva da voz",
