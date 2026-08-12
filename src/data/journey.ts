@@ -268,13 +268,25 @@ export interface LessonStep {
   transferAnchorPt?: string;
   /** A frase alvo não existe no currículo: acertar exige aplicar o padrão. */
   isNovelCombination?: boolean;
-  /**
-   * Degrau de scaffold da produção/transferência:
+  /** Degrau de scaffold da produção/transferência:
    * guided → supported → question → open.
    */
   productionAssist?: "guided" | "supported" | "question" | "open";
   /** Dica visual de transformação (ex.: 我 → 你) no degrau supported. */
   transferTransformHint?: { from: string; to: string };
+  /**
+   * Scaffolding visual progressivo (0–4), independente de `productionAssist`.
+   * 0 situação+input · 1 padrão · 2 estrutura · 3 vocabulário · 4 montagem
+   */
+  productionHelpInitial?: 0 | 1 | 2 | 3 | 4;
+  /** Teto pedível sem erro repetido (nível 4 só após dificuldade repetida). */
+  productionHelpCeiling?: 0 | 1 | 2 | 3 | 4;
+  /** Primeira transferência desta estrutura no currículo. */
+  productionHelpFirstOfStructure?: boolean;
+  /** Vocabulário útil já aprendido (nível 3) — não monta a frase. */
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  /** Banco de peças para o nível 4 (sentence build). */
+  productionHelpBuildBank?: string[];
   // ——— conversation_repair: continuar depois do mal-entendido ———
   /** Fala do personagem que trava a conversa (你说什么？/我听不懂). */
   repairNpcHanzi?: string;

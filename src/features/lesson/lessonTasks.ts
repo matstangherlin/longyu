@@ -85,6 +85,8 @@ import {
   mergeStructureExposure,
   openProductionTasksFor,
   PRODUCTION_ASSIST_RANK,
+  productionHelpBuildBank,
+  productionHelpVocabForTask,
   productionTasksFor,
   repairTasksFor,
   transferTasksFor,
@@ -92,6 +94,7 @@ import {
   type ProductionAssist,
   type StructureExposureMap,
 } from "../../data/productionTasks";
+import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
   defaultVisualDistractors,
   visualByCharId,
@@ -593,6 +596,8 @@ export interface LessonPracticePlanContext {
   structureExposure?: StructureExposureMap;
   /** Exposição só do histórico anterior — gate de transferência (sem a lição atual). */
   structureExposureForTransfer?: StructureExposureMap;
+  /** Frames com transfer em lição anterior — define scaffold inicial. */
+  priorTransferredFrames?: ReadonlySet<string>;
   /** Evita reentrada ao montar o índice de exposição. */
   skipStructureExposureIndex?: boolean;
 }
@@ -1668,6 +1673,8 @@ interface StructureExposureBundle {
 
 let structureExposureIndex: Map<string, StructureExposureBundle> | null = null;
 let structureExposureIndexBuilding = false;
+/** Frames que já tiveram transfer_task em lição ANTERIOR (por lessonId). */
+let priorTransferredFramesIndex: Map<string, ReadonlySet<string>> | null = null;
 
 function emptyExposureBundle(): StructureExposureBundle {
   return { forFree: new Map(), forTransfer: new Map() };
@@ -1681,9 +1688,12 @@ function ensureStructureExposureIndex(): void {
   if (structureExposureIndex || structureExposureIndexBuilding) return;
   structureExposureIndexBuilding = true;
   const index = new Map<string, StructureExposureBundle>();
+  const priorTransferByLesson = new Map<string, ReadonlySet<string>>();
   let prior: StructureExposureMap = new Map();
+  const transferredSoFar = new Set<string>();
   try {
     for (const lesson of ALL_LESSONS) {
+      priorTransferByLesson.set(lesson.id, new Set(transferredSoFar));
       const forTransfer = cloneStructureExposure(prior);
       const forFree = cloneStructureExposure(prior);
       mergeStructureExposure(forFree, curriculumStructureExposureForLesson(lesson));
@@ -1696,17 +1706,30 @@ function ensureStructureExposureIndex(): void {
         skipStructureExposureIndex: true,
         structureExposure: forFree,
         structureExposureForTransfer: forTransfer,
+        priorTransferredFrames: priorTransferByLesson.get(lesson.id),
       });
       const fromPlan: StructureExposureMap = new Map();
-      for (const step of plan) creditStructureFromStep(fromPlan, step);
+      for (const step of plan) {
+        creditStructureFromStep(fromPlan, step);
+        if (step.kind === "transfer_task" && step.productionFrameId) {
+          transferredSoFar.add(step.productionFrameId);
+        }
+      }
       mergeStructureExposure(prior, fromPlan);
       // Currículo desta lição também alimenta o histórico da próxima.
       mergeStructureExposure(prior, curriculumStructureExposureForLesson(lesson));
     }
     structureExposureIndex = index;
+    priorTransferredFramesIndex = priorTransferByLesson;
   } finally {
     structureExposureIndexBuilding = false;
   }
+}
+
+function priorTransferredFramesForLesson(lessonId: string | undefined): ReadonlySet<string> {
+  if (!lessonId) return new Set();
+  ensureStructureExposureIndex();
+  return priorTransferredFramesIndex?.get(lessonId) ?? new Set();
 }
 
 function structureExposureForLesson(lessonId: string | undefined): StructureExposureBundle {
@@ -1985,6 +2008,9 @@ function makeOpenProductionStep(
     pinyin: model.pinyin,
     accepts: uniqueValues(task.accepts),
     explanation: `Qualquer uma destas cumpre a situação. ${task.hintPt}`,
+    productionHelpInitial: 0,
+    productionHelpCeiling: 1,
+    productionHelpFirstOfStructure: false,
     isNoHint: true,
     helpMode: "disabled",
   };
@@ -2007,6 +2033,28 @@ function frameTasksUsing(tasks: readonly FrameTask[], item: FocusItem | undefine
  * sem a frase na tela. É o único formato em que o app não pode ser resolvido
  * por eliminação.
  */
+function attachProductionHelpFields(
+  task: FrameTask,
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  plan: ReturnType<typeof resolveProductionHelpPlan>
+): Pick<
+  LessonStep,
+  | "productionHelpInitial"
+  | "productionHelpCeiling"
+  | "productionHelpFirstOfStructure"
+  | "productionHelpVocab"
+  | "productionHelpBuildBank"
+> {
+  return {
+    productionHelpInitial: plan.initial,
+    productionHelpCeiling: plan.softCeiling,
+    productionHelpFirstOfStructure: plan.firstOfStructure,
+    productionHelpVocab: productionHelpVocabForTask(task, knownGlyphs, 4),
+    productionHelpBuildBank: productionHelpBuildBank(task, seed),
+  };
+}
+
 function makeFreeProductionStep(
   knownGlyphs: ReadonlySet<string>,
   seed: number,
@@ -2017,6 +2065,10 @@ function makeFreeProductionStep(
   const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
   if (tasks.length === 0) return null;
   const task = tasks[seed % tasks.length];
+  const help = resolveProductionHelpPlan({
+    kind: "free_production",
+    firstOfStructure: false,
+  });
   return {
     kind: "free_production",
     title: "Sua vez de produzir",
@@ -2024,6 +2076,7 @@ function makeFreeProductionStep(
     productionAssist: "guided",
     assist: "guided",
     ...frameTaskStepBase(task),
+    ...attachProductionHelpFields(task, knownGlyphs, seed, help),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
   };
 }
@@ -2085,12 +2138,19 @@ function makeTransferStep(
   seed: number,
   usingItem?: FocusItem,
   attemptNumber = 0,
-  structureExposure?: StructureExposureMap
+  structureExposure?: StructureExposureMap,
+  priorTransferredFrames?: ReadonlySet<string>
 ): LessonStep | null {
   const tasks = pickTransferCandidates(knownGlyphs, seed, usingItem, attemptNumber, structureExposure);
   if (tasks.length === 0) return null;
   const task = tasks[seed % tasks.length];
   const productionAssist: ProductionAssist = task.transferAssist;
+  const firstOfStructure = !priorTransferredFrames?.has(task.frameId);
+  const help = resolveProductionHelpPlan({
+    kind: "transfer_task",
+    firstOfStructure,
+    attemptNumber,
+  });
   return {
     kind: "transfer_task",
     title:
@@ -2110,6 +2170,7 @@ function makeTransferStep(
     assist: productionAssist === "guided" ? "guided" : undefined,
     transferTransformHint: task.transferTransformHint,
     ...frameTaskStepBase(task),
+    ...attachProductionHelpFields(task, knownGlyphs, seed, help),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Combinação nova: você montou pela estrutura.`,
   };
 }
@@ -3247,6 +3308,8 @@ interface SupplementalStepOptions {
   structureExposure?: StructureExposureMap;
   /** Exposição só do histórico anterior — gate de transferência. */
   structureExposureForTransfer?: StructureExposureMap;
+  /** Frames com transfer em lição anterior — scaffold inicial mais/menos guiado. */
+  priorTransferredFrames?: ReadonlySet<string>;
 }
 
 function supplementalStepsForStage(
@@ -3410,7 +3473,8 @@ function supplementalStepsForStage(
         variantSeed,
         undefined,
         options.attemptNumber ?? 0,
-        options.structureExposureForTransfer ?? options.structureExposure
+        options.structureExposureForTransfer ?? options.structureExposure,
+        options.priorTransferredFrames
       )
     );
     push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure));
@@ -3705,7 +3769,8 @@ function generatedCandidatesFor(
   variantSeedOffset = 0,
   attemptNumber = 0,
   structureExposure?: StructureExposureMap,
-  structureExposureForTransfer?: StructureExposureMap
+  structureExposureForTransfer?: StructureExposureMap,
+  priorTransferredFrames?: ReadonlySet<string>
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
@@ -3743,6 +3808,7 @@ function generatedCandidatesFor(
       attemptNumber,
       structureExposure,
       structureExposureForTransfer,
+      priorTransferredFrames,
     });
     for (const step of generated) {
       candidates.push({
@@ -4380,6 +4446,7 @@ interface DerivedTaskDeps {
   ownFocusGlyphs?: ReadonlySet<string>;
   structureExposure?: StructureExposureMap;
   structureExposureForTransfer?: StructureExposureMap;
+  priorTransferredFrames?: ReadonlySet<string>;
   lessonId?: string;
 }
 
@@ -4764,7 +4831,8 @@ function makePostConversationStep(
         drillSeedFor(item.key, "post_conversation"),
         item,
         0,
-        _taskDeps.structureExposureForTransfer ?? _taskDeps.structureExposure
+        _taskDeps.structureExposureForTransfer ?? _taskDeps.structureExposure,
+        _taskDeps.priorTransferredFrames
       );
     }
     case "repair_recover": {
@@ -5019,6 +5087,7 @@ export function applyConversationVocabularyLoop(
     conversationHistory?: readonly ConversationHistoryEntry[];
     structureExposure?: StructureExposureMap;
     structureExposureForTransfer?: StructureExposureMap;
+    priorTransferredFrames?: ReadonlySet<string>;
   }
 ): LessonRoundStep[] {
   const conversationIndexes = plan
@@ -5040,6 +5109,7 @@ export function applyConversationVocabularyLoop(
     ownFocusGlyphs: deps.ownFocusGlyphs,
     structureExposure: deps.structureExposure,
     structureExposureForTransfer: deps.structureExposureForTransfer,
+    priorTransferredFrames: deps.priorTransferredFrames,
     lessonId: lesson.id,
   };
 
@@ -5377,6 +5447,8 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const structureExposure = context.structureExposure ?? exposureBundle.forFree;
   const structureExposureForTransfer =
     context.structureExposureForTransfer ?? exposureBundle.forTransfer;
+  const priorTransferredFrames =
+    context.priorTransferredFrames ?? priorTransferredFramesForLesson(lesson.id);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
     ...generatedCandidatesFor(
@@ -5393,7 +5465,8 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       variantSeedOffset,
       context.attemptNumber ?? 0,
       structureExposure,
-      structureExposureForTransfer
+      structureExposureForTransfer,
+      priorTransferredFrames
     ),
   ];
   const usedSignatures = new Set<string>();
@@ -5482,6 +5555,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     conversationHistory: context.conversationHistory,
     structureExposure,
     structureExposureForTransfer,
+    priorTransferredFrames,
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);

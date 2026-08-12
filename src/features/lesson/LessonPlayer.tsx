@@ -2563,7 +2563,7 @@ export function LessonPlayer() {
     handleDone(false);
   }
 
-  function handleDone(wasCorrect?: boolean, meta?: { attempts?: number }) {
+  function handleDone(wasCorrect?: boolean, meta?: { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number }) {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
@@ -2627,6 +2627,10 @@ export function LessonPlayer() {
           correct: wasCorrect,
           imageChoiceMode: currentStep.imageChoiceMode ?? null,
           imageId: currentStep.imageId ?? currentStep.iconId ?? null,
+          helpLevel: meta?.helpLevel ?? null,
+          helpRequests: meta?.helpRequests ?? null,
+          initialHelpLevel: meta?.initialHelpLevel ?? null,
+          productionAssist: currentStep.productionAssist ?? null,
           ...(wasCorrect
             ? {}
             : {

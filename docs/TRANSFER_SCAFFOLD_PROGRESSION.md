@@ -48,4 +48,12 @@ estrutura nova
 - 0 opens precoces
 - ~75 lições com transfer, ~78 com free guiada, ~18 com open (depois dos prerequisites)
 
-Também: `validate:production-transfer`, `test:transfer-scaffold`.
+## UI scaffolding (níveis 0–4)
+
+Independente de `ProductionAssist`. Ver `docs/PRODUCTION_HELP_SCAFFOLD.md`.
+
+- 1ª transferência da estrutura: começa no padrão (nível 1)
+- posteriores: independente (nível 0), com “Preciso de uma dica”
+- nível 4 (montagem) só após dificuldade repetida
+
+Também: `validate:production-transfer`, `test:transfer-scaffold`, `test:production-help`.

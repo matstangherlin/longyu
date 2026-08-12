@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | cb5d434ff2d57aa5e6fce9009c7813074084d921 |
+| Commit | d6090583d33bf8a05b58acc38bee763c6aeea34b |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T16:49:11.849Z |
+| Gerado em | 2026-08-12T17:13:42.578Z |
 | Lições | 122 |
-| Hash da Jornada | e7f6a98d6895 |
+| Hash da Jornada | cf4ca6dd80b0 |
 
 ## Política de rótulos
 
@@ -54,4 +54,4 @@
 - **l26b**: sujeito · verbo · objeto · partícula
 - **l11-rev**: sujeito · verbo · objeto · partícula
 
-<!-- integridade:7e1631e91a9c5b27 -->
+<!-- integridade:038bf054571d1959 -->

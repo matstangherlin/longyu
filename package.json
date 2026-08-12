@@ -70,6 +70,7 @@
     "validate:pedagogy-wave-one": "node scripts/validate-pedagogy-wave-one.mjs",
     "validate:production-transfer": "node scripts/validate-production-transfer.mjs",
     "test:transfer-scaffold": "node scripts/test-transfer-scaffold.mjs",
+    "test:production-help": "node scripts/test-production-help.mjs",
     "validate:error-diagnosis": "node scripts/validate-error-diagnosis.mjs",
     "validate:onboarding-pace": "node scripts/validate-onboarding-pace.mjs",
     "validate:report-freshness": "node scripts/validate-report-freshness.mjs",

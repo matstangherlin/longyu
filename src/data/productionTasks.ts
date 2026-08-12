@@ -941,6 +941,65 @@ export function framesMatchingSentence(hanzi: string): SentenceFrame[] {
   return SENTENCE_FRAMES.filter((frame) => sentenceMatchesFrame(hanzi, frame));
 }
 
+/** Palavras úteis do frame (já vistas), sem montar a resposta completa. */
+export function productionHelpVocabForTask(
+  task: FrameTask,
+  seenGlyphs: ReadonlySet<string>,
+  limit = 4
+): { hanzi: string; pinyin: string; meaningPt: string }[] {
+  const frame = frameById(task.frameId);
+  if (!frame) return [];
+  const out: { hanzi: string; pinyin: string; meaningPt: string }[] = [];
+  const seen = new Set<string>();
+  const push = (hanzi: string, pinyin: string, meaningPt: string) => {
+    const key = cleanSentence(hanzi);
+    if (!key || seen.has(key) || out.length >= limit) return;
+    if (![...key].every((glyph) => seenGlyphs.has(glyph))) return;
+    // Não oferecer a frase-alvo inteira como "vocabulário".
+    if (key === cleanSentence(task.targetHanzi)) return;
+    seen.add(key);
+    out.push({ hanzi: key, pinyin, meaningPt });
+  };
+
+  // Peças do padrão (sujeito/verbo curtos) quando forem vocabulário real.
+  for (const filler of frame.fillers) {
+    const entry = vocabById.get(filler.vocabId);
+    if (!entry) continue;
+    push(entry.hanzi, entry.pinyin, filler.promptPt || entry.meaningPt);
+  }
+  for (const time of frame.timeFillers ?? []) {
+    const entry = vocabById.get(time.vocabId);
+    if (!entry) continue;
+    push(entry.hanzi, entry.pinyin, time.promptPt || entry.meaningPt);
+  }
+  // Pronomes / núcleos curtos do prefixo, se o aluno já os viu.
+  if (frame.prefix.includes("我")) push("我", "wǒ", "eu");
+  if (frame.prefix.includes("你")) push("你", "nǐ", "você");
+  if (frame.suffix.includes("吗") || frame.patternPt.includes("吗")) push("吗", "ma", "pergunta");
+
+  return out.slice(0, limit);
+}
+
+/** Banco de peças para o nível 4 (sentence build) — alvo + distratores do frame. */
+export function productionHelpBuildBank(task: FrameTask, seed = 0): string[] {
+  const target = [...cleanSentence(task.targetHanzi)];
+  if (target.length < 2) return target;
+  const frame = frameById(task.frameId);
+  const extras: string[] = [];
+  for (const filler of frame?.fillers ?? []) {
+    const entry = vocabById.get(filler.vocabId);
+    if (!entry) continue;
+    for (const glyph of entry.hanzi) {
+      if (!target.includes(glyph) && !extras.includes(glyph)) extras.push(glyph);
+    }
+  }
+  const bank = [...target, ...extras].slice(0, Math.max(target.length + 3, 4));
+  // Embaralhamento estável pelo seed (Fisher-Yates determinístico).
+  const order = bank.map((piece, index) => ({ piece, key: (seed * 31 + index * 17) % 997 }));
+  order.sort((a, b) => a.key - b.key);
+  return order.map((entry) => entry.piece);
+}
+
 export function frameById(frameId: string): SentenceFrame | undefined {
   return SENTENCE_FRAMES.find((frame) => frame.id === frameId);
 }

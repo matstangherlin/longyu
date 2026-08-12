@@ -38,6 +38,14 @@ import { getHanziBuilder } from "../../data/hanziBuilder";
 import { type PatternSlot } from "../../data/productionTasks";
 import { conceptForSlot, formatConceptLabel, resolveSlotLabel } from "../../data/structuralConcepts";
 import {
+  clampProductionHelpLevel,
+  nextProductionHelpLevel,
+  productionHelpLevelLabel,
+  unlockProductionHelpAfterMistake,
+  type ProductionHelpLevel,
+} from "../../data/productionHelp";
+import { trackPedagogyEvent } from "../../services/pedagogyEvents";
+import {
   AssemblyHintBanner,
   PieceAssemblyBank,
   PieceAssemblyBoard,
@@ -78,6 +86,10 @@ export interface PairMistakePayload {
 export interface StepDoneMeta {
   /** Tentativas reais na conversa V2 (erros de ramo contam). */
   attempts?: number;
+  /** Scaffolding progressivo usado na produção/transferência. */
+  helpLevel?: number;
+  helpRequests?: number;
+  initialHelpLevel?: number;
 }
 
 export interface StepProps {
@@ -3846,26 +3858,36 @@ function StructureHowItWorks({
   slots,
   lessonId,
   frameId,
+  forceOpen = false,
 }: {
   patternPt?: string;
   slots?: PatternSlot[];
   lessonId?: string;
   frameId?: string;
+  /** Nível 2+: estrutura já expandida (ainda pode recolher). */
+  forceOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(forceOpen);
+  useEffect(() => {
+    if (forceOpen) setOpen(true);
+  }, [forceOpen]);
   const pieces = useMemo(() => decomposePatternPieces(patternPt, slots), [patternPt, slots]);
   if (!patternPt && !slots?.length) return null;
 
   return (
     <div className="mt-2" data-production-scaffold>
-      <button
-        type="button"
-        className="text-left text-xs font-semibold text-ink-mute underline decoration-line underline-offset-2 transition hover:text-ink"
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-      >
-        {open ? "Ocultar como a frase funciona" : "Ver como a frase funciona"}
-      </button>
+      {!forceOpen ? (
+        <button
+          type="button"
+          className="text-left text-xs font-semibold text-ink-mute underline decoration-line underline-offset-2 transition hover:text-ink"
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+        >
+          {open ? "Ocultar como a frase funciona" : "Ver como a frase funciona"}
+        </button>
+      ) : (
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</p>
+      )}
       {open ? (
         <div
           className="mt-2 rounded-2xl border border-line/70 bg-white/55 px-3 py-3"
@@ -3923,15 +3945,20 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     () => uniqueStrings([model, ...(step.accepts ?? [])]),
     [model, step.accepts]
   );
+  const initialHelp = clampProductionHelpLevel(step.productionHelpInitial ?? (isTransfer ? 0 : isOpen ? 0 : 1));
+  const softCeiling = clampProductionHelpLevel(step.productionHelpCeiling ?? (isTransfer ? 2 : isOpen ? 1 : 3));
   const [draft, setDraft] = useState("");
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
+  const [localMistakes, setLocalMistakes] = useState(0);
   const [accepted, setAccepted] = useState<string | null>(null);
   const [causeFeedback, setCauseFeedback] = useState<string | undefined>(undefined);
+  const [helpLevel, setHelpLevel] = useState<ProductionHelpLevel>(initialHelp);
+  const [unlockedMax, setUnlockedMax] = useState<ProductionHelpLevel>(softCeiling);
+  const [helpRequests, setHelpRequests] = useState(0);
+  const [buildPicked, setBuildPicked] = useState<string[]>([]);
   const locked = feedback === "correct";
 
-  // "Isto também valia": as outras frases certas, sem repetir a que o aluno
-  // escreveu nem a mostrada como modelo. Só aparece depois da tentativa.
   const otherAnswers = useMemo(() => {
     const shown = new Set([normalizeEngineAnswer(accepted ?? model)]);
     const list: string[] = [];
@@ -3944,8 +3971,57 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     return list.slice(0, 4);
   }, [step.productionExamples, accepted, model]);
 
+  const buildBank = step.productionHelpBuildBank ?? [];
+  const vocabHints = step.productionHelpVocab ?? [];
+  const showPattern = helpLevel >= 1 && Boolean(step.patternPt);
+  const showStructure = helpLevel >= 2 && Boolean(step.patternPt || step.patternSlots?.length);
+  const showVocab = helpLevel >= 3 && vocabHints.length > 0 && !isOpen;
+  const showBuild = helpLevel >= 4 && buildBank.length >= 2 && !isOpen;
+  const canRequestMore = nextProductionHelpLevel(helpLevel, unlockedMax) != null;
+
+  function finishDone(correct: boolean) {
+    onDone(correct, {
+      helpLevel,
+      helpRequests,
+      initialHelpLevel: initialHelp,
+    });
+  }
+
+  function requestMoreHelp() {
+    const next = nextProductionHelpLevel(helpLevel, unlockedMax);
+    if (next == null) return;
+    setHelpLevel(next);
+    setHelpRequests((count) => count + 1);
+    void trackPedagogyEvent({
+      eventType: "production_help_requested",
+      lessonId,
+      exerciseKind: step.kind,
+      metadata: {
+        helpLevel: next,
+        previousHelpLevel: helpLevel,
+        initialHelpLevel: initialHelp,
+        unlockedMax,
+        productionAssist: step.productionAssist ?? null,
+        frameId: step.productionFrameId ?? null,
+        firstOfStructure: step.productionHelpFirstOfStructure ?? false,
+      },
+    });
+  }
+
+  function registerLocalMistake() {
+    const nextCount = localMistakes + 1;
+    setLocalMistakes(nextCount);
+    setHadMistake(true);
+    const nextUnlock = unlockProductionHelpAfterMistake({
+      unlockedMax,
+      mistakeCount: nextCount,
+      softCeiling,
+    });
+    setUnlockedMax(nextUnlock);
+  }
+
   function check() {
-    const candidate = draft.trim();
+    const candidate = showBuild && buildPicked.length > 0 ? buildPicked.join("") : draft.trim();
     if (!candidate || locked) return;
     const normalized = normalizeEngineAnswer(candidate);
     if (acceptedAnswers.some((value) => normalizeEngineAnswer(value) === normalized)) {
@@ -3956,10 +4032,6 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
       return;
     }
 
-    // O corpus nunca vai enumerar todas as frases certas do mandarim. Quando o
-    // diagnóstico não encontra padrão que explique uma tentativa bem formada, o
-    // honesto é admitir que não reconheceu — não cobrar como erro. Cobrar
-    // custaria estrela, entraria no SRS e ainda desviaria as próximas lições.
     const diagnosis = diagnoseError({
       kind: step.kind,
       expected: model,
@@ -3974,7 +4046,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
       return;
     }
 
-    setHadMistake(true);
+    registerLocalMistake();
     setCauseFeedback(diagnosis.feedbackPt);
     setFeedback("wrong");
     onMistake?.(candidate);
@@ -3989,12 +4061,36 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         ? `Complete: ${step.patternPt}`
         : "hànzì ou pinyin";
 
+  const helpMeta = (
+    <div
+      className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1"
+      data-production-help-level={helpLevel}
+      data-production-help-unlocked={unlockedMax}
+    >
+      {canRequestMore ? (
+        <button
+          type="button"
+          onClick={requestMoreHelp}
+          className="text-xs font-semibold text-accent underline decoration-accent/35 underline-offset-2 transition hover:decoration-accent"
+          data-production-help-request
+        >
+          Preciso de uma dica
+        </button>
+      ) : null}
+      {hadMistake && canRequestMore ? (
+        <span className="text-xs text-ink-mute">Mais ajuda liberada após o erro</span>
+      ) : null}
+      {helpLevel > initialHelp ? (
+        <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+          Ajuda · {productionHelpLevelLabel(helpLevel)}
+        </span>
+      ) : null}
+    </div>
+  );
+
   const feedbackPanel = (
     <EngineFeedbackPanel
       status={feedback}
-      // Na produção aberta não existe "o modelo": chamar de modelo uma frase
-      // diferente da que o aluno acertou sugeriria que ele escolheu errado.
-      // Ali o modelo só aparece quando a tentativa não foi aceita.
       model={
         feedback === "wrong" || feedback === "unrecognized" || hadMistake || (!isOpen && locked)
           ? model
@@ -4006,10 +4102,11 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
       deferMistakeToParent={Boolean(onMistake)}
       onRetry={() => {
         setDraft("");
+        setBuildPicked([]);
         setFeedback(null);
         setCauseFeedback(undefined);
       }}
-      onContinue={() => onDone(!hadMistake)}
+      onContinue={() => finishDone(!hadMistake)}
     />
   );
 
@@ -4029,13 +4126,86 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
       </div>
     ) : null;
 
-  // Transferência: hierarquia curta — situação → âncora → padrão → resposta.
-  // Estrutura (quem/ação/…) só sob demanda.
+  const answerSection = (
+    <section className="mt-4" data-production-answer>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+        {showBuild ? "Monte a frase" : "Responda"}
+      </div>
+      {showBuild ? (
+        <div className="mt-2" data-production-help-build>
+          <div className="mb-2 flex min-h-[3rem] flex-wrap gap-1.5 rounded-2xl border border-line bg-surface-2 p-2.5">
+            {buildPicked.length === 0 ? (
+              <span className="text-sm text-ink-faint">Toque nas peças</span>
+            ) : (
+              buildPicked.map((piece, index) => (
+                <button
+                  key={`${piece}-${index}`}
+                  type="button"
+                  className="hanzi rounded-xl border border-line bg-white px-2.5 py-1.5 text-lg font-semibold text-ink"
+                  onClick={() => setBuildPicked((prev) => prev.filter((_, i) => i !== index))}
+                  disabled={locked}
+                >
+                  {piece}
+                </button>
+              ))
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {buildBank.map((piece, index) => {
+              const used = buildPicked.filter((p) => p === piece).length;
+              const available = buildBank.filter((p) => p === piece).length;
+              const disabled = locked || used >= available;
+              return (
+                <button
+                  key={`${piece}-bank-${index}`}
+                  type="button"
+                  disabled={disabled}
+                  className="hanzi rounded-xl border border-line bg-surface px-2.5 py-1.5 text-lg font-semibold text-ink disabled:opacity-35"
+                  onClick={() => {
+                    setBuildPicked((prev) => [...prev, piece]);
+                    if (feedback !== "correct") setFeedback(null);
+                  }}
+                >
+                  {piece}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-ink-faint">Ainda pode digitar se preferir.</p>
+          <FreeAnswerField
+            value={draft}
+            onChange={(next) => {
+              setDraft(next);
+              if (feedback !== "correct") setFeedback(null);
+            }}
+            disabled={locked}
+            placeholder={answerPlaceholder}
+            onSubmit={check}
+            speechAsAlternative
+          />
+        </div>
+      ) : (
+        <FreeAnswerField
+          value={draft}
+          onChange={(next) => {
+            setDraft(next);
+            if (feedback !== "correct") setFeedback(null);
+          }}
+          disabled={locked}
+          placeholder={answerPlaceholder}
+          onSubmit={check}
+          speechAsAlternative
+        />
+      )}
+    </section>
+  );
+
   if (isTransfer) {
     return (
       <div
         data-production-step={step.kind}
         data-production-assist={step.productionAssist ?? "guided"}
+        data-production-help-initial={initialHelp}
         className="mx-auto w-full max-w-lg"
       >
         <Eyebrow>Transferência</Eyebrow>
@@ -4061,7 +4231,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
             {step.transferAnchorPinyin ? (
               <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm text-ink-soft" />
             ) : null}
-            {step.transferTransformHint ? (
+            {step.transferTransformHint && helpLevel >= 1 ? (
               <div
                 className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft"
                 data-production-transform-hint
@@ -4074,50 +4244,68 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
           </section>
         ) : null}
 
-        <section className="mt-3.5" data-production-goal>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Use este padrão
-          </div>
-          {step.patternPt ? (
+        {showPattern ? (
+          <section className="mt-3.5" data-production-goal>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              Use este padrão
+            </div>
             <p className="mt-1 hanzi text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-[1.7rem]">
               {step.patternPt}
             </p>
-          ) : (
-            <p className="mt-1 text-sm text-ink-soft">Escreva a frase completa para a situação.</p>
-          )}
-          {step.productionAssist === "question" ? (
-            <p className="sr-only" data-production-question-hint>
-              Monte a frase e feche com 吗 no final.
-            </p>
-          ) : null}
-          <StructureHowItWorks
-            patternPt={step.patternPt}
-            slots={step.patternSlots}
-            lessonId={lessonId}
-            frameId={step.productionFrameId}
-          />
-        </section>
+            {step.productionAssist === "question" ? (
+              <p className="sr-only" data-production-question-hint>
+                Monte a frase e feche com 吗 no final.
+              </p>
+            ) : null}
+            {showStructure ? (
+              <StructureHowItWorks
+                patternPt={step.patternPt}
+                slots={step.patternSlots}
+                lessonId={lessonId}
+                frameId={step.productionFrameId}
+                forceOpen
+              />
+            ) : null}
+          </section>
+        ) : (
+          <p className="mt-2 text-sm text-ink-soft" data-production-goal>
+            Escreva o que a situação pede.
+          </p>
+        )}
 
-        <section className="mt-4" data-production-answer>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Responda</div>
-          <FreeAnswerField
-            value={draft}
-            onChange={(next) => {
-              setDraft(next);
-              if (feedback !== "correct") setFeedback(null);
-            }}
-            disabled={locked}
-            placeholder={answerPlaceholder}
-            onSubmit={check}
-            speechAsAlternative
-          />
-        </section>
+        {showVocab ? (
+          <section className="mt-3" data-production-help-vocab>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              Palavras úteis
+            </div>
+            <ul className="mt-1.5 flex flex-wrap gap-2">
+              {vocabHints.map((item) => (
+                <li
+                  key={item.hanzi}
+                  className="rounded-xl border border-line bg-surface-2 px-2.5 py-1.5"
+                >
+                  <span className="hanzi text-base font-semibold text-ink">{item.hanzi}</span>
+                  {item.pinyin ? <span className="ml-1.5 text-xs text-ink-soft">{item.pinyin}</span> : null}
+                  {item.meaningPt ? (
+                    <span className="mt-0.5 block text-[11px] text-ink-mute">{item.meaningPt}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
+        {answerSection}
+        {!locked ? helpMeta : null}
         {feedbackPanel}
         {otherAnswersPanel}
 
         {!locked && (
-          <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
+          <EngineActions
+            canCheck={(showBuild ? buildPicked.length > 0 : false) || draft.trim().length > 0}
+            onCheck={check}
+            onSkip={onSkip}
+          />
         )}
       </div>
     );
@@ -4127,6 +4315,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     <div
       data-production-step={step.kind}
       data-production-assist={step.productionAssist ?? (isOpen ? "open" : undefined)}
+      data-production-help-initial={initialHelp}
     >
       <Eyebrow>{isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
@@ -4143,6 +4332,10 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
           <p className="mt-1.5 text-sm leading-5 text-ink-soft" data-production-goal>
             {step.productionHintPt}
           </p>
+        ) : showPattern ? (
+          <span className="sr-only" data-production-goal>
+            Use o padrão e escreva a frase.
+          </span>
         ) : (
           <span className="sr-only" data-production-goal>
             Escreva a frase completa.
@@ -4150,36 +4343,62 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         )}
       </div>
 
-      {!isOpen && (step.patternSlots?.length || step.patternPt) && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-scaffold>
-          <PatternSlotScaffold
-            slots={step.patternSlots}
-            patternPt={step.patternPt}
-            lessonId={lessonId}
-            frameId={step.productionFrameId}
-          />
+      {showPattern ? (
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+            Use este padrão
+          </div>
+          <p className="mt-1 hanzi text-xl font-semibold text-ink">{step.patternPt}</p>
+          {showStructure ? (
+            <StructureHowItWorks
+              patternPt={step.patternPt}
+              slots={step.patternSlots}
+              lessonId={lessonId}
+              frameId={step.productionFrameId}
+              forceOpen
+            />
+          ) : !isOpen ? (
+            <div data-production-scaffold>
+              <PatternSlotScaffold
+                slots={step.patternSlots}
+                patternPt={undefined}
+                lessonId={lessonId}
+                frameId={step.productionFrameId}
+              />
+            </div>
+          ) : null}
         </div>
-      )}
+      ) : null}
 
-      <div data-production-answer>
-        <FreeAnswerField
-          value={draft}
-          onChange={(next) => {
-            setDraft(next);
-            if (feedback !== "correct") setFeedback(null);
-          }}
-          disabled={locked}
-          placeholder={answerPlaceholder}
-          onSubmit={check}
-          speechAsAlternative
-        />
-      </div>
+      {showVocab ? (
+        <section className="mt-3" data-production-help-vocab>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+            Palavras úteis
+          </div>
+          <ul className="mt-1.5 flex flex-wrap gap-2">
+            {vocabHints.map((item) => (
+              <li key={item.hanzi} className="rounded-xl border border-line bg-surface-2 px-2.5 py-1.5">
+                <span className="hanzi text-base font-semibold text-ink">{item.hanzi}</span>
+                {item.meaningPt ? (
+                  <span className="mt-0.5 block text-[11px] text-ink-mute">{item.meaningPt}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
+      {answerSection}
+      {!locked ? helpMeta : null}
       {feedbackPanel}
       {otherAnswersPanel}
 
       {!locked && (
-        <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
+        <EngineActions
+          canCheck={(showBuild ? buildPicked.length > 0 : false) || draft.trim().length > 0}
+          onCheck={check}
+          onSkip={onSkip}
+        />
       )}
     </div>
   );

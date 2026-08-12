@@ -127,7 +127,11 @@ try {
   assert(stepsSource.includes("Você já conhece"), "copy âncora transferência");
   assert(stepsSource.includes("Ver como a frase funciona"), "breakdown sob demanda na transferência");
   assert(stepsSource.includes("Use este padrão"), "hierarquia: padrão na transferência");
+  assert(stepsSource.includes("Preciso de uma dica"), "ajuda opcional progressiva");
+  assert(stepsSource.includes("production_help_requested"), "telemetria de scaffold");
+  assert(stepsSource.includes("data-production-help-level"), "hook nível de ajuda");
   assert(!stepsSource.includes("Mesma estrutura — só muda a situação."), "copy redundante de transferência removida");
+  assert(!/Nenhuma alternativa e nenhuma peça/.test(stepsSource), "meta-copy pesada removida");
 
   // ── 2–6) Revisão: item único, pinyin↔hanzi, sem dump, sem status ──────
   assert(typeof isConcatenatedDump === "function", "isConcatenatedDump exportado");
