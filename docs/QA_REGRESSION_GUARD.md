@@ -34,3 +34,4 @@ No estado bugado (ex.: `errorHanziForStep` com `lines.map(...).join(" / ")`), o 
 
 - `test:immediate-remediation` / `test:review-ux` / `test:assembly-ux` — focos mais estreitos.
 - `e2e/review-remediation.spec.ts` / `e2e/lesson-player-viewport.spec.ts` — coberturas irmãs; esta suíte une os fluxos QA num único contrato.
+- Auditoria completa B002 (2026-08-12): [`B002_AUDIT.md`](./B002_AUDIT.md).

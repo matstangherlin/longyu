@@ -288,6 +288,61 @@ try {
     `listen não deve misturar significado pt: ${(listenEx.options ?? []).join(" | ")}`
   );
 
+  // free_production → build (PieceAssembly path), alvo único, sem dump nas peças
+  const freeProdError = {
+    id: "test-free-prod-1",
+    lessonId: "l6",
+    moduleId: "u1",
+    phaseId: "p1",
+    taskId: "t1",
+    questionId: "q1",
+    exerciseId: "e1",
+    type: "free_production",
+    prompt: "Situação: pedir chá",
+    correctAnswer: "我要茶",
+    selectedAnswer: "Pulou ou respondeu incorretamente",
+    hanzi: dumpHanzi,
+    pinyin: dumpPinyin,
+    timestamp: Date.now(),
+    wrongCount: 1,
+    skill: "fala",
+    targets: [{ type: "chunk", itemId: "woyaocha", domain: "significado", track: "fala" }],
+    step: {
+      kind: "free_production",
+      prompt: "Situação: pedir chá",
+      correctAnswer: "我要茶",
+      targetParts: ["我", "要", "茶"],
+      bank: ["我", "要", "茶", "不", "喝"],
+    },
+  };
+  const freeProdEx = buildImmediateRemediationExercise(freeProdError);
+  assert(freeProdEx.kind === "build", `free_production → build, got ${freeProdEx.kind}`);
+  assert(freeProdEx.answer === "我要茶", `free_production answer: ${freeProdEx.answer}`);
+  assertNoDump(freeProdEx.display, "free_production display");
+  assertNoDump(freeProdEx.answerPinyin, "free_production answerPinyin");
+  assert((freeProdEx.pieces ?? []).includes("我"), "free_production peças incluem 我");
+  assertNoSkip(freeProdEx.pieces, "free_production peças");
+
+  // transfer_task → build, mesmas garantias de alvo único
+  const transferError = {
+    ...freeProdError,
+    id: "test-transfer-1",
+    type: "transfer_task",
+    step: {
+      kind: "transfer_task",
+      prompt: "Use o que aprendeu na situação",
+      correctAnswer: "我不喝茶",
+      targetParts: ["我", "不", "喝", "茶"],
+      bank: ["我", "不", "喝", "茶", "要"],
+    },
+  };
+  transferError.correctAnswer = "我不喝茶";
+  const transferEx = buildImmediateRemediationExercise(transferError);
+  assert(transferEx.kind === "build", `transfer_task → build, got ${transferEx.kind}`);
+  assert(transferEx.answer === "我不喝茶", `transfer_task answer: ${transferEx.answer}`);
+  assertNoDump(transferEx.display, "transfer_task display");
+  assertNoSkip(transferEx.pieces, "transfer_task peças");
+
   // Restore path: activityErrorFromMistake não propaga dump de cena
   const lessonWithScene = ALL_LESSONS.find((lesson) =>
     lesson.steps.some((step) => step.kind === "conversation_scene" || step.kind === "dialogue_choice")

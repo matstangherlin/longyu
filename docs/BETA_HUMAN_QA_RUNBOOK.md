@@ -1,54 +1,111 @@
-# Longyu — Runbook de QA humano (pós #133)
+# Longyu — Runbook de QA humano (pós #148)
 
 **Objetivo:** provar o produto em pessoas e aparelhos reais.  
-**Regra:** nada aqui é substituível por Playwright, emulação ou fixture.
+**Regra:** **automação não substitui QA humano** — nada aqui é substituível por Playwright, emulação, fixture ou `test:qa-regression-guard`.
 
-Atualizado: 2026-08-11 · tip `main` `d294764` (#140).  
-Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).
+Atualizado: 2026-08-12 · tip `main` `3622885` (#148).  
+Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).  
+Log de bugs: [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
 
----
-
-## Sequência recomendada (não pule)
-
-1. **PC / notebook** — L1→L20 como aluno novo  
-2. **Android Chrome** (+ PWA instalado se possível)  
-3. **iPhone Safari** (+ “Adicionar à Tela de Início”)  
-4. **Auth + e-mail real**  
-5. **Stripe Test Mode** ([runbook §7](./SUBSCRIPTION_E2E_REPORT.md#7-critério--passada-final-em-stripe-test-mode-runbook))  
-6. **Sync celular ↔ PC**  
-7. **VoiceOver / TalkBack** (amostra curta)  
-8. **5–15 testadores**  
-9. **Corrigir P0/P1**  
-10. **Congelar RC** → `npm run beta:rc-status` → `npm run gate:public-beta` → Security completo  
-
-Use o log em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) (copie linhas; não apague o cabeçalho).
+> **Nenhum checkbox humano abaixo foi marcado automaticamente.** Só a pessoa que executar o passo marca.
 
 ---
 
-## 0. Preparo (5 min)
+## Próximo fluxo (ordem obrigatória)
 
-- [x] Abrir a **produção beta** (ou preview estável) em janela anônima  
-- [x] Anotar: URL · versão na landing/Sobre · navegador · SO  
-- [ ] Conta **nova** (e-mail real que você controla) **ou** perfil local zerado  
-- [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
-- [ ] Feedback: saber onde está o botão / reportar no player  
+Execute **nesta ordem**. Não pule B001/B002 para ir direto a L1–L20.
 
-> **2026-08-11:** proxy desktop `e2e/runbook-20-lessons.spec.ts` (Chromium — **não** substitui §1 humano).  
-> **B001:** código em #138→#139→#140; **ainda aberto** até revalidação Android ([checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b001-android-físico)).  
-> **Prioridade agora:** Android físico → se OK, fechar B001 → L1–L20 humano.
+| # | Passo | Onde registrar |
+| ---: | --- | --- |
+| 1 | **Force refresh / cache limpo** | §0 Preparo |
+| 2 | **Revalidar B001** no Android real | §B001 + [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) |
+| 3 | **Revalidar B002** no app real | §B002 + [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) |
+| 4 | **L1–L20** com conta nova | §1 |
+| 5 | **Android completo** | §2 |
+| 6 | **iPhone / Safari** | §3 |
+| 7 | **E-mail real** | §4 |
+| 8 | **Stripe Test Mode** | §5 |
+| 9 | **Sync PC ↔ celular** | §6 |
+| 10 | **VoiceOver / TalkBack** | §7 |
+| 11 | **5–15 testadores** | §8 |
+| 12 | **Corrigir P0/P1** | [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) |
+| 13 | **Congelar RC** | §9 |
+| 14 | **`gate:public-beta`** | §9 |
+| 15 | **Full security scan** da SHA final | §9 |
 
-Comandos úteis no repo (antes da RC, não no meio do uso):
+**Estado do código (não confundir com QA feito):**
+
+- Tip a testar: `3622885` (#148).  
+- B001: **corrigido em código**, aguardando revalidação Android física.  
+- B002: **corrigido em código**, aguardando revalidação humana.  
+- Produção/transferência friendliness, PieceAssembly e guarda QA: **entregues em código**.  
+- #146 (copy/mic/`test:player-ux`): ainda **pendente** na `main` (extrato na #149).  
+- RC, full security scan final, L1–L20 humano, aparelhos, e-mail, Stripe, sync e testadores: **não concluídos**.
 
 ```bash
-npm run beta:rc-status          # SHA, versão, próximos gates
-npm run gate:public-beta        # só na SHA congelada
+npm run beta:rc-status          # SHA, versão, próximos gates — só consulta
+npm run gate:public-beta        # só na SHA congelada (passo 14)
 ```
 
 ---
 
-## 1. PC — primeiras 20 lições (aluno novo)
+## 0. Preparo — force refresh / cache limpo
 
-Faça **em ordem**, como alguém que acabou de chegar. Não use seed de progresso.
+Antes de qualquer revalidação:
+
+- [ ] Abrir produção beta (ou preview estável) em **janela anônima**  
+- [ ] **Force refresh** (Android Chrome: menu → atualizar; se preciso, limpar dados do site)  
+- [ ] Confirmar tip / versão: landing ou Sobre = `v0.2.0-beta.1` · tip esperado `3622885`  
+- [ ] Anotar: URL · navegador · SO · aparelho  
+- [ ] Conta **nova** (e-mail real) **ou** perfil local zerado — para L1–L20  
+- [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
+- [ ] Feedback: saber onde está o botão / reportar no player  
+
+**Não avance para B001 com cache antigo.**
+
+---
+
+## B001 — revalidar no Android real
+
+Aparelho: ________ · Chrome: ________ · Tip confirmada: ☐ `3622885`
+
+Abra uma lição no player (`/licao/*/player`). Registre falhas em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
+
+| Check | OK |
+| --- | :---: |
+| **Body não arrasta** — puxar a página não move o documento (só a região da atividade, se houver overflow) | ☐ |
+| **CTA acessível** — Continuar / Verificar / Tentar de novo visível sem caça (após acerto e após erro) | ☐ |
+| **Teclado aberto** — com IME/pinyin aberto, Verificar (ou CTA principal) continua alcançável | ☐ |
+| **Teclado fechado** — ao fechar o teclado, layout e CTA voltam corretos | ☐ |
+| **Vitória correta** — tela final: Continuar Jornada / Receber recompensas acessível **sem** scroll da página | ☐ |
+
+**Passe B001:** os 5 checks acima no Android físico. Automação / emulação **não** fecha B001.
+
+---
+
+## B002 — revalidar no app real
+
+Ambiente: ________ (desktop e/ou mobile) · Tip: ☐ `3622885`
+
+Fluxo: errar ou pular um diálogo → aceitar a oferta de revisão / recuperação de estrela.
+
+| Check | OK |
+| --- | :---: |
+| **Errar / pular** dispara a oferta de revisão | ☐ |
+| **Aceitar revisão** abre a sessão de recuperação | ☐ |
+| **Um único prompt** situacional (sem dump `你好 / 你好吗 / …`) | ☐ |
+| **Pinyin coerente** — só o da resposta correta / alvo | ☐ |
+| **Status não vira alternativa** — “Pulou…” / “incorretamente” **não** aparece como opção | ☐ |
+| **Sentence build correto** — peças certas, sem dump concatenado (PieceAssembly) | ☐ |
+| **Recuperação da estrela funciona** — acertar o(s) item(ns) recupera a 3ª estrela / feedback coerente | ☐ |
+
+**Passe B002:** os 7 checks acima no app real. `test:immediate-remediation` / E2E **não** fecham B002.
+
+---
+
+## 1. L1–L20 com conta nova
+
+Faça **em ordem**, como aluno novo. Sem seed de progresso.
 
 | # | Lição (`id`) | Feita | Notas / bug-id |
 | ---: | --- | :---: | --- |
@@ -73,7 +130,7 @@ Faça **em ordem**, como alguém que acabou de chegar. Não use seed de progress
 | 19 | `p4-num-45` | ☐ | |
 | 20 | `p4-num-678` | ☐ | |
 
-### Em **cada** atividade, cheque mentalmente
+### Em **cada** atividade
 
 - [ ] Ao avançar, a nova atividade começa **no topo** (sem herdar scroll)  
 - [ ] CTA (Continuar / Verificar / Responder) **acessível** sem caça  
@@ -81,13 +138,14 @@ Faça **em ordem**, como alguém que acabou de chegar. Não use seed de progress
 - [ ] Erro → retry / feedback claro  
 - [ ] Nada “parece bug” de layout (espaço morto, botão fora, teclado)  
 
-**Passe desta fase:** 20/20 feitas + bugs P0/P1 registrados no log (mesmo que zero).
+**Passe:** 20/20 + bugs P0/P1 no log (mesmo que zero).  
+Proxy E2E `runbook-20-lessons` **não** substitui este passo.
 
 ---
 
-## 2. Android (físico)
+## 2. Android completo (físico)
 
-Dispositivo: ________ · Chrome versão: ________ · PWA instalado: ☐ sim ☐ não  
+Dispositivo: ________ · Chrome: ________ · PWA: ☐ sim ☐ não  
 
 | Check | OK |
 | --- | :---: |
@@ -103,9 +161,9 @@ Dispositivo: ________ · Chrome versão: ________ · PWA instalado: ☐ sim ☐ 
 
 ---
 
-## 3. iPhone (físico)
+## 3. iPhone / Safari (físico)
 
-Dispositivo: ________ · iOS: ________ · Safari · “Adicionar à Tela de Início”: ☐  
+Dispositivo: ________ · iOS: ________ · “Adicionar à Tela de Início”: ☐  
 
 | Check | OK |
 | --- | :---: |
@@ -117,7 +175,7 @@ Dispositivo: ________ · iOS: ________ · Safari · “Adicionar à Tela de Iní
 
 ---
 
-## 4. Auth + e-mail REAL
+## 4. E-mail real
 
 E-mail de teste: ________  
 
@@ -130,13 +188,13 @@ E-mail de teste: ________
 | Logout → login noutro browser/aparelho | ☐ | |
 | Sessão depois de horas / reload mantém cloud | ☐ | |
 
-Superfície de rotas já coberta por `e2e/auth-surface.spec.ts` — isto valida **entrega e links**.
+`e2e/auth-surface.spec.ts` cobre superfície de rotas — **não** entrega de e-mail.
 
 ---
 
 ## 5. Stripe Test Mode
 
-Siga o runbook completo em [`SUBSCRIPTION_E2E_REPORT.md` §7](./SUBSCRIPTION_E2E_REPORT.md). Mínimo obrigatório:
+Siga [`SUBSCRIPTION_E2E_REPORT.md` §7](./SUBSCRIPTION_E2E_REPORT.md). Mínimo:
 
 | Cenário | OK |
 | --- | :---: |
@@ -146,11 +204,11 @@ Siga o runbook completo em [`SUBSCRIPTION_E2E_REPORT.md` §7](./SUBSCRIPTION_E2E
 | D — Cancelamento: Pro até o fim do período, depois cai | ☐ |
 | Outro aparelho: mesma conta vê o mesmo entitlement | ☐ |
 
-Cartões de teste Stripe: sucesso `4000 0000 0000 0077` · falha `4000 0000 0000 0341` (ver §7).
+Cartões de teste: sucesso `4000 0000 0000 0077` · falha `4000 0000 0000 0341`.
 
 ---
 
-## 6. Sync multi-device (físico)
+## 6. Sync PC ↔ celular (físico)
 
 Conta cloud: ________  
 
@@ -159,14 +217,14 @@ Conta cloud: ________
 | Celular conclui uma lição (online) | ☐ |
 | PC abre a mesma conta → progresso aparece | ☐ |
 | PC offline altera algo → celular altera outra coisa → ambos online | ☐ |
-| Merge: nenhum dos dois lados “some”; sem progresso zerado | ☐ |
-| Banner/erro de sync aparece se falhar; progresso local seguro | ☐ |
+| Merge: nenhum lado “some”; sem progresso zerado | ☐ |
+| Banner/erro de sync se falhar; progresso local seguro | ☐ |
 
 ---
 
-## 7. Acessibilidade (amostra)
+## 7. VoiceOver / TalkBack (amostra)
 
-Não precisa auditar o app inteiro — 15–20 min bastam para achar P0.
+15–20 min bastam para achar P0.
 
 | Check | iPhone VoiceOver | Android TalkBack |
 | --- | :---: | :---: |
@@ -189,19 +247,29 @@ Não precisa auditar o app inteiro — 15–20 min bastam para achar P0.
 | 5 | | | | | |
 | … | | | | | |
 
-Pedido mínimo aos testadores:
+Pedido mínimo:
 
 > Use 20–40 minutos do zero. Se precisar rolar para achar a próxima atividade, ou o botão sumir, mande print + lição.
 
 ---
 
-## 9. Depois dos bugs → RC
+## 9. Corrigir P0/P1 → congelar RC → gate → security
 
-1. Corrigir **todos** P0 e os P1 que afetam fluxo principal  
-2. Congelar SHA: `git rev-parse HEAD` → anotar em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md)  
+Ordem:
+
+1. **Corrigir P0/P1** do log (B001/B002 só fecham após revalidação humana — §§B001/B002)  
+2. **Congelar RC:** `git rev-parse HEAD` → anotar SHA em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md)  
 3. `npm run beta:rc-status`  
-4. `npm run gate:public-beta` nessa SHA  
-5. Security workflow verde + (recomendado) full security scan da RC  
+4. **`npm run gate:public-beta`** nessa SHA  
+5. **Full security scan** da SHA final (workflow `Security`: npm audit + CodeQL + gitleaks) — **não** concluído até rodar na RC  
 6. Tag sugerida: `0.2.0-beta.1-rc1`  
 
-**Só então** abrir beta fechado amplo.
+| Passo RC | OK |
+| --- | :---: |
+| P0 = 0 e P1 de fluxo principal tratados (ou waivers) | ☐ |
+| SHA RC anotada no bug log | ☐ |
+| `beta:rc-status` ok | ☐ |
+| `gate:public-beta` verde | ☐ |
+| Full security scan da SHA final verde | ☐ |
+
+**Só então** abrir beta fechado amplo. Automação verde **não** conta como RC concluída.
