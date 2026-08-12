@@ -75,11 +75,14 @@ import {
 } from "../../data/perceptionDrills";
 import {
   FRAME_TASKS,
+  maxTransferAssistForAttempt,
   openProductionTasksFor,
+  PRODUCTION_ASSIST_RANK,
   productionTasksFor,
   repairTasksFor,
   transferTasksFor,
   type FrameTask,
+  type ProductionAssist,
 } from "../../data/productionTasks";
 import {
   defaultVisualDistractors,
@@ -1743,6 +1746,7 @@ function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number):
     situationPt: task.situationPt,
     productionGoal: task.goal,
     productionOpen: true,
+    productionAssist: "open",
     productionHintPt: task.hintPt,
     productionExamples: task.examples,
     correctAnswer: model.hanzi,
@@ -1785,34 +1789,89 @@ function makeFreeProductionStep(
     kind: "free_production",
     title: "Sua vez de produzir",
     patternPt: task.patternPt,
+    productionAssist: "guided",
+    assist: "guided",
     ...frameTaskStepBase(task),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
   };
 }
 
+function pickTransferCandidates(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  usingItem: FocusItem | undefined,
+  attemptNumber: number
+): FrameTask[] {
+  const taught = authoredCurriculumSentences();
+  const maxAssist = maxTransferAssistForAttempt(attemptNumber);
+  const preferLowestRung = attemptNumber <= 0;
+
+  const select = (preferLowest: boolean) => {
+    const pool = transferTasksFor(knownGlyphs, {
+      extraTaughtSentences: taught,
+      maxAssist,
+      preferLowestRung: preferLowest,
+    });
+    return usingItem ? frameTasksUsing(pool, usingItem) : pool;
+  };
+
+  let tasks = select(preferLowestRung);
+  // Pós-conversa pode filtrar demais: relaxa o "só o degrau mais baixo".
+  if (tasks.length === 0 && usingItem) {
+    tasks = select(false);
+  }
+  if (tasks.length === 0) {
+    tasks = transferTasksFor(knownGlyphs, {
+      extraTaughtSentences: taught,
+      maxAssist,
+      preferLowestRung: true,
+    });
+  }
+  if (tasks.length === 0) return [];
+
+  // Em tentativas seguintes, sobe para o degrau mais alto permitido e elegível.
+  if (!preferLowestRung) {
+    const maxRank = Math.max(...tasks.map((task) => PRODUCTION_ASSIST_RANK[task.transferAssist]));
+    tasks = tasks.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === maxRank);
+  }
+
+  // Estável: seed escolhe dentro do degrau, não mistura rungs.
+  void seed;
+  return tasks;
+}
+
 /**
- * Transferência: o app mostra a frase-âncora já ensinada e pede outra
- * combinação da MESMA estrutura — uma que o currículo nunca mostrou. Acertar
- * aqui só é possível aplicando o padrão.
+ * Transferência com scaffold progressivo:
+ * guided (1 slot) → supported (dica de transformação) → question (吗).
  */
 function makeTransferStep(
   knownGlyphs: ReadonlySet<string>,
   seed: number,
-  usingItem?: FocusItem
+  usingItem?: FocusItem,
+  attemptNumber = 0
 ): LessonStep | null {
-  const pool = transferTasksFor(knownGlyphs, { extraTaughtSentences: authoredCurriculumSentences() });
-  const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
+  const tasks = pickTransferCandidates(knownGlyphs, seed, usingItem, attemptNumber);
   if (tasks.length === 0) return null;
-  // Com pool ordenado por facilidade, seed baixo favorece frames introdutórios.
   const task = tasks[seed % tasks.length];
+  const productionAssist: ProductionAssist = task.transferAssist;
   return {
     kind: "transfer_task",
-    title: "Use o que já sabe",
+    title:
+      productionAssist === "guided"
+        ? "Troque só uma parte"
+        : productionAssist === "supported"
+          ? "Aplique a transformação"
+          : productionAssist === "question"
+            ? "Transforme em pergunta"
+            : "Use o que já sabe",
     patternPt: task.patternPt,
     transferAnchorHanzi: task.anchor.hanzi,
     transferAnchorPinyin: task.anchor.pinyin,
     transferAnchorPt: task.anchor.meaningPt,
     isNovelCombination: true,
+    productionAssist,
+    assist: productionAssist === "guided" ? "guided" : undefined,
+    transferTransformHint: task.transferTransformHint,
     ...frameTaskStepBase(task),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Combinação nova: você montou pela estrutura.`,
   };
@@ -2945,6 +3004,8 @@ interface SupplementalStepOptions {
   variantSeedOffset?: number;
   /** Revisões de módulo preservam a matriz de cobertura autoral completa. */
   enablePedagogyVariants?: boolean;
+  /** Tentativa da lição (0 = primeira): controla o degrau máximo de transferência. */
+  attemptNumber?: number;
 }
 
 function supplementalStepsForStage(
@@ -3102,7 +3163,7 @@ function supplementalStepsForStage(
     // uma frase inédita diferente — sem o deslocamento por variante, refazer a
     // lição repetiria a mesma transferência e ela viraria frase decorada.
     const variantSeed = drillSeed + 1 + variantSeedBase * 7;
-    push(makeTransferStep(knownGlyphs, variantSeed));
+    push(makeTransferStep(knownGlyphs, variantSeed, undefined, options.attemptNumber ?? 0));
     push(makeOpenProductionStep(knownGlyphs, variantSeed));
     push(makeFreeProductionStep(knownGlyphs, variantSeed));
     push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
@@ -3391,7 +3452,8 @@ function generatedCandidatesFor(
   sceneContext: ConversationSceneSelectionContext = {},
   history?: readonly ConversationHistoryEntry[],
   practiceVariant: "A" | "B" | "C" = "A",
-  variantSeedOffset = 0
+  variantSeedOffset = 0,
+  attemptNumber = 0
 ): PracticeCandidate[] {
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
@@ -3412,7 +3474,22 @@ function generatedCandidatesFor(
     // teto apertado deixava o gerador parar antes de produzir HanziBuilder e
     // exercício visual — e a garantia de cobertura não tinha o que garantir.
     const target = Math.max(8, profile.stageTargets[stageId] * 4);
-    const generated = supplementalStepsForStage(stageId, focus, target, { phaseOrder, reviewFocus, hanziBuilderProgress, seenGlyphs, ownFocusGlyphs, allowComposedFiller, unitIndex, allowImageSteps, sceneSelection, lessonId: lesson.id, practiceVariant, variantSeedOffset, enablePedagogyVariants: !lesson.isReview });
+    const generated = supplementalStepsForStage(stageId, focus, target, {
+      phaseOrder,
+      reviewFocus,
+      hanziBuilderProgress,
+      seenGlyphs,
+      ownFocusGlyphs,
+      allowComposedFiller,
+      unitIndex,
+      allowImageSteps,
+      sceneSelection,
+      lessonId: lesson.id,
+      practiceVariant,
+      variantSeedOffset,
+      enablePedagogyVariants: !lesson.isReview,
+      attemptNumber,
+    });
     for (const step of generated) {
       candidates.push({
         step,
@@ -5017,7 +5094,8 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       sceneContext,
       context.conversationHistory,
       practiceVariant,
-      variantSeedOffset
+      variantSeedOffset,
+      context.attemptNumber ?? 0
     ),
   ];
   const usedSignatures = new Set<string>();

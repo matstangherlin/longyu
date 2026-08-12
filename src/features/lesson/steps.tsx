@@ -3815,7 +3815,13 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
   }
 
   const goalHint = isTransfer
-    ? "Mesma estrutura — só muda a situação."
+    ? step.productionAssist === "guided"
+      ? "Mude só o que a situação pede — o resto da estrutura fica."
+      : step.productionAssist === "supported"
+        ? "Aplique a transformação marcada e complete o buraco."
+        : step.productionAssist === "question"
+          ? "Monte a afirmação e feche com 吗."
+          : "Mesma estrutura — só muda a situação."
     : isOpen
       ? step.productionHintPt ?? "Qualquer resposta que cumpra a situação vale."
       : null;
@@ -3828,10 +3834,27 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
       : step.patternPt
         ? `Complete: ${step.patternPt} — hànzì ou pinyin`
         : "Escreva em hànzì ou pinyin…";
+  const assistLabel =
+    step.productionAssist === "guided"
+      ? "Guiada · 1 mudança"
+      : step.productionAssist === "supported"
+        ? "Apoiada · transformação"
+        : step.productionAssist === "question"
+          ? "Pergunta · +吗"
+          : step.productionAssist === "open"
+            ? "Aberta"
+            : null;
 
   return (
-    <div data-production-step={step.kind}>
-      <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
+    <div
+      data-production-step={step.kind}
+      data-production-assist={step.productionAssist ?? (isOpen ? "open" : isTransfer ? "guided" : undefined)}
+    >
+      <Eyebrow>
+        {`${isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}${
+          assistLabel ? ` · ${assistLabel}` : ""
+        }`}
+      </Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? (isTransfer ? "Use o que já sabe" : isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
       </h2>
@@ -3863,6 +3886,21 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
             {step.transferAnchorPt && <span className="text-sm text-ink-soft">= {step.transferAnchorPt}</span>}
           </div>
           {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm" />}
+          {step.transferTransformHint && (
+            <div
+              className="mt-2.5 inline-flex items-center gap-2 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-1.5 text-sm font-semibold text-accent"
+              data-production-transform-hint
+            >
+              <span className="hanzi text-base text-ink">{step.transferTransformHint.from}</span>
+              <span aria-hidden>→</span>
+              <span className="hanzi text-base text-ink">{step.transferTransformHint.to}</span>
+            </div>
+          )}
+          {step.productionAssist === "question" && (
+            <p className="mt-2 text-xs leading-5 text-ink-soft" data-production-question-hint>
+              Monte a frase e feche com <span className="hanzi font-semibold text-ink">吗</span> no final.
+            </p>
+          )}
           <div data-production-scaffold>
             <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
           </div>

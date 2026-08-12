@@ -268,6 +268,13 @@ export interface LessonStep {
   transferAnchorPt?: string;
   /** A frase alvo não existe no currículo: acertar exige aplicar o padrão. */
   isNovelCombination?: boolean;
+  /**
+   * Degrau de scaffold da produção/transferência:
+   * guided → supported → question → open.
+   */
+  productionAssist?: "guided" | "supported" | "question" | "open";
+  /** Dica visual de transformação (ex.: 我 → 你) no degrau supported. */
+  transferTransformHint?: { from: string; to: string };
   // ——— conversation_repair: continuar depois do mal-entendido ———
   /** Fala do personagem que trava a conversa (你说什么？/我听不懂). */
   repairNpcHanzi?: string;

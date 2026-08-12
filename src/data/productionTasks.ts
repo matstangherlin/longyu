@@ -91,6 +91,24 @@ export type CommunicativeGoal =
  * Papel de um slot na moldura da frase. É o STPVO-light: o aluno vê a ordem
  * (sujeito · tempo · lugar · verbo · objeto) em vez de só o buraco "___".
  */
+/**
+ * Escada de scaffold da transferência (e da produção aberta no degrau final).
+ * Uma transformação nova por vez nas primeiras ocorrências.
+ *
+ * - guided:    só troca UMA peça (ex.: 我要这个 → 我要茶)
+ * - supported: duas transformações já ensinadas, com dica visual (ex.: 我→你)
+ * - question:  acrescenta 吗 só depois de o padrão interrogativo existir
+ * - open:      situação nova sem estrutura exposta (produção aberta)
+ */
+export type ProductionAssist = "guided" | "supported" | "question" | "open";
+
+export const PRODUCTION_ASSIST_RANK: Record<ProductionAssist, number> = {
+  guided: 1,
+  supported: 2,
+  question: 3,
+  open: 4,
+};
+
 export type PatternSlotRole =
   | "subject"
   | "time"
@@ -165,6 +183,23 @@ export interface SentenceFrame {
    * pede sujeito → tempo → resto.
    */
   timeFillers?: FrameFiller[];
+  /**
+   * Degrau desta estrutura na escada de transferência.
+   * Default: guided (uma troca de slot vs a âncora).
+   */
+  transferAssist?: ProductionAssist;
+  /**
+   * Frames mais simples que precisam estar praticáveis (glifos ok) antes
+   * deste degrau aparecer como transferência.
+   */
+  transferRequiresFrameIds?: string[];
+  /** Exige 吗 já conhecido (visto em glifos) — para degrau question. */
+  transferRequiresMa?: boolean;
+  /**
+   * Dica visual de transformação (supported): o que muda vs a âncora.
+   * Ex.: { from: "我", to: "你" }.
+   */
+  transferTransformHint?: { from: string; to: string };
 }
 
 /**
@@ -185,6 +220,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woyao",
     situationTemplatePt: "No balcão, diga que você quer {item}.",
     grammarNotePt: "要 é o pedido direto: 我要 + o que você quer. Nada de 是 aqui.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -209,6 +245,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com sede. Diga que quer beber {item}.",
     grammarNotePt: "想 + verbo: 想喝 + bebida.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_shui", promptPt: "água" },
       { vocabId: "v_cha", promptPt: "chá" },
@@ -229,6 +266,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "huochezhanzainali",
     situationTemplatePt: "Você se perdeu na cidade. Pergunte onde fica {item}.",
     grammarNotePt: "Em mandarim o lugar vem primeiro e a pergunta fecha a frase: LUGAR + 在哪里？",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_yinhang", promptPt: "o banco" },
       { vocabId: "v_chaoshi", promptPt: "o supermercado" },
@@ -250,6 +288,9 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "qingwen",
     situationTemplatePt: "Você aborda um desconhecido na rua. Pergunte com licença onde fica {item}.",
     grammarNotePt: "请问 abre a pergunta educadamente e não muda o resto: 请问 + LUGAR + 在哪里？",
+    transferAssist: "supported",
+    transferRequiresFrameIds: ["frame_zainali"],
+    transferTransformHint: { from: "…在哪里？", to: "请问，…在哪里？" },
     fillers: [
       { vocabId: "v_yinhang", promptPt: "o banco" },
       { vocabId: "v_chaoshi", promptPt: "o supermercado" },
@@ -271,6 +312,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com fome. Diga que quer comer {item}.",
     grammarNotePt: "Mesma estrutura de 想喝, trocando o verbo: 想 + verbo + o que você quer.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
       { vocabId: "v_yu", promptPt: "peixe" },
@@ -419,6 +461,29 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     ],
   },
   {
+    id: "frame_niyao",
+    goal: "offer_item",
+    labelPt: "dizer o que a outra pessoa quer",
+    patternPt: "你要 ___",
+    slots: [{ role: "subject" }, { role: "verb" }, { role: "object", hole: true }],
+    prefix: "你要",
+    prefixPinyin: "nǐ yào",
+    suffix: "。",
+    suffixPinyin: ".",
+    anchorChunkId: "woyao",
+    situationTemplatePt: "Agora é a outra pessoa: diga que ela quer {item}.",
+    grammarNotePt: "Troque só o sujeito: 我要 → 你要. O resto da estrutura continua igual.",
+    transferAssist: "supported",
+    transferRequiresFrameIds: ["frame_woyao"],
+    transferTransformHint: { from: "我", to: "你" },
+    fillers: [
+      { vocabId: "v_cha", promptPt: "chá" },
+      { vocabId: "v_shui", promptPt: "água" },
+      { vocabId: "v_pingguo", promptPt: "uma maçã" },
+      { vocabId: "v_cai", promptPt: "um prato de comida" },
+    ],
+  },
+  {
     id: "frame_niyaoma",
     goal: "offer_item",
     labelPt: "oferecer alguma coisa",
@@ -431,6 +496,10 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "woyao",
     situationTemplatePt: "Você recebe uma visita em casa. Ofereça {item}, perguntando se a pessoa quer.",
     grammarNotePt: "吗 transforma a afirmação em pergunta de sim/não — e vai sempre no FIM.",
+    transferAssist: "question",
+    transferRequiresFrameIds: ["frame_woyao", "frame_niyao"],
+    transferRequiresMa: true,
+    transferTransformHint: { from: "你要…", to: "你要…吗？" },
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -451,6 +520,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "wobuheta",
     situationTemplatePt: "Ofereceram {item}. Recuse: diga que você não bebe isso.",
     grammarNotePt: "不 vem ANTES do verbo: 不喝, nunca 喝不.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_shui", promptPt: "água" },
@@ -470,6 +540,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     anchorChunkId: "wobuchirou",
     situationTemplatePt: "No restaurante, diga que você não come {item}.",
     grammarNotePt: "A negação fica grudada no verbo: 不吃 + comida.",
+    transferAssist: "guided",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
       { vocabId: "v_yu", promptPt: "peixe" },
@@ -613,6 +684,14 @@ export interface FrameTask {
   isNovelCombination: boolean;
   /** Glifos exigidos pela resposta — o gate de "o aluno já viu isto". */
   requiredGlyphs: string[];
+  /** Degrau na escada de transferência (guided → supported → question). */
+  transferAssist: ProductionAssist;
+  /** Frames que precisam estar praticáveis antes deste degrau. */
+  transferRequiresFrameIds: string[];
+  /** Exige 吗 nos glifos conhecidos. */
+  transferRequiresMa: boolean;
+  /** Dica visual de transformação (supported / question). */
+  transferTransformHint?: { from: string; to: string };
 }
 
 function joinPinyin(...parts: string[]): string {
@@ -722,6 +801,10 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
           anchor: { hanzi: anchorChunk.hanzi, pinyin: anchorChunk.pinyin, meaningPt: anchorChunk.meaningPt },
           isNovelCombination: !CORPUS_SENTENCES.has(bare),
           requiredGlyphs: [...bare],
+          transferAssist: frame.transferAssist ?? "guided",
+          transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
+          transferRequiresMa: Boolean(frame.transferRequiresMa),
+          transferTransformHint: frame.transferTransformHint,
         });
       }
     }
@@ -774,19 +857,25 @@ function availableTasks(seenGlyphs: ReadonlySet<string>): FrameTask[] {
 
 /**
  * Ordem pedagógica: primeiro contato com produção/transferência deve usar
- * frames curtos e âncoras próximas (我要 ___), não recusa/negação avançada.
+ * frames curtos e âncoras próximas (我要 ___), não pergunta com 吗 nem
+ * recusa/negação avançada.
  * Quanto menor o número, mais cedo o frame aparece.
  */
 const FRAME_INTRO_EASE: Record<string, number> = {
+  // Pedido afirmativo primeiro (1 slot: objeto) — o exemplo canônico de guided.
   frame_woyao: 0,
   frame_woxianghe: 1,
   frame_woxiangchi: 2,
-  frame_niyaoma: 3,
-  frame_woyaomai: 4,
-  frame_zainali: 5,
-  frame_qingwenzainali: 6,
+  frame_woyaomai: 3,
+  frame_zainali: 4,
+  // Sujeito 我→你 e cortesia: só depois da afirmação base.
+  frame_niyao: 6,
+  frame_qingwenzainali: 7,
+  // Negação: guided, mas cognitivamente mais pesada que trocar o objeto.
   frame_wobuhe: 10,
   frame_wobuchi: 11,
+  // Pergunta com 吗: último degrau da escada 要.
+  frame_niyaoma: 14,
 };
 
 function frameEase(frameId: string): number {
@@ -795,10 +884,47 @@ function frameEase(frameId: string): number {
 
 function sortByPedagogicalEase(tasks: FrameTask[]): FrameTask[] {
   return [...tasks].sort((a, b) => {
+    const rung =
+      PRODUCTION_ASSIST_RANK[a.transferAssist] - PRODUCTION_ASSIST_RANK[b.transferAssist];
+    if (rung !== 0) return rung;
     const ease = frameEase(a.frameId) - frameEase(b.frameId);
     if (ease !== 0) return ease;
     return a.id.localeCompare(b.id);
   });
+}
+
+/** Frames cujos glifos de âncora+padrão mínimo já estão disponíveis. */
+function framePracticable(frameId: string, seenGlyphs: ReadonlySet<string>): boolean {
+  return FRAME_TASKS.some(
+    (task) =>
+      task.frameId === frameId && task.requiredGlyphs.every((glyph) => seenGlyphs.has(glyph))
+  );
+}
+
+/**
+ * Degrau máximo permitido nesta tentativa.
+ * Tentativa 0 (primeira): só guided. Depois sobe um degrau por vez.
+ */
+export function maxTransferAssistForAttempt(attemptNumber = 0): ProductionAssist {
+  if (attemptNumber <= 0) return "guided";
+  if (attemptNumber === 1) return "supported";
+  return "question";
+}
+
+/** A tarefa pode aparecer como transferência neste conjunto de glifos/degrau? */
+export function isTransferTaskEligible(
+  task: FrameTask,
+  seenGlyphs: ReadonlySet<string>,
+  maxAssist: ProductionAssist = "question"
+): boolean {
+  if (PRODUCTION_ASSIST_RANK[task.transferAssist] > PRODUCTION_ASSIST_RANK[maxAssist]) {
+    return false;
+  }
+  if (task.transferRequiresMa && !seenGlyphs.has("吗")) return false;
+  for (const requiredId of task.transferRequiresFrameIds) {
+    if (!framePracticable(requiredId, seenGlyphs)) return false;
+  }
+  return true;
 }
 
 /**
@@ -817,20 +943,36 @@ export function productionTasksFor(
 
 /**
  * Transferência: mesma estrutura, combinação que o currículo NUNCA mostrou.
- * Acertar aqui só é possível aplicando o padrão — é a prova de que o aluno
- * aprendeu a estrutura e não a frase.
+ * Escada guided → supported → question: a primeira ocorrência só cobra uma
+ * transformação; 吗 e troca de sujeito entram depois dos pré-requisitos.
  */
 export function transferTasksFor(
   seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number; extraTaughtSentences?: ReadonlySet<string> } = {}
+  options: {
+    limit?: number;
+    extraTaughtSentences?: ReadonlySet<string>;
+    maxAssist?: ProductionAssist;
+    /** Se true, devolve só o degrau mais baixo elegível (1ª ocorrência). */
+    preferLowestRung?: boolean;
+  } = {}
 ): FrameTask[] {
   const taught = options.extraTaughtSentences;
+  const maxAssist = options.maxAssist ?? "question";
   const available = sortByPedagogicalEase(
     availableTasks(seenGlyphs)
       .filter((task) => task.isNovelCombination)
       .filter((task) => !taught || !taught.has(cleanSentence(task.targetHanzi)))
+      .filter((task) => isTransferTaskEligible(task, seenGlyphs, maxAssist))
   );
-  return options.limit ? available.slice(0, options.limit) : available;
+  if (available.length === 0) return [];
+  const pool =
+    options.preferLowestRung === false
+      ? available
+      : (() => {
+          const minRank = Math.min(...available.map((task) => PRODUCTION_ASSIST_RANK[task.transferAssist]));
+          return available.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === minRank);
+        })();
+  return options.limit ? pool.slice(0, options.limit) : pool;
 }
 
 // ————————————————————————————————————————————————————————————————

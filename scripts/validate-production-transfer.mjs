@@ -108,6 +108,7 @@ try {
     CORPUS_SENTENCES,
     OPEN_PRODUCTION_GOALS,
     openProductionTasksFor,
+    PRODUCTION_ASSIST_RANK,
   } = load("src/data/productionTasks.js");
 
   // ——— 1. Integridade do catálogo ———
@@ -148,6 +149,20 @@ try {
       assert(vocabById.has(filler.vocabId), `${frame.id}: peça fora do corpus (${filler.vocabId})`);
       assert(Boolean(filler.promptPt?.trim()), `${frame.id}/${filler.vocabId}: peça sem texto em português`);
     }
+    const assist = frame.transferAssist ?? "guided";
+    assert(
+      ["guided", "supported", "question", "open"].includes(assist),
+      `${frame.id}: transferAssist inválido (${assist})`
+    );
+    if (assist === "question") {
+      assert(Boolean(frame.transferRequiresMa), `${frame.id}: degrau question sem transferRequiresMa`);
+    }
+    if (assist === "supported" || assist === "question") {
+      assert(
+        (frame.transferRequiresFrameIds ?? []).length > 0,
+        `${frame.id}: degrau ${assist} sem transferRequiresFrameIds`
+      );
+    }
     for (const siblingId of frame.alsoAcceptFrameIds ?? []) {
       assert(
         SENTENCE_FRAMES.some((candidate) => candidate.id === siblingId),
@@ -155,6 +170,16 @@ try {
       );
     }
   }
+
+  // Escada de scaffold: pergunta com 吗 não pode ser o degrau default de um
+  // frame sem pré-requisito; frame_niyaoma precisa estar no degrau question.
+  const niyaoma = SENTENCE_FRAMES.find((frame) => frame.id === "frame_niyaoma");
+  assert(Boolean(niyaoma), "frame_niyaoma ausente");
+  assert(niyaoma.transferAssist === "question", "frame_niyaoma deve ser transferAssist=question");
+  assert(Boolean(niyaoma.transferRequiresMa), "frame_niyaoma exige 吗");
+  const niyao = SENTENCE_FRAMES.find((frame) => frame.id === "frame_niyao");
+  assert(Boolean(niyao), "frame_niyao (supported, sujeito 我→你) ausente");
+  assert(niyao.transferAssist === "supported", "frame_niyao deve ser transferAssist=supported");
 
   const taskIds = new Set();
   for (const task of FRAME_TASKS) {
@@ -164,6 +189,10 @@ try {
     assert(!CJK_RE.test(task.situationPt), `${task.id}: situação com hànzì (viraria cópia)`);
     assert(Boolean(task.targetPinyin.trim()), `${task.id}: alvo sem pinyin`);
     assert(Array.isArray(task.slots) && task.slots.length > 0, `${task.id}: tarefa sem scaffold de slots`);
+    assert(
+      ["guided", "supported", "question", "open"].includes(task.transferAssist),
+      `${task.id}: transferAssist inválido`
+    );
     assert(
       task.isNovelCombination === !CORPUS_SENTENCES.has(clean(task.targetHanzi)),
       `${task.id}: rótulo de combinação inédita não bate com o corpus`
@@ -265,6 +294,8 @@ try {
   let unaidedReplies = 0;
   const strategiesSeen = new Set();
   const novelTargets = new Set();
+  const firstAttemptTransfers = [];
+  const assistCounts = { guided: 0, supported: 0, question: 0, open: 0, unset: 0 };
   let stepsAudited = 0;
 
   const charById = new Map(load("src/data/characters.js").CHARACTERS.map((char) => [char.id, char]));
@@ -454,6 +485,36 @@ try {
             clean(step.transferAnchorHanzi) !== target,
             `${ref}: âncora igual ao alvo`
           );
+          const assist = step.productionAssist ?? "unset";
+          if (assist in assistCounts) assistCounts[assist] += 1;
+          else assistCounts.unset += 1;
+
+          // Tentativa 0: primeira ocorrência não pode ser pergunta multi-transform.
+          if (attemptNumber === 0) {
+            firstAttemptTransfers.push({
+              lessonId: lesson.id,
+              frameId: step.productionFrameId,
+              assist: step.productionAssist ?? null,
+              target: answer,
+              anchor: step.transferAnchorHanzi,
+              situation: step.situationPt,
+            });
+            assert(
+              step.productionAssist === "guided",
+              `${ref}: 1ª tentativa com productionAssist=${step.productionAssist ?? "undefined"} (esperado guided — 1 transformação)`
+            );
+            assert(
+              step.productionFrameId !== "frame_niyaoma",
+              `${ref}: 1ª tentativa não pode cobrar frame_niyaoma (sujeito+objeto+吗 juntos)`
+            );
+            // 我要这个 → 你要茶吗？ é o anti-padrão desta rodada.
+            if (clean(step.transferAnchorHanzi) === "我要这个") {
+              assert(
+                !/吗/.test(String(answer ?? "")),
+                `${ref}: âncora 我要这个 cobrando pergunta com 吗 na 1ª tentativa`
+              );
+            }
+          }
         }
 
         // (4) Nada exige glifo que o currículo ainda não apresentou. Na
@@ -510,6 +571,18 @@ try {
     `batida de reparo em só ${lessonsWithRepairBeat.size}/${ALL_LESSONS.length} lições (mínimo ${minRepairBeatLessons})`
   );
   assert(strategiesSeen.size >= 2, `só ${strategiesSeen.size} estratégia(s) de reparo no plano real (mínimo 2)`);
+  assert(firstAttemptTransfers.length > 0, "nenhuma transferência na tentativa 0 para auditar scaffold");
+  const firstQuestionLeak = firstAttemptTransfers.filter(
+    (row) => row.assist === "question" || row.frameId === "frame_niyaoma"
+  );
+  assert(
+    firstQuestionLeak.length === 0,
+    `1ª tentativa ainda cobra pergunta multi-transform: ${firstQuestionLeak
+      .slice(0, 3)
+      .map((row) => `${row.lessonId}/${row.frameId}`)
+      .join(", ")}`
+  );
+  assert(assistCounts.guided > 0, "nenhuma transferência guided no plano real");
 
   const lines = [
     "# Relatório de produção, transferência e reparo (plano real)",
@@ -538,14 +611,28 @@ try {
     `| Lições com reparo conversacional | ${lessonsWith.conversation_repair.size} / ${ALL_LESSONS.length} |`,
     `| Estruturas diferentes no plano real | ${framesSeen.size} |`,
     `| Frases inéditas cobradas | ${novelTargets.size} |`,
+    `| Transfer guided / supported / question | ${assistCounts.guided} / ${assistCounts.supported} / ${assistCounts.question} |`,
+    `| 1ªs transferências (attempt 0) | ${firstAttemptTransfers.length} |`,
     "",
     "> Uma frase só entra como **transferência** quando não existe em `chunks.ts`,",
     "> em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,",
     "> ele aplicou a estrutura — não pode ter decorado, porque nunca a viu pronta.",
     "",
-    "## Frases inéditas cobradas por transferência",
+    "> **Scaffold progressivo:** na tentativa 0 a transferência fica só em guided",
+    "> (1 mudança). Supported e `frame_niyaoma` (sujeito+objeto+吗) sobem nas tentativas seguintes.",
+    "",
+    "## Primeiras transferências (attempt 0)",
     "",
   ];
+  for (const row of firstAttemptTransfers.slice(0, 15)) {
+    lines.push(
+      `- **${row.lessonId}** · \`${row.frameId ?? "?"}\` · ${row.assist ?? "?"} · âncora ${row.anchor ?? "—"} → \`${row.target}\``
+    );
+  }
+  if (firstAttemptTransfers.length > 15) {
+    lines.push(`- …mais ${firstAttemptTransfers.length - 15}.`);
+  }
+  lines.push("", "## Frases inéditas cobradas por transferência", "");
   for (const target of [...novelTargets].sort().slice(0, 60)) lines.push(`- ${target}`);
   if (novelTargets.size > 60) lines.push(`- …mais ${novelTargets.size - 60}.`);
   lines.push("");
