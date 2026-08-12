@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 842e2495e46c9e9625617dda6235b43a821a6ed3 |
+| Commit | 1c5791b393d3741a751caf070585abd1bfec9110 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:18:04.879Z |
+| Gerado em | 2026-08-12T19:26:07.790Z |
 | Lições | 123 |
 | Hash da Jornada | b781403be692 |
 
@@ -14,18 +14,18 @@
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 115 |
-| Itens de vocabulário exibidos | 646 |
-| Itens cobertos por tarefa posterior | 498 |
-| Cobertura bruta | 77.1 % |
-| **Itens de prioridade** (novo · resposta · pouco exposto) | 337 |
-| **Cobertura relevante** (portão ≥ 76 %) | **80.7 %** |
-| Itens do núcleo saturado (≥ 40 exposições no curso) | 15 refs |
-| Reutilização média por item | 2.13 |
-| Itens sem cobertura | 148 |
-| Tarefas da fase Pós-Conversa | 452 |
-| Média Pós-Conversa por conversa | 3.93 |
-| Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
+| Conversas analisadas (nos planos reais) | 122 |
+| Itens de vocabulário exibidos | 684 |
+| Itens cobertos por tarefa posterior | 535 |
+| Cobertura bruta | 78.2 % |
+| **Itens de prioridade** (novo · resposta · pouco exposto) | 353 |
+| **Cobertura relevante** (portão ≥ 76 %) | **81.6 %** |
+| Itens do núcleo saturado (≥ 40 exposições no curso) | 16 refs |
+| Reutilização média por item | 2.17 |
+| Itens sem cobertura | 149 |
+| Tarefas da fase Pós-Conversa | 487 |
+| Média Pós-Conversa por conversa | 3.99 |
+| Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, sentence_build |
 
 > **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata
 > `你好` e `我会说一点中文` como o mesmo problema; o primeiro já foi praticado no curso
@@ -34,20 +34,21 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- chunk:nihao — 523 exposições ao longo dos 123 planos
-- char:ma_question — 327 exposições ao longo dos 123 planos
-- chunk:nihaoma — 258 exposições ao longo dos 123 planos
-- chunk:wohenhao — 238 exposições ao longo dos 123 planos
-- chunk:zaijian — 139 exposições ao longo dos 123 planos
-- char:yi — 125 exposições ao longo dos 123 planos
-- char:bu — 120 exposições ao longo dos 123 planos
-- chunk:xiexie — 115 exposições ao longo dos 123 planos
+- chunk:nihao — 554 exposições ao longo dos 123 planos
+- char:ma_question — 323 exposições ao longo dos 123 planos
+- chunk:wohenhao — 255 exposições ao longo dos 123 planos
+- chunk:nihaoma — 253 exposições ao longo dos 123 planos
+- chunk:zaijian — 163 exposições ao longo dos 123 planos
+- char:yi — 123 exposições ao longo dos 123 planos
+- char:bu — 115 exposições ao longo dos 123 planos
+- chunk:xiexie — 110 exposições ao longo dos 123 planos
 - char:shi — 100 exposições ao longo dos 123 planos
 - chunk:nijiaoshenme — 83 exposições ao longo dos 123 planos
-- chunk:qingzaishuoyibian — 79 exposições ao longo dos 123 planos
-- chunk:bukeqi — 66 exposições ao longo dos 123 planos
-- chunk:qingwen — 64 exposições ao longo dos 123 planos
-- char:san — 60 exposições ao longo dos 123 planos
+- chunk:qingzaishuoyibian — 78 exposições ao longo dos 123 planos
+- chunk:qingwen — 65 exposições ao longo dos 123 planos
+- chunk:bukeqi — 61 exposições ao longo dos 123 planos
+- char:san — 59 exposições ao longo dos 123 planos
+- char:tian_sky — 52 exposições ao longo dos 123 planos
 - char:mu — 50 exposições ao longo dos 123 planos
 
 ## Itens de prioridade sem cobertura
@@ -83,21 +84,21 @@
 - l26b:chunk:woele (7 exposições no curso)
 - l26b:chunk:womenchifanba (5 exposições no curso)
 - l26b:chunk:woyaorou (1 exposições no curso)
-- l27:chunk:zaijian (139 exposições no curso)
+- l27:chunk:zaijian (163 exposições no curso)
 - l28:chunk:duoshaoqian (11 exposições no curso)
 - l28:chunk:woxianghe (10 exposições no curso)
 - l28:chunk:woyao (14 exposições no curso)
 - l28:chunk:zheshishenme (11 exposições no curso)
 - p6-rotina-trabalho:chunk:woyao (14 exposições no curso)
-- p6-rotina-trabalho:chunk:zaijian (139 exposições no curso)
+- p6-rotina-trabalho:chunk:zaijian (163 exposições no curso)
 - p6-saude:chunk:woyao (14 exposições no curso)
-- p6-saude:chunk:zaijian (139 exposições no curso)
+- p6-saude:chunk:zaijian (163 exposições no curso)
 - p6-horarios:chunk:woyao (14 exposições no curso)
-- p6-horarios:chunk:zaijian (139 exposições no curso)
+- p6-horarios:chunk:zaijian (163 exposições no curso)
 - p6-natureza:char:zhe (48 exposições no curso)
 - p6-natureza:chunk:zheshishenme (11 exposições no curso)
 - p6-clima:chunk:woyao (14 exposições no curso)
-- p6-clima:chunk:zaijian (139 exposições no curso)
+- p6-clima:chunk:zaijian (163 exposições no curso)
 - p6-compras:chunk:woxianghe (10 exposições no curso)
 - p6-compras:chunk:zheshishenme (11 exposições no curso)
 - l10-rev:chunk:taiguile (9 exposições no curso)
@@ -116,6 +117,7 @@
 
 ## Itens sem cobertura (bruto)
 
+- p1-qingwen-cortesia:chunk:wohenhao
 - l9-qual-nome:chunk:xiexie
 - l10:chunk:xiexie
 - p3-wobuhui-shuo-zhongwen:chunk:xiexie
@@ -195,7 +197,6 @@
 - l27:chunk:qingwen
 - l27:chunk:qingzaishuoyibian
 - l27:chunk:zaijian
-- l28:chunk:duoshaoqian
-- …mais 68.
+- …mais 69.
 
-<!-- integridade:97e2614dc6e91046 -->
+<!-- integridade:1657c91f96087391 -->

@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 842e2495e46c9e9625617dda6235b43a821a6ed3 |
+| Commit | 1c5791b393d3741a751caf070585abd1bfec9110 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:22:31.494Z |
+| Gerado em | 2026-08-12T19:45:32.162Z |
 | Lições | 123 |
 | Hash da Jornada | b781403be692 |
 
@@ -19,11 +19,11 @@
 | Média de intervenções | 2.76 |
 | Número de ramificações | 105 |
 | Número de finais | 41 |
-| Vocabulário total exibido (refs únicas no plano real) | 80 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 80 |
+| Vocabulário total exibido (refs únicas no plano real) | 82 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 82 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 12.51 |
+| Média de reutilizações por ref exibida | 12.06 |
 
 ## Cenas mais curtas
 
@@ -57,11 +57,11 @@
 | nao-falo-chinês | 9 |
 | cortesia-loja | 9 |
 | conversa-em-casa | 8 |
-| pedir-agua | 8 |
+| perguntando-se-esta-bem | 7 |
 | como-se-chama | 7 |
 | fale-de-novo | 7 |
+| pedir-agua | 7 |
 | agradecendo | 6 |
-| perguntando-se-esta-bem | 6 |
 
 ## Cenas por cenário
 
@@ -133,4 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:edbf1715773ff77e -->
+<!-- integridade:fb18259a28c2b567 -->

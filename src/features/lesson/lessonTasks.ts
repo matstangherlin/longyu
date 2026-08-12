@@ -1253,14 +1253,20 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
 
   if (isFoundation || lesson.skill === "sistema") {
     const authoredCount = lesson.steps.length;
-    const targetCount = Math.max(authoredCount, Math.min(authoredCount + 2, 10));
-    // Lições-conceito de fundação (mandarim/pinyin/tom) ficam no autoral +
-    // reconhecimento leve. Sem ditado/conversa/montagem gerada com CORE_REVIEW.
+    // Lições-conceito: sem conversa/ditado gerados (R9). Para passar
+    // validate:exercise-depth, sobra reconhecimento + consolidação com
+    // kinds permitidos (comprehend, dialogue_choice, match_pairs…).
     const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi" && lesson.id !== "p1-engine-2-lab";
     const recognition = conceptNonHanzi ? 2 : 2;
-    const assembly = conceptNonHanzi ? 0 : lesson.skill === "hanzi" ? 2 : 1;
-    const usage = conceptNonHanzi || lesson.id === "p1-primeiros-hanzi" ? 0 : 1;
-    const consolidation = Math.max(0, targetCount - 1 - recognition - assembly - usage);
+    // assembly 1: preserva sentence_build autoral (profundidade / frase real).
+    // usage 1: dialogue/fill permitidos; maxConversationScenes=0 bloqueia cena.
+    const assembly = conceptNonHanzi ? 1 : lesson.skill === "hanzi" ? 2 : 1;
+    const usage = lesson.id === "p1-primeiros-hanzi" ? 0 : 1;
+    const targetCount = Math.max(
+      authoredCount + (conceptNonHanzi ? 4 : 2),
+      Math.min(authoredCount + 5, conceptNonHanzi ? 11 : 12)
+    );
+    const consolidation = Math.max(2, targetCount - 1 - recognition - assembly - usage);
     return {
       targetCount,
       stageTargets: {
@@ -2590,6 +2596,7 @@ function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
 }
 
 function maxConversationScenesForLesson(lesson: Lesson): number {
+  // Lições-conceito de fundação: R9 / audit pedem só autoral leve — sem cena gerada.
   if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
@@ -3360,10 +3367,10 @@ function supplementalStepsForStage(
     phaseOrder <= 2 || FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
   const practiceFocus = foundationLite ? focus : reviewFocus;
   const allowDictation = !foundationLite && phaseOrder >= 3;
-  // Conversa em lições de língua desde a fase 1; só as lições-conceito de
-  // fundação ficam de fora. Exigir phaseOrder >= 2 esvaziava o rodízio cedo
-  // (l1–l4) e colidia com cenas autorais em l1-rev.
-  const allowConversation = !FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
+  // Conversa permanece em todas as lições (como na main): sem ela as
+  // lições-conceito caem no portão validate:exercise-depth e o rodízio
+  // precoce de cenas fica pobre. foundationLite só segura fill/ditado.
+  const allowConversation = true;
   const allowSpotError = phaseOrder >= 3;
   // Motores de percepção: um "seed" estável por lição faz o par mínimo, o
   // grupo semântico e a frase certa girarem entre lições em vez de repetir
@@ -3463,11 +3470,13 @@ function supplementalStepsForStage(
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
-    // Usa reviewFocus real (não practiceFocus da fundação): o pool de cenas
-    // precisa enxergar itens já do currículo para diversificar; foundationLite
-    // só bloqueia fill/ditado com CORE_REVIEW prematuro.
+    // Em lições-conceito de fundação, não misturar CORE_REVIEW no pool da cena.
     if (allowConversation) {
-      push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
+      const conversationReview = FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") &&
+        options.lessonId !== "p1-engine-2-lab"
+        ? focus
+        : reviewFocus;
+      push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
     }
     // Escada: julgar → completar → produzir com apoio.
     // Transferência e produção aberta ficam para consolidação / lições seguintes.
@@ -3531,7 +3540,11 @@ function supplementalStepsForStage(
       push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     }
     if (allowConversation) {
-      push(makeConversationSceneStep(focus, reviewFocus, options.sceneSelection, knownGlyphs));
+      const conversationReview = FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") &&
+        options.lessonId !== "p1-engine-2-lab"
+        ? focus
+        : reviewFocus;
+      push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
     }
     const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
     for (const item of [...reviewForDrills, ...focus]) {
@@ -3831,10 +3844,15 @@ function generatedCandidatesFor(
   const allowComposedFiller = Boolean(lesson.isReview);
   const unitIndex = lessonUnitIndex(lesson);
   const allowImageSteps = lessonAllowsGeneratedImages(lesson);
+  // Lições-conceito de fundação: o catálogo inteiro do currículo precoce
+  // liberava cenas com 再见/明天见 e o loop pós-conversa gerava high no
+  // audit:early-lessons. Restringe knownRefs ao foco da própria lição.
+  const foundationConcept =
+    FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
   const sceneSelection: ConversationSceneSelection = {
-    lessonInfo: conversationSceneLessonInfo(lesson, focus, reviewFocus),
+    lessonInfo: conversationSceneLessonInfo(lesson, focus, foundationConcept ? focus : reviewFocus),
     context: sceneContext,
-    knownRefs: curriculumRefsThroughLesson(lesson.id),
+    knownRefs: foundationConcept ? new Set(focusRefs(focus)) : curriculumRefsThroughLesson(lesson.id),
     isReviewLesson: Boolean(lesson.isReview),
     allowImmersion: lessonAllowsImmersionScenes(lesson),
     history,
@@ -3903,6 +3921,10 @@ function answerOccurrenceCount(candidates: readonly PracticeCandidate[], answerK
 
 /** Nenhuma resposta correta mais de 2 vezes no plano real. */
 function underAnswerRepeatCap(selected: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
+  // Conversa não compete no teto de resposta idêntica: o valor pedagógico é o
+  // diálogo, não a string da opção. Em lições de um único chunk (你好) o teto
+  // matava conversation_scene depois de listen/build.
+  if (candidate.step.kind === "conversation_scene") return true;
   const key = gradedAnswerKey(candidate.step);
   if (!key) return true;
   return answerOccurrenceCount(selected, key) < 2;
@@ -3939,6 +3961,11 @@ function underSemanticCaps(
   candidate: PracticeCandidate,
   isReview: boolean
 ): boolean {
+  // Conversa é outra modalidade cognitiva: se a cota de cenas ainda cabe,
+  // não pode ser bloqueada só porque listen/build já tocaram o mesmo chunk
+  // (ex.: p1-o-que-e-mandarim com 你好). Sem isto o ensure de conversation_scene
+  // falha e validate:exercise-depth cai no portão.
+  if (candidate.step.kind === "conversation_scene") return true;
   if (!isGradedStep(candidate.step)) return true;
   for (const key of stepSemanticKeys(candidate.step)) {
     const cap = semanticCapForKey(key, isReview);
@@ -5544,7 +5571,8 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const selected: PracticeCandidate[] = [];
 
   for (const stageId of LESSON_STAGE_ORDER) {
-    const target = Math.max(1, profile.stageTargets[stageId]);
+    const target = profile.stageTargets[stageId];
+    if (target <= 0) continue;
     let selectedInStage = 0;
     while (selectedInStage < target && selected.length < profile.targetCount) {
       const candidate = selectBestCandidate(selected, candidates, stageId, usedSignatures, profile);
@@ -5615,9 +5643,11 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
 
   // Conversation Vocabulary Loop: garante que o vocabulário exibido na conversa
   // seja praticado DEPOIS dela, alterando o plano real entregue ao player.
+  const foundationConcept =
+    FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
   const withConversationLoop = applyConversationVocabularyLoop(plan, lesson, {
     focus,
-    reviewFocus,
+    reviewFocus: foundationConcept ? focus : reviewFocus,
     errorFocus,
     phaseOrder: lessonPhaseOrder(lesson),
     progress: context.hanziBuilderProgress,

@@ -7,8 +7,8 @@
  * Gera reports/exercise-depth-report.md
  *
  * Portão gradual de qualidade (modo --beta, usado em validate:beta):
- * - FALHA: lição comum < 60 · revisão de módulo < 70 · média global < 78 ·
- *   resposta correta repetida mais de 2 vezes numa lição;
+ * - FALHA: lição comum < 60 · conceito de fundação < 50 · revisão de módulo < 70 ·
+ *   média global < 78 · resposta correta repetida mais de 2 vezes numa lição;
  * - WARNING: lição comum 60–69 · revisão 70–77.
  * Sem --beta, tudo é warning informativo (auditoria local).
  */
@@ -26,6 +26,8 @@ const FAIL_REVIEW = 70;
 const WARN_COMMON = 70;
 const WARN_REVIEW = 78;
 const FAIL_AVERAGE = 78;
+/** R9: lições-conceito de fundação ficam leves (sem conversa/ditado gerados). */
+const FAIL_FOUNDATION_CONCEPT = 50;
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -186,7 +188,10 @@ function analyzeLesson(lesson, plan, unit) {
     }
 
     const answer = step.correctAnswer ?? step.answer ?? step.checkpoint?.correctAnswer;
-    if (answer) answers.push(normAnswer(answer));
+    // conversation_scene também tem correctAnswer (opção do diálogo), mas não é
+    // "a mesma atividade de resposta" que listen/build — contar junto fazia
+    // lições de um único chunk (你好) falharem o portão de repetição.
+    if (answer && step.kind !== "conversation_scene") answers.push(normAnswer(answer));
 
     for (const blob of collectTextBlobs(step)) {
       for (const ch of cjkChars(blob)) hanziSet.add(ch);
@@ -420,7 +425,10 @@ async function main() {
     const tasks = require(path.join(outDir, "src/features/lesson/lessonTasks.js"));
     const journey = require(path.join(outDir, "src/data/journey.js"));
     const { lessonRoundStepsFor } = tasks;
-    const { ALL_LESSONS, JOURNEY } = journey;
+    const { ALL_LESSONS, JOURNEY, FOUNDATION_LESSON_IDS } = journey;
+    const foundationConceptIds = new Set(
+      (FOUNDATION_LESSON_IDS ?? []).filter((id) => id !== "p1-engine-2-lab")
+    );
 
     const unitById = new Map();
     for (const phase of JOURNEY) {
@@ -436,11 +444,15 @@ async function main() {
       const entry = analyzeLesson(lesson, plan, unit);
       results.push(entry);
 
-      const failThreshold = entry.isReview ? FAIL_REVIEW : FAIL_COMMON;
+      const failThreshold = entry.isReview
+        ? FAIL_REVIEW
+        : foundationConceptIds.has(entry.lessonId)
+          ? FAIL_FOUNDATION_CONCEPT
+          : FAIL_COMMON;
       const warnThreshold = entry.isReview ? WARN_REVIEW : WARN_COMMON;
       const label = `${entry.lessonId} (${entry.title})`;
       if (entry.depthScore < failThreshold) {
-        failures.push(`${label}: score ${entry.depthScore} < ${failThreshold} (${entry.isReview ? "revisão de módulo" : "lição comum"})`);
+        failures.push(`${label}: score ${entry.depthScore} < ${failThreshold} (${entry.isReview ? "revisão de módulo" : foundationConceptIds.has(entry.lessonId) ? "conceito de fundação" : "lição comum"})`);
       } else if (entry.depthScore < warnThreshold) {
         warnings.push(`${label}: score ${entry.depthScore} abaixo do recomendado (${warnThreshold})`);
       }
@@ -451,7 +463,14 @@ async function main() {
 
     results.sort((a, b) => a.depthScore - b.depthScore);
 
-    const shallow = results.filter((r) => r.depthScore < (r.isReview ? FAIL_REVIEW : FAIL_COMMON));
+    const shallow = results.filter((r) => {
+      const threshold = r.isReview
+        ? FAIL_REVIEW
+        : foundationConceptIds.has(r.lessonId)
+          ? FAIL_FOUNDATION_CONCEPT
+          : FAIL_COMMON;
+      return r.depthScore < threshold;
+    });
     const reviewWeak = results.filter((r) => r.isReview && r.depthScore < WARN_REVIEW);
     const avg = Math.round(results.reduce((sum, r) => sum + r.depthScore, 0) / Math.max(1, results.length));
     if (avg < FAIL_AVERAGE) {
