@@ -582,7 +582,11 @@ try {
       `|------------|-------|------|----------|----------------------|----------------------|`
     );
     for (const f of unique) {
-      const esc = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
+      const esc = (s) =>
+        String(s ?? "")
+          .replace(/\\/g, "\\\\")
+          .replace(/\|/g, "\\|")
+          .replace(/\n/g, " ");
       lines.push(
         `| ${f.severity} | \`${f.lessonId}\` (${f.lessonIndex}) ${esc(f.lessonTitle)} | \`${f.stepKind}\` ${esc(f.stepTitle)} | ${esc(f.problem)} | ${esc(f.missingPrerequisite)} | ${esc(f.recommendedFix)} |`
       );
