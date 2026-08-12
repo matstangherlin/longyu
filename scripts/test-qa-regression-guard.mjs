@@ -96,20 +96,24 @@ try {
   let freeCount = 0;
   let transferWithAnchor = 0;
   let transferWithSituation = 0;
-  for (const lesson of ALL_LESSONS.slice(0, 100)) {
+  // Amostra ampla: transferência só aparece depois da progressão de estrutura
+  // (por volta de l23+). Um teto em 100 falhava ao acrescentar lições-conceito
+  // cedo no currículo (ex.: p3-nomes-da-frase), deslocando o primeiro transfer
+  // para fora da janela.
+  for (const lesson of ALL_LESSONS) {
     const steps = lessonRoundStepsFor(lesson, emptyCtx);
     for (const step of steps) {
       if (step.kind === "transfer_task") {
         transferCount += 1;
         if (step.transferAnchorHanzi) transferWithAnchor += 1;
         if (step.situationPt || step.prompt) transferWithSituation += 1;
-        assert(Boolean(step.transferAnchorHanzi), `transfer sem âncora: ${lesson.id}`);
-        assert(Boolean(step.situationPt || step.prompt), `transfer sem situação: ${lesson.id}`);
+        assert(Boolean(step.transferAnchorHanzi), `transfer sem ancora: ${lesson.id}`);
+        assert(Boolean(step.situationPt || step.prompt), `transfer sem situacao: ${lesson.id}`);
         assert(Boolean(step.correctAnswer || step.answer), `transfer sem resposta: ${lesson.id}`);
       }
       if (step.kind === "free_production") {
         freeCount += 1;
-        assert(Boolean(step.situationPt || step.prompt), `free sem situação: ${lesson.id}`);
+        assert(Boolean(step.situationPt || step.prompt), `free sem situacao: ${lesson.id}`);
       }
     }
   }
