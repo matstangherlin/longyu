@@ -36,6 +36,13 @@ import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { PATTERN_SLOT_LABELS, type PatternSlot } from "../../data/productionTasks";
+import {
+  AssemblyHintBanner,
+  PieceAssemblyBank,
+  PieceAssemblyBoard,
+  PieceAssemblyTray,
+} from "./PieceAssembly";
+import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
@@ -2313,6 +2320,8 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
   const [picked, setPicked] = useState<BuildPieceToken[]>([]);
   const [feedback, setFeedback] = useState<EngineFeedback | "incomplete">(null);
   const [hadMistake, setHadMistake] = useState(false);
+  const [assemblyHint, setAssemblyHint] = useState<string | null>(null);
+  const [matchPrefix, setMatchPrefix] = useState(0);
   const allowedCounts = useMemo(
     () => uniqueStrings(acceptedPartSequences.map((parts) => String(parts.length))).map(Number),
     [acceptedPartSequences]
@@ -2321,12 +2330,21 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
     allowedCounts.filter((count) => count >= picked.length).sort((a, b) => a - b)[0] ??
     Math.max(...allowedCounts, targetParts.length);
   // Verificar habilita com pelo menos uma peça; montagem incompleta recebe
-  // aviso gentil ("a ordem ainda não fechou"), não conta como erro.
+  // aviso gentil, não conta como erro.
   const canCheck = picked.length > 0 && feedback !== "correct";
   const built = picked.map((item) => item.value).join(pieceJoiner);
   const usedIds = new Set(picked.map((item) => item.id));
   const correctParts = targetParts.length > 0 ? targetParts : [answer];
   const locked = feedback === "correct" || feedback === "wrong";
+  const showWrongMarks = feedback === "wrong";
+  const wrongIndexes = useMemo(() => {
+    if (!showWrongMarks) return new Set<number>();
+    const wrong = new Set<number>();
+    picked.forEach((piece, index) => {
+      if (correctParts[index] !== piece.value) wrong.add(index);
+    });
+    return wrong;
+  }, [showWrongMarks, picked, correctParts]);
   // Variantes pedagogicamente válidas (ex.: "这是咖啡" e "这 是 咖啡")
   // entram por step.accepts; a comparação é sempre normalizada.
   const acceptedAnswers = useMemo(
@@ -2359,6 +2377,8 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
     playSoundFx("pieceSelect", soundEffects);
     setPicked((current) => [...current, token]);
     setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
   }
 
   function removePiece(index: number) {
@@ -2367,21 +2387,34 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
     playSoundFx("tap", soundEffects);
     setPicked((current) => current.filter((_, i) => i !== index));
     setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
   }
 
   function clearPieces() {
     if (feedback === "correct" || picked.length === 0) return;
     setPicked([]);
     setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
   }
 
   function check() {
     if (!canCheck) return;
     if (isBuiltCorrect(built)) {
       setFeedback("correct");
+      setAssemblyHint(null);
       playSoundFx("success", soundEffects);
       return;
     }
+    const hint = buildAssemblyFeedback({
+      picked: picked.map((item) => item.value),
+      target: correctParts,
+      requiredCount,
+      kind: step.kind,
+    });
+    setMatchPrefix(hint.prefixMatch);
+    setAssemblyHint(hint.message);
     if (!allowedCounts.includes(picked.length) && picked.length < Math.max(...allowedCounts)) {
       // Faltam peças: nudge sem punição — não desconta fôlego nem marca erro.
       setFeedback("incomplete");
@@ -2395,10 +2428,12 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
   function retry() {
     setPicked([]);
     setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
   }
 
   return (
-    <div>
+    <div data-sentence-build>
       <Eyebrow>{kindLabel}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {promptText && <p className="mt-2 text-sm leading-6 text-ink-soft">{promptText}</p>}
@@ -2423,61 +2458,43 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
         </div>
       )}
 
-      <div className="my-6 flex min-h-[92px] flex-wrap items-center justify-center gap-2 rounded-[24px] border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
-        {picked.length === 0 && <span className="w-full text-center text-sm font-medium text-ink-faint">toque nas peças para montar</span>}
-        {picked.map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => removePiece(index)}
-            disabled={locked}
-            className={[engineTileClass({ cjk: isCjkText(item.value), active: true }), "group relative min-w-[4rem] overflow-visible"].join(" ")}
-          >
-            <ExerciseText value={item.value} type={isCjkText(item.value) ? "hanzi" : "pt"} speakOnClick />
-          </button>
-        ))}
-        {/* Linhas vazias mostram quantas peças ainda faltam para o alvo. */}
-        {picked.length > 0 &&
-          Array.from({ length: Math.max(0, requiredCount - picked.length) }).map((_, index) => (
-            <span
-              key={`slot-${index}`}
-              aria-hidden
-              className="flex h-14 min-w-[3.5rem] items-end justify-center rounded-[14px] border border-dashed border-line/80 pb-2"
-            >
-              <span className="h-0.5 w-7 rounded-full bg-line" />
-            </span>
-          ))}
-      </div>
-
-      <KeyboardShortcutHint />
-      <div className="flex flex-wrap justify-center gap-2.5">
-        {bankTokens.map((token, index) => {
-          const used = usedIds.has(token.id);
-          return (
-            <button
-              key={token.id}
-              type="button"
-              onClick={() => addPiece(token)}
-              disabled={used || locked}
-              className={[
-                engineTileClass({ cjk: isCjkText(token.value) }),
-                "group relative overflow-visible",
-                used ? "bg-surface-2 text-ink-faint opacity-[0.35] grayscale" : "",
-              ].join(" ")}
-              aria-label={index < 10 ? `Peça ${shortcutKeyForIndex(index)}: ${token.value}` : token.value}
-            >
-              {index < 10 && <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>}
-              <ExerciseText value={token.value} type={isCjkText(token.value) ? "hanzi" : "pt"} speakOnClick />
-            </button>
-          );
-        })}
-      </div>
-
-      {feedback === "incomplete" && (
-        <p className="animate-pop mt-4 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-center text-sm font-medium text-accent">
-          A ordem ainda não fechou — ainda faltam peças. Continue montando.
-        </p>
-      )}
+      <PieceAssemblyBoard
+        trayLabel="Sua resposta"
+        bankLabel="Peças para usar"
+        tray={
+          <PieceAssemblyTray
+            pieces={picked}
+            emptySlots={Math.max(0, requiredCount - picked.length)}
+            locked={locked}
+            wrongIndexes={wrongIndexes}
+            matchPrefix={matchPrefix}
+            showWrong={showWrongMarks}
+            emptyHint="Toque nas peças abaixo para montar aqui"
+            onRemove={removePiece}
+          />
+        }
+        bank={
+          <>
+            <KeyboardShortcutHint />
+            <PieceAssemblyBank
+              pieces={bankTokens}
+              usedIds={usedIds}
+              locked={locked}
+              onAdd={(piece) => {
+                const token = bankTokens.find((item) => item.id === piece.id);
+                if (token) addPiece(token);
+              }}
+              showShortcuts
+              shortcutLabel={shortcutKeyForIndex}
+            />
+          </>
+        }
+        hint={
+          (feedback === "incomplete" || feedback === "wrong") && assemblyHint ? (
+            <AssemblyHintBanner message={assemblyHint} tone="accent" />
+          ) : null
+        }
+      />
 
       {feedback === "correct" && (
         <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
@@ -2500,29 +2517,14 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
       )}
 
       {feedback === "wrong" && !onMistake && (
-        <div className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-accent">
+        <div className="animate-pop mt-4 rounded-2xl border border-line bg-surface-2 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <IconX width={18} height={18} />
-            A ordem ainda não fechou.
+            {assemblyHint ?? "Quase — tente outra montagem."}
           </div>
-          <div className="mt-3 rounded-xl bg-surface/75 p-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              Ordem correta
-            </div>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              {correctParts.map((piece, index) => (
-                <span
-                  key={`${piece}-${index}`}
-                  className={[
-                    "rounded-xl border border-line bg-surface px-3 py-2 font-semibold text-ink",
-                    isCjkText(piece) ? "hanzi text-2xl" : "text-sm",
-                  ].join(" ")}
-                >
-                  <ExerciseText value={piece} type={isCjkText(piece) ? "hanzi" : "pt"} speakOnClick />
-                </span>
-              ))}
-            </div>
-          </div>
+          <p className="mt-2 text-sm leading-5 text-ink-soft">
+            As peças destacadas em verde estão no lugar. Ajuste só o restante — ou limpe e monte de novo.
+          </p>
           {step.explanation && (
             <p className="mt-3 text-sm leading-6 text-ink-soft">
               <ExerciseText value={step.explanation} speakOnClick />
@@ -3713,7 +3715,7 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
   if (slots && slots.length > 0) {
     return (
       <div className="mt-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Ordem</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {slots.map((slot, index) => (
             <div key={`${slot.role}-${index}`} className="flex items-center gap-1.5">
@@ -3726,23 +3728,23 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
                     : "border border-line bg-surface text-ink-soft",
                 ].join(" ")}
               >
-                {slot.hole ? "___" : PATTERN_SLOT_LABELS[slot.role]}
+                {slot.hole ? `___ (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role]}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">
-          {slots
-            .map((slot) => (slot.hole ? `___ (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role]))
-            .join(" → ")}
-        </p>
+        {patternPt && (
+          <p className="mt-1.5 text-xs text-ink-faint">
+            Modelo: <span className="font-semibold text-ink-soft">{patternPt}</span>
+          </p>
+        )}
       </div>
     );
   }
   if (!patternPt) return null;
   return (
     <p className="mt-2 text-xs text-ink-faint">
-      Estrutura: <span className="font-semibold text-ink-soft">{patternPt}</span>
+      Modelo: <span className="font-semibold text-ink-soft">{patternPt}</span>
     </p>
   );
 }
@@ -3815,55 +3817,79 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized }:
     if (!onMistake) playSoundFx("error", soundEffects);
   }
 
+  const goalHint = isTransfer
+    ? "Mesma estrutura — só muda a situação."
+    : isOpen
+      ? step.productionHintPt ?? "Qualquer resposta que cumpra a situação vale."
+      : null;
+  const answerPlaceholder = isTransfer
+    ? step.patternPt
+      ? `Ex.: ${step.patternPt.replace("___", "…")} — hànzì ou pinyin`
+      : "Ex.: wo yao cha — ou em hànzì"
+    : isOpen
+      ? "Escreva o que você diria…"
+      : step.patternPt
+        ? `Complete: ${step.patternPt} — hànzì ou pinyin`
+        : "Escreva em hànzì ou pinyin…";
+
   return (
-    <div>
+    <div data-production-step={step.kind}>
       <Eyebrow>{isTransfer ? "Transferência" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {step.title ?? (isTransfer ? "Mesma estrutura, situação nova" : "Produza você")}
+        {step.title ?? (isTransfer ? "Use o que já sabe" : isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
       </h2>
 
+      {/* Situação primeiro: o aluno entende o pedido antes de ver a âncora. */}
+      <div
+        className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5"
+        data-production-situation
+      >
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
+        <p className="mt-1 text-base font-medium leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
+        {goalHint && (
+          <p className="mt-1.5 text-sm leading-5 text-ink-soft" data-production-goal>
+            {goalHint}
+          </p>
+        )}
+        {!goalHint && <span className="sr-only" data-production-goal>Escreva a frase completa.</span>}
+      </div>
+
       {isTransfer && step.transferAnchorHanzi && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-learned>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             Você já aprendeu
           </div>
-          <div className="mt-1 hanzi text-2xl text-ink">
-            <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="hanzi text-2xl text-ink">
+              <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
+            </span>
+            {step.transferAnchorPt && <span className="text-sm text-ink-soft">= {step.transferAnchorPt}</span>}
           </div>
-          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 text-sm" />}
-          {step.transferAnchorPt && <p className="mt-1 text-sm text-ink-soft">{step.transferAnchorPt}</p>}
-          <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+          {step.transferAnchorPinyin && <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm" />}
+          <div data-production-scaffold>
+            <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
+          </div>
         </div>
       )}
 
       {!isTransfer && !isOpen && (step.patternSlots?.length || step.patternPt) && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
+        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5" data-production-scaffold>
           <PatternSlotScaffold slots={step.patternSlots} patternPt={step.patternPt} />
         </div>
       )}
 
-      <div className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
-        <p className="mt-1 text-base leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
+      <div data-production-answer>
+        <FreeAnswerField
+          value={draft}
+          onChange={(next) => {
+            setDraft(next);
+            if (feedback !== "correct") setFeedback(null);
+          }}
+          disabled={locked}
+          placeholder={answerPlaceholder}
+          onSubmit={check}
+        />
       </div>
-      <p className="mt-2 text-sm text-ink-soft">
-        {isTransfer
-          ? "Nenhuma alternativa e nenhuma peça: esta frase exata você nunca viu. Monte pela estrutura."
-          : isOpen
-            ? step.productionHintPt ?? "Não existe uma resposta esperada: diga o que você quiser dizer."
-            : "Nenhuma alternativa e nenhuma peça. Escreva (ou fale) a frase inteira."}
-      </p>
-
-      <FreeAnswerField
-        value={draft}
-        onChange={(next) => {
-          setDraft(next);
-          if (feedback !== "correct") setFeedback(null);
-        }}
-        disabled={locked}
-        placeholder="Escreva em hànzì ou pinyin…"
-        onSubmit={check}
-      />
 
       <EngineFeedbackPanel
         status={feedback}

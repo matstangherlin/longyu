@@ -1,10 +1,13 @@
 import type { Lesson, LessonStep, FlatLesson } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
+import { CHUNKS } from "../../data/chunks";
 import type { ItemType } from "../../data/types";
 import type { ActivityErrorRecord, LessonAttemptRecord, LessonMistakeRecord, LessonStar } from "../../lib/store";
 import type { ActivityErrorInput } from "./immediateRemediation";
+import { isConcatenatedDump, isNonOptionAnswer } from "./immediateRemediation";
 
 const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
+const charByGlyph = new Map(CHARACTERS.map((char) => [char.hanzi, char]));
 
 function parseStepIndex(questionId: string, lessonId: string): number | null {
   const prefix = `${lessonId}:`;
@@ -48,6 +51,57 @@ function lessonMeta(lesson: Lesson | FlatLesson) {
   };
 }
 
+function hasHanzi(text: string | undefined): text is string {
+  return Boolean(text && /[\u3400-\u9fff]/u.test(text) && !isConcatenatedDump(text));
+}
+
+/** Um único alvo coerente — alinhado com errorHanziForStep do LessonPlayer. */
+function singleTargetHanziFromStep(step: LessonStep, expectedAnswer?: string): string | undefined {
+  if (hasHanzi(step.hanzi)) return step.hanzi;
+  if (step.charId) {
+    const glyph = charById.get(step.charId)?.hanzi;
+    if (hasHanzi(glyph)) return glyph;
+  }
+  const reply =
+    expectedAnswer ??
+    step.correctAnswer ??
+    step.checkpoint?.correctAnswer ??
+    step.answer ??
+    step.blankAnswer;
+  if (hasHanzi(reply)) return reply;
+  if (hasHanzi(step.sourceText)) return step.sourceText;
+  if (step.kind === "conversation_scene") {
+    const match = step.lines?.find((line) => hasHanzi(line.hanzi) && line.hanzi === reply);
+    if (match?.hanzi) return match.hanzi;
+    const last = [...(step.lines ?? [])].reverse().find((line) => hasHanzi(line.hanzi));
+    if (last?.hanzi) return last.hanzi;
+  }
+  const target = step.target?.join("") ?? step.targetParts?.join("");
+  return hasHanzi(target) ? target : undefined;
+}
+
+function pinyinForHanzi(hanzi: string | undefined, step: LessonStep): string | undefined {
+  if (step.pinyin && !isConcatenatedDump(step.pinyin)) return step.pinyin;
+  if (step.sourcePinyin && !isConcatenatedDump(step.sourcePinyin)) return step.sourcePinyin;
+  if (step.charId) return charById.get(step.charId)?.pinyin;
+  if (!hanzi || isConcatenatedDump(hanzi)) return undefined;
+  const normalized = hanzi.replace(/[，。！？、,.!?？\s]/g, "");
+  const chunk = CHUNKS.find((item) => item.hanzi.replace(/[，。！？、,.!?？\s]/g, "") === normalized);
+  if (chunk?.pinyin) return chunk.pinyin;
+  const chars = [...normalized]
+    .map((glyph) => charByGlyph.get(glyph))
+    .filter((char): char is (typeof CHARACTERS)[number] => Boolean(char));
+  if (chars.length > 0 && chars.length <= 8) return chars.map((char) => char.pinyin).join(" ");
+  return undefined;
+}
+
+function cleanSelectedAnswer(value: string | undefined): string {
+  if (!value?.trim() || isNonOptionAnswer(value) || isConcatenatedDump(value)) {
+    return "Resposta incorreta";
+  }
+  return value.trim();
+}
+
 /** Reconstrói um erro da tentativa salva para revisão imediata tardia. */
 export function activityErrorFromMistake(
   mistake: LessonMistakeRecord,
@@ -60,6 +114,9 @@ export function activityErrorFromMistake(
   const isPair = mistake.exerciseType === "pair-match";
   const pairLeft = isPair ? pairLeftFromQuestionId(mistake.questionId, lesson.id) ?? step.hanzi : undefined;
   const matchedPair = isPair ? step.pairs?.find((pair) => pair.left === pairLeft) : undefined;
+  const hanzi = isPair
+    ? pairLeft
+    : singleTargetHanziFromStep(step, mistake.expectedAnswer);
 
   return {
     id: mistake.id,
@@ -72,16 +129,20 @@ export function activityErrorFromMistake(
     type: isPair ? "pair-match" : mistake.exerciseType,
     prompt: mistake.prompt,
     correctAnswer: mistake.expectedAnswer,
-    selectedAnswer: mistake.userAnswer,
+    selectedAnswer: cleanSelectedAnswer(mistake.userAnswer),
     topic: lesson.title,
-    tokens: [pairLeft, mistake.expectedAnswer, mistake.userAnswer].filter(Boolean) as string[],
-    hanzi: pairLeft ?? step.hanzi ?? (step.charId ? charById.get(step.charId)?.hanzi : undefined),
-    pinyin: step.pinyin ?? (step.charId ? charById.get(step.charId)?.pinyin : undefined),
-    meaningPt: mistake.expectedAnswer,
+    tokens: [hanzi, mistake.expectedAnswer, mistake.userAnswer]
+      .filter((token): token is string => Boolean(token) && !isConcatenatedDump(token) && !isNonOptionAnswer(token)),
+    hanzi,
+    pinyin: pinyinForHanzi(hanzi, step),
+    meaningPt: hasHanzi(mistake.expectedAnswer) ? undefined : mistake.expectedAnswer,
     pairLeft,
     pairExpectedRight: matchedPair?.right,
     pairSelectedRight: isPair ? mistake.userAnswer : undefined,
-    explanation: mistake.explanation,
+    explanation:
+      step.explanation ??
+      step.checkpoint?.explanation ??
+      (mistake.explanation && !isConcatenatedDump(mistake.explanation) ? mistake.explanation : undefined),
     mistakeReason: mistake.explanation,
     timestamp: mistake.createdAt,
     wrongCount: 1,

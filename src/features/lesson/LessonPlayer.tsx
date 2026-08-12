@@ -88,6 +88,24 @@ import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from ".
 import { getPendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
+import {
+  REVIEW_OFFER,
+  REVIEW_QUESTION,
+  REVIEW_RECOVERED,
+  REVIEW_SUMMARY,
+  reviewGoalLine,
+  reviewModeLabel,
+  reviewProgressLabel,
+} from "./reviewCopy";
+import {
+  AssemblyCheckActions,
+  AssemblyHintBanner,
+  PieceAssemblyBank,
+  PieceAssemblyBoard,
+  PieceAssemblyTray,
+  type AssemblyPiece,
+} from "./PieceAssembly";
+import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -682,30 +700,40 @@ function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
 }
 
 function errorHanziForStep(step: LessonStep): string | undefined {
+  // Sempre um ÚNICO alvo coerente — nunca concatenar falas da cena ("你好 / 你好吗 / …").
   if (step.hanzi) return step.hanzi;
   if (step.charId) return charById.get(step.charId)?.hanzi;
-  if (step.kind === "conversation_scene") {
-    const lineHanzi = step.lines?.map((line) => line.hanzi).filter(Boolean).join(" / ");
-    if (lineHanzi) return lineHanzi;
-  }
+  const reply =
+    step.correctAnswer ??
+    step.checkpoint?.correctAnswer ??
+    step.answer ??
+    step.blankAnswer;
+  if (displayTextHasHanzi(reply)) return reply;
   if (displayTextHasHanzi(step.sourceText)) return step.sourceText;
-  if (displayTextHasHanzi(step.correctAnswer)) return step.correctAnswer;
-  if (displayTextHasHanzi(step.answer)) return step.answer;
+  if (step.kind === "conversation_scene") {
+    // Preferir a fala do checkpoint / última linha com hànzì — não o diálogo inteiro.
+    const checkpointLine = step.lines?.find((line) => displayTextHasHanzi(line.hanzi) && line.hanzi === reply);
+    if (checkpointLine?.hanzi) return checkpointLine.hanzi;
+    const lastHanziLine = [...(step.lines ?? [])].reverse().find((line) => displayTextHasHanzi(line.hanzi));
+    if (lastHanziLine?.hanzi) return lastHanziLine.hanzi;
+  }
   const audioSequence = step.audioSequence?.find(displayTextHasHanzi);
   if (audioSequence) return audioSequence;
   const target = step.target?.join("") ?? step.targetParts?.join("");
   return displayTextHasHanzi(target) ? target : undefined;
 }
 
-function errorPinyinForStep(step: LessonStep): string | undefined {
+function errorPinyinForStep(step: LessonStep, preferredHanzi?: string): string | undefined {
   if (step.pinyin) return step.pinyin;
   if (step.sourcePinyin) return step.sourcePinyin;
   if (step.charId) return charById.get(step.charId)?.pinyin;
-  const hanzi = errorHanziForStep(step);
+  // Pinyin só do alvo único — nunca de um dump multi-frase.
+  const hanzi = preferredHanzi ?? errorHanziForStep(step);
+  if (!hanzi || /[\/|]/.test(hanzi)) return undefined;
   const chunk = findChunkByText(hanzi);
   if (chunk?.pinyin) return chunk.pinyin;
   const chars = charsInText(hanzi);
-  if (chars.length > 0) return chars.map((char) => char.pinyin).join(" ");
+  if (chars.length > 0 && chars.length <= 8) return chars.map((char) => char.pinyin).join(" ");
   return undefined;
 }
 
@@ -894,33 +922,31 @@ function ImmediateErrorReviewOffer({
   onLater: () => void;
 }) {
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-      <section className="flex flex-1 flex-col rounded-[30px] border border-accent-soft bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-          <IconRefresh width={30} height={30} />
+    <div
+      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      data-review-offer
+      data-review-can-recover={canRecover ? "true" : "false"}
+    >
+      <section className="flex flex-1 flex-col rounded-[30px] border border-line bg-surface px-5 py-6 shadow-lift sm:p-7">
+        <div className="inline-flex w-fit rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          {REVIEW_OFFER.eyebrow}
         </div>
-        <div className="mx-auto mt-5 inline-flex rounded-full bg-surface-2 px-4 py-2 text-sm font-semibold text-ink">
-          Você acertou {correct} de {total}
+        <div className="mt-4 inline-flex w-fit rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink-soft">
+          {REVIEW_OFFER.score(correct, total)}
         </div>
-        <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink">
-          {canRecover
-            ? `Você errou ${count} ${count === 1 ? "item" : "itens"}. Corrija agora para recuperar 3 estrelas.`
-            : `Você errou ${count} ${count === 1 ? "item" : "itens"}. Quer revisar agora?`}
+        <h1 className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+          {REVIEW_OFFER.title(count, canRecover)}
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">
-          A correção usa exatamente o que você errou nesta tentativa.
+        <p className="mt-3 max-w-md text-sm leading-6 text-ink-soft" data-review-offer-support>
+          {REVIEW_OFFER.supportLine(canRecover)}
         </p>
-        {canRecover && (
-          <div className="mt-5 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-sm font-medium text-accent">
-            Corrija todos para recuperar a 3ª estrela. Ela conta para liberar a próxima fase.
-          </div>
-        )}
-        <div className="mt-auto grid gap-2 pt-6">
-          <Button size="lg" className="w-full shadow-lift" onClick={onStart}>
-            Revisar erros agora <IconChevron width={18} height={18} />
+
+        <div className="mt-auto grid gap-2 pt-8">
+          <Button size="lg" className="w-full shadow-lift" onClick={onStart} data-review-start>
+            {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>
           <Button variant="outline" className="w-full" onClick={onLater}>
-            Continuar com 2 estrelas
+            {REVIEW_OFFER.ctaLater}
           </Button>
         </div>
       </section>
@@ -945,46 +971,51 @@ function ImmediateErrorReviewSummary({
 }) {
   const stillMissing = remaining > 0;
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div
+      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      data-review-summary
+      data-review-summary-complete={stillMissing ? "false" : "true"}
+    >
       <section className="flex flex-1 flex-col rounded-[30px] border border-line bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
+        <div className="inline-flex mx-auto rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          Revisão
+        </div>
         <div
           className={[
-            "mx-auto flex h-16 w-16 items-center justify-center rounded-2xl",
+            "mx-auto mt-4 flex h-14 w-14 items-center justify-center rounded-2xl",
             stillMissing ? "bg-accent-soft text-accent" : "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
           ].join(" ")}
         >
-          {stillMissing ? <IconRefresh width={30} height={30} /> : <IconCheck width={30} height={30} />}
+          {stillMissing ? <IconRefresh width={26} height={26} /> : <IconCheck width={26} height={26} />}
         </div>
-        <h1 className="mt-5 font-serif text-3xl font-semibold text-ink">
-          {stillMissing ? "Ainda falta revisar" : "Erros corrigidos!"}
+        <h1 className="mt-4 font-serif text-2xl font-semibold text-ink sm:text-3xl">
+          {stillMissing ? REVIEW_SUMMARY.titlePartial : REVIEW_SUMMARY.titleOk}
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-          {stillMissing
-            ? `Você ainda pode voltar e corrigir seus erros para buscar 3 estrelas. Falta${remaining === 1 ? "" : "m"} ${remaining} ${remaining === 1 ? "erro" : "erros"}.`
-            : "Você corrigiu tudo desta tentativa."}
+          {stillMissing ? REVIEW_SUMMARY.bodyPartial(remaining) : REVIEW_SUMMARY.bodyOk}
         </p>
         <div className="mt-6 grid grid-cols-2 gap-3 text-left">
-          <LessonSummaryStat label="Corrigidos" value={`${corrected}`} />
-          <LessonSummaryStat label="Ainda revisar" value={`${remaining}`} />
+          <LessonSummaryStat label={REVIEW_SUMMARY.correctedLabel} value={`${corrected}`} />
+          <LessonSummaryStat label={REVIEW_SUMMARY.remainingLabel} value={`${remaining}`} />
         </div>
         <div className="mt-auto grid gap-2 pt-6">
           {stillMissing && (
             <Button size="lg" className="w-full shadow-lift" onClick={onReviewAgain}>
-              <IconRefresh width={17} height={17} /> Tentar revisão novamente
+              {REVIEW_SUMMARY.ctaRetry} <IconChevron width={18} height={18} />
             </Button>
           )}
           {canRetryLesson && (
             <Button variant="outline" className="w-full" onClick={onRetryLesson}>
-              <IconRefresh width={17} height={17} /> Refazer lição
+              {REVIEW_SUMMARY.ctaRetryLesson}
             </Button>
           )}
           <Button
             variant={stillMissing ? "outline" : "primary"}
             size={stillMissing ? undefined : "lg"}
-            className="w-full"
+            className="w-full shadow-lift"
             onClick={onContinue}
           >
-            {stillMissing ? "Continuar com 2 estrelas" : "Continuar jornada"}
+            {stillMissing ? REVIEW_SUMMARY.ctaContinueTwo : REVIEW_SUMMARY.ctaContinue}
             <IconChevron width={18} height={18} />
           </Button>
         </div>
@@ -1025,6 +1056,7 @@ function ErrorReviewQuestion({
   error,
   index,
   total,
+  canRecover,
   onCorrect,
   onNeedsMoreReview,
   onNext,
@@ -1032,6 +1064,7 @@ function ErrorReviewQuestion({
   error: ActivityError;
   index: number;
   total: number;
+  canRecover: boolean;
   onCorrect: (error: ActivityError) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onNext: () => void;
@@ -1040,31 +1073,66 @@ function ErrorReviewQuestion({
   const exercise = useMemo(() => buildImmediateRemediationExercise(error), [error]);
   const answer = exercise.answer;
   const options = exercise.options ?? [];
-  const pieces = exercise.pieces ?? [];
   const isBuild = exercise.kind === "build";
+  const bankPieces = useMemo<AssemblyPiece[]>(() => {
+    const raw = exercise.pieces ?? [];
+    // IDs únicos: evita reusar a mesma peça duas vezes (como na lição).
+    const counts = new Map<string, number>();
+    return raw.map((value) => {
+      const n = counts.get(value) ?? 0;
+      counts.set(value, n + 1);
+      return { id: `${value}#${n}`, value };
+    });
+  }, [exercise.pieces]);
+  const targetParts = useMemo(() => {
+    if (error.step?.targetParts?.length) return error.step.targetParts;
+    if (exercise.pieceJoin === " ") return answer.split(/\s+/).filter(Boolean);
+    return displayTextHasHanzi(answer) ? [...answer.replace(/\s+/g, "")] : answer.split(/\s+/).filter(Boolean);
+  }, [answer, error.step?.targetParts, exercise.pieceJoin]);
   // Se, por algum motivo, um erro não gerar opções nem peças jogáveis, o aluno
-  // ficaria preso (nada para tocar, botão "Próximo" travado). Nesse caso raro,
-  // revelamos a resposta e liberamos o avanço em vez de prender a revisão.
-  const answerable = isBuild ? pieces.length > 0 : options.length > 0;
+  // ficaria preso. Nesse caso raro, revelamos a resposta e liberamos o avanço.
+  const answerable = isBuild ? bankPieces.length > 0 : options.length > 0;
   const [selected, setSelected] = useState<string | null>(null);
-  const [pickedPieces, setPickedPieces] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [pickedPieces, setPickedPieces] = useState<AssemblyPiece[]>([]);
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | "incomplete" | null>(null);
+  const [assemblyHint, setAssemblyHint] = useState<string | null>(null);
+  const [matchPrefix, setMatchPrefix] = useState(0);
   const answeredRef = useRef(false);
-  const answered = feedback !== null;
-  const pinyinWouldCueAnswer = exercise.kind === "tone" || exercise.kind === "listen" || error.type === "tone_pair";
-  const showPromptPinyin = Boolean(exercise.displayPinyin && (!pinyinWouldCueAnswer || answered));
+  const answered = feedback === "correct" || feedback === "wrong";
+  const isLastItem = index + 1 >= total;
   const remainingForRecovery = total - index;
+  const modeLabel = reviewModeLabel({ canRecover, isLastItem });
+  const goalLine = reviewGoalLine({
+    canRecover,
+    isLastItem,
+    remaining: remainingForRecovery,
+  });
+  const pinyinWouldCueAnswer =
+    exercise.kind === "tone" || exercise.kind === "listen" || exercise.kind === "pinyin" || error.type === "tone_pair";
+  const showPromptPinyin = Boolean(exercise.displayPinyin && (!pinyinWouldCueAnswer || answered));
+  const feedbackPinyin =
+    exercise.answerPinyin && !/[\/|]/.test(exercise.answerPinyin) ? exercise.answerPinyin : undefined;
+  const usedIds = useMemo(() => new Set(pickedPieces.map((piece) => piece.id)), [pickedPieces]);
+  const requiredCount = Math.max(targetParts.length, 1);
+  const wrongIndexes = useMemo(() => {
+    if (feedback !== "wrong") return new Set<number>();
+    const wrong = new Set<number>();
+    pickedPieces.forEach((piece, i) => {
+      if (targetParts[i] !== piece.value) wrong.add(i);
+    });
+    return wrong;
+  }, [feedback, pickedPieces, targetParts]);
 
   useEffect(() => {
     setSelected(null);
     setPickedPieces([]);
     setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
     answeredRef.current = false;
   }, [error.id]);
 
   useEffect(() => {
-    // Exercício degenerado (sem opções/peças): revela a resposta e conta como
-    // "ainda precisa revisar", garantindo que o botão de avançar funcione.
     if (!answerable && !answeredRef.current) {
       answeredRef.current = true;
       setFeedback("wrong");
@@ -1072,7 +1140,7 @@ function ErrorReviewQuestion({
     }
   }, [answerable, error, onNeedsMoreReview]);
 
-  const builtAnswer = pickedPieces.join(exercise.pieceJoin);
+  const builtAnswer = pickedPieces.map((piece) => piece.value).join(exercise.pieceJoin);
   const answerDisplay = exercise.answerDisplay ?? exercise.answer;
   const displayIsHanzi = displayTextHasHanzi(exercise.display);
 
@@ -1087,36 +1155,88 @@ function ErrorReviewQuestion({
   }
 
   function checkBuild() {
-    if (answeredRef.current) return;
-    answeredRef.current = true;
+    if (answeredRef.current || pickedPieces.length === 0) return;
     const correct = normalizeRemediationAnswer(builtAnswer) === normalizeRemediationAnswer(answer);
-    setFeedback(correct ? "correct" : "wrong");
-    if (correct) onCorrect(error);
-    else onNeedsMoreReview(error);
+    if (correct) {
+      answeredRef.current = true;
+      setFeedback("correct");
+      setAssemblyHint(null);
+      onCorrect(error);
+      return;
+    }
+    const hint = buildAssemblyFeedback({
+      picked: pickedPieces.map((piece) => piece.value),
+      target: targetParts,
+      requiredCount,
+      kind: error.type,
+    });
+    setMatchPrefix(hint.prefixMatch);
+    setAssemblyHint(hint.message);
+    if (pickedPieces.length < requiredCount) {
+      setFeedback("incomplete");
+      return;
+    }
+    answeredRef.current = true;
+    setFeedback("wrong");
+    onNeedsMoreReview(error);
+  }
+
+  function clearBuild() {
+    if (answered) return;
+    setPickedPieces([]);
+    setFeedback(null);
+    setAssemblyHint(null);
+    setMatchPrefix(0);
   }
 
   function playReviewAudio() {
-    speak(exercise.audioText ?? error.hanzi ?? error.correctAnswer, { rate: 0.86 });
+    const audio = exercise.audioText ?? error.hanzi ?? error.correctAnswer;
+    if (!audio || /[\/|]/.test(audio)) return;
+    speak(audio, { rate: 0.86 });
   }
 
   return (
-    <Card className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-          Erro {index + 1} de {total}
-        </span>
-        <span className="text-xs font-semibold text-ink-faint">{error.skill}</span>
+    <Card
+      className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-6"
+      data-review-question
+      data-review-kind={exercise.kind}
+      data-review-mode={canRecover ? (isLastItem ? "last_chance" : "recovery") : "review"}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2" data-review-progress>
+        <div className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          {REVIEW_QUESTION.eyebrow}
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className={[
+              "rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]",
+              isLastItem && canRecover
+                ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                : "bg-surface-2 text-ink-faint",
+            ].join(" ")}
+            data-review-mode-label
+          >
+            {modeLabel}
+          </span>
+          <span className="text-xs font-semibold text-ink-soft">{reviewProgressLabel(index, total)}</span>
+        </div>
       </div>
-      <ProgressBar value={index} max={total} className="mt-3 h-2.5" />
-      <div className="mt-2 rounded-2xl bg-surface-2 px-3 py-2 text-xs font-semibold text-ink-soft">
-        {remainingForRecovery === 1
-          ? "Último erro para tentar recuperar a 3ª estrela."
-          : `Faltam ${remainingForRecovery} erros para tentar recuperar a 3ª estrela.`}
-      </div>
-      <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">{exercise.prompt}</h1>
+      <ProgressBar value={index} max={Math.max(total, 1)} className="mt-3 h-2" />
+      {goalLine && (
+        <p className="mt-2 text-xs leading-5 text-ink-faint" data-review-recovery-hint>
+          {goalLine}
+        </p>
+      )}
+
+      <h1 className="mt-4 font-serif text-xl font-semibold leading-snug text-ink sm:text-2xl" data-review-prompt>
+        {exercise.prompt}
+      </h1>
+      <p className="mt-1 text-sm text-ink-faint">
+        {isBuild ? REVIEW_QUESTION.doNowBuild : REVIEW_QUESTION.doNowChoice}
+      </p>
 
       {exercise.kind === "blank" ? (
-        <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-center">
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           <div className="hanzi text-2xl leading-relaxed text-ink">
             {exercise.blankBefore}
             <span className="mx-1 inline-block min-w-[2.5rem] border-b-2 border-dashed border-accent align-baseline text-accent">
@@ -1124,13 +1244,17 @@ function ErrorReviewQuestion({
             </span>
             {exercise.blankAfter}
           </div>
-        </div>
+        </section>
       ) : exercise.display ? (
-        <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-center">
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           {displayIsHanzi ? (
-            <div className="hanzi text-4xl text-ink">{exercise.display}</div>
+            <div className="hanzi text-4xl text-ink" data-review-display>
+              {exercise.display}
+            </div>
           ) : (
-            <div className="text-base font-medium leading-6 text-ink">{exercise.display}</div>
+            <div className="mt-0 text-base font-medium leading-6 text-ink" data-review-display>
+              {exercise.display}
+            </div>
           )}
           {showPromptPinyin && (
             <Pinyin text={exercise.displayPinyin ?? ""} className="mt-1 block font-serif text-lg text-accent" />
@@ -1140,53 +1264,61 @@ function ErrorReviewQuestion({
               <IconSound width={17} height={17} /> Ouvir novamente
             </Button>
           )}
-        </div>
+        </section>
       ) : exercise.kind === "listen" ? (
-        <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-center">
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           <Button variant="soft" onClick={playReviewAudio}>
             <IconSound width={17} height={17} /> Ouvir novamente
           </Button>
-        </div>
+        </section>
       ) : null}
 
       {!answerable ? null : isBuild ? (
-        <>
-          <div className="mt-5 flex min-h-[78px] flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-accent-soft bg-surface-2 p-3">
-            {pickedPieces.length === 0 ? (
-              <span className="text-sm font-medium text-ink-faint">toque nas peças</span>
-            ) : (
-              pickedPieces.map((piece, pieceIndex) => (
-                <button
-                  key={`${piece}-${pieceIndex}`}
-                  type="button"
-                  className="min-h-11 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-white"
-                  onClick={() => setPickedPieces((items) => items.filter((_, itemIndex) => itemIndex !== pieceIndex))}
-                  disabled={answered}
-                >
-                  {piece}
-                </button>
-              ))
-            )}
-          </div>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {pieces.map((piece, pieceIndex) => (
-              <button
-                key={`${piece}-${pieceIndex}`}
-                type="button"
-                className="min-h-12 rounded-xl border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2 disabled:opacity-40"
-                onClick={() => setPickedPieces((items) => [...items, piece])}
-                disabled={answered}
-              >
-                {piece}
-              </button>
-            ))}
-          </div>
-          <Button className="mt-5 w-full" disabled={pickedPieces.length === 0 || answered} onClick={checkBuild}>
-            Verificar
-          </Button>
-        </>
+        <div data-review-options>
+          <PieceAssemblyBoard
+            trayLabel="Sua resposta"
+            bankLabel="Peças para usar"
+            tray={
+              <PieceAssemblyTray
+                pieces={pickedPieces}
+                emptySlots={Math.max(0, requiredCount - pickedPieces.length)}
+                locked={answered}
+                wrongIndexes={wrongIndexes}
+                matchPrefix={matchPrefix}
+                showWrong={feedback === "wrong"}
+                emptyHint="Toque nas peças abaixo para montar aqui"
+                onRemove={(pieceIndex) => {
+                  if (answered) return;
+                  setPickedPieces((items) => items.filter((_, i) => i !== pieceIndex));
+                  setFeedback(null);
+                  setAssemblyHint(null);
+                  setMatchPrefix(0);
+                }}
+              />
+            }
+            bank={
+              <PieceAssemblyBank
+                pieces={bankPieces}
+                usedIds={usedIds}
+                locked={answered}
+                onAdd={(piece) => {
+                  if (answered || usedIds.has(piece.id)) return;
+                  setPickedPieces((items) => [...items, piece]);
+                  setFeedback(null);
+                  setAssemblyHint(null);
+                  setMatchPrefix(0);
+                }}
+              />
+            }
+            hint={
+              (feedback === "incomplete" || feedback === "wrong") && assemblyHint ? (
+                <AssemblyHintBanner message={assemblyHint} tone="accent" />
+              ) : null
+            }
+          />
+        </div>
       ) : (
-        <div className="mt-5 grid gap-2">
+        <section className="mt-4 grid gap-2" data-review-options>
           {options.map((option) => (
             <button
               key={option}
@@ -1205,45 +1337,86 @@ function ErrorReviewQuestion({
               {option}
             </button>
           ))}
-        </div>
+        </section>
       )}
 
-      {feedback && (
-        <div
+      {feedback && feedback !== "incomplete" && (
+        <section
           className={[
-            "mt-5 rounded-2xl border px-4 py-3 text-left text-sm",
-            feedback === "correct" ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]" : "border-accent-soft bg-accent-soft/45 text-ink-soft",
+            "mt-4 rounded-2xl border px-4 py-3 text-left",
+            feedback === "correct"
+              ? "border-transparent bg-[rgb(var(--good)/0.12)]"
+              : "border-line bg-surface-2",
           ].join(" ")}
+          data-review-feedback
+          data-review-feedback-status={feedback}
         >
-          <div className="font-semibold">{feedback === "correct" ? "Corrigido!" : "Ainda precisa de revisão."}</div>
-          <div className="mt-1">
-            Correto: <span className="font-semibold text-ink">{answerDisplay}</span>
-            {exercise.displayPinyin || error.pinyin ? (
-              <>
-                <span className="text-ink-faint"> · </span>
-                <Pinyin text={exercise.displayPinyin ?? error.pinyin ?? ""} className="text-ink-faint" />
-              </>
-            ) : null}
-            {exercise.meaningPt ? <span className="text-ink-faint"> · {exercise.meaningPt}</span> : null}
+          <div
+            className={[
+              "text-sm font-semibold",
+              feedback === "correct" ? "text-[rgb(var(--good))]" : "text-ink",
+            ].join(" ")}
+          >
+            {feedback === "correct" ? REVIEW_QUESTION.feedbackOk : REVIEW_QUESTION.feedbackRetry}
           </div>
-          {exercise.explanation && <div className="mt-1 text-ink-soft">{exercise.explanation}</div>}
-        </div>
+          <div className="mt-2.5" data-review-correct-answer>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              {REVIEW_QUESTION.correctLabel}
+            </div>
+            <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-base font-semibold text-ink">{answerDisplay}</span>
+              {feedbackPinyin ? <Pinyin text={feedbackPinyin} className="text-sm text-ink-soft" /> : null}
+            </div>
+            {exercise.meaningPt ? (
+              <div className="mt-0.5 text-sm text-ink-soft" data-review-meaning>
+                {exercise.meaningPt}
+              </div>
+            ) : null}
+          </div>
+          {exercise.explanation ? (
+            <p className="mt-2 text-sm leading-5 text-ink-soft" data-review-explanation>
+              {exercise.explanation}
+            </p>
+          ) : null}
+        </section>
       )}
 
-      <Button className="mt-auto w-full shadow-lift" size="lg" disabled={!feedback} onClick={onNext}>
-        {index + 1 >= total ? "Ver resultado" : "Próximo erro"} <IconChevron width={18} height={18} />
-      </Button>
+      <div className="mt-auto pt-5">
+        {isBuild && !answered ? (
+          <AssemblyCheckActions
+            canCheck={pickedPieces.length > 0}
+            canClear={pickedPieces.length > 0}
+            onCheck={checkBuild}
+            onClear={clearBuild}
+            checkLabel={REVIEW_QUESTION.ctaCheck}
+          />
+        ) : (
+          <Button
+            className="w-full shadow-lift"
+            size="lg"
+            variant={feedback === "correct" ? "good" : "primary"}
+            disabled={!feedback || feedback === "incomplete"}
+            onClick={onNext}
+            data-review-next
+          >
+            {isLastItem ? REVIEW_QUESTION.ctaResult : REVIEW_QUESTION.ctaContinue}
+            <IconChevron width={18} height={18} />
+          </Button>
+        )}
+      </div>
     </Card>
   );
 }
 
 function ImmediateErrorReviewSession({
   errors,
+  canRecover,
   onCorrect,
   onNeedsMoreReview,
   onDone,
 }: {
   errors: ActivityError[];
+  canRecover: boolean;
   onCorrect: (error: ActivityError) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onDone: () => void;
@@ -1256,11 +1429,12 @@ function ImmediateErrorReviewSession({
   }
 
   return (
-    <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]" data-review-session>
       <ErrorReviewQuestion
         error={current}
         index={index}
         total={errors.length}
+        canRecover={canRecover}
         onCorrect={onCorrect}
         onNeedsMoreReview={onNeedsMoreReview}
         onNext={() => {
@@ -1576,8 +1750,18 @@ export function LessonPlayer() {
   }, [setHoldAchievementModals]);
 
   useEffect(() => {
-    if (finishReason) setHoldAchievementModals(false);
-  }, [finishReason, setHoldAchievementModals]);
+    // Durante oferta/revisão/resumo pós-erro, mantém medalhas seguras —
+    // senão o modal cobria o CTA de recuperação (regressão de QA).
+    if (!finishReason) return;
+    if (
+      errorReviewMode === "offer" ||
+      errorReviewMode === "review" ||
+      errorReviewMode === "summary"
+    ) {
+      return;
+    }
+    setHoldAchievementModals(false);
+  }, [errorReviewMode, finishReason, setHoldAchievementModals]);
 
   useEffect(() => {
     if (!foundLesson || toneLocked || entryChecked || energyBlocked) return;
@@ -1966,15 +2150,14 @@ export function LessonPlayer() {
     const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]);
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
     const diagnosis = diagnosisForAnswer(step, correction.correction, selectedAnswer);
-    const sceneContext =
-      step.kind === "conversation_scene"
-        ? (step.lines ?? [])
-            .map((line) => {
-              const speaker = step.characters?.find((character) => character.id === line.speakerId)?.name ?? line.speakerId;
-              return `${speaker}: ${line.hanzi}`;
-            })
-            .join(" · ")
-        : undefined;
+    const hanzi = errorHanziForStep(step);
+    const rawSelected = selectedAnswer?.trim();
+    // Pulo/status não é resposta de exercício — não vira opção na remediação.
+    const isStatusAnswer =
+      !rawSelected ||
+      /^pulou\b/i.test(rawSelected) ||
+      /^resposta incorreta$/i.test(rawSelected) ||
+      /respondeu incorretamente/i.test(rawSelected);
     return {
       id,
       lessonId: lesson.id,
@@ -1984,13 +2167,13 @@ export function LessonPlayer() {
       questionId: `${lesson.id}:${stepIndex}:${step.kind}`,
       exerciseId: `${lesson.id}:${stepIndex}`,
       type: step.kind,
-      prompt: sceneContext ? `${correction.prompt} (cena: ${sceneContext})` : correction.prompt,
+      prompt: correction.prompt,
       correctAnswer: correction.correction,
-      selectedAnswer: selectedAnswer?.trim() || "Resposta incorreta",
+      selectedAnswer: isStatusAnswer ? "Resposta incorreta" : rawSelected,
       topic: step.title ?? step.prompt ?? lesson.title,
       tokens: errorTokensForStep(step),
-      hanzi: errorHanziForStep(step),
-      pinyin: errorPinyinForStep(step),
+      hanzi,
+      pinyin: errorPinyinForStep(step, hanzi),
       meaningPt: errorMeaningForStep(step, correction),
       explanation:
         step.explanation ??
@@ -2958,13 +3141,17 @@ export function LessonPlayer() {
         ? `Hoje você ${summaryParts.length > 1 ? `${summaryParts.slice(0, -1).join(", ")} e ${summaryParts[summaryParts.length - 1]}` : summaryParts[0]}.`
         : "Você completou esta etapa da Jornada.";
 
+    // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
+    // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
+    const canRecoverStar = !recovered && stars < masteryStars;
+
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
         <ImmediateErrorReviewOffer
           count={committedErrors.length}
           correct={correct}
           total={graded}
-          canRecover={!passed}
+          canRecover={canRecoverStar}
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
@@ -2979,6 +3166,7 @@ export function LessonPlayer() {
         <ImmediateErrorReviewSession
           key={`review-${correctedErrorIds.join("|")}-${reviewQueue.length}`}
           errors={reviewQueue}
+          canRecover={canRecoverStar}
           onCorrect={markErrorCorrected}
           onNeedsMoreReview={markErrorNeedsMoreReview}
           onDone={() => setErrorReviewMode("summary")}
@@ -3441,8 +3629,11 @@ export function LessonPlayer() {
           </div>
 
           {recovered && (
-            <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]">
-              Erros corrigidos! Você recuperou 3 estrelas nesta aula.
+            <div
+              className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]"
+              data-review-recovered
+            >
+              {REVIEW_RECOVERED.banner}
             </div>
           )}
 

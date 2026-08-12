@@ -44,7 +44,7 @@ export async function dismissBlockingOverlays(page: Page) {
     }
     const achievement = page.getByRole("dialog", { name: /medalha|conquista/i });
     if (await achievement.isVisible().catch(() => false)) {
-      const continueBtn = page.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
+      const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click({ timeout: 2_000 }).catch(() => undefined);
       } else {
@@ -257,6 +257,95 @@ export async function seedLessonRecoverySession(
             targets: [{ type: "chunk", itemId: "nihao", domain: "significado", track: "fala" }],
           },
         ],
+      }),
+    }
+  );
+}
+
+/**
+ * Sessão com última tentativa em 2★ e erro pendente no player (oferta de revisão).
+ * Simula armazenamento “bugado” com dump concatenado no explanation — a UI
+ * corrigida deve reconstruir um único item coerente.
+ */
+export async function seedPendingStarRecoverySession(
+  page: Page,
+  options: {
+    lessonId?: string;
+    stepIndex?: number;
+    exerciseType?: string;
+    expectedAnswer?: string;
+    isPremium?: boolean;
+  } = {}
+) {
+  const lessonId = options.lessonId ?? "l3";
+  const stepIndex = options.stepIndex ?? 5;
+  const exerciseType = options.exerciseType ?? "dialogue_choice";
+  const expectedAnswer = options.expectedAnswer ?? "我很好";
+  const isPremium = options.isPremium ?? true;
+  const foundation = [
+    "p1-o-que-e-mandarim",
+    "p1-o-que-e-pinyin",
+    "p1-o-que-e-tom",
+    "p1-o-que-e-hanzi",
+    "p1-primeiros-hanzi",
+    "p1-engine-2-lab",
+  ];
+  const targetIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  const journeyCompleted =
+    targetIndex > 0 ? ALL_LESSONS.slice(0, targetIndex).map((lesson) => lesson.id) : [];
+  const completedLessons = [...new Set([...foundation, ...journeyCompleted, lessonId])];
+  const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, id === lessonId ? 2 : 3]));
+  const now = Date.now();
+  const mistake = {
+    id: `e2e-star-mistake-${lessonId}`,
+    lessonId,
+    questionId: `${lessonId}:${stepIndex}:${exerciseType}`,
+    exerciseType,
+    prompt: "Escolha a resposta correta",
+    expectedAnswer,
+    userAnswer: "Pulou ou respondeu incorretamente",
+    explanation: "你好 / 你好吗 / 我很好 / 谢谢 / 再见",
+    sourceSkill: "fala",
+    createdAt: now,
+  };
+
+  await seedTelemetryDeclined(page);
+  await page.addInitScript(
+    ({ payload }: { payload: string }) => {
+      localStorage.setItem("longyu-v1", payload);
+    },
+    {
+      payload: buildStorePayload({
+        accountSetupComplete: true,
+        completedLessons,
+        lessonStarsById,
+        isPremium,
+        serverIsPro: isPremium,
+        folego: 20,
+        holdAchievementModals: true,
+        // Pré-desbloqueia medalhas que a jornada completa dispararia ao liberar o hold.
+        achievementsUnlocked: {
+          "jornada-primeira-licao": Date.now(),
+          "jornada-primeira-unidade": Date.now(),
+          "jornada-primeira-fase": Date.now(),
+          "som-primeiro-audio": Date.now(),
+        },
+        toneTrainer: buildCompletedToneTrainer(),
+        lessonAttemptsById: {
+          [lessonId]: [
+            {
+              id: `${lessonId}:${now}`,
+              lessonId,
+              startedAt: now - 60_000,
+              finishedAt: now - 1_000,
+              totalQuestions: 8,
+              correctCount: 6,
+              mistakes: [mistake],
+              recoveredMistakes: [],
+              finalStars: 2,
+            },
+          ],
+        },
       }),
     }
   );

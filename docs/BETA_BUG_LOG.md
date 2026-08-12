@@ -10,7 +10,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | Data início | 2026-08-11 |
 | URL / ambiente | produção Netlify / preview |
 | Versão (Sobre / landing) | v0.2.0-beta.1 |
-| SHA tip `main` | `d294764` (#140) |
+| SHA tip `main` | `c6b35c5` (#141 docs) |
 | SHA congelada (RC) | _preencher só na RC_ |
 | Executor | Cloud Agent + QA humano (Matheus) |
 
@@ -18,8 +18,8 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Página não arrasta; CTA acessível sem caça; vitória cabe no frame | Lição pinyin pós-resposta + tela final | **aberto — aguarda revalidação física** (#138→#139→#140 no código) |
-| B002 | | | | | | | |
+| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Página não arrasta; CTA acessível sem caça; vitória cabe no frame | Lição pinyin pós-resposta + tela final | **aberto — aguarda revalidação física** (#138→#139→#140) |
+| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Um exercício coerente: prompt situacional + opções + pinyin só da resposta; UI em blocos claros | Errar/pular diálogo → aceitar revisão de estrela | **corrigido em código** — revalidar no app |
 | B003 | | | | | | | |
 
 ## Contagem rápida
@@ -30,9 +30,12 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | P1 | 1 | 0 |
 | P2 | 0 | 0 |
 
+> B002: código + `test:immediate-remediation` verdes. Conta como aberto até alguém confirmar no app (mesmo critério do B001).  
+> P1 abertos efetivos para RC: **B001 + B002** até revalidação.
+
 ## Checklist de revalidação B001 (Android físico)
 
-Tip a testar: `d294764` (ou tip `main` após #140). Force refresh / limpe cache.
+Tip a testar: tip `main` após #140+. Force refresh / limpe cache.
 
 - [ ] Arrastar página inteira → **não move**
 - [ ] Avançar atividade → atividade (curta e longa)
@@ -41,7 +44,14 @@ Tip a testar: `d294764` (ou tip `main` após #140). Force refresh / limpe cache.
 - [ ] Teclado aberto e fechado
 - [ ] Tela de vitória: Continuar Jornada acessível sem caça
 
-Se tudo OK → marcar B001 **fechado** e zerar P1 abertos.
+## Checklist de revalidação B002 (revisão / estrela)
+
+- [ ] Errar ou pular um diálogo → aceitar revisão
+- [ ] Um único prompt situacional (sem `你好 / 你好吗 / …`)
+- [ ] Pinyin só da resposta correta
+- [ ] “Pulou…” **não** aparece como alternativa
+- [ ] Correto / pinyin / significado batem entre si
+- [ ] Explicação curta e contextual
 
 ## Critério para RC
 

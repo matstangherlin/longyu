@@ -183,7 +183,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffix: "。",
     suffixPinyin: ".",
     anchorChunkId: "woyao",
-    situationTemplatePt: "Você está pedindo no balcão. Diga que quer {item}.",
+    situationTemplatePt: "No balcão, diga que você quer {item}.",
     grammarNotePt: "要 é o pedido direto: 我要 + o que você quer. Nada de 是 aqui.",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
@@ -208,7 +208,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffixPinyin: ".",
     anchorChunkId: "woxianghe",
     situationTemplatePt: "Você está com sede. Diga que quer beber {item}.",
-    grammarNotePt: "想 é a vontade ('quero/queria'), e o verbo vem logo depois: 想喝 + bebida.",
+    grammarNotePt: "想 + verbo: 想喝 + bebida.",
     fillers: [
       { vocabId: "v_shui", promptPt: "água" },
       { vocabId: "v_cha", promptPt: "chá" },
@@ -448,8 +448,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     prefixPinyin: "wǒ bù hē",
     suffix: "。",
     suffixPinyin: ".",
-    anchorChunkId: "wobuhui",
-    situationTemplatePt: "Ofereceram {item} e você não quer. Recuse dizendo que não bebe isso.",
+    anchorChunkId: "wobuheta",
+    situationTemplatePt: "Ofereceram {item}. Recuse: diga que você não bebe isso.",
     grammarNotePt: "不 vem ANTES do verbo: 不喝, nunca 喝不.",
     fillers: [
       { vocabId: "v_cha", promptPt: "chá" },
@@ -467,8 +467,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     prefixPinyin: "wǒ bù chī",
     suffix: "。",
     suffixPinyin: ".",
-    anchorChunkId: "wobuhui",
-    situationTemplatePt: "No restaurante, avise que você não come {item}.",
+    anchorChunkId: "wobuchirou",
+    situationTemplatePt: "No restaurante, diga que você não come {item}.",
     grammarNotePt: "A negação fica grudada no verbo: 不吃 + comida.",
     fillers: [
       { vocabId: "v_rou", promptPt: "carne" },
@@ -773,6 +773,35 @@ function availableTasks(seenGlyphs: ReadonlySet<string>): FrameTask[] {
 }
 
 /**
+ * Ordem pedagógica: primeiro contato com produção/transferência deve usar
+ * frames curtos e âncoras próximas (我要 ___), não recusa/negação avançada.
+ * Quanto menor o número, mais cedo o frame aparece.
+ */
+const FRAME_INTRO_EASE: Record<string, number> = {
+  frame_woyao: 0,
+  frame_woxianghe: 1,
+  frame_woxiangchi: 2,
+  frame_niyaoma: 3,
+  frame_woyaomai: 4,
+  frame_zainali: 5,
+  frame_qingwenzainali: 6,
+  frame_wobuhe: 10,
+  frame_wobuchi: 11,
+};
+
+function frameEase(frameId: string): number {
+  return FRAME_INTRO_EASE[frameId] ?? 20;
+}
+
+function sortByPedagogicalEase(tasks: FrameTask[]): FrameTask[] {
+  return [...tasks].sort((a, b) => {
+    const ease = frameEase(a.frameId) - frameEase(b.frameId);
+    if (ease !== 0) return ease;
+    return a.id.localeCompare(b.id);
+  });
+}
+
+/**
  * Produção livre: a frase alvo JÁ foi ensinada, mas aqui o aluno a produz do
  * zero — sem banco, sem alternativas, sem tradução na tela. Só a situação.
  */
@@ -780,9 +809,9 @@ export function productionTasksFor(
   seenGlyphs: ReadonlySet<string>,
   options: { limit?: number } = {}
 ): FrameTask[] {
-  const available = availableTasks(seenGlyphs)
-    .filter((task) => !task.isNovelCombination)
-    .sort((a, b) => a.id.localeCompare(b.id));
+  const available = sortByPedagogicalEase(
+    availableTasks(seenGlyphs).filter((task) => !task.isNovelCombination)
+  );
   return options.limit ? available.slice(0, options.limit) : available;
 }
 
@@ -796,10 +825,11 @@ export function transferTasksFor(
   options: { limit?: number; extraTaughtSentences?: ReadonlySet<string> } = {}
 ): FrameTask[] {
   const taught = options.extraTaughtSentences;
-  const available = availableTasks(seenGlyphs)
-    .filter((task) => task.isNovelCombination)
-    .filter((task) => !taught || !taught.has(cleanSentence(task.targetHanzi)))
-    .sort((a, b) => a.id.localeCompare(b.id));
+  const available = sortByPedagogicalEase(
+    availableTasks(seenGlyphs)
+      .filter((task) => task.isNovelCombination)
+      .filter((task) => !taught || !taught.has(cleanSentence(task.targetHanzi)))
+  );
   return options.limit ? available.slice(0, options.limit) : available;
 }
 
@@ -830,63 +860,63 @@ export interface OpenProductionGoalCopy {
 export const OPEN_PRODUCTION_GOALS: OpenProductionGoalCopy[] = [
   {
     goal: "request_item",
-    situationPt: "Você senta no restaurante e o garçom vem até a mesa. Peça alguma coisa para comer ou beber.",
-    hintPt: "Qualquer pedido que você já saiba fazer serve — quem escolhe é você.",
+    situationPt: "No restaurante, peça algo para comer ou beber.",
+    hintPt: "Qualquer pedido que você já saiba fazer serve.",
   },
   {
     goal: "ask_location",
-    situationPt: "Você está perdido numa cidade chinesa e precisa chegar a algum lugar. Pergunte onde fica.",
+    situationPt: "Você se perdeu. Pergunte onde fica um lugar.",
     hintPt: "Escolha um lugar que você já sabe dizer.",
   },
   {
     goal: "ask_price",
-    situationPt: "Você está numa loja e uma coisa te interessa. Pergunte quanto custa.",
-    hintPt: "Vale perguntar o preço de qualquer coisa que você já saiba nomear.",
+    situationPt: "Na loja, pergunte o preço de alguma coisa.",
+    hintPt: "Pode ser qualquer item que você já saiba nomear.",
   },
   {
     goal: "state_preference",
-    situationPt: "Alguém que acabou de te conhecer pergunta do que você gosta. Responda.",
-    hintPt: "Diga algo de que você goste de verdade, com as palavras que já tem.",
+    situationPt: "Alguém pergunta do que você gosta. Responda.",
+    hintPt: "Use as palavras que você já tem.",
   },
   {
     goal: "state_destination",
-    situationPt: "Um amigo te encontra na rua e pergunta para onde você está indo. Responda.",
+    situationPt: "Um amigo pergunta para onde você vai. Responda.",
     hintPt: "Escolha um destino que você já sabe dizer.",
   },
   {
     goal: "buy_item",
-    situationPt: "Você entra numa loja decidido a comprar alguma coisa. Diga ao vendedor o que quer.",
+    situationPt: "Na loja, diga ao vendedor o que você quer comprar.",
     hintPt: "Você escolhe o que comprar.",
   },
   {
     goal: "offer_item",
-    situationPt: "Você recebe uma visita em casa. Ofereça alguma coisa à pessoa.",
-    hintPt: "Ofereça o que quiser, perguntando se a pessoa aceita.",
+    situationPt: "Uma visita chegou. Ofereça alguma coisa.",
+    hintPt: "Ofereça o que quiser — perguntando se a pessoa aceita.",
   },
   {
     goal: "refuse_food",
-    situationPt: "No restaurante, avise que existe uma comida que você não come.",
-    hintPt: "Escolha a comida que você quiser recusar.",
+    situationPt: "No restaurante, diga uma comida que você não come.",
+    hintPt: "Escolha a comida que quiser recusar.",
   },
   {
     goal: "chain_actions",
-    situationPt: "Alguém pergunta o que você vai fazer ao chegar em casa. Conte a sequência.",
-    hintPt: "Empilhe as ações na ordem em que acontecem — sem 'para' no meio.",
+    situationPt: "Conte o que você vai fazer ao chegar em casa.",
+    hintPt: "Ações na ordem real — sem 'para' no meio.",
   },
   {
     goal: "travel_by",
-    situationPt: "Conte como você vai chegar a algum lugar — o meio de transporte faz parte da frase.",
-    hintPt: "Meio primeiro, destino depois: é a ordem do que acontece de verdade.",
+    situationPt: "Conte como você vai chegar a algum lugar.",
+    hintPt: "Meio primeiro, destino depois.",
   },
   {
     goal: "state_ongoing",
-    situationPt: "Alguém pergunta o que você está fazendo neste momento. Responda.",
-    hintPt: "Marque que a ação está acontecendo agora. Qualquer ação que você já saiba serve.",
+    situationPt: "Alguém pergunta o que você está fazendo agora. Responda.",
+    hintPt: "Qualquer ação que você já saiba serve.",
   },
   {
     goal: "state_change",
-    situationPt: "Conte uma mudança de estado — como você está agora, ou o que acabou de acontecer com você.",
-    hintPt: "A partícula no fim marca a mudança. Escolha o estado que fizer sentido.",
+    situationPt: "Conte como você está agora, ou o que acabou de mudar.",
+    hintPt: "A partícula no fim marca a mudança.",
   },
 ];
 

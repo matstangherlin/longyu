@@ -1739,7 +1739,7 @@ function makeOpenProductionStep(knownGlyphs: ReadonlySet<string>, seed: number):
   if (!model) return null;
   return {
     kind: "free_production",
-    title: "Você escolhe o que dizer",
+    title: "Diga do seu jeito",
     situationPt: task.situationPt,
     productionGoal: task.goal,
     productionOpen: true,
@@ -1783,7 +1783,7 @@ function makeFreeProductionStep(
   const task = tasks[seed % tasks.length];
   return {
     kind: "free_production",
-    title: "Produza você",
+    title: "Sua vez de produzir",
     patternPt: task.patternPt,
     ...frameTaskStepBase(task),
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt}`,
@@ -1803,17 +1803,18 @@ function makeTransferStep(
   const pool = transferTasksFor(knownGlyphs, { extraTaughtSentences: authoredCurriculumSentences() });
   const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
   if (tasks.length === 0) return null;
+  // Com pool ordenado por facilidade, seed baixo favorece frames introdutórios.
   const task = tasks[seed % tasks.length];
   return {
     kind: "transfer_task",
-    title: "Mesma estrutura, situação nova",
+    title: "Use o que já sabe",
     patternPt: task.patternPt,
     transferAnchorHanzi: task.anchor.hanzi,
     transferAnchorPinyin: task.anchor.pinyin,
     transferAnchorPt: task.anchor.meaningPt,
     isNovelCombination: true,
     ...frameTaskStepBase(task),
-    explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Você nunca viu esta frase pronta: montou pela estrutura.`,
+    explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Combinação nova: você montou pela estrutura.`,
   };
 }
 
