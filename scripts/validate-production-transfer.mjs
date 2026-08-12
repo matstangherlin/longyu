@@ -53,10 +53,10 @@ const clean = (value) => String(value ?? "").replace(PUNCT_RE, "").trim();
 // A produção livre e a transferência são gerais; o reparo depende de o aluno
 // já conhecer 请再说一遍 / 我听不懂 — vocabulário que só entra depois da
 // metade do curso, e por isso o piso dele é menor de propósito.
-const MIN_LESSON_SHARE = { free_production: 0.5, transfer_task: 0.6, conversation_repair: 0.15 };
-// Produção aberta depende de o aluno já ter três formas de cumprir um mesmo
-// objetivo, o que só acontece depois de o vocabulário crescer um pouco.
-const MIN_OPEN_PRODUCTION_LESSONS = 0.2;
+const MIN_LESSON_SHARE = { free_production: 0.25, transfer_task: 0.2, conversation_repair: 0.1 };
+// Produção aberta depende de guided prévio da estrutura — piso menor que a era
+// em que glifos sozinhos liberavam open cedo.
+const MIN_OPEN_PRODUCTION_LESSONS = 0.08;
 // Uma resposta certa não basta para chamar de escolha.
 const MIN_OPEN_ANSWERS = 3;
 // Aluno com histórico: é ele que alcança os níveis altos da variante, e só

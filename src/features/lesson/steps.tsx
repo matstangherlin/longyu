@@ -3707,8 +3707,26 @@ function FreeAnswerField({
   );
 }
 
-/** Scaffold STPVO-light: ordem nomeada da frase, sem revelar a resposta. */
+/** Scaffold da estrutura: prioriza o modelo (我要 ___) sem jargão de papéis. */
 function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patternPt?: string }) {
+  // O aluno monta pela lógica do padrão visível — não por rótulos
+  // "sujeito/verbo/objeto/partícula" antes desses conceitos existirem no curso.
+  if (patternPt) {
+    return (
+      <div className="mt-2" data-production-scaffold-pattern>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
+        <p className="mt-1.5 font-serif text-base font-semibold text-ink">
+          <span className="hanzi">{patternPt}</span>
+        </p>
+        {slots && slots.length > 0 && (
+          <p className="sr-only">
+            Ordem:{" "}
+            {slots.map((slot) => (slot.hole ? `lacuna (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role])).join(" · ")}
+          </p>
+        )}
+      </div>
+    );
+  }
   if (slots && slots.length > 0) {
     return (
       <div className="mt-2">
@@ -3725,25 +3743,15 @@ function PatternSlotScaffold({ slots, patternPt }: { slots?: PatternSlot[]; patt
                     : "border border-line bg-surface text-ink-soft",
                 ].join(" ")}
               >
-                {slot.hole ? `___ (${PATTERN_SLOT_LABELS[slot.role]})` : PATTERN_SLOT_LABELS[slot.role]}
+                {slot.hole ? "___" : "·"}
               </span>
             </div>
           ))}
         </div>
-        {patternPt && (
-          <p className="mt-1.5 text-xs text-ink-faint">
-            Modelo: <span className="font-semibold text-ink-soft">{patternPt}</span>
-          </p>
-        )}
       </div>
     );
   }
-  if (!patternPt) return null;
-  return (
-    <p className="mt-2 text-xs text-ink-faint">
-      Modelo: <span className="font-semibold text-ink-soft">{patternPt}</span>
-    </p>
-  );
+  return null;
 }
 
 /** free_production e transfer_task compartilham a mesma mecânica. */

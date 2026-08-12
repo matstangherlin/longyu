@@ -855,6 +855,150 @@ function availableTasks(seenGlyphs: ReadonlySet<string>): FrameTask[] {
   return FRAME_TASKS.filter((task) => task.requiredGlyphs.every((glyph) => seenGlyphs.has(glyph)));
 }
 
+// ————————————————————————————————————————————————————————————————
+// Política de prerequisites de estrutura (transfer / free / open)
+//
+// Vocabulário conhecido ≠ estrutura praticada. A escada pedida pelo QA:
+//   exposição → reconhecimento/completion → sentence build →
+//   produção guiada → transferência → produção aberta
+//
+// Glifos continuam necessários; esta camada exige histórico da ESTRUTURA.
+// ————————————————————————————————————————————————————————————————
+
+/** Degraus de prática de uma estrutura antes de transferir. */
+export interface StructurePracticeRungs {
+  /** Âncora ou frase no padrão já apareceu no currículo (foco/autoral). */
+  exposed: boolean;
+  /** Já houve fill_blank (ou equivalente) no padrão. */
+  completion: boolean;
+  /** Já houve sentence_build / lab no padrão. */
+  build: boolean;
+  /** Já houve free_production guiada deste frame. */
+  guidedProduction: boolean;
+}
+
+export type StructureExposureMap = Map<string, StructurePracticeRungs>;
+
+export function emptyStructureRungs(): StructurePracticeRungs {
+  return { exposed: false, completion: false, build: false, guidedProduction: false };
+}
+
+export function cloneStructureExposure(map: StructureExposureMap): StructureExposureMap {
+  const next: StructureExposureMap = new Map();
+  for (const [frameId, rungs] of map) {
+    next.set(frameId, { ...rungs });
+  }
+  return next;
+}
+
+export function ensureStructureRungs(
+  map: StructureExposureMap,
+  frameId: string
+): StructurePracticeRungs {
+  let rungs = map.get(frameId);
+  if (!rungs) {
+    rungs = emptyStructureRungs();
+    map.set(frameId, rungs);
+  }
+  return rungs;
+}
+
+export function mergeStructureExposure(into: StructureExposureMap, from: StructureExposureMap): void {
+  for (const [frameId, rungs] of from) {
+    const target = ensureStructureRungs(into, frameId);
+    target.exposed = target.exposed || rungs.exposed;
+    target.completion = target.completion || rungs.completion;
+    target.build = target.build || rungs.build;
+    target.guidedProduction = target.guidedProduction || rungs.guidedProduction;
+  }
+}
+
+/** A frase casa com o esqueleto do frame (prefixo/sufixo fixos)? */
+export function sentenceMatchesFrame(hanzi: string, frame: SentenceFrame): boolean {
+  const clean = cleanSentence(hanzi);
+  if (!clean) return false;
+  const prefix = cleanSentence(frame.prefix);
+  const suffix = cleanSentence(frame.suffix);
+  if (prefix && !clean.startsWith(prefix)) return false;
+  if (suffix && !clean.endsWith(suffix)) return false;
+
+  // Afirmação vs pergunta: 吗 no texto precisa bater com o frame.
+  // Senão 你要饭吗？ “casa” com 你要 ___ só porque o sufixo 。 some na limpeza.
+  // Atenção: slots com role "particle" também cobrem 在/了 — só 吗 conta aqui.
+  const frameHasMa = /吗/.test(frame.suffix) || /吗/.test(frame.patternPt);
+  const textHasMa = /吗/.test(clean);
+  if (frameHasMa !== textHasMa) return false;
+
+  // Sufixo só pontuação (limpo vazio): ainda exige conteúdo depois do prefixo.
+  if (prefix && !suffix && clean.length <= prefix.length) return false;
+  // Prefixo vazio (___ 在哪里): exige mais que o sufixo sozinho.
+  if (!prefix && suffix && clean.length <= suffix.length) return false;
+
+  return Boolean(prefix || suffix);
+}
+
+export function framesMatchingSentence(hanzi: string): SentenceFrame[] {
+  return SENTENCE_FRAMES.filter((frame) => sentenceMatchesFrame(hanzi, frame));
+}
+
+export function frameById(frameId: string): SentenceFrame | undefined {
+  return SENTENCE_FRAMES.find((frame) => frame.id === frameId);
+}
+
+/** Produção guiada: estrutura exposta + (completion OU build). */
+export function canGuidedProduceStructure(rungs: StructurePracticeRungs | undefined): boolean {
+  if (!rungs?.exposed) return false;
+  return rungs.completion || rungs.build;
+}
+
+/**
+ * Transferência: só depois de produção guiada da mesma estrutura.
+ * Completion/build já são pré-requisito da produção guiada.
+ */
+export function canTransferStructure(rungs: StructurePracticeRungs | undefined): boolean {
+  return Boolean(rungs?.exposed && rungs.guidedProduction && (rungs.completion || rungs.build));
+}
+
+/** Produção aberta de um objetivo: já produziu com apoio ao menos um frame do goal. */
+export function canOpenProduceGoal(
+  goal: CommunicativeGoal,
+  exposure: StructureExposureMap
+): boolean {
+  return SENTENCE_FRAMES.some(
+    (frame) => frame.goal === goal && exposure.get(frame.id)?.guidedProduction
+  );
+}
+
+/**
+ * Marca exposição a partir de um texto (foco ou passo autoral).
+ * `rung` diz qual degrau este encontro conta.
+ */
+export function creditStructureText(
+  map: StructureExposureMap,
+  hanzi: string | undefined,
+  rung: keyof StructurePracticeRungs = "exposed"
+): void {
+  if (!hanzi) return;
+  for (const frame of framesMatchingSentence(hanzi)) {
+    const rungs = ensureStructureRungs(map, frame.id);
+    rungs.exposed = true;
+    if (rung !== "exposed") rungs[rung] = true;
+  }
+}
+
+/** Credita o frame quando o chunk de âncora entra no foco E casa com o padrão. */
+export function creditStructureAnchorChunk(map: StructureExposureMap, chunkId: string): void {
+  const chunk = chunkById.get(chunkId);
+  if (!chunk) return;
+  for (const frame of SENTENCE_FRAMES) {
+    if (frame.anchorChunkId !== chunkId) continue;
+    // Compartilhar âncora (ex.: woyao em niyaoma) não expõe o degrau avançado:
+    // só a estrutura cujo esqueleto a frase-âncora realiza.
+    if (!sentenceMatchesFrame(chunk.hanzi, frame)) continue;
+    ensureStructureRungs(map, frame.id).exposed = true;
+  }
+}
+
 /**
  * Ordem pedagógica: primeiro contato com produção/transferência deve usar
  * frames curtos e âncoras próximas (我要 ___), não pergunta com 吗 nem
@@ -915,7 +1059,8 @@ export function maxTransferAssistForAttempt(attemptNumber = 0): ProductionAssist
 export function isTransferTaskEligible(
   task: FrameTask,
   seenGlyphs: ReadonlySet<string>,
-  maxAssist: ProductionAssist = "question"
+  maxAssist: ProductionAssist = "question",
+  structureExposure?: StructureExposureMap
 ): boolean {
   if (PRODUCTION_ASSIST_RANK[task.transferAssist] > PRODUCTION_ASSIST_RANK[maxAssist]) {
     return false;
@@ -924,27 +1069,36 @@ export function isTransferTaskEligible(
   for (const requiredId of task.transferRequiresFrameIds) {
     if (!framePracticable(requiredId, seenGlyphs)) return false;
   }
+  if (structureExposure && !canTransferStructure(structureExposure.get(task.frameId))) {
+    return false;
+  }
   return true;
 }
 
 /**
  * Produção livre: a frase alvo JÁ foi ensinada, mas aqui o aluno a produz do
  * zero — sem banco, sem alternativas, sem tradução na tela. Só a situação.
+ * Com `structureExposure`, só libera frames já expostos + completion/build.
  */
 export function productionTasksFor(
   seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number } = {}
+  options: { limit?: number; structureExposure?: StructureExposureMap } = {}
 ): FrameTask[] {
+  const exposure = options.structureExposure;
   const available = sortByPedagogicalEase(
-    availableTasks(seenGlyphs).filter((task) => !task.isNovelCombination)
+    availableTasks(seenGlyphs)
+      .filter((task) => !task.isNovelCombination)
+      .filter(
+        (task) => !exposure || canGuidedProduceStructure(exposure.get(task.frameId))
+      )
   );
   return options.limit ? available.slice(0, options.limit) : available;
 }
 
 /**
  * Transferência: mesma estrutura, combinação que o currículo NUNCA mostrou.
- * Escada guided → supported → question: a primeira ocorrência só cobra uma
- * transformação; 吗 e troca de sujeito entram depois dos pré-requisitos.
+ * Escada guided → supported → question + prerequisites de estrutura:
+ * exposição → completion/build → produção guiada → só então transferir.
  */
 export function transferTasksFor(
   seenGlyphs: ReadonlySet<string>,
@@ -954,15 +1108,17 @@ export function transferTasksFor(
     maxAssist?: ProductionAssist;
     /** Se true, devolve só o degrau mais baixo elegível (1ª ocorrência). */
     preferLowestRung?: boolean;
+    structureExposure?: StructureExposureMap;
   } = {}
 ): FrameTask[] {
   const taught = options.extraTaughtSentences;
   const maxAssist = options.maxAssist ?? "question";
+  const exposure = options.structureExposure;
   const available = sortByPedagogicalEase(
     availableTasks(seenGlyphs)
       .filter((task) => task.isNovelCombination)
       .filter((task) => !taught || !taught.has(cleanSentence(task.targetHanzi)))
-      .filter((task) => isTransferTaskEligible(task, seenGlyphs, maxAssist))
+      .filter((task) => isTransferTaskEligible(task, seenGlyphs, maxAssist, exposure))
   );
   if (available.length === 0) return [];
   const pool =
@@ -1082,12 +1238,14 @@ const MIN_OPEN_ANSWERS = 3;
 
 export function openProductionTasksFor(
   seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number } = {}
+  options: { limit?: number; structureExposure?: StructureExposureMap } = {}
 ): OpenProductionTask[] {
   const reachable = availableTasks(seenGlyphs);
+  const exposure = options.structureExposure;
   const tasks: OpenProductionTask[] = [];
 
   for (const copy of OPEN_PRODUCTION_GOALS) {
+    if (exposure && !canOpenProduceGoal(copy.goal, exposure)) continue;
     const forGoal = reachable
       .filter((task) => task.goal === copy.goal)
       .sort((a, b) => a.id.localeCompare(b.id));

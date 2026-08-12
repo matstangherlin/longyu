@@ -46,6 +46,7 @@ try {
     maxTransferAssistForAttempt,
     isTransferTaskEligible,
     PRODUCTION_ASSIST_RANK,
+    sentenceMatchesFrame,
   } = require(path.join(outDir, "src/data/productionTasks.js"));
 
   assert(maxTransferAssistForAttempt(0) === "guided", "attempt 0 deve limitar a guided");
@@ -130,6 +131,44 @@ try {
     !isTransferTaskEligible(niyaomaTask, withoutMa, "question"),
     "niyaoma bloqueia sem glifo 吗"
   );
+
+  // Prerequisites de estrutura: sem guidedProduction, transfer bloqueia.
+  const emptyExposure = new Map();
+  assert(
+    !isTransferTaskEligible(niyaomaTask, rich, "question", emptyExposure),
+    "niyaoma bloqueia sem exposição/prática da estrutura"
+  );
+  const readyExposure = new Map([
+    [
+      "frame_niyaoma",
+      { exposed: true, completion: true, build: true, guidedProduction: true },
+    ],
+    ["frame_woyao", { exposed: true, completion: true, build: true, guidedProduction: true }],
+    ["frame_niyao", { exposed: true, completion: true, build: true, guidedProduction: true }],
+  ]);
+  assert(
+    isTransferTaskEligible(niyaomaTask, rich, "question", readyExposure),
+    "niyaoma libera com estrutura praticada"
+  );
+
+  const guidedOnly = transferTasksFor(rich, {
+    maxAssist: "guided",
+    preferLowestRung: true,
+    structureExposure: new Map([
+      ["frame_woyao", { exposed: true, completion: true, build: true, guidedProduction: true }],
+      ["frame_wobuhe", { exposed: true, completion: true, build: true, guidedProduction: true }],
+      ["frame_wozai", { exposed: true, completion: true, build: true, guidedProduction: true }],
+    ]),
+  });
+  assert(
+    guidedOnly.every((task) => task.frameId !== "frame_niyaoma"),
+    "com exposure pronta, attempt guided ainda não sobe a niyaoma"
+  );
+
+  assert(sentenceMatchesFrame("你要茶。", niyao), "你要茶 casa com frame_niyao");
+  assert(!sentenceMatchesFrame("你要茶吗？", niyao), "你要茶吗 não casa com frame_niyao afirmativo");
+  assert(sentenceMatchesFrame("你要茶吗？", niyaoma), "你要茶吗 casa com frame_niyaoma");
+  assert(!sentenceMatchesFrame("你要茶。", niyaoma), "你要茶 não casa com frame_niyaoma");
 
   if (failures.length > 0) {
     console.error(`FAIL test:transfer-scaffold (${failures.length}):`);
