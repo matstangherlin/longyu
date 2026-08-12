@@ -35,9 +35,10 @@ Use o log em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) (copie linhas; não apague o
 
 > **2026-08-12 · tip `3622885` (#148):** B002, produção/transferência friendliness, PieceAssembly e guarda QA (`test:qa-regression-guard`) estão **entregues em código** — ainda exigem confirmação humana.  
 > **2026-08-11:** proxy desktop `e2e/runbook-20-lessons.spec.ts` (Chromium — **não** substitui §1 humano).  
-> **B001:** corrigido em código (#138→#139→#140); **aguarda revalidação Android física** ([checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b001-android-físico)).  
-> **B002:** corrigido em código (#148); **aguarda revalidação humana** ([checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b002-revisão--estrela)).  
-> **#146 / PR #149:** hardening de copy/mic/CTAs ainda **pendente de merge** na `main`.  
+> **B001:** **corrigido em código**, aguardando revalidação Android física (#138→#139→#140) — [checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b001-android-físico).  
+> **B002:** **corrigido em código**, aguardando revalidação humana (#148) — [checklist](./BETA_BUG_LOG.md#checklist-de-revalidação-b002-revisão--estrela).  
+> **#146:** ainda **pendente** na `main` (extrato seletivo na PR #149, não mergeada).  
+> **Ainda não concluído:** QA iPhone · L1–L20 humano · e-mail real · Stripe Test Mode real · sync 2 aparelhos · VoiceOver/TalkBack · testadores externos · RC · full security scan final.  
 > **Prioridade agora:** Android físico (B001) → revisão/estrela no app (B002) → L1–L20 humano §1.
 
 Comandos úteis no repo (antes da RC, não no meio do uso):

@@ -20,8 +20,8 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Página não arrasta; CTA acessível sem caça; vitória cabe no frame | Lição pinyin pós-resposta + tela final | **corrigido em código** — aguarda revalidação Android física (#138→#139→#140) |
-| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Um exercício coerente: prompt situacional + opções + pinyin só da resposta; UI em blocos claros | Errar/pular diálogo → aceitar revisão de estrela | **corrigido em código** — aguarda revalidação humana (#148) |
+| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Página não arrasta; CTA acessível sem caça; vitória cabe no frame | Lição pinyin pós-resposta + tela final | **corrigido em código**, aguardando revalidação Android física (#138→#139→#140; tip `3622885`) |
+| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Um exercício coerente: prompt situacional + opções + pinyin só da resposta; UI em blocos claros | Errar/pular diálogo → aceitar revisão de estrela | **corrigido em código**, aguardando revalidação humana (#148 / tip `3622885`) |
 | B003 | | | | | | | |
 
 ## Contagem rápida
@@ -34,7 +34,8 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 > B001 e B002: código + testes automatizados verdes (`test:qa-regression-guard`, `test:review-ux`, `test:immediate-remediation`, E2E).  
 > Contam como **abertos para RC** até alguém confirmar no app (Android físico para B001; desktop/mobile para B002).  
-> P1 abertos efetivos para RC: **B001 + B002** até revalidação humana.
+> P1 abertos efetivos para RC: **B001 + B002** até revalidação humana.  
+> **Não marcar como fechado** só porque a automação passou.
 
 ## Checklist de revalidação B001 (Android físico)
 

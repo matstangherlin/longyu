@@ -1,7 +1,8 @@
 # Longyu 0.2.0-beta.1 — QA mobile real
 
 > **Rodada atual (humana):** use [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md).  
-> **Status pós-#148 (`3622885`):** B001 corrigido em código (#138–#140); B002 + produção/transferência + PieceAssembly + guarda QA entregues em código (#148). **Automação não substitui QA humano** — Android físico, iPhone físico e L1–L20 como aluno novo continuam pendentes.  
+> **Status pós-#148 (tip `main` `3622885`):** B001 **corrigido em código**, aguardando revalidação Android física (#138–#140); B002 **corrigido em código**, aguardando revalidação humana; produção/transferência friendliness, PieceAssembly e guarda QA entregues (#148).  
+> **Automação não substitui QA humano** — Android físico, iPhone físico, L1–L20 humano, e-mail real, Stripe Test Mode real, sync entre 2 aparelhos, VoiceOver/TalkBack, testadores externos, RC e full security scan final **não** estão concluídos.  
 > Este arquivo documenta a rodada de **2026-07-19** (emulação + gaps honestos).  
 > Emulação Chromium **não** substitui iPhone/Android físicos.
 

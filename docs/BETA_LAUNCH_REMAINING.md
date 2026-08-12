@@ -43,11 +43,24 @@ Tip `main`: `3622885` (#148).
 - Feedback com lição/step/versão/ambiente/display-mode  
 - `validate:client-diagnostics` no `validate:beta`
 
-## Pendente (não confundir com “falta código”)
+## Pendente em código (não confundir com QA humano)
 
-- **#146** hardening geral de UX do player (copy curta, mic/fala, `test:player-ux`) — **PR #149 aberta**; integração seletiva sobre #148 ainda não mergeada na `main`  
-- Revalidação humana B001 (Android físico) e B002 (revisão/estrela)  
-- L1–L20 humano, iPhone físico, e-mail real, Stripe Test Mode live, sync 2 aparelhos, VoiceOver/TalkBack, testadores externos, RC congelada, full security scan final
+- **#146** hardening geral de UX do player (copy curta, mic/fala, `test:player-ux`) — **ainda não na `main`**; extrato seletivo na PR **#149** (aberta)
+
+## Ainda NÃO concluído (prova humana / RC)
+
+Não marcar como feito:
+
+- [ ] QA Android físico (revalidação B001)  
+- [ ] QA iPhone físico  
+- [ ] L1–L20 humano como aluno novo  
+- [ ] E-mail real (confirm / reset)  
+- [ ] Stripe Test Mode real (ponta a ponta)  
+- [ ] Sync entre 2 aparelhos reais  
+- [ ] VoiceOver / TalkBack  
+- [ ] Testadores externos (5–15)  
+- [ ] RC congelada  
+- [ ] Full security scan final  
 
 ## Não fingir em código
 
