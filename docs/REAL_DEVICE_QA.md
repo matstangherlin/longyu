@@ -1,6 +1,8 @@
 # Longyu 0.2.0-beta.1 — QA mobile real
 
-> **Rodada atual (humana):** use [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md).  
+> **Rodada atual (humana):** use [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md) — fluxo 1→15 (force refresh → B001 Android → B002 → L1–L20 → … → RC / gate / security).  
+> **Status pós-#148 (tip `main` `3622885`):** B001 **corrigido em código**, aguardando Android físico; B002 **corrigido em código**, aguardando humano; produção/transferência, PieceAssembly e guarda QA entregues.  
+> **Automação não substitui QA humano.** Nenhum checkbox humano foi marcado automaticamente.  
 > Este arquivo documenta a rodada de **2026-07-19** (emulação + gaps honestos).  
 > Emulação Chromium **não** substitui iPhone/Android físicos.
 
