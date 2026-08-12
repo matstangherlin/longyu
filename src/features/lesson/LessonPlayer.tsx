@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -3933,7 +3933,13 @@ export function LessonPlayer() {
       <div
         ref={activityScrollRef}
         data-lesson-activity-scroll
-        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-2 [-webkit-overflow-scrolling:touch] [touch-action:pan-y]"
+        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-[var(--lesson-sticky-actions-space,5.75rem)] [scroll-padding-bottom:var(--lesson-sticky-actions-space,5.75rem)] [-webkit-overflow-scrolling:touch] [touch-action:pan-y]"
+        style={
+          {
+            // Altura tipica da StickyActionBar (botao + padding + safe-area).
+            ["--lesson-sticky-actions-space" as string]: "calc(5.75rem + env(safe-area-inset-bottom))",
+          } as CSSProperties
+        }
       >
       {recoveryDebugPanel}
 

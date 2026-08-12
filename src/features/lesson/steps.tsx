@@ -133,11 +133,13 @@ function StickyActionBar({
   children: ReactNode;
   className?: string;
 }) {
+  // B001 — a barra sticky precisa de safe-area + altura reservada no scroll pai
+  // (`--lesson-sticky-actions-space` em LessonPlayer) para nao cobrir pecas/opcoes.
   return (
     <div
       data-lesson-sticky-actions
       className={cx(
-        "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pt-5",
+        "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-5",
         className
       )}
     >
@@ -455,18 +457,30 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   const [picked, setPicked] = useState<ToneN | null>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
   const guided = step.assist !== "quiz";
-  const [hintLevel, setHintLevel] = useState(guided ? 1 : 0);
+  const [hintLevel, setHintLevel] = useState(0);
   const [listenCount, setListenCount] = useState(0);
   const answer = step.tone as ToneN;
   const meaning = glossFor(step.hanzi!)?.pt;
   const basePinyin = pinyinWithoutToneMark(step.pinyin);
+  const toneChoices = (step.toneChoices?.length
+    ? step.toneChoices
+    : ([1, 2, 3, 4] as ToneN[])
+  ).filter((t, index, all): t is ToneN => all.indexOf(t) === index) as ToneN[];
+  const contrastOnly = toneChoices.length <= 2;
+  // PED-005: no guiado, significado fica escondido ate errar / pedir dica.
+  const showMeaning = !guided || hintLevel >= 1 || picked != null;
+  const showCurves = !guided || contrastOnly || hintLevel >= 1 || (picked != null && picked !== answer);
 
   function pick(t: ToneN) {
     if (picked) return;
     setSelectedTone(t);
     playSoundFx(t === answer ? "success" : "pieceSelect", soundEffects);
     setPicked(t);
-    if (t !== answer) onMistake?.(`${t} tom`);
+    if (t !== answer) {
+      onMistake?.(`${t} tom`);
+      // Apos o primeiro erro: libera comparacao visual + ouvir de novo.
+      setHintLevel((level) => Math.max(level, 1));
+    }
   }
 
   function selectTone(t: ToneN) {
@@ -475,9 +489,9 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
     setSelectedTone(t);
   }
 
-  function play() {
+  function play(rate = 0.85) {
     setListenCount((n) => n + 1);
-    speak(step.hanzi!, { rate: 0.8 });
+    speak(step.hanzi!, { rate });
   }
 
   useEffect(() => {
@@ -489,11 +503,11 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
-    optionCount: 4,
+    optionCount: toneChoices.length,
     isAnswered: picked != null && (picked === answer || !onMistake),
     hasSelection: selectedTone != null,
     onSelectOption: (index) => {
-      const tone = ([1, 2, 3, 4] as ToneN[])[index];
+      const tone = toneChoices[index];
       if (tone) selectTone(tone);
     },
     onSubmit: () => {
@@ -506,26 +520,39 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div className="text-center">
-      <Eyebrow>{guided ? "Ouvido tonal" : "Qual é o tom?"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">Ouça e escolha o tom</h2>
+      <Eyebrow>{guided ? (contrastOnly ? "Dois tons" : "Ouvido tonal") : "Qual é o tom?"}</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">
+        {contrastOnly ? "Ouça e escolha entre dois tons" : "Ouça e escolha o tom"}
+      </h2>
 
       <div className="mx-auto my-3 grid max-w-md gap-3 sm:my-4 sm:max-w-xl sm:grid-cols-[112px_1fr] sm:items-start">
-        <button
-          onClick={play}
-          className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-4 ring-accent-soft/40 transition hover:scale-105 active:scale-95 sm:h-16 sm:w-16"
-          aria-label="Ouvir"
-        >
-          <IconSound width={26} height={26} />
-          <span className="mt-1 text-[11px] font-semibold">
-            {listenCount > 0 ? `${listenCount}x` : "Ouvir"}
-          </span>
-        </button>
+        <div className="flex flex-col items-center gap-2">
+          <button
+            onClick={() => play(0.85)}
+            className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-4 ring-accent-soft/40 transition hover:scale-105 active:scale-95 sm:h-16 sm:w-16"
+            aria-label="Ouvir"
+          >
+            <IconSound width={26} height={26} />
+            <span className="mt-1 text-[11px] font-semibold">
+              {listenCount > 0 ? `${listenCount}x` : "Ouvir"}
+            </span>
+          </button>
+          {(listenCount > 0 || picked != null) && (
+            <button
+              type="button"
+              onClick={() => play(0.55)}
+              className="rounded-full border border-line bg-surface px-3 py-1 text-[11px] font-semibold text-ink-soft"
+            >
+              Ouvir devagar
+            </button>
+          )}
+        </div>
 
         <div className="rounded-2xl bg-surface-2/80 p-3 text-left">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                Dica 1 · sem entregar
+                {guided ? "Foque no contorno" : "Dica · sem entregar"}
               </div>
               <div className="mt-1 flex items-center gap-2">
                 <span className="hanzi text-3xl text-ink">{step.hanzi}</span>
@@ -533,44 +560,40 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                   <span className="font-serif text-xl text-ink-soft">{basePinyin}</span>
                 )}
               </div>
-              {meaning && <div className="mt-1 text-sm text-ink-soft">{meaning}</div>}
+              {showMeaning && meaning && <div className="mt-1 text-sm text-ink-soft">{meaning}</div>}
             </div>
             <div className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-faint">
-              pinyin sem tom
+              {contrastOnly ? `${toneChoices.length} opções` : "pinyin sem tom"}
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-4 gap-2">
-            {([1, 2, 3, 4] as ToneN[]).map((t) => (
-              <div
-                key={t}
-                className={[
-                  "rounded-xl bg-surface px-2 py-2 text-center transition",
-                  hintLevel >= 2 && t === answer ? "ring-2 ring-accent/40" : "",
-                ].join(" ")}
-              >
-                <ToneCurve tone={t} size={13} />
-                <div className="mt-0.5 text-[11px] font-medium text-ink-soft">
-                  {t}º tom
+          {showCurves && (
+            <div className={["mt-3 grid gap-2", toneChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
+              {toneChoices.map((t) => (
+                <div
+                  key={t}
+                  className={[
+                    "rounded-xl bg-surface px-2 py-2 text-center transition",
+                    hintLevel >= 2 && t === answer ? "ring-2 ring-accent/40" : "",
+                  ].join(" ")}
+                >
+                  <ToneCurve tone={t} size={13} />
+                  <div className="mt-0.5 text-[11px] font-medium text-ink-soft">{t}º tom</div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {hintLevel >= 2 ? (
             <div className="mt-3 rounded-xl bg-surface px-3 py-2">
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                  Dica 2 · resposta explicada
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  {step.pinyin && <Pinyin text={step.pinyin} className="font-serif text-xl" />}
-                  <span className="text-sm font-medium text-ink">{TONE_NAMES[answer]}</span>
-                </div>
-                <div className="mt-1 text-sm text-ink-soft">
-                  Escute se o som {TONE_LISTENING_TIPS[answer]}.
-                </div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+                Resposta explicada
               </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                {step.pinyin && <Pinyin text={step.pinyin} className="font-serif text-xl" />}
+                <span className="text-sm font-medium text-ink">{TONE_NAMES[answer]}</span>
+              </div>
+              <div className="mt-1 text-sm text-ink-soft">Escute se o som {TONE_LISTENING_TIPS[answer]}.</div>
             </div>
           ) : (
             <Button
@@ -582,16 +605,25 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 setHintLevel(2);
               }}
             >
-              Mostrar dica
+              {picked != null && picked !== answer ? "Comparar contornos" : "Mostrar dica"}
             </Button>
           )}
         </div>
       </div>
 
       <KeyboardShortcutHint />
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
-        {([1, 2, 3, 4] as ToneN[]).map((t) => {
-          const state = picked == null ? (selectedTone === t ? "selected" : "idle") : t === answer ? "right" : t === picked ? "wrong" : "idle";
+      <div className={["grid gap-2 sm:gap-3", toneChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
+        {toneChoices.map((t, index) => {
+          const state =
+            picked == null
+              ? selectedTone === t
+                ? "selected"
+                : "idle"
+              : t === answer
+                ? "right"
+                : t === picked
+                  ? "wrong"
+                  : "idle";
           return (
             <button
               key={t}
@@ -603,10 +635,12 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 state === "selected" && "border-accent bg-accent-soft text-accent",
                 state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
                 state === "wrong" && "border-transparent bg-wrong-soft",
-              ].filter(Boolean).join(" ")}
-              aria-label={`Opção ${t}: ${t}º tom`}
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-label={`Opção ${index + 1}: ${t}º tom`}
             >
-              <ShortcutBadge className="shrink-0">{t}</ShortcutBadge>
+              <ShortcutBadge className="shrink-0">{index + 1}</ShortcutBadge>
               <ToneCurve tone={t} />
               <span className="text-xs font-medium text-ink sm:text-sm">{t}º tom</span>
             </button>

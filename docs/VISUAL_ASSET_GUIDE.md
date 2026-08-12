@@ -129,3 +129,11 @@ Rever acabamento (proporção/expressão) se um asset ficar pouco legível em
 
 _Validação: `npm run validate:visual-consistency` (gera
 `reports/visual-consistency-report.md`) e `npm run validate:image-exercises`._
+
+
+## Tema claro/escuro (VIS-006 / VIS-007)
+
+- Ilustrações flat usam **SVG com fundo transparente** (sem retângulo mint `#EDF2ED` full-bleed).
+- O quadro HTML (`bg-surface-2`) acompanha o tema; PNG/WebP rasterizados também devem ter alpha.
+- `src/assets/visuals/index.ts` exporta **URLs Vite** (arquivos hasheados), não `data:` URIs inline.
+- `backgroundStyle: "transparent"` no catálogo para assets sem fundo opaco.

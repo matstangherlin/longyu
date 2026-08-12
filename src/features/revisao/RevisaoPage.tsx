@@ -807,16 +807,26 @@ function ExerciseFeedback({
     : correct && exercise.remediation
       ? "Erro corrigido!"
       : correct
-        ? "Boa!"
-        : "Resposta correta";
+        ? "Certo"
+        : "Errado";
   return (
     <div
+      data-review-feedback
+      role="status"
+      aria-live="polite"
       className={[
         "animate-pop mt-5 rounded-2xl p-4 text-center",
-        correct === false ? "bg-[rgb(var(--danger)/0.08)]" : "bg-surface-2",
+        correct === false ? "bg-[rgb(var(--danger)/0.08)]" : correct ? "bg-[rgb(var(--good)/0.12)]" : "bg-surface-2",
       ].join(" ")}
     >
-      <div className="text-sm font-semibold text-ink">{title}</div>
+      <div
+        className={[
+          "text-sm font-semibold",
+          correct === false ? "text-danger" : correct ? "text-[rgb(var(--good))]" : "text-ink",
+        ].join(" ")}
+      >
+        {title}
+      </div>
       <div className="mt-3">
         <MandarinText
           hanzi={exercise.entity.hanzi}
@@ -1257,6 +1267,18 @@ export function RevisaoPage() {
     setPos(0);
     setRetryQueue([]);
   }, [mode]);
+
+  // B003 — após revelar, feedback + CTA precisam entrar na viewport (iPhone/Safari).
+  useEffect(() => {
+    if (!revealed) return;
+    const id = window.requestAnimationFrame(() => {
+      const feedback = document.querySelector<HTMLElement>("[data-review-feedback]");
+      const continueBtn = document.querySelector<HTMLButtonElement>("[data-review-continue]");
+      feedback?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      continueBtn?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [revealed, pos]);
 
   // Hotkeys precisam rodar em todo render (antes dos early returns). Sem isso, a
   // reidratação Pro (fila vazia → fila com itens) muda a quantidade de hooks e
@@ -1899,24 +1921,46 @@ export function RevisaoPage() {
                   showMistakeReason={detailedErrorsAllowed}
                 />
               )}
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {(exerciseCorrect === false ? GRADES.filter((grade) => grade.g === "again") : GRADES).map(({ g, label, effect, variant }) => (
-                  <Button
-                    key={g}
-                    variant={variant}
-                    size="sm"
-                    className={[
-                      "h-auto min-h-12 flex-col gap-0.5 py-2",
-                      suggestedGrade === g ? "ring-2 ring-accent ring-offset-2 ring-offset-[rgb(var(--surface))]" : "",
-                    ].join(" ")}
-                    onClick={() => grade(g)}
-                  >
-                    <span>{label}</span>
-                    <span className="text-[10px] font-normal opacity-80">
-                      {effect} · +{reviewXpForGrade(g)} XP · +{reviewQiForGrade(g)} Qi
-                    </span>
-                  </Button>
-                ))}
+              {/* CTA sticky no mesmo slot do Verificar — nunca revelar sem ação visível (B003). */}
+              <div
+                data-review-sticky-actions
+                className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-10 mt-4 space-y-3 bg-gradient-to-t from-[rgb(var(--surface))] via-[rgb(var(--surface)/0.96)] to-transparent pb-1 pt-3 sm:static sm:bg-none sm:pb-0"
+              >
+                <Button
+                  data-review-continue
+                  className="w-full shadow-card sm:shadow-none"
+                  onClick={() =>
+                    grade(exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : suggestedGrade ?? "good")
+                  }
+                >
+                  {exerciseCorrect === false && activeExercise.canAutoCheck ? "Errei — continuar" : "Continuar"}
+                </Button>
+                {!(exerciseCorrect === false && activeExercise.canAutoCheck) && (
+                  <details className="rounded-xl border border-line bg-surface-2/60 px-3 py-2 text-left">
+                    <summary className="cursor-pointer text-xs font-semibold text-ink-soft">
+                      Ajustar dificuldade (Errei / Difícil / Bom / Fácil)
+                    </summary>
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {GRADES.map(({ g, label, effect, variant }) => (
+                        <Button
+                          key={g}
+                          variant={variant}
+                          size="sm"
+                          className={[
+                            "h-auto min-h-12 flex-col gap-0.5 py-2",
+                            suggestedGrade === g ? "ring-2 ring-accent ring-offset-2 ring-offset-[rgb(var(--surface))]" : "",
+                          ].join(" ")}
+                          onClick={() => grade(g)}
+                        >
+                          <span>{label}</span>
+                          <span className="text-[10px] font-normal opacity-80">
+                            {effect} · +{reviewXpForGrade(g)} XP · +{reviewQiForGrade(g)} Qi
+                          </span>
+                        </Button>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
             </>
           ) : (

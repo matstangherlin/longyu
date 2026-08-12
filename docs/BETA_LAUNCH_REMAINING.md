@@ -1,7 +1,7 @@
 # Longyu — trabalho restante para beta pública (pós #148)
 
 Atualizado em 2026-08-12. Separa o que **código/CI já cobre** do que **exige humano**.  
-Tip `main`: `3622885` (#148).
+Tip `main`: `5998fbd` (#156 pedagogia + remessa device-bugs).
 
 > **Automação não substitui QA humano.** Playwright, `validate:beta` e scripts de guarda provam regressões — não substituem aparelho físico, L1–L20 como aluno novo, e-mail live, Stripe Test Mode, sync entre dois aparelhos reais, VoiceOver/TalkBack nem testadores externos.
 
@@ -13,11 +13,11 @@ Tip `main`: `3622885` (#148).
 
 | Trabalho restante | Peso | Estado |
 | --- | ---: | --- |
-| QA Android/iPhone/desktop real | 20% | **~15–20% Android** (B001 corrigido em código, revalidação física pendente); iPhone ~0% |
+| QA Android/iPhone/desktop real | 20% | **~15–20% Android**; iPhone ~5% (B003 encontrado + correção em código; QA-008 pendente) |
 | L1–L20 completo como aluno novo | 15% | **~0–5%** — proxy E2E **não** conta |
 | 5–15 testadores reais + telemetria | 15% | **0%** |
 | Sync/offline/multi-device | 10% | Fixture OK (#133); **2 aparelhos reais = humano** §6 |
-| Corrigir P0/P1 encontrados | 10% | B001 + B002 corrigidos em código (#138–#140, #148); **revalidação humana pendente** |
+| Corrigir P0/P1 encontrados | 10% | B001 reaberto; B002/B003/B004/PED-005 em código (`5998fbd`+); **revalidação humana pendente** |
 | Auth + conta + recuperação | 8% | E2E superfície OK; **e-mail live = humano** §4 |
 | Stripe/Pro/entitlements | 7% | Testes de lógica OK; **Stripe Test Mode live = humano** §5 |
 | RC + `gate:public-beta` + Security Scan final | 7% | Scripts prontos; **RC não congelada**; full security scan final pendente |
@@ -43,15 +43,18 @@ Tip `main`: `3622885` (#148).
 
 ## Pendente em código (não confundir com QA humano)
 
-- **#146** hardening geral de UX do player (copy curta, mic/fala, `test:player-ux`) — **ainda não na `main`**; extrato seletivo na PR **#149** (aberta)
+- Remessa device-bugs (B003/B004/B001-regression/PED-005/VIS-006/007) — **nesta PR**; fechar só após aparelho real  
+- #146/#149/#152/#157 já na `main` via #157  
 
 ## Ainda NÃO concluído (prova humana / RC)
 
 Não marcar como feito (nenhum checkbox humano foi marcado automaticamente):
 
-- [ ] Force refresh / cache limpo na tip `3622885`  
-- [ ] Revalidação B001 no Android real  
+- [ ] Force refresh / cache limpo na tip `5998fbd`  
+- [ ] Revalidação B001 no Android real (regressão StickyActionBar)  
 - [ ] Revalidação B002 no app real  
+- [ ] Revalidação B003 no iPhone (revisão Continuar)  
+- [ ] Revalidação B004 imagens associação visual  
 - [ ] L1–L20 humano com conta nova  
 - [ ] Android completo  
 - [ ] QA iPhone / Safari  
@@ -73,7 +76,7 @@ Não marcar como feito (nenhum checkbox humano foi marcado automaticamente):
 - Dois dispositivos reais sincronizando em produção  
 - VoiceOver/TalkBack e contraste formal  
 - 5–15 testadores reais  
-- Fechar B001/B002 sem revalidação humana  
+- Fechar B001/B002/B003/B004 sem revalidação humana  
 - RC congelada + full security scan final  
 
 ## Comando de RC
