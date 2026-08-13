@@ -219,7 +219,10 @@ begin
     return jsonb_build_object(
       'ok', true,
       'already_applied', true,
-      'is_pro', public.economy_user_is_pro(v_uid),
+      'is_pro', (
+        public._user_stripe_pro_active(v_uid)
+        or (v_row.pearl_pro_expires_at is not null and v_row.pearl_pro_expires_at > now())
+      ),
       'expires_at', v_row.pearl_pro_expires_at,
       'economy', public.economy_row_to_json(v_row)
     );
@@ -237,8 +240,9 @@ begin
 
   if v_row.pearl_pro_expires_at is not null and v_row.pearl_pro_expires_at > now() then
     return jsonb_build_object(
-      'ok', false,
-      'error', 'pass_active',
+      'ok', true,
+      'already_applied', true,
+      'is_pro', true,
       'expires_at', v_row.pearl_pro_expires_at,
       'economy', public.economy_row_to_json(v_row)
     );

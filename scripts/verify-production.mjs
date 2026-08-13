@@ -26,7 +26,10 @@ async function checkUrl(label, url, options = {}) {
   }
 }
 
-const env = mergedEnv();
+const env = {
+  ...readEnvFile(".env.production"),
+  ...mergedEnv(),
+};
 const backendMode = env.VITE_BACKEND_MODE;
 const supabaseUrl = env.VITE_SUPABASE_URL?.replace(/\/$/, "");
 const anonKey = env.VITE_SUPABASE_ANON_KEY;
@@ -39,10 +42,9 @@ if (backendMode !== "supabase") {
 }
 
 if (!supabaseUrl || !anonKey) {
-  console.log("\nBackend Supabase ainda não configurado neste ambiente.");
-  console.log("Execute: npm run setup:supabase -- --init-env");
-  console.log("Preencha VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY em .env.local\n");
-  process.exit(0);
+  console.error("\nERRO: backend Supabase não configurado para a verificação.");
+  console.error("Defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY em .env.production ou .env.local.\n");
+  process.exit(2);
 }
 
 if (supabaseUrl && !supabaseUrl.includes(".supabase.co")) {
