@@ -1,9 +1,13 @@
 /**
- * Piloto Pedagogia V3 / V3.1 — temas representativos:
- * - apresentacao/cumprimentos (l2, l3)
- * - restaurante/comida (l26b)
+ * Piloto Pedagogia V3.2: Mastery Expansion + Survival + China wave2.
+ * Temas representativos:
+ * - apresentacao/cumprimentos (l2, l3, l4)
+ * - familia (l24)
+ * - restaurante/comida/loja (l26b, l27)
+ * - rotina / horarios / compras (p6-rotina-trabalho, p6-horarios, p6-compras)
  * - lugares/transporte (p6-cidade-lugares, p7-imersao-estacao)
- * - China Real (p6-china-cidades, p6-china-ruas, p6-direcoes)
+ * - China Real (p6-china-cidades, p6-china-cidades-2, p6-china-ruas, p6-direcoes)
+ * - Survival Mandarin (p6-survival-mandarin)
  *
  * Expansao lexical + passos por mastery pass. O restante da Jornada
  * continua no planner classico ate a expansao gradual (PED-050).
@@ -11,16 +15,24 @@
 
 import type { LessonStep, StepKind } from "./journey";
 import type { MasteryPass } from "./masteryLoop";
-import { isProductionOrTransferKind } from "./masteryLoop";
+import { isProductionOrTransferKind, withEquivalentAccepts } from "./masteryLoop";
 
 export const MASTERY_PILOT_LESSON_IDS = [
   "l2",
   "l3",
+  "l4",
+  "l24",
   "l26b",
+  "l27",
   "p6-cidade-lugares",
+  "p6-rotina-trabalho",
+  "p6-horarios",
+  "p6-compras",
   "p6-china-cidades",
+  "p6-china-cidades-2",
   "p6-china-ruas",
   "p6-direcoes",
+  "p6-survival-mandarin",
   "p7-imersao-estacao",
 ] as const;
 
@@ -89,6 +101,42 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
     ],
     networkChunks: ["你好吗？", "我很好，你呢？", "mini dialogo de bem-estar"],
   },
+  l4: {
+    lessonId: "l4",
+    themePt: "Cortesia — Obrigado / De nada",
+    newVocabularyTarget: 6,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["谢谢", "不客气", "谢谢 + resposta"],
+    communicativeFunctions: ["agradecer", "responder cortesia", "encerrar com educacao"],
+    vocabulary: [
+      { ref: "chunk:xiexie", hanzi: "谢谢", pinyin: "xiexie", meaningPt: "obrigado(a)", role: "core", introduceAtPass: 1 },
+      { ref: "char:xie", hanzi: "谢", pinyin: "xie", meaningPt: "agradecer", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:bukeqi", hanzi: "不客气", pinyin: "bu keqi", meaningPt: "de nada", role: "core", introduceAtPass: 2 },
+      { ref: "char:bu_not", hanzi: "不", pinyin: "bu", meaningPt: "nao", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:xiexiebukeqi", hanzi: "谢谢 — 不客气", role: "productive", meaningPt: "obrigado / de nada", introduceAtPass: 3 },
+    ],
+    networkChunks: ["谢谢", "不客气", "dialogo de cortesia"],
+  },
+  l24: {
+    lessonId: "l24",
+    themePt: "Familia — pai e mae",
+    newVocabularyTarget: 8,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["这是我爸爸", "这是我妈妈", "这是我家"],
+    communicativeFunctions: ["apresentar pai", "apresentar mae", "mostrar a casa"],
+    vocabulary: [
+      { ref: "chunk:zheshibaba", hanzi: "这是我爸爸", pinyin: "zhe shi wo baba", meaningPt: "Este e meu pai", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:zheshimama", hanzi: "这是我妈妈", pinyin: "zhe shi wo mama", meaningPt: "Esta e minha mae", role: "core", introduceAtPass: 1 },
+      { ref: "char:ba_dad", hanzi: "爸", pinyin: "ba", meaningPt: "pai", role: "core", introduceAtPass: 1 },
+      { ref: "char:ma_mom", hanzi: "妈", pinyin: "ma", meaningPt: "mae", role: "core", introduceAtPass: 1 },
+      { ref: "char:jia", hanzi: "家", pinyin: "jia", meaningPt: "casa; familia", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:zheshiwodejia", hanzi: "这是我家", pinyin: "zhe shi wo jia", meaningPt: "Esta e minha casa", role: "productive", introduceAtPass: 3 },
+      { ref: "char:zhe_this", hanzi: "这", pinyin: "zhe", meaningPt: "este; esta", role: "support", introduceAtPass: 2 },
+      { ref: "char:shi_be", hanzi: "是", pinyin: "shi", meaningPt: "ser; e", role: "support", introduceAtPass: 2 },
+    ],
+    networkChunks: ["这是我爸爸", "这是我妈妈", "这是我家"],
+  },
   l26b: {
     lessonId: "l26b",
     themePt: "Restaurante / cardapio",
@@ -114,6 +162,25 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
     ],
     networkChunks: ["我要水", "我想喝水", "你要苹果还是香蕉？", "pedir a conta"],
   },
+  l27: {
+    lessonId: "l27",
+    themePt: "Na loja — preco e pedido",
+    newVocabularyTarget: 8,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["多少钱", "我要这个", "我想喝 + bebida"],
+    communicativeFunctions: ["perguntar preco", "escolher item", "fechar compra"],
+    vocabulary: [
+      { ref: "chunk:duoshaoqian", hanzi: "多少钱", pinyin: "duoshao qian", meaningPt: "quanto custa?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:woyaozhege", hanzi: "我要这个", pinyin: "wo yao zhege", meaningPt: "Quero este", role: "core", introduceAtPass: 1 },
+      { ref: "char:duo_many", hanzi: "多", pinyin: "duo", meaningPt: "muito; quanto", role: "support", introduceAtPass: 1 },
+      { ref: "char:shao_few", hanzi: "少", pinyin: "shao", meaningPt: "pouco", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:taiguile", hanzi: "太贵了", pinyin: "tai gui le", meaningPt: "esta caro demais", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:woxianghe", hanzi: "我想喝茶", pinyin: "wo xiang he cha", meaningPt: "Quero beber cha", role: "productive", introduceAtPass: 3 },
+      { ref: "char:zhege", hanzi: "这个", pinyin: "zhege", meaningPt: "este; isto", role: "core", introduceAtPass: 2 },
+      { ref: "chunk:ershibayuan", hanzi: "28元", pinyin: "ershi ba yuan", meaningPt: "28 yuan", role: "receptive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["多少钱？", "我要这个", "cena de compra na loja"],
+  },
   "p6-cidade-lugares": {
     lessonId: "p6-cidade-lugares",
     themePt: "Cidade e lugares",
@@ -131,6 +198,64 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
       { ref: "chunk:zaina", hanzi: "在哪", role: "support", meaningPt: "onde?", introduceAtPass: 2 },
     ],
     networkChunks: ["超市在哪里？", "我去超市", "pedir direcao + destino"],
+  },
+  "p6-rotina-trabalho": {
+    lessonId: "p6-rotina-trabalho",
+    themePt: "Rotina e trabalho",
+    newVocabularyTarget: 8,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["我起床", "我上班", "我下班", "我要工作"],
+    communicativeFunctions: ["falar rotina", "dizer que vai trabalhar", "dizer que saiu do trabalho"],
+    vocabulary: [
+      { ref: "chunk:woqichuang", hanzi: "我起床", pinyin: "wo qichuang", meaningPt: "Eu acordo", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:shangban", hanzi: "我上班", pinyin: "wo shangban", meaningPt: "Vou para o trabalho", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:xiaban", hanzi: "我下班", pinyin: "wo xiaban", meaningPt: "Saio do trabalho", role: "core", introduceAtPass: 2 },
+      { ref: "chunk:woyaogongzuo", hanzi: "我要工作", pinyin: "wo yao gongzuo", meaningPt: "Quero trabalhar", role: "productive", introduceAtPass: 2 },
+      { ref: "chunk:woshujiao", hanzi: "我睡觉", pinyin: "wo shuijiao", meaningPt: "Eu durmo", role: "support", introduceAtPass: 3 },
+      { ref: "char:qi_rise", hanzi: "起", pinyin: "qi", meaningPt: "levantar; comecar", role: "support", introduceAtPass: 1 },
+      { ref: "char:chuang_bed", hanzi: "床", pinyin: "chuang", meaningPt: "cama", role: "support", introduceAtPass: 1 },
+      { ref: "char:ban_shift", hanzi: "班", pinyin: "ban", meaningPt: "turno; expediente", role: "support", introduceAtPass: 2 },
+    ],
+    networkChunks: ["我起床", "我上班", "我下班", "rotina do dia"],
+  },
+  "p6-horarios": {
+    lessonId: "p6-horarios",
+    themePt: "Que horas sao?",
+    newVocabularyTarget: 7,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["现在几点？", "现在 + numero + 点", "中午"],
+    communicativeFunctions: ["perguntar a hora", "dizer a hora", "ler horario"],
+    vocabulary: [
+      { ref: "chunk:xianzaijidian", hanzi: "现在几点？", pinyin: "xianzai ji dian?", meaningPt: "Que horas sao?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:xianzaibadian", hanzi: "现在八点", pinyin: "xianzai ba dian", meaningPt: "Sao oito horas", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:xianzaijiudian", hanzi: "现在九点", pinyin: "xianzai jiu dian", meaningPt: "Sao nove horas", role: "core", introduceAtPass: 2 },
+      { ref: "chunk:zhongwu", hanzi: "中午", pinyin: "zhongwu", meaningPt: "meio-dia", role: "support", introduceAtPass: 2 },
+      { ref: "char:dian_hour", hanzi: "点", pinyin: "dian", meaningPt: "hora (relogio)", role: "support", introduceAtPass: 1 },
+      { ref: "char:ji_howmany", hanzi: "几", pinyin: "ji", meaningPt: "quantos; que", role: "support", introduceAtPass: 1 },
+      { ref: "char:xianzai", hanzi: "现在", pinyin: "xianzai", meaningPt: "agora", role: "core", introduceAtPass: 1 },
+    ],
+    networkChunks: ["现在几点？", "现在八点", "agora + hora"],
+  },
+  "p6-compras": {
+    lessonId: "p6-compras",
+    themePt: "Compras — roupas e itens",
+    newVocabularyTarget: 10,
+    productiveVocabularyTarget: 5,
+    structuresTarget: ["我要买衣服", "这件衣服多少钱？", "我要这双鞋", "我要这个苹果"],
+    communicativeFunctions: ["comprar roupa", "perguntar preco", "escolher item"],
+    vocabulary: [
+      { ref: "chunk:woyaomaiyifu", hanzi: "我要买衣服", pinyin: "wo yao mai yifu", meaningPt: "Quero comprar roupa", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:zhejianyifuduoshaoqian", hanzi: "这件衣服多少钱？", role: "core", meaningPt: "Quanto custa esta roupa?", introduceAtPass: 2 },
+      { ref: "chunk:woyaozheshuangxie", hanzi: "我要这双鞋", role: "productive", meaningPt: "Quero estes sapatos", introduceAtPass: 2 },
+      { ref: "chunk:woyaozhegepingguo", hanzi: "我要这个苹果", role: "productive", meaningPt: "Quero esta maca", introduceAtPass: 3 },
+      { ref: "chunk:woyaoxiangjiao", hanzi: "我要香蕉", role: "support", meaningPt: "Quero banana", introduceAtPass: 3 },
+      { ref: "chunk:woyaoniunai", hanzi: "我要牛奶", role: "support", meaningPt: "Quero leite", introduceAtPass: 3 },
+      { ref: "chunk:woyaoshouji", hanzi: "我要手机", role: "receptive", meaningPt: "Quero um celular", introduceAtPass: 4 },
+      { ref: "char:mai_buy", hanzi: "买", pinyin: "mai", meaningPt: "comprar", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:yifu", hanzi: "衣服", pinyin: "yifu", meaningPt: "roupa", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:duoshaoqian", hanzi: "多少钱", role: "support", meaningPt: "quanto custa?", introduceAtPass: 2 },
+    ],
+    networkChunks: ["我要买衣服", "这件衣服多少钱？", "compra na loja"],
   },
   "p7-imersao-estacao": {
     lessonId: "p7-imersao-estacao",
@@ -176,6 +301,29 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
       { ref: "chunk:guangdongsheng", hanzi: "广东省", role: "receptive", meaningPt: "Provincia de Guangdong", introduceAtPass: 4 },
     ],
     networkChunks: ["北京在哪里？", "我去北京", "我要去上海", "北京火车站在哪里？"],
+  },
+  "p6-china-cidades-2": {
+    lessonId: "p6-china-cidades-2",
+    themePt: "China Real — cidades onda 2",
+    newVocabularyTarget: 12,
+    productiveVocabularyTarget: 6,
+    structuresTarget: ["我去成都", "我要四川菜", "辣/不辣", "我去西安", "古城", "南京"],
+    communicativeFunctions: ["reconhecer Chengdu", "pedir comida Sichuan", "falar de Xian", "reconhecer Nanjing"],
+    vocabulary: [
+      { ref: "chunk:chengdu", hanzi: "成都", pinyin: "Chengdu", meaningPt: "Chengdu", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:sichuancai", hanzi: "四川菜", pinyin: "Sichuan cai", meaningPt: "comida de Sichuan", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:la", hanzi: "辣", pinyin: "la", meaningPt: "picante", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:bula", hanzi: "不辣", pinyin: "bu la", meaningPt: "nao picante", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:woyaosichuancai", hanzi: "我要四川菜。", role: "productive", meaningPt: "Quero comida de Sichuan", introduceAtPass: 2 },
+      { ref: "chunk:woquchengdu", hanzi: "我去成都。", role: "productive", meaningPt: "Vou a Chengdu", introduceAtPass: 2 },
+      { ref: "chunk:xian", hanzi: "西安", pinyin: "Xian", meaningPt: "Xian", role: "core", introduceAtPass: 3 },
+      { ref: "chunk:gucheng", hanzi: "古城", pinyin: "gucheng", meaningPt: "cidade antiga", role: "core", introduceAtPass: 3 },
+      { ref: "chunk:woquxian", hanzi: "我去西安。", role: "productive", meaningPt: "Vou a Xian", introduceAtPass: 3 },
+      { ref: "chunk:zhelihenlao", hanzi: "这里很老。", role: "support", meaningPt: "Aqui e bem antigo", introduceAtPass: 3 },
+      { ref: "chunk:nanjing", hanzi: "南京", pinyin: "Nanjing", meaningPt: "Nanjing", role: "core", introduceAtPass: 4 },
+      { ref: "chunk:nanjinglu", hanzi: "南京路", role: "receptive", meaningPt: "Nanjing Road", introduceAtPass: 4 },
+    ],
+    networkChunks: ["我去成都", "我要四川菜", "辣", "我去西安", "古城", "南京"],
   },
   "p6-china-ruas": {
     lessonId: "p6-china-ruas",
@@ -224,6 +372,31 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
       { ref: "char:yuan_far", hanzi: "远", role: "receptive", meaningPt: "longe", introduceAtPass: 4 },
     ],
     networkChunks: ["怎么走？", "左转", "一直走", "mapa hotel → metro"],
+  },
+  "p6-survival-mandarin": {
+    lessonId: "p6-survival-mandarin",
+    themePt: "Survival Mandarin — pagamento, celular, hotel, necessidades",
+    newVocabularyTarget: 14,
+    productiveVocabularyTarget: 6,
+    structuresTarget: ["可以刷卡吗？", "洗手间在哪里？", "我需要帮助", "微信支付/支付宝", "护照/房卡"],
+    communicativeFunctions: ["pagar", "pedir Wi-Fi/carregador", "check-in hotel", "pedir ajuda", "ler placa"],
+    vocabulary: [
+      { ref: "chunk:xianjin", hanzi: "现金", role: "core", meaningPt: "dinheiro vivo", introduceAtPass: 1 },
+      { ref: "chunk:weixinzhifu", hanzi: "微信支付", role: "core", meaningPt: "WeChat Pay", introduceAtPass: 1 },
+      { ref: "chunk:zhifubao", hanzi: "支付宝", role: "core", meaningPt: "Alipay", introduceAtPass: 1 },
+      { ref: "chunk:keyishuaka", hanzi: "可以刷卡吗？", role: "productive", meaningPt: "Posso pagar com cartao?", introduceAtPass: 2 },
+      { ref: "chunk:shouji_device", hanzi: "手机", role: "core", meaningPt: "celular", introduceAtPass: 2 },
+      { ref: "chunk:chongdianqi", hanzi: "充电器", role: "support", meaningPt: "carregador", introduceAtPass: 2 },
+      { ref: "chunk:wifi", hanzi: "Wi-Fi", role: "support", meaningPt: "Wi-Fi", introduceAtPass: 2 },
+      { ref: "chunk:huzhao", hanzi: "护照", role: "core", meaningPt: "passaporte", introduceAtPass: 3 },
+      { ref: "chunk:fangjian", hanzi: "房间", role: "support", meaningPt: "quarto", introduceAtPass: 3 },
+      { ref: "chunk:fangka", hanzi: "房卡", role: "support", meaningPt: "cartao do quarto", introduceAtPass: 3 },
+      { ref: "chunk:qiantai", hanzi: "前台", role: "support", meaningPt: "recepcao", introduceAtPass: 3 },
+      { ref: "chunk:xishoujianzainali", hanzi: "洗手间在哪里？", role: "productive", meaningPt: "Onde fica o banheiro?", introduceAtPass: 4 },
+      { ref: "chunk:woxuyaobangzhu", hanzi: "我需要帮助", role: "productive", meaningPt: "Preciso de ajuda", introduceAtPass: 4 },
+      { ref: "chunk:chuko", hanzi: "出口", role: "receptive", meaningPt: "saida", introduceAtPass: 4 },
+    ],
+    networkChunks: ["可以刷卡吗？", "微信支付", "洗手间在哪里？", "我需要帮助", "placa 出口"],
   },
 };
 
@@ -550,7 +723,9 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
           "Transforme 我要水 em 我想喝水.",
           "想喝 deixa o pedido mais natural para bebida."
         ),
-        reverseRecall("Peca cha", "Peca um cha sem alternativas.", "我要茶", ["我要茶", "我想喝茶"]),
+        withEquivalentAccepts(
+          reverseRecall("Peca cha", "Peca um cha sem alternativas.", "我要茶", ["我要茶", "我想喝茶"])
+        ),
       ];
     }
     return [
@@ -561,12 +736,205 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
         ["买单", "菜单", "你好", "地铁"]
       ),
       reverseRecall("Quanto custa?", "Pergunte o preco.", "多少钱", ["多少钱", "多少钱？"]),
-      reverseRecall(
-        "Pedido livre",
-        "No restaurante, peca agua de forma natural.",
-        "我想喝水",
-        ["我想喝水", "我要水"]
+      withEquivalentAccepts(
+        reverseRecall(
+          "Pedido livre",
+          "No restaurante, peca agua de forma natural.",
+          "我想喝水",
+          ["我想喝水", "我要水"]
+        )
       ),
+    ];
+  }
+
+  if (lessonId === "l4") {
+    if (pass === 1) {
+      return [
+        contextualChoice(
+          "Agradecer",
+          "Alguem te ajuda. O que voce diz?",
+          "谢谢",
+          ["谢谢", "你好", "再见", "不客气"],
+          "谢谢 e a forma curta de agradecer."
+        ),
+        audioToAction("Ouca o agradecimento", "谢谢", "谢谢", ["谢谢", "你好", "再见", "不客气"]),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        dialogueCompletion(
+          "Responda com cortesia",
+          "A: 谢谢！ B: ___",
+          "不客气",
+          ["不客气", "谢谢", "你好", "再见"],
+          "不客气 = de nada."
+        ),
+        contextualChoice(
+          "Discriminar",
+          "Alguem diz 谢谢. Qual resposta combina?",
+          "不客气",
+          ["不客气", "再见", "菜单", "多少钱"]
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        withEquivalentAccepts(
+          reverseRecall("Diga obrigado", "Agradeça sem ver alternativas.", "谢谢", ["谢谢", "谢谢！"])
+        ),
+        sentenceTransform(
+          "De agradecer a responder",
+          "谢谢",
+          ["不", "客", "气"],
+          ["不", "客", "气", "谢", "再"],
+          "Transforme o agradecimento na resposta: 不客气."
+        ),
+      ];
+    }
+    return [
+      withEquivalentAccepts(
+        reverseRecall(
+          "Transferencia social",
+          "Alguem te ajuda e espera sua fala. Agradeça.",
+          "谢谢",
+          ["谢谢", "谢谢！"]
+        )
+      ),
+      withEquivalentAccepts(
+        reverseRecall(
+          "Responder de nada",
+          "Alguem diz 谢谢. Responda com cortesia.",
+          "不客气",
+          ["不客气", "不用谢"]
+        )
+      ),
+    ];
+  }
+
+  if (lessonId === "l24") {
+    if (pass === 1) {
+      return [
+        audioToAction("Ouca pai", "爸爸", "爸爸", ["爸爸", "妈妈", "朋友", "家"]),
+        contextualChoice(
+          "Foto da familia",
+          "Alguem aponta para seu pai. O que voce diz?",
+          "这是我爸爸",
+          ["这是我爸爸", "这是我妈妈", "谢谢", "再见"]
+        ),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Discriminar parentes",
+          "Alguem aponta para sua mae. O que voce diz?",
+          "这是我妈妈",
+          ["这是我妈妈", "这是我爸爸", "我要这个", "多少钱"]
+        ),
+        substitutionDrill(
+          "Troque o parente",
+          "这是我___",
+          "妈妈",
+          ["妈妈", "爸爸", "朋友", "家"],
+          "Apresente sua mae."
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        reverseRecall("Apresente o pai", "Diga: este e meu pai.", "这是我爸爸", [
+          "这是我爸爸",
+          "这是我爸爸。",
+        ]),
+        sentenceTransform(
+          "Da mae para a casa",
+          "这是我妈妈",
+          ["这", "是", "我", "家"],
+          ["这", "是", "我", "家", "妈"],
+          "Transforme a apresentacao em 这是我家."
+        ),
+      ];
+    }
+    return [
+      reverseRecall("Transferencia familiar", "Mostre a casa da familia.", "这是我家", [
+        "这是我家",
+        "这是我家。",
+      ]),
+      dialogueCompletion(
+        "Na porta",
+        "Amigo chega. Voce: ___",
+        "这是我家",
+        ["这是我家", "这是我爸爸", "谢谢", "买单"]
+      ),
+    ];
+  }
+
+  if (lessonId === "l27") {
+    if (pass === 1) {
+      return [
+        contextualChoice(
+          "Na barraca",
+          "Voce aponta para um produto e quer saber o preco.",
+          "多少钱？",
+          ["多少钱？", "我要这个", "你好", "再见"]
+        ),
+        audioToAction("Ouca o preco", "多少钱", "多少钱", ["多少钱", "我要这个", "谢谢", "菜单"]),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Depois do preco",
+          "O preco esta bom e voce quer comprar.",
+          "我要这个",
+          ["我要这个", "多少钱？", "我很好", "再见"]
+        ),
+        substitutionDrill(
+          "Complete o pedido",
+          "我要___",
+          "这个",
+          ["这个", "茶", "水", "票"],
+          "Feche a compra: 我要这个."
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "price_task",
+          title: "Preco pedagogico",
+          prompt: "A placa mostra 28元. Quanto custa?",
+          dialoguePrompt: "A placa mostra 28元. Quanto custa?",
+          priceHanzi: "28元",
+          correctAnswer: "28元",
+          options: ["28元", "8元", "50元", "菜单"],
+          speaker: "Preco",
+          explanation: "Leia o preco na placa — nao e preco real de loja.",
+        },
+        reverseRecall("Peca o item", "Diga que quer este item.", "我要这个", ["我要这个", "我要这个。"]),
+      ];
+    }
+    return [
+      reverseRecall("Pergunte o preco", "Na loja, pergunte quanto custa.", "多少钱", [
+        "多少钱",
+        "多少钱？",
+      ]),
+      dialogueCompletion(
+        "Balcao da loja",
+        "Vendedor: 你好！ Voce aponta e diz: ___",
+        "我要这个",
+        ["我要这个", "我很好", "再见", "公园"]
+      ),
+      {
+        kind: "price_task",
+        title: "Transferencia de preco",
+        prompt: "Voce ve 18元. Qual e o preco?",
+        dialoguePrompt: "Voce ve 18元. Qual e o preco?",
+        priceHanzi: "18元",
+        correctAnswer: "18元",
+        options: ["18元", "28元", "8元", "谢谢"],
+        speaker: "Preco",
+      },
     ];
   }
 
@@ -837,6 +1205,411 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
         cityId: "shanghai",
         speaker: "Situacao",
       },
+    ];
+  }
+
+  if (lessonId === "p6-rotina-trabalho") {
+    if (pass === 1) {
+      return [
+        audioToAction("Ouca acordar", "起床", "起床", ["起床", "上班", "下班", "睡觉"]),
+        contextualChoice(
+          "Manha",
+          "Voce acorda. O que diz?",
+          "我起床",
+          ["我起床", "我下班", "谢谢", "菜单"]
+        ),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Ir trabalhar",
+          "Hora de ir ao trabalho. O que diz?",
+          "我上班",
+          ["我上班", "我起床", "我很好", "再见"]
+        ),
+        substitutionDrill(
+          "Troque o momento",
+          "我___",
+          "下班",
+          ["下班", "起床", "睡觉", "谢谢"],
+          "Termine o expediente: 我下班."
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "route_sequence",
+          title: "Ordem do dia",
+          prompt: "Monte a rotina: acordar → trabalhar → sair.",
+          targetParts: ["起床", "上班", "下班"],
+          routeParts: ["起床", "上班", "下班"],
+          bank: ["起床", "上班", "下班", "菜单"],
+          explanation: "Sequencia tipica do dia de trabalho.",
+        },
+        reverseRecall("Quero trabalhar", "Diga que quer trabalhar.", "我要工作", ["我要工作", "我要工作。"]),
+      ];
+    }
+    return [
+      reverseRecall("Fim do expediente", "Terminou o trabalho. O que diz?", "我下班", [
+        "我下班",
+        "我下班。",
+      ]),
+      {
+        kind: "route_sequence",
+        title: "Dia completo",
+        prompt: "Monte: acordar → trabalhar → sair → dormir.",
+        targetParts: ["起床", "上班", "下班", "睡觉"],
+        routeParts: ["起床", "上班", "下班", "睡觉"],
+        bank: ["起床", "上班", "下班", "睡觉", "谢谢"],
+      },
+    ];
+  }
+
+  if (lessonId === "p6-horarios") {
+    if (pass === 1) {
+      return [
+        contextualChoice(
+          "Pergunte a hora",
+          "Voce quer saber as horas. O que pergunta?",
+          "现在几点？",
+          ["现在几点？", "现在八点", "中午", "再见"]
+        ),
+        audioToAction("Ouca a pergunta", "现在几点", "现在几点", ["现在几点", "现在八点", "中午", "谢谢"]),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Sao oito",
+          "Sao oito horas. O que voce diz?",
+          "现在八点",
+          ["现在八点", "现在九点", "中午", "我很好"]
+        ),
+        substitutionDrill(
+          "Troque a hora",
+          "现在___点",
+          "九",
+          ["九", "八", "几", "午"],
+          "Diga que sao nove horas."
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "schedule_reading",
+          title: "Quadro de horarios",
+          prompt: "Qual destino sai as 八点?",
+          dialoguePrompt: "Qual destino sai as 八点?",
+          scheduleRows: [
+            { timeHanzi: "八点", destinationHanzi: "北京", labelPt: "8h → Pequim" },
+            { timeHanzi: "九点", destinationHanzi: "上海", labelPt: "9h → Xangai" },
+            { timeHanzi: "中午", destinationHanzi: "广州", labelPt: "meio-dia → Guangzhou" },
+          ],
+          correctAnswer: "北京",
+          options: ["北京", "上海", "广州", "谢谢"],
+          speaker: "Horario",
+        },
+        reverseRecall("Pergunte a hora", "Pergunte que horas sao.", "现在几点？", [
+          "现在几点？",
+          "现在几点",
+        ]),
+      ];
+    }
+    return [
+      reverseRecall("Diga a hora", "Sao nove horas. Diga em chines.", "现在九点", [
+        "现在九点",
+        "现在九点。",
+      ]),
+      {
+        kind: "schedule_reading",
+        title: "Transferencia de horario",
+        prompt: "Qual destino sai as 九点?",
+        dialoguePrompt: "Qual destino sai as 九点?",
+        scheduleRows: [
+          { timeHanzi: "八点", destinationHanzi: "北京", labelPt: "8h → Pequim" },
+          { timeHanzi: "九点", destinationHanzi: "上海", labelPt: "9h → Xangai" },
+          { timeHanzi: "中午", destinationHanzi: "广州", labelPt: "meio-dia → Guangzhou" },
+        ],
+        correctAnswer: "上海",
+        options: ["上海", "北京", "广州", "菜单"],
+        speaker: "Horario",
+      },
+    ];
+  }
+
+  if (lessonId === "p6-compras") {
+    if (pass === 1) {
+      return [
+        contextualChoice(
+          "Entre na loja",
+          "Voce quer comprar roupa. O que diz?",
+          "我要买衣服",
+          ["我要买衣服", "我要这双鞋", "谢谢", "再见"]
+        ),
+        audioToAction("Ouca roupa", "衣服", "衣服", ["衣服", "鞋", "苹果", "牛奶"]),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Pergunte o preco",
+          "Voce gostou de uma roupa. O que pergunta?",
+          "这件衣服多少钱？",
+          ["这件衣服多少钱？", "我要香蕉", "我很好", "再见"]
+        ),
+        {
+          kind: "menu_reading",
+          title: "Vitrine",
+          prompt: "Qual item e roupa?",
+          dialoguePrompt: "Qual item e roupa?",
+          menuItems: [
+            { hanzi: "衣服", meaningPt: "roupa", priceHanzi: "50元" },
+            { hanzi: "鞋", meaningPt: "sapato", priceHanzi: "80元" },
+            { hanzi: "苹果", meaningPt: "maca", priceHanzi: "8元" },
+          ],
+          correctAnswer: "衣服",
+          options: ["衣服", "鞋", "苹果", "牛奶"],
+          speaker: "Cardapio",
+        },
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "price_task",
+          title: "Preco da roupa",
+          prompt: "A etiqueta mostra 50元. Quanto custa?",
+          dialoguePrompt: "A etiqueta mostra 50元. Quanto custa?",
+          priceHanzi: "50元",
+          correctAnswer: "50元",
+          options: ["50元", "8元", "28元", "谢谢"],
+          speaker: "Preco",
+        },
+        reverseRecall("Compre roupa", "Diga que quer comprar roupa.", "我要买衣服", [
+          "我要买衣服",
+          "我要买衣服。",
+        ]),
+      ];
+    }
+    return [
+      reverseRecall("Preco da peca", "Pergunte quanto custa esta roupa.", "这件衣服多少钱？", [
+        "这件衣服多少钱？",
+        "这件衣服多少钱",
+      ]),
+      dialogueCompletion(
+        "Feche a compra",
+        "A maca te agradou. Voce: ___",
+        "我要这个苹果",
+        ["我要这个苹果", "我要买衣服", "再见", "我很好"]
+      ),
+      {
+        kind: "price_task",
+        title: "Transferencia na loja",
+        prompt: "Voce ve 28元 na etiqueta. Qual e o preco?",
+        dialoguePrompt: "Voce ve 28元 na etiqueta. Qual e o preco?",
+        priceHanzi: "28元",
+        correctAnswer: "28元",
+        options: ["28元", "50元", "8元", "菜单"],
+        speaker: "Preco",
+      },
+    ];
+  }
+
+  if (lessonId === "p6-china-cidades-2") {
+    if (pass === 1) {
+      return [
+        {
+          kind: "place_label",
+          title: "Chengdu",
+          prompt: "Qual destas e Chengdu?",
+          dialoguePrompt: "Qual destas e Chengdu?",
+          correctAnswer: "成都",
+          options: ["成都", "西安", "南京", "北京"],
+          placeLabelCategory: "cidade",
+          speaker: "Placa",
+        },
+        contextualChoice(
+          "Comida de Sichuan",
+          "Em Chengdu voce quer comida tipica. O que pede?",
+          "四川菜",
+          ["四川菜", "古城", "再见", "菜单"],
+          "四川菜 = comida de Sichuan."
+        ),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Picante?",
+          "A comida de Sichuan e conhecida por ser...",
+          "辣",
+          ["辣", "古城", "谢谢", "地铁"],
+          "辣 = picante."
+        ),
+        {
+          kind: "city_context",
+          title: "Pedido em Chengdu",
+          situationPt: "No restaurante em Chengdu, peca comida de Sichuan.",
+          citySituationPt: "No restaurante em Chengdu, peca comida de Sichuan.",
+          dialoguePrompt: "No restaurante em Chengdu, peca comida de Sichuan.",
+          correctAnswer: "我要四川菜。",
+          options: ["我要四川菜。", "我很好", "再见", "古城"],
+          cityId: "chengdu",
+          speaker: "Situacao",
+        },
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "place_label",
+          title: "Xian",
+          prompt: "Qual destas e Xian?",
+          dialoguePrompt: "Qual destas e Xian?",
+          correctAnswer: "西安",
+          options: ["西安", "成都", "南京", "上海"],
+          placeLabelCategory: "cidade",
+          speaker: "Placa",
+        },
+        contextualChoice(
+          "Cidade antiga",
+          "Em Xian voce visita a...",
+          "古城",
+          ["古城", "四川菜", "辣", "谢谢"],
+          "古城 = cidade antiga."
+        ),
+        reverseRecall("Vou a Xian", "Diga que vai a Xian.", "我去西安", ["我去西安", "我去西安。"]),
+      ];
+    }
+    return [
+      {
+        kind: "city_context",
+        title: "Nanjing",
+        situationPt: "Voce quer reconhecer Nanjing na placa.",
+        citySituationPt: "Voce quer reconhecer Nanjing na placa.",
+        dialoguePrompt: "Voce quer reconhecer Nanjing na placa.",
+        correctAnswer: "南京",
+        options: ["南京", "成都", "辣", "菜单"],
+        cityId: "nanjing",
+        speaker: "Situacao",
+      },
+      reverseRecall("Vou a Chengdu", "Diga que vai a Chengdu.", "我去成都", ["我去成都", "我去成都。"]),
+      {
+        kind: "menu_reading",
+        title: "Cardapio Sichuan",
+        prompt: "Qual prato e comida de Sichuan?",
+        dialoguePrompt: "Qual prato e comida de Sichuan?",
+        menuItems: [
+          { hanzi: "四川菜", meaningPt: "comida de Sichuan" },
+          { hanzi: "茶", meaningPt: "cha" },
+          { hanzi: "水", meaningPt: "agua" },
+        ],
+        correctAnswer: "四川菜",
+        options: ["四川菜", "茶", "水", "古城"],
+        speaker: "Cardapio",
+      },
+    ];
+  }
+
+  if (lessonId === "p6-survival-mandarin") {
+    if (pass === 1) {
+      return [
+        contextualChoice(
+          "Pagar",
+          "Voce quer pagar com WeChat. Qual opcao?",
+          "微信支付",
+          ["微信支付", "护照", "房间", "再见"]
+        ),
+        {
+          kind: "sign_reading",
+          title: "Placa de pagamento",
+          signHanzi: "支付宝",
+          signCategory: "payment",
+          prompt: "O que significa esta placa: 支付宝?",
+          dialoguePrompt: "Placa: 支付宝",
+          correctAnswer: "Alipay",
+          options: ["Alipay", "passaporte", "saida", "quarto"],
+          speaker: "Placa",
+        },
+      ];
+    }
+    if (pass === 2) {
+      return [
+        reverseRecall("Cartao?", "Pergunte se pode pagar com cartao.", "可以刷卡吗？", [
+          "可以刷卡吗？",
+          "可以刷卡吗",
+        ]),
+        {
+          kind: "sign_reading",
+          title: "Celular",
+          signHanzi: "手机",
+          signCategory: "phone",
+          prompt: "O que significa esta placa: 手机?",
+          dialoguePrompt: "Placa: 手机",
+          correctAnswer: "celular",
+          options: ["celular", "passaporte", "saida", "Alipay"],
+          speaker: "Placa",
+        },
+        contextualChoice(
+          "Carregador",
+          "A bateria acabou. O que voce procura?",
+          "充电器",
+          ["充电器", "护照", "古城", "谢谢"]
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        contextualChoice(
+          "No hotel",
+          "No check-in, o que voce mostra?",
+          "护照",
+          ["护照", "辣", "四川菜", "再见"]
+        ),
+        {
+          kind: "sign_reading",
+          title: "Recepcao",
+          signHanzi: "前台",
+          signCategory: "hotel",
+          prompt: "O que significa esta placa: 前台?",
+          dialoguePrompt: "Placa: 前台",
+          correctAnswer: "recepcao",
+          options: ["recepcao", "saida", "Alipay", "celular"],
+          speaker: "Placa",
+        },
+        dialogueCompletion(
+          "Cartao do quarto",
+          "Recepcionista entrega a chave. Voce recebe a ___",
+          "房卡",
+          ["房卡", "现金", "辣", "菜单"]
+        ),
+      ];
+    }
+    return [
+      {
+        kind: "sign_reading",
+        title: "Saida",
+        signHanzi: "出口",
+        signCategory: "exit",
+        prompt: "O que significa esta placa: 出口?",
+        dialoguePrompt: "Placa: 出口",
+        correctAnswer: "saida",
+        options: ["saida", "entrada", "Alipay", "quarto"],
+        speaker: "Placa",
+      },
+      reverseRecall("Banheiro", "Pergunte onde fica o banheiro.", "洗手间在哪里？", [
+        "洗手间在哪里？",
+        "洗手间在哪里",
+      ]),
+      withEquivalentAccepts(
+        reverseRecall("Preciso de ajuda", "Diga que precisa de ajuda.", "我需要帮助", [
+          "我需要帮助",
+          "请帮助我",
+        ])
+      ),
     ];
   }
 
