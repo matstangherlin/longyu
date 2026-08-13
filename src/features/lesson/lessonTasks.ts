@@ -1315,6 +1315,48 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   };
 }
 
+function isGreetingFocusedLesson(lesson: Lesson): boolean {
+  const id = lesson.id.toLocaleLowerCase("pt-BR");
+  if (id.includes("nihao") || id.includes("cumpriment") || id.includes("conversa") || id.includes("cortesia") || id.includes("ate-logo") || id.includes("qingwen")) {
+    return true;
+  }
+  const refs = [...(lesson.libraryItems ?? []), ...(lesson.reviewItems ?? [])];
+  const seedRefs = refs.filter((ref) =>
+    /chunk:(nihao|xiexie|zaijian|bukeqi|nihaoma)\b/.test(String(ref))
+  );
+  // Explicit greeting teaching: seed chunks dominate library (not just a review bridge).
+  const librarySeeds = (lesson.libraryItems ?? []).filter((ref) =>
+    /chunk:(nihao|xiexie|zaijian|bukeqi|nihaoma)\b/.test(String(ref))
+  );
+  if (librarySeeds.length > 0 && librarySeeds.length >= Math.ceil((lesson.libraryItems?.length ?? 1) / 2)) {
+    return true;
+  }
+  // Engine lab / early greeting module
+  if (lesson.id === "p1-engine-2-lab" || lesson.id === "l1" || lesson.id === "l2" || lesson.id === "l3" || lesson.id === "l4") {
+    return seedRefs.length > 0;
+  }
+  return false;
+}
+
+/**
+ * PED-021/027: after greetings are introduced, tone/hanzi lessons must not keep
+ * treating 你好/谢谢 as the practice target. Keep them only when the lesson
+ * explicitly teaches greetings (or is a review of that module).
+ */
+function practiceFocusForLesson(lesson: Lesson, focus: FocusItem[]): FocusItem[] {
+  if (lesson.isReview || isGreetingFocusedLesson(lesson)) return focus;
+  const filtered = focus.filter((item) => {
+    const h = cleanHanzi(item.hanzi);
+    if (isSeedFillerHanzi(h)) {
+      // Allow single-glyph parts of greetings when the lesson teaches those chars.
+      if (h.length === 1) return true;
+      return false;
+    }
+    return true;
+  });
+  return filtered.length > 0 ? filtered : focus;
+}
+
 function focusForPlanning(lesson: Lesson, context: LessonPracticePlanContext): FocusItem[] {
   const focus = lessonFocusItems(lesson);
   if (lesson.isReview) {
@@ -1407,21 +1449,87 @@ function lessonFocusItems(lesson: Lesson): FocusItem[] {
   return items;
 }
 
+/** PED-021: greeting seeds must not pad every MCQ when the lesson is not about them. */
+const SEED_FILLER_HANZI = new Set([
+  "你好",
+  "谢谢",
+  "再见",
+  "不客气",
+  "早上好",
+  "晚上好",
+  "你好吗",
+]);
+
+function isSeedFillerHanzi(hanzi: string): boolean {
+  return SEED_FILLER_HANZI.has(cleanHanzi(hanzi));
+}
+
+function focusAllowsSeedDistractor(focus: FocusItem[], seedHanzi: string): boolean {
+  const needle = cleanHanzi(seedHanzi);
+  return focus.some((item) => {
+    const h = cleanHanzi(item.hanzi);
+    return h === needle || h.includes(needle) || needle.includes(h);
+  });
+}
+
+/**
+ * Prefer lesson focus distractors; demote global greeting seeds used as filler
+ * (PED-021 / PED-026). Seeds remain valid when the target or focus is about them.
+ */
+function rankedDistractorHanzi(target: FocusItem, focus: FocusItem[]): string[] {
+  const targetHanzi = cleanHanzi(target.hanzi);
+  const fromFocus = focus
+    .filter((item) => item.key !== target.key && cleanHanzi(item.hanzi) !== targetHanzi)
+    .map((item) => item.hanzi);
+  const fromChunks = CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== targetHanzi).map(
+    (chunk) => chunk.hanzi
+  );
+  const fromChars = CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== targetHanzi).map(
+    (char) => char.hanzi
+  );
+  const allowSeed = isSeedFillerHanzi(target.hanzi);
+  const preferred: string[] = [];
+  const demoted: string[] = [];
+  for (const hanzi of [...fromFocus, ...fromChunks, ...fromChars]) {
+    if (
+      !allowSeed &&
+      isSeedFillerHanzi(hanzi) &&
+      !focusAllowsSeedDistractor(focus, hanzi)
+    ) {
+      demoted.push(hanzi);
+      continue;
+    }
+    preferred.push(hanzi);
+  }
+  return uniqueValues([target.hanzi, ...preferred, ...demoted]);
+}
+
 function optionMeanings(target: FocusItem, focus: FocusItem[]): string[] {
-  return uniqueValues([
-    target.meaningPt,
-    ...focus.filter((item) => item.key !== target.key).map((item) => item.meaningPt),
-    ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.meaningPt.replace(/\.$/, "")),
-  ]).slice(0, 4);
+  const targetHanzi = cleanHanzi(target.hanzi);
+  const allowSeed = isSeedFillerHanzi(target.hanzi);
+  const fromFocus = focus
+    .filter((item) => item.key !== target.key)
+    .map((item) => item.meaningPt);
+  const preferred: string[] = [];
+  const demoted: string[] = [];
+  for (const chunk of CHUNKS) {
+    if (cleanHanzi(chunk.hanzi) === targetHanzi) continue;
+    const meaning = chunk.meaningPt.replace(/\.$/, "");
+    if (
+      !allowSeed &&
+      isSeedFillerHanzi(chunk.hanzi) &&
+      !focusAllowsSeedDistractor(focus, chunk.hanzi)
+    ) {
+      demoted.push(meaning);
+      continue;
+    }
+    preferred.push(meaning);
+  }
+  return uniqueValues([target.meaningPt, ...fromFocus, ...preferred, ...demoted]).slice(0, 4);
 }
 
 function optionHanzi(target: FocusItem, focus: FocusItem[]): string[] {
-  return uniqueValues([
-    target.hanzi,
-    ...focus.filter((item) => item.key !== target.key).map((item) => item.hanzi),
-    ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.hanzi),
-    ...CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== cleanHanzi(target.hanzi)).map((char) => char.hanzi),
-  ]).slice(0, 4);
+  return rankedDistractorHanzi(target, focus).slice(0, 4);
 }
 
 function makeComprehendStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
@@ -1458,12 +1566,27 @@ function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
   // descartados, e a busca segue nos chunks/caracteres até achar bases DE FATO
   // diferentes. Assim a escolha de pinyin nunca mostra 4 opções que parecem
   // iguais — cada alternativa tem uma sílaba/base distinta.
-  return uniqueByPinyinBase([
-    target.pinyin,
-    ...focus.filter((item) => item.key !== target.key).map((item) => item.pinyin),
-    ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.pinyin),
-    ...CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== cleanHanzi(target.hanzi)).map((char) => char.pinyin),
-  ]).slice(0, 4);
+  const allowSeed = isSeedFillerHanzi(target.hanzi);
+  const fromFocus = focus.filter((item) => item.key !== target.key).map((item) => item.pinyin);
+  const preferred: string[] = [];
+  const demoted: string[] = [];
+  for (const chunk of CHUNKS) {
+    if (cleanHanzi(chunk.hanzi) === cleanHanzi(target.hanzi)) continue;
+    if (
+      !allowSeed &&
+      isSeedFillerHanzi(chunk.hanzi) &&
+      !focusAllowsSeedDistractor(focus, chunk.hanzi)
+    ) {
+      demoted.push(chunk.pinyin);
+      continue;
+    }
+    preferred.push(chunk.pinyin);
+  }
+  for (const char of CHARACTERS) {
+    if (cleanHanzi(char.hanzi) === cleanHanzi(target.hanzi)) continue;
+    preferred.push(char.pinyin);
+  }
+  return uniqueByPinyinBase([target.pinyin, ...fromFocus, ...preferred, ...demoted]).slice(0, 4);
 }
 
 function makeRecognizeStep(item: FocusItem): LessonStep | null {
@@ -2625,6 +2748,9 @@ function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
 function maxConversationScenesForLesson(lesson: Lesson): number {
   // Lições-conceito de fundação: R9 / audit pedem só autoral leve — sem cena gerada.
   if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
+  // PED-021/027: microtarefas de tom (p2-ma-*) praticam contorno, não reabrem
+  // conversa de cumprimento — manutenção de 你好吗 fica em review/SRS.
+  if (/^p2-ma-/.test(lesson.id) || /^p2-comparar-tom-/.test(lesson.id)) return 0;
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
   return 1;
@@ -3885,13 +4011,14 @@ function generatedCandidatesFor(
     history,
   };
   const candidates: PracticeCandidate[] = [];
+  const practiceFocus = practiceFocusForLesson(lesson, focus);
   for (const stageId of LESSON_STAGE_ORDER) {
     // Pool de candidatos, não tamanho do plano: quanto maior, mais escolha o
     // seletor tem. Com os motores da onda 2 disputando as mesmas vagas, um
     // teto apertado deixava o gerador parar antes de produzir HanziBuilder e
     // exercício visual — e a garantia de cobertura não tinha o que garantir.
     const target = Math.max(8, profile.stageTargets[stageId] * 4);
-    const generated = supplementalStepsForStage(stageId, focus, target, {
+    const generated = supplementalStepsForStage(stageId, practiceFocus, target, {
       phaseOrder,
       reviewFocus,
       hanziBuilderProgress,

@@ -1,7 +1,7 @@
 /**
- * validate:lexical-progression — PED-016–020
- * Analyzes L1–L20 for abusive seed-greeting concentration and novelty load.
- * Includes an artificial fixture that MUST fail when forced repetition is injected.
+ * validate:lexical-progression — PED-016–027
+ * Analyzes L1–L20 for abusive seed concentration and within-lesson excess.
+ * Pedagogical opportunities (not UI distractors / vocab stamps).
  * Writes docs/reports/lexical-progression-l1-l20.md
  */
 
@@ -59,16 +59,15 @@ async function main() {
       findLexicalProgressionWarnings,
       analyzeWindows,
       buildForcedRepetitionFixture,
+      buildForcedLessonSeedExcessFixture,
       EARLY_LEXICAL_THRESHOLDS,
       SEED_GREETING_TOKENS,
+      tokenCounts,
     } = load("src/data/lexicalProgression.js");
     const { lessonRoundStepsFor } = load("src/features/lesson/lessonTasks.js");
     const { ALL_LESSONS } = load("src/data/journey.js");
-    const { CHUNKS } = load("src/data/chunks.js");
 
-    const chunkHanziById = new Map(CHUNKS.map((c) => [c.id, c.hanzi]));
-
-    // Meta-test: forced repetition fixture MUST produce issues.
+    // Meta-test: window concentration fixture MUST produce issues.
     const fixtureIssues = findLexicalProgressionIssues(buildForcedRepetitionFixture());
     if (fixtureIssues.length === 0) {
       addError(
@@ -76,30 +75,33 @@ async function main() {
         "buildForcedRepetitionFixture deveria falhar (concentração abusiva de 你好) e não falhou"
       );
     } else {
-      console.log(`OK fixture: forced repetition detectou ${fixtureIssues.length} issue(s).`);
+      console.log(`OK fixture: forced window repetition detectou ${fixtureIssues.length} issue(s).`);
+    }
+
+    // Meta-test: PED-022 within-lesson hard gate.
+    const lessonExcessIssues = findLexicalProgressionIssues(buildForcedLessonSeedExcessFixture());
+    if (!lessonExcessIssues.some((i) => i.code === "seed_excess_hard")) {
+      addError(
+        "fixture-lesson",
+        "buildForcedLessonSeedExcessFixture deveria falhar com seed_excess_hard (>12) e não falhou"
+      );
+    } else {
+      console.log("OK fixture: forced within-lesson seed excess hard-failou.");
     }
 
     const early = ALL_LESSONS.slice(0, EARLY_COUNT);
     const lessonMetrics = [];
     const priorTokens = new Set();
+    const seedTotals = Object.fromEntries(SEED_GREETING_TOKENS.map((s) => [s, 0]));
 
     for (const lesson of early) {
       const planned = lessonRoundStepsFor(lesson, { silent: true });
-      // Enrich library refs with real chunk hanzi for token extraction.
-      const libraryHanzi = [];
-      for (const ref of [...(lesson.libraryItems ?? []), ...(lesson.reviewItems ?? [])]) {
-        const [type, id] = String(ref).split(":");
-        if (type === "chunk" && chunkHanziById.has(id)) libraryHanzi.push(chunkHanziById.get(id));
-      }
-      const enrichedLesson = {
-        ...lesson,
-        steps: [
-          ...(planned ?? []),
-          ...libraryHanzi.map((hanzi) => ({ kind: "library_ref", hanzi })),
-        ],
-      };
-      const metrics = metricsForLesson(enrichedLesson, planned, priorTokens);
+      const metrics = metricsForLesson(lesson, planned, priorTokens);
       lessonMetrics.push(metrics);
+      const counts = tokenCounts(metrics.tokens);
+      for (const seed of SEED_GREETING_TOKENS) {
+        seedTotals[seed] += counts.get(seed) ?? 0;
+      }
       for (const token of metrics.tokens) priorTokens.add(token);
     }
 
@@ -115,26 +117,42 @@ async function main() {
       "",
       `_Gerado por \`validate:lexical-progression\` · ${new Date().toISOString().slice(0, 10)}_`,
       "",
+      "## Contagem (PED-022 / PED-025)",
+      "",
+      "Oportunidades pedagógicas = estímulo/resposta/montagem/falas primárias, **deduplicadas por passo**.",
+      "Não entram: distractores de MCQ, stamps `introducesNewVocabulary` / `reusesPreviousVocabulary`.",
+      "Frases longas (ex.: 你好吗) não contam como 你好.",
+      "",
       "## Limiares (lições iniciais)",
       "",
       `| Métrica | Limite | Gate |`,
       `|---------|-------:|------|`,
       `| Concentração máx. de saudação seed (janela 5) | ${(EARLY_LEXICAL_THRESHOLDS.maxSeedGreetingConcentration * 100).toFixed(0)}% | hard |`,
       `| Lições dominadas pela mesma seed na janela | ${EARLY_LEXICAL_THRESHOLDS.maxSeedDominatedLessonsInWindow} | hard |`,
+      `| Seed / lição normal | ≤${EARLY_LEXICAL_THRESHOLDS.maxTokenStepsPerLesson} ok · ${EARLY_LEXICAL_THRESHOLDS.maxTokenStepsPerLesson + 1}–${EARLY_LEXICAL_THRESHOLDS.warnTokenStepsPerLesson} aviso · >${EARLY_LEXICAL_THRESHOLDS.hardFailTokenStepsPerLesson} fail | hard |`,
+      `| Seed / lição review | ≤${EARLY_LEXICAL_THRESHOLDS.reviewMaxTokenStepsPerLesson} ok · ${EARLY_LEXICAL_THRESHOLDS.reviewMaxTokenStepsPerLesson + 1}–${EARLY_LEXICAL_THRESHOLDS.reviewWarnTokenStepsPerLesson} aviso · >${EARLY_LEXICAL_THRESHOLDS.reviewHardFailTokenStepsPerLesson} fail | hard |`,
       `| Novelty load médio / passo | ${EARLY_LEXICAL_THRESHOLDS.maxMeanNoveltyLoad} | soft |`,
-      `| Seed repetition aviso / lição | ${EARLY_LEXICAL_THRESHOLDS.maxTokenStepsPerLesson} | soft |`,
       "",
       `Saudação seed: ${SEED_GREETING_TOKENS.join(" · ")}`,
       "",
+      "## Totais seed (oportunidades L1–L20)",
+      "",
+      `| Seed | Oportunidades |`,
+      `|------|-------------:|`,
+      ...SEED_GREETING_TOKENS.map((s) => `| ${s} | ${seedTotals[s]} |`),
+      "",
       "## Por lição",
       "",
-      "| # | Lição | Top token | Conc. | Seed share | Novel | Reuse | Excess | Novelty load | Dominada |",
-      "|--:|-------|----------|------:|-----------:|------:|------:|-------:|-------------:|----------|",
+      "| # | Lição | Review | Top token | Conc. | Seed share | Novel | Lex | Str | Mod | Rec | Top3 | Dominada |",
+      "|--:|-------|:------:|----------|------:|-----------:|------:|----:|----:|----:|----:|------|----------|",
     ];
 
     lessonMetrics.forEach((m, index) => {
+      const top3 = (m.topRepeated ?? [])
+        .map((t) => `${t.token}×${t.count}`)
+        .join(", ");
       lines.push(
-        `| ${index + 1} | \`${m.lessonId}\` | ${m.concentration.topToken ?? "—"} | ${(m.concentration.share * 100).toFixed(0)}% | ${(m.seedGreetingShare * 100).toFixed(0)}% | ${m.novelCount} | ${m.reuseCount} | ${m.excessRepetition} | ${m.meanNoveltyLoad.toFixed(2)} | ${m.dominatedBySeed ?? "—"} |`
+        `| ${index + 1} | \`${m.lessonId}\` | ${m.isReview ? "sim" : "—"} | ${m.concentration.topToken ?? "—"} | ${(m.concentration.share * 100).toFixed(0)}% | ${(m.seedGreetingShare * 100).toFixed(0)}% | ${m.novelCount} | ${m.noveltyAxes.lexical} | ${m.noveltyAxes.structural} | ${m.noveltyAxes.modality} | ${m.noveltyAxes.recovery} | ${top3 || "—"} | ${m.dominatedBySeed ?? "—"} |`
       );
     });
 
@@ -149,7 +167,7 @@ async function main() {
 
     lines.push("", "## Issues (hard gate)", "");
     if (issues.length === 0) {
-      lines.push("Nenhuma issue de concentração abusiva de saudação seed em L1–L20.");
+      lines.push("Nenhuma issue hard em L1–L20.");
     } else {
       for (const issue of issues) {
         lines.push(`- **${issue.code}**: ${issue.message}`);
@@ -179,7 +197,7 @@ async function main() {
     }
 
     console.log(
-      `OK: validate:lexical-progression (${EARLY_COUNT} lições · ${windows.length} janelas · ${warnings.length} aviso(s) soft · fixture fail-test ok).`
+      `OK: validate:lexical-progression (${EARLY_COUNT} lições · ${windows.length} janelas · ${warnings.length} aviso(s) soft · fixtures ok).`
     );
   } finally {
     await rm(outDir, { recursive: true, force: true });

@@ -72,6 +72,7 @@
     "validate:perception-drills": "node scripts/validate-perception-drills.mjs",
     "validate:lexical-progression": "node scripts/validate-lexical-progression.mjs",
     "report:lexical-progression": "node scripts/report-lexical-progression.mjs",
+    "report:curriculum-l1-l20": "node scripts/report-curriculum-l1-l20.mjs",
     "test:lesson-perf": "node scripts/test-lesson-perf.mjs",
     "test:odd-one-out-categories": "node scripts/test-odd-one-out-categories.mjs",
     "test:seeded-shuffle": "node scripts/test-seeded-shuffle.mjs",
