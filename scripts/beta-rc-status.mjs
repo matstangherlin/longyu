@@ -41,14 +41,13 @@ const bugLogDoc = existsSync("docs/BETA_BUG_LOG.md")
 const runbook = existsSync("docs/BETA_HUMAN_QA_RUNBOOK.md");
 const bugLog = existsSync("docs/BETA_BUG_LOG.md");
 
-/** Extrai tip citada nos docs (backticks de 7+ hex), se ainda houver. */
+/** Extrai tip citada nos docs como tip atual (não histórico de PR). */
 function docTipSha(text) {
   const m =
     text.match(/Tip `main`:\s*`([0-9a-f]{7,40})`/i) ||
     text.match(/SHA tip `main`\s*\|\s*`([0-9a-f]{7,40})`/i) ||
-    text.match(/tip `main`\s*`([0-9a-f]{7,40})`/i) ||
-    text.match(/pós-#\d+:\s*`([0-9a-f]{7,40})`/i) ||
-    text.match(/origin\/main`?\s*\(pós-#\d+:\s*`([0-9a-f]{7,40})`\)/i);
+    text.match(/tip `main`\s*=\s*`([0-9a-f]{7,40})`/i) ||
+    text.match(/tip `main`:\s*`([0-9a-f]{7,40})`/i);
   return m?.[1] ?? null;
 }
 

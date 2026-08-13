@@ -13,7 +13,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | Data início | 2026-08-11 |
 | URL / ambiente | produção Netlify / preview |
 | Versão (Sobre / landing) | v0.2.0-beta.1 |
-| SHA tip `main` | _fonte oficial:_ `npm run beta:rc-status` → `origin/main` (pós-#159: `6c538df`) |
+| SHA tip `main` | _fonte oficial:_ `npm run beta:rc-status` → `origin/main` |
 | SHA congelada (RC) | _preencher só na RC_ |
 | Executor | Cloud Agent + QA humano (Matheus) |
 

@@ -1,6 +1,6 @@
 # PRs da rodada B001/B002 — status pós-#148 / #158
 
-**Main de referência:** `npm run beta:rc-status` → `origin/main` (pós-#159: `6c538df`)
+**Main de referência:** `npm run beta:rc-status` → `origin/main`
 
 Auditoria em 2026-08-12: comparação `git log origin/main..origin/<branch>` e diff dos arquivos sensíveis (`LessonPlayer`, `immediateRemediation`, `PieceAssembly`, `buildAssemblyFeedback`, `steps`, guards QA/viewport).
 
