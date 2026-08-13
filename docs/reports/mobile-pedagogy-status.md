@@ -15,7 +15,7 @@
 | Área | Status em código | Revalidação humana |
 |------|------------------|--------------------|
 | **PERF-011** lesson start marks + defer adaptive plan | Corrigido em código | **Aguardando** medição em device / perfil real |
-| **PED-012–015** odd_one_out curated + levels + shuffle | Corrigido em código | **Aguardando** smoke pedagógico humano |
+| **PED-012–015** odd_one_out curated + levels + shuffle | Corrigido em código (UI + bank seeded) | **Aguardando** smoke pedagógico humano |
 | **PED-016–020** lexical progression L1–L20 | Corrigido em código + `validate:lexical-progression` | **Aguardando** revisão curricular humana |
 
 ## Como checar localmente

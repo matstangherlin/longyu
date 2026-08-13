@@ -2280,7 +2280,8 @@ function makeSentenceBuildStep(item: FocusItem, focus: FocusItem[]): LessonStep 
     .filter((candidate) => candidate.key !== item.key)
     .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
     .filter(Boolean);
-  const bank = uniqueValues([...parts, ...extras]).slice(0, Math.max(parts.length + 2, 4));
+  const ordered = uniqueValues([...parts, ...extras]).slice(0, Math.max(parts.length + 2, 4));
+  const bank = seededShuffleAvoidingOrder(ordered, `sb:${item.key}:${clean}`, parts);
   return {
     kind: "sentence_build",
     title: "Monte de outro jeito",

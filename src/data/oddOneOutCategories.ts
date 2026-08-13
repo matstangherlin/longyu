@@ -158,27 +158,9 @@ export const CURATED_ODD_ONE_OUT_SETS: readonly CuratedOddOneOutSet[] = [
   },
 ];
 
-function vocabLookup(hanzi: string): OddOneOutItem | null {
-  const entry = VOCABULARY.find((item) => item.hanzi === hanzi && item.kind === "word");
-  if (!entry) return null;
-  // Categoria semântica: a do set curado, não VocabDomain.
-  return {
-    hanzi: entry.hanzi,
-    pinyin: entry.pinyin,
-    meaningPt: entry.meaningPt,
-    category: "beverages", // placeholder overwritten by caller
-  };
-}
-
 function resolveItem(hanzi: string, category: OddOneOutSemanticCategory): OddOneOutItem | null {
   const entry = VOCABULARY.find((item) => item.hanzi === hanzi);
-  if (!entry) {
-    // Fallback mínimo para glifos curados sem entrada isolada (ex.: 妈).
-    if (hanzi === "妈") {
-      return { hanzi: "妈", pinyin: "mā", meaningPt: "mãe (forma curta)", category };
-    }
-    return null;
-  }
+  if (!entry) return null;
   return {
     hanzi: entry.hanzi,
     pinyin: entry.pinyin,
@@ -281,6 +263,3 @@ export function curatedOddOneOutSetsFor(
   );
   return options.limit ? available.slice(0, options.limit) : available;
 }
-
-// silence unused helper warning in some bundlers
-void vocabLookup;

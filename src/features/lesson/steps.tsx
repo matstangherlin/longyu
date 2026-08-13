@@ -25,6 +25,7 @@ import {
   useExerciseHotkeys,
 } from "../../lib/useExerciseHotkeys";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
+import { seededShuffleAvoidingOrder } from "../../lib/seededShuffle";
 import { useStore } from "../../lib/store";
 import { Button, cx } from "../../components/ui/primitives";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
@@ -105,6 +106,8 @@ export interface StepProps {
   onUnrecognized?: (answer: string) => void;
   /** Lição atual — resolve rótulos de estrutura (intuitivo → técnico). */
   lessonId?: string;
+  /** Seed da tentativa (PED-015) — muda a ordem das peças sem reshuffle em rerender. */
+  attemptSeed?: string;
 }
 
 type ToneN = 1 | 2 | 3 | 4;
@@ -2346,7 +2349,7 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
   );
 }
 
-function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps & { kindLabel: string }) {
+function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, attemptSeed }: StepProps & { kindLabel: string }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const help = useMandarinHelpSettings();
   const helpDisabled = help.disabled || help.helpMode === "disabled";
@@ -2357,14 +2360,16 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel }: StepProps
     () => [targetParts, ...(step.acceptedTargetParts ?? [])].filter((parts) => parts.length > 0),
     [step.acceptedTargetParts, targetParts]
   );
-  const bankTokens = useMemo(
-    () =>
-      buildPieceTokens(
-        { ...step, bank: uniqueStrings([...(step.bank ?? []), ...acceptedPartSequences.flat()]) },
-        targetParts
-      ),
-    [acceptedPartSequences, step, targetParts]
-  );
+  const bankTokens = useMemo(() => {
+    const tokens = buildPieceTokens(
+      { ...step, bank: uniqueStrings([...(step.bank ?? []), ...acceptedPartSequences.flat()]) },
+      targetParts
+    );
+    const seed =
+      attemptSeed ??
+      `${lessonId ?? "lesson"}:${step.kind}:${step.correctAnswer ?? ""}:${(step.bank ?? []).join("|")}`;
+    return seededShuffleAvoidingOrder(tokens, seed, targetParts, (token) => token.value);
+  }, [acceptedPartSequences, attemptSeed, lessonId, step, targetParts]);
   const fallbackAnswer = targetParts.join(pieceJoiner);
   const answer = step.correctAnswer ?? step.answer ?? fallbackAnswer;
   const compareAnswer = step.kind === "hanzi_build" ? targetParts.join("") : answer;
@@ -3305,7 +3310,7 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
  * ou escrever hànzì. No modo imersão o áudio toca uma vez só, em velocidade
  * natural — é o degrau que aproxima da rua.
  */
-function StepDictation({ step, onDone, onSkip, onMistake }: StepProps) {
+function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const ttsRate = useStore((s) => s.ttsRate);
   // Escrever hànzì exige teclado chinês, que muita gente não tem no celular.
@@ -3318,7 +3323,11 @@ function StepDictation({ step, onDone, onSkip, onMistake }: StepProps) {
   const audioText = step.audioText ?? step.hanzi ?? "";
   const targetParts = useMemo(() => step.targetParts ?? [], [step.targetParts]);
   const writtenAnswer = step.correctAnswer ?? step.answer ?? targetParts.join("");
-  const bankTokens = useMemo(() => buildPieceTokens(step, targetParts), [step, targetParts]);
+  const bankTokens = useMemo(() => {
+    const tokens = buildPieceTokens(step, targetParts);
+    const seed = attemptSeed ?? `${lessonId ?? "dict"}:${writtenAnswer}:${(step.bank ?? []).join("|")}`;
+    return seededShuffleAvoidingOrder(tokens, seed, targetParts, (token) => token.value);
+  }, [attemptSeed, lessonId, step, targetParts, writtenAnswer]);
   const singlePlayback = Boolean(step.singlePlayback);
 
   const [picked, setPicked] = useState<BuildPieceToken[]>([]);
@@ -3541,18 +3550,29 @@ function MeaningChoiceExercise({
   fallbackTitle,
   fallbackPrompt,
   layout,
+  lessonId,
+  attemptSeed,
+  showOptionMeta,
 }: StepProps & {
   eyebrow: string;
   fallbackTitle: string;
   fallbackPrompt: string;
   layout: "grid" | "stack";
+  showOptionMeta?: boolean;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const answer = step.correctAnswer ?? step.answer ?? "";
-  const options = useMemo(() => shuffle([...(step.options ?? [])]), [step.options]);
+  // PED-012/015: odd_one_out já vem com ordem seeded; não reembaralhar ao acaso.
+  const options = useMemo(() => {
+    const raw = [...(step.options ?? [])];
+    if (step.kind === "odd_one_out") return raw;
+    const seed = attemptSeed ?? `${lessonId ?? "x"}:${step.kind}:${answer}:${raw.join("|")}`;
+    return seededShuffleAvoidingOrder(raw, seed, [answer]);
+  }, [answer, attemptSeed, lessonId, step.kind, step.options]);
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
+  const metaEnabled = Boolean(showOptionMeta && step.optionMeta);
 
   function check() {
     if (!picked || feedback === "correct") return;
@@ -3597,6 +3617,7 @@ function MeaningChoiceExercise({
           const active = picked === option;
           const correct = feedback === "correct" && normalizeEngineAnswer(option) === normalizeEngineAnswer(answer);
           const wrong = feedback === "wrong" && active;
+          const meta = step.optionMeta?.[option];
           return (
             <button
               key={`${option}-${index}`}
@@ -3608,12 +3629,18 @@ function MeaningChoiceExercise({
                 setFeedback(null);
               }}
               className={[
-                "relative flex items-center justify-center",
+                "relative flex flex-col items-center justify-center gap-0.5",
                 engineTileClass({ active, matched: correct, wrong, cjk: isCjkText(option) }),
               ].join(" ")}
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="px-3">{renderTypedValue(option, isCjkText(option) ? "hanzi" : "pt")}</span>
+              {metaEnabled && meta?.pinyin && (
+                <span className="px-2 text-[11px] font-normal text-ink-faint">{meta.pinyin}</span>
+              )}
+              {metaEnabled && meta?.meaningPt && (step.oddOneOutLevel ?? 1) === 1 && (
+                <span className="px-2 text-[11px] font-normal text-ink-soft">{meta.meaningPt}</span>
+              )}
               {correct && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
               {wrong && <IconX className="absolute right-2 top-2 text-wrong" width={16} height={16} />}
             </button>
@@ -3649,6 +3676,7 @@ function StepOddOneOut(props: StepProps) {
       fallbackTitle="Qual não pertence?"
       fallbackPrompt="Três palavras são do mesmo grupo. Toque na que sobra."
       layout="grid"
+      showOptionMeta
     />
   );
 }
@@ -4676,7 +4704,7 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
   return text;
 }
 
-export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId }: StepProps) {
+export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
   const name = useStudentFirstName();
   const personalizedStep = useMemo(() => personalizeStep(step, name), [step, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
@@ -4734,18 +4762,78 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
       case "microread": return <StepMicroread step={personalizedStep} onDone={onDone} />;
       case "match_pairs": return <StepMatchPairs step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "listen_select": return <StepListenSelect step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "sentence_build": return <StepSentenceBuild step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "translation_build": return <StepTranslationBuild step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "sentence_build":
+        return (
+          <StepSentenceBuild
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
+      case "translation_build":
+        return (
+          <StepTranslationBuild
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
       case "fill_blank": return <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "dialogue_choice": return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "hanzi_build": return <StepHanziBuild step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "hanzi_build":
+        return (
+          <StepHanziBuild
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
       case "tone_pair": return <StepTonePair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "image_choice": return <StepImageChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "audio_discrimination": return <StepAudioDiscrimination step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "dictation": return <StepDictation step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "odd_one_out": return <StepOddOneOut step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "spot_error": return <StepSpotError step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "dictation":
+        return (
+          <StepDictation
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
+      case "odd_one_out":
+        return (
+          <StepOddOneOut
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
+      case "spot_error":
+        return (
+          <StepSpotError
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
       case "free_production":
       case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} onUnrecognized={onUnrecognized} lessonId={lessonId} />;
       case "conversation_repair": return <StepConversationRepair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;

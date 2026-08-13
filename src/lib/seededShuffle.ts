@@ -35,25 +35,24 @@ export function seededShuffle<T>(items: readonly T[], seed: string | number): T[
 }
 
 /**
- * Embaralha evitando coincidir exatamente com a ordem-alvo.
+ * Embaralha evitando coincidir exatamente com a ordem-alvo (por valor).
  * Até `maxAttempts` reshuffles determinísticos com saltos na seed.
  */
 export function seededShuffleAvoidingOrder<T>(
   items: readonly T[],
   seed: string | number,
-  targetOrder: readonly T[],
+  targetValues: readonly string[],
   getValue: (item: T) => string = (item) => String(item),
   maxAttempts = 5
 ): T[] {
   if (items.length <= 1) return [...items];
-  const targetKey = targetOrder.map(getValue).join("\0");
+  const targetKey = targetValues.join("\0");
   let next = seededShuffle(items, seed);
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const key = next.map(getValue).join("\0");
     if (key !== targetKey) return next;
     next = seededShuffle(items, `${typeof seed === "string" ? seed : seed}:reshuffle:${attempt + 1}`);
   }
-  // Último recurso: rotação fixa se ainda coincidir.
   if (next.map(getValue).join("\0") === targetKey && next.length > 1) {
     return [...next.slice(1), next[0]];
   }

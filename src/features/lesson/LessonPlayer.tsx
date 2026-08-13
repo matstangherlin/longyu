@@ -4042,6 +4042,7 @@ export function LessonPlayer() {
           key={`${idx}:${stepAttempt}`}
           step={step}
           lessonId={lesson.id}
+          attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
           onDone={handleDone}
           onSkip={canSkipStep ? skipCurrentStep : undefined}
           onMistake={canSkipStep ? registerCurrentMistake : undefined}
