@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { pathToFileURL } from "node:url";
+import ts from "typescript";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -20,6 +20,19 @@ function assert(condition, message) {
 
 function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
+}
+
+async function importTypeScriptModule(relativePath) {
+  const fileName = path.join(root, relativePath);
+  const transpiled = ts.transpileModule(fs.readFileSync(fileName, "utf8"), {
+    fileName,
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2020,
+    },
+  });
+  const source = Buffer.from(transpiled.outputText, "utf8").toString("base64");
+  return import(`data:text/javascript;base64,${source}`);
 }
 
 const PEARL_PRO_COST = 12;
@@ -327,13 +340,9 @@ assert(
 
 // Teste executável da ordem assíncrona: falha/rejeição não aplica entitlement,
 // e sucesso só aplica depois que a promessa da RPC resolve.
-const activationModule = await import(
-  pathToFileURL(path.join(root, "src/lib/cloudPearlProActivation.ts")).href
-);
+const activationModule = await importTypeScriptModule("src/lib/cloudPearlProActivation.ts");
 const { confirmCloudPearlProActivation } = activationModule;
-const persistenceModule = await import(
-  pathToFileURL(path.join(root, "src/lib/persistenceSecurity.ts")).href
-);
+const persistenceModule = await importTypeScriptModule("src/lib/persistenceSecurity.ts");
 const { mergeWithoutPersistedServerEntitlement } = persistenceModule;
 
 {
