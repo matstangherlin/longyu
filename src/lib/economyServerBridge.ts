@@ -165,7 +165,7 @@ export async function serverConsumeCharge(
       payload: { activityType },
     });
     useStore.getState().setEconomySyncMessage("Falha ao sincronizar carga. Tentaremos de novo.");
-    return { ok: false, error: error ?? "rpc_failed" };
+    return { ok: false, error: error ?? "rpc_failed", retry_pending: true };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
   else useStore.getState().setEconomySyncMessage(null);
@@ -298,41 +298,35 @@ export async function serverActivatePearlProPass(idempotencyKey: string): Promis
       payload: {},
     });
     useStore.getState().setEconomySyncMessage("Falha ao ativar Pro. Tentaremos de novo.");
-    return { ok: false, error: error ?? "rpc_failed" };
+    return { ok: false, error: error ?? "rpc_failed", retry_pending: true };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
   else useStore.getState().setEconomySyncMessage(null);
   if (data.ok && data.is_pro) {
+    removeEconomyIntent(idempotencyKey);
     useStore.getState().setServerEntitlement(true);
   }
   return data;
 }
 
-export async function serverClaimPearlMilestone(input: {
-  milestoneId: string;
-  idempotencyKey: string;
-  evidence: Record<string, unknown>;
-}): Promise<EconomyRpcResult> {
+export async function serverClaimPearlMilestone(milestoneId: string): Promise<EconomyRpcResult> {
+  const idempotencyKey = `pearl-milestone:${milestoneId}`;
   setSyncing("Resgatando Pérola...");
   const { data, error } = await invokeRpc<EconomyRpcResult>("claim_pearl_milestone", {
-    p_milestone_id: input.milestoneId,
-    p_idempotency_key: input.idempotencyKey,
-    p_evidence: input.evidence,
+    p_milestone_id: milestoneId,
   });
   if (error || !data) {
     enqueueEconomyIntent({
-      id: input.idempotencyKey,
+      id: idempotencyKey,
       operation: "claim_pearl_milestone",
-      idempotencyKey: input.idempotencyKey,
-      payload: {
-        milestoneId: input.milestoneId,
-        evidence: input.evidence,
-      },
+      idempotencyKey,
+      payload: { milestoneId },
     });
     return { ok: false, error: error ?? "rpc_failed" };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
   else useStore.getState().setEconomySyncMessage(null);
+  if (data.ok) removeEconomyIntent(idempotencyKey);
   return data;
 }
 
@@ -357,7 +351,7 @@ export async function flushEconomyIntentQueue(): Promise<void> {
   // Pass Pro marcado offline: tenta ativar ao reconectar.
   const state = useStore.getState();
   if (state.pearlProPendingOffline) {
-    const result = state.activatePearlProPass({
+    const result = await state.activatePearlProPass({
       idempotencyKey: `pearl-pro-pending:${state.pearlProLastActivatedAt ?? 0}`,
     });
     if (result.ok || result.reason !== "offline_cloud") {
@@ -412,11 +406,7 @@ export async function flushEconomyIntentQueue(): Promise<void> {
         result = await serverActivatePearlProPass(intent.idempotencyKey);
         break;
       case "claim_pearl_milestone":
-        result = await serverClaimPearlMilestone({
-          milestoneId: String(intent.payload.milestoneId),
-          idempotencyKey: intent.idempotencyKey,
-          evidence: (intent.payload.evidence as Record<string, unknown>) ?? {},
-        });
+        result = await serverClaimPearlMilestone(String(intent.payload.milestoneId));
         break;
       default:
         break;
@@ -434,11 +424,6 @@ export function buildLocalEconomyMigrationPayload(): Record<string, unknown> {
     streak_shields: s.streakShields,
     current_charges: energy.charges,
     max_charges: energy.maxCharges,
-    pearl_milestones_claimed: s.pearlMilestonesClaimed ?? {},
-    pearl_pro_expires_at: s.pearlProExpiresAt ? new Date(s.pearlProExpiresAt).toISOString() : null,
-    pearl_pro_last_activated_at: s.pearlProLastActivatedAt
-      ? new Date(s.pearlProLastActivatedAt).toISOString()
-      : null,
     pearl_pro_auto_activate: s.pearlProAutoActivate ?? false,
   };
 }

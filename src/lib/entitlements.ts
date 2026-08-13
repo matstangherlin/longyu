@@ -5,16 +5,6 @@ import { hasActivePearlPro } from "./pearlPro";
 export type PremiumSource = "none" | "preview" | "server" | "pearl_pass";
 
 /**
- * Contas internas de QA com Pro sem Stripe (somente e-mails explícitos).
- * Nunca concede Pro a outros usuários — só a sessão cloud com este e-mail.
- */
-export const INTERNAL_TEST_PRO_EMAILS = new Set(["teste@longyu.app"]);
-
-export function isInternalTestProEmail(email: string | null | undefined): boolean {
-  return Boolean(email && INTERNAL_TEST_PRO_EMAILS.has(email.trim().toLowerCase()));
-}
-
-/**
  * Preview local só em Development, ou Preview com VITE_ALLOW_PRO_PREVIEW=true.
  * Bloqueado no ambiente principal (Production Beta), mesmo se a flag vazar.
  */
@@ -32,9 +22,10 @@ export function effectivePremium(
     now?: number;
   }
 ): boolean {
-  // QA Pro: só a própria conta cloud — não herda de serverIsPro de outra sessão.
-  if (options?.accountAuthMode === "cloud" && isInternalTestProEmail(options.accountEmail)) {
-    return true;
+  // Conta cloud nunca confia em preview/expiração persistidos no navegador.
+  // Todos os gates premium dependem exclusivamente do entitlement confirmado.
+  if (options?.accountAuthMode === "cloud") {
+    return serverIsPro === true;
   }
   if (serverIsPro === true) return true;
   if (hasActivePearlPro(options?.pearlProExpiresAt, options?.now ?? Date.now())) return true;
