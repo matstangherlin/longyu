@@ -3,7 +3,7 @@
 **Objetivo:** provar o produto em pessoas e aparelhos reais.  
 **Regra:** **automação não substitui QA humano** — nada aqui é substituível por Playwright, emulação, fixture ou `test:qa-regression-guard`.
 
-Atualizado: 2026-08-12 · tip `main` `5636e48` (#158).  
+Atualizado: 2026-08-13 · tip `main` = `npm run beta:rc-status` → `origin/main` (pós-#159: `6c538df`).  
 Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).  
 Log de bugs: [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
 
@@ -35,11 +35,10 @@ Execute **nesta ordem**. Não pule B001/B002 para ir direto a L1–L20.
 
 **Estado do código (não confundir com QA feito):**
 
-- Tip a testar: `5636e48` (#158).  
-- B001: **corrigido em código**, aguardando revalidação Android física.  
+- Tip a testar: **`npm run beta:rc-status`** (campo `origin/main`; pós-#159: `6c538df`).  
+- B001/B003/B004: **corrigidos em código** + E2E (#158/#159); aguardam aparelho.  
 - B002: **corrigido em código**, aguardando revalidação humana.  
-- Produção/transferência friendliness, PieceAssembly e guarda QA: **entregues em código**.  
-- #146 (copy/mic/`test:player-ux`): ainda **pendente** na `main` (extrato na #149).  
+- Produção/transferência, PieceAssembly, guarda QA, tom/assets validators: **na main**.  
 - RC, full security scan final, L1–L20 humano, aparelhos, e-mail, Stripe, sync e testadores: **não concluídos**.
 
 ```bash
@@ -55,7 +54,7 @@ Antes de qualquer revalidação:
 
 - [ ] Abrir produção beta (ou preview estável) em **janela anônima**  
 - [ ] **Force refresh** (Android Chrome: menu → atualizar; se preciso, limpar dados do site)  
-- [ ] Confirmar tip / versão: landing ou Sobre = `v0.2.0-beta.1` · tip esperado `5636e48`  
+- [ ] Confirmar tip / versão: landing ou Sobre = `v0.2.0-beta.1` · tip = saída de `npm run beta:rc-status` (`origin/main`)  
 - [ ] Anotar: URL · navegador · SO · aparelho  
 - [ ] Conta **nova** (e-mail real) **ou** perfil local zerado — para L1–L20  
 - [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
@@ -67,7 +66,7 @@ Antes de qualquer revalidação:
 
 ## B001 — revalidar no Android real
 
-Aparelho: ________ · Chrome: ________ · Tip confirmada: ☐ `5636e48`
+Aparelho: ________ · Chrome: ________ · Tip confirmada: ☐ (colar short de `beta:rc-status`)
 
 Abra uma lição no player (`/licao/*/player`). Registre falhas em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
 
@@ -85,7 +84,7 @@ Abra uma lição no player (`/licao/*/player`). Registre falhas em [`BETA_BUG_LO
 
 ## B002 — revalidar no app real
 
-Ambiente: ________ (desktop e/ou mobile) · Tip: ☐ `5636e48`
+Ambiente: ________ (desktop e/ou mobile) · Tip: ☐ (colar short de `beta:rc-status`)
 
 Fluxo: errar ou pular um diálogo → aceitar a oferta de revisão / recuperação de estrela.
 
