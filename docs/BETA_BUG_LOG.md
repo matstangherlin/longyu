@@ -13,7 +13,7 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 | Data início | 2026-08-11 |
 | URL / ambiente | produção Netlify / preview |
 | Versão (Sobre / landing) | v0.2.0-beta.1 |
-| SHA tip `main` | `5636e48` (#158 remessa aparelho B003/B004/B001/PED-005/VIS) |
+| SHA tip `main` | _fonte oficial:_ `npm run beta:rc-status` → `origin/main` (pós-#159: `6c538df`) |
 | SHA congelada (RC) | _preencher só na RC_ |
 | Executor | Cloud Agent + QA humano (Matheus) |
 
@@ -21,15 +21,15 @@ Uma linha por problema. Severidade: **P0** (bloqueia) · **P1** (fluxo principal
 
 | ID | Sev | Onde (rota / lição / step) | Aparelho | O que aconteceu | Esperado | Repro | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Body não arrasta; CTA acessível; teclado ok; vitória correta | Lição pinyin pós-resposta + tela final | **REABERTO** — StickyActionBar ainda cobre banco de peças no celular real; reserva de padding + safe-area na remessa device-bugs; tip `5636e48` · aguarda Android/iPhone|
-| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Errar/pular → revisão; um prompt; pinyin coerente; status ≠ alternativa; sentence build ok; estrela recupera | Errar/pular diálogo → aceitar revisão | **corrigido em código**, aguardando revalidação humana (#148; tip `5636e48`) |
+| B001 | P1 | `/licao/*/player` · dialogue_choice / vitória | Android Chrome | Rubber-band + CTA Continuar/Verificar abaixo da viewport; vitória também exigia scroll | Body não arrasta; CTA acessível; teclado ok; vitória correta | Lição pinyin pós-resposta + tela final | **REABERTO** — StickyActionBar ainda cobre banco de peças no celular real; reserva de padding + safe-area na remessa device-bugs; tip via `beta:rc-status` · aguarda Android/iPhone|
+| B002 | P1 | Star recovery / remediação imediata | Desktop + mobile | Prompt/hànzì/pinyin concatenados (`你好 / 你好吗 / …`); “Pulou…” virava opção; Correto inconsistente; UI bagunçada | Errar/pular → revisão; um prompt; pinyin coerente; status ≠ alternativa; sentence build ok; estrela recupera | Errar/pular diálogo → aceitar revisão | **corrigido em código**, aguardando revalidação humana (#148; tip via `beta:rc-status`) |
 | B003 | P0 | `/revisao` após Verificar | iPhone Safari / PWA | Resposta não mostra Certo/Errado claro; sem CTA Continuar visível (estado `revealed` sem ação sticky) | Feedback imediato + Continuar sticky na viewport; scroll/foco no feedback | Responder item de revisão no iPhone | **corrigido em código** (`RevisaoPage` sticky Continuar + e2e); aguarda iPhone físico |
 | B004 | P1 | Associação visual (`image_choice`) | Mobile | Quatro tiles vazios (opacity-0 / lazy); lógica de acerto funciona | Imagens eager + preload; fallback; não responder com tiles vazios | Lição com image_choice | **corrigido em código** (`VisualConceptImage` / `ImageChoiceGrid`); aguarda aparelho |
 | PED-005 | P1 | Tons (`p1-o-que-e-tom` / `StepTone`) | Pedagógico | Carga cognitiva alta (áudio+vocábulo+tom+sentido juntos) | Escada 2 tons → 4 → pinyin → palavra → mistura | Lição de tom | **corrigido em código** (`toneChoices` + lição); aguarda humano |
 | VIS-006 | P2 | Ilustrações light/dark | Mobile/Desktop | Mint `#EDF2ED` opaco não acompanha tema | SVG transparente + frame `bg-surface-2` | Alternar tema | **corrigido em código** (fundos removidos; catálogo `transparent`) |
 | VIS-007 | P2 | Bundle de assets | Performance | SVGs grandes como data URI no JS | URLs Vite hasheadas | Build / Network | **corrigido em código** (`visuals/index.ts`) |
 | QA-008 | P1 | iPhone atividade×atividade | iPhone | QA Safari incompleto | Checklist choice/imagem/áudio/tons/build/pares/produção/revisão light+dark | Runbook §iPhone | **aberto** — humano |
-| QA-009 | P2 | Docs release | — | Docs ainda citavam SHA antiga | SHA `5636e48` + bugs novos no log | — | **corrigido em docs** (#158 + remessa RC) |
+| QA-009 | P2 | Docs release | — | Docs ainda citavam SHA antiga | tip atual via `beta:rc-status` + bugs no log | — | **corrigido em docs** (#158 + remessa RC) |
 
 ## Contagem rápida
 
@@ -49,7 +49,7 @@ Com `helpMode=disabled` em opções de escuta, o token **não** abre mais sheet
 
 ## Checklist de revalidação B001 (Android físico)
 
-Tip: `5636e48`. Force refresh / cache limpo **antes**. Ver runbook §B001.
+Tip: rodar `npm run beta:rc-status` e confirmar `origin/main`. Force refresh / cache limpo **antes**. Ver runbook §B001.
 
 - [ ] **Body não arrasta** — documento não move ao puxar a página  
 - [ ] **CTA acessível** — Continuar / Verificar / Tentar de novo sem caça (acerto e erro)  
@@ -59,7 +59,7 @@ Tip: `5636e48`. Force refresh / cache limpo **antes**. Ver runbook §B001.
 
 ## Checklist de revalidação B002 (revisão / estrela)
 
-Tip: `5636e48`. Force refresh / cache limpo **antes**. Ver runbook §B002.
+Tip: rodar `npm run beta:rc-status` e confirmar `origin/main`. Force refresh / cache limpo **antes**. Ver runbook §B002.
 
 - [ ] **Errar / pular** dispara a oferta de revisão  
 - [ ] **Aceitar revisão** abre a sessão  
@@ -72,7 +72,7 @@ Tip: `5636e48`. Force refresh / cache limpo **antes**. Ver runbook §B002.
 
 ## Checklist de revalidação B003 (iPhone físico)
 
-Tip: `5636e48`. Force refresh / cache limpo **antes**.
+Tip: rodar `npm run beta:rc-status` e confirmar `origin/main`. Force refresh / cache limpo **antes**.
 
 - [ ] Responder item em `/revisao` → aparece **Certo** ou **Errado** imediatamente  
 - [ ] CTA **Continuar** (ou Errei — continuar) visível sem scroll caça  

@@ -1,6 +1,6 @@
 # Progressão de tons (PED-005)
 
-Atualizado com a remessa de bugs de aparelho (pós `#158` / tip `5636e48`).
+Atualizado com a remessa de bugs de aparelho (pós `#158`/`#159`). Tip: `npm run beta:rc-status`.
 
 ## Escada
 

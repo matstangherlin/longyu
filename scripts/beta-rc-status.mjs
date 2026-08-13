@@ -41,12 +41,14 @@ const bugLogDoc = existsSync("docs/BETA_BUG_LOG.md")
 const runbook = existsSync("docs/BETA_HUMAN_QA_RUNBOOK.md");
 const bugLog = existsSync("docs/BETA_BUG_LOG.md");
 
-/** Extrai tip citada nos docs (backticks de 7+ hex). */
+/** Extrai tip citada nos docs (backticks de 7+ hex), se ainda houver. */
 function docTipSha(text) {
   const m =
     text.match(/Tip `main`:\s*`([0-9a-f]{7,40})`/i) ||
     text.match(/SHA tip `main`\s*\|\s*`([0-9a-f]{7,40})`/i) ||
-    text.match(/tip `main`\s*`([0-9a-f]{7,40})`/i);
+    text.match(/tip `main`\s*`([0-9a-f]{7,40})`/i) ||
+    text.match(/pós-#\d+:\s*`([0-9a-f]{7,40})`/i) ||
+    text.match(/origin\/main`?\s*\(pós-#\d+:\s*`([0-9a-f]{7,40})`\)/i);
   return m?.[1] ?? null;
 }
 
@@ -56,6 +58,7 @@ const docTips = [
 ].filter((row) => row.tip);
 
 console.log("=== Longyu beta RC status ===");
+console.log("fonte tip:   origin/main  (oficial — docs não substituem este comando)");
 console.log(`version:     ${pkg.version}`);
 console.log(`branch:      ${branch}`);
 console.log(`HEAD:        ${sha}`);
@@ -64,6 +67,12 @@ console.log(`origin/main: ${mainSha}`);
 console.log(`main short:  ${mainShort}`);
 console.log(`on main tip: ${onMainTip ? "sim" : "NÃO — HEAD ≠ origin/main"}`);
 console.log(`working tree:${dirty ? " DIRTY — não congele RC assim" : " limpa"}`);
+console.log("");
+console.log("RC checklist rápida:");
+console.log("  1) tip limpa = origin/main");
+console.log("  2) npm run gate:public-beta");
+console.log("  3) npm run test:e2e:webkit   # Safari — obrigatório antes da beta pública");
+console.log("  4) workflow Security verde na tip");
 console.log("");
 
 if (!onMainTip && !mainSha.startsWith("(")) {
