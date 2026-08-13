@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 31391f1ace978c314fad736d9b5bb111831d9601 |
+| Commit | a2455d074a5602074b497fa3c9a6b3e211d5aebc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T23:05:13.547Z |
-| Lições | 123 |
-| Hash da Jornada | 097e4a23fa3e |
+| Gerado em | 2026-08-13T23:26:28.708Z |
+| Lições | 125 |
+| Hash da Jornada | 26bf79e93936 |
 
 ## Resumo
 
@@ -16,15 +16,15 @@
 |-----------|------:|
 | Conceitos no catálogo | 87 |
 | Imagens locais (WebP) | 87 |
-| Lições na jornada | 123 |
-| Lições concretas elegíveis | 76 |
-| Lições elegíveis com imagem | 76 (100%) |
+| Lições na jornada | 125 |
+| Lições concretas elegíveis | 78 |
+| Lições elegíveis com imagem | 78 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 68 |
-| Conceitos nunca utilizados | 50 |
+| Conceitos nunca utilizados | 51 |
 
 ## Cobertura por fase
 
@@ -35,7 +35,7 @@
 | p3 — Frases Reais | 16 | 7 | 7 | 100% |
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
-| p6 — Vida Cotidiana | 15 | 13 | 13 | 100% |
+| p6 — Vida Cotidiana | 17 | 15 | 15 | 100% |
 | p7 — Leitura Graduada | 6 | 6 | 6 | 100% |
 
 ## Cobertura por unidade
@@ -54,7 +54,7 @@
 | u5-1 — Números 1 a 10 | 3 | 2 | 2 | 100% |
 | u5-2 — Palavras compostas | 4 | 3 | 3 | 100% |
 | u6-1 — Família | 2 | 2 | 2 | 100% |
-| u6-2 — Comida e compras | 13 | 11 | 11 | 100% |
+| u6-2 — Comida e compras | 15 | 13 | 13 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
 | u7-2 — Imersão | 3 | 3 | 3 | 100% |
 
@@ -63,9 +63,9 @@
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 11 |
-| imagem → pinyin (`choose_pinyin`) | 60 |
-| imagem → significado (`choose_meaning`) | 27 |
-| áudio → imagem (`listen_and_choose_image`) | 31 |
+| imagem → pinyin (`choose_pinyin`) | 61 |
+| imagem → significado (`choose_meaning`) | 26 |
+| áudio → imagem (`listen_and_choose_image`) | 32 |
 | hànzì → imagem (`choose_image`) | 22 |
 
 ## Conceitos nunca utilizados
@@ -83,7 +83,6 @@
 | fish | 鱼 | peixe | 12 |
 | cat | 猫 | gato | 13 |
 | dog | 狗 | cachorro | 13 |
-| tea | 茶 | chá | 12 |
 | coffee | 咖啡 | café | 12 |
 | milk | 牛奶 | leite | 12 |
 | apple | 苹果 | maçã | 12 |
@@ -115,8 +114,10 @@
 | hotel | 酒店 | hotel | 13 |
 | street | 街道 | rua | 13 |
 | restaurant | 饭馆 | restaurante | 12 |
+| bank | 银行 | banco | 12 |
 | shopping_mall | 商场 | shopping | 13 |
 | airport | 机场 | aeroporto | 13 |
+| hospital | 医院 | hospital | 12 |
 | taxi | 出租车 | táxi | 13 |
 | bus | 公交车 | ônibus | 13 |
 | train | 火车 | trem | 13 |
@@ -131,4 +132,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:affc196db01fe1fe -->
+<!-- integridade:ab8cc04235823f57 -->

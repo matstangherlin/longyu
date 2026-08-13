@@ -61,7 +61,12 @@ export type StepKind =
   | "sentence_transform"
   | "substitution_drill"
   | "dialogue_completion"
-  | "reverse_recall";
+  | "reverse_recall"
+  // ——— Pedagogia V3.1 — China Real / navegacao urbana ———
+  | "map_direction"
+  | "place_label"
+  | "address_build"
+  | "city_context";
 
 export type {
   ConversationCharacter,
@@ -326,6 +331,15 @@ export interface LessonStep {
    * seguir. Ausente quando o aluno ainda não tem vocabulário de reparo.
    */
   conversationRepairBeat?: ConversationRepairBeat;
+  // ——— Pedagogia V3.1 — China Real ———
+  mapFromLabel?: string;
+  mapToLabel?: string;
+  mapCorrectAction?: "left" | "right" | "straight" | "destination";
+  mapActionOptions?: Array<"left" | "right" | "straight" | "destination">;
+  mapScaffoldLevel?: 1 | 2 | 3 | 4;
+  placeLabelCategory?: string;
+  cityId?: string;
+  citySituationPt?: string;
 }
 
 /** Batida de reparo disparada por falha repetida numa cena. */
@@ -613,6 +627,78 @@ const dialogue = (
   options,
   correctAnswer,
   explanation,
+});
+const mapDirection = (
+  title: string,
+  fromLabel: string,
+  toLabel: string,
+  correctAction: NonNullable<LessonStep["mapCorrectAction"]>,
+  options: NonNullable<LessonStep["mapActionOptions"]>,
+  extra: Partial<Pick<LessonStep, "prompt" | "promptPt" | "mapScaffoldLevel" | "audioText" | "explanation">> = {}
+): LessonStep => ({
+  kind: "map_direction",
+  title,
+  mapFromLabel: fromLabel,
+  mapToLabel: toLabel,
+  mapCorrectAction: correctAction,
+  mapActionOptions: options,
+  mapScaffoldLevel: extra.mapScaffoldLevel ?? 1,
+  prompt: extra.prompt,
+  promptPt: extra.promptPt,
+  audioText: extra.audioText,
+  explanation: extra.explanation,
+  correctAnswer: correctAction,
+});
+const placeLabel = (
+  title: string,
+  prompt: string,
+  correctAnswer: string,
+  options: string[],
+  category?: string,
+  explanation?: string
+): LessonStep => ({
+  kind: "place_label",
+  title,
+  prompt,
+  dialoguePrompt: prompt,
+  correctAnswer,
+  options,
+  placeLabelCategory: category,
+  explanation,
+  speaker: "Placa",
+});
+const addressBuild = (
+  title: string,
+  prompt: string,
+  targetParts: string[],
+  bank: string[],
+  explanation?: string
+): LessonStep => ({
+  kind: "address_build",
+  title,
+  prompt,
+  targetParts,
+  bank,
+  explanation,
+});
+const cityContext = (
+  title: string,
+  situationPt: string,
+  correctAnswer: string,
+  options: string[],
+  cityId: string,
+  explanation?: string
+): LessonStep => ({
+  kind: "city_context",
+  title,
+  situationPt,
+  citySituationPt: situationPt,
+  dialoguePrompt: situationPt,
+  correctAnswer,
+  options,
+  cityId,
+  explanation,
+  speaker: "Situação",
 });
 const conversationScene = (sceneId: string): LessonStep => {
   const scene = conversationSceneStepFromId(sceneId);
@@ -5121,6 +5207,230 @@ export const JOURNEY: JourneyPhase[] = [
             ],
           }),
           withLessonDefaults({
+            id: "p6-china-cidades",
+            title: "Cidades da China",
+            skill: "fala",
+            premium: true,
+            masteryLoop: true,
+            newHanzi: ["北", "京", "上", "海", "广", "州", "深", "圳", "省", "市", "东", "南", "单", "超", "热", "洗", "手", "间"],
+            libraryItems: [
+              "chunk:beijing",
+              "chunk:shanghai",
+              "chunk:guangzhou",
+              "chunk:shenzhen",
+              "chunk:zhongguo",
+              "chunk:beijingzainali",
+              "chunk:beijingzaizhongguo",
+              "chunk:woqubeijing",
+              "chunk:woyaoqubeijing",
+              "chunk:woyaoqushanghai",
+              "chunk:wozaibeijing",
+              "chunk:beijinghuochezhanzainali",
+              "chunk:beijingshi",
+              "chunk:guangdongsheng",
+            ],
+            reviewItems: [
+              "chunk:zhongguo",
+              "chunk:zaina",
+              "chunk:woquchaoshi",
+              "char:qu_go",
+              "char:zai",
+            ],
+            steps: [
+              intro(
+                "China real",
+                "Cidades reais entram como linguagem: reconhecer, localizar, ir e pedir a estação — não como lista para decorar."
+              ),
+              flash("beijing"),
+              flash("shanghai"),
+              flash("guangzhou"),
+              flash("shenzhen"),
+              listen("北京", "Běijīng", "Pequim"),
+              listen("上海", "Shànghǎi", "Xangai"),
+              listen("广州", "Guǎngzhōu", "Guangzhou"),
+              listen("深圳", "Shēnzhèn", "Shenzhen"),
+              placeLabel(
+                "Qual cidade?",
+                "Qual destas é Pequim?",
+                "北京",
+                ["北京", "上海", "广州", "深圳"],
+                "cidade",
+                "北京 = Pequim (capital)."
+              ),
+              cityContext(
+                "Onde fica?",
+                "Você quer saber onde fica Pequim.",
+                "北京在哪里？",
+                ["北京在哪里？", "你好吗？", "买单", "菜单"],
+                "beijing",
+                "北京在哪里？ localiza a cidade."
+              ),
+              cityContext(
+                "Na China",
+                "Alguém pergunta onde fica Pequim. Responda com o país.",
+                "北京在中国。",
+                ["北京在中国。", "我很好", "天气很热", "再见"],
+                "beijing"
+              ),
+              listen("我去北京。", "wǒ qù Běijīng.", "Eu vou a Pequim."),
+              sentenceBuild(
+                "Monte: vou a Pequim",
+                "Monte a frase.",
+                ["我", "去", "北", "京"],
+                ["我", "去", "北", "京", "海"],
+                "我去北京 = vou a Pequim."
+              ),
+              cityContext(
+                "Quero viajar",
+                "Você está indo para Pequim.",
+                "我要去北京。",
+                ["我要去北京。", "我要票", "你好", "菜单"],
+                "beijing"
+              ),
+              cityContext(
+                "Xangai também",
+                "Agora o destino é Xangai.",
+                "我要去上海。",
+                ["我要去上海。", "我要去北京。", "超市在哪里？", "买单"],
+                "shanghai"
+              ),
+              cityContext(
+                "Já cheguei",
+                "Você está em Pequim.",
+                "我在北京。",
+                ["我在北京。", "我去北京。", "谢谢", "再见"],
+                "beijing"
+              ),
+              cityContext(
+                "Estação em Pequim",
+                "Você chegou em Pequim e precisa encontrar a estação.",
+                "北京火车站在哪里？",
+                ["北京火车站在哪里？", "你好吗？", "我很好", "菜单"],
+                "beijing",
+                "北京火车站在哪里？ combina cidade + transporte."
+              ),
+              flash("beijingshi"),
+              flash("guangdongsheng"),
+              dialogue(
+                "Município",
+                "Como se diz o município de Pequim?",
+                "北京市",
+                ["北京市", "广东省", "南京路", "洗手间"],
+                "北京市 = município de Pequim."
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-china-ruas",
+            title: "Ruas e endereços",
+            skill: "fala",
+            premium: true,
+            masteryLoop: true,
+            newHanzi: ["路", "街", "号", "区", "人", "民", "北", "京", "上", "海", "南", "地", "铁", "医", "院", "单", "酒"],
+            libraryItems: [
+              "char:lu_road",
+              "char:jie_street",
+              "char:hao_number",
+              "chunk:beijinglu",
+              "chunk:nanjinglu",
+              "chunk:renminlu",
+              "chunk:zhongshanlu",
+              "chunk:changanjie",
+              "chunk:wozainanjinglu",
+              "chunk:beijinglu10hao",
+              "chunk:shanghai_nanjinglu20hao",
+              "chunk:ditiezhan",
+              "chunk:nanjingluditiezhan",
+            ],
+            reviewItems: [
+              "chunk:beijing",
+              "chunk:shanghai",
+              "chunk:wozaibeijing",
+              "char:zai",
+            ],
+            steps: [
+              intro(
+                "Ruas que você verá",
+                "路 e 街 aparecem o tempo todo na China. Aprenda a reconhecer a placa e a dizer onde você está."
+              ),
+              listen("路", "lù", "rua; avenida"),
+              listen("街", "jiē", "rua"),
+              listen("号", "hào", "número (endereço)"),
+              placeLabel(
+                "Isto é uma rua?",
+                "Qual destas é uma rua/avenida?",
+                "路",
+                ["路", "站", "省", "茶"],
+                "rua",
+                "路 = rua/avenida."
+              ),
+              flash("beijinglu"),
+              flash("nanjinglu"),
+              flash("renminlu"),
+              flash("zhongshanlu"),
+              flash("changanjie"),
+              placeLabel(
+                "Ler a placa",
+                "Qual palavra aparece nesta placa urbana?",
+                "南京路",
+                ["南京路", "北京", "医院", "菜单"],
+                "rua",
+                "南京路 = Nanjing Road (rua), não a cidade sozinha."
+              ),
+              cityContext(
+                "Significado",
+                "北京路 significa o quê?",
+                "Beijing Road",
+                ["Beijing Road", "estação de metrô", "província", "cardápio"],
+                "beijing"
+              ),
+              addressBuild(
+                "Endereço curto",
+                "Monte: Beijing Road, número 10.",
+                ["北京", "路", "10", "号"],
+                ["北京", "路", "10", "号", "街", "站"],
+                "北京路10号 é um endereço pedagógico simples."
+              ),
+              sentenceBuild(
+                "Onde estou?",
+                "Monte: estou na Nanjing Road.",
+                ["我", "在", "南", "京", "路"],
+                ["我", "在", "南", "京", "路", "站"],
+                "我在南京路。"
+              ),
+              addressBuild(
+                "Endereço em Xangai",
+                "Monte um endereço pedagógico em Xangai.",
+                ["上", "海", "市", "南", "京", "路", "20", "号"],
+                ["上", "海", "市", "南", "京", "路", "20", "号", "省"],
+                "上海市南京路20号 — cidade + rua + número."
+              ),
+              flash("ditiezhan"),
+              cityContext(
+                "Na Nanjing Road",
+                "Você está na 南京路 e precisa encontrar o metrô.",
+                "南京路地铁站在哪里？",
+                ["南京路地铁站在哪里？", "我很好", "买单", "你好吗？"],
+                "shanghai",
+                "Combina rua real + transporte urbano."
+              ),
+              dialogue(
+                "Estação de metrô",
+                "Como se diz estação de metrô?",
+                "地铁站",
+                ["地铁站", "火车站", "北京路", "菜单"],
+                "地铁站 = estação de metrô."
+              ),
+              dialogue(
+                "Hotel na cena",
+                "Depois da rua, você procura o hotel. O que pergunta?",
+                "酒店在哪里？",
+                ["酒店在哪里？", "我很好", "菜单", "再见"],
+                "酒店在哪里？ fecha a cena urbana."
+              ),
+            ],
+          }),
+          withLessonDefaults({
             id: "p6-saude",
             title: "Saúde",
             skill: "fala",
@@ -5493,8 +5803,9 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Direções",
             skill: "fala",
             premium: true,
-            // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路.
-            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面"],
+            masteryLoop: true,
+            // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路 + mapa (转/怎) e distractores.
+            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面", "转", "怎", "单"],
             libraryItems: [
               "chunk:zuobian",
               "chunk:youbian",
@@ -5504,6 +5815,12 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wangzuozou",
               "chunk:wangyouzou",
               "chunk:nanbian",
+              "chunk:zenmezou",
+              "chunk:zuozhuan",
+              "chunk:youzhuan",
+              "chunk:yizhizou",
+              "chunk:ditiezhan",
+              "chunk:nanjingluditiezhan",
             ],
             reviewItems: [
               "chunk:zuobian",
@@ -5516,6 +5833,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:nanbian",
               "chunk:zaina",
               "chunk:chezainali",
+              "chunk:nanjinglu",
             ],
             steps: [
               intro(
@@ -5541,6 +5859,46 @@ export const JOURNEY: JourneyPhase[] = [
               listen("往左走", "wǎng zuǒ zǒu", "Vá para a esquerda"),
               listen("往右走", "wǎng yòu zǒu", "Vá para a direita"),
               listen("南边", "nánbiān", "Ao sul"),
+              flash("zenmezou"),
+              flash("zuozhuan"),
+              flash("youzhuan"),
+              flash("yizhizou"),
+              mapDirection(
+                "Mapa: vire à esquerda",
+                "酒店",
+                "地铁站",
+                "left",
+                ["left", "right", "straight"],
+                {
+                  promptPt: "Do hotel ao metrô: o que você faz?",
+                  mapScaffoldLevel: 1,
+                  explanation: "左转 = vire à esquerda.",
+                }
+              ),
+              mapDirection(
+                "Mapa: siga em frente",
+                "银行",
+                "公园",
+                "straight",
+                ["left", "right", "straight"],
+                {
+                  prompt: "一直走",
+                  mapScaffoldLevel: 2,
+                  explanation: "一直走 = siga em frente.",
+                }
+              ),
+              mapDirection(
+                "Ouça e navegue",
+                "南京路",
+                "地铁站",
+                "right",
+                ["left", "right", "straight"],
+                {
+                  audioText: "右转",
+                  mapScaffoldLevel: 3,
+                  explanation: "右转 = vire à direita.",
+                }
+              ),
               comp("直走", "zhí zǒu", "Siga em frente.", ["Siga em frente.", "Vá para a esquerda.", "Atrás.", "Está ventando."]),
               sentenceBuild(
                 "Monte: à esquerda",
@@ -5571,13 +5929,25 @@ export const JOURNEY: JourneyPhase[] = [
                 "右边 = à direita.",
                 "Passante"
               ),
-              dialogue(
-                "Siga em frente",
-                "A pessoa orienta: siga em frente. O que ela diz?",
-                "直走",
-                ["直走", "往右走", "后面", "我很好"],
-                "直走 = siga em frente.",
-                "Passante"
+              cityContext(
+                "Como chegar?",
+                "Você está na 南京路 e quer saber como chegar ao metrô.",
+                "怎么走？",
+                ["怎么走？", "我很好", "买单", "菜单"],
+                "shanghai",
+                "怎么走？ pede o caminho."
+              ),
+              mapDirection(
+                "Só chinês",
+                "南京路",
+                "地铁站",
+                "left",
+                ["left", "right", "straight", "destination"],
+                {
+                  prompt: "左转",
+                  mapScaffoldLevel: 4,
+                  explanation: "No domínio, a instrução vem só em chinês.",
+                }
               ),
             ],
           }),

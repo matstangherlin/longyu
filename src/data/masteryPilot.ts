@@ -1,11 +1,12 @@
 /**
- * Piloto Pedagogia V3 — temas representativos:
+ * Piloto Pedagogia V3 / V3.1 — temas representativos:
  * - apresentacao/cumprimentos (l2, l3)
  * - restaurante/comida (l26b)
  * - lugares/transporte (p6-cidade-lugares, p7-imersao-estacao)
+ * - China Real (p6-china-cidades, p6-china-ruas, p6-direcoes)
  *
  * Expansao lexical + passos por mastery pass. O restante da Jornada
- * continua no planner classico ate a expansao gradual.
+ * continua no planner classico ate a expansao gradual (PED-050).
  */
 
 import type { LessonStep, StepKind } from "./journey";
@@ -17,6 +18,9 @@ export const MASTERY_PILOT_LESSON_IDS = [
   "l3",
   "l26b",
   "p6-cidade-lugares",
+  "p6-china-cidades",
+  "p6-china-ruas",
+  "p6-direcoes",
   "p7-imersao-estacao",
 ] as const;
 
@@ -147,6 +151,79 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
       { ref: "chunk:huoche", hanzi: "火车", role: "receptive", meaningPt: "trem", introduceAtPass: 2 },
     ],
     networkChunks: ["我要票", "票多少钱？", "cena de compra na estacao"],
+  },
+  "p6-china-cidades": {
+    lessonId: "p6-china-cidades",
+    themePt: "China Real — cidades",
+    newVocabularyTarget: 12,
+    productiveVocabularyTarget: 6,
+    structuresTarget: ["北京在哪里？", "北京在中国", "我去 + cidade", "我要去 + cidade", "我在 + cidade", "cidade + 火车站在哪里？"],
+    communicativeFunctions: ["reconhecer cidade", "localizar", "dizer destino", "pedir estacao na cidade"],
+    vocabulary: [
+      { ref: "chunk:beijing", hanzi: "北京", pinyin: "Beijing", meaningPt: "Pequim", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:shanghai", hanzi: "上海", pinyin: "Shanghai", meaningPt: "Xangai", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:guangzhou", hanzi: "广州", pinyin: "Guangzhou", meaningPt: "Guangzhou", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:shenzhen", hanzi: "深圳", pinyin: "Shenzhen", meaningPt: "Shenzhen", role: "receptive", introduceAtPass: 1 },
+      { ref: "chunk:zhongguo", hanzi: "中国", pinyin: "Zhongguo", meaningPt: "China", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:beijingzainali", hanzi: "北京在哪里？", role: "core", meaningPt: "Onde fica Pequim?", introduceAtPass: 2 },
+      { ref: "chunk:beijingzaizhongguo", hanzi: "北京在中国。", role: "support", meaningPt: "Pequim fica na China", introduceAtPass: 2 },
+      { ref: "chunk:woqubeijing", hanzi: "我去北京。", role: "productive", meaningPt: "Vou a Pequim", introduceAtPass: 3 },
+      { ref: "chunk:woyaoqubeijing", hanzi: "我要去北京。", role: "productive", meaningPt: "Quero ir a Pequim", introduceAtPass: 3 },
+      { ref: "chunk:woyaoqushanghai", hanzi: "我要去上海。", role: "productive", meaningPt: "Quero ir a Xangai", introduceAtPass: 3 },
+      { ref: "chunk:wozaibeijing", hanzi: "我在北京。", role: "productive", meaningPt: "Estou em Pequim", introduceAtPass: 3 },
+      { ref: "chunk:beijinghuochezhanzainali", hanzi: "北京火车站在哪里？", role: "productive", meaningPt: "Onde fica a estacao de Pequim?", introduceAtPass: 4 },
+      { ref: "chunk:beijingshi", hanzi: "北京市", role: "support", meaningPt: "Municipio de Pequim", introduceAtPass: 4 },
+      { ref: "chunk:guangdongsheng", hanzi: "广东省", role: "receptive", meaningPt: "Provincia de Guangdong", introduceAtPass: 4 },
+    ],
+    networkChunks: ["北京在哪里？", "我去北京", "我要去上海", "北京火车站在哪里？"],
+  },
+  "p6-china-ruas": {
+    lessonId: "p6-china-ruas",
+    themePt: "China Real — ruas e enderecos",
+    newVocabularyTarget: 12,
+    productiveVocabularyTarget: 5,
+    structuresTarget: ["X路", "X街", "X号", "我在 + rua", "cidade + 市 + rua + 号"],
+    communicativeFunctions: ["reconhecer rua", "ler placa", "dizer onde estou", "montar endereco", "achar metro na rua"],
+    vocabulary: [
+      { ref: "char:lu_road", hanzi: "路", pinyin: "lu", meaningPt: "rua; avenida", role: "core", introduceAtPass: 1 },
+      { ref: "char:jie_street", hanzi: "街", pinyin: "jie", meaningPt: "rua", role: "core", introduceAtPass: 1 },
+      { ref: "char:hao_number", hanzi: "号", pinyin: "hao", meaningPt: "numero (endereco)", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:beijinglu", hanzi: "北京路", role: "core", meaningPt: "Beijing Road", introduceAtPass: 1 },
+      { ref: "chunk:nanjinglu", hanzi: "南京路", role: "core", meaningPt: "Nanjing Road", introduceAtPass: 2 },
+      { ref: "chunk:renminlu", hanzi: "人民路", role: "receptive", meaningPt: "Renmin Road", introduceAtPass: 2 },
+      { ref: "chunk:zhongshanlu", hanzi: "中山路", role: "receptive", meaningPt: "Zhongshan Road", introduceAtPass: 2 },
+      { ref: "chunk:changanjie", hanzi: "长安街", role: "support", meaningPt: "Chang'an Avenue", introduceAtPass: 2 },
+      { ref: "chunk:wozainanjinglu", hanzi: "我在南京路。", role: "productive", meaningPt: "Estou na Nanjing Road", introduceAtPass: 3 },
+      { ref: "chunk:beijinglu10hao", hanzi: "北京路10号", role: "productive", meaningPt: "Beijing Road 10", introduceAtPass: 3 },
+      { ref: "chunk:shanghai_nanjinglu20hao", hanzi: "上海市南京路20号", role: "productive", meaningPt: "Xangai Nanjing Road 20", introduceAtPass: 4 },
+      { ref: "chunk:ditiezhan", hanzi: "地铁站", role: "support", meaningPt: "estacao de metro", introduceAtPass: 3 },
+      { ref: "chunk:nanjingluditiezhan", hanzi: "南京路地铁站在哪里？", role: "productive", meaningPt: "Onde fica o metro da Nanjing Road?", introduceAtPass: 4 },
+    ],
+    networkChunks: ["北京路", "我在南京路", "北京路10号", "南京路地铁站在哪里？"],
+  },
+  "p6-direcoes": {
+    lessonId: "p6-direcoes",
+    themePt: "China Real — direcoes e mapa",
+    newVocabularyTarget: 12,
+    productiveVocabularyTarget: 5,
+    structuresTarget: ["左边/右边", "前面/后面", "怎么走", "左转/右转", "一直走"],
+    communicativeFunctions: ["pedir caminho", "seguir seta", "interpretar mapa", "navegar com audio"],
+    vocabulary: [
+      { ref: "char:zuo_left", hanzi: "左", role: "core", meaningPt: "esquerda", introduceAtPass: 1 },
+      { ref: "char:you_right", hanzi: "右", role: "core", meaningPt: "direita", introduceAtPass: 1 },
+      { ref: "chunk:zuobian", hanzi: "左边", role: "core", meaningPt: "a esquerda", introduceAtPass: 1 },
+      { ref: "chunk:youbian", hanzi: "右边", role: "core", meaningPt: "a direita", introduceAtPass: 1 },
+      { ref: "chunk:qianmian", hanzi: "前面", role: "support", meaningPt: "em frente", introduceAtPass: 2 },
+      { ref: "chunk:houmian", hanzi: "后面", role: "support", meaningPt: "atras", introduceAtPass: 2 },
+      { ref: "chunk:zenmezou", hanzi: "怎么走？", role: "core", meaningPt: "como chegar?", introduceAtPass: 2 },
+      { ref: "chunk:zuozhuan", hanzi: "左转", role: "productive", meaningPt: "vire a esquerda", introduceAtPass: 2 },
+      { ref: "chunk:youzhuan", hanzi: "右转", role: "productive", meaningPt: "vire a direita", introduceAtPass: 3 },
+      { ref: "chunk:yizhizou", hanzi: "一直走", role: "productive", meaningPt: "siga em frente", introduceAtPass: 3 },
+      { ref: "chunk:ditiezhan", hanzi: "地铁站", role: "support", meaningPt: "estacao de metro", introduceAtPass: 3 },
+      { ref: "char:jin_near", hanzi: "近", role: "receptive", meaningPt: "perto", introduceAtPass: 4 },
+      { ref: "char:yuan_far", hanzi: "远", role: "receptive", meaningPt: "longe", introduceAtPass: 4 },
+    ],
+    networkChunks: ["怎么走？", "左转", "一直走", "mapa hotel → metro"],
   },
 };
 
@@ -542,63 +619,287 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
     ];
   }
 
-  // p7-imersao-estacao
-  if (pass === 1) {
+  if (lessonId === "p6-china-cidades") {
+    if (pass === 1) {
+      return [
+        {
+          kind: "place_label",
+          title: "Placa urbana",
+          prompt: "Qual destas e Pequim?",
+          dialoguePrompt: "Qual destas e Pequim?",
+          correctAnswer: "北京",
+          options: ["北京", "上海", "广州", "深圳"],
+          placeLabelCategory: "cidade",
+          speaker: "Placa",
+        },
+        contextualChoice(
+          "Capital",
+          "Voce quer ir a capital da China. Qual cidade?",
+          "北京",
+          ["北京", "上海", "广州", "深圳"],
+          "北京 = Pequim, capital."
+        ),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Discriminar cidades",
+          "Qual e a capital?",
+          "北京",
+          ["北京", "上海", "广州", "深圳"],
+          "北京 = Pequim, capital — diferente de 上海."
+        ),
+        {
+          kind: "city_context",
+          title: "Onde fica?",
+          situationPt: "Voce quer saber onde fica Pequim.",
+          citySituationPt: "Voce quer saber onde fica Pequim.",
+          dialoguePrompt: "Voce quer saber onde fica Pequim.",
+          correctAnswer: "北京在哪里？",
+          options: ["北京在哪里？", "我要水", "菜单", "再见"],
+          cityId: "beijing",
+          speaker: "Situacao",
+        },
+      ];
+    }
+    if (pass === 3) {
+      return [
+        reverseRecall("Diga o destino", "Diga que voce vai a Pequim.", "我去北京", ["我去北京", "我去北京。"]),
+        sentenceTransform(
+          "De ir a querer ir",
+          "我去北京",
+          ["我", "要", "去", "北京"],
+          ["我", "要", "去", "北京", "上海"],
+          "Transforme 我去北京 em 我要去北京."
+        ),
+      ];
+    }
     return [
-      audioToAction("Ouca o bilhete", "票", "票", ["票", "车", "茶", "水"]),
-      contextualChoice(
-        "Na estacao",
-        "Voce precisa de um bilhete.",
-        "我要票",
-        ["我要票", "你好", "菜单", "公园"]
+      {
+        kind: "city_context",
+        title: "Chegou a Pequim",
+        situationPt: "Voce chegou em Pequim e precisa encontrar a estacao.",
+        citySituationPt: "Voce chegou em Pequim e precisa encontrar a estacao.",
+        dialoguePrompt: "Voce chegou em Pequim e precisa encontrar a estacao.",
+        correctAnswer: "北京火车站在哪里？",
+        options: ["北京火车站在哪里？", "我很好", "买单", "菜单"],
+        cityId: "beijing",
+        speaker: "Situacao",
+        explanation: "Cidade + transporte: transferencia, nao trivia.",
+      },
+      reverseRecall("Estou em Pequim", "Diga que voce esta em Pequim.", "我在北京", ["我在北京", "我在北京。"]),
+    ];
+  }
+
+  if (lessonId === "p6-china-ruas") {
+    if (pass === 1) {
+      return [
+        {
+          kind: "place_label",
+          title: "Qual e rua?",
+          prompt: "Qual destas e uma rua/avenida?",
+          dialoguePrompt: "Qual destas e uma rua/avenida?",
+          correctAnswer: "路",
+          options: ["路", "市", "站", "茶"],
+          placeLabelCategory: "rua",
+          speaker: "Placa",
+        },
+      ];
+    }
+    if (pass === 2) {
+      return [
+        contextualChoice(
+          "Placa real",
+          "南京路 e o que?",
+          "Uma rua",
+          ["Uma rua", "Uma cidade", "Uma estacao", "Um hotel"],
+          "南京路 = Nanjing Road (rua), nao so a cidade."
+        ),
+        {
+          kind: "place_label",
+          title: "Ler placa",
+          prompt: "Qual palavra aparece nesta placa?",
+          dialoguePrompt: "Qual palavra aparece nesta placa?",
+          correctAnswer: "南京路",
+          options: ["南京路", "北京", "医院", "菜单"],
+          placeLabelCategory: "rua",
+          speaker: "Placa",
+        },
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "address_build",
+          title: "Onde estou?",
+          prompt: "Monte: estou na Nanjing Road.",
+          targetParts: ["我", "在", "南京路"],
+          bank: ["我", "在", "南京路", "北京", "号"],
+          explanation: "我在南京路.",
+        },
+        reverseRecall("Diga a rua", "Diga que esta na Nanjing Road.", "我在南京路", ["我在南京路", "我在南京路。"]),
+      ];
+    }
+    return [
+      {
+        kind: "address_build",
+        title: "Endereco pedagogico",
+        prompt: "Monte: Beijing Road, numero 10.",
+        targetParts: ["北京", "路", "10", "号"],
+        bank: ["北京", "路", "10", "号", "街"],
+      },
+      dialogueCompletion(
+        "Na Nanjing Road",
+        "Voce esta na 南京路 e precisa do metro. O que pergunta?",
+        "南京路地铁站在哪里？",
+        ["南京路地铁站在哪里？", "我很好", "买单", "你好吗？"]
       ),
     ];
   }
-  if (pass === 2) {
+
+  if (lessonId === "p6-direcoes") {
+    if (pass === 1) {
+      return [
+        {
+          kind: "map_direction",
+          title: "Mapa: esquerda",
+          mapFromLabel: "酒店",
+          mapToLabel: "地铁站",
+          mapCorrectAction: "left",
+          mapActionOptions: ["left", "right", "straight"],
+          mapScaffoldLevel: 1,
+          promptPt: "Do hotel ao metro: vire a esquerda.",
+          correctAnswer: "left",
+          explanation: "左转 = esquerda.",
+        },
+      ];
+    }
+    if (pass === 2) {
+      return [
+        {
+          kind: "map_direction",
+          title: "Mapa: 右转",
+          mapFromLabel: "银行",
+          mapToLabel: "公园",
+          mapCorrectAction: "right",
+          mapActionOptions: ["left", "right", "straight"],
+          mapScaffoldLevel: 2,
+          prompt: "右转",
+          correctAnswer: "right",
+        },
+        substitutionDrill(
+          "Complete o lado",
+          "___边",
+          "左",
+          ["左", "右", "前", "后"],
+          "Complete: lado esquerdo."
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        {
+          kind: "map_direction",
+          title: "Ouca e navegue",
+          mapFromLabel: "南京路",
+          mapToLabel: "地铁站",
+          mapCorrectAction: "straight",
+          mapActionOptions: ["left", "right", "straight"],
+          mapScaffoldLevel: 3,
+          audioText: "一直走",
+          correctAnswer: "straight",
+        },
+        reverseRecall("Peca o caminho", "Pergunte como chegar.", "怎么走？", ["怎么走？", "怎么走"]),
+      ];
+    }
     return [
-      substitutionDrill(
-        "Transporte",
-        "我要___",
-        "票",
-        ["票", "茶", "水", "菜"],
-        "Peca o bilhete: complete 我要___."
-      ),
-      contextualChoice(
-        "Hotel",
-        "Voce chegou e procura o hotel.",
-        "酒店在哪里？",
-        ["酒店在哪里？", "我很好", "买单", "你好吗？"]
-      ),
+      {
+        kind: "map_direction",
+        title: "So chines",
+        mapFromLabel: "南京路",
+        mapToLabel: "地铁站",
+        mapCorrectAction: "left",
+        mapActionOptions: ["left", "right", "straight", "destination"],
+        mapScaffoldLevel: 4,
+        prompt: "左转",
+        correctAnswer: "left",
+        explanation: "M4: instrucao so em chines + transferencia no mapa.",
+      },
+      {
+        kind: "city_context",
+        title: "Na rua real",
+        situationPt: "Voce esta na 南京路 e quer saber como chegar ao metro.",
+        citySituationPt: "Voce esta na 南京路 e quer saber como chegar ao metro.",
+        dialoguePrompt: "Voce esta na 南京路 e quer saber como chegar ao metro.",
+        correctAnswer: "怎么走？",
+        options: ["怎么走？", "我很好", "菜单", "买单"],
+        cityId: "shanghai",
+        speaker: "Situacao",
+      },
     ];
   }
-  if (pass === 3) {
+
+  if (lessonId === "p7-imersao-estacao") {
+    if (pass === 1) {
+      return [
+        audioToAction("Ouca o bilhete", "票", "票", ["票", "车", "茶", "水"]),
+        contextualChoice(
+          "Na estacao",
+          "Voce precisa de um bilhete.",
+          "我要票",
+          ["我要票", "你好", "菜单", "公园"]
+        ),
+      ];
+    }
+    if (pass === 2) {
+      return [
+        substitutionDrill(
+          "Transporte",
+          "我要___",
+          "票",
+          ["票", "茶", "水", "菜"],
+          "Peca o bilhete: complete 我要___."
+        ),
+        contextualChoice(
+          "Hotel",
+          "Voce chegou e procura o hotel.",
+          "酒店在哪里？",
+          ["酒店在哪里？", "我很好", "买单", "你好吗？"]
+        ),
+      ];
+    }
+    if (pass === 3) {
+      return [
+        reverseRecall("Preco do bilhete", "Pergunte quanto custa o bilhete.", "票多少钱？", [
+          "票多少钱？",
+          "票多少钱",
+          "多少钱",
+        ]),
+        sentenceTransform(
+          "Do desejo ao preco",
+          "我要票",
+          ["票", "多少", "钱"],
+          ["票", "多少", "钱", "要", "车"],
+          "Passe de 'quero bilhete' para perguntar o preco."
+        ),
+      ];
+    }
     return [
-      reverseRecall("Preco do bilhete", "Pergunte quanto custa o bilhete.", "票多少钱？", [
+      reverseRecall("Cena livre", "Na estacao, compre o bilhete perguntando o preco.", "票多少钱？", [
         "票多少钱？",
         "票多少钱",
-        "多少钱",
       ]),
-      sentenceTransform(
-        "Do desejo ao preco",
+      dialogueCompletion(
+        "Balcao",
+        "Atendente: 你好！ Voce: ___",
         "我要票",
-        ["票", "多少", "钱"],
-        ["票", "多少", "钱", "要", "车"],
-        "Passe de 'quero bilhete' para perguntar o preco."
+        ["我要票", "我很好", "菜单", "公园"]
       ),
     ];
   }
-  return [
-    reverseRecall("Cena livre", "Na estacao, compre o bilhete perguntando o preco.", "票多少钱？", [
-      "票多少钱？",
-      "票多少钱",
-    ]),
-    dialogueCompletion(
-      "Balcao",
-      "Atendente: 你好！ Voce: ___",
-      "我要票",
-      ["我要票", "我很好", "菜单", "公园"]
-    ),
-  ];
+
+  return [];
 }
 
 export function planHasProductionOrTransfer(steps: readonly { kind: StepKind }[]): boolean {

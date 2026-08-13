@@ -101,6 +101,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "recognize",
       "contextual_choice",
       "audio_to_action",
+      "place_label",
+      "map_direction",
+      "city_context",
     ],
     discouragedKinds: ["free_production", "transfer_task", "conversation_repair", "reverse_recall"],
     requiredFamilies: ["recognition"],
@@ -135,6 +138,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "substitution_drill",
       "audio_to_action",
       "dialogue_completion",
+      "map_direction",
+      "place_label",
+      "city_context",
     ],
     discouragedKinds: ["intro", "flashcard"],
     requiredFamilies: ["recognition", "discrimination"],
@@ -170,6 +176,8 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "reverse_recall",
       "dialogue_completion",
       "hanzi_build",
+      "address_build",
+      "map_direction",
     ],
     discouragedKinds: ["intro", "flashcard", "match_pairs"],
     requiredFamilies: ["production"],
@@ -203,6 +211,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "dictation",
       "listen_select",
       "dialogue_choice",
+      "city_context",
+      "map_direction",
+      "address_build",
     ],
     discouragedKinds: ["intro", "flashcard", "match_pairs", "recognize"],
     requiredFamilies: ["production", "transfer"],
@@ -307,6 +318,10 @@ const KIND_TO_DIMENSION: Partial<Record<StepKind, CompetencyDimension>> = {
   substitution_drill: "production",
   dialogue_completion: "production",
   reverse_recall: "production",
+  map_direction: "meaning",
+  place_label: "form",
+  address_build: "production",
+  city_context: "meaning",
 };
 
 export function dimensionForStepKind(kind: StepKind): CompetencyDimension | null {
@@ -323,7 +338,10 @@ export function isProductionOrTransferKind(kind: StepKind): boolean {
     kind === "sentence_transform" ||
     kind === "dialogue_completion" ||
     kind === "produce" ||
-    kind === "write"
+    kind === "write" ||
+    kind === "address_build" ||
+    kind === "city_context" ||
+    kind === "map_direction"
   );
 }
 

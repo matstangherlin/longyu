@@ -156,6 +156,10 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "substitution_drill",
   "dialogue_completion",
   "reverse_recall",
+  "map_direction",
+  "place_label",
+  "address_build",
+  "city_context",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -310,7 +314,17 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "dialogue_choice" ||
     step.kind === "conversation_scene" ||
     step.kind === "hanzi_build" ||
-    step.kind === "image_choice"
+    step.kind === "image_choice" ||
+    step.kind === "contextual_choice" ||
+    step.kind === "audio_to_action" ||
+    step.kind === "dialogue_completion" ||
+    step.kind === "place_label" ||
+    step.kind === "city_context" ||
+    step.kind === "map_direction" ||
+    step.kind === "address_build" ||
+    step.kind === "sentence_transform" ||
+    step.kind === "substitution_drill" ||
+    step.kind === "reverse_recall"
   ) {
     return {
       prompt:
@@ -612,7 +626,7 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(source, "pinyin", "som");
     addText(source, "som", "som");
   }
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
+  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion") {
     const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
     if (step.kind === "conversation_scene") {
       // Não lotar com cada linha da cena — resposta principal / chunk basta;
@@ -623,6 +637,18 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
       addText(text, "uso");
       addText(text, "fala");
     }
+  }
+  if (step.kind === "address_build" || step.kind === "sentence_transform") {
+    addText(step.targetParts?.join("") ?? step.correctAnswer, "uso");
+    addText(step.targetParts?.join("") ?? step.correctAnswer, "fala");
+  }
+  if (step.kind === "map_direction") {
+    addText(step.prompt ?? step.audioText ?? step.mapCorrectAction, "uso");
+    if (step.audioText) addText(step.audioText, "som", "som");
+  }
+  if (step.kind === "reverse_recall") {
+    addText(step.answer ?? step.correctAnswer, "uso");
+    addText(step.answer ?? step.correctAnswer, "fala");
   }
   if (step.pedagogyVariant === "sentence_lab_audio") {
     addText(step.audioText ?? step.correctAnswer, "som", "som");

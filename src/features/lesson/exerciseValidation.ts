@@ -60,6 +60,10 @@ const KNOWN_KINDS: StepKind[] = [
   "substitution_drill",
   "dialogue_completion",
   "reverse_recall",
+  "map_direction",
+  "place_label",
+  "address_build",
+  "city_context",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -367,12 +371,39 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     case "contextual_choice":
     case "dialogue_completion":
     case "audio_to_action":
+    case "place_label":
+    case "city_context":
       if (!step.dialoguePrompt?.trim() && !step.prompt?.trim() && !step.situationPt?.trim() && !step.audioText?.trim()) {
         errors.push(`${step.kind} sem fala/contexto`);
       }
       checkChoice(errors, step.kind, step.correctAnswer ?? step.answer, step.options);
       checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
+
+    case "map_direction": {
+      if (!step.mapFromLabel?.trim() || !step.mapToLabel?.trim()) {
+        errors.push("map_direction sem origem/destino");
+      }
+      if (!step.mapCorrectAction) errors.push("map_direction sem mapCorrectAction");
+      const actions = step.mapActionOptions ?? [];
+      if (actions.length < 2) errors.push("map_direction: menos de 2 ações");
+      if (step.mapCorrectAction && !actions.includes(step.mapCorrectAction)) {
+        errors.push(`map_direction: ação "${step.mapCorrectAction}" fora das opções`);
+      }
+      break;
+    }
+
+    case "address_build": {
+      const parts = step.targetParts ?? [];
+      if (parts.length === 0) errors.push("address_build sem targetParts");
+      const bank = step.bank ?? [];
+      for (const piece of parts) {
+        if (!bank.some((candidate) => normalize(candidate) === normalize(piece))) {
+          errors.push(`address_build: banco não contém a peça "${piece}"`);
+        }
+      }
+      break;
+    }
 
     case "sentence_transform": {
       if (!step.sourceText?.trim()) errors.push("sentence_transform sem sourceText");

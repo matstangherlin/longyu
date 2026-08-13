@@ -194,6 +194,10 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "substitution_drill",
   "dialogue_completion",
   "reverse_recall",
+  "map_direction",
+  "place_label",
+  "address_build",
+  "city_context",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -778,6 +782,10 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   substitution_drill: ["assembly", "usage"],
   dialogue_completion: ["usage", "recognition"],
   reverse_recall: ["assembly", "usage"],
+  map_direction: ["recognition", "meaning", "usage"],
+  place_label: ["recognition", "meaning", "hanzi"],
+  address_build: ["assembly", "usage"],
+  city_context: ["usage", "recognition", "meaning"],
 };
 
 const WEIGHTS_BY_SKILL: Record<Skill | "review", Partial<Record<ExerciseFamily, number>>> = {
@@ -6235,6 +6243,10 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   substitution_drill: "substituição",
   dialogue_completion: "completar diálogo",
   reverse_recall: "produção sem alternativas",
+  map_direction: "mapa e direção",
+  place_label: "ler placa urbana",
+  address_build: "montar endereço",
+  city_context: "cidade em contexto",
 };
 
 function uniqueStepKinds(kinds: StepKind[]): StepKind[] {
