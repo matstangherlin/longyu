@@ -26,6 +26,11 @@ export interface ChinaCity {
   culturalHookPt: string;
   /** Piloto V3.1 introduz cedo. */
   pilot: boolean;
+  /** Onda 2 (V3.2): Chengdu / Xian / Nanjing com funcao lexical propria. */
+  wave2?: boolean;
+  /** Microcamada funcional desbloqueada pela cidade. */
+  functionalAxis?: "capital" | "metro" | "food_sichuan" | "history_tourism" | "south_hub" | "tech";
+  functionalLexemes?: string[];
   chunkId: string;
 }
 
@@ -54,6 +59,8 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Pequim",
     culturalHookPt: "Capital nacional.",
     pilot: true,
+    functionalAxis: "capital",
+    functionalLexemes: ["首都", "火车站"],
     chunkId: "beijing",
   },
   {
@@ -63,6 +70,8 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Xangai",
     culturalHookPt: "Grande centro economico.",
     pilot: true,
+    functionalAxis: "metro",
+    functionalLexemes: ["地铁", "机场"],
     chunkId: "shanghai",
   },
   {
@@ -72,6 +81,8 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Cantao / Guangzhou",
     culturalHookPt: "Hub do sul (Guangdong).",
     pilot: true,
+    functionalAxis: "south_hub",
+    functionalLexemes: ["广东省"],
     chunkId: "guangzhou",
   },
   {
@@ -81,6 +92,8 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Shenzhen",
     culturalHookPt: "Centro tecnologico proximo a Hong Kong.",
     pilot: true,
+    functionalAxis: "tech",
+    functionalLexemes: ["手机"],
     chunkId: "shenzhen",
   },
   {
@@ -90,6 +103,9 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Chengdu",
     culturalHookPt: "Associada a Sichuan.",
     pilot: false,
+    wave2: true,
+    functionalAxis: "food_sichuan",
+    functionalLexemes: ["四川菜", "辣", "不辣"],
     chunkId: "chengdu",
   },
   {
@@ -99,6 +115,9 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Xian",
     culturalHookPt: "Historia antiga da China.",
     pilot: false,
+    wave2: true,
+    functionalAxis: "history_tourism",
+    functionalLexemes: ["古城", "这里很老"],
     chunkId: "xian",
   },
   {
@@ -108,6 +127,9 @@ export const CHINA_CITIES: ChinaCity[] = [
     meaningPt: "Nanjing",
     culturalHookPt: "Ex-capital e cidade historica.",
     pilot: false,
+    wave2: true,
+    functionalAxis: "history_tourism",
+    functionalLexemes: ["南京路", "古城"],
     chunkId: "nanjing",
   },
   {
@@ -140,6 +162,7 @@ export const CHINA_CITIES: ChinaCity[] = [
 ];
 
 export const CHINA_PILOT_CITIES = CHINA_CITIES.filter((city) => city.pilot);
+export const CHINA_WAVE2_CITIES = CHINA_CITIES.filter((city) => city.wave2);
 
 export const CHINA_STREETS: ChinaStreet[] = [
   { id: "beijinglu", hanzi: "北京路", pinyin: "Běijīng lù", meaningPt: "Beijing Road", chunkId: "beijinglu" },
@@ -237,6 +260,7 @@ export const CHINA_REAL_PILOT_LESSON_IDS = [
   "p6-china-cidades",
   "p6-china-ruas",
   "p6-direcoes",
+  "p6-china-cidades-2",
 ] as const;
 
 export type ChinaRealPilotLessonId = (typeof CHINA_REAL_PILOT_LESSON_IDS)[number];

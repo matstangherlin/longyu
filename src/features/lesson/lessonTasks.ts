@@ -18,6 +18,7 @@ import {
   applyScaffoldToStep,
   isProductionOrTransferKind,
   masteryKindPriority,
+  MASTERY_PASS_GRADED_BUDGET,
   nextMasteryPass,
   type ItemDimensionScores,
   type MasteryLevel,
@@ -198,6 +199,11 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "place_label",
   "address_build",
   "city_context",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+  "route_sequence",
+  "schedule_reading",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -786,6 +792,11 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   place_label: ["recognition", "meaning", "hanzi"],
   address_build: ["assembly", "usage"],
   city_context: ["usage", "recognition", "meaning"],
+  sign_reading: ["recognition", "meaning", "hanzi"],
+  menu_reading: ["recognition", "meaning", "usage"],
+  price_task: ["recognition", "meaning"],
+  route_sequence: ["assembly", "usage"],
+  schedule_reading: ["recognition", "meaning", "usage"],
 };
 
 const WEIGHTS_BY_SKILL: Record<Skill | "review", Partial<Record<ExerciseFamily, number>>> = {
@@ -5955,12 +5966,24 @@ export function applyMasteryPassToPlan(
   scored.sort((a, b) => b.score - a.score || a.index - b.index);
 
   // Mantém cobertura mínima e remove excesso de kinds desencorajados em passes altas.
+  const budget = MASTERY_PASS_GRADED_BUDGET[pass];
   const kept: LessonRoundStep[] = [];
   const seenKinds = new Set<StepKind>();
   for (const item of scored) {
-    if (item.score < -1 && kept.length >= 6) continue;
+    if (item.score < -1 && kept.length >= budget.min) continue;
+    // Prefere diversidade de kinds antes de repetir o mesmo.
+    if (seenKinds.has(item.step.kind) && kept.length >= budget.max - 2) continue;
     kept.push(applyScaffoldToStep(item.step, pass));
     seenKinds.add(item.step.kind);
+    if (kept.length >= budget.max) break;
+  }
+  // Garante piso mínimo se o scoring ficou agressivo.
+  if (kept.length < budget.min) {
+    for (const item of scored) {
+      if (kept.some((step) => stepSignature(step) === stepSignature(item.step))) continue;
+      kept.push(applyScaffoldToStep(item.step, pass));
+      if (kept.length >= budget.min) break;
+    }
   }
 
   // Injeta bônus do piloto (exigência cognitiva distinta por pass).
@@ -6247,6 +6270,11 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   place_label: "ler placa urbana",
   address_build: "montar endereço",
   city_context: "cidade em contexto",
+  sign_reading: "ler placa",
+  menu_reading: "ler cardápio",
+  price_task: "preço",
+  route_sequence: "sequência de rota",
+  schedule_reading: "ler horário",
 };
 
 function uniqueStepKinds(kinds: StepKind[]): StepKind[] {

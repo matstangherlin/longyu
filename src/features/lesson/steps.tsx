@@ -4951,7 +4951,62 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
       case "audio_to_action":
       case "place_label":
       case "city_context":
-        return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "sign_reading":
+      case "menu_reading":
+      case "price_task":
+      case "schedule_reading":
+        return (
+          <StepDialogueChoice
+            step={
+              personalizedStep.kind === "sign_reading"
+                ? {
+                    ...personalizedStep,
+                    dialoguePrompt: personalizedStep.signHanzi
+                      ? `Placa: ${personalizedStep.signHanzi}`
+                      : personalizedStep.dialoguePrompt,
+                    speaker: personalizedStep.speaker ?? "Placa",
+                  }
+                : personalizedStep.kind === "price_task"
+                  ? {
+                      ...personalizedStep,
+                      dialoguePrompt: personalizedStep.priceHanzi
+                        ? `${personalizedStep.prompt ?? "Preço"} · ${personalizedStep.priceHanzi}`
+                        : personalizedStep.dialoguePrompt,
+                      speaker: personalizedStep.speaker ?? "Preço",
+                    }
+                  : personalizedStep.kind === "menu_reading"
+                    ? {
+                        ...personalizedStep,
+                        dialoguePrompt: [
+                          personalizedStep.prompt,
+                          ...(personalizedStep.menuItems ?? []).map(
+                            (item) => `${item.hanzi}${item.priceHanzi ? ` ${item.priceHanzi}` : ""}`
+                          ),
+                        ]
+                          .filter(Boolean)
+                          .join("\n"),
+                        speaker: personalizedStep.speaker ?? "Cardápio",
+                      }
+                    : personalizedStep.kind === "schedule_reading"
+                      ? {
+                          ...personalizedStep,
+                          dialoguePrompt: [
+                            personalizedStep.prompt,
+                            ...(personalizedStep.scheduleRows ?? []).map(
+                              (row) => `${row.timeHanzi} → ${row.destinationHanzi}`
+                            ),
+                          ]
+                            .filter(Boolean)
+                            .join("\n"),
+                          speaker: personalizedStep.speaker ?? "Horário",
+                        }
+                      : personalizedStep
+            }
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+          />
+        );
       case "map_direction":
         return <StepMapDirection step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "sentence_transform":
@@ -4966,9 +5021,14 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
           />
         );
       case "address_build":
+      case "route_sequence":
         return (
           <StepAddressBuild
-            step={personalizedStep}
+            step={{
+              ...personalizedStep,
+              targetParts: personalizedStep.targetParts ?? personalizedStep.routeParts,
+              bank: personalizedStep.bank ?? personalizedStep.routeParts,
+            }}
             onDone={onDone}
             onSkip={onSkip}
             onMistake={handleMistake}

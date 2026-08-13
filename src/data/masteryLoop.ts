@@ -104,6 +104,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "place_label",
       "map_direction",
       "city_context",
+      "sign_reading",
+      "menu_reading",
+      "price_task",
     ],
     discouragedKinds: ["free_production", "transfer_task", "conversation_repair", "reverse_recall"],
     requiredFamilies: ["recognition"],
@@ -141,6 +144,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "map_direction",
       "place_label",
       "city_context",
+      "sign_reading",
+      "price_task",
+      "schedule_reading",
     ],
     discouragedKinds: ["intro", "flashcard"],
     requiredFamilies: ["recognition", "discrimination"],
@@ -178,6 +184,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "hanzi_build",
       "address_build",
       "map_direction",
+      "route_sequence",
+      "menu_reading",
+      "price_task",
     ],
     discouragedKinds: ["intro", "flashcard", "match_pairs"],
     requiredFamilies: ["production"],
@@ -214,6 +223,9 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
       "city_context",
       "map_direction",
       "address_build",
+      "route_sequence",
+      "sign_reading",
+      "menu_reading",
     ],
     discouragedKinds: ["intro", "flashcard", "match_pairs", "recognize"],
     requiredFamilies: ["production", "transfer"],
@@ -322,6 +334,11 @@ const KIND_TO_DIMENSION: Partial<Record<StepKind, CompetencyDimension>> = {
   place_label: "form",
   address_build: "production",
   city_context: "meaning",
+  sign_reading: "form",
+  menu_reading: "meaning",
+  price_task: "meaning",
+  route_sequence: "production",
+  schedule_reading: "meaning",
 };
 
 export function dimensionForStepKind(kind: StepKind): CompetencyDimension | null {
@@ -341,8 +358,52 @@ export function isProductionOrTransferKind(kind: StepKind): boolean {
     kind === "write" ||
     kind === "address_build" ||
     kind === "city_context" ||
-    kind === "map_direction"
+    kind === "map_direction" ||
+    kind === "route_sequence"
   );
+}
+
+/**
+ * V3.2 — orçamento de passos graduados por pass.
+ * O plano pode ter muitos candidatos; o planner escolhe ~7–10 para
+ * manter M1–M4 profundos sem sessões de 15+ exercícios.
+ */
+export const MASTERY_PASS_GRADED_BUDGET: Record<MasteryPass, { min: number; max: number }> = {
+  1: { min: 6, max: 9 },
+  2: { min: 6, max: 9 },
+  3: { min: 7, max: 10 },
+  4: { min: 7, max: 10 },
+};
+
+/** Respostas semanticamente equivalentes para produção M3/M4. */
+const EQUIVALENT_ANSWER_GROUPS: string[][] = [
+  ["我要水", "我要水。", "我想喝水", "我想喝水。"],
+  ["我要茶", "我要茶。", "我想喝茶", "我想喝茶。"],
+  ["谢谢", "谢谢！", "谢谢。"],
+  ["不客气", "不客气。", "不用谢", "不用谢。"],
+  ["再见", "再见！", "再见。"],
+  ["多少钱", "多少钱？", "多少钱。"],
+  ["怎么走", "怎么走？", "怎么走。"],
+  ["我需要帮助", "我需要帮助。", "请帮助我", "请帮助我。"],
+];
+
+export function equivalentAnswersFor(canonical: string): string[] {
+  const key = canonical.trim();
+  const group = EQUIVALENT_ANSWER_GROUPS.find((entries) =>
+    entries.some((entry) => entry.replace(/[。！？]/g, "") === key.replace(/[。！？]/g, ""))
+  );
+  if (!group) return [canonical, `${canonical.replace(/[。！？]$/, "")}`, `${canonical.replace(/[。！？]$/, "")}。`].filter(Boolean);
+  return [...new Set(group)];
+}
+
+export function withEquivalentAccepts<T extends { answer?: string; correctAnswer?: string; accepts?: string[] }>(
+  step: T,
+  extras: string[] = []
+): T {
+  const canonical = step.answer ?? step.correctAnswer;
+  if (!canonical) return step;
+  const merged = [...new Set([...(step.accepts ?? []), ...equivalentAnswersFor(canonical), ...extras])];
+  return { ...step, accepts: merged };
 }
 
 /** Atualiza scores dimensionais com EMA suave após um exercício. */

@@ -549,6 +549,11 @@ const EXPOSURE_AXES_BY_KIND: Record<StepKind, PedagogicalExposureAxis[]> = {
   place_label: ["forma", "significado", "contexto"],
   address_build: ["producao", "forma", "contexto"],
   city_context: ["contexto", "significado", "producao"],
+  sign_reading: ["forma", "significado", "contexto"],
+  menu_reading: ["significado", "contexto"],
+  price_task: ["significado", "contexto"],
+  route_sequence: ["producao", "forma", "contexto"],
+  schedule_reading: ["significado", "contexto"],
 };
 
 function exposureTextSources(step: LessonStep): string[] {

@@ -100,9 +100,9 @@ const chunkByHanzi = new Map(CHUNKS.map((chunk) => [normalizeHanzi(chunk.hanzi),
 
 const AUDIO_KINDS = new Set(["listen", "listen_select", "tone", "tone_pair", "image_choice"]);
 const PINYIN_KINDS = new Set(["tone", "tone_pair", "listen_select", "image_choice"]);
-const MEANING_KINDS = new Set(["comprehend", "flashcard", "dialogue_choice", "conversation_scene", "match_pairs", "image_choice", "compare_with_image", "place_label", "city_context", "contextual_choice", "map_direction"]);
-const HANZI_KINDS = new Set(["recognize", "decompose", "hanzi_build", "hanzi_evolution", "image_choice", "compare_with_image", "place_label"]);
-const PHRASE_KINDS = new Set(["produce", "write", "sentence_build", "translation_build", "fill_blank", "dialogue_choice", "conversation_scene", "microread", "address_build", "city_context", "sentence_transform"]);
+const MEANING_KINDS = new Set(["comprehend", "flashcard", "dialogue_choice", "conversation_scene", "match_pairs", "image_choice", "compare_with_image", "place_label", "city_context", "contextual_choice", "map_direction", "sign_reading", "menu_reading", "price_task", "schedule_reading"]);
+const HANZI_KINDS = new Set(["recognize", "decompose", "hanzi_build", "hanzi_evolution", "image_choice", "compare_with_image", "place_label", "sign_reading"]);
+const PHRASE_KINDS = new Set(["produce", "write", "sentence_build", "translation_build", "fill_blank", "dialogue_choice", "conversation_scene", "microread", "address_build", "city_context", "sentence_transform", "route_sequence"]);
 
 export function findUnitById(unitId: string): Unit | undefined {
   for (const phase of JOURNEY) {
@@ -216,8 +216,8 @@ function itemsFromLessons(lessons: readonly Lesson[], pool: ModuleReviewFocusIte
       if (step.kind === "tone") addFocusItem(items, focusFromText(step.hanzi, step.pinyin), pool);
       if (step.kind === "comprehend") addFocusItem(items, focusFromText(step.hanzi, step.pinyin, step.answer), pool);
       if (step.kind === "listen_select") addFocusItem(items, focusFromText(step.audioText ?? step.correctAnswer, undefined, step.explanation), pool);
-      if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "hanzi_build" || step.kind === "address_build" || step.kind === "sentence_transform") {
-        addFocusItem(items, focusFromText(step.correctAnswer ?? step.targetParts?.join(""), step.sourcePinyin, step.explanation), pool);
+      if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "hanzi_build" || step.kind === "address_build" || step.kind === "sentence_transform" || step.kind === "route_sequence") {
+        addFocusItem(items, focusFromText(step.correctAnswer ?? step.targetParts?.join("") ?? step.routeParts?.join(""), step.sourcePinyin, step.explanation), pool);
       }
       if (step.kind === "fill_blank") {
         addFocusItem(
@@ -226,8 +226,8 @@ function itemsFromLessons(lessons: readonly Lesson[], pool: ModuleReviewFocusIte
           pool
         );
       }
-      if (step.kind === "dialogue_choice" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion") {
-        addFocusItem(items, focusFromText(step.correctAnswer ?? step.answer, undefined, step.explanation), pool);
+      if (step.kind === "dialogue_choice" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion" || step.kind === "sign_reading" || step.kind === "menu_reading" || step.kind === "price_task" || step.kind === "schedule_reading") {
+        addFocusItem(items, focusFromText(step.correctAnswer ?? step.answer ?? step.signHanzi ?? step.priceHanzi, undefined, step.explanation), pool);
       }
       if (step.kind === "map_direction") {
         addFocusItem(items, focusFromText(step.prompt ?? step.audioText ?? step.mapCorrectAction, undefined, step.explanation), pool);

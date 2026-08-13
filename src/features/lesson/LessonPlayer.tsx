@@ -160,6 +160,11 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "place_label",
   "address_build",
   "city_context",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+  "route_sequence",
+  "schedule_reading",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -324,7 +329,12 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "address_build" ||
     step.kind === "sentence_transform" ||
     step.kind === "substitution_drill" ||
-    step.kind === "reverse_recall"
+    step.kind === "reverse_recall" ||
+    step.kind === "sign_reading" ||
+    step.kind === "menu_reading" ||
+    step.kind === "price_task" ||
+    step.kind === "route_sequence" ||
+    step.kind === "schedule_reading"
   ) {
     return {
       prompt:
@@ -626,7 +636,7 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(source, "pinyin", "som");
     addText(source, "som", "som");
   }
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion") {
+  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion" || step.kind === "sign_reading" || step.kind === "menu_reading" || step.kind === "price_task" || step.kind === "schedule_reading") {
     const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
     if (step.kind === "conversation_scene") {
       // Não lotar com cada linha da cena — resposta principal / chunk basta;
@@ -638,9 +648,9 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
       addText(text, "fala");
     }
   }
-  if (step.kind === "address_build" || step.kind === "sentence_transform") {
-    addText(step.targetParts?.join("") ?? step.correctAnswer, "uso");
-    addText(step.targetParts?.join("") ?? step.correctAnswer, "fala");
+  if (step.kind === "address_build" || step.kind === "sentence_transform" || step.kind === "route_sequence") {
+    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "uso");
+    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "fala");
   }
   if (step.kind === "map_direction") {
     addText(step.prompt ?? step.audioText ?? step.mapCorrectAction, "uso");

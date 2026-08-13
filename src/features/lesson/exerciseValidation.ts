@@ -64,6 +64,11 @@ const KNOWN_KINDS: StepKind[] = [
   "place_label",
   "address_build",
   "city_context",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+  "route_sequence",
+  "schedule_reading",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -373,9 +378,17 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     case "audio_to_action":
     case "place_label":
     case "city_context":
-      if (!step.dialoguePrompt?.trim() && !step.prompt?.trim() && !step.situationPt?.trim() && !step.audioText?.trim()) {
+    case "sign_reading":
+    case "menu_reading":
+    case "price_task":
+    case "schedule_reading":
+      if (!step.dialoguePrompt?.trim() && !step.prompt?.trim() && !step.situationPt?.trim() && !step.audioText?.trim() && !step.signHanzi?.trim() && !step.priceHanzi?.trim()) {
         errors.push(`${step.kind} sem fala/contexto`);
       }
+      if (step.kind === "sign_reading" && !step.signHanzi?.trim()) errors.push("sign_reading sem signHanzi");
+      if (step.kind === "menu_reading" && !(step.menuItems?.length)) errors.push("menu_reading sem menuItems");
+      if (step.kind === "price_task" && !step.priceHanzi?.trim()) errors.push("price_task sem priceHanzi");
+      if (step.kind === "schedule_reading" && !(step.scheduleRows?.length)) errors.push("schedule_reading sem scheduleRows");
       checkChoice(errors, step.kind, step.correctAnswer ?? step.answer, step.options);
       checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
@@ -393,13 +406,14 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       break;
     }
 
-    case "address_build": {
-      const parts = step.targetParts ?? [];
-      if (parts.length === 0) errors.push("address_build sem targetParts");
+    case "address_build":
+    case "route_sequence": {
+      const parts = step.targetParts ?? step.routeParts ?? [];
+      if (parts.length === 0) errors.push(`${step.kind} sem targetParts`);
       const bank = step.bank ?? [];
       for (const piece of parts) {
         if (!bank.some((candidate) => normalize(candidate) === normalize(piece))) {
-          errors.push(`address_build: banco não contém a peça "${piece}"`);
+          errors.push(`${step.kind}: banco não contém a peça "${piece}"`);
         }
       }
       break;
