@@ -1461,7 +1461,13 @@ const SEED_FILLER_HANZI = new Set([
 ]);
 
 function isSeedFillerHanzi(hanzi: string): boolean {
-  return SEED_FILLER_HANZI.has(cleanHanzi(hanzi));
+  const cleaned = cleanHanzi(hanzi);
+  if (SEED_FILLER_HANZI.has(cleaned)) return true;
+  // Frases ancoradas no seed (ex.: 请问，你好吗？) contam como filler de cumprimento.
+  for (const seed of SEED_FILLER_HANZI) {
+    if (seed.length >= 2 && cleaned.includes(seed)) return true;
+  }
+  return false;
 }
 
 function focusAllowsSeedDistractor(focus: FocusItem[], seedHanzi: string): boolean {
@@ -2748,9 +2754,6 @@ function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
 function maxConversationScenesForLesson(lesson: Lesson): number {
   // Lições-conceito de fundação: R9 / audit pedem só autoral leve — sem cena gerada.
   if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
-  // PED-021/027: microtarefas de tom (p2-ma-*) praticam contorno, não reabrem
-  // conversa de cumprimento — manutenção de 你好吗 fica em review/SRS.
-  if (/^p2-ma-/.test(lesson.id) || /^p2-comparar-tom-/.test(lesson.id)) return 0;
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
   return 1;
@@ -3624,6 +3627,8 @@ function supplementalStepsForStage(
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
     // Em lições-conceito de fundação, não misturar CORE_REVIEW no pool da cena.
+    // Em microtarefas de tom, a cena pode ancorar o som em frase conhecida, mas
+    // o loop pós-conversa (abaixo) não vira bateria de seed (PED-021/027).
     if (allowConversation) {
       const conversationReview = FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") &&
         options.lessonId !== "p1-engine-2-lab"
@@ -4002,6 +4007,7 @@ function generatedCandidatesFor(
   // audit:early-lessons. Restringe knownRefs ao foco da própria lição.
   const foundationConcept =
     FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
+  const practiceFocus = practiceFocusForLesson(lesson, focus);
   const sceneSelection: ConversationSceneSelection = {
     lessonInfo: conversationSceneLessonInfo(lesson, focus, foundationConcept ? focus : reviewFocus),
     context: sceneContext,
@@ -4011,7 +4017,6 @@ function generatedCandidatesFor(
     history,
   };
   const candidates: PracticeCandidate[] = [];
-  const practiceFocus = practiceFocusForLesson(lesson, focus);
   for (const stageId of LESSON_STAGE_ORDER) {
     // Pool de candidatos, não tamanho do plano: quanto maior, mais escolha o
     // seletor tem. Com os motores da onda 2 disputando as mesmas vagas, um
@@ -5381,7 +5386,11 @@ export function applyConversationVocabularyLoop(
     const focusByRef = new Map<string, FocusItem>();
     for (const item of relevant) {
       const focusItem = focusItemFromRef(item.ref);
-      if (focusItem) focusByRef.set(item.ref, focusItem);
+      if (!focusItem) continue;
+      // PED-021/027: em lições que não ensinam cumprimento, o loop pós-conversa
+      // não deve transformar 你好/谢谢/… em bateria de prática dedicada.
+      if (!isGreetingFocusedLesson(lesson) && isSeedFillerHanzi(focusItem.hanzi)) continue;
+      focusByRef.set(item.ref, focusItem);
     }
 
     const variantLevel = conversationStep.conversationVariantLevel ?? "guided";
