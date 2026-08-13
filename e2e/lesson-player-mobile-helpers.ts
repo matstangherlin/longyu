@@ -304,8 +304,10 @@ export async function advanceUntilSelector(
   page: Page,
   selector: string,
   maxSteps = 45,
-  timeoutMs = 120_000
+  timeoutMs = 120_000,
+  options: { allowSkip?: boolean } = {}
 ): Promise<boolean> {
+  const allowSkip = options.allowSkip ?? true;
   const target = page.locator(selector);
   const deadline = Date.now() + timeoutMs;
   let steps = 0;
@@ -317,7 +319,7 @@ export async function advanceUntilSelector(
     ) {
       return false;
     }
-    const skipped = await clickFirstVisible(page, [/^Pular/]);
+    const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;
     if (!skipped) {
       const advanced = await advanceOneStep(page);
       if (!advanced) await page.waitForTimeout(180);
@@ -458,25 +460,12 @@ export async function openOpenProductionStep(page: Page) {
   await page.goto("/licao/l26b/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  const openCopy = page.getByText(/Diga do seu jeito|Você escolhe/i).first();
-  const deadline = Date.now() + 120_000;
-  let steps = 0;
-  while (!(await openCopy.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {
-    steps += 1;
-    await dismissBlockingOverlays(page);
-    if (
-      await page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i }).isVisible().catch(() => false)
-    ) {
-      break;
-    }
-    const skipped = await clickFirstVisible(page, [/^Pular/]);
-    if (!skipped) {
-      const advanced = await advanceOneStep(page);
-      if (!advanced) await page.waitForTimeout(180);
-    } else {
-      await page.waitForTimeout(120);
-    }
-  }
-  await expect(openCopy).toBeVisible({ timeout: 5_000 });
+  // Mesmo padrão da transferência: avançar até o seletor estável.
+  // Não preferir "Pular" — isso saltava a conversa e o degrau aberto.
+  const ok = await advanceUntilSelector(page, '[data-production-assist="open"]', 80, 150_000, {
+    allowSkip: false,
+  });
+  expect(ok).toBe(true);
+  await expect(page.getByText(/Diga do seu jeito|Você escolhe/i).first()).toBeVisible();
   await expect(page.locator('[data-production-step="free_production"]')).toBeVisible();
 }
