@@ -28,6 +28,7 @@ import {
   resolveConversationErrorRefs,
 } from "../../lib/conversationVocabularySrs";
 import { conversationSceneById } from "../../data/conversationScenes";
+import { resolveVisualConcept } from "../../data/visualVocabulary";
 import { manifestFromConversationStep } from "./lessonTasks";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
@@ -138,6 +139,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "compare_with_image",
   "audio_discrimination",
   "dictation",
   "odd_one_out",
@@ -281,6 +283,16 @@ function correctionForStep(step: LessonStep): LessonMistake {
       detail: step.explanation,
     };
   }
+  if (step.kind === "compare_with_image") {
+    const correctConcept = resolveVisualConcept(step.correctImageId ?? step.correctAnswer);
+    return {
+      prompt: step.promptPt ?? step.prompt ?? "Comparação visual",
+      correction: correctConcept
+        ? `${correctConcept.hanzi} — ${correctConcept.meaningPt}`
+        : step.correctAnswer ?? step.correctImageId ?? "Reveja a associação correta",
+      detail: step.explanation,
+    };
+  }
   if (
     step.kind === "listen_select" ||
     step.kind === "sentence_build" ||
@@ -300,6 +312,7 @@ function correctionForStep(step: LessonStep): LessonMistake {
         "Exercício",
       correction:
         step.correctAnswer ??
+        step.correctImageId ??
         step.checkpoint?.correctAnswer ??
         step.answer ??
         step.blankAnswer ??
@@ -580,6 +593,11 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     }
     addText(hanzi, "significado");
   }
+  if (step.kind === "compare_with_image") {
+    const hanzi = step.targetHanzi ?? step.hanzi;
+    addText(hanzi, "significado");
+    addText(hanzi, "forma", "hanzi");
+  }
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) {
     const source = step.sourceText ?? step.hanzi ?? step.audioText;
     addText(source, "pinyin", "som");
@@ -665,6 +683,7 @@ function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
     if (mode === "choose_hanzi" || mode === "choose_image") return "forma";
     return "significado";
   }
+  if (step.kind === "compare_with_image") return "significado";
   if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) return "pinyin";
   if (step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build") return "forma";
   if (step.kind === "comprehend" || step.kind === "match_pairs") return "significado";
@@ -825,6 +844,14 @@ function diagnosisForAnswer(step: LessonStep, expected: string, given: string | 
   });
 }
 
+function compareWithImageMistakeReason(step: LessonStep, selectedAnswer: string | undefined): string | undefined {
+  if (step.kind !== "compare_with_image" || !selectedAnswer) return undefined;
+  const selectedConcept = resolveVisualConcept(selectedAnswer);
+  if (!selectedConcept) return step.explanation;
+  const selection = `Você escolheu ${selectedConcept.hanzi}, que significa ${selectedConcept.meaningPt}.`;
+  return step.explanation ? `${selection} ${step.explanation}` : selection;
+}
+
 function mistakeReasonForStep(step: LessonStep): string {
   if (step.pedagogyVariant === "audio_same_different") return "Contraste auditivo e tonal ainda instável.";
   if (step.pedagogyVariant === "dragon_dictation") return "Mapeamento entre áudio e escrita ainda precisa de recuperação.";
@@ -851,6 +878,7 @@ function mistakeReasonForStep(step: LessonStep): string {
   if (step.kind === "fill_blank") return "Chunk de uso ainda não automatizado.";
   if (step.kind === "recognize" || step.kind === "hanzi_build") return "Reconhecimento visual do hànzì ainda frágil.";
   if (step.kind === "image_choice") return "Associação visual com hànzì, pinyin ou significado ainda instável.";
+  if (step.kind === "compare_with_image") return "Contraste entre conceitos visuais próximos ainda instável.";
   if (step.kind === "comprehend" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
     return step.kind === "conversation_scene"
       ? "Resposta da conversa ainda insegura — revise a fala no contexto."
@@ -2261,7 +2289,9 @@ export function LessonPlayer() {
         step.checkpoint?.explanation ??
         correction.detail ??
         (correction.correction ? `Sugestão: ${correction.correction}` : undefined),
-      mistakeReason: diagnosis.cause === "unclassified" ? mistakeReasonForStep(step) : diagnosis.feedbackPt,
+      mistakeReason:
+        compareWithImageMistakeReason(step, selectedAnswer) ??
+        (diagnosis.cause === "unclassified" ? mistakeReasonForStep(step) : diagnosis.feedbackPt),
       diagnosis: diagnosis.cause,
       diagnosisConfidence: diagnosis.confidence,
       timestamp: Date.now(),
@@ -2709,6 +2739,8 @@ export function LessonPlayer() {
         metadata: {
           correct: wasCorrect,
           imageChoiceMode: currentStep.imageChoiceMode ?? null,
+          compareWithImageMode: currentStep.compareWithImageMode ?? null,
+          compareWithImageLevel: currentStep.compareWithImageLevel ?? null,
           imageId: currentStep.imageId ?? currentStep.iconId ?? null,
           helpLevel: meta?.helpLevel ?? null,
           helpRequests: meta?.helpRequests ?? null,
@@ -2722,7 +2754,7 @@ export function LessonPlayer() {
               }),
         },
       });
-      if (currentStep.kind === "image_choice") {
+      if (currentStep.kind === "image_choice" || currentStep.kind === "compare_with_image") {
         void trackPedagogyEvent({
           eventType: "image_exercise_answered",
           lessonId: lesson.id,
@@ -2732,6 +2764,8 @@ export function LessonPlayer() {
             correct: wasCorrect,
             imageId: currentStep.imageId ?? currentStep.iconId ?? null,
             mode: currentStep.imageChoiceMode ?? null,
+            compareMode: currentStep.compareWithImageMode ?? null,
+            compareLevel: currentStep.compareWithImageLevel ?? null,
           },
         });
       }

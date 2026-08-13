@@ -164,6 +164,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "compare_with_image",
   "audio_discrimination",
   "dictation",
   "odd_one_out",
@@ -479,6 +480,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "match_pairs",
     "tone_pair",
     "image_choice",
+    "compare_with_image",
     "audio_discrimination",
     "odd_one_out",
   ],
@@ -503,6 +505,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "fill_blank",
     "listen_select",
     "image_choice",
+    "compare_with_image",
     "recognize",
     "hanzi_build",
     "translation_build",
@@ -528,6 +531,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "hanzi_build",
     "tone_pair",
     "image_choice",
+    "compare_with_image",
     "microread",
     "audio_discrimination",
     "dictation",
@@ -725,6 +729,7 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   hanzi_build: ["hanzi", "assembly"],
   tone_pair: ["pinyin", "audio", "matching"],
   image_choice: ["recognition", "hanzi", "meaning", "audio"],
+  compare_with_image: ["recognition", "meaning", "review"],
   audio_discrimination: ["audio", "pinyin"],
   dictation: ["audio", "assembly", "hanzi"],
   odd_one_out: ["meaning", "recognition"],
@@ -3432,7 +3437,7 @@ export function makeImageChoiceStepForFocus(
 }
 
 function imageConceptIdOfStep(step: LessonStep): string | undefined {
-  if (step.kind !== "image_choice") return undefined;
+  if (step.kind !== "image_choice" && step.kind !== "compare_with_image") return undefined;
   const id = String(step.imageId ?? step.iconId ?? "").trim();
   return id || undefined;
 }
@@ -3460,6 +3465,8 @@ function stepSignature(step: LessonStep): string {
     step.chunkId,
     step.sceneId,
     step.imageChoiceMode,
+    step.compareWithImageMode,
+    step.compareWithImageLevel,
     step.imageId,
     step.correctImageId,
     step.target?.join("|"),
@@ -3858,7 +3865,11 @@ function stepTextBlob(step: LessonStep): string {
     step.sourceText,
     step.sourcePinyin,
     step.sourceMeaning,
+    step.promptPt,
+    step.targetHanzi,
+    step.targetMeaningPt,
     step.correctAnswer,
+    step.correctImageId,
     step.blankAnswer,
     step.sentenceBefore,
     step.sentenceAfter,
@@ -3867,6 +3878,7 @@ function stepTextBlob(step: LessonStep): string {
     step.targetParts?.join(""),
     ...(step.acceptedTargetParts ?? []).map((parts) => parts.join("")),
     ...(step.options ?? []),
+    ...(step.imageOptions ?? []),
     ...(step.bank ?? []),
     ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
     ...(step.lines ?? []).flatMap((line) => [line.hanzi, line.pinyin, line.pt]),
@@ -3943,7 +3955,10 @@ function noveltyScoreBonus(lesson: Lesson, step: LessonStep, reviewFocus: FocusI
   if (isRealSentenceStepAnswer(step)) bonus += 25;
   if (step.kind === "conversation_scene") bonus += 25;
   if (cognitiveProfile(step).familyRank >= 2 && stepUsesFocus(step, reviewFocus)) bonus += 20;
-  if (step.kind === "image_choice" && lessonOwnGlyphs(lesson).has(cleanHanzi(step.targetHanzi ?? ""))) bonus += 20;
+  if (
+    (step.kind === "image_choice" || step.kind === "compare_with_image") &&
+    lessonOwnGlyphs(lesson).has(cleanHanzi(step.targetHanzi ?? ""))
+  ) bonus += 20;
   if (step.kind === "listen_select" || (step.kind === "image_choice" && step.imageChoiceMode === "listen_and_choose_image")) {
     bonus += 15;
   }
@@ -4205,7 +4220,10 @@ function violatesImageRepeat(
   selected: readonly PracticeCandidate[],
   candidate: PracticeCandidate
 ): boolean {
-  if (!candidate.generated || candidate.step.kind !== "image_choice") return false;
+  if (
+    !candidate.generated ||
+    (candidate.step.kind !== "image_choice" && candidate.step.kind !== "compare_with_image")
+  ) return false;
   const conceptId = imageConceptIdOfStep(candidate.step);
   if (!conceptId) return false;
   return selectedImageConceptIds(selected).has(conceptId);
@@ -4420,6 +4438,12 @@ function ensureCoverage(
       );
     }
   }
+  // Comparações são autorais e curadas (contraste + dificuldade + feedback),
+  // portanto uma lição que as declara precisa entregar pelo menos uma no plano
+  // real. Não geramos comparações automaticamente para evitar pares ambíguos.
+  if (candidates.some((candidate) => candidate.step.kind === "compare_with_image")) {
+    ensure((candidate) => candidate.step.kind === "compare_with_image", true);
+  }
   // Núcleo de revisão (再见/谢谢…) só depois que o aluno já saiu da fundação
   // E só com frases que o currículo já apresentou (senão vaza 明天/这 cedo).
   if (reviewFocus.length > 0 && !earlyPedagogy) {
@@ -4567,7 +4591,10 @@ function practicePlanWarnings(
     }
   }
   const imageInfo = lessonImageCoverageInfo(lesson);
-  if (imageInfo.eligible && !plan.some((step) => step.kind === "image_choice")) {
+  if (
+    imageInfo.eligible &&
+    !plan.some((step) => step.kind === "image_choice" || step.kind === "compare_with_image")
+  ) {
     warnings.push("lição concreta sem exercício visual");
   }
   if (lesson.steps.length > 0 && plan.length === 0) warnings.push("plano vazio");
@@ -6029,6 +6056,7 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   hanzi_build: "montar hànzì",
   tone_pair: "pares de tom",
   image_choice: "imagem e associação",
+  compare_with_image: "comparar com imagem",
   audio_discrimination: "par mínimo",
   dictation: "ditado",
   odd_one_out: "qual não pertence",

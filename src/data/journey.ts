@@ -45,6 +45,7 @@ export type StepKind =
   | "hanzi_build"
   | "tone_pair"
   | "image_choice"
+  | "compare_with_image"
   // ——— Motores de percepção e sentido (src/data/perceptionDrills.ts) ———
   | "audio_discrimination"
   | "dictation"
@@ -86,6 +87,7 @@ export interface LessonStage {
 export type StepTextType = "pt" | "hanzi" | "pinyin" | "audio";
 export type StepHelpMode = "character" | "word" | "sentence" | "progressive" | "disabled";
 export type DictationMode = "blocks" | "pinyin" | "hanzi" | "immersion";
+export type CompareWithImageMode = "word_to_image" | "image_to_word";
 export type PedagogyVariant =
   | "audio_same_different"
   | "dragon_dictation"
@@ -127,6 +129,10 @@ export interface LessonStep {
   targetMeaningPt?: string;
   imageOptions?: string[];
   correctImageId?: string;
+  /** Comparação visual curada: palavra → duas imagens ou imagem → duas palavras. */
+  compareWithImageMode?: CompareWithImageMode;
+  /** 1 = contraste evidente · 2 = mesma categoria · 3 = contraste semântico próximo. */
+  compareWithImageLevel?: 1 | 2 | 3;
   text?: string;
   pinyin?: string;
   pt?: string;
@@ -483,6 +489,34 @@ const imageChoice = (
     promptPt,
     targetHanzi: visual?.hanzi,
     targetPinyin: visual?.pinyin,
+    targetMeaningPt: extra.targetMeaningPt ?? visual?.meaningPt,
+    explanation: extra.explanation,
+    helpMode: extra.helpMode,
+    isNoHint: extra.isNoHint,
+    ...(isImagePick
+      ? { imageOptions: options, correctImageId: answer }
+      : { options, correctAnswer: answer }),
+  };
+};
+const compareWithImage = (
+  mode: CompareWithImageMode,
+  level: 1 | 2 | 3,
+  imageId: VisualConceptId,
+  promptPt: string,
+  answer: string,
+  options: string[],
+  extra: Partial<LessonStep> = {}
+): LessonStep => {
+  const visual = resolveVisualConcept(imageId);
+  const isImagePick = mode === "word_to_image";
+  return {
+    kind: "compare_with_image",
+    compareWithImageMode: mode,
+    compareWithImageLevel: level,
+    imageId,
+    promptPt,
+    targetHanzi: extra.targetHanzi ?? visual?.hanzi,
+    targetPinyin: extra.targetPinyin ?? visual?.pinyin,
     targetMeaningPt: extra.targetMeaningPt ?? visual?.meaningPt,
     explanation: extra.explanation,
     helpMode: extra.helpMode,
@@ -4639,6 +4673,15 @@ export const JOURNEY: JourneyPhase[] = [
                 visualMeaningOptions("restaurant"),
                 { explanation: "饭馆 (fànguǎn) é um restaurante; 餐厅 também é muito usado." }
               ),
+              compareWithImage(
+                "word_to_image",
+                1,
+                "restaurant",
+                "饭馆 é o lugar onde você come. Qual imagem mostra o lugar, não o cardápio?",
+                "restaurant",
+                ["restaurant", "menu"],
+                { explanation: "饭馆 (fànguǎn) é o restaurante; 菜单 (càidān) é apenas o cardápio usado lá." }
+              ),
               sentenceBuild(
                 "Peça arroz",
                 "Monte: quero arroz.",
@@ -4973,6 +5016,24 @@ export const JOURNEY: JourneyPhase[] = [
                 "banco",
                 visualMeaningOptions("bank"),
                 { explanation: "银行 (yínháng) = banco." }
+              ),
+              compareWithImage(
+                "word_to_image",
+                2,
+                "supermarket",
+                "Você precisa comprar comida. Qual imagem corresponde a 超市?",
+                "supermarket",
+                ["supermarket", "hospital"],
+                { explanation: "超市 (chāoshì) é o supermercado; 医院 (yīyuàn) é o hospital." }
+              ),
+              compareWithImage(
+                "image_to_word",
+                2,
+                "bank",
+                "Compare os lugares e escolha a palavra da imagem.",
+                "银行",
+                ["银行", "超市"],
+                { explanation: "银行 (yínháng) é o banco, onde você resolve pagamentos e dinheiro; 超市 é supermercado." }
               ),
               match(
                 "Onde fica o quê?",
@@ -5949,6 +6010,15 @@ export const JOURNEY: JourneyPhase[] = [
                 "metro",
                 visualImageOptions("metro"),
                 { explanation: "地铁 (dìtiě) = metrô, diferente do trem 火车." }
+              ),
+              compareWithImage(
+                "word_to_image",
+                3,
+                "metro",
+                "地铁 é o transporte urbano subterrâneo. Compare com 火车 e escolha.",
+                "metro",
+                ["metro", "train"],
+                { explanation: "地铁 (dìtiě) é o metrô urbano; 火车 (huǒchē) é o trem que costuma ligar cidades." }
               ),
               imageChoice(
                 "choose_meaning",

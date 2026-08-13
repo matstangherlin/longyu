@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | bbff2fef6650e159acd89eb5c142b900742d39c4 |
+| Commit | 15b6d533e9a0c5361a99d552527074e74b6ad46d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T20:38:27.484Z |
+| Gerado em | 2026-08-13T21:04:09.598Z |
 | Lições | 123 |
-| Hash da Jornada | 4ac60b9e227d |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Resumo
 
@@ -24,7 +24,7 @@
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 68 |
-| Conceitos nunca utilizados | 48 |
+| Conceitos nunca utilizados | 50 |
 
 ## Cobertura por fase
 
@@ -62,11 +62,11 @@
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 19 |
-| imagem → pinyin (`choose_pinyin`) | 50 |
-| imagem → significado (`choose_meaning`) | 26 |
-| áudio → imagem (`listen_and_choose_image`) | 28 |
-| hànzì → imagem (`choose_image`) | 28 |
+| imagem → hànzì (`choose_hanzi`) | 11 |
+| imagem → pinyin (`choose_pinyin`) | 60 |
+| imagem → significado (`choose_meaning`) | 27 |
+| áudio → imagem (`listen_and_choose_image`) | 31 |
+| hànzì → imagem (`choose_image`) | 22 |
 
 ## Conceitos nunca utilizados
 
@@ -80,13 +80,15 @@
 | female_friend | 女性朋友 | amiga | 11 |
 | girlfriend | 女朋友 | namorada | 13 |
 | boyfriend | 男朋友 | namorado | 13 |
+| fish | 鱼 | peixe | 12 |
 | cat | 猫 | gato | 13 |
 | dog | 狗 | cachorro | 13 |
+| tea | 茶 | chá | 12 |
 | coffee | 咖啡 | café | 12 |
 | milk | 牛奶 | leite | 12 |
 | apple | 苹果 | maçã | 12 |
+| meat | 肉 | carne | 12 |
 | vegetables | 菜 | verdura | 12 |
-| drinking_water | 一杯水 | um copo de água | 12 |
 | juice | 果汁 | suco | 12 |
 | beer | 啤酒 | cerveja | 12 |
 | noodles | 面条 | macarrão | 12 |
@@ -129,4 +131,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:8c6bff49b31ab587 -->
+<!-- integridade:95faf4e4177406a2 -->

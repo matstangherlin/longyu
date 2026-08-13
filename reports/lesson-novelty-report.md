@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | 15b6d533e9a0c5361a99d552527074e74b6ad46d |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:43:34.260Z |
+| Gerado em | 2026-08-13T21:04:07.493Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Resumo
 
@@ -17,7 +17,7 @@
 | Lições analisadas | 123 |
 | Lições com problemas | 0 |
 | Pares de repetição semântica | 934 |
-| Pares com transformação cognitiva | 777 (83%) |
+| Pares com transformação cognitiva | 774 (83%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -32,7 +32,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-o-que-e-mandarim | 6 | 5 | 6 | 6 | 6 | 2 | phrase:你好 × 3 |
 | p1-o-que-e-pinyin | 7 | 6 | 6 | 6 | 6 | 3 | phrase:你好 × 3 |
 | p1-o-que-e-tom | 11 | 10 | 10 | 6 | 5 | 2 | phrase:妈妈 × 3 |
-| p1-o-que-e-hanzi | 11 | 10 | 13 | 3 | 3 | 4 | char:木 × 3 |
+| p1-o-que-e-hanzi | 11 | 10 | 14 | 4 | 4 | 3 | char:木 × 3 |
 | p1-primeiros-hanzi | 10 | 9 | 8 | 8 | 4 | 7 | action:assemble-hanzi × 5 |
 | p1-engine-2-lab | 14 | 14 | 27 | 14 | 11 | 9 | phrase:不客气 × 3 |
 | l1 | 16 | 15 | 29 | 11 | 10 | 6 | phrase:你好 × 3 |
@@ -71,18 +71,18 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p3-qing-zai-shuo-yibian | 13 | 12 | 32 | 11 | 8 | 9 | phrase:请再说一遍 × 2 |
 | l11 | 12 | 11 | 28 | 8 | 7 | 8 | action:assemble-phrase × 3 |
 | l11-falo-pouco | 14 | 13 | 31 | 10 | 10 | 10 | phrase:我会说一点中文 × 2 |
-| l12 | 13 | 12 | 35 | 5 | 4 | 9 | action:assemble-hanzi × 2 |
-| l13 | 13 | 12 | 33 | 7 | 7 | 9 | phrase:再见 × 2 |
+| l12 | 13 | 12 | 32 | 5 | 4 | 9 | char:人 × 2 |
+| l13 | 13 | 12 | 36 | 5 | 5 | 10 | action:assemble-phrase × 3 |
 | l13-dialogo-ola | 13 | 13 | 34 | 11 | 8 | 10 | action:assemble-phrase × 3 |
 | l13-dialogo-nome | 13 | 13 | 36 | 8 | 7 | 10 | action:assemble-phrase × 3 |
 | p3-ordem-das-palavras | 16 | 15 | 39 | 7 | 7 | 12 | action:assemble-phrase × 2 |
-| p3-nomes-da-frase | 14 | 13 | 33 | 8 | 8 | 11 | action:assemble-phrase × 2 |
-| l5-rev | 18 | 18 | 36 | 13 | 10 | 12 | phrase:你好吗 × 3 |
+| p3-nomes-da-frase | 14 | 13 | 33 | 8 | 8 | 11 | char:人 × 2 |
+| l5-rev | 18 | 17 | 36 | 13 | 10 | 11 | phrase:你好吗 × 3 |
 | l14 | 14 | 13 | 33 | 7 | 6 | 10 | char:人 × 2 |
 | p4-num-123 | 13 | 12 | 32 | 5 | 5 | 8 | char:一 × 2 |
 | p4-num-45 | 12 | 11 | 30 | 5 | 5 | 7 | char:木 × 2 |
-| p4-num-678 | 13 | 13 | 33 | 4 | 4 | 8 | action:assemble-phrase × 2 |
-| p4-num-910 | 12 | 11 | 28 | 4 | 4 | 8 | char:九 × 2 |
+| p4-num-678 | 13 | 13 | 34 | 5 | 5 | 8 | action:assemble-phrase × 2 |
+| p4-num-910 | 12 | 11 | 29 | 5 | 5 | 8 | char:九 × 2 |
 | p4-char-mu | 12 | 11 | 28 | 6 | 4 | 8 | char:木 × 3 |
 | p4-char-ren | 13 | 12 | 30 | 7 | 5 | 10 | char:人 × 3 |
 | p4-char-kou | 13 | 12 | 31 | 6 | 4 | 9 | char:口 × 3 |
@@ -96,7 +96,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p4-char-xiao | 13 | 12 | 27 | 8 | 4 | 8 | char:小 × 2 |
 | p4-char-zhong | 13 | 12 | 24 | 7 | 3 | 10 | char:人 × 2 |
 | p4-char-bu | 12 | 11 | 22 | 5 | 2 | 7 | char:不 × 2 |
-| p4-char-shi | 13 | 12 | 29 | 5 | 2 | 9 | action:assemble-phrase × 2 |
+| p4-char-shi | 13 | 12 | 29 | 5 | 2 | 10 | action:assemble-phrase × 2 |
 | p4-char-wo | 13 | 12 | 25 | 5 | 2 | 8 | char:我 × 2 |
 | p4-char-ni | 13 | 12 | 21 | 6 | 3 | 9 | char:你 × 3 |
 | l14-numeros-visuais | 13 | 12 | 22 | 6 | 3 | 8 | char:大 × 2 |
@@ -104,12 +104,12 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l14-frase-minima | 14 | 13 | 26 | 7 | 2 | 9 | char:水 × 3 |
 | l14-char-rev | 13 | 13 | 35 | 8 | 7 | 9 | char:一 × 3 |
 | l15 | 12 | 11 | 33 | 3 | 2 | 8 | char:林 × 2 |
-| l6-rev | 19 | 18 | 30 | 13 | 11 | 11 | char:木 × 3 |
+| l6-rev | 19 | 17 | 30 | 13 | 11 | 10 | char:木 × 3 |
 | l16 | 13 | 12 | 31 | 5 | 5 | 8 | char:马 × 2 |
 | l17 | 13 | 12 | 32 | 5 | 4 | 9 | char:日 × 2 |
 | l18 | 13 | 12 | 31 | 7 | 7 | 9 | intent:identify-concept × 2 |
 | l7-rev | 19 | 18 | 40 | 8 | 7 | 12 | intent:identify-concept × 2 |
-| p4-checkpoint-fundamentos | 19 | 18 | 41 | 18 | 14 | 12 | phrase:你好 × 3 |
+| p4-checkpoint-fundamentos | 19 | 18 | 42 | 19 | 15 | 12 | phrase:你好 × 3 |
 | p5-mu-mu-lin | 13 | 12 | 31 | 7 | 6 | 9 | char:木 × 3 |
 | p5-mu-mu-mu-sen | 13 | 12 | 32 | 6 | 5 | 8 | char:木 × 2 |
 | p5-ri-yue-ming | 13 | 12 | 34 | 5 | 3 | 9 | char:明 × 2 |
@@ -127,34 +127,34 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l19 | 13 | 12 | 34 | 0 | 0 | 8 | — |
 | l20 | 13 | 13 | 33 | 4 | 4 | 8 | action:assemble-phrase × 2 |
 | l8-rev | 17 | 16 | 26 | 10 | 10 | 9 | action:assemble-phrase × 3 |
-| l21 | 13 | 12 | 33 | 6 | 5 | 9 | action:assemble-phrase × 3 |
-| l22 | 13 | 12 | 33 | 8 | 8 | 10 | action:assemble-phrase × 3 |
+| l21 | 13 | 12 | 32 | 5 | 4 | 9 | action:assemble-phrase × 3 |
+| l22 | 13 | 12 | 33 | 7 | 7 | 9 | phrase:我有三个朋友 × 2 |
 | l23 | 13 | 13 | 39 | 4 | 4 | 10 | action:assemble-phrase × 2 |
 | l9-rev | 25 | 25 | 53 | 23 | 11 | 17 | action:assemble-phrase × 4 |
-| l24 | 14 | 13 | 37 | 5 | 5 | 9 | intent:identify-concept × 2 |
+| l24 | 14 | 13 | 39 | 4 | 4 | 10 | action:assemble-phrase × 2 |
 | l25 | 14 | 13 | 37 | 6 | 6 | 10 | phrase:这是什么 × 2 |
 | l26 | 14 | 13 | 31 | 5 | 2 | 11 | action:assemble-phrase × 2 |
-| l26b | 13 | 12 | 25 | 8 | 7 | 10 | action:assemble-phrase × 3 |
+| l26b | 13 | 11 | 24 | 8 | 7 | 10 | action:assemble-phrase × 3 |
 | l27 | 14 | 13 | 30 | 4 | 4 | 11 | action:produce-unaided × 3 |
 | l28 | 14 | 14 | 36 | 4 | 4 | 12 | action:produce-unaided × 3 |
 | p6-rotina-trabalho | 14 | 13 | 29 | 3 | 3 | 11 | action:produce-unaided × 3 |
-| p6-cidade-lugares | 14 | 13 | 30 | 5 | 5 | 10 | phrase:我去超市 × 2 |
-| p6-saude | 14 | 13 | 27 | 4 | 4 | 11 | action:assemble-phrase × 2 |
-| p6-horarios | 14 | 13 | 25 | 3 | 3 | 10 | action:assemble-phrase × 2 |
+| p6-cidade-lugares | 14 | 12 | 30 | 2 | 2 | 10 | action:assemble-phrase × 2 |
+| p6-saude | 14 | 13 | 28 | 4 | 4 | 11 | action:assemble-phrase × 2 |
+| p6-horarios | 14 | 13 | 28 | 3 | 3 | 10 | action:assemble-phrase × 2 |
 | p6-natureza | 14 | 13 | 32 | 3 | 3 | 9 | char:山 × 2 |
 | p6-clima | 14 | 13 | 28 | 4 | 3 | 12 | action:assemble-phrase × 3 |
 | p6-direcoes | 14 | 13 | 36 | 5 | 5 | 10 | action:assemble-phrase × 3 |
-| p6-compras | 14 | 13 | 32 | 4 | 4 | 12 | action:produce-unaided × 3 |
-| l10-rev | 26 | 26 | 56 | 26 | 19 | 17 | action:assemble-phrase × 5 |
+| p6-compras | 14 | 13 | 33 | 4 | 4 | 12 | action:produce-unaided × 3 |
+| l10-rev | 26 | 26 | 58 | 26 | 19 | 17 | action:assemble-phrase × 5 |
 | l29 | 13 | 12 | 33 | 5 | 5 | 10 | intent:identify-concept × 2 |
 | l30 | 14 | 13 | 32 | 3 | 2 | 10 | action:assemble-phrase × 3 |
 | l11-rev | 24 | 24 | 55 | 17 | 14 | 16 | action:assemble-phrase × 4 |
 | p7-imersao-mercado | 18 | 17 | 34 | 8 | 4 | 11 | action:produce-unaided × 3 |
-| p7-imersao-estacao | 17 | 16 | 39 | 3 | 2 | 11 | action:assemble-phrase × 3 |
-| p7-imersao-casa-amigo | 17 | 16 | 38 | 6 | 5 | 11 | action:group-by-meaning × 2 |
+| p7-imersao-estacao | 18 | 16 | 36 | 6 | 2 | 11 | char:车 × 2 |
+| p7-imersao-casa-amigo | 18 | 17 | 39 | 7 | 6 | 11 | char:家 × 2 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:f2f224ff222427fa -->
+<!-- integridade:8a0a5fe272a8c9c8 -->

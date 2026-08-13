@@ -100,8 +100,8 @@ const chunkByHanzi = new Map(CHUNKS.map((chunk) => [normalizeHanzi(chunk.hanzi),
 
 const AUDIO_KINDS = new Set(["listen", "listen_select", "tone", "tone_pair", "image_choice"]);
 const PINYIN_KINDS = new Set(["tone", "tone_pair", "listen_select", "image_choice"]);
-const MEANING_KINDS = new Set(["comprehend", "flashcard", "dialogue_choice", "conversation_scene", "match_pairs", "image_choice"]);
-const HANZI_KINDS = new Set(["recognize", "decompose", "hanzi_build", "hanzi_evolution", "image_choice"]);
+const MEANING_KINDS = new Set(["comprehend", "flashcard", "dialogue_choice", "conversation_scene", "match_pairs", "image_choice", "compare_with_image"]);
+const HANZI_KINDS = new Set(["recognize", "decompose", "hanzi_build", "hanzi_evolution", "image_choice", "compare_with_image"]);
 const PHRASE_KINDS = new Set(["produce", "write", "sentence_build", "translation_build", "fill_blank", "dialogue_choice", "conversation_scene", "microread"]);
 
 export function findUnitById(unitId: string): Unit | undefined {
@@ -233,7 +233,9 @@ function itemsFromLessons(lessons: readonly Lesson[], pool: ModuleReviewFocusIte
         }
         addFocusItem(items, focusFromText(step.correctAnswer ?? step.checkpoint?.correctAnswer, undefined, step.explanation), pool);
       }
-      if (step.kind === "image_choice") addFocusItem(items, focusFromText(step.targetHanzi, step.targetPinyin, step.targetMeaningPt), pool);
+      if (step.kind === "image_choice" || step.kind === "compare_with_image") {
+        addFocusItem(items, focusFromText(step.targetHanzi, step.targetPinyin, step.targetMeaningPt), pool);
+      }
       for (const line of step.lines ?? []) addFocusItem(items, focusFromText(line.hanzi, line.pinyin, line.pt), pool);
       for (const pair of step.pairs ?? []) {
         const hanziSide = containsCjk(pair.left) ? pair.left : containsCjk(pair.right) ? pair.right : undefined;

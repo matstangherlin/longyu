@@ -137,6 +137,7 @@ function primaryHanziTarget(step: LessonStep): string {
     case "conversation_scene":
       return cleanHanzi(step.correctAnswer ?? step.checkpoint?.correctAnswer);
     case "image_choice":
+    case "compare_with_image":
       return cleanHanzi(step.targetHanzi);
     case "free_production":
     case "transfer_task":
@@ -179,13 +180,15 @@ export function semanticTargetKeys(step: LessonStep): string[] {
   if (
     answer &&
     !containsCjk(answer) &&
-    (MEANING_CHOICE_KINDS.has(step.kind) || (step.kind === "image_choice" && step.imageChoiceMode === "choose_meaning"))
+    (MEANING_CHOICE_KINDS.has(step.kind) ||
+      (step.kind === "image_choice" && step.imageChoiceMode === "choose_meaning") ||
+      (step.kind === "compare_with_image" && step.compareWithImageMode === "image_to_word"))
   ) {
     keys.add(`meaning:${norm(answer)}`);
     keys.add("intent:identify-concept");
   }
 
-  if (step.kind === "image_choice") {
+  if (step.kind === "image_choice" || step.kind === "compare_with_image") {
     const conceptId = step.imageId ?? step.iconId;
     const concept = resolveVisualConcept(conceptId);
     if (concept) {
@@ -274,6 +277,9 @@ function stimulusOf(step: LessonStep): CognitiveStimulus {
     if (step.imageChoiceMode === "choose_image") return "hanzi";
     return "image";
   }
+  if (step.kind === "compare_with_image") {
+    return step.compareWithImageMode === "image_to_word" ? "image" : "hanzi";
+  }
   if (
     step.kind === "listen" ||
     step.kind === "listen_select" ||
@@ -331,6 +337,9 @@ function responseOf(step: LessonStep): CognitiveResponse {
     if (step.imageChoiceMode === "choose_meaning") return "meaning";
     return "hanzi";
   }
+  if (step.kind === "compare_with_image") {
+    return step.compareWithImageMode === "word_to_image" ? "image" : "hanzi";
+  }
   const answer = step.correctAnswer ?? step.answer ?? step.checkpoint?.correctAnswer ?? "";
   if (containsCjk(answer)) return "hanzi";
   if (PINYIN_TONE_MARK_RE.test(answer)) return "pinyin";
@@ -356,6 +365,7 @@ function familyRankOf(step: LessonStep): CognitiveProfile["familyRank"] {
     case "tone_pair":
     case "match_pairs":
     case "image_choice":
+    case "compare_with_image":
     case "audio_discrimination":
     case "odd_one_out":
       return 1;
