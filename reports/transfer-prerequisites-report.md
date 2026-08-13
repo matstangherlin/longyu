@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | a564d746efedb2ab3e6e59009dc83be27567bee2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:44:30.923Z |
+| Gerado em | 2026-08-13T21:29:37.969Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Política
 
@@ -24,7 +24,7 @@
 |-----------|------:|
 | Lições | 123 |
 | Lições com transfer_task | 22 |
-| Lições com free_production guiada | 80 |
+| Lições com free_production guiada | 81 |
 | Lições com produção aberta | 18 |
 | Transfers precoces | 0 |
 | Opens precoces | 0 |
@@ -78,4 +78,4 @@
 - **p6-compras** · objetivo `state_change` · modelo `我饿了。`
 - **l10-rev** · objetivo `state_destination` · modelo `我去超市。`
 
-<!-- integridade:4a5b6d4e2d817272 -->
+<!-- integridade:7a72e40cef7f2fad -->

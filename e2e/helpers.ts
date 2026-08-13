@@ -101,6 +101,10 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
   }, buildStorePayload({
     accountSetupComplete: true,
     completedLessons,
+    // Testes que nÃ£o exercitam medalhas nÃ£o devem receber um modal assÃ­ncrono
+    // depois que o helper de overlays jÃ¡ terminou. MantÃ©m os desbloqueios em
+    // espera e elimina interferÃªncia entre specs executadas em paralelo.
+    holdAchievementModals: true,
   }));
 }
 

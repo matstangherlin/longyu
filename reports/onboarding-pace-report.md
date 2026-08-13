@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | a564d746efedb2ab3e6e59009dc83be27567bee2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:45:25.195Z |
+| Gerado em | 2026-08-13T21:31:05.003Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Resumo
 
@@ -32,7 +32,7 @@
 | 1 | O que é mandarim? | 6 | 5 | 0 | 1 | 6 | 3 |
 | 2 | O que é pinyin? | 7 | 6 | 0 | 0 | 5 | 3 |
 | 3 | O que é tom? | 11 | 10 | 0 | 4 | 8 | 6 |
-| 4 | O que é hànzì? | 11 | 10 | 0 | 1 | 8 | 4 |
+| 4 | O que é hànzì? | 11 | 10 | 0 | 2 | 9 | 4 |
 | 5 | Montando primeiros hànzì | 10 | 9 | 0 | 0 | 4 | 6 |
 | 6 | Laboratório de exercícios | 14 | 14 | 0 | 1 | 7 | 5 |
 | 7 | Mandarim, pinyin e tom | 16 | 15 | 0 | 3 | 12 | 3 |
@@ -82,4 +82,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:06524736f141cb07 -->
+<!-- integridade:cbe87adf1dd4778c -->

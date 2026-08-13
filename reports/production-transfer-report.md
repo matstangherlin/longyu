@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | a564d746efedb2ab3e6e59009dc83be27567bee2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:44:15.760Z |
+| Gerado em | 2026-08-13T21:29:13.797Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Resumo
 
@@ -27,7 +27,7 @@
 | Lições com conversa sem apoio | 103 / 123 |
 | Lições com quebra de comunicação jogável | 75 / 123 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 573 |
+| Passos auditados no plano real (3 tentativas) | 578 |
 | Lições com produção livre | 82 / 123 |
 | Lições com transferência | 23 / 123 |
 | Lições com reparo conversacional | 77 / 123 |
@@ -87,4 +87,4 @@
 - 我要牛肉
 - 我要苹果
 
-<!-- integridade:ac408d084b40b672 -->
+<!-- integridade:c4c48efdfe83ab9c -->

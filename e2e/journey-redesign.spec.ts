@@ -81,6 +81,7 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     const lessonId = ALL_LESSONS[0]?.id;
     expect(lessonId).toBeTruthy();
     await page.goto(`/licao/${lessonId}`);
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const reviewBtn = page.getByRole("button", { name: /^Rever lição$/ });
     await expect(reviewBtn).toBeVisible();
