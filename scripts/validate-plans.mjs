@@ -167,8 +167,8 @@ if (!/isPreview && isDevPreviewAllowed\(\)/.test(entitlementsSrc)) {
 }
 
 const storeSrc = read("src/lib/store.ts");
-if (!storeSrc.includes("version: 17")) {
-  fail("store.ts persist deve estar na versão 17 (Pérolas V2 + Pro pass)");
+if (!storeSrc.includes("version: 18")) {
+  fail("store.ts persist deve estar na versão 18 (entitlement cloud efêmero)");
 }
 if (!storeSrc.includes("moduleSkipUsage")) {
   fail("store.ts deve persistir moduleSkipUsage");

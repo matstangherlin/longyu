@@ -107,7 +107,8 @@ import {
   serverOpenChest,
   serverSpendQi,
 } from "./economyServerBridge";
-import { effectivePremium, isDevPreviewAllowed, isInternalTestProEmail } from "./entitlements";
+import { confirmCloudPearlProActivation } from "./cloudPearlProActivation";
+import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
 import type { ModuleSkipUsageWeek } from "./moduleSkipAccess";
 
 export type ThemeName = "clay" | "china" | "dark";
@@ -1751,42 +1752,6 @@ function finalizeOnboardingState(
   };
 }
 
-function buildPearlMilestoneEvidence(state: AppState, milestoneId: string): Record<string, unknown> {
-  const errorsCorrected = Math.max(
-    Object.keys(state.correctedMistakes ?? {}).length,
-    (state.recentActivityErrors ?? []).filter((e) => e.correctedAt).length
-  );
-  if (milestoneId.startsWith("streak:")) {
-    return { streak: state.streak, value: state.streak };
-  }
-  if (milestoneId.startsWith("errors:")) {
-    return { errors_corrected: errorsCorrected, value: errorsCorrected };
-  }
-  if (milestoneId.startsWith("hanzi:")) {
-    const n = state.learnedChars?.length ?? 0;
-    return { hanzi_learned: n, value: n };
-  }
-  if (milestoneId.startsWith("audio:")) {
-    const n = state.pearlAudioExposures ?? 0;
-    return { audio_exposures: n, value: n };
-  }
-  if (milestoneId.startsWith("production:")) {
-    const n = state.pearlProductionCount ?? 0;
-    return { production: n, value: n };
-  }
-  if (milestoneId.startsWith("journey_phase:")) {
-    const phaseId = milestoneId.slice("journey_phase:".length);
-    return { phase_mastered: true, phase_id: phaseId, value: 1 };
-  }
-  if (milestoneId.startsWith("journey_major:")) {
-    return { major_mastered: true, value: 1 };
-  }
-  if (milestoneId.startsWith("monthly_challenge:")) {
-    return { monthly_complete: true, value: 1 };
-  }
-  return { value: 1 };
-}
-
 function hasProAccess(s: AppState, serverIsProOverride?: boolean): boolean {
   const account = s.accounts[s.currentAccountId];
   return effectivePremium(s.isPremium, serverIsProOverride ?? s.serverIsPro, {
@@ -1794,12 +1759,6 @@ function hasProAccess(s: AppState, serverIsProOverride?: boolean): boolean {
     accountAuthMode: account?.authMode,
     pearlProExpiresAt: s.pearlProExpiresAt ?? null,
   });
-}
-
-/** Pro interno de QA só para a conta cloud atual — nunca propaga para outros perfis no dispositivo. */
-function hasInternalTestCloudAccount(s: Pick<AppState, "accounts" | "currentAccountId">): boolean {
-  const current = s.accounts[s.currentAccountId];
-  return Boolean(current?.authMode === "cloud" && isInternalTestProEmail(current.email));
 }
 
 interface AppState {
@@ -1959,13 +1918,13 @@ interface AppState {
   /** Loja: pode comprar? (saldo suficiente, cosmético não possuído, item comprável). */
   canBuyShopItem: (itemId: string) => boolean;
   /** Loja: compra um item — desconta a moeda e envia para inventário/cosméticos. */
-  buyShopItem: (itemId: string) => boolean;
+  buyShopItem: (itemId: string) => Promise<boolean>;
   /** Loja: usa um item consumível do inventário e aplica o efeito. */
   useInventoryItem: (itemId: string) => ShopUseResult | null;
   setPearlProAutoActivate: (v: boolean) => void;
   clearShopPurchaseFeedback: () => void;
   claimPearlMilestone: (milestoneId: string) => boolean;
-  activatePearlProPass: (opts?: { auto?: boolean; idempotencyKey?: string }) => PearlProActivateResult;
+  activatePearlProPass: (opts?: { auto?: boolean; idempotencyKey?: string }) => Promise<PearlProActivateResult>;
   maybeClaimPearlMilestonesFromProgress: () => void;
   recordPearlAudioExposure: (count?: number) => void;
   recordPearlProduction: (count?: number) => void;
@@ -2279,7 +2238,6 @@ export const useStore = create<AppState>()(
         }),
       activateCloudAccount: (identity, progress) => {
         const id = cloudAccountId(identity.userId);
-        const grantInternalPro = isInternalTestProEmail(identity.email);
         set((s) => {
           const saved = saveCurrentAccount(s);
           const fallback = saved[s.currentAccountId];
@@ -2289,9 +2247,8 @@ export const useStore = create<AppState>()(
             ...accountFields(account),
             accountSetupComplete: true,
             currentAccountId: id,
-            // Não herda serverIsPro da sessão anterior (QA não concede Pro a outros).
-            // Assinatura Stripe é revalidada pelo EntitlementBootstrap.
-            serverIsPro: grantInternalPro,
+            // Nunca herda entitlement local; o bootstrap confirma no servidor.
+            serverIsPro: false,
             accounts: {
               ...saved,
               [id]: account,
@@ -2700,13 +2657,12 @@ export const useStore = create<AppState>()(
           const target = s.accounts[id];
           if (!target) return {};
           const nextAccounts = saveCurrentAccount(s);
-          const qaPro = target.authMode === "cloud" && isInternalTestProEmail(target.email);
           return {
             ...accountFields(target),
             accountSetupComplete: true,
             currentAccountId: id,
-            // Pro de QA não acompanha troca de conta; assinatura real é revalidada no bootstrap.
-            serverIsPro: qaPro,
+            // A conta selecionada só recebe Pro após nova confirmação do servidor.
+            serverIsPro: false,
             accounts: nextAccounts,
           };
         }),
@@ -3636,47 +3592,14 @@ export const useStore = create<AppState>()(
         if (!claimablePearlMilestone(state.pearlMilestonesClaimed, milestoneId)) return false;
 
         const account = state.accounts[state.currentAccountId];
-        const online = typeof navigator === "undefined" ? true : navigator.onLine;
         const key = `pearl-milestone:${milestoneId}`;
-        const evidence = buildPearlMilestoneEvidence(state, milestoneId);
 
-        // Cloud online: servidor é autoridade; aplica local otimista + sync.
-        if (account?.authMode === "cloud" && online && shouldUseServerEconomy()) {
-          const patch = applyPearlEarn(state, {
-            amount,
-            source: milestoneId,
-            milestoneId,
-            idempotencyKey: key,
+        // Conta cloud nunca recebe Pérolas otimistas. A RPC não recebe evidência
+        // nem idempotency key do cliente e o snapshot confirmado aplica o saldo.
+        if (account?.authMode === "cloud") {
+          void serverClaimPearlMilestone(milestoneId).then((result) => {
+            if (result.ok) void get().activatePearlProPass({ auto: true });
           });
-          if (!patch) return false;
-          set((s) => {
-            if (!claimablePearlMilestone(s.pearlMilestonesClaimed, milestoneId)) return {};
-            const next = { ...s, ...patch };
-            return { ...patch, accounts: saveCurrentAccount(next) };
-          });
-          void serverClaimPearlMilestone({ milestoneId, idempotencyKey: key, evidence }).then(() => {
-            get().activatePearlProPass({ auto: true });
-          });
-          get().activatePearlProPass({ auto: true });
-          return true;
-        }
-
-        // Local / cloud_pending / offline: só local (offline cloud não inventa server grant).
-        if (account?.authMode === "cloud" && !online) {
-          // Offline: ainda marca localmente com idempotência; sync na fila ao reconectar.
-          const patch = applyPearlEarn(state, {
-            amount,
-            source: milestoneId,
-            milestoneId,
-            idempotencyKey: key,
-          });
-          if (!patch) return false;
-          set((s) => {
-            if (!claimablePearlMilestone(s.pearlMilestonesClaimed, milestoneId)) return {};
-            const next = { ...s, ...patch };
-            return { ...patch, accounts: saveCurrentAccount(next) };
-          });
-          void serverClaimPearlMilestone({ milestoneId, idempotencyKey: key, evidence });
           return true;
         }
 
@@ -3692,11 +3615,11 @@ export const useStore = create<AppState>()(
           const next = { ...s, ...patch };
           return { ...patch, accounts: saveCurrentAccount(next) };
         });
-        get().activatePearlProPass({ auto: true });
+        void get().activatePearlProPass({ auto: true });
         return true;
       },
 
-      activatePearlProPass: (opts) => {
+      activatePearlProPass: async (opts) => {
         const state = get();
         const account = state.accounts[state.currentAccountId];
         const online = typeof navigator === "undefined" ? true : navigator.onLine;
@@ -3727,6 +3650,7 @@ export const useStore = create<AppState>()(
             const next = { ...s, pearlProPendingOffline };
             return { pearlProPendingOffline, accounts: saveCurrentAccount(next) };
           });
+          get().setEconomySyncMessage("Ativação pendente — conecte-se para confirmar no servidor.");
           return {
             ok: false,
             reason: decision.reason,
@@ -3742,46 +3666,77 @@ export const useStore = create<AppState>()(
           };
         }
 
-        if (account?.authMode === "cloud" && online && shouldUseServerEconomy()) {
-          set((s) => {
-            const applied = tryAutoActivatePearlPro({
-              state: {
-                pearlProExpiresAt: s.pearlProExpiresAt ?? null,
-                pearlProLastActivatedAt: s.pearlProLastActivatedAt ?? null,
-                pearlProAutoActivate: s.pearlProAutoActivate ?? false,
-                pearlProPendingOffline: s.pearlProPendingOffline ?? false,
-                dragonPearls: s.dragonPearls ?? 0,
-                pearlLedger: s.pearlLedger ?? [],
-              },
-              serverIsPro: s.serverIsPro,
-              authMode: s.accounts[s.currentAccountId]?.authMode,
-              online: true,
-              requireAuto: Boolean(opts?.auto),
-              idempotencyKey,
-              now,
+        if (account?.authMode === "cloud") {
+          if (!online || !shouldUseServerEconomy()) {
+            set((s) => {
+              const pearlProPendingOffline = true;
+              const next = { ...s, pearlProPendingOffline };
+              return { pearlProPendingOffline, accounts: saveCurrentAccount(next) };
             });
-            if (!applied.allowed || !applied.patch) return {};
-            const next = { ...s, ...applied.patch };
-            const feedback: ShopPurchaseFeedback = {
-              itemId: "shop-pearl-pro-pass",
-              balanceBefore: s.dragonPearls,
-              cost: PEARL_PRO_COST,
-              balanceAfter: applied.patch.dragonPearls ?? s.dragonPearls,
-              benefit: `Longyu Pro até ${formatPearlProUntil(applied.expiresAt ?? now)}`,
-              durationLabel: "7 dias",
-              expiresAt: applied.expiresAt,
-            };
+            get().setEconomySyncMessage("Ativação pendente — aguardando o servidor.");
             return {
-              ...applied.patch,
+              ok: false,
+              reason: "server_unavailable",
+              message: "Pro ainda não foi liberado; a intenção ficou pendente.",
+            };
+          }
+
+          const balanceBefore = state.dragonPearls;
+          set((s) => {
+            const pearlProPendingOffline = true;
+            const next = { ...s, pearlProPendingOffline };
+            return { pearlProPendingOffline, accounts: saveCurrentAccount(next) };
+          });
+
+          const confirmation = await confirmCloudPearlProActivation(
+            () => serverActivatePearlProPass(idempotencyKey),
+            () => get().setServerEntitlement(true)
+          );
+          const serverResult = confirmation.result;
+          if (!confirmation.ok || !serverResult) {
+            // Falha de transporte mantém apenas a intenção enfileirada. Rejeição
+            // explícita do servidor encerra a intenção sem conceder Pro.
+            const queuedForRetry = confirmation.pendingRetry;
+            set((s) => {
+              const pearlProPendingOffline = queuedForRetry;
+              const next = { ...s, pearlProPendingOffline };
+              return { pearlProPendingOffline, accounts: saveCurrentAccount(next) };
+            });
+            return {
+              ok: false,
+              reason: confirmation.error ?? "server_rejected",
+              message: queuedForRetry
+                ? "Pro ainda não foi liberado; tentaremos confirmar novamente."
+                : "O servidor não confirmou a ativação do Pro.",
+            };
+          }
+
+          const confirmed = get();
+          const expiresAt = serverResult.expires_at
+            ? Date.parse(serverResult.expires_at)
+            : confirmed.pearlProExpiresAt ?? undefined;
+          const feedback: ShopPurchaseFeedback = {
+            itemId: "shop-pearl-pro-pass",
+            balanceBefore,
+            cost: PEARL_PRO_COST,
+            balanceAfter: confirmed.dragonPearls,
+            benefit: expiresAt ? `Longyu Pro até ${formatPearlProUntil(expiresAt)}` : "Longyu Pro confirmado",
+            durationLabel: "7 dias",
+            expiresAt,
+          };
+          set((s) => {
+            const pearlProPendingOffline = false;
+            const next = { ...s, pearlProPendingOffline, lastShopPurchaseFeedback: feedback };
+            return {
+              pearlProPendingOffline,
               lastShopPurchaseFeedback: feedback,
-              accounts: saveCurrentAccount({ ...next, lastShopPurchaseFeedback: feedback } as AppState),
+              accounts: saveCurrentAccount(next),
             };
           });
-          void serverActivatePearlProPass(idempotencyKey);
           return {
             ok: true,
-            message: decision.message,
-            expiresAt: decision.expiresAt,
+            message: "Pro confirmado pelo servidor.",
+            expiresAt,
           };
         }
 
@@ -3832,39 +3787,41 @@ export const useStore = create<AppState>()(
         const state = get();
         const claimed = state.pearlMilestonesClaimed ?? {};
         const toClaim: string[] = [];
+        const account = state.accounts[state.currentAccountId];
+        const cloudServerAuthoritative = account?.authMode === "cloud";
 
         for (const m of PEARL_STREAK_MILESTONES) {
           if (state.streak >= m.days && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
         }
 
-        const errorsCorrected = Math.max(
-          Object.keys(state.correctedMistakes ?? {}).length,
-          (state.recentActivityErrors ?? []).filter((e) => e.correctedAt).length
-        );
-        for (const m of PEARL_ERROR_MILESTONES) {
-          if (errorsCorrected >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
-        }
+        if (!cloudServerAuthoritative) {
+          const errorsCorrected = Math.max(
+            Object.keys(state.correctedMistakes ?? {}).length,
+            (state.recentActivityErrors ?? []).filter((e) => e.correctedAt).length
+          );
+          for (const m of PEARL_ERROR_MILESTONES) {
+            if (errorsCorrected >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+          }
 
-        const hanzi = state.learnedChars?.length ?? 0;
-        for (const m of PEARL_HANZI_MILESTONES) {
-          if (hanzi >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
-        }
+          const hanzi = state.learnedChars?.length ?? 0;
+          for (const m of PEARL_HANZI_MILESTONES) {
+            if (hanzi >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+          }
 
-        // Áudio/produção: contadores dedicados OU lifetimeStats (estudo real).
-        const audio = Math.max(
-          state.pearlAudioExposures ?? 0,
-          state.lifetimeStats?.audioHeard ?? 0
-        );
-        for (const m of PEARL_AUDIO_MILESTONES) {
-          if (audio >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
-        }
+          // Estes contadores ainda são locais. Cloud só os reativa quando
+          // houver uma fonte atestada equivalente no servidor.
+          const audio = Math.max(state.pearlAudioExposures ?? 0, state.lifetimeStats?.audioHeard ?? 0);
+          for (const m of PEARL_AUDIO_MILESTONES) {
+            if (audio >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+          }
 
-        const production = Math.max(
-          state.pearlProductionCount ?? 0,
-          state.lifetimeStats?.phrasesSpoken ?? 0
-        );
-        for (const m of PEARL_PRODUCTION_MILESTONES) {
-          if (production >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+          const production = Math.max(
+            state.pearlProductionCount ?? 0,
+            state.lifetimeStats?.phrasesSpoken ?? 0
+          );
+          for (const m of PEARL_PRODUCTION_MILESTONES) {
+            if (production >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+          }
         }
 
         for (const phaseId of listMasteredPhaseIds({
@@ -3909,7 +3866,7 @@ export const useStore = create<AppState>()(
         get().maybeClaimPearlMilestonesFromProgress();
       },
 
-      buyShopItem: (itemId) => {
+      buyShopItem: async (itemId) => {
         const item = findShopItem(itemId);
         if (!item) return false;
         if (!canPurchase(get(), item)) return false;
@@ -3917,10 +3874,10 @@ export const useStore = create<AppState>()(
         // Pass Pro: ativa direto, sem inventário.
         if (item.kind === "pearl_pro_pass") {
           const before = get().dragonPearls;
-          const result = get().activatePearlProPass({
+          const result = await get().activatePearlProPass({
             idempotencyKey: `shop-pearl-pro:${Date.now()}`,
           });
-          if (!result.ok && result.reason !== "offline_cloud") return false;
+          if (!result.ok) return false;
           set((s) => {
             const feedback: ShopPurchaseFeedback = {
               itemId: item.id,
@@ -4065,6 +4022,30 @@ export const useStore = create<AppState>()(
         const item = findShopItem(itemId);
         if (!item) return null;
         if ((get().inventory[itemId] ?? 0) <= 0) return null;
+
+        if (item.kind === "pearl_pro_pass") {
+          // Compatibilidade com inventários antigos: só consome o item depois
+          // que o servidor confirmar o entitlement cloud (ou o fluxo local concluir).
+          void get().activatePearlProPass({
+            idempotencyKey: `inventory-pearl-pro:${Date.now()}`,
+          }).then((activated) => {
+            if (!activated.ok) return;
+            set((s) => {
+              const count = s.inventory[itemId] ?? 0;
+              if (count <= 0) return {};
+              const inventory = { ...s.inventory, [itemId]: count - 1 };
+              const next = { ...s, inventory };
+              return { inventory, accounts: saveCurrentAccount(next) };
+            });
+          });
+          return {
+            itemId,
+            message: "Aguardando confirmação do servidor…",
+            benefit: "O Pro só será liberado após a confirmação.",
+            durationLabel: "7 dias",
+          };
+        }
+
         let result: ShopUseResult | null = null;
         set((s) => {
           const count = s.inventory[itemId] ?? 0;
@@ -4105,13 +4086,6 @@ export const useStore = create<AppState>()(
             return { inventory, focusPassUntil, accounts: saveCurrentAccount(next) };
           }
 
-          if (item.kind === "pearl_pro_pass") {
-            // Compat: se ainda houver no inventário antigo, ativa e consome.
-            result = { itemId, message: "Ativando Pro…" };
-            const next = { ...s, inventory };
-            return { inventory, accounts: saveCurrentAccount(next) };
-          }
-
           if (item.kind === "qi_pack") {
             const next = applyRewardToState(
               { ...s, inventory },
@@ -4142,19 +4116,6 @@ export const useStore = create<AppState>()(
           const next = { ...s, inventory };
           return { inventory, accounts: saveCurrentAccount(next) };
         });
-
-        if (item.kind === "pearl_pro_pass") {
-          const activated = get().activatePearlProPass({
-            idempotencyKey: `inventory-pearl-pro:${Date.now()}`,
-          });
-          return {
-            itemId,
-            message: activated.message ?? (activated.ok ? "Pro ativado" : "Não foi possível ativar"),
-            benefit: activated.message,
-            durationLabel: "7 dias",
-            expiresAt: activated.expiresAt,
-          };
-        }
 
         return result;
       },
@@ -4705,7 +4666,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 17,
+      version: 18,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -4725,6 +4686,7 @@ export const useStore = create<AppState>()(
       // v15: adiciona moduleSkipUsage para cotas semanais do teste de pular.
       // v16: ofensiva por estudo (lastStudyDate/activityByDay) + cura de aulas 1★+.
       // v17: Pérolas V2 — marcos, ledger e Pass Pro por Pérolas.
+      // v18: entitlement cloud nunca é hidratado do navegador; servidor é autoridade.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -4886,14 +4848,10 @@ export const useStore = create<AppState>()(
         const rootDailyEnergy = stripPreview
           ? reconcileFreePlanEnergy(root.dailyEnergy)
           : activeDailyEnergy(root.dailyEnergy);
-        const currentAccountId = root.currentAccountId ?? DEFAULT_ACCOUNT_ID;
-        const grantInternalPro =
-          root.serverIsPro === true ||
-          hasInternalTestCloudAccount({ accounts: normalized, currentAccountId });
         return {
           ...root,
           holdAchievementModals: false,
-          serverIsPro: grantInternalPro,
+          serverIsPro: false,
           isPremium: stripPreview ? false : root.isPremium,
           leagueTier: normalizeLeagueTier(root.leagueTier),
           leagueJoinedAt: root.leagueJoinedAt ?? null,
@@ -4931,6 +4889,8 @@ export const useStore = create<AppState>()(
           accounts: normalized,
         } as AppState;
       },
+      // serverIsPro é deliberadamente efêmero: recarregar exige nova confirmação.
+      partialize: (state) => ({ ...state, serverIsPro: false }),
     }
   )
 );
