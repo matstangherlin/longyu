@@ -4,20 +4,20 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 8716ebbfb96e3d859c4fe5bfbd6095dfeb3339f2 |
+| Commit | bbff2fef6650e159acd89eb5c142b900742d39c4 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T19:05:21.535Z |
+| Gerado em | 2026-08-13T20:38:11.128Z |
 | Lições | 123 |
-| Hash da Jornada | cadcc424aa35 |
+| Hash da Jornada | 4ac60b9e227d |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Assets no catálogo | 61 |
+| Assets no catálogo | 87 |
 | Estilo photo | 0 |
 | Estilo realistic_illustration | 0 |
-| Estilo flat_illustration | 61 |
+| Estilo flat_illustration | 87 |
 | Candidatos a substituição | 0 |
 | Cenas contextuais (VisualScene) | 0 |
 | Erros | 0 |
@@ -33,9 +33,9 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 |-----------|--------------------|
 | people | flat_illustration |
 | nature | flat_illustration |
+| food | flat_illustration |
 | quantity | flat_illustration |
 | animals | flat_illustration |
-| food | flat_illustration |
 | actions | flat_illustration |
 | objects | flat_illustration |
 | places | flat_illustration |
@@ -83,6 +83,13 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | vegetables | 菜 verdura | flat_illustration | transparent | 54.2 KB | 600×600 | — | — |
 | eat | 吃 comer | flat_illustration | transparent | 70.2 KB | 600×600 | — | — |
 | drink | 喝 beber | flat_illustration | transparent | 30.8 KB | 600×600 | — | — |
+| drinking_water | 一杯水 um copo de água | flat_illustration | transparent | 19.9 KB | 600×600 | — | — |
+| juice | 果汁 suco | flat_illustration | transparent | 20.0 KB | 600×600 | — | — |
+| beer | 啤酒 cerveja | flat_illustration | transparent | 20.3 KB | 600×600 | — | — |
+| noodles | 面条 macarrão | flat_illustration | transparent | 39.4 KB | 600×600 | — | — |
+| bread | 面包 pão | flat_illustration | transparent | 31.6 KB | 600×600 | — | — |
+| banana | 香蕉 banana | flat_illustration | transparent | 22.8 KB | 600×600 | — | — |
+| egg | 鸡蛋 ovo | flat_illustration | transparent | 20.7 KB | 600×600 | — | — |
 | book | 书 livro | flat_illustration | transparent | 24.7 KB | 600×600 | — | — |
 | car | 车 carro | flat_illustration | transparent | 35.3 KB | 600×600 | — | — |
 | home | 家 casa | flat_illustration | transparent | 51.5 KB | 600×600 | — | — |
@@ -96,10 +103,29 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | door | 门 porta | flat_illustration | transparent | 11.3 KB | 600×600 | — | — |
 | window | 窗户 janela | flat_illustration | transparent | 10.0 KB | 600×600 | — | — |
 | backpack | 背包 mochila | flat_illustration | transparent | 34.2 KB | 600×600 | — | — |
+| menu | 菜单 cardápio | flat_illustration | transparent | 39.0 KB | 600×600 | — | — |
+| hotel_key_card | 房卡 cartão do quarto | flat_illustration | transparent | 17.4 KB | 600×600 | — | — |
+| passport | 护照 passaporte | flat_illustration | transparent | 36.8 KB | 600×600 | — | — |
+| luggage | 行李 bagagem | flat_illustration | transparent | 17.9 KB | 600×600 | — | — |
+| bill | 账单 conta | flat_illustration | transparent | 24.2 KB | 600×600 | — | — |
+| bank_card | 银行卡 cartão bancário | flat_illustration | transparent | 19.2 KB | 600×600 | — | — |
 | bathroom | 洗手间 banheiro | flat_illustration | transparent | 33.9 KB | 600×600 | — | — |
 | bedroom | 卧室 quarto | flat_illustration | transparent | 33.1 KB | 600×600 | — | — |
 | kitchen | 厨房 cozinha | flat_illustration | transparent | 39.5 KB | 600×600 | — | — |
 | travel | 旅行 viagem | flat_illustration | transparent | 35.1 KB | 600×600 | — | — |
+| hotel | 酒店 hotel | flat_illustration | transparent | 45.5 KB | 600×600 | — | — |
+| street | 街道 rua | flat_illustration | transparent | 35.4 KB | 600×600 | — | — |
+| supermarket | 超市 supermercado | flat_illustration | transparent | 41.7 KB | 600×600 | — | — |
+| restaurant | 饭馆 restaurante | flat_illustration | transparent | 20.8 KB | 600×600 | — | — |
+| bank | 银行 banco | flat_illustration | transparent | 23.8 KB | 600×600 | — | — |
+| shopping_mall | 商场 shopping | flat_illustration | transparent | 29.4 KB | 600×600 | — | — |
+| airport | 机场 aeroporto | flat_illustration | transparent | 28.4 KB | 600×600 | — | — |
+| hospital | 医院 hospital | flat_illustration | transparent | 25.3 KB | 600×600 | — | — |
+| taxi | 出租车 táxi | flat_illustration | transparent | 25.4 KB | 600×600 | — | — |
+| bus | 公交车 ônibus | flat_illustration | transparent | 25.2 KB | 600×600 | — | — |
+| train | 火车 trem | flat_illustration | transparent | 21.8 KB | 600×600 | — | — |
+| metro | 地铁 metrô | flat_illustration | transparent | 22.0 KB | 600×600 | — | — |
+| airplane | 飞机 avião | flat_illustration | transparent | 24.2 KB | 600×600 | — | — |
 | one | 一 um | flat_illustration | transparent | 3.8 KB | 600×600 | — | — |
 | two | 二 dois | flat_illustration | transparent | 5.3 KB | 600×600 | — | — |
 | three | 三 três | flat_illustration | transparent | 13.5 KB | 600×600 | — | — |
@@ -110,4 +136,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:cefe658d4982fb25 -->
+<!-- integridade:99fe6bea7a84d1c2 -->

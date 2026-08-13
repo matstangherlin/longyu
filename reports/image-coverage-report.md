@@ -4,27 +4,27 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 8716ebbfb96e3d859c4fe5bfbd6095dfeb3339f2 |
+| Commit | bbff2fef6650e159acd89eb5c142b900742d39c4 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T19:05:42.030Z |
+| Gerado em | 2026-08-13T20:38:27.484Z |
 | Lições | 123 |
-| Hash da Jornada | cadcc424aa35 |
+| Hash da Jornada | 4ac60b9e227d |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conceitos no catálogo | 61 |
-| Imagens locais (WebP) | 61 |
+| Conceitos no catálogo | 87 |
+| Imagens locais (WebP) | 87 |
 | Lições na jornada | 123 |
-| Lições concretas elegíveis | 74 |
-| Lições elegíveis com imagem | 74 (100%) |
+| Lições concretas elegíveis | 76 |
+| Lições elegíveis com imagem | 76 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
-| Passos image_choice autorais | 59 |
-| Conceitos nunca utilizados | 25 |
+| Passos image_choice autorais | 68 |
+| Conceitos nunca utilizados | 48 |
 
 ## Cobertura por fase
 
@@ -35,7 +35,7 @@
 | p3 — Frases Reais | 16 | 7 | 7 | 100% |
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
-| p6 — Vida Cotidiana | 15 | 11 | 11 | 100% |
+| p6 — Vida Cotidiana | 15 | 13 | 13 | 100% |
 | p7 — Leitura Graduada | 6 | 6 | 6 | 100% |
 
 ## Cobertura por unidade
@@ -54,7 +54,7 @@
 | u5-1 — Números 1 a 10 | 3 | 2 | 2 | 100% |
 | u5-2 — Palavras compostas | 4 | 3 | 3 | 100% |
 | u6-1 — Família | 2 | 2 | 2 | 100% |
-| u6-2 — Comida e compras | 13 | 9 | 9 | 100% |
+| u6-2 — Comida e compras | 13 | 11 | 11 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
 | u7-2 — Imersão | 3 | 3 | 3 | 100% |
 
@@ -62,11 +62,11 @@
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 18 |
+| imagem → hànzì (`choose_hanzi`) | 19 |
 | imagem → pinyin (`choose_pinyin`) | 50 |
-| imagem → significado (`choose_meaning`) | 29 |
-| áudio → imagem (`listen_and_choose_image`) | 27 |
-| hànzì → imagem (`choose_image`) | 26 |
+| imagem → significado (`choose_meaning`) | 26 |
+| áudio → imagem (`listen_and_choose_image`) | 28 |
+| hànzì → imagem (`choose_image`) | 28 |
 
 ## Conceitos nunca utilizados
 
@@ -86,6 +86,13 @@
 | milk | 牛奶 | leite | 12 |
 | apple | 苹果 | maçã | 12 |
 | vegetables | 菜 | verdura | 12 |
+| drinking_water | 一杯水 | um copo de água | 12 |
+| juice | 果汁 | suco | 12 |
+| beer | 啤酒 | cerveja | 12 |
+| noodles | 面条 | macarrão | 12 |
+| bread | 面包 | pão | 12 |
+| banana | 香蕉 | banana | 12 |
+| egg | 鸡蛋 | ovo | 12 |
 | keys | 钥匙 | chaves | 13 |
 | cup | 杯子 | copo | 12 |
 | table | 桌子 | mesa | 13 |
@@ -93,10 +100,26 @@
 | door | 门 | porta | 13 |
 | window | 窗户 | janela | 13 |
 | backpack | 背包 | mochila | 13 |
+| menu | 菜单 | cardápio | 12 |
+| hotel_key_card | 房卡 | cartão do quarto | 13 |
+| passport | 护照 | passaporte | 13 |
+| luggage | 行李 | bagagem | 13 |
+| bill | 账单 | conta | 12 |
+| bank_card | 银行卡 | cartão bancário | 13 |
 | bathroom | 洗手间 | banheiro | 13 |
 | bedroom | 卧室 | quarto | 13 |
 | kitchen | 厨房 | cozinha | 13 |
 | travel | 旅行 | viagem | 13 |
+| hotel | 酒店 | hotel | 13 |
+| street | 街道 | rua | 13 |
+| restaurant | 饭馆 | restaurante | 12 |
+| shopping_mall | 商场 | shopping | 13 |
+| airport | 机场 | aeroporto | 13 |
+| taxi | 出租车 | táxi | 13 |
+| bus | 公交车 | ônibus | 13 |
+| train | 火车 | trem | 13 |
+| metro | 地铁 | metrô | 13 |
+| airplane | 飞机 | avião | 13 |
 
 ## Lições concretas sem imagem
 
@@ -106,4 +129,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:3cf4561044fb69d7 -->
+<!-- integridade:8c6bff49b31ab587 -->

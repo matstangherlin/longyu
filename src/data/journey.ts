@@ -4552,7 +4552,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "No cardápio",
             skill: "fala",
             premium: true,
-            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿"],
+            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆"],
             libraryItems: [
               "char:fan_rice",
               "char:cai_dish",
@@ -4615,6 +4615,30 @@ export const JOURNEY: JourneyPhase[] = [
               listen("我要饭", "wǒ yào fàn", "Quero arroz."),
               listen("我要菜", "wǒ yào cài", "Quero verdura."),
               listen("我想喝水", "wǒ xiǎng hē shuǐ", "Quero beber água."),
+              imageChoice(
+                "choose_meaning",
+                "menu",
+                "O que esta imagem mostra?",
+                "cardápio",
+                visualMeaningOptions("menu"),
+                { explanation: "菜单 (càidān) é o cardápio que você pede no restaurante." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "drinking_water",
+                "Ouça e escolha o pedido certo.",
+                "drinking_water",
+                visualImageOptions("drinking_water"),
+                { explanation: "一杯水 (yì bēi shuǐ) = um copo de água." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "restaurant",
+                "O que esta imagem mostra?",
+                "restaurante",
+                visualMeaningOptions("restaurant"),
+                { explanation: "饭馆 (fànguǎn) é um restaurante; 餐厅 também é muito usado." }
+              ),
               sentenceBuild(
                 "Peça arroz",
                 "Monte: quero arroz.",
@@ -4900,7 +4924,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
-            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园"],
+            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场"],
             libraryItems: [
               "chunk:chaoshizainali",
               "chunk:yinhangzainali",
@@ -4926,6 +4950,30 @@ export const JOURNEY: JourneyPhase[] = [
               listen("银行在哪里？", "yínháng zài nǎlǐ?", "Onde fica o banco?"),
               listen("医院在哪里？", "yīyuàn zài nǎlǐ?", "Onde fica o hospital?"),
               listen("公园在哪里？", "gōngyuán zài nǎlǐ?", "Onde fica o parque?"),
+              imageChoice(
+                "listen_and_choose_image",
+                "supermarket",
+                "Ouça e escolha o lugar certo.",
+                "supermarket",
+                visualImageOptions("supermarket"),
+                { explanation: "超市 (chāoshì) = supermercado." }
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "hospital",
+                "Qual palavra combina com o hospital?",
+                "医院",
+                visualHanziOptions("hospital"),
+                { explanation: "医院 (yīyuàn) = hospital." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "bank",
+                "O que esta imagem mostra?",
+                "banco",
+                visualMeaningOptions("bank"),
+                { explanation: "银行 (yínháng) = banco." }
+              ),
               match(
                 "Onde fica o quê?",
                 "Combine o lugar com o que você faz nele.",
@@ -5867,7 +5915,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
-            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票"],
+            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店"],
             libraryItems: [
               "char:che",
               "char:piao_ticket",
@@ -5875,6 +5923,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:woyaopiao",
               "chunk:piaoduoshaoqian",
               "chunk:huochezhanzainali",
+              "chunk:jiudianzainali",
             ],
             reviewItems: ["char:che", "char:piao_ticket", "chunk:chezainali", "chunk:woyaopiao"],
             steps: [
@@ -5884,6 +5933,31 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("车", "chē", "carro; veículo"),
               listen("票", "piào", "bilhete; passagem"),
+              listen("酒店在哪里？", "jiǔdiàn zài nǎlǐ?", "Onde fica o hotel?"),
+              imageChoice(
+                "choose_meaning",
+                "train",
+                "O que esta imagem mostra?",
+                "trem",
+                visualMeaningOptions("train"),
+                { explanation: "火车 (huǒchē) = trem; 地铁 é o metrô urbano." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "metro",
+                "Ouça e escolha o metrô.",
+                "metro",
+                visualImageOptions("metro"),
+                { explanation: "地铁 (dìtiě) = metrô, diferente do trem 火车." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "hotel",
+                "O que esta imagem mostra?",
+                "hotel",
+                visualMeaningOptions("hotel"),
+                { explanation: "酒店 (jiǔdiàn) = hotel; 酒店在哪里？ pergunta onde ele fica." }
+              ),
               imageChoice(
                 "choose_meaning",
                 "car",

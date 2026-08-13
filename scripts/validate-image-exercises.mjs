@@ -154,8 +154,10 @@ try {
     ["我要牛奶", "milk"],
     ["我要这个苹果", "apple"],
     ["我有姐姐", "older_sister"],
+    ["请给我一杯水", "drinking_water"],
+    ["火车和地铁", "train"],
   ];
-  for (const conceptId of ["咖啡", "儿子", "女儿", "姐姐", "手机", "洗手间", "旅行"]) {
+  for (const conceptId of ["咖啡", "儿子", "女儿", "姐姐", "手机", "洗手间", "旅行", "果汁", "面条", "酒店", "超市", "银行", "火车", "地铁", "机场"]) {
     if (!resolveVisualConcept(conceptId)) {
       err("catalog", `hanzi:${conceptId}`, "resolveVisualConcept não resolveu a palavra completa.");
     }

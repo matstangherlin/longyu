@@ -56,6 +56,32 @@ import bathroomIllustration from "./places/bathroom.webp";
 import bedroomIllustration from "./places/bedroom.webp";
 import kitchenIllustration from "./places/kitchen.webp";
 import travelIllustration from "./daily-life/travel.webp";
+import waterSurvivalIllustration from "./daily-life/water.webp";
+import juiceIllustration from "./daily-life/juice.webp";
+import beerIllustration from "./daily-life/beer.webp";
+import noodlesIllustration from "./daily-life/noodles.webp";
+import breadIllustration from "./daily-life/bread.webp";
+import bananaIllustration from "./daily-life/banana.webp";
+import eggIllustration from "./daily-life/egg.webp";
+import menuIllustration from "./objects/menu.webp";
+import hotelKeyCardIllustration from "./objects/hotel-key-card.webp";
+import passportIllustration from "./objects/passport.webp";
+import luggageIllustration from "./objects/luggage.webp";
+import billIllustration from "./objects/bill.webp";
+import bankCardIllustration from "./objects/bank-card.webp";
+import hotelIllustration from "./places/hotel.webp";
+import streetIllustration from "./places/street.webp";
+import supermarketIllustration from "./places/supermarket.webp";
+import restaurantIllustration from "./places/restaurant.webp";
+import bankIllustration from "./places/bank.webp";
+import shoppingMallIllustration from "./places/shopping-mall.webp";
+import airportIllustration from "./places/airport.webp";
+import hospitalIllustration from "./places/hospital.webp";
+import taxiIllustration from "./transport/taxi.webp";
+import busIllustration from "./transport/bus.webp";
+import trainIllustration from "./transport/train.webp";
+import metroIllustration from "./transport/metro.webp";
+import airplaneIllustration from "./transport/airplane.webp";
 import oneIllustration from "./daily-life/one.svg";
 import twoIllustration from "./daily-life/two.svg";
 import threeIllustration from "./daily-life/three.svg";
@@ -103,6 +129,7 @@ export const VISUAL_IMAGE_SRC_BY_ID: Record<VisualConceptId, string> = {
   vegetables: vegetablesIllustration,
   eat: eatIllustration,
   drink: drinkIllustration,
+  drinking_water: waterSurvivalIllustration,
   book: bookIllustration,
   car: carIllustration,
   home: homeIllustration,
@@ -120,6 +147,31 @@ export const VISUAL_IMAGE_SRC_BY_ID: Record<VisualConceptId, string> = {
   bedroom: bedroomIllustration,
   kitchen: kitchenIllustration,
   travel: travelIllustration,
+  juice: juiceIllustration,
+  beer: beerIllustration,
+  noodles: noodlesIllustration,
+  bread: breadIllustration,
+  banana: bananaIllustration,
+  egg: eggIllustration,
+  menu: menuIllustration,
+  hotel_key_card: hotelKeyCardIllustration,
+  passport: passportIllustration,
+  luggage: luggageIllustration,
+  bill: billIllustration,
+  bank_card: bankCardIllustration,
+  hotel: hotelIllustration,
+  street: streetIllustration,
+  supermarket: supermarketIllustration,
+  restaurant: restaurantIllustration,
+  bank: bankIllustration,
+  shopping_mall: shoppingMallIllustration,
+  airport: airportIllustration,
+  hospital: hospitalIllustration,
+  taxi: taxiIllustration,
+  bus: busIllustration,
+  train: trainIllustration,
+  metro: metroIllustration,
+  airplane: airplaneIllustration,
   one: oneIllustration,
   two: twoIllustration,
   three: threeIllustration,
