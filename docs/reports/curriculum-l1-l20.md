@@ -18,16 +18,16 @@ Métricas lexicais = **oportunidades pedagógicas** (PED-022/025), não distract
 | 7 | `l1` | Mandarim é a língua chinesa padrão. Aqui você começa pelo som e por frases úteis — sem listas frias de exercício. | 4 | 8 | estrutura/prática comunicativa no plano | fundação do sistema | 你好×4, 妈×3, 你×2 |
 | 8 | `l2` | 你 significa você — e traz a ideia de pessoa 亻 ao lado de 好. Você já viu 人 antes. | 0 | 10 | estrutura/prática comunicativa no plano | fundação do sistema | 你好×3, 你×2, 我很好×2 |
 | 9 | `l3` | Tudo bem? | 2 | 12 | estrutura/prática comunicativa no plano | fundação do sistema | 我很好×3, 你好吗×2, 好×2 |
-| 10 | `l1-rev` | Vamos usar o que você já viu numa conversa curta. | 4 | 8 | estrutura/prática comunicativa no plano | revisão do módulo | 你×5, 好×5, 我很好×4 |
+| 10 | `l1-rev` | Vamos usar o que você já viu numa conversa curta. | 7 | 8 | estrutura/prática comunicativa no plano | revisão do módulo | 你×6, 好×6, 你好吗×5 |
 | 11 | `l4` | 不 é bù (4º tom), mas antes de outra sílaba de 4º tom ele sobe para bú. Por isso 不客气 soa “bú kèqi”, mesmo 不 sozinho sendo bù. | 0 | 14 | estrutura/prática comunicativa no plano | fundação do sistema | 谢谢×3, 不客气×2, 我很好×2 |
 | 12 | `p1-ate-logo` | Até logo | 0 | 9 | estrutura/prática comunicativa no plano | interação social (cumprimento / cortesia) | 再见×4, 见×3, 再×2 |
 | 13 | `p1-primeira-conversa` | Você e Mei vão usar tudo o que você aprendeu: cumprimento, pergunta, resposta, agradecimento e despedida. | 0 | 11 | estrutura/prática comunicativa no plano | interação social (cumprimento / cortesia) | 你好×3, 你×2, 好×2 |
 | 14 | `p1-qingwen-cortesia` | Com licença | 1 | 9 | estrutura/prática comunicativa no plano | interação social (cumprimento / cortesia) | 你×4, 你好吗×3, 你呢×3 |
-| 15 | `l2-rev` | Vamos usar o que você já viu numa conversa. | 0 | 13 | estrutura/prática comunicativa no plano | revisão do módulo | 你好×4, 好×4, 谢谢×3 |
-| 16 | `p2-ma-primeiro-tom` | O 1º tom fica alto e constante. Em 妈 mā, pense em uma linha reta no alto. | 2 | 10 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×3, 我很好×3, 妈×2 |
-| 17 | `p2-ma-segundo-tom` | O 2º tom sobe, como uma pergunta curta em português. Ouça má e acompanhe a subida. | 0 | 11 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×3, 我很好×3, 麻×2 |
-| 18 | `p2-ma-terceiro-tom` | O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico. | 0 | 11 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×3, 我很好×3, 马×2 |
-| 19 | `p2-ma-quarto-tom` | O 4º tom cai rápido, como um comando curto. 骂 mà usa essa queda forte. | 1 | 10 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×3, 我很好×3, 骂×2 |
+| 15 | `l2-rev` | Vamos usar o que você já viu numa conversa. | 0 | 17 | estrutura/prática comunicativa no plano | revisão do módulo | 你好×5, 谢谢×4, 好×4 |
+| 16 | `p2-ma-primeiro-tom` | O 1º tom fica alto e constante. Em 妈 mā, pense em uma linha reta no alto. | 0 | 10 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 你好吗×5, 请问×4, 妈×2 |
+| 17 | `p2-ma-segundo-tom` | O 2º tom sobe, como uma pergunta curta em português. Ouça má e acompanhe a subida. | 0 | 9 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×4, 你好吗×4, 麻×2 |
+| 18 | `p2-ma-terceiro-tom` | O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico. | 0 | 9 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×4, 你好吗×4, 马×2 |
+| 19 | `p2-ma-quarto-tom` | O 4º tom cai rápido, como um comando curto. 骂 mà usa essa queda forte. | 1 | 8 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 请问×4, 你好吗×4, 骂×2 |
 | 20 | `p2-comparar-tom-1-4` | Compare: mā fica alto e reto; mà cai rápido. O contraste ajuda seu ouvido a decidir. | 0 | 14 | estrutura/prática comunicativa no plano | discriminação / produção de tom | 妈×4, 明天见×4, 再见×2 |
 
 ## Por lição (detalhe)
@@ -153,14 +153,14 @@ Métricas lexicais = **oportunidades pedagógicas** (PED-022/025), não distract
 
 - **Review:** sim
 - **Objetivo:** Vamos usar o que você já viu numa conversa curta.
-- **Vocabulário introduzido (tokens novos no curso até aqui):** 麻 · 你呢 · 很好 · 呢
+- **Vocabulário introduzido (tokens novos no curso até aqui):** 麻 · 你呢 · 很好 · 呢 · 请再 · 说一 · 遍
 - **Vocabulário recuperado (já visto):** 你好 · 你 · 好 · 我很好 · 你好吗 · 我 · 很 · 吗
 - **Estrutura / foco:** estrutura/prática comunicativa no plano
 - **Situação comunicativa:** revisão do módulo
-- **Novidade (PED-025):** lexical=3, estrutural=10, modalidade=3, recuperação=8
-- **SRS / revisão no plano:** steps gerados com recuperação=8; reviewItems=chunk:nihao, char:ni, char:hao, chunk:nihaoma, chunk:wohenhao, char:wo, char:hen_very, char:ma_question
-- **Top 3 repetidos:** 你 (5) · 好 (5) · 我很好 (4)
-- **Passos no plano:** 20
+- **Novidade (PED-025):** lexical=4, estrutural=12, modalidade=3, recuperação=9
+- **SRS / revisão no plano:** steps gerados com recuperação=9; reviewItems=chunk:nihao, char:ni, char:hao, chunk:nihaoma, chunk:wohenhao, char:wo, char:hen_very, char:ma_question
+- **Top 3 repetidos:** 你 (6) · 好 (6) · 你好吗 (5)
+- **Passos no plano:** 21
 
 ### 11. `l4` — Obrigado
 
@@ -219,25 +219,25 @@ Métricas lexicais = **oportunidades pedagógicas** (PED-022/025), não distract
 - **Review:** sim
 - **Objetivo:** Vamos usar o que você já viu numa conversa.
 - **Vocabulário introduzido (tokens novos no curso até aqui):** —
-- **Vocabulário recuperado (já visto):** 你好 · 谢谢 · 谢 · 你 · 好 · 我 · 我很好 · 你好吗 · 再见 · 麻 · 不客气 · 吗
+- **Vocabulário recuperado (já visto):** 你好 · 谢谢 · 谢 · 你 · 好 · 我 · 我很好 · 你好吗 · 再见 · 妈 · 不客气 · 麻
 - **Estrutura / foco:** estrutura/prática comunicativa no plano
 - **Situação comunicativa:** revisão do módulo
-- **Novidade (PED-025):** lexical=0, estrutural=11, modalidade=3, recuperação=9
-- **SRS / revisão no plano:** steps gerados com recuperação=9; reviewItems=chunk:nihao, chunk:nihaoma, chunk:wohenhao, chunk:xiexie, chunk:zaijian, char:wo, char:hen_very, char:hao, char:ni, char:ma_question, char:xie, char:zai_again, char:jian_see, chunk:bukeqi, char:bu, char:ke_guest, char:qi_air
-- **Top 3 repetidos:** 你好 (4) · 好 (4) · 谢谢 (3)
-- **Passos no plano:** 17
+- **Novidade (PED-025):** lexical=0, estrutural=15, modalidade=3, recuperação=15
+- **SRS / revisão no plano:** steps gerados com recuperação=15; reviewItems=chunk:nihao, chunk:nihaoma, chunk:wohenhao, chunk:xiexie, chunk:zaijian, char:wo, char:hen_very, char:hao, char:ni, char:ma_question, char:xie, char:zai_again, char:jian_see, chunk:bukeqi, char:bu, char:ke_guest, char:qi_air
+- **Top 3 repetidos:** 你好 (5) · 谢谢 (4) · 好 (4)
+- **Passos no plano:** 22
 
 ### 16. `p2-ma-primeiro-tom` — 1º tom com ma
 
 - **Review:** não
 - **Objetivo:** O 1º tom fica alto e constante. Em 妈 mā, pense em uma linha reta no alto.
-- **Vocabulário introduzido (tokens novos no curso até aqui):** 请 · 问
+- **Vocabulário introduzido (tokens novos no curso até aqui):** —
 - **Vocabulário recuperado (já visto):** 妈 · 山 · 你好吗 · 你好 · 吗 · 请问 · 我很好 · 我 · 很 · 好
 - **Estrutura / foco:** estrutura/prática comunicativa no plano
 - **Situação comunicativa:** discriminação / produção de tom
-- **Novidade (PED-025):** lexical=1, estrutural=7, modalidade=3, recuperação=5
-- **SRS / revisão no plano:** steps gerados com recuperação=5; reviewItems=char:ma2, char:shan
-- **Top 3 repetidos:** 请问 (3) · 我很好 (3) · 妈 (2)
+- **Novidade (PED-025):** lexical=0, estrutural=7, modalidade=3, recuperação=6
+- **SRS / revisão no plano:** steps gerados com recuperação=6; reviewItems=char:ma2, char:shan
+- **Top 3 repetidos:** 你好吗 (5) · 请问 (4) · 妈 (2)
 - **Passos no plano:** 12
 
 ### 17. `p2-ma-segundo-tom` — 2º tom com ma
@@ -245,12 +245,12 @@ Métricas lexicais = **oportunidades pedagógicas** (PED-022/025), não distract
 - **Review:** não
 - **Objetivo:** O 2º tom sobe, como uma pergunta curta em português. Ouça má e acompanhe a subida.
 - **Vocabulário introduzido (tokens novos no curso até aqui):** —
-- **Vocabulário recuperado (já visto):** 麻 · 妈 · 请问 · 你好 · 你好吗 · 我很好 · 我 · 很 · 好 · 请 · 问
+- **Vocabulário recuperado (já visto):** 麻 · 妈 · 请问 · 你好 · 你好吗 · 我很好 · 我 · 很 · 好
 - **Estrutura / foco:** estrutura/prática comunicativa no plano
 - **Situação comunicativa:** discriminação / produção de tom
 - **Novidade (PED-025):** lexical=0, estrutural=8, modalidade=2, recuperação=7
 - **SRS / revisão no plano:** steps gerados com recuperação=7; reviewItems=char:ma2
-- **Top 3 repetidos:** 请问 (3) · 我很好 (3) · 麻 (2)
+- **Top 3 repetidos:** 请问 (4) · 你好吗 (4) · 麻 (2)
 - **Passos no plano:** 12
 
 ### 18. `p2-ma-terceiro-tom` — 3º tom com ma
@@ -258,12 +258,12 @@ Métricas lexicais = **oportunidades pedagógicas** (PED-022/025), não distract
 - **Review:** não
 - **Objetivo:** O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico.
 - **Vocabulário introduzido (tokens novos no curso até aqui):** —
-- **Vocabulário recuperado (já visto):** 马 · 妈 · 请问 · 你好 · 你好吗 · 我很好 · 我 · 很 · 好 · 请 · 问
+- **Vocabulário recuperado (já visto):** 马 · 妈 · 请问 · 你好 · 你好吗 · 我很好 · 我 · 很 · 好
 - **Estrutura / foco:** estrutura/prática comunicativa no plano
 - **Situação comunicativa:** discriminação / produção de tom
 - **Novidade (PED-025):** lexical=0, estrutural=8, modalidade=2, recuperação=7
 - **SRS / revisão no plano:** steps gerados com recuperação=7; reviewItems=char:ma2
-- **Top 3 repetidos:** 请问 (3) · 我很好 (3) · 马 (2)
+- **Top 3 repetidos:** 请问 (4) · 你好吗 (4) · 马 (2)
 - **Passos no plano:** 12
 
 ### 19. `p2-ma-quarto-tom` — 4º tom com ma
@@ -271,12 +271,12 @@ Métricas lexicais = **oportunidades pedagógicas** (PED-022/025), não distract
 - **Review:** não
 - **Objetivo:** O 4º tom cai rápido, como um comando curto. 骂 mà usa essa queda forte.
 - **Vocabulário introduzido (tokens novos no curso até aqui):** 骂
-- **Vocabulário recuperado (já visto):** 妈 · 请问 · 你好 · 你好吗 · 我很好 · 我 · 很 · 好 · 请 · 问
+- **Vocabulário recuperado (já visto):** 妈 · 请问 · 你好 · 你好吗 · 我很好 · 我 · 很 · 好
 - **Estrutura / foco:** estrutura/prática comunicativa no plano
 - **Situação comunicativa:** discriminação / produção de tom
 - **Novidade (PED-025):** lexical=1, estrutural=8, modalidade=2, recuperação=6
 - **SRS / revisão no plano:** steps gerados com recuperação=6; reviewItems=char:ma2
-- **Top 3 repetidos:** 请问 (3) · 我很好 (3) · 骂 (2)
+- **Top 3 repetidos:** 请问 (4) · 你好吗 (4) · 骂 (2)
 - **Passos no plano:** 12
 
 ### 20. `p2-comparar-tom-1-4` — Comparar 1º e 4º tom

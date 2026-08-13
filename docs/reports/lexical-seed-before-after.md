@@ -10,20 +10,20 @@ sem distractores de MCQ; sem stamps de vocabulário do planner;
 
 | Seed | Antes | Depois | Δ |
 |------|------:|-------:|--:|
-| 你好 | 45 | 39 | -6 |
-| 谢谢 | 13 | 11 | -2 |
-| 再见 | 20 | 18 | -2 |
-| 不客气 | 8 | 6 | -2 |
+| 你好 | 45 | 41 | -4 |
+| 谢谢 | 13 | 12 | -1 |
+| 再见 | 20 | 19 | -1 |
+| 不客气 | 8 | 8 | 0 |
 | 早上好 | 0 | 0 | 0 |
 | 晚上好 | 0 | 0 | 0 |
 
 ## Destaque (critério de aceite)
 
 - **你好** antes: **45** oportunidades
-- **你好** depois: **39**
-- **谢谢** antes: **13** · depois: **11**
-- **再见** antes: **20** · depois: **18**
-- **不客气** antes: **8** · depois: **6**
+- **你好** depois: **41**
+- **谢谢** antes: **13** · depois: **12**
+- **再见** antes: **20** · depois: **19**
+- **不客气** antes: **8** · depois: **8**
 
 ## Por lição (你好)
 
@@ -38,12 +38,12 @@ sem distractores de MCQ; sem stamps de vocabulário do planner;
 | `l1` | 4 | 4 |
 | `l2` | 3 | 3 |
 | `l3` | 2 | 2 |
-| `l1-rev` | 4 | 3 |
+| `l1-rev` | 4 | 4 |
 | `l4` | 2 | 2 |
 | `p1-ate-logo` | 3 | 2 |
 | `p1-primeira-conversa` | 3 | 3 |
 | `p1-qingwen-cortesia` | 2 | 2 |
-| `l2-rev` | 5 | 4 |
+| `l2-rev` | 5 | 5 |
 | `p2-ma-primeiro-tom` | 1 | 2 |
 | `p2-ma-segundo-tom` | 1 | 1 |
 | `p2-ma-terceiro-tom` | 1 | 1 |

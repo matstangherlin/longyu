@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e75ce5d15fa935941b62baafc8768e57acd500f4 |
+| Commit | f228e23a80f5938231238f6464d36f251eedcace |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:18:59.786Z |
+| Gerado em | 2026-08-13T07:29:36.642Z |
 | Lições | 123 |
 | Hash da Jornada | 187bc767e00a |
 
@@ -20,8 +20,8 @@
 | Fallback V1 derivado (lines/checkpoint) | 38 |
 | Intenções distintas | 38 |
 | Passos autorais na jornada | 41 |
-| Lições com cena gerada no plano | 95 |
-| Cenas geradas distintas | 21 |
+| Lições com cena gerada no plano | 101 |
+| Cenas geradas distintas | 20 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -48,31 +48,31 @@
 
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
-| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 2 |
-| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 5 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 4 |
+| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 3 |
+| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 5 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 3 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 8 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 9 |
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
-| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 8 |
+| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 10 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
 | nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
 | como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 1 | 7 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 7 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 1 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 2 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
-| encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 1 |
+| encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
 | onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 2 |
-| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 1 |
+| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 2 |
 | sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
 | pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 0 |
-| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 7 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 10 |
+| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 11 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 0 |
-| conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 7 |
+| conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 8 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:02937d2f24c19773 -->
+<!-- integridade:e616e4a33e2298da -->

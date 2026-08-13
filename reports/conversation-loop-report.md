@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e75ce5d15fa935941b62baafc8768e57acd500f4 |
+| Commit | f228e23a80f5938231238f6464d36f251eedcace |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:19:12.837Z |
+| Gerado em | 2026-08-13T07:31:49.924Z |
 | Lições | 123 |
 | Hash da Jornada | 187bc767e00a |
 
@@ -14,16 +14,16 @@
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 117 |
-| Itens de vocabulário exibidos | 660 |
-| Itens cobertos por tarefa posterior | 505 |
-| Cobertura bruta | 76.5 % |
-| **Itens de prioridade** (novo · resposta · pouco exposto) | 344 |
-| **Cobertura relevante** (portão ≥ 76 %) | **79.7 %** |
+| Conversas analisadas (nos planos reais) | 123 |
+| Itens de vocabulário exibidos | 689 |
+| Itens cobertos por tarefa posterior | 534 |
+| Cobertura bruta | 77.5 % |
+| **Itens de prioridade** (novo · resposta · pouco exposto) | 356 |
+| **Cobertura relevante** (portão ≥ 76 %) | **80.3 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 16 refs |
-| Reutilização média por item | 2.20 |
+| Reutilização média por item | 2.25 |
 | Itens sem cobertura | 155 |
-| Tarefas da fase Pós-Conversa | 466 |
+| Tarefas da fase Pós-Conversa | 490 |
 | Média Pós-Conversa por conversa | 3.98 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, sentence_build |
 
@@ -34,22 +34,22 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- chunk:nihao — 531 exposições ao longo dos 123 planos
-- char:ma_question — 283 exposições ao longo dos 123 planos
-- chunk:wohenhao — 271 exposições ao longo dos 123 planos
-- chunk:nihaoma — 252 exposições ao longo dos 123 planos
-- chunk:zaijian — 154 exposições ao longo dos 123 planos
+- chunk:nihao — 552 exposições ao longo dos 123 planos
+- char:ma_question — 303 exposições ao longo dos 123 planos
+- chunk:wohenhao — 290 exposições ao longo dos 123 planos
+- chunk:nihaoma — 272 exposições ao longo dos 123 planos
+- chunk:zaijian — 155 exposições ao longo dos 123 planos
 - char:yi — 126 exposições ao longo dos 123 planos
-- char:bu — 119 exposições ao longo dos 123 planos
-- char:shi — 102 exposições ao longo dos 123 planos
+- char:bu — 120 exposições ao longo dos 123 planos
 - chunk:xiexie — 101 exposições ao longo dos 123 planos
+- char:shi — 101 exposições ao longo dos 123 planos
 - chunk:nijiaoshenme — 87 exposições ao longo dos 123 planos
 - chunk:qingzaishuoyibian — 77 exposições ao longo dos 123 planos
 - char:san — 64 exposições ao longo dos 123 planos
+- chunk:qingwen — 63 exposições ao longo dos 123 planos
 - chunk:bukeqi — 61 exposições ao longo dos 123 planos
 - char:tian_sky — 59 exposições ao longo dos 123 planos
 - char:mu — 48 exposições ao longo dos 123 planos
-- chunk:qingwen — 43 exposições ao longo dos 123 planos
 
 ## Itens de prioridade sem cobertura
 
@@ -92,15 +92,15 @@
 - l28:chunk:woyao (14 exposições no curso)
 - l28:chunk:zheshishenme (12 exposições no curso)
 - p6-rotina-trabalho:chunk:woyao (14 exposições no curso)
-- p6-rotina-trabalho:chunk:zaijian (154 exposições no curso)
+- p6-rotina-trabalho:chunk:zaijian (155 exposições no curso)
 - p6-saude:chunk:woyao (14 exposições no curso)
-- p6-saude:chunk:zaijian (154 exposições no curso)
+- p6-saude:chunk:zaijian (155 exposições no curso)
 - p6-horarios:chunk:woyao (14 exposições no curso)
-- p6-horarios:chunk:zaijian (154 exposições no curso)
+- p6-horarios:chunk:zaijian (155 exposições no curso)
 - p6-natureza:char:zhe (48 exposições no curso)
 - p6-natureza:chunk:zheshishenme (12 exposições no curso)
 - p6-clima:chunk:woyao (14 exposições no curso)
-- p6-clima:chunk:zaijian (154 exposições no curso)
+- p6-clima:chunk:zaijian (155 exposições no curso)
 - p6-compras:chunk:duoshaoqian (10 exposições no curso)
 - p6-compras:chunk:woxianghe (10 exposições no curso)
 - p6-compras:chunk:zheshishenme (12 exposições no curso)
@@ -110,7 +110,7 @@
 - l29:chunk:taiguile (11 exposições no curso)
 - l29:chunk:zheshishenme (12 exposições no curso)
 - l29:chunk:zheshishui (5 exposições no curso)
-- l30:char:shan (37 exposições no curso)
+- l30:char:shan (36 exposições no curso)
 - l30:char:yue (22 exposições no curso)
 - l30:char:zhe (48 exposições no curso)
 - …mais 10.
@@ -199,4 +199,4 @@
 - l27:chunk:xiexie
 - …mais 75.
 
-<!-- integridade:20b293e33b0d798b -->
+<!-- integridade:cbbe19de7b19371d -->

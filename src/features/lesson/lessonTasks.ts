@@ -5384,12 +5384,20 @@ export function applyConversationVocabularyLoop(
         item.roles.some((role) => role === "required" || role === "new" || role === "reused" || role === "response")
     );
     const focusByRef = new Map<string, FocusItem>();
+    // Só microtarefas de contorno ma/comparar: cumprimentos na cena são âncora,
+    // não bateria. Outras lições de som (ex. p2-sons-brasileiros) precisam do
+    // loop normal para o portão conversation-loop.
+    const demoteSeedRecovery = /^p2-ma-/.test(lesson.id) || /^p2-comparar-tom-/.test(lesson.id);
     for (const item of relevant) {
       const focusItem = focusItemFromRef(item.ref);
       if (!focusItem) continue;
-      // PED-021/027: em lições que não ensinam cumprimento, o loop pós-conversa
-      // não deve transformar 你好/谢谢/… em bateria de prática dedicada.
-      if (!isGreetingFocusedLesson(lesson) && isSeedFillerHanzi(focusItem.hanzi)) continue;
+      // PED-021/027: microtarefas de tom/contorno não transformam seeds já
+      // conhecidos em bateria pós-conversa. Itens NEW da cena ainda ganham
+      // follow-up (portão conversation-loop).
+      const isNewInScene = item.roles.includes("new");
+      if (demoteSeedRecovery && isSeedFillerHanzi(focusItem.hanzi) && !isNewInScene) {
+        continue;
+      }
       focusByRef.set(item.ref, focusItem);
     }
 
