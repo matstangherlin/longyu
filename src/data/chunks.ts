@@ -76,6 +76,12 @@ export const CHUNKS: Chunk[] = [
   { id: "buyaola", hanzi: "不要辣", pinyin: "búyào là", meaningPt: "Sem pimenta, por favor.", literalPt: "não querer picante", tags: ["comida"], domain: "comida", level: "survival" },
   { id: "maidan", hanzi: "买单", pinyin: "mǎidān", meaningPt: "A conta, por favor.", literalPt: "comprar + conta", tags: ["comida"], domain: "comida", level: "survival" },
   { id: "fuwuyuan", hanzi: "服务员！", pinyin: "fúwùyuán!", meaningPt: "Garçom! / Moça!", literalPt: "atendente", tags: ["comida"], domain: "comida", level: "survival" },
+  { id: "caidan", hanzi: "菜单", pinyin: "càidān", meaningPt: "Cardápio.", literalPt: "prato + lista", tags: ["comida"], domain: "comida", level: "elementary" },
+  { id: "fanguan", hanzi: "饭馆", pinyin: "fànguǎn", meaningPt: "Restaurante.", literalPt: "refeição + estabelecimento", tags: ["comida", "lugar"], domain: "comida", level: "elementary" },
+  { id: "yibeicha", hanzi: "一杯茶", pinyin: "yì bēi chá", meaningPt: "Um copo de chá.", literalPt: "um copo chá", tags: ["comida", "bebida"], domain: "bebida", level: "elementary" },
+  { id: "woyaoshui", hanzi: "我要水", pinyin: "wǒ yào shuǐ", meaningPt: "Quero água.", literalPt: "eu quero água", tags: ["comida", "bebida"], domain: "bebida", level: "elementary" },
+  { id: "ditie", hanzi: "地铁", pinyin: "dìtiě", meaningPt: "Metrô.", literalPt: "terra + ferro", tags: ["transporte"], domain: "transporte", level: "elementary" },
+  { id: "huoche", hanzi: "火车", pinyin: "huǒchē", meaningPt: "Trem.", literalPt: "fogo + veículo", tags: ["transporte"], domain: "transporte", level: "elementary" },
 
   // --- Família ---
   { id: "zheshibaba", hanzi: "这是我爸爸", pinyin: "zhè shì wǒ bàba", meaningPt: "Este é meu pai.", literalPt: "este é meu pai", tags: ["familia"], domain: "familia", level: "elementary" },

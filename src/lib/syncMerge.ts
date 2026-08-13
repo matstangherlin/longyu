@@ -4,6 +4,7 @@ import type { SRSItem } from "./srs";
 import { getProgressScore } from "./progressSnapshot";
 import { isDevPreviewAllowed } from "./entitlements";
 import { FOLEGO_START, FOLEGO_MAX_FREE } from "../data/economy";
+import { mergeItemDimensionScores, mergeLessonMasteryRecords } from "../data/masteryLoop";
 
 /**
  * Une as estrelas pendentes de dois dispositivos. Lições já dominadas (3★ no
@@ -137,6 +138,8 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     lessonPendingStars: mergeLessonPendingStars(local.lessonPendingStars, remote.lessonPendingStars, lessonStarsById),
     folego: Math.min(FOLEGO_MAX_FREE, Math.max(local.folego ?? FOLEGO_START, remote.folego ?? FOLEGO_START)),
     lessonTaskProgress: maxRecordValues(local.lessonTaskProgress, remote.lessonTaskProgress),
+    lessonMasteryById: mergeLessonMasteryRecords(local.lessonMasteryById, remote.lessonMasteryById),
+    itemDimensionsByRef: mergeItemDimensionScores(local.itemDimensionsByRef, remote.itemDimensionsByRef),
     correctedMistakes: maxRecordValues(local.correctedMistakes, remote.correctedMistakes),
     points: Math.max(local.points, remote.points),
     xpTotal: Math.max(local.xpTotal, remote.xpTotal),
