@@ -138,7 +138,7 @@ export function LojaPage() {
   ]);
 
   const towardPro = pearlProgress.pearlsTowardPro;
-  const pearlPassActive = hasActivePearlPro(pearlProExpiresAt);
+  const pearlPassActive = isPremium && hasActivePearlPro(pearlProExpiresAt);
 
   function flash(message: string, sound: Parameters<typeof playSoundFx>[0] = "qiGain") {
     playSoundFx(sound, soundEffects);
@@ -146,8 +146,8 @@ export function LojaPage() {
     window.setTimeout(() => setBurst(null), 1200);
   }
 
-  function buy(item: ShopItem) {
-    if (buyShopItem(item.id)) {
+  async function buy(item: ShopItem) {
+    if (await buyShopItem(item.id)) {
       const sound = item.kind === "chest_small" || item.kind === "chest_dragon" ? "chestReady" : "qiSpend";
       flash(`Comprado: ${item.name}`, sound);
     }

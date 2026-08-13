@@ -29,6 +29,8 @@ export interface EconomyRpcResult {
   cap?: number;
   expires_at?: string | null;
   amount?: number;
+  /** Falha de transporte já enfileirada; não equivale a concessão. */
+  retry_pending?: boolean;
 }
 
 export type EconomyIntentOperation =

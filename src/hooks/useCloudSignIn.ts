@@ -1,14 +1,12 @@
 import { useCallback } from "react";
 import { canSignInWithCredentials } from "../lib/authForm";
 import { storePendingConfirmEmail } from "../lib/authRedirect";
-import { isInternalTestProEmail } from "../lib/entitlements";
 import { useStore } from "../lib/store";
 import { login as authLogin } from "../services/authService";
 import { syncAuthSessionProgress } from "../services/cloudSyncCoordinator";
 
 export function useCloudSignIn() {
   const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
-  const setServerEntitlement = useStore((s) => s.setServerEntitlement);
 
   const signIn = useCallback(
     async (
@@ -26,9 +24,6 @@ export function useCloudSignIn() {
         storePendingConfirmEmail(email);
         return { ok: false, message: authResult.message, pendingConfirmation: true };
       }
-      if (isInternalTestProEmail(email)) {
-        setServerEntitlement(true);
-      }
       if (authResult.status === "ok") {
         setAccountSetupComplete(true);
         const syncResult = await syncAuthSessionProgress();
@@ -42,7 +37,7 @@ export function useCloudSignIn() {
       setAccountSetupComplete(true);
       return { ok: true, message: authResult.message };
     },
-    [setAccountSetupComplete, setServerEntitlement]
+    [setAccountSetupComplete]
   );
 
   return { signIn };
