@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, currentLessonId, getLesson, type Skill } from "../../data/journey";
 import { canStartLesson, useIsPro } from "../../lib/proAccess";
@@ -22,11 +22,13 @@ import {
   lessonDescription,
   lessonMotorLabel,
   lessonTasksFor,
+  prewarmLessonPlanner,
   type LessonMotor,
   type LessonTask,
 } from "./lessonTasks";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
+import { LESSON_PERF_MARKS, markLessonPerf } from "../../lib/lessonPerf";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
 
@@ -141,6 +143,19 @@ export function LessonDetailPage() {
   const consumeCharge = useStore((state) => state.consumeCharge);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
 
+  // PERF-011 — preaquece o planner em idle para o player não cold-startar o índice.
+  useEffect(() => {
+    if (!foundLesson) return undefined;
+    const lessonId = foundLesson.id;
+    const ric = typeof window !== "undefined" ? window.requestIdleCallback?.bind(window) : undefined;
+    if (ric) {
+      const handle = ric(() => prewarmLessonPlanner(lessonId));
+      return () => window.cancelIdleCallback?.(handle);
+    }
+    const timeout = window.setTimeout(() => prewarmLessonPlanner(lessonId), 0);
+    return () => window.clearTimeout(timeout);
+  }, [foundLesson]);
+
   if (!foundLesson) return <Navigate to="/jornada" replace />;
 
   const lesson = foundLesson;
@@ -190,6 +205,7 @@ export function LessonDetailPage() {
     if (!isCompleted && savedProgress === 0) {
       window.sessionStorage.setItem(`longyu-energy:lesson:${lesson.id}:${todayKey()}`, "1");
     }
+    markLessonPerf(LESSON_PERF_MARKS.startClick);
     navigate(`/licao/${lesson.id}/player`);
   }
 

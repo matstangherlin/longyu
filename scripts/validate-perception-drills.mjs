@@ -121,10 +121,13 @@ function checkOddOneOutSets(sets) {
     if (set.members.some((member) => member.hanzi === set.intruder.hanzi)) {
       addError(ref, "o intruso também está entre os membros do grupo");
     }
-    if (!set.groupLabelPt?.trim() || !set.intruderGroupLabelPt?.trim()) {
+    if (!set.groupLabelPt?.trim()) {
       addError(ref, "grupo sem rótulo em português");
     }
-    if (set.groupLabelPt === set.intruderGroupLabelPt) {
+    // Curated sets use whyIntruderPt; legacy used intruderGroupLabelPt.
+    const why = set.whyIntruderPt?.trim() || set.intruderGroupLabelPt?.trim();
+    if (!why) addError(ref, "sem explicação do intruso");
+    if (set.intruderGroupLabelPt && set.groupLabelPt === set.intruderGroupLabelPt) {
       addError(ref, "intruso vem do mesmo grupo — a pergunta não tem resposta");
     }
   }
@@ -165,6 +168,7 @@ async function main() {
     const program = ts.createProgram(
       [
         "src/data/perceptionDrills.ts",
+        "src/data/oddOneOutCategories.ts",
         "src/features/lesson/lessonTasks.ts",
         "src/features/lesson/exerciseValidation.ts",
         "src/data/journey.ts",
@@ -188,6 +192,7 @@ async function main() {
 
     const load = (rel) => require(path.join(outDir, rel));
     const drills = load("src/data/perceptionDrills.js");
+    const ooo = load("src/data/oddOneOutCategories.js");
     const { lessonRoundStepsFor } = load("src/features/lesson/lessonTasks.js");
     const { validateExercise } = load("src/features/lesson/exerciseValidation.js");
     const { ALL_LESSONS } = load("src/data/journey.js");
@@ -204,8 +209,22 @@ async function main() {
 
     checkMinimalPairs(drills.MINIMAL_PAIRS, charByHanzi);
     checkSpotErrorDrills(drills.SPOT_ERROR_DRILLS, corpusGlyphs);
-    // Grupos são derivados: audita o conjunto máximo (todo o corpus visível).
-    checkOddOneOutSets(drills.oddOneOutSetsFor(corpusGlyphs));
+
+    // PED-012 — sets curados (não VocabDomain). 好喝 não pode ser membro de bebidas.
+    if (ooo.ODD_ONE_OUT_CATEGORY_MEMBERS.beverages.includes("好喝")) {
+      addError("odd_one_out", "好喝 não deve ser membro da categoria beverages");
+    }
+    if (ooo.oddOneOutLevelForPhase(1) !== 1) addError("odd_one_out", "nível fase 1 esperado 1");
+    if (ooo.oddOneOutLevelForPhase(3) !== 2) addError("odd_one_out", "nível fase 3 esperado 2");
+    if (ooo.oddOneOutLevelForPhase(5) !== 3) addError("odd_one_out", "nível fase 5 esperado 3");
+
+    const curatedSets = ooo.curatedOddOneOutSetsFor(corpusGlyphs, { level: 3 });
+    if (curatedSets.length < 3) {
+      addError("odd_one_out", `poucos sets curados disponíveis (${curatedSets.length})`);
+    }
+    checkOddOneOutSets(curatedSets);
+    // API de percepção reexporta curated — sem depender de VocabDomain.
+    checkOddOneOutSets(drills.oddOneOutSetsFor(corpusGlyphs, { level: 3 }));
 
     // Passo a passo do plano real: nenhum exercício destes motores pode chegar
     // à tela reprovado pelo validador de renderização.
@@ -246,7 +265,7 @@ async function main() {
     const coverage = engineKinds.map((kind) => `${kind} ${lessonsWithEngine[kind]}`).join(" · ");
     console.log(
       `OK: validate:perception-drills passou (${drills.MINIMAL_PAIRS.length} pares mínimos · ` +
-        `${drills.SPOT_ERROR_DRILLS.length} frases de estrutura · ${auditedSteps} passos auditados no plano real).`
+        `${drills.SPOT_ERROR_DRILLS.length} frases de estrutura · ${curatedSets.length} sets odd_one_out curados · ${auditedSteps} passos auditados no plano real).`
     );
     console.log(`     cobertura por lição: ${coverage}`);
   } finally {

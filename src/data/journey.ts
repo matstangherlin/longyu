@@ -179,6 +179,12 @@ export interface LessonStep {
   dialoguePrompt?: string;
   correctAnswer?: string;
   explanation?: string;
+  /** PED-013 — nível do "Qual não pertence?" (1 explícito → 3 inferência). */
+  oddOneOutLevel?: 1 | 2 | 3;
+  /** Rótulo do grupo semântico (não VocabDomain). */
+  groupLabelPt?: string;
+  /** Metadados por opção (pinyin/significado) para apoio no nível 1. */
+  optionMeta?: Record<string, { pinyin?: string; meaningPt?: string }>;
   /** Controle granular de ajuda contextual em hanzi/palavras/frases. */
   helpMode?: StepHelpMode;
   /** Pergunta sem dica: hover/toque mostra aviso neutro, sem pinyin/traducao. */

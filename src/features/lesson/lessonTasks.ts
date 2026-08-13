@@ -71,8 +71,12 @@ import {
   dictationModeForPhase,
   minimalPairsFor,
   oddOneOutSetsFor,
+  oddOneOutLevelForPhase,
+  oddOneOutPromptForLevel,
+  oddOneOutExplanation,
   spotErrorDrillsFor,
 } from "../../data/perceptionDrills";
+import { seededShuffleAvoidingOrder } from "../../lib/seededShuffle";
 import {
   FRAME_TASKS,
   SENTENCE_FRAMES,
@@ -1774,6 +1778,14 @@ export function structureExposureSnapshotForLesson(lessonId: string): StructureE
   return structureExposureForLesson(lessonId);
 }
 
+/**
+ * PERF-011 — preaquece o índice O(n²) de exposição estrutural antes do player.
+ * Idempotente; seguro em idle callback na página de detalhe.
+ */
+export function prewarmLessonPlanner(lessonId: string): void {
+  void structureExposureForLesson(lessonId);
+}
+
 export function structureFirstOccurrenceReport(): Array<{
   frameId: string;
   patternPt: string;
@@ -1911,20 +1923,34 @@ function makeDictationStep(
   };
 }
 
-/** "Qual não pertence?" — grupos derivados dos domínios do corpus. */
-function makeOddOneOutStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
-  const sets = oddOneOutSetsFor(knownGlyphs, { limit: 8 });
+/** "Qual não pertence?" — sets curados (PED-012) + níveis graduais (PED-013). */
+function makeOddOneOutStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  phaseOrder = 1
+): LessonStep | null {
+  const level = oddOneOutLevelForPhase(phaseOrder);
+  const sets = oddOneOutSetsFor(knownGlyphs, { limit: 12, level });
   if (sets.length === 0) return null;
   const set = sets[seed % sets.length];
-  const options = uniqueValues([...set.members.map((member) => member.hanzi), set.intruder.hanzi]);
-  if (options.length < 4) return null;
+  const rawOptions = uniqueValues([...set.members.map((member) => member.hanzi), set.intruder.hanzi]);
+  const canonical = [...set.members.map((m) => m.hanzi), set.intruder.hanzi];
+  const shuffled = seededShuffleAvoidingOrder(rawOptions, `ooo:${set.id}:${seed}:bank`, canonical);
+  if (shuffled.length < 4) return null;
+  const optionMeta: Record<string, { pinyin?: string; meaningPt?: string }> = {};
+  for (const item of [...set.members, set.intruder]) {
+    optionMeta[item.hanzi] = { pinyin: item.pinyin, meaningPt: item.meaningPt };
+  }
   return {
     kind: "odd_one_out",
     title: "Qual não pertence?",
-    prompt: "Três são do mesmo grupo. Toque na que sobra.",
-    options,
+    prompt: oddOneOutPromptForLevel(level, set.groupLabelPt),
+    options: shuffled,
     correctAnswer: set.intruder.hanzi,
-    explanation: `${set.members.map((member) => member.hanzi).join("、")} são ${set.groupLabelPt}. ${set.intruder.hanzi} (${set.intruder.meaningPt}) é ${set.intruderGroupLabelPt}.`,
+    explanation: oddOneOutExplanation(set),
+    oddOneOutLevel: level,
+    groupLabelPt: set.groupLabelPt,
+    optionMeta: level <= 2 ? optionMeta : undefined,
     isNoHint: true,
   };
 }
@@ -3423,7 +3449,7 @@ function supplementalStepsForStage(
     // no fim, o orçamento do estágio já teria acabado e a lição voltaria a ser
     // só múltipla escolha.
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed));
-    push(makeOddOneOutStep(knownGlyphs, drillSeed));
+    push(makeOddOneOutStep(knownGlyphs, drillSeed, phaseOrder));
     for (const item of focus) {
       push(makeRecognizeStep(item));
       push(makeDecomposeStep(item));
@@ -3520,7 +3546,7 @@ function supplementalStepsForStage(
     push(makeMatchPairsStep([...practiceFocus, ...focus]));
     push(makeTonePairStep([...practiceFocus, ...focus]));
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed + 1));
-    push(makeOddOneOutStep(knownGlyphs, drillSeed + 1));
+    push(makeOddOneOutStep(knownGlyphs, drillSeed + 1, phaseOrder));
     if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
     // Consolidar: transferência só se a estrutura já teve produção guiada antes.
     const variantSeed = drillSeed + 1 + variantSeedBase * 7;
@@ -4909,7 +4935,7 @@ function makePostConversationStep(
       return makeDictationStep(item, f, _taskDeps.phaseOrder);
     case "group_meaning": {
       const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
-      return makeOddOneOutStep(glyphs, drillSeedFor(item.key, "post_conversation"));
+      return makeOddOneOutStep(glyphs, drillSeedFor(item.key, "post_conversation"), _taskDeps.phaseOrder);
     }
     // Fechar o loop produzindo: a palavra que acabou de aparecer volta
     // dentro de uma frase que o aluno escreve inteira, sem peças na tela.

@@ -1,6 +1,4 @@
 import { CHARACTERS } from "./characters";
-import { VOCABULARY } from "./vocabulary";
-import type { VocabDomain } from "./types";
 
 // ————————————————————————————————————————————————————————————————
 // Motores de percepção e sentido.
@@ -11,13 +9,12 @@ import type { VocabDomain } from "./types";
 //
 //   1. audio_discrimination — pares mínimos: "iguais ou diferentes?"
 //   2. dictation            — ouvir e escrever (blocos / pinyin / hànzì)
-//   3. odd_one_out          — qual não pertence ao grupo
+//   3. odd_one_out          — qual não pertence ao grupo (taxonomia em oddOneOutCategories.ts)
 //   4. spot_error           — qual frase faz sentido (e por quê)
 //
-// Regra de ouro: nada aqui inventa vocabulário. Pares mínimos e grupos
-// semânticos são DERIVADOS do corpus (characters.ts / vocabulary.ts); só o
-// banco de frases erradas é curado à mão — não dá para gerar mandarim errado
-// de forma segura, e o erro precisa ser um erro REAL de quem fala português.
+// Regra de ouro: nada aqui inventa vocabulário. Pares mínimos vêm do corpus
+// (characters.ts); odd_one_out usa sets curados semânticos (não VocabDomain);
+// spot_error é curado à mão.
 // ————————————————————————————————————————————————————————————————
 
 export interface DrillItem {
@@ -251,100 +248,23 @@ export function minimalPairsFor(
 }
 
 // ————————————————————————————————————————————————————————————————
-// 2. Grupos semânticos (odd_one_out)
+// 2. Grupos semânticos (odd_one_out) — PED-012
+// Taxonomia própria (oddOneOutCategories.ts), NÃO VocabDomain.
 // ————————————————————————————————————————————————————————————————
 
-export interface OddOneOutSet {
-  id: string;
-  /** Rótulo do grupo em pt-BR ("bebidas", "família"...). */
-  groupLabelPt: string;
-  /** Os três que pertencem ao grupo. */
-  members: DrillItem[];
-  /** O intruso e de onde ele veio. */
-  intruder: DrillItem;
-  intruderGroupLabelPt: string;
-}
-
-/**
- * Domínios que dão grupo semântico NÍTIDO. Ficam de fora particula, verbo,
- * negacao e pergunta: "qual não pertence" só é justo quando a categoria é
- * óbvia depois de descoberta — senão vira adivinhação.
- */
-const ODD_ONE_OUT_DOMAINS: Partial<Record<VocabDomain, string>> = {
-  bebida: "bebidas",
-  comida: "comidas",
-  familia: "família",
-  numero: "números",
-  lugar: "lugares",
-  transporte: "transporte",
-  tempo: "tempo",
-  saudacao: "saudações",
-  pessoa: "pessoas",
-  compras: "compras",
-  estudo: "estudo",
-};
-
-/** Pares de domínio que não servem de intruso: são próximos demais. */
-const TOO_CLOSE: Array<[VocabDomain, VocabDomain]> = [
-  ["comida", "bebida"],
-  ["pessoa", "familia"],
-  ["saudacao", "cortesia"],
-  ["lugar", "transporte"],
-];
-
-function tooClose(a: VocabDomain, b: VocabDomain): boolean {
-  return TOO_CLOSE.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
-}
+export type { OddOneOutResolvedSet as OddOneOutSet } from "./oddOneOutCategories";
+export {
+  curatedOddOneOutSetsFor as oddOneOutSetsFor,
+  oddOneOutLevelForPhase,
+  oddOneOutPromptForLevel,
+  oddOneOutExplanation,
+  ODD_ONE_OUT_CATEGORY_LABELS,
+  CURATED_ODD_ONE_OUT_SETS,
+} from "./oddOneOutCategories";
 
 // Escapes explícitos: com os caracteres literais, o início do segundo
 // intervalo normaliza para U+8C48 e a classe deixa de ser "só hànzì".
 const HANZI_ONLY_RE = /^[\u3400-\u9fff\uf900-\ufaff]+$/u;
-
-function vocabDrillItems(domain: VocabDomain, seenGlyphs: ReadonlySet<string>): DrillItem[] {
-  return VOCABULARY.filter(
-    (entry) =>
-      entry.domain === domain &&
-      entry.kind === "word" &&
-      HANZI_ONLY_RE.test(entry.hanzi) &&
-      [...entry.hanzi].every((glyph) => seenGlyphs.has(glyph))
-  ).map((entry) => ({ hanzi: entry.hanzi, pinyin: entry.pinyin, meaningPt: entry.meaningPt }));
-}
-
-/**
- * Monta grupos "qual não pertence" a partir dos domínios do corpus. Só
- * entram palavras cujos glifos o aluno já viu — o exercício testa SENTIDO,
- * nunca vocabulário novo.
- */
-export function oddOneOutSetsFor(
-  seenGlyphs: ReadonlySet<string>,
-  options: { limit?: number } = {}
-): OddOneOutSet[] {
-  const domains = Object.keys(ODD_ONE_OUT_DOMAINS) as VocabDomain[];
-  const pools = new Map<VocabDomain, DrillItem[]>();
-  for (const domain of domains) pools.set(domain, vocabDrillItems(domain, seenGlyphs));
-
-  const sets: OddOneOutSet[] = [];
-  for (const domain of domains) {
-    const pool = pools.get(domain) ?? [];
-    if (pool.length < 3) continue;
-    const members = pool.slice(0, 3);
-    const memberHanzi = new Set(members.map((item) => item.hanzi));
-    for (const other of domains) {
-      if (other === domain || tooClose(domain, other)) continue;
-      const intruder = (pools.get(other) ?? []).find((item) => !memberHanzi.has(item.hanzi));
-      if (!intruder) continue;
-      sets.push({
-        id: `ooo_${domain}_${other}`,
-        groupLabelPt: ODD_ONE_OUT_DOMAINS[domain]!,
-        members,
-        intruder,
-        intruderGroupLabelPt: ODD_ONE_OUT_DOMAINS[other]!,
-      });
-      break; // um intruso por grupo mantém a variedade de domínios
-    }
-  }
-  return options.limit ? sets.slice(0, options.limit) : sets;
-}
 
 // ————————————————————————————————————————————————————————————————
 // 3. Frase certa × frase errada (spot_error)

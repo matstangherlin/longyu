@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -55,6 +55,12 @@ import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
 import { useOnline } from "../../hooks/useOnline";
 import { useVisualViewportFrame } from "../../hooks/useVisualViewportFrame";
+import {
+  LESSON_PERF_MARKS,
+  markLessonPerf,
+  measureLessonPerf,
+  observeLessonLongTasks,
+} from "../../lib/lessonPerf";
 import { resetLessonPlayerScroll } from "../../lib/lessonPlayerScroll";
 import {
   hashAnswerNorm,
@@ -1694,41 +1700,91 @@ export function LessonPlayer() {
   const startAccess = foundLesson
     ? canStartLesson(foundLesson.id, { isPremium, completedLessons, lessonStarsById })
     : undefined;
-  const adaptiveLesson = useMemo(
-    () =>
-      foundLesson
-        ? (() => {
-            const enrichedSteps = foundLesson.steps.map((step) =>
-              enrichMatchPairsStep(step, {
-                currentLessonId: foundLesson.id,
-                phaseOrder: foundLesson.phaseOrder,
-                completedLessons,
-                learnedChunks,
-                learnedChars,
-              })
-            );
-            return {
-              ...foundLesson,
-              steps: lessonRoundStepsFor(
-                { ...foundLesson, steps: enrichedSteps },
-                {
-                  completedLessons,
-                  learnedChunks,
-                  learnedChars,
-                  hanziBuilderProgress,
-                  recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
-                  srs,
-                  recentConversationSceneIds,
-                  recentConversationIntentIds,
-                  conversationHistory,
-                  attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
-                }
-              ),
-            };
-          })()
-        : undefined,
-    [completedLessons, conversationHistory, foundLesson, hanziBuilderProgress, learnedChars, learnedChunks, lessonAttemptsById, recentActivityErrors, recentConversationIntentIds, recentConversationSceneIds, srs]
-  );
+
+  // PERF-011 — shell rápido com passos autorais; plano adaptativo em startTransition.
+  const authoredEnrichedSteps = useMemo(() => {
+    if (!foundLesson) return null;
+    return foundLesson.steps.map((step) =>
+      enrichMatchPairsStep(step, {
+        currentLessonId: foundLesson.id,
+        phaseOrder: foundLesson.phaseOrder,
+        completedLessons,
+        learnedChunks,
+        learnedChars,
+      })
+    );
+  }, [completedLessons, foundLesson, learnedChars, learnedChunks]);
+
+  const [adaptiveSteps, setAdaptiveSteps] = useState<LessonStep[] | null>(null);
+  const [planReady, setPlanReady] = useState(false);
+  const planGenRef = useRef(0);
+  const firstPaintMarkedRef = useRef(false);
+
+  useEffect(() => {
+    if (!foundLesson) return undefined;
+    markLessonPerf(LESSON_PERF_MARKS.routeMounted);
+    return observeLessonLongTasks(() => {
+      /* long tasks observed when perf enabled — no side effects required */
+    });
+  }, [foundLesson?.id]);
+
+  useEffect(() => {
+    if (!foundLesson || !authoredEnrichedSteps) {
+      setAdaptiveSteps(null);
+      setPlanReady(false);
+      return undefined;
+    }
+    // Fast path: first paint uses authored enriched steps (or loading until set).
+    setAdaptiveSteps(authoredEnrichedSteps);
+    setPlanReady(false);
+    firstPaintMarkedRef.current = false;
+    const gen = ++planGenRef.current;
+    startTransition(() => {
+      if (gen !== planGenRef.current) return;
+      const planned = lessonRoundStepsFor(
+        { ...foundLesson, steps: authoredEnrichedSteps },
+        {
+          completedLessons,
+          learnedChunks,
+          learnedChars,
+          hanziBuilderProgress,
+          recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
+          srs,
+          recentConversationSceneIds,
+          recentConversationIntentIds,
+          conversationHistory,
+          attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
+        }
+      );
+      if (gen !== planGenRef.current) return;
+      setAdaptiveSteps(planned);
+      setPlanReady(true);
+      markLessonPerf(LESSON_PERF_MARKS.dataReady);
+      measureLessonPerf("lesson_click_to_data", LESSON_PERF_MARKS.startClick, LESSON_PERF_MARKS.dataReady);
+    });
+    return () => {
+      planGenRef.current += 1;
+    };
+  }, [
+    authoredEnrichedSteps,
+    completedLessons,
+    conversationHistory,
+    foundLesson,
+    hanziBuilderProgress,
+    learnedChars,
+    learnedChunks,
+    lessonAttemptsById,
+    recentActivityErrors,
+    recentConversationIntentIds,
+    recentConversationSceneIds,
+    srs,
+  ]);
+
+  const stepsForRender = adaptiveSteps ?? authoredEnrichedSteps;
+  const adaptiveLesson =
+    foundLesson && stepsForRender
+      ? { ...foundLesson, steps: stepsForRender }
+      : undefined;
 
   useEffect(() => {
     if (!foundLesson) return undefined;
@@ -1837,7 +1893,7 @@ export function LessonPlayer() {
   }, [entryChecked, finished, foundLesson, lessonAttemptsById]);
 
   useEffect(() => {
-    if (!foundLesson || !adaptiveLesson || !entryChecked || finished) return;
+    if (!foundLesson || !adaptiveLesson || !entryChecked || finished || !planReady) return;
     if (pendingReviewRestoredRef.current) return;
     if (attemptIdRef.current?.startsWith(`${foundLesson.id}:`)) return;
     const startedAt = Date.now();
@@ -1854,12 +1910,35 @@ export function LessonPlayer() {
       recoveredMistakes: [],
       finalStars: 0,
     });
-  }, [adaptiveLesson, entryChecked, finished, foundLesson, setCurrentLessonAttempt]);
+  }, [adaptiveLesson, entryChecked, finished, foundLesson, planReady, setCurrentLessonAttempt]);
 
   useEffect(() => {
     if (!foundLesson || !entryChecked || finished) return;
     void beginReferralLessonAttestation(foundLesson.id);
   }, [entryChecked, finished, foundLesson]);
+
+  // PERF-011 — first graded activity painted → interactive.
+  useEffect(() => {
+    if (!planReady || !entryChecked || !adaptiveLesson || firstPaintMarkedRef.current) return;
+    const hasGraded = adaptiveLesson.steps.some(isGradedStep);
+    if (!hasGraded) return;
+    const raf = window.requestAnimationFrame(() => {
+      firstPaintMarkedRef.current = true;
+      markLessonPerf(LESSON_PERF_MARKS.firstActivityPainted);
+      markLessonPerf(LESSON_PERF_MARKS.interactive);
+      measureLessonPerf(
+        "lesson_click_to_interactive",
+        LESSON_PERF_MARKS.startClick,
+        LESSON_PERF_MARKS.interactive
+      );
+      measureLessonPerf(
+        "lesson_data_to_paint",
+        LESSON_PERF_MARKS.dataReady,
+        LESSON_PERF_MARKS.firstActivityPainted
+      );
+    });
+    return () => window.cancelAnimationFrame(raf);
+  }, [adaptiveLesson, entryChecked, planReady]);
 
   if (!foundLesson || !adaptiveLesson) {
     return (
@@ -2391,19 +2470,21 @@ export function LessonPlayer() {
     );
   }
 
-  if (energyBlocked || !entryChecked) {
+  if (energyBlocked || !entryChecked || !planReady) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          Cargas do Dragão
+          {energyBlocked ? "Cargas do Dragão" : "Lição"}
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">
-          {energyBlocked ? "Lição bloqueada por hoje" : "Preparando lição"}
+          {energyBlocked ? "Lição bloqueada por hoje" : !entryChecked ? "Preparando lição" : "Preparando atividades…"}
         </h1>
         <p className="mt-3 text-sm text-ink-soft">
           {energyBlocked
             ? "Você usou as cargas de novas lições por hoje. Elas voltam amanhã — e ainda há caminhos grátis para continuar aprendendo agora."
-            : "O Longyu está verificando suas cargas antes de começar."}
+            : !entryChecked
+            ? "O Longyu está verificando suas cargas antes de começar."
+            : "Montando a sequência desta lição."}
         </p>
         {energyBlocked && (
           <>
