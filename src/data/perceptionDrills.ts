@@ -249,7 +249,7 @@ export function minimalPairsFor(
 
 // ————————————————————————————————————————————————————————————————
 // 2. Grupos semânticos (odd_one_out) — PED-012
-// Taxonomia própria (oddOneOutCategories.ts), NÃO VocabDomain.
+// Taxonomia própria (oddOneOutCategories.ts), sem VocabDomain.
 // ————————————————————————————————————————————————————————————————
 
 export type { OddOneOutResolvedSet as OddOneOutSet } from "./oddOneOutCategories";

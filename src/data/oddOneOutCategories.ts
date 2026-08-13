@@ -51,7 +51,7 @@ export interface CuratedOddOneOutSet {
 }
 
 /**
- * Listas canônicas por categoria — itens que SÃO da classe.
+ * Listas canônicas por categoria — itens que pertencem à classe.
  * Explicitamente fora de bebidas: 好喝, 杯子 (descrevem/contêm, não são bebida).
  */
 export const ODD_ONE_OUT_CATEGORY_MEMBERS: Record<OddOneOutSemanticCategory, readonly string[]> = {
