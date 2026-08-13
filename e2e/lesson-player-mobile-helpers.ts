@@ -269,7 +269,6 @@ export async function seedProOnTopOfSession(page: Page) {
       const parsed = JSON.parse(raw) as { state?: Record<string, unknown> };
       if (!parsed.state) return;
       parsed.state.isPremium = true;
-      parsed.state.serverIsPro = true;
       parsed.state.folego = 20;
       parsed.state.holdAchievementModals = true;
       localStorage.setItem("longyu-v1", JSON.stringify(parsed));

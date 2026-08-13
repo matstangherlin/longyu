@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { resolveVisualConcept, type VisualConceptId } from "../../data/visualVocabulary";
 import { VISUAL_IMAGE_SRC_BY_ID } from "../../assets/visuals";
+import { recordClientDiagnostic } from "../../lib/clientDiagnostics";
 import { VisualConceptIcon } from "./VisualConceptIcon";
 
 export type VisualConceptImageSize = "sm" | "md" | "lg" | "xl";
@@ -52,6 +53,7 @@ export function VisualConceptImage({
   const [failed, setFailed] = useState(!imageSrc);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const statusRef = useRef<VisualImageStatus>(imageSrc ? "loading" : "failed");
+  const reportedFailureRef = useRef<string | null>(null);
   const onStatusChangeRef = useRef(onStatusChange);
   onStatusChangeRef.current = onStatusChange;
 
@@ -61,11 +63,25 @@ export function VisualConceptImage({
     onStatusChangeRef.current?.(status);
   }
 
+  function reportFailure(reason: "missing" | "timeout" | "empty" | "network") {
+    const conceptKey = concept?.id ?? String(conceptId);
+    const failureKey = `${conceptKey}:${reason}`;
+    if (reportedFailureRef.current === failureKey) return;
+    reportedFailureRef.current = failureKey;
+    recordClientDiagnostic({
+      kind: "render_error",
+      area: "visual-asset",
+      message: `Asset visual indisponível (${reason}).`,
+    });
+  }
+
   useEffect(() => {
     setLoaded(false);
     setFailed(!imageSrc);
     statusRef.current = imageSrc ? "loading" : "failed";
     onStatusChangeRef.current?.(statusRef.current);
+    reportedFailureRef.current = null;
+    if (!imageSrc) reportFailure("missing");
   }, [imageSrc]);
 
   useEffect(() => {
@@ -73,6 +89,7 @@ export function VisualConceptImage({
     const timer = window.setTimeout(() => {
       setFailed(true);
       publish("failed");
+      reportFailure("timeout");
     }, loadTimeoutMs);
     return () => window.clearTimeout(timer);
   }, [imageSrc, failed, loaded, loadTimeoutMs]);
@@ -87,6 +104,7 @@ export function VisualConceptImage({
       } else {
         setFailed(true);
         publish("failed");
+        reportFailure("empty");
       }
     }
   }, [imageSrc, failed]);
@@ -127,6 +145,7 @@ export function VisualConceptImage({
         onError={() => {
           setFailed(true);
           publish("failed");
+          reportFailure("network");
         }}
         className={[
           "h-full w-full transition-opacity duration-200",

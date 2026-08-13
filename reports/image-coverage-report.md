@@ -4,27 +4,27 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:42:14.055Z |
+| Gerado em | 2026-08-13T21:46:17.166Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conceitos no catálogo | 37 |
-| Imagens locais (WebP) | 37 |
+| Conceitos no catálogo | 87 |
+| Imagens locais (WebP) | 87 |
 | Lições na jornada | 123 |
-| Lições concretas elegíveis | 74 |
-| Lições elegíveis com imagem | 74 (100%) |
+| Lições concretas elegíveis | 76 |
+| Lições elegíveis com imagem | 76 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
-| Passos image_choice autorais | 57 |
-| Conceitos nunca utilizados | 2 |
+| Passos image_choice autorais | 68 |
+| Conceitos nunca utilizados | 50 |
 
 ## Cobertura por fase
 
@@ -35,7 +35,7 @@
 | p3 — Frases Reais | 16 | 7 | 7 | 100% |
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
-| p6 — Vida Cotidiana | 15 | 11 | 11 | 100% |
+| p6 — Vida Cotidiana | 15 | 13 | 13 | 100% |
 | p7 — Leitura Graduada | 6 | 6 | 6 | 100% |
 
 ## Cobertura por unidade
@@ -54,7 +54,7 @@
 | u5-1 — Números 1 a 10 | 3 | 2 | 2 | 100% |
 | u5-2 — Palavras compostas | 4 | 3 | 3 | 100% |
 | u6-1 — Família | 2 | 2 | 2 | 100% |
-| u6-2 — Comida e compras | 13 | 9 | 9 | 100% |
+| u6-2 — Comida e compras | 13 | 11 | 11 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
 | u7-2 — Imersão | 3 | 3 | 3 | 100% |
 
@@ -62,18 +62,66 @@
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 18 |
-| imagem → pinyin (`choose_pinyin`) | 50 |
-| imagem → significado (`choose_meaning`) | 24 |
-| áudio → imagem (`listen_and_choose_image`) | 26 |
-| hànzì → imagem (`choose_image`) | 32 |
+| imagem → hànzì (`choose_hanzi`) | 11 |
+| imagem → pinyin (`choose_pinyin`) | 60 |
+| imagem → significado (`choose_meaning`) | 27 |
+| áudio → imagem (`listen_and_choose_image`) | 31 |
+| hànzì → imagem (`choose_image`) | 22 |
 
 ## Conceitos nunca utilizados
 
 | Conceito | Hànzì | Significado | Liberado após unidade |
 |----------|-------|-------------|----------------------:|
 | child | 子 | criança | 8 |
+| son | 儿子 | filho | 11 |
+| daughter | 女儿 | filha | 11 |
+| older_brother | 哥哥 | irmão mais velho | 11 |
+| older_sister | 姐姐 | irmã mais velha | 11 |
+| female_friend | 女性朋友 | amiga | 11 |
+| girlfriend | 女朋友 | namorada | 13 |
+| boyfriend | 男朋友 | namorado | 13 |
+| fish | 鱼 | peixe | 12 |
+| cat | 猫 | gato | 13 |
+| dog | 狗 | cachorro | 13 |
+| tea | 茶 | chá | 12 |
+| coffee | 咖啡 | café | 12 |
+| milk | 牛奶 | leite | 12 |
+| apple | 苹果 | maçã | 12 |
+| meat | 肉 | carne | 12 |
 | vegetables | 菜 | verdura | 12 |
+| juice | 果汁 | suco | 12 |
+| beer | 啤酒 | cerveja | 12 |
+| noodles | 面条 | macarrão | 12 |
+| bread | 面包 | pão | 12 |
+| banana | 香蕉 | banana | 12 |
+| egg | 鸡蛋 | ovo | 12 |
+| keys | 钥匙 | chaves | 13 |
+| cup | 杯子 | copo | 12 |
+| table | 桌子 | mesa | 13 |
+| chair | 椅子 | cadeira | 13 |
+| door | 门 | porta | 13 |
+| window | 窗户 | janela | 13 |
+| backpack | 背包 | mochila | 13 |
+| menu | 菜单 | cardápio | 12 |
+| hotel_key_card | 房卡 | cartão do quarto | 13 |
+| passport | 护照 | passaporte | 13 |
+| luggage | 行李 | bagagem | 13 |
+| bill | 账单 | conta | 12 |
+| bank_card | 银行卡 | cartão bancário | 13 |
+| bathroom | 洗手间 | banheiro | 13 |
+| bedroom | 卧室 | quarto | 13 |
+| kitchen | 厨房 | cozinha | 13 |
+| travel | 旅行 | viagem | 13 |
+| hotel | 酒店 | hotel | 13 |
+| street | 街道 | rua | 13 |
+| restaurant | 饭馆 | restaurante | 12 |
+| shopping_mall | 商场 | shopping | 13 |
+| airport | 机场 | aeroporto | 13 |
+| taxi | 出租车 | táxi | 13 |
+| bus | 公交车 | ônibus | 13 |
+| train | 火车 | trem | 13 |
+| metro | 地铁 | metrô | 13 |
+| airplane | 飞机 | avião | 13 |
 
 ## Lições concretas sem imagem
 
@@ -83,4 +131,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:6c634055bc2b56ba -->
+<!-- integridade:f1b760aebb52d659 -->

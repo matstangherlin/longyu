@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:42:54.621Z |
+| Gerado em | 2026-08-13T21:48:08.029Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | 074d1aa525cf |
 
 ## Resumo
 
@@ -16,15 +16,15 @@
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 123 |
 | Itens de vocabulário exibidos | 689 |
-| Itens cobertos por tarefa posterior | 534 |
-| Cobertura bruta | 77.5 % |
+| Itens cobertos por tarefa posterior | 530 |
+| Cobertura bruta | 76.9 % |
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 356 |
-| **Cobertura relevante** (portão ≥ 76 %) | **80.3 %** |
+| **Cobertura relevante** (portão ≥ 76 %) | **79.5 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 16 refs |
-| Reutilização média por item | 2.24 |
-| Itens sem cobertura | 155 |
-| Tarefas da fase Pós-Conversa | 491 |
-| Média Pós-Conversa por conversa | 3.99 |
+| Reutilização média por item | 2.21 |
+| Itens sem cobertura | 159 |
+| Tarefas da fase Pós-Conversa | 493 |
+| Média Pós-Conversa por conversa | 4.01 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, sentence_build |
 
 > **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata
@@ -34,86 +34,86 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- chunk:nihao — 550 exposições ao longo dos 123 planos
-- char:ma_question — 302 exposições ao longo dos 123 planos
-- chunk:wohenhao — 292 exposições ao longo dos 123 planos
-- chunk:nihaoma — 271 exposições ao longo dos 123 planos
-- chunk:zaijian — 155 exposições ao longo dos 123 planos
-- char:yi — 125 exposições ao longo dos 123 planos
-- char:bu — 119 exposições ao longo dos 123 planos
+- chunk:nihao — 548 exposições ao longo dos 123 planos
+- char:ma_question — 301 exposições ao longo dos 123 planos
+- chunk:wohenhao — 293 exposições ao longo dos 123 planos
+- chunk:nihaoma — 270 exposições ao longo dos 123 planos
+- chunk:zaijian — 154 exposições ao longo dos 123 planos
+- char:yi — 124 exposições ao longo dos 123 planos
+- char:bu — 121 exposições ao longo dos 123 planos
 - char:shi — 111 exposições ao longo dos 123 planos
-- chunk:xiexie — 100 exposições ao longo dos 123 planos
+- chunk:xiexie — 99 exposições ao longo dos 123 planos
 - chunk:nijiaoshenme — 87 exposições ao longo dos 123 planos
 - chunk:qingzaishuoyibian — 77 exposições ao longo dos 123 planos
-- char:san — 64 exposições ao longo dos 123 planos
 - chunk:qingwen — 63 exposições ao longo dos 123 planos
+- char:san — 63 exposições ao longo dos 123 planos
 - chunk:bukeqi — 60 exposições ao longo dos 123 planos
-- char:tian_sky — 58 exposições ao longo dos 123 planos
-- char:mu — 47 exposições ao longo dos 123 planos
+- char:tian_sky — 57 exposições ao longo dos 123 planos
+- char:mu — 46 exposições ao longo dos 123 planos
 
 ## Itens de prioridade sem cobertura
 
 - l11-falo-pouco:chunk:wojiao (31 exposições no curso)
-- l12:chunk:wohuishuoyidian (34 exposições no curso)
+- l12:chunk:wohuishuoyidian (33 exposições no curso)
 - l12:chunk:wojiao (31 exposições no curso)
-- l13-dialogo-nome:chunk:wohuishuoyidian (34 exposições no curso)
-- p3-ordem-das-palavras:chunk:wohuishuoyidian (34 exposições no curso)
+- l13-dialogo-nome:chunk:wohuishuoyidian (33 exposições no curso)
+- p3-ordem-das-palavras:chunk:wohuishuoyidian (33 exposições no curso)
 - p3-ordem-das-palavras:chunk:wojiao (31 exposições no curso)
-- p3-nomes-da-frase:chunk:wohuishuoyidian (34 exposições no curso)
+- p3-nomes-da-frase:chunk:wohuishuoyidian (33 exposições no curso)
 - p3-nomes-da-frase:chunk:wojiao (31 exposições no curso)
 - l14:chunk:wojiao (31 exposições no curso)
-- p4-num-123:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-num-123:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-num-123:chunk:wojiao (31 exposições no curso)
-- p4-num-45:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-num-45:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-num-45:chunk:wojiao (31 exposições no curso)
-- p4-num-678:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-num-678:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-num-678:chunk:wojiao (31 exposições no curso)
-- p4-num-910:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-num-910:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-num-910:chunk:wojiao (31 exposições no curso)
-- p4-char-mu:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-char-mu:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-char-mu:chunk:wojiao (31 exposições no curso)
-- p4-char-ren:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-char-ren:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-char-ren:chunk:wojiao (31 exposições no curso)
-- p4-char-kou:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-char-kou:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-char-kou:chunk:wojiao (31 exposições no curso)
-- p4-char-ri:chunk:wohuishuoyidian (34 exposições no curso)
+- p4-char-ri:chunk:wohuishuoyidian (33 exposições no curso)
 - p4-char-ri:chunk:wojiao (31 exposições no curso)
 - p4-char-yue:chunk:wojiao (31 exposições no curso)
 - l9-rev:char:liu (13 exposições no curso)
 - l9-rev:char:shi10 (16 exposições no curso)
-- l9-rev:char:wu (23 exposições no curso)
-- l26b:chunk:woele (7 exposições no curso)
+- l9-rev:char:wu (21 exposições no curso)
+- l26b:chunk:woele (8 exposições no curso)
 - l26b:chunk:womenchifanba (5 exposições no curso)
 - l26b:chunk:woyaorou (1 exposições no curso)
 - l27:chunk:duoshaoqian (10 exposições no curso)
 - l27:chunk:zheshishenme (12 exposições no curso)
 - l28:chunk:duoshaoqian (10 exposições no curso)
 - l28:chunk:woxianghe (10 exposições no curso)
-- l28:chunk:woyao (14 exposições no curso)
+- l28:chunk:woyao (13 exposições no curso)
 - l28:chunk:zheshishenme (12 exposições no curso)
-- p6-rotina-trabalho:chunk:woyao (14 exposições no curso)
-- p6-rotina-trabalho:chunk:zaijian (155 exposições no curso)
-- p6-saude:chunk:woyao (14 exposições no curso)
-- p6-saude:chunk:zaijian (155 exposições no curso)
-- p6-horarios:chunk:woyao (14 exposições no curso)
-- p6-horarios:chunk:zaijian (155 exposições no curso)
-- p6-natureza:char:zhe (48 exposições no curso)
+- p6-rotina-trabalho:chunk:woyao (13 exposições no curso)
+- p6-rotina-trabalho:chunk:zaijian (154 exposições no curso)
+- p6-saude:chunk:woyao (13 exposições no curso)
+- p6-saude:chunk:zaijian (154 exposições no curso)
+- p6-horarios:chunk:woyao (13 exposições no curso)
+- p6-horarios:chunk:zaijian (154 exposições no curso)
+- p6-natureza:char:zhe (47 exposições no curso)
 - p6-natureza:chunk:zheshishenme (12 exposições no curso)
-- p6-clima:chunk:woyao (14 exposições no curso)
-- p6-clima:chunk:zaijian (155 exposições no curso)
+- p6-clima:chunk:woyao (13 exposições no curso)
+- p6-clima:chunk:zaijian (154 exposições no curso)
 - p6-compras:chunk:duoshaoqian (10 exposições no curso)
 - p6-compras:chunk:woxianghe (10 exposições no curso)
 - p6-compras:chunk:zheshishenme (12 exposições no curso)
 - l10-rev:chunk:taiguile (11 exposições no curso)
-- l10-rev:chunk:woele (7 exposições no curso)
+- l10-rev:chunk:woele (8 exposições no curso)
 - l29:chunk:duoshaoqian (10 exposições no curso)
 - l29:chunk:taiguile (11 exposições no curso)
 - l29:chunk:zheshishenme (12 exposições no curso)
 - l29:chunk:zheshishui (5 exposições no curso)
-- l30:char:shan (35 exposições no curso)
-- l30:char:yue (22 exposições no curso)
-- l30:char:zhe (48 exposições no curso)
-- …mais 10.
+- l30:char:shan (33 exposições no curso)
+- l30:char:yue (21 exposições no curso)
+- l30:char:zhe (47 exposições no curso)
+- …mais 13.
 
 ## Itens sem cobertura (bruto)
 
@@ -124,6 +124,7 @@
 - l11-falo-pouco:chunk:wojiao
 - l12:chunk:wohuishuoyidian
 - l12:chunk:wojiao
+- l13:chunk:xiexie
 - l13-dialogo-ola:chunk:xiexie
 - l13-dialogo-nome:chunk:wohuishuoyidian
 - p3-ordem-das-palavras:chunk:wohuishuoyidian
@@ -196,7 +197,6 @@
 - l26b:chunk:zaijian
 - l27:chunk:duoshaoqian
 - l27:chunk:nihao
-- l27:chunk:xiexie
-- …mais 75.
+- …mais 79.
 
-<!-- integridade:741c1e5a14071e44 -->
+<!-- integridade:41e0d52a7867a47a -->

@@ -68,6 +68,7 @@ import {
 } from "../../lib/speech";
 import { noteToneHintUse } from "../../lib/lessonSessionMetrics";
 import { StepImageChoice } from "./StepImageChoice";
+import { StepCompareWithImage } from "./StepCompareWithImage";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
 
@@ -4800,6 +4801,7 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
         );
       case "tone_pair": return <StepTonePair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "image_choice": return <StepImageChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "compare_with_image": return <StepCompareWithImage step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "audio_discrimination": return <StepAudioDiscrimination step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "dictation":
         return (

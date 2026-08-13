@@ -16,6 +16,9 @@ const IMAGE_GRID =
 
 async function answerOrAdvance(page: Page) {
   await dismissBlockingOverlays(page);
+  // A grade pode surgir enquanto um overlay Ã© dispensado. NÃ£o responda o
+  // exercÃ­cio que este teste pretende inspecionar antes dos asserts de ready.
+  if (await page.locator(IMAGE_GRID).first().isVisible().catch(() => false)) return;
   const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
   if (await folegoBack.isVisible().catch(() => false)) {
     await folegoBack.click().catch(() => undefined);

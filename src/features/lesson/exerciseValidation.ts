@@ -46,6 +46,7 @@ const KNOWN_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "compare_with_image",
   "audio_discrimination",
   "dictation",
   "odd_one_out",
@@ -593,6 +594,42 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       } else {
         checkChoice(errors, "image_choice", step.correctAnswer, step.options);
       }
+      break;
+    }
+
+    case "compare_with_image": {
+      if (!step.compareWithImageMode) errors.push("compare_with_image sem modo");
+      if (![1, 2, 3].includes(step.compareWithImageLevel ?? 0)) {
+        errors.push("compare_with_image sem nível 1–3");
+      }
+      if (!step.imageId && !step.iconId) errors.push("compare_with_image sem imageId/iconId");
+      if (!step.promptPt?.trim() && !step.prompt?.trim()) errors.push("compare_with_image sem promptPt");
+      const target = resolveVisualConcept(step.imageId ?? step.iconId);
+      if (!target) {
+        errors.push(`compare_with_image: conceito visual desconhecido "${step.imageId ?? step.iconId}"`);
+      } else if (!target.imageSrc && !target.emoji) {
+        errors.push("compare_with_image sem imagem nem fallback");
+      } else if (target.imageOnlySafe === false) {
+        errors.push(`compare_with_image: conceito relacional ambíguo "${target.id}"`);
+      }
+
+      if (step.compareWithImageMode === "word_to_image") {
+        const options = step.imageOptions ?? [];
+        checkChoice(errors, "compare_with_image", step.correctImageId, options);
+        if (options.length !== 2) errors.push("compare_with_image palavra→imagem precisa de exatamente 2 opções");
+        for (const option of options) {
+          const concept = resolveVisualConcept(option);
+          if (!concept) errors.push(`compare_with_image: imageOption desconhecida "${option}"`);
+          else if (concept.imageOnlySafe === false) {
+            errors.push(`compare_with_image: conceito relacional ambíguo sem apoio visual suficiente "${option}"`);
+          }
+        }
+      } else {
+        const options = step.options ?? [];
+        checkChoice(errors, "compare_with_image", step.correctAnswer, options);
+        if (options.length !== 2) errors.push("compare_with_image imagem→palavra precisa de exatamente 2 opções");
+      }
+      if (!step.explanation?.trim()) errors.push("compare_with_image sem feedback pedagógico");
       break;
     }
   }

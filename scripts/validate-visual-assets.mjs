@@ -10,7 +10,7 @@
  *  - todo ID do catálogo está em VISUAL_IMAGE_SRC_BY_ID (Vite URLs).
  */
 import { createRequire } from "node:module";
-import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -20,6 +20,7 @@ const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-visual-assets-"));
 const MAX_BYTES = 200 * 1024;
+const ALLOWED_EXTENSIONS = new Set([".svg", ".png", ".webp"]);
 const errors = [];
 const err = (ref, message) => errors.push({ ref, message });
 
@@ -54,6 +55,17 @@ async function readViteAssetIds() {
   return new Set(ids);
 }
 
+async function listVisualFiles(directory, prefix = "") {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const relative = path.posix.join(prefix, entry.name);
+    if (entry.isDirectory()) files.push(...(await listVisualFiles(path.join(directory, entry.name), relative)));
+    else if (ALLOWED_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) files.push(relative);
+  }
+  return files;
+}
+
 try {
   const program = ts.createProgram(
     [
@@ -85,6 +97,7 @@ try {
   const { VISUAL_CONCEPTS, visualById } = load("src/data/visualVocabulary.js");
   const { ALL_LESSONS } = load("src/data/journey.js");
   const viteIds = await readViteAssetIds();
+  const catalogPaths = new Set();
 
   let checkedFiles = 0;
   for (const concept of VISUAL_CONCEPTS) {
@@ -93,6 +106,15 @@ try {
       err(ref, "imageSrc ausente");
       continue;
     }
+    const normalizedSrc = String(concept.imageSrc).replaceAll("\\", "/");
+    const extension = path.extname(normalizedSrc).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.has(extension)) {
+      err(ref, `formato não suportado: ${extension || "sem extensão"}`);
+    }
+    if (catalogPaths.has(normalizedSrc)) {
+      err(ref, `arquivo duplicado no catálogo: ${normalizedSrc}`);
+    }
+    catalogPaths.add(normalizedSrc);
     const localPath = path.join(rootDir, "src/assets/visuals", concept.imageSrc);
     try {
       const bytes = (await stat(localPath)).size;
@@ -102,6 +124,18 @@ try {
       }
       if (String(concept.imageSrc).toLowerCase().endsWith(".svg")) {
         const svgText = await readFile(localPath, "utf8");
+        if (!/<svg\b[^>]*\bwidth=["']600["'][^>]*\bheight=["']600["']/i.test(svgText)) {
+          err(ref, "SVG sem width/height 600×600");
+        }
+        if (!/viewBox=["']0 0 600 600["']/i.test(svgText)) {
+          err(ref, "SVG sem viewBox 0 0 600 600");
+        }
+        if (/<(?:text|image)\b/i.test(svgText)) {
+          err(ref, "SVG contém texto ou imagem raster embutida");
+        }
+        if (/\b(?:href|xlink:href)=["'](?:https?:|data:)/i.test(svgText)) {
+          err(ref, "SVG contém referência externa ou data URI");
+        }
         if (svgHasOpaqueMintBleed(svgText)) {
           err(ref, "SVG com fundo mint opaco full-bleed (VIS-006)");
         }
@@ -113,6 +147,10 @@ try {
     if (!viteIds.has(concept.id)) {
       err(ref, "ausente em VISUAL_IMAGE_SRC_BY_ID (src/assets/visuals/index.ts)");
     }
+  }
+
+  for (const assetPath of await listVisualFiles(path.join(rootDir, "src/assets/visuals"))) {
+    if (!catalogPaths.has(assetPath)) err(assetPath, "asset órfão: arquivo não registrado no catálogo");
   }
 
   // image_choice autorais: IDs devem existir no catálogo.

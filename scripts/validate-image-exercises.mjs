@@ -88,7 +88,14 @@ try {
 
   const load = (rel) => require(path.join(outDir, rel));
   const { ALL_LESSONS, JOURNEY } = load("src/data/journey.js");
-  const { VISUAL_CONCEPTS, VISUAL_CONCEPT_IDS, resolveVisualConcept, isVisualConceptAllowed } = load(
+  const {
+    VISUAL_CONCEPTS,
+    VISUAL_CONCEPT_IDS,
+    resolveVisualConcept,
+    isVisualConceptAllowed,
+    visualConceptsInHanziText,
+    defaultVisualDistractors,
+  } = load(
     "src/data/visualVocabulary.js"
   );
   const { lessonRoundStepsFor, lessonImageCoverageInfo } = load("src/features/lesson/lessonTasks.js");
@@ -140,6 +147,56 @@ try {
     if (!resolveVisualConcept(concept.id)) err("catalog", concept.id, "resolveVisualConcept falhou.");
   }
 
+  // Palavras compostas precisam vencer glifos internos e relações ambíguas não
+  // podem virar pares de comparação puramente visual.
+  const compoundCases = [
+    ["我要手机", "phone"],
+    ["我要牛奶", "milk"],
+    ["我要这个苹果", "apple"],
+    ["我有姐姐", "older_sister"],
+    ["请给我一杯水", "drinking_water"],
+    ["火车和地铁", "train"],
+  ];
+  for (const conceptId of ["咖啡", "儿子", "女儿", "姐姐", "手机", "洗手间", "旅行", "果汁", "面条", "酒店", "超市", "银行", "火车", "地铁", "机场"]) {
+    if (!resolveVisualConcept(conceptId)) {
+      err("catalog", `hanzi:${conceptId}`, "resolveVisualConcept não resolveu a palavra completa.");
+    }
+  }
+  for (const [hanzi, expectedId] of compoundCases) {
+    const first = visualConceptsInHanziText(hanzi)[0]?.id;
+    if (first !== expectedId) {
+      err("catalog", `compound:${hanzi}`, `esperava ${expectedId} como primeiro conceito, recebeu ${first ?? "nenhum"}.`);
+    }
+  }
+  const ambiguityPairs = [
+    ["friend", "older_brother"],
+    ["female_friend", "older_sister"],
+    ["girlfriend", "boyfriend"],
+    ["mother", "daughter"],
+    ["father", "son"],
+  ];
+  for (const conceptId of [
+    "mother",
+    "father",
+    "friend",
+    "son",
+    "daughter",
+    "older_brother",
+    "older_sister",
+    "female_friend",
+    "girlfriend",
+    "boyfriend",
+  ]) {
+    if (resolveVisualConcept(conceptId)?.imageOnlySafe !== false) {
+      err("ambiguity", conceptId, "relação humana precisa de apoio textual/contextual (imageOnlySafe: false).");
+    }
+  }
+  for (const [targetId, forbiddenId] of ambiguityPairs) {
+    if (defaultVisualDistractors(targetId, VISUAL_CONCEPTS.length).includes(forbiddenId)) {
+      err("ambiguity", `${targetId}/${forbiddenId}`, "par ambíguo aparece como distractor direto.");
+    }
+  }
+
   // ————— 2. Passos image_choice (autorais e do plano real) —————
   const checkImageStep = (lesson, step, ref, unitIndex, generated) => {
     const validation = validateExercise(step);
@@ -175,10 +232,16 @@ try {
       if (!String(concept.imageAltPt ?? "").trim()) err("step", ref, "image_choice com alt vazio");
     }
     if (imagePick) {
+      if (concept?.imageOnlySafe === false) {
+        err("ambiguity", ref, `conceito relacional "${concept.id}" usado em grade só de imagens.`);
+      }
       for (const option of options) {
         const optionConcept = resolveVisualConcept(option);
         if (!optionConcept) err("step", ref, `imageOption desconhecida: ${option}`);
         else if (!optionConcept.imageSrc && !optionConcept.emoji) err("step", ref, `imageOption sem imagem nem fallback: ${option}`);
+        else if (optionConcept.imageOnlySafe === false) {
+          err("ambiguity", ref, `distractor relacional ambíguo em grade só de imagens: ${option}`);
+        }
       }
     }
 

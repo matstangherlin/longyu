@@ -102,7 +102,7 @@ import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
   defaultVisualDistractors,
   visualByCharId,
-  visualByHanzi,
+  visualConceptsInHanziText,
   isVisualConceptAllowed,
   type ImageChoiceMode,
   type VisualCategory,
@@ -164,6 +164,7 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "hanzi_build",
   "tone_pair",
   "image_choice",
+  "compare_with_image",
   "audio_discrimination",
   "dictation",
   "odd_one_out",
@@ -479,6 +480,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "match_pairs",
     "tone_pair",
     "image_choice",
+    "compare_with_image",
     "audio_discrimination",
     "odd_one_out",
   ],
@@ -503,6 +505,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "fill_blank",
     "listen_select",
     "image_choice",
+    "compare_with_image",
     "recognize",
     "hanzi_build",
     "translation_build",
@@ -528,6 +531,7 @@ const STAGE_KIND_HINTS: Record<LessonStageId, StepKind[]> = {
     "hanzi_build",
     "tone_pair",
     "image_choice",
+    "compare_with_image",
     "microread",
     "audio_discrimination",
     "dictation",
@@ -725,6 +729,7 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   hanzi_build: ["hanzi", "assembly"],
   tone_pair: ["pinyin", "audio", "matching"],
   image_choice: ["recognition", "hanzi", "meaning", "audio"],
+  compare_with_image: ["recognition", "meaning", "review"],
   audio_discrimination: ["audio", "pinyin"],
   dictation: ["audio", "assembly", "hanzi"],
   odd_one_out: ["meaning", "recognition"],
@@ -3282,6 +3287,7 @@ const VISUAL_CATEGORY_PRIORITY: Record<VisualCategory, number> = {
   animals: 0,
   food: 0,
   objects: 0,
+  places: 0,
   quantity: 1,
   actions: 2,
 };
@@ -3294,17 +3300,17 @@ function visualConceptForFocusItem(item: FocusItem, unitIndex: number): VisualCo
     return direct && isVisualConceptAllowed(direct.id, unitIndex) ? direct : undefined;
   }
   const matches: { concept: VisualConcept; index: number }[] = [];
-  const glyphs = [...cleanHanzi(item.hanzi)];
-  for (const [index, glyph] of glyphs.entries()) {
-    const concept = visualByHanzi[glyph];
+  const hanziText = cleanHanzi(item.hanzi);
+  for (const concept of visualConceptsInHanziText(hanziText)) {
     if (!concept || !isVisualConceptAllowed(concept.id, unitIndex)) continue;
     if (matches.some((entry) => entry.concept.id === concept.id)) continue;
-    matches.push({ concept, index });
+    matches.push({ concept, index: hanziText.indexOf(concept.hanzi) });
   }
   matches.sort(
     (a, b) =>
       VISUAL_CATEGORY_PRIORITY[a.concept.category] - VISUAL_CATEGORY_PRIORITY[b.concept.category] ||
-      a.index - b.index
+      a.index - b.index ||
+      b.concept.hanzi.length - a.concept.hanzi.length
   );
   return matches[0]?.concept;
 }
@@ -3350,10 +3356,13 @@ for (const concept of Object.values(visualByCharId)) {
   if (concept) visualConceptIndex.set(concept.id, concept);
 }
 
-function visualDistractorConcepts(concept: VisualConcept, count: number): VisualConcept[] {
+function visualDistractorConcepts(concept: VisualConcept, count: number, imageOnly = false): VisualConcept[] {
   return defaultVisualDistractors(concept.id, count)
     .map((id) => visualConceptIndex.get(id))
-    .filter((candidate): candidate is VisualConcept => Boolean(candidate));
+    .filter(
+      (candidate): candidate is VisualConcept =>
+        Boolean(candidate) && (!imageOnly || candidate?.imageOnlySafe !== false)
+    );
 }
 
 function imageChoiceStepForConcept(concept: VisualConcept, mode: ImageChoiceMode): LessonStep | null {
@@ -3368,7 +3377,8 @@ function imageChoiceStepForConcept(concept: VisualConcept, mode: ImageChoiceMode
   };
 
   if (mode === "choose_image" || mode === "listen_and_choose_image") {
-    const optionIds = uniqueValues([concept.id, ...visualDistractorConcepts(concept, 3).map((c) => c.id)]).slice(0, 4);
+    if (concept.imageOnlySafe === false) return null;
+    const optionIds = uniqueValues([concept.id, ...visualDistractorConcepts(concept, 3, true).map((c) => c.id)]).slice(0, 4);
     if (optionIds.length < 3) return null;
     return {
       ...base,
@@ -3427,7 +3437,7 @@ export function makeImageChoiceStepForFocus(
 }
 
 function imageConceptIdOfStep(step: LessonStep): string | undefined {
-  if (step.kind !== "image_choice") return undefined;
+  if (step.kind !== "image_choice" && step.kind !== "compare_with_image") return undefined;
   const id = String(step.imageId ?? step.iconId ?? "").trim();
   return id || undefined;
 }
@@ -3455,6 +3465,8 @@ function stepSignature(step: LessonStep): string {
     step.chunkId,
     step.sceneId,
     step.imageChoiceMode,
+    step.compareWithImageMode,
+    step.compareWithImageLevel,
     step.imageId,
     step.correctImageId,
     step.target?.join("|"),
@@ -3853,7 +3865,11 @@ function stepTextBlob(step: LessonStep): string {
     step.sourceText,
     step.sourcePinyin,
     step.sourceMeaning,
+    step.promptPt,
+    step.targetHanzi,
+    step.targetMeaningPt,
     step.correctAnswer,
+    step.correctImageId,
     step.blankAnswer,
     step.sentenceBefore,
     step.sentenceAfter,
@@ -3862,6 +3878,7 @@ function stepTextBlob(step: LessonStep): string {
     step.targetParts?.join(""),
     ...(step.acceptedTargetParts ?? []).map((parts) => parts.join("")),
     ...(step.options ?? []),
+    ...(step.imageOptions ?? []),
     ...(step.bank ?? []),
     ...(step.pairs ?? []).flatMap((pair) => [pair.left, pair.right]),
     ...(step.lines ?? []).flatMap((line) => [line.hanzi, line.pinyin, line.pt]),
@@ -3938,7 +3955,10 @@ function noveltyScoreBonus(lesson: Lesson, step: LessonStep, reviewFocus: FocusI
   if (isRealSentenceStepAnswer(step)) bonus += 25;
   if (step.kind === "conversation_scene") bonus += 25;
   if (cognitiveProfile(step).familyRank >= 2 && stepUsesFocus(step, reviewFocus)) bonus += 20;
-  if (step.kind === "image_choice" && lessonOwnGlyphs(lesson).has(cleanHanzi(step.targetHanzi ?? ""))) bonus += 20;
+  if (
+    (step.kind === "image_choice" || step.kind === "compare_with_image") &&
+    lessonOwnGlyphs(lesson).has(cleanHanzi(step.targetHanzi ?? ""))
+  ) bonus += 20;
   if (step.kind === "listen_select" || (step.kind === "image_choice" && step.imageChoiceMode === "listen_and_choose_image")) {
     bonus += 15;
   }
@@ -4200,7 +4220,10 @@ function violatesImageRepeat(
   selected: readonly PracticeCandidate[],
   candidate: PracticeCandidate
 ): boolean {
-  if (!candidate.generated || candidate.step.kind !== "image_choice") return false;
+  if (
+    !candidate.generated ||
+    (candidate.step.kind !== "image_choice" && candidate.step.kind !== "compare_with_image")
+  ) return false;
   const conceptId = imageConceptIdOfStep(candidate.step);
   if (!conceptId) return false;
   return selectedImageConceptIds(selected).has(conceptId);
@@ -4415,6 +4438,12 @@ function ensureCoverage(
       );
     }
   }
+  // Comparações são autorais e curadas (contraste + dificuldade + feedback),
+  // portanto uma lição que as declara precisa entregar pelo menos uma no plano
+  // real. Não geramos comparações automaticamente para evitar pares ambíguos.
+  if (candidates.some((candidate) => candidate.step.kind === "compare_with_image")) {
+    ensure((candidate) => candidate.step.kind === "compare_with_image", true);
+  }
   // Núcleo de revisão (再见/谢谢…) só depois que o aluno já saiu da fundação
   // E só com frases que o currículo já apresentou (senão vaza 明天/这 cedo).
   if (reviewFocus.length > 0 && !earlyPedagogy) {
@@ -4562,7 +4591,10 @@ function practicePlanWarnings(
     }
   }
   const imageInfo = lessonImageCoverageInfo(lesson);
-  if (imageInfo.eligible && !plan.some((step) => step.kind === "image_choice")) {
+  if (
+    imageInfo.eligible &&
+    !plan.some((step) => step.kind === "image_choice" || step.kind === "compare_with_image")
+  ) {
     warnings.push("lição concreta sem exercício visual");
   }
   if (lesson.steps.length > 0 && plan.length === 0) warnings.push("plano vazio");
@@ -6024,6 +6056,7 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   hanzi_build: "montar hànzì",
   tone_pair: "pares de tom",
   image_choice: "imagem e associação",
+  compare_with_image: "comparar com imagem",
   audio_discrimination: "par mínimo",
   dictation: "ditado",
   odd_one_out: "qual não pertence",
