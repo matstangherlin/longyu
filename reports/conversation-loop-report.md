@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a564d746efedb2ab3e6e59009dc83be27567bee2 |
+| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:26:27.189Z |
+| Gerado em | 2026-08-13T21:48:08.029Z |
 | Lições | 123 |
 | Hash da Jornada | 074d1aa525cf |
 
@@ -199,4 +199,4 @@
 - l27:chunk:nihao
 - …mais 79.
 
-<!-- integridade:8f35f693d26f390e -->
+<!-- integridade:41e0d52a7867a47a -->

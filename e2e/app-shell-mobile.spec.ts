@@ -18,11 +18,20 @@ for (const viewport of MOBILE_VIEWPORTS) {
         await dismissBlockingOverlays(page);
         await page.evaluate(() => {
           document.documentElement.style.scrollBehavior = "auto";
+          document.documentElement.style.overflowAnchor = "none";
+          document.body.style.overflowAnchor = "none";
           document.documentElement.scrollTop = 0;
           document.body.scrollTop = 0;
           window.scrollTo(0, 0);
         });
-        await expect.poll(async () => page.evaluate(() => window.scrollY)).toBe(0);
+        await expect.poll(async () => page.evaluate(() => {
+          // Imagens da jornada podem acionar scroll anchoring alguns frames
+          // depois do primeiro reset. Reaplica o topo durante a estabilização.
+          const scrolling = document.scrollingElement as HTMLElement | null;
+          if (scrolling) scrolling.scrollTop = 0;
+          window.scrollTo(0, 0);
+          return window.scrollY;
+        })).toBe(0);
         await expect(page.locator("[data-app-header]")).toBeVisible();
         await expect(page.locator("[data-app-main]")).toBeVisible();
         await expect(page.locator("[data-app-bottom-nav]")).toBeVisible();
@@ -41,6 +50,9 @@ for (const viewport of MOBILE_VIEWPORTS) {
         })).toBeLessThanOrEqual(2);
 
         const geometry = await page.evaluate(() => {
+          const scrolling = document.scrollingElement as HTMLElement | null;
+          if (scrolling) scrolling.scrollTop = 0;
+          window.scrollTo(0, 0);
           const header = document.querySelector("[data-app-header]") as HTMLElement;
           const main = document.querySelector("[data-app-main]") as HTMLElement;
           const nav = document.querySelector("[data-app-bottom-nav]") as HTMLElement;

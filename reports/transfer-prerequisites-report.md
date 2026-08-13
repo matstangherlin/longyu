@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a564d746efedb2ab3e6e59009dc83be27567bee2 |
+| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:29:37.969Z |
+| Gerado em | 2026-08-13T21:51:48.049Z |
 | Lições | 123 |
 | Hash da Jornada | 074d1aa525cf |
 
@@ -78,4 +78,4 @@
 - **p6-compras** · objetivo `state_change` · modelo `我饿了。`
 - **l10-rev** · objetivo `state_destination` · modelo `我去超市。`
 
-<!-- integridade:7a72e40cef7f2fad -->
+<!-- integridade:5dcbd30e0135d96b -->

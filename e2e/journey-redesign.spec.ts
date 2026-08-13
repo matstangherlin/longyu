@@ -135,6 +135,7 @@ test.describe("Jornada — CTAs compactos no desktop", () => {
 
     const lessonId = ALL_LESSONS[0]?.id;
     await page.goto(`/licao/${lessonId}`);
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const reviewBtn = page.getByRole("button", { name: /^Rever lição$/ });
     await expect(reviewBtn).toBeVisible();

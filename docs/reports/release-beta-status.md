@@ -1,14 +1,16 @@
 # Status de readiness da beta — Security / Backend
 
-Atualizado em: 2026-08-13  
-Escopo: Remessa 1 / PR #163  
+Atualizado em: 2026-08-13
+Escopo: Remessas 1–4 consolidadas
 Base reaplicada: `origin/main` em `8716ebbfb96e3d859c4fe5bfbd6095dfeb3339f2`
 
 ## Decisão
 
-**Ainda não liberar nem fazer merge para `main`.**
+**Código autorizado para integração em `main`; ainda não liberar a beta pública.**
 
-O código, os testes locais, o build e os E2E estão verdes, mas a migration de
+O push para `main` registra o código-fonte consolidado; esta remessa não executa
+deploy manual nem aplica migrations.
+Os testes locais, o build e os E2E estão verdes, mas a migration de
 Pérolas ainda não foi executada e atacada em um Supabase isolado. O projeto
 `longyu-preview` está pausado e não pôde ser restaurado porque a organização
 `Noba` usa o plano Free e já tem dois projetos ativos. Produção não foi alterada.
@@ -46,10 +48,10 @@ QA. Contas cloud de teste seguem a mesma fronteira de confiança da produção.
 | `npm run test:economy-server` | ✅ passou |
 | `npm run build` (`production_beta`) | ✅ passou |
 | E2E focal após correção do runner | ✅ 73/73 |
-| `npm run test:e2e` | ✅ 202 passaram, 2 ignorados por configuração |
+| `npm run test:e2e` | ✅ 206 passaram, 2 ignorados por configuração |
 | `npm run verify:beta-feedback` | ✅ RPCs e capability remotas responderam |
 | `npm run verify:production` | ✅ endpoints mínimos responderam; Auth health retornou 401 como aviso |
-| `npm run gate:public-beta` | ✅ execução final completa passou |
+| componentes de `npm run gate:public-beta` | ✅ validação, build, E2E e verificações remotas passaram; repetir o comando único na SHA congelada |
 | `npm run beta:rc-status` | ✅ branch limpa e baseada na tip; não congelar RC fora de `main` |
 
 O runner E2E agora cria um build `preview` isolado e permite preview Pro somente

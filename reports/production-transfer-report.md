@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a564d746efedb2ab3e6e59009dc83be27567bee2 |
+| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:29:13.797Z |
+| Gerado em | 2026-08-13T21:51:15.981Z |
 | Lições | 123 |
 | Hash da Jornada | 074d1aa525cf |
 
@@ -87,4 +87,4 @@
 - 我要牛肉
 - 我要苹果
 
-<!-- integridade:c4c48efdfe83ab9c -->
+<!-- integridade:85229d4c862d46b9 -->
