@@ -1,6 +1,7 @@
 export interface CloudPearlProRpcResult {
   ok: boolean;
   is_pro?: boolean;
+  stale_account?: boolean;
   error?: string;
   retry_pending?: boolean;
   expires_at?: string | null;
@@ -23,6 +24,14 @@ export async function confirmCloudPearlProActivation<T extends CloudPearlProRpcR
 ): Promise<CloudPearlProConfirmation<T>> {
   try {
     const result = await request();
+    if (result.stale_account === true) {
+      return {
+        ok: false,
+        pendingRetry: false,
+        result,
+        error: "stale_account",
+      };
+    }
     if (!result.ok || result.is_pro !== true) {
       return {
         ok: false,

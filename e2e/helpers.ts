@@ -5,7 +5,7 @@ import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
-const STORE_VERSION = 16;
+const STORE_VERSION = 18;
 
 type SeedState = Record<string, unknown>;
 
@@ -226,12 +226,9 @@ export async function seedLessonRecoverySession(
         completedLessons: [lessonId],
         learnedChunks: ["nihao"],
         lessonStarsById: { [lessonId]: stars },
-        // O e2e roda contra o build de produção, onde o preview local
-        // (isPremium) não concede Pro (effectivePremium exige DEV ou flag de
-        // build). O Pro real chega via entitlement do servidor persistido em
-        // serverIsPro — é esse campo que simula um assinante aqui.
+        // O runner usa um build de preview isolado e explicitamente autoriza o
+        // preview Pro. serverIsPro continua efêmero e nunca vem do navegador.
         isPremium,
-        serverIsPro: isPremium,
         achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
         recentActivityErrors: [
           {

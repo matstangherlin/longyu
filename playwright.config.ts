@@ -33,6 +33,13 @@ export default defineConfig({
   },
   webServer: {
     command: "npm run build && npm run preview -- --host 127.0.0.1 --port 4173",
+    // E2E usa preview isolado para fixtures locais. O build formal executado
+    // antes pelo gate continua production_beta e jamais recebe essas flags.
+    env: {
+      VITE_APP_ENV: "preview",
+      VITE_USE_TEST_FIXTURES: "true",
+      VITE_ALLOW_PRO_PREVIEW: "true",
+    },
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

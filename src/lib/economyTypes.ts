@@ -19,6 +19,8 @@ export interface EconomyRpcResult {
   ok: boolean;
   already_applied?: boolean;
   is_pro?: boolean;
+  /** A resposta pertence a outro perfil que deixou de ser o perfil ativo. */
+  stale_account?: boolean;
   skipped?: boolean;
   granted?: boolean;
   reason?: string;
@@ -51,4 +53,6 @@ export interface EconomyIntent {
   payload: Record<string, unknown>;
   createdAt: number;
   attempts: number;
+  /** Perfil que originou a intenção; evita replay sob outra conta cloud. */
+  accountId?: string;
 }

@@ -108,6 +108,7 @@ import {
   serverSpendQi,
 } from "./economyServerBridge";
 import { confirmCloudPearlProActivation } from "./cloudPearlProActivation";
+import { mergeWithoutPersistedServerEntitlement } from "./persistenceSecurity";
 import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
 import type { ModuleSkipUsageWeek } from "./moduleSkipAccess";
 
@@ -2663,6 +2664,7 @@ export const useStore = create<AppState>()(
             currentAccountId: id,
             // A conta selecionada só recebe Pro após nova confirmação do servidor.
             serverIsPro: false,
+            economySyncMessage: null,
             accounts: nextAccounts,
           };
         }),
@@ -3597,8 +3599,13 @@ export const useStore = create<AppState>()(
         // Conta cloud nunca recebe Pérolas otimistas. A RPC não recebe evidência
         // nem idempotency key do cliente e o snapshot confirmado aplica o saldo.
         if (account?.authMode === "cloud") {
-          void serverClaimPearlMilestone(milestoneId).then((result) => {
-            if (result.ok) void get().activatePearlProPass({ auto: true });
+          const requestAccountId = state.currentAccountId;
+          void serverClaimPearlMilestone(milestoneId, requestAccountId).then((result) => {
+            if (
+              result.ok &&
+              !result.stale_account &&
+              get().currentAccountId === requestAccountId
+            ) void get().activatePearlProPass({ auto: true });
           });
           return true;
         }
@@ -3667,6 +3674,7 @@ export const useStore = create<AppState>()(
         }
 
         if (account?.authMode === "cloud") {
+          const requestAccountId = state.currentAccountId;
           if (!online || !shouldUseServerEconomy()) {
             set((s) => {
               const pearlProPendingOffline = true;
@@ -3689,10 +3697,22 @@ export const useStore = create<AppState>()(
           });
 
           const confirmation = await confirmCloudPearlProActivation(
-            () => serverActivatePearlProPass(idempotencyKey),
-            () => get().setServerEntitlement(true)
+            () => serverActivatePearlProPass(idempotencyKey, requestAccountId),
+            () => {
+              if (get().currentAccountId === requestAccountId) get().setServerEntitlement(true);
+            }
           );
           const serverResult = confirmation.result;
+          if (
+            confirmation.error === "stale_account" ||
+            get().currentAccountId !== requestAccountId
+          ) {
+            return {
+              ok: false,
+              reason: "stale_account",
+              message: "A conta ativa mudou; o entitlement não foi aplicado neste perfil.",
+            };
+          }
           if (!confirmation.ok || !serverResult) {
             // Falha de transporte mantém apenas a intenção enfileirada. Rejeição
             // explícita do servidor encerra a intenção sem conceder Pro.
@@ -4891,6 +4911,10 @@ export const useStore = create<AppState>()(
       },
       // serverIsPro é deliberadamente efêmero: recarregar exige nova confirmação.
       partialize: (state) => ({ ...state, serverIsPro: false }),
+      // A migration só roda quando a versão muda. Este merge também neutraliza
+      // payload adulterado que já declare a versão atual do armazenamento.
+      merge: (persistedState, currentState) =>
+        mergeWithoutPersistedServerEntitlement(persistedState, currentState),
     }
   )
 );

@@ -24,11 +24,28 @@ assert(envSrc.includes("isTestFixturesAllowed"), "appEnvironment deve expor isTe
 
 const entitlements = read("src/lib/entitlements.ts");
 assert(entitlements.includes("isProPreviewBuildAllowed"), "entitlements deve usar isProPreviewBuildAllowed");
-assert(entitlements.includes("INTERNAL_TEST_PRO_EMAILS"), "entitlements deve listar e-mails QA");
+assert(
+  entitlements.includes('options?.accountAuthMode === "cloud"') &&
+    entitlements.includes("return serverIsPro === true"),
+  "conta cloud deve usar somente serverIsPro como autoridade"
+);
+assert(
+  !entitlements.includes("INTERNAL_TEST_PRO_EMAILS"),
+  "e-mail QA não pode liberar Pro localmente em conta cloud"
+);
 
 const store = read("src/lib/store.ts");
 assert(store.includes("serverIsPro: false"), "logout deve zerar serverIsPro");
-assert(store.includes("serverIsPro: qaPro"), "switchAccount deve recalcular Pro de QA");
+assert(
+  store.includes("mergeWithoutPersistedServerEntitlement"),
+  "hidratação da versão atual deve neutralizar serverIsPro adulterado"
+);
+assert(!store.includes("serverIsPro: qaPro"), "switchAccount não pode liberar Pro por e-mail QA");
+assert(
+  store.includes("A conta selecionada só recebe Pro após nova confirmação do servidor") &&
+    store.includes("serverIsPro: false"),
+  "switchAccount deve falhar fechado até nova confirmação do servidor"
+);
 
 const flags = read("src/lib/featureFlags.ts");
 assert(flags.includes("VITE_ENABLE_CONVERSATION_V2"), "featureFlags deve cobrir conversation V2");

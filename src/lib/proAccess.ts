@@ -111,7 +111,7 @@ export function isProUser(context?: ProAccessContext | boolean): boolean {
 
 /**
  * Pro efetivo para as telas: assinatura real do servidor, pass de Pérolas,
- * OU preview local (só em dev). Contas cloud de QA internas também contam.
+ * OU preview local (só em dev). Conta cloud depende exclusivamente do servidor.
  */
 export function useIsPro(): boolean {
   return useStore((s) => {
