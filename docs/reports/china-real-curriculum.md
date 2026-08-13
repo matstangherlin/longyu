@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a2455d074a5602074b497fa3c9a6b3e211d5aebc |
+| Commit | 304a2ada4cb92137dd0931a4144f0c6167a62525 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T23:27:23.894Z |
+| Gerado em | 2026-08-13T23:28:34.026Z |
 | Lições | 125 |
 | Hash da Jornada | 0d86b770a4cc |
 
@@ -172,4 +172,4 @@ Estruturas: `路` / `街` / `号` / `区` · exemplos `北京路10号`, `上海�
 - Mastery = aquisicao inicial 0–4 nestas licoes.
 - SRS = retencao depois; sync preserva `lessonMasteryById` e dimensoes sem misturar filas.
 
-<!-- integridade:0d2c09542f78aa35 -->
+<!-- integridade:7bd2785c82cf8a39 -->
