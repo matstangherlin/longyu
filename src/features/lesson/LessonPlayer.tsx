@@ -41,6 +41,7 @@ import {
   LESSON_THREE_STAR_QI,
   LESSON_THREE_STAR_XP_BONUS,
   MODULE_REVIEW_PASS_ACCURACY,
+  PEARL_STREAK_MILESTONES,
   PRO_LESSON_QI_BONUS,
   RETRY_QUESTION_QI,
 } from "../../data/economy";
@@ -435,7 +436,7 @@ const VICTORY_TITLES = [
   "Mandarim ficando mais claro!",
 ];
 
-const STREAK_MILESTONES = [3, 7, 14, 30];
+const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
 const DRAGON_BREATH_LIVES = BREATH_LIVES;
 const BREATH_RECOVERY_QI_COST = BREATH_RECOVERY_QI;
 const RETRY_COST_QI = RETRY_QUESTION_QI;
@@ -461,7 +462,7 @@ function rewardIcon(reward: RewardGrant): string {
 }
 
 function nextStreakMilestone(streak: number): number {
-  return STREAK_MILESTONES.find((mark) => mark > streak) ?? 30;
+  return STREAK_MILESTONES.find((mark) => mark > streak) ?? STREAK_MILESTONES[STREAK_MILESTONES.length - 1] ?? 365;
 }
 
 function dayCountLabel(days: number): string {
@@ -1565,6 +1566,7 @@ export function LessonPlayer() {
   const badges = useStore((s) => s.badges);
   const rewardHistory = useStore((s) => s.rewardHistory);
   const claimReward = useStore((s) => s.claimReward);
+  const maybeClaimPearlMilestonesFromProgress = useStore((s) => s.maybeClaimPearlMilestonesFromProgress);
   const grantLessonReward = useStore((s) => s.grantLessonReward);
   const folego = useStore((s) => s.folego);
   const spendFolego = useStore((s) => s.spendFolego);
@@ -3440,14 +3442,6 @@ export function LessonPlayer() {
         amount: lessonReward,
         source: "Conclusão de lição",
       },
-      ...(stars === 3
-        ? [{
-            id: `lesson:${lesson.id}:pearl`,
-            type: "dragonPearl" as const,
-            amount: 1,
-            source: "Precisão alta",
-          }]
-        : []),
       ...(stars === 3 && !badges.includes("Precisão Serena")
         ? [{
             id: "badge:precisao-serena",
@@ -3485,6 +3479,8 @@ export function LessonPlayer() {
       for (const reward of newRewards.filter((reward) => reward.type !== "qi")) {
         claimed = claimReward(reward) || claimed;
       }
+      // Pérolas V2: marcos únicos (fase 3★ etc.), nunca farmável por lição.
+      maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("qiGain", soundEffects);
       setClaimedRewardCards(true);
     }
@@ -3511,14 +3507,6 @@ export function LessonPlayer() {
           amount: DAILY_GOAL_QI,
           source: "Meta diária",
         },
-        ...(STREAK_MILESTONES.includes(streak)
-          ? [{
-              id: `daily-streak:${today.date}:pearl`,
-              type: "dragonPearl" as const,
-              amount: 1,
-              source: `${dayCountLabel(streak)} de sequência`,
-            }]
-          : []),
         ...(streak >= 3 && (streak % 7 === 0 || isPremium)
           ? [{
               id: `daily-streak:${today.date}:shield`,
@@ -3530,6 +3518,8 @@ export function LessonPlayer() {
       ];
       let claimed = false;
       for (const reward of streakRewards) claimed = claimReward(reward) || claimed;
+      // Pérolas de ofensiva: só marcos únicos (streak:7, streak:30, …).
+      maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("streak", soundEffects);
       navigate("/jornada");
     }

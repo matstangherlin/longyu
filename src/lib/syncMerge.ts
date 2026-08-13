@@ -166,7 +166,34 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
       }
       return merged;
     })(),
-    dragonPearls: Math.max(local.dragonPearls, remote.dragonPearls),
+    dragonPearls: Math.max(local.dragonPearls ?? 0, remote.dragonPearls ?? 0),
+    pearlMilestonesClaimed: maxRecordValues(
+      local.pearlMilestonesClaimed ?? {},
+      remote.pearlMilestonesClaimed ?? {}
+    ),
+    pearlLedger: sortByTimestampDesc(
+      uniqueById([...(local.pearlLedger ?? []), ...(remote.pearlLedger ?? [])]),
+      (item) => item.timestamp ?? 0
+    ).slice(0, 200),
+    pearlProExpiresAt: (() => {
+      const l = local.pearlProExpiresAt ?? null;
+      const r = remote.pearlProExpiresAt ?? null;
+      if (l == null) return r;
+      if (r == null) return l;
+      return Math.max(l, r);
+    })(),
+    pearlProLastActivatedAt: (() => {
+      const l = local.pearlProLastActivatedAt ?? null;
+      const r = remote.pearlProLastActivatedAt ?? null;
+      if (l == null) return r;
+      if (r == null) return l;
+      return Math.max(l, r);
+    })(),
+    pearlProAutoActivate: Boolean(local.pearlProAutoActivate || remote.pearlProAutoActivate),
+    pearlProPendingOffline: Boolean(local.pearlProPendingOffline || remote.pearlProPendingOffline),
+    pearlProAutoExplainSeen: Boolean(local.pearlProAutoExplainSeen || remote.pearlProAutoExplainSeen),
+    pearlAudioExposures: Math.max(local.pearlAudioExposures ?? 0, remote.pearlAudioExposures ?? 0),
+    pearlProductionCount: Math.max(local.pearlProductionCount ?? 0, remote.pearlProductionCount ?? 0),
     streakShields: Math.max(local.streakShields, remote.streakShields),
     // Recuperação de ofensiva é uma janela local de 24h: mantém a que quebrou
     // mais recentemente (e o aviso pendente correspondente), sem perdê-la no sync.

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { PEARL_STREAK_MILESTONES } from "../../data/economy";
 import { useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import { Button } from "../ui/primitives";
@@ -9,7 +10,7 @@ function dayCountLabel(days: number): string {
   return days === 1 ? "1 dia" : `${days} dias`;
 }
 
-const STREAK_MILESTONES = [3, 7, 14, 30];
+const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
 
 /**
  * Modal de ofensiva (estilo medalha): aparece ao completar um dia de estudo.

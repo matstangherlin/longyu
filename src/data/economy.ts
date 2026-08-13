@@ -157,15 +157,97 @@ export const SHOP_PRICES = {
   focusPass: 150,
   /** Cosméticos (tema/avatar). */
   cosmetic: 500,
-  /** Pacote de Qi local — custa Pérolas (moeda rara), nunca dinheiro real. */
-  qiPackPearls: 2,
+  /**
+   * Pacote de Qi local — custa Pérolas (moeda rara).
+   * Preferência V2: 3 Pérolas → 120 Qi (guarda Pérola para benefícios maiores).
+   */
+  qiPackPearls: 3,
 } as const;
 
 /** Qi entregue pelo Pacote de Qi (comprado com Pérolas). */
 export const QI_PACK_AMOUNT = 120;
 
-/** Duração do Treino Focado comprado na loja. */
+/** Duração do Treino Focado comprado na loja (Qi). */
 export const FOCUS_PASS_HOURS = 24;
+
+// ——— Pérolas de Jade (moeda rara de prestígio) ———
+// Qi = dia a dia. Pérolas = marcos. Nunca compram lição/estrela/progresso acadêmico.
+export const PEARL_PRICES = {
+  /** +1 Carga. */
+  charge: 1,
+  /** Treino sem consumir Carga por 24h. */
+  focusPass24h: 2,
+  /** Treino sem consumir Carga por 48h. */
+  focusPass48h: 3,
+  /** Escudo de sequência. */
+  streakShield: 3,
+  /** Cosmético especial (faixa 2–6; preço canônico do item especial). */
+  cosmeticSpecial: 4,
+  cosmeticMin: 2,
+  cosmeticMax: 6,
+  /** 7 dias de Longyu Pro/Plus. */
+  proPass7d: 12,
+  /** Conversão Pérola → Qi (uso secundário). */
+  qiPack: 3,
+} as const;
+
+export const PEARL_PRO_PASS_DAYS = 7;
+export const PEARL_PRO_COOLDOWN_DAYS = 30;
+export const PEARL_PRO_COST = PEARL_PRICES.proPass7d;
+export const FOCUS_PASS_48H_HOURS = 48;
+
+/** Marcos únicos de ofensiva → Pérolas (não recorrentes / não farmáveis). */
+export const PEARL_STREAK_MILESTONES = [
+  { id: "streak:7", days: 7, pearls: 1 },
+  { id: "streak:30", days: 30, pearls: 2 },
+  { id: "streak:60", days: 60, pearls: 2 },
+  { id: "streak:90", days: 90, pearls: 3 },
+  { id: "streak:180", days: 180, pearls: 4 },
+  { id: "streak:365", days: 365, pearls: 6 },
+] as const;
+
+export interface PearlMilestoneDef {
+  id: string;
+  threshold: number;
+  pearls: number;
+}
+
+export const PEARL_ERROR_MILESTONES: readonly PearlMilestoneDef[] = [
+  { id: "errors:25", threshold: 25, pearls: 1 },
+  { id: "errors:100", threshold: 100, pearls: 2 },
+  { id: "errors:250", threshold: 250, pearls: 3 },
+];
+
+export const PEARL_HANZI_MILESTONES: readonly PearlMilestoneDef[] = [
+  { id: "hanzi:50", threshold: 50, pearls: 1 },
+  { id: "hanzi:100", threshold: 100, pearls: 2 },
+  { id: "hanzi:250", threshold: 250, pearls: 3 },
+];
+
+export const PEARL_AUDIO_MILESTONES: readonly PearlMilestoneDef[] = [
+  { id: "audio:100", threshold: 100, pearls: 1 },
+  { id: "audio:500", threshold: 500, pearls: 2 },
+];
+
+export const PEARL_PRODUCTION_MILESTONES: readonly PearlMilestoneDef[] = [
+  { id: "production:100", threshold: 100, pearls: 1 },
+  { id: "production:500", threshold: 500, pearls: 2 },
+];
+
+/** Completar uma fase inteira com 3★. */
+export const PEARL_JOURNEY_PHASE_MASTER_PEARLS = 1;
+/** Marcos maiores de fases/módulos (ex.: checkpoint). */
+export const PEARL_JOURNEY_MAJOR_PEARLS = 2;
+/** Desafio mensal concluído. */
+export const PEARL_MONTHLY_CHALLENGE_PEARLS = 1;
+
+export const PEARL_ECONOMY_SUMMARY = {
+  qi: "Moeda comum — ganha estudando; compra conforto e conveniência. Nunca compra lição, estrela ou progresso.",
+  pearls:
+    "Pérolas de Jade — moeda rara de prestígio. Marcos importantes. Guarde para Cargas, escudo, cosméticos especiais ou 7 dias de Pro.",
+  conversion: `${PEARL_PRICES.qiPack} Pérolas → ${QI_PACK_AMOUNT} Qi (uso secundário).`,
+  proPass: `${PEARL_PRO_COST} Pérolas → ${PEARL_PRO_PASS_DAYS} dias de Longyu Pro (máx. 1 a cada ${PEARL_PRO_COOLDOWN_DAYS} dias).`,
+} as const;
 
 // ——— Baús: raridades ———
 export type ChestRarity = "comum" | "raro" | "epico" | "lendario";

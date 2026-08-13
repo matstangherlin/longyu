@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { isInternalTestProEmail } from "../lib/entitlements";
+import { useStore } from "../lib/store";
 import type { ServerSubscriptionSnapshot } from "./subscriptionService";
 
 const ACTIVE_STATUSES = new Set(["trialing", "active"]);
@@ -80,15 +81,55 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
   return resolveServerSubscriptionRow(data);
 }
 
-async function fetchServerEntitlementRpc(): Promise<boolean | null> {
-  const client = getSupabaseClient();
-  if (!client) return null;
-  const { data, error } = await client.rpc("get_server_entitlement");
-  if (error) return null;
-  if (data && typeof data === "object" && "is_pro" in data) {
-    return Boolean((data as { is_pro?: boolean }).is_pro);
+export interface ServerEntitlementRpcResult {
+  isPro: boolean | null;
+  pearlProExpiresAt: number | null;
+  source?: string;
+}
+
+function applyPearlProExpiresFromRpc(raw: unknown): number | null {
+  if (raw == null) return null;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "string") {
+    const ms = Date.parse(raw);
+    return Number.isFinite(ms) ? ms : null;
   }
   return null;
+}
+
+async function fetchServerEntitlementRpc(): Promise<ServerEntitlementRpcResult> {
+  const client = getSupabaseClient();
+  if (!client) return { isPro: null, pearlProExpiresAt: null };
+  const { data, error } = await client.rpc("get_server_entitlement");
+  if (error) return { isPro: null, pearlProExpiresAt: null };
+  if (data && typeof data === "object") {
+    const row = data as {
+      is_pro?: boolean;
+      pearl_pro_expires_at?: string | number | null;
+      source?: string;
+    };
+    const pearlProExpiresAt = applyPearlProExpiresFromRpc(row.pearl_pro_expires_at ?? null);
+    if (pearlProExpiresAt != null || row.pearl_pro_expires_at === null) {
+      useStore.setState((s) => {
+        const account = s.accounts[s.currentAccountId];
+        const accounts = account
+          ? {
+              ...s.accounts,
+              [s.currentAccountId]: { ...account, pearlProExpiresAt },
+            }
+          : s.accounts;
+        return { pearlProExpiresAt, accounts };
+      });
+    }
+    if ("is_pro" in row) {
+      return {
+        isPro: Boolean(row.is_pro),
+        pearlProExpiresAt,
+        source: row.source,
+      };
+    }
+  }
+  return { isPro: null, pearlProExpiresAt: null };
 }
 
 export async function fetchServerIsPro(): Promise<boolean> {
@@ -102,8 +143,8 @@ export async function fetchServerIsPro(): Promise<boolean> {
 
   if (isInternalTestProEmail(user?.email)) return true;
 
-  const rpcPro = await fetchServerEntitlementRpc();
-  if (rpcPro !== null) return rpcPro;
+  const rpc = await fetchServerEntitlementRpc();
+  if (rpc.isPro !== null) return rpc.isPro;
 
   const snapshot = await fetchServerSubscription();
   return subscriptionGrantsPro(snapshot);

@@ -38,6 +38,7 @@ const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
   retry: IconTarget,
   focus: IconTarget,
   qi: IconFlame,
+  pearl: IconStar,
   pro: IconStar,
 };
 
