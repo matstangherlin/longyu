@@ -50,7 +50,7 @@ QA. Contas cloud de teste seguem a mesma fronteira de confiança da produção.
 | `npm run verify:beta-feedback` | ✅ RPCs e capability remotas responderam |
 | `npm run verify:production` | ✅ endpoints mínimos responderam; Auth health retornou 401 como aviso |
 | `npm run gate:public-beta` | ✅ execução final completa passou |
-| `npm run beta:rc-status` | ⏳ executar com a branch limpa após o commit |
+| `npm run beta:rc-status` | ✅ branch limpa e baseada na tip; não congelar RC fora de `main` |
 
 O runner E2E agora cria um build `preview` isolado e permite preview Pro somente
 nesse servidor de testes. O build formal de produção continua bloqueando fixtures
