@@ -58,11 +58,24 @@ const EXPECT_W = 600;
 const EXPECT_H = 600;
 const MAX_BYTES = 200 * 1024;
 const WARN_BYTES = 80 * 1024;
+const MAX_ALPHA_FOG_RATIO = 0.15;
 const VALID_STYLES = new Set(["photo", "realistic_illustration", "flat_illustration"]);
 const VALID_BACKGROUNDS = new Set(["neutral", "contextual", "transparent"]);
 const CJK_RE = /[㐀-鿿豈-﫿]/u;
 // Lista vazia: todos os assets priorizados no guia já foram revisados.
 const PRIORITY_REVIEW = new Set();
+const AMBIGUOUS_RELATIONSHIPS = new Set([
+  "mother",
+  "father",
+  "friend",
+  "son",
+  "daughter",
+  "older_brother",
+  "older_sister",
+  "female_friend",
+  "girlfriend",
+  "boyfriend",
+]);
 
 const errors = [];
 const warnings = [];
@@ -131,6 +144,10 @@ try {
         err(ref, `subjectCount inválido: ${concept.subjectCount}`);
         problems.push("subjectCount inválido");
       }
+      if (AMBIGUOUS_RELATIONSHIPS.has(concept.id) && concept.imageOnlySafe !== false) {
+        err(ref, "relação ambígua precisa declarar imageOnlySafe: false");
+        problems.push("sem gate de ambiguidade");
+      }
       if (!String(concept.imageAltPt ?? "").trim()) {
         err(ref, "alt vazio");
         problems.push("alt vazio");
@@ -180,6 +197,22 @@ try {
           if (!isSvg && concept.backgroundStyle !== "transparent" && meta.hasAlpha) {
             warn(ref, "arquivo tem alfa mas backgroundStyle não é transparent");
           }
+          if (!isSvg && concept.backgroundStyle === "transparent") {
+            const { data: alphaRaw, info: alphaInfo } = await sharp(localPath)
+              .ensureAlpha()
+              .raw()
+              .toBuffer({ resolveWithObject: true });
+            let semiTransparent = 0;
+            for (let index = 3; index < alphaRaw.length; index += alphaInfo.channels) {
+              const alpha = alphaRaw[index];
+              if (alpha > 0 && alpha < 245) semiTransparent += 1;
+            }
+            const fogRatio = semiTransparent / (alphaInfo.width * alphaInfo.height);
+            if (fogRatio > MAX_ALPHA_FOG_RATIO) {
+              err(ref, `névoa de alpha cobre ${(fogRatio * 100).toFixed(1)}% do canvas (máx. ${MAX_ALPHA_FOG_RATIO * 100}%)`);
+              problems.push("névoa de alpha");
+            }
+          }
           if (isSvg) {
             const svgText = await readFile(localPath, "utf8");
             if (svgHasOpaqueMintBleed(svgText)) {
@@ -226,6 +259,12 @@ try {
           concept.id,
           `opções misturam famílias de estilo: ${distractors.map((id) => `${id}(${visualById[id].visualStyle})`).join(", ")}`
         );
+      }
+      const ambiguous = new Set(concept.ambiguousWith ?? []);
+      for (const distractorId of distractors) {
+        if (ambiguous.has(distractorId) || visualById[distractorId]?.ambiguousWith?.includes(concept.id)) {
+          err(concept.id, `distractor visual ambíguo selecionado: ${distractorId}`);
+        }
       }
     }
 

@@ -6,7 +6,7 @@ boa leitura no celular. Este guia é a fonte de verdade; `validate:visual-consis
 faz cumprir as regras automaticamente.
 
 Fonte dos metadados: `src/data/visualVocabulary.ts`. Arquivos: `src/assets/visuals/`
-(SVG local, nunca URL externa).
+(SVG/WebP local, nunca URL externa).
 
 ---
 
@@ -86,17 +86,19 @@ escolhe distractores da família do alvo, e verificado por
 
 ## 3. Estado atual do catálogo (auditoria)
 
-37 assets, todos **SVG flat 600×600** na mesma linguagem visual (fundo pale mint,
-formas geométricas, paleta mutada + accent `#B9412E`). Uma única família de
-estilo: **flat_illustration**.
+61 assets **SVG/WebP 600×600** na mesma linguagem visual: ilustração editorial
+semirrealista, formas orgânicas, contorno mínimo, sombreado discreto e paleta
+mutada (vermelho tijolo, azul-marinho, teal, creme e mint). Uma única família de
+estilo declarada: **flat_illustration**.
 
 ---
 
 ## 4. Direção e prioridade de substituição
 
-**Estilo-casa: `flat_illustration` em SVG.** O catálogo inteiro já está unificado
-nessa família. Novos conceitos devem nascer como SVG 600×600 na paleta do guia
-(gerar/atualizar com `scripts/generate-flat-svgs.py` quando fizer sentido).
+**Estilo-casa: ilustração editorial semirrealista na família `flat_illustration`.**
+SVG continua preferido quando o desenho é vetorial de origem; ilustrações geradas
+podem usar WebP 600×600 transparente. Evitar traço infantil, contorno grosso,
+clip-art, chibi, aparência de figurinha, 3D e foto.
 
 Rever acabamento (proporção/expressão) se um asset ficar pouco legível em
 ~80 px no mobile — a lista viva fica em `reports/visual-consistency-report.md`.
@@ -105,7 +107,7 @@ Rever acabamento (proporção/expressão) se um asset ficar pouco legível em
 
 ## 5. Especificação técnica
 
-- Formato **SVG** (padrão do catálogo), **600×600** (quadrado exato), **≤ 200 KB**.
+- Formato **SVG ou WebP transparente**, **600×600** (quadrado exato), **≤ 200 KB**.
 - SVG: `viewBox="0 0 600 600"` (e `width`/`height` 600), formas planas, paleta
   suave alinhada (fundo pale mint `#EEF3EE`, solo `#D5E4D7`, accent `#B9412E`,
   verdes/azuis/terrosos mutados). Sem texto embutido.
@@ -114,6 +116,22 @@ Rever acabamento (proporção/expressão) se um asset ficar pouco legível em
 - `backgroundStyle: transparent` exige canal alfa; `neutral`/`contextual` são
   opacos.
 - Sem texto embutido na imagem.
+- Assets aceitos: SVG, PNG ou WebP; SVG é o padrão. Arquivos sem entrada no
+  catálogo e entradas sem arquivo falham em `validate:visual-assets`.
+
+### Relações e conceitos potencialmente ambíguos
+
+- mãe/pai: adulto acompanhado de bebê/criança;
+- filho/filha: uma criança sozinha;
+- irmão/irmã: duas idades diferentes em gesto familiar;
+- amigo/amiga: pessoas da mesma faixa etária em gesto social;
+- namorado/namorada: casal, com o alvo em primeiro plano.
+
+Essas pistas melhoram a leitura, mas não tornam parentesco e relacionamento uma
+propriedade visível absoluta. Por isso `imageOnlySafe: false` bloqueia esses
+conceitos em **áudio/hànzì → grade só de imagens**; eles continuam disponíveis em
+**imagem → hànzì/pinyin/significado**, onde existe apoio linguístico. O campo
+`ambiguousWith` também impede pares confundíveis como distractores diretos.
 
 ---
 
@@ -124,6 +142,8 @@ Rever acabamento (proporção/expressão) se um asset ficar pouco legível em
 - `object-fit` escolhido pelo `backgroundStyle` (contain para neutro, cover para
   contextual) → **sem corte do sujeito** em fundos neutros.
 - **Fallback** para ícone/emoji quando a imagem falha (`onError`).
+- **Diagnóstico genérico de falha** em `sessionStorage`, sem ID do conceito e sem
+  PII, para acompanhar o feedback técnico do beta.
 
 ---
 

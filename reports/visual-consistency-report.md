@@ -4,20 +4,20 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
+| Commit | 8716ebbfb96e3d859c4fe5bfbd6095dfeb3339f2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:42:15.647Z |
+| Gerado em | 2026-08-13T19:05:21.535Z |
 | Lições | 123 |
-| Hash da Jornada | 187bc767e00a |
+| Hash da Jornada | cadcc424aa35 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Assets no catálogo | 37 |
+| Assets no catálogo | 61 |
 | Estilo photo | 0 |
 | Estilo realistic_illustration | 0 |
-| Estilo flat_illustration | 37 |
+| Estilo flat_illustration | 61 |
 | Candidatos a substituição | 0 |
 | Cenas contextuais (VisualScene) | 0 |
 | Erros | 0 |
@@ -38,12 +38,13 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | food | flat_illustration |
 | actions | flat_illustration |
 | objects | flat_illustration |
+| places | flat_illustration |
 
 ## Catálogo
 
 | Asset | Conceito | Estilo | Fundo | Tamanho | Dimensão | Problemas | Substituir? |
 |-------|----------|--------|-------|--------:|----------|-----------|:-----------:|
-| person | 人 pessoa | flat_illustration | transparent | 34.2 KB | 600×600 | — | — |
+| person | 人 pessoa | flat_illustration | transparent | 34.3 KB | 600×600 | — | — |
 | tree | 木 árvore | flat_illustration | transparent | 30.3 KB | 600×600 | — | — |
 | mouth | 口 boca | flat_illustration | transparent | 6.3 KB | 600×600 | — | — |
 | sun | 日 sol | flat_illustration | transparent | 10.8 KB | 600×600 | — | — |
@@ -54,27 +55,51 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | big | 大 grande | flat_illustration | transparent | 4.3 KB | 600×600 | — | — |
 | small | 小 pequeno | flat_illustration | transparent | 3.7 KB | 600×600 | — | — |
 | woman | 女 mulher | flat_illustration | transparent | 17.2 KB | 600×600 | — | — |
-| child | 子 criança | flat_illustration | transparent | 28.1 KB | 600×600 | — | — |
+| child | 子 criança | flat_illustration | transparent | 28.2 KB | 600×600 | — | — |
 | mother | 妈 mãe | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
-| father | 爸 pai | flat_illustration | transparent | 26.0 KB | 600×600 | — | — |
-| friend | 朋 amigo | flat_illustration | transparent | 32.2 KB | 600×600 | — | — |
-| crowd | 众 multidão | flat_illustration | transparent | 73.6 KB | 600×600 | — | — |
+| father | 爸 pai | flat_illustration | transparent | 26.1 KB | 600×600 | — | — |
+| friend | 朋 amigo | flat_illustration | transparent | 32.3 KB | 600×600 | — | — |
+| son | 儿子 filho | flat_illustration | transparent | 22.5 KB | 600×600 | — | — |
+| daughter | 女儿 filha | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
+| older_brother | 哥哥 irmão mais velho | flat_illustration | transparent | 34.8 KB | 600×600 | — | — |
+| older_sister | 姐姐 irmã mais velha | flat_illustration | transparent | 39.8 KB | 600×600 | — | — |
+| female_friend | 女性朋友 amiga | flat_illustration | transparent | 32.6 KB | 600×600 | — | — |
+| girlfriend | 女朋友 namorada | flat_illustration | transparent | 33.5 KB | 600×600 | — | — |
+| boyfriend | 男朋友 namorado | flat_illustration | transparent | 35.3 KB | 600×600 | — | — |
+| crowd | 众 multidão | flat_illustration | transparent | 73.7 KB | 600×600 | — | — |
 | sky | 天 céu | flat_illustration | transparent | 9.8 KB | 600×600 | — | — |
-| woods | 林 bosque | flat_illustration | transparent | 37.1 KB | 600×600 | — | — |
-| forest | 森 floresta | flat_illustration | transparent | 68.6 KB | 600×600 | — | — |
-| horse | 马 cavalo | flat_illustration | transparent | 67.3 KB | 600×600 | — | — |
+| woods | 林 bosque | flat_illustration | transparent | 37.2 KB | 600×600 | — | — |
+| forest | 森 floresta | flat_illustration | transparent | 68.7 KB | 600×600 | — | — |
+| horse | 马 cavalo | flat_illustration | transparent | 67.4 KB | 600×600 | — | — |
 | fish | 鱼 peixe | flat_illustration | transparent | 16.6 KB | 600×600 | — | — |
+| cat | 猫 gato | flat_illustration | transparent | 27.8 KB | 600×600 | — | — |
+| dog | 狗 cachorro | flat_illustration | transparent | 14.4 KB | 600×600 | — | — |
 | rice | 饭 arroz | flat_illustration | transparent | 56.4 KB | 600×600 | — | — |
 | tea | 茶 chá | flat_illustration | transparent | 17.7 KB | 600×600 | — | — |
+| coffee | 咖啡 café | flat_illustration | transparent | 25.2 KB | 600×600 | — | — |
+| milk | 牛奶 leite | flat_illustration | transparent | 11.2 KB | 600×600 | — | — |
+| apple | 苹果 maçã | flat_illustration | transparent | 22.6 KB | 600×600 | — | — |
 | meat | 肉 carne | flat_illustration | transparent | 12.1 KB | 600×600 | — | — |
 | vegetables | 菜 verdura | flat_illustration | transparent | 54.2 KB | 600×600 | — | — |
-| eat | 吃 comer | flat_illustration | transparent | 70.1 KB | 600×600 | — | — |
-| drink | 喝 beber | flat_illustration | transparent | 30.7 KB | 600×600 | — | — |
+| eat | 吃 comer | flat_illustration | transparent | 70.2 KB | 600×600 | — | — |
+| drink | 喝 beber | flat_illustration | transparent | 30.8 KB | 600×600 | — | — |
 | book | 书 livro | flat_illustration | transparent | 24.7 KB | 600×600 | — | — |
 | car | 车 carro | flat_illustration | transparent | 35.3 KB | 600×600 | — | — |
-| home | 家 casa | flat_illustration | transparent | 51.4 KB | 600×600 | — | — |
+| home | 家 casa | flat_illustration | transparent | 51.5 KB | 600×600 | — | — |
 | money | 钱 dinheiro | flat_illustration | transparent | 33.8 KB | 600×600 | — | — |
 | ticket | 票 bilhete | flat_illustration | transparent | 7.4 KB | 600×600 | — | — |
+| phone | 手机 celular | flat_illustration | transparent | 23.1 KB | 600×600 | — | — |
+| keys | 钥匙 chaves | flat_illustration | transparent | 32.1 KB | 600×600 | — | — |
+| cup | 杯子 copo | flat_illustration | transparent | 15.1 KB | 600×600 | — | — |
+| table | 桌子 mesa | flat_illustration | transparent | 27.4 KB | 600×600 | — | — |
+| chair | 椅子 cadeira | flat_illustration | transparent | 41.3 KB | 600×600 | — | — |
+| door | 门 porta | flat_illustration | transparent | 11.3 KB | 600×600 | — | — |
+| window | 窗户 janela | flat_illustration | transparent | 10.0 KB | 600×600 | — | — |
+| backpack | 背包 mochila | flat_illustration | transparent | 34.2 KB | 600×600 | — | — |
+| bathroom | 洗手间 banheiro | flat_illustration | transparent | 33.9 KB | 600×600 | — | — |
+| bedroom | 卧室 quarto | flat_illustration | transparent | 33.1 KB | 600×600 | — | — |
+| kitchen | 厨房 cozinha | flat_illustration | transparent | 39.5 KB | 600×600 | — | — |
+| travel | 旅行 viagem | flat_illustration | transparent | 35.1 KB | 600×600 | — | — |
 | one | 一 um | flat_illustration | transparent | 3.8 KB | 600×600 | — | — |
 | two | 二 dois | flat_illustration | transparent | 5.3 KB | 600×600 | — | — |
 | three | 三 três | flat_illustration | transparent | 13.5 KB | 600×600 | — | — |
@@ -85,4 +110,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:9cbd67f219876c2c -->
+<!-- integridade:cefe658d4982fb25 -->

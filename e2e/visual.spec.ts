@@ -117,6 +117,8 @@ test.describe("visual — associação de imagem", () => {
       .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)
       .catch(() => false);
     expect(brokenVisible).toBeFalsy();
+    const diagnostics = await page.evaluate(() => sessionStorage.getItem("longyu:client-diagnostics") ?? "");
+    expect(diagnostics).toContain('"area":"visual-asset"');
     await page.screenshot({ path: `${SHOTS}/load-error-fallback.png` });
   });
 });

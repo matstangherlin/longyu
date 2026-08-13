@@ -5491,6 +5491,22 @@ export const JOURNEY: JourneyPhase[] = [
               listen("我要这个苹果", "wǒ yào zhège píngguǒ", "Quero esta maçã"),
               listen("我要香蕉", "wǒ yào xiāngjiāo", "Quero banana"),
               listen("我要牛奶", "wǒ yào niúnǎi", "Quero leite"),
+              imageChoice(
+                "choose_image",
+                "apple",
+                "Qual imagem combina com 苹果?",
+                "apple",
+                ["apple", "milk", "tea", "rice"],
+                { explanation: "苹果 (píngguǒ) = maçã; 牛奶 é leite e 茶 é chá." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "phone",
+                "Ouça e escolha o item correto.",
+                "phone",
+                ["phone", "book", "car", "ticket"],
+                { explanation: "手机 (shǒujī) = celular." }
+              ),
               comp("这件衣服多少钱？", "zhè jiàn yīfu duōshao qián?", "Quanto custa esta roupa?", [
                 "Quanto custa esta roupa?",
                 "Quero estes sapatos.",

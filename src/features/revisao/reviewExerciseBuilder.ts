@@ -853,11 +853,18 @@ export function buildImageChoiceReview(input: ReviewExerciseBuildInput, entity: 
   const concept = conceptId ? resolveVisualConcept(conceptId) : undefined;
   if (!concept) return null;
 
-  const modes: ImageChoiceMode[] = ["choose_hanzi", "choose_pinyin", "choose_image", "listen_and_choose_image", "choose_meaning"];
+  const modes: ImageChoiceMode[] =
+    concept.imageOnlySafe === false
+      ? ["choose_hanzi", "choose_pinyin", "choose_meaning"]
+      : ["choose_hanzi", "choose_pinyin", "choose_image", "listen_and_choose_image", "choose_meaning"];
   const mode = modes[input.item.reps % modes.length];
-  const imageIds = [concept.id, ...defaultVisualDistractors(concept.id, 3)];
+  const imagePick = mode === "choose_image" || mode === "listen_and_choose_image";
+  const distractorIds = defaultVisualDistractors(concept.id, imagePick ? 8 : 3)
+    .filter((id) => !imagePick || resolveVisualConcept(id)?.imageOnlySafe !== false)
+    .slice(0, 3);
+  const imageIds = [concept.id, ...distractorIds];
 
-  if (mode === "choose_image" || mode === "listen_and_choose_image") {
+  if (imagePick) {
     return {
       kind: "image_choice",
       domain: input.domain,

@@ -102,7 +102,7 @@ import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
   defaultVisualDistractors,
   visualByCharId,
-  visualByHanzi,
+  visualConceptsInHanziText,
   isVisualConceptAllowed,
   type ImageChoiceMode,
   type VisualCategory,
@@ -3282,6 +3282,7 @@ const VISUAL_CATEGORY_PRIORITY: Record<VisualCategory, number> = {
   animals: 0,
   food: 0,
   objects: 0,
+  places: 0,
   quantity: 1,
   actions: 2,
 };
@@ -3294,17 +3295,17 @@ function visualConceptForFocusItem(item: FocusItem, unitIndex: number): VisualCo
     return direct && isVisualConceptAllowed(direct.id, unitIndex) ? direct : undefined;
   }
   const matches: { concept: VisualConcept; index: number }[] = [];
-  const glyphs = [...cleanHanzi(item.hanzi)];
-  for (const [index, glyph] of glyphs.entries()) {
-    const concept = visualByHanzi[glyph];
+  const hanziText = cleanHanzi(item.hanzi);
+  for (const concept of visualConceptsInHanziText(hanziText)) {
     if (!concept || !isVisualConceptAllowed(concept.id, unitIndex)) continue;
     if (matches.some((entry) => entry.concept.id === concept.id)) continue;
-    matches.push({ concept, index });
+    matches.push({ concept, index: hanziText.indexOf(concept.hanzi) });
   }
   matches.sort(
     (a, b) =>
       VISUAL_CATEGORY_PRIORITY[a.concept.category] - VISUAL_CATEGORY_PRIORITY[b.concept.category] ||
-      a.index - b.index
+      a.index - b.index ||
+      b.concept.hanzi.length - a.concept.hanzi.length
   );
   return matches[0]?.concept;
 }
@@ -3350,10 +3351,13 @@ for (const concept of Object.values(visualByCharId)) {
   if (concept) visualConceptIndex.set(concept.id, concept);
 }
 
-function visualDistractorConcepts(concept: VisualConcept, count: number): VisualConcept[] {
+function visualDistractorConcepts(concept: VisualConcept, count: number, imageOnly = false): VisualConcept[] {
   return defaultVisualDistractors(concept.id, count)
     .map((id) => visualConceptIndex.get(id))
-    .filter((candidate): candidate is VisualConcept => Boolean(candidate));
+    .filter(
+      (candidate): candidate is VisualConcept =>
+        Boolean(candidate) && (!imageOnly || candidate?.imageOnlySafe !== false)
+    );
 }
 
 function imageChoiceStepForConcept(concept: VisualConcept, mode: ImageChoiceMode): LessonStep | null {
@@ -3368,7 +3372,8 @@ function imageChoiceStepForConcept(concept: VisualConcept, mode: ImageChoiceMode
   };
 
   if (mode === "choose_image" || mode === "listen_and_choose_image") {
-    const optionIds = uniqueValues([concept.id, ...visualDistractorConcepts(concept, 3).map((c) => c.id)]).slice(0, 4);
+    if (concept.imageOnlySafe === false) return null;
+    const optionIds = uniqueValues([concept.id, ...visualDistractorConcepts(concept, 3, true).map((c) => c.id)]).slice(0, 4);
     if (optionIds.length < 3) return null;
     return {
       ...base,
