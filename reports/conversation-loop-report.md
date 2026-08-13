@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f228e23a80f5938231238f6464d36f251eedcace |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:31:49.924Z |
+| Gerado em | 2026-08-13T07:42:54.621Z |
 | Lições | 123 |
 | Hash da Jornada | 187bc767e00a |
 
@@ -21,10 +21,10 @@
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 356 |
 | **Cobertura relevante** (portão ≥ 76 %) | **80.3 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 16 refs |
-| Reutilização média por item | 2.25 |
+| Reutilização média por item | 2.24 |
 | Itens sem cobertura | 155 |
-| Tarefas da fase Pós-Conversa | 490 |
-| Média Pós-Conversa por conversa | 3.98 |
+| Tarefas da fase Pós-Conversa | 491 |
+| Média Pós-Conversa por conversa | 3.99 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, sentence_build |
 
 > **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata
@@ -34,22 +34,22 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- chunk:nihao — 552 exposições ao longo dos 123 planos
-- char:ma_question — 303 exposições ao longo dos 123 planos
-- chunk:wohenhao — 290 exposições ao longo dos 123 planos
-- chunk:nihaoma — 272 exposições ao longo dos 123 planos
+- chunk:nihao — 550 exposições ao longo dos 123 planos
+- char:ma_question — 302 exposições ao longo dos 123 planos
+- chunk:wohenhao — 292 exposições ao longo dos 123 planos
+- chunk:nihaoma — 271 exposições ao longo dos 123 planos
 - chunk:zaijian — 155 exposições ao longo dos 123 planos
-- char:yi — 126 exposições ao longo dos 123 planos
-- char:bu — 120 exposições ao longo dos 123 planos
-- chunk:xiexie — 101 exposições ao longo dos 123 planos
-- char:shi — 101 exposições ao longo dos 123 planos
+- char:yi — 125 exposições ao longo dos 123 planos
+- char:bu — 119 exposições ao longo dos 123 planos
+- char:shi — 111 exposições ao longo dos 123 planos
+- chunk:xiexie — 100 exposições ao longo dos 123 planos
 - chunk:nijiaoshenme — 87 exposições ao longo dos 123 planos
 - chunk:qingzaishuoyibian — 77 exposições ao longo dos 123 planos
 - char:san — 64 exposições ao longo dos 123 planos
 - chunk:qingwen — 63 exposições ao longo dos 123 planos
-- chunk:bukeqi — 61 exposições ao longo dos 123 planos
-- char:tian_sky — 59 exposições ao longo dos 123 planos
-- char:mu — 48 exposições ao longo dos 123 planos
+- chunk:bukeqi — 60 exposições ao longo dos 123 planos
+- char:tian_sky — 58 exposições ao longo dos 123 planos
+- char:mu — 47 exposições ao longo dos 123 planos
 
 ## Itens de prioridade sem cobertura
 
@@ -80,9 +80,9 @@
 - p4-char-ri:chunk:wojiao (31 exposições no curso)
 - p4-char-yue:chunk:wojiao (31 exposições no curso)
 - l9-rev:char:liu (13 exposições no curso)
-- l9-rev:char:shi10 (17 exposições no curso)
+- l9-rev:char:shi10 (16 exposições no curso)
 - l9-rev:char:wu (23 exposições no curso)
-- l26b:chunk:woele (6 exposições no curso)
+- l26b:chunk:woele (7 exposições no curso)
 - l26b:chunk:womenchifanba (5 exposições no curso)
 - l26b:chunk:woyaorou (1 exposições no curso)
 - l27:chunk:duoshaoqian (10 exposições no curso)
@@ -105,12 +105,12 @@
 - p6-compras:chunk:woxianghe (10 exposições no curso)
 - p6-compras:chunk:zheshishenme (12 exposições no curso)
 - l10-rev:chunk:taiguile (11 exposições no curso)
-- l10-rev:chunk:woele (6 exposições no curso)
+- l10-rev:chunk:woele (7 exposições no curso)
 - l29:chunk:duoshaoqian (10 exposições no curso)
 - l29:chunk:taiguile (11 exposições no curso)
 - l29:chunk:zheshishenme (12 exposições no curso)
 - l29:chunk:zheshishui (5 exposições no curso)
-- l30:char:shan (36 exposições no curso)
+- l30:char:shan (35 exposições no curso)
 - l30:char:yue (22 exposições no curso)
 - l30:char:zhe (48 exposições no curso)
 - …mais 10.
@@ -199,4 +199,4 @@
 - l27:chunk:xiexie
 - …mais 75.
 
-<!-- integridade:cbbe19de7b19371d -->
+<!-- integridade:741c1e5a14071e44 -->

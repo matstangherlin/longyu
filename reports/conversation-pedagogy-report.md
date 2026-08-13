@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e75ce5d15fa935941b62baafc8768e57acd500f4 |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:19:23.660Z |
+| Gerado em | 2026-08-13T07:43:05.861Z |
 | Lições | 123 |
 | Hash da Jornada | 187bc767e00a |
 
@@ -19,11 +19,11 @@
 | Média de intervenções | 2.76 |
 | Número de ramificações | 105 |
 | Número de finais | 41 |
-| Vocabulário total exibido (refs únicas no plano real) | 80 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 80 |
+| Vocabulário total exibido (refs únicas no plano real) | 82 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 82 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 12.29 |
+| Palavras novas (refs únicas) | 4 |
+| Média de reutilizações por ref exibida | 12.62 |
 
 ## Cenas mais curtas
 
@@ -53,10 +53,10 @@
 | Cena | Usos |
 |------|-----:|
 | revisao-cumprimento-completo | 12 |
-| encontro-amanha | 10 |
+| encontro-amanha | 11 |
+| cortesia-loja | 10 |
 | nao-falo-chinês | 9 |
-| cortesia-loja | 8 |
-| conversa-em-casa | 7 |
+| conversa-em-casa | 8 |
 | perguntando-se-esta-bem | 7 |
 | como-se-chama | 7 |
 | fale-de-novo | 7 |
@@ -133,4 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:8b6c6c9a5dcb3dd0 -->
+<!-- integridade:96cd643bb706da7c -->

@@ -4360,6 +4360,12 @@ function ensureCoverage(
     ];
     const preferred = MEANING_VARIANTS[Math.abs(lessonOrderIndex(lesson)) % MEANING_VARIANTS.length];
     ensure((candidate) => candidate.step.pedagogyVariant === preferred, true);
+    // PED-021: practiceFocus filtrado pode alterar a pontuação e o spot_error
+    // autoral (sem pedagogyVariant) perde a vaga mesmo quando a rotação semântica
+    // pede meaning_spot_error. Garante o kind no plano.
+    if (preferred === "meaning_spot_error") {
+      ensure((candidate) => candidate.step.kind === "spot_error", true);
+    }
     ensure((candidate) => Boolean(candidate.step.pedagogyVariant?.startsWith("meaning_")));
   }
   // A cena de conversa é o exercício mais rico do plano e a origem de todo o

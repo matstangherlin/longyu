@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 944a2614a5d0b1d928dc643f7d45fd887375faeb |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:12:10.815Z |
+| Gerado em | 2026-08-13T07:44:15.760Z |
 | Lições | 123 |
-| Hash da Jornada | b781403be692 |
+| Hash da Jornada | 187bc767e00a |
 
 ## Resumo
 
@@ -23,16 +23,16 @@
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 4 |
 | Lições com produção aberta | 18 / 123 |
-| Falas de conversa sem apoio (aluno veterano) | 135 |
-| Lições com conversa sem apoio | 90 / 123 |
-| Lições com quebra de comunicação jogável | 74 / 123 |
+| Falas de conversa sem apoio (aluno veterano) | 149 |
+| Lições com conversa sem apoio | 103 / 123 |
+| Lições com quebra de comunicação jogável | 75 / 123 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 582 |
+| Passos auditados no plano real (3 tentativas) | 573 |
 | Lições com produção livre | 82 / 123 |
 | Lições com transferência | 23 / 123 |
 | Lições com reparo conversacional | 77 / 123 |
 | Estruturas diferentes no plano real | 7 |
-| Frases inéditas cobradas | 21 |
+| Frases inéditas cobradas | 22 |
 | Transfer guided / supported / question | 66 / 0 / 0 |
 | 1ªs transferências (attempt 0) | 22 |
 
@@ -57,22 +57,21 @@
 - **p6-cidade-lugares** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
 - **p6-saude** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
 - **p6-natureza** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
-- **p6-clima** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
-- **p6-direcoes** · `frame_woqu` · guided · âncora 我去学校 → `我今天去银行。`
-- **p6-compras** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
+- **p6-clima** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- **p6-direcoes** · `frame_woxianghe` · guided · âncora 我想喝茶 → `我想喝热水。`
+- **p6-compras** · `frame_wo_le` · guided · âncora 我饿了 → `我回家了。`
 - …mais 7.
 
 ## Frases inéditas cobradas por transferência
 
-- 我今天去医院
 - 我今天去火车站
 - 我今天去超市
 - 我今天去银行
-- 我去银行
 - 我回家了
 - 我在吃饭
 - 我在喝水
 - 我在睡觉
+- 我想喝热水
 - 我想喝牛奶
 - 我明天去医院
 - 我明天去超市
@@ -80,10 +79,12 @@
 - 我有一个苹果
 - 我有三个苹果
 - 我有五个朋友
+- 我有五个苹果
 - 我有四个朋友
 - 我有四个香蕉
 - 我睡觉了
+- 我要热水
 - 我要牛肉
 - 我要苹果
 
-<!-- integridade:dbf286dc994529e7 -->
+<!-- integridade:ac408d084b40b672 -->

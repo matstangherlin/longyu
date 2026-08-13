@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f228e23a80f5938231238f6464d36f251eedcace |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T07:29:13.744Z |
+| Gerado em | 2026-08-13T07:42:14.055Z |
 | Lições | 123 |
 | Hash da Jornada | 187bc767e00a |
 
@@ -24,7 +24,7 @@
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 57 |
-| Conceitos nunca utilizados | 3 |
+| Conceitos nunca utilizados | 2 |
 
 ## Cobertura por fase
 
@@ -63,10 +63,10 @@
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 18 |
-| imagem → pinyin (`choose_pinyin`) | 52 |
-| imagem → significado (`choose_meaning`) | 35 |
-| áudio → imagem (`listen_and_choose_image`) | 27 |
-| hànzì → imagem (`choose_image`) | 31 |
+| imagem → pinyin (`choose_pinyin`) | 50 |
+| imagem → significado (`choose_meaning`) | 24 |
+| áudio → imagem (`listen_and_choose_image`) | 26 |
+| hànzì → imagem (`choose_image`) | 32 |
 
 ## Conceitos nunca utilizados
 
@@ -74,7 +74,6 @@
 |----------|-------|-------------|----------------------:|
 | child | 子 | criança | 8 |
 | vegetables | 菜 | verdura | 12 |
-| eat | 吃 | comer | 12 |
 
 ## Lições concretas sem imagem
 
@@ -84,4 +83,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:8390ce4d01d895a2 -->
+<!-- integridade:6c634055bc2b56ba -->
