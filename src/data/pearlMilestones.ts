@@ -53,6 +53,8 @@ export interface PearlProgressInput {
   /** 0–1 progresso do desafio mensal atual. */
   monthlyChallengeProgress: number;
   monthlyChallengeCompleted: boolean;
+  /** Chave do mês (YYYY-MM) — IDs de marco usam monthly_challenge:${monthKey}. */
+  monthlyChallengeKey?: string;
   claimed: Readonly<Record<string, number>>;
   dragonPearls: number;
   proPassCost: number;
@@ -125,7 +127,7 @@ export function buildPearlProgress(input: PearlProgressInput): PearlProgressSnap
     });
   }
 
-  const monthlyId = "monthly_challenge:current";
+  const monthlyId = `monthly_challenge:${input.monthlyChallengeKey ?? "current"}`;
   const monthlyClaimed = Boolean(input.claimed[monthlyId]);
   goals.push({
     milestoneId: monthlyId,
@@ -135,9 +137,8 @@ export function buildPearlProgress(input: PearlProgressInput): PearlProgressSnap
     target: 100,
     pearls: PEARL_MONTHLY_CHALLENGE_PEARLS,
     proximity: monthlyClaimed ? 0 : Math.min(1, input.monthlyChallengeProgress),
-    claimed: monthlyClaimed || (!input.monthlyChallengeCompleted && false),
+    claimed: monthlyClaimed,
   });
-  // Se completou e ainda não claimou, proximity = 1
   if (input.monthlyChallengeCompleted && !monthlyClaimed) {
     const g = goals[goals.length - 1];
     g.proximity = 1;

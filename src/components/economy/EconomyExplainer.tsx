@@ -11,7 +11,7 @@ interface EconomyExplainerProps {
 }
 
 const CONTEXT_LEAD: Record<NonNullable<EconomyExplainerProps["context"]>, string> = {
-  loja: "Qi compra conforto e tentativas — nunca progresso direto.",
+  loja: "Qi é ganho e gasto no dia a dia. Pérolas são conquistadas em grandes marcos — nunca compram lição ou estrela.",
   missoes: "Missões devolvem Qi e cargas; corrigir erros na lição não gasta carga.",
   treino: "Treino focado e erros detalhados abrem no Pro; revisão essencial continua grátis.",
   conta: "Resumo da economia: aprenda no grátis, estude sem interrupção no Pro.",

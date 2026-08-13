@@ -55,16 +55,21 @@ export const ADS_SAFE_PLACEMENTS = [
   "profile_idle",
 ] as const;
 
-/** Contexts where ads must never interrupt learning. */
+/**
+ * Contextos em que anúncios nunca podem aparecer (ADS-019),
+ * mesmo para Free. Qualquer componente de ads deve consultar isto.
+ */
 export const ADS_FORBIDDEN_CONTEXTS = [
   "during_question",
-  "during_answer_reveal",
-  "during_lesson_core",
+  "between_selection_and_feedback",
+  "over_verify_continue_button",
+  "during_audio",
+  "during_conversation",
+  "during_error_correction",
+  "over_keyboard_input",
+  "critical_modal",
   "during_production",
-  "during_correction",
-  "during_streak_celebration",
-  "during_chest_open",
-  "paywall_flow",
+  "during_lesson_core",
 ] as const;
 
 export function claimablePearlMilestone(

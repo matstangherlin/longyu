@@ -34,8 +34,24 @@ for (const token of [
 }
 
 const bridge = read("src/lib/economyServerBridge.ts");
-for (const token of ["shouldUseServerEconomy", "flushEconomyIntentQueue", "serverMigrateLocalEconomy"]) {
+for (const token of [
+  "shouldUseServerEconomy",
+  "flushEconomyIntentQueue",
+  "serverMigrateLocalEconomy",
+  "serverActivatePearlProPass",
+  "serverClaimPearlMilestone",
+]) {
   if (!bridge.includes(token)) fail(`economyServerBridge.ts sem ${token}`);
+}
+
+const pearlMigration = "supabase/migrations/20260813180000_pearl_pro_economy.sql";
+if (!fs.existsSync(path.join(root, pearlMigration))) {
+  fail(`Falta ${pearlMigration}`);
+} else {
+  const pearlSql = read(pearlMigration);
+  for (const token of ["activate_pearl_pro_pass", "claim_pearl_milestone", "pearl_pro_pass", "pearl_pro_expires_at"]) {
+    if (!pearlSql.includes(token)) fail(`${pearlMigration} sem ${token}`);
+  }
 }
 
 const store = read("src/lib/store.ts");

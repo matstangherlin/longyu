@@ -1963,6 +1963,7 @@ interface AppState {
   /** Loja: usa um item consumível do inventário e aplica o efeito. */
   useInventoryItem: (itemId: string) => ShopUseResult | null;
   setPearlProAutoActivate: (v: boolean) => void;
+  clearShopPurchaseFeedback: () => void;
   claimPearlMilestone: (milestoneId: string) => boolean;
   activatePearlProPass: (opts?: { auto?: boolean; idempotencyKey?: string }) => PearlProActivateResult;
   maybeClaimPearlMilestonesFromProgress: () => void;
@@ -2099,7 +2100,14 @@ function applyRewardToState(s: AppState, reward: RewardGrant): AppState {
   };
 
   if (reward.type === "qi") next.points = Math.max(0, next.points + reward.amount);
-  if (reward.type === "dragonPearl") next.dragonPearls = Math.max(0, next.dragonPearls + reward.amount);
+  if (reward.type === "dragonPearl") {
+    const earn = applyPearlEarn(next, {
+      amount: reward.amount,
+      source: reward.source,
+      idempotencyKey: reward.id,
+    });
+    if (earn) Object.assign(next, earn);
+  }
   if (reward.type === "streakShield") next.streakShields = Math.max(0, next.streakShields + reward.amount);
   if (reward.type === "badge" && !next.badges.includes(reward.source)) next.badges = [...next.badges, reward.source];
   if (reward.type === "xp" && reward.amount > 0) {
@@ -3184,7 +3192,7 @@ export const useStore = create<AppState>()(
           return { toneTrainer, dailyTasks, accounts: saveCurrentAccount(next) };
         }),
 
-      markLearned: (type, itemId) =>
+      markLearned: (type, itemId) => {
         set((s) => {
           if (type === "chunk") {
             if (s.learnedChunks.includes(itemId)) return {};
@@ -3195,7 +3203,9 @@ export const useStore = create<AppState>()(
           if (s.learnedChars.includes(itemId)) return {};
           const next = { ...s, learnedChars: [...s.learnedChars, itemId] };
           return { learnedChars: next.learnedChars, accounts: saveCurrentAccount(next) };
-        }),
+        });
+        if (type !== "chunk") get().maybeClaimPearlMilestonesFromProgress();
+      },
 
       recordHanziBuilderResult: ({ character, correct, firstTry, level }) =>
         set((s) => {
@@ -3236,7 +3246,7 @@ export const useStore = create<AppState>()(
           return { today: next.today, dailyTasks, dailyEnergy, accounts: saveCurrentAccount(next) };
         }),
 
-      recordDailyTask: (task, amount = 1) =>
+      recordDailyTask: (task, amount = 1) => {
         set((s) => {
           const date = todayKey();
           const today = s.today.date === date ? s.today : freshDay(date);
@@ -3267,9 +3277,39 @@ export const useStore = create<AppState>()(
           if (isLifetimeTaskKey(task)) {
             lifetimeStats[task] = Math.max(0, base[task] + Math.max(0, amount));
           }
-          const next = { ...s, today, dailyTasks: nextTasks, dailyEnergy, weeklyMissions, lifetimeStats };
-          return { today, dailyTasks: nextTasks, dailyEnergy, weeklyMissions, lifetimeStats, accounts: saveCurrentAccount(next) };
-        }),
+          const pearlAudioExposures =
+            task === "audioHeard"
+              ? Math.max(s.pearlAudioExposures ?? 0, lifetimeStats.audioHeard)
+              : s.pearlAudioExposures;
+          const pearlProductionCount =
+            task === "phrasesSpoken"
+              ? Math.max(s.pearlProductionCount ?? 0, lifetimeStats.phrasesSpoken)
+              : s.pearlProductionCount;
+          const next = {
+            ...s,
+            today,
+            dailyTasks: nextTasks,
+            dailyEnergy,
+            weeklyMissions,
+            lifetimeStats,
+            pearlAudioExposures,
+            pearlProductionCount,
+          };
+          return {
+            today,
+            dailyTasks: nextTasks,
+            dailyEnergy,
+            weeklyMissions,
+            lifetimeStats,
+            pearlAudioExposures,
+            pearlProductionCount,
+            accounts: saveCurrentAccount(next),
+          };
+        });
+        if (task === "audioHeard" || task === "phrasesSpoken") {
+          get().maybeClaimPearlMilestonesFromProgress();
+        }
+      },
 
       completeImmersionSession: (sessionId, completion) => {
         const date = todayKey();
@@ -3362,6 +3402,7 @@ export const useStore = create<AppState>()(
         });
 
         if (xpToSync > 0) syncLeagueXpToServerAsync(xpToSync, syncKey);
+        get().maybeClaimPearlMilestonesFromProgress();
         return true;
       },
 
@@ -3573,8 +3614,19 @@ export const useStore = create<AppState>()(
       setPearlProAutoActivate: (v) =>
         set((s) => {
           const pearlProAutoActivate = Boolean(v);
-          const next = { ...s, pearlProAutoActivate };
-          return { pearlProAutoActivate, accounts: saveCurrentAccount(next) };
+          const pearlProAutoExplainSeen = s.pearlProAutoExplainSeen || pearlProAutoActivate;
+          const next = { ...s, pearlProAutoActivate, pearlProAutoExplainSeen };
+          return {
+            pearlProAutoActivate,
+            pearlProAutoExplainSeen,
+            accounts: saveCurrentAccount(next),
+          };
+        }),
+
+      clearShopPurchaseFeedback: () =>
+        set((s) => {
+          const next = { ...s, lastShopPurchaseFeedback: null };
+          return { lastShopPurchaseFeedback: null, accounts: saveCurrentAccount(next) };
         }),
 
       claimPearlMilestone: (milestoneId) => {
@@ -3798,12 +3850,19 @@ export const useStore = create<AppState>()(
           if (hanzi >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
         }
 
-        const audio = state.pearlAudioExposures ?? 0;
+        // Áudio/produção: contadores dedicados OU lifetimeStats (estudo real).
+        const audio = Math.max(
+          state.pearlAudioExposures ?? 0,
+          state.lifetimeStats?.audioHeard ?? 0
+        );
         for (const m of PEARL_AUDIO_MILESTONES) {
           if (audio >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
         }
 
-        const production = state.pearlProductionCount ?? 0;
+        const production = Math.max(
+          state.pearlProductionCount ?? 0,
+          state.lifetimeStats?.phrasesSpoken ?? 0
+        );
         for (const m of PEARL_PRODUCTION_MILESTONES) {
           if (production >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
         }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useStore, type ChestType } from "../../lib/store";
+import { useStore, type ChestType, type ShopPurchaseFeedback } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import {
   CATEGORY_META,
@@ -9,6 +9,15 @@ import {
   type ShopIconKey,
   type ShopItem,
 } from "../../data/shop";
+import { PEARL_ECONOMY_SUMMARY, PEARL_PRO_COST } from "../../data/economy";
+import { MONTHLY_GOAL } from "../../data/missions";
+import { buildPearlProgress } from "../../data/pearlMilestones";
+import { listMasteredPhaseIds } from "../../lib/pearlEconomy";
+import {
+  formatPearlProUntil,
+  hasActivePearlPro,
+  PEARL_PRO_COPY,
+} from "../../lib/pearlPro";
 import { ChestCard } from "../../components/chests/ChestCard";
 import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
@@ -26,6 +35,7 @@ import {
 } from "../../components/ui/Icon";
 import { useIsPro } from "../../lib/proAccess";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
+import { monthKey } from "../../lib/storage";
 
 const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
   breath: IconFlame,
@@ -54,17 +64,81 @@ export function LojaPage() {
   const useInventoryItem = useStore((s) => s.useInventoryItem);
   const chests = useStore((s) => s.chests);
   const soundEffects = useStore((s) => s.soundEffects);
+  const pearlMilestonesClaimed = useStore((s) => s.pearlMilestonesClaimed);
+  const pearlProExpiresAt = useStore((s) => s.pearlProExpiresAt);
+  const pearlProAutoActivate = useStore((s) => s.pearlProAutoActivate);
+  const pearlProAutoExplainSeen = useStore((s) => s.pearlProAutoExplainSeen);
+  const pearlProPendingOffline = useStore((s) => s.pearlProPendingOffline);
+  const setPearlProAutoActivate = useStore((s) => s.setPearlProAutoActivate);
+  const lastShopPurchaseFeedback = useStore((s) => s.lastShopPurchaseFeedback);
+  const clearShopPurchaseFeedback = useStore((s) => s.clearShopPurchaseFeedback);
+  const streak = useStore((s) => s.streak);
+  const correctedMistakes = useStore((s) => s.correctedMistakes);
+  const recentActivityErrors = useStore((s) => s.recentActivityErrors);
+  const learnedChars = useStore((s) => s.learnedChars);
+  const pearlAudioExposures = useStore((s) => s.pearlAudioExposures);
+  const pearlProductionCount = useStore((s) => s.pearlProductionCount);
+  const lifetimeStats = useStore((s) => s.lifetimeStats);
+  const completedLessons = useStore((s) => s.completedLessons);
+  const lessonStarsById = useStore((s) => s.lessonStarsById);
+  const lessonPendingStars = useStore((s) => s.lessonPendingStars);
+  const monthlyMission = useStore((s) => s.monthlyMission);
 
   const [burst, setBurst] = useState<string | null>(null);
   const [openChestType, setOpenChestType] = useState<ChestType | null>(null);
+  const [showAutoExplain, setShowAutoExplain] = useState(false);
   const location = useLocation();
 
-  // Permite chegar direto nos baús via /loja#baus (hub Meu).
   useEffect(() => {
     const id = location.hash.replace("#", "");
     if (!id) return;
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [location.hash]);
+
+  const pearlProgress = useMemo(() => {
+    const errorsCorrected = Math.max(
+      Object.keys(correctedMistakes ?? {}).length,
+      (recentActivityErrors ?? []).filter((e) => e.correctedAt).length
+    );
+    const month = monthlyMission;
+    const monthProgress =
+      month && MONTHLY_GOAL > 0 ? Math.min(1, (month.completed ?? 0) / MONTHLY_GOAL) : 0;
+    return buildPearlProgress({
+      streak: streak ?? 0,
+      masteredPhaseIds: listMasteredPhaseIds({
+        completedLessons: completedLessons ?? [],
+        lessonStarsById: lessonStarsById ?? {},
+        lessonPendingStars,
+      }),
+      errorsCorrected,
+      hanziLearned: learnedChars?.length ?? 0,
+      audioExposures: Math.max(pearlAudioExposures ?? 0, lifetimeStats?.audioHeard ?? 0),
+      productionCount: Math.max(pearlProductionCount ?? 0, lifetimeStats?.phrasesSpoken ?? 0),
+      monthlyChallengeProgress: monthProgress,
+      monthlyChallengeCompleted: Boolean(month?.claimed || (month?.completed ?? 0) >= MONTHLY_GOAL),
+      monthlyChallengeKey: month?.monthKey ?? monthKey(),
+      claimed: pearlMilestonesClaimed ?? {},
+      dragonPearls,
+      proPassCost: PEARL_PRO_COST,
+    });
+  }, [
+    streak,
+    correctedMistakes,
+    recentActivityErrors,
+    learnedChars,
+    pearlAudioExposures,
+    pearlProductionCount,
+    lifetimeStats,
+    completedLessons,
+    lessonStarsById,
+    lessonPendingStars,
+    monthlyMission,
+    pearlMilestonesClaimed,
+    dragonPearls,
+  ]);
+
+  const towardPro = pearlProgress.pearlsTowardPro;
+  const pearlPassActive = hasActivePearlPro(pearlProExpiresAt);
 
   function flash(message: string, sound: Parameters<typeof playSoundFx>[0] = "qiGain") {
     playSoundFx(sound, soundEffects);
@@ -84,8 +158,21 @@ export function LojaPage() {
     if (result) flash(result.message, item.kind === "qi_pack" ? "qiGain" : "success");
   }
 
+  function toggleAutoActivate() {
+    if (!pearlProAutoActivate && !pearlProAutoExplainSeen) {
+      setShowAutoExplain(true);
+      return;
+    }
+    setPearlProAutoActivate(!pearlProAutoActivate);
+  }
+
+  function confirmAutoActivate() {
+    setPearlProAutoActivate(true);
+    setShowAutoExplain(false);
+  }
+
   return (
-    <HubPage className="relative space-y-5">
+    <HubPage className="relative space-y-4">
       {burst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-claim-float rounded-full bg-[rgb(var(--good)/0.16)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--good))] shadow-lift">
@@ -96,32 +183,99 @@ export function LojaPage() {
 
       <HubHeader
         eyebrow="Loja"
-        title="Gaste Qi com sabedoria"
-        desc="Itens para manter o ritmo — sem pular o aprendizado."
+        title="Qi e Pérolas"
+        desc="Qi no dia a dia. Pérolas em grandes marcos."
         aside={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <div className="flex items-center gap-1.5 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-sm font-semibold text-accent">
               <IconStar width={16} height={16} /> {points}
               <span className="font-normal text-ink-faint">Qi</span>
             </div>
-            {dragonPearls > 0 && (
-              <div className="flex items-center gap-1.5 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-sm font-semibold text-gold">
-                <span aria-hidden>珠</span> {dragonPearls}
-                <span className="font-normal text-ink-faint">Pérolas</span>
-              </div>
-            )}
+            <div className="flex items-center gap-1.5 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-sm font-semibold text-gold">
+              <span aria-hidden>珠</span> {dragonPearls}
+              <span className="font-normal text-ink-faint">Pérolas</span>
+            </div>
           </div>
         }
       />
+
+      <p className="text-xs leading-5 text-ink-faint">
+        {PEARL_ECONOMY_SUMMARY.qi} {PEARL_ECONOMY_SUMMARY.pearls}
+      </p>
+
+      <section
+        aria-label="Pérolas de Jade"
+        className="rounded-xl border border-gold/25 bg-[linear-gradient(135deg,rgb(var(--gold)/0.12),rgb(var(--surface))_55%)] px-3.5 py-3"
+      >
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold text-ink">Pérolas de Jade</h2>
+          <p className="text-lg font-semibold tabular-nums text-gold">
+            {towardPro.current} / {towardPro.cost}
+          </p>
+        </div>
+        {towardPro.needed > 0 ? (
+          <p className="mt-1 text-xs text-ink-soft">
+            Faltam {towardPro.needed} para {PEARL_PRO_COPY.costLabel.replace(`${PEARL_PRO_COST} Pérolas → `, "")}
+          </p>
+        ) : pearlPassActive && pearlProExpiresAt ? (
+          <p className="mt-1 text-xs text-good">Longyu Pro ativo até {formatPearlProUntil(pearlProExpiresAt)}</p>
+        ) : (
+          <p className="mt-1 text-xs text-ink-soft">Saldo suficiente para 7 dias de Longyu Pro.</p>
+        )}
+        {pearlProPendingOffline && (
+          <p className="mt-2 rounded-lg bg-surface-2 px-2.5 py-1.5 text-xs text-ink-soft">
+            Pro pronto para ativar — conecte-se à internet.
+          </p>
+        )}
+
+        <label className="mt-3 flex cursor-pointer items-start gap-2 text-xs leading-5 text-ink-soft">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={pearlProAutoActivate}
+            onChange={toggleAutoActivate}
+          />
+          <span>Ativar 7 dias de Pro automaticamente quando eu chegar a {PEARL_PRO_COST} Pérolas.</span>
+        </label>
+      </section>
+
+      {pearlProgress.upcoming.length > 0 && (
+        <HubSection title="Próximas Pérolas" desc="Marcos reais do seu progresso — cada um só uma vez.">
+          <ul className="space-y-2">
+            {pearlProgress.upcoming.map((goal) => (
+              <li
+                key={goal.milestoneId}
+                className="flex items-center justify-between gap-3 rounded-lg border border-line/50 bg-surface px-3 py-2 text-sm"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-ink">{goal.label}</p>
+                  <p className="text-xs text-ink-faint">
+                    {goal.kind === "monthly_challenge"
+                      ? `${goal.current}%`
+                      : `${goal.current}/${goal.target}`}
+                    {" · "}+{goal.pearls} Pérola{goal.pearls === 1 ? "" : "s"}
+                  </p>
+                </div>
+                <div className="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-surface-2">
+                  <div
+                    className="h-full rounded-full bg-gold"
+                    style={{ width: `${Math.round(goal.proximity * 100)}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </HubSection>
+      )}
 
       <EconomyExplainer isPro={isPremium} context="loja" />
 
       <HubSection
         id="baus"
         title="Seus baús"
-        desc={isPremium ? "Recompensas aleatórias do dragão. No Pro, os baús rendem mais Qi." : "Recompensas aleatórias do dragão."}
+        desc={isPremium ? "Recompensas do dragão. No Pro, rendem mais Qi." : "Recompensas do dragão."}
       >
-        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2">
           {(["small", "dragon", "monthly", "legendary"] as ChestType[]).map((type) => (
             <ChestCard
               key={type}
@@ -139,7 +293,7 @@ export function LojaPage() {
         const meta = CATEGORY_META[category];
         return (
           <HubSection key={category} title={meta.label} desc={meta.desc}>
-            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-2">
               {items.map((item) => (
                 <ShopItemCard
                   key={item.id}
@@ -166,7 +320,107 @@ export function LojaPage() {
       {openChestType && (
         <ChestRewardModal type={openChestType} onClose={() => setOpenChestType(null)} />
       )}
+
+      {lastShopPurchaseFeedback && (
+        <PurchaseFeedbackModal
+          feedback={lastShopPurchaseFeedback}
+          onClose={() => clearShopPurchaseFeedback()}
+        />
+      )}
+
+      {showAutoExplain && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+          <div
+            role="dialog"
+            aria-labelledby="pearl-auto-title"
+            className="w-full max-w-md rounded-2xl border border-line bg-surface p-4 shadow-lift"
+          >
+            <h2 id="pearl-auto-title" className="text-base font-semibold text-ink">
+              Ativação automática
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-ink-soft">{PEARL_PRO_COPY.autoExplain}</p>
+            <p className="mt-2 text-xs text-ink-faint">
+              Você pode desligar depois. Assinantes pagos nunca perdem Pérolas automaticamente.
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Button variant="outline" onClick={() => setShowAutoExplain(false)}>
+                Agora não
+              </Button>
+              <Button onClick={confirmAutoActivate}>Ativar opção</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </HubPage>
+  );
+}
+
+function PurchaseFeedbackModal({
+  feedback,
+  onClose,
+}: {
+  feedback: ShopPurchaseFeedback;
+  onClose: () => void;
+}) {
+  const item = shopItemsByCategory("qi")
+    .concat(shopItemsByCategory("perolas"), shopItemsByCategory("pro"))
+    .find((i) => i.id === feedback.itemId);
+  const currencyLabel = item?.currency === "pearl" ? "Pérolas" : "Qi";
+  const isProPass = item?.kind === "pearl_pro_pass";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+      <div
+        role="dialog"
+        aria-labelledby="purchase-feedback-title"
+        className="w-full max-w-md rounded-2xl border border-line bg-surface p-4 shadow-lift"
+      >
+        <h2 id="purchase-feedback-title" className="text-base font-semibold text-ink">
+          Compra confirmada
+        </h2>
+        <dl className="mt-3 space-y-1.5 text-sm text-ink-soft">
+          <div className="flex justify-between gap-3">
+            <dt>Saldo anterior</dt>
+            <dd className="font-semibold text-ink tabular-nums">
+              {feedback.balanceBefore} {currencyLabel}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt>Preço</dt>
+            <dd className="font-semibold text-ink tabular-nums">
+              −{feedback.cost} {currencyLabel}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt>Saldo restante</dt>
+            <dd className="font-semibold text-ink tabular-nums">
+              {feedback.balanceAfter} {currencyLabel}
+            </dd>
+          </div>
+          <div className="pt-1">
+            <dt className="text-xs text-ink-faint">Benefício</dt>
+            <dd className="mt-0.5 text-ink">{feedback.benefit}</dd>
+          </div>
+          {feedback.durationLabel && (
+            <div className="flex justify-between gap-3">
+              <dt>Duração</dt>
+              <dd className="font-semibold text-ink">{feedback.durationLabel}</dd>
+            </div>
+          )}
+          {isProPass && feedback.expiresAt && (
+            <>
+              <p className="pt-1 text-sm text-good">
+                {feedback.cost} Pérolas usadas · Longyu Pro ativo até {formatPearlProUntil(feedback.expiresAt)}
+              </p>
+              <p className="text-xs text-ink-faint">Anúncios removidos enquanto o pass estiver ativo.</p>
+            </>
+          )}
+        </dl>
+        <Button className="mt-4 w-full" onClick={onClose}>
+          Fechar
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -198,7 +452,7 @@ function ShopItemCard({
     item.iconKey === "chest" ? "small" : item.iconKey === "chest_dragon" ? "dragon" : null;
 
   return (
-    <Card className="flex min-h-40 flex-col rounded-xl border-line/70 p-3 shadow-none">
+    <Card className="flex min-h-36 flex-col rounded-xl border-line/70 p-3 shadow-none">
       <div className="flex items-start justify-between gap-2">
         {chestType ? (
           <LongyuChest type={chestType} state="unlocked" size="sm" title={item.name} />
@@ -211,7 +465,8 @@ function ShopItemCard({
           {count > 0 && !item.cosmetic && item.kind !== "pro_link" && (
             <Pill tone="good">No inventário: {count}</Pill>
           )}
-          {item.pro && <Pill tone="accent">Preview</Pill>}
+          {item.pro && item.kind !== "pearl_pro_pass" && <Pill tone="accent">Pro</Pill>}
+          {item.kind === "pearl_pro_pass" && <Pill tone="accent">7 dias</Pill>}
         </div>
       </div>
 
@@ -222,7 +477,7 @@ function ShopItemCard({
         <p className="mt-2 text-xs leading-5 text-ink-faint">{item.usageHint}</p>
       )}
 
-      <div className="mt-auto pt-4">
+      <div className="mt-auto pt-3">
         {item.kind !== "pro_link" && (
           <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-accent">
             <IconStar width={15} height={15} />
@@ -243,13 +498,14 @@ function ShopItemCard({
             <Button size="sm" className="w-full" disabled={!canBuy} onClick={onBuy}>
               {insufficient ? (
                 <>
-                  <IconLock width={14} height={14} /> {currencyLabel === "Qi" ? "Qi insuficiente" : "Pérolas insuficientes"}
+                  <IconLock width={14} height={14} />{" "}
+                  {currencyLabel === "Qi" ? "Qi insuficiente" : "Pérolas insuficientes"}
                 </>
               ) : (
                 "Comprar"
               )}
             </Button>
-            {item.usableInShop && count > 0 && (
+            {item.usableInShop && count > 0 && item.kind !== "pearl_pro_pass" && (
               <Button size="sm" variant="soft" className="w-full" onClick={onUse}>
                 Usar {count > 1 ? `(${count})` : ""}
               </Button>
