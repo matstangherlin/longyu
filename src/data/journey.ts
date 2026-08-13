@@ -54,7 +54,14 @@ export type StepKind =
   // ——— Motores de produção e sobrevivência (src/data/productionTasks.ts) ———
   | "free_production"
   | "transfer_task"
-  | "conversation_repair";
+  | "conversation_repair"
+  // ——— Pedagogia V3 — tarefas com ganho cognitivo distinto (mastery loop) ———
+  | "contextual_choice"
+  | "audio_to_action"
+  | "sentence_transform"
+  | "substitution_drill"
+  | "dialogue_completion"
+  | "reverse_recall";
 
 export type {
   ConversationCharacter,
@@ -399,6 +406,11 @@ export interface Lesson {
   isReview?: boolean;
   /** Conteúdo Longyu Pro — requer assinatura ou preview nas configurações. */
   premium?: boolean;
+  /**
+   * Pedagogia V3 — lição participa do Mastery Loop (múltiplos passes 1–4).
+   * Piloto: cumprimentos, restaurante, lugares/transporte.
+   */
+  masteryLoop?: boolean;
   /** Ciclo pedagógico interno. Se omitido, o app gera Apresentar → Reconhecer → Montar → Usar → Fixar. */
   lessonStages?: LessonStage[];
   steps: LessonStep[];
@@ -2226,7 +2238,8 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l2",
             title: "Olá",
             skill: "fala",
-            libraryItems: ["chunk:nihao", "char:ni", "char:hao", "char:ren"],
+            masteryLoop: true,
+            libraryItems: ["chunk:nihao", "char:ni", "char:hao", "char:ren", "char:wo", "chunk:wojiao"],
             reviewItems: ["chunk:nihao", "char:ni", "char:hao"],
             steps: [
               listen("你好", "nǐ hǎo", "Olá"),
@@ -2273,6 +2286,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l3",
             title: "Tudo bem?",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:nine", "char:wo"],
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:nine"],
             steps: [
@@ -4586,6 +4600,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "No cardápio",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆"],
             libraryItems: [
               "char:fan_rice",
@@ -4594,13 +4609,23 @@ export const JOURNEY: JourneyPhase[] = [
               "char:yu_fish",
               "char:he_drink",
               "char:e_hungry",
+              "char:shui",
+              "char:cha_tea",
+              "char:yao",
+              "char:chi_eat",
               "chunk:woyaofan",
               "chunk:woyaocai",
               "chunk:woyaorou",
               "chunk:woyaoyu",
               "chunk:woxiangheshui",
+              "chunk:woyaoshui",
               "chunk:womenchifanba",
               "chunk:woele",
+              "chunk:caidan",
+              "chunk:fanguan",
+              "chunk:yibeicha",
+              "chunk:maidan",
+              "chunk:duoshaoqian",
             ],
             reviewItems: [
               "char:fan_rice",
@@ -4646,6 +4671,11 @@ export const JOURNEY: JourneyPhase[] = [
               flash("woyaorou"),
               flash("woyaoyu"),
               flash("woxiangheshui"),
+              flash("woyaoshui"),
+              flash("caidan"),
+              flash("fanguan"),
+              flash("yibeicha"),
+              flash("maidan"),
               listen("我要饭", "wǒ yào fàn", "Quero arroz."),
               listen("我要菜", "wǒ yào cài", "Quero verdura."),
               listen("我想喝水", "wǒ xiǎng hē shuǐ", "Quero beber água."),
@@ -4966,6 +4996,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Cidade e lugares",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
             newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场"],
             libraryItems: [
@@ -5975,6 +6006,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: na estação",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
             newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店"],
             libraryItems: [

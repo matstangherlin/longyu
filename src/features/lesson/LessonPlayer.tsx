@@ -85,7 +85,10 @@ import {
   type LessonRoundStep,
   lessonRoundStepsFor,
   lessonTasksFor,
+  resolveMasteryPassForContext,
 } from "./lessonTasks";
+import { dimensionForStepKind, isProductionOrTransferKind } from "../../data/masteryLoop";
+import { isMasteryPilotLesson } from "../../data/masteryPilot";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
@@ -147,6 +150,12 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "free_production",
   "transfer_task",
   "conversation_repair",
+  "contextual_choice",
+  "audio_to_action",
+  "sentence_transform",
+  "substitution_drill",
+  "dialogue_completion",
+  "reverse_recall",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -1580,6 +1589,9 @@ export function LessonPlayer() {
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
   const completeLesson = useStore((s) => s.completeLesson);
+  const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
+  const lessonMasteryById = useStore((s) => s.lessonMasteryById);
+  const itemDimensionsByRef = useStore((s) => s.itemDimensionsByRef);
   const addChest = useStore((s) => s.addChest);
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
@@ -1769,6 +1781,7 @@ export function LessonPlayer() {
     const gen = ++planGenRef.current;
     startTransition(() => {
       if (gen !== planGenRef.current) return;
+      const masteryRecord = lessonMasteryById?.[foundLesson.id];
       const planned = lessonRoundStepsFor(
         { ...foundLesson, steps: authoredEnrichedSteps },
         {
@@ -1782,6 +1795,9 @@ export function LessonPlayer() {
           recentConversationIntentIds,
           conversationHistory,
           attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
+          masteryLevel: masteryRecord?.level ?? 0,
+          recoveryPending: masteryRecord?.recoveryPending,
+          itemDimensionsByRef,
         }
       );
       if (gen !== planGenRef.current) return;
@@ -1799,9 +1815,11 @@ export function LessonPlayer() {
     conversationHistory,
     foundLesson,
     hanziBuilderProgress,
+    itemDimensionsByRef,
     learnedChars,
     learnedChunks,
     lessonAttemptsById,
+    lessonMasteryById,
     recentActivityErrors,
     recentConversationIntentIds,
     recentConversationSceneIds,
@@ -3124,6 +3142,41 @@ export function LessonPlayer() {
       }
       completeLesson(lesson.id);
       void completeReferralLessonAttestation(lesson.id);
+      if (lesson.masteryLoop || isMasteryPilotLesson(lesson.id)) {
+        const masteryPass =
+          (lesson.steps as LessonRoundStep[]).find((step) => step.masteryPass)?.masteryPass ??
+          resolveMasteryPassForContext(lesson, {
+            masteryLevel: lessonMasteryById?.[lesson.id]?.level ?? 0,
+            recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
+          }) ??
+          1;
+        const gradedCount = Math.max(1, graded);
+        const accuracy = Math.max(0, Math.min(1, finalCorrect / gradedCount));
+        const dimensionUpdates: Array<{
+          ref: string;
+          dimension: NonNullable<ReturnType<typeof dimensionForStepKind>>;
+          correct: boolean;
+        }> = [];
+        for (const step of lesson.steps as LessonRoundStep[]) {
+          const dim = dimensionForStepKind(step.kind);
+          const ref = step.chunkId
+            ? `chunk:${step.chunkId}`
+            : step.charId
+              ? `char:${step.charId}`
+              : lesson.libraryItems?.[0];
+          if (!dim || !ref) continue;
+          dimensionUpdates.push({ ref, dimension: dim, correct: accuracy >= 0.7 });
+        }
+        recordLessonMasteryPass(lesson.id, {
+          pass: masteryPass,
+          accuracy,
+          mistakeCount: activityErrorsRef.current.length,
+          hadProductionOrTransfer: (lesson.steps as LessonRoundStep[]).some((step) =>
+            isProductionOrTransferKind(step.kind)
+          ),
+          dimensionUpdates: dimensionUpdates.slice(0, 12),
+        });
+      }
       // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
       if (stars === 3 && folegoSkips === 0 && !hadRealMistakes) {
         tryEarnFolegoFromPerfect();

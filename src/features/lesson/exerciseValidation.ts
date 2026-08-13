@@ -54,6 +54,12 @@ const KNOWN_KINDS: StepKind[] = [
   "free_production",
   "transfer_task",
   "conversation_repair",
+  "contextual_choice",
+  "audio_to_action",
+  "sentence_transform",
+  "substitution_drill",
+  "dialogue_completion",
+  "reverse_recall",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -358,12 +364,45 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     }
 
     case "dialogue_choice":
-      if (!step.dialoguePrompt?.trim() && !step.prompt?.trim()) {
-        errors.push("dialogue_choice sem fala/contexto");
+    case "contextual_choice":
+    case "dialogue_completion":
+    case "audio_to_action":
+      if (!step.dialoguePrompt?.trim() && !step.prompt?.trim() && !step.situationPt?.trim() && !step.audioText?.trim()) {
+        errors.push(`${step.kind} sem fala/contexto`);
       }
-      checkChoice(errors, "dialogue_choice", step.correctAnswer ?? step.answer, step.options);
+      checkChoice(errors, step.kind, step.correctAnswer ?? step.answer, step.options);
       checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
+
+    case "sentence_transform": {
+      if (!step.sourceText?.trim()) errors.push("sentence_transform sem sourceText");
+      const parts = step.targetParts ?? [];
+      if (parts.length === 0) errors.push("sentence_transform sem targetParts");
+      const bank = step.bank ?? [];
+      for (const piece of parts) {
+        if (!bank.some((candidate) => normalize(candidate) === normalize(piece))) {
+          errors.push(`sentence_transform: banco não contém a peça "${piece}"`);
+        }
+      }
+      break;
+    }
+
+    case "substitution_drill": {
+      if (!step.blankAnswer?.trim()) errors.push("substitution_drill sem blankAnswer");
+      if (!step.sentenceBefore?.trim() && !step.prompt?.trim()) {
+        errors.push("substitution_drill sem padrão/contexto");
+      }
+      if (step.options?.length) {
+        checkChoice(errors, "substitution_drill", step.blankAnswer, step.options);
+      }
+      break;
+    }
+
+    case "reverse_recall": {
+      if (!step.situationPt?.trim() && !step.body?.trim()) errors.push("reverse_recall sem situação");
+      if (!step.answer?.trim()) errors.push("reverse_recall sem resposta");
+      break;
+    }
 
     case "conversation_scene": {
       if (!step.sceneId?.trim()) errors.push("conversation_scene sem sceneId");

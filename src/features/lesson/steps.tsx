@@ -4786,7 +4786,28 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
           />
         );
       case "fill_blank": return <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "dialogue_choice": return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "dialogue_choice":
+      case "contextual_choice":
+      case "dialogue_completion":
+      case "audio_to_action":
+        return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "sentence_transform":
+        return (
+          <StepSentenceBuild
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
+      case "substitution_drill":
+        return step.options?.length
+          ? <StepDialogueChoice step={{ ...personalizedStep, kind: "dialogue_choice", correctAnswer: personalizedStep.blankAnswer, dialoguePrompt: personalizedStep.prompt ?? personalizedStep.sentenceBefore }} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />
+          : <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "reverse_recall":
+        return <StepWrite step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "hanzi_build":
         return (

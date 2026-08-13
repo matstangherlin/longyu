@@ -4,18 +4,18 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
+| Commit | 31391f1ace978c314fad736d9b5bb111831d9601 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:49:17.571Z |
+| Gerado em | 2026-08-13T23:05:01.331Z |
 | Lições | 123 |
-| Hash da Jornada | 074d1aa525cf |
+| Hash da Jornada | 097e4a23fa3e |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Lições analisadas | 123 |
-| Score médio | 92 (portão: ≥ 78) |
+| Score médio | 93 (portão: ≥ 78) |
 | Lições abaixo do portão (comum < 60 · revisão < 70) | 0 |
 | Revisões de módulo < 78 | 0 |
 
@@ -716,10 +716,10 @@
 |---------|------:|
 | Passos no plano | 14 |
 | Tipos de exercício | 11 |
-| Respostas únicas | 9 |
-| Hànzì únicos | 32 |
+| Respostas únicas | 10 |
+| Hànzì únicos | 30 |
 | Chunks únicos | 11 |
-| Frases reais | 8 |
+| Frases reais | 9 |
 | Contexto | 10 |
 | Visuais | 1 |
 | Conversas | 1 |
@@ -728,28 +728,6 @@
 
 **Problemas:**
 - hànzì muito repetido: 水, 我
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### p6-horarios — Que horas são? (score 89)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 14 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 10 |
-| Hànzì únicos | 30 |
-| Chunks únicos | 11 |
-| Frases reais | 7 |
-| Contexto | 10 |
-| Visuais | 1 |
-| Conversas | 1 |
-| Produção sem apoio | 2 |
-| Transferência | 0 |
-
-**Problemas:**
-- hànzì muito repetido: 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1289,9 +1267,9 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 10 |
 | Respostas únicas | 12 |
-| Hànzì únicos | 30 |
+| Hànzì únicos | 29 |
 | Chunks únicos | 13 |
-| Frases reais | 9 |
+| Frases reais | 10 |
 | Contexto | 10 |
 | Visuais | 1 |
 | Conversas | 1 |
@@ -1552,9 +1530,9 @@
 |---------|------:|
 | Passos no plano | 13 |
 | Tipos de exercício | 12 |
-| Respostas únicas | 7 |
-| Hànzì únicos | 13 |
-| Chunks únicos | 4 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 14 |
+| Chunks únicos | 3 |
 | Frases reais | 4 |
 | Contexto | 6 |
 | Visuais | 2 |
@@ -1620,7 +1598,7 @@
 | Tipos de exercício | 9 |
 | Respostas únicas | 8 |
 | Hànzì únicos | 26 |
-| Chunks únicos | 13 |
+| Chunks únicos | 19 |
 | Frases reais | 9 |
 | Contexto | 9 |
 | Visuais | 1 |
@@ -1633,6 +1611,28 @@
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p6-horarios — Que horas são? (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 14 |
+| Tipos de exercício | 11 |
+| Respostas únicas | 11 |
+| Hànzì únicos | 29 |
+| Chunks únicos | 11 |
+| Frases reais | 8 |
+| Contexto | 10 |
+| Visuais | 1 |
+| Conversas | 1 |
+| Produção sem apoio | 2 |
+| Transferência | 0 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
 
 ### p6-compras — Compras: roupas e itens (score 97)
 
@@ -1880,20 +1880,20 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 22 |
+| Passos no plano | 23 |
 | Tipos de exercício | 11 |
-| Respostas únicas | 15 |
-| Hànzì únicos | 14 |
+| Respostas únicas | 16 |
+| Hànzì únicos | 17 |
 | Chunks únicos | 6 |
-| Frases reais | 11 |
-| Contexto | 13 |
+| Frases reais | 12 |
+| Contexto | 14 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 0 |
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 好, 谢
+- hànzì muito repetido: 你, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2566,7 +2566,7 @@
 | Tipos de exercício | 11 |
 | Respostas únicas | 9 |
 | Hànzì únicos | 35 |
-| Chunks únicos | 11 |
+| Chunks únicos | 12 |
 | Frases reais | 9 |
 | Contexto | 10 |
 | Visuais | 1 |
@@ -2575,7 +2575,7 @@
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 要
+- hànzì muito repetido: 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2609,9 +2609,9 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 28 |
+| Hànzì únicos | 27 |
 | Chunks únicos | 14 |
-| Frases reais | 8 |
+| Frases reais | 9 |
 | Contexto | 10 |
 | Visuais | 1 |
 | Conversas | 1 |
@@ -2619,7 +2619,7 @@
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 气, 我
+- hànzì muito repetido: 气
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2739,4 +2739,4 @@
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:2385bb340d9ad05c -->
+<!-- integridade:6f8e9ed020d29c79 -->
