@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ee6ccccd0b06aab93b01646a1cebf6d022efb79f |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T23:32:30.528Z |
+| Gerado em | 2026-08-13T07:43:05.861Z |
 | Lições | 123 |
-| Hash da Jornada | 4a56ec34a066 |
+| Hash da Jornada | 187bc767e00a |
 
 ## Resumo
 
@@ -22,8 +22,8 @@
 | Vocabulário total exibido (refs únicas no plano real) | 82 |
 | Vocabulário coberto por tarefas posteriores (plano ou SRS) | 82 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 12.06 |
+| Palavras novas (refs únicas) | 4 |
+| Média de reutilizações por ref exibida | 12.62 |
 
 ## Cenas mais curtas
 
@@ -53,15 +53,15 @@
 | Cena | Usos |
 |------|-----:|
 | revisao-cumprimento-completo | 12 |
-| encontro-amanha | 9 |
+| encontro-amanha | 11 |
+| cortesia-loja | 10 |
 | nao-falo-chinês | 9 |
-| cortesia-loja | 9 |
 | conversa-em-casa | 8 |
 | perguntando-se-esta-bem | 7 |
 | como-se-chama | 7 |
 | fale-de-novo | 7 |
 | pedir-agua | 7 |
-| agradecendo | 6 |
+| sala-de-aula | 6 |
 
 ## Cenas por cenário
 
@@ -133,4 +133,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:5b1a78fcbff327a4 -->
+<!-- integridade:96cd643bb706da7c -->

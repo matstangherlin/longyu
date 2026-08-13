@@ -179,6 +179,12 @@ export interface LessonStep {
   dialoguePrompt?: string;
   correctAnswer?: string;
   explanation?: string;
+  /** PED-013 — nível do "Qual não pertence?" (1 explícito → 3 inferência). */
+  oddOneOutLevel?: 1 | 2 | 3;
+  /** Rótulo do grupo semântico (não VocabDomain). */
+  groupLabelPt?: string;
+  /** Metadados por opção (pinyin/significado) para apoio no nível 1. */
+  optionMeta?: Record<string, { pinyin?: string; meaningPt?: string }>;
   /** Controle granular de ajuda contextual em hanzi/palavras/frases. */
   helpMode?: StepHelpMode;
   /** Pergunta sem dica: hover/toque mostra aviso neutro, sem pinyin/traducao. */
@@ -834,7 +840,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     title: "O que é tom?",
     skill: "som",
     libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2", "chunk:nihao"],
+    reviewItems: ["char:ma2"],
     steps: [
       intro(
         "A curva da voz",
@@ -1141,14 +1147,14 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     title: "1º tom com ma",
     skill: "som",
     libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2", "char:shan", "chunk:nihaoma"],
+    reviewItems: ["char:ma2", "char:shan"],
     steps: [
       intro("Alto e reto", "O 1º tom fica alto e constante. Em 妈 mā, pense em uma linha reta no alto."),
       listen("妈", "mā", "mãe"),
       tone("妈", "mā", 1, "quiz"),
       listen("山", "shān", "montanha (também 1º tom)"),
       tone("山", "shān", 1, "quiz"),
-      comp("山", "shān", "montanha", ["montanha", "mãe", "cavalo", "olá"]),
+      comp("山", "shān", "montanha", ["montanha", "mãe", "cavalo", "água"]),
       fillBlank(
         "A mesma sílaba, sem tom",
         "Complete a pergunta que você já conhece: tudo bem?",
@@ -1156,7 +1162,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
         "吗",
         "？",
         ["吗", "妈"],
-        "吗 é a sílaba ma SEM contorno (tom neutro) — compare com 妈 mā, alta e reta."
+        "吗 é a sílaba ma SEM contorno (tom neutro) — compare com 妈 mā, alta e reta. O 你好 já conhecido só ancora o contraste."
       ),
       dialogue("Contorno", "Qual descrição combina com o 1º tom?", "alto e reto", ["alto e reto", "cai rápido", "sobe", "desce e sobe"], "O 1º tom fica alto e constante.", "Escolha"),
     ],
@@ -2364,13 +2370,13 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Até logo",
             skill: "fala",
             libraryItems: ["chunk:zaijian"],
-            reviewItems: ["chunk:zaijian", "chunk:nihao"],
+            reviewItems: ["chunk:zaijian"],
             steps: [
               listen("再见", "zàijiàn", "Até logo"),
               listenSelect(
                 "Ouça a despedida",
                 "再见",
-                ["你好", "谢谢", "再见", "不客气"],
+                ["明天见", "谢谢", "再见", "我很好"],
                 "再见",
                 "再见 fecha a conversa."
               ),
@@ -2387,18 +2393,16 @@ export const JOURNEY: JourneyPhase[] = [
                 "Hora de ir",
                 "Você vai embora. O que combina dizer?",
                 "再见",
-                ["再见", "你好", "谢谢", "不客气"],
+                ["再见", "明天见", "谢谢", "我很好"],
                 "再见 fecha a conversa: até logo."
               ),
               conversationScene("despedida"),
-              fillBlank(
-                "Volte ao cumprimento",
-                "Antes de sair, você ainda pode dizer ___ para cumprimentar.",
-                "",
-                "你好",
-                "",
-                ["你好", "再见", "谢谢", "不客气"],
-                "你好 continua sendo a saudação base."
+              dialogue(
+                "Despedida vs. cumprimento",
+                "Alguém chega. Você usa 你好. Alguém vai embora. Você usa…",
+                "再见",
+                ["再见", "谢谢", "不客气", "我很好"],
+                "Mesmo núcleo social, função nova: 再见 encerra; a manutenção de 你好 fica na revisão/SRS."
               ),
             ],
           },
@@ -2443,8 +2447,8 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-qingwen-cortesia",
             title: "Com licença",
             skill: "fala",
-            libraryItems: ["chunk:qingwen", "chunk:qingwen_nihaoma", "chunk:nihao", "chunk:nihaoma"],
-            reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:qingwen"],
+            libraryItems: ["chunk:qingwen", "chunk:qingwen_nihaoma", "chunk:nihaoma"],
+            reviewItems: ["chunk:qingwen", "chunk:nihaoma"],
             estimatedMinutes: 3,
             steps: [
               listen("请问", "qǐng wèn", "Com licença, posso perguntar?"),
@@ -2468,9 +2472,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "Monte a abertura: com licença + tudo bem?",
                 ["请问", "你好吗"],
                 ["请问", "你好吗", "谢谢", "再见"],
-                "请问 + 你好吗？ reutiliza o cumprimento em contexto novo."
+                "请问 + 你好吗？ reutiliza o cumprimento em estrutura nova (pedido de licença)."
               ),
-              produce(["你", "好"], ["你", "好", "请", "问"], "Olá — revisão rápida"),
+              produce(["请", "问"], ["你", "好", "请", "问"], "Com licença — foco na abertura nova"),
             ],
           }),
           review("l2-rev", "fala", [

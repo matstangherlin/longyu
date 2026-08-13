@@ -101,7 +101,7 @@ export async function assertElementInViewport(
     };
   }, tolerancePx);
   expect(box.height).toBeGreaterThan(20);
-  expect(box.inView).toBe(true);
+  expect(box.inView, JSON.stringify(box)).toBe(true);
 }
 
 /** Revisão: sem spill horizontal; topo ancorado; scroll da página bloqueado. */
@@ -304,8 +304,10 @@ export async function advanceUntilSelector(
   page: Page,
   selector: string,
   maxSteps = 45,
-  timeoutMs = 120_000
+  timeoutMs = 120_000,
+  options: { allowSkip?: boolean } = {}
 ): Promise<boolean> {
+  const allowSkip = options.allowSkip ?? true;
   const target = page.locator(selector);
   const deadline = Date.now() + timeoutMs;
   let steps = 0;
@@ -317,7 +319,7 @@ export async function advanceUntilSelector(
     ) {
       return false;
     }
-    const skipped = await clickFirstVisible(page, [/^Pular/]);
+    const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;
     if (!skipped) {
       const advanced = await advanceOneStep(page);
       if (!advanced) await page.waitForTimeout(180);
@@ -386,13 +388,38 @@ export async function assertBankAboveSticky(page: Page) {
   await expect(sticky).toBeVisible();
   await expect(bank).toBeVisible();
 
-  // Garante que a última peça cabe acima do sticky (via scroll interno se preciso).
+  await expect.poll(async () => page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (!stickyEl || !scroller) return Number.POSITIVE_INFINITY;
+    const reserved = Number.parseFloat(
+      getComputedStyle(scroller).getPropertyValue("--lesson-sticky-actions-height")
+    );
+    return Math.abs(reserved - stickyEl.getBoundingClientRect().height);
+  })).toBeLessThanOrEqual(2);
+  // Garante que a última peça realmente chega acima do sticky, não apenas que
+  // ainda existe scroll teórico disponível.
   const lastPiece = bank.locator("button").last();
   await lastPiece.scrollIntoViewIfNeeded();
+  await page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    const last = document.querySelector("[data-assembly-bank] button:last-of-type") as HTMLElement | null;
+    if (!stickyEl || !scroller || !last) return;
+    const overlap = last.getBoundingClientRect().bottom - stickyEl.getBoundingClientRect().top;
+    if (overlap > -8) scroller.scrollBy({ top: overlap + 12, behavior: "auto" });
+  });
+
+  await expect.poll(async () => page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const last = document.querySelector("[data-assembly-bank] button:last-of-type") as HTMLElement | null;
+    if (!stickyEl || !last) return Number.NEGATIVE_INFINITY;
+    return stickyEl.getBoundingClientRect().top - last.getBoundingClientRect().bottom;
+  })).toBeGreaterThanOrEqual(0);
+
   const geometry = await page.evaluate(() => {
     const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
     const bankEl = document.querySelector("[data-assembly-bank]") as HTMLElement | null;
-    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
     const last = bankEl?.querySelector("button:last-of-type") as HTMLElement | null;
     if (!stickyEl || !last) return { ok: false, reason: "missing nodes" };
     const sr = stickyEl.getBoundingClientRect();
@@ -401,19 +428,29 @@ export async function assertBankAboveSticky(page: Page) {
     // Peça acima do topo do sticky, ou scroller consegue trazê-la acima.
     const aboveSticky = lr.bottom <= sr.top + 2;
     const stickyInView = sr.top < vv && sr.bottom > 0;
-    const canScrollMore = Boolean(scroller && scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 2);
     return {
-      ok: (aboveSticky || canScrollMore) && stickyInView,
+      ok: aboveSticky && stickyInView,
       aboveSticky,
       stickyInView,
-      canScrollMore,
       lastBottom: lr.bottom,
       stickyTop: sr.top,
       vv,
     };
   });
   expect(geometry.ok, JSON.stringify(geometry)).toBe(true);
-  await assertPrimaryCtaInViewport(page);
+  const cta = sticky.locator("button:visible").first();
+  await cta.scrollIntoViewIfNeeded();
+  await cta.evaluate((element) => {
+    const scroller = element.closest("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (!scroller) return;
+    const rect = element.getBoundingClientRect();
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    if (rect.top < 4) scroller.scrollBy({ top: rect.top - 4, behavior: "auto" });
+    else if (rect.bottom > viewportHeight - 4) {
+      scroller.scrollBy({ top: rect.bottom - viewportHeight + 4, behavior: "auto" });
+    }
+  });
+  await assertElementInViewport(cta);
 }
 
 export async function openOpenProductionStep(page: Page) {
@@ -423,25 +460,12 @@ export async function openOpenProductionStep(page: Page) {
   await page.goto("/licao/l26b/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  const openCopy = page.getByText(/Diga do seu jeito|Você escolhe/i).first();
-  const deadline = Date.now() + 120_000;
-  let steps = 0;
-  while (!(await openCopy.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {
-    steps += 1;
-    await dismissBlockingOverlays(page);
-    if (
-      await page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i }).isVisible().catch(() => false)
-    ) {
-      break;
-    }
-    const skipped = await clickFirstVisible(page, [/^Pular/]);
-    if (!skipped) {
-      const advanced = await advanceOneStep(page);
-      if (!advanced) await page.waitForTimeout(180);
-    } else {
-      await page.waitForTimeout(120);
-    }
-  }
-  await expect(openCopy).toBeVisible({ timeout: 5_000 });
+  // Mesmo padrão da transferência: avançar até o seletor estável.
+  // Não preferir "Pular" — isso saltava a conversa e o degrau aberto.
+  const ok = await advanceUntilSelector(page, '[data-production-assist="open"]', 80, 150_000, {
+    allowSkip: false,
+  });
+  expect(ok).toBe(true);
+  await expect(page.getByText(/Diga do seu jeito|Você escolhe/i).first()).toBeVisible();
   await expect(page.locator('[data-production-step="free_production"]')).toBeVisible();
 }

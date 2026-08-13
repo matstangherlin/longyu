@@ -5,6 +5,7 @@ import { IconFlame, IconShield, IconStar, IconUser } from "../ui/Icon";
 import { BrandWordmark } from "./Brand";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useIsPro } from "../../lib/proAccess";
+import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 
 function StatPill({
   to,
@@ -40,6 +41,7 @@ function StatPill({
 }
 
 export function TopBar() {
+  const headerRef = useMeasuredHeightCssVar<HTMLElement>("--app-header-height");
   const streak = useStore((s) => s.streak);
   const points = useStore((s) => s.points);
   const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
@@ -50,7 +52,11 @@ export function TopBar() {
   const { signOut, canSignOut } = useCloudSignOut();
 
   return (
-    <header className="sticky top-0 z-20 flex min-h-14 items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 backdrop-blur-md sm:px-5">
+    <header
+      ref={headerRef}
+      data-app-header
+      className="sticky top-0 z-20 flex min-h-[var(--app-header-height)] items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 pt-[var(--app-safe-top)] backdrop-blur-md sm:px-5"
+    >
       <div className="min-w-0 shrink lg:hidden">
         <Link to="/jornada" aria-label="Longyu" className="flex min-h-11 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
           <BrandWordmark className="text-[1.2rem] sm:text-[1.3rem]" />

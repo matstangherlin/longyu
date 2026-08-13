@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ee6ccccd0b06aab93b01646a1cebf6d022efb79f |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T23:32:19.590Z |
+| Gerado em | 2026-08-13T07:42:41.244Z |
 | Lições | 123 |
-| Hash da Jornada | 4a56ec34a066 |
+| Hash da Jornada | 187bc767e00a |
 
 ## Resumo
 
@@ -48,14 +48,14 @@
 
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
-| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 2 |
-| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 7 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 3 |
+| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 3 |
+| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 5 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
-| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 10 |
-| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 5 |
-| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 9 |
+| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 3 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 9 |
+| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
+| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 10 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
 | nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
@@ -69,8 +69,8 @@
 | apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 2 |
 | sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
 | pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 0 |
-| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 7 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 10 |
+| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 11 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 0 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 8 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:e5f4a8c29b3d7f81 -->
+<!-- integridade:f5c403af90f3d062 -->

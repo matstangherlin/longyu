@@ -417,7 +417,7 @@ export function JourneyPage() {
 
       {lockedHint && (
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.6rem)] z-40 flex justify-center px-4 lg:bottom-8"
+          className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--app-bottom-nav-height)+1rem)] z-40 flex justify-center px-4 lg:bottom-8"
         >
           <div className="animate-pop rounded-full bg-ink px-4 py-2 text-sm font-medium text-bg shadow-lift">
             {lockedHint}

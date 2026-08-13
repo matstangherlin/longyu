@@ -36,10 +36,7 @@ import {
 } from "./lesson-player-mobile-helpers";
 
 /** B001 — sentence_build denso: StickyActionBar não cobre a última fileira. */
-for (const viewport of [
-  { label: "Android 360×640", width: 360, height: 640 },
-  { label: "iPhone 390×844", width: 390, height: 844 },
-] as const) {
+for (const viewport of MOBILE_VIEWPORTS) {
   test.describe(`B001 StickyActionBar × sentence_build — ${viewport.label}`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 

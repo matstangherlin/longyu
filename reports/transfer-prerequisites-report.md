@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 944a2614a5d0b1d928dc643f7d45fd887375faeb |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T19:11:48.371Z |
+| Gerado em | 2026-08-13T07:44:30.923Z |
 | Lições | 123 |
-| Hash da Jornada | b781403be692 |
+| Hash da Jornada | 187bc767e00a |
 
 ## Política
 
@@ -34,7 +34,7 @@
 | Frame | Padrão | Exposta | Guided | Transfer |
 |-------|--------|---------|--------|----------|
 | `frame_woyao` | 我要 ___ | l26b | l26b | l10-rev |
-| `frame_woxianghe` | 我想喝 ___ | l26 | l26 | l29 |
+| `frame_woxianghe` | 我想喝 ___ | l26 | l26 | p6-direcoes |
 | `frame_zainali` | ___ 在哪里？ | l25 | — | — |
 | `frame_qingwenzainali` | 请问，___ 在哪里？ | l25 | — | — |
 | `frame_woxiangchi` | 我想吃 ___ | — | — | — |
@@ -42,7 +42,7 @@
 | `frame_duoshaoqian` | ___ 多少钱？ | p6-compras | — | — |
 | `frame_woyouge` | 我有 ___ 个 ___ | l22 | l22 | l23 |
 | `frame_woxihuan` | 我喜欢 ___ | l26 | — | — |
-| `frame_woqu` | 我去 ___ | p6-cidade-lugares | p6-clima | p6-direcoes |
+| `frame_woqu` | 我去 ___ | p6-cidade-lugares | p6-compras | l30 |
 | `frame_woyaomai` | 我要买 ___ | p6-compras | — | — |
 | `frame_niyao` | 你要 ___ | — | — | — |
 | `frame_niyaoma` | 你要 ___ 吗？ | l26b | — | — |
@@ -51,16 +51,16 @@
 | `frame_huijia_action` | 我回家 ___ | p7-imersao-casa-amigo | — | — |
 | `frame_zuofeijiqu` | 我坐飞机去 ___ | — | — | — |
 | `frame_wozai` | 我在 ___ | l11-falo-pouco | l11-falo-pouco | l26b |
-| `frame_wo_le` | 我 ___ 了 | l26 | p6-direcoes | l11-rev |
+| `frame_wo_le` | 我 ___ 了 | l26 | p6-direcoes | p6-compras |
 
 ## Primeiras transferências (por frame)
 
 - **l23** · `frame_woyouge` · guided · `我有五个朋友。`
 - **l26b** · `frame_wozai` · guided · `我在吃饭。`
-- **p6-direcoes** · `frame_woqu` · guided · `我今天去银行。`
+- **p6-direcoes** · `frame_woxianghe` · guided · `我想喝热水。`
+- **p6-compras** · `frame_wo_le` · guided · `我回家了。`
 - **l10-rev** · `frame_woyao` · guided · `我要苹果。`
-- **l29** · `frame_woxianghe` · guided · `我想喝牛奶。`
-- **l11-rev** · `frame_wo_le` · guided · `我睡觉了。`
+- **l30** · `frame_woqu` · guided · `我明天去医院。`
 
 ## Primeiras free_production guiadas
 
@@ -68,14 +68,14 @@
 - **l22** · `frame_woyouge` · `我有三个朋友。`
 - **l26** · `frame_woxianghe` · `我想喝水。`
 - **l26b** · `frame_woyao` · `我要鱼。`
-- **p6-clima** · `frame_woqu` · `我去超市。`
 - **p6-direcoes** · `frame_wo_le` · `我饿了。`
+- **p6-compras** · `frame_woqu` · `我去超市。`
 
 ## Primeiras produções abertas
 
 - **l26b** · objetivo `request_item` · modelo `我想吃肉。`
 - **l27** · objetivo `state_ongoing` · modelo `我在吃饭。`
+- **p6-compras** · objetivo `state_change` · modelo `我饿了。`
 - **l10-rev** · objetivo `state_destination` · modelo `我去超市。`
-- **l29** · objetivo `state_change` · modelo `我饿了。`
 
-<!-- integridade:3e9d83ec6432ee64 -->
+<!-- integridade:4a5b6d4e2d817272 -->

@@ -71,8 +71,12 @@ import {
   dictationModeForPhase,
   minimalPairsFor,
   oddOneOutSetsFor,
+  oddOneOutLevelForPhase,
+  oddOneOutPromptForLevel,
+  oddOneOutExplanation,
   spotErrorDrillsFor,
 } from "../../data/perceptionDrills";
+import { seededShuffleAvoidingOrder } from "../../lib/seededShuffle";
 import {
   FRAME_TASKS,
   SENTENCE_FRAMES,
@@ -1311,6 +1315,48 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   };
 }
 
+function isGreetingFocusedLesson(lesson: Lesson): boolean {
+  const id = lesson.id.toLocaleLowerCase("pt-BR");
+  if (id.includes("nihao") || id.includes("cumpriment") || id.includes("conversa") || id.includes("cortesia") || id.includes("ate-logo") || id.includes("qingwen")) {
+    return true;
+  }
+  const refs = [...(lesson.libraryItems ?? []), ...(lesson.reviewItems ?? [])];
+  const seedRefs = refs.filter((ref) =>
+    /chunk:(nihao|xiexie|zaijian|bukeqi|nihaoma)\b/.test(String(ref))
+  );
+  // Explicit greeting teaching: seed chunks dominate library (not just a review bridge).
+  const librarySeeds = (lesson.libraryItems ?? []).filter((ref) =>
+    /chunk:(nihao|xiexie|zaijian|bukeqi|nihaoma)\b/.test(String(ref))
+  );
+  if (librarySeeds.length > 0 && librarySeeds.length >= Math.ceil((lesson.libraryItems?.length ?? 1) / 2)) {
+    return true;
+  }
+  // Engine lab / early greeting module
+  if (lesson.id === "p1-engine-2-lab" || lesson.id === "l1" || lesson.id === "l2" || lesson.id === "l3" || lesson.id === "l4") {
+    return seedRefs.length > 0;
+  }
+  return false;
+}
+
+/**
+ * PED-021/027: after greetings are introduced, tone/hanzi lessons must not keep
+ * treating 你好/谢谢 as the practice target. Keep them only when the lesson
+ * explicitly teaches greetings (or is a review of that module).
+ */
+function practiceFocusForLesson(lesson: Lesson, focus: FocusItem[]): FocusItem[] {
+  if (lesson.isReview || isGreetingFocusedLesson(lesson)) return focus;
+  const filtered = focus.filter((item) => {
+    const h = cleanHanzi(item.hanzi);
+    if (isSeedFillerHanzi(h)) {
+      // Allow single-glyph parts of greetings when the lesson teaches those chars.
+      if (h.length === 1) return true;
+      return false;
+    }
+    return true;
+  });
+  return filtered.length > 0 ? filtered : focus;
+}
+
 function focusForPlanning(lesson: Lesson, context: LessonPracticePlanContext): FocusItem[] {
   const focus = lessonFocusItems(lesson);
   if (lesson.isReview) {
@@ -1403,21 +1449,93 @@ function lessonFocusItems(lesson: Lesson): FocusItem[] {
   return items;
 }
 
+/** PED-021: greeting seeds must not pad every MCQ when the lesson is not about them. */
+const SEED_FILLER_HANZI = new Set([
+  "你好",
+  "谢谢",
+  "再见",
+  "不客气",
+  "早上好",
+  "晚上好",
+  "你好吗",
+]);
+
+function isSeedFillerHanzi(hanzi: string): boolean {
+  const cleaned = cleanHanzi(hanzi);
+  if (SEED_FILLER_HANZI.has(cleaned)) return true;
+  // Frases ancoradas no seed (ex.: 请问，你好吗？) contam como filler de cumprimento.
+  for (const seed of SEED_FILLER_HANZI) {
+    if (seed.length >= 2 && cleaned.includes(seed)) return true;
+  }
+  return false;
+}
+
+function focusAllowsSeedDistractor(focus: FocusItem[], seedHanzi: string): boolean {
+  const needle = cleanHanzi(seedHanzi);
+  return focus.some((item) => {
+    const h = cleanHanzi(item.hanzi);
+    return h === needle || h.includes(needle) || needle.includes(h);
+  });
+}
+
+/**
+ * Prefer lesson focus distractors; demote global greeting seeds used as filler
+ * (PED-021 / PED-026). Seeds remain valid when the target or focus is about them.
+ */
+function rankedDistractorHanzi(target: FocusItem, focus: FocusItem[]): string[] {
+  const targetHanzi = cleanHanzi(target.hanzi);
+  const fromFocus = focus
+    .filter((item) => item.key !== target.key && cleanHanzi(item.hanzi) !== targetHanzi)
+    .map((item) => item.hanzi);
+  const fromChunks = CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== targetHanzi).map(
+    (chunk) => chunk.hanzi
+  );
+  const fromChars = CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== targetHanzi).map(
+    (char) => char.hanzi
+  );
+  const allowSeed = isSeedFillerHanzi(target.hanzi);
+  const preferred: string[] = [];
+  const demoted: string[] = [];
+  for (const hanzi of [...fromFocus, ...fromChunks, ...fromChars]) {
+    if (
+      !allowSeed &&
+      isSeedFillerHanzi(hanzi) &&
+      !focusAllowsSeedDistractor(focus, hanzi)
+    ) {
+      demoted.push(hanzi);
+      continue;
+    }
+    preferred.push(hanzi);
+  }
+  return uniqueValues([target.hanzi, ...preferred, ...demoted]);
+}
+
 function optionMeanings(target: FocusItem, focus: FocusItem[]): string[] {
-  return uniqueValues([
-    target.meaningPt,
-    ...focus.filter((item) => item.key !== target.key).map((item) => item.meaningPt),
-    ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.meaningPt.replace(/\.$/, "")),
-  ]).slice(0, 4);
+  const targetHanzi = cleanHanzi(target.hanzi);
+  const allowSeed = isSeedFillerHanzi(target.hanzi);
+  const fromFocus = focus
+    .filter((item) => item.key !== target.key)
+    .map((item) => item.meaningPt);
+  const preferred: string[] = [];
+  const demoted: string[] = [];
+  for (const chunk of CHUNKS) {
+    if (cleanHanzi(chunk.hanzi) === targetHanzi) continue;
+    const meaning = chunk.meaningPt.replace(/\.$/, "");
+    if (
+      !allowSeed &&
+      isSeedFillerHanzi(chunk.hanzi) &&
+      !focusAllowsSeedDistractor(focus, chunk.hanzi)
+    ) {
+      demoted.push(meaning);
+      continue;
+    }
+    preferred.push(meaning);
+  }
+  return uniqueValues([target.meaningPt, ...fromFocus, ...preferred, ...demoted]).slice(0, 4);
 }
 
 function optionHanzi(target: FocusItem, focus: FocusItem[]): string[] {
-  return uniqueValues([
-    target.hanzi,
-    ...focus.filter((item) => item.key !== target.key).map((item) => item.hanzi),
-    ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.hanzi),
-    ...CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== cleanHanzi(target.hanzi)).map((char) => char.hanzi),
-  ]).slice(0, 4);
+  return rankedDistractorHanzi(target, focus).slice(0, 4);
 }
 
 function makeComprehendStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
@@ -1454,12 +1572,27 @@ function optionPinyin(target: FocusItem, focus: FocusItem[]): string[] {
   // descartados, e a busca segue nos chunks/caracteres até achar bases DE FATO
   // diferentes. Assim a escolha de pinyin nunca mostra 4 opções que parecem
   // iguais — cada alternativa tem uma sílaba/base distinta.
-  return uniqueByPinyinBase([
-    target.pinyin,
-    ...focus.filter((item) => item.key !== target.key).map((item) => item.pinyin),
-    ...CHUNKS.filter((chunk) => cleanHanzi(chunk.hanzi) !== cleanHanzi(target.hanzi)).map((chunk) => chunk.pinyin),
-    ...CHARACTERS.filter((char) => cleanHanzi(char.hanzi) !== cleanHanzi(target.hanzi)).map((char) => char.pinyin),
-  ]).slice(0, 4);
+  const allowSeed = isSeedFillerHanzi(target.hanzi);
+  const fromFocus = focus.filter((item) => item.key !== target.key).map((item) => item.pinyin);
+  const preferred: string[] = [];
+  const demoted: string[] = [];
+  for (const chunk of CHUNKS) {
+    if (cleanHanzi(chunk.hanzi) === cleanHanzi(target.hanzi)) continue;
+    if (
+      !allowSeed &&
+      isSeedFillerHanzi(chunk.hanzi) &&
+      !focusAllowsSeedDistractor(focus, chunk.hanzi)
+    ) {
+      demoted.push(chunk.pinyin);
+      continue;
+    }
+    preferred.push(chunk.pinyin);
+  }
+  for (const char of CHARACTERS) {
+    if (cleanHanzi(char.hanzi) === cleanHanzi(target.hanzi)) continue;
+    preferred.push(char.pinyin);
+  }
+  return uniqueByPinyinBase([target.pinyin, ...fromFocus, ...preferred, ...demoted]).slice(0, 4);
 }
 
 function makeRecognizeStep(item: FocusItem): LessonStep | null {
@@ -1774,6 +1907,14 @@ export function structureExposureSnapshotForLesson(lessonId: string): StructureE
   return structureExposureForLesson(lessonId);
 }
 
+/**
+ * PERF-011 — preaquece o índice O(n²) de exposição estrutural antes do player.
+ * Idempotente; seguro em idle callback na página de detalhe.
+ */
+export function prewarmLessonPlanner(lessonId: string): void {
+  void structureExposureForLesson(lessonId);
+}
+
 export function structureFirstOccurrenceReport(): Array<{
   frameId: string;
   patternPt: string;
@@ -1911,20 +2052,34 @@ function makeDictationStep(
   };
 }
 
-/** "Qual não pertence?" — grupos derivados dos domínios do corpus. */
-function makeOddOneOutStep(knownGlyphs: ReadonlySet<string>, seed: number): LessonStep | null {
-  const sets = oddOneOutSetsFor(knownGlyphs, { limit: 8 });
+/** "Qual não pertence?" — sets curados (PED-012) + níveis graduais (PED-013). */
+function makeOddOneOutStep(
+  knownGlyphs: ReadonlySet<string>,
+  seed: number,
+  phaseOrder = 1
+): LessonStep | null {
+  const level = oddOneOutLevelForPhase(phaseOrder);
+  const sets = oddOneOutSetsFor(knownGlyphs, { limit: 12, level });
   if (sets.length === 0) return null;
   const set = sets[seed % sets.length];
-  const options = uniqueValues([...set.members.map((member) => member.hanzi), set.intruder.hanzi]);
-  if (options.length < 4) return null;
+  const rawOptions = uniqueValues([...set.members.map((member) => member.hanzi), set.intruder.hanzi]);
+  const canonical = [...set.members.map((m) => m.hanzi), set.intruder.hanzi];
+  const shuffled = seededShuffleAvoidingOrder(rawOptions, `ooo:${set.id}:${seed}:bank`, canonical);
+  if (shuffled.length < 4) return null;
+  const optionMeta: Record<string, { pinyin?: string; meaningPt?: string }> = {};
+  for (const item of [...set.members, set.intruder]) {
+    optionMeta[item.hanzi] = { pinyin: item.pinyin, meaningPt: item.meaningPt };
+  }
   return {
     kind: "odd_one_out",
     title: "Qual não pertence?",
-    prompt: "Três são do mesmo grupo. Toque na que sobra.",
-    options,
+    prompt: oddOneOutPromptForLevel(level, set.groupLabelPt),
+    options: shuffled,
     correctAnswer: set.intruder.hanzi,
-    explanation: `${set.members.map((member) => member.hanzi).join("、")} são ${set.groupLabelPt}. ${set.intruder.hanzi} (${set.intruder.meaningPt}) é ${set.intruderGroupLabelPt}.`,
+    explanation: oddOneOutExplanation(set),
+    oddOneOutLevel: level,
+    groupLabelPt: set.groupLabelPt,
+    optionMeta: level <= 2 ? optionMeta : undefined,
     isNoHint: true,
   };
 }
@@ -2254,7 +2409,8 @@ function makeSentenceBuildStep(item: FocusItem, focus: FocusItem[]): LessonStep 
     .filter((candidate) => candidate.key !== item.key)
     .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
     .filter(Boolean);
-  const bank = uniqueValues([...parts, ...extras]).slice(0, Math.max(parts.length + 2, 4));
+  const ordered = uniqueValues([...parts, ...extras]).slice(0, Math.max(parts.length + 2, 4));
+  const bank = seededShuffleAvoidingOrder(ordered, `sb:${item.key}:${clean}`, parts);
   return {
     kind: "sentence_build",
     title: "Monte de outro jeito",
@@ -3423,7 +3579,7 @@ function supplementalStepsForStage(
     // no fim, o orçamento do estágio já teria acabado e a lição voltaria a ser
     // só múltipla escolha.
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed));
-    push(makeOddOneOutStep(knownGlyphs, drillSeed));
+    push(makeOddOneOutStep(knownGlyphs, drillSeed, phaseOrder));
     for (const item of focus) {
       push(makeRecognizeStep(item));
       push(makeDecomposeStep(item));
@@ -3471,6 +3627,8 @@ function supplementalStepsForStage(
     for (const item of focus) pushImage(item, 1);
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
     // Em lições-conceito de fundação, não misturar CORE_REVIEW no pool da cena.
+    // Em microtarefas de tom, a cena pode ancorar o som em frase conhecida, mas
+    // o loop pós-conversa (abaixo) não vira bateria de seed (PED-021/027).
     if (allowConversation) {
       const conversationReview = FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") &&
         options.lessonId !== "p1-engine-2-lab"
@@ -3520,7 +3678,7 @@ function supplementalStepsForStage(
     push(makeMatchPairsStep([...practiceFocus, ...focus]));
     push(makeTonePairStep([...practiceFocus, ...focus]));
     push(makeAudioDiscriminationStep(knownGlyphs, drillSeed + 1));
-    push(makeOddOneOutStep(knownGlyphs, drillSeed + 1));
+    push(makeOddOneOutStep(knownGlyphs, drillSeed + 1, phaseOrder));
     if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
     // Consolidar: transferência só se a estrutura já teve produção guiada antes.
     const variantSeed = drillSeed + 1 + variantSeedBase * 7;
@@ -3849,6 +4007,7 @@ function generatedCandidatesFor(
   // audit:early-lessons. Restringe knownRefs ao foco da própria lição.
   const foundationConcept =
     FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
+  const practiceFocus = practiceFocusForLesson(lesson, focus);
   const sceneSelection: ConversationSceneSelection = {
     lessonInfo: conversationSceneLessonInfo(lesson, focus, foundationConcept ? focus : reviewFocus),
     context: sceneContext,
@@ -3864,7 +4023,7 @@ function generatedCandidatesFor(
     // teto apertado deixava o gerador parar antes de produzir HanziBuilder e
     // exercício visual — e a garantia de cobertura não tinha o que garantir.
     const target = Math.max(8, profile.stageTargets[stageId] * 4);
-    const generated = supplementalStepsForStage(stageId, focus, target, {
+    const generated = supplementalStepsForStage(stageId, practiceFocus, target, {
       phaseOrder,
       reviewFocus,
       hanziBuilderProgress,
@@ -4201,6 +4360,12 @@ function ensureCoverage(
     ];
     const preferred = MEANING_VARIANTS[Math.abs(lessonOrderIndex(lesson)) % MEANING_VARIANTS.length];
     ensure((candidate) => candidate.step.pedagogyVariant === preferred, true);
+    // PED-021: practiceFocus filtrado pode alterar a pontuação e o spot_error
+    // autoral (sem pedagogyVariant) perde a vaga mesmo quando a rotação semântica
+    // pede meaning_spot_error. Garante o kind no plano.
+    if (preferred === "meaning_spot_error") {
+      ensure((candidate) => candidate.step.kind === "spot_error", true);
+    }
     ensure((candidate) => Boolean(candidate.step.pedagogyVariant?.startsWith("meaning_")));
   }
   // A cena de conversa é o exercício mais rico do plano e a origem de todo o
@@ -4909,7 +5074,7 @@ function makePostConversationStep(
       return makeDictationStep(item, f, _taskDeps.phaseOrder);
     case "group_meaning": {
       const glyphs = postConversationKnownGlyphs(item, focus, _taskDeps);
-      return makeOddOneOutStep(glyphs, drillSeedFor(item.key, "post_conversation"));
+      return makeOddOneOutStep(glyphs, drillSeedFor(item.key, "post_conversation"), _taskDeps.phaseOrder);
     }
     // Fechar o loop produzindo: a palavra que acabou de aparecer volta
     // dentro de uma frase que o aluno escreve inteira, sem peças na tela.
@@ -5225,9 +5390,21 @@ export function applyConversationVocabularyLoop(
         item.roles.some((role) => role === "required" || role === "new" || role === "reused" || role === "response")
     );
     const focusByRef = new Map<string, FocusItem>();
+    // Só microtarefas de contorno ma/comparar: cumprimentos na cena são âncora,
+    // não bateria. Outras lições de som (ex. p2-sons-brasileiros) precisam do
+    // loop normal para o portão conversation-loop.
+    const demoteSeedRecovery = /^p2-ma-/.test(lesson.id) || /^p2-comparar-tom-/.test(lesson.id);
     for (const item of relevant) {
       const focusItem = focusItemFromRef(item.ref);
-      if (focusItem) focusByRef.set(item.ref, focusItem);
+      if (!focusItem) continue;
+      // PED-021/027: microtarefas de tom/contorno não transformam seeds já
+      // conhecidos em bateria pós-conversa. Itens NEW da cena ainda ganham
+      // follow-up (portão conversation-loop).
+      const isNewInScene = item.roles.includes("new");
+      if (demoteSeedRecovery && isSeedFillerHanzi(focusItem.hanzi) && !isNewInScene) {
+        continue;
+      }
+      focusByRef.set(item.ref, focusItem);
     }
 
     const variantLevel = conversationStep.conversationVariantLevel ?? "guided";

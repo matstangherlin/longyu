@@ -88,8 +88,8 @@ test.describe("dispositivo — safe-area / barra inferior", () => {
       "yes"
     );
 
-    // 2) Num hub, a barra inferior fixa (mobile/tablet) usa
-    // env(safe-area-inset-bottom) e o <main> reserva padding para ela, então
+    // 2) Num hub, a barra inferior fixa (mobile/tablet) mede a própria altura
+    // (incluindo safe-area) e o <main> reserva esse token, então
     // nenhum CTA fica escondido atrás da barra. No desktop (lg) a barra some
     // (vira sidebar), então só validamos que nada transborda lateralmente.
     await seedOnboardedSession(page, ["l1"]);
@@ -100,18 +100,20 @@ test.describe("dispositivo — safe-area / barra inferior", () => {
     const width = page.viewportSize()?.width ?? 1280;
     const isMobileWidth = width < 1024; // Tailwind `lg`
 
-    const bottomNav = page.locator("nav.fixed").first();
+    const bottomNav = page.locator("[data-app-bottom-nav]");
     if (isMobileWidth && (await bottomNav.isVisible().catch(() => false))) {
       const style = (await bottomNav.getAttribute("style")) ?? "";
-      expect(style).toContain("safe-area-inset-bottom");
+      expect(style).toContain("--app-safe-bottom");
 
-      const mainPadBottom = await page.evaluate(() => {
+      const spacing = await page.evaluate(() => {
         const main = document.querySelector("main");
-        return main ? parseFloat(getComputedStyle(main).paddingBottom || "0") : 0;
+        const nav = document.querySelector("[data-app-bottom-nav]");
+        return {
+          mainPadBottom: main ? parseFloat(getComputedStyle(main).paddingBottom || "0") : 0,
+          navHeight: nav?.getBoundingClientRect().height ?? 0,
+        };
       });
-      // 5.5rem (~88px) + safe-area. No browser a safe-area é 0; ainda assim o
-      // padding da barra precisa estar presente para o conteúdo não ficar sob ela.
-      expect(mainPadBottom).toBeGreaterThanOrEqual(64);
+      expect(spacing.mainPadBottom).toBeGreaterThanOrEqual(spacing.navHeight + 12);
     }
 
     const overflow = await page.evaluate(

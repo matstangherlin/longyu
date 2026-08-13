@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ee6ccccd0b06aab93b01646a1cebf6d022efb79f |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T23:33:05.228Z |
+| Gerado em | 2026-08-13T07:45:18.074Z |
 | Lições | 123 |
-| Hash da Jornada | 4a56ec34a066 |
+| Hash da Jornada | 187bc767e00a |
 
 ## Resumo
 
@@ -20,8 +20,8 @@
 | Casos curados auditados | 19 |
 | Causas distintas observadas | 13 |
 | Maior concentração numa causa | 16% |
-| Lições que mudam de plano com a fraqueza | 78 / 123 |
-| Lições que renovam o conteúdo na mesma variante | 116 / 123 |
+| Lições que mudam de plano com a fraqueza | 74 / 123 |
+| Lições que renovam o conteúdo na mesma variante | 115 / 123 |
 | Casos de resposta não reconhecida auditados | 8 |
 | Peso de um palpite fraco vs. padrão claro | 0.25× |
 
@@ -106,4 +106,4 @@ Fica registrada para auditoria e para o corpus crescer.
 
 Nenhum.
 
-<!-- integridade:41a25479e64010da -->
+<!-- integridade:d19a12a5ea87ab56 -->

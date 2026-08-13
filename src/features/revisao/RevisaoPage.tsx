@@ -1928,7 +1928,7 @@ export function RevisaoPage() {
               {/* CTA sticky no mesmo slot do Verificar — nunca revelar sem ação visível (B003). */}
               <div
                 data-review-sticky-actions
-                className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-10 mt-4 space-y-3 bg-gradient-to-t from-[rgb(var(--surface))] via-[rgb(var(--surface)/0.96)] to-transparent pb-1 pt-3 sm:static sm:bg-none sm:pb-0"
+                className="sticky bottom-[calc(var(--app-bottom-nav-height)+0.75rem)] z-10 mt-4 space-y-3 bg-gradient-to-t from-[rgb(var(--surface))] via-[rgb(var(--surface)/0.96)] to-transparent pb-1 pt-3 sm:static sm:bg-none sm:pb-0"
               >
                 <Button
                   data-review-continue
@@ -1969,7 +1969,7 @@ export function RevisaoPage() {
             </>
           ) : (
             <Button
-              className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-10 mt-5 w-full shadow-card sm:static sm:shadow-none"
+              className="sticky bottom-[calc(var(--app-bottom-nav-height)+0.75rem)] z-10 mt-5 w-full shadow-card sm:static sm:shadow-none"
               variant="soft"
               disabled={!isExerciseComplete(activeExercise, selectedOption, selectedPieceIds, pairMatches)}
               onClick={verifyExercise}

@@ -4,19 +4,19 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ee6ccccd0b06aab93b01646a1cebf6d022efb79f |
+| Commit | 5b420c91bb292edd478b24efad63bd5369539013 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-12T23:33:12.314Z |
+| Gerado em | 2026-08-13T07:45:25.195Z |
 | Lições | 123 |
-| Hash da Jornada | 4a56ec34a066 |
+| Hash da Jornada | 187bc767e00a |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 250 |
-| Média de passos por lição | 12.5 |
+| Passos somados | 252 |
+| Média de passos por lição | 12.6 |
 | Minutos estimados até a lição 20 | 83 |
 | Passos de digitação na entrada inteira | 0 |
 | Lições sem nada para ouvir | 2 |
@@ -31,24 +31,24 @@
 |--:|-------|-------:|---------:|----------:|------:|--------:|----:|
 | 1 | O que é mandarim? | 6 | 5 | 0 | 1 | 6 | 3 |
 | 2 | O que é pinyin? | 7 | 6 | 0 | 0 | 5 | 3 |
-| 3 | O que é tom? | 12 | 11 | 0 | 4 | 9 | 6 |
+| 3 | O que é tom? | 11 | 10 | 0 | 4 | 8 | 6 |
 | 4 | O que é hànzì? | 11 | 10 | 0 | 1 | 8 | 4 |
 | 5 | Montando primeiros hànzì | 10 | 9 | 0 | 0 | 4 | 6 |
 | 6 | Laboratório de exercícios | 14 | 14 | 0 | 1 | 7 | 5 |
 | 7 | Mandarim, pinyin e tom | 16 | 15 | 0 | 3 | 12 | 3 |
 | 8 | Olá | 13 | 12 | 0 | 2 | 12 | 5 |
 | 9 | Tudo bem? | 13 | 12 | 0 | 2 | 10 | 5 |
-| 10 | Revisão do módulo (revisão) | 17 | 16 | 0 | 2 | 13 | 3 |
+| 10 | Revisão do módulo (revisão) | 21 | 20 | 0 | 2 | 11 | 3 |
 | 11 | Obrigado | 14 | 13 | 0 | 3 | 10 | 6 |
-| 12 | Até logo | 12 | 11 | 0 | 2 | 10 | 4 |
+| 12 | Até logo | 11 | 10 | 0 | 3 | 10 | 4 |
 | 13 | Primeira conversa | 11 | 10 | 0 | 1 | 9 | 4 |
-| 14 | Com licença | 10 | 9 | 0 | 3 | 9 | 3 |
+| 14 | Com licença | 10 | 9 | 0 | 2 | 7 | 3 |
 | 15 | Revisão do módulo (revisão) | 22 | 20 | 0 | 3 | 11 | 4 |
-| 16 | 1º tom com ma | 12 | 11 | 0 | 3 | 9 | 4 |
+| 16 | 1º tom com ma | 12 | 11 | 0 | 3 | 11 | 4 |
 | 17 | 2º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
 | 18 | 3º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
 | 19 | 4º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
-| 20 | Comparar 1º e 4º tom | 14 | 13 | 0 | 3 | 11 | 6 |
+| 20 | Comparar 1º e 4º tom | 14 | 13 | 0 | 2 | 9 | 6 |
 
 ## Quando cada motor entra
 
@@ -64,15 +64,14 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 | 1 | match_pairs |
 | 1 | sentence_build |
 | 3 | audio_discrimination |
-| 3 | fill_blank |
 | 3 | tone |
 | 3 | tone_pair |
+| 4 | fill_blank |
 | 4 | hanzi_build |
 | 4 | image_choice |
 | 6 | conversation_scene |
 | 8 | produce |
 | 9 | listen |
-| 10 | odd_one_out |
 
 ## Avisos
 
@@ -83,4 +82,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:081f7ea0b644d37b -->
+<!-- integridade:06524736f141cb07 -->
