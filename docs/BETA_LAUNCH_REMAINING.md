@@ -1,7 +1,7 @@
 # Longyu — trabalho restante para beta pública (pós #148)
 
 Atualizado em 2026-08-12. Separa o que **código/CI já cobre** do que **exige humano**.  
-Tip `main`: `5998fbd` (#156 pedagogia + remessa device-bugs).
+Tip `main`: `5636e48` (#158 remessa aparelho + hardening RC).
 
 > **Automação não substitui QA humano.** Playwright, `validate:beta` e scripts de guarda provam regressões — não substituem aparelho físico, L1–L20 como aluno novo, e-mail live, Stripe Test Mode, sync entre dois aparelhos reais, VoiceOver/TalkBack nem testadores externos.
 
@@ -17,7 +17,7 @@ Tip `main`: `5998fbd` (#156 pedagogia + remessa device-bugs).
 | L1–L20 completo como aluno novo | 15% | **~0–5%** — proxy E2E **não** conta |
 | 5–15 testadores reais + telemetria | 15% | **0%** |
 | Sync/offline/multi-device | 10% | Fixture OK (#133); **2 aparelhos reais = humano** §6 |
-| Corrigir P0/P1 encontrados | 10% | B001 reaberto; B002/B003/B004/PED-005 em código (`5998fbd`+); **revalidação humana pendente** |
+| Corrigir P0/P1 encontrados | 10% | B001 reaberto; B002/B003/B004/PED-005 em código (`5636e48`+); **revalidação humana pendente** |
 | Auth + conta + recuperação | 8% | E2E superfície OK; **e-mail live = humano** §4 |
 | Stripe/Pro/entitlements | 7% | Testes de lógica OK; **Stripe Test Mode live = humano** §5 |
 | RC + `gate:public-beta` + Security Scan final | 7% | Scripts prontos; **RC não congelada**; full security scan final pendente |
@@ -43,14 +43,15 @@ Tip `main`: `5998fbd` (#156 pedagogia + remessa device-bugs).
 
 ## Pendente em código (não confundir com QA humano)
 
-- Remessa device-bugs (B003/B004/B001-regression/PED-005/VIS-006/007) — **nesta PR**; fechar só após aparelho real  
+- Remessa device-bugs (B003/B004/B001-regression/PED-005/VIS-006/007) — **na main via #158**; fechar só após aparelho real  
+- Hardening RC: E2E B001/B003/B004, `validate:tone-progression`, `validate:visual-assets`, `beta:rc-status` com SHA de `origin/main`  
 - #146/#149/#152/#157 já na `main` via #157  
 
 ## Ainda NÃO concluído (prova humana / RC)
 
 Não marcar como feito (nenhum checkbox humano foi marcado automaticamente):
 
-- [ ] Force refresh / cache limpo na tip `5998fbd`  
+- [ ] Force refresh / cache limpo na tip `5636e48`  
 - [ ] Revalidação B001 no Android real (regressão StickyActionBar)  
 - [ ] Revalidação B002 no app real  
 - [ ] Revalidação B003 no iPhone (revisão Continuar)  

@@ -21,12 +21,33 @@
  */
 
 import { createRequire } from "node:module";
-import { mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
 import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
+
+/** VIS-006: só fundo full-bleed (rect 600×600 ou path canvas inteiro), não flecks do VTracer. */
+function svgHasOpaqueMintBleed(svgText) {
+  const mint = /fill=["']#(?:EDF2ED|EEF3EE|E8F0E8|F4F7F4)["']/i;
+  const rects = svgText.match(/<rect\b[^>]*>/gi) ?? [];
+  for (const tag of rects) {
+    const w = /width=["'](\d+(?:\.\d+)?)["']/i.exec(tag);
+    const h = /height=["'](\d+(?:\.\d+)?)["']/i.exec(tag);
+    if (w && h && Number(w[1]) >= 590 && Number(h[1]) >= 590 && mint.test(tag)) return true;
+  }
+  const paths = svgText.match(/<path\b[^>]*>/gi) ?? [];
+  for (const tag of paths) {
+    if (!mint.test(tag)) continue;
+    const tr = /transform=["']translate\(([^)]+)\)["']/i.exec(tag);
+    const xy = tr ? tr[1].split(/[,\s]+/).map(Number) : [0, 0];
+    if (xy[0] === 0 && xy[1] === 0 && /d=["']M0\s+0\b/i.test(tag) && /C600\s+0|L600\s|600 0/.test(tag)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 const require = createRequire(import.meta.url);
 const sharp = require("sharp");
@@ -158,6 +179,13 @@ try {
           }
           if (!isSvg && concept.backgroundStyle !== "transparent" && meta.hasAlpha) {
             warn(ref, "arquivo tem alfa mas backgroundStyle não é transparent");
+          }
+          if (isSvg) {
+            const svgText = await readFile(localPath, "utf8");
+            if (svgHasOpaqueMintBleed(svgText)) {
+              err(ref, "SVG com fundo mint opaco full-bleed (#EDF2ED/#EEF3EE) — VIS-006");
+              problems.push("fundo mint opaco");
+            }
           }
         } catch (error) {
           err(ref, `não foi possível ler o arquivo: ${concept.imageSrc}`);

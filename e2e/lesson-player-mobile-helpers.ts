@@ -354,6 +354,68 @@ export async function openTransferStep(page: Page) {
   expect(ok).toBe(true);
 }
 
+/**
+ * Abre um sentence_build com várias peças (água: 这/是/水/火/山) e injeta
+ * peças extras no banco para forçar várias fileiras — regressão B001.
+ */
+export async function openDenseSentenceBuild(page: Page) {
+  await seedLessonPlayerReady(page, "p4-char-shui");
+  await page.goto("/licao/p4-char-shui/player");
+  await waitForLazyPage(page);
+  await dismissBlockingOverlays(page);
+  const ok = await advanceUntilSelector(page, "[data-assembly-bank]", 40, 120_000);
+  expect(ok).toBe(true);
+  const before = await page.locator("[data-assembly-bank] button").count();
+  await page.locator("[data-assembly-bank]").evaluate((bank) => {
+    for (let i = 0; i < 14; i += 1) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = `片${i}`;
+      btn.dataset.testExtraPiece = "1";
+      btn.className = "min-h-11 rounded-xl border border-line bg-surface px-4 py-2 text-xl";
+      bank.appendChild(btn);
+    }
+  });
+  await expect(page.locator("[data-assembly-bank] button")).toHaveCount(before + 14);
+}
+
+/** Última fileira do banco não fica coberta pelo StickyActionBar (B001). */
+export async function assertBankAboveSticky(page: Page) {
+  const sticky = page.locator("[data-lesson-sticky-actions]");
+  const bank = page.locator("[data-assembly-bank]");
+  await expect(sticky).toBeVisible();
+  await expect(bank).toBeVisible();
+
+  // Garante que a última peça cabe acima do sticky (via scroll interno se preciso).
+  const lastPiece = bank.locator("button").last();
+  await lastPiece.scrollIntoViewIfNeeded();
+  const geometry = await page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const bankEl = document.querySelector("[data-assembly-bank]") as HTMLElement | null;
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    const last = bankEl?.querySelector("button:last-of-type") as HTMLElement | null;
+    if (!stickyEl || !last) return { ok: false, reason: "missing nodes" };
+    const sr = stickyEl.getBoundingClientRect();
+    const lr = last.getBoundingClientRect();
+    const vv = window.visualViewport?.height ?? window.innerHeight;
+    // Peça acima do topo do sticky, ou scroller consegue trazê-la acima.
+    const aboveSticky = lr.bottom <= sr.top + 2;
+    const stickyInView = sr.top < vv && sr.bottom > 0;
+    const canScrollMore = Boolean(scroller && scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 2);
+    return {
+      ok: (aboveSticky || canScrollMore) && stickyInView,
+      aboveSticky,
+      stickyInView,
+      canScrollMore,
+      lastBottom: lr.bottom,
+      stickyTop: sr.top,
+      vv,
+    };
+  });
+  expect(geometry.ok, JSON.stringify(geometry)).toBe(true);
+  await assertPrimaryCtaInViewport(page);
+}
+
 export async function openOpenProductionStep(page: Page) {
   // Produção aberta (productionOpen) exige estrutura já praticada — l26b+.
   await seedLessonPlayerReady(page, "l26b");

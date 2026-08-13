@@ -1,6 +1,6 @@
 # Progressão de tons (PED-005)
 
-Atualizado com a remessa de bugs de aparelho (pós `#156` / tip `5998fbd`).
+Atualizado com a remessa de bugs de aparelho (pós `#158` / tip `5636e48`).
 
 ## Escada
 
@@ -20,3 +20,7 @@ Atualizado com a remessa de bugs de aparelho (pós `#156` / tip `5998fbd`).
 ## O que evitar no início
 
 Não testar ao mesmo tempo: áudio novo + vocabulário novo + pinyin com tom + significado.
+
+## Validador
+
+`npm run validate:tone-progression` (também no `validate:beta`) trava regressões que coloquem quiz/mistura ou 4 tons antes do contraste binário.
