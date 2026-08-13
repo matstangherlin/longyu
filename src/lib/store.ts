@@ -59,7 +59,14 @@ import {
 import {
   CHARGE_COST_ACTIVITY,
   DAILY_CHARGES_FREE,
+  FOCUS_PASS_48H_HOURS,
   FOCUS_PASS_HOURS,
+  PEARL_AUDIO_MILESTONES,
+  PEARL_ERROR_MILESTONES,
+  PEARL_HANZI_MILESTONES,
+  PEARL_PRODUCTION_MILESTONES,
+  PEARL_PRO_COST,
+  PEARL_STREAK_MILESTONES,
   PRO_CHEST_FOCUS_PASS_CHANCE,
   PRO_CHEST_QI_MULTIPLIER,
   PRO_CHEST_RARE_BONUS,
@@ -77,11 +84,23 @@ import {
   FOLEGO_PERFECT_EARN_CHANCE,
   FOLEGO_DAILY_EARN_CAP,
 } from "../data/economy";
+import {
+  applyPearlEarn,
+  blankPearlEconomyFields,
+  claimablePearlMilestone,
+  listMasteredPhaseIds,
+  resolvePearlMilestoneAmount,
+  tryAutoActivatePearlPro,
+  type PearlLedgerEntry,
+} from "./pearlEconomy";
+import { canActivatePearlPro, formatPearlProUntil } from "./pearlPro";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import type { ProgressSnapshotBody } from "./progressSnapshot";
 import {
   shouldUseServerEconomy,
+  serverActivatePearlProPass,
   serverClaimMission,
+  serverClaimPearlMilestone,
   serverConsumeCharge,
   serverGrantLessonReward,
   serverGrantStoryEnergy,
@@ -491,7 +510,30 @@ function qiSpendName(source: string): string {
 export interface ShopUseResult {
   itemId: string;
   message: string;
+  balanceBefore?: number;
+  cost?: number;
+  balanceAfter?: number;
+  benefit?: string;
+  durationLabel?: string;
+  expiresAt?: number;
 }
+
+export interface ShopPurchaseFeedback {
+  itemId: string;
+  balanceBefore: number;
+  cost: number;
+  balanceAfter: number;
+  benefit: string;
+  durationLabel?: string;
+  expiresAt?: number;
+}
+
+export type PearlProActivateResult = {
+  ok: boolean;
+  reason?: string;
+  message?: string;
+  expiresAt?: number;
+};
 
 // ————————————————————————————————————————————————————————————————
 // Baús do Longyu: recompensas aleatórias ganhas por estudo, missões ou compra.
@@ -608,11 +650,42 @@ function applyFocusPassRewardToState(s: AppState, amount: number): AppState {
 // Pode comprar? Regras: item existe e é comprável (não é link Pro), cosmético
 // ainda não possuído, e saldo suficiente na moeda do item.
 function canPurchase(
-  s: Pick<AppState, "points" | "dragonPearls" | "ownedCosmetics">,
+  s: Pick<
+    AppState,
+    | "points"
+    | "dragonPearls"
+    | "ownedCosmetics"
+    | "pearlProExpiresAt"
+    | "pearlProLastActivatedAt"
+    | "pearlProAutoActivate"
+    | "pearlProPendingOffline"
+    | "serverIsPro"
+    | "accounts"
+    | "currentAccountId"
+  >,
   item: ShopItem
 ): boolean {
   if (item.kind === "pro_link") return false;
   if (item.cosmetic && (s.ownedCosmetics ?? []).includes(item.id)) return false;
+  if (item.kind === "pearl_pro_pass") {
+    const account = s.accounts[s.currentAccountId];
+    const online = typeof navigator === "undefined" ? true : navigator.onLine;
+    const decision = canActivatePearlPro({
+      state: {
+        pearlProExpiresAt: s.pearlProExpiresAt ?? null,
+        pearlProLastActivatedAt: s.pearlProLastActivatedAt ?? null,
+        pearlProAutoActivate: s.pearlProAutoActivate ?? false,
+        pearlProPendingOffline: s.pearlProPendingOffline ?? false,
+        dragonPearls: s.dragonPearls ?? 0,
+      },
+      serverIsPro: s.serverIsPro,
+      authMode: account?.authMode,
+      online,
+    });
+    // Offline cloud: ainda permite “comprar” para marcar pendente.
+    if (!decision.allowed && decision.reason !== "offline_cloud") return false;
+    return (s.dragonPearls ?? 0) >= item.cost;
+  }
   const balance = item.currency === "qi" ? s.points : s.dragonPearls;
   return balance >= item.cost;
 }
@@ -1114,6 +1187,16 @@ interface AccountSnapshot extends XpBuckets {
   pendingStreakRecovery: number | null;
   points: number;
   dragonPearls: number;
+  /** Marcos de Pérola já resgatados: id → timestamp. */
+  pearlMilestonesClaimed: Record<string, number>;
+  pearlLedger: PearlLedgerEntry[];
+  pearlProExpiresAt: number | null;
+  pearlProLastActivatedAt: number | null;
+  pearlProAutoActivate: boolean;
+  pearlProPendingOffline: boolean;
+  pearlProAutoExplainSeen: boolean;
+  pearlAudioExposures: number;
+  pearlProductionCount: number;
   streakShields: number;
   badges: string[];
   rewardHistory: RewardHistoryEntry[];
@@ -1214,6 +1297,7 @@ function blankSnapshot(): AccountSnapshot {
     pendingStreakRecovery: null,
     points: 0,
     dragonPearls: 0,
+    ...blankPearlEconomyFields(),
     streakShields: 0,
     badges: [],
     rewardHistory: [],
@@ -1324,6 +1408,15 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     pendingStreakRecovery: s.pendingStreakRecovery ?? null,
     points: s.points,
     dragonPearls: s.dragonPearls,
+    pearlMilestonesClaimed: s.pearlMilestonesClaimed ?? {},
+    pearlLedger: s.pearlLedger ?? [],
+    pearlProExpiresAt: s.pearlProExpiresAt ?? null,
+    pearlProLastActivatedAt: s.pearlProLastActivatedAt ?? null,
+    pearlProAutoActivate: s.pearlProAutoActivate ?? false,
+    pearlProPendingOffline: s.pearlProPendingOffline ?? false,
+    pearlProAutoExplainSeen: s.pearlProAutoExplainSeen ?? false,
+    pearlAudioExposures: s.pearlAudioExposures ?? 0,
+    pearlProductionCount: s.pearlProductionCount ?? 0,
     streakShields: s.streakShields,
     badges: s.badges,
     rewardHistory: s.rewardHistory,
@@ -1447,6 +1540,18 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     pendingStreakRecovery: account.pendingStreakRecovery ?? null,
     points: account.points,
     dragonPearls: account.dragonPearls ?? 0,
+    pearlMilestonesClaimed: account.pearlMilestonesClaimed ?? {},
+    pearlLedger: account.pearlLedger ?? [],
+    pearlProExpiresAt:
+      account.pearlProExpiresAt && account.pearlProExpiresAt > Date.now()
+        ? account.pearlProExpiresAt
+        : account.pearlProExpiresAt ?? null,
+    pearlProLastActivatedAt: account.pearlProLastActivatedAt ?? null,
+    pearlProAutoActivate: account.pearlProAutoActivate ?? false,
+    pearlProPendingOffline: account.pearlProPendingOffline ?? false,
+    pearlProAutoExplainSeen: account.pearlProAutoExplainSeen ?? false,
+    pearlAudioExposures: Math.max(0, account.pearlAudioExposures ?? 0),
+    pearlProductionCount: Math.max(0, account.pearlProductionCount ?? 0),
     streakShields: account.streakShields ?? 0,
     badges: account.badges ?? [],
     rewardHistory: account.rewardHistory ?? [],
@@ -1646,11 +1751,48 @@ function finalizeOnboardingState(
   };
 }
 
+function buildPearlMilestoneEvidence(state: AppState, milestoneId: string): Record<string, unknown> {
+  const errorsCorrected = Math.max(
+    Object.keys(state.correctedMistakes ?? {}).length,
+    (state.recentActivityErrors ?? []).filter((e) => e.correctedAt).length
+  );
+  if (milestoneId.startsWith("streak:")) {
+    return { streak: state.streak, value: state.streak };
+  }
+  if (milestoneId.startsWith("errors:")) {
+    return { errors_corrected: errorsCorrected, value: errorsCorrected };
+  }
+  if (milestoneId.startsWith("hanzi:")) {
+    const n = state.learnedChars?.length ?? 0;
+    return { hanzi_learned: n, value: n };
+  }
+  if (milestoneId.startsWith("audio:")) {
+    const n = state.pearlAudioExposures ?? 0;
+    return { audio_exposures: n, value: n };
+  }
+  if (milestoneId.startsWith("production:")) {
+    const n = state.pearlProductionCount ?? 0;
+    return { production: n, value: n };
+  }
+  if (milestoneId.startsWith("journey_phase:")) {
+    const phaseId = milestoneId.slice("journey_phase:".length);
+    return { phase_mastered: true, phase_id: phaseId, value: 1 };
+  }
+  if (milestoneId.startsWith("journey_major:")) {
+    return { major_mastered: true, value: 1 };
+  }
+  if (milestoneId.startsWith("monthly_challenge:")) {
+    return { monthly_complete: true, value: 1 };
+  }
+  return { value: 1 };
+}
+
 function hasProAccess(s: AppState, serverIsProOverride?: boolean): boolean {
   const account = s.accounts[s.currentAccountId];
   return effectivePremium(s.isPremium, serverIsProOverride ?? s.serverIsPro, {
     accountEmail: account?.email,
     accountAuthMode: account?.authMode,
+    pearlProExpiresAt: s.pearlProExpiresAt ?? null,
   });
 }
 
@@ -1728,6 +1870,16 @@ interface AppState {
   streakRecovery: StreakRecovery | null;
   pendingStreakRecovery: number | null;
   dragonPearls: number;
+  pearlMilestonesClaimed: Record<string, number>;
+  pearlLedger: PearlLedgerEntry[];
+  pearlProExpiresAt: number | null;
+  pearlProLastActivatedAt: number | null;
+  pearlProAutoActivate: boolean;
+  pearlProPendingOffline: boolean;
+  pearlProAutoExplainSeen: boolean;
+  pearlAudioExposures: number;
+  pearlProductionCount: number;
+  lastShopPurchaseFeedback: ShopPurchaseFeedback | null;
   streakShields: number;
   badges: string[];
   rewardHistory: RewardHistoryEntry[];
@@ -1810,6 +1962,13 @@ interface AppState {
   buyShopItem: (itemId: string) => boolean;
   /** Loja: usa um item consumível do inventário e aplica o efeito. */
   useInventoryItem: (itemId: string) => ShopUseResult | null;
+  setPearlProAutoActivate: (v: boolean) => void;
+  clearShopPurchaseFeedback: () => void;
+  claimPearlMilestone: (milestoneId: string) => boolean;
+  activatePearlProPass: (opts?: { auto?: boolean; idempotencyKey?: string }) => PearlProActivateResult;
+  maybeClaimPearlMilestonesFromProgress: () => void;
+  recordPearlAudioExposure: (count?: number) => void;
+  recordPearlProduction: (count?: number) => void;
   /** Baús: adiciona baús ao inventário (ganhos por estudo, missões ou compra). */
   addChest: (type: ChestType, amount: number) => void;
   /** Baús: sorteia as recompensas de um tipo de baú (sem aplicar). */
@@ -1941,7 +2100,14 @@ function applyRewardToState(s: AppState, reward: RewardGrant): AppState {
   };
 
   if (reward.type === "qi") next.points = Math.max(0, next.points + reward.amount);
-  if (reward.type === "dragonPearl") next.dragonPearls = Math.max(0, next.dragonPearls + reward.amount);
+  if (reward.type === "dragonPearl") {
+    const earn = applyPearlEarn(next, {
+      amount: reward.amount,
+      source: reward.source,
+      idempotencyKey: reward.id,
+    });
+    if (earn) Object.assign(next, earn);
+  }
   if (reward.type === "streakShield") next.streakShields = Math.max(0, next.streakShields + reward.amount);
   if (reward.type === "badge" && !next.badges.includes(reward.source)) next.badges = [...next.badges, reward.source];
   if (reward.type === "xp" && reward.amount > 0) {
@@ -2018,6 +2184,8 @@ export const useStore = create<AppState>()(
       streakRecovery: null,
       pendingStreakRecovery: null,
       dragonPearls: 0,
+      ...blankPearlEconomyFields(),
+      lastShopPurchaseFeedback: null,
       streakShields: 0,
       badges: [],
       rewardHistory: [],
@@ -2731,7 +2899,7 @@ export const useStore = create<AppState>()(
           return { recentActivityErrors, accounts: saveCurrentAccount(next) };
         }),
 
-      markActivityErrorCorrected: (errorId) =>
+      markActivityErrorCorrected: (errorId) => {
         set((s) => {
           const found = s.recentActivityErrors.some((error) => error.id === errorId && !error.correctedAt);
           if (!found) return {};
@@ -2749,7 +2917,9 @@ export const useStore = create<AppState>()(
           );
           const next = { ...s, recentActivityErrors };
           return { recentActivityErrors, accounts: saveCurrentAccount(next) };
-        }),
+        });
+        get().maybeClaimPearlMilestonesFromProgress();
+      },
 
       recordActivityErrorReviewAttempt: (errorId) =>
         set((s) => {
@@ -2937,7 +3107,7 @@ export const useStore = create<AppState>()(
           return { mistakeHistory, recentErrors, accounts: saveCurrentAccount(next) };
         }),
 
-      markMistakeRecovered: (mistakeId) =>
+      markMistakeRecovered: (mistakeId) => {
         set((s) => {
           const recoveredAt = Date.now();
           const found =
@@ -2986,7 +3156,9 @@ export const useStore = create<AppState>()(
             lessonAttemptsById,
             accounts: saveCurrentAccount(next),
           };
-        }),
+        });
+        get().maybeClaimPearlMilestonesFromProgress();
+      },
 
       recordToneTrainerAttempt: (attempt) =>
         set((s) => {
@@ -3020,7 +3192,7 @@ export const useStore = create<AppState>()(
           return { toneTrainer, dailyTasks, accounts: saveCurrentAccount(next) };
         }),
 
-      markLearned: (type, itemId) =>
+      markLearned: (type, itemId) => {
         set((s) => {
           if (type === "chunk") {
             if (s.learnedChunks.includes(itemId)) return {};
@@ -3031,7 +3203,9 @@ export const useStore = create<AppState>()(
           if (s.learnedChars.includes(itemId)) return {};
           const next = { ...s, learnedChars: [...s.learnedChars, itemId] };
           return { learnedChars: next.learnedChars, accounts: saveCurrentAccount(next) };
-        }),
+        });
+        if (type !== "chunk") get().maybeClaimPearlMilestonesFromProgress();
+      },
 
       recordHanziBuilderResult: ({ character, correct, firstTry, level }) =>
         set((s) => {
@@ -3072,7 +3246,7 @@ export const useStore = create<AppState>()(
           return { today: next.today, dailyTasks, dailyEnergy, accounts: saveCurrentAccount(next) };
         }),
 
-      recordDailyTask: (task, amount = 1) =>
+      recordDailyTask: (task, amount = 1) => {
         set((s) => {
           const date = todayKey();
           const today = s.today.date === date ? s.today : freshDay(date);
@@ -3103,9 +3277,39 @@ export const useStore = create<AppState>()(
           if (isLifetimeTaskKey(task)) {
             lifetimeStats[task] = Math.max(0, base[task] + Math.max(0, amount));
           }
-          const next = { ...s, today, dailyTasks: nextTasks, dailyEnergy, weeklyMissions, lifetimeStats };
-          return { today, dailyTasks: nextTasks, dailyEnergy, weeklyMissions, lifetimeStats, accounts: saveCurrentAccount(next) };
-        }),
+          const pearlAudioExposures =
+            task === "audioHeard"
+              ? Math.max(s.pearlAudioExposures ?? 0, lifetimeStats.audioHeard)
+              : s.pearlAudioExposures;
+          const pearlProductionCount =
+            task === "phrasesSpoken"
+              ? Math.max(s.pearlProductionCount ?? 0, lifetimeStats.phrasesSpoken)
+              : s.pearlProductionCount;
+          const next = {
+            ...s,
+            today,
+            dailyTasks: nextTasks,
+            dailyEnergy,
+            weeklyMissions,
+            lifetimeStats,
+            pearlAudioExposures,
+            pearlProductionCount,
+          };
+          return {
+            today,
+            dailyTasks: nextTasks,
+            dailyEnergy,
+            weeklyMissions,
+            lifetimeStats,
+            pearlAudioExposures,
+            pearlProductionCount,
+            accounts: saveCurrentAccount(next),
+          };
+        });
+        if (task === "audioHeard" || task === "phrasesSpoken") {
+          get().maybeClaimPearlMilestonesFromProgress();
+        }
+      },
 
       completeImmersionSession: (sessionId, completion) => {
         const date = todayKey();
@@ -3198,6 +3402,7 @@ export const useStore = create<AppState>()(
         });
 
         if (xpToSync > 0) syncLeagueXpToServerAsync(xpToSync, syncKey);
+        get().maybeClaimPearlMilestonesFromProgress();
         return true;
       },
 
@@ -3406,13 +3611,389 @@ export const useStore = create<AppState>()(
         return canPurchase(get(), item);
       },
 
+      setPearlProAutoActivate: (v) =>
+        set((s) => {
+          const pearlProAutoActivate = Boolean(v);
+          const pearlProAutoExplainSeen = s.pearlProAutoExplainSeen || pearlProAutoActivate;
+          const next = { ...s, pearlProAutoActivate, pearlProAutoExplainSeen };
+          return {
+            pearlProAutoActivate,
+            pearlProAutoExplainSeen,
+            accounts: saveCurrentAccount(next),
+          };
+        }),
+
+      clearShopPurchaseFeedback: () =>
+        set((s) => {
+          const next = { ...s, lastShopPurchaseFeedback: null };
+          return { lastShopPurchaseFeedback: null, accounts: saveCurrentAccount(next) };
+        }),
+
+      claimPearlMilestone: (milestoneId) => {
+        const amount = resolvePearlMilestoneAmount(milestoneId);
+        if (amount == null) return false;
+        const state = get();
+        if (!claimablePearlMilestone(state.pearlMilestonesClaimed, milestoneId)) return false;
+
+        const account = state.accounts[state.currentAccountId];
+        const online = typeof navigator === "undefined" ? true : navigator.onLine;
+        const key = `pearl-milestone:${milestoneId}`;
+        const evidence = buildPearlMilestoneEvidence(state, milestoneId);
+
+        // Cloud online: servidor é autoridade; aplica local otimista + sync.
+        if (account?.authMode === "cloud" && online && shouldUseServerEconomy()) {
+          const patch = applyPearlEarn(state, {
+            amount,
+            source: milestoneId,
+            milestoneId,
+            idempotencyKey: key,
+          });
+          if (!patch) return false;
+          set((s) => {
+            if (!claimablePearlMilestone(s.pearlMilestonesClaimed, milestoneId)) return {};
+            const next = { ...s, ...patch };
+            return { ...patch, accounts: saveCurrentAccount(next) };
+          });
+          void serverClaimPearlMilestone({ milestoneId, idempotencyKey: key, evidence }).then(() => {
+            get().activatePearlProPass({ auto: true });
+          });
+          get().activatePearlProPass({ auto: true });
+          return true;
+        }
+
+        // Local / cloud_pending / offline: só local (offline cloud não inventa server grant).
+        if (account?.authMode === "cloud" && !online) {
+          // Offline: ainda marca localmente com idempotência; sync na fila ao reconectar.
+          const patch = applyPearlEarn(state, {
+            amount,
+            source: milestoneId,
+            milestoneId,
+            idempotencyKey: key,
+          });
+          if (!patch) return false;
+          set((s) => {
+            if (!claimablePearlMilestone(s.pearlMilestonesClaimed, milestoneId)) return {};
+            const next = { ...s, ...patch };
+            return { ...patch, accounts: saveCurrentAccount(next) };
+          });
+          void serverClaimPearlMilestone({ milestoneId, idempotencyKey: key, evidence });
+          return true;
+        }
+
+        const patch = applyPearlEarn(state, {
+          amount,
+          source: milestoneId,
+          milestoneId,
+          idempotencyKey: key,
+        });
+        if (!patch) return false;
+        set((s) => {
+          if (!claimablePearlMilestone(s.pearlMilestonesClaimed, milestoneId)) return {};
+          const next = { ...s, ...patch };
+          return { ...patch, accounts: saveCurrentAccount(next) };
+        });
+        get().activatePearlProPass({ auto: true });
+        return true;
+      },
+
+      activatePearlProPass: (opts) => {
+        const state = get();
+        const account = state.accounts[state.currentAccountId];
+        const online = typeof navigator === "undefined" ? true : navigator.onLine;
+        const now = Date.now();
+        const idempotencyKey =
+          opts?.idempotencyKey ?? `pearl-pro-pass:${state.pearlProLastActivatedAt ?? 0}:${Math.floor(now / 1000)}`;
+
+        const decision = tryAutoActivatePearlPro({
+          state: {
+            pearlProExpiresAt: state.pearlProExpiresAt ?? null,
+            pearlProLastActivatedAt: state.pearlProLastActivatedAt ?? null,
+            pearlProAutoActivate: state.pearlProAutoActivate ?? false,
+            pearlProPendingOffline: state.pearlProPendingOffline ?? false,
+            dragonPearls: state.dragonPearls ?? 0,
+            pearlLedger: state.pearlLedger ?? [],
+          },
+          serverIsPro: state.serverIsPro,
+          authMode: account?.authMode,
+          online,
+          requireAuto: Boolean(opts?.auto),
+          idempotencyKey,
+          now,
+        });
+
+        if (decision.pendingOffline) {
+          set((s) => {
+            const pearlProPendingOffline = true;
+            const next = { ...s, pearlProPendingOffline };
+            return { pearlProPendingOffline, accounts: saveCurrentAccount(next) };
+          });
+          return {
+            ok: false,
+            reason: decision.reason,
+            message: decision.message,
+          };
+        }
+
+        if (!decision.allowed || !decision.patch) {
+          return {
+            ok: false,
+            reason: decision.reason,
+            message: decision.message,
+          };
+        }
+
+        if (account?.authMode === "cloud" && online && shouldUseServerEconomy()) {
+          set((s) => {
+            const applied = tryAutoActivatePearlPro({
+              state: {
+                pearlProExpiresAt: s.pearlProExpiresAt ?? null,
+                pearlProLastActivatedAt: s.pearlProLastActivatedAt ?? null,
+                pearlProAutoActivate: s.pearlProAutoActivate ?? false,
+                pearlProPendingOffline: s.pearlProPendingOffline ?? false,
+                dragonPearls: s.dragonPearls ?? 0,
+                pearlLedger: s.pearlLedger ?? [],
+              },
+              serverIsPro: s.serverIsPro,
+              authMode: s.accounts[s.currentAccountId]?.authMode,
+              online: true,
+              requireAuto: Boolean(opts?.auto),
+              idempotencyKey,
+              now,
+            });
+            if (!applied.allowed || !applied.patch) return {};
+            const next = { ...s, ...applied.patch };
+            const feedback: ShopPurchaseFeedback = {
+              itemId: "shop-pearl-pro-pass",
+              balanceBefore: s.dragonPearls,
+              cost: PEARL_PRO_COST,
+              balanceAfter: applied.patch.dragonPearls ?? s.dragonPearls,
+              benefit: `Longyu Pro até ${formatPearlProUntil(applied.expiresAt ?? now)}`,
+              durationLabel: "7 dias",
+              expiresAt: applied.expiresAt,
+            };
+            return {
+              ...applied.patch,
+              lastShopPurchaseFeedback: feedback,
+              accounts: saveCurrentAccount({ ...next, lastShopPurchaseFeedback: feedback } as AppState),
+            };
+          });
+          void serverActivatePearlProPass(idempotencyKey);
+          return {
+            ok: true,
+            message: decision.message,
+            expiresAt: decision.expiresAt,
+          };
+        }
+
+        // Conta local: aplica patch atômico.
+        set((s) => {
+          const applied = tryAutoActivatePearlPro({
+            state: {
+              pearlProExpiresAt: s.pearlProExpiresAt ?? null,
+              pearlProLastActivatedAt: s.pearlProLastActivatedAt ?? null,
+              pearlProAutoActivate: s.pearlProAutoActivate ?? false,
+              pearlProPendingOffline: s.pearlProPendingOffline ?? false,
+              dragonPearls: s.dragonPearls ?? 0,
+              pearlLedger: s.pearlLedger ?? [],
+            },
+            serverIsPro: s.serverIsPro,
+            authMode: s.accounts[s.currentAccountId]?.authMode,
+            online: true,
+            requireAuto: Boolean(opts?.auto),
+            idempotencyKey,
+            now,
+          });
+          if (!applied.allowed || !applied.patch) return {};
+          const next = { ...s, ...applied.patch };
+          const feedback: ShopPurchaseFeedback = {
+            itemId: "shop-pearl-pro-pass",
+            balanceBefore: s.dragonPearls,
+            cost: PEARL_PRO_COST,
+            balanceAfter: applied.patch.dragonPearls ?? s.dragonPearls,
+            benefit: `Longyu Pro até ${formatPearlProUntil(applied.expiresAt ?? now)}`,
+            durationLabel: "7 dias",
+            expiresAt: applied.expiresAt,
+          };
+          return {
+            ...applied.patch,
+            lastShopPurchaseFeedback: feedback,
+            accounts: saveCurrentAccount({ ...next, lastShopPurchaseFeedback: feedback } as AppState),
+          };
+        });
+
+        return {
+          ok: true,
+          message: decision.message,
+          expiresAt: decision.expiresAt,
+        };
+      },
+
+      maybeClaimPearlMilestonesFromProgress: () => {
+        const state = get();
+        const claimed = state.pearlMilestonesClaimed ?? {};
+        const toClaim: string[] = [];
+
+        for (const m of PEARL_STREAK_MILESTONES) {
+          if (state.streak >= m.days && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+        }
+
+        const errorsCorrected = Math.max(
+          Object.keys(state.correctedMistakes ?? {}).length,
+          (state.recentActivityErrors ?? []).filter((e) => e.correctedAt).length
+        );
+        for (const m of PEARL_ERROR_MILESTONES) {
+          if (errorsCorrected >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+        }
+
+        const hanzi = state.learnedChars?.length ?? 0;
+        for (const m of PEARL_HANZI_MILESTONES) {
+          if (hanzi >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+        }
+
+        // Áudio/produção: contadores dedicados OU lifetimeStats (estudo real).
+        const audio = Math.max(
+          state.pearlAudioExposures ?? 0,
+          state.lifetimeStats?.audioHeard ?? 0
+        );
+        for (const m of PEARL_AUDIO_MILESTONES) {
+          if (audio >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+        }
+
+        const production = Math.max(
+          state.pearlProductionCount ?? 0,
+          state.lifetimeStats?.phrasesSpoken ?? 0
+        );
+        for (const m of PEARL_PRODUCTION_MILESTONES) {
+          if (production >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
+        }
+
+        for (const phaseId of listMasteredPhaseIds({
+          completedLessons: state.completedLessons ?? [],
+          lessonStarsById: state.lessonStarsById ?? {},
+          lessonPendingStars: state.lessonPendingStars,
+        })) {
+          const id = `journey_phase:${phaseId}`;
+          if (claimablePearlMilestone(claimed, id)) toClaim.push(id);
+        }
+
+        const month = activeMonthlyMission(state.monthlyMission);
+        if (month.completed >= MONTHLY_GOAL || month.claimed) {
+          const id = `monthly_challenge:${month.monthKey}`;
+          if (claimablePearlMilestone(claimed, id)) toClaim.push(id);
+        }
+
+        for (const id of toClaim) {
+          get().claimPearlMilestone(id);
+        }
+      },
+
+      recordPearlAudioExposure: (count = 1) => {
+        const inc = Math.max(0, Math.round(count));
+        if (inc <= 0) return;
+        set((s) => {
+          const pearlAudioExposures = (s.pearlAudioExposures ?? 0) + inc;
+          const next = { ...s, pearlAudioExposures };
+          return { pearlAudioExposures, accounts: saveCurrentAccount(next) };
+        });
+        get().maybeClaimPearlMilestonesFromProgress();
+      },
+
+      recordPearlProduction: (count = 1) => {
+        const inc = Math.max(0, Math.round(count));
+        if (inc <= 0) return;
+        set((s) => {
+          const pearlProductionCount = (s.pearlProductionCount ?? 0) + inc;
+          const next = { ...s, pearlProductionCount };
+          return { pearlProductionCount, accounts: saveCurrentAccount(next) };
+        });
+        get().maybeClaimPearlMilestonesFromProgress();
+      },
+
       buyShopItem: (itemId) => {
         const item = findShopItem(itemId);
         if (!item) return false;
         if (!canPurchase(get(), item)) return false;
+
+        // Pass Pro: ativa direto, sem inventário.
+        if (item.kind === "pearl_pro_pass") {
+          const before = get().dragonPearls;
+          const result = get().activatePearlProPass({
+            idempotencyKey: `shop-pearl-pro:${Date.now()}`,
+          });
+          if (!result.ok && result.reason !== "offline_cloud") return false;
+          set((s) => {
+            const feedback: ShopPurchaseFeedback = {
+              itemId: item.id,
+              balanceBefore: before,
+              cost: item.cost,
+              balanceAfter: s.dragonPearls,
+              benefit: result.message ?? item.desc,
+              durationLabel: item.durationLabel,
+              expiresAt: result.expiresAt,
+            };
+            const purchase: PurchaseEntry = {
+              id: `${item.id}:${Date.now()}`,
+              itemId: item.id,
+              name: item.name,
+              currency: item.currency,
+              cost: item.cost,
+              purchasedAt: Date.now(),
+            };
+            const purchaseHistory = [...(s.purchaseHistory ?? []), purchase].slice(-100);
+            const next = { ...s, purchaseHistory, lastShopPurchaseFeedback: feedback };
+            return {
+              purchaseHistory,
+              lastShopPurchaseFeedback: feedback,
+              accounts: saveCurrentAccount(next),
+            };
+          });
+          return true;
+        }
+
+        // focus_pass_48h: compra e ativa imediatamente (como focus_pass usable).
+        if (item.kind === "focus_pass_48h") {
+          const balance = get().dragonPearls;
+          if (balance < item.cost) return false;
+          set((s) => {
+            if (!canPurchase(s, item)) return {};
+            const balanceBefore = s.dragonPearls;
+            const dragonPearls = Math.max(0, balanceBefore - item.cost);
+            const base = s.focusPassUntil && s.focusPassUntil > Date.now() ? s.focusPassUntil : Date.now();
+            const focusPassUntil = base + FOCUS_PASS_48H_HOURS * 60 * 60 * 1000;
+            const purchase: PurchaseEntry = {
+              id: `${item.id}:${Date.now()}`,
+              itemId: item.id,
+              name: item.name,
+              currency: item.currency,
+              cost: item.cost,
+              purchasedAt: Date.now(),
+            };
+            const purchaseHistory = [...(s.purchaseHistory ?? []), purchase].slice(-100);
+            const feedback: ShopPurchaseFeedback = {
+              itemId: item.id,
+              balanceBefore,
+              cost: item.cost,
+              balanceAfter: dragonPearls,
+              benefit: `Treino sem Carga por ${FOCUS_PASS_48H_HOURS}h`,
+              durationLabel: item.durationLabel,
+              expiresAt: focusPassUntil,
+            };
+            const next = { ...s, dragonPearls, focusPassUntil, purchaseHistory, lastShopPurchaseFeedback: feedback };
+            return {
+              dragonPearls,
+              focusPassUntil,
+              purchaseHistory,
+              lastShopPurchaseFeedback: feedback,
+              accounts: saveCurrentAccount(next),
+            };
+          });
+          return true;
+        }
+
         set((s) => {
           if (!canPurchase(s, item)) return {};
           const balance = item.currency === "qi" ? s.points : s.dragonPearls;
+          const balanceAfter = Math.max(0, balance - item.cost);
           const purchase: PurchaseEntry = {
             id: `${item.id}:${Date.now()}`,
             itemId: item.id,
@@ -3423,30 +4004,59 @@ export const useStore = create<AppState>()(
           };
           const purchaseHistory = [...(s.purchaseHistory ?? []), purchase].slice(-100);
           const currencyPatch =
-            item.currency === "qi"
-              ? { points: Math.max(0, balance - item.cost) }
-              : { dragonPearls: Math.max(0, balance - item.cost) };
+            item.currency === "qi" ? { points: balanceAfter } : { dragonPearls: balanceAfter };
+          const feedback: ShopPurchaseFeedback = {
+            itemId: item.id,
+            balanceBefore: balance,
+            cost: item.cost,
+            balanceAfter,
+            benefit: item.name,
+            durationLabel: item.durationLabel,
+          };
 
           if (item.cosmetic) {
             const ownedCosmetics = (s.ownedCosmetics ?? []).includes(item.id)
               ? s.ownedCosmetics
               : [...(s.ownedCosmetics ?? []), item.id];
-            const next = { ...s, ...currencyPatch, ownedCosmetics, purchaseHistory };
-            return { ...currencyPatch, ownedCosmetics, purchaseHistory, accounts: saveCurrentAccount(next) };
+            const next = {
+              ...s,
+              ...currencyPatch,
+              ownedCosmetics,
+              purchaseHistory,
+              lastShopPurchaseFeedback: feedback,
+            };
+            return {
+              ...currencyPatch,
+              ownedCosmetics,
+              purchaseHistory,
+              lastShopPurchaseFeedback: feedback,
+              accounts: saveCurrentAccount(next),
+            };
           }
 
-          // Baús comprados vão para o contador de baús (abertos com revelação),
-          // não para o inventário de consumíveis.
           if (item.kind === "chest_small" || item.kind === "chest_dragon") {
             const chestType: ChestType = item.kind === "chest_small" ? "small" : "dragon";
             const chests = { ...s.chests, [chestType]: (s.chests?.[chestType] ?? 0) + 1 };
-            const next = { ...s, ...currencyPatch, chests, purchaseHistory };
-            return { ...currencyPatch, chests, purchaseHistory, accounts: saveCurrentAccount(next) };
+            const next = { ...s, ...currencyPatch, chests, purchaseHistory, lastShopPurchaseFeedback: feedback };
+            return {
+              ...currencyPatch,
+              chests,
+              purchaseHistory,
+              lastShopPurchaseFeedback: feedback,
+              accounts: saveCurrentAccount(next),
+            };
           }
 
+          // Itens usableInShop de focus_pass (24h): ainda vão ao inventário (fluxo existente).
           const inventory = { ...s.inventory, [item.id]: (s.inventory[item.id] ?? 0) + 1 };
-          const next = { ...s, ...currencyPatch, inventory, purchaseHistory };
-          return { ...currencyPatch, inventory, purchaseHistory, accounts: saveCurrentAccount(next) };
+          const next = { ...s, ...currencyPatch, inventory, purchaseHistory, lastShopPurchaseFeedback: feedback };
+          return {
+            ...currencyPatch,
+            inventory,
+            purchaseHistory,
+            lastShopPurchaseFeedback: feedback,
+            accounts: saveCurrentAccount(next),
+          };
         });
         return true;
       },
@@ -3468,24 +4078,38 @@ export const useStore = create<AppState>()(
               maxCharges: energy.maxCharges + 1,
               charges: energy.charges + 1,
             };
-            result = { itemId, message: "+1 Carga do Dragão" };
+            result = { itemId, message: "+1 Carga do Dragão", benefit: "+1 Carga" };
             const next = { ...s, inventory, dailyEnergy };
             return { inventory, dailyEnergy, accounts: saveCurrentAccount(next) };
           }
 
           if (item.kind === "shield") {
             const streakShields = s.streakShields + 1;
-            result = { itemId, message: "+1 Escudo de sequência" };
+            result = { itemId, message: "+1 Escudo de sequência", benefit: "+1 Escudo" };
             const next = { ...s, inventory, streakShields };
             return { inventory, streakShields, accounts: saveCurrentAccount(next) };
           }
 
-          if (item.kind === "focus_pass") {
+          if (item.kind === "focus_pass" || item.kind === "focus_pass_48h") {
+            const hours = item.kind === "focus_pass_48h" ? FOCUS_PASS_48H_HOURS : FOCUS_PASS_HOURS;
             const base = s.focusPassUntil && s.focusPassUntil > Date.now() ? s.focusPassUntil : Date.now();
-            const focusPassUntil = base + FOCUS_PASS_HOURS * 60 * 60 * 1000;
-            result = { itemId, message: `Treino Focado ativo por ${FOCUS_PASS_HOURS}h` };
+            const focusPassUntil = base + hours * 60 * 60 * 1000;
+            result = {
+              itemId,
+              message: `Treino Focado ativo por ${hours}h`,
+              benefit: `Treino sem Carga`,
+              durationLabel: `${hours}h`,
+              expiresAt: focusPassUntil,
+            };
             const next = { ...s, inventory, focusPassUntil };
             return { inventory, focusPassUntil, accounts: saveCurrentAccount(next) };
+          }
+
+          if (item.kind === "pearl_pro_pass") {
+            // Compat: se ainda houver no inventário antigo, ativa e consome.
+            result = { itemId, message: "Ativando Pro…" };
+            const next = { ...s, inventory };
+            return { inventory, accounts: saveCurrentAccount(next) };
           }
 
           if (item.kind === "qi_pack") {
@@ -3498,7 +4122,11 @@ export const useStore = create<AppState>()(
                 source: "Pacote de Qi",
               }
             );
-            result = { itemId, message: `+${QI_PACK_AMOUNT} Qi` };
+            result = {
+              itemId,
+              message: `+${QI_PACK_AMOUNT} Qi`,
+              benefit: `+${QI_PACK_AMOUNT} Qi`,
+            };
             return {
               inventory,
               points: next.points,
@@ -3507,7 +4135,6 @@ export const useStore = create<AppState>()(
             };
           }
 
-          // breath / module_retry: consumidos no contexto certo (lição/teste).
           result = {
             itemId,
             message: item.kind === "breath" ? "Vidas recuperadas" : "Tentativa liberada",
@@ -3515,6 +4142,20 @@ export const useStore = create<AppState>()(
           const next = { ...s, inventory };
           return { inventory, accounts: saveCurrentAccount(next) };
         });
+
+        if (item.kind === "pearl_pro_pass") {
+          const activated = get().activatePearlProPass({
+            idempotencyKey: `inventory-pearl-pro:${Date.now()}`,
+          });
+          return {
+            itemId,
+            message: activated.message ?? (activated.ok ? "Pro ativado" : "Não foi possível ativar"),
+            benefit: activated.message,
+            durationLabel: "7 dias",
+            expiresAt: activated.expiresAt,
+          };
+        }
+
         return result;
       },
 
@@ -3996,6 +4637,9 @@ export const useStore = create<AppState>()(
         if (next.lastStudyDate !== prevStudy && next.streak >= 2 && next.streak >= prevStreak) {
           queueSocialFromApp("streak", { days: next.streak, streak: next.streak });
         }
+        if (next.streak !== prevStreak || next.lastStudyDate !== prevStudy) {
+          get().maybeClaimPearlMilestonesFromProgress();
+        }
       },
 
       clearStreakCelebration: () =>
@@ -4061,7 +4705,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 16,
+      version: 17,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -4080,6 +4724,7 @@ export const useStore = create<AppState>()(
       // v14: remove preview Pro persistido em produção e normaliza cargas ao plano grátis.
       // v15: adiciona moduleSkipUsage para cotas semanais do teste de pular.
       // v16: ofensiva por estudo (lastStudyDate/activityByDay) + cura de aulas 1★+.
+      // v17: Pérolas V2 — marcos, ledger e Pass Pro por Pérolas.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -4193,6 +4838,21 @@ export const useStore = create<AppState>()(
               pendingStreakCelebration: migrated.pendingStreakCelebration ?? null,
             };
           }
+          if (version < 17) {
+            migrated = {
+              ...migrated,
+              ...blankPearlEconomyFields(),
+              pearlMilestonesClaimed: migrated.pearlMilestonesClaimed ?? {},
+              pearlLedger: migrated.pearlLedger ?? [],
+              pearlProExpiresAt: migrated.pearlProExpiresAt ?? null,
+              pearlProLastActivatedAt: migrated.pearlProLastActivatedAt ?? null,
+              pearlProAutoActivate: migrated.pearlProAutoActivate ?? false,
+              pearlProPendingOffline: migrated.pearlProPendingOffline ?? false,
+              pearlProAutoExplainSeen: migrated.pearlProAutoExplainSeen ?? false,
+              pearlAudioExposures: migrated.pearlAudioExposures ?? 0,
+              pearlProductionCount: migrated.pearlProductionCount ?? 0,
+            };
+          }
           const completedLessons = normalizeCompletedLessons(
             migrated.completedLessons,
             migrated.lessonStarsById,
@@ -4258,6 +4918,16 @@ export const useStore = create<AppState>()(
           lastStudyDate: root.lastStudyDate ?? null,
           activityByDay: root.activityByDay ?? {},
           pendingStreakCelebration: root.pendingStreakCelebration ?? null,
+          pearlMilestonesClaimed: root.pearlMilestonesClaimed ?? {},
+          pearlLedger: root.pearlLedger ?? [],
+          pearlProExpiresAt: root.pearlProExpiresAt ?? null,
+          pearlProLastActivatedAt: root.pearlProLastActivatedAt ?? null,
+          pearlProAutoActivate: root.pearlProAutoActivate ?? false,
+          pearlProPendingOffline: root.pearlProPendingOffline ?? false,
+          pearlProAutoExplainSeen: root.pearlProAutoExplainSeen ?? false,
+          pearlAudioExposures: root.pearlAudioExposures ?? 0,
+          pearlProductionCount: root.pearlProductionCount ?? 0,
+          lastShopPurchaseFeedback: root.lastShopPurchaseFeedback ?? null,
           accounts: normalized,
         } as AppState;
       },

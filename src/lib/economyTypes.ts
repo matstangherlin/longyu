@@ -8,6 +8,11 @@ export interface ServerEconomySnapshot {
   max_charges: number;
   energy_day: string;
   focus_pass_until?: string | null;
+  pearl_milestones_claimed?: Record<string, number> | null;
+  pearl_ledger?: unknown[] | null;
+  pearl_pro_expires_at?: string | null;
+  pearl_pro_last_activated_at?: string | null;
+  pearl_pro_auto_activate?: boolean | null;
 }
 
 export interface EconomyRpcResult {
@@ -22,6 +27,8 @@ export interface EconomyRpcResult {
   rewards?: unknown;
   granted_today?: number;
   cap?: number;
+  expires_at?: string | null;
+  amount?: number;
 }
 
 export type EconomyIntentOperation =
@@ -31,7 +38,9 @@ export type EconomyIntentOperation =
   | "grant_story_energy"
   | "claim_mission"
   | "open_chest"
-  | "migrate_local_economy";
+  | "migrate_local_economy"
+  | "activate_pearl_pro_pass"
+  | "claim_pearl_milestone";
 
 export interface EconomyIntent {
   id: string;

@@ -32,6 +32,10 @@ if (!fs.existsSync(path.join(root, economyPath))) {
     "ECONOMY_SUMMARY",
     "RETRY_QUESTION_QI",
     "MODULE_RETRY_QI",
+    "PEARL_PRICES",
+    "PEARL_STREAK_MILESTONES",
+    "PEARL_PRO_COST",
+    "PEARL_ECONOMY_SUMMARY",
   ];
   for (const token of requiredExports) {
     if (!economySrc.includes(`export const ${token}`) && !economySrc.includes(`export const ${token} =`)) {
@@ -96,6 +100,26 @@ for (const screen of explainerScreens) {
   if (!text.includes("EconomyExplainer")) {
     fail(`${screen} deve usar EconomyExplainer`);
   }
+}
+
+// ——— Pérolas V2: loja, entitlement, ads ———
+const shopSrc = read("src/data/shop.ts");
+if (!shopSrc.includes("pearl_pro_pass") || !shopSrc.includes('"perolas"')) {
+  fail("shop.ts deve separar Pérolas e incluir pass Pro");
+}
+if (!economySrc.includes("qiPack: 3") && !economySrc.includes("qiPackPearls: 3")) {
+  fail("Conversão Pérola→Qi deve ser 3 Pérolas (não 2)");
+}
+const pearlProSrc = read("src/lib/pearlPro.ts");
+if (!pearlProSrc.includes("shouldShowAds") || !pearlProSrc.includes("canActivatePearlPro")) {
+  fail("pearlPro.ts deve expor shouldShowAds e canActivatePearlPro");
+}
+if (!storeSrc.includes("pearlMilestonesClaimed") || !storeSrc.includes("activatePearlProPass")) {
+  fail("store.ts deve ter marcos de Pérola e activatePearlProPass");
+}
+const lojaSrc = read("src/features/loja/LojaPage.tsx");
+if (!lojaSrc.includes("Próximas Pérolas") || !lojaSrc.includes("Pérolas de Jade")) {
+  fail("LojaPage deve mostrar progresso e próximas Pérolas");
 }
 
 // ——— chestMeta focus_pass ———

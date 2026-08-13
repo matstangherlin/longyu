@@ -100,6 +100,7 @@ export function isProUser(context?: ProAccessContext | boolean): boolean {
   const accountOptions = {
     accountEmail: account?.email,
     accountAuthMode: account?.authMode,
+    pearlProExpiresAt: state.pearlProExpiresAt ?? null,
   };
   if (typeof context === "boolean") {
     return effectivePremium(context, state.serverIsPro, accountOptions);
@@ -109,8 +110,8 @@ export function isProUser(context?: ProAccessContext | boolean): boolean {
 }
 
 /**
- * Pro efetivo para as telas: assinatura real do servidor OU preview local (só em dev).
- * Contas cloud de QA internas (teste@longyu.app) também contam como Pro.
+ * Pro efetivo para as telas: assinatura real do servidor, pass de Pérolas,
+ * OU preview local (só em dev). Contas cloud de QA internas também contam.
  */
 export function useIsPro(): boolean {
   return useStore((s) => {
@@ -118,6 +119,19 @@ export function useIsPro(): boolean {
     return effectivePremium(s.isPremium, s.serverIsPro, {
       accountEmail: account?.email,
       accountAuthMode: account?.authMode,
+      pearlProExpiresAt: s.pearlProExpiresAt ?? null,
+    });
+  });
+}
+
+/** Fonte única de anúncios — Free sem Pro/pass = ads. */
+export function useShouldShowAds(): boolean {
+  return useStore((s) => {
+    const account = s.accounts[s.currentAccountId];
+    return !effectivePremium(s.isPremium, s.serverIsPro, {
+      accountEmail: account?.email,
+      accountAuthMode: account?.authMode,
+      pearlProExpiresAt: s.pearlProExpiresAt ?? null,
     });
   });
 }

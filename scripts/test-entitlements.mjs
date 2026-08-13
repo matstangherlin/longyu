@@ -36,9 +36,14 @@ function isDevPreviewAllowed(env = process.env) {
   return env.VITE_ALLOW_PRO_PREVIEW === "true";
 }
 
+function hasActivePearlPro(expiresAt, now = Date.now()) {
+  return typeof expiresAt === "number" && expiresAt > now;
+}
+
 function effectivePremium(isPreview, serverIsPro, env = process.env, options = {}) {
   if (options.accountAuthMode === "cloud" && options.accountEmail === "teste@longyu.app") return true;
   if (serverIsPro === true) return true;
+  if (hasActivePearlPro(options.pearlProExpiresAt, options.now)) return true;
   if (isPreview && isDevPreviewAllowed(env)) return true;
   return false;
 }
@@ -96,14 +101,16 @@ assert(appEnvSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "appEnvironment deve checar
 assert(appEnvSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
 
 const storeSrc = read("src/lib/store.ts");
-assert(storeSrc.includes("version: 16"), "Persist deve estar na versão 16");
+assert(storeSrc.includes("version: 17"), "Persist deve estar na versão 17 (Pérolas/Pro pass)");
 assert(storeSrc.includes("moduleSkipUsage"), "Store deve persistir moduleSkipUsage");
 assert(storeSrc.includes("reconcileFreePlanEnergy"), "Store deve reconciliar energia ao sair do Pro");
 assert(storeSrc.includes("effectivePremium"), "hasProAccess deve usar effectivePremium");
+assert(storeSrc.includes("pearlProExpiresAt"), "Store deve persistir pearlProExpiresAt");
 assert(
   storeSrc.includes("stripAccountPreview"),
   "migração deve reconciliar a energia das contas guardadas (sem teto inflado sobrevivendo)"
 );
+assert(entitlementsSrc.includes("pearl_pass") || entitlementsSrc.includes("pearlProExpiresAt"), "entitlements deve considerar pass de Pérolas");
 
 const entitlementServiceSrc = read("src/services/entitlementService.ts");
 assert(entitlementServiceSrc.includes("resolveServerSubscriptionRow"), "entitlementService deve expor resolveServerSubscriptionRow");
@@ -128,6 +135,16 @@ assert(!effectivePremium(false, false, prodEnv), "Sem servidor nem preview = gr�
 // serverIsPro true libera Pro (assinatura real)
 assert(effectivePremium(false, true, prodEnv), "serverIsPro true deve liberar Pro");
 assert(effectivePremium(true, true, prodEnv), "serverIsPro true prevalece sobre preview");
+
+// Pass de Pérolas ativo libera Pro sem Stripe
+assert(
+  effectivePremium(false, false, prodEnv, { pearlProExpiresAt: Date.now() + 60_000 }),
+  "Pass de Pérolas ativo deve liberar Pro"
+);
+assert(
+  !effectivePremium(false, false, prodEnv, { pearlProExpiresAt: Date.now() - 60_000 }),
+  "Pass de Pérolas expirado não libera Pro"
+);
 
 // Conta cloud de QA interna libera Pro sem preview nem assinatura Stripe
 assert(
