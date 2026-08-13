@@ -36,7 +36,7 @@ export function PwaUpdateBanner() {
   return (
     <div
       role="status"
-      className="pointer-events-auto fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] z-[60] mx-auto flex max-w-lg items-center gap-3 rounded-2xl border border-line bg-surface px-3 py-2.5 text-sm text-ink shadow-lift sm:inset-x-auto sm:right-4 sm:bottom-4 sm:left-auto"
+      className="pointer-events-auto fixed inset-x-3 bottom-[calc(var(--app-bottom-nav-height)+0.5rem)] z-[60] mx-auto flex max-w-lg items-center gap-3 rounded-2xl border border-line bg-surface px-3 py-2.5 text-sm text-ink shadow-lift lg:inset-x-auto lg:right-4 lg:bottom-4 lg:left-auto"
     >
       <p className="min-w-0 flex-1 leading-5 text-ink-soft">
         <span className="font-semibold text-ink">Nova versão</span>

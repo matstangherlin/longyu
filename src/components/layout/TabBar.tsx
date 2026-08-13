@@ -14,10 +14,12 @@ import { useIsPro } from "../../lib/proAccess";
 import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 import { dueItems } from "../../lib/srs";
 import { buildMissionViews, isMissionActionable } from "../../data/missions";
+import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 
 type SheetKind = "praticar" | "perfil" | "mais";
 
 export function TabBar() {
+  const navRef = useMeasuredHeightCssVar<HTMLElement>("--app-bottom-nav-height");
   const location = useLocation();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const canUseReferral = authMode === "cloud";
@@ -84,8 +86,10 @@ export function TabBar() {
   return (
     <>
       <nav
+        ref={navRef}
+        data-app-bottom-nav
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line/60 bg-surface/95 shadow-[0_-4px_20px_rgb(0_0_0/0.05)] backdrop-blur-xl lg:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        style={{ paddingBottom: "var(--app-safe-bottom)" }}
         aria-label="Principal"
       >
         <div className="mx-auto flex min-h-16 max-w-md items-stretch justify-around px-1 py-1">
@@ -211,7 +215,7 @@ function TabSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         className="animate-pop flex w-full max-h-[min(32rem,78dvh)] flex-col rounded-t-[28px] border border-line/70 bg-surface shadow-lift"
-        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        style={{ paddingBottom: "max(1rem, var(--app-safe-bottom))" }}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex flex-col items-center px-4 pt-3 pb-2">

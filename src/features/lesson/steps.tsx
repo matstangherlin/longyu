@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LessonStep, StepTextType } from "../../data/journey";
 import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
@@ -133,10 +133,40 @@ function StickyActionBar({
   children: ReactNode;
   className?: string;
 }) {
-  // B001 — a barra sticky precisa de safe-area + altura reservada no scroll pai
-  // (`--lesson-sticky-actions-space` em LessonPlayer) para nao cobrir pecas/opcoes.
+  const barRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    const bar = barRef.current;
+    const scroller = bar?.closest<HTMLElement>("[data-lesson-activity-scroll]");
+    if (!bar || !scroller) return undefined;
+    let frame = 0;
+
+    const updateReservedSpace = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const height = Math.ceil(bar.getBoundingClientRect().height);
+        if (height > 0) scroller.style.setProperty("--lesson-sticky-actions-height", `${height}px`);
+      });
+    };
+
+    updateReservedSpace();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(updateReservedSpace);
+    observer?.observe(bar);
+    window.visualViewport?.addEventListener("resize", updateReservedSpace);
+    window.addEventListener("orientationchange", updateReservedSpace);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.visualViewport?.removeEventListener("resize", updateReservedSpace);
+      window.removeEventListener("orientationchange", updateReservedSpace);
+      scroller.style.removeProperty("--lesson-sticky-actions-height");
+    };
+  }, []);
+
   return (
     <div
+      ref={barRef}
       data-lesson-sticky-actions
       className={cx(
         "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-5",
@@ -1600,7 +1630,7 @@ function EngineActions({
 }) {
   return (
     <StickyActionBar>
-      <div className={onClear ? "grid gap-2 sm:grid-cols-[0.8fr_1.2fr]" : ""}>
+      <div className={onClear ? "grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2" : ""}>
         {onClear && (
           <Button size="lg" variant="outline" className="w-full" disabled={!canClear} onClick={onClear}>
             Limpar

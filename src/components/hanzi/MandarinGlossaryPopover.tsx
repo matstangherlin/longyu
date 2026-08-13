@@ -122,7 +122,7 @@ export function MandarinGlossaryPopover({
       role="dialog"
       aria-modal="false"
       aria-label={ariaLabel}
-      className="animate-pop fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-[110] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-4 pr-11 text-left font-sans text-sm leading-normal text-ink shadow-lift sm:bottom-[calc(env(safe-area-inset-bottom)+1rem)]"
+      className="animate-pop fixed inset-x-3 bottom-[calc(var(--app-bottom-nav-height)+0.75rem)] z-[110] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-4 pr-11 text-left font-sans text-sm leading-normal text-ink shadow-lift lg:bottom-[calc(env(safe-area-inset-bottom)+1rem)]"
       style={{
         maxHeight:
           "min(72svh, calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 7rem))",

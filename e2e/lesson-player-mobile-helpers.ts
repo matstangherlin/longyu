@@ -101,7 +101,7 @@ export async function assertElementInViewport(
     };
   }, tolerancePx);
   expect(box.height).toBeGreaterThan(20);
-  expect(box.inView).toBe(true);
+  expect(box.inView, JSON.stringify(box)).toBe(true);
 }
 
 /** Revisão: sem spill horizontal; topo ancorado; scroll da página bloqueado. */
@@ -386,13 +386,38 @@ export async function assertBankAboveSticky(page: Page) {
   await expect(sticky).toBeVisible();
   await expect(bank).toBeVisible();
 
-  // Garante que a última peça cabe acima do sticky (via scroll interno se preciso).
+  await expect.poll(async () => page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (!stickyEl || !scroller) return Number.POSITIVE_INFINITY;
+    const reserved = Number.parseFloat(
+      getComputedStyle(scroller).getPropertyValue("--lesson-sticky-actions-height")
+    );
+    return Math.abs(reserved - stickyEl.getBoundingClientRect().height);
+  })).toBeLessThanOrEqual(2);
+  // Garante que a última peça realmente chega acima do sticky, não apenas que
+  // ainda existe scroll teórico disponível.
   const lastPiece = bank.locator("button").last();
   await lastPiece.scrollIntoViewIfNeeded();
+  await page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    const last = document.querySelector("[data-assembly-bank] button:last-of-type") as HTMLElement | null;
+    if (!stickyEl || !scroller || !last) return;
+    const overlap = last.getBoundingClientRect().bottom - stickyEl.getBoundingClientRect().top;
+    if (overlap > -8) scroller.scrollBy({ top: overlap + 12, behavior: "auto" });
+  });
+
+  await expect.poll(async () => page.evaluate(() => {
+    const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    const last = document.querySelector("[data-assembly-bank] button:last-of-type") as HTMLElement | null;
+    if (!stickyEl || !last) return Number.NEGATIVE_INFINITY;
+    return stickyEl.getBoundingClientRect().top - last.getBoundingClientRect().bottom;
+  })).toBeGreaterThanOrEqual(0);
+
   const geometry = await page.evaluate(() => {
     const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
     const bankEl = document.querySelector("[data-assembly-bank]") as HTMLElement | null;
-    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
     const last = bankEl?.querySelector("button:last-of-type") as HTMLElement | null;
     if (!stickyEl || !last) return { ok: false, reason: "missing nodes" };
     const sr = stickyEl.getBoundingClientRect();
@@ -401,19 +426,29 @@ export async function assertBankAboveSticky(page: Page) {
     // Peça acima do topo do sticky, ou scroller consegue trazê-la acima.
     const aboveSticky = lr.bottom <= sr.top + 2;
     const stickyInView = sr.top < vv && sr.bottom > 0;
-    const canScrollMore = Boolean(scroller && scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 2);
     return {
-      ok: (aboveSticky || canScrollMore) && stickyInView,
+      ok: aboveSticky && stickyInView,
       aboveSticky,
       stickyInView,
-      canScrollMore,
       lastBottom: lr.bottom,
       stickyTop: sr.top,
       vv,
     };
   });
   expect(geometry.ok, JSON.stringify(geometry)).toBe(true);
-  await assertPrimaryCtaInViewport(page);
+  const cta = sticky.locator("button:visible").first();
+  await cta.scrollIntoViewIfNeeded();
+  await cta.evaluate((element) => {
+    const scroller = element.closest("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (!scroller) return;
+    const rect = element.getBoundingClientRect();
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    if (rect.top < 4) scroller.scrollBy({ top: rect.top - 4, behavior: "auto" });
+    else if (rect.bottom > viewportHeight - 4) {
+      scroller.scrollBy({ top: rect.bottom - viewportHeight + 4, behavior: "auto" });
+    }
+  });
+  await assertElementInViewport(cta);
 }
 
 export async function openOpenProductionStep(page: Page) {

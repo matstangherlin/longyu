@@ -8,6 +8,10 @@
    ============================================================ */
 :root,
 [data-theme="clay"] {
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-header-height: calc(3.5rem + var(--app-safe-top));
+  --app-bottom-nav-height: calc(4.5rem + var(--app-safe-bottom));
   --bg: 247 246 243; /* #F7F6F3 */
   --surface: 255 255 255; /* #FFFFFF */
   --surface-2: 250 249 246; /* leve off-white p/ blocos internos */
