@@ -21,6 +21,14 @@ function sh(cmd) {
   }
 }
 
+function shOptional(cmd) {
+  try {
+    return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return null;
+  }
+}
+
 const sha = sh("git rev-parse HEAD");
 const short = sh("git rev-parse --short HEAD");
 const branch = sh("git branch --show-current");
@@ -28,7 +36,10 @@ const status = sh("git status --porcelain");
 const dirty = status.length > 0;
 
 // Preferir tip remota da main (o que a RC deve seguir).
-const mainSha = sh("git rev-parse origin/main 2>/dev/null || git rev-parse main 2>/dev/null");
+const mainSha =
+  shOptional("git rev-parse origin/main") ??
+  shOptional("git rev-parse main") ??
+  "(indisponível)";
 const mainShort = mainSha.startsWith("(") ? mainSha : mainSha.slice(0, 7);
 const onMainTip = !mainSha.startsWith("(") && sha === mainSha;
 
