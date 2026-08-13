@@ -41,7 +41,7 @@ function hasActivePearlPro(expiresAt, now = Date.now()) {
 }
 
 function effectivePremium(isPreview, serverIsPro, env = process.env, options = {}) {
-  if (options.accountAuthMode === "cloud" && options.accountEmail === "teste@longyu.app") return true;
+  if (options.accountAuthMode === "cloud") return serverIsPro === true;
   if (serverIsPro === true) return true;
   if (hasActivePearlPro(options.pearlProExpiresAt, options.now)) return true;
   if (isPreview && isDevPreviewAllowed(env)) return true;
@@ -92,16 +92,19 @@ function reconcileFreePlanEnergy(energy, date = "2026-07-11") {
 const entitlementsSrc = read("src/lib/entitlements.ts");
 assert(entitlementsSrc.includes("isDevPreviewAllowed"), "entitlements.ts sem isDevPreviewAllowed");
 assert(entitlementsSrc.includes("isProPreviewBuildAllowed"), "entitlements.ts deve usar isProPreviewBuildAllowed");
-assert(entitlementsSrc.includes("isInternalTestProEmail"), "entitlements.ts deve expor isInternalTestProEmail");
-assert(entitlementsSrc.includes("teste@longyu.app"), "entitlements.ts deve listar conta QA interna");
-assert(entitlementsSrc.includes("accountAuthMode"), "effectivePremium deve considerar conta cloud de QA");
+assert(entitlementsSrc.includes('options?.accountAuthMode === "cloud"'), "effectivePremium deve isolar conta cloud");
+assert(entitlementsSrc.includes("return serverIsPro === true"), "cloud deve depender exclusivamente de serverIsPro");
 
 const appEnvSrc = read("src/lib/appEnvironment.ts");
 assert(appEnvSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "appEnvironment deve checar VITE_ALLOW_PRO_PREVIEW");
 assert(appEnvSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
 
 const storeSrc = read("src/lib/store.ts");
-assert(storeSrc.includes("version: 17"), "Persist deve estar na versão 17 (Pérolas/Pro pass)");
+assert(storeSrc.includes("version: 18"), "Persist deve estar na versão 18 (entitlement cloud efêmero)");
+assert(
+  storeSrc.includes("partialize: (state) => ({ ...state, serverIsPro: false })"),
+  "serverIsPro não pode ser hidratado do navegador"
+);
 assert(storeSrc.includes("moduleSkipUsage"), "Store deve persistir moduleSkipUsage");
 assert(storeSrc.includes("reconcileFreePlanEnergy"), "Store deve reconciliar energia ao sair do Pro");
 assert(storeSrc.includes("effectivePremium"), "hasProAccess deve usar effectivePremium");
@@ -138,35 +141,29 @@ assert(effectivePremium(true, true, prodEnv), "serverIsPro true prevalece sobre 
 
 // Pass de Pérolas ativo libera Pro sem Stripe
 assert(
-  effectivePremium(false, false, prodEnv, { pearlProExpiresAt: Date.now() + 60_000 }),
-  "Pass de Pérolas ativo deve liberar Pro"
+  effectivePremium(false, false, prodEnv, { accountAuthMode: "local", pearlProExpiresAt: Date.now() + 60_000 }),
+  "Pass de Pérolas ativo deve liberar Pro local"
 );
 assert(
   !effectivePremium(false, false, prodEnv, { pearlProExpiresAt: Date.now() - 60_000 }),
   "Pass de Pérolas expirado não libera Pro"
 );
 
-// Conta cloud de QA interna libera Pro sem preview nem assinatura Stripe
+// Conta cloud nunca aceita expiração/preview/e-mail persistidos como autoridade.
 assert(
-  effectivePremium(false, false, prodEnv, { accountAuthMode: "cloud", accountEmail: "teste@longyu.app" }),
-  "Conta cloud teste@longyu.app deve liberar Pro em produção"
+  !effectivePremium(true, false, { NODE_ENV: "development", VITE_APP_ENV: "development" }, {
+    accountAuthMode: "cloud",
+    accountEmail: "teste@longyu.app",
+    pearlProExpiresAt: Date.now() + 60_000,
+  }),
+  "Cloud não deve liberar Pro com preview, e-mail ou expiração local"
 );
 assert(
-  !effectivePremium(false, false, prodEnv, { accountAuthMode: "cloud_pending", accountEmail: "teste@longyu.app" }),
-  "Conta cloud_pending não deve liberar Pro sem login"
-);
-assert(
-  !effectivePremium(false, false, prodEnv, { accountAuthMode: "local", accountEmail: "teste@longyu.app" }),
-  "Perfil local com email de teste não deve liberar Pro sem sessão cloud"
-);
-// QA não concede Pro a outro e-mail mesmo com serverIsPro residual — o caller
-// deve zerar serverIsPro ao trocar de conta (ver store.switchAccount/logout).
-assert(
-  !effectivePremium(false, false, prodEnv, {
+  effectivePremium(false, true, prodEnv, {
     accountAuthMode: "cloud",
     accountEmail: "aluno@example.com",
   }),
-  "Outro usuário cloud não herda Pro da conta QA sem serverIsPro"
+  "Cloud deve liberar Pro somente quando serverIsPro confirma"
 );
 
 // Preview só em Development, ou Preview com flag

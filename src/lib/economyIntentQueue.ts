@@ -26,7 +26,11 @@ function writeQueue(queue: EconomyIntent[]): void {
 
 export function enqueueEconomyIntent(intent: Omit<EconomyIntent, "createdAt" | "attempts">): void {
   const queue = readQueue();
-  if (queue.some((item) => item.idempotencyKey === intent.idempotencyKey)) return;
+  if (
+    queue.some(
+      (item) => item.idempotencyKey === intent.idempotencyKey && item.accountId === intent.accountId
+    )
+  ) return;
   queue.push({ ...intent, createdAt: Date.now(), attempts: 0 });
   writeQueue(queue);
 }
@@ -35,14 +39,20 @@ export function listEconomyIntents(): EconomyIntent[] {
   return readQueue();
 }
 
-export function removeEconomyIntent(idempotencyKey: string): void {
-  writeQueue(readQueue().filter((item) => item.idempotencyKey !== idempotencyKey));
+export function removeEconomyIntent(idempotencyKey: string, accountId?: string): void {
+  writeQueue(
+    readQueue().filter(
+      (item) => item.idempotencyKey !== idempotencyKey || item.accountId !== accountId
+    )
+  );
 }
 
-export function bumpEconomyIntentAttempt(idempotencyKey: string): void {
+export function bumpEconomyIntentAttempt(idempotencyKey: string, accountId?: string): void {
   writeQueue(
     readQueue().map((item) =>
-      item.idempotencyKey === idempotencyKey ? { ...item, attempts: item.attempts + 1 } : item
+      item.idempotencyKey === idempotencyKey && item.accountId === accountId
+        ? { ...item, attempts: item.attempts + 1 }
+        : item
     )
   );
 }

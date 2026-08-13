@@ -8,7 +8,7 @@ import {
   PEARL_PRO_COST,
   PEARL_PRO_PASS_DAYS,
 } from "../data/economy";
-import { effectivePremium, isInternalTestProEmail } from "./entitlements";
+import { effectivePremium } from "./entitlements";
 
 export interface PearlProState {
   pearlProExpiresAt: number | null;
@@ -36,19 +36,12 @@ export function hasActivePearlPro(
 
 /** Pro efetivo incluindo pass de Pérolas. */
 export function hasProAccess(ctx: EntitlementAdsContext): boolean {
-  if (
-    ctx.accountAuthMode === "cloud" &&
-    isInternalTestProEmail(ctx.accountEmail)
-  ) {
-    return true;
-  }
-  if (effectivePremium(ctx.isPremiumPreview, ctx.serverIsPro, {
+  return effectivePremium(ctx.isPremiumPreview, ctx.serverIsPro, {
     accountEmail: ctx.accountEmail,
     accountAuthMode: ctx.accountAuthMode,
-  })) {
-    return true;
-  }
-  return hasActivePearlPro(ctx.pearlProExpiresAt, ctx.now ?? Date.now());
+    pearlProExpiresAt: ctx.pearlProExpiresAt,
+    now: ctx.now,
+  });
 }
 
 /**
@@ -110,7 +103,9 @@ export function canActivatePearlPro(input: {
     };
   }
 
-  if (hasActivePearlPro(state.pearlProExpiresAt, now)) {
+  // Em cloud, expiração/cooldown persistidos são apenas cache de UI. A RPC
+  // valida ambos novamente; nunca usamos o navegador como autoridade.
+  if (input.authMode !== "cloud" && hasActivePearlPro(state.pearlProExpiresAt, now)) {
     return {
       allowed: false,
       reason: "pass_active",
@@ -118,7 +113,7 @@ export function canActivatePearlPro(input: {
     };
   }
 
-  if (state.pearlProLastActivatedAt) {
+  if (input.authMode !== "cloud" && state.pearlProLastActivatedAt) {
     const cooldownMs = PEARL_PRO_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
     if (now - state.pearlProLastActivatedAt < cooldownMs) {
       return {

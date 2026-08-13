@@ -1,6 +1,5 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
-import { isInternalTestProEmail } from "../lib/entitlements";
 import { useStore } from "../lib/store";
 import type { ServerSubscriptionSnapshot } from "./subscriptionService";
 
@@ -136,12 +135,6 @@ export async function fetchServerIsPro(): Promise<boolean> {
   if (!isSupabaseBackendEnabled()) return false;
   const client = getSupabaseClient();
   if (!client) return false;
-
-  const {
-    data: { user },
-  } = await client.auth.getUser();
-
-  if (isInternalTestProEmail(user?.email)) return true;
 
   const rpc = await fetchServerEntitlementRpc();
   if (rpc.isPro !== null) return rpc.isPro;

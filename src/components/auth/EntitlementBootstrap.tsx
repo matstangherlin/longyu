@@ -1,24 +1,11 @@
 import { useEffect } from "react";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
-import { isInternalTestProEmail } from "../../lib/entitlements";
 import { useStore } from "../../lib/store";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { fetchRemoteEntitlements } from "../../services/syncService";
 
-function grantInternalTestProFromStore(setServerEntitlement: (isPro: boolean) => void): boolean {
-  const store = useStore.getState();
-  const account = store.accounts[store.currentAccountId];
-  if (account?.authMode === "cloud" && isInternalTestProEmail(account.email)) {
-    setServerEntitlement(true);
-    return true;
-  }
-  return false;
-}
-
 async function refreshServerEntitlement(setServerEntitlement: (isPro: boolean) => void): Promise<void> {
-  if (grantInternalTestProFromStore(setServerEntitlement)) return;
-
   const client = getSupabaseClient();
   if (!client) return;
 
@@ -26,12 +13,9 @@ async function refreshServerEntitlement(setServerEntitlement: (isPro: boolean) =
     data: { session },
   } = await client.auth.getSession();
 
-  // Sem sessão cloud: não sobrescreve serverIsPro local (ex.: seeds E2E / estado persistido).
-  // Em SIGNED_OUT o listener abaixo zera o entitlement explicitamente.
-  if (!session?.user) return;
-
-  if (isInternalTestProEmail(session.user.email)) {
-    setServerEntitlement(true);
+  // Sem sessão cloud não existe confirmação de servidor válida.
+  if (!session?.user) {
+    setServerEntitlement(false);
     return;
   }
 

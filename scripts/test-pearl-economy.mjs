@@ -5,6 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -31,9 +32,9 @@ function hasActivePearlPro(expiresAt, now = Date.now()) {
 }
 
 function shouldShowAds(ctx) {
+  if (ctx.accountAuthMode === "cloud") return ctx.serverIsPro !== true;
   if (ctx.serverIsPro === true) return false;
   if (hasActivePearlPro(ctx.pearlProExpiresAt, ctx.now)) return false;
-  if (ctx.accountAuthMode === "cloud" && ctx.accountEmail === "teste@longyu.app") return false;
   if (ctx.isPremiumPreview && ctx.devPreview) return false;
   return true;
 }
@@ -50,10 +51,10 @@ function canActivatePearlPro(input) {
   if (input.serverIsPro === true) {
     return { allowed: false, reason: "paid_subscription" };
   }
-  if (hasActivePearlPro(state.pearlProExpiresAt, now)) {
+  if (input.authMode !== "cloud" && hasActivePearlPro(state.pearlProExpiresAt, now)) {
     return { allowed: false, reason: "pass_active" };
   }
-  if (state.pearlProLastActivatedAt) {
+  if (input.authMode !== "cloud" && state.pearlProLastActivatedAt) {
     const cooldownMs = PEARL_PRO_COOLDOWN_DAYS * DAY_MS;
     if (now - state.pearlProLastActivatedAt < cooldownMs) {
       return { allowed: false, reason: "cooldown" };
@@ -111,7 +112,11 @@ const storeSrc = read("src/lib/store.ts");
 assert(storeSrc.includes("pearlMilestonesClaimed"), "store deve ter pearlMilestonesClaimed");
 assert(storeSrc.includes("pearlProExpiresAt"), "store deve ter pearlProExpiresAt");
 assert(storeSrc.includes("activatePearlProPass"), "store deve ativar pass Pro");
-assert(storeSrc.includes("version: 17"), "persist v17 para migração de Pérolas");
+assert(storeSrc.includes("version: 18"), "persist v18 para entitlement cloud efêmero");
+assert(
+  storeSrc.includes("confirmCloudPearlProActivation"),
+  "ativação cloud deve atravessar a fronteira de confirmação testável"
+);
 assert(storeSrc.includes("pearlProExpiresAt: s.pearlProExpiresAt"), "hasProAccess deve passar pearlProExpiresAt");
 
 const shopSrc = read("src/data/shop.ts");
@@ -123,6 +128,73 @@ const migration = read("supabase/migrations/20260813180000_pearl_pro_economy.sql
 assert(migration.includes("activate_pearl_pro_pass"), "RPC activate_pearl_pro_pass");
 assert(migration.includes("claim_pearl_milestone"), "RPC claim_pearl_milestone");
 assert(migration.includes("pearl_pro_pass"), "source entitlement pearl_pro_pass");
+assert(!migration.includes("p_evidence"), "RPC de Pérolas não pode receber evidência do navegador");
+assert(migration.includes("pearl_milestone_catalog"), "IDs devem vir de catálogo fechado");
+assert(migration.includes("pearl_milestone_claims"), "claims devem viver em tabela normalizada");
+assert(
+  migration.includes("primary key (user_id, milestone_id)"),
+  "claim deve ser único por usuário e milestone"
+);
+assert(
+  migration.includes("on conflict (user_id, milestone_id) do nothing") &&
+    migration.includes("returning claimed_at into v_claimed_at"),
+  "crédito deve depender do INSERT único"
+);
+assert(migration.includes("invalid_month"), "desafio mensal deve recusar mês fora do atual");
+assert(!migration.includes("journey_major:%"), "prefixo journey_major arbitrário não pode existir");
+assert(
+  migration.includes("v_row.pearl_pro_expires_at is not null") &&
+    migration.includes("'already_applied', true") &&
+    migration.includes("'is_pro', true"),
+  "replay e concorrência do passe devem confirmar entitlement ativo sem novo débito"
+);
+
+const economyServerMigration = read("supabase/migrations/006_economy_server.sql");
+assert(
+  economyServerMigration.includes("where user_id = p_user_id for update"),
+  "economia deve serializar claims e ativações concorrentes com lock por usuário"
+);
+
+const catalogIds = new Set(
+  [...migration.matchAll(/\('([a-z0-9:_-]+)',\s*\d+,\s*\d+,\s*'[a-z_]+'/g)].map((match) => match[1])
+);
+for (const forgedId of [
+  "journey_phase:qualquer-id-unico",
+  "journey_major:qualquer-id-unico",
+  "monthly_challenge:2099-12",
+]) {
+  assert(!catalogIds.has(forgedId), `ID forjado não pode entrar no catálogo: ${forgedId}`);
+}
+
+for (const match of migration.matchAll(/\('journey_phase:(p\d+)',\s*1,\s*(\d+),\s*'verified_phase'/g)) {
+  const [, phaseId, thresholdText] = match;
+  const phaseArrayPattern = new RegExp(`\\('${phaseId}', array\\[([\\s\\S]*?)\\]::text\\[\\]\\)`);
+  const phaseArray = migration.match(phaseArrayPattern)?.[1] ?? "";
+  const lessonCount = [...phaseArray.matchAll(/'[^']+'/g)].length;
+  assert(lessonCount === Number(thresholdText), `${phaseId}: threshold deve coincidir com catálogo de aulas`);
+}
+
+const bridgeSrc = read("src/lib/economyServerBridge.ts");
+const claimRpcArgs = bridgeSrc.slice(
+  bridgeSrc.indexOf('invokeRpc<EconomyRpcResult>("claim_pearl_milestone"'),
+  bridgeSrc.indexOf("});", bridgeSrc.indexOf('invokeRpc<EconomyRpcResult>("claim_pearl_milestone"')) + 3
+);
+assert(!claimRpcArgs.includes("p_evidence"), "frontend não pode enviar p_evidence");
+assert(!claimRpcArgs.includes("p_idempotency_key"), "frontend não escolhe idempotência do claim");
+assert(
+  bridgeSrc.includes("expectedAccountId") && bridgeSrc.includes("stale_account: true"),
+  "resposta atrasada não pode ser aplicada depois de uma troca de conta"
+);
+assert(
+  bridgeSrc.includes('intent.operation === "activate_pearl_pro_pass"') &&
+    bridgeSrc.includes("result.is_pro === true") &&
+    bridgeSrc.includes("setServerEntitlement(true)"),
+  "replay confirmado da fila deve restaurar Pro apenas para o perfil de origem"
+);
+assert(
+  storeSrc.includes("get().currentAccountId === requestAccountId"),
+  "autoativação deve continuar vinculada ao perfil que iniciou o claim"
+);
 
 const lojaSrc = read("src/features/loja/LojaPage.tsx");
 assert(lojaSrc.includes("Próximas Pérolas"), "Loja mostra próximas Pérolas");
@@ -231,6 +303,16 @@ assert(
   "cloud offline não fabrica Pro"
 );
 
+// Expiração local forjada jamais abre gate cloud.
+assert(
+  shouldShowAds({
+    serverIsPro: false,
+    accountAuthMode: "cloud",
+    pearlProExpiresAt: Date.now() + 30 * DAY_MS,
+  }),
+  "cloud com expiração local forjada continua Free"
+);
+
 // Duas recompensas / mesmo milestone
 {
   let claimed = {};
@@ -241,6 +323,73 @@ assert(
   const second = claimMilestone(claimed, "streak:7", 1, pearls);
   assert(first.granted && !second.granted, "mesmo milestone não paga duas vezes");
   assert(pearls === 1 && second.dragonPearls === 1, "saldo não dobra no replay");
+}
+
+// Teste executável da ordem assíncrona: falha/rejeição não aplica entitlement,
+// e sucesso só aplica depois que a promessa da RPC resolve.
+const activationModule = await import(
+  pathToFileURL(path.join(root, "src/lib/cloudPearlProActivation.ts")).href
+);
+const { confirmCloudPearlProActivation } = activationModule;
+const persistenceModule = await import(
+  pathToFileURL(path.join(root, "src/lib/persistenceSecurity.ts")).href
+);
+const { mergeWithoutPersistedServerEntitlement } = persistenceModule;
+
+{
+  const hydrated = mergeWithoutPersistedServerEntitlement(
+    { serverIsPro: true, dragonPearls: 999 },
+    { serverIsPro: false, dragonPearls: 0, action: () => "preservada" }
+  );
+  assert(
+    hydrated.serverIsPro === false && hydrated.dragonPearls === 999 && hydrated.action() === "preservada",
+    "payload persistido adulterado na versão atual não pode hidratar serverIsPro"
+  );
+}
+
+{
+  let applied = 0;
+  const rejected = await confirmCloudPearlProActivation(
+    async () => ({ ok: false, is_pro: false, error: "insufficient_pearls" }),
+    () => { applied += 1; }
+  );
+  assert(!rejected.ok && applied === 0, "RPC rejeitada não pode conceder Pro");
+}
+
+{
+  let applied = 0;
+  const failed = await confirmCloudPearlProActivation(
+    async () => { throw new Error("offline"); },
+    () => { applied += 1; }
+  );
+  assert(!failed.ok && failed.pendingRetry && applied === 0, "falha da RPC mantém só intenção pendente");
+}
+
+{
+  let resolveRpc;
+  let applied = 0;
+  const rpc = new Promise((resolve) => { resolveRpc = resolve; });
+  const confirmation = confirmCloudPearlProActivation(
+    () => rpc,
+    () => { applied += 1; }
+  );
+  await Promise.resolve();
+  assert(applied === 0, "Pro não pode ser aplicado antes da resposta da RPC");
+  resolveRpc({ ok: true, is_pro: true });
+  const confirmed = await confirmation;
+  assert(confirmed.ok && applied === 1, "resposta positiva aplica Pro uma única vez");
+}
+
+{
+  let applied = 0;
+  const stale = await confirmCloudPearlProActivation(
+    async () => ({ ok: true, is_pro: true, stale_account: true }),
+    () => { applied += 1; }
+  );
+  assert(
+    !stale.ok && stale.error === "stale_account" && !stale.pendingRetry && applied === 0,
+    "resposta positiva atrasada não concede Pro ao perfil que ficou ativo depois"
+  );
 }
 
 // Duas abas / auto: segunda ativação bloqueada (pass_active ou cooldown)
