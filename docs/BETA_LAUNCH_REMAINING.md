@@ -3,8 +3,7 @@
 Atualizado em 2026-08-13. Separa o que **código/CI já cobre** do que **exige humano**.
 
 > **Tip oficial da `main`:** rode `npm run beta:rc-status` (campo `origin/main`).  
-> Não confie em SHA colada neste arquivo se divergir do comando.  
-> Pós-#159 (hardening RC): tip conhecida no merge = `6c538df`.
+> Não confie em SHA colada neste arquivo — o comando é a fonte oficial.
 
 > **Automação não substitui QA humano.** Playwright, `validate:beta` e scripts de guarda provam regressões — não substituem aparelho físico, L1–L20 como aluno novo, e-mail live, Stripe Test Mode, sync entre dois aparelhos reais, VoiceOver/TalkBack nem testadores externos.
 

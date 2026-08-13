@@ -3,7 +3,7 @@
 **Objetivo:** provar o produto em pessoas e aparelhos reais.  
 **Regra:** **automação não substitui QA humano** — nada aqui é substituível por Playwright, emulação, fixture ou `test:qa-regression-guard`.
 
-Atualizado: 2026-08-13 · tip `main` = `npm run beta:rc-status` → `origin/main` (pós-#159: `6c538df`).  
+Atualizado: 2026-08-13 · tip `main` = `npm run beta:rc-status` → `origin/main`.  
 Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).  
 Log de bugs: [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
 
@@ -35,7 +35,7 @@ Execute **nesta ordem**. Não pule B001/B002 para ir direto a L1–L20.
 
 **Estado do código (não confundir com QA feito):**
 
-- Tip a testar: **`npm run beta:rc-status`** (campo `origin/main`; pós-#159: `6c538df`).  
+- Tip a testar: **`npm run beta:rc-status`** (campo `origin/main`).  
 - B001/B003/B004: **corrigidos em código** + E2E (#158/#159); aguardam aparelho.  
 - B002: **corrigido em código**, aguardando revalidação humana.  
 - Produção/transferência, PieceAssembly, guarda QA, tom/assets validators: **na main**.  
