@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 0d5057ec1cd197a8d23588bad070cf9d34be5775 |
+| Commit | 508e6afc8f0bf6723646fbda3bae5e29003aea0b |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T08:06:45.609Z |
+| Gerado em | 2026-08-14T13:32:46.928Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -146,7 +146,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p6-horarios | 14 | 13 | 29 | 4 | 4 | 10 | action:assemble-phrase × 2 |
 | p6-natureza | 15 | 14 | 28 | 3 | 3 | 10 | char:水 × 2 |
 | p6-clima | 14 | 13 | 27 | 6 | 6 | 9 | phrase:今天天气很好 × 2 |
-| p6-direcoes | 14 | 13 | 35 | 6 | 6 | 10 | phrase:直走 × 2 |
+| p6-direcoes | 14 | 13 | 34 | 6 | 6 | 10 | phrase:直走 × 2 |
 | p6-compras | 15 | 14 | 35 | 4 | 4 | 10 | action:assemble-phrase × 2 |
 | p6-survival-mandarin | 15 | 14 | 30 | 4 | 4 | 11 | action:assemble-phrase × 2 |
 | l10-rev | 27 | 27 | 58 | 26 | 22 | 18 | action:assemble-phrase × 4 |
@@ -161,4 +161,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:8bc90b5283f72107 -->
+<!-- integridade:439aa438b1ff1d37 -->

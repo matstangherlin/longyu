@@ -38,6 +38,7 @@ import {
   type ReviewMasteryLevel,
 } from "../../data/reviewMastery";
 import type { ActivityMemoryEntry } from "../../lib/activityVariety";
+import { timeLessonPlannerPhase } from "../../lib/plannerTiming";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
@@ -1967,6 +1968,8 @@ function buildStructureExposureThrough(throughIndex: number): void {
   const target = Math.min(throughIndex, ALL_LESSONS.length - 1);
   if (structureExposureIndexBuilding || structureExposureBuiltCount > target) return;
   structureExposureIndexBuilding = true;
+  // PERF-010 — mede quanto a construção do índice custa nesta abertura.
+  timeLessonPlannerPhase("structure_exposure_index", () => {
   try {
     for (let index = structureExposureBuiltCount; index <= target; index += 1) {
       const lesson = ALL_LESSONS[index];
@@ -2003,6 +2006,7 @@ function buildStructureExposureThrough(throughIndex: number): void {
   } finally {
     structureExposureIndexBuilding = false;
   }
+  });
 }
 
 /** Índice completo — usado por relatórios e validators, não pelo player. */
