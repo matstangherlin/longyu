@@ -652,6 +652,28 @@ export function scoreConversationScene(
     if (seedHits >= 3) score -= 40;
     if (recentScenes.slice(0, 5).some((id) => id === scene.sceneId)) score -= 30;
   }
+
+  // LEX-019 — conversas devem consumir vocabulário novo (não-seed) do foco/revisão.
+  const seedRefs = new Set([
+    "chunk:nihao",
+    "chunk:nihaoma",
+    "chunk:wohenhao",
+    "chunk:xiexie",
+    "chunk:bukeqi",
+    "chunk:zaijian",
+    "chunk:nine",
+  ]);
+  const expansionRefs = refs.filter((ref) => !seedRefs.has(ref));
+  const matchedExpansionFocus = expansionRefs.filter((ref) => lesson.focusRefs.has(ref)).length;
+  const matchedExpansionReview = expansionRefs.filter((ref) => lesson.reviewRefs.has(ref)).length;
+  if (matchedExpansionFocus > 0) score += 28 + Math.min(12, matchedExpansionFocus * 4);
+  if (matchedExpansionReview > 0) score += 12 + Math.min(8, matchedExpansionReview * 2);
+
+  // LEX-020 — se a lição já tem foco de expansão e a cena é só seed, penaliza.
+  const lessonHasExpansionFocus = [...lesson.focusRefs].some((ref) => !seedRefs.has(ref));
+  const sceneIsSeedOnly = refs.length > 0 && expansionRefs.length === 0;
+  if (lessonHasExpansionFocus && sceneIsSeedOnly) score -= 40;
+
   // CONV-026 — mesma mainAnswer recente.
   const mainAnswerEarly = normalizeConversationAnswer(conversationSceneMainAnswer(scene));
   const recentAnswers = (context.recentConversationSceneIds ?? [])

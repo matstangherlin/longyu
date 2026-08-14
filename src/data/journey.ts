@@ -2439,8 +2439,16 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Olá",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:nihao", "char:ni", "char:hao", "char:ren", "char:wo", "chunk:wojiao"],
-            reviewItems: ["chunk:nihao", "char:ni", "char:hao"],
+            libraryItems: [
+              "chunk:nihao",
+              "chunk:zaoshanghao",
+              "char:ni",
+              "char:hao",
+              "char:ren",
+              "char:wo",
+              "chunk:wojiao",
+            ],
+            reviewItems: ["chunk:nihao", "chunk:zaoshanghao", "char:ni", "char:hao"],
             steps: [
               listen("你好", "nǐ hǎo", "Olá"),
               listenSelect(
@@ -2458,6 +2466,16 @@ export const JOURNEY: JourneyPhase[] = [
                 ["你", "好"],
                 ["好", "你", "谢", "再"],
                 "你 + 好 forma 你好."
+              ),
+              // LEX-007 — variação temporal do cumprimento (Atlas → Journey)
+              listen("早上好", "zǎoshang hǎo", "Bom dia"),
+              comp("早上好", "zǎoshang hǎo", "Bom dia", ["Bom dia", "Boa noite", "Até logo", "De nada"]),
+              dialogue(
+                "De manhã",
+                "É de manhã. Qual cumprimento combina melhor?",
+                "早上好",
+                ["早上好", "再见", "谢谢", "不客气"],
+                "早上好 = bom dia — mesma ideia de 好, momento diferente."
               ),
               intro(
                 "De pessoa a você",
@@ -2558,8 +2576,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Obrigado",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:xiexie", "chunk:bukeqi", "char:xie"],
-            reviewItems: ["chunk:xiexie", "chunk:bukeqi"],
+            libraryItems: ["chunk:xiexie", "chunk:bukeqi", "chunk:meiguanxi", "char:xie"],
+            reviewItems: ["chunk:xiexie", "chunk:bukeqi", "chunk:meiguanxi"],
             steps: [
               listen("谢谢", "xièxie", "Obrigado(a)"),
               listen("不客气", "bú kèqi", "De nada"),
@@ -2605,6 +2623,21 @@ export const JOURNEY: JourneyPhase[] = [
                 "不客气 é a resposta natural: de nada.",
                 "Pessoa"
               ),
+              // LEX-007 — Atlas chunk 没关系 (desculpa social / “não tem problema”)
+              listen("没关系", "méi guānxi", "Não tem problema"),
+              comp(
+                "没关系",
+                "méi guānxi",
+                "Não tem problema / não foi nada",
+                ["Não tem problema / não foi nada", "Até logo", "Bom dia", "Obrigado(a)"]
+              ),
+              dialogue(
+                "Alguém se desculpa",
+                "A pessoa diz 对不起. Qual resposta suave combina?",
+                "没关系",
+                ["没关系", "再见", "早上好", "我很好"],
+                "没关系 = não tem problema — fecha o pedido de desculpas."
+              ),
               listenSelect(
                 "Ouça de novo",
                 "不客气",
@@ -2619,8 +2652,13 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Até logo",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:zaijian"],
-            reviewItems: ["chunk:zaijian"],
+            libraryItems: [
+              "chunk:zaijian",
+              "chunk:mingtianjian",
+              "chunk:wanan",
+              "chunk:wanshanghao",
+            ],
+            reviewItems: ["chunk:zaijian", "chunk:mingtianjian", "chunk:wanan"],
             steps: [
               listen("再见", "zàijiàn", "Até logo"),
               listenSelect(
@@ -2647,6 +2685,26 @@ export const JOURNEY: JourneyPhase[] = [
                 "再见 fecha a conversa: até logo."
               ),
               conversationScene("despedida"),
+              // LEX-007 — despedidas do Atlas além de 再见
+              listen("明天见", "míngtiān jiàn", "Até amanhã"),
+              comp("明天见", "míngtiān jiàn", "Até amanhã", ["Até amanhã", "Bom dia", "De nada", "Estou bem"]),
+              dialogue(
+                "Vocês se veem amanhã",
+                "Vocês combinam de se ver amanhã. Qual despedida é mais precisa?",
+                "明天见",
+                ["明天见", "不客气", "早上好", "我很好"],
+                "明天见 = até amanhã — marca o próximo encontro."
+              ),
+              conversationScene("encontro-amanha"),
+              listen("晚上好", "wǎnshang hǎo", "Boa noite (ao chegar)"),
+              listen("晚安", "wǎn'ān", "Boa noite (ao dormir)"),
+              dialogue(
+                "Antes de dormir",
+                "É hora de dormir. Qual frase combina?",
+                "晚安",
+                ["晚安", "谢谢", "请问", "我很好"],
+                "晚安 = boa noite ao dormir (diferente de 晚上好)."
+              ),
               dialogue(
                 "Despedida vs. cumprimento",
                 "Alguém chega. Você usa 你好. Alguém vai embora. Você usa…",
@@ -2668,6 +2726,10 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:xiexie",
               "chunk:zaijian",
               "chunk:bukeqi",
+              "chunk:zaoshanghao",
+              "chunk:mingtianjian",
+              "chunk:nijiaoshenme",
+              "chunk:wojiao",
             ],
             reviewItems: [
               "chunk:nihao",
@@ -2675,13 +2737,15 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wohenhao",
               "chunk:xiexie",
               "chunk:zaijian",
+              "chunk:zaoshanghao",
+              "chunk:mingtianjian",
             ],
             rewardQi: 3,
-            estimatedMinutes: 4,
+            estimatedMinutes: 5,
             steps: [
               intro(
                 "Conversa completa",
-                "Você e Mei vão usar tudo o que você aprendeu: cumprimento, pergunta, resposta, agradecimento e despedida."
+                "Você e Mei vão usar o que você aprendeu — e abrir espaço para nome e novas despedidas."
               ),
               conversationScene("revisao-cumprimento-completo"),
               dialogue(
@@ -2691,6 +2755,30 @@ export const JOURNEY: JourneyPhase[] = [
                 ["你好", "谢谢", "再见", "不客气"],
                 "你好 também responde a um cumprimento."
               ),
+              // LEX-008 — apresentação entra cedo (Atlas → Journey)
+              listen("你叫什么？", "nǐ jiào shénme?", "Como você se chama?"),
+              dialogue(
+                "Pergunte o nome",
+                "Você quer saber o nome da pessoa. O que pergunta?",
+                "你叫什么？",
+                ["你叫什么？", "再见", "不客气", "早上好"],
+                "你叫什么？ pergunta o nome."
+              ),
+              conversationScene("como-se-chama"),
+              dialogue(
+                "Bom dia de novo",
+                "É de manhã na segunda conversa. Qual cumprimento combina?",
+                "早上好",
+                ["早上好", "不客气", "请问", "我很好"],
+                "早上好 reaparece depois de 你好 — mesmo 好, momento novo."
+              ),
+              dialogue(
+                "Até amanhã",
+                "Vocês vão se ver amanhã. Qual despedida combina?",
+                "明天见",
+                ["明天见", "谢谢", "请问", "我很好"],
+                "明天见 reforça a despedida com plano."
+              ),
               produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
             ],
           }),
@@ -2699,9 +2787,15 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Com licença",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:qingwen", "chunk:qingwen_nihaoma", "chunk:nihaoma"],
-            reviewItems: ["chunk:qingwen", "chunk:nihaoma"],
-            estimatedMinutes: 3,
+            libraryItems: [
+              "chunk:qingwen",
+              "chunk:qingwen_nihaoma",
+              "chunk:nihaoma",
+              "chunk:qingzuo",
+              "chunk:qingjin",
+            ],
+            reviewItems: ["chunk:qingwen", "chunk:nihaoma", "chunk:qingzuo", "chunk:qingjin"],
+            estimatedMinutes: 4,
             steps: [
               listen("请问", "qǐng wèn", "Com licença, posso perguntar?"),
               listen("请问，你好吗？", "qǐng wèn, nǐ hǎo ma?", "Com licença, tudo bem?"),
@@ -2726,13 +2820,44 @@ export const JOURNEY: JourneyPhase[] = [
                 ["请问", "你好吗", "谢谢", "再见"],
                 "请问 + 你好吗？ reutiliza o cumprimento em estrutura nova (pedido de licença)."
               ),
+              // LEX-007 — 请坐 / 请进 (Atlas courtesy)
+              listen("请坐", "qǐng zuò", "Sente-se, por favor"),
+              listen("请进", "qǐng jìn", "Entre, por favor"),
+              dialogue(
+                "Receber alguém",
+                "Alguém chega na sua casa. Qual convite combina?",
+                "请进",
+                ["请进", "再见", "明天见", "我很好"],
+                "请进 = entre, por favor."
+              ),
+              dialogue(
+                "Oferecer assento",
+                "A pessoa entrou. O que você diz para ela se sentar?",
+                "请坐",
+                ["请坐", "谢谢", "早上好", "不客气"],
+                "请坐 = sente-se, por favor."
+              ),
               produce(["请", "问"], ["你", "好", "请", "问"], "Com licença — foco na abertura nova"),
             ],
           }),
           review("l2-rev", "fala", [
-            intro("Revisão do módulo", "Vamos usar o que você já viu numa conversa."),
+            intro("Revisão do módulo", "Vamos usar o que você já viu — inclusive cumprimentos novos."),
             conversationScene("revisao-cumprimento-completo"),
             conversationScene("agradecendo"),
+            dialogue(
+              "Manhã ou despedida?",
+              "É de manhã. Qual frase combina?",
+              "早上好",
+              ["早上好", "明天见", "不客气", "请问"],
+              "早上好 reforça o cumprimento matinal."
+            ),
+            dialogue(
+              "Não tem problema",
+              "Alguém se desculpa. O que você responde?",
+              "没关系",
+              ["没关系", "再见", "早上好", "请问"],
+              "没关系 fecha o pedido de desculpas."
+            ),
             produce(["你", "好"], ["谢", "好", "你", "再"], "Olá"),
             sentenceBuild(
               "Monte o agradecimento",
@@ -2748,7 +2873,7 @@ export const JOURNEY: JourneyPhase[] = [
               ["不客气", "你好", "再见", "我很好"],
               "不客气 responde ao agradecimento."
             ),
-            listenSelect("Ouça tudo junto", "再见", ["再见", "你好", "谢谢", "我很好"], "再见", "Você ouviu 再见."),
+            listenSelect("Ouça tudo junto", "明天见", ["明天见", "你好", "谢谢", "我很好"], "明天见", "Você ouviu 明天见."),
           ]),
         ],
       },
@@ -3031,14 +3156,22 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p2-sons-brasileiros",
             title: "Sons que brasileiros confundem",
             skill: "som",
-            libraryItems: ["chunk:xiexie", "char:shi", "char:qing_pls", "char:zhong", "char:nv"],
-            reviewItems: ["chunk:xiexie", "char:shi", "char:qing_pls", "char:zhong", "char:nv"],
+            libraryItems: [
+              "chunk:xiexie",
+              "chunk:tingbudong",
+              "chunk:qingzaishuoyibian",
+              "char:shi",
+              "char:qing_pls",
+              "char:zhong",
+              "char:nv",
+            ],
+            reviewItems: ["chunk:xiexie", "chunk:tingbudong", "char:shi", "char:qing_pls", "char:zhong", "char:nv"],
             rewardQi: 2,
             estimatedMinutes: 6,
             steps: [
               intro(
                 "Três famílias de consoantes",
-                "O mandarim separa sons que o português não separa: j/q/x (língua alta), zh/ch/sh (língua enrolada) e z/c/s (língua baixa). Brasileiros trocam x por sh e j por zh. Vamos treinar com palavras que você já conhece."
+                "O mandarim separa sons que o português não separa: j/q/x (língua alta), zh/ch/sh (língua enrolada) e z/c/s (língua baixa). Brasileiros trocam x por sh e j por zh. Vamos treinar com palavras que você já conhece — e com frases de reparo úteis."
               ),
               listen("谢", "xiè", "xiè — x com a língua alta e bem à frente (fricativa suave)"),
               listen("是", "shì", "shì — sh retroflexo, com a língua enrolada para trás"),
@@ -3074,7 +3207,24 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("女", "nǚ", "nǚ — ü: diga “i” e arredonde os lábios (não é o u de lua)"),
               listen("人", "rén", "rén — r retroflexo, entre um r suave e um “j” (não é o rr do português)"),
-              conversationScene("primeiro-cumprimento"),
+              // LEX-009 — survival cedo (Atlas repair) enquanto o ouvido treina
+              listen("我听不懂", "wǒ tīng bù dǒng", "Não entendi (ouvindo)"),
+              listen("请再说一遍", "qǐng zài shuō yí biàn", "Por favor, fale de novo"),
+              dialogue(
+                "Quando o som falha",
+                "Você ouviu, mas não entendeu. Qual frase comunica isso?",
+                "我听不懂",
+                ["我听不懂", "请再说一遍", "谢谢", "再见"],
+                "我听不懂 = não entendi o que ouvi."
+              ),
+              dialogue(
+                "Peça repetição",
+                "Agora peça para a pessoa falar de novo.",
+                "请再说一遍",
+                ["请再说一遍", "我听不懂", "早上好", "不客气"],
+                "请再说一遍 pede a repetição — útil quando o tom ou a consoante escapou."
+              ),
+              conversationScene("pedir-repeticao"),
               match(
                 "Famílias de som",
                 "Combine cada consoante com a palavra que começa com ela.",
@@ -3180,6 +3330,14 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Me apresentar",
             skill: "fala",
             masteryLoop: true,
+            libraryItems: [
+              "chunk:wojiao",
+              "chunk:nijiaoshenme",
+              "chunk:wature",
+              "chunk:nishinaiguoren",
+              "chunk:qingzuo",
+            ],
+            reviewItems: ["chunk:wojiao", "chunk:nijiaoshenme", "chunk:qingzuo"],
             steps: [
               listen("我叫Matheus", "wǒ jiào Matheus", "Meu nome é Matheus"),
               listenSelect(
@@ -3214,6 +3372,23 @@ export const JOURNEY: JourneyPhase[] = [
                 "Use 我叫 + seu nome para responder."
               ),
               conversationScene("me-apresentando"),
+              // LEX-008 — escada de apresentação (país entra cedo)
+              listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),
+              listen("我是巴西人", "wǒ shì Bāxī rén", "Sou brasileiro"),
+              dialogue(
+                "Origem",
+                "Alguém pergunta: 你是哪国人？ Como você responde?",
+                "我是巴西人",
+                ["我是巴西人", "我叫Matheus", "谢谢", "再见"],
+                "我是巴西人 diz de onde você é."
+              ),
+              dialogue(
+                "Receba com cortesia",
+                "A pessoa entra na sala. Qual convite combina?",
+                "请坐",
+                ["请坐", "再见", "不客气", "我很好"],
+                "请坐 reforça a cortesia aprendida no módulo 1."
+              ),
               translationBuild(
                 "Escreva em português",
                 "我叫Matheus",
@@ -3238,8 +3413,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Tudo bem?",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:nihaoma", "chunk:wohenhao"],
-            reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
+            libraryItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:zenmeyang"],
+            reviewItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:zenmeyang"],
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
@@ -3267,6 +3442,21 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我很好", "再见", "谢谢", "我叫Matheus"],
                 "我很好 responde: estou bem."
               ),
+              // LEX-010 — escada de perguntas (怎么样)
+              listen("怎么样？", "zěnmeyàng?", "Que tal? / Como está?"),
+              comp(
+                "怎么样？",
+                "zěnmeyàng?",
+                "Que tal? / Como está?",
+                ["Que tal? / Como está?", "Até logo", "Obrigado(a)", "Sou brasileiro."]
+              ),
+              dialogue(
+                "Outra forma de perguntar",
+                "Você quer perguntar “que tal?” de forma curta. Qual frase combina?",
+                "怎么样？",
+                ["怎么样？", "你好吗？", "谢谢", "再见"],
+                "怎么样？ é outra pergunta social — mais aberta que 你好吗？"
+              ),
               conversationScene("perguntando-se-esta-bem"),
               match(
                 "Pergunta e resposta",
@@ -3274,8 +3464,9 @@ export const JOURNEY: JourneyPhase[] = [
                 [
                   { left: "你好吗？", right: "Tudo bem?", leftType: "hanzi", rightType: "pt" },
                   { left: "我很好", right: "Estou bem", leftType: "hanzi", rightType: "pt" },
+                  { left: "怎么样？", right: "Que tal?", leftType: "hanzi", rightType: "pt" },
                 ],
-                "你好吗？ pergunta; 我很好 responde."
+                "你好吗？ e 怎么样？ perguntam; 我很好 responde."
               ),
               listenSelect(
                 "Ouça a resposta",
@@ -3329,8 +3520,17 @@ export const JOURNEY: JourneyPhase[] = [
             title: "De onde sou",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:wature", "chunk:nishinaiguoren", "chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
-            reviewItems: ["chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
+            libraryItems: [
+              "chunk:wature",
+              "chunk:nishinaiguoren",
+              "chunk:woshixuesheng",
+              "chunk:renshinihengaoxing",
+              "chunk:nihao",
+              "chunk:wojiao",
+              "char:ni",
+              "char:ren",
+            ],
+            reviewItems: ["chunk:nihao", "chunk:wojiao", "chunk:wature", "char:ni", "char:ren"],
             newHanzi: ["哪"],
             steps: [
               listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),
@@ -3353,6 +3553,22 @@ export const JOURNEY: JourneyPhase[] = [
                 ["是", "我", "你好", "巴西人", "叫"],
                 "我 = eu, 是 = ser/sou, 巴西人 = brasileiro."
               ),
+              // LEX-008 — estudante + prazer em conhecer
+              listen("我是学生", "wǒ shì xuésheng", "Sou estudante"),
+              comp(
+                "我是学生",
+                "wǒ shì xuésheng",
+                "Sou estudante",
+                ["Sou estudante", "Sou brasileiro", "Estou bem", "Até amanhã"]
+              ),
+              listen("认识你很高兴", "rènshi nǐ hěn gāoxìng", "Prazer em conhecer você"),
+              dialogue(
+                "Feche a apresentação",
+                "Depois de dizer o nome e o país, qual frase de cortesia combina?",
+                "认识你很高兴",
+                ["认识你很高兴", "再见", "不客气", "我很好"],
+                "认识你很高兴 = prazer em conhecer você."
+              ),
               dialogue(
                 "Reutilize 我叫",
                 "Alguém pergunta seu nome. Qual frase responde?",
@@ -3368,8 +3584,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Não entendi",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
-            reviewItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
+            libraryItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui", "chunk:dengyixia"],
+            reviewItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui", "chunk:dengyixia"],
             steps: [
               listen("我听不懂", "wǒ tīng bù dǒng", "Não entendi (ouvindo)"),
               match(
@@ -3396,6 +3612,15 @@ export const JOURNEY: JourneyPhase[] = [
                 "请再说一遍",
                 ["请再说一遍", "我听不懂", "谢谢", "再见"],
                 "请再说一遍 pede a repetição depois de 我听不懂."
+              ),
+              // LEX-009 — 等一下
+              listen("等一下", "děng yíxià", "Espere um pouco"),
+              dialogue(
+                "Peça tempo",
+                "Você precisa de um segundo para pensar. O que diz?",
+                "等一下",
+                ["等一下", "再见", "不客气", "我很好"],
+                "等一下 = espere um pouco — ganha tempo na conversa."
               ),
               sentenceBuild(
                 "Diga que não fala",
@@ -3508,6 +3733,15 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l12",
             title: "Peças da frase",
             skill: "hanzi",
+            libraryItems: [
+              "chunk:wature",
+              "chunk:woshixuesheng",
+              "chunk:renshinihengaoxing",
+              "char:wo",
+              "char:shi",
+              "char:ren",
+            ],
+            reviewItems: ["chunk:wature", "chunk:woshixuesheng", "char:wo", "char:shi", "char:ren"],
             steps: [
               intro("Três peças-chave", "我 (eu), 是 (ser) e 人 (pessoa) aparecem em quase toda frase de apresentação."),
               listen("我", "wǒ", "eu, me"),
@@ -3517,6 +3751,20 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("shi"),
               recognize("ren"),
               comp("我是巴西人", "wǒ shì Bāxī rén", "Sou brasileiro", ["Sou brasileiro", "Meu nome é Matheus", "Obrigado", "Até logo"]),
+              dialogue(
+                "Outro papel",
+                "Além de brasileiro, você também é estudante. Qual frase combina?",
+                "我是学生",
+                ["我是学生", "我是巴西人", "谢谢", "再见"],
+                "我是学生 reutiliza 我是… com um papel novo."
+              ),
+              listenSelect(
+                "Prazer em conhecer",
+                "认识你很高兴",
+                ["认识你很高兴", "我是学生", "早上好", "没关系"],
+                "认识你很高兴",
+                "认识你很高兴 fecha a apresentação com cortesia."
+              ),
               match(
                 "Mapa da frase",
                 "Combine cada peça com o papel na frase.",
@@ -3534,32 +3782,50 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Microtexto 1",
             skill: "leitura",
             masteryLoop: true,
+            libraryItems: [
+              "chunk:nihao",
+              "chunk:xiexie",
+              "chunk:wature",
+              "chunk:zaijian",
+              "chunk:mingtianjian",
+              "chunk:renshinihengaoxing",
+            ],
+            reviewItems: ["chunk:nihao", "chunk:xiexie", "chunk:wature", "chunk:zaijian", "chunk:mingtianjian"],
             steps: [
-              intro("Leitura fechada", "Este texto usa apenas cumprimentos e apresentação que você já praticou."),
+              intro("Leitura fechada", "Este texto usa cumprimentos, apresentação e despedida que você já praticou — inclusive 明天见."),
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
                 { hanzi: "谢谢。", pinyin: "Xièxie.", pt: "Obrigado(a)." },
                 { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
-                { hanzi: "再见！", pinyin: "Zàijiàn!", pt: "Até logo!" },
+                { hanzi: "认识你很高兴。", pinyin: "Rènshi nǐ hěn gāoxìng.", pt: "Prazer em conhecer você." },
+                { hanzi: "明天见！", pinyin: "Míngtiān jiàn!", pt: "Até amanhã!" },
               ]),
               flash("zaijian"),
+              dialogue(
+                "Despedida no texto",
+                "No microtexto, a despedida marca o próximo encontro. Qual frase é essa?",
+                "明天见",
+                ["明天见", "再见", "谢谢", "我很好"],
+                "明天见 no texto reforça a despedida com plano."
+              ),
+              conversationScene("encontro-amanha"),
               match(
                 "Reconheça no texto",
                 "Combine as frases do microtexto.",
                 [
                   { left: "你好！", right: "Olá!", leftType: "hanzi", rightType: "pt" },
-                  { left: "谢谢。", right: "Obrigado(a).", leftType: "hanzi", rightType: "pt" },
-                  { left: "再见！", right: "Até logo!", leftType: "hanzi", rightType: "pt" },
+                  { left: "我是巴西人。", right: "Sou brasileiro.", leftType: "hanzi", rightType: "pt" },
+                  { left: "明天见！", right: "Até amanhã!", leftType: "hanzi", rightType: "pt" },
                 ],
-                "O texto usa frases que você já praticou em produção."
+                "O texto reúne cumprimento, identidade e despedida nova."
               ),
               translationBuild(
                 "Despedida do texto",
-                "再见！",
-                "Zàijiàn!",
-                ["Até", "logo!"],
-                ["Até", "Obrigado(a).", "logo!", "Olá!"],
-                "再见 fecha o microtexto."
+                "明天见！",
+                "Míngtiān jiàn!",
+                ["Até", "amanhã!"],
+                ["Até", "Obrigado(a).", "amanhã!", "Olá!"],
+                "明天见 fecha o microtexto com plano."
               ),
               comp("我是巴西人。", "Wǒ shì Bāxī rén.", "Sou brasileiro.", ["Sou brasileiro.", "Meu nome é Matheus.", "Obrigado(a).", "Até logo."]),
               translationBuild(
@@ -3572,10 +3838,10 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listenSelect(
                 "Revisão de leitura",
-                "再见",
-                ["你好", "谢谢", "再见", "我是巴西人"],
-                "再见",
-                "再见 fecha o microtexto."
+                "认识你很高兴",
+                ["认识你很高兴", "谢谢", "再见", "我是巴西人"],
+                "认识你很高兴",
+                "认识你很高兴 fecha a apresentação no texto."
               ),
             ],
           },
