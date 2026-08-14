@@ -20,19 +20,19 @@ CONVERSATION (multi-item use)
 
 | Version | Classified Atlas units target | Current classified | Lifecycle |
 | --- | ---: | ---: | ---: |
-| V3.7 | ≥500 | **5067** | 161 |
+| V3.7 | ≥500 | **5558** | 193 |
 | V3.8 | ≥750 | — | — |
 | V4.x | ≥1000 | — | — |
 | Long term | corpus → 5000 chars | corpus rows 4831 | — |
 
 ## Current Atlas status
 
-- Atlas journey refs (chunks+chars authored): 377
-- Taught (journey library/use): 298
-- Scheduled (lifecycle): 17
+- Atlas journey refs (chunks+chars authored): 409
+- Taught (journey library/use): 326
+- Scheduled (lifecycle): 21
 - Future (authored atlas): 62
-- Lifecycle entries: **161** (min 120)
-- Registry-classified units (incl. corpus T5/T6): **5067**
+- Lifecycle entries: **193** (min 120)
+- Registry-classified units (incl. corpus T5/T6): **5558**
 
 ## First 50 rebalance notes
 

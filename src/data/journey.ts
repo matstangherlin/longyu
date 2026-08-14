@@ -2449,6 +2449,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wojiao",
             ],
             reviewItems: ["chunk:nihao", "chunk:zaoshanghao", "char:ni", "char:hao"],
+            newHanzi: ["上", "早"],
+
             steps: [
               listen("你好", "nǐ hǎo", "Olá"),
               listenSelect(
@@ -2578,6 +2580,8 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             libraryItems: ["chunk:xiexie", "chunk:bukeqi", "chunk:meiguanxi", "char:xie"],
             reviewItems: ["chunk:xiexie", "chunk:bukeqi", "chunk:meiguanxi"],
+            newHanzi: ["上", "关", "早", "系"],
+
             steps: [
               listen("谢谢", "xièxie", "Obrigado(a)"),
               listen("不客气", "bú kèqi", "De nada"),
@@ -2659,6 +2663,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wanshanghao",
             ],
             reviewItems: ["chunk:zaijian", "chunk:mingtianjian", "chunk:wanan"],
+            newHanzi: ["上", "早", "晚"],
+
             steps: [
               listen("再见", "zàijiàn", "Até logo"),
               listenSelect(
@@ -2741,6 +2747,8 @@ export const JOURNEY: JourneyPhase[] = [
             ],
             rewardQi: 3,
             estimatedMinutes: 5,
+            newHanzi: ["上", "早"],
+
             steps: [
               intro(
                 "Conversa completa",
@@ -2794,6 +2802,8 @@ export const JOURNEY: JourneyPhase[] = [
             ],
             reviewItems: ["chunk:qingwen", "chunk:nihaoma", "chunk:qingzuo", "chunk:qingjin"],
             estimatedMinutes: 4,
+            newHanzi: ["上", "早", "进"],
+
             steps: [
               listen("请问", "qǐng wèn", "Com licença, posso perguntar?"),
               listen("请问，你好吗？", "qǐng wèn, nǐ hǎo ma?", "Com licença, tudo bem?"),
@@ -2872,7 +2882,7 @@ export const JOURNEY: JourneyPhase[] = [
               "不客气 responde ao agradecimento."
             ),
             listenSelect("Ouça tudo junto", "明天见", ["明天见", "你好", "谢谢", "我很好"], "明天见", "Você ouviu 明天见."),
-          ]),
+          ], undefined, ["上", "关", "早", "系"]),
         ],
       },
     ],
@@ -3166,6 +3176,8 @@ export const JOURNEY: JourneyPhase[] = [
             reviewItems: ["chunk:xiexie", "chunk:tingbudong", "char:shi", "char:qing_pls", "char:zhong", "char:nv"],
             rewardQi: 2,
             estimatedMinutes: 6,
+            newHanzi: ["上", "早"],
+
             steps: [
               intro(
                 "Três famílias de consoantes",
@@ -3415,6 +3427,8 @@ export const JOURNEY: JourneyPhase[] = [
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:zenmeyang"],
             rewardQi: 2,
             estimatedMinutes: 4,
+            newHanzi: ["怎", "样"],
+
             steps: [
               listen("你好吗？", "nǐ hǎo ma?", "Tudo bem?"),
               fillBlank(
@@ -3529,7 +3543,7 @@ export const JOURNEY: JourneyPhase[] = [
               "char:ren",
             ],
             reviewItems: ["chunk:nihao", "chunk:wojiao", "chunk:wature", "char:ni", "char:ren"],
-            newHanzi: ["哪"],
+            newHanzi: ["哪", "兴", "认", "识", "高"],
             steps: [
               listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),
               listen("我是巴西人", "wǒ shì Bāxī rén", "Sou brasileiro"),
@@ -3584,6 +3598,8 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             libraryItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui", "chunk:dengyixia", "chunk:qingmanyidian"],
             reviewItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui", "chunk:dengyixia", "chunk:qingmanyidian"],
+            newHanzi: ["下", "慢", "等"],
+
             steps: [
               listen("我听不懂", "wǒ tīng bù dǒng", "Não entendi (ouvindo)"),
               match(
@@ -3757,6 +3773,8 @@ export const JOURNEY: JourneyPhase[] = [
               "char:ren",
             ],
             reviewItems: ["chunk:wature", "chunk:woshixuesheng", "char:wo", "char:shi", "char:ren"],
+            newHanzi: ["上", "关", "兴", "早", "系", "认", "识", "高"],
+
             steps: [
               intro("Três peças-chave", "我 (eu), 是 (ser) e 人 (pessoa) aparecem em quase toda frase de apresentação."),
               listen("我", "wǒ", "eu, me"),
@@ -3807,6 +3825,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:duibuqi",
             ],
             reviewItems: ["chunk:nihao", "chunk:xiexie", "chunk:wature", "chunk:zaijian", "chunk:mingtianjian"],
+            newHanzi: ["关", "兴", "系", "认", "识", "起", "高"],
+
             steps: [
               intro("Leitura fechada", "Este texto usa cumprimentos, apresentação e despedida que você já praticou — inclusive 明天见."),
               read([
@@ -3879,6 +3899,8 @@ export const JOURNEY: JourneyPhase[] = [
             reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao", "chunk:haode"],
             rewardQi: 2,
             estimatedMinutes: 4,
+            newHanzi: ["上", "早", "病", "题"],
+
             steps: [
               read([
                 { hanzi: "早上好！", pinyin: "Zǎoshang hǎo!", pt: "Bom dia!" },
@@ -3940,6 +3962,8 @@ export const JOURNEY: JourneyPhase[] = [
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             rewardQi: 2,
             estimatedMinutes: 5,
+            newHanzi: ["英"],
+
             steps: [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
@@ -5191,7 +5215,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆"],
+            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题"],
             libraryItems: [
               "char:fan_rice",
               "char:cai_dish",
@@ -5528,7 +5552,7 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             // Chars de rotina/trabalho que ainda não têm entrada própria em
             // CHARACTERS (têm gloss) — declarados aqui para o corpus aceitar.
-            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司"],
+            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司", "做"],
             // Vocabulário novo de rotina/trabalho (chunks); os antigos (你好/谢谢)
             // aparecem como distratores para misturar repertório.
             libraryItems: [
@@ -6224,7 +6248,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // 午 é o único char só-gloss usado aqui (中 está em CHARACTERS).
-            newHanzi: ["午", "半"],
+            newHanzi: ["午", "半", "下"],
             libraryItems: [
               "chunk:xianzaijidian",
               "chunk:xianzaibadian",
@@ -6423,7 +6447,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // 雨/云/下 já vistos em p6-natureza; novos: 冷/晴/雪/风.
-            newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热", "怎", "么", "样"],
+            newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热", "怎", "么", "样", "上", "京", "北", "海"],
             libraryItems: [
               "chunk:jintiantianqihenhao",
               "chunk:tianqihenre",
@@ -7362,7 +7386,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
-            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店"],
+            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店", "交", "公", "单", "地", "辣", "铁"],
             libraryItems: [
               "char:che",
               "char:piao_ticket",

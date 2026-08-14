@@ -326,6 +326,23 @@ const EXTRA: Record<string, Gloss> = {
   药: { pinyin: "yào", pt: "remédio" },
   肚: { pinyin: "dù", pt: "barriga" },
   半: { pinyin: "bàn", pt: "meio; e meia" },
+  发: { pinyin: "fā", pt: "emitir; ter (em 发烧)" },
+  同: { pinyin: "tóng", pt: "mesmo; juntos (em 同学)" },
+  汽: { pinyin: "qì", pt: "vapor (em 汽车)" },
+  梯: { pinyin: "tī", pt: "escada (em 电梯)" },
+  厕: { pinyin: "cè", pt: "banheiro (em 厕所)" },
+  话: { pinyin: "huà", pt: "fala; palavras (em 说话)" },
+  价: { pinyin: "jià", pt: "preço (em 价钱)" },
+  旁: { pinyin: "páng", pt: "lado (em 旁边)" },
+  感: { pinyin: "gǎn", pt: "sentir (em 感冒)" },
+  冒: { pinyin: "mào", pt: "emitir (em 感冒)" },
+  码: { pinyin: "mǎ", pt: "número; código (em 号码)" },
+  板: { pinyin: "bǎn", pt: "tábua (em 老板)" },
+  春: { pinyin: "chūn", pt: "primavera" },
+  夏: { pinyin: "xià", pt: "verão" },
+  秋: { pinyin: "qiū", pt: "outono" },
+  冬: { pinyin: "dōng", pt: "inverno" },
+  阴: { pinyin: "yīn", pt: "nublado (em 阴天)" },
 };
 
 const LOOKUP: Record<string, Gloss> = { ...EXTRA, ...radicalByGlyph, ...charByHanzi };
