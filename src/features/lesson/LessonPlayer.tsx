@@ -39,6 +39,7 @@ import {
 import { conversationSceneById } from "../../data/conversationScenes";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 import { manifestFromConversationStep, primaryExerciseFamilyFor } from "./lessonTasks";
+import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
   BREATH_LIVES,
@@ -1828,7 +1829,7 @@ export function LessonPlayer() {
     setPlanReady(false);
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
-    // PERF-011 — `startTransition` NÃO tira trabalho síncrono da main thread:
+    // PERF-011 — `startTransition` não tira trabalho síncrono da main thread:
     // ele só marca a atualização como não urgente. O planner rodando dentro
     // dele ainda podia bloquear o primeiro paint na mesma tarefa. Cedemos o
     // controle ao navegador primeiro, para o shell com os passos autorais
@@ -4122,6 +4123,8 @@ export function LessonPlayer() {
       }
     >
     <div className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0">
+      {/* PERF-010 — números de abertura visíveis no próprio aparelho. */}
+      <LessonPerfOverlay />
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
