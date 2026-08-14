@@ -38,6 +38,7 @@ import {
   type ReviewMasteryLevel,
 } from "../../data/reviewMastery";
 import type { ActivityMemoryEntry } from "../../lib/activityVariety";
+import { PRECOMPUTED_STRUCTURE_EXPOSURE } from "../../data/generated/structureExposureIndex";
 import { timeLessonPlannerPhase } from "../../lib/plannerTiming";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
@@ -122,6 +123,7 @@ import {
   type FrameTask,
   type ProductionAssist,
   type StructureExposureMap,
+  type StructurePracticeRungs,
 } from "../../data/productionTasks";
 import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
@@ -2028,14 +2030,60 @@ function ensureStructureExposureIndexFor(lessonId: string | undefined): void {
   buildStructureExposureThrough(index);
 }
 
+/**
+ * PERF-012 — decodifica o índice pré-computado no build.
+ *
+ * Quem abre uma lição não paga mais NADA por este índice: a varredura das 127
+ * lições foi resolvida em build (ver scripts/build-structure-exposure-index.mjs)
+ * e `validate:structure-index` garante que o artefato não diverge da jornada.
+ * A construção incremental continua como fallback — lição fora do artefato
+ * (mastery, avulsa) ou artefato ausente em algum ambiente.
+ */
+function decodeRungs(mask: number): StructurePracticeRungs {
+  return {
+    exposed: (mask & 1) !== 0,
+    completion: (mask & 2) !== 0,
+    build: (mask & 4) !== 0,
+    guidedProduction: (mask & 8) !== 0,
+  };
+}
+
+function decodeExposureMap(encoded: Record<string, number>): StructureExposureMap {
+  const map: StructureExposureMap = new Map();
+  for (const [frameId, mask] of Object.entries(encoded)) map.set(frameId, decodeRungs(mask));
+  return map;
+}
+
+/**
+ * O gerador e o `validate:structure-index` precisam recalcular do zero. Sem
+ * isto o validador leria de volta o próprio artefato e aprovaria qualquer
+ * corrupção — a checagem seria circular e inútil.
+ */
+let ignorePrecomputedExposure = false;
+
+export function setIgnorePrecomputedStructureExposure(value: boolean): void {
+  ignorePrecomputedExposure = value;
+}
+
+function precomputedExposureFor(lessonId: string): StructureExposureBundle | null {
+  if (ignorePrecomputedExposure) return null;
+  const entry = PRECOMPUTED_STRUCTURE_EXPOSURE[lessonId];
+  if (!entry) return null;
+  return { forFree: decodeExposureMap(entry.free), forTransfer: decodeExposureMap(entry.transfer) };
+}
+
 function priorTransferredFramesForLesson(lessonId: string | undefined): ReadonlySet<string> {
   if (!lessonId) return new Set();
+  const precomputed = ignorePrecomputedExposure ? undefined : PRECOMPUTED_STRUCTURE_EXPOSURE[lessonId];
+  if (precomputed) return new Set(precomputed.priorTransferred);
   ensureStructureExposureIndexFor(lessonId);
   return priorTransferredFramesIndex.get(lessonId) ?? new Set();
 }
 
 function structureExposureForLesson(lessonId: string | undefined): StructureExposureBundle {
   if (!lessonId) return emptyExposureBundle();
+  const precomputed = precomputedExposureFor(lessonId);
+  if (precomputed) return precomputed;
   ensureStructureExposureIndexFor(lessonId);
   return structureExposureIndex.get(lessonId) ?? emptyExposureBundle();
 }
@@ -2043,6 +2091,11 @@ function structureExposureForLesson(lessonId: string | undefined): StructureExpo
 /** Snapshot público para validators / auditoria. */
 export function structureExposureSnapshotForLesson(lessonId: string): StructureExposureBundle {
   return structureExposureForLesson(lessonId);
+}
+
+/** Snapshot público dos frames já transferidos — usado pelo gerador do índice. */
+export function priorTransferredFramesSnapshotForLesson(lessonId: string): ReadonlySet<string> {
+  return priorTransferredFramesForLesson(lessonId);
 }
 
 /**
