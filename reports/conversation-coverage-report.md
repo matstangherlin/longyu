@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 980b2c1941e36f559dd5401c12c238154fde2c05 |
+| Commit | b4b112c556d3b7df0b47da6f35268f9f68d509cc |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T06:50:51.678Z |
+| Gerado em | 2026-08-14T07:00:18.670Z |
 | Lições | 127 |
-| Hash da Jornada | 6b2460a70ef9 |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
@@ -105,29 +105,12 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 |-----------|------:|
 | Variantes com manifesto gerado | 47 |
 | Itens de vocabulário mapeados | 613 |
-| Textos exibidos sem referência canônica (aviso) | 12 |
+| Textos exibidos sem referência canônica (aviso) | 0 |
 | Refs declarados nunca exibidos (aviso) | 0 |
-
-### Texto exibido sem referência canônica standalone
-
-_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._
-
-- pedir-cardapio (advanced): sem referência canônica → "米"
-- falar-de-estudo (advanced): sem referência canônica → "习"
-- falar-de-estudo (advanced): sem referência canônica → "校"
-- que-horas-sao (advanced): sem referência canônica → "半"
-- nao-me-sinto-bem (advanced): sem referência canônica → "头"
-- nao-me-sinto-bem (advanced): sem referência canônica → "服"
-- nao-me-sinto-bem (advanced): sem referência canônica → "疼"
-- nao-me-sinto-bem (advanced): sem referência canônica → "舒"
-- como-esta-o-tempo (advanced): sem referência canônica → "热"
-- checkin-hotel (advanced): sem referência canônica → "订"
-- checkin-hotel (advanced): sem referência canônica → "预"
-- pegar-taxi (advanced): sem referência canônica → "酒"
 
 
 ---
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:d9f6e2efc9330b88 -->
+<!-- integridade:8cee47d1233f9d31 -->

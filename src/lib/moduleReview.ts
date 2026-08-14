@@ -70,7 +70,7 @@ export const PROGRESSIVE_PHRASE_REFS: readonly { ref: string; afterUnitIndex: nu
   { ref: "chunk:wobuhui", afterUnitIndex: 2 },
   { ref: "chunk:jintianhenhao", afterUnitIndex: 3 },
   { ref: "chunk:woxianghe", afterUnitIndex: 7 },
-  { ref: "chunk:mingtianjian", afterUnitIndex: 6 },
+  { ref: "chunk:mingtianjian", afterUnitIndex: 1 },
   { ref: "chunk:nijiaoshenme", afterUnitIndex: 1 },
   { ref: "chunk:zheshishui", afterUnitIndex: 5 },
   { ref: "chunk:nashirenm", afterUnitIndex: 5 },
