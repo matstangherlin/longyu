@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | b084d7cbd501ba9f6417072a782522bdcd7a0f0e |
+| Commit | a05d4dc65eb589eddbd73f4685138b892e43207b |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T07:29:50.946Z |
+| Gerado em | 2026-08-14T07:42:16.041Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -1687,7 +1687,7 @@
 | Respostas únicas | 9 |
 | Hànzì únicos | 9 |
 | Chunks únicos | 6 |
-| Frases reais | 5 |
+| Frases reais | 6 |
 | Contexto | 8 |
 | Visuais | 2 |
 | Conversas | 1 |
@@ -2827,4 +2827,4 @@
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:359bf3d5c814abf1 -->
+<!-- integridade:c727a4148fe6fdf4 -->

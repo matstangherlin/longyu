@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | b084d7cbd501ba9f6417072a782522bdcd7a0f0e |
+| Commit | a05d4dc65eb589eddbd73f4685138b892e43207b |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T07:34:08.807Z |
+| Gerado em | 2026-08-14T07:53:30.788Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -16,15 +16,15 @@
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 126 |
 | Itens de vocabulário exibidos | 1016 |
-| Itens cobertos por tarefa posterior | 770 |
-| Cobertura bruta | 75.8 % |
+| Itens cobertos por tarefa posterior | 777 |
+| Cobertura bruta | 76.5 % |
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 497 |
-| **Cobertura relevante** (portão ≥ 76 %) | **79.3 %** |
+| **Cobertura relevante** (portão ≥ 76 %) | **79.1 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
-| Reutilização média por item | 1.91 |
-| Itens sem cobertura | 246 |
-| Tarefas da fase Pós-Conversa | 590 |
-| Média Pós-Conversa por conversa | 4.68 |
+| Reutilização média por item | 1.92 |
+| Itens sem cobertura | 239 |
+| Tarefas da fase Pós-Conversa | 593 |
+| Média Pós-Conversa por conversa | 4.71 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
 
 > **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata
@@ -34,37 +34,37 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- char:hao — 568 exposições ao longo dos 127 planos
-- char:ni — 474 exposições ao longo dos 127 planos
+- char:hao — 562 exposições ao longo dos 127 planos
+- char:ni — 473 exposições ao longo dos 127 planos
 - chunk:nihao — 411 exposições ao longo dos 127 planos
-- char:bu — 287 exposições ao longo dos 127 planos
-- chunk:wohenhao — 237 exposições ao longo dos 127 planos
-- char:yi — 207 exposições ao longo dos 127 planos
-- char:ma_question — 190 exposições ao longo dos 127 planos
+- char:bu — 284 exposições ao longo dos 127 planos
+- chunk:wohenhao — 238 exposições ao longo dos 127 planos
+- char:yi — 209 exposições ao longo dos 127 planos
+- char:ma_question — 194 exposições ao longo dos 127 planos
 - char:mu — 167 exposições ao longo dos 127 planos
 - chunk:nijiaoshenme — 163 exposições ao longo dos 127 planos
-- char:shi — 158 exposições ao longo dos 127 planos
-- chunk:qingzaishuoyibian — 143 exposições ao longo dos 127 planos
+- char:shi — 160 exposições ao longo dos 127 planos
+- chunk:qingzaishuoyibian — 145 exposições ao longo dos 127 planos
 - char:you — 123 exposições ao longo dos 127 planos
+- chunk:nihaoma — 119 exposições ao longo dos 127 planos
 - char:na_that — 118 exposições ao longo dos 127 planos
-- chunk:nihaoma — 117 exposições ao longo dos 127 planos
-- char:zai — 117 exposições ao longo dos 127 planos
+- char:zai — 116 exposições ao longo dos 127 planos
 - char:ri — 102 exposições ao longo dos 127 planos
 - char:san — 94 exposições ao longo dos 127 planos
 - chunk:wojiao — 91 exposições ao longo dos 127 planos
+- chunk:xiexie — 80 exposições ao longo dos 127 planos
 - char:zhe — 80 exposições ao longo dos 127 planos
-- chunk:zaijian — 77 exposições ao longo dos 127 planos
-- chunk:xiexie — 75 exposições ao longo dos 127 planos
+- chunk:zaijian — 76 exposições ao longo dos 127 planos
 - char:yue — 60 exposições ao longo dos 127 planos
 - chunk:nashirenm — 59 exposições ao longo dos 127 planos
-- char:yao — 54 exposições ao longo dos 127 planos
+- char:yao — 53 exposições ao longo dos 127 planos
 - char:shan — 51 exposições ao longo dos 127 planos
 - char:er — 48 exposições ao longo dos 127 planos
 - chunk:qingwen — 47 exposições ao longo dos 127 planos
-- char:ba8 — 43 exposições ao longo dos 127 planos
-- chunk:bukeqi — 43 exposições ao longo dos 127 planos
+- char:ba8 — 42 exposições ao longo dos 127 planos
+- chunk:bukeqi — 42 exposições ao longo dos 127 planos
+- char:li_inside — 42 exposições ao longo dos 127 planos
 - char:wu — 41 exposições ao longo dos 127 planos
-- char:li_inside — 40 exposições ao longo dos 127 planos
 
 ## Itens de prioridade sem cobertura
 
@@ -126,9 +126,9 @@
 - l24:chunk:zheshishenme (39 exposições no curso)
 - l26:chunk:zheshishenme (39 exposições no curso)
 - l26b:char:shi10 (26 exposições no curso)
+- l26b:chunk:duoshaoqian (21 exposições no curso)
 - l26b:chunk:fuwuyuan (1 exposições no curso)
-- l26b:chunk:haode (5 exposições no curso)
-- …mais 43.
+- …mais 44.
 
 ## Itens sem cobertura (bruto)
 
@@ -212,6 +212,6 @@
 - l19-logica-luz:char:shan
 - l19-logica-luz:char:yue
 - l19-logica-luz:chunk:zheshishenme
-- …mais 166.
+- …mais 159.
 
-<!-- integridade:2ea3a7565fdca5ac -->
+<!-- integridade:05ca5fda2369efd5 -->

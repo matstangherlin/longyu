@@ -1782,6 +1782,19 @@ export function curriculumGlyphsThroughLesson(lessonId: string | undefined): Rea
   return curriculumGlyphsCache.get(lessonId) ?? new Set<string>();
 }
 
+function curriculumGlyphsBeforeLesson(lessonId: string | undefined): ReadonlySet<string> {
+  if (!lessonId) return new Set<string>();
+  const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  if (index <= 0) return new Set<string>();
+  return curriculumGlyphsThroughLesson(ALL_LESSONS[index - 1]?.id);
+}
+
+function allCjkGlyphsKnown(hanzi: string, known: ReadonlySet<string> | undefined): boolean {
+  if (!known) return false;
+  const glyphs = [...cleanHanzi(hanzi)].filter((glyph) => CJK_RE.test(glyph));
+  return glyphs.length > 0 && glyphs.every((glyph) => known.has(glyph));
+}
+
 /** Semente estável por lição+estágio: gira os drills sem virar sorteio. */
 function drillSeedFor(lessonId: string | undefined, stageId: LessonStageId): number {
   let hash = 0;
@@ -3673,22 +3686,30 @@ function supplementalStepsForStage(
     // O ditado do primeiro item abre o estágio: escrever o que se ouviu é a
     // ponte entre som e forma, e precisa vir antes de a montagem visual
     // consumir o orçamento — mas não nas lições-conceito de fundação.
-    if (allowDictation && focus[0]) push(makeDictationStep(focus[0], focus, phaseOrder));
+    const priorGlyphs = curriculumGlyphsBeforeLesson(options.lessonId);
+    const productionReady = (item: FocusItem) => allCjkGlyphsKnown(item.hanzi, priorGlyphs);
+    if (allowDictation && focus[0] && productionReady(focus[0])) {
+      push(makeDictationStep(focus[0], focus, phaseOrder));
+    }
     const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
     if (enablePedagogyVariants && !foundationLite) {
       if (practiceVariant === "B") {
-        push(makeSentenceLabStep(primary, focus, "sentence_lab_distractors"));
-        push(makeDragonDictationStep(primary, focus, "blocks"));
+        if (productionReady(primary)) {
+          push(makeSentenceLabStep(primary, focus, "sentence_lab_distractors"));
+          push(makeDragonDictationStep(primary, focus, "blocks"));
+        }
       }
       if (practiceVariant === "C") {
-        push(makeSentenceLabStep(primary, focus, "sentence_lab_audio"));
+        if (productionReady(primary)) push(makeSentenceLabStep(primary, focus, "sentence_lab_audio"));
         push(makeVariantOddOneOutStep([...focus, ...practiceFocus]));
       }
     }
     for (const item of focus) {
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
-      push(makeSentenceBuildStep(item, focus));
-      if (allowDictation) push(makeDictationStep(item, focus, phaseOrder));
+      if (productionReady(item)) {
+        push(makeSentenceBuildStep(item, focus));
+        if (allowDictation) push(makeDictationStep(item, focus, phaseOrder));
+      }
       push(makeAssemblyChoiceStep(item, focus));
       if (result.length >= targetCount) break;
     }
@@ -3784,14 +3805,15 @@ function supplementalStepsForStage(
       push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
     }
     const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
+    const priorGlyphs = curriculumGlyphsBeforeLesson(options.lessonId);
     for (const item of [...reviewForDrills, ...focus]) {
       push(makeComprehendStep(item, [...reviewForDrills, ...focus]));
       push(makeHanziBuilderStep(item, phaseOrder, builderProgress, builderSelection));
-      push(makeFillBlankStep(item, [...reviewForDrills, ...focus]));
-      // Na consolidação o ditado sobe para imersão: velocidade natural,
-      // uma reprodução só.
-      if (allowDictation) {
-        push(makeDictationStep(item, [...reviewForDrills, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+      if (allCjkGlyphsKnown(item.hanzi, priorGlyphs)) {
+        push(makeFillBlankStep(item, [...reviewForDrills, ...focus]));
+        if (allowDictation) {
+          push(makeDictationStep(item, [...reviewForDrills, ...focus], phaseOrder, { immersion: phaseOrder >= 4 }));
+        }
       }
       if (result.length >= targetCount) break;
     }
@@ -3823,6 +3845,7 @@ function moduleReviewGapCandidates(
 
   const hanziFocus = focus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1);
   const phraseFocus = focus.filter((item) => cleanHanzi(item.hanzi).length > 1);
+  const priorGlyphs = curriculumGlyphsBeforeLesson(lesson.id);
 
   for (const item of hanziFocus) {
     push(makeRecognizeStep(item));
@@ -3832,13 +3855,17 @@ function moduleReviewGapCandidates(
   }
   for (const item of phraseFocus) {
     push(makeComprehendStep(item, focus));
-    push(makeFillBlankStep(item, focus));
-    push(makeSentenceBuildStep(item, focus));
+    if (allCjkGlyphsKnown(item.hanzi, priorGlyphs)) {
+      push(makeFillBlankStep(item, focus));
+      push(makeSentenceBuildStep(item, focus));
+    }
     push(makeDialogueChoiceStep(item, focus));
   }
   for (const item of reviewFocus.slice(0, 6)) {
     push(makeComprehendStep(item, [...reviewFocus, ...focus]));
-    push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
+    if (allCjkGlyphsKnown(item.hanzi, priorGlyphs)) {
+      push(makeFillBlankStep(item, [...reviewFocus, ...focus]));
+    }
   }
   push(makeMatchPairsStep([...reviewFocus, ...focus]));
   push(makeTonePairStep([...reviewFocus, ...focus]));
@@ -4858,6 +4885,8 @@ interface DerivedTaskDeps {
   progress?: HanziBuilderProgressMap;
   seenGlyphs?: ReadonlySet<string>;
   ownFocusGlyphs?: ReadonlySet<string>;
+  /** Glifos de lições anteriores — R10: build gerado não introduz hànzì novo. */
+  priorGlyphs?: ReadonlySet<string>;
   structureExposure?: StructureExposureMap;
   structureExposureForTransfer?: StructureExposureMap;
   priorTransferredFrames?: ReadonlySet<string>;
@@ -5187,6 +5216,17 @@ function makePostConversationStep(
   usedImageConceptIds?: ReadonlySet<string>
 ): LessonStep | null {
   const f = focus.length >= 2 ? focus : [item, ...focus.filter((other) => other.key !== item.key)];
+  const productionTypes = new Set<PostConversationTaskType>([
+    "build_used_answer",
+    "fill_missing",
+    "recreate_no_translation",
+    "write_heard",
+    "produce_free",
+    "transfer_context",
+  ]);
+  if (productionTypes.has(taskType) && !allCjkGlyphsKnown(item.hanzi, _taskDeps.priorGlyphs ?? _taskDeps.seenGlyphs)) {
+    return null;
+  }
   switch (taskType) {
     case "meaning_check":
       return makeComprehendStep(item, f);
@@ -5212,6 +5252,8 @@ function makePostConversationStep(
       return makePoliteReplyStep(item, f);
     case "order_dialogue": {
       const lines = conversationStep.lines ?? [];
+      const prior = _taskDeps.priorGlyphs ?? _taskDeps.seenGlyphs;
+      if (lines.some((line) => line.hanzi && !allCjkGlyphsKnown(line.hanzi, prior))) return null;
       return makeOrderDialogueStep(lines, f);
     }
     // A conversa acabou de expor estas palavras: cobrá-las pelo ouvido e pelo
@@ -5521,6 +5563,7 @@ export function applyConversationVocabularyLoop(
     progress: deps.progress,
     seenGlyphs: deps.seenGlyphs,
     ownFocusGlyphs: deps.ownFocusGlyphs,
+    priorGlyphs: curriculumGlyphsBeforeLesson(lesson.id),
     structureExposure: deps.structureExposure,
     structureExposureForTransfer: deps.structureExposureForTransfer,
     priorTransferredFrames: deps.priorTransferredFrames,
