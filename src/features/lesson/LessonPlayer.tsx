@@ -1828,7 +1828,14 @@ export function LessonPlayer() {
     setPlanReady(false);
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
-    startTransition(() => {
+    // PERF-011 — `startTransition` NÃO tira trabalho síncrono da main thread:
+    // ele só marca a atualização como não urgente. O planner rodando dentro
+    // dele ainda podia bloquear o primeiro paint na mesma tarefa. Cedemos o
+    // controle ao navegador primeiro, para o shell com os passos autorais
+    // aparecer de fato antes de o plano adaptativo ser calculado.
+    const runPlanner = () => {
+      if (gen !== planGenRef.current) return;
+      startTransition(() => {
       if (gen !== planGenRef.current) return;
       const masteryRecord = lessonMasteryById?.[foundLesson.id];
       const planned = lessonRoundStepsFor(
@@ -1855,9 +1862,20 @@ export function LessonPlayer() {
       setPlanReady(true);
       markLessonPerf(LESSON_PERF_MARKS.dataReady);
       measureLessonPerf("lesson_click_to_data", LESSON_PERF_MARKS.startClick, LESSON_PERF_MARKS.dataReady);
+      });
+    };
+
+    // Dois quadros: o primeiro entrega o paint do shell, o segundo roda o
+    // planner já fora do caminho crítico.
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(runPlanner);
     });
+
     return () => {
       planGenRef.current += 1;
+      cancelAnimationFrame(outer);
+      if (inner) cancelAnimationFrame(inner);
     };
   }, [
     authoredEnrichedSteps,
