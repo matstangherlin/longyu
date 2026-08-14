@@ -443,6 +443,11 @@ export interface Lesson {
    * Piloto: cumprimentos, restaurante, lugares/transporte.
    */
   masteryLoop?: boolean;
+  /**
+   * Pedagogia V3.4 — revisão especial com Review Mastery (Recall→Mixed→Production→Transfer).
+   * Não usa masteryLoop de ensino; ver src/data/reviewMastery.ts.
+   */
+  reviewMasteryMode?: boolean;
   /** Ciclo pedagógico interno. Se omitido, o app gera Apresentar → Reconhecer → Montar → Usar → Fixar. */
   lessonStages?: LessonStage[];
   steps: LessonStep[];
@@ -3997,6 +4002,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l14-char-rev",
             title: "Revisão de reconhecimento",
             skill: "hanzi",
+            reviewMasteryMode: true,
             libraryItems: ["char:yi", "char:san", "char:kou", "char:ri", "char:mu", "char:wo", "char:ni", "char:bu", "char:shi"],
             reviewItems: ["char:yi", "char:san", "char:kou", "char:ri", "char:mu", "char:wo", "char:ni", "char:bu", "char:shi"],
             rewardQi: 2,
@@ -4154,6 +4160,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Checkpoint dos fundamentos",
             skill: "hanzi",
             isReview: true,
+            reviewMasteryMode: true,
             rewardQi: 4,
             estimatedMinutes: 7,
             libraryItems: ["chunk:nihao", "chunk:xiexie", "chunk:zaijian", "chunk:wojiao", "chunk:wature", "char:wo", "char:shi", "char:ren", "char:ma2", "char:ming"],
@@ -4331,6 +4338,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l19-logica-rev",
             title: "Revisão de peças",
             skill: "hanzi",
+            reviewMasteryMode: true,
             libraryItems: ["char:lin", "char:sen", "char:ming", "char:xiu", "char:hao", "char:cong", "char:zhong3", "char:ma2", "char:ma_question"],
             reviewItems: ["char:lin", "char:sen", "char:ming", "char:xiu", "char:hao", "char:cong", "char:zhong3", "char:ma2", "char:ma_question"],
             rewardQi: 2,
@@ -6545,6 +6553,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Revisão do módulo",
             skill: "fala",
             isReview: true,
+            reviewMasteryMode: true,
             premium: true,
             newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝"],
             // Foco em chunks (não caracteres isolados) — evita trio de comprehend

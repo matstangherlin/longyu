@@ -80,9 +80,11 @@ try {
     }
     lines.push("");
     lines.push(`Tarefas curadas: **${review.tasks.length}**`, "");
-    lines.push("| # | Situação | Resposta esperada |", "|---|----------|--------------------|");
+    lines.push("| # | Nível | Situação | Resposta | Accepts |", "|---|------:|----------|----------|---------|");
     review.tasks.forEach((task, index) => {
-      lines.push(`| ${index + 1} | ${task.situationPt} | \`${task.answer}\` |`);
+      const levelLabel = coverage.TRANSFER_REVIEW_LEVEL_LABELS?.[task.level] ?? task.level ?? "—";
+      const accepts = (task.accepts ?? []).join(" / ") || "—";
+      lines.push(`| ${index + 1} | ${task.level ?? "—"} (${levelLabel}) | ${task.situationPt} | \`${task.answer}\` | ${accepts} |`);
     });
     lines.push("");
   }

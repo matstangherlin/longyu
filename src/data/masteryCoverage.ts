@@ -137,12 +137,12 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "l14-numeros-visuais", category: "hanzi-lab", status: "not-applicable" },
   { lessonId: "l14-pecas-natureza", category: "hanzi-lab", status: "not-applicable" },
   { lessonId: "l14-frase-minima", category: "hanzi-lab", status: "not-applicable" },
-  { lessonId: "l14-char-rev", category: "review", status: "review-special", notesPt: "Revisao de reconhecimento de caracteres." },
+  { lessonId: "l14-char-rev", category: "review", status: "review-special", notesPt: "Review Mastery V3.4 — reconhecimento de caracteres (Recall→Transfer)." },
   { lessonId: "l15", category: "hanzi-lab", status: "not-applicable", notesPt: "Repetir intensifica — drill de memoria de traco." },
   { lessonId: "l16", category: "hanzi-lab", status: "not-applicable", notesPt: "妈: sentido + som." },
   { lessonId: "l17", category: "hanzi-lab", status: "not-applicable", notesPt: "Sol e lua — composicao logica." },
   { lessonId: "l18", category: "hanzi-lab", status: "not-applicable", notesPt: "Amigo — composicao logica." },
-  { lessonId: "p4-checkpoint-fundamentos", category: "review", status: "review-special", notesPt: "Checkpoint dos fundamentos — revisao acumulada da fase." },
+  { lessonId: "p4-checkpoint-fundamentos", category: "review", status: "review-special", notesPt: "Review Mastery V3.4 — checkpoint dos fundamentos." },
   { lessonId: "p4-num-123", category: "hanzi-lab", status: "not-applicable" },
   { lessonId: "p4-num-45", category: "hanzi-lab", status: "not-applicable" },
   { lessonId: "p4-num-678", category: "hanzi-lab", status: "not-applicable" },
@@ -178,7 +178,7 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "l19-logica-luz", category: "hanzi-lab", status: "not-applicable" },
   { lessonId: "l19-logica-pessoas", category: "hanzi-lab", status: "not-applicable" },
   { lessonId: "l19-logica-ma", category: "hanzi-lab", status: "not-applicable" },
-  { lessonId: "l19-logica-rev", category: "review", status: "review-special", notesPt: "Revisao de pecas logicas da unidade." },
+  { lessonId: "l19-logica-rev", category: "review", status: "review-special", notesPt: "Review Mastery V3.4 — pecas logicas da unidade." },
 
   // --- Fase 5 · u5-1 (Numeros 1 a 10) / u5-2 (Palavras compostas) ---
   { lessonId: "l19", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Um a cinco — mastery loop V3.3 wave 1." },
@@ -208,7 +208,7 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "p6-direcoes", category: "travel", wave: "china-real", status: "migrated", notesPt: "Direcoes — mastery loop V3.1." },
   { lessonId: "p6-compras", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Compras: roupas e itens — mastery loop V3.2." },
   { lessonId: "p6-survival-mandarin", category: "survival", wave: "survival", status: "migrated", notesPt: "Survival Mandarin (pagar/hotel/ajuda) — mastery loop V3.2." },
-  { lessonId: "l10-rev", category: "review", status: "review-special", notesPt: "Revisao do modulo — usa itens ja migrados como insumo." },
+  { lessonId: "l10-rev", category: "review", status: "review-special", notesPt: "Review Mastery V3.4 — revisao do modulo com itens ja migrados." },
 
   // --- Fase 7 · Leitura Graduada ---
   { lessonId: "l29", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Eu e meus amigos — mastery loop V3.4 completion." },
@@ -222,11 +222,20 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
 // Alvos de cobertura.
 // ————————————————————————————————————————————————————————————————
 
-/** Piso minimo de licoes migradas para a remessa V3.3 ser considerada suficiente. */
+/** Piso minimo de licoes mastery enabled (legado V3.3). */
 export const TARGET_MASTERY_MIN = 35;
 
-/** Alvo ideal de licoes migradas (16 atuais + 24 da wave 1 = 40). */
+/** Alvo ideal legado V3.3 (40). V3.4 mira ~46 normais + 4 review mastery. */
 export const TARGET_MASTERY_IDEAL = 40;
+
+/** V3.4 — licoes normais elegiveis com Mastery (excluindo review-special). */
+export const TARGET_NORMAL_ELIGIBLE = 46;
+
+/** V3.4 — reviews especiais com Review Mastery. */
+export const TARGET_REVIEW_MASTERY = 4;
+
+/** Fracao minima de enabled que devem ser certificadas com planos reais. */
+export const TARGET_CERTIFIED_RATIO = 0.95;
 
 // ————————————————————————————————————————————————————————————————
 // Helpers.
@@ -340,15 +349,51 @@ export function coverageStats(
 // apos um grupo de licoes wave1-candidate ser migrado.
 // ————————————————————————————————————————————————————————————————
 
-export type TransferReviewId = "foundation_transfer" | "daily_life_transfer" | "city_transfer" | "shopping_transfer";
+export type TransferReviewId =
+  | "foundation_transfer"
+  | "daily_life_transfer"
+  | "city_transfer"
+  | "shopping_transfer"
+  | "communication_survival_transfer"
+  | "health_daily_transfer"
+  | "intermediate_transfer";
+
+/** Nível de dificuldade dentro de um Transfer Review (integração, não Mastery de lição). */
+export type TransferReviewLevel = 1 | 2 | 3 | 4;
+
+export const TRANSFER_REVIEW_LEVEL_LABELS: Record<TransferReviewLevel, string> = {
+  1: "Reconhecimento / contexto",
+  2: "Recuperação",
+  3: "Produção",
+  4: "Cenário misto",
+};
+
+export interface TransferReviewTask {
+  situationPt: string;
+  answer: string;
+  /** Equivalências curadas por intenção comunicativa (PED-114). */
+  accepts?: string[];
+  options?: string[];
+  level: TransferReviewLevel;
+}
 
 export interface TransferReviewSpec {
   id: TransferReviewId;
   titlePt: string;
   prerequisiteLessonIds: string[];
   situationPt: string;
-  /** Pares de prompt/resposta curados, sem revelar a licao de origem. */
-  tasks: { situationPt: string; answer: string; accepts?: string[]; options?: string[] }[];
+  /** Tarefas curadas por nível, sem revelar a lição de origem. */
+  tasks: TransferReviewTask[];
+}
+
+function L(
+  level: TransferReviewLevel,
+  situationPt: string,
+  answer: string,
+  accepts?: string[],
+  options?: string[]
+): TransferReviewTask {
+  return { level, situationPt, answer, accepts, options };
 }
 
 export const TRANSFER_REVIEWS: TransferReviewSpec[] = [
@@ -359,32 +404,11 @@ export const TRANSFER_REVIEWS: TransferReviewSpec[] = [
     situationPt:
       "Uma sequencia de mini-encontros: cumprimentar, agradecer, se despedir e se apresentar, tudo misturado.",
     tasks: [
-      {
-        situationPt: "Alguem te ve pela primeira vez e diz 你好. Como voce responde?",
-        answer: "你好",
-        accepts: ["你好", "你好！"],
-      },
-      {
-        situationPt: "Ela pergunta 你好吗？ Diga que voce esta bem.",
-        answer: "我很好",
-        accepts: ["我很好", "我很好。"],
-      },
-      {
-        situationPt: "Ela te ajudou com as malas. Como voce agradece?",
-        answer: "谢谢",
-        accepts: ["谢谢", "谢谢！"],
-      },
-      {
-        situationPt: "Alguem pergunta seu nome. Qual frase inicia sua apresentacao?",
-        answer: "我叫",
-        accepts: ["我叫"],
-        options: ["我叫", "你好吗", "多少钱", "再见"],
-      },
-      {
-        situationPt: "Hora de ir. Como voce se despede?",
-        answer: "再见",
-        accepts: ["再见", "再见！"],
-      },
+      L(1, "Alguem te ve pela primeira vez e diz 你好. Como voce responde?", "你好", ["你好", "你好！"]),
+      L(1, "Ela pergunta 你好吗？ Qual resposta combina?", "我很好", ["我很好", "我很好。"], ["我很好", "再见", "多少钱", "左转"]),
+      L(2, "Ela te ajudou com as malas. Como voce agradece?", "谢谢", ["谢谢", "谢谢！"]),
+      L(3, "Alguem pergunta seu nome. Qual frase inicia sua apresentacao?", "我叫", ["我叫"], ["我叫", "你好吗", "多少钱", "再见"]),
+      L(4, "Hora de ir. Como voce se despede?", "再见", ["再见", "再见！"]),
     ],
   },
   {
@@ -393,31 +417,11 @@ export const TRANSFER_REVIEWS: TransferReviewSpec[] = [
     prerequisiteLessonIds: ["l24", "l25", "l26", "l26b", "l27", "p6-rotina-trabalho", "p6-horarios", "p6-saude"],
     situationPt: "Um dia comum: apresentar a familia, pedir comida, falar da rotina e da saude.",
     tasks: [
-      {
-        situationPt: "Voce mostra uma foto e aponta para seu pai. O que voce diz?",
-        answer: "这是我爸爸",
-        accepts: ["这是我爸爸", "这是我爸爸。"],
-      },
-      {
-        situationPt: "No restaurante, voce quer agua. O que voce diz?",
-        answer: "我要水",
-        accepts: ["我要水", "我要水。", "我想喝水"],
-      },
-      {
-        situationPt: "Voce acabou de acordar. Como voce diz isso?",
-        answer: "我起床",
-        accepts: ["我起床", "我起床。"],
-      },
-      {
-        situationPt: "Voce quer saber que horas sao. O que voce pergunta?",
-        answer: "现在几点？",
-        accepts: ["现在几点？", "现在几点"],
-      },
-      {
-        situationPt: "Voce nao esta bem e quer avisar. Qual opcao combina melhor?",
-        answer: "我病了",
-        options: ["我病了", "我很好", "多少钱", "再见"],
-      },
+      L(1, "Voce mostra uma foto e aponta para seu pai. O que voce diz?", "这是我爸爸", ["这是我爸爸", "这是我爸爸。"]),
+      L(2, "No restaurante, voce quer agua. O que voce diz?", "我要水", ["我要水", "我要水。", "我想喝水"]),
+      L(2, "Voce acabou de acordar. Como voce diz isso?", "我起床", ["我起床", "我起床。"]),
+      L(3, "Voce quer saber que horas sao. O que voce pergunta?", "现在几点？", ["现在几点？", "现在几点"]),
+      L(4, "Voce nao esta bem e quer avisar. Qual opcao combina melhor?", "我病了", undefined, ["我病了", "我很好", "多少钱", "再见"]),
     ],
   },
   {
@@ -433,31 +437,11 @@ export const TRANSFER_REVIEWS: TransferReviewSpec[] = [
     ],
     situationPt: "Voce viaja de cidade em cidade: reconhecer o lugar, achar a rua e pedir informacao no caminho.",
     tasks: [
-      {
-        situationPt: "Voce quer saber onde fica a capital da China. O que pergunta?",
-        answer: "北京在哪里？",
-        accepts: ["北京在哪里？", "北京在哪里"],
-      },
-      {
-        situationPt: "Voce esta perdido numa rua e quer saber como chegar. O que pergunta?",
-        answer: "怎么走？",
-        accepts: ["怎么走？", "怎么走"],
-      },
-      {
-        situationPt: "O atendente pede para virar. Qual instrucao combina com virar para a esquerda?",
-        answer: "左转",
-        options: ["左转", "右转", "一直走", "多少钱"],
-      },
-      {
-        situationPt: "Voce chegou de trem e precisa de um bilhete de volta. O que voce diz?",
-        answer: "我要票",
-        accepts: ["我要票", "我要票。"],
-      },
-      {
-        situationPt: "Voce esta na Nanjing Road e quer confirmar que esta no lugar certo. O que voce diz?",
-        answer: "我在南京路",
-        accepts: ["我在南京路", "我在南京路。"],
-      },
+      L(1, "Voce quer saber onde fica a capital da China. O que pergunta?", "北京在哪里？", ["北京在哪里？", "北京在哪里"]),
+      L(2, "Voce esta perdido numa rua e quer saber como chegar. O que pergunta?", "怎么走？", ["怎么走？", "怎么走"]),
+      L(2, "O atendente pede para virar. Qual instrucao combina com virar para a esquerda?", "左转", undefined, ["左转", "右转", "一直走", "多少钱"]),
+      L(3, "Voce chegou de trem e precisa de um bilhete de volta. O que voce diz?", "我要票", ["我要票", "我要票。"]),
+      L(4, "Voce esta na Nanjing Road e quer confirmar que esta no lugar certo. O que voce diz?", "我在南京路", ["我在南京路", "我在南京路。"]),
     ],
   },
   {
@@ -466,26 +450,52 @@ export const TRANSFER_REVIEWS: TransferReviewSpec[] = [
     prerequisiteLessonIds: ["l27", "p6-compras", "p6-survival-mandarin", "p7-imersao-mercado"],
     situationPt: "No mercado ou na loja: perguntar preco, escolher item, reclamar do preco e pagar.",
     tasks: [
-      {
-        situationPt: "Voce aponta para um produto e quer saber o preco. O que voce pergunta?",
-        answer: "多少钱？",
-        accepts: ["多少钱？", "多少钱"],
-      },
-      {
-        situationPt: "O preco esta bom e voce quer fechar a compra. O que voce diz?",
-        answer: "我要这个",
-        accepts: ["我要这个", "我要这个。"],
-      },
-      {
-        situationPt: "O vendedor disse um preco alto demais. Qual reacao combina?",
-        answer: "太贵了",
-        options: ["太贵了", "多少钱", "我很好", "再见"],
-      },
-      {
-        situationPt: "Voce quer saber se pode pagar com cartao. O que voce pergunta?",
-        answer: "可以刷卡吗？",
-        accepts: ["可以刷卡吗？", "可以刷卡吗"],
-      },
+      L(1, "Voce aponta para um produto e quer saber o preco. O que voce pergunta?", "多少钱？", ["多少钱？", "多少钱"]),
+      L(2, "O preco esta bom e voce quer fechar a compra. O que voce diz?", "我要这个", ["我要这个", "我要这个。"]),
+      L(3, "O vendedor disse um preco alto demais. Qual reacao combina?", "太贵了", undefined, ["太贵了", "多少钱", "我很好", "再见"]),
+      L(4, "Voce quer saber se pode pagar com cartao. O que voce pergunta?", "可以刷卡吗？", ["可以刷卡吗？", "可以刷卡吗"]),
+    ],
+  },
+  {
+    id: "communication_survival_transfer",
+    titlePt: "Revisao: sobrevivencia comunicativa",
+    prerequisiteLessonIds: [
+      "p3-qing-zai-shuo-yibian",
+      "p3-wobuhui-shuo-zhongwen",
+      "p6-survival-mandarin",
+      "p6-direcoes",
+      "p6-china-ruas",
+    ],
+    situationPt: "Voce precisa se virar: pedir para repetir, dizer que nao fala chines, pedir ajuda e achar o hotel.",
+    tasks: [
+      L(1, "Voce nao entendeu. Qual pedido de repeticao combina?", "请再说一遍", ["请再说一遍", "请再说一遍。"]),
+      L(2, "Voce precisa avisar que nao fala chines. O que diz?", "我不会说中文", ["我不会说中文", "我不会说中文。"]),
+      L(3, "Voce precisa de ajuda. O que diz?", "我需要帮助", ["我需要帮助", "我需要帮助。", "我需要帮忙"]),
+      L(4, "No lobby, voce pergunta onde fica o hotel/quarto. Qual pergunta combina?", "酒店在哪里？", ["酒店在哪里？", "酒店在哪里", "宾馆在哪里？"], ["酒店在哪里？", "多少钱", "我很好", "再见"]),
+    ],
+  },
+  {
+    id: "health_daily_transfer",
+    titlePt: "Revisao: saude no dia a dia",
+    prerequisiteLessonIds: ["p6-saude", "p6-rotina-trabalho", "p6-horarios", "p6-clima"],
+    situationPt: "Saude + rotina + horario + clima misturados num dia real.",
+    tasks: [
+      L(1, "Voce esta com dor de cabeca. O que diz?", "我头疼", ["我头疼", "我头疼。"]),
+      L(2, "Voce quer dizer que acordou. O que diz?", "我起床", ["我起床", "我起床。"]),
+      L(3, "Pergunte que horas sao agora.", "现在几点？", ["现在几点？", "现在几点"]),
+      L(4, "Esta frio e voce nao se sente bem. Qual comentario de clima combina?", "天气很冷", ["天气很冷", "天气很冷。", "今天很冷"], ["天气很冷", "我喜欢", "左转", "再见"]),
+    ],
+  },
+  {
+    id: "intermediate_transfer",
+    titlePt: "Revisao: estruturas intermediarias",
+    prerequisiteLessonIds: ["l19", "l20", "l21", "l22", "l23", "l29", "l30"],
+    situationPt: "Numeros, pronomes, amigos e microtextos misturados sem rotulo de origem.",
+    tasks: [
+      L(1, "Qual numero e tres?", "三", ["三"], ["三", "八", "我", "茶"]),
+      L(2, "Como se diz 'nos'?", "我们", ["我们"], ["我们", "你们", "他们", "再见"]),
+      L(3, "Diga que gosta de chines.", "我喜欢中文", ["我喜欢中文", "我喜欢中文。"]),
+      L(4, "Voce quer convidar os amigos a sair. O que diz?", "我们走吧", ["我们走吧", "我们走吧。"]),
     ],
   },
 ];

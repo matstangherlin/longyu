@@ -6,5 +6,13 @@
  * precise importar direto de masteryCoverage.ts (mantém o acoplamento
  * explícito e permite trocar a fonte sem alterar consumidores).
  */
-export { TRANSFER_REVIEWS } from "./masteryCoverage";
-export type { TransferReviewSpec, TransferReviewId } from "./masteryCoverage";
+export {
+  TRANSFER_REVIEWS,
+  TRANSFER_REVIEW_LEVEL_LABELS,
+} from "./masteryCoverage";
+export type {
+  TransferReviewSpec,
+  TransferReviewId,
+  TransferReviewTask,
+  TransferReviewLevel,
+} from "./masteryCoverage";

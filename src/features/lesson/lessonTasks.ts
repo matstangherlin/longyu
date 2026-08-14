@@ -31,6 +31,12 @@ import {
   masteryBonusStepsFor,
   planHasProductionOrTransfer,
 } from "../../data/masteryPilot";
+import {
+  isReviewMasteryLesson,
+  reviewMasteryStepsFor,
+  REVIEW_MASTERY_LABELS,
+  type ReviewMasteryLevel,
+} from "../../data/reviewMastery";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
@@ -6061,6 +6067,22 @@ export function resolveMasteryPassForContext(
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
+  // Pedagogia V3.4 — Review Mastery: Recall→Mixed→Production→Transfer (não ensina de novo).
+  if (lesson.reviewMasteryMode || isReviewMasteryLesson(lesson.id)) {
+    const level = (context.masteryPass ??
+      Math.min(4, Math.max(1, (context.masteryLevel ?? 0) + 1))) as ReviewMasteryLevel;
+    const reviewSteps = reviewMasteryStepsFor(lesson.id, level);
+    if (reviewSteps.length > 0) {
+      return reviewSteps.map((step, index) => ({
+        ...step,
+        lessonStageId: "consolidation" as const,
+        lessonStageQuestion: index + 1,
+        lessonStageQuestionCount: reviewSteps.length,
+        masteryPass: level as MasteryPass,
+      }));
+    }
+  }
+
   const base = buildLessonPracticePlan(lesson, context);
   const pass = resolveMasteryPassForContext(lesson, context);
   if (!pass) return base;
@@ -6070,6 +6092,10 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
 export function lessonMasteryPassMeta(pass: MasteryPass): { pass: MasteryPass; label: string } {
   const labels = { 1: "Descoberta", 2: "Consolidação", 3: "Produção", 4: "Domínio" } as const;
   return { pass, label: labels[pass] };
+}
+
+export function lessonReviewMasteryMeta(level: ReviewMasteryLevel): { level: ReviewMasteryLevel; label: string } {
+  return { level, label: REVIEW_MASTERY_LABELS[level] };
 }
 
 export interface JourneyModuleCoverageIssue {
