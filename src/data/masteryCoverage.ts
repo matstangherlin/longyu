@@ -8,8 +8,8 @@
  * quais nunca vao (labs de tom/hanzi, revisoes, telas de sistema).
  *
  * Ondas:
- * - migrated: ja tem masteryLoop: true na Jornada (V3/V3.1/V3.2), 16 licoes.
- * - wave1-candidate: entra nesta remessa (V3.3), 24 licoes.
+ * - migrated: ja tem masteryLoop: true na Jornada (V3–V3.3), 40 licoes.
+ * - wave1-candidate: reservado para candidatas futuras; Wave 1 (24) ja migrada.
  * - later: fala/leitura fora da wave 1, aguardando expansao futura (PED-050).
  * - not-applicable: sound-lab/hanzi-lab/system — drill isolado ou tela
  *   conceitual, sem "situacao comunicativa" para aplicar mastery loop.
@@ -91,9 +91,9 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "l2", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Cumprimento (Ola) — mastery loop V3." },
   { lessonId: "l3", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Tudo bem? / Estou bem — mastery loop V3." },
   { lessonId: "l4", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Obrigado / De nada — mastery loop V3." },
-  { lessonId: "p1-ate-logo", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Despedida (再见) — completa o trio cortesia com l2/l3/l4." },
-  { lessonId: "p1-primeira-conversa", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Primeiro mini-dialogo encadeando cumprimento + despedida." },
-  { lessonId: "p1-qingwen-cortesia", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Com licenca (请问) — abordagem cortes antes de perguntar algo." },
+  { lessonId: "p1-ate-logo", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Despedida (再见) — mastery loop V3.3 wave 1." },
+  { lessonId: "p1-primeira-conversa", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Primeiro mini-dialogo — mastery loop V3.3 wave 1." },
+  { lessonId: "p1-qingwen-cortesia", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Com licenca (请问) — mastery loop V3.3 wave 1." },
 
   // --- Fase 2 · Som e Tons — tudo sound-lab, sem mastery loop ---
   { lessonId: "p2-ma-primeiro-tom", category: "sound-lab", status: "not-applicable" },
@@ -114,21 +114,21 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "p2-numeros-1-5", category: "sound-lab", status: "not-applicable", notesPt: "Numeros pelo som, foco em percepcao auditiva." },
 
   // --- Fase 3 · Frases Reais — u3-1 (Quem sou eu) ---
-  { lessonId: "p3-wohenhao", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Estou bem (variante) — reforca 我很好 em novo contexto." },
-  { lessonId: "p3-wobuhui-shuo-zhongwen", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Nao falo chines — funcao de sobrevivencia basica." },
-  { lessonId: "p3-qing-zai-shuo-yibian", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Por favor, repita — pedido de repeticao." },
-  { lessonId: "l9", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Me apresentar (我叫...) — nucleo da unidade Quem sou eu." },
+  { lessonId: "p3-wohenhao", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Estou bem (variante) — mastery loop V3.3 wave 1." },
+  { lessonId: "p3-wobuhui-shuo-zhongwen", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Nao falo chines — mastery loop V3.3 wave 1." },
+  { lessonId: "p3-qing-zai-shuo-yibian", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Por favor, repita — mastery loop V3.3 wave 1." },
+  { lessonId: "l9", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Me apresentar (我叫...) — mastery loop V3.3 wave 1." },
   { lessonId: "l9-tudo-bem", category: "foundation", status: "later", notesPt: "Variante de Tudo bem?, fora da wave 1." },
-  { lessonId: "l9-qual-nome", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Como voce se chama? — pergunta reciproca ao l9." },
-  { lessonId: "l10", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "De onde sou — origem/nacionalidade." },
-  { lessonId: "l11", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Nao entendi — funcao de reparo de conversa." },
-  { lessonId: "l11-falo-pouco", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Falo um pouco — complemento de l11." },
+  { lessonId: "l9-qual-nome", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Como voce se chama? — mastery loop V3.3 wave 1." },
+  { lessonId: "l10", category: "foundation", wave: "foundation", status: "migrated", notesPt: "De onde sou — mastery loop V3.3 wave 1." },
+  { lessonId: "l11", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Nao entendi — mastery loop V3.3 wave 1." },
+  { lessonId: "l11-falo-pouco", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Falo um pouco — mastery loop V3.3 wave 1." },
 
   // --- Fase 3 · u3-2 (Primeira leitura) ---
   { lessonId: "l12", category: "hanzi-lab", status: "not-applicable", notesPt: "Pecas da frase — foco em analise estrutural, nao fala." },
   { lessonId: "l13", category: "foundation", status: "later", notesPt: "Microtexto 1 — leitura, fora da wave 1." },
-  { lessonId: "l13-dialogo-ola", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Microdialogo de cumprimento — pratica encadeada." },
-  { lessonId: "l13-dialogo-nome", category: "foundation", wave: "foundation", status: "wave1-candidate", notesPt: "Microdialogo de apresentacao — pratica encadeada." },
+  { lessonId: "l13-dialogo-ola", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Microdialogo de cumprimento — mastery loop V3.3 wave 1." },
+  { lessonId: "l13-dialogo-nome", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Microdialogo de apresentacao — mastery loop V3.3 wave 1." },
   { lessonId: "p3-ordem-das-palavras", category: "system", status: "not-applicable", notesPt: "Explicacao de ordem gramatical, sem situacao comunicativa." },
   { lessonId: "p3-nomes-da-frase", category: "system", status: "not-applicable", notesPt: "Nomenclatura de pecas da frase — conceitual." },
 
@@ -181,30 +181,30 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "l19-logica-rev", category: "review", status: "review-special", notesPt: "Revisao de pecas logicas da unidade." },
 
   // --- Fase 5 · u5-1 (Numeros 1 a 10) / u5-2 (Palavras compostas) ---
-  { lessonId: "l19", category: "intermediate", wave: "functional", status: "wave1-candidate", notesPt: "Um a cinco — numeros com uso funcional." },
-  { lessonId: "l20", category: "intermediate", wave: "functional", status: "wave1-candidate", notesPt: "Seis a dez — completa a serie numerica." },
-  { lessonId: "l21", category: "intermediate", wave: "functional", status: "wave1-candidate", notesPt: "Nos e voces — pronomes compostos." },
-  { lessonId: "l22", category: "intermediate", wave: "functional", status: "wave1-candidate", notesPt: "China e amigos — vocabulario composto." },
+  { lessonId: "l19", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Um a cinco — mastery loop V3.3 wave 1." },
+  { lessonId: "l20", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Seis a dez — mastery loop V3.3 wave 1." },
+  { lessonId: "l21", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Nos e voces — mastery loop V3.3 wave 1." },
+  { lessonId: "l22", category: "intermediate", wave: "functional", status: "migrated", notesPt: "China e amigos — mastery loop V3.3 wave 1." },
   { lessonId: "l23", category: "intermediate", status: "later", notesPt: "Microtexto 2 — leitura, fora da wave 1." },
 
   // --- Fase 6 · Vida Cotidiana — u6-1 (Familia) ---
   { lessonId: "l24", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Pai e mae — mastery loop V3.2." },
-  { lessonId: "l25", category: "daily-life", wave: "daily-life", status: "wave1-candidate", notesPt: "Perguntas uteis (isto/aquilo/voltar para casa)." },
+  { lessonId: "l25", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Perguntas uteis — mastery loop V3.3 wave 1." },
 
   // --- Fase 6 · u6-2 (Comida e compras) ---
-  { lessonId: "l26", category: "daily-life", wave: "daily-life", status: "wave1-candidate", notesPt: "Fome e gosto — pedir comida basica." },
+  { lessonId: "l26", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Fome e gosto — mastery loop V3.3 wave 1." },
   { lessonId: "l26b", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "No cardapio — mastery loop V3.2." },
   { lessonId: "l27", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Na loja — mastery loop V3.2." },
-  { lessonId: "l28", category: "daily-life", wave: "daily-life", status: "wave1-candidate", notesPt: "Vamos embora — funcao social de saida." },
+  { lessonId: "l28", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Vamos embora — mastery loop V3.3 wave 1." },
   { lessonId: "p6-rotina-trabalho", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Rotina e trabalho — mastery loop V3.2." },
   { lessonId: "p6-cidade-lugares", category: "travel", wave: "daily-life", status: "migrated", notesPt: "Cidade e lugares — mastery loop V3.1." },
   { lessonId: "p6-china-cidades", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Cidades da China — mastery loop V3.1." },
   { lessonId: "p6-china-cidades-2", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Cidades da China onda 2 — mastery loop V3.2." },
   { lessonId: "p6-china-ruas", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Ruas e enderecos — mastery loop V3.1." },
-  { lessonId: "p6-saude", category: "daily-life", wave: "daily-life", status: "wave1-candidate", notesPt: "Saude — doenca/dor/medico/hospital." },
+  { lessonId: "p6-saude", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Saude — mastery loop V3.3 wave 1." },
   { lessonId: "p6-horarios", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Que horas sao? — mastery loop V3.2." },
   { lessonId: "p6-natureza", category: "daily-life", status: "later", notesPt: "A natureza — fora da wave 1." },
-  { lessonId: "p6-clima", category: "daily-life", wave: "daily-life", status: "wave1-candidate", notesPt: "O tempo (clima) — quente/frio/chuva/neve." },
+  { lessonId: "p6-clima", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "O tempo (clima) — mastery loop V3.3 wave 1." },
   { lessonId: "p6-direcoes", category: "travel", wave: "china-real", status: "migrated", notesPt: "Direcoes — mastery loop V3.1." },
   { lessonId: "p6-compras", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Compras: roupas e itens — mastery loop V3.2." },
   { lessonId: "p6-survival-mandarin", category: "survival", wave: "survival", status: "migrated", notesPt: "Survival Mandarin (pagar/hotel/ajuda) — mastery loop V3.2." },
@@ -213,9 +213,9 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   // --- Fase 7 · Leitura Graduada ---
   { lessonId: "l29", category: "intermediate", status: "later", notesPt: "Eu e meus amigos — leitura, fora da wave 1." },
   { lessonId: "l30", category: "intermediate", status: "later", notesPt: "Leitura em voz alta — fora da wave 1." },
-  { lessonId: "p7-imersao-mercado", category: "china-real", wave: "china-real", status: "wave1-candidate", notesPt: "Imersao no mercado — cena real de compra/negociacao." },
+  { lessonId: "p7-imersao-mercado", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Imersao no mercado — mastery loop V3.3 wave 1." },
   { lessonId: "p7-imersao-estacao", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Imersao na estacao — mastery loop V3.1." },
-  { lessonId: "p7-imersao-casa-amigo", category: "china-real", wave: "china-real", status: "wave1-candidate", notesPt: "Imersao na casa de um amigo — cena social completa." },
+  { lessonId: "p7-imersao-casa-amigo", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Imersao na casa de um amigo — mastery loop V3.3 wave 1." },
 ];
 
 // ————————————————————————————————————————————————————————————————

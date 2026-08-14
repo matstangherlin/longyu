@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
+| Commit | a448c61f30a3e94f3ecd8054d0b690d201426069 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T00:54:33.340Z |
+| Gerado em | 2026-08-14T01:13:25.978Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 3d763abdfa60 |
 
 
 `WAVE1_EXPANSION_LESSON_IDS` (`src/data/masteryCoverage.ts`) lista **24** lições candidatas
@@ -49,4 +49,4 @@ Quality score lido de `masteryQuality.ts`.
 - Migradas: **24/24**
 - Pendentes: **0/24**
 
-<!-- integridade:9dd24d2cf28fb332 -->
+<!-- integridade:e49bf5c0c52f5362 -->

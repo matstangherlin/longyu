@@ -348,10 +348,11 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
       { ref: "chunk:gucheng", hanzi: "古城", pinyin: "gucheng", meaningPt: "cidade antiga", role: "core", introduceAtPass: 3 },
       { ref: "chunk:woquxian", hanzi: "我去西安。", role: "productive", meaningPt: "Vou a Xian", introduceAtPass: 3 },
       { ref: "chunk:zhelihenlao", hanzi: "这里很老。", role: "support", meaningPt: "Aqui e bem antigo", introduceAtPass: 3 },
-      { ref: "chunk:nanjing", hanzi: "南京", pinyin: "Nanjing", meaningPt: "Nanjing", role: "core", introduceAtPass: 4 },
-      { ref: "chunk:nanjinglu", hanzi: "南京路", role: "receptive", meaningPt: "Nanjing Road", introduceAtPass: 4 },
+      { ref: "chunk:nanjing", hanzi: "南京", pinyin: "Nanjing", meaningPt: "Nanjing", role: "core", introduceAtPass: 3 },
+      { ref: "chunk:nanjinglu", hanzi: "南京路", role: "receptive", meaningPt: "Nanjing Road", introduceAtPass: 3 },
+      { ref: "chunk:woqunanjing", hanzi: "我去南京。", role: "productive", meaningPt: "Vou a Nanjing", introduceAtPass: 4 },
     ],
-    networkChunks: ["我去成都", "我要四川菜", "辣", "我去西安", "古城", "南京"],
+    networkChunks: ["我去成都", "我要四川菜", "辣", "我去西安", "古城", "南京", "我去南京"],
   },
   "p6-china-ruas": {
     lessonId: "p6-china-ruas",
@@ -1860,17 +1861,27 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
           "古城 = cidade antiga."
         ),
         reverseRecall("Vou a Xian", "Diga que vai a Xian.", "我去西安", ["我去西安", "我去西安。"]),
+        {
+          kind: "place_label",
+          title: "Nanjing",
+          prompt: "Qual destas e Nanjing?",
+          dialoguePrompt: "Qual destas e Nanjing?",
+          correctAnswer: "南京",
+          options: ["南京", "成都", "西安", "北京"],
+          placeLabelCategory: "cidade",
+          speaker: "Placa",
+        },
       ];
     }
     return [
       {
         kind: "city_context",
-        title: "Nanjing",
-        situationPt: "Voce quer reconhecer Nanjing na placa.",
-        citySituationPt: "Voce quer reconhecer Nanjing na placa.",
-        dialoguePrompt: "Voce quer reconhecer Nanjing na placa.",
-        correctAnswer: "南京",
-        options: ["南京", "成都", "辣", "菜单"],
+        title: "Nanjing em viagem",
+        situationPt: "Voce reconhece Nanjing e quer ir la. O que diz?",
+        citySituationPt: "Voce reconhece Nanjing e quer ir la. O que diz?",
+        dialoguePrompt: "Voce reconhece Nanjing e quer ir la. O que diz?",
+        correctAnswer: "我去南京。",
+        options: ["我去南京。", "我很好", "再见", "菜单"],
         cityId: "nanjing",
         speaker: "Situacao",
       },

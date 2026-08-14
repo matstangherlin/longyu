@@ -226,6 +226,7 @@ export const CHUNKS: Chunk[] = [
   { id: "gucheng", hanzi: "古城", pinyin: "gǔchéng", meaningPt: "cidade antiga.", tags: ["lugar", "china_real"], domain: "lugar", level: "survival" },
   { id: "zhelihenlao", hanzi: "这里很老。", pinyin: "zhèlǐ hěn lǎo.", meaningPt: "Aqui é bem antigo.", tags: ["lugar", "china_real"], domain: "lugar", level: "survival" },
   { id: "woquxian", hanzi: "我去西安。", pinyin: "wǒ qù Xī'ān.", meaningPt: "Eu vou a Xi'an.", tags: ["lugar", "china_real"], domain: "lugar", level: "elementary" },
+  { id: "woqunanjing", hanzi: "我去南京。", pinyin: "wǒ qù Nánjīng.", meaningPt: "Eu vou a Nanjing.", tags: ["lugar", "china_real"], domain: "lugar", level: "elementary" },
   { id: "shanghaijichang", hanzi: "上海机场", pinyin: "Shànghǎi jīchǎng", meaningPt: "Aeroporto de Xangai.", tags: ["transporte", "china_real"], domain: "transporte", level: "survival" },
   // --- Survival Mandarin ---
   { id: "xianjin", hanzi: "现金", pinyin: "xiànjīn", meaningPt: "Dinheiro vivo.", tags: ["survival", "pagamento"], domain: "compras", level: "survival" },

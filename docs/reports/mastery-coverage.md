@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
+| Commit | a448c61f30a3e94f3ecd8054d0b690d201426069 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T00:54:00.891Z |
+| Gerado em | 2026-08-14T01:13:23.285Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 3d763abdfa60 |
 
 
 Cruza a classificação estática de `src/data/masteryCoverage.ts` (categoria,
@@ -46,46 +46,46 @@ Meta mínima da remessa V3.3: **35** lições migradas. Meta ideal: **40**.
 | foundation | `l2` | migrated | ✅ |
 | foundation | `l3` | migrated | ✅ |
 | foundation | `l4` | migrated | ✅ |
-| foundation | `p1-ate-logo` | wave1-candidate | ✅ |
-| foundation | `p1-primeira-conversa` | wave1-candidate | ✅ |
-| foundation | `p1-qingwen-cortesia` | wave1-candidate | ✅ |
-| foundation | `p3-wohenhao` | wave1-candidate | ✅ |
-| foundation | `p3-wobuhui-shuo-zhongwen` | wave1-candidate | ✅ |
-| foundation | `p3-qing-zai-shuo-yibian` | wave1-candidate | ✅ |
-| foundation | `l9` | wave1-candidate | ✅ |
+| foundation | `p1-ate-logo` | migrated | ✅ |
+| foundation | `p1-primeira-conversa` | migrated | ✅ |
+| foundation | `p1-qingwen-cortesia` | migrated | ✅ |
+| foundation | `p3-wohenhao` | migrated | ✅ |
+| foundation | `p3-wobuhui-shuo-zhongwen` | migrated | ✅ |
+| foundation | `p3-qing-zai-shuo-yibian` | migrated | ✅ |
+| foundation | `l9` | migrated | ✅ |
 | foundation | `l9-tudo-bem` | later | — |
-| foundation | `l9-qual-nome` | wave1-candidate | ✅ |
-| foundation | `l10` | wave1-candidate | ✅ |
-| foundation | `l11` | wave1-candidate | ✅ |
-| foundation | `l11-falo-pouco` | wave1-candidate | ✅ |
+| foundation | `l9-qual-nome` | migrated | ✅ |
+| foundation | `l10` | migrated | ✅ |
+| foundation | `l11` | migrated | ✅ |
+| foundation | `l11-falo-pouco` | migrated | ✅ |
 | foundation | `l13` | later | — |
-| foundation | `l13-dialogo-ola` | wave1-candidate | ✅ |
-| foundation | `l13-dialogo-nome` | wave1-candidate | ✅ |
+| foundation | `l13-dialogo-ola` | migrated | ✅ |
+| foundation | `l13-dialogo-nome` | migrated | ✅ |
 | daily-life | `l24` | migrated | ✅ |
-| daily-life | `l25` | wave1-candidate | ✅ |
-| daily-life | `l26` | wave1-candidate | ✅ |
+| daily-life | `l25` | migrated | ✅ |
+| daily-life | `l26` | migrated | ✅ |
 | daily-life | `l26b` | migrated | ✅ |
 | daily-life | `l27` | migrated | ✅ |
-| daily-life | `l28` | wave1-candidate | ✅ |
+| daily-life | `l28` | migrated | ✅ |
 | daily-life | `p6-rotina-trabalho` | migrated | ✅ |
-| daily-life | `p6-saude` | wave1-candidate | ✅ |
+| daily-life | `p6-saude` | migrated | ✅ |
 | daily-life | `p6-horarios` | migrated | ✅ |
 | daily-life | `p6-natureza` | later | — |
-| daily-life | `p6-clima` | wave1-candidate | ✅ |
+| daily-life | `p6-clima` | migrated | ✅ |
 | daily-life | `p6-compras` | migrated | ✅ |
 | travel | `p6-cidade-lugares` | migrated | ✅ |
 | travel | `p6-direcoes` | migrated | ✅ |
 | china-real | `p6-china-cidades` | migrated | ✅ |
 | china-real | `p6-china-cidades-2` | migrated | ✅ |
 | china-real | `p6-china-ruas` | migrated | ✅ |
-| china-real | `p7-imersao-mercado` | wave1-candidate | ✅ |
+| china-real | `p7-imersao-mercado` | migrated | ✅ |
 | china-real | `p7-imersao-estacao` | migrated | ✅ |
-| china-real | `p7-imersao-casa-amigo` | wave1-candidate | ✅ |
+| china-real | `p7-imersao-casa-amigo` | migrated | ✅ |
 | survival | `p6-survival-mandarin` | migrated | ✅ |
-| intermediate | `l19` | wave1-candidate | ✅ |
-| intermediate | `l20` | wave1-candidate | ✅ |
-| intermediate | `l21` | wave1-candidate | ✅ |
-| intermediate | `l22` | wave1-candidate | ✅ |
+| intermediate | `l19` | migrated | ✅ |
+| intermediate | `l20` | migrated | ✅ |
+| intermediate | `l21` | migrated | ✅ |
+| intermediate | `l22` | migrated | ✅ |
 | intermediate | `l23` | later | — |
 | intermediate | `l29` | later | — |
 | intermediate | `l30` | later | — |
@@ -94,4 +94,4 @@ Meta mínima da remessa V3.3: **35** lições migradas. Meta ideal: **40**.
 | review | `l19-logica-rev` | review-special | — |
 | review | `l10-rev` | review-special | — |
 
-<!-- integridade:cdce122c4fb0c6a1 -->
+<!-- integridade:e9a2d722d41b06e3 -->

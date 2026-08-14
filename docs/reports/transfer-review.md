@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e83bdffa79cff5ce85219b66f122f1cd51d01536 |
+| Commit | a448c61f30a3e94f3ecd8054d0b690d201426069 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T00:26:02.114Z |
+| Gerado em | 2026-08-14T01:13:27.494Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 3d763abdfa60 |
 
 
 `TRANSFER_REVIEWS` (`src/data/masteryCoverage.ts`) mistura itens de várias
@@ -119,4 +119,4 @@ Tarefas curadas: **4**
 | 3 | O vendedor disse um preco alto demais. Qual reacao combina? | `太贵了` |
 | 4 | Voce quer saber se pode pagar com cartao. O que voce pergunta? | `可以刷卡吗？` |
 
-<!-- integridade:b674ae90213a765b -->
+<!-- integridade:2c52ac3e748774ab -->
