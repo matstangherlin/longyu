@@ -4,28 +4,28 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
+| Commit | 2a12753e58e7da16f7b8c52fa54c719add74c3ab |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T00:59:02.567Z |
+| Gerado em | 2026-08-14T07:19:30.157Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 127 |
-| Itens de vocabulário exibidos | 718 |
-| Itens cobertos por tarefa posterior | 557 |
-| Cobertura bruta | 77.6 % |
-| **Itens de prioridade** (novo · resposta · pouco exposto) | 361 |
-| **Cobertura relevante** (portão ≥ 76 %) | **80.1 %** |
-| Itens do núcleo saturado (≥ 40 exposições no curso) | 17 refs |
-| Reutilização média por item | 2.14 |
-| Itens sem cobertura | 161 |
-| Tarefas da fase Pós-Conversa | 509 |
-| Média Pós-Conversa por conversa | 4.01 |
-| Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, sentence_build |
+| Conversas analisadas (nos planos reais) | 126 |
+| Itens de vocabulário exibidos | 1016 |
+| Itens cobertos por tarefa posterior | 770 |
+| Cobertura bruta | 75.8 % |
+| **Itens de prioridade** (novo · resposta · pouco exposto) | 497 |
+| **Cobertura relevante** (portão ≥ 76 %) | **79.3 %** |
+| Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
+| Reutilização média por item | 1.91 |
+| Itens sem cobertura | 246 |
+| Tarefas da fase Pós-Conversa | 590 |
+| Média Pós-Conversa por conversa | 4.68 |
+| Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
 
 > **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata
 > `你好` e `我会说一点中文` como o mesmo problema; o primeiro já foi praticado no curso
@@ -34,170 +34,184 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- chunk:nihao — 568 exposições ao longo dos 127 planos
-- char:ma_question — 302 exposições ao longo dos 127 planos
-- chunk:wohenhao — 291 exposições ao longo dos 127 planos
-- chunk:nihaoma — 271 exposições ao longo dos 127 planos
-- chunk:zaijian — 161 exposições ao longo dos 127 planos
-- char:bu — 136 exposições ao longo dos 127 planos
-- char:shui — 135 exposições ao longo dos 127 planos
-- char:yi — 128 exposições ao longo dos 127 planos
-- char:shi — 115 exposições ao longo dos 127 planos
-- chunk:xiexie — 108 exposições ao longo dos 127 planos
-- chunk:nijiaoshenme — 93 exposições ao longo dos 127 planos
-- chunk:qingzaishuoyibian — 81 exposições ao longo dos 127 planos
-- chunk:bukeqi — 74 exposições ao longo dos 127 planos
-- chunk:qingwen — 71 exposições ao longo dos 127 planos
-- char:san — 65 exposições ao longo dos 127 planos
-- char:tian_sky — 52 exposições ao longo dos 127 planos
-- char:mu — 42 exposições ao longo dos 127 planos
+- char:hao — 568 exposições ao longo dos 127 planos
+- char:ni — 474 exposições ao longo dos 127 planos
+- chunk:nihao — 411 exposições ao longo dos 127 planos
+- char:bu — 287 exposições ao longo dos 127 planos
+- chunk:wohenhao — 237 exposições ao longo dos 127 planos
+- char:yi — 207 exposições ao longo dos 127 planos
+- char:ma_question — 190 exposições ao longo dos 127 planos
+- char:mu — 167 exposições ao longo dos 127 planos
+- chunk:nijiaoshenme — 163 exposições ao longo dos 127 planos
+- char:shi — 158 exposições ao longo dos 127 planos
+- chunk:qingzaishuoyibian — 143 exposições ao longo dos 127 planos
+- char:you — 123 exposições ao longo dos 127 planos
+- char:na_that — 118 exposições ao longo dos 127 planos
+- chunk:nihaoma — 117 exposições ao longo dos 127 planos
+- char:zai — 117 exposições ao longo dos 127 planos
+- char:ri — 102 exposições ao longo dos 127 planos
+- char:san — 94 exposições ao longo dos 127 planos
+- chunk:wojiao — 91 exposições ao longo dos 127 planos
+- char:zhe — 80 exposições ao longo dos 127 planos
+- chunk:zaijian — 77 exposições ao longo dos 127 planos
+- chunk:xiexie — 75 exposições ao longo dos 127 planos
+- char:yue — 60 exposições ao longo dos 127 planos
+- chunk:nashirenm — 59 exposições ao longo dos 127 planos
+- char:yao — 54 exposições ao longo dos 127 planos
+- char:shan — 51 exposições ao longo dos 127 planos
+- char:er — 48 exposições ao longo dos 127 planos
+- chunk:qingwen — 47 exposições ao longo dos 127 planos
+- char:ba8 — 43 exposições ao longo dos 127 planos
+- chunk:bukeqi — 43 exposições ao longo dos 127 planos
+- char:wu — 41 exposições ao longo dos 127 planos
+- char:li_inside — 40 exposições ao longo dos 127 planos
 
 ## Itens de prioridade sem cobertura
 
-- l11-falo-pouco:chunk:wojiao (33 exposições no curso)
-- l12:chunk:wohuishuoyidian (33 exposições no curso)
-- l12:chunk:wojiao (33 exposições no curso)
-- l13-dialogo-nome:chunk:wohuishuoyidian (33 exposições no curso)
-- p3-ordem-das-palavras:chunk:wohuishuoyidian (33 exposições no curso)
-- p3-ordem-das-palavras:chunk:wojiao (33 exposições no curso)
-- p3-nomes-da-frase:chunk:wohuishuoyidian (33 exposições no curso)
-- p3-nomes-da-frase:chunk:wojiao (33 exposições no curso)
-- l14:chunk:wojiao (33 exposições no curso)
-- p4-num-123:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-num-123:chunk:wojiao (33 exposições no curso)
-- p4-num-45:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-num-45:chunk:wojiao (33 exposições no curso)
-- p4-num-678:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-num-678:chunk:wojiao (33 exposições no curso)
-- p4-num-910:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-num-910:chunk:wojiao (33 exposições no curso)
-- p4-char-mu:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-char-mu:chunk:wojiao (33 exposições no curso)
-- p4-char-ren:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-char-ren:chunk:wojiao (33 exposições no curso)
-- p4-char-kou:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-char-kou:chunk:wojiao (33 exposições no curso)
-- p4-char-ri:chunk:wohuishuoyidian (33 exposições no curso)
-- p4-char-ri:chunk:wojiao (33 exposições no curso)
-- p4-char-yue:chunk:wojiao (33 exposições no curso)
-- l9-rev:char:liu (15 exposições no curso)
-- l9-rev:char:shi10 (16 exposições no curso)
-- l9-rev:char:wu (24 exposições no curso)
-- l26b:chunk:woele (3 exposições no curso)
-- l26b:chunk:womenchifanba (5 exposições no curso)
-- l26b:chunk:woyaorou (1 exposições no curso)
-- l27:chunk:zheshishenme (12 exposições no curso)
-- l28:chunk:duoshaoqian (12 exposições no curso)
-- l28:chunk:woxianghe (11 exposições no curso)
-- l28:chunk:woyao (16 exposições no curso)
-- l28:chunk:zheshishenme (12 exposições no curso)
-- p6-rotina-trabalho:chunk:woyao (16 exposições no curso)
-- p6-china-cidades-2:chunk:woyao (16 exposições no curso)
-- p6-china-ruas:chunk:woyao (16 exposições no curso)
-- p6-saude:chunk:woyao (16 exposições no curso)
-- p6-horarios:chunk:woyao (16 exposições no curso)
-- p6-natureza:chunk:woyao (16 exposições no curso)
-- p6-clima:chunk:woyao (16 exposições no curso)
-- p6-compras:chunk:duoshaoqian (12 exposições no curso)
-- p6-compras:chunk:woxianghe (11 exposições no curso)
-- p6-compras:chunk:zheshishenme (12 exposições no curso)
-- p6-survival-mandarin:chunk:woxianghe (11 exposições no curso)
-- p6-survival-mandarin:chunk:woyao (16 exposições no curso)
-- p6-survival-mandarin:chunk:zheshishenme (12 exposições no curso)
-- l10-rev:chunk:taiguile (13 exposições no curso)
-- l10-rev:chunk:woele (3 exposições no curso)
-- l29:chunk:duoshaoqian (12 exposições no curso)
-- l29:chunk:taiguile (13 exposições no curso)
-- l29:chunk:zheshishenme (12 exposições no curso)
-- l29:chunk:zheshishui (5 exposições no curso)
-- l30:char:shan (35 exposições no curso)
-- l30:char:yue (20 exposições no curso)
-- l30:char:zhe (49 exposições no curso)
-- l30:chunk:zheshishenme (12 exposições no curso)
-- …mais 12.
+- l11-falo-pouco:chunk:nishixueshengma (7 exposições no curso)
+- l11-falo-pouco:chunk:nixuexishenme (7 exposições no curso)
+- l12:chunk:wohuishuoyidian (36 exposições no curso)
+- l13:chunk:nishixueshengma (7 exposições no curso)
+- l13:chunk:nixuexishenme (7 exposições no curso)
+- l13-dialogo-ola:chunk:nishixueshengma (7 exposições no curso)
+- l13-dialogo-ola:chunk:nixuexishenme (7 exposições no curso)
+- l13-dialogo-nome:chunk:wohuishuoyidian (36 exposições no curso)
+- p3-ordem-das-palavras:chunk:wohuishuoyidian (36 exposições no curso)
+- p3-nomes-da-frase:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-num-123:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-num-45:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-num-678:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-num-910:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-char-mu:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-char-ren:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-char-kou:chunk:wohuishuoyidian (36 exposições no curso)
+- p4-char-yue:chunk:wohuishuoyidian (36 exposições no curso)
+- l14-frase-minima:chunk:zheshishenme (39 exposições no curso)
+- l14-char-rev:chunk:zheshishenme (39 exposições no curso)
+- l15:chunk:zheshishenme (39 exposições no curso)
+- l6-rev:char:liu (14 exposições no curso)
+- l6-rev:char:shi10 (26 exposições no curso)
+- l16:chunk:zheshishenme (39 exposições no curso)
+- l17:chunk:zheshishenme (39 exposições no curso)
+- l18:chunk:zheshishenme (39 exposições no curso)
+- l7-rev:chunk:zheshishenme (39 exposições no curso)
+- p4-checkpoint-fundamentos:chunk:zheshishenme (39 exposições no curso)
+- p5-mu-mu-lin:chunk:zheshishenme (39 exposições no curso)
+- p5-mu-mu-mu-sen:chunk:zheshishenme (39 exposições no curso)
+- p5-ri-yue-ming:chunk:zheshishenme (39 exposições no curso)
+- p5-ren-mu-xiu:chunk:zheshishenme (39 exposições no curso)
+- p5-nv-zi-hao:chunk:nishixueshengma (7 exposições no curso)
+- p5-nv-zi-hao:chunk:nixuexishenme (7 exposições no curso)
+- p5-ren-ren-cong:chunk:zheshishenme (39 exposições no curso)
+- p5-ren-ren-ren-zhong:chunk:zheshishenme (39 exposições no curso)
+- p5-nv-ma-mae:chunk:zheshishenme (39 exposições no curso)
+- p5-kou-ma-pergunta:chunk:zheshishenme (39 exposições no curso)
+- p5-kou-ma-pergunta:chunk:zheshishui (4 exposições no curso)
+- l19-logica-madeira:chunk:zheshishenme (39 exposições no curso)
+- l19-logica-luz:char:yue (60 exposições no curso)
+- l19-logica-luz:chunk:zheshishenme (39 exposições no curso)
+- l19-logica-pessoas:chunk:zheshishenme (39 exposições no curso)
+- l19-logica-ma:chunk:zheshishenme (39 exposições no curso)
+- l19-logica-ma:chunk:zheshishui (4 exposições no curso)
+- l19-logica-rev:chunk:nishixueshengma (7 exposições no curso)
+- l19-logica-rev:chunk:nixuexishenme (7 exposições no curso)
+- l19:chunk:zheshishenme (39 exposições no curso)
+- l20:chunk:zheshishenme (39 exposições no curso)
+- l21:chunk:zheshishenme (39 exposições no curso)
+- l22:chunk:zheshishenme (39 exposições no curso)
+- l23:chunk:zheshishenme (39 exposições no curso)
+- l9-rev:char:liu (14 exposições no curso)
+- l9-rev:char:shi10 (26 exposições no curso)
+- l9-rev:chunk:zheshishenme (39 exposições no curso)
+- l24:chunk:zheshishenme (39 exposições no curso)
+- l26:chunk:zheshishenme (39 exposições no curso)
+- l26b:char:shi10 (26 exposições no curso)
+- l26b:chunk:fuwuyuan (1 exposições no curso)
+- l26b:chunk:haode (5 exposições no curso)
+- …mais 43.
 
 ## Itens sem cobertura (bruto)
 
-- p1-qingwen-cortesia:chunk:wohenhao
-- l9-qual-nome:chunk:xiexie
-- l10:chunk:xiexie
-- p3-wobuhui-shuo-zhongwen:chunk:xiexie
-- l11-falo-pouco:chunk:wojiao
+- l11-falo-pouco:chunk:nishixueshengma
+- l11-falo-pouco:chunk:nixuexishenme
+- l11-falo-pouco:chunk:qingzaishuoyibian
 - l12:chunk:wohuishuoyidian
-- l12:chunk:wojiao
+- l13:chunk:nishixueshengma
+- l13:chunk:nixuexishenme
+- l13:chunk:qingzaishuoyibian
+- l13:chunk:wohenhao
 - l13:chunk:xiexie
+- l13:chunk:zaijian
+- l13-dialogo-ola:chunk:nishixueshengma
+- l13-dialogo-ola:chunk:nixuexishenme
 - l13-dialogo-ola:chunk:xiexie
+- l13-dialogo-ola:chunk:zaijian
 - l13-dialogo-nome:chunk:wohuishuoyidian
 - p3-ordem-das-palavras:chunk:wohuishuoyidian
-- p3-ordem-das-palavras:chunk:wojiao
 - p3-nomes-da-frase:chunk:wohuishuoyidian
-- p3-nomes-da-frase:chunk:wojiao
-- l5-rev:chunk:xiexie
-- l14:chunk:wojiao
 - p4-num-123:chunk:wohuishuoyidian
-- p4-num-123:chunk:wojiao
 - p4-num-45:chunk:wohuishuoyidian
-- p4-num-45:chunk:wojiao
 - p4-num-678:chunk:wohuishuoyidian
-- p4-num-678:chunk:wojiao
 - p4-num-910:chunk:wohuishuoyidian
-- p4-num-910:chunk:wojiao
 - p4-char-mu:chunk:wohuishuoyidian
-- p4-char-mu:chunk:wojiao
 - p4-char-ren:chunk:wohuishuoyidian
-- p4-char-ren:chunk:wojiao
 - p4-char-kou:chunk:wohuishuoyidian
-- p4-char-kou:chunk:wojiao
-- p4-char-ri:chunk:wohuishuoyidian
-- p4-char-ri:chunk:wojiao
-- p4-char-yue:chunk:wojiao
-- p4-char-shan:chunk:xiexie
-- p4-char-tian:chunk:qingzaishuoyibian
-- p4-char-tian:chunk:wohenhao
-- p4-char-tian:chunk:zaijian
-- l14-char-rev:chunk:xiexie
-- l15:chunk:xiexie
-- l16:chunk:xiexie
-- l17:chunk:xiexie
-- l18:chunk:xiexie
-- l7-rev:chunk:xiexie
-- p5-mu-mu-lin:chunk:xiexie
-- p5-mu-mu-mu-sen:chunk:xiexie
-- p5-ri-yue-ming:chunk:xiexie
-- p5-ren-mu-xiu:chunk:xiexie
+- p4-char-yue:chunk:wohuishuoyidian
+- l14-frase-minima:char:shan
+- l14-frase-minima:chunk:zheshishenme
+- l14-char-rev:char:shan
+- l14-char-rev:chunk:zheshishenme
+- l15:char:shan
+- l15:chunk:zheshishenme
+- l6-rev:char:liu
+- l6-rev:char:shi
+- l6-rev:char:shi10
+- l6-rev:char:wu
+- l6-rev:chunk:qingzaishuoyibian
+- l16:char:shan
+- l16:chunk:zheshishenme
+- l17:char:shan
+- l17:chunk:zheshishenme
+- l18:char:shan
+- l18:chunk:zheshishenme
+- l7-rev:char:san
+- l7-rev:char:shan
+- l7-rev:char:yue
+- l7-rev:chunk:wohenhao
+- l7-rev:chunk:zheshishenme
+- p4-checkpoint-fundamentos:char:ri
+- p4-checkpoint-fundamentos:char:shan
+- p4-checkpoint-fundamentos:char:shi
+- p4-checkpoint-fundamentos:char:yue
+- p4-checkpoint-fundamentos:chunk:wohenhao
+- p4-checkpoint-fundamentos:chunk:zheshishenme
+- p5-mu-mu-lin:char:shan
+- p5-mu-mu-lin:chunk:zheshishenme
+- p5-mu-mu-mu-sen:char:shan
+- p5-mu-mu-mu-sen:chunk:zheshishenme
+- p5-ri-yue-ming:char:shan
+- p5-ri-yue-ming:chunk:zheshishenme
+- p5-ren-mu-xiu:char:shan
+- p5-ren-mu-xiu:chunk:zheshishenme
+- p5-nv-zi-hao:chunk:nishixueshengma
+- p5-nv-zi-hao:chunk:nixuexishenme
+- p5-nv-zi-hao:chunk:qingzaishuoyibian
+- p5-nv-zi-hao:chunk:wohenhao
 - p5-nv-zi-hao:chunk:xiexie
-- p5-ren-ren-cong:chunk:xiexie
-- p5-ren-ren-ren-zhong:chunk:xiexie
-- p5-nv-ma-mae:chunk:xiexie
-- p5-kou-ma-pergunta:chunk:xiexie
-- l19-logica-madeira:chunk:xiexie
-- l19-logica-luz:chunk:xiexie
-- l19-logica-pessoas:chunk:xiexie
-- l19-logica-ma:chunk:xiexie
-- l19-logica-rev:chunk:xiexie
-- l19:chunk:xiexie
-- l20:chunk:xiexie
-- l21:chunk:xiexie
-- l22:chunk:xiexie
-- l23:chunk:xiexie
-- l9-rev:char:liu
-- l9-rev:char:shi
-- l9-rev:char:shi10
-- l9-rev:char:wu
-- l9-rev:chunk:nihaoma
-- l24:chunk:xiexie
-- l25:chunk:qingwen
-- l25:chunk:xiexie
-- l26b:chunk:nihao
-- l26b:chunk:qingzaishuoyibian
-- l26b:chunk:woele
-- l26b:chunk:wohenhao
-- l26b:chunk:womenchifanba
-- l26b:chunk:woyaorou
-- l26b:chunk:xiexie
-- l26b:chunk:zaijian
-- l27:chunk:nihao
-- l27:chunk:xiexie
-- …mais 81.
+- p5-nv-zi-hao:chunk:zaijian
+- p5-ren-ren-cong:char:shan
+- p5-ren-ren-cong:chunk:zheshishenme
+- p5-ren-ren-ren-zhong:char:shan
+- p5-ren-ren-ren-zhong:chunk:zheshishenme
+- p5-nv-ma-mae:char:shan
+- p5-nv-ma-mae:chunk:zheshishenme
+- p5-kou-ma-pergunta:chunk:zheshishenme
+- p5-kou-ma-pergunta:chunk:zheshishui
+- l19-logica-madeira:char:shan
+- l19-logica-madeira:chunk:zheshishenme
+- l19-logica-luz:char:shan
+- l19-logica-luz:char:yue
+- l19-logica-luz:chunk:zheshishenme
+- …mais 166.
 
-<!-- integridade:35637f06de081d2c -->
+<!-- integridade:a6df8f3fd89eff70 -->

@@ -5701,8 +5701,14 @@ export function applyConversationVocabularyLoop(
       const manifestItem = relevant.find((item) => item.ref === ref);
       const focusItem = focusByRef.get(ref);
       if (!manifestItem || !focusItem) continue;
-      const alreadyCovered = [...planForCeilings, ...addedForConversation].some((step) =>
-        stepCoversVocabularyRef(step, ref, manifestItem.text ?? focusItem.hanzi)
+      // A própria conversa não conta: o portão conversation-loop exige tarefa
+      // DEPOIS/FORA da cena. Contar learnedRefs da conversation_scene aqui
+      // pulava o fechamento e deixava V3.8 (falar-de-estudo, hotel, etc.)
+      // sem drill dedicado.
+      const alreadyCovered = [...planForCeilings, ...addedForConversation].some(
+        (step) =>
+          step.kind !== "conversation_scene" &&
+          stepCoversVocabularyRef(step, ref, manifestItem.text ?? focusItem.hanzi)
       );
       if (alreadyCovered) continue;
       // A modalidade tem que ser nova na fase pós-conversa da lição inteira,
@@ -5991,23 +5997,55 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })));
 }
 
+function isPostConversationFollowUp(step: LessonRoundStep, sceneId: string | undefined): boolean {
+  if (!(step.postConversationPhase || step.conversationDerived)) return false;
+  if (!sceneId) return true;
+  return !step.conversationSourceSceneId || step.conversationSourceSceneId === sceneId;
+}
+
+/**
+ * Conversa + tarefas pós-conversa da mesma cena formam um bloco atômico.
+ * Separá-las (ex.: duas conversation_scene consecutivas falham o teto de kind)
+ * colocava derivadas ANTES da cena de origem e zerava a fase pós-conversa.
+ */
+function conversationLockedBlocks(plan: LessonRoundStep[]): LessonRoundStep[][] {
+  const blocks: LessonRoundStep[][] = [];
+  for (let index = 0; index < plan.length; index += 1) {
+    const step = plan[index];
+    if (step.kind !== "conversation_scene") {
+      blocks.push([step]);
+      continue;
+    }
+    const block = [step];
+    const sceneId = step.sceneId;
+    while (index + 1 < plan.length && isPostConversationFollowUp(plan[index + 1], sceneId)) {
+      index += 1;
+      block.push(plan[index]);
+    }
+    blocks.push(block);
+  }
+  return blocks;
+}
+
 /**
  * PED-030 — pós-processamento de variedade do plano.
  * Evita kinds consecutivos e saturação de famílias (hanzi/tone),
  * sem reordenar agressivamente a ordem de estágios.
+ * Nunca parte um bloco conversa → pós-conversa.
  */
 export function balanceLessonPlan(
   plan: LessonRoundStep[],
   _options: { respectMasteryPass?: number } = {}
 ): LessonRoundStep[] {
   if (plan.length <= 2) return plan;
-  const items = plan.map((step, index) => ({
-    step,
+  const items = conversationLockedBlocks(plan).map((steps, index) => ({
+    steps,
+    step: steps[0],
     index,
-    stageId: (step.lessonStageId ?? "usage") as LessonStageId,
-    families: exerciseFamiliesFor(step, step.lessonStageId),
+    stageId: (steps[0].lessonStageId ?? "usage") as LessonStageId,
+    families: exerciseFamiliesFor(steps[0], steps[0].lessonStageId),
     score: plan.length - index,
-    generated: Boolean(step.generated),
+    generated: Boolean(steps[0].generated),
   }));
   const remaining = [...items];
   const result: typeof items = [];
@@ -6021,21 +6059,23 @@ export function balanceLessonPlan(
         generated: candidate.generated,
         sourceStepIndex: candidate.index,
       };
-      const seq: PracticeCandidate[] = result.map((item) => ({
-        step: item.step,
-        stageId: item.stageId,
-        families: item.families,
-        score: item.score,
-        generated: item.generated,
-        sourceStepIndex: item.index,
-      }));
+      const seq: PracticeCandidate[] = result.flatMap((item) =>
+        item.steps.map((step, offset) => ({
+          step,
+          stageId: (step.lessonStageId ?? item.stageId) as LessonStageId,
+          families: exerciseFamiliesFor(step, step.lessonStageId),
+          score: item.score,
+          generated: Boolean(step.generated),
+          sourceStepIndex: item.index + offset,
+        }))
+      );
       return !wouldViolateVariety(seq, asCandidate);
     });
     if (pick < 0) pick = 0;
     const [chosen] = remaining.splice(pick, 1);
     result.push(chosen);
   }
-  return result.map((item) => item.step);
+  return result.flatMap((item) => item.steps);
 }
 
 /**

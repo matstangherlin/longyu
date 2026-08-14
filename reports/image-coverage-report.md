@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 0f7b7f1d75f73c43cfa7043f6ac9d7bf51c40cb4 |
+| Commit | 2a12753e58e7da16f7b8c52fa54c719add74c3ab |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T01:59:03.944Z |
+| Gerado em | 2026-08-14T07:13:35.456Z |
 | Lições | 127 |
-| Hash da Jornada | 07da44be3a20 |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
@@ -17,14 +17,14 @@
 | Conceitos no catálogo | 87 |
 | Imagens locais (WebP) | 87 |
 | Lições na jornada | 127 |
-| Lições concretas elegíveis | 80 |
-| Lições elegíveis com imagem | 80 (100%) |
+| Lições concretas elegíveis | 83 |
+| Lições elegíveis com imagem | 83 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 68 |
-| Conceitos nunca utilizados | 50 |
+| Conceitos nunca utilizados | 52 |
 
 ## Cobertura por fase
 
@@ -32,10 +32,10 @@
 |------|-------:|----------:|-----------:|----------:|
 | p1 — Primeiro Contato | 15 | 4 | 4 | 100% |
 | p2 — Som e Tons | 18 | 0 | 0 | — |
-| p3 — Frases Reais | 16 | 7 | 7 | 100% |
+| p3 — Frases Reais | 16 | 8 | 8 | 100% |
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
-| p6 — Vida Cotidiana | 19 | 17 | 17 | 100% |
+| p6 — Vida Cotidiana | 19 | 19 | 19 | 100% |
 | p7 — Leitura Graduada | 6 | 6 | 6 | 100% |
 
 ## Cobertura por unidade
@@ -46,7 +46,7 @@
 | u1-2 — Cortesia e despedida | 5 | 0 | 0 | — |
 | u2-1 — Os quatro contornos | 9 | 0 | 0 | — |
 | u2-2 — Tons na prática | 9 | 0 | 0 | — |
-| u3-1 — Quem sou eu | 9 | 1 | 1 | 100% |
+| u3-1 — Quem sou eu | 9 | 2 | 2 | 100% |
 | u3-2 — Primeira leitura | 7 | 6 | 6 | 100% |
 | u4-1 — Peças que dão sentido | 27 | 22 | 22 | 100% |
 | u4-2 — Quando uma peça dá som | 5 | 5 | 5 | 100% |
@@ -54,7 +54,7 @@
 | u5-1 — Números 1 a 10 | 3 | 2 | 2 | 100% |
 | u5-2 — Palavras compostas | 4 | 3 | 3 | 100% |
 | u6-1 — Família | 2 | 2 | 2 | 100% |
-| u6-2 — Comida e compras | 17 | 15 | 15 | 100% |
+| u6-2 — Comida e compras | 17 | 17 | 17 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
 | u7-2 — Imersão | 3 | 3 | 3 | 100% |
 
@@ -63,9 +63,9 @@
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 11 |
-| imagem → pinyin (`choose_pinyin`) | 63 |
-| imagem → significado (`choose_meaning`) | 27 |
-| áudio → imagem (`listen_and_choose_image`) | 33 |
+| imagem → pinyin (`choose_pinyin`) | 61 |
+| imagem → significado (`choose_meaning`) | 14 |
+| áudio → imagem (`listen_and_choose_image`) | 30 |
 | hànzì → imagem (`choose_image`) | 22 |
 
 ## Conceitos nunca utilizados
@@ -80,10 +80,11 @@
 | female_friend | 女性朋友 | amiga | 11 |
 | girlfriend | 女朋友 | namorada | 13 |
 | boyfriend | 男朋友 | namorado | 13 |
+| crowd | 众 | multidão | 8 |
+| forest | 森 | floresta | 6 |
 | fish | 鱼 | peixe | 12 |
 | cat | 猫 | gato | 13 |
 | dog | 狗 | cachorro | 13 |
-| tea | 茶 | chá | 12 |
 | coffee | 咖啡 | café | 12 |
 | milk | 牛奶 | leite | 12 |
 | apple | 苹果 | maçã | 12 |
@@ -101,6 +102,7 @@
 | door | 门 | porta | 13 |
 | window | 窗户 | janela | 13 |
 | backpack | 背包 | mochila | 13 |
+| menu | 菜单 | cardápio | 12 |
 | hotel_key_card | 房卡 | cartão do quarto | 13 |
 | passport | 护照 | passaporte | 13 |
 | luggage | 行李 | bagagem | 13 |
@@ -116,12 +118,12 @@
 | bank | 银行 | banco | 12 |
 | shopping_mall | 商场 | shopping | 13 |
 | airport | 机场 | aeroporto | 13 |
-| hospital | 医院 | hospital | 12 |
 | taxi | 出租车 | táxi | 13 |
 | bus | 公交车 | ônibus | 13 |
 | train | 火车 | trem | 13 |
 | metro | 地铁 | metrô | 13 |
 | airplane | 飞机 | avião | 13 |
+| four | 四 | quatro | 6 |
 
 ## Lições concretas sem imagem
 
@@ -131,4 +133,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:5656844f18c07095 -->
+<!-- integridade:6c6b8190b1a49335 -->
