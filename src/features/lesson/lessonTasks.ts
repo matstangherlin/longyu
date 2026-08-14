@@ -1706,6 +1706,9 @@ function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep |
   if (isNearDuplicatePinyinSet(options)) return null;
   const answerKey = normalizePinyinOptionForUniqueness(item.pinyin);
   if (!options.some((option) => normalizePinyinOptionForUniqueness(option) === answerKey)) return null;
+  // O enunciado mostra 我叫<Nome>: se só a resposta trouxer o nome, basta casar
+  // as letras latinas. As variantes em pinyin tiram essa pista.
+  const namedPinyin = item.pinyin ? nameCarryingOptions(item.pinyin, undefined) : null;
   return {
     kind: "dialogue_choice",
     title: "Escolha o pinyin",
@@ -1713,7 +1716,7 @@ function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep |
     dialoguePrompt: `Qual pinyin combina com ${item.hanzi}?`,
     sourceText: item.hanzi,
     sourcePinyin: item.pinyin,
-    options,
+    options: namedPinyin ?? options,
     correctAnswer: item.pinyin,
     explanation: `${item.hanzi} se lê ${item.pinyin}.`,
   };
@@ -2724,15 +2727,22 @@ function makeHanziBuilderStep(
   };
 }
 
-function makeAssemblyChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+function makeAssemblyChoiceStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  knownGlyphs?: ReadonlySet<string>
+): LessonStep | null {
   const options = optionHanzi(item, focus);
   if (options.length < 2) return null;
+  // Mesma pista do card de apresentação: aqui as opções chegavam a ser a frase
+  // inteira contra glifos soltos (我叫<Nome> | 你 | 好 | 我).
+  const named = item.hanzi ? nameCarryingOptions(item.hanzi, knownGlyphs) : null;
   return {
     kind: "dialogue_choice",
     title: "Monte a ideia",
     speaker: "Montagem",
     dialoguePrompt: `Qual peça representa: ${item.meaningPt}?`,
-    options,
+    options: named ?? options,
     correctAnswer: item.hanzi,
     explanation: `${item.hanzi} carrega a ideia de ${item.meaningPt}.`,
   };
@@ -2754,10 +2764,13 @@ function nameCarryingOptions(
   known: ReadonlySet<string> | undefined
 ): string[] | null {
   const clean = cleanHanzi(targetHanzi).trim();
+  // `cleanHanzi` remove espaços — bom para hànzì, fatal para pinyin
+  // ("wǒ jiào Matheus" virava "wǒjiàoMatheus" e o padrão nunca casava).
+  const raw = targetHanzi.trim();
   // O mesmo alvo aparece em hànzì (我叫Matheus) e em pinyin (wǒ jiào Matheus);
   // sem cobrir as duas formas, metade dos cards continuava entregando a resposta.
   const hanziMatch = /^我叫\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]*)$/.exec(clean);
-  const pinyinMatch = /^wǒ\s+jiào\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]*)$/i.exec(clean);
+  const pinyinMatch = /^wǒ\s*jiào\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]*)$/i.exec(raw);
   const name = (hanziMatch?.[1] ?? pinyinMatch?.[1])?.trim();
   if (!name) return null;
   if (pinyinMatch) {
@@ -3909,7 +3922,7 @@ function supplementalStepsForStage(
         push(makeSentenceBuildStep(item, focus));
         if (allowDictation) push(makeDictationStep(item, focus, phaseOrder));
       }
-      push(makeAssemblyChoiceStep(item, focus));
+      push(makeAssemblyChoiceStep(item, focus, knownGlyphs));
       if (result.length >= targetCount) break;
     }
   } else if (stageId === "usage") {
