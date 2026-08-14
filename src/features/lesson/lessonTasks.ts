@@ -4763,6 +4763,23 @@ function refUsesOldCurriculum(ref: string, oldGlyphs: ReadonlySet<string>): bool
   return [...cleanHanzi(item.hanzi)].some((glyph) => oldGlyphs.has(glyph));
 }
 
+/**
+ * Igual a refUsesOldCurriculum, mas exige TODOS os glifos já disponíveis no
+ * currículo até esta lição (não só um glifo em comum). A lista de fallback
+ * (OLD_CURRICULUM_RECOVERY_REFS) mistura refs que compartilham UM glifo antigo
+ * com glifos ainda não apresentados (ex.: 叫 é antigo, mas 什么 em
+ * "chunk:nijiaoshenme" pode não ter sido introduzido ainda) — usar overlap
+ * parcial aqui vazava R10 (sentence_build cobrando glifo indisponível).
+ */
+function refFullyKnownForLesson(ref: string, lesson: Lesson): boolean {
+  const item = focusItemFromRef(ref);
+  if (!item) return false;
+  const glyphs = [...cleanHanzi(item.hanzi)];
+  if (glyphs.length === 0) return false;
+  const known = curriculumGlyphsThroughLesson(lesson.id);
+  return glyphs.every((glyph) => known.has(glyph));
+}
+
 const OLD_CURRICULUM_RECOVERY_REFS = [
   "chunk:nijiaoshenme",
   "chunk:zheshishenme",
@@ -5722,7 +5739,9 @@ export function applyConversationVocabularyLoop(
       if (oldGlyphs.size > 0) {
         const oldRef =
           relevant.find((item) => refUsesOldCurriculum(item.ref, oldGlyphs))?.ref ??
-          OLD_CURRICULUM_RECOVERY_REFS.find((ref) => refUsesOldCurriculum(ref, oldGlyphs));
+          OLD_CURRICULUM_RECOVERY_REFS.find(
+            (ref) => refUsesOldCurriculum(ref, oldGlyphs) && refFullyKnownForLesson(ref, lesson)
+          );
         if (oldRef) {
           const focusItem = focusByRef.get(oldRef) ?? focusItemFromRef(oldRef);
           if (focusItem) {

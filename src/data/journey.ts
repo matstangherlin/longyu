@@ -6435,6 +6435,7 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               flash("xianjin"),
               flash("weixinzhifu"),
+              listen("微信支付", "Wēixìn zhīfù", "WeChat Pay."),
               flash("zhifubao"),
               flash("keyishuaka"),
               signReading(
