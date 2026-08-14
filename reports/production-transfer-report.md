@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
+| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:51:15.981Z |
-| Lições | 123 |
-| Hash da Jornada | 074d1aa525cf |
+| Gerado em | 2026-08-14T01:00:37.008Z |
+| Lições | 127 |
+| Hash da Jornada | f4250a774515 |
 
 ## Resumo
 
@@ -21,20 +21,20 @@
 | Objetivos comunicativos | 14 |
 | Tarefas que aceitam frase irmã | 42 |
 | Objetivos de produção aberta declarados | 12 |
-| Objetivos de produção aberta no plano real | 4 |
-| Lições com produção aberta | 18 / 123 |
-| Falas de conversa sem apoio (aluno veterano) | 149 |
-| Lições com conversa sem apoio | 103 / 123 |
-| Lições com quebra de comunicação jogável | 75 / 123 |
+| Objetivos de produção aberta no plano real | 5 |
+| Lições com produção aberta | 22 / 127 |
+| Falas de conversa sem apoio (aluno veterano) | 154 |
+| Lições com conversa sem apoio | 105 / 127 |
+| Lições com quebra de comunicação jogável | 79 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 578 |
-| Lições com produção livre | 82 / 123 |
-| Lições com transferência | 23 / 123 |
-| Lições com reparo conversacional | 77 / 123 |
+| Passos auditados no plano real (3 tentativas) | 625 |
+| Lições com produção livre | 86 / 127 |
+| Lições com transferência | 27 / 127 |
+| Lições com reparo conversacional | 81 / 127 |
 | Estruturas diferentes no plano real | 7 |
 | Frases inéditas cobradas | 22 |
-| Transfer guided / supported / question | 66 / 0 / 0 |
-| 1ªs transferências (attempt 0) | 22 |
+| Transfer guided / supported / question | 79 / 0 / 0 |
+| 1ªs transferências (attempt 0) | 26 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -55,36 +55,36 @@
 - **l28** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
 - **p6-rotina-trabalho** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
 - **p6-cidade-lugares** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
-- **p6-saude** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
-- **p6-natureza** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
-- **p6-clima** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
-- **p6-direcoes** · `frame_woxianghe` · guided · âncora 我想喝茶 → `我想喝热水。`
-- **p6-compras** · `frame_wo_le` · guided · âncora 我饿了 → `我回家了。`
-- …mais 7.
+- **p6-china-cidades** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **p6-china-cidades-2** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **p6-china-ruas** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
+- **p6-horarios** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
+- **p6-natureza** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- …mais 11.
 
 ## Frases inéditas cobradas por transferência
 
 - 我今天去火车站
 - 我今天去超市
 - 我今天去银行
+- 我去银行
 - 我回家了
 - 我在吃饭
 - 我在喝水
 - 我在睡觉
-- 我想喝热水
 - 我想喝牛奶
-- 我明天去医院
-- 我明天去超市
+- 我明天去火车站
+- 我明天去银行
 - 我有一个朋友
 - 我有一个苹果
-- 我有三个苹果
+- 我有一个香蕉
+- 我有三个香蕉
 - 我有五个朋友
-- 我有五个苹果
+- 我有五个香蕉
 - 我有四个朋友
 - 我有四个香蕉
-- 我睡觉了
 - 我要热水
-- 我要牛肉
 - 我要苹果
+- 车站在哪里
 
-<!-- integridade:85229d4c862d46b9 -->
+<!-- integridade:d69b3ba7d772bfe4 -->

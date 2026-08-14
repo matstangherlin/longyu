@@ -4,20 +4,20 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 31391f1ace978c314fad736d9b5bb111831d9601 |
+| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T23:02:52.349Z |
-| Lições | 123 |
-| Hash da Jornada | 097e4a23fa3e |
+| Gerado em | 2026-08-14T00:59:48.619Z |
+| Lições | 127 |
+| Hash da Jornada | f4250a774515 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições analisadas | 123 |
+| Lições analisadas | 127 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 936 |
-| Pares com transformação cognitiva | 779 (83%) |
+| Pares de repetição semântica | 950 |
+| Pares com transformação cognitiva | 798 (84%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -36,8 +36,8 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-primeiros-hanzi | 10 | 9 | 8 | 8 | 4 | 7 | action:assemble-hanzi × 5 |
 | p1-engine-2-lab | 14 | 14 | 27 | 14 | 11 | 9 | phrase:不客气 × 3 |
 | l1 | 16 | 15 | 29 | 11 | 10 | 6 | phrase:你好 × 3 |
-| l2 | 15 | 12 | 21 | 12 | 12 | 6 | phrase:你好 × 4 |
-| l3 | 14 | 12 | 26 | 9 | 9 | 8 | phrase:我很好 × 3 |
+| l2 | 13 | 12 | 21 | 12 | 12 | 6 | phrase:你好 × 4 |
+| l3 | 13 | 12 | 26 | 9 | 9 | 8 | phrase:我很好 × 3 |
 | l1-rev | 21 | 20 | 30 | 28 | 24 | 14 | intent:ask-wellbeing × 6 |
 | l4 | 14 | 13 | 27 | 11 | 11 | 6 | action:assemble-phrase × 3 |
 | p1-ate-logo | 11 | 10 | 21 | 8 | 8 | 6 | phrase:再见 × 3 |
@@ -134,27 +134,31 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l24 | 14 | 13 | 39 | 4 | 4 | 10 | action:assemble-phrase × 2 |
 | l25 | 14 | 13 | 37 | 6 | 6 | 10 | phrase:这是什么 × 2 |
 | l26 | 14 | 13 | 32 | 5 | 2 | 11 | action:assemble-phrase × 2 |
-| l26b | 11 | 7 | 17 | 4 | 3 | 6 | action:assemble-phrase × 3 |
+| l26b | 13 | 11 | 24 | 8 | 7 | 10 | action:assemble-phrase × 3 |
 | l27 | 14 | 13 | 31 | 4 | 4 | 11 | action:produce-unaided × 3 |
 | l28 | 14 | 14 | 36 | 4 | 4 | 12 | action:produce-unaided × 3 |
 | p6-rotina-trabalho | 14 | 13 | 30 | 5 | 5 | 11 | action:produce-unaided × 3 |
-| p6-cidade-lugares | 14 | 10 | 25 | 2 | 2 | 8 | action:assemble-phrase × 2 |
-| p6-saude | 14 | 13 | 30 | 5 | 5 | 11 | action:assemble-phrase × 2 |
-| p6-horarios | 14 | 13 | 30 | 4 | 4 | 10 | action:assemble-phrase × 2 |
-| p6-natureza | 14 | 13 | 32 | 3 | 3 | 9 | char:山 × 2 |
-| p6-clima | 14 | 13 | 29 | 6 | 5 | 12 | action:assemble-phrase × 3 |
-| p6-direcoes | 14 | 13 | 36 | 5 | 5 | 10 | action:assemble-phrase × 3 |
-| p6-compras | 14 | 13 | 33 | 4 | 4 | 12 | action:produce-unaided × 3 |
-| l10-rev | 26 | 26 | 58 | 26 | 19 | 17 | action:assemble-phrase × 5 |
-| l29 | 13 | 12 | 33 | 5 | 5 | 10 | intent:identify-concept × 2 |
-| l30 | 14 | 13 | 32 | 3 | 2 | 10 | action:assemble-phrase × 3 |
-| l11-rev | 24 | 24 | 55 | 17 | 14 | 16 | action:assemble-phrase × 4 |
-| p7-imersao-mercado | 18 | 17 | 34 | 8 | 4 | 11 | action:produce-unaided × 3 |
-| p7-imersao-estacao | 16 | 12 | 24 | 2 | 2 | 7 | char:车 × 2 |
-| p7-imersao-casa-amigo | 18 | 17 | 39 | 7 | 6 | 11 | char:家 × 2 |
+| p6-cidade-lugares | 14 | 12 | 30 | 2 | 2 | 10 | action:assemble-phrase × 2 |
+| p6-china-cidades | 14 | 13 | 34 | 3 | 3 | 10 | action:assemble-phrase × 2 |
+| p6-china-cidades-2 | 13 | 12 | 35 | 6 | 5 | 10 | action:assemble-phrase × 3 |
+| p6-china-ruas | 14 | 13 | 33 | 5 | 5 | 11 | action:produce-unaided × 3 |
+| p6-saude | 14 | 13 | 29 | 4 | 4 | 11 | action:assemble-phrase × 2 |
+| p6-horarios | 14 | 13 | 29 | 4 | 4 | 10 | action:assemble-phrase × 2 |
+| p6-natureza | 14 | 13 | 31 | 6 | 6 | 11 | action:produce-unaided × 3 |
+| p6-clima | 14 | 13 | 31 | 5 | 4 | 11 | action:assemble-phrase × 3 |
+| p6-direcoes | 14 | 13 | 35 | 4 | 4 | 11 | action:assemble-phrase × 3 |
+| p6-compras | 14 | 13 | 32 | 3 | 3 | 10 | action:assemble-phrase × 2 |
+| p6-survival-mandarin | 14 | 13 | 28 | 2 | 2 | 11 | action:assemble-phrase × 2 |
+| l10-rev | 26 | 26 | 59 | 24 | 20 | 17 | action:assemble-phrase × 5 |
+| l29 | 13 | 12 | 32 | 5 | 5 | 10 | intent:identify-concept × 2 |
+| l30 | 14 | 13 | 32 | 2 | 1 | 10 | action:assemble-phrase × 3 |
+| l11-rev | 24 | 24 | 56 | 17 | 14 | 16 | action:assemble-phrase × 4 |
+| p7-imersao-mercado | 18 | 17 | 37 | 5 | 4 | 11 | action:produce-unaided × 3 |
+| p7-imersao-estacao | 18 | 16 | 36 | 2 | 2 | 11 | char:车 × 2 |
+| p7-imersao-casa-amigo | 18 | 17 | 35 | 8 | 7 | 11 | char:家 × 2 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:1c785a8f81ac6468 -->
+<!-- integridade:8158237726f261f5 -->

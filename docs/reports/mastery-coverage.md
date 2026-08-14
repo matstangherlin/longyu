@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | e83bdffa79cff5ce85219b66f122f1cd51d01536 |
+| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T00:25:59.066Z |
+| Gerado em | 2026-08-14T00:54:00.891Z |
 | Lições | 127 |
 | Hash da Jornada | f4250a774515 |
 
@@ -94,4 +94,4 @@ Meta mínima da remessa V3.3: **35** lições migradas. Meta ideal: **40**.
 | review | `l19-logica-rev` | review-special | — |
 | review | `l10-rev` | review-special | — |
 
-<!-- integridade:677afbfdca78b803 -->
+<!-- integridade:cdce122c4fb0c6a1 -->
