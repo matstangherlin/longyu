@@ -71,6 +71,7 @@ import { StepImageChoice } from "./StepImageChoice";
 import { StepCompareWithImage } from "./StepCompareWithImage";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
+import { MAP_DIRECTION_LABELS, type MapDirectionAction } from "../../data/chinaReal";
 
 export interface PairMistakePayload {
   kind: "pair-match";
@@ -2625,6 +2626,164 @@ function StepSentenceBuild(props: StepProps) {
   return <BuildExercise {...props} kindLabel={label ?? "Monte a frase"} />;
 }
 
+function StepAddressBuild(props: StepProps) {
+  return <BuildExercise {...props} kindLabel="Monte o endereço" />;
+}
+
+function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
+  const soundEffects = useStore((s) => s.soundEffects);
+  const scaffold = step.mapScaffoldLevel ?? 1;
+  const options = useMemo(
+    () => shuffle([...(step.mapActionOptions ?? ["left", "right", "straight"])] as MapDirectionAction[]),
+    [step.mapActionOptions]
+  );
+  const [picked, setPicked] = useState<MapDirectionAction | null>(null);
+  const [feedback, setFeedback] = useState<EngineFeedback>(null);
+  const [hadMistake, setHadMistake] = useState(false);
+  const answer = (step.mapCorrectAction ?? step.correctAnswer ?? "straight") as MapDirectionAction;
+  const fromLabel = step.mapFromLabel ?? "A";
+  const toLabel = step.mapToLabel ?? "B";
+
+  useAutoSpeak(step.audioText, scaffold >= 3 && Boolean(step.audioText), { rate: 0.86 });
+
+  function labelFor(action: MapDirectionAction) {
+    const meta = MAP_DIRECTION_LABELS[action];
+    if (scaffold <= 1) return `${meta.pt} (${meta.hanzi})`;
+    if (scaffold === 2) return `${meta.hanzi} · ${meta.pinyin}`;
+    return meta.hanzi;
+  }
+
+  function arrowFor(action: MapDirectionAction) {
+    if (action === "left") return "←";
+    if (action === "right") return "→";
+    if (action === "straight") return "↑";
+    return "★";
+  }
+
+  function pickOption(option: MapDirectionAction) {
+    if (feedback === "correct") return;
+    const meta = MAP_DIRECTION_LABELS[option];
+    speakExercisePiece(meta.hanzi);
+    playSoundFx("pieceSelect", soundEffects);
+    setPicked(option);
+    setFeedback(null);
+  }
+
+  function check() {
+    if (!picked) return;
+    if (picked === answer) {
+      setFeedback("correct");
+      playSoundFx("success", soundEffects);
+    } else {
+      setHadMistake(true);
+      setFeedback("wrong");
+      onMistake?.(picked);
+      if (!onMistake) playSoundFx("error", soundEffects);
+    }
+  }
+
+  function retry() {
+    setPicked(null);
+    setFeedback(null);
+  }
+
+  useExerciseHotkeys({
+    enabled: true,
+    mode: "choice",
+    optionCount: options.length,
+    isAnswered: feedback === "correct",
+    hasSelection: Boolean(picked),
+    onSelectOption: (index) => {
+      const option = options[index];
+      if (option) pickOption(option);
+    },
+    onSubmit: check,
+    onContinue: () => onDone(!hadMistake),
+  });
+
+  const instruction =
+    scaffold <= 1
+      ? step.promptPt ?? step.prompt ?? "Escolha o caminho no mapa."
+      : step.prompt ?? step.promptPt ?? step.audioText ?? "Escolha o caminho.";
+
+  return (
+    <div>
+      <Eyebrow>Mapa</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{instruction}</p>
+
+      <div className="mt-4 overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-surface-2 via-surface to-[rgb(var(--accent)/0.08)] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-[4.5rem] rounded-xl border border-line bg-surface px-3 py-3 text-center shadow-card">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">A</div>
+            <div className="mt-1 hanzi text-xl text-ink">{fromLabel}</div>
+          </div>
+          <div className="flex flex-1 flex-col items-center gap-1">
+            <div className="h-1 w-full rounded-full bg-[rgb(var(--accent)/0.25)]" />
+            <div className="flex gap-2 text-lg text-accent">
+              <span aria-hidden>←</span>
+              <span aria-hidden>↑</span>
+              <span aria-hidden>→</span>
+            </div>
+            <div className="text-[11px] font-medium text-ink-faint">caminho</div>
+          </div>
+          <div className="min-w-[4.5rem] rounded-xl border border-accent/30 bg-accent-soft px-3 py-3 text-center shadow-card">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">B</div>
+            <div className="mt-1 hanzi text-xl text-ink">{toLabel}</div>
+          </div>
+        </div>
+        {scaffold >= 3 && step.audioText ? (
+          <button
+            type="button"
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+            onClick={() => speak(step.audioText!, { rate: 0.86 })}
+          >
+            <IconSound width={16} height={16} />
+            Ouvir instrução
+          </button>
+        ) : null}
+      </div>
+
+      <KeyboardShortcutHint />
+      <div className="mt-3.5 grid gap-2">
+        {options.map((option, index) => {
+          const active = picked === option;
+          const correct = feedback && option === answer;
+          const wrong = feedback === "wrong" && active;
+          return (
+            <button
+              key={option}
+              type="button"
+              onClick={() => pickOption(option)}
+              disabled={feedback === "correct"}
+              className={[
+                engineTileClass({ active, matched: Boolean(correct), wrong }),
+                "relative flex items-center gap-3",
+              ].join(" ")}
+            >
+              <ShortcutBadge>{shortcutKeyForIndex(index)}</ShortcutBadge>
+              <span className="text-xl" aria-hidden>
+                {arrowFor(option)}
+              </span>
+              <span className={scaffold >= 2 ? "hanzi text-xl" : "text-base"}>{labelFor(option)}</span>
+            </button>
+          );
+        })}
+      </div>
+      <EngineActions canCheck={Boolean(picked) && feedback !== "correct"} onCheck={check} onSkip={onSkip} />
+      <EngineFeedbackPanel
+        status={feedback}
+        model={feedback === "wrong" ? MAP_DIRECTION_LABELS[answer].hanzi : undefined}
+        explanation={feedback === "correct" ? step.explanation : undefined}
+        hadMistake={hadMistake}
+        deferMistakeToParent={Boolean(onMistake)}
+        onRetry={retry}
+        onContinue={() => onDone(!hadMistake)}
+      />
+    </div>
+  );
+}
+
 function StepTranslationBuild(props: StepProps) {
   return <BuildExercise {...props} kindLabel="Traduza com peças" />;
 }
@@ -4786,7 +4945,103 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
           />
         );
       case "fill_blank": return <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "dialogue_choice": return <StepDialogueChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "dialogue_choice":
+      case "contextual_choice":
+      case "dialogue_completion":
+      case "audio_to_action":
+      case "place_label":
+      case "city_context":
+      case "sign_reading":
+      case "menu_reading":
+      case "price_task":
+      case "schedule_reading":
+        return (
+          <StepDialogueChoice
+            step={
+              personalizedStep.kind === "sign_reading"
+                ? {
+                    ...personalizedStep,
+                    dialoguePrompt: personalizedStep.signHanzi
+                      ? `Placa: ${personalizedStep.signHanzi}`
+                      : personalizedStep.dialoguePrompt,
+                    speaker: personalizedStep.speaker ?? "Placa",
+                  }
+                : personalizedStep.kind === "price_task"
+                  ? {
+                      ...personalizedStep,
+                      dialoguePrompt: personalizedStep.priceHanzi
+                        ? `${personalizedStep.prompt ?? "Preço"} · ${personalizedStep.priceHanzi}`
+                        : personalizedStep.dialoguePrompt,
+                      speaker: personalizedStep.speaker ?? "Preço",
+                    }
+                  : personalizedStep.kind === "menu_reading"
+                    ? {
+                        ...personalizedStep,
+                        dialoguePrompt: [
+                          personalizedStep.prompt,
+                          ...(personalizedStep.menuItems ?? []).map(
+                            (item) => `${item.hanzi}${item.priceHanzi ? ` ${item.priceHanzi}` : ""}`
+                          ),
+                        ]
+                          .filter(Boolean)
+                          .join("\n"),
+                        speaker: personalizedStep.speaker ?? "Cardápio",
+                      }
+                    : personalizedStep.kind === "schedule_reading"
+                      ? {
+                          ...personalizedStep,
+                          dialoguePrompt: [
+                            personalizedStep.prompt,
+                            ...(personalizedStep.scheduleRows ?? []).map(
+                              (row) => `${row.timeHanzi} → ${row.destinationHanzi}`
+                            ),
+                          ]
+                            .filter(Boolean)
+                            .join("\n"),
+                          speaker: personalizedStep.speaker ?? "Horário",
+                        }
+                      : personalizedStep
+            }
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+          />
+        );
+      case "map_direction":
+        return <StepMapDirection step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "sentence_transform":
+        return (
+          <StepSentenceBuild
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
+      case "address_build":
+      case "route_sequence":
+        return (
+          <StepAddressBuild
+            step={{
+              ...personalizedStep,
+              targetParts: personalizedStep.targetParts ?? personalizedStep.routeParts,
+              bank: personalizedStep.bank ?? personalizedStep.routeParts,
+            }}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            lessonId={lessonId}
+            attemptSeed={attemptSeed}
+          />
+        );
+      case "substitution_drill":
+        return step.options?.length
+          ? <StepDialogueChoice step={{ ...personalizedStep, kind: "dialogue_choice", correctAnswer: personalizedStep.blankAnswer, dialoguePrompt: personalizedStep.prompt ?? personalizedStep.sentenceBefore }} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />
+          : <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "reverse_recall":
+        return <StepWrite step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "hanzi_build":
         return (

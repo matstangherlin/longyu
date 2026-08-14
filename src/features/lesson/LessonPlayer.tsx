@@ -85,7 +85,10 @@ import {
   type LessonRoundStep,
   lessonRoundStepsFor,
   lessonTasksFor,
+  resolveMasteryPassForContext,
 } from "./lessonTasks";
+import { dimensionForStepKind, isProductionOrTransferKind } from "../../data/masteryLoop";
+import { isMasteryPilotLesson } from "../../data/masteryPilot";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
@@ -147,6 +150,21 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "free_production",
   "transfer_task",
   "conversation_repair",
+  "contextual_choice",
+  "audio_to_action",
+  "sentence_transform",
+  "substitution_drill",
+  "dialogue_completion",
+  "reverse_recall",
+  "map_direction",
+  "place_label",
+  "address_build",
+  "city_context",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+  "route_sequence",
+  "schedule_reading",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -301,7 +319,22 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "dialogue_choice" ||
     step.kind === "conversation_scene" ||
     step.kind === "hanzi_build" ||
-    step.kind === "image_choice"
+    step.kind === "image_choice" ||
+    step.kind === "contextual_choice" ||
+    step.kind === "audio_to_action" ||
+    step.kind === "dialogue_completion" ||
+    step.kind === "place_label" ||
+    step.kind === "city_context" ||
+    step.kind === "map_direction" ||
+    step.kind === "address_build" ||
+    step.kind === "sentence_transform" ||
+    step.kind === "substitution_drill" ||
+    step.kind === "reverse_recall" ||
+    step.kind === "sign_reading" ||
+    step.kind === "menu_reading" ||
+    step.kind === "price_task" ||
+    step.kind === "route_sequence" ||
+    step.kind === "schedule_reading"
   ) {
     return {
       prompt:
@@ -603,7 +636,7 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     addText(source, "pinyin", "som");
     addText(source, "som", "som");
   }
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene") {
+  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion" || step.kind === "sign_reading" || step.kind === "menu_reading" || step.kind === "price_task" || step.kind === "schedule_reading") {
     const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
     if (step.kind === "conversation_scene") {
       // Não lotar com cada linha da cena — resposta principal / chunk basta;
@@ -614,6 +647,18 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
       addText(text, "uso");
       addText(text, "fala");
     }
+  }
+  if (step.kind === "address_build" || step.kind === "sentence_transform" || step.kind === "route_sequence") {
+    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "uso");
+    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "fala");
+  }
+  if (step.kind === "map_direction") {
+    addText(step.prompt ?? step.audioText ?? step.mapCorrectAction, "uso");
+    if (step.audioText) addText(step.audioText, "som", "som");
+  }
+  if (step.kind === "reverse_recall") {
+    addText(step.answer ?? step.correctAnswer, "uso");
+    addText(step.answer ?? step.correctAnswer, "fala");
   }
   if (step.pedagogyVariant === "sentence_lab_audio") {
     addText(step.audioText ?? step.correctAnswer, "som", "som");
@@ -1580,6 +1625,9 @@ export function LessonPlayer() {
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
   const completeLesson = useStore((s) => s.completeLesson);
+  const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
+  const lessonMasteryById = useStore((s) => s.lessonMasteryById);
+  const itemDimensionsByRef = useStore((s) => s.itemDimensionsByRef);
   const addChest = useStore((s) => s.addChest);
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
@@ -1769,6 +1817,7 @@ export function LessonPlayer() {
     const gen = ++planGenRef.current;
     startTransition(() => {
       if (gen !== planGenRef.current) return;
+      const masteryRecord = lessonMasteryById?.[foundLesson.id];
       const planned = lessonRoundStepsFor(
         { ...foundLesson, steps: authoredEnrichedSteps },
         {
@@ -1782,6 +1831,9 @@ export function LessonPlayer() {
           recentConversationIntentIds,
           conversationHistory,
           attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
+          masteryLevel: masteryRecord?.level ?? 0,
+          recoveryPending: masteryRecord?.recoveryPending,
+          itemDimensionsByRef,
         }
       );
       if (gen !== planGenRef.current) return;
@@ -1799,9 +1851,11 @@ export function LessonPlayer() {
     conversationHistory,
     foundLesson,
     hanziBuilderProgress,
+    itemDimensionsByRef,
     learnedChars,
     learnedChunks,
     lessonAttemptsById,
+    lessonMasteryById,
     recentActivityErrors,
     recentConversationIntentIds,
     recentConversationSceneIds,
@@ -3124,6 +3178,42 @@ export function LessonPlayer() {
       }
       completeLesson(lesson.id);
       void completeReferralLessonAttestation(lesson.id);
+      if (lesson.masteryLoop || isMasteryPilotLesson(lesson.id)) {
+        const masteryPass =
+          (lesson.steps as LessonRoundStep[]).find((step) => step.masteryPass)?.masteryPass ??
+          resolveMasteryPassForContext(lesson, {
+            masteryLevel: lessonMasteryById?.[lesson.id]?.level ?? 0,
+            recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
+          }) ??
+          1;
+        const gradedCount = Math.max(1, graded);
+        const accuracy = Math.max(0, Math.min(1, finalCorrect / gradedCount));
+        const dimensionUpdates: Array<{
+          ref: string;
+          dimension: NonNullable<ReturnType<typeof dimensionForStepKind>>;
+          correct: boolean;
+        }> = [];
+        for (const step of lesson.steps as LessonRoundStep[]) {
+          const dim = dimensionForStepKind(step.kind);
+          const ref = step.chunkId
+            ? `chunk:${step.chunkId}`
+            : step.charId
+              ? `char:${step.charId}`
+              : lesson.libraryItems?.[0];
+          if (!dim || !ref) continue;
+          dimensionUpdates.push({ ref, dimension: dim, correct: accuracy >= 0.7 });
+        }
+        recordLessonMasteryPass(lesson.id, {
+          pass: masteryPass,
+          accuracy,
+          mistakeCount: activityErrorsRef.current.length,
+          hadProductionOrTransfer: (lesson.steps as LessonRoundStep[]).some((step) =>
+            isProductionOrTransferKind(step.kind)
+          ),
+          dimensionUpdates: dimensionUpdates.slice(0, 12),
+          startedAt: attemptStartedAtRef.current,
+        });
+      }
       // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
       if (stars === 3 && folegoSkips === 0 && !hadRealMistakes) {
         tryEarnFolegoFromPerfect();

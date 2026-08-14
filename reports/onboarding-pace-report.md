@@ -4,19 +4,19 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
+| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:53:35.623Z |
-| Lições | 123 |
-| Hash da Jornada | 074d1aa525cf |
+| Gerado em | 2026-08-14T01:02:25.727Z |
+| Lições | 127 |
+| Hash da Jornada | f4250a774515 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 252 |
-| Média de passos por lição | 12.6 |
+| Passos somados | 253 |
+| Média de passos por lição | 12.7 |
 | Minutos estimados até a lição 20 | 83 |
 | Passos de digitação na entrada inteira | 0 |
 | Lições sem nada para ouvir | 2 |
@@ -43,7 +43,7 @@
 | 12 | Até logo | 11 | 10 | 0 | 3 | 10 | 4 |
 | 13 | Primeira conversa | 11 | 10 | 0 | 1 | 9 | 4 |
 | 14 | Com licença | 10 | 9 | 0 | 2 | 7 | 3 |
-| 15 | Revisão do módulo (revisão) | 22 | 20 | 0 | 3 | 11 | 4 |
+| 15 | Revisão do módulo (revisão) | 23 | 21 | 0 | 3 | 11 | 4 |
 | 16 | 1º tom com ma | 12 | 11 | 0 | 3 | 11 | 4 |
 | 17 | 2º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
 | 18 | 3º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
@@ -82,4 +82,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:97516864f4c05344 -->
+<!-- integridade:a645a2f7cbde183e -->

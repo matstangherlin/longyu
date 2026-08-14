@@ -13,6 +13,11 @@ import {
 import type { HanziBuilderCharProgress, HanziBuilderProgressMap } from "../data/hanziBuilder";
 import { ERROR_CAUSE_ORDER, type ErrorCause } from "../data/errorDiagnosis";
 import { type SRSItem, type Grade, type ReviewDomain, makeKey, newItem, review } from "./srs";
+import {
+  advanceLessonMastery,
+  migrateLessonMasteryFromCompletion,
+  updateDimensionScore,
+} from "../data/masteryLoop";
 import { todayKey, weekKey, monthKey } from "./storage";
 import {
   reconcileStreak as reconcileStreakState,
@@ -1160,6 +1165,10 @@ interface AccountSnapshot extends XpBuckets {
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
+  /** Pedagogia V3 — domínio progressivo por lição (0–4). Distinto de estrelas e SRS. */
+  lessonMasteryById: Record<string, import("../data/masteryLoop").LessonMasteryRecord>;
+  /** Competência por dimensão por item (`chunk:…` / `char:…`). */
+  itemDimensionsByRef: Record<string, import("../data/masteryLoop").ItemDimensionScores>;
   recentActivityErrors: ActivityErrorRecord[];
   /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
   unrecognizedProductions?: UnrecognizedProductionRecord[];
@@ -1279,6 +1288,8 @@ function blankSnapshot(): AccountSnapshot {
     correctedMistakes: {},
     recentErrors: [],
     lessonTaskProgress: {},
+    lessonMasteryById: {},
+    itemDimensionsByRef: {},
     recentActivityErrors: [],
     unrecognizedProductions: [],
     recentConversationSceneIds: [],
@@ -1390,6 +1401,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     correctedMistakes: s.correctedMistakes,
     recentErrors: s.recentErrors,
     lessonTaskProgress: s.lessonTaskProgress,
+    lessonMasteryById: s.lessonMasteryById ?? {},
+    itemDimensionsByRef: s.itemDimensionsByRef ?? {},
     recentActivityErrors: s.recentActivityErrors,
     unrecognizedProductions: s.unrecognizedProductions ?? [],
     recentConversationSceneIds: s.recentConversationSceneIds ?? [],
@@ -1522,6 +1535,8 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     correctedMistakes: normalizeCorrectedMistakes(account.correctedMistakes, account.mistakeHistory),
     recentErrors: normalizeLessonMistakes(account.recentErrors).filter((error) => !error.recoveredAt),
     lessonTaskProgress: account.lessonTaskProgress ?? {},
+    lessonMasteryById: account.lessonMasteryById ?? {},
+    itemDimensionsByRef: account.itemDimensionsByRef ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
     unrecognizedProductions: (account.unrecognizedProductions ?? []).slice(-40),
     recentConversationSceneIds: (account.recentConversationSceneIds ?? []).slice(0, 10),
@@ -1799,6 +1814,8 @@ interface AppState {
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
+  lessonMasteryById: Record<string, import("../data/masteryLoop").LessonMasteryRecord>;
+  itemDimensionsByRef: Record<string, import("../data/masteryLoop").ItemDimensionScores>;
   recentActivityErrors: ActivityErrorRecord[];
   /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
   unrecognizedProductions: UnrecognizedProductionRecord[];
@@ -2034,6 +2051,26 @@ interface AppState {
   /** Marca lição concluída via teste de módulo — 1 estrela, sem recompensas de aula. */
   completeLessonViaTest: (id: string) => void;
   /**
+   * Pedagogia V3 — registra conclusão de uma mastery pass (não substitui completeLesson).
+   * Atualiza lessonMasteryById e opcionalmente dimensões por item.
+   */
+  recordLessonMasteryPass: (
+    lessonId: string,
+    input: {
+      pass: import("../data/masteryLoop").MasteryPass;
+      accuracy: number;
+      mistakeCount: number;
+      hadProductionOrTransfer: boolean;
+      dimensionUpdates?: Array<{
+        ref: string;
+        dimension: import("../data/masteryLoop").CompetencyDimension;
+        correct: boolean;
+      }>;
+      /** PED-095 — `Date.now()` de quando esta pass começou; habilita telemetria com duração. */
+      startedAt?: number;
+    }
+  ) => void;
+  /**
    * Desbloqueia uma medalha geral. Idempotente: retorna false se já foi
    * desbloqueada. Aplica a recompensa (Qi via rewardHistory, baú no inventário)
    * apenas na primeira vez — medalhas nunca duplicam.
@@ -2123,6 +2160,8 @@ export const useStore = create<AppState>()(
       correctedMistakes: {},
       recentErrors: [],
       lessonTaskProgress: {},
+      lessonMasteryById: {},
+      itemDimensionsByRef: {},
       recentActivityErrors: [],
       unrecognizedProductions: [],
       recentConversationSceneIds: [],
@@ -4501,6 +4540,44 @@ export const useStore = create<AppState>()(
         }
       },
 
+      recordLessonMasteryPass: (lessonId, input) => {
+        set((s) => {
+          const now = Date.now();
+          const currentRecord = s.lessonMasteryById?.[lessonId];
+          const advanced = advanceLessonMastery(
+            {
+              current: currentRecord,
+              pass: input.pass,
+              accuracy: input.accuracy,
+              mistakeCount: input.mistakeCount,
+              hadProductionOrTransfer: input.hadProductionOrTransfer,
+            },
+            now
+          );
+          const lessonMasteryById = {
+            ...(s.lessonMasteryById ?? {}),
+            [lessonId]: advanced.record,
+          };
+          let itemDimensionsByRef = { ...(s.itemDimensionsByRef ?? {}) };
+          for (const update of input.dimensionUpdates ?? []) {
+            itemDimensionsByRef[update.ref] = updateDimensionScore(
+              itemDimensionsByRef[update.ref],
+              update.dimension,
+              update.correct,
+              now
+            );
+          }
+          const next = { ...s, lessonMasteryById, itemDimensionsByRef };
+          return { lessonMasteryById, itemDimensionsByRef, accounts: saveCurrentAccount(next) };
+        });
+        // PED-095 — telemetria de início/fim de mastery pass a partir de um único
+        // ponto (evita instrumentar múltiplos pontos do LessonPlayer). Import
+        // dinâmico: pedagogyEvents.ts importa `useStore` deste módulo.
+        void import("../services/pedagogyEvents").then(({ trackMasteryPassTelemetry }) => {
+          trackMasteryPassTelemetry({ lessonId, pass: input.pass, startedAt: input.startedAt });
+        });
+      },
+
       completeLessonViaTest: (id) => {
         const wasComplete = get().completedLessons.includes(id);
         set((s) => {
@@ -4686,7 +4763,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 18,
+      version: 19,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -4707,6 +4784,7 @@ export const useStore = create<AppState>()(
       // v16: ofensiva por estudo (lastStudyDate/activityByDay) + cura de aulas 1★+.
       // v17: Pérolas V2 — marcos, ledger e Pass Pro por Pérolas.
       // v18: entitlement cloud nunca é hidratado do navegador; servidor é autoridade.
+      // v19: Pedagogia V3 — lessonMasteryById + itemDimensionsByRef (migração segura).
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -4833,6 +4911,22 @@ export const useStore = create<AppState>()(
               pearlProAutoExplainSeen: migrated.pearlProAutoExplainSeen ?? false,
               pearlAudioExposures: migrated.pearlAudioExposures ?? 0,
               pearlProductionCount: migrated.pearlProductionCount ?? 0,
+            };
+          }
+          if (version < 19) {
+            const completedLessonsForMastery = normalizeCompletedLessons(
+              migrated.completedLessons,
+              migrated.lessonStarsById,
+              new Set(Object.keys(normalizeLessonPendingStars(migrated.lessonPendingStars)))
+            );
+            migrated = {
+              ...migrated,
+              lessonMasteryById: migrateLessonMasteryFromCompletion(
+                completedLessonsForMastery,
+                migrated.lessonStarsById ?? {},
+                migrated.lessonMasteryById
+              ),
+              itemDimensionsByRef: migrated.itemDimensionsByRef ?? {},
             };
           }
           const completedLessons = normalizeCompletedLessons(

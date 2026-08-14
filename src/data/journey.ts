@@ -54,7 +54,24 @@ export type StepKind =
   // ——— Motores de produção e sobrevivência (src/data/productionTasks.ts) ———
   | "free_production"
   | "transfer_task"
-  | "conversation_repair";
+  | "conversation_repair"
+  // ——— Pedagogia V3 — tarefas com ganho cognitivo distinto (mastery loop) ———
+  | "contextual_choice"
+  | "audio_to_action"
+  | "sentence_transform"
+  | "substitution_drill"
+  | "dialogue_completion"
+  | "reverse_recall"
+  // ——— Pedagogia V3.1 — China Real / navegacao urbana ———
+  | "map_direction"
+  | "place_label"
+  | "address_build"
+  | "city_context"
+  | "sign_reading"
+  | "menu_reading"
+  | "price_task"
+  | "route_sequence"
+  | "schedule_reading";
 
 export type {
   ConversationCharacter,
@@ -319,6 +336,28 @@ export interface LessonStep {
    * seguir. Ausente quando o aluno ainda não tem vocabulário de reparo.
    */
   conversationRepairBeat?: ConversationRepairBeat;
+  // ——— Pedagogia V3.1 — China Real ———
+  mapFromLabel?: string;
+  mapToLabel?: string;
+  mapCorrectAction?: "left" | "right" | "straight" | "destination";
+  mapActionOptions?: Array<"left" | "right" | "straight" | "destination">;
+  mapScaffoldLevel?: 1 | 2 | 3 | 4;
+  placeLabelCategory?: string;
+  cityId?: string;
+  citySituationPt?: string;
+  // ——— Pedagogia V3.2 — mundo real / survival ———
+  /** Placa urbana (sign_reading). */
+  signHanzi?: string;
+  signCategory?: string;
+  /** Cardápio simplificado (menu_reading). */
+  menuItems?: { hanzi: string; pinyin?: string; meaningPt?: string; priceHanzi?: string }[];
+  /** Preço pedagógico (price_task). */
+  priceHanzi?: string;
+  priceAmount?: number;
+  /** Sequência de rota (route_sequence): peças na ordem correta. */
+  routeParts?: string[];
+  /** Tabela curta de horário (schedule_reading). */
+  scheduleRows?: { timeHanzi: string; destinationHanzi: string; labelPt?: string }[];
 }
 
 /** Batida de reparo disparada por falha repetida numa cena. */
@@ -399,6 +438,16 @@ export interface Lesson {
   isReview?: boolean;
   /** Conteúdo Longyu Pro — requer assinatura ou preview nas configurações. */
   premium?: boolean;
+  /**
+   * Pedagogia V3 — lição participa do Mastery Loop (múltiplos passes 1–4).
+   * Piloto: cumprimentos, restaurante, lugares/transporte.
+   */
+  masteryLoop?: boolean;
+  /**
+   * Pedagogia V3.4 — revisão especial com Review Mastery (Recall→Mixed→Production→Transfer).
+   * Não usa masteryLoop de ensino; ver src/data/reviewMastery.ts.
+   */
+  reviewMasteryMode?: boolean;
   /** Ciclo pedagógico interno. Se omitido, o app gera Apresentar → Reconhecer → Montar → Usar → Fixar. */
   lessonStages?: LessonStage[];
   steps: LessonStep[];
@@ -601,6 +650,166 @@ const dialogue = (
   options,
   correctAnswer,
   explanation,
+});
+const mapDirection = (
+  title: string,
+  fromLabel: string,
+  toLabel: string,
+  correctAction: NonNullable<LessonStep["mapCorrectAction"]>,
+  options: NonNullable<LessonStep["mapActionOptions"]>,
+  extra: Partial<Pick<LessonStep, "prompt" | "promptPt" | "mapScaffoldLevel" | "audioText" | "explanation">> = {}
+): LessonStep => ({
+  kind: "map_direction",
+  title,
+  mapFromLabel: fromLabel,
+  mapToLabel: toLabel,
+  mapCorrectAction: correctAction,
+  mapActionOptions: options,
+  mapScaffoldLevel: extra.mapScaffoldLevel ?? 1,
+  prompt: extra.prompt,
+  promptPt: extra.promptPt,
+  audioText: extra.audioText,
+  explanation: extra.explanation,
+  correctAnswer: correctAction,
+});
+const placeLabel = (
+  title: string,
+  prompt: string,
+  correctAnswer: string,
+  options: string[],
+  category?: string,
+  explanation?: string
+): LessonStep => ({
+  kind: "place_label",
+  title,
+  prompt,
+  dialoguePrompt: prompt,
+  correctAnswer,
+  options,
+  placeLabelCategory: category,
+  explanation,
+  speaker: "Placa",
+});
+const addressBuild = (
+  title: string,
+  prompt: string,
+  targetParts: string[],
+  bank: string[],
+  explanation?: string
+): LessonStep => ({
+  kind: "address_build",
+  title,
+  prompt,
+  targetParts,
+  bank,
+  explanation,
+});
+const cityContext = (
+  title: string,
+  situationPt: string,
+  correctAnswer: string,
+  options: string[],
+  cityId: string,
+  explanation?: string
+): LessonStep => ({
+  kind: "city_context",
+  title,
+  situationPt,
+  citySituationPt: situationPt,
+  dialoguePrompt: situationPt,
+  correctAnswer,
+  options,
+  cityId,
+  explanation,
+  speaker: "Situação",
+});
+const signReading = (
+  title: string,
+  signHanzi: string,
+  correctAnswer: string,
+  options: string[],
+  category?: string,
+  explanation?: string
+): LessonStep => ({
+  kind: "sign_reading",
+  title,
+  signHanzi,
+  signCategory: category,
+  prompt: `O que significa esta placa: ${signHanzi}?`,
+  dialoguePrompt: `Placa: ${signHanzi}`,
+  correctAnswer,
+  options,
+  explanation,
+  speaker: "Placa",
+});
+const menuReading = (
+  title: string,
+  prompt: string,
+  menuItems: NonNullable<LessonStep["menuItems"]>,
+  correctAnswer: string,
+  options: string[],
+  explanation?: string
+): LessonStep => ({
+  kind: "menu_reading",
+  title,
+  prompt,
+  dialoguePrompt: prompt,
+  menuItems,
+  correctAnswer,
+  options,
+  explanation,
+  speaker: "Cardápio",
+});
+const priceTask = (
+  title: string,
+  prompt: string,
+  priceHanzi: string,
+  correctAnswer: string,
+  options: string[],
+  explanation?: string
+): LessonStep => ({
+  kind: "price_task",
+  title,
+  prompt,
+  dialoguePrompt: prompt,
+  priceHanzi,
+  correctAnswer,
+  options,
+  explanation,
+  speaker: "Preço",
+});
+const routeSequence = (
+  title: string,
+  prompt: string,
+  targetParts: string[],
+  bank: string[],
+  explanation?: string
+): LessonStep => ({
+  kind: "route_sequence",
+  title,
+  prompt,
+  targetParts,
+  routeParts: targetParts,
+  bank,
+  explanation,
+});
+const scheduleReading = (
+  title: string,
+  prompt: string,
+  scheduleRows: NonNullable<LessonStep["scheduleRows"]>,
+  correctAnswer: string,
+  options: string[],
+  explanation?: string
+): LessonStep => ({
+  kind: "schedule_reading",
+  title,
+  prompt,
+  dialoguePrompt: prompt,
+  scheduleRows,
+  correctAnswer,
+  options,
+  explanation,
+  speaker: "Horário",
 });
 const conversationScene = (sceneId: string): LessonStep => {
   const scene = conversationSceneStepFromId(sceneId);
@@ -1424,6 +1633,7 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-wohenhao",
     title: "我很好 — Estou bem",
     skill: "fala",
+    masteryLoop: true,
     libraryItems: ["chunk:wohenhao"],
     reviewItems: ["chunk:wohenhao"],
     steps: [
@@ -1482,6 +1692,7 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-wobuhui-shuo-zhongwen",
     title: "我不会说中文",
     skill: "fala",
+    masteryLoop: true,
     libraryItems: ["chunk:wobuhui", "chunk:nihao", "chunk:wohenhao"],
     reviewItems: ["chunk:nihao", "chunk:wohenhao"],
     steps: [
@@ -1533,6 +1744,7 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-qing-zai-shuo-yibian",
     title: "请再说一遍",
     skill: "fala",
+    masteryLoop: true,
     libraryItems: ["chunk:qingzaishuoyibian", "chunk:tingbudong", "chunk:wohenhao"],
     reviewItems: ["chunk:tingbudong", "chunk:wohenhao", "chunk:qingzaishuoyibian"],
     steps: [
@@ -2226,7 +2438,8 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l2",
             title: "Olá",
             skill: "fala",
-            libraryItems: ["chunk:nihao", "char:ni", "char:hao", "char:ren"],
+            masteryLoop: true,
+            libraryItems: ["chunk:nihao", "char:ni", "char:hao", "char:ren", "char:wo", "chunk:wojiao"],
             reviewItems: ["chunk:nihao", "char:ni", "char:hao"],
             steps: [
               listen("你好", "nǐ hǎo", "Olá"),
@@ -2273,6 +2486,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l3",
             title: "Tudo bem?",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:nine", "char:wo"],
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao", "chunk:nine"],
             steps: [
@@ -2343,6 +2557,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l4",
             title: "Obrigado",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:xiexie", "chunk:bukeqi", "char:xie"],
             reviewItems: ["chunk:xiexie", "chunk:bukeqi"],
             steps: [
@@ -2403,6 +2618,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-ate-logo",
             title: "Até logo",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:zaijian"],
             reviewItems: ["chunk:zaijian"],
             steps: [
@@ -2444,6 +2660,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-primeira-conversa",
             title: "Primeira conversa",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: [
               "chunk:nihao",
               "chunk:nihaoma",
@@ -2481,6 +2698,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-qingwen-cortesia",
             title: "Com licença",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:qingwen", "chunk:qingwen_nihaoma", "chunk:nihaoma"],
             reviewItems: ["chunk:qingwen", "chunk:nihaoma"],
             estimatedMinutes: 3,
@@ -2961,6 +3179,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9",
             title: "Me apresentar",
             skill: "fala",
+            masteryLoop: true,
             steps: [
               listen("我叫Matheus", "wǒ jiào Matheus", "Meu nome é Matheus"),
               listenSelect(
@@ -3018,6 +3237,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9-tudo-bem",
             title: "Tudo bem?",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nihaoma", "chunk:wohenhao"],
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
             rewardQi: 2,
@@ -3078,6 +3298,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9-qual-nome",
             title: "Como você se chama?",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:nihao"],
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:nihao"],
             rewardQi: 2,
@@ -3107,6 +3328,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l10",
             title: "De onde sou",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:wature", "chunk:nishinaiguoren", "chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
             reviewItems: ["chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
             newHanzi: ["哪"],
@@ -3145,6 +3367,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l11",
             title: "Não entendi",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
             reviewItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
             steps: [
@@ -3187,6 +3410,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l11-falo-pouco",
             title: "Falo um pouco",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             reviewItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             rewardQi: 2,
@@ -3309,6 +3533,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l13",
             title: "Microtexto 1",
             skill: "leitura",
+            masteryLoop: true,
             steps: [
               intro("Leitura fechada", "Este texto usa apenas cumprimentos e apresentação que você já praticou."),
               read([
@@ -3358,6 +3583,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l13-dialogo-ola",
             title: "Microdiálogo: cumprimentar",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie"],
             reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie"],
             rewardQi: 2,
@@ -3386,6 +3612,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l13-dialogo-nome",
             title: "Microdiálogo: se apresentar",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             rewardQi: 2,
@@ -3775,6 +4002,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l14-char-rev",
             title: "Revisão de reconhecimento",
             skill: "hanzi",
+            reviewMasteryMode: true,
             libraryItems: ["char:yi", "char:san", "char:kou", "char:ri", "char:mu", "char:wo", "char:ni", "char:bu", "char:shi"],
             reviewItems: ["char:yi", "char:san", "char:kou", "char:ri", "char:mu", "char:wo", "char:ni", "char:bu", "char:shi"],
             rewardQi: 2,
@@ -3932,6 +4160,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Checkpoint dos fundamentos",
             skill: "hanzi",
             isReview: true,
+            reviewMasteryMode: true,
             rewardQi: 4,
             estimatedMinutes: 7,
             libraryItems: ["chunk:nihao", "chunk:xiexie", "chunk:zaijian", "chunk:wojiao", "chunk:wature", "char:wo", "char:shi", "char:ren", "char:ma2", "char:ming"],
@@ -4109,6 +4338,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l19-logica-rev",
             title: "Revisão de peças",
             skill: "hanzi",
+            reviewMasteryMode: true,
             libraryItems: ["char:lin", "char:sen", "char:ming", "char:xiu", "char:hao", "char:cong", "char:zhong3", "char:ma2", "char:ma_question"],
             reviewItems: ["char:lin", "char:sen", "char:ming", "char:xiu", "char:hao", "char:cong", "char:zhong3", "char:ma2", "char:ma_question"],
             rewardQi: 2,
@@ -4153,6 +4383,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l19",
             title: "Um a cinco",
             skill: "hanzi",
+            masteryLoop: true,
             steps: [
               intro("Risquinhos", "一 二 三 são literalmente 1, 2 e 3 traços. É o jeito mais fácil de começar a ler números."),
               listen("一", "yī", "um"),
@@ -4213,6 +4444,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l20",
             title: "Seis a dez",
             skill: "hanzi",
+            masteryLoop: true,
             steps: [
               recognize("liu"),
               recognize("qi"),
@@ -4256,6 +4488,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l21",
             title: "Nós e vocês",
             skill: "fala",
+            masteryLoop: true,
             steps: [
               intro("Plural", "我 + 们 = 我们 (nós); 你 + 们 = 你们 (vocês)."),
               flash("women"),
@@ -4279,6 +4512,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "China e amigos",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             steps: [
               flash("zhongguo"),
               comp("中国", "Zhōngguó", "China", ["China", "Brasil", "amigo", "casa"]),
@@ -4300,6 +4534,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Microtexto 2",
             skill: "leitura",
             premium: true,
+            masteryLoop: true,
             steps: [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
@@ -4357,6 +4592,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Pai e mãe",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Visto na cena de identificar alguém à distância (那是我妈妈) e na casa (家).
             newHanzi: ["那", "家"],
             libraryItems: [
@@ -4470,6 +4706,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Perguntas úteis",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vistos na cena de perguntar onde algo fica (山在哪里 → 在那里) e em casa.
             newHanzi: ["那", "里"],
             libraryItems: [
@@ -4550,6 +4787,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Fome e gosto",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             steps: [
               flash("woxihuan"),
               flash("woele"),
@@ -4586,6 +4824,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "No cardápio",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆"],
             libraryItems: [
               "char:fan_rice",
@@ -4594,13 +4833,23 @@ export const JOURNEY: JourneyPhase[] = [
               "char:yu_fish",
               "char:he_drink",
               "char:e_hungry",
+              "char:shui",
+              "char:cha_tea",
+              "char:yao",
+              "char:chi_eat",
               "chunk:woyaofan",
               "chunk:woyaocai",
               "chunk:woyaorou",
               "chunk:woyaoyu",
               "chunk:woxiangheshui",
+              "chunk:woyaoshui",
               "chunk:womenchifanba",
               "chunk:woele",
+              "chunk:caidan",
+              "chunk:fanguan",
+              "chunk:yibeicha",
+              "chunk:maidan",
+              "chunk:duoshaoqian",
             ],
             reviewItems: [
               "char:fan_rice",
@@ -4646,6 +4895,11 @@ export const JOURNEY: JourneyPhase[] = [
               flash("woyaorou"),
               flash("woyaoyu"),
               flash("woxiangheshui"),
+              flash("woyaoshui"),
+              flash("caidan"),
+              flash("fanguan"),
+              flash("yibeicha"),
+              flash("maidan"),
               listen("我要饭", "wǒ yào fàn", "Quero arroz."),
               listen("我要菜", "wǒ yào cài", "Quero verdura."),
               listen("我想喝水", "wǒ xiǎng hē shuǐ", "Quero beber água."),
@@ -4743,6 +4997,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Na loja",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             newHanzi: ["多", "少"],
             steps: [
               flash("duoshaoqian"),
@@ -4856,6 +5111,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Vamos embora",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             steps: [
               flash("womenzouba"),
               comp("我们走吧", "wǒmen zǒu ba", "Vamos embora.", ["Vamos embora.", "Quero chá.", "Até logo.", "Muito caro!"]),
@@ -4869,6 +5125,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Rotina e trabalho",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Chars de rotina/trabalho que ainda não têm entrada própria em
             // CHARACTERS (têm gloss) — declarados aqui para o corpus aceitar.
             newHanzi: ["起", "床", "上", "班", "下", "睡", "觉"],
@@ -4966,6 +5223,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Cidade e lugares",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
             newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场"],
             libraryItems: [
@@ -5090,10 +5348,356 @@ export const JOURNEY: JourneyPhase[] = [
             ],
           }),
           withLessonDefaults({
+            id: "p6-china-cidades",
+            title: "Cidades da China",
+            skill: "fala",
+            premium: true,
+            masteryLoop: true,
+            newHanzi: ["北", "京", "上", "海", "广", "州", "深", "圳", "省", "市", "东", "南", "单", "超", "热", "洗", "手", "间"],
+            libraryItems: [
+              "chunk:beijing",
+              "chunk:shanghai",
+              "chunk:guangzhou",
+              "chunk:shenzhen",
+              "chunk:zhongguo",
+              "chunk:beijingzainali",
+              "chunk:beijingzaizhongguo",
+              "chunk:woqubeijing",
+              "chunk:woyaoqubeijing",
+              "chunk:woyaoqushanghai",
+              "chunk:wozaibeijing",
+              "chunk:beijinghuochezhanzainali",
+              "chunk:beijingshi",
+              "chunk:guangdongsheng",
+            ],
+            reviewItems: [
+              "chunk:zhongguo",
+              "chunk:zaina",
+              "chunk:woquchaoshi",
+              "char:qu_go",
+              "char:zai",
+            ],
+            steps: [
+              intro(
+                "China real",
+                "Cidades reais entram como linguagem: reconhecer, localizar, ir e pedir a estação — não como lista para decorar."
+              ),
+              flash("beijing"),
+              flash("shanghai"),
+              flash("guangzhou"),
+              flash("shenzhen"),
+              listen("北京", "Běijīng", "Pequim"),
+              listen("上海", "Shànghǎi", "Xangai"),
+              listen("广州", "Guǎngzhōu", "Guangzhou"),
+              listen("深圳", "Shēnzhèn", "Shenzhen"),
+              placeLabel(
+                "Qual cidade?",
+                "Qual destas é Pequim?",
+                "北京",
+                ["北京", "上海", "广州", "深圳"],
+                "cidade",
+                "北京 = Pequim (capital)."
+              ),
+              cityContext(
+                "Onde fica?",
+                "Você quer saber onde fica Pequim.",
+                "北京在哪里？",
+                ["北京在哪里？", "你好吗？", "买单", "菜单"],
+                "beijing",
+                "北京在哪里？ localiza a cidade."
+              ),
+              cityContext(
+                "Na China",
+                "Alguém pergunta onde fica Pequim. Responda com o país.",
+                "北京在中国。",
+                ["北京在中国。", "我很好", "天气很热", "再见"],
+                "beijing"
+              ),
+              listen("我去北京。", "wǒ qù Běijīng.", "Eu vou a Pequim."),
+              sentenceBuild(
+                "Monte: vou a Pequim",
+                "Monte a frase.",
+                ["我", "去", "北", "京"],
+                ["我", "去", "北", "京", "海"],
+                "我去北京 = vou a Pequim."
+              ),
+              cityContext(
+                "Quero viajar",
+                "Você está indo para Pequim.",
+                "我要去北京。",
+                ["我要去北京。", "我要票", "你好", "菜单"],
+                "beijing"
+              ),
+              cityContext(
+                "Xangai também",
+                "Agora o destino é Xangai.",
+                "我要去上海。",
+                ["我要去上海。", "我要去北京。", "超市在哪里？", "买单"],
+                "shanghai"
+              ),
+              cityContext(
+                "Já cheguei",
+                "Você está em Pequim.",
+                "我在北京。",
+                ["我在北京。", "我去北京。", "谢谢", "再见"],
+                "beijing"
+              ),
+              cityContext(
+                "Estação em Pequim",
+                "Você chegou em Pequim e precisa encontrar a estação.",
+                "北京火车站在哪里？",
+                ["北京火车站在哪里？", "你好吗？", "我很好", "菜单"],
+                "beijing",
+                "北京火车站在哪里？ combina cidade + transporte."
+              ),
+              flash("beijingshi"),
+              flash("guangdongsheng"),
+              dialogue(
+                "Município",
+                "Como se diz o município de Pequim?",
+                "北京市",
+                ["北京市", "广东省", "南京路", "洗手间"],
+                "北京市 = município de Pequim."
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-china-cidades-2",
+            title: "Mais cidades: Chengdu, Xi'an, Nanjing",
+            skill: "fala",
+            premium: true,
+            masteryLoop: true,
+            newHanzi: ["成", "都", "西", "安", "南", "京", "四", "川", "菜", "辣", "古", "城", "老", "这", "里", "上", "海", "机", "场", "房", "卡", "微", "信", "支", "付", "北", "深", "圳", "单"],
+            libraryItems: [
+              "chunk:chengdu",
+              "chunk:xian",
+              "chunk:nanjing",
+              "chunk:woquchengdu",
+              "chunk:sichuancai",
+              "chunk:la",
+              "chunk:bula",
+              "chunk:woyaosichuancai",
+              "chunk:gucheng",
+              "chunk:zhelihenlao",
+              "chunk:woquxian",
+              "chunk:shanghaijichang",
+            ],
+            reviewItems: [
+              "chunk:beijing",
+              "chunk:shanghai",
+              "chunk:woyaoqubeijing",
+              "chunk:caidan",
+              "chunk:ditie",
+            ],
+            steps: [
+              intro(
+                "Cada cidade, uma função",
+                "Chengdu traz comida (四川菜 / 辣). Xi'an traz história (古城). Nanjing reaparece com rua e turismo. Não é lista — é linguagem útil."
+              ),
+              flash("chengdu"),
+              flash("xian"),
+              flash("nanjing"),
+              placeLabel(
+                "Chengdu",
+                "Qual destas é Chengdu?",
+                "成都",
+                ["成都", "西安", "南京", "北京"],
+                "cidade",
+                "成都 = Chengdu (Sichuan)."
+              ),
+              cityContext(
+                "Vou a Chengdu",
+                "Você está indo para Chengdu.",
+                "我去成都。",
+                ["我去成都。", "我很好", "再见", "菜单"],
+                "chengdu"
+              ),
+              flash("sichuancai"),
+              flash("la"),
+              flash("bula"),
+              menuReading(
+                "Cardápio em Chengdu",
+                "No cardápio: o que é comida de Sichuan?",
+                [
+                  { hanzi: "四川菜", pinyin: "Sìchuān cài", meaningPt: "comida de Sichuan", priceHanzi: "38元" },
+                  { hanzi: "茶", pinyin: "chá", meaningPt: "chá", priceHanzi: "8元" },
+                  { hanzi: "水", pinyin: "shuǐ", meaningPt: "água", priceHanzi: "3元" },
+                ],
+                "四川菜",
+                ["四川菜", "茶", "水", "古城"],
+                "四川菜 é o prato típico de Chengdu."
+              ),
+              cityContext(
+                "Pedir Sichuan",
+                "No restaurante em Chengdu, peça comida de Sichuan.",
+                "我要四川菜。",
+                ["我要四川菜。", "我很好", "再见", "古城"],
+                "chengdu"
+              ),
+              dialogue(
+                "Picante?",
+                "Você não quer picante. O que diz?",
+                "不辣",
+                ["不辣", "辣", "谢谢", "再见"],
+                "不辣 = não picante."
+              ),
+              placeLabel(
+                "Xi'an",
+                "Qual destas é Xi'an?",
+                "西安",
+                ["西安", "成都", "南京", "上海"],
+                "cidade"
+              ),
+              flash("gucheng"),
+              flash("zhelihenlao"),
+              cityContext(
+                "Turismo em Xi'an",
+                "Você visita a cidade antiga de Xi'an. O que combina dizer?",
+                "这里很老。",
+                ["这里很老。", "我要四川菜。", "微信支付", "再见"],
+                "xian",
+                "这里很老 comenta o caráter histórico."
+              ),
+              cityContext(
+                "Vou a Xi'an",
+                "Seu destino é Xi'an.",
+                "我去西安。",
+                ["我去西安。", "我去成都。", "菜单", "谢谢"],
+                "xian"
+              ),
+              placeLabel(
+                "Nanjing",
+                "Qual destas é Nanjing?",
+                "南京",
+                ["南京", "成都", "西安", "深圳"],
+                "cidade"
+              ),
+              flash("shanghaijichang"),
+              dialogue(
+                "Xangai + transporte",
+                "Como se diz o aeroporto de Xangai?",
+                "上海机场",
+                ["上海机场", "四川菜", "古城", "房卡"],
+                "上海机场 combina cidade + transporte."
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-china-ruas",
+            title: "Ruas e endereços",
+            skill: "fala",
+            premium: true,
+            masteryLoop: true,
+            newHanzi: ["路", "街", "号", "区", "人", "民", "北", "京", "上", "海", "南", "地", "铁", "医", "院", "单", "酒"],
+            libraryItems: [
+              "char:lu_road",
+              "char:jie_street",
+              "char:hao_number",
+              "chunk:beijinglu",
+              "chunk:nanjinglu",
+              "chunk:renminlu",
+              "chunk:zhongshanlu",
+              "chunk:changanjie",
+              "chunk:wozainanjinglu",
+              "chunk:beijinglu10hao",
+              "chunk:shanghai_nanjinglu20hao",
+              "chunk:ditiezhan",
+              "chunk:nanjingluditiezhan",
+            ],
+            reviewItems: [
+              "chunk:beijing",
+              "chunk:shanghai",
+              "chunk:wozaibeijing",
+              "char:zai",
+            ],
+            steps: [
+              intro(
+                "Ruas que você verá",
+                "路 e 街 aparecem o tempo todo na China. Aprenda a reconhecer a placa e a dizer onde você está."
+              ),
+              listen("路", "lù", "rua; avenida"),
+              listen("街", "jiē", "rua"),
+              listen("号", "hào", "número (endereço)"),
+              placeLabel(
+                "Isto é uma rua?",
+                "Qual destas é uma rua/avenida?",
+                "路",
+                ["路", "站", "省", "茶"],
+                "rua",
+                "路 = rua/avenida."
+              ),
+              flash("beijinglu"),
+              flash("nanjinglu"),
+              flash("renminlu"),
+              flash("zhongshanlu"),
+              flash("changanjie"),
+              placeLabel(
+                "Ler a placa",
+                "Qual palavra aparece nesta placa urbana?",
+                "南京路",
+                ["南京路", "北京", "医院", "菜单"],
+                "rua",
+                "南京路 = Nanjing Road (rua), não a cidade sozinha."
+              ),
+              cityContext(
+                "Significado",
+                "北京路 significa o quê?",
+                "Beijing Road",
+                ["Beijing Road", "estação de metrô", "província", "cardápio"],
+                "beijing"
+              ),
+              addressBuild(
+                "Endereço curto",
+                "Monte: Beijing Road, número 10.",
+                ["北京", "路", "10", "号"],
+                ["北京", "路", "10", "号", "街", "站"],
+                "北京路10号 é um endereço pedagógico simples."
+              ),
+              sentenceBuild(
+                "Onde estou?",
+                "Monte: estou na Nanjing Road.",
+                ["我", "在", "南", "京", "路"],
+                ["我", "在", "南", "京", "路", "站"],
+                "我在南京路。"
+              ),
+              addressBuild(
+                "Endereço em Xangai",
+                "Monte um endereço pedagógico em Xangai.",
+                ["上", "海", "市", "南", "京", "路", "20", "号"],
+                ["上", "海", "市", "南", "京", "路", "20", "号", "省"],
+                "上海市南京路20号 — cidade + rua + número."
+              ),
+              flash("ditiezhan"),
+              cityContext(
+                "Na Nanjing Road",
+                "Você está na 南京路 e precisa encontrar o metrô.",
+                "南京路地铁站在哪里？",
+                ["南京路地铁站在哪里？", "我很好", "买单", "你好吗？"],
+                "shanghai",
+                "Combina rua real + transporte urbano."
+              ),
+              dialogue(
+                "Estação de metrô",
+                "Como se diz estação de metrô?",
+                "地铁站",
+                ["地铁站", "火车站", "北京路", "菜单"],
+                "地铁站 = estação de metrô."
+              ),
+              dialogue(
+                "Hotel na cena",
+                "Depois da rua, você procura o hotel. O que pergunta?",
+                "酒店在哪里？",
+                ["酒店在哪里？", "我很好", "菜单", "再见"],
+                "酒店在哪里？ fecha a cena urbana."
+              ),
+            ],
+          }),
+          withLessonDefaults({
             id: "p6-saude",
             title: "Saúde",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Chars de saúde que só têm gloss (院, 下 e 班 entram via 医院/我下班).
             newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班"],
             libraryItems: [
@@ -5177,6 +5781,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Que horas são?",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // 午 é o único char só-gloss usado aqui (中 está em CHARACTERS).
             newHanzi: ["午"],
             libraryItems: [
@@ -5260,6 +5865,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "A natureza",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Elementos vistos em lições antigas (山/水/火/木/日/月/林/森) + os novos.
             newHanzi: ["云", "雨", "树", "花", "星", "上", "下"],
             libraryItems: [
@@ -5367,6 +5973,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "O tempo (clima)",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // 雨/云/下 já vistos em p6-natureza; novos: 冷/晴/雪/风.
             newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热"],
             libraryItems: [
@@ -5462,8 +6069,9 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Direções",
             skill: "fala",
             premium: true,
-            // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路.
-            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面"],
+            masteryLoop: true,
+            // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路 + mapa (转/怎) e distractores.
+            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面", "转", "怎", "单"],
             libraryItems: [
               "chunk:zuobian",
               "chunk:youbian",
@@ -5473,6 +6081,12 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wangzuozou",
               "chunk:wangyouzou",
               "chunk:nanbian",
+              "chunk:zenmezou",
+              "chunk:zuozhuan",
+              "chunk:youzhuan",
+              "chunk:yizhizou",
+              "chunk:ditiezhan",
+              "chunk:nanjingluditiezhan",
             ],
             reviewItems: [
               "chunk:zuobian",
@@ -5485,6 +6099,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:nanbian",
               "chunk:zaina",
               "chunk:chezainali",
+              "chunk:nanjinglu",
             ],
             steps: [
               intro(
@@ -5510,6 +6125,46 @@ export const JOURNEY: JourneyPhase[] = [
               listen("往左走", "wǎng zuǒ zǒu", "Vá para a esquerda"),
               listen("往右走", "wǎng yòu zǒu", "Vá para a direita"),
               listen("南边", "nánbiān", "Ao sul"),
+              flash("zenmezou"),
+              flash("zuozhuan"),
+              flash("youzhuan"),
+              flash("yizhizou"),
+              mapDirection(
+                "Mapa: vire à esquerda",
+                "酒店",
+                "地铁站",
+                "left",
+                ["left", "right", "straight"],
+                {
+                  promptPt: "Do hotel ao metrô: o que você faz?",
+                  mapScaffoldLevel: 1,
+                  explanation: "左转 = vire à esquerda.",
+                }
+              ),
+              mapDirection(
+                "Mapa: siga em frente",
+                "银行",
+                "公园",
+                "straight",
+                ["left", "right", "straight"],
+                {
+                  prompt: "一直走",
+                  mapScaffoldLevel: 2,
+                  explanation: "一直走 = siga em frente.",
+                }
+              ),
+              mapDirection(
+                "Ouça e navegue",
+                "南京路",
+                "地铁站",
+                "right",
+                ["left", "right", "straight"],
+                {
+                  audioText: "右转",
+                  mapScaffoldLevel: 3,
+                  explanation: "右转 = vire à direita.",
+                }
+              ),
               comp("直走", "zhí zǒu", "Siga em frente.", ["Siga em frente.", "Vá para a esquerda.", "Atrás.", "Está ventando."]),
               sentenceBuild(
                 "Monte: à esquerda",
@@ -5540,13 +6195,25 @@ export const JOURNEY: JourneyPhase[] = [
                 "右边 = à direita.",
                 "Passante"
               ),
-              dialogue(
-                "Siga em frente",
-                "A pessoa orienta: siga em frente. O que ela diz?",
-                "直走",
-                ["直走", "往右走", "后面", "我很好"],
-                "直走 = siga em frente.",
-                "Passante"
+              cityContext(
+                "Como chegar?",
+                "Você está na 南京路 e quer saber como chegar ao metrô.",
+                "怎么走？",
+                ["怎么走？", "我很好", "买单", "菜单"],
+                "shanghai",
+                "怎么走？ pede o caminho."
+              ),
+              mapDirection(
+                "Só chinês",
+                "南京路",
+                "地铁站",
+                "left",
+                ["left", "right", "straight", "destination"],
+                {
+                  prompt: "左转",
+                  mapScaffoldLevel: 4,
+                  explanation: "No domínio, a instrução vem só em chinês.",
+                }
               ),
             ],
           }),
@@ -5555,8 +6222,9 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Compras: roupas e itens",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // 买/这/个/多/少/钱/水/机 já existem; novos: 衣/服/鞋/双/件/苹/果/香/蕉/牛/奶/手.
-            newHanzi: ["衣", "服", "鞋", "双", "件", "苹", "果", "香", "蕉", "牛", "奶", "手"],
+            newHanzi: ["衣", "服", "鞋", "双", "件", "苹", "果", "香", "蕉", "牛", "奶", "手", "元", "单"],
             libraryItems: [
               "chunk:woyaomaiyifu",
               "chunk:zhejianyifuduoshaoqian",
@@ -5669,6 +6337,216 @@ export const JOURNEY: JourneyPhase[] = [
                 "我要这个苹果 fecha a compra apontando o item.",
                 "Vendedor"
               ),
+              priceTask(
+                "Etiqueta",
+                "A etiqueta mostra 28元. Qual é o preço?",
+                "28元",
+                "28元",
+                ["28元", "8元", "50元", "菜单"],
+                "28元 = vinte e oito yuan."
+              ),
+            ],
+          }),
+          withLessonDefaults({
+            id: "p6-survival-mandarin",
+            title: "Survival: pagar, hotel, ajuda",
+            skill: "fala",
+            premium: true,
+            masteryLoop: true,
+            newHanzi: [
+              "现",
+              "金",
+              "微",
+              "信",
+              "支",
+              "付",
+              "宝",
+              "刷",
+              "卡",
+              "充",
+              "电",
+              "器",
+              "护",
+              "照",
+              "房",
+              "间",
+              "前",
+              "台",
+              "出",
+              "口",
+              "入",
+              "需",
+              "要",
+              "帮",
+              "助",
+              "洗",
+              "手",
+              "元",
+              "可",
+              "以",
+              "古",
+              "城",
+              "川",
+              "辣",
+              "单",
+              "直",
+              "转",
+              "地",
+              "铁",
+              "酒",
+              "北",
+              "京",
+              "上",
+              "海",
+              "午",
+              "广",
+              "州",
+            ],
+            libraryItems: [
+              "chunk:xianjin",
+              "chunk:weixinzhifu",
+              "chunk:zhifubao",
+              "chunk:keyishuaka",
+              "chunk:shouji_device",
+              "chunk:chongdian",
+              "chunk:chongdianqi",
+              "chunk:wifi",
+              "chunk:huzhao",
+              "chunk:fangjian",
+              "chunk:fangka",
+              "chunk:qiantai",
+              "chunk:xishoujianzainali",
+              "chunk:woxuyaobangzhu",
+              "chunk:chuko",
+              "chunk:ruko",
+              "chunk:ershibayuan",
+              "chunk:yiyuanzainali",
+            ],
+            reviewItems: [
+              "chunk:duoshaoqian",
+              "chunk:woyao",
+              "chunk:ditiezhan",
+              "chunk:jiudianzainali",
+            ],
+            steps: [
+              intro(
+                "Mandarim utilizável",
+                "Pagamento, celular, hotel e necessidades: o que um visitante realmente pede nas primeiras semanas."
+              ),
+              flash("xianjin"),
+              flash("weixinzhifu"),
+              listen("微信支付", "Wēixìn zhīfù", "WeChat Pay."),
+              flash("zhifubao"),
+              flash("keyishuaka"),
+              signReading(
+                "WeChat Pay",
+                "微信支付",
+                "WeChat Pay",
+                ["WeChat Pay", "passaporte", "saída", "quarto"],
+                "payment"
+              ),
+              signReading(
+                "Alipay",
+                "支付宝",
+                "Alipay",
+                ["Alipay", "entrada", "celular", "ajuda"],
+                "payment"
+              ),
+              dialogue(
+                "Cartão?",
+                "Você quer pagar com cartão. O que pergunta?",
+                "可以刷卡吗？",
+                ["可以刷卡吗？", "我很好", "再见", "古城"],
+                "可以刷卡吗？ pergunta se aceitam cartão."
+              ),
+              flash("shouji_device"),
+              flash("chongdian"),
+              flash("chongdianqi"),
+              flash("wifi"),
+              dialogue(
+                "Carregador",
+                "A bateria acabou. O que você pede?",
+                "充电器",
+                ["充电器", "护照", "现金", "古城"],
+                "充电器 = carregador."
+              ),
+              flash("huzhao"),
+              flash("fangjian"),
+              flash("fangka"),
+              flash("qiantai"),
+              signReading(
+                "Recepção",
+                "前台",
+                "recepção",
+                ["recepção", "saída", "Alipay", "picante"],
+                "hotel"
+              ),
+              dialogue(
+                "Check-in",
+                "No hotel, o que você mostra na recepção?",
+                "护照",
+                ["护照", "四川菜", "辣", "菜单"],
+                "护照 = passaporte."
+              ),
+              flash("chuko"),
+              flash("ruko"),
+              signReading(
+                "Saída",
+                "出口",
+                "saída",
+                ["saída", "entrada", "quarto", "Wi-Fi"],
+                "exit"
+              ),
+              signReading(
+                "Entrada",
+                "入口",
+                "entrada",
+                ["entrada", "saída", "Alipay", "ajuda"],
+                "entrance"
+              ),
+              flash("xishoujianzainali"),
+              flash("woxuyaobangzhu"),
+              cityContext(
+                "Banheiro",
+                "Você precisa do banheiro.",
+                "洗手间在哪里？",
+                ["洗手间在哪里？", "我很好", "菜单", "再见"],
+                "shanghai"
+              ),
+              {
+                kind: "reverse_recall",
+                title: "Ajuda",
+                situationPt: "Diga que precisa de ajuda.",
+                body: "Diga que precisa de ajuda.",
+                answer: "我需要帮助",
+                accepts: ["我需要帮助", "我需要帮助。", "请帮助我"],
+                mode: "free_reflection",
+                isNoHint: true,
+              },
+              priceTask(
+                "Preço na loja",
+                "A etiqueta mostra 28元. Qual é o preço?",
+                "28元",
+                "28元",
+                ["28元", "8元", "50元", "Wi-Fi"]
+              ),
+              routeSequence(
+                "Caminho ao metrô",
+                "Ordene o caminho: siga em frente, vire à esquerda, metrô.",
+                ["一直走", "左转", "地铁站"],
+                ["一直走", "左转", "地铁站", "右转", "酒店"]
+              ),
+              scheduleReading(
+                "Horário do trem",
+                "Qual trem vai para Pequim às 9?",
+                [
+                  { timeHanzi: "九点", destinationHanzi: "北京", labelPt: "9h → Pequim" },
+                  { timeHanzi: "八点", destinationHanzi: "上海", labelPt: "8h → Xangai" },
+                  { timeHanzi: "中午", destinationHanzi: "广州", labelPt: "meio-dia → Guangzhou" },
+                ],
+                "九点 → 北京",
+                ["九点 → 北京", "八点 → 上海", "中午 → 广州", "右转"]
+              ),
             ],
           }),
           withLessonDefaults({
@@ -5676,6 +6554,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Revisão do módulo",
             skill: "fala",
             isReview: true,
+            reviewMasteryMode: true,
             premium: true,
             newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝"],
             // Foco em chunks (não caracteres isolados) — evita trio de comprehend
@@ -5757,6 +6636,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Eu e meus amigos",
             skill: "leitura",
             premium: true,
+            masteryLoop: true,
             // Visto na cena de apontar a paisagem (那是山 / 那是日) e no livro (书).
             newHanzi: ["那", "书"],
             libraryItems: [
@@ -5849,6 +6729,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Leitura em voz alta",
             skill: "leitura",
             premium: true,
+            masteryLoop: true,
             // Vistos na conversa de loja (多少钱) e na paisagem.
             newHanzi: ["多", "少"],
             steps: [
@@ -5942,6 +6823,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: no mercado",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vocabulário visto na imersão de mercado (多少钱).
             newHanzi: ["多", "少"],
             steps: [
@@ -5975,6 +6857,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: na estação",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
             newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店"],
             libraryItems: [
@@ -6098,6 +6981,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: visita à casa da amiga",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vocabulário visto na imersão de visita (认识你很高兴 e distratores).
             newHanzi: ["认", "识", "高", "兴", "单", "饿", "多", "少"],
             steps: [

@@ -345,8 +345,8 @@ export async function openReviewFlow(page: Page) {
 }
 
 export async function openTransferStep(page: Page) {
-  // Transferência só aparece depois da progressão de estrutura (por volta de l23+).
-  await seedLessonPlayerReady(page, "l23");
+  // Transferência no Mastery Loop aparece a partir de M3 — seed level 2 → próximo pass = 3.
+  await seedLessonPlayerReady(page, "l23", { masteryLevel: 2 });
   await seedProOnTopOfSession(page);
   await page.goto("/licao/l23/player");
   await waitForLazyPage(page);
@@ -453,17 +453,14 @@ export async function assertBankAboveSticky(page: Page) {
 }
 
 export async function openOpenProductionStep(page: Page) {
-  // Produção aberta (productionOpen) exige estrutura já praticada — l26b+.
-  await seedLessonPlayerReady(page, "l26b");
+  // Produção aberta no Mastery Loop de l26b entra de forma estável a partir de M3
+  // (seed level 2 → próximo pass = 3), cedo no plano — Pular avança até o degrau.
+  await seedLessonPlayerReady(page, "l26b", { masteryLevel: 2 });
   await seedProOnTopOfSession(page);
   await page.goto("/licao/l26b/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  // Mesmo padrão da transferência: avançar até o seletor estável.
-  // Não preferir "Pular" — isso saltava a conversa e o degrau aberto.
-  const ok = await advanceUntilSelector(page, '[data-production-assist="open"]', 80, 150_000, {
-    allowSkip: false,
-  });
+  const ok = await advanceUntilSelector(page, '[data-production-assist="open"]', 80, 150_000);
   expect(ok).toBe(true);
   await expect(page.getByText(/Diga do seu jeito|Você escolhe/i).first()).toBeVisible();
   await expect(page.locator('[data-production-step="free_production"]')).toBeVisible();

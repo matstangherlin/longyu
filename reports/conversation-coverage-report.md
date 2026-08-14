@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
+| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:47:30.911Z |
-| Lições | 123 |
-| Hash da Jornada | 074d1aa525cf |
+| Gerado em | 2026-08-14T00:58:47.277Z |
+| Lições | 127 |
+| Hash da Jornada | f4250a774515 |
 
 ## Resumo
 
@@ -20,8 +20,8 @@
 | Fallback V1 derivado (lines/checkpoint) | 38 |
 | Intenções distintas | 38 |
 | Passos autorais na jornada | 41 |
-| Lições com cena gerada no plano | 101 |
-| Cenas geradas distintas | 20 |
+| Lições com cena gerada no plano | 104 |
+| Cenas geradas distintas | 22 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -48,32 +48,32 @@
 
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
-| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 3 |
+| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 2 |
 | perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 6 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 5 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 4 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
-| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 3 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 9 |
+| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 2 | 10 |
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 1 | 4 |
-| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 10 |
+| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 9 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
 | nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
 | como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 1 | 7 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 7 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 1 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 2 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
-| encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
+| encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 1 |
 | onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 2 |
 | apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 2 |
 | sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
-| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 0 |
-| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
+| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 1 |
+| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 7 |
 | encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 0 | 11 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 0 |
-| conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 8 |
-| conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
+| conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 7 |
+| conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 2 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 0 |
@@ -105,4 +105,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:d178285396cfc9f5 -->
+<!-- integridade:7f42329358e91e2d -->

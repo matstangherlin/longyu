@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | fca4f27a46cacff81edf16cbad9791442e50a9f3 |
+| Commit | 0f7b7f1d75f73c43cfa7043f6ac9d7bf51c40cb4 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-13T21:46:17.166Z |
-| Lições | 123 |
-| Hash da Jornada | 074d1aa525cf |
+| Gerado em | 2026-08-14T01:59:03.944Z |
+| Lições | 127 |
+| Hash da Jornada | 07da44be3a20 |
 
 ## Resumo
 
@@ -16,9 +16,9 @@
 |-----------|------:|
 | Conceitos no catálogo | 87 |
 | Imagens locais (WebP) | 87 |
-| Lições na jornada | 123 |
-| Lições concretas elegíveis | 76 |
-| Lições elegíveis com imagem | 76 (100%) |
+| Lições na jornada | 127 |
+| Lições concretas elegíveis | 80 |
+| Lições elegíveis com imagem | 80 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
@@ -35,7 +35,7 @@
 | p3 — Frases Reais | 16 | 7 | 7 | 100% |
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
-| p6 — Vida Cotidiana | 15 | 13 | 13 | 100% |
+| p6 — Vida Cotidiana | 19 | 17 | 17 | 100% |
 | p7 — Leitura Graduada | 6 | 6 | 6 | 100% |
 
 ## Cobertura por unidade
@@ -54,7 +54,7 @@
 | u5-1 — Números 1 a 10 | 3 | 2 | 2 | 100% |
 | u5-2 — Palavras compostas | 4 | 3 | 3 | 100% |
 | u6-1 — Família | 2 | 2 | 2 | 100% |
-| u6-2 — Comida e compras | 13 | 11 | 11 | 100% |
+| u6-2 — Comida e compras | 17 | 15 | 15 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
 | u7-2 — Imersão | 3 | 3 | 3 | 100% |
 
@@ -63,9 +63,9 @@
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 11 |
-| imagem → pinyin (`choose_pinyin`) | 60 |
+| imagem → pinyin (`choose_pinyin`) | 63 |
 | imagem → significado (`choose_meaning`) | 27 |
-| áudio → imagem (`listen_and_choose_image`) | 31 |
+| áudio → imagem (`listen_and_choose_image`) | 33 |
 | hànzì → imagem (`choose_image`) | 22 |
 
 ## Conceitos nunca utilizados
@@ -88,7 +88,6 @@
 | milk | 牛奶 | leite | 12 |
 | apple | 苹果 | maçã | 12 |
 | meat | 肉 | carne | 12 |
-| vegetables | 菜 | verdura | 12 |
 | juice | 果汁 | suco | 12 |
 | beer | 啤酒 | cerveja | 12 |
 | noodles | 面条 | macarrão | 12 |
@@ -102,7 +101,6 @@
 | door | 门 | porta | 13 |
 | window | 窗户 | janela | 13 |
 | backpack | 背包 | mochila | 13 |
-| menu | 菜单 | cardápio | 12 |
 | hotel_key_card | 房卡 | cartão do quarto | 13 |
 | passport | 护照 | passaporte | 13 |
 | luggage | 行李 | bagagem | 13 |
@@ -115,8 +113,10 @@
 | hotel | 酒店 | hotel | 13 |
 | street | 街道 | rua | 13 |
 | restaurant | 饭馆 | restaurante | 12 |
+| bank | 银行 | banco | 12 |
 | shopping_mall | 商场 | shopping | 13 |
 | airport | 机场 | aeroporto | 13 |
+| hospital | 医院 | hospital | 12 |
 | taxi | 出租车 | táxi | 13 |
 | bus | 公交车 | ônibus | 13 |
 | train | 火车 | trem | 13 |
@@ -131,4 +131,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:f1b760aebb52d659 -->
+<!-- integridade:5656844f18c07095 -->

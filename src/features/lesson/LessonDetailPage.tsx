@@ -29,6 +29,7 @@ import {
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { LESSON_PERF_MARKS, markLessonPerf } from "../../lib/lessonPerf";
+import { MASTERY_LEVEL_LABELS, type MasteryLevel } from "../../data/masteryLoop";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
 
@@ -137,6 +138,7 @@ export function LessonDetailPage() {
 
   const completed = useStore((state) => state.completedLessons);
   const lessonStarsById = useStore((state) => state.lessonStarsById);
+  const lessonMasteryById = useStore((state) => state.lessonMasteryById);
   const isPremium = useIsPro();
   const lessonTaskProgress = useStore((state) => state.lessonTaskProgress);
   const toneTrainer = useStore((state) => state.toneTrainer);
@@ -264,6 +266,31 @@ export function LessonDetailPage() {
           </div>
           <ProgressBar value={progress} max={tasks.length} className="h-2" />
         </div>
+
+        {lesson.masteryLoop && (
+          <div className="mt-3 rounded-xl border border-line/60 bg-surface-2/60 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold text-ink-soft">Domínio da lição</span>
+              <span className="text-[11px] font-medium text-ink-faint">
+                {MASTERY_LEVEL_LABELS[(lessonMasteryById?.[lesson.id]?.level ?? 0) as MasteryLevel]}
+              </span>
+            </div>
+            <div className="mt-1.5 flex items-center gap-1.5" aria-label={`Domínio ${(lessonMasteryById?.[lesson.id]?.level ?? 0)} de 4`}>
+              {[1, 2, 3, 4].map((level) => (
+                <span
+                  key={level}
+                  className={[
+                    "h-1.5 flex-1 rounded-full",
+                    level <= (lessonMasteryById?.[lesson.id]?.level ?? 0) ? "bg-accent" : "bg-line",
+                  ].join(" ")}
+                />
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">
+              Concluir ≠ dominar. Cada volta desta lição aumenta a exigência (descoberta → consolidação → produção → domínio).
+            </p>
+          </div>
+        )}
 
         <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
           <RewardChip icon={<IconStar width={12} height={12} className="text-accent" />} tone="accent">

@@ -14,6 +14,29 @@ import {
   type Skill,
   type StepKind,
 } from "../../data/journey";
+import {
+  applyScaffoldToStep,
+  isProductionOrTransferKind,
+  masteryKindPriority,
+  MASTERY_PASS_GRADED_BUDGET,
+  nextMasteryPass,
+  type ItemDimensionScores,
+  type MasteryLevel,
+  type MasteryPass,
+  weakestDimension,
+  dimensionForStepKind,
+} from "../../data/masteryLoop";
+import {
+  isMasteryPilotLesson,
+  masteryBonusStepsFor,
+  planHasProductionOrTransfer,
+} from "../../data/masteryPilot";
+import {
+  isReviewMasteryLesson,
+  reviewMasteryStepsFor,
+  REVIEW_MASTERY_LABELS,
+  type ReviewMasteryLevel,
+} from "../../data/reviewMastery";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
@@ -172,6 +195,21 @@ const GRADED_STEP_KINDS: StepKind[] = [
   "free_production",
   "transfer_task",
   "conversation_repair",
+  "contextual_choice",
+  "audio_to_action",
+  "sentence_transform",
+  "substitution_drill",
+  "dialogue_completion",
+  "reverse_recall",
+  "map_direction",
+  "place_label",
+  "address_build",
+  "city_context",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+  "route_sequence",
+  "schedule_reading",
 ];
 
 function isGradedStep(step: LessonStep): boolean {
@@ -548,6 +586,8 @@ export interface LessonRoundStep extends LessonStep {
   lessonStageQuestionCount?: number;
   sourceStepIndex?: number;
   generated?: boolean;
+  /** Pedagogia V3 — pass de domínio desta bateria (1–4). */
+  masteryPass?: MasteryPass;
 }
 
 export interface LessonRoundProgress {
@@ -608,6 +648,16 @@ export interface LessonPracticePlanContext {
   priorTransferredFrames?: ReadonlySet<string>;
   /** Evita reentrada ao montar o índice de exposição. */
   skipStructureExposureIndex?: boolean;
+  /**
+   * Pedagogia V3 — nível de domínio já alcançado (0–4).
+   * O planner gera a *próxima* pass (ou recovery) a partir deste valor.
+   */
+  masteryLevel?: MasteryLevel;
+  /** Força uma pass específica (testes / recovery). */
+  masteryPass?: MasteryPass;
+  recoveryPending?: boolean;
+  /** Domínio por dimensão por item (`chunk:…` / `char:…`). */
+  itemDimensionsByRef?: Record<string, ItemDimensionScores>;
 }
 
 /**
@@ -738,6 +788,21 @@ const FAMILY_BY_KIND: Record<StepKind, ExerciseFamily[]> = {
   free_production: ["assembly", "usage"],
   transfer_task: ["assembly", "usage", "review"],
   conversation_repair: ["usage", "review"],
+  contextual_choice: ["usage", "recognition", "meaning"],
+  audio_to_action: ["audio", "recognition", "meaning"],
+  sentence_transform: ["assembly", "usage"],
+  substitution_drill: ["assembly", "usage"],
+  dialogue_completion: ["usage", "recognition"],
+  reverse_recall: ["assembly", "usage"],
+  map_direction: ["recognition", "meaning", "usage"],
+  place_label: ["recognition", "meaning", "hanzi"],
+  address_build: ["assembly", "usage"],
+  city_context: ["usage", "recognition", "meaning"],
+  sign_reading: ["recognition", "meaning", "hanzi"],
+  menu_reading: ["recognition", "meaning", "usage"],
+  price_task: ["recognition", "meaning"],
+  route_sequence: ["assembly", "usage"],
+  schedule_reading: ["recognition", "meaning", "usage"],
 };
 
 const WEIGHTS_BY_SKILL: Record<Skill | "review", Partial<Record<ExerciseFamily, number>>> = {
@@ -4698,6 +4763,23 @@ function refUsesOldCurriculum(ref: string, oldGlyphs: ReadonlySet<string>): bool
   return [...cleanHanzi(item.hanzi)].some((glyph) => oldGlyphs.has(glyph));
 }
 
+/**
+ * Igual a refUsesOldCurriculum, mas exige TODOS os glifos já disponíveis no
+ * currículo até esta lição (não só um glifo em comum). A lista de fallback
+ * (OLD_CURRICULUM_RECOVERY_REFS) mistura refs que compartilham UM glifo antigo
+ * com glifos ainda não apresentados (ex.: 叫 é antigo, mas 什么 em
+ * "chunk:nijiaoshenme" pode não ter sido introduzido ainda) — usar overlap
+ * parcial aqui vazava R10 (sentence_build cobrando glifo indisponível).
+ */
+function refFullyKnownForLesson(ref: string, lesson: Lesson): boolean {
+  const item = focusItemFromRef(ref);
+  if (!item) return false;
+  const glyphs = [...cleanHanzi(item.hanzi)];
+  if (glyphs.length === 0) return false;
+  const known = curriculumGlyphsThroughLesson(lesson.id);
+  return glyphs.every((glyph) => known.has(glyph));
+}
+
 const OLD_CURRICULUM_RECOVERY_REFS = [
   "chunk:nijiaoshenme",
   "chunk:zheshishenme",
@@ -5657,7 +5739,9 @@ export function applyConversationVocabularyLoop(
       if (oldGlyphs.size > 0) {
         const oldRef =
           relevant.find((item) => refUsesOldCurriculum(item.ref, oldGlyphs))?.ref ??
-          OLD_CURRICULUM_RECOVERY_REFS.find((ref) => refUsesOldCurriculum(ref, oldGlyphs));
+          OLD_CURRICULUM_RECOVERY_REFS.find(
+            (ref) => refUsesOldCurriculum(ref, oldGlyphs) && refFullyKnownForLesson(ref, lesson)
+          );
         if (oldRef) {
           const focusItem = focusByRef.get(oldRef) ?? focusItemFromRef(oldRef);
           if (focusItem) {
@@ -5872,8 +5956,169 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   return withConversationLoop.map((step) => ({ ...step, practiceVariant }));
 }
 
+/**
+ * Pedagogia V3 — reaplica o plano base com política de mastery pass:
+ * kinds preferidos, scaffold, bônus cognitivos do piloto e viés dimensional.
+ */
+export function applyMasteryPassToPlan(
+  plan: LessonRoundStep[],
+  lesson: Lesson,
+  pass: MasteryPass,
+  context: LessonPracticePlanContext = {}
+): LessonRoundStep[] {
+  const useMastery = Boolean(lesson.masteryLoop || isMasteryPilotLesson(lesson.id));
+  if (!useMastery) return plan;
+
+  const dimensions = context.itemDimensionsByRef ?? {};
+  const weakDim = weakestDimension(
+    Object.values(dimensions).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))[0]
+  );
+
+  const scored = plan.map((step, index) => {
+    let score = masteryKindPriority(step.kind, pass);
+    const dim = dimensionForStepKind(step.kind);
+    if (dim && dim === weakDim) score += 1.5;
+    // PED-038: se meaning já está alto e production baixo, preferir produção.
+    const sample = Object.values(dimensions)[0];
+    if (sample && sample.meaning >= 0.75 && sample.production < 0.55 && isProductionOrTransferKind(step.kind)) {
+      score += 2;
+    }
+    if (pass >= 3 && isProductionOrTransferKind(step.kind)) score += 1;
+    if (pass <= 1 && isProductionOrTransferKind(step.kind)) score -= 1;
+    return { step, index, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score || a.index - b.index);
+
+  // Mantém cobertura mínima e remove excesso de kinds desencorajados em passes altas.
+  const budget = MASTERY_PASS_GRADED_BUDGET[pass];
+  const kept: LessonRoundStep[] = [];
+  const seenKinds = new Set<StepKind>();
+  for (const item of scored) {
+    if (item.score < -1 && kept.length >= budget.min) continue;
+    // Prefere diversidade de kinds antes de repetir o mesmo.
+    if (seenKinds.has(item.step.kind) && kept.length >= budget.max - 2) continue;
+    kept.push(applyScaffoldToStep(item.step, pass));
+    seenKinds.add(item.step.kind);
+    if (kept.length >= budget.max) break;
+  }
+  // Garante piso mínimo se o scoring ficou agressivo.
+  if (kept.length < budget.min) {
+    for (const item of scored) {
+      if (kept.some((step) => stepSignature(step) === stepSignature(item.step))) continue;
+      kept.push(applyScaffoldToStep(item.step, pass));
+      if (kept.length >= budget.min) break;
+    }
+  }
+
+  // Injeta bônus do piloto (exigência cognitiva distinta por pass).
+  const bonuses = masteryBonusStepsFor(lesson.id, pass).map((step, bonusIndex) =>
+    applyScaffoldToStep(
+      {
+        ...step,
+        lessonStageId: pass >= 3 ? ("usage" as LessonStageId) : ("recognition" as LessonStageId),
+        lessonStageQuestion: bonusIndex + 1,
+        lessonStageQuestionCount: 1,
+        generated: true,
+        objective: step.objective ?? `Mastery pass ${pass}`,
+      },
+      pass
+    )
+  );
+
+  let merged = [...kept];
+  for (const bonus of bonuses) {
+    if (merged.some((step) => stepSignature(step) === stepSignature(bonus))) continue;
+    // Pass 1: no início; passes altas: perto do fim (produção/transferência).
+    if (pass <= 2) merged = [bonus, ...merged];
+    else merged = [...merged, bonus];
+  }
+
+  // PED-047.7 — mastery 4 precisa de produção/transferência quando o conteúdo permitir.
+  if (pass === 4 && !planHasProductionOrTransfer(merged)) {
+    const transferFallback = masteryBonusStepsFor(lesson.id, 4).find((step) => isProductionOrTransferKind(step.kind));
+    if (transferFallback) {
+      merged.push(
+        applyScaffoldToStep(
+          {
+            ...transferFallback,
+            lessonStageId: "usage",
+            lessonStageQuestion: 1,
+            lessonStageQuestionCount: 1,
+            generated: true,
+          },
+          pass
+        )
+      );
+    }
+  }
+
+  // Recalcula índices de estágio.
+  const stageCounts = new Map<LessonStageId, number>();
+  const stageTotals = new Map<LessonStageId, number>();
+  for (const step of merged) {
+    const stageId = step.lessonStageId ?? "usage";
+    stageTotals.set(stageId, (stageTotals.get(stageId) ?? 0) + 1);
+  }
+  return merged.map((step) => {
+    const stageId = step.lessonStageId ?? "usage";
+    const index = stageCounts.get(stageId) ?? 0;
+    stageCounts.set(stageId, index + 1);
+    return {
+      ...step,
+      masteryPass: pass,
+      lessonStageQuestion: index + 1,
+      lessonStageQuestionCount: stageTotals.get(stageId) ?? 1,
+    };
+  });
+}
+
+export function resolveMasteryPassForContext(
+  lesson: Lesson,
+  context: LessonPracticePlanContext = {}
+): MasteryPass | null {
+  if (!(lesson.masteryLoop || isMasteryPilotLesson(lesson.id))) return null;
+  if (context.masteryPass) return context.masteryPass;
+  // Sem contexto de aluno (validators/auditoria silent): plano base da #167.
+  // O player sempre passa masteryLevel explicitamente.
+  if (context.masteryLevel == null && !context.recoveryPending) return null;
+  return nextMasteryPass(context.masteryLevel ?? 0, { recoveryPending: context.recoveryPending });
+}
+
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
-  return buildLessonPracticePlan(lesson, context);
+  // Pedagogia V3.4 — Review Mastery so entra com pass/level explicito (player).
+  // Validators silenciosos sem masteryLevel continuam no plano classico (imagens etc.).
+  const reviewLevelRequested =
+    (lesson.reviewMasteryMode || isReviewMasteryLesson(lesson.id)) &&
+    (context.masteryPass != null || context.masteryLevel != null);
+  if (reviewLevelRequested) {
+    const level = (context.masteryPass ??
+      Math.min(4, Math.max(1, (context.masteryLevel ?? 0) + 1))) as ReviewMasteryLevel;
+    const reviewSteps = reviewMasteryStepsFor(lesson.id, level);
+    if (reviewSteps.length > 0) {
+      return reviewSteps.map((step, index) => ({
+        ...step,
+        lessonStageId: "consolidation" as const,
+        lessonStageQuestion: index + 1,
+        lessonStageQuestionCount: reviewSteps.length,
+        masteryPass: level as MasteryPass,
+      }));
+    }
+  }
+
+  const base = buildLessonPracticePlan(lesson, context);
+  const pass = resolveMasteryPassForContext(lesson, context);
+  if (!pass) return base;
+  return applyMasteryPassToPlan(base, lesson, pass, context);
+}
+
+export function lessonMasteryPassMeta(pass: MasteryPass): { pass: MasteryPass; label: string } {
+  const labels = { 1: "Descoberta", 2: "Consolidação", 3: "Produção", 4: "Domínio" } as const;
+  return { pass, label: labels[pass] };
+}
+
+export function lessonReviewMasteryMeta(level: ReviewMasteryLevel): { level: ReviewMasteryLevel; label: string } {
+  return { level, label: REVIEW_MASTERY_LABELS[level] };
 }
 
 export interface JourneyModuleCoverageIssue {
@@ -6064,6 +6309,21 @@ const STEP_KIND_LABELS: Record<StepKind, string> = {
   free_production: "produzir sem apoio",
   transfer_task: "transferir a estrutura",
   conversation_repair: "reparar a conversa",
+  contextual_choice: "escolha situacional",
+  audio_to_action: "áudio → ação",
+  sentence_transform: "transformar frase",
+  substitution_drill: "substituição",
+  dialogue_completion: "completar diálogo",
+  reverse_recall: "produção sem alternativas",
+  map_direction: "mapa e direção",
+  place_label: "ler placa urbana",
+  address_build: "montar endereço",
+  city_context: "cidade em contexto",
+  sign_reading: "ler placa",
+  menu_reading: "ler cardápio",
+  price_task: "preço",
+  route_sequence: "sequência de rota",
+  schedule_reading: "ler horário",
 };
 
 function uniqueStepKinds(kinds: StepKind[]): StepKind[] {

@@ -171,8 +171,8 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    // Transferência só aparece depois da progressão de estrutura (por volta de l23+).
-    await seedLessonPlayerReady(page, "l23");
+    // Mastery Loop: transfer_task entra a partir de M3 — seed level 2 → próximo pass = 3.
+    await seedLessonPlayerReady(page, "l23", { masteryLevel: 2 });
     await page.addInitScript(() => {
       try {
         const raw = localStorage.getItem("longyu-v1");
@@ -193,7 +193,9 @@ test.describe("QA regression guard — transferência", () => {
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
-    const transferCopy = page.getByText(/Transferência|Você já conhece|Use este padrão/i);
+    // Não usar "Use este padrão" — free_production guiada também mostra esse texto
+    // e o loop parava antes do transfer_task (pass 3 coloca free_production cedo).
+    const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
     while (

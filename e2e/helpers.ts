@@ -5,7 +5,7 @@ import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
-const STORE_VERSION = 18;
+const STORE_VERSION = 19;
 
 type SeedState = Record<string, unknown>;
 
@@ -153,7 +153,11 @@ function buildCompletedToneTrainer() {
 }
 
 /** Fundação completa + pré-requisitos da jornada para abrir o player de `lessonId`. */
-export async function seedLessonPlayerReady(page: Page, lessonId: string) {
+export async function seedLessonPlayerReady(
+  page: Page,
+  lessonId: string,
+  options: { masteryLevel?: number } = {}
+) {
   await seedTelemetryDeclined(page);
   const foundation = [
     "p1-o-que-e-mandarim",
@@ -168,12 +172,22 @@ export async function seedLessonPlayerReady(page: Page, lessonId: string) {
     targetIndex > 0 ? ALL_LESSONS.slice(0, targetIndex).map((lesson) => lesson.id) : [];
   const completedLessons = [...foundation, ...journeyCompleted];
   const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, 3]));
+  const lessonMasteryById =
+    typeof options.masteryLevel === "number"
+      ? {
+          [lessonId]: {
+            level: options.masteryLevel,
+            updatedAt: Date.now(),
+          },
+        }
+      : {};
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
     completedLessons,
     lessonStarsById,
+    lessonMasteryById,
     toneTrainer: buildCompletedToneTrainer(),
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));

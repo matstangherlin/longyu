@@ -54,6 +54,21 @@ const KNOWN_KINDS: StepKind[] = [
   "free_production",
   "transfer_task",
   "conversation_repair",
+  "contextual_choice",
+  "audio_to_action",
+  "sentence_transform",
+  "substitution_drill",
+  "dialogue_completion",
+  "reverse_recall",
+  "map_direction",
+  "place_label",
+  "address_build",
+  "city_context",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+  "route_sequence",
+  "schedule_reading",
 ];
 
 const CJK_RE = /[㐀-鿿]/u;
@@ -358,12 +373,81 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     }
 
     case "dialogue_choice":
-      if (!step.dialoguePrompt?.trim() && !step.prompt?.trim()) {
-        errors.push("dialogue_choice sem fala/contexto");
+    case "contextual_choice":
+    case "dialogue_completion":
+    case "audio_to_action":
+    case "place_label":
+    case "city_context":
+    case "sign_reading":
+    case "menu_reading":
+    case "price_task":
+    case "schedule_reading":
+      if (!step.dialoguePrompt?.trim() && !step.prompt?.trim() && !step.situationPt?.trim() && !step.audioText?.trim() && !step.signHanzi?.trim() && !step.priceHanzi?.trim()) {
+        errors.push(`${step.kind} sem fala/contexto`);
       }
-      checkChoice(errors, "dialogue_choice", step.correctAnswer ?? step.answer, step.options);
+      if (step.kind === "sign_reading" && !step.signHanzi?.trim()) errors.push("sign_reading sem signHanzi");
+      if (step.kind === "menu_reading" && !(step.menuItems?.length)) errors.push("menu_reading sem menuItems");
+      if (step.kind === "price_task" && !step.priceHanzi?.trim()) errors.push("price_task sem priceHanzi");
+      if (step.kind === "schedule_reading" && !(step.scheduleRows?.length)) errors.push("schedule_reading sem scheduleRows");
+      checkChoice(errors, step.kind, step.correctAnswer ?? step.answer, step.options);
       checkPinyinLookAlike(errors, step, step.options ?? []);
       break;
+
+    case "map_direction": {
+      if (!step.mapFromLabel?.trim() || !step.mapToLabel?.trim()) {
+        errors.push("map_direction sem origem/destino");
+      }
+      if (!step.mapCorrectAction) errors.push("map_direction sem mapCorrectAction");
+      const actions = step.mapActionOptions ?? [];
+      if (actions.length < 2) errors.push("map_direction: menos de 2 ações");
+      if (step.mapCorrectAction && !actions.includes(step.mapCorrectAction)) {
+        errors.push(`map_direction: ação "${step.mapCorrectAction}" fora das opções`);
+      }
+      break;
+    }
+
+    case "address_build":
+    case "route_sequence": {
+      const parts = step.targetParts ?? step.routeParts ?? [];
+      if (parts.length === 0) errors.push(`${step.kind} sem targetParts`);
+      const bank = step.bank ?? [];
+      for (const piece of parts) {
+        if (!bank.some((candidate) => normalize(candidate) === normalize(piece))) {
+          errors.push(`${step.kind}: banco não contém a peça "${piece}"`);
+        }
+      }
+      break;
+    }
+
+    case "sentence_transform": {
+      if (!step.sourceText?.trim()) errors.push("sentence_transform sem sourceText");
+      const parts = step.targetParts ?? [];
+      if (parts.length === 0) errors.push("sentence_transform sem targetParts");
+      const bank = step.bank ?? [];
+      for (const piece of parts) {
+        if (!bank.some((candidate) => normalize(candidate) === normalize(piece))) {
+          errors.push(`sentence_transform: banco não contém a peça "${piece}"`);
+        }
+      }
+      break;
+    }
+
+    case "substitution_drill": {
+      if (!step.blankAnswer?.trim()) errors.push("substitution_drill sem blankAnswer");
+      if (!step.sentenceBefore?.trim() && !step.prompt?.trim()) {
+        errors.push("substitution_drill sem padrão/contexto");
+      }
+      if (step.options?.length) {
+        checkChoice(errors, "substitution_drill", step.blankAnswer, step.options);
+      }
+      break;
+    }
+
+    case "reverse_recall": {
+      if (!step.situationPt?.trim() && !step.body?.trim()) errors.push("reverse_recall sem situação");
+      if (!step.answer?.trim()) errors.push("reverse_recall sem resposta");
+      break;
+    }
 
     case "conversation_scene": {
       if (!step.sceneId?.trim()) errors.push("conversation_scene sem sceneId");

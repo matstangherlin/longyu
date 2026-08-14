@@ -182,6 +182,7 @@ export function JourneyPage() {
   const navigate = useNavigate();
   const completed = useStore((s) => s.completedLessons);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
+  const lessonMasteryById = useStore((s) => s.lessonMasteryById);
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
   const toneTrainer = useStore((s) => s.toneTrainer);
   const isPremium = useIsPro();
@@ -374,6 +375,7 @@ export function JourneyPage() {
                         checkpoint={checkpoint}
                         completed={completed}
                         lessonStarsById={lessonStarsById}
+                        lessonMasteryById={lessonMasteryById}
                         lessonTaskProgress={lessonTaskProgress}
                         toneTrainer={toneTrainer}
                         isPremium={isPremium}
@@ -707,6 +709,7 @@ function ModuleBlock({
   unit,
   completed,
   lessonStarsById,
+  lessonMasteryById,
   lessonTaskProgress,
   toneTrainer,
   isPremium,
@@ -729,6 +732,7 @@ function ModuleBlock({
   checkpoint?: ThemeCheckpoint;
   completed: string[];
   lessonStarsById: Record<string, number>;
+  lessonMasteryById: Record<string, { level?: number } | undefined>;
   lessonTaskProgress: Record<string, number>;
   toneTrainer: ToneTrainerProgress;
   isPremium: boolean;
@@ -918,6 +922,7 @@ function ModuleBlock({
           const stars = Math.max(0, Math.min(3, lessonStarsById[lesson.id] ?? (state === "done" ? 3 : 0)));
           const stageProgress = state === "done" ? taskCount : savedStageProgress;
           const attempted = state !== "done" && (stars > 0 || (taskCount > 0 && savedStageProgress >= taskCount));
+          const masteryLevel = Math.max(0, Math.min(4, lessonMasteryById?.[lesson.id]?.level ?? 0));
           return (
             <LessonNode
               key={lesson.id}
@@ -930,6 +935,7 @@ function ModuleBlock({
               isCurrent={lesson.id === currentId}
               attempted={attempted}
               stars={stars}
+              masteryLevel={lesson.masteryLoop ? masteryLevel : undefined}
               stageProgress={stageProgress}
               stageTotal={taskCount}
               offset={offsetForIndex(idx)}
@@ -1162,6 +1168,7 @@ function LessonNode({
   isCurrent,
   attempted,
   stars,
+  masteryLevel,
   stageProgress,
   stageTotal,
   offset,
@@ -1176,6 +1183,8 @@ function LessonNode({
   isCurrent: boolean;
   attempted: boolean;
   stars: number;
+  /** Pedagogia V3 — 0–4; ausente = lição fora do piloto de mastery. */
+  masteryLevel?: number;
   stageProgress: number;
   stageTotal: number;
   offset: number;
@@ -1250,6 +1259,33 @@ function LessonNode({
               height={10}
               className={star <= stars ? "text-accent" : "text-line"}
               fill={star <= stars ? "currentColor" : "none"}
+            />
+          ))}
+        </div>
+      )}
+      {typeof masteryLevel === "number" && (
+        <div
+          className="mt-0.5 flex h-2.5 items-center gap-1"
+          aria-label={`Domínio ${masteryLevel} de 4`}
+          title={
+            masteryLevel >= 4
+              ? "Dominada"
+              : masteryLevel >= 3
+                ? "Produção"
+                : masteryLevel >= 2
+                  ? "Consolidando"
+                  : masteryLevel >= 1
+                    ? "Começou"
+                    : "Ainda não praticou o domínio"
+          }
+        >
+          {[1, 2, 3, 4].map((level) => (
+            <span
+              key={level}
+              className={[
+                "inline-block h-1.5 w-1.5 rounded-full",
+                level <= masteryLevel ? "bg-accent" : "bg-line",
+              ].join(" ")}
             />
           ))}
         </div>
