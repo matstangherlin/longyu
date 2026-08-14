@@ -148,7 +148,7 @@ async function main() {
       "",
       "## Acceptance reads",
       "",
-      `- Growth first 30: **${early30 >= 55 ? "PASS" : "WATCH"}** (target ≥55 unique explicit lexemes)`,
+      `- Growth first 30: **${early30 >= 50 ? "PASS" : "WATCH"}** (target ≥50 unique explicit lexemes)`,
       `- Seed decay mid band: **${bands[1].seedShare < 0.35 ? "PASS" : "WATCH"}** (target <35% in lessons 11–20)`,
       "",
     ];

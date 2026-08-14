@@ -2695,7 +2695,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["明天见", "不客气", "早上好", "我很好"],
                 "明天见 = até amanhã — marca o próximo encontro."
               ),
-              conversationScene("encontro-amanha"),
               listen("晚上好", "wǎnshang hǎo", "Boa noite (ao chegar)"),
               listen("晚安", "wǎn'ān", "Boa noite (ao dormir)"),
               dialogue(
@@ -2747,7 +2746,6 @@ export const JOURNEY: JourneyPhase[] = [
                 "Conversa completa",
                 "Você e Mei vão usar o que você aprendeu — e abrir espaço para nome e novas despedidas."
               ),
-              conversationScene("revisao-cumprimento-completo"),
               dialogue(
                 "Sua vez",
                 "Alguém diz 你好！ Qual é a resposta natural?",
@@ -3789,6 +3787,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:zaijian",
               "chunk:mingtianjian",
               "chunk:renshinihengaoxing",
+              "chunk:duibuqi",
             ],
             reviewItems: ["chunk:nihao", "chunk:xiexie", "chunk:wature", "chunk:zaijian", "chunk:mingtianjian"],
             steps: [
@@ -3801,6 +3800,15 @@ export const JOURNEY: JourneyPhase[] = [
                 { hanzi: "明天见！", pinyin: "Míngtiān jiàn!", pt: "Até amanhã!" },
               ]),
               flash("zaijian"),
+              // LEX-007 — 对不起 fecha o par com 没关系 (já em l4)
+              listen("对不起", "duìbuqǐ", "Desculpa"),
+              dialogue(
+                "Peça desculpas",
+                "Você esbarra em alguém. Qual frase combina?",
+                "对不起",
+                ["对不起", "没关系", "再见", "我很好"],
+                "对不起 = desculpa; 没关系 (já visto) responde."
+              ),
               dialogue(
                 "Despedida no texto",
                 "No microtexto, a despedida marca o próximo encontro. Qual frase é essa?",
@@ -3850,27 +3858,36 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Microdiálogo: cumprimentar",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie"],
-            reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie"],
+            libraryItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao", "chunk:jintianhenhao"],
+            reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao"],
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
               read([
-                { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
+                { hanzi: "早上好！", pinyin: "Zǎoshang hǎo!", pt: "Bom dia!" },
                 { hanzi: "你好吗？", pinyin: "Nǐ hǎo ma?", pt: "Tudo bem?" },
                 { hanzi: "我很好。", pinyin: "Wǒ hěn hǎo.", pt: "Estou bem." },
+                { hanzi: "今天很好。", pinyin: "Jīntiān hěn hǎo.", pt: "Hoje está ótimo." },
                 { hanzi: "谢谢。", pinyin: "Xièxie.", pt: "Obrigado(a)." },
               ]),
               flash("nihaoma"),
               flash("wohenhao"),
+              listen("今天很好", "jīntiān hěn hǎo", "Hoje está ótimo"),
+              dialogue(
+                "Comente o dia",
+                "Além de 我很好, qual frase comenta que o dia está bom?",
+                "今天很好",
+                ["今天很好", "再见", "不客气", "请坐"],
+                "今天很好 = hoje está ótimo — nova combinação com 好."
+              ),
               comp("我很好。", "Wǒ hěn hǎo.", "Estou bem.", ["Estou bem.", "Tudo bem?", "Meu nome é Matheus.", "Não falo chinês."]),
               translationBuild(
                 "Seu primeiro diálogo",
-                "你好！ 你好吗？ 我很好。 谢谢。",
-                "Nǐ hǎo! Nǐ hǎo ma? Wǒ hěn hǎo. Xièxie.",
-                ["Olá.", "Tudo bem?", "Estou bem.", "Obrigado(a)."],
-                ["Estou bem.", "Olá.", "Até logo.", "Tudo bem?", "Obrigado(a)."],
-                "A ordem é saudação, pergunta, resposta e agradecimento."
+                "早上好！ 你好吗？ 我很好。 谢谢。",
+                "Zǎoshang hǎo! Nǐ hǎo ma? Wǒ hěn hǎo. Xièxie.",
+                ["Bom dia.", "Tudo bem?", "Estou bem.", "Obrigado(a)."],
+                ["Estou bem.", "Bom dia.", "Até logo.", "Tudo bem?", "Obrigado(a)."],
+                "A ordem é saudação, pergunta, resposta e agradecimento — agora com 早上好."
               ),
             ],
           },
@@ -3879,7 +3896,14 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Microdiálogo: se apresentar",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
+            libraryItems: [
+              "chunk:nijiaoshenme",
+              "chunk:wojiao",
+              "chunk:wature",
+              "chunk:qingzaishuoyibian",
+              "chunk:woyousangepengyou",
+              "chunk:nihuishuoyingyuma",
+            ],
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             rewardQi: 2,
             estimatedMinutes: 5,
@@ -3889,11 +3913,28 @@ export const JOURNEY: JourneyPhase[] = [
                 { hanzi: "你叫什么？", pinyin: "Nǐ jiào shénme?", pt: "Como você se chama?" },
                 { hanzi: "我叫Matheus。", pinyin: "Wǒ jiào Matheus.", pt: "Meu nome é Matheus." },
                 { hanzi: "我是巴西人。", pinyin: "Wǒ shì Bāxī rén.", pt: "Sou brasileiro." },
+                { hanzi: "我有三个朋友。", pinyin: "Wǒ yǒu sān ge péngyou.", pt: "Tenho três amigos." },
                 { hanzi: "请再说一遍。", pinyin: "Qǐng zài shuō yí biàn.", pt: "Por favor, fale de novo." },
               ]),
               flash("nijiaoshenme"),
               flash("wojiao"),
               flash("qingzaishuoyibian"),
+              listen("我有三个朋友", "wǒ yǒu sān ge péngyou", "Tenho três amigos"),
+              dialogue(
+                "Fale de amigos",
+                "Depois de dizer quem você é, qual frase fala de amigos?",
+                "我有三个朋友",
+                ["我有三个朋友", "再见", "不客气", "我很好"],
+                "我有三个朋友 continua a apresentação."
+              ),
+              listen("你会说英语吗？", "nǐ huì shuō Yīngyǔ ma?", "Você fala inglês?"),
+              dialogue(
+                "Pergunte o idioma",
+                "Você quer saber se a pessoa fala inglês. O que pergunta?",
+                "你会说英语吗？",
+                ["你会说英语吗？", "你好吗？", "谢谢", "再见"],
+                "你会说英语吗？ é sobrevivência útil depois de 我会说一点中文."
+              ),
               comp("你叫什么？", "Nǐ jiào shénme?", "Como você se chama?", ["Como você se chama?", "Sou brasileiro.", "Estou bem.", "Obrigado."]),
               sentenceBuild(
                 "Resposta natural",
@@ -4231,8 +4272,16 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l14-frase-minima",
             title: "Caracteres de frase",
             skill: "hanzi",
-            libraryItems: ["char:wo", "char:ni", "char:bu", "char:shi", "char:zhong", "char:ren"],
-            reviewItems: ["char:wo", "char:ni", "char:bu", "char:shi", "char:zhong", "char:ren"],
+            libraryItems: [
+              "char:wo",
+              "char:ni",
+              "char:bu",
+              "char:shi",
+              "char:zhong",
+              "char:ren",
+              "chunk:zheshishenme",
+            ],
+            reviewItems: ["char:wo", "char:ni", "char:bu", "char:shi", "char:zhong", "char:ren", "chunk:zheshishenme"],
             rewardQi: 2,
             estimatedMinutes: 5,
             steps: [
@@ -4250,6 +4299,15 @@ export const JOURNEY: JourneyPhase[] = [
                 "water",
                 visualImageOptions("water"),
                 { explanation: "水 (shuǐ) = água." }
+              ),
+              // LEX-010 — pergunta “o que é isto?” entra cedo com peças 是
+              listen("这是什么？", "zhè shì shénme?", "O que é isto?"),
+              dialogue(
+                "Pergunte o objeto",
+                "Você aponta para algo e quer saber o que é. Qual frase combina?",
+                "这是什么？",
+                ["这是什么？", "你好吗？", "谢谢", "再见"],
+                "这是什么？ reutiliza 是 numa pergunta nova."
               ),
               comp("我不会说中文", "wǒ bú huì shuō Zhōngwén", "Não falo chinês", ["Não falo chinês", "Sou brasileiro", "Tudo bem?", "Estou bem"]),
               match(

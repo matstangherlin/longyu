@@ -67,7 +67,11 @@ export const LEXICAL_LIFECYCLE: LexicalLifecycleEntry[] = [
   { ref: "chunk:wanshanghao", introduceAt: "p1-ate-logo", reinforceAt: ["p1-primeira-conversa"], productiveAt: "p1-ate-logo", packet: "greetings", role: "support" },
   { ref: "chunk:wanan", introduceAt: "p1-ate-logo", reinforceAt: ["l2-rev"], productiveAt: "p1-ate-logo", packet: "greetings", role: "productive" },
   { ref: "chunk:mingtianjian", introduceAt: "p1-ate-logo", reinforceAt: ["p1-primeira-conversa", "l8"], productiveAt: "p1-ate-logo", packet: "greetings", role: "productive" },
-  { ref: "chunk:meiguanxi", introduceAt: "l4", reinforceAt: ["l2-rev", "p2-tons-xiexie"], productiveAt: "l4", packet: "courtesy", role: "support" },
+  { ref: "chunk:meiguanxi", introduceAt: "l4", reinforceAt: ["l2-rev", "l13", "p2-tons-xiexie"], productiveAt: "l4", packet: "courtesy", role: "support" },
+  { ref: "chunk:duibuqi", introduceAt: "l13", reinforceAt: ["l13-dialogo-ola"], productiveAt: "l13", packet: "courtesy", role: "support" },
+  { ref: "chunk:jintianhenhao", introduceAt: "l13-dialogo-ola", reinforceAt: ["l13-dialogo-nome"], productiveAt: "l13-dialogo-ola", packet: "greetings", role: "support" },
+  { ref: "chunk:woyousangepengyou", introduceAt: "l13-dialogo-nome", reinforceAt: ["l5-rev"], productiveAt: "l13-dialogo-nome", packet: "introductions", role: "productive" },
+  { ref: "chunk:nihuishuoyingyuma", introduceAt: "l13-dialogo-nome", reinforceAt: ["l11-falo-pouco"], productiveAt: "l13-dialogo-nome", packet: "survival", role: "receptive" },
   { ref: "chunk:qingwen", introduceAt: "p1-qingwen-cortesia", reinforceAt: ["l2-rev"], productiveAt: "p1-qingwen-cortesia", packet: "courtesy", role: "core" },
   { ref: "chunk:qingzuo", introduceAt: "p1-qingwen-cortesia", reinforceAt: ["l9"], productiveAt: "p1-qingwen-cortesia", packet: "courtesy", role: "support" },
   { ref: "chunk:qingjin", introduceAt: "p1-qingwen-cortesia", reinforceAt: ["l9"], productiveAt: "p1-qingwen-cortesia", packet: "courtesy", role: "support" },
@@ -88,7 +92,7 @@ export const LEXICAL_LIFECYCLE: LexicalLifecycleEntry[] = [
   { ref: "chunk:dengyixia", introduceAt: "l11", reinforceAt: ["l12"], productiveAt: "l11", packet: "survival", role: "support" },
 
   // LEX-010 — questions
-  { ref: "chunk:zheshishenme", introduceAt: "l14", reinforceAt: ["l15"], productiveAt: "l15", packet: "basic_questions", role: "core" },
+  { ref: "chunk:zheshishenme", introduceAt: "l14-frase-minima", reinforceAt: ["l15", "l24"], productiveAt: "l24", packet: "basic_questions", role: "core" },
   { ref: "chunk:zaina", introduceAt: "p6-cidade-lugares", reinforceAt: ["p6-rotina-trabalho"], productiveAt: "p6-cidade-lugares", packet: "basic_questions", role: "core" },
   { ref: "chunk:shenmeshihou", introduceAt: "p6-horarios", reinforceAt: ["l29"], productiveAt: "p6-horarios", packet: "time", role: "support" },
   { ref: "chunk:zenmeyang", introduceAt: "l9-tudo-bem", reinforceAt: ["l13"], productiveAt: "l9-tudo-bem", packet: "basic_questions", role: "support" },
