@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 475b9cac1727ba6f72233d52ba079e8124fef30e |
+| Commit | 980b2c1941e36f559dd5401c12c238154fde2c05 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T04:47:04.800Z |
+| Gerado em | 2026-08-14T06:56:08.081Z |
 | Lições | 127 |
-| Hash da Jornada | ea3eef45167f |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 38 |
-| Média de falas | 7.87 |
+| Número de cenas | 46 |
+| Média de falas | 7.72 |
 | Média de intervenções | 2.76 |
-| Número de ramificações | 105 |
-| Número de finais | 41 |
-| Vocabulário total exibido (refs únicas no plano real) | 77 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 77 |
+| Número de ramificações | 127 |
+| Número de finais | 49 |
+| Vocabulário total exibido (refs únicas no plano real) | 119 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 119 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 12.79 |
+| Palavras novas (refs únicas) | 4 |
+| Média de reutilizações por ref exibida | 10.75 |
 
 ## Cenas mais curtas
 
@@ -41,6 +41,9 @@
 | encontro-amanha | 6 | 2 |
 | conversa-em-casa | 6 | 2 |
 | comentar-ceu | 6 | 2 |
+| que-horas-sao | 6 | 2 |
+| como-esta-o-tempo | 6 | 2 |
+| no-aeroporto | 6 | 2 |
 
 ## Cenas mais longas
 
@@ -52,32 +55,33 @@
 
 | Cena | Usos |
 |------|-----:|
-| revisao-cumprimento-completo | 11 |
-| encontro-amanha | 10 |
-| nao-falo-chinês | 10 |
-| conversa-em-casa | 10 |
-| cortesia-loja | 9 |
-| como-se-chama | 8 |
-| agradecendo | 7 |
-| pedir-agua | 7 |
-| perguntando-se-esta-bem | 6 |
-| sala-de-aula | 6 |
+| como-se-chama | 13 |
+| encontro-amanha | 12 |
+| sala-de-aula | 8 |
+| falar-de-estudo | 8 |
+| nao-falo-chinês | 7 |
+| fale-de-novo | 7 |
+| apontar-natureza | 7 |
+| me-apresentando | 6 |
+| pedir-agua | 6 |
+| cortesia-loja | 5 |
 
 ## Cenas por cenário
 
 | Cenário | Cenas |
 |---------|------:|
 | classroom | 6 |
-| home | 5 |
-| park | 6 |
-| school | 3 |
-| shop | 9 |
-| street | 9 |
+| home | 6 |
+| park | 7 |
+| school | 4 |
+| shop | 10 |
+| street | 13 |
 
 ## Cenas por intenção
 
 | Intenção | Cenas |
 |----------|------:|
+| airport | 1 |
 | ask-car-where | 1 |
 | ask-help | 1 |
 | ask-name | 1 |
@@ -86,6 +90,7 @@
 | ask-repeat | 1 |
 | ask-slow-repeat | 1 |
 | ask-tea | 1 |
+| ask-time | 1 |
 | ask-water | 1 |
 | ask-wellbeing | 1 |
 | ask-what-object | 1 |
@@ -98,7 +103,9 @@
 | greet | 1 |
 | greet-review | 1 |
 | hanzi-nature-review | 1 |
+| health | 1 |
 | home-chat | 1 |
+| hotel | 1 |
 | identify-person | 1 |
 | immersion-market | 1 |
 | immersion-station | 1 |
@@ -115,7 +122,11 @@
 | shop-chat | 1 |
 | show-book | 1 |
 | show-home | 1 |
+| study | 1 |
+| taxi | 1 |
 | thank | 1 |
+| weather | 1 |
+| work-routine | 1 |
 
 ## Itens não resolvidos
 
@@ -133,4 +144,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:c16d249b5133ff31 -->
+<!-- integridade:781141eb5cb7b64f -->

@@ -304,6 +304,18 @@ export const CHARACTERS: Character[] = [
   // --- Pessoas e papéis ---
   { id: "lao", hanzi: "老", pinyin: "lǎo", toneless: "lao", tone: 3, meaningPt: "velho; experiente", freqRank: 127, components: [], exampleWords: [{ hanzi: "老师", pinyin: "lǎoshī", pt: "professor(a)" }] },
   { id: "shi_teacher", hanzi: "师", pinyin: "shī", toneless: "shi", tone: 1, meaningPt: "mestre, professor", freqRank: 464, components: [], exampleWords: [{ hanzi: "老师", pinyin: "lǎoshī", pt: "professor(a)" }] },
+  { id: "mi_rice", hanzi: "米", pinyin: "mǐ", toneless: "mi", tone: 3, meaningPt: "arroz (grão)", freqRank: 735, components: [], exampleWords: [{ hanzi: "米饭", pinyin: "mǐfàn", pt: "arroz cozido" }] },
+  { id: "xi_practice", hanzi: "习", pinyin: "xí", toneless: "xi", tone: 2, meaningPt: "praticar; estudar", freqRank: 736, components: [], exampleWords: [{ hanzi: "学习", pinyin: "xuéxí", pt: "estudar" }] },
+  { id: "xiao_school", hanzi: "校", pinyin: "xiào", toneless: "xiao", tone: 4, meaningPt: "escola", freqRank: 737, components: [], exampleWords: [{ hanzi: "学校", pinyin: "xuéxiào", pt: "escola" }] },
+  { id: "ban_half", hanzi: "半", pinyin: "bàn", toneless: "ban", tone: 4, meaningPt: "meio; e meia", freqRank: 738, components: [], exampleWords: [{ hanzi: "八点半", pinyin: "bā diǎn bàn", pt: "oito e meia" }] },
+  { id: "tou_head", hanzi: "头", pinyin: "tóu", toneless: "tou", tone: 2, meaningPt: "cabeça", freqRank: 739, components: [], exampleWords: [{ hanzi: "头疼", pinyin: "tóu téng", pt: "dor de cabeça" }] },
+  { id: "fu_clothes", hanzi: "服", pinyin: "fú", toneless: "fu", tone: 2, meaningPt: "roupa; servir", freqRank: 740, components: [], exampleWords: [{ hanzi: "舒服", pinyin: "shūfu", pt: "confortável" }] },
+  { id: "teng_pain", hanzi: "疼", pinyin: "téng", toneless: "teng", tone: 2, meaningPt: "doer", freqRank: 741, components: [], exampleWords: [{ hanzi: "头疼", pinyin: "tóu téng", pt: "dor de cabeça" }] },
+  { id: "shu_comfort", hanzi: "舒", pinyin: "shū", toneless: "shu", tone: 1, meaningPt: "confortável", freqRank: 742, components: [], exampleWords: [{ hanzi: "舒服", pinyin: "shūfu", pt: "confortável" }] },
+  { id: "re_hot", hanzi: "热", pinyin: "rè", toneless: "re", tone: 4, meaningPt: "quente", freqRank: 743, components: [], exampleWords: [{ hanzi: "很热", pinyin: "hěn rè", pt: "muito quente" }] },
+  { id: "ding_reserve", hanzi: "订", pinyin: "dìng", toneless: "ding", tone: 4, meaningPt: "reservar; pedir", freqRank: 744, components: [], exampleWords: [{ hanzi: "预订", pinyin: "yùdìng", pt: "reserva" }] },
+  { id: "yu_beforehand", hanzi: "预", pinyin: "yù", toneless: "yu", tone: 4, meaningPt: "de antemão", freqRank: 745, components: [], exampleWords: [{ hanzi: "预订", pinyin: "yùdìng", pt: "reserva" }] },
+  { id: "jiu_wine", hanzi: "酒", pinyin: "jiǔ", toneless: "jiu", tone: 3, meaningPt: "bebida alcoólica; vinho", freqRank: 746, components: [], exampleWords: [{ hanzi: "酒店", pinyin: "jiǔdiàn", pt: "hotel" }] },
 ];
 
 export const charById = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));
