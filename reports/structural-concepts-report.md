@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
+| Commit | cafb5d668849f8180247b38bccac5dff0ce91337 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T08:12:22.744Z |
+| Gerado em | 2026-08-14T13:51:42.007Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -55,4 +55,4 @@
 - **l26b**: sujeito · verbo · objeto · partícula
 - **l11-rev**: sujeito · verbo · objeto · partícula
 
-<!-- integridade:c1d6bbc72ae762d3 -->
+<!-- integridade:0f33cbfccb8f5d23 -->

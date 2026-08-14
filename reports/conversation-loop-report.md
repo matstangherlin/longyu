@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 488fd6a9e60598f9410736ff3338fbc9a572580f |
+| Commit | cafb5d668849f8180247b38bccac5dff0ce91337 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T08:54:00.924Z |
+| Gerado em | 2026-08-14T13:46:25.973Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -214,4 +214,4 @@
 - l19-logica-luz:chunk:zheshishenme
 - …mais 159.
 
-<!-- integridade:2333a7dabc6381f5 -->
+<!-- integridade:b5af0b7bad9d4cbc -->

@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 508e6afc8f0bf6723646fbda3bae5e29003aea0b |
+| Commit | cafb5d668849f8180247b38bccac5dff0ce91337 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T13:34:31.905Z |
+| Gerado em | 2026-08-14T13:52:11.748Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -42,4 +42,4 @@ Impedir que atividades avançadas apareçam antes dos pré-requisitos pedagógic
 | Lições auditadas | 127 |
 | Achados | 0 |
 
-<!-- integridade:943acd3e88e6ed6e -->
+<!-- integridade:1f3f6a363470bcc3 -->
