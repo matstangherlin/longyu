@@ -4141,11 +4141,46 @@ function generatedCandidatesFor(
   return candidates;
 }
 
-function wouldMakeTriplet(sequence: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
+/** P1-006/007 — max 1 same kind consecutive; family window caps. */
+function wouldViolateVariety(sequence: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
+  const last = sequence[sequence.length - 1];
+  if (last && last.step.kind === candidate.step.kind) return true;
+
+  // Legacy triplet guard (same kind OR shared family ×3).
   const lastTwo = sequence.slice(-2);
-  if (lastTwo.length < 2) return false;
-  if (lastTwo.every((item) => item.step.kind === candidate.step.kind)) return true;
-  return candidate.families.some((family) => lastTwo.every((item) => item.families.includes(family)));
+  if (lastTwo.length === 2) {
+    if (lastTwo.every((item) => item.step.kind === candidate.step.kind)) return true;
+    if (candidate.families.some((family) => lastTwo.every((item) => item.families.includes(family)))) {
+      return true;
+    }
+  }
+
+  // Hanzi family: max 2 in a window of 5 graded steps.
+  if (candidate.families.includes("hanzi")) {
+    const window = sequence.slice(-4);
+    const hanziCount = window.filter((item) => item.families.includes("hanzi")).length;
+    if (hanziCount >= 2) return true;
+  }
+
+  // Tone: after a tone step, prefer another family before another tone.
+  const isTone =
+    candidate.step.kind === "tone" ||
+    candidate.step.kind === "tone_pair" ||
+    candidate.families.includes("pinyin");
+  if (isTone && (candidate.step.kind === "tone" || candidate.step.kind === "tone_pair")) {
+    const window = sequence.slice(-4);
+    const toneCount = window.filter(
+      (item) => item.step.kind === "tone" || item.step.kind === "tone_pair"
+    ).length;
+    if (toneCount >= 1) return true;
+  }
+
+  return false;
+}
+
+/** @deprecated use wouldViolateVariety — kept name for call-site clarity during hotfix. */
+function wouldMakeTriplet(sequence: readonly PracticeCandidate[], candidate: PracticeCandidate): boolean {
+  return wouldViolateVariety(sequence, candidate);
 }
 
 function countKind(candidates: readonly PracticeCandidate[], kind: StepKind): number {
@@ -5953,7 +5988,54 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
-  return withConversationLoop.map((step) => ({ ...step, practiceVariant }));
+  return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })));
+}
+
+/**
+ * PED-030 — pós-processamento de variedade do plano.
+ * Evita kinds consecutivos e saturação de famílias (hanzi/tone),
+ * sem reordenar agressivamente a ordem de estágios.
+ */
+export function balanceLessonPlan(
+  plan: LessonRoundStep[],
+  _options: { respectMasteryPass?: number } = {}
+): LessonRoundStep[] {
+  if (plan.length <= 2) return plan;
+  const items = plan.map((step, index) => ({
+    step,
+    index,
+    stageId: (step.lessonStageId ?? "usage") as LessonStageId,
+    families: exerciseFamiliesFor(step, step.lessonStageId),
+    score: plan.length - index,
+    generated: Boolean(step.generated),
+  }));
+  const remaining = [...items];
+  const result: typeof items = [];
+  while (remaining.length > 0) {
+    let pick = remaining.findIndex((candidate) => {
+      const asCandidate: PracticeCandidate = {
+        step: candidate.step,
+        stageId: candidate.stageId,
+        families: candidate.families,
+        score: candidate.score,
+        generated: candidate.generated,
+        sourceStepIndex: candidate.index,
+      };
+      const seq: PracticeCandidate[] = result.map((item) => ({
+        step: item.step,
+        stageId: item.stageId,
+        families: item.families,
+        score: item.score,
+        generated: item.generated,
+        sourceStepIndex: item.index,
+      }));
+      return !wouldViolateVariety(seq, asCandidate);
+    });
+    if (pick < 0) pick = 0;
+    const [chosen] = remaining.splice(pick, 1);
+    result.push(chosen);
+  }
+  return result.map((item) => item.step);
 }
 
 /**
@@ -6060,7 +6142,7 @@ export function applyMasteryPassToPlan(
     const stageId = step.lessonStageId ?? "usage";
     stageTotals.set(stageId, (stageTotals.get(stageId) ?? 0) + 1);
   }
-  return merged.map((step) => {
+  const withStages = merged.map((step) => {
     const stageId = step.lessonStageId ?? "usage";
     const index = stageCounts.get(stageId) ?? 0;
     stageCounts.set(stageId, index + 1);
@@ -6071,6 +6153,8 @@ export function applyMasteryPassToPlan(
       lessonStageQuestionCount: stageTotals.get(stageId) ?? 1,
     };
   });
+  // PED-030 — pós-processo de variedade sem quebrar o viés da pass.
+  return balanceLessonPlan(withStages, { respectMasteryPass: pass });
 }
 
 export function resolveMasteryPassForContext(
