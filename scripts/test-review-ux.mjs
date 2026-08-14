@@ -40,7 +40,11 @@ try {
   assert(!/ficaram para trás/i.test(copy.REVIEW_OFFER.title(2, true)), "oferta sem tom de atraso");
   assert(typeof copy.REVIEW_OFFER.supportLine === "function", "supportLine único");
   assert(/mais apoio/.test(copy.REVIEW_OFFER.supportLine(true)), "oferta promete mais apoio");
-  assert(copy.REVIEW_OFFER.ctaPrimary === "Começar revisão", "CTA primário da oferta");
+  // A prática extra é opcional: avançar é o CTA principal, praticar é a escolha
+  // secundária. Antes o botão cheio levava à revisão e o avanço ficava
+  // discreto, fazendo a repetição parecer obrigatória.
+  assert(copy.REVIEW_OFFER.ctaPrimary === "Continuar", "CTA primário avança");
+  assert(/praticar/i.test(copy.REVIEW_OFFER.ctaLater), "CTA secundário oferece prática");
   assert(copy.REVIEW_QUESTION.ctaContinue === "Continuar", "CTA Continuar");
   assert(copy.REVIEW_QUESTION.ctaResult === "Ver resultado", "CTA Ver resultado");
   assert(copy.REVIEW_QUESTION.ctaCheck === "Verificar", "CTA Verificar");

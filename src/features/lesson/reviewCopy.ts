@@ -48,8 +48,11 @@ export const REVIEW_OFFER = {
     canRecover
       ? "Só o que travou, com mais apoio do que na lição. Acerte e recupera a 3ª estrela."
       : "Só o que travou — curto, no mesmo contexto, com mais apoio.",
-  ctaPrimary: "Começar revisão",
-  ctaLater: "Continuar com 2 estrelas",
+  // A prática extra é OPCIONAL: concluir a lição já libera a próxima. Antes o
+  // botão cheio era "Começar revisão" e o avanço ficava no botão discreto, o
+  // que fazia a repetição parecer obrigatória.
+  ctaPrimary: "Continuar",
+  ctaLater: "Praticar o que travou",
 } as const;
 
 export const REVIEW_QUESTION = {

@@ -1047,10 +1047,12 @@ function ImmediateErrorReviewOffer({
         </p>
 
         <div className="mt-auto grid gap-2 pt-8">
-          <Button size="lg" className="w-full shadow-lift" onClick={onStart} data-review-start>
+          {/* Avançar é a ação principal — a lição já está concluída. A prática
+              do que travou continua a um toque, mas como escolha do aluno. */}
+          <Button size="lg" className="w-full shadow-lift" onClick={onLater}>
             {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>
-          <Button variant="outline" className="w-full" onClick={onLater}>
+          <Button variant="outline" className="w-full" onClick={onStart} data-review-start>
             {REVIEW_OFFER.ctaLater}
           </Button>
         </div>
