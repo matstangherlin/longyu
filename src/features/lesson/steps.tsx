@@ -4,7 +4,7 @@ import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { diagnoseError, isUnexplainedProduction } from "../../data/errorDiagnosis";
-import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS, TONE_NAMES } from "../../data/tones";
+import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS } from "../../data/tones";
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
@@ -296,6 +296,7 @@ function ToneAnswerFeedback({
   meaning?: string;
   onContinue: () => void;
 }) {
+  const [showTheory, setShowTheory] = useState(false);
   return (
     <div
       role="status"
@@ -312,34 +313,40 @@ function ToneAnswerFeedback({
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-        {correct ? "Certo! +Qi" : "Quase — compare os contornos."}
+        {correct ? `✓ ${answer}º tom` : `Era ${answer}º — você marcou ${picked}º`}
       </div>
 
-      <div className="mt-3 rounded-xl bg-surface/70 px-3 py-2">
-        <MandarinText
-          hanzi={hanzi}
-          pinyin={pinyin}
-          meaning={meaning}
-          size="md"
-          audio
-          autoPlay={false}
-        />
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {pinyin && <Pinyin text={pinyin} className="font-serif text-xl" />}
+        <span className="text-sm text-ink-soft">{TONE_LABELS[answer]}</span>
+        {meaning && <span className="text-sm text-ink-faint">· {meaning}</span>}
       </div>
 
-      <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-        <div className="rounded-xl bg-surface/70 px-3 py-2">
-          <span className="text-ink-faint">Você marcou: </span>
-          <span className="font-medium text-ink">{picked}º — {TONE_LABELS[picked]}</span>
+      {!showTheory ? (
+        <button
+          type="button"
+          className="mt-3 text-sm font-semibold text-accent underline-offset-2 hover:underline"
+          onClick={() => setShowTheory(true)}
+        >
+          Entender o tom
+        </button>
+      ) : (
+        <div className="mt-3 space-y-2 rounded-xl bg-surface/70 px-3 py-2 text-sm">
+          <MandarinText hanzi={hanzi} pinyin={pinyin} meaning={meaning} size="md" audio autoPlay={false} />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div>
+              <span className="text-ink-faint">Você marcou: </span>
+              <span className="font-medium text-ink">{picked}º — {TONE_LABELS[picked]}</span>
+            </div>
+            <div>
+              <span className="text-ink-faint">Era: </span>
+              <span className="font-medium text-ink">{answer}º — {TONE_LABELS[answer]}</span>
+            </div>
+          </div>
+          <p className="text-ink-soft">Pista auditiva: {TONE_LISTENING_TIPS[answer]}.</p>
+          <ToneCurve tone={answer} />
         </div>
-        <div className="rounded-xl bg-surface/70 px-3 py-2">
-          <span className="text-ink-faint">Era: </span>
-          <span className="font-medium text-ink">{answer}º — {TONE_LABELS[answer]}</span>
-        </div>
-      </div>
-
-      <p className="mt-3 text-sm text-ink-soft">
-        Pista auditiva: {TONE_LISTENING_TIPS[answer]}.
-      </p>
+      )}
       <ContinueBtn onClick={onContinue} />
     </div>
   );
@@ -497,14 +504,20 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   const answer = step.tone as ToneN;
   const meaning = glossFor(step.hanzi!)?.pt;
   const basePinyin = pinyinWithoutToneMark(step.pinyin);
-  const toneChoices = (step.toneChoices?.length
-    ? step.toneChoices
-    : ([1, 2, 3, 4] as ToneN[])
-  ).filter((t, index, all): t is ToneN => all.indexOf(t) === index) as ToneN[];
-  const contrastOnly = toneChoices.length <= 2;
-  // PED-005: no guiado, significado fica escondido ate errar / pedir dica.
-  const showMeaning = !guided || hintLevel >= 1 || picked != null;
-  const showCurves = !guided || contrastOnly || hintLevel >= 1 || (picked != null && picked !== answer);
+  // TONE-017 — guiado começa com contraste (2 tons); quiz/autoral usa o declarado.
+  const contrastPair: Record<ToneN, ToneN> = { 1: 4, 2: 4, 3: 1, 4: 1 };
+  const ensuredChoices = (
+    step.toneChoices?.length
+      ? step.toneChoices
+      : guided
+        ? ([answer, contrastPair[answer]] as ToneN[])
+        : ([1, 2, 3, 4] as ToneN[])
+  )
+    .filter((t, index, all): t is ToneN => all.indexOf(t) === index)
+    .sort((a, b) => a - b);
+  const contrastOnly = ensuredChoices.length <= 2;
+  // TONE-015 — antes da resposta: sem teoria, curvas ou tradução.
+  const showDetail = hintLevel >= 1 || (picked != null && picked !== answer);
 
   function pick(t: ToneN) {
     if (picked) return;
@@ -513,7 +526,6 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
     setPicked(t);
     if (t !== answer) {
       onMistake?.(`${t} tom`);
-      // Apos o primeiro erro: libera comparacao visual + ouvir de novo.
       setHintLevel((level) => Math.max(level, 1));
     }
   }
@@ -538,11 +550,11 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
-    optionCount: toneChoices.length,
+    optionCount: ensuredChoices.length,
     isAnswered: picked != null && (picked === answer || !onMistake),
     hasSelection: selectedTone != null,
     onSelectOption: (index) => {
-      const tone = toneChoices[index];
+      const tone = ensuredChoices[index];
       if (tone) selectTone(tone);
     },
     onSubmit: () => {
@@ -554,101 +566,34 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   });
 
   return (
-    <div className="text-center">
-      <Eyebrow>{guided ? (contrastOnly ? "Dois tons" : "Ouvido tonal") : "Qual é o tom?"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">
-        {contrastOnly ? "Ouça e escolha entre dois tons" : "Ouça e escolha o tom"}
-      </h2>
+    <div className="text-center" data-tone-simple="1">
+      <Eyebrow>{contrastOnly ? "Dois tons" : "Qual tom você ouviu?"}</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">Ouça</h2>
 
-      <div className="mx-auto my-3 grid max-w-md gap-3 sm:my-4 sm:max-w-xl sm:grid-cols-[112px_1fr] sm:items-start">
-        <div className="flex flex-col items-center gap-2">
+      <div className="mx-auto my-5 flex max-w-sm flex-col items-center gap-3">
+        <button
+          onClick={() => play(0.85)}
+          className="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-4 ring-accent-soft/40 transition hover:scale-105 active:scale-95"
+          aria-label="Ouvir"
+          data-tone-listen
+        >
+          <IconSound width={32} height={32} />
+          <span className="mt-1 text-xs font-semibold">{listenCount > 0 ? `${listenCount}×` : "Ouvir"}</span>
+        </button>
+        {(listenCount > 0 || picked != null) && (
           <button
-            onClick={() => play(0.85)}
-            className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-4 ring-accent-soft/40 transition hover:scale-105 active:scale-95 sm:h-16 sm:w-16"
-            aria-label="Ouvir"
+            type="button"
+            onClick={() => play(0.55)}
+            className="rounded-full border border-line bg-surface px-3 py-1 text-[11px] font-semibold text-ink-soft"
           >
-            <IconSound width={26} height={26} />
-            <span className="mt-1 text-[11px] font-semibold">
-              {listenCount > 0 ? `${listenCount}x` : "Ouvir"}
-            </span>
+            Ouvir devagar
           </button>
-          {(listenCount > 0 || picked != null) && (
-            <button
-              type="button"
-              onClick={() => play(0.55)}
-              className="rounded-full border border-line bg-surface px-3 py-1 text-[11px] font-semibold text-ink-soft"
-            >
-              Ouvir devagar
-            </button>
-          )}
-        </div>
-
-        <div className="rounded-2xl bg-surface-2/80 p-3 text-left">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                {guided ? "Foque no contorno" : "Dica · sem entregar"}
-              </div>
-              <div className="mt-1 flex items-center gap-2">
-                <span className="hanzi text-3xl text-ink">{step.hanzi}</span>
-                {basePinyin && (
-                  <span className="font-serif text-xl text-ink-soft">{basePinyin}</span>
-                )}
-              </div>
-              {showMeaning && meaning && <div className="mt-1 text-sm text-ink-soft">{meaning}</div>}
-            </div>
-            <div className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-faint">
-              {contrastOnly ? `${toneChoices.length} opções` : "pinyin sem tom"}
-            </div>
-          </div>
-
-          {showCurves && (
-            <div className={["mt-3 grid gap-2", toneChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
-              {toneChoices.map((t) => (
-                <div
-                  key={t}
-                  className={[
-                    "rounded-xl bg-surface px-2 py-2 text-center transition",
-                    hintLevel >= 2 && t === answer ? "ring-2 ring-accent/40" : "",
-                  ].join(" ")}
-                >
-                  <ToneCurve tone={t} size={13} />
-                  <div className="mt-0.5 text-[11px] font-medium text-ink-soft">{t}º tom</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {hintLevel >= 2 ? (
-            <div className="mt-3 rounded-xl bg-surface px-3 py-2">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                Resposta explicada
-              </div>
-              <div className="mt-1 flex flex-wrap items-center gap-2">
-                {step.pinyin && <Pinyin text={step.pinyin} className="font-serif text-xl" />}
-                <span className="text-sm font-medium text-ink">{TONE_NAMES[answer]}</span>
-              </div>
-              <div className="mt-1 text-sm text-ink-soft">Escute se o som {TONE_LISTENING_TIPS[answer]}.</div>
-            </div>
-          ) : (
-            <Button
-              variant="soft"
-              size="sm"
-              className="mt-3 w-full"
-              onClick={() => {
-                noteToneHintUse();
-                setHintLevel(2);
-              }}
-            >
-              {picked != null && picked !== answer ? "Comparar contornos" : "Mostrar dica"}
-            </Button>
-          )}
-        </div>
+        )}
       </div>
 
-      <KeyboardShortcutHint />
-      <div className={["grid gap-2 sm:gap-3", toneChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
-        {toneChoices.map((t, index) => {
+      <h3 className="mb-3 font-serif text-base font-semibold text-ink">Qual tom você ouviu?</h3>
+      <div className={["grid gap-2 sm:gap-3", ensuredChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
+        {ensuredChoices.map((t, index) => {
           const state =
             picked == null
               ? selectedTone === t
@@ -665,7 +610,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               onClick={() => pick(t)}
               disabled={picked != null}
               className={[
-                "relative flex flex-col items-center gap-1 rounded-xl border py-2.5 transition disabled:cursor-default sm:py-3",
+                "relative flex flex-col items-center gap-1 rounded-xl border py-4 transition disabled:cursor-default",
                 state === "idle" && "border-line bg-surface hover:bg-surface-2",
                 state === "selected" && "border-accent bg-accent-soft text-accent",
                 state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)]",
@@ -675,13 +620,39 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 .join(" ")}
               aria-label={`Opção ${index + 1}: ${t}º tom`}
             >
-              <ShortcutBadge className="shrink-0">{index + 1}</ShortcutBadge>
-              <ToneCurve tone={t} />
-              <span className="text-xs font-medium text-ink sm:text-sm">{t}º tom</span>
+              <span className="text-2xl font-semibold tabular-nums text-ink">{t}</span>
+              <span className="text-xs font-medium text-ink-soft">{t}º tom</span>
+              {showDetail && <ToneCurve tone={t} size={12} />}
             </button>
           );
         })}
       </div>
+
+      {showDetail && (
+        <div className="mx-auto mt-4 max-w-md rounded-2xl bg-surface-2/80 p-3 text-left text-sm text-ink-soft">
+          <div className="flex items-center gap-2">
+            <span className="hanzi text-2xl text-ink">{step.hanzi}</span>
+            {basePinyin && <span className="font-serif text-lg">{basePinyin}</span>}
+            {meaning && <span>· {meaning}</span>}
+          </div>
+          {hintLevel < 2 ? (
+            <Button
+              variant="soft"
+              size="sm"
+              className="mt-3 w-full"
+              onClick={() => {
+                noteToneHintUse();
+                setHintLevel(2);
+              }}
+            >
+              Comparar contornos
+            </Button>
+          ) : (
+            <p className="mt-2">Escute se o som {TONE_LISTENING_TIPS[answer]}.</p>
+          )}
+        </div>
+      )}
+
       {picked == null && <SkipStepButton onSkip={onSkip} />}
       {picked != null && (picked === answer || !onMistake) && (
         <div ref={feedbackRef}>
@@ -2792,8 +2763,11 @@ function StepHanziBuild(props: StepProps) {
   // Novo formato: carta visual de montagem (fragments/components/complete).
   const builder = getHanziBuilder(props.step.builderId);
   if (builder) {
+    // P0-003 — remonta ao trocar builder/tentativa para zerar selected/feedback/pool.
+    const remountKey = `${props.lessonId ?? "lesson"}:${props.step.builderId}:${builder.id}:${props.attemptSeed ?? 0}`;
     return (
       <HanziBuilderExercise
+        key={remountKey}
         builder={builder}
         externalRetry={Boolean(props.onMistake)}
         onWrong={props.onMistake}

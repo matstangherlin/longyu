@@ -193,6 +193,19 @@ const G_ZI: HanziGlyphPiece = { id: "g-zi", glyph: "子", label: "criança", rol
 const G_REN_SIDE: HanziGlyphPiece = { id: "g-ren-side", glyph: "亻", label: "pessoa lateral", rolePt: "vem de 人" };
 const G_ER: HanziGlyphPiece = { id: "g-er", glyph: "尔", label: "componente de forma", rolePt: "parte de 你" };
 const G_KOU: HanziGlyphPiece = { id: "g-kou", glyph: "口", label: "boca", rolePt: "aparece em hànzì de fala" };
+/** Peças de caractere inteiro — sentence fill escolhe o hànzì, não monta componentes. */
+const G_HAO_FULL: HanziGlyphPiece = { id: "g-hao-full", glyph: "好", label: "bom/bem", rolePt: "fecha 你好" };
+const G_MA_FULL: HanziGlyphPiece = { id: "g-ma-full", glyph: "吗", label: "partícula", rolePt: "pergunta" };
+const G_HEN_FULL: HanziGlyphPiece = { id: "g-hen-full", glyph: "很", label: "muito", rolePt: "intensificador" };
+const G_MEN_FULL: HanziGlyphPiece = { id: "g-men-full", glyph: "们", label: "plural", rolePt: "pessoas" };
+const G_NI_FULL: HanziGlyphPiece = { id: "g-ni-full", glyph: "你", label: "você", rolePt: "abre 你好" };
+const G_WO_FULL: HanziGlyphPiece = { id: "g-wo-full", glyph: "我", label: "eu", rolePt: "pronome" };
+const G_TA_FULL: HanziGlyphPiece = { id: "g-ta-full", glyph: "他", label: "ele", rolePt: "pronome" };
+const G_XIE_FULL: HanziGlyphPiece = { id: "g-xie-full", glyph: "谢", label: "agradecer", rolePt: "parte de 谢谢" };
+const G_MING_FULL: HanziGlyphPiece = { id: "g-ming-full", glyph: "明", label: "claro", rolePt: "abre 明天" };
+const G_JIN_FULL: HanziGlyphPiece = { id: "g-jin-full", glyph: "今", label: "hoje", rolePt: "parte de 今天" };
+const G_ZUO_FULL: HanziGlyphPiece = { id: "g-zuo-full", glyph: "昨", label: "ontem", rolePt: "parte de 昨天" };
+const G_HOU_FULL: HanziGlyphPiece = { id: "g-hou-full", glyph: "后", label: "depois", rolePt: "parte de 后天" };
 
 // ---------------------------------------------------------------------------
 // Exercícios.
@@ -810,20 +823,21 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     meaningPt: "bom / bem",
     level: 5,
     mode: "components",
-    promptPt: "Complete a saudação: 你__.",
+    // P0-004 opção A: complete a frase escolhendo o hànzì inteiro (não componentes 女/子).
+    promptPt: "Complete a saudação: 你__. Qual hànzì fecha a frase?",
     hidePinyinUntilCorrect: true,
-    prerequisites: ["女", "子"],
+    prerequisites: [],
     context: {
       before: "你",
       after: "",
       sentencePinyin: "nǐ hǎo",
       sentencePt: "Olá.",
     },
-    components: [G_NV, G_ZI],
-    componentDistractors: [G_MU, G_KOU],
-    explanationPt: "好 fecha 你好. Mesmo dentro da frase, a forma visual continua sendo 女 + 子.",
-    relatedPt: "你好 é uma das primeiras frases úteis do mandarim.",
-    errorHintPt: "Procure a composição de 好: 女 + 子.",
+    components: [G_HAO_FULL],
+    componentDistractors: [G_MA_FULL, G_HEN_FULL, G_MEN_FULL],
+    explanationPt: "你好 = você + bom/bem. Aqui você escolhe o caractere 好, não monta 女 + 子.",
+    relatedPt: "Para montar 好 pelas peças 女 + 子, use o exercício de composição.",
+    errorHintPt: "A saudação 你好 fecha com 好.",
   },
   {
     id: "hb-ni-sentence",
@@ -832,20 +846,20 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     meaningPt: "você",
     level: 5,
     mode: "components",
-    promptPt: "Complete a frase: __好.",
+    promptPt: "Complete a frase: __好. Qual hànzì abre a saudação?",
     hidePinyinUntilCorrect: true,
-    prerequisites: ["人"],
+    prerequisites: [],
     context: {
       before: "",
       after: "好",
       sentencePinyin: "nǐ hǎo",
       sentencePt: "Olá.",
     },
-    components: [G_REN_SIDE, G_ER],
-    componentDistractors: [G_ZI, G_MU],
-    explanationPt: "你 é a pessoa da frase 你好. A lateral 亻 lembra que falamos de alguém.",
-    relatedPt: "你 aparece em 你好吗？ e 你叫什么？.",
-    errorHintPt: "Monte 你 com 亻 + 尔.",
+    components: [G_NI_FULL],
+    componentDistractors: [G_WO_FULL, G_TA_FULL, G_XIE_FULL],
+    explanationPt: "你好 começa com 你. Aqui você escolhe o caractere inteiro.",
+    relatedPt: "Para montar 你 pelas peças 亻 + 尔, use o exercício de composição.",
+    errorHintPt: "A saudação começa com 你.",
   },
   {
     id: "hb-zhongwen-sentence",
@@ -875,20 +889,20 @@ export const HANZI_BUILDERS: HanziBuilder[] = [
     meaningPt: "claro / brilhante",
     level: 5,
     mode: "components",
-    promptPt: "Monte o hànzì que completa: __天.",
+    promptPt: "Complete a palavra: __天. Qual hànzì abre 'amanhã'?",
     hidePinyinUntilCorrect: true,
-    prerequisites: ["日", "月"],
+    prerequisites: [],
     context: {
       before: "",
       after: "天",
       sentencePinyin: "míngtiān",
       sentencePt: "amanhã",
     },
-    components: [G_RI, G_YUE],
-    componentDistractors: [G_MU, G_KOU],
-    explanationPt: "明 combina 日 + 月. Em 明天, ele ganha uso real: amanhã.",
-    relatedPt: "A mesma forma também carrega a ideia de claro/brilhante.",
-    errorHintPt: "Sol 日 antes de lua 月.",
+    components: [G_MING_FULL],
+    componentDistractors: [G_JIN_FULL, G_ZUO_FULL, G_HOU_FULL],
+    explanationPt: "明天 = amanhã. Aqui você escolhe o caractere 明, não monta 日 + 月.",
+    relatedPt: "Para montar 明 com 日 + 月, use o exercício de composição.",
+    errorHintPt: "明天 começa com 明.",
   },
 ];
 
@@ -1021,4 +1035,89 @@ export function selectHanziBuilderForStudent(
   if (correct < 2) return first(complete, fragmentsGuide, builders);
   if (!mastered) return first(challenge, components, complete, builders);
   return first(sentence, challenge, components, complete, builders);
+}
+
+/** Peças obrigatórias do builder (ids). Distratores nunca entram aqui. */
+export function requiredPieceIds(builder: HanziBuilder): string[] {
+  if (builder.mode === "components") {
+    return (builder.components ?? []).map((piece) => piece.id);
+  }
+  const fixed = new Set(builder.fixedStrokeIds ?? []);
+  return (builder.strokes ?? []).filter((stroke) => !fixed.has(stroke.id)).map((stroke) => stroke.id);
+}
+
+/** Banco renderizado: required ∪ distractors (ids). */
+export function renderedPieceBankIds(builder: HanziBuilder, withDistractors = true): string[] {
+  if (builder.mode === "components") {
+    const required = builder.components ?? [];
+    const distractors = withDistractors ? builder.componentDistractors ?? [] : [];
+    return [...required, ...distractors].map((piece) => piece.id);
+  }
+  const fixed = new Set(builder.fixedStrokeIds ?? []);
+  const strokes = (builder.strokes ?? []).filter((stroke) => !fixed.has(stroke.id));
+  const distractors = withDistractors ? builder.strokeDistractors ?? [] : [];
+  return [...strokes, ...distractors].map((stroke) => stroke.id);
+}
+
+/**
+ * P0-002 — requiredPieces ⊆ renderedPieceBank.
+ * Também garante que nenhum distractor usa o mesmo id de uma peça correta
+ * (não pode "substituir" a resposta).
+ */
+export function validateHanziBuilderIntegrity(builder: HanziBuilder): string[] {
+  const errors: string[] = [];
+  const required = requiredPieceIds(builder);
+  const bank = renderedPieceBankIds(builder, true);
+  const bankSet = new Set(bank);
+
+  if (required.length === 0) {
+    errors.push(`${builder.id}: sem peças obrigatórias`);
+  }
+  for (const id of required) {
+    if (!bankSet.has(id)) errors.push(`${builder.id}: peça obrigatória ausente no banco (${id})`);
+  }
+
+  if (builder.mode === "components") {
+    const requiredGlyphs = (builder.components ?? []).map((piece) => piece.glyph);
+    const distractorIds = new Set((builder.componentDistractors ?? []).map((piece) => piece.id));
+    for (const piece of builder.components ?? []) {
+      if (distractorIds.has(piece.id)) {
+        errors.push(`${builder.id}: distractor reutiliza id da peça correta (${piece.id})`);
+      }
+    }
+    // Sentence-select (1 caractere inteiro): o glifo escolhido deve ser o character.
+    if (builder.context && requiredGlyphs.length === 1 && requiredGlyphs[0] !== builder.character) {
+      errors.push(
+        `${builder.id}: sentence-select deve oferecer o caractere ${builder.character}, encontrou ${requiredGlyphs[0]}`
+      );
+    }
+    // Component composition (sem context, 2+ peças): prompt/alvo alinhados ao character.
+    if (!builder.context && requiredGlyphs.length >= 2) {
+      const joined = requiredGlyphs.join("");
+      // 好 = 女+子 visualmente; não exige join Unicode igual — só que character esteja declarado.
+      if (!builder.character?.trim()) {
+        errors.push(`${builder.id}: character vazio`);
+      }
+      if (joined === builder.character) {
+        /* ok: 明 = 日+月 etc. */
+      }
+    }
+    // Sentence fill ambíguo: não misturar "complete frase" com componentes parciais.
+    if (builder.context && requiredGlyphs.length >= 2) {
+      errors.push(
+        `${builder.id}: sentence fill não pode exigir montagem de componentes (${requiredGlyphs.join("+")}); use caractere inteiro`
+      );
+    }
+  }
+
+  if (!builder.promptPt?.trim()) errors.push(`${builder.id}: promptPt vazio`);
+  if (builder.promptPt && builder.character && !builder.context) {
+    // Soft: prompt deveria mencionar o alvo (bom/好/árvore etc.) — skipped if too brittle.
+  }
+
+  return errors;
+}
+
+export function validateAllHanziBuildersIntegrity(): string[] {
+  return HANZI_BUILDERS.flatMap((builder) => validateHanziBuilderIntegrity(builder));
 }

@@ -21,10 +21,19 @@ const MODE_LABEL: Record<HanziBuilder["mode"], string> = {
   components: "Monte pelas peças",
 };
 
+function modeLabelFor(builder: HanziBuilder): string {
+  // Sentence-select: uma peça = o hànzì inteiro.
+  if (builder.mode === "components" && builder.context && (builder.components?.length ?? 0) === 1) {
+    return "Escolha o hànzì";
+  }
+  return MODE_LABEL[builder.mode];
+}
+
 // "Componentes" soa técnico e sugere tradução literal. Para iniciante a bandeja
 // chama "Peças"; em níveis avançados, "Peças da forma" (pista estrutural).
 function trayLabel(builder: HanziBuilder): string {
   if (builder.mode !== "components") return "Fragmentos";
+  if (builder.context && (builder.components?.length ?? 0) === 1) return "Opções";
   return builder.level >= 4 ? "Peças da forma" : "Peças";
 }
 
@@ -82,9 +91,11 @@ export function HanziBuilderExercise({
   const mastered = isCharMastered(charProgress);
 
   // Embaralhado uma vez por exercício (estável entre re-renders).
+  // Depende de builder.id (não da identidade do objeto) para não vazar pool.
   const pool = useMemo(
     () => shuffle(resolvePool(builder, { withDistractors: !isNewChar })),
-    [builder, isNewChar]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- builder.id é a chave estável do catálogo
+    [builder.id, isNewChar]
   );
   const pieceById = useMemo(() => new Map(pool.map((piece) => [piece.id, piece])), [pool]);
 
@@ -92,7 +103,7 @@ export function HanziBuilderExercise({
   const [status, setStatus] = useState<BuildStatus>("idle");
   const [hadMistake, setHadMistake] = useState(false);
 
-  // Reinicia quando troca de exercício (sessões de treino/revisão).
+  // P0-003 — reinicia estado ao trocar builder (treino/revisão/lição).
   useEffect(() => {
     setSelected([]);
     setStatus("idle");
@@ -209,7 +220,7 @@ export function HanziBuilderExercise({
   return (
     <div className="pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-        {MODE_LABEL[builder.mode]}
+        {modeLabelFor(builder)}
       </div>
       <h2 className="mt-1 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">{builder.promptPt}</h2>
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
