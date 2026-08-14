@@ -416,9 +416,11 @@ export function applyConversationVocabularySrsPlan(
     if (graded.has(key)) continue;
     graded.add(key);
 
-    for (const domain of reviewDomainsForItem(action.type)) {
-      tools.ensureSrs(action.type, action.itemId, track, domain);
-    }
+    // REVIEW-024 — só o domínio efetivamente praticado entra na fila. Criar os
+    // 7 domínios aqui repetia a inflação já corrigida em gradeReviewDomain:
+    // uma conversa gerava sete itens devidos por palavra, seis deles sem
+    // nenhum evento pedagógico de aquisição.
+    tools.ensureSrs(action.type, action.itemId, track, action.domain);
     tools.gradeSrs(action.type, action.itemId, action.grade, track, action.domain);
     applied += 1;
     if (action.priority === "high") high += 1;

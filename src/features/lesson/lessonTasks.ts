@@ -3138,7 +3138,7 @@ interface ConversationSceneSelection {
 // ordem da jornada. Uma cena pode usar QUALQUER vocabulário já ensinado — não
 // apenas o foco da lição atual — desde que toque o foco em pelo menos 1 ref.
 let curriculumRefsCache: Map<string, ReadonlySet<string>> | null = null;
-function curriculumRefsThroughLesson(lessonId: string): ReadonlySet<string> {
+export function curriculumRefsThroughLesson(lessonId: string): ReadonlySet<string> {
   if (!curriculumRefsCache) {
     curriculumRefsCache = new Map();
     const cumulative = new Set<string>();
