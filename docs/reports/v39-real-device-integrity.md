@@ -95,23 +95,40 @@ usava não existia e nunca casava.
 `ensureStructureExposureIndex` montava o plano de prática das **127 lições** da
 jornada para abrir **uma**:
 
-| | antes | depois |
-| --- | ---: | ---: |
-| abrir a lição 1 | 12.276 ms | **96 ms** |
-| abrir a lição 5 | — | 211 ms |
-| abrir a lição 15 | — | 836 ms |
+| | main | incremental | pré-computado |
+| --- | ---: | ---: | ---: |
+| abrir a lição 1 | 12.276 ms | 91 ms | **81 ms** |
+| abrir a lição 15 | — | 779 ms | **137 ms** |
+| abrir a lição 50 | — | 1.710 ms | **105 ms** |
+| abrir a lição 127 | — | 6.403 ms | **149 ms** |
 
 CPU de servidor; no aparelho o custo é bem maior. Confirmado o que o relato já
 apontava: `startTransition` não tinha como ajudar, porque muda prioridade de
 renderização e não tira trabalho síncrono da main thread.
 
-Abrir a lição N só depende do histórico até N — o índice passou a ser construído
-incrementalmente, guardando o progresso. **Equivalência verificada:** 508 planos
-(127 lições × 4 níveis) comparados antes e depois, nenhuma diferença.
+**PERF-012 (fechado).** O índice depende só de dados estáticos da jornada, então
+é resolvido no build (`npm run build:structure-index`) — 880 entradas de frame,
+39 KB, degraus em máscara de bits. Nenhuma lição passa de ~161 ms. A construção
+incremental fica como fallback para lição fora do artefato.
 
-PERF-010: `plannerTiming` mede as fases do planner. O módulo evita `import.meta`
-de propósito — `lessonTasks` é compilado para CJS pelos validators e a mistura
-quebra o gate.
+Guarda contra divergência silenciosa: `validate:structure-index` reconstrói o
+índice do zero e compara entrada a entrada. O artefato decide gates de
+transferência e produção livre — se divergir, o runtime aplicaria pré-requisitos
+errados sem que nenhum outro validador percebesse, porque todos leriam o mesmo
+artefato torto. A primeira versão do validador estava furada exatamente assim
+(lia de volta o próprio artefato); corrigida e verificada invertendo um bit.
+
+**PERF-011 (fechado).** O shell com passos autorais é entregue num quadro e o
+plano adaptativo roda no seguinte, fora do caminho do primeiro paint.
+
+**PERF-010 (fechado).** Overlay DEV no player mostra marcos, fases do planner e
+maior long task — no próprio aparelho, que é onde o problema aparece. Ancorado
+no topo de propósito: a base é onde vive a barra de ação que ele serve para
+investigar. Verificado em Chromium: rota montada 0 → plano pronto 97 ms →
+interativo 130 ms, maior long task 82 ms.
+
+**Equivalência verificada** em cada etapa: 508 planos (127 lições × 4 níveis)
+idênticos aos da `main` original.
 
 ---
 
@@ -157,6 +174,18 @@ fila de revisão.
 
 ---
 
+## QA-027 — pacote de regressão dos screenshots
+
+Cada uma das três capturas virou um teste que checa o invariante violado, não a
+aparência — snapshot de pixel quebraria a cada ajuste de copy.
+
+O caso da Jornada nasceu passando em branco (sessão fresca não tem revisão
+vencida, e o teste aprovava sem CTA nenhum). Corrigido: injeta uma fila de 260
+itens, como a conta real, e verifica o resultado — "Revisão de hoje · 10" com
+"+250 pendentes" como informação secundária.
+
+---
+
 ## IMG-018/019/020 — não confirmado
 
 `npm run report:visual-assets-runtime` classifica cada asset por
@@ -186,11 +215,13 @@ Honestidade sobre o critério de aceite:
   substitui isso, e a régua "nenhum teste verde substitui evidência de aparelho
   real" continua valendo. As reproduções de MOBILE-006 são em emulação Chromium.
 - **PERF em aparelho** — a melhora está medida em CPU de servidor. Falta
-  confirmar no Android que o congelamento sumiu de fato. Lições mais avançadas
-  (a partir da ~40) ainda pagam um índice maior; se o travamento persistir lá,
-  o próximo passo é precomputar no build ou mover para Worker (PERF-014).
+  confirmar no Android que o congelamento sumiu de fato. O overlay DEV existe
+  para isso. PERF-014 (Worker) segue **não implementado** de propósito: a
+  própria remessa pede para não usar Worker se caching resolver, e o
+  pré-computo derrubou o custo para ~150 ms.
 - **IMG** — depende de evidência do aparelho, como acima.
-- **REVIEW-025 (deduplicar equivalentes)** — não implementado. Com a fila em 43
-  itens deixou de ser urgente; vale reavaliar depois.
+- **REVIEW-025 (deduplicar equivalentes)** — verificado e descartado: não há
+  memórias-alvo equivalentes contadas em separado (zero chunks de um glifo
+  duplicando um caractere, zero hànzì repetido entre chunks). Nada a deduplicar.
 - **P0-005 / peças** — coberto pelo validador, mas `hanzi_build` é exceção
   legítima (monta o caractere a partir dos componentes: 日+月 = 明).
