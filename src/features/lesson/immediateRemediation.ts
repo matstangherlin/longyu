@@ -93,7 +93,16 @@ export function isNonOptionAnswer(value: string | undefined): boolean {
     /^pulou\b/i.test(text) ||
     /^resposta incorreta$/i.test(text) ||
     /respondeu incorretamente/i.test(text) ||
-    /^skip\b/i.test(text)
+    /^skip\b/i.test(text) ||
+    // Textos de fallback da UI: quando um passo não tem alvo legível, o player
+    // grava uma dessas frases como "resposta correta". Elas descrevem o que
+    // fazer, não o conteúdo — e chegaram a aparecer como ALTERNATIVA no card.
+    /^revise a resposta correta$/i.test(text) ||
+    /^revise os pares corretos$/i.test(text) ||
+    /^reveja a associação correta$/i.test(text) ||
+    /^reveja este ponto/i.test(text) ||
+    /^exercício$/i.test(text) ||
+    /^atividade$/i.test(text)
   );
 }
 
@@ -567,6 +576,22 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
     // recognize / decompose: revisar o mesmo caractere pelo significado.
     const answer = safeAnswer || "—";
     const hanzi = singleTargetHanzi(error);
+    // "Qual é o significado deste hànzì?" sem hànzì na tela é uma pergunta
+    // impossível — foi o que o QA capturou. Sem alvo visível, cai para o
+    // formato de significado, que se sustenta sozinho.
+    if (!hanzi) {
+      return {
+        ...base,
+        kind: "choice",
+        prompt: "Qual é o significado correto?",
+        display: cleanDisplay(error.prompt) ?? answer,
+        displayPinyin: undefined,
+        answer,
+        answerDisplay: answer,
+        answerPinyin: undefined,
+        options: buildChoiceOptions(answer, [error.selectedAnswer, ...meaningDistractors(answer)], error.id),
+      };
+    }
     const relatedMeanings = charsInText(hanzi).map((char) => char.meaningPt);
     const chunkMeaning = findChunkByText(hanzi)?.meaningPt;
     return {

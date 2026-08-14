@@ -303,6 +303,21 @@ function correctionForStep(step: LessonStep): LessonMistake {
       detail: step.explanation,
     };
   }
+  if (step.kind === "image_choice") {
+    // O alvo de um passo de imagem é um ID de conceito ("mouth"), não texto do
+    // aluno. Sem resolver, esse identificador interno vazava para a tela como
+    // se fosse um significado — e virava até alternativa numa UI em português.
+    const correctConcept = resolveVisualConcept(
+      step.correctImageId ?? step.targetHanzi ?? step.correctAnswer
+    );
+    return {
+      prompt: step.promptPt ?? step.prompt ?? step.title ?? "Associação visual",
+      correction: correctConcept
+        ? `${correctConcept.hanzi} — ${correctConcept.meaningPt}`
+        : step.targetHanzi ?? step.targetMeaningPt ?? "Reveja a associação correta",
+      detail: step.explanation,
+    };
+  }
   if (
     step.kind === "listen_select" ||
     step.kind === "sentence_build" ||
@@ -311,7 +326,6 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "dialogue_choice" ||
     step.kind === "conversation_scene" ||
     step.kind === "hanzi_build" ||
-    step.kind === "image_choice" ||
     step.kind === "contextual_choice" ||
     step.kind === "audio_to_action" ||
     step.kind === "dialogue_completion" ||
