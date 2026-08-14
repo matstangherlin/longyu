@@ -12,7 +12,7 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 - Lesson 20: cumulative **48** unique explicit lexemes
 - Lesson 30: cumulative **54** unique explicit lexemes
 - Lesson 40: cumulative **71** unique explicit lexemes
-- Lesson 50: cumulative **89** unique explicit lexemes
+- Lesson 50: cumulative **91** unique explicit lexemes
 
 ## Per-lesson (first 30)
 
