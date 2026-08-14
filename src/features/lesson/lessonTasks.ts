@@ -3688,8 +3688,11 @@ function supplementalStepsForStage(
     // consumir o orçamento — mas não nas lições-conceito de fundação.
     const priorGlyphs = curriculumGlyphsBeforeLesson(options.lessonId);
     const productionReady = (item: FocusItem) => allCjkGlyphsKnown(item.hanzi, priorGlyphs);
-    if (allowDictation && focus[0] && productionReady(focus[0])) {
-      push(makeDictationStep(focus[0], focus, phaseOrder));
+    if (allowDictation) {
+      const dictationSource = [...focus, ...practiceFocus].find(
+        (item) => productionReady(item) && Boolean(item.pinyin)
+      );
+      if (dictationSource) push(makeDictationStep(dictationSource, focus, phaseOrder));
     }
     const labPool = [...focus, ...practiceFocus];
     const labItem =
