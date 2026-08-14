@@ -12,6 +12,12 @@
   --app-safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-header-height: calc(3.5rem + var(--app-safe-top));
   --app-bottom-nav-height: calc(4.5rem + var(--app-safe-bottom));
+  /* V3.9 · MOBILE-006 — deslocamento das barras de ação fixas dentro de uma
+     atividade. Onde existe a TabBar, a barra sobe acima dela; dentro do
+     player (que não tem TabBar) o valor é sobrescrito para só a safe-area.
+     Sem esse escopo a barra do HanziBuilder flutuava ~80px acima do fim do
+     scroller e cobria as peças. */
+  --activity-actions-offset: calc(var(--app-bottom-nav-height) + 0.5rem);
   --bg: 247 246 243; /* #F7F6F3 */
   --surface: 255 255 255; /* #FFFFFF */
   --surface-2: 250 249 246; /* leve off-white p/ blocos internos */
@@ -27,6 +33,13 @@
   --wrong-soft: 248 232 226;
   --gold: 138 90 23; /* dourado Pro/medalhas — escuro p/ ler no claro */
 }
+
+/* O player de lição é uma tela cheia sem TabBar: as barras de ação fixas
+   encostam no fim da área rolável, só respeitando a safe-area. */
+[data-lesson-player-frame] {
+  --activity-actions-offset: calc(var(--app-safe-bottom) + 0.5rem);
+}
+
 
 [data-theme="china"] {
   --bg: 255 249 247; /* #FFF9F7 */

@@ -8,6 +8,7 @@ import { Button } from "../ui/primitives";
 import { SpeakButton } from "../ui/SpeakButton";
 import { IconCheck, IconChevron, IconX } from "../ui/Icon";
 import { Pinyin } from "./Pinyin";
+import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 
 type BuilderPiece =
   | { kind: "stroke"; id: string; stroke: HanziStroke; correct: boolean }
@@ -102,6 +103,7 @@ export function HanziBuilderExercise({
   const [selected, setSelected] = useState<string[]>([]);
   const [status, setStatus] = useState<BuildStatus>("idle");
   const [hadMistake, setHadMistake] = useState(false);
+  const actionsRef = useStickyActionsReserve<HTMLDivElement>();
 
   // P0-003 — reinicia estado ao trocar builder (treino/revisão/lição).
   useEffect(() => {
@@ -218,7 +220,11 @@ export function HanziBuilderExercise({
   });
 
   return (
-    <div className="pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+    <div
+      data-hanzi-builder
+      data-builder-id={builder.id}
+      className="pb-[calc(env(safe-area-inset-bottom)+0.5rem)]"
+    >
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
         {modeLabelFor(builder)}
       </div>
@@ -379,8 +385,14 @@ export function HanziBuilderExercise({
         </div>
       )}
 
+      {/* MOBILE-006: a barra "Limpar | Verificar" também reserva espaço no
+          scroller — sem isso ela flutuava sobre as opções no Android real. */}
       {(status === "idle" || status === "incomplete") && (
-        <div className="sticky bottom-[calc(var(--app-bottom-nav-height)+0.5rem)] z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none lg:bottom-4">
+        <div
+          ref={actionsRef}
+          data-lesson-sticky-actions
+          className="sticky bottom-[var(--activity-actions-offset)] z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none lg:bottom-4"
+        >
           {selected.length > 0 && (
             <Button variant="ghost" onClick={clearPieces} className="min-w-24">
               Limpar

@@ -7,6 +7,7 @@ import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { playSoundFx } from "../../lib/soundFx";
 import { useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { useStore } from "../../lib/store";
+import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import type { StepProps } from "./steps";
 
 function shuffle<T>(items: readonly T[]): T[] {
@@ -29,6 +30,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
   const options = useMemo(() => shuffle(rawOptions), [rawOptions.join("|")]);
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
+  const actionsRef = useStickyActionsReserve<HTMLDivElement>();
 
   function select(value: string) {
     if (answered) return;
@@ -130,7 +132,11 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
         </div>
       )}
 
-      <div className="sticky bottom-0 z-10 -mx-2 mt-5 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-4 sm:flex sm:flex-wrap">
+      <div
+        ref={actionsRef}
+        data-lesson-sticky-actions
+        className="sticky bottom-0 z-10 -mx-2 mt-5 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-4 sm:flex sm:flex-wrap"
+      >
         {!answered && (
           <button
             type="button"
