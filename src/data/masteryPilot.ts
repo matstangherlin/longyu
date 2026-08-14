@@ -16,6 +16,7 @@
 import type { LessonStep, StepKind } from "./journey";
 import type { MasteryPass } from "./masteryLoop";
 import { isProductionOrTransferKind, withEquivalentAccepts } from "./masteryLoop";
+import { wave1BonusStepsFor } from "./masteryWave1Bonus";
 
 export const MASTERY_PILOT_LESSON_IDS = [
   "l2",
@@ -34,6 +35,33 @@ export const MASTERY_PILOT_LESSON_IDS = [
   "p6-direcoes",
   "p6-survival-mandarin",
   "p7-imersao-estacao",
+  // ————————————————————————————————————————————————————————————
+  // Pedagogia V3.3 — Wave 1 (24 licoes; ver masteryCoverage.ts).
+  // ————————————————————————————————————————————————————————————
+  "p1-ate-logo",
+  "p1-qingwen-cortesia",
+  "p1-primeira-conversa",
+  "l9",
+  "l9-qual-nome",
+  "l10",
+  "l11",
+  "l11-falo-pouco",
+  "p3-wobuhui-shuo-zhongwen",
+  "p3-qing-zai-shuo-yibian",
+  "l13-dialogo-ola",
+  "l13-dialogo-nome",
+  "l19",
+  "l20",
+  "l21",
+  "l22",
+  "l25",
+  "l26",
+  "l28",
+  "p6-saude",
+  "p6-clima",
+  "p7-imersao-mercado",
+  "p7-imersao-casa-amigo",
+  "p3-wohenhao",
 ] as const;
 
 export type MasteryPilotLessonId = (typeof MASTERY_PILOT_LESSON_IDS)[number];
@@ -227,8 +255,8 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
     communicativeFunctions: ["perguntar a hora", "dizer a hora", "ler horario"],
     vocabulary: [
       { ref: "chunk:xianzaijidian", hanzi: "现在几点？", pinyin: "xianzai ji dian?", meaningPt: "Que horas sao?", role: "core", introduceAtPass: 1 },
-      { ref: "chunk:xianzaibadian", hanzi: "现在八点", pinyin: "xianzai ba dian", meaningPt: "Sao oito horas", role: "core", introduceAtPass: 1 },
-      { ref: "chunk:xianzaijiudian", hanzi: "现在九点", pinyin: "xianzai jiu dian", meaningPt: "Sao nove horas", role: "core", introduceAtPass: 2 },
+      { ref: "chunk:xianzaibadian", hanzi: "现在八点", pinyin: "xianzai ba dian", meaningPt: "Sao oito horas", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:xianzaijiudian", hanzi: "现在九点", pinyin: "xianzai jiu dian", meaningPt: "Sao nove horas", role: "productive", introduceAtPass: 2 },
       { ref: "chunk:zhongwu", hanzi: "中午", pinyin: "zhongwu", meaningPt: "meio-dia", role: "support", introduceAtPass: 2 },
       { ref: "char:dian_hour", hanzi: "点", pinyin: "dian", meaningPt: "hora (relogio)", role: "support", introduceAtPass: 1 },
       { ref: "char:ji_howmany", hanzi: "几", pinyin: "ji", meaningPt: "quantos; que", role: "support", introduceAtPass: 1 },
@@ -398,6 +426,356 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
     ],
     networkChunks: ["可以刷卡吗？", "微信支付", "洗手间在哪里？", "我需要帮助", "placa 出口"],
   },
+  // ————————————————————————————————————————————————————————————
+  // Pedagogia V3.3 — Wave 1 (24 licoes; ver masteryCoverage.ts).
+  // ————————————————————————————————————————————————————————————
+  "p1-ate-logo": {
+    lessonId: "p1-ate-logo",
+    themePt: "Despedida — Ate logo",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["再见", "你好 vs 再见 (contraste)"],
+    communicativeFunctions: ["despedir-se", "encerrar a conversa"],
+    vocabulary: [
+      { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola (contraste)", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:xiexie", hanzi: "谢谢", pinyin: "xiexie", meaningPt: "obrigado (encadeamento social)", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["再见", "你好 → 再见", "despedida social"],
+  },
+  "p1-qingwen-cortesia": {
+    lessonId: "p1-qingwen-cortesia",
+    themePt: "Cortesia — Com licenca",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["请问", "请问 + 你好吗？"],
+    communicativeFunctions: ["pedir licenca antes de perguntar", "abrir uma pergunta com cortesia"],
+    vocabulary: [
+      { ref: "chunk:qingwen", hanzi: "请问", pinyin: "qing wen", meaningPt: "com licenca, posso perguntar?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:nihaoma", hanzi: "你好吗？", pinyin: "ni hao ma", meaningPt: "tudo bem? (reuso)", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:qingwen_nihaoma", hanzi: "请问，你好吗？", pinyin: "qing wen, ni hao ma", meaningPt: "com licenca, tudo bem?", role: "productive", introduceAtPass: 2 },
+    ],
+    networkChunks: ["请问", "请问，你好吗？", "abertura cortes"],
+  },
+  "p1-primeira-conversa": {
+    lessonId: "p1-primeira-conversa",
+    themePt: "Primeira conversa completa",
+    newVocabularyTarget: 6,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["cumprimento", "pergunta-resposta de bem-estar", "agradecimento", "despedida"],
+    communicativeFunctions: ["encadear cumprimento", "perguntar e responder bem-estar", "agradecer", "despedir-se"],
+    vocabulary: [
+      { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:nihaoma", hanzi: "你好吗？", pinyin: "ni hao ma", meaningPt: "tudo bem?", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:xiexie", hanzi: "谢谢", pinyin: "xiexie", meaningPt: "obrigado(a)", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo", role: "productive", introduceAtPass: 3 },
+      { ref: "chunk:bukeqi", hanzi: "不客气", pinyin: "bu keqi", meaningPt: "de nada", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["你好 → 你好吗？ → 我很好 → 谢谢 → 再见", "conversa social completa"],
+  },
+  l9: {
+    lessonId: "l9",
+    themePt: "Me apresentar — 我叫...",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["我叫 + nome"],
+    communicativeFunctions: ["apresentar-se pelo nome"],
+    vocabulary: [
+      { ref: "chunk:wojiao", hanzi: "我叫Matheus", pinyin: "wo jiao Matheus", meaningPt: "meu nome e Matheus", role: "productive", introduceAtPass: 1 },
+      { ref: "char:jiao_call", hanzi: "叫", pinyin: "jiao", meaningPt: "chamar-se", role: "support", introduceAtPass: 1 },
+    ],
+    networkChunks: ["我叫Matheus", "apresentacao pessoal"],
+  },
+  "l9-qual-nome": {
+    lessonId: "l9-qual-nome",
+    themePt: "Como voce se chama? — 你叫什么？",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["你叫什么？", "我叫 + nome (resposta)"],
+    communicativeFunctions: ["perguntar o nome de alguem", "responder ao ser perguntado"],
+    vocabulary: [
+      { ref: "chunk:nijiaoshenme", hanzi: "你叫什么？", pinyin: "ni jiao shenme", meaningPt: "como voce se chama?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:wojiao", hanzi: "我叫Matheus", pinyin: "wo jiao Matheus", meaningPt: "meu nome e Matheus", role: "productive", introduceAtPass: 2 },
+      { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola (abertura)", role: "support", introduceAtPass: 1 },
+    ],
+    networkChunks: ["你叫什么？", "你好 → 你叫什么？", "apresentacao reciproca"],
+  },
+  l10: {
+    lessonId: "l10",
+    themePt: "De onde sou — nacionalidade",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["你是哪国人？", "我是 + nacionalidade"],
+    communicativeFunctions: ["perguntar a nacionalidade de alguem", "dizer de onde e"],
+    vocabulary: [
+      { ref: "chunk:nishinaiguoren", hanzi: "你是哪国人？", pinyin: "ni shi na guo ren", meaningPt: "de que pais voce e?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:wature", hanzi: "我是巴西人", pinyin: "wo shi Baxi ren", meaningPt: "sou brasileiro", role: "productive", introduceAtPass: 1 },
+      { ref: "char:na_which", hanzi: "哪", pinyin: "na", meaningPt: "qual; onde", role: "support", introduceAtPass: 2 },
+    ],
+    networkChunks: ["你是哪国人？", "我是巴西人", "pergunta e resposta de origem"],
+  },
+  l11: {
+    lessonId: "l11",
+    themePt: "Nao entendi — reparo de conversa",
+    newVocabularyTarget: 6,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["我听不懂", "请再说一遍", "我不会说中文 (contraste)"],
+    communicativeFunctions: ["comunicar que nao entendeu", "pedir repeticao", "diferenciar nao entender de nao saber falar"],
+    vocabulary: [
+      { ref: "chunk:tingbudong", hanzi: "我听不懂", pinyin: "wo ting bu dong", meaningPt: "nao entendi (ouvindo)", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:qingzaishuoyibian", hanzi: "请再说一遍", pinyin: "qing zai shuo yi bian", meaningPt: "por favor, fale de novo", role: "core", introduceAtPass: 2 },
+      { ref: "chunk:wobuhui", hanzi: "我不会说中文", pinyin: "wo bu hui shuo Zhongwen", meaningPt: "nao sei falar chines", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我听不懂", "请再说一遍", "我不会说中文", "tres reparos de conversa"],
+  },
+  "l11-falo-pouco": {
+    lessonId: "l11-falo-pouco",
+    themePt: "Falo um pouco — 我会说一点中文",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["我会说一点中文", "contraste com 我不会说中文"],
+    communicativeFunctions: ["dizer que fala um pouco", "suavizar a limitacao"],
+    vocabulary: [
+      { ref: "chunk:wohuishuoyidian", hanzi: "我会说一点中文", pinyin: "wo hui shuo yidian Zhongwen", meaningPt: "sei falar um pouco de chines", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:wobuhui", hanzi: "我不会说中文", pinyin: "wo bu hui shuo Zhongwen", meaningPt: "nao sei falar chines (contraste)", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:wozaixuezhongwen", hanzi: "我在学中文", pinyin: "wo zai xue Zhongwen", meaningPt: "estou estudando chines", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我会说一点中文", "我不会说中文 vs 我会说一点中文", "我在学中文"],
+  },
+  "p3-wobuhui-shuo-zhongwen": {
+    lessonId: "p3-wobuhui-shuo-zhongwen",
+    themePt: "Nao sei falar chines",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["我不会说中文"],
+    communicativeFunctions: ["avisar que nao fala chines"],
+    vocabulary: [
+      { ref: "chunk:wobuhui", hanzi: "我不会说中文", pinyin: "wo bu hui shuo Zhongwen", meaningPt: "nao sei falar chines", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola (revisao)", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem (revisao)", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我不会说中文", "frase de emergencia"],
+  },
+  "p3-qing-zai-shuo-yibian": {
+    lessonId: "p3-qing-zai-shuo-yibian",
+    themePt: "Peca repeticao — 请再说一遍",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["请再说一遍", "我听不懂 (contraste)"],
+    communicativeFunctions: ["pedir para repetir", "diferenciar de nao entender"],
+    vocabulary: [
+      { ref: "chunk:qingzaishuoyibian", hanzi: "请再说一遍", pinyin: "qing zai shuo yi bian", meaningPt: "por favor, fale de novo", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:tingbudong", hanzi: "我听不懂", pinyin: "wo ting bu dong", meaningPt: "nao entendi (contraste)", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem (revisao)", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["请再说一遍", "我听不懂 → 请再说一遍"],
+  },
+  "l13-dialogo-ola": {
+    lessonId: "l13-dialogo-ola",
+    themePt: "Microdialogo: cumprimentar",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["你好 → 你好吗？ → 我很好 → 谢谢"],
+    communicativeFunctions: ["encadear cumprimento completo em microdialogo"],
+    vocabulary: [
+      { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:nihaoma", hanzi: "你好吗？", pinyin: "ni hao ma", meaningPt: "tudo bem?", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:xiexie", hanzi: "谢谢", pinyin: "xiexie", meaningPt: "obrigado(a)", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["你好，你好吗？我很好。谢谢。", "microdialogo de cumprimento"],
+  },
+  "l13-dialogo-nome": {
+    lessonId: "l13-dialogo-nome",
+    themePt: "Microdialogo: se apresentar",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["你叫什么？ → 我叫... → 我是巴西人 → 请再说一遍"],
+    communicativeFunctions: ["encadear apresentacao com origem e reparo"],
+    vocabulary: [
+      { ref: "chunk:nijiaoshenme", hanzi: "你叫什么？", pinyin: "ni jiao shenme", meaningPt: "como voce se chama?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:wojiao", hanzi: "我叫Matheus", pinyin: "wo jiao Matheus", meaningPt: "meu nome e Matheus", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:wature", hanzi: "我是巴西人", pinyin: "wo shi Baxi ren", meaningPt: "sou brasileiro", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:qingzaishuoyibian", hanzi: "请再说一遍", pinyin: "qing zai shuo yi bian", meaningPt: "por favor, fale de novo", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["你叫什么？我叫Matheus。我是巴西人。", "microdialogo de apresentacao"],
+  },
+  l19: {
+    lessonId: "l19",
+    themePt: "Numeros — um a cinco",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["一二三四五 em sequencia", "numero isolado por som"],
+    communicativeFunctions: ["contar de um a cinco", "reconhecer numero por som"],
+    vocabulary: [
+      { ref: "char:yi", hanzi: "一", pinyin: "yi", meaningPt: "um", role: "productive", introduceAtPass: 1 },
+      { ref: "char:er", hanzi: "二", pinyin: "er", meaningPt: "dois", role: "productive", introduceAtPass: 1 },
+      { ref: "char:san", hanzi: "三", pinyin: "san", meaningPt: "tres", role: "core", introduceAtPass: 1 },
+      { ref: "char:si", hanzi: "四", pinyin: "si", meaningPt: "quatro", role: "support", introduceAtPass: 2 },
+      { ref: "char:wu", hanzi: "五", pinyin: "wu", meaningPt: "cinco", role: "support", introduceAtPass: 2 },
+    ],
+    networkChunks: ["一二三四五", "sequencia numerica 1-5"],
+  },
+  l20: {
+    lessonId: "l20",
+    themePt: "Numeros — seis a dez",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["六七八九十 em sequencia", "numero em contexto (preco/idade/telefone)"],
+    communicativeFunctions: ["contar de seis a dez", "usar numero em situacao real"],
+    vocabulary: [
+      { ref: "char:liu", hanzi: "六", pinyin: "liu", meaningPt: "seis", role: "core", introduceAtPass: 1 },
+      { ref: "char:qi", hanzi: "七", pinyin: "qi", meaningPt: "sete", role: "core", introduceAtPass: 1 },
+      { ref: "char:ba8", hanzi: "八", pinyin: "ba", meaningPt: "oito", role: "support", introduceAtPass: 2 },
+      { ref: "char:jiu", hanzi: "九", pinyin: "jiu", meaningPt: "nove", role: "support", introduceAtPass: 2 },
+      { ref: "char:shi10", hanzi: "十", pinyin: "shi", meaningPt: "dez", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["六七八九十", "sequencia numerica 6-10", "numero em preco/telefone"],
+  },
+  l21: {
+    lessonId: "l21",
+    themePt: "Nos e voces — plural com 们",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["我 + 们 = 我们", "你 + 们 = 你们"],
+    communicativeFunctions: ["falar de grupos", "diferenciar eu/nos e voce/voces"],
+    vocabulary: [
+      { ref: "chunk:women", hanzi: "我们", pinyin: "women", meaningPt: "nos", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:nimen", hanzi: "你们", pinyin: "nimen", meaningPt: "voces", role: "productive", introduceAtPass: 1 },
+      { ref: "char:men", hanzi: "们", pinyin: "men", meaningPt: "sufixo de plural", role: "support", introduceAtPass: 2 },
+    ],
+    networkChunks: ["我们", "你们", "sufixo 们"],
+  },
+  l22: {
+    lessonId: "l22",
+    themePt: "China e amigos",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["中国", "朋友", "我有 + numero + 个 + 朋友"],
+    communicativeFunctions: ["nomear pais", "nomear amigo", "dizer quantidade de amigos"],
+    vocabulary: [
+      { ref: "chunk:zhongguo", hanzi: "中国", pinyin: "Zhongguo", meaningPt: "China", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:pengyou", hanzi: "朋友", pinyin: "pengyou", meaningPt: "amigo", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:woyousangepengyou", hanzi: "我有三个朋友", pinyin: "wo you san ge pengyou", meaningPt: "tenho tres amigos", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["中国", "朋友", "我有三个朋友"],
+  },
+  l25: {
+    lessonId: "l25",
+    themePt: "Perguntas uteis — o que e isto? / voltar para casa",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["这是什么？", "我回家", "在哪里？ (reuso)"],
+    communicativeFunctions: ["perguntar o que e algo", "dizer que vai para casa"],
+    vocabulary: [
+      { ref: "chunk:zheshishenme", hanzi: "这是什么？", pinyin: "zhe shi shenme", meaningPt: "o que e isto?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:zaina", hanzi: "在哪里？", pinyin: "zai nali", meaningPt: "onde fica? (reuso)", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:wohuijia", hanzi: "我回家", pinyin: "wo hui jia", meaningPt: "vou para casa", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["这是什么？", "我回家", "pergunta + despedida da visita"],
+  },
+  l26: {
+    lessonId: "l26",
+    themePt: "Fome e gosto — 我喜欢中文",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["我喜欢 + coisa", "我饿了 (contraste)"],
+    communicativeFunctions: ["expressar gosto/preferencia", "dizer que esta com fome"],
+    vocabulary: [
+      { ref: "chunk:woxihuan", hanzi: "我喜欢中文", pinyin: "wo xihuan Zhongwen", meaningPt: "eu gosto de chines", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:woele", hanzi: "我饿了", pinyin: "wo e le", meaningPt: "estou com fome (contraste)", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:haochi", hanzi: "很好吃", pinyin: "hen haochi", meaningPt: "muito gostoso", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我喜欢中文", "我饿了", "gosto vs fome"],
+  },
+  l28: {
+    lessonId: "l28",
+    themePt: "Vamos embora — 我们走吧",
+    newVocabularyTarget: 3,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["我们走吧"],
+    communicativeFunctions: ["convidar o grupo a sair", "encerrar o encontro com convite"],
+    vocabulary: [
+      { ref: "chunk:womenzouba", hanzi: "我们走吧", pinyin: "women zou ba", meaningPt: "vamos embora", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:women", hanzi: "我们", pinyin: "women", meaningPt: "nos (reuso)", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo (relacionado)", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我们走吧", "convite de saida"],
+  },
+  "p6-saude": {
+    lessonId: "p6-saude",
+    themePt: "Saude — doente, dor, medico, hospital",
+    newVocabularyTarget: 8,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["我病了", "我头疼", "我要看医生", "医院在哪里？"],
+    communicativeFunctions: ["avisar que esta doente", "apontar a dor", "pedir medico", "achar hospital"],
+    vocabulary: [
+      { ref: "chunk:wobingle", hanzi: "我病了", pinyin: "wo bing le", meaningPt: "estou doente", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:wotouteng", hanzi: "我头疼", pinyin: "wo tou teng", meaningPt: "estou com dor de cabeca", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:woyaokanyisheng", hanzi: "我要看医生", pinyin: "wo yao kan yisheng", meaningPt: "quero ver um medico", role: "productive", introduceAtPass: 2 },
+      { ref: "chunk:yiyuanzainali", hanzi: "医院在哪里？", pinyin: "yiyuan zai nali", meaningPt: "onde fica o hospital?", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我病了", "我头疼", "我要看医生", "医院在哪里？", "caminho da saude"],
+  },
+  "p6-clima": {
+    lessonId: "p6-clima",
+    themePt: "O tempo (clima)",
+    newVocabularyTarget: 9,
+    productiveVocabularyTarget: 4,
+    structuresTarget: ["天气很热/冷", "下雪了", "天晴了", "有风", "今天天气很好"],
+    communicativeFunctions: ["descrever o clima", "comentar o tempo do dia"],
+    vocabulary: [
+      { ref: "chunk:tianqihenre", hanzi: "天气很热", pinyin: "tianqi hen re", meaningPt: "o tempo esta quente", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:tianqihenleng", hanzi: "天气很冷", pinyin: "tianqi hen leng", meaningPt: "o tempo esta frio", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:xiaxuele", hanzi: "下雪了", pinyin: "xia xue le", meaningPt: "esta nevando", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:tianqingle", hanzi: "天晴了", pinyin: "tian qing le", meaningPt: "o ceu abriu", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:youfeng", hanzi: "有风", pinyin: "you feng", meaningPt: "esta ventando", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:jintiantianqihenhao", hanzi: "今天天气很好", pinyin: "jintian tianqi hen hao", meaningPt: "hoje o tempo esta otimo", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["天气很热", "天气很冷", "下雪了", "天晴了", "今天天气很好"],
+  },
+  "p7-imersao-mercado": {
+    lessonId: "p7-imersao-mercado",
+    themePt: "Imersao: no mercado — negociar preco",
+    newVocabularyTarget: 4,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["多少钱？", "太贵了", "negociacao no mercado"],
+    communicativeFunctions: ["perguntar preco", "reclamar do preco/negociar"],
+    vocabulary: [
+      { ref: "chunk:duoshaoqian", hanzi: "多少钱？", pinyin: "duoshao qian", meaningPt: "quanto custa?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:taiguile", hanzi: "太贵了", pinyin: "tai gui le", meaningPt: "caro demais!", role: "productive", introduceAtPass: 2 },
+      { ref: "chunk:xiexie", hanzi: "谢谢", pinyin: "xiexie", meaningPt: "obrigado(a) (encerrar compra)", role: "support", introduceAtPass: 3 },
+    ],
+    networkChunks: ["多少钱？", "太贵了", "cena de negociacao no mercado"],
+  },
+  "p7-imersao-casa-amigo": {
+    lessonId: "p7-imersao-casa-amigo",
+    themePt: "Imersao: visita a casa da amiga",
+    newVocabularyTarget: 5,
+    productiveVocabularyTarget: 3,
+    structuresTarget: ["这是我妈妈 (revisao)", "我想喝茶", "明天见"],
+    communicativeFunctions: ["apresentar familiar em visita", "aceitar oferta de bebida", "despedir-se marcando reencontro"],
+    vocabulary: [
+      { ref: "chunk:zheshimama", hanzi: "这是我妈妈", pinyin: "zhe shi wo mama", meaningPt: "esta e minha mae (revisao)", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:woxianghe", hanzi: "我想喝茶", pinyin: "wo xiang he cha", meaningPt: "quero beber cha", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:mingtianjian", hanzi: "明天见", pinyin: "mingtian jian", meaningPt: "ate amanha", role: "productive", introduceAtPass: 3 },
+    ],
+    networkChunks: ["我想喝茶", "明天见", "visita social completa"],
+  },
+  "p3-wohenhao": {
+    lessonId: "p3-wohenhao",
+    themePt: "Estou bem (variante) — 我很好",
+    newVocabularyTarget: 3,
+    productiveVocabularyTarget: 2,
+    structuresTarget: ["我很好", "resposta a 你好吗？"],
+    communicativeFunctions: ["dizer que esta bem"],
+    vocabulary: [
+      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:nihaoma", hanzi: "你好吗？", pinyin: "ni hao ma", meaningPt: "tudo bem? (pergunta que provoca a resposta)", role: "support", introduceAtPass: 1 },
+    ],
+    networkChunks: ["我很好", "你好吗？ → 我很好"],
+  },
 };
 
 /** Lexemas unicos cobertos ate a pass (crescimento real, nao so modalidade). */
@@ -458,7 +836,7 @@ export function semanticExpansionScore(
   };
 }
 
-function contextualChoice(
+export function contextualChoice(
   title: string,
   situationPt: string,
   correctAnswer: string,
@@ -477,7 +855,7 @@ function contextualChoice(
   };
 }
 
-function audioToAction(
+export function audioToAction(
   title: string,
   audioText: string,
   correctAnswer: string,
@@ -495,7 +873,7 @@ function audioToAction(
   };
 }
 
-function sentenceTransform(
+export function sentenceTransform(
   title: string,
   sourceHanzi: string,
   targetParts: string[],
@@ -514,7 +892,7 @@ function sentenceTransform(
   };
 }
 
-function substitutionDrill(
+export function substitutionDrill(
   title: string,
   patternBefore: string,
   blankAnswer: string,
@@ -533,7 +911,7 @@ function substitutionDrill(
   };
 }
 
-function dialogueCompletion(
+export function dialogueCompletion(
   title: string,
   dialoguePrompt: string,
   correctAnswer: string,
@@ -551,7 +929,7 @@ function dialogueCompletion(
   };
 }
 
-function reverseRecall(
+export function reverseRecall(
   title: string,
   situationPt: string,
   answer: string,
@@ -780,7 +1158,7 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
     if (pass === 3) {
       return [
         withEquivalentAccepts(
-          reverseRecall("Diga obrigado", "Agradeça sem ver alternativas.", "谢谢", ["谢谢", "谢谢！"])
+          reverseRecall("Diga obrigado", "Agradeca sem ver alternativas.", "谢谢", ["谢谢", "谢谢！"])
         ),
         sentenceTransform(
           "De agradecer a responder",
@@ -795,7 +1173,7 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
       withEquivalentAccepts(
         reverseRecall(
           "Transferencia social",
-          "Alguem te ajuda e espera sua fala. Agradeça.",
+          "Alguem te ajuda e espera sua fala. Agradeca.",
           "谢谢",
           ["谢谢", "谢谢！"]
         )
@@ -1672,7 +2050,8 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
     ];
   }
 
-  return [];
+  // Pedagogia V3.3 — Wave 1 (24 licoes novas); mantem este arquivo enxuto.
+  return wave1BonusStepsFor(lessonId, pass);
 }
 
 export function planHasProductionOrTransfer(steps: readonly { kind: StepKind }[]): boolean {
