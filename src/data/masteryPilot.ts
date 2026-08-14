@@ -443,9 +443,10 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["再见", "你好 vs 再见 (contraste)"],
     communicativeFunctions: ["despedir-se", "encerrar a conversa"],
     vocabulary: [
-      { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo", role: "core", introduceAtPass: 1 },
       { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola (contraste)", role: "support", introduceAtPass: 2 },
       { ref: "chunk:xiexie", hanzi: "谢谢", pinyin: "xiexie", meaningPt: "obrigado (encadeamento social)", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:prod_再见", hanzi: "再见", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["再见", "你好 → 再见", "despedida social"],
   },
@@ -488,8 +489,9 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["我叫 + nome"],
     communicativeFunctions: ["apresentar-se pelo nome"],
     vocabulary: [
-      { ref: "chunk:wojiao", hanzi: "我叫Matheus", pinyin: "wo jiao Matheus", meaningPt: "meu nome e Matheus", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:wojiao", hanzi: "我叫Matheus", pinyin: "wo jiao Matheus", meaningPt: "meu nome e Matheus", role: "core", introduceAtPass: 1 },
       { ref: "char:jiao_call", hanzi: "叫", pinyin: "jiao", meaningPt: "chamar-se", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:prod_我叫Matheus", hanzi: "我叫Matheus", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["我叫Matheus", "apresentacao pessoal"],
   },
@@ -557,9 +559,10 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["我不会说中文"],
     communicativeFunctions: ["avisar que nao fala chines"],
     vocabulary: [
-      { ref: "chunk:wobuhui", hanzi: "我不会说中文", pinyin: "wo bu hui shuo Zhongwen", meaningPt: "nao sei falar chines", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:wobuhui", hanzi: "我不会说中文", pinyin: "wo bu hui shuo Zhongwen", meaningPt: "nao sei falar chines", role: "core", introduceAtPass: 1 },
       { ref: "chunk:nihao", hanzi: "你好", pinyin: "ni hao", meaningPt: "ola (revisao)", role: "support", introduceAtPass: 2 },
       { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem (revisao)", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:prod_我不会说中文", hanzi: "我不会说中文", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["我不会说中文", "frase de emergencia"],
   },
@@ -571,9 +574,10 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["请再说一遍", "我听不懂 (contraste)"],
     communicativeFunctions: ["pedir para repetir", "diferenciar de nao entender"],
     vocabulary: [
-      { ref: "chunk:qingzaishuoyibian", hanzi: "请再说一遍", pinyin: "qing zai shuo yi bian", meaningPt: "por favor, fale de novo", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:qingzaishuoyibian", hanzi: "请再说一遍", pinyin: "qing zai shuo yi bian", meaningPt: "por favor, fale de novo", role: "core", introduceAtPass: 1 },
       { ref: "chunk:tingbudong", hanzi: "我听不懂", pinyin: "wo ting bu dong", meaningPt: "nao entendi (contraste)", role: "support", introduceAtPass: 1 },
       { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem (revisao)", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:prod_请再说一遍", hanzi: "请再说一遍", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["请再说一遍", "我听不懂 → 请再说一遍"],
   },
@@ -647,9 +651,9 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["我 + 们 = 我们", "你 + 们 = 你们"],
     communicativeFunctions: ["falar de grupos", "diferenciar eu/nos e voce/voces"],
     vocabulary: [
-      { ref: "chunk:women", hanzi: "我们", pinyin: "women", meaningPt: "nos", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:women", hanzi: "我们", pinyin: "women", meaningPt: "nos", role: "core", introduceAtPass: 1 },
       { ref: "chunk:nimen", hanzi: "你们", pinyin: "nimen", meaningPt: "voces", role: "productive", introduceAtPass: 1 },
-      { ref: "char:men", hanzi: "们", pinyin: "men", meaningPt: "sufixo de plural", role: "support", introduceAtPass: 2 },
+      { ref: "char:men", hanzi: "们", pinyin: "men", meaningPt: "sufixo de plural", role: "support", introduceAtPass: 2 }
     ],
     networkChunks: ["我们", "你们", "sufixo 们"],
   },
@@ -662,8 +666,8 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     communicativeFunctions: ["nomear pais", "nomear amigo", "dizer quantidade de amigos"],
     vocabulary: [
       { ref: "chunk:zhongguo", hanzi: "中国", pinyin: "Zhongguo", meaningPt: "China", role: "core", introduceAtPass: 1 },
-      { ref: "chunk:pengyou", hanzi: "朋友", pinyin: "pengyou", meaningPt: "amigo", role: "core", introduceAtPass: 1 },
-      { ref: "chunk:woyousangepengyou", hanzi: "我有三个朋友", pinyin: "wo you san ge pengyou", meaningPt: "tenho tres amigos", role: "productive", introduceAtPass: 3 },
+      { ref: "chunk:pengyou", hanzi: "朋友", pinyin: "pengyou", meaningPt: "amigo", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:woyousangepengyou", hanzi: "我有三个朋友", pinyin: "wo you san ge pengyou", meaningPt: "tenho tres amigos", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["中国", "朋友", "我有三个朋友"],
   },
@@ -689,9 +693,10 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["我喜欢 + coisa", "我饿了 (contraste)"],
     communicativeFunctions: ["expressar gosto/preferencia", "dizer que esta com fome"],
     vocabulary: [
-      { ref: "chunk:woxihuan", hanzi: "我喜欢中文", pinyin: "wo xihuan Zhongwen", meaningPt: "eu gosto de chines", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:woxihuan", hanzi: "我喜欢中文", pinyin: "wo xihuan Zhongwen", meaningPt: "eu gosto de chines", role: "core", introduceAtPass: 1 },
       { ref: "chunk:woele", hanzi: "我饿了", pinyin: "wo e le", meaningPt: "estou com fome (contraste)", role: "support", introduceAtPass: 2 },
       { ref: "chunk:haochi", hanzi: "很好吃", pinyin: "hen haochi", meaningPt: "muito gostoso", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:prod_我喜欢中文", hanzi: "我喜欢中文", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["我喜欢中文", "我饿了", "gosto vs fome"],
   },
@@ -703,9 +708,10 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["我们走吧"],
     communicativeFunctions: ["convidar o grupo a sair", "encerrar o encontro com convite"],
     vocabulary: [
-      { ref: "chunk:womenzouba", hanzi: "我们走吧", pinyin: "women zou ba", meaningPt: "vamos embora", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:womenzouba", hanzi: "我们走吧", pinyin: "women zou ba", meaningPt: "vamos embora", role: "core", introduceAtPass: 1 },
       { ref: "chunk:women", hanzi: "我们", pinyin: "women", meaningPt: "nos (reuso)", role: "support", introduceAtPass: 1 },
       { ref: "chunk:zaijian", hanzi: "再见", pinyin: "zaijian", meaningPt: "ate logo (relacionado)", role: "support", introduceAtPass: 3 },
+      { ref: "chunk:prod_我们走吧", hanzi: "我们走吧", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["我们走吧", "convite de saida"],
   },
@@ -719,8 +725,8 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     vocabulary: [
       { ref: "chunk:wobingle", hanzi: "我病了", pinyin: "wo bing le", meaningPt: "estou doente", role: "core", introduceAtPass: 1 },
       { ref: "chunk:wotouteng", hanzi: "我头疼", pinyin: "wo tou teng", meaningPt: "estou com dor de cabeca", role: "core", introduceAtPass: 1 },
-      { ref: "chunk:woyaokanyisheng", hanzi: "我要看医生", pinyin: "wo yao kan yisheng", meaningPt: "quero ver um medico", role: "productive", introduceAtPass: 2 },
-      { ref: "chunk:yiyuanzainali", hanzi: "医院在哪里？", pinyin: "yiyuan zai nali", meaningPt: "onde fica o hospital?", role: "productive", introduceAtPass: 3 },
+      { ref: "chunk:woyaokanyisheng", hanzi: "我要看医生", pinyin: "wo yao kan yisheng", meaningPt: "quero ver um medico", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:yiyuanzainali", hanzi: "医院在哪里？", pinyin: "yiyuan zai nali", meaningPt: "onde fica o hospital?", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["我病了", "我头疼", "我要看医生", "医院在哪里？", "caminho da saude"],
   },
@@ -777,8 +783,9 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     structuresTarget: ["我很好", "resposta a 你好吗？"],
     communicativeFunctions: ["dizer que esta bem"],
     vocabulary: [
-      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem", role: "productive", introduceAtPass: 1 },
+      { ref: "chunk:wohenhao", hanzi: "我很好", pinyin: "wo hen hao", meaningPt: "estou bem", role: "core", introduceAtPass: 1 },
       { ref: "chunk:nihaoma", hanzi: "你好吗？", pinyin: "ni hao ma", meaningPt: "tudo bem? (pergunta que provoca a resposta)", role: "support", introduceAtPass: 1 },
+      { ref: "chunk:prod_我很好", hanzi: "我很好", meaningPt: "uso produtivo", role: "productive", introduceAtPass: 3 }
     ],
     networkChunks: ["我很好", "你好吗？ → 我很好"],
   },

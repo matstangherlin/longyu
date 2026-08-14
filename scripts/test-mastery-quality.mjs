@@ -136,27 +136,43 @@ try {
   // ————————————————————————————————————————————————————————————————
   const noPlansResult = masteryQualityScore("l2");
   assert.equal(typeof noPlansResult.score, "number", "sem plansByPass ainda retorna score number");
+  assert.equal(noPlansResult.passes, false, "sem planos: passes deve ser false (not_evaluated não greenwash)");
+  assert.ok(noPlansResult.notEvaluatedCount > 0, "sem planos: deve haver checks not_evaluated");
   assert.ok(
-    noPlansResult.checks.find((c) => c.id === "lexical_targets")?.ok,
-    "l2 tem PILOT_LEXICAL_TARGETS — check lexical_targets deve passar mesmo sem planos"
+    noPlansResult.checks.find((c) => c.id === "lexical_targets")?.status === "pass",
+    "l2 tem PILOT_LEXICAL_TARGETS — lexical_targets deve passar mesmo sem planos"
   );
   assert.ok(
-    noPlansResult.checks.find((c) => c.id === "scaffold_decreases")?.ok,
+    noPlansResult.checks.find((c) => c.id === "scaffold_decreases")?.status === "pass",
     "check scaffold_decreases não depende de planos e deve passar"
+  );
+  assert.ok(
+    noPlansResult.checks.every((c) => c.status !== "not_evaluated" || c.ok === false),
+    "not_evaluated nunca ok:true"
   );
 
   const unknownLessonResult = masteryQualityScore("licao-inexistente-xyz");
   assert.equal(typeof unknownLessonResult.score, "number", "lição desconhecida não deve lançar");
+  assert.equal(
+    unknownLessonResult.checks.find((c) => c.id === "lexical_targets")?.status,
+    "not_applicable",
+    "lição fora do currículo marca lexical_targets como not_applicable"
+  );
+
+  // Bad plans should use status:fail
   assert.ok(
-    unknownLessonResult.checks.find((c) => c.id === "lexical_targets")?.ok === true,
-    "lição fora do piloto marca lexical_targets como não aplicável (ok)"
+    badResult.checks.find((c) => c.id === "plans_differ" && c.status === "fail"),
+    "plano ruim deveria falhar plans_differ com status fail"
   );
 
   console.log(
     "OK test:mastery-quality —",
-    [`${checkedCount} lições do piloto avaliadas com planos reais`, "plano ruim reprovado", "profundidade falsa detectada", "uso sem plansByPass não lança"].join(
-      "; "
-    )
+    [
+      `${checkedCount} lições do piloto avaliadas com planos reais`,
+      "plano ruim reprovado",
+      "profundidade falsa detectada",
+      "tri-state: not_evaluated não greenwash",
+    ].join("; ")
   );
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));
