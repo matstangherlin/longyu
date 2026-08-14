@@ -38,7 +38,8 @@ export interface LexicalLifecycleEntry {
   introduceAt: string;
   reinforceAt?: string[];
   productiveAt?: string;
-  packet?: VocabularyPacketId;
+  /** Packet id (V3.6 ids + V3.7 expansions). */
+  packet?: string;
   role?: LexicalRole;
 }
 
@@ -51,61 +52,11 @@ export interface VocabularyPacket {
   receptive: string[];
 }
 
-/** LEX-014 — declarative bridge (chunk:/char: refs). */
-export const LEXICAL_LIFECYCLE: LexicalLifecycleEntry[] = [
-  // Seed (already early)
-  { ref: "chunk:nihao", introduceAt: "l2", reinforceAt: ["l3", "p1-primeira-conversa"], productiveAt: "l2", packet: "greetings", role: "core" },
-  { ref: "chunk:nihaoma", introduceAt: "l3", reinforceAt: ["p1-primeira-conversa", "p1-qingwen-cortesia"], productiveAt: "l3", packet: "greetings", role: "core" },
-  { ref: "chunk:wohenhao", introduceAt: "l3", reinforceAt: ["p1-primeira-conversa"], productiveAt: "l3", packet: "greetings", role: "core" },
-  { ref: "chunk:nine", introduceAt: "l3", reinforceAt: ["p1-primeira-conversa"], productiveAt: "l3", packet: "basic_questions", role: "productive" },
-  { ref: "chunk:xiexie", introduceAt: "l4", reinforceAt: ["p1-primeira-conversa", "l2-rev"], productiveAt: "l4", packet: "courtesy", role: "core" },
-  { ref: "chunk:bukeqi", introduceAt: "l4", reinforceAt: ["l2-rev"], productiveAt: "l4", packet: "courtesy", role: "core" },
-  { ref: "chunk:zaijian", introduceAt: "p1-ate-logo", reinforceAt: ["p1-primeira-conversa"], productiveAt: "p1-ate-logo", packet: "greetings", role: "core" },
+/** LEX-014/055 — declarative bridge (chunk:/char: refs). V3.7 expands to 120+. */
+export { LEXICAL_LIFECYCLE_V37_EXTRA as LEXICAL_LIFECYCLE } from "./lexicalLifecycleEntries";
+import { LEXICAL_LIFECYCLE_V37_EXTRA } from "./lexicalLifecycleEntries";
 
-  // LEX-007 — greeting expansion (V3.6 activation)
-  { ref: "chunk:zaoshanghao", introduceAt: "l2", reinforceAt: ["p1-primeira-conversa", "l2-rev"], productiveAt: "l2", packet: "greetings", role: "support" },
-  { ref: "chunk:wanshanghao", introduceAt: "p1-ate-logo", reinforceAt: ["p1-primeira-conversa"], productiveAt: "p1-ate-logo", packet: "greetings", role: "support" },
-  { ref: "chunk:wanan", introduceAt: "p1-ate-logo", reinforceAt: ["l2-rev"], productiveAt: "p1-ate-logo", packet: "greetings", role: "productive" },
-  { ref: "chunk:mingtianjian", introduceAt: "p1-ate-logo", reinforceAt: ["p1-primeira-conversa", "l8"], productiveAt: "p1-ate-logo", packet: "greetings", role: "productive" },
-  { ref: "chunk:meiguanxi", introduceAt: "l4", reinforceAt: ["l2-rev", "l13", "p2-tons-xiexie"], productiveAt: "l4", packet: "courtesy", role: "support" },
-  { ref: "chunk:duibuqi", introduceAt: "l13", reinforceAt: ["l13-dialogo-ola"], productiveAt: "l13", packet: "courtesy", role: "support" },
-  { ref: "chunk:jintianhenhao", introduceAt: "l13-dialogo-ola", reinforceAt: ["l13-dialogo-nome"], productiveAt: "l13-dialogo-ola", packet: "greetings", role: "support" },
-  { ref: "chunk:woyousangepengyou", introduceAt: "l13-dialogo-nome", reinforceAt: ["l5-rev"], productiveAt: "l13-dialogo-nome", packet: "introductions", role: "productive" },
-  { ref: "chunk:nihuishuoyingyuma", introduceAt: "l13-dialogo-nome", reinforceAt: ["l11-falo-pouco"], productiveAt: "l13-dialogo-nome", packet: "survival", role: "receptive" },
-  { ref: "chunk:qingwen", introduceAt: "p1-qingwen-cortesia", reinforceAt: ["l2-rev"], productiveAt: "p1-qingwen-cortesia", packet: "courtesy", role: "core" },
-  { ref: "chunk:qingzuo", introduceAt: "p1-qingwen-cortesia", reinforceAt: ["l9"], productiveAt: "p1-qingwen-cortesia", packet: "courtesy", role: "support" },
-  { ref: "chunk:qingjin", introduceAt: "p1-qingwen-cortesia", reinforceAt: ["l9"], productiveAt: "p1-qingwen-cortesia", packet: "courtesy", role: "support" },
-
-  // LEX-008 — presentation ladder (pull earlier + reinforce)
-  { ref: "chunk:wojiao", introduceAt: "l2", reinforceAt: ["p1-primeira-conversa", "l9"], productiveAt: "l9", packet: "introductions", role: "core" },
-  { ref: "chunk:nijiaoshenme", introduceAt: "p1-primeira-conversa", reinforceAt: ["l9", "l9-qual-nome"], productiveAt: "l9-qual-nome", packet: "introductions", role: "core" },
-  { ref: "chunk:wature", introduceAt: "l9", reinforceAt: ["l10"], productiveAt: "l10", packet: "introductions", role: "core" },
-  { ref: "chunk:nishinaiguoren", introduceAt: "l9", reinforceAt: ["l10"], productiveAt: "l10", packet: "introductions", role: "productive" },
-  { ref: "chunk:woshixuesheng", introduceAt: "l10", reinforceAt: ["l12"], productiveAt: "l10", packet: "introductions", role: "support" },
-  { ref: "chunk:renshinihengaoxing", introduceAt: "l10", reinforceAt: ["l12"], productiveAt: "l10", packet: "introductions", role: "productive" },
-
-  // LEX-009 — survival early
-  { ref: "chunk:tingbudong", introduceAt: "p2-sons-brasileiros", reinforceAt: ["l11"], productiveAt: "l11", packet: "repair", role: "core" },
-  { ref: "chunk:qingzaishuoyibian", introduceAt: "p2-sons-brasileiros", reinforceAt: ["l11"], productiveAt: "l11", packet: "repair", role: "core" },
-  { ref: "chunk:wobuhui", introduceAt: "l11", reinforceAt: ["l11-falo-pouco"], productiveAt: "l11", packet: "survival", role: "core" },
-  { ref: "chunk:wohuishuoyidian", introduceAt: "l11-falo-pouco", reinforceAt: ["l12"], productiveAt: "l11-falo-pouco", packet: "survival", role: "productive" },
-  { ref: "chunk:dengyixia", introduceAt: "l11", reinforceAt: ["l12"], productiveAt: "l11", packet: "survival", role: "support" },
-
-  // LEX-010 — questions
-  { ref: "chunk:zheshishenme", introduceAt: "l14-frase-minima", reinforceAt: ["l15", "l24"], productiveAt: "l24", packet: "basic_questions", role: "core" },
-  { ref: "chunk:zaina", introduceAt: "p6-cidade-lugares", reinforceAt: ["p6-rotina-trabalho"], productiveAt: "p6-cidade-lugares", packet: "basic_questions", role: "core" },
-  { ref: "chunk:shenmeshihou", introduceAt: "p6-horarios", reinforceAt: ["l29"], productiveAt: "p6-horarios", packet: "time", role: "support" },
-  { ref: "chunk:zenmeyang", introduceAt: "l9-tudo-bem", reinforceAt: ["l13"], productiveAt: "l9-tudo-bem", packet: "basic_questions", role: "support" },
-
-  // LEX-011 — shopping
-  { ref: "chunk:duoshaoqian", introduceAt: "l27", reinforceAt: ["l26b"], productiveAt: "l27", packet: "shopping", role: "core" },
-  { ref: "chunk:zhegeduoshaoqian", introduceAt: "l27", reinforceAt: ["l26b"], productiveAt: "l27", packet: "shopping", role: "productive" },
-  { ref: "chunk:woyao", introduceAt: "l26b", reinforceAt: ["l27"], productiveAt: "l26b", packet: "shopping", role: "core" },
-  { ref: "chunk:taiguile", introduceAt: "l27", reinforceAt: ["l28"], productiveAt: "l27", packet: "shopping", role: "productive" },
-  { ref: "chunk:pianyiyidian", introduceAt: "l27", reinforceAt: ["l28"], productiveAt: "l27", packet: "shopping", role: "support" },
-];
-
-/** LEX-015 — communicative packets. */
+/** @deprecated Prefer VOCABULARY_PACKETS_V37 — kept for V3.6 callers. */
 export const VOCABULARY_PACKETS: VocabularyPacket[] = [
   {
     id: "greetings",
@@ -174,47 +125,47 @@ export const VOCABULARY_PACKETS: VocabularyPacket[] = [
   {
     id: "time",
     labelPt: "Tempo",
-    core: ["chunk:shenmeshihou"],
-    support: [],
+    core: ["chunk:shenmeshihou", "chunk:xianzaijidian", "chunk:xianzaibadian"],
+    support: ["chunk:zhongwu"],
     productive: [],
     receptive: [],
   },
   {
     id: "family",
     labelPt: "Família",
-    core: [],
-    support: [],
-    productive: [],
+    core: ["chunk:zheshibaba", "chunk:zheshimama", "chunk:zheshiwodejia"],
+    support: ["chunk:wohuijia", "chunk:wodeyeye", "chunk:wodenainai"],
+    productive: ["chunk:woyoujiejie", "chunk:woyoudidi"],
     receptive: [],
   },
   {
     id: "transport",
     labelPt: "Transporte",
-    core: ["chunk:chezainali"],
-    support: [],
-    productive: [],
-    receptive: [],
+    core: ["chunk:ditie", "chunk:huoche", "chunk:wozuochuzuche", "chunk:chezainali"],
+    support: ["chunk:ditiezhan", "chunk:piaoduoshaoqian"],
+    productive: ["chunk:woyaopiao", "chunk:wozuofeiji"],
+    receptive: ["chunk:huochezhanzainali"],
   },
   {
     id: "city",
     labelPt: "Cidade",
-    core: ["chunk:zaina"],
-    support: [],
-    productive: [],
+    core: ["chunk:zaina", "chunk:chaoshizainali", "chunk:yinhangzainali"],
+    support: ["chunk:yiyuanzainali", "chunk:gongyuanzainali"],
+    productive: ["chunk:woquchaoshi", "chunk:woquyiyuan"],
     receptive: [],
   },
   {
     id: "health",
     labelPt: "Saúde",
-    core: [],
-    support: [],
-    productive: [],
+    core: ["chunk:wobingle", "chunk:wotouteng", "chunk:woyaokanyisheng"],
+    support: ["chunk:yiyuanzainali"],
+    productive: ["chunk:woxuyaobangzhu"],
     receptive: [],
   },
 ];
 
 export const lexicalLifecycleByRef = Object.fromEntries(
-  LEXICAL_LIFECYCLE.map((entry) => [entry.ref, entry])
+  LEXICAL_LIFECYCLE_V37_EXTRA.map((entry) => [entry.ref, entry])
 ) as Record<string, LexicalLifecycleEntry>;
 
 export function atlasItemRefs(): string[] {
