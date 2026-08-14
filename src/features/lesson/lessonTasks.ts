@@ -37,6 +37,7 @@ import {
   REVIEW_MASTERY_LABELS,
   type ReviewMasteryLevel,
 } from "../../data/reviewMastery";
+import type { ActivityMemoryEntry } from "../../lib/activityVariety";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
@@ -622,6 +623,12 @@ export interface LessonPracticePlanContext {
   /** Domínio do HanziBuilder por caractere: escolhe a variação certa (guia → desafio). */
   hanziBuilderProgress?: HanziBuilderProgressMap;
   srs?: Record<string, import("../../lib/srs").SRSItem>;
+  /**
+   * VAR-015 — atividades recentes em QUALQUER modo (lição, mastery, revisão,
+   * prática), mais recente primeiro. Semeia a janela de variedade para que a
+   * repetição percebida entre modos também seja evitada.
+   */
+  recentActivities?: readonly ActivityMemoryEntry[];
   /** Últimas cenas de conversa vistas (mais recente primeiro) — persistido. */
   recentConversationSceneIds?: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro) — persistido. */
@@ -3997,6 +4004,11 @@ function isPinyinPracticeStep(step: LessonStep): boolean {
   return step.kind === "tone" || step.kind === "tone_pair" || text.includes("pinyin") || text.includes("tom");
 }
 
+/** Família cognitiva principal do passo — usada pela memória de variedade. */
+export function primaryExerciseFamilyFor(step: LessonStep): string {
+  return exerciseFamiliesFor(step)[0] ?? "other";
+}
+
 function exerciseFamiliesFor(step: LessonStep, stageId?: LessonStageId): ExerciseFamily[] {
   const families = new Set<ExerciseFamily>(FAMILY_BY_KIND[step.kind]);
   if (isPinyinPracticeStep(step)) families.add("pinyin");
@@ -6121,7 +6133,9 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
-  return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })));
+  return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })), {
+    recentActivities: context.recentActivities,
+  });
 }
 
 function isPostConversationFollowUp(step: LessonRoundStep, sceneId: string | undefined): boolean {
@@ -6155,6 +6169,32 @@ function conversationLockedBlocks(plan: LessonRoundStep[]): LessonRoundStep[][] 
 }
 
 /**
+ * Converte o histórico entre modos em candidatos sintéticos, na ordem
+ * cronológica que `wouldViolateVariety` espera (mais antigo primeiro).
+ *
+ * Atividades marcadas com `recoveryReason` são repetição DELIBERADA (o aluno
+ * errou e está recuperando) e não entram na janela — senão a remediação seria
+ * penalizada como se fosse repetição acidental (VAR-017).
+ */
+function varietySeedFromHistory(
+  history: readonly ActivityMemoryEntry[] | undefined
+): PracticeCandidate[] {
+  if (!history || history.length === 0) return [];
+  return history
+    .slice(0, 4)
+    .filter((entry) => !entry.recoveryReason)
+    .reverse()
+    .map((entry, index) => ({
+      step: { kind: entry.stepKind as StepKind, hanzi: entry.hanziTarget } as LessonRoundStep,
+      stageId: "usage" as LessonStageId,
+      families: [entry.cognitiveFamily as ExerciseFamily],
+      score: 0,
+      generated: false,
+      sourceStepIndex: -1 - index,
+    }));
+}
+
+/**
  * PED-030 — pós-processamento de variedade do plano.
  * Evita kinds consecutivos e saturação de famílias (hanzi/tone),
  * sem reordenar agressivamente a ordem de estágios.
@@ -6162,9 +6202,13 @@ function conversationLockedBlocks(plan: LessonRoundStep[]): LessonRoundStep[][] 
  */
 export function balanceLessonPlan(
   plan: LessonRoundStep[],
-  _options: { respectMasteryPass?: number } = {}
+  _options: { respectMasteryPass?: number; recentActivities?: readonly ActivityMemoryEntry[] } = {}
 ): LessonRoundStep[] {
   if (plan.length <= 2) return plan;
+  // VAR-015 — a janela de variedade começa com o que o aluno acabou de fazer em
+  // QUALQUER modo (lição, mastery, revisão, prática). Sem isso cada plano passa
+  // isolado e o aluno ainda vê Hànzì → Hànzì → Hànzì atravessando os modos.
+  const carryOver = varietySeedFromHistory(_options.recentActivities);
   const items = conversationLockedBlocks(plan).map((steps, index) => ({
     steps,
     step: steps[0],
@@ -6186,7 +6230,7 @@ export function balanceLessonPlan(
         generated: candidate.generated,
         sourceStepIndex: candidate.index,
       };
-      const seq: PracticeCandidate[] = result.flatMap((item) =>
+      const seq: PracticeCandidate[] = [...carryOver, ...result.flatMap((item) =>
         item.steps.map((step, offset) => ({
           step,
           stageId: (step.lessonStageId ?? item.stageId) as LessonStageId,
@@ -6195,7 +6239,7 @@ export function balanceLessonPlan(
           generated: Boolean(step.generated),
           sourceStepIndex: item.index + offset,
         }))
-      );
+      )];
       return !wouldViolateVariety(seq, asCandidate);
     });
     if (pick < 0) pick = 0;
@@ -6321,7 +6365,10 @@ export function applyMasteryPassToPlan(
     };
   });
   // PED-030 — pós-processo de variedade sem quebrar o viés da pass.
-  return balanceLessonPlan(withStages, { respectMasteryPass: pass });
+  return balanceLessonPlan(withStages, {
+    respectMasteryPass: pass,
+    recentActivities: context.recentActivities,
+  });
 }
 
 export function resolveMasteryPassForContext(

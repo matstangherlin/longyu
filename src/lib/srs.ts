@@ -195,7 +195,45 @@ export function dueItems(items: Record<string, SRSItem>, now = Date.now()): SRSI
     }
   }
 
-  return queue;
+  return spaceReviewFamilies(queue);
+}
+
+/**
+ * V3.9 · VAR-016 — espaça famílias iguais na fila de revisão.
+ *
+ * O intercalamento acima só evita o mesmo ITEM em sequência; a família passava
+ * batida. Depois de uma lição de Hànzì todos os caracteres vencem juntos e a
+ * revisão virava um bloco de Hànzì — a repetição percebida que o QA relatou,
+ * atravessando lição → revisão → lição.
+ *
+ * A reordenação é conservadora: mantém a prioridade e só adia um item quando
+ * existe alternativa de outra família logo à frente. Nada é removido.
+ */
+const FAMILY_COOLDOWN = 2;
+
+function reviewFamilyOf(item: SRSItem): string {
+  if (item.type === "radical") return "hanzi";
+  if (item.type === "char") return item.reviewDomain === "forma" ? "hanzi" : "char";
+  return item.reviewDomain ?? "chunk";
+}
+
+export function spaceReviewFamilies(queue: readonly SRSItem[]): SRSItem[] {
+  if (queue.length <= FAMILY_COOLDOWN) return [...queue];
+  const remaining = [...queue];
+  const spaced: SRSItem[] = [];
+  const recent: string[] = [];
+
+  while (remaining.length > 0) {
+    let pick = remaining.findIndex((item) => !recent.includes(reviewFamilyOf(item)));
+    // Nenhuma alternativa: mantém a ordem de prioridade em vez de forçar.
+    if (pick < 0) pick = 0;
+    const [chosen] = remaining.splice(pick, 1);
+    spaced.push(chosen);
+    recent.unshift(reviewFamilyOf(chosen));
+    recent.length = Math.min(recent.length, FAMILY_COOLDOWN);
+  }
+
+  return spaced;
 }
 
 export function reviewPriority(item: SRSItem, now = Date.now()): number {

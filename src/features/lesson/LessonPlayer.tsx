@@ -38,7 +38,7 @@ import {
 } from "../../lib/conversationVocabularySrs";
 import { conversationSceneById } from "../../data/conversationScenes";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
-import { manifestFromConversationStep } from "./lessonTasks";
+import { manifestFromConversationStep, primaryExerciseFamilyFor } from "./lessonTasks";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
   BREATH_LIVES,
@@ -1672,6 +1672,9 @@ export function LessonPlayer() {
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
   const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
+  // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
+  const recentActivities = useStore((s) => s.recentActivities);
+  const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
   const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
@@ -1837,6 +1840,7 @@ export function LessonPlayer() {
           hanziBuilderProgress,
           recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
           srs,
+          recentActivities,
           recentConversationSceneIds,
           recentConversationIntentIds,
           conversationHistory,
@@ -1866,6 +1870,7 @@ export function LessonPlayer() {
     learnedChunks,
     lessonAttemptsById,
     lessonMasteryById,
+    recentActivities,
     recentActivityErrors,
     recentConversationIntentIds,
     recentConversationSceneIds,
@@ -2746,6 +2751,21 @@ export function LessonPlayer() {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
+    // VAR-015/016/017 — memória de variedade entre modos. Só atividades
+    // avaliadas contam; repetição por recuperação vai rotulada para não ser
+    // confundida com repetição acidental.
+    if (currentStepIsGraded) {
+      const identity = errorIdentityForStep(currentStep);
+      recordActivityPlayed({
+        mode: "journey",
+        stepKind: currentStep.kind,
+        cognitiveFamily: primaryExerciseFamilyFor(currentStep),
+        lexicalTarget: identity?.sourceRef,
+        hanziTarget: identity?.hanzi,
+        conversationIntent: currentStep.sceneIntent,
+        recoveryReason: wasCorrect === false ? "erro_na_tentativa" : undefined,
+      });
+    }
     // Cena concluída alimenta a seleção futura (histórico personalizado): a
     // rotação e o nível da variante seguem o histórico real do aluno. O
     // vocabulário entra no SRS com prioridade pelo desempenho.

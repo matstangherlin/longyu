@@ -4,8 +4,8 @@ import { useLayoutEffect, useRef } from "react";
  * V3.9 · MOBILE-006 — Reserva de espaço para barras de ação fixas.
  *
  * O scroller da atividade (`[data-lesson-activity-scroll]`) reserva
- * `--lesson-sticky-actions-height` no padding inferior. Quem NÃO publica a
- * própria altura nessa variável flutua por cima do conteúdo: foi o caso da
+ * `--lesson-sticky-actions-height` no padding inferior. Uma barra que deixa de
+ * publicar a própria altura nessa variável flutua sobre o conteúdo: foi o caso da
  * barra "Limpar | Verificar" do HanziBuilder, que em Android real cobria as
  * opções de caractere.
  *

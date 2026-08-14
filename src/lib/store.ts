@@ -1,4 +1,9 @@
 import { create } from "zustand";
+import {
+  ACTIVITY_MEMORY_LIMIT,
+  rememberActivity,
+  type ActivityMemoryEntry,
+} from "./activityVariety";
 import { persist } from "zustand/middleware";
 import type { ItemType } from "../data/types";
 import type { DomainTrack } from "../data/domains";
@@ -1178,6 +1183,8 @@ interface AccountSnapshot extends XpBuckets {
   recentActivityErrors: ActivityErrorRecord[];
   /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
   unrecognizedProductions?: UnrecognizedProductionRecord[];
+  /** VAR-015 — atividades recentes em qualquer modo (mais recente primeiro). */
+  recentActivities?: ActivityMemoryEntry[];
   /** Últimas cenas de conversa vistas (mais recente primeiro) — evita repetição. */
   recentConversationSceneIds?: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro). */
@@ -1298,6 +1305,7 @@ function blankSnapshot(): AccountSnapshot {
     itemDimensionsByRef: {},
     recentActivityErrors: [],
     unrecognizedProductions: [],
+    recentActivities: [],
     recentConversationSceneIds: [],
     recentConversationIntentIds: [],
     conversationHistory: [],
@@ -1411,6 +1419,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     itemDimensionsByRef: s.itemDimensionsByRef ?? {},
     recentActivityErrors: s.recentActivityErrors,
     unrecognizedProductions: s.unrecognizedProductions ?? [],
+    recentActivities: s.recentActivities ?? [],
     recentConversationSceneIds: s.recentConversationSceneIds ?? [],
     recentConversationIntentIds: s.recentConversationIntentIds ?? [],
     conversationHistory: s.conversationHistory ?? [],
@@ -1545,6 +1554,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     itemDimensionsByRef: account.itemDimensionsByRef ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
     unrecognizedProductions: (account.unrecognizedProductions ?? []).slice(-40),
+    recentActivities: (account.recentActivities ?? []).slice(0, ACTIVITY_MEMORY_LIMIT),
     recentConversationSceneIds: (account.recentConversationSceneIds ?? []).slice(0, 10),
     recentConversationIntentIds: (account.recentConversationIntentIds ?? []).slice(0, 10),
     conversationHistory: normalizeConversationHistory(account.conversationHistory),
@@ -1825,6 +1835,8 @@ interface AppState {
   recentActivityErrors: ActivityErrorRecord[];
   /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
   unrecognizedProductions: UnrecognizedProductionRecord[];
+  /** VAR-015 — atividades recentes em qualquer modo (mais recente primeiro). */
+  recentActivities: ActivityMemoryEntry[];
   /** Últimas cenas de conversa vistas (mais recente primeiro) — evita repetição. */
   recentConversationSceneIds: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro). */
@@ -1975,6 +1987,11 @@ interface AppState {
   renameAccount: (id: string, name: string) => void;
   updateAccount: (id: string, data: { name?: string; email?: string }) => void;
   applyPlacement: (completedLessonIds: string[], placement: PlacementResult) => void;
+  /**
+   * VAR-015 — registra uma atividade avaliada, de qualquer modo, para que o
+   * próximo plano evite repetir a mesma família logo em seguida.
+   */
+  recordActivityPlayed: (entry: Omit<ActivityMemoryEntry, "at"> & { at?: number }) => void;
   ensureSrs: (type: ItemType, itemId: string, track?: Track, reviewDomain?: ReviewDomain) => void;
   gradeSrs: (type: ItemType, itemId: string, grade: Grade, track?: Track, reviewDomain?: ReviewDomain) => void;
   recordActivityError: (error: ActivityErrorRecord) => void;
@@ -2170,7 +2187,8 @@ export const useStore = create<AppState>()(
       itemDimensionsByRef: {},
       recentActivityErrors: [],
       unrecognizedProductions: [],
-      recentConversationSceneIds: [],
+      recentActivities: [],
+    recentConversationSceneIds: [],
       recentConversationIntentIds: [],
       conversationHistory: [],
       toneTrainer: {},
@@ -2779,6 +2797,19 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(next),
           };
         }),
+
+      recordActivityPlayed: (entry) => {
+        set((s) => {
+          const next = {
+            ...s,
+            recentActivities: rememberActivity(s.recentActivities ?? [], {
+              ...entry,
+              at: entry.at ?? Date.now(),
+            }),
+          };
+          return { recentActivities: next.recentActivities, accounts: saveCurrentAccount(next) };
+        });
+      },
 
       ensureSrs: (type, itemId, track, reviewDomain) => {
         const key = makeKey(type, itemId, reviewDomain);
