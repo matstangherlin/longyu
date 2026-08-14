@@ -1628,6 +1628,7 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-wohenhao",
     title: "我很好 — Estou bem",
     skill: "fala",
+    masteryLoop: true,
     libraryItems: ["chunk:wohenhao"],
     reviewItems: ["chunk:wohenhao"],
     steps: [
@@ -1686,6 +1687,7 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-wobuhui-shuo-zhongwen",
     title: "我不会说中文",
     skill: "fala",
+    masteryLoop: true,
     libraryItems: ["chunk:wobuhui", "chunk:nihao", "chunk:wohenhao"],
     reviewItems: ["chunk:nihao", "chunk:wohenhao"],
     steps: [
@@ -1737,6 +1739,7 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     id: "p3-qing-zai-shuo-yibian",
     title: "请再说一遍",
     skill: "fala",
+    masteryLoop: true,
     libraryItems: ["chunk:qingzaishuoyibian", "chunk:tingbudong", "chunk:wohenhao"],
     reviewItems: ["chunk:tingbudong", "chunk:wohenhao", "chunk:qingzaishuoyibian"],
     steps: [
@@ -2610,6 +2613,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-ate-logo",
             title: "Até logo",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:zaijian"],
             reviewItems: ["chunk:zaijian"],
             steps: [
@@ -2651,6 +2655,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-primeira-conversa",
             title: "Primeira conversa",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: [
               "chunk:nihao",
               "chunk:nihaoma",
@@ -2688,6 +2693,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-qingwen-cortesia",
             title: "Com licença",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:qingwen", "chunk:qingwen_nihaoma", "chunk:nihaoma"],
             reviewItems: ["chunk:qingwen", "chunk:nihaoma"],
             estimatedMinutes: 3,
@@ -3168,6 +3174,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9",
             title: "Me apresentar",
             skill: "fala",
+            masteryLoop: true,
             steps: [
               listen("我叫Matheus", "wǒ jiào Matheus", "Meu nome é Matheus"),
               listenSelect(
@@ -3285,6 +3292,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9-qual-nome",
             title: "Como você se chama?",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:nihao"],
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:nihao"],
             rewardQi: 2,
@@ -3314,6 +3322,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l10",
             title: "De onde sou",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:wature", "chunk:nishinaiguoren", "chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
             reviewItems: ["chunk:nihao", "chunk:wojiao", "char:ni", "char:ren"],
             newHanzi: ["哪"],
@@ -3352,6 +3361,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l11",
             title: "Não entendi",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
             reviewItems: ["chunk:tingbudong", "chunk:qingzaishuoyibian", "chunk:wobuhui"],
             steps: [
@@ -3394,6 +3404,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l11-falo-pouco",
             title: "Falo um pouco",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             reviewItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             rewardQi: 2,
@@ -3565,6 +3576,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l13-dialogo-ola",
             title: "Microdiálogo: cumprimentar",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie"],
             reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie"],
             rewardQi: 2,
@@ -3593,6 +3605,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l13-dialogo-nome",
             title: "Microdiálogo: se apresentar",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             rewardQi: 2,
@@ -4360,6 +4373,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l19",
             title: "Um a cinco",
             skill: "hanzi",
+            masteryLoop: true,
             steps: [
               intro("Risquinhos", "一 二 三 são literalmente 1, 2 e 3 traços. É o jeito mais fácil de começar a ler números."),
               listen("一", "yī", "um"),
@@ -4420,6 +4434,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l20",
             title: "Seis a dez",
             skill: "hanzi",
+            masteryLoop: true,
             steps: [
               recognize("liu"),
               recognize("qi"),
@@ -4463,6 +4478,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l21",
             title: "Nós e vocês",
             skill: "fala",
+            masteryLoop: true,
             steps: [
               intro("Plural", "我 + 们 = 我们 (nós); 你 + 们 = 你们 (vocês)."),
               flash("women"),
@@ -4486,6 +4502,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "China e amigos",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             steps: [
               flash("zhongguo"),
               comp("中国", "Zhōngguó", "China", ["China", "Brasil", "amigo", "casa"]),
@@ -4678,6 +4695,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Perguntas úteis",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vistos na cena de perguntar onde algo fica (山在哪里 → 在那里) e em casa.
             newHanzi: ["那", "里"],
             libraryItems: [
@@ -4758,6 +4776,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Fome e gosto",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             steps: [
               flash("woxihuan"),
               flash("woele"),
@@ -5081,6 +5100,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Vamos embora",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             steps: [
               flash("womenzouba"),
               comp("我们走吧", "wǒmen zǒu ba", "Vamos embora.", ["Vamos embora.", "Quero chá.", "Até logo.", "Muito caro!"]),
@@ -5666,6 +5686,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Saúde",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Chars de saúde que só têm gloss (院, 下 e 班 entram via 医院/我下班).
             newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班"],
             libraryItems: [
@@ -5940,6 +5961,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "O tempo (clima)",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // 雨/云/下 já vistos em p6-natureza; novos: 冷/晴/雪/风.
             newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热"],
             libraryItems: [
@@ -6785,6 +6807,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: no mercado",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vocabulário visto na imersão de mercado (多少钱).
             newHanzi: ["多", "少"],
             steps: [
@@ -6942,6 +6965,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Imersão: visita à casa da amiga",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Vocabulário visto na imersão de visita (认识你很高兴 e distratores).
             newHanzi: ["认", "识", "高", "兴", "单", "饿", "多", "少"],
             steps: [
