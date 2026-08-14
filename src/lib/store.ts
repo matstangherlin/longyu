@@ -2066,6 +2066,8 @@ interface AppState {
         dimension: import("../data/masteryLoop").CompetencyDimension;
         correct: boolean;
       }>;
+      /** PED-095 — `Date.now()` de quando esta pass começou; habilita telemetria com duração. */
+      startedAt?: number;
     }
   ) => void;
   /**
@@ -4567,6 +4569,12 @@ export const useStore = create<AppState>()(
           }
           const next = { ...s, lessonMasteryById, itemDimensionsByRef };
           return { lessonMasteryById, itemDimensionsByRef, accounts: saveCurrentAccount(next) };
+        });
+        // PED-095 — telemetria de início/fim de mastery pass a partir de um único
+        // ponto (evita instrumentar múltiplos pontos do LessonPlayer). Import
+        // dinâmico: pedagogyEvents.ts importa `useStore` deste módulo.
+        void import("../services/pedagogyEvents").then(({ trackMasteryPassTelemetry }) => {
+          trackMasteryPassTelemetry({ lessonId, pass: input.pass, startedAt: input.startedAt });
         });
       },
 

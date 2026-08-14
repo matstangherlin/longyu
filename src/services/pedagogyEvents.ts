@@ -33,6 +33,9 @@ export const PEDAGOGY_EVENT_TYPES = [
   "lesson_abandoned",
   "unrecognized_answer",
   "production_help_requested",
+  /** PED-095 — início/fim de uma mastery pass (ver trackMasteryPassTelemetry). */
+  "mastery_pass_started",
+  "mastery_pass_completed",
 ] as const;
 
 export type PedagogyEventType = (typeof PEDAGOGY_EVENT_TYPES)[number];
@@ -188,6 +191,39 @@ export async function flushPedagogyQueue(): Promise<number> {
   }
   writeQueue(remaining.filter((item) => item.attempts < 6));
   return sent;
+}
+
+export interface MasteryPassTelemetryInput {
+  lessonId: string;
+  pass: number;
+  /** `Date.now()` de quando esta pass começou. Se omitido, "started" não é emitido. */
+  startedAt?: number;
+}
+
+/**
+ * PED-095 — telemetria de mastery pass: emite `mastery_pass_started` (quando
+ * `startedAt` é conhecido) e sempre `mastery_pass_completed`, com `durationMs`
+ * calculado a partir de `startedAt` quando disponível. Pensado para ser
+ * chamado de um único ponto (ex.: `recordLessonMasteryPass` na store) em vez
+ * de instrumentar múltiplos pontos do LessonPlayer.
+ */
+export function trackMasteryPassTelemetry(input: MasteryPassTelemetryInput): void {
+  const completedAt = Date.now();
+  if (input.startedAt != null) {
+    void trackPedagogyEvent({
+      eventType: "mastery_pass_started",
+      lessonId: input.lessonId,
+      metadata: { pass: input.pass },
+    });
+  }
+  void trackPedagogyEvent({
+    eventType: "mastery_pass_completed",
+    lessonId: input.lessonId,
+    metadata: {
+      pass: input.pass,
+      ...(input.startedAt != null ? { durationMs: Math.max(0, completedAt - input.startedAt) } : {}),
+    },
+  });
 }
 
 export async function trackPedagogyEvent(input: PedagogyEventInput): Promise<void> {

@@ -3211,6 +3211,7 @@ export function LessonPlayer() {
             isProductionOrTransferKind(step.kind)
           ),
           dimensionUpdates: dimensionUpdates.slice(0, 12),
+          startedAt: attemptStartedAtRef.current,
         });
       }
       // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
