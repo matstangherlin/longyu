@@ -6192,6 +6192,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
   return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })), {
     recentActivities: context.recentActivities,
+    hanziDedicatedLesson: lesson.skill === "hanzi",
   });
 }
 
@@ -6234,12 +6235,17 @@ function conversationLockedBlocks(plan: LessonRoundStep[]): LessonRoundStep[][] 
  * penalizada como se fosse repetição acidental (VAR-017).
  */
 function varietySeedFromHistory(
-  history: readonly ActivityMemoryEntry[] | undefined
+  history: readonly ActivityMemoryEntry[] | undefined,
+  options: { hanziDedicatedLesson?: boolean } = {}
 ): PracticeCandidate[] {
   if (!history || history.length === 0) return [];
   return history
     .slice(0, 4)
     .filter((entry) => !entry.recoveryReason)
+    // VAR-016 — lição explicitamente dedicada a Hànzì é exceção: nela a família
+    // Hànzì É o objetivo, então o histórico de Hànzì não pode empurrar o plano
+    // para outra coisa. As demais famílias do histórico seguem valendo.
+    .filter((entry) => !(options.hanziDedicatedLesson && entry.cognitiveFamily === "hanzi"))
     .reverse()
     .map((entry, index) => ({
       step: { kind: entry.stepKind as StepKind, hanzi: entry.hanziTarget } as LessonRoundStep,
@@ -6259,13 +6265,19 @@ function varietySeedFromHistory(
  */
 export function balanceLessonPlan(
   plan: LessonRoundStep[],
-  _options: { respectMasteryPass?: number; recentActivities?: readonly ActivityMemoryEntry[] } = {}
+  _options: {
+    respectMasteryPass?: number;
+    recentActivities?: readonly ActivityMemoryEntry[];
+    hanziDedicatedLesson?: boolean;
+  } = {}
 ): LessonRoundStep[] {
   if (plan.length <= 2) return plan;
   // VAR-015 — a janela de variedade começa com o que o aluno acabou de fazer em
   // QUALQUER modo (lição, mastery, revisão, prática). Sem isso cada plano passa
   // isolado e o aluno ainda vê Hànzì → Hànzì → Hànzì atravessando os modos.
-  const carryOver = varietySeedFromHistory(_options.recentActivities);
+  const carryOver = varietySeedFromHistory(_options.recentActivities, {
+    hanziDedicatedLesson: _options.hanziDedicatedLesson,
+  });
   const items = conversationLockedBlocks(plan).map((steps, index) => ({
     steps,
     step: steps[0],
@@ -6425,6 +6437,7 @@ export function applyMasteryPassToPlan(
   return balanceLessonPlan(withStages, {
     respectMasteryPass: pass,
     recentActivities: context.recentActivities,
+    hanziDedicatedLesson: lesson.skill === "hanzi",
   });
 }
 
