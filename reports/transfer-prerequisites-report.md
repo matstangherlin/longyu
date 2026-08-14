@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | cafb5d668849f8180247b38bccac5dff0ce91337 |
+| Commit | 2cb37952a56514bd080e142236f52a2a698d8e16 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T13:51:13.135Z |
+| Gerado em | 2026-08-14T18:46:22.263Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -79,4 +79,4 @@
 - **p6-china-ruas** · objetivo `ask_location` · modelo `请问，超市在哪里？`
 - **p6-compras** · objetivo `state_destination` · modelo `我去超市。`
 
-<!-- integridade:89c78b7df328cdf9 -->
+<!-- integridade:d4322f8266eae5bf -->
