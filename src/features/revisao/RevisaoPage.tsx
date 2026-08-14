@@ -40,6 +40,7 @@ import {
   useIsPro,
 } from "../../lib/proAccess";
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
+import { reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -269,6 +270,31 @@ function reviewQiForGrade(grade: Grade): number {
   if (grade === "again" || grade === "hard") return 1;
   if (grade === "good") return 2;
   return 3;
+}
+
+/**
+ * Família cognitiva do card de revisão, no mesmo vocabulário do planner —
+ * é o que permite comparar revisão e lição na janela de variedade (VAR-015).
+ */
+function reviewCognitiveFamily(exercise: ReviewExercise, itemType: SRSItem["type"]): string {
+  switch (exercise.kind) {
+    case "hanzi_build":
+    case "hanzi_reverse":
+    case "meaning_to_hanzi":
+      return "hanzi";
+    case "listen_select":
+      return "listening";
+    case "pinyin_choice":
+    case "pinyin_reverse":
+    case "tone_choice":
+      return "tone";
+    case "sentence_build":
+      return "construction";
+    case "dialogue_choice":
+      return "conversation";
+    default:
+      return itemType === "chunk" ? "recognition" : "hanzi";
+  }
 }
 
 function gradeSound(grade: Grade): SoundKind {
@@ -1082,6 +1108,7 @@ export function RevisaoPage() {
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const completedLessons = useStore((s) => s.completedLessons);
   const recordActivityError = useStore((s) => s.recordActivityError);
+  const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
   const markActivityErrorCorrected = useStore((s) => s.markActivityErrorCorrected);
   const recordActivityErrorReviewAttempt = useStore((s) => s.recordActivityErrorReviewAttempt);
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
@@ -1400,7 +1427,8 @@ export function RevisaoPage() {
                 desc: "Fila gratuita do dia.",
                 icon: IconRefresh,
                 to: "/revisao",
-                status: modeCounts.all > 0 ? `${modeCounts.all} itens` : "Em dia",
+                // REVIEW-026: sessão do dia no lugar do total bruto da fila.
+                status: reviewSessionLabel(reviewSessionSplit(modeCounts.all, isPremium)),
                 featured: !detailedErrorsAllowed,
               },
               {
@@ -1592,6 +1620,17 @@ export function RevisaoPage() {
     const itemLabelText = data?.hanzi ?? itemLabel(item);
     const correct = effectiveGrade !== "again";
     setSessionGrades((items) => [...items, { domain, correct, label: itemLabelText }]);
+    // VAR-015 — a revisão entra na MESMA memória de variedade da jornada: era
+    // por aqui que o aluno via Hànzì na lição, Hànzì na revisão e Hànzì de novo
+    // na lição seguinte, cada plano passando isolado.
+    recordActivityPlayed({
+      mode: "review",
+      stepKind: activeExercise.kind,
+      cognitiveFamily: reviewCognitiveFamily(activeExercise, item.type),
+      lexicalTarget: `${item.type}:${item.itemId}`,
+      hanziTarget: activeExercise.entity?.hanzi,
+      recoveryReason: sourceError ? "remediacao_de_erro" : undefined,
+    });
     if (!correct) {
       setReturningItems((items) => (items.includes(itemLabelText) ? items : [...items, itemLabelText]));
     }

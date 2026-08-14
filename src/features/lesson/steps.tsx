@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LessonStep, StepTextType } from "../../data/journey";
 import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
@@ -8,6 +8,7 @@ import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS } from "../../data/tones";
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
+import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
 import {
   personalizeConversationPrompt,
@@ -138,36 +139,8 @@ function StickyActionBar({
   children: ReactNode;
   className?: string;
 }) {
-  const barRef = useRef<HTMLDivElement | null>(null);
-
-  useLayoutEffect(() => {
-    const bar = barRef.current;
-    const scroller = bar?.closest<HTMLElement>("[data-lesson-activity-scroll]");
-    if (!bar || !scroller) return undefined;
-    let frame = 0;
-
-    const updateReservedSpace = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const height = Math.ceil(bar.getBoundingClientRect().height);
-        if (height > 0) scroller.style.setProperty("--lesson-sticky-actions-height", `${height}px`);
-      });
-    };
-
-    updateReservedSpace();
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(updateReservedSpace);
-    observer?.observe(bar);
-    window.visualViewport?.addEventListener("resize", updateReservedSpace);
-    window.addEventListener("orientationchange", updateReservedSpace);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      observer?.disconnect();
-      window.visualViewport?.removeEventListener("resize", updateReservedSpace);
-      window.removeEventListener("orientationchange", updateReservedSpace);
-      scroller.style.removeProperty("--lesson-sticky-actions-height");
-    };
-  }, []);
+  // Medição compartilhada com as demais barras fixas (MOBILE-006).
+  const barRef = useStickyActionsReserve<HTMLDivElement>();
 
   return (
     <div

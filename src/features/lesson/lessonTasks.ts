@@ -37,6 +37,9 @@ import {
   REVIEW_MASTERY_LABELS,
   type ReviewMasteryLevel,
 } from "../../data/reviewMastery";
+import type { ActivityMemoryEntry } from "../../lib/activityVariety";
+import { PRECOMPUTED_STRUCTURE_EXPOSURE } from "../../data/generated/structureExposureIndex";
+import { timeLessonPlannerPhase } from "../../lib/plannerTiming";
 import { CHARACTERS, charById } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import {
@@ -120,6 +123,7 @@ import {
   type FrameTask,
   type ProductionAssist,
   type StructureExposureMap,
+  type StructurePracticeRungs,
 } from "../../data/productionTasks";
 import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
@@ -622,6 +626,12 @@ export interface LessonPracticePlanContext {
   /** Domínio do HanziBuilder por caractere: escolhe a variação certa (guia → desafio). */
   hanziBuilderProgress?: HanziBuilderProgressMap;
   srs?: Record<string, import("../../lib/srs").SRSItem>;
+  /**
+   * VAR-015 — atividades recentes em QUALQUER modo (lição, mastery, revisão,
+   * prática), mais recente primeiro. Semeia a janela de variedade para que a
+   * repetição percebida entre modos também seja evitada.
+   */
+  recentActivities?: readonly ActivityMemoryEntry[];
   /** Últimas cenas de conversa vistas (mais recente primeiro) — persistido. */
   recentConversationSceneIds?: string[];
   /** Últimas intenções de conversa vistas (mais recente primeiro) — persistido. */
@@ -1918,10 +1928,31 @@ interface StructureExposureBundle {
   forTransfer: StructureExposureMap;
 }
 
-let structureExposureIndex: Map<string, StructureExposureBundle> | null = null;
-let structureExposureIndexBuilding = false;
+/**
+ * PERF-012/013 — o índice é construído INCREMENTALMENTE, lição a lição.
+ *
+ * Antes, qualquer acesso disparava a construção do índice inteiro: montar o
+ * plano de prática das 127 lições para abrir uma. Medido em ~12 s de CPU
+ * síncrona em máquina de servidor — no Android real é o congelamento relatado.
+ * `startTransition` não ajudava porque só muda prioridade de render; o trabalho
+ * continuava na main thread.
+ *
+ * Abrir a lição N só depende do histórico até N. O estado abaixo mantém o
+ * progresso da varredura para que cada lição pague apenas o próprio custo, uma
+ * única vez. Relatórios e validators seguem pedindo o índice completo.
+ */
+const structureExposureIndex = new Map<string, StructureExposureBundle>();
 /** Frames que já tiveram transfer_task em lição ANTERIOR (por lessonId). */
-let priorTransferredFramesIndex: Map<string, ReadonlySet<string>> | null = null;
+const priorTransferredFramesIndex = new Map<string, ReadonlySet<string>>();
+let structureExposureIndexBuilding = false;
+/** Quantas lições da jornada já foram incorporadas ao índice. */
+let structureExposureBuiltCount = 0;
+/** Exposição acumulada das lições já varridas (entrada da próxima). */
+let structureExposureRunningPrior: StructureExposureMap = new Map();
+/** Frames já transferidos até `structureExposureBuiltCount`. */
+const structureExposureRunningTransferred = new Set<string>();
+
+const lessonOrderById = new Map(ALL_LESSONS.map((lesson, index) => [lesson.id, index]));
 
 function emptyExposureBundle(): StructureExposureBundle {
   return { forFree: new Map(), forTransfer: new Map() };
@@ -1931,20 +1962,24 @@ function emptyExposureBundle(): StructureExposureBundle {
  * Monta o índice lição a lição. Transferência exige produção guiada em lição
  * ANTERIOR; free na lição atual pode usar foco/autoral da própria lição.
  */
-function ensureStructureExposureIndex(): void {
-  if (structureExposureIndex || structureExposureIndexBuilding) return;
+/**
+ * Varre a jornada até `throughIndex` (inclusive), aproveitando o que já foi
+ * construído antes. Chamar com a última lição equivale ao índice completo.
+ */
+function buildStructureExposureThrough(throughIndex: number): void {
+  const target = Math.min(throughIndex, ALL_LESSONS.length - 1);
+  if (structureExposureIndexBuilding || structureExposureBuiltCount > target) return;
   structureExposureIndexBuilding = true;
-  const index = new Map<string, StructureExposureBundle>();
-  const priorTransferByLesson = new Map<string, ReadonlySet<string>>();
-  let prior: StructureExposureMap = new Map();
-  const transferredSoFar = new Set<string>();
+  // PERF-010 — mede quanto a construção do índice custa nesta abertura.
+  timeLessonPlannerPhase("structure_exposure_index", () => {
   try {
-    for (const lesson of ALL_LESSONS) {
-      priorTransferByLesson.set(lesson.id, new Set(transferredSoFar));
-      const forTransfer = cloneStructureExposure(prior);
-      const forFree = cloneStructureExposure(prior);
+    for (let index = structureExposureBuiltCount; index <= target; index += 1) {
+      const lesson = ALL_LESSONS[index];
+      priorTransferredFramesIndex.set(lesson.id, new Set(structureExposureRunningTransferred));
+      const forTransfer = cloneStructureExposure(structureExposureRunningPrior);
+      const forFree = cloneStructureExposure(structureExposureRunningPrior);
       mergeStructureExposure(forFree, curriculumStructureExposureForLesson(lesson));
-      index.set(lesson.id, {
+      structureExposureIndex.set(lesson.id, {
         forFree: cloneStructureExposure(forFree),
         forTransfer: cloneStructureExposure(forTransfer),
       });
@@ -1953,41 +1988,114 @@ function ensureStructureExposureIndex(): void {
         skipStructureExposureIndex: true,
         structureExposure: forFree,
         structureExposureForTransfer: forTransfer,
-        priorTransferredFrames: priorTransferByLesson.get(lesson.id),
+        priorTransferredFrames: priorTransferredFramesIndex.get(lesson.id),
       });
       const fromPlan: StructureExposureMap = new Map();
       for (const step of plan) {
         creditStructureFromStep(fromPlan, step);
         if (step.kind === "transfer_task" && step.productionFrameId) {
-          transferredSoFar.add(step.productionFrameId);
+          structureExposureRunningTransferred.add(step.productionFrameId);
         }
       }
-      mergeStructureExposure(prior, fromPlan);
+      mergeStructureExposure(structureExposureRunningPrior, fromPlan);
       // Currículo desta lição também alimenta o histórico da próxima.
-      mergeStructureExposure(prior, curriculumStructureExposureForLesson(lesson));
+      mergeStructureExposure(
+        structureExposureRunningPrior,
+        curriculumStructureExposureForLesson(lesson)
+      );
+      structureExposureBuiltCount = index + 1;
     }
-    structureExposureIndex = index;
-    priorTransferredFramesIndex = priorTransferByLesson;
   } finally {
     structureExposureIndexBuilding = false;
   }
+  });
+}
+
+/** Índice completo — usado por relatórios e validators, não pelo player. */
+function ensureStructureExposureIndex(): void {
+  buildStructureExposureThrough(ALL_LESSONS.length - 1);
+}
+
+/**
+ * Índice apenas até a lição pedida. É o caminho do player: abrir a lição 1
+ * deixou de custar as 127 lições da jornada.
+ */
+function ensureStructureExposureIndexFor(lessonId: string | undefined): void {
+  const index = lessonId === undefined ? undefined : lessonOrderById.get(lessonId);
+  if (index === undefined) {
+    // Lição fora da jornada (mastery, avulsa): só o histórico completo responde.
+    ensureStructureExposureIndex();
+    return;
+  }
+  buildStructureExposureThrough(index);
+}
+
+/**
+ * PERF-012 — decodifica o índice pré-computado no build.
+ *
+ * Quem abre uma lição não paga mais NADA por este índice: a varredura das 127
+ * lições foi resolvida em build (ver scripts/build-structure-exposure-index.mjs)
+ * e `validate:structure-index` garante que o artefato não diverge da jornada.
+ * A construção incremental continua como fallback — lição fora do artefato
+ * (mastery, avulsa) ou artefato ausente em algum ambiente.
+ */
+function decodeRungs(mask: number): StructurePracticeRungs {
+  return {
+    exposed: (mask & 1) !== 0,
+    completion: (mask & 2) !== 0,
+    build: (mask & 4) !== 0,
+    guidedProduction: (mask & 8) !== 0,
+  };
+}
+
+function decodeExposureMap(encoded: Record<string, number>): StructureExposureMap {
+  const map: StructureExposureMap = new Map();
+  for (const [frameId, mask] of Object.entries(encoded)) map.set(frameId, decodeRungs(mask));
+  return map;
+}
+
+/**
+ * O gerador e o `validate:structure-index` precisam recalcular do zero. Sem
+ * isto o validador leria de volta o próprio artefato e aprovaria qualquer
+ * corrupção — a checagem seria circular e inútil.
+ */
+let ignorePrecomputedExposure = false;
+
+export function setIgnorePrecomputedStructureExposure(value: boolean): void {
+  ignorePrecomputedExposure = value;
+}
+
+function precomputedExposureFor(lessonId: string): StructureExposureBundle | null {
+  if (ignorePrecomputedExposure) return null;
+  const entry = PRECOMPUTED_STRUCTURE_EXPOSURE[lessonId];
+  if (!entry) return null;
+  return { forFree: decodeExposureMap(entry.free), forTransfer: decodeExposureMap(entry.transfer) };
 }
 
 function priorTransferredFramesForLesson(lessonId: string | undefined): ReadonlySet<string> {
   if (!lessonId) return new Set();
-  ensureStructureExposureIndex();
-  return priorTransferredFramesIndex?.get(lessonId) ?? new Set();
+  const precomputed = ignorePrecomputedExposure ? undefined : PRECOMPUTED_STRUCTURE_EXPOSURE[lessonId];
+  if (precomputed) return new Set(precomputed.priorTransferred);
+  ensureStructureExposureIndexFor(lessonId);
+  return priorTransferredFramesIndex.get(lessonId) ?? new Set();
 }
 
 function structureExposureForLesson(lessonId: string | undefined): StructureExposureBundle {
   if (!lessonId) return emptyExposureBundle();
-  ensureStructureExposureIndex();
-  return structureExposureIndex?.get(lessonId) ?? emptyExposureBundle();
+  const precomputed = precomputedExposureFor(lessonId);
+  if (precomputed) return precomputed;
+  ensureStructureExposureIndexFor(lessonId);
+  return structureExposureIndex.get(lessonId) ?? emptyExposureBundle();
 }
 
 /** Snapshot público para validators / auditoria. */
 export function structureExposureSnapshotForLesson(lessonId: string): StructureExposureBundle {
   return structureExposureForLesson(lessonId);
+}
+
+/** Snapshot público dos frames já transferidos — usado pelo gerador do índice. */
+export function priorTransferredFramesSnapshotForLesson(lessonId: string): ReadonlySet<string> {
+  return priorTransferredFramesForLesson(lessonId);
 }
 
 /**
@@ -2015,7 +2123,7 @@ export function structureFirstOccurrenceReport(): Array<{
     for (const [frameId, rungs] of curriculum) {
       if (rungs.exposed && !firstExposed.has(frameId)) firstExposed.set(frameId, lesson.id);
     }
-    const bundle = structureExposureIndex?.get(lesson.id);
+    const bundle = structureExposureIndex.get(lesson.id);
     const plan = buildLessonPracticePlan(lesson, {
       silent: true,
       skipStructureExposureIndex: true,
@@ -3951,6 +4059,11 @@ function selectRoundSteps(
 function isPinyinPracticeStep(step: LessonStep): boolean {
   const text = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""}`.toLocaleLowerCase("pt-BR");
   return step.kind === "tone" || step.kind === "tone_pair" || text.includes("pinyin") || text.includes("tom");
+}
+
+/** Família cognitiva principal do passo — usada pela memória de variedade. */
+export function primaryExerciseFamilyFor(step: LessonStep): string {
+  return exerciseFamiliesFor(step)[0] ?? "other";
 }
 
 function exerciseFamiliesFor(step: LessonStep, stageId?: LessonStageId): ExerciseFamily[] {
@@ -6077,7 +6190,10 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   });
 
   if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
-  return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })));
+  return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })), {
+    recentActivities: context.recentActivities,
+    hanziDedicatedLesson: lesson.skill === "hanzi",
+  });
 }
 
 function isPostConversationFollowUp(step: LessonRoundStep, sceneId: string | undefined): boolean {
@@ -6111,6 +6227,37 @@ function conversationLockedBlocks(plan: LessonRoundStep[]): LessonRoundStep[][] 
 }
 
 /**
+ * Converte o histórico entre modos em candidatos sintéticos, na ordem
+ * cronológica que `wouldViolateVariety` espera (mais antigo primeiro).
+ *
+ * Atividades marcadas com `recoveryReason` são repetição DELIBERADA (o aluno
+ * errou e está recuperando) e não entram na janela — senão a remediação seria
+ * penalizada como se fosse repetição acidental (VAR-017).
+ */
+function varietySeedFromHistory(
+  history: readonly ActivityMemoryEntry[] | undefined,
+  options: { hanziDedicatedLesson?: boolean } = {}
+): PracticeCandidate[] {
+  if (!history || history.length === 0) return [];
+  return history
+    .slice(0, 4)
+    .filter((entry) => !entry.recoveryReason)
+    // VAR-016 — lição explicitamente dedicada a Hànzì é exceção: nela a família
+    // Hànzì É o objetivo, então o histórico de Hànzì não pode empurrar o plano
+    // para outra coisa. As demais famílias do histórico seguem valendo.
+    .filter((entry) => !(options.hanziDedicatedLesson && entry.cognitiveFamily === "hanzi"))
+    .reverse()
+    .map((entry, index) => ({
+      step: { kind: entry.stepKind as StepKind, hanzi: entry.hanziTarget } as LessonRoundStep,
+      stageId: "usage" as LessonStageId,
+      families: [entry.cognitiveFamily as ExerciseFamily],
+      score: 0,
+      generated: false,
+      sourceStepIndex: -1 - index,
+    }));
+}
+
+/**
  * PED-030 — pós-processamento de variedade do plano.
  * Evita kinds consecutivos e saturação de famílias (hanzi/tone),
  * sem reordenar agressivamente a ordem de estágios.
@@ -6118,9 +6265,19 @@ function conversationLockedBlocks(plan: LessonRoundStep[]): LessonRoundStep[][] 
  */
 export function balanceLessonPlan(
   plan: LessonRoundStep[],
-  _options: { respectMasteryPass?: number } = {}
+  _options: {
+    respectMasteryPass?: number;
+    recentActivities?: readonly ActivityMemoryEntry[];
+    hanziDedicatedLesson?: boolean;
+  } = {}
 ): LessonRoundStep[] {
   if (plan.length <= 2) return plan;
+  // VAR-015 — a janela de variedade começa com o que o aluno acabou de fazer em
+  // QUALQUER modo (lição, mastery, revisão, prática). Sem isso cada plano passa
+  // isolado e o aluno ainda vê Hànzì → Hànzì → Hànzì atravessando os modos.
+  const carryOver = varietySeedFromHistory(_options.recentActivities, {
+    hanziDedicatedLesson: _options.hanziDedicatedLesson,
+  });
   const items = conversationLockedBlocks(plan).map((steps, index) => ({
     steps,
     step: steps[0],
@@ -6142,7 +6299,7 @@ export function balanceLessonPlan(
         generated: candidate.generated,
         sourceStepIndex: candidate.index,
       };
-      const seq: PracticeCandidate[] = result.flatMap((item) =>
+      const seq: PracticeCandidate[] = [...carryOver, ...result.flatMap((item) =>
         item.steps.map((step, offset) => ({
           step,
           stageId: (step.lessonStageId ?? item.stageId) as LessonStageId,
@@ -6151,7 +6308,7 @@ export function balanceLessonPlan(
           generated: Boolean(step.generated),
           sourceStepIndex: item.index + offset,
         }))
-      );
+      )];
       return !wouldViolateVariety(seq, asCandidate);
     });
     if (pick < 0) pick = 0;
@@ -6277,7 +6434,11 @@ export function applyMasteryPassToPlan(
     };
   });
   // PED-030 — pós-processo de variedade sem quebrar o viés da pass.
-  return balanceLessonPlan(withStages, { respectMasteryPass: pass });
+  return balanceLessonPlan(withStages, {
+    respectMasteryPass: pass,
+    recentActivities: context.recentActivities,
+    hanziDedicatedLesson: lesson.skill === "hanzi",
+  });
 }
 
 export function resolveMasteryPassForContext(

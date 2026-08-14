@@ -6,6 +6,7 @@ import {
 } from "../../data/journey";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
+import { reviewPendingLabel, reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
@@ -492,6 +493,10 @@ function JourneyHeader({
   streak: number;
   offline: boolean;
 }) {
+  // REVIEW-026: o convite tem o tamanho de uma sessão; o backlog fica visível
+  // como informação secundária, não como tarefa monolítica.
+  const reviewSplit = reviewSessionSplit(reviewCount);
+  const pendingLabel = reviewPendingLabel(reviewSplit);
   return (
     <Card
       className="relative overflow-hidden border-accent/15 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
@@ -553,9 +558,7 @@ function JourneyHeader({
           {reviewCount > 0 && (
             <ButtonLink to="/revisao?modo=fracos&sessao=corrigir" variant="soft" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5">
             <IconRefresh width={16} height={16} aria-hidden="true" />
-            <span className="leading-none">
-              Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
-            </span>
+            <span className="leading-none">{reviewSessionLabel(reviewSplit)}</span>
           </ButtonLink>
           )}
         </div>
@@ -569,9 +572,7 @@ function JourneyHeader({
             className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
           >
             <IconRefresh width={16} height={16} aria-hidden="true" />
-            <span className="leading-none">
-              Revisar {reviewCount} {reviewCount === 1 ? "item" : "itens"}
-            </span>
+            <span className="leading-none">{reviewSessionLabel(reviewSplit)}</span>
           </ButtonLink>
         </div>
       )}
@@ -583,6 +584,7 @@ function JourneyHeader({
       {reviewCount > 0 && (
         <p className="relative mt-1.5 text-[11px] leading-4 text-ink-faint">
           Reforça o que você já aprendeu — leva poucos minutos.
+          {pendingLabel && <span className="ml-1 text-ink-faint">{pendingLabel}.</span>}
         </p>
       )}
     </Card>

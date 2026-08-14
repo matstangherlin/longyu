@@ -97,8 +97,10 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await dismissBlockingOverlays(page);
     // Continuar continua como ação principal.
     await expect(page.getByRole("button", { name: /^Continuar$/ })).toBeVisible();
-    // Revisão como link secundário positivo.
-    const review = page.getByRole("link", { name: /Revisar \d+ ite/i });
+    // Revisão como link secundário positivo. O rótulo passou a ser do tamanho
+    // de uma SESSÃO ("Revisão de hoje · 10") em vez do total bruto da fila
+    // ("Revisar 260 itens"), que passava sensação de dívida infinita.
+    const review = page.getByRole("link", { name: /Revisão de hoje/i });
     await expect(review).toBeVisible();
     await expect(review).toHaveAttribute("href", "/revisao?modo=fracos&sessao=corrigir");
     await expect(page.getByText(/Reforça o que você já aprendeu — leva/i)).toBeVisible();

@@ -3,6 +3,8 @@
  * Near-zero overhead when disabled (DEV, localStorage flag, or VITE_LESSON_PERF).
  */
 
+import { setPlannerTimingEnabled } from "./plannerTiming";
+
 export const LESSON_PERF_MARKS = {
   startClick: "lesson_start_click",
   routeMounted: "lesson_route_mounted",
@@ -89,3 +91,20 @@ export function observeLessonLongTasks(cb: LessonLongTaskCallback): () => void {
     return () => undefined;
   }
 }
+
+/**
+ * V3.9 · PERF-010 — instrumentação de fases do planner.
+ *
+ * O armazenamento vive em `plannerTiming`, que não usa `import.meta` e por isso
+ * pode ser importado por `lessonTasks` (compilado para CJS pelos validators).
+ * Aqui só ligamos a chave conforme a mesma regra das demais marcas.
+ */
+export {
+  lessonPlannerTimings,
+  resetLessonPlannerTimings,
+  slowestLessonPlannerPhase,
+  timeLessonPlannerPhase,
+  type LessonPlannerTiming,
+} from "./plannerTiming";
+
+setPlannerTimingEnabled(isLessonPerfEnabled());

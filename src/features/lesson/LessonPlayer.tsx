@@ -3,6 +3,15 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
+import {
+  charsInText,
+  findChunkByText,
+  isCoherentPinyin,
+  normalizeHanzi,
+  resolveLexicalIdentity,
+  type LexicalIdentity,
+  type OwnedGloss,
+} from "./errorLexicalIdentity";
 import { diagnoseError, type ErrorDiagnosis } from "../../data/errorDiagnosis";
 import type { ItemType } from "../../data/types";
 import { canAccessLesson } from "../../lib/journeyUnlocks";
@@ -29,7 +38,8 @@ import {
 } from "../../lib/conversationVocabularySrs";
 import { conversationSceneById } from "../../data/conversationScenes";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
-import { manifestFromConversationStep } from "./lessonTasks";
+import { manifestFromConversationStep, primaryExerciseFamilyFor } from "./lessonTasks";
+import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
   BREATH_LIVES,
@@ -171,7 +181,6 @@ function isGradedStep(step: LessonStep): boolean {
   return GRADED_STEP_KINDS.includes(step.kind) && !(step.kind === "write" && step.mode === "free_reflection");
 }
 
-const charByGlyph = new Map(CHARACTERS.map((char) => [char.hanzi, char]));
 const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
 
 interface LessonMistake {
@@ -226,23 +235,6 @@ function LessonRecoveryDevPanel({
       </div>
     </div>
   );
-}
-
-function normalizeHanzi(text: string): string {
-  return text.replace(/[，。！？、,.!?？\s]/g, "");
-}
-
-function findChunkByText(text: string | undefined) {
-  if (!text) return undefined;
-  const normalized = normalizeHanzi(text);
-  return CHUNKS.find((chunk) => normalizeHanzi(chunk.hanzi) === normalized);
-}
-
-function charsInText(text: string | undefined) {
-  if (!text) return [];
-  return [...normalizeHanzi(text)]
-    .map((glyph) => charByGlyph.get(glyph))
-    .filter((char): char is (typeof CHARACTERS)[number] => Boolean(char));
 }
 
 function correctionForStep(step: LessonStep): LessonMistake {
@@ -794,29 +786,43 @@ function errorHanziForStep(step: LessonStep): string | undefined {
   return displayTextHasHanzi(target) ? target : undefined;
 }
 
-function errorPinyinForStep(step: LessonStep, preferredHanzi?: string): string | undefined {
-  if (step.pinyin) return step.pinyin;
-  if (step.sourcePinyin) return step.sourcePinyin;
-  if (step.charId) return charById.get(step.charId)?.pinyin;
-  // Pinyin só do alvo único — nunca de um dump multi-frase.
-  const hanzi = preferredHanzi ?? errorHanziForStep(step);
-  if (!hanzi || /[\/|]/.test(hanzi)) return undefined;
-  const chunk = findChunkByText(hanzi);
-  if (chunk?.pinyin) return chunk.pinyin;
-  const chars = charsInText(hanzi);
-  if (chars.length > 0 && chars.length <= 8) return chars.map((char) => char.pinyin).join(" ");
-  return undefined;
+/**
+ * Glosas declaradas no passo, cada uma amarrada ao hànzì que descreve. Só
+ * podem entrar no card de erro quando o dono bate com o alvo (V3.9 · P0-002).
+ */
+function stepGlosses(step: LessonStep): OwnedGloss[] {
+  const charEntry = step.charId ? charById.get(step.charId) : undefined;
+  return [
+    { ownerHanzi: step.hanzi ?? step.text, pinyin: step.pinyin, meaningPt: step.pt },
+    { ownerHanzi: step.sourceText, pinyin: step.sourcePinyin, meaningPt: step.sourceMeaning },
+    { ownerHanzi: step.targetHanzi, pinyin: step.targetPinyin, meaningPt: step.targetMeaningPt },
+    charEntry
+      ? { ownerHanzi: charEntry.hanzi, pinyin: charEntry.pinyin, meaningPt: charEntry.meaningPt }
+      : { ownerHanzi: undefined },
+    ...(step.lines ?? []).map((line) => ({
+      ownerHanzi: line.hanzi,
+      pinyin: line.pinyin,
+      meaningPt: line.pt,
+    })),
+  ];
 }
 
-function errorMeaningForStep(step: LessonStep, correction: LessonMistake): string | undefined {
-  if (step.sourceMeaning) return step.sourceMeaning;
-  if (step.pt) return step.pt;
+/**
+ * Identidade lexical do erro: hànzì, pinyin e significado sempre da MESMA
+ * unidade. Nunca reaproveita o pinyin do enunciado para um alvo diferente.
+ */
+function errorIdentityForStep(step: LessonStep, preferredHanzi?: string): LexicalIdentity | null {
+  const hanzi = preferredHanzi ?? errorHanziForStep(step);
+  return resolveLexicalIdentity(hanzi, stepGlosses(step));
+}
+
+function errorMeaningForStep(
+  step: LessonStep,
+  correction: LessonMistake,
+  identity: LexicalIdentity | null
+): string | undefined {
+  if (identity?.meaningPt) return identity.meaningPt;
   if (step.kind === "comprehend") return correction.correction;
-  const hanzi = errorHanziForStep(step);
-  const chunk = findChunkByText(hanzi);
-  if (chunk) return chunk.meaningPt;
-  const chars = charsInText(hanzi);
-  if (chars.length === 1) return chars[0].meaningPt;
   return undefined;
 }
 
@@ -968,7 +974,12 @@ function pairUserAnswerMeaning(payload: PairMistakePayload): string {
 }
 
 function pairPinyin(payload: PairMistakePayload): string | undefined {
-  return splitPairAnswer(payload.expectedRight).pinyin ?? firstCharInfo(payload.left)?.pinyin;
+  // V3.9 · P0-003: o pinyin do par tem de ser o do LADO ESQUERDO inteiro. O
+  // `firstCharInfo` antigo devolvia o som só do primeiro glifo em alvos com
+  // dois ou mais caracteres — pinyin de outro item colado ao hànzì mostrado.
+  const declared = splitPairAnswer(payload.expectedRight).pinyin;
+  if (declared && isCoherentPinyin(payload.left, declared)) return declared;
+  return resolveLexicalIdentity(payload.left)?.pinyin;
 }
 
 function pairExplanation(payload: PairMistakePayload): string {
@@ -1662,6 +1673,23 @@ export function LessonPlayer() {
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
   const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
+  // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
+  const recentActivities = useStore((s) => s.recentActivities);
+  const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
+  /**
+   * VAR-015 — o histórico entra CONGELADO no início da lição.
+   *
+   * Ele muda a cada resposta (gravamos toda atividade avaliada) e o efeito de
+   * planejamento re-roda quando `srs`/erros mudam, ou seja, também a cada
+   * resposta. Antes o replanejamento era determinístico e devolvia os mesmos
+   * passos; semeando a variedade com um histórico vivo ele passaria a devolver
+   * passos DIFERENTES no meio da sessão — a lição se reorganizando enquanto o
+   * aluno responde. O snapshot é tirado uma vez por lição.
+   */
+  const frozenActivitiesRef = useRef<{ lessonId: string; history: typeof recentActivities } | null>(null);
+  if (foundLesson && frozenActivitiesRef.current?.lessonId !== foundLesson.id) {
+    frozenActivitiesRef.current = { lessonId: foundLesson.id, history: recentActivities };
+  }
   const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
@@ -1815,7 +1843,17 @@ export function LessonPlayer() {
     setPlanReady(false);
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
-    startTransition(() => {
+    // PERF-011 — `startTransition` não tira trabalho síncrono da main thread:
+    // ele só marca a atualização como não urgente. Chegamos a adiar o planner
+    // por dois quadros para garantir o paint do shell antes do cálculo, mas
+    // isso ALARGAVA a janela em que o player ainda serve os passos autorais —
+    // e o plano adaptativo passava a trocar debaixo de quem já estava
+    // respondendo. Com o índice pré-computado o planner caiu para ~80–160 ms e
+    // roda depois do primeiro render (o shell autoral já foi pintado acima),
+    // então o adiamento extra custava mais do que entregava.
+    const runPlanner = () => {
+      if (gen !== planGenRef.current) return;
+      startTransition(() => {
       if (gen !== planGenRef.current) return;
       const masteryRecord = lessonMasteryById?.[foundLesson.id];
       const planned = lessonRoundStepsFor(
@@ -1827,6 +1865,7 @@ export function LessonPlayer() {
           hanziBuilderProgress,
           recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
           srs,
+          recentActivities: frozenActivitiesRef.current?.history,
           recentConversationSceneIds,
           recentConversationIntentIds,
           conversationHistory,
@@ -1841,7 +1880,11 @@ export function LessonPlayer() {
       setPlanReady(true);
       markLessonPerf(LESSON_PERF_MARKS.dataReady);
       measureLessonPerf("lesson_click_to_data", LESSON_PERF_MARKS.startClick, LESSON_PERF_MARKS.dataReady);
-    });
+      });
+    };
+
+    runPlanner();
+
     return () => {
       planGenRef.current += 1;
     };
@@ -2314,6 +2357,7 @@ export function LessonPlayer() {
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
     const diagnosis = diagnosisForAnswer(step, correction.correction, selectedAnswer);
     const hanzi = errorHanziForStep(step);
+    const identity = errorIdentityForStep(step, hanzi);
     const rawSelected = selectedAnswer?.trim();
     // Pulo/status não é resposta de exercício — não vira opção na remediação.
     const isStatusAnswer =
@@ -2336,8 +2380,9 @@ export function LessonPlayer() {
       topic: step.title ?? step.prompt ?? lesson.title,
       tokens: errorTokensForStep(step),
       hanzi,
-      pinyin: errorPinyinForStep(step, hanzi),
-      meaningPt: errorMeaningForStep(step, correction),
+      pinyin: identity?.pinyin,
+      meaningPt: errorMeaningForStep(step, correction, identity),
+      sourceRef: identity?.sourceRef,
       explanation:
         step.explanation ??
         step.checkpoint?.explanation ??
@@ -2734,6 +2779,21 @@ export function LessonPlayer() {
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
+    // VAR-015/016/017 — memória de variedade entre modos. Só atividades
+    // avaliadas contam; repetição por recuperação vai rotulada para não ser
+    // confundida com repetição acidental.
+    if (currentStepIsGraded) {
+      const identity = errorIdentityForStep(currentStep);
+      recordActivityPlayed({
+        mode: "journey",
+        stepKind: currentStep.kind,
+        cognitiveFamily: primaryExerciseFamilyFor(currentStep),
+        lexicalTarget: identity?.sourceRef,
+        hanziTarget: identity?.hanzi,
+        conversationIntent: currentStep.sceneIntent,
+        recoveryReason: wasCorrect === false ? "erro_na_tentativa" : undefined,
+      });
+    }
     // Cena concluída alimenta a seleção futura (histórico personalizado): a
     // rotação e o nível da variante seguem o histórico real do aluno. O
     // vocabulário entra no SRS com prioridade pelo desempenho.
@@ -4072,6 +4132,8 @@ export function LessonPlayer() {
       }
     >
     <div className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0">
+      {/* PERF-010 — números de abertura visíveis no próprio aparelho. */}
+      <LessonPerfOverlay />
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">

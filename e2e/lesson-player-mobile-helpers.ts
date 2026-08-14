@@ -83,6 +83,60 @@ export async function assertPrimaryCtaInViewport(page: Page) {
   await assertElementInViewport(cta);
 }
 
+/**
+ * MOBILE-007 — nenhuma opção interativa pode ficar sob a barra de ação fixa.
+ *
+ * QA em Android real flagrou a barra "Limpar | Verificar" cobrindo os cards de
+ * caractere: a barra do HanziBuilder não publicava a própria altura, então o
+ * scroller não reservava espaço algum. O assert é geométrico de propósito —
+ * "o CTA está visível" passava mesmo com as opções escondidas atrás dele.
+ *
+ * Regra: rolando até o fim, a última opção tem de terminar acima do topo da
+ * barra, com folga. Opções fora da viewport não contam (o aluno rola até elas);
+ * o que não pode é ficarem PRESAS sob a barra sem scroll possível.
+ */
+export async function assertNoStickyBarOverlap(page: Page, safeGapPx = 4) {
+  const overlap = await page.evaluate((safeGap) => {
+    const bar = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
+    if (!bar) return { checked: 0, worst: null as null | Record<string, unknown> };
+    const barRect = bar.getBoundingClientRect();
+    if (barRect.height === 0) return { checked: 0, worst: null };
+
+    const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
+    if (scroller) scroller.scrollTop = scroller.scrollHeight;
+
+    const interactive = [
+      ...document.querySelectorAll<HTMLElement>(
+        "[data-lesson-activity-scroll] button, [data-lesson-activity-scroll] [role='button']"
+      ),
+    ].filter((el) => !bar.contains(el) && el.getBoundingClientRect().height > 0);
+
+    const fresh = bar.getBoundingClientRect();
+    let worst: null | Record<string, unknown> = null;
+    for (const el of interactive) {
+      const rect = el.getBoundingClientRect();
+      // Só conta sobreposição real: elemento cruzando a faixa da barra.
+      const covered = rect.bottom > fresh.top + safeGap && rect.top < fresh.bottom;
+      if (!covered) continue;
+      const depth = rect.bottom - fresh.top;
+      if (!worst || depth > (worst.depth as number)) {
+        worst = {
+          depth,
+          label: (el.textContent ?? "").trim().slice(0, 40),
+          elementBottom: rect.bottom,
+          barTop: fresh.top,
+        };
+      }
+    }
+    return { checked: interactive.length, worst };
+  }, safeGapPx);
+
+  expect(
+    overlap.worst,
+    `opção coberta pela barra fixa: ${JSON.stringify(overlap.worst)}`
+  ).toBeNull();
+}
+
 /** Botão visível dentro da visualViewport (tolerância pequena). */
 export async function assertElementInViewport(
   locator: import("@playwright/test").Locator,
