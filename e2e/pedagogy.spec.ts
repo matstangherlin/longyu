@@ -53,8 +53,9 @@ test.describe("lição", () => {
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
-    // O prompt em português vira título/heading — nunca botão de glossário.
-    await expect(page.getByRole("heading", { name: /Ouça e escolha o tom/i })).toBeVisible();
+    // V3.5 simplificou o título do tom ("Ouça" + "Qual tom você ouviu?").
+    // O prompt em português continua heading — nunca botão de glossário.
+    await expect(page.getByRole("heading", { name: /Qual tom você ouviu/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /qual|contorno|ouviu/i })).toHaveCount(0);
   });
