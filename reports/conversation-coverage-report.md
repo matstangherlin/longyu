@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 9452fd92f87b4b7ba604e2ad301697bac02d8c8f |
+| Commit | 1b5227d43b06ba4dce922b547658a3cabfa0df34 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T05:08:55.393Z |
+| Gerado em | 2026-08-14T05:44:56.982Z |
 | Lições | 127 |
-| Hash da Jornada | cde99952cdb5 |
+| Hash da Jornada | 3293088b8b49 |
 
 ## Resumo
 
@@ -83,7 +83,7 @@
 | imersao-casa-amigo | immersion | immersion-visit | 14 | 6 | sim | 2 | 1 | 0 |
 | comentar-ceu | common | comment-sky | 6 | 2 | sim | 1 | 1 | 0 |
 | esta-e-minha-casa | common | show-home | 7 | 2 | sim | 1 | 1 | 0 |
-| pedir-cardapio | module_review | order-menu | 11 | 4 | sim | 1 | 1 | 0 |
+| pedir-cardapio | module_review | order-menu | 14 | 5 | sim | 1 | 1 | 0 |
 | mostrar-livro | common | show-book | 7 | 2 | sim | 1 | 1 | 0 |
 | onde-esta-o-carro | common | ask-car-where | 7 | 2 | sim | 1 | 1 | 0 |
 
@@ -96,13 +96,19 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 | Indicador | Valor |
 |-----------|------:|
 | Variantes com manifesto gerado | 39 |
-| Itens de vocabulário mapeados | 473 |
-| Textos exibidos sem referência canônica (aviso) | 0 |
+| Itens de vocabulário mapeados | 478 |
+| Textos exibidos sem referência canônica (aviso) | 1 |
 | Refs declarados nunca exibidos (aviso) | 0 |
+
+### Texto exibido sem referência canônica standalone
+
+_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._
+
+- pedir-cardapio (advanced): sem referência canônica → "米"
 
 
 ---
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:131e7494084c9ef7 -->
+<!-- integridade:fe86116980d33ebb -->

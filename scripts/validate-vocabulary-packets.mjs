@@ -17,6 +17,7 @@ const REQUIRED = [
   "city",
   "health",
   "daily_routine",
+  "routine",
   "study",
   "work",
   "restaurant",
@@ -28,6 +29,7 @@ const REQUIRED = [
   "social",
   "preferences",
   "emergency",
+  "technology",
 ];
 
 async function main() {

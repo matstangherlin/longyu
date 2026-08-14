@@ -20,19 +20,19 @@ CONVERSATION (multi-item use)
 
 | Version | Classified Atlas units target | Current classified | Lifecycle |
 | --- | ---: | ---: | ---: |
-| V3.7 | ≥500 | **5040** | 141 |
+| V3.7 | ≥500 | **5067** | 161 |
 | V3.8 | ≥750 | — | — |
 | V4.x | ≥1000 | — | — |
 | Long term | corpus → 5000 chars | corpus rows 4831 | — |
 
 ## Current Atlas status
 
-- Atlas journey refs (chunks+chars authored): 357
-- Taught (journey library/use): 276
-- Scheduled (lifecycle): 19
+- Atlas journey refs (chunks+chars authored): 377
+- Taught (journey library/use): 298
+- Scheduled (lifecycle): 17
 - Future (authored atlas): 62
-- Lifecycle entries: **141** (min 120)
-- Registry-classified units (incl. corpus T5/T6): **5040**
+- Lifecycle entries: **161** (min 120)
+- Registry-classified units (incl. corpus T5/T6): **5067**
 
 ## First 50 rebalance notes
 
@@ -40,16 +40,17 @@ CONVERSATION (multi-item use)
 - V3.7 classifica esses itens em tiers + packets completos e agenda família/restaurante/transporte.
 - Labs de tom/Hànzì continuam com crescimento lexical 0 (perceptual).
 - Itens sociais curtos (好的/没问题/我也是) entram como reinforce em diálogos existentes.
+- COMM-027: auditoria das primeiras 50 lições de aquisição em first-50-acquisition-audit.md.
 
 ## Lessons 51–100 roadmap
 
 | Range | Packets | Structures | Conversation goals |
 | --- | --- | --- | --- |
-| 51–60 | family, basic_questions, social | 这是我…; 我有 / 我没有…; 你有…吗？ | identify_family, ask_siblings |
-| 61–70 | restaurant, food_drink, preferences | 我想 + VERB; 我要 + NOUN; 不要辣; 买单 | order-food, order-drink, ask-bill |
-| 71–80 | shopping, payment, numbers_dates | 多少钱？; 太贵了; 便宜一点; 可以刷卡吗？ | buy_item, pay |
-| 81–90 | transport, directions, city | X在哪里？; 我坐 + VEHICLE; 怎么走？; 往左/右走 | ask_directions, take_transport |
-| 91–100 | hotel, airport, health, emergency, survival | 酒店在哪里？; 护照; 我需要帮助; 我病了 | hotel_checkin, airport, emergency_basic |
+| 51–60 | family, basic_questions, social | 这是我…; 我有 / 我没有…; 你有…吗？ | talk_family, ask_name, greet |
+| 61–70 | restaurant, food_drink, preferences, payment | 我想 + VERB; 我要 + NOUN; 不要辣; 买单; 这个多少钱？ | order_food, order_drink, ask_price, pay |
+| 71–80 | shopping, payment, numbers_dates, preferences | 多少钱？; 太贵了; 便宜一点; 可以刷卡吗？ | buy_item, negotiate_basic, pay |
+| 81–90 | transport, directions, city, airport | X在哪里？; 我坐 + VEHICLE; 怎么走？; 往左/右走 | ask_directions, use_metro, use_train, use_taxi, airport_basic |
+| 91–100 | hotel, airport, health, emergency, survival, weather | 我有预订; 这是我的护照; 我需要帮助; 我病了; 请慢一点 | hotel_checkin, airport_basic, health_basic, ask_for_help, weather_smalltalk |
 
 ## Important
 
