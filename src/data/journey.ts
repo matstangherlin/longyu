@@ -3858,8 +3858,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Microdiálogo: cumprimentar",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao", "chunk:jintianhenhao"],
-            reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao"],
+            libraryItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao", "chunk:jintianhenhao", "chunk:haode", "chunk:meiwenti"],
+            reviewItems: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:xiexie", "chunk:zaoshanghao", "chunk:haode"],
             rewardQi: 2,
             estimatedMinutes: 4,
             steps: [
@@ -3879,6 +3879,22 @@ export const JOURNEY: JourneyPhase[] = [
                 "今天很好",
                 ["今天很好", "再见", "不客气", "请坐"],
                 "今天很好 = hoje está ótimo — nova combinação com 好."
+              ),
+              listen("好的", "hǎo de", "Está bem; ok"),
+              listen("没问题", "méi wèntí", "Sem problema"),
+              dialogue(
+                "Confirme",
+                "Alguém propõe um plano. Qual resposta curta confirma?",
+                "好的",
+                ["好的", "再见", "太贵了", "我病了"],
+                "好的 = ok / está bem — fecha acordos sem voltar só ao seed."
+              ),
+              dialogue(
+                "Sem problema",
+                "Alguém pede um favor simples. Qual resposta combina?",
+                "没问题",
+                ["没问题", "不客气", "早上好", "我很好"],
+                "没问题 = sem problema."
               ),
               comp("我很好。", "Wǒ hěn hǎo.", "Estou bem.", ["Estou bem.", "Tudo bem?", "Meu nome é Matheus.", "Não falo chinês."]),
               translationBuild(
