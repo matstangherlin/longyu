@@ -33,7 +33,9 @@ try {
 
   const { ALL_LESSONS } = require(path.join(outDir, "src/data/journey.js"));
   const { lessonRoundStepsFor } = require(path.join(outDir, "src/features/lesson/lessonTasks.js"));
-  const { conversationSceneMainAnswer } = require(path.join(outDir, "src/data/conversationScenes.js"));
+  const { conversationSceneMainAnswer, conversationSceneById } = require(
+    path.join(outDir, "src/data/conversationScenes.js")
+  );
 
   const lines = [
     "# Conversation runtime progression",
@@ -63,7 +65,11 @@ try {
     const scenes = plan.filter((step) => step.kind === "conversation_scene");
     for (const scene of scenes) {
       const sceneId = scene.sceneId ?? "";
-      const intent = scene.intent ?? "";
+      const intent =
+        scene.sceneIntent ??
+        scene.intent ??
+        (sceneId ? conversationSceneById[sceneId]?.intent : undefined) ??
+        "";
       const mainAnswer = conversationSceneMainAnswer(scene) ?? "";
       const prev = seenScene.get(sceneId) ?? 0;
       seenScene.set(sceneId, prev + 1);
