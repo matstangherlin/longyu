@@ -40,6 +40,7 @@ import {
   useIsPro,
 } from "../../lib/proAccess";
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
+import { reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -1400,7 +1401,8 @@ export function RevisaoPage() {
                 desc: "Fila gratuita do dia.",
                 icon: IconRefresh,
                 to: "/revisao",
-                status: modeCounts.all > 0 ? `${modeCounts.all} itens` : "Em dia",
+                // REVIEW-026: sessão do dia no lugar do total bruto da fila.
+                status: reviewSessionLabel(reviewSessionSplit(modeCounts.all, isPremium)),
                 featured: !detailedErrorsAllowed,
               },
               {

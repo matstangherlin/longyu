@@ -47,6 +47,15 @@ export const CONSECUTIVE_MISTAKE_CHARGE_COST = 1;
 /** Revisão básica do grátis: itens por sessão. Pro revisa a fila inteira. */
 export const FREE_REVIEW_SESSION_LIMIT = 20;
 
+/**
+ * V3.9 · REVIEW-026 — tamanho da "revisão de hoje" apresentada ao aluno.
+ *
+ * A fila pode ter centenas de entradas devidas e ainda assim o convite tem
+ * de ser uma sessão humana. Mostrar "Revisar 260 itens" como tarefa única
+ * passa sensação de dívida infinita — mesmo quando a conta está correta.
+ */
+export const REVIEW_DAILY_SESSION_TARGET = 10;
+
 // ——— Vidas do Dragão (dentro da lição) ———
 /** Vidas iniciais por lição. Cada erro confirmado consome 1. */
 export const BREATH_LIVES = 5;

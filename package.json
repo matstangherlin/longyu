@@ -31,6 +31,7 @@
     "test:hanzi-builder-integrity": "node scripts/test-hanzi-builder-integrity.mjs",
     "test:pedagogy-runtime-qa": "node scripts/test-pedagogy-runtime-qa.mjs",
     "report:stepkind-runtime": "node scripts/report-stepkind-runtime-distribution.mjs",
+    "report:review-queue": "node scripts/report-review-queue-composition.mjs",
     "report:conversation-runtime": "node scripts/report-conversation-runtime-progression.mjs",
     "validate:lesson-recovery": "node scripts/validate-lesson-recovery.mjs",
     "test:immediate-remediation": "node scripts/test-immediate-remediation.mjs",
