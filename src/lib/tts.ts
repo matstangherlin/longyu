@@ -74,6 +74,11 @@ export function noteUserGesture(): void {
   unlockAudio();
 }
 
+/** true se houve gesto recente o bastante para autoplay (Safari/iOS). */
+export function hasRecentTtsGesture(withinMs = 2500): boolean {
+  return Date.now() - lastUserGestureAt < withinMs;
+}
+
 /** Instala listener global (idempotente) para desbloquear TTS + SFX após toque/clique. */
 export function installTTSGestureUnlock(): () => void {
   if (typeof window === "undefined") return () => {};

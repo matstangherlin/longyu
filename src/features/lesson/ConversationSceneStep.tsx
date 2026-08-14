@@ -18,7 +18,7 @@ import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/producti
 import { isConversationV2Enabled } from "../../lib/featureFlags";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
-import { speak, noteUserGesture } from "../../lib/tts";
+import { speak, noteUserGesture, hasRecentTtsGesture } from "../../lib/tts";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import {
   KeyboardShortcutHint,
@@ -133,6 +133,7 @@ function SpeechBubble({
   visible,
   variantLevel,
   autoSpeak = true,
+  nodeKey,
 }: {
   line: ConversationLine;
   side: "left" | "right";
@@ -140,15 +141,31 @@ function SpeechBubble({
   variantLevel?: ConversationVariantLevel;
   /** false quando o pai já disparou o áudio no gesto do usuário (evita duplicar). */
   autoSpeak?: boolean;
+  /** AUDIO-021 — id do nó para destacar Ouvir se autoplay for bloqueado. */
+  nodeKey?: string;
 }) {
   const audio = line.audioText ?? line.hanzi;
   const slowAudio = useStore((s) => s.slowAudio);
   const ttsRate = useStore((s) => s.ttsRate);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
   const { showPinyin, showPt, audioFirst } = variantVisibility(variantLevel);
+  const [highlightListen, setHighlightListen] = useState(false);
+
   useAutoSpeak(visible && autoSpeak ? audio : undefined, visible && autoSpeak, {
     rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
-    delayMs: 0,
+    delayMs: 80,
   });
+
+  useEffect(() => {
+    setHighlightListen(false);
+    if (!visible || !autoSpeak || !autoPlayAudio) return;
+    // AUDIO-020 — se o browser bloquear autoplay (sem gesto), destaca Ouvir.
+    const timer = window.setTimeout(() => {
+      if (!hasRecentTtsGesture(3000)) setHighlightListen(true);
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [visible, autoSpeak, autoPlayAudio, nodeKey, audio]);
+
   // audio_first: o texto começa oculto atrás de um botão de revelar (o áudio
   // fica em destaque). Reseta quando a fala muda.
   const [revealed, setRevealed] = useState(!audioFirst);
@@ -194,7 +211,12 @@ function SpeechBubble({
               </>
             )}
           </div>
-          <SpeakButton text={audio} label="Ouvir" size="sm" className="shrink-0" />
+          <SpeakButton
+            text={audio}
+            label={highlightListen ? "Toque para ouvir" : "Ouvir"}
+            size="sm"
+            className={["shrink-0", highlightListen ? "ring-2 ring-accent ring-offset-2 animate-pulse" : ""].join(" ")}
+          />
         </div>
       </div>
     </div>
@@ -998,6 +1020,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           visible
           variantLevel={step.conversationVariantLevel}
           autoSpeak={!skipAutoSpeakRef.current}
+          nodeKey={node.id}
         />
 
         {hint && !answering && (
@@ -1179,6 +1202,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
               visible
               variantLevel={step.conversationVariantLevel}
               autoSpeak={!skipAutoSpeakRef.current}
+              nodeKey={`${step.sceneId}-line-${lineIndex}`}
             />
           </div>
         )}

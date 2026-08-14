@@ -643,6 +643,24 @@ export function scoreConversationScene(
   if (recentIntents.slice(0, 2).includes(scene.intent)) score -= 40;
   // −15: mesma intenção na janela ampla (espalha também por intenção).
   else if (recentIntents.slice(2, 10).includes(scene.intent)) score -= 15;
+  // CONV-026 — seed intents (你好/再见/谢谢) sofrem penalty extra quando já
+  // saturaram a janela recente; força expansão para apresentação/origem/etc.
+  const seedIntents = new Set(["greet", "farewell", "thank", "greet-review", "ask-wellbeing"]);
+  if (seedIntents.has(scene.intent)) {
+    const seedHits = recentIntents.slice(0, 5).filter((intent) => seedIntents.has(intent)).length;
+    if (seedHits >= 2) score -= 55;
+    if (seedHits >= 3) score -= 40;
+    if (recentScenes.slice(0, 5).some((id) => id === scene.sceneId)) score -= 30;
+  }
+  // CONV-026 — mesma mainAnswer recente.
+  const mainAnswerEarly = normalizeConversationAnswer(conversationSceneMainAnswer(scene));
+  const recentAnswers = (context.recentConversationSceneIds ?? [])
+    .map((id) => {
+      const prior = conversationSceneById[id];
+      return prior ? normalizeConversationAnswer(conversationSceneMainAnswer(prior)) : "";
+    })
+    .filter(Boolean);
+  if (mainAnswerEarly && recentAnswers.slice(0, 5).includes(mainAnswerEarly)) score -= 50;
   // −25: o mesmo cenário apareceu duas vezes seguidas.
   const recentSettings = context.recentSettings ?? recentScenes.slice(0, 2).map((id) => conversationSceneById[id]?.setting ?? "");
   if (recentSettings.slice(0, 2).length === 2 && recentSettings.slice(0, 2).every((s) => s === scene.setting)) {
