@@ -1918,10 +1918,31 @@ interface StructureExposureBundle {
   forTransfer: StructureExposureMap;
 }
 
-let structureExposureIndex: Map<string, StructureExposureBundle> | null = null;
-let structureExposureIndexBuilding = false;
+/**
+ * PERF-012/013 — o índice é construído INCREMENTALMENTE, lição a lição.
+ *
+ * Antes, qualquer acesso disparava a construção do índice inteiro: montar o
+ * plano de prática das 127 lições para abrir uma. Medido em ~12 s de CPU
+ * síncrona em máquina de servidor — no Android real é o congelamento relatado.
+ * `startTransition` não ajudava porque só muda prioridade de render; o trabalho
+ * continuava na main thread.
+ *
+ * Abrir a lição N só depende do histórico até N. O estado abaixo mantém o
+ * progresso da varredura para que cada lição pague apenas o próprio custo, uma
+ * única vez. Relatórios e validators seguem pedindo o índice completo.
+ */
+const structureExposureIndex = new Map<string, StructureExposureBundle>();
 /** Frames que já tiveram transfer_task em lição ANTERIOR (por lessonId). */
-let priorTransferredFramesIndex: Map<string, ReadonlySet<string>> | null = null;
+const priorTransferredFramesIndex = new Map<string, ReadonlySet<string>>();
+let structureExposureIndexBuilding = false;
+/** Quantas lições da jornada já foram incorporadas ao índice. */
+let structureExposureBuiltCount = 0;
+/** Exposição acumulada das lições já varridas (entrada da próxima). */
+let structureExposureRunningPrior: StructureExposureMap = new Map();
+/** Frames já transferidos até `structureExposureBuiltCount`. */
+const structureExposureRunningTransferred = new Set<string>();
+
+const lessonOrderById = new Map(ALL_LESSONS.map((lesson, index) => [lesson.id, index]));
 
 function emptyExposureBundle(): StructureExposureBundle {
   return { forFree: new Map(), forTransfer: new Map() };
@@ -1931,20 +1952,22 @@ function emptyExposureBundle(): StructureExposureBundle {
  * Monta o índice lição a lição. Transferência exige produção guiada em lição
  * ANTERIOR; free na lição atual pode usar foco/autoral da própria lição.
  */
-function ensureStructureExposureIndex(): void {
-  if (structureExposureIndex || structureExposureIndexBuilding) return;
+/**
+ * Varre a jornada até `throughIndex` (inclusive), aproveitando o que já foi
+ * construído antes. Chamar com a última lição equivale ao índice completo.
+ */
+function buildStructureExposureThrough(throughIndex: number): void {
+  const target = Math.min(throughIndex, ALL_LESSONS.length - 1);
+  if (structureExposureIndexBuilding || structureExposureBuiltCount > target) return;
   structureExposureIndexBuilding = true;
-  const index = new Map<string, StructureExposureBundle>();
-  const priorTransferByLesson = new Map<string, ReadonlySet<string>>();
-  let prior: StructureExposureMap = new Map();
-  const transferredSoFar = new Set<string>();
   try {
-    for (const lesson of ALL_LESSONS) {
-      priorTransferByLesson.set(lesson.id, new Set(transferredSoFar));
-      const forTransfer = cloneStructureExposure(prior);
-      const forFree = cloneStructureExposure(prior);
+    for (let index = structureExposureBuiltCount; index <= target; index += 1) {
+      const lesson = ALL_LESSONS[index];
+      priorTransferredFramesIndex.set(lesson.id, new Set(structureExposureRunningTransferred));
+      const forTransfer = cloneStructureExposure(structureExposureRunningPrior);
+      const forFree = cloneStructureExposure(structureExposureRunningPrior);
       mergeStructureExposure(forFree, curriculumStructureExposureForLesson(lesson));
-      index.set(lesson.id, {
+      structureExposureIndex.set(lesson.id, {
         forFree: cloneStructureExposure(forFree),
         forTransfer: cloneStructureExposure(forTransfer),
       });
@@ -1953,36 +1976,57 @@ function ensureStructureExposureIndex(): void {
         skipStructureExposureIndex: true,
         structureExposure: forFree,
         structureExposureForTransfer: forTransfer,
-        priorTransferredFrames: priorTransferByLesson.get(lesson.id),
+        priorTransferredFrames: priorTransferredFramesIndex.get(lesson.id),
       });
       const fromPlan: StructureExposureMap = new Map();
       for (const step of plan) {
         creditStructureFromStep(fromPlan, step);
         if (step.kind === "transfer_task" && step.productionFrameId) {
-          transferredSoFar.add(step.productionFrameId);
+          structureExposureRunningTransferred.add(step.productionFrameId);
         }
       }
-      mergeStructureExposure(prior, fromPlan);
+      mergeStructureExposure(structureExposureRunningPrior, fromPlan);
       // Currículo desta lição também alimenta o histórico da próxima.
-      mergeStructureExposure(prior, curriculumStructureExposureForLesson(lesson));
+      mergeStructureExposure(
+        structureExposureRunningPrior,
+        curriculumStructureExposureForLesson(lesson)
+      );
+      structureExposureBuiltCount = index + 1;
     }
-    structureExposureIndex = index;
-    priorTransferredFramesIndex = priorTransferByLesson;
   } finally {
     structureExposureIndexBuilding = false;
   }
 }
 
+/** Índice completo — usado por relatórios e validators, não pelo player. */
+function ensureStructureExposureIndex(): void {
+  buildStructureExposureThrough(ALL_LESSONS.length - 1);
+}
+
+/**
+ * Índice apenas até a lição pedida. É o caminho do player: abrir a lição 1
+ * deixou de custar as 127 lições da jornada.
+ */
+function ensureStructureExposureIndexFor(lessonId: string | undefined): void {
+  const index = lessonId === undefined ? undefined : lessonOrderById.get(lessonId);
+  if (index === undefined) {
+    // Lição fora da jornada (mastery, avulsa): só o histórico completo responde.
+    ensureStructureExposureIndex();
+    return;
+  }
+  buildStructureExposureThrough(index);
+}
+
 function priorTransferredFramesForLesson(lessonId: string | undefined): ReadonlySet<string> {
   if (!lessonId) return new Set();
-  ensureStructureExposureIndex();
-  return priorTransferredFramesIndex?.get(lessonId) ?? new Set();
+  ensureStructureExposureIndexFor(lessonId);
+  return priorTransferredFramesIndex.get(lessonId) ?? new Set();
 }
 
 function structureExposureForLesson(lessonId: string | undefined): StructureExposureBundle {
   if (!lessonId) return emptyExposureBundle();
-  ensureStructureExposureIndex();
-  return structureExposureIndex?.get(lessonId) ?? emptyExposureBundle();
+  ensureStructureExposureIndexFor(lessonId);
+  return structureExposureIndex.get(lessonId) ?? emptyExposureBundle();
 }
 
 /** Snapshot público para validators / auditoria. */
@@ -2015,7 +2059,7 @@ export function structureFirstOccurrenceReport(): Array<{
     for (const [frameId, rungs] of curriculum) {
       if (rungs.exposed && !firstExposed.has(frameId)) firstExposed.set(frameId, lesson.id);
     }
-    const bundle = structureExposureIndex?.get(lesson.id);
+    const bundle = structureExposureIndex.get(lesson.id);
     const plan = buildLessonPracticePlan(lesson, {
       silent: true,
       skipStructureExposureIndex: true,
