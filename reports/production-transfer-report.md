@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
+| Commit | b084d7cbd501ba9f6417072a782522bdcd7a0f0e |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T01:00:37.008Z |
+| Gerado em | 2026-08-14T07:33:50.652Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
@@ -22,19 +22,19 @@
 | Tarefas que aceitam frase irmã | 42 |
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 5 |
-| Lições com produção aberta | 22 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 154 |
-| Lições com conversa sem apoio | 105 / 127 |
-| Lições com quebra de comunicação jogável | 79 / 127 |
+| Lições com produção aberta | 23 / 127 |
+| Falas de conversa sem apoio (aluno veterano) | 143 |
+| Lições com conversa sem apoio | 93 / 127 |
+| Lições com quebra de comunicação jogável | 78 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 625 |
-| Lições com produção livre | 86 / 127 |
-| Lições com transferência | 27 / 127 |
-| Lições com reparo conversacional | 81 / 127 |
+| Passos auditados no plano real (3 tentativas) | 720 |
+| Lições com produção livre | 85 / 127 |
+| Lições com transferência | 81 / 127 |
+| Lições com reparo conversacional | 72 / 127 |
 | Estruturas diferentes no plano real | 7 |
 | Frases inéditas cobradas | 22 |
-| Transfer guided / supported / question | 79 / 0 / 0 |
-| 1ªs transferências (attempt 0) | 26 |
+| Transfer guided / supported / question | 241 / 0 / 0 |
+| 1ªs transferências (attempt 0) | 79 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -45,22 +45,22 @@
 
 ## Primeiras transferências (attempt 0)
 
-- **l23** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
-- **l9-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
-- **l24** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
-- **l25** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **l26** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
-- **l26b** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
-- **l27** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
-- **l28** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p6-rotina-trabalho** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p6-cidade-lugares** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
-- **p6-china-cidades** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
-- **p6-china-cidades-2** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
-- **p6-china-ruas** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
-- **p6-horarios** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
-- **p6-natureza** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
-- …mais 11.
+- **p3-ordem-das-palavras** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p3-nomes-da-frase** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **l5-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **l14** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-num-123** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-num-45** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-num-678** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-num-910** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **p4-char-mu** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-ren** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-kou** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-char-ri** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-char-yue** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-char-shan** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-char-shui** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- …mais 64.
 
 ## Frases inéditas cobradas por transferência
 
@@ -87,4 +87,4 @@
 - 我要苹果
 - 车站在哪里
 
-<!-- integridade:d69b3ba7d772bfe4 -->
+<!-- integridade:692d2166ab1377cf -->

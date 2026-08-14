@@ -2443,13 +2443,15 @@ function makeConversationRepairStep(
   utterance?: FocusItem
 ): LessonStep | null {
   const clean = cleanHanzi(utterance?.hanzi);
-  const core = clean.length > 2 ? [...clean].slice(-2).join("") : clean;
+  const cjkOnly = [...clean].filter((glyph) => CJK_RE.test(glyph)).join("");
+  const core = cjkOnly.length > 2 ? [...cjkOnly].slice(-2).join("") : cjkOnly;
   const tasks = repairTasksFor(knownGlyphs, {
-    utterance: clean && utterance?.pinyin ? { hanzi: `${clean}。`, pinyin: utterance.pinyin } : undefined,
-    utteranceCore: core && core !== clean ? { hanzi: `${core}。`, pinyin: core } : undefined,
+    utterance: cjkOnly && utterance?.pinyin ? { hanzi: `${cjkOnly}。`, pinyin: utterance.pinyin } : undefined,
+    utteranceCore: core && core !== cjkOnly ? { hanzi: `${core}。`, pinyin: core } : undefined,
   });
   if (tasks.length === 0) return null;
   const task = tasks[seed % tasks.length];
+  if (!CJK_RE.test(task.targetHanzi ?? "")) return null;
   return {
     kind: "conversation_repair",
     title: "A conversa travou",
