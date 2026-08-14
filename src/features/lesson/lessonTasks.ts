@@ -3691,16 +3691,20 @@ function supplementalStepsForStage(
     if (allowDictation && focus[0] && productionReady(focus[0])) {
       push(makeDictationStep(focus[0], focus, phaseOrder));
     }
-    const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
+    const labPool = [...focus, ...practiceFocus];
+    const labItem =
+      labPool.find(
+        (item) => productionReady(item) && sentenceAlternatives(cleanHanzi(item.hanzi)).length > 1
+      ) ?? labPool.find((item) => productionReady(item) && cleanHanzi(item.hanzi).length >= 2);
     if (enablePedagogyVariants && !foundationLite) {
       if (practiceVariant === "B") {
-        if (productionReady(primary)) {
-          push(makeSentenceLabStep(primary, focus, "sentence_lab_distractors"));
-          push(makeDragonDictationStep(primary, focus, "blocks"));
+        if (labItem) {
+          push(makeSentenceLabStep(labItem, focus, "sentence_lab_distractors"));
+          push(makeDragonDictationStep(labItem, focus, "blocks"));
         }
       }
       if (practiceVariant === "C") {
-        if (productionReady(primary)) push(makeSentenceLabStep(primary, focus, "sentence_lab_audio"));
+        if (labItem) push(makeSentenceLabStep(labItem, focus, "sentence_lab_audio"));
         push(makeVariantOddOneOutStep([...focus, ...practiceFocus]));
       }
     }
