@@ -13,6 +13,7 @@ import { expandPairsWithLearned, type AdaptivePair } from "../../data/adaptivePa
 import { TONE_LABELS } from "../../data/tones";
 import type { ItemType } from "../../data/types";
 import { stripPinyinTone } from "../../lib/pinyin";
+import { isCoherentPinyin, resolveLexicalIdentity } from "../lesson/errorLexicalIdentity";
 import { newItem, type ReviewDomain, type SRSItem } from "../../lib/srs";
 import type { ActivityErrorRecord, ActivityReviewTarget } from "../../lib/store";
 
@@ -352,7 +353,14 @@ export function buildReviewExerciseFromMistake(input: MistakeReviewExerciseBuild
     reviewDomain: target.domain,
     now: input.mistake.timestamp,
   });
-  const entity = resolveReviewEntity(item) ?? entityFromMistake(input.mistake, item);
+  // V3.9 · P0-002 — entidade e enunciado têm de descrever o MESMO item. Quando
+  // o alvo do SRS diverge do que o aluno errou, o registro do erro manda: senão
+  // o card mostraria o hànzì de um item com o som/entidade de outro.
+  const fromItem = resolveReviewEntity(item);
+  const fromMistake = entityFromMistake(input.mistake, item);
+  const missed = cleanHanzi(input.mistake.hanzi ?? input.mistake.correctAnswer);
+  const entity =
+    fromItem && (!missed || sameHanzi(fromItem.hanzi, missed) || !fromMistake) ? fromItem : fromMistake;
   if (!entity) return null;
 
   const buildInput: ReviewExerciseBuildInput = {
@@ -380,20 +388,90 @@ export function buildReviewExerciseFromMistake(input: MistakeReviewExerciseBuild
   return validateReviewExercise(markRemedial(buildFlashcard(buildInput, entity), input.mistake));
 }
 
+/**
+ * V3.9 · P0-002 — O alvo do card tem de ser o item que o aluno REALMENTE errou.
+ *
+ * `targets` é acumulado na ordem em que o passo declara os textos, não na ordem
+ * do erro: num `match_pairs`, `targets[0]` é o PRIMEIRO par da tela, mesmo que
+ * o aluno tenha errado o terceiro. Pegar `targets[0]` cegamente fazia o card
+ * misturar o enunciado de um item com o som/entidade de outro — o caminho que
+ * produziu "明天见 · nǐ hǎo".
+ *
+ * Agora a escolha segue a identidade lexical do próprio erro: `sourceRef`
+ * quando existe, senão o alvo cujo hànzì bate com o do registro, e só então o
+ * primeiro alvo como último recurso.
+ */
 function primaryMistakeTarget(mistake: ActivityErrorRecord): ActivityReviewTarget | null {
-  return mistake.targets[0] ?? null;
+  const targets = mistake.targets ?? [];
+  if (targets.length === 0) return null;
+
+  if (mistake.sourceRef) {
+    const [kind, id] = splitSourceRef(mistake.sourceRef);
+    const exact = targets.find((target) => target.type === kind && target.itemId === id);
+    if (exact) return exact;
+  }
+
+  const missed = cleanHanzi(mistake.hanzi ?? mistake.correctAnswer);
+  if (missed) {
+    const matches = targets.filter((target) => {
+      const entity = resolveReviewEntity(newItem(target.type, target.itemId, { track: target.track }));
+      return entity ? sameHanzi(entity.hanzi, missed) : false;
+    });
+    // Chunk antes de caractere: a unidade pedagógica é a frase, não o glifo.
+    const chunkMatch = matches.find((target) => target.type === "chunk");
+    if (chunkMatch) return chunkMatch;
+    if (matches[0]) return matches[0];
+  }
+
+  return targets[0];
 }
 
+function splitSourceRef(sourceRef: string): [string, string] {
+  const separator = sourceRef.indexOf(":");
+  if (separator < 0) return ["", sourceRef];
+  return [sourceRef.slice(0, separator), sourceRef.slice(separator + 1)];
+}
+
+function sameHanzi(a: string | undefined, b: string | undefined): boolean {
+  if (!a || !b) return false;
+  return cleanHanzi(a) === cleanHanzi(b);
+}
+
+/**
+ * V3.9 · P0-001/002/003 — o card de revisão é montado a partir de UMA unidade
+ * lexical. O registro de erro é apenas uma pista: o hànzì manda, e pinyin e
+ * significado são re-resolvidos no banco. O pinyin do registro só sobrevive se
+ * for coerente com o hànzì; caso contrário fica vazio e o erro é sinalizado —
+ * nunca herdamos o som de outro item (era assim que 明天见 saía com "nǐ hǎo").
+ */
 function entityFromMistake(mistake: ActivityErrorRecord, item: SRSItem): ReviewExerciseEntity | null {
   const hanzi = cleanHanzi(mistake.hanzi ?? mistake.correctAnswer);
   if (!hanzi && !mistake.pinyin && !mistake.meaningPt) return null;
+  const target = hanzi || mistake.correctAnswer;
+  const canonical = resolveLexicalIdentity(target);
+  const declaredPinyin = mistake.pinyin?.trim() ?? "";
+  const coherentPinyin = declaredPinyin && isCoherentPinyin(target, declaredPinyin) ? declaredPinyin : "";
+  if (declaredPinyin && !coherentPinyin) reportIncoherentPinyin(target, declaredPinyin, mistake);
   return {
     type: item.type,
     itemId: item.itemId,
-    hanzi: hanzi || mistake.correctAnswer,
-    pinyin: mistake.pinyin ?? "",
-    meaningPt: mistake.meaningPt ?? mistake.correctAnswer,
+    hanzi: target,
+    pinyin: canonical?.pinyin ?? coherentPinyin,
+    meaningPt: canonical?.meaningPt ?? mistake.meaningPt ?? mistake.correctAnswer,
+    literalPt: canonical?.literalPt,
   };
+}
+
+/**
+ * Fallback semanticamente silencioso é proibido: quando o pinyin não bate com o
+ * alvo, ele é descartado E registrado. Sem isso o bug volta invisível.
+ */
+function reportIncoherentPinyin(hanzi: string, pinyin: string, mistake: ActivityErrorRecord): void {
+  const expected = resolveLexicalIdentity(hanzi)?.pinyin ?? "(sem pinyin canônico)";
+  const message =
+    `[revisao] pinyin incoerente descartado: "${hanzi}" veio com "${pinyin}" ` +
+    `(esperado "${expected}") — origem ${mistake.lessonId}/${mistake.questionId}`;
+  if (typeof console !== "undefined") console.error(message);
 }
 
 function markRemedial(exercise: ReviewExercise, mistake: ActivityErrorRecord): ReviewExercise {
@@ -1095,6 +1173,10 @@ function buildFormExercise(input: ReviewExerciseBuildInput, entity: ReviewExerci
 
   const options = entity.type === "chunk" ? chunkHanziOptions(input, entity) : charHanziOptions(input, entity);
   if (!entity.pinyin || options.length < 2) return null;
+  // As opções de chunk saem sem pontuação (`chunkHanziOptions` usa cleanHanzi).
+  // A resposta tinha de ser normalizada igual — com "？"/"。" ela nunca batia
+  // com a alternativa correta e o aluno era reprovado ao acertar.
+  const answer = entity.type === "chunk" ? cleanHanzi(entity.hanzi) : entity.hanzi;
   return {
     kind: "pinyin_reverse",
     domain: input.domain,
@@ -1104,8 +1186,8 @@ function buildFormExercise(input: ReviewExerciseBuildInput, entity: ReviewExerci
     question: "Qual é o hànzì?",
     displayText: entity.pinyin,
     displayType: "pinyin",
-    answer: entity.hanzi,
-    answerLabel: entity.hanzi,
+    answer,
+    answerLabel: answer,
     options,
     explanation: `${entity.pinyin} corresponde a ${entity.hanzi}.`,
     canAutoCheck: true,

@@ -3,6 +3,15 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
+import {
+  charsInText,
+  findChunkByText,
+  isCoherentPinyin,
+  normalizeHanzi,
+  resolveLexicalIdentity,
+  type LexicalIdentity,
+  type OwnedGloss,
+} from "./errorLexicalIdentity";
 import { diagnoseError, type ErrorDiagnosis } from "../../data/errorDiagnosis";
 import type { ItemType } from "../../data/types";
 import { canAccessLesson } from "../../lib/journeyUnlocks";
@@ -171,7 +180,6 @@ function isGradedStep(step: LessonStep): boolean {
   return GRADED_STEP_KINDS.includes(step.kind) && !(step.kind === "write" && step.mode === "free_reflection");
 }
 
-const charByGlyph = new Map(CHARACTERS.map((char) => [char.hanzi, char]));
 const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
 
 interface LessonMistake {
@@ -226,23 +234,6 @@ function LessonRecoveryDevPanel({
       </div>
     </div>
   );
-}
-
-function normalizeHanzi(text: string): string {
-  return text.replace(/[，。！？、,.!?？\s]/g, "");
-}
-
-function findChunkByText(text: string | undefined) {
-  if (!text) return undefined;
-  const normalized = normalizeHanzi(text);
-  return CHUNKS.find((chunk) => normalizeHanzi(chunk.hanzi) === normalized);
-}
-
-function charsInText(text: string | undefined) {
-  if (!text) return [];
-  return [...normalizeHanzi(text)]
-    .map((glyph) => charByGlyph.get(glyph))
-    .filter((char): char is (typeof CHARACTERS)[number] => Boolean(char));
 }
 
 function correctionForStep(step: LessonStep): LessonMistake {
@@ -794,29 +785,43 @@ function errorHanziForStep(step: LessonStep): string | undefined {
   return displayTextHasHanzi(target) ? target : undefined;
 }
 
-function errorPinyinForStep(step: LessonStep, preferredHanzi?: string): string | undefined {
-  if (step.pinyin) return step.pinyin;
-  if (step.sourcePinyin) return step.sourcePinyin;
-  if (step.charId) return charById.get(step.charId)?.pinyin;
-  // Pinyin só do alvo único — nunca de um dump multi-frase.
-  const hanzi = preferredHanzi ?? errorHanziForStep(step);
-  if (!hanzi || /[\/|]/.test(hanzi)) return undefined;
-  const chunk = findChunkByText(hanzi);
-  if (chunk?.pinyin) return chunk.pinyin;
-  const chars = charsInText(hanzi);
-  if (chars.length > 0 && chars.length <= 8) return chars.map((char) => char.pinyin).join(" ");
-  return undefined;
+/**
+ * Glosas declaradas no passo, cada uma amarrada ao hànzì que descreve. Só
+ * podem entrar no card de erro quando o dono bate com o alvo (V3.9 · P0-002).
+ */
+function stepGlosses(step: LessonStep): OwnedGloss[] {
+  const charEntry = step.charId ? charById.get(step.charId) : undefined;
+  return [
+    { ownerHanzi: step.hanzi ?? step.text, pinyin: step.pinyin, meaningPt: step.pt },
+    { ownerHanzi: step.sourceText, pinyin: step.sourcePinyin, meaningPt: step.sourceMeaning },
+    { ownerHanzi: step.targetHanzi, pinyin: step.targetPinyin, meaningPt: step.targetMeaningPt },
+    charEntry
+      ? { ownerHanzi: charEntry.hanzi, pinyin: charEntry.pinyin, meaningPt: charEntry.meaningPt }
+      : { ownerHanzi: undefined },
+    ...(step.lines ?? []).map((line) => ({
+      ownerHanzi: line.hanzi,
+      pinyin: line.pinyin,
+      meaningPt: line.pt,
+    })),
+  ];
 }
 
-function errorMeaningForStep(step: LessonStep, correction: LessonMistake): string | undefined {
-  if (step.sourceMeaning) return step.sourceMeaning;
-  if (step.pt) return step.pt;
+/**
+ * Identidade lexical do erro: hànzì, pinyin e significado sempre da MESMA
+ * unidade. Nunca reaproveita o pinyin do enunciado para um alvo diferente.
+ */
+function errorIdentityForStep(step: LessonStep, preferredHanzi?: string): LexicalIdentity | null {
+  const hanzi = preferredHanzi ?? errorHanziForStep(step);
+  return resolveLexicalIdentity(hanzi, stepGlosses(step));
+}
+
+function errorMeaningForStep(
+  step: LessonStep,
+  correction: LessonMistake,
+  identity: LexicalIdentity | null
+): string | undefined {
+  if (identity?.meaningPt) return identity.meaningPt;
   if (step.kind === "comprehend") return correction.correction;
-  const hanzi = errorHanziForStep(step);
-  const chunk = findChunkByText(hanzi);
-  if (chunk) return chunk.meaningPt;
-  const chars = charsInText(hanzi);
-  if (chars.length === 1) return chars[0].meaningPt;
   return undefined;
 }
 
@@ -968,7 +973,12 @@ function pairUserAnswerMeaning(payload: PairMistakePayload): string {
 }
 
 function pairPinyin(payload: PairMistakePayload): string | undefined {
-  return splitPairAnswer(payload.expectedRight).pinyin ?? firstCharInfo(payload.left)?.pinyin;
+  // V3.9 · P0-003: o pinyin do par tem de ser o do LADO ESQUERDO inteiro. O
+  // `firstCharInfo` antigo devolvia o som só do primeiro glifo em alvos com
+  // dois ou mais caracteres — pinyin de outro item colado ao hànzì mostrado.
+  const declared = splitPairAnswer(payload.expectedRight).pinyin;
+  if (declared && isCoherentPinyin(payload.left, declared)) return declared;
+  return resolveLexicalIdentity(payload.left)?.pinyin;
 }
 
 function pairExplanation(payload: PairMistakePayload): string {
@@ -2314,6 +2324,7 @@ export function LessonPlayer() {
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
     const diagnosis = diagnosisForAnswer(step, correction.correction, selectedAnswer);
     const hanzi = errorHanziForStep(step);
+    const identity = errorIdentityForStep(step, hanzi);
     const rawSelected = selectedAnswer?.trim();
     // Pulo/status não é resposta de exercício — não vira opção na remediação.
     const isStatusAnswer =
@@ -2336,8 +2347,9 @@ export function LessonPlayer() {
       topic: step.title ?? step.prompt ?? lesson.title,
       tokens: errorTokensForStep(step),
       hanzi,
-      pinyin: errorPinyinForStep(step, hanzi),
-      meaningPt: errorMeaningForStep(step, correction),
+      pinyin: identity?.pinyin,
+      meaningPt: errorMeaningForStep(step, correction, identity),
+      sourceRef: identity?.sourceRef,
       explanation:
         step.explanation ??
         step.checkpoint?.explanation ??

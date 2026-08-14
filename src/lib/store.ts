@@ -832,6 +832,12 @@ export interface ActivityErrorRecord {
   hanzi?: string;
   pinyin?: string;
   meaningPt?: string;
+  /**
+   * Unidade lexical que originou hanzi/pinyin/meaningPt (V3.9 · P0-002).
+   * `chunk:<id>` | `char:<id>` | `chars:<id+id>`. Ausente em registros antigos
+   * — a revisão re-resolve pelo hànzì nesse caso, nunca herda de outro item.
+   */
+  sourceRef?: string;
   pairLeft?: string;
   pairExpectedRight?: string;
   pairSelectedRight?: string;
