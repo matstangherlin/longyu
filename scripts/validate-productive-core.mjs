@@ -61,9 +61,12 @@ async function main() {
         `RECEPTIVE_CORE size ${stats.receptiveTotal} outside ${RECEPTIVE_CORE_TARGET.min}–${RECEPTIVE_CORE_TARGET.max}`
       );
     }
-    if (SLOT_PATTERNS.length < 12) errors.push(`Need ≥12 slot patterns, got ${SLOT_PATTERNS.length}`);
-    if (combo.possibleUsefulCombinations.length < 20) {
-      errors.push(`Need ≥20 possible combinations, got ${combo.possibleUsefulCombinations.length}`);
+    if (SLOT_PATTERNS.length < 30) errors.push(`Need ≥30 slot patterns, got ${SLOT_PATTERNS.length}`);
+    if (combo.possibleUsefulCombinations.length < 150) {
+      errors.push(`Need ≥150 possible combinations, got ${combo.possibleUsefulCombinations.length}`);
+    }
+    if (combo.practicedCombinations.length < 100) {
+      errors.push(`Need ≥100 practiced combinations, got ${combo.practicedCombinations.length}`);
     }
     for (const id of PRODUCTIVE_CORE) {
       if (id.startsWith("chunk:") && !chunkIds.has(id)) errors.push(`unknown productive ref ${id}`);
@@ -83,9 +86,9 @@ async function main() {
       `| — patterns | ${stats.patterns} | — |`,
       `| — combos | ${stats.combos} | — |`,
       `| RECEPTIVE_CORE | ${stats.receptiveTotal} | ${RECEPTIVE_CORE_TARGET.min}–${RECEPTIVE_CORE_TARGET.max} |`,
-      `| Slot patterns | ${SLOT_PATTERNS.length} | ≥12 |`,
-      `| possibleUsefulCombinations | ${combo.possibleUsefulCombinations.length} | ≥20 |`,
-      `| practicedCombinations | ${combo.practicedCombinations.length} | — |`,
+      `| Slot patterns | ${SLOT_PATTERNS.length} | ≥30 |`,
+      `| possibleUsefulCombinations | ${combo.possibleUsefulCombinations.length} | ≥150 |`,
+      `| practicedCombinations | ${combo.practicedCombinations.length} | ≥100 |`,
       `| productiveCombinations | ${combo.productiveCombinations.length} | — |`,
       "",
       "## Combinability sample",

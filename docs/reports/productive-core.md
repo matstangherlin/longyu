@@ -6,15 +6,15 @@ Productive units = words / chunks / patterns (not isolated unused characters).
 
 | Metric | Value | Target |
 | --- | ---: | --- |
-| PRODUCTIVE_CORE | 232 | 150–250 |
-| — chunks | 176 | — |
-| — patterns | 17 | — |
-| — combos | 39 | — |
-| RECEPTIVE_CORE | 470 | 300–500 |
-| Slot patterns | 17 | ≥12 |
-| possibleUsefulCombinations | 56 | ≥20 |
-| practicedCombinations | 36 | — |
-| productiveCombinations | 36 | — |
+| PRODUCTIVE_CORE | 500 | 400–500 |
+| — chunks | 132 | — |
+| — patterns | 36 | — |
+| — combos | 128 | — |
+| RECEPTIVE_CORE | 850 | 700–850 |
+| Slot patterns | 36 | ≥30 |
+| possibleUsefulCombinations | 242 | ≥150 |
+| practicedCombinations | 116 | ≥100 |
+| productiveCombinations | 116 | — |
 
 ## Combinability sample
 
@@ -49,20 +49,39 @@ Productive units = words / chunks / patterns (not isolated unused characters).
 
 | id | pattern | fills |
 | --- | --- | ---: |
-| woshi_noun | 我是 + NOUN | 3 |
+| woshi_noun | 我是 + NOUN | 5 |
 | wojiao_name | 我叫 + NAME | 2 |
 | woyou_noun | 我有 + NOUN | 4 |
-| woyao_noun | 我要 + NOUN | 6 |
-| woxiang_verb | 我想 + VERB | 4 |
-| woxihuan_noun | 我喜欢 + NOUN/VERB | 3 |
-| wobuxihuan | 我不喜欢 + … | 2 |
-| woqu_place | 我去 + PLACE | 4 |
-| wozai_place | 我在 + PLACE | 3 |
-| zheshi_noun | 这是 + NOUN | 5 |
-| x_zainali | X 在哪里？ | 5 |
-| nixihuan_ma | 你喜欢 + X + 吗？ | 2 |
-| nixiang_ma | 你想 + X + 吗？ | 2 |
-| youmeiyou_noun | 有没有 + NOUN | 2 |
-| duoshaoqian | 多少钱？ | 3 |
-| jidian | 几点？ | 2 |
-| wozuo_vehicle | 我坐 + VEHICLE | 4 |
+| woyao_noun | 我要 + NOUN | 13 |
+| woxiang_verb | 我想 + VERB | 9 |
+| woxihuan_noun | 我喜欢 + NOUN/VERB | 8 |
+| wobuxihuan | 我不喜欢 + … | 4 |
+| woqu_place | 我去 + PLACE | 10 |
+| wozai_place | 我在 + PLACE | 9 |
+| zheshi_noun | 这是 + NOUN | 11 |
+| x_zainali | X 在哪里？ | 15 |
+| nixihuan_ma | 你喜欢 + X + 吗？ | 5 |
+| nixiang_ma | 你想 + X + 吗？ | 5 |
+| youmeiyou_noun | 有没有 + NOUN | 6 |
+| duoshaoqian | 多少钱？ | 5 |
+| jidian | 几点？ | 3 |
+| wozuo_vehicle | 我坐 + VEHICLE | 6 |
+| wohui_verb | 我会 + VERB | 4 |
+| wobuhui_verb | 我不会 + VERB | 4 |
+| woxuyao_noun | 我需要 + NOUN | 7 |
+| geiwo_noun | 给我 + NOUN | 6 |
+| you_noun_ma | 有 + NOUN + 吗？ | 10 |
+| meiyou_noun | 没有 + NOUN | 7 |
+| tai_adj_le | 太 + ADJ + 了 | 7 |
+| hen_adj | 很 + ADJ | 10 |
+| zai_place_verb | 在 + PLACE + VERB | 6 |
+| cong_x_dao_y | 从 X 到 Y | 5 |
+| woyaoqu_place | 我要去 + PLACE | 9 |
+| nishi_noun_ma | 你是 + NOUN + 吗？ | 4 |
+| nijidian_verb | 你几点 + VERB？ | 5 |
+| time_dian | NUMBER + 点 | 14 |
+| keyi_verb_ma | 可以 + VERB + 吗？ | 5 |
+| wozai_place_work | 我在 + PLACE + 上班 | 4 |
+| tianqi_how | 今天天气 + … | 7 |
+| bushufu | 我不舒服 / 我 + SYMPTOM | 6 |
+| qing_verb | 请 + VERB | 8 |

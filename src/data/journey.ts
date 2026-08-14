@@ -3643,7 +3643,8 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Falo um pouco",
             skill: "fala",
             masteryLoop: true,
-            libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
+            newHanzi: ["习", "校"],
+            libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen", "chunk:nishixueshengma", "chunk:woxuexizhongwen", "chunk:wozaixuexiaoxuexi"],
             reviewItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             rewardQi: 2,
             estimatedMinutes: 5,
@@ -3720,6 +3721,13 @@ export const JOURNEY: JourneyPhase[] = [
                 ["falar", "Sei", "de", "chinês", "um", "pouco", "Obrigado"],
                 "我会说一点中文 = sei falar um pouco de chinês."
               ),
+              listen("你是学生吗？", "nǐ shì xuésheng ma?", "Você é estudante?"),
+              listen("我学习中文", "wǒ xuéxí Zhōngwén", "Eu estudo chinês"),
+              listen("我在学校学习", "wǒ zài xuéxiào xuéxí", "Eu estudo na escola"),
+              flash("nishixueshengma"),
+              flash("woxuexizhongwen"),
+              flash("wozaixuexiaoxuexi"),
+              conversationScene("falar-de-estudo"),
             ],
           },
         ],
@@ -5520,7 +5528,7 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             // Chars de rotina/trabalho que ainda não têm entrada própria em
             // CHARACTERS (têm gloss) — declarados aqui para o corpus aceitar.
-            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉"],
+            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司"],
             // Vocabulário novo de rotina/trabalho (chunks); os antigos (你好/谢谢)
             // aparecem como distratores para misturar repertório.
             libraryItems: [
@@ -5530,6 +5538,12 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:woyaogongzuo",
               "chunk:woshujiao",
               "chunk:wozuofeiji",
+              "chunk:nizuoshenmegongzuo",
+              "chunk:nizainagongzuo",
+              "chunk:wozaigongsishangban",
+              "chunk:nijidianshangban",
+              "chunk:nijidianqichuang",
+              "chunk:woqidianqichuang",
             ],
             reviewItems: [
               "chunk:woqichuang",
@@ -5608,6 +5622,12 @@ export const JOURNEY: JourneyPhase[] = [
                 "我下班 = saio do trabalho.",
                 "Situação"
               ),
+              listen("你做什么工作？", "nǐ zuò shénme gōngzuò?", "O que você faz de trabalho?"),
+              listen("我在公司上班", "wǒ zài gōngsī shàngbān", "Trabalho numa empresa"),
+              listen("你几点起床？", "nǐ jǐ diǎn qǐchuáng?", "A que horas você acorda?"),
+              flash("wozaigongsishangban"),
+              flash("woqidianqichuang"),
+              conversationScene("rotina-e-trabalho"),
             ],
           }),
           withLessonDefaults({
@@ -5859,7 +5879,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["成", "都", "西", "安", "南", "京", "四", "川", "菜", "辣", "古", "城", "老", "这", "里", "上", "海", "机", "场", "房", "卡", "微", "信", "支", "付", "北", "深", "圳", "单"],
+            newHanzi: ["成", "都", "西", "安", "南", "京", "四", "川", "菜", "辣", "古", "城", "老", "这", "里", "上", "海", "机", "场", "房", "卡", "微", "信", "支", "付", "北", "深", "圳", "单", "登", "航", "班", "护", "照"],
             libraryItems: [
               "chunk:chengdu",
               "chunk:xian",
@@ -5873,6 +5893,11 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:zhelihenlao",
               "chunk:woquxian",
               "chunk:shanghaijichang",
+              "chunk:jichangzainali",
+              "chunk:dengjikouzainali",
+              "chunk:wodehangbanzainali",
+              "chunk:zheshiwodehuzhao",
+              "chunk:huzhao",
             ],
             reviewItems: [
               "chunk:beijing",
@@ -5972,6 +5997,12 @@ export const JOURNEY: JourneyPhase[] = [
                 ["上海机场", "四川菜", "古城", "房卡"],
                 "上海机场 combina cidade + transporte."
               ),
+              listen("机场在哪里？", "jīchǎng zài nǎlǐ?", "Onde fica o aeroporto?"),
+              listen("这是我的护照", "zhè shì wǒ de hùzhào", "Este é o meu passaporte"),
+              flash("jichangzainali"),
+              flash("dengjikouzainali"),
+              flash("zheshiwodehuzhao"),
+              conversationScene("no-aeroporto"),
             ],
           }),
           withLessonDefaults({
@@ -5980,7 +6011,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["路", "街", "号", "区", "人", "民", "北", "京", "上", "海", "南", "地", "铁", "医", "院", "单", "酒"],
+            newHanzi: ["路", "街", "号", "区", "人", "民", "北", "京", "上", "海", "南", "地", "铁", "医", "院", "单", "酒", "停"],
             libraryItems: [
               "char:lu_road",
               "char:jie_street",
@@ -5995,6 +6026,10 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:shanghai_nanjinglu20hao",
               "chunk:ditiezhan",
               "chunk:nanjingluditiezhan",
+              "chunk:woyaoqujiudian",
+              "chunk:qubeijinglu",
+              "chunk:zaizhelictingche",
+              "chunk:duoshaoqian",
             ],
             reviewItems: [
               "chunk:beijing",
@@ -6082,6 +6117,12 @@ export const JOURNEY: JourneyPhase[] = [
                 ["酒店在哪里？", "我很好", "菜单", "再见"],
                 "酒店在哪里？ fecha a cena urbana."
               ),
+              listen("我要去酒店", "wǒ yào qù jiǔdiàn", "Quero ir ao hotel"),
+              listen("去北京路", "qù Běijīng lù", "Vá para a Beijing Road"),
+              listen("在这里停车", "zài zhèlǐ tíngchē", "Pare aqui"),
+              flash("woyaoqujiudian"),
+              flash("zaizhelictingche"),
+              conversationScene("pegar-taxi"),
             ],
           }),
           withLessonDefaults({
@@ -6091,12 +6132,15 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // Chars de saúde que só têm gloss (院, 下 e 班 entram via 医院/我下班).
-            newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班"],
+            newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班", "舒", "服", "需", "肚", "怎", "么", "样"],
             libraryItems: [
               "chunk:wobingle",
               "chunk:wotouteng",
               "chunk:woyaokanyisheng",
               "chunk:yiyuanzainali",
+              "chunk:wobushufu",
+              "chunk:woxuyaoyisheng",
+              "chunk:woduziteng",
             ],
             reviewItems: [
               "chunk:wobingle",
@@ -6166,6 +6210,11 @@ export const JOURNEY: JourneyPhase[] = [
                 "医院在哪里？ acha o hospital.",
                 "Situação"
               ),
+              listen("我不舒服", "wǒ bù shūfu", "Não me sinto bem"),
+              listen("我需要医生", "wǒ xūyào yīshēng", "Preciso de um médico"),
+              flash("wobushufu"),
+              flash("woxuyaoyisheng"),
+              conversationScene("nao-me-sinto-bem"),
             ],
           }),
           withLessonDefaults({
@@ -6175,12 +6224,15 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // 午 é o único char só-gloss usado aqui (中 está em CHARACTERS).
-            newHanzi: ["午"],
+            newHanzi: ["午", "半"],
             libraryItems: [
               "chunk:xianzaijidian",
               "chunk:xianzaibadian",
               "chunk:xianzaijiudian",
               "chunk:zhongwu",
+              "chunk:badianban",
+              "chunk:xiawusandian",
+              "chunk:jiudianshifen",
             ],
             reviewItems: [
               "chunk:xianzaijidian",
@@ -6250,6 +6302,10 @@ export const JOURNEY: JourneyPhase[] = [
                 "现在九点 = são nove horas.",
                 "Situação"
               ),
+              listen("八点半", "bā diǎn bàn", "Oito e meia"),
+              listen("下午三点", "xiàwǔ sān diǎn", "Três da tarde"),
+              flash("badianban"),
+              conversationScene("que-horas-sao"),
             ],
           }),
           microLesson({
@@ -6367,7 +6423,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // 雨/云/下 já vistos em p6-natureza; novos: 冷/晴/雪/风.
-            newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热"],
+            newHanzi: ["冷", "晴", "雪", "风", "雨", "云", "下", "热", "怎", "么", "样"],
             libraryItems: [
               "chunk:jintiantianqihenhao",
               "chunk:tianqihenre",
@@ -6376,6 +6432,11 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:tianqingle",
               "chunk:youfeng",
               "chunk:xiayule",
+              "chunk:jintiantianqizenmeyang",
+              "chunk:jintianhenre",
+              "chunk:jintianhenleng",
+              "chunk:beijingjintianhenleng",
+              "chunk:shanghaijintianhenre",
             ],
             reviewItems: [
               "chunk:jintiantianqihenhao",
@@ -6394,6 +6455,8 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("天气很热", "tiānqì hěn rè", "O tempo está quente"),
               listen("天气很冷", "tiānqì hěn lěng", "O tempo está frio"),
+              listen("北京今天很冷", "Běijīng jīntiān hěn lěng", "Hoje Pequim está fria"),
+              listen("上海今天很热", "Shànghǎi jīntiān hěn rè", "Hoje Xangai está quente"),
               listen("有风", "yǒu fēng", "Está ventando"),
               match(
                 "Quente ou frio?",
@@ -6454,6 +6517,12 @@ export const JOURNEY: JourneyPhase[] = [
                 "天气很热 = o tempo está quente.",
                 "Situação"
               ),
+              listen("今天天气怎么样？", "jīntiān tiānqì zěnmeyàng?", "Como está o tempo hoje?"),
+              flash("jintiantianqizenmeyang"),
+              flash("jintianhenre"),
+              flash("beijingjintianhenleng"),
+              flash("shanghaijintianhenre"),
+              conversationScene("como-esta-o-tempo"),
             ],
           }),
           microLesson({
@@ -6793,6 +6862,9 @@ export const JOURNEY: JourneyPhase[] = [
               "午",
               "广",
               "州",
+              "预",
+              "订",
+              "给",
             ],
             libraryItems: [
               "chunk:xianjin",
@@ -6819,6 +6891,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:ruko",
               "chunk:ershibayuan",
               "chunk:yiyuanzainali",
+              "chunk:youwifima",
+              "chunk:qinggeiwodehuzhao",
             ],
             reviewItems: [
               "chunk:duoshaoqian",
@@ -6973,6 +7047,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "九点 → 北京",
                 ["九点 → 北京", "八点 → 上海", "中午 → 广州", "右转"]
               ),
+              flash("youwifima"),
+              flash("qinggeiwodehuzhao"),
+              conversationScene("checkin-hotel"),
             ],
           }),
           withLessonDefaults({

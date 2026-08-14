@@ -5,10 +5,12 @@
 
 import { CHUNKS } from "./chunks";
 import { CHARACTERS } from "./characters";
+import { VOCABULARY } from "./vocabulary";
 import type { LexicalTier } from "./lexicalGoals";
 import { LEXICAL_TIER_LABELS } from "./lexicalGoals";
 import { LEXICAL_LIFECYCLE_V37_EXTRA } from "./lexicalLifecycleEntries";
 import { SLOT_PATTERNS } from "./slotPatterns";
+import { WORD_FAMILIES } from "./wordLayer";
 import common5000 from "./corpus/common5000.json";
 
 export type LexicalUnitType = "character" | "word" | "chunk" | "pattern";
@@ -27,6 +29,7 @@ export interface LexicalUnit {
   relatedCharacters: string[];
   relatedWords: string[];
   frequencyRank?: number;
+  wordFamily?: string[];
 }
 
 export interface LexicalMetricsBreakdown {
@@ -111,6 +114,20 @@ function buildCharIndex() {
       }
     }
   }
+  for (const word of VOCABULARY.filter((v) => v.kind === "word")) {
+    for (const ch of charactersInHanzi(word.hanzi)) {
+      const list = wordsByChar.get(ch) ?? [];
+      if (!list.includes(word.hanzi)) list.push(word.hanzi);
+      wordsByChar.set(ch, list);
+    }
+  }
+  for (const family of WORD_FAMILIES) {
+    const list = wordsByChar.get(family.rootChar) ?? [];
+    for (const w of family.words) {
+      if (!list.includes(w)) list.push(w);
+    }
+    wordsByChar.set(family.rootChar, list);
+  }
   return { wordsByChar, chunksByChar };
 }
 
@@ -145,6 +162,47 @@ export function buildLexicalRegistry(): LexicalUnit[] {
       relatedCharacters: [],
       relatedWords: relatedWords.slice(0, 8),
       frequencyRank: rank,
+      wordFamily: WORD_FAMILIES.find((item) => item.rootChar === character.hanzi)?.words,
+    });
+  }
+
+  const seenWordHanzi = new Set<string>();
+  for (const word of VOCABULARY.filter((v) => v.kind === "word")) {
+    const hanzi = word.hanzi.replace(/[？?！!。]/g, "");
+    if (!hanzi || seenWordHanzi.has(hanzi)) continue;
+    seenWordHanzi.add(hanzi);
+    const chars = charactersInHanzi(hanzi);
+    const relatedChunks = chars.flatMap((ch) => chunksByChar.get(ch) ?? []).slice(0, 6);
+    units.push({
+      ref: `word:${word.id}`,
+      type: "word",
+      hanzi: word.hanzi,
+      pinyin: word.pinyin,
+      meaning: word.meaningPt,
+      domain: word.domain,
+      tier:
+        word.level === "seed"
+          ? "T0_seed"
+          : word.level === "survival"
+            ? "T1_survival"
+            : word.level === "beginner" || word.level === "elementary"
+              ? "T2_daily"
+              : "T5_extended",
+      productivePriority: usefulnessScore({
+        frequencyRank: Math.min(...chars.map((ch) => commonRankByChar.get(ch) ?? 4000)),
+        wordCount: 1,
+        chunkCount: relatedChunks.length,
+        survival: word.level === "survival",
+        productive: relatedChunks.length > 0 || hanzi.length >= 2,
+      }),
+      communicativeFunctions: [word.domain],
+      prerequisites: chars.map((ch) => {
+        const found = CHARACTERS.find((c) => c.hanzi === ch);
+        return found ? `char:${found.id}` : `char:?${ch}`;
+      }),
+      relatedCharacters: chars,
+      relatedWords: (wordsByChar.get(chars[0] ?? "") ?? []).slice(0, 6),
+      frequencyRank: Math.min(...chars.map((ch) => commonRankByChar.get(ch) ?? 9999)),
     });
   }
 

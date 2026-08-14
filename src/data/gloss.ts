@@ -316,6 +316,16 @@ const EXTRA: Record<string, Gloss> = {
   鞋: { pinyin: "xié", pt: "sapato" },
   双: { pinyin: "shuāng", pt: "par (classificador de pares)" },
   件: { pinyin: "jiàn", pt: "peça (classificador de roupas)" },
+  登: { pinyin: "dēng", pt: "embarcar; subir" },
+  航: { pinyin: "háng", pt: "navegar; voo (em 航班)" },
+  舒: { pinyin: "shū", pt: "confortável (em 舒服)" },
+  烧: { pinyin: "shāo", pt: "queimar; febre (em 发烧)" },
+  预: { pinyin: "yù", pt: "de antemão (em 预订)" },
+  订: { pinyin: "dìng", pt: "reservar; pedir" },
+  停: { pinyin: "tíng", pt: "parar; estacionar" },
+  药: { pinyin: "yào", pt: "remédio" },
+  肚: { pinyin: "dù", pt: "barriga" },
+  半: { pinyin: "bàn", pt: "meio; e meia" },
 };
 
 const LOOKUP: Record<string, Gloss> = { ...EXTRA, ...radicalByGlyph, ...charByHanzi };

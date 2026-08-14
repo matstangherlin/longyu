@@ -12,11 +12,11 @@ READY requires vocabulary + question/answer + productive practice + conversation
 | say_origin | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | ask_origin | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | talk_family | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
-| talk_study | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| talk_work | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| talk_routine | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| tell_time | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| ask_time | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
+| talk_study | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| talk_work | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| talk_routine | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| tell_time | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| ask_time | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | order_food | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | order_drink | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | ask_price | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
@@ -27,14 +27,14 @@ READY requires vocabulary + question/answer + productive practice + conversation
 | ask_directions | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | use_metro | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | use_train | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
-| use_taxi | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| airport_basic | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| hotel_checkin | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
+| use_taxi | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| airport_basic | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| hotel_checkin | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | ask_for_help | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | say_dont_understand | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | ask_repeat | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
-| health_basic | PARTIAL | 0.80 | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | — |
-| weather_smalltalk | PARTIAL | 0.63 | 1.00 | 1.00 | 0.00 | 0.00 | 1.00 | — |
+| health_basic | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| weather_smalltalk | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | express_preference | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | make_simple_plan | READY | 0.97 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 
@@ -116,61 +116,61 @@ READY requires vocabulary + question/answer + productive practice + conversation
 
 - requiredVocabulary: 学生, 老师, 学校, 学习, 中文
 - requiredStructures: 我是学生; 我在学中文; 我去学校
-- requiredChunks: chunk:woshixuesheng, chunk:wozaixuezhongwen, chunk:woquxuexiao, chunk:nixuexizhongwenma
-- requiredQuestions: 你学习中文吗？
-- requiredAnswers: 我在学中文 / 我是学生
-- journeyLessons: l10, l28
+- requiredChunks: chunk:woshixuesheng, chunk:wozaixuezhongwen, chunk:woquxuexiao, chunk:nixuexizhongwenma, chunk:nishixueshengma, chunk:woxuexizhongwen, chunk:wozaixuexiaoxuexi
+- requiredQuestions: 你学习中文吗？ / 你是学生吗？ / 你学习什么？
+- requiredAnswers: 我在学中文 / 我是学生 / 我学习中文 / 我在学校学习
+- journeyLessons: l10, l11-falo-pouco, l28
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### talk_work
 
-- requiredVocabulary: 工作, 公司, 上班
-- requiredStructures: 我要工作; 上班 / 下班
-- requiredChunks: chunk:woyaogongzuo, chunk:shangban, chunk:xiaban, chunk:nizuoshenmegongzuo
-- requiredQuestions: 你做什么工作？ / 你在哪儿工作？
-- requiredAnswers: 我要工作 / 我上班
+- requiredVocabulary: 工作, 公司, 上班, 下班, 老师, 医生, 学生
+- requiredStructures: 我要工作; 上班 / 下班; 你做什么工作？; 你在哪里工作？
+- requiredChunks: chunk:woyaogongzuo, chunk:shangban, chunk:xiaban, chunk:nizuoshenmegongzuo, chunk:nizainagongzuo, chunk:wozaigongsishangban, chunk:nijidianshangban
+- requiredQuestions: 你做什么工作？ / 你在哪儿工作？ / 你几点上班？
+- requiredAnswers: 我要工作 / 我上班 / 我在公司上班
 - journeyLessons: p6-rotina-trabalho
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### talk_routine
 
-- requiredVocabulary: 起床, 睡觉, 上班, 回家
-- requiredStructures: 我起床; 我睡觉
-- requiredChunks: chunk:woqichuang, chunk:woshujiao, chunk:shangban, chunk:wohuijia
-- requiredQuestions: 你什么时候上班？
-- requiredAnswers: 我起床 / 我下班
+- requiredVocabulary: 起床, 睡觉, 上班, 回家, 早饭, 晚饭
+- requiredStructures: 我起床; 我睡觉; 你几点起床？
+- requiredChunks: chunk:woqichuang, chunk:woshujiao, chunk:shangban, chunk:wohuijia, chunk:nijidianqichuang, chunk:woqidianqichuang, chunk:wochizaofan
+- requiredQuestions: 你什么时候上班？ / 你几点起床？
+- requiredAnswers: 我起床 / 我下班 / 我七点起床
 - journeyLessons: p6-rotina-trabalho
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### tell_time
 
-- requiredVocabulary: 现在, 点
-- requiredStructures: 现在八点
-- requiredChunks: chunk:xianzaibadian, chunk:xianzaijiudian
+- requiredVocabulary: 现在, 点, 半, 分
+- requiredStructures: 现在八点; 八点半; 下午三点
+- requiredChunks: chunk:xianzaibadian, chunk:xianzaijiudian, chunk:badianban, chunk:xiawusandian, chunk:jiudianshifen
 - requiredQuestions: —
-- requiredAnswers: 现在八点 / 现在九点
+- requiredAnswers: 现在八点 / 现在九点 / 八点半
 - journeyLessons: p6-horarios
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### ask_time
 
-- requiredVocabulary: 几点
-- requiredStructures: 现在几点？; 什么时候？
-- requiredChunks: chunk:xianzaijidian, chunk:shenmeshihou
+- requiredVocabulary: 几点, 现在
+- requiredStructures: 现在几点？; 什么时候？; 你几点上班？
+- requiredChunks: chunk:xianzaijidian, chunk:shenmeshihou, chunk:nijidianshangban
 - requiredQuestions: 现在几点？ / 什么时候？
-- requiredAnswers: 现在八点
+- requiredAnswers: 现在八点 / 八点半
 - journeyLessons: p6-horarios
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### order_food
 
@@ -294,39 +294,39 @@ READY requires vocabulary + question/answer + productive practice + conversation
 
 ### use_taxi
 
-- requiredVocabulary: 出租车
-- requiredStructures: 我坐出租车
-- requiredChunks: chunk:wozuochuzuche
-- requiredQuestions: —
-- requiredAnswers: 我坐出租车
-- journeyLessons: p7-imersao-estacao
+- requiredVocabulary: 出租车, 停车, 酒店
+- requiredStructures: 我坐出租车; 我要去酒店; 去北京路; 在这里停车
+- requiredChunks: chunk:wozuochuzuche, chunk:woyaoqujiudian, chunk:qubeijinglu, chunk:zaizhelictingche, chunk:duoshaoqian
+- requiredQuestions: 多少钱？
+- requiredAnswers: 我坐出租车 / 我要去酒店 / 去北京路
+- journeyLessons: p7-imersao-estacao, p6-china-ruas
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### airport_basic
 
-- requiredVocabulary: 飞机, 机场, 护照
-- requiredStructures: 飞机场在哪里？; 我坐飞机
-- requiredChunks: chunk:feijichangzainali, chunk:wozuofeiji, chunk:huzhao
-- requiredQuestions: 飞机场在哪里？
-- requiredAnswers: 我坐飞机
+- requiredVocabulary: 飞机, 机场, 护照, 登机口, 航班
+- requiredStructures: 机场在哪里？; 我坐飞机; 这是我的护照; 登机口在哪里？
+- requiredChunks: chunk:feijichangzainali, chunk:wozuofeiji, chunk:huzhao, chunk:jichangzainali, chunk:dengjikouzainali, chunk:wodehangbanzainali, chunk:zheshiwodehuzhao
+- requiredQuestions: 飞机场在哪里？ / 机场在哪里？ / 登机口在哪里？
+- requiredAnswers: 我坐飞机 / 这是我的护照
 - journeyLessons: p6-china-cidades-2, p6-survival-mandarin
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### hotel_checkin
 
 - requiredVocabulary: 酒店, 房间, 房卡, 护照, 前台, 预订
 - requiredStructures: 我有预订; 这是我的护照; 我的房间在哪里？
-- requiredChunks: chunk:jiudianzainali, chunk:huzhao, chunk:fangjian, chunk:qiantai, chunk:fangka, chunk:woyouyuding, chunk:zheshiwodehuzhao, chunk:wodefangjianzainali
+- requiredChunks: chunk:jiudianzainali, chunk:huzhao, chunk:fangjian, chunk:qiantai, chunk:fangka, chunk:woyouyuding, chunk:zheshiwodehuzhao, chunk:wodefangjianzainali, chunk:youwifima, chunk:qinggeiwodehuzhao
 - requiredQuestions: 酒店在哪里？ / 我的房间在哪里？
 - requiredAnswers: 我有预订 / 这是我的护照
 - journeyLessons: p6-survival-mandarin
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### ask_for_help
 
@@ -366,27 +366,27 @@ READY requires vocabulary + question/answer + productive practice + conversation
 
 ### health_basic
 
-- requiredVocabulary: 病了, 头疼, 医生, 医院
-- requiredStructures: 我病了; 我要看医生; 医院在哪里？
-- requiredChunks: chunk:wobingle, chunk:wotouteng, chunk:woyaokanyisheng, chunk:yiyuanzainali
+- requiredVocabulary: 病了, 头疼, 医生, 医院, 不舒服, 药
+- requiredStructures: 我病了; 我要看医生; 医院在哪里？; 我不舒服
+- requiredChunks: chunk:wobingle, chunk:wotouteng, chunk:woyaokanyisheng, chunk:yiyuanzainali, chunk:wobushufu, chunk:woxuyaoyisheng
 - requiredQuestions: 医院在哪里？
-- requiredAnswers: 我病了 / 我要看医生
+- requiredAnswers: 我病了 / 我要看医生 / 我不舒服 / 我需要医生
 - journeyLessons: p6-saude
 - productiveCoverage: yes
-- conversationCoverage: no
-- status: **PARTIAL**
+- conversationCoverage: yes
+- status: **READY**
 
 ### weather_smalltalk
 
 - requiredVocabulary: 天气, 热, 冷, 下雨
-- requiredStructures: 今天天气很好; 天气很热/冷
-- requiredChunks: chunk:jintiantianqihenhao, chunk:tianqihenre, chunk:tianqihenleng, chunk:xiayule
+- requiredStructures: 今天天气很好; 天气很热/冷; 今天天气怎么样？
+- requiredChunks: chunk:jintiantianqihenhao, chunk:tianqihenre, chunk:tianqihenleng, chunk:xiayule, chunk:jintiantianqizenmeyang, chunk:jintianhenre, chunk:jintianhenleng
 - requiredQuestions: 今天天气怎么样？
-- requiredAnswers: 很热 / 下雨了 / 今天天气很好
+- requiredAnswers: 很热 / 下雨了 / 今天天气很好 / 今天很热 / 今天很冷
 - journeyLessons: p6-clima
-- productiveCoverage: no
-- conversationCoverage: no
-- status: **PARTIAL**
+- productiveCoverage: yes
+- conversationCoverage: yes
+- status: **READY**
 
 ### express_preference
 
