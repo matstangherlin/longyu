@@ -3661,7 +3661,13 @@ function supplementalStepsForStage(
     // introduzem a discriminação auditiva sem alterar o ciclo pós-conversa.
     if (enablePedagogyVariants && practiceVariant !== "A") {
       for (const [index, item] of focus.entries()) {
-        push(makeVariantAudioSameDifferentStep(item, focus, (index + variantSeedBase) % 2 === 0));
+        push(
+          makeVariantAudioSameDifferentStep(
+            item,
+            focus,
+            (index + variantSeedBase + (practiceVariant === "C" ? 1 : 0)) % 2 === 0
+          )
+        );
         if (result.length >= Math.min(2, targetCount)) break;
       }
     }
@@ -3700,14 +3706,22 @@ function supplementalStepsForStage(
         (item) => productionReady(item) && sentenceAlternatives(cleanHanzi(item.hanzi)).length > 1
       ) ?? labPool.find((item) => productionReady(item) && cleanHanzi(item.hanzi).length >= 2);
     if (enablePedagogyVariants && !foundationLite) {
+      const labDistractors = labItem ? makeSentenceLabStep(labItem, focus, "sentence_lab_distractors") : null;
+      const labAudio = labItem ? makeSentenceLabStep(labItem, focus, "sentence_lab_audio") : null;
       if (practiceVariant === "B") {
-        if (labItem) {
-          push(makeSentenceLabStep(labItem, focus, "sentence_lab_distractors"));
+        if (labItem && labDistractors) {
+          push(labDistractors);
           push(makeDragonDictationStep(labItem, focus, "blocks"));
+        } else {
+          const intentionItem = focus[0] ?? practiceFocus[0];
+          const intention = intentionItem
+            ? makeDialogueChoiceStep(intentionItem, [...focus, ...practiceFocus])
+            : null;
+          push(intention ? { ...intention, pedagogyVariant: "meaning_intention_match" } : null);
         }
       }
       if (practiceVariant === "C") {
-        if (labItem) push(makeSentenceLabStep(labItem, focus, "sentence_lab_audio"));
+        if (labAudio) push(labAudio);
         push(makeVariantOddOneOutStep([...focus, ...practiceFocus]));
       }
     }
@@ -4450,7 +4464,8 @@ function ensureCoverage(
   reviewFocus: FocusItem[],
   lessonFocus: FocusItem[],
   errorFocus: FocusItem[],
-  usedSignatures: Set<string>
+  usedSignatures: Set<string>,
+  practiceVariant: "A" | "B" | "C" = "A"
 ) {
   // "Já está coberto" precisa também PROTEGER o passo que cobre. Sem isto, a
   // garantia valia só até a próxima chamada: um ensure posterior derrubava o
@@ -4615,6 +4630,22 @@ function ensureCoverage(
     // reservas acima de transfer/free engoliam o slot de consolidação e a
     // onda 1 perdia cobertura real de immersion. Reserva depois delas.
     ensure((candidate) => candidate.step.pedagogyVariant === "dragon_dictation", true);
+    if (practiceVariant === "B") {
+      ensure(
+        (candidate) =>
+          candidate.step.pedagogyVariant === "sentence_lab_distractors" ||
+          candidate.step.pedagogyVariant === "meaning_intention_match",
+        true
+      );
+    }
+    if (practiceVariant === "C") {
+      ensure(
+        (candidate) =>
+          candidate.step.pedagogyVariant === "sentence_lab_audio" ||
+          candidate.step.pedagogyVariant === "meaning_odd_one_out",
+        true
+      );
+    }
   }
 
   if (lesson.isReview) {
@@ -5986,7 +6017,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     }
   }
 
-  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures);
+  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures, practiceVariant);
   const trimmed = trimToTarget(selected, profile);
 
   for (const gap of moduleReviewGapCandidates(lesson, focus, reviewFocus, trimmed)) {

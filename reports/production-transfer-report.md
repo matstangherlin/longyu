@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
+| Commit | 488fd6a9e60598f9410736ff3338fbc9a572580f |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T08:11:39.781Z |
+| Gerado em | 2026-08-14T08:54:41.082Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -27,7 +27,7 @@
 | Lições com conversa sem apoio | 93 / 127 |
 | Lições com quebra de comunicação jogável | 78 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 710 |
+| Passos auditados no plano real (3 tentativas) | 711 |
 | Lições com produção livre | 85 / 127 |
 | Lições com transferência | 81 / 127 |
 | Lições com reparo conversacional | 70 / 127 |
@@ -87,4 +87,4 @@
 - 我要苹果
 - 车站在哪里
 
-<!-- integridade:5dc32eaa93480dca -->
+<!-- integridade:bc5753b901318cdc -->
