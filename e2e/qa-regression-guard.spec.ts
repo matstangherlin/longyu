@@ -171,8 +171,8 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    // Transferência só aparece depois da progressão de estrutura (por volta de l23+).
-    await seedLessonPlayerReady(page, "l23");
+    // Mastery Loop: transfer_task entra a partir de M3 — seed level 2 → próximo pass = 3.
+    await seedLessonPlayerReady(page, "l23", { masteryLevel: 2 });
     await page.addInitScript(() => {
       try {
         const raw = localStorage.getItem("longyu-v1");
