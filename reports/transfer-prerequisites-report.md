@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a05d4dc65eb589eddbd73f4685138b892e43207b |
+| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T07:44:46.776Z |
+| Gerado em | 2026-08-14T08:12:05.073Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -25,7 +25,7 @@
 | Lições | 127 |
 | Lições com transfer_task | 79 |
 | Lições com free_production guiada | 82 |
-| Lições com produção aberta | 23 |
+| Lições com produção aberta | 22 |
 | Transfers precoces | 0 |
 | Opens precoces | 0 |
 
@@ -34,7 +34,7 @@
 | Frame | Padrão | Exposta | Guided | Transfer |
 |-------|--------|---------|--------|----------|
 | `frame_woyao` | 我要 ___ | l26b | l26b | l30 |
-| `frame_woxianghe` | 我想喝 ___ | l26 | l19-logica-ma | l29 |
+| `frame_woxianghe` | 我想喝 ___ | l26 | l26 | l29 |
 | `frame_zainali` | ___ 在哪里？ | l25 | p6-china-cidades | p6-china-ruas |
 | `frame_qingwenzainali` | 请问，___ 在哪里？ | l25 | — | — |
 | `frame_woxiangchi` | 我想吃 ___ | l26b | — | — |
@@ -66,7 +66,7 @@
 
 - **l11-falo-pouco** · `frame_wozai` · `我在学中文。`
 - **l13-dialogo-nome** · `frame_woyouge` · `我有三个朋友。`
-- **l19-logica-ma** · `frame_woxianghe` · `我想喝茶。`
+- **l26** · `frame_woxianghe` · `我想喝茶。`
 - **l26b** · `frame_woyao` · `我要鱼。`
 - **p6-china-cidades** · `frame_zainali` · `医院在哪里？`
 - **p6-natureza** · `frame_woqu` · `我去医院。`
@@ -74,9 +74,9 @@
 
 ## Primeiras produções abertas
 
-- **l26** · objetivo `request_item` · modelo `我想喝茶。`
+- **l26b** · objetivo `request_item` · modelo `我想吃肉。`
 - **l27** · objetivo `state_ongoing` · modelo `我在吃饭。`
 - **p6-china-ruas** · objetivo `ask_location` · modelo `请问，超市在哪里？`
 - **p6-compras** · objetivo `state_destination` · modelo `我去超市。`
 
-<!-- integridade:db617545ecdbebc6 -->
+<!-- integridade:e9408cd927860fde -->

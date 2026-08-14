@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a05d4dc65eb589eddbd73f4685138b892e43207b |
+| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T07:54:10.900Z |
+| Gerado em | 2026-08-14T08:11:39.781Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -27,13 +27,13 @@
 | Lições com conversa sem apoio | 93 / 127 |
 | Lições com quebra de comunicação jogável | 78 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 688 |
+| Passos auditados no plano real (3 tentativas) | 710 |
 | Lições com produção livre | 85 / 127 |
 | Lições com transferência | 81 / 127 |
-| Lições com reparo conversacional | 69 / 127 |
+| Lições com reparo conversacional | 70 / 127 |
 | Estruturas diferentes no plano real | 7 |
 | Frases inéditas cobradas | 22 |
-| Transfer guided / supported / question | 238 / 0 / 0 |
+| Transfer guided / supported / question | 239 / 0 / 0 |
 | 1ªs transferências (attempt 0) | 79 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
@@ -87,4 +87,4 @@
 - 我要苹果
 - 车站在哪里
 
-<!-- integridade:426dd7dd550d84bf -->
+<!-- integridade:5dc32eaa93480dca -->

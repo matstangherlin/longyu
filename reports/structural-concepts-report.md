@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a05d4dc65eb589eddbd73f4685138b892e43207b |
+| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T07:45:04.802Z |
+| Gerado em | 2026-08-14T08:12:22.744Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -43,8 +43,8 @@
 |---------|---------------------------:|
 | intuitivo | 177 |
 | pareado | 27 |
-| técnico | 651 |
-| Passos de produção com slots | 168 |
+| técnico | 647 |
+| Passos de produção com slots | 167 |
 
 ## Exemplos de rótulo por lição
 
@@ -55,4 +55,4 @@
 - **l26b**: sujeito · verbo · objeto · partícula
 - **l11-rev**: sujeito · verbo · objeto · partícula
 
-<!-- integridade:ed5f0175af313074 -->
+<!-- integridade:c1d6bbc72ae762d3 -->

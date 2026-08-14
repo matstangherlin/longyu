@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a05d4dc65eb589eddbd73f4685138b892e43207b |
+| Commit | 0d5057ec1cd197a8d23588bad070cf9d34be5775 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T07:40:14.397Z |
+| Gerado em | 2026-08-14T08:04:26.612Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -63,8 +63,8 @@
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 11 |
-| imagem → pinyin (`choose_pinyin`) | 61 |
-| imagem → significado (`choose_meaning`) | 15 |
+| imagem → pinyin (`choose_pinyin`) | 60 |
+| imagem → significado (`choose_meaning`) | 16 |
 | áudio → imagem (`listen_and_choose_image`) | 30 |
 | hànzì → imagem (`choose_image`) | 22 |
 
@@ -133,4 +133,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:56d011ebebbefb9e -->
+<!-- integridade:177ecd16738a1881 -->

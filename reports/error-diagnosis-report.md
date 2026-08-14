@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
+| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T01:02:17.539Z |
+| Gerado em | 2026-08-14T08:13:22.632Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
@@ -20,8 +20,8 @@
 | Casos curados auditados | 19 |
 | Causas distintas observadas | 13 |
 | Maior concentração numa causa | 16% |
-| Lições que mudam de plano com a fraqueza | 80 / 127 |
-| Lições que renovam o conteúdo na mesma variante | 117 / 127 |
+| Lições que mudam de plano com a fraqueza | 68 / 127 |
+| Lições que renovam o conteúdo na mesma variante | 119 / 127 |
 | Casos de resposta não reconhecida auditados | 8 |
 | Peso de um palpite fraco vs. padrão claro | 0.25× |
 
@@ -104,6 +104,6 @@ Fica registrada para auditoria e para o corpus crescer.
 
 ## Falhas
 
-Nenhum.
+- só 68/127 lições mudaram de plano entre fraqueza de som e de estrutura — a rota é decorativa
 
-<!-- integridade:3c6f32455aed5f99 -->
+<!-- integridade:70806bc0423e9a30 -->

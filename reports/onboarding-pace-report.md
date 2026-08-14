@@ -4,20 +4,20 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d5f5d9b17e73058e3a1ba7443afe41279fa92d6a |
+| Commit | dfac27a95c9ae93a83678b5334f990d99c3c22e3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T01:02:25.727Z |
+| Gerado em | 2026-08-14T08:13:33.542Z |
 | Lições | 127 |
-| Hash da Jornada | f4250a774515 |
+| Hash da Jornada | 73a49c43c96e |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 253 |
-| Média de passos por lição | 12.7 |
-| Minutos estimados até a lição 20 | 83 |
+| Passos somados | 255 |
+| Média de passos por lição | 12.8 |
+| Minutos estimados até a lição 20 | 89 |
 | Passos de digitação na entrada inteira | 0 |
 | Lições sem nada para ouvir | 2 |
 
@@ -31,19 +31,19 @@
 |--:|-------|-------:|---------:|----------:|------:|--------:|----:|
 | 1 | O que é mandarim? | 6 | 5 | 0 | 1 | 6 | 3 |
 | 2 | O que é pinyin? | 7 | 6 | 0 | 0 | 5 | 3 |
-| 3 | O que é tom? | 11 | 10 | 0 | 4 | 8 | 6 |
-| 4 | O que é hànzì? | 11 | 10 | 0 | 2 | 9 | 4 |
+| 3 | O que é tom? | 11 | 10 | 0 | 3 | 8 | 6 |
+| 4 | O que é hànzì? | 11 | 10 | 0 | 1 | 8 | 4 |
 | 5 | Montando primeiros hànzì | 10 | 9 | 0 | 0 | 4 | 6 |
-| 6 | Laboratório de exercícios | 14 | 14 | 0 | 1 | 7 | 5 |
-| 7 | Mandarim, pinyin e tom | 16 | 15 | 0 | 3 | 12 | 3 |
-| 8 | Olá | 13 | 12 | 0 | 2 | 12 | 5 |
+| 6 | Laboratório de exercícios | 14 | 14 | 0 | 2 | 8 | 5 |
+| 7 | Mandarim, pinyin e tom | 14 | 13 | 0 | 3 | 11 | 3 |
+| 8 | Olá | 13 | 12 | 0 | 3 | 12 | 6 |
 | 9 | Tudo bem? | 13 | 12 | 0 | 2 | 10 | 5 |
-| 10 | Revisão do módulo (revisão) | 21 | 20 | 0 | 2 | 11 | 3 |
-| 11 | Obrigado | 14 | 13 | 0 | 3 | 10 | 6 |
-| 12 | Até logo | 11 | 10 | 0 | 3 | 10 | 4 |
-| 13 | Primeira conversa | 11 | 10 | 0 | 1 | 9 | 4 |
-| 14 | Com licença | 10 | 9 | 0 | 2 | 7 | 3 |
-| 15 | Revisão do módulo (revisão) | 23 | 21 | 0 | 3 | 11 | 4 |
+| 10 | Revisão do módulo (revisão) | 20 | 19 | 0 | 4 | 12 | 3 |
+| 11 | Obrigado | 14 | 13 | 0 | 1 | 9 | 6 |
+| 12 | Até logo | 14 | 13 | 0 | 3 | 12 | 6 |
+| 13 | Primeira conversa | 10 | 9 | 0 | 1 | 9 | 5 |
+| 14 | Com licença | 14 | 13 | 0 | 3 | 10 | 4 |
+| 15 | Revisão do módulo (revisão) | 22 | 21 | 0 | 3 | 11 | 5 |
 | 16 | 1º tom com ma | 12 | 11 | 0 | 3 | 11 | 4 |
 | 17 | 2º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
 | 18 | 3º tom com ma | 12 | 11 | 0 | 4 | 8 | 3 |
@@ -64,9 +64,9 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 | 1 | match_pairs |
 | 1 | sentence_build |
 | 3 | audio_discrimination |
+| 3 | fill_blank |
 | 3 | tone |
 | 3 | tone_pair |
-| 4 | fill_blank |
 | 4 | hanzi_build |
 | 4 | image_choice |
 | 6 | conversation_scene |
@@ -82,4 +82,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:a645a2f7cbde183e -->
+<!-- integridade:7c96c27d6400a51c -->
