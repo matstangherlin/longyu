@@ -193,7 +193,9 @@ test.describe("QA regression guard — transferência", () => {
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
-    const transferCopy = page.getByText(/Transferência|Você já conhece|Use este padrão/i);
+    // Não usar "Use este padrão" — free_production guiada também mostra esse texto
+    // e o loop parava antes do transfer_task (pass 3 coloca free_production cedo).
+    const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
     while (
