@@ -6067,8 +6067,12 @@ export function resolveMasteryPassForContext(
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
-  // Pedagogia V3.4 — Review Mastery: Recall→Mixed→Production→Transfer (não ensina de novo).
-  if (lesson.reviewMasteryMode || isReviewMasteryLesson(lesson.id)) {
+  // Pedagogia V3.4 — Review Mastery so entra com pass/level explicito (player).
+  // Validators silenciosos sem masteryLevel continuam no plano classico (imagens etc.).
+  const reviewLevelRequested =
+    (lesson.reviewMasteryMode || isReviewMasteryLesson(lesson.id)) &&
+    (context.masteryPass != null || context.masteryLevel != null);
+  if (reviewLevelRequested) {
     const level = (context.masteryPass ??
       Math.min(4, Math.max(1, (context.masteryLevel ?? 0) + 1))) as ReviewMasteryLevel;
     const reviewSteps = reviewMasteryStepsFor(lesson.id, level);

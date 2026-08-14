@@ -1,8 +1,8 @@
 /**
  * Pedagogia V3.4 — Review Mastery.
  *
- * Revisões especiais NÃO usam o Mastery Loop de ensino (M1 descoberta → M4
- * domínio). Elas usam um modo próprio com quatro níveis de integração:
+ * Revisoes especiais NAO usam o Mastery Loop de ensino (M1 descoberta -> M4
+ * dominio). Elas usam um modo proprio com quatro niveis de integracao:
  *
  *   Review 1 — Recall
  *   Review 2 — Mixed
@@ -10,8 +10,8 @@
  *   Review 4 — Transfer
  *
  * A UX pode reutilizar os quatro segmentos do Mastery Loop, mas a semântica
- * interna é retenção / mistura / recuperação / transferência — nunca
- * "ensinar de novo o mesmo conteúdo em quatro passes".
+ * interna e retencao / mistura / recuperacao / transferencia — nunca
+ * "ensinar de novo o mesmo conteudo em quatro passes".
  */
 import type { LessonStep, StepKind } from "./journey";
 import { withEquivalentAccepts } from "./masteryLoop";
@@ -48,13 +48,13 @@ export interface ReviewMasteryLevelProfile {
 export const REVIEW_MASTERY_PROFILES: Record<ReviewMasteryLevel, ReviewMasteryLevelProfile> = {
   1: {
     level: 1,
-    intentPt: "Recall — recuperação básica de itens já vistos",
+    intentPt: "Recall — recuperacao basica de itens ja vistos",
     preferredKinds: ["recognize", "flashcard", "listen_select", "match_pairs", "contextual_choice"],
     discouragedKinds: ["intro"],
   },
   2: {
     level: 2,
-    intentPt: "Mixed — misturar conceitos de várias lições sem revelar a origem",
+    intentPt: "Mixed — misturar conceitos de varias licoes sem revelar a origem",
     preferredKinds: ["match_pairs", "contextual_choice", "dialogue_completion", "substitution_drill", "comprehend"],
     discouragedKinds: ["intro", "flashcard"],
   },
@@ -66,7 +66,7 @@ export const REVIEW_MASTERY_PROFILES: Record<ReviewMasteryLevel, ReviewMasteryLe
   },
   4: {
     level: 4,
-    intentPt: "Transfer — usar o repertório em contexto novo",
+    intentPt: "Transfer — usar o repertorio em contexto novo",
     preferredKinds: ["conversation_scene", "dialogue_completion", "reverse_recall", "contextual_choice", "city_context"],
     discouragedKinds: ["intro", "flashcard", "recognize"],
   },
@@ -76,64 +76,64 @@ export interface ReviewMasterySpec {
   lessonId: ReviewMasteryLessonId;
   titlePt: string;
   sourcePoolPt: string;
-  /** Itens/frases que a revisão cobre (já ensinados antes). */
+  /** Itens/frases que a revisao cobre (ja ensinados antes). */
   retainedItems: { hanzi: string; meaningPt: string }[];
 }
 
 export const REVIEW_MASTERY_SPECS: Record<ReviewMasteryLessonId, ReviewMasterySpec> = {
   "l14-char-rev": {
     lessonId: "l14-char-rev",
-    titlePt: "Revisão de reconhecimento",
-    sourcePoolPt: "Caracteres fundamentais já apresentados (一 三 口 日 目 我 你 不 是).",
+    titlePt: "Revisao de reconhecimento",
+    sourcePoolPt: "Caracteres fundamentais ja apresentados (一 三 口 日 目 我 你 不 是).",
     retainedItems: [
       { hanzi: "一", meaningPt: "um" },
-      { hanzi: "三", meaningPt: "três" },
+      { hanzi: "三", meaningPt: "tres" },
       { hanzi: "口", meaningPt: "boca" },
       { hanzi: "日", meaningPt: "sol; dia" },
       { hanzi: "目", meaningPt: "olho" },
       { hanzi: "我", meaningPt: "eu" },
-      { hanzi: "你", meaningPt: "você" },
-      { hanzi: "不", meaningPt: "não" },
-      { hanzi: "是", meaningPt: "ser; é" },
+      { hanzi: "你", meaningPt: "voce" },
+      { hanzi: "不", meaningPt: "nao" },
+      { hanzi: "是", meaningPt: "ser; e" },
     ],
   },
   "p4-checkpoint-fundamentos": {
     lessonId: "p4-checkpoint-fundamentos",
     titlePt: "Checkpoint dos fundamentos",
-    sourcePoolPt: "Cumprimentos, despedida, apresentação e caracteres-base da fase.",
+    sourcePoolPt: "Cumprimentos, despedida, apresentacao e caracteres-base da fase.",
     retainedItems: [
-      { hanzi: "你好", meaningPt: "olá" },
+      { hanzi: "你好", meaningPt: "ola" },
       { hanzi: "谢谢", meaningPt: "obrigado" },
-      { hanzi: "再见", meaningPt: "até logo" },
+      { hanzi: "再见", meaningPt: "ate logo" },
       { hanzi: "我叫", meaningPt: "eu me chamo" },
       { hanzi: "我", meaningPt: "eu" },
       { hanzi: "是", meaningPt: "ser" },
       { hanzi: "人", meaningPt: "pessoa" },
-      { hanzi: "一二三", meaningPt: "um dois três" },
+      { hanzi: "一二三", meaningPt: "um dois tres" },
     ],
   },
   "l19-logica-rev": {
     lessonId: "l19-logica-rev",
-    titlePt: "Revisão de peças",
-    sourcePoolPt: "Compostos lógicos (林 森 明 休 好 从 中 吗) já montados.",
+    titlePt: "Revisao de pecas",
+    sourcePoolPt: "Compostos logicos (林 森 明 休 好 从 中 吗) ja montados.",
     retainedItems: [
       { hanzi: "明", meaningPt: "claro / brilhante" },
       { hanzi: "林", meaningPt: "bosque" },
-      { hanzi: "吗", meaningPt: "partícula de pergunta" },
+      { hanzi: "吗", meaningPt: "particula de pergunta" },
       { hanzi: "好", meaningPt: "bom" },
       { hanzi: "休", meaningPt: "descansar" },
     ],
   },
   "l10-rev": {
     lessonId: "l10-rev",
-    titlePt: "Revisão do módulo",
-    sourcePoolPt: "Preferência, pedido e preço do módulo de vida cotidiana.",
+    titlePt: "Revisao do modulo",
+    sourcePoolPt: "Preferencia, pedido e preco do modulo de vida cotidiana.",
     retainedItems: [
       { hanzi: "我喜欢", meaningPt: "eu gosto" },
       { hanzi: "我想喝", meaningPt: "eu quero beber" },
       { hanzi: "多少钱", meaningPt: "quanto custa?" },
-      { hanzi: "水", meaningPt: "água" },
-      { hanzi: "木", meaningPt: "madeira; árvore" },
+      { hanzi: "水", meaningPt: "agua" },
+      { hanzi: "木", meaningPt: "madeira; arvore" },
     ],
   },
 };
@@ -189,8 +189,8 @@ function dialogueCompletion(
 }
 
 /**
- * Passos curados por nível de Review Mastery.
- * Não reensina — só recupera, mistura, produz e transfere.
+ * Passos curados por nivel de Review Mastery.
+ * Nao reensina — so recupera, mistura, produz e transfere.
  */
 export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLevel): LessonStep[] {
   if (!isReviewMasteryLesson(lessonId)) return [];
@@ -198,9 +198,9 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
   if (lessonId === "l14-char-rev") {
     if (level === 1) {
       return [
-        { kind: "recognize", title: "Recall 我", hanzi: "我", prompt: "Qual é este caractere?", correctAnswer: "我", options: ["我", "你", "不", "是"] },
-        { kind: "recognize", title: "Recall 你", hanzi: "你", prompt: "Qual é este caractere?", correctAnswer: "你", options: ["你", "我", "日", "口"] },
-        { kind: "recognize", title: "Recall 是", hanzi: "是", prompt: "Qual é este caractere?", correctAnswer: "是", options: ["是", "不", "三", "目"] },
+        { kind: "recognize", title: "Recall 我", hanzi: "我", prompt: "Qual e este caractere?", correctAnswer: "我", options: ["我", "你", "不", "是"] },
+        { kind: "recognize", title: "Recall 你", hanzi: "你", prompt: "Qual e este caractere?", correctAnswer: "你", options: ["你", "我", "日", "口"] },
+        { kind: "recognize", title: "Recall 是", hanzi: "是", prompt: "Qual e este caractere?", correctAnswer: "是", options: ["是", "不", "三", "目"] },
       ];
     }
     if (level === 2) {
@@ -211,12 +211,12 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
           prompt: "Combine caractere e sentido.",
           pairs: [
             { left: "我", right: "eu" },
-            { left: "你", right: "você" },
-            { left: "不", right: "não" },
-            { left: "是", right: "ser / é" },
+            { left: "你", right: "voce" },
+            { left: "不", right: "nao" },
+            { left: "是", right: "ser / e" },
           ],
         },
-        contextualChoice("Mistura", "Qual caractere completa a ideia de negação?", "不", ["不", "是", "日", "三"]),
+        contextualChoice("Mistura", "Qual caractere completa a ideia de negacao?", "不", ["不", "是", "日", "三"]),
       ];
     }
     if (level === 3) {
@@ -226,8 +226,8 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
       ];
     }
     return [
-      contextualChoice("Novo contexto", "Numa placa, você precisa achar 'não'. Qual é?", "不", ["不", "是", "我", "你"]),
-      reverseRecall("Transfer", "Alguém aponta para você. Qual caractere corresponde?", "你", ["你"]),
+      contextualChoice("Novo contexto", "Numa placa, voce precisa achar 'nao'. Qual e?", "不", ["不", "是", "我", "你"]),
+      reverseRecall("Transfer", "Alguem aponta para voce. Qual caractere corresponde?", "你", ["你"]),
     ];
   }
 
@@ -241,20 +241,20 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
     }
     if (level === 2) {
       return [
-        contextualChoice("Mistura social", "Alguém te ajudou. O que você diz?", "谢谢", ["谢谢", "再见", "你好吗", "多少钱"]),
-        dialogueCompletion("Encadeie", "NPC: 你好！ Você: ___", "你好", ["你好", "一二三", "医院", "辣"], "Responda o cumprimento."),
+        contextualChoice("Mistura social", "Alguem te ajudou. O que voce diz?", "谢谢", ["谢谢", "再见", "你好吗", "多少钱"]),
+        dialogueCompletion("Encadeie", "NPC: 你好！ Voce: ___", "你好", ["你好", "一二三", "医院", "辣"], "Responda o cumprimento."),
       ];
     }
     if (level === 3) {
       return [
-        withEquivalentAccepts(reverseRecall("Apresente-se", "Comece sua apresentação.", "我叫", ["我叫", "我叫。"])),
-        { kind: "produce", title: "Produza 一二三", prompt: "Produza a sequência", correctAnswer: "一二三", options: ["一二三", "你好", "谢谢", "再见"] },
+        withEquivalentAccepts(reverseRecall("Apresente-se", "Comece sua apresentacao.", "我叫", ["我叫", "我叫。"])),
+        { kind: "produce", title: "Produza 一二三", prompt: "Produza a sequencia", correctAnswer: "一二三", options: ["一二三", "你好", "谢谢", "再见"] },
       ];
     }
     return [
       dialogueCompletion(
         "Encontro novo",
-        "Você encontra alguém na rua. Cumprimente e depois se despeça na sequência mental: primeiro ___",
+        "Voce encontra alguem na rua. Cumprimente e depois se despeca na sequencia mental: primeiro ___",
         "你好",
         ["你好", "再见", "多少钱", "医院"]
       ),
@@ -270,7 +270,7 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
         {
           kind: "match_pairs",
           title: "Recall compostos",
-          prompt: "Combine peça e resultado.",
+          prompt: "Combine peca e resultado.",
           pairs: [
             { left: "日+月", right: "明" },
             { left: "木+木", right: "林" },
@@ -282,23 +282,23 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
     if (level === 2) {
       return [
         contextualChoice("Mistura", "Qual composto significa 'bosque'?", "林", ["林", "明", "吗", "休"]),
-        contextualChoice("Mistura 2", "Qual partícula de pergunta?", "吗", ["吗", "林", "好", "休"]),
+        contextualChoice("Mistura 2", "Qual particula de pergunta?", "吗", ["吗", "林", "好", "休"]),
       ];
     }
     if (level === 3) {
       return [
-        reverseRecall("Produza 明", "Qual hanzi é sol+lua?", "明", ["明"]),
-        reverseRecall("Produza 林", "Qual hanzi é árvore+árvore?", "林", ["林"]),
+        reverseRecall("Produza 明", "Qual hanzi e sol+lua?", "明", ["明"]),
+        reverseRecall("Produza 林", "Qual hanzi e arvore+arvore?", "林", ["林"]),
       ];
     }
     return [
       contextualChoice(
         "Contexto novo",
-        "Numa frase '你好吗？', qual peça marca a pergunta?",
+        "Numa frase '你好吗？', qual peca marca a pergunta?",
         "吗",
         ["吗", "林", "明", "休"]
       ),
-      reverseRecall("Transfer", "Você quer dizer 'bom/bem' com o composto 女+子. Qual é?", "好", ["好"]),
+      reverseRecall("Transfer", "Voce quer dizer 'bom/bem' com o composto 女+子. Qual e?", "好", ["好"]),
     ];
   }
 
@@ -312,25 +312,25 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
   }
   if (level === 2) {
     return [
-      contextualChoice("Mistura", "No restaurante você quer chá. O que combina?", "我想喝", ["我想喝", "多少钱", "再见", "林"]),
-      contextualChoice("Mistura preço", "Você aponta para um prato. O que pergunta?", "多少钱", ["多少钱", "我喜欢", "你好", "明"]),
+      contextualChoice("Mistura", "No restaurante voce quer cha. O que combina?", "我想喝", ["我想喝", "多少钱", "再见", "林"]),
+      contextualChoice("Mistura preco", "Voce aponta para um prato. O que pergunta?", "多少钱", ["多少钱", "我喜欢", "你好", "明"]),
     ];
   }
   if (level === 3) {
     return [
-      withEquivalentAccepts(reverseRecall("Produza preferência", "Diga que você gosta.", "我喜欢", ["我喜欢", "我喜欢。"])),
-      withEquivalentAccepts(reverseRecall("Produza preço", "Pergunte o preço.", "多少钱", ["多少钱", "多少钱？"])),
+      withEquivalentAccepts(reverseRecall("Produza preferencia", "Diga que voce gosta.", "我喜欢", ["我喜欢", "我喜欢。"])),
+      withEquivalentAccepts(reverseRecall("Produza preco", "Pergunte o preco.", "多少钱", ["多少钱", "多少钱？"])),
     ];
   }
   return [
     dialogueCompletion(
       "Cena do restaurante",
-      "Você gosta de chá e quer pedir. NPC espera. Você: ___",
+      "Voce gosta de cha e quer pedir. NPC espera. Voce: ___",
       "我想喝",
       ["我想喝", "再见", "林", "明"]
     ),
     withEquivalentAccepts(
-      reverseRecall("Transfer compra", "No mercado, pergunte o preço sem dizer de qual aula veio.", "多少钱", [
+      reverseRecall("Transfer compra", "No mercado, pergunte o preco sem dizer de qual aula veio.", "多少钱", [
         "多少钱",
         "多少钱？",
       ])
