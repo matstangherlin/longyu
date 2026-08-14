@@ -1676,6 +1676,20 @@ export function LessonPlayer() {
   // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
   const recentActivities = useStore((s) => s.recentActivities);
   const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
+  /**
+   * VAR-015 — o histórico entra CONGELADO no início da lição.
+   *
+   * Ele muda a cada resposta (gravamos toda atividade avaliada) e o efeito de
+   * planejamento re-roda quando `srs`/erros mudam, ou seja, também a cada
+   * resposta. Antes o replanejamento era determinístico e devolvia os mesmos
+   * passos; semeando a variedade com um histórico vivo ele passaria a devolver
+   * passos DIFERENTES no meio da sessão — a lição se reorganizando enquanto o
+   * aluno responde. O snapshot é tirado uma vez por lição.
+   */
+  const frozenActivitiesRef = useRef<{ lessonId: string; history: typeof recentActivities } | null>(null);
+  if (foundLesson && frozenActivitiesRef.current?.lessonId !== foundLesson.id) {
+    frozenActivitiesRef.current = { lessonId: foundLesson.id, history: recentActivities };
+  }
   const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
@@ -1830,10 +1844,13 @@ export function LessonPlayer() {
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
     // PERF-011 — `startTransition` não tira trabalho síncrono da main thread:
-    // ele só marca a atualização como não urgente. O planner rodando dentro
-    // dele ainda podia bloquear o primeiro paint na mesma tarefa. Cedemos o
-    // controle ao navegador primeiro, para o shell com os passos autorais
-    // aparecer de fato antes de o plano adaptativo ser calculado.
+    // ele só marca a atualização como não urgente. Chegamos a adiar o planner
+    // por dois quadros para garantir o paint do shell antes do cálculo, mas
+    // isso ALARGAVA a janela em que o player ainda serve os passos autorais —
+    // e o plano adaptativo passava a trocar debaixo de quem já estava
+    // respondendo. Com o índice pré-computado o planner caiu para ~80–160 ms e
+    // roda depois do primeiro render (o shell autoral já foi pintado acima),
+    // então o adiamento extra custava mais do que entregava.
     const runPlanner = () => {
       if (gen !== planGenRef.current) return;
       startTransition(() => {
@@ -1848,7 +1865,7 @@ export function LessonPlayer() {
           hanziBuilderProgress,
           recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
           srs,
-          recentActivities,
+          recentActivities: frozenActivitiesRef.current?.history,
           recentConversationSceneIds,
           recentConversationIntentIds,
           conversationHistory,
@@ -1866,17 +1883,10 @@ export function LessonPlayer() {
       });
     };
 
-    // Dois quadros: o primeiro entrega o paint do shell, o segundo roda o
-    // planner já fora do caminho crítico.
-    let inner = 0;
-    const outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(runPlanner);
-    });
+    runPlanner();
 
     return () => {
       planGenRef.current += 1;
-      cancelAnimationFrame(outer);
-      if (inner) cancelAnimationFrame(inner);
     };
   }, [
     authoredEnrichedSteps,
@@ -1889,7 +1899,6 @@ export function LessonPlayer() {
     learnedChunks,
     lessonAttemptsById,
     lessonMasteryById,
-    recentActivities,
     recentActivityErrors,
     recentConversationIntentIds,
     recentConversationSceneIds,
