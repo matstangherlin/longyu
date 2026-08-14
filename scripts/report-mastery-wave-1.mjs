@@ -98,7 +98,16 @@ try {
     if (masteryQualityScore) {
       try {
         const score = masteryQualityScore(lessonId);
-        scoreCell = score == null ? "—" : String(score);
+        if (score == null) {
+          scoreCell = "—";
+        } else if (typeof score === "number" || typeof score === "boolean") {
+          scoreCell = String(score);
+        } else if (typeof score === "object" && typeof score.score === "number") {
+          // Forma { score, passes, checks } (ver src/data/masteryQuality.ts).
+          scoreCell = `${score.score} ${score.passes ? "✅" : "⚠️"}`;
+        } else {
+          scoreCell = String(score);
+        }
       } catch {
         scoreCell = "erro";
       }
