@@ -3232,6 +3232,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9-tudo-bem",
             title: "Tudo bem?",
             skill: "fala",
+            masteryLoop: true,
             libraryItems: ["chunk:nihaoma", "chunk:wohenhao"],
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
             rewardQi: 2,
@@ -3527,6 +3528,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l13",
             title: "Microtexto 1",
             skill: "leitura",
+            masteryLoop: true,
             steps: [
               intro("Leitura fechada", "Este texto usa apenas cumprimentos e apresentação que você já praticou."),
               read([
@@ -4524,6 +4526,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Microtexto 2",
             skill: "leitura",
             premium: true,
+            masteryLoop: true,
             steps: [
               read([
                 { hanzi: "你好！", pinyin: "Nǐ hǎo!", pt: "Olá!" },
@@ -5854,6 +5857,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "A natureza",
             skill: "fala",
             premium: true,
+            masteryLoop: true,
             // Elementos vistos em lições antigas (山/水/火/木/日/月/林/森) + os novos.
             newHanzi: ["云", "雨", "树", "花", "星", "上", "下"],
             libraryItems: [
@@ -6622,6 +6626,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Eu e meus amigos",
             skill: "leitura",
             premium: true,
+            masteryLoop: true,
             // Visto na cena de apontar a paisagem (那是山 / 那是日) e no livro (书).
             newHanzi: ["那", "书"],
             libraryItems: [
@@ -6714,6 +6719,7 @@ export const JOURNEY: JourneyPhase[] = [
             title: "Leitura em voz alta",
             skill: "leitura",
             premium: true,
+            masteryLoop: true,
             // Vistos na conversa de loja (多少钱) e na paisagem.
             newHanzi: ["多", "少"],
             steps: [

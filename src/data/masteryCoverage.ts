@@ -118,7 +118,7 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "p3-wobuhui-shuo-zhongwen", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Nao falo chines — mastery loop V3.3 wave 1." },
   { lessonId: "p3-qing-zai-shuo-yibian", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Por favor, repita — mastery loop V3.3 wave 1." },
   { lessonId: "l9", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Me apresentar (我叫...) — mastery loop V3.3 wave 1." },
-  { lessonId: "l9-tudo-bem", category: "foundation", status: "later", notesPt: "Variante de Tudo bem?, fora da wave 1." },
+  { lessonId: "l9-tudo-bem", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Tudo bem? (variante) — mastery loop V3.4 completion." },
   { lessonId: "l9-qual-nome", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Como voce se chama? — mastery loop V3.3 wave 1." },
   { lessonId: "l10", category: "foundation", wave: "foundation", status: "migrated", notesPt: "De onde sou — mastery loop V3.3 wave 1." },
   { lessonId: "l11", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Nao entendi — mastery loop V3.3 wave 1." },
@@ -126,7 +126,7 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
 
   // --- Fase 3 · u3-2 (Primeira leitura) ---
   { lessonId: "l12", category: "hanzi-lab", status: "not-applicable", notesPt: "Pecas da frase — foco em analise estrutural, nao fala." },
-  { lessonId: "l13", category: "foundation", status: "later", notesPt: "Microtexto 1 — leitura, fora da wave 1." },
+  { lessonId: "l13", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Microtexto 1 — mastery loop V3.4 completion." },
   { lessonId: "l13-dialogo-ola", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Microdialogo de cumprimento — mastery loop V3.3 wave 1." },
   { lessonId: "l13-dialogo-nome", category: "foundation", wave: "foundation", status: "migrated", notesPt: "Microdialogo de apresentacao — mastery loop V3.3 wave 1." },
   { lessonId: "p3-ordem-das-palavras", category: "system", status: "not-applicable", notesPt: "Explicacao de ordem gramatical, sem situacao comunicativa." },
@@ -185,7 +185,7 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "l20", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Seis a dez — mastery loop V3.3 wave 1." },
   { lessonId: "l21", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Nos e voces — mastery loop V3.3 wave 1." },
   { lessonId: "l22", category: "intermediate", wave: "functional", status: "migrated", notesPt: "China e amigos — mastery loop V3.3 wave 1." },
-  { lessonId: "l23", category: "intermediate", status: "later", notesPt: "Microtexto 2 — leitura, fora da wave 1." },
+  { lessonId: "l23", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Microtexto 2 — mastery loop V3.4 completion." },
 
   // --- Fase 6 · Vida Cotidiana — u6-1 (Familia) ---
   { lessonId: "l24", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Pai e mae — mastery loop V3.2." },
@@ -203,7 +203,7 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "p6-china-ruas", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Ruas e enderecos — mastery loop V3.1." },
   { lessonId: "p6-saude", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Saude — mastery loop V3.3 wave 1." },
   { lessonId: "p6-horarios", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Que horas sao? — mastery loop V3.2." },
-  { lessonId: "p6-natureza", category: "daily-life", status: "later", notesPt: "A natureza — fora da wave 1." },
+  { lessonId: "p6-natureza", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "A natureza — mastery loop V3.4 completion." },
   { lessonId: "p6-clima", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "O tempo (clima) — mastery loop V3.3 wave 1." },
   { lessonId: "p6-direcoes", category: "travel", wave: "china-real", status: "migrated", notesPt: "Direcoes — mastery loop V3.1." },
   { lessonId: "p6-compras", category: "daily-life", wave: "daily-life", status: "migrated", notesPt: "Compras: roupas e itens — mastery loop V3.2." },
@@ -211,8 +211,8 @@ export const MASTERY_LESSON_COVERAGE: readonly MasteryLessonCoverageMeta[] = [
   { lessonId: "l10-rev", category: "review", status: "review-special", notesPt: "Revisao do modulo — usa itens ja migrados como insumo." },
 
   // --- Fase 7 · Leitura Graduada ---
-  { lessonId: "l29", category: "intermediate", status: "later", notesPt: "Eu e meus amigos — leitura, fora da wave 1." },
-  { lessonId: "l30", category: "intermediate", status: "later", notesPt: "Leitura em voz alta — fora da wave 1." },
+  { lessonId: "l29", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Eu e meus amigos — mastery loop V3.4 completion." },
+  { lessonId: "l30", category: "intermediate", wave: "functional", status: "migrated", notesPt: "Leitura em voz alta — mastery loop V3.4 completion." },
   { lessonId: "p7-imersao-mercado", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Imersao no mercado — mastery loop V3.3 wave 1." },
   { lessonId: "p7-imersao-estacao", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Imersao na estacao — mastery loop V3.1." },
   { lessonId: "p7-imersao-casa-amigo", category: "china-real", wave: "china-real", status: "migrated", notesPt: "Imersao na casa de um amigo — mastery loop V3.3 wave 1." },

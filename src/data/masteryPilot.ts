@@ -17,6 +17,7 @@ import type { LessonStep, StepKind } from "./journey";
 import type { MasteryPass } from "./masteryLoop";
 import { isProductionOrTransferKind, withEquivalentAccepts } from "./masteryLoop";
 import { wave1BonusStepsFor } from "./masteryWave1Bonus";
+import { COMPLETION_LESSON_IDS, COMPLETION_LEXICAL_TARGETS, completionBonusStepsFor } from "./masteryCurriculum";
 
 export const MASTERY_PILOT_LESSON_IDS = [
   "l2",
@@ -62,6 +63,10 @@ export const MASTERY_PILOT_LESSON_IDS = [
   "p7-imersao-mercado",
   "p7-imersao-casa-amigo",
   "p3-wohenhao",
+  // ————————————————————————————————————————————————————————————
+  // Pedagogia V3.4 — Mastery Completion (6 lições; ver masteryCoverage.ts).
+  // ————————————————————————————————————————————————————————————
+  ...COMPLETION_LESSON_IDS,
 ] as const;
 
 export type MasteryPilotLessonId = (typeof MASTERY_PILOT_LESSON_IDS)[number];
@@ -94,7 +99,7 @@ export interface UnitLexicalTargets {
   networkChunks: string[];
 }
 
-export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTargets> = {
+const CORE_PILOT_LEXICAL_TARGETS = {
   l2: {
     lessonId: "l2",
     themePt: "Cumprimentos — Ola",
@@ -778,6 +783,17 @@ export const PILOT_LEXICAL_TARGETS: Record<MasteryPilotLessonId, UnitLexicalTarg
     networkChunks: ["我很好", "你好吗？ → 我很好"],
   },
 };
+
+/**
+ * Pedagogia V3.4 — Mastery Completion (6 lições; ver masteryCoverage.ts /
+ * masteryCurriculum/completion.ts). Espalhado por fora do literal acima para
+ * não disparar TS2783 ("specified more than once") ao combinar um literal
+ * totalmente tipado com um Record mais largo.
+ */
+export const PILOT_LEXICAL_TARGETS = {
+  ...CORE_PILOT_LEXICAL_TARGETS,
+  ...COMPLETION_LEXICAL_TARGETS,
+} as unknown as Record<MasteryPilotLessonId, UnitLexicalTargets>;
 
 /** Lexemas unicos cobertos ate a pass (crescimento real, nao so modalidade). */
 export function lexemesForPass(lessonId: MasteryPilotLessonId, pass: MasteryPass): LexicalItemSpec[] {
@@ -2060,6 +2076,10 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
       ),
     ];
   }
+
+  // Pedagogia V3.4 — Mastery Completion (6 licoes; ver masteryCurriculum/).
+  const completionSteps = completionBonusStepsFor(lessonId, pass);
+  if (completionSteps.length > 0) return completionSteps;
 
   // Pedagogia V3.3 — Wave 1 (24 licoes novas); mantem este arquivo enxuto.
   return wave1BonusStepsFor(lessonId, pass);
