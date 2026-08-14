@@ -100,7 +100,7 @@ assert(appEnvSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "appEnvironment deve checar
 assert(appEnvSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
 
 const storeSrc = read("src/lib/store.ts");
-assert(storeSrc.includes("version: 18"), "Persist deve estar na versão 18 (entitlement cloud efêmero)");
+assert(storeSrc.includes("version: 19"), "Persist deve estar na versão 19 (Mastery Loop + entitlement cloud efêmero)");
 assert(
   storeSrc.includes("partialize: (state) => ({ ...state, serverIsPro: false })"),
   "serverIsPro não pode ser hidratado do navegador"
