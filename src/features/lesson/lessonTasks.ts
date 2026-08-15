@@ -5031,9 +5031,44 @@ function balancePracticeSequence(selected: PracticeCandidate[]): PracticeCandida
   const result: PracticeCandidate[] = [];
   while (remaining.length > 0) {
     let index = remaining.findIndex((candidate) => !wouldMakeTriplet(result, candidate));
+    if (index < 0) {
+      // Evita empilhar o mesmo kind no fim quando o pool restante é homogêneo.
+      const lastKind = result[result.length - 1]?.step.kind;
+      index = remaining.findIndex((candidate) => candidate.step.kind !== lastKind);
+    }
     if (index < 0) index = 0;
     const [candidate] = remaining.splice(index, 1);
     result.push(candidate);
+  }
+  // Segundo passe: quebra trios residuais trocando com um kind diferente
+  // (à frente ou atrás, desde que não forme outro trio no destino).
+  for (let i = 2; i < result.length; i += 1) {
+    const kind = result[i].step.kind;
+    if (kind !== result[i - 1].step.kind || kind !== result[i - 2].step.kind) continue;
+    let swapWith = -1;
+    for (let j = i + 1; j < result.length; j += 1) {
+      if (result[j].step.kind !== kind) {
+        swapWith = j;
+        break;
+      }
+    }
+    if (swapWith < 0) {
+      for (let j = 0; j < i - 2; j += 1) {
+        if (result[j].step.kind === kind) continue;
+        const before = j > 0 ? result[j - 1].step.kind : null;
+        const after = result[j + 1]?.step.kind ?? null;
+        // Evita criar trio no destino da troca.
+        if (before === kind && after === kind) continue;
+        if (before === kind && result[i].step.kind === kind) continue;
+        swapWith = j;
+        break;
+      }
+    }
+    if (swapWith >= 0) {
+      const tmp = result[i];
+      result[i] = result[swapWith];
+      result[swapWith] = tmp;
+    }
   }
   return result;
 }
