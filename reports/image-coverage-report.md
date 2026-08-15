@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 705bbbea5d1e957c349d7f7cbd0e7e76cebbd9ab |
+| Commit | 1bf6b6f5ffc9bd7a527b1905b7582ed153cbfd27 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T23:09:28.807Z |
+| Gerado em | 2026-08-15T03:53:12.765Z |
 | Lições | 127 |
-| Hash da Jornada | 73a49c43c96e |
+| Hash da Jornada | 251ae1ae7a65 |
 
 ## Resumo
 
@@ -24,7 +24,7 @@
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
 | Passos image_choice autorais | 68 |
-| Conceitos nunca utilizados | 52 |
+| Conceitos nunca utilizados | 51 |
 
 ## Cobertura por fase
 
@@ -62,11 +62,11 @@
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 11 |
-| imagem → pinyin (`choose_pinyin`) | 60 |
+| imagem → hànzì (`choose_hanzi`) | 18 |
+| imagem → pinyin (`choose_pinyin`) | 62 |
 | imagem → significado (`choose_meaning`) | 16 |
-| áudio → imagem (`listen_and_choose_image`) | 30 |
-| hànzì → imagem (`choose_image`) | 22 |
+| áudio → imagem (`listen_and_choose_image`) | 38 |
+| hànzì → imagem (`choose_image`) | 29 |
 
 ## Conceitos nunca utilizados
 
@@ -81,7 +81,6 @@
 | girlfriend | 女朋友 | namorada | 13 |
 | boyfriend | 男朋友 | namorado | 13 |
 | crowd | 众 | multidão | 8 |
-| forest | 森 | floresta | 6 |
 | fish | 鱼 | peixe | 12 |
 | cat | 猫 | gato | 13 |
 | dog | 狗 | cachorro | 13 |
@@ -133,4 +132,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:48b340f728dcf915 -->
+<!-- integridade:ff6dddb84f4b32b4 -->

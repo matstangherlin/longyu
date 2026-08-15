@@ -3053,6 +3053,13 @@ function maxConversationScenesForLesson(lesson: Lesson): number {
   return 1;
 }
 
+/** Troca do packet: fase ≥ 3 e fora da fundação (evita explodir l1-rev / R9). */
+function lessonAllowsPacketExchange(lessonId: string | undefined, phaseOrder: number): boolean {
+  if (!lessonId) return false;
+  if (FOUNDATION_LESSON_IDS.includes(lessonId)) return false;
+  return phaseOrder >= 3;
+}
+
 function conversationSceneToLessonStep(
   scene: ConversationSceneDefinition,
   resolveContext?: ConversationSceneResolveContext
@@ -3280,22 +3287,26 @@ function makeConversationSceneStep(
   const previousSceneIds = selectionContext.lastLessonSceneIds?.length
     ? selectionContext.lastLessonSceneIds
     : (selectionContext.recentConversationSceneIds ?? []).slice(0, 1);
-  // LEX-036/037 — a troca de frases do packet é candidata SEPARADA
-  // (`makePacketExchangeConversationStep`). Aqui o pool fica no catálogo
-  // autoral (com boost de intent do packet); se não houver elegível, cai no packet.
-  const packetFallback = buildPacketPhraseExchangeCandidates(focusOnly, reviewOnly, {
-    knownRefs,
-    usedSceneIds: lessonInfo.usedSceneIds,
-    variantIndex: (phaseOrder ?? 1) + (selectionContext.recentConversationSceneIds?.length ?? 0),
-    limit: 2,
-  }).filter((scene) => isConversationSceneEligible(scene, {
-    lessonRefs: refs,
-    knownRefs,
-    isReviewLesson: selection?.isReviewLesson,
-    allowImmersion: selection?.allowImmersion,
-    generatedContext: true,
-    phaseOrder,
-  }));
+  // LEX-036/037 — troca do packet é candidata dedicada. Pool aqui = catálogo;
+  // fallback packet só a partir da fase 3.
+  const packetFallback =
+    (phaseOrder ?? 1) >= 3
+      ? buildPacketPhraseExchangeCandidates(focusOnly, reviewOnly, {
+          knownRefs,
+          usedSceneIds: lessonInfo.usedSceneIds,
+          variantIndex: (phaseOrder ?? 1) + (selectionContext.recentConversationSceneIds?.length ?? 0),
+          limit: 2,
+        }).filter((scene) =>
+          isConversationSceneEligible(scene, {
+            lessonRefs: refs,
+            knownRefs,
+            isReviewLesson: selection?.isReviewLesson,
+            allowImmersion: selection?.allowImmersion,
+            generatedContext: true,
+            phaseOrder,
+          })
+        )
+      : [];
   const pool = candidates.length > 0 ? candidates : packetFallback;
   const fresh = pool.filter((candidate) => !previousSceneIds.includes(candidate.sceneId));
   const scene = pickBestConversationScene(fresh.length > 0 ? fresh : pool, lessonInfo, selectionContext);
@@ -4047,15 +4058,20 @@ function supplementalStepsForStage(
         ? focus
         : reviewFocus;
       push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
-      // 2ª candidata: troca de frases do vocabulary packet (LEX-036/037).
-      push(makePacketExchangeConversationStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+      if (lessonAllowsPacketExchange(options.lessonId, phaseOrder)) {
+        push(makePacketExchangeConversationStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+      }
     }
     // Escada: julgar → completar → produzir com apoio.
     // Transferência e produção aberta ficam para consolidação / lições seguintes.
     if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed));
+    const priorForBlank = curriculumGlyphsBeforeLesson(options.lessonId);
     for (const item of focus) {
       push(makeDialogueChoiceStep(item, focus, knownGlyphs));
-      push(makeFillBlankStep(item, focus));
+      // R10: fill_blank gerado só com glifos já disponíveis no currículo anterior.
+      if (allCjkGlyphsKnown(item.hanzi, priorForBlank)) {
+        push(makeFillBlankStep(item, focus));
+      }
       if (result.length >= targetCount) break;
     }
     if (!foundationLite) {
@@ -4117,8 +4133,9 @@ function supplementalStepsForStage(
         ? focus
         : reviewFocus;
       push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
-      // 2ª candidata: troca de frases do vocabulary packet (LEX-036/037).
-      push(makePacketExchangeConversationStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+      if (lessonAllowsPacketExchange(options.lessonId, phaseOrder)) {
+        push(makePacketExchangeConversationStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+      }
     }
     const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
     const priorGlyphs = curriculumGlyphsBeforeLesson(options.lessonId);

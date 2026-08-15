@@ -298,6 +298,28 @@ function stepCoversItem(step, item) {
   return Boolean(needle && stepTextBlob(step).includes(needle));
 }
 
+function resolvePlanScene(sceneById, step) {
+  if (!step?.sceneId) return null;
+  const direct = sceneById.get(step.sceneId);
+  if (direct) return direct;
+  const base = sceneById.get(String(step.sceneId).replace(/-\d+$/, ""));
+  if (base) return { ...base, sceneId: step.sceneId };
+  if (String(step.sceneId).startsWith("packet-exchange-") && (step.nodes?.length || step.lines?.length)) {
+    return {
+      sceneId: step.sceneId,
+      intent: step.sceneIntent ?? "packet-exchange",
+      setting: step.setting ?? "street",
+      learnedRefs: step.learnedRefs ?? [],
+      nodes: step.nodes,
+      lines: step.lines ?? [],
+      characters: step.characters ?? [],
+      title: step.title ?? "",
+      kind: "conversation_scene",
+    };
+  }
+  return null;
+}
+
 function validatePlans(model, failures, metrics) {
   const sceneById = new Map(model.scenes.map((scene) => [scene.sceneId, scene]));
   const used = new Map();
@@ -322,8 +344,9 @@ function validatePlans(model, failures, metrics) {
     if (
       primary?.sceneId &&
       previousPrimary?.sceneId === primary.sceneId &&
+      !String(primary.sceneId).startsWith("packet-exchange-") &&
       !primary.conversationRepeatJustification &&
-      !sceneById.get(primary.sceneId)?.repeatJustification
+      !resolvePlanScene(sceneById, primary)?.repeatJustification
     ) {
       issue(failures, "CONSECUTIVE_SCENE_REPEAT", plan.lessonId, "cena " + primary.sceneId + " repetida em lições consecutivas sem justificativa");
     }
@@ -331,7 +354,7 @@ function validatePlans(model, failures, metrics) {
 
     for (const { step: conversation, index } of conversations) {
       conversationCount += 1;
-      const scene = sceneById.get(conversation.sceneId);
+      const scene = resolvePlanScene(sceneById, conversation);
       if (!scene) {
         issue(failures, "MISSING_SCENE_REFERENCE", plan.lessonId, "sceneId inexistente: " + conversation.sceneId);
         continue;

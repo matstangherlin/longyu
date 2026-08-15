@@ -376,7 +376,7 @@ export const VOCABULARY_PACKETS_V37: VocabularyPacketV37[] = [
     receptive: [],
     structures: ["买单", "可以刷卡吗？", "微信支付"],
     questions: ["可以刷卡吗？", "多少钱？"],
-    answers: ["微信支付", "现金", "买单"],
+    answers: ["微信支付", "买单"],
     conversationIntents: ["pay"],
     transferScenarios: ["checkout", "restaurant"],
   },
