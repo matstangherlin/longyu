@@ -1594,6 +1594,20 @@ function ImmediateErrorReviewSession({
   const [index, setIndex] = useState(0);
   const current = errors[index];
 
+  // A sessão de revisão sempre abre ancorada no topo.
+  //
+  // Sem isto ela herda a rolagem da tela anterior: em viewport baixo (landscape
+  // 667×360) o CTA que inicia a revisão fica abaixo da dobra, o navegador rola
+  // para trazê-lo à vista ao clicar, e a sessão nascia deslocada — o card já
+  // começava cortado. Vale para cada card, não só para o primeiro.
+  useLayoutEffect(() => {
+    const frame = document.querySelector<HTMLElement>("[data-lesson-player-frame]");
+    for (const node of [frame, document.scrollingElement as HTMLElement | null]) {
+      if (node && node.scrollTop !== 0) node.scrollTop = 0;
+    }
+    document.querySelector<HTMLElement>("[data-review-session]")?.scrollIntoView({ block: "start" });
+  }, [index]);
+
   if (!current) {
     return null;
   }
