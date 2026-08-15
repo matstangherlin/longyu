@@ -1259,7 +1259,13 @@ function makeOldPhraseReuseStep(currentFocus: FocusItem[], lesson?: Lesson): Les
   for (const item of oldItems) {
     const fill = makeFillBlankStep(item, pool);
     if (fill) return fill;
-    const dialogue = makeDialogueChoiceStep(item, pool);
+    const dialogue = makeDialogueChoiceStep(
+      item,
+      pool,
+      // Inclui a própria lição: o distrator pode reusar os mesmos caracteres do
+      // alvo (我叫 vem de 你叫什么？ na mesma aula), sem introduzir nada novo.
+      lesson ? curriculumGlyphsThroughLesson(lesson.id) : undefined
+    );
     if (dialogue) return dialogue;
     const comprehend = makeComprehendStep(item, pool);
     if (comprehend) return comprehend;
@@ -1700,6 +1706,9 @@ function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep |
   if (isNearDuplicatePinyinSet(options)) return null;
   const answerKey = normalizePinyinOptionForUniqueness(item.pinyin);
   if (!options.some((option) => normalizePinyinOptionForUniqueness(option) === answerKey)) return null;
+  // O enunciado mostra 我叫<Nome>: se só a resposta trouxer o nome, basta casar
+  // as letras latinas. As variantes em pinyin tiram essa pista.
+  const namedPinyin = item.pinyin ? nameCarryingOptions(item.pinyin, undefined) : null;
   return {
     kind: "dialogue_choice",
     title: "Escolha o pinyin",
@@ -1707,7 +1716,7 @@ function makePinyinChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep |
     dialoguePrompt: `Qual pinyin combina com ${item.hanzi}?`,
     sourceText: item.hanzi,
     sourcePinyin: item.pinyin,
-    options,
+    options: namedPinyin ?? options,
     correctAnswer: item.pinyin,
     explanation: `${item.hanzi} se lê ${item.pinyin}.`,
   };
@@ -2718,21 +2727,95 @@ function makeHanziBuilderStep(
   };
 }
 
-function makeAssemblyChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+function makeAssemblyChoiceStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  knownGlyphs?: ReadonlySet<string>
+): LessonStep | null {
   const options = optionHanzi(item, focus);
   if (options.length < 2) return null;
+  // Mesma pista do card de apresentação: aqui as opções chegavam a ser a frase
+  // inteira contra glifos soltos (我叫<Nome> | 你 | 好 | 我).
+  const named = item.hanzi ? nameCarryingOptions(item.hanzi, knownGlyphs) : null;
   return {
     kind: "dialogue_choice",
     title: "Monte a ideia",
     speaker: "Montagem",
     dialoguePrompt: `Qual peça representa: ${item.meaningPt}?`,
-    options,
+    options: named ?? options,
     correctAnswer: item.hanzi,
     explanation: `${item.hanzi} carrega a ideia de ${item.meaningPt}.`,
   };
 }
 
-function makeDialogueChoiceStep(item: FocusItem, focus: FocusItem[]): LessonStep | null {
+/**
+ * Alternativas que TAMBÉM carregam o nome do aluno.
+ *
+ * Quando o alvo é a apresentação (我叫<Nome>) e os distratores são frases sem
+ * nome, a resposta se entrega sozinha: basta procurar a única opção com o nome
+ * em latim. Aqui os distratores passam a ser outras frases com o MESMO nome,
+ * então o exercício volta a testar a estrutura (叫 vs 是, 我 vs 他/你).
+ *
+ * Só usa glifos já ensinados — se o aluno ainda não viu 是/他/吗, a variante
+ * correspondente é descartada em vez de introduzir caractere novo à força.
+ */
+function nameCarryingOptions(
+  targetHanzi: string,
+  known: ReadonlySet<string> | undefined
+): string[] | null {
+  const clean = cleanHanzi(targetHanzi).trim();
+  // `cleanHanzi` remove espaços — bom para hànzì, fatal para pinyin
+  // ("wǒ jiào Matheus" virava "wǒjiàoMatheus" e o padrão nunca casava).
+  const raw = targetHanzi.trim();
+  // O mesmo alvo aparece em hànzì (我叫Matheus) e em pinyin (wǒ jiào Matheus);
+  // sem cobrir as duas formas, metade dos cards continuava entregando a resposta.
+  const hanziMatch = /^我叫\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]*)$/.exec(clean);
+  const pinyinMatch = /^wǒ\s*jiào\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]*)$/i.exec(raw);
+  const name = (hanziMatch?.[1] ?? pinyinMatch?.[1])?.trim();
+  if (!name) return null;
+  if (pinyinMatch) {
+    // Em pinyin não há glifo para gatear: as variantes usam só sílabas que o
+    // próprio alvo e o vocabulário inicial já apresentam.
+    return [targetHanzi, `nǐ jiào ${name}`, `tā jiào ${name}`, `wǒ shì ${name}`];
+  }
+  // Ordem do mais elementar para o mais avançado: 你叫 já é conhecido junto com
+  // 我叫 (vem de 你叫什么？), então funciona desde a primeira lição. As demais
+  // dependem de 是/他/吗 e entram quando esses caracteres já foram ensinados.
+  const variants = [`你叫${name}`, `我是${name}`, `他叫${name}`, `你叫${name}吗`];
+  // O distrator pode reusar os glifos do PRÓPRIO alvo além dos já ensinados:
+  // eles estão na mesma tela, então nada novo é introduzido. Sem isso 你叫<Nome>
+  // seria barrado por causa de 叫 — o mesmo caractere que a resposta exibe.
+  const allowed = new Set<string>([
+    ...(known ?? []),
+    ...[...cleanHanzi(targetHanzi)].filter((glyph) => CJK_RE.test(glyph)),
+  ]);
+  const usable = variants.filter((variant) => allCjkGlyphsKnown(variant, allowed));
+  if (usable.length === 0) return null;
+  return [targetHanzi, ...usable.slice(0, 3)];
+}
+
+function makeDialogueChoiceStep(
+  item: FocusItem,
+  focus: FocusItem[],
+  knownGlyphs?: ReadonlySet<string>
+): LessonStep | null {
+  const named = item.hanzi ? nameCarryingOptions(item.hanzi, knownGlyphs) : null;
+  if (named) {
+    // Completa até 4 alternativas com os distratores comuns quando faltam
+    // variantes com nome — melhor uma pista parcial do que uma pergunta de
+    // duas opções.
+    const filler = optionHanzi(item, focus).filter((option) => !named.includes(option));
+    const namedOptions = [...named, ...filler].slice(0, 4);
+    return {
+      kind: "dialogue_choice",
+      title: "Use em contexto",
+      speaker: "Situação",
+      dialoguePrompt: `Você quer dizer: ${item.meaningPt}.`,
+      options: namedOptions,
+      correctAnswer: item.hanzi,
+      explanation: `${item.hanzi} usa 我叫 + nome. As outras trocam a pessoa ou o verbo.`,
+    };
+  }
   const options = optionHanzi(item, focus);
   if (options.length < 2) return null;
   return {
@@ -3068,7 +3151,7 @@ interface ConversationSceneSelection {
 // ordem da jornada. Uma cena pode usar QUALQUER vocabulário já ensinado — não
 // apenas o foco da lição atual — desde que toque o foco em pelo menos 1 ref.
 let curriculumRefsCache: Map<string, ReadonlySet<string>> | null = null;
-function curriculumRefsThroughLesson(lessonId: string): ReadonlySet<string> {
+export function curriculumRefsThroughLesson(lessonId: string): ReadonlySet<string> {
   if (!curriculumRefsCache) {
     curriculumRefsCache = new Map();
     const cumulative = new Set<string>();
@@ -3823,7 +3906,7 @@ function supplementalStepsForStage(
         } else {
           const intentionItem = focus[0] ?? practiceFocus[0];
           const intention = intentionItem
-            ? makeDialogueChoiceStep(intentionItem, [...focus, ...practiceFocus])
+            ? makeDialogueChoiceStep(intentionItem, [...focus, ...practiceFocus], knownGlyphs)
             : null;
           push(intention ? { ...intention, pedagogyVariant: "meaning_intention_match" } : null);
         }
@@ -3839,13 +3922,13 @@ function supplementalStepsForStage(
         push(makeSentenceBuildStep(item, focus));
         if (allowDictation) push(makeDictationStep(item, focus, phaseOrder));
       }
-      push(makeAssemblyChoiceStep(item, focus));
+      push(makeAssemblyChoiceStep(item, focus, knownGlyphs));
       if (result.length >= targetCount) break;
     }
   } else if (stageId === "usage") {
     const primary = focus.find((item) => cleanHanzi(item.hanzi).length >= 2) ?? focus[0];
     if (enablePedagogyVariants && !foundationLite && practiceVariant === "B") {
-      const intention = makeDialogueChoiceStep(primary, focus);
+      const intention = makeDialogueChoiceStep(primary, focus, knownGlyphs);
       push(intention ? { ...intention, pedagogyVariant: "meaning_intention_match" } : null);
       if (allowSpotError) push(makeVariantSpotErrorStep(primary));
     }
@@ -3869,7 +3952,7 @@ function supplementalStepsForStage(
     // Transferência e produção aberta ficam para consolidação / lições seguintes.
     if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed));
     for (const item of focus) {
-      push(makeDialogueChoiceStep(item, focus));
+      push(makeDialogueChoiceStep(item, focus, knownGlyphs));
       push(makeFillBlankStep(item, focus));
       if (result.length >= targetCount) break;
     }
@@ -3988,7 +4071,7 @@ function moduleReviewGapCandidates(
       push(makeFillBlankStep(item, focus));
       push(makeSentenceBuildStep(item, focus));
     }
-    push(makeDialogueChoiceStep(item, focus));
+    push(makeDialogueChoiceStep(item, focus, curriculumGlyphsThroughLesson(lesson.id)));
   }
   for (const item of reviewFocus.slice(0, 6)) {
     push(makeComprehendStep(item, [...reviewFocus, ...focus]));
@@ -5382,7 +5465,7 @@ function makePostConversationStep(
     case "meaning_check":
       return makeComprehendStep(item, f);
     case "situation_reply":
-      return makeDialogueChoiceStep(item, f);
+      return makeDialogueChoiceStep(item, f, _taskDeps.priorGlyphs ?? _taskDeps.seenGlyphs);
     case "build_used_answer":
       return makeSentenceBuildStep(item, f);
     case "fill_missing":

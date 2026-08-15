@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 2cb37952a56514bd080e142236f52a2a698d8e16 |
+| Commit | 705bbbea5d1e957c349d7f7cbd0e7e76cebbd9ab |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T18:47:48.681Z |
+| Gerado em | 2026-08-14T23:16:11.455Z |
 | Lições | 127 |
 | Hash da Jornada | 73a49c43c96e |
 
@@ -106,4 +106,4 @@ Fica registrada para auditoria e para o corpus crescer.
 
 Nenhum.
 
-<!-- integridade:1bc16a83015cdb05 -->
+<!-- integridade:93fc4c5786d1530b -->

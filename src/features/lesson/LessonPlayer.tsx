@@ -38,7 +38,11 @@ import {
 } from "../../lib/conversationVocabularySrs";
 import { conversationSceneById } from "../../data/conversationScenes";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
-import { manifestFromConversationStep, primaryExerciseFamilyFor } from "./lessonTasks";
+import {
+  curriculumRefsThroughLesson,
+  manifestFromConversationStep,
+  primaryExerciseFamilyFor,
+} from "./lessonTasks";
 import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
@@ -303,6 +307,21 @@ function correctionForStep(step: LessonStep): LessonMistake {
       detail: step.explanation,
     };
   }
+  if (step.kind === "image_choice") {
+    // O alvo de um passo de imagem é um ID de conceito ("mouth"), não texto do
+    // aluno. Sem resolver, esse identificador interno vazava para a tela como
+    // se fosse um significado — e virava até alternativa numa UI em português.
+    const correctConcept = resolveVisualConcept(
+      step.correctImageId ?? step.targetHanzi ?? step.correctAnswer
+    );
+    return {
+      prompt: step.promptPt ?? step.prompt ?? step.title ?? "Associação visual",
+      correction: correctConcept
+        ? `${correctConcept.hanzi} — ${correctConcept.meaningPt}`
+        : step.targetHanzi ?? step.targetMeaningPt ?? "Reveja a associação correta",
+      detail: step.explanation,
+    };
+  }
   if (
     step.kind === "listen_select" ||
     step.kind === "sentence_build" ||
@@ -311,7 +330,6 @@ function correctionForStep(step: LessonStep): LessonMistake {
     step.kind === "dialogue_choice" ||
     step.kind === "conversation_scene" ||
     step.kind === "hanzi_build" ||
-    step.kind === "image_choice" ||
     step.kind === "contextual_choice" ||
     step.kind === "audio_to_action" ||
     step.kind === "dialogue_completion" ||
@@ -523,11 +541,34 @@ function uniqueLessonReviewTargets(targets: LessonReviewTarget[]): LessonReviewT
   });
 }
 
-function textReviewTargets(text: string | undefined, domain: ReviewDomain, track: Track): LessonReviewTarget[] {
+/**
+ * Alvos de revisão de um texto — apenas o que o currículo JÁ ENSINOU.
+ *
+ * Antes todo caractere do texto virava item de revisão. Errar 不客气 na terceira
+ * lição criava entradas para 客 e 气 como caracteres soltos, que a jornada nunca
+ * apresenta individualmente; a revisão então cobrava palavra que o aluno não
+ * tinha visto em tarefa nenhuma. Auditoria: 19% dos alvos gerados por erro
+ * (61 itens distintos) eram deste tipo.
+ *
+ * O chunk continua entrando — ele é a unidade efetivamente ensinada. Os
+ * caracteres entram quando o currículo os introduz. Sem alvo elegível, o erro
+ * segue registrado para a remediação imediata, mas não vira dívida de revisão.
+ */
+function textReviewTargets(
+  text: string | undefined,
+  domain: ReviewDomain,
+  track: Track,
+  introduced?: ReadonlySet<string>
+): LessonReviewTarget[] {
   const targets: LessonReviewTarget[] = [];
   const chunk = findChunkByText(text);
-  if (chunk) targets.push({ type: "chunk", itemId: chunk.id, domain, track });
-  for (const char of charsInText(text)) targets.push({ type: "char", itemId: char.id, domain, track });
+  if (chunk && (!introduced || introduced.has(`chunk:${chunk.id}`))) {
+    targets.push({ type: "chunk", itemId: chunk.id, domain, track });
+  }
+  for (const char of charsInText(text)) {
+    if (introduced && !introduced.has(`char:${char.id}`)) continue;
+    targets.push({ type: "char", itemId: char.id, domain, track });
+  }
   return targets;
 }
 
@@ -535,17 +576,53 @@ function textReviewTargets(text: string | undefined, domain: ReviewDomain, track
 function pedagogicalTextTargets(
   text: string | undefined,
   domain: ReviewDomain,
-  track: Track
+  track: Track,
+  introduced?: ReadonlySet<string>
 ): LessonReviewTarget[] {
   const chunk = findChunkByText(text);
-  if (chunk) return [{ type: "chunk", itemId: chunk.id, domain, track }];
-  return charsInText(text).map((char) => ({ type: "char" as const, itemId: char.id, domain, track }));
+  if (chunk && (!introduced || introduced.has(`chunk:${chunk.id}`))) {
+    return [{ type: "chunk", itemId: chunk.id, domain, track }];
+  }
+  return charsInText(text)
+    .filter((char) => !introduced || introduced.has(`char:${char.id}`))
+    .map((char) => ({ type: "char" as const, itemId: char.id, domain, track }));
 }
 
-function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTarget[] {
+/**
+ * O que já foi ensinado ATÉ e INCLUINDO a lição atual.
+ *
+ * `curriculumRefsThroughLesson` cobre o que o currículo declara, mas algumas
+ * lições ensinam caracteres só pelo texto dos passos — as de tom (妈/麻/马/骂),
+ * por exemplo, não os declaram. Sem somar os passos da própria lição, elas
+ * ficariam sem nenhum alvo de revisão. Um caractere que o aluno acabou de ver
+ * na tela foi abordado, então conta.
+ */
+const lessonTaughtRefsCache = new Map<string, ReadonlySet<string>>();
+
+function taughtRefsForLesson(lesson: { id: string; steps?: LessonStep[] }): ReadonlySet<string> {
+  const cached = lessonTaughtRefsCache.get(lesson.id);
+  if (cached) return cached;
+  const refs = new Set<string>(curriculumRefsThroughLesson(lesson.id));
+  for (const step of lesson.steps ?? []) {
+    for (const text of [step.hanzi, step.correctAnswer, step.answer, step.blankAnswer, step.text]) {
+      if (!text) continue;
+      const chunk = findChunkByText(text);
+      if (chunk) refs.add(`chunk:${chunk.id}`);
+      for (const char of charsInText(text)) refs.add(`char:${char.id}`);
+    }
+  }
+  lessonTaughtRefsCache.set(lesson.id, refs);
+  return refs;
+}
+
+function reviewTargetsForMistake(
+  step: LessonStep,
+  track: Track,
+  introduced?: ReadonlySet<string>
+): LessonReviewTarget[] {
   const targets: LessonReviewTarget[] = [];
   const addText = (text: string | undefined, domain: ReviewDomain, sourceTrack: Track = track) => {
-    targets.push(...textReviewTargets(text, domain, sourceTrack));
+    targets.push(...textReviewTargets(text, domain, sourceTrack, introduced));
   };
 
   if (step.pedagogyVariant === "audio_same_different") {
@@ -633,8 +710,8 @@ function reviewTargetsForMistake(step: LessonStep, track: Track): LessonReviewTa
     if (step.kind === "conversation_scene") {
       // Não lotar com cada linha da cena — resposta principal / chunk basta;
       // o loop → SRS cobre o restante com dedupe.
-      targets.push(...pedagogicalTextTargets(text, "uso", track));
-      targets.push(...pedagogicalTextTargets(text, "fala", track));
+      targets.push(...pedagogicalTextTargets(text, "uso", track, introduced));
+      targets.push(...pedagogicalTextTargets(text, "fala", track, introduced));
     } else {
       addText(text, "uso");
       addText(text, "fala");
@@ -1033,10 +1110,12 @@ function ImmediateErrorReviewOffer({
         </p>
 
         <div className="mt-auto grid gap-2 pt-8">
-          <Button size="lg" className="w-full shadow-lift" onClick={onStart} data-review-start>
+          {/* Avançar é a ação principal — a lição já está concluída. A prática
+              do que travou continua a um toque, mas como escolha do aluno. */}
+          <Button size="lg" className="w-full shadow-lift" onClick={onLater}>
             {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>
-          <Button variant="outline" className="w-full" onClick={onLater}>
+          <Button variant="outline" className="w-full" onClick={onStart} data-review-start>
             {REVIEW_OFFER.ctaLater}
           </Button>
         </div>
@@ -1514,6 +1593,20 @@ function ImmediateErrorReviewSession({
 }) {
   const [index, setIndex] = useState(0);
   const current = errors[index];
+
+  // A sessão de revisão sempre abre ancorada no topo.
+  //
+  // Sem isto ela herda a rolagem da tela anterior: em viewport baixo (landscape
+  // 667×360) o CTA que inicia a revisão fica abaixo da dobra, o navegador rola
+  // para trazê-lo à vista ao clicar, e a sessão nascia deslocada — o card já
+  // começava cortado. Vale para cada card, não só para o primeiro.
+  useLayoutEffect(() => {
+    const frame = document.querySelector<HTMLElement>("[data-lesson-player-frame]");
+    for (const node of [frame, document.scrollingElement as HTMLElement | null]) {
+      if (node && node.scrollTop !== 0) node.scrollTop = 0;
+    }
+    document.querySelector<HTMLElement>("[data-review-session]")?.scrollIntoView({ block: "start" });
+  }, [index]);
 
   if (!current) {
     return null;
@@ -2201,14 +2294,14 @@ export function LessonPlayer() {
   function rememberMistakeTargets(step: LessonStep) {
     const nextTargets = [
       ...mistakeReviewTargetsRef.current,
-      ...reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]),
+      ...reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson)),
     ];
     mistakeReviewTargetsRef.current = uniqueLessonReviewTargets(nextTargets);
     if (step.kind === "conversation_scene") {
       conversationAttemptsRef.current = Math.max(2, conversationAttemptsRef.current + 1);
       conversationErrorTargetsRef.current = uniqueLessonReviewTargets([
         ...conversationErrorTargetsRef.current,
-        ...reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]),
+        ...reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson)),
       ]);
     }
   }
@@ -2293,7 +2386,7 @@ export function LessonPlayer() {
     if (payload.reviewType && payload.reviewItemId) {
       targets.push({ type: payload.reviewType, itemId: payload.reviewItemId, domain, track: sourceTrack });
     }
-    targets.push(...textReviewTargets(payload.left, domain, sourceTrack));
+    targets.push(...textReviewTargets(payload.left, domain, sourceTrack, taughtRefsForLesson(lesson)));
     return uniqueLessonReviewTargets(targets);
   }
 
@@ -2353,7 +2446,7 @@ export function LessonPlayer() {
 
   function createActivityError(step: LessonStep, stepIndex: number, selectedAnswer?: string): ActivityError {
     const correction = correctionForStep(step);
-    const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill]);
+    const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
     const id = `${lesson.id}:${stepIndex}:${step.kind}:${Date.now()}`;
     const diagnosis = diagnosisForAnswer(step, correction.correction, selectedAnswer);
     const hanzi = errorHanziForStep(step);
@@ -2964,7 +3057,7 @@ export function LessonPlayer() {
       setShowFolegoUpsell(true);
       return;
     }
-    const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill]);
+    const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
     for (const target of targets) {
       gradeReviewDomain({
         ensureSrs,
