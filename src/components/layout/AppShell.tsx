@@ -20,6 +20,7 @@ import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap"
 import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
 import { ErrorBoundary } from "../system/ErrorBoundary";
 import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock";
+import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -100,6 +101,9 @@ export function AppShell() {
 
   useEffect(() => {
     if (!isLessonPlayer) {
+      // Cinto de segurança: ao voltar pra Jornada/outras rotas, limpa lock
+      // órfão (overflow:hidden / position:fixed) que congelava o scroll.
+      ensurePageScrollUnlocked();
       delete document.documentElement.dataset.lessonPlayer;
       return undefined;
     }
@@ -107,6 +111,7 @@ export function AppShell() {
     window.scrollTo(0, 0);
     return () => {
       delete document.documentElement.dataset.lessonPlayer;
+      ensurePageScrollUnlocked();
     };
   }, [isLessonPlayer]);
 

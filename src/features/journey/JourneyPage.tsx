@@ -32,6 +32,7 @@ import { useIsPro } from "../../lib/proAccess";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
+import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -280,13 +281,16 @@ export function JourneyPage() {
   // Só rola se o nó atual não estiver já visível, para evitar saltos de layout.
   const didScroll = useRef(false);
   useEffect(() => {
+    // Cinto de segurança: se o aluno veio do player com overflow/position
+    // órfãos, a trilha fica "congelada" e não dá pra rolar até a próxima lição.
+    ensurePageScrollUnlocked();
     if (didScroll.current || doneCount === 0) return;
     didScroll.current = true;
     const el = document.querySelector('[data-current="true"]');
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const alreadyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-    if (!alreadyVisible) el.scrollIntoView({ block: "center" });
+    if (!alreadyVisible) el.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
   }, [doneCount]);
 
   // índice global para alternar o offset ao longo de toda a jornada

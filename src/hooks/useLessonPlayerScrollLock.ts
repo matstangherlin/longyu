@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hasModalBodyScrollLock, releaseLessonPlayerPageScrollLock } from "../lib/bodyScrollLock";
 
 /**
  * Trava scroll/rubber-band da página no Lesson Player (Android Chrome / Safari).
@@ -11,16 +12,6 @@ export function useLessonPlayerScrollLock(active: boolean) {
     const scrollY = window.scrollY;
     const body = document.body;
     const html = document.documentElement;
-    const prevBody = {
-      position: body.style.position,
-      top: body.style.top,
-      left: body.style.left,
-      right: body.style.right,
-      width: body.style.width,
-      overflow: body.style.overflow,
-      touchAction: body.style.touchAction,
-    };
-    const prevHtmlOverflow = html.style.overflow;
 
     html.style.overflow = "hidden";
     body.style.position = "fixed";
@@ -51,15 +42,12 @@ export function useLessonPlayerScrollLock(active: boolean) {
 
     return () => {
       document.removeEventListener("touchmove", onTouchMove, { capture: true });
-      html.style.overflow = prevHtmlOverflow;
-      body.style.position = prevBody.position;
-      body.style.top = prevBody.top;
-      body.style.left = prevBody.left;
-      body.style.right = prevBody.right;
-      body.style.width = prevBody.width;
-      body.style.overflow = prevBody.overflow;
-      body.style.touchAction = prevBody.touchAction;
-      window.scrollTo(0, scrollY);
+      // Sempre libera a trava do player. Se um modal ainda estiver aberto,
+      // overflow fica hidden via hasModalBodyScrollLock — sem reaplicar o
+      // "hidden" antigo do player como se fosse o estado normal da página.
+      releaseLessonPlayerPageScrollLock({
+        restoreScrollY: hasModalBodyScrollLock() ? undefined : scrollY,
+      });
     };
   }, [active]);
 }

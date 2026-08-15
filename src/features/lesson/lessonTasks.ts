@@ -1378,7 +1378,7 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     };
   }
 
-  const targetCount = Math.max(6, Math.min(10, Math.max(authoredCount, commonTarget)));
+  const targetCount = Math.max(6, Math.min(12, Math.max(authoredCount, commonTarget)));
   const hanziLesson = isHanziFocusedLesson(lesson);
   // Lição de hànzì: 2–4 builders quando há 2+ caracteres; um único caractere → 1.
   const focusCharCount = focus.filter((item) => item.type === "char" || cleanHanzi(item.hanzi).length === 1).length;
@@ -1387,15 +1387,25 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   const pinyinCap = isPinyinFocusedLesson(lesson)
     ? maxPinyinTasksForLesson(lesson, pinyinRich)
     : Math.min(1, maxPinyinTasksForLesson(lesson, pinyinRich));
+  const maxConversationScenes = maxConversationScenesForLesson(lesson);
+  // Com 2 conversas, usage precisa de vaga extra — senão a segunda cena nunca entra.
+  const usageSlots = Math.max(1, Math.min(2, maxConversationScenes));
   return {
-    targetCount,
-    stageTargets: { intro: 1, recognition: 2, assembly: 2, usage: 1, post_conversation: 0, consolidation: Math.max(1, targetCount - 6) },
+    targetCount: Math.max(targetCount, targetCount + Math.max(0, maxConversationScenes - 1)),
+    stageTargets: {
+      intro: 1,
+      recognition: 2,
+      assembly: 2,
+      usage: usageSlots,
+      post_conversation: 0,
+      consolidation: Math.max(1, targetCount - 5 - usageSlots),
+    },
     minHanziBuilds: minBuilds,
     maxHanziBuilds: maxBuilds,
     perCharBuildCap: 2,
     maxPinyinTasks: pinyinCap,
     needsPinyinTask: pinyinRich && (phaseOrder <= 4 || isPinyinFocusedLesson(lesson) || Boolean(lesson.isReview)),
-    maxConversationScenes: maxConversationScenesForLesson(lesson),
+    maxConversationScenes,
     maxImageChoices: 2,
     isReview: Boolean(lesson.isReview),
   };
@@ -3032,6 +3042,10 @@ function maxConversationScenesForLesson(lesson: Lesson): number {
   if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
+  // A partir da fase 3 a conversa deixa de ser "uma por lição": 2 diálogos
+  // com intenções diferentes. Antes disso, 1 basta (e o loop pós-conversa
+  // ainda consegue cobrir o vocabulário novo da cena).
+  if (lessonPhaseOrder(lesson) >= 3) return 2;
   return 1;
 }
 
@@ -4742,7 +4756,8 @@ function ensureCoverage(
   // loop pós-conversa: quando ela cai, caem junto as tarefas derivadas dela.
   // Nunca pode ser a peça sacrificada para caber mais um exercício.
   if (profile.maxConversationScenes > 0) {
-    ensure((candidate) => candidate.step.kind === "conversation_scene", true);
+    const conversationTarget = Math.min(2, profile.maxConversationScenes);
+    ensureCount((candidate) => candidate.step.kind === "conversation_scene", conversationTarget, true);
   }
   // Cota rotativa dos motores de percepção — só depois da fundação/fase 2.
   // Antes disso, forçar dictation/spot_error injeta formatos e glifos prematuros.
@@ -5311,9 +5326,12 @@ const VARIANT_TYPICAL_TASKS: Record<import("../../data/conversationScenes").Conv
   audio_first: ["listen_choose", "recreate_no_translation", "alternate_scenario", "transfer_context"],
 };
 
-function postConversationBounds(lesson: Lesson): { min: number; max: number } {
+function postConversationBounds(lesson: Lesson, sceneCount = 1): { min: number; max: number } {
   if (lessonAllowsImmersionScenes(lesson)) return { min: 3, max: 8 };
   if (lesson.isReview) return { min: 3, max: 5 };
+  // Duas conversas na mesma lição: follow-ups um pouco mais enxutos pra
+  // não dobrar o tempo da sessão.
+  if (sceneCount >= 2) return { min: 2, max: 3 };
   return { min: 2, max: 4 };
 }
 
@@ -5786,7 +5804,7 @@ export function applyConversationVocabularyLoop(
   if (conversationIndexes.length === 0) return plan;
 
   const isReview = Boolean(lesson.isReview);
-  const bounds = postConversationBounds(lesson);
+  const bounds = postConversationBounds(lesson, conversationIndexes.length);
   const budget = conversationLoopBudget(lesson);
   const errorRefs = new Set(focusRefs(deps.errorFocus));
   const unitIndex = lessonUnitIndex(lesson);

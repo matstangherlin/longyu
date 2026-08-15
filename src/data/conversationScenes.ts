@@ -653,6 +653,17 @@ export function scoreConversationScene(
     if (recentScenes.slice(0, 5).some((id) => id === scene.sceneId)) score -= 30;
   }
 
+  // Intents que saturavam o meio do curso (natureza / sala / “fale de novo”)
+  // também perdem pontos quando já dominam a janela — abre espaço pra
+  // diálogos de compra, origem, trabalho etc. em vez de repetir o mesmo frame.
+  const midCourseDominant = new Set(["point-nature", "classroom-intro", "ask-slow-repeat"]);
+  if (midCourseDominant.has(scene.intent)) {
+    const dominantHits = recentIntents.slice(0, 8).filter((intent) => midCourseDominant.has(intent)).length;
+    if (dominantHits >= 2) score -= 35;
+    if (dominantHits >= 3) score -= 25;
+    if ((context.intentPracticeCount?.get(scene.intent) ?? 0) >= 3) score -= 20;
+  }
+
   // LEX-019 — conversas devem consumir vocabulário novo (não-seed) do foco/revisão.
   const seedRefs = new Set([
     "chunk:nihao",
