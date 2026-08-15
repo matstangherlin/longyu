@@ -242,12 +242,17 @@ export function preferredSceneIntentsForRefs(
   return preferredSceneIntentsForPackets(matchVocabularyPacketsForRefs(focusRefs, reviewRefs));
 }
 
-function uniqueOptions(correct: string, extras: readonly string[]): string[] {
+function uniqueOptions(correct: string, extras: readonly string[], allowedGlyphs?: ReadonlySet<string>): string[] {
+  const glyphOk = (value: string) => {
+    if (!allowedGlyphs) return true;
+    const chars = [...cleanHanzi(value)].filter((ch) => CJK_RE.test(ch));
+    return chars.length > 0 && chars.every((ch) => allowedGlyphs.has(ch));
+  };
   const seen = new Set<string>();
   const out: string[] = [];
   const push = (value: string) => {
     const key = cleanHanzi(value).toLocaleLowerCase("zh-CN");
-    if (!key || seen.has(key)) return;
+    if (!key || seen.has(key) || !glyphOk(value)) return;
     seen.add(key);
     out.push(value);
   };
@@ -258,6 +263,28 @@ function uniqueOptions(correct: string, extras: readonly string[]): string[] {
     push(seed);
   }
   return out.slice(0, 4);
+}
+
+function glyphsFromRefs(refs: Iterable<string>): Set<string> {
+  const glyphs = new Set<string>();
+  for (const ref of refs) {
+    if (ref.startsWith("chunk:")) {
+      const chunk = chunkById[ref.slice("chunk:".length)];
+      if (!chunk) continue;
+      for (const ch of cleanHanzi(chunk.hanzi)) {
+        if (CJK_RE.test(ch)) glyphs.add(ch);
+      }
+    } else if (ref.startsWith("char:")) {
+      const char = CHARACTERS.find((item) => item.id === ref.slice("char:".length));
+      if (char?.hanzi && CJK_RE.test(char.hanzi)) glyphs.add(char.hanzi);
+    }
+  }
+  return glyphs;
+}
+
+function phraseGlyphsKnown(phrase: ResolvedPhrase, glyphs: ReadonlySet<string>): boolean {
+  const chars = [...cleanHanzi(phrase.hanzi)].filter((ch) => CJK_RE.test(ch));
+  return chars.length > 0 && chars.every((ch) => glyphs.has(ch));
 }
 
 function primarySceneIntent(packet: VocabularyPacketV37): string {
@@ -286,12 +313,14 @@ export function buildPacketPhraseExchangeScene(
   if (packet.questions.length === 0 || packet.answers.length === 0) return null;
 
   const preferred = packetRefs(packet);
+  const poolRefs = new Set([...options.lessonRefs, ...(options.knownRefs ?? [])]);
+  const knownGlyphs = glyphsFromRefs(poolRefs);
   const questions = packet.questions
     .map((q) => resolvePhrase(q, preferred))
-    .filter((q): q is ResolvedPhrase => Boolean(q));
+    .filter((q): q is ResolvedPhrase => Boolean(q) && phraseGlyphsKnown(q, knownGlyphs));
   const answers = packet.answers
     .map((a) => resolvePhrase(a, preferred))
-    .filter((a): a is ResolvedPhrase => Boolean(a));
+    .filter((a): a is ResolvedPhrase => Boolean(a) && phraseGlyphsKnown(a, knownGlyphs));
   if (questions.length === 0 || answers.length === 0) return null;
 
   const idx = Math.abs(options.variantIndex ?? 0);
@@ -326,8 +355,9 @@ export function buildPacketPhraseExchangeScene(
     ({ hanzi: "好！", pinyin: "hǎo!", pt: "Bem!" } satisfies ResolvedPhrase);
 
   const optionPool = answers.map((item) => item.hanzi);
-  const options1 = uniqueOptions(a1.hanzi, optionPool);
-  const options2 = uniqueOptions(a2.hanzi, [...optionPool, q1.hanzi]);
+  const options1 = uniqueOptions(a1.hanzi, optionPool, knownGlyphs);
+  const options2 = uniqueOptions(a2.hanzi, [...optionPool, q1.hanzi], knownGlyphs);
+  if (options1.length < 2 || options2.length < 2) return null;
 
   const prefix = sceneId;
   return sceneV2({

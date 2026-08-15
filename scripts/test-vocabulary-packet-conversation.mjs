@@ -82,6 +82,10 @@ try {
   const foodPacket = vocabularyPacketById.food_drink ?? vocabularyPacketById.restaurant;
   assert(foodPacket?.questions?.length > 0, "packet food_drink/restaurant com perguntas");
   const foodRefs = new Set([...(foodPacket?.core ?? []), ...(foodPacket?.productive ?? []), ...(foodPacket?.support ?? [])]);
+  // Inclui seeds básicos usados na abertura da cena (你好) e distractors.
+  for (const ref of ["chunk:nihao", "chunk:xiexie", "chunk:zaijian", "chunk:bukeqi", "chunk:wobuzhidao"]) {
+    foodRefs.add(ref);
+  }
   const foodScene = buildPacketPhraseExchangeScene(foodPacket, {
     lessonRefs: foodRefs,
     knownRefs: foodRefs,
@@ -94,7 +98,17 @@ try {
 
   for (const id of ["weather", "technology", "food", "repair"]) {
     const packet = vocabularyPacketById[id];
-    const refs = new Set([...(packet.core ?? []), ...(packet.support ?? []), ...(packet.productive ?? [])]);
+    const refs = new Set([
+      ...(packet.core ?? []),
+      ...(packet.support ?? []),
+      ...(packet.productive ?? []),
+      "chunk:nihao",
+      "chunk:xiexie",
+      "chunk:zaijian",
+      "chunk:bukeqi",
+      "chunk:wobuzhidao",
+      "chunk:wohenhao",
+    ]);
     const built = buildPacketPhraseExchangeScene(packet, { lessonRefs: refs, knownRefs: refs });
     assert(built, `packet ${id} deve gerar troca de frases`);
   }
