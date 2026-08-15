@@ -48,6 +48,13 @@ assert(/lesson_first_activity_painted|firstActivityPainted/.test(player), "Playe
 assert(/lesson_interactive|LESSON_PERF_MARKS\.interactive/.test(player), "Player marks interactive");
 assert(/startTransition/.test(player), "Player defers plan with startTransition");
 assert(/planReady/.test(player), "Player tracks planReady");
+assert(/sessionPlanRef/.test(player), "Player locks adaptive plan for the session (sessionPlanRef)");
+assert(/planNonce/.test(player), "Player can unlock the session plan via planNonce (retry)");
+assert(
+  /locked\.lessonId === foundLesson\.id && locked\.nonce === planNonce/.test(player) ||
+    /locked && locked\.lessonId === foundLesson\.id && locked\.nonce === planNonce/.test(player),
+  "session plan lock early-returns when lesson+nonce match"
+);
 assert(/Preparando atividades/.test(player), "Player shows preparing copy while planning");
 
 // No fake setTimeout wrapping lessonRoundStepsFor to hide freeze.

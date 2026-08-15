@@ -1772,12 +1772,10 @@ export function LessonPlayer() {
   /**
    * VAR-015 — o histórico entra CONGELADO no início da lição.
    *
-   * Ele muda a cada resposta (gravamos toda atividade avaliada) e o efeito de
-   * planejamento re-roda quando `srs`/erros mudam, ou seja, também a cada
-   * resposta. Antes o replanejamento era determinístico e devolvia os mesmos
-   * passos; semeando a variedade com um histórico vivo ele passaria a devolver
-   * passos DIFERENTES no meio da sessão — a lição se reorganizando enquanto o
-   * aluno responde. O snapshot é tirado uma vez por lição.
+   * Ele muda a cada resposta (gravamos toda atividade avaliada). Sem snapshot,
+   * qualquer replan mid-sessão enxergaria um histórico diferente e poderia
+   * devolver passos diferentes. O snapshot é tirado uma vez por lição; o
+   * plano da sessão em si também fica travado (ver sessionPlanRef).
    */
   const frozenActivitiesRef = useRef<{ lessonId: string; history: typeof recentActivities } | null>(null);
   if (foundLesson && frozenActivitiesRef.current?.lessonId !== foundLesson.id) {
@@ -1914,8 +1912,26 @@ export function LessonPlayer() {
 
   const [adaptiveSteps, setAdaptiveSteps] = useState<LessonStep[] | null>(null);
   const [planReady, setPlanReady] = useState(false);
+  /**
+   * Bumpeado só quando a sessão precisa de um plano NOVO (troca de lição ou
+   * "Tentar de novo" após terminar). Não sobe a cada resposta.
+   */
+  const [planNonce, setPlanNonce] = useState(0);
   const planGenRef = useRef(0);
   const firstPaintMarkedRef = useRef(false);
+  /**
+   * Plano da sessão TRAVADO.
+   *
+   * O efeito de planejamento ainda lista deps voláteis (`srs`, erros,
+   * `hanziBuilderProgress`…) porque o primeiro cálculo precisa delas. Mas
+   * essas deps mudam a CADA acerto — em especial o Hànzì Builder grava
+   * progresso no próprio "Verificar", antes do Continuar. Sem trava, o efeito
+   * fazia `setPlanReady(false)`, trocava o player por "Preparando atividades…"
+   * e remontava o passo vazio: o aluno preenchia tudo, via o sucesso sumir e
+   * a mesma montagem voltar (loop). Com o plano travado, respostas não
+   * reorganizam nem desmontam a lição.
+   */
+  const sessionPlanRef = useRef<{ lessonId: string; nonce: number; steps: LessonStep[] } | null>(null);
 
   useEffect(() => {
     if (!foundLesson) return undefined;
@@ -1929,13 +1945,23 @@ export function LessonPlayer() {
     if (!foundLesson || !authoredEnrichedSteps) {
       setAdaptiveSteps(null);
       setPlanReady(false);
+      sessionPlanRef.current = null;
       return undefined;
     }
+
+    const locked = sessionPlanRef.current;
+    if (locked && locked.lessonId === foundLesson.id && locked.nonce === planNonce) {
+      // Sessão já tem plano — ignore churn de srs/erros/progresso de hànzì.
+      return undefined;
+    }
+
     // Fast path: first paint uses authored enriched steps (or loading until set).
     setAdaptiveSteps(authoredEnrichedSteps);
     setPlanReady(false);
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
+    const nonceAtStart = planNonce;
+    const lessonIdAtStart = foundLesson.id;
     // PERF-011 — `startTransition` não tira trabalho síncrono da main thread:
     // ele só marca a atualização como não urgente. Chegamos a adiar o planner
     // por dois quadros para garantir o paint do shell antes do cálculo, mas
@@ -1969,6 +1995,7 @@ export function LessonPlayer() {
         }
       );
       if (gen !== planGenRef.current) return;
+      sessionPlanRef.current = { lessonId: lessonIdAtStart, nonce: nonceAtStart, steps: planned };
       setAdaptiveSteps(planned);
       setPlanReady(true);
       markLessonPerf(LESSON_PERF_MARKS.dataReady);
@@ -1992,6 +2019,7 @@ export function LessonPlayer() {
     learnedChunks,
     lessonAttemptsById,
     lessonMasteryById,
+    planNonce,
     recentActivityErrors,
     recentConversationIntentIds,
     recentConversationSceneIds,
@@ -3553,6 +3581,12 @@ export function LessonPlayer() {
 
     function retryLesson() {
       playSoundFx("step", soundEffects);
+      // Nova tentativa: libera o plano travado e refresca o snapshot de
+      // variedade com o que o aluno acabou de praticar nesta sessão.
+      sessionPlanRef.current = null;
+      frozenActivitiesRef.current = { lessonId: lesson.id, history: useStore.getState().recentActivities };
+      setPlanNonce((value) => value + 1);
+      setPlanReady(false);
       setIdx(0);
       setCorrect(0);
       setLives(DRAGON_BREATH_LIVES);
