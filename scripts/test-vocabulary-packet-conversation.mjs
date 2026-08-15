@@ -92,6 +92,13 @@ try {
     "prompt de troca de frases"
   );
 
+  for (const id of ["weather", "technology", "food", "repair"]) {
+    const packet = vocabularyPacketById[id];
+    const refs = new Set([...(packet.core ?? []), ...(packet.support ?? []), ...(packet.productive ?? [])]);
+    const built = buildPacketPhraseExchangeScene(packet, { lessonRefs: refs, knownRefs: refs });
+    assert(built, `packet ${id} deve gerar troca de frases`);
+  }
+
   const lessonInfo = {
     focusRefs: greetFocus,
     reviewRefs: new Set(),

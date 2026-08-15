@@ -3280,14 +3280,14 @@ function makeConversationSceneStep(
   const previousSceneIds = selectionContext.lastLessonSceneIds?.length
     ? selectionContext.lastLessonSceneIds
     : (selectionContext.recentConversationSceneIds ?? []).slice(0, 1);
-  // LEX-036/037 — questions/answers do packet entram no pool como troca de
-  // frases. O score prefere cenas autorais alinhadas (−28 nas packet-exchange);
-  // a troca gerada ganha quando o catálogo está saturado ou não cobre o intent.
-  const packetScenes = buildPacketPhraseExchangeCandidates(focusOnly, reviewOnly, {
+  // LEX-036/037 — a troca de frases do packet é candidata SEPARADA
+  // (`makePacketExchangeConversationStep`). Aqui o pool fica no catálogo
+  // autoral (com boost de intent do packet); se não houver elegível, cai no packet.
+  const packetFallback = buildPacketPhraseExchangeCandidates(focusOnly, reviewOnly, {
     knownRefs,
     usedSceneIds: lessonInfo.usedSceneIds,
     variantIndex: (phaseOrder ?? 1) + (selectionContext.recentConversationSceneIds?.length ?? 0),
-    limit: 3,
+    limit: 2,
   }).filter((scene) => isConversationSceneEligible(scene, {
     lessonRefs: refs,
     knownRefs,
@@ -3296,7 +3296,7 @@ function makeConversationSceneStep(
     generatedContext: true,
     phaseOrder,
   }));
-  const pool = [...candidates, ...packetScenes];
+  const pool = candidates.length > 0 ? candidates : packetFallback;
   const fresh = pool.filter((candidate) => !previousSceneIds.includes(candidate.sceneId));
   const scene = pickBestConversationScene(fresh.length > 0 ? fresh : pool, lessonInfo, selectionContext);
   if (!scene) return null;
@@ -3306,6 +3306,63 @@ function makeConversationSceneStep(
   const resolveContext: ConversationSceneResolveContext = { availableRefs, phaseOrder: lessonInfo.phaseOrder };
   const baseStep = conversationSceneToLessonStep(scene, resolveContext);
   // Nível de apresentação pelo histórico: uma cena que reaparece sobe de nível.
+  const level = conversationVariantLevelFor(scene, selection?.history);
+  const step = withUnaidedReplies(baseStep, level);
+  step.conversationVariantLevel = level;
+  if (knownGlyphs) step.conversationRepairBeat = conversationRepairBeatFor(knownGlyphs);
+  return step;
+}
+
+/**
+ * Candidata dedicada: troca de frases a partir de questions/answers do packet.
+ * Entra no pool junto com a cena autoral para preencher o 2º slot de diálogo.
+ */
+function makePacketExchangeConversationStep(
+  focus: FocusItem[],
+  reviewFocus: FocusItem[] = [],
+  selection?: ConversationSceneSelection,
+  knownGlyphs?: ReadonlySet<string>
+): LessonStep | null {
+  const focusOnly = new Set(focusRefs(focus));
+  const reviewOnly = new Set(focusRefs(reviewFocus));
+  const refs = new Set([...focusOnly, ...reviewOnly]);
+  const knownRefs = selection?.knownRefs;
+  const phaseOrder = selection?.lessonInfo?.phaseOrder;
+  const preferredPacketIntents = preferredSceneIntentsForRefs(focusOnly, reviewOnly);
+  const lessonInfo: ConversationSceneLessonInfo = {
+    ...(selection?.lessonInfo ?? { focusRefs: focusOnly, reviewRefs: reviewOnly }),
+    focusRefs: selection?.lessonInfo?.focusRefs ?? focusOnly,
+    reviewRefs: selection?.lessonInfo?.reviewRefs ?? reviewOnly,
+    preferredPacketIntents:
+      selection?.lessonInfo?.preferredPacketIntents ?? preferredPacketIntents,
+  };
+  const selectionContext = selection?.context ?? {};
+  const packetScenes = buildPacketPhraseExchangeCandidates(focusOnly, reviewOnly, {
+    knownRefs,
+    usedSceneIds: lessonInfo.usedSceneIds,
+    variantIndex: (phaseOrder ?? 1) + 3 + (selectionContext.recentConversationSceneIds?.length ?? 0),
+    limit: 4,
+  }).filter((scene) =>
+    isConversationSceneEligible(scene, {
+      lessonRefs: refs,
+      knownRefs,
+      isReviewLesson: selection?.isReviewLesson,
+      allowImmersion: selection?.allowImmersion,
+      generatedContext: true,
+      phaseOrder,
+    })
+  );
+  if (packetScenes.length === 0) return null;
+  const previousSceneIds = selectionContext.lastLessonSceneIds?.length
+    ? selectionContext.lastLessonSceneIds
+    : (selectionContext.recentConversationSceneIds ?? []).slice(0, 1);
+  const fresh = packetScenes.filter((scene) => !previousSceneIds.includes(scene.sceneId));
+  const scene = pickBestConversationScene(fresh.length > 0 ? fresh : packetScenes, lessonInfo, selectionContext);
+  if (!scene) return null;
+  const availableRefs = new Set(refs);
+  if (knownRefs) for (const ref of knownRefs) availableRefs.add(ref);
+  const resolveContext: ConversationSceneResolveContext = { availableRefs, phaseOrder: lessonInfo.phaseOrder };
+  const baseStep = conversationSceneToLessonStep(scene, resolveContext);
   const level = conversationVariantLevelFor(scene, selection?.history);
   const step = withUnaidedReplies(baseStep, level);
   step.conversationVariantLevel = level;
@@ -3990,6 +4047,8 @@ function supplementalStepsForStage(
         ? focus
         : reviewFocus;
       push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+      // 2ª candidata: troca de frases do vocabulary packet (LEX-036/037).
+      push(makePacketExchangeConversationStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
     }
     // Escada: julgar → completar → produzir com apoio.
     // Transferência e produção aberta ficam para consolidação / lições seguintes.
@@ -4058,6 +4117,8 @@ function supplementalStepsForStage(
         ? focus
         : reviewFocus;
       push(makeConversationSceneStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
+      // 2ª candidata: troca de frases do vocabulary packet (LEX-036/037).
+      push(makePacketExchangeConversationStep(focus, conversationReview, options.sceneSelection, knownGlyphs));
     }
     const reviewForDrills = focusSafeForProductionDrills(practiceFocus, options.lessonId);
     const priorGlyphs = curriculumGlyphsBeforeLesson(options.lessonId);
@@ -4417,13 +4478,18 @@ function generatedCandidatesFor(
       priorTransferredFrames,
     });
     for (const step of generated) {
+      const packetExchange = String(step.sceneId ?? "").startsWith("packet-exchange-");
+      const hasAuthoredConversation = lesson.steps.some((item) => item.kind === "conversation_scene");
+      // Com cena autoral na lição, a troca do packet disputa o 2º slot.
+      // Sem autoral, fica um pouco atrás do catálogo no 1º slot.
+      const packetBias = packetExchange ? (hasAuthoredConversation ? 15 : -8) : 0;
       candidates.push({
         step,
         stageId,
         sourceStepIndex: -1,
         generated: true,
         families: exerciseFamiliesFor(step, stageId),
-        score: candidateScore(lesson, step, stageId, true, reviewFocus),
+        score: candidateScore(lesson, step, stageId, true, reviewFocus) + packetBias,
       });
     }
   }
@@ -5142,8 +5208,25 @@ function derivedStageForStep(scene: ConversationSceneDefinition, learnedRefs: re
 /** Manifesto da conversa exibida a partir do passo já resolvido no plano. */
 export function manifestFromConversationStep(step: LessonStep): ConversationVocabularyManifest | null {
   if (step.kind !== "conversation_scene" || !step.sceneId) return null;
-  const scene = conversationSceneById[step.sceneId];
-  if (!scene) return null;
+  const catalog = conversationSceneById[step.sceneId];
+  // Cenas packet-exchange-* não estão no catálogo autoral: monta um stub a
+  // partir do passo já resolvido para o loop pós-conversa continuar funcionando.
+  const scene: ConversationSceneDefinition =
+    catalog ??
+    ({
+      kind: "conversation_scene",
+      sceneId: step.sceneId,
+      title: step.title ?? "Troca de frases",
+      intent: step.sceneIntent ?? "packet-exchange",
+      setting: (step.setting as ConversationSceneDefinition["setting"]) ?? "street",
+      characters: step.characters ?? [],
+      lines: step.lines ?? [],
+      learnedRefs: step.learnedRefs ?? [],
+      newRefs: step.newRefs,
+      nodes: step.nodes,
+      entryNodeId: step.entryNodeId,
+      checkpoint: step.checkpoint,
+    } as ConversationSceneDefinition);
   const learnedRefs = step.learnedRefs ?? scene.learnedRefs;
   return buildManifestForResolvedVariant(scene, {
     nodes: step.nodes,
@@ -5151,7 +5234,7 @@ export function manifestFromConversationStep(step: LessonStep): ConversationVoca
     lines: (step.lines ?? []).map((line) => ({ ...line, speakerId: line.speakerId ?? "" })),
     learnedRefs,
     newRefs: step.newRefs,
-    stage: derivedStageForStep(scene, learnedRefs),
+    stage: catalog ? derivedStageForStep(scene, learnedRefs) : "beginner",
     minPhaseOrder: 0,
   });
 }

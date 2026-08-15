@@ -158,24 +158,26 @@ function resolvePhrase(raw: string, preferredRefs?: readonly string[]): Resolved
   const cleaned = cleanHanzi(text);
   const stem = cleanHanzi(stripEllipsis(text));
 
-  for (const chunk of candidates) {
-    if (!chunk) continue;
-    const chunkClean = cleanHanzi(chunk.hanzi);
-    if (chunkClean === cleaned || chunkClean === stem) {
-      return {
-        hanzi: displayHanzi(chunk.hanzi),
-        pinyin: chunk.pinyin,
-        pt: chunk.meaningPt,
-        ref: `chunk:${chunk.id}`,
-      };
-    }
-  }
+  const scoreMatch = (chunkHanzi: string): number => {
+    const chunkClean = cleanHanzi(chunkHanzi);
+    if (!chunkClean) return 0;
+    if (chunkClean === cleaned || chunkClean === stem) return 100;
+    if (stem && chunkClean.startsWith(stem)) return 80;
+    if (cleaned.length >= 2 && chunkClean.endsWith(cleaned)) return 70;
+    if (cleaned.length >= 2 && chunkClean.includes(cleaned)) return 60;
+    return 0;
+  };
 
-  if (stem && (text.includes("…") || text.includes("...") || text.includes("⋯"))) {
-    for (const chunk of candidates.length ? candidates : CHUNKS) {
+  let best: ResolvedPhrase | null = null;
+  let bestScore = 0;
+  const pools = [candidates.length ? candidates : [], CHUNKS];
+  for (const pool of pools) {
+    for (const chunk of pool) {
       if (!chunk) continue;
-      if (cleanHanzi(chunk.hanzi).startsWith(stem)) {
-        return {
+      const score = scoreMatch(chunk.hanzi);
+      if (score > bestScore) {
+        bestScore = score;
+        best = {
           hanzi: displayHanzi(chunk.hanzi),
           pinyin: chunk.pinyin,
           pt: chunk.meaningPt,
@@ -183,18 +185,9 @@ function resolvePhrase(raw: string, preferredRefs?: readonly string[]): Resolved
         };
       }
     }
+    if (bestScore >= 80) break;
   }
-
-  for (const chunk of CHUNKS) {
-    if (cleanHanzi(chunk.hanzi) === cleaned || cleanHanzi(chunk.hanzi) === stem) {
-      return {
-        hanzi: displayHanzi(chunk.hanzi),
-        pinyin: chunk.pinyin,
-        pt: chunk.meaningPt,
-        ref: `chunk:${chunk.id}`,
-      };
-    }
-  }
+  if (best) return best;
 
   const hanzi = displayHanzi(text);
   if (!cleanHanzi(hanzi)) return null;
@@ -308,18 +301,16 @@ export function buildPacketPhraseExchangeScene(
   const a2 = answers[(idx + 1) % answers.length] ?? a1;
 
   const available = (ref: string) => options.lessonRefs.has(ref) || Boolean(options.knownRefs?.has(ref));
+  // Foco deve tocar o packet; Q/A podem ser receptivos (NPC) se o core estiver disponível.
+  const packetTouch = preferred.filter((ref) => options.lessonRefs.has(ref));
+  if (packetTouch.length === 0) return null;
+
+  const phraseRefs = [q1.ref, a1.ref, q2.ref, a2.ref].filter((ref): ref is string => Boolean(ref));
   const learnedRefs = [
-    ...new Set(
-      [q1.ref, a1.ref, q2.ref, a2.ref]
-        .filter((ref): ref is string => Boolean(ref))
-        .filter((ref) => available(ref))
-    ),
+    ...new Set([...phraseRefs.filter((ref) => available(ref)), ...packetTouch.filter((ref) => available(ref)).slice(0, 4)]),
   ];
   if (learnedRefs.length === 0) return null;
   if (!learnedRefs.some((ref) => options.lessonRefs.has(ref))) return null;
-  // Só exige refs do turno principal (pergunta + resposta) disponíveis.
-  const coreTurnRefs = [q1.ref, a1.ref].filter((ref): ref is string => Boolean(ref));
-  if (coreTurnRefs.some((ref) => !available(ref))) return null;
 
   const sceneIdBase = `packet-exchange-${packet.id}`;
   let sceneId = sceneIdBase;

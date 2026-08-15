@@ -674,10 +674,10 @@ export function scoreConversationScene(
   if (lesson.preferredPacketIntents?.has(scene.intent)) {
     score += 45;
   }
-  // Troca gerada do packet só entra quando o catálogo autoral não cobre bem
-  // (recência, seed-only, etc.). Preferir cena autoral alinhada ao intent.
+  // Troca gerada do packet é candidata dedicada (2º slot). No pool misto do
+  // catálogo, mantém leve preferência pelo autoral alinhado.
   if (scene.sceneId.startsWith("packet-exchange-")) {
-    score -= 28;
+    score -= 10;
   }
 
   // LEX-019 — conversas devem consumir vocabulário novo (não-seed) do foco/revisão.
