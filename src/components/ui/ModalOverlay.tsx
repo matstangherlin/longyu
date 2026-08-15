@@ -1,21 +1,11 @@
 import { useEffect, useRef, type ReactNode } from "react";
-
-let bodyLockCount = 0;
-let previousBodyOverflow = "";
+import { acquireModalBodyScrollLock, releaseModalBodyScrollLock } from "../../lib/bodyScrollLock";
 
 function useBodyScrollLock() {
   useEffect(() => {
-    if (bodyLockCount === 0) {
-      previousBodyOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-    }
-    bodyLockCount += 1;
-
+    acquireModalBodyScrollLock();
     return () => {
-      bodyLockCount = Math.max(0, bodyLockCount - 1);
-      if (bodyLockCount === 0) {
-        document.body.style.overflow = previousBodyOverflow;
-      }
+      releaseModalBodyScrollLock();
     };
   }, []);
 }

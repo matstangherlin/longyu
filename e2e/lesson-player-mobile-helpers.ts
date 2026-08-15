@@ -399,13 +399,14 @@ export async function openReviewFlow(page: Page) {
 }
 
 export async function openTransferStep(page: Page) {
-  // Transferência no Mastery Loop aparece a partir de M3 — seed level 2 → próximo pass = 3.
-  await seedLessonPlayerReady(page, "l23", { masteryLevel: 2 });
+  // Transferência no Mastery Loop aparece de forma estável em M4 (seed level 3 →
+  // próximo pass = 4). l24 coloca transfer_task cedo (após a 1ª conversa).
+  await seedLessonPlayerReady(page, "l24", { masteryLevel: 3 });
   await seedProOnTopOfSession(page);
-  await page.goto("/licao/l23/player");
+  await page.goto("/licao/l24/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  const ok = await advanceUntilSelector(page, '[data-production-step="transfer_task"]');
+  const ok = await advanceUntilSelector(page, '[data-production-step="transfer_task"]', 60, 150_000);
   expect(ok).toBe(true);
 }
 

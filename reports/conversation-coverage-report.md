@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 705bbbea5d1e957c349d7f7cbd0e7e76cebbd9ab |
+| Commit | 1bf6b6f5ffc9bd7a527b1905b7582ed153cbfd27 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T23:10:32.561Z |
+| Gerado em | 2026-08-15T03:52:42.730Z |
 | Lições | 127 |
-| Hash da Jornada | 73a49c43c96e |
+| Hash da Jornada | 251ae1ae7a65 |
 
 ## Resumo
 
@@ -20,8 +20,8 @@
 | Fallback V1 derivado (lines/checkpoint) | 46 |
 | Intenções distintas | 46 |
 | Passos autorais na jornada | 50 |
-| Lições com cena gerada no plano | 100 |
-| Cenas geradas distintas | 27 |
+| Lições com cena gerada no plano | 118 |
+| Cenas geradas distintas | 46 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -50,34 +50,34 @@
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
 | primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 2 | 1 |
 | perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 1 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 1 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 2 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 0 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 5 |
 | revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 1 | 2 |
-| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 3 |
-| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 5 |
+| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 4 |
+| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 6 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
-| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 6 |
-| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 12 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
+| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
+| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 13 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 5 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 3 |
-| perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 1 |
+| perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 0 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
 | encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
-| onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 1 |
-| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 6 |
+| onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 2 |
+| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 5 |
 | sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 7 |
-| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 2 |
+| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 3 |
 | fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 12 |
-| o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 3 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 9 |
+| o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 2 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 1 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 1 |
-| revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 2 |
-| revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 2 |
+| revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 1 |
+| revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 1 |
 | imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 0 |
 | imersao-estacao | immersion | immersion-station | 15 | 6 | sim | 2 | 1 | 0 |
 | imersao-casa-amigo | immersion | immersion-visit | 14 | 6 | sim | 2 | 1 | 0 |
@@ -86,13 +86,13 @@
 | pedir-cardapio | module_review | order-menu | 14 | 5 | sim | 1 | 1 | 0 |
 | mostrar-livro | common | show-book | 7 | 2 | sim | 1 | 1 | 0 |
 | onde-esta-o-carro | common | ask-car-where | 7 | 2 | sim | 1 | 1 | 0 |
-| falar-de-estudo | common | study | 7 | 3 | sim | 1 | 1 | 8 |
-| rotina-e-trabalho | common | work-routine | 7 | 3 | sim | 1 | 1 | 1 |
+| falar-de-estudo | common | study | 7 | 3 | sim | 1 | 1 | 6 |
+| rotina-e-trabalho | common | work-routine | 7 | 3 | sim | 1 | 1 | 0 |
 | que-horas-sao | common | ask-time | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-me-sinto-bem | common | health | 7 | 3 | sim | 1 | 1 | 0 |
 | como-esta-o-tempo | common | weather | 6 | 2 | sim | 1 | 1 | 0 |
 | checkin-hotel | common | hotel | 7 | 3 | sim | 1 | 1 | 0 |
-| no-aeroporto | common | airport | 6 | 2 | sim | 1 | 1 | 0 |
+| no-aeroporto | common | airport | 6 | 2 | sim | 1 | 1 | 1 |
 | pegar-taxi | common | taxi | 7 | 3 | sim | 1 | 1 | 1 |
 
 ## Cenas nunca usadas
@@ -113,4 +113,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:639e1fcc067b2ebc -->
+<!-- integridade:6ac01dbf32311a3c -->

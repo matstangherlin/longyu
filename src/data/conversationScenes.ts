@@ -497,6 +497,12 @@ export interface ConversationSceneLessonInfo {
   usedIntents?: ReadonlySet<string>;
   /** Respostas principais já usadas na lição (normalizadas). */
   usedAnswers?: ReadonlySet<string>;
+  /**
+   * Intents preferidos pelos vocabulary packets cujo vocabulário toca o foco
+   * (LEX-036/037 — questions/answers/conversationIntents). Cenas alinhadas
+   * ganham boost; cenas `packet-exchange-*` também usam este sinal.
+   */
+  preferredPacketIntents?: ReadonlySet<string>;
 }
 
 export interface ConversationSceneSelectionContext {
@@ -651,6 +657,27 @@ export function scoreConversationScene(
     if (seedHits >= 2) score -= 55;
     if (seedHits >= 3) score -= 40;
     if (recentScenes.slice(0, 5).some((id) => id === scene.sceneId)) score -= 30;
+  }
+
+  // Intents que saturavam o meio do curso (natureza / sala / “fale de novo”)
+  // também perdem pontos quando já dominam a janela — abre espaço pra
+  // diálogos de compra, origem, trabalho etc. em vez de repetir o mesmo frame.
+  const midCourseDominant = new Set(["point-nature", "classroom-intro", "ask-slow-repeat"]);
+  if (midCourseDominant.has(scene.intent)) {
+    const dominantHits = recentIntents.slice(0, 8).filter((intent) => midCourseDominant.has(intent)).length;
+    if (dominantHits >= 2) score -= 35;
+    if (dominantHits >= 3) score -= 25;
+    if ((context.intentPracticeCount?.get(scene.intent) ?? 0) >= 3) score -= 20;
+  }
+
+  // LEX-036/037 — alinhar à intenção comunicativa do vocabulary packet da lição.
+  if (lesson.preferredPacketIntents?.has(scene.intent)) {
+    score += 45;
+  }
+  // Troca gerada do packet é candidata dedicada (2º slot). No pool misto do
+  // catálogo, mantém leve preferência pelo autoral alinhado.
+  if (scene.sceneId.startsWith("packet-exchange-")) {
+    score -= 10;
   }
 
   // LEX-019 — conversas devem consumir vocabulário novo (não-seed) do foco/revisão.

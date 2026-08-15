@@ -192,6 +192,30 @@ try {
   }
 
   const sceneById = new Map(CONVERSATION_SCENES.map((scene) => [scene.sceneId, scene]));
+  const resolveScene = (step) => {
+    if (!step?.sceneId) return null;
+    const direct = sceneById.get(step.sceneId);
+    if (direct) return direct;
+    const base = sceneById.get(String(step.sceneId).replace(/-\d+$/, ""));
+    if (base) return { ...base, sceneId: step.sceneId };
+    if (String(step.sceneId).startsWith("packet-exchange-") && step.nodes?.length) {
+      return {
+        kind: "conversation_scene",
+        sceneId: step.sceneId,
+        title: step.title ?? "Troca de frases",
+        intent: step.sceneIntent ?? "packet-exchange",
+        setting: step.setting ?? "street",
+        characters: step.characters ?? [],
+        lines: step.lines ?? [],
+        learnedRefs: step.learnedRefs ?? [],
+        newRefs: step.newRefs,
+        nodes: step.nodes,
+        entryNodeId: step.entryNodeId,
+        checkpoint: step.checkpoint,
+      };
+    }
+    return null;
+  };
   const plans = [];
   const srsCoveredRefs = new Set();
   let recentSceneIds = [];
@@ -213,7 +237,7 @@ try {
           manifests.set(index, manifest);
           for (const ref of reusableRefsFromManifest(manifest)) srsCoveredRefs.add(ref);
         }
-        const scene = sceneById.get(step.sceneId);
+        const scene = resolveScene(step);
         if (scene) step.__variantMinPhase = variantMinPhase(scene, step.learnedRefs ?? scene.learnedRefs);
       } else if (step.conversationDerived && activeConversation) {
         step.__transformsConversation = cognitiveTransformation(activeConversation, step);
@@ -225,9 +249,10 @@ try {
     // o aluno tinha acabado de jogar — repetição que o runtime não teria.
     const played = steps.filter((step) => step.kind === "conversation_scene" && step.sceneId);
     for (const step of played) {
-      const scene = sceneById.get(step.sceneId);
+      const scene = resolveScene(step);
       recentSceneIds = [step.sceneId, ...recentSceneIds.filter((id) => id !== step.sceneId)].slice(0, 10);
-      if (scene?.intent) recentIntentIds = [scene.intent, ...recentIntentIds.filter((id) => id !== scene.intent)].slice(0, 10);
+      const intent = scene?.intent ?? step.sceneIntent;
+      if (intent) recentIntentIds = [intent, ...recentIntentIds.filter((id) => id !== intent)].slice(0, 10);
     }
     plans.push({ lessonId: lesson.id, phaseOrder: lesson.phaseOrder ?? 0, steps, manifests });
   }
