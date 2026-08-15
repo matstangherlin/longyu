@@ -315,9 +315,11 @@ export function buildPacketPhraseExchangeScene(
   const preferred = packetRefs(packet);
   const poolRefs = new Set([...options.lessonRefs, ...(options.knownRefs ?? [])]);
   const knownGlyphs = glyphsFromRefs(poolRefs);
+  // Perguntas do NPC podem ser receptivas; respostas do aluno precisam ser
+  // produtíveis com glifos já conhecidos (conversa sem apoio / production-transfer).
   const questions = packet.questions
     .map((q) => resolvePhrase(q, preferred))
-    .filter((q): q is ResolvedPhrase => Boolean(q) && phraseGlyphsKnown(q, knownGlyphs));
+    .filter((q): q is ResolvedPhrase => Boolean(q));
   const answers = packet.answers
     .map((a) => resolvePhrase(a, preferred))
     .filter((a): a is ResolvedPhrase => Boolean(a) && phraseGlyphsKnown(a, knownGlyphs));

@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4917b89c10a67215d00ae2656762e0861aeac2a7 |
+| Commit | d31db317dc423317abdbbcac3019706a56344679 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-15T04:16:57.589Z |
+| Gerado em | 2026-08-15T04:18:38.999Z |
 | Lições | 127 |
 | Hash da Jornada | 251ae1ae7a65 |
 
@@ -23,11 +23,11 @@
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 5 |
 | Lições com produção aberta | 22 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 227 |
+| Falas de conversa sem apoio (aluno veterano) | 228 |
 | Lições com conversa sem apoio | 111 / 127 |
 | Lições com quebra de comunicação jogável | 94 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 646 |
+| Passos auditados no plano real (3 tentativas) | 644 |
 | Lições com produção livre | 81 / 127 |
 | Lições com transferência | 48 / 127 |
 | Lições com reparo conversacional | 80 / 127 |
@@ -89,4 +89,4 @@
 - 我要苹果
 - 车站在哪里
 
-<!-- integridade:b49b7797cef11dea -->
+<!-- integridade:26c78bafb7cbde9c -->
