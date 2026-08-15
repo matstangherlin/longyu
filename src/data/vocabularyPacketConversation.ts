@@ -319,10 +319,10 @@ export function buildPacketPhraseExchangeScene(
   // produtíveis com glifos já conhecidos (conversa sem apoio / production-transfer).
   const questions = packet.questions
     .map((q) => resolvePhrase(q, preferred))
-    .filter((q): q is ResolvedPhrase => Boolean(q));
+    .filter((q): q is ResolvedPhrase => q != null);
   const answers = packet.answers
     .map((a) => resolvePhrase(a, preferred))
-    .filter((a): a is ResolvedPhrase => Boolean(a) && phraseGlyphsKnown(a, knownGlyphs));
+    .filter((a): a is ResolvedPhrase => a != null && phraseGlyphsKnown(a, knownGlyphs));
   if (questions.length === 0 || answers.length === 0) return null;
 
   const idx = Math.abs(options.variantIndex ?? 0);
