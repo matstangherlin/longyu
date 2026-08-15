@@ -171,8 +171,9 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    // Mastery Loop: transfer_task entra a partir de M3 — seed level 2 → próximo pass = 3.
-    await seedLessonPlayerReady(page, "l23", { masteryLevel: 2 });
+    // Mastery Loop: transfer_task entra de forma estável em M4 — seed level 3 →
+    // próximo pass = 4. l24 coloca a transferência cedo (após a 1ª conversa).
+    await seedLessonPlayerReady(page, "l24", { masteryLevel: 3 });
     await page.addInitScript(() => {
       try {
         const raw = localStorage.getItem("longyu-v1");
@@ -188,13 +189,13 @@ test.describe("QA regression guard — transferência", () => {
         /* ignore */
       }
     });
-    await page.goto("/licao/l23/player");
+    await page.goto("/licao/l24/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
     // Não usar "Use este padrão" — free_production guiada também mostra esse texto
-    // e o loop parava antes do transfer_task (pass 3 coloca free_production cedo).
+    // e o loop parava antes do transfer_task.
     const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
@@ -202,7 +203,7 @@ test.describe("QA regression guard — transferência", () => {
       !(await transfer.isVisible().catch(() => false)) &&
       !(await transferCopy.first().isVisible().catch(() => false)) &&
       Date.now() < deadline &&
-      steps < 40
+      steps < 60
     ) {
       steps += 1;
       await dismissBlockingOverlays(page);
