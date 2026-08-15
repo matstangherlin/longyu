@@ -61,6 +61,10 @@ import {
   type ConversationSceneVariantStage,
 } from "../../data/conversationScenes";
 import {
+  buildPacketPhraseExchangeCandidates,
+  preferredSceneIntentsForRefs,
+} from "../../data/vocabularyPacketConversation";
+import {
   buildManifestForResolvedVariant,
   type ConversationVocabularyItem,
   type ConversationVocabularyManifest,
@@ -3242,7 +3246,9 @@ function makeConversationSceneStep(
   selection?: ConversationSceneSelection,
   knownGlyphs?: ReadonlySet<string>
 ): LessonStep | null {
-  const refs = new Set([...focusRefs(focus), ...focusRefs(reviewFocus)]);
+  const focusOnly = new Set(focusRefs(focus));
+  const reviewOnly = new Set(focusRefs(reviewFocus));
+  const refs = new Set([...focusOnly, ...reviewOnly]);
   const knownRefs = selection?.knownRefs;
   const phaseOrder = selection?.lessonInfo?.phaseOrder;
   const candidates = CONVERSATION_SCENES.filter((scene) =>
@@ -3255,8 +3261,14 @@ function makeConversationSceneStep(
       phaseOrder,
     })
   );
-  const lessonInfo: ConversationSceneLessonInfo =
-    selection?.lessonInfo ?? { focusRefs: new Set(focusRefs(focus)), reviewRefs: new Set(focusRefs(reviewFocus)) };
+  const preferredPacketIntents = preferredSceneIntentsForRefs(focusOnly, reviewOnly);
+  const lessonInfo: ConversationSceneLessonInfo = {
+    ...(selection?.lessonInfo ?? { focusRefs: focusOnly, reviewRefs: reviewOnly }),
+    focusRefs: selection?.lessonInfo?.focusRefs ?? focusOnly,
+    reviewRefs: selection?.lessonInfo?.reviewRefs ?? reviewOnly,
+    preferredPacketIntents:
+      selection?.lessonInfo?.preferredPacketIntents ?? preferredPacketIntents,
+  };
   // A pontuação já penaliza a cena da lição anterior (−100), mas penalidade não
   // resolve pool de um candidato só: no começo do curso o aluno conhece três
   // cumprimentos, e a mesma cena voltava em lições seguidas. Sem alternativa, a
@@ -3268,8 +3280,25 @@ function makeConversationSceneStep(
   const previousSceneIds = selectionContext.lastLessonSceneIds?.length
     ? selectionContext.lastLessonSceneIds
     : (selectionContext.recentConversationSceneIds ?? []).slice(0, 1);
-  const fresh = candidates.filter((candidate) => !previousSceneIds.includes(candidate.sceneId));
-  const scene = pickBestConversationScene(fresh, lessonInfo, selectionContext);
+  // LEX-036/037 — questions/answers do packet entram no pool como troca de
+  // frases. O score prefere cenas autorais alinhadas (−28 nas packet-exchange);
+  // a troca gerada ganha quando o catálogo está saturado ou não cobre o intent.
+  const packetScenes = buildPacketPhraseExchangeCandidates(focusOnly, reviewOnly, {
+    knownRefs,
+    usedSceneIds: lessonInfo.usedSceneIds,
+    variantIndex: (phaseOrder ?? 1) + (selectionContext.recentConversationSceneIds?.length ?? 0),
+    limit: 3,
+  }).filter((scene) => isConversationSceneEligible(scene, {
+    lessonRefs: refs,
+    knownRefs,
+    isReviewLesson: selection?.isReviewLesson,
+    allowImmersion: selection?.allowImmersion,
+    generatedContext: true,
+    phaseOrder,
+  }));
+  const pool = [...candidates, ...packetScenes];
+  const fresh = pool.filter((candidate) => !previousSceneIds.includes(candidate.sceneId));
+  const scene = pickBestConversationScene(fresh.length > 0 ? fresh : pool, lessonInfo, selectionContext);
   if (!scene) return null;
   // Renderiza a variante certa: refs disponíveis = foco/revisão + currículo.
   const availableRefs = new Set(refs);
