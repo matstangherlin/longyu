@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4917b89c10a67215d00ae2656762e0861aeac2a7 |
+| Commit | 3e09b01a80299a85bdd1b8c7f1b01aeb1bfe48f9 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-15T04:17:15.416Z |
+| Gerado em | 2026-08-15T04:23:56.128Z |
 | Lições | 127 |
 | Hash da Jornada | 251ae1ae7a65 |
 
@@ -19,11 +19,11 @@
 | Média de intervenções | 2.76 |
 | Número de ramificações | 127 |
 | Número de finais | 49 |
-| Vocabulário total exibido (refs únicas no plano real) | 121 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 121 |
+| Vocabulário total exibido (refs únicas no plano real) | 124 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 124 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 12.07 |
+| Média de reutilizações por ref exibida | 11.90 |
 
 ## Cenas mais curtas
 
@@ -55,16 +55,16 @@
 
 | Cena | Usos |
 |------|-----:|
-| packet-exchange-introductions | 13 |
-| como-se-chama | 12 |
-| encontro-amanha | 11 |
-| nao-falo-chinês | 8 |
-| sala-de-aula | 7 |
-| packet-exchange-greetings | 7 |
+| como-se-chama | 13 |
+| packet-exchange-introductions | 12 |
+| encontro-amanha | 10 |
+| sala-de-aula | 8 |
+| nao-falo-chinês | 7 |
+| cortesia-loja | 7 |
 | pedir-agua | 7 |
-| apontar-natureza | 7 |
-| cortesia-loja | 6 |
 | pedir-repeticao | 6 |
+| packet-exchange-basic_questions | 6 |
+| packet-exchange-greetings | 6 |
 
 ## Cenas por cenário
 
@@ -144,4 +144,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:8bbc6587b21c8361 -->
+<!-- integridade:7b591ceee331866f -->

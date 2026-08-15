@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | d31db317dc423317abdbbcac3019706a56344679 |
+| Commit | fffcc98185e78855f13125b50fad9535d60308b3 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-15T04:18:38.999Z |
+| Gerado em | 2026-08-15T04:21:33.794Z |
 | Lições | 127 |
 | Hash da Jornada | 251ae1ae7a65 |
 
@@ -89,4 +89,4 @@
 - 我要苹果
 - 车站在哪里
 
-<!-- integridade:26c78bafb7cbde9c -->
+<!-- integridade:263d7e1e1e9f8ae6 -->
