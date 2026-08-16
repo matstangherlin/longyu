@@ -15,6 +15,7 @@ const EDGE_FUNCTIONS = [
   "create-billing-portal",
   "stripe-webhook",
   "delete-account",
+  "create-account",
   "issue-anon-ingestion-session",
 ];
 
