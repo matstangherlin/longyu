@@ -328,7 +328,8 @@ export async function serverClaimPearlMilestone(
 ): Promise<EconomyRpcResult> {
   const requestAccountId = expectedAccountId ?? useStore.getState().currentAccountId;
   const idempotencyKey = `pearl-milestone:${milestoneId}`;
-  setSyncing("Resgatando Pérola...");
+  // Claim de marco é automático (abre o app, fecha lição, filas offline).
+  // Não mostrar toast — vira um botão vago de "Pérola" no meio da Jornada.
   const { data, error } = await invokeRpc<EconomyRpcResult>("claim_pearl_milestone", {
     p_milestone_id: milestoneId,
   });

@@ -1,7 +1,18 @@
+import { useEffect } from "react";
 import { useStore } from "../../lib/store";
+
+const SYNC_BANNER_MS = 6000;
 
 export function EconomySyncBanner() {
   const message = useStore((s) => s.economySyncMessage);
+  const setEconomySyncMessage = useStore((s) => s.setEconomySyncMessage);
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setEconomySyncMessage(null), SYNC_BANNER_MS);
+    return () => window.clearTimeout(timer);
+  }, [message, setEconomySyncMessage]);
+
   if (!message) return null;
 
   return (

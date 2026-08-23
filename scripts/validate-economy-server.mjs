@@ -57,6 +57,8 @@ if (!fs.existsSync(path.join(root, pearlMigration))) {
 const store = read("src/lib/store.ts");
 if (!store.includes("economySyncMessage")) fail("store.ts sem economySyncMessage");
 if (!store.includes("shouldUseServerEconomy")) fail("store.ts não delega economia ao servidor");
+if (!store.includes("Toast de sync é efêmero")) fail("store.ts deve zerar toast de sync na hidratação");
+if (bridge.includes("Resgatando Pérola")) fail("claim automático de Pérola não deve mostrar toast");
 
 const pkg = JSON.parse(read("package.json"));
 if (!pkg.scripts?.["test:economy-server"]) fail("package.json sem test:economy-server");

@@ -208,6 +208,17 @@ assert(
   storeSrc.includes("get().currentAccountId === requestAccountId"),
   "autoativação deve continuar vinculada ao perfil que iniciou o claim"
 );
+assert(
+  !bridgeSrc.includes("Resgatando Pérola"),
+  "claim automático de Pérola não pode mostrar toast vago na Jornada"
+);
+assert(
+  storeSrc.includes("Toast de sync é efêmero"),
+  "toast de sync não pode ser reidratado do persist"
+);
+
+const bannerSrc = read("src/components/economy/EconomySyncBanner.tsx");
+assert(bannerSrc.includes("setTimeout"), "banner de sync deve expirar sozinho");
 
 const lojaSrc = read("src/features/loja/LojaPage.tsx");
 assert(lojaSrc.includes("Próximas Pérolas"), "Loja mostra próximas Pérolas");

@@ -49,6 +49,10 @@ const store = read("src/lib/store.ts");
 assert(store.includes("setEconomySyncMessage"), "Store sem economySyncMessage");
 assert(store.includes("serverConsumeCharge"), "Store deve delegar consumeCharge");
 assert(store.includes("serverGrantStoryEnergy"), "Store deve delegar grantStoryEnergy");
+assert(
+  store.includes("Toast de sync é efêmero") && !bridge.includes("Resgatando Pérola"),
+  "claim de Pérola é silencioso e o toast não reidrata"
+);
 
 // ——— Testes de idempotência (lógica pura) ———
 const mem = [];
