@@ -322,11 +322,12 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     prefixPinyin: "wǒ xiǎng chī",
     suffix: "。",
     suffixPinyin: ".",
-    anchorChunkId: "woxianghe",
+    anchorChunkId: "woxiangchimifan",
     situationTemplatePt: "Você está com fome. Diga que quer comer {item}.",
     grammarNotePt: "Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
     transferAssist: "guided",
     fillers: [
+      { vocabId: "v_mifan", promptPt: "arroz" },
       { vocabId: "v_rou", promptPt: "carne" },
       { vocabId: "v_yu", promptPt: "peixe" },
       { vocabId: "v_niurou", promptPt: "carne de boi" },
@@ -368,6 +369,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     situationTemplatePt: "Na loja, pergunte quanto custa {item}.",
     grammarNotePt: "多少钱 pergunta preço e vai no fim: COISA + 多少钱？ (几钱 é para contar, não para preço).",
     fillers: [
+      { vocabId: "v_piao", promptPt: "a passagem" },
       { vocabId: "v_pingguo", promptPt: "a maçã" },
       { vocabId: "v_xiangjiao", promptPt: "a banana" },
       { vocabId: "v_shu", promptPt: "o livro" },
@@ -421,6 +423,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     situationTemplatePt: "Alguém pergunta sobre seus gostos. Diga do que você gosta: {item}.",
     grammarNotePt: "喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa.",
     fillers: [
+      { vocabId: "v_zhongwen", promptPt: "chinês" },
       { vocabId: "v_cha", promptPt: "chá" },
       { vocabId: "v_yu", promptPt: "peixe" },
       { vocabId: "v_shu", promptPt: "livros" },
@@ -467,6 +470,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     situationTemplatePt: "Você entra numa loja. Diga que quer comprar {item}.",
     grammarNotePt: "要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
     fillers: [
+      { vocabId: "v_yifu", promptPt: "roupa" },
       { vocabId: "v_shu", promptPt: "um livro" },
       { vocabId: "v_piao", promptPt: "uma passagem" },
       { vocabId: "v_pingguo", promptPt: "maçãs" },
@@ -826,6 +830,62 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
 }
 
 /**
+ * Frases do currículo que já realizam o frame — produção guiada precisa
+ * de pelo menos uma frase ensinada. Sem isto, 我喜欢/我想吃/多少钱 só
+ * existiam como combinação inédita e nunca destravavam a escada.
+ */
+function corpusTasksForFrame(frame: SentenceFrame): FrameTask[] {
+  const anchorChunk = chunkById.get(frame.anchorChunkId);
+  if (!anchorChunk) return [];
+  const sources: { id: string; hanzi: string; pinyin: string; meaningPt: string }[] = [
+    ...CHUNKS.map((chunk) => ({
+      id: chunk.id,
+      hanzi: chunk.hanzi,
+      pinyin: chunk.pinyin,
+      meaningPt: chunk.meaningPt,
+    })),
+    ...VOCABULARY.filter((entry) => entry.kind === "phrase").map((entry) => ({
+      id: entry.id,
+      hanzi: entry.hanzi,
+      pinyin: entry.pinyin,
+      meaningPt: entry.meaningPt,
+    })),
+  ];
+  const tasks: FrameTask[] = [];
+  const seen = new Set<string>();
+  for (const source of sources) {
+    if (!sentenceMatchesFrame(source.hanzi, frame)) continue;
+    const bare = cleanSentence(source.hanzi);
+    if (!bare || seen.has(bare)) continue;
+    seen.add(bare);
+    tasks.push({
+      id: `${frame.id}__corpus_${source.id}`,
+      frameId: frame.id,
+      goal: frame.goal,
+      vocabId: source.id,
+      contentKey: `corpus|${bare}`,
+      frameLabelPt: frame.labelPt,
+      patternPt: frame.patternPt,
+      slots: slotsForTask(frame, false),
+      situationPt: frame.situationTemplatePt.replace("{item}", "isto").replace("{qty}", "").replace("{time}", ""),
+      targetHanzi: source.hanzi,
+      targetPinyin: source.pinyin,
+      accepts: [bare, source.pinyin],
+      siblingAnswers: [],
+      grammarNotePt: frame.grammarNotePt,
+      anchor: { hanzi: anchorChunk.hanzi, pinyin: anchorChunk.pinyin, meaningPt: anchorChunk.meaningPt },
+      isNovelCombination: false,
+      requiredGlyphs: [...bare],
+      transferAssist: frame.transferAssist ?? "guided",
+      transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
+      transferRequiresMa: Boolean(frame.transferRequiresMa),
+      transferTransformHint: frame.transferTransformHint,
+    });
+  }
+  return tasks;
+}
+
+/**
  * Realizações irmãs: duas frases que cumprem o MESMO objetivo com a MESMA
  * peça são as duas certas. 我要茶 e 我想喝茶 pedem chá igual; 银行在哪里？ e
  * 请问，银行在哪里？ perguntam a mesma coisa. Punir a segunda porque o
@@ -862,7 +922,14 @@ function withSiblingAnswers(tasks: FrameTask[]): FrameTask[] {
 }
 
 /** Todas as tarefas geradas pelos frames (produção + transferência). */
-export const FRAME_TASKS: FrameTask[] = withSiblingAnswers(SENTENCE_FRAMES.flatMap(frameTasks));
+export const FRAME_TASKS: FrameTask[] = withSiblingAnswers(
+  SENTENCE_FRAMES.flatMap((frame) => {
+    const generated = frameTasks(frame);
+    const taught = new Set(generated.map((task) => cleanSentence(task.targetHanzi)));
+    const extra = corpusTasksForFrame(frame).filter((task) => !taught.has(cleanSentence(task.targetHanzi)));
+    return [...generated, ...extra];
+  })
+);
 
 function availableTasks(seenGlyphs: ReadonlySet<string>): FrameTask[] {
   return FRAME_TASKS.filter((task) => task.requiredGlyphs.every((glyph) => seenGlyphs.has(glyph)));
@@ -1240,11 +1307,15 @@ export function pickOpenProductionTask<T extends { goal: CommunicativeGoal }>(
 ): T | undefined {
   if (tasks.length === 0) return undefined;
   const salt = Math.abs(options.lessonSalt ?? 0);
-  const goals = uniqueSorted(tasks.map((task) => task.goal));
-  const unused = goals.filter((goal) => !options.usedGoals?.has(goal as CommunicativeGoal));
-  const pool = unused.length > 0 ? unused : goals;
-  const preferred = pool[salt % pool.length];
-  return tasks.find((task) => task.goal === preferred) ?? tasks[0];
+  const declared = OPEN_PRODUCTION_GOALS.map((copy) => copy.goal);
+  const preferredDeclared = declared[salt % declared.length];
+  const unused = tasks.filter((task) => !options.usedGoals?.has(task.goal));
+  const pool = unused.length > 0 ? unused : tasks;
+  return (
+    pool.find((task) => task.goal === preferredDeclared) ??
+    pool[salt % pool.length] ??
+    tasks[0]
+  );
 }
 
 /** Frames cujos glifos de âncora+padrão mínimo já estão disponíveis. */

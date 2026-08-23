@@ -83,6 +83,21 @@ try {
   const floorM4 = budget.requiredCognitiveFloor(4);
   if (!(floorM3.includes("production") && !floorM3.includes("transfer"))) fail("M3 = produção");
   if (!floorM4.includes("transfer")) fail("M4 = transferência");
+
+  const withFlash = [
+    item("flashcard", 0, 4),
+    item("comprehend", 1, 2),
+    item("listen_select", 2, 2),
+    item("odd_one_out", 3, 2),
+    item("conversation_scene", 4, 3, { sceneId: "a" }),
+    item("free_production", 5, 3),
+    item("transfer_task", 6, 2, { productionFrameId: "frame_woyao" }),
+    item("dictation", 7, 2),
+  ];
+  const m2 = budget.keepMasteryPassSteps(withFlash, { pass: 2, min: 6, max: 9 });
+  if (m2.some((step) => step.kind === "flashcard")) fail("M2 não deve preencher orçamento com flashcard");
+  const m4noFlash = budget.keepMasteryPassSteps(withFlash, { pass: 4, min: 6, max: 9 });
+  if (m4noFlash.some((step) => step.kind === "flashcard")) fail("M4 não deve preencher orçamento com flashcard");
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));
 } finally {

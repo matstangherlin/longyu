@@ -321,6 +321,7 @@ export const VOCABULARY: VocabEntry[] = [
   { id: "v_qingbangwo", hanzi: "请帮我", pinyin: "qǐng bāng wǒ", meaningPt: "Por favor, me ajude.", domain: "sobrevivencia", level: "survival", kind: "phrase" },
   { id: "v_woyaoshui", hanzi: "我要水", pinyin: "wǒ yào shuǐ", meaningPt: "Eu quero água.", domain: "bebida", level: "seed", kind: "phrase" },
   { id: "v_woyaocha", hanzi: "我要茶", pinyin: "wǒ yào chá", meaningPt: "Eu quero chá.", domain: "bebida", level: "beginner", kind: "phrase" },
+  { id: "v_niyaochama", hanzi: "你要茶吗？", pinyin: "nǐ yào chá ma?", meaningPt: "Você quer chá?", domain: "comida", level: "elementary", kind: "phrase" },
   { id: "v_woyaomifan_phrase", hanzi: "我要米饭", pinyin: "wǒ yào mǐfàn", meaningPt: "Eu quero arroz.", domain: "comida", level: "survival", kind: "phrase" },
   { id: "v_woxiangheshui", hanzi: "我想喝水", pinyin: "wǒ xiǎng hē shuǐ", meaningPt: "Quero beber água.", domain: "bebida", level: "beginner", kind: "phrase" },
   { id: "v_wozhuzai_baxi", hanzi: "我住在巴西", pinyin: "wǒ zhù zài Bāxī", meaningPt: "Eu moro no Brasil.", domain: "apresentacao", level: "elementary", kind: "phrase" },

@@ -49,6 +49,8 @@ try {
     sentenceMatchesFrame,
     pickFrameTask,
     pickOpenProductionTask,
+    openProductionTasksFor,
+    OPEN_PRODUCTION_GOALS,
   } = require(path.join(outDir, "src/data/productionTasks.js"));
 
   assert(maxTransferAssistForAttempt(0) === "guided", "attempt 0 deve limitar a guided");
@@ -167,6 +169,14 @@ try {
     "com exposure pronta, attempt guided ainda não sobe a niyaoma"
   );
 
+  const taughtByFrame = (id) =>
+    FRAME_TASKS.filter((task) => task.frameId === id && !task.isNovelCombination).length;
+  assert(taughtByFrame("frame_woxihuan") > 0, "frame_woxihuan precisa de frase ensinada (我喜欢中文)");
+  assert(taughtByFrame("frame_woxiangchi") > 0, "frame_woxiangchi precisa de frase ensinada (我想吃米饭)");
+  assert(taughtByFrame("frame_duoshaoqian") > 0, "frame_duoshaoqian precisa de frase ensinada (票多少钱)");
+  assert(taughtByFrame("frame_woyaomai") > 0, "frame_woyaomai precisa de frase ensinada (我要买衣服)");
+  assert(taughtByFrame("frame_niyaoma") > 0, "frame_niyaoma precisa de frase ensinada (你要茶吗)");
+
   const rotationPool = FRAME_TASKS.filter((task) =>
     ["frame_woyao", "frame_zainali", "frame_woxihuan", "frame_duoshaoqian"].includes(task.frameId)
   );
@@ -195,6 +205,20 @@ try {
   assert(!sentenceMatchesFrame("你要茶吗？", niyao), "你要茶吗 não casa com frame_niyao afirmativo");
   assert(sentenceMatchesFrame("你要茶吗？", niyaoma), "你要茶吗 casa com frame_niyaoma");
   assert(!sentenceMatchesFrame("你要茶。", niyaoma), "你要茶 não casa com frame_niyaoma");
+
+  const richGlyphs = new Set(FRAME_TASKS.flatMap((task) => task.requiredGlyphs));
+  const fullExposure = new Map(
+    SENTENCE_FRAMES.map((frame) => [
+      frame.id,
+      { exposed: true, completion: true, build: true, guidedProduction: true },
+    ])
+  );
+  const openAll = openProductionTasksFor(richGlyphs, { structureExposure: fullExposure });
+  const openGoals = new Set(openAll.map((task) => task.goal));
+  assert(
+    openGoals.size >= 10,
+    `produção aberta com glifos ricos: ${openGoals.size}/12 objetivos (${[...openGoals].sort().join(", ")})`
+  );
 
   if (failures.length > 0) {
     console.error(`FAIL test:transfer-scaffold (${failures.length}):`);

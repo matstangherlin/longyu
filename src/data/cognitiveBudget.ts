@@ -13,7 +13,7 @@
  */
 
 import type { StepKind } from "./journey";
-import { kindMatchesPreferred, type MasteryPass } from "./masteryLoop";
+import { kindMatchesPreferred, masteryPassProfile, type MasteryPass } from "./masteryLoop";
 
 export const PRODUCTIVE_CHALLENGE_KINDS: ReadonlySet<StepKind> = new Set([
   "free_production",
@@ -192,6 +192,10 @@ export interface ScoredBudgetItem<T extends CognitiveBudgetStep> {
   index: number;
 }
 
+function isDiscouragedOnPass(kind: StepKind, pass: MasteryPass): boolean {
+  return masteryPassProfile(pass).discouragedKinds.includes(kind);
+}
+
 function fillRankFor<T extends CognitiveBudgetStep>(
   item: ScoredBudgetItem<T>,
   pass: MasteryPass,
@@ -225,10 +229,12 @@ export function keepMasteryPassSteps<T extends CognitiveBudgetStep>(
   const reservedSigs = new Set<string>();
   const basePlan = byIndex.map((item) => item.step);
   for (const kind of applicableFloorKinds(options.pass, basePlan)) {
-    const found = byIndex.find((item) => {
+    const matches = byIndex.filter((item) => {
       const signature = cognitiveStepSignature(item.step);
       return stepMatchesFloorKind(item.step, kind) && !reservedSigs.has(signature);
     });
+    const found =
+      matches.find((item) => !isDiscouragedOnPass(item.step.kind, options.pass)) ?? matches[0];
     if (!found) continue;
     reserved.push(found);
     reservedSigs.add(cognitiveStepSignature(found.step));
@@ -247,6 +253,7 @@ export function keepMasteryPassSteps<T extends CognitiveBudgetStep>(
 
   for (const item of fill) {
     if (kept.length >= options.max) break;
+    if (isDiscouragedOnPass(item.step.kind, options.pass)) continue;
     if (item.score < -1 && kept.length >= options.min) continue;
     const duplicateKind = seenKinds.has(item.step.kind);
     const floorKind =
@@ -262,7 +269,11 @@ export function keepMasteryPassSteps<T extends CognitiveBudgetStep>(
   }
 
   if (kept.length < options.min) {
-    for (const item of byIndex) {
+    const padding = [
+      ...byIndex.filter((item) => !isDiscouragedOnPass(item.step.kind, options.pass)),
+      ...byIndex,
+    ];
+    for (const item of padding) {
       if (kept.length >= options.min) break;
       const signature = cognitiveStepSignature(item.step);
       if (keptSigs.has(signature)) continue;
