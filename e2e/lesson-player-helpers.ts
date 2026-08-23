@@ -148,13 +148,17 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     const pairsBoard = page.getByText(/\d+\/\d+ pares/);
     if (await pairsBoard.isVisible().catch(() => false)) {
       const tryPair = async (leftName: RegExp, rightName: RegExp) => {
-        const left = page.getByRole("button", { name: leftName });
-        const right = page.getByRole("button", { name: rightName });
-        if (!(await left.first().isVisible().catch(() => false))) return;
-        if (!(await right.first().isVisible().catch(() => false))) return;
-        await clickIfEnabled(left.first());
-        const rightTarget = (await right.count()) > 1 ? right.last() : right.first();
-        await clickIfEnabled(rightTarget);
+        try {
+          const left = page.getByRole("button", { name: leftName });
+          const right = page.getByRole("button", { name: rightName });
+          if (!(await left.first().isVisible().catch(() => false))) return;
+          if (!(await right.first().isVisible().catch(() => false))) return;
+          await clickIfEnabled(left.first());
+          const rightTarget = (await right.count().catch(() => 0)) > 1 ? right.last() : right.first();
+          await clickIfEnabled(rightTarget);
+        } catch {
+          /* quadro desmontou ou a página fechou */
+        }
       };
       await tryPair(/^nǐ hǎo$/i, /^你好$/);
       await tryPair(/^你好$/, /^Olá$/);
@@ -163,8 +167,11 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       await tryPair(/^谢谢$/, /Obrigado/);
       await tryPair(/^再见$/, /Até/);
       await tryPair(/^不客气$/, /De nada/);
-      await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Verificar$/, /^Pular/]);
-      await page.waitForTimeout(150);
+      if (await pairsBoard.isVisible().catch(() => false)) {
+        await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Verificar$/, /^Pular/]);
+      }
+      await page.waitForTimeout(200);
+      if (await target.isVisible().catch(() => false)) return true;
       continue;
     }
 
