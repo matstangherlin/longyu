@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 3e09b01a80299a85bdd1b8c7f1b01aeb1bfe48f9 |
+| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-15T04:23:56.128Z |
+| Gerado em | 2026-08-23T10:30:10.607Z |
 | Lições | 127 |
-| Hash da Jornada | 251ae1ae7a65 |
+| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -19,11 +19,11 @@
 | Média de intervenções | 2.76 |
 | Número de ramificações | 127 |
 | Número de finais | 49 |
-| Vocabulário total exibido (refs únicas no plano real) | 124 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 124 |
+| Vocabulário total exibido (refs únicas no plano real) | 129 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 129 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 5 |
-| Média de reutilizações por ref exibida | 11.90 |
+| Palavras novas (refs únicas) | 4 |
+| Média de reutilizações por ref exibida | 11.47 |
 
 ## Cenas mais curtas
 
@@ -55,14 +55,14 @@
 
 | Cena | Usos |
 |------|-----:|
-| como-se-chama | 13 |
+| como-se-chama | 12 |
 | packet-exchange-introductions | 12 |
-| encontro-amanha | 10 |
-| sala-de-aula | 8 |
-| nao-falo-chinês | 7 |
+| encontro-amanha | 11 |
+| nao-falo-chinês | 8 |
 | cortesia-loja | 7 |
-| pedir-agua | 7 |
-| pedir-repeticao | 6 |
+| sala-de-aula | 7 |
+| falar-de-estudo | 7 |
+| me-apresentando | 6 |
 | packet-exchange-basic_questions | 6 |
 | packet-exchange-greetings | 6 |
 
@@ -144,4 +144,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:7b591ceee331866f -->
+<!-- integridade:3c51c53bc22e1eb2 -->

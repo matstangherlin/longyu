@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ff8472d79ad21a3ab1b62098a2677a79d3070ada |
+| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T02:23:15.194Z |
+| Gerado em | 2026-08-23T10:32:50.902Z |
 | Lições | 127 |
-| Hash da Jornada | 251ae1ae7a65 |
+| Hash da Jornada | c81f99ac1e2e |
 
 ## Política
 
@@ -94,4 +94,4 @@
 - **l30** · objetivo `ask_price` · modelo `这个多少钱？`
 - **p7-imersao-estacao** · objetivo `buy_item` · modelo `我想买牛奶。`
 
-<!-- integridade:6818f3e88712feef -->
+<!-- integridade:685ac6b4969a8361 -->

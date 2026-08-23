@@ -966,7 +966,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   if (!node) {
     return (
-      <div>
+      <div data-conversation-scene>
         <Eyebrow>Cena</Eyebrow>
         <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
@@ -987,7 +987,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   };
 
   return (
-    <div>
+    <div data-conversation-scene>
       <Eyebrow>Cena de conversa</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
@@ -1152,7 +1152,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   if (lines.length === 0) {
     return (
-      <div>
+      <div data-conversation-scene>
         <Eyebrow>Cena</Eyebrow>
         <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
@@ -1163,7 +1163,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   return (
-    <div>
+    <div data-conversation-scene>
       <Eyebrow>Cena de conversa</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 

@@ -1362,7 +1362,8 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     const conceptNonHanzi = isFoundation && lesson.skill !== "hanzi" && lesson.id !== "p1-engine-2-lab";
     const recognition = conceptNonHanzi ? 2 : 2;
     // assembly 1: preserva sentence_build autoral (profundidade / frase real).
-    // usage 1: dialogue/fill permitidos; maxConversationScenes=0 bloqueia cena.
+    // usage 1: dialogue/fill permitidos; cena só entra se for autorada
+    // (maxConversationScenesForLesson conta cenas escritas, não gera extras).
     const assembly = conceptNonHanzi ? 1 : lesson.skill === "hanzi" ? 2 : 1;
     const usage = lesson.id === "p1-primeiros-hanzi" ? 0 : 1;
     const targetCount = Math.max(
@@ -3089,7 +3090,12 @@ function lessonAllowsImmersionScenes(lesson: Lesson): boolean {
 
 function maxConversationScenesForLesson(lesson: Lesson): number {
   // Lições-conceito de fundação: R9 / audit pedem só autoral leve — sem cena gerada.
-  if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") return 0;
+  // Cena AUTORADA (ex.: microconversa de 你好 na lição de pinyin) pode entrar: o
+  // aluno precisa usar mandarim nos primeiros minutos, não só ouvir teoria.
+  if (FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab") {
+    const authoredScenes = lesson.steps.filter((step) => step.kind === "conversation_scene").length;
+    return Math.min(1, authoredScenes);
+  }
   if (lessonAllowsImmersionScenes(lesson)) return 99;
   if (lesson.isReview) return 2;
   // A partir da fase 3 a conversa deixa de ser "uma por lição": 2 diálogos
@@ -5548,6 +5554,9 @@ const VARIANT_TYPICAL_TASKS: Record<import("../../data/conversationScenes").Conv
 };
 
 function postConversationBounds(lesson: Lesson, sceneCount = 1): { min: number; max: number } {
+  const foundationAuthored =
+    FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
+  if (foundationAuthored) return { min: 2, max: 2 };
   if (lessonAllowsImmersionScenes(lesson)) return { min: 3, max: 8 };
   if (lesson.isReview) return { min: 3, max: 5 };
   // Duas conversas na mesma lição: follow-ups um pouco mais enxutos pra
@@ -6096,6 +6105,13 @@ export function applyConversationVocabularyLoop(
     const excludeTypes = new Set<PostConversationTaskType>(
       isRepeatScene ? VARIANT_TYPICAL_TASKS[levels[prevLevelIndex]] ?? [] : []
     );
+    const foundationConcept =
+      FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
+    if (foundationConcept) {
+      excludeTypes.add("produce_free");
+      excludeTypes.add("transfer_context");
+      excludeTypes.add("write_heard");
+    }
 
     const blueprints = selectPostConversationBlueprints(manifest, conversationStep, focusByRef, {
       variantLevel,

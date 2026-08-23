@@ -4,27 +4,27 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ef50733ed9a82bf8c6fd291e7bf6e428174d28e2 |
+| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T03:08:54.250Z |
+| Gerado em | 2026-08-23T10:29:58.594Z |
 | Lições | 127 |
-| Hash da Jornada | 251ae1ae7a65 |
+| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 173 |
-| Itens de vocabulário exibidos | 1077 |
-| Itens cobertos por tarefa posterior | 876 |
-| Cobertura bruta | 81.3 % |
+| Conversas analisadas (nos planos reais) | 174 |
+| Itens de vocabulário exibidos | 1062 |
+| Itens cobertos por tarefa posterior | 868 |
+| Cobertura bruta | 81.7 % |
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 528 |
-| **Cobertura relevante** (portão ≥ 76 %) | **90.9 %** |
-| Itens do núcleo saturado (≥ 40 exposições no curso) | 33 refs |
-| Reutilização média por item | 2.05 |
-| Itens sem cobertura | 201 |
-| Tarefas da fase Pós-Conversa | 666 |
-| Média Pós-Conversa por conversa | 3.85 |
+| **Cobertura relevante** (portão ≥ 76 %) | **90.5 %** |
+| Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
+| Reutilização média por item | 2.06 |
+| Itens sem cobertura | 194 |
+| Tarefas da fase Pós-Conversa | 668 |
+| Média Pós-Conversa por conversa | 3.84 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
 | l2 @ M1 tarefas pós-conversa | 3 |
 
@@ -35,63 +35,63 @@
 
 ## Núcleo saturado (fora do denominador)
 
-- char:hao — 615 exposições ao longo dos 127 planos
-- chunk:nihao — 464 exposições ao longo dos 127 planos
-- char:bu — 287 exposições ao longo dos 127 planos
-- char:shi — 286 exposições ao longo dos 127 planos
-- chunk:wohenhao — 267 exposições ao longo dos 127 planos
+- char:hao — 632 exposições ao longo dos 127 planos
+- chunk:nihao — 480 exposições ao longo dos 127 planos
+- char:shi — 290 exposições ao longo dos 127 planos
+- char:bu — 275 exposições ao longo dos 127 planos
+- chunk:wohenhao — 259 exposições ao longo dos 127 planos
 - char:ma_question — 240 exposições ao longo dos 127 planos
-- char:yi — 208 exposições ao longo dos 127 planos
-- chunk:nijiaoshenme — 173 exposições ao longo dos 127 planos
-- char:mu — 161 exposições ao longo dos 127 planos
-- char:zai — 145 exposições ao longo dos 127 planos
-- chunk:qingzaishuoyibian — 125 exposições ao longo dos 127 planos
-- chunk:nihaoma — 115 exposições ao longo dos 127 planos
-- chunk:wojiao — 113 exposições ao longo dos 127 planos
-- chunk:xiexie — 110 exposições ao longo dos 127 planos
+- char:yi — 206 exposições ao longo dos 127 planos
+- chunk:nijiaoshenme — 176 exposições ao longo dos 127 planos
+- char:zai — 150 exposições ao longo dos 127 planos
+- chunk:qingzaishuoyibian — 122 exposições ao longo dos 127 planos
+- chunk:wojiao — 118 exposições ao longo dos 127 planos
+- chunk:xiexie — 115 exposições ao longo dos 127 planos
+- chunk:nihaoma — 111 exposições ao longo dos 127 planos
 - char:na_that — 107 exposições ao longo dos 127 planos
-- char:ri — 102 exposições ao longo dos 127 planos
-- chunk:zaijian — 92 exposições ao longo dos 127 planos
-- char:na_which — 86 exposições ao longo dos 127 planos
-- char:shui — 84 exposições ao longo dos 127 planos
+- char:ri — 99 exposições ao longo dos 127 planos
+- chunk:zaijian — 89 exposições ao longo dos 127 planos
+- char:na_which — 87 exposições ao longo dos 127 planos
+- char:shui — 83 exposições ao longo dos 127 planos
 - char:er — 67 exposições ao longo dos 127 planos
-- char:san — 64 exposições ao longo dos 127 planos
-- char:yue — 60 exposições ao longo dos 127 planos
+- char:san — 62 exposições ao longo dos 127 planos
 - chunk:qingwen — 56 exposições ao longo dos 127 planos
-- char:shan — 56 exposições ao longo dos 127 planos
 - chunk:nashirenm — 56 exposições ao longo dos 127 planos
+- char:shan — 53 exposições ao longo dos 127 planos
 - char:ba8 — 53 exposições ao longo dos 127 planos
 - chunk:bukeqi — 52 exposições ao longo dos 127 planos
-- chunk:zheshishenme — 47 exposições ao longo dos 127 planos
+- char:li_inside — 47 exposições ao longo dos 127 planos
 - chunk:wature — 46 exposições ao longo dos 127 planos
-- char:li_inside — 46 exposições ao longo dos 127 planos
 - chunk:tingbudong — 45 exposições ao longo dos 127 planos
 - chunk:wohuishuoyidian — 45 exposições ao longo dos 127 planos
-- chunk:woshixuesheng — 41 exposições ao longo dos 127 planos
+- chunk:zheshishenme — 45 exposições ao longo dos 127 planos
+- chunk:woshixuesheng — 43 exposições ao longo dos 127 planos
 
 ## Itens de prioridade sem cobertura
 
 - l9-qual-nome:chunk:nishinaiguoren (32 exposições no curso)
 - p3-wohenhao:chunk:zenmeyang (17 exposições no curso)
 - p3-qing-zai-shuo-yibian:chunk:nishinaiguoren (32 exposições no curso)
-- l11-falo-pouco:chunk:nishixueshengma (5 exposições no curso)
-- l11-falo-pouco:chunk:nixuexishenme (5 exposições no curso)
-- l12:chunk:nishixueshengma (5 exposições no curso)
-- l12:chunk:nixuexishenme (5 exposições no curso)
+- l11-falo-pouco:chunk:nishixueshengma (6 exposições no curso)
+- l11-falo-pouco:chunk:nixuexishenme (6 exposições no curso)
+- l12:chunk:nishixueshengma (6 exposições no curso)
+- l12:chunk:nixuexishenme (6 exposições no curso)
 - l12:chunk:nishinaiguoren (32 exposições no curso)
-- l13-dialogo-ola:chunk:nishixueshengma (5 exposições no curso)
-- l13-dialogo-ola:chunk:nixuexishenme (5 exposições no curso)
+- l13-dialogo-ola:chunk:nishixueshengma (6 exposições no curso)
+- l13-dialogo-ola:chunk:nixuexishenme (6 exposições no curso)
 - l13-dialogo-ola:chunk:zenmeyang (17 exposições no curso)
 - p3-ordem-das-palavras:chunk:nishinaiguoren (32 exposições no curso)
 - p3-nomes-da-frase:chunk:nishinaiguoren (32 exposições no curso)
+- l5-rev:chunk:nishixueshengma (6 exposições no curso)
+- l5-rev:chunk:nixuexishenme (6 exposições no curso)
 - l6-rev:chunk:zenmeyang (17 exposições no curso)
 - l6-rev:chunk:wobuhui (23 exposições no curso)
-- p5-nv-zi-hao:chunk:nishixueshengma (5 exposições no curso)
-- p5-nv-zi-hao:chunk:nixuexishenme (5 exposições no curso)
+- p5-nv-zi-hao:chunk:nishixueshengma (6 exposições no curso)
+- p5-nv-zi-hao:chunk:nixuexishenme (6 exposições no curso)
 - p5-kou-ma-pergunta:chunk:zheshishui (19 exposições no curso)
 - l19-logica-ma:chunk:zheshishui (19 exposições no curso)
-- l19-logica-rev:chunk:nishixueshengma (5 exposições no curso)
-- l19-logica-rev:chunk:nixuexishenme (5 exposições no curso)
+- l19-logica-rev:chunk:nishixueshengma (6 exposições no curso)
+- l19-logica-rev:chunk:nixuexishenme (6 exposições no curso)
 - l22:chunk:nishinaiguoren (32 exposições no curso)
 - l23:chunk:nishinaiguoren (32 exposições no curso)
 - l9-rev:char:liu (17 exposições no curso)
@@ -148,6 +148,11 @@
 - p3-nomes-da-frase:chunk:qingzaishuoyibian
 - p3-nomes-da-frase:chunk:nishinaiguoren
 - p3-nomes-da-frase:chunk:woshixuesheng
+- l5-rev:chunk:nishixueshengma
+- l5-rev:chunk:nixuexishenme
+- l5-rev:chunk:qingzaishuoyibian
+- l5-rev:chunk:xiexie
+- l5-rev:chunk:zaijian
 - p4-num-123:chunk:wohuishuoyidian
 - p4-num-45:chunk:wohuishuoyidian
 - p4-num-678:chunk:wohuishuoyidian
@@ -178,18 +183,6 @@
 - l17:char:shan
 - l17:chunk:zheshishenme
 - l18:chunk:qingzaishuoyibian
-- l7-rev:chunk:wojiao
-- l7-rev:char:san
-- l7-rev:char:shan
-- l7-rev:char:yue
-- l7-rev:chunk:wohenhao
-- l7-rev:chunk:zheshishenme
-- p4-checkpoint-fundamentos:chunk:wojiao
-- p4-checkpoint-fundamentos:char:ri
-- p4-checkpoint-fundamentos:char:shan
-- p4-checkpoint-fundamentos:char:yue
-- p4-checkpoint-fundamentos:chunk:wohenhao
-- p4-checkpoint-fundamentos:chunk:zheshishenme
 - p5-mu-mu-lin:char:shan
 - p5-mu-mu-lin:chunk:zheshishenme
 - p5-mu-mu-mu-sen:char:shan
@@ -202,6 +195,13 @@
 - p5-nv-zi-hao:chunk:qingzaishuoyibian
 - p5-nv-zi-hao:chunk:wohenhao
 - p5-nv-zi-hao:chunk:xiexie
-- …mais 121.
+- p5-nv-zi-hao:chunk:zaijian
+- p5-ren-ren-cong:char:shan
+- p5-ren-ren-cong:chunk:zheshishenme
+- p5-ren-ren-ren-zhong:char:shan
+- p5-ren-ren-ren-zhong:chunk:zheshishenme
+- p5-nv-ma-mae:char:shan
+- p5-nv-ma-mae:chunk:zheshishenme
+- …mais 114.
 
-<!-- integridade:1e966e69e813465d -->
+<!-- integridade:a06057deed152063 -->

@@ -18,7 +18,10 @@ import {
   type ImageChoiceMode,
   type VisualConceptId,
 } from "./visualVocabulary";
+import { inferCurriculumRole, type CurriculumRole } from "./curriculumRole";
 import type { CommunicativeGoal, PatternSlot, RepairDirection, RepairStrategy } from "./productionTasks";
+
+export type { CurriculumRole };
 
 // Jornada: Tiers → Fases → Módulos → Lições.
 // Ordem pedagógica: falar cedo → tons → frases → hànzì lógico → números → vida real → leitura.
@@ -436,6 +439,11 @@ export interface Lesson {
   estimatedMinutes?: number;
   /** Lição de consolidação no fim do módulo (nó dourado). */
   isReview?: boolean;
+  /**
+   * Papel curricular declarativo (ONB-007). Labs e revisões podem ter
+   * novidade lexical zero; acquisition precisa de progresso comunicativo.
+   */
+  curriculumRole?: CurriculumRole;
   /** Conteúdo Longyu Pro — requer assinatura ou preview nas configurações. */
   premium?: boolean;
   /**
@@ -1007,6 +1015,7 @@ function withLessonDefaults(lesson: Lesson): Lesson {
     reviewItems: lesson.reviewItems ?? refs,
     rewardQi: lesson.rewardQi ?? (lesson.isReview ? 3 : 2),
     estimatedMinutes: lesson.estimatedMinutes ?? estimateLessonMinutes(lesson.steps),
+    curriculumRole: inferCurriculumRole(lesson),
   };
 }
 
@@ -1042,29 +1051,40 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     id: "p1-o-que-e-mandarim",
     title: "O que é mandarim?",
     skill: "sistema",
+    curriculumRole: "acquisition",
     libraryItems: ["chunk:nihao"],
     reviewItems: ["chunk:nihao"],
     steps: [
-      intro("A língua padrão", "Mandarim é a forma padrão do chinês falado. No Longyu, você começa por frases úteis antes de estudar explicações longas."),
-      listen("你好", "nǐ hǎo", "Olá", "pinyin_first"),
+      intro("A língua padrão", "Mandarim é a forma padrão do chinês falado. Comece por uma frase que você já pode usar."),
+      listenSelect("Primeiro som", "你好", ["你好", "谢谢", "再见"], "你好", "Você ouviu 你好 — olá."),
+      comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
+      dialogue(
+        "Responda",
+        "Alguém diz 你好. O que você responde?",
+        "你好",
+        ["你好", "谢谢", "再见"],
+        "No primeiro encontro, a resposta natural é 你好 de volta."
+      ),
+      sentenceBuild("Primeira montagem", "Monte: Olá.", ["你", "好"], ["好", "你", "谢"], "你好 é sua primeira frase útil."),
       intro(
         "Como soa de verdade",
         "Na fala, 3º + 3º vira 2º + 3º: você ouve ní hǎo, mesmo que o dicionário escreva nǐ hǎo."
       ),
-      listenSelect("Primeiro som", "你好", ["你好", "谢谢", "再见"], "你好", "Você ouviu 你好."),
-      comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
-      sentenceBuild("Primeira montagem", "Monte: Olá.", ["你", "好"], ["好", "你", "谢"], "你好 é sua primeira frase útil."),
     ],
   }),
   microLesson({
     id: "p1-o-que-e-pinyin",
     title: "O que é pinyin?",
     skill: "som",
+    curriculumRole: "acquisition",
     libraryItems: ["chunk:nihao"],
     reviewItems: ["chunk:nihao"],
     steps: [
-      intro("A ponte para o som", "Pinyin escreve o som do mandarim com letras latinas. 你好 aparece como nǐ hǎo para você saber como começar a falar."),
-      listen("你好", "nǐ hǎo", "nǐ hǎo é o pinyin de 你好"),
+      intro(
+        "A ponte para o som",
+        "Pinyin escreve o som do mandarim com letras latinas. Você já usou 你好 — agora vê como isso se escreve: nǐ hǎo."
+      ),
+      listenSelect("Ouça de novo", "你好", ["你好", "谢谢", "再见"], "你好", "nǐ hǎo é o pinyin de 你好."),
       match(
         "Pinyin e frase",
         "Combine pinyin, hànzì e sentido.",
@@ -1074,16 +1094,23 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         ],
         "Pinyin = som. Hànzì = escrita."
       ),
-      comp("nǐ hǎo", "pinyin", "som escrito com letras latinas", ["som escrito com letras latinas", "tradução literal", "radical", "número"]),
-      dialogue("Uso do pinyin", "Pinyin serve principalmente para...", "guiar a pronúncia", ["guiar a pronúncia", "substituir hànzì para sempre", "marcar pontos", "traduzir para inglês"], "Pinyin é uma ponte para falar e ouvir."),
+      dialogue(
+        "Uso do pinyin",
+        "Pinyin serve principalmente para...",
+        "guiar a pronúncia",
+        ["guiar a pronúncia", "substituir hànzì para sempre", "marcar pontos", "traduzir para inglês"],
+        "Pinyin é uma ponte para falar e ouvir — agora use 你好 de verdade."
+      ),
+      conversationScene("primeiro-cumprimento"),
     ],
   }),
   microLesson({
     id: "p1-o-que-e-tom",
     title: "O que é tom?",
     skill: "som",
-    libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2"],
+    curriculumRole: "acquisition",
+    libraryItems: ["char:ma2", "chunk:nihao"],
+    reviewItems: ["char:ma2", "chunk:nihao"],
     steps: [
       intro(
         "A curva da voz",
@@ -1114,27 +1141,63 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       // Quiz leve no fim (palavra conhecida + tom), sem a família completa de uma vez.
       tone("妈", "mā", 1, "quiz", [1, 4]),
       tone("骂", "mà", 4, "quiz", [1, 4]),
+      intro(
+        "De volta a 你好",
+        "Você já disse 你好. Os dois caracteres são 3º tom; juntos você ouve ní hǎo — o tom muda o jeito de soar."
+      ),
+      listenSelect(
+        "O cumprimento que você já usa",
+        "你好",
+        ["你好", "妈妈", "骂"],
+        "你好",
+        "É o mesmo 你好 de antes: agora você escuta o tom, não só a palavra."
+      ),
       dialogue(
         "Ideia principal",
         "Em mandarim, tom é...",
         "a curva da voz que pode mudar sentido",
         ["a curva da voz que pode mudar sentido", "a tradução em português", "o desenho do caractere", "o nome da pessoa"],
-        "Mudar o tom pode mudar a palavra.",
+        "Mudar o tom pode mudar a palavra — e também o jeito de dizer 你好.",
         "Escolha"
       ),
-      comp("妈妈", "māma", "Mãe; mamãe.", ["Mãe; mamãe.", "Obrigado(a).", "Olá.", "Sou brasileiro."]),
     ],
   }),
   microLesson({
     id: "p1-o-que-e-hanzi",
     title: "O que é hànzì?",
     skill: "hanzi",
-    libraryItems: ["char:mu", "char:ri", "char:yue", "char:ren", "char:kou", "char:shan", "char:shui", "char:lin", "char:sen", "char:ming"],
-    reviewItems: ["char:mu", "char:ri", "char:yue", "char:ren", "char:kou", "char:shan", "char:shui", "char:lin", "char:sen", "char:ming"],
+    curriculumRole: "hanzi_lab",
+    libraryItems: ["char:mu", "char:ri", "char:yue", "char:ren", "char:kou", "char:shan", "char:shui", "char:lin", "char:sen", "char:ming", "chunk:nihao"],
+    reviewItems: ["char:mu", "char:ri", "char:yue", "char:ren", "char:kou", "char:shan", "char:shui", "char:lin", "char:sen", "char:ming", "chunk:nihao"],
     estimatedMinutes: 4,
     steps: [
-      intro("O que é Hànzì?", "Hànzì são os caracteres usados no chinês escrito. Eles não funcionam como o alfabeto português: cada caractere pode representar uma ideia, uma palavra, parte de uma palavra ou uma função."),
-      intro("Pinyin e hànzì", "Pinyin mostra o som: nǐ hǎo. Hànzì mostra a forma escrita usada por chineses: 你好. O pinyin ajuda você a pronunciar; o hànzì ajuda você a ler e reconhecer a escrita real."),
+      intro(
+        "O que é Hànzì?",
+        "Hànzì são os caracteres do chinês escrito. Pinyin mostra o som (nǐ hǎo); hànzì mostra a forma real: 你好."
+      ),
+      listenSelect(
+        "Você já usa estes hànzì",
+        "你好",
+        ["你好", "木", "人"],
+        "你好",
+        "你 e 好 juntos são o cumprimento que você já falou."
+      ),
+      dialogue(
+        "Reconheça 你 em 你好",
+        "Em 你好, qual caractere é 你?",
+        "你",
+        ["你", "好", "木", "人"],
+        "你 é a primeira peça de 你好.",
+        "Escolha"
+      ),
+      dialogue(
+        "Reconheça 好 em 你好",
+        "Em 你好, qual caractere é 好?",
+        "好",
+        ["好", "你", "口", "日"],
+        "好 é a segunda peça de 你好. Composições como 林 e 明 vêm depois.",
+        "Escolha"
+      ),
       intro("Pense no número 3", "O símbolo 3 não é a palavra 'três', mas todo mundo reconhece a ideia. 三 representa 'três' em chinês; o som é sān; a forma escrita é 三. Hànzì se parece mais com símbolos assim do que com letras soltas."),
       hanziEvolution(
         ["mu", "ri", "yue", "ren"],
@@ -1211,22 +1274,15 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         "Hànzì é escrita chinesa: visual, padronizada e ligada a som, sentido e uso.",
         "Escolha"
       ),
-      dialogue(
-        "Cuidado importante",
-        "Todo hànzì moderno é apenas um desenho?",
-        "não; muitos combinam uma peça de sentido e outra de som",
-        ["não; muitos combinam uma peça de sentido e outra de som", "sim; todos são desenhos literais", "sim; todos são números", "não; hànzì é só pinyin"],
-        "Nem todo caractere moderno é desenho. 妈, por exemplo, usa 女 como pista de sentido e 马 como pista sonora. Você montará composições como 林 e 明 em lições posteriores.",
-        "Escolha"
-      ),
     ],
   }),
   microLesson({
     id: "p1-primeiros-hanzi",
     title: "Montando primeiros hànzì",
     skill: "hanzi",
-    libraryItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao"],
-    reviewItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao"],
+    curriculumRole: "hanzi_lab",
+    libraryItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao", "chunk:nihao"],
+    reviewItems: ["char:mu", "char:ren", "char:kou", "char:ri", "char:yue", "char:shan", "char:shui", "char:huo", "char:da", "char:xiao", "chunk:nihao"],
     estimatedMinutes: 6,
     steps: [
       intro("Monte peça por peça", "Agora você monta caracteres simples como 木, 口 e 日 com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
@@ -1270,6 +1326,20 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         ],
         "Você montou os blocos simples; composições como 林 e 明 vêm depois."
       ),
+      listenSelect(
+        "O cumprimento de novo",
+        "你好",
+        ["你好", "木", "人", "口"],
+        "你好",
+        "Os hànzì que você monta também aparecem na frase que você já usa."
+      ),
+      dialogue(
+        "Você já usa isto",
+        "Qual cumprimento você já falou?",
+        "你好",
+        ["你好", "木", "人", "口"],
+        "你好 continua sendo o cumprimento. Os caracteres novos (木, 口, 日) são outra camada."
+      ),
     ],
   }),
 ];
@@ -1279,6 +1349,7 @@ const PHASE1_ENGINE_LESSONS: Lesson[] = [
     id: "p1-engine-2-lab",
     title: "Laboratório de exercícios",
     skill: "fala",
+    curriculumRole: "perception_lab",
     libraryItems: ["chunk:nihao", "chunk:xiexie", "chunk:zaijian", "chunk:bukeqi", "char:ni", "char:hao", "char:ma_question", "char:nv", "char:zi"],
     reviewItems: ["chunk:nihao", "chunk:xiexie", "chunk:zaijian", "chunk:bukeqi", "char:ni", "char:hao", "char:ma_question", "char:nv", "char:zi"],
     estimatedMinutes: 5,
@@ -1389,6 +1460,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-ma-primeiro-tom",
     title: "1º tom com ma",
     skill: "som",
+    curriculumRole: "perception_lab",
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2", "char:shan"],
     steps: [
@@ -1414,6 +1486,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-ma-segundo-tom",
     title: "2º tom com ma",
     skill: "som",
+    curriculumRole: "perception_lab",
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2"],
     steps: [
@@ -1435,34 +1508,45 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-ma-terceiro-tom",
     title: "3º tom com ma",
     skill: "som",
-    libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2"],
+    curriculumRole: "acquisition",
+    libraryItems: ["char:ma2", "chunk:nihao"],
+    reviewItems: ["char:ma2", "chunk:nihao"],
     steps: [
       intro("Desce e sobe", "O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico."),
       listen("马", "mǎ", "cavalo"),
       listenSelect("Ouça mǎ", "马", ["妈", "麻", "马", "骂"], "马", "马 usa 3º tom: desce e sobe."),
       tone("马", "mǎ", 3, "quiz"),
-      comp("马", "mǎ", "cavalo (3º tom)", ["cavalo (3º tom)", "mãe (1º tom)", "xingar (4º tom)", "obrigado"]),
+      intro("3º tom em 你好", "Você já usa 你好. Os dois caracteres são 3º tom — juntos soam ní hǎo."),
+      listenSelect("Como soa o cumprimento?", "你好", ["你好", "妈妈", "骂"], "你好", "É o 3º tom dentro de uma frase que você já fala."),
+      dialogue(
+        "Alguém te cumprimenta",
+        "A pessoa diz 你好. O que você responde?",
+        "你好",
+        ["你好", "谢谢", "再见"],
+        "Os dois 3º tons de 你好 são o mesmo vale de 马 mǎ — agora numa frase real."
+      ),
     ],
   }),
   microLesson({
     id: "p2-ma-quarto-tom",
     title: "4º tom com ma",
     skill: "som",
-    libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2"],
+    curriculumRole: "acquisition",
+    libraryItems: ["char:ma2", "chunk:xiexie"],
+    reviewItems: ["char:ma2", "chunk:xiexie"],
     steps: [
       intro("Cai firme", "O 4º tom cai rápido, como um comando curto. 骂 mà usa essa queda forte."),
       listen("骂", "mà", "xingar"),
       listenSelect("Ouça mà", "骂", ["妈", "麻", "马", "骂"], "骂", "骂 usa 4º tom: cai firme."),
       tone("骂", "mà", 4, "quiz"),
+      intro("4º tom em 谢谢", "谢谢 cai. Esse tom marcado é o mesmo 4º tom de mà."),
+      listenSelect("Qual áudio é o obrigado?", "谢谢", ["谢谢", "你好", "再见"], "谢谢", "谢谢 começa com a queda do 4º tom."),
       dialogue(
-        "Queda rápida",
-        "Qual tom cai rápido e firme?",
-        "4º tom",
-        ["4º tom", "1º tom", "2º tom", "3º tom"],
-        "O 4º tom é a queda rápida, como um comando curto.",
-        "Escolha"
+        "Recebeu ajuda",
+        "Como você agradece?",
+        "谢谢",
+        ["谢谢", "你好", "再见"],
+        "谢谢 usa a mesma queda rápida de 骂 mà — agora para agradecer."
       ),
     ],
   }),
@@ -1470,6 +1554,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-comparar-tom-1-4",
     title: "Comparar 1º e 4º tom",
     skill: "som",
+    curriculumRole: "perception_lab",
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2", "char:xie", "chunk:zaijian"],
     steps: [

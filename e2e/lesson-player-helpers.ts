@@ -43,7 +43,25 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
   const deadline = Date.now() + Math.min(25_000, Math.max(6_000, maxSteps * 1_200));
   for (let step = 0; step < maxSteps; step += 1) {
     if (Date.now() > deadline) break;
+    if (await target.isVisible().catch(() => false)) return true;
+    if ((await page.locator("[data-conversation-scene]").count()) > 0) {
+      if (await target.isVisible().catch(() => false)) return true;
+    }
     await page.keyboard.press("Escape").catch(() => undefined);
+
+    const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição/i });
+    if (await reviewHeading.isVisible().catch(() => false)) {
+      await clickFirstVisible(page, [/^Continuar$/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
+    const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
+    if (await folegoBack.isVisible().catch(() => false)) {
+      await folegoBack.click({ timeout: 1_500 }).catch(() => undefined);
+      await page.waitForTimeout(150);
+      continue;
+    }
 
       // Modal de erro: prefere continuar sem perfeição para não travar o smoke.
       const mistake = page.getByRole("heading", { name: /Quer tentar de novo|Quase/i });
@@ -127,6 +145,72 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
+    const pairsBoard = page.getByText(/\d+\/\d+ pares/);
+    if (await pairsBoard.isVisible().catch(() => false)) {
+      const tryPair = async (leftName: RegExp, rightName: RegExp) => {
+        try {
+          const left = page.getByRole("button", { name: leftName });
+          const right = page.getByRole("button", { name: rightName });
+          if (!(await left.first().isVisible().catch(() => false))) return;
+          if (!(await right.first().isVisible().catch(() => false))) return;
+          await clickIfEnabled(left.first());
+          const rightTarget = (await right.count().catch(() => 0)) > 1 ? right.last() : right.first();
+          await clickIfEnabled(rightTarget);
+        } catch {
+          /* quadro desmontou ou a página fechou */
+        }
+      };
+      await tryPair(/^nǐ hǎo$/i, /^你好$/);
+      await tryPair(/^你好$/, /^Olá$/);
+      await tryPair(/^Olá$/, /^你好$/);
+      await tryPair(/^xièxie$/i, /^谢谢$/);
+      await tryPair(/^谢谢$/, /Obrigado/);
+      await tryPair(/^再见$/, /Até/);
+      await tryPair(/^不客气$/, /De nada/);
+      if (await pairsBoard.isVisible().catch(() => false)) {
+        await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Verificar$/, /^Pular/]);
+      }
+      await page.waitForTimeout(200);
+      if (await target.isVisible().catch(() => false)) return true;
+      continue;
+    }
+
+    // Responder múltipla escolha ANTES de Pular — o botão de skip fica visível
+    // nas atividades avaliadas e esgota o Fôlego de uma conta nova.
+    const greetingChoice = page.getByRole("button", { name: /^(Olá|你好|谢谢|再见)$/ }).first();
+    if (await greetingChoice.isVisible().catch(() => false)) {
+      await clickIfEnabled(greetingChoice);
+      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
+    const labeledOption = page.getByRole("button", { name: /^Opção \d+:/ });
+    if (await labeledOption.first().isVisible().catch(() => false)) {
+      const preferred = page.getByRole("button", {
+        name: /Opção \d+: (Olá|你好|谢谢|再见|obrigad|guiar a pronúncia)/i,
+      }).first();
+      if (await preferred.isVisible().catch(() => false)) {
+        await clickIfEnabled(preferred);
+      } else if (!(await clickFirstVisible(page, [/^Pular/]))) {
+        await clickIfEnabled(labeledOption.first());
+      }
+      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
+    const glyphOption = page
+      .locator("button")
+      .filter({ hasText: /^(你好|谢谢|再见|木|人|山|mù|rén)$/i })
+      .first();
+    if (await glyphOption.isVisible().catch(() => false)) {
+      await clickIfEnabled(glyphOption);
+      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const advanced = await clickFirstVisible(page, [
       /^Entendi$/,
       /^Continuar$/,
@@ -137,27 +221,14 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       /^Responder$/,
       /^Concluir$/,
       /^Ouvir de novo$/,
-      /^Pular/,
     ]);
     if (!advanced) {
-      const option = page
-        .locator("button")
-        .filter({ hasText: /你好|谢谢|木|人|山|mù|rén|pessoa|Opção/i })
-        .first();
-      if (await option.isVisible().catch(() => false)) {
-        await clickIfEnabled(option);
-        await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/]);
-      } else {
-        const mcOption = page.getByRole("button", { name: /^Opção \d+$/ }).first();
-        if (await mcOption.isVisible().catch(() => false)) {
-          await clickIfEnabled(mcOption);
-          await clickFirstVisible(page, [/^Confirmar$/, /^Verificar$/, /^Conferir$/, /^Continuar$/]);
-        } else {
-          break;
-        }
-      }
+      if ((await page.locator("[data-conversation-scene]").count()) > 0) return true;
+      const skipped = await clickFirstVisible(page, [/^Pular/]);
+      if (!skipped) break;
     }
-    await page.waitForTimeout(150);
+    await page.waitForTimeout(350);
+    if (await target.isVisible().catch(() => false)) return true;
   }
   return target.isVisible().catch(() => false);
 }

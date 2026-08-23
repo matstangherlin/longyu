@@ -35,6 +35,8 @@ const REPORTS = [
   "reports/lesson-novelty-report.md",
   "reports/error-diagnosis-report.md",
   "reports/onboarding-pace-report.md",
+  "reports/first-communicative-win.md",
+  "reports/acquisition-momentum.md",
   "reports/prerequisite-progression-report.md",
 ];
 
