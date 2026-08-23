@@ -46,6 +46,13 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     if (await target.isVisible().catch(() => false)) return true;
     await page.keyboard.press("Escape").catch(() => undefined);
 
+    const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição/i });
+    if (await reviewHeading.isVisible().catch(() => false)) {
+      await clickFirstVisible(page, [/^Continuar$/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
     if (await folegoBack.isVisible().catch(() => false)) {
       await folegoBack.click({ timeout: 1_500 }).catch(() => undefined);
@@ -173,8 +180,11 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       const preferred = page.getByRole("button", {
         name: /Opção \d+: (Olá|你好|谢谢|再见|obrigad|guiar a pronúncia)/i,
       }).first();
-      const choice = (await preferred.isVisible().catch(() => false)) ? preferred : labeledOption.first();
-      await clickIfEnabled(choice);
+      if (await preferred.isVisible().catch(() => false)) {
+        await clickIfEnabled(preferred);
+      } else if (!(await clickFirstVisible(page, [/^Pular/]))) {
+        await clickIfEnabled(labeledOption.first());
+      }
       await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
       await page.waitForTimeout(150);
       continue;

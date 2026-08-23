@@ -987,7 +987,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   };
 
   return (
-    <div>
+    <div data-conversation-scene>
       <Eyebrow>Cena de conversa</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
@@ -1163,7 +1163,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   return (
-    <div>
+    <div data-conversation-scene>
       <Eyebrow>Cena de conversa</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
