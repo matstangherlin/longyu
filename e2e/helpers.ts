@@ -211,7 +211,11 @@ export async function seedFreshJourneySession(
 ) {
   await seedTelemetryDeclined(page);
   await page.addInitScript((payload: string) => {
-    localStorage.setItem("longyu-v1", payload);
+    // Só na primeira navegação do contexto. Regravar apagaria o progresso
+    // da L1 quando o teste abre a L2 na mesma conta nova.
+    if (!localStorage.getItem("longyu-v1")) {
+      localStorage.setItem("longyu-v1", payload);
+    }
   }, buildStorePayload({
     accountSetupComplete: true,
     completedLessons: [],
