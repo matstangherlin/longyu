@@ -171,8 +171,8 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    // Mastery Loop: transfer_task entra de forma estável em M4 — seed level 3 →
-    // próximo pass = 4. l24 coloca a transferência cedo (após a 1ª conversa).
+    // V4.0: reserva de transferência em M4. Fixture rápido em l24; l23 é
+    // coberto por validate:cognitive-budget (não basta trocar a lição do E2E).
     await seedLessonPlayerReady(page, "l24", { masteryLevel: 3 });
     await page.addInitScript(() => {
       try {

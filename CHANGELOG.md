@@ -7,6 +7,15 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.0 — Communicative Transfer Integrity
+
+O segundo diálogo do plano não pode expulsar produção (M3) nem transferência (M4).
+O planner reserva o piso cognitivo antes de preencher o orçamento; frames e
+objetivos abertos passam a rotacionar no runtime em vez de repetir só 我要/我有.
+
+- **Piso por pass:** M3 = desafio produtivo (conversa não conta); M4 = `transfer_task` quando aplicável.
+- **Portões:** `validate:cognitive-budget`, `validate:structural-frame-runtime`, `validate:conversation-transfer-budget`.
+
 ### Beta Experience Hardening — estabilizar, polir, observar
 
 Sem motores pedagógicos novos. Foco em sensação humana, mobile, falhas e

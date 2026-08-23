@@ -87,6 +87,19 @@ export type CommunicativeGoal =
   | "state_ongoing"
   | "state_change";
 
+/** Domínio situacional da estrutura — para casar transferência com a lição. */
+export type CommunicativeDomain =
+  | "restaurant"
+  | "shopping"
+  | "hotel"
+  | "airport"
+  | "taxi"
+  | "directions"
+  | "work"
+  | "study"
+  | "health"
+  | "time";
+
 /**
  * Papel de um slot na moldura da frase. É o STPVO-light: o aluno vê a ordem
  * (sujeito · tempo · lugar · verbo · objeto) em vez de só o buraco "___".
@@ -1094,6 +1107,144 @@ function sortByPedagogicalEase(tasks: FrameTask[]): FrameTask[] {
     if (ease !== 0) return ease;
     return a.id.localeCompare(b.id);
   });
+}
+
+export const FRAME_COMMUNICATIVE_DOMAINS: Record<string, readonly CommunicativeDomain[]> = {
+  frame_woyao: ["restaurant", "shopping"],
+  frame_woxianghe: ["restaurant"],
+  frame_zainali: ["directions", "hotel", "airport"],
+  frame_qingwenzainali: ["directions", "hotel"],
+  frame_woxiangchi: ["restaurant"],
+  frame_woxiangmai: ["shopping"],
+  frame_duoshaoqian: ["shopping"],
+  frame_woyouge: ["study"],
+  frame_woxihuan: ["restaurant", "shopping"],
+  frame_woqu: ["directions", "airport", "taxi"],
+  frame_woyaomai: ["shopping"],
+  frame_niyao: ["restaurant"],
+  frame_niyaoma: ["restaurant"],
+  frame_wobuhe: ["restaurant"],
+  frame_wobuchi: ["restaurant"],
+  frame_huijia_action: ["time", "work"],
+  frame_zuofeijiqu: ["airport", "taxi"],
+  frame_wozai: ["work", "study", "health"],
+  frame_wo_le: ["health", "time"],
+};
+
+const DOMAIN_HINTS: { domain: CommunicativeDomain; needles: string[] }[] = [
+  { domain: "restaurant", needles: ["restaur", "comida", "cardapio", "menu", "cha", "cafe"] },
+  { domain: "shopping", needles: ["compra", "loja", "preco", "mercado"] },
+  { domain: "hotel", needles: ["hotel", "quarto"] },
+  { domain: "airport", needles: ["aeroporto", "airport", "aviao", "feiji", "passaporte"] },
+  { domain: "taxi", needles: ["taxi", "chuzuche", "uber"] },
+  { domain: "directions", needles: ["direc", "onde", "caminho", "mapa", "estacao"] },
+  { domain: "work", needles: ["trabalho", "rotina", "escritorio"] },
+  { domain: "study", needles: ["estudo", "aula", "escola", "microtexto", "leitura"] },
+  { domain: "health", needles: ["saude", "hospital", "medico", "doente"] },
+  { domain: "time", needles: ["horario", "hora", "relogio", "ontem", "amanha"] },
+];
+
+export function inferCommunicativeDomain(lessonId: string, title = ""): CommunicativeDomain | undefined {
+  const blob = `${lessonId} ${title}`.toLocaleLowerCase("pt-BR");
+  for (const { domain, needles } of DOMAIN_HINTS) {
+    if (needles.some((needle) => blob.includes(needle))) return domain;
+  }
+  return undefined;
+}
+
+export interface FramePickOptions {
+  priorTransferredFrameIds?: ReadonlySet<string>;
+  usedFrameIds?: ReadonlySet<string>;
+  usedTargetHanzi?: ReadonlySet<string>;
+  /** Exposição: frames sem produção guiada ganham prioridade para destravar. */
+  needsGuidedProduction?: ReadonlySet<string>;
+  lessonSalt?: number;
+  domain?: CommunicativeDomain;
+}
+
+/**
+ * Escolhe uma tarefa cobrindo frames ainda não usados, frases inéditas e o
+ * domínio da lição. A facilidade pedagógica continua como desempate, não como
+ * trava — senão só 我要/我有 aparecem no plano real.
+ */
+function uniqueSorted(ids: readonly string[]): string[] {
+  return [...new Set(ids)].sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Round-robin estável: frames que ainda precisam de produção guiada
+ * entram primeiro; o salt da lição percorre o conjunto em vez de
+ * sempre cair em 我要/我有.
+ */
+function preferredFrameId(tasks: readonly FrameTask[], options: FramePickOptions): string | undefined {
+  if (tasks.length === 0) return undefined;
+  const salt = Math.abs(options.lessonSalt ?? 0);
+  const needy = uniqueSorted(
+    tasks.filter((task) => options.needsGuidedProduction?.has(task.frameId)).map((task) => task.frameId)
+  );
+  const unused = uniqueSorted(
+    tasks.filter((task) => !options.usedFrameIds?.has(task.frameId)).map((task) => task.frameId)
+  );
+  const freshTransfer = uniqueSorted(
+    tasks
+      .filter((task) => !options.priorTransferredFrameIds?.has(task.frameId))
+      .map((task) => task.frameId)
+  );
+  const domainMatch = uniqueSorted(
+    tasks
+      .filter((task) => options.domain && (FRAME_COMMUNICATIVE_DOMAINS[task.frameId] ?? []).includes(options.domain))
+      .map((task) => task.frameId)
+  );
+  const all = uniqueSorted(tasks.map((task) => task.frameId));
+  const rotation =
+    needy.length > 0
+      ? needy
+      : unused.length > 0
+        ? unused
+        : freshTransfer.length > 0
+          ? freshTransfer
+          : domainMatch.length > 0
+            ? domainMatch
+            : all;
+  return rotation[salt % rotation.length];
+}
+
+export function pickFrameTask(tasks: readonly FrameTask[], options: FramePickOptions = {}): FrameTask | undefined {
+  if (tasks.length === 0) return undefined;
+  const salt = Math.abs(options.lessonSalt ?? 0);
+  const preferred = preferredFrameId(tasks, options);
+  const scored = tasks.map((task, index) => {
+    let score = 0;
+    if (preferred && task.frameId === preferred) score += 48;
+    if (options.usedFrameIds?.has(task.frameId)) score -= 80;
+    if (options.needsGuidedProduction?.has(task.frameId)) score += 28;
+    else if (options.priorTransferredFrameIds?.has(task.frameId)) score -= 18;
+    else score += 12;
+    const target = cleanSentence(task.targetHanzi);
+    if (target && options.usedTargetHanzi?.has(target)) score -= 50;
+    else if (task.isNovelCombination) score += 14;
+    const domains = FRAME_COMMUNICATIVE_DOMAINS[task.frameId] ?? [];
+    if (options.domain && domains.includes(options.domain)) score += 16;
+    score -= frameEase(task.frameId) * 0.35;
+    score -= PRODUCTION_ASSIST_RANK[task.transferAssist];
+    score += ((index + salt * 3) % 11) * 0.05;
+    return { task, score, index };
+  });
+  scored.sort((a, b) => b.score - a.score || a.index - b.index);
+  return scored[0]?.task;
+}
+
+export function pickOpenProductionTask<T extends { goal: CommunicativeGoal }>(
+  tasks: readonly T[],
+  options: { lessonSalt?: number; usedGoals?: ReadonlySet<CommunicativeGoal> } = {}
+): T | undefined {
+  if (tasks.length === 0) return undefined;
+  const salt = Math.abs(options.lessonSalt ?? 0);
+  const goals = uniqueSorted(tasks.map((task) => task.goal));
+  const unused = goals.filter((goal) => !options.usedGoals?.has(goal as CommunicativeGoal));
+  const pool = unused.length > 0 ? unused : goals;
+  const preferred = pool[salt % pool.length];
+  return tasks.find((task) => task.goal === preferred) ?? tasks[0];
 }
 
 /** Frames cujos glifos de âncora+padrão mínimo já estão disponíveis. */

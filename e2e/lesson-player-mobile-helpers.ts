@@ -399,8 +399,9 @@ export async function openReviewFlow(page: Page) {
 }
 
 export async function openTransferStep(page: Page) {
-  // Transferência no Mastery Loop aparece de forma estável em M4 (seed level 3 →
-  // próximo pass = 4). l24 coloca transfer_task cedo (após a 1ª conversa).
+  // V4.0: o planner reserva transfer_task em M4. l24 continua o fixture
+  // rápido (transferência cedo após a 1ª conversa); l23@M4 é coberto pelo
+  // portão validate:cognitive-budget — não se "conserta" só trocando a lição.
   await seedLessonPlayerReady(page, "l24", { masteryLevel: 3 });
   await seedProOnTopOfSession(page);
   await page.goto("/licao/l24/player");

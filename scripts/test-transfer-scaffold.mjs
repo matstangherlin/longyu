@@ -47,6 +47,8 @@ try {
     isTransferTaskEligible,
     PRODUCTION_ASSIST_RANK,
     sentenceMatchesFrame,
+    pickFrameTask,
+    pickOpenProductionTask,
   } = require(path.join(outDir, "src/data/productionTasks.js"));
 
   assert(maxTransferAssistForAttempt(0) === "guided", "attempt 0 deve limitar a guided");
@@ -164,6 +166,30 @@ try {
     guidedOnly.every((task) => task.frameId !== "frame_niyaoma"),
     "com exposure pronta, attempt guided ainda não sobe a niyaoma"
   );
+
+  const rotationPool = FRAME_TASKS.filter((task) =>
+    ["frame_woyao", "frame_zainali", "frame_woxihuan", "frame_duoshaoqian"].includes(task.frameId)
+  );
+  const needy = new Set(["frame_zainali", "frame_woxihuan", "frame_duoshaoqian"]);
+  const pickA = pickFrameTask(rotationPool, { needsGuidedProduction: needy, lessonSalt: 0 });
+  const pickB = pickFrameTask(rotationPool, { needsGuidedProduction: needy, lessonSalt: 1 });
+  const pickC = pickFrameTask(rotationPool, { needsGuidedProduction: needy, lessonSalt: 2 });
+  assert(Boolean(pickA && pickB && pickC), "pickFrameTask devolve tarefa no rodízio");
+  assert(
+    pickA.frameId !== "frame_woyao" && pickB.frameId !== "frame_woyao" && pickC.frameId !== "frame_woyao",
+    "frames que já tiveram produção guiada não monopolizam o rodízio"
+  );
+  const rotated = new Set([pickA.frameId, pickB.frameId, pickC.frameId]);
+  assert(rotated.size >= 2, `rodízio de frames deve variar com o salt (viu ${[...rotated].join(",")})`);
+
+  const openPool = [
+    { goal: "request_item" },
+    { goal: "ask_location" },
+    { goal: "ask_price" },
+  ];
+  const openA = pickOpenProductionTask(openPool, { lessonSalt: 0 });
+  const openB = pickOpenProductionTask(openPool, { lessonSalt: 1 });
+  assert(openA.goal !== openB.goal, "pickOpenProductionTask rotaciona o objetivo com o salt");
 
   assert(sentenceMatchesFrame("你要茶。", niyao), "你要茶 casa com frame_niyao");
   assert(!sentenceMatchesFrame("你要茶吗？", niyao), "你要茶吗 não casa com frame_niyao afirmativo");
