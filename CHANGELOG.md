@@ -7,6 +7,16 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.1 — First Communicative Win
+
+A primeira sessão deixa de ensinar *sobre* mandarim antes de o aluno *usar* mandarim. IDs e progresso antigo permanecem: as lições de abertura foram reescritas por dentro.
+
+- **Lição 1:** ouvir, escolher o sentido e responder 你好 depois de uma frase de contexto.
+- **Lição 2:** pinyin explica 你好 já usado e fecha com microconversa de 2–3 turnos.
+- **Tons e hànzì:** o conceito aplica-se a 你好 / 谢谢; a parede 1º–4º tom com ma deixa de ser cinco aulas isoladas.
+- **Papel curricular** declarativo (`acquisition`, `perception_lab`, `hanzi_lab`, `review`, `transfer`, `immersion`).
+- **Portões:** `validate:first-communicative-win`, `validate:acquisition-momentum`.
+
 ### V4.0 — Communicative Transfer Integrity
 
 O segundo diálogo do plano não pode expulsar produção (M3) nem transferência (M4).

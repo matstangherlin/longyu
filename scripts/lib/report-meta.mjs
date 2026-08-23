@@ -16,6 +16,7 @@ import path from "node:path";
 /** Fontes que definem o currículo: mudou qualquer uma, o relatório é velho. */
 export const CURRICULUM_SOURCES = [
   "src/data/journey.ts",
+  "src/data/curriculumRole.ts",
   "src/data/conversationScenes.ts",
   "src/data/visualVocabulary.ts",
   "src/data/chunks.ts",

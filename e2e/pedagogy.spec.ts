@@ -8,6 +8,7 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
+import { advanceUntilVisible } from "./lesson-player-helpers";
 
 test.describe("jornada", () => {
   test("jornada carrega com perfil onboarded", async ({ page }) => {
@@ -33,6 +34,17 @@ test.describe("lição", () => {
     // Palavras em português do prompt não viram botões de glossário.
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /qual/i })).toHaveCount(0);
+  });
+
+  test("conta nova: microconversa de 你好 na lição de pinyin", async ({ page }) => {
+    await seedFreshJourneySession(page);
+    await page.goto("/licao/p1-o-que-e-pinyin/player");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    const sceneCue = page.getByText(/conversa|cumprimento|Responder/i).first();
+    const optionCue = page.getByRole("button", { name: /^Opção \d+:/ });
+    const found = await advanceUntilVisible(page, sceneCue.or(optionCue), 18);
+    expect(found).toBeTruthy();
   });
 
   test("intro de hànzì é conceitual, sem composição 林/明", async ({ page }) => {

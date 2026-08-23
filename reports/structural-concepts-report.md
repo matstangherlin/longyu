@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 705bbbea5d1e957c349d7f7cbd0e7e76cebbd9ab |
+| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-14T23:14:57.016Z |
+| Gerado em | 2026-08-23T10:33:02.503Z |
 | Lições | 127 |
-| Hash da Jornada | 73a49c43c96e |
+| Hash da Jornada | c81f99ac1e2e |
 
 ## Política de rótulos
 
@@ -41,10 +41,10 @@
 
 | Estágio | Contagens (conceito×passo) |
 |---------|---------------------------:|
-| intuitivo | 177 |
-| pareado | 27 |
-| técnico | 647 |
-| Passos de produção com slots | 167 |
+| intuitivo | 72 |
+| pareado | 26 |
+| técnico | 503 |
+| Passos de produção com slots | 139 |
 
 ## Exemplos de rótulo por lição
 
@@ -55,4 +55,4 @@
 - **l26b**: sujeito · verbo · objeto · partícula
 - **l11-rev**: sujeito · verbo · objeto · partícula
 
-<!-- integridade:fcebfeab8129db7a -->
+<!-- integridade:7965b46b0916b87a -->

@@ -20,9 +20,9 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 | ---: | --- | --- | ---: | ---: | ---: |
 | 1 | p1-o-que-e-mandarim | 你好 | 0 | 1 | 100% |
 | 2 | p1-o-que-e-pinyin | — | 1 | 1 | 100% |
-| 3 | p1-o-que-e-tom | 妈 | 0 | 2 | 0% |
-| 4 | p1-o-que-e-hanzi | 木、日、月、人、口、山、水、林、森、明 | 0 | 12 | 0% |
-| 5 | p1-primeiros-hanzi | 火、大、小 | 7 | 15 | 0% |
+| 3 | p1-o-que-e-tom | 妈 | 1 | 2 | 50% |
+| 4 | p1-o-que-e-hanzi | 木、日、月、人、口、山、水、林、森、明 | 1 | 12 | 9% |
+| 5 | p1-primeiros-hanzi | 火、大、小 | 8 | 15 | 9% |
 | 6 | p1-engine-2-lab | 谢谢、你好吗、不客气、再见、你、好、吗、女、子 | 1 | 24 | 40% |
 | 7 | l1 | — | 2 | 24 | 50% |
 | 8 | l2 | 早上好、我、我叫Matheus | 4 | 27 | 29% |
@@ -35,8 +35,8 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 | 15 | l2-rev | 再、见、不、客、气、没、天 | 17 | 48 | 25% |
 | 16 | p2-ma-primeiro-tom | — | 2 | 48 | 0% |
 | 17 | p2-ma-segundo-tom | — | 1 | 48 | 0% |
-| 18 | p2-ma-terceiro-tom | — | 1 | 48 | 0% |
-| 19 | p2-ma-quarto-tom | — | 1 | 48 | 0% |
+| 18 | p2-ma-terceiro-tom | — | 2 | 48 | 50% |
+| 19 | p2-ma-quarto-tom | — | 2 | 48 | 50% |
 | 20 | p2-comparar-tom-1-4 | — | 3 | 48 | 67% |
 | 21 | p2-comparar-tom-2-3 | — | 2 | 48 | 50% |
 | 22 | l5 | 麻、马、骂 | 1 | 51 | 0% |

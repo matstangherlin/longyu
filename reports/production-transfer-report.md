@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ff8472d79ad21a3ab1b62098a2677a79d3070ada |
+| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T02:22:45.925Z |
+| Gerado em | 2026-08-23T10:31:59.800Z |
 | Lições | 127 |
-| Hash da Jornada | 251ae1ae7a65 |
+| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -23,7 +23,7 @@
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 9 |
 | Lições com produção aberta | 23 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 220 |
+| Falas de conversa sem apoio (aluno veterano) | 216 |
 | Lições com conversa sem apoio | 111 / 127 |
 | Lições com quebra de comunicação jogável | 94 / 127 |
 | Situações de reparo | 2 |
@@ -85,4 +85,4 @@
 - 衣服多少钱
 - 车站在哪里
 
-<!-- integridade:d2283aaab4048413 -->
+<!-- integridade:a7b3fb13311db5fa -->
