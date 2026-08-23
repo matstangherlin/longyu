@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import {
   clickStable,
   dismissBlockingOverlays,
@@ -9,6 +9,19 @@ import {
   waitForLazyPage,
 } from "./helpers";
 import { advanceOneStep, advanceUntilVisible } from "./lesson-player-helpers";
+
+async function hasCompletedLesson(page: Page, lessonId: string): Promise<boolean> {
+  return page.evaluate((id) => {
+    const raw = localStorage.getItem("longyu-v1");
+    if (!raw) return false;
+    try {
+      const parsed = JSON.parse(raw) as { state?: { completedLessons?: string[] } };
+      return Boolean(parsed.state?.completedLessons?.includes(id));
+    } catch {
+      return false;
+    }
+  }, lessonId);
+}
 
 test.describe("jornada", () => {
   test("jornada carrega com perfil onboarded", async ({ page }) => {
@@ -45,21 +58,23 @@ test.describe("lição", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
-    const nextLessonLobby = page.getByRole("heading", { name: /O que é pinyin\?/ });
-    const l1Done = victory.or(nextLessonLobby);
+    const gateCta = page.getByRole("button", { name: /Continuar na jornada/i });
     const l1Deadline = Date.now() + 90_000;
-    for (let steps = 0; steps < 40 && Date.now() < l1Deadline; steps += 1) {
-      if (await l1Done.isVisible().catch(() => false)) break;
-      if (page.url().includes("p1-o-que-e-pinyin")) break;
+    for (let steps = 0; steps < 50 && Date.now() < l1Deadline; steps += 1) {
+      if (await hasCompletedLesson(page, "p1-o-que-e-mandarim")) break;
+      if (await gateCta.isVisible().catch(() => false)) {
+        await page.goto("/licao/p1-o-que-e-mandarim/player");
+        await waitForLazyPage(page);
+        continue;
+      }
       await dismissBlockingOverlays(page);
       const advanced = await advanceOneStep(page);
-      if (!advanced) await advanceUntilVisible(page, l1Done, 3);
+      if (!advanced) await advanceUntilVisible(page, victory, 3);
     }
-    // A vitória pode navegar sozinha para a jornada/próxima lição; L1 precisa
-    // estar concluída, não necessariamente com o CTA ainda na tela.
     expect(
-      (await l1Done.isVisible().catch(() => false)) || page.url().includes("p1-o-que-e-pinyin"),
-    ).toBeTruthy();
+      await hasCompletedLesson(page, "p1-o-que-e-mandarim"),
+      "conta nova precisa concluir a L1 de verdade antes da microconversa",
+    ).toBe(true);
 
     await page.goto("/licao/p1-o-que-e-pinyin/player");
     await waitForLazyPage(page);

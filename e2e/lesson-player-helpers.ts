@@ -137,6 +137,14 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
     // Responder múltipla escolha ANTES de Pular — o botão de skip fica visível
     // nas atividades avaliadas e esgota o Fôlego de uma conta nova.
+    const greetingChoice = page.getByRole("button", { name: /^(Olá|你好|谢谢|再见)$/ }).first();
+    if (await greetingChoice.isVisible().catch(() => false)) {
+      await clickIfEnabled(greetingChoice);
+      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const labeledOption = page.getByRole("button", { name: /^Opção \d+:/ });
     if (await labeledOption.first().isVisible().catch(() => false)) {
       const preferred = page.getByRole("button", {
