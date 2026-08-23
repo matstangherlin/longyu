@@ -135,6 +135,27 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
+    const pairsHeading = page.getByRole("heading", { name: /Fixe com pares|Combine os pares/i });
+    if (await pairsHeading.isVisible().catch(() => false)) {
+      const pairs: Array<[RegExp, RegExp]> = [
+        [/^你好$/, /^Olá$/],
+        [/^谢谢$/, /Obrigado/],
+        [/^再见$/, /Até logo/],
+        [/^不客气$/, /^De nada$/],
+      ];
+      for (const [left, right] of pairs) {
+        const leftBtn = page.getByRole("button", { name: left }).first();
+        const rightBtn = page.getByRole("button", { name: right }).first();
+        if ((await leftBtn.isVisible().catch(() => false)) && (await rightBtn.isVisible().catch(() => false))) {
+          await clickIfEnabled(leftBtn);
+          await clickIfEnabled(rightBtn);
+        }
+      }
+      await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Verificar$/, /^Pular/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     // Responder múltipla escolha ANTES de Pular — o botão de skip fica visível
     // nas atividades avaliadas e esgota o Fôlego de uma conta nova.
     const greetingChoice = page.getByRole("button", { name: /^(Olá|你好|谢谢|再见)$/ }).first();
