@@ -8,7 +8,7 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceUntilVisible } from "./lesson-player-helpers";
+import { advanceOneStep, advanceUntilVisible } from "./lesson-player-helpers";
 
 test.describe("jornada", () => {
   test("jornada carrega com perfil onboarded", async ({ page }) => {
@@ -37,14 +37,39 @@ test.describe("lição", () => {
   });
 
   test("conta nova: microconversa de 你好 na lição de pinyin", async ({ page }) => {
+    test.setTimeout(180_000);
     await seedFreshJourneySession(page);
+
+    // Conta realmente nova: a jornada bloqueia a lição 2 até concluir a 1.
+    await page.goto("/licao/p1-o-que-e-mandarim/player");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
+    const l1Deadline = Date.now() + 90_000;
+    for (let steps = 0; steps < 40 && Date.now() < l1Deadline; steps += 1) {
+      if (await victory.isVisible().catch(() => false)) break;
+      await dismissBlockingOverlays(page);
+      const advanced = await advanceOneStep(page);
+      if (!advanced) await advanceUntilVisible(page, victory, 3);
+    }
+    await expect(victory).toBeVisible();
+
     await page.goto("/licao/p1-o-que-e-pinyin/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const sceneCue = page.getByText(/conversa|cumprimento|Responder/i).first();
-    const optionCue = page.getByRole("button", { name: /^Opção \d+:/ });
-    const found = await advanceUntilVisible(page, sceneCue.or(optionCue), 18);
-    expect(found).toBeTruthy();
+    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 15_000 });
+
+    const sceneCue = page.getByText("Cena de conversa");
+    const titleCue = page.getByRole("heading", { name: /Primeiro cumprimento/ });
+    const conversation = sceneCue.or(titleCue);
+    const l2Deadline = Date.now() + 90_000;
+    for (let steps = 0; steps < 40 && Date.now() < l2Deadline; steps += 1) {
+      if (await conversation.isVisible().catch(() => false)) break;
+      await dismissBlockingOverlays(page);
+      const found = await advanceUntilVisible(page, conversation, 1);
+      if (found) break;
+    }
+    await expect(conversation).toBeVisible();
   });
 
   test("intro de hànzì é conceitual, sem composição 林/明", async ({ page }) => {
