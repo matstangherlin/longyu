@@ -81,7 +81,7 @@ test.describe("lição", () => {
     await dismissBlockingOverlays(page);
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 15_000 });
 
-    const conversation = page.locator("[data-conversation-scene]").or(page.getByRole("heading", { name: /cumprimento/i }));
+    const conversation = page.locator("[data-conversation-scene]").first();
     const l2Deadline = Date.now() + 90_000;
     for (let steps = 0; steps < 40 && Date.now() < l2Deadline; steps += 1) {
       if (await conversation.isVisible().catch(() => false)) break;
