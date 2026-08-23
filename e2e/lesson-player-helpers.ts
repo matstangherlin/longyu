@@ -45,6 +45,13 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     if (Date.now() > deadline) break;
     await page.keyboard.press("Escape").catch(() => undefined);
 
+    const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
+    if (await folegoBack.isVisible().catch(() => false)) {
+      await folegoBack.click({ timeout: 1_500 }).catch(() => undefined);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
       // Modal de erro: prefere continuar sem perfeição para não travar o smoke.
       const mistake = page.getByRole("heading", { name: /Quer tentar de novo|Quase/i });
       if (await mistake.isVisible().catch(() => false)) {
@@ -127,6 +134,31 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
+    // Responder múltipla escolha ANTES de Pular — o botão de skip fica visível
+    // nas atividades avaliadas e esgota o Fôlego de uma conta nova.
+    const labeledOption = page.getByRole("button", { name: /^Opção \d+:/ });
+    if (await labeledOption.first().isVisible().catch(() => false)) {
+      const preferred = page.getByRole("button", {
+        name: /Opção \d+: (Olá|你好|谢谢|再见|obrigad|guiar a pronúncia)/i,
+      }).first();
+      const choice = (await preferred.isVisible().catch(() => false)) ? preferred : labeledOption.first();
+      await clickIfEnabled(choice);
+      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
+    const glyphOption = page
+      .locator("button")
+      .filter({ hasText: /^(你好|谢谢|再见|木|人|山|mù|rén)$/i })
+      .first();
+    if (await glyphOption.isVisible().catch(() => false)) {
+      await clickIfEnabled(glyphOption);
+      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/]);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const advanced = await clickFirstVisible(page, [
       /^Entendi$/,
       /^Continuar$/,
@@ -137,25 +169,10 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       /^Responder$/,
       /^Concluir$/,
       /^Ouvir de novo$/,
-      /^Pular/,
     ]);
     if (!advanced) {
-      const option = page
-        .locator("button")
-        .filter({ hasText: /你好|谢谢|木|人|山|mù|rén|pessoa|Opção/i })
-        .first();
-      if (await option.isVisible().catch(() => false)) {
-        await clickIfEnabled(option);
-        await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/]);
-      } else {
-        const mcOption = page.getByRole("button", { name: /^Opção \d+$/ }).first();
-        if (await mcOption.isVisible().catch(() => false)) {
-          await clickIfEnabled(mcOption);
-          await clickFirstVisible(page, [/^Confirmar$/, /^Verificar$/, /^Conferir$/, /^Continuar$/]);
-        } else {
-          break;
-        }
-      }
+      const skipped = await clickFirstVisible(page, [/^Pular/]);
+      if (!skipped) break;
     }
     await page.waitForTimeout(150);
   }
