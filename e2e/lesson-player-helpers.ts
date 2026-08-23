@@ -135,22 +135,24 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
-    const pairsHeading = page.getByRole("heading", { name: /Fixe com pares|Combine os pares/i });
-    if (await pairsHeading.isVisible().catch(() => false)) {
-      const pairs: Array<[RegExp, RegExp]> = [
-        [/^你好$/, /^Olá$/],
-        [/^谢谢$/, /Obrigado/],
-        [/^再见$/, /Até logo/],
-        [/^不客气$/, /^De nada$/],
-      ];
-      for (const [left, right] of pairs) {
-        const leftBtn = page.getByRole("button", { name: left }).first();
-        const rightBtn = page.getByRole("button", { name: right }).first();
-        if ((await leftBtn.isVisible().catch(() => false)) && (await rightBtn.isVisible().catch(() => false))) {
-          await clickIfEnabled(leftBtn);
-          await clickIfEnabled(rightBtn);
-        }
-      }
+    const pairsBoard = page.getByText(/\d+\/\d+ pares/);
+    if (await pairsBoard.isVisible().catch(() => false)) {
+      const tryPair = async (leftName: RegExp, rightName: RegExp) => {
+        const left = page.getByRole("button", { name: leftName });
+        const right = page.getByRole("button", { name: rightName });
+        if (!(await left.first().isVisible().catch(() => false))) return;
+        if (!(await right.first().isVisible().catch(() => false))) return;
+        await clickIfEnabled(left.first());
+        const rightTarget = (await right.count()) > 1 ? right.last() : right.first();
+        await clickIfEnabled(rightTarget);
+      };
+      await tryPair(/^nǐ hǎo$/i, /^你好$/);
+      await tryPair(/^你好$/, /^Olá$/);
+      await tryPair(/^Olá$/, /^你好$/);
+      await tryPair(/^xièxie$/i, /^谢谢$/);
+      await tryPair(/^谢谢$/, /Obrigado/);
+      await tryPair(/^再见$/, /Até/);
+      await tryPair(/^不客气$/, /De nada/);
       await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Verificar$/, /^Pular/]);
       await page.waitForTimeout(150);
       continue;
