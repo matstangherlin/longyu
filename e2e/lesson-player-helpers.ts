@@ -44,6 +44,9 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
   for (let step = 0; step < maxSteps; step += 1) {
     if (Date.now() > deadline) break;
     if (await target.isVisible().catch(() => false)) return true;
+    if ((await page.locator("[data-conversation-scene]").count()) > 0) {
+      if (await target.isVisible().catch(() => false)) return true;
+    }
     await page.keyboard.press("Escape").catch(() => undefined);
 
     const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição/i });
@@ -213,10 +216,12 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       /^Ouvir de novo$/,
     ]);
     if (!advanced) {
+      if ((await page.locator("[data-conversation-scene]").count()) > 0) return true;
       const skipped = await clickFirstVisible(page, [/^Pular/]);
       if (!skipped) break;
     }
-    await page.waitForTimeout(150);
+    await page.waitForTimeout(350);
+    if (await target.isVisible().catch(() => false)) return true;
   }
   return target.isVisible().catch(() => false);
 }

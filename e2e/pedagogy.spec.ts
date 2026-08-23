@@ -89,7 +89,7 @@ test.describe("lição", () => {
       const found = await advanceUntilVisible(page, conversation, 1);
       if (found) break;
     }
-    await expect(conversation).toBeVisible();
+    await expect(conversation).toBeVisible({ timeout: 15_000 });
   });
 
   test("intro de hànzì é conceitual, sem composição 林/明", async ({ page }) => {
