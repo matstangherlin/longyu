@@ -333,6 +333,29 @@ try {
       `cobertura relevante em ${priorityRate.toFixed(1)}% (${priorityCovered}/${priorityShown}) — portão ${PRIORITY_GATE}%.`
     );
   }
+
+  // Player de l2 entra em M1 (masteryLevel 0). O recorte da pass não pode
+  // apagar o loop pós-conversa — o smoke E2E procura essa transição.
+  const l2 = ALL_LESSONS.find((lesson) => lesson.id === "l2");
+  let l2M1Post = 0;
+  if (!l2) {
+    fail("l2", "lição l2 não encontrada");
+  } else {
+    const m1 = lessonRoundStepsFor(l2, { silent: true, masteryLevel: 0 });
+    const convIndex = m1.findIndex((step) => step.kind === "conversation_scene");
+    if (convIndex < 0) {
+      fail("l2", "plano M1 sem conversation_scene");
+    } else {
+      for (let index = convIndex + 1; index < m1.length; index += 1) {
+        const step = m1[index];
+        if (step.kind === "conversation_scene") break;
+        if (step.postConversationPhase || step.conversationDerived) l2M1Post += 1;
+        else break;
+      }
+      if (l2M1Post < 1) fail("l2", `plano M1 sem pós-conversa após a cena (obteve ${l2M1Post})`);
+    }
+  }
+
   const lines = [
     "# Relatório do Conversation Vocabulary Loop (plano real)",
     "",
@@ -353,6 +376,7 @@ try {
     `| Tarefas da fase Pós-Conversa | ${postConversationTasks} |`,
     `| Média Pós-Conversa por conversa | ${conversationsAnalyzed > 0 ? (postConversationTasks / conversationsAnalyzed).toFixed(2) : "0"} |`,
     `| Modalidades usadas nas derivadas | ${[...modalitiesUsed].sort().join(", ") || "—"} |`,
+    `| l2 @ M1 tarefas pós-conversa | ${l2M1Post} |`,
     "",
   ];
   lines.push(

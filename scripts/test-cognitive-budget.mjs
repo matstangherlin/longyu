@@ -42,11 +42,11 @@ try {
   const crowded = [
     item("intro", 0, 2),
     item("conversation_scene", 1, 3, { sceneId: "a" }),
-    item("comprehend", 2, 2, { postConversationPhase: true }),
-    item("sentence_build", 3, 3, { postConversationPhase: true }),
+    item("comprehend", 2, 2, { postConversationPhase: true, conversationSourceSceneId: "a" }),
+    item("sentence_build", 3, 3, { postConversationPhase: true, conversationSourceSceneId: "a" }),
     item("conversation_scene", 4, 3, { sceneId: "b" }),
-    item("listen_select", 5, 2, { postConversationPhase: true }),
-    item("fill_blank", 6, 2, { postConversationPhase: true }),
+    item("listen_select", 5, 2, { postConversationPhase: true, conversationSourceSceneId: "b" }),
+    item("fill_blank", 6, 2, { postConversationPhase: true, conversationSourceSceneId: "b" }),
     item("image_choice", 7, 2),
     item("hanzi_build", 8, 2),
     item("odd_one_out", 9, 2),
@@ -98,6 +98,48 @@ try {
   if (m2.some((step) => step.kind === "flashcard")) fail("M2 não deve preencher orçamento com flashcard");
   const m4noFlash = budget.keepMasteryPassSteps(withFlash, { pass: 4, min: 6, max: 9 });
   if (m4noFlash.some((step) => step.kind === "flashcard")) fail("M4 não deve preencher orçamento com flashcard");
+
+  // M1 / l2: o recorte não pode tratar o loop pós-conversa como cosmética.
+  const greeting = [
+    item("intro", 0, 2),
+    item("listen", 1, 2),
+    item("flashcard", 2, 4),
+    item("comprehend", 3, 2),
+    item("listen_select", 4, 2),
+    item("image_choice", 5, 2),
+    item("hanzi_build", 6, 2),
+    item("match_pairs", 7, 2),
+    item("conversation_scene", 8, 0, { sceneId: "primeiro-cumprimento" }),
+    item("comprehend", 9, 2, {
+      postConversationPhase: true,
+      conversationSourceSceneId: "primeiro-cumprimento",
+      title: "O que esta frase significa?",
+    }),
+    item("fill_blank", 10, 2, {
+      postConversationPhase: true,
+      conversationSourceSceneId: "primeiro-cumprimento",
+      title: "Complete a palavra que faltou.",
+    }),
+    item("sentence_build", 11, 0, {
+      postConversationPhase: true,
+      conversationSourceSceneId: "primeiro-cumprimento",
+      title: "Monte a resposta que você usou.",
+    }),
+  ];
+  const m1 = budget.keepMasteryPassSteps(greeting, { pass: 1, min: 6, max: 9 });
+  if (!m1.some((step) => step.kind === "conversation_scene")) fail("M1 deve preservar a primeira conversa");
+  const m1Post = m1.filter((step) => step.postConversationPhase);
+  if (m1Post.length < 2) fail(`M1 deve preservar o loop pós-conversa, obteve ${m1Post.length}`);
+  if (!m1Post.some((step) => /O que esta frase significa|Complete a palavra|Monte a resposta/i.test(step.title ?? ""))) {
+    fail("M1 pós-conversa deve manter o título visível no smoke");
+  }
+
+  const m4loop = budget.keepMasteryPassSteps(crowded, { pass: 4, min: 7, max: 10 });
+  const primaryPost = m4loop.filter(
+    (step) => step.postConversationPhase && step.conversationSourceSceneId === "a"
+  );
+  if (primaryPost.length < 1) fail("M4 deve preservar ao menos uma microtarefa da primeira conversa");
+  if (!m4loop.some((step) => step.kind === "transfer_task")) fail("M4 com loop da 1ª conversa ainda tem transfer");
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));
 } finally {

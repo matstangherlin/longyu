@@ -10,6 +10,9 @@
  *   M4 transferência obrigatória (quando a estrutura já é praticável)
  *
  * Uma segunda conversation_scene nunca remove o requisito essencial.
+ * A primeira conversa e o loop pós-conversa dela são o mesmo bloco:
+ * extra cena perde para o piso; as microtarefas da cena principal não
+ * são variedade cosmética.
  */
 
 import type { StepKind } from "./journey";
@@ -73,6 +76,7 @@ export interface CognitiveBudgetStep {
   postConversationPhase?: boolean;
   conversationDerived?: boolean;
   sceneId?: string;
+  conversationSourceSceneId?: string;
   productionFrameId?: string;
   title?: string;
   correctAnswer?: string;
@@ -196,21 +200,45 @@ function isDiscouragedOnPass(kind: StepKind, pass: MasteryPass): boolean {
   return masteryPassProfile(pass).discouragedKinds.includes(kind);
 }
 
+function isConversationFollowUp(step: CognitiveBudgetStep): boolean {
+  return Boolean(step.postConversationPhase || step.conversationDerived);
+}
+
+/** Quantas microtarefas da primeira conversa o recorte reserva no orçamento. */
+const PRIMARY_FOLLOW_UP_RESERVE = 2;
+
+function isPrimaryConversationFollowUp<T extends CognitiveBudgetStep>(
+  item: ScoredBudgetItem<T>,
+  firstConversationIndex: number | undefined,
+  primarySceneId: string | undefined,
+  secondConversationIndex: number | undefined
+): boolean {
+  if (!isConversationFollowUp(item.step) || firstConversationIndex == null) return false;
+  const sourceId = item.step.conversationSourceSceneId;
+  if (primarySceneId && sourceId) return sourceId === primarySceneId;
+  if (item.index <= firstConversationIndex) return false;
+  if (secondConversationIndex != null && item.index >= secondConversationIndex) return false;
+  return true;
+}
+
 function fillRankFor<T extends CognitiveBudgetStep>(
   item: ScoredBudgetItem<T>,
   pass: MasteryPass,
   firstConversationIndex: number | undefined,
-  reserved: ReadonlySet<string>
+  reserved: ReadonlySet<string>,
+  primaryFollowUp: boolean
 ): CognitiveFillRank {
   const signature = cognitiveStepSignature(item.step);
   if (reserved.has(signature)) return "required";
   if (item.step.kind === "conversation_scene") {
     return item.index === firstConversationIndex ? "conversation_primary" : "conversation_extra";
   }
+  if (isConversationFollowUp(item.step)) {
+    return primaryFollowUp ? "conversation_primary" : "conversation_extra";
+  }
   if (item.score >= 3) return "remediation";
   if (kindMatchesPreferred(item.step.kind, pass)) return "reinforcement";
-  if (item.step.postConversationPhase || item.step.conversationDerived) return "cosmetic";
-  return "reinforcement";
+  return "cosmetic";
 }
 
 /**
@@ -224,6 +252,15 @@ export function keepMasteryPassSteps<T extends CognitiveBudgetStep>(
   if (items.length === 0) return [];
   const byIndex = [...items].sort((a, b) => a.index - b.index);
   const firstConversationIndex = byIndex.find((item) => item.step.kind === "conversation_scene")?.index;
+  const secondConversationIndex = byIndex.find(
+    (item) => item.step.kind === "conversation_scene" && item.index !== firstConversationIndex
+  )?.index;
+  const primarySceneId =
+    firstConversationIndex == null
+      ? undefined
+      : byIndex.find((item) => item.index === firstConversationIndex)?.step.sceneId;
+  const isPrimaryFollowUp = (item: ScoredBudgetItem<T>) =>
+    isPrimaryConversationFollowUp(item, firstConversationIndex, primarySceneId, secondConversationIndex);
 
   const reserved: ScoredBudgetItem<T>[] = [];
   const reservedSigs = new Set<string>();
@@ -240,8 +277,32 @@ export function keepMasteryPassSteps<T extends CognitiveBudgetStep>(
     reservedSigs.add(cognitiveStepSignature(found.step));
   }
 
+  // Primeira conversa + loop pós-conversa: bloco atômico. Sem isto, M1
+  // trata as microtarefas como cosmética e a fase some do player (l2 smoke).
+  if (firstConversationIndex != null && reserved.length < options.max) {
+    const firstConv = byIndex.find((item) => item.index === firstConversationIndex);
+    if (firstConv) {
+      const convSig = cognitiveStepSignature(firstConv.step);
+      if (!reservedSigs.has(convSig)) {
+        reserved.push(firstConv);
+        reservedSigs.add(convSig);
+      }
+    }
+    let reservedFollowUps = 0;
+    for (const followUp of byIndex.filter(isPrimaryFollowUp)) {
+      if (reservedFollowUps >= PRIMARY_FOLLOW_UP_RESERVE) break;
+      if (reserved.length >= options.max) break;
+      if (isDiscouragedOnPass(followUp.step.kind, options.pass)) continue;
+      const signature = cognitiveStepSignature(followUp.step);
+      if (reservedSigs.has(signature)) continue;
+      reserved.push(followUp);
+      reservedSigs.add(signature);
+      reservedFollowUps += 1;
+    }
+  }
+
   const rankOf = (item: ScoredBudgetItem<T>) =>
-    FILL_RANK[fillRankFor(item, options.pass, firstConversationIndex, reservedSigs)];
+    FILL_RANK[fillRankFor(item, options.pass, firstConversationIndex, reservedSigs, isPrimaryFollowUp(item))];
 
   const fill = items
     .filter((item) => !reservedSigs.has(cognitiveStepSignature(item.step)))
@@ -259,7 +320,8 @@ export function keepMasteryPassSteps<T extends CognitiveBudgetStep>(
     const floorKind =
       isTransferChallengeStep(item.step) ||
       isProductiveChallengeStep(item.step) ||
-      (item.step.kind === "conversation_scene" && item.index === firstConversationIndex);
+      (item.step.kind === "conversation_scene" && item.index === firstConversationIndex) ||
+      isPrimaryFollowUp(item);
     if (duplicateKind && kept.length >= options.max - 2 && !floorKind) continue;
     const signature = cognitiveStepSignature(item.step);
     if (keptSigs.has(signature)) continue;
