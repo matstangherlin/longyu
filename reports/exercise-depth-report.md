@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 3e09b01a80299a85bdd1b8c7f1b01aeb1bfe48f9 |
+| Commit | ff8472d79ad21a3ab1b62098a2677a79d3070ada |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-15T04:23:29.283Z |
+| Gerado em | 2026-08-23T02:26:41.447Z |
 | Lições | 127 |
 | Hash da Jornada | 251ae1ae7a65 |
 
@@ -343,7 +343,7 @@
 | Passos no plano | 15 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 27 |
+| Hànzì únicos | 25 |
 | Chunks únicos | 6 |
 | Frases reais | 6 |
 | Contexto | 9 |
@@ -497,7 +497,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 31 |
+| Hànzì únicos | 30 |
 | Chunks únicos | 3 |
 | Frases reais | 6 |
 | Contexto | 9 |
@@ -563,7 +563,7 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 9 |
-| Hànzì únicos | 26 |
+| Hànzì únicos | 23 |
 | Chunks únicos | 5 |
 | Frases reais | 8 |
 | Contexto | 9 |
@@ -651,7 +651,7 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 9 |
-| Hànzì únicos | 34 |
+| Hànzì únicos | 33 |
 | Chunks únicos | 5 |
 | Frases reais | 8 |
 | Contexto | 9 |
@@ -739,7 +739,7 @@
 | Passos no plano | 15 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 32 |
+| Hànzì únicos | 34 |
 | Chunks únicos | 6 |
 | Frases reais | 7 |
 | Contexto | 9 |
@@ -849,7 +849,7 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 9 |
-| Hànzì únicos | 22 |
+| Hànzì únicos | 25 |
 | Chunks únicos | 5 |
 | Frases reais | 7 |
 | Contexto | 8 |
@@ -959,7 +959,7 @@
 | Passos no plano | 15 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 24 |
+| Hànzì únicos | 26 |
 | Chunks únicos | 9 |
 | Frases reais | 10 |
 | Contexto | 11 |
@@ -1003,7 +1003,7 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 25 |
+| Hànzì únicos | 27 |
 | Chunks únicos | 5 |
 | Frases reais | 8 |
 | Contexto | 9 |
@@ -1068,14 +1068,36 @@
 |---------|------:|
 | Passos no plano | 19 |
 | Tipos de exercício | 12 |
-| Respostas únicas | 15 |
-| Hànzì únicos | 45 |
+| Respostas únicas | 16 |
+| Hànzì únicos | 43 |
 | Chunks únicos | 16 |
 | Frases reais | 12 |
 | Contexto | 13 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 3 |
+| Transferência | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p6-saude — Saúde (score 97)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 17 |
+| Tipos de exercício | 13 |
+| Respostas únicas | 14 |
+| Hànzì únicos | 41 |
+| Chunks únicos | 12 |
+| Frases reais | 10 |
+| Contexto | 11 |
+| Visuais | 1 |
+| Conversas | 1 |
+| Produção sem apoio | 5 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -1091,7 +1113,7 @@
 | Passos no plano | 15 |
 | Tipos de exercício | 10 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 29 |
+| Hànzì únicos | 31 |
 | Chunks únicos | 9 |
 | Frases reais | 9 |
 | Contexto | 10 |
@@ -1442,7 +1464,7 @@
 |---------|------:|
 | Passos no plano | 14 |
 | Tipos de exercício | 12 |
-| Respostas únicas | 9 |
+| Respostas únicas | 10 |
 | Hànzì únicos | 31 |
 | Chunks únicos | 7 |
 | Frases reais | 6 |
@@ -1453,7 +1475,7 @@
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 不, 说, 好, 一
+- hànzì muito repetido: 我, 说, 好, 一, 请, 再
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1463,8 +1485,8 @@
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 17 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 12 |
+| Tipos de exercício | 12 |
+| Respostas únicas | 11 |
 | Hànzì únicos | 24 |
 | Chunks únicos | 7 |
 | Frases reais | 8 |
@@ -1484,20 +1506,20 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 18 |
+| Passos no plano | 19 |
 | Tipos de exercício | 12 |
-| Respostas únicas | 11 |
-| Hànzì únicos | 31 |
+| Respostas únicas | 13 |
+| Hànzì únicos | 35 |
 | Chunks únicos | 15 |
-| Frases reais | 12 |
-| Contexto | 13 |
+| Frases reais | 13 |
+| Contexto | 14 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 2 |
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 会, 说, 一, 点, 中, 文, 请
+- hànzì muito repetido: 我, 一, 点, 中, 文
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1551,11 +1573,11 @@
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 18 |
-| Tipos de exercício | 12 |
+| Tipos de exercício | 13 |
 | Respostas únicas | 14 |
-| Hànzì únicos | 40 |
+| Hànzì únicos | 36 |
 | Chunks únicos | 16 |
-| Frases reais | 11 |
+| Frases reais | 10 |
 | Contexto | 12 |
 | Visuais | 1 |
 | Conversas | 2 |
@@ -1597,7 +1619,7 @@
 | Passos no plano | 17 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 12 |
-| Hànzì únicos | 34 |
+| Hànzì únicos | 31 |
 | Chunks únicos | 7 |
 | Frases reais | 11 |
 | Contexto | 12 |
@@ -1619,7 +1641,7 @@
 | Passos no plano | 23 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 18 |
-| Hànzì únicos | 38 |
+| Hànzì únicos | 37 |
 | Chunks únicos | 12 |
 | Frases reais | 13 |
 | Contexto | 15 |
@@ -1641,7 +1663,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 29 |
+| Hànzì únicos | 28 |
 | Chunks únicos | 6 |
 | Frases reais | 7 |
 | Contexto | 8 |
@@ -1729,7 +1751,7 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 9 |
-| Hànzì únicos | 24 |
+| Hànzì únicos | 26 |
 | Chunks únicos | 6 |
 | Frases reais | 6 |
 | Contexto | 6 |
@@ -1751,7 +1773,7 @@
 | Passos no plano | 18 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 13 |
-| Hànzì únicos | 33 |
+| Hànzì únicos | 34 |
 | Chunks únicos | 11 |
 | Frases reais | 13 |
 | Contexto | 13 |
@@ -1817,7 +1839,7 @@
 | Passos no plano | 14 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 18 |
+| Hànzì únicos | 21 |
 | Chunks únicos | 5 |
 | Frases reais | 6 |
 | Contexto | 8 |
@@ -1860,11 +1882,11 @@
 |---------|------:|
 | Passos no plano | 19 |
 | Tipos de exercício | 13 |
-| Respostas únicas | 12 |
+| Respostas únicas | 13 |
 | Hànzì únicos | 34 |
 | Chunks únicos | 4 |
-| Frases reais | 10 |
-| Contexto | 11 |
+| Frases reais | 9 |
+| Contexto | 10 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 3 |
@@ -1905,7 +1927,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 30 |
+| Hànzì únicos | 29 |
 | Chunks únicos | 3 |
 | Frases reais | 5 |
 | Contexto | 7 |
@@ -1927,7 +1949,7 @@
 | Passos no plano | 24 |
 | Tipos de exercício | 15 |
 | Respostas únicas | 17 |
-| Hànzì únicos | 41 |
+| Hànzì únicos | 42 |
 | Chunks únicos | 13 |
 | Frases reais | 10 |
 | Contexto | 14 |
@@ -1949,7 +1971,7 @@
 | Passos no plano | 15 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 9 |
-| Hànzì únicos | 26 |
+| Hànzì únicos | 25 |
 | Chunks únicos | 3 |
 | Frases reais | 4 |
 | Contexto | 8 |
@@ -1971,7 +1993,7 @@
 | Passos no plano | 25 |
 | Tipos de exercício | 15 |
 | Respostas únicas | 18 |
-| Hànzì únicos | 44 |
+| Hànzì únicos | 43 |
 | Chunks únicos | 10 |
 | Frases reais | 11 |
 | Contexto | 14 |
@@ -1993,7 +2015,7 @@
 | Passos no plano | 25 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 21 |
-| Hànzì únicos | 44 |
+| Hànzì únicos | 47 |
 | Chunks únicos | 13 |
 | Frases reais | 12 |
 | Contexto | 14 |
@@ -2103,7 +2125,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 28 |
+| Hànzì únicos | 27 |
 | Chunks únicos | 3 |
 | Frases reais | 4 |
 | Contexto | 6 |
@@ -2125,7 +2147,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 25 |
+| Hànzì únicos | 29 |
 | Chunks únicos | 3 |
 | Frases reais | 6 |
 | Contexto | 8 |
@@ -2169,7 +2191,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 12 |
-| Hànzì únicos | 34 |
+| Hànzì únicos | 33 |
 | Chunks únicos | 10 |
 | Frases reais | 7 |
 | Contexto | 8 |
@@ -2191,7 +2213,7 @@
 | Passos no plano | 17 |
 | Tipos de exercício | 14 |
 | Respostas únicas | 12 |
-| Hànzì únicos | 30 |
+| Hànzì únicos | 34 |
 | Chunks únicos | 3 |
 | Frases reais | 8 |
 | Contexto | 11 |
@@ -2213,7 +2235,7 @@
 | Passos no plano | 16 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 11 |
-| Hànzì únicos | 30 |
+| Hànzì únicos | 34 |
 | Chunks únicos | 3 |
 | Frases reais | 6 |
 | Contexto | 8 |
@@ -2232,10 +2254,10 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 20 |
-| Tipos de exercício | 13 |
-| Respostas únicas | 14 |
-| Hànzì únicos | 23 |
+| Passos no plano | 21 |
+| Tipos de exercício | 14 |
+| Respostas únicas | 15 |
+| Hànzì únicos | 27 |
 | Chunks únicos | 5 |
 | Frases reais | 8 |
 | Contexto | 12 |
@@ -2256,8 +2278,8 @@
 |---------|------:|
 | Passos no plano | 16 |
 | Tipos de exercício | 15 |
-| Respostas únicas | 12 |
-| Hànzì únicos | 30 |
+| Respostas únicas | 11 |
+| Hànzì únicos | 29 |
 | Chunks únicos | 5 |
 | Frases reais | 6 |
 | Contexto | 9 |
@@ -2298,11 +2320,11 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 20 |
+| Passos no plano | 19 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 14 |
-| Hànzì únicos | 38 |
-| Chunks únicos | 11 |
+| Hànzì únicos | 42 |
+| Chunks únicos | 14 |
 | Frases reais | 13 |
 | Contexto | 15 |
 | Visuais | 1 |
@@ -2320,16 +2342,16 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 18 |
-| Tipos de exercício | 13 |
-| Respostas únicas | 14 |
-| Hànzì únicos | 40 |
-| Chunks únicos | 13 |
-| Frases reais | 9 |
-| Contexto | 11 |
+| Passos no plano | 14 |
+| Tipos de exercício | 11 |
+| Respostas únicas | 11 |
+| Hànzì únicos | 28 |
+| Chunks únicos | 11 |
+| Frases reais | 7 |
+| Contexto | 8 |
 | Visuais | 1 |
-| Conversas | 2 |
-| Produção sem apoio | 2 |
+| Conversas | 1 |
+| Produção sem apoio | 3 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2345,7 +2367,7 @@
 | Passos no plano | 19 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 10 |
-| Hànzì únicos | 27 |
+| Hànzì únicos | 32 |
 | Chunks únicos | 20 |
 | Frases reais | 11 |
 | Contexto | 14 |
@@ -2355,7 +2377,7 @@
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 水
+- hànzì muito repetido: 我, 要, 水
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2364,20 +2386,20 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 18 |
-| Tipos de exercício | 12 |
-| Respostas únicas | 13 |
-| Hànzì únicos | 37 |
+| Passos no plano | 19 |
+| Tipos de exercício | 13 |
+| Respostas únicas | 14 |
+| Hànzì únicos | 36 |
 | Chunks únicos | 13 |
 | Frases reais | 13 |
 | Contexto | 14 |
 | Visuais | 1 |
 | Conversas | 2 |
-| Produção sem apoio | 5 |
+| Produção sem apoio | 6 |
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 水, 我
+- hànzì muito repetido: 我, 水
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2389,7 +2411,7 @@
 | Passos no plano | 19 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 17 |
-| Hànzì únicos | 43 |
+| Hànzì únicos | 45 |
 | Chunks únicos | 12 |
 | Frases reais | 13 |
 | Contexto | 15 |
@@ -2408,20 +2430,20 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 19 |
-| Tipos de exercício | 14 |
+| Passos no plano | 21 |
+| Tipos de exercício | 15 |
 | Respostas únicas | 16 |
-| Hànzì únicos | 52 |
-| Chunks únicos | 18 |
+| Hànzì únicos | 58 |
+| Chunks únicos | 16 |
 | Frases reais | 12 |
-| Contexto | 12 |
+| Contexto | 13 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我
+- hànzì muito repetido: 我, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2431,15 +2453,15 @@
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 18 |
-| Tipos de exercício | 12 |
+| Tipos de exercício | 13 |
 | Respostas únicas | 13 |
-| Hànzì únicos | 41 |
+| Hànzì únicos | 42 |
 | Chunks únicos | 14 |
 | Frases reais | 11 |
 | Contexto | 12 |
 | Visuais | 1 |
 | Conversas | 2 |
-| Produção sem apoio | 3 |
+| Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2455,7 +2477,7 @@
 | Passos no plano | 19 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 15 |
-| Hànzì únicos | 54 |
+| Hànzì únicos | 51 |
 | Chunks únicos | 22 |
 | Frases reais | 12 |
 | Contexto | 14 |
@@ -2477,13 +2499,13 @@
 | Passos no plano | 17 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 13 |
-| Hànzì únicos | 46 |
+| Hànzì únicos | 43 |
 | Chunks únicos | 25 |
 | Frases reais | 12 |
 | Contexto | 13 |
 | Visuais | 1 |
 | Conversas | 2 |
-| Produção sem apoio | 3 |
+| Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2499,35 +2521,13 @@
 | Passos no plano | 20 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 17 |
-| Hànzì únicos | 46 |
+| Hànzì únicos | 49 |
 | Chunks únicos | 25 |
 | Frases reais | 15 |
 | Contexto | 15 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 5 |
-| Transferência | 1 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
-### p6-saude — Saúde (score 100)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 20 |
-| Tipos de exercício | 13 |
-| Respostas únicas | 16 |
-| Hànzì únicos | 46 |
-| Chunks únicos | 18 |
-| Frases reais | 13 |
-| Contexto | 14 |
-| Visuais | 1 |
-| Conversas | 2 |
-| Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2541,19 +2541,19 @@
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 19 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 15 |
-| Hànzì únicos | 45 |
+| Tipos de exercício | 12 |
+| Respostas únicas | 16 |
+| Hànzì únicos | 43 |
 | Chunks únicos | 15 |
-| Frases reais | 15 |
-| Contexto | 15 |
+| Frases reais | 14 |
+| Contexto | 14 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 点
+- hànzì muito repetido: 点, 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2565,7 +2565,7 @@
 | Passos no plano | 19 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 14 |
-| Hànzì únicos | 60 |
+| Hànzì únicos | 58 |
 | Chunks únicos | 9 |
 | Frases reais | 11 |
 | Contexto | 14 |
@@ -2575,32 +2575,32 @@
 | Transferência | 1 |
 
 **Problemas:**
-- (nenhum crítico)
+- hànzì muito repetido: 我
 
 **Sugestões:**
-- manter variedade atual
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### p6-clima — O tempo (clima) (score 100)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 19 |
-| Tipos de exercício | 12 |
+| Passos no plano | 17 |
+| Tipos de exercício | 13 |
 | Respostas únicas | 15 |
-| Hànzì únicos | 50 |
-| Chunks únicos | 22 |
-| Frases reais | 12 |
-| Contexto | 13 |
+| Hànzì únicos | 37 |
+| Chunks únicos | 18 |
+| Frases reais | 10 |
+| Contexto | 11 |
 | Visuais | 1 |
-| Conversas | 2 |
-| Produção sem apoio | 3 |
+| Conversas | 1 |
+| Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 好
+- (nenhum crítico)
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- manter variedade atual
 
 ### p6-direcoes — Direções (score 100)
 
@@ -2609,7 +2609,7 @@
 | Passos no plano | 18 |
 | Tipos de exercício | 11 |
 | Respostas únicas | 13 |
-| Hànzì únicos | 50 |
+| Hànzì únicos | 49 |
 | Chunks únicos | 23 |
 | Frases reais | 11 |
 | Contexto | 12 |
@@ -2629,15 +2629,15 @@
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 19 |
-| Tipos de exercício | 12 |
-| Respostas únicas | 15 |
-| Hànzì únicos | 53 |
+| Tipos de exercício | 11 |
+| Respostas únicas | 14 |
+| Hànzì únicos | 52 |
 | Chunks únicos | 21 |
-| Frases reais | 13 |
-| Contexto | 14 |
+| Frases reais | 12 |
+| Contexto | 13 |
 | Visuais | 1 |
 | Conversas | 2 |
-| Produção sem apoio | 4 |
+| Produção sem apoio | 5 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2651,15 +2651,15 @@
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 19 |
-| Tipos de exercício | 11 |
+| Tipos de exercício | 10 |
 | Respostas únicas | 13 |
-| Hànzì únicos | 57 |
+| Hànzì únicos | 52 |
 | Chunks únicos | 39 |
-| Frases reais | 12 |
-| Contexto | 14 |
+| Frases reais | 13 |
+| Contexto | 15 |
 | Visuais | 1 |
 | Conversas | 2 |
-| Produção sem apoio | 3 |
+| Produção sem apoio | 4 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2674,8 +2674,8 @@
 |---------|------:|
 | Passos no plano | 25 |
 | Tipos de exercício | 11 |
-| Respostas únicas | 19 |
-| Hànzì únicos | 52 |
+| Respostas únicas | 18 |
+| Hànzì únicos | 45 |
 | Chunks únicos | 19 |
 | Frases reais | 15 |
 | Contexto | 16 |
@@ -2697,7 +2697,7 @@
 | Passos no plano | 19 |
 | Tipos de exercício | 10 |
 | Respostas únicas | 15 |
-| Hànzì únicos | 49 |
+| Hànzì únicos | 55 |
 | Chunks únicos | 17 |
 | Frases reais | 15 |
 | Contexto | 16 |
@@ -2719,7 +2719,7 @@
 | Passos no plano | 18 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 15 |
-| Hànzì únicos | 46 |
+| Hànzì únicos | 48 |
 | Chunks únicos | 10 |
 | Frases reais | 10 |
 | Contexto | 12 |
@@ -2729,10 +2729,10 @@
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我
+- (nenhum crítico)
 
 **Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+- manter variedade atual
 
 ### l11-rev — Revisão do módulo (score 100)
 
@@ -2741,7 +2741,7 @@
 | Passos no plano | 25 |
 | Tipos de exercício | 15 |
 | Respostas únicas | 18 |
-| Hànzì únicos | 65 |
+| Hànzì únicos | 59 |
 | Chunks únicos | 27 |
 | Frases reais | 13 |
 | Contexto | 14 |
@@ -2760,15 +2760,15 @@
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 33 |
-| Tipos de exercício | 13 |
+| Passos no plano | 30 |
+| Tipos de exercício | 14 |
 | Respostas únicas | 23 |
-| Hànzì únicos | 58 |
+| Hànzì únicos | 47 |
 | Chunks únicos | 16 |
-| Frases reais | 16 |
-| Contexto | 20 |
+| Frases reais | 12 |
+| Contexto | 16 |
 | Visuais | 3 |
-| Conversas | 3 |
+| Conversas | 2 |
 | Produção sem apoio | 6 |
 | Transferência | 1 |
 
@@ -2785,7 +2785,7 @@
 | Passos no plano | 32 |
 | Tipos de exercício | 16 |
 | Respostas únicas | 23 |
-| Hànzì únicos | 62 |
+| Hànzì únicos | 57 |
 | Chunks únicos | 25 |
 | Frases reais | 17 |
 | Contexto | 19 |
@@ -2807,7 +2807,7 @@
 | Passos no plano | 28 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 23 |
-| Hànzì únicos | 48 |
+| Hànzì únicos | 44 |
 | Chunks únicos | 20 |
 | Frases reais | 14 |
 | Contexto | 16 |
@@ -2827,4 +2827,4 @@
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:024bd260d1946253 -->
+<!-- integridade:0a5ce0373b2339d8 -->

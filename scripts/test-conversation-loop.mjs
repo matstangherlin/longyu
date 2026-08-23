@@ -267,6 +267,26 @@ try {
     }
   }
 
+  // ── l2 @ M1 (player): recorte da pass não pode apagar o loop pós-conversa. ─
+  {
+    const l2 = ALL_LESSONS.find((lesson) => lesson.id === "l2");
+    assert(l2, "lição l2 existe");
+    const m1 = planOf(l2, { masteryLevel: 0 });
+    const convIndex = firstConvIndex(m1);
+    assert(convIndex >= 0, "l2 @ M1 deve ter conversation_scene");
+    const post = [];
+    for (let index = convIndex + 1; index < m1.length; index += 1) {
+      const step = m1[index];
+      if (step.kind === "conversation_scene") break;
+      if (step.postConversationPhase) post.push(step);
+      else if (!step.conversationDerived) break;
+    }
+    assert(post.length >= 1, `l2 @ M1 deve ter pós-conversa após a cena, obteve ${post.length}`);
+    const cue = /Pós-Conversa|O que esta frase significa|Qual resposta combina|Monte a resposta|Ouça e escolha|Complete a palavra|Use na frase|Complete o cumprimento/i;
+    const hasCue = m1.some((step) => cue.test(`${step.title ?? ""} ${step.prompt ?? ""}`));
+    assert(hasCue || post.length > 0, "l2 @ M1 precisa de dica visível de pós-conversa");
+  }
+
   // ── Crescimento limitado (perto do limite / substituição): nunca explode. ──
   for (const lesson of lessonsWithConv) {
     const derived = derivedOf(planOf(lesson));

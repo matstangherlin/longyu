@@ -47,6 +47,10 @@ try {
     isTransferTaskEligible,
     PRODUCTION_ASSIST_RANK,
     sentenceMatchesFrame,
+    pickFrameTask,
+    pickOpenProductionTask,
+    openProductionTasksFor,
+    OPEN_PRODUCTION_GOALS,
   } = require(path.join(outDir, "src/data/productionTasks.js"));
 
   assert(maxTransferAssistForAttempt(0) === "guided", "attempt 0 deve limitar a guided");
@@ -165,10 +169,56 @@ try {
     "com exposure pronta, attempt guided ainda não sobe a niyaoma"
   );
 
+  const taughtByFrame = (id) =>
+    FRAME_TASKS.filter((task) => task.frameId === id && !task.isNovelCombination).length;
+  assert(taughtByFrame("frame_woxihuan") > 0, "frame_woxihuan precisa de frase ensinada (我喜欢中文)");
+  assert(taughtByFrame("frame_woxiangchi") > 0, "frame_woxiangchi precisa de frase ensinada (我想吃米饭)");
+  assert(taughtByFrame("frame_duoshaoqian") > 0, "frame_duoshaoqian precisa de frase ensinada (票多少钱)");
+  assert(taughtByFrame("frame_woyaomai") > 0, "frame_woyaomai precisa de frase ensinada (我要买衣服)");
+  assert(taughtByFrame("frame_niyaoma") > 0, "frame_niyaoma precisa de frase ensinada (你要茶吗)");
+
+  const rotationPool = FRAME_TASKS.filter((task) =>
+    ["frame_woyao", "frame_zainali", "frame_woxihuan", "frame_duoshaoqian"].includes(task.frameId)
+  );
+  const needy = new Set(["frame_zainali", "frame_woxihuan", "frame_duoshaoqian"]);
+  const pickA = pickFrameTask(rotationPool, { needsGuidedProduction: needy, lessonSalt: 0 });
+  const pickB = pickFrameTask(rotationPool, { needsGuidedProduction: needy, lessonSalt: 1 });
+  const pickC = pickFrameTask(rotationPool, { needsGuidedProduction: needy, lessonSalt: 2 });
+  assert(Boolean(pickA && pickB && pickC), "pickFrameTask devolve tarefa no rodízio");
+  assert(
+    pickA.frameId !== "frame_woyao" && pickB.frameId !== "frame_woyao" && pickC.frameId !== "frame_woyao",
+    "frames que já tiveram produção guiada não monopolizam o rodízio"
+  );
+  const rotated = new Set([pickA.frameId, pickB.frameId, pickC.frameId]);
+  assert(rotated.size >= 2, `rodízio de frames deve variar com o salt (viu ${[...rotated].join(",")})`);
+
+  const openPool = [
+    { goal: "request_item" },
+    { goal: "ask_location" },
+    { goal: "ask_price" },
+  ];
+  const openA = pickOpenProductionTask(openPool, { lessonSalt: 0 });
+  const openB = pickOpenProductionTask(openPool, { lessonSalt: 1 });
+  assert(openA.goal !== openB.goal, "pickOpenProductionTask rotaciona o objetivo com o salt");
+
   assert(sentenceMatchesFrame("你要茶。", niyao), "你要茶 casa com frame_niyao");
   assert(!sentenceMatchesFrame("你要茶吗？", niyao), "你要茶吗 não casa com frame_niyao afirmativo");
   assert(sentenceMatchesFrame("你要茶吗？", niyaoma), "你要茶吗 casa com frame_niyaoma");
   assert(!sentenceMatchesFrame("你要茶。", niyaoma), "你要茶 não casa com frame_niyaoma");
+
+  const richGlyphs = new Set(FRAME_TASKS.flatMap((task) => task.requiredGlyphs));
+  const fullExposure = new Map(
+    SENTENCE_FRAMES.map((frame) => [
+      frame.id,
+      { exposed: true, completion: true, build: true, guidedProduction: true },
+    ])
+  );
+  const openAll = openProductionTasksFor(richGlyphs, { structureExposure: fullExposure });
+  const openGoals = new Set(openAll.map((task) => task.goal));
+  assert(
+    openGoals.size >= 10,
+    `produção aberta com glifos ricos: ${openGoals.size}/12 objetivos (${[...openGoals].sort().join(", ")})`
+  );
 
   if (failures.length > 0) {
     console.error(`FAIL test:transfer-scaffold (${failures.length}):`);

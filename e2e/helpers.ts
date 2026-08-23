@@ -53,6 +53,13 @@ export async function dismissBlockingOverlays(page: Page) {
       await page.waitForTimeout(120);
       continue;
     }
+    // Fôlego esgotado: o CTA primário vai para /pro. Voltar para a tarefa.
+    const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
+    if (await folegoBack.isVisible().catch(() => false)) {
+      await folegoBack.click({ timeout: 2_000 }).catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
     // Qualquer outro dialog modal que bloqueie cliques (WebKit é mais sensível).
     const otherDialog = page.locator('[role="dialog"][aria-modal="true"]').first();
     if (await otherDialog.isVisible().catch(() => false)) {
@@ -156,7 +163,7 @@ function buildCompletedToneTrainer() {
 export async function seedLessonPlayerReady(
   page: Page,
   lessonId: string,
-  options: { masteryLevel?: number } = {}
+  options: { masteryLevel?: number; isPremium?: boolean; folego?: number } = {}
 ) {
   await seedTelemetryDeclined(page);
   const foundation = [
@@ -181,6 +188,7 @@ export async function seedLessonPlayerReady(
           },
         }
       : {};
+  const isPremium = options.isPremium ?? false;
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
@@ -188,6 +196,10 @@ export async function seedLessonPlayerReady(
     completedLessons,
     lessonStarsById,
     lessonMasteryById,
+    isPremium,
+    serverIsPro: isPremium,
+    folego: options.folego ?? (isPremium ? 20 : undefined),
+    holdAchievementModals: true,
     toneTrainer: buildCompletedToneTrainer(),
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));

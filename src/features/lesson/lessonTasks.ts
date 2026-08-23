@@ -29,7 +29,6 @@ import {
 import {
   isMasteryPilotLesson,
   masteryBonusStepsFor,
-  planHasProductionOrTransfer,
 } from "../../data/masteryPilot";
 import {
   isReviewMasteryLesson,
@@ -115,20 +114,30 @@ import {
   creditStructureText,
   ensureStructureRungs,
   framesMatchingSentence,
+  inferCommunicativeDomain,
   maxTransferAssistForAttempt,
   mergeStructureExposure,
   openProductionTasksFor,
+  pickFrameTask,
+  pickOpenProductionTask,
   PRODUCTION_ASSIST_RANK,
   productionHelpBuildBank,
   productionHelpVocabForTask,
   productionTasksFor,
   repairTasksFor,
   transferTasksFor,
+  type FramePickOptions,
   type FrameTask,
   type ProductionAssist,
   type StructureExposureMap,
   type StructurePracticeRungs,
 } from "../../data/productionTasks";
+import {
+  isProductiveChallengeStep,
+  keepMasteryPassSteps,
+  planHasFloorKind,
+  type ScoredBudgetItem,
+} from "../../data/cognitiveBudget";
 import { resolveProductionHelpPlan } from "../../data/productionHelp";
 import {
   defaultVisualDistractors,
@@ -2379,6 +2388,34 @@ function frameTaskStepBase(task: FrameTask) {
   };
 }
 
+function framePickOptionsFor(options: {
+  lessonId?: string;
+  structureExposure?: StructureExposureMap;
+  priorTransferredFrames?: ReadonlySet<string>;
+  usedFrameIds?: ReadonlySet<string>;
+  usedTargetHanzi?: ReadonlySet<string>;
+}): FramePickOptions {
+  const needsGuidedProduction = new Set<string>();
+  const usedFrameIds = new Set<string>(options.usedFrameIds ?? []);
+  if (options.structureExposure) {
+    for (const [frameId, rungs] of options.structureExposure) {
+      if (rungs.exposed && (rungs.completion || rungs.build) && !rungs.guidedProduction) {
+        needsGuidedProduction.add(frameId);
+      }
+      if (rungs.guidedProduction) usedFrameIds.add(frameId);
+    }
+  }
+  const lesson = options.lessonId ? ALL_LESSONS.find((item) => item.id === options.lessonId) : undefined;
+  return {
+    priorTransferredFrameIds: options.priorTransferredFrames,
+    usedFrameIds,
+    usedTargetHanzi: options.usedTargetHanzi,
+    needsGuidedProduction,
+    lessonSalt: options.lessonId ? (lessonOrderById.get(options.lessonId) ?? 0) : 0,
+    domain: inferCommunicativeDomain(options.lessonId ?? "", lesson?.title ?? ""),
+  };
+}
+
 /**
  * Produção ABERTA: o enunciado dá o objetivo e a situação, e o aluno escolhe o
  * conteúdo. É o degrau que faltava — as outras produções ainda combinavam a
@@ -2387,11 +2424,13 @@ function frameTaskStepBase(task: FrameTask) {
 function makeOpenProductionStep(
   knownGlyphs: ReadonlySet<string>,
   seed: number,
-  structureExposure?: StructureExposureMap
+  structureExposure?: StructureExposureMap,
+  pickOptions: FramePickOptions = {}
 ): LessonStep | null {
   const tasks = openProductionTasksFor(knownGlyphs, { structureExposure });
   if (tasks.length === 0) return null;
-  const task = tasks[seed % tasks.length];
+  const task =
+    pickOpenProductionTask(tasks, { lessonSalt: pickOptions.lessonSalt ?? seed }) ?? tasks[0];
   const [model] = task.examples;
   if (!model) return null;
   return {
@@ -2459,12 +2498,13 @@ function makeFreeProductionStep(
   knownGlyphs: ReadonlySet<string>,
   seed: number,
   usingItem?: FocusItem,
-  structureExposure?: StructureExposureMap
+  structureExposure?: StructureExposureMap,
+  pickOptions: FramePickOptions = {}
 ): LessonStep | null {
   const pool = productionTasksFor(knownGlyphs, { structureExposure });
   const tasks = usingItem ? frameTasksUsing(pool, usingItem) : pool;
   if (tasks.length === 0) return null;
-  const task = tasks[seed % tasks.length];
+  const task = pickFrameTask(tasks, pickOptions) ?? tasks[seed % tasks.length];
   const help = resolveProductionHelpPlan({
     kind: "free_production",
     firstOfStructure: false,
@@ -2539,11 +2579,17 @@ function makeTransferStep(
   usingItem?: FocusItem,
   attemptNumber = 0,
   structureExposure?: StructureExposureMap,
-  priorTransferredFrames?: ReadonlySet<string>
+  priorTransferredFrames?: ReadonlySet<string>,
+  pickOptions: FramePickOptions = {}
 ): LessonStep | null {
   const tasks = pickTransferCandidates(knownGlyphs, seed, usingItem, attemptNumber, structureExposure);
   if (tasks.length === 0) return null;
-  const task = tasks[seed % tasks.length];
+  const task =
+    pickFrameTask(tasks, {
+      ...pickOptions,
+      priorTransferredFrameIds: pickOptions.priorTransferredFrameIds ?? priorTransferredFrames,
+      lessonSalt: pickOptions.lessonSalt ?? seed,
+    }) ?? tasks[seed % tasks.length];
   const productionAssist: ProductionAssist = task.transferAssist;
   const firstOfStructure = !priorTransferredFrames?.has(task.frameId);
   const help = resolveProductionHelpPlan({
@@ -3911,6 +3957,11 @@ function supplementalStepsForStage(
     allowComposedFiller: options.allowComposedFiller,
   };
   const reviewFocus = options.reviewFocus?.length ? options.reviewFocus : focus;
+  const picks = framePickOptionsFor({
+    lessonId: options.lessonId,
+    structureExposure: options.structureExposure,
+    priorTransferredFrames: options.priorTransferredFrames,
+  });
   // Na fundação / fases 1–2, CORE_REVIEW (再见/谢谢/明天…) não pode virar
   // fill/build/ditado — o aluno ainda não aprendeu esses chunks.
   const foundationLite =
@@ -4080,7 +4131,8 @@ function supplementalStepsForStage(
           knownGlyphs,
           drillSeed + variantSeedBase * 5,
           undefined,
-          options.structureExposure
+          options.structureExposure,
+          picks
         )
       );
       push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
@@ -4120,11 +4172,12 @@ function supplementalStepsForStage(
           undefined,
           options.attemptNumber ?? 0,
           options.structureExposureForTransfer ?? options.structureExposure,
-          options.priorTransferredFrames
+          options.priorTransferredFrames,
+          picks
         )
       );
-      push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure));
-      push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure));
+      push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure, picks));
+      push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure, picks));
       push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     }
     if (allowConversation) {
@@ -4864,12 +4917,11 @@ function ensureCoverage(
     }
     ensure((candidate) => Boolean(candidate.step.pedagogyVariant?.startsWith("meaning_")));
   }
-  // A cena de conversa é o exercício mais rico do plano e a origem de todo o
-  // loop pós-conversa: quando ela cai, caem junto as tarefas derivadas dela.
-  // Nunca pode ser a peça sacrificada para caber mais um exercício.
+  // A cena de conversa é o exercício mais rico do plano e a origem do loop
+  // pós-conversa. A PRIMEIRA cena é protegida. A segunda nunca pode expulsar
+  // produção/transferência — entra depois, sem protect.
   if (profile.maxConversationScenes > 0) {
-    const conversationTarget = Math.min(2, profile.maxConversationScenes);
-    ensureCount((candidate) => candidate.step.kind === "conversation_scene", conversationTarget, true);
+    ensure((candidate) => candidate.step.kind === "conversation_scene", true);
   }
   // Cota rotativa dos motores de percepção — só depois da fundação/fase 2.
   // Antes disso, forçar dictation/spot_error injeta formatos e glifos prematuros.
@@ -4949,6 +5001,11 @@ function ensureCoverage(
       true
     );
     ensure((candidate) => candidate.step.kind === "conversation_repair", true);
+    // Segunda conversa: variedade, não competência. Sem protect — o piso
+    // cognitivo (produção/transferência) já reservou as vagas essenciais.
+    if (profile.maxConversationScenes > 1) {
+      ensureCount((candidate) => candidate.step.kind === "conversation_scene", 2, false);
+    }
     // Ditado Dragão (modos blocks/pinyin/hanzi/immersion na rodada B/C): as
     // reservas acima de transfer/free engoliam o slot de consolidação e a
     // onda 1 perdia cobertura real de immersion. Reserva depois delas.
@@ -5693,7 +5750,12 @@ function makePostConversationStep(
         glyphs,
         drillSeedFor(item.key, "post_conversation"),
         item,
-        _taskDeps.structureExposure
+        _taskDeps.structureExposure,
+        framePickOptionsFor({
+          lessonId: _taskDeps.lessonId,
+          structureExposure: _taskDeps.structureExposure,
+          priorTransferredFrames: _taskDeps.priorTransferredFrames,
+        })
       );
     }
     case "transfer_context": {
@@ -5704,7 +5766,12 @@ function makePostConversationStep(
         item,
         0,
         _taskDeps.structureExposureForTransfer ?? _taskDeps.structureExposure,
-        _taskDeps.priorTransferredFrames
+        _taskDeps.priorTransferredFrames,
+        framePickOptionsFor({
+          lessonId: _taskDeps.lessonId,
+          structureExposure: _taskDeps.structureExposureForTransfer ?? _taskDeps.structureExposure,
+          priorTransferredFrames: _taskDeps.priorTransferredFrames,
+        })
       );
     }
     case "repair_recover": {
@@ -6617,26 +6684,18 @@ export function applyMasteryPassToPlan(
 
   scored.sort((a, b) => b.score - a.score || a.index - b.index);
 
-  // Mantém cobertura mínima e remove excesso de kinds desencorajados em passes altas.
   const budget = MASTERY_PASS_GRADED_BUDGET[pass];
-  const kept: LessonRoundStep[] = [];
-  const seenKinds = new Set<StepKind>();
-  for (const item of scored) {
-    if (item.score < -1 && kept.length >= budget.min) continue;
-    // Prefere diversidade de kinds antes de repetir o mesmo.
-    if (seenKinds.has(item.step.kind) && kept.length >= budget.max - 2) continue;
-    kept.push(applyScaffoldToStep(item.step, pass));
-    seenKinds.add(item.step.kind);
-    if (kept.length >= budget.max) break;
-  }
-  // Garante piso mínimo se o scoring ficou agressivo.
-  if (kept.length < budget.min) {
-    for (const item of scored) {
-      if (kept.some((step) => stepSignature(step) === stepSignature(item.step))) continue;
-      kept.push(applyScaffoldToStep(item.step, pass));
-      if (kept.length >= budget.min) break;
-    }
-  }
+  const reserved = keepMasteryPassSteps(
+    scored.map(
+      (item): ScoredBudgetItem<LessonRoundStep> => ({
+        step: item.step,
+        score: item.score,
+        index: item.index,
+      })
+    ),
+    { pass, min: budget.min, max: budget.max }
+  );
+  const kept: LessonRoundStep[] = reserved.map((step) => applyScaffoldToStep(step, pass));
 
   // Injeta bônus do piloto (exigência cognitiva distinta por pass).
   const bonuses = masteryBonusStepsFor(lesson.id, pass).map((step, bonusIndex) =>
@@ -6661,14 +6720,36 @@ export function applyMasteryPassToPlan(
     else merged = [...merged, bonus];
   }
 
-  // PED-047.7 — mastery 4 precisa de produção/transferência quando o conteúdo permitir.
-  if (pass === 4 && !planHasProductionOrTransfer(merged)) {
-    const transferFallback = masteryBonusStepsFor(lesson.id, 4).find((step) => isProductionOrTransferKind(step.kind));
+  // V4.0 — piso cognitivo: M3 produção, M4 transferência. Conversa extra
+  // não substitui o desafio do pass (conversation_scene não conta como piso).
+  if (pass === 4 && !planHasFloorKind(merged, "transfer")) {
+    const transferFallback =
+      plan.find((step) => step.kind === "transfer_task") ??
+      masteryBonusStepsFor(lesson.id, 4).find((step) => step.kind === "transfer_task");
     if (transferFallback) {
       merged.push(
         applyScaffoldToStep(
           {
             ...transferFallback,
+            lessonStageId: "usage",
+            lessonStageQuestion: 1,
+            lessonStageQuestionCount: 1,
+            generated: true,
+          },
+          pass
+        )
+      );
+    }
+  }
+  if (pass === 3 && !planHasFloorKind(merged, "production")) {
+    const productionFallback =
+      plan.find((step) => isProductiveChallengeStep(step)) ??
+      masteryBonusStepsFor(lesson.id, 3).find((step) => isProductiveChallengeStep(step));
+    if (productionFallback) {
+      merged.push(
+        applyScaffoldToStep(
+          {
+            ...productionFallback,
             lessonStageId: "usage",
             lessonStageQuestion: 1,
             lessonStageQuestionCount: 1,

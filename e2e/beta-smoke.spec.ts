@@ -134,6 +134,35 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
       continue;
     }
 
+    // Cena de conversa: as opções são "Opção N: …". Responder antes de Pular —
+    // Pular gasta Fôlego e o modal "Seu Fôlego acabou" trava o smoke.
+    const conversationOption = page.getByRole("button", { name: /^Opção \d+:/ }).first();
+    if (await conversationOption.isVisible().catch(() => false)) {
+      const options = page.getByRole("button", { name: /^Opção \d+:/ });
+      const count = await options.count();
+      const prompt =
+        (await page.locator("h2, p").allTextContents().then((t) => t.join(" ")).catch(() => "")) ?? "";
+      let picked = false;
+      for (let i = 0; i < count; i += 1) {
+        const label = (await options.nth(i).textContent().catch(() => "")) ?? "";
+        const likely =
+          (/Matheus|我叫/i.test(prompt) && /Matheus|meu nome/i.test(label)) ||
+          (/olá|cumpriment|你好/i.test(prompt) && /olá|你好|nǐ hǎo/i.test(label));
+        if (likely && (await clickIfEnabled(options.nth(i)))) {
+          picked = true;
+          break;
+        }
+      }
+      if (!picked) await clickIfEnabled(conversationOption);
+      if (!(await clickIfEnabled(page.getByRole("button", { name: /^Verificar$/ }).first()))) {
+        await clickFirstVisible(page, [/^Confirmar$/, /^Continuar$/, /^Pular/]);
+      } else {
+        await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Pular/]);
+      }
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const advanced = await clickFirstVisible(page, [
       /^Entendi$/,
       /^Continuar$/,
@@ -156,7 +185,7 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
         await clickIfEnabled(option);
         await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/]);
       } else {
-        const mcOption = page.getByRole("button", { name: /^Opção \d+$/ }).first();
+        const mcOption = page.getByRole("button", { name: /^Opção \d+/ }).first();
         if (await mcOption.isVisible().catch(() => false)) {
           await clickIfEnabled(mcOption);
           await clickFirstVisible(page, [/^Confirmar$/, /^Verificar$/, /^Conferir$/, /^Continuar$/]);
@@ -313,7 +342,7 @@ test.describe("beta smoke — aprendizagem", () => {
 
   test("pós-conversa: transição após cena de cumprimento", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedLessonPlayerReady(page, "l2");
+    await seedLessonPlayerReady(page, "l2", { isPremium: true });
     await page.goto("/licao/l2/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
