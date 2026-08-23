@@ -43,6 +43,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
   const deadline = Date.now() + Math.min(25_000, Math.max(6_000, maxSteps * 1_200));
   for (let step = 0; step < maxSteps; step += 1) {
     if (Date.now() > deadline) break;
+    if (await target.isVisible().catch(() => false)) return true;
     await page.keyboard.press("Escape").catch(() => undefined);
 
     const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });

@@ -45,14 +45,21 @@ test.describe("lição", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
+    const nextLessonLobby = page.getByRole("heading", { name: /O que é pinyin\?/ });
+    const l1Done = victory.or(nextLessonLobby);
     const l1Deadline = Date.now() + 90_000;
     for (let steps = 0; steps < 40 && Date.now() < l1Deadline; steps += 1) {
-      if (await victory.isVisible().catch(() => false)) break;
+      if (await l1Done.isVisible().catch(() => false)) break;
+      if (page.url().includes("p1-o-que-e-pinyin")) break;
       await dismissBlockingOverlays(page);
       const advanced = await advanceOneStep(page);
-      if (!advanced) await advanceUntilVisible(page, victory, 3);
+      if (!advanced) await advanceUntilVisible(page, l1Done, 3);
     }
-    await expect(victory).toBeVisible();
+    // A vitória pode navegar sozinha para a jornada/próxima lição; L1 precisa
+    // estar concluída, não necessariamente com o CTA ainda na tela.
+    expect(
+      (await l1Done.isVisible().catch(() => false)) || page.url().includes("p1-o-que-e-pinyin"),
+    ).toBeTruthy();
 
     await page.goto("/licao/p1-o-que-e-pinyin/player");
     await waitForLazyPage(page);
