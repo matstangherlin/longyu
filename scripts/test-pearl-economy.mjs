@@ -368,6 +368,20 @@ const { mergeWithoutPersistedServerEntitlement } = persistenceModule;
 }
 
 {
+  const persistedToast = {
+    ...mergeWithoutPersistedServerEntitlement(
+      { serverIsPro: false, economySyncMessage: "Resgatando Pérola..." },
+      { serverIsPro: false, economySyncMessage: null }
+    ),
+    economySyncMessage: null,
+  };
+  assert(
+    persistedToast.economySyncMessage === null,
+    "hidratação zera toast de sync preso de uma sessão anterior"
+  );
+}
+
+{
   let applied = 0;
   const rejected = await confirmCloudPearlProActivation(
     async () => ({ ok: false, is_pro: false, error: "insufficient_pearls" }),
