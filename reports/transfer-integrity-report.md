@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ff8472d79ad21a3ab1b62098a2677a79d3070ada |
+| Commit | ef50733ed9a82bf8c6fd291e7bf6e428174d28e2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T02:28:07.049Z |
+| Gerado em | 2026-08-23T03:09:13.012Z |
 | Lições | 127 |
 | Hash da Jornada | 251ae1ae7a65 |
 
@@ -55,4 +55,4 @@
 - `state_ongoing`
 - `state_preference`
 
-<!-- integridade:8a795212d2a04ee2 -->
+<!-- integridade:9f4ac6387df6fa2f -->

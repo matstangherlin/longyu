@@ -4,9 +4,9 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | ff8472d79ad21a3ab1b62098a2677a79d3070ada |
+| Commit | ef50733ed9a82bf8c6fd291e7bf6e428174d28e2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T02:26:52.877Z |
+| Gerado em | 2026-08-23T03:08:54.250Z |
 | Lições | 127 |
 | Hash da Jornada | 251ae1ae7a65 |
 
@@ -26,6 +26,7 @@
 | Tarefas da fase Pós-Conversa | 666 |
 | Média Pós-Conversa por conversa | 3.85 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
+| l2 @ M1 tarefas pós-conversa | 3 |
 
 > **Cobertura relevante** é o indicador que o portão cobra. Cobertura bruta trata
 > `你好` e `我会说一点中文` como o mesmo problema; o primeiro já foi praticado no curso
@@ -203,4 +204,4 @@
 - p5-nv-zi-hao:chunk:xiexie
 - …mais 121.
 
-<!-- integridade:db3359eec06b39df -->
+<!-- integridade:1e966e69e813465d -->
