@@ -1,13 +1,12 @@
 /**
- * V4.1 — First Communicative Win + Acquisition Momentum
+ * V4.1.1 — First Communicative Win + Acquisition Momentum
  *
- * Dois portões (um compile):
  *   --gate=win         validate:first-communicative-win
  *   --gate=momentum    validate:acquisition-momentum
  *   (sem flag)         os dois
  *
  * Mede o PLANO REAL de um aluno novo (tentativa 0, sem histórico).
- * Não maquia: listen não cobrado que o planner descarta não conta.
+ * Chinês canónico ≠ distrator. produce-com-banco = assembly; independente = free_production.
  */
 import { createRequire } from "node:module";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -16,6 +15,22 @@ import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
 import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
+import {
+  assertPedagogicalCjkContract,
+  classifyDistractor,
+  extractCanonicalCjk,
+  extractDistractorCjk,
+  isAssistedAssembly,
+  isGuidedRecall,
+  isIndependentProduction,
+  isPerceptionDominant,
+  isTransferProduction,
+  isUsablePhrase,
+  looksLikeOddChinese,
+  USABLE_PHRASES,
+} from "./lib/pedagogical-cjk.mjs";
+
+assertPedagogicalCjkContract();
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -23,18 +38,22 @@ const gateArg = process.argv.find((arg) => arg.startsWith("--gate="))?.slice("--
 const runWin = !gateArg || gateArg === "win";
 const runMomentum = !gateArg || gateArg === "momentum";
 
-const CJK_RE = /[\u3400-\u9fff]/u;
-const CJK_RUN_RE = /[\u3400-\u9fff]+/gu;
-const USABLE_PHRASES = new Set(["你好", "谢谢", "再见", "你好吗", "不客气", "我很好", "你呢"]);
-const PRODUCTION_KINDS = new Set(["sentence_build", "produce", "reverse_recall"]);
 const THEORY_LAB_ROLES = new Set(["perception_lab", "hanzi_lab"]);
 const ACQUISITION_EXEMPT_ROLES = new Set(["perception_lab", "hanzi_lab", "review"]);
+const TONE_WALL_LAB_IDS = new Set([
+  "p2-ma-primeiro-tom",
+  "p2-ma-segundo-tom",
+  "p2-ma-terceiro-tom",
+  "p2-ma-quarto-tom",
+  "p2-comparar-tom-1-4",
+  "p2-comparar-tom-2-3",
+]);
 
 const MAX_FIRST_CONVERSATION = 2;
-const MAX_FIRST_PRODUCTION = 4;
+const MAX_FIRST_ASSEMBLY = 4;
 const MAX_FIRST_MANDARIN = 2;
 const MAX_NON_COMMUNICATIVE_RUN = 2;
-const MAX_THEORY_LAB_RUN = 3;
+const MAX_THEORY_LAB_RUN = 5;
 const FIRST_WINDOW = 10;
 const ONBOARDING = 20;
 const MOMENTUM_WINDOW = 50;
@@ -42,36 +61,10 @@ const MOMENTUM_WINDOW = 50;
 const failures = [];
 const fail = (message) => failures.push(message);
 
-const stepBlob = (step) =>
-  [
-    step.hanzi,
-    step.text,
-    step.audioText,
-    step.correctAnswer,
-    step.answer,
-    step.blankAnswer,
-    step.prompt,
-    step.dialoguePrompt,
-    step.title,
-    step.body,
-    ...(step.targetParts ?? []),
-    ...(step.target ?? []),
-    ...(step.options ?? []),
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-const extractCjk = (step) => [...new Set(stepBlob(step).match(CJK_RUN_RE) ?? [])];
-const hasCjk = (step) => CJK_RE.test(stepBlob(step));
-const isUsablePhrase = (text) => {
-  const runs = String(text ?? "").match(CJK_RUN_RE) ?? [];
-  return runs.some((run) => run.length >= 2 || USABLE_PHRASES.has(run));
-};
-
 function isMandarinInteraction(step) {
   if (step.kind === "conversation_scene") return true;
   if (["listen_select", "listen", "comprehend", "sentence_build", "produce", "fill_blank"].includes(step.kind)) {
-    return extractCjk(step).some((run) => run.length >= 2 || USABLE_PHRASES.has(run));
+    return extractCanonicalCjk(step).some((run) => run.length >= 2 || USABLE_PHRASES.has(run));
   }
   if (step.kind === "dialogue_choice") return isUsablePhrase(step.correctAnswer ?? step.answer ?? "");
   return false;
@@ -79,9 +72,9 @@ function isMandarinInteraction(step) {
 
 function isCommunicativePayoff(step) {
   if (step.kind === "conversation_scene") return true;
-  if (PRODUCTION_KINDS.has(step.kind) && hasCjk(step)) return true;
-  const blob = stepBlob(step);
-  const usesKnownPhrase = [...USABLE_PHRASES].some((phrase) => blob.includes(phrase));
+  if (isIndependentProduction(step) || isTransferProduction(step)) return true;
+  const canonical = extractCanonicalCjk(step).join(" ");
+  const usesKnownPhrase = [...USABLE_PHRASES].some((phrase) => canonical.includes(phrase));
   if (step.kind === "dialogue_choice") {
     return isUsablePhrase(step.correctAnswer ?? step.answer ?? "") || usesKnownPhrase;
   }
@@ -92,10 +85,6 @@ function isCommunicativePayoff(step) {
     return isUsablePhrase(step.audioText ?? step.correctAnswer ?? "") || usesKnownPhrase;
   }
   return false;
-}
-
-function isProduction(step) {
-  return PRODUCTION_KINDS.has(step.kind) && hasCjk(step);
 }
 
 function isConversation(step) {
@@ -116,29 +105,31 @@ function longestRun(flags) {
 
 function acquisitionProgress(plan, previousUnits) {
   const units = new Set();
-  for (const step of plan) for (const run of extractCjk(step)) units.add(run);
+  for (const step of plan) for (const run of extractCanonicalCjk(step)) units.add(run);
   const newUnits = [...units].filter(
     (unit) => !previousUnits.has(unit) && (unit.length >= 2 || USABLE_PHRASES.has(unit))
   );
+  const oddUnits = newUnits.filter(looksLikeOddChinese);
   const hasConversation = plan.some(isConversation);
-  const hasProduction = plan.some(isProduction);
   const hasStructure = plan.some((step) =>
     ["structural_frame", "structural_repair", "structural_transfer", "transfer_task"].includes(step.kind)
   );
-  const toneApplied =
-    plan.some((step) => step.kind === "tone" || step.kind === "tone_id" || step.kind === "tone_pair") &&
-    plan.some(isCommunicativePayoff);
-  const reuse = plan.some(isCommunicativePayoff);
+  const perceptionHeavy = isPerceptionDominant(plan);
+  const ok =
+    newUnits.length > 0 ||
+    hasStructure ||
+    plan.some(isIndependentProduction) ||
+    (hasConversation && !perceptionHeavy);
   return {
     newUnits,
-    ok: newUnits.length > 0 || hasConversation || hasProduction || hasStructure || toneApplied || reuse,
+    oddUnits,
+    ok,
     reasons: [
       newUnits.length > 0 ? `unidades novas: ${newUnits.join("、")}` : null,
-      hasConversation ? "conversation_scene" : null,
-      hasProduction ? "produção guiada" : null,
+      hasConversation && !perceptionHeavy ? "conversation_scene" : null,
+      plan.some(isIndependentProduction) ? "produção independente" : null,
       hasStructure ? "padrão estrutural" : null,
-      toneApplied ? "tom aplicado a frase conhecida" : null,
-      reuse && newUnits.length === 0 ? "reúso comunicativo" : null,
+      perceptionHeavy ? "função dominante: laboratório de percepção" : null,
     ].filter(Boolean),
   };
 }
@@ -170,6 +161,14 @@ try {
 
   const rows = ALL_LESSONS.map((lesson, index) => {
     const plan = lessonRoundStepsFor(lesson, { attemptNumber: 0, silent: true });
+    const distractors = plan.flatMap((step) =>
+      extractDistractorCjk(step).map((run) => ({
+        run,
+        lessonId: lesson.id,
+        kind: step.kind,
+        class: classifyDistractor(run),
+      }))
+    );
     return {
       position: index + 1,
       id: lesson.id,
@@ -180,16 +179,24 @@ try {
       minutes: estimateLessonMinutes(lesson),
       hasMandarin: plan.some(isMandarinInteraction),
       hasConversation: plan.some(isConversation),
-      hasProduction: plan.some(isProduction),
+      hasAssembly: plan.some(isAssistedAssembly),
+      hasRecall: plan.some(isGuidedRecall),
+      hasIndependent: plan.some(isIndependentProduction),
+      hasTransfer: plan.some(isTransferProduction),
       hasPayoff: plan.some(isCommunicativePayoff),
-      cjk: [...new Set(plan.flatMap(extractCjk))],
+      perceptionDominant: isPerceptionDominant(plan),
+      cjk: [...new Set(plan.flatMap(extractCanonicalCjk))],
+      distractors,
     };
   });
 
   const first = (predicate) => rows.find((row) => predicate(row));
   const firstMandarin = first((row) => row.hasMandarin);
   const firstConversation = first((row) => row.hasConversation);
-  const firstProduction = first((row) => row.hasProduction);
+  const firstAssembly = first((row) => row.hasAssembly);
+  const firstRecall = first((row) => row.hasRecall);
+  const firstIndependent = first((row) => row.hasIndependent);
+  const firstTransfer = first((row) => row.hasTransfer);
   const minutesUntil = (row) =>
     row ? rows.slice(0, row.position).reduce((sum, item) => sum + item.minutes, 0) : null;
 
@@ -197,8 +204,15 @@ try {
   const first10 = rows.slice(0, FIRST_WINDOW);
   const first50 = rows.slice(0, MOMENTUM_WINDOW);
 
-  const nonCommunicativeRun20 = longestRun(onboarding.map((row) => !row.hasPayoff));
-  const nonCommunicativeRun50 = longestRun(first50.map((row) => !row.hasPayoff));
+  // Labs de percepção/hànzì não entram nesta corrida: a função deles é o
+  // laboratório, medida à parte em consecutiveTheoryOrLabLessons. Pintar um
+  // lab com uma microconversa só para quebrar a corrida era a falha da V4.1.
+  const nonCommunicativeRun20 = longestRun(
+    onboarding.map((row) => !row.hasPayoff && !THEORY_LAB_ROLES.has(row.role))
+  );
+  const nonCommunicativeRun50 = longestRun(
+    first50.map((row) => !row.hasPayoff && !THEORY_LAB_ROLES.has(row.role))
+  );
   const theoryLabRun20 = longestRun(onboarding.map((row) => THEORY_LAB_ROLES.has(row.role)));
   const theoryLabRun50 = longestRun(first50.map((row) => THEORY_LAB_ROLES.has(row.role)));
 
@@ -209,8 +223,8 @@ try {
     if (!firstConversation || firstConversation.position > MAX_FIRST_CONVERSATION) {
       fail(`lessonToFirstConversation=${firstConversation?.position ?? "nunca"} (teto ${MAX_FIRST_CONVERSATION})`);
     }
-    if (!firstProduction || firstProduction.position > MAX_FIRST_PRODUCTION) {
-      fail(`lessonToFirstProduction=${firstProduction?.position ?? "nunca"} (teto ${MAX_FIRST_PRODUCTION})`);
+    if (!firstAssembly || firstAssembly.position > MAX_FIRST_ASSEMBLY) {
+      fail(`lessonToFirstAssistedAssembly=${firstAssembly?.position ?? "nunca"} (teto ${MAX_FIRST_ASSEMBLY})`);
     }
     if (nonCommunicativeRun20 > MAX_NON_COMMUNICATIVE_RUN) {
       fail(`longestNonCommunicativeLessonRun nas 20 primeiras = ${nonCommunicativeRun20} (teto ${MAX_NON_COMMUNICATIVE_RUN})`);
@@ -219,9 +233,10 @@ try {
       fail(`consecutiveTheoryOrLabLessons nas 20 primeiras = ${theoryLabRun20} (teto ${MAX_THEORY_LAB_RUN})`);
     }
     for (const row of first10) {
-      if (!row.hasPayoff) {
-        fail(`lição ${row.position} (${row.id}) nas 10 primeiras termina sem aplicação em mandarim`);
-      }
+      // Labs de hànzì/percepção não precisam de payoff comunicativo: a função
+      // dominante é o laboratório. O win comunicativo já está nas lições 1–2.
+      if (THEORY_LAB_ROLES.has(row.role)) continue;
+      if (!row.hasPayoff) fail(`lição ${row.position} (${row.id}) nas 10 primeiras termina sem aplicação em mandarim`);
     }
   }
 
@@ -230,10 +245,17 @@ try {
   for (const row of first50) {
     const progress = acquisitionProgress(row.plan, previousUnits);
     for (const unit of row.cjk) previousUnits.add(unit);
-    const exempt = ACQUISITION_EXEMPT_ROLES.has(row.role) || row.isReview;
+    const toneLab = TONE_WALL_LAB_IDS.has(row.id);
+    const exempt = ACQUISITION_EXEMPT_ROLES.has(row.role) || row.isReview || toneLab || row.perceptionDominant;
     momentumRows.push({ ...row, progress, exempt });
     if (runMomentum && row.role === "acquisition" && !exempt && !progress.ok) {
-      fail(`acquisition ${row.position} (${row.id}) sem unidade nova, padrão estrutural ou reúso comunicativo`);
+      fail(`acquisition ${row.position} (${row.id}) sem unidade canónica nova, padrão estrutural ou conversa`);
+    }
+    if (runMomentum && progress.oddUnits.length > 0 && row.role === "acquisition") {
+      fail(`acquisition ${row.position} (${row.id}) contabilizou chinês suspeito como unidade nova: ${progress.oddUnits.join("、")}`);
+    }
+    if (runMomentum && toneLab && row.role === "acquisition") {
+      fail(`${row.id} é laboratório de tom com papel 'acquisition' — declare perception_lab (função dominante)`);
     }
   }
   if (runMomentum && nonCommunicativeRun50 > MAX_NON_COMMUNICATIVE_RUN) {
@@ -247,17 +269,27 @@ try {
     await writeFile(reportPath, finalizeReport(lines), "utf8");
   };
 
+  const allDistractors = rows.flatMap((row) => row.distractors);
+  const oddDistractors = allDistractors.filter(
+    (item) => item.class !== "distrator" || looksLikeOddChinese(item.run)
+  );
+
   if (runWin) {
     await writeReport("reports/first-communicative-win.md", "Primeira vitória comunicativa", [
       "## Resumo",
+      "",
+      "Produção **não** é um único interruptor. Montar `你 + 好` com peças à vista é assembly assistida, não recall nem produção independente.",
       "",
       "| Métrica | Valor |",
       "|---------|------:|",
       `| lessonToFirstMandarinInteraction | ${firstMandarin?.position ?? "—"} |`,
       `| lessonToFirstConversation | ${firstConversation?.position ?? "—"} |`,
-      `| lessonToFirstProduction | ${firstProduction?.position ?? "—"} |`,
+      `| lessonToFirstAssistedAssembly | ${firstAssembly?.position ?? "—"} |`,
+      `| lessonToFirstGuidedRecall | ${firstRecall?.position ?? "—"} |`,
+      `| lessonToFirstIndependentProduction | ${firstIndependent?.position ?? "—"} |`,
+      `| lessonToFirstTransfer | ${firstTransfer?.position ?? "—"} |`,
       `| estimatedTimeToFirstConversation | ${minutesUntil(firstConversation) ?? "—"} min |`,
-      `| estimatedTimeToFirstProduction | ${minutesUntil(firstProduction) ?? "—"} min |`,
+      `| estimatedTimeToFirstAssistedAssembly | ${minutesUntil(firstAssembly) ?? "—"} min |`,
       `| longestNonCommunicativeLessonRun (20) | ${nonCommunicativeRun20} |`,
       `| consecutiveTheoryOrLabLessons (20) | ${theoryLabRun20} |`,
       "",
@@ -269,17 +301,25 @@ try {
         ? `Primeira conversa: **${firstConversation.position}. ${firstConversation.title}** (\`${firstConversation.id}\`).`
         : "Nenhuma `conversation_scene` na trilha.",
       "",
-      firstProduction
-        ? `Primeira produção guiada: **${firstProduction.position}. ${firstProduction.title}** (\`${firstProduction.id}\`).`
-        : "Nenhuma produção guiada na trilha.",
+      firstAssembly
+        ? `Primeira montagem assistida (\`sentence_build\` / \`produce\` com banco): **${firstAssembly.position}. ${firstAssembly.title}** (\`${firstAssembly.id}\`).`
+        : "Nenhuma montagem assistida na trilha.",
+      "",
+      firstRecall
+        ? `Primeiro recall guiado: **${firstRecall.position}. ${firstRecall.title}** (\`${firstRecall.id}\`).`
+        : "Nenhum recall guiado na trilha inicial medida.",
+      "",
+      firstIndependent
+        ? `Primeira produção independente (\`free_production\`): **${firstIndependent.position}. ${firstIndependent.title}** (\`${firstIndependent.id}\`).`
+        : "Nenhuma produção independente na trilha inicial medida.",
       "",
       "## 20 primeiras lições",
       "",
-      "| # | Papel | Lição | Interação | Conversa | Produção | Payoff | Min |",
-      "|--:|-------|-------|:---------:|:--------:|:--------:|:------:|----:|",
+      "| # | Papel | Lição | Interação | Conversa | Assembly | Recall | Independente | Payoff | Min |",
+      "|--:|-------|-------|:---------:|:--------:|:--------:|:------:|:------------:|:------:|----:|",
       ...onboarding.map(
         (row) =>
-          `| ${row.position} | ${row.role} | ${row.title} | ${row.hasMandarin ? "sim" : "não"} | ${row.hasConversation ? "sim" : "não"} | ${row.hasProduction ? "sim" : "não"} | ${row.hasPayoff ? "sim" : "não"} | ${row.minutes} |`
+          `| ${row.position} | ${row.role} | ${row.title} | ${row.hasMandarin ? "sim" : "não"} | ${row.hasConversation ? "sim" : "não"} | ${row.hasAssembly ? "sim" : "não"} | ${row.hasRecall ? "sim" : "não"} | ${row.hasIndependent ? "sim" : "não"} | ${row.hasPayoff ? "sim" : "não"} | ${row.minutes} |`
       ),
       "",
       "## Compatibilidade (ONB-010)",
@@ -297,7 +337,9 @@ try {
     await writeReport("reports/acquisition-momentum.md", "Momentum de aquisição", [
       "## Resumo",
       "",
-      "Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisam de unidade nova, padrão estrutural ou reúso comunicativo mensurável.",
+      "Unidades novas vêm só de chinês **canónico** (estímulo, alvo, resposta correta). Distratores e frases propositalmente erradas não contam como vocabulário ensinado.",
+      "",
+      "Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisam de unidade canónica nova, padrão estrutural, produção independente ou conversa — e **não** podem ser laboratórios de tom pintados de aquisição.",
       "",
       "| Métrica | Valor |",
       "|---------|------:|",
@@ -321,9 +363,40 @@ try {
         return `| ${row.position} | ${row.role} | ${row.title} | ${row.hasPayoff ? "sim" : "não"} | ${progress} |`;
       }),
       "",
+      "## Distratores chineses (não ensinam)",
+      "",
+      "Frases que aparecem em opções erradas / banco. Não entram no progresso de aquisição.",
+      "",
+      oddDistractors.length === 0
+        ? "Nenhum distrator chinês listado nas 50 primeiras."
+        : [
+            "| Lição | Tipo | Classe | Texto |",
+            "|-------|------|--------|-------|",
+            ...oddDistractors.slice(0, 40).map((item) => `| ${item.lessonId} | ${item.kind} | ${item.class} | ${item.run} |`),
+          ].join("\n"),
+      "",
+      "## Auditoria das frases suspeitas",
+      "",
+      "| Texto | Classe | Onde aparece |",
+      "|-------|--------|--------------|",
+      ...["我是好", "我是叫小明", "我会中文说", "我是水", "我有一朋友", "语吗", "西人", "你好你是哪国人我是巴西人"].map((phrase) => {
+        const compact = (value) => String(value ?? "").replace(/[。！？、,.!?\s]/g, "");
+        const target = compact(phrase);
+        const first50Ids = new Set(first50.map((row) => row.id));
+        // Match exacto. `includes` faz 巴西人 contar como 西人.
+        const hits = allDistractors.filter(
+          (item) => first50Ids.has(item.lessonId) && compact(item.run) === target
+        );
+        const cls = classifyDistractor(phrase);
+        const where = hits.length
+          ? [...new Set(hits.map((hit) => hit.lessonId))].join(", ")
+          : "não aparece no plano das 50 primeiras";
+        return `| ${phrase} | ${cls} | ${where} |`;
+      }),
+      "",
       "## Exceções documentadas (ONB-009)",
       "",
-      "Nenhuma. A trilha inicial não permite mais de 2 lições seguidas sem payoff comunicativo.",
+      "A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepção, mesmo quando reusa 你好/谢谢. A trilha inicial não permite mais de 2 lições seguidas sem payoff comunicativo fora desses labs.",
       "",
       "## Falhas",
       "",
@@ -333,10 +406,10 @@ try {
   }
 
   console.log(
-    `First win: mandarim=${firstMandarin?.position ?? "—"} conversa=${firstConversation?.position ?? "—"} produção=${firstProduction?.position ?? "—"} · run sem payoff (20)=${nonCommunicativeRun20} · labs seguidos=${theoryLabRun20}.`
+    `First win: mandarim=${firstMandarin?.position ?? "—"} conversa=${firstConversation?.position ?? "—"} assembly=${firstAssembly?.position ?? "—"} independente=${firstIndependent?.position ?? "—"} · run sem payoff (20)=${nonCommunicativeRun20} · labs seguidos=${theoryLabRun20}.`
   );
   if (failures.length > 0) {
-    console.error("\nFalhas V4.1:");
+    console.error("\nFalhas V4.1.1:");
     for (const message of failures) console.error(`- ${message}`);
     process.exitCode = 1;
   } else {

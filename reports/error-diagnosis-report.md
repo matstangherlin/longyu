@@ -2,13 +2,16 @@
 
 ## Procedência
 
+A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
+
 | Campo | Valor |
 |-------|-------|
-| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
+| Hash da Jornada | 822c0c252158 |
+| HEAD no instante da geração | 0fb5d6e1927a0766fd4e10eb75362a07aaad90d0 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T10:33:53.640Z |
+| Gerado em | 2026-08-24T18:38:12.529Z |
 | Lições | 127 |
-| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -20,8 +23,8 @@
 | Casos curados auditados | 19 |
 | Causas distintas observadas | 13 |
 | Maior concentração numa causa | 16% |
-| Lições que mudam de plano com a fraqueza | 113 / 127 |
-| Lições que renovam o conteúdo na mesma variante | 114 / 127 |
+| Lições que mudam de plano com a fraqueza | 107 / 127 |
+| Lições que renovam o conteúdo na mesma variante | 98 / 127 |
 | Casos de resposta não reconhecida auditados | 8 |
 | Peso de um palpite fraco vs. padrão claro | 0.25× |
 
@@ -106,4 +109,4 @@ Fica registrada para auditoria e para o corpus crescer.
 
 Nenhum.
 
-<!-- integridade:15eddd1fa856985f -->
+<!-- integridade:36f1bc9831abbba5 -->

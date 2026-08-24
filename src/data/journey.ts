@@ -1138,19 +1138,9 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         ],
         "Mesmo ma com outro tom pode virar outra palavra."
       ),
-      // Quiz leve no fim (palavra conhecida + tom), sem a família completa de uma vez.
-      tone("妈", "mā", 1, "quiz", [1, 4]),
-      tone("骂", "mà", 4, "quiz", [1, 4]),
       intro(
         "De volta a 你好",
         "Você já disse 你好. Os dois caracteres são 3º tom; juntos você ouve ní hǎo — o tom muda o jeito de soar."
-      ),
-      listenSelect(
-        "O cumprimento que você já usa",
-        "你好",
-        ["你好", "妈妈", "骂"],
-        "你好",
-        "É o mesmo 你好 de antes: agora você escuta o tom, não só a palavra."
       ),
       dialogue(
         "Ideia principal",
@@ -1174,13 +1164,6 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
       intro(
         "O que é Hànzì?",
         "Hànzì são os caracteres do chinês escrito. Pinyin mostra o som (nǐ hǎo); hànzì mostra a forma real: 你好."
-      ),
-      listenSelect(
-        "Você já usa estes hànzì",
-        "你好",
-        ["你好", "木", "人"],
-        "你好",
-        "你 e 好 juntos são o cumprimento que você já falou."
       ),
       dialogue(
         "Reconheça 你 em 你好",
@@ -1258,22 +1241,6 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         ["森", "林", "明", "好"],
         "Três árvores formam 森, floresta densa. Você montará 林 e 明 depois, com mais prática."
       ),
-      dialogue(
-        "Reconheça a evolução",
-        "Qual caractere tem relação com água?",
-        "水",
-        ["水", "口", "日", "人"],
-        "水 significa água. Como radical lateral, costuma aparecer como 氵.",
-        "Escolha"
-      ),
-      dialogue(
-        "Revisão",
-        "Hànzì é o quê?",
-        "um sistema visual de caracteres chineses",
-        ["um sistema visual de caracteres chineses", "um alfabeto de letras", "a tradução em português", "só um desenho antigo"],
-        "Hànzì é escrita chinesa: visual, padronizada e ligada a som, sentido e uso.",
-        "Escolha"
-      ),
     ],
   }),
   microLesson({
@@ -1286,6 +1253,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     estimatedMinutes: 6,
     steps: [
       intro("Monte peça por peça", "Agora você monta caracteres simples como 木, 口 e 日 com fragmentos pequenos — sem composições ainda. Cada traço encaixa como um quebra-cabeça visual."),
+      listen("木", "mù", "árvore — o hànzì que você vai montar"),
       imageChoice(
         "choose_image",
         "tree",
@@ -1326,20 +1294,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         ],
         "Você montou os blocos simples; composições como 林 e 明 vêm depois."
       ),
-      listenSelect(
-        "O cumprimento de novo",
-        "你好",
-        ["你好", "木", "人", "口"],
-        "你好",
-        "Os hànzì que você monta também aparecem na frase que você já usa."
-      ),
-      dialogue(
-        "Você já usa isto",
-        "Qual cumprimento você já falou?",
-        "你好",
-        ["你好", "木", "人", "口"],
-        "你好 continua sendo o cumprimento. Os caracteres novos (木, 口, 日) são outra camada."
-      ),
+      // V4.1.1: 你好 permanece âncora nas lições 1–3; aqui o foco é montar hànzì novos.
     ],
   }),
 ];
@@ -1398,17 +1353,7 @@ const PHASE1_ENGINE_LESSONS: Lesson[] = [
         correctAnswer: "你好",
         explanation: "你好 junta você + bom para cumprimentar.",
       },
-      {
-        kind: "translation_build",
-        title: "Escreva em português",
-        prompt: "Como fica em português?",
-        sourceText: "再见",
-        sourcePinyin: "zàijiàn",
-        targetParts: ["Até", "logo"],
-        bank: ["logo", "Olá", "Até", "Obrigado(a)"],
-        correctAnswer: "Até logo",
-        explanation: "再见 = até logo; 再 sugere de novo, 见 é ver.",
-      },
+      // V4.1.1: translation_build removido — a cena cobre o uso sem passo extra.
       {
         kind: "fill_blank",
         title: "Complete a pergunta",
@@ -1441,16 +1386,6 @@ const PHASE1_ENGINE_LESSONS: Lesson[] = [
         correctAnswer: "好",
         explanation: "女 + 子 ajuda a lembrar 好: bom; bem.",
       },
-      {
-        kind: "tone_pair",
-        title: "Pares de tom",
-        prompt: "Combine cada som com o tom certo.",
-        pairs: [
-          { left: "妈", right: "1º tom", leftType: "audio", rightType: "pt" },
-          { left: "骂", right: "4º tom", leftType: "audio", rightType: "pt" },
-        ],
-        explanation: "mā alto e reto é diferente de mà caindo forte.",
-      },
     ],
   }),
 ];
@@ -1472,12 +1407,12 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
       comp("山", "shān", "montanha", ["montanha", "mãe", "cavalo", "água"]),
       fillBlank(
         "A mesma sílaba, sem tom",
-        "Complete a pergunta que você já conhece: tudo bem?",
-        "你好",
+        "Qual caractere é ma SEM contorno de tom?",
+        "",
         "吗",
-        "？",
+        "",
         ["吗", "妈"],
-        "吗 é a sílaba ma SEM contorno (tom neutro) — compare com 妈 mā, alta e reta. O 你好 já conhecido só ancora o contraste."
+        "吗 é a sílaba ma SEM contorno (tom neutro) — compare com 妈 mā, alta e reta."
       ),
       dialogue("Contorno", "Qual descrição combina com o 1º tom?", "alto e reto", ["alto e reto", "cai rápido", "sobe", "desce e sobe"], "O 1º tom fica alto e constante.", "Escolha"),
     ],
@@ -1508,22 +1443,21 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-ma-terceiro-tom",
     title: "3º tom com ma",
     skill: "som",
-    curriculumRole: "acquisition",
-    libraryItems: ["char:ma2", "chunk:nihao"],
-    reviewItems: ["char:ma2", "chunk:nihao"],
+    curriculumRole: "perception_lab",
+    libraryItems: ["char:ma2"],
+    reviewItems: ["char:ma2"],
     steps: [
-      intro("Desce e sobe", "O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico."),
+      intro("Desce e sobe", "O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico. O mesmo vale já apareceu no cumprimento que você usa."),
       listen("马", "mǎ", "cavalo"),
       listenSelect("Ouça mǎ", "马", ["妈", "麻", "马", "骂"], "马", "马 usa 3º tom: desce e sobe."),
       tone("马", "mǎ", 3, "quiz"),
-      intro("3º tom em 你好", "Você já usa 你好. Os dois caracteres são 3º tom — juntos soam ní hǎo."),
-      listenSelect("Como soa o cumprimento?", "你好", ["你好", "妈妈", "骂"], "你好", "É o 3º tom dentro de uma frase que você já fala."),
       dialogue(
-        "Alguém te cumprimenta",
-        "A pessoa diz 你好. O que você responde?",
-        "你好",
-        ["你好", "谢谢", "再见"],
-        "Os dois 3º tons de 你好 são o mesmo vale de 马 mǎ — agora numa frase real."
+        "Descreva o vale",
+        "Como o 3º tom se move?",
+        "desce e sobe",
+        ["desce e sobe", "fica reto", "sobe", "cai rápido"],
+        "O 3º tom faz um vale — o mesmo contorno do cumprimento que você já usa.",
+        "Escolha"
       ),
     ],
   }),
@@ -1531,7 +1465,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-ma-quarto-tom",
     title: "4º tom com ma",
     skill: "som",
-    curriculumRole: "acquisition",
+    curriculumRole: "perception_lab",
     libraryItems: ["char:ma2", "chunk:xiexie"],
     reviewItems: ["char:ma2", "chunk:xiexie"],
     steps: [
@@ -1556,7 +1490,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     skill: "som",
     curriculumRole: "perception_lab",
     libraryItems: ["char:ma2"],
-    reviewItems: ["char:ma2", "char:xie", "chunk:zaijian"],
+    reviewItems: ["char:ma2"],
     steps: [
       intro("Reto contra queda", "Compare: mā fica alto e reto; mà cai rápido. O contraste ajuda seu ouvido a decidir."),
       tone("妈", "mā", 1, "quiz"),
@@ -1577,40 +1511,6 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
         ],
         "1º tom fica alto e reto; 4º tom cai rápido."
       ),
-      tone("谢", "xiè", 4, "quiz"),
-      comp("谢谢", "xièxie", "Obrigado(a).", ["Obrigado(a).", "Até logo.", "Estou bem.", "Quero isto."]),
-      listenSelect(
-        "Queda em palavra real",
-        "谢",
-        ["谢", "妈", "骂", "马"],
-        "谢",
-        "谢 começa com 4º tom — a mesma queda rápida de 骂 mà."
-      ),
-      dialogue(
-        "Queda em contexto",
-        "Você quer agradecer com educação. Qual frase começa com a queda do 4º tom?",
-        "谢谢",
-        ["谢谢", "妈", "骂", "马"],
-        "谢谢 começa com xiè, 4º tom."
-      ),
-      match(
-        "Quatro quedas",
-        "Combine cada palavra com o sentido — todas começam com a queda do 4º tom.",
-        [
-          { left: "谢", right: "agradecer", leftType: "hanzi", rightType: "pt" },
-          { left: "骂", right: "xingar", leftType: "hanzi", rightType: "pt" },
-          { left: "是", right: "ser", leftType: "hanzi", rightType: "pt" },
-          { left: "去", right: "ir", leftType: "hanzi", rightType: "pt" },
-        ],
-        "谢 xiè, 骂 mà, 是 shì, 去 qù: quatro quedas em palavras que você já usa."
-      ),
-      sentenceBuild(
-        "Dupla queda",
-        "Monte a despedida que você já conhece (4º + 4º tom).",
-        ["再", "见"],
-        ["再", "见", "你"],
-        "再见 zài jiàn são duas quedas seguidas — o mesmo contorno de 骂 mà."
-      ),
       dialogue("Escolha o que cai", "Qual tom cai rápido?", "4º tom", ["4º tom", "1º tom", "2º tom", "3º tom"], "O 4º tom é a queda rápida.", "Escolha"),
     ],
   }),
@@ -1618,6 +1518,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     id: "p2-comparar-tom-2-3",
     title: "Comparar 2º e 3º tom",
     skill: "som",
+    curriculumRole: "perception_lab",
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2"],
     steps: [
@@ -1634,16 +1535,9 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
         "2º tom sobe; 3º tom desce e sobe."
       ),
       dialogue("Escolha o vale", "Qual tom desce e sobe?", "3º tom", ["3º tom", "2º tom", "1º tom", "4º tom"], "O 3º tom faz um vale.", "Escolha"),
-      sentenceBuild(
-        "Dois vales numa frase",
-        "Monte o cumprimento 你好 (3º + 3º tom).",
-        ["你", "好"],
-        ["你", "好", "马", "麻"],
-        "你好 junta dois 3º tons — na fala o primeiro sobe."
-      ),
       dialogue(
         "Como soa na fala?",
-        "Dois 3º tons seguidos (nǐ hǎo) soam como...",
+        "Dois 3º tons seguidos (nǐ hǎo, como em 你好) soam como...",
         "2º + 3º (ní hǎo)",
         ["2º + 3º (ní hǎo)", "3º + 3º completos", "1º + 3º", "4º + 3º"],
         "3º + 3º → 2º + 3º: soa ní hǎo."
@@ -2633,7 +2527,6 @@ export const JOURNEY: JourneyPhase[] = [
           review("l1-rev", "fala", [
             intro("Revisão viva", "Vamos usar o que você já viu numa conversa curta."),
             conversationScene("primeiro-cumprimento"),
-            conversationScene("perguntando-se-esta-bem"),
             produce(["你", "好"], ["谢", "好", "你", "再"], "Olá"),
             dialogue(
               "Resposta certa",
@@ -2935,7 +2828,6 @@ export const JOURNEY: JourneyPhase[] = [
           }),
           review("l2-rev", "fala", [
             intro("Revisão do módulo", "Vamos usar o que você já viu — inclusive cumprimentos novos."),
-            conversationScene("revisao-cumprimento-completo"),
             conversationScene("agradecendo"),
             dialogue(
               "Manhã ou despedida?",
@@ -2951,7 +2843,6 @@ export const JOURNEY: JourneyPhase[] = [
               ["没关系", "再见", "早上好", "请问"],
               "没关系 fecha o pedido de desculpas."
             ),
-            produce(["你", "好"], ["谢", "好", "你", "再"], "Olá"),
             sentenceBuild(
               "Monte o agradecimento",
               "Monte: Obrigado(a).",
@@ -4184,6 +4075,14 @@ export const JOURNEY: JourneyPhase[] = [
               intro(
                 "Agora os nomes",
                 "Você já viu o padrão. Os nomes só ajudam a falar sobre ele:\n\nquem = sujeito\nação = verbo\ncoisa = objeto\n吗 = partícula de pergunta"
+              ),
+              imageChoice(
+                "choose_hanzi",
+                "person",
+                "O sujeito da frase é a pessoa. Qual hànzì combina?",
+                "人",
+                visualHanziOptions("person"),
+                { explanation: "人 é pessoa — o sujeito 我 também é uma pessoa." }
               ),
               match(
                 "Ligue pergunta → nome",

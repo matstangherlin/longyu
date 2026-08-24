@@ -73,10 +73,11 @@ for (const rel of REPORTS) {
 
   const fingerprint = readProvenanceField(content, "Hash da Jornada");
   const generatedAt = readProvenanceField(content, "Gerado em");
-  const commit = readProvenanceField(content, "Commit");
+  const commit =
+    readProvenanceField(content, "HEAD no instante da geração") ?? readProvenanceField(content, "Commit");
   const lessons = readProvenanceField(content, "Lições");
   if (!fingerprint || !generatedAt || !commit || !lessons) {
-    err(rel, "bloco de procedência incompleto (commit/data/lições/hash da Jornada) — regenere.");
+    err(rel, "bloco de procedência incompleto (hash da Jornada/data/lições/HEAD) — regenere.");
     continue;
   }
 

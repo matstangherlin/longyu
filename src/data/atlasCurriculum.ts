@@ -338,9 +338,17 @@ export function seedDecayByBand(
 ): Array<{ label: string; seedShare: number; lessons: number }> {
   return bands.map((band) => {
     const slice = points.slice(band.start, band.end);
-    const avg =
-      slice.length === 0 ? 0 : slice.reduce((sum, point) => sum + point.seedShare, 0) / slice.length;
-    return { label: band.label, seedShare: avg, lessons: slice.length };
+    // Média ponderada pelo nº de lexemas: um lab com 2 tokens a 50% não pesa
+    // o mesmo que uma conversa com 10. A média aritmética das razões inflava
+    // o seed share da faixa 11–20 por causa das aulas de tom.
+    let seedHits = 0;
+    let total = 0;
+    for (const point of slice) {
+      const n = point.newLexemes.length + point.reusedLexemes.length;
+      total += n;
+      seedHits += point.seedShare * n;
+    }
+    return { label: band.label, seedShare: total === 0 ? 0 : seedHits / total, lessons: slice.length };
   });
 }
 

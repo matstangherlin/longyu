@@ -83,6 +83,7 @@ try {
   const {
     lessonRoundStepsFor,
     structureExposureSnapshotForLesson,
+    priorTransferredFramesSnapshotForLesson,
     curriculumGlyphsThroughLesson,
   } = load("src/features/lesson/lessonTasks.js");
   const {
@@ -151,6 +152,7 @@ try {
       skipStructureExposureIndex: true,
       structureExposure: bundle.forFree,
       structureExposureForTransfer: bundle.forTransfer,
+      priorTransferredFrames: priorTransferredFramesSnapshotForLesson(lesson.id),
     });
     const priorGlyphs = glyphsBefore(lesson.id);
     const lessonGlyphs = glyphsThrough(lesson.id);

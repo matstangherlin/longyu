@@ -2,13 +2,16 @@
 
 ## Procedência
 
+A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
+
 | Campo | Valor |
 |-------|-------|
-| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
+| Hash da Jornada | 822c0c252158 |
+| HEAD no instante da geração | 0fb5d6e1927a0766fd4e10eb75362a07aaad90d0 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T10:33:14.128Z |
+| Gerado em | 2026-08-24T18:32:06.904Z |
 | Lições | 127 |
-| Hash da Jornada | c81f99ac1e2e |
 
 ## Objetivo
 
@@ -42,4 +45,4 @@ Impedir que atividades avançadas apareçam antes dos pré-requisitos pedagógic
 | Lições auditadas | 127 |
 | Achados | 0 |
 
-<!-- integridade:6f622372763cc4c1 -->
+<!-- integridade:b3c7add9e691d9d3 -->

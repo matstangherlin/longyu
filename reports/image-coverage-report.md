@@ -2,13 +2,16 @@
 
 ## Procedência
 
+A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
+
 | Campo | Valor |
 |-------|-------|
-| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
+| Hash da Jornada | 822c0c252158 |
+| HEAD no instante da geração | 0fb5d6e1927a0766fd4e10eb75362a07aaad90d0 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T10:28:59.839Z |
+| Gerado em | 2026-08-24T18:33:17.952Z |
 | Lições | 127 |
-| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -23,7 +26,7 @@
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
-| Passos image_choice autorais | 68 |
+| Passos image_choice autorais | 69 |
 | Conceitos nunca utilizados | 51 |
 
 ## Cobertura por fase
@@ -63,16 +66,15 @@
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 18 |
-| imagem → pinyin (`choose_pinyin`) | 59 |
-| imagem → significado (`choose_meaning`) | 16 |
-| áudio → imagem (`listen_and_choose_image`) | 38 |
-| hànzì → imagem (`choose_image`) | 29 |
+| imagem → pinyin (`choose_pinyin`) | 56 |
+| imagem → significado (`choose_meaning`) | 13 |
+| áudio → imagem (`listen_and_choose_image`) | 32 |
+| hànzì → imagem (`choose_image`) | 31 |
 
 ## Conceitos nunca utilizados
 
 | Conceito | Hànzì | Significado | Liberado após unidade |
 |----------|-------|-------------|----------------------:|
-| child | 子 | criança | 8 |
 | son | 儿子 | filho | 11 |
 | daughter | 女儿 | filha | 11 |
 | older_brother | 哥哥 | irmão mais velho | 11 |
@@ -122,6 +124,7 @@
 | train | 火车 | trem | 13 |
 | metro | 地铁 | metrô | 13 |
 | airplane | 飞机 | avião | 13 |
+| two | 二 | dois | 6 |
 | four | 四 | quatro | 6 |
 
 ## Lições concretas sem imagem
@@ -132,4 +135,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:9de768259533edc0 -->
+<!-- integridade:6391e7273e2c2d3d -->

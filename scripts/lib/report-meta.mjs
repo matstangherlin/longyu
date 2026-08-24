@@ -21,6 +21,7 @@ export const CURRICULUM_SOURCES = [
   "src/data/visualVocabulary.ts",
   "src/data/chunks.ts",
   "src/data/characters.ts",
+  "src/features/lesson/lessonTasks.ts",
 ];
 
 export const INTEGRITY_PREFIX = "<!-- integridade:";
@@ -67,17 +68,34 @@ export function appVersion(rootDir) {
 }
 
 /** Bloco de procedência em markdown, logo após o título do relatório. */
+export function workingTreeState(rootDir) {
+  try {
+    const porcelain = execSync("git status --porcelain", {
+      cwd: rootDir,
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+    return porcelain ? "com mudanças locais (pré-commit)" : "limpa";
+  } catch {
+    return "desconhecida";
+  }
+}
+
 export function reportProvenanceLines(rootDir, { lessonCount }) {
   return [
     "## Procedência",
     "",
+    "A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.",
+    "",
     "| Campo | Valor |",
     "|-------|-------|",
-    `| Commit | ${currentCommitSha(rootDir)} |`,
+    `| Hash da Jornada | ${journeyFingerprint(rootDir)} |`,
+    `| HEAD no instante da geração | ${currentCommitSha(rootDir)} |`,
+    `| Árvore de trabalho | ${workingTreeState(rootDir)} |`,
     `| Versão do app | ${appVersion(rootDir)} |`,
     `| Gerado em | ${new Date().toISOString()} |`,
     `| Lições | ${lessonCount} |`,
-    `| Hash da Jornada | ${journeyFingerprint(rootDir)} |`,
     "",
   ];
 }

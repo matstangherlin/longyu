@@ -57,6 +57,7 @@ try {
     lessonRoundStepsFor,
     structureFirstOccurrenceReport,
     structureExposureSnapshotForLesson,
+    priorTransferredFramesSnapshotForLesson,
     creditStructureFromStep,
   } = load("src/features/lesson/lessonTasks.js");
   const {
@@ -91,6 +92,7 @@ try {
       skipStructureExposureIndex: true,
       structureExposure: bundle.forFree,
       structureExposureForTransfer: bundle.forTransfer,
+      priorTransferredFrames: priorTransferredFramesSnapshotForLesson(lesson.id),
     });
 
     const transfers = plan.filter((step) => step.kind === "transfer_task");

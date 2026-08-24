@@ -32,6 +32,8 @@ const PERCEPTION_LAB_IDS = new Set([
   "p1-engine-2-lab",
   "p2-ma-primeiro-tom",
   "p2-ma-segundo-tom",
+  "p2-ma-terceiro-tom",
+  "p2-ma-quarto-tom",
   "p2-comparar-tom-1-4",
   "p2-comparar-tom-2-3",
 ]);

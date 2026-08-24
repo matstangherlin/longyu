@@ -2,13 +2,16 @@
 
 ## Procedência
 
+A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
+
 | Campo | Valor |
 |-------|-------|
-| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
+| Hash da Jornada | 822c0c252158 |
+| HEAD no instante da geração | 0fb5d6e1927a0766fd4e10eb75362a07aaad90d0 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T10:29:04.972Z |
+| Gerado em | 2026-08-24T18:33:30.841Z |
 | Lições | 127 |
-| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -136,4 +139,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:ae4c5b783fbf4387 -->
+<!-- integridade:c9da33cf155dfdcd -->

@@ -204,6 +204,7 @@ try {
   const {
     lessonRoundStepsFor,
     structureExposureSnapshotForLesson,
+    priorTransferredFramesSnapshotForLesson,
     curriculumGlyphsThroughLesson,
     creditStructureFromStep,
   } = load("src/features/lesson/lessonTasks.js");
@@ -259,6 +260,7 @@ try {
       skipStructureExposureIndex: true,
       structureExposure: bundle.forFree,
       structureExposureForTransfer: bundle.forTransfer,
+      priorTransferredFrames: priorTransferredFramesSnapshotForLesson(lesson.id),
     });
 
     /** Exposição acumulada DENTRO da lição (ordem dos steps). */

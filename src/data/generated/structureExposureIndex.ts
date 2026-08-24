@@ -1913,7 +1913,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
-      "frame_woyaomai",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"

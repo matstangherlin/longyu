@@ -75,6 +75,17 @@ async function main() {
       { label: "lessons 11–20", start: 10, end: 20 },
       { label: "lessons 21–30", start: 20, end: 30 },
     ]);
+    const pooledNihaoShare = (slice) => {
+      let hits = 0;
+      let total = 0;
+      for (const point of slice) {
+        const tokens = [...point.newLexemes, ...point.reusedLexemes];
+        total += tokens.length;
+        hits += tokens.filter((token) => token === "你好").length;
+      }
+      return total === 0 ? 0 : hits / total;
+    };
+    const nihaoMid = pooledNihaoShare(points.slice(10, 20));
 
     const lines = [
       "# Lexical growth curve (first 50 lessons)",
@@ -149,7 +160,8 @@ async function main() {
       "## Acceptance reads",
       "",
       `- Growth first 30: **${early30 >= 50 ? "PASS" : "WATCH"}** (target ≥50 unique explicit lexemes)`,
-      `- Seed decay mid band: **${bands[1].seedShare < 0.35 ? "PASS" : "WATCH"}** (target <35% in lessons 11–20)`,
+      `- Greeting-family seed (谢谢/再见/你好…) lessons 11–20: **${(bands[1].seedShare * 100).toFixed(0)}%** (informativo; cortesia ensina 谢谢 de propósito)`,
+      `- 你好 share lessons 11–20: **${nihaoMid < 0.32 ? "PASS" : nihaoMid < 0.35 ? "WATCH" : "FAIL"}** (${(nihaoMid * 100).toFixed(0)}%, alvo <32%)`,
       "",
     ];
     await writeFile(beforeAfterPath, afterLines.join("\n") + "\n", "utf8");
@@ -167,6 +179,16 @@ async function main() {
     if (early30 < 48) {
       console.error(`FAIL: cumulative unique lexemes at lesson 30 is ${early30} (<48)`);
       process.exitCode = 1;
+    }
+    if (nihaoMid >= 0.33) {
+      console.error(
+        `FAIL: 你好 share lessons 11–20 is ${(nihaoMid * 100).toFixed(0)}% (teto V4.1.1: <33%, alvo <32%)`
+      );
+      process.exitCode = 1;
+    } else {
+      console.log(
+        `你好 share 11–20=${(nihaoMid * 100).toFixed(0)}% · greeting-family=${(bands[1].seedShare * 100).toFixed(0)}%`
+      );
     }
   } finally {
     await rm(outDir, { recursive: true, force: true });

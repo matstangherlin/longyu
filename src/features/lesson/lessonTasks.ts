@@ -1338,7 +1338,8 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   }
 
   if (lesson.isReview || (lesson.skill === "sistema" && lesson.title.toLocaleLowerCase("pt-BR").includes("revis"))) {
-    const targetCount = Math.max(12, Math.min(20, Math.max(authoredCount, focus.length >= 8 ? 14 : 12)));
+    // V4.1.1: revisão compacta. 20+ passos no onboarding virava fadiga, não consolidação.
+    const targetCount = Math.max(10, Math.min(12, Math.max(authoredCount, focus.length >= 8 ? 12 : 10)));
     // Revisão de módulo: pelo menos 2 builders quando há hànzì relevante.
     return {
       targetCount,
@@ -1366,10 +1367,9 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     // (maxConversationScenesForLesson conta cenas escritas, não gera extras).
     const assembly = conceptNonHanzi ? 1 : lesson.skill === "hanzi" ? 2 : 1;
     const usage = lesson.id === "p1-primeiros-hanzi" ? 0 : 1;
-    const targetCount = Math.max(
-      authoredCount + (conceptNonHanzi ? 4 : 2),
-      Math.min(authoredCount + 5, conceptNonHanzi ? 11 : 12)
-    );
+    // V4.1.1: comunicação substitui padding. Não somar 4–5 drills gerados
+    // em cima do conteúdo autoral da fundação.
+    const targetCount = authoredCount;
     const consolidation = Math.max(2, targetCount - 1 - recognition - assembly - usage);
     return {
       targetCount,
@@ -1389,6 +1389,31 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
       maxConversationScenes: maxConversationScenesForLesson(lesson),
       maxImageChoices: conceptNonHanzi ? 0 : 2,
       isReview: Boolean(lesson.isReview),
+    };
+  }
+
+  if (lesson.curriculumRole === "perception_lab") {
+    // Lab de percepção: o plano segue o autoral. Padding gerado transformava
+    // 5 passos de tom em 12 e reabria a parede fonética no onboarding.
+    const targetCount = authoredCount;
+    return {
+      targetCount,
+      stageTargets: {
+        intro: 1,
+        recognition: Math.min(2, targetCount - 2),
+        assembly: 1,
+        usage: 1,
+        post_conversation: 0,
+        consolidation: Math.max(0, targetCount - 5),
+      },
+      minHanziBuilds: 0,
+      maxHanziBuilds: 0,
+      perCharBuildCap: 1,
+      maxPinyinTasks,
+      needsPinyinTask: pinyinRich,
+      maxConversationScenes: 0,
+      maxImageChoices: 1,
+      isReview: false,
     };
   }
 
@@ -2635,10 +2660,9 @@ function makeConversationRepairStep(
 ): LessonStep | null {
   const clean = cleanHanzi(utterance?.hanzi);
   const cjkOnly = [...clean].filter((glyph) => CJK_RE.test(glyph)).join("");
-  const core = cjkOnly.length > 2 ? [...cjkOnly].slice(-2).join("") : cjkOnly;
+  // V4.1.1: não cortar os 2 últimos caracteres (英语吗 → 语吗, 巴西人 → 西人).
   const tasks = repairTasksFor(knownGlyphs, {
     utterance: cjkOnly && utterance?.pinyin ? { hanzi: `${cjkOnly}。`, pinyin: utterance.pinyin } : undefined,
-    utteranceCore: core && core !== cjkOnly ? { hanzi: `${core}。`, pinyin: core } : undefined,
   });
   if (tasks.length === 0) return null;
   const task = tasks[seed % tasks.length];
@@ -3097,7 +3121,7 @@ function maxConversationScenesForLesson(lesson: Lesson): number {
     return Math.min(1, authoredScenes);
   }
   if (lessonAllowsImmersionScenes(lesson)) return 99;
-  if (lesson.isReview) return 2;
+  if (lesson.isReview) return 1;
   // A partir da fase 3 a conversa deixa de ser "uma por lição": 2 diálogos
   // com intenções diferentes. Antes disso, 1 basta (e o loop pós-conversa
   // ainda consegue cobrir o vocabulário novo da cena).
@@ -4105,6 +4129,18 @@ function supplementalStepsForStage(
     }
     // Hànzì → imagem e áudio → imagem: usar o que já foi reconhecido.
     for (const item of focus) pushImage(item, 1);
+    // Ditado também no uso: o rodízio de percepção precisa de candidato
+    // nesta fase, senão o cap/reserva deixa a jornada com < 8 ditados.
+    if (allowDictation) {
+      const priorGlyphs = curriculumGlyphsBeforeLesson(options.lessonId);
+      const dictationItem = [...focus, ...practiceFocus].find(
+        (item) =>
+          allCjkGlyphsKnown(item.hanzi, priorGlyphs) &&
+          Boolean(item.pinyin?.trim()) &&
+          cleanHanzi(item.hanzi).length >= 2
+      );
+      if (dictationItem) push(makeDictationStep(dictationItem, focus, phaseOrder));
+    }
     // A cena de conversa entra cedo: é o exercício de uso mais rico.
     // Em lições-conceito de fundação, não misturar CORE_REVIEW no pool da cena.
     // Em microtarefas de tom, a cena pode ancorar o som em frase conhecida, mas
@@ -4509,6 +4545,7 @@ function generatedCandidatesFor(
   structureExposureForTransfer?: StructureExposureMap,
   priorTransferredFrames?: ReadonlySet<string>
 ): PracticeCandidate[] {
+  if (lesson.curriculumRole === "perception_lab") return [];
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
   const unitIndex = lessonUnitIndex(lesson);
@@ -4928,6 +4965,16 @@ function ensureCoverage(
   // produção/transferência — entra depois, sem protect.
   if (profile.maxConversationScenes > 0) {
     ensure((candidate) => candidate.step.kind === "conversation_scene", true);
+  }
+  const AUDIO_STEP_KINDS: ReadonlySet<StepKind> = new Set([
+    "listen",
+    "listen_select",
+    "tone",
+    "tone_pair",
+    "audio_discrimination",
+  ]);
+  if (lesson.steps.some((step) => AUDIO_STEP_KINDS.has(step.kind))) {
+    ensure((candidate) => AUDIO_STEP_KINDS.has(candidate.step.kind), true);
   }
   // Cota rotativa dos motores de percepção — só depois da fundação/fase 2.
   // Antes disso, forçar dictation/spot_error injeta formatos e glifos prematuros.
@@ -5558,7 +5605,7 @@ function postConversationBounds(lesson: Lesson, sceneCount = 1): { min: number; 
     FOUNDATION_LESSON_IDS.includes(lesson.id) && lesson.id !== "p1-engine-2-lab";
   if (foundationAuthored) return { min: 2, max: 2 };
   if (lessonAllowsImmersionScenes(lesson)) return { min: 3, max: 8 };
-  if (lesson.isReview) return { min: 3, max: 5 };
+  if (lesson.isReview) return { min: 3, max: 3 };
   // Duas conversas na mesma lição: follow-ups um pouco mais enxutos pra
   // não dobrar o tempo da sessão.
   if (sceneCount >= 2) return { min: 2, max: 3 };
@@ -6014,8 +6061,64 @@ function selectPostConversationBlueprints(
 // (req. 9: crescer só quando não há outra forma de cumprir a cobertura).
 function conversationLoopBudget(lesson: Lesson): { perConversation: number; growth: number } {
   if (lessonAllowsImmersionScenes(lesson)) return { perConversation: 6, growth: 18 };
-  if (lesson.isReview) return { perConversation: 5, growth: 16 };
+  if (lesson.curriculumRole === "perception_lab") return { perConversation: 2, growth: 2 };
+  if (lesson.isReview) return { perConversation: 3, growth: 6 };
   return { perConversation: 4, growth: 10 };
+}
+
+/** Compressão V4.1.1: só entrada, labs e revisão. O resto da jornada
+ *  precisa de folga gerada — senão o retry da mesma variante não renova. */
+function shouldCompressPracticePlan(lesson: Lesson): boolean {
+  return (
+    FOUNDATION_LESSON_IDS.includes(lesson.id) ||
+    lesson.curriculumRole === "perception_lab" ||
+    Boolean(lesson.isReview)
+  );
+}
+
+/** Quantos passos o loop pós-conversa ainda vai injetar — para reservar no target, não somar. */
+function conversationLoopReserve(lesson: Lesson, profile: LessonPracticeProfile): number {
+  const authored = lesson.steps.filter((step) => step.kind === "conversation_scene").length;
+  const expectedScenes = Math.min(
+    profile.maxConversationScenes,
+    authored > 0 ? authored : profile.maxConversationScenes > 0 ? 1 : 0
+  );
+  if (expectedScenes <= 0) return 0;
+  return postConversationBounds(lesson, expectedScenes).min * expectedScenes;
+}
+
+function withConversationLoopReserve(
+  lesson: Lesson,
+  profile: LessonPracticeProfile
+): LessonPracticeProfile {
+  const reserve = conversationLoopReserve(lesson, profile);
+  if (reserve <= 0) return profile;
+  return { ...profile, targetCount: Math.max(3, profile.targetCount - reserve) };
+}
+
+function capPlanToTarget(plan: LessonRoundStep[], targetCount: number): LessonRoundStep[] {
+  if (plan.length <= targetCount) return plan;
+  const next = [...plan];
+  // Nunca cortar follow-up pós-conversa: o portão conversation-loop exige o mínimo.
+  // Nem os motores de percepção que ensureCoverage acabou de garantir — o cap
+  // não pode apagar dictation/spot_error da jornada e o portão de drills cair.
+  const PERCEPTION_ENGINE_KINDS = new Set([
+    "audio_discrimination",
+    "dictation",
+    "odd_one_out",
+    "spot_error",
+  ]);
+  const droppable = (step: LessonRoundStep) =>
+    Boolean(step.generated) &&
+    step.kind !== "conversation_scene" &&
+    step.kind !== "image_choice" &&
+    !PERCEPTION_ENGINE_KINDS.has(step.kind) &&
+    !step.conversationDerived &&
+    !step.postConversationPhase;
+  for (let i = next.length - 1; i >= 0 && next.length > targetCount; i -= 1) {
+    if (droppable(next[i])) next.splice(i, 1);
+  }
+  return next;
 }
 
 /**
@@ -6392,7 +6495,10 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const focus = focusForPlanning(lesson, context);
   const reviewFocus = combinedReviewFocus(lesson, context);
   const errorFocus = recentErrorFocusItems(context.recentErrors);
-  const profile = profileForLesson(lesson, focus);
+  const declaredProfile = profileForLesson(lesson, focus);
+  const profile = shouldCompressPracticePlan(lesson)
+    ? withConversationLoopReserve(lesson, declaredProfile)
+    : declaredProfile;
   // Onda 4: a variante deixa de ser rodízio cego e passa a apontar para a causa
   // em que este aluno erra de verdade. Sem causa dominante — aluno novo, erros
   // espalhados, histórico curto — o rodízio A/B/C de sempre é preservado.
@@ -6448,6 +6554,16 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const usedSignatures = new Set<string>();
   const selected: PracticeCandidate[] = [];
 
+  if (lesson.curriculumRole === "perception_lab") {
+    for (const candidate of authoredCandidatesFor(lesson, reviewFocus)) {
+      if (selected.length >= profile.targetCount) break;
+      const signature = stepSignature(candidate.step);
+      if (usedSignatures.has(signature)) continue;
+      selected.push(candidate);
+      usedSignatures.add(signature);
+    }
+  }
+
   for (const stageId of LESSON_STAGE_ORDER) {
     const target = profile.stageTargets[stageId];
     if (target <= 0) continue;
@@ -6478,10 +6594,13 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     }
   }
 
-  ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures, practiceVariant);
+  if (lesson.curriculumRole !== "perception_lab") {
+    ensureCoverage(lesson, selected, candidates, profile, reviewFocus, focus, errorFocus, usedSignatures, practiceVariant);
+  }
   const trimmed = trimToTarget(selected, profile);
 
   for (const gap of moduleReviewGapCandidates(lesson, focus, reviewFocus, trimmed)) {
+    if (trimmed.length >= profile.targetCount) break;
     if (usedSignatures.has(stepSignature(gap.step))) continue;
     trimmed.push(gap);
     usedSignatures.add(stepSignature(gap.step));
@@ -6537,8 +6656,11 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     priorTransferredFrames,
   });
 
-  if (!context.silent) logPracticePlanInDev(lesson, withConversationLoop, profile, reviewFocus);
-  return balanceLessonPlan(withConversationLoop.map((step) => ({ ...step, practiceVariant })), {
+  const capped = shouldCompressPracticePlan(lesson)
+    ? capPlanToTarget(withConversationLoop, declaredProfile.targetCount)
+    : withConversationLoop;
+  if (!context.silent) logPracticePlanInDev(lesson, capped, declaredProfile, reviewFocus);
+  return balanceLessonPlan(capped.map((step) => ({ ...step, practiceVariant })), {
     recentActivities: context.recentActivities,
     hanziDedicatedLesson: lesson.skill === "hanzi",
   });

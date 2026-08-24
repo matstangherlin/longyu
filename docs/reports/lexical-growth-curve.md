@@ -9,10 +9,10 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 - Lesson 1: cumulative **1** unique explicit lexemes
 - Lesson 5: cumulative **15** unique explicit lexemes
 - Lesson 10: cumulative **31** unique explicit lexemes
-- Lesson 20: cumulative **48** unique explicit lexemes
-- Lesson 30: cumulative **54** unique explicit lexemes
-- Lesson 40: cumulative **71** unique explicit lexemes
-- Lesson 50: cumulative **91** unique explicit lexemes
+- Lesson 20: cumulative **47** unique explicit lexemes
+- Lesson 30: cumulative **53** unique explicit lexemes
+- Lesson 40: cumulative **70** unique explicit lexemes
+- Lesson 50: cumulative **90** unique explicit lexemes
 
 ## Per-lesson (first 30)
 
@@ -27,27 +27,27 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 | 7 | l1 | — | 2 | 24 | 50% |
 | 8 | l2 | 早上好、我、我叫Matheus | 4 | 27 | 29% |
 | 9 | l3 | 我很好、你好吗？、你呢？ | 2 | 30 | 20% |
-| 10 | l1-rev | 很 | 8 | 31 | 22% |
+| 10 | l1-rev | 很 | 5 | 31 | 33% |
 | 11 | l4 | 没关系、谢 | 2 | 33 | 50% |
 | 12 | p1-ate-logo | 明天见、晚上好、晚安 | 1 | 36 | 50% |
 | 13 | p1-primeira-conversa | 你叫什么？ | 9 | 37 | 60% |
 | 14 | p1-qingwen-cortesia | 请问、请坐、请进、请问，你好吗？ | 4 | 41 | 25% |
-| 15 | l2-rev | 再、见、不、客、气、没、天 | 17 | 48 | 25% |
-| 16 | p2-ma-primeiro-tom | — | 2 | 48 | 0% |
-| 17 | p2-ma-segundo-tom | — | 1 | 48 | 0% |
-| 18 | p2-ma-terceiro-tom | — | 2 | 48 | 50% |
-| 19 | p2-ma-quarto-tom | — | 2 | 48 | 50% |
-| 20 | p2-comparar-tom-1-4 | — | 3 | 48 | 67% |
-| 21 | p2-comparar-tom-2-3 | — | 2 | 48 | 50% |
-| 22 | l5 | 麻、马、骂 | 1 | 51 | 0% |
-| 23 | l6 | — | 10 | 51 | 10% |
-| 24 | l3-rev | — | 3 | 51 | 0% |
-| 25 | l7 | 咬、摇 | 2 | 53 | 25% |
-| 26 | l8 | — | 4 | 53 | 25% |
-| 27 | l8-compare | — | 2 | 53 | 0% |
-| 28 | l8-shi | 是 | 2 | 54 | 67% |
-| 29 | p2-tons-nihao | — | 3 | 54 | 33% |
-| 30 | p2-tons-xiexie | — | 3 | 54 | 67% |
+| 15 | l2-rev | 不、客、气、没、天、见 | 8 | 47 | 21% |
+| 16 | p2-ma-primeiro-tom | — | 1 | 47 | 0% |
+| 17 | p2-ma-segundo-tom | — | 1 | 47 | 0% |
+| 18 | p2-ma-terceiro-tom | — | 1 | 47 | 0% |
+| 19 | p2-ma-quarto-tom | — | 2 | 47 | 50% |
+| 20 | p2-comparar-tom-1-4 | — | 1 | 47 | 0% |
+| 21 | p2-comparar-tom-2-3 | — | 1 | 47 | 0% |
+| 22 | l5 | 麻、马、骂 | 1 | 50 | 0% |
+| 23 | l6 | — | 10 | 50 | 10% |
+| 24 | l3-rev | — | 3 | 50 | 0% |
+| 25 | l7 | 咬、摇 | 2 | 52 | 25% |
+| 26 | l8 | — | 4 | 52 | 25% |
+| 27 | l8-compare | — | 2 | 52 | 0% |
+| 28 | l8-shi | 是 | 2 | 53 | 67% |
+| 29 | p2-tons-nihao | — | 3 | 53 | 33% |
+| 30 | p2-tons-xiexie | — | 3 | 53 | 67% |
 
 ## Stagnation checks
 

@@ -73,6 +73,8 @@ const UNGRADED_KINDS = new Set(["intro", "listen", "flashcard", "microread", "ha
 const MAX_TYPING_FIRST_WINDOW = 1;
 const MAX_TYPING_ONBOARDING = 3;
 const MAX_STEPS_COMMON = 20;
+/** Teto V4.1.1: comprimir, não somar. Alvo 220–235; gate em 240. */
+const MAX_ONBOARDING_STEPS = 240;
 const MAX_STEPS_REVIEW = 26;
 const MAX_STEP_JUMP = 8;
 const MIN_DISTINCT_KINDS = 4;
@@ -199,6 +201,10 @@ try {
   const totalSteps = rows.reduce((sum, row) => sum + row.steps, 0);
   const totalMinutes = rows.reduce((sum, row) => sum + row.minutes, 0);
   const totalTyping = rows.reduce((sum, row) => sum + row.typing, 0);
+  assert(
+    totalSteps <= MAX_ONBOARDING_STEPS,
+    `entrada soma ${totalSteps} passos; teto V4.1.1 é ${MAX_ONBOARDING_STEPS} (alvo 220–235)`
+  );
 
   const lines = ["# Relatório de ritmo da entrada do curso", ""];
   lines.push(...reportProvenanceLines(rootDir, { lessonCount: ALL_LESSONS.length }));

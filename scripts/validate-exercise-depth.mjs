@@ -7,8 +7,8 @@
  * Gera reports/exercise-depth-report.md
  *
  * Portão gradual de qualidade (modo --beta, usado em validate:beta):
- * - FALHA: lição comum < 60 · conceito de fundação < 50 · revisão de módulo < 70 ·
- *   média global < 78 · resposta correta repetida mais de 2 vezes numa lição;
+ * - FALHA: lição comum < 60 · conceito de fundação < 50 · lab de percepção < 40 ·
+ *   revisão de módulo < 70 · média global < 78 · resposta correta repetida mais de 2 vezes;
  * - WARNING: lição comum 60–69 · revisão 70–77.
  * Sem --beta, tudo é warning informativo (auditoria local).
  */
@@ -28,6 +28,8 @@ const WARN_REVIEW = 78;
 const FAIL_AVERAGE = 78;
 /** R9: lições-conceito de fundação ficam leves (sem conversa/ditado gerados). */
 const FAIL_FOUNDATION_CONCEPT = 50;
+/** Lab de tom/percepção: a função dominante é discriminação, não conversa. */
+const FAIL_PERCEPTION_LAB = 40;
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -333,6 +335,7 @@ function analyzeLesson(lesson, plan, unit) {
     lessonId: lesson.id,
     title: lesson.title,
     isReview: Boolean(lesson.isReview),
+    isPerceptionLab: lesson.curriculumRole === "perception_lab",
     skill: lesson.skill,
     unitId: lesson.unitId,
     phaseOrder: lesson.phaseOrder,
@@ -448,11 +451,13 @@ async function main() {
         ? FAIL_REVIEW
         : foundationConceptIds.has(entry.lessonId)
           ? FAIL_FOUNDATION_CONCEPT
-          : FAIL_COMMON;
+          : entry.isPerceptionLab
+            ? FAIL_PERCEPTION_LAB
+            : FAIL_COMMON;
       const warnThreshold = entry.isReview ? WARN_REVIEW : WARN_COMMON;
       const label = `${entry.lessonId} (${entry.title})`;
       if (entry.depthScore < failThreshold) {
-        failures.push(`${label}: score ${entry.depthScore} < ${failThreshold} (${entry.isReview ? "revisão de módulo" : foundationConceptIds.has(entry.lessonId) ? "conceito de fundação" : "lição comum"})`);
+        failures.push(`${label}: score ${entry.depthScore} < ${failThreshold} (${entry.isReview ? "revisão de módulo" : foundationConceptIds.has(entry.lessonId) ? "conceito de fundação" : entry.isPerceptionLab ? "lab de percepção" : "lição comum"})`);
       } else if (entry.depthScore < warnThreshold) {
         warnings.push(`${label}: score ${entry.depthScore} abaixo do recomendado (${warnThreshold})`);
       }
@@ -468,7 +473,9 @@ async function main() {
         ? FAIL_REVIEW
         : foundationConceptIds.has(r.lessonId)
           ? FAIL_FOUNDATION_CONCEPT
-          : FAIL_COMMON;
+          : r.isPerceptionLab
+            ? FAIL_PERCEPTION_LAB
+            : FAIL_COMMON;
       return r.depthScore < threshold;
     });
     const reviewWeak = results.filter((r) => r.isReview && r.depthScore < WARN_REVIEW);

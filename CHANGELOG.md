@@ -7,6 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.1.1 — Hardening de métricas e compressão da entrada
+
+A V4.1 fez o aluno *usar* mandarim cedo. Esta correção mede o que diz medir e **substitui** conteúdo antigo em vez de somar comunicação por cima.
+
+- **Acquisition Momentum** só conta chinês canónico (estímulo, alvo, resposta correta). Distratores e frases propositalmente erradas (`我是好`, `我会中文说`, `我是水`…) vão para um relatório separado, classificados como erro proposital.
+- **Níveis de produção** separados: recognition, assembly (`sentence_build` e `produce` com banco), recall, independent (`free_production`), transfer. Montar `你 + 好` deixa de contar como “produção real”.
+- **Onboarding comprimido:** o planner da fundação não acrescenta mais 4–5 drills gerados; passos autorais extras de 你好 nas labs de hànzì/tom foram cortados. Conversa na lição 2 permanece.
+- **Parede de tons:** 3º e 4º tom com ma voltam a `perception_lab` (função dominante). IDs intactos.
+- **Seed 你好:** âncora nas lições 1–3; labs seguintes não ganham mais drills de cumprimento. Gate de seed share 11–20 aperta para <33% (alvo <32%).
+- **Procedência dos relatórios:** a identidade auditada é o Hash da Jornada; o SHA git é o HEAD no instante da geração (em geral o commit anterior ao markdown).
+
 ### V4.1 — First Communicative Win
 
 A primeira sessão deixa de ensinar *sobre* mandarim antes de o aluno *usar* mandarim. IDs e progresso antigo permanecem: as lições de abertura foram reescritas por dentro.

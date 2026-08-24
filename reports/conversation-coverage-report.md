@@ -2,13 +2,16 @@
 
 ## Procedência
 
+A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
+
 | Campo | Valor |
 |-------|-------|
-| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
+| Hash da Jornada | 822c0c252158 |
+| HEAD no instante da geração | 0fb5d6e1927a0766fd4e10eb75362a07aaad90d0 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T10:29:44.387Z |
+| Gerado em | 2026-08-24T18:37:37.221Z |
 | Lições | 127 |
-| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -19,9 +22,9 @@
 | Cenas V1 autorais (sem nós) | 0 |
 | Fallback V1 derivado (lines/checkpoint) | 46 |
 | Intenções distintas | 46 |
-| Passos autorais na jornada | 51 |
-| Lições com cena gerada no plano | 118 |
-| Cenas geradas distintas | 45 |
+| Passos autorais na jornada | 49 |
+| Lições com cena gerada no plano | 112 |
+| Cenas geradas distintas | 43 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -49,35 +52,35 @@
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
 | primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 1 |
-| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 3 | 1 |
-| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 2 |
+| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 2 | 1 |
+| agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 1 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 0 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 5 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 1 | 2 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 0 | 2 |
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 4 |
-| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 6 |
+| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 4 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
-| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 8 |
-| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 11 |
+| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 7 |
+| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 10 |
 | pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
-| pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 3 |
+| pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 2 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 0 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
 | encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
 | onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 2 |
-| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 6 |
+| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 5 |
 | sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
 | pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 3 |
 | fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 8 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 7 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 2 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 1 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
-| revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 1 |
-| revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 2 |
-| revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 1 |
+| revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
+| revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 1 |
+| revisao-hanzi-natureza | module_review | hanzi-nature-review | 10 | 4 | sim | 1 | 1 | 0 |
 | imersao-mercado | immersion | immersion-market | 14 | 6 | sim | 2 | 1 | 0 |
 | imersao-estacao | immersion | immersion-station | 15 | 6 | sim | 2 | 1 | 0 |
 | imersao-casa-amigo | immersion | immersion-visit | 14 | 6 | sim | 2 | 1 | 0 |
@@ -86,7 +89,7 @@
 | pedir-cardapio | module_review | order-menu | 14 | 5 | sim | 1 | 1 | 0 |
 | mostrar-livro | common | show-book | 7 | 2 | sim | 1 | 1 | 0 |
 | onde-esta-o-carro | common | ask-car-where | 7 | 2 | sim | 1 | 1 | 0 |
-| falar-de-estudo | common | study | 7 | 3 | sim | 1 | 1 | 7 |
+| falar-de-estudo | common | study | 7 | 3 | sim | 1 | 1 | 6 |
 | rotina-e-trabalho | common | work-routine | 7 | 3 | sim | 1 | 1 | 0 |
 | que-horas-sao | common | ask-time | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-me-sinto-bem | common | health | 7 | 3 | sim | 1 | 1 | 0 |
@@ -113,4 +116,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:0b358babfcd01631 -->
+<!-- integridade:a12005da938e4ad8 -->
