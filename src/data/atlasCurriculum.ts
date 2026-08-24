@@ -231,6 +231,7 @@ export interface LexicalGrowthPoint {
   title: string;
   isReview: boolean;
   skill?: string;
+  curriculumRole?: string;
   newLexemes: string[];
   reusedLexemes: string[];
   cumulative: number;
@@ -255,6 +256,7 @@ export function buildLexicalGrowthCurve(
       title: lesson.title ?? lesson.id,
       isReview: Boolean(lesson.isReview),
       skill: lesson.skill,
+      curriculumRole: lesson.curriculumRole,
       newLexemes,
       reusedLexemes,
       cumulative: seen.size,
@@ -337,7 +339,13 @@ export function seedDecayByBand(
   bands: Array<{ label: string; start: number; end: number }>
 ): Array<{ label: string; seedShare: number; lessons: number }> {
   return bands.map((band) => {
-    const slice = points.slice(band.start, band.end);
+    const slice = points.slice(band.start, band.end).filter((point) => {
+      // Labs de tom/hànzì não são “ainda estamos ensinando 你好”:
+      // entrariam na média só porque o spacer comunicativo (我很好) quebra a
+      // parede de tons na mesma janela.
+      const role = point.curriculumRole;
+      return role !== "perception_lab" && role !== "hanzi_lab";
+    });
     // Média ponderada pelo nº de lexemas: um lab com 2 tokens a 50% não pesa
     // o mesmo que uma conversa com 10. A média aritmética das razões inflava
     // o seed share da faixa 11–20 por causa das aulas de tom.

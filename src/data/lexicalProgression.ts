@@ -38,6 +38,7 @@ export type LexicalLessonLike = {
   focusGrammar?: string[];
   isReview?: boolean;
   skill?: string;
+  curriculumRole?: string;
   steps?: LexicalStepLike[];
 };
 
