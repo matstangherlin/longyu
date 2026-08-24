@@ -70,6 +70,23 @@ export function inferCurriculumRole(lesson: CurriculumRoleHint): CurriculumRole 
   ) {
     return "perception_lab";
   }
+
+  // Labs fonéticos posteriores (l5/l6/l8-compare…) não dependem de ID.
+  // Contar drills de tom no autoral: 3+ drills e mais percepção que conversa
+  // = laboratório. 你好/谢谢 com 2 tons e diálogo ficam acquisition de propósito
+  // — quebram a parede de labs, não a disfarçam.
+  if (lesson.skill === "som") {
+    const perception = (lesson.steps ?? []).filter((step) =>
+      step.kind === "tone" || step.kind === "tone_pair" || step.kind === "audio_discrimination"
+    ).length;
+    const communicative = (lesson.steps ?? []).filter(
+      (step) =>
+        step.kind === "conversation_scene" ||
+        step.kind === "free_production" ||
+        step.kind === "transfer_task"
+    ).length;
+    if (perception >= 3 && perception > communicative) return "perception_lab";
+  }
   if (lesson.steps?.some((step) => step.kind === "transfer_task" || step.kind === "structural_transfer")) {
     return "transfer";
   }

@@ -126,9 +126,10 @@ try {
 
     for (const step of frees) {
       const frameId = step.productionFrameId;
+      if (!frameId) continue;
       const rungs = bundle.forFree.get(frameId);
       if (!canGuidedProduceStructure(rungs)) {
-        freeWithoutStructure.push(`${lesson.id}/${frameId ?? "?"}`);
+        freeWithoutStructure.push(`${lesson.id}/${frameId}`);
       }
       if (frameId && !firstFrees.some((row) => row.frameId === frameId)) {
         firstFrees.push({ lessonId: lesson.id, frameId, target: step.correctAnswer ?? step.answer });

@@ -106,6 +106,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {},
     "priorTransferred": []
   },
+  "p3-wohenhao": {
+    "free": {},
+    "transfer": {},
+    "priorTransferred": []
+  },
   "p2-ma-terceiro-tom": {
     "free": {},
     "transfer": {},
@@ -116,12 +121,22 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {},
     "priorTransferred": []
   },
+  "p2-tons-nihao": {
+    "free": {},
+    "transfer": {},
+    "priorTransferred": []
+  },
   "p2-comparar-tom-1-4": {
     "free": {},
     "transfer": {},
     "priorTransferred": []
   },
   "p2-comparar-tom-2-3": {
+    "free": {},
+    "transfer": {},
+    "priorTransferred": []
+  },
+  "p2-tons-xiexie": {
     "free": {},
     "transfer": {},
     "priorTransferred": []
@@ -161,16 +176,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {},
     "priorTransferred": []
   },
-  "p2-tons-nihao": {
-    "free": {},
-    "transfer": {},
-    "priorTransferred": []
-  },
-  "p2-tons-xiexie": {
-    "free": {},
-    "transfer": {},
-    "priorTransferred": []
-  },
   "p2-sons-brasileiros": {
     "free": {},
     "transfer": {},
@@ -202,11 +207,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferred": []
   },
   "l10": {
-    "free": {},
-    "transfer": {},
-    "priorTransferred": []
-  },
-  "p3-wohenhao": {
     "free": {},
     "transfer": {},
     "priorTransferred": []
@@ -1328,7 +1328,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
-      "frame_woyao": 15,
+      "frame_woyao": 7,
       "frame_woxianghe": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
@@ -1340,7 +1340,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
-      "frame_woyao": 15,
+      "frame_woyao": 7,
       "frame_woxianghe": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
@@ -1365,7 +1365,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_niyaoma": 15,
-      "frame_woxiangchi": 15
+      "frame_woxiangchi": 7
     },
     "transfer": {
       "frame_zainali": 1,
@@ -1377,7 +1377,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_niyaoma": 15,
-      "frame_woxiangchi": 15
+      "frame_woxiangchi": 7
     },
     "priorTransferred": [
       "frame_woxihuan",
@@ -1394,7 +1394,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15
     },
@@ -1406,12 +1406,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15
     },
     "priorTransferred": [
-      "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyouge",
       "frame_wozai"
@@ -1444,7 +1443,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxiangchi": 15
     },
     "priorTransferred": [
-      "frame_wo_le",
       "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyouge",
@@ -1498,7 +1496,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1511,7 +1510,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",
@@ -1534,7 +1534,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1547,7 +1548,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",
@@ -1571,7 +1573,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1584,7 +1587,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",
@@ -1608,7 +1612,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1621,7 +1626,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",
@@ -1645,7 +1651,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1658,7 +1665,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",
@@ -1682,7 +1690,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1695,7 +1704,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",
@@ -1719,7 +1729,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_zainali": 15,
@@ -1732,7 +1743,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15
+      "frame_woqu": 15,
+      "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_wo_le",

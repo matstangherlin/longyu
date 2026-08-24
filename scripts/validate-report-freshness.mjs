@@ -38,6 +38,10 @@ const REPORTS = [
   "reports/first-communicative-win.md",
   "reports/acquisition-momentum.md",
   "reports/prerequisite-progression-report.md",
+  "reports/production-transfer-report.md",
+  "reports/transfer-integrity-report.md",
+  "reports/transfer-prerequisites-report.md",
+  "reports/conversation-loop-report.md",
 ];
 
 // Tolerância para o fluxo normal "regenera → commita": um relatório gerado

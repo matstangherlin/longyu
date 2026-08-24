@@ -257,6 +257,22 @@ try {
     if (runMomentum && toneLab && row.role === "acquisition") {
       fail(`${row.id} é laboratório de tom com papel 'acquisition' — declare perception_lab (função dominante)`);
     }
+    const authored = ALL_LESSONS.find((lesson) => lesson.id === row.id);
+    const authoredPerception = (authored?.steps ?? []).filter((step) =>
+      ["tone", "tone_pair", "audio_discrimination"].includes(step.kind)
+    ).length;
+    const conceptIntro = String(row.id).includes("o-que-e-");
+    if (
+      runMomentum &&
+      !conceptIntro &&
+      authored?.skill === "som" &&
+      row.role === "acquisition" &&
+      authoredPerception >= 3
+    ) {
+      fail(
+        `${row.id} é lab fonético (${authoredPerception} drills de tom no autoral) com papel 'acquisition'`
+      );
+    }
   }
   if (runMomentum && nonCommunicativeRun50 > MAX_NON_COMMUNICATIVE_RUN) {
     fail(`longestNonCommunicativeLessonRun nas 50 primeiras = ${nonCommunicativeRun50} (teto ${MAX_NON_COMMUNICATIVE_RUN})`);

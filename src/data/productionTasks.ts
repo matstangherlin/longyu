@@ -85,7 +85,9 @@ export type CommunicativeGoal =
   | "chain_actions"
   | "travel_by"
   | "state_ongoing"
-  | "state_change";
+  | "state_change"
+  | "farewell"
+  | "state_wellbeing";
 
 /** Domínio situacional da estrutura — para casar transferência com a lição. */
 export type CommunicativeDomain =
