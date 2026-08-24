@@ -5343,11 +5343,11 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "肉 (ròu) = carne." }
               ),
               imageChoice(
-                "choose_meaning",
+                "listen_and_choose_image",
                 "vegetables",
-                "O que esta imagem mostra?",
-                "verdura",
-                visualMeaningOptions("vegetables"),
+                "Ouça e escolha a verdura.",
+                "vegetables",
+                visualImageOptions("vegetables"),
                 { explanation: "菜 (cài) = verdura / prato de legumes." }
               ),
               listen("面条", "miàntiáo", "macarrão"),
@@ -5400,11 +5400,11 @@ export const JOURNEY: JourneyPhase[] = [
               listen("多少钱？", "duōshao qián?", "Quanto custa?"),
               flash("duoshaoqian"),
               imageChoice(
-                "choose_meaning",
+                "choose_image",
                 "menu",
-                "O que esta imagem mostra?",
-                "cardápio",
-                visualMeaningOptions("menu"),
+                "Qual imagem combina com 菜单?",
+                "menu",
+                visualImageOptions("menu"),
                 { explanation: "菜单 (càidān) é o cardápio que você pede no restaurante." }
               ),
               imageChoice(
@@ -5416,11 +5416,11 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "一杯水 (yì bēi shuǐ) = um copo de água." }
               ),
               imageChoice(
-                "choose_meaning",
+                "listen_and_choose_image",
                 "restaurant",
-                "O que esta imagem mostra?",
-                "restaurante",
-                visualMeaningOptions("restaurant"),
+                "Ouça e escolha o restaurante.",
+                "restaurant",
+                visualImageOptions("restaurant"),
                 { explanation: "饭馆 (fànguǎn) é um restaurante; 餐厅 também é muito usado." }
               ),
               compareWithImage(
@@ -5806,11 +5806,11 @@ export const JOURNEY: JourneyPhase[] = [
               listen("机场在哪里？", "jīchǎng zài nǎlǐ?", "Onde fica o aeroporto?"),
               listen("我坐出租车", "wǒ zuò chūzūchē", "Vou de táxi."),
               imageChoice(
-                "choose_meaning",
+                "choose_image",
                 "airport",
-                "O que esta imagem mostra?",
-                "aeroporto",
-                visualMeaningOptions("airport"),
+                "Qual imagem combina com 机场?",
+                "airport",
+                visualImageOptions("airport"),
                 { explanation: "机场 (jīchǎng) = aeroporto." }
               ),
               imageChoice(
@@ -5822,11 +5822,11 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "出租车 (chūzūchē) = táxi." }
               ),
               imageChoice(
-                "choose_meaning",
+                "listen_and_choose_image",
                 "hotel",
-                "O que esta imagem mostra?",
+                "Ouça e escolha o hotel.",
                 "hotel",
-                visualMeaningOptions("hotel"),
+                visualImageOptions("hotel"),
                 { explanation: "酒店 (jiǔdiàn) = hotel." }
               ),
               compareWithImage(
@@ -7651,20 +7651,12 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "地铁 (dìtiě) é o metrô urbano; 火车 (huǒchē) é o trem que costuma ligar cidades." }
               ),
               imageChoice(
-                "choose_meaning",
+                "choose_image",
                 "hotel",
-                "O que esta imagem mostra?",
+                "Qual imagem combina com 酒店?",
                 "hotel",
-                visualMeaningOptions("hotel"),
+                visualImageOptions("hotel"),
                 { explanation: "酒店 (jiǔdiàn) = hotel; 酒店在哪里？ pergunta onde ele fica." }
-              ),
-              imageChoice(
-                "choose_meaning",
-                "car",
-                "O que esta imagem mostra?",
-                "carro",
-                visualMeaningOptions("car"),
-                { explanation: "车 (chē) = carro / veículo." }
               ),
               imageChoice(
                 "choose_hanzi",
@@ -7683,11 +7675,11 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "车 (chē) = carro." }
               ),
               imageChoice(
-                "choose_meaning",
+                "choose_image",
                 "bus",
-                "O que esta imagem mostra?",
-                "ônibus",
-                visualMeaningOptions("bus"),
+                "Qual imagem combina com 公交车?",
+                "bus",
+                visualImageOptions("bus"),
                 { explanation: "公交车 (gōngjiāochē) = ônibus." }
               ),
               imageChoice(
@@ -7699,11 +7691,11 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "出租车 (chūzūchē) = táxi." }
               ),
               imageChoice(
-                "choose_meaning",
+                "choose_image",
                 "airplane",
-                "O que esta imagem mostra?",
-                "avião",
-                visualMeaningOptions("airplane"),
+                "Qual imagem combina com 飞机?",
+                "airplane",
+                visualImageOptions("airplane"),
                 { explanation: "飞机 (fēijī) = avião; 我坐飞机 = vou de avião." }
               ),
               flash("chezainali"),

@@ -4725,8 +4725,6 @@ function underAnswerRepeatCap(selected: readonly PracticeCandidate[], candidate:
   if (candidate.step.kind === "conversation_scene") return true;
   // Produção autoral independente: o ponto é formular sozinho a frase já vista.
   if (candidate.step.kind === "free_production" && !candidate.generated) return true;
-  // China visual autorada: peixe/hotel/passaporte não competem com listen da mesma palavra.
-  if (candidate.step.kind === "image_choice" && !candidate.generated) return true;
   const key = gradedAnswerKey(candidate.step);
   if (!key) return true;
   return answerOccurrenceCount(selected, key) < 2;
