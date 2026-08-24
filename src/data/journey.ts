@@ -1272,7 +1272,9 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
         { explanation: "人 é o caractere de pessoa." }
       ),
       hanziBuild("hb-ren-fragments", "Monte 人", "Monte o hànzì de pessoa.", "人", "pessoa"),
+      recognize("kou"),
       hanziBuild("hb-kou-fragments", "Monte 口", "Monte o hànzì de boca.", "口", "boca"),
+      recognize("ri"),
       hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol.", "日", "sol; dia"),
       imageChoice(
         "listen_and_choose_image",

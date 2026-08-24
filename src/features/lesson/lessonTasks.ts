@@ -6128,14 +6128,20 @@ function withConversationLoopReserve(
   return { ...profile, targetCount: Math.max(3, profile.targetCount - reserve) };
 }
 
-function capPlanToTarget(plan: LessonRoundStep[], targetCount: number): LessonRoundStep[] {
+function capPlanToTarget(
+  plan: LessonRoundStep[],
+  targetCount: number,
+  options: { protectHanziBuild?: boolean } = {}
+): LessonRoundStep[] {
   if (plan.length <= targetCount) return plan;
   const next = [...plan];
   // Nunca cortar follow-up pós-conversa: o portão conversation-loop exige o mínimo.
   // Nem os motores de percepção que ensureCoverage acabou de garantir — o cap
   // não pode apagar dictation/spot_error da jornada e o portão de drills cair.
-  // Nem HanziBuilder: o cap da revisão compacta derrubava os 2 builders do
-  // portão validate:hanzi-builder-coverage (l5-rev/l6-rev/checkpoint).
+  // Em revisão, também não cortar HanziBuilder: o cap compacto derrubava os 2
+  // builders do portão validate:hanzi-builder-coverage (l5-rev/l6-rev/checkpoint).
+  // Fora da revisão o cap ainda pode soltar hanzi_build extra — senão a fundação
+  // (p1-primeiros-hanzi) empilha 3× e o QA de runtime cai.
   const PERCEPTION_ENGINE_KINDS = new Set([
     "audio_discrimination",
     "dictation",
@@ -6146,7 +6152,7 @@ function capPlanToTarget(plan: LessonRoundStep[], targetCount: number): LessonRo
     Boolean(step.generated) &&
     step.kind !== "conversation_scene" &&
     step.kind !== "image_choice" &&
-    step.kind !== "hanzi_build" &&
+    !(options.protectHanziBuild && step.kind === "hanzi_build") &&
     !PERCEPTION_ENGINE_KINDS.has(step.kind) &&
     !step.conversationDerived &&
     !step.postConversationPhase;
@@ -6692,7 +6698,9 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   });
 
   const capped = shouldCompressPracticePlan(lesson)
-    ? capPlanToTarget(withConversationLoop, declaredProfile.targetCount)
+    ? capPlanToTarget(withConversationLoop, declaredProfile.targetCount, {
+        protectHanziBuild: Boolean(lesson.isReview),
+      })
     : withConversationLoop;
   if (!context.silent) logPracticePlanInDev(lesson, capped, declaredProfile, reviewFocus);
   return balanceLessonPlan(capped.map((step) => ({ ...step, practiceVariant })), {
@@ -6816,7 +6824,35 @@ export function balanceLessonPlan(
       )];
       return !wouldViolateVariety(seq, asCandidate);
     });
-    if (pick < 0) pick = 0;
+    if (pick < 0) {
+      // Sem candidato "limpo": encaixa o próximo bloco no meio do resultado
+      // se isso evitar 3× o mesmo kind. Empilhar o resto no fim criava
+      // p1-primeiros-hanzi@M1: 3× hanzi_build (os 3 builders autorais sobravam).
+      const stuck = remaining[0];
+      const wouldMakeKindRun = (blocks: typeof result, run = 3) => {
+        const kinds = blocks.flatMap((block) => block.steps.map((step) => step.kind));
+        let streak = 1;
+        for (let i = 1; i < kinds.length; i += 1) {
+          streak = kinds[i] === kinds[i - 1] ? streak + 1 : 1;
+          if (streak >= run) return true;
+        }
+        return false;
+      };
+      let insertAt = -1;
+      for (let idx = 0; idx <= result.length; idx += 1) {
+        const trial = [...result.slice(0, idx), stuck, ...result.slice(idx)];
+        if (!wouldMakeKindRun(trial)) {
+          insertAt = idx;
+          break;
+        }
+      }
+      if (insertAt >= 0) {
+        remaining.shift();
+        result.splice(insertAt, 0, stuck);
+        continue;
+      }
+      pick = 0;
+    }
     const [chosen] = remaining.splice(pick, 1);
     result.push(chosen);
   }

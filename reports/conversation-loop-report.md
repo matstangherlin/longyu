@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7ca3c10bd27a |
-| HEAD no instante da geração | 2c7527ac1be5fa5f7415c65e4dc27ca706eb80b6 |
+| Hash da Jornada | 5433a324154e |
+| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:10:12.819Z |
+| Gerado em | 2026-08-24T20:27:41.846Z |
 | Lições | 127 |
 
 ## Resumo
@@ -24,7 +24,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 486 |
 | **Cobertura relevante** (portão ≥ 76 %) | **88.9 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 29 refs |
-| Reutilização média por item | 1.96 |
+| Reutilização média por item | 1.97 |
 | Itens sem cobertura | 178 |
 | Tarefas da fase Pós-Conversa | 586 |
 | Média Pós-Conversa por conversa | 3.76 |
@@ -38,8 +38,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Núcleo saturado (fora do denominador)
 
-- char:hao — 545 exposições ao longo dos 127 planos
-- chunk:nihao — 395 exposições ao longo dos 127 planos
+- char:hao — 546 exposições ao longo dos 127 planos
+- chunk:nihao — 396 exposições ao longo dos 127 planos
 - char:bu — 269 exposições ao longo dos 127 planos
 - char:shi — 268 exposições ao longo dos 127 planos
 - chunk:wohenhao — 219 exposições ao longo dos 127 planos
@@ -58,7 +58,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - char:na_which — 71 exposições ao longo dos 127 planos
 - char:er — 60 exposições ao longo dos 127 planos
 - chunk:nashirenm — 56 exposições ao longo dos 127 planos
-- char:shan — 55 exposições ao longo dos 127 planos
+- char:shan — 54 exposições ao longo dos 127 planos
 - char:san — 51 exposições ao longo dos 127 planos
 - char:ba8 — 48 exposições ao longo dos 127 planos
 - char:li_inside — 46 exposições ao longo dos 127 planos
@@ -116,8 +116,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p6-horarios:chunk:xiawusandian (1 exposições no curso)
 - p6-clima:chunk:zenmeyang (19 exposições no curso)
 - p6-direcoes:chunk:qingwen (30 exposições no curso)
-- p6-survival-mandarin:chunk:zhegeduoshaoqian (8 exposições no curso)
 - p6-survival-mandarin:chunk:woyaoqujiudian (2 exposições no curso)
+- p6-survival-mandarin:chunk:zhegeduoshaoqian (8 exposições no curso)
 - l29:chunk:zhegeduoshaoqian (8 exposições no curso)
 - l29:chunk:zheshishui (20 exposições no curso)
 - p7-imersao-mercado:chunk:zhegeduoshaoqian (8 exposições no curso)
@@ -209,4 +209,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - l19-logica-madeira:char:shan
 - …mais 98.
 
-<!-- integridade:f9a2a6dc746df342 -->
+<!-- integridade:eada08bf6c50beb3 -->

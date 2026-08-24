@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7ca3c10bd27a |
-| HEAD no instante da geração | 2c7527ac1be5fa5f7415c65e4dc27ca706eb80b6 |
+| Hash da Jornada | 5433a324154e |
+| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:09:18.168Z |
+| Gerado em | 2026-08-24T20:26:02.764Z |
 | Lições | 127 |
 
 ## Resumo
@@ -18,11 +18,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 197 |
-| Média de passos por lição | 9.8 |
+| Passos somados | 199 |
+| Média de passos por lição | 9.9 |
 | Minutos estimados até a lição 20 | 85 |
 | Passos de digitação na entrada inteira | 0 |
-| Lições sem nada para ouvir | 0 |
+| Lições sem nada para ouvir | 1 |
 
 > Medido no plano REAL de um aluno **novo**: nada completado, nenhum erro,
 > nenhum histórico, primeira tentativa. É este plano que decide se a pessoa
@@ -36,7 +36,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | 2 | O que é pinyin? | 5 | 4 | 0 | 1 | 5 | 3 |
 | 3 | O que é tom? | 9 | 8 | 0 | 3 | 8 | 5 |
 | 4 | O que é hànzì? | 11 | 10 | 0 | 1 | 8 | 4 |
-| 5 | Montando primeiros hànzì | 11 | 10 | 0 | 1 | 5 | 6 |
+| 5 | Montando primeiros hànzì | 13 | 12 | 0 | 0 | 5 | 6 |
 | 6 | Laboratório de exercícios | 6 | 6 | 0 | 1 | 5 | 5 |
 | 7 | Mandarim, pinyin e tom | 10 | 9 | 0 | 2 | 9 | 3 |
 | 8 | Olá | 15 | 14 | 0 | 3 | 12 | 6 |
@@ -79,10 +79,10 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 ## Avisos
 
-Nenhum.
+- lição 5 (p1-primeiros-hanzi — "Montando primeiros hànzì") não tem nenhum passo de áudio.
 
 ## Falhas
 
 Nenhum.
 
-<!-- integridade:cafdb0d4888c4c01 -->
+<!-- integridade:9b99f6d7ba82c10a -->

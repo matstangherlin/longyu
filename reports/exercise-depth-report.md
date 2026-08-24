@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7ca3c10bd27a |
-| HEAD no instante da geração | 2c7527ac1be5fa5f7415c65e4dc27ca706eb80b6 |
+| Hash da Jornada | 5433a324154e |
+| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:11:12.651Z |
+| Gerado em | 2026-08-24T20:26:46.143Z |
 | Lições | 127 |
 
 ## Resumo
@@ -324,29 +324,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### p1-primeiros-hanzi — Montando primeiros hànzì (score 78)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 11 |
-| Tipos de exercício | 5 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 5 |
-| Chunks únicos | 1 |
-| Frases reais | 0 |
-| Contexto | 2 |
-| Visuais | 2 |
-| Conversas | 0 |
-| Produção sem apoio | 0 |
-| Transferência | 0 |
-
-**Problemas:**
-- pouca aplicação em frase real
-
-**Sugestões:**
-- incluir sentence_build, produce ou cena com frase completa
-- adicionar conversation_scene com 你好 / 你好吗 / 我很好
-
 ### p3-nomes-da-frase — Nomes das peças (score 79)
 
 | Métrica | Valor |
@@ -412,6 +389,29 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p1-primeiros-hanzi — Montando primeiros hànzì (score 82)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 13 |
+| Tipos de exercício | 5 |
+| Respostas únicas | 6 |
+| Hànzì únicos | 5 |
+| Chunks únicos | 1 |
+| Frases reais | 0 |
+| Contexto | 5 |
+| Visuais | 2 |
+| Conversas | 0 |
+| Produção sem apoio | 0 |
+| Transferência | 0 |
+
+**Problemas:**
+- pouca aplicação em frase real
+
+**Sugestões:**
+- incluir sentence_build, produce ou cena com frase completa
+- adicionar conversation_scene com 你好 / 你好吗 / 我很好
 
 ### p2-numeros-1-5 — Números por som (score 84)
 
@@ -716,7 +716,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 叫, 你
+- hànzì muito repetido: 你, 叫
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -958,7 +958,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 我
+- hànzì muito repetido: 我, 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1134,7 +1134,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 我
+- hànzì muito repetido: 我, 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1398,7 +1398,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 见, 明
+- hànzì muito repetido: 明, 见
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1420,7 +1420,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 好
+- hànzì muito repetido: 好, 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1486,7 +1486,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 好, 我, 么
+- hànzì muito repetido: 我, 你, 好, 么
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1508,7 +1508,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 叫, 什, 么, 我
+- hànzì muito repetido: 我, 叫, 你, 什, 么
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1640,7 +1640,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 是, 我, 学
+- hànzì muito repetido: 我, 学, 你, 是
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1662,7 +1662,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 我
+- hànzì muito repetido: 我, 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1684,7 +1684,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 好, 我
+- hànzì muito repetido: 我, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2388,7 +2388,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 是, 我
+- hànzì muito repetido: 我, 是
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2608,7 +2608,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 点, 你
+- hànzì muito repetido: 你, 点
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2838,4 +2838,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:47d17d7c9cad7d21 -->
+<!-- integridade:36d2ac93385240d9 -->

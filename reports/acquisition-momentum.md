@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7ca3c10bd27a |
-| HEAD no instante da geração | 2c7527ac1be5fa5f7415c65e4dc27ca706eb80b6 |
+| Hash da Jornada | 5433a324154e |
+| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:09:29.740Z |
+| Gerado em | 2026-08-24T20:26:13.300Z |
 | Lições | 127 |
 
 ## Resumo
@@ -41,7 +41,7 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 9 | acquisition | Tudo bem? | sim | unidades novas: 我很好、明天见; conversation_scene |
 | 10 | review | Revisão do módulo | sim | revisão (isenta) |
 | 11 | acquisition | Obrigado | sim | unidades novas: 没关系; conversation_scene |
-| 12 | acquisition | Até logo | sim | unidades novas: 晚安、晚上好; conversation_scene |
+| 12 | acquisition | Até logo | sim | unidades novas: 晚上好、晚安; conversation_scene |
 | 13 | acquisition | Primeira conversa | sim | conversation_scene |
 | 14 | acquisition | Com licença | sim | unidades novas: 请问; conversation_scene |
 | 15 | review | Revisão do módulo | sim | revisão (isenta) |
@@ -65,7 +65,7 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 33 | review | Revisão do módulo | sim | revisão (isenta) |
 | 34 | acquisition | Me apresentar | sim | unidades novas: 好的; conversation_scene |
 | 35 | acquisition | Tudo bem? | sim | unidades novas: 妈妈、这是水、在哪里、怎么样、请坐; conversation_scene |
-| 36 | acquisition | Como você se chama? | sim | unidades novas: 你是哪国人、我是巴西人、什么、我叫小明; conversation_scene |
+| 36 | acquisition | Como você se chama? | sim | unidades novas: 我叫小明、你是哪国人、我是巴西人、什么; conversation_scene |
 | 37 | acquisition | De onde sou | sim | unidades novas: 认识你很高兴; conversation_scene |
 | 38 | acquisition | 我很好 — Estou bem | sim | unidades novas: 今天很好; conversation_scene |
 | 39 | acquisition | 我不会说中文 | sim | unidades novas: 洗手间在哪里、我会说中文; conversation_scene |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:d50acade9a3aedca -->
+<!-- integridade:613550274e9dc78a -->
