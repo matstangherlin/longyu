@@ -7,7 +7,7 @@ Productive units = words / chunks / patterns (not isolated unused characters).
 | Metric | Value | Target |
 | --- | ---: | --- |
 | PRODUCTIVE_CORE | 500 | 400–500 |
-| — chunks | 132 | — |
+| — chunks | 129 | — |
 | — patterns | 36 | — |
 | — combos | 128 | — |
 | RECEPTIVE_CORE | 850 | 700–850 |

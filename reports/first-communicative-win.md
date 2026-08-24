@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | a8b065cefa20 |
-| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
+| Hash da Jornada | 1d649dd0bd5e |
+| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T21:07:20.364Z |
+| Gerado em | 2026-08-24T23:36:57.534Z |
 | Lições | 127 |
 
 ## Resumo
@@ -23,12 +23,12 @@ Produção **não** é um único interruptor. Montar `你 + 好` com peças à v
 | lessonToFirstConversation | 2 |
 | lessonToFirstAssistedAssembly | 1 |
 | lessonToFirstGuidedRecall | 4 |
-| lessonToFirstIndependentProduction | 42 |
+| lessonToFirstIndependentProduction | 12 |
 | lessonToFirstTransfer | 47 |
 | estimatedTimeToFirstConversation | 6 min |
 | estimatedTimeToFirstAssistedAssembly | 3 min |
 | longestNonCommunicativeLessonRun (20) | 0 |
-| consecutiveTheoryOrLabLessons (20) | 5 |
+| consecutiveTheoryOrLabLessons (20) | 3 |
 
 Primeira interação em mandarim: **1. O que é mandarim?** (`p1-o-que-e-mandarim`).
 
@@ -38,7 +38,7 @@ Primeira montagem assistida (`sentence_build` / `produce` com banco): **1. O que
 
 Primeiro recall guiado: **4. O que é hànzì?** (`p1-o-que-e-hanzi`).
 
-Primeira produção independente (`free_production`): **42. Falo um pouco** (`l11-falo-pouco`).
+Primeira produção independente (`free_production`): **12. Até logo** (`p1-ate-logo`).
 
 ## 20 primeiras lições
 
@@ -55,15 +55,15 @@ Primeira produção independente (`free_production`): **42. Falo um pouco** (`l1
 | 9 | acquisition | Tudo bem? | sim | sim | sim | sim | não | sim | 5 |
 | 10 | review | Revisão do módulo | sim | sim | sim | sim | não | sim | 3 |
 | 11 | acquisition | Obrigado | sim | sim | sim | sim | não | sim | 6 |
-| 12 | acquisition | Até logo | sim | sim | sim | sim | não | sim | 6 |
-| 13 | acquisition | Primeira conversa | sim | sim | sim | não | não | sim | 5 |
+| 12 | acquisition | Até logo | sim | sim | sim | sim | sim | sim | 6 |
+| 13 | acquisition | Primeira conversa | sim | sim | sim | sim | sim | sim | 5 |
 | 14 | acquisition | Com licença | sim | sim | sim | sim | não | sim | 4 |
 | 15 | review | Revisão do módulo | sim | sim | sim | não | não | sim | 4 |
 | 16 | perception_lab | 1º tom com ma | não | não | não | sim | não | não | 4 |
 | 17 | perception_lab | 2º tom com ma | não | não | não | não | não | não | 3 |
-| 18 | perception_lab | 3º tom com ma | não | não | não | não | não | não | 3 |
-| 19 | perception_lab | 4º tom com ma | sim | não | não | não | não | sim | 4 |
-| 20 | perception_lab | Comparar 1º e 4º tom | não | não | não | não | não | não | 3 |
+| 18 | acquisition | 我很好 — Estou bem | sim | sim | sim | sim | não | sim | 4 |
+| 19 | perception_lab | 3º tom com ma | não | não | não | não | não | não | 3 |
+| 20 | perception_lab | 4º tom com ma | sim | não | não | não | não | sim | 4 |
 
 ## Compatibilidade (ONB-010)
 
@@ -73,4 +73,4 @@ IDs das lições de fundação e da parede de tons **não mudaram**. Progresso a
 
 Nenhuma.
 
-<!-- integridade:89e12b88af7f6497 -->
+<!-- integridade:1674c10174a01985 -->

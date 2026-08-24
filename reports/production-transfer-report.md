@@ -2,13 +2,16 @@
 
 ## Procedência
 
+A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
+
 | Campo | Valor |
 |-------|-------|
-| Commit | 5474a07a2ff3ccfa374ddac5811c7a8ac9e737f8 |
+| Hash da Jornada | 1d649dd0bd5e |
+| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-23T10:31:59.800Z |
+| Gerado em | 2026-08-24T23:35:04.807Z |
 | Lições | 127 |
-| Hash da Jornada | c81f99ac1e2e |
 
 ## Resumo
 
@@ -22,19 +25,19 @@
 | Tarefas que aceitam frase irmã | 42 |
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 9 |
-| Lições com produção aberta | 23 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 216 |
-| Lições com conversa sem apoio | 111 / 127 |
-| Lições com quebra de comunicação jogável | 94 / 127 |
+| Lições com produção aberta | 21 / 127 |
+| Falas de conversa sem apoio (aluno veterano) | 183 |
+| Lições com conversa sem apoio | 97 / 127 |
+| Lições com quebra de comunicação jogável | 93 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 661 |
-| Lições com produção livre | 81 / 127 |
-| Lições com transferência | 48 / 127 |
-| Lições com reparo conversacional | 80 / 127 |
+| Passos auditados no plano real (3 tentativas) | 550 |
+| Lições com produção livre | 68 / 127 |
+| Lições com transferência | 49 / 127 |
+| Lições com reparo conversacional | 63 / 127 |
 | Estruturas diferentes no plano real | 12 |
 | Frases inéditas cobradas | 20 |
-| Transfer guided / supported / question | 107 / 0 / 21 |
-| 1ªs transferências (attempt 0) | 48 |
+| Transfer guided / supported / question | 112 / 0 / 19 |
+| 1ªs transferências (attempt 0) | 49 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -46,21 +49,21 @@
 ## Primeiras transferências (attempt 0)
 
 - **p3-ordem-das-palavras** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p3-nomes-da-frase** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
-- **l5-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
 - **l14** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
 - **p4-num-678** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
 - **p4-num-910** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-mu** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-ren** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-kou** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-ri** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-yue** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
+- **p4-char-shan** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-shui** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
 - **p4-char-tian** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-bu** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-shi** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-wo** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-ni** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
-- **l14-pecas-natureza** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **l14-frase-minima** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **l6-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **l7-rev** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- …mais 33.
+- **p4-char-huo** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **p4-char-da** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **p4-char-xiao** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- …mais 34.
 
 ## Frases inéditas cobradas por transferência
 
@@ -70,19 +73,19 @@
 - 我去火车站
 - 我喜欢中国
 - 我喜欢茶
+- 我回家了
 - 我在喝水
 - 我在睡觉
 - 我想吃鱼
 - 我想喝热水
-- 我明天去火车站
 - 我有一个朋友
 - 我有三个苹果
 - 我有五个朋友
 - 我有四个朋友
 - 我睡觉了
-- 我要买苹果
+- 我要买牛奶
 - 我要热水
 - 衣服多少钱
 - 车站在哪里
 
-<!-- integridade:a7b3fb13311db5fa -->
+<!-- integridade:3766427baf2882e1 -->
