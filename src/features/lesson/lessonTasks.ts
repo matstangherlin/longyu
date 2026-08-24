@@ -1196,6 +1196,36 @@ function hasBuilderForFocusItem(item: FocusItem): boolean {
   return [...cleanHanzi(item.hanzi)].some((glyph) => buildersForCharacter(glyph).length > 0);
 }
 
+/** Glifos `char:` da biblioteca/revisão — o mesmo conjunto que o portão de HanziBuilder usa. */
+function lessonLibraryCharGlyphs(lesson: Lesson): string[] {
+  const glyphs = new Set<string>();
+  for (const ref of [...(lesson.libraryItems ?? []), ...(lesson.reviewItems ?? [])]) {
+    const [type, id] = String(ref).split(":");
+    const hanzi = type === "char" ? charById[id]?.hanzi : undefined;
+    if (hanzi) glyphs.add(hanzi);
+  }
+  return [...glyphs];
+}
+
+function isSimplyBuildableGlyph(glyph: string): boolean {
+  return buildersForCharacter(glyph).some(
+    (builder) =>
+      (builder.mode === "fragments" || builder.mode === "complete") && !(builder.prerequisites?.length)
+  );
+}
+
+/**
+ * Mesma regra do validate:hanzi-builder-coverage: revisão com 2+ montáveis
+ * exige 2 builders se for skill hànzì ou se houver 2+ montagens simples.
+ */
+function reviewRequiresTwoHanziBuilders(lesson: Lesson): boolean {
+  if (!lesson.isReview) return false;
+  const glyphs = lessonLibraryCharGlyphs(lesson);
+  const buildable = glyphs.filter((glyph) => buildersForCharacter(glyph).length > 0);
+  if (buildable.length < 2) return false;
+  return lesson.skill === "hanzi" || glyphs.filter(isSimplyBuildableGlyph).length >= 2;
+}
+
 function isHanziFocusedLesson(lesson: Lesson): boolean {
   const id = lesson.id.toLocaleLowerCase("pt-BR");
   return lesson.skill === "hanzi" || id.includes("char-") || id.includes("hanzi") || id.startsWith("p5-");
@@ -1340,12 +1370,14 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   if (lesson.isReview || (lesson.skill === "sistema" && lesson.title.toLocaleLowerCase("pt-BR").includes("revis"))) {
     // V4.1.1: revisão compacta. 20+ passos no onboarding virava fadiga, não consolidação.
     const targetCount = Math.max(10, Math.min(12, Math.max(authoredCount, focus.length >= 8 ? 12 : 10)));
-    // Revisão de módulo: pelo menos 2 builders quando há hànzì relevante.
+    // Revisão de módulo: 2 builders quando o portão de cobertura exige (hànzì
+    // relevante OU 2+ montáveis simples na biblioteca — ex.: l5-rev em fala).
+    const needsTwoBuilders = relevantHanzi || reviewRequiresTwoHanziBuilders(lesson);
     return {
       targetCount,
       stageTargets: { intro: 2, recognition: 3, assembly: 3, usage: 2, post_conversation: 0, consolidation: targetCount - 10 },
-      minHanziBuilds: relevantHanzi ? 2 : 0,
-      maxHanziBuilds: relevantHanzi ? (lesson.skill === "hanzi" ? 3 : 2) : 0,
+      minHanziBuilds: needsTwoBuilders ? 2 : 0,
+      maxHanziBuilds: needsTwoBuilders ? (lesson.skill === "hanzi" ? 3 : 2) : 0,
       perCharBuildCap: 2,
       maxPinyinTasks,
       needsPinyinTask: pinyinRich,
@@ -6102,6 +6134,8 @@ function capPlanToTarget(plan: LessonRoundStep[], targetCount: number): LessonRo
   // Nunca cortar follow-up pós-conversa: o portão conversation-loop exige o mínimo.
   // Nem os motores de percepção que ensureCoverage acabou de garantir — o cap
   // não pode apagar dictation/spot_error da jornada e o portão de drills cair.
+  // Nem HanziBuilder: o cap da revisão compacta derrubava os 2 builders do
+  // portão validate:hanzi-builder-coverage (l5-rev/l6-rev/checkpoint).
   const PERCEPTION_ENGINE_KINDS = new Set([
     "audio_discrimination",
     "dictation",
@@ -6112,6 +6146,7 @@ function capPlanToTarget(plan: LessonRoundStep[], targetCount: number): LessonRo
     Boolean(step.generated) &&
     step.kind !== "conversation_scene" &&
     step.kind !== "image_choice" &&
+    step.kind !== "hanzi_build" &&
     !PERCEPTION_ENGINE_KINDS.has(step.kind) &&
     !step.conversationDerived &&
     !step.postConversationPhase;
