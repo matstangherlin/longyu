@@ -659,6 +659,28 @@ const dialogue = (
   correctAnswer,
   explanation,
 });
+/** Produção independente: situação em pt-BR, sem banco e sem alternativas. */
+const freeProduction = (opts: {
+  title: string;
+  situationPt: string;
+  expected: string;
+  accepts?: string[];
+  productionGoal: CommunicativeGoal;
+  patternPt?: string;
+}): LessonStep => ({
+  kind: "free_production",
+  title: opts.title,
+  situationPt: opts.situationPt,
+  correctAnswer: opts.expected,
+  answer: opts.expected,
+  accepts: opts.accepts ?? [opts.expected],
+  productionGoal: opts.productionGoal,
+  productionAssist: "guided",
+  productionHelpInitial: 1,
+  patternPt: opts.patternPt,
+  helpMode: "disabled",
+  isNoHint: true,
+});
 const mapDirection = (
   title: string,
   fromLabel: string,
@@ -1548,6 +1570,15 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
   }),
 ];
 
+const [
+  PHASE2_MA_FIRST,
+  PHASE2_MA_SECOND,
+  PHASE2_MA_THIRD,
+  PHASE2_MA_FOURTH,
+  PHASE2_COMPARE_1_4,
+  PHASE2_COMPARE_2_3,
+] = PHASE2_MA_TONE_MICROTASKS;
+
 const PHASE2_CONTEXT_TONE_MICROTASKS: Lesson[] = [
   microLesson({
     id: "p2-tons-nihao",
@@ -1608,6 +1639,8 @@ const PHASE2_CONTEXT_TONE_MICROTASKS: Lesson[] = [
     ],
   }),
 ];
+
+const [PHASE2_TONS_NIHAO, PHASE2_TONS_XIEXIE] = PHASE2_CONTEXT_TONE_MICROTASKS;
 
 const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
   microLesson({
@@ -1764,6 +1797,9 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
     ],
   }),
 ];
+
+const PHASE3_WOHENHAO = PHASE3_SURVIVAL_MICROTASKS[0]!;
+const PHASE3_SURVIVAL_AFTER_WOHENHAO = PHASE3_SURVIVAL_MICROTASKS.slice(1);
 
 const PHASE4_CHARACTER_MICROTASKS: Lesson[] = [
   microLesson({
@@ -2697,6 +2733,14 @@ export const JOURNEY: JourneyPhase[] = [
                 ["再见", "谢谢", "不客气", "我很好"],
                 "Mesmo núcleo social, função nova: 再见 encerra; a manutenção de 你好 fica na revisão/SRS."
               ),
+              freeProduction({
+                title: "Diga sozinho",
+                situationPt: "A conversa acabou. A pessoa vai embora. O que você diz?",
+                expected: "再见",
+                accepts: ["再见", "明天见", "晚安"],
+                productionGoal: "farewell",
+                patternPt: "despedida",
+              }),
             ],
           },
           microLesson({
@@ -2766,6 +2810,14 @@ export const JOURNEY: JourneyPhase[] = [
                 "明天见 reforça a despedida com plano."
               ),
               produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
+              freeProduction({
+                title: "Diga sozinho",
+                situationPt: "Cumprimente a pessoa e diga que está bem.",
+                expected: "我很好",
+                accepts: ["我很好", "你好我很好", "你好，我很好"],
+                productionGoal: "state_wellbeing",
+                patternPt: "estou bem",
+              }),
             ],
           }),
           microLesson({
@@ -2886,11 +2938,20 @@ export const JOURNEY: JourneyPhase[] = [
         focusSounds: ["1º tom alto e reto", "2º tom subindo", "3º tom desce e sobe", "4º tom cai firme"],
         focusSituations: ["perceber diferença de sentido pelo contorno", "comparar pares de tons"],
         lessons: [
-          ...PHASE2_MA_TONE_MICROTASKS,
+          PHASE2_MA_FIRST,
+          PHASE2_MA_SECOND,
+          PHASE3_WOHENHAO,
+          PHASE2_MA_THIRD,
+          PHASE2_MA_FOURTH,
+          PHASE2_TONS_NIHAO,
+          PHASE2_COMPARE_1_4,
+          PHASE2_COMPARE_2_3,
+          PHASE2_TONS_XIEXIE,
           {
             id: "l5",
             title: "Quatro tons",
             skill: "som",
+            curriculumRole: "perception_lab",
             steps: [
               intro(
                 "Quatro contornos",
@@ -2921,6 +2982,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l6",
             title: "Treino guiado",
             skill: "som",
+            curriculumRole: "perception_lab",
             reviewItems: ["chunk:nihaoma"],
             steps: [
               intro("Forme o ouvido", "Veja a curva do tom, ouça e imite. Nas revisões, o app pode esconder as dicas."),
@@ -2992,6 +3054,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l7",
             title: "A sílaba yao",
             skill: "som",
+            curriculumRole: "perception_lab",
             libraryItems: ["char:yao_bite", "char:yao_shake"],
             reviewItems: ["chunk:nihaoma", "chunk:wohenhao"],
             steps: [
@@ -3039,6 +3102,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l8",
             title: "Tons em 好 e 谢",
             skill: "som",
+            curriculumRole: "perception_lab",
             steps: [
               intro("Reconectar", "Você já falou 你好 e 谢谢 — agora treine o tom exato de 好 (3º) e ouça 谢 (4º)."),
               tone("好", "hǎo", 3),
@@ -3059,6 +3123,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l8-compare",
             title: "Compare tons",
             skill: "som",
+            curriculumRole: "perception_lab",
             libraryItems: ["char:ma2"],
             reviewItems: ["char:ma2", "chunk:nihaoma"],
             rewardQi: 2,
@@ -3100,6 +3165,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l8-shi",
             title: "A sílaba shi",
             skill: "som",
+            curriculumRole: "perception_lab",
             libraryItems: ["char:shi"],
             reviewItems: ["char:shi", "chunk:zaijian", "chunk:wohenhao"],
             rewardQi: 2,
@@ -3137,7 +3203,6 @@ export const JOURNEY: JourneyPhase[] = [
               ),
             ],
           },
-          ...PHASE2_CONTEXT_TONE_MICROTASKS,
           {
             id: "p2-sons-brasileiros",
             title: "Sons que brasileiros confundem",
@@ -3231,6 +3296,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p2-numeros-1-5",
             title: "Números por som",
             skill: "som",
+            curriculumRole: "perception_lab",
             libraryItems: ["char:yi", "char:er", "char:san", "char:si", "char:wu"],
             reviewItems: ["char:yi", "char:er", "char:san", "char:si", "char:wu"],
             rewardQi: 2,
@@ -3568,7 +3634,7 @@ export const JOURNEY: JourneyPhase[] = [
               ),
             ],
           },
-          ...PHASE3_SURVIVAL_MICROTASKS,
+          ...PHASE3_SURVIVAL_AFTER_WOHENHAO,
           {
             id: "l11",
             title: "Não entendi",
@@ -5204,7 +5270,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题"],
+            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题", "面", "条", "咖", "啡"],
             libraryItems: [
               "char:fan_rice",
               "char:cai_dish",
@@ -5234,6 +5300,10 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:yibeicha",
               "chunk:maidan",
               "chunk:duoshaoqian",
+              "chunk:kafei",
+              "chunk:miantiao",
+              "chunk:mian_noodles",
+              "chunk:woyaomian",
             ],
             reviewItems: [
               "char:fan_rice",
@@ -5272,8 +5342,37 @@ export const JOURNEY: JourneyPhase[] = [
                 visualHanziOptions("meat"),
                 { explanation: "肉 (ròu) = carne." }
               ),
+              imageChoice(
+                "choose_meaning",
+                "vegetables",
+                "O que esta imagem mostra?",
+                "verdura",
+                visualMeaningOptions("vegetables"),
+                { explanation: "菜 (cài) = verdura / prato de legumes." }
+              ),
+              listen("面条", "miàntiáo", "macarrão"),
+              listen("咖啡", "kāfēi", "café"),
+              flash("miantiao"),
+              flash("kafei"),
+              flash("woyaomian"),
+              imageChoice(
+                "choose_meaning",
+                "noodles",
+                "O que esta imagem mostra?",
+                "macarrão",
+                visualMeaningOptions("noodles"),
+                { explanation: "面条 (miàntiáo) = macarrão." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "coffee",
+                "Ouça e escolha a bebida certa.",
+                "coffee",
+                visualImageOptions("coffee"),
+                { explanation: "咖啡 (kāfēi) = café." }
+              ),
               // 饭 / 菜 / 喝 ficam no foco (libraryItems) e aparecem em revisão / outras lições;
-              // aqui o slot visual (máx. 2) prioriza carne e peixe — a escolha do cardápio.
+              // aqui o plano visual prioriza o cardápio concreto (carne, peixe, macarrão, café).
               flash("woyaofan"),
               flash("woyaomifan"),
               flash("woxiangchimifan"),
@@ -5652,7 +5751,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
-            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场"],
+            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场", "机", "出", "租", "车"],
             libraryItems: [
               "chunk:chaoshizainali",
               "chunk:yinhangzainali",
@@ -5660,6 +5759,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:gongyuanzainali",
               "chunk:woquchaoshi",
               "chunk:woquyiyuan",
+              "chunk:feijichangzainali",
+              "chunk:wozuochuzuche",
             ],
             reviewItems: [
               "chunk:chaoshizainali",
@@ -5701,6 +5802,32 @@ export const JOURNEY: JourneyPhase[] = [
                 "banco",
                 visualMeaningOptions("bank"),
                 { explanation: "银行 (yínháng) = banco." }
+              ),
+              listen("机场在哪里？", "jīchǎng zài nǎlǐ?", "Onde fica o aeroporto?"),
+              listen("我坐出租车", "wǒ zuò chūzūchē", "Vou de táxi."),
+              imageChoice(
+                "choose_meaning",
+                "airport",
+                "O que esta imagem mostra?",
+                "aeroporto",
+                visualMeaningOptions("airport"),
+                { explanation: "机场 (jīchǎng) = aeroporto." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "taxi",
+                "Ouça e escolha o transporte certo.",
+                "taxi",
+                visualImageOptions("taxi"),
+                { explanation: "出租车 (chūzūchē) = táxi." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "hotel",
+                "O que esta imagem mostra?",
+                "hotel",
+                visualMeaningOptions("hotel"),
+                { explanation: "酒店 (jiǔdiàn) = hotel." }
               ),
               compareWithImage(
                 "word_to_image",
@@ -6014,6 +6141,22 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("机场在哪里？", "jīchǎng zài nǎlǐ?", "Onde fica o aeroporto?"),
               listen("这是我的护照", "zhè shì wǒ de hùzhào", "Este é o meu passaporte"),
+              imageChoice(
+                "listen_and_choose_image",
+                "airport",
+                "Ouça e escolha o aeroporto.",
+                "airport",
+                visualImageOptions("airport"),
+                { explanation: "机场 (jīchǎng) = aeroporto." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "airplane",
+                "O que esta imagem mostra?",
+                "avião",
+                visualMeaningOptions("airplane"),
+                { explanation: "飞机 (fēijī) = avião." }
+              ),
               flash("jichangzainali"),
               flash("dengjikouzainali"),
               flash("zheshiwodehuzhao"),
@@ -6753,12 +6896,36 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "苹果 (píngguǒ) = maçã; 牛奶 é leite e 茶 é chá." }
               ),
               imageChoice(
+                "choose_meaning",
+                "milk",
+                "O que esta imagem mostra?",
+                "leite",
+                visualMeaningOptions("milk"),
+                { explanation: "牛奶 (niúnǎi) = leite." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "banana",
+                "Ouça e escolha a fruta certa.",
+                "banana",
+                visualImageOptions("banana"),
+                { explanation: "香蕉 (xiāngjiāo) = banana." }
+              ),
+              imageChoice(
                 "listen_and_choose_image",
                 "phone",
                 "Ouça e escolha o item correto.",
                 "phone",
                 ["phone", "book", "car", "ticket"],
                 { explanation: "手机 (shǒujī) = celular." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "juice",
+                "O que esta imagem mostra?",
+                "suco",
+                visualMeaningOptions("juice"),
+                { explanation: "果汁 (guǒzhī) = suco." }
               ),
               comp("这件衣服多少钱？", "zhè jiàn yīfu duōshao qián?", "Quanto custa esta roupa?", [
                 "Quanto custa esta roupa?",
@@ -6880,6 +7047,8 @@ export const JOURNEY: JourneyPhase[] = [
               "预",
               "订",
               "给",
+              "李",
+              "行",
             ],
             libraryItems: [
               "chunk:xianjin",
@@ -6908,6 +7077,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:yiyuanzainali",
               "chunk:youwifima",
               "chunk:qinggeiwodehuzhao",
+              "chunk:xingli",
             ],
             reviewItems: [
               "chunk:duoshaoqian",
@@ -6958,6 +7128,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "充电器 = carregador."
               ),
               flash("huzhao"),
+              flash("xingli"),
               flash("fangjian"),
               flash("fangka"),
               flash("qiantai"),
@@ -6995,6 +7166,39 @@ export const JOURNEY: JourneyPhase[] = [
                 "这是我的护照",
                 ["这是我的护照", "我很好", "太贵了", "菜单"],
                 "这是我的护照 identifica o passaporte."
+              ),
+              listen("行李", "xíngli", "bagagem"),
+              imageChoice(
+                "choose_meaning",
+                "passport",
+                "O que esta imagem mostra?",
+                "passaporte",
+                visualMeaningOptions("passport"),
+                { explanation: "护照 (hùzhào) = passaporte." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "luggage",
+                "Ouça e escolha a bagagem.",
+                "luggage",
+                visualImageOptions("luggage"),
+                { explanation: "行李 (xíngli) = bagagem." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "hotel_key_card",
+                "O que esta imagem mostra?",
+                "cartão do quarto",
+                visualMeaningOptions("hotel_key_card"),
+                { explanation: "房卡 (fángkǎ) abre o quarto do hotel." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "bathroom",
+                "O que esta imagem mostra?",
+                "banheiro",
+                visualMeaningOptions("bathroom"),
+                { explanation: "洗手间 (xǐshǒujiān) = banheiro." }
               ),
               dialogue(
                 "Quarto",
@@ -7477,6 +7681,30 @@ export const JOURNEY: JourneyPhase[] = [
                 "car",
                 visualImageOptions("car"),
                 { explanation: "车 (chē) = carro." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "bus",
+                "O que esta imagem mostra?",
+                "ônibus",
+                visualMeaningOptions("bus"),
+                { explanation: "公交车 (gōngjiāochē) = ônibus." }
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "taxi",
+                "Ouça e escolha o táxi.",
+                "taxi",
+                visualImageOptions("taxi"),
+                { explanation: "出租车 (chūzūchē) = táxi." }
+              ),
+              imageChoice(
+                "choose_meaning",
+                "airplane",
+                "O que esta imagem mostra?",
+                "avião",
+                visualMeaningOptions("airplane"),
+                { explanation: "飞机 (fēijī) = avião; 我坐飞机 = vou de avião." }
               ),
               flash("chezainali"),
               flash("woyaopiao"),

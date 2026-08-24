@@ -774,7 +774,7 @@ interface LessonPracticeProfile {
   needsPinyinTask: boolean;
   /** Máximo de cenas de conversa: 1 comum, 2 revisão, várias em imersão. */
   maxConversationScenes: number;
-  /** Máximo de exercícios visuais (image_choice) no plano: 2 comum, 3 revisão. */
+  /** Máximo de exercícios visuais GERADOS (image_choice). Autoral não conta. */
   maxImageChoices: number;
   /** Revisões podem repetir mais um pouco, desde que com transformação cognitiva. */
   isReview: boolean;
@@ -1333,6 +1333,13 @@ function authoredBuilderCount(lesson: Lesson): number {
   return lesson.steps.filter((step) => step.kind === "hanzi_build").length;
 }
 
+function withAuthoredVisualRoom(profile: LessonPracticeProfile, lesson: Lesson): LessonPracticeProfile {
+  const authoredImages = lesson.steps.filter((step) => step.kind === "image_choice").length;
+  if (authoredImages <= profile.maxImageChoices) return profile;
+  const extra = authoredImages - profile.maxImageChoices;
+  return { ...profile, targetCount: Math.min(18, profile.targetCount + extra) };
+}
+
 function isDedicatedBuilderLesson(lesson: Lesson): boolean {
   return authoredBuilderCount(lesson) >= 4;
 }
@@ -1459,8 +1466,12 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     ? maxPinyinTasksForLesson(lesson, pinyinRich)
     : Math.min(1, maxPinyinTasksForLesson(lesson, pinyinRich));
   const maxConversationScenes = maxConversationScenesForLesson(lesson);
+  const authoredUnaided = lesson.steps.filter(
+    (step) => step.kind === "free_production" || step.kind === "transfer_task"
+  ).length;
   // Com 2 conversas, usage precisa de vaga extra — senão a segunda cena nunca entra.
-  const usageSlots = Math.max(1, Math.min(2, maxConversationScenes));
+  // Produção independente autorada também precisa de vaga em usage (V4.2).
+  const usageSlots = Math.max(1, Math.min(2, maxConversationScenes) + authoredUnaided);
   return {
     targetCount: Math.max(targetCount, targetCount + Math.max(0, maxConversationScenes - 1)),
     stageTargets: {
@@ -4581,7 +4592,11 @@ function generatedCandidatesFor(
   const phaseOrder = lessonPhaseOrder(lesson);
   const allowComposedFiller = Boolean(lesson.isReview);
   const unitIndex = lessonUnitIndex(lesson);
-  const allowImageSteps = lessonAllowsGeneratedImages(lesson);
+  const authoredImageCount = lesson.steps.filter((step) => step.kind === "image_choice").length;
+  // Se a lição já tem o teto de visuais autorais, não gerar mais do mesmo
+  // subset (chá/arroz/água) — senão os conceitos da China visual nunca entram.
+  const allowImageSteps =
+    lessonAllowsGeneratedImages(lesson) && authoredImageCount < profile.maxImageChoices;
   // Lições-conceito de fundação: o catálogo inteiro do currículo precoce
   // liberava cenas com 再见/明天见 e o loop pós-conversa gerava high no
   // audit:early-lessons. Restringe knownRefs ao foco da própria lição.
@@ -4687,6 +4702,10 @@ function countKind(candidates: readonly PracticeCandidate[], kind: StepKind): nu
   return candidates.filter((candidate) => candidate.step.kind === kind).length;
 }
 
+function generatedImageCount(candidates: readonly PracticeCandidate[]): number {
+  return candidates.filter((candidate) => candidate.step.kind === "image_choice" && candidate.generated).length;
+}
+
 /** Resposta avaliada normalizada (mesma métrica do validate:exercise-depth). */
 function gradedAnswerKey(step: LessonStep): string {
   const raw = step.correctAnswer ?? step.answer ?? step.checkpoint?.correctAnswer ?? "";
@@ -4704,6 +4723,10 @@ function underAnswerRepeatCap(selected: readonly PracticeCandidate[], candidate:
   // diálogo, não a string da opção. Em lições de um único chunk (你好) o teto
   // matava conversation_scene depois de listen/build.
   if (candidate.step.kind === "conversation_scene") return true;
+  // Produção autoral independente: o ponto é formular sozinho a frase já vista.
+  if (candidate.step.kind === "free_production" && !candidate.generated) return true;
+  // China visual autorada: peixe/hotel/passaporte não competem com listen da mesma palavra.
+  if (candidate.step.kind === "image_choice" && !candidate.generated) return true;
   const key = gradedAnswerKey(candidate.step);
   if (!key) return true;
   return answerOccurrenceCount(selected, key) < 2;
@@ -4745,6 +4768,8 @@ function underSemanticCaps(
   // (ex.: p1-o-que-e-mandarim com 你好). Sem isto o ensure de conversation_scene
   // falha e validate:exercise-depth cai no portão.
   if (candidate.step.kind === "conversation_scene") return true;
+  if (candidate.step.kind === "free_production" && !candidate.generated) return true;
+  if (candidate.step.kind === "image_choice" && !candidate.generated) return true;
   if (!isGradedStep(candidate.step)) return true;
   for (const key of stepSemanticKeys(candidate.step)) {
     const cap = semanticCapForKey(key, isReview);
@@ -4847,7 +4872,9 @@ function selectBestCandidate(
     .filter((candidate) => !isPinyinPracticeStep(candidate.step) || pinyinTaskCount < profile.maxPinyinTasks)
     .filter(
       (candidate) =>
-        candidate.step.kind !== "image_choice" || countKind(selected, "image_choice") < profile.maxImageChoices
+        candidate.step.kind !== "image_choice" ||
+        !candidate.generated ||
+        generatedImageCount(selected) < profile.maxImageChoices
     )
     .filter((candidate) => !violatesImageRepeat(selected, candidate))
     .filter((candidate) => underSemanticCaps(selected, candidate, profile.isReview))
@@ -4880,7 +4907,13 @@ function replaceLowestIfNeeded(
   if (!underPerCharCap(selected, candidate, profile)) return;
   if (!underAnswerRepeatCap(selected, candidate)) return;
   if (isPinyinPracticeStep(candidate.step) && countPinyinTasks(selected) >= profile.maxPinyinTasks) return;
-  if (candidate.step.kind === "image_choice" && countKind(selected, "image_choice") >= profile.maxImageChoices) return;
+  if (
+    candidate.step.kind === "image_choice" &&
+    candidate.generated &&
+    generatedImageCount(selected) >= profile.maxImageChoices
+  ) {
+    return;
+  }
   if (violatesImageRepeat(selected, candidate)) return;
   if (!underSemanticCaps(selected, candidate, profile.isReview)) return;
   if (
@@ -4890,7 +4923,10 @@ function replaceLowestIfNeeded(
     return;
   }
 
-  if (selected.length < profile.targetCount) {
+  const authoredVisual = candidate.step.kind === "image_choice" && !candidate.generated;
+  // Visuais autorais da China visual crescem o plano em vez de disputar vaga
+  // com intro/conversa já protegidos — senão hotel/restaurante nunca entram.
+  if (selected.length < profile.targetCount || (protect && authoredVisual)) {
     selected.push(protect ? { ...candidate, ensured: true } : candidate);
     usedSignatures.add(signature);
     return;
@@ -5035,9 +5071,18 @@ function ensureCoverage(
   // revisão de módulo com itens concretos tem 2, sendo 1 de conteúdo anterior.
   const imageInfo = lessonImageCoverageInfo(lesson);
   // Mesmo fora da cobertura obrigatória: se o pool tem um visual válido, ele
-  // fica. O pool só oferece imagem quando a lição as permite, então isto não
-  // força visual em lição abstrata — só impede que um passo de score alto
-  // derrube o único exercício visual que a lição tinha.
+  // entra. Autoral da China visual (peixe, hotel, passaporte…) precisa sobreviver
+  // ao cap de gerados — protege todas as imagens escritas na jornada.
+  const authoredVisuals = candidates.filter(
+    (candidate) => candidate.step.kind === "image_choice" && !candidate.generated
+  ).length;
+  if (authoredVisuals > 0) {
+    ensureCount(
+      (candidate) => candidate.step.kind === "image_choice" && !candidate.generated,
+      authoredVisuals,
+      true
+    );
+  }
   ensure((candidate) => candidate.step.kind === "image_choice", true);
   if (imageInfo.eligible) {
     if (lesson.isReview) {
@@ -5075,6 +5120,10 @@ function ensureCoverage(
   // Produção aberta e transferência: só entram no pool quando a estrutura já
   // foi praticada. Sem reserva, o score de outros motores as engolia e o
   // degrau final da escada sumia do plano real.
+  ensure(
+    (candidate) => candidate.step.kind === "free_production" && !candidate.generated,
+    true
+  );
   if (!earlyPedagogy) {
     ensure(
       (candidate) => candidate.step.kind === "free_production" && Boolean(candidate.step.productionOpen),
@@ -5142,7 +5191,6 @@ function ensureCoverage(
 }
 
 function trimToTarget(selected: PracticeCandidate[], profile: LessonPracticeProfile): PracticeCandidate[] {
-  if (selected.length <= profile.targetCount) return selected;
   const keep = new Set<number>();
   for (const stageId of LESSON_STAGE_ORDER) {
     const first = selected.findIndex((candidate) => candidate.stageId === stageId);
@@ -5154,6 +5202,9 @@ function trimToTarget(selected: PracticeCandidate[], profile: LessonPracticeProf
   selected.forEach((candidate, index) => {
     if (candidate.ensured) keep.add(index);
   });
+  const requiredCount = keep.size;
+  const budget = Math.min(22, Math.max(profile.targetCount, requiredCount));
+  if (selected.length <= budget) return selected;
   const ranked = selected
     .map((candidate, index) => ({ candidate, index }))
     .sort((a, b) => {
@@ -5161,7 +5212,7 @@ function trimToTarget(selected: PracticeCandidate[], profile: LessonPracticeProf
       const bRequired = keep.has(b.index) ? 1 : 0;
       return bRequired - aRequired || b.candidate.score - a.candidate.score;
     })
-    .slice(0, profile.targetCount)
+    .slice(0, budget)
     .map(({ index }) => index);
   return selected.filter((_, index) => ranked.includes(index));
 }
@@ -6536,7 +6587,7 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
   const focus = focusForPlanning(lesson, context);
   const reviewFocus = combinedReviewFocus(lesson, context);
   const errorFocus = recentErrorFocusItems(context.recentErrors);
-  const declaredProfile = profileForLesson(lesson, focus);
+  const declaredProfile = withAuthoredVisualRoom(profileForLesson(lesson, focus), lesson);
   const profile = shouldCompressPracticePlan(lesson)
     ? withConversationLoopReserve(lesson, declaredProfile)
     : declaredProfile;
