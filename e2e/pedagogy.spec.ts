@@ -110,9 +110,15 @@ test.describe("lição", () => {
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
-    // V3.5 simplificou o título do tom ("Ouça" + "Qual tom você ouviu?").
-    // O prompt em português continua heading — nunca botão de glossário.
-    await expect(page.getByRole("heading", { name: /Qual tom você ouviu/i })).toBeVisible();
+    // O balancer pode inserir image_choice gerado entre o intro e o tom.
+    // O que importa: ao chegar no tom, o prompt em português é heading — nunca
+    // botão de glossário.
+    const toneHeading = page.getByRole("heading", { name: /Qual tom você ouviu/i });
+    expect(
+      await advanceUntilVisible(page, toneHeading, 12),
+      "l1 deve chegar no passo de tom após o intro",
+    ).toBe(true);
+    await expect(toneHeading).toBeVisible();
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /qual|contorno|ouviu/i })).toHaveCount(0);
   });
@@ -128,9 +134,12 @@ test.describe("lição", () => {
     });
     await expect(page.getByText(/木/).first()).toBeVisible();
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
-    // Depois da introdução vem reconhecimento simples, ainda sem composições.
+    // Depois da introdução o balancer pode abrir num hanzi_build gerado
+    // (fragmentos simples, ex. lua) ou numa associação visual — ainda sem 林/明/好.
     await page.getByRole("button", { name: "Entendi" }).click();
-    await expect(page.getByText(/Observe a forma e conecte/i).first()).toBeVisible();
+    await expect(
+      page.getByText(/Monte o hànzì|Monte por fragmentos|Monte pelas peças|Associação visual|Observe a forma/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
   });
 });
