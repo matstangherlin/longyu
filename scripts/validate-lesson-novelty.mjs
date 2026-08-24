@@ -222,8 +222,12 @@ try {
     }
 
     // 4) Nenhuma aplicação real (produção/uso/conversa) num plano relevante.
+    // Labs de percepção/hànzì reconhecem de propósito — exigir produção
+    // pintava esses laboratórios de acquisition de novo.
     const applicationCount = graded.filter((step) => cognitiveProfile(step).familyRank >= 2).length;
-    if (plan.length >= 6 && applicationCount === 0) {
+    const isLab =
+      lesson.curriculumRole === "perception_lab" || lesson.curriculumRole === "hanzi_lab";
+    if (!isLab && plan.length >= 6 && applicationCount === 0) {
       issues.push("nenhuma aplicação real: o plano só reconhece, nunca produz/usa");
     }
 
