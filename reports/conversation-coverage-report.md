@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | a8b065cefa20 |
-| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
+| Hash da Jornada | 1d649dd0bd5e |
+| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T21:09:04.471Z |
+| Gerado em | 2026-08-24T23:33:02.438Z |
 | Lições | 127 |
 
 ## Resumo
@@ -23,8 +23,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Fallback V1 derivado (lines/checkpoint) | 46 |
 | Intenções distintas | 46 |
 | Passos autorais na jornada | 49 |
-| Lições com cena gerada no plano | 112 |
-| Cenas geradas distintas | 42 |
+| Lições com cena gerada no plano | 105 |
+| Cenas geradas distintas | 41 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -51,32 +51,32 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Cena | Papel | Intenção | Falas | Intervenções | Ramificada | Conclusões | Uso autoral | Uso gerado |
 |------|-------|----------|------:|-------------:|-----------:|-----------:|------------:|-----------:|
-| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 1 |
-| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 2 | 1 |
+| primeiro-cumprimento | common | greet | 7 | 2 | sim | 1 | 3 | 0 |
+| perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 2 | 0 |
 | agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 1 |
-| despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 0 |
+| despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 5 |
-| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 0 | 2 |
+| revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 0 | 1 |
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 4 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 4 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
-| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 7 |
-| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 10 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
-| pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 2 |
+| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 6 |
+| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 9 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 4 |
+| pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 3 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 0 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
 | encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
-| onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 2 |
+| onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 1 |
 | apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 5 |
-| sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
-| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 3 |
-| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 6 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 7 |
+| sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 4 |
+| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 2 |
+| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 4 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 6 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 2 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 1 |
-| conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 1 |
+| conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 0 |
 | comprar-itens | module_review | buy-items | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-restaurante | module_review | restaurant-review | 10 | 4 | sim | 1 | 1 | 0 |
 | revisao-numeros | module_review | numbers-review | 10 | 4 | sim | 1 | 1 | 1 |
@@ -96,7 +96,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | como-esta-o-tempo | common | weather | 6 | 2 | sim | 1 | 1 | 0 |
 | checkin-hotel | common | hotel | 7 | 3 | sim | 1 | 1 | 0 |
 | no-aeroporto | common | airport | 6 | 2 | sim | 1 | 1 | 0 |
-| pegar-taxi | common | taxi | 7 | 3 | sim | 1 | 1 | 0 |
+| pegar-taxi | common | taxi | 7 | 3 | sim | 1 | 1 | 1 |
 
 ## Cenas nunca usadas
 
@@ -116,4 +116,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:c1403730141a88b4 -->
+<!-- integridade:168931932fd81780 -->

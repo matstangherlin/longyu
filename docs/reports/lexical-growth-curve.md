@@ -10,7 +10,7 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 - Lesson 5: cumulative **15** unique explicit lexemes
 - Lesson 10: cumulative **31** unique explicit lexemes
 - Lesson 20: cumulative **47** unique explicit lexemes
-- Lesson 30: cumulative **53** unique explicit lexemes
+- Lesson 30: cumulative **52** unique explicit lexemes
 - Lesson 40: cumulative **70** unique explicit lexemes
 - Lesson 50: cumulative **90** unique explicit lexemes
 
@@ -35,19 +35,19 @@ Modal reuse of the same seed (你好 in listen vs sentence_build) does **not** c
 | 15 | l2-rev | 不、客、气、没、天、见 | 8 | 47 | 21% |
 | 16 | p2-ma-primeiro-tom | — | 1 | 47 | 0% |
 | 17 | p2-ma-segundo-tom | — | 1 | 47 | 0% |
-| 18 | p2-ma-terceiro-tom | — | 1 | 47 | 0% |
-| 19 | p2-ma-quarto-tom | — | 2 | 47 | 50% |
-| 20 | p2-comparar-tom-1-4 | — | 1 | 47 | 0% |
-| 21 | p2-comparar-tom-2-3 | — | 1 | 47 | 0% |
-| 22 | l5 | 麻、马、骂 | 1 | 50 | 0% |
-| 23 | l6 | — | 10 | 50 | 10% |
-| 24 | l3-rev | — | 3 | 50 | 0% |
-| 25 | l7 | 咬、摇 | 2 | 52 | 25% |
-| 26 | l8 | — | 4 | 52 | 25% |
-| 27 | l8-compare | — | 2 | 52 | 0% |
-| 28 | l8-shi | 是 | 2 | 53 | 67% |
-| 29 | p2-tons-nihao | — | 3 | 53 | 33% |
-| 30 | p2-tons-xiexie | — | 3 | 53 | 67% |
+| 18 | p3-wohenhao | — | 1 | 47 | 100% |
+| 19 | p2-ma-terceiro-tom | — | 1 | 47 | 0% |
+| 20 | p2-ma-quarto-tom | — | 2 | 47 | 50% |
+| 21 | p2-tons-nihao | — | 3 | 47 | 33% |
+| 22 | p2-comparar-tom-1-4 | — | 1 | 47 | 0% |
+| 23 | p2-comparar-tom-2-3 | — | 1 | 47 | 0% |
+| 24 | p2-tons-xiexie | — | 3 | 47 | 67% |
+| 25 | l5 | 麻、马、骂 | 1 | 50 | 0% |
+| 26 | l6 | — | 10 | 50 | 10% |
+| 27 | l3-rev | — | 3 | 50 | 0% |
+| 28 | l7 | 咬、摇 | 2 | 52 | 25% |
+| 29 | l8 | — | 4 | 52 | 25% |
+| 30 | l8-compare | — | 2 | 52 | 0% |
 
 ## Stagnation checks
 

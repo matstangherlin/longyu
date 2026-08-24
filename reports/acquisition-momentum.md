@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | a8b065cefa20 |
-| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
+| Hash da Jornada | 1d649dd0bd5e |
+| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T21:07:20.380Z |
+| Gerado em | 2026-08-24T23:37:07.704Z |
 | Lições | 127 |
 
 ## Resumo
@@ -24,7 +24,7 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | Janela | 50 |
 | Acquisition sem progresso | 0 |
 | longestNonCommunicativeLessonRun (50) | 0 |
-| consecutiveTheoryOrLabLessons (50) | 6 |
+| consecutiveTheoryOrLabLessons (50) | 4 |
 
 ## 50 primeiras lições
 
@@ -41,40 +41,40 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 9 | acquisition | Tudo bem? | sim | unidades novas: 我很好、明天见; conversation_scene |
 | 10 | review | Revisão do módulo | sim | revisão (isenta) |
 | 11 | acquisition | Obrigado | sim | unidades novas: 没关系; conversation_scene |
-| 12 | acquisition | Até logo | sim | unidades novas: 晚上好、晚安; conversation_scene |
-| 13 | acquisition | Primeira conversa | sim | conversation_scene |
+| 12 | acquisition | Até logo | sim | unidades novas: 晚安; conversation_scene; produção independente |
+| 13 | acquisition | Primeira conversa | sim | conversation_scene; produção independente |
 | 14 | acquisition | Com licença | sim | unidades novas: 请问; conversation_scene |
 | 15 | review | Revisão do módulo | sim | revisão (isenta) |
 | 16 | perception_lab | 1º tom com ma | não | lab (lexical zero ok) |
 | 17 | perception_lab | 2º tom com ma | não | lab (lexical zero ok) |
-| 18 | perception_lab | 3º tom com ma | não | lab (lexical zero ok) |
-| 19 | perception_lab | 4º tom com ma | sim | lab (lexical zero ok) |
-| 20 | perception_lab | Comparar 1º e 4º tom | não | lab (lexical zero ok) |
-| 21 | perception_lab | Comparar 2º e 3º tom | sim | lab (lexical zero ok) |
-| 22 | acquisition | Quatro tons | sim | lab (lexical zero ok) |
-| 23 | acquisition | Treino guiado | sim | lab (lexical zero ok) |
-| 24 | review | Revisão do módulo | sim | revisão (isenta) |
-| 25 | acquisition | A sílaba yao | sim | lab (lexical zero ok) |
-| 26 | acquisition | Tons em 好 e 谢 | sim | lab (lexical zero ok) |
-| 27 | acquisition | Compare tons | sim | unidades novas: 我不会说中文; conversation_scene |
-| 28 | acquisition | A sílaba shi | sim | lab (lexical zero ok) |
-| 29 | acquisition | Tons em 你好 | sim | conversation_scene |
-| 30 | acquisition | Tons em 谢谢 | sim | conversation_scene |
-| 31 | acquisition | Sons que brasileiros confundem | sim | lab (lexical zero ok) |
-| 32 | acquisition | Números por som | sim | lab (lexical zero ok) |
-| 33 | review | Revisão do módulo | sim | revisão (isenta) |
-| 34 | acquisition | Me apresentar | sim | unidades novas: 好的; conversation_scene |
-| 35 | acquisition | Tudo bem? | sim | unidades novas: 妈妈、这是水、在哪里、怎么样、请坐; conversation_scene |
-| 36 | acquisition | Como você se chama? | sim | unidades novas: 我叫小明、你是哪国人、我是巴西人、什么; conversation_scene |
-| 37 | acquisition | De onde sou | sim | unidades novas: 认识你很高兴; conversation_scene |
-| 38 | acquisition | 我很好 — Estou bem | sim | unidades novas: 今天很好; conversation_scene |
-| 39 | acquisition | 我不会说中文 | sim | unidades novas: 洗手间在哪里、我会说中文; conversation_scene |
-| 40 | acquisition | 请再说一遍 | sim | conversation_scene |
+| 18 | acquisition | 我很好 — Estou bem | sim | unidades novas: 很好; conversation_scene |
+| 19 | perception_lab | 3º tom com ma | não | lab (lexical zero ok) |
+| 20 | perception_lab | 4º tom com ma | sim | lab (lexical zero ok) |
+| 21 | acquisition | Tons em 你好 | sim | conversation_scene |
+| 22 | perception_lab | Comparar 1º e 4º tom | não | lab (lexical zero ok) |
+| 23 | perception_lab | Comparar 2º e 3º tom | sim | lab (lexical zero ok) |
+| 24 | acquisition | Tons em 谢谢 | sim | conversation_scene |
+| 25 | perception_lab | Quatro tons | não | lab (lexical zero ok) |
+| 26 | perception_lab | Treino guiado | sim | lab (lexical zero ok) |
+| 27 | review | Revisão do módulo | sim | revisão (isenta) |
+| 28 | perception_lab | A sílaba yao | sim | lab (lexical zero ok) |
+| 29 | perception_lab | Tons em 好 e 谢 | sim | lab (lexical zero ok) |
+| 30 | perception_lab | Compare tons | não | lab (lexical zero ok) |
+| 31 | perception_lab | A sílaba shi | sim | lab (lexical zero ok) |
+| 32 | acquisition | Sons que brasileiros confundem | sim | lab (lexical zero ok) |
+| 33 | perception_lab | Números por som | não | lab (lexical zero ok) |
+| 34 | review | Revisão do módulo | sim | revisão (isenta) |
+| 35 | acquisition | Me apresentar | sim | unidades novas: 妈妈、好的; conversation_scene |
+| 36 | acquisition | Tudo bem? | sim | unidades novas: 这是水、在哪里、怎么样、请坐; conversation_scene |
+| 37 | acquisition | Como você se chama? | sim | unidades novas: 你是哪国人、我是巴西人、什么; conversation_scene |
+| 38 | acquisition | De onde sou | sim | unidades novas: 认识你很高兴; conversation_scene |
+| 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene |
+| 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene |
 | 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene |
-| 42 | acquisition | Falo um pouco | sim | unidades novas: 一点、我会说、中文、我在学中文、我是学生、你是学生吗、你学习什么、我学习中文、你在哪里学习、我在学校学习、在学校、是我是学生、等一下; conversation_scene; produção independente |
+| 42 | acquisition | Falo um pouco | sim | unidades novas: 我在学中文、等一下、一点、我会说、中文、我是学生、你是学生吗、你学习什么、我学习中文、你在哪里学习、我在学校学习、在学校、是我是学生; conversation_scene; produção independente |
 | 43 | acquisition | Peças da frase | sim | conversation_scene; produção independente |
-| 44 | acquisition | Microtexto 1 | sim | unidades novas: 对不起; conversation_scene; produção independente |
-| 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 我要水; conversation_scene; produção independente |
+| 44 | acquisition | Microtexto 1 | sim | conversation_scene; produção independente |
+| 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 今天很好、我要水; conversation_scene; produção independente |
 | 46 | acquisition | Microdiálogo: se apresentar | sim | unidades novas: 我有三个朋友、会说中文; conversation_scene; produção independente |
 | 47 | acquisition | A ordem importa | sim | unidades novas: 我有一个朋友; conversation_scene; produção independente; padrão estrutural |
 | 48 | acquisition | Nomes das peças | sim | conversation_scene |
@@ -88,7 +88,6 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | Lição | Tipo | Classe | Texto |
 |-------|------|--------|-------|
 | l9 | spot_error | erro_proposital | 我是好 |
-| l9-qual-nome | spot_error | erro_proposital | 我是叫小明 |
 | p3-wobuhui-shuo-zhongwen | spot_error | erro_proposital | 我会中文说 |
 | p3-qing-zai-shuo-yibian | spot_error | erro_proposital | 我是叫小明 |
 | l11 | spot_error | erro_proposital | 我是好 |
@@ -99,14 +98,11 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | p4-num-123 | spot_error | erro_proposital | 我是叫小明 |
 | p4-num-45 | spot_error | erro_proposital | 我是叫小明 |
 | p4-num-910 | spot_error | erro_proposital | 我是好 |
-| p4-char-mu | spot_error | erro_proposital | 我有一朋友 |
-| p4-char-ren | spot_error | erro_proposital | 我是好 |
-| p4-char-kou | spot_error | erro_proposital | 我是好 |
-| p4-char-ri | spot_error | erro_proposital | 我是水 |
-| p4-char-shan | spot_error | erro_proposital | 我有一朋友 |
-| p4-char-huo | spot_error | erro_proposital | 我是叫小明 |
-| p4-char-da | spot_error | erro_proposital | 我是叫小明 |
-| p4-char-xiao | spot_error | erro_proposital | 我会中文说 |
+| p4-char-ren | spot_error | erro_proposital | 我是水 |
+| p4-char-kou | spot_error | erro_proposital | 我是水 |
+| p4-char-shan | spot_error | erro_proposital | 我是好 |
+| p4-char-huo | spot_error | erro_proposital | 我有一朋友 |
+| p4-char-da | spot_error | erro_proposital | 我有一朋友 |
 | p4-char-zhong | spot_error | erro_proposital | 我是好 |
 | p4-char-shi | spot_error | erro_proposital | 我会中文说 |
 | p4-char-wo | spot_error | erro_proposital | 我是水 |
@@ -127,13 +123,17 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | p5-ren-ren-cong | spot_error | erro_proposital | 我是好 |
 | p5-ren-ren-ren-zhong | spot_error | erro_proposital | 我是叫小明 |
 | p5-nv-ma-mae | spot_error | erro_proposital | 我会中文说 |
+| p5-kou-ma-pergunta | spot_error | erro_proposital | 我会中文说 |
+| l19-logica-madeira | spot_error | erro_proposital | 我是叫小明 |
+| l19-logica-luz | spot_error | erro_proposital | 我是好 |
+| l19-logica-pessoas | spot_error | erro_proposital | 我是好 |
 
 ## Auditoria das frases suspeitas
 
 | Texto | Classe | Onde aparece |
 |-------|--------|--------------|
 | 我是好 | erro_proposital | l9, l11, l11-falo-pouco |
-| 我是叫小明 | erro_proposital | l9-qual-nome, p3-qing-zai-shuo-yibian |
+| 我是叫小明 | erro_proposital | p3-qing-zai-shuo-yibian |
 | 我会中文说 | erro_proposital | p3-wobuhui-shuo-zhongwen, l13 |
 | 我是水 | erro_proposital | l13-dialogo-ola |
 | 我有一朋友 | erro_proposital | p3-nomes-da-frase |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:e90f1c0588fcbe19 -->
+<!-- integridade:b0159117e4e5b4e1 -->

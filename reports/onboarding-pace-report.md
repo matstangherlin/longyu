@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | a8b065cefa20 |
-| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
+| Hash da Jornada | 1d649dd0bd5e |
+| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T21:07:09.776Z |
+| Gerado em | 2026-08-24T23:36:47.275Z |
 | Lições | 127 |
 
 ## Resumo
@@ -18,10 +18,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 199 |
-| Média de passos por lição | 9.9 |
-| Minutos estimados até a lição 20 | 85 |
-| Passos de digitação na entrada inteira | 0 |
+| Passos somados | 206 |
+| Média de passos por lição | 10.3 |
+| Minutos estimados até a lição 20 | 86 |
+| Passos de digitação na entrada inteira | 2 |
 | Lições sem nada para ouvir | 1 |
 
 > Medido no plano REAL de um aluno **novo**: nada completado, nenhum erro,
@@ -36,22 +36,22 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | 2 | O que é pinyin? | 5 | 4 | 0 | 1 | 5 | 3 |
 | 3 | O que é tom? | 9 | 8 | 0 | 3 | 8 | 5 |
 | 4 | O que é hànzì? | 11 | 10 | 0 | 1 | 8 | 4 |
-| 5 | Montando primeiros hànzì | 13 | 12 | 0 | 0 | 5 | 6 |
+| 5 | Montando primeiros hànzì | 14 | 13 | 0 | 0 | 6 | 6 |
 | 6 | Laboratório de exercícios | 6 | 6 | 0 | 1 | 5 | 5 |
 | 7 | Mandarim, pinyin e tom | 10 | 9 | 0 | 2 | 9 | 3 |
 | 8 | Olá | 15 | 14 | 0 | 3 | 12 | 6 |
 | 9 | Tudo bem? | 13 | 12 | 0 | 2 | 10 | 5 |
 | 10 | Revisão do módulo (revisão) | 12 | 10 | 0 | 2 | 10 | 3 |
 | 11 | Obrigado | 16 | 15 | 0 | 2 | 10 | 6 |
-| 12 | Até logo | 15 | 14 | 0 | 3 | 12 | 6 |
-| 13 | Primeira conversa | 10 | 9 | 0 | 1 | 9 | 5 |
+| 12 | Até logo | 15 | 14 | 1 | 3 | 12 | 6 |
+| 13 | Primeira conversa | 11 | 10 | 1 | 1 | 11 | 5 |
 | 14 | Com licença | 15 | 14 | 0 | 3 | 10 | 4 |
 | 15 | Revisão do módulo (revisão) | 12 | 10 | 0 | 2 | 10 | 4 |
 | 16 | 1º tom com ma | 8 | 5 | 0 | 4 | 6 | 4 |
 | 17 | 2º tom com ma | 5 | 3 | 0 | 3 | 5 | 3 |
-| 18 | 3º tom com ma | 5 | 3 | 0 | 3 | 5 | 3 |
-| 19 | 4º tom com ma | 7 | 4 | 0 | 4 | 5 | 4 |
-| 20 | Comparar 1º e 4º tom | 6 | 5 | 0 | 3 | 5 | 3 |
+| 18 | 我很好 — Estou bem | 11 | 10 | 0 | 3 | 9 | 4 |
+| 19 | 3º tom com ma | 5 | 3 | 0 | 3 | 5 | 3 |
+| 20 | 4º tom com ma | 7 | 4 | 0 | 4 | 5 | 4 |
 
 ## Quando cada motor entra
 
@@ -76,6 +76,7 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 | 4 | image_choice |
 | 8 | produce |
 | 9 | listen |
+| 12 | free_production |
 
 ## Avisos
 
@@ -85,4 +86,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:3f0104fc319b297e -->
+<!-- integridade:d5b4fcec4b761d35 -->
