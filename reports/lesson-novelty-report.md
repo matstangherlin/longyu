@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5433a324154e |
-| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
+| Hash da Jornada | a8b065cefa20 |
+| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:28:38.550Z |
+| Gerado em | 2026-08-24T21:09:26.461Z |
 | Lições | 127 |
 
 ## Resumo
@@ -20,7 +20,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Lições analisadas | 127 |
 | Lições com problemas | 0 |
 | Pares de repetição semântica | 953 |
-| Pares com transformação cognitiva | 791 (83%) |
+| Pares com transformação cognitiva | 795 (83%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -62,7 +62,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l8-shi | 14 | 13 | 22 | 9 | 5 | 7 | char:是 × 2 |
 | p2-tons-nihao | 11 | 10 | 16 | 9 | 9 | 7 | phrase:你好 × 3 |
 | p2-tons-xiexie | 12 | 11 | 24 | 5 | 5 | 8 | phrase:谢谢 × 2 |
-| p2-sons-brasileiros | 16 | 15 | 26 | 13 | 8 | 6 | intent:identify-concept × 4 |
+| p2-sons-brasileiros | 16 | 15 | 26 | 13 | 12 | 6 | intent:identify-concept × 4 |
 | p2-numeros-1-5 | 15 | 14 | 23 | 9 | 8 | 6 | char:二 × 3 |
 | l4-rev | 12 | 11 | 25 | 7 | 6 | 6 | intent:identify-concept × 3 |
 | l9 | 18 | 17 | 33 | 14 | 11 | 14 | phrase:我叫Matheus × 3 |
@@ -164,4 +164,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:348cc790bf24a43c -->
+<!-- integridade:ab84efa151e39d0e -->

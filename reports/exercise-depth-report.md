@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5433a324154e |
-| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
+| Hash da Jornada | a8b065cefa20 |
+| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:26:46.143Z |
+| Gerado em | 2026-08-24T21:07:53.350Z |
 | Lições | 127 |
 
 ## Resumo
@@ -1398,7 +1398,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 明, 见
+- hànzì muito repetido: 见, 明
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1420,7 +1420,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 好, 你
+- hànzì muito repetido: 你, 好
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1486,7 +1486,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 你, 好, 么
+- hànzì muito repetido: 你, 好, 我, 么
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1508,7 +1508,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 叫, 你, 什, 么
+- hànzì muito repetido: 你, 叫, 什, 么, 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1684,7 +1684,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 好
+- hànzì muito repetido: 好, 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2388,7 +2388,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 1 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 是
+- hànzì muito repetido: 是, 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2838,4 +2838,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:36d2ac93385240d9 -->
+<!-- integridade:20664e3c9e004298 -->

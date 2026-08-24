@@ -6802,6 +6802,13 @@ export function balanceLessonPlan(
   }));
   const remaining = [...items];
   const result: typeof items = [];
+  // A abertura autorada fica na frente: o aluno (e o E2E) entram na tese da
+  // lição, não num hanzi_build gerado. Sem isto, p1-primeiros-hanzi e l1
+  // começavam no meio do plano.
+  const openingAt = remaining.findIndex((item) => item.step.kind === "intro" && !item.generated);
+  if (openingAt >= 0) {
+    result.push(remaining.splice(openingAt, 1)[0]!);
+  }
   while (remaining.length > 0) {
     let pick = remaining.findIndex((candidate) => {
       const asCandidate: PracticeCandidate = {
@@ -6839,7 +6846,8 @@ export function balanceLessonPlan(
         return false;
       };
       let insertAt = -1;
-      for (let idx = 0; idx <= result.length; idx += 1) {
+      const minIdx = result.length > 0 ? 1 : 0;
+      for (let idx = minIdx; idx <= result.length; idx += 1) {
         const trial = [...result.slice(0, idx), stuck, ...result.slice(idx)];
         if (!wouldMakeKindRun(trial)) {
           insertAt = idx;

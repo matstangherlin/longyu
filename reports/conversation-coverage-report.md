@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5433a324154e |
-| HEAD no instante da geração | 2a840c0021b5a08c3b01f7fb1f564acce4bd897c |
+| Hash da Jornada | a8b065cefa20 |
+| HEAD no instante da geração | d34dc1a2c1f12cf7f41d10a1a264537a09beb1a6 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T20:28:16.900Z |
+| Gerado em | 2026-08-24T21:09:04.471Z |
 | Lições | 127 |
 
 ## Resumo
@@ -116,4 +116,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:265ceed8a0e5fbfe -->
+<!-- integridade:c1403730141a88b4 -->
