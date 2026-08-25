@@ -88,6 +88,7 @@ test.describe("V4.4 /business — guest, copy e formulário", () => {
     await expect(page.locator("body")).not.toContainText(/BYD/i);
     await expect(page.locator("[data-business-page]")).not.toContainText(/R\$\s*\d/);
     await expect(page.getByRole("link", { name: /Falar com vendas/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Política de Privacidade/i })).toHaveAttribute("href", "/privacidade");
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /index/i);
     await expect(page).toHaveTitle(/Treinamento de Mandarim para Empresas/i);
   });
@@ -111,10 +112,11 @@ test.describe("V4.4 /business — guest, copy e formulário", () => {
     await expect(block.locator('[data-business-cta="pro-page"]')).toHaveAttribute("href", "/business");
     await expect(block.locator('[data-business-cta="pro-sales"]')).toHaveAttribute("href", "/business#contato");
     await expect(block.locator('[data-business-cta="pro-enterprise"]')).toHaveAttribute("href", "/business#contato");
-    await expect(block).toContainText(/oferta comercial/i);
+    await expect(block).toContainText(/piloto|implantação|comercial/i);
     await expect(block).not.toContainText(/Assinar/);
     await expect(block).not.toContainText(/R\$\s*\d/);
     await expect(block).not.toContainText(/BYD/i);
+    await expect(block).not.toContainText(/checkout de 1 assento/i);
     await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
   });
 
