@@ -456,6 +456,11 @@ export interface MasteryAdvancementInput {
    * mastery-loop tests; the player passes false for teaching topics.
    */
   allowSkipAhead?: boolean;
+  /**
+   * Topic path: a passed session fills the next ring segment even when
+   * accuracy is low (Fôlego skip, messy answers). Stars still record quality.
+   */
+  commitPass?: boolean;
 }
 
 export interface MasteryAdvancementResult {
@@ -477,7 +482,7 @@ export function advanceLessonMastery(input: MasteryAdvancementInput, now = Date.
   const weak = input.accuracy < 0.55 || input.mistakeCount >= 5;
   const excellent = input.accuracy >= 0.92 && input.mistakeCount <= 1;
 
-  if (weak) {
+  if (weak && !input.commitPass) {
     return {
       record: {
         ...prev,

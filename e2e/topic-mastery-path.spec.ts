@@ -108,7 +108,7 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await page.goto(`/licao/${FIRST.id}`);
     await waitForLazyPage(page);
     await expect(page.getByTestId("topic-pass-label")).toContainText("Lição 1 de 4");
-    await expect(page.getByText(/Descoberta/)).toBeVisible();
+    await expect(page.getByTestId("topic-pass-label")).toContainText("Descoberta");
     await expect(page.getByRole("button", { name: /Começar/ })).toBeVisible();
     await capture(page, "v46-detail-licao-1-de-4");
 

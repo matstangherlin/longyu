@@ -2108,6 +2108,7 @@ interface AppState {
       /** PED-095 — `Date.now()` de quando esta pass começou; habilita telemetria com duração. */
       startedAt?: number;
       allowSkipAhead?: boolean;
+      commitPass?: boolean;
     }
   ) => void;
   /**
@@ -4624,6 +4625,7 @@ export const useStore = create<AppState>()(
               mistakeCount: input.mistakeCount,
               hadProductionOrTransfer: input.hadProductionOrTransfer,
               allowSkipAhead: input.allowSkipAhead,
+              commitPass: input.commitPass,
             },
             now
           );

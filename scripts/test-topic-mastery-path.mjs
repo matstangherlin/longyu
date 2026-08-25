@@ -135,6 +135,27 @@ try {
   });
   assert.equal(skipOff.record.level, 2, "sem skip-ahead, 2/4 abre M3 — não M4");
 
+  const weakNoCommit = mastery.advanceLessonMastery({
+    current: { level: 0, passCount: 0, updatedAt: 0 },
+    pass: 1,
+    accuracy: 0,
+    mistakeCount: 0,
+    hadProductionOrTransfer: false,
+    allowSkipAhead: false,
+  });
+  assert.equal(weakNoCommit.record.level ?? 0, 0, "legado: precisão baixa não avança mastery");
+
+  const weakCommit = mastery.advanceLessonMastery({
+    current: { level: 0, passCount: 0, updatedAt: 0 },
+    pass: 1,
+    accuracy: 0,
+    mistakeCount: 0,
+    hadProductionOrTransfer: false,
+    allowSkipAhead: false,
+    commitPass: true,
+  });
+  assert.equal(weakCommit.record.level, 1, "pass concluída (Fôlego) preenche o anel mesmo com precisão baixa");
+
   const skipOn = mastery.advanceLessonMastery({
     current: { level: 1, passCount: 1, updatedAt: 0 },
     pass: 2,
