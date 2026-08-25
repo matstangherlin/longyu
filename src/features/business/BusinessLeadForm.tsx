@@ -327,7 +327,7 @@ export function BusinessLeadForm({ sourceCta = "form" }: { sourceCta?: string })
         <FieldError id={errorIds.message} message={errors.message} />
       </div>
 
-      <div className="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
+      <div className="hidden" aria-hidden="true">
         <label htmlFor={`${formId}-website`}>Website</label>
         <input
           id={`${formId}-website`}

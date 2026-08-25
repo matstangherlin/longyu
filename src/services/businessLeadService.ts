@@ -20,6 +20,14 @@ const SUCCESS_MESSAGE =
 const PREVIEW_MESSAGE =
   "O envio à equipe comercial fica ativo no site principal do Longyu. Aqui o formulário só valida os dados.";
 
+function publicLeadError(body: { error?: string; message?: string } | null): string {
+  const text = (body?.error || body?.message || "").trim();
+  if (!text || /Failed to send|FunctionsHttpError|NetworkError|fetch/i.test(text)) {
+    return "Não foi possível enviar. Tente de novo.";
+  }
+  return text;
+}
+
 async function readFunctionError(
   error: { context?: Response; message?: string } | null
 ): Promise<{ ok?: boolean; code?: string; error?: string; message?: string } | null> {
@@ -88,7 +96,7 @@ export async function submitBusinessLead(
   if (error && !body?.ok) {
     return {
       status: "error",
-      message: body?.error || body?.message || "Não foi possível enviar. Tente de novo.",
+      message: publicLeadError(body),
     };
   }
   return { status: "opened", message: body?.message || SUCCESS_MESSAGE };

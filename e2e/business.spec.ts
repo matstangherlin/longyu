@@ -126,12 +126,22 @@ test.describe("V4.4 /business — guest, copy e formulário", () => {
   });
 
   test("lead válido dispara envio (preview local valida; produção usa Edge)", async ({ page }) => {
+    await page.route("**/functions/v1/submit-business-lead", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: true,
+          message: "Recebemos seu pedido. O time comercial do Longyu responde em breve.",
+        }),
+      });
+    });
     await openBusiness(page);
     await fillValidLead(page);
     await page.getByRole("button", { name: /Falar com vendas/i }).click();
     await expect(page.locator("[data-business-lead-status]")).toBeVisible();
     await expect(page.locator("[data-business-lead-status]")).toContainText(
-      /Recebemos seu pedido|site principal do Longyu|Muitos envios|Não foi possível enviar/i
+      /Recebemos seu pedido|site principal do Longyu|Não foi possível enviar/i
     );
   });
 });
