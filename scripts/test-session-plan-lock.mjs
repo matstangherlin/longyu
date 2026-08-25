@@ -28,7 +28,7 @@ assert(
   "early-return comment documents mid-session churn ignore"
 );
 assert(
-  /sessionPlanRef\.current = \{ lessonId: lessonIdAtStart, nonce: nonceAtStart, steps: planned \}/.test(
+  /sessionPlanRef\.current = \{[\s\S]{0,180}?lessonId: lessonIdAtStart[\s\S]{0,180}?steps: planned/.test(
     player
   ),
   "plan is locked when adaptive steps are applied"
@@ -37,9 +37,13 @@ assert(
   /locked && locked\.lessonId === foundLesson\.id && locked\.nonce === planNonce/.test(player),
   "lock early-returns when lesson+nonce match"
 );
+assert(
+  /masteryChanged|canReplanForMastery/.test(player),
+  "topic path may replan at step 0 when mastery hydrates"
+);
 
 // retryLesson must unlock before starting a new attempt.
-const retryIdx = player.indexOf("function retryLesson()");
+const retryIdx = player.indexOf("function retryLesson(");
 assert(retryIdx >= 0, "retryLesson exists");
 const retrySlice = player.slice(retryIdx, retryIdx + 900);
 assert(/sessionPlanRef\.current = null/.test(retrySlice), "retryLesson clears sessionPlanRef");
