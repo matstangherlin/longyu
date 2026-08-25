@@ -241,7 +241,7 @@ export async function assertModalActionAccessible(page: Page) {
 
 /** Vitória: CTA principal sem exigir scroll da página (scroll interno da atividade é ok). */
 export async function assertVictoryWithoutPageScroll(page: Page) {
-  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
+  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i });
   await expect(victoryCta).toBeVisible();
   await assertPageScrollLocked(page);
   const reachable = await victoryCta.evaluate((el) => {
@@ -368,7 +368,7 @@ export async function advanceUntilSelector(
     steps += 1;
     await dismissBlockingOverlays(page);
     if (
-      await page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i }).isVisible().catch(() => false)
+      await page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).isVisible().catch(() => false)
     ) {
       return false;
     }
