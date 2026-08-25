@@ -1,6 +1,6 @@
 # Paid Beta RC — decisão automática
 
-Gerado: 2026-08-25T11:14:39.448Z
+Gerado: 2026-08-25T11:38:17.838Z
 
 | Campo | Valor |
 |-------|-------|
