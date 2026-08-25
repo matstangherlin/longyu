@@ -241,9 +241,11 @@ test.describe("QA regression guard — transferência", () => {
     }
 
     await expect(transfer).toBeVisible({ timeout: 5_000 });
-    await expect(page.locator("[data-production-learned], [data-transfer-anchor]")).toBeVisible();
+    await expect(page.locator("[data-production-learned], [data-transfer-anchor]").first()).toBeVisible();
     await expect(page.locator("[data-production-situation]")).toBeVisible();
-    await expect(page.locator("[data-production-goal], [data-transfer-challenge]")).toBeVisible();
+    await expect(
+      page.locator("[data-production-goal], [data-transfer-challenge]").first()
+    ).toBeVisible();
     await expect(page.locator("[data-production-answer] input, [data-production-answer] textarea").first()).toBeVisible();
     await expect(page.locator("body")).not.toContainText(/Nenhuma alternativa e nenhuma peça/);
   });
