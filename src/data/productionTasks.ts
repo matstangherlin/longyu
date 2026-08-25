@@ -292,10 +292,10 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffix: "？",
     suffixPinyin: "?",
     anchorChunkId: "nijiaoshenme",
-    situationTemplatePt: "Você quer saber o nome da pessoa. Pergunte como ela se chama.",
+    situationTemplatePt: "Você quer saber o nome da pessoa. Pergunte {item}.",
     grammarNotePt: "你叫什么？ pergunta o nome — 叫 + 什么.",
     transferAssist: "guided",
-    fillers: [{ vocabId: "v_shenme", promptPt: "o quê (nome)" }],
+    fillers: [{ vocabId: "v_shenme", promptPt: "como ela se chama" }],
   },
   {
     id: "frame_qingwennijiaoshenme",
@@ -313,8 +313,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     suffix: "？",
     suffixPinyin: "?",
     anchorChunkId: "nijiaoshenme",
-    situationTemplatePt:
-      "Você aborda um desconhecido. Com licença, pergunte o nome.",
+    situationTemplatePt: "Você aborda um desconhecido. Com licença, {item}.",
     grammarNotePt:
       "请问 abre a pergunta; o resto é 你叫什么？ que você já produziu antes.",
     transferAssist: "supported",
@@ -322,7 +321,7 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     transferTransformHint: { from: "你叫什么？", to: "请问，你叫什么？" },
     earlyTransferOnAttemptZero: true,
     introLessonId: "p1-qingwen-cortesia",
-    fillers: [{ vocabId: "v_shenme", promptPt: "o quê (nome)" }],
+    fillers: [{ vocabId: "v_shenme", promptPt: "pergunte o nome" }],
   },
   {
     id: "frame_zainali",

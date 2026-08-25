@@ -671,6 +671,7 @@ const freeProduction = (opts: {
   accepts?: string[];
   productionGoal: CommunicativeGoal;
   patternPt?: string;
+  patternSlots?: PatternSlot[];
   productionFrameId?: string;
 }): LessonStep => ({
   kind: "free_production",
@@ -683,6 +684,7 @@ const freeProduction = (opts: {
   productionAssist: "guided",
   productionHelpInitial: 1,
   patternPt: opts.patternPt,
+  patternSlots: opts.patternSlots,
   productionFrameId: opts.productionFrameId,
   helpMode: "disabled",
   isNoHint: true,
@@ -2823,6 +2825,11 @@ export const JOURNEY: JourneyPhase[] = [
                 accepts: ["你叫什么？", "你叫什么"],
                 productionGoal: "ask_name",
                 patternPt: "你叫什么？",
+                patternSlots: [
+                  { role: "subject" },
+                  { role: "verb" },
+                  { role: "object", hole: true },
+                ],
                 productionFrameId: "frame_nijiaoshenme",
               }),
               freeProduction({

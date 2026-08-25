@@ -598,13 +598,13 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if ((step.targetParts ?? []).length > 0) errors.push(`${step.kind} não pode entregar a frase em peças`);
       if (!step.isNoHint && step.helpMode !== "disabled") errors.push(`${step.kind} precisa estar sem dica`);
       if (step.productionOpen) {
-        // Aberta: o valor está em existir escolha. Com uma ou duas respostas
-        // possíveis, "diga o que quiser" é alvo único disfarçado.
+        // Aberta: o valor está em existir escolha. ask_name tem duas variantes naturais.
+        const minOpen = step.productionGoal === "ask_name" ? 2 : 3;
         const answers = (step.accepts ?? []).filter((value) => CJK_RE.test(value ?? ""));
-        if (new Set(answers.map(normalize)).size < 3) {
-          errors.push("produção aberta com menos de 3 respostas certas possíveis");
+        if (new Set(answers.map(normalize)).size < minOpen) {
+          errors.push(`produção aberta com menos de ${minOpen} respostas certas possíveis`);
         }
-        if ((step.productionExamples ?? []).length < 3) {
+        if ((step.productionExamples ?? []).length < minOpen) {
           errors.push("produção aberta sem exemplos suficientes para a correção");
         }
         if (!step.productionGoal) errors.push("produção aberta sem objetivo comunicativo");
