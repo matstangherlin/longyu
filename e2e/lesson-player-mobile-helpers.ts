@@ -293,6 +293,7 @@ export async function openPostListenGradedStep(page: Page) {
   const nextChoice = page
     .getByRole("button", { name: /Opção \d+/ })
     .or(page.getByRole("button", { name: /^Olá$|^Obrigado|^Até logo|^De nada$/i }))
+    .or(page.getByRole("button", { name: /^(你好|谢谢|再见)$/ }))
     .first();
   for (let i = 0; i < 8; i += 1) {
     if (await nextChoice.isVisible().catch(() => false)) return;
@@ -431,8 +432,9 @@ export async function openTransferStep(page: Page) {
  * peças extras no banco para forçar várias fileiras — regressão B001.
  */
 export async function openDenseSentenceBuild(page: Page) {
-  // M1 (descoberta) prioriza reconhecimento; montagem/produção entra em M3.
-  await seedLessonPlayerReady(page, "p4-char-shui", { masteryLevel: 2 });
+  // M1 prioriza reconhecimento; montagem/produção entra em M2–M3.
+  // Pro evita o modal de Fôlego enquanto o teste pula até o banco.
+  await seedLessonPlayerReady(page, "p4-char-shui", { masteryLevel: 2, isPremium: true, folego: 20 });
   await page.goto("/licao/p4-char-shui/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
