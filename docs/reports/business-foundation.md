@@ -13,7 +13,7 @@ QA físico em Android + desktop da V4.3 permanece pendente e fora desta remessa.
 | ID | Entrega |
 | --- | --- |
 | BUS-001 | `AccessTier` + `premiumAccessFromTier` em `src/lib/accessTier.ts`. `PlanTier` da matriz Grátis/Pro permanece `free \| pro`. |
-| BUS-002 | Bloco **Longyu for Business** em `/pro`, CTA **Conhecer Business** → `/business`. |
+| BUS-002 | `/pro` separa **Para você** (Grátis/Pro) de **Para empresas**. Cards Business + Enterprise com listas de oferta comercial, **Conhecer Business**, **Falar com vendas** e **Falar com nosso time** — sem preço e sem Stripe. |
 | BUS-003 | Página pública `/business` (fora do AppShell): hero, benefícios, casos de uso, como funciona, Business, Enterprise, FAQ, formulário. |
 | BUS-004 | Copy Business sem preço público. Gestão/relatórios/trilhas como **oferta comercial**. |
 | BUS-005 | Enterprise como oferta/roadmap (SSO, provisionamento, departamentos, integrações). CTA **Falar com nosso time**. |

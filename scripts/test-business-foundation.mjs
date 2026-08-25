@@ -99,10 +99,21 @@ assert(checkout.includes('"line_items[0][quantity]": "1"'), "checkout quantity =
 assert(!/business_monthly|business_annual/.test(checkout), "checkout sem plano Business");
 
 const proPage = read("src/features/pro/ProPage.tsx");
-assert(proPage.includes("Longyu for Business"), "ProPage apresenta Longyu for Business");
-assert(proPage.includes('to="/business"'), "ProPage CTA vai para /business");
-assert(proPage.includes("Mandarim para a sua equipe"), "copy do bloco Business");
+assert(proPage.includes("<ProBusinessOffer"), "ProPage usa oferta Business/Enterprise");
+assert(proPage.includes("Para você"), "ProPage separa oferta individual");
 assert(!/createCheckoutSession\([^)]*business/.test(proPage), "ProPage não faz checkout Business");
+
+const proOffer = read("src/features/pro/ProBusinessOffer.tsx");
+assert(proOffer.includes("Longyu for Business"), "bloco Longyu for Business");
+assert(proOffer.includes("Longyu Business"), "card Business em /pro");
+assert(proOffer.includes("Longyu Enterprise"), "card Enterprise em /pro");
+assert(proOffer.includes('to="/business"'), "CTA Conhecer Business vai para /business");
+assert(proOffer.includes("Falar com vendas"), "CTA Falar com vendas em /pro");
+assert(proOffer.includes("Falar com nosso time"), "CTA Enterprise em /pro");
+assert(proOffer.includes('trackBusinessEvent("business_cta_clicked"'), "CTA /pro dispara business_cta_clicked");
+assert(proOffer.includes("oferta comercial"), "recursos não ligados como oferta comercial");
+assert(!/R\$\s*\d/.test(proOffer), "oferta Business em /pro sem preço público");
+assert(!/createCheckoutSession/.test(proOffer), "oferta Business não chama Stripe");
 
 const businessPage = read("src/features/business/BusinessPage.tsx");
 assert(businessPage.includes("Falar com vendas"), "CTA Falar com vendas");

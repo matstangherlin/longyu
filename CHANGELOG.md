@@ -12,7 +12,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 Linha corporativa sem quebrar o Pro individual. `/business` é pública; o checkout Stripe continua só `pro_monthly` / `pro_annual` com `quantity = 1`.
 
 - **AccessTier** `free | pro | business | enterprise`, com `premiumAccess` retrocompatível (`serverIsPro`).
-- **Oferta:** bloco Longyu for Business em `/pro` (Conhecer Business) e página `/business` (Business + Enterprise como oferta comercial, sem preço público e sem clientes fictícios).
+- **Oferta:** `/pro` separa *Para você* (Grátis/Pro) de *Para empresas* (Business + Enterprise como oferta comercial, sem preço público). Página `/business` pública, sem clientes fictícios.
 - **Leads** via Edge Function `submit-business-lead` (validação, honeypot, rate limit). Sem insert anônimo em `business_leads`.
 - **Fundação de contas:** `organizations`, `organization_members`, `organization_invites`, `organization_subscriptions` (isolada de `subscriptions`). Sem painel admin nesta versão.
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mascot } from "../../components/brand/Mascot";
-import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
+import { Button, Card, Pill } from "../../components/ui/primitives";
 import { IconCheck, IconChevron, IconLock } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
@@ -33,6 +33,7 @@ import {
   takePendingCheckoutPlan,
 } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
+import { ProBusinessOffer } from "./ProBusinessOffer";
 
 const BILLING_PLANS: {
   key: ProPlanKey;
@@ -211,9 +212,10 @@ export function ProPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-center font-serif text-lg font-semibold text-ink sm:text-xl">
-          Grátis vs Pro
-        </h2>
+        <div className="mb-3 text-center">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Para você</div>
+          <h2 className="mt-1 font-serif text-lg font-semibold text-ink sm:text-xl">Grátis vs Pro</h2>
+        </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <Card className="p-3.5">
             <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Grátis</div>
@@ -341,30 +343,7 @@ export function ProPage() {
         </div>
       </section>
 
-      <section data-pro-business className="rounded-2xl border border-gold/20 bg-gold/[0.05] p-4 sm:p-5">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">Para empresas</div>
-        <h2 className="mt-1 font-serif text-lg font-semibold text-ink sm:text-xl">Longyu for Business</h2>
-        <p className="mt-1 text-sm text-ink-soft">Mandarim para a sua equipe.</p>
-        <p className="mt-2 text-xs leading-5 text-ink-soft">
-          Treine colaboradores que trabalham com equipes chinesas. Sem checkout de 1 assento — o Pro desta página continua sendo a assinatura individual.
-        </p>
-        <ButtonLink
-          to="/business"
-          variant="outline"
-          size="lg"
-          className="mt-4 w-full sm:w-auto"
-          data-business-cta="pro-page"
-        >
-          Conhecer Business
-        </ButtonLink>
-        <p className="mt-3 text-[11px] leading-4 text-ink-faint">
-          Empresa de grande porte? No Longyu Enterprise a implantação, SSO e relatórios entram como oferta comercial —{" "}
-          <Link className="font-semibold text-ink underline-offset-2 hover:underline" to="/business#enterprise">
-            conhecer Enterprise
-          </Link>
-          .
-        </p>
-      </section>
+      <ProBusinessOffer />
 
       <section className="rounded-xl border border-line/50 bg-surface p-4">
         <button

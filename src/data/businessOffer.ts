@@ -92,6 +92,25 @@ export const BUSINESS_PLAN = {
     "Recursos de gestão e relatórios fazem parte da oferta comercial. Ainda não há painel administrativo nesta versão do app.",
 } as const;
 
+/** Lista curta da oferta em /pro. Itens ainda não ligados no app vão marcados. */
+export const PRO_PAGE_BUSINESS_ITEMS = [
+  "Acesso premium para colaboradores",
+  "Gestão de licenças (oferta comercial)",
+  "Painel de progresso (oferta comercial)",
+  "Relatórios (oferta comercial)",
+  "Trilhas corporativas (oferta comercial)",
+  "Suporte para implantação",
+] as const;
+
+export const PRO_PAGE_ENTERPRISE_ITEMS = [
+  "SSO e provisionamento (roadmap)",
+  "Relatórios corporativos (oferta comercial)",
+  "Departamentos e grupos (oferta comercial)",
+  "Trilhas personalizadas (oferta comercial)",
+  "Integrações (roadmap)",
+  "Suporte dedicado",
+] as const;
+
 export const ENTERPRISE_PLAN = {
   eyebrow: "Para grandes empresas",
   title: "Longyu Enterprise",

@@ -104,8 +104,17 @@ test.describe("V4.4 /business — guest, copy e formulário", () => {
     await dismissBlockingOverlays(page);
     const block = page.locator("[data-pro-business]");
     await expect(block).toBeVisible();
-    await expect(block.getByRole("link", { name: /Conhecer Business/i })).toHaveAttribute("href", "/business");
+    await expect(page.getByText("Para você", { exact: true })).toBeVisible();
+    await expect(block.getByText("Para empresas", { exact: true })).toBeVisible();
+    await expect(block.getByRole("heading", { name: /Longyu Business/i })).toBeVisible();
+    await expect(block.getByRole("heading", { name: /Longyu Enterprise/i })).toBeVisible();
+    await expect(block.locator('[data-business-cta="pro-page"]')).toHaveAttribute("href", "/business");
+    await expect(block.locator('[data-business-cta="pro-sales"]')).toHaveAttribute("href", "/business#contato");
+    await expect(block.locator('[data-business-cta="pro-enterprise"]')).toHaveAttribute("href", "/business#contato");
+    await expect(block).toContainText(/oferta comercial/i);
     await expect(block).not.toContainText(/Assinar/);
+    await expect(block).not.toContainText(/R\$\s*\d/);
+    await expect(block).not.toContainText(/BYD/i);
     await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
   });
 
