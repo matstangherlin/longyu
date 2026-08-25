@@ -208,6 +208,18 @@ assert(
   storeSrc.includes("get().currentAccountId === requestAccountId"),
   "autoativação deve continuar vinculada ao perfil que iniciou o claim"
 );
+assert(
+  !bridgeSrc.includes("Resgatando Pérola"),
+  "claim automático de Pérola não pode mostrar toast vago na Jornada"
+);
+assert(
+  storeSrc.includes("Toast de sync é efêmero"),
+  "toast de sync não pode ser reidratado do persist"
+);
+
+const bannerSrc = read("src/components/economy/EconomySyncBanner.tsx");
+assert(bannerSrc.includes("setTimeout"), "banner de sync deve expirar sozinho");
+assert(bannerSrc.includes("aria-live"), "banner de sync precisa de aria-live");
 
 const lojaSrc = read("src/features/loja/LojaPage.tsx");
 assert(lojaSrc.includes("Próximas Pérolas"), "Loja mostra próximas Pérolas");
@@ -353,6 +365,20 @@ const { mergeWithoutPersistedServerEntitlement } = persistenceModule;
   assert(
     hydrated.serverIsPro === false && hydrated.dragonPearls === 999 && hydrated.action() === "preservada",
     "payload persistido adulterado na versão atual não pode hidratar serverIsPro"
+  );
+}
+
+{
+  const persistedToast = {
+    ...mergeWithoutPersistedServerEntitlement(
+      { serverIsPro: false, economySyncMessage: "Resgatando Pérola..." },
+      { serverIsPro: false, economySyncMessage: null }
+    ),
+    economySyncMessage: null,
+  };
+  assert(
+    persistedToast.economySyncMessage === null,
+    "hidratação zera toast de sync preso de uma sessão anterior"
   );
 }
 
