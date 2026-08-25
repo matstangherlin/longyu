@@ -76,6 +76,8 @@ serve(async (req) => {
 
     // Allowlist de planos: só chaves conhecidas viram lookup de price ID (o price
     // vem SEMPRE do env do servidor — o cliente nunca injeta um price arbitrário).
+    // Business/Enterprise NÃO entram aqui: quantity permanece 1 e o plano
+    // corporativo não usa Checkout enquanto não houver seat management.
     const ALLOWED_PLAN_KEYS = new Set(["pro_monthly", "pro_annual"]);
     const { planKey = "pro_monthly" } = await req.json();
     if (!ALLOWED_PLAN_KEYS.has(planKey)) {

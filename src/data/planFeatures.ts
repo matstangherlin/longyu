@@ -13,6 +13,10 @@ import {
 // Fonte única para paywalls, ProPage, Ligas e copy de conta.
 // A economia numérica continua em economy.ts; a enforcement em store.ts
 // e proAccess.ts.
+//
+// PlanTier descreve a matriz B2C (o que o produto ensina no grátis vs Pro).
+// AccessTier (src/lib/accessTier.ts) descreve a conta: free | pro | business |
+// enterprise. Business/Enterprise reutilizam os recursos Pro via premiumAccess.
 // ————————————————————————————————————————————————————————————————
 
 export type PlanTier = "free" | "pro";

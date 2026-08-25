@@ -1,5 +1,10 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import {
+  EMPTY_SERVER_ENTITLEMENT,
+  parseServerEntitlementRpc,
+  type ServerEntitlement,
+} from "../lib/accessTier";
 import { useStore } from "../lib/store";
 import type { ServerSubscriptionSnapshot } from "./subscriptionService";
 
@@ -84,6 +89,7 @@ export interface ServerEntitlementRpcResult {
   isPro: boolean | null;
   pearlProExpiresAt: number | null;
   source?: string;
+  entitlement: ServerEntitlement;
 }
 
 function applyPearlProExpiresFromRpc(raw: unknown): number | null {
@@ -98,9 +104,9 @@ function applyPearlProExpiresFromRpc(raw: unknown): number | null {
 
 async function fetchServerEntitlementRpc(): Promise<ServerEntitlementRpcResult> {
   const client = getSupabaseClient();
-  if (!client) return { isPro: null, pearlProExpiresAt: null };
+  if (!client) return { isPro: null, pearlProExpiresAt: null, entitlement: { ...EMPTY_SERVER_ENTITLEMENT } };
   const { data, error } = await client.rpc("get_server_entitlement");
-  if (error) return { isPro: null, pearlProExpiresAt: null };
+  if (error) return { isPro: null, pearlProExpiresAt: null, entitlement: { ...EMPTY_SERVER_ENTITLEMENT } };
   if (data && typeof data === "object") {
     const row = data as {
       is_pro?: boolean;
@@ -108,6 +114,7 @@ async function fetchServerEntitlementRpc(): Promise<ServerEntitlementRpcResult> 
       source?: string;
     };
     const pearlProExpiresAt = applyPearlProExpiresFromRpc(row.pearl_pro_expires_at ?? null);
+    const entitlement = parseServerEntitlementRpc(data);
     if (pearlProExpiresAt != null || row.pearl_pro_expires_at === null) {
       useStore.setState((s) => {
         const account = s.accounts[s.currentAccountId];
@@ -122,23 +129,37 @@ async function fetchServerEntitlementRpc(): Promise<ServerEntitlementRpcResult> 
     }
     if ("is_pro" in row) {
       return {
-        isPro: Boolean(row.is_pro),
+        isPro: entitlement.premiumAccess,
         pearlProExpiresAt,
-        source: row.source,
+        source: entitlement.source,
+        entitlement,
       };
     }
   }
-  return { isPro: null, pearlProExpiresAt: null };
+  return { isPro: null, pearlProExpiresAt: null, entitlement: { ...EMPTY_SERVER_ENTITLEMENT } };
 }
 
 export async function fetchServerIsPro(): Promise<boolean> {
-  if (!isSupabaseBackendEnabled()) return false;
+  const entitlement = await fetchServerEntitlement();
+  return entitlement.premiumAccess;
+}
+
+/** Entitlement completo; `premiumAccess` alimenta `serverIsPro` na migração. */
+export async function fetchServerEntitlement(): Promise<ServerEntitlement> {
+  if (!isSupabaseBackendEnabled()) return { ...EMPTY_SERVER_ENTITLEMENT };
   const client = getSupabaseClient();
-  if (!client) return false;
+  if (!client) return { ...EMPTY_SERVER_ENTITLEMENT };
 
   const rpc = await fetchServerEntitlementRpc();
-  if (rpc.isPro !== null) return rpc.isPro;
+  if (rpc.isPro !== null) return rpc.entitlement;
 
   const snapshot = await fetchServerSubscription();
-  return subscriptionGrantsPro(snapshot);
+  if (subscriptionGrantsPro(snapshot)) {
+    return {
+      tier: "pro",
+      premiumAccess: true,
+      source: "individual_subscription",
+    };
+  }
+  return { ...EMPTY_SERVER_ENTITLEMENT };
 }

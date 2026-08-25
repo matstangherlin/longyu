@@ -1,7 +1,7 @@
 import { isProPreviewBuildAllowed } from "./appEnvironment";
 import { hasActivePearlPro } from "./pearlPro";
 
-/** Fonte efetiva do Pro: servidor (assinatura real), pass de Pérolas, ou preview local. */
+/** Fonte efetiva do Pro no cliente: servidor (Stripe, org ou grant), pass de Pérolas, ou preview local. */
 export type PremiumSource = "none" | "preview" | "server" | "pearl_pass";
 
 /**

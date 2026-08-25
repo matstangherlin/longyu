@@ -115,6 +115,19 @@ assert(
 );
 assert(entitlementsSrc.includes("pearl_pass") || entitlementsSrc.includes("pearlProExpiresAt"), "entitlements deve considerar pass de Pérolas");
 
+const accessTierSrc = read("src/lib/accessTier.ts");
+assert(accessTierSrc.includes('type AccessTier = "free" | "pro" | "business" | "enterprise"'), "AccessTier deve incluir business e enterprise");
+assert(accessTierSrc.includes("premiumAccessFromTier"), "premiumAccessFromTier deve existir");
+assert(accessTierSrc.includes("individual_subscription"), "source individual_subscription");
+assert(accessTierSrc.includes("organization"), "source organization");
+
+function premiumAccessFromTier(tier) {
+  return tier === "pro" || tier === "business" || tier === "enterprise";
+}
+assert(premiumAccessFromTier("business"), "Business concede premiumAccess");
+assert(premiumAccessFromTier("enterprise"), "Enterprise concede premiumAccess");
+assert(!premiumAccessFromTier("free"), "free não concede premiumAccess");
+
 const entitlementServiceSrc = read("src/services/entitlementService.ts");
 assert(entitlementServiceSrc.includes("resolveServerSubscriptionRow"), "entitlementService deve expor resolveServerSubscriptionRow");
 assert(entitlementServiceSrc.includes("real_trialing"), "entitlementService deve tratar trial");
