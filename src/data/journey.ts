@@ -20,6 +20,11 @@ import {
 } from "./visualVocabulary";
 import { inferCurriculumRole, type CurriculumRole } from "./curriculumRole";
 import type { CommunicativeGoal, PatternSlot, RepairDirection, RepairStrategy } from "./productionTasks";
+import {
+  currentJourneyLessonId,
+  isJourneyTopicComplete,
+  type TopicMasteryProgressContext,
+} from "./topicMastery";
 
 export type { CurriculumRole };
 
@@ -1085,7 +1090,10 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     libraryItems: ["chunk:nihao"],
     reviewItems: ["chunk:nihao"],
     steps: [
-      intro("A língua padrão", "Mandarim é a forma padrão do chinês falado. Comece por uma frase que você já pode usar."),
+      intro(
+        "A língua padrão",
+        "Mandarim é uma língua — a variedade padrão do chinês moderno ensinada no Longyu. Língua falada não é o mesmo que sistema de escrita. Comece ouvindo uma frase real."
+      ),
       listenSelect("Primeiro som", "你好", ["你好", "谢谢", "再见"], "你好", "Você ouviu 你好 — olá."),
       comp("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
       dialogue(
@@ -7841,24 +7849,57 @@ export const ALL_LESSONS: FlatLesson[] = JOURNEY.flatMap((p) =>
 
 export const getLesson = (id: string) => ALL_LESSONS.find((l) => l.id === id);
 
-export function currentLessonId(completed: string[], _isPremium = false): string | undefined {
-  return ALL_LESSONS.find((l) => !completed.includes(l.id))?.id;
+function pathContext(
+  completed: string[],
+  masteryById?: Record<string, { level?: number } | undefined>
+): TopicMasteryProgressContext {
+  return {
+    completedLessons: completed,
+    lessonMasteryById: masteryById,
+    legacyAcquiredMeansPathComplete: masteryById === undefined,
+  };
+}
+
+/**
+ * Ponteiro da Jornada.
+ *
+ * V4.6: quando `masteryById` é passado (app), o próximo nó é o primeiro
+ * que ainda NÃO está path-complete (ensino = mastery 4/4; review = acquired).
+ * Sem mastery (testes/legado), completedLessons continua sendo o gate.
+ */
+export function currentLessonId(
+  completed: string[],
+  _isPremium = false,
+  masteryById?: Record<string, { level?: number } | undefined>
+): string | undefined {
+  return currentJourneyLessonId(ALL_LESSONS, pathContext(completed, masteryById));
 }
 
 export type LessonState = "done" | "current" | "locked" | "premium";
 
-export function lessonState(id: string, completed: string[], isPremium = false): LessonState {
-  if (completed.includes(id)) return "done";
+export function lessonState(
+  id: string,
+  completed: string[],
+  isPremium = false,
+  masteryById?: Record<string, { level?: number } | undefined>
+): LessonState {
   const lesson = getLesson(id);
+  const ctx = pathContext(completed, masteryById);
+  if (lesson && isJourneyTopicComplete(lesson, ctx)) return "done";
   if (lesson?.premium && !isPremium) return "premium";
-  const current = currentLessonId(completed, isPremium);
+  const current = currentLessonId(completed, isPremium, masteryById);
   if (id !== current) return "locked";
   return "current";
 }
 
-export function unitProgress(unit: Unit, completed: string[]): { done: number; total: number } {
+export function unitProgress(
+  unit: Unit,
+  completed: string[],
+  masteryById?: Record<string, { level?: number } | undefined>
+): { done: number; total: number } {
   const total = unit.lessons.length;
-  const done = unit.lessons.filter((l) => completed.includes(l.id)).length;
+  const ctx = pathContext(completed, masteryById);
+  const done = unit.lessons.filter((l) => isJourneyTopicComplete(l, ctx)).length;
   return { done, total };
 }
 

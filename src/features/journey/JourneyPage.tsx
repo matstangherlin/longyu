@@ -4,6 +4,7 @@ import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
   type Lesson, type Skill, type LessonState, type Unit,
 } from "../../data/journey";
+import { isJourneyTopicComplete, isTopicMasteryLesson } from "../../data/topicMastery";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
 import { reviewPendingLabel, reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
@@ -138,22 +139,30 @@ function lockedLessonMessage(
   state: LessonState,
   completed: string[],
   lessonTaskProgress: Record<string, number>,
-  lessonStarsById: Record<string, number>,
-  toneTrainer: ToneTrainerProgress
+  _lessonStarsById: Record<string, number>,
+  toneTrainer: ToneTrainerProgress,
+  lessonMasteryById: Record<string, { level?: number } | undefined>
 ): string {
   if (state === "premium" || lesson.premium) {
     return "Esta área é liberada no Longyu Pro.";
   }
 
+  const pathCtx = { completedLessons: completed, lessonMasteryById };
   const flat = ALL_LESSONS.find((item) => item.id === lesson.id);
   const index = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
-  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((item) => !completed.includes(item.id));
+  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find(
+    (item) => !isJourneyTopicComplete(item, pathCtx)
+  );
 
   if (missing?.premium) {
     return "Esta lição depende de uma etapa do Longyu Pro.";
   }
 
   if (missing) {
+    const mastery = lessonMasteryById[missing.id]?.level ?? 0;
+    if (isTopicMasteryLesson(missing) && mastery > 0 && mastery < 4) {
+      return `Conclua as 4 lições de "${missing.title}" (${mastery}/4) para liberar este tema.`;
+    }
     const taskCount = lessonTasksFor(missing).length;
     const attempted = taskCount > 0 && Math.min(taskCount, lessonTaskProgress[missing.id] ?? 0) >= taskCount;
     if (attempted) return `Conclua "${missing.title}" para liberar esta lição.`;
@@ -163,12 +172,9 @@ function lockedLessonMessage(
   const previous = index > 0 ? ALL_LESSONS[index - 1] : undefined;
   if (flat && previous && previous.phaseId !== flat.phaseId) {
     const phaseLessons = ALL_LESSONS.filter((item) => item.phaseId === previous.phaseId);
-    const weak = phaseLessons.find((item) => {
-      if (!completed.includes(item.id)) return true;
-      return (lessonStarsById[item.id] ?? 0) < 3;
-    });
+    const weak = phaseLessons.find((item) => !isJourneyTopicComplete(item, pathCtx));
     if (weak) {
-      return `Consiga 3 estrelas em "${weak.title}" (e nas demais aulas da fase ${previous.phaseTitle}) para avançar de fase.`;
+      return `Conclua as 4 lições de "${weak.title}" (e os demais temas da fase ${previous.phaseTitle}) para avançar de fase.`;
     }
   }
 
@@ -198,12 +204,13 @@ export function JourneyPage() {
   const online = useOnline();
   const contextualOffer = useProOffer();
 
-  const currentId = currentLessonId(completed, isPremium);
+  const currentId = currentLessonId(completed, isPremium, lessonMasteryById);
   const currentLesson = ALL_LESSONS.find((l) => l.id === currentId);
-  const doneCount = completed.length;
+  const pathCtx = { completedLessons: completed, lessonMasteryById };
+  const doneCount = ALL_LESSONS.filter((lesson) => isJourneyTopicComplete(lesson, pathCtx)).length;
   const journeyComplete = !currentId;
   const currentContext = currentUnitContext(currentId);
-  const currentProgress = currentContext ? unitProgress(currentContext.unit, completed) : null;
+  const currentProgress = currentContext ? unitProgress(currentContext.unit, completed, lessonMasteryById) : null;
   const currentCheckpoint = currentContext ? THEME_CHECKPOINTS[currentContext.unit.id] : undefined;
   const currentModuleTitle = currentContext
     ? currentCheckpoint?.title ?? currentContext.unit.title
@@ -268,7 +275,7 @@ export function JourneyPage() {
       setProPaywallOpen(true);
       return;
     }
-    setLockedHint(lockedLessonMessage(lesson, state, completed, lessonTaskProgress, lessonStarsById, toneTrainer));
+    setLockedHint(lockedLessonMessage(lesson, state, completed, lessonTaskProgress, lessonStarsById, toneTrainer, lessonMasteryById));
     clearTimeout(lockedTimer.current);
     lockedTimer.current = setTimeout(() => setLockedHint(null), 3200);
   }
@@ -759,7 +766,7 @@ function ModuleBlock({
   const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
   const inventory = useStore((s) => s.inventory);
   const points = useStore((s) => s.points);
-  const { done, total } = unitProgress(unit, completed);
+  const { done, total } = unitProgress(unit, completed, lessonMasteryById);
   const hasPremium = unit.lessons.some((lesson) => lesson.premium);
   const moduleComplete = done >= total;
   const unitTitle = checkpoint?.title ?? unit.title;
@@ -915,7 +922,7 @@ function ModuleBlock({
         />
         {unit.lessons.map((lesson) => {
           const idx = nextIndex();
-          const baseState = lessonState(lesson.id, completed, isPremium);
+          const baseState = lessonState(lesson.id, completed, isPremium, lessonMasteryById);
           const taskCount = lessonTasksFor(lesson).length;
           const savedStageProgress = Math.max(0, Math.min(taskCount, lessonTaskProgress[lesson.id] ?? 0));
           const requiredTonePack = requiredToneTrainerPackForLesson(lesson.id);
@@ -926,9 +933,11 @@ function ModuleBlock({
           );
           const state: LessonState = toneLocked ? "locked" : baseState;
           const stars = Math.max(0, Math.min(3, lessonStarsById[lesson.id] ?? (state === "done" ? 3 : 0)));
-          const stageProgress = state === "done" ? taskCount : savedStageProgress;
-          const attempted = state !== "done" && (stars > 0 || (taskCount > 0 && savedStageProgress >= taskCount));
           const masteryLevel = Math.max(0, Math.min(4, lessonMasteryById?.[lesson.id]?.level ?? 0));
+          const topicNode = isTopicMasteryLesson(lesson);
+          const stageProgress = topicNode ? (state === "done" ? 4 : masteryLevel) : state === "done" ? 1 : 0;
+          const stageTotal = topicNode ? 4 : 1;
+          const attempted = state !== "done" && (stars > 0 || (taskCount > 0 && savedStageProgress >= taskCount));
           return (
             <LessonNode
               key={lesson.id}
@@ -941,9 +950,8 @@ function ModuleBlock({
               isCurrent={lesson.id === currentId}
               attempted={attempted}
               stars={stars}
-              masteryLevel={lesson.masteryLoop ? masteryLevel : undefined}
               stageProgress={stageProgress}
-              stageTotal={taskCount}
+              stageTotal={stageTotal}
               offset={offsetForIndex(idx)}
               onClick={() => (state === "locked" || state === "premium" ? onLocked(lesson, state) : onOpen(lesson.id))}
             />
@@ -1174,7 +1182,6 @@ function LessonNode({
   isCurrent,
   attempted,
   stars,
-  masteryLevel,
   stageProgress,
   stageTotal,
   offset,
@@ -1189,8 +1196,6 @@ function LessonNode({
   isCurrent: boolean;
   attempted: boolean;
   stars: number;
-  /** Pedagogia V3 — 0–4; ausente = lição fora do piloto de mastery. */
-  masteryLevel?: number;
   stageProgress: number;
   stageTotal: number;
   offset: number;
@@ -1213,13 +1218,18 @@ function LessonNode({
   const iconSize = isCurrent ? 28 : isDone ? 20 : 22;
   const safeStageTotal = Math.max(1, stageTotal);
   const safeStageProgress = Math.max(0, Math.min(safeStageTotal, stageProgress));
-  const hasPartialProgress = !isDone && !locked && safeStageProgress > 0 && safeStageProgress < safeStageTotal;
 
   return (
     <div className="relative z-[1] flex flex-col items-center" style={{ transform: `translateX(${offset}px)` }}>
       {isCurrent && (
         <div className="mb-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-card">
-          {isPaywall ? "Pro" : attempted ? "Quase" : hasPartialProgress ? `${safeStageProgress}/${safeStageTotal}` : isReview ? "Revisar" : "Agora"}
+          {isPaywall
+            ? "Pro"
+            : isReview
+              ? attempted
+                ? "Quase"
+                : "Revisar"
+              : `${safeStageProgress}/${safeStageTotal}`}
         </div>
       )}
       <div className={["relative grid place-items-center", ringSizeClass].join(" ")}>
@@ -1229,7 +1239,8 @@ function LessonNode({
         <LessonStageRing value={safeStageProgress} total={safeStageTotal} color={bg ?? "rgb(var(--accent))"} locked={locked} />
         <button
           onClick={onClick}
-          aria-label={title}
+          aria-label={`${title}${safeStageTotal === 4 ? ` · ${safeStageProgress} de 4` : ""}`}
+          data-topic-progress={safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined}
           aria-disabled={locked}
           aria-current={isCurrent ? "step" : undefined}
           data-current={isCurrent ? "true" : undefined}
@@ -1265,33 +1276,6 @@ function LessonNode({
               height={10}
               className={star <= stars ? "text-accent" : "text-line"}
               fill={star <= stars ? "currentColor" : "none"}
-            />
-          ))}
-        </div>
-      )}
-      {typeof masteryLevel === "number" && (
-        <div
-          className="mt-0.5 flex h-2.5 items-center gap-1"
-          aria-label={`Domínio ${masteryLevel} de 4`}
-          title={
-            masteryLevel >= 4
-              ? "Dominada"
-              : masteryLevel >= 3
-                ? "Produção"
-                : masteryLevel >= 2
-                  ? "Consolidando"
-                  : masteryLevel >= 1
-                    ? "Começou"
-                    : "Ainda não praticou o domínio"
-          }
-        >
-          {[1, 2, 3, 4].map((level) => (
-            <span
-              key={level}
-              className={[
-                "inline-block h-1.5 w-1.5 rounded-full",
-                level <= masteryLevel ? "bg-accent" : "bg-line",
-              ].join(" ")}
             />
           ))}
         </div>

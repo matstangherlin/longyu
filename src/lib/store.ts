@@ -23,6 +23,7 @@ import {
   migrateLessonMasteryFromCompletion,
   updateDimensionScore,
 } from "../data/masteryLoop";
+import { grandfatherTopicMastery } from "../data/topicMastery";
 import { todayKey, weekKey, monthKey } from "./storage";
 import {
   reconcileStreak as reconcileStreakState,
@@ -248,6 +249,8 @@ export interface DailyEnergy {
   bonusChargesClaimed: Record<string, boolean>;
   /** Quantos Fôlegos já ganhos hoje (teto FOLEGO_DAILY_EARN_CAP). */
   folegoEarned?: number;
+  /** TM-018 — uma pass não cobra de novo no reload / voltar / continuar. */
+  consumedChargeKeys?: string[];
 }
 
 export interface ImmersionDailyProgress {
@@ -338,6 +341,7 @@ function freshDailyEnergy(date = todayKey()): DailyEnergy {
     usedCharges: 0,
     bonusChargesClaimed: {},
     folegoEarned: 0,
+    consumedChargeKeys: [],
   };
 }
 
@@ -748,6 +752,8 @@ function activeDailyEnergy(energy: DailyEnergy | undefined, date = todayKey()): 
     charges: Math.max(0, Math.min(maxCharges, energy.charges ?? maxCharges)),
     usedCharges: Math.max(0, energy.usedCharges ?? 0),
     bonusChargesClaimed: energy.bonusChargesClaimed ?? {},
+    folegoEarned: energy.folegoEarned ?? 0,
+    consumedChargeKeys: energy.consumedChargeKeys ?? [],
   };
 }
 
@@ -770,6 +776,8 @@ export function reconcileFreePlanEnergy(energy: DailyEnergy | undefined, date = 
     charges,
     usedCharges: Math.max(0, current.usedCharges ?? 0),
     bonusChargesClaimed: bonusClaims,
+    folegoEarned: current.folegoEarned ?? 0,
+    consumedChargeKeys: current.consumedChargeKeys ?? [],
   };
 }
 
@@ -1176,6 +1184,8 @@ interface AccountSnapshot extends XpBuckets {
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
+  /** Resume TM-021: passo da pass atual (não avança mastery até concluir a sessão). */
+  lessonSessionStepById: Record<string, { pass: number; stepIndex: number }>;
   /** Pedagogia V3 — domínio progressivo por lição (0–4). Distinto de estrelas e SRS. */
   lessonMasteryById: Record<string, import("../data/masteryLoop").LessonMasteryRecord>;
   /** Competência por dimensão por item (`chunk:…` / `char:…`). */
@@ -1301,6 +1311,7 @@ function blankSnapshot(): AccountSnapshot {
     correctedMistakes: {},
     recentErrors: [],
     lessonTaskProgress: {},
+    lessonSessionStepById: {},
     lessonMasteryById: {},
     itemDimensionsByRef: {},
     recentActivityErrors: [],
@@ -1415,6 +1426,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     correctedMistakes: s.correctedMistakes,
     recentErrors: s.recentErrors,
     lessonTaskProgress: s.lessonTaskProgress,
+    lessonSessionStepById: s.lessonSessionStepById ?? {},
     lessonMasteryById: s.lessonMasteryById ?? {},
     itemDimensionsByRef: s.itemDimensionsByRef ?? {},
     recentActivityErrors: s.recentActivityErrors,
@@ -1550,6 +1562,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     correctedMistakes: normalizeCorrectedMistakes(account.correctedMistakes, account.mistakeHistory),
     recentErrors: normalizeLessonMistakes(account.recentErrors).filter((error) => !error.recoveredAt),
     lessonTaskProgress: account.lessonTaskProgress ?? {},
+    lessonSessionStepById: account.lessonSessionStepById ?? {},
     lessonMasteryById: account.lessonMasteryById ?? {},
     itemDimensionsByRef: account.itemDimensionsByRef ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
@@ -1735,6 +1748,7 @@ function onboardingSnapshotFromPlacement(placement: PlacementResult): AccountSna
     ...blankSnapshot(),
     completedLessons,
     lessonStarsById: normalizeLessonStars({}, completedLessons),
+    lessonMasteryById: grandfatherTopicMastery(ALL_LESSONS, completedLessons, {}),
     placement,
     lastActive: date,
     streak: 1,
@@ -1830,6 +1844,7 @@ interface AppState {
   correctedMistakes: Record<string, number>;
   recentErrors: LessonMistakeRecord[];
   lessonTaskProgress: Record<string, number>;
+  lessonSessionStepById: Record<string, { pass: number; stepIndex: number }>;
   lessonMasteryById: Record<string, import("../data/masteryLoop").LessonMasteryRecord>;
   itemDimensionsByRef: Record<string, import("../data/masteryLoop").ItemDimensionScores>;
   recentActivityErrors: ActivityErrorRecord[];
@@ -2045,6 +2060,7 @@ interface AppState {
   recordDailyTask: (task: DailyTaskKey, amount?: number) => void;
   completeImmersionSession: (sessionId: string, completion: ImmersionCompletion) => boolean;
   setLessonTaskProgress: (lessonId: string, completedTasks: number) => void;
+  setLessonSessionStep: (lessonId: string, cursor: { pass: number; stepIndex: number } | null) => void;
   toggleFavoriteItem: (key: string) => void;
   claimReward: (reward: RewardGrant) => boolean;
   grantLessonReward: (input: {
@@ -2091,6 +2107,7 @@ interface AppState {
       }>;
       /** PED-095 — `Date.now()` de quando esta pass começou; habilita telemetria com duração. */
       startedAt?: number;
+      allowSkipAhead?: boolean;
     }
   ) => void;
   /**
@@ -2183,6 +2200,7 @@ export const useStore = create<AppState>()(
       correctedMistakes: {},
       recentErrors: [],
       lessonTaskProgress: {},
+      lessonSessionStepById: {},
       lessonMasteryById: {},
       itemDimensionsByRef: {},
       recentActivityErrors: [],
@@ -2770,11 +2788,13 @@ export const useStore = create<AppState>()(
           const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
           const completedLessons = normalizeCompletedLessons([...new Set(completedLessonIds)], s.lessonStarsById);
           const lessonStarsById = normalizeLessonStars(s.lessonStarsById, completedLessons);
+          const lessonMasteryById = grandfatherTopicMastery(ALL_LESSONS, completedLessons, s.lessonMasteryById);
           const next = {
             ...s,
             accountSetupComplete: true,
             completedLessons,
             lessonStarsById,
+            lessonMasteryById,
             placement,
             lastActive: date,
             streak: s.streak || 1,
@@ -2787,6 +2807,7 @@ export const useStore = create<AppState>()(
             accountSetupComplete: true,
             completedLessons: next.completedLessons,
             lessonStarsById,
+            lessonMasteryById,
             placement,
             lastActive: next.lastActive,
             streak: next.streak,
@@ -3447,6 +3468,15 @@ export const useStore = create<AppState>()(
           const lessonTaskProgress = { ...s.lessonTaskProgress, [lessonId]: nextCount };
           const next = { ...s, lessonTaskProgress };
           return { lessonTaskProgress, accounts: saveCurrentAccount(next) };
+        }),
+
+      setLessonSessionStep: (lessonId, cursor) =>
+        set((s) => {
+          const lessonSessionStepById = { ...(s.lessonSessionStepById ?? {}) };
+          if (!cursor || cursor.stepIndex <= 0) delete lessonSessionStepById[lessonId];
+          else lessonSessionStepById[lessonId] = { pass: cursor.pass, stepIndex: cursor.stepIndex };
+          const next = { ...s, lessonSessionStepById };
+          return { lessonSessionStepById, accounts: saveCurrentAccount(next) };
         }),
 
       toggleFavoriteItem: (key) =>
@@ -4388,15 +4418,20 @@ export const useStore = create<AppState>()(
         if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
         if (activityType === "extra_training" && get().hasFocusPass()) return true;
         const energy = activeDailyEnergy(state.dailyEnergy);
+        if (idempotencyKey && (energy.consumedChargeKeys ?? []).includes(idempotencyKey)) return true;
         if (energy.charges < CHARGE_COST_ACTIVITY) return false;
         const previousEnergy = { ...energy };
         set((s) => {
           const current = activeDailyEnergy(s.dailyEnergy);
+          if (idempotencyKey && (current.consumedChargeKeys ?? []).includes(idempotencyKey)) return {};
           if (current.charges < CHARGE_COST_ACTIVITY) return {};
           const dailyEnergy = {
             ...current,
             charges: current.charges - CHARGE_COST_ACTIVITY,
             usedCharges: current.usedCharges + CHARGE_COST_ACTIVITY,
+            consumedChargeKeys: idempotencyKey
+              ? [...(current.consumedChargeKeys ?? []), idempotencyKey]
+              : current.consumedChargeKeys,
           };
           const next = { ...s, dailyEnergy };
           return { dailyEnergy, accounts: saveCurrentAccount(next) };
@@ -4588,6 +4623,7 @@ export const useStore = create<AppState>()(
               accuracy: input.accuracy,
               mistakeCount: input.mistakeCount,
               hadProductionOrTransfer: input.hadProductionOrTransfer,
+              allowSkipAhead: input.allowSkipAhead,
             },
             now
           );
@@ -4621,9 +4657,20 @@ export const useStore = create<AppState>()(
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
           const lessonStarsById = { ...current.lessonStarsById, [id]: 1 as LessonStar };
+          const now = Date.now();
+          const lessonMasteryById = {
+            ...(current.lessonMasteryById ?? {}),
+            [id]: {
+              level: 4 as const,
+              passCount: Math.max(current.lessonMasteryById?.[id]?.passCount ?? 0, 4),
+              lastPass: 4 as const,
+              recoveryPending: false,
+              updatedAt: now,
+            },
+          };
           if (current.completedLessons.includes(id)) {
-            const next = { ...current, lessonStarsById };
-            return { ...leaguePatch, lessonStarsById, accounts: saveCurrentAccount(next) };
+            const next = { ...current, lessonStarsById, lessonMasteryById };
+            return { ...leaguePatch, lessonStarsById, lessonMasteryById, accounts: saveCurrentAccount(next) };
           }
           const leagueJoin = joinLeaguePatch(current);
           const week = activeWeeklyMissions(current.weeklyMissions);
@@ -4633,6 +4680,7 @@ export const useStore = create<AppState>()(
             ...leagueJoin,
             completedLessons: [...current.completedLessons, id],
             lessonStarsById,
+            lessonMasteryById,
             weeklyMissions,
           };
           return {
@@ -4640,6 +4688,7 @@ export const useStore = create<AppState>()(
             ...leagueJoin,
             completedLessons: next.completedLessons,
             lessonStarsById,
+            lessonMasteryById,
             weeklyMissions,
             accounts: saveCurrentAccount(next),
           };
@@ -4800,7 +4849,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 19,
+      version: 20,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -4822,6 +4871,7 @@ export const useStore = create<AppState>()(
       // v17: Pérolas V2 — marcos, ledger e Pass Pro por Pérolas.
       // v18: entitlement cloud nunca é hidratado do navegador; servidor é autoridade.
       // v19: Pedagogia V3 — lessonMasteryById + itemDimensionsByRef (migração segura).
+      // v20: Topic Mastery Path — grandfather 4/4 para nós já atrás do ponteiro legado.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -4966,6 +5016,17 @@ export const useStore = create<AppState>()(
               itemDimensionsByRef: migrated.itemDimensionsByRef ?? {},
             };
           }
+          if (version < 20) {
+            migrated = {
+              ...migrated,
+              lessonMasteryById: grandfatherTopicMastery(
+                ALL_LESSONS,
+                migrated.completedLessons ?? [],
+                migrated.lessonMasteryById
+              ),
+              lessonSessionStepById: migrated.lessonSessionStepById ?? {},
+            };
+          }
           const completedLessons = normalizeCompletedLessons(
             migrated.completedLessons,
             migrated.lessonStarsById,
@@ -5011,6 +5072,11 @@ export const useStore = create<AppState>()(
           journeyChestsOpened: root.journeyChestsOpened ?? [],
           completedLessons: rootCompletedLessons,
           lessonStarsById: normalizeLessonStars(root.lessonStarsById, rootCompletedLessons),
+          lessonMasteryById:
+            version < 20
+              ? grandfatherTopicMastery(ALL_LESSONS, rootCompletedLessons, root.lessonMasteryById)
+              : (root.lessonMasteryById ?? {}),
+          lessonSessionStepById: root.lessonSessionStepById ?? {},
           lessonAttemptsById: normalizeLessonAttempts(root.lessonAttemptsById),
           currentLessonAttempt: normalizeCurrentLessonAttempt(root.currentLessonAttempt),
           mistakeHistory: normalizeLessonMistakes(root.mistakeHistory),

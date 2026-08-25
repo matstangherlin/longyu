@@ -83,7 +83,7 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await page.goto(`/licao/${lessonId}`);
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const reviewBtn = page.getByRole("button", { name: /^Rever lição$/ });
+    const reviewBtn = page.getByRole("button", { name: /Praticar novamente/ });
     await expect(reviewBtn).toBeVisible();
     const box = await reviewBtn.boundingBox();
     expect(box).toBeTruthy();
@@ -139,7 +139,7 @@ test.describe("Jornada — CTAs compactos no desktop", () => {
     await page.goto(`/licao/${lessonId}`);
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const reviewBtn = page.getByRole("button", { name: /^Rever lição$/ });
+    const reviewBtn = page.getByRole("button", { name: /Praticar novamente/ });
     await expect(reviewBtn).toBeVisible();
     const reviewBox = await reviewBtn.boundingBox();
     expect(reviewBox).toBeTruthy();

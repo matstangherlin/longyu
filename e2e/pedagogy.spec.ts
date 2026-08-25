@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import {
   clickStable,
   dismissBlockingOverlays,
@@ -8,20 +8,7 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, advanceUntilVisible } from "./lesson-player-helpers";
-
-async function hasCompletedLesson(page: Page, lessonId: string): Promise<boolean> {
-  return page.evaluate((id) => {
-    const raw = localStorage.getItem("longyu-v1");
-    if (!raw) return false;
-    try {
-      const parsed = JSON.parse(raw) as { state?: { completedLessons?: string[] } };
-      return Boolean(parsed.state?.completedLessons?.includes(id));
-    } catch {
-      return false;
-    }
-  }, lessonId);
-}
+import { advanceUntilVisible } from "./lesson-player-helpers";
 
 test.describe("jornada", () => {
   test("jornada carrega com perfil onboarded", async ({ page }) => {
@@ -49,41 +36,18 @@ test.describe("lição", () => {
     await expect(page.getByRole("button", { name: /qual/i })).toHaveCount(0);
   });
 
-  test("conta nova: microconversa de 你好 na lição de pinyin", async ({ page }) => {
+  test("conta nova: microconversa de 你好 na 4ª pass de mandarim", async ({ page }) => {
     test.setTimeout(180_000);
-    await seedFreshJourneySession(page);
-
-    // Conta realmente nova: a jornada bloqueia a lição 2 até concluir a 1.
+    // Tema já adquirido em 4/4 (grandfather do helper): a pass de domínio traz a microconversa.
+    await seedOnboardedSession(page, ["p1-o-que-e-mandarim"]);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
-    await waitForLazyPage(page);
-    await dismissBlockingOverlays(page);
-    const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
-    const gateCta = page.getByRole("button", { name: /Continuar na jornada/i });
-    const l1Deadline = Date.now() + 90_000;
-    for (let steps = 0; steps < 50 && Date.now() < l1Deadline; steps += 1) {
-      if (await hasCompletedLesson(page, "p1-o-que-e-mandarim")) break;
-      if (await gateCta.isVisible().catch(() => false)) {
-        await page.goto("/licao/p1-o-que-e-mandarim/player");
-        await waitForLazyPage(page);
-        continue;
-      }
-      await dismissBlockingOverlays(page);
-      const advanced = await advanceOneStep(page);
-      if (!advanced) await advanceUntilVisible(page, victory, 3);
-    }
-    expect(
-      await hasCompletedLesson(page, "p1-o-que-e-mandarim"),
-      "conta nova precisa concluir a L1 de verdade antes da microconversa",
-    ).toBe(true);
-
-    await page.goto("/licao/p1-o-que-e-pinyin/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 15_000 });
 
     const conversation = page.locator("[data-conversation-scene]").first();
-    const l2Deadline = Date.now() + 90_000;
-    for (let steps = 0; steps < 40 && Date.now() < l2Deadline; steps += 1) {
+    const deadline = Date.now() + 90_000;
+    for (let steps = 0; steps < 40 && Date.now() < deadline; steps += 1) {
       if (await conversation.isVisible().catch(() => false)) break;
       await dismissBlockingOverlays(page);
       const found = await advanceUntilVisible(page, conversation, 1);
@@ -93,7 +57,7 @@ test.describe("lição", () => {
   });
 
   test("intro de hànzì é conceitual, sem composição 林/明", async ({ page }) => {
-    await seedFreshJourneySession(page);
+    await seedFoundationThrough(page, "p1-o-que-e-tom");
     await page.goto("/licao/p1-o-que-e-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

@@ -81,7 +81,7 @@ export function PageHeader({
           )}
           <div className="min-w-0">
             {eyebrow && <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{eyebrow}</div>}
-            <h1 className="mt-0.5 font-serif text-[1.4rem] font-semibold leading-tight text-ink sm:text-[1.6rem]">{title}</h1>
+            <h1 className="mt-0.5 break-words font-serif text-[1.4rem] font-semibold leading-tight text-ink sm:text-[1.6rem]">{title}</h1>
             {subtitle && <p className="mt-0.5 max-w-xl text-xs leading-5 text-ink-soft sm:text-sm">{subtitle}</p>}
           </div>
         </div>

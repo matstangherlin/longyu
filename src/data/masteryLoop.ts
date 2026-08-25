@@ -369,10 +369,10 @@ export function isProductionOrTransferKind(kind: StepKind): boolean {
  * manter M1–M4 profundos sem sessões de 15+ exercícios.
  */
 export const MASTERY_PASS_GRADED_BUDGET: Record<MasteryPass, { min: number; max: number }> = {
-  1: { min: 6, max: 9 },
-  2: { min: 6, max: 9 },
-  3: { min: 7, max: 10 },
-  4: { min: 7, max: 10 },
+  1: { min: 5, max: 8 },
+  2: { min: 6, max: 8 },
+  3: { min: 6, max: 9 },
+  4: { min: 6, max: 9 },
 };
 
 /** Respostas semanticamente equivalentes para produção M3/M4. */
@@ -450,6 +450,12 @@ export interface MasteryAdvancementInput {
   mistakeCount: number;
   /** Conteúdo permite tarefa de produção/transferência nesta pass. */
   hadProductionOrTransfer: boolean;
+  /**
+   * V4.6 Topic Path: the ring is 0–4 with one cognitive pass each.
+   * Skip-ahead would open M4 from a 2/4 circle. Default true for legacy
+   * mastery-loop tests; the player passes false for teaching topics.
+   */
+  allowSkipAhead?: boolean;
 }
 
 export interface MasteryAdvancementResult {
@@ -486,7 +492,7 @@ export function advanceLessonMastery(input: MasteryAdvancementInput, now = Date.
   }
 
   let nextLevel = Math.max(prev.level, input.pass) as MasteryLevel;
-  if (excellent && input.pass >= 2 && nextLevel < 4) {
+  if (input.allowSkipAhead !== false && excellent && input.pass >= 2 && nextLevel < 4) {
     nextLevel = Math.min(4, nextLevel + 1) as MasteryLevel;
   }
   // Pass 4 sem produção quando o conteúdo permite → não marca domínio total.

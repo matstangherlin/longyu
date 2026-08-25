@@ -33,6 +33,7 @@ export function TreinoPage() {
   const today = useStore((s) => s.today);
   const srs = useStore((s) => s.srs);
   const completed = useStore((s) => s.completedLessons);
+  const lessonMasteryById = useStore((s) => s.lessonMasteryById);
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
   const learnedChunks = useStore((s) => s.learnedChunks);
@@ -53,7 +54,7 @@ export function TreinoPage() {
   const weakTone = weakestToneFromProgress(toneTrainer);
   const dailyViews = buildMissionViews("daily", aggregates, dailyClaimed);
   const reviewMission = dailyViews.find((mission) => mission.id === "daily-reviews" && !mission.claimed);
-  const currentLesson = currentLessonId(completed);
+  const currentLesson = currentLessonId(completed, false, lessonMasteryById);
   const quickTestUnit = JOURNEY.flatMap((phase) => phase.units).find((unit) =>
     unit.lessons.some((lesson) => lesson.id === currentLesson || !completed.includes(lesson.id))
   );

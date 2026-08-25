@@ -167,8 +167,8 @@ if (!/isPreview && isDevPreviewAllowed\(\)/.test(entitlementsSrc)) {
 }
 
 const storeSrc = read("src/lib/store.ts");
-if (!storeSrc.includes("version: 19")) {
-  fail("store.ts persist deve estar na versão 19 (Mastery Loop + entitlement cloud efêmero)");
+if (!storeSrc.includes("version: 20")) {
+  fail("store.ts persist deve estar na versão 20 (Topic Mastery Path)");
 }
 if (!storeSrc.includes("lessonMasteryById")) {
   fail("store.ts deve persistir lessonMasteryById (Pedagogia V3)");
