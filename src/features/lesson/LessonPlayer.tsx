@@ -1954,6 +1954,14 @@ export function LessonPlayer() {
    * reorganizam nem desmontam a lição.
    */
   const sessionPlanRef = useRef<{ lessonId: string; nonce: number; steps: LessonStep[] } | null>(null);
+  const [storeHydrated, setStoreHydrated] = useState(() => useStore.persist.hasHydrated());
+  useEffect(() => {
+    if (useStore.persist.hasHydrated()) {
+      setStoreHydrated(true);
+      return undefined;
+    }
+    return useStore.persist.onFinishHydration(() => setStoreHydrated(true));
+  }, []);
 
   useEffect(() => {
     if (!foundLesson) return undefined;
@@ -1970,6 +1978,7 @@ export function LessonPlayer() {
       sessionPlanRef.current = null;
       return undefined;
     }
+    if (!storeHydrated) return undefined;
 
     const locked = sessionPlanRef.current;
     if (locked && locked.lessonId === foundLesson.id && locked.nonce === planNonce) {
@@ -2046,6 +2055,7 @@ export function LessonPlayer() {
     recentConversationIntentIds,
     recentConversationSceneIds,
     srs,
+    storeHydrated,
   ]);
 
   const stepsForRender = adaptiveSteps ?? authoredEnrichedSteps;
