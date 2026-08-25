@@ -543,7 +543,9 @@ function MissionCompleteModal({
             <div className="min-w-0">
               <div className="text-sm font-semibold text-ink">Baú mensal</div>
               <div className="text-xs text-ink-faint">
-                {canOpenMonthlyChest ? `${monthlyChests} pronto para abrir` : "Resgate registrado"}
+                {canOpenMonthlyChest
+                  ? `${monthlyChests} ${monthlyChests === 1 ? "pronto" : "prontos"} para abrir`
+                  : "Resgate registrado"}
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Card } from "../ui/primitives";
+import { ButtonLink, Card } from "../ui/primitives";
 import { DAILY_CHARGES_FREE, ECONOMY_SUMMARY } from "../../data/economy";
 import { getPlanFeature } from "../../data/planFeatures";
 
@@ -35,7 +35,7 @@ export function EconomyExplainer({ isPro = false, context = "conta", className =
         {ECONOMY_SUMMARY.pro.retryCost.toLowerCase()} · {ECONOMY_SUMMARY.pro.chestDeepReview.toLowerCase()}.
         {isPro ? (
           <span className="text-gold"> Ativo na sua conta.</span>
-        ) : (
+        ) : context === "missoes" ? null : (
           <>
             {" "}
             <Link to="/pro" className="inline-flex min-h-11 items-center font-semibold text-gold hover:underline">
@@ -44,6 +44,11 @@ export function EconomyExplainer({ isPro = false, context = "conta", className =
           </>
         )}
       </p>
+      {!isPro && context === "missoes" ? (
+        <ButtonLink to="/pro" variant="outline" size="sm" className="mt-2 w-full min-w-0">
+          Ver planos Pro
+        </ButtonLink>
+      ) : null}
     </Card>
   );
 }

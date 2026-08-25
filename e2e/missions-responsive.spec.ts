@@ -3,6 +3,7 @@ import {
   MISSIONS_DESKTOP_VIEWPORTS,
   MISSIONS_LANDSCAPE_VIEWPORT,
   MISSIONS_MOBILE_VIEWPORTS,
+  MISSIONS_TABLET_VIEWPORTS,
   assertMissionLayout,
   assertNoHorizontalOverflow,
   assertNoInteractiveOverlap,
@@ -48,6 +49,19 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
     });
   }
 
+  for (const viewport of MISSIONS_TABLET_VIEWPORTS) {
+    test.describe(`tablet ${viewport.label}`, () => {
+      test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+      test("duas colunas sem overflow nem overlap", async ({ page, browserName }) => {
+        test.skip(browserName !== "chromium", "matriz tablet no Chromium");
+        await seedRichMissions(page);
+        await openMissions(page);
+        await assertMissionLayout(page);
+      });
+    });
+  }
+
   test.describe(`mobile ${MISSIONS_LANDSCAPE_VIEWPORT.label}`, () => {
     test.use({
       viewport: {
@@ -76,6 +90,9 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
       await expect(page.locator('[data-mission-id="daily-reviews"]')).toHaveAttribute("data-mission-status", "complete");
       await expect(page.locator('[data-mission-id="daily-phrases"]')).toHaveAttribute("data-mission-status", "incomplete");
       await expect(page.locator('[data-mission-id="daily-pro-fix"]')).toHaveAttribute("data-mission-status", "premium");
+      await expect(page.locator('[data-mission-id="weekly-xp"]')).toHaveAttribute("data-mission-status", "claimed");
+      await expect(page.locator('[data-mission-id="weekly-lessons"]')).toHaveAttribute("data-mission-status", "progress");
+      await expect(page.locator('[data-mission-id="weekly-immersion"]')).toHaveAttribute("data-mission-status", "complete");
       await expect(page.locator('[data-mission-hero]')).toHaveAttribute("data-mission-status", "complete");
 
       await expect(page.locator('[data-mission-id="daily-reviews"] [data-mission-cta="primary"]')).toHaveText(/Resgatar/);
@@ -105,6 +122,19 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
       const celebration = page.locator("[data-mission-celebration]");
       await expect(celebration).toBeVisible();
       await expect(celebration.getByRole("button", { name: "Continuar" })).toBeVisible();
+      await assertNoInteractiveOverlap(page);
+      await assertNoHorizontalOverflow(page);
+    });
+
+    test("celebração mensal com baú: ações em fluxo, sem overlap", async ({ page }) => {
+      await seedRichMissions(page);
+      await openMissions(page);
+      await page.getByRole("button", { name: "Resgatar medalha do mês" }).click();
+      const celebration = page.locator("[data-mission-celebration]");
+      await expect(celebration).toBeVisible();
+      await expect(celebration.getByRole("button", { name: "Abrir baú" })).toBeVisible();
+      await expect(celebration.getByRole("button", { name: "Continuar" })).toBeVisible();
+      await celebration.getByRole("button", { name: "Continuar" }).scrollIntoViewIfNeeded();
       await assertNoInteractiveOverlap(page);
       await assertNoHorizontalOverflow(page);
     });
@@ -142,11 +172,30 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
       await page.reload({ waitUntil: "domcontentloaded" });
       await expect(page.locator("[data-economy-sync-banner]")).toHaveCount(0);
     });
+  });
 
-    test("escala de fonte maior não causa overflow em 375px", async ({ page, browserName }) => {
+  test.describe("escala de fonte 375×667", () => {
+    test.use({ viewport: { width: 375, height: 667 } });
+
+    test("texto maior não causa overflow", async ({ page, browserName }) => {
       test.skip(browserName !== "chromium");
       await page.addInitScript(() => {
         document.documentElement.style.fontSize = "20px";
+      });
+      await seedRichMissions(page);
+      await openMissions(page);
+      await assertMissionLayout(page);
+    });
+  });
+
+  test.describe("safe-area 390×844", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test("safe-area simulada não cobre CTA nem estoura", async ({ page, browserName }) => {
+      test.skip(browserName !== "chromium");
+      await page.addInitScript(() => {
+        document.documentElement.style.setProperty("--app-safe-top", "47px");
+        document.documentElement.style.setProperty("--app-safe-bottom", "34px");
       });
       await seedRichMissions(page);
       await openMissions(page);

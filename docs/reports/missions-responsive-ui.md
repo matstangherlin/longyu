@@ -94,6 +94,8 @@ Fonte: `src/components/ui/layers.ts` e `--z-*` em `src/index.css`.
 | daily-phrases | incomplete | Praticar |
 | daily-pro-fix | premium | Resgatar com Pro |
 | weekly-xp | claimed | Resgatada |
+| weekly-lessons | progress | Praticar |
+| weekly-immersion | complete | Resgatar |
 | monthly hero (meta batida) | complete | Resgatar medalha do mês + baú secundário |
 | monthly claimed + baú | claimed | medalha resgatada + Abrir Baú Épico (99) primário |
 
@@ -105,9 +107,19 @@ E2E: `e2e/missions-responsive.spec.ts` (Chromium = matriz completa; WebKit = 320
 
 **Mobile:** 320×568, 360×640, 375×667, 390×844, 393×851, 412×915, 430×932, landscape 667×360, fonte 20px em 375.
 
+**Tablet:** 640×960, 768×1024, 834×1112 (duas colunas, CTAs da fileira alinhados).
+
 **Desktop:** 1024×768, 1180×820, 1280×720, 1366×768, 1440×900, 1920×1080.
 
-Helpers: `assertNoInteractiveOverlap`, `assertNoHorizontalOverflow`, `assertAboveBottomNavigation`, `assertFeedbackFabClear`, `assertTouchTargets`.
+Helpers: `assertNoInteractiveOverlap`, `assertNoHorizontalOverflow`, `assertAboveBottomNavigation`, `assertFeedbackFabClear`, `assertTouchTargets`, `assertMissionCardActionsAligned`.
+
+Referências:
+
+![Baú empilhado em 320px](missions-responsive/chest-320.png)
+
+![Card completo com Resgatar](missions-responsive/card-complete.png)
+
+![Hero e FAB em 1024px](missions-responsive/hero-1024.png)
 
 ---
 
@@ -115,7 +127,7 @@ Helpers: `assertNoInteractiveOverlap`, `assertNoHorizontalOverflow`, `assertAbov
 
 `npx playwright test e2e/missions-responsive.spec.ts --project=chromium`
 
-**22 passed** (matriz mobile 7 + landscape + desktop 6 + estados reais).
+**27 passed** (matriz mobile 7 + tablet 3 + landscape + desktop 6 + estados reais, fonte e safe-area).
 
 | Check | Antes (código) | Depois |
 | --- | --- | --- |

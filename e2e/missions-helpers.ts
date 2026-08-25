@@ -22,6 +22,12 @@ export const MISSIONS_DESKTOP_VIEWPORTS = [
   { label: "1920×1080", width: 1920, height: 1080 },
 ] as const;
 
+export const MISSIONS_TABLET_VIEWPORTS = [
+  { label: "640×960", width: 640, height: 960 },
+  { label: "768×1024", width: 768, height: 1024 },
+  { label: "834×1112", width: 834, height: 1112 },
+] as const;
+
 export const MISSIONS_LANDSCAPE_VIEWPORT = { label: "667×360 landscape", width: 667, height: 360 } as const;
 
 export async function openMissions(page: Page) {
@@ -261,10 +267,38 @@ export async function assertFeedbackFabClear(page: Page) {
   }
 }
 
+export async function assertMissionCardActionsAligned(page: Page) {
+  const width = page.viewportSize()?.width ?? 0;
+  if (width < 640) return;
+  const drift = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll<HTMLElement>("[data-mission-card]")];
+    const rows: HTMLElement[][] = [];
+    for (const card of cards) {
+      const top = card.getBoundingClientRect().top;
+      const row = rows.find((group) => Math.abs(group[0].getBoundingClientRect().top - top) < 8);
+      if (row) row.push(card);
+      else rows.push([card]);
+    }
+    const hits: string[] = [];
+    for (const row of rows) {
+      if (row.length < 2) continue;
+      const bottoms = row.map((card) => {
+        const cta = card.querySelector<HTMLElement>("[data-mission-cta]");
+        return cta ? cta.getBoundingClientRect().bottom : card.getBoundingClientRect().bottom;
+      });
+      const delta = Math.max(...bottoms) - Math.min(...bottoms);
+      if (delta > 2) hits.push(`fileira Δ${Math.round(delta)}px`);
+    }
+    return hits;
+  });
+  expect(drift, drift.join(" · ")).toEqual([]);
+}
+
 export async function assertMissionLayout(page: Page) {
   await assertNoHorizontalOverflow(page);
   await assertNoInteractiveOverlap(page);
   await assertAboveBottomNavigation(page);
   await assertTouchTargets(page);
   await assertFeedbackFabClear(page);
+  await assertMissionCardActionsAligned(page);
 }
