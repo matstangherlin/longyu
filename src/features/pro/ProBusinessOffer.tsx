@@ -28,8 +28,8 @@ export function ProBusinessOffer() {
       </div>
 
       <Card variant="premium" className="p-4 sm:p-5">
-        <Pill tone="gold">Longyu Business</Pill>
-        <h3 className="mt-2 font-serif text-base font-semibold text-ink">Para a sua equipe</h3>
+        <Pill tone="gold">Para a sua equipe</Pill>
+        <h3 className="mt-2 font-serif text-base font-semibold text-ink">Longyu Business</h3>
         <p className="mt-1 text-sm text-ink-soft">
           Treine sua equipe em mandarim. Acompanhe adoção, progresso e competências.
         </p>
