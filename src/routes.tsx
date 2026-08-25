@@ -44,6 +44,7 @@ const ReferralInvitePage = lazy(() => import("./features/referral/ReferralInvite
 const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) => ({ default: m.AmigosPage })));
 const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage").then((m) => ({ default: m.AdminFeedbackPage })));
 const MarketingPage = lazy(() => import("./features/marketing/MarketingPage").then((m) => ({ default: m.MarketingPage })));
+const BusinessPage = lazy(() => import("./features/business/BusinessPage").then((m) => ({ default: m.BusinessPage })));
 
 // Landing (pública) fica estática: é a primeira pintura para novos visitantes.
 import { LandingPage } from "./features/landing/LandingPage";
@@ -61,6 +62,7 @@ export const routes: RouteObject[] = [
   { path: "/mandarim-para-brasileiros", element: <MarketingPage /> },
   { path: "/como-funciona", element: <MarketingPage /> },
   { path: "/metodo-longyu", element: <MarketingPage /> },
+  { path: "/business", element: <BusinessPage /> },
   { path: "/convite/:code", element: <ReferralInvitePage /> },
   {
     element: <AppShell />,

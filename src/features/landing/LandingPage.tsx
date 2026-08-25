@@ -178,6 +178,9 @@ export function LandingPage() {
           <Link to="/tons-do-mandarim" className="hover:text-ink-soft">
             Tons
           </Link>
+          <Link to="/business" className="hover:text-ink-soft">
+            Para empresas
+          </Link>
           <Link to="/privacidade" className="hover:text-ink-soft">
             Privacidade
           </Link>

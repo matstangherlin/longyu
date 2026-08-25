@@ -102,6 +102,14 @@ export const PUBLIC_SEO_PAGES: SeoPage[] = [
       "Método Longyu: estrutura pedagógica com profundidade validada — som, blocos, contexto, conversação, produção, revisão espaçada e hànzì em camadas.",
   },
   {
+    path: "/business",
+    title: "Treinamento de Mandarim para Empresas | Longyu",
+    description:
+      "Treinamento de mandarim para equipes e empresas que operam Brasil–China. Longyu Business e Enterprise: programa corporativo, sem checkout individual.",
+    crawlerText:
+      "Longyu for Business é a linha corporativa: mandarim para colaboradores, acompanhamento de progresso e conversa comercial. Enterprise cobre grandes equipes e implantação personalizada. Sem logotipos de clientes nesta página.",
+  },
+  {
     path: "/privacidade",
     title: "Privacidade — Longyu",
     description: "Política de privacidade e consentimento do Longyu (龙语).",

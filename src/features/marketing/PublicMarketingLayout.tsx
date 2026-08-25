@@ -17,6 +17,7 @@ const FOOTER_LINKS = PUBLIC_SEO_PAGES.filter((p) =>
     "/mandarim-para-brasileiros",
     "/como-funciona",
     "/metodo-longyu",
+    "/business",
   ].includes(p.path)
 );
 
@@ -60,7 +61,10 @@ export function PublicMarketingLayout({
                 to={page.path}
                 className="text-ink-soft underline-offset-2 hover:text-accent hover:underline"
               >
-                {page.title.replace(/ — Longyu$/, "").replace(/ — mandarim pela lógica$/, "")}
+                {page.title
+                  .replace(/ — Longyu$/, "")
+                  .replace(/ \| Longyu$/, "")
+                  .replace(/ — mandarim pela lógica$/, "")}
               </Link>
             ))}
           </nav>

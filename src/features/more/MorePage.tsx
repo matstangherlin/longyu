@@ -38,6 +38,7 @@ const FEATURE_DESC: Record<string, string> = {
   perfil: "Identidade e progresso.",
   conta: "Login, email e sessão.",
   plano: "Assinatura e benefícios.",
+  business: "Mandarim para equipes e empresas.",
   dados: "Backup, exportação e perfis.",
   ajustes: "Áudio, aparência e preferências.",
   ajuda: "Suporte, feedback e atalhos.",
@@ -72,7 +73,8 @@ export function MorePage() {
   function toHubItem(nav: NavItem): HubNavItem {
     const feature = nav.feature as FeatureId | undefined;
     // Áreas sem `feature` (ex.: Amigos) usam o próprio `to` como chave de texto.
-    const descKey = feature ?? (nav.to === "/amigos" ? "amigos" : "");
+    const descKey =
+      feature ?? (nav.to === "/amigos" ? "amigos" : nav.to === "/business" ? "business" : "");
     const desc = FEATURE_DESC[descKey] ?? "";
     const base: HubNavItem = { title: nav.label, desc, icon: nav.icon, to: nav.to };
 

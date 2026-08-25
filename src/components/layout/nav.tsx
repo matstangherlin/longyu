@@ -82,6 +82,7 @@ export const NAV: Record<string, NavItem> = {
   perfil: { to: "/perfil", label: "Perfil", icon: IconUser, matches: PROFILE_MATCHES, feature: "perfil" },
   conta: { to: "/conta", label: "Conta", icon: IconShield, feature: "conta" },
   plano: { to: "/plano", label: "Plano Pro", icon: IconStar, feature: "plano" },
+  business: { to: "/business", label: "Para empresas", icon: IconTarget },
   dados: { to: "/dados-locais", label: "Dados locais", icon: IconBook, feature: "dados" },
   ajustes: { to: "/ajustes", label: "Ajustes", icon: IconGear, matches: ["/config", "/ajustes"], feature: "ajustes" },
   ajuda: { to: "/sobre#feedback", label: "Ajuda", icon: IconTarget, feature: "ajuda" },
@@ -134,7 +135,7 @@ export const MORE_CATALOG: NavGroup[] = [
   },
   {
     title: "Conta",
-    items: [NAV.perfil, NAV.conta, NAV.plano, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre],
+    items: [NAV.perfil, NAV.conta, NAV.plano, NAV.business, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre],
   },
 ];
 

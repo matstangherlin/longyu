@@ -10,7 +10,7 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Projeto preview (`longyu-preview`) | 🗑️ | Pausado/removido 2026-08-04 — liberou cota Free (reativou `atomurus`). Netlify Preview fica em `local` |
 | Migrations 001–017 no produção | ✅ | Inclui `017_referrals` (referrals, rewards, entitlement_grants) — verificado 2026-08-04 |
 | Migration 018 signup rate limits | ✅ | Aplicada 2026-08-04: `signup_rate_events` + `check_and_record_signup_rate` + `admin_cleanup_unconfirmed_signups` |
-| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` (confirmação; `verify_jwt=false`; hardening rate limit/anti-enum/redirect allowlist) |
+| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` + `submit-business-lead` (V4.4; `verify_jwt=false`; rate limit/honeypot — aplicar migration `20260825043000` + deploy da função) |
 | `npm run verify:production` | ✅ | |
 | `npm run verify:beta-feedback` | ✅ | |
 | RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |

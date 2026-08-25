@@ -72,6 +72,7 @@ const requiredPaths = [
   "/mandarim-para-brasileiros",
   "/como-funciona",
   "/metodo-longyu",
+  "/business",
 ];
 for (const p of requiredPaths) {
   if (seoTs.includes(`path: "${p}"`)) ok(`seo.ts: ${p}`);

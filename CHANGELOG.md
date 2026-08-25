@@ -7,6 +7,15 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.4 — Longyu for Business foundation
+
+Linha corporativa sem quebrar o Pro individual. `/business` é pública; o checkout Stripe continua só `pro_monthly` / `pro_annual` com `quantity = 1`.
+
+- **AccessTier** `free | pro | business | enterprise`, com `premiumAccess` retrocompatível (`serverIsPro`).
+- **Oferta:** bloco Longyu for Business em `/pro` (Conhecer Business) e página `/business` (Business + Enterprise como oferta comercial, sem preço público e sem clientes fictícios).
+- **Leads** via Edge Function `submit-business-lead` (validação, honeypot, rate limit). Sem insert anônimo em `business_leads`.
+- **Fundação de contas:** `organizations`, `organization_members`, `organization_invites`, `organization_subscriptions` (isolada de `subscriptions`). Sem painel admin nesta versão.
+
 ### V4.1.1 — Hardening de métricas e compressão da entrada
 
 A V4.1 fez o aluno *usar* mandarim cedo. Esta correção mede o que diz medir e **substitui** conteúdo antigo em vez de somar comunicação por cima.
