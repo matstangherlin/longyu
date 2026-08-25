@@ -6,23 +6,23 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| Hash da Jornada | 191f4fa2345c |
+| HEAD no instante da geração | a9322c968e217b78817764665904e78b4249b8c9 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:27:38.272Z |
+| Gerado em | 2026-08-25T08:09:25.104Z |
 | Lições | 127 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Frames declarados | 19 |
-| Frames no plano real | 12 |
-| Open goals declarados | 12 |
-| Open goals no plano real | 9 |
-| Frames aplicáveis (guided) | 12 |
-| Open goals aplicáveis | 9 |
+| Frames declarados | 21 |
+| Frames no plano real | 14 |
+| Open goals declarados | 13 |
+| Open goals no plano real | 10 |
+| Frames aplicáveis (guided) | 13 |
+| Open goals aplicáveis | 10 |
 | M3 sem produção | 0 |
 | M4 sem transferência aplicável | 0 |
 | Evicções conversa→piso | 0 |
@@ -34,7 +34,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 ## Frames observados
 
 - `frame_duoshaoqian`
+- `frame_nijiaoshenme`
 - `frame_niyaoma`
+- `frame_qingwennijiaoshenme`
 - `frame_wo_le`
 - `frame_woqu`
 - `frame_woxiangchi`
@@ -49,6 +51,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 ## Objetivos abertos observados
 
 - `ask_location`
+- `ask_name`
 - `ask_price`
 - `buy_item`
 - `offer_item`
@@ -58,4 +61,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - `state_ongoing`
 - `state_preference`
 
-<!-- integridade:d075951ccf1adf0b -->
+<!-- integridade:509d38eb9cb4a7fb -->

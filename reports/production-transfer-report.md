@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| HEAD no instante da geração | a9322c968e217b78817764665904e78b4249b8c9 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:27:18.335Z |
+| Gerado em | 2026-08-25T08:01:49.253Z |
 | Lições | 127 |
 
 ## Resumo
@@ -88,4 +88,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 衣服多少钱
 - 车站在哪里
 
-<!-- integridade:25048e466c76282c -->
+<!-- integridade:80b9a9cd029c2af3 -->

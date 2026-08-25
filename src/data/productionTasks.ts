@@ -87,7 +87,8 @@ export type CommunicativeGoal =
   | "state_ongoing"
   | "state_change"
   | "farewell"
-  | "state_wellbeing";
+  | "state_wellbeing"
+  | "ask_name";
 
 /** Domínio situacional da estrutura — para casar transferência com a lição. */
 export type CommunicativeDomain =
@@ -100,7 +101,8 @@ export type CommunicativeDomain =
   | "work"
   | "study"
   | "health"
-  | "time";
+  | "time"
+  | "social";
 
 /**
  * Papel de um slot na moldura da frase. É o STPVO-light: o aluno vê a ordem
@@ -215,6 +217,13 @@ export interface SentenceFrame {
    * Ex.: { from: "我", to: "你" }.
    */
   transferTransformHint?: { from: string; to: string };
+  /**
+   * Primeira transferência combinacional global: supported permitido na tentativa 0
+   * (ex.: 请问 + pergunta já produzida).
+   */
+  earlyTransferOnAttemptZero?: boolean;
+  /** Lição em que o chunk/componente é introduzido — adia transfer até depois. */
+  introLessonId?: string;
 }
 
 /**
@@ -267,6 +276,53 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
       { vocabId: "v_niunai", promptPt: "leite" },
       { vocabId: "v_reshui", promptPt: "água quente" },
     ],
+  },
+  {
+    id: "frame_nijiaoshenme",
+    goal: "ask_name",
+    labelPt: "perguntar o nome",
+    patternPt: "你叫什么？",
+    slots: [
+      { role: "subject" },
+      { role: "verb" },
+      { role: "object", hole: true },
+    ],
+    prefix: "你叫",
+    prefixPinyin: "nǐ jiào",
+    suffix: "？",
+    suffixPinyin: "?",
+    anchorChunkId: "nijiaoshenme",
+    situationTemplatePt: "Você quer saber o nome da pessoa. Pergunte como ela se chama.",
+    grammarNotePt: "你叫什么？ pergunta o nome — 叫 + 什么.",
+    transferAssist: "guided",
+    fillers: [{ vocabId: "v_shenme", promptPt: "o quê (nome)" }],
+  },
+  {
+    id: "frame_qingwennijiaoshenme",
+    goal: "ask_name",
+    labelPt: "perguntar o nome com licença",
+    patternPt: "请问，你叫什么？",
+    slots: [
+      { role: "polite" },
+      { role: "subject" },
+      { role: "verb" },
+      { role: "object", hole: true },
+    ],
+    prefix: "请问，你叫",
+    prefixPinyin: "qǐng wèn, nǐ jiào",
+    suffix: "？",
+    suffixPinyin: "?",
+    anchorChunkId: "nijiaoshenme",
+    situationTemplatePt:
+      "Você aborda um desconhecido. Com licença, pergunte o nome.",
+    grammarNotePt:
+      "请问 abre a pergunta; o resto é 你叫什么？ que você já produziu antes.",
+    transferAssist: "supported",
+    transferRequiresFrameIds: ["frame_nijiaoshenme"],
+    transferTransformHint: { from: "你叫什么？", to: "请问，你叫什么？" },
+    earlyTransferOnAttemptZero: true,
+    introLessonId: "p1-qingwen-cortesia",
+    fillers: [{ vocabId: "v_shenme", promptPt: "o quê (nome)" }],
   },
   {
     id: "frame_zainali",
@@ -711,6 +767,8 @@ export interface FrameTask {
   transferRequiresMa: boolean;
   /** Dica visual de transformação (supported / question). */
   transferTransformHint?: { from: string; to: string };
+  /** Primeira transferência global: supported na tentativa 0. */
+  earlyTransferOnAttemptZero?: boolean;
 }
 
 function joinPinyin(...parts: string[]): string {
@@ -824,6 +882,7 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
           transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
           transferRequiresMa: Boolean(frame.transferRequiresMa),
           transferTransformHint: frame.transferTransformHint,
+          earlyTransferOnAttemptZero: frame.earlyTransferOnAttemptZero,
         });
       }
     }
@@ -882,6 +941,7 @@ function corpusTasksForFrame(frame: SentenceFrame): FrameTask[] {
       transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
       transferRequiresMa: Boolean(frame.transferRequiresMa),
       transferTransformHint: frame.transferTransformHint,
+      earlyTransferOnAttemptZero: frame.earlyTransferOnAttemptZero,
     });
   }
   return tasks;
@@ -1103,11 +1163,18 @@ export function canTransferStructure(rungs: StructurePracticeRungs | undefined):
 /** Produção aberta de um objetivo: já produziu com apoio ao menos um frame do goal. */
 export function canOpenProduceGoal(
   goal: CommunicativeGoal,
-  exposure: StructureExposureMap
+  exposure: StructureExposureMap,
+  seenGlyphs?: ReadonlySet<string>
 ): boolean {
-  return SENTENCE_FRAMES.some(
+  const hasGuided = SENTENCE_FRAMES.some(
     (frame) => frame.goal === goal && exposure.get(frame.id)?.guidedProduction
   );
+  if (!hasGuided) return false;
+  if (!seenGlyphs) return true;
+  const reachable = availableTasks(seenGlyphs).filter((task) => task.goal === goal);
+  const distinct = new Set(reachable.map((task) => cleanSentence(task.targetHanzi)));
+  const minAnswers = goal === "ask_name" ? 2 : MIN_OPEN_ANSWERS;
+  return distinct.size >= minAnswers;
 }
 
 /**
@@ -1149,13 +1216,15 @@ export function creditStructureAnchorChunk(map: StructureExposureMap, chunkId: s
 const FRAME_INTRO_EASE: Record<string, number> = {
   // Pedido afirmativo primeiro (1 slot: objeto) — o exemplo canônico de guided.
   frame_woyao: 0,
-  frame_woxianghe: 1,
-  frame_woxiangchi: 2,
-  frame_woyaomai: 3,
-  frame_zainali: 4,
+  frame_nijiaoshenme: 1,
+  frame_qingwennijiaoshenme: 2,
+  frame_woxianghe: 3,
+  frame_woxiangchi: 4,
+  frame_woyaomai: 5,
+  frame_zainali: 6,
   // Sujeito 我→你 e cortesia: só depois da afirmação base.
-  frame_niyao: 6,
-  frame_qingwenzainali: 7,
+  frame_niyao: 8,
+  frame_qingwenzainali: 9,
   // Negação: guided, mas cognitivamente mais pesada que trocar o objeto.
   frame_wobuhe: 10,
   frame_wobuchi: 11,
@@ -1180,6 +1249,8 @@ function sortByPedagogicalEase(tasks: FrameTask[]): FrameTask[] {
 
 export const FRAME_COMMUNICATIVE_DOMAINS: Record<string, readonly CommunicativeDomain[]> = {
   frame_woyao: ["restaurant", "shopping"],
+  frame_nijiaoshenme: ["social"],
+  frame_qingwennijiaoshenme: ["social"],
   frame_woxianghe: ["restaurant"],
   frame_zainali: ["directions", "hotel", "airport"],
   frame_qingwenzainali: ["directions", "hotel"],
@@ -1201,6 +1272,7 @@ export const FRAME_COMMUNICATIVE_DOMAINS: Record<string, readonly CommunicativeD
 };
 
 const DOMAIN_HINTS: { domain: CommunicativeDomain; needles: string[] }[] = [
+  { domain: "social", needles: ["conversa", "nome", "apresent", "cortesia", "cumpriment", "primeira-conversa", "qingwen", "rev", "dialogo"] },
   { domain: "restaurant", needles: ["restaur", "comida", "cardapio", "menu", "cha", "cafe"] },
   { domain: "shopping", needles: ["compra", "loja", "preco", "mercado"] },
   { domain: "hotel", needles: ["hotel", "quarto"] },
@@ -1223,12 +1295,68 @@ export function inferCommunicativeDomain(lessonId: string, title = ""): Communic
 
 export interface FramePickOptions {
   priorTransferredFrameIds?: ReadonlySet<string>;
+  /** Frame da transferência imediatamente anterior (cooldown). */
+  lastTransferredFrameId?: string;
   usedFrameIds?: ReadonlySet<string>;
   usedTargetHanzi?: ReadonlySet<string>;
   /** Exposição: frames sem produção guiada ganham prioridade para destravar. */
   needsGuidedProduction?: ReadonlySet<string>;
   lessonSalt?: number;
   domain?: CommunicativeDomain;
+  lessonId?: string;
+}
+
+/** Lições de número/Hànzì/tom onde posse (我有…) não é pedagogicamente relevante. */
+const POSSESSION_TRANSFER_MISMATCH =
+  /^(p[24]-num-|p4-char-|p2-ma-|p2-comparar|l14-pecas|l14-frase-minima)/;
+
+export function frameDomainMatchesLesson(
+  frameId: string,
+  lessonId: string | undefined,
+  _lessonDomain: CommunicativeDomain | undefined
+): boolean {
+  // Hard block só onde a posse é pedagogicamente incoerente (número/Hànzì/tom).
+  // Relevância de domínio entra como score em pickFrameTask, não como gate.
+  if (frameId === "frame_woyouge" && lessonId && POSSESSION_TRANSFER_MISMATCH.test(lessonId)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Supported polite prefix: basta produção guiada do frame-base (ex.: 你叫什么？).
+ */
+export function structureReadyForTransfer(
+  task: FrameTask,
+  exposure: StructureExposureMap | undefined
+): boolean {
+  if (!exposure) return true;
+  if (canTransferStructure(exposure.get(task.frameId))) return true;
+  if (
+    task.transferAssist === "supported" &&
+    task.transferRequiresFrameIds.length > 0 &&
+    task.transferRequiresFrameIds.every((id) => canTransferStructure(exposure.get(id)))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function maxAssistForTransferTask(
+  task: FrameTask,
+  attemptNumber: number,
+  isFirstCombinationalTransfer: boolean
+): ProductionAssist {
+  const base = maxTransferAssistForAttempt(attemptNumber);
+  if (
+    attemptNumber <= 0 &&
+    isFirstCombinationalTransfer &&
+    task.earlyTransferOnAttemptZero &&
+    PRODUCTION_ASSIST_RANK[task.transferAssist] <= PRODUCTION_ASSIST_RANK.supported
+  ) {
+    return task.transferAssist;
+  }
+  return base;
 }
 
 /**
@@ -1287,13 +1415,21 @@ export function pickFrameTask(tasks: readonly FrameTask[], options: FramePickOpt
     if (preferred && task.frameId === preferred) score += 48;
     if (options.usedFrameIds?.has(task.frameId)) score -= 80;
     if (options.needsGuidedProduction?.has(task.frameId)) score += 28;
-    else if (options.priorTransferredFrameIds?.has(task.frameId)) score -= 18;
+    else     if (options.priorTransferredFrameIds?.has(task.frameId)) score -= 18;
     else score += 12;
+    if (options.lastTransferredFrameId && options.lastTransferredFrameId === task.frameId) score -= 120;
     const target = cleanSentence(task.targetHanzi);
     if (target && options.usedTargetHanzi?.has(target)) score -= 50;
     else if (task.isNovelCombination) score += 14;
     const domains = FRAME_COMMUNICATIVE_DOMAINS[task.frameId] ?? [];
     if (options.domain && domains.includes(options.domain)) score += 16;
+    else if (options.domain && domains.length > 0 && !domains.includes(options.domain)) score -= 32;
+    if (
+      options.lessonId &&
+      !frameDomainMatchesLesson(task.frameId, options.lessonId, options.domain)
+    ) {
+      score -= 200;
+    }
     score -= frameEase(task.frameId) * 0.35;
     score -= PRODUCTION_ASSIST_RANK[task.transferAssist];
     score += ((index + salt * 3) % 11) * 0.05;
@@ -1343,16 +1479,32 @@ export function isTransferTaskEligible(
   task: FrameTask,
   seenGlyphs: ReadonlySet<string>,
   maxAssist: ProductionAssist = "question",
-  structureExposure?: StructureExposureMap
+  structureExposure?: StructureExposureMap,
+  options: { lessonId?: string; lessonDomain?: CommunicativeDomain; isFirstCombinationalTransfer?: boolean; attemptNumber?: number } = {}
 ): boolean {
-  if (PRODUCTION_ASSIST_RANK[task.transferAssist] > PRODUCTION_ASSIST_RANK[maxAssist]) {
+  const attemptNumber = options.attemptNumber ?? 0;
+  const effectiveMax = options.isFirstCombinationalTransfer
+    ? maxAssistForTransferTask(task, attemptNumber, true)
+    : maxAssist;
+  if (PRODUCTION_ASSIST_RANK[task.transferAssist] > PRODUCTION_ASSIST_RANK[effectiveMax]) {
     return false;
   }
   if (task.transferRequiresMa && !seenGlyphs.has("吗")) return false;
   for (const requiredId of task.transferRequiresFrameIds) {
     if (!framePracticable(requiredId, seenGlyphs)) return false;
   }
-  if (structureExposure && !canTransferStructure(structureExposure.get(task.frameId))) {
+  if (structureExposure && !structureReadyForTransfer(task, structureExposure)) {
+    return false;
+  }
+  if (!frameDomainMatchesLesson(task.frameId, options.lessonId, options.lessonDomain)) {
+    return false;
+  }
+  const frame = frameById(task.frameId);
+  if (
+    frame?.introLessonId &&
+    options.lessonId === frame.introLessonId &&
+    options.isFirstCombinationalTransfer
+  ) {
     return false;
   }
   return true;
@@ -1392,16 +1544,34 @@ export function transferTasksFor(
     /** Se true, devolve só o degrau mais baixo elegível (1ª ocorrência). */
     preferLowestRung?: boolean;
     structureExposure?: StructureExposureMap;
+    lessonId?: string;
+    lessonDomain?: CommunicativeDomain;
+    isFirstCombinationalTransfer?: boolean;
+    attemptNumber?: number;
+    priorTransferTargets?: ReadonlySet<string>;
   } = {}
 ): FrameTask[] {
   const taught = options.extraTaughtSentences;
   const maxAssist = options.maxAssist ?? "question";
   const exposure = options.structureExposure;
+  const isFirst = options.isFirstCombinationalTransfer ?? false;
+  const attemptNumber = options.attemptNumber ?? 0;
   const available = sortByPedagogicalEase(
     availableTasks(seenGlyphs)
       .filter((task) => task.isNovelCombination)
       .filter((task) => !taught || !taught.has(cleanSentence(task.targetHanzi)))
-      .filter((task) => isTransferTaskEligible(task, seenGlyphs, maxAssist, exposure))
+      .filter(
+        (task) =>
+          !options.priorTransferTargets?.has(cleanSentence(task.targetHanzi))
+      )
+      .filter((task) =>
+        isTransferTaskEligible(task, seenGlyphs, maxAssist, exposure, {
+          lessonId: options.lessonId,
+          lessonDomain: options.lessonDomain,
+          isFirstCombinationalTransfer: isFirst,
+          attemptNumber,
+        })
+      )
   );
   if (available.length === 0) return [];
   const pool =
@@ -1412,6 +1582,113 @@ export function transferTasksFor(
           return available.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === minRank);
         })();
   return options.limit ? pool.slice(0, options.limit) : pool;
+}
+
+/** Metadados internos de auditoria — por que este aluno está pronto para esta frase. */
+export interface TransferSelectionMeta {
+  frameId: string;
+  target: string;
+  anchor: string;
+  knownComponents: string[];
+  componentExposureLesson?: string;
+  guidedProductionLesson?: string;
+  currentLesson?: string;
+  noveltyProof: "combinational_not_in_corpus";
+  domain?: CommunicativeDomain;
+  reasonSelected: string;
+  transferAssist: ProductionAssist;
+  transferKind: "combinational_transfer";
+}
+
+export interface GetTransferCandidatesInput {
+  seenGlyphs: ReadonlySet<string>;
+  extraTaughtSentences: ReadonlySet<string>;
+  attemptNumber?: number;
+  structureExposure?: StructureExposureMap;
+  lessonId?: string;
+  lessonDomain?: CommunicativeDomain;
+  priorTransferredFrames?: ReadonlySet<string>;
+  /** Alvos combinacionais já cobrados — TR5-007 anti-repeat. */
+  priorTransferTargets?: ReadonlySet<string>;
+  usingItemHanzi?: string;
+}
+
+/**
+ * Candidatos de transferência combinacional — prova pré-requisitos antes de escolher frase.
+ */
+export function getTransferCandidates(input: GetTransferCandidatesInput): FrameTask[] {
+  const attemptNumber = input.attemptNumber ?? 0;
+  const isFirstCombinationalTransfer = (input.priorTransferredFrames?.size ?? 0) === 0;
+  const maxAssist = maxTransferAssistForAttempt(attemptNumber);
+  const preferLowestRung = attemptNumber <= 0;
+  const lessonDomain =
+    input.lessonDomain ??
+    (input.lessonId ? inferCommunicativeDomain(input.lessonId) : undefined);
+
+  const select = (preferLowest: boolean) => {
+    const pool = transferTasksFor(input.seenGlyphs, {
+      extraTaughtSentences: input.extraTaughtSentences,
+      maxAssist,
+      preferLowestRung: preferLowest,
+      structureExposure: input.structureExposure,
+      lessonId: input.lessonId,
+      lessonDomain,
+      isFirstCombinationalTransfer,
+      attemptNumber,
+      priorTransferTargets: input.priorTransferTargets,
+    });
+    const needle = cleanSentence(input.usingItemHanzi ?? "");
+    if (!needle) return pool;
+    const matching = pool.filter((task) => cleanSentence(task.targetHanzi).includes(needle));
+    return matching.length > 0 ? matching : pool;
+  };
+
+  let tasks = select(preferLowestRung);
+  if (tasks.length === 0 && input.usingItemHanzi) tasks = select(false);
+  if (tasks.length === 0) tasks = select(true);
+  if (tasks.length === 0) return [];
+
+  if (!preferLowestRung) {
+    const maxRank = Math.max(...tasks.map((task) => PRODUCTION_ASSIST_RANK[task.transferAssist]));
+    tasks = tasks.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === maxRank);
+  }
+  return tasks;
+}
+
+export function buildTransferSelectionMeta(
+  task: FrameTask,
+  context: {
+    lessonId?: string;
+    lessonDomain?: CommunicativeDomain;
+    priorTransferredFrames?: ReadonlySet<string>;
+  }
+): TransferSelectionMeta {
+  const knownComponents = [
+    cleanSentence(task.anchor.hanzi),
+    ...task.requiredGlyphs,
+  ].filter(Boolean);
+  const domain =
+    context.lessonDomain ??
+    (context.lessonId ? inferCommunicativeDomain(context.lessonId) : undefined) ??
+    FRAME_COMMUNICATIVE_DOMAINS[task.frameId]?.[0];
+  const isFirst = (context.priorTransferredFrames?.size ?? 0) === 0;
+  const reasonParts = [
+    isFirst ? "primeira transferência combinacional" : "transferência posterior",
+    task.transferAssist === "supported" ? "prefixo cortês sobre base já produzida" : "1 slot vs âncora",
+    domain ? `domínio ${domain}` : "domínio geral",
+  ];
+  return {
+    frameId: task.frameId,
+    target: cleanSentence(task.targetHanzi),
+    anchor: cleanSentence(task.anchor.hanzi),
+    knownComponents: [...new Set(knownComponents)],
+    currentLesson: context.lessonId,
+    noveltyProof: "combinational_not_in_corpus",
+    domain,
+    reasonSelected: reasonParts.join("; "),
+    transferAssist: task.transferAssist,
+    transferKind: "combinational_transfer",
+  };
 }
 
 // ————————————————————————————————————————————————————————————————
@@ -1453,6 +1730,11 @@ export const OPEN_PRODUCTION_GOALS: OpenProductionGoalCopy[] = [
     goal: "ask_price",
     situationPt: "Na loja, pergunte o preço de alguma coisa.",
     hintPt: "Pode ser qualquer item que você já saiba nomear.",
+  },
+  {
+    goal: "ask_name",
+    situationPt: "Você quer saber o nome de alguém. Pergunte.",
+    hintPt: "Use a pergunta de nome que você já sabe.",
   },
   {
     goal: "state_preference",
@@ -1540,7 +1822,8 @@ export function openProductionTasksFor(
       if (!byText.has(key)) byText.set(key, task);
     }
     const distinct = [...byText.values()];
-    if (distinct.length < MIN_OPEN_ANSWERS) continue;
+    const minAnswers = copy.goal === "ask_name" ? 2 : MIN_OPEN_ANSWERS;
+    if (distinct.length < minAnswers) continue;
 
     tasks.push({
       id: `open_${copy.goal}`,
