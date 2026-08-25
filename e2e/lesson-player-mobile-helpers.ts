@@ -241,7 +241,7 @@ export async function assertModalActionAccessible(page: Page) {
 
 /** Vitória: CTA principal sem exigir scroll da página (scroll interno da atividade é ok). */
 export async function assertVictoryWithoutPageScroll(page: Page) {
-  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i });
+  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
   await expect(victoryCta).toBeVisible();
   await assertPageScrollLocked(page);
   const reachable = await victoryCta.evaluate((el) => {
@@ -290,12 +290,16 @@ export async function openPostListenGradedStep(page: Page) {
   await expect(verify).toBeEnabled({ timeout: 5_000 });
   await verify.scrollIntoViewIfNeeded();
   await verify.click();
-  await expect(
-    page
-      .getByRole("button", { name: /Opção \d+/ })
-      .or(page.getByRole("button", { name: /^Olá$|^Obrigado|^Até logo|^De nada$/i }))
-      .first()
-  ).toBeVisible({ timeout: 12_000 });
+  const nextChoice = page
+    .getByRole("button", { name: /Opção \d+/ })
+    .or(page.getByRole("button", { name: /^Olá$|^Obrigado|^Até logo|^De nada$/i }))
+    .first();
+  for (let i = 0; i < 8; i += 1) {
+    if (await nextChoice.isVisible().catch(() => false)) return;
+    await clickFirstVisible(page, [/^Entendi$/, /^Continuar$/, /^Próximo$/, /^Certo/, /\+Qi/]);
+    await page.waitForTimeout(150);
+  }
+  await expect(nextChoice).toBeVisible({ timeout: 12_000 });
 }
 
 export async function openPlayerPro(page: Page, lessonId = "p1-o-que-e-mandarim") {
@@ -368,7 +372,7 @@ export async function advanceUntilSelector(
     steps += 1;
     await dismissBlockingOverlays(page);
     if (
-      await page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).isVisible().catch(() => false)
+      await page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first().isVisible().catch(() => false)
     ) {
       return false;
     }
@@ -427,7 +431,8 @@ export async function openTransferStep(page: Page) {
  * peças extras no banco para forçar várias fileiras — regressão B001.
  */
 export async function openDenseSentenceBuild(page: Page) {
-  await seedLessonPlayerReady(page, "p4-char-shui");
+  // M1 (descoberta) prioriza reconhecimento; montagem/produção entra em M3.
+  await seedLessonPlayerReady(page, "p4-char-shui", { masteryLevel: 2 });
   await page.goto("/licao/p4-char-shui/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);

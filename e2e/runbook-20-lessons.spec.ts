@@ -37,7 +37,7 @@ test.describe("runbook — 20 lições (proxy desktop)", () => {
 
       await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 15_000 });
 
-      const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i });
+      const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
       const deadline = Date.now() + 180_000;
       let steps = 0;
       const maxSteps = 40;

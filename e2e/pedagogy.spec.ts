@@ -77,10 +77,10 @@ test.describe("lição", () => {
     // O balancer pode inserir image_choice gerado entre o intro e o tom.
     // O que importa: ao chegar no tom, o prompt em português é heading — nunca
     // botão de glossário.
-    const toneHeading = page.getByRole("heading", { name: /Qual tom você ouviu/i });
+    const toneHeading = page.getByRole("heading", { name: /Qual tom você ouviu|Ouça e escolha|Toque no que/i });
     expect(
       await advanceUntilVisible(page, toneHeading, 12),
-      "l1 deve chegar no passo de tom após o intro",
+      "l1 M1 segue em reconhecimento (tom ou escuta), sem glossário em português",
     ).toBe(true);
     await expect(toneHeading).toBeVisible();
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
@@ -102,7 +102,7 @@ test.describe("lição", () => {
     // (fragmentos simples, ex. lua) ou numa associação visual — ainda sem 林/明/好.
     await page.getByRole("button", { name: "Entendi" }).click();
     await expect(
-      page.getByText(/Monte o hànzì|Monte por fragmentos|Monte pelas peças|Associação visual|Observe a forma/i).first(),
+      page.getByText(/Monte o hànzì|Monte por fragmentos|Monte pelas peças|Associação visual|Observe a forma|Fixe com pares|Combine o conteúdo/i).first(),
     ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
   });

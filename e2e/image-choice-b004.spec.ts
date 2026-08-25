@@ -68,6 +68,7 @@ async function openImageChoiceGrid(page: Page): Promise<boolean> {
       await page
         .getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i })
         .first()
+        .first()
         .isVisible()
         .catch(() => false)
     ) {

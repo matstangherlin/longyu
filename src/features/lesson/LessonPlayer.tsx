@@ -4218,15 +4218,9 @@ export function LessonPlayer() {
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
             {nextFocus.cta === "Continuar tema" ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full shrink-0 sm:w-auto"
-                onClick={() => retryLesson({ newPass: true })}
-              >
-                Continuar tema <IconChevron width={15} height={15} />
-              </Button>
+              <ButtonLink to="/jornada" variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
+                Ver na Jornada <IconChevron width={15} height={15} />
+              </ButtonLink>
             ) : (
               <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
                 {nextFocus.cta} <IconChevron width={15} height={15} />
