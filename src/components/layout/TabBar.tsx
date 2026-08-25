@@ -15,6 +15,8 @@ import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 import { dueItems } from "../../lib/srs";
 import { buildMissionViews, isMissionActionable } from "../../data/missions";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
+import { zLayerClass } from "../ui/layers";
+import { cx } from "../ui/primitives";
 
 type SheetKind = "praticar" | "perfil" | "mais";
 
@@ -88,7 +90,10 @@ export function TabBar() {
       <nav
         ref={navRef}
         data-app-bottom-nav
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-line/60 bg-surface/95 shadow-[0_-4px_20px_rgb(0_0_0/0.05)] backdrop-blur-xl lg:hidden"
+        className={cx(
+          "fixed inset-x-0 bottom-0 border-t border-line/60 bg-surface/95 shadow-[0_-4px_20px_rgb(0_0_0/0.05)] backdrop-blur-xl lg:hidden",
+          zLayerClass.bottomNav
+        )}
         style={{ paddingBottom: "var(--app-safe-bottom)" }}
         aria-label="Principal"
       >
@@ -203,7 +208,10 @@ function TabSheet({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/55 backdrop-blur-sm lg:hidden"
+      className={cx(
+        "fixed inset-0 flex items-end justify-center bg-ink/55 backdrop-blur-sm lg:hidden",
+        zLayerClass.sheet
+      )}
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();

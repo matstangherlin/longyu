@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { acquireModalBodyScrollLock, releaseModalBodyScrollLock } from "../../lib/bodyScrollLock";
+import { zLayerClass } from "./layers";
 
 function useBodyScrollLock() {
   useEffect(() => {
@@ -88,7 +89,8 @@ export function ModalOverlay({
       ref={overlayRef}
       tabIndex={role === "dialog" ? -1 : undefined}
       className={[
-        "fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto overscroll-contain bg-ink/65 p-0 backdrop-blur-md sm:items-center sm:p-4",
+        "fixed inset-0 flex items-end justify-center overflow-y-auto overscroll-contain bg-ink/65 p-0 backdrop-blur-md sm:items-center sm:p-4",
+        zLayerClass.modal,
         className,
       ].filter(Boolean).join(" ")}
       role={role}

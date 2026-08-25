@@ -89,6 +89,10 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   text: "px-1 text-accent hover:text-accent-strong hover:underline active:opacity-75",
 };
 
+// sm = CTA de card (missões, hub)
+// md = CTA de hero / página
+// lg = CTA de modal / recompensa
+// Todos ≥ 44px de altura (alvo de toque).
 const BUTTON_SIZES: Record<ButtonSize, string> = {
   sm: "min-h-11 px-3 text-sm rounded-xl",
   md: "min-h-11 px-4 text-[15px] rounded-xl",

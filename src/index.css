@@ -12,6 +12,16 @@
   --app-safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-header-height: calc(3.5rem + var(--app-safe-top));
   --app-bottom-nav-height: calc(4.5rem + var(--app-safe-bottom));
+  /* V4.3 · camadas (ver src/components/ui/layers.ts) */
+  --z-page: 0;
+  --z-bottom-nav: 30;
+  --z-feedback-fab: 35;
+  --z-toast: 40;
+  --z-sheet: 70;
+  --z-modal: 80;
+  /* Zona de exclusão do FAB de Feedback no desktop — conteúdo não entra nela. */
+  --app-feedback-fab-gutter: 4.75rem;
+  --mission-card-min-height: 10.25rem;
   /* V3.9 · MOBILE-006 — deslocamento das barras de ação fixas dentro de uma
      atividade. Onde existe a TabBar, a barra sobe acima dela; dentro do
      player (que não tem TabBar) o valor é sobrescrito para só a safe-area.

@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import type { ComponentType, HTMLAttributes, ReactNode, SVGProps } from "react";
 import { Link } from "react-router-dom";
 import { Card, EmptyState, PageHeader, Pill, SectionHeader } from "../ui/primitives";
 import { IconChevron, IconStar } from "../ui/Icon";
@@ -7,9 +7,16 @@ function cx(...parts: (string | false | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
 }
 
-export function HubPage({ children, className }: { children: ReactNode; className?: string }) {
+export function HubPage({
+  children,
+  className,
+  ...rest
+}: { children: ReactNode; className?: string } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cx("mx-auto min-w-0 max-w-5xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]", className)}>
+    <div
+      className={cx("mx-auto min-w-0 max-w-5xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]", className)}
+      {...rest}
+    >
       {children}
     </div>
   );

@@ -41,17 +41,19 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
   return (
     <ModalOverlay className="items-stretch sm:items-center" onBackdropClick={() => closable && onClose()}>
       <div
-        className="relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-hidden border border-line bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_48%,rgb(var(--bg))_100%)] px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-6 text-center shadow-lift sm:min-h-0 sm:rounded-[34px] sm:p-6"
+        className="relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-y-auto border border-line bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_48%,rgb(var(--bg))_100%)] px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-6 text-center shadow-lift sm:min-h-0 sm:rounded-2xl sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
         {closable && (
-          <button
+          <Button
+            size="icon"
+            variant="ghost"
             onClick={onClose}
-            className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
+            className="absolute right-4 top-4 z-10"
             aria-label="Fechar"
           >
             <IconX width={18} height={18} />
-          </button>
+          </Button>
         )}
 
         <div className="mx-auto mt-6 flex justify-center sm:mt-2">
@@ -60,7 +62,7 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
             disabled={phase !== "closed"}
             onClick={handleOpen}
             className={[
-              "relative rounded-[32px] px-8 py-5 transition active:scale-[0.98] disabled:cursor-default",
+              "relative rounded-2xl px-8 py-5 transition active:scale-[0.98] disabled:cursor-default",
               phase === "opening" ? "longyu-chest-shake" : "",
             ].join(" ")}
             aria-label={phase === "closed" ? "Toque para abrir" : visual.name}

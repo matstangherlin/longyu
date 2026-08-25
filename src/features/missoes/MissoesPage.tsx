@@ -20,9 +20,10 @@ import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
-import { Button, ButtonLink, Card, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Button, ButtonLink, Card, Pill, ProgressBar, cx } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
+import { zLayerClass } from "../../components/ui/layers";
 import {
   IconBook,
   IconCheck,
@@ -34,6 +35,14 @@ import {
   IconStar,
   IconTarget,
 } from "../../components/ui/Icon";
+import {
+  missionCardVariant,
+  missionCta,
+  missionIconTileClass,
+  missionStatusOf,
+  missionUi,
+  type MissionUiStatus,
+} from "./missionUi";
 
 const MISSION_ICONS: Record<MissionIconKey, typeof IconStar> = {
   xp: IconStar,
@@ -70,13 +79,10 @@ function daysLeftInMonth(now = new Date()): number {
   return Math.max(0, lastDay - now.getDate());
 }
 
-// Sequência de medalhas: meses consecutivos com medalha terminando no mês atual
-// ou no anterior (o mês corrente ainda pode estar em andamento).
 function medalStreak(monthKeys: Set<string>, current = monthKey()): number {
   const [cy, cm] = current.split("-").map(Number);
   let year = cy;
   let month = cm;
-  // Se o mês atual ainda não tem medalha, começa a contar pelo mês anterior.
   if (!monthKeys.has(current)) {
     month -= 1;
     if (month < 1) {
@@ -115,7 +121,6 @@ export function MissoesPage() {
   const [missionCelebration, setMissionCelebration] = useState<MissionCelebration | null>(null);
   const location = useLocation();
 
-  // Permite chegar direto na galeria via /missoes#medalhas (hub Meu).
   useEffect(() => {
     const id = location.hash.replace("#", "");
     if (!id) return;
@@ -134,9 +139,7 @@ export function MissoesPage() {
   const key = monthKey();
   const monthName = monthLabel(key);
   const daysLeft = daysLeftInMonth();
-  const monthlyComplete = monthlyMission.completed >= MONTHLY_GOAL;
   const medalKeys = useMemo(() => new Set(medals.map((m) => m.id)), [medals]);
-  // Medalhas gerais: desbloqueadas primeiro, até 10 glifos no resumo.
   const generalUnlockedCount = ACHIEVEMENTS.filter((def) => achievementsUnlocked[def.id]).length;
   const generalHighlights = useMemo(
     () =>
@@ -158,7 +161,6 @@ export function MissoesPage() {
   }
 
   function claim(scope: MissionScope, mission: MissionView) {
-    // Missão premium completa mas sem Pro: mostra o paywall honesto.
     if (mission.pro && !isPro) {
       setProPaywallOpen(true);
       return;
@@ -191,9 +193,14 @@ export function MissoesPage() {
   }
 
   return (
-    <HubPage className="relative space-y-5">
+    <HubPage className={missionUi.surface} data-mission-surface="">
       {burst && (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
+        <div
+          className={cx(
+            "pointer-events-none fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)] flex justify-center px-4",
+            zLayerClass.toast
+          )}
+        >
           <div className="longyu-claim-float rounded-full bg-[rgb(var(--good)/0.16)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--good))] shadow-lift">
             {burst}
           </div>
@@ -206,90 +213,20 @@ export function MissoesPage() {
         desc="Metas curtas para manter ritmo e resgatar Qi."
       />
 
-      <EconomyExplainer isPro={isPro} context="missoes" />
+      <EconomyExplainer isPro={isPro} context="missoes" className="shadow-none" />
 
-      {/* 1. Missão do mês */}
-      <Card
-        className={[
-          "overflow-hidden rounded-xl border-line/70 p-3.5 shadow-none sm:p-4",
-          monthlyMission.claimed ? "border-gold/30 bg-gold/5" : "",
-          justClaimed === "monthly:medal" ? "longyu-reward-rise" : "",
-        ].join(" ")}
-      >
-        <div className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
-              Missão de {monthName}
-            </div>
-            <h2 className="mt-1 font-serif text-lg font-semibold text-ink">
-              Complete {MONTHLY_GOAL} missões para a medalha do mês.
-            </h2>
+      <MonthlyHero
+        monthName={monthName}
+        monthKeyValue={key}
+        daysLeft={daysLeft}
+        completed={monthlyMission.completed}
+        claimed={monthlyMission.claimed}
+        monthlyChests={monthlyChests}
+        highlighted={justClaimed === "monthly:medal"}
+        onClaimMedal={claimMedal}
+        onOpenChest={() => setChestOpen(true)}
+      />
 
-            <div className="mt-3 rounded-lg bg-surface-2/80 px-3 py-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-ink">Progresso mensal</span>
-                <span className="tabular-nums text-ink-soft">
-                  {Math.min(monthlyMission.completed, MONTHLY_GOAL)}/{MONTHLY_GOAL}
-                </span>
-              </div>
-              <ProgressBar value={monthlyMission.completed} max={MONTHLY_GOAL} className="mt-2 h-2" />
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-ink-faint">
-                <Pill tone="muted">{daysLeft} {daysLeft === 1 ? "dia" : "dias"}</Pill>
-                <Pill tone="gold">🏅 + 100 Qi</Pill>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              {monthlyMission.claimed ? (
-                <Button variant="soft" disabled className="w-full sm:w-auto">
-                  <IconCheck width={18} height={18} /> Medalha de {monthName} resgatada
-                </Button>
-              ) : (
-                <Button
-                  className="w-full sm:w-auto"
-                  disabled={!monthlyComplete}
-                  onClick={claimMedal}
-                >
-                  {monthlyComplete ? "Resgatar medalha do mês" : `Faltam ${MONTHLY_GOAL - monthlyMission.completed} missões`}
-                  <IconChevron width={18} height={18} />
-                </Button>
-              )}
-              {monthlyChests > 0 && (
-                <div className="flex items-center gap-3">
-                  <LongyuChest type="monthly" state="unlocked" size="sm" animated />
-                  <Button variant="primary" className="w-full sm:w-auto" onClick={() => setChestOpen(true)}>
-                    Abrir Baú Épico ({monthlyChests})
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Medalha do mês */}
-          <div className="flex flex-col items-center justify-center">
-            <div
-              className={[
-                "grid h-24 w-24 place-items-center rounded-2xl border-2 text-5xl transition",
-                monthlyMission.claimed
-                  ? "border-gold/50 bg-gold/10"
-                  : monthlyComplete
-                  ? "border-accent bg-accent-soft"
-                  : "border-line bg-surface-2 opacity-70 grayscale",
-              ].join(" ")}
-            >
-              <span aria-hidden>{medalEmoji(key)}</span>
-            </div>
-            <div className="mt-2 text-center">
-              <div className="text-sm font-semibold text-ink">Medalha de {monthName}</div>
-              <div className="text-[11px] text-ink-faint">
-                {monthlyMission.claimed ? "Na coleção" : monthlyComplete ? "Pronta" : "Bloqueada"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* 2. Missões do dia */}
       <MissionSection
         title="Missões do dia"
         desc="Resetam todo dia. Complete para somar na missão do mês."
@@ -302,7 +239,6 @@ export function MissoesPage() {
         isPro={isPro}
       />
 
-      {/* 3. Missões semanais */}
       <MissionSection
         title="Missões da semana"
         desc="Resetam toda semana. Objetivos maiores, recompensas maiores."
@@ -315,7 +251,6 @@ export function MissoesPage() {
         isPro={isPro}
       />
 
-      {/* 4. Medalhas */}
       <HubSection
         id="medalhas"
         title="Medalhas mensais"
@@ -332,15 +267,15 @@ export function MissoesPage() {
             desc={`Complete ${MONTHLY_GOAL} missões diárias em um mês para ganhar a primeira.`}
           />
         ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          <div className={missionUi.collectionGrid} data-mission-collection="medals">
             {[...medals]
               .sort((a, b) => b.id.localeCompare(a.id))
               .map((medal) => (
-                <Card key={medal.id} className="flex flex-col items-center rounded-xl border-line/70 p-3 shadow-none">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl border border-gold/40 bg-gold/10 text-2xl">
+                <Card key={medal.id} className="flex min-w-0 flex-col items-center p-3.5 shadow-none">
+                  <div className="grid h-14 w-14 place-items-center rounded-xl border border-gold/40 bg-gold/10 text-2xl">
                     <span aria-hidden>{medal.emoji}</span>
                   </div>
-                  <div className="mt-2 text-xs font-semibold text-ink">{medal.label}</div>
+                  <div className="mt-2 w-full break-words text-center text-xs font-semibold text-ink">{medal.label}</div>
                   <div className="text-[10px] text-ink-faint">
                     {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(medal.earnedAt)}
                   </div>
@@ -350,7 +285,6 @@ export function MissoesPage() {
         )}
       </HubSection>
 
-      {/* 5. Medalhas gerais (conquistas): resumo + link para a página completa. */}
       <HubSection
         title="Conquistas"
         desc="Jornada, sequência, hànzì, som e fala."
@@ -360,22 +294,22 @@ export function MissoesPage() {
           </Pill>
         }
       >
-        <Card className="rounded-xl border-line/70 p-3 shadow-none">
+        <Card className="min-w-0 p-3.5 shadow-none">
           <div className="flex flex-wrap items-center gap-2">
             {generalHighlights.map(({ def, unlocked }) => (
               <span
                 key={def.id}
                 title={`${def.title} — ${def.desc}`}
-                className={[
+                className={cx(
                   "hanzi flex h-11 w-11 items-center justify-center rounded-xl text-xl",
-                  unlocked ? "bg-accent text-white shadow-card" : "bg-surface-2 text-ink-faint grayscale",
-                ].join(" ")}
+                  unlocked ? "bg-accent text-white shadow-card" : "bg-surface-2 text-ink-faint grayscale"
+                )}
               >
                 {def.glyph}
               </span>
             ))}
           </div>
-          <ButtonLink to="/conquistas" variant="soft" className="mt-4 w-full sm:w-auto">
+          <ButtonLink to="/conquistas" variant="soft" size="sm" className="mt-4 w-full">
             Ver todas as conquistas
           </ButtonLink>
         </Card>
@@ -393,6 +327,123 @@ export function MissoesPage() {
       {chestOpen && <ChestRewardModal type="monthly" onClose={() => setChestOpen(false)} />}
       <ProPaywall open={proPaywallOpen} kind="training" onClose={() => setProPaywallOpen(false)} />
     </HubPage>
+  );
+}
+
+function MonthlyHero({
+  monthName,
+  monthKeyValue,
+  daysLeft,
+  completed,
+  claimed,
+  monthlyChests,
+  highlighted,
+  onClaimMedal,
+  onOpenChest,
+}: {
+  monthName: string;
+  monthKeyValue: string;
+  daysLeft: number;
+  completed: number;
+  claimed: boolean;
+  monthlyChests: number;
+  highlighted: boolean;
+  onClaimMedal: () => void;
+  onOpenChest: () => void;
+}) {
+  const monthlyComplete = completed >= MONTHLY_GOAL;
+  const status: MissionUiStatus = claimed ? "claimed" : monthlyComplete ? "complete" : completed > 0 ? "progress" : "incomplete";
+  const chestIsPrimary = claimed && monthlyChests > 0;
+  const medalLabel = claimed
+    ? `Medalha de ${monthName} resgatada`
+    : monthlyComplete
+      ? "Resgatar medalha do mês"
+      : `Faltam ${MONTHLY_GOAL - completed} missões`;
+
+  return (
+    <Card
+      variant={missionCardVariant(status)}
+      data-mission-hero=""
+      data-mission-status={status}
+      className={cx(missionUi.hero, highlighted && "longyu-reward-rise ring-2 ring-accent/40")}
+    >
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
+        <div className="min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
+            Missão de {monthName}
+          </div>
+          <h2 className="mt-1 min-w-0 break-words font-serif text-lg font-semibold text-ink">
+            Complete {MONTHLY_GOAL} missões para a medalha do mês.
+          </h2>
+
+          <div className="mt-3 min-w-0 rounded-xl bg-surface-2/80 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="font-semibold text-ink">Progresso mensal</span>
+              <span className="tabular-nums text-ink-soft">
+                {Math.min(completed, MONTHLY_GOAL)}/{MONTHLY_GOAL}
+              </span>
+            </div>
+            <ProgressBar value={completed} max={MONTHLY_GOAL} className="mt-2 h-2" />
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] text-ink-faint">
+              <Pill tone="muted">{daysLeft} {daysLeft === 1 ? "dia" : "dias"}</Pill>
+              <Pill tone="gold">🏅 + 100 Qi</Pill>
+            </div>
+          </div>
+
+          <div className="mt-4 grid w-full min-w-0 grid-cols-1 gap-2">
+            <Button
+              size="md"
+              variant={claimed ? "soft" : "primary"}
+              className="w-full min-w-0"
+              disabled={!monthlyComplete || claimed}
+              data-mission-cta={claimed ? "completed" : monthlyComplete ? "primary" : "disabled"}
+              onClick={onClaimMedal}
+            >
+              {claimed ? <IconCheck width={18} height={18} /> : null}
+              <span className="min-w-0 break-words text-center">{medalLabel}</span>
+              {!claimed ? <IconChevron width={18} height={18} /> : null}
+            </Button>
+            {monthlyChests > 0 && (
+              <div className={missionUi.chestRow} data-mission-chest="">
+                <div className="flex justify-center sm:justify-start">
+                  <LongyuChest type="monthly" state="unlocked" size="sm" animated />
+                </div>
+                <Button
+                  size="md"
+                  variant={chestIsPrimary ? "primary" : "outline"}
+                  className="w-full min-w-0"
+                  data-mission-cta={chestIsPrimary ? "primary" : "secondary"}
+                  onClick={onOpenChest}
+                >
+                  <span className="min-w-0 break-words text-center">Abrir Baú Épico ({monthlyChests})</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <div
+            className={cx(
+              "grid h-24 w-24 place-items-center rounded-2xl border-2 text-5xl transition",
+              claimed
+                ? "border-gold/50 bg-gold/10"
+                : monthlyComplete
+                  ? "border-accent bg-accent-soft"
+                  : "border-line bg-surface-2 opacity-70 grayscale"
+            )}
+          >
+            <span aria-hidden>{medalEmoji(monthKeyValue)}</span>
+          </div>
+          <div className="mt-2 text-center">
+            <div className="text-sm font-semibold text-ink">Medalha de {monthName}</div>
+            <div className="text-[11px] text-ink-faint">
+              {claimed ? "Na coleção" : monthlyComplete ? "Pronta" : "Bloqueada"}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -419,7 +470,7 @@ function MissionSection({
 }) {
   return (
     <HubSection title={title} desc={desc} count={<Pill tone={done > 0 ? "accent" : "muted"}>{done}/{total}</Pill>}>
-      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+      <div className={missionUi.grid}>
         {missions.map((mission) => (
           <MissionCard
             key={mission.id}
@@ -450,27 +501,25 @@ function MissionCompleteModal({
   const monthlyProgress = Math.min(monthlyCompleted, MONTHLY_GOAL);
   const canOpenMonthlyChest = Boolean(celebration.showMonthlyChest && monthlyChests > 0);
 
-  // Tela cheia no mobile — concluir missão é um momento de recompensa.
   return (
-    <ModalOverlay className="items-stretch p-0 sm:items-center sm:p-4" onBackdropClick={onClose}>
+    <ModalOverlay className="items-stretch p-0 sm:items-center sm:p-4" onBackdropClick={onClose} label="Missão concluída">
       <div
-        className="flex min-h-[100dvh] w-full max-w-none flex-col overflow-y-auto bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[32px] sm:border sm:border-line sm:p-6"
+        data-mission-celebration=""
+        className="flex min-h-[100dvh] w-full max-w-none flex-col overflow-y-auto bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-2xl sm:border sm:border-line sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[26px] bg-accent text-white shadow-lift longyu-success-bloom sm:h-16 sm:w-16 sm:rounded-[22px]">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-accent text-white shadow-lift longyu-success-bloom sm:h-16 sm:w-16">
           <IconCheck width={36} height={36} />
         </div>
         <div className="mx-auto mt-4 inline-flex rounded-full bg-surface/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
           Missão concluída
         </div>
-        <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">
-          1 ponto de missão!
-        </h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
+        <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">1 ponto de missão!</h2>
+        <p className="mx-auto mt-2 max-w-sm break-words text-sm leading-6 text-ink-soft">
           {celebration.title}
         </p>
 
-        <div className="mt-5 rounded-[24px] border border-line bg-surface/90 p-4 text-left shadow-card">
+        <div className="mt-5 rounded-2xl border border-line bg-surface/90 p-4 text-left shadow-card">
           <div className="text-sm font-semibold text-ink">{celebration.title}</div>
           <p className="mt-1 text-sm leading-5 text-ink-soft">{celebration.desc}</p>
           <div className="mt-3 inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">
@@ -478,7 +527,7 @@ function MissionCompleteModal({
           </div>
         </div>
 
-        <div className="mt-4 rounded-[24px] border border-line bg-surface/90 p-4 text-left shadow-card">
+        <div className="mt-4 rounded-2xl border border-line bg-surface/90 p-4 text-left shadow-card">
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="font-semibold text-ink">Missão mensal</span>
             <span className="tabular-nums text-ink-soft">{monthlyProgress}/{MONTHLY_GOAL}</span>
@@ -487,9 +536,11 @@ function MissionCompleteModal({
         </div>
 
         {celebration.showMonthlyChest && (
-          <div className="mt-4 flex items-center gap-3 rounded-[24px] border border-accent-soft bg-surface/90 p-3 text-left shadow-card">
-            <LongyuChest type="monthly" state={canOpenMonthlyChest ? "unlocked" : "locked"} size="sm" animated={canOpenMonthlyChest} />
-            <div className="min-w-0 flex-1">
+          <div className="mt-4 grid w-full min-w-0 grid-cols-1 gap-3 rounded-2xl border border-accent-soft bg-surface/90 p-3 text-left shadow-card sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+            <div className="flex justify-center sm:justify-start">
+              <LongyuChest type="monthly" state={canOpenMonthlyChest ? "unlocked" : "locked"} size="sm" animated={canOpenMonthlyChest} />
+            </div>
+            <div className="min-w-0">
               <div className="text-sm font-semibold text-ink">Baú mensal</div>
               <div className="text-xs text-ink-faint">
                 {canOpenMonthlyChest ? `${monthlyChests} pronto para abrir` : "Resgate registrado"}
@@ -498,13 +549,19 @@ function MissionCompleteModal({
           </div>
         )}
 
-        <div className="mt-auto grid gap-2 pt-5 sm:mt-5 sm:pt-0">
+        <div className="mt-auto grid gap-2 pt-5">
           {canOpenMonthlyChest && (
-            <Button size="lg" className="w-full shadow-lift" onClick={onOpenChest}>
+            <Button size="lg" className="w-full shadow-lift" data-mission-cta="primary" onClick={onOpenChest}>
               Abrir baú
             </Button>
           )}
-          <Button size="lg" variant={canOpenMonthlyChest ? "outline" : "primary"} className="w-full" onClick={onClose}>
+          <Button
+            size="lg"
+            variant={canOpenMonthlyChest ? "outline" : "primary"}
+            className="w-full"
+            data-mission-cta={canOpenMonthlyChest ? "secondary" : "primary"}
+            onClick={onClose}
+          >
             Continuar
           </Button>
         </div>
@@ -522,73 +579,78 @@ function MissionCard({
   mission: MissionView;
   onClaim: () => void;
   highlighted: boolean;
-  /** Missão premium vista por quem não é Pro: progresso visível, resgate no Pro. */
   lockedPro?: boolean;
 }) {
   const Icon = MISSION_ICONS[mission.iconKey];
   const rewards = rewardLabel(mission.reward);
+  const status = missionStatusOf({
+    complete: mission.complete,
+    claimed: mission.claimed,
+    lockedPro,
+    progress: mission.progress,
+  });
+  const cta = missionCta(status);
 
   return (
     <Card
-      className={[
-        "flex min-h-[148px] flex-col rounded-xl border-line/70 p-3 shadow-none transition",
-        mission.complete && !mission.claimed ? "border-accent/35 bg-accent-soft/20" : "",
-        mission.claimed ? "bg-surface-2/80" : "",
-        highlighted ? "longyu-reward-rise ring-2 ring-accent/40" : "",
-      ].join(" ")}
+      variant={missionCardVariant(status)}
+      data-mission-card=""
+      data-mission-id={mission.id}
+      data-mission-status={status}
+      className={cx(missionUi.card, "h-full", highlighted && "longyu-reward-rise ring-2 ring-accent/40")}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span
-          className={[
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-            mission.claimed
-              ? "bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
-              : mission.complete
-              ? "bg-accent text-white"
-              : "bg-accent-soft text-accent",
-          ].join(" ")}
-        >
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <span className={missionIconTileClass(status)}>
           {mission.claimed ? <IconCheck width={17} height={17} /> : <Icon width={17} height={17} />}
         </span>
-        {mission.pro && <Pill tone="gold" className="text-[10px]">Pro</Pill>}
+        <div className="flex min-w-0 shrink flex-wrap items-center justify-end gap-1">
+          {mission.pro && <Pill tone="gold" className="text-[10px]">Pro</Pill>}
+          {status === "progress" && <Pill tone="accent">Em andamento</Pill>}
+          {status === "complete" && <Pill tone="accent">Pronta</Pill>}
+          {status === "claimed" && <Pill tone="good">Concluída</Pill>}
+        </div>
       </div>
 
-      <h3 className="mt-2 text-sm font-semibold text-ink">{mission.title}</h3>
-      <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft">{mission.desc}</p>
+      <h3 className={cx("mt-2", missionUi.title)}>{mission.title}</h3>
+      <p className={missionUi.desc}>{mission.desc}</p>
 
       {rewards && (
-        <div className="mt-2">
-          <span className="inline-flex max-w-full items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold leading-4 text-accent">
-            {rewards}
-          </span>
+        <div className="mt-2 min-w-0">
+          <span className={missionUi.reward}>{rewards}</span>
         </div>
       )}
 
-      <div className="mt-4">
-        <div className="mb-1 flex items-center justify-between text-xs text-ink-faint">
+      <div className={missionUi.progressWrap}>
+        <div className="mb-1 flex items-center justify-between gap-2 text-xs text-ink-faint">
           <span>Progresso</span>
           <span className="tabular-nums">{mission.progress}/{mission.goal}</span>
         </div>
         <ProgressBar value={mission.progress} max={mission.goal} />
       </div>
 
-      <div className="mt-auto pt-4">
-        {mission.claimed ? (
-          <Button size="sm" variant="outline" className="w-full" disabled>
-            <IconCheck width={15} height={15} /> Resgatada
-          </Button>
-        ) : mission.complete ? (
-          <Button size="sm" variant={lockedPro ? "outline" : "primary"} className="w-full" onClick={onClaim}>
-            {lockedPro ? "Resgatar com Pro" : "Resgatar"}
+      <div className={missionUi.actionWrap}>
+        {mission.claimed || mission.complete ? (
+          <Button
+            size="sm"
+            variant={cta.variant}
+            className="w-full min-w-0"
+            disabled={cta.disabled}
+            data-mission-cta={status === "premium" ? "premium" : status === "claimed" ? "completed" : "primary"}
+            onClick={cta.disabled ? undefined : onClaim}
+          >
+            {mission.claimed ? <IconCheck width={15} height={15} /> : null}
+            <span className="min-w-0 break-words text-center">{cta.label}</span>
           </Button>
         ) : (
           <ButtonLink
             to={mission.to}
             size="sm"
-            variant={mission.progress > 0 ? "soft" : "primary"}
-            className="w-full"
+            variant={cta.variant}
+            className="w-full min-w-0"
+            data-mission-cta="primary"
           >
-            Praticar <IconChevron width={15} height={15} />
+            <span className="min-w-0 break-words text-center">{cta.label}</span>
+            <IconChevron width={15} height={15} />
           </ButtonLink>
         )}
       </div>

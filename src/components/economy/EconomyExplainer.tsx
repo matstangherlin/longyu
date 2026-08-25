@@ -38,7 +38,7 @@ export function EconomyExplainer({ isPro = false, context = "conta", className =
         ) : (
           <>
             {" "}
-            <Link to="/pro" className="font-semibold text-gold hover:underline">
+            <Link to="/pro" className="inline-flex min-h-11 items-center font-semibold text-gold hover:underline">
               Ver planos Pro
             </Link>
           </>
