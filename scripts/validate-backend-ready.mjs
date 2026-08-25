@@ -32,6 +32,7 @@ const migrations = [
   "supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
   "supabase/seed/test-account.sql",
   "supabase/migrations/20260825043000_business_foundation.sql",
+  "supabase/migrations/20260825062000_business_operational_hardening.sql",
 ];
 const functions = [
   "supabase/functions/create-checkout-session/index.ts",

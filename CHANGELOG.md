@@ -7,6 +7,14 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.4.1 — Business operational hardening
+
+Torna a fundação B2B segura para staging real: RLS sem recursion, entitlement explícito (assinatura ou grant), `seat_limit` canônico em `organization_subscriptions`, rate limit atômico, honeypot antes da quota, funnel anti-abuse, Turnstile no lead, webhook de notificação, link de Privacidade e copy comercial sem jargão de engenharia.
+
+- Relatório: `docs/reports/business-operational-hardening.md`
+- SQL A≠B: `scripts/sql/business-rls-a-ne-b.sql`
+- **Não** aplicar migrations/Edge em produção nesta PR sem staging verde.
+
 ### V4.4 — Longyu for Business foundation
 
 Linha corporativa sem quebrar o Pro individual. `/business` é pública; o checkout Stripe continua só `pro_monthly` / `pro_annual` com `quantity = 1`.

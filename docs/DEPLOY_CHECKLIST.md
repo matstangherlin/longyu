@@ -10,7 +10,9 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | Projeto preview (`longyu-preview`) | 🗑️ | Pausado/removido 2026-08-04 — liberou cota Free (reativou `atomurus`). Netlify Preview fica em `local` |
 | Migrations 001–017 no produção | ✅ | Inclui `017_referrals` (referrals, rewards, entitlement_grants) — verificado 2026-08-04 |
 | Migration 018 signup rate limits | ✅ | Aplicada 2026-08-04: `signup_rate_events` + `check_and_record_signup_rate` + `admin_cleanup_unconfirmed_signups` |
-| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` + `submit-business-lead` (V4.4; `verify_jwt=false`; rate limit/honeypot — aplicar migration `20260825043000` + deploy da função) |
+| Edge Functions produção | ✅ | checkout/billing/delete/webhook + `create-account` + `submit-business-lead` (V4.4.1: Turnstile + honeypot antes da quota + funnel rate + notify webhook — **aplicar** `20260825043000` + `20260825062000` em staging antes de prod) |
+| RLS Business A ≠ B | ⬜ | `scripts/sql/business-rls-a-ne-b.sql` após migrations Business (staging primeiro) |
+| Business foundation em produção | ⬜ | Ainda **não** aplicada no MandarimProject na abertura da V4.4.1 — ver `docs/reports/business-operational-hardening.md` |
 | `npm run verify:production` | ✅ | |
 | `npm run verify:beta-feedback` | ✅ | |
 | RLS testado (usuário A ≠ B) | ✅ | `scripts/sql/rls-a-ne-b.sql` executado em 2026-08-04 no MandarimProject (read/update bloqueados; admin RPCs negadas). Alternativa: `npm run test:rls` com `SUPABASE_SERVICE_ROLE_KEY` |

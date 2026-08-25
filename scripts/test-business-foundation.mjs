@@ -111,7 +111,7 @@ assert(proOffer.includes('to="/business"'), "CTA Conhecer Business vai para /bus
 assert(proOffer.includes("Falar com vendas"), "CTA Falar com vendas em /pro");
 assert(proOffer.includes("Falar com nosso time"), "CTA Enterprise em /pro");
 assert(proOffer.includes('trackBusinessEvent("business_cta_clicked"'), "CTA /pro dispara business_cta_clicked");
-assert(proOffer.includes("oferta comercial"), "recursos não ligados como oferta comercial");
+assert(proOffer.includes("oferta comercial") || proOffer.includes("piloto") || proOffer.includes("implantação"), "recursos não ligados como oferta comercial");
 assert(!/R\$\s*\d/.test(proOffer), "oferta Business em /pro sem preço público");
 assert(!/createCheckoutSession/.test(proOffer), "oferta Business não chama Stripe");
 
@@ -121,12 +121,12 @@ assert(businessPage.includes("Falar com nosso time"), "CTA Enterprise");
 assert(businessPage.includes("id=\"enterprise\""), "âncora Enterprise");
 assert(!/BYD|byd\.com/i.test(businessPage), "página Business sem nome/logotipo de cliente");
 assert(!/R\$\s*\d/.test(businessPage), "Business sem preço público");
-assert(businessPage.includes("oferta comercial") || businessPage.includes("Roadmap"), "não finge recursos Enterprise já ativos");
+assert(businessPage.includes("oferta comercial") || businessPage.includes("piloto") || businessPage.includes("Roadmap"), "não finge recursos Enterprise já ativos");
 
 const offer = read("src/data/businessOffer.ts");
 assert(!/BYD/i.test(offer), "copy comercial sem BYD");
 assert(offer.includes("Não publicamos preço"), "sem preço público");
-assert(offer.includes("roadmap") || offer.includes("Roadmap") || offer.includes("oferta"), "Enterprise como oferta/roadmap");
+assert(offer.includes("piloto") || offer.includes("implantação"), "Enterprise/Business como oferta comercial");
 
 const routes = read("src/routes.tsx");
 assert(routes.includes('path: "/business"'), "rota pública /business");
