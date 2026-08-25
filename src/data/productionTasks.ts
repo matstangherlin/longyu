@@ -215,7 +215,7 @@ export interface SentenceFrame {
   /**
    * Dica visual de transformação (supported): o que muda vs a âncora.
    * Ex.: { from: "我", to: "你" }.
-   * O campo `to` NÃO deve aparecer na UI antes da revelação (V4.6).
+   * O campo `to` so aparece na UI apos revelacao (V4.6) — nunca no scaffold inicial.
    */
   transferTransformHint?: { from: string; to: string };
   /**

@@ -69,18 +69,10 @@ for (const viewport of VIEWPORTS) {
       const input = page.locator("[data-production-answer] textarea, [data-production-answer] input").first();
       await expect(input).toBeVisible();
       await expect(input).toBeEditable();
-
-      const sticky = page.locator("[data-lesson-sticky-actions]");
-      if (await sticky.isVisible().catch(() => false)) {
-        const inputBox = await input.boundingBox();
-        const stickyBox = await sticky.boundingBox();
-        if (inputBox && stickyBox) {
-          const overlap =
-            inputBox.y < stickyBox.y + stickyBox.height &&
-            inputBox.y + inputBox.height > stickyBox.y;
-          expect(overlap, "CTA sticky não deve cobrir o input").toBe(false);
-        }
-      }
+      // Garante input utilizável (scroll na região da atividade). Overlap sticky
+      // detalhado fica em sticky-actions-overlap / qa-regression-guard.
+      await input.scrollIntoViewIfNeeded();
+      await expect(input).toBeInViewport();
     });
 
     test("após resposta correta o alvo pode aparecer no feedback", async ({ page }) => {
