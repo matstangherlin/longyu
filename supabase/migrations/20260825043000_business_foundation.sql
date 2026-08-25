@@ -15,7 +15,8 @@ create table if not exists public.organizations (
     check (plan in ('business', 'enterprise')),
   status text not null default 'pending'
     check (status in ('pending', 'active', 'suspended', 'churned')),
-  seat_limit integer not null default 0 check (seat_limit >= 0),
+  billing_mode text not null default 'none'
+    check (billing_mode in ('none', 'subscription', 'pilot_grant', 'contract')),
   billing_email text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -72,10 +73,31 @@ create table if not exists public.organization_subscriptions (
 );
 
 comment on table public.organization_subscriptions is
-  'Assinatura corporativa. Não misturar com public.subscriptions (pessoa física).';
+  'Assinatura corporativa. seat_limit aqui é a fonte canônica de licenças. Não misturar com public.subscriptions.';
 
 comment on table public.subscriptions is
   'Assinatura individual (pessoa física / Longyu Pro). Seats Business não entram aqui.';
+
+-- Grants / piloto explícito (V4.4.1). Membership sem isto ou sem assinatura NÃO dá premium.
+create table if not exists public.organization_entitlement_grants (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  access_source text not null
+    check (access_source in ('pilot', 'internal', 'contract')),
+  seat_limit integer not null default 0 check (seat_limit >= 0),
+  status text not null default 'active'
+    check (status in ('active', 'revoked', 'expired')),
+  starts_at timestamptz not null default now(),
+  expires_at timestamptz,
+  note text,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists organization_entitlement_grants_org_active_idx
+  on public.organization_entitlement_grants (organization_id)
+  where status = 'active';
 
 -- ─── business_leads ─────────────────────────────────────────────────────────
 create table if not exists public.business_leads (
@@ -139,6 +161,7 @@ alter table public.organizations enable row level security;
 alter table public.organization_members enable row level security;
 alter table public.organization_invites enable row level security;
 alter table public.organization_subscriptions enable row level security;
+alter table public.organization_entitlement_grants enable row level security;
 alter table public.business_leads enable row level security;
 alter table public.business_lead_rate_events enable row level security;
 alter table public.business_funnel_events enable row level security;
@@ -151,77 +174,94 @@ revoke all on table public.organizations from public, anon;
 revoke all on table public.organization_members from public, anon;
 revoke all on table public.organization_invites from public, anon;
 revoke all on table public.organization_subscriptions from public, anon;
+revoke all on table public.organization_entitlement_grants from public, anon;
 
 grant select on table public.organizations to authenticated;
 grant select on table public.organization_members to authenticated;
 grant select on table public.organization_invites to authenticated;
 grant select on table public.organization_subscriptions to authenticated;
+grant select on table public.organization_entitlement_grants to authenticated;
 
 revoke insert, update, delete on table public.organizations from anon, authenticated;
 revoke insert, update, delete on table public.organization_members from anon, authenticated;
 revoke insert, update, delete on table public.organization_invites from anon, authenticated;
 revoke insert, update, delete on table public.organization_subscriptions from anon, authenticated;
+revoke insert, update, delete on table public.organization_entitlement_grants from anon, authenticated;
+
+-- Helpers SECURITY DEFINER: policies NÃO fazem SELECT em organization_members sob RLS.
+create or replace function public.is_organization_member(p_org_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = p_org_id
+      and m.user_id = auth.uid()
+      and m.seat_status = 'active'
+  );
+$$;
+
+create or replace function public.is_organization_admin(p_org_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = p_org_id
+      and m.user_id = auth.uid()
+      and m.seat_status = 'active'
+      and m.role in ('owner', 'admin')
+  );
+$$;
+
+revoke all on function public.is_organization_member(uuid) from public, anon;
+revoke all on function public.is_organization_admin(uuid) from public, anon;
+grant execute on function public.is_organization_member(uuid) to authenticated;
+grant execute on function public.is_organization_admin(uuid) to authenticated;
 
 drop policy if exists organizations_select_member on public.organizations;
 create policy organizations_select_member
   on public.organizations
   for select
   to authenticated
-  using (
-    exists (
-      select 1
-      from public.organization_members m
-      where m.organization_id = organizations.id
-        and m.user_id = auth.uid()
-        and m.seat_status = 'active'
-    )
-  );
+  using (public.is_organization_member(id));
 
 drop policy if exists organization_members_select_peer on public.organization_members;
 create policy organization_members_select_peer
   on public.organization_members
   for select
   to authenticated
-  using (
-    exists (
-      select 1
-      from public.organization_members me
-      where me.organization_id = organization_members.organization_id
-        and me.user_id = auth.uid()
-        and me.seat_status = 'active'
-    )
-  );
+  using (public.is_organization_member(organization_id));
 
 drop policy if exists organization_invites_select_admin on public.organization_invites;
 create policy organization_invites_select_admin
   on public.organization_invites
   for select
   to authenticated
-  using (
-    exists (
-      select 1
-      from public.organization_members me
-      where me.organization_id = organization_invites.organization_id
-        and me.user_id = auth.uid()
-        and me.seat_status = 'active'
-        and me.role in ('owner', 'admin')
-    )
-  );
+  using (public.is_organization_admin(organization_id));
 
 drop policy if exists organization_subscriptions_select_member on public.organization_subscriptions;
 create policy organization_subscriptions_select_member
   on public.organization_subscriptions
   for select
   to authenticated
-  using (
-    exists (
-      select 1
-      from public.organization_members me
-      where me.organization_id = organization_subscriptions.organization_id
-        and me.user_id = auth.uid()
-        and me.seat_status = 'active'
-    )
-  );
+  using (public.is_organization_member(organization_id));
+
+drop policy if exists organization_entitlement_grants_select_admin
+  on public.organization_entitlement_grants;
+create policy organization_entitlement_grants_select_admin
+  on public.organization_entitlement_grants
+  for select
+  to authenticated
+  using (public.is_organization_admin(organization_id));
 
 -- Sem policies em business_leads / rate / funnel: só service_role (bypass RLS).
 
@@ -230,7 +270,8 @@ create or replace function public._user_organization_entitlement(p_user_id uuid)
 returns table (
   organization_id uuid,
   organization_role text,
-  tier text
+  tier text,
+  access_source text
 )
 language sql
 stable
@@ -240,21 +281,49 @@ as $$
   select
     m.organization_id,
     m.role,
-    o.plan
+    o.plan,
+    case
+      when exists (
+        select 1
+        from public.organization_subscriptions s
+        where s.organization_id = o.id
+          and (
+            s.status in ('trialing', 'active')
+            or (
+              s.status = 'canceled'
+              and s.current_period_end is not null
+              and s.current_period_end > now()
+            )
+          )
+      ) then 'organization_subscription'
+      else 'organization_grant'
+    end
   from public.organization_members m
   join public.organizations o on o.id = m.organization_id
-  left join public.organization_subscriptions s on s.organization_id = o.id
   where m.user_id = p_user_id
     and m.seat_status = 'active'
     and o.status = 'active'
     and o.plan in ('business', 'enterprise')
     and (
-      s.id is null
-      or s.status in ('trialing', 'active')
-      or (
-        s.status = 'canceled'
-        and s.current_period_end is not null
-        and s.current_period_end > now()
+      exists (
+        select 1
+        from public.organization_subscriptions s
+        where s.organization_id = o.id
+          and (
+            s.status in ('trialing', 'active')
+            or (
+              s.status = 'canceled'
+              and s.current_period_end is not null
+              and s.current_period_end > now()
+            )
+          )
+      )
+      or exists (
+        select 1
+        from public.organization_entitlement_grants g
+        where g.organization_id = o.id
+          and g.status = 'active'
+          and (g.expires_at is null or g.expires_at > now())
       )
     )
   order by case o.plan when 'enterprise' then 0 else 1 end, m.joined_at asc nulls last
@@ -276,6 +345,7 @@ declare
   v_tier text := 'free';
   v_org_id uuid;
   v_org_role text;
+  v_org_access text;
   v_pearl_expires timestamptz;
 begin
   if v_uid is null then
@@ -294,8 +364,8 @@ begin
   from public.user_economy e
   where e.user_id = v_uid;
 
-  select org.organization_id, org.organization_role, org.tier
-    into v_org_id, v_org_role, v_tier
+  select org.organization_id, org.organization_role, org.tier, org.access_source
+    into v_org_id, v_org_role, v_tier, v_org_access
   from public._user_organization_entitlement(v_uid) org;
 
   if v_org_id is not null then
@@ -324,6 +394,7 @@ begin
     'source', v_source,
     'organization_id', v_org_id,
     'organization_role', v_org_role,
+    'organization_access_source', v_org_access,
     'pearl_pro_expires_at', v_pearl_expires
   );
 end;
@@ -378,6 +449,13 @@ begin
   email_bucket := 'email:' || trim(p_email_hash);
   combo_bucket := 'combo:' || trim(p_ip_hash) || ':' || trim(p_email_hash);
 
+  perform pg_catalog.pg_advisory_xact_lock(
+    hashtextextended('business_lead_rate:' || ip_bucket, 0)
+  );
+  perform pg_catalog.pg_advisory_xact_lock(
+    hashtextextended('business_lead_rate:' || email_bucket, 0)
+  );
+
   select count(*) into ip_15
   from public.business_lead_rate_events
   where bucket = ip_bucket and created_at > now() - interval '15 minutes';
@@ -420,9 +498,9 @@ revoke all on function public.check_and_record_business_lead_rate(text, text) fr
 grant execute on function public.check_and_record_business_lead_rate(text, text) to service_role;
 
 comment on function public.check_and_record_business_lead_rate(text, text) is
-  'Rate limit de lead Business: IP 3/15m + 8/24h; email 2/24h; combo 1/15m. Só service_role.';
+  'Rate limit atômico de lead Business (advisory lock). IP 3/15m + 8/24h; email 2/24h; combo 1/15m.';
 
 comment on function public.get_server_entitlement() is
-  'Entitlement: is_pro + tier (free|pro|business|enterprise) + source. Membership org ativa concede premiumAccess.';
+  'Entitlement: is_pro + tier + source. Org só com assinatura ativa/trialing OU grant explícito.';
 
 commit;
