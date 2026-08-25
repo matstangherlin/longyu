@@ -372,6 +372,16 @@ export async function advanceUntilSelector(
     ) {
       return false;
     }
+    // Speak/listen imitation: sem Pular em alguns steps — sai pela rota sem microfone.
+    const skippedSpeak = await clickFirstVisible(page, [
+      /^Não posso falar agora$/,
+      /^Agora não$/,
+      /^Continuar sem falar$/,
+    ]);
+    if (skippedSpeak) {
+      await page.waitForTimeout(120);
+      continue;
+    }
     const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;
     if (!skipped) {
       const advanced = await advanceOneStep(page);

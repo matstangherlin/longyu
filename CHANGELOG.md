@@ -13,8 +13,11 @@ Antecipa a primeira **transferência combinacional verdadeira** de L47 para **L1
 
 - `getTransferCandidates()` + metadados `transferSelectionMeta` (por que o aluno está pronto).
 - Cooldown de frame/alvo; labs fonéticos/Hànzì sem transfer gerada; posse `我有…` bloqueada em num/tom/hanzi.
-- Relevância de domínio como **score** (não gate), com hard block só onde a combinação é incoerente.
+- Domínio: se há candidato alinhado, ele vence (mismatch → 0); hard block só onde a combinação é incoerente.
 - Escada supported na 1ª transferência via `earlyTransferOnAttemptZero` (explicação do antigo supported=0).
+- 2ª combinação natural ~L48 (`我有五个朋友`) — earlyPedagogy não engole mais transfer após L35.
+- Densidade: `transferBearingLessons` / `transferBearingLessonRate` (piso 20 lições).
+- E2E determinístico em L15 + `test:early-transfer-negative`.
 - Portões: `validate:early-transfer`, `validate:transfer-diversity`, `validate:transfer-domain-fit`, `test:early-transfer`.
 - Relatório: `reports/early-transfer-ladder.md`.
 - **Não** toca Business / Stripe / Atlas em massa / Missões / Pérolas.

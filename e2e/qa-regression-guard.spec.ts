@@ -220,6 +220,16 @@ test.describe("QA regression guard — transferência", () => {
         await folegoBack.click().catch(() => undefined);
       }
 
+      const skippedSpeak = await clickFirstVisible(page, [
+        /^Não posso falar agora$/,
+        /^Agora não$/,
+        /^Continuar sem falar$/,
+      ]);
+      if (skippedSpeak) {
+        await page.waitForTimeout(120);
+        continue;
+      }
+
       // Prefere Pular (Pro) para avançar estável até o bloco de produção.
       const skipped = await clickFirstVisible(page, [/^Pular/]);
       if (!skipped) {
