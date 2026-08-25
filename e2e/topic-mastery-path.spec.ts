@@ -66,7 +66,8 @@ async function playOpenStep(page: Page): Promise<boolean> {
 }
 
 async function completeCurrentPass(page: Page, lessonId: string, targetLevel: number) {
-  await page.goto(`/licao/${lessonId}/player`);
+  const playerUrl = `/licao/${lessonId}/player`;
+  await page.goto(playerUrl);
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   const victory = page.getByRole("button", { name: VICTORY });
@@ -75,9 +76,18 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
     const level = await masteryLevel(page, lessonId);
     if (level >= targetLevel) return;
     await dismissBlockingOverlays(page);
+    if (!page.url().includes("/player")) {
+      await page.goto(playerUrl);
+      await waitForLazyPage(page);
+      continue;
+    }
     if (await victory.first().isVisible().catch(() => false)) {
       await victory.first().click({ timeout: 2_000 }).catch(() => undefined);
       await page.waitForTimeout(250);
+      continue;
+    }
+    if (await clickFirstVisible(page, [/^Pular/])) {
+      await page.waitForTimeout(180);
       continue;
     }
     if (await playOpenStep(page)) {

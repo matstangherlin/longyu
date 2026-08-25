@@ -321,6 +321,11 @@ export function JourneyPage() {
             total={currentProgress?.total ?? ALL_LESSONS.length}
             currentLessonTitle={currentLesson?.title}
             onContinue={currentId ? () => navigate(`/licao/${currentId}`) : undefined}
+            continueLabel={
+              completed.length > 0 || (currentId ? (lessonMasteryById?.[currentId]?.level ?? 0) > 0 : false)
+                ? "Continuar"
+                : "Começar primeira lição"
+            }
             journeyComplete={journeyComplete}
             reviewCount={reviewCount}
             streak={streak}
@@ -487,6 +492,7 @@ function JourneyHeader({
   total,
   currentLessonTitle,
   onContinue,
+  continueLabel,
   journeyComplete,
   reviewCount,
   streak,
@@ -499,6 +505,7 @@ function JourneyHeader({
   total: number;
   currentLessonTitle?: string;
   onContinue?: () => void;
+  continueLabel?: string;
   journeyComplete: boolean;
   reviewCount: number;
   streak: number;
@@ -563,7 +570,7 @@ function JourneyHeader({
             size="lg"
             onClick={onContinue}
           >
-            <span className="leading-none">{done === 0 ? "Começar primeira lição" : "Continuar"}</span>
+            <span className="leading-none">{continueLabel ?? (done === 0 ? "Começar primeira lição" : "Continuar")}</span>
             <IconChevron width={18} height={18} aria-hidden="true" />
           </Button>
           {reviewCount > 0 && (
