@@ -12,33 +12,33 @@ export const BUSINESS_HERO = {
   eyebrow: "Longyu for Business",
   title: "Mandarim para a sua equipe.",
   lead:
-    "Prepare colaboradores que trabalham com equipes chinesas, viajam à China ou precisam do idioma no trabalho. O Longyu já ensina situações reais; a linha corporativa vende o programa, não um segundo checkout de 1 assento.",
+    "Prepare colaboradores que trabalham com equipes chinesas, viajam à China ou precisam do idioma no trabalho. O Longyu ensina situações reais — a linha corporativa organiza o programa da sua empresa.",
 } as const;
 
 export const BUSINESS_BENEFITS = [
   {
     title: "Acesso premium para colaboradores",
-    body: "Quem entra pelo programa da empresa recebe o mesmo Longyu completo que o aluno Pro — Jornada, labs, revisão e imersão — quando a conta corporativa estiver ativa.",
+    body: "Quem entra pelo programa da empresa recebe o Longyu completo — Jornada, labs, revisão e imersão — quando a conta corporativa estiver ativa.",
   },
   {
     title: "Gestão de licenças",
-    body: "A fundação já separa organização, papéis e assentos da assinatura individual. O painel administrativo chega na próxima etapa do produto.",
+    body: "Organização, papéis e assentos ficam separados da assinatura individual. A gestão operacional é configurada no projeto comercial.",
   },
   {
     title: "Acompanhamento de progresso",
-    body: "A empresa vê participação, conclusões e competências — não o detalhe íntimo de cada erro. Privacidade do funcionário entra no desenho desde o início.",
+    body: "A empresa acompanha participação, conclusões e competências — sem o detalhe íntimo de cada erro do colaborador.",
   },
   {
     title: "Trilhas por objetivo",
-    body: "Além do núcleo comum, o programa comercial pode orientar trilhas como operações Brasil–China, escritório, logística ou viagem de trabalho.",
+    body: "Além do núcleo comum, o programa pode orientar trilhas como operações Brasil–China, escritório, logística ou viagem de trabalho.",
   },
   {
     title: "Relatórios corporativos",
-    body: "Oferta comercial: adoção, onboarding e competências agregadas. Exportação e dashboard entram no MVP administrativo, não nesta página.",
+    body: "Adoção, onboarding e competências agregadas entram no escopo do programa — configurados conforme o piloto ou o contrato.",
   },
   {
     title: "Implantação assistida",
-    body: "Diagnóstico, piloto e contrato com o time comercial. Empresa nenhuma passa pelo fluxo de 30 dias grátis do Pro individual.",
+    body: "Diagnóstico, piloto e contrato com o time comercial. O fluxo do Longyu Pro individual não é o caminho para equipes.",
   },
 ] as const;
 
@@ -84,30 +84,30 @@ export const BUSINESS_PLAN = {
     "Acesso Longyu premium para colaboradores",
     "Gestão de colaboradores e licenças",
     "Acompanhamento de progresso e competências",
-    "Trilhas por objetivo (oferta comercial)",
-    "Relatórios corporativos (oferta comercial)",
+    "Trilhas por objetivo",
+    "Relatórios corporativos",
     "Implantação assistida",
   ],
   footnote:
-    "Recursos de gestão e relatórios fazem parte da oferta comercial. Ainda não há painel administrativo nesta versão do app.",
+    "O Longyu Business está disponível para programas piloto e implantações corporativas. Recursos de gestão e relatórios são configurados conforme o projeto.",
 } as const;
 
-/** Lista curta da oferta em /pro. Itens ainda não ligados no app vão marcados. */
+/** Lista curta da oferta em /pro. */
 export const PRO_PAGE_BUSINESS_ITEMS = [
   "Acesso premium para colaboradores",
-  "Gestão de licenças (oferta comercial)",
-  "Painel de progresso (oferta comercial)",
-  "Relatórios (oferta comercial)",
-  "Trilhas corporativas (oferta comercial)",
+  "Gestão de licenças",
+  "Painel de progresso",
+  "Relatórios",
+  "Trilhas corporativas",
   "Suporte para implantação",
 ] as const;
 
 export const PRO_PAGE_ENTERPRISE_ITEMS = [
-  "SSO e provisionamento (roadmap)",
-  "Relatórios corporativos (oferta comercial)",
-  "Departamentos e grupos (oferta comercial)",
-  "Trilhas personalizadas (oferta comercial)",
-  "Integrações (roadmap)",
+  "SSO e provisionamento",
+  "Relatórios corporativos",
+  "Departamentos e grupos",
+  "Trilhas personalizadas",
+  "Integrações",
   "Suporte dedicado",
 ] as const;
 
@@ -115,9 +115,9 @@ export const ENTERPRISE_PLAN = {
   eyebrow: "Para grandes empresas",
   title: "Longyu Enterprise",
   lead:
-    "Planos personalizados para grandes equipes, multinacionais e operações Brasil–China. Implantação e contrato sob proposta — não há checkout público.",
+    "Planos personalizados para grandes equipes, multinacionais e operações Brasil–China. Implantação e contrato sob proposta.",
   items: [
-    "SSO e provisionamento (SAML / OIDC / SCIM) — oferta de implantação",
+    "SSO e provisionamento (SAML / OIDC / SCIM)",
     "Departamentos, grupos e papéis",
     "Relatórios avançados e exportação",
     "Trilhas personalizadas por operação",
@@ -125,25 +125,25 @@ export const ENTERPRISE_PLAN = {
     "Suporte dedicado",
   ],
   footnote:
-    "SSO, SCIM e APIs corporativas estão no roadmap Enterprise. Esta página não afirma que já estão ativos no produto.",
+    "SSO, provisionamento e integrações corporativas são avaliados conforme a implantação. Fale com nosso time sobre disponibilidade.",
 } as const;
 
 export const BUSINESS_FAQ = [
   {
-    q: "Business é o Pro com mais assentos no Stripe?",
-    a: "Não. A assinatura individual continua em /pro, sempre com 1 assento. Business é um programa comercial: organização, papéis e contrato. Não use o checkout de 30 dias grátis do Pro individual para dezenas de colaboradores.",
+    q: "Business é o Pro com mais assentos?",
+    a: "Não. A assinatura individual continua em /pro. Business é um programa comercial: organização, papéis e contrato com o time Longyu.",
   },
   {
     q: "Qual o preço do Business?",
-    a: "Não publicamos preço nesta versão. O valor depende de colaboradores, piloto e escopo. Fale com vendas.",
+    a: "Não publicamos preço nesta página. O valor depende de colaboradores, piloto e escopo. Fale com vendas.",
   },
   {
     q: "O RH vê cada erro do funcionário?",
-    a: "Não é o desenho. A empresa deve ver participação, progresso e competências — não o histórico íntimo de tons errados. LGPD e contratos de tratamento entram na implantação.",
+    a: "Não. A empresa deve ver participação, progresso e competências — não o histórico íntimo de tons errados. LGPD e contratos de tratamento entram na implantação.",
   },
   {
-    q: "Já existe painel /business/admin?",
-    a: "Ainda não. Esta versão cria a fundação (contas de organização e captura de demanda). O painel administrativo é o próximo passo de produto, depois da pedagogia da Jornada.",
+    q: "Já existe painel administrativo?",
+    a: "O acompanhamento detalhado entra conforme o piloto ou o contrato. Nesta etapa priorizamos a conversa comercial e a fundação de contas.",
   },
   {
     q: "Funcionários brasileiros em empresa chinesa no Brasil são um bom fit?",

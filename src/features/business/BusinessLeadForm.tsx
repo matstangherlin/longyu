@@ -1,4 +1,5 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/primitives";
 import {
   EMPLOYEE_COUNT_LABELS,
@@ -98,6 +99,11 @@ export function BusinessLeadForm({ sourceCta = "form" }: { sourceCta?: string })
       return;
     }
     if (result.status === "not_implemented") {
+      setStatus("error");
+      setNotice(result.message);
+      return;
+    }
+    if (result.status === "captcha_failed") {
       setStatus("error");
       setNotice(result.message);
       return;
@@ -348,6 +354,18 @@ export function BusinessLeadForm({ sourceCta = "form" }: { sourceCta?: string })
       >
         Falar com vendas
       </Button>
+
+      <p className="text-[11px] leading-4 text-ink-faint">
+        Usamos estes dados só para contato comercial sobre o Longyu Business. Não pedimos dados pessoais de
+        colaboradores. Veja a{" "}
+        <Link
+          className="inline-flex min-h-11 items-center font-semibold text-ink underline-offset-2 hover:underline"
+          to="/privacidade"
+        >
+          Política de Privacidade
+        </Link>
+        .
+      </p>
 
       {notice && (
         <p
