@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | a9322c968e217b78817764665904e78b4249b8c9 |
+| Hash da Jornada | e0c42e03d924 |
+| HEAD no instante da geração | 72971a75d4a9d04722f0ee2dd05a9120df807785 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T08:01:15.727Z |
+| Gerado em | 2026-08-25T08:46:04.028Z |
 | Lições | 127 |
 
 ## Política
@@ -26,9 +26,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições | 127 |
-| Lições com transfer_task | 49 |
-| Lições com free_production guiada | 67 |
-| Lições com produção aberta | 21 |
+| Lições com transfer_task | 25 |
+| Lições com free_production guiada | 75 |
+| Lições com produção aberta | 50 |
 | Transfers precoces | 0 |
 | Opens precoces | 0 |
 
@@ -37,10 +37,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Frame | Padrão | Exposta | Guided | Transfer |
 |-------|--------|---------|--------|----------|
 | `frame_woyao` | 我要 ___ | l26b | l27 | p6-direcoes |
-| `frame_woxianghe` | 我想喝 ___ | l26 | l27 | p6-clima |
-| `frame_zainali` | ___ 在哪里？ | l25 | p6-cidade-lugares | p6-china-cidades |
+| `frame_woxianghe` | 我想喝 ___ | l26 | l28 | p6-clima |
+| `frame_nijiaoshenme` | 你叫什么？ | p1-primeira-conversa | p1-primeira-conversa | — |
+| `frame_qingwennijiaoshenme` | 请问，你叫什么？ | — | — | l2-rev |
+| `frame_zainali` | ___ 在哪里？ | l25 | p6-china-cidades-2 | p6-china-ruas |
 | `frame_qingwenzainali` | 请问，___ 在哪里？ | l25 | — | — |
-| `frame_woxiangchi` | 我想吃 ___ | l26b | l28 | p6-rotina-trabalho |
+| `frame_woxiangchi` | 我想吃 ___ | l26b | p6-cidade-lugares | p6-china-cidades |
 | `frame_woxiangmai` | 我想买 ___ | — | — | — |
 | `frame_duoshaoqian` | ___ 多少钱？ | p6-compras | p6-compras | p6-survival-mandarin |
 | `frame_woyouge` | 我有 ___ 个 ___ | l13-dialogo-nome | l13-dialogo-nome | p3-ordem-das-palavras |
@@ -58,43 +60,46 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Primeiras transferências (por frame)
 
+- **l2-rev** · `frame_qingwennijiaoshenme` · supported · `请问，你叫什么？`
 - **p3-ordem-das-palavras** · `frame_woyouge` · guided · `我有一个朋友。`
 - **l26** · `frame_wozai` · guided · `我在喝水。`
 - **l26b** · `frame_woxihuan` · guided · `我喜欢中国。`
-- **p6-rotina-trabalho** · `frame_woxiangchi` · guided · `我想吃鱼。`
-- **p6-cidade-lugares** · `frame_wo_le` · guided · `我回家了。`
-- **p6-china-cidades** · `frame_zainali` · guided · `车站在哪里？`
-- **p6-china-cidades-2** · `frame_woqu` · guided · `我去火车站。`
+- **p6-cidade-lugares** · `frame_wo_le` · guided · `我睡觉了。`
+- **p6-china-cidades** · `frame_woxiangchi` · guided · `我想吃鱼。`
+- **p6-china-cidades-2** · `frame_woqu` · guided · `我去银行。`
+- **p6-china-ruas** · `frame_zainali` · guided · `车站在哪里？`
 - **p6-clima** · `frame_woxianghe` · guided · `我想喝热水。`
 - **p6-direcoes** · `frame_woyao` · guided · `我要热水。`
 - **p6-survival-mandarin** · `frame_duoshaoqian` · guided · `衣服多少钱？`
-- **l29** · `frame_woyaomai` · guided · `我要买牛奶。`
+- **l29** · `frame_woyaomai` · guided · `我要买书。`
 
 ## Primeiras free_production guiadas
 
+- **p1-primeira-conversa** · `frame_nijiaoshenme` · `你叫什么？`
 - **l11-falo-pouco** · `frame_wozai` · `我在学中文。`
 - **l13-dialogo-nome** · `frame_woyouge` · `我有三个朋友。`
 - **l26** · `frame_woxihuan` · `我喜欢中文。`
 - **l26b** · `frame_niyaoma` · `你要茶吗？`
-- **l27** · `frame_woxianghe` · `我想喝水。`
-- **l27** · `frame_woyao` · `我要水。`
-- **l28** · `frame_woxiangchi` · `我想吃米饭。`
+- **l27** · `frame_woyao` · `我要这个`
+- **l28** · `frame_woxianghe` · `我想喝水。`
 - **p6-rotina-trabalho** · `frame_wo_le` · `我饿了。`
-- **p6-cidade-lugares** · `frame_zainali` · `医院在哪里？`
-- **p6-china-cidades** · `frame_woqu` · `我去超市。`
-- **p6-compras** · `frame_duoshaoqian` · `这个多少钱？`
+- **p6-cidade-lugares** · `frame_woxiangchi` · `我想吃米饭。`
+- **p6-china-cidades** · `frame_woqu` · `我去学校`
+- **p6-china-cidades-2** · `frame_zainali` · `超市在哪里？`
+- **p6-compras** · `frame_duoshaoqian` · `这件衣服多少钱？`
 - **p6-survival-mandarin** · `frame_woyaomai` · `我要买衣服。`
 
 ## Primeiras produções abertas
 
-- **l26** · objetivo `state_ongoing` · modelo `我在学校学习`
-- **p6-rotina-trabalho** · objetivo `request_item` · modelo `我想吃米饭。`
-- **p6-cidade-lugares** · objetivo `state_change` · modelo `我饿了。`
-- **p6-china-cidades** · objetivo `state_preference` · modelo `我喜欢茶。`
-- **p6-china-ruas** · objetivo `state_destination` · modelo `我去北京。`
+- **l9** · objetivo `ask_name` · modelo `你叫什么？`
+- **l27** · objetivo `offer_item` · modelo `你要菜。`
+- **p6-rotina-trabalho** · objetivo `state_preference` · modelo `我喜欢茶。`
+- **p6-china-ruas** · objetivo `request_item` · modelo `我想吃米饭。`
 - **p6-saude** · objetivo `ask_location` · modelo `请问，超市在哪里？`
-- **p6-horarios** · objetivo `offer_item` · modelo `你要菜。`
-- **l30** · objetivo `ask_price` · modelo `这个多少钱？`
-- **p7-imersao-estacao** · objetivo `buy_item` · modelo `我想买牛奶。`
+- **p6-natureza** · objetivo `state_ongoing` · modelo `我在北京。`
+- **p6-clima** · objetivo `state_change` · modelo `我病了`
+- **p6-survival-mandarin** · objetivo `ask_price` · modelo `这个多少钱？`
+- **l30** · objetivo `state_destination` · modelo `我去北京。`
+- **p7-imersao-casa-amigo** · objetivo `buy_item` · modelo `我想买牛奶。`
 
-<!-- integridade:ee89ccb2d8fcfcdd -->
+<!-- integridade:00ebb1eb6bbbeee5 -->

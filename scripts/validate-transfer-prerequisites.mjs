@@ -69,6 +69,31 @@ try {
     mergeStructureExposure,
   } = load("src/data/productionTasks.js");
 
+  const frameById = new Map(SENTENCE_FRAMES.map((frame) => [frame.id, frame]));
+
+  /** Mesma regra de runtime: supported pode transferir quando o frame-base já subiu a escada. */
+  function structureReadyForTransferFrame(frameId, exposure) {
+    const frame = frameById.get(frameId);
+    if (!frame) return canTransferStructure(exposure.get(frameId));
+    if (canTransferStructure(exposure.get(frameId))) return true;
+    if (
+      frame.transferAssist === "supported" &&
+      (frame.transferRequiresFrameIds ?? []).length > 0 &&
+      (frame.transferRequiresFrameIds ?? []).every((id) => canTransferStructure(exposure.get(id)))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  function supportedTransferViaPrereq(frameId) {
+    const frame = frameById.get(frameId);
+    return (
+      frame?.transferAssist === "supported" &&
+      (frame.transferRequiresFrameIds ?? []).length > 0
+    );
+  }
+
   const earlyTransfers = [];
   const earlyOpen = [];
   const transferBeforeGuided = [];
@@ -106,7 +131,7 @@ try {
     for (const step of transfers) {
       const frameId = step.productionFrameId;
       const rungs = bundle.forTransfer.get(frameId);
-      if (!canTransferStructure(rungs)) {
+      if (!structureReadyForTransferFrame(frameId, bundle.forTransfer)) {
         transferBeforeGuided.push(`${lesson.id}/${frameId}`);
       }
       if (!firstTransfers.some((row) => row.frameId === frameId)) {
@@ -117,9 +142,17 @@ try {
           assist: step.productionAssist,
         });
       }
-      // Transferência na primeira metade do curso sem produção guiada prévia = precoce.
+      // Transferência na primeira metade sem escada própria — exceto supported cedo (V4.5).
       const idx = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
-      if (idx >= 0 && idx < 40 && !rungs?.guidedProduction) {
+      const earlySupported =
+        step.transferEarlySupported === true && step.productionAssist === "supported";
+      if (
+        idx >= 0 &&
+        idx < 40 &&
+        !rungs?.guidedProduction &&
+        !supportedTransferViaPrereq(frameId) &&
+        !earlySupported
+      ) {
         earlyTransfers.push(`${lesson.id}/${frameId}`);
       }
     }
@@ -142,7 +175,7 @@ try {
         openWithoutGuided.push(`${lesson.id}/${goal ?? "?"}`);
       }
       const idx = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
-      if (idx >= 0 && idx < 40) {
+      if (idx >= 0 && idx < 40 && !canOpenProduceGoal(goal, bundle.forTransfer)) {
         earlyOpen.push(`${lesson.id}/${goal ?? "?"}`);
       }
       if (goal && !firstOpens.some((row) => row.goal === goal)) {
@@ -166,7 +199,8 @@ try {
   assert(earlyOpen.length === 0, `open precoce nas 1ªs 40 lições: ${earlyOpen.slice(0, 8).join(", ")}`);
 
   for (const row of occurrences) {
-    if (row.firstTransferLessonId && !row.firstGuidedProductionLessonId) {
+    const supportedOnly = supportedTransferViaPrereq(row.frameId);
+    if (row.firstTransferLessonId && !row.firstGuidedProductionLessonId && !supportedOnly) {
       failures.push(`${row.frameId}: transferência em ${row.firstTransferLessonId} sem produção guiada`);
     }
     if (row.firstTransferLessonId && row.firstGuidedProductionLessonId) {

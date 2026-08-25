@@ -423,12 +423,30 @@ try {
       // ——— R1 / R8: transfer ———
       if (step.kind === "transfer_task") {
         const frameId = step.productionFrameId;
+        const frame = frameById.get(frameId);
         const rungs = bundle.forTransfer.get(frameId) ?? emptyStructureRungs();
-        if (!canTransferStructure(rungs)) {
+        const supportedViaPrereq =
+          frame?.transferAssist === "supported" &&
+          (frame.transferRequiresFrameIds ?? []).length > 0 &&
+          (frame.transferRequiresFrameIds ?? []).every((id) =>
+            canTransferStructure(bundle.forTransfer.get(id))
+          );
+        const transferReady = canTransferStructure(rungs) || supportedViaPrereq;
+        if (!transferReady) {
           const missing = [];
           if (!rungs.exposed) missing.push("exposição da estrutura");
           if (!rungs.completion && !rungs.build) missing.push("completion ou sentence build");
-          if (!rungs.guidedProduction) missing.push("free_production guiada (lição anterior)");
+          if (!rungs.guidedProduction && !supportedViaPrereq) {
+            missing.push("free_production guiada (lição anterior)");
+          }
+          if (supportedViaPrereq === false && (frame?.transferRequiresFrameIds ?? []).length > 0) {
+            for (const requiredId of frame.transferRequiresFrameIds ?? []) {
+              const requiredRungs = bundle.forTransfer.get(requiredId);
+              if (!canTransferStructure(requiredRungs)) {
+                missing.push(`escada completa de ${requiredId}`);
+              }
+            }
+          }
           addFinding({
             rule: 1,
             lessonId: lesson.id,
@@ -438,9 +456,17 @@ try {
             stepTitle: title,
             activity,
             missingPrerequisite: missing.join(" + ") || "escada completa da estrutura",
-            requiredPreviousExperience: `Para ${frameId ?? "frame"}: exposição → completion|build → produção guiada → só então transferir.`,
+            requiredPreviousExperience: supportedViaPrereq
+              ? `Para ${frameId ?? "frame"}: frame-base transferido → supported na 1ª combinação.`
+              : `Para ${frameId ?? "frame"}: exposição → completion|build → produção guiada → só então transferir.`,
           });
-        } else if (rungs.exposed && !rungs.guidedProduction && !rungs.completion && !rungs.build) {
+        } else if (
+          rungs.exposed &&
+          !rungs.guidedProduction &&
+          !rungs.completion &&
+          !rungs.build &&
+          !supportedViaPrereq
+        ) {
           // R8 só quando R1 não cobriu: exposição lexical sem prática.
           addFinding({
             rule: 8,
@@ -464,7 +490,9 @@ try {
             firstOfStructure: true,
             attemptNumber: 0,
           });
-          const assistOk = step.productionAssist === "guided";
+          const assistOk =
+            step.productionAssist === "guided" ||
+            (step.transferEarlySupported === true && step.productionAssist === "supported");
           const helpOk =
             (step.productionHelpInitial ?? help.initial) >= 1 ||
             step.productionHelpFirstOfStructure === true;
@@ -479,14 +507,14 @@ try {
               stepTitle: title,
               activity,
               missingPrerequisite: [
-                !assistOk ? "productionAssist=guided" : null,
+                !assistOk ? "productionAssist=guided (ou supported com transferEarlySupported)" : null,
                 !helpOk ? "productionHelp inicial ≥ 1 (padrão à vista)" : null,
                 !patternOk ? "patternPt ou patternSlots" : null,
               ]
                 .filter(Boolean)
                 .join(" + "),
               requiredPreviousExperience:
-                "Na 1ª transferência da estrutura: degrau guided + padrão visível (help ≥ 1).",
+                "Na 1ª transferência da estrutura: degrau guided (ou supported na 1ª combinação) + padrão visível (help ≥ 1).",
             });
           }
         }
