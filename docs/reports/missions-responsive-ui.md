@@ -153,5 +153,5 @@ Referências visuais (artefatos da execução): `missoes-320-hero.png`, `missoes
 6. 320px e 1024px no E2E.
 7. Cards na mesma família visual; CTA semântica única.
 8. Nenhum conserto só por z-index.
-9. E2E cobre incomplete / progress / complete / claimed / premium, baú, celebração, paywall, medalhas.
+9. E2E cobre incomplete / progress / complete / claimed / premium, weekly, baú, celebração diária e mensal, paywall, medalhas, tablet, fonte maior e safe-area.
 10. QA físico Android + desktop permanece fora desta PR.
