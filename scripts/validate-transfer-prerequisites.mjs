@@ -233,9 +233,15 @@ try {
     `| Lições | ${ALL_LESSONS.length} |`,
     `| Lições com transfer_task | ${transferLessons} |`,
     `| Lições com free_production guiada | ${freeLessons} |`,
-    `| Lições com produção aberta | ${openLessons} |`,
+    `| Lições com produção aberta (estruturalmente elegível) | ${openLessons} |`,
     `| Transfers precoces | ${earlyTransfers.length} |`,
-    `| Opens precoces | ${earlyOpen.length} |`,
+    `| Opens precoces (sem guided do objetivo) | ${earlyOpen.length} |`,
+    "",
+    "## Semântica: open production",
+    "",
+    "- **structurallyEligibleOpen**: o auditor do plano real encontra `productionOpen` quando glifos + guided do objetivo já existem (pode aparecer cedo, ex. ask_name).",
+    "- **firstRealLearnerOpenProduction / produção independente**: no onboarding do aluno novo, a primeira `free_production` guiada sem apoio entra ~L12 (`validate:onboarding-pace`).",
+    "- Não confundir elegibilidade estrutural com o momento em que o aluno novo encontra produção no caminho real.",
     "",
     "## Primeira ocorrência por estrutura",
     "",
@@ -255,9 +261,9 @@ try {
   for (const row of firstFrees.slice(0, 20)) {
     lines.push(`- **${row.lessonId}** · \`${row.frameId}\` · \`${row.target}\``);
   }
-  lines.push("", "## Primeiras produções abertas", "");
+  lines.push("", "## structurallyEligibleOpen (primeira por objetivo)", "");
   for (const row of firstOpens) {
-    lines.push(`- **${row.lessonId}** · objetivo \`${row.goal}\` · modelo \`${row.model}\``);
+    lines.push(`- **${row.lessonId}** · objetivo \`${row.goal}\` · modelo \`${row.model}\` _(elegibilidade estrutural — ver semântica acima)_`);
   }
   lines.push("");
 

@@ -171,9 +171,8 @@ test.describe("QA regression guard — transferência", () => {
   test.setTimeout(150_000);
 
   test("atividade de transferência renderiza estrutura, situação e input", async ({ page }) => {
-    // V4.0: reserva de transferência em M4. Fixture rápido em l24; l23 é
-    // coberto por validate:cognitive-budget (não basta trocar a lição do E2E).
-    await seedLessonPlayerReady(page, "l24", { masteryLevel: 3 });
+    // V4.5: fixture determinística L15 (l2-rev → 请问，你叫什么？).
+    await seedLessonPlayerReady(page, "l2-rev", { masteryLevel: 0 });
     await page.addInitScript(() => {
       try {
         const raw = localStorage.getItem("longyu-v1");
@@ -189,21 +188,21 @@ test.describe("QA regression guard — transferência", () => {
         /* ignore */
       }
     });
-    await page.goto("/licao/l24/player");
+    await page.goto("/licao/l2-rev/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
     // Não usar "Use este padrão" — free_production guiada também mostra esse texto
     // e o loop parava antes do transfer_task.
-    const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte/i);
+    const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte|Aplique a transformação/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
     while (
       !(await transfer.isVisible().catch(() => false)) &&
       !(await transferCopy.first().isVisible().catch(() => false)) &&
       Date.now() < deadline &&
-      steps < 60
+      steps < 40
     ) {
       steps += 1;
       await dismissBlockingOverlays(page);

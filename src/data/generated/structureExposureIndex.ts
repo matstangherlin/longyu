@@ -670,14 +670,14 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_qingwennijiaoshenme": 9,
       "frame_zainali": 1,
       "frame_wozai": 15,
-      "frame_woyouge": 15
+      "frame_woyouge": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
       "frame_zainali": 1,
       "frame_wozai": 15,
-      "frame_woyouge": 15
+      "frame_woyouge": 7
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme"
@@ -702,11 +702,9 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woyouge": 15
     },
     "priorTransferred": [
-      "frame_qingwennijiaoshenme",
-      "frame_woyouge"
+      "frame_qingwennijiaoshenme"
     ],
     "priorTransferTargets": [
-      "我有一个朋友",
       "请问你叫什么"
     ]
   },
@@ -730,7 +728,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woyouge"
     ],
     "priorTransferTargets": [
-      "我有一个朋友",
+      "我有五个朋友",
       "请问你叫什么"
     ]
   },
@@ -754,7 +752,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woyouge"
     ],
     "priorTransferTargets": [
-      "我有一个朋友",
+      "我有五个朋友",
       "请问你叫什么"
     ]
   },
@@ -2390,7 +2388,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我在吃饭",
+      "我喜欢茶",
       "我在喝水",
       "我有一个朋友",
       "我有五个朋友",
@@ -2435,7 +2433,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我喜欢鱼",
+      "我喜欢茶",
       "我在吃饭",
       "我在喝水",
       "我有一个朋友",
@@ -2455,7 +2453,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 7,
       "frame_woqu": 7
@@ -2470,7 +2468,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 7
     },
@@ -2482,7 +2480,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我喜欢鱼",
+      "我喜欢茶",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -2503,10 +2501,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
-      "frame_woxiangchi": 15,
-      "frame_woqu": 7
+      "frame_woxiangchi": 7,
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
@@ -2518,20 +2516,20 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
-      "frame_woxiangchi": 15,
-      "frame_woqu": 7
+      "frame_woxiangchi": 7,
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
-      "frame_wo_le",
       "frame_woxihuan",
       "frame_woyouge",
       "frame_wozai"
     ],
     "priorTransferTargets": [
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
@@ -2539,7 +2537,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
-      "我睡觉了",
       "请问你叫什么"
     ]
   },
@@ -2547,54 +2544,53 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 7,
+      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
-      "frame_woxiangchi": 15,
+      "frame_woxiangchi": 7,
       "frame_woqu": 15,
       "frame_duoshaoqian": 1
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 7,
+      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
-      "frame_woxiangchi": 15,
+      "frame_woxiangchi": 7,
       "frame_woqu": 15,
       "frame_duoshaoqian": 1
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
-      "frame_wo_le",
-      "frame_woxiangchi",
+      "frame_woqu",
       "frame_woxihuan",
       "frame_woyouge",
       "frame_wozai"
     ],
     "priorTransferTargets": [
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃鱼",
+      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
-      "我睡觉了",
       "请问你叫什么"
     ]
   },
@@ -2609,7 +2605,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
@@ -2625,7 +2621,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxianghe": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 15,
+      "frame_wo_le": 7,
       "frame_niyaoma": 15,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
@@ -2633,26 +2629,25 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
-      "frame_wo_le",
       "frame_woqu",
-      "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyouge",
-      "frame_wozai"
+      "frame_wozai",
+      "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃鱼",
+      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
-      "我睡觉了",
-      "请问你叫什么"
+      "请问你叫什么",
+      "车站在哪里"
     ]
   },
   "p6-saude": {
@@ -2690,7 +2685,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
-      "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
       "frame_woxihuan",
@@ -2699,17 +2693,17 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
       "我想吃鱼",
+      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
-      "我睡觉了",
       "请问你叫什么",
       "车站在哪里"
     ]
@@ -2758,14 +2752,14 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
       "我想吃鱼",
+      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
@@ -2818,10 +2812,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -2879,10 +2873,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -2942,10 +2936,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3002,16 +2996,16 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxiangchi",
       "frame_woxianghe",
       "frame_woxihuan",
-      "frame_woyao",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3023,7 +3017,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "我要热水",
       "请问你叫什么",
       "车站在哪里"
     ]
@@ -3076,11 +3069,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3146,11 +3139,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3163,9 +3156,9 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有四个朋友",
       "我睡觉了",
       "我要热水",
-      "衣服多少钱",
       "请问你叫什么",
-      "车站在哪里"
+      "车站在哪里",
+      "香蕉多少钱"
     ]
   },
   "l29": {
@@ -3217,11 +3210,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3234,9 +3227,9 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有四个朋友",
       "我睡觉了",
       "我要热水",
-      "衣服多少钱",
       "请问你叫什么",
-      "车站在哪里"
+      "车站在哪里",
+      "香蕉多少钱"
     ]
   },
   "l30": {
@@ -3289,11 +3282,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3307,9 +3300,9 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我睡觉了",
       "我要买书",
       "我要热水",
-      "衣服多少钱",
       "请问你叫什么",
-      "车站在哪里"
+      "车站在哪里",
+      "香蕉多少钱"
     ]
   },
   "l11-rev": {
@@ -3362,11 +3355,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3375,15 +3368,15 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我想喝热水",
       "我明天去医院",
       "我有一个朋友",
+      "我有一个香蕉",
       "我有五个朋友",
-      "我有五个香蕉",
       "我有四个朋友",
       "我睡觉了",
       "我要买书",
       "我要热水",
-      "衣服多少钱",
       "请问你叫什么",
-      "车站在哪里"
+      "车站在哪里",
+      "香蕉多少钱"
     ]
   },
   "p7-imersao-mercado": {
@@ -3436,11 +3429,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3449,15 +3442,15 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我想喝热水",
       "我明天去医院",
       "我有一个朋友",
+      "我有一个香蕉",
       "我有五个朋友",
-      "我有五个香蕉",
       "我有四个朋友",
       "我睡觉了",
       "我要买书",
       "我要热水",
-      "衣服多少钱",
       "请问你叫什么",
-      "车站在哪里"
+      "车站在哪里",
+      "香蕉多少钱"
     ]
   },
   "p7-imersao-estacao": {
@@ -3510,11 +3503,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我去银行",
+      "我今天去医院",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3523,8 +3516,8 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我想喝热水",
       "我明天去医院",
       "我有一个朋友",
+      "我有一个香蕉",
       "我有五个朋友",
-      "我有五个香蕉",
       "我有四个朋友",
       "我睡觉了",
       "我要买书",
@@ -3587,11 +3580,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我今天去医院",
-      "我去银行",
+      "我今天去超市",
       "我喜欢中国",
-      "我喜欢苹果",
+      "我喜欢茶",
       "我喜欢鱼",
-      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -3599,9 +3591,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我想吃鱼",
       "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
+      "我有一个香蕉",
       "我有五个朋友",
-      "我有五个香蕉",
       "我有四个朋友",
       "我睡觉了",
       "我要买书",

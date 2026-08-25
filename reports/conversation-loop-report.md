@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e0c42e03d924 |
-| HEAD no instante da geração | 72971a75d4a9d04722f0ee2dd05a9120df807785 |
+| Hash da Jornada | cedcc2a44027 |
+| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T08:46:22.341Z |
+| Gerado em | 2026-08-25T10:00:01.056Z |
 | Lições | 127 |
 
 ## Resumo
@@ -19,15 +19,15 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 142 |
 | Itens de vocabulário exibidos | 920 |
-| Itens cobertos por tarefa posterior | 736 |
-| Cobertura bruta | 80.0 % |
-| **Itens de prioridade** (novo · resposta · pouco exposto) | 507 |
-| **Cobertura relevante** (portão ≥ 76 %) | **83.8 %** |
-| Itens do núcleo saturado (≥ 40 exposições no curso) | 30 refs |
+| Itens cobertos por tarefa posterior | 739 |
+| Cobertura bruta | 80.3 % |
+| **Itens de prioridade** (novo · resposta · pouco exposto) | 505 |
+| **Cobertura relevante** (portão ≥ 76 %) | **84.0 %** |
+| Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
 | Reutilização média por item | 1.96 |
-| Itens sem cobertura | 184 |
-| Tarefas da fase Pós-Conversa | 555 |
-| Média Pós-Conversa por conversa | 3.91 |
+| Itens sem cobertura | 181 |
+| Tarefas da fase Pós-Conversa | 556 |
+| Média Pós-Conversa por conversa | 3.92 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build |
 | l2 @ M1 tarefas pós-conversa | 3 |
 
@@ -38,36 +38,37 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Núcleo saturado (fora do denominador)
 
-- char:ni — 570 exposições ao longo dos 127 planos
+- char:ni — 555 exposições ao longo dos 127 planos
 - char:hao — 507 exposições ao longo dos 127 planos
-- chunk:nihao — 359 exposições ao longo dos 127 planos
-- char:shi — 245 exposições ao longo dos 127 planos
+- chunk:nihao — 358 exposições ao longo dos 127 planos
+- char:shi — 244 exposições ao longo dos 127 planos
 - char:bu — 242 exposições ao longo dos 127 planos
-- chunk:nijiaoshenme — 219 exposições ao longo dos 127 planos
-- chunk:wohenhao — 205 exposições ao longo dos 127 planos
-- char:ma_question — 204 exposições ao longo dos 127 planos
-- char:yi — 171 exposições ao longo dos 127 planos
-- char:zai — 115 exposições ao longo dos 127 planos
-- chunk:qingzaishuoyibian — 114 exposições ao longo dos 127 planos
+- chunk:nijiaoshenme — 207 exposições ao longo dos 127 planos
+- chunk:wohenhao — 206 exposições ao longo dos 127 planos
+- char:ma_question — 202 exposições ao longo dos 127 planos
+- char:yi — 173 exposições ao longo dos 127 planos
+- char:zai — 129 exposições ao longo dos 127 planos
+- chunk:qingzaishuoyibian — 115 exposições ao longo dos 127 planos
 - char:na_that — 109 exposições ao longo dos 127 planos
 - chunk:wojiao — 103 exposições ao longo dos 127 planos
 - char:ri — 99 exposições ao longo dos 127 planos
+- char:zhe — 96 exposições ao longo dos 127 planos
 - chunk:xiexie — 95 exposições ao longo dos 127 planos
-- char:zhe — 95 exposições ao longo dos 127 planos
-- chunk:nihaoma — 77 exposições ao longo dos 127 planos
+- chunk:nihaoma — 76 exposições ao longo dos 127 planos
+- char:na_which — 76 exposições ao longo dos 127 planos
 - chunk:zaijian — 73 exposições ao longo dos 127 planos
-- char:na_which — 73 exposições ao longo dos 127 planos
-- char:shui — 67 exposições ao longo dos 127 planos
+- char:shui — 65 exposições ao longo dos 127 planos
+- char:li_inside — 56 exposições ao longo dos 127 planos
 - char:shan — 55 exposições ao longo dos 127 planos
 - chunk:nashirenm — 55 exposições ao longo dos 127 planos
-- char:yao — 54 exposições ao longo dos 127 planos
-- char:li_inside — 54 exposições ao longo dos 127 planos
 - char:er — 51 exposições ao longo dos 127 planos
-- char:san — 47 exposições ao longo dos 127 planos
-- chunk:wature — 42 exposições ao longo dos 127 planos
+- char:yao — 51 exposições ao longo dos 127 planos
+- char:san — 46 exposições ao longo dos 127 planos
 - chunk:bukeqi — 42 exposições ao longo dos 127 planos
 - chunk:wohuishuoyidian — 41 exposições ao longo dos 127 planos
 - char:ba8 — 41 exposições ao longo dos 127 planos
+- chunk:wature — 41 exposições ao longo dos 127 planos
+- chunk:zaina — 40 exposições ao longo dos 127 planos
 
 ## Itens de prioridade sem cobertura
 
@@ -85,53 +86,53 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p3-ordem-das-palavras:chunk:woshixuesheng (34 exposições no curso)
 - l5-rev:chunk:nishixueshengma (6 exposições no curso)
 - l5-rev:chunk:nixuexishenme (6 exposições no curso)
-- l14-char-rev:chunk:zheshishenme (36 exposições no curso)
-- l15:chunk:zheshishenme (36 exposições no curso)
+- l14-char-rev:chunk:zheshishenme (35 exposições no curso)
+- l15:chunk:zheshishenme (35 exposições no curso)
 - l6-rev:chunk:zenmeyang (12 exposições no curso)
-- l16:chunk:zheshishenme (36 exposições no curso)
-- l17:chunk:zheshishenme (36 exposições no curso)
-- p5-mu-mu-lin:chunk:zheshishenme (36 exposições no curso)
-- p5-mu-mu-mu-sen:chunk:zheshishenme (36 exposições no curso)
-- p5-ri-yue-ming:chunk:zheshishenme (36 exposições no curso)
-- p5-ren-mu-xiu:chunk:zheshishenme (36 exposições no curso)
+- l16:chunk:zheshishenme (35 exposições no curso)
+- l17:chunk:zheshishenme (35 exposições no curso)
+- p5-mu-mu-lin:chunk:zheshishenme (35 exposições no curso)
+- p5-mu-mu-mu-sen:chunk:zheshishenme (35 exposições no curso)
+- p5-ri-yue-ming:chunk:zheshishenme (35 exposições no curso)
+- p5-ren-mu-xiu:chunk:zheshishenme (35 exposições no curso)
 - p5-nv-zi-hao:chunk:nishixueshengma (6 exposições no curso)
 - p5-nv-zi-hao:chunk:nixuexishenme (6 exposições no curso)
-- p5-ren-ren-cong:chunk:zheshishenme (36 exposições no curso)
-- p5-ren-ren-ren-zhong:chunk:zheshishenme (36 exposições no curso)
-- p5-nv-ma-mae:chunk:zheshishenme (36 exposições no curso)
-- p5-kou-ma-pergunta:chunk:zheshishenme (36 exposições no curso)
+- p5-ren-ren-cong:chunk:zheshishenme (35 exposições no curso)
+- p5-ren-ren-ren-zhong:chunk:zheshishenme (35 exposições no curso)
+- p5-nv-ma-mae:chunk:zheshishenme (35 exposições no curso)
+- p5-kou-ma-pergunta:chunk:zheshishenme (35 exposições no curso)
 - p5-kou-ma-pergunta:chunk:zheshishui (12 exposições no curso)
-- l19-logica-madeira:chunk:zheshishenme (36 exposições no curso)
-- l19-logica-luz:chunk:zheshishenme (36 exposições no curso)
-- l19-logica-pessoas:chunk:zheshishenme (36 exposições no curso)
-- l19-logica-ma:chunk:zheshishenme (36 exposições no curso)
+- l19-logica-madeira:chunk:zheshishenme (35 exposições no curso)
+- l19-logica-luz:chunk:zheshishenme (35 exposições no curso)
+- l19-logica-pessoas:chunk:zheshishenme (35 exposições no curso)
+- l19-logica-ma:chunk:zheshishenme (35 exposições no curso)
 - l19-logica-ma:chunk:zheshishui (12 exposições no curso)
 - l19-logica-rev:chunk:nishixueshengma (6 exposições no curso)
 - l19-logica-rev:chunk:nixuexishenme (6 exposições no curso)
-- l19:chunk:zheshishenme (36 exposições no curso)
-- l20:chunk:zheshishenme (36 exposições no curso)
+- l19:chunk:zheshishenme (35 exposições no curso)
+- l20:chunk:zheshishenme (35 exposições no curso)
 - l8-rev:char:liu (14 exposições no curso)
 - l8-rev:char:shi10 (23 exposições no curso)
 - l8-rev:char:si (18 exposições no curso)
-- l21:chunk:zheshishenme (36 exposições no curso)
+- l21:chunk:zheshishenme (35 exposições no curso)
 - l22:chunk:nishinaiguoren (22 exposições no curso)
 - l23:chunk:nishinaiguoren (22 exposições no curso)
 - l9-rev:chunk:nishinaiguoren (22 exposições no curso)
 - l24:chunk:zenmeyang (12 exposições no curso)
 - l25:chunk:qingwen (31 exposições no curso)
 - l26b:char:shi10 (23 exposições no curso)
-- l26b:chunk:duoshaoqian (28 exposições no curso)
+- l26b:chunk:duoshaoqian (30 exposições no curso)
 - l26b:chunk:fuwuyuan (1 exposições no curso)
 - l26b:chunk:taiguile (11 exposições no curso)
-- l26b:chunk:woele (2 exposições no curso)
+- l26b:chunk:woele (3 exposições no curso)
 - l26b:chunk:womenchifanba (1 exposições no curso)
 - l26b:chunk:woyaocai (1 exposições no curso)
 - l26b:chunk:woyaoyibeicha (5 exposições no curso)
 - l27:chunk:qingwen (31 exposições no curso)
-- l28:chunk:zheshishenme (36 exposições no curso)
+- l28:chunk:zheshishenme (35 exposições no curso)
 - p6-rotina-trabalho:chunk:nijidianshangban (1 exposições no curso)
 - p6-rotina-trabalho:chunk:nizuoshenmegongzuo (1 exposições no curso)
-- …mais 22.
+- …mais 21.
 
 ## Itens sem cobertura (bruto)
 
@@ -215,6 +216,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - l19-logica-madeira:char:shan
 - l19-logica-madeira:chunk:zheshishenme
 - l19-logica-luz:char:shan
-- …mais 104.
+- …mais 101.
 
-<!-- integridade:5eb4a6f3b5d826e4 -->
+<!-- integridade:53db55c849c99078 -->

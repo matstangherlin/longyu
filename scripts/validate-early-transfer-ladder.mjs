@@ -98,6 +98,8 @@ try {
   let lastFrame = "";
   let consecutiveSame = 0;
   let onboardingSteps = 0;
+  const transferBearingLessons = new Set();
+  let secondTransferAfterFirst = null;
 
   for (let index = 0; index < ALL_LESSONS.length; index += 1) {
     const lesson = ALL_LESSONS[index];
@@ -115,6 +117,7 @@ try {
     const transfers = plan.filter((step) => step.kind === "transfer_task");
     if (transfers.length > 0) {
       totalTransfers += transfers.length;
+      transferBearingLessons.add(lesson.id);
       if (index < 20) {
         transfersBy20.count += transfers.length;
         transfersBy20.lessons += 1;
@@ -147,6 +150,13 @@ try {
           target,
           assist: step.productionAssist,
           early: step.transferEarlySupported,
+        };
+      } else if (!secondTransferAfterFirst) {
+        secondTransferAfterFirst = {
+          lessonNum: index + 1,
+          lessonId: lesson.id,
+          frameId,
+          target,
         };
       }
       if (earlyTransfers.length < 15) {
@@ -244,8 +254,27 @@ try {
   }
 
   if (runDomain) {
-    assert(domainMismatchCount <= 8, `domainMismatchCount=${domainMismatchCount} (soft score — hard block só num/tom/hanzi)`);
+    assert(
+      domainMismatchCount === 0,
+      `domainMismatchCount=${domainMismatchCount} (meta 0 — se há candidato no domínio, use-o)`
+    );
   }
+
+  const transferBearingLessonCount = transferBearingLessons.size;
+  const transferBearingLessonRate = transferBearingLessonCount / ALL_LESSONS.length;
+  // Piso: densidade atual (~0.20) não pode colapsar sem justificativa pedagógica.
+  // Não força retorno a 49/127 — só bloqueia queda grande não explicada.
+  if (runDiversity) {
+    assert(
+      transferBearingLessonCount >= 20,
+      `transferBearingLessons=${transferBearingLessonCount} (piso 20 — densidade não pode colapsar)`
+    );
+  }
+
+  const gapAfterFirst =
+    firstTransfer && secondTransferAfterFirst
+      ? secondTransferAfterFirst.lessonNum - firstTransfer.lessonNum
+      : null;
 
   const reportLines = [
     "# Early Transfer Ladder (V4.5)",
@@ -262,6 +291,8 @@ try {
     `| firstTarget | ${BEFORE.firstTarget} | ${firstTransfer?.target ?? "—"} |`,
     `| guided / supported / question | ${BEFORE.guidedSupportedQuestion} | ${assistCounts.guided} / ${assistCounts.supported} / ${assistCounts.question} |`,
     `| totalTransfers (127) | ${BEFORE.totalTransfers} | ${totalTransfers} |`,
+    `| transferBearingLessons | ~49 | ${transferBearingLessonCount} |`,
+    `| transferBearingLessonRate | ~0.39 | ${transferBearingLessonRate.toFixed(3)} |`,
     `| transfersBy20 | — | ${transfersBy20.count} (${transfersBy20.lessons} lições) |`,
     `| transfersBy30 | — | ${transfersBy30.count} (${transfersBy30.lessons} lições) |`,
     `| transfersBy50 | — | ${transfersBy50.count} (${transfersBy50.lessons} lições) |`,
@@ -273,6 +304,23 @@ try {
     `| domainMismatchCount (soft) | — | ${domainMismatchCount} |`,
     `| unknownComponentViolations | — | ${unknownComponentViolations} |`,
     `| onboardingSteps (L1–20) | ~206 | ${onboardingSteps} |`,
+    `| gap 1ª→2ª transfer (lições) | — | ${gapAfterFirst ?? "—"} |`,
+    "",
+    "## Densidade de transferência",
+    "",
+    "Menos lições com transfer do que V4.4.1 (~49) é esperado: labs sem transfer,",
+    "cooldown frame/alvo e domínio. O piso (`transferBearingLessons ≥ 20`) impede",
+    "colapso silencioso. Variedade (targets/frames) importa mais que espalhar o mesmo frame.",
+    "",
+    "## Gap L15 → próxima transferência",
+    "",
+    secondTransferAfterFirst
+      ? `1ª em L${firstTransfer?.lessonNum} (\`${firstTransfer?.lessonId}\`); 2ª em L${secondTransferAfterFirst.lessonNum} (\`${secondTransferAfterFirst.lessonId}\` · \`${secondTransferAfterFirst.frameId}\` · ${secondTransferAfterFirst.target}). Gap = ${gapAfterFirst} lições.`
+      : "Só uma transferência no plano.",
+    "",
+    "L16–L34 são majoritariamente tom/número/Hànzì (perception) — sem estrutura comunicativa",
+    "nova pronta para combinação inédita. Não forçamos transfer em lab. A 2ª combinação",
+    "natural aparece quando posse/pedido tem prerequisites (ex.: `frame_woyouge`).",
     "",
     "## Supported = 0 — explicação",
     "",

@@ -1255,10 +1255,10 @@ export const FRAME_COMMUNICATIVE_DOMAINS: Record<string, readonly CommunicativeD
   frame_qingwenzainali: ["directions", "hotel"],
   frame_woxiangchi: ["restaurant"],
   frame_woxiangmai: ["shopping"],
-  frame_duoshaoqian: ["shopping"],
+  frame_duoshaoqian: ["shopping", "hotel"],
   frame_woyouge: ["study"],
   frame_woxihuan: ["restaurant", "shopping"],
-  frame_woqu: ["directions", "airport", "taxi"],
+  frame_woqu: ["directions", "airport", "taxi", "time", "health"],
   frame_woyaomai: ["shopping"],
   frame_niyao: ["restaurant"],
   frame_niyaoma: ["restaurant"],
@@ -1266,20 +1266,20 @@ export const FRAME_COMMUNICATIVE_DOMAINS: Record<string, readonly CommunicativeD
   frame_wobuchi: ["restaurant"],
   frame_huijia_action: ["time", "work"],
   frame_zuofeijiqu: ["airport", "taxi"],
-  frame_wozai: ["work", "study", "health"],
+  frame_wozai: ["work", "study", "health", "restaurant"],
   frame_wo_le: ["health", "time"],
 };
 
 const DOMAIN_HINTS: { domain: CommunicativeDomain; needles: string[] }[] = [
-  { domain: "social", needles: ["conversa", "nome", "apresent", "cortesia", "cumpriment", "primeira-conversa", "qingwen", "rev", "dialogo"] },
+  { domain: "social", needles: ["conversa", "qual-nome", "apresent", "cortesia", "cumpriment", "primeira-conversa", "qingwen", "dialogo", "jiaoshenme", "tudo-bem"] },
   { domain: "restaurant", needles: ["restaur", "comida", "cardapio", "menu", "cha", "cafe"] },
-  { domain: "shopping", needles: ["compra", "loja", "preco", "mercado"] },
-  { domain: "hotel", needles: ["hotel", "quarto"] },
+  { domain: "shopping", needles: ["compra", "loja", "preco", "mercado", "pagar", "quanto"] },
+  { domain: "hotel", needles: ["hotel", "quarto", "survival"] },
   { domain: "airport", needles: ["aeroporto", "airport", "aviao", "feiji", "passaporte"] },
   { domain: "taxi", needles: ["taxi", "chuzuche", "uber"] },
   { domain: "directions", needles: ["direc", "onde", "caminho", "mapa", "estacao"] },
   { domain: "work", needles: ["trabalho", "rotina", "escritorio"] },
-  { domain: "study", needles: ["estudo", "aula", "escola", "microtexto", "leitura"] },
+  { domain: "study", needles: ["estudo", "aula", "escola", "microtexto", "leitura", "ordem", "pecas", "radicais", "frase"] },
   { domain: "health", needles: ["saude", "hospital", "medico", "doente"] },
   { domain: "time", needles: ["horario", "hora", "relogio", "ontem", "amanha"] },
 ];
@@ -1407,14 +1407,23 @@ function preferredFrameId(tasks: readonly FrameTask[], options: FramePickOptions
 
 export function pickFrameTask(tasks: readonly FrameTask[], options: FramePickOptions = {}): FrameTask | undefined {
   if (tasks.length === 0) return undefined;
+  // Se existe candidato com domínio alinhado, não escolha fora do domínio —
+  // "consegue produzir" ≠ "faz sentido produzir agora".
+  let pool = tasks;
+  if (options.domain) {
+    const domainMatched = tasks.filter((task) =>
+      (FRAME_COMMUNICATIVE_DOMAINS[task.frameId] ?? []).includes(options.domain!)
+    );
+    if (domainMatched.length > 0) pool = domainMatched;
+  }
   const salt = Math.abs(options.lessonSalt ?? 0);
-  const preferred = preferredFrameId(tasks, options);
-  const scored = tasks.map((task, index) => {
+  const preferred = preferredFrameId(pool, options);
+  const scored = pool.map((task, index) => {
     let score = 0;
     if (preferred && task.frameId === preferred) score += 48;
     if (options.usedFrameIds?.has(task.frameId)) score -= 80;
     if (options.needsGuidedProduction?.has(task.frameId)) score += 28;
-    else     if (options.priorTransferredFrameIds?.has(task.frameId)) score -= 18;
+    else if (options.priorTransferredFrameIds?.has(task.frameId)) score -= 18;
     else score += 12;
     if (options.lastTransferredFrameId && options.lastTransferredFrameId === task.frameId) score -= 120;
     const target = cleanSentence(task.targetHanzi);

@@ -4992,7 +4992,10 @@ function replaceLowestIfNeeded(
   const authoredVisual = candidate.step.kind === "image_choice" && !candidate.generated;
   // Visuais autorais da China visual crescem o plano em vez de disputar vaga
   // com intro/conversa já protegidos — senão hotel/restaurante nunca entram.
-  if (selected.length < profile.targetCount || (protect && authoredVisual)) {
+  // Transferência mid-course (V4.5) também pode crescer: em lições sistema com
+  // targetCount baixo, ensures protegidos engoliam a 2ª combinação natural.
+  const growForTransfer = protect && candidate.step.kind === "transfer_task";
+  if (selected.length < profile.targetCount || (protect && authoredVisual) || growForTransfer) {
     selected.push(protect ? { ...candidate, ensured: true } : candidate);
     usedSignatures.add(signature);
     return;
@@ -5205,8 +5208,16 @@ function ensureCoverage(
   const hasTransferCandidate = candidates.some((candidate) => candidate.step.kind === "transfer_task");
   // V4.5: primeira transferência combinacional pode cair na revisão pós-请问 (≤ L15)
   // mesmo em fase 1–2 — desde que o pool tenha candidato elegível e não seja lab.
-  if (!transferBlockedInLesson && priorTransferred.size === 0 && hasTransferCandidate) {
-    ensure((candidate) => candidate.step.kind === "transfer_task", true);
+  // Depois da 1ª: durante earlyPedagogy (phase≤2) o ensure geral não roda e o buraco
+  // L15→L50 engolia a 2ª combinação natural (我有…). A partir de L35, se ainda há
+  // candidato, reserva transfer — sem inventar conteúdo, só não engolir o que já está pronto.
+  if (!transferBlockedInLesson && hasTransferCandidate) {
+    const lessonIndex = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
+    if (priorTransferred.size === 0) {
+      ensure((candidate) => candidate.step.kind === "transfer_task", true);
+    } else if (earlyPedagogy && lessonIndex >= 35) {
+      ensure((candidate) => candidate.step.kind === "transfer_task", true);
+    }
   }
 
   if (!earlyPedagogy) {

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e0c42e03d924 |
-| HEAD no instante da geração | 72971a75d4a9d04722f0ee2dd05a9120df807785 |
+| Hash da Jornada | cedcc2a44027 |
+| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T08:43:38.042Z |
+| Gerado em | 2026-08-25T09:59:42.577Z |
 | Lições | 127 |
 
 ## Resumo
@@ -76,10 +76,10 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 44 | acquisition | Microtexto 1 | sim | conversation_scene; produção independente |
 | 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 今天很好、我要水; conversation_scene; produção independente |
 | 46 | acquisition | Microdiálogo: se apresentar | sim | unidades novas: 我有三个朋友、会说中文; conversation_scene; produção independente |
-| 47 | acquisition | A ordem importa | sim | unidades novas: 我有一个朋友; conversation_scene; produção independente; padrão estrutural |
-| 48 | acquisition | Nomes das peças | sim | conversation_scene |
+| 47 | acquisition | A ordem importa | sim | conversation_scene; produção independente |
+| 48 | acquisition | Nomes das peças | sim | unidades novas: 我有五个朋友、我有一个朋友; conversation_scene; padrão estrutural |
 | 49 | review | Revisão do módulo | sim | revisão (isenta) |
-| 50 | acquisition | Radicais básicos | sim | unidades novas: 我有五个朋友; conversation_scene; produção independente; padrão estrutural |
+| 50 | acquisition | Radicais básicos | sim | conversation_scene; produção independente; padrão estrutural |
 
 ## Distratores chineses (não ensinam)
 
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:dc08a02807446671 -->
+<!-- integridade:767cc037fa7d8894 -->
