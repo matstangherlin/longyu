@@ -115,6 +115,19 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
   }));
 }
 
+/** Sessão onboarded com estado extra (missões, baús, Pro). */
+export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
+  await seedTelemetryDeclined(page);
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons: ["l1"],
+    holdAchievementModals: true,
+    ...extra,
+  }));
+}
+
 /** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
 export async function seedFoundationThrough(page: Page, throughLessonId: string) {
   await seedTelemetryDeclined(page);
