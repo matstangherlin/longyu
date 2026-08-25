@@ -757,8 +757,9 @@ interface PracticeCandidate {
   score: number;
   /**
    * Entrou por ensureCoverage (visual obrigatório, HanziBuilder mínimo,
-   * variante pedagógica...). O corte final não pode derrubá-lo: a garantia
-   * de cobertura existia justamente para ele estar no plano.
+   * variante pedagógica...). Autoral (`!generated`) é keep rígido no corte.
+   * Gerado só preenche até `targetCount` — senão transfer/conversa/drills
+   * inflavam o plano e o E2E não alcançava `sentence_build`.
    */
   ensured?: boolean;
 }
@@ -5189,26 +5190,29 @@ function ensureCoverage(
 }
 
 function trimToTarget(selected: PracticeCandidate[], profile: LessonPracticeProfile): PracticeCandidate[] {
-  const keep = new Set<number>();
+  const hardKeep = new Set<number>();
   for (const stageId of LESSON_STAGE_ORDER) {
     const first = selected.findIndex((candidate) => candidate.stageId === stageId);
-    if (first >= 0) keep.add(first);
+    if (first >= 0) hardKeep.add(first);
   }
-  // Cobertura garantida sobrevive ao corte. Sem isto, um passo de score alto
-  // (produção, conversa) derruba o exercício visual ou o HanziBuilder que o
-  // ensureCoverage tinha acabado de colocar — e a lição perde um eixo inteiro.
+  // Autoral (China visual, HanziBuilder, sentence_build, produção independente)
+  // sobrevive ao corte mesmo acima do targetCount. Padding gerado com `ensured`
+  // (transfer, 2ª conversa, drills) só preenche o que resta — o keep rígido
+  // em todo `ensured` inflava o plano até 15–22 passos e o B001 não achava
+  // `[data-assembly-bank]` em 40 avanços.
   selected.forEach((candidate, index) => {
-    if (candidate.ensured) keep.add(index);
+    if (!candidate.generated) hardKeep.add(index);
   });
-  const requiredCount = keep.size;
-  const budget = Math.min(22, Math.max(profile.targetCount, requiredCount));
+  const budget = Math.min(22, Math.max(profile.targetCount, hardKeep.size));
   if (selected.length <= budget) return selected;
   const ranked = selected
     .map((candidate, index) => ({ candidate, index }))
     .sort((a, b) => {
-      const aRequired = keep.has(a.index) ? 1 : 0;
-      const bRequired = keep.has(b.index) ? 1 : 0;
-      return bRequired - aRequired || b.candidate.score - a.candidate.score;
+      const aHard = hardKeep.has(a.index) ? 1 : 0;
+      const bHard = hardKeep.has(b.index) ? 1 : 0;
+      const aSoft = a.candidate.ensured ? 1 : 0;
+      const bSoft = b.candidate.ensured ? 1 : 0;
+      return bHard - aHard || bSoft - aSoft || b.candidate.score - a.candidate.score;
     })
     .slice(0, budget)
     .map(({ index }) => index);
