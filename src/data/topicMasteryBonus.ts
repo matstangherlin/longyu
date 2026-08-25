@@ -151,8 +151,8 @@ const AUTHORED_BONUS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Fala ≠ pinyin ≠ hànzì ≠ tradução."
       ),
       dialogue(
-        "O que NÃO é a língua falada",
-        "Qual destes NÃO é mandarim falado?",
+        "O que não é a língua falada",
+        "Qual destes não é mandarim falado?",
         "nǐ hǎo escrito no papel",
         ["nǐ hǎo escrito no papel", "a voz dizendo 你好", "cumprimentar de ouvido", "a fala 你好"],
         "nǐ hǎo no papel é pinyin — representação do som, não a fala."
@@ -386,7 +386,7 @@ function conceptualBonus(lesson: Lesson, pass: MasteryPass, spec: ReturnType<typ
     return [
       dialogue(
         "Distinguir",
-        spec?.mustRecognize[0] ?? `O que NÃO é o foco de ${lesson.title}?`,
+        spec?.mustRecognize[0] ?? `O que não é o foco de ${lesson.title}?`,
         spec?.commonMisconceptions[0] ?? "Decorar 你好 em qualquer aula",
         [
           spec?.commonMisconceptions[0] ?? "Decorar 你好 em qualquer aula",

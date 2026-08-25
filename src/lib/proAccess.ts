@@ -160,7 +160,7 @@ function lessonMeetsJourneyRequirement(
     return true;
   }
   // Fôlego + estrela pendente: reviews/checkpoints podem avançar sem 4/4.
-  // Temas de ensino NÃO — o próximo nó só libera em mastery 4/4 (TM-002).
+  // Temas de ensino não — o próximo nó só libera em mastery 4/4 (TM-002).
   if (
     !isTopicMasteryLesson(lesson) &&
     (lessonPendingStars?.[lesson.id]?.length ?? 0) > 0 &&

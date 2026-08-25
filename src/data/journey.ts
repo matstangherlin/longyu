@@ -7864,7 +7864,7 @@ function pathContext(
  * Ponteiro da Jornada.
  *
  * V4.6: quando `masteryById` é passado (app), o próximo nó é o primeiro
- * que ainda NÃO está path-complete (ensino = mastery 4/4; review = acquired).
+ * que ainda não está path-complete (ensino = mastery 4/4; review = acquired).
  * Sem mastery (testes/legado), completedLessons continua sendo o gate.
  */
 export function currentLessonId(
