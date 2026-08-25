@@ -163,6 +163,37 @@ export interface PendingAttemptReview {
   alreadyRecoveredIds: string[];
 }
 
+/**
+ * V4.6 TM-004/TM-021 — 3★ recovery must not trap the next topic pass.
+ *
+ * Restoring the last 2★ attempt on every `/player` visit made M2+ unreachable:
+ * the offer came back, Continuar went to the Jornada, and the ring stayed at 1/4.
+ * Same-session offer (right after handleDone) is unchanged.
+ *
+ * Restore when:
+ * - the node is not a 4-pass teaching topic, or
+ * - the topic is still 0/4 (star-recovery fixtures), or
+ * - the topic is already 4/4 (practice / 3★ recovery).
+ *
+ * Do not restore when:
+ * - the topic is 1/4–3/4 (next visit is the next pass), or
+ * - the student is mid-pass (session cursor).
+ */
+export function shouldRestorePendingAttemptReview(input: {
+  isTopicMastery: boolean;
+  masteryLevel: number;
+  sessionCursorPass?: number | null;
+  sessionCursorStepIndex?: number | null;
+}): boolean {
+  const midPass =
+    typeof input.sessionCursorPass === "number" && (input.sessionCursorStepIndex ?? 0) > 0;
+  if (midPass) return false;
+  if (!input.isTopicMastery) return true;
+  const level = input.masteryLevel ?? 0;
+  if (level > 0 && level < 4) return false;
+  return true;
+}
+
 /** Erros pendentes da última tentativa com menos de 3 estrelas. */
 export function getPendingAttemptReview(
   lessonId: string,

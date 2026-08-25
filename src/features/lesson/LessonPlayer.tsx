@@ -121,7 +121,7 @@ import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
 import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from "./immediateRemediation";
-import { getPendingAttemptReview } from "./lessonAttemptReview";
+import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
 import {
@@ -1830,6 +1830,8 @@ export function LessonPlayer() {
   const { openFeedback } = useFeedbackUi();
 
   const [idx, setIdx] = useState(0);
+  const idxRef = useRef(0);
+  idxRef.current = idx;
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
@@ -1953,7 +1955,12 @@ export function LessonPlayer() {
    * a mesma montagem voltar (loop). Com o plano travado, respostas não
    * reorganizam nem desmontam a lição.
    */
-  const sessionPlanRef = useRef<{ lessonId: string; nonce: number; steps: LessonStep[] } | null>(null);
+  const sessionPlanRef = useRef<{
+    lessonId: string;
+    nonce: number;
+    masteryLevel: number;
+    steps: LessonStep[];
+  } | null>(null);
   const [storeHydrated, setStoreHydrated] = useState(() => useStore.persist.hasHydrated());
   useEffect(() => {
     if (useStore.persist.hasHydrated()) {
@@ -1980,10 +1987,18 @@ export function LessonPlayer() {
     }
     if (!storeHydrated) return undefined;
 
+    const masteryLevelNow =
+      useStore.getState().lessonMasteryById?.[foundLesson.id]?.level ??
+      lessonMasteryById?.[foundLesson.id]?.level ??
+      0;
     const locked = sessionPlanRef.current;
     if (locked && locked.lessonId === foundLesson.id && locked.nonce === planNonce) {
-      // Sessão já tem plano — ignore churn de srs/erros/progresso de hànzì.
-      return undefined;
+      const masteryChanged = locked.masteryLevel !== masteryLevelNow;
+      const canReplanForMastery = idxRef.current === 0 && !finished;
+      if (!masteryChanged || !canReplanForMastery) {
+        // Sessão já tem plano — ignore churn de srs/erros/progresso de hànzì.
+        return undefined;
+      }
     }
 
     // Fast path: first paint uses authored enriched steps (or loading until set).
@@ -2005,7 +2020,8 @@ export function LessonPlayer() {
       if (gen !== planGenRef.current) return;
       startTransition(() => {
       if (gen !== planGenRef.current) return;
-      const masteryRecord = lessonMasteryById?.[foundLesson.id];
+      const liveMastery = useStore.getState().lessonMasteryById?.[foundLesson.id];
+      const masteryRecord = liveMastery ?? lessonMasteryById?.[foundLesson.id];
       const planned = lessonRoundStepsFor(
         { ...foundLesson, steps: authoredEnrichedSteps },
         {
@@ -2026,7 +2042,12 @@ export function LessonPlayer() {
         }
       );
       if (gen !== planGenRef.current) return;
-      sessionPlanRef.current = { lessonId: lessonIdAtStart, nonce: nonceAtStart, steps: planned };
+      sessionPlanRef.current = {
+        lessonId: lessonIdAtStart,
+        nonce: nonceAtStart,
+        masteryLevel: masteryRecord?.level ?? 0,
+        steps: planned,
+      };
       setAdaptiveSteps(planned);
       setPlanReady(true);
       markLessonPerf(LESSON_PERF_MARKS.dataReady);
@@ -2056,6 +2077,7 @@ export function LessonPlayer() {
     recentConversationSceneIds,
     srs,
     storeHydrated,
+    finished,
   ]);
 
   const stepsForRender = adaptiveSteps ?? authoredEnrichedSteps;
@@ -2158,6 +2180,18 @@ export function LessonPlayer() {
 
   useEffect(() => {
     if (!foundLesson || !entryChecked || finished || pendingReviewRestoredRef.current) return;
+    const masteryRecord = lessonMasteryById?.[foundLesson.id];
+    const cursor = lessonSessionStepById?.[foundLesson.id];
+    if (
+      !shouldRestorePendingAttemptReview({
+        isTopicMastery: isTopicMasteryLesson(foundLesson),
+        masteryLevel: masteryRecord?.level ?? 0,
+        sessionCursorPass: cursor?.pass,
+        sessionCursorStepIndex: cursor?.stepIndex,
+      })
+    ) {
+      return;
+    }
     const pending = getPendingAttemptReview(foundLesson.id, lessonAttemptsById, foundLesson);
     if (!pending) return;
     pendingReviewRestoredRef.current = true;
@@ -2187,7 +2221,7 @@ export function LessonPlayer() {
     setErrorReviewMode("offer");
     setRecovered(false);
     recoveryAppliedRef.current = false;
-  }, [entryChecked, finished, foundLesson, lessonAttemptsById]);
+  }, [entryChecked, finished, foundLesson, lessonAttemptsById, lessonMasteryById, lessonSessionStepById]);
 
   useEffect(() => {
     if (!foundLesson || !adaptiveLesson || !entryChecked || finished || !planReady) return;
@@ -3360,13 +3394,15 @@ export function LessonPlayer() {
       folegoSkipPass || (reason !== "out_of_lives" && canCompleteLesson(stars, graded, lesson.isReview, finalCorrect));
     const firstCompletion = !completedLessons.includes(lesson.id);
     const topicNode = isTopicMasteryLesson(lesson);
-    const masteryPass =
-      (lesson.steps as LessonRoundStep[]).find((step) => step.masteryPass)?.masteryPass ??
-      resolveMasteryPassForContext(lesson, {
-        masteryLevel: lessonMasteryById?.[lesson.id]?.level ?? 0,
-        recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
-      }) ??
-      1;
+    const liveMastery = useStore.getState().lessonMasteryById?.[lesson.id];
+    const masteryPass = topicNode
+      ? nextMasteryPass(liveMastery?.level ?? 0, { recoveryPending: liveMastery?.recoveryPending })
+      : (lesson.steps as LessonRoundStep[]).find((step) => step.masteryPass)?.masteryPass ??
+        resolveMasteryPassForContext(lesson, {
+          masteryLevel: liveMastery?.level ?? 0,
+          recoveryPending: liveMastery?.recoveryPending,
+        }) ??
+        1;
     const alreadyHadThisPass = (lessonMasteryById?.[lesson.id]?.level ?? 0) >= masteryPass;
     let completionXp = 0;
     let xpRewardId = leagueXpKeyLesson(lesson.id, attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`);
@@ -3670,12 +3706,12 @@ export function LessonPlayer() {
           canRetryLesson={canRetryAfterReview}
           onReviewAgain={() => setErrorReviewMode("review")}
           onContinue={() => setErrorReviewMode("dismissed")}
-          onRetryLesson={retryLesson}
+          onRetryLesson={() => retryLesson()}
         />
       );
     }
 
-    function retryLesson() {
+    function retryLesson(options?: { newPass?: boolean }) {
       playSoundFx("step", soundEffects);
       // Nova tentativa: libera o plano travado e refresca o snapshot de
       // variedade com o que o aluno acabou de praticar nesta sessão.
@@ -3726,6 +3762,7 @@ export function LessonPlayer() {
       recordedMistakeStepRef.current = null;
       recordedPairMistakesRef.current.clear();
       startStoredAttempt();
+      if (options?.newPass) setEntryChecked(false);
       setFinished(false);
     }
 
@@ -3801,7 +3838,7 @@ export function LessonPlayer() {
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              <Button className="w-full" onClick={retryLesson}>
+              <Button className="w-full" onClick={() => retryLesson()}>
                 <IconRefresh width={17} height={17} /> Refazer lição
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
@@ -3908,7 +3945,7 @@ export function LessonPlayer() {
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              <Button className="w-full" onClick={retryLesson}>
+              <Button className="w-full" onClick={() => retryLesson()}>
                 <IconRefresh width={17} height={17} /> Refazer partes fracas
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
@@ -3982,6 +4019,11 @@ export function LessonPlayer() {
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
+        return;
+      }
+      const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
+      if (passed && isTopicMasteryLesson(lesson) && levelNow < 4) {
+        retryLesson({ newPass: true });
         return;
       }
       continueJourney();
@@ -4175,9 +4217,21 @@ export function LessonPlayer() {
               <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
-            <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-              {nextFocus.cta} <IconChevron width={15} height={15} />
-            </ButtonLink>
+            {nextFocus.cta === "Continuar tema" ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full shrink-0 sm:w-auto"
+                onClick={() => retryLesson({ newPass: true })}
+              >
+                Continuar tema <IconChevron width={15} height={15} />
+              </Button>
+            ) : (
+              <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
+                {nextFocus.cta} <IconChevron width={15} height={15} />
+              </ButtonLink>
+            )}
           </div>
 
           {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
@@ -4306,8 +4360,13 @@ export function LessonPlayer() {
                 <IconTarget width={14} height={14} /> Treinar
               </Link>
             </div>
-            <Button className="w-full shadow-lift" size="lg" onClick={handlePrimaryAction}>
-              {hasUnclaimedRewards ? "Receber recompensas" : "Continuar Jornada"}
+            <Button
+              className="w-full shadow-lift"
+              size="lg"
+              data-testid={topicContinue ? "continue-topic-pass" : undefined}
+              onClick={handlePrimaryAction}
+            >
+              {hasUnclaimedRewards ? "Receber recompensas" : topicContinue ? "Continuar tema" : "Continuar Jornada"}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -4340,6 +4399,13 @@ export function LessonPlayer() {
     <div
       className="fixed z-40 flex flex-col overflow-hidden bg-bg"
       data-lesson-player-frame
+      data-lesson-id={lesson.id}
+      data-mastery-pass={String(
+        nextMasteryPass(lessonMasteryById?.[lesson.id]?.level ?? 0, {
+          recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
+        })
+      )}
+      data-mastery-level={String(lessonMasteryById?.[lesson.id]?.level ?? 0)}
       style={
         viewportFrame
           ? {

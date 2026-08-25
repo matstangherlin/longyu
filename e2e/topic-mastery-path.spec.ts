@@ -71,7 +71,9 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   const victory = page.getByRole("button", { name: VICTORY });
+  const frame = page.locator("[data-lesson-player-frame]");
   const deadline = Date.now() + 90_000;
+  let waitedForPass = false;
   for (let steps = 0; steps < 80 && Date.now() < deadline; steps += 1) {
     const level = await masteryLevel(page, lessonId);
     if (level >= targetLevel) return;
@@ -79,20 +81,30 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
     if (!page.url().includes("/player")) {
       await page.goto(playerUrl);
       await waitForLazyPage(page);
-      continue;
-    }
-    if (await victory.first().isVisible().catch(() => false)) {
-      await victory.first().click({ timeout: 2_000 }).catch(() => undefined);
-      await page.waitForTimeout(250);
+      waitedForPass = false;
       continue;
     }
     const reviewOffer = page.locator("[data-review-offer]");
     if (await reviewOffer.isVisible().catch(() => false)) {
-      await page.waitForTimeout(200);
-      if ((await masteryLevel(page, lessonId)) >= targetLevel) return;
       await clickFirstVisible(page, [/^Continuar$/]);
       await page.waitForTimeout(250);
       continue;
+    }
+    if (await victory.first().isVisible().catch(() => false)) {
+      await victory.first().click({ timeout: 2_000 }).catch(() => undefined);
+      await page.waitForTimeout(400);
+      continue;
+    }
+    if (!waitedForPass && (await frame.isVisible().catch(() => false))) {
+      const passAttr = await frame.getAttribute("data-mastery-pass");
+      if (passAttr && passAttr !== String(targetLevel)) {
+        await expect
+          .poll(async () => page.locator("[data-lesson-player-frame]").getAttribute("data-mastery-pass"), {
+            timeout: 12_000,
+          })
+          .toBe(String(targetLevel));
+      }
+      waitedForPass = true;
     }
     if (await clickFirstVisible(page, [/^Pular/])) {
       await page.waitForTimeout(180);
@@ -105,9 +117,11 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
     const advanced = await advanceOneStep(page);
     if (!advanced) await advanceUntilVisible(page, victory, 2);
   }
-  expect(await masteryLevel(page, lessonId), `pass deve chegar a mastery ${targetLevel}`).toBeGreaterThanOrEqual(
-    targetLevel
-  );
+  const passNow = await page.locator("[data-lesson-player-frame]").getAttribute("data-mastery-pass").catch(() => null);
+  expect(
+    await masteryLevel(page, lessonId),
+    `pass deve chegar a mastery ${targetLevel} (data-mastery-pass=${passNow ?? "n/a"}; url=${page.url()})`
+  ).toBeGreaterThanOrEqual(targetLevel);
 }
 
 test.describe("V4.6 Topic Mastery Path", () => {
