@@ -3629,7 +3629,11 @@ export function LessonPlayer() {
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
-            navigate("/jornada");
+            const topicNodeDone = isTopicMasteryLesson(lesson);
+            const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
+            // Tema em andamento: fica na vitória (Lição X de 4). Só vai à
+            // Jornada quando o tema já está 4/4 ou não é nó de ensino.
+            if (!topicNodeDone || levelNow >= 4) navigate("/jornada");
           }}
         />
       );

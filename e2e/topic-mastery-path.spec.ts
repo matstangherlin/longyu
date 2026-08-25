@@ -86,6 +86,14 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
       await page.waitForTimeout(250);
       continue;
     }
+    const reviewOffer = page.locator("[data-review-offer]");
+    if (await reviewOffer.isVisible().catch(() => false)) {
+      await page.waitForTimeout(200);
+      if ((await masteryLevel(page, lessonId)) >= targetLevel) return;
+      await clickFirstVisible(page, [/^Continuar$/]);
+      await page.waitForTimeout(250);
+      continue;
+    }
     if (await clickFirstVisible(page, [/^Pular/])) {
       await page.waitForTimeout(180);
       continue;
