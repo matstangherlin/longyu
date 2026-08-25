@@ -66,7 +66,8 @@ export function BusinessPage() {
             </ButtonLink>
           </div>
           <p className="mt-3 text-[11px] leading-4 text-ink-faint">
-            Sem preço público. Sem checkout de 1 assento. Empresas não passam pelo fluxo do Longyu Pro.
+            Sem preço público nesta página. Empresas conversam com o time comercial — o fluxo do Longyu Pro individual
+            continua separado.
           </p>
         </section>
 
@@ -75,7 +76,8 @@ export function BusinessPage() {
             O que o programa corporativo oferece
           </h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Parte já existe no produto para o aluno premium. Gestão, relatórios e trilhas por indústria são oferta comercial — não recursos ligados neste app ainda.
+            Acesso premium para colaboradores, acompanhamento e implantação assistida. Gestão e relatórios entram
+            conforme o piloto ou o contrato.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {BUSINESS_BENEFITS.map((item) => (
@@ -168,7 +170,8 @@ export function BusinessPage() {
             Trilhas futuras por operação
           </h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Roadmap pedagógico corporativo — ainda não são cursos ligados no app. Uma empresa automotiva poderia, mais adiante, escolher uma trilha Brasil–China com vocabulário de fábrica, qualidade e prazo.
+            Roadmap pedagógico corporativo. Uma empresa automotiva poderia, mais adiante, escolher uma trilha
+            Brasil–China com vocabulário de fábrica, qualidade e prazo.
           </p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {BUSINESS_TRACKS_PREVIEW.map((track) => (

@@ -5,9 +5,15 @@ import {
   type BusinessLeadDraft,
   type ValidatedBusinessLead,
 } from "../lib/businessLead";
+import { getTurnstileToken, turnstileSiteKey } from "../lib/turnstile";
 import { getSupabaseClient } from "../lib/supabaseClient";
 
-export type BusinessLeadSubmitStatus = "opened" | "error" | "not_implemented" | "rate_limited";
+export type BusinessLeadSubmitStatus =
+  | "opened"
+  | "error"
+  | "not_implemented"
+  | "rate_limited"
+  | "captcha_failed";
 
 export interface BusinessLeadSubmitResult {
   status: BusinessLeadSubmitStatus;
@@ -61,6 +67,21 @@ export async function submitBusinessLead(
     return { status: "not_implemented", message: PREVIEW_MESSAGE };
   }
 
+  let captchaToken: string | null = null;
+  if (turnstileSiteKey() && !honeypot) {
+    try {
+      captchaToken = await getTurnstileToken();
+    } catch {
+      captchaToken = null;
+    }
+    if (!captchaToken) {
+      return {
+        status: "captcha_failed",
+        message: "Não foi possível validar o desafio de segurança. Tente de novo.",
+      };
+    }
+  }
+
   const payload = honeypot
     ? {
         kind: "lead",
@@ -77,7 +98,7 @@ export async function submitBusinessLead(
         message: draft.message,
         sourceCta: draft.sourceCta,
       }
-    : leadBody(validated.value!);
+    : { ...leadBody(validated.value!), captchaToken: captchaToken ?? undefined };
 
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
@@ -91,6 +112,12 @@ export async function submitBusinessLead(
     return {
       status: "rate_limited",
       message: "Muitos envios deste endereço. Tente de novo em alguns minutos.",
+    };
+  }
+  if (body?.code === "captcha_failed") {
+    return {
+      status: "captcha_failed",
+      message: "Não foi possível validar o desafio de segurança. Tente de novo.",
     };
   }
   if (error && !body?.ok) {

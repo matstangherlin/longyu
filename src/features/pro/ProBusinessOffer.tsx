@@ -35,8 +35,8 @@ export function ProBusinessOffer() {
         </p>
         <BenefitList items={PRO_PAGE_BUSINESS_ITEMS} />
         <p className="mt-3 text-[11px] leading-4 text-ink-faint">
-          Gestão, painel, relatórios e trilhas são oferta comercial — ainda não estão ligados neste app. Sem preço
-          público e sem checkout de 1 assento.
+          O Longyu Business está disponível para programas piloto e implantações corporativas. Recursos de gestão e
+          relatórios são configurados conforme o projeto.
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <ButtonLink
@@ -69,8 +69,8 @@ export function ProBusinessOffer() {
         </p>
         <BenefitList items={PRO_PAGE_ENTERPRISE_ITEMS} />
         <p className="mt-3 text-[11px] leading-4 text-ink-faint">
-          SSO, provisionamento e integrações estão no roadmap Enterprise. Esta página não afirma que já estão ativos
-          no produto.
+          SSO, provisionamento e integrações corporativas são avaliados conforme a implantação. Fale com nosso time
+          sobre disponibilidade.
         </p>
         <ButtonLink
           to="/business#contato"
