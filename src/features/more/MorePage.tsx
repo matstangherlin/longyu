@@ -53,7 +53,6 @@ export function MorePage() {
   const profile = useLearnerProfile();
 
   const account = accounts[currentAccountId];
-  const isCloudAccount = account?.authMode === "cloud";
   const due = dueItems(srs).length;
   const [serverAdmin, setServerAdmin] = useState(false);
   const showAdmin = serverAdmin || isAdminEmail(account?.email);
@@ -71,8 +70,10 @@ export function MorePage() {
 
   function toHubItem(nav: NavItem): HubNavItem {
     const feature = nav.feature as FeatureId | undefined;
-    // Áreas sem `feature` (ex.: Amigos) usam o próprio `to` como chave de texto.
-    const descKey = feature ?? (nav.to === "/amigos" ? "amigos" : "");
+    // Áreas sem `feature` (ex.: Amigos / Convide) usam o próprio `to` como chave de texto.
+    const descKey =
+      feature ??
+      (nav.to === "/amigos" ? "amigos" : nav.to === "/convide" ? "convide" : "");
     const desc = FEATURE_DESC[descKey] ?? "";
     const base: HubNavItem = { title: nav.label, desc, icon: nav.icon, to: nav.to };
 
@@ -106,9 +107,7 @@ export function MorePage() {
 
   const sections = MORE_CATALOG.map((group) => ({
     title: group.title,
-    items: group.items
-      .filter((nav) => (isCloudAccount ? true : nav.to !== "/convide"))
-      .map(toHubItem),
+    items: group.items.map(toHubItem),
   }));
 
   // Admin (interno) fica fora do catálogo público.
