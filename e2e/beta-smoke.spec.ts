@@ -271,7 +271,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
@@ -401,7 +401,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();

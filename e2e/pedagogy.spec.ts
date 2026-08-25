@@ -26,7 +26,7 @@ test.describe("lição", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     // A introdução autorada abre o plano; o exercício com 你好 vem em seguida.
-    await expect(page.getByRole("heading", { name: /A língua padrão/ })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();

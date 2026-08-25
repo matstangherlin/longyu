@@ -1,3 +1,4 @@
+import { mkdir } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
@@ -5,11 +6,12 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, advanceUntilVisible } from "./lesson-player-helpers";
+import { advanceOneStep, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
 
 const FIRST = ALL_LESSONS[0];
 const SECOND = ALL_LESSONS[1];
+const ARTIFACT_DIR = "/opt/cursor/artifacts";
 
 async function masteryLevel(page: Page, lessonId: string): Promise<number> {
   return page.evaluate((id) => {
@@ -33,19 +35,53 @@ async function noOverlap(page: Page) {
   expect(overflow, "viewport sem overflow horizontal").toBeLessThanOrEqual(2);
 }
 
+async function capture(page: Page, name: string) {
+  try {
+    await mkdir(ARTIFACT_DIR, { recursive: true });
+    await page.screenshot({ path: `${ARTIFACT_DIR}/${name}.png`, fullPage: true });
+  } catch {
+    /* CI sem /opt/cursor/artifacts */
+  }
+}
+
+const VICTORY = /Continuar Jornada|Continuar tema|Receber recompensas|Praticar novamente/i;
+
+async function playOpenStep(page: Page): Promise<boolean> {
+  const production = page.locator("[data-production-answer] textarea, [data-production-answer] input").first();
+  if (await production.isVisible().catch(() => false)) {
+    await production.fill("你好").catch(() => undefined);
+    return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Responder$/, /^Continuar$/]);
+  }
+  if ((await page.locator("[data-conversation-scene]").count()) > 0) {
+    const option = page.getByRole("button", { name: /^Opção \d+:/ });
+    if (await option.first().isVisible().catch(() => false)) {
+      const preferred = page.getByRole("button", { name: /Opção \d+:.*(你好|Olá|nǐ hǎo)/i }).first();
+      if (await preferred.isVisible().catch(() => false)) await clickIfEnabled(preferred);
+      else await clickIfEnabled(option.first());
+      return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/, /^Concluir$/]);
+    }
+    return clickFirstVisible(page, [/^Responder$/, /^Concluir$/, /^Continuar$/]);
+  }
+  return false;
+}
+
 async function completeCurrentPass(page: Page, lessonId: string, targetLevel: number) {
   await page.goto(`/licao/${lessonId}/player`);
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas|Continuar/i });
+  const victory = page.getByRole("button", { name: VICTORY });
   const deadline = Date.now() + 90_000;
-  for (let steps = 0; steps < 60 && Date.now() < deadline; steps += 1) {
+  for (let steps = 0; steps < 80 && Date.now() < deadline; steps += 1) {
     const level = await masteryLevel(page, lessonId);
     if (level >= targetLevel) return;
     await dismissBlockingOverlays(page);
     if (await victory.first().isVisible().catch(() => false)) {
       await victory.first().click({ timeout: 2_000 }).catch(() => undefined);
       await page.waitForTimeout(250);
+      continue;
+    }
+    if (await playOpenStep(page)) {
+      await page.waitForTimeout(180);
       continue;
     }
     const advanced = await advanceOneStep(page);
@@ -67,18 +103,21 @@ test.describe("V4.6 Topic Mastery Path", () => {
     const current = page.locator('[aria-current="step"]');
     await expect(current).toHaveAttribute("data-topic-progress", "0/4");
     await expect(page.getByText("0/4").first()).toBeVisible();
+    await capture(page, "v46-journey-0-of-4");
 
     await page.goto(`/licao/${FIRST.id}`);
     await waitForLazyPage(page);
     await expect(page.getByTestId("topic-pass-label")).toContainText("Lição 1 de 4");
     await expect(page.getByText(/Descoberta/)).toBeVisible();
     await expect(page.getByRole("button", { name: /Começar/ })).toBeVisible();
+    await capture(page, "v46-detail-licao-1-de-4");
 
     await completeCurrentPass(page, FIRST.id, 1);
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await capture(page, "v46-journey-1-of-4-next-locked");
 
     await page.goto(`/licao/${SECOND.id}`);
     await waitForLazyPage(page);
@@ -101,6 +140,7 @@ test.describe("V4.6 Topic Mastery Path", () => {
     const firstNode = page.locator(`[aria-label*="${FIRST.title}"]`).first();
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
     await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await capture(page, "v46-journey-4-of-4-next-unlocked");
 
     await page.goto(`/licao/${SECOND.id}`);
     await waitForLazyPage(page);
@@ -123,6 +163,26 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await expect(page.getByRole("heading", { level: 1, name: FIRST.title })).toBeVisible();
     await expect(page.getByTestId("topic-pass-label")).toContainText("Lição 1 de 4 · Descoberta");
     await noOverlap(page);
+    await capture(page, "v46-detail-320x568");
+  });
+
+  test("mobile: M1 → 1/4 e o próximo tema permanece bloqueado", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await seedFreshJourneySession(page, { isPremium: true, points: 40 });
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await completeCurrentPass(page, FIRST.id, 1);
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await page.goto(`/licao/${SECOND.id}`);
+    await waitForLazyPage(page);
+    await expect(page.getByText(/4 lições|4\/4|bloquead|liberar este tema/i).first()).toBeVisible();
+    await capture(page, "v46-mobile-1-of-4-locked");
   });
 });
 
