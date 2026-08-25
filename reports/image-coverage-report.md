@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 1d649dd0bd5e |
-| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
+| Hash da Jornada | d68d8346874a |
+| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T23:32:22.531Z |
+| Gerado em | 2026-08-25T00:24:26.341Z |
 | Lições | 127 |
 
 ## Resumo
@@ -67,7 +67,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 31 |
 | imagem → pinyin (`choose_pinyin`) | 52 |
-| imagem → significado (`choose_meaning`) | 29 |
+| imagem → significado (`choose_meaning`) | 30 |
 | áudio → imagem (`listen_and_choose_image`) | 42 |
 | hànzì → imagem (`choose_image`) | 31 |
 
@@ -113,4 +113,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:432176cb1e94d4bc -->
+<!-- integridade:ce405a0a710472a0 -->

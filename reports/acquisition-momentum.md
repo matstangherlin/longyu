@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 1d649dd0bd5e |
-| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
+| Hash da Jornada | d68d8346874a |
+| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T23:37:07.704Z |
+| Gerado em | 2026-08-25T00:29:26.091Z |
 | Lições | 127 |
 
 ## Resumo
@@ -99,7 +99,6 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | p4-num-45 | spot_error | erro_proposital | 我是叫小明 |
 | p4-num-910 | spot_error | erro_proposital | 我是好 |
 | p4-char-ren | spot_error | erro_proposital | 我是水 |
-| p4-char-kou | spot_error | erro_proposital | 我是水 |
 | p4-char-shan | spot_error | erro_proposital | 我是好 |
 | p4-char-huo | spot_error | erro_proposital | 我有一朋友 |
 | p4-char-da | spot_error | erro_proposital | 我有一朋友 |
@@ -127,6 +126,7 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | l19-logica-madeira | spot_error | erro_proposital | 我是叫小明 |
 | l19-logica-luz | spot_error | erro_proposital | 我是好 |
 | l19-logica-pessoas | spot_error | erro_proposital | 我是好 |
+| l19-logica-ma | spot_error | erro_proposital | 我是好 |
 
 ## Auditoria das frases suspeitas
 
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:b0159117e4e5b4e1 -->
+<!-- integridade:895118e38e7d94fe -->

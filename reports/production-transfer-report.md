@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 1d649dd0bd5e |
-| HEAD no instante da geração | 82ed2cbf1d7dde11191b9c5ce6f5b73ab2a69731 |
+| Hash da Jornada | d68d8346874a |
+| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-24T23:35:04.807Z |
+| Gerado em | 2026-08-25T00:27:18.335Z |
 | Lições | 127 |
 
 ## Resumo
@@ -26,11 +26,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Objetivos de produção aberta declarados | 12 |
 | Objetivos de produção aberta no plano real | 9 |
 | Lições com produção aberta | 21 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 183 |
+| Falas de conversa sem apoio (aluno veterano) | 177 |
 | Lições com conversa sem apoio | 97 / 127 |
 | Lições com quebra de comunicação jogável | 93 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 550 |
+| Passos auditados no plano real (3 tentativas) | 549 |
 | Lições com produção livre | 68 / 127 |
 | Lições com transferência | 49 / 127 |
 | Lições com reparo conversacional | 63 / 127 |
@@ -88,4 +88,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 衣服多少钱
 - 车站在哪里
 
-<!-- integridade:3766427baf2882e1 -->
+<!-- integridade:25048e466c76282c -->
