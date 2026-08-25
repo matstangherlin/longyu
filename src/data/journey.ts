@@ -308,6 +308,10 @@ export interface LessonStep {
   productionAssist?: "guided" | "supported" | "question" | "open";
   /** Dica visual de transformação (ex.: 我 → 你) no degrau supported. */
   transferTransformHint?: { from: string; to: string };
+  /** Auditoria V4.5 — por que o aluno está pronto para esta transferência. */
+  transferSelectionMeta?: import("./productionTasks").TransferSelectionMeta;
+  /** Primeira transferência global com supported na tentativa 0 (ex.: 请问…). */
+  transferEarlySupported?: boolean;
   /**
    * Scaffolding visual progressivo (0–4), independente de `productionAssist`.
    * 0 situação+input · 1 padrão · 2 estrutura · 3 vocabulário · 4 montagem
@@ -667,6 +671,8 @@ const freeProduction = (opts: {
   accepts?: string[];
   productionGoal: CommunicativeGoal;
   patternPt?: string;
+  patternSlots?: PatternSlot[];
+  productionFrameId?: string;
 }): LessonStep => ({
   kind: "free_production",
   title: opts.title,
@@ -678,6 +684,8 @@ const freeProduction = (opts: {
   productionAssist: "guided",
   productionHelpInitial: 1,
   patternPt: opts.patternPt,
+  patternSlots: opts.patternSlots,
+  productionFrameId: opts.productionFrameId,
   helpMode: "disabled",
   isNoHint: true,
 });
@@ -2810,6 +2818,20 @@ export const JOURNEY: JourneyPhase[] = [
                 "明天见 reforça a despedida com plano."
               ),
               produce(["再", "见"], ["你", "见", "再", "好"], "Até logo"),
+              freeProduction({
+                title: "Pergunte o nome sozinho",
+                situationPt: "Você quer saber o nome da pessoa. O que pergunta?",
+                expected: "你叫什么？",
+                accepts: ["你叫什么？", "你叫什么"],
+                productionGoal: "ask_name",
+                patternPt: "你叫什么？",
+                patternSlots: [
+                  { role: "subject" },
+                  { role: "verb" },
+                  { role: "object", hole: true },
+                ],
+                productionFrameId: "frame_nijiaoshenme",
+              }),
               freeProduction({
                 title: "Diga sozinho",
                 situationPt: "Cumprimente a pessoa e diga que está bem.",

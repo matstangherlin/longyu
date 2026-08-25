@@ -6,38 +6,38 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| Hash da Jornada | cedcc2a44027 |
+| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:27:18.335Z |
+| Gerado em | 2026-08-25T09:55:27.386Z |
 | Lições | 127 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Estruturas (frames) declaradas | 19 |
-| Tarefas geradas pelos frames | 155 |
-| — produção (frase já ensinada) | 73 |
-| — transferência (combinação inédita) | 82 |
-| Objetivos comunicativos | 14 |
-| Tarefas que aceitam frase irmã | 42 |
-| Objetivos de produção aberta declarados | 12 |
-| Objetivos de produção aberta no plano real | 9 |
-| Lições com produção aberta | 21 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 177 |
+| Estruturas (frames) declaradas | 21 |
+| Tarefas geradas pelos frames | 157 |
+| — produção (frase já ensinada) | 74 |
+| — transferência (combinação inédita) | 83 |
+| Objetivos comunicativos | 15 |
+| Tarefas que aceitam frase irmã | 44 |
+| Objetivos de produção aberta declarados | 13 |
+| Objetivos de produção aberta no plano real | 10 |
+| Lições com produção aberta | 50 / 127 |
+| Falas de conversa sem apoio (aluno veterano) | 176 |
 | Lições com conversa sem apoio | 97 / 127 |
 | Lições com quebra de comunicação jogável | 93 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 549 |
-| Lições com produção livre | 68 / 127 |
-| Lições com transferência | 49 / 127 |
-| Lições com reparo conversacional | 63 / 127 |
-| Estruturas diferentes no plano real | 12 |
-| Frases inéditas cobradas | 20 |
-| Transfer guided / supported / question | 112 / 0 / 19 |
-| 1ªs transferências (attempt 0) | 49 |
+| Passos auditados no plano real (3 tentativas) | 563 |
+| Lições com produção livre | 78 / 127 |
+| Lições com transferência | 25 / 127 |
+| Lições com reparo conversacional | 59 / 127 |
+| Estruturas diferentes no plano real | 16 |
+| Frases inéditas cobradas | 33 |
+| Transfer guided / supported / question | 33 / 21 / 19 |
+| 1ªs transferências (attempt 0) | 25 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -48,44 +48,57 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Primeiras transferências (attempt 0)
 
-- **p3-ordem-das-palavras** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
+- **l2-rev** · `frame_qingwennijiaoshenme` · supported · âncora 你叫什么？ → `请问，你叫什么？`
+- **p3-nomes-da-frase** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
 - **l14** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-num-678** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-num-910** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-mu** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-ren** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-kou** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-ri** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-yue** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有五个朋友。`
-- **p4-char-shan** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-shui** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-tian** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-huo** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
-- **p4-char-da** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- **p4-char-xiao** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有一个朋友。`
-- …mais 34.
+- **l19-logica-luz** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
+- **l26** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
+- **l26b** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢中国。`
+- **l27** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢茶。`
+- **l28** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
+- **p6-rotina-trabalho** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
+- **p6-cidade-lugares** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢鱼。`
+- **p6-china-cidades** · `frame_woqu` · guided · âncora 我去学校 → `我明天去医院。`
+- **p6-china-cidades-2** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
+- **p6-china-ruas** · `frame_woxiangchi` · guided · âncora 我想吃米饭 → `我想吃鱼。`
+- **p6-saude** · `frame_wo_le` · guided · âncora 我饿了 → `我睡觉了。`
+- **p6-horarios** · `frame_woqu` · guided · âncora 我去学校 → `我今天去医院。`
+- …mais 10.
 
 ## Frases inéditas cobradas por transferência
 
+- 书多少钱
+- 你要水
 - 你要水吗
 - 你要苹果吗
+- 你要茶
 - 你要菜吗
-- 我去火车站
+- 我今天去医院
+- 我今天去超市
 - 我喜欢中国
 - 我喜欢茶
-- 我回家了
+- 我喜欢鱼
+- 我在吃饭
 - 我在喝水
 - 我在睡觉
+- 我想吃肉
 - 我想吃鱼
 - 我想喝热水
+- 我明天去医院
+- 我明天去银行
 - 我有一个朋友
-- 我有三个苹果
+- 我有一个香蕉
 - 我有五个朋友
 - 我有四个朋友
 - 我睡觉了
-- 我要买牛奶
+- 我要买书
 - 我要热水
 - 衣服多少钱
+- 请问你叫什么
+- 请问医院在哪里
+- 请问超市在哪里
+- 请问车站在哪里
 - 车站在哪里
+- 香蕉多少钱
 
-<!-- integridade:25048e466c76282c -->
+<!-- integridade:211ddcd34a727419 -->

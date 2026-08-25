@@ -57,8 +57,9 @@ const MIN_LESSON_SHARE = { free_production: 0.25, transfer_task: 0.12, conversat
 // Produção aberta depende de guided prévio da estrutura — piso menor que a era
 // em que glifos sozinhos liberavam open cedo.
 const MIN_OPEN_PRODUCTION_LESSONS = 0.08;
-// Uma resposta certa não basta para chamar de escolha.
+// Uma resposta certa não basta para chamar de escolha — exceto ask_name (2 variantes naturais).
 const MIN_OPEN_ANSWERS = 3;
+const minOpenAnswersForGoal = (goal) => (goal === "ask_name" ? 2 : MIN_OPEN_ANSWERS);
 // Aluno com histórico: é ele que alcança os níveis altos da variante, e só
 // nesses níveis a conversa perde as alternativas.
 const MIN_UNAIDED_CONVERSATION_LESSONS = 0.3;
@@ -459,8 +460,8 @@ try {
             (step.accepts ?? []).filter((value) => CJK_RE.test(value ?? "")).map((value) => clean(value))
           );
           assert(
-            distinct.size >= MIN_OPEN_ANSWERS,
-            `${ref}: produção aberta com só ${distinct.size} resposta(s) certa(s) — mínimo ${MIN_OPEN_ANSWERS}`
+            distinct.size >= minOpenAnswersForGoal(step.productionGoal),
+            `${ref}: produção aberta com só ${distinct.size} resposta(s) certa(s) — mínimo ${minOpenAnswersForGoal(step.productionGoal)}`
           );
           assert(Boolean(step.productionGoal), `${ref}: produção aberta sem objetivo`);
           assert(
@@ -468,7 +469,7 @@ try {
             `${ref}: a dica da produção aberta mostra hànzì`
           );
           assert(
-            (step.productionExamples ?? []).length >= MIN_OPEN_ANSWERS,
+            (step.productionExamples ?? []).length >= minOpenAnswersForGoal(step.productionGoal),
             `${ref}: produção aberta sem exemplos para a correção`
           );
           // O aluno escolhe o conteúdo: o enunciado não pode nomear um item só.
@@ -500,7 +501,8 @@ try {
               situation: step.situationPt,
             });
             assert(
-              step.productionAssist === "guided",
+              step.productionAssist === "guided" ||
+                (step.transferEarlySupported === true && step.productionAssist === "supported"),
               `${ref}: 1ª tentativa com productionAssist=${step.productionAssist ?? "undefined"} (esperado guided — 1 transformação)`
             );
             assert(

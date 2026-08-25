@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| Hash da Jornada | cedcc2a44027 |
+| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:29:15.570Z |
+| Gerado em | 2026-08-25T09:59:24.157Z |
 | Lições | 127 |
 
 ## Resumo
@@ -24,7 +24,7 @@ Produção **não** é um único interruptor. Montar `你 + 好` com peças à v
 | lessonToFirstAssistedAssembly | 1 |
 | lessonToFirstGuidedRecall | 4 |
 | lessonToFirstIndependentProduction | 12 |
-| lessonToFirstTransfer | 47 |
+| lessonToFirstTransfer | 15 |
 | estimatedTimeToFirstConversation | 6 min |
 | estimatedTimeToFirstAssistedAssembly | 3 min |
 | longestNonCommunicativeLessonRun (20) | 0 |
@@ -58,7 +58,7 @@ Primeira produção independente (`free_production`): **12. Até logo** (`p1-ate
 | 12 | acquisition | Até logo | sim | sim | sim | sim | sim | sim | 6 |
 | 13 | acquisition | Primeira conversa | sim | sim | sim | sim | sim | sim | 5 |
 | 14 | acquisition | Com licença | sim | sim | sim | sim | não | sim | 4 |
-| 15 | review | Revisão do módulo | sim | sim | sim | não | não | sim | 4 |
+| 15 | review | Revisão do módulo | sim | sim | sim | sim | não | sim | 4 |
 | 16 | perception_lab | 1º tom com ma | não | não | não | sim | não | não | 4 |
 | 17 | perception_lab | 2º tom com ma | não | não | não | não | não | não | 3 |
 | 18 | acquisition | 我很好 — Estou bem | sim | sim | sim | sim | não | sim | 4 |
@@ -73,4 +73,4 @@ IDs das lições de fundação e da parede de tons **não mudaram**. Progresso a
 
 Nenhuma.
 
-<!-- integridade:e328ade96cd62154 -->
+<!-- integridade:c47a10d72e206db1 -->

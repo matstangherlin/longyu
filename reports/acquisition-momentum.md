@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| Hash da Jornada | cedcc2a44027 |
+| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:29:26.091Z |
+| Gerado em | 2026-08-25T09:59:42.577Z |
 | Lições | 127 |
 
 ## Resumo
@@ -64,20 +64,20 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 32 | acquisition | Sons que brasileiros confundem | sim | lab (lexical zero ok) |
 | 33 | perception_lab | Números por som | não | lab (lexical zero ok) |
 | 34 | review | Revisão do módulo | sim | revisão (isenta) |
-| 35 | acquisition | Me apresentar | sim | unidades novas: 妈妈、好的; conversation_scene |
-| 36 | acquisition | Tudo bem? | sim | unidades novas: 这是水、在哪里、怎么样、请坐; conversation_scene |
-| 37 | acquisition | Como você se chama? | sim | unidades novas: 你是哪国人、我是巴西人、什么; conversation_scene |
-| 38 | acquisition | De onde sou | sim | unidades novas: 认识你很高兴; conversation_scene |
-| 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene |
-| 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene |
-| 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene |
-| 42 | acquisition | Falo um pouco | sim | unidades novas: 我在学中文、等一下、一点、我会说、中文、我是学生、你是学生吗、你学习什么、我学习中文、你在哪里学习、我在学校学习、在学校、是我是学生; conversation_scene; produção independente |
+| 35 | acquisition | Me apresentar | sim | unidades novas: 妈妈、好的; conversation_scene; produção independente |
+| 36 | acquisition | Tudo bem? | sim | unidades novas: 这是水、在哪里、怎么样; conversation_scene; produção independente |
+| 37 | acquisition | Como você se chama? | sim | unidades novas: 你是哪国人、我是巴西人、什么; conversation_scene; produção independente |
+| 38 | acquisition | De onde sou | sim | unidades novas: 认识你很高兴; conversation_scene; produção independente |
+| 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene; produção independente |
+| 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene; produção independente |
+| 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene; produção independente |
+| 42 | acquisition | Falo um pouco | sim | unidades novas: 一点、我会说、中文、我在学中文、我是学生、你是学生吗、你学习什么、我学习中文、你在哪里学习、我在学校学习、在学校、是我是学生; conversation_scene; produção independente |
 | 43 | acquisition | Peças da frase | sim | conversation_scene; produção independente |
 | 44 | acquisition | Microtexto 1 | sim | conversation_scene; produção independente |
 | 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 今天很好、我要水; conversation_scene; produção independente |
 | 46 | acquisition | Microdiálogo: se apresentar | sim | unidades novas: 我有三个朋友、会说中文; conversation_scene; produção independente |
-| 47 | acquisition | A ordem importa | sim | unidades novas: 我有一个朋友; conversation_scene; produção independente; padrão estrutural |
-| 48 | acquisition | Nomes das peças | sim | conversation_scene |
+| 47 | acquisition | A ordem importa | sim | conversation_scene; produção independente |
+| 48 | acquisition | Nomes das peças | sim | unidades novas: 我有五个朋友、我有一个朋友; conversation_scene; padrão estrutural |
 | 49 | review | Revisão do módulo | sim | revisão (isenta) |
 | 50 | acquisition | Radicais básicos | sim | conversation_scene; produção independente; padrão estrutural |
 
@@ -87,10 +87,8 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 
 | Lição | Tipo | Classe | Texto |
 |-------|------|--------|-------|
-| l9 | spot_error | erro_proposital | 我是好 |
 | p3-wobuhui-shuo-zhongwen | spot_error | erro_proposital | 我会中文说 |
 | p3-qing-zai-shuo-yibian | spot_error | erro_proposital | 我是叫小明 |
-| l11 | spot_error | erro_proposital | 我是好 |
 | l11-falo-pouco | spot_error | erro_proposital | 我是好 |
 | l13 | spot_error | erro_proposital | 我会中文说 |
 | l13-dialogo-ola | spot_error | erro_proposital | 我是水 |
@@ -105,7 +103,6 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | p4-char-zhong | spot_error | erro_proposital | 我是好 |
 | p4-char-shi | spot_error | erro_proposital | 我会中文说 |
 | p4-char-wo | spot_error | erro_proposital | 我是水 |
-| l14-pecas-natureza | spot_error | erro_proposital | 我会中文说 |
 | l14-char-rev | spot_error | erro_proposital | 我是叫小明 |
 | l14-char-rev | spot_error | erro_proposital | 我会中文说 |
 | l15 | spot_error | erro_proposital | 我是叫小明 |
@@ -127,12 +124,15 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | l19-logica-luz | spot_error | erro_proposital | 我是好 |
 | l19-logica-pessoas | spot_error | erro_proposital | 我是好 |
 | l19-logica-ma | spot_error | erro_proposital | 我是好 |
+| l19 | spot_error | erro_proposital | 我有一朋友 |
+| l21 | spot_error | erro_proposital | 我会中文说 |
+| l22 | spot_error | erro_proposital | 我是水 |
 
 ## Auditoria das frases suspeitas
 
 | Texto | Classe | Onde aparece |
 |-------|--------|--------------|
-| 我是好 | erro_proposital | l9, l11, l11-falo-pouco |
+| 我是好 | erro_proposital | l11-falo-pouco |
 | 我是叫小明 | erro_proposital | p3-qing-zai-shuo-yibian |
 | 我会中文说 | erro_proposital | p3-wobuhui-shuo-zhongwen, l13 |
 | 我是水 | erro_proposital | l13-dialogo-ola |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:895118e38e7d94fe -->
+<!-- integridade:767cc037fa7d8894 -->

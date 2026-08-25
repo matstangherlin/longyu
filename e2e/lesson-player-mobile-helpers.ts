@@ -372,6 +372,16 @@ export async function advanceUntilSelector(
     ) {
       return false;
     }
+    // Speak/listen imitation: sem Pular em alguns steps — sai pela rota sem microfone.
+    const skippedSpeak = await clickFirstVisible(page, [
+      /^Não posso falar agora$/,
+      /^Agora não$/,
+      /^Continuar sem falar$/,
+    ]);
+    if (skippedSpeak) {
+      await page.waitForTimeout(120);
+      continue;
+    }
     const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;
     if (!skipped) {
       const advanced = await advanceOneStep(page);
@@ -399,16 +409,17 @@ export async function openReviewFlow(page: Page) {
 }
 
 export async function openTransferStep(page: Page) {
-  // V4.0: o planner reserva transfer_task em M4. l24 continua o fixture
-  // rápido (transferência cedo após a 1ª conversa); l23@M4 é coberto pelo
-  // portão validate:cognitive-budget — não se "conserta" só trocando a lição.
-  await seedLessonPlayerReady(page, "l24", { masteryLevel: 3 });
+  // V4.5: primeira transferência combinacional determinística em L15 (l2-rev).
+  // l24 deixou de carregar transfer_task (cooldown/domínio/planner) — fixture
+  // antiga era obsoleta, não regressão pedagógica de "l24 deveria ter transfer".
+  await seedLessonPlayerReady(page, "l2-rev", { masteryLevel: 0 });
   await seedProOnTopOfSession(page);
-  await page.goto("/licao/l24/player");
+  await page.goto("/licao/l2-rev/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  const ok = await advanceUntilSelector(page, '[data-production-step="transfer_task"]', 60, 150_000);
+  const ok = await advanceUntilSelector(page, '[data-production-step="transfer_task"]', 40, 120_000);
   expect(ok).toBe(true);
+  await expect(page.locator('[data-production-step="transfer_task"]')).toBeVisible();
 }
 
 /**

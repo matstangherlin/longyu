@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| Commit | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:25:34.728Z |
+| Gerado em | 2026-08-25T09:57:59.264Z |
 | Lições | 127 |
-| Hash da Jornada | d68d8346874a |
+| Hash da Jornada | cedcc2a44027 |
 
 ## Resumo
 
@@ -23,7 +23,7 @@
 | Vocabulário coberto por tarefas posteriores (plano ou SRS) | 130 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 4 |
-| Média de reutilizações por ref exibida | 9.01 |
+| Média de reutilizações por ref exibida | 9.12 |
 
 ## Cenas mais curtas
 
@@ -57,14 +57,14 @@
 |------|-----:|
 | packet-exchange-introductions | 10 |
 | como-se-chama | 9 |
+| pedir-agua | 8 |
 | encontro-amanha | 7 |
 | nao-falo-chinês | 7 |
 | sala-de-aula | 7 |
-| packet-exchange-greetings | 7 |
+| apontar-natureza | 7 |
 | packet-exchange-basic_questions | 6 |
 | falar-de-estudo | 6 |
-| pedir-agua | 6 |
-| apontar-natureza | 6 |
+| fale-de-novo | 5 |
 
 ## Cenas por cenário
 
@@ -144,4 +144,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:1295fcdfaaf51224 -->
+<!-- integridade:4447a701d21e26c4 -->

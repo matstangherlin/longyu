@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d68d8346874a |
-| HEAD no instante da geração | cfb504b6f79ddeb5e39257ec550afdf0d0939ea5 |
+| Hash da Jornada | cedcc2a44027 |
+| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T00:29:04.844Z |
+| Gerado em | 2026-08-25T09:59:05.771Z |
 | Lições | 127 |
 
 ## Resumo
@@ -18,10 +18,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 206 |
-| Média de passos por lição | 10.3 |
+| Passos somados | 208 |
+| Média de passos por lição | 10.4 |
 | Minutos estimados até a lição 20 | 86 |
-| Passos de digitação na entrada inteira | 2 |
+| Passos de digitação na entrada inteira | 3 |
 | Lições sem nada para ouvir | 1 |
 
 > Medido no plano REAL de um aluno **novo**: nada completado, nenhum erro,
@@ -41,12 +41,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | 7 | Mandarim, pinyin e tom | 10 | 9 | 0 | 2 | 9 | 3 |
 | 8 | Olá | 15 | 14 | 0 | 3 | 12 | 6 |
 | 9 | Tudo bem? | 13 | 12 | 0 | 2 | 10 | 5 |
-| 10 | Revisão do módulo (revisão) | 12 | 10 | 0 | 2 | 10 | 3 |
+| 10 | Revisão do módulo (revisão) | 12 | 10 | 0 | 1 | 9 | 3 |
 | 11 | Obrigado | 16 | 15 | 0 | 2 | 10 | 6 |
 | 12 | Até logo | 15 | 14 | 1 | 3 | 12 | 6 |
-| 13 | Primeira conversa | 11 | 10 | 1 | 1 | 11 | 5 |
+| 13 | Primeira conversa | 13 | 12 | 1 | 1 | 10 | 5 |
 | 14 | Com licença | 15 | 14 | 0 | 3 | 10 | 4 |
-| 15 | Revisão do módulo (revisão) | 12 | 10 | 0 | 2 | 10 | 4 |
+| 15 | Revisão do módulo (revisão) | 12 | 10 | 1 | 2 | 11 | 4 |
 | 16 | 1º tom com ma | 8 | 5 | 0 | 4 | 6 | 4 |
 | 17 | 2º tom com ma | 5 | 3 | 0 | 3 | 5 | 3 |
 | 18 | 我很好 — Estou bem | 11 | 10 | 0 | 3 | 9 | 4 |
@@ -77,6 +77,7 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 | 8 | produce |
 | 9 | listen |
 | 12 | free_production |
+| 15 | transfer_task |
 
 ## Avisos
 
@@ -86,4 +87,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:ab9e6b0abea92658 -->
+<!-- integridade:6e7baf45af229c59 -->

@@ -114,18 +114,17 @@ import {
   creditStructureText,
   ensureStructureRungs,
   framesMatchingSentence,
+  getTransferCandidates,
+  buildTransferSelectionMeta,
   inferCommunicativeDomain,
-  maxTransferAssistForAttempt,
   mergeStructureExposure,
   openProductionTasksFor,
   pickFrameTask,
   pickOpenProductionTask,
-  PRODUCTION_ASSIST_RANK,
   productionHelpBuildBank,
   productionHelpVocabForTask,
   productionTasksFor,
   repairTasksFor,
-  transferTasksFor,
   type FramePickOptions,
   type FrameTask,
   type ProductionAssist,
@@ -669,6 +668,10 @@ export interface LessonPracticePlanContext {
   structureExposureForTransfer?: StructureExposureMap;
   /** Frames com transfer em lição anterior — define scaffold inicial. */
   priorTransferredFrames?: ReadonlySet<string>;
+  /** Alvos combinacionais já transferidos — cooldown de repetição. */
+  priorTransferTargets?: ReadonlySet<string>;
+  /** Frame da transferência imediatamente anterior (cooldown). */
+  lastTransferredFrameId?: string;
   /** Evita reentrada ao montar o índice de exposição. */
   skipStructureExposureIndex?: boolean;
   /**
@@ -1383,7 +1386,9 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
     const needsTwoBuilders = relevantHanzi || reviewRequiresTwoHanziBuilders(lesson);
     return {
       targetCount,
-      stageTargets: { intro: 2, recognition: 3, assembly: 3, usage: 2, post_conversation: 0, consolidation: targetCount - 10 },
+      // Pelo menos 1 vaga de consolidação: revisão compacta (target 10) ainda
+      // precisa abrigar transferência quando os pré-requisitos já fecharam.
+      stageTargets: { intro: 2, recognition: 3, assembly: 3, usage: 2, post_conversation: 0, consolidation: Math.max(1, targetCount - 10) },
       minHanziBuilds: needsTwoBuilders ? 2 : 0,
       maxHanziBuilds: needsTwoBuilders ? (lesson.skill === "hanzi" ? 3 : 2) : 0,
       perCharBuildCap: 2,
@@ -2046,6 +2051,10 @@ interface StructureExposureBundle {
 const structureExposureIndex = new Map<string, StructureExposureBundle>();
 /** Frames que já tiveram transfer_task em lição ANTERIOR (por lessonId). */
 const priorTransferredFramesIndex = new Map<string, ReadonlySet<string>>();
+/** Alvos combinacionais já cobrados em transferência anterior. */
+const priorTransferTargetsIndex = new Map<string, ReadonlySet<string>>();
+/** Último frame transferido antes desta lição (cooldown consecutivo). */
+const lastTransferredFrameIndex = new Map<string, string>();
 let structureExposureIndexBuilding = false;
 /** Quantas lições da jornada já foram incorporadas ao índice. */
 let structureExposureBuiltCount = 0;
@@ -2053,6 +2062,9 @@ let structureExposureBuiltCount = 0;
 let structureExposureRunningPrior: StructureExposureMap = new Map();
 /** Frames já transferidos até `structureExposureBuiltCount`. */
 const structureExposureRunningTransferred = new Set<string>();
+/** Alvos já transferidos até `structureExposureBuiltCount`. */
+const structureExposureRunningTransferTargets = new Set<string>();
+let structureExposureRunningLastTransferFrame: string | undefined;
 
 const lessonOrderById = new Map(ALL_LESSONS.map((lesson, index) => [lesson.id, index]));
 
@@ -2078,6 +2090,8 @@ function buildStructureExposureThrough(throughIndex: number): void {
     for (let index = structureExposureBuiltCount; index <= target; index += 1) {
       const lesson = ALL_LESSONS[index];
       priorTransferredFramesIndex.set(lesson.id, new Set(structureExposureRunningTransferred));
+      priorTransferTargetsIndex.set(lesson.id, new Set(structureExposureRunningTransferTargets));
+      lastTransferredFrameIndex.set(lesson.id, structureExposureRunningLastTransferFrame ?? "");
       const forTransfer = cloneStructureExposure(structureExposureRunningPrior);
       const forFree = cloneStructureExposure(structureExposureRunningPrior);
       mergeStructureExposure(forFree, curriculumStructureExposureForLesson(lesson));
@@ -2097,6 +2111,11 @@ function buildStructureExposureThrough(throughIndex: number): void {
         creditStructureFromStep(fromPlan, step);
         if (step.kind === "transfer_task" && step.productionFrameId) {
           structureExposureRunningTransferred.add(step.productionFrameId);
+          structureExposureRunningLastTransferFrame = step.productionFrameId;
+          const target = cleanHanzi(
+            step.targetHanzi ?? step.correctAnswer ?? step.answer ?? ""
+          );
+          if (target) structureExposureRunningTransferTargets.add(target);
         }
       }
       mergeStructureExposure(structureExposureRunningPrior, fromPlan);
@@ -2174,6 +2193,14 @@ function precomputedExposureFor(lessonId: string): StructureExposureBundle | nul
   return { forFree: decodeExposureMap(entry.free), forTransfer: decodeExposureMap(entry.transfer) };
 }
 
+function priorTransferTargetsForLesson(lessonId: string | undefined): ReadonlySet<string> {
+  if (!lessonId) return new Set();
+  const precomputed = ignorePrecomputedExposure ? undefined : PRECOMPUTED_STRUCTURE_EXPOSURE[lessonId];
+  if (precomputed?.priorTransferTargets) return new Set(precomputed.priorTransferTargets);
+  ensureStructureExposureIndexFor(lessonId);
+  return priorTransferTargetsIndex.get(lessonId) ?? new Set();
+}
+
 function priorTransferredFramesForLesson(lessonId: string | undefined): ReadonlySet<string> {
   if (!lessonId) return new Set();
   const precomputed = ignorePrecomputedExposure ? undefined : PRECOMPUTED_STRUCTURE_EXPOSURE[lessonId];
@@ -2195,9 +2222,24 @@ export function structureExposureSnapshotForLesson(lessonId: string): StructureE
   return structureExposureForLesson(lessonId);
 }
 
+export function priorTransferTargetsSnapshotForLesson(lessonId: string): ReadonlySet<string> {
+  return priorTransferTargetsForLesson(lessonId);
+}
+
 /** Snapshot público dos frames já transferidos — usado pelo gerador do índice. */
 export function priorTransferredFramesSnapshotForLesson(lessonId: string): ReadonlySet<string> {
   return priorTransferredFramesForLesson(lessonId);
+}
+
+export function lastTransferredFrameSnapshotForLesson(lessonId: string): string | undefined {
+  const value = lastTransferredFrameIndex.get(lessonId);
+  return value && value.length > 0 ? value : undefined;
+}
+
+function lastTransferredFrameForLesson(lessonId: string | undefined): string | undefined {
+  if (!lessonId) return undefined;
+  ensureStructureExposureIndexFor(lessonId);
+  return lastTransferredFrameSnapshotForLesson(lessonId);
 }
 
 /**
@@ -2462,6 +2504,7 @@ function framePickOptionsFor(options: {
   lessonId?: string;
   structureExposure?: StructureExposureMap;
   priorTransferredFrames?: ReadonlySet<string>;
+  lastTransferredFrameId?: string;
   usedFrameIds?: ReadonlySet<string>;
   usedTargetHanzi?: ReadonlySet<string>;
 }): FramePickOptions {
@@ -2478,11 +2521,13 @@ function framePickOptionsFor(options: {
   const lesson = options.lessonId ? ALL_LESSONS.find((item) => item.id === options.lessonId) : undefined;
   return {
     priorTransferredFrameIds: options.priorTransferredFrames,
+    lastTransferredFrameId: options.lastTransferredFrameId,
     usedFrameIds,
     usedTargetHanzi: options.usedTargetHanzi,
     needsGuidedProduction,
     lessonSalt: options.lessonId ? (lessonOrderById.get(options.lessonId) ?? 0) : 0,
     domain: inferCommunicativeDomain(options.lessonId ?? "", lesson?.title ?? ""),
+    lessonId: options.lessonId,
   };
 }
 
@@ -2596,46 +2641,25 @@ function pickTransferCandidates(
   seed: number,
   usingItem: FocusItem | undefined,
   attemptNumber: number,
-  structureExposure?: StructureExposureMap
+  structureExposure?: StructureExposureMap,
+  context: {
+    lessonId?: string;
+    priorTransferredFrames?: ReadonlySet<string>;
+    priorTransferTargets?: ReadonlySet<string>;
+  } = {}
 ): FrameTask[] {
   const taught = authoredCurriculumSentences();
-  const maxAssist = maxTransferAssistForAttempt(attemptNumber);
-  const preferLowestRung = attemptNumber <= 0;
-
-  const select = (preferLowest: boolean) => {
-    const pool = transferTasksFor(knownGlyphs, {
-      extraTaughtSentences: taught,
-      maxAssist,
-      preferLowestRung: preferLowest,
-      structureExposure,
-    });
-    return usingItem ? frameTasksUsing(pool, usingItem) : pool;
-  };
-
-  let tasks = select(preferLowestRung);
-  // Pós-conversa pode filtrar demais: relaxa o "só o degrau mais baixo".
-  if (tasks.length === 0 && usingItem) {
-    tasks = select(false);
-  }
-  if (tasks.length === 0) {
-    tasks = transferTasksFor(knownGlyphs, {
-      extraTaughtSentences: taught,
-      maxAssist,
-      preferLowestRung: true,
-      structureExposure,
-    });
-  }
-  if (tasks.length === 0) return [];
-
-  // Em tentativas seguintes, sobe para o degrau mais alto permitido e elegível.
-  if (!preferLowestRung) {
-    const maxRank = Math.max(...tasks.map((task) => PRODUCTION_ASSIST_RANK[task.transferAssist]));
-    tasks = tasks.filter((task) => PRODUCTION_ASSIST_RANK[task.transferAssist] === maxRank);
-  }
-
-  // Estável: seed escolhe dentro do degrau, não mistura rungs.
   void seed;
-  return tasks;
+  return getTransferCandidates({
+    seenGlyphs: knownGlyphs,
+    extraTaughtSentences: taught,
+    attemptNumber,
+    structureExposure,
+    lessonId: context.lessonId,
+    priorTransferredFrames: context.priorTransferredFrames,
+    priorTransferTargets: context.priorTransferTargets,
+    usingItemHanzi: usingItem?.hanzi,
+  });
 }
 
 /**
@@ -2650,22 +2674,37 @@ function makeTransferStep(
   attemptNumber = 0,
   structureExposure?: StructureExposureMap,
   priorTransferredFrames?: ReadonlySet<string>,
-  pickOptions: FramePickOptions = {}
+  pickOptions: FramePickOptions = {},
+  lessonId?: string
 ): LessonStep | null {
-  const tasks = pickTransferCandidates(knownGlyphs, seed, usingItem, attemptNumber, structureExposure);
+  const tasks = pickTransferCandidates(
+    knownGlyphs,
+    seed,
+    usingItem,
+    attemptNumber,
+    structureExposure,
+    { lessonId, priorTransferredFrames: priorTransferredFrames ?? pickOptions.priorTransferredFrameIds, priorTransferTargets: pickOptions.usedTargetHanzi }
+  );
   if (tasks.length === 0) return null;
   const task =
     pickFrameTask(tasks, {
       ...pickOptions,
       priorTransferredFrameIds: pickOptions.priorTransferredFrameIds ?? priorTransferredFrames,
       lessonSalt: pickOptions.lessonSalt ?? seed,
+      lessonId: pickOptions.lessonId ?? lessonId,
     }) ?? tasks[seed % tasks.length];
   const productionAssist: ProductionAssist = task.transferAssist;
   const firstOfStructure = !priorTransferredFrames?.has(task.frameId);
+  const earlySupported =
+    attemptNumber <= 0 && productionAssist === "supported" && (priorTransferredFrames?.size ?? 0) === 0;
   const help = resolveProductionHelpPlan({
     kind: "transfer_task",
     firstOfStructure,
     attemptNumber,
+  });
+  const selectionMeta = buildTransferSelectionMeta(task, {
+    lessonId: pickOptions.lessonId ?? lessonId,
+    priorTransferredFrames,
   });
   return {
     kind: "transfer_task",
@@ -2687,6 +2726,8 @@ function makeTransferStep(
     transferTransformHint: task.transferTransformHint,
     ...frameTaskStepBase(task),
     ...attachProductionHelpFields(task, knownGlyphs, seed, help),
+    transferSelectionMeta: selectionMeta,
+    transferEarlySupported: earlySupported,
     explanation: `${task.targetHanzi} (${task.targetPinyin}) — ${task.grammarNotePt} Combinação nova: você montou pela estrutura.`,
   };
 }
@@ -4013,6 +4054,12 @@ interface SupplementalStepOptions {
   structureExposureForTransfer?: StructureExposureMap;
   /** Frames com transfer em lição anterior — scaffold inicial mais/menos guiado. */
   priorTransferredFrames?: ReadonlySet<string>;
+  /** Alvos já transferidos — evita repetir a mesma frase inédita. */
+  priorTransferTargets?: ReadonlySet<string>;
+  /** Frame da transferência imediatamente anterior (cooldown). */
+  lastTransferredFrameId?: string;
+  /** Papel curricular — labs não recebem transferência gerada. */
+  curriculumRole?: Lesson["curriculumRole"];
 }
 
 function supplementalStepsForStage(
@@ -4035,6 +4082,8 @@ function supplementalStepsForStage(
     lessonId: options.lessonId,
     structureExposure: options.structureExposure,
     priorTransferredFrames: options.priorTransferredFrames,
+    lastTransferredFrameId: options.lastTransferredFrameId,
+    usedTargetHanzi: options.priorTransferTargets,
   });
   // Na fundação / fases 1–2, CORE_REVIEW (再见/谢谢/明天…) não pode virar
   // fill/build/ditado — o aluno ainda não aprendeu esses chunks.
@@ -4250,7 +4299,11 @@ function supplementalStepsForStage(
     if (allowSpotError) push(makeSpotErrorStep(knownGlyphs, drillSeed + 1));
     // Consolidar: transferência só se a estrutura já teve produção guiada antes.
     const variantSeed = drillSeed + 1 + variantSeedBase * 7;
-    if (!foundationLite) {
+    const transferBlocked =
+      options.curriculumRole === "perception_lab" ||
+      options.curriculumRole === "hanzi_lab" ||
+      FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
+    if (!transferBlocked) {
       push(
         makeTransferStep(
           knownGlyphs,
@@ -4259,9 +4312,12 @@ function supplementalStepsForStage(
           options.attemptNumber ?? 0,
           options.structureExposureForTransfer ?? options.structureExposure,
           options.priorTransferredFrames,
-          picks
+          picks,
+          options.lessonId
         )
       );
+    }
+    if (!foundationLite) {
       push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure, picks));
       push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure, picks));
       push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
@@ -4587,7 +4643,9 @@ function generatedCandidatesFor(
   attemptNumber = 0,
   structureExposure?: StructureExposureMap,
   structureExposureForTransfer?: StructureExposureMap,
-  priorTransferredFrames?: ReadonlySet<string>
+  priorTransferredFrames?: ReadonlySet<string>,
+  priorTransferTargets?: ReadonlySet<string>,
+  lastTransferredFrameId?: string
 ): PracticeCandidate[] {
   if (lesson.curriculumRole === "perception_lab") return [];
   const phaseOrder = lessonPhaseOrder(lesson);
@@ -4637,6 +4695,9 @@ function generatedCandidatesFor(
       structureExposure,
       structureExposureForTransfer,
       priorTransferredFrames,
+      priorTransferTargets,
+      lastTransferredFrameId,
+      curriculumRole: lesson.curriculumRole,
     });
     for (const step of generated) {
       const packetExchange = String(step.sceneId ?? "").startsWith("packet-exchange-");
@@ -4644,13 +4705,19 @@ function generatedCandidatesFor(
       // Com cena autoral na lição, a troca do packet disputa o 2º slot.
       // Sem autoral, fica um pouco atrás do catálogo no 1º slot.
       const packetBias = packetExchange ? (hasAuthoredConversation ? 15 : -8) : 0;
+      const firstTransferBoost =
+        step.kind === "transfer_task" &&
+        (priorTransferredFrames?.size ?? 0) === 0 &&
+        stageId === "consolidation"
+          ? 55
+          : 0;
       candidates.push({
         step,
         stageId,
         sourceStepIndex: -1,
         generated: true,
         families: exerciseFamiliesFor(step, stageId),
-        score: candidateScore(lesson, step, stageId, true, reviewFocus) + packetBias,
+        score: candidateScore(lesson, step, stageId, true, reviewFocus) + packetBias + firstTransferBoost,
       });
     }
   }
@@ -4925,7 +4992,10 @@ function replaceLowestIfNeeded(
   const authoredVisual = candidate.step.kind === "image_choice" && !candidate.generated;
   // Visuais autorais da China visual crescem o plano em vez de disputar vaga
   // com intro/conversa já protegidos — senão hotel/restaurante nunca entram.
-  if (selected.length < profile.targetCount || (protect && authoredVisual)) {
+  // Transferência mid-course (V4.5) também pode crescer: em lições sistema com
+  // targetCount baixo, ensures protegidos engoliam a 2ª combinação natural.
+  const growForTransfer = protect && candidate.step.kind === "transfer_task";
+  if (selected.length < profile.targetCount || (protect && authoredVisual) || growForTransfer) {
     selected.push(protect ? { ...candidate, ensured: true } : candidate);
     usedSignatures.add(signature);
     return;
@@ -5062,7 +5132,14 @@ function ensureCoverage(
     ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
   }
   ensure((candidate) => candidate.stageId === "consolidation" || candidate.families.includes("review"));
-  if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) ensure((candidate) => candidate.families.includes("pinyin"));
+  if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) {
+    // Proteger: ensures posteriores (transfer/open) não podem expulsar o único
+    // degrau de pinyin/tom do módulo inicial (validate:lessons u3-2).
+    ensure(
+      (candidate) => candidate.families.includes("pinyin") || isPinyinPracticeStep(candidate.step),
+      true
+    );
+  }
   // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
   const minBuilds = Math.max(profile.maxHanziBuilds > 0 ? 1 : 0, profile.minHanziBuilds);
   if (minBuilds > 0) ensureCount((candidate) => candidate.step.kind === "hanzi_build", minBuilds, true);
@@ -5123,6 +5200,26 @@ function ensureCoverage(
     (candidate) => candidate.step.kind === "free_production" && !candidate.generated,
     true
   );
+  const priorTransferred = priorTransferredFramesForLesson(lesson.id);
+  const transferBlockedInLesson =
+    lesson.curriculumRole === "perception_lab" ||
+    lesson.curriculumRole === "hanzi_lab" ||
+    FOUNDATION_LESSON_IDS.includes(lesson.id);
+  const hasTransferCandidate = candidates.some((candidate) => candidate.step.kind === "transfer_task");
+  // V4.5: primeira transferência combinacional pode cair na revisão pós-请问 (≤ L15)
+  // mesmo em fase 1–2 — desde que o pool tenha candidato elegível e não seja lab.
+  // Depois da 1ª: durante earlyPedagogy (phase≤2) o ensure geral não roda e o buraco
+  // L15→L50 engolia a 2ª combinação natural (我有…). A partir de L35, se ainda há
+  // candidato, reserva transfer — sem inventar conteúdo, só não engolir o que já está pronto.
+  if (!transferBlockedInLesson && hasTransferCandidate) {
+    const lessonIndex = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
+    if (priorTransferred.size === 0) {
+      ensure((candidate) => candidate.step.kind === "transfer_task", true);
+    } else if (earlyPedagogy && lessonIndex >= 35) {
+      ensure((candidate) => candidate.step.kind === "transfer_task", true);
+    }
+  }
+
   if (!earlyPedagogy) {
     ensure(
       (candidate) => candidate.step.kind === "free_production" && Boolean(candidate.step.productionOpen),
@@ -6625,6 +6722,10 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
     context.structureExposureForTransfer ?? exposureBundle.forTransfer;
   const priorTransferredFrames =
     context.priorTransferredFrames ?? priorTransferredFramesForLesson(lesson.id);
+  const priorTransferTargets =
+    context.priorTransferTargets ?? priorTransferTargetsForLesson(lesson.id);
+  const lastTransferredFrameId =
+    context.lastTransferredFrameId ?? lastTransferredFrameForLesson(lesson.id);
   const candidates = [
     ...authoredCandidatesFor(lesson, reviewFocus),
     ...generatedCandidatesFor(
@@ -6642,7 +6743,9 @@ export function buildLessonPracticePlan(lesson: Lesson, context: LessonPracticeP
       context.attemptNumber ?? 0,
       structureExposure,
       structureExposureForTransfer,
-      priorTransferredFrames
+      priorTransferredFrames,
+      priorTransferTargets,
+      lastTransferredFrameId
     ),
   ];
   const usedSignatures = new Set<string>();

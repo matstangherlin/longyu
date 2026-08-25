@@ -69,10 +69,12 @@ export async function buildStructureExposureIndex() {
     for (const lesson of ALL_LESSONS) {
       const bundle = lessonTasks.structureExposureSnapshotForLesson(lesson.id);
       const transferred = lessonTasks.priorTransferredFramesSnapshotForLesson(lesson.id);
+      const transferTargets = lessonTasks.priorTransferTargetsSnapshotForLesson(lesson.id);
       lessons[lesson.id] = {
         free: encodeMap(bundle.forFree),
         transfer: encodeMap(bundle.forTransfer),
         priorTransferred: [...transferred].sort(),
+        priorTransferTargets: [...transferTargets].sort(),
       };
     }
     return { lessons, lessonCount: ALL_LESSONS.length };
@@ -100,6 +102,7 @@ export interface PrecomputedLessonExposure {
   free: Record<string, number>;
   transfer: Record<string, number>;
   priorTransferred: string[];
+  priorTransferTargets: string[];
 }
 
 export const STRUCTURE_EXPOSURE_RUNG_BITS = ["exposed", "completion", "build", "guidedProduction"] as const;
