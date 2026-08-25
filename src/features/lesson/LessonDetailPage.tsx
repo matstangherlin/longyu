@@ -313,7 +313,7 @@ export function LessonDetailPage() {
         {topicNode ? (
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent" data-testid="topic-pass-label">
-              Lição {topicPass} de 4 · {passName}
+              {pathComplete ? "Tema dominado" : `Lição ${topicPass} de 4 · ${passName}`}
             </p>
             <p className="mt-2 break-words text-sm leading-6 text-ink sm:text-[15px]">
               {passGoal ?? spec?.promise ?? lessonDescription(lesson)}

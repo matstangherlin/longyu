@@ -1092,8 +1092,8 @@ function normalizeLessonStars(
       if ((normalized[lessonId] ?? 0) < 2) normalized[lessonId] = 2 as LessonStar;
       continue;
     }
-    // Não inflar estrelas de aulas já concluídas: 1★/2★ são válidos para
-    // avançar de aula; só a fase exige 3★ em todas.
+    // Não inflar estrelas de aulas já concluídas: 1★/2★ são válidos.
+    // Estrelas = qualidade; path unlock é mastery 4/4 (TM-017).
     const requiredStars = lessonCompletionRequiredStars(lessonId);
     if ((normalized[lessonId] ?? 0) < requiredStars) normalized[lessonId] = requiredStars;
   }

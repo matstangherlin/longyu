@@ -104,7 +104,7 @@ import {
   lessonTasksFor,
   resolveMasteryPassForContext,
 } from "./lessonTasks";
-import { dimensionForStepKind, isProductionOrTransferKind, nextMasteryPass } from "../../data/masteryLoop";
+import { dimensionForStepKind, isProductionOrTransferKind, MASTERY_PASS_LABELS, nextMasteryPass } from "../../data/masteryLoop";
 import { isMasteryPilotLesson } from "../../data/masteryPilot";
 import {
   energyIdempotencyKeyForPass,
@@ -1688,11 +1688,13 @@ function buildNextFocus({
   toneErrorCount,
   hanziErrorCount,
   nextLessonTitle,
+  topicContinue,
 }: {
   remainingErrorCount: number;
   toneErrorCount: number;
   hanziErrorCount: number;
   nextLessonTitle?: string;
+  topicContinue?: { title: string; nextPass: 1 | 2 | 3 | 4 };
 }): NextFocusSuggestion {
   if (remainingErrorCount > 0) {
     return {
@@ -1718,10 +1720,18 @@ function buildNextFocus({
       cta: "Praticar hànzì",
     };
   }
+  if (topicContinue) {
+    return {
+      title: `Lição ${topicContinue.nextPass} de 4 · ${MASTERY_PASS_LABELS[topicContinue.nextPass]}`,
+      desc: `Continue "${topicContinue.title}". O próximo tema só libera em 4/4.`,
+      to: "/jornada",
+      cta: "Continuar tema",
+    };
+  }
   if (nextLessonTitle) {
     return {
-      title: `Próxima lição: ${nextLessonTitle}`,
-      desc: "Você está pronto para avançar na Jornada.",
+      title: `Próximo tema: ${nextLessonTitle}`,
+      desc: "Este tema está 4/4. Você pode avançar na Jornada.",
       to: "/jornada",
       cta: "Continuar Jornada",
     };
@@ -3566,11 +3576,17 @@ export function LessonPlayer() {
     const hanziErrorCount = committedErrors.filter(
       (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
     ).length;
+    const masteryNow = lessonMasteryById?.[lesson.id]?.level ?? 0;
+    const topicContinue =
+      isTopicMasteryLesson(lesson) && masteryNow < 4
+        ? { title: lesson.title, nextPass: Math.min(4, masteryNow + 1) as 1 | 2 | 3 | 4 }
+        : undefined;
     const nextFocus = buildNextFocus({
       remainingErrorCount: remainingErrors.length,
       toneErrorCount,
       hanziErrorCount,
       nextLessonTitle: nextLesson?.title,
+      topicContinue,
     });
     const weakSkillsLabel =
       toneErrorCount > 0 && hanziErrorCount > 0
@@ -4090,14 +4106,20 @@ export function LessonPlayer() {
 
           {(lessonPendingStars[lesson.id]?.length ?? 0) > 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              Você pulou com Fôlego: a próxima aula já está liberada. A 3ª estrela fica{" "}
+              {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
+                ? "Você pulou com Fôlego: esta lição do tema conta, mas o próximo tema só libera em 4/4. A 3ª estrela fica "
+                : "Você pulou com Fôlego: a próxima aula já está liberada. A 3ª estrela fica "}
               <span className="font-semibold">pendente</span> — domine o item na revisão e ela volta sozinha.
             </div>
           )}
 
           {!recovered && stars === 2 && (lessonPendingStars[lesson.id]?.length ?? 0) === 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              Próxima aula liberada. Busque 3 estrelas nas aulas da fase para avançar de fase.
+              {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
+                ? "Lição do tema concluída. Continue até 4/4 para liberar o próximo. Estrelas medem qualidade, não o anel."
+                : isTopicMasteryLesson(lesson)
+                  ? "Tema 4/4. Estrelas continuam medindo a qualidade desta sessão."
+                  : "Etapa concluída. Estrelas medem qualidade; o avanço curricular usa o caminho da Jornada."}
             </div>
           )}
 

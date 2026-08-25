@@ -34,12 +34,15 @@ export function computeLessonStars({
   return 1;
 }
 
-/** Estrelas mínimas para concluir a aula (desbloqueia a próxima aula da fase). */
+/** Estrelas mínimas para concluir a sessão (qualidade). Path unlock usa 4/4, não isto. */
 export function requiredStarsForLesson(isReview = false): number {
   return isReview ? 2 : 1;
 }
 
-/** 3 estrelas em todas as aulas da fase para liberar a próxima fase. */
+/**
+ * Qualidade-alvo de uma sessão (não é gate curricular V4.6).
+ * O avanço de tema/fase usa mastery 4/4 (TM-017).
+ */
 export function requiredStarsForPhaseAdvance(): number {
   return 3;
 }
@@ -60,7 +63,7 @@ export function canCompleteLesson(
           : 0;
     return accuracy >= MODULE_REVIEW_PASS_ACCURACY;
   }
-  // Aula normal: concluir (1★+) libera a próxima aula. A 3ª estrela é o alvo
-  // de domínio e só trava o avanço de fase (ver requiredStarsForPhaseAdvance).
+  // Aula normal: 1★+ conclui a sessão (pass). A 3ª estrela é qualidade.
+  // O próximo tema só libera em mastery 4/4 (TM-017).
   return stars >= requiredStarsForLesson(isReview);
 }
