@@ -5,10 +5,10 @@
  * dificuldade linguística da transformação; este mede quanto APOIO visual
  * a UI oferece. O aluno forte fica no 0; quem trava sobe sob demanda.
  *
- * 0 independente — situação + input
- * 1 padrão — 你要 ___ 吗？
- * 2 estrutura — 你 | 要 | ___ | 吗 + rótulos
- * 3 vocabulário — poucas palavras úteis (não monta a frase)
+ * 0 independente — situação + input (+ âncora/componente na transferência)
+ * 1 padrão — 你要 ___ 吗？ (nunca o alvo completo sem buraco)
+ * 2 estrutura — 你 | 要 | ___ | 吗 + rótulos / posição do componente
+ * 3 vocabulário / transformação — pode revelar alvo após ajuda (V4.6)
  * 4 sentence build — só após dificuldade repetida
  */
 
@@ -38,8 +38,9 @@ export interface ProductionHelpPlan {
 
 /**
  * Nível inicial depende do estágio pedagógico:
- * - 1ª transferência da estrutura → mais guiada (padrão à vista)
- * - transferências posteriores / retry → independente
+ * - transferência (incl. 1ª da estrutura) → independente (nível 0)
+ *   O scaffold honesto (âncora + componente + desafio) não revela o alvo;
+ *   o padrão/transformação só sobem sob pedido de ajuda ou erro (V4.6).
  * - free guiada → padrão (é produção apoiada por definição)
  * - open → independente
  */
@@ -56,12 +57,13 @@ export function resolveProductionHelpPlan(input: {
   if (input.kind === "free_production") {
     return { initial: 1, softCeiling: 3, firstOfStructure: false };
   }
-  // Retry da mesma lição: já viu o desafio — menos andaime.
+  // Transfer: sempre começa sem revelar alvo (V4.6 target integrity).
+  // 1ª da estrutura mantém teto mais alto para quem pedir ajuda.
   if (attemptNumber > 0) {
     return { initial: 0, softCeiling: 2, firstOfStructure: false };
   }
   if (input.firstOfStructure) {
-    return { initial: 1, softCeiling: 3, firstOfStructure: true };
+    return { initial: 0, softCeiling: 3, firstOfStructure: true };
   }
   return { initial: 0, softCeiling: 2, firstOfStructure: false };
 }

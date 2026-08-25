@@ -300,13 +300,21 @@ export interface LessonStep {
   transferAnchorHanzi?: string;
   transferAnchorPinyin?: string;
   transferAnchorPt?: string;
+  /** Peça nova conhecida (ex.: 请问) — scaffold honesto sem revelar o alvo. */
+  transferComponentHanzi?: string;
+  transferComponentPt?: string;
+  /** Desafio em pt-BR sem o alvo completo em hànzì. */
+  transferChallengePt?: string;
+  /** Padrão com buraco quando patternPt seria o alvo completo. */
+  transferSafePatternPt?: string;
   /** A frase alvo não existe no currículo: acertar exige aplicar o padrão. */
   isNovelCombination?: boolean;
   /** Degrau de scaffold da produção/transferência:
    * guided → supported → question → open.
    */
   productionAssist?: "guided" | "supported" | "question" | "open";
-  /** Dica visual de transformação (ex.: 我 → 你) no degrau supported. */
+  /** Dica visual de transformação (ex.: 我 → 你) no degrau supported.
+   * O campo `to` só aparece após revelação (erro / ajuda nível ≥ 3). */
   transferTransformHint?: { from: string; to: string };
   /** Auditoria V4.5 — por que o aluno está pronto para esta transferência. */
   transferSelectionMeta?: import("./productionTasks").TransferSelectionMeta;

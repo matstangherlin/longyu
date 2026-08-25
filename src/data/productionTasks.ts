@@ -215,8 +215,18 @@ export interface SentenceFrame {
   /**
    * Dica visual de transformação (supported): o que muda vs a âncora.
    * Ex.: { from: "我", to: "你" }.
+   * O campo `to` NÃO deve aparecer na UI antes da revelação (V4.6).
    */
   transferTransformHint?: { from: string; to: string };
+  /**
+   * Peça nova conhecida (ex.: 请问) — mostrada no scaffold honesto sem revelar o alvo.
+   */
+  transferComponentHanzi?: string;
+  transferComponentPt?: string;
+  /** Desafio em pt-BR sem hànzì do alvo completo. */
+  transferChallengePt?: string;
+  /** Padrão com buraco quando patternPt == alvo (ex.: 请问，___). */
+  transferSafePatternPt?: string;
   /**
    * Primeira transferência combinacional global: supported permitido na tentativa 0
    * (ex.: 请问 + pergunta já produzida).
@@ -319,6 +329,10 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     transferAssist: "supported",
     transferRequiresFrameIds: ["frame_nijiaoshenme"],
     transferTransformHint: { from: "你叫什么？", to: "请问，你叫什么？" },
+    transferComponentHanzi: "请问",
+    transferComponentPt: "com licença / por favor (ao perguntar)",
+    transferChallengePt: "Use 请问 antes da pergunta.",
+    transferSafePatternPt: "请问，___",
     earlyTransferOnAttemptZero: true,
     introLessonId: "p1-qingwen-cortesia",
     fillers: [{ vocabId: "v_shenme", promptPt: "pergunte o nome" }],
@@ -361,6 +375,9 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
     transferAssist: "supported",
     transferRequiresFrameIds: ["frame_zainali"],
     transferTransformHint: { from: "…在哪里？", to: "请问，…在哪里？" },
+    transferComponentHanzi: "请问",
+    transferComponentPt: "com licença / por favor (ao perguntar)",
+    transferChallengePt: "Use 请问 antes de perguntar onde fica.",
     fillers: [
       { vocabId: "v_yinhang", promptPt: "o banco" },
       { vocabId: "v_chaoshi", promptPt: "o supermercado" },
@@ -766,6 +783,11 @@ export interface FrameTask {
   transferRequiresMa: boolean;
   /** Dica visual de transformação (supported / question). */
   transferTransformHint?: { from: string; to: string };
+  /** Peça nova conhecida — scaffold honesto (V4.6). */
+  transferComponentHanzi?: string;
+  transferComponentPt?: string;
+  transferChallengePt?: string;
+  transferSafePatternPt?: string;
   /** Primeira transferência global: supported na tentativa 0. */
   earlyTransferOnAttemptZero?: boolean;
 }
@@ -881,6 +903,10 @@ function frameTasks(frame: SentenceFrame): FrameTask[] {
           transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
           transferRequiresMa: Boolean(frame.transferRequiresMa),
           transferTransformHint: frame.transferTransformHint,
+          transferComponentHanzi: frame.transferComponentHanzi,
+          transferComponentPt: frame.transferComponentPt,
+          transferChallengePt: frame.transferChallengePt,
+          transferSafePatternPt: frame.transferSafePatternPt,
           earlyTransferOnAttemptZero: frame.earlyTransferOnAttemptZero,
         });
       }
@@ -940,6 +966,10 @@ function corpusTasksForFrame(frame: SentenceFrame): FrameTask[] {
       transferRequiresFrameIds: frame.transferRequiresFrameIds ?? [],
       transferRequiresMa: Boolean(frame.transferRequiresMa),
       transferTransformHint: frame.transferTransformHint,
+      transferComponentHanzi: frame.transferComponentHanzi,
+      transferComponentPt: frame.transferComponentPt,
+      transferChallengePt: frame.transferChallengePt,
+      transferSafePatternPt: frame.transferSafePatternPt,
       earlyTransferOnAttemptZero: frame.earlyTransferOnAttemptZero,
     });
   }

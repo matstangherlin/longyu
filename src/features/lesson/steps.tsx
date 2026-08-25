@@ -46,6 +46,11 @@ import {
   unlockProductionHelpAfterMistake,
   type ProductionHelpLevel,
 } from "../../data/productionHelp";
+import {
+  canRevealTransferTarget,
+  patternRevealsFullTarget,
+  safeTransferPatternPt,
+} from "../../data/transferTargetIntegrity";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import {
   AssemblyHintBanner,
@@ -4172,10 +4177,21 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
 
   const buildBank = step.productionHelpBuildBank ?? [];
   const vocabHints = step.productionHelpVocab ?? [];
-  const showPattern = helpLevel >= 1 && Boolean(step.patternPt);
-  const showStructure = helpLevel >= 2 && Boolean(step.patternPt || step.patternSlots?.length);
+  const targetRevealed = isTransfer
+    ? canRevealTransferTarget({ helpLevel, feedback, hadMistake })
+    : true;
+  const displayPatternPt = isTransfer
+    ? targetRevealed && helpLevel >= 3
+      ? step.patternPt
+      : step.transferSafePatternPt ??
+        safeTransferPatternPt(step.patternPt, model) ??
+        (patternRevealsFullTarget(step.patternPt, model) ? undefined : step.patternPt)
+    : step.patternPt;
+  const showPattern = helpLevel >= 1 && Boolean(displayPatternPt);
+  const showStructure = helpLevel >= 2 && Boolean(displayPatternPt || step.patternSlots?.length);
   const showVocab = helpLevel >= 3 && vocabHints.length > 0 && !isOpen;
   const showBuild = helpLevel >= 4 && buildBank.length >= 2 && !isOpen;
+  const showTransformTo = Boolean(step.transferTransformHint) && targetRevealed && helpLevel >= 3;
   const canRequestMore = nextProductionHelpLevel(helpLevel, unlockedMax) != null;
 
   function finishDone(correct: boolean) {
@@ -4405,6 +4421,8 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         data-production-step={step.kind}
         data-production-assist={step.productionAssist ?? "guided"}
         data-production-help-initial={initialHelp}
+        data-transfer-help-level={helpLevel}
+        data-transfer-target-revealed={targetRevealed ? "true" : "false"}
         className="mx-auto w-full max-w-lg"
       >
         <Eyebrow>Transferência</Eyebrow>
@@ -4420,9 +4438,9 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         </section>
 
         {step.transferAnchorHanzi ? (
-          <section className="mt-3" data-production-learned>
+          <section className="mt-3" data-production-learned data-transfer-anchor>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              Você já conhece
+              Você já sabe
             </div>
             <p className="mt-1 hanzi text-2xl leading-tight text-ink sm:text-[1.7rem]">
               <ExerciseText value={step.transferAnchorHanzi} type="hanzi" speakOnClick />
@@ -4430,17 +4448,47 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
             {step.transferAnchorPinyin ? (
               <Pinyin text={step.transferAnchorPinyin} className="mt-0.5 block text-sm text-ink-soft" />
             ) : null}
-            {step.transferTransformHint && helpLevel >= 1 ? (
-              <div
-                className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft"
-                data-production-transform-hint
-              >
-                <span className="hanzi text-base text-ink">{step.transferTransformHint.from}</span>
-                <span aria-hidden>→</span>
-                <span className="hanzi text-base text-ink">{step.transferTransformHint.to}</span>
-              </div>
+          </section>
+        ) : null}
+
+        {step.transferComponentHanzi ? (
+          <section className="mt-3" data-transfer-component>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              Peça conhecida
+            </div>
+            <p className="mt-1 hanzi text-2xl leading-tight text-ink sm:text-[1.7rem]">
+              <ExerciseText value={step.transferComponentHanzi} type="hanzi" speakOnClick />
+            </p>
+            {step.transferComponentPt ? (
+              <p className="mt-0.5 text-sm text-ink-soft">{step.transferComponentPt}</p>
             ) : null}
           </section>
+        ) : null}
+
+        {step.transferChallengePt || (!showPattern && !showTransformTo) ? (
+          <section className="mt-3" data-transfer-challenge>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+              Desafio
+            </div>
+            <p className="mt-1 text-base font-medium leading-6 text-ink">
+              {step.transferChallengePt ?? "Aplique o que você já sabe nesta situação nova."}
+            </p>
+          </section>
+        ) : null}
+
+        {step.transferTransformHint && helpLevel >= 3 ? (
+          <div
+            className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft"
+            data-production-transform-hint
+          >
+            <span className="hanzi text-base text-ink">{step.transferTransformHint.from}</span>
+            <span aria-hidden>→</span>
+            {showTransformTo ? (
+              <span className="hanzi text-base text-ink">{step.transferTransformHint.to}</span>
+            ) : (
+              <span className="text-base text-ink-faint">?</span>
+            )}
+          </div>
         ) : null}
 
         {showPattern ? (
@@ -4449,7 +4497,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
               Use este padrão
             </div>
             <p className="mt-1 hanzi text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-[1.7rem]">
-              {step.patternPt}
+              {displayPatternPt}
             </p>
             {step.productionAssist === "question" ? (
               <p className="sr-only" data-production-question-hint>
@@ -4458,7 +4506,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
             ) : null}
             {showStructure ? (
               <StructureHowItWorks
-                patternPt={step.patternPt}
+                patternPt={displayPatternPt}
                 slots={step.patternSlots}
                 lessonId={lessonId}
                 frameId={step.productionFrameId}

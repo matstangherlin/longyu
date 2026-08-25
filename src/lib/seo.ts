@@ -160,6 +160,7 @@ const NOINDEX_PREFIXES = [
   "/ajustes",
   "/mais",
   "/admin",
+  "/qa",
   "/licao",
   "/teste",
   "/convite",

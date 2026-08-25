@@ -30,8 +30,9 @@ function localResolve(input) {
   const attemptNumber = input.attemptNumber ?? 0;
   if (input.productionOpen) return { initial: 0, softCeiling: 1, firstOfStructure: false };
   if (input.kind === "free_production") return { initial: 1, softCeiling: 3, firstOfStructure: false };
+  // V4.6: transfer always starts at 0 (no target leak).
   if (attemptNumber > 0) return { initial: 0, softCeiling: 2, firstOfStructure: false };
-  if (input.firstOfStructure) return { initial: 1, softCeiling: 3, firstOfStructure: true };
+  if (input.firstOfStructure) return { initial: 0, softCeiling: 3, firstOfStructure: true };
   return { initial: 0, softCeiling: 2, firstOfStructure: false };
 }
 
@@ -42,7 +43,7 @@ function unlock({ unlockedMax, mistakeCount, softCeiling }) {
 }
 
 const first = localResolve({ kind: "transfer_task", firstOfStructure: true, attemptNumber: 0 });
-assert.equal(first.initial, 1, "1ª transfer começa no padrão");
+assert.equal(first.initial, 0, "1ª transfer começa independente (sem vazar alvo)");
 assert.equal(first.softCeiling, 3, "1ª transfer pode pedir até vocabulário");
 
 const later = localResolve({ kind: "transfer_task", firstOfStructure: false, attemptNumber: 0 });
@@ -79,7 +80,7 @@ if (mod?.resolveProductionHelpPlan) {
     firstOfStructure: true,
     attemptNumber: 0,
   });
-  assert.equal(plan.initial, 1);
+  assert.equal(plan.initial, 0, "módulo TS: 1ª transfer initial=0");
 }
 
 console.log("OK: test:production-help (níveis 0–4 · inicial por estágio · unlock pós-erro).");

@@ -46,6 +46,9 @@ const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage"
 const MarketingPage = lazy(() => import("./features/marketing/MarketingPage").then((m) => ({ default: m.MarketingPage })));
 const BusinessPage = lazy(() => import("./features/business/BusinessPage").then((m) => ({ default: m.BusinessPage })));
 
+const QaHubPage = lazy(() => import("./features/qa/QaPlayerPage").then((m) => ({ default: m.QaHubPage })));
+const QaPlayerPage = lazy(() => import("./features/qa/QaPlayerPage").then((m) => ({ default: m.QaPlayerPage })));
+
 // Landing (pública) fica estática: é a primeira pintura para novos visitantes.
 import { LandingPage } from "./features/landing/LandingPage";
 
@@ -102,6 +105,8 @@ export const routes: RouteObject[] = [
       { path: "mais", element: <MorePage /> },
       { path: "sobre", element: <AboutPage /> },
       { path: "admin/feedback", element: <AdminFeedbackPage /> },
+      { path: "qa", element: <QaHubPage /> },
+      { path: "qa/player/:fixtureId", element: <QaPlayerPage /> },
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },
       { path: "teste/:unitId", element: <ModuleChallengePage /> },

@@ -7,6 +7,19 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.6 — Paid Beta Release Candidate
+
+Transforma a main pós-V4.5 em candidato a beta paga fechada: integridade cognitiva da transferência, contrato de QA físico, fast path `/qa`, sentinelas históricas e evidência de release **sem** inventar QA humano.
+
+- **Transfer target integrity:** scaffold `supported` não mostra `请问，你叫什么？` antes de tentativa / erro / ajuda ≥ nível 3. Âncora + componente + desafio honestos. Atributos `data-transfer-*`.
+- Gates: `test:transfer-target-integrity`, `validate:transfer-target-integrity`, E2E mobile.
+- **QA físico:** `docs/reports/paid-beta-device-qa.md` (AUTOMATED vs HUMAN).
+- **Fast path:** `/qa` + `/qa/player/:fixture` (DEV/preview only; sem mutar progresso/economia/SRS).
+- Sentinelas A–H: `test:paid-beta-regression-sentinels`.
+- RC board: `docs/reports/paid-beta-release-candidate.md` + `validate:paid-beta-rc` (nunca promove READY sozinho).
+- Auditoria PRs: `docs/reports/stale-pr-audit.md` (#181 SUPERSEDED).
+- **Não** cria pedagogia nova, Business Admin, Stripe live, nem declara produção pronta só com CI.
+
 ### V4.5 — Early Transfer Ladder
 
 Antecipa a primeira **transferência combinacional verdadeira** de L47 para **L15** (`l2-rev`): **`请问，你叫什么？`**, depois de produção guiada de `你叫什么？` (L13) e exposição a `请问` (L14).

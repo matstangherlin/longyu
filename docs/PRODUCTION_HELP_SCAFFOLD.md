@@ -12,10 +12,12 @@ Não transforma transferência em múltipla escolha. O aluno forte responde sem 
 
 ## Nível inicial
 
-- 1ª transferência da estrutura → **1** (padrão à vista)
-- transferências posteriores / retry da lição → **0**
+- transferência (incl. 1ª da estrutura) → **0** (V4.6: sem vazar o alvo)
 - free guiada → **1**
 - open → **0**
+
+Na transferência, o scaffold honesto (âncora + componente + desafio) aparece no nível 0.
+O alvo completo / transformação `from → to` só no nível **≥ 3** (ajuda explícita), após erro, ou no feedback pós-resposta.
 
 ## Pós-erro
 

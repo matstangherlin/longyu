@@ -195,7 +195,7 @@ test.describe("QA regression guard — transferência", () => {
     const transfer = page.locator('[data-production-step="transfer_task"]');
     // Não usar "Use este padrão" — free_production guiada também mostra esse texto
     // e o loop parava antes do transfer_task.
-    const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte|Aplique a transformação/i);
+    const transferCopy = page.getByText(/Transferência|Você já sabe|Você já conhece|Troque só uma parte|Aplique a transformação|Peça conhecida|Desafio/i);
     const deadline = Date.now() + 120_000;
     let steps = 0;
     while (
@@ -241,9 +241,9 @@ test.describe("QA regression guard — transferência", () => {
     }
 
     await expect(transfer).toBeVisible({ timeout: 5_000 });
-    await expect(page.locator("[data-production-learned]")).toBeVisible();
+    await expect(page.locator("[data-production-learned], [data-transfer-anchor]")).toBeVisible();
     await expect(page.locator("[data-production-situation]")).toBeVisible();
-    await expect(page.locator("[data-production-goal]")).toBeVisible();
+    await expect(page.locator("[data-production-goal], [data-transfer-challenge]")).toBeVisible();
     await expect(page.locator("[data-production-answer] input, [data-production-answer] textarea").first()).toBeVisible();
     await expect(page.locator("body")).not.toContainText(/Nenhuma alternativa e nenhuma peça/);
   });

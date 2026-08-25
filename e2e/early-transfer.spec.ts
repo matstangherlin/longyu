@@ -4,7 +4,7 @@
  * Prova pedagógica, não só geometry:
  * - 你叫什么？ já foi ensinado/produzido antes
  * - 请问 foi ensinado
- * - a frase completa 请问，你叫什么？ nunca foi mostrada pronta
+ * - a frase completa 请问，你叫什么？ NÃO aparece no scaffold antes da tentativa (V4.6)
  * - L15 gera transfer_task supported
  * - input + CTA aceitam a resposta correta
  */
@@ -18,6 +18,8 @@ const VIEWPORTS = [
   { label: "390×844", width: 390, height: 844 },
   { label: "667×360 landscape", width: 667, height: 360 },
 ] as const;
+
+const TARGET = "请问，你叫什么？";
 
 for (const viewport of VIEWPORTS) {
   test.describe(`V4.5 early transfer · ${viewport.label}`, () => {
@@ -36,24 +38,28 @@ for (const viewport of VIEWPORTS) {
 
       const transfer = page.locator('[data-production-step="transfer_task"]');
       await expect(transfer).toBeVisible();
-      await expect(page.locator("[data-production-learned]")).toBeVisible();
+      await expect(page.locator("[data-production-learned], [data-transfer-anchor]")).toBeVisible();
       await expect(page.locator("[data-production-situation]")).toBeVisible();
-      // Âncora conhecida visível; supported pode mostrar a seta de transformação
-      // (你叫什么？→请问，你叫什么？) — isso é scaffold, não frase memorizada do currículo.
-      await expect(page.locator("[data-production-learned]")).toContainText(/你叫什么/);
-      await expect(page.locator("[data-production-situation]")).not.toContainText(/请问，你叫什么/);
+      await expect(page.locator("[data-transfer-anchor], [data-production-learned]")).toContainText(
+        /你叫什么/
+      );
+      await expect(page.locator("[data-production-situation]")).not.toContainText(TARGET);
+      // V4.6: scaffold honesto — alvo completo não aparece antes da tentativa
+      await expect(transfer).toHaveAttribute("data-transfer-target-revealed", "false");
+      const before = (await transfer.innerText()).replace(/\s/g, "");
+      expect(before).not.toContain(TARGET.replace(/\s/g, ""));
 
       const input = page.locator("[data-production-answer] textarea, [data-production-answer] input").first();
       await expect(input).toBeVisible();
-      await input.fill("请问，你叫什么？");
+      await input.fill(TARGET);
 
       const verify = page.getByRole("button", { name: /^Verificar$/ });
       await expect(verify).toBeVisible();
       await verify.click();
 
-      await expect(
-        page.getByText(/Certo|\+Qi|Continue|Próximo|Boa/i).first()
-      ).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByText(/Certo|\+Qi|Continue|Próximo|Boa/i).first()).toBeVisible({
+        timeout: 10_000,
+      });
     });
   });
 }

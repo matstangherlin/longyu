@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback, startTransition, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -16,6 +16,7 @@ import { diagnoseError, type ErrorDiagnosis } from "../../data/errorDiagnosis";
 import type { ItemType } from "../../data/types";
 import { canAccessLesson } from "../../lib/journeyUnlocks";
 import { canStartLesson, canUseUnlimitedRetry, useIsPro } from "../../lib/proAccess";
+import { beginQaSession, isQaSessionActive } from "../../lib/qaSession";
 import {
   DAILY_GOAL_PER_TRACK,
   useStore,
@@ -1723,16 +1724,44 @@ function buildNextFocus({
   };
 }
 
-export function LessonPlayer() {
-  const { lessonId } = useParams();
+export function LessonPlayer(props: { qaMode?: boolean; lessonIdOverride?: string } = {}) {
+  const { qaMode = false, lessonIdOverride } = props;
+  const { lessonId: routeLessonId } = useParams();
+  const lessonId = lessonIdOverride ?? routeLessonId;
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
-  const completeLesson = useStore((s) => s.completeLesson);
-  const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
+  useEffect(() => {
+    if (qaMode) beginQaSession();
+  }, [qaMode]);
+  const qa = qaMode || isQaSessionActive();
+
+  const completeLessonRaw = useStore((s) => s.completeLesson);
+  const completeLesson = useCallback(
+    (id: string) => {
+      if (qa) return;
+      completeLessonRaw(id);
+    },
+    [qa, completeLessonRaw]
+  );
+  const recordLessonMasteryPassRaw = useStore((s) => s.recordLessonMasteryPass);
+  const recordLessonMasteryPass = useCallback(
+    (...args: Parameters<typeof recordLessonMasteryPassRaw>) => {
+      if (qa) return;
+      return recordLessonMasteryPassRaw(...args);
+    },
+    [qa, recordLessonMasteryPassRaw]
+  );
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
   const itemDimensionsByRef = useStore((s) => s.itemDimensionsByRef);
-  const addChest = useStore((s) => s.addChest);
+  const addChestRaw = useStore((s) => s.addChest);
+  const addChest = useCallback(
+    (...args: Parameters<typeof addChestRaw>) => {
+      if (qa) return;
+      return addChestRaw(...args);
+    },
+    [qa, addChestRaw]
+  );
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const learnedChars = useStore((s) => s.learnedChars);
@@ -1740,9 +1769,30 @@ export function LessonPlayer() {
   // Pro efetivo (assinatura real OU preview local) — nunca só o preview.
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
-  const gradeSrs = useStore((s) => s.gradeSrs);
-  const ensureSrs = useStore((s) => s.ensureSrs);
-  const addMinutes = useStore((s) => s.addMinutes);
+  const gradeSrsRaw = useStore((s) => s.gradeSrs);
+  const gradeSrs = useCallback(
+    (...args: Parameters<typeof gradeSrsRaw>) => {
+      if (qa) return;
+      return gradeSrsRaw(...args);
+    },
+    [qa, gradeSrsRaw]
+  );
+  const ensureSrsRaw = useStore((s) => s.ensureSrs);
+  const ensureSrs = useCallback(
+    (...args: Parameters<typeof ensureSrsRaw>) => {
+      if (qa) return ensureSrsRaw(...args); // read-path ok; ensure is mostly idempotent
+      return ensureSrsRaw(...args);
+    },
+    [qa, ensureSrsRaw]
+  );
+  const addMinutesRaw = useStore((s) => s.addMinutes);
+  const addMinutes = useCallback(
+    (...args: Parameters<typeof addMinutesRaw>) => {
+      if (qa) return;
+      return addMinutesRaw(...args);
+    },
+    [qa, addMinutesRaw]
+  );
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const cloudSyncState = useStore((s) => s.cloudSyncState);
   const online = useOnline();
@@ -1751,24 +1801,91 @@ export function LessonPlayer() {
   const streakShields = useStore((s) => s.streakShields);
   const badges = useStore((s) => s.badges);
   const rewardHistory = useStore((s) => s.rewardHistory);
-  const claimReward = useStore((s) => s.claimReward);
-  const maybeClaimPearlMilestonesFromProgress = useStore((s) => s.maybeClaimPearlMilestonesFromProgress);
-  const grantLessonReward = useStore((s) => s.grantLessonReward);
+  const claimRewardRaw = useStore((s) => s.claimReward);
+  const claimReward = useCallback(
+    (...args: Parameters<typeof claimRewardRaw>) => {
+      if (qa) return false;
+      return claimRewardRaw(...args);
+    },
+    [qa, claimRewardRaw]
+  );
+  const maybeClaimPearlMilestonesFromProgressRaw = useStore((s) => s.maybeClaimPearlMilestonesFromProgress);
+  const maybeClaimPearlMilestonesFromProgress = useCallback(() => {
+    if (qa) return;
+    return maybeClaimPearlMilestonesFromProgressRaw();
+  }, [qa, maybeClaimPearlMilestonesFromProgressRaw]);
+  const grantLessonRewardRaw = useStore((s) => s.grantLessonReward);
+  const grantLessonReward = useCallback(
+    (...args: Parameters<typeof grantLessonRewardRaw>) => {
+      if (qa) return false;
+      return grantLessonRewardRaw(...args);
+    },
+    [qa, grantLessonRewardRaw]
+  );
   const folego = useStore((s) => s.folego);
-  const spendFolego = useStore((s) => s.spendFolego);
-  const tryEarnFolegoFromPerfect = useStore((s) => s.tryEarnFolegoFromPerfect);
-  const setLessonStars = useStore((s) => s.setLessonStars);
-  const setLessonPendingStars = useStore((s) => s.setLessonPendingStars);
+  const spendFolegoRaw = useStore((s) => s.spendFolego);
+  const spendFolego = useCallback(
+    (...args: Parameters<typeof spendFolegoRaw>) => {
+      if (qa) return true; // UI local: não gasta fôlego real
+      return spendFolegoRaw(...args);
+    },
+    [qa, spendFolegoRaw]
+  );
+  const tryEarnFolegoFromPerfectRaw = useStore((s) => s.tryEarnFolegoFromPerfect);
+  const tryEarnFolegoFromPerfect = useCallback(
+    (...args: Parameters<typeof tryEarnFolegoFromPerfectRaw>) => {
+      if (qa) return false;
+      return tryEarnFolegoFromPerfectRaw(...args);
+    },
+    [qa, tryEarnFolegoFromPerfectRaw]
+  );
+  const setLessonStarsRaw = useStore((s) => s.setLessonStars);
+  const setLessonStars = useCallback(
+    (...args: Parameters<typeof setLessonStarsRaw>) => {
+      if (qa) return;
+      return setLessonStarsRaw(...args);
+    },
+    [qa, setLessonStarsRaw]
+  );
+  const setLessonPendingStarsRaw = useStore((s) => s.setLessonPendingStars);
+  const setLessonPendingStars = useCallback(
+    (...args: Parameters<typeof setLessonPendingStarsRaw>) => {
+      if (qa) return;
+      return setLessonPendingStarsRaw(...args);
+    },
+    [qa, setLessonPendingStarsRaw]
+  );
   const lessonPendingStars = useStore((s) => s.lessonPendingStars);
   const points = useStore((s) => s.points);
-  const spendQi = useStore((s) => s.spendQi);
+  const spendQiRaw = useStore((s) => s.spendQi);
+  const spendQi = useCallback(
+    (...args: Parameters<typeof spendQiRaw>) => {
+      if (qa) return true;
+      return spendQiRaw(...args);
+    },
+    [qa, spendQiRaw]
+  );
   const soundEffects = useStore((s) => s.soundEffects);
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
-  const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
+  const setLessonTaskProgressRaw = useStore((s) => s.setLessonTaskProgress);
+  const setLessonTaskProgress = useCallback(
+    (...args: Parameters<typeof setLessonTaskProgressRaw>) => {
+      if (qa) return;
+      return setLessonTaskProgressRaw(...args);
+    },
+    [qa, setLessonTaskProgressRaw]
+  );
   const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
   // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
   const recentActivities = useStore((s) => s.recentActivities);
-  const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
+  const recordActivityPlayedRaw = useStore((s) => s.recordActivityPlayed);
+  const recordActivityPlayed = useCallback(
+    (...args: Parameters<typeof recordActivityPlayedRaw>) => {
+      if (qa) return;
+      return recordActivityPlayedRaw(...args);
+    },
+    [qa, recordActivityPlayedRaw]
+  );
   /**
    * VAR-015 — o histórico entra CONGELADO no início da lição.
    *
@@ -1783,20 +1900,104 @@ export function LessonPlayer() {
   }
   const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
   const conversationHistory = useStore((s) => s.conversationHistory);
-  const recordConversationScene = useStore((s) => s.recordConversationScene);
-  const consumeCharge = useStore((s) => s.consumeCharge);
+  const recordConversationSceneRaw = useStore((s) => s.recordConversationScene);
+  const recordConversationScene = useCallback(
+    (...args: Parameters<typeof recordConversationSceneRaw>) => {
+      if (qa) return;
+      return recordConversationSceneRaw(...args);
+    },
+    [qa, recordConversationSceneRaw]
+  );
+  const consumeChargeRaw = useStore((s) => s.consumeCharge);
+  const consumeCharge = useCallback(
+    (...args: Parameters<typeof consumeChargeRaw>) => {
+      if (qa) return true;
+      return consumeChargeRaw(...args);
+    },
+    [qa, consumeChargeRaw]
+  );
   const inventory = useStore((s) => s.inventory);
-  const useInventoryItem = useStore((s) => s.useInventoryItem);
-  const recordDailyTask = useStore((s) => s.recordDailyTask);
-  const recordActivityError = useStore((s) => s.recordActivityError);
-  const registerUnrecognizedProduction = useStore((s) => s.registerUnrecognizedProduction);
-  const markActivityErrorCorrected = useStore((s) => s.markActivityErrorCorrected);
-  const recordActivityErrorReviewAttempt = useStore((s) => s.recordActivityErrorReviewAttempt);
-  const setCurrentLessonAttempt = useStore((s) => s.setCurrentLessonAttempt);
-  const finishLessonAttempt = useStore((s) => s.finishLessonAttempt);
+  const useInventoryItemRaw = useStore((s) => s.useInventoryItem);
+  const useInventoryItem = useCallback(
+    (...args: Parameters<typeof useInventoryItemRaw>) => {
+      if (qa) return true;
+      return useInventoryItemRaw(...args);
+    },
+    [qa, useInventoryItemRaw]
+  );
+  const recordDailyTaskRaw = useStore((s) => s.recordDailyTask);
+  const recordDailyTask = useCallback(
+    (...args: Parameters<typeof recordDailyTaskRaw>) => {
+      if (qa) return;
+      return recordDailyTaskRaw(...args);
+    },
+    [qa, recordDailyTaskRaw]
+  );
+  const recordActivityErrorRaw = useStore((s) => s.recordActivityError);
+  const recordActivityError = useCallback(
+    (...args: Parameters<typeof recordActivityErrorRaw>) => {
+      if (qa) return;
+      return recordActivityErrorRaw(...args);
+    },
+    [qa, recordActivityErrorRaw]
+  );
+  const registerUnrecognizedProductionRaw = useStore((s) => s.registerUnrecognizedProduction);
+  const registerUnrecognizedProduction = useCallback(
+    (...args: Parameters<typeof registerUnrecognizedProductionRaw>) => {
+      if (qa) return;
+      return registerUnrecognizedProductionRaw(...args);
+    },
+    [qa, registerUnrecognizedProductionRaw]
+  );
+  const markActivityErrorCorrectedRaw = useStore((s) => s.markActivityErrorCorrected);
+  const markActivityErrorCorrected = useCallback(
+    (...args: Parameters<typeof markActivityErrorCorrectedRaw>) => {
+      if (qa) return;
+      return markActivityErrorCorrectedRaw(...args);
+    },
+    [qa, markActivityErrorCorrectedRaw]
+  );
+  const recordActivityErrorReviewAttemptRaw = useStore((s) => s.recordActivityErrorReviewAttempt);
+  const recordActivityErrorReviewAttempt = useCallback(
+    (...args: Parameters<typeof recordActivityErrorReviewAttemptRaw>) => {
+      if (qa) return;
+      return recordActivityErrorReviewAttemptRaw(...args);
+    },
+    [qa, recordActivityErrorReviewAttemptRaw]
+  );
+  const setCurrentLessonAttemptRaw = useStore((s) => s.setCurrentLessonAttempt);
+  const setCurrentLessonAttempt = useCallback(
+    (...args: Parameters<typeof setCurrentLessonAttemptRaw>) => {
+      if (qa) return;
+      return setCurrentLessonAttemptRaw(...args);
+    },
+    [qa, setCurrentLessonAttemptRaw]
+  );
+  const finishLessonAttemptRaw = useStore((s) => s.finishLessonAttempt);
+  const finishLessonAttempt = useCallback(
+    (...args: Parameters<typeof finishLessonAttemptRaw>) => {
+      if (qa) return;
+      return finishLessonAttemptRaw(...args);
+    },
+    [qa, finishLessonAttemptRaw]
+  );
   const setHoldAchievementModals = useStore((s) => s.setHoldAchievementModals);
-  const recordLessonMistake = useStore((s) => s.recordLessonMistake);
-  const markMistakeRecovered = useStore((s) => s.markMistakeRecovered);
+  const recordLessonMistakeRaw = useStore((s) => s.recordLessonMistake);
+  const recordLessonMistake = useCallback(
+    (...args: Parameters<typeof recordLessonMistakeRaw>) => {
+      if (qa) return;
+      return recordLessonMistakeRaw(...args);
+    },
+    [qa, recordLessonMistakeRaw]
+  );
+  const markMistakeRecoveredRaw = useStore((s) => s.markMistakeRecovered);
+  const markMistakeRecovered = useCallback(
+    (...args: Parameters<typeof markMistakeRecoveredRaw>) => {
+      if (qa) return;
+      return markMistakeRecoveredRaw(...args);
+    },
+    [qa, markMistakeRecoveredRaw]
+  );
   const recentActivityErrors = useStore((s) => s.recentActivityErrors);
   const srs = useStore((s) => s.srs);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
@@ -1887,14 +2088,17 @@ export function LessonPlayer() {
   const viewportFrame = useVisualViewportFrame();
   const requiredTonePack = foundLesson ? requiredToneTrainerPackForLesson(foundLesson.id) : undefined;
   const toneLocked = Boolean(
+    !qa &&
     foundLesson &&
     !completedLessons.includes(foundLesson.id) &&
     requiredTonePack &&
     !toneTrainerPackCompleted(toneTrainer, requiredTonePack.id)
   );
-  const startAccess = foundLesson
+  const startAccess = foundLesson && !qa
     ? canStartLesson(foundLesson.id, { isPremium, completedLessons, lessonStarsById })
-    : undefined;
+    : foundLesson && qa
+      ? { allowed: true as const, pro: true, reasonCode: "allowed" as const, reason: "QA mode" }
+      : undefined;
 
   // PERF-011 — shell rápido com passos autorais; plano adaptativo em startTransition.
   const authoredEnrichedSteps = useMemo(() => {
@@ -2694,7 +2898,7 @@ export function LessonPlayer() {
     playSoundFx("error", soundEffects);
   }
 
-  if (lesson.premium && !canAccessLesson(lesson.id, isPremium)) {
+  if (!qa && lesson.premium && !canAccessLesson(lesson.id, isPremium)) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
