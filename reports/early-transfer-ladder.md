@@ -7,11 +7,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 191f4fa2345c |
-| HEAD no instante da geração | 109b49b0ae2d4ab4074d16f6e950e277b879492b |
+| HEAD no instante da geração | 49de639eb6d5166d9695848352dc44156d072f9b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T08:13:56.603Z |
-| Lições | undefined |
+| Gerado em | 2026-08-25T08:16:52.426Z |
+| Lições | 127 |
 
 
 ## Before → After
@@ -19,6 +19,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Métrica | Antes (V4.4.1 baseline) | Depois |
 | --- | --- | --- |
 | lessonToFirstTransfer | 47 | 15 |
+| estimatedTimeToFirstTransfer | ~188 min | ~60 min (≈4 min/lição) |
 | firstFrame | frame_woyouge | frame_qingwennijiaoshenme |
 | firstTarget | 我有一个朋友 | 请问你叫什么 |
 | guided / supported / question | 112/0/19 | 24 / 1 / 0 |
@@ -229,4 +230,4 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **combinational_transfer:** contado acima — alvo inédito montado de componentes já ensinados.
 - **contextual_transfer:** reutilizar frase conhecida em situação nova (métrica separada; não infla novelTargets).
 
-<!-- integridade:9e649e5ac098efc8 -->
+<!-- integridade:0780b24cebd57b06 -->

@@ -7,6 +7,18 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.5 — Early Transfer Ladder
+
+Antecipa a primeira **transferência combinacional verdadeira** de L47 para **L15** (`l2-rev`): **`请问，你叫什么？`**, depois de produção guiada de `你叫什么？` (L13) e exposição a `请问` (L14).
+
+- `getTransferCandidates()` + metadados `transferSelectionMeta` (por que o aluno está pronto).
+- Cooldown de frame/alvo; labs fonéticos/Hànzì sem transfer gerada; posse `我有…` bloqueada em num/tom/hanzi.
+- Relevância de domínio como **score** (não gate), com hard block só onde a combinação é incoerente.
+- Escada supported na 1ª transferência via `earlyTransferOnAttemptZero` (explicação do antigo supported=0).
+- Portões: `validate:early-transfer`, `validate:transfer-diversity`, `validate:transfer-domain-fit`, `test:early-transfer`.
+- Relatório: `reports/early-transfer-ladder.md`.
+- **Não** toca Business / Stripe / Atlas em massa / Missões / Pérolas.
+
 ### V4.4.1 — Business operational hardening
 
 Torna a fundação B2B segura para staging real: RLS sem recursion, entitlement explícito (assinatura ou grant), `seat_limit` canônico em `organization_subscriptions`, rate limit atômico, honeypot antes da quota, funnel anti-abuse, Turnstile no lead, webhook de notificação, link de Privacidade e copy comercial sem jargão de engenharia.
