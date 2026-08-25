@@ -5129,7 +5129,14 @@ function ensureCoverage(
     ensure((candidate) => candidate.stageId === "usage" || candidate.families.includes("usage"));
   }
   ensure((candidate) => candidate.stageId === "consolidation" || candidate.families.includes("review"));
-  if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) ensure((candidate) => candidate.families.includes("pinyin"));
+  if (profile.needsPinyinTask && profile.maxPinyinTasks > 0) {
+    // Proteger: ensures posteriores (transfer/open) não podem expulsar o único
+    // degrau de pinyin/tom do módulo inicial (validate:lessons u3-2).
+    ensure(
+      (candidate) => candidate.families.includes("pinyin") || isPinyinPracticeStep(candidate.step),
+      true
+    );
+  }
   // Mínimo de HanziBuilders da lição (hànzì: 2; revisão: 2; montagem: 4).
   const minBuilds = Math.max(profile.maxHanziBuilds > 0 ? 1 : 0, profile.minHanziBuilds);
   if (minBuilds > 0) ensureCount((candidate) => candidate.step.kind === "hanzi_build", minBuilds, true);
