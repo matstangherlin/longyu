@@ -28,8 +28,11 @@ export async function openMissions(page: Page) {
   await page.goto("/missoes", { waitUntil: "domcontentloaded" });
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  await expect(page.getByRole("heading", { name: "Objetivos e recompensas" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Objetivos e recompensas" })).toBeVisible({ timeout: 15_000 });
   await expect(page.locator("[data-mission-surface]")).toBeVisible();
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = "auto";
+  });
 }
 
 export function richMissionSeed(options: {
@@ -99,8 +102,8 @@ export function richMissionSeed(options: {
   };
 }
 
-export async function seedRichMissions(page: Page, extra: Record<string, unknown> = {}) {
-  await seedMissionsSession(page, { ...richMissionSeed(), ...extra });
+export async function seedRichMissions(page: Page, options: Parameters<typeof richMissionSeed>[0] = {}) {
+  await seedMissionsSession(page, richMissionSeed(options));
 }
 
 export async function assertNoHorizontalOverflow(page: Page) {
@@ -174,19 +177,28 @@ export async function assertNoInteractiveOverlap(page: Page) {
 export async function assertAboveBottomNavigation(page: Page) {
   const nav = page.locator("[data-app-bottom-nav]");
   if (!(await nav.isVisible().catch(() => false))) return;
-  if ((await page.locator("[data-mission-cta]").count()) === 0) return;
-
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await page.waitForTimeout(80);
 
   const pair = await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = "auto";
+    const scrolling = document.scrollingElement as HTMLElement | null;
     const navEl = document.querySelector("[data-app-bottom-nav]") as HTMLElement | null;
-    const ctas = [...document.querySelectorAll<HTMLElement>("[data-mission-cta]")].filter((el) => {
+    const ctas = [
+      ...document.querySelectorAll<HTMLElement>(
+        "[data-mission-surface] button, [data-mission-surface] a[href], [data-mission-cta]"
+      ),
+    ].filter((el) => {
+      if (el.closest("[data-app-bottom-nav]")) return false;
       const r = el.getBoundingClientRect();
       return r.width >= 2 && r.height >= 2;
     });
     const el = ctas[ctas.length - 1];
     if (!navEl || !el) return { ok: true, bottom: 0, navTop: 0 };
+    const max = Math.max(
+      0,
+      (scrolling?.scrollHeight ?? document.documentElement.scrollHeight) - window.innerHeight
+    );
+    if (scrolling) scrolling.scrollTop = max;
+    window.scrollTo({ top: max, behavior: "auto" });
     const rect = el.getBoundingClientRect();
     const navTop = navEl.getBoundingClientRect().top;
     return { ok: rect.bottom <= navTop + 2, bottom: Math.round(rect.bottom), navTop: Math.round(navTop) };

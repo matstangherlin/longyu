@@ -113,16 +113,21 @@ Helpers: `assertNoInteractiveOverlap`, `assertNoHorizontalOverflow`, `assertAbov
 
 ## Resultados da suíte
 
-A tabela abaixo é preenchida após `npx playwright test e2e/missions-responsive.spec.ts --project=chromium`.
+`npx playwright test e2e/missions-responsive.spec.ts --project=chromium`
+
+**22 passed** (matriz mobile 7 + landscape + desktop 6 + estados reais).
 
 | Check | Antes (código) | Depois |
 | --- | --- | --- |
 | Overlap interactives | baú + CTA na mesma linha mobile | 0 (gate E2E) |
-| CTA atrás da TabBar | risco no último card | 0 — scroll até o fim, `cta.bottom <= nav.top` |
+| CTA atrás da TabBar | risco no último card | 0 — `scroll-behavior: auto` + `cta.bottom <= nav.top` no fim da página |
 | Overflow horizontal | risco `w-full` + baú | `scrollWidth <= clientWidth + 1` |
-| FAB × CTA | possível no `lg` | gutter + FAB 44×44 |
+| FAB × CTA | possível no `lg` | gutter + FAB 44×44; 1024–1920 verdes |
 | Banner × CTA | rodapé persistente | topo, 6s, some no reload |
 | Touch 44px | irregular | gate E2E |
+| Seed de medalhas | — | `richMissionSeed({ medals: true })` (boolean no extra quebrava a página) |
+
+Referências visuais (artefatos da execução): `missoes-320-hero.png`, `missoes-320-chest-row.png`, `missoes-390-hero.png`, `missoes-1024-hero.png`, `missoes-1280-hero.png`.
 
 ---
 

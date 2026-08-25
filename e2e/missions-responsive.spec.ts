@@ -158,7 +158,7 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
     test.use({ viewport: { width: 1024, height: 768 } });
 
     test("hero mensal incompleto e vazio de medalhas", async ({ page }) => {
-      await seedRichMissions(page, { monthlyCompleted: 3, monthlyChests: 0, medals: false });
+      await seedRichMissions(page, { monthlyCompleted: 3, monthlyChests: 0 });
       await openMissions(page);
       await expect(page.locator("[data-mission-hero]")).toHaveAttribute("data-mission-status", "progress");
       await expect(page.getByText("Nenhuma medalha ainda")).toBeVisible();
