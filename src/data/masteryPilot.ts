@@ -18,6 +18,7 @@ import type { MasteryPass } from "./masteryLoop";
 import { isProductionOrTransferKind, withEquivalentAccepts } from "./masteryLoop";
 import { wave1BonusStepsFor } from "./masteryWave1Bonus";
 import { COMPLETION_LESSON_IDS, COMPLETION_LEXICAL_TARGETS, completionBonusStepsFor } from "./masteryCurriculum";
+import { hasAuthoredTopicMasteryBonus, topicMasteryBonusStepsFor } from "./topicMasteryBonus";
 
 export const MASTERY_PILOT_LESSON_IDS = [
   "l2",
@@ -973,7 +974,12 @@ export function reverseRecall(
 
 /** Passos bonus por pass — exigencia cognitiva diferente, nao so outra modalidade. */
 export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): LessonStep[] {
-  if (!isMasteryPilotLesson(lessonId)) return [];
+  if (hasAuthoredTopicMasteryBonus(lessonId)) {
+    return topicMasteryBonusStepsFor(lessonId, pass);
+  }
+  if (!isMasteryPilotLesson(lessonId)) {
+    return topicMasteryBonusStepsFor(lessonId, pass);
+  }
 
   if (lessonId === "l2") {
     if (pass === 1) {

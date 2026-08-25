@@ -53,8 +53,11 @@ import {
   DAILY_GOAL_QI,
   LESSON_BASE_XP,
   LESSON_NO_SKIP_QI,
+  LESSON_PASS_PRACTICE_XP,
+  LESSON_PASS_XP,
   LESSON_THREE_STAR_QI,
   LESSON_THREE_STAR_XP_BONUS,
+  LESSON_TOPIC_MASTERED_XP_BONUS,
   MODULE_REVIEW_PASS_ACCURACY,
   PEARL_STREAK_MILESTONES,
   PRO_LESSON_QI_BONUS,
@@ -101,8 +104,16 @@ import {
   lessonTasksFor,
   resolveMasteryPassForContext,
 } from "./lessonTasks";
-import { dimensionForStepKind, isProductionOrTransferKind } from "../../data/masteryLoop";
+import { dimensionForStepKind, isProductionOrTransferKind, MASTERY_PASS_LABELS, nextMasteryPass } from "../../data/masteryLoop";
 import { isMasteryPilotLesson } from "../../data/masteryPilot";
+import {
+  energyIdempotencyKeyForPass,
+  energySessionFlagForPass,
+  isTopicMasteryLesson,
+  lessonPassPracticeXpRewardId,
+  lessonPassXpRewardId,
+  lessonTopicMasteredXpRewardId,
+} from "../../data/topicMastery";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
@@ -110,7 +121,7 @@ import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
 import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from "./immediateRemediation";
-import { getPendingAttemptReview } from "./lessonAttemptReview";
+import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
 import {
@@ -1677,11 +1688,13 @@ function buildNextFocus({
   toneErrorCount,
   hanziErrorCount,
   nextLessonTitle,
+  topicContinue,
 }: {
   remainingErrorCount: number;
   toneErrorCount: number;
   hanziErrorCount: number;
   nextLessonTitle?: string;
+  topicContinue?: { title: string; nextPass: 1 | 2 | 3 | 4 };
 }): NextFocusSuggestion {
   if (remainingErrorCount > 0) {
     return {
@@ -1707,10 +1720,18 @@ function buildNextFocus({
       cta: "Praticar hànzì",
     };
   }
+  if (topicContinue) {
+    return {
+      title: `Lição ${topicContinue.nextPass} de 4 · ${MASTERY_PASS_LABELS[topicContinue.nextPass]}`,
+      desc: `Continue "${topicContinue.title}". O próximo tema só libera em 4/4.`,
+      to: "/jornada",
+      cta: "Continuar tema",
+    };
+  }
   if (nextLessonTitle) {
     return {
-      title: `Próxima lição: ${nextLessonTitle}`,
-      desc: "Você está pronto para avançar na Jornada.",
+      title: `Próximo tema: ${nextLessonTitle}`,
+      desc: "Este tema está 4/4. Você pode avançar na Jornada.",
       to: "/jornada",
       cta: "Continuar Jornada",
     };
@@ -1763,8 +1784,9 @@ export function LessonPlayer() {
   const points = useStore((s) => s.points);
   const spendQi = useStore((s) => s.spendQi);
   const soundEffects = useStore((s) => s.soundEffects);
-  const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
+  const lessonSessionStepById = useStore((s) => s.lessonSessionStepById);
+  const setLessonSessionStep = useStore((s) => s.setLessonSessionStep);
   const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
   // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
   const recentActivities = useStore((s) => s.recentActivities);
@@ -1808,6 +1830,8 @@ export function LessonPlayer() {
   const { openFeedback } = useFeedbackUi();
 
   const [idx, setIdx] = useState(0);
+  const idxRef = useRef(0);
+  idxRef.current = idx;
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
@@ -1893,7 +1917,7 @@ export function LessonPlayer() {
     !toneTrainerPackCompleted(toneTrainer, requiredTonePack.id)
   );
   const startAccess = foundLesson
-    ? canStartLesson(foundLesson.id, { isPremium, completedLessons, lessonStarsById })
+    ? canStartLesson(foundLesson.id, { isPremium, completedLessons, lessonStarsById, lessonMasteryById })
     : undefined;
 
   // PERF-011 — shell rápido com passos autorais; plano adaptativo em startTransition.
@@ -1931,7 +1955,20 @@ export function LessonPlayer() {
    * a mesma montagem voltar (loop). Com o plano travado, respostas não
    * reorganizam nem desmontam a lição.
    */
-  const sessionPlanRef = useRef<{ lessonId: string; nonce: number; steps: LessonStep[] } | null>(null);
+  const sessionPlanRef = useRef<{
+    lessonId: string;
+    nonce: number;
+    masteryLevel: number;
+    steps: LessonStep[];
+  } | null>(null);
+  const [storeHydrated, setStoreHydrated] = useState(() => useStore.persist.hasHydrated());
+  useEffect(() => {
+    if (useStore.persist.hasHydrated()) {
+      setStoreHydrated(true);
+      return undefined;
+    }
+    return useStore.persist.onFinishHydration(() => setStoreHydrated(true));
+  }, []);
 
   useEffect(() => {
     if (!foundLesson) return undefined;
@@ -1948,11 +1985,20 @@ export function LessonPlayer() {
       sessionPlanRef.current = null;
       return undefined;
     }
+    if (!storeHydrated) return undefined;
 
+    const masteryLevelNow =
+      useStore.getState().lessonMasteryById?.[foundLesson.id]?.level ??
+      lessonMasteryById?.[foundLesson.id]?.level ??
+      0;
     const locked = sessionPlanRef.current;
     if (locked && locked.lessonId === foundLesson.id && locked.nonce === planNonce) {
-      // Sessão já tem plano — ignore churn de srs/erros/progresso de hànzì.
-      return undefined;
+      const masteryChanged = locked.masteryLevel !== masteryLevelNow;
+      const canReplanForMastery = idxRef.current === 0 && !finished;
+      if (!masteryChanged || !canReplanForMastery) {
+        // Sessão já tem plano — ignore churn de srs/erros/progresso de hànzì.
+        return undefined;
+      }
     }
 
     // Fast path: first paint uses authored enriched steps (or loading until set).
@@ -1974,7 +2020,8 @@ export function LessonPlayer() {
       if (gen !== planGenRef.current) return;
       startTransition(() => {
       if (gen !== planGenRef.current) return;
-      const masteryRecord = lessonMasteryById?.[foundLesson.id];
+      const liveMastery = useStore.getState().lessonMasteryById?.[foundLesson.id];
+      const masteryRecord = liveMastery ?? lessonMasteryById?.[foundLesson.id];
       const planned = lessonRoundStepsFor(
         { ...foundLesson, steps: authoredEnrichedSteps },
         {
@@ -1995,7 +2042,12 @@ export function LessonPlayer() {
         }
       );
       if (gen !== planGenRef.current) return;
-      sessionPlanRef.current = { lessonId: lessonIdAtStart, nonce: nonceAtStart, steps: planned };
+      sessionPlanRef.current = {
+        lessonId: lessonIdAtStart,
+        nonce: nonceAtStart,
+        masteryLevel: masteryRecord?.level ?? 0,
+        steps: planned,
+      };
       setAdaptiveSteps(planned);
       setPlanReady(true);
       markLessonPerf(LESSON_PERF_MARKS.dataReady);
@@ -2024,6 +2076,8 @@ export function LessonPlayer() {
     recentConversationIntentIds,
     recentConversationSceneIds,
     srs,
+    storeHydrated,
+    finished,
   ]);
 
   const stepsForRender = adaptiveSteps ?? authoredEnrichedSteps;
@@ -2031,6 +2085,21 @@ export function LessonPlayer() {
     foundLesson && stepsForRender
       ? { ...foundLesson, steps: stepsForRender }
       : undefined;
+
+  const sessionResumeDoneRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!foundLesson || !planReady || !stepsForRender?.length) return;
+    const pass = nextMasteryPass(lessonMasteryById?.[foundLesson.id]?.level ?? 0, {
+      recoveryPending: lessonMasteryById?.[foundLesson.id]?.recoveryPending,
+    });
+    const resumeKey = `${foundLesson.id}:${pass}:${planNonce}`;
+    if (sessionResumeDoneRef.current === resumeKey) return;
+    sessionResumeDoneRef.current = resumeKey;
+    const cursor = lessonSessionStepById?.[foundLesson.id];
+    if (cursor && cursor.pass === pass && cursor.stepIndex > 0) {
+      setIdx(Math.min(cursor.stepIndex, stepsForRender.length - 1));
+    }
+  }, [foundLesson, lessonMasteryById, lessonSessionStepById, planNonce, planReady, stepsForRender]);
 
   useEffect(() => {
     if (!foundLesson) return undefined;
@@ -2071,14 +2140,18 @@ export function LessonPlayer() {
     if (!foundLesson || toneLocked || entryChecked || energyBlocked) return;
     if (startAccess && !startAccess.allowed) return;
     if (foundLesson.premium && !canAccessLesson(foundLesson.id, isPremium)) return;
-    const sessionKey = `longyu-energy:lesson:${foundLesson.id}:${todayKey()}`;
+    const pass = nextMasteryPass(lessonMasteryById?.[foundLesson.id]?.level ?? 0, {
+      recoveryPending: lessonMasteryById?.[foundLesson.id]?.recoveryPending,
+    });
+    const sessionKey = energySessionFlagForPass(foundLesson.id, pass, todayKey());
     const alreadyInSession = window.sessionStorage.getItem(sessionKey) === "1";
-    const alreadyStarted = completedLessons.includes(foundLesson.id) || (lessonTaskProgress[foundLesson.id] ?? 0) > 0;
+    const cursor = lessonSessionStepById?.[foundLesson.id];
+    const alreadyStarted = Boolean(cursor && cursor.pass === pass && cursor.stepIndex > 0);
     if (alreadyInSession || alreadyStarted) {
       setEntryChecked(true);
       return;
     }
-    if (!consumeCharge("lesson", `consume:lesson:${foundLesson.id}:${todayKey()}`)) {
+    if (!consumeCharge("lesson", energyIdempotencyKeyForPass(foundLesson.id, pass, todayKey()))) {
       setEnergyBlocked(true);
       setProPaywallKind("energy");
       playSoundFx("blocked", soundEffects);
@@ -2092,7 +2165,7 @@ export function LessonPlayer() {
       lessonId: foundLesson.id,
       route: `/licao/${foundLesson.id}/player`,
     });
-  }, [completedLessons, consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonTaskProgress, soundEffects, startAccess, toneLocked]);
+  }, [consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
 
   useEffect(() => {
     if (!entryChecked || finished || energyBlocked) return undefined;
@@ -2107,6 +2180,18 @@ export function LessonPlayer() {
 
   useEffect(() => {
     if (!foundLesson || !entryChecked || finished || pendingReviewRestoredRef.current) return;
+    const masteryRecord = lessonMasteryById?.[foundLesson.id];
+    const cursor = lessonSessionStepById?.[foundLesson.id];
+    if (
+      !shouldRestorePendingAttemptReview({
+        isTopicMastery: isTopicMasteryLesson(foundLesson),
+        masteryLevel: masteryRecord?.level ?? 0,
+        sessionCursorPass: cursor?.pass,
+        sessionCursorStepIndex: cursor?.stepIndex,
+      })
+    ) {
+      return;
+    }
     const pending = getPendingAttemptReview(foundLesson.id, lessonAttemptsById, foundLesson);
     if (!pending) return;
     pendingReviewRestoredRef.current = true;
@@ -2136,7 +2221,7 @@ export function LessonPlayer() {
     setErrorReviewMode("offer");
     setRecovered(false);
     recoveryAppliedRef.current = false;
-  }, [entryChecked, finished, foundLesson, lessonAttemptsById]);
+  }, [entryChecked, finished, foundLesson, lessonAttemptsById, lessonMasteryById, lessonSessionStepById]);
 
   useEffect(() => {
     if (!foundLesson || !adaptiveLesson || !entryChecked || finished || !planReady) return;
@@ -2257,6 +2342,7 @@ export function LessonPlayer() {
         isPremium,
         completedLessons: debugCompletedLessons,
         lessonStarsById: debugLessonStarsById,
+        lessonMasteryById,
       })
     : undefined;
   const recoveryDebugPanel = showRecoveryDebugPanel ? (
@@ -3059,6 +3145,10 @@ export function LessonPlayer() {
       lesson.id,
       completedLessonStagesFromRoundStep(lesson.steps, idx + 1, lessonTasks.length)
     );
+    const passNow = nextMasteryPass(lessonMasteryById?.[lesson.id]?.level ?? 0, {
+      recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
+    });
+    setLessonSessionStep(lesson.id, { pass: passNow, stepIndex: idx + 1 });
     currentStepHadMistakeRef.current = false;
     recordedMistakeStepRef.current = null;
     recordedPairMistakesRef.current.clear();
@@ -3076,8 +3166,8 @@ export function LessonPlayer() {
 
   // Pular com Fôlego: gasta 1 Fôlego (Pro pula sem gastar), sem contar como erro
   // nem tirar Vida. A tarefa vai para a revisão adaptativa (reset para exigir
-  // domínio real depois) e a lição fica com a 3ª estrela pendente — a lição
-  // conclui e destrava a próxima na hora; a estrela volta ao dominar na revisão.
+  // domínio real depois) e a lição fica com a 3ª estrela pendente. A pass
+  // atual conclui; o próximo TEMA de ensino só destrava em 4/4.
   function skipCurrentStep() {
     const currentStep = lesson.steps[idx];
     if (!currentStep) return;
@@ -3295,7 +3385,7 @@ export function LessonPlayer() {
       outOfLives: reason === "out_of_lives",
       isReview: lesson.isReview,
     });
-    // Pular com Fôlego conclui a lição (e destrava a próxima) mesmo em 2★, desde
+    // Pular com Fôlego conclui a pass (não o tema 4/4) mesmo em 2★, desde
     // que não tenha havido erro real — a 3ª estrela fica pendente até dominar o
     // item pulado na revisão.
     const folegoSkipPass =
@@ -3303,9 +3393,33 @@ export function LessonPlayer() {
     const passed =
       folegoSkipPass || (reason !== "out_of_lives" && canCompleteLesson(stars, graded, lesson.isReview, finalCorrect));
     const firstCompletion = !completedLessons.includes(lesson.id);
-    const completionXp = passed && firstCompletion
-      ? LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0)
-      : 0;
+    const topicNode = isTopicMasteryLesson(lesson);
+    const liveMastery = useStore.getState().lessonMasteryById?.[lesson.id];
+    const masteryPass = topicNode
+      ? nextMasteryPass(liveMastery?.level ?? 0, { recoveryPending: liveMastery?.recoveryPending })
+      : (lesson.steps as LessonRoundStep[]).find((step) => step.masteryPass)?.masteryPass ??
+        resolveMasteryPassForContext(lesson, {
+          masteryLevel: liveMastery?.level ?? 0,
+          recoveryPending: liveMastery?.recoveryPending,
+        }) ??
+        1;
+    const alreadyHadThisPass = (lessonMasteryById?.[lesson.id]?.level ?? 0) >= masteryPass;
+    let completionXp = 0;
+    let xpRewardId = leagueXpKeyLesson(lesson.id, attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`);
+    let xpSource = "Conclusão de lição";
+    if (passed && topicNode) {
+      if (!alreadyHadThisPass) {
+        completionXp = LESSON_PASS_XP + (firstCompletion && stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0);
+        xpRewardId = lessonPassXpRewardId(lesson.id, masteryPass);
+        xpSource = `Lição ${masteryPass} de 4`;
+      } else {
+        completionXp = LESSON_PASS_PRACTICE_XP;
+        xpRewardId = lessonPassPracticeXpRewardId(lesson.id, masteryPass, todayKey());
+        xpSource = "Prática do tema";
+      }
+    } else if (passed && firstCompletion) {
+      completionXp = LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0);
+    }
     // Pro ganha um bônus fixo de Qi por conclusão (fricção menor, não XP).
     const completionQi = passed && firstCompletion
       ? (stars === 3 ? LESSON_THREE_STAR_QI : 0) +
@@ -3323,15 +3437,22 @@ export function LessonPlayer() {
       tones: tonesHit,
     });
     if (tonesHit > 0) recordDailyTask("tonesTrained", tonesHit);
-    const attemptId = attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`;
     const xpClaimed = completionXp > 0
       ? claimReward({
-          id: leagueXpKeyLesson(lesson.id, attemptId),
+          id: xpRewardId,
           type: "xp",
           amount: completionXp,
-          source: "Conclusão de lição",
+          source: xpSource,
         })
       : false;
+    if (passed && topicNode && !alreadyHadThisPass && masteryPass >= 4) {
+      claimReward({
+        id: lessonTopicMasteredXpRewardId(lesson.id),
+        type: "xp",
+        amount: LESSON_TOPIC_MASTERED_XP_BONUS,
+        source: "Tema dominado",
+      });
+    }
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
     setReviewItemsAdded(gradedDomains.size);
     setLessonXp(xpClaimed ? completionXp : 0);
@@ -3345,10 +3466,15 @@ export function LessonPlayer() {
     setCorrectedErrorIds([]);
     setRecovered(false);
     recoveryAppliedRef.current = false;
-    setLessonTaskProgress(
-      lesson.id,
-      reason === "out_of_lives" ? completedLessonStagesFromRoundStep(lesson.steps, idx + 1, lessonTasks.length) : lessonTasks.length
-    );
+    if (passed) {
+      setLessonTaskProgress(lesson.id, 0);
+      setLessonSessionStep(lesson.id, null);
+    } else {
+      setLessonTaskProgress(
+        lesson.id,
+        completedLessonStagesFromRoundStep(lesson.steps, idx + 1, lessonTasks.length)
+      );
+    }
     playSoundFx(passed ? "lessonComplete" : "blocked", soundEffects);
     if (passed) {
       // Conclusão por skip: fixa 2★ (senão completeLesson assumiria 3★) e marca
@@ -3359,14 +3485,8 @@ export function LessonPlayer() {
       }
       completeLesson(lesson.id);
       void completeReferralLessonAttestation(lesson.id);
-      if (lesson.masteryLoop || isMasteryPilotLesson(lesson.id)) {
-        const masteryPass =
-          (lesson.steps as LessonRoundStep[]).find((step) => step.masteryPass)?.masteryPass ??
-          resolveMasteryPassForContext(lesson, {
-            masteryLevel: lessonMasteryById?.[lesson.id]?.level ?? 0,
-            recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
-          }) ??
-          1;
+      if (lesson.masteryLoop || isMasteryPilotLesson(lesson.id) || isTopicMasteryLesson(lesson)) {
+        const recordedPass = masteryPass;
         const gradedCount = Math.max(1, graded);
         const accuracy = Math.max(0, Math.min(1, finalCorrect / gradedCount));
         const dimensionUpdates: Array<{
@@ -3385,7 +3505,7 @@ export function LessonPlayer() {
           dimensionUpdates.push({ ref, dimension: dim, correct: accuracy >= 0.7 });
         }
         recordLessonMasteryPass(lesson.id, {
-          pass: masteryPass,
+          pass: recordedPass,
           accuracy,
           mistakeCount: activityErrorsRef.current.length,
           hadProductionOrTransfer: (lesson.steps as LessonRoundStep[]).some((step) =>
@@ -3393,6 +3513,8 @@ export function LessonPlayer() {
           ),
           dimensionUpdates: dimensionUpdates.slice(0, 12),
           startedAt: attemptStartedAtRef.current,
+          allowSkipAhead: !topicNode,
+          commitPass: topicNode,
         });
       }
       // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
@@ -3501,11 +3623,17 @@ export function LessonPlayer() {
     const hanziErrorCount = committedErrors.filter(
       (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
     ).length;
+    const masteryNow = lessonMasteryById?.[lesson.id]?.level ?? 0;
+    const topicContinue =
+      isTopicMasteryLesson(lesson) && masteryNow < 4
+        ? { title: lesson.title, nextPass: Math.min(4, masteryNow + 1) as 1 | 2 | 3 | 4 }
+        : undefined;
     const nextFocus = buildNextFocus({
       remainingErrorCount: remainingErrors.length,
       toneErrorCount,
       hanziErrorCount,
       nextLessonTitle: nextLesson?.title,
+      topicContinue,
     });
     const weakSkillsLabel =
       toneErrorCount > 0 && hanziErrorCount > 0
@@ -3547,7 +3675,11 @@ export function LessonPlayer() {
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
-            navigate("/jornada");
+            const topicNodeDone = isTopicMasteryLesson(lesson);
+            const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
+            // Tema em andamento: fica na vitória (Lição X de 4). Só vai à
+            // Jornada quando o tema já está 4/4 ou não é nó de ensino.
+            if (!topicNodeDone || levelNow >= 4) navigate("/jornada");
           }}
         />
       );
@@ -3574,12 +3706,12 @@ export function LessonPlayer() {
           canRetryLesson={canRetryAfterReview}
           onReviewAgain={() => setErrorReviewMode("review")}
           onContinue={() => setErrorReviewMode("dismissed")}
-          onRetryLesson={retryLesson}
+          onRetryLesson={() => retryLesson()}
         />
       );
     }
 
-    function retryLesson() {
+    function retryLesson(options?: { newPass?: boolean }) {
       playSoundFx("step", soundEffects);
       // Nova tentativa: libera o plano travado e refresca o snapshot de
       // variedade com o que o aluno acabou de praticar nesta sessão.
@@ -3630,6 +3762,7 @@ export function LessonPlayer() {
       recordedMistakeStepRef.current = null;
       recordedPairMistakesRef.current.clear();
       startStoredAttempt();
+      if (options?.newPass) setEntryChecked(false);
       setFinished(false);
     }
 
@@ -3705,7 +3838,7 @@ export function LessonPlayer() {
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              <Button className="w-full" onClick={retryLesson}>
+              <Button className="w-full" onClick={() => retryLesson()}>
                 <IconRefresh width={17} height={17} /> Refazer lição
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
@@ -3812,7 +3945,7 @@ export function LessonPlayer() {
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              <Button className="w-full" onClick={retryLesson}>
+              <Button className="w-full" onClick={() => retryLesson()}>
                 <IconRefresh width={17} height={17} /> Refazer partes fracas
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
@@ -3886,6 +4019,11 @@ export function LessonPlayer() {
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
+        return;
+      }
+      const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
+      if (passed && isTopicMasteryLesson(lesson) && levelNow < 4) {
+        retryLesson({ newPass: true });
         return;
       }
       continueJourney();
@@ -4025,14 +4163,20 @@ export function LessonPlayer() {
 
           {(lessonPendingStars[lesson.id]?.length ?? 0) > 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              Você pulou com Fôlego: a próxima aula já está liberada. A 3ª estrela fica{" "}
+              {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
+                ? "Você pulou com Fôlego: esta lição do tema conta, mas o próximo tema só libera em 4/4. A 3ª estrela fica "
+                : "Você pulou com Fôlego: a próxima aula já está liberada. A 3ª estrela fica "}
               <span className="font-semibold">pendente</span> — domine o item na revisão e ela volta sozinha.
             </div>
           )}
 
           {!recovered && stars === 2 && (lessonPendingStars[lesson.id]?.length ?? 0) === 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              Próxima aula liberada. Busque 3 estrelas nas aulas da fase para avançar de fase.
+              {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
+                ? "Lição do tema concluída. Continue até 4/4 para liberar o próximo. Estrelas medem qualidade, não o anel."
+                : isTopicMasteryLesson(lesson)
+                  ? "Tema 4/4. Estrelas continuam medindo a qualidade desta sessão."
+                  : "Etapa concluída. Estrelas medem qualidade; o avanço curricular usa o caminho da Jornada."}
             </div>
           )}
 
@@ -4073,9 +4217,15 @@ export function LessonPlayer() {
               <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
-            <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-              {nextFocus.cta} <IconChevron width={15} height={15} />
-            </ButtonLink>
+            {nextFocus.cta === "Continuar tema" ? (
+              <ButtonLink to="/jornada" variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
+                Ver na Jornada <IconChevron width={15} height={15} />
+              </ButtonLink>
+            ) : (
+              <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
+                {nextFocus.cta} <IconChevron width={15} height={15} />
+              </ButtonLink>
+            )}
           </div>
 
           {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
@@ -4204,8 +4354,13 @@ export function LessonPlayer() {
                 <IconTarget width={14} height={14} /> Treinar
               </Link>
             </div>
-            <Button className="w-full shadow-lift" size="lg" onClick={handlePrimaryAction}>
-              {hasUnclaimedRewards ? "Receber recompensas" : "Continuar Jornada"}
+            <Button
+              className="w-full shadow-lift"
+              size="lg"
+              data-testid={topicContinue ? "continue-topic-pass" : undefined}
+              onClick={handlePrimaryAction}
+            >
+              {hasUnclaimedRewards ? "Receber recompensas" : topicContinue ? "Continuar tema" : "Continuar Jornada"}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -4238,6 +4393,13 @@ export function LessonPlayer() {
     <div
       className="fixed z-40 flex flex-col overflow-hidden bg-bg"
       data-lesson-player-frame
+      data-lesson-id={lesson.id}
+      data-mastery-pass={String(
+        nextMasteryPass(lessonMasteryById?.[lesson.id]?.level ?? 0, {
+          recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
+        })
+      )}
+      data-mastery-level={String(lessonMasteryById?.[lesson.id]?.level ?? 0)}
       style={
         viewportFrame
           ? {

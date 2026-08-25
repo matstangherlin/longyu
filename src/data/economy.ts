@@ -101,8 +101,14 @@ export const PASS_ACCURACY = 0.6;
 /** Revisão de módulo: 80% basta para avançar; 90%+ vira excelente. */
 export const MODULE_REVIEW_PASS_ACCURACY = 0.8;
 
-// ——— Ganhos por lição (primeira conclusão) ———
+// ——— Ganhos por lição / pass (V4.6 Topic Mastery Path) ———
+/** XP da primeira conclusão de cada pass (M1–M4). Não se repete no reload. */
 export const LESSON_BASE_XP = 10;
+export const LESSON_PASS_XP = LESSON_BASE_XP;
+/** Replay de uma pass já concluída (prática): menor e separado. */
+export const LESSON_PASS_PRACTICE_XP = 2;
+/** Bônus único ao fechar 4/4 do tema. */
+export const LESSON_TOPIC_MASTERED_XP_BONUS = 5;
 export const LESSON_THREE_STAR_XP_BONUS = 5;
 export const LESSON_THREE_STAR_QI = 5;
 export const LESSON_NO_SKIP_QI = 2;

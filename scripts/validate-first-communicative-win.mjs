@@ -157,7 +157,10 @@ try {
 
   const load = (relative) => require(path.join(outDir, relative));
   const { ALL_LESSONS } = load("src/data/journey.js");
-  const { lessonRoundStepsFor, estimateLessonMinutes } = load("src/features/lesson/lessonTasks.js");
+  const { lessonRoundStepsFor, estimateLessonMinutes, estimatePassMinutesFromPlan } = load(
+    "src/features/lesson/lessonTasks.js"
+  );
+  const { isTopicMasteryLesson } = load("src/data/topicMastery.js");
 
   const rows = ALL_LESSONS.map((lesson, index) => {
     const plan = lessonRoundStepsFor(lesson, { attemptNumber: 0, silent: true });
@@ -200,6 +203,45 @@ try {
   const minutesUntil = (row) =>
     row ? rows.slice(0, row.position).reduce((sum, item) => sum + item.minutes, 0) : null;
 
+  const sessionRows = [];
+  let sessionElapsed = 0;
+  let sessionOrdinal = 0;
+  for (const lesson of ALL_LESSONS) {
+    const topicNode = isTopicMasteryLesson(lesson);
+    const passes = topicNode ? [1, 2, 3, 4] : [1];
+    for (const pass of passes) {
+      sessionOrdinal += 1;
+      const plan = lessonRoundStepsFor(lesson, {
+        masteryLevel: topicNode ? pass - 1 : undefined,
+        masteryPass: topicNode ? pass : undefined,
+        silent: true,
+        attemptNumber: 0,
+      });
+      const minutes = estimatePassMinutesFromPlan(plan);
+      sessionRows.push({
+        ordinal: sessionOrdinal,
+        id: lesson.id,
+        title: lesson.title,
+        pass,
+        plan,
+        minutes,
+        elapsedBefore: sessionElapsed,
+        hasMandarin: plan.some(isMandarinInteraction),
+        hasConversation: plan.some(isConversation),
+        hasIndependent: plan.some(isIndependentProduction),
+        hasTransfer:
+          plan.some(isTransferProduction) ||
+          (pass === 4 && plan.some((step) => step.kind === "conversation_scene" || step.kind === "contextual_choice")),
+      });
+      sessionElapsed += minutes;
+    }
+  }
+  const firstSession = (predicate) => sessionRows.find((row) => predicate(row));
+  const sessionFirstMandarin = firstSession((row) => row.hasMandarin);
+  const sessionFirstConversation = firstSession((row) => row.hasConversation);
+  const sessionFirstIndependent = firstSession((row) => row.hasIndependent);
+  const sessionFirstTransfer = firstSession((row) => row.hasTransfer);
+
   const onboarding = rows.slice(0, ONBOARDING);
   const first10 = rows.slice(0, FIRST_WINDOW);
   const first50 = rows.slice(0, MOMENTUM_WINDOW);
@@ -237,6 +279,24 @@ try {
       // dominante é o laboratório. O win comunicativo já está nas lições 1–2.
       if (THEORY_LAB_ROLES.has(row.role)) continue;
       if (!row.hasPayoff) fail(`lição ${row.position} (${row.id}) nas 10 primeiras termina sem aplicação em mandarim`);
+    }
+    if (!sessionFirstMandarin || sessionFirstMandarin.ordinal !== 1) {
+      fail(`sessionToFirstMandarinInteraction=${sessionFirstMandarin?.ordinal ?? "nunca"} (precisa ser a sessão 1)`);
+    }
+    if (!sessionFirstConversation || sessionFirstConversation.elapsedBefore > 10) {
+      fail(
+        `sessionMinutesToFirstConversation=${sessionFirstConversation?.elapsedBefore.toFixed(1) ?? "nunca"} (teto 10 min)`
+      );
+    }
+    if (!sessionFirstIndependent || sessionFirstIndependent.elapsedBefore > 30) {
+      fail(
+        `sessionMinutesToFirstIndependentProduction=${sessionFirstIndependent?.elapsedBefore.toFixed(1) ?? "nunca"} (teto 30 min)`
+      );
+    }
+    if (!sessionFirstTransfer || sessionFirstTransfer.elapsedBefore > 60) {
+      fail(
+        `sessionMinutesToFirstTransfer=${sessionFirstTransfer?.elapsedBefore.toFixed(1) ?? "nunca"} (teto 60 min)`
+      );
     }
   }
 
@@ -308,6 +368,13 @@ try {
       `| estimatedTimeToFirstAssistedAssembly | ${minutesUntil(firstAssembly) ?? "—"} min |`,
       `| longestNonCommunicativeLessonRun (20) | ${nonCommunicativeRun20} |`,
       `| consecutiveTheoryOrLabLessons (20) | ${theoryLabRun20} |`,
+      `| sessionToFirstMandarinInteraction | ${sessionFirstMandarin?.ordinal ?? "—"} |`,
+      `| sessionMinutesToFirstConversation | ${sessionFirstConversation?.elapsedBefore.toFixed(1) ?? "—"} |`,
+      `| sessionMinutesToFirstIndependentProduction | ${sessionFirstIndependent?.elapsedBefore.toFixed(1) ?? "—"} |`,
+      `| sessionMinutesToFirstTransfer | ${sessionFirstTransfer?.elapsedBefore.toFixed(1) ?? "—"} |`,
+      "",
+      "V4.6: `lessonTo*` continua medindo o plano-base por índice de lição (compatibilidade).",
+      "`session*` mede cada pass M1–M4 do aluno novo — a unidade que o anel 4/4 realmente cobra.",
       "",
       firstMandarin
         ? `Primeira interação em mandarim: **${firstMandarin.position}. ${firstMandarin.title}** (\`${firstMandarin.id}\`).`

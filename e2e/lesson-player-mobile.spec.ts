@@ -27,7 +27,7 @@ import {
   assertVictoryWithoutPageScroll,
   injectLongActivityScroll,
   openDenseSentenceBuild,
-  openPostListenGradedStep,
+  openListenSelectStep,
   openOpenProductionStep,
   openPlayer,
   openPlayerPro,
@@ -82,10 +82,11 @@ for (const viewport of MOBILE_VIEWPORTS) {
     });
 
     test("3 · feedback de acerto — CTA acessível", async ({ page }) => {
-      await openPostListenGradedStep(page);
+      await openListenSelectStep(page);
       const correct = page
         .getByRole("button", { name: /Opção \d+: nǐ hǎo$/ })
-        .or(page.getByRole("button", { name: /^Olá$/ }));
+        .or(page.getByRole("button", { name: /^Olá$/ }))
+        .or(page.getByRole("button", { name: /^你好$/ }));
       await correct.first().click();
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
       await expect(page.getByText(/Boa! \+Qi|Estrutura certa|Boa, foi esse som/i).first()).toBeVisible({
@@ -97,10 +98,11 @@ for (const viewport of MOBILE_VIEWPORTS) {
     });
 
     test("4 · feedback de erro — modal com ação acessível", async ({ page }) => {
-      await openPostListenGradedStep(page);
+      await openListenSelectStep(page);
       const wrong = page
         .getByRole("button", { name: /Opção \d+: wǒ hěn hǎo|Opção \d+: jīntiān hěn hǎo/ })
-        .or(page.getByRole("button", { name: /Obrigado|Até logo|De nada/i }));
+        .or(page.getByRole("button", { name: /Obrigado|Até logo|De nada/i }))
+        .or(page.getByRole("button", { name: /^(谢谢|再见)$/ }));
       await wrong.first().click();
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
       await assertModalActionAccessible(page);
@@ -201,7 +203,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
     test("10 · tela de vitória — sem scroll da página", async ({ page }) => {
       test.setTimeout(180_000);
       await openPlayerPro(page);
-      const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
+      const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
       const deadline = Date.now() + 165_000;
       let steps = 0;
       while (!(await victory.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {

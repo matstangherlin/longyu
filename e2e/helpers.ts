@@ -5,12 +5,41 @@ import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
-const STORE_VERSION = 19;
+const STORE_VERSION = 20;
 
 type SeedState = Record<string, unknown>;
 
 function buildStorePayload(state: SeedState) {
   return JSON.stringify({ state, version: STORE_VERSION });
+}
+
+/** V4.6 — temas já em completedLessons atrás do ponteiro viram 4/4 (não relocka). */
+function topicPathMasteryById(
+  completedLessons: string[],
+  override?: { lessonId: string; level: number }
+): Record<string, { level: number; passCount: number; lastPass: number; recoveryPending: boolean; updatedAt: number }> {
+  const acquired = new Set(completedLessons);
+  const pointer = ALL_LESSONS.findIndex((lesson) => !acquired.has(lesson.id));
+  const last = pointer < 0 ? ALL_LESSONS.length : pointer;
+  const now = Date.now();
+  const byId: Record<string, { level: number; passCount: number; lastPass: number; recoveryPending: boolean; updatedAt: number }> = {};
+  for (let index = 0; index < last; index += 1) {
+    const lesson = ALL_LESSONS[index];
+    if (!lesson || !acquired.has(lesson.id)) continue;
+    if (lesson.isReview || lesson.reviewMasteryMode) continue;
+    byId[lesson.id] = { level: 4, passCount: 4, lastPass: 4, recoveryPending: false, updatedAt: now };
+  }
+  if (override) {
+    const lastPass = Math.max(1, Math.min(4, override.level || 1));
+    byId[override.lessonId] = {
+      level: override.level,
+      passCount: override.level,
+      lastPass,
+      recoveryPending: false,
+      updatedAt: now,
+    };
+  }
+  return byId;
 }
 
 function isoWeekKey(d = new Date()): string {
@@ -112,6 +141,7 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
     // depois que o helper de overlays jÃ¡ terminou. MantÃ©m os desbloqueios em
     // espera e elimina interferÃªncia entre specs executadas em paralelo.
     holdAchievementModals: true,
+    lessonMasteryById: topicPathMasteryById(completedLessons),
   }));
 }
 
@@ -148,6 +178,7 @@ export async function seedFoundationThrough(page: Page, throughLessonId: string)
     accountSetupComplete: true,
     completedLessons,
     lessonStarsById,
+    lessonMasteryById: topicPathMasteryById(completedLessons),
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));
 }
@@ -192,15 +223,10 @@ export async function seedLessonPlayerReady(
     targetIndex > 0 ? ALL_LESSONS.slice(0, targetIndex).map((lesson) => lesson.id) : [];
   const completedLessons = [...foundation, ...journeyCompleted];
   const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, 3]));
-  const lessonMasteryById =
-    typeof options.masteryLevel === "number"
-      ? {
-          [lessonId]: {
-            level: options.masteryLevel,
-            updatedAt: Date.now(),
-          },
-        }
-      : {};
+  const lessonMasteryById = topicPathMasteryById(
+    completedLessons,
+    typeof options.masteryLevel === "number" ? { lessonId, level: options.masteryLevel } : undefined
+  );
   const isPremium = options.isPremium ?? false;
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
@@ -233,7 +259,9 @@ export async function seedFreshJourneySession(
     accountSetupComplete: true,
     completedLessons: [],
     isPremium: options.isPremium ?? false,
+    serverIsPro: options.isPremium ?? false,
     points: options.points ?? 20,
+    folego: options.isPremium ? 20 : undefined,
   }));
 }
 

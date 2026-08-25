@@ -30,6 +30,7 @@ import {
   isMasteryPilotLesson,
   masteryBonusStepsFor,
 } from "../../data/masteryPilot";
+import { isTopicMasteryLesson } from "../../data/topicMastery";
 import {
   isReviewMasteryLesson,
   reviewMasteryStepsFor,
@@ -7033,7 +7034,7 @@ export function applyMasteryPassToPlan(
   pass: MasteryPass,
   context: LessonPracticePlanContext = {}
 ): LessonRoundStep[] {
-  const useMastery = Boolean(lesson.masteryLoop || isMasteryPilotLesson(lesson.id));
+  const useMastery = Boolean(lesson.masteryLoop || isMasteryPilotLesson(lesson.id) || isTopicMasteryLesson(lesson));
   if (!useMastery) return plan;
 
   const dimensions = context.itemDimensionsByRef ?? {};
@@ -7058,6 +7059,8 @@ export function applyMasteryPassToPlan(
   scored.sort((a, b) => b.score - a.score || a.index - b.index);
 
   const budget = MASTERY_PASS_GRADED_BUDGET[pass];
+  const bonusDraft = masteryBonusStepsFor(lesson.id, pass);
+  const bonusRoom = Math.min(bonusDraft.length, 3);
   const reserved = keepMasteryPassSteps(
     scored.map(
       (item): ScoredBudgetItem<LessonRoundStep> => ({
@@ -7066,12 +7069,12 @@ export function applyMasteryPassToPlan(
         index: item.index,
       })
     ),
-    { pass, min: budget.min, max: budget.max }
+    { pass, min: budget.min, max: Math.max(budget.min, budget.max - bonusRoom) }
   );
   const kept: LessonRoundStep[] = reserved.map((step) => applyScaffoldToStep(step, pass));
 
   // Injeta bônus do piloto (exigência cognitiva distinta por pass).
-  const bonuses = masteryBonusStepsFor(lesson.id, pass).map((step, bonusIndex) =>
+  const bonuses = bonusDraft.map((step, bonusIndex) =>
     applyScaffoldToStep(
       {
         ...step,
@@ -7088,9 +7091,13 @@ export function applyMasteryPassToPlan(
   let merged = [...kept];
   for (const bonus of bonuses) {
     if (merged.some((step) => stepSignature(step) === stepSignature(bonus))) continue;
-    // Pass 1: no início; passes altas: perto do fim (produção/transferência).
-    if (pass <= 2) merged = [bonus, ...merged];
-    else merged = [...merged, bonus];
+    // Pass 1–2: no início. M4 conversation_scene também no início para a
+    // primeira microconversa não ficar no fim da 4ª sessão (TM-013 ≤10 min).
+    if (pass <= 2 || (pass === 4 && bonus.kind === "conversation_scene")) {
+      merged = [bonus, ...merged];
+    } else {
+      merged = [...merged, bonus];
+    }
   }
 
   // V4.0 — piso cognitivo: M3 produção, M4 transferência. Conversa extra
@@ -7164,7 +7171,7 @@ export function resolveMasteryPassForContext(
   lesson: Lesson,
   context: LessonPracticePlanContext = {}
 ): MasteryPass | null {
-  if (!(lesson.masteryLoop || isMasteryPilotLesson(lesson.id))) return null;
+  if (!(lesson.masteryLoop || isMasteryPilotLesson(lesson.id) || isTopicMasteryLesson(lesson))) return null;
   if (context.masteryPass) return context.masteryPass;
   // Sem contexto de aluno (validators/auditoria silent): plano base da #167.
   // O player sempre passa masteryLevel explicitamente.
@@ -7511,6 +7518,22 @@ export function lessonDifficulty(lesson: Lesson): string {
 export function estimateLessonMinutes(lesson: Lesson): number {
   if (lesson.estimatedMinutes) return lesson.estimatedMinutes;
   return Math.max(3, Math.min(9, Math.ceil(lesson.steps.length * 0.85)));
+}
+
+/** V4.6 — minutes of one mastery pass from the planned step list. */
+export function estimatePassMinutesFromPlan(plan: { kind: string }[]): number {
+  if (plan.length === 0) return 1.5;
+  return Math.round(Math.max(1.5, Math.min(4, plan.length * 0.32)) * 10) / 10;
+}
+
+export function estimateMasteryPassMinutes(lesson: Lesson, pass: 1 | 2 | 3 | 4): number {
+  const plan = lessonRoundStepsFor(lesson, {
+    masteryLevel: (pass - 1) as 0 | 1 | 2 | 3,
+    masteryPass: pass,
+    silent: true,
+    attemptNumber: 0,
+  });
+  return estimatePassMinutesFromPlan(plan);
 }
 
 export function lessonDescription(lesson: FlatLesson): string {

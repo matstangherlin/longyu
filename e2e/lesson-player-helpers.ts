@@ -163,6 +163,11 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       await tryPair(/^nǐ hǎo$/i, /^你好$/);
       await tryPair(/^你好$/, /^Olá$/);
       await tryPair(/^Olá$/, /^你好$/);
+      await tryPair(/som que você ouviu/i, /falado|mandarim/i);
+      await tryPair(/^nǐ hǎo$/i, /pinyin/i);
+      await tryPair(/^你好$/, /hànzì|escrita/i);
+      await tryPair(/^Olá$/, /tradução|significado/i);
+      await tryPair(/o que você ouviu/i, /mandarim falado/i);
       await tryPair(/^xièxie$/i, /^谢谢$/);
       await tryPair(/^谢谢$/, /Obrigado/);
       await tryPair(/^再见$/, /Até/);
@@ -235,7 +240,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
 /** Avança um passo genérico (para loop até vitória). */
 export async function advanceOneStep(page: Page): Promise<boolean> {
-  const victory = page.getByRole("button", { name: /Continuar Jornada|Receber recompensas/i });
+  const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
   return advanceUntilVisible(page, victory, 1);
 }
 

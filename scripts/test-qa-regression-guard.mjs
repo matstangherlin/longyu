@@ -67,7 +67,7 @@ try {
     isNonOptionAnswer,
     isConcatenatedDump,
   } = require(path.join(outDir, "src/features/lesson/immediateRemediation.js"));
-  const { activityErrorFromMistake, getPendingAttemptReview } = require(
+  const { activityErrorFromMistake, getPendingAttemptReview, shouldRestorePendingAttemptReview } = require(
     path.join(outDir, "src/features/lesson/lessonAttemptReview.js")
   );
   const { lessonRoundStepsFor } = require(path.join(outDir, "src/features/lesson/lessonTasks.js"));
@@ -300,6 +300,35 @@ try {
   assert(Boolean(pending), "getPendingAttemptReview encontra 2★ com erros");
   assert(pending.errors.length === 1, `pending.errors=${pending.errors.length}`);
   assert(pending.finalStars === 2, "pending finalStars 2");
+  assert(
+    shouldRestorePendingAttemptReview({ isTopicMastery: false, masteryLevel: 1 }) === true,
+    "review node still restores 3-star offer"
+  );
+  assert(
+    shouldRestorePendingAttemptReview({ isTopicMastery: true, masteryLevel: 0 }) === true,
+    "topic 0/4 still restores star-recovery fixtures"
+  );
+  assert(
+    shouldRestorePendingAttemptReview({ isTopicMastery: true, masteryLevel: 1 }) === false,
+    "topic 1/4 must not restore M1 review over M2"
+  );
+  assert(
+    shouldRestorePendingAttemptReview({ isTopicMastery: true, masteryLevel: 3 }) === false,
+    "topic 3/4 must not restore previous pass review"
+  );
+  assert(
+    shouldRestorePendingAttemptReview({ isTopicMastery: true, masteryLevel: 4 }) === true,
+    "topic 4/4 may restore 3-star recovery"
+  );
+  assert(
+    shouldRestorePendingAttemptReview({
+      isTopicMastery: true,
+      masteryLevel: 4,
+      sessionCursorPass: 4,
+      sessionCursorStepIndex: 3,
+    }) === false,
+    "mid-pass resume never overlays pending review"
+  );
 
   // ── 8) Sentence build em revisão: peças corretas ──────────────────────
   const buildError = {

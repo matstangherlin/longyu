@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | cedcc2a44027 |
-| HEAD no instante da geração | eeafd6dc6554fd0fe1008532d314f5805f71b726 |
+| Hash da Jornada | 8043a11ab298 |
+| HEAD no instante da geração | 3d3dec570075f50599885cbf791132b80b70b40d |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T09:59:24.157Z |
+| Gerado em | 2026-08-25T19:00:18.306Z |
 | Lições | 127 |
 
 ## Resumo
@@ -29,6 +29,13 @@ Produção **não** é um único interruptor. Montar `你 + 好` com peças à v
 | estimatedTimeToFirstAssistedAssembly | 3 min |
 | longestNonCommunicativeLessonRun (20) | 0 |
 | consecutiveTheoryOrLabLessons (20) | 3 |
+| sessionToFirstMandarinInteraction | 1 |
+| sessionMinutesToFirstConversation | 8.4 |
+| sessionMinutesToFirstIndependentProduction | 5.2 |
+| sessionMinutesToFirstTransfer | 8.4 |
+
+V4.6: `lessonTo*` continua medindo o plano-base por índice de lição (compatibilidade).
+`session*` mede cada pass M1–M4 do aluno novo — a unidade que o anel 4/4 realmente cobra.
 
 Primeira interação em mandarim: **1. O que é mandarim?** (`p1-o-que-e-mandarim`).
 
@@ -73,4 +80,4 @@ IDs das lições de fundação e da parede de tons **não mudaram**. Progresso a
 
 Nenhuma.
 
-<!-- integridade:c47a10d72e206db1 -->
+<!-- integridade:d2d5ec2f7d08451e -->

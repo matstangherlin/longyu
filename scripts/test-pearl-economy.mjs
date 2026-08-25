@@ -125,7 +125,7 @@ const storeSrc = read("src/lib/store.ts");
 assert(storeSrc.includes("pearlMilestonesClaimed"), "store deve ter pearlMilestonesClaimed");
 assert(storeSrc.includes("pearlProExpiresAt"), "store deve ter pearlProExpiresAt");
 assert(storeSrc.includes("activatePearlProPass"), "store deve ativar pass Pro");
-assert(storeSrc.includes("version: 19"), "persist v19 para Mastery Loop + entitlement cloud efêmero");
+assert(storeSrc.includes("version: 20"), "persist v20 para Topic Mastery Path + entitlement cloud efêmero");
 assert(
   storeSrc.includes("confirmCloudPearlProActivation"),
   "ativação cloud deve atravessar a fronteira de confirmação testável"

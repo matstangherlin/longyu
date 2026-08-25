@@ -1,10 +1,20 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, currentLessonId, getLesson, type Skill } from "../../data/journey";
+import {
+  energySessionFlagForPass,
+  isJourneyTopicComplete,
+  isTopicMasteryLesson,
+  topicCtaForLevel,
+  topicPassForLevel,
+  topicPassLabel,
+  type TopicMasteryProgressContext,
+} from "../../data/topicMastery";
+import { topicMasterySpecFor, passObjective } from "../../data/topicMasterySpecs";
+import { LESSON_BASE_XP, LESSON_PASS_XP, LESSON_TOPIC_MASTERED_XP_BONUS, LESSON_THREE_STAR_XP_BONUS } from "../../data/economy";
 import { canStartLesson, useIsPro } from "../../lib/proAccess";
 import { useStore } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
-import { LESSON_BASE_XP, LESSON_THREE_STAR_XP_BONUS } from "../../data/economy";
 import { Card, ProgressBar } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, RightRail, ActionButton } from "../../components/ui/page";
 import { HubProStrip } from "../../components/layout/HubLayout";
@@ -29,7 +39,7 @@ import {
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { LESSON_PERF_MARKS, markLessonPerf } from "../../lib/lessonPerf";
-import { MASTERY_LEVEL_LABELS, type MasteryLevel } from "../../data/masteryLoop";
+import type { MasteryLevel } from "../../data/masteryLoop";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
 
@@ -51,26 +61,35 @@ const SKILL_ICON: Record<Skill, typeof IconSound> = {
   sistema: IconStar,
 };
 
-function lockedLessonMessage(lessonId: string, completed: string[], lessonStarsById: Record<string, number>): string {
+function lockedLessonMessage(
+  lessonId: string,
+  completed: string[],
+  _lessonStarsById: Record<string, number>,
+  lessonMasteryById: Record<string, { level?: number } | undefined>
+): string {
   const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
   const target = ALL_LESSONS[index];
-  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((lesson) => !completed.includes(lesson.id));
+  const pathCtx: TopicMasteryProgressContext = { completedLessons: completed, lessonMasteryById };
+  const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((lesson) => !isJourneyTopicComplete(lesson, pathCtx));
   if (missing?.premium) return "Esta lição depende de uma etapa do Longyu Pro.";
-  if (missing) return `Complete "${missing.title}" para liberar esta lição.`;
+  if (missing) {
+    const level = lessonMasteryById[missing.id]?.level ?? 0;
+    if (isTopicMasteryLesson(missing) && level < 4) {
+      return `Conclua as 4 lições de "${missing.title}" (${level}/4) para liberar este tema.`;
+    }
+    return `Complete "${missing.title}" para liberar esta lição.`;
+  }
 
   const previous = index > 0 ? ALL_LESSONS[index - 1] : undefined;
   if (target && previous && previous.phaseId !== target.phaseId) {
     const phaseLessons = ALL_LESSONS.filter((lesson) => lesson.phaseId === previous.phaseId);
-    const weak = phaseLessons.find((lesson) => {
-      if (!completed.includes(lesson.id)) return true;
-      return (lessonStarsById[lesson.id] ?? 0) < 3;
-    });
+    const weak = phaseLessons.find((lesson) => !isJourneyTopicComplete(lesson, pathCtx));
     if (weak) {
-      return `Consiga 3 estrelas em "${weak.title}" (e nas demais aulas da fase ${previous.phaseTitle}) para avançar de fase.`;
+      return `Conclua as 4 lições de "${weak.title}" (e os demais temas da fase ${previous.phaseTitle}) para avançar de fase.`;
     }
   }
 
-  return "Complete a lição atual para liberar esta etapa.";
+  return "Complete o tema atual (4/4) para liberar esta etapa.";
 }
 
 function taskStatusLabel(status: TaskStatus): string {
@@ -141,8 +160,9 @@ export function LessonDetailPage() {
   const lessonMasteryById = useStore((state) => state.lessonMasteryById);
   const isPremium = useIsPro();
   const lessonTaskProgress = useStore((state) => state.lessonTaskProgress);
+  const lessonSessionStepById = useStore((state) => state.lessonSessionStepById);
   const toneTrainer = useStore((state) => state.toneTrainer);
-  const consumeCharge = useStore((state) => state.consumeCharge);
+  const canStartActivity = useStore((state) => state.canStartActivity);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
 
   // PERF-011 — preaquece o planner em idle para o player não cold-startar o índice.
@@ -162,34 +182,62 @@ export function LessonDetailPage() {
 
   const lesson = foundLesson;
   const tasks = lessonTasksFor(lesson);
+  const topicNode = isTopicMasteryLesson(lesson);
+  const masteryRecord = lessonMasteryById?.[lesson.id];
+  const masteryLevel = (masteryRecord?.level ?? 0) as MasteryLevel;
+  const topicPass = topicPassForLevel(masteryLevel, { recoveryPending: masteryRecord?.recoveryPending });
+  const spec = topicNode ? topicMasterySpecFor(lesson) : null;
+  const passName = topicPassLabel(topicPass);
+  const passGoal = spec ? passObjective(spec, topicPass) : null;
+  const pathComplete = isJourneyTopicComplete(lesson, {
+    completedLessons: completed,
+    lessonMasteryById,
+  });
 
-  const startAccess = canStartLesson(lesson.id, { isPremium, completedLessons: completed, lessonStarsById });
+  const startAccess = canStartLesson(lesson.id, {
+    isPremium,
+    completedLessons: completed,
+    lessonStarsById,
+    lessonMasteryById,
+  });
   const hasAccess = startAccess.reasonCode !== "premium_required" && startAccess.reasonCode !== "unknown_lesson";
-  const currentId = currentLessonId(completed, isPremium);
-  const isCompleted = completed.includes(lesson.id);
+  const currentId = currentLessonId(completed, isPremium, lessonMasteryById);
+  const isAcquired = completed.includes(lesson.id);
   const requiredTonePack = requiredToneTrainerPackForLesson(lesson.id);
   const toneLocked = Boolean(
-    !isCompleted &&
+    !pathComplete &&
     hasAccess &&
     requiredTonePack &&
     !toneTrainerPackCompleted(toneTrainer, requiredTonePack.id)
   );
-  const isLocked = !isCompleted && hasAccess && (!startAccess.allowed || lesson.id !== currentId || toneLocked);
+  const isLocked = !pathComplete && hasAccess && (!startAccess.allowed || lesson.id !== currentId || toneLocked);
+  const sessionCursor = lessonSessionStepById?.[lesson.id];
   const savedProgress = Math.min(tasks.length, lessonTaskProgress[lesson.id] ?? 0);
-  const progress = isCompleted ? tasks.length : savedProgress;
-  const progressLabel = `${progress}/${tasks.length}`;
+  const activityIndex =
+    sessionCursor && sessionCursor.pass === topicPass ? sessionCursor.stepIndex : savedProgress;
+  const activityTotal = Math.max(tasks.length, 1);
+  const progress = pathComplete && topicPass === 4 && activityIndex === 0 ? 0 : activityIndex;
+  const progressLabel = `Atividade ${Math.min(progress + 1, activityTotal)} de ${activityTotal}`;
   const estimate = estimateLessonMinutes(lesson);
   const mainType = lessonMotorLabel(lesson.skill, lesson.isReview);
-  const maxXp = LESSON_BASE_XP + LESSON_THREE_STAR_XP_BONUS;
+  const maxXp = topicNode
+    ? LESSON_PASS_XP + (masteryLevel >= 3 ? LESSON_TOPIC_MASTERED_XP_BONUS : 0)
+    : LESSON_BASE_XP + LESSON_THREE_STAR_XP_BONUS;
   const totalQi = tasks.reduce((sum, task) => sum + (task.rewardQi ?? 0), 0);
-  const stepLabel = isCompleted ? "Lição concluída" : `Etapa ${Math.min(progress + 1, tasks.length)} de ${tasks.length}`;
+  const stepLabel = topicNode
+    ? pathComplete
+      ? "Tema dominado"
+      : `Lição ${topicPass} de 4 · ${passName}`
+    : isAcquired
+      ? "Lição concluída"
+      : `Etapa ${Math.min(progress + 1, tasks.length)} de ${tasks.length}`;
   const blockedCopy = !hasAccess
     ? startAccess.reason
     : toneLocked && requiredTonePack
     ? `Conclua "${requiredTonePack.shortTitle}" no Treino de tons com nota mínima ${requiredTonePack.minimumCorrect}/${requiredTonePack.requiredRounds}.`
     : startAccess.reasonCode === "missing_lesson"
     ? startAccess.reason
-    : lockedLessonMessage(lesson.id, completed, lessonStarsById);
+    : lockedLessonMessage(lesson.id, completed, lessonStarsById, lessonMasteryById);
 
   function startLesson() {
     if (!hasAccess) {
@@ -200,12 +248,14 @@ export function LessonDetailPage() {
       navigate(toneLocked ? "/som" : "/");
       return;
     }
-    if (!isCompleted && savedProgress === 0 && !consumeCharge("lesson")) {
+    const energyFlag = energySessionFlagForPass(lesson.id, topicPass, todayKey());
+    const alreadyInSession = window.sessionStorage.getItem(energyFlag) === "1";
+    const continuingSamePass = activityIndex > 0 && sessionCursor?.pass === topicPass;
+    // TM-018: a Detail não cobra. O player cobra uma vez por pass com chave
+    // idempotente. Recarregar / voltar / continuar a mesma pass não gera 2ª cobrança.
+    if (!alreadyInSession && !continuingSamePass && !canStartActivity("lesson")) {
       setProPaywallKind("energy");
       return;
-    }
-    if (!isCompleted && savedProgress === 0) {
-      window.sessionStorage.setItem(`longyu-energy:lesson:${lesson.id}:${todayKey()}`, "1");
     }
     markLessonPerf(LESSON_PERF_MARKS.startClick);
     navigate(`/licao/${lesson.id}/player`);
@@ -213,18 +263,21 @@ export function LessonDetailPage() {
 
   function statusFor(index: number): TaskStatus {
     if (!hasAccess) return "premium";
-    if (isCompleted || index < progress) return "concluida";
+    if (pathComplete || index < progress) return "concluida";
     if (!isLocked && index === progress) return "disponivel";
     return "bloqueada";
   }
 
+  const topicCta = topicCtaForLevel(masteryLevel, activityIndex > 0);
   const primaryLabel = !hasAccess
     ? "Ver Longyu Pro"
     : toneLocked
     ? "Abrir treino de tons"
     : isLocked
     ? "Voltar à jornada"
-    : isCompleted
+    : topicNode
+    ? topicCta.primary
+    : isAcquired
     ? "Rever lição"
     : progress > 0
     ? "Continuar"
@@ -256,39 +309,48 @@ export function LessonDetailPage() {
       />
 
       {/* Card principal — objetivo, progresso, recompensas e a única ação. */}
-      <Card className="p-4 sm:p-5">
-        <p className="text-sm leading-6 text-ink sm:text-[15px]">{lessonDescription(lesson)}</p>
+      <Card className="min-w-0 p-4 sm:p-5">
+        {topicNode ? (
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent" data-testid="topic-pass-label">
+              {pathComplete ? "Tema dominado" : `Lição ${topicPass} de 4 · ${passName}`}
+            </p>
+            <p className="mt-2 break-words text-sm leading-6 text-ink sm:text-[15px]">
+              {passGoal ?? spec?.promise ?? lessonDescription(lesson)}
+            </p>
+            {pathComplete && (
+              <p className="mt-2 text-[13px] font-semibold text-[rgb(var(--good))]">Tema dominado ✓</p>
+            )}
+          </div>
+        ) : (
+          <p className="break-words text-sm leading-6 text-ink sm:text-[15px]">{lessonDescription(lesson)}</p>
+        )}
 
         <div className="mt-3.5">
-          <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-ink-faint">
-            <span className={isCompleted ? "text-[rgb(var(--good))]" : "text-ink-soft"}>{stepLabel}</span>
-            <span className="tabular-nums">{progressLabel}</span>
+          <div className="mb-1 flex min-w-0 items-center justify-between gap-2 text-[11px] font-semibold text-ink-faint">
+            <span className={pathComplete ? "text-[rgb(var(--good))]" : "text-ink-soft"}>{stepLabel}</span>
+            <span className="shrink-0 tabular-nums">{progressLabel}</span>
           </div>
-          <ProgressBar value={progress} max={tasks.length} className="h-2" />
+          <ProgressBar value={Math.min(progress, activityTotal)} max={activityTotal} className="h-2" />
         </div>
 
-        {lesson.masteryLoop && (
+        {topicNode && (
           <div className="mt-3 rounded-xl border border-line/60 bg-surface-2/60 px-3 py-2.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold text-ink-soft">Domínio da lição</span>
-              <span className="text-[11px] font-medium text-ink-faint">
-                {MASTERY_LEVEL_LABELS[(lessonMasteryById?.[lesson.id]?.level ?? 0) as MasteryLevel]}
-              </span>
+              <span className="text-[11px] font-semibold text-ink-soft">Progresso do tema</span>
+              <span className="text-[11px] font-medium text-ink-faint">{masteryLevel}/4</span>
             </div>
-            <div className="mt-1.5 flex items-center gap-1.5" aria-label={`Domínio ${(lessonMasteryById?.[lesson.id]?.level ?? 0)} de 4`}>
+            <div className="mt-1.5 flex items-center gap-1.5" aria-label={`Tema ${masteryLevel} de 4`}>
               {[1, 2, 3, 4].map((level) => (
                 <span
                   key={level}
                   className={[
                     "h-1.5 flex-1 rounded-full",
-                    level <= (lessonMasteryById?.[lesson.id]?.level ?? 0) ? "bg-accent" : "bg-line",
+                    level <= masteryLevel ? "bg-accent" : "bg-line",
                   ].join(" ")}
                 />
               ))}
             </div>
-            <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">
-              Concluir ≠ dominar. Cada volta desta lição aumenta a exigência (descoberta → consolidação → produção → domínio).
-            </p>
           </div>
         )}
 
@@ -315,9 +377,14 @@ export function LessonDetailPage() {
           onClick={startLesson}
           size="lg"
           trailingChevron
-          className="mt-4 w-full border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:px-6"
+          className="mt-4 w-full min-w-0 border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:max-w-full sm:px-6"
         >
-          {primaryLabel}
+          <span className="block min-w-0 break-words text-center leading-snug">
+            {primaryLabel}
+            {topicNode && topicCta.secondary ? (
+              <span className="mt-0.5 block text-[11px] font-medium opacity-90">{topicCta.secondary}</span>
+            ) : null}
+          </span>
         </ActionButton>
       </Card>
 

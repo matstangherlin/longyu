@@ -7,6 +7,21 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.6 — Topic Mastery Path
+
+Cada nó normal de ensino da Jornada passa a ser um **tema** de 4 lições (M1 Descoberta → M2 Consolidação → M3 Produção → M4 Domínio), reusando o Mastery Loop. O próximo tema só destrava em **4/4**.
+
+- Anel da Jornada: 4 segmentos fixos. `lessonTaskProgress` fica só na sessão (“Atividade X de Y”).
+- **ACQUIRED** (`completedLessons`) ≠ **MASTERED** (`lessonMasteryById.level >= 4`). Unlock usa MASTERED.
+- Migração v20: progresso legado atrás do ponteiro antigo é grandfather 4/4 (não relocka).
+- Planner: o círculo N/4 abre a pass seguinte (2/4 → M3); sem skip-ahead visual.
+- Energia: 1 carga por pass. XP na primeira vez da pass; prática menor; bônus único ao fechar 4/4.
+- Estrelas continuam qualidade. O gate de 3★ para cruzar de fase foi removido.
+- Specs `TopicMasterySpec` + bônus autorados (mandarim/pinyin/tom/hànzì).
+- Portões: `test:topic-mastery-path`, `validate:topic-mastery-depth`.
+- Relatório: `docs/reports/topic-mastery-path.md` (métricas de first-win por sessão).
+- **Não** toca Business / Stripe / Atlas em massa / Missões / Pérolas.
+
 ### V4.5 — Early Transfer Ladder
 
 Antecipa a primeira **transferência combinacional verdadeira** de L47 para **L15** (`l2-rev`): **`请问，你叫什么？`**, depois de produção guiada de `你叫什么？` (L13) e exposição a `请问` (L14).
