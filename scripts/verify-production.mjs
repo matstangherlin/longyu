@@ -76,6 +76,7 @@ for (const [name, path] of [
   ["create-billing-portal", "create-billing-portal"],
   ["delete-account", "delete-account"],
   ["issue-anon-ingestion-session", "issue-anon-ingestion-session"],
+  ["submit-business-lead", "submit-business-lead"],
 ]) {
   const probe = await checkUrl(
     `Edge Function ${name}`,

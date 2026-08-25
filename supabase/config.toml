@@ -36,3 +36,7 @@ verify_jwt = false
 # Aceita JWT anon legado e sb_publishable_*; o handler valida o header apikey.
 [functions.issue-anon-ingestion-session]
 verify_jwt = false
+
+# Formulário público Longyu for Business (validação + rate limit no servidor).
+[functions.submit-business-lead]
+verify_jwt = false

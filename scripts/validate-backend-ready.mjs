@@ -31,6 +31,7 @@ const migrations = [
   "supabase/migrations/20260809160306_require_referral_reward_review.sql",
   "supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
   "supabase/seed/test-account.sql",
+  "supabase/migrations/20260825043000_business_foundation.sql",
 ];
 const functions = [
   "supabase/functions/create-checkout-session/index.ts",
@@ -38,6 +39,7 @@ const functions = [
   "supabase/functions/stripe-webhook/index.ts",
   "supabase/functions/delete-account/index.ts",
   "supabase/functions/issue-anon-ingestion-session/index.ts",
+  "supabase/functions/submit-business-lead/index.ts",
 ];
 
 for (const migration of migrations) requirePath(migration, "migration");
