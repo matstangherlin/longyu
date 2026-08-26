@@ -160,8 +160,14 @@ try {
       silent: true,
       attemptNumber: 0,
     });
-    if (planM3.some((step) => /diga sem apoio extra/i.test(step.title ?? ""))) {
-      fail("p1-primeiros-hanzi M3 ainda emite Diga sem apoio extra");
+    if (
+      planM3.some(
+        (step) =>
+          /diga sem apoio extra/i.test(step.title ?? "") &&
+          /montar o caractere/i.test(`${step.body ?? ""} ${step.situationPt ?? ""}`)
+      )
+    ) {
+      fail("p1-primeiros-hanzi M3 ainda emite Diga + montar o caractere");
     }
     if (
       !planM3.some(

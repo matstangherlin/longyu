@@ -448,8 +448,15 @@ function genericFidelityBonus(lesson: Lesson, pass: MasteryPass): LessonStep[] {
     ];
   }
   if (pass === 3) {
-    const produceText = `${spec?.mustProduce[0] ?? ""} ${spec?.passObjectives[3] ?? ""} ${lesson.title}`;
-    if (/montar|monte|caractere/i.test(produceText) && [...hanzi].length === 1) {
+    const produceGoal = spec?.mustProduce[0] ?? lesson.title;
+    const assembleHanzi = /montar|monte|caractere/i.test(`${produceGoal} ${spec?.passObjectives[3] ?? ""}`);
+    const produceIsChoice = /escolh|qual dos|ouviu|distingu/i.test(produceGoal);
+    const parts = [...hanzi];
+    const bank = uniqueOptions(parts.join(""), [...parts, "一", "人"]);
+    const sayPrompt =
+      assembleHanzi || produceIsChoice ? "Diga o núcleo deste tema, sem ler a tradução." : produceGoal;
+    const say = reverseRecall("Diga sem apoio extra", sayPrompt, hanzi, [hanzi]);
+    if (assembleHanzi && parts.length === 1) {
       const builder =
         buildersForCharacter(hanzi).find((item) => item.mode === "fragments") ?? buildersForCharacter(hanzi)[0];
       if (builder) {
@@ -463,18 +470,18 @@ function genericFidelityBonus(lesson: Lesson, pass: MasteryPass): LessonStep[] {
             correctAnswer: builder.character,
             explanation: builder.explanationPt,
           },
+          say,
         ];
       }
     }
-    const parts = [...hanzi];
-    const bank = uniqueOptions(parts.join(""), [...parts, "一", "人"]);
     return [
       sentenceBuild(
-        "Monte o núcleo",
+        "Produza o núcleo",
         spec?.passObjectives[3] ?? "Monte o que este tema ensina.",
         parts,
         [...parts, ...bank.filter((item) => !parts.includes(item))]
       ),
+      say,
     ];
   }
   return [
