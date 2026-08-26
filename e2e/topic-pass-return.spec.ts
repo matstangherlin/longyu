@@ -238,6 +238,10 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await expect(page.getByTestId("topic-victory-lesson")).toContainText(PASS_EXPECT[1].lesson);
     await expect(page.getByTestId("topic-victory-remaining")).toContainText(PASS_EXPECT[1].remaining);
     await expect(page.getByTestId("topic-victory-return")).toBeVisible();
+    const victoryCtaBox = await page.getByTestId("topic-victory-return").boundingBox();
+    const viewport = page.viewportSize();
+    expect(victoryCtaBox, "CTA Voltar à Jornada visível sem scroll").toBeTruthy();
+    expect(victoryCtaBox!.y + victoryCtaBox!.height).toBeLessThanOrEqual((viewport?.height ?? 720) + 2);
     await expect(page.url()).toContain("/player");
     await capture(page, "v461-victory-m1-faltam-3");
 

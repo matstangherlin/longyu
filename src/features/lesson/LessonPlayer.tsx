@@ -4119,7 +4119,8 @@ export function LessonPlayer() {
     return (
       <div className="flex h-full min-h-0 max-w-xl mx-auto w-full flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         {recoveryDebugPanel}
-        <section data-lesson-activity-scroll className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] px-4 pb-0 pt-3 text-center shadow-lift sm:px-6">
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] text-center shadow-lift">
+        <div data-lesson-activity-scroll className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-4 pb-2 pt-3 sm:px-6">
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {lesson.title}
           </div>
@@ -4362,9 +4363,10 @@ export function LessonPlayer() {
             onDismiss={contextualOffer.dismiss}
             className="mt-4"
           />
+        </div>
 
-          {/* 3 · Botão principal — sempre visível, resgata e depois continua. */}
-          <div className="sticky bottom-0 -mx-4 mt-auto bg-gradient-to-t from-bg via-bg to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 sm:static sm:mx-0 sm:bg-none sm:px-0">
+          {/* 3 · Botão principal — fora do scroll, visível em 720p e no celular. */}
+          <div className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface))] px-4 pb-3 pt-2 sm:px-6">
             <div className="mb-1.5 flex items-center justify-center gap-4 text-xs font-medium text-ink-faint">
               <Link to="/revisao" className="inline-flex items-center gap-1 transition hover:text-ink">
                 <IconRefresh width={14} height={14} /> Revisar
