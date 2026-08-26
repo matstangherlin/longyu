@@ -173,7 +173,7 @@ test.describe("V4.6.2 exercise feasibility", () => {
       if (await page.getByTestId("topic-victory-copy").isVisible().catch(() => false)) break;
       const body = (await frame.innerText().catch(() => "")) ?? "";
       expect(body, "eyebrow Reflexão opcional + Diga + 木").not.toMatch(/Reflexão opcional[\s\S]*Diga sem apoio extra[\s\S]*木/i);
-      expect(body).not.toMatch(/Diga sem apoio extra/i);
+      expect(body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(/Diga sem apoio extra[\s\S]*montar o caractere-alvo/i);
       await assertCoherentAction(page);
       if (!(await completeWithoutIme(page))) await advanceOneStep(page);
       await page.waitForTimeout(120);
