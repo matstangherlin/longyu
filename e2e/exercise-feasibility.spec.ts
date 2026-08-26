@@ -58,9 +58,13 @@ async function drainBlockingModals(page: Page) {
   }
 }
 
+async function isShown(locator: { isVisible: (opts?: { timeout?: number }) => Promise<boolean> }): Promise<boolean> {
+  return locator.isVisible({ timeout: 400 }).catch(() => false);
+}
+
 async function assertCoherentAction(page: Page) {
   const root = page.locator("[data-step-kind]").first();
-  if (!(await root.isVisible().catch(() => false))) return;
+  if (!(await isShown(root))) return;
   const kind = (await root.getAttribute("data-step-kind")) ?? "";
   const graded = (await root.getAttribute("data-step-graded")) === "true";
   const reflection = (await root.getAttribute("data-step-reflection")) === "true";
@@ -83,15 +87,15 @@ async function assertCoherentAction(page: Page) {
 
   if (!graded) return;
 
-  const hasChoice = await page.getByRole("button", { name: /^Opção \d+:/ }).first().isVisible().catch(() => false);
-  const hasPieces = await page.getByRole("button", { name: /^Peça \d+:/ }).first().isVisible().catch(() => false);
-  const hasBuilder = await page.locator("[data-hanzi-builder], [data-production-help-build]").first().isVisible().catch(() => false);
-  const hasProduction = await page.locator("[data-production-answer]").first().isVisible().catch(() => false);
-  const hasVerify = await page.getByRole("button", { name: /^Verificar$|^Confirmar$|^Responder$/ }).first().isVisible().catch(() => false);
-  const hasMatch = await page.getByText(/\d+\/\d+ pares/).isVisible().catch(() => false);
-  const hasSpeak = await page.getByRole("button", { name: /Falar|Ou falar/i }).first().isVisible().catch(() => false);
-  const hasSkip = await page.getByRole("button", { name: /^Pular/ }).first().isVisible().catch(() => false);
-  const hasAudio = await page.getByRole("button", { name: /Ouvir|Ouça/i }).first().isVisible().catch(() => false);
+  const hasChoice = await isShown(page.getByRole("button", { name: /Opção \d+:/ }).first());
+  const hasPieces = await isShown(page.getByRole("button", { name: /Peça \d+:/ }).first());
+  const hasBuilder = await isShown(page.locator("[data-hanzi-builder], [data-production-help-build]").first());
+  const hasProduction = await isShown(page.locator("[data-production-answer]").first());
+  const hasVerify = await isShown(page.getByRole("button", { name: /^(Verificar|Confirmar|Responder)$/ }).first());
+  const hasMatch = await isShown(page.getByText(/\d+\/\d+ pares/).first());
+  const hasSpeak = await isShown(page.getByRole("button", { name: /Falar|Ou falar/i }).first());
+  const hasSkip = await isShown(page.getByRole("button", { name: /Pular/ }).first());
+  const hasAudio = await isShown(page.getByRole("button", { name: /Ouvir|Ouça/i }).first());
   expect(
     hasChoice || hasPieces || hasBuilder || hasProduction || hasVerify || hasMatch || hasSpeak || hasSkip || hasAudio,
     `passo graded ${kind} precisa de mecanismo de resposta`
@@ -100,15 +104,13 @@ async function assertCoherentAction(page: Page) {
 
 async function completeWithoutIme(page: Page): Promise<boolean> {
   const builderRoot = page.locator("[data-hanzi-builder]");
-  if (await builderRoot.first().isVisible().catch(() => false)) {
-    const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
-    const count = await pieces.count();
-    for (let i = 0; i < count; i += 1) await clickIfEnabled(pieces.nth(i));
-    if (await clickFirstVisible(page, [/Certo!|\+Qi/, /^Verificar$/])) {
+  if (await isShown(builderRoot.first())) {
+    const piece = page.getByRole("button", { name: /Peça \d+:/ }).first();
+    if (await isShown(piece)) await clickIfEnabled(piece);
+    if (await clickFirstVisible(page, [/^Pular/, /^Verificar$/, /^Continuar$/])) {
       await drainBlockingModals(page);
       return true;
     }
-    return clickFirstVisible(page, [/^Pular/, /^Continuar$/]);
   }
   const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
   if ((await pieces.count()) > 0 && (await pieces.first().isVisible().catch(() => false))) {
