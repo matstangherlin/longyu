@@ -55,6 +55,10 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await page.getByRole("button", { name: "Entendi" }).click();
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await skipSpeak.click();
+    }
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
     // Atalho numérico seleciona a primeira alternativa (estado "selected").
     await page.keyboard.press("1");

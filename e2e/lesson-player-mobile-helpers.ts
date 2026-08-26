@@ -271,9 +271,15 @@ export async function openListenSelectStep(page: Page) {
     const xiexie = page.getByRole("button", { name: /谢谢/ }).first();
     return (await nihao.isVisible().catch(() => false)) && (await xiexie.isVisible().catch(() => false));
   };
-  for (let i = 0; i < 10; i += 1) {
+  for (let i = 0; i < 12; i += 1) {
     if (await hasChoices()) return;
-    await clickFirstVisible(page, [/^Entendi$/, /^Ouvir$/, /^Continuar$/, /^Próximo$/]);
+    await clickFirstVisible(page, [
+      /^Entendi$/,
+      /^Não posso falar agora$/,
+      /^Ouvir$/,
+      /^Continuar$/,
+      /^Próximo$/,
+    ]);
     await page.waitForTimeout(180);
   }
   await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible({ timeout: 10_000 });

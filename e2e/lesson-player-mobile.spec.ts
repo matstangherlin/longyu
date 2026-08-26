@@ -212,7 +212,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
         if (await page.locator("[data-review-offer]").isVisible().catch(() => false)) {
           await clickFirstVisible(page, [/^Continuar$/, /^Depois$/, /^Agora não$/, /^Pular revisão/i]);
         }
-        const skipped = await clickFirstVisible(page, [/^Pular/]);
+        const skipped = await clickFirstVisible(page, [/^Pular/, /^Não posso falar agora$/]);
         if (!skipped) {
           await clickFirstVisible(page, [/^Entendi$/, /^Continuar$/, /^Verificar$/, /Certo!|\+Qi/, /^Responder$/]);
         }
@@ -227,7 +227,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
       const scroller = page.locator("[data-lesson-activity-scroll]");
       await injectLongActivityScroll(page);
       await page.getByRole("button", { name: "Entendi" }).click();
-      await expect(page.getByRole("button", { name: /你好|谢谢|我很好/ }).first()).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole("button", { name: /你好|谢谢|我很好|Não posso falar agora/ }).first()).toBeVisible({ timeout: 10_000 });
       await expect.poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 5_000 }).toBe(0);
       await assertPageScrollLocked(page);
     });
