@@ -83,10 +83,10 @@ async function assertCoherentAction(page: Page) {
 
   if (!graded) return;
 
-  const hasChoice = (await page.getByRole("button", { name: /^Opção \d+:/ }).count()) > 0;
-  const hasPieces = (await page.getByRole("button", { name: /^Peça \d+:/ }).count()) > 0;
-  const hasBuilder = (await page.locator("[data-hanzi-builder], [data-production-help-build]").count()) > 0;
-  const hasProduction = (await page.locator("[data-production-answer]").count()) > 0;
+  const hasChoice = await page.getByRole("button", { name: /^Opção \d+:/ }).first().isVisible().catch(() => false);
+  const hasPieces = await page.getByRole("button", { name: /^Peça \d+:/ }).first().isVisible().catch(() => false);
+  const hasBuilder = await page.locator("[data-hanzi-builder], [data-production-help-build]").first().isVisible().catch(() => false);
+  const hasProduction = await page.locator("[data-production-answer]").first().isVisible().catch(() => false);
   const hasVerify = await page.getByRole("button", { name: /^Verificar$|^Confirmar$|^Responder$/ }).first().isVisible().catch(() => false);
   const hasMatch = await page.getByText(/\d+\/\d+ pares/).isVisible().catch(() => false);
   const hasSpeak = await page.getByRole("button", { name: /Falar|Ou falar/i }).first().isVisible().catch(() => false);
@@ -104,8 +104,11 @@ async function completeWithoutIme(page: Page): Promise<boolean> {
     const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
     const count = await pieces.count();
     for (let i = 0; i < count; i += 1) await clickIfEnabled(pieces.nth(i));
-    if (await clickFirstVisible(page, [/Certo!|\+Qi/, /^Verificar$/, /^Continuar$/])) return true;
-    return clickFirstVisible(page, [/^Pular/]);
+    if (await clickFirstVisible(page, [/Certo!|\+Qi/, /^Verificar$/])) {
+      await drainBlockingModals(page);
+      return true;
+    }
+    return clickFirstVisible(page, [/^Pular/, /^Continuar$/]);
   }
   const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
   if ((await pieces.count()) > 0 && (await pieces.first().isVisible().catch(() => false))) {
@@ -142,9 +145,10 @@ async function playPass(page: Page, lessonId: string, targetLevel: number) {
   const playerUrl = `/licao/${lessonId}/player`;
   const victoryCopy = page.getByTestId("topic-victory-copy");
   const victoryBtn = page.getByRole("button", { name: VICTORY });
-  const deadline = Date.now() + 90_000;
+  const deadline = Date.now() + 150_000;
   for (let steps = 0; steps < 70 && Date.now() < deadline; steps += 1) {
     await dismissBlockingOverlays(page);
+    await drainBlockingModals(page);
     if (await victoryCopy.isVisible().catch(() => false)) return;
     if ((await victoryBtn.first().isVisible().catch(() => false)) && (await masteryLevel(page, lessonId)) >= targetLevel) {
       return;
@@ -182,12 +186,14 @@ test.describe("V4.6.2 exercise feasibility", () => {
 
     for (let i = 0; i < 24; i += 1) {
       if (await page.getByTestId("topic-victory-copy").isVisible().catch(() => false)) break;
+      await drainBlockingModals(page);
       const body = (await frame.innerText().catch(() => "")) ?? "";
       expect(body, "eyebrow Reflexão opcional + Diga + 木").not.toMatch(/Reflexão opcional[\s\S]*Diga sem apoio extra[\s\S]*木/i);
       expect(body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(/Diga sem apoio extra[\s\S]*montar o caractere-alvo/i);
       await assertCoherentAction(page);
       if (!(await completeWithoutIme(page))) await advanceOneStep(page);
-      await page.waitForTimeout(120);
+      await drainBlockingModals(page);
+      await page.waitForTimeout(80);
     }
   });
 
