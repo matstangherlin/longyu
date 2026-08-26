@@ -473,7 +473,8 @@ function isImeOnlyBlock(step: LessonStep, interactions: AvailableInteraction[]):
     interactions.includes("assembly") ||
     interactions.includes("hanzi_builder") ||
     interactions.includes("choice") ||
-    interactions.includes("match");
+    interactions.includes("match") ||
+    interactions.includes("speech");
   return !hasNonIme;
 }
 
@@ -481,10 +482,20 @@ function isImeOnlyBlock(step: LessonStep, interactions: AvailableInteraction[]):
  * Runtime materialization that LessonPlayer applies before render.
  * reverse_recall is never optional reflection; CJK production always gets a piece bank.
  */
-function withCjkPieceBank(step: LessonStep, answer: string): LessonStep {
+function withCjkPieceBank(
+  step: LessonStep,
+  answer: string,
+  mode: "assembly" | "help" = "assembly"
+): LessonStep {
   if (!containsCjkGlyph(answer) || hasAssemblyBank(step)) return step;
   const bank = cjkPieceBank(answer);
   if (bank.length === 0) return step;
+  if (mode === "help") {
+    return {
+      ...step,
+      productionHelpBuildBank: step.productionHelpBuildBank ?? bank,
+    };
+  }
   const parts = Array.from(answer).filter((ch) => CJK_RE.test(ch));
   return {
     ...step,
@@ -515,7 +526,10 @@ export function materializeRuntimeStep(step: LessonStep): LessonStep {
     return next;
   }
   if (step.kind === "free_production" || step.kind === "transfer_task") {
-    return withCjkPieceBank(step, step.correctAnswer ?? step.answer ?? "");
+    // Open production cannot carry a piece bank (validateExercise treats that
+    // as recognition). Speech + typed input is the IME-free path.
+    if (step.productionOpen) return step;
+    return withCjkPieceBank(step, step.correctAnswer ?? step.answer ?? "", "help");
   }
   if (step.kind === "dictation" && (step.dictationMode === "hanzi" || !step.dictationMode)) {
     return withCjkPieceBank(step, step.correctAnswer ?? step.answer ?? step.hanzi ?? "");

@@ -196,6 +196,25 @@ try {
   if (!Array.isArray(materialized.productionHelpBuildBank) || materialized.productionHelpBuildBank.length < 2) {
     fail("runtime deve oferecer banco de hànzì");
   }
+
+  const openProd = feas.materializeRuntimeStep({
+    kind: "free_production",
+    title: "Diga do seu jeito",
+    situationPt: "Peça o que quiser no restaurante.",
+    correctAnswer: "我要水",
+    productionOpen: true,
+    productionAssist: "open",
+    productionGoal: "order_item",
+    accepts: ["我要水", "我要茶", "我要米饭"],
+    productionExamples: [{ hanzi: "我要水" }, { hanzi: "我要茶" }, { hanzi: "我要米饭" }],
+    isNoHint: true,
+    helpMode: "disabled",
+  });
+  if ((openProd.wordBank ?? []).length > 0 || (openProd.bank ?? []).length > 0) {
+    fail("produção aberta não pode ganhar banco de peças no runtime");
+  }
+  const openAudit = feas.auditStepFeasibility(openProd, { lessonId: "l26b", pass: 3, index: 4 });
+  if (!openAudit.feasible) fail(`produção aberta deveria ser feasible: ${openAudit.detail.join("; ")}`);
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));
 } finally {
