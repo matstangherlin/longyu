@@ -49,6 +49,13 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     }
     await page.keyboard.press("Escape").catch(() => undefined);
 
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await clickIfEnabled(skipSpeak);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição/i });
     if (await reviewHeading.isVisible().catch(() => false)) {
       await clickFirstVisible(page, [/^Continuar$/]);

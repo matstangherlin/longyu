@@ -106,7 +106,7 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
       }
       waitedForPass = true;
     }
-    if (await clickFirstVisible(page, [/^Pular/])) {
+    if (await clickFirstVisible(page, [/^Pular/, /Não posso falar agora/])) {
       await page.waitForTimeout(180);
       continue;
     }

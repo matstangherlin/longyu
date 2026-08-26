@@ -96,8 +96,12 @@ async function playUntilVictory(page: Page, lessonId: string, targetLevel: numbe
   let waitedForPass = false;
   for (let steps = 0; steps < 80 && Date.now() < deadline; steps += 1) {
     await dismissBlockingOverlays(page);
-    if (await victoryCopy.isVisible().catch(() => false)) return;
+    if (await victoryCopy.isVisible().catch(() => false)) {
+      await drainBlockingModals(page);
+      return;
+    }
     if (await victoryBtn.first().isVisible().catch(() => false) && (await masteryLevel(page, lessonId)) >= targetLevel) {
+      await drainBlockingModals(page);
       return;
     }
     if (!page.url().includes("/player")) {
@@ -123,7 +127,7 @@ async function playUntilVictory(page: Page, lessonId: string, targetLevel: numbe
       }
       waitedForPass = true;
     }
-    if (await clickFirstVisible(page, [/^Pular/])) {
+    if (await clickFirstVisible(page, [/^Pular/, /Não posso falar agora/])) {
       await page.waitForTimeout(180);
       continue;
     }
@@ -137,20 +141,59 @@ async function playUntilVictory(page: Page, lessonId: string, targetLevel: numbe
   await expect(victoryCopy, `vitória da pass ${targetLevel} deve aparecer`).toBeVisible({ timeout: 5_000 });
 }
 
+async function drainBlockingModals(page: Page) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const closed = await page.evaluate(() => {
+      const dialogs = [...document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]')];
+      const visible = dialogs.filter((dialog) => dialog.getClientRects().length > 0);
+      if (visible.length === 0) return false;
+      for (const dialog of visible) {
+        const buttons = [...dialog.querySelectorAll<HTMLButtonElement>("button")];
+        const dismiss = buttons.find((button) =>
+          /^(Continuar|Fechar|Ok|Entendi)$/i.test((button.textContent ?? "").replace(/\s+/g, " ").trim())
+        );
+        if (dismiss) {
+          dismiss.click();
+          return true;
+        }
+      }
+      return false;
+    });
+    if (!closed) {
+      await dismissBlockingOverlays(page);
+      const still = page.locator('[role="dialog"][aria-modal="true"]').first();
+      if (!(await still.isVisible().catch(() => false))) return;
+      await page.keyboard.press("Escape").catch(() => undefined);
+    }
+    await page.waitForTimeout(200);
+  }
+}
+
 async function returnToJourney(page: Page) {
+  await drainBlockingModals(page);
   const primary = page.getByTestId("topic-victory-return");
   await expect(primary).toBeVisible();
   await expect(primary).toHaveText(/Voltar à Jornada|Receber recompensas/i);
   await expect(page.getByRole("button", { name: /^Continuar tema$/i })).toHaveCount(0);
-  await primary.click();
+  await drainBlockingModals(page);
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    await drainBlockingModals(page);
+    try {
+      await primary.click({ timeout: 3_000 });
+      break;
+    } catch (error) {
+      if (attempt === 5) throw error;
+      await page.waitForTimeout(250);
+    }
+  }
   await page.waitForTimeout(350);
   if (await page.getByTestId("topic-victory-copy").isVisible().catch(() => false)) {
     await page.getByTestId("topic-victory-return").click();
     await page.waitForTimeout(350);
   }
-  const streak = page.getByRole("button", { name: /Continuar jornada/i });
-  if (await streak.isVisible().catch(() => false)) {
-    await streak.click();
+  const streakCta = page.getByRole("button", { name: /Continuar jornada/i });
+  if (await streakCta.isVisible().catch(() => false)) {
+    await streakCta.click();
     await page.waitForTimeout(350);
   }
   await page.waitForURL(/\/jornada/, { timeout: 10_000 });
@@ -177,7 +220,7 @@ async function startPassFromDetail(page: Page) {
 test.describe("V4.6.1 Journey return after each pass", () => {
   test("0/4 → M1 vitória → Jornada 1/4 → mesmo nó M2 → 4/4 destrava o próximo", async ({ page }) => {
     test.setTimeout(300_000);
-    await seedFreshJourneySession(page, { isPremium: true, points: 40 });
+    await seedFreshJourneySession(page, { isPremium: true, points: 40, holdAchievementModals: true });
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

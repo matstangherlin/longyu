@@ -75,11 +75,22 @@ export async function dismissBlockingOverlays(page: Page) {
     if (await achievement.isVisible().catch(() => false)) {
       const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
-        await continueBtn.click({ timeout: 2_000 }).catch(() => undefined);
+        await continueBtn.click({ timeout: 2_000, force: true }).catch(() => undefined);
       } else {
         await page.keyboard.press("Escape").catch(() => undefined);
       }
       await page.waitForTimeout(120);
+      continue;
+    }
+    const streak = page.getByRole("dialog", { name: /Ofensiva atualizada/i });
+    if (await streak.isVisible().catch(() => false)) {
+      const continueBtn = streak.getByRole("button", { name: /^Continuar$/i }).first();
+      if (await continueBtn.isVisible().catch(() => false)) {
+        await continueBtn.click({ timeout: 2_000, force: true }).catch(() => undefined);
+      } else {
+        await page.keyboard.press("Escape").catch(() => undefined);
+      }
+      await page.waitForTimeout(150);
       continue;
     }
     // Fôlego esgotado: o CTA primário vai para /pro. Voltar para a tarefa.
@@ -246,7 +257,7 @@ export async function seedLessonPlayerReady(
 
 export async function seedFreshJourneySession(
   page: Page,
-  options: { isPremium?: boolean; points?: number } = {}
+  options: { isPremium?: boolean; points?: number; holdAchievementModals?: boolean } = {}
 ) {
   await seedTelemetryDeclined(page);
   await page.addInitScript((payload: string) => {
@@ -262,6 +273,7 @@ export async function seedFreshJourneySession(
     serverIsPro: options.isPremium ?? false,
     points: options.points ?? 20,
     folego: options.isPremium ? 20 : undefined,
+    holdAchievementModals: options.holdAchievementModals ?? false,
   }));
 }
 
