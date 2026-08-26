@@ -37,7 +37,7 @@ test.describe("runbook — 20 lições (proxy desktop)", () => {
 
       await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 15_000 });
 
-      const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
+      const victory = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
       const deadline = Date.now() + 180_000;
       let steps = 0;
       const maxSteps = 40;
@@ -67,7 +67,7 @@ test.describe("runbook — 20 lições (proxy desktop)", () => {
       });
 
       if (finished) {
-        await clickFirstVisible(page, [/Continuar Jornada/i, /Continuar tema/i, /Receber recompensas/i]);
+        await clickFirstVisible(page, [/Continuar Jornada/i, /Voltar à Jornada/i, /Continuar tema/i, /Receber recompensas/i]);
         await page.waitForTimeout(200);
       }
     }

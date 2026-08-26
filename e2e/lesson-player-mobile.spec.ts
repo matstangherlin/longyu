@@ -203,7 +203,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
     test("10 · tela de vitória — sem scroll da página", async ({ page }) => {
       test.setTimeout(180_000);
       await openPlayerPro(page);
-      const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
+      const victory = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
       const deadline = Date.now() + 165_000;
       let steps = 0;
       while (!(await victory.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {

@@ -44,7 +44,7 @@ async function capture(page: Page, name: string) {
   }
 }
 
-const VICTORY = /Continuar Jornada|Continuar tema|Receber recompensas|Praticar novamente/i;
+const VICTORY = /Continuar Jornada|Voltar à Jornada|Receber recompensas|Praticar novamente|Continuar tema/i;
 
 async function playOpenStep(page: Page): Promise<boolean> {
   const production = page.locator("[data-production-answer] textarea, [data-production-answer] input").first();

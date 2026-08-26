@@ -240,7 +240,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
 /** Avança um passo genérico (para loop até vitória). */
 export async function advanceOneStep(page: Page): Promise<boolean> {
-  const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
+  const victory = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
   return advanceUntilVisible(page, victory, 1);
 }
 

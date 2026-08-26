@@ -211,7 +211,7 @@ test.describe("QA regression guard — transferência", () => {
       if (await page.locator("[data-review-offer], [data-review-summary]").isVisible().catch(() => false)) {
         break;
       }
-      if (await page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first().isVisible().catch(() => false)) {
+      if (await page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first().isVisible().catch(() => false)) {
         break;
       }
 
