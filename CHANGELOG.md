@@ -7,6 +7,14 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Fix — percentual de progresso travado em loading
+
+A barra de progresso da lição (`1/N` no header) e o sync da nuvem podiam ficar **carregando para sempre**: o planner adaptativo cancelava a si mesmo a cada update da store (`setPlanReady(false)` + `startTransition`), e um `fetchSnapshot` pendurado deixava `cloudSyncState=loading`.
+
+- O player libera na hora com os passos autorais; o plano adaptativo só substitui se o aluno ainda está no passo 0.
+- Planner lê fatias voláteis via `getState()` (não como deps) e tem fallback + watchdog de 2,5s.
+- Sync da nuvem tem timeout de 12s e sai de loading para erro (progresso local segue seguro).
+
 ### V4.6 — Topic Mastery Path
 
 Cada nó normal de ensino da Jornada passa a ser um **tema** de 4 lições (M1 Descoberta → M2 Consolidação → M3 Produção → M4 Domínio), reusando o Mastery Loop. O próximo tema só destrava em **4/4**.

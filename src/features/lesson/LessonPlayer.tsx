@@ -1752,12 +1752,10 @@ export function LessonPlayer() {
   const completeLesson = useStore((s) => s.completeLesson);
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
-  const itemDimensionsByRef = useStore((s) => s.itemDimensionsByRef);
   const addChest = useStore((s) => s.addChest);
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const learnedChars = useStore((s) => s.learnedChars);
-  const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
   // Pro efetivo (assinatura real OU preview local) — nunca só o preview.
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
@@ -1787,7 +1785,6 @@ export function LessonPlayer() {
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
   const lessonSessionStepById = useStore((s) => s.lessonSessionStepById);
   const setLessonSessionStep = useStore((s) => s.setLessonSessionStep);
-  const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
   // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
   const recentActivities = useStore((s) => s.recentActivities);
   const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
@@ -1803,7 +1800,6 @@ export function LessonPlayer() {
   if (foundLesson && frozenActivitiesRef.current?.lessonId !== foundLesson.id) {
     frozenActivitiesRef.current = { lessonId: foundLesson.id, history: recentActivities };
   }
-  const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
   const consumeCharge = useStore((s) => s.consumeCharge);
@@ -1819,8 +1815,6 @@ export function LessonPlayer() {
   const setHoldAchievementModals = useStore((s) => s.setHoldAchievementModals);
   const recordLessonMistake = useStore((s) => s.recordLessonMistake);
   const markMistakeRecovered = useStore((s) => s.markMistakeRecovered);
-  const recentActivityErrors = useStore((s) => s.recentActivityErrors);
-  const srs = useStore((s) => s.srs);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const lessonAttemptsById = useStore((s) => s.lessonAttemptsById);
   const missionAggregates = useStore((s) => s.getMissionAggregates());
@@ -1936,6 +1930,11 @@ export function LessonPlayer() {
 
   const [adaptiveSteps, setAdaptiveSteps] = useState<LessonStep[] | null>(null);
   const [planReady, setPlanReady] = useState(false);
+  const authoredStepsRef = useRef(authoredEnrichedSteps);
+  authoredStepsRef.current = authoredEnrichedSteps;
+  const foundLessonRef = useRef(foundLesson);
+  foundLessonRef.current = foundLesson;
+  const masteryLevelNow = foundLesson ? (lessonMasteryById?.[foundLesson.id]?.level ?? 0) : 0;
   /**
    * Bumpeado só quando a sessão precisa de um plano NOVO (troca de lição ou
    * "Tentar de novo" após terminar). Não sobe a cada resposta.
@@ -1946,13 +1945,13 @@ export function LessonPlayer() {
   /**
    * Plano da sessão TRAVADO.
    *
-   * O efeito de planejamento ainda lista deps voláteis (`srs`, erros,
-   * `hanziBuilderProgress`…) porque o primeiro cálculo precisa delas. Mas
-   * essas deps mudam a CADA acerto — em especial o Hànzì Builder grava
-   * progresso no próprio "Verificar", antes do Continuar. Sem trava, o efeito
-   * fazia `setPlanReady(false)`, trocava o player por "Preparando atividades…"
-   * e remontava o passo vazio: o aluno preenchia tudo, via o sucesso sumir e
-   * a mesma montagem voltar (loop). Com o plano travado, respostas não
+   * O planner lê fatias voláteis (`srs`, erros, `hanziBuilderProgress`) via
+   * `useStore.getState()` no momento do cálculo — elas NÃO entram nas deps do
+   * efeito. Sem isto, cada acerto (Hànzì Builder grava progresso no Verificar)
+   * cancelava o `startTransition`, fazia `setPlanReady(false)` e trocava o
+   * player por "Preparando atividades…": o aluno preenchia tudo, via o sucesso
+   * sumir e a mesma montagem voltar (loop), ou a barra de progresso ficava
+   * carregando para sempre. Com o plano travado + getState, respostas não
    * reorganizam nem desmontam a lição.
    */
   const sessionPlanRef = useRef<{
@@ -1979,21 +1978,20 @@ export function LessonPlayer() {
   }, [foundLesson?.id]);
 
   useEffect(() => {
-    if (!foundLesson || !authoredEnrichedSteps) {
+    const lesson = foundLessonRef.current;
+    const authored = authoredStepsRef.current;
+    if (!lesson || !authored) {
       setAdaptiveSteps(null);
       setPlanReady(false);
       sessionPlanRef.current = null;
       return undefined;
     }
-    if (!storeHydrated) return undefined;
 
-    const masteryLevelNow =
-      useStore.getState().lessonMasteryById?.[foundLesson.id]?.level ??
-      lessonMasteryById?.[foundLesson.id]?.level ??
-      0;
+    const liveLevel =
+      useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? masteryLevelNow;
     const locked = sessionPlanRef.current;
-    if (locked && locked.lessonId === foundLesson.id && locked.nonce === planNonce) {
-      const masteryChanged = locked.masteryLevel !== masteryLevelNow;
+    if (locked && locked.lessonId === lesson.id && locked.nonce === planNonce) {
+      const masteryChanged = locked.masteryLevel !== liveLevel;
       const canReplanForMastery = idxRef.current === 0 && !finished;
       if (!masteryChanged || !canReplanForMastery) {
         // Sessão já tem plano — ignore churn de srs/erros/progresso de hànzì.
@@ -2001,13 +1999,17 @@ export function LessonPlayer() {
       }
     }
 
-    // Fast path: first paint uses authored enriched steps (or loading until set).
-    setAdaptiveSteps(authoredEnrichedSteps);
-    setPlanReady(false);
+    // Libera o player na hora com os passos autorais. Sem isto, `setPlanReady(false)`
+    // + planner em `startTransition` (cancelado a cada update da store) deixava
+    // "Preparando atividades…" e a barra de progresso eternamente vazia.
+    setAdaptiveSteps(authored);
+    setPlanReady(true);
     firstPaintMarkedRef.current = false;
+    if (!storeHydrated) return undefined;
+
     const gen = ++planGenRef.current;
     const nonceAtStart = planNonce;
-    const lessonIdAtStart = foundLesson.id;
+    const lessonIdAtStart = lesson.id;
     // PERF-011 — `startTransition` não tira trabalho síncrono da main thread:
     // ele só marca a atualização como não urgente. Chegamos a adiar o planner
     // por dois quadros para garantir o paint do shell antes do cálculo, mas
@@ -2020,28 +2022,47 @@ export function LessonPlayer() {
       if (gen !== planGenRef.current) return;
       startTransition(() => {
       if (gen !== planGenRef.current) return;
-      const liveMastery = useStore.getState().lessonMasteryById?.[foundLesson.id];
-      const masteryRecord = liveMastery ?? lessonMasteryById?.[foundLesson.id];
-      const planned = lessonRoundStepsFor(
-        { ...foundLesson, steps: authoredEnrichedSteps },
-        {
-          completedLessons,
-          learnedChunks,
-          learnedChars,
-          hanziBuilderProgress,
-          recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
-          srs,
-          recentActivities: frozenActivitiesRef.current?.history,
-          recentConversationSceneIds,
-          recentConversationIntentIds,
-          conversationHistory,
-          attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
-          masteryLevel: masteryRecord?.level ?? 0,
-          recoveryPending: masteryRecord?.recoveryPending,
-          itemDimensionsByRef,
-        }
-      );
+      const state = useStore.getState();
+      const liveMastery = state.lessonMasteryById?.[lesson.id];
+      const masteryRecord = liveMastery ?? { level: liveLevel as 0 | 1 | 2 | 3 | 4 };
+      let planned = authored;
+      try {
+        const next = lessonRoundStepsFor(
+          { ...lesson, steps: authored },
+          {
+            completedLessons: state.completedLessons,
+            learnedChunks: state.learnedChunks,
+            learnedChars: state.learnedChars,
+            hanziBuilderProgress: state.hanziBuilderProgressByChar,
+            recentErrors: (state.recentActivityErrors ?? []).filter((error) => !error.correctedAt),
+            srs: state.srs,
+            recentActivities: frozenActivitiesRef.current?.history,
+            recentConversationSceneIds: state.recentConversationSceneIds,
+            recentConversationIntentIds: state.recentConversationIntentIds,
+            conversationHistory: state.conversationHistory,
+            attemptNumber: state.lessonAttemptsById[lesson.id]?.length ?? 0,
+            masteryLevel: liveMastery?.level ?? 0,
+            recoveryPending: liveMastery?.recoveryPending,
+            itemDimensionsByRef: state.itemDimensionsByRef,
+          }
+        );
+        if (Array.isArray(next) && next.length > 0) planned = next;
+      } catch {
+        planned = authored;
+      }
       if (gen !== planGenRef.current) return;
+      if (idxRef.current > 0) {
+        if (!sessionPlanRef.current) {
+          sessionPlanRef.current = {
+            lessonId: lessonIdAtStart,
+            nonce: nonceAtStart,
+            masteryLevel: masteryRecord?.level ?? 0,
+            steps: authored,
+          };
+        }
+        setPlanReady(true);
+        return;
+      }
       sessionPlanRef.current = {
         lessonId: lessonIdAtStart,
         nonce: nonceAtStart,
@@ -2060,25 +2081,7 @@ export function LessonPlayer() {
     return () => {
       planGenRef.current += 1;
     };
-  }, [
-    authoredEnrichedSteps,
-    completedLessons,
-    conversationHistory,
-    foundLesson,
-    hanziBuilderProgress,
-    itemDimensionsByRef,
-    learnedChars,
-    learnedChunks,
-    lessonAttemptsById,
-    lessonMasteryById,
-    planNonce,
-    recentActivityErrors,
-    recentConversationIntentIds,
-    recentConversationSceneIds,
-    srs,
-    storeHydrated,
-    finished,
-  ]);
+  }, [finished, foundLesson?.id, masteryLevelNow, planNonce, storeHydrated]);
 
   const stepsForRender = adaptiveSteps ?? authoredEnrichedSteps;
   const adaptiveLesson =
@@ -2137,8 +2140,16 @@ export function LessonPlayer() {
   }, [errorReviewMode, finishReason, setHoldAchievementModals]);
 
   useEffect(() => {
-    if (!foundLesson || toneLocked || entryChecked || energyBlocked) return;
-    if (startAccess && !startAccess.allowed) return;
+    if (!foundLesson || entryChecked || energyBlocked) return;
+    if (!storeHydrated) return;
+    if (toneLocked) {
+      setEntryChecked(true);
+      return;
+    }
+    if (startAccess && !startAccess.allowed) {
+      setEntryChecked(true);
+      return;
+    }
     if (foundLesson.premium && !canAccessLesson(foundLesson.id, isPremium)) return;
     const pass = nextMasteryPass(lessonMasteryById?.[foundLesson.id]?.level ?? 0, {
       recoveryPending: lessonMasteryById?.[foundLesson.id]?.recoveryPending,
@@ -2165,7 +2176,18 @@ export function LessonPlayer() {
       lessonId: foundLesson.id,
       route: `/licao/${foundLesson.id}/player`,
     });
-  }, [consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
+  }, [consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, storeHydrated, toneLocked]);
+
+  useEffect(() => {
+    if (planReady) return undefined;
+    const authored = authoredStepsRef.current;
+    if (!authored?.length) return undefined;
+    const timer = window.setTimeout(() => {
+      setAdaptiveSteps((current) => current ?? authored);
+      setPlanReady(true);
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [planReady]);
 
   useEffect(() => {
     if (!entryChecked || finished || energyBlocked) return undefined;
@@ -2806,6 +2828,26 @@ export function LessonPlayer() {
     );
   }
 
+  if (
+    startAccess &&
+    !startAccess.allowed &&
+    startAccess.reasonCode !== "premium_required" &&
+    startAccess.reasonCode !== "unknown_lesson"
+  ) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
+        <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+          Jornada
+        </div>
+        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
+        <p className="mt-3 text-sm text-ink-soft">{startAccess.reason}</p>
+        <Button size="lg" className="mt-6 w-full" onClick={() => navigate("/jornada")}>
+          Voltar à jornada
+        </Button>
+      </div>
+    );
+  }
+
   if (energyBlocked || !entryChecked || !planReady) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
@@ -2822,6 +2864,12 @@ export function LessonPlayer() {
             ? "O Longyu está verificando suas cargas antes de começar."
             : "Montando a sequência desta lição."}
         </p>
+        {!energyBlocked && (
+          <div className="mt-6 w-full max-w-xs">
+            <ProgressBar value={0} max={Math.max(total, 1)} label="Progresso da lição" className="h-2.5" />
+            <p className="mt-2 text-xs tabular-nums text-ink-faint">0%</p>
+          </div>
+        )}
         {energyBlocked && (
           <>
             <ButtonLink to="/revisao" size="lg" className="mt-6 w-full shadow-lift">
