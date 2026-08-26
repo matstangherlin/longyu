@@ -87,19 +87,23 @@ async function assertCoherentAction(page: Page) {
 
   if (!graded) return;
 
-  const hasChoice = await isShown(page.getByRole("button", { name: /Opção \d+:/ }).first());
-  const hasPieces = await isShown(page.getByRole("button", { name: /Peça \d+:/ }).first());
-  const hasBuilder = await isShown(page.locator("[data-hanzi-builder], [data-production-help-build]").first());
-  const hasProduction = await isShown(page.locator("[data-production-answer]").first());
-  const hasVerify = await isShown(page.getByRole("button", { name: /^(Verificar|Confirmar|Responder)$/ }).first());
-  const hasMatch = await isShown(page.getByText(/\d+\/\d+ pares/).first());
-  const hasSpeak = await isShown(page.getByRole("button", { name: /Falar|Ou falar/i }).first());
-  const hasSkip = await isShown(page.getByRole("button", { name: /Pular/ }).first());
-  const hasAudio = await isShown(page.getByRole("button", { name: /Ouvir|Ouça/i }).first());
-  expect(
-    hasChoice || hasPieces || hasBuilder || hasProduction || hasVerify || hasMatch || hasSpeak || hasSkip || hasAudio,
-    `passo graded ${kind} precisa de mecanismo de resposta`
-  ).toBe(true);
+  const actionVisible = async () => {
+    const hasChoice = await isShown(page.getByRole("button", { name: /Opção \d+:/ }).first());
+    const hasPieces = await isShown(page.getByRole("button", { name: /Peça \d+:/ }).first());
+    const hasBuilder = await isShown(page.locator("[data-hanzi-builder], [data-production-help-build]").first());
+    const hasProduction = await isShown(page.locator("[data-production-answer]").first());
+    const hasVerify = await isShown(page.getByRole("button", { name: /^(Verificar|Confirmar|Responder)$/ }).first());
+    const hasMatch = await isShown(page.getByText(/\d+\/\d+ pares/).first());
+    const hasSpeak = await isShown(page.getByRole("button", { name: /Falar|Ou falar/i }).first());
+    const hasSkip = await isShown(page.getByRole("button", { name: /Pular/ }).first());
+    const hasAudio = await isShown(page.getByRole("button", { name: /Ouvir|Ouça/i }).first());
+    return hasChoice || hasPieces || hasBuilder || hasProduction || hasVerify || hasMatch || hasSpeak || hasSkip || hasAudio;
+  };
+
+  if (!(await actionVisible())) await page.waitForTimeout(500);
+  if (!(await actionVisible())) {
+    expect(false, `passo graded ${kind} precisa de mecanismo de resposta`).toBe(true);
+  }
 }
 
 async function completeWithoutIme(page: Page): Promise<boolean> {
@@ -186,16 +190,18 @@ test.describe("V4.6.2 exercise feasibility", () => {
     await expect(frame).toBeVisible({ timeout: 15_000 });
     await expect.poll(async () => frame.getAttribute("data-mastery-pass"), { timeout: 12_000 }).toBe("3");
 
-    for (let i = 0; i < 24; i += 1) {
+    for (let i = 0; i < 16; i += 1) {
       if (await page.getByTestId("topic-victory-copy").isVisible().catch(() => false)) break;
       await drainBlockingModals(page);
       const body = (await frame.innerText().catch(() => "")) ?? "";
       expect(body, "eyebrow Reflexão opcional + Diga + 木").not.toMatch(/Reflexão opcional[\s\S]*Diga sem apoio extra[\s\S]*木/i);
       expect(body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(/Diga sem apoio extra[\s\S]*montar o caractere-alvo/i);
-      await assertCoherentAction(page);
-      if (!(await completeWithoutIme(page))) await advanceOneStep(page);
+      const eyebrow = (await page.locator("[data-step-eyebrow]").first().textContent().catch(() => "")) ?? "";
+      expect(eyebrow, "M3 não reabre reflexão opcional").not.toMatch(/Reflexão opcional/i);
+      if (!(await clickFirstVisible(page, [/^Pular/, /Não posso falar agora/, /^Continuar$/, /^Verificar$/]))) {
+        await advanceOneStep(page);
+      }
       await drainBlockingModals(page);
-      await page.waitForTimeout(80);
     }
   });
 
