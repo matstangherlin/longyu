@@ -12,6 +12,7 @@
 import type { LessonStep } from "./journey";
 import type { MasteryPass } from "./masteryLoop";
 import { withEquivalentAccepts } from "./masteryLoop";
+import { makeReverseRecall } from "./exerciseFeasibility";
 
 function contextualChoice(
   title: string,
@@ -107,16 +108,7 @@ function dialogueCompletion(
 }
 
 function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer,
-    accepts: accepts ?? [answer],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
 /** Bonus por licao/pass — Wave 1 (V3.3). Ver masteryCoverage.ts para o mapa completo. */
@@ -949,7 +941,7 @@ export function wave1BonusStepsFor(lessonId: string, pass: MasteryPass): LessonS
           ["六", "七", "八", "九", "十", "五"],
           "Monte a sequencia completa de seis a dez."
         ),
-        reverseRecall("Diga o numero", "Qual numero fecha a contagem 1-10?", "十"),
+        reverseRecall("Diga o numero", "Fale o numero que fecha a contagem 1-10.", "十"),
       ];
     }
     return [
@@ -1483,7 +1475,7 @@ export function wave1BonusStepsFor(lessonId: string, pass: MasteryPass): LessonS
           "我想喝茶 aceita a bebida; 这是我妈妈 apresenta a familia."
         ),
         dialogueCompletion(
-          "Combine o reencontro",
+          "Complete o reencontro",
           "Esta tarde. Como voce se despede ja marcando o proximo encontro?",
           "明天见",
           ["明天见", "你好", "这是什么？", "我要这个"],

@@ -626,19 +626,19 @@ const write = (
   title: string,
   body: string,
   answer: string,
-  placeholder = "Escreva sua resposta aqui",
-  chunkId?: string,
-  guide: WriteGuide = {}
+  placeholder: string,
+  chunkId: string | undefined,
+  guide: WriteGuide
 ): LessonStep => ({
   kind: "write",
   title,
   body,
   answer,
-  suggestion: guide.suggestion ?? `Use como guia: ${answer}`,
+  suggestion: guide.suggestion,
   requiredTerms: guide.requiredTerms ?? [],
   wordBank: guide.wordBank ?? [],
   accepts: guide.accepts ?? [answer],
-  mode: guide.mode ?? "free_reflection",
+  mode: guide.mode,
   placeholder,
   chunkId,
 });
@@ -3720,7 +3720,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "等一下 = espere um pouco — ganha tempo na conversa."
               ),
               sentenceBuild(
-                "Diga que não fala",
+                "Monte que não fala",
                 "Monte a terceira intenção: não sei falar chinês.",
                 ["我", "不会", "说", "中文"],
                 ["我", "不会", "说", "中文", "听不懂", "很好"],
@@ -4919,7 +4919,14 @@ export const JOURNEY: JourneyPhase[] = [
               recognize("jiu"),
               recognize("shi10"),
               produce(["六", "七", "八"], ["八", "十", "六", "七"], "seis, sete, oito"),
-              write("Contagem útil", "Escreva em português uma situação em que você usaria números em mandarim.", "Exemplos: preço, idade, telefone, mesa de restaurante ou quantidade de pessoas.", "Escreva um exemplo real"),
+              write(
+                "Pense antes de continuar",
+                "Em que situação números em mandarim seriam úteis? Preço, idade, telefone, mesa…",
+                "Exemplos: preço, idade, telefone, mesa de restaurante ou quantidade de pessoas.",
+                "Opcional — pode só continuar",
+                undefined,
+                { mode: "free_reflection" }
+              ),
             ],
           },
           review("l8-rev", "hanzi", [
@@ -7269,7 +7276,6 @@ export const JOURNEY: JourneyPhase[] = [
                 body: "Diga que precisa de ajuda.",
                 answer: "我需要帮助",
                 accepts: ["我需要帮助", "我需要帮助。", "请帮助我"],
-                mode: "free_reflection",
                 isNoHint: true,
               },
               priceTask(

@@ -16,6 +16,7 @@
 import type { LessonStep, StepKind } from "./journey";
 import type { MasteryPass } from "./masteryLoop";
 import { isProductionOrTransferKind, withEquivalentAccepts } from "./masteryLoop";
+import { makeReverseRecall } from "./exerciseFeasibility";
 import { wave1BonusStepsFor } from "./masteryWave1Bonus";
 import { COMPLETION_LESSON_IDS, COMPLETION_LEXICAL_TARGETS, completionBonusStepsFor } from "./masteryCurriculum";
 import { hasAuthoredTopicMasteryBonus, topicMasteryBonusStepsFor } from "./topicMasteryBonus";
@@ -960,16 +961,7 @@ export function reverseRecall(
   answer: string,
   accepts?: string[]
 ): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer,
-    accepts: accepts ?? [answer],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
 /** Passos bonus por pass — exigencia cognitiva diferente, nao so outra modalidade. */

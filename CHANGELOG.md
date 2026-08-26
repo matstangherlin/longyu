@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.6.2 — Exercise Feasibility + Instruction Integrity
+
+Toda atividade do Journey precisa de uma ação coerente: o que fazer, como fazer nesta UI, e como sabemos que fez.
+
+- `write` exige `mode` explícito. `mode ?? "free_reflection"` deixou de existir.
+- `write + free_reflection` não conta como produção, pergunta, nem piso de mastery.
+- `reverse_recall` deixou de renderizar como reflexão opcional: fala + verificação + banco de hànzì (sem IME chinês).
+- Ditado de hànzì começa pelas peças; teclado chinês é alternativa.
+- `pergunta X/Y` só conta passos avaliáveis (intro / listen / reflexão ficam de fora).
+- A tela QA (Reflexão + "Diga sem apoio extra" + suggestion 木 + Continuar) sai de `p1-primeiros-hanzi` M3: o bônus genérico passou a `hanzi_build`.
+- `validate:exercise-feasibility` audita o plano real do LessonPlayer (127 lições × passes). Meta: mismatch/leak/IME/dead screen = 0.
+- Relatório: `docs/reports/exercise-feasibility.md`.
+- **Não** reconstruí o Mastery Loop.
+
 ### V4.6.1 — Journey Return + Topic Fidelity
 
 Cada pass termina na Jornada. A próxima lição do tema só começa quando o aluno toca o nó de novo.

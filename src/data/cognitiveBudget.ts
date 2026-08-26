@@ -28,6 +28,7 @@ export const PRODUCTIVE_CHALLENGE_KINDS: ReadonlySet<StepKind> = new Set([
   "reverse_recall",
   "sentence_transform",
   "substitution_drill",
+  "hanzi_build",
 ]);
 
 export const TRANSFER_CHALLENGE_KINDS: ReadonlySet<StepKind> = new Set(["transfer_task"]);
@@ -108,6 +109,7 @@ export function isProductiveChallengeStep(step: CognitiveBudgetStep): boolean {
   if (step.kind === "conversation_scene") return false;
   if (TRANSFER_CHALLENGE_KINDS.has(step.kind)) return false;
   if (step.kind === "write" && step.mode === "free_reflection") return false;
+  if (step.kind === "reverse_recall" && step.mode === "free_reflection") return false;
   return PRODUCTIVE_CHALLENGE_KINDS.has(step.kind);
 }
 

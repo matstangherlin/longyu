@@ -190,8 +190,11 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     }
 
     case "write": {
-      const mode = step.mode ?? "free_reflection";
-      if (mode !== "free_reflection" && !step.answer?.trim() && !(step.accepts ?? []).some((a) => a?.trim())) {
+      if (step.mode == null) {
+        errors.push("write sem mode explícito");
+      }
+      const mode = step.mode;
+      if (mode && mode !== "free_reflection" && !step.answer?.trim() && !(step.accepts ?? []).some((a) => a?.trim())) {
         errors.push("write guiado sem resposta nem variantes aceitas");
       }
       if (step.pedagogyVariant === "dragon_dictation") {

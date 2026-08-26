@@ -20,6 +20,7 @@ import {
 } from "./masteryLoop";
 import { isMasteryPilotLesson, PILOT_LEXICAL_TARGETS, type UnitLexicalTargets } from "./masteryPilot";
 import type { LessonStep } from "./journey";
+import { isProductionStep } from "./exerciseFeasibility";
 
 export type MasteryQualityCheckStatus = "pass" | "fail" | "not_evaluated" | "not_applicable";
 
@@ -177,7 +178,7 @@ export function masteryQualityScore(lessonId: string, plansByPass?: MasteryPlans
     checks.push(check("m3_production", "not_evaluated", "plano de M3 não fornecido"));
   } else {
     const plan3 = plansByPass[3];
-    const ok = plan3.some((step) => isProductionOrTransferKind(step.kind));
+    const ok = plan3.some((step) => isProductionStep(step));
     checks.push(check("m3_production", ok ? "pass" : "fail", ok ? undefined : "M3 sem passo de produção/transferência"));
   }
 
@@ -355,7 +356,7 @@ export function masteryDepthMetrics(plansByPass: MasteryPlansByPass | undefined)
   for (const step of all) {
     if (TRANSFER_KINDS.has(step.kind) || (isProductionOrTransferKind(step.kind) && step.kind.includes("transfer"))) {
       transfer += 1;
-    } else if (isProductionOrTransferKind(step.kind)) {
+    } else if (isProductionStep(step)) {
       production += 1;
     } else if (RECOGNITION_KINDS.has(step.kind)) {
       recognition += 1;
@@ -382,7 +383,7 @@ export function productionShareByPass(plansByPass: MasteryPlansByPass | undefine
   for (const pass of MASTERY_PASSES) {
     const plan = plansByPass[pass];
     if (plan.length === 0) continue;
-    const prod = plan.filter((s) => isProductionOrTransferKind(s.kind)).length;
+    const prod = plan.filter((s) => isProductionStep(s)).length;
     out[pass] = Math.round((prod / plan.length) * 1000) / 1000;
   }
   return out;

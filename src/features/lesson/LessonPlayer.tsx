@@ -144,6 +144,7 @@ import {
   type AssemblyPiece,
 } from "./PieceAssembly";
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
+import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -153,49 +154,8 @@ const SKILL_TRACK: Record<Skill, Track> = {
   sistema: "hanzi",
 };
 
-const GRADED_STEP_KINDS: StepKind[] = [
-  "tone",
-  "comprehend",
-  "produce",
-  "recognize",
-  "write",
-  "match_pairs",
-  "listen_select",
-  "sentence_build",
-  "translation_build",
-  "fill_blank",
-  "dialogue_choice",
-  "conversation_scene",
-  "hanzi_build",
-  "tone_pair",
-  "image_choice",
-  "compare_with_image",
-  "audio_discrimination",
-  "dictation",
-  "odd_one_out",
-  "spot_error",
-  "free_production",
-  "transfer_task",
-  "conversation_repair",
-  "contextual_choice",
-  "audio_to_action",
-  "sentence_transform",
-  "substitution_drill",
-  "dialogue_completion",
-  "reverse_recall",
-  "map_direction",
-  "place_label",
-  "address_build",
-  "city_context",
-  "sign_reading",
-  "menu_reading",
-  "price_task",
-  "route_sequence",
-  "schedule_reading",
-];
-
 function isGradedStep(step: LessonStep): boolean {
-  return GRADED_STEP_KINDS.includes(step.kind) && !(step.kind === "write" && step.mode === "free_reflection");
+  return isEvaluableQuestionStep(step);
 }
 
 const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
@@ -4405,7 +4365,9 @@ export function LessonPlayer() {
     ? [
         `Etapa ${activeStageIndex + 1}/${lessonTasks.length}`,
         roundSummary(step, activeStage),
-        activeRoundProgress.questionCount > 1
+        isGradedStep(step) &&
+        activeRoundProgress.questionCount > 1 &&
+        activeRoundProgress.questionIndex > 0
           ? `pergunta ${activeRoundProgress.questionIndex}/${activeRoundProgress.questionCount}`
           : "",
       ]

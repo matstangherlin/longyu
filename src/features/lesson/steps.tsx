@@ -58,6 +58,12 @@ import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../compo
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { validateExercise } from "./exerciseValidation";
+import {
+  isEvaluableQuestionStep,
+  isIntentionalFreeReflection,
+  materializeRuntimeStep,
+  suggestionLeaksAnswer,
+} from "../../data/exerciseFeasibility";
 import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/productionTasks";
 import {
   ensureMicPermission,
@@ -192,7 +198,10 @@ function SkipStepButton({ onSkip, className = "mt-3" }: { onSkip?: () => void; c
 
 function Eyebrow({ children }: { children: string }) {
   return (
-    <div className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+    <div
+      data-step-eyebrow={children}
+      className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent"
+    >
       {children}
     </div>
   );
@@ -921,15 +930,19 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
   const [typedMode, setTypedMode] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
-  const isFreeReflection = (step.mode ?? "free_reflection") === "free_reflection";
+  const isFreeReflection = isIntentionalFreeReflection(step);
 
-  const suggestion = step.suggestion ?? step.answer ?? "Use a estrutura sugerida e complete com suas palavras.";
+  const leakedSuggestion = suggestionLeaksAnswer(step);
+  const suggestion = leakedSuggestion ? undefined : step.suggestion;
   const requiredTerms = step.requiredTerms ?? [];
   const wordBank = step.wordBank ?? [];
   // Tradução guiada com banco de peças: montar a resposta ordenando sugestões
   // é o modo primário — nada de campo dissertativo aberto. Peças repetidas
   // ganham ids únicos por posição; "Prefiro digitar" abre o campo livre.
-  const guidedPieces = !isFreeReflection && step.mode === "translation_fill" && wordBank.length > 0;
+  const guidedPieces =
+    !isFreeReflection &&
+    wordBank.length > 0 &&
+    (step.mode === "translation_fill" || containsCjk(step.answer ?? step.correctAnswer));
   const pieceTokens = useMemo(
     () => wordBank.map((value, index) => ({ id: `wb_${index}`, value })),
     [wordBank]
@@ -1016,13 +1029,17 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
   return (
     <div>
       <Eyebrow>{isFreeReflection ? "Reflexão opcional" : "Escrita guiada"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
+      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
+        {isFreeReflection && /^diga\b/i.test(step.title ?? "") ? "Pense antes de continuar" : step.title}
+      </h2>
       {step.body && <p className="mt-3 text-sm leading-6 text-ink-soft">{step.body}</p>}
 
-      <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
-        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Sugestão</div>
-        <p className="mt-1 text-sm leading-6 text-ink">{suggestion}</p>
-      </div>
+      {suggestion && !isFreeReflection && (
+        <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Sugestão</div>
+          <p className="mt-1 text-sm leading-6 text-ink">{suggestion}</p>
+        </div>
+      )}
 
       {requiredTerms.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
@@ -1066,7 +1083,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {wordBank.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-4" data-production-help-build>
           <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {composing ? "Peças sugeridas" : "Banco de peças"}
           </div>
@@ -1080,6 +1097,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
                       type="button"
                       onClick={() => addGuidedPiece(token)}
                       disabled={used || status === "correct"}
+                      aria-label={`Peça ${shortcutKeyForIndex(pieceTokens.indexOf(token))}: ${token.value}`}
                       className={[
                         engineTileClass({ cjk: isCjkText(token.value) }),
                         "group relative overflow-visible",
@@ -1096,6 +1114,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
                     type="button"
                     onClick={() => addPiece(piece)}
                     disabled={status === "correct"}
+                    aria-label={`Peça ${index + 1}: ${piece}`}
                     className={[
                       "min-h-11 rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink transition hover:bg-surface-2 active:scale-[0.99] disabled:opacity-50",
                       "group relative overflow-visible",
@@ -1199,7 +1218,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
             {status === "correct"
               ? "Boa! Você usou a estrutura certa."
               : status === "partial"
-              ? `Quase. Use a estrutura sugerida: ${suggestionFeedbackText(suggestion)}.`
+              ? `Quase. Use a estrutura sugerida: ${suggestionFeedbackText(suggestion ?? step.answer ?? "")}.`
               : `A resposta modelo é ${step.answer}. Toque nas peças para montar.`}
           </p>
 
@@ -1233,20 +1252,37 @@ function normalizeDictationAnswer(value: string, mode: LessonStep["dictationMode
     .trim();
 }
 
-/** Ditado Dragão digitado: o modelo só aparece depois de um erro confirmado. */
-function StepDragonDictation({ step, onDone, onSkip, onMistake }: StepProps) {
+/** Ditado Dragão: pinyin no teclado; hànzì por peças (IME é alternativa). */
+function StepDragonDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const ttsRate = useStore((s) => s.ttsRate);
+  const answer = step.answer ?? step.correctAnswer ?? "";
+  const hanziParts = useMemo(() => {
+    if ((step.targetParts?.length ?? 0) > 0) return step.targetParts ?? [];
+    return Array.from(answer).filter((ch) => /[\u3400-\u9fff\uf900-\ufaff]/.test(ch));
+  }, [answer, step.targetParts]);
+  const canAssembleHanzi = step.dictationMode === "hanzi" && hanziParts.length > 0;
+  const [usePieces, setUsePieces] = useState(canAssembleHanzi);
   const [draft, setDraft] = useState("");
+  const [picked, setPicked] = useState<BuildPieceToken[]>([]);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
   const [playbacks, setPlaybacks] = useState(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const answer = step.answer ?? step.correctAnswer ?? "";
   const accepted = useMemo(() => uniqueStrings([answer, ...(step.accepts ?? [])]), [answer, step.accepts]);
   const playbackLimit = step.playbackLimit ?? Number.POSITIVE_INFINITY;
   const canPlay = playbacks < playbackLimit;
   const modeLabel = step.dictationMode === "pinyin" ? "pinyin com os tons" : "hànzì";
+  const bankTokens = useMemo(() => {
+    if (!canAssembleHanzi) return [];
+    const tokens = buildPieceTokens(step, hanziParts);
+    const seed = attemptSeed ?? `${lessonId ?? "dragon"}:${answer}`;
+    return seededShuffleAvoidingOrder(tokens, seed, hanziParts, (token) => token.value);
+  }, [attemptSeed, canAssembleHanzi, hanziParts, lessonId, step, answer]);
+  const usedIds = new Set(picked.map((token) => token.id));
+  const built = picked.map((token) => token.value).join("");
+  const candidate = usePieces ? built : draft;
+  const locked = feedback === "correct";
 
   function playAudio() {
     if (!canPlay || !step.audioText) return;
@@ -1255,21 +1291,22 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   function check() {
-    if (!draft.trim() || feedback === "correct") return;
-    const normalized = normalizeDictationAnswer(draft, step.dictationMode);
-    if (accepted.some((candidate) => normalizeDictationAnswer(candidate, step.dictationMode) === normalized)) {
+    if (!candidate.trim() || locked) return;
+    const normalized = normalizeDictationAnswer(candidate, step.dictationMode);
+    if (accepted.some((item) => normalizeDictationAnswer(item, step.dictationMode) === normalized)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       return;
     }
     setHadMistake(true);
     setFeedback("wrong");
-    onMistake?.(draft);
+    onMistake?.(candidate);
     if (!onMistake) playSoundFx("error", soundEffects);
   }
 
   function retry() {
     setDraft("");
+    setPicked([]);
     setFeedback(null);
     window.setTimeout(() => inputRef.current?.focus(), 0);
   }
@@ -1278,8 +1315,8 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake }: StepProps) {
     enabled: true,
     mode: "builder",
     optionCount: 0,
-    isAnswered: feedback === "correct",
-    hasSelection: Boolean(draft.trim()),
+    isAnswered: locked,
+    hasSelection: Boolean(candidate.trim()),
     onSelectOption: () => undefined,
     onSubmit: check,
     onContinue: () => onDone(!hadMistake),
@@ -1292,14 +1329,16 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake }: StepProps) {
         {step.title ?? "Ouça e escreva"}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
-        Ouça a fala e digite em {modeLabel}. A resposta fica escondida até você tentar.
+        {usePieces
+          ? "Ouça a fala e monte o hànzì com as peças. Digitar é opcional."
+          : `Ouça a fala e escreva em ${modeLabel}. A resposta fica escondida até você tentar.`}
       </p>
 
       <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center">
         <button
           type="button"
           onClick={playAudio}
-          disabled={!canPlay || feedback === "correct"}
+          disabled={!canPlay || locked}
           className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent text-white shadow-lift transition active:scale-95 disabled:opacity-40"
           aria-label="Ouvir ditado"
         >
@@ -1312,22 +1351,88 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake }: StepProps) {
         </p>
       </div>
 
-      <textarea
-        ref={inputRef}
-        value={draft}
-        onChange={(event) => {
-          setDraft(event.target.value);
-          if (feedback !== "correct") setFeedback(null);
-        }}
-        placeholder={step.dictationMode === "pinyin" ? "Digite o pinyin com os tons…" : "Digite os hànzì…"}
-        disabled={feedback === "correct"}
-        rows={2}
-        autoCapitalize="none"
-        autoCorrect="off"
-        className="mt-4 w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition focus:ring-2 focus:ring-accent/25 disabled:bg-surface-2"
-      />
+      {usePieces ? (
+        <>
+          <div className="mt-3.5 min-h-[3.75rem] rounded-2xl border border-dashed border-line bg-surface-2 p-2.5">
+            {picked.length === 0 ? (
+              <p className="py-2 text-center text-sm text-ink-faint">Monte aqui o que você ouviu.</p>
+            ) : (
+              <div className="flex flex-wrap justify-center gap-2">
+                {picked.map((token, index) => (
+                  <button
+                    key={token.id}
+                    type="button"
+                    disabled={locked}
+                    onClick={() => {
+                      if (locked) return;
+                      setPicked((current) => current.filter((_, i) => i !== index));
+                      setFeedback(null);
+                    }}
+                    className={engineTileClass({ active: true, cjk: true })}
+                  >
+                    {token.value}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="mt-2.5 flex flex-wrap justify-center gap-2" data-production-help-build>
+            {bankTokens.map((token, index) => (
+              <button
+                key={token.id}
+                type="button"
+                disabled={locked || usedIds.has(token.id)}
+                aria-label={`Peça ${index + 1}: ${token.value}`}
+                onClick={() => {
+                  if (locked || usedIds.has(token.id)) return;
+                  playSoundFx("pieceSelect", soundEffects);
+                  setPicked((current) => [...current, token]);
+                  setFeedback(null);
+                }}
+                className={[engineTileClass({ cjk: true }), usedIds.has(token.id) && "opacity-30"]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {token.value}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <textarea
+          ref={inputRef}
+          value={draft}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            if (feedback !== "correct") setFeedback(null);
+          }}
+          placeholder={step.dictationMode === "pinyin" ? "Digite o pinyin com os tons…" : "Digite os hànzì…"}
+          disabled={locked}
+          rows={2}
+          autoCapitalize="none"
+          autoCorrect="off"
+          className="mt-4 w-full resize-none rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition focus:ring-2 focus:ring-accent/25 disabled:bg-surface-2"
+        />
+      )}
 
-      <EngineActions canCheck={Boolean(draft.trim()) && feedback !== "correct"} onCheck={check} onSkip={onSkip} />
+      {canAssembleHanzi && !locked && (
+        <div className="mt-2.5 text-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setUsePieces((current) => !current);
+              setDraft("");
+              setPicked([]);
+              setFeedback(null);
+            }}
+          >
+            {usePieces ? "Prefiro digitar hànzì" : "Não tenho teclado chinês"}
+          </Button>
+        </div>
+      )}
+
+      <EngineActions canCheck={Boolean(candidate.trim()) && !locked} onCheck={check} onSkip={onSkip} />
       <EngineFeedbackPanel
         status={feedback}
         model={answer}
@@ -2676,7 +2781,7 @@ function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
             <div className="mt-1 hanzi text-xl text-ink">{toLabel}</div>
           </div>
         </div>
-        {scaffold >= 3 && step.audioText ? (
+        {step.audioText ? (
           <button
             type="button"
             className="mt-3 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink"
@@ -3423,8 +3528,10 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
   // Escrever hànzì exige teclado chinês, que muita gente não tem no celular.
   // Quem não puder digitar monta com peças — a escuta continua sendo cobrada,
   // que é o ponto do ditado.
-  const [blocksFallback, setBlocksFallback] = useState(false);
   const authoredMode = step.dictationMode ?? "blocks";
+  const [blocksFallback, setBlocksFallback] = useState(
+    authoredMode === "hanzi" && (step.targetParts?.length ?? 0) > 0
+  );
   const canFallbackToBlocks = authoredMode === "hanzi" && (step.targetParts?.length ?? 0) > 0;
   const mode = blocksFallback && canFallbackToBlocks ? "blocks" : authoredMode;
   const audioText = step.audioText ?? step.hanzi ?? "";
@@ -3563,12 +3670,13 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
               </div>
             )}
           </div>
-          <div className="mt-2.5 flex flex-wrap justify-center gap-2">
-            {bankTokens.map((token) => (
+          <div className="mt-2.5 flex flex-wrap justify-center gap-2" data-production-help-build>
+            {bankTokens.map((token, index) => (
               <button
                 key={token.id}
                 type="button"
                 disabled={locked || usedIds.has(token.id)}
+                aria-label={`Peça ${index + 1}: ${token.value}`}
                 onClick={() => {
                   if (locked || usedIds.has(token.id)) return;
                   playSoundFx("pieceSelect", soundEffects);
@@ -4170,12 +4278,14 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     return list.slice(0, 4);
   }, [step.productionExamples, accepted, model]);
 
-  const buildBank = step.productionHelpBuildBank ?? [];
+  const buildBank = step.productionHelpBuildBank ?? step.wordBank ?? [];
   const vocabHints = step.productionHelpVocab ?? [];
+  const cjkTarget = /[\u3400-\u9fff\uf900-\ufaff]/.test(step.correctAnswer ?? step.answer ?? "");
+  const showCjkBank = cjkTarget && buildBank.length >= 1;
   const showPattern = helpLevel >= 1 && Boolean(step.patternPt);
   const showStructure = helpLevel >= 2 && Boolean(step.patternPt || step.patternSlots?.length);
   const showVocab = helpLevel >= 3 && vocabHints.length > 0 && !isOpen;
-  const showBuild = helpLevel >= 4 && buildBank.length >= 2 && !isOpen;
+  const showBuild = showCjkBank || (helpLevel >= 4 && buildBank.length >= 2 && !isOpen);
   const canRequestMore = nextProductionHelpLevel(helpLevel, unlockedMax) != null;
 
   function finishDone(correct: boolean) {
@@ -4516,7 +4626,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
       data-production-assist={step.productionAssist ?? (isOpen ? "open" : undefined)}
       data-production-help-initial={initialHelp}
     >
-      <Eyebrow>{isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
+      <Eyebrow>{step.kind === "reverse_recall" ? "Produção" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? (isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
       </h2>
@@ -4813,7 +4923,8 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
 
 export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
   const name = useStudentFirstName();
-  const personalizedStep = useMemo(() => personalizeStep(step, name), [step, name]);
+  const runtimeStep = useMemo(() => materializeRuntimeStep(step), [step]);
+  const personalizedStep = useMemo(() => personalizeStep(runtimeStep, name), [runtimeStep, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
   const isDev = Boolean((import.meta as { env?: { DEV?: boolean } }).env?.DEV);
   const [progressiveUnlocked, setProgressiveUnlocked] = useState(false);
@@ -4988,7 +5099,16 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
           ? <StepDialogueChoice step={{ ...personalizedStep, kind: "dialogue_choice", correctAnswer: personalizedStep.blankAnswer, dialoguePrompt: personalizedStep.prompt ?? personalizedStep.sentenceBefore }} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />
           : <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "reverse_recall":
-        return <StepWrite step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+        return (
+          <StepFreeProduction
+            step={personalizedStep}
+            onDone={onDone}
+            onSkip={onSkip}
+            onMistake={handleMistake}
+            onUnrecognized={onUnrecognized}
+            lessonId={lessonId}
+          />
+        );
       case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "hanzi_build":
         return (
@@ -5054,7 +5174,13 @@ export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, 
         hintWouldRevealAnswer(personalizedStep)
       }
     >
-      {rendered}
+      <div
+        data-step-kind={personalizedStep.kind}
+        data-step-graded={isEvaluableQuestionStep(personalizedStep) ? "true" : "false"}
+        data-step-reflection={isIntentionalFreeReflection(personalizedStep) ? "true" : "false"}
+      >
+        {rendered}
+      </div>
     </MandarinHelpProvider>
   );
 }

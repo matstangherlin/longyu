@@ -11,6 +11,8 @@ import type { MasteryPass } from "./masteryLoop";
 import { withEquivalentAccepts } from "./masteryLoop";
 import { conversationSceneStepFromId } from "./conversationScenes";
 import { topicMasterySpecFor } from "./topicMasterySpecs";
+import { makeReverseRecall } from "./exerciseFeasibility";
+import { buildersForCharacter } from "./hanziBuilder";
 
 function intro(title: string, body: string): LessonStep {
   return { kind: "intro", title, body };
@@ -64,16 +66,7 @@ function sentenceBuild(
 }
 
 function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer,
-    accepts: accepts ?? [answer],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
 function contextualChoice(
@@ -96,16 +89,7 @@ function contextualChoice(
 }
 
 function transferNihao(title: string, situationPt: string): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer: "你好",
-    accepts: ["你好", "你好！", "你好。"],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, "你好", ["你好", "你好！", "你好。"]);
 }
 
 function conversationScene(sceneId: string): LessonStep {
@@ -274,7 +258,13 @@ const AUTHORED_BONUS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       ),
     ],
     3: [
-      reverseRecall("Qual tom é o vale?", "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?", "马", ["马"]),
+      dialogue(
+        "Qual tom é o vale?",
+        "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?",
+        "马",
+        ["马", "妈", "麻", "骂"],
+        "马 (mǎ) é o vale: desce e volta."
+      ),
     ],
     4: [
       intro(
@@ -458,16 +448,33 @@ function genericFidelityBonus(lesson: Lesson, pass: MasteryPass): LessonStep[] {
     ];
   }
   if (pass === 3) {
+    const produceText = `${spec?.mustProduce[0] ?? ""} ${spec?.passObjectives[3] ?? ""} ${lesson.title}`;
+    if (/montar|monte|caractere/i.test(produceText) && [...hanzi].length === 1) {
+      const builder =
+        buildersForCharacter(hanzi).find((item) => item.mode === "fragments") ?? buildersForCharacter(hanzi)[0];
+      if (builder) {
+        return [
+          {
+            kind: "hanzi_build",
+            title: "Monte o caractere",
+            builderId: builder.id,
+            prompt: builder.promptPt,
+            sourceMeaning: builder.meaningPt,
+            correctAnswer: builder.character,
+            explanation: builder.explanationPt,
+          },
+        ];
+      }
+    }
     const parts = [...hanzi];
     const bank = uniqueOptions(parts.join(""), [...parts, "一", "人"]);
     return [
       sentenceBuild(
-        "Produza o núcleo",
+        "Monte o núcleo",
         spec?.passObjectives[3] ?? "Monte o que este tema ensina.",
         parts,
         [...parts, ...bank.filter((item) => !parts.includes(item))]
       ),
-      reverseRecall("Diga sem apoio extra", spec?.mustProduce[0] ?? lesson.title, hanzi, [hanzi]),
     ];
   }
   return [

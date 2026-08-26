@@ -26,6 +26,7 @@ import type { LessonStep } from "../journey";
 import type { MasteryPass } from "../masteryLoop";
 import { withEquivalentAccepts } from "../masteryLoop";
 import type { UnitLexicalTargets } from "./types";
+import { makeReverseRecall } from "../exerciseFeasibility";
 
 export const COMPLETION_LESSON_IDS = ["l9-tudo-bem", "l13", "p6-natureza", "l23", "l29", "l30"] as const;
 
@@ -129,16 +130,7 @@ function dialogueCompletion(
 }
 
 function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer,
-    accepts: accepts ?? [answer],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
 // ————————————————————————————————————————————————————————————
@@ -353,7 +345,7 @@ export function completionBonusStepsFor(lessonId: string, pass: MasteryPass): Le
           "我很好 responde 你好吗？; 我叫Matheus responde 你叫什么？"
         ),
         substitutionDrill(
-          "Combine bem-estar e cortesia",
+          "Una bem-estar e cortesia",
           "我很好，___",
           "谢谢",
           ["谢谢", "你呢", "再见", "不客气"],

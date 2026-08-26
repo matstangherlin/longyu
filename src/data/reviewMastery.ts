@@ -15,6 +15,7 @@
  */
 import type { LessonStep, StepKind } from "./journey";
 import { withEquivalentAccepts } from "./masteryLoop";
+import { makeReverseRecall } from "./exerciseFeasibility";
 
 export type ReviewMasteryLevel = 1 | 2 | 3 | 4;
 
@@ -139,16 +140,7 @@ export const REVIEW_MASTERY_SPECS: Record<ReviewMasteryLessonId, ReviewMasterySp
 };
 
 function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer,
-    accepts: accepts ?? [answer],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
 function contextualChoice(
@@ -227,7 +219,7 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
     }
     return [
       contextualChoice("Novo contexto", "Numa placa, voce precisa achar 'nao'. Qual e?", "不", ["不", "是", "我", "你"]),
-      reverseRecall("Transfer", "Alguem aponta para voce. Qual caractere corresponde?", "你", ["你"]),
+      reverseRecall("Transfer", "Alguem aponta para voce. Diga o caractere correspondente.", "你", ["你"]),
     ];
   }
 
@@ -287,8 +279,8 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
     }
     if (level === 3) {
       return [
-        reverseRecall("Produza 明", "Qual hanzi e sol+lua?", "明", ["明"]),
-        reverseRecall("Produza 林", "Qual hanzi e arvore+arvore?", "林", ["林"]),
+        reverseRecall("Produza 明", "Monte o hanzi de sol+lua.", "明", ["明"]),
+        reverseRecall("Produza 林", "Monte o hanzi de arvore+arvore.", "林", ["林"]),
       ];
     }
     return [
@@ -298,7 +290,7 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
         "吗",
         ["吗", "林", "明", "休"]
       ),
-      reverseRecall("Transfer", "Voce quer dizer 'bom/bem' com o composto 女+子. Qual e?", "好", ["好"]),
+      reverseRecall("Transfer", "Voce quer dizer 'bom/bem' com o composto 女+子. Monte o caractere.", "好", ["好"]),
     ];
   }
 

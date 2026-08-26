@@ -11,6 +11,7 @@ import { conversationSceneStepFromId } from "./conversationScenes";
 import { withEquivalentAccepts } from "./masteryLoop";
 import type { MasteryPass } from "./masteryLoop";
 import { isConceptFoundationTopic } from "./topicMastery";
+import { makeReverseRecall } from "./exerciseFeasibility";
 
 function intro(title: string, body: string): LessonStep {
   return { kind: "intro", title, body };
@@ -78,16 +79,7 @@ function sentenceBuild(
 }
 
 function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
-  return {
-    kind: "reverse_recall",
-    title,
-    situationPt,
-    body: situationPt,
-    answer,
-    accepts: accepts ?? [answer],
-    mode: "free_reflection",
-    isNoHint: true,
-  };
+  return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
 function contextualChoice(
@@ -534,7 +526,13 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
     3: [
       intro("Identifique o contorno", "Agora você marca qual curva ouviu — e começa a reproduzir o vale e a reta."),
       toneStep("马", "mǎ", 3, "quiz", [1, 3]),
-      reverseRecall("Qual é o vale?", "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?", "马", ["马"]),
+      dialogue(
+        "Qual é o vale?",
+        "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?",
+        "马",
+        ["马", "妈", "麻", "骂"],
+        "马 (mǎ) é o vale: desce e volta."
+      ),
       dialogue(
         "Reproduzir",
         "Para ‘dizer o tom’, você precisa…",
@@ -657,7 +655,12 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       sentenceBuild("Monte 你好", "Monte a palavra com os caracteres.", ["你", "好"], ["好", "你", "木", "人"]),
       dialogue("Qual é o primeiro caractere?", "O primeiro caractere (peça escrita) de 你好 é…", "你", ["你", "好", "木", "口"]),
       dialogue("Qual é o segundo caractere?", "O segundo caractere (peça escrita) de 你好 é…", "好", ["好", "你", "人", "日"]),
-      reverseRecall("Escreva na cabeça", "A palavra de cumprimento em hànzì. Quais dois caracteres?", "你好", ["你好"]),
+      dialogue(
+        "Quais dois caracteres?",
+        "A palavra de cumprimento em hànzì. Quais dois caracteres?",
+        "你好",
+        ["你好", "谢谢", "木人", "口日"]
+      ),
       listenSelect("Reconheça no áudio", "你好", ["你好", "谢谢", "木"], "你好"),
     ],
     4: [
@@ -687,7 +690,12 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "é a forma escrita da palavra que você conhece",
         ["é a forma escrita da palavra que você conhece", "deixa de existir", "vira tradução", "vira só tom"]
       ),
-      reverseRecall("Situação conhecida", "Alguém acena. Qual hànzì você leria na tela?", "你好", ["你好"]),
+      dialogue(
+        "Qual hànzì na tela?",
+        "Alguém acena. Qual hànzì você leria na tela?",
+        "你好",
+        ["你好", "谢谢", "木", "人"]
+      ),
       match(
         "Prova final",
         "Hànzì × pinyin × sentido.",

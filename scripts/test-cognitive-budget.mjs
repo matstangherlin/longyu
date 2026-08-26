@@ -77,6 +77,10 @@ try {
   }
 
   if (!budget.isProductiveChallengeStep({ kind: "free_production" })) fail("free_production é desafio produtivo");
+  if (budget.isProductiveChallengeStep({ kind: "write", mode: "free_reflection" })) {
+    fail("free_reflection não é o piso de produção");
+  }
+  if (!budget.isProductiveChallengeStep({ kind: "hanzi_build" })) fail("hanzi_build é desafio produtivo");
   if (budget.isProductiveChallengeStep({ kind: "conversation_scene" })) fail("conversa não é o piso de produção");
   if (!budget.isTransferChallengeStep({ kind: "transfer_task" })) fail("transfer_task é o piso de M4");
   const floorM3 = budget.requiredCognitiveFloor(3);

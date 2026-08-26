@@ -32,6 +32,7 @@ import {
 } from "../../data/masteryPilot";
 import { isTopicMasteryLesson } from "../../data/topicMastery";
 import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
+import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
 import {
   isReviewMasteryLesson,
   reviewMasteryStepsFor,
@@ -189,49 +190,9 @@ interface TaskTemplate {
 
 const hasAny = (steps: LessonStep[], kinds: StepKind[]) => steps.some((step) => kinds.includes(step.kind));
 const count = (steps: LessonStep[], kind: StepKind) => steps.filter((step) => step.kind === kind).length;
-const GRADED_STEP_KINDS: StepKind[] = [
-  "tone",
-  "comprehend",
-  "produce",
-  "recognize",
-  "write",
-  "match_pairs",
-  "listen_select",
-  "sentence_build",
-  "translation_build",
-  "fill_blank",
-  "dialogue_choice",
-  "conversation_scene",
-  "hanzi_build",
-  "tone_pair",
-  "image_choice",
-  "compare_with_image",
-  "audio_discrimination",
-  "dictation",
-  "odd_one_out",
-  "spot_error",
-  "free_production",
-  "transfer_task",
-  "conversation_repair",
-  "contextual_choice",
-  "audio_to_action",
-  "sentence_transform",
-  "substitution_drill",
-  "dialogue_completion",
-  "reverse_recall",
-  "map_direction",
-  "place_label",
-  "address_build",
-  "city_context",
-  "sign_reading",
-  "menu_reading",
-  "price_task",
-  "route_sequence",
-  "schedule_reading",
-];
 
 function isGradedStep(step: LessonStep): boolean {
-  return GRADED_STEP_KINDS.includes(step.kind) && !(step.kind === "write" && step.mode === "free_reflection");
+  return isEvaluableQuestionStep(step);
 }
 
 const FALA_TASKS: TaskTemplate[] = [
@@ -2911,7 +2872,7 @@ function makeAssemblyChoiceStep(
   const named = item.hanzi ? nameCarryingOptions(item.hanzi, knownGlyphs) : null;
   return {
     kind: "dialogue_choice",
-    title: "Monte a ideia",
+    title: "Qual peça",
     speaker: "Montagem",
     dialoguePrompt: `Qual peça representa: ${item.meaningPt}?`,
     options: named ?? options,
@@ -3077,15 +3038,26 @@ function makeDragonDictationStep(
     };
   }
   const answer = mode === "pinyin" ? numericPinyinToDiacritics(item.pinyin) : clean;
+  const hanziParts = [...clean];
+  const hanziBank = uniqueValues([
+    ...hanziParts,
+    ...focus
+      .filter((candidate) => candidate.key !== item.key)
+      .flatMap((candidate) => [...cleanHanzi(candidate.hanzi)])
+      .filter(Boolean),
+  ]).slice(0, Math.max(hanziParts.length + 2, 4));
   return {
     kind: "write",
     mode: "translation_fill",
     pedagogyVariant: "dragon_dictation",
     dictationMode: mode,
-    title: mode === "pinyin" ? "Escreva o que ouviu em pinyin" : "Escreva o que ouviu em hànzì",
+    title: mode === "pinyin" ? "Escreva o que ouviu em pinyin" : "Monte o que ouviu em hànzì",
     audioText: item.hanzi,
     answer,
     accepts: mode === "pinyin" ? [item.pinyin] : uniqueValues([clean, item.hanzi]),
+    targetParts: mode === "hanzi" ? hanziParts : undefined,
+    wordBank: mode === "hanzi" ? hanziBank : undefined,
+    bank: mode === "hanzi" ? hanziBank : undefined,
     playbackLimit: mode === "immersion" ? 1 : undefined,
     explanation: `${item.hanzi} · ${item.pinyin} · ${item.meaningPt}`,
     isNoHint: true,
@@ -7209,20 +7181,22 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
       Math.min(4, Math.max(1, (context.masteryLevel ?? 0) + 1))) as ReviewMasteryLevel;
     const reviewSteps = reviewMasteryStepsFor(lesson.id, level);
     if (reviewSteps.length > 0) {
-      return reviewSteps.map((step, index) => ({
-        ...step,
-        lessonStageId: "consolidation" as const,
-        lessonStageQuestion: index + 1,
-        lessonStageQuestionCount: reviewSteps.length,
-        masteryPass: level as MasteryPass,
-      }));
+      return withEvaluableQuestionNumbers(
+        reviewSteps.map((step, index) => ({
+          ...step,
+          lessonStageId: "consolidation" as const,
+          lessonStageQuestion: index + 1,
+          lessonStageQuestionCount: reviewSteps.length,
+          masteryPass: level as MasteryPass,
+        }))
+      );
     }
   }
 
   const base = buildLessonPracticePlan(lesson, context);
   const pass = resolveMasteryPassForContext(lesson, context);
-  if (!pass) return base;
-  return applyMasteryPassToPlan(base, lesson, pass, context);
+  if (!pass) return withEvaluableQuestionNumbers(base);
+  return withEvaluableQuestionNumbers(applyMasteryPassToPlan(base, lesson, pass, context));
 }
 
 export function lessonMasteryPassMeta(pass: MasteryPass): { pass: MasteryPass; label: string } {
