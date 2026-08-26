@@ -5,6 +5,7 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
+import { openListenSelectStep } from "./lesson-player-mobile-helpers";
 
 // QA real de dispositivo: toque, safe-area, prefers-reduced-motion, offline (PWA)
 // e rede lenta. Roda na suíte completa (chromium/firefox/webkit) e nos projetos
@@ -50,17 +51,10 @@ test.describe("dispositivo — toque", () => {
 
 test.describe("dispositivo — teclado físico (desktop)", () => {
   test("número seleciona opção; sem digitar em input", async ({ page }) => {
-    await seedFreshJourneySession(page);
-    await page.goto("/licao/p1-o-que-e-mandarim/player");
-    await waitForLazyPage(page);
-    await dismissBlockingOverlays(page);
-    await page.getByRole("button", { name: "Entendi" }).click();
-    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
-    if (await skipSpeak.isVisible().catch(() => false)) {
-      await skipSpeak.click();
-    }
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
-    // Atalho numérico seleciona a primeira alternativa (estado "selected").
+    // M1 autorado tem Ouça e imite antes do listen_select. Esperar 你好+谢谢
+    // evita pressionar 1 ainda no passo de fala (Firefox/WebKit).
+    await openListenSelectStep(page);
+    await page.locator("[data-lesson-player-frame]").click({ position: { x: 12, y: 12 } }).catch(() => undefined);
     await page.keyboard.press("1");
     await expect(page.locator("button.border-accent").first()).toBeVisible({ timeout: 5_000 });
   });
