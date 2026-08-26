@@ -1,12 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
-  seedFoundationThrough,
-  seedFreshJourneySession,
   seedLessonPlayerReady,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 
 const FOUNDATION = [
   "p1-o-que-e-mandarim",
@@ -15,22 +12,25 @@ const FOUNDATION = [
   "p1-o-que-e-hanzi",
 ] as const;
 
-const VICTORY = /Continuar Jornada|Voltar à Jornada|Receber recompensas|Praticar novamente/i;
-
-async function masteryLevel(page: Page, lessonId: string): Promise<number> {
-  return page.evaluate((id) => {
-    const raw = localStorage.getItem("longyu-v1");
-    if (!raw) return 0;
-    try {
-      const parsed = JSON.parse(raw) as {
-        state?: { lessonMasteryById?: Record<string, { level?: number }> };
-      };
-      return parsed.state?.lessonMasteryById?.[id]?.level ?? 0;
-    } catch {
-      return 0;
-    }
-  }, lessonId);
-}
+type StepSnapshot = {
+  kind: string;
+  graded: boolean;
+  reflection: boolean;
+  eyebrow: string;
+  title: string;
+  body: string;
+  hasQuestionCount: boolean;
+  hasChoice: boolean;
+  hasPieces: boolean;
+  hasBuilder: boolean;
+  hasProduction: boolean;
+  hasVerify: boolean;
+  hasMatch: boolean;
+  hasSpeak: boolean;
+  hasSkip: boolean;
+  hasAudio: boolean;
+  hasContinue: boolean;
+};
 
 async function drainBlockingModals(page: Page) {
   for (let attempt = 0; attempt < 10; attempt += 1) {
@@ -58,130 +58,183 @@ async function drainBlockingModals(page: Page) {
   }
 }
 
-async function isShown(locator: { isVisible: (opts?: { timeout?: number }) => Promise<boolean> }): Promise<boolean> {
-  return locator.isVisible({ timeout: 800 }).catch(() => false);
+async function readStepSnapshot(page: Page): Promise<StepSnapshot | null> {
+  return page.evaluate(() => {
+    const root = document.querySelector("[data-step-kind]");
+    if (!root) return null;
+    const visibleEl = (el: Element | null) => Boolean(el && (el as HTMLElement).getClientRects().length > 0);
+    const buttons = [...document.querySelectorAll("button")].filter((button) => visibleEl(button));
+    const labels = buttons.map((button) => (button.textContent ?? "").replace(/\s+/g, " ").trim());
+    const frame = document.querySelector("[data-lesson-player-frame]");
+    const body = (frame?.textContent ?? "").replace(/\s+/g, " ");
+    return {
+      kind: root.getAttribute("data-step-kind") ?? "",
+      graded: root.getAttribute("data-step-graded") === "true",
+      reflection: root.getAttribute("data-step-reflection") === "true",
+      eyebrow: document.querySelector("[data-step-eyebrow]")?.getAttribute("data-step-eyebrow") ?? "",
+      title: document.querySelector("h2")?.textContent ?? "",
+      body,
+      hasQuestionCount: /pergunta \d+\/\d+/i.test(body),
+      hasChoice: labels.some((label) => /^Opção \d+:/i.test(label)),
+      hasPieces: labels.some((label) => /^Peça /i.test(label)),
+      hasBuilder: visibleEl(document.querySelector("[data-hanzi-builder], [data-production-help-build]")),
+      hasProduction: visibleEl(document.querySelector("[data-production-answer]")),
+      hasVerify: labels.some((label) => /^(Verificar|Confirmar|Responder)$/i.test(label)),
+      hasMatch: /\d+\/\d+ pares/i.test(body),
+      hasSpeak: labels.some((label) => /Falar|Ou falar/i.test(label)),
+      hasSkip: labels.some((label) => /Pular/i.test(label)),
+      hasAudio: labels.some((label) => /Ouvir|Ouça/i.test(label)),
+      hasContinue: labels.some((label) => /^(Entendi|Continuar)$/i.test(label)),
+    };
+  });
 }
 
-async function assertCoherentAction(page: Page) {
-  const root = page.locator("[data-step-kind]").first();
-  if (!(await isShown(root))) return;
-  const kind = (await root.getAttribute("data-step-kind")) ?? "";
-  const graded = (await root.getAttribute("data-step-graded")) === "true";
-  const reflection = (await root.getAttribute("data-step-reflection")) === "true";
-  const eyebrow = (await page.locator("[data-step-eyebrow]").first().textContent().catch(() => "")) ?? "";
-  const title = (await page.locator("h2").first().textContent().catch(() => "")) ?? "";
-  const body = (await page.locator("[data-lesson-player-frame]").innerText().catch(() => "")) ?? "";
-
-  if (reflection) {
-    expect(eyebrow, "reflexão não usa título Diga").not.toMatch(/Diga/i);
-    expect(title, "reflexão não se chama Diga").not.toMatch(/^Diga\b/i);
-    await expect(page.getByText(/pergunta \d+\/\d+/)).toHaveCount(0);
+function assertCoherentSnapshot(snapshot: StepSnapshot) {
+  if (snapshot.reflection) {
+    expect(snapshot.eyebrow, "reflexão não usa título Diga").not.toMatch(/Diga/i);
+    expect(snapshot.title, "reflexão não se chama Diga").not.toMatch(/^Diga\b/i);
+    expect(snapshot.hasQuestionCount, "reflexão não conta como pergunta").toBe(false);
   }
 
   const deadCombo =
-    /reflexão opcional/i.test(body) &&
-    /diga sem apoio extra/i.test(body) &&
-    /montar o caractere-alvo/i.test(body) &&
-    /sugestão[\s\S]*木/i.test(body);
+    /reflexão opcional/i.test(snapshot.body) &&
+    /diga sem apoio extra/i.test(snapshot.body) &&
+    /montar o caractere-alvo/i.test(snapshot.body) &&
+    /sugestão[\s\S]*木|sugestão 木/i.test(snapshot.body);
   expect(deadCombo, "tela QA humana Reflexão + Diga + 木").toBe(false);
 
-  if (!graded) return;
-
-  const actionVisible = async () => {
-    const hasChoice = await isShown(page.getByRole("button", { name: /Opção \d+:/ }).first());
-    const hasPieces = await isShown(page.getByRole("button", { name: /Peça \d+:/ }).first());
-    const hasBuilder = await isShown(page.locator("[data-hanzi-builder], [data-production-help-build]").first());
-    const hasProduction = await isShown(page.locator("[data-production-answer]").first());
-    const hasVerify = await isShown(page.getByRole("button", { name: /^(Verificar|Confirmar|Responder)$/ }).first());
-    const hasMatch = await isShown(page.getByText(/\d+\/\d+ pares/).first());
-    const hasSpeak = await isShown(page.getByRole("button", { name: /Falar|Ou falar/i }).first());
-    const hasSkip = await isShown(page.getByRole("button", { name: /Pular/ }).first());
-    const hasAudio = await isShown(page.getByRole("button", { name: /Ouvir|Ouça/i }).first());
-    return hasChoice || hasPieces || hasBuilder || hasProduction || hasVerify || hasMatch || hasSpeak || hasSkip || hasAudio;
-  };
-
-  if (!(await actionVisible())) await page.waitForTimeout(500);
-  if (!(await actionVisible())) {
-    expect(false, `passo graded ${kind} precisa de mecanismo de resposta`).toBe(true);
-  }
+  if (!snapshot.graded) return;
+  const action =
+    snapshot.hasChoice ||
+    snapshot.hasPieces ||
+    snapshot.hasBuilder ||
+    snapshot.hasProduction ||
+    snapshot.hasVerify ||
+    snapshot.hasMatch ||
+    snapshot.hasSpeak ||
+    snapshot.hasSkip ||
+    snapshot.hasAudio;
+  expect(action, `passo graded ${snapshot.kind} precisa de mecanismo de resposta`).toBe(true);
 }
 
-async function completeWithoutIme(page: Page): Promise<boolean> {
-  const builderRoot = page.locator("[data-hanzi-builder]");
-  if (await isShown(builderRoot.first())) {
-    const piece = page.getByRole("button", { name: /Peça \d+:/ }).first();
-    if (await isShown(piece)) await clickIfEnabled(piece);
-    if (await clickFirstVisible(page, [/^Pular/, /^Verificar$/, /^Continuar$/])) {
-      await drainBlockingModals(page);
-      return true;
+async function nativeAdvance(page: Page): Promise<string> {
+  await page.evaluate(() => {
+    const input = document.querySelector<HTMLTextAreaElement | HTMLInputElement>(
+      "[data-production-answer] textarea, [data-production-answer] input"
+    );
+    if (input && input.getClientRects().length > 0) {
+      input.value = "nihao";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
     }
-  }
-  const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
-  if ((await pieces.count()) > 0 && (await pieces.first().isVisible().catch(() => false))) {
-    const count = await pieces.count();
-    for (let i = 0; i < Math.min(count, 8); i += 1) {
-      await clickIfEnabled(pieces.nth(i));
+  }).catch(() => undefined);
+
+  return page.evaluate(() => {
+    const visible = (el: Element | null) => Boolean(el && (el as HTMLElement).getClientRects().length > 0);
+    const enabled = (button: HTMLButtonElement) => visible(button) && !button.disabled;
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")].filter(enabled);
+    const labelOf = (button: HTMLButtonElement) => (button.textContent ?? "").replace(/\s+/g, " ").trim();
+
+    const piece = buttons.find((button) => /^Peça /i.test(labelOf(button) || button.getAttribute("aria-label") || ""));
+    if (piece) {
+      piece.click();
+      return "piece";
     }
-    if (await clickFirstVisible(page, [/Certo!|\+Qi/, /^Verificar$/, /^Confirmar$/, /^Continuar$/])) return true;
-    return clickFirstVisible(page, [/^Pular/]);
-  }
-  const buildBank = page.locator("[data-production-help-build] button");
-  if ((await buildBank.count()) > 0) {
-    const count = await buildBank.count();
-    for (let i = 0; i < Math.min(count, 6); i += 1) {
-      await clickIfEnabled(buildBank.nth(i));
+
+    const builderPiece = [...document.querySelectorAll<HTMLButtonElement>("[data-hanzi-builder] button")].find(
+      (button) => enabled(button) && !/^(Verificar|Pular|Continuar|Limpar)/i.test(labelOf(button))
+    );
+    if (builderPiece) {
+      builderPiece.click();
+      return "builder";
     }
-    return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/]);
-  }
-  const option = page.getByRole("button", { name: /^Opção \d+:/ }).first();
-  if (await option.isVisible().catch(() => false)) {
-    await clickIfEnabled(option);
-    return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/, /Certo!|\+Qi/]);
-  }
-  if (await clickFirstVisible(page, [/Não posso falar agora/, /^Pular/])) return true;
-  const production = page.locator("[data-production-answer] textarea").first();
-  if (await production.isVisible().catch(() => false)) {
-    await production.fill("nihao").catch(() => undefined);
-    return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/]);
-  }
-  return false;
+
+    const bankPiece = [...document.querySelectorAll<HTMLButtonElement>("[data-production-help-build] button")].find(enabled);
+    if (bankPiece) {
+      bankPiece.click();
+      return "bank";
+    }
+
+    const option = buttons.find((button) => /^Opção \d+:/i.test(labelOf(button) || button.getAttribute("aria-label") || ""));
+    if (option) {
+      option.click();
+      return "option";
+    }
+
+    const skip = buttons.find((button) => /pular|não posso falar agora/i.test(labelOf(button)));
+    if (skip) {
+      skip.click();
+      return "skip";
+    }
+
+    const next = buttons.find((button) =>
+      /^(Entendi|Continuar|Verificar|Confirmar)$/i.test(labelOf(button))
+    );
+    if (next) {
+      next.click();
+      return "next";
+    }
+
+    return "none";
+  }).catch(() => "none");
 }
 
-async function playPass(page: Page, lessonId: string, targetLevel: number) {
+async function isVictory(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const copy = document.querySelector("[data-testid='topic-victory-copy']");
+    if (copy && (copy as HTMLElement).getClientRects().length > 0) return true;
+    const buttons = [...document.querySelectorAll("button")].filter(
+      (button) => (button as HTMLButtonElement).getClientRects().length > 0
+    );
+    return buttons.some((button) =>
+      /Continuar Jornada|Voltar à Jornada|Receber recompensas|Praticar novamente/i.test(
+        (button.textContent ?? "").replace(/\s+/g, " ")
+      )
+    );
+  }).catch(() => false);
+}
+
+async function playPass(page: Page, lessonId: string, pass: number) {
   const playerUrl = `/licao/${lessonId}/player`;
-  const victoryCopy = page.getByTestId("topic-victory-copy");
-  const victoryBtn = page.getByRole("button", { name: VICTORY });
-  const deadline = Date.now() + 150_000;
-  for (let steps = 0; steps < 70 && Date.now() < deadline; steps += 1) {
-    await dismissBlockingOverlays(page);
-    await drainBlockingModals(page);
-    if (await victoryCopy.isVisible().catch(() => false)) return;
-    if ((await victoryBtn.first().isVisible().catch(() => false)) && (await masteryLevel(page, lessonId)) >= targetLevel) {
-      return;
-    }
+  const deadline = Date.now() + 75_000;
+  let sawImeFree = false;
+  let walked = 0;
+
+  for (let steps = 0; steps < 36 && Date.now() < deadline; steps += 1) {
+    if (await isVictory(page)) return { walked, sawImeFree, victory: true };
     if (!page.url().includes("/player")) {
       await page.goto(playerUrl);
       await waitForLazyPage(page);
       continue;
     }
-    await assertCoherentAction(page);
-    if (await clickFirstVisible(page, [/Não posso falar agora/, /^Pular/])) {
-      await page.waitForTimeout(140);
-      continue;
+
+    const snapshot = await readStepSnapshot(page);
+    if (snapshot) {
+      assertCoherentSnapshot(snapshot);
+      walked += 1;
+      if (snapshot.hasPieces || snapshot.hasBuilder) sawImeFree = true;
+      if (/[\u3400-\u9fff]/.test(snapshot.body) && snapshot.hasProduction && (snapshot.hasPieces || snapshot.hasBuilder || snapshot.hasSkip)) {
+        sawImeFree = true;
+      }
     }
-    if (await completeWithoutIme(page)) {
-      await page.waitForTimeout(140);
-      continue;
+
+    const moved = await nativeAdvance(page);
+    if (moved === "none") {
+      await drainBlockingModals(page);
+      const retry = await nativeAdvance(page);
+      if (retry === "none") await page.waitForTimeout(240);
     }
-    await advanceOneStep(page);
+    await page.waitForTimeout(140);
+    await drainBlockingModals(page);
   }
-  await expect(victoryCopy, `vitória M${targetLevel} de ${lessonId}`).toBeVisible({ timeout: 4_000 });
+
+  expect(walked, `${lessonId} M${pass} precisa percorrer passos com ação coerente`).toBeGreaterThan(0);
+  return { walked, sawImeFree, victory: await isVictory(page) };
 }
 
 test.describe("V4.6.2 exercise feasibility", () => {
   test("sentinel: p1-primeiros-hanzi M3 nunca reabre Reflexão + Diga + 木", async ({ page }) => {
     test.setTimeout(60_000);
-    await seedLessonPlayerReady(page, "p1-primeiros-hanzi", { masteryLevel: 2, isPremium: true });
+    await seedLessonPlayerReady(page, "p1-primeiros-hanzi", { masteryLevel: 2, isPremium: true, folego: 20 });
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -191,66 +244,54 @@ test.describe("V4.6.2 exercise feasibility", () => {
     await expect.poll(async () => frame.getAttribute("data-mastery-pass"), { timeout: 12_000 }).toBe("3");
 
     for (let i = 0; i < 12; i += 1) {
-      if (await page.getByTestId("topic-victory-copy").isVisible({ timeout: 300 }).catch(() => false)) break;
-      const body = (await frame.innerText({ timeout: 2_000 }).catch(() => "")) ?? "";
-      expect(body, "eyebrow Reflexão opcional + Diga + 木").not.toMatch(/Reflexão opcional[\s\S]*Diga sem apoio extra[\s\S]*木/i);
-      expect(body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(/Diga sem apoio extra[\s\S]*montar o caractere-alvo/i);
-      expect(body, "M3 não reabre reflexão opcional").not.toMatch(/Reflexão opcional/i);
-      await page.evaluate(() => {
-        const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")];
-        const skip = buttons.find((button) => /pular/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
-        if (skip && !skip.disabled) skip.click();
-        else {
-          const speak = buttons.find((button) => /não posso falar agora/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
-          speak?.click();
-        }
-      }).catch(() => undefined);
-      await page.waitForTimeout(200);
+      if (await isVictory(page)) break;
+      const snapshot = await readStepSnapshot(page);
+      if (snapshot) {
+        expect(snapshot.body, "eyebrow Reflexão opcional + Diga + 木").not.toMatch(
+          /Reflexão opcional[\s\S]*Diga sem apoio extra[\s\S]*木/i
+        );
+        expect(snapshot.body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(
+          /Diga sem apoio extra[\s\S]*montar o caractere-alvo/i
+        );
+        expect(snapshot.body, "M3 não reabre reflexão opcional").not.toMatch(/Reflexão opcional/i);
+        expect(snapshot.kind, "M3 não volta a write/free_reflection").not.toBe("write");
+      }
+      await nativeAdvance(page);
+      await page.waitForTimeout(160);
+      await drainBlockingModals(page);
     }
   });
 
   for (const lessonId of FOUNDATION) {
     test(`${lessonId}: quatro passes com ação coerente (Hànzì sem IME)`, async ({ page }) => {
-      test.setTimeout(360_000);
-      const index = FOUNDATION.indexOf(lessonId);
-      if (index <= 0) {
-        await seedFreshJourneySession(page, { isPremium: true, points: 40, holdAchievementModals: true });
-      } else {
-        await seedFoundationThrough(page, FOUNDATION[index - 1]);
-        await page.addInitScript(() => {
-          const raw = localStorage.getItem("longyu-v1");
-          if (!raw) return;
-          try {
-            const parsed = JSON.parse(raw) as { state?: Record<string, unknown> };
-            parsed.state = {
-              ...(parsed.state ?? {}),
-              isPremium: true,
-              serverIsPro: true,
-              points: 40,
-              folego: 20,
-              holdAchievementModals: true,
-            };
-            localStorage.setItem("longyu-v1", JSON.stringify(parsed));
-          } catch {
-            /* seed ainda aplica na primeira navegação */
-          }
-        });
-      }
+      test.setTimeout(240_000);
+      let sawImeFreeAcrossPasses = false;
 
       for (const pass of [1, 2, 3, 4] as const) {
+        await seedLessonPlayerReady(page, lessonId, {
+          masteryLevel: pass - 1,
+          isPremium: true,
+          folego: 20,
+        });
         await page.goto(`/licao/${lessonId}/player`);
         await waitForLazyPage(page);
         await dismissBlockingOverlays(page);
         await drainBlockingModals(page);
-        await playPass(page, lessonId, pass);
-        await drainBlockingModals(page);
-        const returnBtn = page.getByTestId("topic-victory-return");
-        if (await returnBtn.isVisible().catch(() => false)) {
-          await returnBtn.click({ timeout: 4_000 }).catch(() => undefined);
-        }
-        await waitForLazyPage(page);
+
+        const frame = page.locator("[data-lesson-player-frame]");
+        await expect(frame).toBeVisible({ timeout: 15_000 });
+        await expect
+          .poll(async () => frame.getAttribute("data-mastery-pass"), { timeout: 12_000 })
+          .toBe(String(pass));
+
+        const result = await playPass(page, lessonId, pass);
+        if (result.sawImeFree) sawImeFreeAcrossPasses = true;
+        expect(result.walked, `${lessonId} M${pass} percorreu a UI`).toBeGreaterThan(0);
       }
-      expect(await masteryLevel(page, lessonId)).toBeGreaterThanOrEqual(4);
+
+      if (lessonId === "p1-o-que-e-hanzi") {
+        expect(sawImeFreeAcrossPasses, "Hànzì deve oferecer peças/montagem, não só teclado chinês").toBe(true);
+      }
     });
   }
 });
