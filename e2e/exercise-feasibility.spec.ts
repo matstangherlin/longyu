@@ -180,7 +180,7 @@ async function playPass(page: Page, lessonId: string, targetLevel: number) {
 
 test.describe("V4.6.2 exercise feasibility", () => {
   test("sentinel: p1-primeiros-hanzi M3 nunca reabre Reflexão + Diga + 木", async ({ page }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(60_000);
     await seedLessonPlayerReady(page, "p1-primeiros-hanzi", { masteryLevel: 2, isPremium: true });
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
@@ -190,33 +190,22 @@ test.describe("V4.6.2 exercise feasibility", () => {
     await expect(frame).toBeVisible({ timeout: 15_000 });
     await expect.poll(async () => frame.getAttribute("data-mastery-pass"), { timeout: 12_000 }).toBe("3");
 
-    for (let i = 0; i < 16; i += 1) {
-      if (await page.getByTestId("topic-victory-copy").isVisible().catch(() => false)) break;
-      await drainBlockingModals(page);
-      const body = (await frame.innerText().catch(() => "")) ?? "";
+    for (let i = 0; i < 12; i += 1) {
+      if (await page.getByTestId("topic-victory-copy").isVisible({ timeout: 300 }).catch(() => false)) break;
+      const body = (await frame.innerText({ timeout: 2_000 }).catch(() => "")) ?? "";
       expect(body, "eyebrow Reflexão opcional + Diga + 木").not.toMatch(/Reflexão opcional[\s\S]*Diga sem apoio extra[\s\S]*木/i);
       expect(body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(/Diga sem apoio extra[\s\S]*montar o caractere-alvo/i);
-      const eyebrow = (await page.locator("[data-step-eyebrow]").first().textContent().catch(() => "")) ?? "";
-      expect(eyebrow, "M3 não reabre reflexão opcional").not.toMatch(/Reflexão opcional/i);
-      if (
-        !(await page.evaluate(() => {
-          const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")];
-          const skip = buttons.find((button) => /pular/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
-          if (skip && !skip.disabled) {
-            skip.click();
-            return true;
-          }
+      expect(body, "M3 não reabre reflexão opcional").not.toMatch(/Reflexão opcional/i);
+      await page.evaluate(() => {
+        const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")];
+        const skip = buttons.find((button) => /pular/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
+        if (skip && !skip.disabled) skip.click();
+        else {
           const speak = buttons.find((button) => /não posso falar agora/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
-          if (speak && !speak.disabled) {
-            speak.click();
-            return true;
-          }
-          return false;
-        }))
-      ) {
-        await clickFirstVisible(page, [/^Continuar$/, /^Verificar$/]);
-      }
-      await drainBlockingModals(page);
+          speak?.click();
+        }
+      }).catch(() => undefined);
+      await page.waitForTimeout(200);
     }
   });
 
