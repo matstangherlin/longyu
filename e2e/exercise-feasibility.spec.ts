@@ -258,7 +258,16 @@ test.describe("V4.6.2 exercise feasibility", () => {
 
     const frame = page.locator("[data-lesson-player-frame]");
     await expect(frame).toBeVisible({ timeout: 15_000 });
-    await expect.poll(async () => frame.getAttribute("data-mastery-pass"), { timeout: 12_000 }).toBe("3");
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => document.querySelector("[data-lesson-player-frame]")?.getAttribute("data-mastery-pass") ?? null
+          ),
+        { timeout: 12_000 }
+      )
+      .toBe("3");
+    await page.screenshot({ path: "/opt/cursor/artifacts/v462-primeiros-hanzi-m3.png", fullPage: true }).catch(() => undefined);
 
     for (let i = 0; i < 12; i += 1) {
       if (await isVictory(page)) break;
@@ -298,7 +307,13 @@ test.describe("V4.6.2 exercise feasibility", () => {
         const frame = page.locator("[data-lesson-player-frame]");
         await expect(frame).toBeVisible({ timeout: 15_000 });
         await expect
-          .poll(async () => frame.getAttribute("data-mastery-pass"), { timeout: 12_000 })
+          .poll(
+            async () =>
+              page.evaluate(
+                () => document.querySelector("[data-lesson-player-frame]")?.getAttribute("data-mastery-pass") ?? null
+              ),
+            { timeout: 12_000 }
+          )
           .toBe(String(pass));
 
         const result = await playPass(page, lessonId, pass);
