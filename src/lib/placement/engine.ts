@@ -217,19 +217,28 @@ export function shouldStopPlacement(
   if (answered >= maxLength) return true;
   if (answered < Math.min(4, baseLength)) return false;
 
+  const wrongCount = answers.filter((item) => {
+    const question = getPlacementQuestion(item.questionId);
+    if (!question) return false;
+    return !normalizeMatch(item.answer, question.answer);
+  }).length;
+  const wrongRate = wrongCount / answered;
+
+  // Zero beginner errando o básico: para no piso, sem sondar avançado.
+  if (declared === "zero" && wrongCount >= 3 && wrongRate >= 0.7) {
+    return true;
+  }
+
   const foundationFailing =
     competencies.meaning.estimate < 0.38 &&
     competencies.pinyin.estimate < 0.4 &&
     competencies.tone.estimate < 0.4 &&
     competencies.listening.estimate < 0.45 &&
-    answers.filter((item) => {
-      const question = getPlacementQuestion(item.questionId);
-      if (!question) return false;
-      return !normalizeMatch(item.answer, question.answer);
-    }).length >= 3;
+    wrongCount >= 3;
 
   if (declared === "zero" && foundationFailing) {
-    const conf = placementOverallConfidence(competencies, foundationDimensions());
+    const evidenced = foundationDimensions().filter((dimension) => competencies[dimension].evidenceCount > 0);
+    const conf = placementOverallConfidence(competencies, evidenced.length ? evidenced : foundationDimensions());
     if (answered >= baseLength - 1 && conf >= 0.55) return true;
     if (answered >= 4 && conf >= PLACEMENT_CONFIDENCE_THRESHOLD) return true;
   }

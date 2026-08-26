@@ -69,7 +69,7 @@ try {
   if (zero.answers.length > types.MAX_QUIZ_LENGTH.zero) {
     fail(`zero beginner excedeu o teto (${zero.answers.length} > ${types.MAX_QUIZ_LENGTH.zero})`);
   }
-  if (zero.answers.length > 10) fail(`zero beginner ainda longo demais: ${zero.answers.length}`);
+  if (zero.answers.length > 6) fail(`zero beginner ainda longo demais: ${zero.answers.length}`);
   if (zero.analysis.placement.targetLessonId !== "p1-o-que-e-mandarim") {
     fail(`zero deveria começar do início, obteve ${zero.analysis.placement.targetLessonId}`);
   }

@@ -66,19 +66,30 @@ assert(comecar.includes("Criar minha conta e salvar o resultado"), "CTA de conta
 assert(!comecar.includes("finishLocalOnboarding"), "funil /comecar não pode chamar finishLocalOnboarding");
 
 const require = createRequire(import.meta.url);
+const { mkdir, writeFile } = await import("node:fs/promises");
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-local-auth-"));
 try {
-  const program = ts.createProgram(["src/lib/auth/localAuthPolicy.ts", "src/lib/appEnvironment.ts"], {
+  const shimImportMeta = "({ DEV: false, MODE: 'test', VITE_APP_ENV: '' })";
+  const compilerOptions = {
     target: ts.ScriptTarget.ES2020,
     module: ts.ModuleKind.CommonJS,
-    moduleResolution: ts.ModuleResolutionKind.Node10,
-    rootDir: root,
-    outDir,
     esModuleInterop: true,
     skipLibCheck: true,
     strict: false,
-  });
-  if (program.emit().emitSkipped) throw new Error("não compilou localAuthPolicy");
+  };
+  const envText = ts.transpileModule(
+    (await read("src/lib/appEnvironment.ts")).replaceAll("import.meta.env", shimImportMeta),
+    { compilerOptions, fileName: "appEnvironment.ts" }
+  ).outputText;
+  const policyText = ts.transpileModule(
+    (await read("src/lib/auth/localAuthPolicy.ts"))
+      .replaceAll('from "../appEnvironment"', 'from "../appEnvironment.js"')
+      .replaceAll("import.meta.env", shimImportMeta),
+    { compilerOptions, fileName: "localAuthPolicy.ts" }
+  ).outputText;
+  await mkdir(path.join(outDir, "src/lib/auth"), { recursive: true });
+  await writeFile(path.join(outDir, "src/lib/appEnvironment.js"), envText);
+  await writeFile(path.join(outDir, "src/lib/auth/localAuthPolicy.js"), policyText);
   const mod = require(path.join(outDir, "src/lib/auth/localAuthPolicy.js"));
   let threw = false;
   try {
