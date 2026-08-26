@@ -192,8 +192,9 @@ export function ComecarPage() {
       marketingOptIn,
       onboardingCompleted: false,
     });
-    if (result.status === "error") {
-      setError(result.message || BACKEND_UNAVAILABLE_MESSAGE);
+    if (result.status === "error" || result.status === "not_implemented") {
+      const infra = /criar a conta agora|conectar ao Longyu|indisponível|failed to fetch|network|timeout|ainda não estão ativas/i;
+      setError(infra.test(result.message) ? BACKEND_UNAVAILABLE_MESSAGE : result.message || BACKEND_UNAVAILABLE_MESSAGE);
       setBusy(false);
       return;
     }
