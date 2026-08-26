@@ -349,6 +349,25 @@ textarea {
   }
 }
 
+@keyframes topic-ring-segment-pulse {
+  0% {
+    stroke-opacity: 0.35;
+    stroke-width: 4;
+  }
+  40% {
+    stroke-opacity: 1;
+    stroke-width: 7;
+  }
+  100% {
+    stroke-opacity: 0.92;
+    stroke-width: 4;
+  }
+}
+
+.topic-ring-segment-pulse {
+  animation: topic-ring-segment-pulse 900ms ease-out 1 both;
+}
+
 .longyu-star-spark {
   animation: longyu-star-spark 640ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -572,6 +591,7 @@ textarea {
   .longyu-phase-pass,
   .longyu-lesson-dragon,
   .longyu-star-spark,
+  .topic-ring-segment-pulse,
   .longyu-reward-rise,
   .longyu-claim-float,
   .longyu-success-bloom,

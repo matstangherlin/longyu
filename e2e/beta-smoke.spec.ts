@@ -271,10 +271,11 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /A língua padrão|Língua, não alfabeto/i })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
+    await clickFirstVisible(page, [/^Não posso falar agora$/]);
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });
 
@@ -401,10 +402,11 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /A língua padrão|Língua, não alfabeto/i })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
+    await clickFirstVisible(page, [/^Não posso falar agora$/]);
 
     const correct = page.getByRole("button", { name: /你好/ }).first();
     await expect(correct).toBeVisible();

@@ -31,6 +31,7 @@ import {
   masteryBonusStepsFor,
 } from "../../data/masteryPilot";
 import { isTopicMasteryLesson } from "../../data/topicMastery";
+import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
 import {
   isReviewMasteryLesson,
   reviewMasteryStepsFor,
@@ -7036,6 +7037,24 @@ export function applyMasteryPassToPlan(
 ): LessonRoundStep[] {
   const useMastery = Boolean(lesson.masteryLoop || isMasteryPilotLesson(lesson.id) || isTopicMasteryLesson(lesson));
   if (!useMastery) return plan;
+
+  const authoredFoundation = foundationAuthoredPlanFor(lesson.id, pass);
+  if (authoredFoundation && authoredFoundation.length > 0) {
+    return authoredFoundation.map((step, index) =>
+      applyScaffoldToStep(
+        {
+          ...step,
+          lessonStageId: pass >= 3 ? ("usage" as LessonStageId) : ("recognition" as LessonStageId),
+          lessonStageQuestion: index + 1,
+          lessonStageQuestionCount: authoredFoundation.length,
+          generated: false,
+          masteryPass: pass,
+          objective: step.objective ?? `Mastery pass ${pass}`,
+        },
+        pass
+      )
+    );
+  }
 
   const dimensions = context.itemDimensionsByRef ?? {};
   const weakDim = weakestDimension(

@@ -316,7 +316,14 @@ export function LessonDetailPage() {
               {pathComplete ? "Tema dominado" : `Lição ${topicPass} de 4 · ${passName}`}
             </p>
             <p className="mt-2 break-words text-sm leading-6 text-ink sm:text-[15px]">
-              {passGoal ?? spec?.promise ?? lessonDescription(lesson)}
+              {passGoal ? (
+                <>
+                  <span className="font-semibold text-ink-soft">Objetivo: </span>
+                  {passGoal}
+                </>
+              ) : (
+                spec?.promise ?? lessonDescription(lesson)
+              )}
             </p>
             {pathComplete && (
               <p className="mt-2 text-[13px] font-semibold text-[rgb(var(--good))]">Tema dominado ✓</p>
@@ -380,7 +387,7 @@ export function LessonDetailPage() {
           className="mt-4 w-full min-w-0 border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:max-w-full sm:px-6"
         >
           <span className="block min-w-0 break-words text-center leading-snug">
-            {primaryLabel}
+            {topicNode && !blocked ? `${primaryLabel} +${maxXp} XP` : primaryLabel}
             {topicNode && topicCta.secondary ? (
               <span className="mt-0.5 block text-[11px] font-medium opacity-90">{topicCta.secondary}</span>
             ) : null}

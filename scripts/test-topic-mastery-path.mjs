@@ -195,10 +195,26 @@ try {
   assert.match(storeSrc, /lessonSessionStepById/, "resume de pass persistido");
   assert.match(storeSrc, /consumedChargeKeys/, "energia idempotente por pass");
 
+  const m1 = topic.topicPassVictoryCopy(1);
+  const m3 = topic.topicPassVictoryCopy(3);
+  const m4 = topic.topicPassVictoryCopy(4);
+  assert.equal(m1.lessonLine, "Lição 1 de 4 concluída");
+  assert.match(m1.remainingLine, /Faltam 3/);
+  assert.equal(m3.remainingLine, "Falta 1 lição para dominar este tema.");
+  assert.equal(m4.heading, "Tema dominado");
+  assert.equal(m4.mastered, true);
+
+  for (const id of topic.FOUNDATION_TOPIC_MASTERY_IDS) {
+    const lesson = ALL_LESSONS.find((item) => item.id === id);
+    assert.ok(lesson, `foundation ${id} existe na Jornada`);
+  }
+
   const playerSrc = await readFile(path.join(root, "src/features/lesson/LessonPlayer.tsx"), "utf8");
   assert.match(playerSrc, /allowSkipAhead: !topicNode/, "player não pula passes no anel 0–4");
   assert.match(playerSrc, /lessonPassXpRewardId/, "XP por pass");
   assert.match(playerSrc, /setLessonSessionStep/, "grava cursor da pass");
+  assert.match(playerSrc, /Voltar à Jornada/, "vitória do tema volta à Jornada");
+  assert.doesNotMatch(playerSrc, /retryLesson\(\{\s*newPass:\s*true\s*\}\)/, "não auto-inicia a próxima pass");
 
   const journeySrc = await readFile(path.join(root, "src/features/journey/JourneyPage.tsx"), "utf8");
   assert.match(journeySrc, /data-topic-progress/, "anel expõe 0/4–4/4");

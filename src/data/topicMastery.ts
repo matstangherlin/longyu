@@ -252,3 +252,104 @@ export function lessonPassPracticeXpRewardId(lessonId: string, pass: MasteryPass
 export function lessonTopicMasteredXpRewardId(lessonId: string): string {
   return `lesson:${lessonId}:topic-mastered:xp`;
 }
+
+/**
+ * Foundation topics must have an authored TopicMasterySpec (never defaultSpec)
+ * and an audited pass plan. Conceptual "O que é …" also replace the planner.
+ */
+export const FOUNDATION_TOPIC_MASTERY_IDS = [
+  "p1-o-que-e-mandarim",
+  "p1-o-que-e-pinyin",
+  "p1-o-que-e-tom",
+  "p1-o-que-e-hanzi",
+  "p1-primeiros-hanzi",
+  "p1-engine-2-lab",
+  "l2",
+  "l3",
+  "l4",
+  "p1-ate-logo",
+  "p1-primeira-conversa",
+  "l9",
+] as const;
+
+export type FoundationTopicMasteryId = (typeof FOUNDATION_TOPIC_MASTERY_IDS)[number];
+
+export const CONCEPT_FOUNDATION_TOPIC_IDS = [
+  "p1-o-que-e-mandarim",
+  "p1-o-que-e-pinyin",
+  "p1-o-que-e-tom",
+  "p1-o-que-e-hanzi",
+] as const;
+
+export function isFoundationTopicMasteryId(lessonId: string): boolean {
+  return (FOUNDATION_TOPIC_MASTERY_IDS as readonly string[]).includes(lessonId);
+}
+
+export function isConceptFoundationTopic(lessonId: string): boolean {
+  return (CONCEPT_FOUNDATION_TOPIC_IDS as readonly string[]).includes(lessonId);
+}
+
+export const JOURNEY_PASS_RETURN_KEY = "longyu:journey-pass-return";
+
+export interface JourneyPassReturn {
+  lessonId: string;
+  filledLevel: 1 | 2 | 3 | 4;
+  at: number;
+}
+
+export function markJourneyPassReturn(lessonId: string, filledLevel: number): void {
+  if (typeof sessionStorage === "undefined") return;
+  const level = Math.max(1, Math.min(4, filledLevel)) as 1 | 2 | 3 | 4;
+  const payload: JourneyPassReturn = { lessonId, filledLevel: level, at: Date.now() };
+  sessionStorage.setItem(JOURNEY_PASS_RETURN_KEY, JSON.stringify(payload));
+}
+
+export function consumeJourneyPassReturn(): JourneyPassReturn | null {
+  if (typeof sessionStorage === "undefined") return null;
+  const raw = sessionStorage.getItem(JOURNEY_PASS_RETURN_KEY);
+  if (!raw) return null;
+  sessionStorage.removeItem(JOURNEY_PASS_RETURN_KEY);
+  try {
+    const parsed = JSON.parse(raw) as JourneyPassReturn;
+    if (!parsed?.lessonId || !parsed.filledLevel) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function peekJourneyPassReturn(): JourneyPassReturn | null {
+  if (typeof sessionStorage === "undefined") return null;
+  const raw = sessionStorage.getItem(JOURNEY_PASS_RETURN_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as JourneyPassReturn;
+  } catch {
+    return null;
+  }
+}
+
+/** JR-002 — copy after a completed pass (1–4), before returning to the Journey. */
+export function topicPassVictoryCopy(completedPass: 1 | 2 | 3 | 4): {
+  heading: string;
+  lessonLine: string;
+  remainingLine: string;
+  mastered: boolean;
+} {
+  if (completedPass >= 4) {
+    return {
+      heading: "Tema dominado",
+      lessonLine: "4 de 4 concluídas",
+      remainingLine: "Tema dominado",
+      mastered: true,
+    };
+  }
+  const remaining = 4 - completedPass;
+  return {
+    heading: "Lição concluída",
+    lessonLine: `Lição ${completedPass} de 4 concluída`,
+    remainingLine:
+      remaining === 1 ? "Falta 1 lição para dominar este tema." : `Faltam ${remaining} lições para dominar este tema.`,
+    mastered: false,
+  };
+}

@@ -7,6 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.6.1 — Journey Return + Topic Fidelity
+
+Cada pass termina na Jornada. A próxima lição do tema só começa quando o aluno toca o nó de novo.
+
+- Vitória: **Voltar à Jornada** (sem auto-start de M2/M3/M4). Copy “Lição X de 4 concluída / Faltam N”.
+- Anel 0/4 → 1/4 → 2/4 → 3/4 → 4/4 com scroll até o nó e pulso no segmento novo.
+- Temas de fundação (`FOUNDATION_TOPIC_MASTERY_IDS`) nunca usam `defaultSpec`.
+- Planos autorados substituem o planner em mandarim / pinyin / tom / hànzì.
+- Portões: `validate:topic-fidelity`, `test:pinyin-topic-fidelity`. Relatório: `docs/reports/topic-fidelity-foundations.md`.
+- **Não** reconstruí o Mastery Loop.
+
 ### V4.6 — Topic Mastery Path
 
 Cada nó normal de ensino da Jornada passa a ser um **tema** de 4 lições (M1 Descoberta → M2 Consolidação → M3 Produção → M4 Domínio), reusando o Mastery Loop. O próximo tema só destrava em **4/4**.

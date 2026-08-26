@@ -7,7 +7,7 @@
 
 import type { MasteryPass } from "./masteryLoop";
 import type { TopicLessonRef, TopicMasterySpec } from "./topicMastery";
-import { isTopicMasteryLesson } from "./topicMastery";
+import { isFoundationTopicMasteryId, isTopicMasteryLesson } from "./topicMastery";
 
 type LessonForSpec = TopicLessonRef & {
   title: string;
@@ -399,6 +399,91 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     canonicalExamples: ["九", "十"],
     prerequisites: ["p4-num-678"],
   },
+  l2: {
+    topicId: "l2",
+    promise: "Cumprimentar de verdade: 你好 (e 早上好 de manhã).",
+    mustUnderstand: ["你好 é o cumprimento seguro ao encontrar alguém.", "早上好 marca o momento da manhã."],
+    mustRecognize: ["你好 de ouvido", "早上好 como variação temporal"],
+    mustProduce: ["dizer 你好 ao encontrar alguém"],
+    mustTransfer: ["cumprimentar numa microconversa, não só no drill"],
+    commonMisconceptions: ["Qualquer frase social serve como Olá."],
+    passObjectives: {
+      1: "Descobrir 你好 como cumprimento.",
+      2: "Reconhecer 你好 e 早上好 de ouvido.",
+      3: "Dizer ou montar o cumprimento.",
+      4: "Usar 你好 numa situação de encontro.",
+    },
+    canonicalExamples: ["你好", "早上好"],
+    prerequisites: ["p1-o-que-e-mandarim"],
+  },
+  l3: {
+    topicId: "l3",
+    promise: "Perguntar se a pessoa está bem e responder 我很好.",
+    mustUnderstand: ["你好吗？ pergunta; 我很好 responde; 你呢？ devolve."],
+    mustRecognize: ["你好吗？", "我很好", "你呢？"],
+    mustProduce: ["perguntar 你好吗？ e responder 我很好"],
+    mustTransfer: ["usar a pergunta e a resposta numa microconversa"],
+    commonMisconceptions: ["你好 e 你好吗？ são a mesma fala."],
+    passObjectives: {
+      1: "Descobrir 你好吗？ e 我很好.",
+      2: "Distinguir cumprimento × pergunta × resposta.",
+      3: "Produzir a pergunta ou a resposta.",
+      4: "Trocar ‘tudo bem?’ numa situação nova.",
+    },
+    canonicalExamples: ["你好吗？", "我很好"],
+    prerequisites: ["l2"],
+  },
+  l4: {
+    topicId: "l4",
+    promise: "Agradecer e responder com cortesia: 谢谢 / 不客气.",
+    mustUnderstand: ["谢谢 agradece; 不客气 responde ‘de nada’."],
+    mustRecognize: ["谢谢", "不客气"],
+    mustProduce: ["dizer 谢谢 e responder 不客气"],
+    mustTransfer: ["agradecer numa situação curta de ajuda"],
+    commonMisconceptions: ["谢谢 também significa olá."],
+    passObjectives: {
+      1: "Descobrir 谢谢.",
+      2: "Reconhecer 谢谢 e 不客气.",
+      3: "Produzir o agradecimento ou a resposta.",
+      4: "Agradecer numa situação de ajuda.",
+    },
+    canonicalExamples: ["谢谢", "不客气"],
+    prerequisites: ["l2"],
+  },
+  "p1-ate-logo": {
+    topicId: "p1-ate-logo",
+    promise: "Encerrar a conversa: 再见 (e 明天见 / 晚安 quando couber).",
+    mustUnderstand: ["再见 fecha a conversa; não é um cumprimento de chegada."],
+    mustRecognize: ["再见", "明天见"],
+    mustProduce: ["dizer 再见 ao sair"],
+    mustTransfer: ["despedir-se numa situação de partida"],
+    commonMisconceptions: ["再见 serve para chegar e para sair."],
+    passObjectives: {
+      1: "Descobrir 再见 como despedida.",
+      2: "Distinguir 再见 de 你好 e 谢谢.",
+      3: "Produzir a despedida.",
+      4: "Encerrar uma conversa curta.",
+    },
+    canonicalExamples: ["再见", "明天见"],
+    prerequisites: ["l4"],
+  },
+  "p1-primeira-conversa": {
+    topicId: "p1-primeira-conversa",
+    promise: "Encadear cumprimento, ‘tudo bem?’ e despedida numa conversa curta.",
+    mustUnderstand: ["Uma conversa junta atos que você já viu em temas separados."],
+    mustRecognize: ["你好", "你好吗？", "谢谢", "再见"],
+    mustProduce: ["responder no turno certo da conversa"],
+    mustTransfer: ["fechar uma microconversa completa"],
+    commonMisconceptions: ["Cada frase social vive só no drill isolado."],
+    passObjectives: {
+      1: "Rever os atos da primeira conversa.",
+      2: "Ordenar cumprimento, pergunta e despedida.",
+      3: "Produzir os turnos com menos apoio.",
+      4: "Fechar a microconversa numa situação nova.",
+    },
+    canonicalExamples: ["你好", "你好吗？", "再见"],
+    prerequisites: ["l2", "l3", "l4", "p1-ate-logo"],
+  },
   l9: {
     topicId: "l9",
     promise: "Apresentar-se de verdade: nome, depois origem, depois perguntas, depois microconversa.",
@@ -562,7 +647,11 @@ function defaultSpec(lesson: LessonForSpec): TopicMasterySpec {
 
 export function topicMasterySpecFor(lesson: LessonForSpec): TopicMasterySpec | null {
   if (!isTopicMasteryLesson(lesson)) return null;
-  return AUTHORED[lesson.id] ?? defaultSpec(lesson);
+  const authored = AUTHORED[lesson.id];
+  if (authored) return authored;
+  // Foundation topics must never silently fall back to a generic template.
+  if (isFoundationTopicMasteryId(lesson.id)) return null;
+  return defaultSpec(lesson);
 }
 
 export function authoredTopicMasterySpecIds(): string[] {

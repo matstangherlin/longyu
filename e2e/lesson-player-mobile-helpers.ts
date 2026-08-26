@@ -241,7 +241,7 @@ export async function assertModalActionAccessible(page: Page) {
 
 /** Vitória: CTA principal sem exigir scroll da página (scroll interno da atividade é ok). */
 export async function assertVictoryWithoutPageScroll(page: Page) {
-  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
+  const victoryCta = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
   await expect(victoryCta).toBeVisible();
   await assertPageScrollLocked(page);
   const reachable = await victoryCta.evaluate((el) => {
@@ -271,9 +271,15 @@ export async function openListenSelectStep(page: Page) {
     const xiexie = page.getByRole("button", { name: /谢谢/ }).first();
     return (await nihao.isVisible().catch(() => false)) && (await xiexie.isVisible().catch(() => false));
   };
-  for (let i = 0; i < 10; i += 1) {
+  for (let i = 0; i < 12; i += 1) {
     if (await hasChoices()) return;
-    await clickFirstVisible(page, [/^Entendi$/, /^Ouvir$/, /^Continuar$/, /^Próximo$/]);
+    await clickFirstVisible(page, [
+      /^Entendi$/,
+      /^Não posso falar agora$/,
+      /^Ouvir$/,
+      /^Continuar$/,
+      /^Próximo$/,
+    ]);
     await page.waitForTimeout(180);
   }
   await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible({ timeout: 10_000 });
@@ -373,7 +379,7 @@ export async function advanceUntilSelector(
     steps += 1;
     await dismissBlockingOverlays(page);
     if (
-      await page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first().isVisible().catch(() => false)
+      await page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first().isVisible().catch(() => false)
     ) {
       return false;
     }

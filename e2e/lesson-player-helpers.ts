@@ -49,6 +49,13 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     }
     await page.keyboard.press("Escape").catch(() => undefined);
 
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await clickIfEnabled(skipSpeak);
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição/i });
     if (await reviewHeading.isVisible().catch(() => false)) {
       await clickFirstVisible(page, [/^Continuar$/]);
@@ -240,7 +247,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
 /** Avança um passo genérico (para loop até vitória). */
 export async function advanceOneStep(page: Page): Promise<boolean> {
-  const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
+  const victory = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
   return advanceUntilVisible(page, victory, 1);
 }
 

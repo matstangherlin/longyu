@@ -26,11 +26,11 @@ test.describe("lição", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     // A introdução autorada abre o plano; o exercício com 你好 vem em seguida.
-    await expect(page.getByRole("heading", { name: /A língua padrão|Língua, não alfabeto/i })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /你好|Não posso falar agora/ }).first()).toBeVisible();
     // Palavras em português do prompt não viram botões de glossário.
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /qual/i })).toHaveCount(0);
@@ -61,7 +61,9 @@ test.describe("lição", () => {
     await page.goto("/licao/p1-o-que-e-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByText(/O que é Hànzì/i).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/Sistema de escrita|O que é Hànzì|caracteres do chinês escrito/i).first()).toBeVisible({
+      timeout: 20_000,
+    });
     await expect(page.getByText(/Monte 林|Monte 明|hb-lin|hb-ming/i)).toHaveCount(0);
   });
 

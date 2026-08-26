@@ -1,0 +1,715 @@
+/**
+ * V4.6.1 — authored session plans for conceptual foundation topics.
+ *
+ * These replace the generic planner output so "O que é pinyin?" actually
+ * teaches pinyin (not four 你好 drills). Keep sessions short: one intro,
+ * then interaction. No lecture walls.
+ */
+
+import type { LessonStep } from "./journey";
+import { conversationSceneStepFromId } from "./conversationScenes";
+import { withEquivalentAccepts } from "./masteryLoop";
+import type { MasteryPass } from "./masteryLoop";
+import { isConceptFoundationTopic } from "./topicMastery";
+
+function intro(title: string, body: string): LessonStep {
+  return { kind: "intro", title, body };
+}
+
+function listen(text: string, pinyin: string, pt: string): LessonStep {
+  return { kind: "listen", text, pinyin, pt };
+}
+
+function listenSelect(
+  title: string,
+  audioText: string,
+  options: string[],
+  correctAnswer: string,
+  explanation?: string,
+  prompt = "Toque no que ouviu."
+): LessonStep {
+  return {
+    kind: "listen_select",
+    title,
+    prompt,
+    audioText,
+    slowAudioText: audioText,
+    options,
+    correctAnswer,
+    explanation,
+  };
+}
+
+function dialogue(
+  title: string,
+  dialoguePrompt: string,
+  correctAnswer: string,
+  options: string[],
+  explanation?: string
+): LessonStep {
+  return {
+    kind: "dialogue_choice",
+    title,
+    speaker: "Situação",
+    dialoguePrompt,
+    options,
+    correctAnswer,
+    explanation,
+  };
+}
+
+function match(
+  title: string,
+  prompt: string,
+  pairs: NonNullable<LessonStep["pairs"]>,
+  explanation?: string
+): LessonStep {
+  return { kind: "match_pairs", title, prompt, pairs, explanation };
+}
+
+function sentenceBuild(
+  title: string,
+  prompt: string,
+  target: string[],
+  bank: string[],
+  explanation?: string
+): LessonStep {
+  return { kind: "sentence_build", title, prompt, target, bank, explanation, correctAnswer: target.join("") };
+}
+
+function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
+  return {
+    kind: "reverse_recall",
+    title,
+    situationPt,
+    body: situationPt,
+    answer,
+    accepts: accepts ?? [answer],
+    mode: "free_reflection",
+    isNoHint: true,
+  };
+}
+
+function contextualChoice(
+  title: string,
+  situationPt: string,
+  correctAnswer: string,
+  options: string[],
+  explanation?: string
+): LessonStep {
+  return {
+    kind: "contextual_choice",
+    title,
+    situationPt,
+    dialoguePrompt: situationPt,
+    correctAnswer,
+    options,
+    explanation,
+    speaker: "Situação",
+  };
+}
+
+function toneStep(
+  hanzi: string,
+  pinyin: string,
+  t: 1 | 2 | 3 | 4,
+  assist: "guided" | "quiz" = "guided",
+  toneChoices?: Array<1 | 2 | 3 | 4>
+): LessonStep {
+  return { kind: "tone", hanzi, pinyin, tone: t, assist, ...(toneChoices ? { toneChoices } : {}) };
+}
+
+function comprehend(hanzi: string, pinyin: string, answer: string, options: string[]): LessonStep {
+  return { kind: "comprehend", hanzi, pinyin, answer, options };
+}
+
+function conversationScene(sceneId: string): LessonStep {
+  const scene = conversationSceneStepFromId(sceneId);
+  if (!scene) throw new Error(`conversation_scene desconhecida: ${sceneId}`);
+  return {
+    kind: "conversation_scene",
+    title: scene.title,
+    sceneId: scene.sceneId,
+    setting: scene.setting,
+    characters: scene.characters,
+    lines: scene.lines,
+    checkpoint: scene.checkpoint,
+    nodes: scene.nodes,
+    entryNodeId: scene.entryNodeId,
+    sceneIntent: scene.intent,
+    learnedRefs: scene.learnedRefs,
+    newRefs: scene.newRefs,
+  };
+}
+
+const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
+  "p1-o-que-e-mandarim": {
+    1: [
+      intro(
+        "Uma língua falada",
+        "Mandarim é uma língua — a variedade padrão do chinês moderno que o Longyu ensina. Língua falada não é o mesmo que sistema de escrita. Ouça uma frase real agora."
+      ),
+      listen("你好", "nǐ hǎo", "Olá"),
+      listenSelect("Primeiro som real", "你好", ["你好", "谢谢", "再见"], "你好", "Isso é mandarim falado: 你好."),
+      comprehend("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
+      dialogue(
+        "Fala × escrita",
+        "Mandarim, neste tema, é principalmente…",
+        "uma língua falada",
+        ["uma língua falada", "só um alfabeto latino", "só um conjunto de desenhos", "a tradução Olá"],
+        "Você ouviu a língua. Pinyin e hànzì são outras camadas."
+      ),
+      dialogue(
+        "O exemplo não é o tema",
+        "你好 nesta aula serve para…",
+        "mostrar a língua de verdade",
+        ["mostrar a língua de verdade", "substituir o tema ‘o que é mandarim’", "ensinar só pinyin", "ensinar só hànzì"],
+        "你好 é um exemplo da língua, não o título inteiro."
+      ),
+    ],
+    2: [
+      intro(
+        "Quatro camadas",
+        "O mesmo cumprimento aparece em quatro camadas: fala, pinyin, hànzì e tradução. Separe-as."
+      ),
+      match(
+        "Combine as camadas",
+        "O mesmo 你好 em quatro camadas.",
+        [
+          { left: "som que você ouviu", right: "mandarim falado", leftType: "pt", rightType: "pt" },
+          { left: "nǐ hǎo", right: "pinyin (som escrito)", leftType: "pinyin", rightType: "pt" },
+          { left: "你好", right: "hànzì (escrita)", leftType: "hanzi", rightType: "pt" },
+          { left: "Olá", right: "tradução", leftType: "pt", rightType: "pt" },
+        ],
+        "Fala ≠ pinyin ≠ hànzì ≠ tradução."
+      ),
+      dialogue(
+        "O que não é a língua falada",
+        "Qual destes não é mandarim falado?",
+        "nǐ hǎo escrito no papel",
+        ["nǐ hǎo escrito no papel", "a voz dizendo 你好", "cumprimentar de ouvido", "a fala 你好"],
+        "nǐ hǎo no papel é pinyin — mapa do som, não a fala."
+      ),
+      dialogue(
+        "Hànzì também não é a fala",
+        "你好 no papel é…",
+        "escrita (hànzì)",
+        ["escrita (hànzì)", "a língua falada", "a tradução", "um tom isolado"],
+        "A forma escrita e a língua falada são camadas diferentes."
+      ),
+      listenSelect("Ouça de novo a língua", "你好", ["你好", "谢谢", "一"], "你好", "Volte ao som: isso é mandarim."),
+      dialogue(
+        "Longyu ensina qual variedade?",
+        "O Longyu ensina…",
+        "mandarim, a variedade padrão do chinês moderno",
+        [
+          "mandarim, a variedade padrão do chinês moderno",
+          "só pinyin como língua",
+          "só hànzì sem som",
+          "português com letras chinesas",
+        ]
+      ),
+    ],
+    3: [
+      intro("Use a língua", "Agora recupere o cumprimento com menos apoio. O tema continua sendo a língua falada."),
+      contextualChoice(
+        "Use o mandarim falado",
+        "Uma pessoa olha para você e diz 你好. O que você faz na língua falada?",
+        "你好",
+        ["你好", "谢谢", "Olá em português", "nǐ hǎo no papel"],
+        "A resposta natural é devolver o mandarim falado."
+      ),
+      reverseRecall(
+        "Recupere o mandarim",
+        "Cumprimente de volta em mandarim, sem ler a tradução.",
+        "你好",
+        ["你好", "你好！"]
+      ),
+      withEquivalentAccepts({
+        kind: "free_production",
+        title: "Mandarim sem alternativas",
+        situationPt: "A pessoa à sua frente espera um cumprimento. Diga em mandarim.",
+        correctAnswer: "你好",
+        answer: "你好",
+        accepts: ["你好", "你好！", "你好。"],
+        productionAssist: "guided",
+        helpMode: "disabled",
+        isNoHint: true,
+      }),
+      sentenceBuild(
+        "Monte o mandarim que você fala",
+        "Monte a frase falada em mandarim que você já ouviu.",
+        ["你", "好"],
+        ["好", "你", "谢"]
+      ),
+      dialogue(
+        "Som e intenção",
+        "Quando alguém diz 你好, a intenção é…",
+        "cumprimentar",
+        ["cumprimentar", "pedir a conta", "soletrar pinyin", "traduzir para português"],
+        "Língua falada carrega intenção, não só um som solto."
+      ),
+    ],
+    4: [
+      conversationScene("primeiro-cumprimento"),
+      match(
+        "Prove as quatro camadas",
+        "Na conversa que você acabou de fazer, o que é cada coisa?",
+        [
+          { left: "o que você ouviu e falou", right: "mandarim falado", leftType: "pt", rightType: "pt" },
+          { left: "nǐ hǎo", right: "pinyin", leftType: "pinyin", rightType: "pt" },
+          { left: "你好", right: "hànzì", leftType: "hanzi", rightType: "pt" },
+          { left: "Olá", right: "significado", leftType: "pt", rightType: "pt" },
+        ],
+        "Você usou as quatro camadas na prática."
+      ),
+      reverseRecall("Situação nova", "Você entra numa sala e a pessoa levanta a cabeça. Cumprimente em mandarim.", "你好", [
+        "你好",
+        "你好！",
+      ]),
+      dialogue(
+        "O que é mandarim?",
+        "No Longyu, mandarim é…",
+        "a língua falada padrão que você acabou de usar",
+        [
+          "a língua falada padrão que você acabou de usar",
+          "o alfabeto nǐ hǎo",
+          "só os caracteres 你好",
+          "a palavra Olá em português",
+        ]
+      ),
+      contextualChoice(
+        "Classifique de novo",
+        "Alguém escreve nǐ hǎo num caderno. Isso é mandarim falado?",
+        "não — é pinyin, o mapa do som",
+        ["não — é pinyin, o mapa do som", "sim, é a língua falada", "é a tradução", "é um tom isolado"]
+      ),
+    ],
+  },
+  "p1-o-que-e-pinyin": {
+    1: [
+      intro(
+        "Para que o pinyin existe",
+        "Pinyin é um sistema de romanização: letras latinas que representam a pronúncia do mandarim. Não é tradução, não é hànzì e não é a língua. É o guia do som."
+      ),
+      dialogue(
+        "Pinyin não traduz",
+        "nǐ hǎo é…",
+        "a pronúncia escrita, não a tradução",
+        ["a pronúncia escrita, não a tradução", "a palavra Olá em português", "o hànzì 你好", "a língua mandarim inteira"],
+        "Olá é significado. nǐ hǎo é pinyin."
+      ),
+      match(
+        "Três linhas, três papéis",
+        "Combine cada linha ao papel certo.",
+        [
+          { left: "你好", right: "hànzì (escrita)", leftType: "hanzi", rightType: "pt" },
+          { left: "nǐ hǎo", right: "pinyin (pronúncia)", leftType: "pinyin", rightType: "pt" },
+          { left: "Olá", right: "tradução", leftType: "pt", rightType: "pt" },
+        ],
+        "Áudio = mandarim falado. Pinyin só mapeia esse som."
+      ),
+      listenSelect(
+        "Áudio → pinyin",
+        "你好",
+        ["nǐ hǎo", "xièxie", "zàijiàn"],
+        "nǐ hǎo",
+        "Você ouviu o mandarim; nǐ hǎo é o pinyin desse som.",
+        "Qual pinyin escreve o que você ouviu?"
+      ),
+      dialogue(
+        "Qual linha é pinyin?",
+        "Qual destas linhas é pinyin?",
+        "nǐ hǎo",
+        ["nǐ hǎo", "你好", "Olá", "a voz falando"],
+        "Letras latinas com marcas de tom = pinyin."
+      ),
+      dialogue(
+        "Para que serve",
+        "Pinyin serve principalmente para…",
+        "guiar a pronúncia",
+        ["guiar a pronúncia", "substituir hànzì para sempre", "traduzir para português", "ser a língua mandarim"],
+        "É uma ponte para falar e ouvir."
+      ),
+    ],
+    2: [
+      intro(
+        "Sílabas",
+        "nǐ hǎo tem duas sílabas: nǐ e hǎo. No nível deste tema, basta ver inicial + final: n+i, h+ao. As letras nem sempre soam como no português."
+      ),
+      dialogue(
+        "Duas sílabas",
+        "Em nǐ hǎo, quantas sílabas o pinyin mostra?",
+        "duas: nǐ e hǎo",
+        ["duas: nǐ e hǎo", "uma letra só", "quatro traduções", "o hànzì inteiro"],
+        "Cada sílaba do pinyin é um bloco de som."
+      ),
+      match(
+        "Sílaba ↔ caractere",
+        "Ligue cada sílaba do pinyin ao hànzì.",
+        [
+          { left: "nǐ", right: "你", leftType: "pinyin", rightType: "hanzi" },
+          { left: "hǎo", right: "好", leftType: "pinyin", rightType: "hanzi" },
+        ],
+        "O pinyin recorta o som; o hànzì recorta a forma."
+      ),
+      listenSelect(
+        "Ouça a primeira sílaba",
+        "你",
+        ["nǐ", "hǎo", "Olá"],
+        "nǐ",
+        "A primeira sílaba de nǐ hǎo é nǐ.",
+        "Qual pinyin é esta sílaba?"
+      ),
+      listenSelect(
+        "Ouça a segunda sílaba",
+        "好",
+        ["hǎo", "nǐ", "xiè"],
+        "hǎo",
+        "h + ao forma hǎo. Não leia como se fosse português.",
+        "Qual pinyin é esta sílaba?"
+      ),
+      dialogue(
+        "Não é português",
+        "Em hǎo, o h do pinyin…",
+        "marca um som soprado, não o h mudo do português",
+        [
+          "marca um som soprado, não o h mudo do português",
+          "é a tradução de ‘olá’",
+          "é o hànzì 好",
+          "não representa pronúncia",
+        ]
+      ),
+      dialogue(
+        "Pinyin × tradução",
+        "Qual opção é pinyin, não tradução?",
+        "nǐ",
+        ["nǐ", "Olá", "você (só em português)", "a palavra ‘bom’"],
+        "Se está em letras latinas com tom, é pinyin."
+      ),
+    ],
+    3: [
+      intro(
+        "Marcas de tom",
+        "No pinyin, as marcas ˉ ´ ˇ ` indicam o contorno da voz. Aqui a pergunta é: como o pinyin REGISTRA o tom — não dominar os quatro tons (isso vem nos temas de tom)."
+      ),
+      dialogue(
+        "O que a marca faz",
+        "O acento em nǐ e hǎo indica…",
+        "o contorno tonal da sílaba",
+        ["o contorno tonal da sílaba", "a tradução", "o número da lição", "que a palavra é formal"],
+        "Sem a marca, o mapa do som fica ambíguo."
+      ),
+      match(
+        "Marca e papel",
+        "Combine o sinal ao que ele faz no pinyin.",
+        [
+          { left: "ˇ em nǐ", right: "marca o tom da sílaba", leftType: "pt", rightType: "pt" },
+          { left: "nǐ hǎo sem marcas", right: "pinyin incompleto", leftType: "pinyin", rightType: "pt" },
+        ],
+        "ˉ ´ ˇ ` são o registro do tom no pinyin."
+      ),
+      listenSelect(
+        "Ouça e escolha o pinyin com tom",
+        "你好",
+        ["nǐ hǎo", "ni hao", "ní hào"],
+        "nǐ hǎo",
+        "As marcas ˇ em nǐ e hǎo são o mapa do 3º tom.",
+        "Qual pinyin registra o tom que você ouviu?"
+      ),
+      dialogue(
+        "Qual marca você vê",
+        "Em nǐ, a marca ˇ diz…",
+        "o tom (contorno) dessa sílaba",
+        ["o tom (contorno) dessa sílaba", "que se traduz ‘você’", "que é hànzì", "que não se pronuncia"],
+      ),
+      reverseRecall(
+        "Leia o pinyin",
+        "Alguém escreveu nǐ hǎo. Diga a frase em mandarim — o pinyin é o guia.",
+        "你好",
+        ["你好", "你好！"]
+      ),
+    ],
+    4: [
+      intro(
+        "Usar e soltar",
+        "Use o pinyin como ferramenta. Depois retire parte do mapa e prove que você ainda reconhece o som e a fala."
+      ),
+      contextualChoice(
+        "Ferramenta, não destino",
+        "Você vê nǐ hǎo numa placa de aula. Para que serve?",
+        "guiar a pronúncia de 你好",
+        ["guiar a pronúncia de 你好", "substituir hànzì para sempre", "traduzir para inglês", "ser a língua mandarim"]
+      ),
+      match(
+        "Ainda o mapa",
+        "Ligue cada sílaba do pinyin ao hànzì, sem a tradução no meio.",
+        [
+          { left: "nǐ", right: "你", leftType: "pinyin", rightType: "hanzi" },
+          { left: "hǎo", right: "好", leftType: "pinyin", rightType: "hanzi" },
+        ],
+        "Pinyin aponta o som; hànzì é a forma."
+      ),
+      listenSelect(
+        "Agora sem o pinyin nas opções",
+        "你好",
+        ["你好", "谢谢", "再见"],
+        "你好",
+        "O áudio é a língua; você reconhece sem ler nǐ hǎo."
+      ),
+      reverseRecall(
+        "Sem o mapa inteiro",
+        "A pessoa espera um cumprimento. Fale, mesmo sem ver o pinyin.",
+        "你好",
+        ["你好", "你好！"]
+      ),
+      dialogue(
+        "O que as marcas indicam?",
+        "No pinyin, ˉ ´ ˇ ` indicam…",
+        "o tom da sílaba",
+        ["o tom da sílaba", "a tradução", "o hànzì", "pontuação portuguesa"]
+      ),
+      dialogue(
+        "Diferença de hànzì",
+        "Qual é pinyin e qual é hànzì?",
+        "nǐ hǎo é pinyin; 你好 é hànzì",
+        ["nǐ hǎo é pinyin; 你好 é hànzì", "os dois são tradução", "os dois são a língua falada", "hànzì é só tom"],
+      ),
+    ],
+  },
+  "p1-o-que-e-tom": {
+    1: [
+      intro(
+        "A curva faz parte da palavra",
+        "Em mandarim o contorno da voz não é emoção nem volume: faz parte da palavra. Ouça só a diferença entre reta alta e vale."
+      ),
+      toneStep("妈", "mā", 1, "guided", [1, 3]),
+      toneStep("马", "mǎ", 3, "guided", [1, 3]),
+      listenSelect(
+        "Reta ou vale?",
+        "马",
+        ["妈", "马"],
+        "马",
+        "mǎ desce e volta (vale, 3º); mā fica reta no alto (1º)."
+      ),
+      dialogue(
+        "O que é um tom?",
+        "Em mandarim, tom é…",
+        "o contorno da voz que faz parte da palavra",
+        [
+          "o contorno da voz que faz parte da palavra",
+          "só o volume",
+          "a tradução em português",
+          "o número da lição",
+        ]
+      ),
+      dialogue(
+        "Não é só um número",
+        "Quando dizemos ‘3º tom’, estamos falando de…",
+        "um contorno (um vale na voz)",
+        ["um contorno (um vale na voz)", "um ranking de dificuldade", "uma estrela", "um hànzì extra"],
+      ),
+    ],
+    2: [
+      intro("Ouça a diferença", "Mesmas letras, curvas diferentes: a palavra muda. Discrimine reta × vale."),
+      listenSelect("Qual é o vale?", "马", ["妈", "马"], "马", "O vale (3º) é mǎ 马."),
+      listenSelect("Qual é a reta?", "妈", ["妈", "马"], "妈", "A reta alta (1º) é mā 妈."),
+      dialogue(
+        "O que mudou?",
+        "mā e mǎ usam as mesmas letras. O que as torna palavras diferentes?",
+        "o contorno da voz",
+        ["o contorno da voz", "o tamanho da letra", "a tradução em inglês", "o hànzì decorativo"]
+      ),
+      match(
+        "Curva e ideia",
+        "Combine o contorno à palavra (só duas).",
+        [
+          { left: "reta alta mā", right: "妈", leftType: "pt", rightType: "hanzi" },
+          { left: "vale mǎ", right: "马", leftType: "pt", rightType: "hanzi" },
+        ],
+        "O fenômeno é a curva, não o número isolado."
+      ),
+      toneStep("妈", "mā", 1, "quiz", [1, 3]),
+    ],
+    3: [
+      intro("Identifique o contorno", "Agora você marca qual curva ouviu — e começa a reproduzir o vale e a reta."),
+      toneStep("马", "mǎ", 3, "quiz", [1, 3]),
+      reverseRecall("Qual é o vale?", "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?", "马", ["马"]),
+      dialogue(
+        "Reproduzir",
+        "Para ‘dizer o tom’, você precisa…",
+        "fazer o contorno com a voz, não só apontar um número",
+        [
+          "fazer o contorno com a voz, não só apontar um número",
+          "gritar mais alto",
+          "escrever a tradução",
+          "esconder o pinyin",
+        ]
+      ),
+      listenSelect("Identifique de ouvido", "妈", ["妈", "马"], "妈"),
+      contextualChoice(
+        "Na prática",
+        "Alguém pede para você repetir o vale. Qual curva é essa?",
+        "desce e volta (3º tom)",
+        ["desce e volta (3º tom)", "reta alta", "só volume", "tradução"]
+      ),
+    ],
+    4: [
+      intro(
+        "O tom numa palavra real",
+        "你好 são dois 3º tons; juntos você ouve ní hǎo. O tom não mora só no drill de ma — mora na palavra que você já usa."
+      ),
+      listenSelect("你好 de ouvido", "你好", ["你好", "谢谢", "妈"], "你好", "Leve o contorno para um chunk conhecido."),
+      dialogue(
+        "O tom em 你好",
+        "Em 你好, o que você precisa acertar além das letras?",
+        "o contorno das sílabas",
+        ["o contorno das sílabas", "só o volume", "só a tradução Olá", "o alfabeto português"]
+      ),
+      contextualChoice(
+        "Na rua",
+        "Você vai cumprimentar. Qual fenômeno da voz está dentro de 你好?",
+        "os tons (contornos) das sílabas",
+        ["os tons (contornos) das sílabas", "só o hànzì", "a tradução", "um número de exercício"]
+      ),
+      listen("你好", "nǐ hǎo", "Olá — ouça o contorno, não só as letras"),
+      reverseRecall("Diga com o contorno", "Cumprimente. O tom faz parte da palavra.", "你好", ["你好", "你好！"]),
+    ],
+  },
+  "p1-o-que-e-hanzi": {
+    1: [
+      intro(
+        "Sistema de escrita",
+        "Hànzì são os caracteres do chinês escrito. Pinyin mostra o som (nǐ hǎo); hànzì mostra a forma: 你好. Um caractere tem forma, som e função — e não é automaticamente uma palavra inteira."
+      ),
+      dialogue(
+        "O que é um caractere?",
+        "Em 你好, 你 é…",
+        "um caractere (peça escrita)",
+        ["um caractere (peça escrita)", "o pinyin inteiro", "a tradução", "um tom"],
+        "Caractere ≠ automaticamente uma palavra inteira."
+      ),
+      dialogue(
+        "Reconheça 好",
+        "Em 你好, qual caractere é 好?",
+        "好",
+        ["好", "你", "口", "日"]
+      ),
+      match(
+        "Forma e papel",
+        "Combine o hànzì ao que ele é.",
+        [
+          { left: "你", right: "caractere (forma escrita)", leftType: "hanzi", rightType: "pt" },
+          { left: "nǐ", right: "pinyin (som)", leftType: "pinyin", rightType: "pt" },
+        ]
+      ),
+      listenSelect("Veja e ouça 你好", "你好", ["你好", "木", "人"], "你好", "A forma escrita e o som andam juntos, mas não são a mesma camada."),
+      dialogue(
+        "Hànzì não é pinyin",
+        "Qual linha é hànzì?",
+        "你好",
+        ["你好", "nǐ hǎo", "Olá", "a voz falando"]
+      ),
+    ],
+    2: [
+      intro(
+        "Caractere × palavra",
+        "你好 tem dois caracteres e é uma palavra. Caracteres têm componentes que ajudam a reconhecer a forma."
+      ),
+      dialogue(
+        "Peça e palavra",
+        "你好 tem dois caracteres. Isso significa duas palavras?",
+        "não necessariamente — juntos formam uma palavra",
+        ["não necessariamente — juntos formam uma palavra", "sim, sempre duas palavras", "não tem hànzì aqui", "só pinyin conta"]
+      ),
+      match(
+        "Peças de 你好",
+        "Combine caractere e papel na palavra.",
+        [
+          { left: "你", right: "primeira peça de 你好", leftType: "hanzi", rightType: "pt" },
+          { left: "好", right: "segunda peça de 你好", leftType: "hanzi", rightType: "pt" },
+        ],
+        "Duas peças escritas, uma palavra."
+      ),
+      dialogue(
+        "Componentes",
+        "Reconhecer hànzì fica mais fácil quando você…",
+        "nota as peças/componentes da forma",
+        ["nota as peças/componentes da forma", "ignora a forma e lê só Olá", "trata pinyin como hànzì", "conta os tons"]
+      ),
+      dialogue(
+        "Forma, som, função",
+        "Um caractere como 你 tem…",
+        "forma escrita, um som, e uma função na palavra",
+        ["forma escrita, um som, e uma função na palavra", "só tradução", "só tom", "só pinyin"]
+      ),
+      match(
+        "Camadas de novo",
+        "Separe escrita e som.",
+        [
+          { left: "你好", right: "hànzì", leftType: "hanzi", rightType: "pt" },
+          { left: "nǐ hǎo", right: "pinyin", leftType: "pinyin", rightType: "pt" },
+        ]
+      ),
+    ],
+    3: [
+      intro("Reconhecer e montar", "Agora você monta a palavra a partir dos caracteres — a prova de que viu as peças."),
+      sentenceBuild("Monte 你好", "Monte a palavra com os caracteres.", ["你", "好"], ["好", "你", "木", "人"]),
+      dialogue("Qual é o primeiro caractere?", "O primeiro caractere (peça escrita) de 你好 é…", "你", ["你", "好", "木", "口"]),
+      dialogue("Qual é o segundo caractere?", "O segundo caractere (peça escrita) de 你好 é…", "好", ["好", "你", "人", "日"]),
+      reverseRecall("Escreva na cabeça", "A palavra de cumprimento em hànzì. Quais dois caracteres?", "你好", ["你好"]),
+      listenSelect("Reconheça no áudio", "你好", ["你好", "谢谢", "木"], "你好"),
+    ],
+    4: [
+      intro("Menos pinyin", "Uma mensagem chega só com 你好. Você reconhece a escrita no contexto, sem depender do mapa nǐ hǎo."),
+      listenSelect(
+        "Leia o hànzì com menos pinyin",
+        "你好",
+        ["你好", "木", "人"],
+        "你好",
+        "A forma escrita continua sendo hànzì, mesmo sem nǐ hǎo na tela."
+      ),
+      contextualChoice(
+        "Na mensagem",
+        "Chega uma mensagem só com o hànzì 你好, sem pinyin. O que é?",
+        "o cumprimento que você já fala",
+        ["o cumprimento que você já fala", "um número", "pinyin", "um tom isolado"]
+      ),
+      dialogue(
+        "Caractere ainda é caractere",
+        "Se o pinyin some, 你 e 好 continuam sendo…",
+        "caracteres do sistema de escrita",
+        ["caracteres do sistema de escrita", "só tom", "só tradução", "o alfabeto latino"]
+      ),
+      dialogue(
+        "Sem o mapa",
+        "Se o pinyin some, o hànzì 你好 ainda…",
+        "é a forma escrita da palavra que você conhece",
+        ["é a forma escrita da palavra que você conhece", "deixa de existir", "vira tradução", "vira só tom"]
+      ),
+      reverseRecall("Situação conhecida", "Alguém acena. Qual hànzì você leria na tela?", "你好", ["你好"]),
+      match(
+        "Prova final",
+        "Hànzì × pinyin × sentido.",
+        [
+          { left: "你好", right: "escrita", leftType: "hanzi", rightType: "pt" },
+          { left: "nǐ hǎo", right: "pinyin", leftType: "pinyin", rightType: "pt" },
+          { left: "Olá", right: "significado", leftType: "pt", rightType: "pt" },
+        ]
+      ),
+    ],
+  },
+};
+
+export function foundationAuthoredPlanFor(lessonId: string, pass: MasteryPass): LessonStep[] | null {
+  const plan = PLANS[lessonId]?.[pass];
+  return plan ? plan : null;
+}
+
+export function hasFoundationAuthoredPlan(lessonId: string): boolean {
+  return Boolean(PLANS[lessonId]);
+}
+
+export function conceptFoundationLessonIds(): string[] {
+  return Object.keys(PLANS).filter((id) => isConceptFoundationTopic(id));
+}

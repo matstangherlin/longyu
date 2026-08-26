@@ -133,7 +133,7 @@ test.describe("Jornada — CTAs compactos no desktop", () => {
     const continueBox = await continueBtn.boundingBox();
     expect(continueBox).toBeTruthy();
     expect(continueBox!.height).toBeLessThan(64);
-    expect(continueBox!.width).toBeLessThan(280);
+    expect(continueBox!.width).toBeLessThan(300);
 
     const lessonId = ALL_LESSONS[0]?.id;
     await page.goto(`/licao/${lessonId}`);
@@ -144,7 +144,7 @@ test.describe("Jornada — CTAs compactos no desktop", () => {
     const reviewBox = await reviewBtn.boundingBox();
     expect(reviewBox).toBeTruthy();
     expect(reviewBox!.height).toBeLessThan(64);
-    expect(reviewBox!.width).toBeLessThan(280);
+    expect(reviewBox!.width).toBeLessThan(300);
   });
 });
 

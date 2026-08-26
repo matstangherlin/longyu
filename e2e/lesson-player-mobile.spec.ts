@@ -85,16 +85,22 @@ for (const viewport of MOBILE_VIEWPORTS) {
       await openListenSelectStep(page);
       const correct = page
         .getByRole("button", { name: /Opção \d+: nǐ hǎo$/ })
+        .or(page.getByRole("button", { name: /Opção \d+: 你好/ }))
         .or(page.getByRole("button", { name: /^Olá$/ }))
         .or(page.getByRole("button", { name: /^你好$/ }));
       await correct.first().click();
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
-      await expect(page.getByText(/Boa! \+Qi|Estrutura certa|Boa, foi esse som/i).first()).toBeVisible({
-        timeout: 10_000,
-      });
+      const feedback = page.getByText(/Boa! \+Qi|Estrutura certa|Boa, foi esse som/i).first();
+      const stickyCta = page.locator("[data-lesson-sticky-actions]").locator("button:visible").first();
+      const nextChoice = page.getByRole("button", { name: /^Opção \d+/ }).first();
+      await expect(feedback.or(stickyCta).or(nextChoice)).toBeVisible({ timeout: 10_000 });
       await assertPageScrollLocked(page);
       await assertFrameFillsViewport(page);
-      await assertPrimaryCtaInViewport(page);
+      if (await stickyCta.isVisible().catch(() => false)) {
+        await assertPrimaryCtaInViewport(page);
+      } else {
+        await expect(nextChoice).toBeVisible();
+      }
     });
 
     test("4 · feedback de erro — modal com ação acessível", async ({ page }) => {
@@ -203,7 +209,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
     test("10 · tela de vitória — sem scroll da página", async ({ page }) => {
       test.setTimeout(180_000);
       await openPlayerPro(page);
-      const victory = page.getByRole("button", { name: /Continuar Jornada|Continuar tema|Receber recompensas/i }).first();
+      const victory = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
       const deadline = Date.now() + 165_000;
       let steps = 0;
       while (!(await victory.isVisible().catch(() => false)) && Date.now() < deadline && steps < 50) {
@@ -212,7 +218,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
         if (await page.locator("[data-review-offer]").isVisible().catch(() => false)) {
           await clickFirstVisible(page, [/^Continuar$/, /^Depois$/, /^Agora não$/, /^Pular revisão/i]);
         }
-        const skipped = await clickFirstVisible(page, [/^Pular/]);
+        const skipped = await clickFirstVisible(page, [/^Pular/, /^Não posso falar agora$/]);
         if (!skipped) {
           await clickFirstVisible(page, [/^Entendi$/, /^Continuar$/, /^Verificar$/, /Certo!|\+Qi/, /^Responder$/]);
         }
@@ -227,7 +233,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
       const scroller = page.locator("[data-lesson-activity-scroll]");
       await injectLongActivityScroll(page);
       await page.getByRole("button", { name: "Entendi" }).click();
-      await expect(page.getByRole("button", { name: /你好|谢谢|我很好/ }).first()).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole("button", { name: /你好|谢谢|我很好|Não posso falar agora/ }).first()).toBeVisible({ timeout: 10_000 });
       await expect.poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 5_000 }).toBe(0);
       await assertPageScrollLocked(page);
     });

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 8043a11ab298 |
-| HEAD no instante da geração | 3d3dec570075f50599885cbf791132b80b70b40d |
+| Hash da Jornada | d8037ca644c2 |
+| HEAD no instante da geração | 94c8a9557b2928b31bbddc53f4535224acecda00 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-25T18:48:41.394Z |
+| Gerado em | 2026-08-26T02:14:46.321Z |
 | Lições | 127 |
 
 
@@ -28,9 +28,9 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 | Nós totais | 127 |
 | Temas 4-pass | 113 |
 | Exceções (review/checkpoint) | 14 |
-| Specs autoradas | 33 |
+| Specs autoradas | 38 |
 | Sessões estimadas | 466 |
-| Horas estimadas | 21.2 |
+| Horas estimadas | 21.0 |
 | Média de passos/pass | 8.3 |
 
 ## Primeira vitória (sessão + minutos)
@@ -40,9 +40,9 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Métrica | Sessão | Minutos até o início | Onde |
 |---------|------:|---------------------:|------|
 | timeToFirstInteraction | 1 | 0.0 | O que é mandarim? M1 |
-| timeToFirstConversation | 4 | 8.4 | O que é mandarim? M4 |
-| timeToFirstIndependentProduction | 3 | 5.2 | O que é mandarim? M3 |
-| timeToFirstTransfer | 4 | 8.4 | O que é mandarim? M4 |
+| timeToFirstConversation | 4 | 5.7 | O que é mandarim? M4 |
+| timeToFirstIndependentProduction | 3 | 3.8 | O que é mandarim? M3 |
+| timeToFirstTransfer | 4 | 5.7 | O que é mandarim? M4 |
 
 ## Exceções
 
@@ -74,11 +74,11 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Montando primeiros hànzì | Ver as peças dos primeiros hànzì. | Distinguir caracteres parecidos pelas peças. | Montar o caractere sem copiar um modelo completo. | Reconhecer o caractere montado numa palavra já ouvida. |
 | Laboratório de exercícios | Descobrir como cada tipo de exercício do laboratório funciona. | Distinguir ouvir × escolher × montar neste laboratório. | Completar as tarefas do laboratório com menos explicação. | Aplicar o mesmo motor a um item já conhecido. |
 | Mandarim, pinyin e tom | Descobrir os itens de Mandarim, pinyin e tom com áudio e sentido. | Reconhecer e distinguir os itens de Mandarim, pinyin e tom por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Mandarim, pinyin e tom. | Usar Mandarim, pinyin e tom numa micro-situação nova. |
-| Olá | Descobrir os itens de Olá com áudio e sentido. | Reconhecer e distinguir os itens de Olá por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Olá. | Usar Olá numa micro-situação nova. |
-| Tudo bem? | Descobrir os itens de Tudo bem? com áudio e sentido. | Reconhecer e distinguir os itens de Tudo bem? por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Tudo bem?. | Usar Tudo bem? numa micro-situação nova. |
-| Obrigado | Descobrir os itens de Obrigado com áudio e sentido. | Reconhecer e distinguir os itens de Obrigado por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Obrigado. | Usar Obrigado numa micro-situação nova. |
-| Até logo | Descobrir os itens de Até logo com áudio e sentido. | Reconhecer e distinguir os itens de Até logo por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Até logo. | Usar Até logo numa micro-situação nova. |
-| Primeira conversa | Descobrir os itens de Primeira conversa com áudio e sentido. | Reconhecer e distinguir os itens de Primeira conversa por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Primeira conversa. | Usar Primeira conversa numa micro-situação nova. |
+| Olá | Descobrir 你好 como cumprimento. | Reconhecer 你好 e 早上好 de ouvido. | Dizer ou montar o cumprimento. | Usar 你好 numa situação de encontro. |
+| Tudo bem? | Descobrir 你好吗？ e 我很好. | Distinguir cumprimento × pergunta × resposta. | Produzir a pergunta ou a resposta. | Trocar ‘tudo bem?’ numa situação nova. |
+| Obrigado | Descobrir 谢谢. | Reconhecer 谢谢 e 不客气. | Produzir o agradecimento ou a resposta. | Agradecer numa situação de ajuda. |
+| Até logo | Descobrir 再见 como despedida. | Distinguir 再见 de 你好 e 谢谢. | Produzir a despedida. | Encerrar uma conversa curta. |
+| Primeira conversa | Rever os atos da primeira conversa. | Ordenar cumprimento, pergunta e despedida. | Produzir os turnos com menos apoio. | Fechar a microconversa numa situação nova. |
 | Com licença | Descobrir os itens de Com licença com áudio e sentido. | Reconhecer e distinguir os itens de Com licença por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Com licença. | Usar Com licença numa micro-situação nova. |
 | 1º tom com ma | Ouvir a reta alta do 1º tom. | Discriminar 1º tom dos outros contornos de ma. | Identificar mā sem ver a resposta. | Reconhecer 1º tom numa palavra já usada. |
 | 2º tom com ma | Ouvir a subida do 2º tom. | Discriminar 2º × outros tons de ma. | Identificar má. | Levar o 2º tom a uma sílaba conhecida. |
@@ -106,4 +106,4 @@ Nenhum.
 
 Nenhuma.
 
-<!-- integridade:0208abf1a65f040b -->
+<!-- integridade:94ede91f30abc352 -->
