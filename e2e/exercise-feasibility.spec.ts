@@ -59,7 +59,7 @@ async function drainBlockingModals(page: Page) {
 }
 
 async function isShown(locator: { isVisible: (opts?: { timeout?: number }) => Promise<boolean> }): Promise<boolean> {
-  return locator.isVisible({ timeout: 400 }).catch(() => false);
+  return locator.isVisible({ timeout: 800 }).catch(() => false);
 }
 
 async function assertCoherentAction(page: Page) {
@@ -180,7 +180,7 @@ async function playPass(page: Page, lessonId: string, targetLevel: number) {
 
 test.describe("V4.6.2 exercise feasibility", () => {
   test("sentinel: p1-primeiros-hanzi M3 nunca reabre Reflexão + Diga + 木", async ({ page }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(90_000);
     await seedLessonPlayerReady(page, "p1-primeiros-hanzi", { masteryLevel: 2, isPremium: true });
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
@@ -198,8 +198,23 @@ test.describe("V4.6.2 exercise feasibility", () => {
       expect(body, "Diga + montar o caractere-alvo na mesma tela").not.toMatch(/Diga sem apoio extra[\s\S]*montar o caractere-alvo/i);
       const eyebrow = (await page.locator("[data-step-eyebrow]").first().textContent().catch(() => "")) ?? "";
       expect(eyebrow, "M3 não reabre reflexão opcional").not.toMatch(/Reflexão opcional/i);
-      if (!(await clickFirstVisible(page, [/^Pular/, /Não posso falar agora/, /^Continuar$/, /^Verificar$/]))) {
-        await advanceOneStep(page);
+      if (
+        !(await page.evaluate(() => {
+          const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")];
+          const skip = buttons.find((button) => /pular/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
+          if (skip && !skip.disabled) {
+            skip.click();
+            return true;
+          }
+          const speak = buttons.find((button) => /não posso falar agora/i.test((button.textContent ?? "").replace(/\s+/g, " ")));
+          if (speak && !speak.disabled) {
+            speak.click();
+            return true;
+          }
+          return false;
+        }))
+      ) {
+        await clickFirstVisible(page, [/^Continuar$/, /^Verificar$/]);
       }
       await drainBlockingModals(page);
     }

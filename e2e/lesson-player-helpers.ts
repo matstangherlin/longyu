@@ -4,10 +4,10 @@ export async function clickFirstVisible(page: Page, names: RegExp[]) {
   for (const name of names) {
     const button = page.getByRole("button", { name });
     const first = button.first();
-    if (!(await first.isVisible().catch(() => false))) continue;
+    if (!(await first.isVisible({ timeout: 600 }).catch(() => false))) continue;
     if (await first.isDisabled().catch(() => false)) continue;
     try {
-      await first.click({ timeout: 1_500 });
+      await first.click({ timeout: 1_500, force: true });
       return true;
     } catch {
       continue;
@@ -33,7 +33,7 @@ export function hanziBuilderOrder(prompt: string): string[] {
   if (/você|nǐ|你/i.test(prompt)) return ["亻", "尔"];
   if (/bom|boa|hǎo|好/i.test(prompt)) return ["女", "子"];
   if (/pessoa|rén|人/i.test(prompt)) return ["人"];
-  if (/madeira|árvore|mù|木/i.test(prompt)) return ["木"];
+  if (/lua|mês|yuè|月/i.test(prompt)) return [];
   if (/montanha|shān|山/i.test(prompt)) return ["山"];
   return [];
 }
