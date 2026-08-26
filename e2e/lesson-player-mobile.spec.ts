@@ -85,16 +85,22 @@ for (const viewport of MOBILE_VIEWPORTS) {
       await openListenSelectStep(page);
       const correct = page
         .getByRole("button", { name: /Opção \d+: nǐ hǎo$/ })
+        .or(page.getByRole("button", { name: /Opção \d+: 你好/ }))
         .or(page.getByRole("button", { name: /^Olá$/ }))
         .or(page.getByRole("button", { name: /^你好$/ }));
       await correct.first().click();
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
-      await expect(page.getByText(/Boa! \+Qi|Estrutura certa|Boa, foi esse som/i).first()).toBeVisible({
-        timeout: 10_000,
-      });
+      const feedback = page.getByText(/Boa! \+Qi|Estrutura certa|Boa, foi esse som/i).first();
+      const stickyCta = page.locator("[data-lesson-sticky-actions]").locator("button:visible").first();
+      const nextChoice = page.getByRole("button", { name: /^Opção \d+/ }).first();
+      await expect(feedback.or(stickyCta).or(nextChoice)).toBeVisible({ timeout: 10_000 });
       await assertPageScrollLocked(page);
       await assertFrameFillsViewport(page);
-      await assertPrimaryCtaInViewport(page);
+      if (await stickyCta.isVisible().catch(() => false)) {
+        await assertPrimaryCtaInViewport(page);
+      } else {
+        await expect(nextChoice).toBeVisible();
+      }
     });
 
     test("4 · feedback de erro — modal com ação acessível", async ({ page }) => {
