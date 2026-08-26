@@ -4,7 +4,12 @@ import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
   type Lesson, type Skill, type LessonState, type Unit,
 } from "../../data/journey";
-import { isJourneyTopicComplete, isTopicMasteryLesson } from "../../data/topicMastery";
+import {
+  isJourneyTopicComplete,
+  isTopicMasteryLesson,
+  consumeJourneyPassReturn,
+  peekJourneyPassReturn,
+} from "../../data/topicMastery";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
 import { reviewPendingLabel, reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
@@ -286,11 +291,26 @@ export function JourneyPage() {
   }, []);
   // Rola até a lição atual ao abrir (quando já há progresso) — jornada longa.
   // Só rola se o nó atual não estiver já visível, para evitar saltos de layout.
+  const [ringPulse, setRingPulse] = useState<{ lessonId: string; filledLevel: number } | null>(null);
   const didScroll = useRef(false);
   useEffect(() => {
-    // Cinto de segurança: se o aluno veio do player com overflow/position
-    // órfãos, a trilha fica "congelada" e não dá pra rolar até a próxima lição.
     ensurePageScrollUnlocked();
+    // Peek first so Strict Mode remounts still see the payload; consume after the pulse.
+    const returning = peekJourneyPassReturn() ?? consumeJourneyPassReturn();
+    if (returning) {
+      setRingPulse({ lessonId: returning.lessonId, filledLevel: returning.filledLevel });
+      requestAnimationFrame(() => {
+        const el =
+          document.querySelector(`[data-lesson-id="${returning.lessonId}"]`) ??
+          document.querySelector('[data-current="true"]');
+        el?.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
+      });
+      const timer = window.setTimeout(() => {
+        consumeJourneyPassReturn();
+        setRingPulse(null);
+      }, 1400);
+      return () => window.clearTimeout(timer);
+    }
     if (didScroll.current || doneCount === 0) return;
     didScroll.current = true;
     const el = document.querySelector('[data-current="true"]');
@@ -384,7 +404,8 @@ export function JourneyPage() {
                   const containsCurrent = unit.lessons.some((lesson) => lesson.id === currentId);
                   // A unidade atual fica aberta; concluídas/futuras ficam compactas
                   // (menos densidade, menos nós renderizados) até o aluno expandir.
-                  const expanded = containsCurrent || expandedUnits.has(unit.id);
+                  const containsReturn = ringPulse ? unit.lessons.some((lesson) => lesson.id === ringPulse.lessonId) : false;
+                  const expanded = containsCurrent || containsReturn || expandedUnits.has(unit.id);
                   return (
                     <div key={unit.id}>
                       <ModuleBlock
@@ -397,6 +418,7 @@ export function JourneyPage() {
                         toneTrainer={toneTrainer}
                         isPremium={isPremium}
                         currentId={currentId}
+                        ringPulse={ringPulse}
                         expanded={expanded}
                         containsCurrent={containsCurrent}
                         onToggle={() => toggleUnit(unit.id)}
@@ -734,6 +756,7 @@ function ModuleBlock({
   toneTrainer,
   isPremium,
   currentId,
+  ringPulse,
   checkpoint,
   expanded,
   containsCurrent,
@@ -757,6 +780,7 @@ function ModuleBlock({
   toneTrainer: ToneTrainerProgress;
   isPremium: boolean;
   currentId: string | undefined;
+  ringPulse: { lessonId: string; filledLevel: number } | null;
   expanded: boolean;
   containsCurrent: boolean;
   onToggle: () => void;
@@ -948,6 +972,7 @@ function ModuleBlock({
           return (
             <LessonNode
               key={lesson.id}
+              lessonId={lesson.id}
               title={lesson.isReview ? "Revisão" : lesson.title}
               skill={lesson.skill}
               state={state}
@@ -959,6 +984,9 @@ function ModuleBlock({
               stars={stars}
               stageProgress={stageProgress}
               stageTotal={stageTotal}
+              pulseSegment={
+                ringPulse && ringPulse.lessonId === lesson.id ? ringPulse.filledLevel - 1 : undefined
+              }
               offset={offsetForIndex(idx)}
               onClick={() => (state === "locked" || state === "premium" ? onLocked(lesson, state) : onOpen(lesson.id))}
             />
@@ -1140,11 +1168,13 @@ function LessonStageRing({
   total,
   color,
   locked,
+  pulseSegment,
 }: {
   value: number;
   total: number;
   color: string;
   locked: boolean;
+  pulseSegment?: number;
 }) {
   const safeTotal = Math.max(1, total);
   const safeValue = Math.max(0, Math.min(safeTotal, value));
@@ -1169,7 +1199,8 @@ function LessonStageRing({
             stroke={active ? color : inactive}
             strokeLinecap="round"
             strokeOpacity={active ? 0.92 : 0.72}
-            strokeWidth="4"
+            strokeWidth={index === pulseSegment ? 6 : 4}
+            className={index === pulseSegment ? "topic-ring-segment-pulse" : undefined}
             strokeDasharray={`${dash} ${circumference - dash}`}
             strokeDashoffset={-index * step}
           />
@@ -1180,6 +1211,7 @@ function LessonStageRing({
 }
 
 function LessonNode({
+  lessonId,
   title,
   skill,
   state,
@@ -1191,9 +1223,11 @@ function LessonNode({
   stars,
   stageProgress,
   stageTotal,
+  pulseSegment,
   offset,
   onClick,
 }: {
+  lessonId: string;
   title: string;
   skill: Skill;
   state: LessonState;
@@ -1205,6 +1239,7 @@ function LessonNode({
   stars: number;
   stageProgress: number;
   stageTotal: number;
+  pulseSegment?: number;
   offset: number;
   onClick: () => void;
 }) {
@@ -1243,10 +1278,17 @@ function LessonNode({
         {isCurrent && (
           <span className="absolute inset-0 animate-pulse rounded-full bg-accent/15 motion-reduce:animate-none" aria-hidden />
         )}
-        <LessonStageRing value={safeStageProgress} total={safeStageTotal} color={bg ?? "rgb(var(--accent))"} locked={locked} />
+        <LessonStageRing
+          value={safeStageProgress}
+          total={safeStageTotal}
+          color={bg ?? "rgb(var(--accent))"}
+          locked={locked}
+          pulseSegment={pulseSegment}
+        />
         <button
           onClick={onClick}
           aria-label={`${title}${safeStageTotal === 4 ? ` · ${safeStageProgress} de 4` : ""}`}
+          data-lesson-id={lessonId}
           data-topic-progress={safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined}
           aria-disabled={locked}
           aria-current={isCurrent ? "step" : undefined}

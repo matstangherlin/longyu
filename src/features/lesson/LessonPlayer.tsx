@@ -113,6 +113,8 @@ import {
   lessonPassPracticeXpRewardId,
   lessonPassXpRewardId,
   lessonTopicMasteredXpRewardId,
+  markJourneyPassReturn,
+  topicPassVictoryCopy,
 } from "../../data/topicMastery";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -1723,9 +1725,9 @@ function buildNextFocus({
   if (topicContinue) {
     return {
       title: `Lição ${topicContinue.nextPass} de 4 · ${MASTERY_PASS_LABELS[topicContinue.nextPass]}`,
-      desc: `Continue "${topicContinue.title}". O próximo tema só libera em 4/4.`,
+      desc: `Volte à Jornada e toque em "${topicContinue.title}" quando quiser a próxima lição. O próximo tema só libera em 4/4.`,
       to: "/jornada",
-      cta: "Continuar tema",
+      cta: "Ver na Jornada",
     };
   }
   if (nextLessonTitle) {
@@ -3516,6 +3518,10 @@ export function LessonPlayer() {
           allowSkipAhead: !topicNode,
           commitPass: topicNode,
         });
+        if (topicNode) {
+          const filled = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? recordedPass;
+          markJourneyPassReturn(lesson.id, filled);
+        }
       }
       // Rodada perfeita: chance de recarregar Fôlego (nem sempre; teto diário).
       if (stars === 3 && folegoSkips === 0 && !hadRealMistakes) {
@@ -3624,6 +3630,11 @@ export function LessonPlayer() {
       (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
     ).length;
     const masteryNow = lessonMasteryById?.[lesson.id]?.level ?? 0;
+    const topicVictory =
+      passed && isTopicMasteryLesson(lesson) && masteryNow >= 1
+        ? topicPassVictoryCopy(Math.min(4, masteryNow) as 1 | 2 | 3 | 4)
+        : null;
+    const journeyCta = isTopicMasteryLesson(lesson) ? "Voltar à Jornada" : "Continuar Jornada";
     const topicContinue =
       isTopicMasteryLesson(lesson) && masteryNow < 4
         ? { title: lesson.title, nextPass: Math.min(4, masteryNow + 1) as 1 | 2 | 3 | 4 }
@@ -4015,15 +4026,11 @@ export function LessonPlayer() {
       else navigate("/jornada");
     }
 
-    // Botão principal: 1º toque resgata (se houver), depois segue a jornada.
+    // Botão principal: 1º toque resgata (se houver), depois volta à Jornada.
+    // V4.6.1: nunca inicia a próxima pass automaticamente.
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
-        return;
-      }
-      const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
-      if (passed && isTopicMasteryLesson(lesson) && levelNow < 4) {
-        retryLesson({ newPass: true });
         return;
       }
       continueJourney();
@@ -4135,9 +4142,24 @@ export function LessonPlayer() {
             ))}
           </div>
           <h1 className="mt-1 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {stars === 3 ? "Lição concluída!" : "Você avançou!"}
+            {topicVictory ? `✓ ${topicVictory.heading}` : stars === 3 ? "Lição concluída!" : "Você avançou!"}
           </h1>
-          <p className="mx-auto mt-0.5 text-xs text-ink-soft sm:text-sm">{victoryTitle}</p>
+          {topicVictory ? (
+            <div className="mx-auto mt-1 max-w-md" data-testid="topic-victory-copy">
+              <p className="text-sm font-semibold text-ink">{lesson.title}</p>
+              <p className="mt-0.5 text-xs text-ink-soft sm:text-sm" data-testid="topic-victory-lesson">
+                {topicVictory.lessonLine}
+                {!topicVictory.mastered && masteryNow >= 1 && masteryNow <= 4
+                  ? ` · ${MASTERY_PASS_LABELS[masteryNow as 1 | 2 | 3 | 4]}`
+                  : ""}
+              </p>
+              <p className="mt-1 text-sm font-medium text-accent" data-testid="topic-victory-remaining">
+                {topicVictory.remainingLine}
+              </p>
+            </div>
+          ) : (
+            <p className="mx-auto mt-0.5 text-xs text-ink-soft sm:text-sm">{victoryTitle}</p>
+          )}
 
           <div className="mt-2 flex items-center justify-center gap-1.5">
             {[1, 2, 3].map((n) => (
@@ -4217,7 +4239,7 @@ export function LessonPlayer() {
               <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
-            {nextFocus.cta === "Continuar tema" ? (
+            {nextFocus.cta === "Ver na Jornada" ? (
               <ButtonLink to="/jornada" variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
                 Ver na Jornada <IconChevron width={15} height={15} />
               </ButtonLink>
@@ -4230,7 +4252,7 @@ export function LessonPlayer() {
 
           {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
           <div className="mt-2.5 grid gap-1.5 text-left">
-            <CollapsibleInfoCard title="Ver detalhes" compactLabel={`~${estimatedMinutes} min`}>
+            <CollapsibleInfoCard title="Rever resultados" compactLabel={`~${estimatedMinutes} min`}>
               <div className="grid grid-cols-3 gap-2">
                 {topSummaryStats.map((item) => (
                   <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
@@ -4357,10 +4379,10 @@ export function LessonPlayer() {
             <Button
               className="w-full shadow-lift"
               size="lg"
-              data-testid={topicContinue ? "continue-topic-pass" : undefined}
+              data-testid="topic-victory-return"
               onClick={handlePrimaryAction}
             >
-              {hasUnclaimedRewards ? "Receber recompensas" : topicContinue ? "Continuar tema" : "Continuar Jornada"}
+              {hasUnclaimedRewards ? "Receber recompensas" : journeyCta}
               <IconChevron width={18} height={18} />
             </Button>
           </div>

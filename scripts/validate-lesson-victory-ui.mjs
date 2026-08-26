@@ -13,6 +13,7 @@ requireMatch('max-w-xl na vitória', /max-w-xl flex-col/);
 requireMatch('chips de métricas', /MetricChip value=\{`\+\$\{lessonXp\}`\}/);
 requireMatch('botão Receber recompensas', /Receber recompensas/);
 requireMatch('botão Continuar Jornada', /Continuar Jornada/);
+requireMatch('botão Voltar à Jornada (tema)', /Voltar à Jornada/);
 requireMatch('recompensas inline', /recompensas recebidas/);
 requireMatch('accordions fechados por padrão', /defaultOpen=\{false\}/);
 
