@@ -211,10 +211,10 @@ test.describe("beta smoke — fluxos públicos", () => {
     await expect(page.getByRole("link", { name: /Já tenho uma conta/i })).toBeVisible();
   });
 
-  test("cadastro: /conta inicia onboarding / teste de nível", async ({ page }) => {
-    await page.goto("/conta");
+  test("cadastro: /comecar inicia onboarding / teste de nível", async ({ page }) => {
+    await page.goto("/comecar");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
-    await expect(page.getByText(/nível|jornada|conta/i).first()).toBeVisible();
+    await expect(page.getByText(/ponto de partida|jornada|conta/i).first()).toBeVisible();
   });
 
   test("login: formulário e atalho de recuperação", async ({ page }) => {

@@ -60,6 +60,13 @@ export async function seedTelemetryDeclined(page: Page) {
   });
 }
 
+/** Pedagogy e2e: marca sessão local seeded. Production ignora este marker. */
+export async function allowE2ELocalSession(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem("longyu:e2e-allow-local", "1");
+  });
+}
+
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });
@@ -143,6 +150,7 @@ export async function clickStable(page: Page, name: RegExp, retries = 4) {
 
 export async function seedOnboardedSession(page: Page, completedLessons: string[] = ["l1"]) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
@@ -159,6 +167,7 @@ export async function seedOnboardedSession(page: Page, completedLessons: string[
 /** Sessão onboarded com estado extra (missões, baús, Pro). */
 export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
@@ -172,6 +181,7 @@ export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
 /** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
 export async function seedFoundationThrough(page: Page, throughLessonId: string) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   const foundation = [
     "p1-o-que-e-mandarim",
     "p1-o-que-e-pinyin",
@@ -221,6 +231,7 @@ export async function seedLessonPlayerReady(
   options: { masteryLevel?: number; isPremium?: boolean; folego?: number } = {}
 ) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   const foundation = [
     "p1-o-que-e-mandarim",
     "p1-o-que-e-pinyin",
@@ -260,6 +271,7 @@ export async function seedFreshJourneySession(
   options: { isPremium?: boolean; points?: number; holdAchievementModals?: boolean } = {}
 ) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
     // Só na primeira navegação do contexto. Regravar apagaria o progresso
     // da L1 quando o teste abre a L2 na mesma conta nova.
@@ -280,6 +292,7 @@ export async function seedFreshJourneySession(
 /** Liga em modo demo com XP semanal local (conta não-cloud). */
 export async function seedLeagueDemoSession(page: Page, weeklyXp = 15) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   const week = isoWeekKey();
   await page.addInitScript((payload: string) => {
     localStorage.setItem("longyu-v1", payload);
@@ -303,6 +316,7 @@ export async function seedLessonRecoverySession(
   const isPremium = options.isPremium ?? true;
 
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript(
     ({ payload }: { payload: string }) => {
       localStorage.setItem("longyu-v1", payload);
@@ -394,6 +408,7 @@ export async function seedPendingStarRecoverySession(
   };
 
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript(
     ({ payload }: { payload: string }) => {
       localStorage.setItem("longyu-v1", payload);
@@ -433,4 +448,34 @@ export async function seedPendingStarRecoverySession(
       }),
     }
   );
+}
+
+/** TEST-034: conta local antiga com progresso, SEM bypass e2e. */
+export async function seedLegacyLocalProgress(page: Page) {
+  await seedTelemetryDeclined(page);
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+    localStorage.removeItem("longyu:e2e-allow-local");
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons: ["p1-o-que-e-mandarim", "p1-o-que-e-pinyin"],
+    xpTotal: 40,
+    points: 20,
+    streak: 3,
+    lastActive: new Date().toISOString().slice(0, 10),
+    accounts: {
+      local: {
+        id: "local",
+        name: "Aluno legado",
+        authMode: "local",
+        createdAt: Date.now() - 86_400_000,
+        updatedAt: Date.now() - 3_600_000,
+        completedLessons: ["p1-o-que-e-mandarim", "p1-o-que-e-pinyin"],
+        xpTotal: 40,
+        points: 20,
+        streak: 3,
+      },
+    },
+    currentAccountId: "local",
+  }));
 }

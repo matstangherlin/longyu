@@ -40,3 +40,7 @@ verify_jwt = false
 # Formulário público Longyu for Business (validação + rate limit no servidor).
 [functions.submit-business-lead]
 verify_jwt = false
+
+# Nivelamento: JWT obrigatório; o handler recalcula e persiste via service_role.
+[functions.commit-placement]
+verify_jwt = true

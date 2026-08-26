@@ -1714,12 +1714,12 @@ export function LessonPlayer() {
   const completeLesson = useStore((s) => s.completeLesson);
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
-  const itemDimensionsByRef = useStore((s) => s.itemDimensionsByRef);
+  useStore((s) => s.itemDimensionsByRef);
   const addChest = useStore((s) => s.addChest);
   const completedLessons = useStore((s) => s.completedLessons);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const learnedChars = useStore((s) => s.learnedChars);
-  const hanziBuilderProgress = useStore((s) => s.hanziBuilderProgressByChar);
+  useStore((s) => s.hanziBuilderProgressByChar);
   // Pro efetivo (assinatura real OU preview local) — nunca só o preview.
   const isPremium = useIsPro();
   const toneTrainer = useStore((s) => s.toneTrainer);
@@ -1749,7 +1749,7 @@ export function LessonPlayer() {
   const setLessonTaskProgress = useStore((s) => s.setLessonTaskProgress);
   const lessonSessionStepById = useStore((s) => s.lessonSessionStepById);
   const setLessonSessionStep = useStore((s) => s.setLessonSessionStep);
-  const recentConversationSceneIds = useStore((s) => s.recentConversationSceneIds);
+  useStore((s) => s.recentConversationSceneIds);
   // VAR-015 — o que o aluno acabou de fazer em qualquer modo semeia a variedade.
   const recentActivities = useStore((s) => s.recentActivities);
   const recordActivityPlayed = useStore((s) => s.recordActivityPlayed);
@@ -1765,7 +1765,7 @@ export function LessonPlayer() {
   if (foundLesson && frozenActivitiesRef.current?.lessonId !== foundLesson.id) {
     frozenActivitiesRef.current = { lessonId: foundLesson.id, history: recentActivities };
   }
-  const recentConversationIntentIds = useStore((s) => s.recentConversationIntentIds);
+  useStore((s) => s.recentConversationIntentIds);
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
   const consumeCharge = useStore((s) => s.consumeCharge);
@@ -1781,8 +1781,8 @@ export function LessonPlayer() {
   const setHoldAchievementModals = useStore((s) => s.setHoldAchievementModals);
   const recordLessonMistake = useStore((s) => s.recordLessonMistake);
   const markMistakeRecovered = useStore((s) => s.markMistakeRecovered);
-  const recentActivityErrors = useStore((s) => s.recentActivityErrors);
-  const srs = useStore((s) => s.srs);
+  useStore((s) => s.recentActivityErrors);
+  useStore((s) => s.srs);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const lessonAttemptsById = useStore((s) => s.lessonAttemptsById);
   const missionAggregates = useStore((s) => s.getMissionAggregates());
@@ -1898,6 +1898,8 @@ export function LessonPlayer() {
 
   const [adaptiveSteps, setAdaptiveSteps] = useState<LessonStep[] | null>(null);
   const [planReady, setPlanReady] = useState(false);
+  const authoredStepsRef = useRef<LessonStep[] | null>(null);
+  authoredStepsRef.current = authoredEnrichedSteps;
   /**
    * Bumpeado só quando a sessão precisa de um plano NOVO (troca de lição ou
    * "Tentar de novo" após terminar). Não sobe a cada resposta.
@@ -1963,51 +1965,56 @@ export function LessonPlayer() {
       }
     }
 
-    // Fast path: first paint uses authored enriched steps (or loading until set).
-    setAdaptiveSteps(authoredEnrichedSteps);
-    setPlanReady(false);
+    // Libera o player na hora com os passos autorais. O plano adaptativo só
+    // substitui se o aluno ainda está no passo 0 — nunca debaixo da resposta.
+    const authored = authoredEnrichedSteps;
+    setAdaptiveSteps(authored);
+    setPlanReady(true);
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
     const nonceAtStart = planNonce;
     const lessonIdAtStart = foundLesson.id;
-    // PERF-011 — `startTransition` não tira trabalho síncrono da main thread:
-    // ele só marca a atualização como não urgente. Chegamos a adiar o planner
-    // por dois quadros para garantir o paint do shell antes do cálculo, mas
-    // isso ALARGAVA a janela em que o player ainda serve os passos autorais —
-    // e o plano adaptativo passava a trocar debaixo de quem já estava
-    // respondendo. Com o índice pré-computado o planner caiu para ~80–160 ms e
-    // roda depois do primeiro render (o shell autoral já foi pintado acima),
-    // então o adiamento extra custava mais do que entregava.
     const runPlanner = () => {
       if (gen !== planGenRef.current) return;
       startTransition(() => {
       if (gen !== planGenRef.current) return;
-      const liveMastery = useStore.getState().lessonMasteryById?.[foundLesson.id];
-      const masteryRecord = liveMastery ?? lessonMasteryById?.[foundLesson.id];
-      const planned = lessonRoundStepsFor(
-        { ...foundLesson, steps: authoredEnrichedSteps },
-        {
-          completedLessons,
-          learnedChunks,
-          learnedChars,
-          hanziBuilderProgress,
-          recentErrors: recentActivityErrors.filter((error) => !error.correctedAt),
-          srs,
-          recentActivities: frozenActivitiesRef.current?.history,
-          recentConversationSceneIds,
-          recentConversationIntentIds,
-          conversationHistory,
-          attemptNumber: lessonAttemptsById[foundLesson.id]?.length ?? 0,
-          masteryLevel: masteryRecord?.level ?? 0,
-          recoveryPending: masteryRecord?.recoveryPending,
-          itemDimensionsByRef,
-        }
-      );
+      let planned = authored;
+      try {
+        const live = useStore.getState();
+        const liveMastery = live.lessonMasteryById?.[foundLesson.id];
+        const masteryRecord = liveMastery ?? lessonMasteryById?.[foundLesson.id];
+        planned = lessonRoundStepsFor(
+          { ...foundLesson, steps: authored },
+          {
+            completedLessons: live.completedLessons,
+            learnedChunks: live.learnedChunks,
+            learnedChars: live.learnedChars,
+            hanziBuilderProgress: live.hanziBuilderProgressByChar,
+            recentErrors: (live.recentActivityErrors ?? []).filter((error) => !error.correctedAt),
+            srs: live.srs,
+            recentActivities: frozenActivitiesRef.current?.history,
+            recentConversationSceneIds: live.recentConversationSceneIds,
+            recentConversationIntentIds: live.recentConversationIntentIds,
+            conversationHistory: live.conversationHistory,
+            attemptNumber: live.lessonAttemptsById[foundLesson.id]?.length ?? 0,
+            masteryLevel: masteryRecord?.level ?? 0,
+            recoveryPending: masteryRecord?.recoveryPending,
+            itemDimensionsByRef: live.itemDimensionsByRef,
+          }
+        );
+      } catch {
+        planned = authored;
+      }
       if (gen !== planGenRef.current) return;
+      if (idxRef.current > 0) return;
+      const liveMasteryLevel =
+        useStore.getState().lessonMasteryById?.[foundLesson.id]?.level ??
+        lessonMasteryById?.[foundLesson.id]?.level ??
+        0;
       sessionPlanRef.current = {
         lessonId: lessonIdAtStart,
         nonce: nonceAtStart,
-        masteryLevel: masteryRecord?.level ?? 0,
+        masteryLevel: liveMasteryLevel,
         steps: planned,
       };
       setAdaptiveSteps(planned);
@@ -2024,20 +2031,9 @@ export function LessonPlayer() {
     };
   }, [
     authoredEnrichedSteps,
-    completedLessons,
-    conversationHistory,
     foundLesson,
-    hanziBuilderProgress,
-    itemDimensionsByRef,
-    learnedChars,
-    learnedChunks,
-    lessonAttemptsById,
     lessonMasteryById,
     planNonce,
-    recentActivityErrors,
-    recentConversationIntentIds,
-    recentConversationSceneIds,
-    srs,
     storeHydrated,
     finished,
   ]);
@@ -2128,6 +2124,17 @@ export function LessonPlayer() {
       route: `/licao/${foundLesson.id}/player`,
     });
   }, [consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
+
+  useEffect(() => {
+    if (planReady) return undefined;
+    const authored = authoredStepsRef.current;
+    if (!authored?.length) return undefined;
+    const timer = window.setTimeout(() => {
+      setAdaptiveSteps((current) => current ?? authored);
+      setPlanReady(true);
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [planReady]);
 
   useEffect(() => {
     if (!entryChecked || finished || energyBlocked) return undefined;

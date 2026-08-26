@@ -10,5 +10,5 @@ export function ReferralInvitePage() {
     if (code) storeReferralCode(code);
   }, [code]);
 
-  return <Navigate to="/conta" replace />;
+  return <Navigate to="/comecar" replace />;
 }

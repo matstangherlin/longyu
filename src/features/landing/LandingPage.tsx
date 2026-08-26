@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { captureReferralFromSearch } from "../../lib/referralCapture";
+import { resolveSessionAudience, type SessionAudience } from "../../lib/auth/sessionAudience";
 import { ButtonLink } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
@@ -23,9 +24,7 @@ export function LandingPage() {
   const [searchParams] = useSearchParams();
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
-  const accountSetupComplete = useStore((s) => s.accountSetupComplete);
-  const hasProgress = useStore((s) => s.completedLessons.length > 0);
-  const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
+  const [audience, setAudience] = useState<SessionAudience | null>(null);
   const isDark = theme === "dark";
 
   // A landing vive fora do AppShell, então aplica o tema por conta própria.
@@ -37,8 +36,24 @@ export function LandingPage() {
     captureReferralFromSearch(searchParams.toString());
   }, [searchParams]);
 
-  if (accountSetupComplete || hasProgress || authMode === "cloud") {
+  useEffect(() => {
+    let cancelled = false;
+    void resolveSessionAudience().then((next) => {
+      if (!cancelled) setAudience(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!audience) {
+    return <div className="min-h-dvh bg-bg" aria-hidden="true" />;
+  }
+  if (audience === "cloud" || audience === "seeded") {
     return <Navigate to="/jornada" replace />;
+  }
+  if (audience === "legacy") {
+    return <Navigate to="/salvar-progresso" replace />;
   }
 
   return (
@@ -145,7 +160,7 @@ export function LandingPage() {
             </ul>
 
             <div className="mx-auto mt-5 grid max-w-lg gap-2.5 lg:mx-0">
-              <ButtonLink to="/conta" size="lg" className="w-full shadow-lift">
+              <ButtonLink to="/comecar" size="lg" className="w-full shadow-lift">
                 Começar agora <IconChevron width={18} height={18} />
               </ButtonLink>
               <ButtonLink to="/login" variant="outline" size="lg" className="w-full">
@@ -154,7 +169,7 @@ export function LandingPage() {
             </div>
 
             <p className="mt-2.5 text-[11px] leading-4 text-ink-faint sm:text-xs">
-              Sem cartão de crédito. Seu progresso pode ser salvo na nuvem.
+              Sem cartão de crédito. Seu progresso fica salvo na sua conta.
             </p>
           </section>
         </div>

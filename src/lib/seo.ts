@@ -153,6 +153,7 @@ const NOINDEX_PREFIXES = [
   "/esqueci-senha",
   "/redefinir-senha",
   "/confirmar-email",
+  "/comecar",
   "/perfil",
   "/conta",
   "/dados-locais",

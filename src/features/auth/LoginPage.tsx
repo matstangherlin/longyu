@@ -2,36 +2,32 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { Mascot } from "../../components/brand/Mascot";
-import { Button, Card, Pill } from "../../components/ui/primitives";
+import { Card, Pill } from "../../components/ui/primitives";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
-import { resolvePostAuthPath, subscribeAccountPath } from "../../lib/subscribeAuthRedirect";
+import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
+import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { confirmEmailPath } from "../../lib/authRedirect";
 import { useStore } from "../../lib/store";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
-
-function accountAuthMode(account?: { authMode?: string; email?: string }) {
-  return account?.authMode ?? (account?.email ? "cloud_pending" : "local");
-}
+import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const postAuthPath = resolvePostAuthPath(searchParams);
   const createAccountHref = (() => {
-    if (searchParams.get("intent") === "subscribe" || searchParams.get("next")) {
-      const params = new URLSearchParams({ intent: "subscribe", next: postAuthPath });
-      const plan = searchParams.get("plan");
-      if (plan) params.set("plan", plan);
-      return `/conta?${params.toString()}`;
-    }
-    return "/conta";
+    const params = new URLSearchParams();
+    if (searchParams.get("intent") === "subscribe") params.set("intent", "subscribe");
+    if (searchParams.get("next")) params.set("next", postAuthPath);
+    if (searchParams.get("plan")) params.set("plan", searchParams.get("plan") ?? "");
+    if (searchParams.get("migrate")) params.set("migrate", "1");
+    const query = params.toString();
+    return query ? `/comecar?${query}` : "/comecar";
   })();
   const { signIn } = useCloudSignIn();
   const activeAccount = useStore((s) => s.accounts[s.currentAccountId]);
   const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
-  const createAccount = useStore((s) => s.createAccount);
-  const authMode = accountAuthMode(activeAccount);
 
   const [email, setEmail] = useState(activeAccount?.email ?? "");
   const [password, setPassword] = useState("");
@@ -46,17 +42,17 @@ export function LoginPage() {
 
   useEffect(() => {
     if (!cloudEnabled) return;
-    if (authMode === "cloud") {
-      navigate(postAuthPath, { replace: true });
-      return;
-    }
-    void restoreCloudSessionIfPresent().then((result) => {
-      if (result.ok) {
-        setAccountSetupComplete(true);
-        navigate(postAuthPath, { replace: true });
+    void restoreCloudSessionIfPresent().then(async (result) => {
+      if (!result.ok) return;
+      const onboard = await completeAuthenticatedOnboarding();
+      if (!onboard.ok) {
+        setError(onboard.message);
+        return;
       }
+      setAccountSetupComplete(true);
+      navigate(postAuthPath, { replace: true });
     });
-  }, [authMode, cloudEnabled, navigate, postAuthPath, setAccountSetupComplete]);
+  }, [cloudEnabled, navigate, postAuthPath, setAccountSetupComplete]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,19 +62,25 @@ export function LoginPage() {
     setEmail(formEmail);
     setPassword(formPassword);
     if (!cloudEnabled) {
-      setError("Backend em nuvem não está ativo neste ambiente.");
+      setError(BACKEND_UNAVAILABLE_MESSAGE);
       return;
     }
     setLoading(true);
     setError(null);
     const result = await signIn(formEmail, formPassword);
-    setLoading(false);
     if (!result.ok) {
+      setLoading(false);
       if (result.pendingConfirmation) {
         navigate(confirmEmailPath(formEmail), { replace: true });
         return;
       }
       setError(result.message);
+      return;
+    }
+    const onboard = await completeAuthenticatedOnboarding();
+    setLoading(false);
+    if (!onboard.ok) {
+      setError(onboard.message);
       return;
     }
     navigate(postAuthPath, { replace: true });
@@ -89,8 +91,10 @@ export function LoginPage() {
       <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <Mascot size={96} variant="wave" />
         <h1 className="font-serif text-2xl font-semibold text-ink">Login indisponível</h1>
-        <p className="text-sm text-ink-soft">O backend em nuvem não está configurado neste ambiente.</p>
-        <Button onClick={() => navigate("/conta")}>Continuar no app</Button>
+        <p className="text-sm text-ink-soft">{BACKEND_UNAVAILABLE_MESSAGE}</p>
+        <Link to="/comecar" className="font-semibold text-accent hover:underline">
+          Voltar ao início
+        </Link>
       </div>
     );
   }
@@ -136,16 +140,6 @@ export function LoginPage() {
             Criar conta
           </Link>
         </p>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            createAccount(activeAccount?.name?.trim() || "Aluno Longyu");
-            navigate(postAuthPath === "/pro" ? subscribeAccountPath() : "/jornada", { replace: true });
-          }}
-        >
-          Continuar sem login
-        </Button>
       </div>
     </div>
   );

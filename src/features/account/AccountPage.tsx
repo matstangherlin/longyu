@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { DOMAIN_META, type DomainTrack } from "../../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS, JOURNEY, type Lesson } from "../../data/journey";
 import { charById } from "../../data/characters";
@@ -2093,6 +2093,12 @@ export function AccountPage() {
   }
 
   if (!accountSetupComplete) {
+    // V4.7: o funil anônimo vive em /comecar. O wizard abaixo permanece para
+    // typecheck/relevel helpers, mas não é alcançável no fluxo novo.
+    let usePublicOnboarding = true;
+    if (usePublicOnboarding) {
+      return <Navigate to="/comecar" replace />;
+    }
     return (
       <OnboardingShell
         step={step}
@@ -4269,7 +4275,6 @@ function OptionalAccountStep({
   onMarketingOptIn,
   onSignupSource,
   onSubmit,
-  onSkip,
   disabled,
 }: {
   name: string;
@@ -4391,18 +4396,13 @@ function OptionalAccountStep({
         </p>
         {(email || password || passwordConfirm) && !canCreate && (
           <p className="mt-2 text-xs font-medium text-ink-faint">
-            {cloudBackend
-              ? "Use um email válido e uma senha com pelo menos 6 caracteres. Para seguir sem conta, toque em “Deixar para depois”."
-              : "Para preparar conta agora, use um email válido e uma senha com pelo menos 6 caracteres. Para seguir sem isso, toque em “Deixar para depois”."}
+            Use um email válido e uma senha com pelo menos 6 caracteres.
           </p>
         )}
         {error && <p className="mt-3 rounded-xl bg-wrong-soft px-3 py-2 text-sm font-medium text-wrong">{error}</p>}
 
         <Button type="submit" size="lg" disabled={disabled || !canCreate} className="mt-5 w-full">
-          {disabled ? "Criando conta..." : cloudBackend ? "Criar conta" : "Preparar conta (mock local)"}
-        </Button>
-        <Button type="button" size="lg" variant="outline" disabled={disabled} onClick={onSkip} className="mt-3 w-full">
-          {disabled ? "Preparando sua jornada..." : "Deixar para depois"}
+          {disabled ? "Criando conta..." : "Criar conta"}
         </Button>
       </form>
     </div>

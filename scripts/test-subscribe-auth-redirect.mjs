@@ -21,7 +21,7 @@ function resolvePostAuthPath(searchParams, fallback = "/jornada") {
 function subscribeAccountPath(plan) {
   const params = new URLSearchParams({ intent: "subscribe", next: "/pro" });
   if (plan) params.set("plan", plan);
-  return `/conta?${params.toString()}`;
+  return `/comecar?${params.toString()}`;
 }
 
 let failed = 0;
@@ -40,7 +40,7 @@ console.log("== test:subscribe-auth-redirect ==");
 
 check("subscribeAccountPath inclui intent e next", () => {
   const url = subscribeAccountPath("pro_annual");
-  assert.equal(url, "/conta?intent=subscribe&next=%2Fpro&plan=pro_annual");
+  assert.equal(url, "/comecar?intent=subscribe&next=%2Fpro&plan=pro_annual");
 });
 
 check("resolvePostAuthPath honra next seguro", () => {
@@ -72,10 +72,10 @@ check("subscriptionService expõe auth_required", () => {
   assert.match(src, /auth_required/);
 });
 
-check("ContaRoute abre AccountPage para subscribe sem cloud", () => {
+check("ContaRoute redireciona onboarding anônimo para /comecar", () => {
   const src = readFileSync(path.join(root, "src/features/conta/ContaRoute.tsx"), "utf8");
-  assert.match(src, /needsAccountForSubscribe/);
-  assert.match(src, /isSubscribeIntent/);
+  assert.match(src, /\/comecar/);
+  assert.match(src, /relevelRequested/);
 });
 
 if (failed > 0) {

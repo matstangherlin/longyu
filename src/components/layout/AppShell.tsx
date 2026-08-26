@@ -1,5 +1,5 @@
 import { useEffect, Suspense } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { PageFallback } from "../system/PageFallback";
 import { warmUpVoices, installTTSGestureUnlock } from "../../lib/tts";
@@ -26,19 +26,7 @@ export function AppShell() {
   const theme = useStore((s) => s.theme);
   const registerActivity = useStore((s) => s.registerActivity);
   const reconcileStreak = useStore((s) => s.reconcileStreak);
-  const accountSetupComplete = useStore((s) => s.accountSetupComplete);
-  const completedLessons = useStore((s) => s.completedLessons);
   const location = useLocation();
-  const navigate = useNavigate();
-  const isAuthPage =
-    location.pathname === "/login" ||
-    location.pathname === "/esqueci-senha" ||
-    location.pathname === "/redefinir-senha" ||
-    location.pathname === "/confirmar-email";
-  const isOnboarding = location.pathname === "/conta" && !accountSetupComplete;
-  const isAdminRoute = location.pathname.startsWith("/admin");
-  // Modo foco: durante lição e desafio o app esconde TopBar (mobile) e TabBar
-  // para liberar espaço vertical — nada compete com o exercício.
   const isLessonPlayer = /^\/licao\/[^/]+\/player$/.test(location.pathname);
   const focusMode = isLessonPlayer || location.pathname.startsWith("/teste/");
 
@@ -60,36 +48,6 @@ export function AppShell() {
     markSessionStart();
     return removeTTSUnlock;
   }, [registerActivity, reconcileStreak]);
-
-  // Usuário sem conta/progresso em página interna volta para a landing "/",
-  // que dá contexto antes do onboarding (/conta continua acessível direto).
-  // Páginas públicas (privacidade, sobre) ficam acessíveis sem conta — SEO/legal.
-  useEffect(() => {
-    const publicGuestPaths = new Set([
-      "/conta",
-      "/login",
-      "/esqueci-senha",
-      "/redefinir-senha",
-      "/confirmar-email",
-      "/pro",
-      "/privacidade",
-      "/sobre",
-    ]);
-    if (
-      !accountSetupComplete &&
-      completedLessons.length === 0 &&
-      !publicGuestPaths.has(location.pathname) &&
-      !(isAdminRoute)
-    ) {
-      navigate("/", { replace: true });
-    }
-  }, [
-    accountSetupComplete,
-    completedLessons.length,
-    location.pathname,
-    navigate,
-    isAdminRoute,
-  ]);
 
   // Rola para o topo ao trocar de rota.
   useEffect(() => {
@@ -114,24 +72,6 @@ export function AppShell() {
       ensurePageScrollUnlocked();
     };
   }, [isLessonPlayer]);
-
-  if (isOnboarding || isAuthPage) {
-    return (
-      <>
-        <div className="theme-transition min-h-screen overflow-x-clip bg-bg px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6">
-          <ErrorBoundary resetKey={location.pathname} area="auth">
-            <Suspense fallback={<PageFallback />}>
-              <Outlet />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-        <AuthBootstrap />
-        <CloudSyncBootstrap />
-        <EntitlementBootstrap />
-        <TelemetryConsentBootstrap />
-      </>
-    );
-  }
 
   return (
     <div

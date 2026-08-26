@@ -33,6 +33,7 @@ const migrations = [
   "supabase/seed/test-account.sql",
   "supabase/migrations/20260825043000_business_foundation.sql",
   "supabase/migrations/20260825062000_business_operational_hardening.sql",
+  "supabase/migrations/20260826230000_placement_onboarding.sql",
 ];
 const functions = [
   "supabase/functions/create-checkout-session/index.ts",
@@ -41,6 +42,7 @@ const functions = [
   "supabase/functions/delete-account/index.ts",
   "supabase/functions/issue-anon-ingestion-session/index.ts",
   "supabase/functions/submit-business-lead/index.ts",
+  "supabase/functions/commit-placement/index.ts",
 ];
 
 for (const migration of migrations) requirePath(migration, "migration");

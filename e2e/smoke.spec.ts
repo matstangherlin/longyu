@@ -69,10 +69,10 @@ test.describe("smoke", () => {
     await expect(mascot.locator('img[src="/longyu-hand-wave.png"]')).toHaveCount(0);
   });
 
-  test("landing: Começar agora vai para /conta", async ({ page }) => {
+  test("landing: Começar agora vai para /comecar", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: /Começar agora/i }).click();
-    await page.waitForURL("**/conta");
+    await page.waitForURL("**/comecar");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
   });
 
@@ -117,6 +117,7 @@ test.describe("smoke", () => {
 
   test("rota de conta responde", async ({ page }) => {
     await page.goto("/conta");
+    await page.waitForURL(/\/comecar/);
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
   });
 });

@@ -7,6 +7,21 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7 — Cloud-First Onboarding + Placement 2.0
+
+Novo aluno entra com conta cloud. O teste de nivelamento continua **antes** do cadastro; a Jornada só abre depois da sessão autenticada e do commit no servidor.
+
+- Funil público `/comecar`: welcome → objetivo → autoavaliação → Placement 2.0 → preview → conta obrigatória.
+- Removidos da experiência normal: "Deixar para depois", "Continuar sem conta", "Preparar conta mock local".
+- `authMode=local` é LEGACY_ONLY (migração). Logout volta à landing; não cria identidade local.
+- Guard `RequireCloudSession` nas rotas da Jornada. Sem sessão: `/comecar` ou `/login?next=`.
+- Placement adaptativo (`PlacementCompetencyState`, próxima pergunta por informação, early stop, confiança ≥ 0.85). Acerto com dica não prova domínio. Fundamentos só saem da Jornada com prova da promessa do tema.
+- `PLACEMENT_VERSION = 2`. Client envia evidência; Edge `commit-placement` recalcula e grava `placement_attempts` + perfil. Pending pre-auth em sessionStorage (24h).
+- DEV/E2E: `VITE_DEV_ALLOW_LOCAL_AUTH=1` explícito. Hard fail se a flag estiver ativa em Production Beta.
+- PR #195 (timeout de sync + unlock do player) rebaseada semanticamente; pedagogia V4.6.1/V4.6.2 permanece.
+
+**Não** altera Topic Mastery 4/4, Journey pedagogy, Business, Stripe, Pérolas, Missões, Atlas em massa.
+
 ### V4.6.2 — Exercise Feasibility + Instruction Integrity
 
 Toda atividade do Journey precisa de uma ação coerente: o que fazer, como fazer nesta UI, e como sabemos que fez.

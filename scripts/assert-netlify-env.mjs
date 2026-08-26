@@ -53,6 +53,9 @@ if (isProduction) {
   if (useFixtures) {
     fail("VITE_USE_TEST_FIXTURES=true bloqueado em Production Beta (dados de teste).");
   }
+  if (String(process.env.VITE_DEV_ALLOW_LOCAL_AUTH ?? "") === "1") {
+    fail("VITE_DEV_ALLOW_LOCAL_AUTH=1 bloqueado em Production Beta (conta local).");
+  }
 
   // Service role / secrets nunca entram no bundle via VITE_*.
   for (const [key, value] of Object.entries(process.env)) {

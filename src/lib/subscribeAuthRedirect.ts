@@ -35,7 +35,7 @@ export function subscribeAccountPath(plan?: ProPlanKey | null): string {
     next: "/pro",
   });
   if (plan) params.set("plan", plan);
-  return `/conta?${params.toString()}`;
+  return `/comecar?${params.toString()}`;
 }
 
 export function savePendingCheckoutPlan(plan: ProPlanKey): void {

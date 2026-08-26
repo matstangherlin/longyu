@@ -25,7 +25,7 @@ test.describe("dispositivo — toque", () => {
     }
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
     await page.getByRole("link", { name: /Começar agora/i }).tap();
-    await page.waitForURL("**/conta");
+    await page.waitForURL("**/comecar");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
   });
 

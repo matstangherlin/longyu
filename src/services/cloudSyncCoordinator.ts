@@ -1,5 +1,6 @@
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { getProgressScore, isMeaningfulProgress, type ProgressSnapshotBody } from "../lib/progressSnapshot";
+import { readUserCache, writeUserCache } from "../lib/auth/userCache";
 import { mergeRemoteProgress } from "../lib/syncMerge";
 import { activeLearningRepository } from "../lib/repositories/learningRepository";
 import { getSupabaseClient } from "../lib/supabaseClient";
@@ -17,9 +18,31 @@ import { fetchServerIsPro } from "./entitlementService";
 import { attributeStoredReferralCode, processReferralPipeline } from "./referralService";
 import { recordClientDiagnostic } from "../lib/clientDiagnostics";
 
+const CLOUD_SYNC_TIMEOUT_MS = 12_000;
+const SYNC_TIMEOUT_MESSAGE =
+  "A sincronização demorou demais. Seu progresso local está seguro — tente de novo.";
+
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let syncInFlight = false;
 let pendingPush = false;
+
+function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("timeout"));
+    }, ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+}
 
 function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
   useStore.getState().setCloudSyncState(status, message);
@@ -29,6 +52,14 @@ function markCloudSync(status: "loading" | "synced" | "pending" | "error", messa
       area: "cloud_sync",
       message,
     });
+  }
+}
+
+function persistNamespacedCache(userId: string): void {
+  try {
+    writeUserCache(userId, activeLearningRepository().exportSnapshot());
+  } catch {
+    // ignore
   }
 }
 
@@ -67,21 +98,26 @@ export async function pushProgressToCloud(): Promise<{ ok: boolean; message: str
   if (!user) return { ok: false, message: "Faça login para sincronizar o progresso." };
 
   markCloudSync("loading", "Sincronizando progresso com a nuvem...");
-  const snapshot = activeLearningRepository().exportSnapshot();
-  const result = await activeLearningRepository().importSnapshot(snapshot);
-  markCloudSync(
-    result.ok ? "synced" : "error",
-    result.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
-  );
-  if (result.ok) {
-    await syncSocialProfileFromStore();
-    await flushSocialEventQueue();
-    await attributeStoredReferralCode();
-    await processReferralPipeline();
-    const isPro = await fetchServerIsPro();
-    useStore.getState().setServerEntitlement(isPro);
+  try {
+    const snapshot = activeLearningRepository().exportSnapshot();
+    const result = await withTimeout(activeLearningRepository().importSnapshot(snapshot));
+    markCloudSync(
+      result.ok ? "synced" : "error",
+      result.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
+    );
+    if (result.ok) {
+      await syncSocialProfileFromStore();
+      await flushSocialEventQueue();
+      await attributeStoredReferralCode();
+      await processReferralPipeline();
+      const isPro = await fetchServerIsPro();
+      useStore.getState().setServerEntitlement(isPro);
+    }
+    return { ok: result.ok, message: result.message };
+  } catch {
+    markCloudSync("error", SYNC_TIMEOUT_MESSAGE);
+    return { ok: false, message: SYNC_TIMEOUT_MESSAGE };
   }
-  return { ok: result.ok, message: result.message };
 }
 
 /** Após login: mescla nuvem + local e envia o melhor snapshot de volta. */
@@ -120,88 +156,100 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
   const store = useStore.getState();
   markCloudSync("loading", "Carregando progresso da nuvem...");
 
-  const localSnapshot = activeLearningRepository().exportSnapshot();
-  const remote = await activeLearningRepository().fetchSnapshot();
-  if (!remote.ok) {
-    markCloudSync("error", "Erro ao sincronizar — seu progresso local está seguro.");
-    return remote;
-  }
+  try {
+    const exported = activeLearningRepository().exportSnapshot();
+    const cached = readUserCache(user.id);
+    const localSnapshot =
+      !isMeaningfulProgress(exported) && cached && isMeaningfulProgress(cached) ? cached : exported;
+    const remote = await withTimeout(activeLearningRepository().fetchSnapshot());
+    if (!remote.ok) {
+      markCloudSync("error", "Erro ao sincronizar — seu progresso local está seguro.");
+      return remote;
+    }
 
-  const localProgress = localSnapshot.snapshot.progress;
-  const remoteProgress = remote.snapshot?.snapshot.progress;
-  const localMeaningful = isMeaningfulProgress(localSnapshot);
-  const remoteMeaningful = isMeaningfulProgress(remote.snapshot);
-  const localScore = getProgressScore(localSnapshot);
-  const remoteScore = getProgressScore(remote.snapshot);
-  const currentName = store.accounts[store.currentAccountId]?.name ?? user.email ?? "Aluno Longyu";
+    const localProgress = localSnapshot.snapshot.progress;
+    const remoteProgress = remote.snapshot?.snapshot.progress;
+    const localMeaningful = isMeaningfulProgress(localSnapshot);
+    const remoteMeaningful = isMeaningfulProgress(remote.snapshot);
+    const localScore = getProgressScore(localSnapshot);
+    const remoteScore = getProgressScore(remote.snapshot);
+    const currentName = store.accounts[store.currentAccountId]?.name ?? user.email ?? "Aluno Longyu";
 
-  if (remote.snapshot && !localMeaningful && remoteMeaningful) {
-    store.activateCloudAccount(
-      { userId: user.id, email: user.email, name: remote.snapshot.snapshot.account.name ?? currentName },
-      remote.snapshot.snapshot.progress
-    );
-    markCloudSync("synced", "Progresso sincronizado.");
-    await migrateEconomyAfterCloudLogin(user.id);
-    await refreshServerEntitlementAfterLogin();
-    return { ok: true, message: "Progresso restaurado da nuvem." };
-  }
+    if (remote.snapshot && !localMeaningful && remoteMeaningful) {
+      store.activateCloudAccount(
+        { userId: user.id, email: user.email, name: remote.snapshot.snapshot.account.name ?? currentName },
+        remote.snapshot.snapshot.progress
+      );
+      markCloudSync("synced", "Progresso sincronizado.");
+      persistNamespacedCache(user.id);
+      await migrateEconomyAfterCloudLogin(user.id);
+      await refreshServerEntitlementAfterLogin();
+      return { ok: true, message: "Progresso restaurado da nuvem." };
+    }
 
-  if (remote.snapshot && remoteProgress && localMeaningful) {
-    const mergedProgress = mergeRemoteProgress(localProgress, remoteProgress);
-    const mergedBody = snapshotBodyWithProgress(remote.snapshot.snapshot, mergedProgress, currentName, user.email);
-    store.activateCloudAccount(
-      { userId: user.id, email: user.email, name: mergedBody.account.name ?? currentName },
-      mergedProgress
-    );
-    const mergedSnapshot = activeLearningRepository().exportSnapshot();
-    const push = await activeLearningRepository().importSnapshot(mergedSnapshot);
+    if (remote.snapshot && remoteProgress && localMeaningful) {
+      const mergedProgress = mergeRemoteProgress(localProgress, remoteProgress);
+      const mergedBody = snapshotBodyWithProgress(remote.snapshot.snapshot, mergedProgress, currentName, user.email);
+      store.activateCloudAccount(
+        { userId: user.id, email: user.email, name: mergedBody.account.name ?? currentName },
+        mergedProgress
+      );
+      const mergedSnapshot = activeLearningRepository().exportSnapshot();
+      const push = await withTimeout(activeLearningRepository().importSnapshot(mergedSnapshot));
+      markCloudSync(
+        push.ok ? "synced" : "error",
+        push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
+      );
+      if (push.ok) {
+        persistNamespacedCache(user.id);
+        await migrateEconomyAfterCloudLogin(user.id);
+        await refreshServerEntitlementAfterLogin();
+      }
+      return {
+        ok: push.ok,
+        message: push.ok
+          ? `Progresso mesclado com segurança (local ${localScore} · nuvem ${remoteScore}).`
+          : push.message,
+      };
+    }
+
+    if (!remote.snapshot && localMeaningful) {
+      store.activateCloudAccount({ userId: user.id, email: user.email, name: currentName }, localProgress);
+      const push = await withTimeout(activeLearningRepository().importSnapshot(activeLearningRepository().exportSnapshot()));
+      markCloudSync(
+        push.ok ? "synced" : "error",
+        push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
+      );
+      if (push.ok) {
+        persistNamespacedCache(user.id);
+        await migrateEconomyAfterCloudLogin(user.id);
+        await refreshServerEntitlementAfterLogin();
+      }
+      return {
+        ok: push.ok,
+        message: push.ok ? "Conta na nuvem iniciada com seu progresso local." : push.message,
+      };
+    }
+
+    store.activateCloudAccount({ userId: user.id, email: user.email, name: currentName });
+    const initialPush = await withTimeout(activeLearningRepository().importSnapshot(activeLearningRepository().exportSnapshot()));
     markCloudSync(
-      push.ok ? "synced" : "error",
-      push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
+      initialPush.ok ? "synced" : "error",
+      initialPush.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
     );
-    if (push.ok) {
+    if (initialPush.ok) {
+      persistNamespacedCache(user.id);
       await migrateEconomyAfterCloudLogin(user.id);
       await refreshServerEntitlementAfterLogin();
     }
     return {
-      ok: push.ok,
-      message: push.ok
-        ? `Progresso mesclado com segurança (local ${localScore} · nuvem ${remoteScore}).`
-        : push.message,
+      ok: initialPush.ok,
+      message: initialPush.ok ? "Conta na nuvem inicializada sem sobrescrever progresso existente." : initialPush.message,
     };
+  } catch {
+    markCloudSync("error", SYNC_TIMEOUT_MESSAGE);
+    return { ok: false, message: SYNC_TIMEOUT_MESSAGE };
   }
-
-  if (!remote.snapshot && localMeaningful) {
-    store.activateCloudAccount({ userId: user.id, email: user.email, name: currentName }, localProgress);
-    const push = await activeLearningRepository().importSnapshot(activeLearningRepository().exportSnapshot());
-    markCloudSync(
-      push.ok ? "synced" : "error",
-      push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
-    );
-    if (push.ok) {
-      await migrateEconomyAfterCloudLogin(user.id);
-      await refreshServerEntitlementAfterLogin();
-    }
-    return {
-      ok: push.ok,
-      message: push.ok ? "Conta na nuvem iniciada com seu progresso local." : push.message,
-    };
-  }
-
-  store.activateCloudAccount({ userId: user.id, email: user.email, name: currentName });
-  const initialPush = await activeLearningRepository().importSnapshot(activeLearningRepository().exportSnapshot());
-  markCloudSync(
-    initialPush.ok ? "synced" : "error",
-    initialPush.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
-  );
-  if (initialPush.ok) {
-    await migrateEconomyAfterCloudLogin(user.id);
-    await refreshServerEntitlementAfterLogin();
-  }
-  return {
-    ok: initialPush.ok,
-    message: initialPush.ok ? "Conta na nuvem inicializada sem sobrescrever progresso existente." : initialPush.message,
-  };
 }
 
 async function refreshServerEntitlementAfterLogin(): Promise<void> {

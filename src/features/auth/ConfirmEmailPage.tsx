@@ -12,7 +12,7 @@ import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { useStore } from "../../lib/store";
 import { resendConfirmationEmail } from "../../services/authService";
-import { syncAuthSessionProgress } from "../../services/cloudSyncCoordinator";
+import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 
 export function ConfirmEmailPage() {
   const navigate = useNavigate();
@@ -49,15 +49,16 @@ export function ConfirmEmailPage() {
     let cancelled = false;
 
     const finishConfirmed = async () => {
+      const onboard = await completeAuthenticatedOnboarding();
+      if (cancelled) return;
+      if (!onboard.ok) {
+        setConfirming(false);
+        setError(onboard.message);
+        return;
+      }
       setAccountSetupComplete(true);
       clearPendingConfirmEmail();
-      const sync = await syncAuthSessionProgress();
-      if (cancelled) return;
-      setNotice(
-        sync.ok
-          ? "Email confirmado. Sua conta está ativa e o progresso já sincroniza na nuvem."
-          : "Email confirmado. Sua conta está ativa."
-      );
+      setNotice("Email confirmado. Sua conta está ativa e o progresso já sincroniza na nuvem.");
       setTimeout(() => navigate(postAuthPath, { replace: true }), 1200);
     };
 
@@ -120,7 +121,7 @@ export function ConfirmEmailPage() {
         <Mascot size={96} variant="wave" />
         <h1 className="font-serif text-2xl font-semibold text-ink">Confirmação indisponível</h1>
         <p className="text-sm text-ink-soft">O backend em nuvem não está ativo neste ambiente.</p>
-        <Link to="/conta" className="font-semibold text-accent hover:underline">
+        <Link to="/comecar" className="font-semibold text-accent hover:underline">
           Voltar ao cadastro
         </Link>
       </div>

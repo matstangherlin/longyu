@@ -34,7 +34,7 @@ assert(
   "plan is locked when adaptive steps are applied"
 );
 assert(
-  /locked && locked\.lessonId === foundLesson\.id && locked\.nonce === planNonce/.test(player),
+  /locked && locked\.lessonId === (?:foundLesson|lesson)\.id && locked\.nonce === planNonce/.test(player),
   "lock early-returns when lesson+nonce match"
 );
 assert(
@@ -50,12 +50,18 @@ assert(/sessionPlanRef\.current = null/.test(retrySlice), "retryLesson clears se
 assert(/setPlanNonce/.test(retrySlice), "retryLesson bumps planNonce");
 assert(/setPlanReady\(false\)/.test(retrySlice), "retryLesson resets planReady");
 
-// Ordering inside the planner effect: lock check before fast-path setPlanReady(false).
-const lockIdx = player.indexOf("locked && locked.lessonId === foundLesson.id && locked.nonce === planNonce");
-const fastPathReady = player.indexOf("setAdaptiveSteps(authoredEnrichedSteps)");
-const fastPathFalse = player.indexOf("setPlanReady(false)", fastPathReady);
+// Ordering: lock check before authored fast-path. The player must NOT call
+// setPlanReady(false) on that path — that was the infinite "Preparando…" bug.
+const lockIdx = player.search(/locked && locked\.lessonId === (?:foundLesson|lesson)\.id && locked\.nonce === planNonce/);
+const fastPathReady = Math.max(player.indexOf("setAdaptiveSteps(authored)"), player.indexOf("setAdaptiveSteps(authoredEnrichedSteps)"));
+const fastPathTrue = player.indexOf("setPlanReady(true)", fastPathReady);
 assert(lockIdx >= 0 && fastPathReady > lockIdx, "authored fast-path comes after lock check");
-assert(fastPathFalse > fastPathReady, "setPlanReady(false) for replan sits on the unlocked path");
+assert(fastPathTrue > fastPathReady, "authored fast-path sets planReady true so the progress bar is visible");
+assert(
+  /useStore\.getState\(\)/.test(player) && /hanziBuilderProgressByChar/.test(player),
+  "planner reads volatile store slices via getState (not effect deps)"
+);
+assert(/catch \{/.test(player) && /planned = authored/.test(player), "planner falls back to authored steps on throw");
 
 if (failures.length) {
   console.error("FAIL test:session-plan-lock:");

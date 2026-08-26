@@ -21,6 +21,7 @@ export function TelemetryConsentWatcher() {
     // Evita o modal durante onboarding/auth e no player em foco.
     if (
       location.pathname === "/conta" ||
+      location.pathname === "/comecar" ||
       location.pathname === "/login" ||
       location.pathname === "/esqueci-senha" ||
       location.pathname === "/redefinir-senha" ||

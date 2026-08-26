@@ -23,7 +23,10 @@ import {
   migrateLessonMasteryFromCompletion,
   updateDimensionScore,
 } from "../data/masteryLoop";
-import { grandfatherTopicMastery } from "../data/topicMastery";
+import { grandfatherTopicMastery, isTopicMasteryLesson } from "../data/topicMastery";
+import { isDevLocalAuthAllowed } from "./auth/localAuthPolicy";
+import { writeUserCache } from "./auth/userCache";
+import type { PlacementAnalysis } from "./placement";
 import { todayKey, weekKey, monthKey } from "./storage";
 import {
   reconcileStreak as reconcileStreakState,
@@ -106,7 +109,7 @@ import {
 } from "./pearlEconomy";
 import { canActivatePearlPro, formatPearlProUntil } from "./pearlPro";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
-import type { ProgressSnapshotBody } from "./progressSnapshot";
+import { buildProgressSnapshot, type ProgressSnapshotBody } from "./progressSnapshot";
 import {
   shouldUseServerEconomy,
   serverActivatePearlProPass,
@@ -152,6 +155,9 @@ export interface PlacementResult {
   categoriesCorrect?: string[];
   categoriesWeak?: string[];
   takenAt: number;
+  placementVersion?: number;
+  placementConfidence?: number;
+  masteredByPlacement?: string[];
 }
 
 interface DailyProgress {
@@ -1266,10 +1272,11 @@ interface AccountSnapshot extends XpBuckets {
 }
 
 /**
- * Como a conta se autentica hoje:
- * - "local": só existe neste dispositivo (o usuário deixou a conta para depois).
- * - "cloud_pending": informou email para sincronizar, mas o backend real ainda não existe.
- * - "cloud": autenticado de fato na nuvem (reservado para quando houver backend).
+ * Como a conta se autentica:
+ * - "local": LEGACY_ONLY. Contas antigas neste dispositivo, só para migração.
+ *   Onboarding novo NÃO pode criar authMode=local em produção.
+ * - "cloud_pending": email informado / confirmação pendente. Não libera a Jornada.
+ * - "cloud": sessão autenticada no backend (identidade = user_id).
  */
 export type AuthMode = "local" | "cloud_pending" | "cloud";
 
@@ -1292,6 +1299,8 @@ export interface LearningAccount extends AccountSnapshot {
   authMode: AuthMode;
   createdAt: number;
   updatedAt: number;
+  /** ACK de migração local → cloud. Só após sync com o servidor. */
+  localMigratedAt?: number;
 }
 
 function blankSnapshot(): AccountSnapshot {
@@ -1768,8 +1777,8 @@ function onboardingSnapshotFromPlacement(placement: PlacementResult): AccountSna
  * grava identidade (nome, email opcional, authMode) e marca o setup como completo.
  *
  * Segurança: NENHUMA senha passa por aqui. A UI valida senha/confirmação apenas em
- * memória e as descarta; só nome e email chegam à store/localStorage. Autenticação
- * real (e authMode "cloud") virá quando existir backend.
+ * memória e as descarta; só nome e email chegam à store/localStorage.
+ * authMode "local" é LEGACY_ONLY — finishLocalOnboarding recusa em produção.
  */
 function finalizeOnboardingState(
   s: AppState,
@@ -1795,6 +1804,57 @@ function finalizeOnboardingState(
       ...saveCurrentAccount(s),
       [DEFAULT_ACCOUNT_ID]: localAccount,
     },
+  };
+}
+
+function cloudUserIdFromAccount(account: LearningAccount | undefined): string | null {
+  if (!account) return null;
+  if (account.id.startsWith("cloud:")) return account.id.slice("cloud:".length);
+  return null;
+}
+
+function cacheLiveProgressForCloudUser(s: AppState): void {
+  const account = s.accounts[s.currentAccountId];
+  const userId = cloudUserIdFromAccount(account);
+  if (!userId || !account) return;
+  writeUserCache(userId, buildProgressSnapshot(account));
+}
+
+/** Logout / endCloudSession: limpa progresso ao vivo. Preferências de UI ficam. */
+function wipeToGuestShell(): Partial<AppState> {
+  const guest = makeAccount(DEFAULT_ACCOUNT_ID, "Aluno", blankSnapshot(), undefined, "local");
+  return {
+    ...accountFields(guest),
+    accountSetupComplete: false,
+    currentAccountId: DEFAULT_ACCOUNT_ID,
+    accounts: { [DEFAULT_ACCOUNT_ID]: guest },
+    serverIsPro: false,
+    cloudSyncState: freshCloudSyncState(),
+    economySyncMessage: null,
+    holdAchievementModals: false,
+  };
+}
+
+function placementResultFromAnalysis(analysis: PlacementAnalysis): PlacementResult {
+  const mastered = analysis.placement.masteredByPlacement;
+  return {
+    level: analysis.placement.level,
+    label: analysis.placement.label,
+    score: analysis.score,
+    targetLessonId: analysis.placement.targetLessonId,
+    skippedLessonIds: mastered,
+    foundationLessonIdsRequired: analysis.foundationLessonIdsRequired,
+    questionsAnswered: analysis.questionsAnswered,
+    correctWithoutHint: analysis.correctWithoutHint,
+    correctWithHint: analysis.correctWithHint,
+    wrong: analysis.wrong,
+    hintsUsed: analysis.hintCount,
+    categoriesCorrect: analysis.categoriesCorrect,
+    categoriesWeak: analysis.categoriesWeak,
+    takenAt: Date.now(),
+    placementVersion: analysis.placementVersion,
+    placementConfidence: analysis.placementConfidence,
+    masteredByPlacement: mastered,
   };
 }
 
@@ -1987,7 +2047,10 @@ interface AppState {
   openChest: (type: ChestType, openingId?: string) => ChestRewardItem[] | null;
   openJourneyChest: (chestId: string, type: ChestType) => ChestRewardItem[] | null;
   createAccount: (name: string, email?: string) => string;
-  /** Onboarding sem conta: perfil local com o nome informado (authMode "local"). */
+  /**
+   * LEGACY_ONLY / DEV-E2E: perfil local com o nome informado (authMode "local").
+   * Hard fail em produção. Não use no funil de onboarding novo.
+   */
   finishLocalOnboarding: (name: string, placement: PlacementResult) => void;
   /** Onboarding com email: prepara a conta (authMode "cloud_pending"). Senha nunca é salva. */
   createCloudAccountDraft: (name: string, email: string, placement: PlacementResult) => void;
@@ -1995,9 +2058,13 @@ interface AppState {
   attachEmailToLocalAccount: (email: string) => void;
   /** Compatibilidade: marca a conta atual como cloud sem trocar de id. */
   syncAccountWithCloudAuth: (email: string) => void;
-  /** Encerra sessão na nuvem sem apagar progresso local. */
+  /** Encerra a sessão cloud e limpa o progresso ao vivo (cache namespaced permanece). */
   endCloudSession: () => void;
   logout: () => void;
+  /** Aplica o resultado recalculado no servidor. Client não é autoridade de skips. */
+  applyServerPlacement: (analysis: PlacementAnalysis) => void;
+  /** Marca ACK da migração local → cloud depois do sync. */
+  markLocalMigrated: () => void;
   switchAccount: (id: string) => void;
   renameAccount: (id: string, name: string) => void;
   updateAccount: (id: string, data: { name?: string; email?: string }) => void;
@@ -2634,6 +2701,9 @@ export const useStore = create<AppState>()(
       createAccount: (rawName, rawEmail) => {
         const name = rawName.trim() || "Novo aluno";
         const email = rawEmail?.trim() || undefined;
+        if (!email && !isDevLocalAuthAllowed()) {
+          throw new Error("createAccount cannot mint a local identity in production");
+        }
         const id = `acc-${Date.now()}`;
         const account = makeAccount(
           id,
@@ -2653,8 +2723,10 @@ export const useStore = create<AppState>()(
         }));
         return id;
       },
-      finishLocalOnboarding: (rawName, placement) =>
-        // "Deixar para depois": segue como perfil local, com o nome informado.
+      finishLocalOnboarding: (rawName, placement) => {
+        if (!isDevLocalAuthAllowed()) {
+          throw new Error("finishLocalOnboarding is LEGACY_ONLY; production onboarding cannot create authMode=local");
+        }
         set((s) =>
           finalizeOnboardingState(s, {
             name: rawName.trim() || "Aluno Longyu",
@@ -2662,7 +2734,8 @@ export const useStore = create<AppState>()(
             authMode: "local",
             placement,
           })
-        ),
+        );
+      },
       createCloudAccountDraft: (rawName, rawEmail, placement) =>
         // "Criar conta e começar": guarda nome + email e marca "cloud_pending".
         // Reutiliza o MESMO perfil local (DEFAULT_ACCOUNT_ID), sem criar id órfão.
@@ -2714,26 +2787,14 @@ export const useStore = create<AppState>()(
         }),
       endCloudSession: () =>
         set((s) => {
-          const id = s.currentAccountId;
-          const account = s.accounts[id];
-          if (!account || account.authMode !== "cloud") return {};
-          return {
-            accounts: {
-              ...s.accounts,
-              [id]: { ...account, authMode: "cloud_pending", updatedAt: Date.now() },
-            },
-            cloudSyncState: freshCloudSyncState(),
-          };
+          cacheLiveProgressForCloudUser(s);
+          return wipeToGuestShell();
         }),
       logout: () =>
-        // Salva o progresso na conta atual e volta para o onboarding.
-        // Zera serverIsPro para a conta QA não deixar Pro ligado para o próximo perfil.
-        set((s) => ({
-          accounts: saveCurrentAccount(s),
-          accountSetupComplete: false,
-          serverIsPro: false,
-          cloudSyncState: freshCloudSyncState(),
-        })),
+        set((s) => {
+          cacheLiveProgressForCloudUser(s);
+          return wipeToGuestShell();
+        }),
       switchAccount: (id) =>
         set((s) => {
           if (id === s.currentAccountId) return {};
@@ -2817,6 +2878,73 @@ export const useStore = create<AppState>()(
             dailyTasks,
             dailyEnergy,
             accounts: saveCurrentAccount(next),
+          };
+        }),
+      applyServerPlacement: (analysis) =>
+        set((s) => {
+          const date = todayKey();
+          const today = s.today.date === date ? s.today : freshDay(date);
+          const dailyTasks = activeDailyTasks(s.dailyTasks, date);
+          const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
+          const mastered = analysis.placement.masteredByPlacement ?? [];
+          const completedLessons = normalizeCompletedLessons(
+            [...new Set([...s.completedLessons, ...mastered])],
+            s.lessonStarsById
+          );
+          const lessonStarsById = normalizeLessonStars(s.lessonStarsById, completedLessons);
+          const now = Date.now();
+          const lessonMasteryById = { ...(s.lessonMasteryById ?? {}) };
+          for (const lessonId of mastered) {
+            const lesson = ALL_LESSONS.find((item) => item.id === lessonId);
+            if (!isTopicMasteryLesson(lesson)) continue;
+            lessonMasteryById[lessonId] = {
+              level: 4,
+              passCount: 4,
+              lastPass: 4,
+              recoveryPending: false,
+              updatedAt: now,
+            };
+          }
+          const placement = placementResultFromAnalysis(analysis);
+          const next = {
+            ...s,
+            accountSetupComplete: true,
+            completedLessons,
+            lessonStarsById,
+            lessonMasteryById,
+            placement,
+            lastActive: date,
+            streak: s.streak || 1,
+            longestStreak: Math.max(s.longestStreak, s.streak || 1),
+            today,
+            dailyTasks,
+            dailyEnergy,
+          };
+          return {
+            accountSetupComplete: true,
+            completedLessons,
+            lessonStarsById,
+            lessonMasteryById,
+            placement,
+            lastActive: next.lastActive,
+            streak: next.streak,
+            longestStreak: next.longestStreak,
+            today,
+            dailyTasks,
+            dailyEnergy,
+            accounts: saveCurrentAccount(next),
+          };
+        }),
+      markLocalMigrated: () =>
+        set((s) => {
+          const id = s.currentAccountId;
+          const account = s.accounts[id];
+          if (!account) return {};
+          return {
+            accounts: {
+              ...s.accounts,
+              [id]: { ...account, localMigratedAt: Date.now(), updatedAt: Date.now() },
+            },
           };
         }),
 

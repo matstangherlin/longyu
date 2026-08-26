@@ -44,7 +44,7 @@ export function PublicMarketingLayout({
           <ButtonLink to="/login" variant="ghost" size="sm">
             Entrar
           </ButtonLink>
-          <ButtonLink to="/conta" variant="primary" size="sm" className="hidden sm:inline-flex">
+          <ButtonLink to="/comecar" variant="primary" size="sm" className="hidden sm:inline-flex">
             Começar
           </ButtonLink>
         </div>
@@ -116,7 +116,7 @@ export function MarketingArticle({
       </div>
 
       <div className="mt-12 flex flex-col gap-3 sm:max-w-md">
-        <ButtonLink to="/conta" size="lg" className="w-full shadow-lift">
+        <ButtonLink to="/comecar" size="lg" className="w-full shadow-lift">
           Começar a aprender
         </ButtonLink>
         <ButtonLink to="/" variant="outline" size="lg" className="w-full">

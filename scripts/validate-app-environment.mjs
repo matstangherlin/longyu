@@ -59,6 +59,7 @@ assert(netlify.includes('VITE_ALLOW_PRO_PREVIEW = "false"'), "Pro Preview deve e
 const assertNetlify = read("scripts/assert-netlify-env.mjs");
 assert(assertNetlify.includes("VITE_ALLOW_PRO_PREVIEW"), "assert-netlify-env deve bloquear Pro Preview em prod");
 assert(assertNetlify.includes("VITE_USE_TEST_FIXTURES"), "assert-netlify-env deve bloquear fixtures em prod");
+assert(assertNetlify.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), "assert-netlify-env deve bloquear auth local em prod");
 
 const pkg = JSON.parse(read("package.json"));
 assert(pkg.version === "0.2.0-beta.1", `package.json version deve ser 0.2.0-beta.1 (obtido ${pkg.version})`);

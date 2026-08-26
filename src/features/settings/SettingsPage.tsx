@@ -11,6 +11,7 @@ import { MandarinText } from "../../components/hanzi/MandarinText";
 import { COURSE_PROFILE } from "../../data/course";
 import { DOMAIN_META, DOMAIN_ORDER, type DomainTrack } from "../../data/domains";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { isDevLocalAuthAllowed } from "../../lib/auth/localAuthPolicy";
 import { isDevPreviewAllowed } from "../../lib/entitlements";
 import { suggestUsernameFromName } from "../../lib/social/username";
 import {
@@ -232,7 +233,7 @@ export function SettingsPage() {
       <HubHeader
         eyebrow="Ajustes"
         title="Configurações"
-        desc="Leitura, áudio, tema e conta local."
+        desc="Leitura, áudio, tema e conta."
         badge={<BetaBadge className="shrink-0" />}
       />
 
@@ -248,7 +249,7 @@ export function SettingsPage() {
         </Card>
       </HubSection>
 
-      <HubSection id="dados" className="scroll-mt-6" title="Conta e progresso" desc="Perfis locais neste dispositivo.">
+      <HubSection id="dados" className="scroll-mt-6" title="Conta e progresso" desc="Conta neste dispositivo e na nuvem.">
         <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="grid gap-2">
             {accountList.map((account) => {
@@ -278,6 +279,7 @@ export function SettingsPage() {
             })}
           </div>
 
+          {isDevLocalAuthAllowed() ? (
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               value={newAccountName}
@@ -286,9 +288,10 @@ export function SettingsPage() {
               className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
             />
             <Button onClick={handleCreateAccount} disabled={newAccountName.trim().length < 2}>
-              Criar conta local
+              Criar perfil de teste
             </Button>
           </div>
+          ) : null}
 
           <Link
             to="/conta"
@@ -299,8 +302,8 @@ export function SettingsPage() {
 
           <div className="rounded-lg bg-surface-2 px-3 py-2 text-[11px] text-ink-faint">
             {isSupabaseBackendEnabled()
-              ? "Com conta na nuvem, o progresso sincroniza automaticamente entre dispositivos."
-              : "Dados salvos só neste dispositivo. Sincronização em nuvem pode entrar depois."}
+              ? "Seu progresso fica salvo na sua conta."
+              : "Dados salvos neste dispositivo até você entrar na conta."}
           </div>
         </Card>
       </HubSection>

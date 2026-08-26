@@ -39,6 +39,7 @@ export default defineConfig({
       VITE_APP_ENV: "preview",
       VITE_USE_TEST_FIXTURES: "true",
       VITE_ALLOW_PRO_PREVIEW: "true",
+      VITE_DEV_ALLOW_LOCAL_AUTH: "1",
     },
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,

@@ -45,7 +45,10 @@ export function LessonFocusHeader({
         </div>
         <FolegoMeter folego={folego} unlimited={folegoUnlimited} />
         <DragonBreathMeter lives={lives} maxLives={maxLives} unlimited={unlimitedLives} />
-        <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-ink-faint">
+        <span
+          data-lesson-progress-label
+          className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-ink-faint"
+        >
           {progressValue}/{progressMax}
         </span>
         {onReport && (

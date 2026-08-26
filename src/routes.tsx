@@ -1,11 +1,8 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
-
-// Code-splitting por rota: cada página vira um chunk próprio, carregado só
-// quando o usuário navega até ela. AppShell e LandingPage ficam no bundle
-// inicial (primeira pintura); o resto chega sob demanda.
-// O mapeamento de export nomeado → default é explícito para manter tipos.
+import { PublicAuthLayout } from "./components/auth/PublicAuthLayout";
+import { RequireCloudSession } from "./components/auth/RequireCloudSession";
 
 const JourneyPage = lazy(() => import("./features/journey/JourneyPage").then((m) => ({ default: m.JourneyPage })));
 const TreinoPage = lazy(() => import("./features/treino/TreinoPage").then((m) => ({ default: m.TreinoPage })));
@@ -45,15 +42,19 @@ const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) =>
 const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage").then((m) => ({ default: m.AdminFeedbackPage })));
 const MarketingPage = lazy(() => import("./features/marketing/MarketingPage").then((m) => ({ default: m.MarketingPage })));
 const BusinessPage = lazy(() => import("./features/business/BusinessPage").then((m) => ({ default: m.BusinessPage })));
+const ComecarRoute = lazy(() =>
+  import("./features/onboarding/ComecarPage").then((m) => ({ default: m.ComecarRoute }))
+);
+const LegacyLocalMigrationPage = lazy(() =>
+  import("./features/onboarding/LegacyLocalMigrationPage").then((m) => ({
+    default: m.LegacyLocalMigrationPage,
+  }))
+);
 
-// Landing (pública) fica estática: é a primeira pintura para novos visitantes.
 import { LandingPage } from "./features/landing/LandingPage";
 
 export const routes: RouteObject[] = [
-  // "/" público: landing para quem ainda não tem conta/progresso.
-  // Quem já tem redireciona para /jornada dentro do próprio componente.
   { path: "/", element: <LandingPage /> },
-  // Páginas públicas de conteúdo (SEO) — fora do AppShell.
   { path: "/aprender-mandarim", element: <MarketingPage /> },
   { path: "/curso-de-mandarim-online", element: <MarketingPage /> },
   { path: "/tons-do-mandarim", element: <MarketingPage /> },
@@ -65,7 +66,24 @@ export const routes: RouteObject[] = [
   { path: "/business", element: <BusinessPage /> },
   { path: "/convite/:code", element: <ReferralInvitePage /> },
   {
-    element: <AppShell />,
+    element: <PublicAuthLayout />,
+    children: [
+      { path: "comecar", element: <ComecarRoute /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "esqueci-senha", element: <ForgotPasswordPage /> },
+      { path: "redefinir-senha", element: <ResetPasswordPage /> },
+      { path: "confirmar-email", element: <ConfirmEmailPage /> },
+      { path: "salvar-progresso", element: <LegacyLocalMigrationPage /> },
+      { path: "privacidade", element: <PrivacyPage /> },
+      { path: "sobre", element: <AboutPage /> },
+    ],
+  },
+  {
+    element: (
+      <RequireCloudSession>
+        <AppShell />
+      </RequireCloudSession>
+    ),
     children: [
       { path: "jornada", element: <JourneyPage /> },
       { path: "treino", element: <TreinoPage /> },
@@ -89,18 +107,12 @@ export const routes: RouteObject[] = [
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "esqueci-senha", element: <ForgotPasswordPage /> },
-      { path: "redefinir-senha", element: <ResetPasswordPage /> },
-      { path: "confirmar-email", element: <ConfirmEmailPage /> },
       { path: "perfil", element: <ProfilePage /> },
       { path: "conta", element: <ContaRoute /> },
       { path: "dados-locais", element: <DadosLocaisPage /> },
-      { path: "privacidade", element: <PrivacyPage /> },
       { path: "config", element: <SettingsPage /> },
       { path: "ajustes", element: <SettingsPage /> },
       { path: "mais", element: <MorePage /> },
-      { path: "sobre", element: <AboutPage /> },
       { path: "admin/feedback", element: <AdminFeedbackPage /> },
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },

@@ -68,7 +68,7 @@ export function ReferralPage() {
   }
 
   if (!accountSetupComplete) {
-    return <Navigate to="/conta" replace />;
+    return <Navigate to="/comecar" replace />;
   }
 
   if (!cloudReady) {

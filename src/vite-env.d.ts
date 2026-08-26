@@ -13,6 +13,8 @@ interface ImportMetaEnv {
   readonly VITE_ALLOW_PRO_PREVIEW?: string;
   /** Fixtures de teste — bloqueado em Production Beta. */
   readonly VITE_USE_TEST_FIXTURES?: string;
+  /** Bypass DEV/E2E de conta local. Hard-fail se ativo em Production Beta. */
+  readonly VITE_DEV_ALLOW_LOCAL_AUTH?: string;
   /** Rollback: false desliga conversas V2 (usa player V1). */
   readonly VITE_ENABLE_CONVERSATION_V2?: string;
   /** Rollback: false desliga telemetria pedagógica. */

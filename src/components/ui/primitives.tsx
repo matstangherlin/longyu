@@ -204,8 +204,9 @@ export function ProgressBar({
   className?: string;
   label?: string;
 }) {
-  const safeMax = max > 0 ? max : 1;
-  const pct = Math.max(0, Math.min(100, Math.round((value / safeMax) * 100)));
+  const safeMax = Number.isFinite(max) && max > 0 ? max : 1;
+  const safeValue = Number.isFinite(value) ? value : 0;
+  const pct = Math.max(0, Math.min(100, Math.round((safeValue / safeMax) * 100)));
   return (
     <div
       className={cx("h-2 overflow-hidden rounded-full bg-surface-2", className)}
@@ -213,8 +214,9 @@ export function ProgressBar({
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={safeMax}
-      aria-valuenow={Math.max(0, Math.min(safeMax, value))}
+      aria-valuenow={Math.max(0, Math.min(safeMax, safeValue))}
       aria-valuetext={`${pct}%`}
+      data-progress-pct={pct}
     >
       <div
         className="h-full rounded-full bg-accent shadow-inner transition-[width] duration-300 motion-reduce:transition-none"
