@@ -30,6 +30,7 @@ type StepSnapshot = {
   hasSkip: boolean;
   hasAudio: boolean;
   hasContinue: boolean;
+  hasScene: boolean;
 };
 
 async function drainBlockingModals(page: Page) {
@@ -64,7 +65,11 @@ async function readStepSnapshot(page: Page): Promise<StepSnapshot | null> {
     if (!root) return null;
     const visibleEl = (el: Element | null) => Boolean(el && (el as HTMLElement).getClientRects().length > 0);
     const buttons = [...document.querySelectorAll("button")].filter((button) => visibleEl(button));
-    const labels = buttons.map((button) => (button.textContent ?? "").replace(/\s+/g, " ").trim());
+    const names = buttons.map((button) => {
+      const text = (button.textContent ?? "").replace(/\s+/g, " ").trim();
+      const aria = (button.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
+      return `${text} ${aria}`.trim();
+    });
     const frame = document.querySelector("[data-lesson-player-frame]");
     const body = (frame?.textContent ?? "").replace(/\s+/g, " ");
     return {
@@ -75,16 +80,17 @@ async function readStepSnapshot(page: Page): Promise<StepSnapshot | null> {
       title: document.querySelector("h2")?.textContent ?? "",
       body,
       hasQuestionCount: /pergunta \d+\/\d+/i.test(body),
-      hasChoice: labels.some((label) => /^Opção \d+:/i.test(label)),
-      hasPieces: labels.some((label) => /^Peça /i.test(label)),
+      hasChoice: names.some((name) => /Opção \d+:/i.test(name)),
+      hasPieces: names.some((name) => /Peça /i.test(name)),
       hasBuilder: visibleEl(document.querySelector("[data-hanzi-builder], [data-production-help-build]")),
       hasProduction: visibleEl(document.querySelector("[data-production-answer]")),
-      hasVerify: labels.some((label) => /^(Verificar|Confirmar|Responder)$/i.test(label)),
+      hasVerify: names.some((name) => /\b(Verificar|Confirmar|Responder)\b/i.test(name)),
       hasMatch: /\d+\/\d+ pares/i.test(body),
-      hasSpeak: labels.some((label) => /Falar|Ou falar/i.test(label)),
-      hasSkip: labels.some((label) => /Pular/i.test(label)),
-      hasAudio: labels.some((label) => /Ouvir|Ouça/i.test(label)),
-      hasContinue: labels.some((label) => /^(Entendi|Continuar)$/i.test(label)),
+      hasSpeak: names.some((name) => /Falar|Ou falar/i.test(name)),
+      hasSkip: names.some((name) => /Pular/i.test(name)),
+      hasAudio: names.some((name) => /Ouvir|Ouça/i.test(name)),
+      hasContinue: names.some((name) => /^(Entendi|Continuar|Concluir)\b/i.test(name)),
+      hasScene: visibleEl(document.querySelector("[data-conversation-scene]")),
     };
   });
 }
@@ -104,6 +110,7 @@ function assertCoherentSnapshot(snapshot: StepSnapshot) {
   expect(deadCombo, "tela QA humana Reflexão + Diga + 木").toBe(false);
 
   if (!snapshot.graded) return;
+  const sceneListen = snapshot.kind === "conversation_scene" && (snapshot.hasScene || snapshot.hasContinue || snapshot.hasAudio);
   const action =
     snapshot.hasChoice ||
     snapshot.hasPieces ||
@@ -113,7 +120,8 @@ function assertCoherentSnapshot(snapshot: StepSnapshot) {
     snapshot.hasMatch ||
     snapshot.hasSpeak ||
     snapshot.hasSkip ||
-    snapshot.hasAudio;
+    snapshot.hasAudio ||
+    sceneListen;
   expect(action, `passo graded ${snapshot.kind} precisa de mecanismo de resposta`).toBe(true);
 }
 
@@ -132,9 +140,13 @@ async function nativeAdvance(page: Page): Promise<string> {
     const visible = (el: Element | null) => Boolean(el && (el as HTMLElement).getClientRects().length > 0);
     const enabled = (button: HTMLButtonElement) => visible(button) && !button.disabled;
     const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")].filter(enabled);
-    const labelOf = (button: HTMLButtonElement) => (button.textContent ?? "").replace(/\s+/g, " ").trim();
+    const labelOf = (button: HTMLButtonElement) => {
+      const text = (button.textContent ?? "").replace(/\s+/g, " ").trim();
+      const aria = (button.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
+      return `${text} ${aria}`.trim();
+    };
 
-    const piece = buttons.find((button) => /^Peça /i.test(labelOf(button) || button.getAttribute("aria-label") || ""));
+    const piece = buttons.find((button) => /Peça /i.test(labelOf(button)));
     if (piece) {
       piece.click();
       return "piece";
@@ -154,7 +166,7 @@ async function nativeAdvance(page: Page): Promise<string> {
       return "bank";
     }
 
-    const option = buttons.find((button) => /^Opção \d+:/i.test(labelOf(button) || button.getAttribute("aria-label") || ""));
+    const option = buttons.find((button) => /Opção \d+:/i.test(labelOf(button)));
     if (option) {
       option.click();
       return "option";
@@ -166,9 +178,11 @@ async function nativeAdvance(page: Page): Promise<string> {
       return "skip";
     }
 
-    const next = buttons.find((button) =>
-      /^(Entendi|Continuar|Verificar|Confirmar)$/i.test(labelOf(button))
-    );
+    const next = buttons.find((button) => {
+      const name = labelOf(button);
+      if (/jornada|recompensas|praticar novamente/i.test(name)) return false;
+      return /^(Entendi|Continuar|Verificar|Confirmar|Responder|Concluir)\b/i.test(name);
+    });
     if (next) {
       next.click();
       return "next";
@@ -212,6 +226,9 @@ async function playPass(page: Page, lessonId: string, pass: number) {
       assertCoherentSnapshot(snapshot);
       walked += 1;
       if (snapshot.hasPieces || snapshot.hasBuilder) sawImeFree = true;
+      if (["hanzi_build", "sentence_build", "produce", "translation_build"].includes(snapshot.kind)) {
+        sawImeFree = true;
+      }
       if (/[\u3400-\u9fff]/.test(snapshot.body) && snapshot.hasProduction && (snapshot.hasPieces || snapshot.hasBuilder || snapshot.hasSkip)) {
         sawImeFree = true;
       }
