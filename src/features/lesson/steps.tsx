@@ -2844,13 +2844,16 @@ function StepHanziBuild(props: StepProps) {
     // P0-003 — remonta ao trocar builder/tentativa para zerar selected/feedback/pool.
     const remountKey = `${props.lessonId ?? "lesson"}:${props.step.builderId}:${builder.id}:${props.attemptSeed ?? 0}`;
     return (
-      <HanziBuilderExercise
-        key={remountKey}
-        builder={builder}
-        externalRetry={Boolean(props.onMistake)}
-        onWrong={props.onMistake}
-        onCorrect={(firstTry) => props.onDone(firstTry)}
-      />
+      <div>
+        <HanziBuilderExercise
+          key={remountKey}
+          builder={builder}
+          externalRetry={Boolean(props.onMistake)}
+          onWrong={props.onMistake}
+          onCorrect={(firstTry) => props.onDone(firstTry)}
+        />
+        <SkipStepButton onSkip={props.onSkip} />
+      </div>
     );
   }
   // Formato legado: montagem por peças de texto.
