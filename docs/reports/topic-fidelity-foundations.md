@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d8037ca644c2 |
-| HEAD no instante da geração | 94c8a9557b2928b31bbddc53f4535224acecda00 |
+| Hash da Jornada | b4baa89ae3d4 |
+| HEAD no instante da geração | 75eb981c26f84780d84e6fbd2c248be98df6e668 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-26T02:14:49.534Z |
+| Gerado em | 2026-08-26T06:26:30.826Z |
 | Lições | 127 |
 
 
@@ -191,7 +191,7 @@ Promessa: Tom é o contorno da voz e faz parte da palavra em mandarim.
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Identifique o contorno |
 | 2 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
-| 3 | reverse_recall | DIRECT_TOPIC | Qual é o vale? |
+| 3 | dialogue_choice | DIRECT_TOPIC | Qual é o vale? |
 | 4 | dialogue_choice | DIRECT_TOPIC | Reproduzir |
 | 5 | listen_select | DIRECT_TOPIC | Identifique de ouvido |
 | 6 | contextual_choice | DIRECT_TOPIC | Na prática |
@@ -257,7 +257,7 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 2 | sentence_build | DIRECT_TOPIC | Monte 你好 |
 | 3 | dialogue_choice | DIRECT_TOPIC | Qual é o primeiro caractere? |
 | 4 | dialogue_choice | DIRECT_TOPIC | Qual é o segundo caractere? |
-| 5 | reverse_recall | DIRECT_TOPIC | Escreva na cabeça |
+| 5 | dialogue_choice | DIRECT_TOPIC | Quais dois caracteres? |
 | 6 | listen_select | DIRECT_TOPIC | Reconheça no áudio |
 
 ### M4 · Ler 你好 em contexto conhecido com menos pinyin.
@@ -273,8 +273,8 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 3 | contextual_choice | DIRECT_TOPIC | Na mensagem |
 | 4 | dialogue_choice | DIRECT_TOPIC | Caractere ainda é caractere |
 | 5 | dialogue_choice | DIRECT_TOPIC | Sem o mapa |
-| 6 | reverse_recall | DIRECT_TOPIC | Situação conhecida |
+| 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:3b01cca329ba03ad -->
+<!-- integridade:c53a4c9e324c2b46 -->
 
