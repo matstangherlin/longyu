@@ -6,6 +6,7 @@ import {
   FINALIZE_ONBOARDING_MISSING_DRAFT,
   FINALIZE_ONBOARDING_TEMP_ERROR,
 } from "../lib/auth/onboardingCopy";
+import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 import {
   evaluatePlacementEvidence,
   toServerPlacementEvidence,
@@ -68,6 +69,7 @@ export async function finalizeOnboardingOnServer(input?: {
     askedQuestionIds: input.placement.answers.map((item) => item.questionId),
   }) : undefined;
 
+  const ops = edgeOpsInit("finalize");
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
     code?: string;
@@ -76,6 +78,7 @@ export async function finalizeOnboardingOnServer(input?: {
     alreadyCompleted?: boolean;
     analysis?: PlacementAnalysis;
   }>("finalize-onboarding", {
+    headers: ops.headers,
     body: evidence ? { placement: evidence } : {},
   });
 
@@ -93,6 +96,7 @@ export async function finalizeOnboardingOnServer(input?: {
 
   const code = body?.code;
   if (code === "missing_draft") {
+    noteOps("finalize", ops.correlationId, "error", { code: "missing_draft" });
     return { ok: false, code: "missing_draft", message: FINALIZE_ONBOARDING_MISSING_DRAFT };
   }
   if (error || body?.ok === false) {
@@ -102,6 +106,7 @@ export async function finalizeOnboardingOnServer(input?: {
         : code === "commit_failed"
           ? "commit_failed"
           : "unavailable";
+    noteOps("finalize", ops.correlationId, "error", { code: mapped });
     return {
       ok: false,
       code: mapped,
@@ -115,6 +120,7 @@ export async function finalizeOnboardingOnServer(input?: {
       ? evaluatePlacementEvidence(evidence.declaredExperience, evidence.answers)
       : undefined);
 
+  noteOps("finalize", ops.correlationId, "ok");
   return {
     ok: true,
     alreadyCompleted: Boolean(body?.alreadyCompleted),

@@ -2,6 +2,7 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { isDevPreviewAllowed } from "../lib/entitlements";
 import { fetchServerSubscription, subscriptionGrantsPro } from "./entitlementService";
+import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 
 export type SubscriptionState =
   | "not_subscriber"
@@ -77,15 +78,19 @@ export async function createCheckoutSession(
     return { status: "auth_required", message: CHECKOUT_LOGIN_REQUIRED };
   }
 
+  const ops = edgeOpsInit("checkout");
   const { data, error } = await client.functions.invoke<{ url?: string }>("create-checkout-session", {
+    headers: ops.headers,
     body: { planKey },
   });
 
   if (error) {
+    noteOps("checkout", ops.correlationId, "error", { code: "invoke_error" });
     return { status: "error", message: error.message || CHECKOUT_PENDING_MESSAGE };
   }
 
   if (data?.url) {
+    noteOps("checkout", ops.correlationId, "ok");
     return {
       status: "opened",
       message: "Abrindo checkout seguro do Stripe...",
@@ -127,11 +132,16 @@ export async function openBillingPortal(): Promise<SubscriptionServiceResult<{ u
     return { status: "not_implemented", message: MANAGE_PENDING_MESSAGE };
   }
 
-  const { data, error } = await client.functions.invoke<{ url?: string }>("create-billing-portal");
+  const ops = edgeOpsInit("billing_portal");
+  const { data, error } = await client.functions.invoke<{ url?: string }>("create-billing-portal", {
+    headers: ops.headers,
+  });
   if (error) {
+    noteOps("billing_portal", ops.correlationId, "error", { code: "invoke_error" });
     return { status: "error", message: error.message };
   }
   if (data?.url) {
+    noteOps("billing_portal", ops.correlationId, "ok");
     return { status: "opened", message: "Abrindo o portal de cobrança...", data: { url: data.url } };
   }
   return { status: "not_implemented", message: MANAGE_PENDING_MESSAGE };

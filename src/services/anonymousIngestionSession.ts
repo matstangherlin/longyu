@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
+import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 
 const STORAGE_KEY = "longyu:anonymous-ingestion-session:v2";
 const TOKEN_PATTERN = /^[0-9a-f]{64}$/;
@@ -83,13 +84,20 @@ async function issueAnonymousIngestionSession(): Promise<string | null> {
     return null;
   }
 
+  const ops = edgeOpsInit("anon_ingestion");
   const { data, error } = await client.functions.invoke("issue-anon-ingestion-session", {
+    headers: ops.headers,
     body: {},
   });
   const payload = data as { token?: unknown; expiresIn?: unknown } | null;
   const token = typeof payload?.token === "string" ? payload.token : "";
   const expiresIn = Number(payload?.expiresIn ?? 0);
-  if (error || !TOKEN_PATTERN.test(token) || !Number.isFinite(expiresIn)) return null;
+  if (error || !TOKEN_PATTERN.test(token) || !Number.isFinite(expiresIn)) {
+    noteOps("anon_ingestion", ops.correlationId, "error", { code: "issue_failed" });
+    return null;
+  }
+
+  noteOps("anon_ingestion", ops.correlationId, "ok");
 
   writeStoredSession(token, expiresIn);
   return token;

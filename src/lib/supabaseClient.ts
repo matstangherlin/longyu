@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { isSupabaseBackendEnabled } from "./backendConfig";
+import { getOpsSessionId, OPS_SESSION_HEADER } from "./opsCorrelation";
 
 let client: SupabaseClient | null = null;
 
@@ -14,6 +15,11 @@ export function getSupabaseClient(): SupabaseClient | null {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+    },
+    global: {
+      headers: {
+        [OPS_SESSION_HEADER]: getOpsSessionId(),
+      },
     },
   });
   return client;

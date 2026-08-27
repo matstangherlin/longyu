@@ -9,6 +9,7 @@ import {
   evaluatePlacementEvidence,
   validatePlacementEvidence,
 } from "../_shared/placement/engine.ts";
+import { logOpsEdge } from "../_shared/opsCorrelation.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_ORIGINS = [
@@ -38,7 +39,7 @@ function requestOrigin(req: Request): string {
 function corsHeaders(req: Request): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": requestOrigin(req),
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-longyu-correlation-id, x-longyu-session-id, x-longyu-op",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
   };
@@ -58,6 +59,8 @@ serve(async (req) => {
   if (req.method !== "POST") {
     return json(req, { ok: false, error: "Método não permitido." }, 405);
   }
+
+  logOpsEdge(req, "start");
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY");

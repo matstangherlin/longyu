@@ -18,6 +18,7 @@ import { fetchServerIsPro } from "./entitlementService";
 import { attributeStoredReferralCode, processReferralPipeline } from "./referralService";
 import { recordClientDiagnostic } from "../lib/clientDiagnostics";
 import { isQaTestStateActive } from "../lib/qaFastPathAccess";
+import { noteOps, newOpsCorrelationId } from "../lib/opsCorrelation";
 
 const CLOUD_SYNC_TIMEOUT_MS = 12_000;
 const SYNC_TIMEOUT_MESSAGE =
@@ -48,10 +49,12 @@ function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promis
 function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
   useStore.getState().setCloudSyncState(status, message);
   if (status === "error") {
+    const correlationId = newOpsCorrelationId();
+    noteOps("sync", correlationId, "error", { code: "sync_error" });
     recordClientDiagnostic({
       kind: "sync_error",
       area: "cloud_sync",
-      message,
+      message: `${message} [${correlationId}]`,
     });
   }
 }

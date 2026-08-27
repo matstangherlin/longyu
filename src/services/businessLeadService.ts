@@ -7,6 +7,7 @@ import {
 } from "../lib/businessLead";
 import { getTurnstileToken, turnstileSiteKey } from "../lib/turnstile";
 import { getSupabaseClient } from "../lib/supabaseClient";
+import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 
 export type BusinessLeadSubmitStatus =
   | "opened"
@@ -100,32 +101,37 @@ export async function submitBusinessLead(
       }
     : { ...leadBody(validated.value!), captchaToken: captchaToken ?? undefined };
 
+  const ops = edgeOpsInit("business_lead");
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
     code?: string;
     error?: string;
     message?: string;
-  }>("submit-business-lead", { body: payload });
+  }>("submit-business-lead", { headers: ops.headers, body: payload });
 
   const body = data ?? (await readFunctionError(error));
   if (body?.code === "rate_limited") {
+    noteOps("business_lead", ops.correlationId, "error", { code: "rate_limited" });
     return {
       status: "rate_limited",
       message: "Muitos envios deste endereço. Tente de novo em alguns minutos.",
     };
   }
   if (body?.code === "captcha_failed") {
+    noteOps("business_lead", ops.correlationId, "error", { code: "captcha_failed" });
     return {
       status: "captcha_failed",
       message: "Não foi possível validar o desafio de segurança. Tente de novo.",
     };
   }
   if (error && !body?.ok) {
+    noteOps("business_lead", ops.correlationId, "error", { code: "invoke_error" });
     return {
       status: "error",
       message: publicLeadError(body),
     };
   }
+  noteOps("business_lead", ops.correlationId, "ok");
   return { status: "opened", message: body?.message || SUCCESS_MESSAGE };
 }
 

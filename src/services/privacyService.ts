@@ -2,6 +2,7 @@ import type { LocalProgressSnapshot } from "../lib/progressSnapshot";
 import { activeLearningRepository } from "../lib/repositories/learningRepository";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { getSupabaseClient } from "../lib/supabaseClient";
+import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 import { fetchRemoteEntitlements, type SyncServiceResult } from "./syncService";
 import {
   accountDeletionRequestBody,
@@ -75,15 +76,21 @@ export async function requestAccountDeletion(
     };
   }
 
+  const ops = edgeOpsInit("delete_account");
   const { data, error } = await client.functions.invoke<AccountDeletionResponse>("delete-account", {
+    headers: ops.headers,
     body,
   });
   if (error) {
+    noteOps("delete_account", ops.correlationId, "error", { code: "invoke_error" });
     return { ok: false, message: await accountDeletionErrorMessage(error) };
   }
   if (!data?.ok) {
+    noteOps("delete_account", ops.correlationId, "error", { code: "not_confirmed" });
     return { ok: false, message: data?.error || "O servidor não confirmou a exclusão da conta." };
   }
+
+  noteOps("delete_account", ops.correlationId, "ok");
 
   await client.auth.signOut();
   return {

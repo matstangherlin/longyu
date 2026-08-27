@@ -121,7 +121,27 @@ Security produção (contagem, não remediação aqui):
 
 Isto **não** marca `SECURITY_READY = PASS`. STG-009 exige A≠B e advisors **depois** das migrations no staging.
 
-## STG-003…STG-011
+## STG-011 — Observability (código no repo; runtime NOT_RUN)
+
+Cliente envia `x-longyu-correlation-id` / `x-longyu-session-id` / `x-longyu-op` em signup, placement, finalize, checkout, portal, delete-account, anon ingestion, business lead. Logs `[longyu-ops]` **sem** email/senha/token.
+
+Edges no repo leem o header (create-account, commit-placement, finalize-onboarding) e o webhook loga `stripeEventId` + type. **Não implantado** em MandarimProject nem em longyu-preview.
+
+## RLS produção (baseline, não é STG-009)
+
+Read-only `pg_policies` em MandarimProject:
+
+| tabela | policies |
+| --- | --- |
+| profiles | insert_own, select_own, update_own |
+| user_progress | insert_own, select_own, update_own |
+| user_srs | insert_own, select_own, update_own |
+| user_economy | select_own |
+| subscriptions | select_own |
+
+A≠B live (USER_A vs USER_B) **não** rodou. `SECURITY_READY` permanece NOT_READY.
+
+## STG-003…STG-010
 
 NOT_RUN. Bloqueados por STG-001.
 

@@ -7,6 +7,7 @@ import { readPendingPlacement, toServerPlacementEvidence } from "../lib/placemen
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
 import { requestAccountDeletion } from "./privacyService";
+import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 
 export type AuthServiceStatus = "ok" | "error" | "not_implemented" | "pending_confirmation";
 
@@ -120,6 +121,7 @@ export async function createAccount(
   }
 
   // Edge create-account: rate limit + anti-enum + Admin email_confirm=false.
+  const ops = edgeOpsInit("signup");
   const { data, error } = await client.functions.invoke<{
     ok?: boolean;
     code?: string;
@@ -128,6 +130,7 @@ export async function createAccount(
     message?: string;
     error?: string;
   }>("create-account", {
+    headers: ops.headers,
     body: {
       email: cleanEmail,
       password,
@@ -158,6 +161,12 @@ export async function createAccount(
     } catch {
       // ignore
     }
+  }
+
+  if (error || body?.ok === false || body?.error || body?.code === "rate_limited" || body?.code === "captcha_failed") {
+    noteOps("signup", ops.correlationId, "error", { code: body?.code || "invoke_error" });
+  } else {
+    noteOps("signup", ops.correlationId, "ok");
   }
 
   if (body?.code === "rate_limited") {

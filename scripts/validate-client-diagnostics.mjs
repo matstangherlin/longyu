@@ -18,6 +18,21 @@ assert.match(diagnostics, /sanitizeFeedbackMessage/, "reusa sanitização de fee
 assert.match(boundary, /Reportar problema/, "ErrorBoundary oferece CTA de reportar");
 assert.match(boundary, /recordClientDiagnostic/, "ErrorBoundary grava diagnóstico");
 assert.match(sync, /sync_error/, "falha de sync grava diagnóstico");
+assert.match(sync, /opsCorrelation/, "sync anexa correlation id sem PII");
+
+const ops = readFileSync("src/lib/opsCorrelation.ts", "utf8");
+assert.match(ops, /x-longyu-correlation-id/, "header de correlação");
+assert.match(ops, /Nunca registra email/, "contrato sem PII");
+assert.doesNotMatch(ops, /password|authorization|access_token/i, "opsCorrelation não menciona segredos");
+
+const signup = readFileSync("src/services/authService.ts", "utf8");
+assert.match(signup, /edgeOpsInit\("signup"\)/, "signup envia correlação");
+const placement = readFileSync("src/services/placementCommit.ts", "utf8");
+assert.match(placement, /edgeOpsInit\("placement"\)/, "placement envia correlação");
+const finalize = readFileSync("src/services/finalizeOnboarding.ts", "utf8");
+assert.match(finalize, /edgeOpsInit\("finalize"\)/, "finalize envia correlação");
+const checkout = readFileSync("src/services/subscriptionService.ts", "utf8");
+assert.match(checkout, /edgeOpsInit\("checkout"\)/, "checkout envia correlação");
 assert.match(feedback, /displayMode/, "contexto técnico inclui displayMode");
 assert.match(feedback, /appEnv/, "contexto técnico inclui appEnv");
 assert.match(pwa, /Nova versão/, "banner PWA de atualização existe");
