@@ -51,7 +51,10 @@ const prodIdentify = runScript("scripts/identify-staging.mjs", {
   SUPABASE_ACCESS_TOKEN: "",
 });
 assert(prodIdentify.status === 2, "identify:staging recusa produção (exit 2)");
-assert(/HARD FAIL/.test(prodIdentify.stderr + prodIdentify.stdout), "identify:staging HARD FAIL em produção");
+assert(
+  /REFUSING_TO_USE_PRODUCTION_AS_STAGING/.test(prodIdentify.stderr + prodIdentify.stdout),
+  "identify:staging REFUSING_TO_USE_PRODUCTION_AS_STAGING"
+);
 
 const atomurusIdentify = runScript("scripts/identify-staging.mjs", {
   LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
@@ -59,6 +62,16 @@ const atomurusIdentify = runScript("scripts/identify-staging.mjs", {
 });
 assert(atomurusIdentify.status === 2, "identify:staging recusa atomurus (exit 2)");
 assert(/atomurus/.test(atomurusIdentify.stderr + atomurusIdentify.stdout), "identify:staging cita atomurus");
+
+const unknownIdentify = runScript("scripts/identify-staging.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
+  SUPABASE_ACCESS_TOKEN: "",
+});
+assert(unknownIdentify.status === 2, "identify:staging recusa ID desconhecido");
+assert(
+  /REFUSING_UNKNOWN_STAGING_PROJECT/.test(unknownIdentify.stderr + unknownIdentify.stdout),
+  "identify:staging REFUSING_UNKNOWN_STAGING_PROJECT"
+);
 
 const missingIdentify = runScript("scripts/identify-staging.mjs", {
   LONGYU_STAGING_PROJECT_ID: "",
@@ -71,7 +84,10 @@ const prodMigrate = runScript("scripts/apply-staging-migrations.mjs", {
   SUPABASE_ACCESS_TOKEN: "sbp_fake",
 });
 assert(prodMigrate.status === 2, "migrate:staging recusa produção");
-assert(/HARD FAIL/.test(prodMigrate.stderr + prodMigrate.stdout), "migrate:staging HARD FAIL em produção");
+assert(
+  /REFUSING_TO_USE_PRODUCTION_AS_STAGING/.test(prodMigrate.stderr + prodMigrate.stdout),
+  "migrate:staging REFUSING_TO_USE_PRODUCTION_AS_STAGING"
+);
 
 const prodDeploy = runScript("scripts/deploy-staging-functions.mjs", {
   LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,

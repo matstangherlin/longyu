@@ -7,6 +7,10 @@ import path from "node:path";
 import {
   LONGYU_INTENDED_STAGING_PROJECT_ID,
   LONGYU_PRODUCTION_PROJECT_ID,
+  REFUSING_EMPTY_STAGING_PROJECT_ID,
+  REFUSING_FOREIGN_PRODUCT_AS_STAGING,
+  REFUSING_TO_USE_PRODUCTION_AS_STAGING,
+  REFUSING_UNKNOWN_STAGING_PROJECT,
   extractProjectRef,
   foreignProductName,
   isForeignProductProjectId,
@@ -45,8 +49,12 @@ assert(!isForeignProductProjectId(LONGYU_INTENDED_STAGING_PROJECT_ID), "preview 
 let threw = false;
 try {
   requireStagingProjectId({ LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID });
-} catch {
+} catch (error) {
   threw = true;
+  assert(
+    String(error.message).includes(REFUSING_TO_USE_PRODUCTION_AS_STAGING),
+    "produção usa REFUSING_TO_USE_PRODUCTION_AS_STAGING"
+  );
 }
 assert(threw, "requireStagingProjectId recusa produção");
 
@@ -56,8 +64,62 @@ try {
 } catch (error) {
   threw = true;
   assert(String(error.message).includes("atomurus"), "mensagem cita atomurus");
+  assert(
+    String(error.message).includes(REFUSING_FOREIGN_PRODUCT_AS_STAGING),
+    "atomurus usa REFUSING_FOREIGN_PRODUCT_AS_STAGING"
+  );
 }
 assert(threw, "requireStagingProjectId recusa atomurus");
+
+threw = false;
+try {
+  requireStagingProjectId({ LONGYU_STAGING_PROJECT_ID: "" });
+} catch (error) {
+  threw = true;
+  assert(
+    String(error.message).includes(REFUSING_EMPTY_STAGING_PROJECT_ID),
+    "vazio usa REFUSING_EMPTY_STAGING_PROJECT_ID"
+  );
+}
+assert(threw, "requireStagingProjectId recusa ID vazio");
+
+threw = false;
+try {
+  requireStagingProjectId({ LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij" });
+} catch (error) {
+  threw = true;
+  assert(
+    String(error.message).includes(REFUSING_UNKNOWN_STAGING_PROJECT),
+    "id desconhecido recusado"
+  );
+}
+assert(threw, "requireStagingProjectId recusa project_id desconhecido");
+
+threw = false;
+try {
+  requireStagingProjectId({
+    LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
+    LONGYU_STAGING_ALLOWED_PROJECT_IDS: "abcdefghijabcdefghij",
+  });
+} catch {
+  threw = true;
+}
+assert(!threw, "allowlist explícita aceita projeto isolado autorizado");
+
+threw = false;
+try {
+  requireStagingProjectId({
+    LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
+    LONGYU_STAGING_ALLOWED_PROJECT_IDS: LONGYU_PRODUCTION_PROJECT_ID,
+  });
+} catch (error) {
+  threw = true;
+  assert(
+    String(error.message).includes(REFUSING_TO_USE_PRODUCTION_AS_STAGING),
+    "allowlist não autoriza produção"
+  );
+}
+assert(threw, "allowlist não contorna MandarimProject");
 
 assert(
   extractProjectRef("https://wpnmygzxqvmpdlcuwrjp.supabase.co") === LONGYU_INTENDED_STAGING_PROJECT_ID,
@@ -69,7 +131,10 @@ const prodLive = runScript("scripts/v476-live-validation.mjs", {
   SUPABASE_ACCESS_TOKEN: "",
 });
 assert(prodLive.status === 2, "v476 live recusa produção (exit 2)");
-assert(/HARD FAIL/.test(`${prodLive.stdout}\n${prodLive.stderr}`), "v476 live HARD FAIL em produção");
+assert(
+  new RegExp(REFUSING_TO_USE_PRODUCTION_AS_STAGING).test(`${prodLive.stdout}\n${prodLive.stderr}`),
+  "v476 live REFUSING_TO_USE_PRODUCTION_AS_STAGING"
+);
 
 const atomurusLive = runScript("scripts/v476-live-validation.mjs", {
   LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
@@ -203,9 +268,14 @@ assert(report.includes("drjcfalvlbbeblmmyhwj"), "produção citada como HARD FAI
 assert(report.includes("ylofdottauzcqcifnnpm"), "atomurus citado");
 assert(report.includes("wpnmygzxqvmpdlcuwrjp"), "preview citado");
 assert(report.includes("#203"), "dependência da #203");
-assert(report.includes("AUTH-009"), "AUTH-009 no relatório");
+assert(report.includes("PRE-002"), "PRE-002 documentado");
+assert(report.includes("BLOCKED_BY_INFRASTRUCTURE"), "decisão BLOCKED_BY_INFRASTRUCTURE");
+assert(report.includes("REFUSING_TO_USE_PRODUCTION_AS_STAGING"), "token STG-003 no relatório");
+assert(report.includes("AUTH-013"), "AUTH-013 nova aba no relatório");
+assert(report.includes("AUTH-009"), "AUTH-009 mapeado no relatório");
 assert(report.includes("v476-placement-authority"), "harness Placement documentado");
 assert(report.includes("FIXTURE"), "AUTH fixture ≠ e-mail real");
+assert(report.includes("OBS-026"), "contrato de observabilidade documentado");
 
 const applySrc = read("scripts/apply-staging-migrations.mjs");
 assert(applySrc.includes("requireHealthyStagingStatus"), "migrate exige ACTIVE_HEALTHY");

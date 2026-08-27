@@ -1,8 +1,8 @@
-# V4.7.6 — Staging Backend Activation & Live Identity Validation
+# V4.7.6 — Staging Backend Activation + Live Validation
 
-Atualizado em: 2026-08-27T23:36:00Z  
+Atualizado em: 2026-08-27T23:48:00Z  
 Branch: `cursor/v476-staging-live-validation-3618`  
-Base: `origin/main` `b2a5818` (rebase após merge da #203)
+Decisão desta remessa: **`BLOCKED_BY_INFRASTRUCTURE`**
 
 **Não é autorização de closed beta.** Automação não preenche PASS humano.
 `PHYSICAL_QA_READY`, `PAYMENTS_READY` e `READY_FOR_CLOSED_BETA_BR` **estão fora desta remessa** e não são marcados.
@@ -10,66 +10,114 @@ Base: `origin/main` `b2a5818` (rebase após merge da #203)
 Produção (não tocar): MandarimProject `drjcfalvlbbeblmmyhwj`.  
 Atomurus (não usar como banco Longyu, não pausar): `ylofdottauzcqcifnnpm`.
 
-## Scoreboard
+Aceite V4.7.6 só fecha com evidência live nos cinco campos operacionais (staging, auth, placement, sync, security staging) e P0 = 0. **Nenhum desses campos é PASS nesta remessa.**
+
+## Scoreboard (REPORT-032)
 
 | Campo | Valor | Evidência |
 | --- | --- | --- |
-| `STAGING_READY` | **BLOCKED** | `longyu-preview` `wpnmygzxqvmpdlcuwrjp` está `INACTIVE`. `restore_project` recusado (`ForbiddenException`, **2 project limit** Free, owner `matstangherlin`). Org Noba `cwvlptpndrekubhhtoln` plan **free**. |
-| `AUTH_READY` | **BLOCKED** | Signup / nova aba / segundo device exigem staging `ACTIVE_HEALTHY`. Não executado. |
-| `PLACEMENT_READY` | **BLOCKED** | Contrato de código: servidor recalcula evidência (ver PLACEMENT-012). Intercept live **não rodou**. |
-| `SYNC_READY` | **BLOCKED** | 1/4 → 2/4 cross-device exige conta real no staging. Não executado. |
-| `SECURITY_STAGING_READY` | **BLOCKED** | RLS A≠B e advisors **no staging** exigem `ACTIVE_HEALTHY`. Não executado. Advisors de produção não relabelam este campo. |
+| `CODE_READY` | **PASS** no SHA `b2a5818` | PR #203: Portão de qualidade, E2E Chromium, E2E Firefox, Security (CodeQL / npm audit / gitleaks) SUCCESS. **Não promove** nenhum outro campo. |
+| `CROSS_BROWSER_READY` | **PASS** no SHA `b2a5818` | Firefox job SUCCESS (gate). WebKit SUCCESS informativo. |
+| `STAGING_READY` | **BLOCKED_BY_INFRASTRUCTURE** | `longyu-preview` `INACTIVE`. `restore_project` recusado (2 project limit Free). |
+| `AUTH_READY` | **BLOCKED** | AUTH-011…016 exigem staging `ACTIVE_HEALTHY`. Não executado. |
+| `PLACEMENT_READY` | **BLOCKED** | Contrato de código: servidor recalcula evidência. Intercept live **não rodou**. |
+| `SYNC_READY` | **BLOCKED** | 0/4 → 1/4 → 2/4 → 4/4 live **não rodou**. |
+| `SECURITY_STAGING_READY` | **BLOCKED** | RLS A≠B e advisors **no staging** não rodaram. Advisors de produção não relabelam este campo. |
+| `PHYSICAL_QA_READY` | **NOT_RUN** | Fora desta remessa. |
+| `PAYMENTS_READY` | **NOT_RUN** | Fora desta remessa. Stripe Live **não** usado. |
+| `READY_FOR_CLOSED_BETA_BR` | **NOT_READY** | Decisão humana. Permanece NOT_READY. |
 
-Nenhum campo acima é `PASS`.
+Nenhum campo operacional acima é `PASS`.
 
-## PRE-001 — Estado de #203
+## PRE-001 — Confirmar main
 
-#203 **mergeada**.
+`git fetch origin main` em 2026-08-27T23:45Z.
 
-| Item | Valor em 2026-08-27T23:32:09Z |
+| Item | Valor |
 | --- | --- |
-| URL | https://github.com/matstangherlin/longyu/pull/203 |
-| state | MERGED |
-| mergedAt | 2026-08-27T23:32:09Z |
-| HEAD / `origin/main` | `b2a5818` |
+| `origin/main` SHA | `b2a5818af1182277ac61c699970b1e3e868ded12` |
+| mensagem | `fix(ops): use Web Crypto for correlation ids` |
+| merged via | [#203](https://github.com/matstangherlin/longyu/pull/203) 2026-08-27T23:32:09Z |
+| `LONGYU_RC` | `v4.7.4-rc.1` |
+| Journey fingerprint (`npm run rc:identity`) | `fb7ac3c5d18a` |
+| Placement version | `2` |
+| schema expected version | `1` |
+| store version | `20` |
+| Edges esperadas (repo) | `create-account` (verify_jwt false), `commit-placement` (true), `finalize-onboarding` (true), `submit-business-lead` (false), `create-checkout-session` (true), `create-billing-portal` (true), `stripe-webhook` (false), `delete-account` (true), `issue-anon-ingestion-session` (false) |
+| Web Crypto correlation | `src/lib/opsCorrelation.ts` usa `crypto.randomUUID` / `getRandomValues`; sem Web Crypto **lança** antes do invoke |
+
+Main **não mudou** depois da validação do SHA `b2a5818`. Não reexecutar Chromium/Firefox locais só porque esta remessa de docs/guarda foi rebaseada em cima dele.
+
+Gates daquele SHA (GitHub, não inventado):
+
+| Gate | Conclusão |
+| --- | --- |
 | Portão de qualidade (`validate:beta` + build) | SUCCESS |
-| E2E Chromium | SUCCESS |
-| E2E Firefox | SUCCESS |
+| Testes E2E (Playwright / Chromium) | SUCCESS |
+| E2E cross-engine Firefox | SUCCESS |
 | E2E WebKit | SUCCESS (informativo) |
 | npm audit / CodeQL / gitleaks | SUCCESS |
 
-V4.7.6 está rebaseada em `main`. Permanece BLOCKED só por falta de staging `ACTIVE_HEALTHY` com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj`.
+## PRE-002 — Estado do staging (reconsulta viva)
 
-Reconferência MCP **depois** do merge (2026-08-27T23:36Z): `longyu-preview` ainda `INACTIVE`; atomurus ainda `ACTIVE_HEALTHY`; MandarimProject ainda `ACTIVE_HEALTHY`. Restore **não** foi retentado (limite Free inalterado).
-
-## STG-002 — Staging obrigatório
-
-Inventário MCP `list_projects` (2026-08-27T22:42Z):
+MCP `list_projects` + `get_project` + `get_organization` + `restore_project` em 2026-08-27T23:46Z. **Não** reutilizar o inventário anterior sem consulta.
 
 | project_id | nome | região | status | papel |
 | --- | --- | --- | --- | --- |
 | `drjcfalvlbbeblmmyhwj` | MandarimProject | us-west-2 | ACTIVE_HEALTHY | **produção — HARD FAIL** |
-| `wpnmygzxqvmpdlcuwrjp` | longyu-preview | us-west-1 | INACTIVE | staging pretendido |
+| `wpnmygzxqvmpdlcuwrjp` | longyu-preview | us-west-1 | **INACTIVE** | staging pretendido |
 | `ylofdottauzcqcifnnpm` | atomurus | us-west-2 | ACTIVE_HEALTHY | outro produto — HARD FAIL como Longyu |
 
-`requireStagingProjectId` agora recusa produção **e** atomurus.
+Org Noba `cwvlptpndrekubhhtoln` plan **free**.
 
-`restore_project(wpnmygzxqvmpdlcuwrjp)` nesta sessão:
+`restore_project(wpnmygzxqvmpdlcuwrjp)` nesta sessão (operação previamente autorizada de ativação do preview):
 
-`ForbiddenException`: membros da org no limite máximo de projetos Free ativos — `matstangherlin (2 project limit)`.
+`ForbiddenException`: membros da org no limite máximo de projetos Free ativos — `matstangherlin (2 project limit)`. Para continuar: delete, pause ou upgrade de um ou mais projetos.
 
-Custo cotado (não confirmado, **não criado**):
+MandarimProject **não** pausado. Atomurus **não** pausado. **PARADA** aqui para writes de staging.
+
+Custo cotado (`get_cost`, **não** `confirm_cost`, **nada criado**):
 
 | Ação | recorrência | amount | decisão |
 | --- | --- | --- | --- |
-| novo projeto | monthly | 0 | recusado pelo limite de 2 projetos, não por preço |
-| branch Supabase | hourly | 0.01344 | **não confirmado**; branching em produção não é staging isolado Longyu |
+| novo projeto | monthly | 0 | ainda recusado pelo limite de 2 projetos, não pelo preço em dólares |
+| branch Supabase | hourly | 0.01344 | **não confirmado**; branching em MandarimProject **não** é staging isolado Longyu |
 
-`list_branches` em MandarimProject devolveu o branch git default `main` (`MIGRATIONS_FAILED` / preview `ACTIVE_HEALTHY`). **Não** é um ambiente Longyu de staging. Nada foi criado, mergeado ou resetado.
+## Decisão humana (obrigatória)
 
-## STG-003 — Estado saudável
+**`STAGING_BLOCKED` / `BLOCKED_BY_INFRASTRUCTURE`**
 
-Alvo pretendido `wpnmygzxqvmpdlcuwrjp`:
+Escolher **um**:
+
+| Opção | O que o humano precisa fazer |
+| --- | --- |
+| **A** | Liberar um slot Free: pausar ou excluir um projeto ativo que **não** seja MandarimProject, depois restaurar `longyu-preview`. |
+| **B** | Upgrade da org Noba para um plano que permita o 3º projeto / restore. |
+| **C** | Autorizar staging pago isolado (`confirm_cost`) com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj` e `LONGYU_STAGING_ALLOWED_PROJECT_IDS` se o ref não for o preview. |
+| **D** | Autorização **explícita** na conversa: “pode pausar o atomurus e restaurar o longyu-preview”. |
+
+Não improvisar com produção.
+
+## STG-003 — Hard guard
+
+Scripts exigem `LONGYU_STAGING_PROJECT_ID`.
+
+| Alvo | Código |
+| --- | --- |
+| produção `drjcfalvlbbeblmmyhwj` | `REFUSING_TO_USE_PRODUCTION_AS_STAGING` |
+| atomurus `ylofdottauzcqcifnnpm` | `REFUSING_FOREIGN_PRODUCT_AS_STAGING` |
+| vazio | `REFUSING_EMPTY_STAGING_PROJECT_ID` |
+| id não listado | `REFUSING_UNKNOWN_STAGING_PROJECT` |
+
+Allowlist padrão: só `wpnmygzxqvmpdlcuwrjp`. Projeto isolado pago só com `LONGYU_STAGING_ALLOWED_PROJECT_IDS` **depois** de autorização humana. Allowlist **não** contorna produção nem atomurus.
+
+`migrate:staging` / `deploy:staging-functions` / harnesses também exigem `ACTIVE_HEALTHY` no projeto remoto.
+
+## STG-004 — Staging identity
+
+**BLOCKED.** Sem `ACTIVE_HEALTHY` não há identity live.
+
+Pretendido (metadata pausada, não consultável):
 
 | campo | valor |
 | --- | --- |
@@ -77,29 +125,27 @@ Alvo pretendido `wpnmygzxqvmpdlcuwrjp`:
 | nome | longyu-preview |
 | região | us-west-1 |
 | URL | https://wpnmygzxqvmpdlcuwrjp.supabase.co |
-| database version | 17.6.1.155 (metadata Management API; banco pausado) |
-| status | **INACTIVE** (não `ACTIVE_HEALTHY`) |
-| timestamp | 2026-08-27T22:42Z |
+| database version | 17.6.1.155 (Management API; banco pausado) |
+| status | INACTIVE |
+| timestamp | 2026-08-27T23:46Z |
 
-`npm run identify:staging` / `v476:live` param com BLOCKED. Nenhuma migration aplicada. Nenhum deploy.
+Nenhum secret registrado.
 
-## STG-004 — Migration baseline
+## STG-005 — Migration inventory vivo
 
-**Staging:** inconsultável (INACTIVE). Não assumir banco vazio; também não inventar lista remota.
+Três estados. Produção **não** modificada.
 
-**Produção** (read-only `list_migrations` MandarimProject, 2026-08-27T22:42Z). Watermark:
+**Produção** (`list_migrations` MandarimProject, 2026-08-27T23:46Z). Watermark:
 
-`20260810175737` `beta_experience_telemetry`
+`20260810175737` `beta_experience_telemetry` (34 versões timestamped).
 
-Aplicadas em produção (não reaplicar lá):
+**Staging:** inconsultável (INACTIVE). Não assumir banco vazio.
 
-`pedagogy_analytics_consent` … `beta_experience_telemetry` (34 versões timestamped na API; baseline V4.7.3/V4.7.5 inalterada).
-
-**Repo vs produção — plano ordenado SOMENTE para staging** (não executado):
+**Repo** (listagem do diretório nesta sessão; não confiar em lista memorizada). Depois do watermark de produção, as sete migrations timestamped do repo **continuam** sendo:
 
 | version | name | status |
 | --- | --- | --- |
-| 20260812180000 | production_help_telemetry | BLOCKED |
+| 20260812180000 | production_help_telemetry | BLOCKED (não aplicada) |
 | 20260813180000 | pearl_pro_economy | BLOCKED |
 | 20260814010000 | mastery_pass_telemetry | BLOCKED |
 | 20260825043000 | business_foundation | BLOCKED |
@@ -107,13 +153,17 @@ Aplicadas em produção (não reaplicar lá):
 | 20260826230000 | placement_onboarding | BLOCKED |
 | 20260827023000 | placement_onboarding_handoff | BLOCKED |
 
-`migrate:staging` agora exige `ACTIVE_HEALTHY` no project_id guardado antes de qualquer POST.
+Nenhuma migration nova além dessa lista nesta HEAD.
 
-## STG-005 — Aplicar migrations
+## STG-006 — Migration dry audit
 
-**NOT_RUN / BLOCKED.** `--apply` recusado sem `ACTIVE_HEALTHY`. MandarimProject intocado.
+**NOT_RUN.** Sem staging `ACTIVE_HEALTHY` não há schema remoto para conferir dependências. SQL do repo existe; dry-run vivo **não** executado. Nenhum write.
 
-## STG-006 — Schema assertions
+## STG-007 — Aplicar migrations
+
+**NOT_RUN / BLOCKED.** `--apply` recusado sem `ACTIVE_HEALTHY`. MandarimProject intocado. Nenhuma migration posterior aplicada.
+
+## STG-008 — Schema contract
 
 **BLOCKED.** Esperado quando o staging existir:
 
@@ -121,13 +171,13 @@ Tabelas: `placement_attempts`, `placement_onboarding_drafts`, `business_leads`, 
 
 `profiles`: `country_code`, `interface_locale`, `instruction_locale`, `native_language`, `target_language`, `onboarding_completed`.
 
-Script: `npm run assert:staging-schema` (recusa produção/atomurus; SQL só após healthy).
+Script: `npm run assert:staging-schema` (recusa produção/atomurus/desconhecido; SQL só após healthy).
 
-## STG-007 — Edge deployment
+## STG-009 — Edge Functions
 
 **NOT_RUN.** `deploy:staging-functions` exige `ACTIVE_HEALTHY` e recusa produção.
 
-Árvore do repo a implantar **só em staging**:
+Árvore do repo (fonte desta RC) a implantar **só em staging**:
 
 | slug | verify_jwt (config.toml) | staging | produção (não implantar delta) |
 | --- | --- | --- | --- |
@@ -141,11 +191,11 @@ Script: `npm run assert:staging-schema` (recusa produção/atomurus; SQL só ap�
 | issue-anon-ingestion-session | false | NOT_RUN | v3 ACTIVE |
 | submit-business-lead | false | NOT_RUN | **ausente em prod — não implantar lá** |
 
-Nenhum `deploy_edge_function` MCP nesta remessa.
+Produção (`list_edge_functions` MandarimProject, 2026-08-27T23:46Z) confirma as seis ACTIVE acima. Nenhum `deploy_edge_function` nesta remessa.
 
-## STG-008 — Secrets
+## STG-010 — Secrets
 
-Classificação **sem valores** (`npm run audit:staging-secrets`). Runner local desta sessão, staging vault inalcançável:
+Classificação **sem valores** (`npm run audit:staging-secrets`). Staging vault inalcançável:
 
 | nome | status | nota |
 | --- | --- | --- |
@@ -163,79 +213,117 @@ Classificação **sem valores** (`npm run audit:staging-secrets`). Runner local 
 | BUSINESS_LEAD_NOTIFY_TOKEN | NOT_REQUIRED | opcional |
 | LONGYU_QA_EMAIL / PASSWORD | MISSING | AUTH live |
 
-Vault do projeto INACTIVE **não** foi listado. Stripe Live **não** foi usado.
+Stripe Live **não** foi usado.
 
-## AUTH-009 … AUTH-011
+## AUTH-011 — Conta real
 
 **BLOCKED.** Sem staging `ACTIVE_HEALTHY`.
 
-Harness fail-closed (não promove PASS):
+Harness `npm run v476:auth-identity` cria user via **Admin API `email_confirm` (FIXTURE)**. Isso **não** é AUTH-011 (signup real na Landing) nem AUTH-013 (e-mail em nova aba). Sem credenciais = exit 2 BLOCKED.
 
-- `npm run v476:auth-identity` — cria user via **Admin API `email_confirm` (FIXTURE)**. Isso **não** é AUTH-009 (e-mail real em nova aba). Segundo `signIn` cobre AUTH-011 só como mesmo `user_id`, sem sessionStorage.
-- AUTH-009/010 (link de confirmação em aba nova, sem sessionStorage original, draft → finalize) permanece **NOT_RUN** até inbox real + Edges `create-account` / `finalize-onboarding` no staging.
+## AUTH-012 — Placement draft
 
-## PLACEMENT-012 — Server authority (código + harness)
+**BLOCKED.** Exige signup + `placement_onboarding_drafts` no staging.
 
-Contrato no repo (não é PASS live):
+## AUTH-013 — Nova aba (crítico)
 
-`supabase/functions/commit-placement/index.ts` lê `declaredExperience` + `answers` (questionId, answer, hintUsed, responseMode). **Não** lê `score`, `skippedLessonIds` nem `masteredByPlacement` do body. Recalcula com `evaluatePlacementEvidence` e grava `p_score_summary` / `p_mastered_by_placement` / `p_recommended_lesson_id` a partir da analysis.
+**NOT_RUN.** (Mapeamento: AUTH-009 da remessa anterior.) Fechar aba original, limpar storage, confirmar em outro contexto: **não executado**.
 
-`src/services/placementCommit.ts` envia só evidência.
-
-Harness live: `npm run v476:placement-authority` (`scripts/v476-placement-authority.mjs`) envia score/skip/mastery forjados. Sem staging/Edge = **BLOCKED**. Intercept HTTP de browser: **NOT_RUN**.
-
-## PLACEMENT-013 — Casos
-
-**NOT_RUN.** Fixtures de iniciante/intermediário/avançado/inconsistente/hints exigem commit live.
-
-## SYNC-014 … SYNC-017
-
-**BLOCKED.** Harness `npm run v476:sync-identity`: device A grava 1 lição, device B lê e grava 2, A relê; tenta regressão via upsert cru. Sem credenciais de staging o script sai 2. Anti-regressão do app hoje é sobretudo no client (`supabaseLearningRepository`); o probe live falha se o servidor aceitar snapshot menor.
-
-## SEC-018 — RLS A≠B
-
-**NOT_RUN.** `npm run test:rls:staging` recusa produção e URL mismatch. Sem `ALLOW_STAGING_SECURITY_TESTS` + credenciais de staging.
-
-## SEC-019 — Advisors no staging
-
-**NOT_RUN.** Não relabelar advisors de MandarimProject. Ver `docs/reports/staging-supabase-advisors.md` (BLOCKED).
-
-## OBS-020 — Correlation IDs
-
-Código de correlação está em `main` (`src/lib/opsCorrelation.ts`, SHA `b2a5818`). Runtime staging: **NOT_RUN**. Nenhum log de Edge de staging foi puxado.
-
-## PROGRESS-021 / RECOVERY-022
+## AUTH-014 — Outro dispositivo
 
 **NOT_RUN.**
 
-## PROD-024 — Produção após o merge da #203
+## AUTH-015 — Missing draft
+
+**NOT_RUN.** Copy de código já existe (`Precisamos finalizar seu ponto de partida.` / refazer Placement). Live **não** rodou.
+
+## AUTH-016 — Idempotência
+
+**NOT_RUN.** Finalize duas vezes / concorrente: não executado.
+
+## PLACEMENT-017 — Client distrust
+
+Contrato no repo (não é PASS live):
+
+`supabase/functions/commit-placement/index.ts` lê `declaredExperience` + `answers`. **Não** lê `score`, `skippedLessonIds` nem `masteredByPlacement` do body. Recalcula com `evaluatePlacementEvidence`.
+
+Harness: `npm run v476:placement-authority` (`scripts/v476-placement-authority.mjs`). Sem staging/Edge = **BLOCKED**. Intercept HTTP de browser: **NOT_RUN**.
+
+## PLACEMENT-018 / PLACEMENT-019
+
+**NOT_RUN.** TRUE_BEGINNER / BASIC / INTERMEDIATE / ADVANCED / INCONSISTENT / HINT_DEPENDENT exigem commit live.
+
+## SYNC-020 … SYNC-023
+
+**BLOCKED.** Harness `npm run v476:sync-identity`: device A grava 1 lição, device B lê e grava 2, A relê; tenta regressão via upsert cru. Sem credenciais = exit 2. Anti-regressão do app hoje é sobretudo no client (`supabaseLearningRepository`). 4/4 live, conflito concorrente e reload no meio: **NOT_RUN**.
+
+## FAIL-024 — Network failures
+
+**NOT_RUN.** Offline / timeout Edge / 500 / double click exigem staging + UI.
+
+## OBS-025 — Correlation runtime
+
+Código de correlação está em `main` (`src/lib/opsCorrelation.ts`, SHA `b2a5818`). Headers: `x-longyu-correlation-id`, `x-longyu-session-id`, `x-longyu-op`. Runtime staging: **NOT_RUN**. Nenhum log de Edge de staging foi puxado.
+
+## OBS-026 — Observability must not break product
+
+**Decisão de contrato (código, não evidência live):** **A** para geração de IDs.
+
+`randomId()` exige Web Crypto (`randomUUID` ou `getRandomValues`). Se ambos faltarem, **lança** `Web Crypto RNG unavailable for ops correlation` **antes** de `functions.invoke` (signup, placement, finalize, checkout, etc.). A operação **não começa**. Não há “frontend acha que falhou + servidor processou”.
+
+Envio: os headers vão no **mesmo** `invoke` que o body. Não há retry automático de Edge a partir da correlação.
+
+Degradação permitida: `noteOps` no `console` é best-effort; falha de `sessionStorage` (modo privado) cai para memória e ainda exige Web Crypto.
+
+O que **não** pode ocorrer continua proibido: processar no backend + UI sem confirmação + retry duplicando. Isso permanece **NOT_RUN** em runtime até OBS-025 live.
+
+## SEC-027 — USER A ≠ USER B
+
+**NOT_RUN.** `npm run test:rls:staging` recusa produção, atomurus, URL mismatch e id desconhecido. Sem `ALLOW_STAGING_SECURITY_TESTS` + credenciais de staging.
+
+## SEC-028 — Service role boundaries
+
+**NOT_RUN** no staging. Auditoria de grants SECURITY DEFINER exige schema healthy.
+
+## SEC-029 — Advisors
+
+**NOT_RUN.** Não relabelar advisors de MandarimProject. Ver `docs/reports/staging-supabase-advisors.md` (BLOCKED).
+
+## REC-030 — Password recovery
+
+**NOT_RUN.**
+
+## BUS-031 — Business smoke
+
+**NOT_RUN.** Lead form / anti-spam / RLS de organization exigem staging. Sem Business Admin novo. Segurança não é opcional; smoke B2C não-crítico pode ser FOLLOW_UP **depois** de evidência, não agora.
+
+## PROD-033 — Zero production writes
 
 Zero `apply_migration` / `deploy_edge_function` / Stripe Live / flag Netlify production nesta remessa.
 
-`list_migrations` MandarimProject **depois** do merge (2026-08-27T23:36Z): watermark **inalterado** `20260810175737` `beta_experience_telemetry` (34 versões; a última continua sendo essa). As sete migrations operacionais do repo **não** estão em produção.
+`list_migrations` MandarimProject **depois** do merge da #203: watermark **inalterado** `20260810175737` `beta_experience_telemetry`.
 
-GitHub App **Supabase Preview** no push da `main` `b2a5818`: **FAILURE** fail-closed.
+GitHub App **Supabase Preview** no push da `main` `b2a5818`: **FAILURE** fail-closed (`Remote migration versions not found in local migrations directory.`). Dashboard aponta para produção. **Não aplicou DDL.** Não copiar o watermark de produção para o repo para “ficar verde”. Não desligar o app nesta remessa.
 
-| campo | valor |
-| --- | --- |
-| check | [Supabase Preview](https://github.com/matstangherlin/longyu/runs/98706401555) |
-| details_url | dashboard MandarimProject `drjcfalvlbbeblmmyhwj` |
-| summary | `Remote migration versions not found in local migrations directory.` |
-| efeito | **não** aplicou migration; watermark idêntico ao inventário V4.7.5 |
+`list_branches` MandarimProject: só o git default `main` (`MIGRATIONS_FAILED`). Nenhum preview branch novo. Isso **não** é staging Longyu.
 
-`list_branches` MandarimProject: só o git default `main` (`MIGRATIONS_FAILED` / `preview_project_status` `ACTIVE_HEALTHY`, registro de 2026-07-08). Nenhum preview branch novo. Isso **não** é staging Longyu.
+`VITE_CLOUD_ONBOARDING_V2_ENABLED=false` no Netlify production permanece.
 
-Risco em pé (humano, não “corrigido” aqui): o GitHub App Supabase está ligado à **produção**. Hoje o check falha porque o remoto tem versões fora do diretório local. Se o repo um dia alinhar esse watermark **e** ganhar migrations novas, o merge na `main` pode tentar aplicá-las em MandarimProject. Não desligar o app nesta remessa. Não copiar o watermark de produção para o repo para “ficar verde”.
+## BUG-034
 
-## Como desbloquear (humano)
+Nenhum P0/P1 de staging revelado: live **não rodou**. Nenhum feature novo.
 
-Um de:
+## CI-035
 
-1. Upgrade da org Noba **ou** pausar/excluir um projeto Free que **não** seja MandarimProject, depois restaurar `longyu-preview`.
-2. Autorização explícita: “pode pausar o atomurus e restaurar o longyu-preview”.
-3. Confirmar custo de branch/projeto pago isolado (`confirm_cost`) com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj`.
+SHA desta branch após a guarda STG-003: ver HEAD do PR. Gates locais desta correção: `test:staging-activation` + `test:v476-live-validation`. Chromium/Firefox da RC permanecem os do SHA `b2a5818`.
 
-Depois de um staging `ACTIVE_HEALTHY`: `identify:staging` → `migrate:staging` (parar no primeiro erro) → `deploy:staging-functions` → auth/placement/sync/RLS live. #203 já está em `main`.
+## Como desbloquear
+
+Depois de um staging `ACTIVE_HEALTHY` (opção A/B/C/D):
+
+`identify:staging` → dry audit → `migrate:staging` **uma a uma** (parar no primeiro erro) → `assert:staging-schema` → `deploy:staging-functions` → auth/placement/sync/RLS/advisors live.
+
+#203 já está em `main`.
 
 ## Comandos
 

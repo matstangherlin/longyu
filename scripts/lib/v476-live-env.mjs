@@ -20,7 +20,7 @@ export function requireLiveStagingCredentials(env) {
       "V4.7.6 BLOCKED: STAGING_SUPABASE_URL / ANON / SERVICE_ROLE ausentes. Live identity não roda."
     );
   }
-  assertStagingUrlMatches(url, stagingId);
+  assertStagingUrlMatches(url, stagingId, "STAGING_SUPABASE_URL", env);
   if (env.ALLOW_STAGING_SECURITY_TESTS !== "true") {
     throw new StagingGuardError(
       "V4.7.6 BLOCKED: ALLOW_STAGING_SECURITY_TESTS≠true. Sem fixtures no staging."

@@ -48,7 +48,7 @@ if (!stagingUrl || !anonKey || !serviceRoleKey) {
 }
 try {
   const stagingId = requireStagingProjectId(env);
-  assertStagingUrlMatches(stagingUrl, stagingId);
+  assertStagingUrlMatches(stagingUrl, stagingId, "STAGING_SUPABASE_URL", env);
 } catch (error) {
   failClosed(error);
 }

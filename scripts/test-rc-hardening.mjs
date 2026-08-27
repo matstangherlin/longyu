@@ -107,11 +107,13 @@ for (const field of [
   "PHYSICAL_QA_READY",
   "PAYMENTS_READY",
   "SECURITY_READY",
+  "SECURITY_STAGING_READY",
   "READY_FOR_CLOSED_BETA_BR",
 ]) {
   assert(rc.includes(field), `RC report tem ${field}`);
 }
 assert(rc.includes("NOT_READY"), "closed beta permanece NOT_READY");
+assert(rc.includes("BLOCKED_BY_INFRASTRUCTURE") || rc.includes("INACTIVE"), "staging permanece bloqueado");
 assert(!/READY_FOR_CLOSED_BETA_BR[^\n]*PASS/.test(rc), "READY_FOR_CLOSED_BETA_BR não pode ser PASS nesta remessa");
 assert(!rc.includes("HUMAN PASS"), "relatório RC não inventa HUMAN PASS");
 assert(rc.includes("v4.7.4-rc.1"), "report cita LONGYU_RC");
