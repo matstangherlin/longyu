@@ -107,7 +107,11 @@ Firefox (auditoria, não P0 de merge):
 2. **FLAKY** `privacy-consent` revoke (passou no retry).
 3. **FLAKY** `topic-pass-return` timeout 5m depois passou no retry.
 
-O botão de merge do GitHub ficou **UNSTABLE** por causa desse check informativo. Por isso o merge foi feito via git `--no-ff`, não pelo botão da UI.
+O botão de merge do GitHub ficou **UNSTABLE** por causa desse check informativo. Esse é o “erro na hora de fazer” na UI: o job Firefox não é required (`continue-on-error: true`), mas o check vermelho impede o merge limpo no GitHub. O merge foi feito via git `--no-ff`, não pelo botão da UI.
+
+Push extra de docs direto na `main` foi recusado pelas regras do repo (`Changes must be made through a pull request` + required checks). Relatório pós-merge: PR #200.
+
+Check **Supabase Preview** no push da main: FAILURE fail-closed (`Remote migration versions not found in local migrations directory`). **Não aplicou migration em MandarimProject.**
 
 ## CONSOL-013 — Beta
 
