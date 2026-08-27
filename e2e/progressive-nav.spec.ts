@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { dismissBlockingOverlays, seedTelemetryDeclined } from "./helpers";
+import { allowE2ELocalSession, dismissBlockingOverlays, seedTelemetryDeclined } from "./helpers";
 import { ACHIEVEMENTS } from "../src/data/achievements";
 
 const STORE_VERSION = 16;
@@ -17,6 +17,7 @@ function allAchievementsUnlocked(): Record<string, number> {
 /** Semeia um estado de conta arbitrário antes do primeiro load. */
 async function seedStage(page: Page, state: SeedState) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript(
     (payload: string) => localStorage.setItem("longyu-v1", payload),
     JSON.stringify({
@@ -36,8 +37,12 @@ async function establishOrigin(page: Page) {
   await page.goto("/");
 }
 async function setStore(page: Page, state: SeedState) {
+  await allowE2ELocalSession(page);
   await page.evaluate(
-    (payload: string) => localStorage.setItem("longyu-v1", payload),
+    (payload: string) => {
+      localStorage.setItem("longyu:e2e-allow-local", "1");
+      localStorage.setItem("longyu-v1", payload);
+    },
     JSON.stringify({
       state: { accountSetupComplete: true, achievementsUnlocked: allAchievementsUnlocked(), ...state },
       version: STORE_VERSION,

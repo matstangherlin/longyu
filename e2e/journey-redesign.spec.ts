@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { dismissBlockingOverlays, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
+import { allowE2ELocalSession, dismissBlockingOverlays, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 import { ALL_LESSONS } from "../src/data/journey";
 import { ACHIEVEMENTS } from "../src/data/achievements";
 
@@ -31,6 +31,7 @@ function dueReviewSrs() {
 
 async function seed(page: Page, state: SeedState) {
   await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
   await page.addInitScript(
     (payload: string) => localStorage.setItem("longyu-v1", payload),
     JSON.stringify({
