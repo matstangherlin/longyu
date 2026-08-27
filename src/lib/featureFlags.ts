@@ -1,3 +1,5 @@
+import { isProductionBetaEnv, type AppEnvironmentInput } from "./appEnvironment";
+
 /**
  * Feature flags de runtime/build para rollback rápido da beta.
  * Desligar via variável de ambiente no Netlify e redeploy (sem apagar progresso).
@@ -30,4 +32,25 @@ export function isBetaFeedbackEnabled(
   env: { VITE_ENABLE_BETA_FEEDBACK?: string } = import.meta.env
 ): boolean {
   return flagEnabled(env.VITE_ENABLE_BETA_FEEDBACK, true);
+}
+
+export type CloudOnboardingV2Env = AppEnvironmentInput & {
+  VITE_CLOUD_ONBOARDING_V2_ENABLED?: string;
+};
+
+/**
+ * Handoff V4.7.1 (onboarding_completed + finalize-onboarding + draft no servidor).
+ * Default: desligado em Production Beta enquanto o schema/Edges novas não
+ * existirem no MandarimProject. Preview/dev ficam ligados.
+ * Explicit VITE_CLOUD_ONBOARDING_V2_ENABLED=true só depois do backend V4.7.
+ * Nunca reativa conta local nova.
+ */
+export function isCloudOnboardingV2Enabled(
+  env: CloudOnboardingV2Env = import.meta.env
+): boolean {
+  const raw = env.VITE_CLOUD_ONBOARDING_V2_ENABLED;
+  if (raw !== undefined && String(raw).trim() !== "") {
+    return flagEnabled(String(raw), false);
+  }
+  return !isProductionBetaEnv(env);
 }

@@ -140,7 +140,8 @@ assert(seo.includes('path: "/business"'), "SEO /business");
 assert(seo.includes("Treinamento de Mandarim para Empresas"), "título SEO corporativo");
 
 const form = read("src/features/business/BusinessLeadForm.tsx");
-assert(form.includes('htmlFor='), "labels htmlFor");
+assert(form.includes("CountrySelect") || form.includes("data-country-select"), "form Business usa pais canonico");
+assert(!form.includes('autoComplete="country-name"'), "form Business nao usa texto livre de pais");
 assert(form.includes('name="website"'), "honeypot website");
 assert(form.includes("submitBusinessLead"), "envio via serviço, não insert direto");
 assert(!form.includes('.from("business_leads")'), "form não insere em business_leads");
@@ -216,7 +217,9 @@ assert(
 assert(migration.includes("grant execute on function public.get_server_entitlement() to authenticated"), "entitlement autenticado");
 
 const deploy = read("scripts/deploy-backend.mjs");
-assert(deploy.includes("submit-business-lead"), "deploy lista submit-business-lead");
+const edgeList = read("scripts/lib/edge-functions.mjs");
+assert(edgeList.includes('"submit-business-lead"'), "lista canônica inclui submit-business-lead");
+assert(deploy.includes("LONGYU_EDGE_FUNCTIONS"), "deploy-backend usa a lista canônica de Edge Functions");
 
 if (errors.length > 0) {
   console.error("ERRO: test-business-foundation falhou.");

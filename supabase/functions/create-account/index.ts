@@ -1,4 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { validatePlacementEvidence } from "../_shared/placement/engine.ts";
+import {
+  canonicalCountryCode,
+  countryLabelForCode,
+  parsePlacementEvidence,
+} from "../_shared/placement/evidence.ts";
 
 const ALLOWED_ORIGINS = new Set([
   "https://longyu.com.br",
@@ -7,6 +13,8 @@ const ALLOWED_ORIGINS = new Set([
   "https://singular-meringue-7838cd.netlify.app",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
+  "http://127.0.0.1:4173",
+  "http://localhost:4173",
 ]);
 
 const ALLOWED_EMAIL_REDIRECTS = new Set([
@@ -16,6 +24,8 @@ const ALLOWED_EMAIL_REDIRECTS = new Set([
   "https://singular-meringue-7838cd.netlify.app/confirmar-email",
   "http://localhost:5173/confirmar-email",
   "http://127.0.0.1:5173/confirmar-email",
+  "http://127.0.0.1:4173/confirmar-email",
+  "http://localhost:4173/confirmar-email",
 ]);
 
 // Produção atual é Netlify (domínio próprio ainda não comprado).
@@ -177,6 +187,12 @@ Deno.serve(async (req) => {
       displayName?: string;
       emailRedirectTo?: string;
       captchaToken?: string;
+      country?: string;
+      countryCode?: string;
+      birthDate?: string;
+      signupSource?: string;
+      marketingOptIn?: boolean;
+      placement?: unknown;
     };
 
     // emailRaw: o que o usuário digitou (normalizado só trim/lowercase) — vai para Auth.
@@ -277,20 +293,58 @@ Deno.serve(async (req) => {
     }
 
     const userId = created.user.id;
+    const countryCode = canonicalCountryCode(body.countryCode || body.country);
+    const countryLabel = countryLabelForCode(countryCode);
+    const birthDate = String(body.birthDate ?? "").trim() || null;
+    const signupSource = String(body.signupSource ?? "").trim() || null;
+    const marketingOptIn = body.marketingOptIn === true;
 
+    // Novo usuario nasce com onboarding pendente. So o commit de placement marca true.
     const { error: profileError } = await admin.from("profiles").upsert(
       {
         id: userId,
         name: displayName,
-        onboarding_completed: true,
+        onboarding_completed: false,
+        onboarding_version: 2,
         native_language: "pt-BR",
         target_language: "zh-CN",
+        interface_locale: "pt-BR",
+        instruction_locale: "pt-BR",
+        country: countryLabel,
+        country_code: countryCode,
+        birth_date: birthDate,
+        signup_source: signupSource,
+        marketing_opt_in: marketingOptIn,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "id" },
     );
     if (profileError) {
       console.error("create-account profile:", profileError.message);
+    }
+
+    const evidence = parsePlacementEvidence(body.placement);
+    if (evidence) {
+      const validated = validatePlacementEvidence({
+        placementVersion: evidence.placementVersion,
+        declaredExperience: evidence.declaredExperience,
+        answers: evidence.answers,
+      });
+      if (validated.ok) {
+        const { error: draftError } = await admin.rpc("save_placement_onboarding_draft", {
+          p_user_id: userId,
+          p_placement_version: evidence.placementVersion,
+          p_declared_experience: evidence.declaredExperience,
+          p_goal: evidence.goal,
+          p_answers: evidence.answers,
+          p_ttl_hours: 168,
+        });
+        if (draftError) {
+          console.error("create-account draft:", draftError.message);
+        }
+      } else {
+        console.info("create-account placement rejected:", validated.error);
+      }
     }
 
     const { error: resendError } = await admin.auth.resend({

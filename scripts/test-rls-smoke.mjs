@@ -14,6 +14,7 @@
 import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
 import { mergedEnv, readEnvFile } from "./lib/env-local.mjs";
+import { isProductionProjectId } from "./lib/staging-guard.mjs";
 
 const env = {
   ...readEnvFile(".env.production"),
@@ -37,6 +38,11 @@ function assert(cond, message) {
     failures += 1;
     console.error(`FALHOU: ${message}`);
   }
+}
+
+if (env.LONGYU_STAGING_ONLY === "true" && isProductionProjectId(url)) {
+  console.error("RECUSADO: LONGYU_STAGING_ONLY recusa MandarimProject de produção.");
+  process.exit(2);
 }
 
 if (!url || !anon) {
@@ -95,6 +101,9 @@ async function cleanup(userIds) {
     await admin.from("user_missions").delete().eq("user_id", id);
     await admin.from("user_chests").delete().eq("user_id", id);
     await admin.from("user_achievements").delete().eq("user_id", id);
+    await admin.from("placement_onboarding_drafts").delete().eq("user_id", id);
+    await admin.from("placement_attempts").delete().eq("user_id", id);
+    await admin.from("organization_members").delete().eq("user_id", id);
     await admin.from("user_progress").delete().eq("user_id", id);
     await admin.from("user_economy").delete().eq("user_id", id);
     await admin.from("subscriptions").delete().eq("user_id", id);
@@ -104,6 +113,7 @@ async function cleanup(userIds) {
 }
 
 const createdIds = [];
+const createdOrgIds = [];
 let socialSchemaAvailable = false;
 let socialUsername = "";
 
@@ -121,6 +131,18 @@ function blockedWriteOk(rows, error, label) {
     return true;
   }
   return (rows ?? []).length === 0;
+}
+
+async function tableReady(table) {
+  const { error } = await admin.from(table).select("*").limit(0);
+  if (!error) return true;
+  const message = error.message ?? "";
+  if (/schema cache|does not exist|Could not find the table|relation .* does not exist/i.test(message)) {
+    console.log(`· ${table} ausente neste projeto; pulando (migration nao aplicada)`);
+    return false;
+  }
+  console.log(`· ${table} probe: ${message.slice(0, 100)}`);
+  return true;
 }
 
 try {
@@ -439,6 +461,83 @@ try {
     "A não lê telemetria pedagógica de B"
   );
 
+  if (await tableReady("placement_attempts")) {
+    const { error: placementSeedErr } = await admin.from("placement_attempts").insert({
+      user_id: userB.id,
+      placement_version: 2,
+      declared_experience: "zero",
+      answers: [{ questionId: "q1", answer: "nihao", hintUsed: false, responseMode: "choice" }],
+    });
+    assert(!placementSeedErr, `seed placement_attempts B (${placementSeedErr?.message ?? "ok"})`);
+    const { data: foreignPlacement, error: foreignPlacementErr } = await clientA
+      .from("placement_attempts")
+      .select("id,user_id")
+      .eq("user_id", userB.id);
+    assert(
+      blockedReadOk(foreignPlacement, foreignPlacementErr, "placement_attempts"),
+      "A nao le placement de B"
+    );
+  }
+
+  if (await tableReady("placement_onboarding_drafts")) {
+    const { error: draftSeedErr } = await admin.from("placement_onboarding_drafts").insert({
+      user_id: userB.id,
+      placement_version: 2,
+      declared_experience: "zero",
+      answers: [{ questionId: "q1", answer: "nihao", hintUsed: false, responseMode: "choice" }],
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    });
+    assert(!draftSeedErr, `seed placement_onboarding_drafts B (${draftSeedErr?.message ?? "ok"})`);
+    const { data: foreignDraft, error: foreignDraftErr } = await clientA
+      .from("placement_onboarding_drafts")
+      .select("user_id")
+      .eq("user_id", userB.id);
+    assert(
+      blockedReadOk(foreignDraft, foreignDraftErr, "placement_onboarding_drafts"),
+      "A nao le draft de onboarding de B"
+    );
+  }
+
+  if (await tableReady("organizations") && (await tableReady("organization_members"))) {
+    const slug = `rls-b-${stamp}`;
+    const { data: orgB, error: orgErr } = await admin
+      .from("organizations")
+      .insert({
+        name: "Org B RLS",
+        slug,
+        plan: "business",
+        status: "active",
+        billing_mode: "pilot_grant",
+      })
+      .select("id")
+      .maybeSingle();
+    assert(!orgErr && orgB?.id, `seed organizations B (${orgErr?.message ?? "ok"})`);
+    if (orgB?.id) {
+      createdOrgIds.push(orgB.id);
+      const { error: memberErr } = await admin.from("organization_members").insert({
+        organization_id: orgB.id,
+        user_id: userB.id,
+        role: "owner",
+        seat_status: "active",
+        joined_at: new Date().toISOString(),
+      });
+      assert(!memberErr, `seed organization_members B (${memberErr?.message ?? "ok"})`);
+      const { data: foreignOrg, error: foreignOrgErr } = await clientA
+        .from("organizations")
+        .select("id,name")
+        .eq("id", orgB.id);
+      assert(blockedReadOk(foreignOrg, foreignOrgErr, "organizations"), "A nao le organizacao de B");
+      const { data: foreignMembers, error: foreignMembersErr } = await clientA
+        .from("organization_members")
+        .select("user_id")
+        .eq("organization_id", orgB.id);
+      assert(
+        blockedReadOk(foreignMembers, foreignMembersErr, "organization_members"),
+        "A nao le membership Business de B"
+      );
+    }
+  }
+
   // A NÃO atualiza perfil de B.
   const { data: updatedProfile, error: updateProfileErr } = await clientA
     .from("profiles")
@@ -518,6 +617,11 @@ try {
   failures += 1;
   console.error("ERRO:", error instanceof Error ? error.message : error);
 } finally {
+  for (const orgId of createdOrgIds) {
+    await admin.from("organization_members").delete().eq("organization_id", orgId);
+    await admin.from("organization_entitlement_grants").delete().eq("organization_id", orgId);
+    await admin.from("organizations").delete().eq("id", orgId);
+  }
   await cleanup(createdIds);
   console.log("limpeza: usuários A/B removidos");
 }

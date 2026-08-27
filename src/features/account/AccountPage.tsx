@@ -46,6 +46,7 @@ import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { FriendsProfileCard } from "../../components/social/FriendsProfileCard";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
@@ -1586,7 +1587,7 @@ export function AccountPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [country, setCountry] = useState("Brasil");
+  const [country, setCountry] = useState(LAUNCH_COUNTRY_CODE);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [signupSourceForm, setSignupSourceForm] = useState("");
   const [accountError, setAccountError] = useState<string | null>(null);
@@ -1855,7 +1856,7 @@ export function AccountPage() {
       country: country.trim() || null,
       signupSource: (source ?? signupSourceForm.trim()) || null,
       marketingOptIn,
-      onboardingCompleted: true,
+      onboardingCompleted: false,
     };
   }
 

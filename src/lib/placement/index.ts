@@ -52,3 +52,4 @@ export {
   readPendingPlacement,
   writePendingPlacement,
 } from "./pending";
+export { normalizeAnswerEvidence, toServerPlacementEvidence } from "./evidence";

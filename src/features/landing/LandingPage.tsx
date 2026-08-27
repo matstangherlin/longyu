@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { captureReferralFromSearch } from "../../lib/referralCapture";
-import { resolveSessionAudience, type SessionAudience } from "../../lib/auth/sessionAudience";
+import {
+  canEnterJourney,
+  resolveSessionAudience,
+  type SessionAudience,
+} from "../../lib/auth/sessionAudience";
 import { ButtonLink } from "../../components/ui/primitives";
 import { BrandLockup } from "../../components/layout/Brand";
 import { Mascot } from "../../components/brand/Mascot";
@@ -18,8 +22,8 @@ const BULLETS = [
 ];
 
 // Landing pública em "/": primeira impressão para quem ainda não tem conta.
-// Sem sidebar/topbar/tab bar — só marca, proposta e dois CTAs. Quem já tem
-// conta configurada, progresso ou sessão cloud vai direto para /jornada.
+// Sem sidebar/topbar/tab bar — só marca, proposta e dois CTAs. cloud_ready
+// vai para /jornada; onboarding pendente vai para /finalizar-cadastro.
 export function LandingPage() {
   const [searchParams] = useSearchParams();
   const theme = useStore((s) => s.theme);
@@ -49,8 +53,11 @@ export function LandingPage() {
   if (!audience) {
     return <div className="min-h-dvh bg-bg" aria-hidden="true" />;
   }
-  if (audience === "cloud" || audience === "seeded") {
+  if (canEnterJourney(audience)) {
     return <Navigate to="/jornada" replace />;
+  }
+  if (audience === "cloud_pending_onboarding") {
+    return <Navigate to="/finalizar-cadastro" replace />;
   }
   if (audience === "legacy") {
     return <Navigate to="/salvar-progresso" replace />;

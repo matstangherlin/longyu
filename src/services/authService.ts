@@ -2,6 +2,8 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
 import { getTurnstileToken, turnstileSiteKey } from "../lib/turnstile";
+import { canonicalCountryCode, launchLocaleFields } from "../lib/i18n/identity";
+import { readPendingPlacement, toServerPlacementEvidence } from "../lib/placement";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
 import { requestAccountDeletion } from "./privacyService";
@@ -53,7 +55,6 @@ async function ensureProfile(userId: string, profile: ProfileDetails): Promise<s
     p_country: payload.country,
     p_signup_source: payload.signup_source,
     p_marketing_opt_in: payload.marketing_opt_in,
-    p_onboarding_completed: payload.onboarding_completed,
   });
 
   if (!rpcError) return null;
@@ -81,7 +82,7 @@ async function ensureProfile(userId: string, profile: ProfileDetails): Promise<s
 }
 
 function profileFromName(name?: string): ProfileDetails {
-  return { name: name?.trim() || "Aluno Longyu", onboardingCompleted: true };
+  return { name: name?.trim() || "Aluno Longyu", onboardingCompleted: false };
 }
 
 function isUnconfirmedEmailError(message: string): boolean {
@@ -100,6 +101,8 @@ export async function createAccount(
 
   const details = profile ?? profileFromName();
   const cleanEmail = email.trim().toLowerCase();
+  const locales = launchLocaleFields();
+  const placement = toServerPlacementEvidence(readPendingPlacement());
   let captchaToken: string | null = null;
   try {
     captchaToken = await getTurnstileToken();
@@ -131,6 +134,16 @@ export async function createAccount(
       displayName: details.name,
       emailRedirectTo: emailConfirmationRedirectUrl(),
       captchaToken: captchaToken ?? undefined,
+      country: details.country ?? null,
+      countryCode: canonicalCountryCode(details.country),
+      birthDate: details.birthDate ?? null,
+      signupSource: details.signupSource ?? null,
+      marketingOptIn: details.marketingOptIn === true,
+      interfaceLocale: locales.interface_locale,
+      instructionLocale: locales.instruction_locale,
+      nativeLanguage: locales.native_language,
+      targetLanguage: locales.target_language,
+      placement,
     },
   });
 

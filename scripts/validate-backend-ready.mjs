@@ -31,18 +31,24 @@ const migrations = [
   "supabase/migrations/20260809160306_require_referral_reward_review.sql",
   "supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
   "supabase/seed/test-account.sql",
+  "supabase/migrations/20260812180000_production_help_telemetry.sql",
+  "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+  "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
   "supabase/migrations/20260825043000_business_foundation.sql",
   "supabase/migrations/20260825062000_business_operational_hardening.sql",
   "supabase/migrations/20260826230000_placement_onboarding.sql",
+  "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
 ];
 const functions = [
+  "supabase/functions/create-account/index.ts",
+  "supabase/functions/commit-placement/index.ts",
+  "supabase/functions/finalize-onboarding/index.ts",
+  "supabase/functions/submit-business-lead/index.ts",
   "supabase/functions/create-checkout-session/index.ts",
   "supabase/functions/create-billing-portal/index.ts",
   "supabase/functions/stripe-webhook/index.ts",
   "supabase/functions/delete-account/index.ts",
   "supabase/functions/issue-anon-ingestion-session/index.ts",
-  "supabase/functions/submit-business-lead/index.ts",
-  "supabase/functions/commit-placement/index.ts",
 ];
 
 for (const migration of migrations) requirePath(migration, "migration");

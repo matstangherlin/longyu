@@ -10,7 +10,8 @@ import {
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
-import { useStore } from "../../lib/store";
+import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
+import { isCloudOnboardingV2Enabled } from "../../lib/featureFlags";
 import { resendConfirmationEmail } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 
@@ -18,7 +19,6 @@ export function ConfirmEmailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const postAuthPath = resolvePostAuthPath(searchParams, "/jornada");
-  const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
 
   const initialEmail = useMemo(() => {
     return (searchParams.get("email") ?? peekPendingConfirmEmail() ?? "").trim();
@@ -49,6 +49,13 @@ export function ConfirmEmailPage() {
     let cancelled = false;
 
     const finishConfirmed = async () => {
+      if (cancelled) return;
+      if (isCloudOnboardingV2Enabled()) {
+        clearPendingConfirmEmail();
+        setNotice("Email confirmado. Vamos finalizar seu ponto de partida.");
+        navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
+        return;
+      }
       const onboard = await completeAuthenticatedOnboarding();
       if (cancelled) return;
       if (!onboard.ok) {
@@ -56,10 +63,8 @@ export function ConfirmEmailPage() {
         setError(onboard.message);
         return;
       }
-      setAccountSetupComplete(true);
       clearPendingConfirmEmail();
-      setNotice("Email confirmado. Sua conta está ativa e o progresso já sincroniza na nuvem.");
-      setTimeout(() => navigate(postAuthPath, { replace: true }), 1200);
+      navigate(postAuthPath, { replace: true });
     };
 
     const checkSession = async () => {
@@ -94,7 +99,7 @@ export function ConfirmEmailPage() {
       window.clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [cloudEnabled, navigate, postAuthPath, setAccountSetupComplete]);
+  }, [cloudEnabled, navigate, postAuthPath]);
 
   async function handleResend(event: FormEvent) {
     event.preventDefault();

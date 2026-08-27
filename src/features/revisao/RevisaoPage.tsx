@@ -41,6 +41,7 @@ import {
 } from "../../lib/proAccess";
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
 import { reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
+import { trackFunnelEvent } from "../../services/funnelEvents";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -1292,6 +1293,22 @@ export function RevisaoPage() {
     setSuggestedGrade(null);
     exerciseStartedAtRef.current = Date.now();
   }, [pos, entry?.id, item?.id, exercise?.kind]);
+
+  const reviewStartedRef = useRef(false);
+  useEffect(() => {
+    if (reviewStartedRef.current) return;
+    reviewStartedRef.current = true;
+    trackFunnelEvent("review_started", { mode });
+  }, [mode]);
+
+  const reviewCompletedRef = useRef(false);
+  useEffect(() => {
+    if (reviewCompletedRef.current) return;
+    if (queue.length > 0 && pos >= queue.length) {
+      reviewCompletedRef.current = true;
+      trackFunnelEvent("review_completed", { items: queue.length, mode });
+    }
+  }, [mode, pos, queue.length]);
 
   // Trocar de modo recomeça a fila filtrada do zero (sem carregar retry antigo).
   useEffect(() => {

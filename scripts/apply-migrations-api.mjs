@@ -1,12 +1,24 @@
+/**
+ * Aplica migrations via Management API.
+ * PERIGO: o default de SUPABASE_PROJECT_REF é MandarimProject de produção.
+ * Staging: use `npm run migrate:staging` (exige LONGYU_STAGING_PROJECT_ID e recusa produção).
+ */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { mergedEnv, projectRoot } from "./lib/env-local.mjs";
+import { isProductionProjectId } from "./lib/staging-guard.mjs";
 
 const root = projectRoot();
 const env = mergedEnv();
 const ref = env.SUPABASE_PROJECT_REF ?? "drjcfalvlbbeblmmyhwj";
 const token = env.SUPABASE_ACCESS_TOKEN;
+
+if (env.LONGYU_STAGING_ONLY === "true" && isProductionProjectId(ref)) {
+  console.error("RECUSADO: db:apply-api com LONGYU_STAGING_ONLY não aponta para produção.");
+  console.error("Use: npm run migrate:staging");
+  process.exit(2);
+}
 
 if (!token) {
   console.error("SUPABASE_ACCESS_TOKEN ausente em .env.local");

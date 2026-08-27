@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { canonicalCountryCode } from "../_shared/placement/evidence.ts";
 
 const ALLOWED_ORIGINS = new Set([
   "https://longyu.com.br",
@@ -259,7 +260,7 @@ Deno.serve(async (req) => {
     const company = clip(body.company, 160);
     const jobTitle = clip(body.jobTitle, 120);
     const employeeCountRange = clip(body.employeeCountRange, 32);
-    const country = clip(body.country, 80);
+    const country = canonicalCountryCode(clip(body.country, 80));
     const goal = clip(body.goal, 64);
     const startWindow = clip(body.startWindow, 32);
     const message = clip(body.message, 4000);

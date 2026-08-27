@@ -7,6 +7,45 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7 — Consolidação na main
+
+Código V4.7.1 + V4.7.2 + V4.7.3 na main. **Não** é release da closed beta.
+
+- `VITE_CLOUD_ONBOARDING_V2_ENABLED=false` no Netlify production: usuários cloud atuais continuam na Journey sem a coluna `onboarding_completed` nem a Edge `finalize-onboarding`.
+- Flag **não** reativa conta local. Preview/dev continuam no handoff V2.
+- Produção: sem migration, sem Edge nova, Stripe Live intacto.
+- `READY_FOR_CLOSED_BETA_BR` permanece `NOT_READY`.
+
+### V4.7.3 — Staging Activation + Real Beta Validation
+
+Identifica staging isolado, recusa MandarimProject de produção e só promove closed beta com evidência operacional. Staging pretendido (`longyu-preview`) continua INACTIVE; migrations e Edges **não** foram aplicadas em produção.
+
+- Guarda `LONGYU_STAGING_PROJECT_ID` (`scripts/lib/staging-guard.mjs`).
+- `identify:staging`, `migrate:staging` (para no primeiro erro), `deploy:staging-functions`.
+- Edge list completa: `create-account`, `commit-placement`, `finalize-onboarding` e as demais do fluxo real.
+- Relatórios honestos: `docs/reports/staging-activation.md`, `docs/reports/staging-supabase-advisors.md`. Decisão: `NOT_READY`.
+- Portão `test:staging-activation` no `validate:beta`.
+
+**Não** traduz a UI. **Não** altera Stripe Live, Mastery 4/4, currículo, SSO/SCIM, Business Admin. **Não** inventa HUMAN PASS.
+
+### V4.7.2 — Brazil Closed Beta Readiness
+
+Fecha o corte de código da closed beta BR sem promover o lançamento: país ISO canônico, telemetria mínima de release, relatório `NOT_READY`.
+
+### V4.7.1 — Authoritative Onboarding + Placement Handoff
+
+Fecha o ciclo: placement anônimo → signup → confirmação de email → commit no servidor → Journey. O resultado sobrevive nova aba, fechamento da aba original e outro dispositivo.
+
+- `create-account` grava `onboarding_completed=false`. Só o commit transacional marca `true`.
+- `SessionAudience`: `anonymous | legacy | seeded | cloud_pending_onboarding | cloud_ready`. Journey exige `cloud_ready` (perfil no servidor), não sessão Supabase sozinha.
+- Evidência Placement V2 vai no signup (`placement_onboarding_drafts`). sessionStorage continua UX pré-cadastro, não autoridade depois.
+- Edge `finalize-onboarding` + `/finalizar-cadastro`. Idempotência `onboarding-v2:{userId}`. Draft ausente falha fechado.
+- Identidade de locale: `country_code` / `interface_locale` / `instruction_locale` / `native_language` / `target_language`. Lancamento continua pt-BR → zh-CN. Sem copy EN.
+- Relatórios: `docs/reports/i18n-readiness.md`, `docs/reports/pr-195-superseded.md` (`CLOSE_SAFE`, não mergear #195).
+- Migration e Edge desta remessa: staging antes de produção.
+
+**Não** traduz a UI. **Não** altera Topic Mastery 4/4, Journey pedagogy, Business, Stripe, Pérolas, Missões, Atlas em massa.
+
 ### V4.7 — Cloud-First Onboarding + Placement 2.0
 
 Novo aluno entra com conta cloud. O teste de nivelamento continua **antes** do cadastro; a Jornada só abre depois da sessão autenticada e do commit no servidor.

@@ -12,9 +12,16 @@ export const FUNNEL_EVENT_TYPES = [
   "account_authenticated",
   "placement_committed",
   "journey_entered",
+  "review_started",
+  "review_completed",
+  "pro_offer_shown",
+  "checkout_started",
+  "subscription_activated",
 ] as const;
 
 export type FunnelEventType = (typeof FUNNEL_EVENT_TYPES)[number];
+
+const PII_KEY = /email|name|phone|password|token|address/i;
 
 export function trackFunnelEvent(
   eventType: FunnelEventType,
@@ -22,7 +29,7 @@ export function trackFunnelEvent(
 ): void {
   const safe: Record<string, string | number | boolean | null> = {};
   for (const [key, value] of Object.entries(metadata)) {
-    if (key.toLowerCase().includes("email") || key.toLowerCase().includes("name")) continue;
+    if (PII_KEY.test(key)) continue;
     safe[key] = value;
   }
   try {

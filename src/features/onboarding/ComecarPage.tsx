@@ -13,8 +13,13 @@ import { canRegisterWithCredentials } from "../../lib/authForm";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
 import { confirmEmailPath, storePendingConfirmEmail } from "../../lib/authRedirect";
+import { getCloudUserId } from "../../lib/auth/cloudSession";
+import { canEnterJourney, resolveSessionAudience } from "../../lib/auth/sessionAudience";
+import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { createAccount as createAuthAccount } from "../../services/authService";
+import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
+import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import {
   CATEGORY_LABEL,
   appendPendingAnswer,
@@ -31,7 +36,6 @@ import {
   type QuizQuestion,
 } from "../../lib/placement";
 import { ALL_LESSONS, JOURNEY } from "../../data/journey";
-import { resolveSessionAudience } from "../../lib/auth/sessionAudience";
 
 type FunnelStep = "welcome" | "goal" | "level" | "quiz" | "result" | "account";
 
@@ -102,11 +106,12 @@ export function ComecarPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [country, setCountry] = useState("Brasil");
+  const [country, setCountry] = useState(LAUNCH_COUNTRY_CODE);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [signupSource, setSignupSource] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [cloudUserId, setCloudUserId] = useState<string | null>(null);
 
   const pending = readPendingPlacement();
   const analysis: PlacementAnalysis | null = useMemo(() => {
@@ -119,6 +124,7 @@ export function ComecarPage() {
     if (searchParams.get("migrate") === "1") {
       setStep("account");
     }
+    void getCloudUserId().then(setCloudUserId);
   }, [searchParams]);
 
   function startQuiz(level: Experience) {
@@ -203,6 +209,21 @@ export function ComecarPage() {
     navigate(confirmEmailPath(email));
   }
 
+  async function handleAuthenticatedPlacementSave() {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    const result = await completeAuthenticatedOnboarding({
+      placement: readPendingPlacement(),
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setError(result.message || BACKEND_UNAVAILABLE_MESSAGE);
+      return;
+    }
+    navigate("/jornada", { replace: true });
+  }
+
   const index = STEPS.indexOf(step);
   const progress = Math.max(1, index + 1);
 
@@ -282,11 +303,21 @@ export function ComecarPage() {
           />
         )}
         {step === "result" && analysis && (
-          <ResultPreview analysis={analysis} onContinue={() => {
-            trackFunnelEvent("placement_result_viewed");
-            trackFunnelEvent("signup_started");
-            setStep("account");
-          }} />
+          <ResultPreview
+            analysis={analysis}
+            authenticated={Boolean(cloudUserId)}
+            busy={busy}
+            error={error}
+            onContinue={() => {
+              trackFunnelEvent("placement_result_viewed");
+              if (cloudUserId) {
+                void handleAuthenticatedPlacementSave();
+                return;
+              }
+              trackFunnelEvent("signup_started");
+              setStep("account");
+            }}
+          />
         )}
         {step === "account" && (
           <MandatoryAccount
@@ -513,7 +544,19 @@ function QuizCard({
   );
 }
 
-function ResultPreview({ analysis, onContinue }: { analysis: PlacementAnalysis; onContinue: () => void }) {
+function ResultPreview({
+  analysis,
+  onContinue,
+  authenticated = false,
+  busy = false,
+  error = null,
+}: {
+  analysis: PlacementAnalysis;
+  onContinue: () => void;
+  authenticated?: boolean;
+  busy?: boolean;
+  error?: string | null;
+}) {
   const entry = entryPointForLesson(analysis.placement.targetLessonId);
   return (
     <div>
@@ -533,15 +576,26 @@ function ResultPreview({ analysis, onContinue }: { analysis: PlacementAnalysis; 
           <Stat label="Pontos fortes" value={analysis.strengths.join(", ") || "Vamos descobrir juntos"} />
           <Stat label="Áreas que vamos construir" value={analysis.reinforcements.join(", ") || "Base essencial"} />
         </div>
-        <Button size="lg" className="mt-6 w-full" onClick={onContinue} data-testid="create-account-cta">
-          Criar minha conta e salvar o resultado
+        {error && (
+          <p className="mt-4 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong">
+            {error}
+          </p>
+        )}
+        <Button size="lg" className="mt-6 w-full" onClick={onContinue} data-testid="create-account-cta" disabled={busy}>
+          {authenticated
+            ? busy
+              ? "Salvando..."
+              : "Salvar ponto de partida"
+            : "Criar minha conta e salvar o resultado"}
         </Button>
-        <Link
-          to="/login?next=/jornada"
-          className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl text-sm font-semibold text-accent hover:underline"
-        >
-          Já tenho uma conta
-        </Link>
+        {!authenticated && (
+          <Link
+            to="/login?next=/jornada"
+            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl text-sm font-semibold text-accent hover:underline"
+          >
+            Já tenho uma conta
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -649,24 +703,37 @@ function MandatoryAccount({
 }
 
 export function ComecarRoute() {
-  const [audience, setAudience] = useState<"pending" | "stay" | "jornada">("pending");
+  const [searchParams] = useSearchParams();
+  const redo = searchParams.get("refazer") === "1" || searchParams.get("migrate") === "1";
+  const [audience, setAudience] = useState<"pending" | "stay" | "jornada" | "finalize">("pending");
 
   useEffect(() => {
     let cancelled = false;
     void resolveSessionAudience().then((next) => {
       if (cancelled) return;
-      setAudience(next === "cloud" || next === "seeded" ? "jornada" : "stay");
+      if (canEnterJourney(next)) {
+        setAudience("jornada");
+        return;
+      }
+      if (next === "cloud_pending_onboarding" && !redo) {
+        setAudience("finalize");
+        return;
+      }
+      setAudience("stay");
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [redo]);
 
   if (audience === "pending") {
     return <div className="min-h-[40vh]" aria-hidden="true" />;
   }
   if (audience === "jornada") {
     return <Navigate to="/jornada" replace />;
+  }
+  if (audience === "finalize") {
+    return <Navigate to={finalizeOnboardingPath()} replace />;
   }
   return <ComecarPage />;
 }

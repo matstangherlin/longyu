@@ -6,6 +6,7 @@
  * Ele falha fechado contra o projeto de produção conhecido.
  *
  * Variáveis obrigatórias:
+ *   LONGYU_STAGING_PROJECT_ID   # nunca MandarimProject
  *   STAGING_SUPABASE_URL
  *   STAGING_SUPABASE_ANON_KEY
  *   STAGING_SUPABASE_SERVICE_ROLE_KEY
@@ -17,8 +18,12 @@ import path from "node:path";
 import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
 import { mergedEnv } from "./lib/env-local.mjs";
+import {
+  assertStagingUrlMatches,
+  failClosed,
+  requireStagingProjectId,
+} from "./lib/staging-guard.mjs";
 
-const PRODUCTION_PROJECT_REF = "drjcfalvlbbeblmmyhwj";
 const env = mergedEnv();
 const stagingUrl = String(env.STAGING_SUPABASE_URL ?? "").replace(/\/$/, "");
 const anonKey = String(env.STAGING_SUPABASE_ANON_KEY ?? "");
@@ -41,9 +46,11 @@ if (!stagingUrl || !anonKey || !serviceRoleKey) {
   );
   process.exit(2);
 }
-if (stagingUrl.includes(PRODUCTION_PROJECT_REF)) {
-  console.error("RECUSADO: test:pearl-staging nunca pode executar no projeto de produção.");
-  process.exit(2);
+try {
+  const stagingId = requireStagingProjectId(env);
+  assertStagingUrlMatches(stagingUrl, stagingId);
+} catch (error) {
+  failClosed(error);
 }
 invariant(
   /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(stagingUrl),

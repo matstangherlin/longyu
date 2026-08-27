@@ -67,6 +67,22 @@ export async function allowE2ELocalSession(page: Page) {
   });
 }
 
+/** TEST-025: sessao cloud simulada com onboarding_completed=false. */
+export async function seedPendingCloudOnboarding(page: Page) {
+  await seedTelemetryDeclined(page);
+  await page.addInitScript(() => {
+    localStorage.setItem("longyu:e2e-session-audience", "cloud_pending_onboarding");
+  });
+}
+
+/** TEST-026: finalize sem draft no servidor. */
+export async function seedMissingDraftFinalize(page: Page) {
+  await seedPendingCloudOnboarding(page);
+  await page.addInitScript(() => {
+    localStorage.setItem("longyu:e2e-finalize-code", "missing_draft");
+  });
+}
+
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });

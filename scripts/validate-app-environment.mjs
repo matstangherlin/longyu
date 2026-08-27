@@ -50,11 +50,17 @@ assert(
 const flags = read("src/lib/featureFlags.ts");
 assert(flags.includes("VITE_ENABLE_CONVERSATION_V2"), "featureFlags deve cobrir conversation V2");
 assert(flags.includes("VITE_ENABLE_TELEMETRY"), "featureFlags deve cobrir telemetria");
+assert(flags.includes("VITE_CLOUD_ONBOARDING_V2_ENABLED"), "featureFlags deve cobrir handoff V4.7.1");
+assert(flags.includes("isCloudOnboardingV2Enabled"), "featureFlags deve expor isCloudOnboardingV2Enabled");
 
 const netlify = read("netlify.toml");
 assert(netlify.includes('VITE_APP_ENV = "production_beta"'), "netlify production deve ser production_beta");
 assert(netlify.includes('VITE_APP_ENV = "preview"'), "netlify deploy-preview deve ser preview");
 assert(netlify.includes('VITE_ALLOW_PRO_PREVIEW = "false"'), "Pro Preview deve estar false nos contextos Netlify");
+assert(
+  netlify.includes('VITE_CLOUD_ONBOARDING_V2_ENABLED = "false"'),
+  "Netlify production deve manter handoff V4.7.1 desligado até o backend V4.7"
+);
 
 const assertNetlify = read("scripts/assert-netlify-env.mjs");
 assert(assertNetlify.includes("VITE_ALLOW_PRO_PREVIEW"), "assert-netlify-env deve bloquear Pro Preview em prod");
