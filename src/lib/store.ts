@@ -1274,7 +1274,7 @@ interface AccountSnapshot extends XpBuckets {
 /**
  * Como a conta se autentica:
  * - "local": LEGACY_ONLY. Contas antigas neste dispositivo, só para migração.
- *   Onboarding novo NÃO pode criar authMode=local em produção.
+ *   New onboarding cannot create authMode=local in production.
  * - "cloud_pending": email informado / confirmação pendente. Não libera a Jornada.
  * - "cloud": sessão autenticada no backend (identidade = user_id).
  */
