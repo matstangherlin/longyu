@@ -21,10 +21,16 @@ test.describe("V4.7.4 sentinelas de bugs históricos", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await page.getByRole("button", { name: "Entendi" }).click();
-    const options = page.locator("[data-option-index]");
-    await expect(options.first()).toBeVisible({ timeout: 15_000 });
-    const labels = await options.allTextContents();
+    const entendi = page.getByRole("button", { name: "Entendi" });
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.click();
+    }
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await skipSpeak.click();
+    }
+    await expect(page.locator("[data-option-index]").first()).toBeVisible({ timeout: 15_000 });
+    const labels = await page.locator("[data-option-index]").allTextContents();
     const hanzi = labels.map((text) => text.replace(/\s+/g, " ").trim()).filter(Boolean);
     expect(new Set(hanzi).size, "Hànzì repetido nas opções").toBe(hanzi.length);
     await page.keyboard.press("Digit1");

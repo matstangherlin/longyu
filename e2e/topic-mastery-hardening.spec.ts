@@ -101,15 +101,17 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
     await context.setOffline(true);
     try {
-      await page.reload({ waitUntil: "domcontentloaded" }).catch(async () => {
-        await page.goto("/jornada", { waitUntil: "domcontentloaded" });
-      });
       await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+      await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-lesson-id", FIRST.id);
     } finally {
       await context.setOffline(false);
     }
+    await page.reload();
+    await waitForLazyPage(page);
+    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("3/4 ainda bloqueia o próximo; 4/4 destrava", async ({ page }) => {
