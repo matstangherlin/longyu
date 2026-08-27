@@ -1,6 +1,6 @@
 # V4.7.6 — Staging Backend Activation & Live Identity Validation
 
-Atualizado em: 2026-08-27T23:32:09Z  
+Atualizado em: 2026-08-27T23:36:00Z  
 Branch: `cursor/v476-staging-live-validation-3618`  
 Base: `origin/main` `b2a5818` (rebase após merge da #203)
 
@@ -39,6 +39,8 @@ Nenhum campo acima é `PASS`.
 | npm audit / CodeQL / gitleaks | SUCCESS |
 
 V4.7.6 está rebaseada em `main`. Permanece BLOCKED só por falta de staging `ACTIVE_HEALTHY` com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj`.
+
+Reconferência MCP **depois** do merge (2026-08-27T23:36Z): `longyu-preview` ainda `INACTIVE`; atomurus ainda `ACTIVE_HEALTHY`; MandarimProject ainda `ACTIVE_HEALTHY`. Restore **não** foi retentado (limite Free inalterado).
 
 ## STG-002 — Staging obrigatório
 
@@ -206,9 +208,24 @@ Código de correlação está em `main` (`src/lib/opsCorrelation.ts`, SHA `b2a58
 
 **NOT_RUN.**
 
-## PROD-024
+## PROD-024 — Produção após o merge da #203
 
-Zero alterações no MandarimProject nesta remessa: sem `apply_migration`, sem `deploy_edge_function`, sem Stripe Live, sem flag Netlify production.
+Zero `apply_migration` / `deploy_edge_function` / Stripe Live / flag Netlify production nesta remessa.
+
+`list_migrations` MandarimProject **depois** do merge (2026-08-27T23:36Z): watermark **inalterado** `20260810175737` `beta_experience_telemetry` (34 versões; a última continua sendo essa). As sete migrations operacionais do repo **não** estão em produção.
+
+GitHub App **Supabase Preview** no push da `main` `b2a5818`: **FAILURE** fail-closed.
+
+| campo | valor |
+| --- | --- |
+| check | [Supabase Preview](https://github.com/matstangherlin/longyu/runs/98706401555) |
+| details_url | dashboard MandarimProject `drjcfalvlbbeblmmyhwj` |
+| summary | `Remote migration versions not found in local migrations directory.` |
+| efeito | **não** aplicou migration; watermark idêntico ao inventário V4.7.5 |
+
+`list_branches` MandarimProject: só o git default `main` (`MIGRATIONS_FAILED` / `preview_project_status` `ACTIVE_HEALTHY`, registro de 2026-07-08). Nenhum preview branch novo. Isso **não** é staging Longyu.
+
+Risco em pé (humano, não “corrigido” aqui): o GitHub App Supabase está ligado à **produção**. Hoje o check falha porque o remoto tem versões fora do diretório local. Se o repo um dia alinhar esse watermark **e** ganhar migrations novas, o merge na `main` pode tentar aplicá-las em MandarimProject. Não desligar o app nesta remessa. Não copiar o watermark de produção para o repo para “ficar verde”.
 
 ## Como desbloquear (humano)
 

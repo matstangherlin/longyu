@@ -9,7 +9,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ### V4.7.6 — Staging backend activation (BLOCKED)
 
-Live identity (signup → Placement → Journey → 4/4 → sync) **não rodou**. `longyu-preview` continua INACTIVE; restore recusado (2 project limit Free). Guarda recusa MandarimProject **e** atomurus. `migrate:staging` / `deploy:staging-functions` exigem `ACTIVE_HEALTHY`. Harnesses `v476:auth-identity` / `v476:placement-authority` / `v476:sync-identity` existem e saem BLOCKED sem staging; fixture Admin **não** conta como e-mail real. Relatório: `docs/reports/v476-staging-live-validation.md`. Scoreboard: todos BLOCKED. Sem DDL/Edge em produção. Sem pause de atomurus. PRE-001: #203 mergeada em `main` (`b2a5818`).
+Live identity (signup → Placement → Journey → 4/4 → sync) **não rodou**. `longyu-preview` continua INACTIVE; restore recusado (2 project limit Free). Guarda recusa MandarimProject **e** atomurus. `migrate:staging` / `deploy:staging-functions` exigem `ACTIVE_HEALTHY`. Harnesses `v476:auth-identity` / `v476:placement-authority` / `v476:sync-identity` existem e saem BLOCKED sem staging; fixture Admin **não** conta como e-mail real. Relatório: `docs/reports/v476-staging-live-validation.md`. Scoreboard: todos BLOCKED. Sem DDL/Edge em produção. Sem pause de atomurus. PRE-001: #203 mergeada em `main` (`b2a5818`). Pós-merge: watermark de produção inalterado; check GitHub **Supabase Preview** FAILURE fail-closed (`Remote migration versions not found in local migrations directory`).
 
 ### V4.7.5 — Staging live inventory (BLOCKED)
 
