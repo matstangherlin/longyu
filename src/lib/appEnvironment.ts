@@ -85,3 +85,12 @@ export function isTestFixturesAllowed(env: AppEnvironmentInput = import.meta.env
   if (isDevelopmentEnv(env)) return env.VITE_USE_TEST_FIXTURES === "true" || env.DEV === true;
   return env.VITE_USE_TEST_FIXTURES === "true";
 }
+
+/**
+ * QA Fast Path (`/qa`) só em development ou preview.
+ * Nunca em Production Beta, mesmo se alguém colar a URL ou um marker no storage.
+ */
+export function isQaFastPathAllowed(env: AppEnvironmentInput = import.meta.env): boolean {
+  if (isProductionBetaEnv(env)) return false;
+  return isDevelopmentEnv(env) || isPreviewEnv(env);
+}

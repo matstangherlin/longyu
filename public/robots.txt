@@ -47,5 +47,6 @@ Disallow: /admin
 Disallow: /licao
 Disallow: /teste
 Disallow: /convite
+Disallow: /qa
 
 Sitemap: https://singular-meringue-7838cd.netlify.app/sitemap.xml

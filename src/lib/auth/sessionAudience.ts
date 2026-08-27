@@ -1,4 +1,6 @@
 import { useStore } from "../store";
+import { isQaFastPathAllowed } from "../appEnvironment";
+import { isQaFastPathSessionMarked } from "../qaFastPathAccess";
 import { allowSeededLocalSession, isDevLocalAuthAllowed } from "./localAuthPolicy";
 import { getCloudUserId } from "./cloudSession";
 import { buildProgressSnapshot, isMeaningfulProgress } from "../progressSnapshot";
@@ -48,8 +50,9 @@ export function canEnterJourney(audience: SessionAudience): boolean {
   return audience === "cloud_ready" || audience === "seeded";
 }
 
-function readE2EAudienceOverride(): SessionAudience | null {
-  if (!isDevLocalAuthAllowed()) return null;
+function readAudienceOverride(): SessionAudience | null {
+  const qaOverride = isQaFastPathAllowed() && isQaFastPathSessionMarked();
+  if (!isDevLocalAuthAllowed() && !qaOverride) return null;
   if (typeof localStorage === "undefined") return null;
   try {
     const raw = localStorage.getItem(E2E_SESSION_AUDIENCE_KEY);
@@ -82,9 +85,12 @@ export async function resolveSessionAudience(): Promise<SessionAudience> {
   await waitForStoreHydration();
   const state = useStore.getState();
   if (allowSeededLocalSession() && state.accountSetupComplete) return "seeded";
+  if (isQaFastPathAllowed() && isQaFastPathSessionMarked() && state.accountSetupComplete) {
+    return "seeded";
+  }
 
-  const e2eOverride = readE2EAudienceOverride();
-  if (e2eOverride) return e2eOverride;
+  const audienceOverride = readAudienceOverride();
+  if (audienceOverride) return audienceOverride;
 
   const userId = await getCloudUserId();
   if (userId) {

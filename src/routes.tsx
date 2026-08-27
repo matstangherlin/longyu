@@ -53,6 +53,11 @@ const LegacyLocalMigrationPage = lazy(() =>
     default: m.LegacyLocalMigrationPage,
   }))
 );
+const QaHubPage = lazy(() => import("./features/qa/QaHubPage").then((m) => ({ default: m.QaHubPage })));
+const QaScenarioPage = lazy(() =>
+  import("./features/qa/QaScenarioPage").then((m) => ({ default: m.QaScenarioPage }))
+);
+import { QaFastPathGate } from "./components/qa/QaFastPathGate";
 
 import { LandingPage } from "./features/landing/LandingPage";
 
@@ -80,6 +85,14 @@ export const routes: RouteObject[] = [
       { path: "salvar-progresso", element: <LegacyLocalMigrationPage /> },
       { path: "privacidade", element: <PrivacyPage /> },
       { path: "sobre", element: <AboutPage /> },
+    ],
+  },
+  {
+    element: <QaFastPathGate />,
+    children: [
+      { path: "qa", element: <QaHubPage /> },
+      { path: "qa/player", element: <QaHubPage /> },
+      { path: "qa/:scenario", element: <QaScenarioPage /> },
     ],
   },
   {

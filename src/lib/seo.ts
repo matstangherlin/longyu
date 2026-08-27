@@ -165,6 +165,7 @@ const NOINDEX_PREFIXES = [
   "/licao",
   "/teste",
   "/convite",
+  "/qa",
 ] as const;
 
 export function getSiteUrl(): string {

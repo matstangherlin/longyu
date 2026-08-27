@@ -21,6 +21,7 @@ const envSrc = read("src/lib/appEnvironment.ts");
 assert(envSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
 assert(envSrc.includes("isProPreviewBuildAllowed"), "appEnvironment deve expor isProPreviewBuildAllowed");
 assert(envSrc.includes("isTestFixturesAllowed"), "appEnvironment deve expor isTestFixturesAllowed");
+assert(envSrc.includes("isQaFastPathAllowed"), "appEnvironment deve expor isQaFastPathAllowed");
 
 const entitlements = read("src/lib/entitlements.ts");
 assert(entitlements.includes("isProPreviewBuildAllowed"), "entitlements deve usar isProPreviewBuildAllowed");
