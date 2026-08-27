@@ -123,7 +123,7 @@ Isto **não** marca `SECURITY_READY = PASS`. STG-009 exige A≠B e advisors **de
 
 ## STG-011 — Observability (código no repo; runtime NOT_RUN)
 
-Cliente envia `x-longyu-correlation-id` / `x-longyu-session-id` / `x-longyu-op` em signup, placement, finalize, checkout, portal, delete-account, anon ingestion, business lead. Logs `[longyu-ops]` **sem** email/senha/token.
+Cliente envia `x-longyu-correlation-id` / `x-longyu-session-id` / `x-longyu-op` em signup, placement, finalize, checkout, portal, delete-account, anon ingestion, business lead. Logs `[longyu-ops]` **sem** email/senha/token. IDs saem de `crypto.randomUUID()` (fallback `getRandomValues`); sem `Math.random` (CodeQL `js/insecure-randomness` na #203).
 
 Edges no repo leem o header (create-account, commit-placement, finalize-onboarding) e o webhook loga `stripeEventId` + type. **Não implantado** em MandarimProject nem em longyu-preview.
 

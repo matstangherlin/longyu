@@ -9,7 +9,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ### V4.7.5 — Staging live inventory (BLOCKED)
 
-MCP autenticado. `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Inventário em `docs/reports/staging-live-inventory.md`. Sem DDL/Edge em MandarimProject. Sem pause de atomurus. Correlação operacional no cliente/repo (STG-011 código; runtime NOT_RUN).
+MCP autenticado. `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Inventário em `docs/reports/staging-live-inventory.md`. Sem DDL/Edge em MandarimProject. Sem pause de atomurus. Correlação operacional no cliente/repo (STG-011 código; runtime NOT_RUN). IDs de correlação usam Web Crypto (`randomUUID` / `getRandomValues`), não `Math.random`.
 
 ### V4.7.4 — Closed Beta Release Candidate Hardening
 

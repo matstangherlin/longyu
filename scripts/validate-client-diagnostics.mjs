@@ -24,6 +24,8 @@ const ops = readFileSync("src/lib/opsCorrelation.ts", "utf8");
 assert.match(ops, /x-longyu-correlation-id/, "header de correlação");
 assert.match(ops, /Nunca registra email/, "contrato sem PII");
 assert.doesNotMatch(ops, /password|authorization|access_token/i, "opsCorrelation não menciona segredos");
+assert.doesNotMatch(ops, /Math\.random/, "IDs de ops não usam Math.random (CodeQL js/insecure-randomness)");
+assert.match(ops, /randomUUID|getRandomValues/, "IDs de ops usam Web Crypto");
 
 const signup = readFileSync("src/services/authService.ts", "utf8");
 assert.match(signup, /edgeOpsInit\("signup"\)/, "signup envia correlação");
