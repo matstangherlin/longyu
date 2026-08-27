@@ -1,11 +1,21 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { isPublicAppPath, loginNextPath, onboardingEntryPath } from "../../lib/auth/publicRoutes";
-import { resolveSessionAudience, type SessionAudience } from "../../lib/auth/sessionAudience";
+import {
+  finalizeOnboardingPath,
+  isPublicAppPath,
+  loginNextPath,
+  onboardingEntryPath,
+} from "../../lib/auth/publicRoutes";
+import {
+  canEnterJourney,
+  resolveSessionAudience,
+  type SessionAudience,
+} from "../../lib/auth/sessionAudience";
 import { pendingOnboardingStarted } from "../../lib/placement/pending";
 
 /**
- * Guard de rotas autenticadas. Sem sessão cloud, não pinta conteúdo privado.
+ * Guard de rotas autenticadas. Journey exige cloud_ready no servidor.
+ * Sessao Supabase sozinha nao pinta conteudo privado.
  */
 export function RequireCloudSession({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -32,8 +42,12 @@ export function RequireCloudSession({ children }: { children: ReactNode }) {
     );
   }
 
-  if (audience === "cloud" || audience === "seeded") {
+  if (canEnterJourney(audience)) {
     return <>{children}</>;
+  }
+
+  if (audience === "cloud_pending_onboarding") {
+    return <Navigate to={finalizeOnboardingPath(`${location.pathname}${location.search}`)} replace />;
   }
 
   if (audience === "legacy") {

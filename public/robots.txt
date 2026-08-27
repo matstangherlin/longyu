@@ -36,6 +36,7 @@ Disallow: /login
 Disallow: /esqueci-senha
 Disallow: /redefinir-senha
 Disallow: /confirmar-email
+Disallow: /finalizar-cadastro
 Disallow: /perfil
 Disallow: /conta
 Disallow: /dados-locais

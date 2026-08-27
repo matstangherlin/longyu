@@ -8,9 +8,10 @@ import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
 import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { confirmEmailPath } from "../../lib/authRedirect";
+import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
+import { canEnterJourney, resolveSessionAudience } from "../../lib/auth/sessionAudience";
 import { useStore } from "../../lib/store";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
-import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -44,13 +45,13 @@ export function LoginPage() {
     if (!cloudEnabled) return;
     void restoreCloudSessionIfPresent().then(async (result) => {
       if (!result.ok) return;
-      const onboard = await completeAuthenticatedOnboarding();
-      if (!onboard.ok) {
-        setError(onboard.message);
+      const audience = await resolveSessionAudience();
+      if (canEnterJourney(audience)) {
+        setAccountSetupComplete(true);
+        navigate(postAuthPath, { replace: true });
         return;
       }
-      setAccountSetupComplete(true);
-      navigate(postAuthPath, { replace: true });
+      navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
     });
   }, [cloudEnabled, navigate, postAuthPath, setAccountSetupComplete]);
 
@@ -77,13 +78,14 @@ export function LoginPage() {
       setError(result.message);
       return;
     }
-    const onboard = await completeAuthenticatedOnboarding();
+    const audience = await resolveSessionAudience();
     setLoading(false);
-    if (!onboard.ok) {
-      setError(onboard.message);
+    if (canEnterJourney(audience)) {
+      setAccountSetupComplete(true);
+      navigate(postAuthPath, { replace: true });
       return;
     }
-    navigate(postAuthPath, { replace: true });
+    navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
   }
 
   if (!cloudEnabled) {

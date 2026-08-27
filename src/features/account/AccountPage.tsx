@@ -1855,7 +1855,7 @@ export function AccountPage() {
       country: country.trim() || null,
       signupSource: (source ?? signupSourceForm.trim()) || null,
       marketingOptIn,
-      onboardingCompleted: true,
+      onboardingCompleted: false,
     };
   }
 

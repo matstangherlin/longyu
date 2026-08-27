@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { seedLegacyLocalProgress, seedOnboardedSession, waitForLazyPage } from "./helpers";
+import { seedLegacyLocalProgress, seedMissingDraftFinalize, seedOnboardedSession, seedPendingCloudOnboarding, waitForLazyPage } from "./helpers";
 
 test.describe("TEST-032 — route guard cloud-first", () => {
   for (const path of ["/jornada", "/licao/p1-o-que-e-mandarim/player", "/treino", "/revisao", "/missoes"]) {
     test(`anônimo em ${path} não vê conteúdo privado`, async ({ page }) => {
       await page.goto(path);
-      await page.waitForURL(/\/(comecar|login|salvar-progresso)(\?|$)/, { timeout: 15_000 });
+      await page.waitForURL(/\/(comecar|login|salvar-progresso|finalizar-cadastro)(\?|$)/, { timeout: 15_000 });
       await expect(page.getByTestId("auth-gate")).toHaveCount(0);
       await expect(page.getByRole("heading", { name: /Jornada|Treino|Revisão|Missões/i })).toHaveCount(0);
     });
@@ -93,9 +93,41 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     // localStorage já limpo numa page nova do mesmo origin.
     const guest = await context.newPage();
     await guest.goto("/jornada");
-    await guest.waitForURL(/\/(comecar|login|salvar-progresso)(\?|$)/, { timeout: 15_000 });
+    await guest.waitForURL(/\/(comecar|login|salvar-progresso|finalizar-cadastro)(\?|$)/, { timeout: 15_000 });
     await expect(guest.getByRole("heading", { level: 1, name: "Primeiro contato" })).toHaveCount(0);
     await expect(guest.getByRole("button", { name: /^Sair$/i })).toHaveCount(0);
     await guest.close();
   });
 });
+
+test.describe("TEST-025 — sessao cloud sem onboarding nao abre Journey", () => {
+  for (const path of ["/jornada", "/licao/p1-o-que-e-mandarim/player", "/treino", "/revisao", "/missoes"]) {
+    test(`pending em ${path} vai para /finalizar-cadastro`, async ({ page }) => {
+      await seedPendingCloudOnboarding(page);
+      await page.goto(path);
+      await page.waitForURL(/\/finalizar-cadastro/, { timeout: 15_000 });
+      await expect(page.getByTestId("auth-gate")).toHaveCount(0);
+      await expect(page.getByRole("heading", { name: /Jornada|Treino|Revisão|Missões/i })).toHaveCount(0);
+      await expect(page.getByTestId("finalize-onboarding")).toBeVisible();
+      await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
+    });
+  }
+});
+
+test.describe("TEST-026 — draft ausente falha fechado", () => {
+  test("nao marca onboarding e oferece refazer o teste", async ({ page }) => {
+    await seedMissingDraftFinalize(page);
+    await page.goto("/finalizar-cadastro");
+    await expect(page.getByTestId("finalize-onboarding")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Precisamos finalizar seu ponto de partida/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole("button", { name: /Tentar novamente/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Refazer teste de nivelamento/i })).toBeVisible();
+    await expect(page).not.toHaveURL(/\/jornada/);
+    await page.getByRole("link", { name: /Refazer teste de nivelamento/i }).click();
+    await page.waitForURL(/\/comecar\?refazer=1/);
+    await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
+  });
+});
+

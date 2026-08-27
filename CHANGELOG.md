@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.1 — Authoritative Onboarding + Placement Handoff
+
+Fecha o ciclo: placement anônimo → signup → confirmação de email → commit no servidor → Journey. O resultado sobrevive nova aba, fechamento da aba original e outro dispositivo.
+
+- `create-account` grava `onboarding_completed=false`. Só o commit transacional marca `true`.
+- `SessionAudience`: `anonymous | legacy | seeded | cloud_pending_onboarding | cloud_ready`. Journey exige `cloud_ready` (perfil no servidor), não sessão Supabase sozinha.
+- Evidência Placement V2 vai no signup (`placement_onboarding_drafts`). sessionStorage continua UX pré-cadastro, não autoridade depois.
+- Edge `finalize-onboarding` + `/finalizar-cadastro`. Idempotência `onboarding-v2:{userId}`. Draft ausente falha fechado.
+- Identidade de locale: `country_code` / `interface_locale` / `instruction_locale` / `native_language` / `target_language`. Lancamento continua pt-BR → zh-CN. Sem copy EN.
+- Relatórios: `docs/reports/i18n-readiness.md`, `docs/reports/pr-195-superseded.md` (`CLOSE_SAFE`, não mergear #195).
+- Migration e Edge desta remessa: staging antes de produção.
+
+**Não** traduz a UI. **Não** altera Topic Mastery 4/4, Journey pedagogy, Business, Stripe, Pérolas, Missões, Atlas em massa.
+
 ### V4.7 — Cloud-First Onboarding + Placement 2.0
 
 Novo aluno entra com conta cloud. O teste de nivelamento continua **antes** do cadastro; a Jornada só abre depois da sessão autenticada e do commit no servidor.

@@ -44,3 +44,7 @@ verify_jwt = false
 # Nivelamento: JWT obrigatório; o handler recalcula e persiste via service_role.
 [functions.commit-placement]
 verify_jwt = true
+
+# Finaliza onboarding a partir do draft no servidor (nova aba / outro dispositivo).
+[functions.finalize-onboarding]
+verify_jwt = true

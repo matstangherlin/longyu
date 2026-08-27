@@ -1,8 +1,11 @@
+export const FINALIZE_ONBOARDING_PATH = "/finalizar-cadastro";
+
 export const PUBLIC_APP_PATHS = [
   "/",
   "/comecar",
   "/login",
   "/confirmar-email",
+  "/finalizar-cadastro",
   "/esqueci-senha",
   "/redefinir-senha",
   "/business",
@@ -38,4 +41,17 @@ export function loginNextPath(pathname: string, search = ""): string {
 
 export function onboardingEntryPath(): string {
   return "/comecar";
+}
+
+export function finalizeOnboardingPath(next?: string): string {
+  const dest = (next ?? "").trim();
+  if (!dest || dest === "/jornada" || dest.startsWith(FINALIZE_ONBOARDING_PATH)) {
+    return FINALIZE_ONBOARDING_PATH;
+  }
+  if (!dest.startsWith("/") || dest.startsWith("//")) return FINALIZE_ONBOARDING_PATH;
+  return `${FINALIZE_ONBOARDING_PATH}?next=${encodeURIComponent(dest)}`;
+}
+
+export function redoPlacementPath(): string {
+  return "/comecar?refazer=1";
 }

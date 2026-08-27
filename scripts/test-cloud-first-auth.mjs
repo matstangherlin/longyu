@@ -56,6 +56,7 @@ assert(!landing.includes("Seu progresso pode ser salvo na nuvem"), "Landing prec
 assert(landing.includes("Seu progresso fica salvo na sua conta"), "Landing deve dizer que o progresso fica na conta");
 assert(landing.includes('to="/comecar"'), "Começar agora deve ir para /comecar");
 assert(routes.includes('path: "comecar"'), "rota /comecar precisa existir");
+assert(routes.includes('path: "finalizar-cadastro"'), "rota /finalizar-cadastro precisa existir");
 assert(routes.includes("RequireCloudSession"), "rotas protegidas exigem RequireCloudSession");
 assert(store.includes("isDevLocalAuthAllowed()"), "finishLocalOnboarding deve hard-fail fora de DEV/E2E");
 assert(store.includes("LEGACY_ONLY"), "authMode=local precisa estar marcado LEGACY_ONLY");
@@ -64,6 +65,10 @@ assert(store.includes("wipeToGuestShell"), "logout deve limpar identidade ao viv
 assert(policy.includes("VITE_DEV_ALLOW_LOCAL_AUTH cannot be enabled in production builds"), "flag local auth hard-fail em production");
 assert(requireCloud.includes("auth-gate"), "guard não pode pintar conteúdo privado antes da sessão");
 assert(requireCloud.includes("resolveSessionAudience"), "guard resolve sessão cloud, não authMode persistido");
+assert(requireCloud.includes("cloud_ready"), "Journey exige cloud_ready");
+assert(requireCloud.includes("cloud_pending_onboarding"), "pending não entra na Journey");
+assert(requireCloud.includes("finalizeOnboardingPath"), "pending vai para /finalizar-cadastro");
+assert(!requireCloud.includes('audience === "cloud"'), "audience cloud genérico saiu do guard");
 assert(netlifyAssert.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), "deploy production deve bloquear a flag de auth local");
 assert(envExample.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), ".env.example deve documentar a flag DEV/E2E");
 assert(comecar.includes("Criar minha conta e salvar o resultado"), "CTA de conta obrigatória no resultado");
