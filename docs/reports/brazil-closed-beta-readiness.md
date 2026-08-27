@@ -445,6 +445,7 @@ expansao Atlas, novo sistema de moedas.
 
 | PR | Titulo | Classificacao | Acao |
 | --- | --- | --- | --- |
+| #199 | V4.7.3 — Staging Activation + Real Beta Validation | STILL_NEEDED | Esta remessa. Draft. Nao mergear. Decisao humana `NOT_READY`. |
 | #198 | V4.7.2 — Brazil Closed Beta Readiness | STILL_NEEDED | Empilhada em #197. Nao retargetar/mergear automaticamente. |
 | #197 | V4.7.1 — Authoritative Onboarding + Placement Handoff | STILL_NEEDED | Gate desta remessa. Review humano. Nao mergear automaticamente. |
 | #195 | percentual de progresso nao fica carregando | CLOSE_SAFE | Ja documentado em `docs/reports/pr-195-superseded.md`. Main/V4.7.1 ja tem timeout + planner lock. |
