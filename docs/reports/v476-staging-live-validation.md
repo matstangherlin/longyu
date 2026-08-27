@@ -1,8 +1,8 @@
 # V4.7.6 — Staging Backend Activation & Live Identity Validation
 
-Atualizado em: 2026-08-27T22:49:41Z  
+Atualizado em: 2026-08-27T23:32:09Z  
 Branch: `cursor/v476-staging-live-validation-3618`  
-Base: `origin/main` `79abef6` (não empilhada na #203)
+Base: `origin/main` `b2a5818` (rebase após merge da #203)
 
 **Não é autorização de closed beta.** Automação não preenche PASS humano.
 `PHYSICAL_QA_READY`, `PAYMENTS_READY` e `READY_FOR_CLOSED_BETA_BR` **estão fora desta remessa** e não são marcados.
@@ -24,28 +24,21 @@ Nenhum campo acima é `PASS`.
 
 ## PRE-001 — Estado de #203
 
-#203 **não está mergeada**.
+#203 **mergeada**.
 
-| Item | Valor em 2026-08-27T22:49:41Z |
+| Item | Valor em 2026-08-27T23:32:09Z |
 | --- | --- |
 | URL | https://github.com/matstangherlin/longyu/pull/203 |
-| state | OPEN |
-| mergedAt | null |
-| HEAD | `b2a5818` |
-| `origin/main` | `79abef6` |
-| Portão de qualidade (`validate:beta` + build) | **IN_PROGRESS** |
-| E2E Chromium | não iniciado neste rollup |
-| E2E Firefox | não iniciado neste rollup |
-| npm audit | SUCCESS |
-| CodeQL (javascript-typescript) | SUCCESS |
-| Secret scan (gitleaks) | SUCCESS |
-| CodeQL (check extra) | SUCCESS neste HEAD (`b2a5818`; o HEAD anterior `c5ca7b1` tinha 3 high `js/insecure-randomness`) |
-| mergeStateStatus | BLOCKED |
+| state | MERGED |
+| mergedAt | 2026-08-27T23:32:09Z |
+| HEAD / `origin/main` | `b2a5818` |
+| Portão de qualidade (`validate:beta` + build) | SUCCESS |
+| E2E Chromium | SUCCESS |
+| E2E Firefox | SUCCESS |
+| E2E WebKit | SUCCESS (informativo) |
+| npm audit / CodeQL / gitleaks | SUCCESS |
 
-Esta remessa **não** empilha código da #203. V4.7.6 parte de `main` e permanece BLOCKED até:
-
-1. #203 mergeada na `main` com qualidade + Chromium + Firefox + Security **PASS neste HEAD**;
-2. staging isolado `ACTIVE_HEALTHY` com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj`.
+V4.7.6 está rebaseada em `main`. Permanece BLOCKED só por falta de staging `ACTIVE_HEALTHY` com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj`.
 
 ## STG-002 — Staging obrigatório
 
@@ -207,7 +200,7 @@ Harness live: `npm run v476:placement-authority` (`scripts/v476-placement-author
 
 ## OBS-020 — Correlation IDs
 
-Código de correlação está na #203 (não nesta branch `main`). Runtime staging: **NOT_RUN**. Nenhum log de Edge de staging foi puxado.
+Código de correlação está em `main` (`src/lib/opsCorrelation.ts`, SHA `b2a5818`). Runtime staging: **NOT_RUN**. Nenhum log de Edge de staging foi puxado.
 
 ## PROGRESS-021 / RECOVERY-022
 
@@ -225,7 +218,7 @@ Um de:
 2. Autorização explícita: “pode pausar o atomurus e restaurar o longyu-preview”.
 3. Confirmar custo de branch/projeto pago isolado (`confirm_cost`) com `LONGYU_STAGING_PROJECT_ID` ≠ `drjcfalvlbbeblmmyhwj`.
 
-Depois: merge da #203 → rebase desta branch em `main` → `identify:staging` → `migrate:staging` (parar no primeiro erro) → `deploy:staging-functions` → auth/placement/sync/RLS live.
+Depois de um staging `ACTIVE_HEALTHY`: `identify:staging` → `migrate:staging` (parar no primeiro erro) → `deploy:staging-functions` → auth/placement/sync/RLS live. #203 já está em `main`.
 
 ## Comandos
 
