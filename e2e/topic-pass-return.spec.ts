@@ -218,7 +218,14 @@ async function startPassFromDetail(page: Page) {
 }
 
 test.describe("V4.6.1 Journey return after each pass", () => {
-  test("0/4 → M1 vitória → Jornada 1/4 → mesmo nó M2 → 4/4 destrava o próximo", async ({ page }) => {
+  test("0/4 → M1 vitória → Jornada 1/4 → mesmo nó M2 → 4/4 destrava o próximo", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "V4.7.4: 4/4 ponta a ponta no Chromium. Firefox/WebKit usam topic-mastery-hardening (seed)."
+    );
     test.setTimeout(300_000);
     await seedFreshJourneySession(page, { isPremium: true, points: 40, holdAchievementModals: true });
     await page.goto("/jornada");

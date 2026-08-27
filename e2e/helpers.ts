@@ -305,6 +305,41 @@ export async function seedFreshJourneySession(
   }));
 }
 
+/** V4.7.4 — Jornada num nível de mastery do primeiro tema, sem jogar as passes. */
+export async function seedTopicMasterySession(
+  page: Page,
+  level: number,
+  extra: SeedState = {}
+) {
+  await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
+  const first = ALL_LESSONS[0]?.id ?? "p1-o-que-e-mandarim";
+  const clamped = Math.max(0, Math.min(4, level));
+  const now = Date.now();
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons: clamped > 0 ? [first] : [],
+    lessonStarsById: clamped > 0 ? { [first]: 3 } : {},
+    lessonMasteryById:
+      clamped > 0
+        ? {
+            [first]: {
+              level: clamped,
+              passCount: clamped,
+              lastPass: clamped,
+              recoveryPending: false,
+              updatedAt: now,
+            },
+          }
+        : {},
+    holdAchievementModals: true,
+    points: 40,
+    ...extra,
+  }));
+}
+
 /** Liga em modo demo com XP semanal local (conta não-cloud). */
 export async function seedLeagueDemoSession(page: Page, weeklyXp = 15) {
   await seedTelemetryDeclined(page);

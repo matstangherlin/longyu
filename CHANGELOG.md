@@ -7,6 +7,16 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.4 — Closed Beta Release Candidate Hardening
+
+Consolida o Longyu atual numa Release Candidate **reproduzível**. Sem escopo de produto novo.
+
+- Firefox: atalhos numéricos em capture no `document` + `DigitN`; opções com `data-selected`.
+- QA Fast Path `/qa` e `/qa/player` só em preview/dev (nunca Production Beta).
+- Sentinelas permanentes dos bugs históricos; Topic Mastery 4/4 com E2E de reload/back/dupla conclusão/rede.
+- Contratos: `docs/reports/physical-qa-contract.md`, `docs/reports/stripe-test-mode-checklist.md`, `docs/reports/closed-beta-release-candidate.md`.
+- Produção intocada. `READY_FOR_CLOSED_BETA_BR` permanece `NOT_READY`.
+
 ### V4.7 — Consolidação na main
 
 Código V4.7.1 + V4.7.2 + V4.7.3 na main. **Não** é release da closed beta.

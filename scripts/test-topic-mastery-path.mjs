@@ -70,6 +70,17 @@ try {
   assert.equal(currentLessonId(afterM1.completedLessons, false, afterM1.lessonMasteryById), first.id);
   assert.equal(lessonState(second.id, afterM1.completedLessons, false, afterM1.lessonMasteryById), "locked");
 
+  const doubleM1 = mastery.advanceLessonMastery({
+    current: { level: 1, passCount: 1, lastPass: 1, updatedAt: 1 },
+    pass: 1,
+    accuracy: 1,
+    mistakeCount: 0,
+    hadProductionOrTransfer: true,
+    commitPass: true,
+  });
+  assert.equal(doubleM1.record.level, 1, "completar M1 de novo não vira 2/4");
+
+
   const afterM3 = {
     completedLessons: [first.id],
     lessonMasteryById: { [first.id]: { level: 3 } },

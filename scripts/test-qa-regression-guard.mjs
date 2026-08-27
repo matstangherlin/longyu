@@ -110,6 +110,16 @@ try {
         assert(Boolean(step.transferAnchorHanzi), `transfer sem ancora: ${lesson.id}`);
         assert(Boolean(step.situationPt || step.prompt), `transfer sem situacao: ${lesson.id}`);
         assert(Boolean(step.correctAnswer || step.answer), `transfer sem resposta: ${lesson.id}`);
+        const answer = String(step.correctAnswer ?? step.answer ?? "").trim();
+        const situation = String(step.situationPt ?? "").trim();
+        assert(
+          !answer || situation !== answer,
+          `transfer vaza resposta na situação (${lesson.id}): ${answer}`
+        );
+        assert(
+          !answer || !situation.includes(answer),
+          `transfer situaão contém a frase-alvo (${lesson.id})`
+        );
       }
       if (step.kind === "free_production") {
         freeCount += 1;
@@ -395,6 +405,17 @@ try {
   // StickyActionBar is in steps.tsx
   assert(/function StickyActionBar|data-lesson-sticky-actions/.test(stepsSource), "StickyActionBar definido");
   assert(/mt-auto/.test(stepsSource), "CTA com mt-auto (acessível no fundo)");
+  assert(stepsSource.includes("optionChoiceDomProps"), "opções de escolha publicam data-option-index");
+  assert(stepsSource.includes("data-option-index") || stepsSource.includes("optionChoiceDomProps"), "data-option-index no listen_select");
+
+  const firstLesson = ALL_LESSONS[0];
+  const firstSteps = lessonRoundStepsFor(firstLesson, emptyCtx);
+  for (const step of firstSteps) {
+    if (step.kind !== "listen_select") continue;
+    const opts = [...(step.options ?? []), ...(step.distractors ?? [])];
+    assert(opts.length > 1, `listen_select sem opções: ${firstLesson.id}`);
+    assert(new Set(opts).size === opts.length, `Hànzì repetido em listen_select: ${opts.join(" / ")}`);
+  }
 
   console.log(
     `OK amostra: transfer=${transferCount} free=${freeCount} review=choice/build star=pending assembly=ok`

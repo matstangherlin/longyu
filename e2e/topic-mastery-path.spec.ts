@@ -125,7 +125,11 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
 }
 
 test.describe("V4.6 Topic Mastery Path", () => {
-  test("anel 0/4 → 4/4 destrava o próximo tema (desktop)", async ({ page }) => {
+  test("anel 0/4 → 4/4 destrava o próximo tema (desktop)", async ({ page, browserName }) => {
+    test.skip(
+      browserName !== "chromium",
+      "V4.7.4: 4/4 ponta a ponta no Chromium; invariantes no spec de hardening em todos os motores."
+    );
     test.setTimeout(240_000);
     await seedFreshJourneySession(page, { isPremium: true, points: 40 });
     await page.goto("/jornada");
@@ -198,7 +202,11 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await capture(page, "v46-detail-320x568");
   });
 
-  test("mobile: M1 → 1/4 e o próximo tema permanece bloqueado", async ({ page }) => {
+  test("mobile: M1 → 1/4 e o próximo tema permanece bloqueado", async ({ page, browserName }) => {
+    test.skip(
+      browserName !== "chromium",
+      "V4.7.4: pass completa no Chromium; Firefox/WebKit cobrem o spec de hardening."
+    );
     test.setTimeout(120_000);
     await page.setViewportSize({ width: 390, height: 844 });
     await seedFreshJourneySession(page, { isPremium: true, points: 40 });

@@ -71,12 +71,14 @@ jobs:
           if-no-files-found: warn
 
   e2e-cross-browser:
-    name: E2E cross-engine (WebKit + Firefox — informativo)
+    name: E2E cross-engine (WebKit + Firefox)
     runs-on: ubuntu-latest
     needs: quality
-    # Não bloqueia o merge: valida os motores WebKit (≈ Safari) e Firefox, cujos
-    # binários não existem no ambiente de automação padrão. Ver docs/REAL_DEVICE_QA.md.
-    continue-on-error: true
+    # Firefox deixa de ser continue-on-error no job: a falha determinística de
+    # atalho numérico (Digit1 / capture) foi corrigida na V4.7.4. WebKit segue
+    # informativo (passo com continue-on-error) — flakes documentados em
+    # docs/reports/closed-beta-release-candidate.md. Chromium continua o portão
+    # de merge. Flake conhecido não cobre caminho crítico.
     steps:
       - uses: actions/checkout@v4
 
@@ -92,7 +94,7 @@ jobs:
         run: npx playwright install webkit firefox chromium --with-deps
 
       - name: E2E WebKit (Safari) + mobile Safari
-        # Continua no Firefox mesmo se o WebKit falhar (ex.: reload offline interno).
+        # Informativo: flakes de overlay/timeout em WebKit não escondem o Firefox.
         continue-on-error: true
         run: npm run test:e2e:webkit
 
