@@ -18,6 +18,20 @@ export function canonicalCountryCode(input: unknown): string {
   return map[raw.toLowerCase()] ?? "BR";
 }
 
+export function countryLabelForCode(input: unknown): string {
+  const code = canonicalCountryCode(input);
+  const labels: Record<string, string> = {
+    BR: "Brasil",
+    PT: "Portugal",
+    CN: "China",
+    US: "Estados Unidos",
+    AR: "Argentina",
+    MX: "Mexico",
+    AO: "Angola",
+  };
+  return labels[code] ?? code;
+}
+
 export function parsePlacementEvidence(raw: unknown): {
   placementVersion: number;
   declaredExperience: Experience;

@@ -1,4 +1,5 @@
 import { todayKey } from "./storage";
+import { trackFunnelEvent } from "../services/funnelEvents";
 
 // ============================================================================
 // ProOfferEngine — decide QUANDO e COMO oferecer o Longyu Pro, de forma
@@ -575,6 +576,11 @@ export function recordProOfferShown(offer: ProOfferCopy): void {
     variant: offer.messageVariant,
     reason: offer.reason,
   });
+  trackFunnelEvent("pro_offer_shown", {
+    placement: offer.placement,
+    variant: offer.messageVariant,
+    reason: offer.reason,
+  });
   // Só modais não solicitados contam contra os limites de frequência.
   const isBanner = offer.strength === "card" || offer.placement.endsWith("_banner");
   if (offer.solicited || isBanner) return;
@@ -629,10 +635,12 @@ export function clearPendingOfferOrigin(): void {
 
 export function recordProOfferCheckoutStarted(origin = getPendingOfferOrigin() ?? "direct"): void {
   recordProOfferEvent({ type: "checkout_started", placement: origin, variant: "n/a", reason: "checkout", origin });
+  trackFunnelEvent("checkout_started", { origin });
 }
 
 export function recordProOfferSubscriptionStarted(origin = getPendingOfferOrigin() ?? "direct"): void {
   recordProOfferEvent({ type: "subscription_started", placement: origin, variant: "n/a", reason: "converted", origin });
+  trackFunnelEvent("subscription_activated", { origin });
   clearPendingOfferOrigin();
 }
 

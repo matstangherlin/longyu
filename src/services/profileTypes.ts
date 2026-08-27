@@ -1,4 +1,4 @@
-import { canonicalCountryCode, launchLocaleFields } from "../lib/i18n/identity";
+import { canonicalCountryCode, countryLabelForCode, launchLocaleFields } from "../lib/i18n/identity";
 
 /** Dados de perfil coletados no cadastro e salvos em public.profiles. */
 export interface ProfileDetails {
@@ -12,11 +12,12 @@ export interface ProfileDetails {
 
 export function profileDetailsPayload(profile: ProfileDetails) {
   const locales = launchLocaleFields();
+  const countryCode = canonicalCountryCode(profile.country);
   return {
     name: profile.name.trim() || "Aluno Longyu",
     birth_date: profile.birthDate?.trim() || null,
-    country: profile.country?.trim() || null,
-    country_code: canonicalCountryCode(profile.country),
+    country: countryLabelForCode(countryCode),
+    country_code: countryCode,
     signup_source: profile.signupSource?.trim() || null,
     marketing_opt_in: profile.marketingOptIn === true,
     native_language: locales.native_language,

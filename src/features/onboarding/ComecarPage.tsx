@@ -19,6 +19,7 @@ import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { createAccount as createAuthAccount } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
+import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import {
   CATEGORY_LABEL,
   appendPendingAnswer,
@@ -105,7 +106,7 @@ export function ComecarPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [country, setCountry] = useState("Brasil");
+  const [country, setCountry] = useState(LAUNCH_COUNTRY_CODE);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [signupSource, setSignupSource] = useState("");
   const [error, setError] = useState<string | null>(null);

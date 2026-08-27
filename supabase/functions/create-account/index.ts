@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { validatePlacementEvidence } from "../_shared/placement/engine.ts";
 import {
   canonicalCountryCode,
+  countryLabelForCode,
   parsePlacementEvidence,
 } from "../_shared/placement/evidence.ts";
 
@@ -292,8 +293,8 @@ Deno.serve(async (req) => {
     }
 
     const userId = created.user.id;
-    const countryLabel = String(body.country ?? "").trim() || "Brasil";
-    const countryCode = canonicalCountryCode(body.countryCode || countryLabel);
+    const countryCode = canonicalCountryCode(body.countryCode || body.country);
+    const countryLabel = countryLabelForCode(countryCode);
     const birthDate = String(body.birthDate ?? "").trim() || null;
     const signupSource = String(body.signupSource ?? "").trim() || null;
     const marketingOptIn = body.marketingOptIn === true;

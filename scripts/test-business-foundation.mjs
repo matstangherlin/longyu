@@ -140,7 +140,8 @@ assert(seo.includes('path: "/business"'), "SEO /business");
 assert(seo.includes("Treinamento de Mandarim para Empresas"), "título SEO corporativo");
 
 const form = read("src/features/business/BusinessLeadForm.tsx");
-assert(form.includes('htmlFor='), "labels htmlFor");
+assert(form.includes("CountrySelect") || form.includes("data-country-select"), "form Business usa pais canonico");
+assert(!form.includes('autoComplete="country-name"'), "form Business nao usa texto livre de pais");
 assert(form.includes('name="website"'), "honeypot website");
 assert(form.includes("submitBusinessLead"), "envio via serviço, não insert direto");
 assert(!form.includes('.from("business_leads")'), "form não insere em business_leads");

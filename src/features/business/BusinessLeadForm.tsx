@@ -11,6 +11,8 @@ import {
 } from "../../lib/businessLead";
 import { trackBusinessEvent } from "../../services/businessEvents";
 import { submitBusinessLead } from "../../services/businessLeadService";
+import { CountrySelect } from "../../components/auth/CountrySelect";
+import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 
 const FIELD_CLASS =
   "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
@@ -33,7 +35,7 @@ const EMPTY: BusinessLeadDraft = {
   company: "",
   jobTitle: "",
   employeeCountRange: "",
-  country: "Brasil",
+  country: LAUNCH_COUNTRY_CODE,
   goal: "",
   startWindow: "",
   message: "",
@@ -249,14 +251,12 @@ export function BusinessLeadForm({ sourceCta = "form" }: { sourceCta?: string })
           <label className={LABEL_CLASS} htmlFor={`${formId}-country`}>
             País
           </label>
-          <input
+          <CountrySelect
             id={`${formId}-country`}
             name="country"
-            autoComplete="country-name"
             required
-            maxLength={80}
             value={draft.country}
-            onChange={(event) => patch("country", event.target.value)}
+            onChange={(value) => patch("country", value)}
             aria-invalid={Boolean(errors.country) || undefined}
             aria-describedby={errors.country ? errorIds.country : undefined}
             className={FIELD_CLASS}

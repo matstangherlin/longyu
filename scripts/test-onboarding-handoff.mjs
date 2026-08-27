@@ -36,6 +36,7 @@ const [
   identity,
   evidence,
   comecar,
+  profileFields,
 ] = await Promise.all([
   read("supabase/functions/create-account/index.ts"),
   read("supabase/functions/finalize-onboarding/index.ts"),
@@ -52,6 +53,7 @@ const [
   read("src/lib/i18n/identity.ts"),
   read("src/lib/placement/evidence.ts"),
   read("src/features/onboarding/ComecarPage.tsx"),
+  read("src/components/auth/ProfileDetailsFields.tsx"),
 ]);
 
 assert(
@@ -124,6 +126,7 @@ assert(comecar.includes("refazer"), "redo placement autenticado");
 assert(identity.includes("LAUNCH_INTERFACE_LOCALE"), "I18N-017: interface_locale");
 assert(identity.includes("LAUNCH_INSTRUCTION_LOCALE"), "I18N-017: instruction_locale");
 assert(identity.includes("LAUNCH_COUNTRY_CODE"), "I18N-018: country code");
+assert(profileFields.includes("CountrySelect"), "cadastro usa pais canonico");
 assert(identity.includes('zh-CN'), "lancamento continua zh-CN");
 assert(!identity.includes("en-US") || identity.includes("pt-BR"), "sem UI EN nesta PR");
 assert(evidence.includes("skippedLessonIds") === false || evidence.includes("Sem score"), "evidencia sem score/skip");
@@ -142,12 +145,21 @@ try {
     compilerOptions,
     fileName: "identity.ts",
   }).outputText;
+  const countriesText = ts.transpileModule(await read("src/data/countries.ts"), {
+    compilerOptions,
+    fileName: "countries.ts",
+  }).outputText;
   await mkdir(path.join(outDir, "src/lib/i18n"), { recursive: true });
+  await mkdir(path.join(outDir, "src/data"), { recursive: true });
   await writeFile(path.join(outDir, "src/lib/i18n/identity.js"), identityText);
+  await writeFile(path.join(outDir, "src/data/countries.js"), countriesText);
   const mod = require(path.join(outDir, "src/lib/i18n/identity.js"));
   assert(mod.canonicalCountryCode("Brasil") === "BR", "Brasil -> BR");
   assert(mod.canonicalCountryCode("br") === "BR", "br -> BR");
+  assert(mod.canonicalCountryCode("Portugal") === "PT", "Portugal -> PT");
   assert(mod.canonicalCountryCode("pt-BR") !== "pt-BR", "nao misturar locale com country");
+  assert(mod.launchLocaleFields().interface_locale === "pt-BR", "locale nao deriva do pais");
+  assert(mod.launchLocaleFields().target_language === "zh-CN", "target permanece zh-CN");
   assert(mod.LAUNCH_INTERFACE_LOCALE === "pt-BR", "interface pt-BR");
   assert(mod.LAUNCH_TARGET_LANGUAGE === "zh-CN", "target zh-CN");
   assert(mod.LAUNCH_COUNTRY_CODE === "BR", "country BR");

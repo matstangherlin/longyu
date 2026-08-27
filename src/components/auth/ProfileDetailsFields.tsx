@@ -1,4 +1,6 @@
 import { SIGNUP_SOURCE_OPTIONS } from "../../data/profileSignup";
+import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
+import { CountrySelect } from "./CountrySelect";
 
 export interface ProfileDetailsFormState {
   birthDate: string;
@@ -9,10 +11,13 @@ export interface ProfileDetailsFormState {
 
 export const DEFAULT_PROFILE_DETAILS: ProfileDetailsFormState = {
   birthDate: "",
-  country: "Brasil",
+  country: LAUNCH_COUNTRY_CODE,
   marketingOptIn: false,
   signupSource: "",
 };
+
+const FIELD_CLASS =
+  "mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25";
 
 export function ProfileDetailsFields({
   birthDate,
@@ -44,18 +49,12 @@ export function ProfileDetailsFields({
             type="date"
             value={birthDate}
             onChange={(event) => onBirthDate(event.target.value)}
-            className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
+            className={FIELD_CLASS}
           />
         </label>
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">País</span>
-          <input
-            type="text"
-            value={country}
-            onChange={(event) => onCountry(event.target.value)}
-            placeholder="Brasil"
-            className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
-          />
+          <CountrySelect value={country} onChange={onCountry} className={FIELD_CLASS} />
         </label>
       </div>
 
@@ -65,7 +64,7 @@ export function ProfileDetailsFields({
           <select
             value={signupSource}
             onChange={(event) => onSignupSource(event.target.value)}
-            className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
+            className={FIELD_CLASS}
           >
             <option value="">Selecione (opcional)</option>
             {SIGNUP_SOURCE_OPTIONS.map((option) => (

@@ -52,6 +52,22 @@ begin
   )
   on conflict do nothing;
 
+  if to_regclass('public.placement_attempts') is not null then
+    insert into public.placement_attempts (
+      user_id, placement_version, declared_experience, answers
+    ) values (
+      id_b, 2, 'zero', '[{"questionId":"q1","answer":"x"}]'::jsonb
+    );
+  end if;
+
+  if to_regclass('public.placement_onboarding_drafts') is not null then
+    insert into public.placement_onboarding_drafts (
+      user_id, placement_version, declared_experience, answers, expires_at
+    ) values (
+      id_b, 2, 'zero', '[]'::jsonb, now() + interval '1 day'
+    );
+  end if;
+
   perform set_config('request.jwt.claim.sub', id_a::text, true);
   perform set_config('request.jwt.claim.role', 'authenticated', true);
   set local role authenticated;
@@ -80,6 +96,16 @@ begin
   get diagnostics seen = row_count;
   if seen <> 0 then raise exception 'FAIL: A alterou economia de B (% rows)', seen; end if;
 
+  if to_regclass('public.placement_attempts') is not null then
+    execute 'select count(*) from public.placement_attempts where user_id = $1' into seen using id_b;
+    if seen <> 0 then raise exception 'FAIL: A leu placement de B (% rows)', seen; end if;
+  end if;
+
+  if to_regclass('public.placement_onboarding_drafts') is not null then
+    execute 'select count(*) from public.placement_onboarding_drafts where user_id = $1' into seen using id_b;
+    if seen <> 0 then raise exception 'FAIL: A leu draft de onboarding de B (% rows)', seen; end if;
+  end if;
+
   select public.is_beta_admin() into admin_flag;
   if admin_flag is distinct from false then
     raise exception 'FAIL: is_beta_admin=% (esperado false)', admin_flag;
@@ -101,6 +127,12 @@ begin
   reset role;
 
   delete from public.subscriptions where user_id in (id_a, id_b);
+  if to_regclass('public.placement_onboarding_drafts') is not null then
+    delete from public.placement_onboarding_drafts where user_id in (id_a, id_b);
+  end if;
+  if to_regclass('public.placement_attempts') is not null then
+    delete from public.placement_attempts where user_id in (id_a, id_b);
+  end if;
   delete from public.user_economy where user_id in (id_a, id_b);
   delete from public.user_progress where user_id in (id_a, id_b);
   delete from public.profiles where id in (id_a, id_b);

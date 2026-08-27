@@ -8,10 +8,14 @@
  * - native_language: lingua principal do aluno (lancamento pt-BR)
  * - target_language: idioma estudado (lancamento zh-CN)
  *
+ * Pais nunca infere idioma. launchLocaleFields() ignora country.
+ *
  * Futuro (nao nesta PR): a mesma conta pode ter instruction_locale en
  * para o par en → zh-CN, sem duplicar banco nem a Journey. Dados canonicos
  * chineses (hanzi, pinyin, audio, estrutura) continuam independentes do locale.
  */
+
+import { COUNTRY_LABEL_ALIASES, COUNTRY_OPTIONS } from "../../data/countries";
 
 export const LAUNCH_INTERFACE_LOCALE = "pt-BR";
 export const LAUNCH_INSTRUCTION_LOCALE = "pt-BR";
@@ -22,30 +26,24 @@ export const LAUNCH_COUNTRY_CODE = "BR";
 /** Rotulo de UI no lancamento BR. Nao e o valor persistido. */
 export const LAUNCH_COUNTRY_LABEL = "Brasil";
 
-const COUNTRY_LABEL_TO_CODE: Record<string, string> = {
-  Brasil: "BR",
-  Brazil: "BR",
-  Portugal: "PT",
-  China: "CN",
-  "Estados Unidos": "US",
-  USA: "US",
-  "United States": "US",
-};
+const LABEL_TO_CODE: Record<string, string> = { ...COUNTRY_LABEL_ALIASES };
+const CODE_TO_LABEL: Record<string, string> = {};
+
+for (const option of COUNTRY_OPTIONS) {
+  CODE_TO_LABEL[option.code] = option.label;
+  LABEL_TO_CODE[option.label.trim().toLowerCase()] = option.code;
+}
 
 export function canonicalCountryCode(input: string | null | undefined): string {
   const raw = String(input ?? "").trim();
   if (!raw) return LAUNCH_COUNTRY_CODE;
   if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
-  return COUNTRY_LABEL_TO_CODE[raw] ?? LAUNCH_COUNTRY_CODE;
+  return LABEL_TO_CODE[raw.toLowerCase()] ?? LAUNCH_COUNTRY_CODE;
 }
 
 export function countryLabelForCode(code: string | null | undefined): string {
   const normalized = canonicalCountryCode(code);
-  if (normalized === "BR") return "Brasil";
-  if (normalized === "PT") return "Portugal";
-  if (normalized === "CN") return "China";
-  if (normalized === "US") return "Estados Unidos";
-  return normalized;
+  return CODE_TO_LABEL[normalized] ?? normalized;
 }
 
 export function launchLocaleFields() {
