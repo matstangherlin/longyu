@@ -31,6 +31,8 @@ const [
   requireCloud,
   netlifyAssert,
   envExample,
+  sql,
+  commitFn,
 ] = await Promise.all([
   read("src/lib/store.ts"),
   read("src/features/account/AccountPage.tsx"),
@@ -42,6 +44,8 @@ const [
   read("src/components/auth/RequireCloudSession.tsx"),
   read("scripts/assert-netlify-env.mjs"),
   read(".env.example"),
+  read("supabase/migrations/20260826230000_placement_onboarding.sql"),
+  read("supabase/functions/commit-placement/index.ts"),
 ]);
 
 assert(!accountPage.includes("Deixar para depois"), "AccountPage não pode oferecer Deixar para depois");
@@ -64,6 +68,14 @@ assert(netlifyAssert.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), "deploy production d
 assert(envExample.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), ".env.example deve documentar a flag DEV/E2E");
 assert(comecar.includes("Criar minha conta e salvar o resultado"), "CTA de conta obrigatória no resultado");
 assert(!comecar.includes("finishLocalOnboarding"), "funil /comecar não pode chamar finishLocalOnboarding");
+assert(!accountPage.includes("Conta local neste dispositivo"), "copy de conta local saiu da experiência normal");
+assert(!requireCloud.includes('authMode === "cloud"'), "Jornada não abre só porque o persist diz authMode=cloud");
+assert(sql.includes("create table if not exists public.placement_attempts"), "migration cria placement_attempts");
+assert(sql.includes("placement_attempts_select_own"), "RLS: usuário só lê as próprias tentativas");
+assert(sql.includes("to service_role"), "RPC de commit só para service_role");
+assert(!commitFn.includes("skippedLessonIds"), "Edge não aceita skippedLessonIds do client");
+assert(commitFn.includes("evaluatePlacementEvidence"), "Edge recalcula o placement no servidor");
+assert(commitFn.includes("validatePlacementEvidence"), "Edge valida question IDs e versão");
 
 const require = createRequire(import.meta.url);
 const { mkdir, writeFile } = await import("node:fs/promises");

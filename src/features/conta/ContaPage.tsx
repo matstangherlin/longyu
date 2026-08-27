@@ -19,7 +19,7 @@ function statusFor(authMode: AuthMode): { label: string; tone: "muted" | "accent
   if (authMode === "cloud_pending") {
     return { label: "Nuvem pendente", tone: "accent", blurb: "Sua conta está preparada. Entre com email e senha para ativar a sincronização." };
   }
-  return { label: "Neste dispositivo", tone: "muted", blurb: "Seu progresso está salvo apenas neste aparelho. Crie uma conta para sincronizar na nuvem." };
+  return { label: "Neste dispositivo", tone: "muted", blurb: "Há estudo salvo só neste aparelho. Associe a uma conta Longyu para continuar." };
 }
 
 export function ContaPage() {

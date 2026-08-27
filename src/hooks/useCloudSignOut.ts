@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { allowSeededLocalSession } from "../lib/auth/localAuthPolicy";
 import { useStore } from "../lib/store";
 import { logout as authLogout } from "../services/authService";
 import { cancelScheduledCloudPush, pushProgressToCloud } from "../services/cloudSyncCoordinator";
@@ -10,10 +11,11 @@ export function useCloudSignOut() {
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const endCloudSession = useStore((s) => s.endCloudSession);
   const logoutLocal = useStore((s) => s.logout);
-  const canSignOut = authMode === "cloud" && isSupabaseBackendEnabled();
+  const cloudSession = authMode === "cloud" && isSupabaseBackendEnabled();
+  const canSignOut = cloudSession || allowSeededLocalSession();
 
   const signOut = useCallback(async (): Promise<string | null> => {
-    if (canSignOut) {
+    if (cloudSession) {
       await pushProgressToCloud();
       cancelScheduledCloudPush();
       const result = await authLogout();
@@ -24,7 +26,7 @@ export function useCloudSignOut() {
     logoutLocal();
     navigate("/", { replace: true });
     return null;
-  }, [canSignOut, endCloudSession, logoutLocal, navigate]);
+  }, [cloudSession, endCloudSession, logoutLocal, navigate]);
 
   return { signOut, canSignOut };
 }

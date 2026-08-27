@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedLegacyLocalProgress, waitForLazyPage } from "./helpers";
+import { seedLegacyLocalProgress, seedOnboardedSession, waitForLazyPage } from "./helpers";
 
 test.describe("TEST-032 — route guard cloud-first", () => {
   for (const path of ["/jornada", "/licao/p1-o-que-e-mandarim/player", "/treino", "/revisao", "/missoes"]) {
@@ -71,5 +71,28 @@ test.describe("TEST-034 — migração local legado", () => {
     await expect(page.getByRole("button", { name: /Criar conta/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Já tenho uma conta/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /Jornada/i })).toHaveCount(0);
+    await page.getByRole("button", { name: /Criar conta/i }).click();
+    await page.waitForURL(/\/comecar/);
+    await expect(page.getByRole("heading", { name: /Crie sua conta para salvar o resultado/i })).toBeVisible();
+  });
+});
+
+test.describe("AUTH-003 — logout não vira conta local", () => {
+  test("sair volta à landing e /jornada não mostra progresso anterior", async ({ page, context }) => {
+    await seedOnboardedSession(page, ["l1"]);
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await expect(page.getByRole("heading", { name: /Jornada/i })).toBeVisible();
+    await page.getByRole("button", { name: /^Sair$/i }).click();
+    await page.waitForURL(/\/$/);
+    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
+
+    // seedOnboardedSession regrava o store em todo goto desta page. Prova o
+    // localStorage já limpo numa page nova do mesmo origin.
+    const guest = await context.newPage();
+    await guest.goto("/jornada");
+    await guest.waitForURL(/\/(comecar|login|salvar-progresso)(\?|$)/, { timeout: 15_000 });
+    await expect(guest.getByRole("heading", { name: /Jornada/i })).toHaveCount(0);
+    await guest.close();
   });
 });

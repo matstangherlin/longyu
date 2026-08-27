@@ -1384,12 +1384,12 @@ function getAccountStatus(authMode: AuthMode): {
 
   if (authMode === "local") {
     return {
-      label: "Conta local",
+      label: "Progresso neste dispositivo",
       tone: "accent",
       state: "local_profile",
       blurb: cloudBackend
-        ? "Conta só neste dispositivo. Crie uma conta com email para salvar o progresso na nuvem."
-        : "Conta local neste dispositivo. Seu progresso pode ser perdido se limpar o navegador.",
+        ? "Há estudo salvo só neste aparelho. Associe a uma conta para continuar na Jornada."
+        : "Há estudo salvo só neste aparelho. Associe a uma conta para não perder o progresso.",
     };
   }
 
@@ -2416,7 +2416,7 @@ export function AccountPage() {
       <HubContentCard
         className="hidden overflow-hidden p-0 lg:block"
         title={activeAccount?.name ?? "Aluno Longyu"}
-        desc={activeAccount?.email || "Conta local neste dispositivo."}
+        desc={activeAccount?.email || "Sessão neste dispositivo."}
         meta={
           <>
             <Pill tone={status.tone}>{status.label}</Pill>
@@ -3133,7 +3133,7 @@ function AccountProfileStateCard({
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
         <ProfileDetailStat label="Nome" value={account?.name ?? "Aluno Longyu"} />
-        <ProfileDetailStat label="Email" value={account?.email || "Conta local neste dispositivo."} />
+        <ProfileDetailStat label="Email" value={account?.email || "Sem email nesta sessão."} />
         <ProfileDetailStat label="Status da conta" value={status.label} />
         <ProfileDetailStat label="Nível atual" value={levelLabel} />
         <ProfileDetailStat label="Dias de sequência" value={String(streak)} />
@@ -3349,7 +3349,7 @@ function AccountSecurityCard({
       </div>
       <div className="mt-5 space-y-2 text-sm">
         <SecurityLine
-          label="Conta local"
+          label="Cache neste dispositivo"
           value={authMode === "cloud" ? "Espelho neste dispositivo" : "Progresso neste dispositivo"}
         />
         <SecurityLine label="Conta em nuvem" value={cloudLine} />
@@ -4477,7 +4477,7 @@ function MobileProfileCard({
             {proLabel && <Pill tone={proTone ?? "gold"}>{proLabel}</Pill>}
             </div>
           <h1 className="mt-2 truncate font-serif text-2xl font-semibold leading-tight text-ink">{name}</h1>
-          <p className="truncate text-xs text-ink-faint">{email || "Conta local neste dispositivo."}</p>
+          <p className="truncate text-xs text-ink-faint">{email || "Sessão neste dispositivo."}</p>
         </div>
       </div>
 
