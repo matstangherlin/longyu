@@ -717,7 +717,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
               onClick={() => answerOption(o)}
               disabled={answered != null}
               aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
-              {...optionChoiceDomProps(index, o === selected)}
+              {...optionChoiceDomProps(index, o === selected, o)}
               className={[
                 "relative flex min-h-12 items-center gap-2.5 rounded-xl border px-4 py-2.5 text-left transition",
                 state === "idle" && "border-line hover:bg-surface-2",
@@ -2065,7 +2065,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
                 setPicked(option);
                 setFeedback(null);
               }}
-              {...optionChoiceDomProps(index, active)}
+              {...optionChoiceDomProps(index, active, option)}
               className={engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) })}
             >
               {renderTypedValue(option, isCjkText(option) ? "hanzi" : "pt")}
@@ -2227,7 +2227,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
                 setPicked(option);
                 setFeedback(null);
               }}
-              {...optionChoiceDomProps(index, active)}
+              {...optionChoiceDomProps(index, active, option)}
               className={[
                 "relative flex items-center justify-center",
                 engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) }),

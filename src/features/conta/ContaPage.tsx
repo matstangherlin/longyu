@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useStore } from "../../lib/store";
+import { useStore, type CloudSyncState } from "../../lib/store";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
@@ -11,6 +11,15 @@ import { IconChevron, IconShield, IconStar, IconLibrary, IconGear } from "../../
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 
 type AuthMode = "local" | "cloud_pending" | "cloud";
+
+function cloudSyncCopy(sync: CloudSyncState): string {
+  if (sync.message) return sync.message;
+  if (sync.status === "loading") return "Sincronizando progresso com a nuvem";
+  if (sync.status === "error") return "Erro ao sincronizar — seu progresso local está seguro";
+  if (sync.status === "pending") return "Sincronização pendente";
+  if (sync.status === "synced") return "Progresso sincronizado";
+  return "";
+}
 
 function statusFor(authMode: AuthMode): { label: string; tone: "muted" | "accent" | "good"; blurb: string } {
   if (authMode === "cloud") {
@@ -33,6 +42,8 @@ export function ContaPage() {
   const authMode = (account?.authMode ?? "local") as AuthMode;
   const status = statusFor(authMode);
   const backendReady = isSupabaseBackendEnabled();
+  const cloudSyncState = useStore((s) => s.cloudSyncState);
+  const syncCopy = cloudSyncCopy(cloudSyncState);
 
   const { signIn } = useCloudSignIn();
   const { signOut, canSignOut } = useCloudSignOut();
@@ -68,13 +79,30 @@ export function ContaPage() {
   const showLoginForm = backendReady && authMode !== "cloud";
 
   return (
-    <PageShell width="narrow">
+    <PageShell width="narrow" data-conta-page="">
       <PageHeader
         back={{ to: "/mais", label: "Mais" }}
         eyebrow="Conta"
         title="Sua conta"
         subtitle="Login, email e sessão. Seu progresso e estatísticas ficam no Perfil."
       />
+
+      {cloudSyncState.status !== "idle" && syncCopy ? (
+        <div
+          data-cloud-sync-status={cloudSyncState.status}
+          data-cloud-sync-banner=""
+          role="status"
+          className={
+            cloudSyncState.status === "error"
+              ? "rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-3 text-sm font-medium text-ink"
+              : cloudSyncState.status === "loading"
+                ? "rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-medium text-ink"
+                : "rounded-2xl border border-line/70 bg-surface-2 px-4 py-3 text-sm font-medium text-ink"
+          }
+        >
+          {syncCopy}
+        </div>
+      ) : null}
 
       {/* Status da conta */}
       <CompactCard>

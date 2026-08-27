@@ -3,6 +3,7 @@ import { getSupabaseClient } from "../../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useStore } from "../../lib/store";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
+import { isQaTestStateActive } from "../../lib/qaFastPathAccess";
 import { fetchRemoteEntitlements } from "../../services/syncService";
 
 async function refreshServerEntitlement(setServerEntitlement: (isPro: boolean) => void): Promise<void> {
@@ -37,6 +38,7 @@ export function EntitlementBootstrap() {
   const setServerEntitlement = useStore((state) => state.setServerEntitlement);
 
   useEffect(() => {
+    if (isQaTestStateActive()) return;
     if (!isSupabaseBackendEnabled()) return;
 
     let unsubHydration: (() => void) | undefined;

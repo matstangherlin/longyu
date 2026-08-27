@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
 import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 
@@ -146,6 +147,30 @@ export async function dismissBlockingOverlays(page: Page) {
 export async function waitForLazyPage(page: Page) {
   await page.locator('[aria-label="Carregando página"]').waitFor({ state: "detached", timeout: 20_000 }).catch(() => undefined);
   await page.getByText("Carregando…").first().waitFor({ state: "hidden", timeout: 5_000 }).catch(() => undefined);
+}
+
+/**
+ * Firefox costuma mostrar "Ouça e imite" (你好) antes do listen_select.
+ * Avança Entendi / Não posso falar / Continuar até `[data-option-index]`.
+ */
+export async function advanceToChoiceOptions(page: Page, timeoutMs = 15_000) {
+  const options = page.locator("[data-option-index]");
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await options.first().isVisible().catch(() => false)) return;
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    const continueBtn = page.getByRole("button", { name: /^Continuar$/i });
+    const entendi = page.getByRole("button", { name: /^Entendi$/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await skipSpeak.click().catch(() => undefined);
+    } else if (await continueBtn.isVisible().catch(() => false)) {
+      await continueBtn.click().catch(() => undefined);
+    } else if (await entendi.isVisible().catch(() => false)) {
+      await entendi.click().catch(() => undefined);
+    }
+    await page.waitForTimeout(180);
+  }
+  await expect(options.first()).toBeVisible({ timeout: 5_000 });
 }
 
 /** Clique resiliente quando overlays/re-renders desanexam o botão. */

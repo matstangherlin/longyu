@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  advanceToChoiceOptions,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedLessonPlayerReady,
@@ -21,18 +22,23 @@ test.describe("V4.7.4 sentinelas de bugs históricos", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const entendi = page.getByRole("button", { name: "Entendi" });
-    if (await entendi.isVisible().catch(() => false)) {
-      await entendi.click();
+    await advanceToChoiceOptions(page);
+    await expect(page.locator("[data-step-kind]").first()).toBeVisible();
+    const labels = await page.locator("[data-option-index]").evaluateAll((nodes) =>
+      nodes
+        .map((node) => (node.getAttribute("data-option-label") || node.textContent || "").replace(/\s+/g, " ").trim())
+        .filter(Boolean)
+    );
+    expect(labels.length, "opções visíveis").toBeGreaterThanOrEqual(2);
+    expect(new Set(labels).size, "Hànzì/rótulo repetido nas opções").toBe(labels.length);
+    const stimulus = page.locator("[data-hanzi]").first();
+    if (await stimulus.isVisible().catch(() => false)) {
+      const hanzi = await stimulus.getAttribute("data-hanzi");
+      const pinyin = await stimulus.getAttribute("data-pinyin");
+      if (hanzi === "你好") {
+        expect(pinyin, "pinyin de 你好").toMatch(/n[iǐíì] ?h[aǎáà]o/i);
+      }
     }
-    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
-    if (await skipSpeak.isVisible().catch(() => false)) {
-      await skipSpeak.click();
-    }
-    await expect(page.locator("[data-option-index]").first()).toBeVisible({ timeout: 15_000 });
-    const labels = await page.locator("[data-option-index]").allTextContents();
-    const hanzi = labels.map((text) => text.replace(/\s+/g, " ").trim()).filter(Boolean);
-    expect(new Set(hanzi).size, "Hànzì repetido nas opções").toBe(hanzi.length);
     await page.keyboard.press("Digit1");
     await expect(page.locator('[data-option-index="0"][data-selected="true"]')).toBeVisible();
   });
@@ -91,5 +97,30 @@ test.describe("V4.7.4 sentinelas de bugs históricos", () => {
     await page.reload();
     await waitForLazyPage(page);
     await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+  });
+
+  test("Review com fila grande não explode a UI", async ({ page }) => {
+    await page.goto("/qa/review");
+    await page.waitForURL(/\/revisao/, { timeout: 20_000 });
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.locator("[data-review-page]")).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator("[data-app-main]")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Revisão/i }).first()).toBeVisible();
+    await expect(page.getByText("Preparando atividades")).toHaveCount(0);
+    const itemCount = await page.locator("button, li, article").count();
+    expect(itemCount, "Review não deve renderizar centenas de nós de uma vez").toBeLessThan(400);
+  });
+
+  test("erro de sync não fica em loading infinito", async ({ page }) => {
+    await page.goto("/qa/sync-error");
+    await page.waitForURL(/\/conta/, { timeout: 20_000 });
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.locator("[data-conta-page]")).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-cloud-sync-status="error"]')).toBeVisible();
+    await expect(page.getByText("QA Fast Path: perda temporária de sync")).toBeVisible();
+    await expect(page.getByText("Sincronizando progresso com a nuvem")).toHaveCount(0);
+    await expect(page.getByText("Preparando atividades")).toHaveCount(0);
   });
 });

@@ -27,10 +27,11 @@ function indexInDigitKeys(keys: readonly string[], event: Pick<KeyboardEvent, "k
 }
 
 /** Atributos estáveis para opções de escolha — não depender só de `border-accent`. */
-export function optionChoiceDomProps(index: number, selected: boolean) {
+export function optionChoiceDomProps(index: number, selected: boolean, label?: string) {
   return {
     "data-option-index": String(index),
     "data-selected": selected ? "true" : "false",
+    ...(label ? { "data-option-label": label } : {}),
     "aria-pressed": selected,
   } as const;
 }

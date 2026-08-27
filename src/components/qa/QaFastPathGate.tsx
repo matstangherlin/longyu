@@ -1,7 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { isQaFastPathAllowed } from "../../lib/appEnvironment";
 
-/** Impede `/qa` em Production Beta mesmo se a rota existir no bundle. */
+/**
+ * Impede `/qa` em Production Beta mesmo se a rota existir no bundle.
+ * Query string, marker localStorage, deep link e refresh não contornam o env.
+ */
 export function QaFastPathGate() {
   if (!isQaFastPathAllowed()) {
     return <Navigate to="/" replace />;

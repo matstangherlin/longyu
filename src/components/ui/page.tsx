@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import type { ComponentType, HTMLAttributes, ReactNode, SVGProps } from "react";
 import { Link } from "react-router-dom";
 import { Button, ButtonLink, Card, ProgressBar } from "./primitives";
 import { IconChevron } from "./Icon";
@@ -23,22 +23,26 @@ export function PageShell({
   rail,
   children,
   className,
+  ...rest
 }: {
   width?: PageWidth;
   rail?: ReactNode;
   children: ReactNode;
   className?: string;
-}) {
+} & HTMLAttributes<HTMLDivElement>) {
   const pad = "pb-[calc(env(safe-area-inset-bottom)+1rem)]";
   if (rail) {
     return (
-      <div className={cx("mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_21rem]", pad, className)}>
+      <div
+        className={cx("mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_21rem]", pad, className)}
+        {...rest}
+      >
         <div className="min-w-0 space-y-4">{children}</div>
         <aside className="lg:sticky lg:top-4 lg:self-start">{rail}</aside>
       </div>
     );
   }
-  return <div className={cx("mx-auto w-full space-y-4", WIDTH[width], pad, className)}>{children}</div>;
+  return <div className={cx("mx-auto w-full space-y-4", WIDTH[width], pad, className)} {...rest}>{children}</div>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { Button, Card } from "../../components/ui/primitives";
-import { QA_SCENARIOS, clearQaFastPathSession, type QaScenario } from "../../lib/qaFastPath";
+import { LONGYU_RC_VERSION } from "../../lib/releaseCandidate";
+import { QA_SCENARIOS, exitQaFastPathSession, type QaScenario } from "../../lib/qaFastPath";
 
 const GROUPS: { id: QaScenario["group"]; title: string }[] = [
   { id: "mastery", title: "Topic Mastery 4/4" },
@@ -11,25 +12,20 @@ const GROUPS: { id: QaScenario["group"]; title: string }[] = [
 ];
 
 export function QaHubPage() {
-  function clearSession() {
-    clearQaFastPathSession();
-    try {
-      localStorage.removeItem("longyu-v1");
-    } catch {
-      /* ignore */
-    }
-    window.location.replace("/qa");
+  function exitQa() {
+    exitQaFastPathSession();
+    window.location.replace("/");
   }
 
   return (
     <HubPage data-qa-fast-path="hub">
       <HubHeader
-        eyebrow="Somente preview / dev"
+        eyebrow={`Somente preview / dev · ${LONGYU_RC_VERSION}`}
         title="QA Fast Path"
-        desc="Abre cenários críticos sem refazer o curso. Não existe em Production Beta. Automação nunca marca HUMAN PASS."
+        desc="Abre cenários críticos sem refazer o curso. Não existe em Production Beta. Sair restaura o estado real e não toca conta cloud. Automação nunca marca HUMAN PASS."
         aside={
-          <Button type="button" variant="outline" size="sm" onClick={clearSession}>
-            Limpar sessão QA
+          <Button type="button" variant="outline" size="sm" data-qa-exit onClick={exitQa}>
+            Sair do QA
           </Button>
         }
       />

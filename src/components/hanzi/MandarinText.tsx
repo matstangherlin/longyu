@@ -70,7 +70,12 @@ export function MandarinText({
   ) : null;
 
   return (
-    <div className={[align === "center" ? "text-center" : "text-left", className].join(" ")}>
+    <div
+      className={[align === "center" ? "text-center" : "text-left", className].join(" ")}
+      data-hanzi={hanzi}
+      data-pinyin={pinyin ?? ""}
+      data-meaning={meaning ?? ""}
+    >
       <div className={["flex gap-3", align === "center" ? "items-center justify-center" : "items-start"].join(" ")}>
         <div className="min-w-0">
           {mode === "pinyin_hanzi" && (

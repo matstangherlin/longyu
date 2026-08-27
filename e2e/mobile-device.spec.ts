@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import {
+  advanceToChoiceOptions,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedOnboardedSession,
@@ -54,21 +55,7 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("button", { name: "Entendi" })).toBeVisible({ timeout: 20_000 });
-    await page.getByRole("button", { name: "Entendi" }).click();
-    // Firefox cai no passo "Ouça e imite" (你好 visível) antes do listen_select.
-    for (let attempt = 0; attempt < 8; attempt += 1) {
-      if (await page.locator("[data-option-index]").first().isVisible().catch(() => false)) break;
-      const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
-      const continueBtn = page.getByRole("button", { name: /^Continuar$/i });
-      if (await skipSpeak.isVisible().catch(() => false)) {
-        await skipSpeak.click();
-      } else if (await continueBtn.isVisible().catch(() => false)) {
-        await continueBtn.click();
-      }
-      await page.waitForTimeout(180);
-    }
-    await expect(page.locator("[data-option-index]").first()).toBeVisible({ timeout: 10_000 });
+    await advanceToChoiceOptions(page);
     const frame = page.locator("[data-lesson-player-frame]");
     if (await frame.isVisible().catch(() => false)) {
       await frame.click({ position: { x: 12, y: 12 } }).catch(() => undefined);

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { isQaTestStateActive } from "../../lib/qaFastPathAccess";
 import { useStore } from "../../lib/store";
 import { flushCloudProgressPush, scheduleCloudProgressPush } from "../../services/cloudSyncCoordinator";
 
@@ -11,6 +12,7 @@ export function CloudSyncBootstrap() {
   const accountId = useStore((s) => s.currentAccountId);
 
   useEffect(() => {
+    if (isQaTestStateActive()) return;
     if (!isSupabaseBackendEnabled() || authMode !== "cloud") return;
 
     let lastUpdated = useStore.getState().accounts[accountId]?.updatedAt ?? 0;

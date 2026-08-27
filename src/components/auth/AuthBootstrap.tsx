@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useStore } from "../../lib/store";
+import { isQaTestStateActive } from "../../lib/qaFastPathAccess";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
 import { flushPendingLeagueXpSync } from "../../lib/leagueXpSync";
 import { syncLeagueWeekOnServer } from "../../services/leagueService";
@@ -33,6 +34,7 @@ export function AuthBootstrap() {
 
     const applySession = async () => {
       await waitForStoreHydration();
+      if (isQaTestStateActive()) return;
       await restoreCloudSessionIfPresent();
       await syncLeagueAfterAuth();
     };
@@ -42,6 +44,7 @@ export function AuthBootstrap() {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, session) => {
+      if (isQaTestStateActive()) return;
       const userId = session?.user?.id;
       if (userId && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")) {
         void waitForStoreHydration()

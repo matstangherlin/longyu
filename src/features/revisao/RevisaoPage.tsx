@@ -1386,7 +1386,7 @@ export function RevisaoPage() {
 
   if (requestedDetailedErrors && !detailedErrorsAllowed) {
     return (
-      <HubPage>
+      <HubPage data-review-page="">
         <HubHeader
           eyebrow="Revisão"
           title="Erros detalhados"
@@ -1423,7 +1423,7 @@ export function RevisaoPage() {
 
   if (!entry || !item || !data || !exercise) {
     return (
-      <HubPage>
+      <HubPage data-review-page="">
         <HubHeader
           eyebrow={moduleUnit ? "Revisão de módulo" : "Revisão"}
           title={moduleUnit ? moduleUnit.title : detailedErrorsAllowed ? "Revisão por domínio" : "Revisão básica"}
@@ -1713,7 +1713,7 @@ export function RevisaoPage() {
   const roundProgress = ((pos % WEAK_ROUND_SIZE) / WEAK_ROUND_SIZE) * 100;
 
   return (
-    <HubPage>
+    <HubPage data-review-page="">
       {correctionDrill ? (
         <div className="mb-4 flex flex-col gap-3">
           <button

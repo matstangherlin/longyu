@@ -19,6 +19,7 @@ import { EconomyBootstrap } from "../economy/EconomyBootstrap";
 import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap";
 import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
 import { ErrorBoundary } from "../system/ErrorBoundary";
+import { QaTestStateBanner } from "../qa/QaTestStateBanner";
 import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 
@@ -84,6 +85,8 @@ export function AppShell() {
           Só o conteúdo do exercício, como um app de idiomas. */}
       {!focusMode && <Sidebar />}
       <div className={["flex min-w-0 flex-1 flex-col", focusMode ? "h-full min-h-0" : ""].join(" ")}>
+        {/* Dentro da coluna — nunca irmão em row (no 390px espremia [data-app-main] a 0px). */}
+        <QaTestStateBanner />
         {!focusMode && <TopBar />}
         {/* Padding bottom cobre a altura da tab bar + safe area: nenhum botão
             principal pode ficar escondido atrás dela no mobile. No modo foco a

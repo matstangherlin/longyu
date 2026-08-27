@@ -4,11 +4,21 @@
  */
 import { ALL_LESSONS } from "../data/journey";
 import { isQaFastPathAllowed } from "./appEnvironment";
-import { QA_FAST_PATH_MARKER } from "./qaFastPathAccess";
+import {
+  QA_FAST_PATH_MARKER,
+  QA_STORE_KEY,
+  snapshotRealStateForQa,
+} from "./qaFastPathAccess";
 import { todayKey } from "./storage";
 
-export { QA_FAST_PATH_MARKER, clearQaFastPathSession, isQaFastPathSessionMarked } from "./qaFastPathAccess";
-export const QA_STORE_KEY = "longyu-v1";
+export {
+  QA_FAST_PATH_MARKER,
+  QA_STORE_KEY,
+  clearQaFastPathSession,
+  exitQaFastPathSession,
+  isQaFastPathSessionMarked,
+  isQaTestStateActive,
+} from "./qaFastPathAccess";
 /** Deve acompanhar `version` do persist em src/lib/store.ts. */
 export const QA_STORE_VERSION = 20;
 
@@ -155,6 +165,8 @@ function baseSeed(extra: Record<string, unknown> = {}): Record<string, unknown> 
     points: 40,
     isPremium: false,
     serverIsPro: false,
+    currentAccountId: "local",
+    cloudSyncState: { status: "idle", message: "", updatedAt: null },
     ...extra,
   };
 }
@@ -340,6 +352,7 @@ export function applyQaScenario(id: string | undefined): ApplyQaScenarioResult {
     return { ok: true, href: scenario.href };
   }
   try {
+    snapshotRealStateForQa();
     localStorage.setItem(QA_FAST_PATH_MARKER, "1");
     localStorage.setItem("longyu:telemetry-consent", "0");
     if (scenario.id === "onboarding-pending") {

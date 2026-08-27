@@ -11,10 +11,11 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 Consolida o Longyu atual numa Release Candidate **reproduzível**. Sem escopo de produto novo.
 
-- Firefox: atalhos numéricos em capture no `document` + `DigitN`; opções com `data-selected`.
-- QA Fast Path `/qa` e `/qa/player` só em preview/dev (nunca Production Beta).
-- Sentinelas permanentes dos bugs históricos; Topic Mastery 4/4 com E2E de reload/back/dupla conclusão/rede.
-- Contratos: `docs/reports/physical-qa-contract.md`, `docs/reports/stripe-test-mode-checklist.md`, `docs/reports/closed-beta-release-candidate.md`.
+- Firefox: atalhos numéricos em capture no `document` + `DigitN`; opções com `data-selected` / `data-option-label`.
+- QA Fast Path `/qa` impossível em Production Beta (URL, marker, query string, deep link, refresh).
+- Isolamento TEST STATE vs REAL USER STATE (backup/restore, sync desligado, banner Sair do QA na coluna do conteúdo — não espreme o main no mobile).
+- Sentinelas históricas semânticas + geometria; Topic Mastery 4/4 com forward/duplo clique/reward.
+- Pacote humano das primeiras 20 sessões. Identidade `v4.7.4-rc.1` via `npm run rc:identity`.
 - Produção intocada. `READY_FOR_CLOSED_BETA_BR` permanece `NOT_READY`.
 
 ### V4.7 — Consolidação na main

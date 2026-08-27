@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { fetchServerEconomy, flushEconomyIntentQueue, shouldUseServerEconomy } from "../../lib/economyServerBridge";
+import { isQaTestStateActive } from "../../lib/qaFastPathAccess";
 
 /** Sincroniza economia do servidor e reenvia intenções offline. */
 export function EconomyBootstrap() {
   useEffect(() => {
+    if (isQaTestStateActive()) return;
     if (!shouldUseServerEconomy()) return;
 
     void fetchServerEconomy();

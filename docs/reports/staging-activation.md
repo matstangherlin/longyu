@@ -1,3 +1,21 @@
+# Staging Activation Log (V4.7.3 / V4.7.4)
+
+Atualizado em: 2026-08-27T22:00:00Z
+
+## V4.7.4 — reconfirmação (não aplicar)
+
+Esta remessa **não** sobe staging. `STAGING_READY = NOT_READY`.
+
+| ID | Status | Nota |
+| --- | --- | --- |
+| STG-001 | BLOCKED | `longyu-preview` `wpnmygzxqvmpdlcuwrjp` INACTIVE. Não improvisar em MandarimProject. |
+| STG-002 | INVENTORY_ONLY | `npm run inventory:staging-migrations`. Ver `docs/reports/staging-migration-inventory.md`. |
+| STG-003…STG-011 | NOT_RUN | Exigem staging ACTIVE_HEALTHY. V4.7.5 depois do merge da RC. |
+
+Decisão humana necessária (um de): restaurar `longyu-preview`; liberar slot Free; upgrade + branch; projeto pago isolado. **Não** pausar `atomurus` nem tocar produção sem autorização.
+
+---
+
 # Staging Activation Log (V4.7.3)
 
 Atualizado em: 2026-08-27T04:10:00Z

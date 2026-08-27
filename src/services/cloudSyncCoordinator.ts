@@ -17,6 +17,7 @@ import {
 import { fetchServerIsPro } from "./entitlementService";
 import { attributeStoredReferralCode, processReferralPipeline } from "./referralService";
 import { recordClientDiagnostic } from "../lib/clientDiagnostics";
+import { isQaTestStateActive } from "../lib/qaFastPathAccess";
 
 const CLOUD_SYNC_TIMEOUT_MS = 12_000;
 const SYNC_TIMEOUT_MESSAGE =
@@ -86,6 +87,9 @@ function snapshotBodyWithProgress(
 }
 
 export async function pushProgressToCloud(): Promise<{ ok: boolean; message: string }> {
+  if (isQaTestStateActive()) {
+    return { ok: false, message: "QA test state: sync desligado." };
+  }
   if (!isSupabaseBackendEnabled()) {
     return { ok: false, message: "Backend em nuvem desativado." };
   }
@@ -123,6 +127,9 @@ export async function pushProgressToCloud(): Promise<{ ok: boolean; message: str
 /** Após login: mescla nuvem + local e envia o melhor snapshot de volta. */
 /** Se já existir sessão Supabase no dispositivo, promove para cloud e sincroniza. */
 export async function restoreCloudSessionIfPresent(): Promise<{ ok: boolean; message: string }> {
+  if (isQaTestStateActive()) {
+    return { ok: false, message: "QA test state: restore cloud ignorado." };
+  }
   if (!isSupabaseBackendEnabled()) {
     return { ok: false, message: "Backend em nuvem desativado." };
   }
@@ -141,6 +148,9 @@ export async function restoreCloudSessionIfPresent(): Promise<{ ok: boolean; mes
 }
 
 export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message: string }> {
+  if (isQaTestStateActive()) {
+    return { ok: false, message: "QA test state: sync desligado." };
+  }
   if (!isSupabaseBackendEnabled()) {
     return { ok: false, message: "Backend em nuvem desativado." };
   }
@@ -268,6 +278,7 @@ async function migrateEconomyAfterCloudLogin(userId: string): Promise<void> {
 }
 
 export function scheduleCloudProgressPush(delayMs = 1200): void {
+  if (isQaTestStateActive()) return;
   if (!isSupabaseBackendEnabled()) return;
   const { accounts, currentAccountId } = useStore.getState();
   if (accounts[currentAccountId]?.authMode !== "cloud") return;
