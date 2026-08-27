@@ -5,10 +5,12 @@
 import { spawnSync } from "node:child_process";
 import process from "node:process";
 import { mergedEnv, projectRoot } from "./lib/env-local.mjs";
+import { fetchSupabaseProject } from "./lib/staging-api.mjs";
 import { edgeFunctionCatalog, LONGYU_EDGE_FUNCTIONS } from "./lib/edge-functions.mjs";
 import {
   StagingGuardError,
   failClosed,
+  requireHealthyStagingStatus,
   requireStagingProjectId,
   supabaseApiUrl,
 } from "./lib/staging-guard.mjs";
@@ -71,6 +73,9 @@ try {
         : "STAGE-004 BLOCKED: sem SUPABASE_ACCESS_TOKEN. Não implantar em produção."
     );
   }
+
+  const project = await fetchSupabaseProject(token, stagingId);
+  requireHealthyStagingStatus(project.status, stagingId);
 
   if (run("npx", ["supabase", "--version"]) !== 0) {
     throw new StagingGuardError("STAGE-004 BLOCKED: Supabase CLI indisponível.");

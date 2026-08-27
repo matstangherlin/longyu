@@ -7,6 +7,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.6 — Staging backend activation (BLOCKED)
+
+Live identity (signup → Placement → Journey → 4/4 → sync) **não rodou**. `longyu-preview` continua INACTIVE; restore recusado (2 project limit Free). Guarda recusa MandarimProject **e** atomurus. `migrate:staging` / `deploy:staging-functions` exigem `ACTIVE_HEALTHY`. Relatório: `docs/reports/v476-staging-live-validation.md`. Scoreboard: todos BLOCKED. Sem DDL/Edge em produção. Sem pause de atomurus. PRE-001: #203 mergeada em `main` (`b2a5818`).
+
 ### V4.7.5 — Staging live inventory (BLOCKED)
 
 MCP autenticado. `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Inventário em `docs/reports/staging-live-inventory.md`. Sem DDL/Edge em MandarimProject. Sem pause de atomurus. Correlação operacional no cliente/repo (STG-011 código; runtime NOT_RUN). IDs de correlação usam Web Crypto (`randomUUID` / `getRandomValues`), não `Math.random`.

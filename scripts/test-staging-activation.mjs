@@ -53,6 +53,13 @@ const prodIdentify = runScript("scripts/identify-staging.mjs", {
 assert(prodIdentify.status === 2, "identify:staging recusa produção (exit 2)");
 assert(/HARD FAIL/.test(prodIdentify.stderr + prodIdentify.stdout), "identify:staging HARD FAIL em produção");
 
+const atomurusIdentify = runScript("scripts/identify-staging.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
+  SUPABASE_ACCESS_TOKEN: "",
+});
+assert(atomurusIdentify.status === 2, "identify:staging recusa atomurus (exit 2)");
+assert(/atomurus/.test(atomurusIdentify.stderr + atomurusIdentify.stdout), "identify:staging cita atomurus");
+
 const missingIdentify = runScript("scripts/identify-staging.mjs", {
   LONGYU_STAGING_PROJECT_ID: "",
   SUPABASE_ACCESS_TOKEN: "",

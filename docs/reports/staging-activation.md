@@ -1,3 +1,17 @@
+# Staging Activation Log (V4.7.3 / V4.7.4 / V4.7.5 / V4.7.6)
+
+## V4.7.6 — live identity (BLOCKED)
+
+Atualizado em: 2026-08-27T23:32:09Z  
+Relatório: `docs/reports/v476-staging-live-validation.md`.
+
+PRE-001: PR #203 **mergeada** em `main` (`b2a5818`). Qualidade + Chromium + Firefox + Security SUCCESS.  
+STG-002/003: `longyu-preview` INACTIVE; `restore_project` → 2 project limit. Atomurus recusado como alvo.  
+STG-005…SEC-019 / AUTH / SYNC: **NOT_RUN**. Scoreboard V4.7.6 todo **BLOCKED**.  
+Produção intocada.
+
+---
+
 # Staging Activation Log (V4.7.3 / V4.7.4 / V4.7.5)
 
 Atualizado em: 2026-08-27T22:18:00Z

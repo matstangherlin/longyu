@@ -12,6 +12,7 @@ import {
   StagingGuardError,
   extractProjectRef,
   failClosed,
+  foreignProductName,
   isProductionProjectId,
   requireStagingProjectId,
   supabaseApiUrl,
@@ -23,11 +24,14 @@ const token = String(env.SUPABASE_ACCESS_TOKEN ?? "").trim();
 function printInventory(projects) {
   console.log("Inventário de projetos:");
   for (const project of projects) {
+    const foreign = foreignProductName(project.id);
     const role = isProductionProjectId(project.id)
       ? "PRODUCTION — HARD FAIL como alvo de staging"
       : project.id === LONGYU_INTENDED_STAGING_PROJECT_ID
         ? "staging pretendido"
-        : "outro produto — não usar como Longyu staging";
+        : foreign
+          ? `${foreign} — HARD FAIL como banco Longyu`
+          : "outro produto — não usar como Longyu staging";
     console.log(
       `  - ${project.name} id=${project.id} region=${project.region} status=${project.status} (${role})`
     );

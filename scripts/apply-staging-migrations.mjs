@@ -6,9 +6,11 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { mergedEnv, projectRoot } from "./lib/env-local.mjs";
+import { fetchSupabaseProject } from "./lib/staging-api.mjs";
 import {
   StagingGuardError,
   failClosed,
+  requireHealthyStagingStatus,
   requireStagingProjectId,
 } from "./lib/staging-guard.mjs";
 
@@ -141,6 +143,10 @@ function printLog(entries) {
 
 try {
   const stagingId = requireStagingProjectId(env);
+  if (token) {
+    const project = await fetchSupabaseProject(token, stagingId);
+    requireHealthyStagingStatus(project.status, stagingId);
+  }
   const files = localMigrationFiles();
   console.log(`Alvo staging=${stagingId}`);
   console.log(`Migrations locais: ${files.length}`);

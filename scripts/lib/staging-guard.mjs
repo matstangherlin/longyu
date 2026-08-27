@@ -8,6 +8,10 @@ export const LONGYU_PRODUCTION_PROJECT_ID = "drjcfalvlbbeblmmyhwj";
 export const LONGYU_PRODUCTION_PROJECT_NAME = "MandarimProject";
 export const LONGYU_INTENDED_STAGING_PROJECT_ID = "wpnmygzxqvmpdlcuwrjp";
 export const LONGYU_INTENDED_STAGING_PROJECT_NAME = "longyu-preview";
+/** Outro produto na mesma org Free. Nunca usar como banco Longyu. */
+export const LONGYU_FOREIGN_PROJECTS = {
+  ylofdottauzcqcifnnpm: "atomurus",
+};
 
 export class StagingGuardError extends Error {
   constructor(message, exitCode = 2) {
@@ -32,6 +36,15 @@ export function isProductionProjectId(urlOrId) {
   return extractProjectRef(urlOrId) === LONGYU_PRODUCTION_PROJECT_ID;
 }
 
+export function foreignProductName(urlOrId) {
+  const ref = extractProjectRef(urlOrId);
+  return LONGYU_FOREIGN_PROJECTS[ref] ?? null;
+}
+
+export function isForeignProductProjectId(urlOrId) {
+  return Boolean(foreignProductName(urlOrId));
+}
+
 export function assertNotProduction(urlOrId, label = "project_id") {
   const ref = extractProjectRef(urlOrId);
   if (!ref) {
@@ -46,16 +59,41 @@ export function assertNotProduction(urlOrId, label = "project_id") {
   return ref;
 }
 
+export function assertNotForeignProduct(urlOrId, label = "project_id") {
+  const ref = extractProjectRef(urlOrId);
+  const name = foreignProductName(ref);
+  if (name) {
+    throw new StagingGuardError(
+      `HARD FAIL: ${label}=${ref} é ${name} (outro produto). Não usar como banco Longyu.`
+    );
+  }
+  return ref;
+}
+
+export function assertAllowedStagingTarget(urlOrId, label = "project_id") {
+  const ref = assertNotProduction(urlOrId, label);
+  return assertNotForeignProduct(ref, label);
+}
+
 export function requireStagingProjectId(env = process.env) {
   const id = String(env.LONGYU_STAGING_PROJECT_ID ?? "").trim();
   if (!id) {
     throw new StagingGuardError(
       "LONGYU_STAGING_PROJECT_ID ausente. Defina o project_id do staging isolado " +
         `(pretendido: ${LONGYU_INTENDED_STAGING_PROJECT_NAME} ${LONGYU_INTENDED_STAGING_PROJECT_ID}). ` +
-        "Nunca use MandarimProject."
+        "Nunca use MandarimProject nem atomurus."
     );
   }
-  return assertNotProduction(id, "LONGYU_STAGING_PROJECT_ID");
+  return assertAllowedStagingTarget(id, "LONGYU_STAGING_PROJECT_ID");
+}
+
+export function requireHealthyStagingStatus(status, projectId) {
+  if (status !== "ACTIVE_HEALTHY") {
+    throw new StagingGuardError(
+      `BLOCKED: staging ${projectId} status=${status || "UNKNOWN"}. ` +
+        "Não aplicar migrations nem deploy. Exige ACTIVE_HEALTHY."
+    );
+  }
 }
 
 export function assertStagingUrlMatches(url, stagingId, label = "STAGING_SUPABASE_URL") {
@@ -63,7 +101,7 @@ export function assertStagingUrlMatches(url, stagingId, label = "STAGING_SUPABAS
   if (!urlRef) {
     throw new StagingGuardError(`${label} ausente ou inválida.`);
   }
-  assertNotProduction(urlRef, label);
+  assertAllowedStagingTarget(urlRef, label);
   const expected = extractProjectRef(stagingId);
   if (expected && urlRef !== expected) {
     throw new StagingGuardError(
