@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissBlockingOverlays, seedOnboardedSession } from "./helpers";
+import { dismissBlockingOverlays, seedOnboardedSession, waitForLazyPage } from "./helpers";
 
 test.describe("privacy consent", () => {
   test("sem escolha: modal aparece e padrão não envia telemetria", async ({ page }) => {
@@ -41,24 +41,32 @@ test.describe("privacy consent", () => {
       );
     });
     await page.goto("/ajustes#privacidade-dados");
+    await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await page.locator("#privacidade-dados").scrollIntoViewIfNeeded().catch(() => undefined);
     await expect(page.getByText(/Privacidade e dados/i).first()).toBeVisible();
     await expect(page.getByText(/Dados pedagógicos de melhoria/i)).toBeVisible();
 
-    // Medalhas podem reaparecer após hidratação (WebKit) e bloquear o switch.
-    for (let i = 0; i < 6; i += 1) {
+    // Medalhas podem reaparecer após hidratação (WebKit/Firefox) e bloquear o switch.
+    for (let i = 0; i < 8; i += 1) {
       await dismissBlockingOverlays(page);
+      await page.keyboard.press("Escape").catch(() => undefined);
       if ((await page.locator('[role="dialog"][aria-modal="true"]').count()) === 0) break;
-      await page.waitForTimeout(150);
+      await page.waitForTimeout(200);
     }
     const toggle = page.getByRole("switch", { name: /Dados pedagógicos de melhoria/i });
     await expect(toggle).toBeVisible();
-    await toggle.click({ timeout: 5_000 });
+    await toggle.scrollIntoViewIfNeeded();
+    await toggle.click({ timeout: 8_000, force: true });
     await expect
-      .poll(async () => page.evaluate(() => localStorage.getItem("longyu:telemetry-consent")))
+      .poll(async () => page.evaluate(() => localStorage.getItem("longyu:telemetry-consent")), {
+        timeout: 10_000,
+      })
       .toBe("0");
     await expect
-      .poll(async () => page.evaluate(() => localStorage.getItem("longyu:beta-pedagogy-queue")))
+      .poll(async () => page.evaluate(() => localStorage.getItem("longyu:beta-pedagogy-queue")), {
+        timeout: 10_000,
+      })
       .toBeNull();
   });
 

@@ -5,6 +5,35 @@ export type ExerciseHotkeyMode = "choice" | "pairs" | "builder" | "story" | "dis
 const OPTION_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 const LEFT_PAIR_KEYS = ["1", "2", "3", "4", "5"];
 const RIGHT_PAIR_KEYS = ["6", "7", "8", "9", "0"];
+const DIGIT_CODES = ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0"];
+const NUMPAD_CODES = ["Numpad1", "Numpad2", "Numpad3", "Numpad4", "Numpad5", "Numpad6", "Numpad7", "Numpad8", "Numpad9", "Numpad0"];
+
+/** Índice 0–9 a partir de `key` ou `code` (DigitN / NumpadN). Firefox nem sempre entrega `key` "1". */
+export function optionIndexFromKeyboardEvent(event: Pick<KeyboardEvent, "key" | "code">): number {
+  const fromKey = OPTION_KEYS.indexOf(event.key);
+  if (fromKey >= 0) return fromKey;
+  const fromDigit = DIGIT_CODES.indexOf(event.code);
+  if (fromDigit >= 0) return fromDigit;
+  return NUMPAD_CODES.indexOf(event.code);
+}
+
+function indexInDigitKeys(keys: readonly string[], event: Pick<KeyboardEvent, "key" | "code">): number {
+  const byKey = keys.indexOf(event.key);
+  if (byKey >= 0) return byKey;
+  const optionIndex = optionIndexFromKeyboardEvent(event);
+  if (optionIndex < 0) return -1;
+  const digit = OPTION_KEYS[optionIndex];
+  return digit ? keys.indexOf(digit) : -1;
+}
+
+/** Atributos estáveis para opções de escolha — não depender só de `border-accent`. */
+export function optionChoiceDomProps(index: number, selected: boolean) {
+  return {
+    "data-option-index": String(index),
+    "data-selected": selected ? "true" : "false",
+    "aria-pressed": selected,
+  } as const;
+}
 
 export function shortcutKeyForIndex(index: number): string {
   if (index < 0 || index >= OPTION_KEYS.length) return "";
@@ -100,14 +129,14 @@ export function useExerciseHotkeys(options: UseExerciseHotkeysOptions) {
       if (current.allowNumberKeys === false) return;
 
       if (mode === "pairs") {
-        const leftIndex = LEFT_PAIR_KEYS.indexOf(event.key);
+        const leftIndex = indexInDigitKeys(LEFT_PAIR_KEYS, event);
         if (leftIndex >= 0 && leftIndex < (current.leftCount ?? 0) && current.onSelectLeft) {
           event.preventDefault();
           current.onSelectLeft(leftIndex);
           return;
         }
 
-        const rightIndex = RIGHT_PAIR_KEYS.indexOf(event.key);
+        const rightIndex = indexInDigitKeys(RIGHT_PAIR_KEYS, event);
         if (rightIndex >= 0 && rightIndex < (current.rightCount ?? 0) && current.onSelectRight) {
           event.preventDefault();
           current.onSelectRight(rightIndex);
@@ -115,15 +144,16 @@ export function useExerciseHotkeys(options: UseExerciseHotkeysOptions) {
         return;
       }
 
-      const optionIndex = OPTION_KEYS.indexOf(event.key);
+      const optionIndex = optionIndexFromKeyboardEvent(event);
       if (optionIndex >= 0 && optionIndex < (current.optionCount ?? 0) && current.onSelectOption) {
         event.preventDefault();
         current.onSelectOption(optionIndex);
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    // capture no document: Playwright/Firefox às vezes não entrega keydown em window.
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
   }, []);
 }
 

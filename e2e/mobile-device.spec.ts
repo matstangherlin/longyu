@@ -60,9 +60,15 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
       await skipSpeak.click();
     }
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
-    // Atalho numérico seleciona a primeira alternativa (estado "selected").
-    await page.keyboard.press("1");
-    await expect(page.locator("button.border-accent").first()).toBeVisible({ timeout: 5_000 });
+    const frame = page.locator("[data-lesson-player-frame]");
+    if (await frame.isVisible().catch(() => false)) {
+      await frame.click({ position: { x: 12, y: 12 } }).catch(() => undefined);
+    }
+    // Digit1 cobre Firefox; `key` "1" cobre Chromium. O estado visível é data-selected.
+    await page.keyboard.press("Digit1");
+    await expect(page.locator('[data-option-index="0"][data-selected="true"]')).toBeVisible({
+      timeout: 5_000,
+    });
   });
 
   test("Enter aciona o botão em foco (avançar)", async ({ page }) => {
