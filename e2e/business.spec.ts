@@ -73,7 +73,8 @@ async function fillValidLead(page: Page, email = "ana.silva@empresa.com.br") {
   await page.getByLabel("Empresa").fill("Operação Brasil China");
   await page.getByLabel("Cargo").fill("People Partner");
   await page.getByLabel("Número de colaboradores").selectOption("51-200");
-  await page.getByLabel("País").fill("Brasil");
+  await expect(page.locator("[data-country-select]")).toHaveValue("BR");
+  await page.getByLabel("País").selectOption({ label: "Brasil" });
   await page.getByLabel("Objetivo").selectOption("work_with_chinese_teams");
   await page.getByLabel("Quando pretende começar?").selectOption("this_quarter");
   await page.getByLabel("Mensagem").fill("Piloto para o time de qualidade.");
