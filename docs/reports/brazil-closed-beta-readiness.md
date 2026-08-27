@@ -1,8 +1,8 @@
-# V4.7.2 — Brazil Closed Beta Readiness
+# Brazil Closed Beta Readiness (V4.7.3)
 
-Atualizado em: 2026-08-27T03:15:00Z  
-Branch: `cursor/v47-2-brazil-beta-readiness-1519`  
-Base de codigo: `cursor/v47-1-onboarding-handoff-1519` (PR #197, **nao mergeada**)  
+Atualizado em: 2026-08-27T04:10:00Z  
+Branch: `cursor/v47-3-staging-activation-1519`  
+Base de codigo: V4.7.2 (`5610e7e`) empilhada em V4.7.1 (PR #197, **nao mergeada**) e V4.7.2 (PR #198, **nao mergeada**)  
 Projeto de producao (nao tocar): MandarimProject `drjcfalvlbbeblmmyhwj`
 
 ## Decisao
@@ -11,6 +11,80 @@ Projeto de producao (nao tocar): MandarimProject `drjcfalvlbbeblmmyhwj`
 
 Esta decisao e **explicita e humana**. CI verde, Netlify preview ou este relatorio
 nao promovem `READY_FOR_CLOSED_BETA_BR`.
+
+### RELEASE-026 — Scoreboard (somente evidencia)
+
+| Chave | Estado | Evidencia |
+| --- | --- | --- |
+| AUTOMATED_READY | FAIL | Gates de codigo existem; PRs #197/#198 nao estao em `main` |
+| STAGING_READY | FAIL | `longyu-preview` INACTIVE; 2 project limit; branching Free recusado |
+| PHYSICAL_QA_READY | NOT_RUN | Android / iPhone / desktop humanos nao executados |
+| PAYMENTS_READY | NOT_RUN | Stripe Test Mode humano nao executado |
+| READY_FOR_CLOSED_BETA_BR | **NOT_READY** | Criterio humano; nao inferir de CI |
+
+`READY_FOR_CLOSED_BETA_BR` so pode ser marcado **manualmente** se todos os
+criterios humanos/operacionais passarem. Esta remessa **para** para essa decisao.
+
+### RELEASE-025 — Politica P0
+
+P0: perda de progresso; auth bypass; pagamento incorreto; dados cruzados A≠B;
+atividade impossivel no caminho inicial; crash/freeze.
+
+P1: fluxo quebrado com workaround dificil.
+
+P2: UX / copy / visual.
+
+`READY_FOR_CLOSED_BETA_BR` exige **P0 = 0** com evidencia real (staging +
+dispositivos + pagamentos). Nenhum P0 de fluxo real foi fechado aqui porque os
+fluxos reais **nao rodaram**. Nao tratar "codigo sem P0 conhecido" como beta pronta.
+
+## V4.7.3 — Staging Activation (execucao)
+
+Log operacional: `docs/reports/staging-activation.md`.
+Advisors de staging: `docs/reports/staging-supabase-advisors.md` (**BLOCKED**).
+
+| ID | Item | Status |
+| --- | --- | --- |
+| STAGE-001 | Identificar staging | PASS (inventario) / BLOCKED (alvo INACTIVE) |
+| STAGE-002 | Migrations staging | BLOCKED |
+| STAGE-003 | Advisors apos DDL | BLOCKED / NOT_RUN |
+| STAGE-004 | Edge Functions staging | BLOCKED |
+| AUTH-005 | Signup real + email nova aba | NOT_RUN |
+| AUTH-006 | Outro dispositivo | NOT_RUN |
+| AUTH-007 | Missing draft (codigo presente; live) | NOT_RUN |
+| AUTH-008 | Idempotencia finalize | NOT_RUN |
+| PROGRESS-009 | Topic Mastery 4/4 real | NOT_RUN |
+| PROGRESS-010 | Sync A→B | NOT_RUN |
+| PROGRESS-011 | Failure recovery live | NOT_RUN |
+| PED-012 | Foundation human QA | NOT_RUN |
+| DEVICE-013 | Android Chrome fisico | NOT_RUN |
+| DEVICE-014 | iPhone Safari fisico | NOT_RUN |
+| DEVICE-015 | Chrome desktop fisico | NOT_RUN |
+| STRIPE-016 | Test Mode checkout | NOT_RUN |
+| STRIPE-017 | Cancelamento | NOT_RUN |
+| STRIPE-018 | Webhook replay live | NOT_RUN |
+| ECON-019 | Pearl staging harness | BLOCKED |
+| RLS-020 | A≠B live | NOT_RUN |
+| RECOVERY-021 | Forgot password real | NOT_RUN |
+| TELEMETRY-022 | Funil live | NOT_RUN |
+| COUNTRY-023 | BR default / pais ≠ ingles | PASS (codigo) |
+
+Nao inventar HUMAN PASS. AUTH-007 tem copy e UI no repo
+(`Precisamos finalizar seu ponto de partida.` + refazer Placement);
+o cenario controlado com usuario cloud real permanece NOT_RUN.
+
+### STAGE-001 inventario (MCP 2026-08-27)
+
+| project_id | name | region | status | URL |
+| --- | --- | --- | --- | --- |
+| `drjcfalvlbbeblmmyhwj` | MandarimProject | us-west-2 | ACTIVE_HEALTHY | https://drjcfalvlbbeblmmyhwj.supabase.co |
+| `wpnmygzxqvmpdlcuwrjp` | longyu-preview | us-west-1 | INACTIVE | https://wpnmygzxqvmpdlcuwrjp.supabase.co |
+| `ylofdottauzcqcifnnpm` | atomurus | us-west-2 | ACTIVE_HEALTHY | https://ylofdottauzcqcifnnpm.supabase.co |
+
+Hard fail se `LONGYU_STAGING_PROJECT_ID` == producao. Scripts:
+`identify:staging`, `migrate:staging`, `deploy:staging-functions`,
+`test:pearl-staging`, `test:rls:staging`.
+
 
 `READY_FOR_CLOSED_BETA_BR` exige, todos PASS ao mesmo tempo:
 
@@ -29,15 +103,18 @@ automaticamente.
 
 ## Por que nao e `AUTOMATED_READY` ainda
 
-1. PR #197 (V4.7.1 handoff) continua **draft, sem review, `mergeStateStatus: BLOCKED`**.
-   Esta PR empilha em cima dela. Nao mergear #197 nem esta PR automaticamente.
-2. Staging isolado **nao subiu**. Tentativas registradas abaixo.
-3. Edge Functions novas (`commit-placement`, `finalize-onboarding`,
+1. PR #197 (V4.7.1 handoff) continua **draft, sem review, nao mergeada**.
+   Quality + Security verdes; E2E cross-engine informativo FAILURE (`UNSTABLE`).
+2. PR #198 (V4.7.2) continua **draft**, empilhada em #197, **nao retargetada para main**.
+3. Esta PR V4.7.3 empilha em #198. Nao mergear #197, #198 nem esta PR automaticamente.
+4. Staging isolado **nao subiu**. Tentativas registradas abaixo. V4.7.3 nao repetiu
+   `restore_project` / `create_branch` (ultimo restore = 2 project limit).
+5. Edge Functions novas (`commit-placement`, `finalize-onboarding`,
    `submit-business-lead`) **nao estao implantadas** em producao nem em staging.
 
-Codigo desta remessa fecha divida de pais canonico, telemetria minima de release,
-gates automatizados e o proprio relatorio. Isso nao substitui QA fisico nem
-checkout Stripe humano.
+Codigo desta remessa fecha guarda de staging, lista completa de Edge Functions
+no deploy backend, advisors/relatorio honestos e o portao `test:staging-activation`.
+Isso nao substitui QA fisico nem checkout Stripe humano.
 
 ---
 
@@ -47,6 +124,9 @@ Status: **PASS** (gates de codigo; nao e promocao de beta)
 
 | Item | Status | Evidencia |
 | --- | --- | --- |
+| Empilha em V4.7.2 sem merge | PASS | branch `cursor/v47-3-staging-activation-1519` |
+| Guarda LONGYU_STAGING_PROJECT_ID | PASS | `scripts/lib/staging-guard.mjs` recusa producao |
+| Edge list completa no deploy | PASS | 9 slugs em `deploy-backend` / `deploy-functions-env` |
 | Empilha em V4.7.1 sem merge | PASS | branch criada de `80a7adf` |
 | Sem seletor English | PASS | `src/lib/i18n/identity.ts` continua pt-BR → zh-CN |
 | Pais canonico ISO 3166 | PASS | `CountrySelect` + `canonicalCountryCode` |
@@ -138,11 +218,12 @@ Status: **NOT_RUN** (codigo PASS; fluxo real BLOCKED por staging)
 
 | ID | Cenario | Status |
 | --- | --- | --- |
-| BR-003 | Cadastro real ponta a ponta + email nova aba | NOT_RUN |
-| BR-004 | Outro dispositivo / sem localStorage | NOT_RUN |
+| AUTH-005 / BR-003 | Cadastro real ponta a ponta + email nova aba | NOT_RUN |
+| AUTH-006 / BR-004 | Outro dispositivo / sem localStorage | NOT_RUN |
+| AUTH-007 | Missing draft: heading + refazer Placement (live) | NOT_RUN (codigo PASS) |
+| AUTH-008 / BR-021 | Finalize 2x: 1 attempt, 0 XP duplicado | NOT_RUN |
 | BR-005 | Login / logout / retorno sem vazamento | NOT_RUN |
-| BR-020 | Forgot password + progresso intacto | NOT_RUN |
-| BR-021 | Confirmacao: valido / expirado / duplo clique / reenvio | NOT_RUN |
+| RECOVERY-021 / BR-020 | Forgot password + progresso intacto | NOT_RUN |
 | BR-022 | Falha de rede no signup/finalize | NOT_RUN |
 
 Provas de banco exigidas quando o humano rodar BR-003 (nao inventar PASS):
@@ -183,10 +264,10 @@ Status: **NOT_RUN** (codigo PASS)
 
 | ID | Cenario | Status |
 | --- | --- | --- |
-| BR-006 A desktop → celular | NOT_RUN |
-| BR-006 B duas sessoes / merge | NOT_RUN |
-| BR-007 loading infinito em rede lenta real | NOT_RUN |
-| BR-009 Topic Mastery 0/4 → 4/4 com reload | NOT_RUN |
+| PROGRESS-010 / BR-006 A | desktop → celular | NOT_RUN |
+| PROGRESS-010 / BR-006 B | duas sessoes / merge | NOT_RUN |
+| PROGRESS-011 / BR-007 | loading infinito em rede lenta real | NOT_RUN |
+| PROGRESS-009 / BR-009 | Topic Mastery 0/4 → 4/4 com reload | NOT_RUN |
 
 Codigo: `CLOUD_SYNC_TIMEOUT_MS = 12_000`, planner fallback, `validate:sync-merge`,
 `test:topic-mastery-path`, `test:progress-loading`.
@@ -217,9 +298,9 @@ Status: **NOT_RUN**
 
 | ID | Cenario | Status |
 | --- | --- | --- |
-| BR-014 Checkout Stripe Test Mode humano | NOT_RUN |
-| BR-015 Cancelamento + `current_period_end` + sem Pro eterno | NOT_RUN |
-| BR-016 Reenvio de webhook (idempotencia real) | NOT_RUN |
+| STRIPE-016 / BR-014 | Checkout Stripe Test Mode humano | NOT_RUN |
+| STRIPE-017 / BR-015 | Cancelamento + `current_period_end` + sem Pro eterno | NOT_RUN |
+| STRIPE-018 / BR-016 | Reenvio de webhook (idempotencia real) | NOT_RUN |
 
 Codigo automatizado (nao substitui humano): `test:subscription-webhook`,
 `test:entitlements`, `test:stripe-e2e` se chaves existirem.
@@ -286,7 +367,7 @@ RPCs SECURITY DEFINER autenticadas (EXPECTED): `add_league_weekly_xp`,
 
 ## ANDROID
 
-Status: **NOT_RUN**
+Status: **NOT_RUN** (DEVICE-013)
 
 HUMAN PASS somente apos Chrome Android fisico: onboarding, Placement, signup,
 Journey, 4/4, audio, Hanzi Builder, teclado, free production, transfer, Review,
@@ -298,7 +379,7 @@ Registrar modelo / OS / browser / build. WebKit CI **nao** conta.
 
 ## IPHONE
 
-Status: **NOT_RUN**
+Status: **NOT_RUN** (DEVICE-014)
 
 HUMAN PASS somente apos Safari iPhone fisico. Alem do smoke: safe area,
 keyboard, sticky CTA, audio, scroll, modal, bottom nav.
@@ -307,7 +388,7 @@ keyboard, sticky CTA, audio, scroll, modal, bottom nav.
 
 ## DESKTOP
 
-Status: **NOT_RUN**
+Status: **NOT_RUN** (DEVICE-015)
 
 HUMAN PASS somente apos Chrome desktop real (resolucoes principais): Journey,
 Player, Review, Profile, Account, Pro, Business, Missoes.
@@ -364,6 +445,7 @@ expansao Atlas, novo sistema de moedas.
 
 | PR | Titulo | Classificacao | Acao |
 | --- | --- | --- | --- |
+| #198 | V4.7.2 — Brazil Closed Beta Readiness | STILL_NEEDED | Empilhada em #197. Nao retargetar/mergear automaticamente. |
 | #197 | V4.7.1 — Authoritative Onboarding + Placement Handoff | STILL_NEEDED | Gate desta remessa. Review humano. Nao mergear automaticamente. |
 | #195 | percentual de progresso nao fica carregando | CLOSE_SAFE | Ja documentado em `docs/reports/pr-195-superseded.md`. Main/V4.7.1 ja tem timeout + planner lock. |
 | #193 | e2e atalho 1 so depois do listen_select em M1 | SUPERSEDED | 1 arquivo (`e2e/mobile-device.spec.ts`) atras de V4.7. Helpers de listen_select ja estao na main. Nao rebase. |

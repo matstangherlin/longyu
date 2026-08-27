@@ -7,6 +7,22 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.3 — Staging Activation + Real Beta Validation
+
+Identifica staging isolado, recusa MandarimProject de produção e só promove closed beta com evidência operacional. Staging pretendido (`longyu-preview`) continua INACTIVE; migrations e Edges **não** foram aplicadas em produção.
+
+- Guarda `LONGYU_STAGING_PROJECT_ID` (`scripts/lib/staging-guard.mjs`).
+- `identify:staging`, `migrate:staging` (para no primeiro erro), `deploy:staging-functions`.
+- Edge list completa: `create-account`, `commit-placement`, `finalize-onboarding` e as demais do fluxo real.
+- Relatórios honestos: `docs/reports/staging-activation.md`, `docs/reports/staging-supabase-advisors.md`. Decisão: `NOT_READY`.
+- Portão `test:staging-activation` no `validate:beta`.
+
+**Não** traduz a UI. **Não** altera Stripe Live, Mastery 4/4, currículo, SSO/SCIM, Business Admin. **Não** inventa HUMAN PASS.
+
+### V4.7.2 — Brazil Closed Beta Readiness
+
+Fecha o corte de código da closed beta BR sem promover o lançamento: país ISO canônico, telemetria mínima de release, relatório `NOT_READY`.
+
 ### V4.7.1 — Authoritative Onboarding + Placement Handoff
 
 Fecha o ciclo: placement anônimo → signup → confirmação de email → commit no servidor → Journey. O resultado sobrevive nova aba, fechamento da aba original e outro dispositivo.

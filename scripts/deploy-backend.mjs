@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { LONGYU_EDGE_FUNCTIONS } from "./lib/edge-functions.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
@@ -10,14 +11,7 @@ const pushDb = args.has("--db") || args.has("--all");
 const deployFunctions = args.has("--functions") || args.has("--all");
 const showHelp = args.has("--help") || args.has("-h");
 
-const EDGE_FUNCTIONS = [
-  "create-checkout-session",
-  "create-billing-portal",
-  "stripe-webhook",
-  "delete-account",
-  "issue-anon-ingestion-session",
-  "submit-business-lead",
-];
+const EDGE_FUNCTIONS = LONGYU_EDGE_FUNCTIONS;
 
 const SECRETS = [
   "STRIPE_SECRET_KEY",

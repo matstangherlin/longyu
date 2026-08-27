@@ -14,6 +14,7 @@
 import process from "node:process";
 import { createClient } from "@supabase/supabase-js";
 import { mergedEnv, readEnvFile } from "./lib/env-local.mjs";
+import { isProductionProjectId } from "./lib/staging-guard.mjs";
 
 const env = {
   ...readEnvFile(".env.production"),
@@ -37,6 +38,11 @@ function assert(cond, message) {
     failures += 1;
     console.error(`FALHOU: ${message}`);
   }
+}
+
+if (env.LONGYU_STAGING_ONLY === "true" && isProductionProjectId(url)) {
+  console.error("RECUSADO: LONGYU_STAGING_ONLY recusa MandarimProject de produção.");
+  process.exit(2);
 }
 
 if (!url || !anon) {

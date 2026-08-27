@@ -1,6 +1,8 @@
 import { spawnSync } from "node:child_process";
 import process from "node:process";
 import { mergedEnv, projectRoot } from "./lib/env-local.mjs";
+import { LONGYU_EDGE_FUNCTIONS } from "./lib/edge-functions.mjs";
+import { isProductionProjectId } from "./lib/staging-guard.mjs";
 
 const root = projectRoot();
 const env = mergedEnv();
@@ -23,15 +25,13 @@ if (!token) {
   process.exit(1);
 }
 
+if (env.LONGYU_STAGING_ONLY === "true" && isProductionProjectId(ref)) {
+  console.error("RECUSADO: deploy:functions com LONGYU_STAGING_ONLY não aponta para produção.");
+  console.error("Use: npm run deploy:staging-functions");
+  process.exit(2);
+}
+
 if (run("npx", ["supabase", "login", "--token", token]) !== 0) process.exit(1);
 if (run("npx", ["supabase", "link", "--project-ref", ref, "--yes"]) !== 0) process.exit(1);
 
-const functions = [
-  "create-checkout-session",
-  "create-billing-portal",
-  "stripe-webhook",
-  "delete-account",
-  "issue-anon-ingestion-session",
-  "submit-business-lead",
-];
-if (run("npx", ["supabase", "functions", "deploy", ...functions]) !== 0) process.exit(1);
+if (run("npx", ["supabase", "functions", "deploy", ...LONGYU_EDGE_FUNCTIONS]) !== 0) process.exit(1);
