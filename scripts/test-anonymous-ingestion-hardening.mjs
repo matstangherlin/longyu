@@ -14,6 +14,7 @@ const feedbackClient = read("src/services/feedbackService.ts");
 const pedagogyClient = read("src/services/pedagogyEvents.ts");
 const config = read("supabase/config.toml");
 const deploy = read("scripts/deploy-functions-env.mjs");
+const edgeList = read("scripts/lib/edge-functions.mjs");
 
 const failures = [];
 function assert(condition, message) {
@@ -89,7 +90,10 @@ assert(
     edge.includes("headers: { apikey: supplied }"),
   "Edge Function authenticates both legacy anon and modern publishable API keys"
 );
-assert(deploy.includes('"issue-anon-ingestion-session"'), "deployment script includes the new function");
+assert(
+  deploy.includes("LONGYU_EDGE_FUNCTIONS") && edgeList.includes('"issue-anon-ingestion-session"'),
+  "deployment script includes the new function"
+);
 assert(
   sessionClient.includes('functions.invoke("issue-anon-ingestion-session"'),
   "browser obtains capability through the Edge Function"

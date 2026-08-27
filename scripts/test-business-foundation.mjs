@@ -217,7 +217,9 @@ assert(
 assert(migration.includes("grant execute on function public.get_server_entitlement() to authenticated"), "entitlement autenticado");
 
 const deploy = read("scripts/deploy-backend.mjs");
-assert(deploy.includes("submit-business-lead"), "deploy lista submit-business-lead");
+const edgeList = read("scripts/lib/edge-functions.mjs");
+assert(edgeList.includes('"submit-business-lead"'), "lista canônica inclui submit-business-lead");
+assert(deploy.includes("LONGYU_EDGE_FUNCTIONS"), "deploy-backend usa a lista canônica de Edge Functions");
 
 if (errors.length > 0) {
   console.error("ERRO: test-business-foundation falhou.");
