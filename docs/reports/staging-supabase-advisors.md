@@ -1,12 +1,17 @@
 # Staging Supabase Advisors (V4.7.3 / STAGE-003)
 
-Atualizado em: 2026-08-27T04:10:00Z
+Atualizado em: 2026-08-27T22:18:00Z
 
 **Status: BLOCKED**
 
 Advisors de staging **não rodaram**. `longyu-preview` `wpnmygzxqvmpdlcuwrjp`
 está `INACTIVE`. Restore na org Noba falhou com **2 project limit**.
 Branching em MandarimProject falhou (`PaymentRequiredException`, plano Free).
+
+Security/Performance Advisors **em MandarimProject** foram lidos em 2026-08-27T22:18Z
+como baseline (57 security / 61 performance). Isso **não** é STG-009 e **não**
+relabela dump de produção como resultado de staging. Detalhe em
+`docs/reports/staging-live-inventory.md`.
 
 Este arquivo **não** relabela o dump de produção como resultado de staging.
 

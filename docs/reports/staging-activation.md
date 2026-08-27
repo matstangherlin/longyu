@@ -1,6 +1,22 @@
-# Staging Activation Log (V4.7.3 / V4.7.4)
+# Staging Activation Log (V4.7.3 / V4.7.4 / V4.7.5)
 
-Atualizado em: 2026-08-27T22:00:00Z
+Atualizado em: 2026-08-27T22:18:00Z
+
+## V4.7.5 — live MCP (não aplicar)
+
+Consulta autenticada. Relatório: `docs/reports/staging-live-inventory.md`.
+
+| ID | Status | Nota |
+| --- | --- | --- |
+| STG-001 | BLOCKED | `longyu-preview` INACTIVE. `restore_project` → `ForbiddenException` **2 project limit** (`matstangherlin`). Org Noba **free**. |
+| STG-002 | INVENTORY_LIVE | Watermark produção confirmado `20260810175737` `beta_experience_telemetry`. Sete migrations do repo **não** aplicadas. Staging inconsultável (timeout). |
+| STG-003…STG-011 | NOT_RUN | Sem `ACTIVE_HEALTHY` isolado. |
+
+**Não** pausar `atomurus`. **Não** pausar MandarimProject. **Não** implantar `commit-placement` / `finalize-onboarding` / `submit-business-lead` em produção.
+
+Decisão humana (um de): upgrade da org; autorização para pausar atomurus e restaurar preview; projeto/branch pago isolado com confirmação de custo.
+
+---
 
 ## V4.7.4 — reconfirmação (não aplicar)
 

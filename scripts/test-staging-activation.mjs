@@ -185,6 +185,12 @@ assert(
 );
 assert(read("src/lib/featureFlags.ts").includes("isCloudOnboardingV2Enabled"), "flag V2 existe");
 
+const live = read("docs/reports/staging-live-inventory.md");
+assert(live.includes("2 project limit"), "live inventory registra limite Free");
+assert(live.includes("HARD FAIL"), "live inventory marca produção como HARD FAIL");
+assert(live.includes("commit-placement"), "live inventory registra Edges ausentes em prod");
+assert(!/STAGING_READY[^\n]*PASS/.test(live), "live inventory não promove STAGING_READY");
+
 const family = [
   "src/lib/auth/sessionAudience.ts",
   "src/components/auth/RequireCloudSession.tsx",
@@ -198,6 +204,7 @@ const family = [
   "scripts/apply-staging-migrations.mjs",
   "scripts/deploy-staging-functions.mjs",
   "docs/reports/staging-activation.md",
+  "docs/reports/staging-live-inventory.md",
   "supabase/functions/finalize-onboarding/index.ts",
   "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
 ];

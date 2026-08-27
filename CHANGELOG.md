@@ -7,6 +7,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.5 — Staging live inventory (BLOCKED)
+
+MCP autenticado. `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Inventário em `docs/reports/staging-live-inventory.md`. Sem DDL/Edge em MandarimProject. Sem pause de atomurus.
+
 ### V4.7.4 — Closed Beta Release Candidate Hardening
 
 Consolida o Longyu atual numa Release Candidate **reproduzível**. Sem escopo de produto novo.

@@ -17,12 +17,12 @@ import {
 const root = path.resolve(import.meta.dirname, "..");
 const migrationsDir = path.join(root, "supabase", "migrations");
 
-/** Última migration conhecida em MandarimProject (inventário 2026-08-27). Não consultar produção daqui. */
+/** Última migration conhecida em MandarimProject (MCP list_migrations 2026-08-27T22:18Z). Não aplicar daqui. */
 const PRODUCTION_WATERMARK = {
   version: "20260810175737",
   name: "beta_experience_telemetry",
-  as_of: "2026-08-27",
-  source: "docs/reports/staging-activation.md — não reconsultar produção nesta remessa",
+  as_of: "2026-08-27T22:18Z",
+  source: "MCP list_migrations MandarimProject — DO_NOT_APPLY",
 };
 
 const STAGING_PENDING = [

@@ -18,7 +18,7 @@ Se o código do produto mudar, o rótulo vira `rc.2`. Não chamar HEADs diferent
 | --- | --- | --- |
 | `CODE_READY` | `PENDING_CI` | `validate:beta` + build + E2E Chromium + Firefox + Security **neste HEAD**. Código local não substitui o CI atual. |
 | `CROSS_BROWSER_READY` | `PENDING_CI` | Firefox é gate. WebKit permanece informativo (passo `continue-on-error`). Ver `docs/reports/webkit-ci-notes.md`. |
-| `STAGING_READY` | `NOT_READY` | `longyu-preview` INACTIVE. Inventário em `docs/reports/staging-migration-inventory.md`. Não usar MandarimProject. |
+| `STAGING_READY` | `NOT_READY` | Live MCP 2026-08-27T22:18Z: `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Ver `docs/reports/staging-live-inventory.md`. Não usar MandarimProject. |
 | `AUTH_READY` | `NOT_RUN` | Signup real + e-mail em nova aba + finalize. Exige staging (V4.7.6). |
 | `PLACEMENT_READY` | `NOT_RUN` | Servidor recalcula evidência bruta. Exige staging (V4.7.6). |
 | `SYNC_READY` | `NOT_RUN` | Cross-device 1/4 → 2/4 sem regressão. Exige staging (V4.7.6). |
@@ -67,7 +67,9 @@ Flakes conhecidos e mitigados (não no caminho crítico do merge Chromium):
 
 ## Staging (não executado aqui)
 
-`longyu-preview` (`wpnmygzxqvmpdlcuwrjp`) continua **INACTIVE**. Decisão humana necessária (um de):
+`longyu-preview` (`wpnmygzxqvmpdlcuwrjp`) continua **INACTIVE**. Restore live recusado
+(`ForbiddenException`, **2 project limit** Free, owner `matstangherlin`). Inventário:
+`docs/reports/staging-live-inventory.md`. Decisão humana necessária (um de):
 
 1. Restaurar o projeto (hoje: limite Free de 2 projetos).
 2. Liberar slot / pausar outro projeto que **não** seja MandarimProject.
