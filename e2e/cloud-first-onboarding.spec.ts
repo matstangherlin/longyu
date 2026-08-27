@@ -82,7 +82,9 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     await seedOnboardedSession(page, ["l1"]);
     await page.goto("/jornada");
     await waitForLazyPage(page);
-    await expect(page.getByRole("heading", { name: /Jornada/i })).toBeVisible();
+    await expect(page).toHaveURL(/\/jornada/);
+    await expect(page.getByRole("heading", { level: 1, name: "Primeiro contato" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Sair$/i })).toBeVisible();
     await page.getByRole("button", { name: /^Sair$/i }).click();
     await page.waitForURL(/\/$/);
     await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
@@ -92,7 +94,8 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     const guest = await context.newPage();
     await guest.goto("/jornada");
     await guest.waitForURL(/\/(comecar|login|salvar-progresso)(\?|$)/, { timeout: 15_000 });
-    await expect(guest.getByRole("heading", { name: /Jornada/i })).toHaveCount(0);
+    await expect(guest.getByRole("heading", { level: 1, name: "Primeiro contato" })).toHaveCount(0);
+    await expect(guest.getByRole("button", { name: /^Sair$/i })).toHaveCount(0);
     await guest.close();
   });
 });
