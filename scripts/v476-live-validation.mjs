@@ -105,7 +105,25 @@ try {
     console.log("deploy:staging-functions não executado (passe --deploy só com ACTIVE_HEALTHY).");
   }
 
-  console.log("V4.7.6 live runner chegou em ACTIVE_HEALTHY; passos auth/sync ainda manuais/scripts dedicados.");
+  if (args.has("--identity")) {
+    for (const script of [
+      "scripts/v476-auth-identity.mjs",
+      "scripts/v476-placement-authority.mjs",
+      "scripts/v476-sync-identity.mjs",
+      "scripts/test-rls-staging.mjs",
+    ]) {
+      const result = runNode(script);
+      process.stdout.write(result.stdout);
+      process.stderr.write(result.stderr);
+      if (result.status !== 0) {
+        throw new StagingGuardError(`V4.7.6 PAROU em ${script}. Não continuar.`);
+      }
+    }
+  } else {
+    console.log("identity live não executado (passe --identity só com ACTIVE_HEALTHY + credenciais).");
+  }
+
+  console.log("V4.7.6 live runner chegou em ACTIVE_HEALTHY.");
 } catch (error) {
   const board = blockedScoreboard(error instanceof Error ? error.message : String(error));
   console.log("V476_SCOREBOARD");

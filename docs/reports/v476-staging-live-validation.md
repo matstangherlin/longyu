@@ -172,9 +172,14 @@ Vault do projeto INACTIVE **não** foi listado. Stripe Live **não** foi usado.
 
 ## AUTH-009 … AUTH-011
 
-**BLOCKED.** Sem staging, sem caixa de e-mail de QA neste ambiente. Não inventar usuário.
+**BLOCKED.** Sem staging `ACTIVE_HEALTHY`.
 
-## PLACEMENT-012 — Server authority (código)
+Harness fail-closed (não promove PASS):
+
+- `npm run v476:auth-identity` — cria user via **Admin API `email_confirm` (FIXTURE)**. Isso **não** é AUTH-009 (e-mail real em nova aba). Segundo `signIn` cobre AUTH-011 só como mesmo `user_id`, sem sessionStorage.
+- AUTH-009/010 (link de confirmação em aba nova, sem sessionStorage original, draft → finalize) permanece **NOT_RUN** até inbox real + Edges `create-account` / `finalize-onboarding` no staging.
+
+## PLACEMENT-012 — Server authority (código + harness)
 
 Contrato no repo (não é PASS live):
 
@@ -182,7 +187,7 @@ Contrato no repo (não é PASS live):
 
 `src/services/placementCommit.ts` envia só evidência.
 
-Intercept HTTP live: **NOT_RUN**.
+Harness live: `npm run v476:placement-authority` (`scripts/v476-placement-authority.mjs`) envia score/skip/mastery forjados. Sem staging/Edge = **BLOCKED**. Intercept HTTP de browser: **NOT_RUN**.
 
 ## PLACEMENT-013 — Casos
 
@@ -190,7 +195,7 @@ Intercept HTTP live: **NOT_RUN**.
 
 ## SYNC-014 … SYNC-017
 
-**BLOCKED / NOT_RUN.**
+**BLOCKED.** Harness `npm run v476:sync-identity`: device A grava 1 lição, device B lê e grava 2, A relê; tenta regressão via upsert cru. Sem credenciais de staging o script sai 2. Anti-regressão do app hoje é sobretudo no client (`supabaseLearningRepository`); o probe live falha se o servidor aceitar snapshot menor.
 
 ## SEC-018 — RLS A≠B
 
@@ -228,4 +233,7 @@ Depois: merge da #203 → rebase desta branch em `main` → `identify:staging` �
 npm run test:v476-live-validation   # portão de código (validate:beta)
 LONGYU_STAGING_PROJECT_ID=wpnmygzxqvmpdlcuwrjp npm run v476:live
 LONGYU_STAGING_PROJECT_ID=wpnmygzxqvmpdlcuwrjp npm run audit:staging-secrets
+LONGYU_STAGING_PROJECT_ID=wpnmygzxqvmpdlcuwrjp npm run v476:placement-authority
+LONGYU_STAGING_PROJECT_ID=wpnmygzxqvmpdlcuwrjp npm run v476:auth-identity
+LONGYU_STAGING_PROJECT_ID=wpnmygzxqvmpdlcuwrjp npm run v476:sync-identity
 ```

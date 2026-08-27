@@ -148,6 +148,43 @@ const clientCommit = read("src/services/placementCommit.ts");
 assert(clientCommit.includes("answers: input.answers.map"), "client envia evidência, não mastery");
 assert(!/skippedLessonIds/.test(clientCommit), "client commit não envia skippedLessonIds");
 
+const identityScripts = [
+  "scripts/v476-placement-authority.mjs",
+  "scripts/v476-auth-identity.mjs",
+  "scripts/v476-sync-identity.mjs",
+  "scripts/lib/v476-live-env.mjs",
+];
+for (const file of identityScripts) {
+  assert(fs.existsSync(path.join(root, file)), `harness presente: ${file}`);
+}
+
+const prodPlace = runScript("scripts/v476-placement-authority.mjs", {
+  LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
+});
+assert(prodPlace.status === 2, "placement-authority recusa produção");
+
+const atomurusAuth = runScript("scripts/v476-auth-identity.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
+});
+assert(atomurusAuth.status === 2, "auth-identity recusa atomurus");
+
+const previewSync = runScript("scripts/v476-sync-identity.mjs", {
+  LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+});
+assert(previewSync.status === 2, "sync-identity BLOCKED sem credenciais");
+assert(/BLOCKED/.test(`${previewSync.stdout}\n${previewSync.stderr}`), "sync sem credenciais é BLOCKED");
+assert(!/OK: v476-sync-identity/.test(`${previewSync.stdout}\n${previewSync.stderr}`), "sync não passa sem staging");
+
+const identityBlocked = runScript(
+  "scripts/v476-live-validation.mjs",
+  {
+    LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+    SUPABASE_ACCESS_TOKEN: "",
+  },
+  ["--identity"]
+);
+assert(identityBlocked.status === 2, "--identity sem healthy não cria usuários");
+
 const report = read("docs/reports/v476-staging-live-validation.md");
 assert(report.includes("STAGING_READY"), "relatório tem STAGING_READY");
 assert(report.includes("AUTH_READY"), "relatório tem AUTH_READY");
@@ -166,6 +203,9 @@ assert(report.includes("drjcfalvlbbeblmmyhwj"), "produção citada como HARD FAI
 assert(report.includes("ylofdottauzcqcifnnpm"), "atomurus citado");
 assert(report.includes("wpnmygzxqvmpdlcuwrjp"), "preview citado");
 assert(report.includes("#203"), "dependência da #203");
+assert(report.includes("AUTH-009"), "AUTH-009 no relatório");
+assert(report.includes("v476-placement-authority"), "harness Placement documentado");
+assert(report.includes("FIXTURE"), "AUTH fixture ≠ e-mail real");
 
 const applySrc = read("scripts/apply-staging-migrations.mjs");
 assert(applySrc.includes("requireHealthyStagingStatus"), "migrate exige ACTIVE_HEALTHY");
@@ -176,6 +216,9 @@ assert(deploySrc.includes("requireHealthyStagingStatus"), "deploy exige ACTIVE_H
 const pkg = JSON.parse(read("package.json"));
 assert(pkg.scripts["test:v476-live-validation"], "script test:v476-live-validation");
 assert(pkg.scripts["v476:live"], "script v476:live");
+assert(pkg.scripts["v476:placement-authority"], "script v476:placement-authority");
+assert(pkg.scripts["v476:auth-identity"], "script v476:auth-identity");
+assert(pkg.scripts["v476:sync-identity"], "script v476:sync-identity");
 assert(pkg.scripts["validate:beta"].includes("test:v476-live-validation"), "validate:beta inclui v476");
 
 if (errors.length) {
