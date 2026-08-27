@@ -71,6 +71,10 @@ assert(requireCloud.includes("finalizeOnboardingPath"), "pending vai para /final
 assert(!requireCloud.includes('audience === "cloud"'), "audience cloud genérico saiu do guard");
 assert(netlifyAssert.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), "deploy production deve bloquear a flag de auth local");
 assert(envExample.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), ".env.example deve documentar a flag DEV/E2E");
+assert(
+  envExample.includes("VITE_CLOUD_ONBOARDING_V2_ENABLED"),
+  ".env.example deve documentar o handoff V4.7.1"
+);
 assert(comecar.includes("Criar minha conta e salvar o resultado"), "CTA de conta obrigatória no resultado");
 assert(!comecar.includes("finishLocalOnboarding"), "funil /comecar não pode chamar finishLocalOnboarding");
 assert(!accountPage.includes("Conta local neste dispositivo"), "copy de conta local saiu da experiência normal");

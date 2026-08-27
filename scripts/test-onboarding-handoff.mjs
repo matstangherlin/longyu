@@ -97,6 +97,7 @@ assert(finalizeFn.includes("placement_onboarding_drafts"), "TEST-023: draft por 
 assert(sessionAudience.includes("cloud_pending_onboarding"), "ONB-002: audience pending");
 assert(sessionAudience.includes("cloud_ready"), "ONB-002: audience cloud_ready");
 assert(sessionAudience.includes("onboarding_completed"), "ONB-002: le profile servidor");
+assert(sessionAudience.includes("isCloudOnboardingV2Enabled"), "ONB-002: flag de compatibilidade production");
 assert(sessionAudience.includes('return "cloud_pending_onboarding"'), "fail-closed vira pending");
 assert(!sessionAudience.includes('return "cloud"'), "audience cloud generico removido");
 
@@ -105,8 +106,9 @@ assert(requireCloud.includes("auth-gate"), "AUTH-014: sem flash privado");
 assert(requireCloud.includes("finalizeOnboardingPath"), "AUTH-014: pending -> /finalizar-cadastro");
 
 assert(!postAuth.includes("p_onboarding_completed: true"), "post-auth nao marca onboarding via ensure_own_profile");
-assert(!postAuth.includes("commitPlacementToServer"), "pos-signup nao commita via sessionStorage/commit-placement");
-assert(postAuth.includes("finalizeOnboardingOnServer"), "commit final passa pelo Edge finalize-onboarding");
+assert(postAuth.includes("isCloudOnboardingV2Enabled"), "post-auth ramifica na flag V2");
+assert(postAuth.includes("finalizeOnboardingOnServer"), "commit V2 passa pelo Edge finalize-onboarding");
+assert(postAuth.includes("commitPlacementToServer"), "compat production usa commit-placement ate backend V4.7");
 assert(!profileTypes.includes("onboarding_completed:"), "payload de perfil nao envia onboarding_completed");
 assert(authService.includes("toServerPlacementEvidence"), "signup envia evidencia Placement V2");
 assert(authService.includes("canonicalCountryCode"), "signup envia country_code canonico");
@@ -117,8 +119,9 @@ assert(finalizePage.includes("missing_draft"), "AUTH-013: placement ausente");
 assert(finalizePage.includes("redoPlacementPath") || finalizePage.includes("refazer=1"), "PLACEMENT-010: refazer teste");
 assert(!finalizePage.includes("AppShell"), "AUTH-013: sem AppShell");
 assert(!finalizePage.includes("readPendingPlacement"), "TEST-023: pagina finalize nao le sessionStorage");
-assert(!confirmEmail.includes("completeAuthenticatedOnboarding"), "confirmacao vai para /finalizar-cadastro");
-assert(confirmEmail.includes("finalizeOnboardingPath"), "confirmacao redireciona para finalize");
+assert(confirmEmail.includes("isCloudOnboardingV2Enabled"), "confirmacao ramifica na flag V2");
+assert(confirmEmail.includes("finalizeOnboardingPath"), "confirmacao V2 redireciona para finalize");
+assert(confirmEmail.includes("completeAuthenticatedOnboarding"), "confirmacao compat chama onboarding atual");
 assert(loginPage.includes("finalizeOnboardingPath"), "login pending vai para finalize");
 assert(routes.includes("FinalizeCadastroPage"), "rota FinalizeCadastroPage");
 assert(comecar.includes("refazer"), "redo placement autenticado");
@@ -149,10 +152,21 @@ try {
     compilerOptions,
     fileName: "countries.ts",
   }).outputText;
+  const envText = ts.transpileModule(
+    (await read("src/lib/appEnvironment.ts")).replaceAll("= import.meta.env", "= {}"),
+    { compilerOptions, fileName: "appEnvironment.ts" }
+  ).outputText;
+  const flagsText = ts.transpileModule(
+    (await read("src/lib/featureFlags.ts")).replaceAll("= import.meta.env", "= {}"),
+    { compilerOptions, fileName: "featureFlags.ts" }
+  ).outputText;
   await mkdir(path.join(outDir, "src/lib/i18n"), { recursive: true });
   await mkdir(path.join(outDir, "src/data"), { recursive: true });
+  await mkdir(path.join(outDir, "src/lib"), { recursive: true });
   await writeFile(path.join(outDir, "src/lib/i18n/identity.js"), identityText);
   await writeFile(path.join(outDir, "src/data/countries.js"), countriesText);
+  await writeFile(path.join(outDir, "src/lib/appEnvironment.js"), envText);
+  await writeFile(path.join(outDir, "src/lib/featureFlags.js"), flagsText);
   const mod = require(path.join(outDir, "src/lib/i18n/identity.js"));
   assert(mod.canonicalCountryCode("Brasil") === "BR", "Brasil -> BR");
   assert(mod.canonicalCountryCode("br") === "BR", "br -> BR");
@@ -163,6 +177,29 @@ try {
   assert(mod.LAUNCH_INTERFACE_LOCALE === "pt-BR", "interface pt-BR");
   assert(mod.LAUNCH_TARGET_LANGUAGE === "zh-CN", "target zh-CN");
   assert(mod.LAUNCH_COUNTRY_CODE === "BR", "country BR");
+  const flags = require(path.join(outDir, "src/lib/featureFlags.js"));
+  assert(
+    flags.isCloudOnboardingV2Enabled({ VITE_APP_ENV: "production_beta" }) === false,
+    "production_beta desliga V2 por default"
+  );
+  assert(
+    flags.isCloudOnboardingV2Enabled({ VITE_APP_ENV: "preview" }) === true,
+    "preview liga V2 por default"
+  );
+  assert(
+    flags.isCloudOnboardingV2Enabled({
+      VITE_APP_ENV: "production_beta",
+      VITE_CLOUD_ONBOARDING_V2_ENABLED: "true",
+    }) === true,
+    "flag explicita liga V2 em production_beta"
+  );
+  assert(
+    flags.isCloudOnboardingV2Enabled({
+      VITE_APP_ENV: "preview",
+      VITE_CLOUD_ONBOARDING_V2_ENABLED: "false",
+    }) === false,
+    "flag explicita desliga V2 em preview"
+  );
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));
 } finally {

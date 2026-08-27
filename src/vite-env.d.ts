@@ -21,6 +21,11 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_TELEMETRY?: string;
   /** Rollback: false desliga envio de feedback. */
   readonly VITE_ENABLE_BETA_FEEDBACK?: string;
+  /**
+   * Handoff V4.7.1. Default false em production_beta até schema/Edges no staging
+   * e depois produção. true em preview/dev. Não reativa conta local.
+   */
+  readonly VITE_CLOUD_ONBOARDING_V2_ENABLED?: string;
   /** Site key pública do Cloudflare Turnstile. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   /** URL canônica do site (SEO: canonical, Open Graph, sitemap). */

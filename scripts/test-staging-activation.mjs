@@ -178,6 +178,33 @@ const pearl = read("scripts/test-pearl-pro-staging.mjs");
 assert(pearl.includes("requireStagingProjectId"), "pearl staging exige LONGYU_STAGING_PROJECT_ID");
 assert(pearl.includes("assertStagingUrlMatches"), "pearl staging confere URL vs project id");
 
+const netlify = read("netlify.toml");
+assert(
+  netlify.includes('VITE_CLOUD_ONBOARDING_V2_ENABLED = "false"'),
+  "Netlify production desliga handoff V4.7.1 até o backend V4.7"
+);
+assert(read("src/lib/featureFlags.ts").includes("isCloudOnboardingV2Enabled"), "flag V2 existe");
+
+const family = [
+  "src/lib/auth/sessionAudience.ts",
+  "src/components/auth/RequireCloudSession.tsx",
+  "src/features/auth/FinalizeCadastroPage.tsx",
+  "src/lib/i18n/identity.ts",
+  "docs/reports/i18n-readiness.md",
+  "src/components/auth/CountrySelect.tsx",
+  "docs/reports/brazil-closed-beta-readiness.md",
+  "scripts/lib/staging-guard.mjs",
+  "scripts/identify-staging.mjs",
+  "scripts/apply-staging-migrations.mjs",
+  "scripts/deploy-staging-functions.mjs",
+  "docs/reports/staging-activation.md",
+  "supabase/functions/finalize-onboarding/index.ts",
+  "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+];
+for (const file of family) {
+  assert(fs.existsSync(path.join(root, file)), `família V4.7 presente: ${file}`);
+}
+
 if (errors.length) {
   console.error("FAIL test:staging-activation:");
   for (const item of errors) console.error(`  - ${item}`);

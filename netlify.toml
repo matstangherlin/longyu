@@ -21,6 +21,8 @@
   VITE_BACKEND_MODE = "supabase"
   VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
+  # Handoff V4.7.1 off until production has placement_onboarding migrations + Edges.
+  VITE_CLOUD_ONBOARDING_V2_ENABLED = "false"
   # Explicitamente desligado no ambiente principal.
   VITE_ALLOW_PRO_PREVIEW = "false"
   VITE_USE_TEST_FIXTURES = "false"

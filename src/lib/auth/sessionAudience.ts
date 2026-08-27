@@ -4,6 +4,7 @@ import { getCloudUserId } from "./cloudSession";
 import { buildProgressSnapshot, isMeaningfulProgress } from "../progressSnapshot";
 import { getSupabaseClient } from "../supabaseClient";
 import { isSupabaseBackendEnabled } from "../backendConfig";
+import { isCloudOnboardingV2Enabled } from "../featureFlags";
 
 export type SessionAudience =
   | "anonymous"
@@ -87,6 +88,7 @@ export async function resolveSessionAudience(): Promise<SessionAudience> {
 
   const userId = await getCloudUserId();
   if (userId) {
+    if (!isCloudOnboardingV2Enabled()) return "cloud_ready";
     const completed = await readServerOnboardingCompleted(userId);
     if (completed === true) return "cloud_ready";
     return "cloud_pending_onboarding";

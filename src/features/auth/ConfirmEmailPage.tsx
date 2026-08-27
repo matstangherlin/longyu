@@ -11,7 +11,9 @@ import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
+import { isCloudOnboardingV2Enabled } from "../../lib/featureFlags";
 import { resendConfirmationEmail } from "../../services/authService";
+import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 
 export function ConfirmEmailPage() {
   const navigate = useNavigate();
@@ -48,9 +50,21 @@ export function ConfirmEmailPage() {
 
     const finishConfirmed = async () => {
       if (cancelled) return;
+      if (isCloudOnboardingV2Enabled()) {
+        clearPendingConfirmEmail();
+        setNotice("Email confirmado. Vamos finalizar seu ponto de partida.");
+        navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
+        return;
+      }
+      const onboard = await completeAuthenticatedOnboarding();
+      if (cancelled) return;
+      if (!onboard.ok) {
+        setConfirming(false);
+        setError(onboard.message);
+        return;
+      }
       clearPendingConfirmEmail();
-      setNotice("Email confirmado. Vamos finalizar seu ponto de partida.");
-      navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
+      navigate(postAuthPath, { replace: true });
     };
 
     const checkSession = async () => {

@@ -7,6 +7,15 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7 — Consolidação na main
+
+Código V4.7.1 + V4.7.2 + V4.7.3 na main. **Não** é release da closed beta.
+
+- `VITE_CLOUD_ONBOARDING_V2_ENABLED=false` no Netlify production: usuários cloud atuais continuam na Journey sem a coluna `onboarding_completed` nem a Edge `finalize-onboarding`.
+- Flag **não** reativa conta local. Preview/dev continuam no handoff V2.
+- Produção: sem migration, sem Edge nova, Stripe Live intacto.
+- `READY_FOR_CLOSED_BETA_BR` permanece `NOT_READY`.
+
 ### V4.7.3 — Staging Activation + Real Beta Validation
 
 Identifica staging isolado, recusa MandarimProject de produção e só promove closed beta com evidência operacional. Staging pretendido (`longyu-preview`) continua INACTIVE; migrations e Edges **não** foram aplicadas em produção.
