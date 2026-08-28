@@ -405,7 +405,7 @@ function CollapsibleInfoCard({
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink">
         <span>{title}</span>
-        <span className="text-xs font-medium text-ink-faint">{compactLabel ?? "Toque para expandir"}</span>
+        <span className="text-xs font-medium text-ink-faint">{compactLabel ?? t("player.tapToExpand")}</span>
       </summary>
       <div className="mt-3">{children}</div>
     </details>
@@ -485,9 +485,9 @@ function totalToday(today: Record<Track, number>): number {
 }
 
 function rewardLabel(reward: RewardGrant): string {
-  if (reward.type === "qi") return `Qi do Dragão x${reward.amount}`;
-  if (reward.type === "dragonPearl") return `Pérolas do Dragão x${reward.amount}`;
-  if (reward.type === "streakShield") return `Escudo de sequência x${reward.amount}`;
+  if (reward.type === "qi") return t("player.rewardQi", { n: reward.amount });
+  if (reward.type === "dragonPearl") return t("player.rewardPearls", { n: reward.amount });
+  if (reward.type === "streakShield") return t("player.rewardStreakShield", { n: reward.amount });
   return reward.source;
 }
 
@@ -503,7 +503,7 @@ function nextStreakMilestone(streak: number): number {
 }
 
 function dayCountLabel(days: number): string {
-  return `${days} ${days === 1 ? "dia" : "dias"}`;
+  return `${days} ${days === 1 ? t("player.day") : t("player.days")}`;
 }
 
 function uniqueLessonReviewTargets(targets: LessonReviewTarget[]): LessonReviewTarget[] {
@@ -1173,23 +1173,21 @@ function ImmediateErrorReviewSummary({
 // que dá para recarregar Fôlego fazendo rodadas perfeitas.
 function FolegoUpsellModal({ onClose, onSeePro }: { onClose: () => void; onSeePro: () => void }) {
   return (
-    <ModalOverlay label="Fôlego esgotado" onBackdropClick={onClose}>
+    <ModalOverlay label={t("player.breathGoneAria")} onBackdropClick={onClose}>
       <div className="mx-auto w-full max-w-sm rounded-[26px] border border-line bg-surface p-6 text-center shadow-lift">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent">
           <IconLock width={26} height={26} />
         </div>
-        <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">Seu Fôlego acabou</h2>
+        <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">{t("player.breathGoneHeading")}</h2>
         <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">
-          O Fôlego deixa você pular uma tarefa difícil e resolvê-la depois na revisão. Você recarrega
-          Fôlego fazendo <span className="font-semibold text-ink">rodadas perfeitas</span> — ou libera
-          skips ilimitados com o Longyu Pro.
+          {t("player.breathGoneBody")}
         </p>
         <div className="mt-6 grid gap-2">
           <Button size="lg" className="w-full shadow-lift" onClick={onSeePro}>
-            Ver Longyu Pro <IconChevron width={18} height={18} />
+            {t("player.seeLongyuPro")} <IconChevron width={18} height={18} />
           </Button>
           <Button variant="outline" className="w-full" onClick={onClose}>
-            Voltar e tentar acertar
+            {t("player.backTryAgain")}
           </Button>
         </div>
       </div>
@@ -2763,18 +2761,18 @@ export function LessonPlayer() {
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</h1>
         <p className="mt-3 text-sm text-ink-soft">
-          Você chegou ao fim do núcleo gratuito. A partir de «China e amigos», o conteúdo faz parte do Longyu Pro.
+          {t("player.freeCoreEnded")}
         </p>
         <Card className="mt-6 w-full p-5 text-left text-sm text-ink-soft">
           <ul className="list-inside list-disc space-y-1">
-            <li>Família, comida e compras</li>
-            <li>Microtextos e leitura em voz alta</li>
-            <li>Revisão ilimitada (em breve)</li>
+            <li>{t("player.proFamilyFood")}</li>
+            <li>{t("player.proMicrotexts")}</li>
+            <li>{t("player.proUnlimitedReview")}</li>
           </ul>
         </Card>
-        <Button size="lg" className="mt-6 w-full" onClick={() => setProPaywallKind("content")}>Ver opções Pro</Button>
+        <Button size="lg" className="mt-6 w-full" onClick={() => setProPaywallKind("content")}>{t("player.seePro")}</Button>
         <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-          Voltar à jornada
+          {t("player.backToJourney")}
         </Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
       </div>
@@ -2785,14 +2783,14 @@ export function LessonPlayer() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          {energyBlocked ? "Cargas do Dragão" : t("player.lessonBadge")}
+          {energyBlocked ? t("player.dragonCharges") : t("player.lessonBadge")}
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">
-          {energyBlocked ? "Lição bloqueada por hoje" : !entryChecked ? t("player.preparingLesson") : t("player.preparing")}
+          {energyBlocked ? t("player.lessonBlockedToday") : !entryChecked ? t("player.preparingLesson") : t("player.preparing")}
         </h1>
         <p className="mt-3 text-sm text-ink-soft">
           {energyBlocked
-            ? "Você usou as cargas de novas lições por hoje. Elas voltam amanhã — e ainda há caminhos grátis para continuar aprendendo agora."
+            ? t("player.usedChargesToday")
             : !entryChecked
             ? t("player.checkingLoads")
             : t("player.assemblingSequence")}
@@ -2800,19 +2798,19 @@ export function LessonPlayer() {
         {energyBlocked && (
           <>
             <ButtonLink to="/revisao" size="lg" className="mt-6 w-full shadow-lift">
-              <IconRefresh width={18} height={18} /> Revisar de graça
+              <IconRefresh width={18} height={18} /> {t("player.reviewFree")}
             </ButtonLink>
             <ButtonLink to="/missoes" variant="soft" className="mt-3 w-full">
-              <IconTarget width={17} height={17} /> Fazer missão para ganhar Qi
+              <IconTarget width={17} height={17} /> {t("player.doMissionForQi")}
             </ButtonLink>
             <Button variant="outline" className="mt-3 w-full" onClick={() => setProPaywallKind("energy")}>
-              Conhecer o Longyu Pro
+              {t("player.meetLongyuPro")}
             </Button>
             <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-              Voltar amanhã
+              {t("pro.comeBackTomorrow")}
             </Button>
             <Link to="/loja" className="mt-4 text-xs font-semibold text-ink-faint transition hover:text-accent">
-              Ou compre uma Carga na Loja
+              {t("player.orBuyCharge")}
             </Link>
           </>
         )}
@@ -3850,7 +3848,7 @@ export function LessonPlayer() {
             )}
             {points < BREATH_RECOVERY_QI_COST && (
               <ButtonLink to="/missoes" variant="soft" className="mt-2 w-full">
-                <IconStar width={16} height={16} /> Ganhar Qi em missões
+                <IconStar width={16} height={16} /> {t("player.earnQiMissions")}
               </ButtonLink>
             )}
             <p className="mt-3 text-xs leading-5 text-ink-faint">
@@ -4044,21 +4042,21 @@ export function LessonPlayer() {
               <IconFlame width={54} height={54} fill="currentColor" />
             </div>
             <h1 className="mt-5 font-serif text-3xl font-semibold text-ink">
-              {dayCountLabel(streak)} de sequência!
+              {t("player.streakOf", { n: dayCountLabel(streak) })}
             </h1>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-              Volte amanhã para manter o fogo aceso.
+              {t("player.comeBackTomorrowFire")}
             </p>
 
             <div className="mt-6 rounded-[24px] border border-line bg-surface/85 px-4 py-4 text-left shadow-card">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-ink">Próximo marco</span>
-                <span className="text-ink-soft">{nextMilestone} dias</span>
+                <span className="font-semibold text-ink">{t("player.nextMilestone")}</span>
+                <span className="text-ink-soft">{nextMilestone} {t("player.days")}</span>
               </div>
               <ProgressBar value={streak} max={nextMilestone} className="mt-3" />
               <div className="mt-3 flex items-center gap-2 text-sm text-ink-soft">
                 <IconShield width={18} height={18} className="text-accent" />
-                {daysLeft > 0 ? `Faltam ${dayCountLabel(daysLeft)}.` : "Marco alcançado."}
+                {daysLeft > 0 ? t("player.daysLeft", { n: dayCountLabel(daysLeft) }) : t("player.milestoneReached")}
               </div>
             </div>
 
@@ -4072,13 +4070,15 @@ export function LessonPlayer() {
                   ].join(" ")}
                 >
                   <div className="font-serif text-lg font-semibold">{mark}</div>
-                  <div className="text-[10px] uppercase tracking-[0.12em]">dias</div>
+                  <div className="text-[10px] uppercase tracking-[0.12em]">{t("player.days")}</div>
                 </div>
               ))}
             </div>
 
             <div className="mt-5 rounded-2xl bg-surface/80 px-4 py-3 text-left text-sm text-ink-soft">
-              {streakShields > 0 ? `${streakShields} escudo(s) protegendo sua sequência.` : "Escudos aparecem em marcos especiais."}
+              {streakShields > 0
+                ? t("player.shieldsProtecting", { n: streakShields })
+                : t("player.shieldsAtMilestones")}
             </div>
 
             <Button className="mt-auto w-full shadow-lift sm:mt-6" size="lg" onClick={continueAfterStreak}>
@@ -4160,19 +4160,18 @@ export function LessonPlayer() {
           {(lessonPendingStars[lesson.id]?.length ?? 0) > 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
               {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
-                ? "Você pulou com Fôlego: esta lição do tema conta, mas o próximo tema só libera em 4/4. A 3ª estrela fica "
-                : "Você pulou com Fôlego: a próxima aula já está liberada. A 3ª estrela fica "}
-              <span className="font-semibold">pendente</span> — domine o item na revisão e ela volta sozinha.
+                ? t("player.skippedBreathTopic")
+                : t("player.skippedBreathNext")}
             </div>
           )}
 
           {!recovered && stars === 2 && (lessonPendingStars[lesson.id]?.length ?? 0) === 0 && (
             <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
               {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
-                ? "Lição do tema concluída. Continue até 4/4 para liberar o próximo. Estrelas medem qualidade, não o anel."
+                ? t("player.topicLessonDoneContinue")
                 : isTopicMasteryLesson(lesson)
-                  ? "Tema 4/4. Estrelas continuam medindo a qualidade desta sessão."
-                  : "Etapa concluída. Estrelas medem qualidade; o avanço curricular usa o caminho da Jornada."}
+                  ? t("player.topicMasteredStars")
+                  : t("player.stageDoneStars")}
             </div>
           )}
 
@@ -4180,7 +4179,7 @@ export function LessonPlayer() {
           <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
             <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
             <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
-            <MetricChip value={`${precision}%`} label="precisão" tone={precision >= 80 ? "good" : "neutral"} />
+            <MetricChip value={`${precision}%`} label={t("player.accuracy")} tone={precision >= 80 ? "good" : "neutral"} />
             {extraRewards.map((reward) => (
               <MetricChip
                 key={reward.id}
@@ -4202,8 +4201,8 @@ export function LessonPlayer() {
             ) : (
               saveStatusLabel
             )}{" "}
-            · XP total agora {postLessonXpTotal}
-            {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · recompensas recebidas ✓</span>}
+            · {t("player.xpTotalNow", { n: postLessonXpTotal })}
+            {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · {t("player.rewardsReceived")}</span>}
           </div>
 
           {/* 2 · Próximo foco — card compacto com CTA. */}
@@ -4226,27 +4225,27 @@ export function LessonPlayer() {
 
           {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
           <div className="mt-2.5 grid gap-1.5 text-left">
-            <CollapsibleInfoCard title="Rever resultados" compactLabel={`~${estimatedMinutes} min`}>
+            <CollapsibleInfoCard title={t("player.reviewResults")} compactLabel={`~${estimatedMinutes} min`}>
               <div className="grid grid-cols-3 gap-2">
                 {topSummaryStats.map((item) => (
                   <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
                 ))}
-                <LessonSummaryStat label="Precisão" value={`${precision}%`} />
+                <LessonSummaryStat label={t("player.accuracy")} value={`${precision}%`} />
                 <LessonSummaryStat
-                  label="Erros corrigidos"
+                  label={t("player.errorsCorrected")}
                   value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
                 />
-                <LessonSummaryStat label="P/ revisão" value={`${reviewItemsAdded}`} />
+                <LessonSummaryStat label={t("player.forReview")} value={`${reviewItemsAdded}`} />
               </div>
               <p className="mt-2 text-xs leading-5 text-ink-soft">
-                {sessionSummaryLine} Foram ~{estimatedMinutes} min de prática
-                {reviewItemsAdded > 0 ? ` e ${reviewItemsAdded} itens entraram na revisão.` : "."}
+                {sessionSummaryLine} {t("player.practiceMinutes", { n: estimatedMinutes })}
+                {reviewItemsAdded > 0 ? ` ${t("player.itemsEnteredReview", { n: reviewItemsAdded })}` : "."}
               </p>
             </CollapsibleInfoCard>
 
             <CollapsibleInfoCard
-              title="Missões atualizadas"
-              compactLabel={missionHighlights.length > 0 ? `${missionHighlights.length} atualizada(s)` : `${monthlyProgress}/${MONTHLY_GOAL} mensal`}
+              title={t("player.missionsUpdated")}
+              compactLabel={missionHighlights.length > 0 ? t("player.updatedCount", { n: missionHighlights.length }) : t("player.monthlyCount", { n: `${monthlyProgress}/${MONTHLY_GOAL}` })}
               defaultOpen={false}
             >
               <ProgressBar value={monthlyProgress} max={MONTHLY_GOAL} className="h-2" />
@@ -4258,17 +4257,17 @@ export function LessonPlayer() {
                 </div>
               ) : (
                 <div className="mt-2.5 rounded-[16px] border border-line bg-surface-2 px-3 py-2.5 text-xs text-ink-soft">
-                  Continue praticando para completar a próxima missão.
+                  {t("player.keepPracticingMission")}
                 </div>
               )}
               <Link to="/missoes" className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-                Ver missões <IconChevron width={13} height={13} />
+                {t("player.seeMissions")} <IconChevron width={13} height={13} />
               </Link>
             </CollapsibleInfoCard>
 
             {(suggestsPinyinLab || suggestsHanziLab) && (
-              <CollapsibleInfoCard title="Reforço guiado" compactLabel="Prática curta">
-                <div className="text-sm font-medium text-ink">Quer reforçar este ponto?</div>
+              <CollapsibleInfoCard title={t("player.guidedReinforcement")} compactLabel={t("player.shortPractice")}>
+                <div className="text-sm font-medium text-ink">{t("player.wantReinforceThis")}</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {suggestsPinyinLab && (
                     <ButtonLink to="/pinyin" variant="outline" size="sm">
@@ -4284,7 +4283,7 @@ export function LessonPlayer() {
               </CollapsibleInfoCard>
             )}
 
-            <CollapsibleInfoCard title="Deixar feedback" compactLabel="Opcional">
+            <CollapsibleInfoCard title={t("player.leaveFeedback")} compactLabel={t("common.optional")}>
               <FeedbackPrompt
                 context={{
                   screen: `/licao/${lesson.id}/player`,
@@ -4357,7 +4356,7 @@ export function LessonPlayer() {
               data-testid="topic-victory-return"
               onClick={handlePrimaryAction}
             >
-              {hasUnclaimedRewards ? "Receber recompensas" : journeyCta}
+              {hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -4586,7 +4585,7 @@ export function LessonPlayer() {
                       playSoundFx("blocked", soundEffects);
                       setProPaywallKind("qi");
                     }}>
-                      Ver Pro
+                      {t("player.seeProShort")}
                     </Button>
                   )}
                 </>
@@ -4596,19 +4595,19 @@ export function LessonPlayer() {
                     {t("player.continue")}
                   </Button>
                   <ButtonLink to="/missoes" variant="outline" className="w-full">
-                    <IconStar width={16} height={16} /> Ganhar Qi em missões
+                    <IconStar width={16} height={16} /> {t("player.earnQiMissions")}
                   </ButtonLink>
                   <Button variant="soft" className="w-full" onClick={() => {
                     playSoundFx("blocked", soundEffects);
                     setProPaywallKind("qi");
                   }}>
-                    Ver Longyu Pro
+                    {t("player.seeLongyuPro")}
                   </Button>
                 </>
               )}
             </div>
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Avançar sem refazer gasta 1 vida.
+              {t("player.advanceCostsLife")}
             </p>
           </div>
         </ModalOverlay>

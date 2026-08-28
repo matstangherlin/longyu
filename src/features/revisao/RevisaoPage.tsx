@@ -22,9 +22,11 @@ import { getHanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { formatDate } from "../../i18n/format";
+import { t as catalogT } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeReviewExercise } from "../../i18n/overlays/localizeReview";
 import { scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import {
@@ -256,9 +258,9 @@ const FREE_REVIEW_LIMIT = FREE_REVIEW_SESSION_LIMIT;
 const RECENT_ERROR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 function itemLabel(item: SRSItem): string {
-  if (item.type === "chunk") return "Frase";
-  if (item.type === "radical") return "Peça";
-  return "Caractere";
+  if (item.type === "chunk") return catalogT("review.itemPhrase");
+  if (item.type === "radical") return catalogT("review.itemPiece");
+  return catalogT("review.itemCharacter");
 }
 
 function reviewTrack(domain: ReviewDomain): Track {
@@ -318,11 +320,11 @@ function domainForItem(item: SRSItem): ReviewDomain {
 }
 
 function reviewStateLabel(item: SRSItem): string {
-  if (item.lapses > 0 && item.reps <= 1) return "fraco";
-  if (item.reps === 0) return "novo";
-  if (item.reps >= 5 || item.intervalDays >= 14) return "dominado";
-  if (item.reps >= 3 || item.intervalDays >= 7) return "quase aprendido";
-  return "em revisão";
+  if (item.lapses > 0 && item.reps <= 1) return catalogT("review.stateWeak");
+  if (item.reps === 0) return catalogT("review.stateNew");
+  if (item.reps >= 5 || item.intervalDays >= 14) return catalogT("review.stateMastered");
+  if (item.reps >= 3 || item.intervalDays >= 7) return catalogT("review.stateAlmost");
+  return catalogT("review.stateReviewing");
 }
 
 function focusForQueue(queue: ReviewQueueEntry[]): { domain: ReviewDomain; score: number; count: number } | null {
@@ -933,6 +935,7 @@ function DetailedErrorsPanel({
   activeErrors: ActivityErrorRecord[];
   onCorrectWeakness: () => void;
 }) {
+  const { t } = useTranslation();
   const sortedErrors = [...errors].sort((a, b) => b.timestamp - a.timestamp);
   const priorityError = [...activeErrors].sort(
     (a, b) => (b.wrongCount ?? 1) - (a.wrongCount ?? 1) || b.timestamp - a.timestamp
@@ -950,11 +953,11 @@ function DetailedErrorsPanel({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-serif text-xl font-semibold text-ink sm:text-2xl">Pontos fracos</h2>
+              <h2 className="font-serif text-xl font-semibold text-ink sm:text-2xl">{t("review.weakPoints")}</h2>
               <Pill tone="gold">Pro</Pill>
             </div>
             <p className="mt-1 max-w-xl text-sm leading-6 text-ink-soft">
-              Erros da Jornada e treinos voltam aqui. Resolva em rodadas curtas — se falhar de novo, o item reaparece.
+              {t("review.errorsReturnHere")}
             </p>
           </div>
           <Button
@@ -963,7 +966,7 @@ function DetailedErrorsPanel({
             disabled={activeErrors.length === 0}
             onClick={onCorrectWeakness}
           >
-            <span className="leading-none">Corrigir pontos fracos</span>
+            <span className="leading-none">{t("review.correctWeakPoints")}</span>
             <IconChevron width={18} height={18} aria-hidden="true" />
           </Button>
         </div>
@@ -1503,18 +1506,18 @@ export function RevisaoPage() {
               </p>
               {correctionDrill && returningItems.length > 0 && (
                 <p className="mt-3 rounded-xl border border-accent/25 bg-accent-soft/30 px-3 py-2 text-sm text-ink-soft">
-                  {returningItems.length} ponto(s) fraco(s) voltam para esta ala se você errar de novo na Jornada.
+                  {t("review.weakReturnCount", { n: returningItems.length })}
                 </p>
               )}
               {(sessionInsight.strengths.length > 0 || sessionInsight.weaknesses.length > 0) && (
                 <div className="mt-5 grid gap-3 text-left sm:grid-cols-2">
-                  <ReviewInsightGroup title="Pontos fortes" items={sessionInsight.strengths} tone="good" />
-                  <ReviewInsightGroup title="Pontos fracos" items={sessionInsight.weaknesses} tone="accent" />
+                  <ReviewInsightGroup title={t("review.strengths")} items={sessionInsight.strengths} tone="good" />
+                  <ReviewInsightGroup title={t("review.weakPoints")} items={sessionInsight.weaknesses} tone="accent" />
                 </div>
               )}
               {sessionInsight.returning.length > 0 && (
                 <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-left text-sm text-ink-soft">
-                  <div className="font-semibold text-ink">Voltam em breve</div>
+                  <div className="font-semibold text-ink">{t("review.returningSoon")}</div>
                   <p className="mt-1">{sessionInsight.returning.join(" · ")}</p>
                 </div>
               )}
@@ -1742,7 +1745,7 @@ export function RevisaoPage() {
                 <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
                   Rodada {currentRound} de {totalRounds}
                 </div>
-                <h1 className="mt-1 font-serif text-2xl font-semibold text-ink">Corrigir pontos fracos</h1>
+                <h1 className="mt-1 font-serif text-2xl font-semibold text-ink">{t("review.correctWeakPoints")}</h1>
                 <p className="mt-1 text-sm text-ink-soft">
                   Tarefas variadas sobre o que você errou. Se falhar de novo, o item volta nesta fila.
                 </p>
@@ -1779,31 +1782,31 @@ export function RevisaoPage() {
       {!correctionDrill && detailedErrorsAllowed && (
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ReviewSummaryTile
-          label="Revisão de hoje"
+          label={t("review.todayReview")}
           value={queue.length}
-          detail={focus ? `Foco: ${REVIEW_DOMAIN_META[focus.domain].shortLabel}` : "Fila adaptativa"}
+          detail={focus ? t("review.focusPrefix", { focus: displayInstruction(REVIEW_DOMAIN_META[focus.domain].shortLabel) }) : t("review.adaptiveQueue")}
         />
         <>
         <ReviewSummaryTile
-          label="Erros recentes"
+          label={t("review.recentErrors")}
           value={recentErrorsCount}
-          detail={`${activeActivityErrors.length} pendente(s)`}
+          detail={t("review.pendingCount", { n: activeActivityErrors.length })}
           tone={activeActivityErrors.length > 0 ? "accent" : "muted"}
         />
         <ReviewSummaryTile
-          label="Itens fracos"
+          label={t("review.weakItems")}
           value={weakItemsCount}
-          detail="Aparecem com prioridade"
+          detail={t("review.appearPriority")}
           tone={weakItemsCount > 0 ? "accent" : "muted"}
         />
         <Card className="p-4">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Corrigir erros agora
+            {t("review.correctErrorsNow")}
           </div>
           <p className="mt-2 text-sm leading-5 text-ink-soft">
             {activeActivityErrors.length > 0
-              ? "Abre rodadas curtas só com pontos fracos."
-              : "Sem erro pendente no momento."}
+              ? t("review.opensShortRounds")
+              : t("review.noPendingError")}
           </p>
           <Button
             size="sm"
@@ -1811,7 +1814,7 @@ export function RevisaoPage() {
             disabled={modeCounts.mistakes === 0 && modeCounts.weak === 0}
             onClick={() => startCorrectionDrill("mistakes")}
           >
-            {modeCounts.mistakes > 0 || modeCounts.weak > 0 ? "Corrigir agora" : "Tudo certo"}
+            {modeCounts.mistakes > 0 || modeCounts.weak > 0 ? t("review.correctNow") : t("review.allGood")}
           </Button>
         </Card>
         </>
@@ -1827,30 +1830,30 @@ export function RevisaoPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                Revisão de hoje
+                {t("review.todayReview")}
               </div>
               <div className="mt-0.5 flex items-baseline gap-2">
                 <span className="font-serif text-2xl font-semibold tabular-nums text-ink">{queue.length}</span>
                 <span className="text-sm text-ink-soft">
-                  {queue.length === 1 ? "prioridade" : "prioridades"} na fila gratuita
+                  {queue.length === 1 ? t("review.priority") : t("review.priorities")} {t("review.inFreeQueue")}
                 </span>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Pill tone="muted">Básica</Pill>
+              <Pill tone="muted">{t("review.basicPill")}</Pill>
               {!isPremium && fullQueue.length > FREE_REVIEW_LIMIT && (
-                <Pill tone="muted">Grátis: {FREE_REVIEW_LIMIT}/{fullQueue.length}</Pill>
+                <Pill tone="muted">{t("review.freeQuota", { used: FREE_REVIEW_LIMIT, total: fullQueue.length })}</Pill>
               )}
             </div>
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
-            A fila gratuita prioriza os itens vencidos do dia.{" "}
+            {t("review.freeQueuePrioritizes")}{" "}
             <button
               type="button"
               onClick={() => openPaywall("errors")}
               className="font-medium text-gold underline decoration-gold/35 underline-offset-2 transition hover:decoration-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
-              Histórico, filtros e padrões de erro ficam no Pro.
+              {t("review.historyPro")}
             </button>
           </p>
         </Card>
@@ -1868,23 +1871,23 @@ export function RevisaoPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-              Plano de hoje
+              {t("review.todayPlan")}
             </div>
             <h2 className="mt-1 font-serif text-xl font-semibold text-ink">
-              {queue.length} {queue.length === 1 ? "prioridade de revisão" : "prioridades de revisão"}
+              {queue.length} {queue.length === 1 ? t("review.reviewPriorityOne") : t("review.reviewPriorityMany")}
             </h2>
             <p className="mt-1 text-sm text-ink-soft">
               {focus
-                ? `Foco principal: ${REVIEW_DOMAIN_META[focus.domain].weaknessLabel}. O Longyu mistura formatos para evitar repetição.`
-                : "Sem fraqueza clara nesta sessão. O Longyu mistura formatos para evitar repetição."}
+                ? t("review.focusMain", { focus: displayInstruction(REVIEW_DOMAIN_META[focus.domain].weaknessLabel) })
+                : t("review.noClearWeakness")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Pill tone={focus ? "accent" : "muted"}>
-              {focus ? REVIEW_DOMAIN_META[focus.domain].cardLabel : "Fila limpa"}
+              {focus ? displayInstruction(REVIEW_DOMAIN_META[focus.domain].cardLabel) : t("review.cleanQueue")}
             </Pill>
             {!isPremium && fullQueue.length > FREE_REVIEW_LIMIT && (
-              <Pill tone="muted">Grátis: {FREE_REVIEW_LIMIT}/{fullQueue.length}</Pill>
+              <Pill tone="muted">{t("review.freeQuota", { used: FREE_REVIEW_LIMIT, total: fullQueue.length })}</Pill>
             )}
           </div>
         </div>
@@ -1895,7 +1898,7 @@ export function RevisaoPage() {
         {!correctionDrill && detailedErrorsAllowed && (
         <Card className="mb-4 p-4">
           <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Fila inteligente
+            {t("review.smartQueue")}
           </div>
           <div className="flex flex-wrap gap-2">
             {REVIEW_DOMAIN_ORDER.map((domain) => {
@@ -1903,24 +1906,23 @@ export function RevisaoPage() {
               if (count === 0) return null;
               return (
                 <Pill key={domain} tone={domain === domainForEntry(entry) ? "accent" : "muted"}>
-                  {REVIEW_DOMAIN_META[domain].shortLabel} · {count}
+                  {displayInstruction(REVIEW_DOMAIN_META[domain].shortLabel)} · {count}
                 </Pill>
               );
             })}
           </div>
           <p className="mt-2 text-xs text-ink-faint">
-            Itens com erro e domínios fracos vêm primeiro, mas o Longyu intercala para não repetir o mesmo cartão em
-            sequência.
+            {t("review.smartQueueHint")}
           </p>
         </Card>
         )}
 
         <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-faint">
           <div className="flex flex-wrap items-center gap-2">
-            <Pill tone="accent">{correctionDrill ? "Pontos fracos" : detailedErrorsAllowed ? domainMeta.label : "Revisão"}</Pill>
-            {detailedErrorsAllowed && sourceError && <Pill tone="accent">Erro real</Pill>}
+            <Pill tone="accent">{correctionDrill ? t("review.weakPoints") : detailedErrorsAllowed ? displayInstruction(domainMeta.label) : t("review.title")}</Pill>
+            {detailedErrorsAllowed && sourceError && <Pill tone="accent">{t("review.realError")}</Pill>}
             <Pill>{itemLabel(item)}</Pill>
-            {detailedErrorsAllowed && !correctionDrill && <Pill tone="muted">{domainMeta.cardLabel}</Pill>}
+            {detailedErrorsAllowed && !correctionDrill && <Pill tone="muted">{displayInstruction(domainMeta.cardLabel)}</Pill>}
             {detailedErrorsAllowed && (
               <Pill tone={item.lapses > 0 && item.reps === 0 ? "accent" : "muted"}>
                 {reviewStateLabel(item)}
@@ -1937,14 +1939,14 @@ export function RevisaoPage() {
         <Card className="p-6 sm:p-8">
           <div className="mb-3 text-center text-sm font-medium text-ink-soft">
             {correctionDrill
-              ? "Responda com atenção — formatos variam para fixar o ponto fraco."
+              ? t("review.answerCarefully")
               : detailedErrorsAllowed
-                ? domainMeta.helper
-                : "Responda, confira e siga para o proximo item."}
+                ? displayInstruction(domainMeta.helper)
+                : t("review.answerCheckNext")}
           </div>
           <div className="mb-4 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint">
-            {correctionDrill ? `Tarefa · ${domainMeta.shortLabel}` : `Revisar: ${describeNextDue(item)}`} ·{" "}
-            {activeExercise.fallback ? "fallback flashcard" : "tarefa ativa"}
+            {correctionDrill ? t("review.taskOf", { label: displayInstruction(domainMeta.shortLabel) }) : t("review.reviewOf", { label: describeNextDue(item) === "agora" ? t("review.dueNow") : describeNextDue(item) })} ·{" "}
+            {activeExercise.fallback ? t("review.fallbackFlashcard") : t("review.activeTask")}
           </div>
           {/* Revisão de forma via carta de montagem (HanziBuilderExercise). */}
           {reviewBuilder ? (

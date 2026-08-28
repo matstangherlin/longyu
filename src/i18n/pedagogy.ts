@@ -1,11 +1,22 @@
 /**
- * Pedagogical localization contract (V4.8.0).
+ * Pedagogical localization contract (V4.8.0 → V4.8.3).
  *
- * Canonical Chinese (hanzi, pinyin, tone, audio, lexical/SRS ids) is a single
- * object. Do NOT ship lesson-001-pt.ts / lesson-001-en.ts.
+ * Two layers, never two Journeys:
  *
- * Instruction copy (translation, hint, explanation) is a locale overlay.
- * Full Journey overlays are OUT OF SCOPE for V4.8.0 — types only.
+ * CANONICAL PEDAGOGY (locale-invariant)
+ *   lessonId · topicId · stepId · targetId · hanzi · pinyin · audio
+ *   answer identity · difficulty · pass · mastery · SRS itemId
+ *
+ * LOCALIZED PEDAGOGY (interface locale overlay)
+ *   title · instruction · explanation · hint · feedback
+ *   source-language gloss · context copy · grammar note
+ *
+ * Do NOT ship journey-en.ts / lesson-en.ts / topic21-en.ts.
+ * Canonical Chinese stays in the pt-BR source tree. English is overlay-only.
+ *
+ * V4.8.2 first 20: PT-text-as-key compatibility overlay.
+ * V4.8.3 topics 21–50: stable loc ids `p.{topicId}.m{pass}.s{nn}.{field}`
+ * plus the same PT-text overlay as a compatibility resolver.
  */
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "./config";

@@ -36,6 +36,9 @@ const EXTRA_EN_ALIASES: Record<string, string> = {
   same: "Iguais",
   Different: "Diferentes",
   different: "Diferentes",
+  "I'm Brazilian": "Sou brasileiro",
+  "I am Brazilian": "Sou brasileiro",
+  "How are you?": "Tudo bem?",
 };
 
 const EN_TO_PT = new Map<string, string>();

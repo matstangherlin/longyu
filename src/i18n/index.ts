@@ -71,6 +71,15 @@ export {
   isFirst20TeachingTopic,
 } from "./overlays/first20";
 export {
+  TOPICS_21_50_TEACHING_TOPIC_IDS,
+  TOPICS_1_50_TEACHING_TOPIC_IDS,
+  FAIL_CLOSED_TEACHING_TOPIC_COUNT,
+  isTopics2150TeachingTopic,
+  isTopics150TeachingTopic,
+  pedagogyLocId,
+  pedagogyMetaLocId,
+} from "./overlays/teachingTopics";
+export {
   resolveInstructionText,
   answersEquivalent,
   scoredAnswersMatch,

@@ -34,7 +34,7 @@ assert(!/Você errou \${count}/.test(player) && !/Você errou \$\{count\}/.test(
 assert(/REVIEW_OFFER/.test(player) || /Começar revisão/.test(player), "CTA Começar revisão (REVIEW_OFFER)");
 assert(!/Próximo erro/.test(player), "sem Próximo erro");
 assert(!/Continuar e perder perfeição/.test(player.replace(/\/\/.*/g, "")), "CTA Continuar sem culpa");
-assert(/Avançar sem refazer gasta 1 vida/.test(player), "footnote curta");
+assert(/Avançar sem refazer gasta 1 vida/.test(player) || /player\.advanceCostsLife/.test(player), "footnote curta");
 assert(/player\.retryTitle/.test(player) || /Quer tentar de novo\?/.test(player), "modal acolhedor");
 assert(
   /REVIEW_QUESTION/.test(player) || /Isso mesmo!/.test(player) || /Quase — veja a resposta certa/.test(player),

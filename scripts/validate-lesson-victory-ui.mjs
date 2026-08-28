@@ -11,10 +11,10 @@ function requireMatch(label, pattern) {
 
 requireMatch('max-w-xl na vitória', /max-w-xl flex-col/);
 requireMatch('chips de métricas', /MetricChip value=\{`\+\$\{lessonXp\}`\}/);
-requireMatch('botão Receber recompensas', /Receber recompensas/);
+requireMatch('botão Receber recompensas', /Receber recompensas|player\.claimRewards/);
 requireMatch('botão Continuar Jornada', /player\.continueJourney/);
 requireMatch('botão Voltar à Jornada (tema)', /player\.backToJourney/);
-requireMatch('recompensas inline', /recompensas recebidas/);
+requireMatch('recompensas inline', /recompensas recebidas|player\.rewardsReceived/);
 requireMatch('accordions fechados por padrão', /defaultOpen=\{false\}/);
 
 if (/postLessonView === "rewards"/.test(player)) {

@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-08-28T22:25:47.330Z",
+  "rule": "ALL_LESSONS.filter(isTopicMasteryLesson)",
+  "teachingTopicCount": 113,
+  "EnglishJourney": {
+    "1-20": "READY",
+    "21-50": "READY",
+    "51-113": "NOT_YET_LOCALIZED"
+  },
+  "laterMissingSample": [
+    "Reconhecer e usar o hànzì 人 (pessoa).",
+    "forma e som de 人",
+    "Distinguir 人 de caracteres vizinhos.",
+    "我会说一点中文 avisa o nível e quase sempre faz a outra pessoa simplificar.",
+    "ver 人 numa palavra ou contexto já conhecido",
+    "Encontrar 人 num contexto conhecido, com menos pinyin.",
+    "人 escreve a ideia de pessoa.",
+    "identificar/montar 人",
+    "人 é só um desenho, sem som.",
+    "Ver 人 e ligar à ideia de pessoa.",
+    "Reconhecer ou montar 人.",
+    "Reconhecer e usar o hànzì 口 (boca)."
+  ]
+}

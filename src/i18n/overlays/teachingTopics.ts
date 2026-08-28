@@ -1,0 +1,99 @@
+/**
+ * Teaching-topic slices for pedagogical localization.
+ *
+ * Identity is programmatic:
+ *   ALL_LESSONS.filter(isTopicMasteryLesson).slice(start, end)
+ *
+ * Const arrays below MUST match that slice. Validators fail on drift.
+ * One topic = one lesson.id. M1–M4 are mastery passes of that id.
+ *
+ * First 20 keep PT-text overlay as the compatibility resolver (V4.8.2).
+ * Topics 21–50 also have stable loc ids (V4.8.3). Topic 51+ may still fall back.
+ */
+
+import {
+  FIRST_20_TEACHING_TOPIC_IDS,
+  isFirst20TeachingTopic,
+} from "./first20";
+
+export {
+  FIRST_20_TEACHING_TOPIC_IDS,
+  isFirst20TeachingTopic,
+  FIRST_20_PHASE_IDS,
+  FIRST_20_UNIT_IDS,
+} from "./first20";
+export type { First20TeachingTopicId } from "./first20";
+
+/** ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 50) */
+export const TOPICS_21_50_TEACHING_TOPIC_IDS = [
+  "p2-comparar-tom-2-3",
+  "p2-tons-xiexie",
+  "l5",
+  "l6",
+  "l7",
+  "l8",
+  "l8-compare",
+  "l8-shi",
+  "p2-sons-brasileiros",
+  "p2-numeros-1-5",
+  "l9",
+  "l9-tudo-bem",
+  "l9-qual-nome",
+  "l10",
+  "p3-wobuhui-shuo-zhongwen",
+  "p3-qing-zai-shuo-yibian",
+  "l11",
+  "l11-falo-pouco",
+  "l12",
+  "l13",
+  "l13-dialogo-ola",
+  "l13-dialogo-nome",
+  "p3-ordem-das-palavras",
+  "p3-nomes-da-frase",
+  "l14",
+  "p4-num-123",
+  "p4-num-45",
+  "p4-num-678",
+  "p4-num-910",
+  "p4-char-mu",
+] as const;
+
+export type Topics2150TeachingTopicId = (typeof TOPICS_21_50_TEACHING_TOPIC_IDS)[number];
+
+const TOPICS_21_50_SET = new Set<string>(TOPICS_21_50_TEACHING_TOPIC_IDS);
+
+export function isTopics2150TeachingTopic(lessonId: string | null | undefined): boolean {
+  return Boolean(lessonId && TOPICS_21_50_SET.has(lessonId));
+}
+
+/** Fail-closed English overlay applies to teaching topics 1–50. */
+export const FAIL_CLOSED_TEACHING_TOPIC_COUNT = 50;
+
+export const TOPICS_1_50_TEACHING_TOPIC_IDS = [
+  ...FIRST_20_TEACHING_TOPIC_IDS,
+  ...TOPICS_21_50_TEACHING_TOPIC_IDS,
+] as const;
+
+export function isTopics150TeachingTopic(lessonId: string | null | undefined): boolean {
+  return isFirst20TeachingTopic(lessonId) || isTopics2150TeachingTopic(lessonId);
+}
+
+/**
+ * Stable loc id for a localizable field on a planned pass step.
+ * Canonical Chinese fields are never given loc ids.
+ *
+ * Example: p.l9.m1.s03.instruction
+ */
+export function pedagogyLocId(
+  topicId: string,
+  pass: number,
+  stepIndex: number,
+  field: string
+): string {
+  const nn = String(stepIndex + 1).padStart(2, "0");
+  return `p.${topicId}.m${pass}.s${nn}.${field}`;
+}
+
+export function pedagogyMetaLocId(topicId: string, field: string): string {
+  return `p.${topicId}.meta.${field}`;
+}

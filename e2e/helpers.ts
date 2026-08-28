@@ -233,6 +233,32 @@ export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
   }));
 }
 
+/** Unlocks a Journey topic by marking every prior lesson 4/4. */
+export async function seedUnlockedLessonSession(
+  page: Page,
+  lessonId: string,
+  extra: SeedState = {}
+) {
+  const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  const completedLessons = ALL_LESSONS.slice(0, Math.max(0, index)).map((lesson) => lesson.id);
+  await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons,
+    lessonStarsById: Object.fromEntries(completedLessons.map((id) => [id, 3])),
+    lessonMasteryById: topicPathMasteryById(completedLessons),
+    isPremium: true,
+    serverIsPro: true,
+    points: 40,
+    folego: 20,
+    holdAchievementModals: true,
+    ...extra,
+  }));
+}
+
 /** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
 export async function seedFoundationThrough(page: Page, throughLessonId: string) {
   await seedTelemetryDeclined(page);

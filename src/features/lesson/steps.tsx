@@ -43,7 +43,6 @@ import { conceptForSlot, formatConceptLabel, resolveSlotLabel } from "../../data
 import {
   clampProductionHelpLevel,
   nextProductionHelpLevel,
-  productionHelpLevelLabel,
   unlockProductionHelpAfterMistake,
   type ProductionHelpLevel,
 } from "../../data/productionHelp";
@@ -1365,7 +1364,7 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake, lessonId, attemp
         <>
           <div className="mt-3.5 min-h-[3.75rem] rounded-2xl border border-dashed border-line bg-surface-2 p-2.5">
             {picked.length === 0 ? (
-              <p className="py-2 text-center text-sm text-ink-faint">Monte aqui o que você ouviu.</p>
+              <p className="py-2 text-center text-sm text-ink-faint">{t("player.buildWhatYouHeard")}</p>
             ) : (
               <div className="flex flex-wrap justify-center gap-2">
                 {picked.map((token, index) => (
@@ -2035,7 +2034,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
 
   return (
     <div>
-      <Eyebrow>Escuta ativa</Eyebrow>
+      <Eyebrow>{t("player.activeListen")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt ?? "Ouça e escolha a resposta certa."}</p>
 
@@ -2184,20 +2183,20 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>{audioFallback ? "Escuta · modo visual" : "Escuta ativa"}</Eyebrow>
+      <Eyebrow>{audioFallback ? t("player.listenVisualMode") : t("player.activeListen")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {audioFallback ? "Leia e escolha" : step.title ?? "Toque no que escutar"}
+        {audioFallback ? t("player.readAndChoose") : step.title ?? t("player.tapWhatYouHear")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
         {audioFallback
-          ? "Sem áudio — responda pelo pinyin. A escuta volta na revisão."
-          : step.prompt ?? "Toque no que escutar:"}
+          ? t("player.noAudioPinyin")
+          : step.prompt ?? t("player.tapWhatYouHear")}
       </p>
 
       {audioFallback ? (
         <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-4 text-center">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Você ouviria
+            {t("player.youWouldHear")}
           </div>
           <Pinyin text={fallbackPinyin} className="mt-2 block font-serif text-2xl" />
         </div>
@@ -2207,14 +2206,14 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
             type="button"
             onClick={playNormal}
             className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent text-white shadow-lift ring-4 ring-accent-soft transition hover:scale-105 active:scale-95"
-            aria-label="Ouvir áudio normal"
+            aria-label={t("player.listenNormalAria")}
           >
             <IconSound width={34} height={34} />
           </button>
           <div>
             <Button variant="outline" size="sm" onClick={playSlow}>
               <IconSound width={16} height={16} />
-              Áudio lento
+              {t("player.slowAudio")}
             </Button>
           </div>
         </div>
@@ -2254,7 +2253,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
         <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl bg-[rgb(var(--good)/0.12)] p-4 text-center text-sm font-semibold text-[rgb(var(--good))]">
           <div className="flex items-center justify-center gap-2">
             <IconCheck width={18} height={18} />
-            {audioFallback ? "Boa! Esta escuta volta na revisão." : "Boa, foi esse som."}
+            {audioFallback ? t("player.listenReturnsReview") : t("player.thatSound")}
           </div>
         </div>
       )}
@@ -2267,8 +2266,8 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {audioFallback
-              ? "Compare com o modelo e tente de novo."
-              : "Ouça de novo e tente outra vez."}
+              ? t("player.compareModelRetry")
+              : t("player.listenAgain")}
           </p>
           <div className={["mt-2 rounded-xl bg-surface/75 px-3 py-3 text-center font-semibold text-ink", isCjkText(answer) ? "hanzi text-3xl" : "text-base"].join(" ")}>
             <ExerciseText value={answer} type={isCjkText(answer) ? "hanzi" : "pt"} speakOnClick helpMode="disabled" />
@@ -2291,11 +2290,11 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
                 setFeedback(null);
               }}
             >
-              Não posso ouvir agora
+              {t("player.cannotListenNow")}
             </Button>
           ) : (
             <Button variant="outline" onClick={() => setAudioFallback(false)}>
-              Voltar ao áudio
+              {t("player.backToAudio")}
             </Button>
           )}
           {onSkip && (
@@ -3632,7 +3631,7 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
 
   return (
     <div>
-      <Eyebrow>{singlePlayback ? "Ditado · imersão" : "Ditado"}</Eyebrow>
+      <Eyebrow>{singlePlayback ? t("player.dictationImmersion") : t("player.dictation")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? modeLabel}
       </h2>
@@ -3644,19 +3643,19 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
           onClick={() => play(false)}
           disabled={playsLeft <= 0}
           className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent text-white shadow-lift ring-4 ring-accent-soft transition hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="Ouvir o ditado"
+          aria-label={t("player.listenDictationAria")}
         >
           <IconSound width={34} height={34} />
         </button>
         {singlePlayback ? (
           <div className="text-xs text-ink-soft">
-            {playsLeft > 0 ? "Velocidade natural — você ouve uma vez só." : "Reprodução usada. Escreva o que pegou."}
+            {playsLeft > 0 ? t("player.naturalOnce") : t("player.playbackUsed")}
           </div>
         ) : (
           <div>
             <Button variant="outline" size="sm" onClick={() => play(true)}>
               <IconSound width={16} height={16} />
-              Áudio lento
+              {t("player.slowAudio")}
             </Button>
           </div>
         )}
@@ -3666,7 +3665,7 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
         <>
           <div className="mt-3.5 min-h-[3.75rem] rounded-2xl border border-dashed border-line bg-surface-2 p-2.5">
             {picked.length === 0 ? (
-              <p className="py-2 text-center text-sm text-ink-faint">Monte aqui o que você ouviu.</p>
+              <p className="py-2 text-center text-sm text-ink-faint">{t("player.buildWhatYouHeard")}</p>
             ) : (
               <div className="flex flex-wrap justify-center gap-2">
                 {picked.map((token, index) => (
@@ -4400,15 +4399,15 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
           className="text-xs font-semibold text-accent underline decoration-accent/35 underline-offset-2 transition hover:decoration-accent"
           data-production-help-request
         >
-          Preciso de uma dica
+          {t("player.needHint")}
         </button>
       ) : null}
       {hadMistake && canRequestMore ? (
-        <span className="text-xs text-ink-mute">Mais ajuda liberada após o erro</span>
+        <span className="text-xs text-ink-mute">{t("player.moreHelpAfterError")}</span>
       ) : null}
       {helpLevel > initialHelp ? (
         <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
-          Ajuda · {productionHelpLevelLabel(helpLevel)}
+          {t("player.helpLevel", { level: t(`player.help${helpLevel}`) })}
         </span>
       ) : null}
     </div>

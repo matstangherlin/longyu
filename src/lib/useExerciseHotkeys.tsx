@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { t } from "../i18n/catalog";
 
 export type ExerciseHotkeyMode = "choice" | "pairs" | "builder" | "story" | "disabled";
 
@@ -178,7 +179,7 @@ export function ShortcutBadge({ children, className = "" }: { children: ReactNod
 export function KeyboardShortcutHint({ pairs = false }: { pairs?: boolean }) {
   return (
     <p className="mt-2 hidden text-[11px] font-medium text-ink-faint sm:block">
-      {pairs ? "Atalhos: 1-5 na esquerda, 6-0 na direita." : "Atalhos: use 1-9 para responder."}
+      {pairs ? t("player.shortcutHintPairs") : t("player.shortcutHint")}
     </p>
   );
 }

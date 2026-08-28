@@ -1,0 +1,1050 @@
+{
+  "generatedAt": "2026-08-28T21:59:10.495Z",
+  "rule": "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 50)",
+  "topics": [
+    {
+      "index": 21,
+      "topicId": "p2-comparar-tom-2-3",
+      "title": "Comparar 2º e 3º tom",
+      "skill": "som",
+      "passes": {
+        "1": 7,
+        "2": 7,
+        "3": 8,
+        "4": 7
+      },
+      "kinds": [
+        "contextual_choice",
+        "dialogue_choice",
+        "intro",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:ma2"
+      ]
+    },
+    {
+      "index": 22,
+      "topicId": "p2-tons-xiexie",
+      "title": "Tons em 谢谢",
+      "skill": "som",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "tone",
+        "tone_pair"
+      ],
+      "hasConversation": true,
+      "hasTransfer": false,
+      "libraryItems": [
+        "chunk:xiexie",
+        "char:xie"
+      ]
+    },
+    {
+      "index": 23,
+      "topicId": "l5",
+      "title": "Quatro tons",
+      "skill": "som",
+      "passes": {
+        "1": 7,
+        "2": 7,
+        "3": 8,
+        "4": 7
+      },
+      "kinds": [
+        "contextual_choice",
+        "dialogue_choice",
+        "intro",
+        "listen",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:ma2",
+        "char:ma_hemp",
+        "char:ma_horse",
+        "char:ma_scold"
+      ]
+    },
+    {
+      "index": 24,
+      "topicId": "l6",
+      "title": "Treino guiado",
+      "skill": "som",
+      "passes": {
+        "1": 8,
+        "2": 7,
+        "3": 9,
+        "4": 8
+      },
+      "kinds": [
+        "contextual_choice",
+        "dialogue_choice",
+        "fill_blank",
+        "intro",
+        "listen",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:ma2",
+        "char:ma_hemp",
+        "char:ma_horse",
+        "char:ma_scold",
+        "char:ma_question",
+        "chunk:nihaoma",
+        "char:ni",
+        "char:hao",
+        "chunk:nihao"
+      ]
+    },
+    {
+      "index": 25,
+      "topicId": "l7",
+      "title": "A sílaba yao",
+      "skill": "som",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 8,
+        "4": 8
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "dialogue_choice",
+        "fill_blank",
+        "intro",
+        "listen",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:yao_bite",
+        "char:yao_shake"
+      ]
+    },
+    {
+      "index": 26,
+      "topicId": "l8",
+      "title": "Tons em 好 e 谢",
+      "skill": "som",
+      "passes": {
+        "1": 7,
+        "2": 7,
+        "3": 8,
+        "4": 7
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "dialogue_choice",
+        "intro",
+        "listen",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:hao",
+        "char:xie",
+        "chunk:nihao",
+        "char:ni"
+      ]
+    },
+    {
+      "index": 27,
+      "topicId": "l8-compare",
+      "title": "Compare tons",
+      "skill": "som",
+      "passes": {
+        "1": 7,
+        "2": 7,
+        "3": 8,
+        "4": 7
+      },
+      "kinds": [
+        "contextual_choice",
+        "dialogue_choice",
+        "intro",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:ma2"
+      ]
+    },
+    {
+      "index": 28,
+      "topicId": "l8-shi",
+      "title": "A sílaba shi",
+      "skill": "som",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 8
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "dialogue_choice",
+        "fill_blank",
+        "intro",
+        "listen",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:shi"
+      ]
+    },
+    {
+      "index": 29,
+      "topicId": "p2-sons-brasileiros",
+      "title": "Sons que brasileiros confundem",
+      "skill": "som",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "hanzi_build",
+        "intro",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "tone_pair"
+      ],
+      "hasConversation": true,
+      "hasTransfer": false,
+      "libraryItems": [
+        "chunk:xiexie",
+        "chunk:tingbudong",
+        "chunk:qingzaishuoyibian",
+        "char:shi",
+        "char:qing_pls",
+        "char:zhong",
+        "char:nv"
+      ]
+    },
+    {
+      "index": 30,
+      "topicId": "p2-numeros-1-5",
+      "title": "Números por som",
+      "skill": "som",
+      "passes": {
+        "1": 7,
+        "2": 7,
+        "3": 8,
+        "4": 7
+      },
+      "kinds": [
+        "contextual_choice",
+        "dialogue_choice",
+        "intro",
+        "listen",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "tone"
+      ],
+      "hasConversation": false,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:yi",
+        "char:er",
+        "char:san",
+        "char:si",
+        "char:wu"
+      ]
+    },
+    {
+      "index": 31,
+      "topicId": "l9",
+      "title": "Me apresentar",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "listen",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "substitution_drill"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wojiao",
+        "chunk:nijiaoshenme",
+        "chunk:wature",
+        "chunk:nishinaiguoren",
+        "chunk:qingzuo"
+      ]
+    },
+    {
+      "index": 32,
+      "topicId": "l9-tudo-bem",
+      "title": "Tudo bem?",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "free_production",
+        "image_choice",
+        "listen",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "substitution_drill"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:nihaoma",
+        "chunk:wohenhao",
+        "chunk:zenmeyang"
+      ]
+    },
+    {
+      "index": 33,
+      "topicId": "l9-qual-nome",
+      "title": "Como você se chama?",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "listen",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:nijiaoshenme",
+        "chunk:wojiao",
+        "chunk:nihao"
+      ]
+    },
+    {
+      "index": 34,
+      "topicId": "l10",
+      "title": "De onde sou",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "free_production",
+        "image_choice",
+        "listen",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "substitution_drill"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wature",
+        "chunk:nishinaiguoren",
+        "chunk:woshixuesheng",
+        "chunk:renshinihengaoxing",
+        "chunk:nihao",
+        "chunk:wojiao",
+        "char:ni",
+        "char:ren"
+      ]
+    },
+    {
+      "index": 35,
+      "topicId": "p3-wobuhui-shuo-zhongwen",
+      "title": "我不会说中文",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wobuhui",
+        "chunk:nihao",
+        "chunk:wohenhao"
+      ]
+    },
+    {
+      "index": 36,
+      "topicId": "p3-qing-zai-shuo-yibian",
+      "title": "请再说一遍",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:qingzaishuoyibian",
+        "chunk:tingbudong",
+        "chunk:wohenhao"
+      ]
+    },
+    {
+      "index": 37,
+      "topicId": "l11",
+      "title": "Não entendi",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "listen",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:tingbudong",
+        "chunk:qingzaishuoyibian",
+        "chunk:wobuhui",
+        "chunk:dengyixia",
+        "chunk:qingmanyidian"
+      ]
+    },
+    {
+      "index": 38,
+      "topicId": "l11-falo-pouco",
+      "title": "Falo um pouco",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "listen",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "spot_error",
+        "substitution_drill"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wobuhui",
+        "chunk:wohuishuoyidian",
+        "chunk:qingzaishuoyibian",
+        "chunk:wozaixuezhongwen",
+        "chunk:nishixueshengma",
+        "chunk:woxuexizhongwen",
+        "chunk:wozaixuexiaoxuexi",
+        "chunk:shiwoshixuesheng",
+        "chunk:nixuexishenme"
+      ]
+    },
+    {
+      "index": 39,
+      "topicId": "l12",
+      "title": "Peças da frase",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wature",
+        "chunk:woshixuesheng",
+        "chunk:renshinihengaoxing",
+        "char:wo",
+        "char:shi",
+        "char:ren"
+      ]
+    },
+    {
+      "index": 40,
+      "topicId": "l13",
+      "title": "Microtexto 1",
+      "skill": "leitura",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "audio_to_action",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:nihao",
+        "chunk:xiexie",
+        "chunk:wature",
+        "chunk:zaijian",
+        "chunk:mingtianjian",
+        "chunk:renshinihengaoxing",
+        "chunk:duibuqi"
+      ]
+    },
+    {
+      "index": 41,
+      "topicId": "l13-dialogo-ola",
+      "title": "Microdiálogo: cumprimentar",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "listen",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "spot_error",
+        "substitution_drill"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:nihao",
+        "chunk:nihaoma",
+        "chunk:wohenhao",
+        "chunk:xiexie",
+        "chunk:zaoshanghao",
+        "chunk:jintianhenhao",
+        "chunk:haode",
+        "chunk:meiwenti"
+      ]
+    },
+    {
+      "index": 42,
+      "topicId": "l13-dialogo-nome",
+      "title": "Microdiálogo: se apresentar",
+      "skill": "fala",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_to_action",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dialogue_completion",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "listen",
+        "reverse_recall",
+        "sentence_build",
+        "sentence_transform",
+        "substitution_drill"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:nijiaoshenme",
+        "chunk:wojiao",
+        "chunk:wature",
+        "chunk:qingzaishuoyibian",
+        "chunk:woyousangepengyou",
+        "chunk:nihuishuoyingyuma"
+      ]
+    },
+    {
+      "index": 43,
+      "topicId": "p3-ordem-das-palavras",
+      "title": "A ordem importa",
+      "skill": "sistema",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wature",
+        "chunk:wojiao",
+        "chunk:nihaoma"
+      ]
+    },
+    {
+      "index": 44,
+      "topicId": "p3-nomes-da-frase",
+      "title": "Nomes das peças",
+      "skill": "sistema",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error",
+        "transfer_task"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "chunk:wature",
+        "chunk:wojiao",
+        "chunk:nihaoma"
+      ]
+    },
+    {
+      "index": 45,
+      "topicId": "l14",
+      "title": "Radicais básicos",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "produce",
+        "reverse_recall",
+        "sentence_build",
+        "transfer_task"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:nv",
+        "char:ren",
+        "char:kou",
+        "char:mu"
+      ]
+    },
+    {
+      "index": 46,
+      "topicId": "p4-num-123",
+      "title": "一 二 三",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "produce",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:yi",
+        "char:er",
+        "char:san"
+      ]
+    },
+    {
+      "index": 47,
+      "topicId": "p4-num-45",
+      "title": "四 五",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:si",
+        "char:wu"
+      ]
+    },
+    {
+      "index": 48,
+      "topicId": "p4-num-678",
+      "title": "六 七 八",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "produce",
+        "recognize",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:liu",
+        "char:qi",
+        "char:ba8"
+      ]
+    },
+    {
+      "index": 49,
+      "topicId": "p4-num-910",
+      "title": "九 十",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:jiu",
+        "char:shi10"
+      ]
+    },
+    {
+      "index": 50,
+      "topicId": "p4-char-mu",
+      "title": "木",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:mu"
+      ]
+    }
+  ]
+}
