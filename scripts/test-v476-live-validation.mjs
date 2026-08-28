@@ -14,7 +14,7 @@ import {
   requireRemoteRehearsalTarget,
   requireStagingProjectId,
 } from "./lib/staging-guard.mjs";
-import { parseJsonCell } from "./lib/ephemeral-backend.mjs";
+import { parseJsonCell, jwtRole } from "./lib/ephemeral-backend.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -255,6 +255,18 @@ const fromTable = parseJsonCell(`json_build_object\n[economy_columns] {"tables":
 assert(fromTable?.tables?.[0] === "profiles", "parseJsonCell prefere objeto JSON, não o header [economy_columns]");
 assert(fromTable?.economy_columns?.[0] === "pearl_ledger", "parseJsonCell lê economy_columns");
 assert(parseJsonCell('{"ok":true}')?.ok === true, "parseJsonCell JSON limpo");
+assert(
+  jwtRole(
+    `eyJhbGciOiJub25lIn0.${Buffer.from(JSON.stringify({ role: "service_role" })).toString("base64url")}.x`
+  ) === "service_role",
+  "jwtRole lê claim role"
+);
+
+const apiGrants = read("supabase/migrations/20260828013000_api_role_table_grants.sql");
+assert(/grant all on table public\.user_progress to anon, authenticated, service_role/i.test(apiGrants), "ephemeral grants user_progress");
+assert(/grant all on all tables in schema public to service_role/i.test(apiGrants), "ephemeral grants service_role em todas as tabelas");
+assert(!/grant all on all tables in schema public to authenticated/i.test(apiGrants), "não reabre escrita authenticated em massa");
+assert(/revoke insert, update, delete on table public\.user_economy from authenticated/i.test(apiGrants), "mantém economia sem write direto");
 
 const applySrc = read("scripts/apply-staging-migrations.mjs");
 assert(applySrc.includes("requireHealthyStagingStatus"), "migrate exige ACTIVE_HEALTHY");

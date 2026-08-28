@@ -22,6 +22,17 @@ function requireNativeWebSocket() {
   );
 }
 
+export function jwtRole(token) {
+  try {
+    const payload = String(token ?? "").split(".")[1];
+    if (!payload) return "";
+    const json = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return String(json.role ?? "");
+  } catch {
+    return "";
+  }
+}
+
 const BEGINNER_EVIDENCE = [
   { questionId: "warm-nihao-meaning", answer: "Olá", hintUsed: true, responseMode: "choice" },
   { questionId: "warm-xiexie-meaning", answer: "Obrigado(a).", hintUsed: true, responseMode: "choice" },
@@ -262,7 +273,18 @@ export function assertSchema(env) {
   if (operationalMissing.length) {
     throw new EphemeralError(`Migrations operacionais ausentes no repo: ${operationalMissing.join(",")}`);
   }
-  return { tables, columns, rpcs, economyColumns };
+  const serviceInsert = String(
+    querySql(env, `select has_table_privilege('service_role', 'public.user_progress', 'INSERT')::text;`)
+  ).trim();
+  const authInsert = String(
+    querySql(env, `select has_table_privilege('authenticated', 'public.user_progress', 'INSERT')::text;`)
+  ).trim();
+  if (!/^t/i.test(serviceInsert) || !/^t/i.test(authInsert)) {
+    throw new EphemeralError(
+      `SCHEMA_READY FAIL grants user_progress INSERT service_role=${serviceInsert} authenticated=${authInsert}`
+    );
+  }
+  return { tables, columns, rpcs, economyColumns, grants: { serviceInsert, authInsert } };
 }
 
 export function generatedTypesFromSchema(env) {
@@ -369,9 +391,16 @@ export function auditSecurityDefiner(env) {
 
 export function ephemeralClients(env) {
   requireNativeWebSocket();
+  const role = jwtRole(env.service);
+  if (role !== "service_role") {
+    throw new EphemeralError(`admin JWT role=${role || "unknown"}, esperado service_role`);
+  }
   const auth = { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false };
   return {
-    admin: createClient(env.url, env.service, { auth }),
+    admin: createClient(env.url, env.service, {
+      auth,
+      global: { headers: { Authorization: `Bearer ${env.service}`, apikey: env.service } },
+    }),
     anon: createClient(env.url, env.anon, { auth }),
   };
 }
@@ -415,6 +444,15 @@ export async function runRlsIsolation(env) {
       if (result?.error) throw new EphemeralError(`seed ${label}: ${result.error.message}`);
       return result;
     };
+    await seedErr(
+      "user_progress_a",
+      await admin.from("user_progress").upsert({
+        user_id: userA.id,
+        xp_total: 11,
+        completed_lessons: ["own-a"],
+        updated_at: new Date().toISOString(),
+      })
+    );
     await seedErr(
       "user_progress",
       await admin.from("user_progress").upsert({
@@ -494,10 +532,19 @@ export async function runRlsIsolation(env) {
       ["subscriptions", "user_id", userB.id],
       ["organization_members", "user_id", userB.id],
     ];
+    const ownProgress = await clientA.from("user_progress").select("xp_total, completed_lessons").eq("user_id", userA.id);
+    if (ownProgress.error) {
+      throw new EphemeralError(`RLS FAIL A não lê o próprio progresso: ${ownProgress.error.message}`);
+    }
+    if ((ownProgress.data ?? []).length !== 1 || ownProgress.data[0]?.xp_total !== 11) {
+      throw new EphemeralError("RLS FAIL A não viu a própria linha de user_progress");
+    }
     const leaked = [];
     for (const [table, column, value] of checks) {
       const { data, error } = await clientA.from(table).select("*").eq(column, value);
       if (error && /does not exist|schema cache/i.test(error.message)) continue;
+      if (error && /permission denied|row-level security|42501/i.test(error.message)) continue;
+      if (error) throw new EphemeralError(`RLS FAIL A select ${table}: ${error.message}`);
       if ((data ?? []).length > 0) leaked.push(table);
     }
     if (leaked.length) throw new EphemeralError(`RLS FAIL A leu B em ${leaked.join(",")}`);
