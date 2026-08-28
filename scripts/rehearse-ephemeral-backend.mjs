@@ -321,6 +321,12 @@ try {
   if (board.SCHEMA_READY === SCORE_NOT_RUN && board.MIGRATION_CHAIN_READY === SCORE_PASS) {
     board.SCHEMA_READY = SCORE_FAIL;
   }
+  if (board.SCHEMA_READY === SCORE_PASS && board.RLS_READY === SCORE_NOT_RUN) {
+    board.RLS_READY = SCORE_FAIL;
+  }
+  if (board.RLS_READY === SCORE_PASS && board.RPC_READY === SCORE_NOT_RUN) {
+    board.RPC_READY = SCORE_FAIL;
+  }
   console.error(message);
   writeFile(
     "docs/reports/production-backend-delta.md",

@@ -13,6 +13,15 @@ import {
 import { isProductionProjectId } from "./staging-guard.mjs";
 import { LONGYU_EDGE_FUNCTIONS } from "./edge-functions.mjs";
 
+function requireNativeWebSocket() {
+  if (typeof globalThis.WebSocket === "function") {
+    return;
+  }
+  throw new Error(
+    `Node.js 22+ is required for supabase-js Realtime (native WebSocket). Current: ${process.version}`
+  );
+}
+
 const BEGINNER_EVIDENCE = [
   { questionId: "warm-nihao-meaning", answer: "Olá", hintUsed: true, responseMode: "choice" },
   { questionId: "warm-xiexie-meaning", answer: "Obrigado(a).", hintUsed: true, responseMode: "choice" },
@@ -359,6 +368,7 @@ export function auditSecurityDefiner(env) {
 }
 
 export function ephemeralClients(env) {
+  requireNativeWebSocket();
   const auth = { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false };
   return {
     admin: createClient(env.url, env.service, { auth }),
@@ -381,6 +391,7 @@ async function createUser(admin, label) {
 }
 
 async function signIn(env, identity) {
+  requireNativeWebSocket();
   const client = createClient(env.url, env.anon, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
