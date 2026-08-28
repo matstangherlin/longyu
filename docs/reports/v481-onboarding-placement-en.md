@@ -38,20 +38,28 @@ frontend of `/finalizar-cadastro` only.
 
 ## Scoreboard
 
-Filled from live commands on this PR (local `validate:beta` PASS in 983.7s; `npm run build` PASS). GitHub `CI / Portão de qualidade` was still running on the first push at report time.
+Filled from live commands on this PR (`validate:beta` PASS in 983.7s; `npm run build` PASS; Playwright onboarding PT/EN/switch PASS after a fresh preview build).
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| ONBOARDING_PT_BR_READY | **PASS** | `/comecar` chrome via `onboarding.*`; existing PT e2e + this remessa PT spec |
-| ONBOARDING_EN_READY | **PASS** | EN catalog + e2e EN funnel |
+| ONBOARDING_PT_BR_READY | **PASS** | Playwright `e2e/i18n-onboarding.spec.ts` PT funnel + existing PT chrome |
+| ONBOARDING_EN_READY | **PASS** | Playwright EN funnel; `lang=en`; Get started / Continue / Question 1 |
 | PLACEMENT_PT_BR_READY | **PASS** | Prompts kept semantically; option IDs with PT aliases |
 | PLACEMENT_EN_READY | **PASS** | `placement.prompt.*` / `placement.opt.*` / result chrome |
 | PLACEMENT_LOCALE_PARITY_READY | **PASS** | `npm run test:placement-locale-parity` — six profiles |
 | PLACEMENT_RESULT_EN_READY | **PASS** | EN heading, recommendation, CTA, dimension labels |
-| MID_FLOW_LANGUAGE_SWITCH_READY | **PASS** | e2e switch on question 1 keeps option + goal/experience |
+| MID_FLOW_LANGUAGE_SWITCH_READY | **PASS** | Playwright PT→EN→PT on question 1 keeps option + goal/experience |
 | ONBOARDING_A11Y_EN_READY | **PASS** | Back / progress / question names from catalogs |
-| NO_PORTUGUESE_LEAK_ONBOARDING_EN | **PASS** | e2e forbids key PT chrome strings. Journey lesson/phase titles on the result line remain PT until V4.8.2 |
+| NO_PORTUGUESE_LEAK_ONBOARDING_EN | **PASS** | Playwright forbids key PT chrome strings. Journey lesson/phase titles on the result line remain PT until V4.8.2 |
 | CANONICAL_CHINESE_UNCHANGED | **PASS** | Question ids, hanzi, pinyin, audioText, option IDs, difficulty, dimension snapshot in parity test |
+
+## Local command results
+
+| Command | Result |
+| --- | --- |
+| `npm run validate:beta` | PASS (983.7s) |
+| `npm run build` | PASS |
+| `npx playwright test e2e/i18n-onboarding.spec.ts --project=chromium` | PASS (3 tests) |
 
 **Accept:** `PLACEMENT_LOCALE_PARITY_READY` is the critical gate.
 

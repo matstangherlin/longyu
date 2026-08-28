@@ -55,7 +55,9 @@ export function SeoHead() {
       path === "/redefinir-senha" ||
       path === "/confirmar-email" ||
       path === "/sobre" ||
-      path === "/privacidade";
+      path === "/privacidade" ||
+      path === "/comecar" ||
+      path === "/finalizar-cadastro";
     const title =
       path === "/sobre"
         ? t("marketing.aboutDocumentTitle")
