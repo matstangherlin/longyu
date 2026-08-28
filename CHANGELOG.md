@@ -9,7 +9,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ### V4.7.6 — Staging backend activation (BLOCKED_BY_INFRASTRUCTURE)
 
-Live identity **não rodou**. Humano: `longyu-preview` sem utilidade; **não** pausar atomurus; MandarimProject é o backend Longyu que importa. Pausa acidental do atomurus foi revertida (`ACTIVE_HEALTHY`). Preview voltou a INACTIVE. Zero DDL/Edge em produção (watermark inalterado). Relatório: `docs/reports/v476-staging-live-validation.md`. Scoreboard operacional: BLOCKED_BY_INFRASTRUCTURE. Opções D/A revogadas.
+Live identity **não rodou**. Reconsulta 2026-08-28T00:32Z: preview INACTIVE; restore → 2 project limit; atomurus **não** pausado; MandarimProject intocado. **STAGING_BLOCKED_BY_INFRASTRUCTURE**. Relatório: `docs/reports/v476-staging-live-validation.md`.
 
 ### V4.7.5 — Staging live inventory (BLOCKED)
 

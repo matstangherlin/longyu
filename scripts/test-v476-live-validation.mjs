@@ -276,6 +276,7 @@ assert(report.includes("AUTH-009"), "AUTH-009 mapeado no relatório");
 assert(report.includes("v476-placement-authority"), "harness Placement documentado");
 assert(report.includes("FIXTURE"), "AUTH fixture ≠ e-mail real");
 assert(report.includes("OBS-026"), "contrato de observabilidade documentado");
+assert(report.includes("OBS-027"), "OBS-027 teste de contrato documentado");
 
 const applySrc = read("scripts/apply-staging-migrations.mjs");
 assert(applySrc.includes("requireHealthyStagingStatus"), "migrate exige ACTIVE_HEALTHY");

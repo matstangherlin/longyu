@@ -2,13 +2,12 @@
 
 ## V4.7.6 — live identity (BLOCKED_BY_INFRASTRUCTURE)
 
-Atualizado em: 2026-08-28T00:06:00Z  
+Atualizado em: 2026-08-28T00:32:00Z  
 Relatório: `docs/reports/v476-staging-live-validation.md`.
 
-PRE-001: `origin/main` `b2a5818` (#203). Qualidade + Chromium + Firefox + Security SUCCESS.  
-PRE-002 rollback: pausa acidental do atomurus **revertida** (`ACTIVE_HEALTHY`). `longyu-preview` INACTIVE (humano: sem utilidade). MandarimProject intocado.  
-STG-003: `REFUSING_TO_USE_PRODUCTION_AS_STAGING`. Opções A/D revogadas.  
-STG-005…SEC-029 / AUTH / SYNC: **NOT_RUN**. Scoreboard operacional **BLOCKED_BY_INFRASTRUCTURE**.
+PRE-001: `origin/main` `b2a5818` (mesmo SHA; CI da RC não reexecutada).  
+PRE-002: preview INACTIVE; `restore_project` → 2 project limit; atomurus ACTIVE_HEALTHY (não pausado); MandarimProject intocado.  
+Decisão: **STAGING_BLOCKED_BY_INFRASTRUCTURE**.
 
 ---
 

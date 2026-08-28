@@ -26,15 +26,27 @@ assert.match(ops, /Nunca registra email/, "contrato sem PII");
 assert.doesNotMatch(ops, /password|authorization|access_token/i, "opsCorrelation não menciona segredos");
 assert.doesNotMatch(ops, /Math\.random/, "IDs de ops não usam Math.random (CodeQL js/insecure-randomness)");
 assert.match(ops, /randomUUID|getRandomValues/, "IDs de ops usam Web Crypto");
+assert.match(
+  ops,
+  /Web Crypto RNG unavailable for ops correlation/,
+  "OBS-027: sem Web Crypto a geração lança antes da operação"
+);
+
+function assertOpsInitBeforeInvoke(source, op, file) {
+  const initAt = source.indexOf(`edgeOpsInit("${op}")`);
+  const invokeAt = source.indexOf("functions.invoke");
+  assert.ok(initAt >= 0, `${file}: edgeOpsInit("${op}") presente`);
+  assert.ok(invokeAt > initAt, `${file}: OBS-027 ${op} gera correlation id antes do invoke`);
+}
 
 const signup = readFileSync("src/services/authService.ts", "utf8");
-assert.match(signup, /edgeOpsInit\("signup"\)/, "signup envia correlação");
+assertOpsInitBeforeInvoke(signup, "signup", "authService.ts");
 const placement = readFileSync("src/services/placementCommit.ts", "utf8");
-assert.match(placement, /edgeOpsInit\("placement"\)/, "placement envia correlação");
+assertOpsInitBeforeInvoke(placement, "placement", "placementCommit.ts");
 const finalize = readFileSync("src/services/finalizeOnboarding.ts", "utf8");
-assert.match(finalize, /edgeOpsInit\("finalize"\)/, "finalize envia correlação");
+assertOpsInitBeforeInvoke(finalize, "finalize", "finalizeOnboarding.ts");
 const checkout = readFileSync("src/services/subscriptionService.ts", "utf8");
-assert.match(checkout, /edgeOpsInit\("checkout"\)/, "checkout envia correlação");
+assertOpsInitBeforeInvoke(checkout, "checkout", "subscriptionService.ts");
 assert.match(feedback, /displayMode/, "contexto técnico inclui displayMode");
 assert.match(feedback, /appEnv/, "contexto técnico inclui appEnv");
 assert.match(pwa, /Nova versão/, "banner PWA de atualização existe");

@@ -1,8 +1,8 @@
 # V4.7.6 — Staging Backend Activation + Live Validation
 
-Atualizado em: 2026-08-28T00:06:00Z  
+Atualizado em: 2026-08-28T00:32:00Z  
 Branch: `cursor/v476-staging-live-validation-3618`  
-Decisão desta remessa: **`BLOCKED_BY_INFRASTRUCTURE`** (preview abandonado; atomurus restaurado)
+Decisão desta remessa: **`STAGING_BLOCKED_BY_INFRASTRUCTURE`**
 
 **Não é autorização de closed beta.** Automação não preenche PASS humano.
 `PHYSICAL_QA_READY`, `PAYMENTS_READY` e `READY_FOR_CLOSED_BETA_BR` **estão fora desta remessa** e não são marcados.
@@ -31,7 +31,7 @@ Nenhum campo operacional acima é `PASS`.
 
 ## PRE-001 — Confirmar main
 
-`git fetch origin main` em 2026-08-27T23:45Z.
+`git fetch origin main` em 2026-08-28T00:31Z.
 
 | Item | Valor |
 | --- | --- |
@@ -46,7 +46,7 @@ Nenhum campo operacional acima é `PASS`.
 | Edges esperadas (repo) | `create-account` (verify_jwt false), `commit-placement` (true), `finalize-onboarding` (true), `submit-business-lead` (false), `create-checkout-session` (true), `create-billing-portal` (true), `stripe-webhook` (false), `delete-account` (true), `issue-anon-ingestion-session` (false) |
 | Web Crypto correlation | `src/lib/opsCorrelation.ts` usa `crypto.randomUUID` / `getRandomValues`; sem Web Crypto **lança** antes do invoke |
 
-Main **não mudou** depois da validação do SHA `b2a5818`. Não reexecutar Chromium/Firefox locais só porque esta remessa de docs/guarda foi rebaseada em cima dele.
+Main **não mudou** depois da validação do SHA `b2a5818`. Chromium/Firefox/Security **não** reexecutados nesta passagem (mesmo SHA).
 
 Gates daquele SHA (GitHub, não inventado):
 
@@ -84,21 +84,35 @@ Automação interpretou “prossiga no que está faltando” como opção D e pa
 | MandarimProject | **ACTIVE_HEALTHY**; watermark inalterado `20260810175737` `beta_experience_telemetry` |
 | migrations / Edge em qualquer projeto | **zero** |
 
+### Reconsulta 2026-08-28T00:32Z (esta passagem)
+
+MCP `list_projects` + `get_project` + `get_organization` + `restore_project(preview)` **sem pausar nada**.
+
+| project_id | nome | status |
+| --- | --- | --- |
+| `drjcfalvlbbeblmmyhwj` MandarimProject | produção | ACTIVE_HEALTHY |
+| `wpnmygzxqvmpdlcuwrjp` longyu-preview | staging pretendido nesta spec | **INACTIVE** |
+| `ylofdottauzcqcifnnpm` atomurus | outro produto | ACTIVE_HEALTHY |
+
+Org Noba plan **free**. `restore_project(wpnmygzxqvmpdlcuwrjp)` → `ForbiddenException` **2 project limit** (`matstangherlin`). Atomurus **não** pausado. MandarimProject **não** escrito (watermark `20260810175737` `beta_experience_telemetry`). **PARADA** — spec §4.
+
+`get_cost` (nada criado, sem `confirm_cost`): projeto isolado monthly **0** (ainda bloqueado pelo cap Free); branch hourly **0.01344** (branch em MandarimProject **não** é staging isolado Longyu).
+
 ## Decisão humana (obrigatória)
 
-**`STAGING_BLOCKED` / `BLOCKED_BY_INFRASTRUCTURE`**
+**`STAGING_BLOCKED_BY_INFRASTRUCTURE`**
 
-**D revogada.** **A** (pausar atomurus / reativar preview) **revogada.** Não usar MandarimProject como staging. Não aplicar as sete migrations operacionais em produção nesta conversa.
+Esta spec lista:
 
-Caminhos que ainda existem:
-
-| Opção | O que o humano precisa fazer |
+| Ação humana | Estado nesta conversa |
 | --- | --- |
-| **B** | Upgrade da org Noba para um 3º projeto **novo** de staging Longyu (não o preview abandonado, não atomurus, não MandarimProject). |
-| **C** | Autorizar staging pago isolado (`confirm_cost`) com `LONGYU_STAGING_PROJECT_ID` ≠ produção ≠ atomurus, e `LONGYU_STAGING_ALLOWED_PROJECT_IDS`. |
-| **produção** | Só com frase explícita futura (“pode aplicar no MandarimProject”). **Não** está autorizada agora. |
+| Liberar slot Free | Só há MandarimProject + atomurus ativos. Humano **já proibiu** pausar atomurus. |
+| Upgrade Supabase (org Noba) | Aberto (**B**) |
+| Projeto staging pago isolado | Aberto (**C**); cotado $0/mês mas o cap Free de 2 projetos ainda impede criar o 3º |
+| Branch paga | Cotada $0.01344/h; **não criada**. Branch em produção ≠ staging Longyu isolado |
+| Autorização explícita para pausar outro projeto | **Revogada** para atomurus |
 
-Sem um desses, V4.7.6 live **não fecha**. Code/RC na `main` permanece.
+Não usar produção como staging. Sem workaround.
 
 ## STG-003 — Hard guard
 
@@ -277,7 +291,16 @@ Envio: os headers vão no **mesmo** `invoke` que o body. Não há retry automát
 
 Degradação permitida: `noteOps` no `console` é best-effort; falha de `sessionStorage` (modo privado) cai para memória e ainda exige Web Crypto.
 
-O que **não** pode ocorrer continua proibido: processar no backend + UI sem confirmação + retry duplicando. Isso permanece **NOT_RUN** em runtime até OBS-025 live.
+O que **não** pode ocorrer continua proibido: processar no backend + UI sem confirmação + retry duplicando. Runtime live **NOT_RUN**.
+
+## OBS-027 — Teste de contrato (código)
+
+`npm run validate:client-diagnostics` afirma:
+
+- `randomId()` lança `Web Crypto RNG unavailable for ops correlation` se não houver Web Crypto;
+- `edgeOpsInit` ocorre **antes** de `functions.invoke` em signup, placement, finalize e checkout.
+
+Isso **não** promove `STAGING_READY`. Live OBS-025 continua NOT_RUN.
 
 ## SEC-027 — USER A ≠ USER B
 
