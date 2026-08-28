@@ -255,6 +255,7 @@ export async function seedUnlockedLessonSession(
     points: 40,
     folego: 20,
     holdAchievementModals: true,
+    toneTrainer: buildCompletedToneTrainer(),
     ...extra,
   }));
 }

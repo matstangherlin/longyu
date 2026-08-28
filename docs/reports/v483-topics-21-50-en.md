@@ -110,7 +110,7 @@ From `docs/reports/v483-english-journey-progress.json`
 
 | Command | Result |
 | --- | --- |
-| `npm run validate:i18n` | PASS (1306 catalog keys, pt-BR/en parity) |
+| `npm run validate:i18n` | PASS (1333 catalog keys, pt-BR/en parity) |
 | `npm run test:i18n` | PASS |
 | `npm run validate:first-20-en` | PASS |
 | `npm run test:first-20-locale-parity` | PASS |
@@ -118,9 +118,11 @@ From `docs/reports/v483-english-journey-progress.json`
 | `npm run test:topics-21-50-locale-parity` | PASS |
 | `npm run test:stable-pedagogy-ids` | PASS |
 | `npm run typecheck` | PASS |
-| Playwright `e2e/i18n-topics-21-50.spec.ts` | representative EN (topic 21 M1 + hub + 21/29/31/43/45/50 chrome) |
+| Playwright `e2e/i18n-topics-21-50.spec.ts` | **8/8 PASS** (Review hub, topics 21/29/31/43/45/50 chrome, topic 21 Discovery M1) |
 
-Overlay key count: **2175** PT→EN strings in `instructionGloss.en.json`.
+Tone-trainer gates for topics 21–22 (`p2-comparar-tom-2-3`, `p2-tons-xiexie`) now use `journey.completeTonePack*` catalog copy. E2E seeds completed Tone Trainer packs so EN walks enter the player.
+
+Overlay key count: **2209** PT→EN strings in `instructionGloss.en.json`.
 New 21–50 authored strings: **894**. Stable loc ids: **5990**.
 
 ## Out of scope

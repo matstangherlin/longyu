@@ -39,6 +39,8 @@ import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../.
 import { LESSON_PERF_MARKS, markLessonPerf } from "../../lib/lessonPerf";
 import type { MasteryLevel } from "../../data/masteryLoop";
 import { useTranslation } from "../../i18n/useTranslation";
+import type { TranslateVars } from "../../i18n/catalog";
+import type { SupportedLocale } from "../../i18n/config";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicCta } from "../../i18n/overlays/journeyChrome";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
@@ -61,23 +63,28 @@ const SKILL_ICON: Record<Skill, typeof IconSound> = {
   sistema: IconStar,
 };
 
+type TranslateFn = (key: string, vars?: TranslateVars) => string;
+
 function lockedLessonMessage(
   lessonId: string,
   completed: string[],
   _lessonStarsById: Record<string, number>,
-  lessonMasteryById: Record<string, { level?: number } | undefined>
+  lessonMasteryById: Record<string, { level?: number } | undefined>,
+  t: TranslateFn,
+  locale: SupportedLocale
 ): string {
   const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
   const target = ALL_LESSONS[index];
   const pathCtx: TopicMasteryProgressContext = { completedLessons: completed, lessonMasteryById };
   const missing = ALL_LESSONS.slice(0, Math.max(0, index)).find((lesson) => !isJourneyTopicComplete(lesson, pathCtx));
-  if (missing?.premium) return "Esta lição depende de uma etapa do Longyu Pro.";
+  if (missing?.premium) return t("journey.dependsOnPro");
   if (missing) {
     const level = lessonMasteryById[missing.id]?.level ?? 0;
+    const title = displayLessonTitle(missing.title, locale);
     if (isTopicMasteryLesson(missing) && level < 4) {
-      return `Conclua as 4 lições de "${missing.title}" (${level}/4) para liberar este tema.`;
+      return t("journey.completeFourLessons", { title, n: level });
     }
-    return `Complete "${missing.title}" para liberar esta lição.`;
+    return t("journey.completeTitleAlt", { title });
   }
 
   const previous = index > 0 ? ALL_LESSONS[index - 1] : undefined;
@@ -85,11 +92,14 @@ function lockedLessonMessage(
     const phaseLessons = ALL_LESSONS.filter((lesson) => lesson.phaseId === previous.phaseId);
     const weak = phaseLessons.find((lesson) => !isJourneyTopicComplete(lesson, pathCtx));
     if (weak) {
-      return `Conclua as 4 lições de "${weak.title}" (e os demais temas da fase ${previous.phaseTitle}) para avançar de fase.`;
+      return t("journey.completePhase", {
+        title: displayLessonTitle(weak.title, locale),
+        phase: displayInstruction(previous.phaseTitle, locale),
+      });
     }
   }
 
-  return "Complete o tema atual (4/4) para liberar esta etapa.";
+  return t("journey.completeCurrentTopic");
 }
 
 function taskStatusLabel(status: TaskStatus, locale: "pt-BR" | "en"): string {
@@ -240,10 +250,14 @@ export function LessonDetailPage() {
   const blockedCopy = !hasAccess
     ? startAccess.reason
     : toneLocked && requiredTonePack
-    ? `Conclua "${requiredTonePack.shortTitle}" no Treino de tons com nota mínima ${requiredTonePack.minimumCorrect}/${requiredTonePack.requiredRounds}.`
+    ? t("journey.completeTonePack", {
+        title: displayInstruction(requiredTonePack.shortTitle, locale),
+        min: requiredTonePack.minimumCorrect,
+        total: requiredTonePack.requiredRounds,
+      })
     : startAccess.reasonCode === "missing_lesson"
     ? startAccess.reason
-    : lockedLessonMessage(lesson.id, completed, lessonStarsById, lessonMasteryById);
+    : lockedLessonMessage(lesson.id, completed, lessonStarsById, lessonMasteryById, t, locale);
 
   function startLesson() {
     if (!hasAccess) {

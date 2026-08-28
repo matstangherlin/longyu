@@ -60,10 +60,12 @@ const PT_STOP =
   /\b(você|voce|qual|lição|licao|monte|escolha|significa|obrigad|até|ate logo|estou|tudo bem|agora|para|com|uma|não|nao|sim|então|entao|também|tambem|depois|quando|porque|como|onde|quem|isto|isso|aqui|ali|muito|pouco|fazer|diga|complete|continue|continuar|começar|comecar|verificar|pular)\b/i;
 
 const CHROME_LEFTOVERS = [
-  { file: "src/features/lesson/LessonPlayer.tsx", needles: ["Cargas do Dragão", "Rever resultados", "Lição bloqueada por hoje", "Escudo de sequência x"] },
+  { file: "src/features/lesson/LessonPlayer.tsx", needles: ["Cargas do Dragão", "Rever resultados", "Lição bloqueada por hoje", "Escudo de sequência x", "Treino de tons", "Abrir treino de tons", "Voltar à jornada"] },
   { file: "src/features/lesson/steps.tsx", needles: [">Áudio lento<", "Não posso ouvir agora", "Atalhos: use 1-9"] },
   { file: "src/lib/useExerciseHotkeys.tsx", needles: ["Atalhos: use 1-9 para responder.", "Atalhos: 1-5 na esquerda"] },
   { file: "src/features/revisao/RevisaoPage.tsx", needles: ['label="Revisão de hoje"', ">Plano de hoje<", ">Fila inteligente<"] },
+  { file: "src/features/lesson/LessonDetailPage.tsx", needles: ["no Treino de tons com nota mínima"] },
+  { file: "src/features/journey/JourneyPage.tsx", needles: ["no Treino de tons com nota mínima"] },
 ];
 
 function collectFromStep(step, bag) {

@@ -52,19 +52,46 @@ async function playOpenStep(page: Page): Promise<boolean> {
 }
 
 async function completeCurrentPass(page: Page, lessonId: string, targetLevel: number) {
-  await page.goto(`/licao/${lessonId}/player`);
+  const playerUrl = `/licao/${lessonId}/player`;
+  await page.goto(playerUrl);
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
+  await expect(
+    page.getByText(/no Treino de tons com nota mínima|Finish ".+" in Tone Trainer/i),
+    "tone-trainer gate should already be satisfied for EN representative walks"
+  ).toHaveCount(0);
+  await expect(page.locator("[data-lesson-player-frame], [data-lesson-activity-scroll]").first()).toBeVisible({
+    timeout: 12_000,
+  });
   const victory = page.getByRole("button", { name: VICTORY });
+  const frame = page.locator("[data-lesson-player-frame]");
   const deadline = Date.now() + 90_000;
+  let waitedForPass = false;
   for (let steps = 0; steps < 80 && Date.now() < deadline; steps += 1) {
     const level = await masteryLevel(page, lessonId);
     if (level >= targetLevel) return;
     await dismissBlockingOverlays(page);
+    const reviewOffer = page.getByRole("heading", { name: /pontos para firmar|Lesson review|points to lock in|Revisão da lição/i });
+    if (await reviewOffer.isVisible().catch(() => false)) {
+      await clickFirstVisible(page, [/^Continuar$|^Continue$/]);
+      await page.waitForTimeout(250);
+      continue;
+    }
     if (await victory.first().isVisible().catch(() => false)) {
       await victory.first().click({ timeout: 2_000 }).catch(() => undefined);
       await page.waitForTimeout(400);
       continue;
+    }
+    if (!waitedForPass && (await frame.isVisible().catch(() => false))) {
+      const passAttr = await frame.getAttribute("data-mastery-pass");
+      if (passAttr && passAttr !== String(targetLevel)) {
+        await expect
+          .poll(async () => page.locator("[data-lesson-player-frame]").getAttribute("data-mastery-pass"), {
+            timeout: 12_000,
+          })
+          .toBe(String(targetLevel));
+      }
+      waitedForPass = true;
     }
     if (await clickFirstVisible(page, [/^Pular|^Skip/, /Não posso falar agora|I can't speak now|I can't listen now|Não posso ouvir agora/])) {
       await page.waitForTimeout(180);
@@ -77,7 +104,10 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
     const advanced = await advanceOneStep(page);
     if (!advanced) await advanceUntilVisible(page, victory, 2);
   }
-  expect(await masteryLevel(page, lessonId), `EN pass should reach mastery ${targetLevel}`).toBeGreaterThanOrEqual(targetLevel);
+  expect(
+    await masteryLevel(page, lessonId),
+    `EN pass should reach mastery ${targetLevel} (url=${page.url()})`
+  ).toBeGreaterThanOrEqual(targetLevel);
 }
 
 test.describe("V4.8.3 topics 21–50 Journey English", () => {
@@ -109,7 +139,8 @@ test.describe("V4.8.3 topics 21–50 Journey English", () => {
       await dismissBlockingOverlays(page);
       const blocked = page.getByRole("heading", { name: /Lesson blocked for today|Lição bloqueada por hoje/i });
       await expect(blocked).toHaveCount(0);
-      await expect(page.locator("[data-lesson-player-frame], [data-lesson-activity-scroll], h1, h2").first()).toBeVisible();
+      await expect(page.getByText(/no Treino de tons com nota mínima/)).toHaveCount(0);
+      await expect(page.locator("[data-lesson-player-frame], [data-lesson-activity-scroll]").first()).toBeVisible();
       await expect(page.getByText("Cargas do Dragão", { exact: true })).toHaveCount(0);
     });
   }

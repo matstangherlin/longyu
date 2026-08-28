@@ -2247,12 +2247,12 @@ export function LessonPlayer() {
   if (!foundLesson || !adaptiveLesson) {
     return (
       <div className="mx-auto flex min-h-[60dvh] max-w-md flex-col items-center justify-center px-6 py-10 text-center">
-        <h1 className="font-serif text-2xl font-semibold text-ink">Lição indisponível</h1>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("player.lessonUnavailable")}</h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">
-          Esta lição não existe ou não está disponível agora. Volte à jornada e escolha outra.
+          {t("player.lessonUnavailableLead")}
         </p>
         <ButtonLink to="/jornada" className="mt-5 shadow-lift">
-          Voltar à jornada <IconChevron width={16} height={16} />
+          {t("player.backToJourney")} <IconChevron width={16} height={16} />
         </ButtonLink>
       </div>
     );
@@ -2358,21 +2358,25 @@ export function LessonPlayer() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          Treino de tons
+          {t("journey.toneTrainer")}
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">
-          Conclua "{requiredTonePack.shortTitle}" com nota mínima {requiredTonePack.minimumCorrect}/{requiredTonePack.requiredRounds} para liberar esta etapa.
+          {t("journey.completeTonePackShort", {
+            title: displayInstruction(requiredTonePack.shortTitle, locale),
+            min: requiredTonePack.minimumCorrect,
+            total: requiredTonePack.requiredRounds,
+          })}
         </p>
         <Card className="mt-6 w-full p-5 text-left text-sm text-ink-soft">
-          <div className="font-semibold text-ink">{requiredTonePack.title}</div>
-          <p className="mt-2 leading-6">{requiredTonePack.focus}</p>
+          <div className="font-semibold text-ink">{displayInstruction(requiredTonePack.title, locale)}</div>
+          <p className="mt-2 leading-6">{displayInstruction(requiredTonePack.focus, locale)}</p>
         </Card>
         <Button size="lg" className="mt-6 w-full" onClick={() => navigate("/som")}>
-          Abrir treino de tons
+          {t("player.openToneTrainer")}
         </Button>
         <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-          Voltar à jornada
+          {t("player.backToJourney")}
         </Button>
       </div>
     );
@@ -3801,7 +3805,7 @@ export function LessonPlayer() {
             </div>
 
             <Card className="mt-6 p-4 text-left">
-              <div className="text-sm font-semibold text-ink">Pontos fracos</div>
+              <div className="text-sm font-semibold text-ink">{t("player.weakPoints")}</div>
               {mistakes.length > 0 ? (
                 <div className="mt-3 space-y-2">
                   {mistakes.slice(0, 5).map((mistake, index) => (
@@ -3815,16 +3819,16 @@ export function LessonPlayer() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-ink-soft">Refaça a etapa para firmar os exercícios avaliados.</p>
+                <p className="mt-2 text-sm text-ink-soft">{t("player.retryToLock")}</p>
               )}
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
               <Button className="w-full" onClick={() => retryLesson()}>
-                <IconRefresh width={17} height={17} /> Refazer lição
+                <IconRefresh width={17} height={17} /> {t("player.redoLesson")}
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
-                <IconTarget width={17} height={17} /> Treinar revisão
+                <IconTarget width={17} height={17} /> {t("player.trainReview")}
               </ButtonLink>
               <Button
                 variant="soft"
@@ -3833,17 +3837,17 @@ export function LessonPlayer() {
                 disabled={points < BREATH_RECOVERY_QI_COST}
               >
                 <IconFlame width={17} height={17} />
-                Recuperar com Qi
+                {t("player.recoverWithQi")}
               </Button>
             </div>
             {(inventory["shop-breath"] ?? 0) > 0 ? (
               <Button variant="primary" className="mt-2 w-full" onClick={recoverWithBreathItem}>
                 <IconFlame width={17} height={17} />
-                Usar Recuperar Vidas ({inventory["shop-breath"]})
+                {t("player.useRecoverLives", { n: inventory["shop-breath"] })}
               </Button>
             ) : (
               <ButtonLink to="/loja" variant="outline" className="mt-2 w-full">
-                Comprar Recuperar Vidas na Loja
+                {t("player.buyRecoverLives")}
               </ButtonLink>
             )}
             {points < BREATH_RECOVERY_QI_COST && (
@@ -3852,8 +3856,7 @@ export function LessonPlayer() {
               </ButtonLink>
             )}
             <p className="mt-3 text-xs leading-5 text-ink-faint">
-              Recuperar custa {BREATH_RECOVERY_QI_COST} Qi e devolve o fôlego para continuar praticando esta tentativa.
-              Você também pode estocar o item na Loja.
+              {t("player.recoverQiCost", { n: BREATH_RECOVERY_QI_COST })}
             </p>
           </section>
         </div>
@@ -3870,12 +3873,12 @@ export function LessonPlayer() {
             </div>
 
             <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-              Quase lá
+              {t("player.almostThere")}
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
-                ? `Você precisa de ${passRequirementLabel} de precisão para passar esta revisão de módulo.`
-                : `Você precisa concluir esta etapa para avançar. A 3ª estrela é o alvo de domínio da fase.`}
+                ? t("player.needPrecisionReview", { requirement: passRequirementLabel })
+                : t("player.needCompleteStage")}
             </p>
 
             <div className="mt-5 flex justify-center gap-2">
@@ -3891,22 +3894,22 @@ export function LessonPlayer() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
-              <LessonSummaryStat label="Progresso" value={`${stars}/3 estrelas`} />
-              <LessonSummaryStat label="Precisão" value={`${precision}%`} />
-              <LessonSummaryStat label="Necessário" value={passRequirementLabel} />
-              <LessonSummaryStat label="Ajuda" value={`${helpCount}`} />
+              <LessonSummaryStat label={t("player.progress")} value={t("player.starsCount", { n: stars })} />
+              <LessonSummaryStat label={t("player.accuracy")} value={`${precision}%`} />
+              <LessonSummaryStat label={t("player.requiredScore")} value={passRequirementLabel} />
+              <LessonSummaryStat label={t("common.help")} value={`${helpCount}`} />
             </div>
 
             <div className="mt-6 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-3 text-left text-sm text-ink-soft">
               {lesson.isReview
-                ? "A revisão de módulo mede domínio razoável. Os erros entram na revisão para você reforçar antes de tentar de novo."
+                ? t("player.moduleReviewMeasures")
                 : stars === 2
-                ? "Você chegou perto. Refaça os pontos fracos e busque uma rodada sem erros para fechar 3 estrelas nesta aula."
-                : "Vale revisar com calma antes de tentar de novo. O objetivo é sair com a estrutura firme, não só avançar."}
+                ? t("player.closeToThreeStars")
+                : t("player.reviewCalmly")}
             </div>
 
             <Card className="mt-6 p-4 text-left">
-              <div className="text-sm font-semibold text-ink">Erros principais</div>
+              <div className="text-sm font-semibold text-ink">{t("player.mainErrors")}</div>
               {mistakes.length > 0 ? (
                 <div className="mt-3 space-y-2">
                   {mistakes.slice(0, 4).map((mistake, index) => (
@@ -3921,20 +3924,20 @@ export function LessonPlayer() {
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-ink-soft">
-                  Refaça a etapa para consolidar os exercícios avaliados.
+                  {t("player.retryToConsolidate")}
                 </p>
               )}
             </Card>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
               <Button className="w-full" onClick={() => retryLesson()}>
-                <IconRefresh width={17} height={17} /> Refazer partes fracas
+                <IconRefresh width={17} height={17} /> {t("player.redoWeak")}
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
-                <IconTarget width={17} height={17} /> Treinar antes
+                <IconTarget width={17} height={17} /> {t("player.trainBefore")}
               </ButtonLink>
               <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
-                Voltar à jornada
+                {t("player.backToJourney")}
               </Button>
             </div>
           </section>

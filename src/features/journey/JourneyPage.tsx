@@ -40,6 +40,8 @@ import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle } from "../../i18n/overlays/journeyChrome";
+import type { TranslateVars } from "../../i18n/catalog";
+import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
@@ -141,6 +143,8 @@ function currentUnitContext(lessonId: string | undefined) {
   return null;
 }
 
+type TranslateFn = (key: string, vars?: TranslateVars) => string;
+
 function lockedLessonMessage(
   lesson: Lesson,
   state: LessonState,
@@ -148,10 +152,12 @@ function lockedLessonMessage(
   lessonTaskProgress: Record<string, number>,
   _lessonStarsById: Record<string, number>,
   toneTrainer: ToneTrainerProgress,
-  lessonMasteryById: Record<string, { level?: number } | undefined>
+  lessonMasteryById: Record<string, { level?: number } | undefined>,
+  t: TranslateFn,
+  locale: SupportedLocale
 ): string {
   if (state === "premium" || lesson.premium) {
-    return "Esta área é liberada no Longyu Pro.";
+    return t("journey.proArea");
   }
 
   const pathCtx = { completedLessons: completed, lessonMasteryById };
@@ -162,18 +168,19 @@ function lockedLessonMessage(
   );
 
   if (missing?.premium) {
-    return "Esta lição depende de uma etapa do Longyu Pro.";
+    return t("journey.dependsOnPro");
   }
 
   if (missing) {
     const mastery = lessonMasteryById[missing.id]?.level ?? 0;
+    const title = displayLessonTitle(missing.title, locale);
     if (isTopicMasteryLesson(missing) && mastery > 0 && mastery < 4) {
-      return `Conclua as 4 lições de "${missing.title}" (${mastery}/4) para liberar este tema.`;
+      return t("journey.completeFourLessons", { title, n: mastery });
     }
     const taskCount = lessonTasksFor(missing).length;
     const attempted = taskCount > 0 && Math.min(taskCount, lessonTaskProgress[missing.id] ?? 0) >= taskCount;
-    if (attempted) return `Conclua "${missing.title}" para liberar esta lição.`;
-    return `Complete "${missing.title}" para liberar esta lição.`;
+    if (attempted) return t("journey.completeTitle", { title });
+    return t("journey.completeTitleAlt", { title });
   }
 
   const previous = index > 0 ? ALL_LESSONS[index - 1] : undefined;
@@ -181,16 +188,23 @@ function lockedLessonMessage(
     const phaseLessons = ALL_LESSONS.filter((item) => item.phaseId === previous.phaseId);
     const weak = phaseLessons.find((item) => !isJourneyTopicComplete(item, pathCtx));
     if (weak) {
-      return `Conclua as 4 lições de "${weak.title}" (e os demais temas da fase ${previous.phaseTitle}) para avançar de fase.`;
+      return t("journey.completePhase", {
+        title: displayLessonTitle(weak.title, locale),
+        phase: displayInstruction(previous.phaseTitle, locale),
+      });
     }
   }
 
   const requiredTonePack = requiredToneTrainerPackForLesson(lesson.id);
   if (requiredTonePack && !toneTrainerPackCompleted(toneTrainer, requiredTonePack.id)) {
-    return `Conclua "${requiredTonePack.shortTitle}" no Treino de tons com nota mínima ${requiredTonePack.minimumCorrect}/${requiredTonePack.requiredRounds}.`;
+    return t("journey.completeTonePack", {
+      title: displayInstruction(requiredTonePack.shortTitle, locale),
+      min: requiredTonePack.minimumCorrect,
+      total: requiredTonePack.requiredRounds,
+    });
   }
 
-  return "Complete a lição atual para liberar esta etapa.";
+  return t("journey.completeCurrentLesson");
 }
 
 export function JourneyPage() {
@@ -283,7 +297,7 @@ export function JourneyPage() {
       setProPaywallOpen(true);
       return;
     }
-    setLockedHint(lockedLessonMessage(lesson, state, completed, lessonTaskProgress, lessonStarsById, toneTrainer, lessonMasteryById));
+    setLockedHint(lockedLessonMessage(lesson, state, completed, lessonTaskProgress, lessonStarsById, toneTrainer, lessonMasteryById, t, locale));
     clearTimeout(lockedTimer.current);
     lockedTimer.current = setTimeout(() => setLockedHint(null), 3200);
   }
