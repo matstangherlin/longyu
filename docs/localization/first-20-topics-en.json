@@ -1,0 +1,45 @@
+{
+  "wave": "v4.8.2",
+  "note": "A teaching topic is one Lesson id (M1–M4 are mastery passes of the same id), not 20 sessions.",
+  "topicIds": [
+    "p1-o-que-e-mandarim",
+    "p1-o-que-e-pinyin",
+    "p1-o-que-e-tom",
+    "p1-o-que-e-hanzi",
+    "p1-primeiros-hanzi",
+    "p1-engine-2-lab",
+    "l1",
+    "l2",
+    "l3",
+    "l4",
+    "p1-ate-logo",
+    "p1-primeira-conversa",
+    "p1-qingwen-cortesia",
+    "p2-ma-primeiro-tom",
+    "p2-ma-segundo-tom",
+    "p3-wohenhao",
+    "p2-ma-terceiro-tom",
+    "p2-ma-quarto-tom",
+    "p2-tons-nihao",
+    "p2-comparar-tom-1-4"
+  ],
+  "titles": {
+    "p1-o-que-e-mandarim": { "pt": "O que é mandarim?", "en": "What is Mandarin?" },
+    "p1-o-que-e-pinyin": { "pt": "O que é pinyin?", "en": "What is pinyin?" },
+    "p1-o-que-e-tom": { "pt": "O que é tom?", "en": "What is tone?" },
+    "p1-o-que-e-hanzi": { "pt": "O que é hànzì?", "en": "What is hànzì?" }
+  },
+  "passLabels": {
+    "1": { "pt": "Descoberta", "en": "Discovery" },
+    "2": { "pt": "Consolidação", "en": "Consolidation" },
+    "3": { "pt": "Produção", "en": "Production" },
+    "4": { "pt": "Domínio", "en": "Mastery" }
+  },
+  "scoredGloss": {
+    "Olá": "Hello",
+    "Obrigado(a)": "Thanks",
+    "Tudo bem?": "How are you?",
+    "Estou bem": "I'm fine",
+    "Até logo": "See you later"
+  }
+}

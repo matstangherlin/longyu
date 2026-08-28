@@ -66,8 +66,12 @@ import {
 import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
-import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { t } from "../../i18n/catalog";
+import { useTranslation } from "../../i18n/useTranslation";
+import { displayLessonTitle } from "../../i18n/overlays/journeyChrome";
+import { localizedPassLabel, localizedTopicVictory } from "../../i18n/overlays/journeyChrome";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
+import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
@@ -104,7 +108,7 @@ import {
   lessonTasksFor,
   resolveMasteryPassForContext,
 } from "./lessonTasks";
-import { dimensionForStepKind, isProductionOrTransferKind, MASTERY_PASS_LABELS, nextMasteryPass } from "../../data/masteryLoop";
+import { dimensionForStepKind, isProductionOrTransferKind, nextMasteryPass } from "../../data/masteryLoop";
 import { isMasteryPilotLesson } from "../../data/masteryPilot";
 import {
   energyIdempotencyKeyForPass,
@@ -114,7 +118,6 @@ import {
   lessonPassXpRewardId,
   lessonTopicMasteredXpRewardId,
   markJourneyPassReturn,
-  topicPassVictoryCopy,
 } from "../../data/topicMastery";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
@@ -1660,53 +1663,57 @@ function buildNextFocus({
 }): NextFocusSuggestion {
   if (remainingErrorCount > 0) {
     return {
-      title: "Corrigir os erros de hoje",
-      desc: `${remainingErrorCount} ${remainingErrorCount === 1 ? "erro pendente" : "erros pendentes"} desta sessão entraram na revisão.`,
+      title: t("player.fixTodayErrors"),
+      desc:
+        remainingErrorCount === 1
+          ? t("player.fixTodayErrorsOne", { n: remainingErrorCount })
+          : t("player.fixTodayErrorsMany", { n: remainingErrorCount }),
       to: "/revisao",
-      cta: "Revisar agora",
+      cta: t("player.reviewNow"),
     };
   }
   if (toneErrorCount > 0 && toneErrorCount >= hanziErrorCount) {
     return {
-      title: "Reforçar tons",
-      desc: "Os tons foram seu ponto mais frágil hoje. Uma rodada curta no Pinyin Lab firma o ouvido.",
+      title: t("player.reinforceTones"),
+      desc: t("player.reinforceTonesDesc"),
       to: "/pinyin",
-      cta: "Treinar tons",
+      cta: t("player.trainTones"),
     };
   }
   if (hanziErrorCount > 0) {
     return {
-      title: "Reforçar hànzì",
-      desc: "Monte de novo os caracteres que falharam para fixar forma e significado.",
+      title: t("player.reinforceHanzi"),
+      desc: t("player.reinforceHanziDesc"),
       to: "/hanzi",
-      cta: "Praticar hànzì",
+      cta: t("player.practiceHanzi"),
     };
   }
   if (topicContinue) {
     return {
-      title: `Lição ${topicContinue.nextPass} de 4 · ${MASTERY_PASS_LABELS[topicContinue.nextPass]}`,
-      desc: `Volte à Jornada e toque em "${topicContinue.title}" quando quiser a próxima lição. O próximo tema só libera em 4/4.`,
+      title: `${t("journey.ctaLessonOf", { n: topicContinue.nextPass })} · ${localizedPassLabel(topicContinue.nextPass)}`,
+      desc: t("player.topicContinueDesc", { title: topicContinue.title }),
       to: "/jornada",
-      cta: "Ver na Jornada",
+      cta: t("player.seeOnJourney"),
     };
   }
   if (nextLessonTitle) {
     return {
-      title: `Próximo tema: ${nextLessonTitle}`,
-      desc: "Este tema está 4/4. Você pode avançar na Jornada.",
+      title: t("player.nextTopic", { title: nextLessonTitle }),
+      desc: t("player.nextTopicDesc"),
       to: "/jornada",
-      cta: "Continuar Jornada",
+      cta: t("player.continueJourney"),
     };
   }
   return {
-    title: "Revisão do dia",
-    desc: "Traga de volta frases e caracteres antes que enfraqueçam.",
+    title: t("player.reviewOfDay"),
+    desc: t("player.reviewOfDayDesc"),
     to: "/revisao",
-    cta: "Revisar",
+    cta: t("review.title"),
   };
 }
 
 export function LessonPlayer() {
+  const { t, locale } = useTranslation();
   const { lessonId } = useParams();
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
@@ -2335,15 +2342,15 @@ export function LessonPlayer() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          {premiumBlocked ? "Longyu Pro" : "Jornada"}
+          {premiumBlocked ? "Longyu Pro" : t("navigation.journey")}
         </div>
-        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
+        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">{startAccess.reason}</p>
         <Button size="lg" className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/jornada"))}>
-          {premiumBlocked ? "Ver opções Pro" : "Continuar na jornada"}
+          {premiumBlocked ? t("player.seePro") : t("player.continueOnJourney")}
         </Button>
         <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-          Voltar
+          {t("common.back")}
         </Button>
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "content"} onClose={() => setProPaywallKind(null)} />
       </div>
@@ -2356,7 +2363,7 @@ export function LessonPlayer() {
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
           Treino de tons
         </div>
-        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
+        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">
           Conclua "{requiredTonePack.shortTitle}" com nota mínima {requiredTonePack.minimumCorrect}/{requiredTonePack.requiredRounds} para liberar esta etapa.
         </p>
@@ -2755,7 +2762,7 @@ export function LessonPlayer() {
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
           Longyu Pro
         </div>
-        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{lesson.title}</h1>
+        <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</h1>
         <p className="mt-3 text-sm text-ink-soft">
           Você chegou ao fim do núcleo gratuito. A partir de «China e amigos», o conteúdo faz parte do Longyu Pro.
         </p>
@@ -3599,18 +3606,18 @@ export function LessonPlayer() {
     const masteryNow = lessonMasteryById?.[lesson.id]?.level ?? 0;
     const topicVictory =
       passed && isTopicMasteryLesson(lesson) && masteryNow >= 1
-        ? topicPassVictoryCopy(Math.min(4, masteryNow) as 1 | 2 | 3 | 4)
+        ? localizedTopicVictory(Math.min(4, masteryNow) as 1 | 2 | 3 | 4)
         : null;
-    const journeyCta = isTopicMasteryLesson(lesson) ? "Voltar à Jornada" : "Continuar Jornada";
+    const journeyCta = isTopicMasteryLesson(lesson) ? t("player.backToJourney") : t("player.continueJourney");
     const topicContinue =
       isTopicMasteryLesson(lesson) && masteryNow < 4
-        ? { title: lesson.title, nextPass: Math.min(4, masteryNow + 1) as 1 | 2 | 3 | 4 }
+        ? { title: displayLessonTitle(lesson.title, locale), nextPass: Math.min(4, masteryNow + 1) as 1 | 2 | 3 | 4 }
         : undefined;
     const nextFocus = buildNextFocus({
       remainingErrorCount: remainingErrors.length,
       toneErrorCount,
       hanziErrorCount,
-      nextLessonTitle: nextLesson?.title,
+      nextLessonTitle: nextLesson ? displayLessonTitle(nextLesson.title, locale) : undefined,
       topicContinue,
     });
     const weakSkillsLabel =
@@ -3778,12 +3785,12 @@ export function LessonPlayer() {
             </div>
 
             <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-              Treine antes de continuar
+              {t("player.trainBeforeContinue")}
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
-                ? `Suas Vidas do Dragão chegaram a zero. A revisão não foi concluída; revise os pontos fracos e tente chegar a ${passRequirementLabel}.`
-                : "Suas Vidas do Dragão chegaram a zero. A lição não foi concluída; revise os pontos fracos e tente uma rodada com 3 estrelas."}
+                ? t("player.livesZeroReview", { requirement: passRequirementLabel })
+                : t("player.livesZeroLesson")}
             </p>
 
             <div className="mt-5 flex justify-center">
@@ -3791,9 +3798,9 @@ export function LessonPlayer() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-left sm:grid-cols-3">
-              <LessonSummaryStat label="Progresso" value={`${stars}/3 estrelas`} />
-              <LessonSummaryStat label="Precisão" value={`${precision}%`} />
-              <LessonSummaryStat label="Vidas" value="0/5" />
+              <LessonSummaryStat label={t("player.progress")} value={t("player.starsCount", { n: stars })} />
+              <LessonSummaryStat label={t("player.accuracy")} value={`${precision}%`} />
+              <LessonSummaryStat label={t("player.lives")} value="0/5" />
             </div>
 
             <Card className="mt-6 p-4 text-left">
@@ -3804,7 +3811,7 @@ export function LessonPlayer() {
                     <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-sm">
                       <div className="font-medium text-ink">{mistake.prompt}</div>
                       <div className="mt-0.5 text-ink-soft">
-                        Correto: <span className="font-medium text-ink">{mistake.correction}</span>
+                        {t("player.correctAnswer")}: <span className="font-medium text-ink">{mistake.correction}</span>
                         {mistake.detail ? <span className="text-ink-faint"> - {mistake.detail}</span> : null}
                       </div>
                     </div>
@@ -3909,7 +3916,7 @@ export function LessonPlayer() {
                     <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-sm">
                       <div className="font-medium text-ink">{mistake.prompt}</div>
                       <div className="mt-0.5 text-ink-soft">
-                        Correto: <span className="font-medium text-ink">{mistake.correction}</span>
+                        {t("player.correctAnswer")}: <span className="font-medium text-ink">{mistake.correction}</span>
                         {mistake.detail ? <span className="text-ink-faint"> - {mistake.detail}</span> : null}
                       </div>
                     </div>
@@ -4076,7 +4083,7 @@ export function LessonPlayer() {
             </div>
 
             <Button className="mt-auto w-full shadow-lift sm:mt-6" size="lg" onClick={continueAfterStreak}>
-              Continuar jornada
+              {t("player.continueJourney")}
             </Button>
           </div>
         </div>
@@ -4089,7 +4096,7 @@ export function LessonPlayer() {
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] text-center shadow-lift">
         <div data-lesson-activity-scroll className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-4 pb-2 pt-3 sm:px-6">
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
-            {lesson.title}
+            {displayLessonTitle(lesson.title, locale)}
           </div>
           <div className="relative mx-auto mt-1 h-16 w-20 shrink-0">
             <div className="absolute inset-x-0 top-0 flex justify-center">
@@ -4110,15 +4117,15 @@ export function LessonPlayer() {
             ))}
           </div>
           <h1 className="mt-1 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {topicVictory ? `✓ ${topicVictory.heading}` : stars === 3 ? "Lição concluída!" : "Você avançou!"}
+            {topicVictory ? `✓ ${topicVictory.heading}` : stars === 3 ? t("player.lessonComplete") : t("player.youAdvanced")}
           </h1>
           {topicVictory ? (
             <div className="mx-auto mt-1 max-w-md" data-testid="topic-victory-copy">
-              <p className="text-sm font-semibold text-ink">{lesson.title}</p>
+              <p className="text-sm font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</p>
               <p className="mt-0.5 text-xs text-ink-soft sm:text-sm" data-testid="topic-victory-lesson">
                 {topicVictory.lessonLine}
                 {!topicVictory.mastered && masteryNow >= 1 && masteryNow <= 4
-                  ? ` · ${MASTERY_PASS_LABELS[masteryNow as 1 | 2 | 3 | 4]}`
+                  ? ` · ${localizedPassLabel(masteryNow as 1 | 2 | 3 | 4)}`
                   : ""}
               </p>
               <p className="mt-1 text-sm font-medium text-accent" data-testid="topic-victory-remaining">
@@ -4203,13 +4210,13 @@ export function LessonPlayer() {
           {/* 2 · Próximo foco — card compacto com CTA. */}
           <div className="mt-2.5 flex flex-col gap-2 rounded-2xl border border-line bg-surface/85 p-3 text-left shadow-card sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Próximo foco</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">{t("player.nextFocus")}</div>
               <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
             </div>
-            {nextFocus.cta === "Ver na Jornada" ? (
+            {nextFocus.cta === t("player.seeOnJourney") ? (
               <ButtonLink to="/jornada" variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-                Ver na Jornada <IconChevron width={15} height={15} />
+                {t("player.seeOnJourney")} <IconChevron width={15} height={15} />
               </ButtonLink>
             ) : (
               <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
@@ -4316,7 +4323,7 @@ export function LessonPlayer() {
                     <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-xs">
                       <div className="font-medium text-ink">{mistake.prompt}</div>
                       <div className="mt-0.5 text-ink-soft">
-                        Correto: <span className="font-medium text-ink">{mistake.correction}</span>
+                        {t("player.correctAnswer")}: <span className="font-medium text-ink">{mistake.correction}</span>
                       </div>
                     </div>
                   ))}
@@ -4370,12 +4377,15 @@ export function LessonPlayer() {
   // Linha única e discreta abaixo da barra: etapa + intenção + nº da pergunta.
   const stageLabel = activeStage
     ? [
-        `Etapa ${activeStageIndex + 1}/${lessonTasks.length}`,
+        t("player.stageOf", { index: activeStageIndex + 1, total: lessonTasks.length }),
         roundSummary(step, activeStage),
         isGradedStep(step) &&
         activeRoundProgress.questionCount > 1 &&
         activeRoundProgress.questionIndex > 0
-          ? `pergunta ${activeRoundProgress.questionIndex}/${activeRoundProgress.questionCount}`
+          ? t("player.questionOf", {
+              index: activeRoundProgress.questionIndex,
+              total: activeRoundProgress.questionCount,
+            })
           : "",
       ]
         .filter(Boolean)
@@ -4478,26 +4488,24 @@ export function LessonPlayer() {
 
       {step.postConversationPhase && step.postConversationIndex === 1 && (
         <div className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft/35 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-accent">Pós-Conversa</span>
+          <span className="font-semibold text-accent">{t("player.postConversation")}</span>
           <span className="mx-1.5 text-ink-faint">·</span>
-          Fixe o vocabulário e as respostas da conversa em tarefas curtas.
+          {t("player.postConversationLead")}
         </div>
       )}
 
       {!online && (
         <div className="mb-3 rounded-2xl border border-line bg-surface-2 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-ink">Sem conexão</span>
+          <span className="font-semibold text-ink">{t("player.offline")}</span>
           <span className="mx-1.5 text-ink-faint">·</span>
-          {authMode === "cloud"
-            ? "Você pode continuar. O progresso será sincronizado quando a conexão voltar."
-            : "Você pode continuar. O progresso continua salvo neste dispositivo."}
+          {authMode === "cloud" ? t("player.offlineCloud") : t("player.offlineLocal")}
         </div>
       )}
 
       {retryProtected && (
         <div className="mb-3 flex justify-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
-            <IconShield width={13} height={13} /> Tentativa protegida
+            <IconShield width={13} height={13} /> {t("player.protectedAttempt")}
           </span>
         </div>
       )}
@@ -4522,39 +4530,39 @@ export function LessonPlayer() {
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
-        <ModalOverlay label="Quer tentar de novo?">
+        <ModalOverlay label={t("player.retryTitle")}>
           <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
               <IconX width={24} height={24} />
             </div>
             <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">
-              Quer tentar de novo?
+              {t("player.retryTitle")}
             </h2>
             <p className="mt-2 text-sm leading-6 text-ink-soft">
               {pendingMistake.detail?.trim()
                 ? pendingMistake.detail
-                : "Refaça esta questão sem perder a estrela."}
+                : t("player.retryLead")}
             </p>
 
             <div className="mt-3 rounded-2xl bg-surface-2 px-4 py-3 text-left text-sm">
               <div className="font-medium text-ink">{pendingMistake.prompt}</div>
               <div className="mt-2 text-ink-soft">
-                Resposta correta: <span className="font-medium text-ink">{pendingMistake.correction}</span>
+                {t("player.correctAnswer")}: <span className="font-medium text-ink">{pendingMistake.correction}</span>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <div className="rounded-xl bg-surface px-3 py-2">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Custo</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("player.cost")}</div>
                   <div className="mt-1 font-semibold text-ink">{isPremium ? 0 : RETRY_COST_QI} Qi</div>
                 </div>
                 <div className="rounded-xl bg-surface px-3 py-2">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Saldo</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("player.balance")}</div>
                   <div className="mt-1 font-semibold text-ink">{points} Qi</div>
                 </div>
               </div>
             </div>
 
             {isPremium ? (
-              <p className="mt-3 text-sm font-semibold text-accent">Pro: refazer sem gastar Qi.</p>
+              <p className="mt-3 text-sm font-semibold text-accent">{t("player.proRetryFree")}</p>
             ) : canPayRetry ? (
               <p className="mt-3 text-sm text-ink-soft">
                 Custa {RETRY_COST_QI} Qi. <span className="text-ink-faint">Você tem {points} Qi.</span>
@@ -4569,10 +4577,10 @@ export function LessonPlayer() {
               {canPayRetry ? (
                 <>
                   <Button size="lg" className="w-full" onClick={retryWithQi}>
-                    {isPremium ? "Tentar de novo sem Qi" : `Tentar de novo por ${RETRY_COST_QI} Qi`}
+                    {isPremium ? t("player.retryFree") : t("player.retryForQi", { n: RETRY_COST_QI })}
                   </Button>
                   <Button variant="outline" className="w-full" onClick={continueWithMistake}>
-                    Continuar
+                    {t("player.continue")}
                   </Button>
                   {!isPremium && (
                     <Button variant="soft" className="w-full" onClick={() => {
@@ -4586,7 +4594,7 @@ export function LessonPlayer() {
               ) : (
                 <>
                   <Button size="lg" className="w-full" onClick={continueWithMistake}>
-                    Continuar
+                    {t("player.continue")}
                   </Button>
                   <ButtonLink to="/missoes" variant="outline" className="w-full">
                     <IconStar width={16} height={16} /> Ganhar Qi em missões

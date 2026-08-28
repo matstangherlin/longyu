@@ -8,6 +8,9 @@ import { Button } from "../ui/primitives";
 import { SpeakButton } from "../ui/SpeakButton";
 import { IconCheck, IconChevron, IconX } from "../ui/Icon";
 import { Pinyin } from "./Pinyin";
+import { t } from "../../i18n/catalog";
+import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
+import { getInterfaceLocale } from "../../i18n/locale";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 
 type BuilderPiece =
@@ -16,26 +19,23 @@ type BuilderPiece =
 
 type BuildStatus = "idle" | "incomplete" | "wrong" | "correct";
 
-const MODE_LABEL: Record<HanziBuilder["mode"], string> = {
-  fragments: "Monte por fragmentos",
-  complete: "Complete a peça que falta",
-  components: "Monte pelas peças",
+const MODE_KEYS: Record<HanziBuilder["mode"], string> = {
+  fragments: "player.builderFragments",
+  complete: "player.builderComplete",
+  components: "player.builderComponents",
 };
 
 function modeLabelFor(builder: HanziBuilder): string {
-  // Sentence-select: uma peça = o hànzì inteiro.
   if (builder.mode === "components" && builder.context && (builder.components?.length ?? 0) === 1) {
-    return "Escolha o hànzì";
+    return t("player.builderChooseHanzi");
   }
-  return MODE_LABEL[builder.mode];
+  return t(MODE_KEYS[builder.mode]);
 }
 
-// "Componentes" soa técnico e sugere tradução literal. Para iniciante a bandeja
-// chama "Peças"; em níveis avançados, "Peças da forma" (pista estrutural).
 function trayLabel(builder: HanziBuilder): string {
-  if (builder.mode !== "components") return "Fragmentos";
-  if (builder.context && (builder.components?.length ?? 0) === 1) return "Opções";
-  return builder.level >= 4 ? "Peças da forma" : "Peças";
+  if (builder.mode !== "components") return t("player.builderTrayFragments");
+  if (builder.context && (builder.components?.length ?? 0) === 1) return t("player.builderTrayOptions");
+  return builder.level >= 4 ? t("player.builderTrayForm") : t("player.builderTrayPieces");
 }
 
 // Montar hànzì como quebra-cabeça visual: toque nas peças (traços ou
@@ -47,7 +47,7 @@ export function HanziBuilderExercise({
   onCorrect,
   externalRetry = false,
   showContinue = true,
-  continueLabel = "Continuar",
+  continueLabel = t("player.continue"),
 }: {
   builder: HanziBuilder;
   /** Erro cometido — sempre chamado (liga à economia/SRS do contexto). */
@@ -63,6 +63,18 @@ export function HanziBuilderExercise({
   continueLabel?: string;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
+  const locale = getInterfaceLocale();
+  const prompt = resolveInstructionText(builder.promptPt, locale);
+  const meaning = resolveInstructionText(builder.meaningPt, locale);
+  const hint = builder.hintPt ? resolveInstructionText(builder.hintPt, locale) : undefined;
+  const explanation = builder.explanationPt ? resolveInstructionText(builder.explanationPt, locale) : undefined;
+  const related = builder.relatedPt ? resolveInstructionText(builder.relatedPt, locale) : undefined;
+  const errorHint = builder.errorHintPt
+    ? resolveInstructionText(builder.errorHintPt, locale)
+    : t("player.builderErrorHint");
+  const sentencePt = builder.context?.sentencePt
+    ? resolveInstructionText(builder.context.sentencePt, locale)
+    : undefined;
   const charProgress = useStore((s) => s.hanziBuilderProgressByChar[builder.character]);
   const recordHanziBuilderResult = useStore((s) => s.recordHanziBuilderResult);
 
@@ -228,9 +240,9 @@ export function HanziBuilderExercise({
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
         {modeLabelFor(builder)}
       </div>
-      <h2 className="mt-1 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">{builder.promptPt}</h2>
+      <h2 className="mt-1 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">{prompt}</h2>
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
-        <span>{builder.meaningPt}</span>
+        <span>{meaning}</span>
         {!hidePromptPinyin && (
           <>
             <span className="text-ink-faint">·</span>
@@ -249,13 +261,13 @@ export function HanziBuilderExercise({
           </div>
           {status === "correct" && (
             <div className="mt-2 text-sm text-ink-soft">
-              <Pinyin text={builder.context.sentencePinyin} className="font-serif" /> · {builder.context.sentencePt}
+              <Pinyin text={builder.context.sentencePinyin} className="font-serif" /> · {sentencePt}
             </div>
           )}
         </div>
       )}
-      {builder.hintPt && status === "idle" && (
-        <p className="mt-2 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">💡 {builder.hintPt}</p>
+      {hint && status === "idle" && (
+        <p className="mt-2 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">💡 {hint}</p>
       )}
 
       {/* Carta central de montagem */}
@@ -276,7 +288,7 @@ export function HanziBuilderExercise({
       {selectedPieces.length > 0 && status !== "correct" && (
         <div className="mt-4">
           <div className="mb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Peças colocadas — toque para devolver
+            {t("player.builderPlaced")}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             {selectedPieces.map((piece) => (
@@ -318,13 +330,13 @@ export function HanziBuilderExercise({
       {/* Sem peças na bandeja: montagem completa, é hora de verificar (não é bug). */}
       {status !== "correct" && availablePieces.length === 0 && selected.length > 0 && (
         <p className="animate-pop mt-5 rounded-2xl border border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-center text-sm font-semibold text-[rgb(var(--good))]">
-          Tudo colocado. Agora toque em Verificar.
+          {t("player.builderReadyToCheck")}
         </p>
       )}
 
       {status === "incomplete" && (
         <p role="status" aria-live="polite" className="animate-pop mt-4 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-center text-sm font-medium text-accent">
-          Ainda faltam peças. Continue montando.
+          {t("player.builderNeedMore")}
         </p>
       )}
 
@@ -335,13 +347,13 @@ export function HanziBuilderExercise({
             Quase.
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
-            {builder.errorHintPt ?? "Revise as peças e tente de novo."}
+            {errorHint}
           </p>
           <p className="mt-2 rounded-xl bg-surface px-3 py-2 text-xs font-medium text-ink-soft">
-            Este hànzì vai voltar em revisão visual.
+            {t("player.builderReviewVisual")}
           </p>
           <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
-            Tentar de novo
+            {t("player.tryAgain")}
           </Button>
         </div>
       )}
@@ -350,27 +362,27 @@ export function HanziBuilderExercise({
         <div role="status" aria-live="polite" className="animate-pop longyu-success-bloom mt-5 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
             <IconCheck width={18} height={18} />
-            {hadMistake ? "Boa! Hànzì montado." : "Perfeito! Hànzì montado."}
+            {hadMistake ? t("player.builderMountedOk") : t("player.builderMountedPerfect")}
           </div>
           {(!hadMistake || builtWithoutGuide) && (
             <div className="mt-2 flex flex-wrap gap-2">
               {!hadMistake && (
                 <span className="rounded-full bg-[rgb(var(--good)/0.16)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
-                  Domínio visual +1
+                  {t("player.builderVisualMastery")}
                 </span>
               )}
               {builtWithoutGuide && (
                 <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-ink-soft">
-                  Você montou sem molde.
+                  {t("player.builderNoGuide")}
                 </span>
               )}
             </div>
           )}
-          <div className="mt-2 text-sm font-semibold text-ink">{builder.meaningPt}</div>
+          <div className="mt-2 text-sm font-semibold text-ink">{meaning}</div>
           {(!mastered || hadMistake) && (
             <>
-              <p className="mt-1 text-sm leading-6 text-ink-soft">{builder.explanationPt}</p>
-              {builder.relatedPt && <p className="mt-1 text-sm text-ink-faint">{builder.relatedPt}</p>}
+              <p className="mt-1 text-sm leading-6 text-ink-soft">{explanation}</p>
+              {related && <p className="mt-1 text-sm text-ink-faint">{related}</p>}
             </>
           )}
           {showContinue && (
@@ -395,7 +407,7 @@ export function HanziBuilderExercise({
         >
           {selected.length > 0 && (
             <Button variant="ghost" onClick={clearPieces} className="min-w-24">
-              Limpar
+              {t("player.clear")}
             </Button>
           )}
           <Button
@@ -407,7 +419,7 @@ export function HanziBuilderExercise({
               canCheck && availablePieces.length === 0 ? "animate-pulse ring-2 ring-[rgb(var(--good)/0.4)]" : "",
             ].join(" ")}
           >
-            Verificar
+            {t("player.check")}
           </Button>
         </div>
       )}
@@ -554,10 +566,17 @@ function PieceButton({
   showInfo?: boolean;
   onClick: () => void;
 }) {
+  const locale = getInterfaceLocale();
+  const glyphLabel =
+    piece.kind === "glyph" ? resolveInstructionText(piece.glyph.label, locale) : "";
+  const rolePt =
+    piece.kind === "glyph" && piece.glyph.rolePt
+      ? resolveInstructionText(piece.glyph.rolePt, locale)
+      : "";
   const label =
     piece.kind === "stroke"
-      ? `Fragmento: ${piece.stroke.label}`
-      : `Peça ${piece.glyph.glyph} (${piece.glyph.label}${piece.glyph.rolePt ? `, ${piece.glyph.rolePt}` : ""})`;
+      ? `${t("player.builderTrayFragments")}: ${resolveInstructionText(piece.stroke.label, locale)}`
+      : `${piece.glyph.glyph} (${glyphLabel}${rolePt ? `, ${rolePt}` : ""})`;
   // Glifo + nome curto + papel, só na bandeja: peça colocada volta a ser compacta.
   const withCaption = piece.kind === "glyph" && showInfo && !placed;
 
@@ -565,7 +584,13 @@ function PieceButton({
     <button
       type="button"
       onClick={onClick}
-      aria-label={shortcut && !placed ? `Peça ${shortcut}: ${label}` : placed ? `Devolver ${label}` : label}
+      aria-label={
+        shortcut && !placed
+          ? t("player.pieceAria", { key: shortcut, value: label })
+          : placed
+            ? t("player.returnAria", { value: label })
+            : label
+      }
       className={[
         "relative",
         "inline-flex items-center justify-center rounded-2xl border-2 bg-surface transition active:scale-95",
@@ -599,11 +624,11 @@ function PieceButton({
         <span className="flex flex-col items-center gap-0.5">
           <span className="hanzi text-3xl leading-none text-ink">{piece.glyph.glyph}</span>
           <span className="max-w-24 text-center text-[10px] font-semibold leading-tight text-ink-soft">
-            {piece.glyph.label}
+            {glyphLabel}
           </span>
-          {piece.glyph.rolePt && (
+          {rolePt && (
             <span className="max-w-24 text-center text-[10px] leading-tight text-ink-faint">
-              {piece.glyph.rolePt}
+              {rolePt}
             </span>
           )}
         </span>

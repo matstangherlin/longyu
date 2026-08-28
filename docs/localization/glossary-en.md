@@ -24,6 +24,22 @@ when a natural product word already exists.
 | Mandarin | Mandarim | Target language. |
 | Interface language | Idioma da interface | Not country, not “I am learning”. |
 | I am learning Mandarin | Estou aprendendo mandarim | Target language. Never inferred from country. |
+| Discovery | Descoberta | Mastery pass 1 (M1). |
+| Consolidation | Consolidação | Mastery pass 2 (M2). |
+| Production | Produção | Mastery pass 3 (M3). |
+| Mastery | Domínio | Mastery pass 4 (M4) and the 4/4 ring. |
+| Hello | Olá | Scored gloss for 你好. `Hi` is an accepted alias only. |
+| Thanks | Obrigado(a) | Scored gloss for 谢谢. |
+| See you later | Até logo | Scored gloss for 再见. |
+
+## V4.8.2 instruction overlay
+
+- Canonical copy stays in Journey data (pt-BR). English is a string overlay, not
+  `lesson-001-en.ts`.
+- Scoring maps EN labels back to the Portuguese identity (`answersEquivalent`).
+- Pronunciation analogies must not calque Portuguese (“silent English h”, not
+  “h mudo do português”).
+
 
 ## Gloss vs UI
 

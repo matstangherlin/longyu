@@ -8,6 +8,9 @@ import { useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import { KeyboardShortcutHint, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
+import { t } from "../../i18n/catalog";
+import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
+import { getInterfaceLocale } from "../../i18n/locale";
 import type { StepProps } from "./steps";
 
 function shuffle<T>(items: T[]): T[] {
@@ -37,7 +40,7 @@ function AnswerFeedback({
         correct ? "bg-[rgb(var(--good)/0.12)] text-ink" : "bg-wrong-soft text-ink",
       ].join(" ")}
     >
-      {correct ? "Correto." : "Quase — reveja a associação visual."}
+      {correct ? t("player.correctShort") : t("player.almostVisual")}
       {explanation && <p className="mt-1 text-ink-soft">{explanation}</p>}
     </div>
   );
@@ -104,11 +107,11 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
     },
   });
 
-  const prompt = step.promptPt ?? step.prompt ?? "Escolha a opção correta.";
+  const prompt = step.promptPt ?? step.prompt ?? t("player.chooseCorrect");
 
   return (
     <div>
-      <Eyebrow>Associação visual</Eyebrow>
+      <Eyebrow>{t("player.visualMatch")}</Eyebrow>
 
       {(mode === "choose_hanzi" || mode === "choose_pinyin" || mode === "choose_meaning") && concept && (
         <div className="my-5 flex flex-col items-center gap-2">
@@ -134,8 +137,8 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
 
       {mode === "listen_and_choose_image" && (
         <div className="my-5 flex flex-col items-center gap-3">
-          <SpeakButton text={audioText ?? ""} size="lg" label="Ouvir" />
-          <p className="text-sm text-ink-soft">Ouça e escolha a imagem certa.</p>
+          <SpeakButton text={audioText ?? ""} size="lg" label={t("player.listen")} />
+          <p className="text-sm text-ink-soft">{t("player.listenAndChooseImage")}</p>
         </div>
       )}
 
@@ -164,7 +167,12 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
           correct={answered === correctAnswer}
           explanation={
             step.explanation ??
-            (concept ? `${concept.hanzi} (${formatPinyinForDisplay(concept.pinyin)}) = ${concept.meaningPt}.` : undefined)
+            (concept
+              ? resolveInstructionText(
+                  `${concept.hanzi} (${formatPinyinForDisplay(concept.pinyin)}) = ${concept.meaningPt}.`,
+                  getInterfaceLocale()
+                )
+              : undefined)
           }
         />
       )}
@@ -177,7 +185,7 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
             onClick={submitSelected}
             className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
           >
-            Confirmar
+            {t("player.confirm")}
           </button>
         )}
         {answered && (
@@ -186,12 +194,12 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
             onClick={() => onDone(answered === correctAnswer)}
             className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white"
           >
-            Continuar
+            {t("player.continue")}
           </button>
         )}
         {onSkip && !answered && (
           <button type="button" onClick={onSkip} className="rounded-xl border border-line px-4 py-2 text-sm text-ink-soft">
-            Pular
+            {t("player.skip")}
           </button>
         )}
       </div>

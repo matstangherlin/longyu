@@ -8,6 +8,9 @@ import { playSoundFx } from "../../lib/soundFx";
 import { useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { useStore } from "../../lib/store";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
+import { t } from "../../i18n/catalog";
+import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
+import { getInterfaceLocale } from "../../i18n/locale";
 import type { StepProps } from "./steps";
 
 function shuffle<T>(items: readonly T[]): T[] {
@@ -64,19 +67,23 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
   });
 
   const chosenVisual = imagePick && answered ? resolveVisualConcept(answered) : undefined;
+  const locale = getInterfaceLocale();
   const feedback =
     step.explanation ??
     (target
-      ? `${target.hanzi} (${formatPinyinForDisplay(target.pinyin)}) significa ${target.meaningPt}.`
+      ? resolveInstructionText(
+          `${target.hanzi} (${formatPinyinForDisplay(target.pinyin)}) significa ${target.meaningPt}.`,
+          locale
+        )
       : undefined);
 
   return (
     <div data-compare-with-image data-compare-level={level}>
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-        Comparação visual · nível {level}
+        {t("player.compareVisual", { n: level })}
       </div>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
-        {step.promptPt ?? step.prompt ?? "Compare as opções e escolha a associação correta."}
+        {step.promptPt ?? step.prompt ?? t("player.comparePrompt")}
       </p>
 
       {imagePick ? (
@@ -84,7 +91,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
           <MandarinText
             hanzi={step.targetHanzi ?? target?.hanzi ?? ""}
             pinyin={step.targetPinyin ?? target?.pinyin}
-            meaning={level === 1 ? step.targetMeaningPt ?? target?.meaningPt : undefined}
+            meaning={level === 1 ? resolveInstructionText(step.targetMeaningPt ?? target?.meaningPt ?? "", locale) || undefined : undefined}
             size="lg"
             align="center"
             audio
@@ -121,11 +128,15 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
           ].join(" ")}
         >
           <p className="font-semibold">
-            {answered === correctAnswer ? "Certo — a associação bate." : "Quase — compare o conceito, não só as cores."}
+            {answered === correctAnswer ? t("player.associationOk") : t("player.almostCompare")}
           </p>
           {chosenVisual && answered !== correctAnswer && (
             <p className="mt-1 text-ink-soft">
-              Você escolheu {chosenVisual.hanzi} ({formatPinyinForDisplay(chosenVisual.pinyin)}), que significa {chosenVisual.meaningPt}.
+              {t("player.youChoseMeans", {
+                hanzi: chosenVisual.hanzi,
+                pinyin: formatPinyinForDisplay(chosenVisual.pinyin),
+                meaning: resolveInstructionText(chosenVisual.meaningPt, locale),
+              })}
             </p>
           )}
           {feedback && <p className="mt-1 text-ink-soft">{feedback}</p>}
@@ -144,7 +155,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
             onClick={() => submit()}
             className="w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40 sm:w-auto"
           >
-            Confirmar
+            {t("player.confirm")}
           </button>
         )}
         {answered && (
@@ -153,7 +164,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
             onClick={() => onDone(answered === correctAnswer)}
             className="w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white sm:w-auto"
           >
-            Continuar
+            {t("player.continue")}
           </button>
         )}
         {onSkip && !answered && (
@@ -162,7 +173,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
             onClick={onSkip}
             className="w-full rounded-xl border border-line px-4 py-2.5 text-sm text-ink-soft sm:w-auto"
           >
-            Pular
+            {t("player.skip")}
           </button>
         )}
       </div>

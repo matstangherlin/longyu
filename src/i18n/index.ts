@@ -65,3 +65,17 @@ export type {
   ContentLayer,
   TextRole,
 } from "./pedagogy";
+
+export {
+  FIRST_20_TEACHING_TOPIC_IDS,
+  isFirst20TeachingTopic,
+} from "./overlays/first20";
+export {
+  resolveInstructionText,
+  answersEquivalent,
+  scoredAnswersMatch,
+  hasEnglishOverlay,
+  toCanonicalAnswerIdentity,
+} from "./overlays/instructionGloss";
+export { localizeLessonStep, localizeLessonTitle, canonicalStepFingerprint } from "./overlays/localizeLesson";
+export { localizeReviewExercise } from "./overlays/localizeReview";

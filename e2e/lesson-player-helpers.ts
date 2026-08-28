@@ -30,12 +30,12 @@ export async function clickIfEnabled(locator: Locator, timeout = 1_500): Promise
 
 /** Ordem correta de componentes do Hànzì Builder para prompts comuns no smoke. */
 export function hanziBuilderOrder(prompt: string): string[] {
-  if (/você|nǐ|你/i.test(prompt)) return ["亻", "尔"];
-  if (/bom|boa|hǎo|好/i.test(prompt)) return ["女", "子"];
-  if (/pessoa|rén|人/i.test(prompt)) return ["人"];
-  if (/madeira|árvore|mù|木/i.test(prompt)) return ["木"];
-  if (/lua|mês|yuè|月/i.test(prompt)) return [];
-  if (/montanha|shān|山/i.test(prompt)) return ["山"];
+  if (/você|you|nǐ|你/i.test(prompt)) return ["亻", "尔"];
+  if (/bom|boa|good|hǎo|好/i.test(prompt)) return ["女", "子"];
+  if (/pessoa|person|rén|人/i.test(prompt)) return ["人"];
+  if (/madeira|árvore|tree|wood|mù|木/i.test(prompt)) return ["木"];
+  if (/lua|mês|moon|month|yuè|月/i.test(prompt)) return [];
+  if (/montanha|mountain|shān|山/i.test(prompt)) return ["山"];
   return [];
 }
 
@@ -50,21 +50,21 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     }
     await page.keyboard.press("Escape").catch(() => undefined);
 
-    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora|I can't speak now/i });
     if (await skipSpeak.isVisible().catch(() => false)) {
       await clickIfEnabled(skipSpeak);
       await page.waitForTimeout(150);
       continue;
     }
 
-    const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição/i });
+    const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição|Lesson review|points to lock in/i });
     if (await reviewHeading.isVisible().catch(() => false)) {
-      await clickFirstVisible(page, [/^Continuar$/]);
+      await clickFirstVisible(page, [/^Continuar$|^Continue$/]);
       await page.waitForTimeout(150);
       continue;
     }
 
-    const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
+    const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar|Go back and get it right/i });
     if (await folegoBack.isVisible().catch(() => false)) {
       await folegoBack.click({ timeout: 1_500 }).catch(() => undefined);
       await page.waitForTimeout(150);
@@ -72,9 +72,9 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     }
 
       // Modal de erro: prefere continuar sem perfeição para não travar o smoke.
-      const mistake = page.getByRole("heading", { name: /Quer tentar de novo|Quase/i });
+      const mistake = page.getByRole("heading", { name: /Quer tentar de novo|Want to try again|Quase|Almost/i });
       if (await mistake.isVisible().catch(() => false)) {
-      await clickFirstVisible(page, [/^Continuar$/, /^Continuar e perder perfeição$/, /^Tentar de novo$/]);
+      await clickFirstVisible(page, [/^Continuar$|^Continue$/, /^Continuar e perder perfeição$/, /^Tentar de novo$|^Try again$/]);
       await page.waitForTimeout(150);
       continue;
     }
@@ -86,7 +86,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
-    const hanziBuilder = page.getByText(/Monte pelas peças|Monte o hànzì/i).first();
+    const hanziBuilder = page.getByText(/Monte pelas peças|Monte o hànzì|Build from pieces|Build the hànzì/i).first();
     if (await hanziBuilder.isVisible().catch(() => false)) {
       const prompt =
         (await page.locator("h2, p, [class*='eyebrow']").allTextContents().then((t) => t.join(" ")).catch(() => "")) ??
@@ -94,34 +94,34 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       const order = hanziBuilderOrder(prompt);
       let placed = 0;
       for (const glyph of order) {
-        const token = page.getByRole("button", { name: new RegExp(`^Peça \\d+: Peça ${glyph}\\b`) }).first();
+        const token = page.getByRole("button", { name: new RegExp(`^(Peça|Piece) \\d+: (Peça |Piece )?${glyph}\\b`) }).first();
         if (await clickIfEnabled(token)) placed += 1;
       }
       if (placed === 0) {
-        const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
+        const pieces = page.getByRole("button", { name: /^(Peça|Piece) \d+:/ });
         const count = await pieces.count();
         for (let i = 0; i < count; i += 1) await clickIfEnabled(pieces.nth(i));
       }
-      if (!(await clickIfEnabled(page.getByRole("button", { name: /^Verificar$/ }).first()))) {
-        await clickFirstVisible(page, [/^Pular/, /^Continuar$/, /Certo!|\+Qi/]);
+      if (!(await clickIfEnabled(page.getByRole("button", { name: /^Verificar$|^Check$/ }).first()))) {
+        await clickFirstVisible(page, [/^Pular|^Skip/, /^Continuar$|^Continue$/, /Certo!|\+Qi/]);
       } else {
-        await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Tentar de novo$/]);
+        await clickFirstVisible(page, [/^Continuar$|^Continue$/, /Certo!|\+Qi/, /^Tentar de novo$|^Try again$/]);
       }
       await page.waitForTimeout(150);
       continue;
     }
 
-    const produceMonte = page.getByText(/Monte [“"'].+[”"'] na ordem certa/i).first();
+    const produceMonte = page.getByText(/Monte [“"'].+[”"'] na ordem certa|Build [“"'].+[”"'] in the right order/i).first();
     if (await produceMonte.isVisible().catch(() => false)) {
       const prompt = (await produceMonte.textContent().catch(() => "")) ?? "";
       let order = ["你", "好"];
-      if (/estou bem|muito bem/i.test(prompt)) order = ["我", "很", "好"];
-      else if (/até logo|tchau/i.test(prompt)) order = ["再", "见"];
-      else if (/obrigad/i.test(prompt)) order = ["谢", "谢"];
+      if (/estou bem|muito bem|i'm fine|i am fine/i.test(prompt)) order = ["我", "很", "好"];
+      else if (/até logo|tchau|see you later|bye/i.test(prompt)) order = ["再", "见"];
+      else if (/obrigad|thank/i.test(prompt)) order = ["谢", "谢"];
 
       let picked = 0;
       for (const label of order) {
-        const token = page.getByRole("button", { name: new RegExp(`^Peça \\d+: ${label}$`) }).first();
+        const token = page.getByRole("button", { name: new RegExp(`^(Peça|Piece) \\d+: ${label}$`) }).first();
         if (await clickIfEnabled(token)) {
           picked += 1;
           await page.keyboard.press("Escape").catch(() => undefined);
@@ -129,31 +129,31 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       }
 
       if (
-        !(await clickIfEnabled(page.getByRole("button", { name: /Certo!|\+Qi/i }).first())) &&
-        !(await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/]))
+        !(await clickIfEnabled(page.getByRole("button", { name: /Certo!|Correct!|\+Qi/i }).first())) &&
+        !(await clickFirstVisible(page, [/^Verificar$|^Check$/, /^Confirmar$|^Confirm$/, /^Continuar$|^Continue$/]))
       ) {
         if (picked === 0 || step >= 2) {
-          await clickFirstVisible(page, [/^Pular/, /^Tentar de novo$/]);
+          await clickFirstVisible(page, [/^Pular|^Skip/, /^Tentar de novo$|^Try again$/]);
         }
       }
       await page.waitForTimeout(150);
       continue;
     }
 
-    const piece = page.getByRole("button", { name: /^Peça \d+:/ }).first();
+    const piece = page.getByRole("button", { name: /^(Peça|Piece) \d+:/ }).first();
     if (await piece.isVisible().catch(() => false)) {
-      const pieces = page.getByRole("button", { name: /^Peça \d+:/ });
+      const pieces = page.getByRole("button", { name: /^(Peça|Piece) \d+:/ });
       const count = await pieces.count();
       for (let i = 0; i < count; i += 1) {
         await clickIfEnabled(pieces.nth(i));
       }
-      await clickFirstVisible(page, [/Certo!|\+Qi/, /^Verificar$/, /^Confirmar$/]);
-      await clickFirstVisible(page, [/^Continuar$/, /^Conferir$/, /^Pular/]);
+      await clickFirstVisible(page, [/Certo!|Correct!|\+Qi/, /^Verificar$|^Check$/, /^Confirmar$|^Confirm$/]);
+      await clickFirstVisible(page, [/^Continuar$|^Continue$/, /^Conferir$/, /^Pular|^Skip/]);
       await page.waitForTimeout(150);
       continue;
     }
 
-    const pairsBoard = page.getByText(/\d+\/\d+ pares/);
+    const pairsBoard = page.getByText(/\d+\/\d+ pares|\d+\/\d+ pairs/);
     if (await pairsBoard.isVisible().catch(() => false)) {
       const tryPair = async (leftName: RegExp, rightName: RegExp) => {
         try {
@@ -169,19 +169,19 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
         }
       };
       await tryPair(/^nǐ hǎo$/i, /^你好$/);
-      await tryPair(/^你好$/, /^Olá$/);
-      await tryPair(/^Olá$/, /^你好$/);
-      await tryPair(/som que você ouviu/i, /falado|mandarim/i);
+      await tryPair(/^你好$/, /^Olá$|^Hello$/);
+      await tryPair(/^Olá$|^Hello$/, /^你好$/);
+      await tryPair(/som que você ouviu|sound you heard/i, /falado|spoken|mandarim|mandarin/i);
       await tryPair(/^nǐ hǎo$/i, /pinyin/i);
-      await tryPair(/^你好$/, /hànzì|escrita/i);
-      await tryPair(/^Olá$/, /tradução|significado/i);
-      await tryPair(/o que você ouviu/i, /mandarim falado/i);
+      await tryPair(/^你好$/, /hànzì|escrita|writing/i);
+      await tryPair(/^Olá$|^Hello$/, /tradução|significado|translation|meaning/i);
+      await tryPair(/o que você ouviu|what you heard/i, /mandarim falado|spoken mandarin/i);
       await tryPair(/^xièxie$/i, /^谢谢$/);
-      await tryPair(/^谢谢$/, /Obrigado/);
-      await tryPair(/^再见$/, /Até/);
-      await tryPair(/^不客气$/, /De nada/);
+      await tryPair(/^谢谢$/, /Obrigado|Thanks/);
+      await tryPair(/^再见$/, /Até|See you/);
+      await tryPair(/^不客气$/, /De nada|You're welcome/);
       if (await pairsBoard.isVisible().catch(() => false)) {
-        await clickFirstVisible(page, [/^Continuar$/, /Certo!|\+Qi/, /^Verificar$/, /^Pular/]);
+        await clickFirstVisible(page, [/^Continuar$|^Continue$/, /Certo!|Correct!|\+Qi/, /^Verificar$|^Check$/, /^Pular|^Skip/]);
       }
       await page.waitForTimeout(200);
       if (await target.isVisible().catch(() => false)) return true;
@@ -190,25 +190,25 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
     // Responder múltipla escolha ANTES de Pular — o botão de skip fica visível
     // nas atividades avaliadas e esgota o Fôlego de uma conta nova.
-    const greetingChoice = page.getByRole("button", { name: /^(Olá|你好|谢谢|再见)$/ }).first();
+    const greetingChoice = page.getByRole("button", { name: /^(Olá|Hello|你好|谢谢|再见)$/ }).first();
     if (await greetingChoice.isVisible().catch(() => false)) {
       await clickIfEnabled(greetingChoice);
-      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
+      await clickFirstVisible(page, [/^Verificar$|^Check$/, /^Conferir$/, /^Continuar$|^Continue$/, /^Confirmar$|^Confirm$/, /Certo!|Correct!|\+Qi/]);
       await page.waitForTimeout(150);
       continue;
     }
 
-    const labeledOption = page.getByRole("button", { name: /^Opção \d+:/ });
+    const labeledOption = page.getByRole("button", { name: /^(Opção|Option) \d+:/ });
     if (await labeledOption.first().isVisible().catch(() => false)) {
       const preferred = page.getByRole("button", {
-        name: /Opção \d+: (Olá|你好|谢谢|再见|obrigad|guiar a pronúncia)/i,
+        name: /(Opção|Option) \d+: (Olá|Hello|你好|谢谢|再见|obrigad|thanks|guiar a pronúncia)/i,
       }).first();
       if (await preferred.isVisible().catch(() => false)) {
         await clickIfEnabled(preferred);
-      } else if (!(await clickFirstVisible(page, [/^Pular/]))) {
+      } else if (!(await clickFirstVisible(page, [/^Pular|^Skip/]))) {
         await clickIfEnabled(labeledOption.first());
       }
-      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/, /Certo!|\+Qi/]);
+      await clickFirstVisible(page, [/^Verificar$|^Check$/, /^Conferir$/, /^Continuar$|^Continue$/, /^Confirmar$|^Confirm$/, /Certo!|Correct!|\+Qi/]);
       await page.waitForTimeout(150);
       continue;
     }
@@ -219,25 +219,25 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       .first();
     if (await glyphOption.isVisible().catch(() => false)) {
       await clickIfEnabled(glyphOption);
-      await clickFirstVisible(page, [/^Verificar$/, /^Conferir$/, /^Continuar$/, /^Confirmar$/]);
+      await clickFirstVisible(page, [/^Verificar$|^Check$/, /^Conferir$/, /^Continuar$|^Continue$/, /^Confirmar$|^Confirm$/]);
       await page.waitForTimeout(150);
       continue;
     }
 
     const advanced = await clickFirstVisible(page, [
-      /^Entendi$/,
-      /^Continuar$/,
-      /^Próximo$/,
-      /^Verificar$/,
+      /^Entendi$|^Got it$/,
+      /^Continuar$|^Continue$/,
+      /^Próximo$|^Next$/,
+      /^Verificar$|^Check$/,
       /^Conferir$/,
-      /^Confirmar$/,
-      /^Responder$/,
-      /^Concluir$/,
-      /^Ouvir de novo$/,
+      /^Confirmar$|^Confirm$/,
+      /^Responder$|^Answer$/,
+      /^Concluir$|^Finish$/,
+      /^Ouvir de novo$|^Listen again$/,
     ]);
     if (!advanced) {
       if ((await page.locator("[data-conversation-scene]").count()) > 0) return true;
-      const skipped = await clickFirstVisible(page, [/^Pular/]);
+      const skipped = await clickFirstVisible(page, [/^Pular|^Skip/]);
       if (!skipped) break;
     }
     await page.waitForTimeout(350);
@@ -248,7 +248,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
 /** Avança um passo genérico (para loop até vitória). */
 export async function advanceOneStep(page: Page): Promise<boolean> {
-  const victory = page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first();
+  const victory = page.getByRole("button", { name: /Continuar Jornada|Continue Journey|Voltar à Jornada|Back to the Journey|Receber recompensas|Continuar tema|Continue topic|Practice again|Praticar novamente/i }).first();
   return advanceUntilVisible(page, victory, 1);
 }
 

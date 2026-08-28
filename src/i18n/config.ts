@@ -23,6 +23,7 @@ export const I18N_NAMESPACES = [
   "onboarding",
   "placement",
   "journey",
+  "player",
   "review",
   "missions",
   "pro",
@@ -30,6 +31,8 @@ export const I18N_NAMESPACES = [
   "errors",
   "marketing",
   "shell",
+  "hub",
+  "feedback",
 ] as const;
 
 export type I18nNamespace = (typeof I18N_NAMESPACES)[number];
@@ -38,7 +41,7 @@ export type I18nNamespace = (typeof I18N_NAMESPACES)[number];
 export const INTERFACE_LOCALE_STORAGE_KEY = "longyu:interface-locale";
 
 /** Product i18n wave. Independent of LONGYU_RC_VERSION. */
-export const LONGYU_I18N_VERSION = "v4.8.1";
+export const LONGYU_I18N_VERSION = "v4.8.2";
 
 export const LOCALE_HTML_LANG: Record<SupportedLocale, string> = {
   "pt-BR": "pt-BR",

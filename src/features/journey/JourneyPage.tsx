@@ -39,6 +39,7 @@ import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction, displayLessonTitle } from "../../i18n/overlays/journeyChrome";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
@@ -193,7 +194,7 @@ function lockedLessonMessage(
 }
 
 export function JourneyPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const navigate = useNavigate();
   const completed = useStore((s) => s.completedLessons);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
@@ -220,11 +221,11 @@ export function JourneyPage() {
   const currentProgress = currentContext ? unitProgress(currentContext.unit, completed, lessonMasteryById) : null;
   const currentCheckpoint = currentContext ? THEME_CHECKPOINTS[currentContext.unit.id] : undefined;
   const currentModuleTitle = currentContext
-    ? currentCheckpoint?.title ?? currentContext.unit.title
+    ? displayInstruction(currentCheckpoint?.title ?? currentContext.unit.title, locale)
     : t("journey.completed");
   // Objetivo curto do módulo atual — usa o detalhe do checkpoint ou a meta da unidade.
   const currentObjective = currentContext
-    ? currentCheckpoint?.detail ?? currentContext.unit.goal
+    ? displayInstruction(currentCheckpoint?.detail ?? currentContext.unit.goal, locale)
     : t("journey.completedLead");
   const reviewCount = useMemo(() => dueItems(srs).length, [srs]);
 
@@ -341,7 +342,7 @@ export function JourneyPage() {
             objective={currentObjective}
             done={currentProgress?.done ?? ALL_LESSONS.length}
             total={currentProgress?.total ?? ALL_LESSONS.length}
-            currentLessonTitle={currentLesson?.title}
+            currentLessonTitle={currentLesson ? displayLessonTitle(currentLesson.title, locale) : undefined}
             onContinue={currentId ? () => navigate(`/licao/${currentId}`) : undefined}
             continueLabel={
               completed.length > 0 || (currentId ? (lessonMasteryById?.[currentId]?.level ?? 0) > 0 : false)
@@ -371,7 +372,7 @@ export function JourneyPage() {
               aria-expanded={anyExpanded}
               className="h-8 text-xs"
             >
-              {anyExpanded ? "Focar atual" : "Ver tudo"}
+              {anyExpanded ? t("journey.focusCurrent") : t("journey.expandAll")}
             </Button>
           </div>
 
@@ -385,7 +386,7 @@ export function JourneyPage() {
               <div className="h-px flex-1 bg-line/50" />
               <div className="min-w-0 text-center">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
-                  {tier.label}
+                  {displayInstruction(tier.label, locale)}
                 </div>
               </div>
               <div className="h-px flex-1 bg-line/50" />
@@ -395,9 +396,9 @@ export function JourneyPage() {
               <section key={phase.id} className="space-y-4">
                 <div className="lg:sticky lg:top-14 lg:z-10 lg:-mx-1 lg:rounded-xl lg:bg-bg/90 lg:px-2 lg:py-1.5 lg:backdrop-blur-sm">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-                    Fase {phase.order}
+                    {t("journey.phaseN", { n: phase.order })}
                   </div>
-                  <h2 className="font-serif text-base font-semibold text-ink sm:text-lg">{phase.title}</h2>
+                  <h2 className="font-serif text-base font-semibold text-ink sm:text-lg">{displayInstruction(phase.title, locale)}</h2>
                 </div>
 
                 {phase.units.map((unit) => {
@@ -797,14 +798,15 @@ function ModuleBlock({
   onChestOpen: (chest: JourneyChestConfig) => void;
   onChestLocked: (message: string) => void;
 }) {
+  const { t, locale } = useTranslation();
   const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
   const inventory = useStore((s) => s.inventory);
   const points = useStore((s) => s.points);
   const { done, total } = unitProgress(unit, completed, lessonMasteryById);
   const hasPremium = unit.lessons.some((lesson) => lesson.premium);
   const moduleComplete = done >= total;
-  const unitTitle = checkpoint?.title ?? unit.title;
-  const objective = checkpoint?.detail ?? unit.goal;
+  const unitTitle = displayInstruction(checkpoint?.title ?? unit.title, locale);
+  const objective = displayInstruction(checkpoint?.detail ?? unit.goal, locale);
   const firstLessonIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === unit.lessons[0]?.id);
   const currentLessonIndex = currentId ? ALL_LESSONS.findIndex((lesson) => lesson.id === currentId) : -1;
   const isFutureModule = currentLessonIndex >= 0 && firstLessonIndex > currentLessonIndex;
@@ -976,7 +978,7 @@ function ModuleBlock({
             <LessonNode
               key={lesson.id}
               lessonId={lesson.id}
-              title={lesson.isReview ? "Revisão" : lesson.title}
+              title={lesson.isReview ? t("review.title") : displayLessonTitle(lesson.title, locale)}
               skill={lesson.skill}
               state={state}
               premium={!!lesson.premium}
@@ -1246,6 +1248,7 @@ function LessonNode({
   offset: number;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
   const Icon = SKILL_ICON[skill];
   const isDone = state === "done";
   const locked = state === "locked" || state === "premium";
@@ -1272,8 +1275,8 @@ function LessonNode({
             ? "Pro"
             : isReview
               ? attempted
-                ? "Quase"
-                : "Revisar"
+                ? t("journey.almostBadge")
+                : t("journey.reviewBadge")
               : `${safeStageProgress}/${safeStageTotal}`}
         </div>
       )}

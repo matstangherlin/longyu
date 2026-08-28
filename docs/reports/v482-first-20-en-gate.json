@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-08-28T20:04:12.115Z",
+  "topicIds": [
+    "p1-o-que-e-mandarim",
+    "p1-o-que-e-pinyin",
+    "p1-o-que-e-tom",
+    "p1-o-que-e-hanzi",
+    "p1-primeiros-hanzi",
+    "p1-engine-2-lab",
+    "l1",
+    "l2",
+    "l3",
+    "l4",
+    "p1-ate-logo",
+    "p1-primeira-conversa",
+    "p1-qingwen-cortesia",
+    "p2-ma-primeiro-tom",
+    "p2-ma-segundo-tom",
+    "p3-wohenhao",
+    "p2-ma-terceiro-tom",
+    "p2-ma-quarto-tom",
+    "p2-tons-nihao",
+    "p2-comparar-tom-1-4"
+  ],
+  "uniqueStrings": 1143,
+  "missingCount": 0,
+  "leakCount": 0,
+  "fingerprintDrift": 0,
+  "missing": []
+}

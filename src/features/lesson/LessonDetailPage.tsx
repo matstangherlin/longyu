@@ -5,9 +5,7 @@ import {
   energySessionFlagForPass,
   isJourneyTopicComplete,
   isTopicMasteryLesson,
-  topicCtaForLevel,
   topicPassForLevel,
-  topicPassLabel,
   type TopicMasteryProgressContext,
 } from "../../data/topicMastery";
 import { topicMasterySpecFor, passObjective } from "../../data/topicMasterySpecs";
@@ -40,6 +38,8 @@ import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { LESSON_PERF_MARKS, markLessonPerf } from "../../lib/lessonPerf";
 import type { MasteryLevel } from "../../data/masteryLoop";
+import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicCta } from "../../i18n/overlays/journeyChrome";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
 
@@ -92,11 +92,11 @@ function lockedLessonMessage(
   return "Complete o tema atual (4/4) para liberar esta etapa.";
 }
 
-function taskStatusLabel(status: TaskStatus): string {
-  if (status === "concluida") return "Concluída";
-  if (status === "disponivel") return "Disponível";
+function taskStatusLabel(status: TaskStatus, locale: "pt-BR" | "en"): string {
+  if (status === "concluida") return displayInstruction("Concluída", locale);
+  if (status === "disponivel") return displayInstruction("Disponível", locale);
   if (status === "premium") return "Premium";
-  return "Bloqueada";
+  return displayInstruction("Bloqueada", locale);
 }
 
 const SKILL_TIP: Record<Skill, string> = {
@@ -110,6 +110,7 @@ const SKILL_TIP: Record<Skill, string> = {
 // Passo compacto do ciclo: só ícone + título curto + cor de status.
 // Sem descrição, sem badge grande, sem botão por etapa.
 function StepNode({ task, status, index }: { task: LessonTask; status: TaskStatus; index: number }) {
+  const { t, locale } = useTranslation();
   const Icon = MOTOR_ICON[task.motor];
   const chip =
     status === "concluida"
@@ -117,10 +118,11 @@ function StepNode({ task, status, index }: { task: LessonTask; status: TaskStatu
       : status === "disponivel"
       ? "bg-accent text-white ring-2 ring-accent/20"
       : "bg-surface-2 text-ink-faint";
+  const name = displayInstruction(task.name, locale);
   return (
     <div
       className="flex min-w-0 flex-1 flex-col items-center gap-1 text-center"
-      aria-label={`Etapa ${index + 1}: ${task.name} — ${taskStatusLabel(status)}`}
+      aria-label={`${t("player.stageN", { n: index + 1 })}: ${name} — ${taskStatusLabel(status, locale)}`}
     >
       <span className={["grid h-9 w-9 shrink-0 place-items-center rounded-full transition", chip].join(" ")}>
         {status === "concluida" ? (
@@ -131,7 +133,7 @@ function StepNode({ task, status, index }: { task: LessonTask; status: TaskStatu
           <Icon width={17} height={17} />
         )}
       </span>
-      <span className="w-full truncate text-[10px] font-medium leading-tight text-ink-soft">{task.name}</span>
+      <span className="w-full truncate text-[10px] font-medium leading-tight text-ink-soft">{name}</span>
     </div>
   );
 }
@@ -151,6 +153,7 @@ function RewardChip({ icon, children, tone = "muted" }: { icon: ReactNode; child
 }
 
 export function LessonDetailPage() {
+  const { t, locale } = useTranslation();
   const { lessonId } = useParams();
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
@@ -187,8 +190,8 @@ export function LessonDetailPage() {
   const masteryLevel = (masteryRecord?.level ?? 0) as MasteryLevel;
   const topicPass = topicPassForLevel(masteryLevel, { recoveryPending: masteryRecord?.recoveryPending });
   const spec = topicNode ? topicMasterySpecFor(lesson) : null;
-  const passName = topicPassLabel(topicPass);
-  const passGoal = spec ? passObjective(spec, topicPass) : null;
+  const passName = localizedPassLabel(topicPass, t);
+  const passGoal = spec ? displayInstruction(passObjective(spec, topicPass), locale) : null;
   const pathComplete = isJourneyTopicComplete(lesson, {
     completedLessons: completed,
     lessonMasteryById,
@@ -217,7 +220,10 @@ export function LessonDetailPage() {
     sessionCursor && sessionCursor.pass === topicPass ? sessionCursor.stepIndex : savedProgress;
   const activityTotal = Math.max(tasks.length, 1);
   const progress = pathComplete && topicPass === 4 && activityIndex === 0 ? 0 : activityIndex;
-  const progressLabel = `Atividade ${Math.min(progress + 1, activityTotal)} de ${activityTotal}`;
+  const progressLabel = t("player.ofTotal", {
+    index: Math.min(progress + 1, activityTotal),
+    total: activityTotal,
+  });
   const estimate = estimateLessonMinutes(lesson);
   const mainType = lessonMotorLabel(lesson.skill, lesson.isReview);
   const maxXp = topicNode
@@ -226,11 +232,11 @@ export function LessonDetailPage() {
   const totalQi = tasks.reduce((sum, task) => sum + (task.rewardQi ?? 0), 0);
   const stepLabel = topicNode
     ? pathComplete
-      ? "Tema dominado"
-      : `Lição ${topicPass} de 4 · ${passName}`
+      ? t("journey.ctaMastered")
+      : `${t("journey.ctaLessonOf", { n: topicPass })} · ${passName}`
     : isAcquired
-      ? "Lição concluída"
-      : `Etapa ${Math.min(progress + 1, tasks.length)} de ${tasks.length}`;
+      ? t("journey.lessonComplete")
+      : t("player.ofTotal", { index: Math.min(progress + 1, tasks.length), total: tasks.length });
   const blockedCopy = !hasAccess
     ? startAccess.reason
     : toneLocked && requiredTonePack
@@ -268,20 +274,20 @@ export function LessonDetailPage() {
     return "bloqueada";
   }
 
-  const topicCta = topicCtaForLevel(masteryLevel, activityIndex > 0);
+  const topicCta = localizedTopicCta(masteryLevel, activityIndex > 0, t);
   const primaryLabel = !hasAccess
-    ? "Ver Longyu Pro"
+    ? t("player.seeLongyuPro")
     : toneLocked
-    ? "Abrir treino de tons"
+    ? t("player.openToneTrainer")
     : isLocked
-    ? "Voltar à jornada"
+    ? t("journey.backToJourney")
     : topicNode
     ? topicCta.primary
     : isAcquired
-    ? "Rever lição"
+    ? t("player.reviewLesson")
     : progress > 0
-    ? "Continuar"
-    : "Começar lição";
+    ? t("common.continue")
+    : t("player.startLesson");
 
   const skillIcon = SKILL_ICON[lesson.skill];
   const blocked = isLocked || !hasAccess;
@@ -290,9 +296,9 @@ export function LessonDetailPage() {
     <RightRail>
       <CompactCard>
         <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
-          <IconStar width={12} height={12} /> Dica
+          <IconStar width={12} height={12} /> {t("player.tip")}
         </div>
-        <p className="mt-1 text-[13px] leading-5 text-ink-soft">{SKILL_TIP[lesson.skill]}</p>
+        <p className="mt-1 text-[13px] leading-5 text-ink-soft">{displayInstruction(SKILL_TIP[lesson.skill], locale)}</p>
       </CompactCard>
       {!isPremium && <HubProStrip isPremium={isPremium} />}
     </RightRail>
@@ -301,10 +307,10 @@ export function LessonDetailPage() {
   return (
     <PageShell width="wide" rail={rail}>
       <PageHeader
-        back={{ to: "/jornada", label: "Jornada" }}
-        eyebrow={`Fase ${lesson.phaseOrder} · ${lesson.unitTitle}`}
-        title={lesson.title}
-        subtitle={`${lesson.phaseTitle} · ${mainType} · ${estimate} min`}
+        back={{ to: "/jornada", label: t("journey.title") }}
+        eyebrow={`${t("journey.phaseN", { n: lesson.phaseOrder })} · ${displayInstruction(lesson.unitTitle, locale)}`}
+        title={displayLessonTitle(lesson.title, locale)}
+        subtitle={`${displayInstruction(lesson.phaseTitle, locale)} · ${displayInstruction(mainType, locale)} · ${estimate} min`}
         icon={skillIcon}
       />
 
@@ -313,24 +319,24 @@ export function LessonDetailPage() {
         {topicNode ? (
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent" data-testid="topic-pass-label">
-              {pathComplete ? "Tema dominado" : `Lição ${topicPass} de 4 · ${passName}`}
+              {pathComplete ? t("journey.ctaMastered") : t("journey.ctaLessonOf", { n: topicPass }) + ` · ${passName}`}
             </p>
             <p className="mt-2 break-words text-sm leading-6 text-ink sm:text-[15px]">
               {passGoal ? (
                 <>
-                  <span className="font-semibold text-ink-soft">Objetivo: </span>
+                  <span className="font-semibold text-ink-soft">{t("journey.objective")}: </span>
                   {passGoal}
                 </>
               ) : (
-                spec?.promise ?? lessonDescription(lesson)
+                spec ? displayInstruction(spec.promise, locale) : displayInstruction(lessonDescription(lesson), locale)
               )}
             </p>
             {pathComplete && (
-              <p className="mt-2 text-[13px] font-semibold text-[rgb(var(--good))]">Tema dominado ✓</p>
+              <p className="mt-2 text-[13px] font-semibold text-[rgb(var(--good))]">{t("journey.ctaMastered")} ✓</p>
             )}
           </div>
         ) : (
-          <p className="break-words text-sm leading-6 text-ink sm:text-[15px]">{lessonDescription(lesson)}</p>
+          <p className="break-words text-sm leading-6 text-ink sm:text-[15px]">{displayInstruction(lessonDescription(lesson), locale)}</p>
         )}
 
         <div className="mt-3.5">
@@ -344,10 +350,10 @@ export function LessonDetailPage() {
         {topicNode && (
           <div className="mt-3 rounded-xl border border-line/60 bg-surface-2/60 px-3 py-2.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold text-ink-soft">Progresso do tema</span>
+              <span className="text-[11px] font-semibold text-ink-soft">{t("journey.topicProgress")}</span>
               <span className="text-[11px] font-medium text-ink-faint">{masteryLevel}/4</span>
             </div>
-            <div className="mt-1.5 flex items-center gap-1.5" aria-label={`Tema ${masteryLevel} de 4`}>
+            <div className="mt-1.5 flex items-center gap-1.5" aria-label={t("journey.topicOf", { n: masteryLevel })}>
               {[1, 2, 3, 4].map((level) => (
                 <span
                   key={level}
@@ -397,7 +403,7 @@ export function LessonDetailPage() {
 
       {/* Etapas compactas — só ícone, título curto e status. */}
       <div>
-        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">Etapas</div>
+        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">{t("player.stages")}</div>
         <div className="flex items-start justify-between gap-1 rounded-xl border border-line/50 bg-surface px-2 py-3 shadow-card sm:gap-2 sm:px-4">
           {tasks.map((task, index) => (
             <StepNode key={task.id} task={task} status={statusFor(index)} index={index} />

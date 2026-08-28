@@ -23,6 +23,8 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { formatDate } from "../../i18n/format";
 import { useTranslation } from "../../i18n/useTranslation";
+import { localizeReviewExercise } from "../../i18n/overlays/localizeReview";
+import { scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import {
@@ -118,19 +120,23 @@ type ReviewQueueEntry =
 
 type ReviewMode = "all" | "mistakes" | "weak" | "sound" | "hanzi" | "phrases";
 
-const REVIEW_MODES: { id: ReviewMode; label: string; hint: string }[] = [
-  { id: "all", label: "Revisar agora", hint: "Fila inteligente completa, com formatos intercalados." },
-  { id: "mistakes", label: "Erros recentes", hint: "Corrija exatamente o que você errou na lição." },
-  { id: "weak", label: "Itens fracos", hint: "Reforça itens que você já errou antes." },
-  { id: "sound", label: "Pinyin e tons", hint: "Áudio, pinyin escrito, acentos e tom." },
-  { id: "hanzi", label: "Hànzì", hint: "Forma visual, componentes e montagem." },
-  { id: "phrases", label: "Frases", hint: "Lacunas, diálogo, peças e leitura em contexto." },
-];
+const REVIEW_MODE_IDS: ReviewMode[] = ["all", "mistakes", "weak", "sound", "hanzi", "phrases"];
+
+function reviewModeOptions(translate: (key: string) => string): { id: ReviewMode; label: string; hint: string }[] {
+  return [
+    { id: "all", label: translate("review.modeAll"), hint: translate("review.modeAllHint") },
+    { id: "mistakes", label: translate("review.modeMistakes"), hint: translate("review.modeMistakesHint") },
+    { id: "weak", label: translate("review.modeWeak"), hint: translate("review.modeWeakHint") },
+    { id: "sound", label: translate("review.modeSound"), hint: translate("review.modeSoundHint") },
+    { id: "hanzi", label: translate("review.modeHanzi"), hint: translate("review.modeHanziHint") },
+    { id: "phrases", label: translate("review.modePhrases"), hint: translate("review.modePhrasesHint") },
+  ];
+}
 
 function reviewModeFromSearch(value: string | null): ReviewMode {
   if (value === "erros") return "mistakes";
   if (value === "fracos") return "weak";
-  if (value && REVIEW_MODES.some((mode) => mode.id === value)) return value as ReviewMode;
+  if (value && REVIEW_MODE_IDS.includes(value as ReviewMode)) return value as ReviewMode;
   return "all";
 }
 
@@ -388,9 +394,10 @@ function ReviewModeTabs({
   counts: Record<ReviewMode, number>;
   onSelect: (mode: ReviewMode) => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <section className="-mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Seções de revisão">
-      {REVIEW_MODES.map((option) => {
+    <section className="-mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" aria-label={t("review.sectionsAria")}>
+      {reviewModeOptions(t).map((option) => {
         const count = counts[option.id];
         const active = mode === option.id;
         const disabled = count === 0 && !active;
@@ -448,13 +455,9 @@ function isHanziText(value: string | undefined): boolean {
   return /[\u3400-\u9fff]/u.test(value ?? "");
 }
 
-function normalizeReviewAnswer(value: string): string {
-  return value.replace(/[，。！？、,.!?\s：；;“”"（）()]/g, "").trim().toLocaleLowerCase("pt-BR");
-}
-
 function optionTone(option: ReviewOption, selected: string | null, revealed: boolean, answer: string): "accent" | "good" | "bad" | "neutral" {
   if (!revealed) return selected === option.value ? "accent" : "neutral";
-  if (normalizeReviewAnswer(option.value) === normalizeReviewAnswer(answer)) return "good";
+  if (scoredAnswersMatch(option.value, answer)) return "good";
   if (selected === option.value) return "bad";
   return "neutral";
 }
@@ -488,12 +491,12 @@ function isExerciseCorrect(
     const values = selectedPieceIds
       .map((id) => exercise.pieces?.find((piece) => piece.id === id)?.value ?? "")
       .join("");
-    return normalizeReviewAnswer(values) === normalizeReviewAnswer((exercise.targetValues ?? []).join(""));
+    return scoredAnswersMatch(values, (exercise.targetValues ?? []).join(""));
   }
   if (exercise.kind === "match_pairs") {
     return (exercise.pairs ?? []).every((pair) => pairMatches[pair.id] === pair.right);
   }
-  return normalizeReviewAnswer(selectedOption ?? "") === normalizeReviewAnswer(exercise.answer);
+  return scoredAnswersMatch(selectedOption ?? "", exercise.answer);
 }
 
 // examMode: esconde a dica interativa (popover de pinyin/significado e áudio ao
@@ -548,7 +551,7 @@ function ChoiceButton({
       onClick={() => onSelect(option.value)}
       data-review-option={option.value}
       data-review-option-correct={
-        normalizeReviewAnswer(option.value) === normalizeReviewAnswer(answer) ? "1" : "0"
+        scoredAnswersMatch(option.value, answer) ? "1" : "0"
       }
       aria-label={shortcut ? `Opção ${shortcut}: ${option.label}` : option.label}
       className={["relative min-h-12 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
@@ -1098,7 +1101,7 @@ function ReviewInsightGroup({
 }
 
 export function RevisaoPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);
   const gradeSrs = useStore((s) => s.gradeSrs);
@@ -1265,25 +1268,28 @@ export function RevisaoPage() {
   const exercise = useMemo(
     () =>
       personalizeReviewExercise(
-        entry
-          ? entry.kind === "mistake"
-            ? buildReviewExerciseFromMistake({
-                mistake: entry.error,
-                learnedItems,
-                hanziBuilderProgress,
-              })
-            : buildReviewExercise({
-                item: entry.item,
-                learnedItems,
-                domain,
-                errorHistory: detailedErrorsAllowed ? learnedItems.filter((learned) => learned.lapses > 0) : undefined,
-                activityErrors: detailedErrorsAllowed ? activeActivityErrors : undefined,
-                hanziBuilderProgress,
-              })
-          : null,
+        localizeReviewExercise(
+          entry
+            ? entry.kind === "mistake"
+              ? buildReviewExerciseFromMistake({
+                  mistake: entry.error,
+                  learnedItems,
+                  hanziBuilderProgress,
+                })
+              : buildReviewExercise({
+                  item: entry.item,
+                  learnedItems,
+                  domain,
+                  errorHistory: detailedErrorsAllowed ? learnedItems.filter((learned) => learned.lapses > 0) : undefined,
+                  activityErrors: detailedErrorsAllowed ? activeActivityErrors : undefined,
+                  hanziBuilderProgress,
+                })
+            : null,
+          locale
+        ),
         studentName
       ),
-    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems, studentName]
+    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems, locale, studentName]
   );
 
   useEffect(() => {
@@ -1853,7 +1859,7 @@ export function RevisaoPage() {
       {detailedErrorsAllowed && !correctionDrill && (
         <>
           <ReviewModeTabs mode={mode} counts={modeCounts} onSelect={setMode} />
-          <p className="-mt-2 text-xs text-ink-faint">{REVIEW_MODES.find((option) => option.id === mode)?.hint}</p>
+          <p className="-mt-2 text-xs text-ink-faint">{reviewModeOptions(t).find((option) => option.id === mode)?.hint}</p>
         </>
       )}
 

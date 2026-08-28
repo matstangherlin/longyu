@@ -1,5 +1,6 @@
 import { ProgressBar } from "../../components/ui/primitives";
 import { IconChat, IconFlame, IconX } from "../../components/ui/Icon";
+import { t } from "../../i18n/catalog";
 
 // Barra superior do modo foco: fina como em apps de idioma.
 // [X] [progresso] [fôlego] [6/10] [report] e, abaixo, uma linha discreta com a etapa.
@@ -36,7 +37,7 @@ export function LessonFocusHeader({
         <button
           onClick={onExit}
           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-          aria-label="Sair"
+        aria-label={t("player.exit")}
         >
           <IconX width={16} height={16} />
         </button>
@@ -56,8 +57,8 @@ export function LessonFocusHeader({
             type="button"
             onClick={onReport}
             className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-            aria-label="Reportar problema nesta pergunta"
-            title="Reportar problema"
+            aria-label={t("player.reportQuestion")}
+            title={t("common.reportProblem")}
           >
             <IconChat width={15} height={15} />
           </button>

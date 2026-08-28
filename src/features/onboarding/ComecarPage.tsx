@@ -21,6 +21,8 @@ import { trackFunnelEvent } from "../../services/funnelEvents";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
+import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import {
   appendPendingAnswer,
@@ -117,8 +119,9 @@ function entryPointForLesson(lessonId: string): { phaseTitle: string; unitTitle:
   return undefined;
 }
 
-function lessonTitle(lessonId: string): string {
-  return ALL_LESSONS.find((lesson) => lesson.id === lessonId)?.title ?? lessonId;
+function lessonTitle(lessonId: string, locale?: "pt-BR" | "en"): string {
+  const title = ALL_LESSONS.find((lesson) => lesson.id === lessonId)?.title ?? lessonId;
+  return localizeLessonTitle(title, locale);
 }
 
 export function ComecarPage() {
@@ -663,7 +666,7 @@ function ResultPreview({
         <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{localizedPlacementHeading(analysis, locale)}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">{localizedPlacementMessage(analysis, locale)}</p>
         <p className="mt-2 text-sm font-medium text-ink">
-          {entry?.phaseTitle ?? t("journey.title")} {entry?.unitTitle ? `· ${entry.unitTitle}` : ""} · {lessonTitle(analysis.placement.targetLessonId)}
+          {entry ? displayInstruction(entry.phaseTitle, locale) : t("journey.title")} {entry?.unitTitle ? `· ${displayInstruction(entry.unitTitle, locale)}` : ""} · {lessonTitle(analysis.placement.targetLessonId, locale)}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <Stat label={t("placement.confidence")} value={`${Math.round(analysis.placementConfidence * 100)}%`} />

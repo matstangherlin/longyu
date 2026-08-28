@@ -58,6 +58,10 @@ import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
+import { t } from "../../i18n/catalog";
+import { useTranslation } from "../../i18n/useTranslation";
+import { localizeLessonStep } from "../../i18n/overlays/localizeLesson";
+import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { validateExercise } from "./exerciseValidation";
 import {
   isEvaluableQuestionStep,
@@ -163,7 +167,8 @@ function StickyActionBar({
   );
 }
 
-function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; label?: string }) {
+function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }) {
+  const resolved = label ?? t("player.continue");
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
@@ -173,7 +178,7 @@ function ContinueBtn({ onClick, label = "Continuar" }: { onClick: () => void; la
   return (
     <StickyActionBar>
       <Button className="w-full animate-pop shadow-lift" onClick={onClick}>
-        {label}
+        {resolved}
         <IconChevron width={18} height={18} aria-hidden="true" />
       </Button>
     </StickyActionBar>
@@ -192,18 +197,20 @@ function SkipStepButton({ onSkip, className = "mt-3" }: { onSkip?: () => void; c
       ].join(" ")}
     >
       <IconFlame width={13} height={13} />
-      Pular · custa 1 fôlego
+      {t("player.skipBreath")}
     </button>
   );
 }
 
 function Eyebrow({ children }: { children: string }) {
+  const { locale } = useTranslation();
+  const label = resolveInstructionText(children, locale);
   return (
     <div
-      data-step-eyebrow={children}
+      data-step-eyebrow={label}
       className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent"
     >
-      {children}
+      {label}
     </div>
   );
 }
@@ -241,7 +248,7 @@ function AnswerFeedback({
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-        {correct ? "Certo! +Qi" : "Quase"}
+        {correct ? t("player.correct") : t("player.almost")}
       </div>
       <MandarinText
         hanzi={hanzi}
@@ -574,23 +581,23 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
         )}
       </div>
 
-      <h3 className="mb-3 font-serif text-base font-semibold text-ink">Qual tom você ouviu?</h3>
+      <h3 className="mb-3 font-serif text-base font-semibold text-ink">{resolveInstructionText("Qual tom você ouviu?")}</h3>
       <div className={["grid gap-2 sm:gap-3", ensuredChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
-        {ensuredChoices.map((t, index) => {
+        {ensuredChoices.map((tone, index) => {
           const state =
             picked == null
-              ? selectedTone === t
+              ? selectedTone === tone
                 ? "selected"
                 : "idle"
-              : t === answer
+              : tone === answer
                 ? "right"
-                : t === picked
+                : tone === picked
                   ? "wrong"
                   : "idle";
           return (
             <button
-              key={t}
-              onClick={() => pick(t)}
+              key={tone}
+              onClick={() => pick(tone)}
               disabled={picked != null}
               className={[
                 "relative flex flex-col items-center gap-1 rounded-xl border py-4 transition disabled:cursor-default",
@@ -601,11 +608,11 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               ]
                 .filter(Boolean)
                 .join(" ")}
-              aria-label={`Opção ${index + 1}: ${t}º tom`}
+              aria-label={t("player.optionAria", { key: String(index + 1), value: `${tone}º tom` })}
             >
-              <span className="text-2xl font-semibold tabular-nums text-ink">{t}</span>
-              <span className="text-xs font-medium text-ink-soft">{t}º tom</span>
-              {showDetail && <ToneCurve tone={t} size={12} />}
+              <span className="text-2xl font-semibold tabular-nums text-ink">{tone}</span>
+              <span className="text-xs font-medium text-ink-soft">{resolveInstructionText(`${tone}º tom`)}</span>
+              {showDetail && <ToneCurve tone={tone} size={12} />}
             </button>
           );
         })}
@@ -668,10 +675,10 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function answerOption(option: string) {
     if (answered) return;
-    playSoundFx(option === step.answer ? "success" : "pieceSelect", soundEffects);
+    playSoundFx(answersEquivalent(option, step.answer) ? "success" : "pieceSelect", soundEffects);
     setSelected(option);
     setAnswered(option);
-    if (option !== step.answer) onMistake?.(option);
+    if (!answersEquivalent(option, step.answer)) onMistake?.(option);
   }
 
   function submitSelected() {
@@ -683,7 +690,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
     enabled: true,
     mode: "choice",
     optionCount: options.length,
-    isAnswered: answered != null && (answered === step.answer || !onMistake),
+    isAnswered: answered != null && (answersEquivalent(answered, step.answer) || !onMistake),
     hasSelection: Boolean(selected),
     onSelectOption: (index) => {
       const option = options[index];
@@ -691,7 +698,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
     },
     onSubmit: submitSelected,
     onContinue: () => {
-      if (answered) onDone(answered === step.answer);
+      if (answered) onDone(answersEquivalent(answered, step.answer));
     },
   });
 
@@ -710,13 +717,13 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
       <KeyboardShortcutHint />
       <div className="grid gap-2">
         {options.map((o, index) => {
-          const state = answered == null ? (o === selected ? "selected" : "idle") : o === step.answer ? "right" : o === answered ? "wrong" : "idle";
+          const state = answered == null ? (o === selected ? "selected" : "idle") : answersEquivalent(o, step.answer) ? "right" : o === answered ? "wrong" : "idle";
           return (
             <button
               key={o}
               onClick={() => answerOption(o)}
               disabled={answered != null}
-              aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
+              aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: o })}
               {...optionChoiceDomProps(index, o === selected, o)}
               className={[
                 "relative flex min-h-12 items-center gap-2.5 rounded-xl border px-4 py-2.5 text-left transition",
@@ -735,13 +742,13 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
         })}
       </div>
       {answered == null && <SkipStepButton onSkip={onSkip} />}
-      {answered != null && (answered === step.answer || !onMistake) && (
+      {answered != null && (answersEquivalent(answered, step.answer) || !onMistake) && (
         <AnswerFeedback
-          correct={answered === step.answer}
+          correct={answersEquivalent(answered, step.answer)}
           hanzi={step.hanzi!}
           pinyin={step.pinyin}
           meaning={step.answer}
-          onContinue={() => onDone(answered === step.answer)}
+          onContinue={() => onDone(answersEquivalent(answered, step.answer))}
         />
       )}
     </div>
@@ -811,7 +818,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
             onClick={() => addBankPiece(b)}
             disabled={full}
             className={[engineTileClass({ cjk: isCjkText(b) }), "relative"].join(" ")}
-            aria-label={`Peça ${shortcutKeyForIndex(i)}: ${b}`}
+            aria-label={t("player.pieceAria", { key: shortcutKeyForIndex(i), value: b })}
           >
             <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(i)}</ShortcutBadge>
             <ExerciseText value={b} type={isCjkText(b) ? "hanzi" : "pt"} speakOnClick />
@@ -834,7 +841,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
               playSoundFx("tap", soundEffects);
               setPicked([]);
             }}>
-              Tentar de novo
+              {t("player.tryAgain")}
             </Button>
           </div>
         </div>
@@ -1099,7 +1106,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
                       type="button"
                       onClick={() => addGuidedPiece(token)}
                       disabled={used || status === "correct"}
-                      aria-label={`Peça ${shortcutKeyForIndex(pieceTokens.indexOf(token))}: ${token.value}`}
+                      aria-label={t("player.pieceAria", { key: shortcutKeyForIndex(pieceTokens.indexOf(token)), value: token.value })}
                       className={[
                         engineTileClass({ cjk: isCjkText(token.value) }),
                         "group relative overflow-visible",
@@ -1116,7 +1123,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
                     type="button"
                     onClick={() => addPiece(piece)}
                     disabled={status === "correct"}
-                    aria-label={`Peça ${index + 1}: ${piece}`}
+                    aria-label={t("player.pieceAria", { key: String(index + 1), value: piece })}
                     className={[
                       "min-h-11 rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink transition hover:bg-surface-2 active:scale-[0.99] disabled:opacity-50",
                       "group relative overflow-visible",
@@ -1157,33 +1164,33 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
           }}
           className="mt-2 text-xs font-semibold text-ink-faint underline-offset-2 transition hover:text-ink-soft hover:underline"
         >
-          {composing ? "Prefiro digitar" : "Voltar às peças"}
+          {composing ? t("player.preferTyping") : t("player.backToPieces")}
         </button>
       )}
 
       {!hasRequiredStarter && hasDraft && (
         <p className="mt-2 text-xs font-medium text-ink-faint">
-          Use pelo menos uma peça obrigatória para conferir.
+          {t("player.needRequiredPiece")}
         </p>
       )}
 
       {isFreeReflection ? (
         <Button className="mt-4 w-full" onClick={() => onDone()}>
-          Continuar <IconChevron width={18} height={18} />
+          {t("player.continue")} <IconChevron width={18} height={18} />
         </Button>
       ) : (
         <>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <Button variant="soft" onClick={useSuggestion} disabled={status === "correct"}>
-              Usar sugestão
+              {t("player.useSuggestion")}
             </Button>
             <Button variant="outline" onClick={() => setModelVisible(true)} disabled={status === "correct"}>
-              Ver resposta modelo
+              {t("player.seeModelAnswer")}
             </Button>
           </div>
 
           <Button className="mt-3 w-full" disabled={!canCheck} onClick={checkAnswer}>
-            Verificar
+            {t("player.check")}
           </Button>
         </>
       )}
@@ -1191,7 +1198,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       {modelVisible && status !== "wrong" && status !== "correct" && (
         <div className="animate-pop mt-4 rounded-2xl border border-line bg-surface-2 p-4">
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-            Resposta modelo
+            {t("player.modelAnswer")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink">{step.answer}</p>
         </div>
@@ -1214,27 +1221,27 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
             ].join(" ")}
           >
             {status === "correct" ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-            {status === "correct" ? "Boa! +Qi" : "Quase"}
+            {status === "correct" ? t("player.almostQi") : t("player.almost")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {status === "correct"
-              ? "Boa! Você usou a estrutura certa."
+              ? t("player.structureOk")
               : status === "partial"
-              ? `Quase. Use a estrutura sugerida: ${suggestionFeedbackText(suggestion ?? step.answer ?? "")}.`
-              : `A resposta modelo é ${step.answer}. Toque nas peças para montar.`}
+              ? t("player.almostUseStructure", { suggestion: suggestionFeedbackText(suggestion ?? step.answer ?? "") })
+              : t("player.modelIs", { answer: step.answer ?? "" })}
           </p>
 
           {status === "correct" ? (
             <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(true)}>
-              Continuar <IconChevron width={18} height={18} />
+              {t("player.continue")} <IconChevron width={18} height={18} />
             </Button>
           ) : (
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <Button variant="good" className="shadow-lift" onClick={retry}>
-                Tentar de novo
+                {t("player.tryAgain")}
               </Button>
               <Button variant="soft" onClick={() => setModelVisible(true)}>
-                Ver resposta modelo
+                {t("player.seeModelAnswer")}
               </Button>
             </div>
           )}
@@ -1384,7 +1391,7 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake, lessonId, attemp
                 key={token.id}
                 type="button"
                 disabled={locked || usedIds.has(token.id)}
-                aria-label={`Peça ${index + 1}: ${token.value}`}
+                aria-label={t("player.pieceAria", { key: String(index + 1), value: token.value })}
                 onClick={() => {
                   if (locked || usedIds.has(token.id)) return;
                   playSoundFx("pieceSelect", soundEffects);
@@ -1627,22 +1634,22 @@ function EngineFeedbackPanel({
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : unrecognized ? null : <IconX width={18} height={18} />}
-        {correct ? "Boa! +Qi" : unrecognized ? "Não reconheci essa forma" : "Quase"}
+        {correct ? t("player.almostQi") : unrecognized ? t("player.unrecognizedForm") : t("player.almost")}
       </div>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
         {correct
           ? explanation ??
             (hadMistake
-              ? "Certo agora — esta parte entra na revisão."
-              : "Estrutura certa.")
+              ? t("player.correctNowReview")
+              : t("player.structureRight"))
           : unrecognized
-            ? "Não entendi essa forma — não contou como erro. Exemplo:"
+            ? t("player.unrecognizedLead")
             : wrongCopy}
       </p>
       {model && (
         <div className="mt-3 rounded-xl bg-surface/75 px-3 py-2">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            Modelo
+            {t("player.model")}
           </div>
           <div className={["mt-1 font-semibold text-ink", isCjkText(model) ? "text-2xl" : "text-sm"].join(" ")}>
             <ExerciseText
@@ -1657,13 +1664,13 @@ function EngineFeedbackPanel({
       {correct ? (
         <StickyActionBar>
           <Button variant="good" className="w-full shadow-lift" onClick={onContinue}>
-            Continuar <IconChevron width={18} height={18} />
+            {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
         </StickyActionBar>
       ) : (
         <StickyActionBar>
           <Button variant="good" className="w-full shadow-lift" onClick={onRetry}>
-            Tentar de novo
+            {t("player.tryAgain")}
           </Button>
         </StickyActionBar>
       )}
@@ -1689,7 +1696,7 @@ function EngineActions({
       <div className={onClear ? "grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2" : ""}>
         {onClear && (
           <Button size="lg" variant="outline" className="w-full" disabled={!canClear} onClick={onClear}>
-            Limpar
+            {t("player.clear")}
           </Button>
         )}
         <Button
@@ -1699,7 +1706,7 @@ function EngineActions({
           disabled={!canCheck}
           onClick={onCheck}
         >
-          Verificar
+          {t("player.check")}
         </Button>
       </div>
       <SkipStepButton onSkip={onSkip} className="mt-3" />
@@ -2011,7 +2018,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
 
   function check() {
     if (!picked) return;
-    if (normalizeEngineAnswer(picked) === normalizeEngineAnswer(answer)) {
+    if (scoredAnswersMatch(picked, answer)) {
       setFeedback("correct");
     } else {
       setHadMistake(true);
@@ -2128,7 +2135,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function check() {
     if (!picked || feedback) return;
-    if (normalizeEngineAnswer(picked) === normalizeEngineAnswer(answer)) {
+    if (scoredAnswersMatch(picked, answer)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       // No modo visual o acerto vale, mas a parte de escuta vai para revisão.
@@ -2267,7 +2274,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
           {step.explanation && <p className="mt-3 text-sm leading-6 text-ink-soft">{step.explanation}</p>}
           <Button className="mt-4 w-full shadow-lift" variant="good" onClick={retry}>
-            Tentar de novo
+            {t("player.tryAgain")}
           </Button>
         </div>
       )}
@@ -2292,7 +2299,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
           )}
           {onSkip && (
             <Button variant="outline" onClick={onSkip}>
-              Pular
+              {t("player.skip")}
             </Button>
           )}
           <Button
@@ -2301,7 +2308,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
             disabled={!picked}
             onClick={check}
           >
-            Verificar
+            {t("player.check")}
           </Button>
         </StickyActionBar>
       )}
@@ -2314,7 +2321,7 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
   const soundEffects = useStore((s) => s.soundEffects);
   const ttsRate = useStore((s) => s.ttsRate);
   const audios = step.audioSequence ?? [];
-  const options = step.options ?? ["Iguais", "Diferentes"];
+  const options = step.options ?? [t("player.same"), t("player.different")];
   const answer = step.correctAnswer ?? "";
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
@@ -2322,7 +2329,7 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
 
   function check() {
     if (!picked || feedback === "correct") return;
-    if (normalizeEngineAnswer(picked) === normalizeEngineAnswer(answer)) {
+    if (scoredAnswersMatch(picked, answer)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       return;
@@ -2577,8 +2584,8 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
       )}
 
       <PieceAssemblyBoard
-        trayLabel="Sua resposta"
-        bankLabel="Peças para usar"
+        trayLabel={t("player.yourAnswer")}
+        bankLabel={t("player.piecesToUse")}
         tray={
           <PieceAssemblyTray
             pieces={picked}
@@ -2587,7 +2594,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
             wrongIndexes={wrongIndexes}
             matchPrefix={matchPrefix}
             showWrong={showWrongMarks}
-            emptyHint="Toque nas peças abaixo para montar aqui"
+            emptyHint={t("player.tapPiecesHint")}
             onRemove={removePiece}
           />
         }
@@ -2629,7 +2636,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
             </p>
           )}
           <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(!hadMistake)}>
-            Continuar <IconChevron width={18} height={18} />
+            {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
         </div>
       )}
@@ -2641,7 +2648,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
             {assemblyHint ?? "Quase — tente outra montagem."}
           </div>
           <p className="mt-2 text-sm leading-5 text-ink-soft">
-            As peças destacadas em verde estão no lugar. Ajuste só o restante — ou limpe e monte de novo.
+            {t("player.almostAssemblyLong")}
           </p>
           {step.explanation && (
             <p className="mt-3 text-sm leading-6 text-ink-soft">
@@ -2649,7 +2656,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
             </p>
           )}
           <Button className="mt-4 w-full shadow-lift" variant="good" onClick={retry}>
-            Tentar de novo
+            {t("player.tryAgain")}
           </Button>
         </div>
       )}
@@ -2883,7 +2890,7 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function check() {
     if (!picked) return;
-    if (normalizeEngineAnswer(picked) === normalizeEngineAnswer(answer)) {
+    if (scoredAnswersMatch(picked, answer)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
     } else {
@@ -2950,7 +2957,7 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
             onClick={() => pickPiece(piece)}
             disabled={feedback === "correct"}
             className={[engineTileClass({ active: picked === piece, cjk: isCjkText(piece) }), "relative"].join(" ")}
-            aria-label={`Opção ${shortcutKeyForIndex(index)}: ${piece}`}
+            aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: piece })}
           >
             <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             <ExerciseText value={piece} type={isCjkText(piece) ? "hanzi" : "pt"} speakOnClick />
@@ -2999,7 +3006,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function check() {
     if (!picked) return;
-    if (normalizeEngineAnswer(picked) === normalizeEngineAnswer(answer)) {
+    if (scoredAnswersMatch(picked, answer)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
     } else {
@@ -3061,7 +3068,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
               disabled={feedback === "correct"}
               onClick={() => pickOption(option)}
               className={[engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) }), "relative flex items-center gap-2.5"].join(" ")}
-              aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
+              aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: option })}
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="min-w-0 flex-1">
@@ -3092,13 +3099,15 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
 
 function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
+  const { locale } = useTranslation();
   const char = charById[step.charId!];
+  const meaning = resolveInstructionText(char.meaningPt, locale);
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
   const options = useMemo(() => {
     const distractors = shuffle(CHARACTERS.filter((c) => c.id !== char.id)).slice(0, 3);
-    return shuffle([char, ...distractors].map((c) => c.meaningPt));
-  }, [char]);
+    return shuffle([char, ...distractors].map((c) => resolveInstructionText(c.meaningPt, locale)));
+  }, [char, locale]);
 
   function selectOption(option: string) {
     if (answered) return;
@@ -3108,10 +3117,10 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function answerOption(option: string) {
     if (answered) return;
-    playSoundFx(option === char.meaningPt ? "success" : "pieceSelect", soundEffects);
+    playSoundFx(answersEquivalent(option, meaning) ? "success" : "pieceSelect", soundEffects);
     setSelected(option);
     setAnswered(option);
-    if (option !== char.meaningPt) onMistake?.(option);
+    if (!answersEquivalent(option, meaning)) onMistake?.(option);
   }
 
   function submitSelected() {
@@ -3123,7 +3132,7 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
     enabled: true,
     mode: "choice",
     optionCount: options.length,
-    isAnswered: answered != null && (answered === char.meaningPt || !onMistake),
+    isAnswered: answered != null && (answersEquivalent(answered, meaning) || !onMistake),
     hasSelection: Boolean(selected),
     onSelectOption: (index) => {
       const option = options[index];
@@ -3131,7 +3140,7 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
     },
     onSubmit: submitSelected,
     onContinue: () => {
-      if (answered) onDone(answered === char.meaningPt);
+      if (answered) onDone(answersEquivalent(answered, meaning));
     },
   });
 
@@ -3151,13 +3160,13 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
       <KeyboardShortcutHint />
       <div className="grid gap-2 text-left">
         {options.map((o, index) => {
-          const state = answered == null ? (o === selected ? "selected" : "idle") : o === char.meaningPt ? "right" : o === answered ? "wrong" : "idle";
+          const state = answered == null ? (o === selected ? "selected" : "idle") : answersEquivalent(o, meaning) ? "right" : o === answered ? "wrong" : "idle";
           return (
             <button
               key={o}
               disabled={answered != null}
               onClick={() => answerOption(o)}
-              aria-label={`Opção ${shortcutKeyForIndex(index)}: ${o}`}
+              aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: o })}
               className={[
                 "relative flex min-h-12 items-center gap-2.5 rounded-xl border px-4 py-2.5 transition",
                 state === "idle" && "border-line hover:bg-surface-2",
@@ -3175,14 +3184,14 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
         })}
       </div>
       {answered == null && <SkipStepButton onSkip={onSkip} />}
-      {answered != null && (answered === char.meaningPt || !onMistake) && (
+      {answered != null && (answersEquivalent(answered, meaning) || !onMistake) && (
         <AnswerFeedback
-          correct={answered === char.meaningPt}
+          correct={answersEquivalent(answered, meaning)}
           hanzi={char.hanzi}
           pinyin={char.pinyin}
-          meaning={char.meaningPt}
-          hint={char.mnemonicPt}
-          onContinue={() => onDone(answered === char.meaningPt)}
+          meaning={meaning}
+          hint={resolveInstructionText(char.mnemonicPt ?? "", locale) || undefined}
+          onContinue={() => onDone(answersEquivalent(answered, meaning))}
         />
       )}
     </div>
@@ -3397,8 +3406,8 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
   }, [playBoth]);
 
   const options: { value: "same" | "different"; label: string }[] = [
-    { value: "same", label: "Iguais" },
-    { value: "different", label: "Diferentes" },
+    { value: "same", label: t("player.same") },
+    { value: "different", label: t("player.different") },
   ];
 
   function check() {
@@ -3683,7 +3692,7 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
                 key={token.id}
                 type="button"
                 disabled={locked || usedIds.has(token.id)}
-                aria-label={`Peça ${index + 1}: ${token.value}`}
+                aria-label={t("player.pieceAria", { key: String(index + 1), value: token.value })}
                 onClick={() => {
                   if (locked || usedIds.has(token.id)) return;
                   playSoundFx("pieceSelect", soundEffects);
@@ -3798,7 +3807,7 @@ function MeaningChoiceExercise({
 
   function check() {
     if (!picked || feedback === "correct") return;
-    if (normalizeEngineAnswer(picked) === normalizeEngineAnswer(answer)) {
+    if (scoredAnswersMatch(picked, answer)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       return;
@@ -4930,8 +4939,10 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
 
 export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
   const name = useStudentFirstName();
+  const { locale } = useTranslation();
   const runtimeStep = useMemo(() => materializeRuntimeStep(step), [step]);
-  const personalizedStep = useMemo(() => personalizeStep(runtimeStep, name), [runtimeStep, name]);
+  const localizedStep = useMemo(() => localizeLessonStep(runtimeStep, locale), [runtimeStep, locale]);
+  const personalizedStep = useMemo(() => personalizeStep(localizedStep, name), [localizedStep, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
   const isDev = Boolean((import.meta as { env?: { DEV?: boolean } }).env?.DEV);
   const [progressiveUnlocked, setProgressiveUnlocked] = useState(false);

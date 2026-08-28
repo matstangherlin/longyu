@@ -27,6 +27,9 @@ import {
   useExerciseHotkeys,
 } from "../../lib/useExerciseHotkeys";
 import type { StepProps } from "./steps";
+import { t } from "../../i18n/catalog";
+import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
+import { getInterfaceLocale } from "../../i18n/locale";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -37,11 +40,8 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
-function normalizeAnswer(value: string | undefined): string {
-  return (value ?? "")
-    .trim()
-    .replace(/[，。！？、,.!?\s]/g, "")
-    .toLocaleLowerCase("pt-BR");
+function conversationAnswersMatch(a: string | undefined, b: string | undefined): boolean {
+  return scoredAnswersMatch(a, b) || answersEquivalent(a, b);
 }
 
 function Eyebrow({ children }: { children: string }) {
@@ -224,7 +224,11 @@ function SpeechBubble({
 }
 
 function SettingBackdrop({ setting }: { setting?: string }) {
-  const label = setting && setting in SETTING_LABELS ? SETTING_LABELS[setting as keyof typeof SETTING_LABELS] : "Cena";
+  const raw =
+    setting && setting in SETTING_LABELS
+      ? SETTING_LABELS[setting as keyof typeof SETTING_LABELS]
+      : t("player.scene");
+  const label = resolveInstructionText(raw, getInterfaceLocale());
   const washes: Record<string, string> = {
     classroom: "from-[rgb(185_65_46/0.10)] via-[rgb(var(--surface-2))] to-[rgb(47_133_90/0.08)]",
     street: "from-[rgb(90_96_100/0.10)] via-[rgb(var(--surface-2))] to-[rgb(185_65_46/0.08)]",
@@ -283,7 +287,7 @@ function CheckpointPanel({
   function check() {
     const attempt = currentAttempt();
     if (!attempt) return;
-    if (normalizeAnswer(attempt) === normalizeAnswer(answer)) {
+    if (conversationAnswersMatch(attempt, answer)) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
     } else {
@@ -385,7 +389,7 @@ function CheckpointPanel({
           <div className="mt-3 grid gap-2">
             {options.map((option, index) => {
               const active = picked === option;
-              const correct = feedback && normalizeAnswer(option) === normalizeAnswer(answer);
+              const correct = feedback && conversationAnswersMatch(option, answer);
               const wrong = feedback === "wrong" && active;
               return (
                 <button
@@ -408,7 +412,7 @@ function CheckpointPanel({
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
+                  aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: option })}
                 >
                   <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
                   <span className="min-w-0 flex-1">
@@ -429,11 +433,11 @@ function CheckpointPanel({
           }
           onClick={check}
         >
-          Verificar
+          {t("player.check")}
         </Button>
         {onSkip && (
           <Button variant="ghost" onClick={onSkip}>
-            Pular
+            {t("player.skip")}
           </Button>
         )}
       </div>
@@ -456,7 +460,7 @@ function CheckpointPanel({
             ].join(" ")}
           >
             {feedback === "correct" ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-            {feedback === "correct" ? "Boa! +Qi" : "Quase"}
+            {feedback === "correct" ? t("player.almostQi") : t("player.almost")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {feedback === "correct"
@@ -468,11 +472,11 @@ function CheckpointPanel({
           </p>
           {feedback === "correct" ? (
             <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(!hadMistake)}>
-              Continuar <IconChevron width={18} height={18} />
+              {t("player.continue")} <IconChevron width={18} height={18} />
             </Button>
           ) : (
             <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
-              Tentar de novo
+              {t("player.tryAgain")}
             </Button>
           )}
         </div>
@@ -535,8 +539,8 @@ function InteractionPanel({
     const attempt = isOrder ? ordered.join("") : isProduce ? draft.trim() : picked ?? "";
     if (!attempt) return;
     const matches = isProduce
-      ? acceptedAnswers.some((accepted) => normalizeAnswer(attempt) === normalizeAnswer(accepted))
-      : normalizeAnswer(attempt) === normalizeAnswer(answer);
+      ? acceptedAnswers.some((accepted) => conversationAnswersMatch(attempt, accepted))
+      : conversationAnswersMatch(attempt, answer);
     if (matches) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
@@ -675,7 +679,7 @@ function InteractionPanel({
           <div className="mt-3 grid gap-2">
             {shuffled.map((option, index) => {
               const active = picked === option;
-              const correct = feedback && normalizeAnswer(option) === normalizeAnswer(answer);
+              const correct = feedback && conversationAnswersMatch(option, answer);
               const wrong = feedback === "wrong" && active;
               return (
                 <button
@@ -698,7 +702,7 @@ function InteractionPanel({
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
+                  aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: option })}
                 >
                   <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
                   <span className="min-w-0 flex-1">
@@ -720,11 +724,11 @@ function InteractionPanel({
           }
           onClick={check}
         >
-          Verificar
+          {t("player.check")}
         </Button>
         {onSkip && (
           <Button variant="ghost" onClick={onSkip}>
-            Pular
+            {t("player.skip")}
           </Button>
         )}
       </div>
@@ -732,11 +736,11 @@ function InteractionPanel({
       {feedback === "correct" && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
           <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
-            <IconCheck width={18} height={18} /> Boa!
+            <IconCheck width={18} height={18} /> {t("player.almostQi")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? "A conversa continua."}</p>
           <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onCorrect}>
-            Continuar <IconChevron width={18} height={18} />
+            {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
         </div>
       )}
@@ -744,13 +748,13 @@ function InteractionPanel({
       {feedback === "wrong" && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
           <div className="flex items-center gap-2 text-sm font-semibold text-accent">
-            <IconX width={18} height={18} /> Quase
+            <IconX width={18} height={18} /> {t("player.almost")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {interaction.explanation ?? `Resposta sugerida: ${answer}`}
           </p>
           <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
-            Tentar de novo
+            {t("player.tryAgain")}
           </Button>
         </div>
       )}
@@ -789,7 +793,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
   function check() {
     const attempt = draft.trim();
     if (!attempt || done) return;
-    const ok = beat.accepts.some((accepted) => normalizeAnswer(attempt) === normalizeAnswer(accepted));
+    const ok = beat.accepts.some((accepted) => conversationAnswersMatch(attempt, accepted));
     if (ok) {
       setDone(true);
       playSoundFx("success", soundEffects);
@@ -859,7 +863,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
             className="mt-2 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft"
           />
           <Button className="mt-3 w-full shadow-lift" disabled={draft.trim().length === 0} onClick={check}>
-            Verificar
+            {t("player.check")}
           </Button>
         </>
       )}
@@ -970,7 +974,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         <Eyebrow>Cena</Eyebrow>
         <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
-          Continuar
+          {t("player.continue")}
         </Button>
       </div>
     );
@@ -1033,7 +1037,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">Fala {spokenCount}</span>
             <Button className="min-w-[9.5rem] shadow-lift" onClick={advance}>
-              {isTerminal ? "Concluir" : node.interaction ? "Responder" : "Continuar"}
+              {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -1156,7 +1160,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         <Eyebrow>Cena</Eyebrow>
         <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
-          Continuar
+          {t("player.continue")}
         </Button>
       </div>
     );
@@ -1213,7 +1217,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
               Fala {lineIndex + 1} de {lines.length}
             </span>
             <Button className="min-w-[9.5rem] shadow-lift" onClick={advanceDialogue}>
-              Continuar <IconChevron width={18} height={18} />
+              {t("player.continue")} <IconChevron width={18} height={18} />
             </Button>
           </div>
         )}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button, cx } from "../../components/ui/primitives";
+import { t } from "../../i18n/catalog";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { assemblyTileClass } from "./buildAssemblyFeedback";
 
@@ -66,7 +67,7 @@ export function PieceAssemblyTray({
                 matched: isMatch,
                 wrong: isWrong,
               })}
-              aria-label={locked ? piece.value : `Remover ${piece.value}`}
+              aria-label={locked ? piece.value : t("player.removeAria", { value: piece.value })}
             >
               <ExerciseText value={piece.value} type={cjk ? "hanzi" : "pt"} speakOnClick helpMode="disabled" />
             </button>
@@ -125,7 +126,7 @@ export function PieceAssemblyBank({
             )}
             aria-label={
               showShortcuts && shortcutLabel && index < 10
-                ? `Peça ${shortcutLabel(index)}: ${piece.value}`
+                ? t("player.pieceAria", { key: shortcutLabel(index), value: piece.value })
                 : piece.value
             }
           >
@@ -206,8 +207,8 @@ export function AssemblyCheckActions({
   canClear,
   onCheck,
   onClear,
-  checkLabel = "Verificar",
-  clearLabel = "Limpar",
+  checkLabel = t("player.check"),
+  clearLabel = t("player.clear"),
 }: {
   canCheck: boolean;
   canClear: boolean;

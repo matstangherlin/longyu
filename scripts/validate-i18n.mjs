@@ -54,6 +54,7 @@ const NAMESPACES = [
   "onboarding",
   "placement",
   "journey",
+  "player",
   "review",
   "missions",
   "pro",

@@ -12,6 +12,7 @@ import {
 } from "../../lib/speech";
 import { Button } from "../../components/ui/primitives";
 import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
+import { t } from "../../i18n/catalog";
 
 type Phase = "idle" | "listening" | "result";
 
@@ -23,15 +24,13 @@ function isTouchUi(): boolean {
 /** Veredito textual — usado no resultado da prática de fala. */
 function verdictCopy(heard: string, analysis: PronunciationAnalysis | null, correct: boolean): string {
   if (!heard || !analysis || !analysis.ratio) {
-    return "Não reconheci. Ouça e tente de novo.";
+    return t("player.pronUnrecognized");
   }
   if (correct) {
-    return analysis.hasExtra
-      ? "Caracteres ok. Havia um pouco a mais — afine o tom no Treino de tons."
-      : "Caracteres ok. Para afinar o tom, use o Treino de tons.";
+    return analysis.hasExtra ? t("player.pronOkExtra") : t("player.pronOkTone");
   }
   const total = analysis.matchedMask.length;
-  return `Quase — ${analysis.matched.length} de ${total} na ordem.`;
+  return t("player.pronAlmostCount", { matched: analysis.matched.length, total });
 }
 
 // Prática de fala: autoriza o mic, reconhece o que foi dito e compara com o alvo.
@@ -178,12 +177,10 @@ export function PronunciationPractice({
     return (
       <div className="mt-6">
         <Button className="w-full" onClick={onContinue}>
-          Continuar <IconChevron width={18} height={18} />
+          {t("player.continue")} <IconChevron width={18} height={18} />
         </Button>
         <p className="mt-2 text-center text-xs text-ink-faint">
-          {!secure
-            ? "O microfone só funciona em HTTPS."
-            : "Voz não disponível aqui. Ouça e repita em voz alta."}
+          {!secure ? t("player.micHttpsOnly") : t("player.voiceUnavailable")}
         </p>
       </div>
     );
@@ -195,12 +192,12 @@ export function PronunciationPractice({
         <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-accent text-2xl text-white ring-4 ring-accent-soft">
           ···
         </div>
-        <p className="text-sm font-medium text-accent">Fale agora</p>
+        <p className="text-sm font-medium text-accent">{t("player.speakNow")}</p>
         <p className="max-w-xs text-center text-xs text-ink-faint">
-          Toque em Parar quando terminar.
+          {t("player.stopWhenDone")}
         </p>
         <Button variant="outline" onClick={stopListening}>
-          Parar
+          {t("player.stopListening")}
         </Button>
       </div>
     );
@@ -227,11 +224,11 @@ export function PronunciationPractice({
           {heard && analysis && (
             <div className="mt-2 space-y-1.5 text-left">
               <div className="flex items-center gap-2 text-sm">
-                <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">Você</span>
+                <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">{t("player.youLabel")}</span>
                 <span className="hanzi text-lg text-ink">{heard}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">Alvo</span>
+                <span className="w-14 shrink-0 text-[11px] uppercase tracking-wide text-ink-faint">{t("player.targetLabel")}</span>
                 <span className="flex flex-wrap gap-1">
                   {(() => {
                     let hanziIdx = 0;
@@ -260,17 +257,17 @@ export function PronunciationPractice({
           )}
           {audioUrl && (
             <div className="mt-2">
-              <div className="mb-1 text-[11px] text-ink-faint">Sua gravação</div>
+              <div className="mb-1 text-[11px] text-ink-faint">{t("player.yourRecording")}</div>
               <audio controls src={audioUrl} className="mx-auto w-full max-w-xs" />
             </div>
           )}
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Button variant="outline" onClick={start} disabled={busy}>
-            De novo
+            {t("player.speakAgain")}
           </Button>
           <Button onClick={onContinue}>
-            Continuar <IconChevron width={18} height={18} />
+            {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
         </div>
       </div>
@@ -281,13 +278,13 @@ export function PronunciationPractice({
   return (
     <div className="mt-6 space-y-2">
       <Button className="w-full" size="lg" onClick={start} disabled={busy}>
-        Falar
+        {t("player.speak")}
       </Button>
       <button
         onClick={onContinue}
         className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
       >
-        Não posso falar agora
+        {t("player.cannotSpeakNow")}
       </button>
     </div>
   );

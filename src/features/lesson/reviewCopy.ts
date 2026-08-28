@@ -3,19 +3,21 @@
  * Tom: acolhedor, curto, objetivo — apoio real, sem culpa e sem dump.
  */
 
+import { t } from "../../i18n/catalog";
+
 export type ReviewPhase = "offer" | "review" | "last_chance" | "summary" | "recovered";
 
 export function reviewModeLabel(args: {
   canRecover: boolean;
   isLastItem: boolean;
 }): string {
-  if (args.isLastItem && args.canRecover) return "Quase lá";
-  if (args.canRecover) return "Apoio";
-  return "Revisão";
+  if (args.isLastItem && args.canRecover) return t("player.almostThere");
+  if (args.canRecover) return t("player.support");
+  return t("review.title");
 }
 
 export function reviewProgressLabel(index: number, total: number): string {
-  return `${index + 1} de ${total}`;
+  return t("player.ofTotal", { index: index + 1, total });
 }
 
 export function reviewGoalLine(args: {
@@ -24,65 +26,101 @@ export function reviewGoalLine(args: {
   remaining: number;
 }): string | undefined {
   if (!args.canRecover) {
-    return args.isLastItem ? "Último item desta revisão." : undefined;
+    return args.isLastItem ? t("review.lastItem") : undefined;
   }
   if (args.isLastItem) {
-    return "Último passo — acerte e a 3ª estrela volta.";
+    return t("review.lastStar");
   }
-  return "Revise com calma: a 3ª estrela volta se você acertar.";
+  return t("review.starReturns");
 }
 
 export const REVIEW_OFFER = {
-  eyebrow: "Revisão da lição",
-  score: (correct: number, total: number) => `Você acertou ${correct} de ${total}`,
+  get eyebrow() {
+    return t("review.offerEyebrow");
+  },
+  score: (correct: number, total: number) => t("review.score", { correct, total }),
   title: (count: number, canRecover: boolean) =>
     canRecover
       ? count === 1
-        ? "Um ponto para firmar. Vamos juntos?"
-        : `${count} pontos para firmar. Vamos juntos?`
+        ? t("review.offerOneTogether")
+        : t("review.offerManyTogether", { count })
       : count === 1
-        ? "Um ponto para firmar. Quer revisar agora?"
-        : `${count} pontos para firmar. Quer revisar agora?`,
-  /** Uma linha só — a oferta antiga tinha 3 cards redundantes. */
+        ? t("review.offerOneAsk")
+        : t("review.offerManyAsk", { count }),
   supportLine: (canRecover: boolean) =>
-    canRecover
-      ? "Só o que travou, com mais apoio do que na lição. Acerte e recupera a 3ª estrela."
-      : "Só o que travou — curto, no mesmo contexto, com mais apoio.",
-  // A prática extra é OPCIONAL: concluir a lição já libera a próxima. Antes o
-  // botão cheio era "Começar revisão" e o avanço ficava no botão discreto, o
-  // que fazia a repetição parecer obrigatória.
-  ctaPrimary: "Continuar",
-  ctaLater: "Praticar o que travou",
-} as const;
+    canRecover ? t("review.offerSupportRecover") : t("review.offerSupport"),
+  get ctaPrimary() {
+    return t("player.continue");
+  },
+  get ctaLater() {
+    return t("review.offerCtaLater");
+  },
+};
 
 export const REVIEW_QUESTION = {
-  eyebrow: "Revisão",
-  doNowChoice: "Toque na resposta certa.",
-  doNowBuild: "Monte com as peças — é mais fácil que digitar do zero.",
-  feedbackOk: "Isso mesmo!",
-  feedbackRetry: "Quase — veja a resposta certa.",
-  correctLabel: "Resposta certa",
-  ctaContinue: "Continuar",
-  ctaResult: "Ver resultado",
-  ctaCheck: "Verificar",
-} as const;
+  get eyebrow() {
+    return t("review.questionEyebrow");
+  },
+  get doNowChoice() {
+    return t("review.doNowChoice");
+  },
+  get doNowBuild() {
+    return t("review.doNowBuild");
+  },
+  get feedbackOk() {
+    return t("review.feedbackOk");
+  },
+  get feedbackRetry() {
+    return t("review.feedbackRetry");
+  },
+  get correctLabel() {
+    return t("review.correctLabel");
+  },
+  get ctaContinue() {
+    return t("player.continue");
+  },
+  get ctaResult() {
+    return t("review.ctaResult");
+  },
+  get ctaCheck() {
+    return t("review.ctaCheck");
+  },
+};
 
 export const REVIEW_SUMMARY = {
-  titleOk: "Pronto — você firmou estes pontos",
-  titlePartial: "Ainda falta um pouco",
-  bodyOk: "Você corrigiu tudo desta tentativa. Bom trabalho.",
+  get titleOk() {
+    return t("review.summaryOk");
+  },
+  get titlePartial() {
+    return t("review.summaryPartial");
+  },
+  get bodyOk() {
+    return t("review.bodyOk");
+  },
   bodyPartial: (remaining: number) =>
-    remaining === 1
-      ? "Falta 1 item. Pode tentar de novo quando quiser a 3ª estrela."
-      : `Faltam ${remaining} itens. Pode tentar de novo quando quiser a 3ª estrela.`,
-  correctedLabel: "Firmados",
-  remainingLabel: "Ainda falta",
-  ctaRetry: "Continuar revisão",
-  ctaRetryLesson: "Refazer lição",
-  ctaContinueTwo: "Continuar com 2 estrelas",
-  ctaContinue: "Continuar",
-} as const;
+    remaining === 1 ? t("review.lastStar") : t("journey.remainingMany", { n: remaining }),
+  get correctedLabel() {
+    return t("review.summaryOk");
+  },
+  get remainingLabel() {
+    return t("review.summaryPartial");
+  },
+  get ctaRetry() {
+    return t("review.continueReview");
+  },
+  get ctaRetryLesson() {
+    return t("review.redoLesson");
+  },
+  get ctaContinueTwo() {
+    return t("review.continueTwoStars");
+  },
+  get ctaContinue() {
+    return t("player.continue");
+  },
+};
 
 export const REVIEW_RECOVERED = {
-  banner: "3 estrelas recuperadas — ótimo trabalho.",
-} as const;
+  get banner() {
+    return t("review.recoveredBanner");
+  },
+};
