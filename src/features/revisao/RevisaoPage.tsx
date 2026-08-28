@@ -26,7 +26,7 @@ import { t as catalogT } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeReviewExercise } from "../../i18n/overlays/localizeReview";
 import { scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
-import { displayInstruction } from "../../i18n/overlays/journeyChrome";
+import { displayInstruction, localizedReviewSessionLabel } from "../../i18n/overlays/journeyChrome";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import {
@@ -46,7 +46,7 @@ import {
   useIsPro,
 } from "../../lib/proAccess";
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
-import { reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
+import { reviewSessionSplit } from "../../lib/reviewSession";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { ProPaywall } from "../../components/pro/ProPaywall";
@@ -1457,7 +1457,7 @@ export function RevisaoPage() {
                 icon: IconRefresh,
                 to: "/revisao",
                 // REVIEW-026: sessão do dia no lugar do total bruto da fila.
-                status: reviewSessionLabel(reviewSessionSplit(modeCounts.all, isPremium)),
+                status: localizedReviewSessionLabel(reviewSessionSplit(modeCounts.all, isPremium), t),
                 featured: !detailedErrorsAllowed,
               },
               {

@@ -68,3 +68,20 @@ export function displayInstruction(
 ): string {
   return resolveInstructionText(text ?? "", locale);
 }
+
+export function localizedReviewSessionLabel(
+  split: { total: number; today: number },
+  translate: TFn = t
+): string {
+  if (split.total === 0) return translate("hub.caughtUp");
+  if (split.today === 1) return translate("review.todayReviewOne");
+  return translate("review.todayReviewCount", { n: split.today });
+}
+
+export function localizedReviewPendingLabel(
+  split: { pending: number },
+  translate: TFn = t
+): string | null {
+  if (split.pending <= 0) return null;
+  return translate("review.pendingExtra", { n: split.pending });
+}

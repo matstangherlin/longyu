@@ -121,6 +121,7 @@ test.describe("V4.8.3 topics 21–50 Journey English", () => {
     await expect(page.getByText(/Today's review|Review/i).first()).toBeVisible();
     await expect(page.getByText("Revisão de hoje", { exact: true })).toHaveCount(0);
     await expect(page.getByText("Plano de hoje", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("Em dia", { exact: true })).toHaveCount(0);
   });
 
   for (const topic of REPRESENTATIVE) {

@@ -12,7 +12,7 @@ import {
 } from "../../data/topicMastery";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
-import { reviewPendingLabel, reviewSessionLabel, reviewSessionSplit } from "../../lib/reviewSession";
+import { reviewSessionSplit } from "../../lib/reviewSession";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
@@ -39,7 +39,7 @@ import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
 import { useTranslation } from "../../i18n/useTranslation";
-import { displayInstruction, displayLessonTitle } from "../../i18n/overlays/journeyChrome";
+import { displayInstruction, displayLessonTitle, localizedReviewPendingLabel, localizedReviewSessionLabel } from "../../i18n/overlays/journeyChrome";
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
@@ -554,7 +554,7 @@ function JourneyHeader({
   // REVIEW-026: o convite tem o tamanho de uma sessão; o backlog fica visível
   // como informação secundária, não como tarefa monolítica.
   const reviewSplit = reviewSessionSplit(reviewCount);
-  const pendingLabel = reviewPendingLabel(reviewSplit);
+  const pendingLabel = localizedReviewPendingLabel(reviewSplit, t);
   return (
     <Card
       className="relative overflow-hidden border-accent/15 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
@@ -616,7 +616,7 @@ function JourneyHeader({
           {reviewCount > 0 && (
             <ButtonLink to="/revisao?modo=fracos&sessao=corrigir" variant="soft" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5">
             <IconRefresh width={16} height={16} aria-hidden="true" />
-            <span className="leading-none">{reviewSessionLabel(reviewSplit)}</span>
+            <span className="leading-none">{localizedReviewSessionLabel(reviewSplit, t)}</span>
           </ButtonLink>
           )}
         </div>
@@ -630,7 +630,7 @@ function JourneyHeader({
             className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
           >
             <IconRefresh width={16} height={16} aria-hidden="true" />
-            <span className="leading-none">{reviewSessionLabel(reviewSplit)}</span>
+            <span className="leading-none">{localizedReviewSessionLabel(reviewSplit, t)}</span>
           </ButtonLink>
         </div>
       )}

@@ -110,7 +110,7 @@ From `docs/reports/v483-english-journey-progress.json`
 
 | Command | Result |
 | --- | --- |
-| `npm run validate:i18n` | PASS (1333 catalog keys, pt-BR/en parity) |
+| `npm run validate:i18n` | PASS (1336 catalog keys, pt-BR/en parity) |
 | `npm run test:i18n` | PASS |
 | `npm run validate:first-20-en` | PASS |
 | `npm run test:first-20-locale-parity` | PASS |
