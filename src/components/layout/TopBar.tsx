@@ -6,6 +6,7 @@ import { BrandWordmark } from "./Brand";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useIsPro } from "../../lib/proAccess";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
+import { useTranslation } from "../../i18n/useTranslation";
 
 function StatPill({
   to,
@@ -41,6 +42,7 @@ function StatPill({
 }
 
 export function TopBar() {
+  const { t } = useTranslation();
   const headerRef = useMeasuredHeightCssVar<HTMLElement>("--app-header-height");
   const streak = useStore((s) => s.streak);
   const points = useStore((s) => s.points);
@@ -68,24 +70,24 @@ export function TopBar() {
           to="/loja"
           icon={IconShield}
           value={isPremium ? "∞" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
-          label={isPremium ? "Cargas infinitas" : `Cargas: ${dailyEnergy.charges} de ${dailyEnergy.maxCharges}`}
+          label={isPremium ? t("shell.chargesInfinite") : t("shell.chargesCount", { current: dailyEnergy.charges, max: dailyEnergy.maxCharges })}
         />
         <StatPill
           to="/loja"
           icon={IconStar}
           value={points}
-          label={`Qi: ${points}`}
+          label={t("shell.qi", { points })}
         />
         <StatPill
           to="/perfil#ofensiva"
           icon={IconFlame}
           value={streak}
-          label={`Sequência: ${streak} ${streak === 1 ? "dia" : "dias"}`}
+          label={t("shell.streak", { streak, days: streak === 1 ? t("shell.day") : t("shell.days") })}
         />
         <Link
           to="/perfil"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-          aria-label={account?.name ? `Conta: ${account.name}` : "Conta"}
+          aria-label={account?.name ? t("auth.accountNamed", { name: account.name }) : t("auth.accountAria")}
         >
           <IconUser width={15} height={15} className="sm:h-4 sm:w-4" />
         </Link>
@@ -95,7 +97,7 @@ export function TopBar() {
             onClick={() => void signOut()}
             className="hidden min-h-11 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-3 text-xs font-semibold text-wrong transition hover:bg-wrong/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/35 sm:flex"
           >
-            Sair
+            {t("common.signOut")}
           </button>
         )}
       </div>

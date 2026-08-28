@@ -29,6 +29,8 @@ import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services
 import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
+import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const THEMES: { id: ThemeName; name: string; desc: string; swatch: string[] }[] = [
   { id: "clay", name: "Notion Clay", desc: "Branco quente, calmo, focado.", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
@@ -103,6 +105,7 @@ const PRO_ENGINES: Record<DomainTrack, { title: string; features: string[] }> = 
 };
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const accounts = useStore((s) => s.accounts);
@@ -231,16 +234,43 @@ export function SettingsPage() {
   return (
     <HubPage className="space-y-5">
       <HubHeader
-        eyebrow="Ajustes"
-        title="Configurações"
-        desc="Leitura, áudio, tema e conta."
+        eyebrow={t("settings.eyebrow")}
+        title={t("settings.title")}
+        desc={t("settings.lead")}
         badge={<BetaBadge className="shrink-0" />}
       />
 
-      <HubSection title="Curso">
+      <HubSection
+        id="idioma"
+        className="scroll-mt-6"
+        title={t("settings.language")}
+        desc={t("settings.languageLead")}
+      >
+        <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
+          <LanguageSwitcher id="settings-interface-locale" />
+        </Card>
+      </HubSection>
+
+      <HubSection
+        id="idioma-alvo"
+        className="scroll-mt-6"
+        title={t("settings.learningMandarin")}
+        desc={t("settings.learningMandarinLead")}
+      >
+        <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="target-language-card">
+          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
+            {COURSE_PROFILE.targetLanguage.code}
+          </div>
+          <div className="mt-1 font-serif text-lg font-semibold text-ink">
+            {COURSE_PROFILE.targetLanguage.nativeName} · {COURSE_PROFILE.targetLanguage.name}
+          </div>
+        </Card>
+      </HubSection>
+
+      <HubSection title={t("settings.course")}>
         <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
-            Foco atual
+            {t("settings.courseFocus")}
           </div>
           <div className="mt-1 font-serif text-lg font-semibold text-ink">
             {COURSE_PROFILE.sourceLanguage.name} → {COURSE_PROFILE.targetLanguage.name}
@@ -249,7 +279,7 @@ export function SettingsPage() {
         </Card>
       </HubSection>
 
-      <HubSection id="dados" className="scroll-mt-6" title="Conta e progresso" desc="Conta neste dispositivo e na nuvem.">
+      <HubSection id="dados" className="scroll-mt-6" title={t("settings.accountProgress")} desc={t("settings.accountProgressLead")}>
         <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="grid gap-2">
             {accountList.map((account) => {

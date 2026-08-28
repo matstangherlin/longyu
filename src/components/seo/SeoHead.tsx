@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { buildJsonLd, resolveSeo } from "../../lib/seo";
+import { LOCALE_OG } from "../../i18n/config";
+import { useTranslation } from "../../i18n/useTranslation";
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   const selector = `meta[${attr}="${key}"]`;
@@ -41,6 +43,7 @@ function upsertJsonLd(data: Record<string, unknown>) {
  */
 export function SeoHead() {
   const location = useLocation();
+  const { locale } = useTranslation();
 
   useEffect(() => {
     const seo = resolveSeo(location.pathname);
@@ -53,7 +56,7 @@ export function SeoHead() {
 
     upsertMeta("property", "og:type", "website");
     upsertMeta("property", "og:site_name", "Longyu");
-    upsertMeta("property", "og:locale", "pt_BR");
+    upsertMeta("property", "og:locale", LOCALE_OG[locale]);
     upsertMeta("property", "og:title", seo.title);
     upsertMeta("property", "og:description", seo.description);
     upsertMeta("property", "og:url", seo.canonical);
@@ -68,7 +71,7 @@ export function SeoHead() {
     upsertMeta("name", "twitter:image", seo.ogImage);
 
     upsertJsonLd(buildJsonLd());
-  }, [location.pathname]);
+  }, [location.pathname, locale]);
 
   return null;
 }

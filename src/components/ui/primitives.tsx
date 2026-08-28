@@ -7,6 +7,7 @@ import type {
   SVGProps,
 } from "react";
 import { Link, type LinkProps } from "react-router-dom";
+import { t } from "../../i18n/catalog";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -339,22 +340,23 @@ export function EmptyState({
 }
 
 export function LoadingState({
-  label = "Carregando…",
+  label,
   className,
 }: {
   label?: string;
   className?: string;
 }) {
+  const resolved = label ?? t("common.loading");
   return (
     <div className={cx("flex min-h-32 items-center justify-center gap-3 text-sm text-ink-soft", className)} role="status">
       <span aria-hidden="true" className="h-5 w-5 animate-spin rounded-full border-2 border-accent/25 border-r-accent motion-reduce:animate-none" />
-      <span>{label}</span>
+      <span>{resolved}</span>
     </div>
   );
 }
 
 export function ErrorState({
-  title = "Não foi possível carregar",
+  title,
   desc,
   action,
   className,
@@ -364,9 +366,10 @@ export function ErrorState({
   action?: ReactNode;
   className?: string;
 }) {
+  const resolvedTitle = title ?? t("errors.loadFailed");
   return (
     <Card variant="alert" className={cx("p-5", className)} role="alert">
-      <h3 className="font-semibold text-ink">{title}</h3>
+      <h3 className="font-semibold text-ink">{resolvedTitle}</h3>
       {desc && <p className="mt-1 text-sm leading-5 text-ink-soft">{desc}</p>}
       {action && <div className="mt-4">{action}</div>}
     </Card>

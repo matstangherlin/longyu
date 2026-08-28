@@ -15,6 +15,7 @@ import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { makeKey, type SRSItem } from "../../lib/srs";
 import { todayKey } from "../../lib/storage";
 import { useStore } from "../../lib/store";
+import { formatNumber } from "../../i18n/format";
 import { Card, Button, ButtonLink, Pill, SectionTitle } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { SpeakButton } from "../../components/ui/SpeakButton";
@@ -356,8 +357,8 @@ export function HanziAtlasPage() {
 
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm text-ink-soft">
-          {visible.length.toLocaleString("pt-BR")} caracteres chineses encontrados ·{" "}
-          {stats.available.toLocaleString("pt-BR")} liberados agora
+          {formatNumber(visible.length)} caracteres chineses encontrados ·{" "}
+          {formatNumber(stats.available)} liberados agora
         </div>
         <Pill tone={visible.some((item) => isWeakChar(item.id, srs)) ? "accent" : "muted"}>
           {sortLabel}
@@ -389,7 +390,7 @@ export function HanziAtlasPage() {
       {remaining > 0 && (
         <div className="flex justify-center">
           <Button variant="outline" onClick={() => setShown((current) => current + PAGE_SIZE)}>
-            Ver mais {Math.min(remaining, PAGE_SIZE)} de {remaining.toLocaleString("pt-BR")}
+            Ver mais {Math.min(remaining, PAGE_SIZE)} de {formatNumber(remaining)}
           </Button>
         </div>
       )}
@@ -423,7 +424,7 @@ function AtlasStat({ label, value, detail }: { label: string; value: number; det
   return (
     <div className="rounded-xl border border-line bg-surface px-3 py-2 shadow-card">
       <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-faint">{label}</div>
-      <div className="font-serif text-lg font-semibold tabular-nums text-ink">{value.toLocaleString("pt-BR")}</div>
+      <div className="font-serif text-lg font-semibold tabular-nums text-ink">{formatNumber(value)}</div>
       <div className="truncate text-[11px] text-ink-soft" title={detail}>{detail}</div>
     </div>
   );

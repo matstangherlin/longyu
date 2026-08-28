@@ -61,6 +61,13 @@ export async function seedTelemetryDeclined(page: Page) {
   });
 }
 
+/** Interface locale for V4.8.0. Not part of the pedagogical Zustand persist. */
+export async function seedInterfaceLocale(page: Page, locale: "pt-BR" | "en") {
+  await page.addInitScript((value) => {
+    localStorage.setItem("longyu:interface-locale", value);
+  }, locale);
+}
+
 /** Pedagogy e2e: marca sessão local seeded. Production ignora este marker. */
 export async function allowE2ELocalSession(page: Page) {
   await page.addInitScript(() => {

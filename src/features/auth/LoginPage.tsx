@@ -6,6 +6,8 @@ import { Card, Pill } from "../../components/ui/primitives";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useTranslation } from "../../i18n/useTranslation";
 import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { confirmEmailPath } from "../../lib/authRedirect";
 import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
@@ -14,6 +16,7 @@ import { useStore } from "../../lib/store";
 import { restoreCloudSessionIfPresent } from "../../services/cloudSyncCoordinator";
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const postAuthPath = resolvePostAuthPath(searchParams);
@@ -63,7 +66,7 @@ export function LoginPage() {
     setEmail(formEmail);
     setPassword(formPassword);
     if (!cloudEnabled) {
-      setError(BACKEND_UNAVAILABLE_MESSAGE);
+      setError(localizeUserMessage(BACKEND_UNAVAILABLE_MESSAGE));
       return;
     }
     setLoading(true);
@@ -75,7 +78,7 @@ export function LoginPage() {
         navigate(confirmEmailPath(formEmail), { replace: true });
         return;
       }
-      setError(result.message);
+      setError(localizeUserMessage(result.message));
       return;
     }
     const audience = await resolveSessionAudience();
@@ -92,10 +95,10 @@ export function LoginPage() {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <Mascot size={96} variant="wave" />
-        <h1 className="font-serif text-2xl font-semibold text-ink">Login indisponível</h1>
-        <p className="text-sm text-ink-soft">{BACKEND_UNAVAILABLE_MESSAGE}</p>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.loginUnavailable")}</h1>
+        <p className="text-sm text-ink-soft">{t("errors.backendUnavailable")}</p>
         <Link to="/comecar" className="font-semibold text-accent hover:underline">
-          Voltar ao início
+          {t("auth.backToStart")}
         </Link>
       </div>
     );
@@ -107,10 +110,10 @@ export function LoginPage() {
         <div className="mx-auto mb-4 flex justify-center">
           <Mascot size={88} variant="wave" />
         </div>
-        <Pill tone="accent">Longyu</Pill>
-        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">Entrar na conta</h1>
+        <Pill tone="accent">{t("auth.product")}</Pill>
+        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">{t("auth.signInTitle")}</h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">
-          Acesse sua conta e continue de onde parou — sem passar pelo tutorial.
+          {t("auth.signInLead")}
         </p>
       </div>
 
@@ -134,12 +137,12 @@ export function LoginPage() {
 
       <div className="mt-5 flex flex-col items-center gap-2 text-center text-sm text-ink-soft">
         <p className="flex flex-wrap items-center justify-center gap-1">
-          <span>Primeira vez aqui?</span>
+          <span>{t("auth.firstTime")}</span>
           <Link
             to={createAccountHref}
             className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           >
-            Criar conta
+            {t("auth.signUp")}
           </Link>
         </p>
       </div>

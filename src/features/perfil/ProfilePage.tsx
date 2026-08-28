@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore, type DailyStudyRecord } from "../../lib/store";
+import { formatDate } from "../../i18n/format";
 import { todayKey } from "../../lib/storage";
 import { ALL_LESSONS } from "../../data/journey";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
@@ -38,7 +39,7 @@ function initials(name?: string): string {
 function memberSinceLabel(createdAt?: number): string | undefined {
   if (!createdAt) return undefined;
   try {
-    return new Date(createdAt).toLocaleDateString("pt-BR", { month: "short", year: "numeric" }).replace(".", "");
+    return formatDate(createdAt, { month: "short", year: "numeric" }).replace(".", "");
   } catch {
     return undefined;
   }

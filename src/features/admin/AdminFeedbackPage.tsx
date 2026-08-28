@@ -11,6 +11,7 @@ import {
   type FeedbackStatusId,
 } from "../../lib/feedback";
 import { appEnvironmentLabel } from "../../lib/appEnvironment";
+import { formatDateTime } from "../../i18n/format";
 import { ALL_LESSONS } from "../../data/journey";
 import { ERROR_CAUSE_LABELS, type ErrorCause } from "../../data/errorDiagnosis";
 import { useStore } from "../../lib/store";
@@ -363,7 +364,7 @@ export function AdminFeedbackPage() {
                   <Pill tone="accent">
                     {FEEDBACK_CATEGORIES.find((entry) => entry.id === row.category)?.label ?? row.category}
                   </Pill>
-                  <Pill tone="muted">{new Date(row.created_at).toLocaleString("pt-BR")}</Pill>
+                  <Pill tone="muted">{formatDateTime(row.created_at)}</Pill>
                   {row.lesson_id && <Pill tone="muted">{row.lesson_id}</Pill>}
                   {row.exercise_kind && (
                     <Pill tone="muted">

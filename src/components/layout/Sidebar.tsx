@@ -7,12 +7,13 @@ import {
   practiceFlyoutItems,
   profileFlyoutItems,
   isNavItemActive,
+  navLabel,
 } from "./nav";
-import type { NavItem } from "./nav";
+import type { NavGroup, NavItem } from "./nav";
 import { BrandLockup } from "./Brand";
-import { COURSE_PROFILE } from "../../data/course";
 import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 import { useStore } from "../../lib/store";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const FLYOUT_FALLBACK_HEIGHT = 320;
 const FLYOUT_CLOSE_DELAY = 160;
@@ -28,6 +29,7 @@ function linkClass(active: boolean) {
 }
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const profile = useLearnerProfile();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
@@ -50,9 +52,9 @@ export function Sidebar() {
           active={active}
           pathname={location.pathname}
           routeKey={routeKey}
-          menuLabel="Praticar"
+          menuLabel={t("navigation.practice")}
           shortcuts={practiceFlyoutItems()}
-          footer={{ to: item.to, label: "Abrir Praticar" }}
+          footer={{ to: item.to, label: t("navigation.openPractice") }}
         />
       );
     }
@@ -68,9 +70,9 @@ export function Sidebar() {
           active={active}
           pathname={location.pathname}
           routeKey={routeKey}
-          menuLabel="Perfil"
+          menuLabel={t("navigation.profile")}
           shortcuts={profileShortcuts}
-          footer={{ to: item.to, label: "Abrir Perfil" }}
+          footer={{ to: item.to, label: t("navigation.openProfile") }}
         />
       );
     }
@@ -83,9 +85,9 @@ export function Sidebar() {
           active={active}
           pathname={location.pathname}
           routeKey={routeKey}
-          menuLabel="Mais opções"
+          menuLabel={t("navigation.moreOptions")}
           groups={moreFlyoutGroups(items)}
-          footer={{ to: item.to, label: "Ver menu completo" }}
+          footer={{ to: item.to, label: t("navigation.seeFullMenu") }}
           triggerAsButton
         />
       );
@@ -97,10 +99,10 @@ export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-[14rem] shrink-0 flex-col border-r border-line/60 bg-surface px-3 py-5 lg:flex">
       <div className="px-2 pb-4">
-        <BrandLockup tagline={COURSE_PROFILE.shortTagline} />
+        <BrandLockup tagline={t("marketing.tagline")} />
       </div>
 
-      <nav className="mt-1 flex flex-1 flex-col overflow-y-auto" aria-label="Principal">
+      <nav className="mt-1 flex flex-1 flex-col overflow-y-auto" aria-label={t("navigation.primary")}>
         <div className="space-y-1.5">{primaryItems.map(renderItem)}</div>
         <div className="mt-auto space-y-1.5 border-t border-line/50 pt-3">
           {bottomItems.map(renderItem)}
@@ -111,6 +113,7 @@ export function Sidebar() {
 }
 
 function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
+  const { t } = useTranslation();
   const Icon = item.icon;
 
   return (
@@ -120,12 +123,12 @@ function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
       aria-current={active ? "page" : undefined}
     >
       <Icon width={22} height={22} aria-hidden="true" />
-      <span className="truncate">{item.label}</span>
+      <span className="truncate">{navLabel(item, t)}</span>
     </Link>
   );
 }
 
-type FlyoutGroup = { title: string; items: NavItem[] };
+type FlyoutGroup = Pick<NavGroup, "title" | "items"> & Partial<Pick<NavGroup, "id" | "titleKey">>;
 
 function FlyoutNavItem({
   item,
@@ -156,6 +159,7 @@ function FlyoutNavItem({
   const triggerRef = useRef<HTMLElement | null>(null);
   const dropdownRef = useRef<HTMLElement | null>(null);
   const dropdownId = useId();
+  const { t } = useTranslation();
   const Icon = item.icon;
 
   const resolvedGroups: FlyoutGroup[] =
@@ -285,7 +289,7 @@ function FlyoutNavItem({
           onKeyDown={handleTriggerKeyDown}
         >
           <Icon width={22} height={22} aria-hidden="true" />
-          <span className="truncate">{item.label}</span>
+          <span className="truncate">{navLabel(item, t)}</span>
         </button>
       ) : (
         <Link
@@ -299,7 +303,7 @@ function FlyoutNavItem({
           onKeyDown={handleTriggerKeyDown}
         >
           <Icon width={22} height={22} aria-hidden="true" />
-          <span className="truncate">{item.label}</span>
+          <span className="truncate">{navLabel(item, t)}</span>
         </Link>
       )}
 
@@ -316,11 +320,11 @@ function FlyoutNavItem({
         >
           {resolvedGroups.map((group, groupIndex) => (
             <div
-              key={group.title}
+              key={group.id || group.title}
               className={groupIndex === 0 ? "" : "mt-2 border-t border-line/70 pt-2"}
             >
               <div className="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
-                {group.title}
+                {group.titleKey ? t(group.titleKey) : group.title}
               </div>
               <div className="space-y-0.5">
                 {group.items.map((shortcut) => {
@@ -329,7 +333,7 @@ function FlyoutNavItem({
 
                   return (
                     <Link
-                      key={`${group.title}:${shortcut.to}`}
+                      key={`${group.id || group.title}:${shortcut.to}`}
                       role="menuitem"
                       to={shortcut.to}
                       className={[
@@ -341,7 +345,7 @@ function FlyoutNavItem({
                       onClick={closeNow}
                     >
                       <ShortcutIcon width={18} height={18} aria-hidden="true" />
-                      <span className="truncate">{shortcut.label}</span>
+                      <span className="truncate">{navLabel(shortcut, t)}</span>
                     </Link>
                   );
                 })}

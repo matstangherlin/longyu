@@ -38,6 +38,7 @@ import { useIsPro } from "../../lib/proAccess";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
+import { useTranslation } from "../../i18n/useTranslation";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
@@ -192,6 +193,7 @@ function lockedLessonMessage(
 }
 
 export function JourneyPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const completed = useStore((s) => s.completedLessons);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
@@ -219,11 +221,11 @@ export function JourneyPage() {
   const currentCheckpoint = currentContext ? THEME_CHECKPOINTS[currentContext.unit.id] : undefined;
   const currentModuleTitle = currentContext
     ? currentCheckpoint?.title ?? currentContext.unit.title
-    : "Jornada concluída";
+    : t("journey.completed");
   // Objetivo curto do módulo atual — usa o detalhe do checkpoint ou a meta da unidade.
   const currentObjective = currentContext
     ? currentCheckpoint?.detail ?? currentContext.unit.goal
-    : "Você concluiu todas as lições disponíveis.";
+    : t("journey.completedLead");
   const reviewCount = useMemo(() => dueItems(srs).length, [srs]);
 
   // Faixa do Pro na Jornada. Quem decide se aparece é o proOfferEngine: Pro
@@ -332,8 +334,8 @@ export function JourneyPage() {
           <JourneyHeader
             phaseLabel={
               currentContext
-                ? `Fase ${currentContext.phase.order} · Unidade ${currentContext.unitNumber}`
-                : "Jornada"
+                ? t("journey.phaseUnit", { phase: currentContext.phase.order, unit: currentContext.unitNumber })
+                : t("journey.title")
             }
             title={currentModuleTitle}
             objective={currentObjective}
@@ -343,8 +345,8 @@ export function JourneyPage() {
             onContinue={currentId ? () => navigate(`/licao/${currentId}`) : undefined}
             continueLabel={
               completed.length > 0 || (currentId ? (lessonMasteryById?.[currentId]?.level ?? 0) > 0 : false)
-                ? "Continuar"
-                : "Começar primeira lição"
+                ? t("journey.continue")
+                : t("journey.startFirstLesson")
             }
             journeyComplete={journeyComplete}
             reviewCount={reviewCount}
@@ -533,6 +535,7 @@ function JourneyHeader({
   streak: number;
   offline: boolean;
 }) {
+  const { t } = useTranslation();
   // REVIEW-026: o convite tem o tamanho de uma sessão; o backlog fica visível
   // como informação secundária, não como tarefa monolítica.
   const reviewSplit = reviewSessionSplit(reviewCount);
@@ -573,7 +576,7 @@ function JourneyHeader({
           <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft sm:text-sm">{objective}</p>
           {!journeyComplete && currentLessonTitle && (
             <p className="mt-1 truncate text-xs text-ink-faint sm:text-sm">
-              Próxima: <span className="font-semibold text-ink">{currentLessonTitle}</span>
+              {t("journey.nextLesson")}: <span className="font-semibold text-ink">{currentLessonTitle}</span>
             </p>
           )}
         </div>
@@ -592,7 +595,7 @@ function JourneyHeader({
             size="lg"
             onClick={onContinue}
           >
-            <span className="leading-none">{continueLabel ?? (done === 0 ? "Começar primeira lição" : "Continuar")}</span>
+            <span className="leading-none">{continueLabel ?? (done === 0 ? t("journey.startFirstLesson") : t("journey.continue"))}</span>
             <IconChevron width={18} height={18} aria-hidden="true" />
           </Button>
           {reviewCount > 0 && (

@@ -34,6 +34,8 @@ import {
 } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { ProBusinessOffer } from "./ProBusinessOffer";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const BILLING_PLANS: {
   key: ProPlanKey;
@@ -63,6 +65,7 @@ const BILLING_PLANS: {
 ];
 
 export function ProPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const serverIsPro = useStore((state) => state.serverIsPro);
@@ -105,13 +108,13 @@ export function ProPage() {
         navigate(subscribeAccountPath(planKey));
         return;
       }
-      setCheckoutNotice(result.message);
+      setCheckoutNotice(localizeUserMessage(result.message));
       if (result.data?.url) {
         recordProOfferCheckoutStarted();
         window.location.assign(result.data.url);
       }
     } catch {
-      setCheckoutNotice("Não foi possível abrir o checkout. Tente de novo.");
+      setCheckoutNotice(t("pro.checkoutFailed"));
     }
   }
 
@@ -138,7 +141,7 @@ export function ProPage() {
         return;
       }
       takePendingCheckoutPlan();
-      setCheckoutNotice("Conta pronta. Abrindo o checkout…");
+        setCheckoutNotice(t("pro.resumeCheckout"));
       await handleSubscribe(pending);
     })();
     // Resume one-shot após auth; handleSubscribe fecha sobre selectedPlan atual.
@@ -150,9 +153,9 @@ export function ProPage() {
     try {
       const portal = await openBillingPortal();
       if (portal.data?.url) window.location.assign(portal.data.url);
-      else setCheckoutNotice(portal.message);
+      else setCheckoutNotice(localizeUserMessage(portal.message));
     } catch {
-      setCheckoutNotice("Não foi possível abrir o portal de assinatura.");
+      setCheckoutNotice(t("pro.portalFailed"));
     }
   }
 
@@ -161,9 +164,9 @@ export function ProPage() {
       <section className="relative overflow-hidden rounded-2xl border border-gold/20 bg-[linear-gradient(160deg,rgb(var(--gold)/0.12)_0%,rgb(var(--surface))_45%,rgb(var(--bg))_100%)] p-5 text-center shadow-card sm:p-6">
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold/10 blur-3xl" aria-hidden />
         <Mascot size={88} variant="celebrate" className="relative mx-auto" />
-        <Pill tone="gold" className="relative mt-3">Longyu Pro</Pill>
+        <Pill tone="gold" className="relative mt-3">{t("pro.badge")}</Pill>
         <h1 className="relative mt-3 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-          30 dias grátis. Estude sem limites.
+          {t("pro.headline")}
         </h1>
         <p className="relative mx-auto mt-2 max-w-sm text-sm text-ink-soft">
           {getPlanFeature("cargas").proBenefit} {getPlanFeature("revisao_ilimitada").proBenefit.split(".")[0]}.
@@ -172,11 +175,11 @@ export function ProPage() {
         {serverIsPro ? (
           <div className="relative mx-auto mt-4 max-w-xs space-y-2">
             <div className="rounded-xl border border-good/30 bg-good/10 px-4 py-2.5 text-sm font-semibold text-good">
-              Assinatura Pro ativa. Obrigado!
+              {t("pro.activeThanks")}
             </div>
             {isBillingPortalAvailable() && (
               <Button size="lg" variant="outline" className="w-full" onClick={() => void handleManageBilling()}>
-                Gerenciar ou cancelar assinatura
+                {t("pro.manageBilling")}
               </Button>
             )}
           </div>
@@ -188,7 +191,7 @@ export function ProPage() {
               className="flex items-center justify-center gap-2 rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm font-medium text-ink-soft"
             >
               <span className="longyu-audio-bar h-3 w-1 rounded-full bg-gold" aria-hidden />
-              Verificando seu plano…
+              {t("pro.checkingPlan")}
             </div>
           </div>
         ) : (
@@ -199,27 +202,27 @@ export function ProPage() {
               onClick={() => void handleSubscribe(selectedPlan)}
               disabled={!checkoutReady}
             >
-              {checkoutReady ? "Começar 30 dias grátis" : "Em breve"}
+              {checkoutReady ? t("pro.startTrial") : t("pro.comingSoon")}
             </Button>
             {checkoutReady && (
               <p className="text-[11px] leading-4 text-ink-faint">
-                Cancele quando quiser. Checkout seguro via Stripe.
+                {t("pro.cancelAnytime")}
               </p>
             )}
-            {checkoutNotice && <p className="text-xs text-ink-soft">{checkoutNotice}</p>}
+            {checkoutNotice && <p className="text-xs text-ink-soft">{localizeUserMessage(checkoutNotice)}</p>}
           </div>
         )}
       </section>
 
       <section>
         <div className="mb-3 text-center">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Para você</div>
-          <h2 className="mt-1 font-serif text-lg font-semibold text-ink sm:text-xl">Grátis vs Pro</h2>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("pro.forYou")}</div>
+          <h2 className="mt-1 font-serif text-lg font-semibold text-ink sm:text-xl">{t("pro.freeVsPro")}</h2>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <Card className="p-3.5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Grátis</div>
-            <h3 className="mt-0.5 text-sm font-semibold text-ink">Ensina de verdade</h3>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("pro.free")}</div>
+            <h3 className="mt-0.5 text-sm font-semibold text-ink">{t("pro.freeTitle")}</h3>
             <p className="mt-1 text-[11px] text-ink-soft">{getPlanFeature("jornada").descricao}</p>
             <ul className="mt-3 space-y-2">
               {freeHighlights.map((item) => (
@@ -235,10 +238,10 @@ export function ProPage() {
           <Card className="border-gold/25 bg-gold/[0.06] p-3.5">
             <div className="flex items-center justify-between gap-2">
               <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">Pro</div>
-              <Pill tone="gold">Recomendado</Pill>
+              <Pill tone="gold">{t("pro.recommended")}</Pill>
             </div>
-            <h3 className="mt-0.5 text-sm font-semibold text-ink">Mais rápido, menos limites</h3>
-            <p className="mt-1 text-[11px] text-ink-soft">{proOnlyCount} benefícios extras — sem comprar posição nas ligas.</p>
+            <h3 className="mt-0.5 text-sm font-semibold text-ink">{t("pro.proTitle")}</h3>
+            <p className="mt-1 text-[11px] text-ink-soft">{t("pro.extraBenefits", { count: proOnlyCount })}</p>
             <ul className="mt-3 space-y-2">
               {proHighlights.map((item) => (
                 <li key={item} className="flex items-center gap-2 text-xs text-ink">
@@ -252,13 +255,13 @@ export function ProPage() {
           </Card>
         </div>
         <p className="mt-2 text-center text-[11px] text-ink-faint">
-          O Pro não conclui lições por você. +{PRO_LESSON_QI_BONUS} Qi por lição concluída.
+          {t("pro.proDoesNotFinish", { bonus: PRO_LESSON_QI_BONUS })}
         </p>
       </section>
 
       {!serverIsPro && (
         <section className="space-y-3">
-          <h2 className="text-center font-serif text-lg font-semibold text-ink">Escolha o plano</h2>
+          <h2 className="text-center font-serif text-lg font-semibold text-ink">{t("pro.choosePlan")}</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {BILLING_PLANS.map((plan) => {
               const active = selectedPlan === plan.key;
@@ -276,17 +279,25 @@ export function ProPage() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">{plan.eyebrow}</div>
-                      <h3 className="mt-0.5 font-serif text-lg font-semibold text-ink">{plan.name}</h3>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">
+                        {plan.key === "pro_annual" ? t("pro.annualEyebrow") : t("pro.monthlyEyebrow")}
+                      </div>
+                      <h3 className="mt-0.5 font-serif text-lg font-semibold text-ink">
+                        {plan.key === "pro_annual" ? t("pro.annual") : t("pro.monthly")}
+                      </h3>
                     </div>
-                    {plan.badge && <Pill tone="gold">{plan.badge}</Pill>}
+                    {plan.badge && <Pill tone="gold">{t("pro.off60")}</Pill>}
                   </div>
-                  <div className="mt-2 font-serif text-2xl font-semibold text-ink">{plan.priceLine}</div>
-                  <p className="mt-0.5 text-xs text-ink-soft">{plan.detail}</p>
+                  <div className="mt-2 font-serif text-2xl font-semibold text-ink">
+                    {plan.key === "pro_annual" ? t("pro.annualPrice") : t("pro.monthlyPrice")}
+                  </div>
+                  <p className="mt-0.5 text-xs text-ink-soft">
+                    {plan.key === "pro_annual" ? t("pro.annualDetail") : t("pro.monthlyDetail")}
+                  </p>
                   {active && (
                     <div className="mt-2 flex items-center gap-1 text-[10px] text-ink-faint">
                       <IconLock width={11} height={11} />
-                      {checkoutReady ? "Checkout Stripe" : "Em breve"}
+                      {checkoutReady ? t("pro.stripeCheckout") : t("pro.comingSoon")}
                     </div>
                   )}
                 </button>

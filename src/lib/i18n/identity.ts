@@ -10,6 +10,11 @@
  *
  * Pais nunca infere idioma. launchLocaleFields() ignora country.
  *
+ * Runtime de interface (pt-BR | en) vive em `src/i18n/` e persiste so em
+ * `longyu:interface-locale`. Este modulo continua sendo o contrato de
+ * lancamento enviado ao backend (sempre pt-BR / zh-CN nesta remessa).
+ * Nao exige as colunas hospedadas da #208 para a UI trocar de idioma.
+ *
  * Futuro (nao nesta PR): a mesma conta pode ter instruction_locale en
  * para o par en → zh-CN, sem duplicar banco nem a Journey. Dados canonicos
  * chineses (hanzi, pinyin, audio, estrutura) continuam independentes do locale.

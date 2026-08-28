@@ -6,8 +6,11 @@ import { canRegisterWithCredentials } from "../../lib/authForm";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { updatePasswordAfterRecovery } from "../../services/authService";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -56,7 +59,7 @@ export function ResetPasswordPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canRegisterWithCredentials("user@longyu.app", password, passwordConfirm)) {
-      setError("Use uma senha de pelo menos 6 caracteres e confirme igual nos dois campos.");
+      setError(t("auth.errors.passwordMismatch"));
       return;
     }
     setLoading(true);
@@ -64,10 +67,10 @@ export function ResetPasswordPage() {
     const result = await updatePasswordAfterRecovery(password);
     setLoading(false);
     if (result.status === "error") {
-      setError(result.message);
+      setError(localizeUserMessage(result.message));
       return;
     }
-    setNotice(result.message);
+    setNotice(localizeUserMessage(result.message));
     setTimeout(() => navigate("/login", { replace: true }), 1800);
   }
 
@@ -75,12 +78,12 @@ export function ResetPasswordPage() {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <Mascot size={96} variant="wave" />
-        <h1 className="font-serif text-2xl font-semibold text-ink">Redefinição indisponível</h1>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.resetUnavailable")}</h1>
         <Link
           to="/login"
           className="inline-flex h-11 items-center justify-center rounded-xl border border-line/60 bg-surface px-5 text-sm font-semibold text-ink hover:bg-surface-2"
         >
-          Voltar ao login
+          {t("auth.backToLogin")}
         </Link>
       </div>
     );
@@ -89,7 +92,7 @@ export function ResetPasswordPage() {
   if (checking) {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center text-sm text-ink-soft">
-        Validando link de recuperação…
+        {t("auth.validatingReset")}
       </div>
     );
   }
@@ -98,15 +101,15 @@ export function ResetPasswordPage() {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <Mascot size={88} variant="wave" />
-        <h1 className="font-serif text-2xl font-semibold text-ink">Link inválido ou expirado</h1>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.invalidLinkTitle")}</h1>
         <p className="text-sm leading-6 text-ink-soft">
-          Solicite um novo email de recuperação e abra o link mais recente.
+          {t("auth.invalidLinkLead")}
         </p>
         <Link
           to="/esqueci-senha"
           className="inline-flex h-12 items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-white shadow-card hover:bg-accent-strong"
         >
-          Solicitar novo link
+          {t("auth.requestNewLink")}
         </Link>
       </div>
     );
@@ -116,30 +119,30 @@ export function ResetPasswordPage() {
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center gap-6 py-8">
       <div className="text-center">
         <Mascot size={88} variant="wave" className="mx-auto" />
-        <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">Nova senha</h1>
-        <p className="mt-2 text-sm leading-6 text-ink-soft">Escolha uma senha nova para sua conta Longyu.</p>
+        <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">{t("auth.newPassword")}</h1>
+        <p className="mt-2 text-sm leading-6 text-ink-soft">{t("auth.newPasswordLead")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Nova senha</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.newPassword")}</span>
           <input
             type="password"
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Mínimo de 6 caracteres"
+            placeholder={t("auth.passwordPlaceholder")}
             className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
           />
         </label>
         <label className="mt-3 block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Confirmar senha</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.confirmPassword")}</span>
           <input
             type="password"
             autoComplete="new-password"
             value={passwordConfirm}
             onChange={(event) => setPasswordConfirm(event.target.value)}
-            placeholder="Repita a senha"
+            placeholder={t("auth.confirmPasswordPlaceholder")}
             className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
           />
         </label>
@@ -156,7 +159,7 @@ export function ResetPasswordPage() {
         )}
 
         <Button type="submit" size="lg" disabled={loading} className="mt-5 w-full">
-          {loading ? "Salvando…" : "Salvar nova senha"}
+          {loading ? t("auth.saving") : t("auth.saveNewPassword")}
         </Button>
       </form>
     </div>

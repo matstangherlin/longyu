@@ -13,18 +13,14 @@ import { Mascot } from "../../components/brand/Mascot";
 import { IconCheck, IconChevron, IconSound, IconStar, IconSun } from "../../components/ui/Icon";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
-
-const BULLETS = [
-  "Comece pelo básico",
-  "Treine tons sem decorar",
-  "Monte hànzì passo a passo",
-  "Revise seus erros",
-];
+import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
+import { useTranslation } from "../../i18n/useTranslation";
 
 // Landing pública em "/": primeira impressão para quem ainda não tem conta.
 // Sem sidebar/topbar/tab bar — só marca, proposta e dois CTAs. cloud_ready
 // vai para /jornada; onboarding pendente vai para /finalizar-cadastro.
 export function LandingPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
@@ -66,20 +62,21 @@ export function LandingPage() {
   return (
     <div className="theme-transition relative flex min-h-dvh flex-col overflow-x-hidden bg-[radial-gradient(circle_at_18%_34%,rgb(var(--accent)/0.07),transparent_32%),radial-gradient(circle_at_82%_24%,rgb(var(--accent-soft)/0.48),transparent_30%),rgb(var(--bg))]">
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4 lg:py-5">
-        <BrandLockup size={34} tagline="PT-BR → Mandarim" />
+        <BrandLockup size={34} tagline={t("marketing.tagline")} />
         <div className="flex items-center gap-1 sm:gap-2">
+          <LanguageSwitcher compact id="landing-interface-locale" />
           <button
             type="button"
             onClick={() => setTheme(isDark ? "clay" : "dark")}
             aria-pressed={isDark}
-            aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+            aria-label={isDark ? t("marketing.enableLight") : t("marketing.enableDark")}
             className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-semibold text-ink-soft shadow-card transition hover:border-accent-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
           >
             <IconSun width={17} height={17} aria-hidden="true" />
-            <span className="hidden sm:inline">{isDark ? "Modo claro" : "Modo escuro"}</span>
+            <span className="hidden sm:inline">{isDark ? t("marketing.lightMode") : t("marketing.darkMode")}</span>
           </button>
           <ButtonLink to="/login" variant="ghost" size="sm">
-            Entrar
+            {t("marketing.signIn")}
           </ButtonLink>
         </div>
       </header>
@@ -100,7 +97,7 @@ export function LandingPage() {
 
             <span className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full border border-line/70 bg-surface/85 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--good))]" />
-              Sua primeira lição
+              {t("marketing.firstLesson")}
             </span>
 
             <div className="relative mx-auto mt-5 flex justify-center">
@@ -110,8 +107,8 @@ export function LandingPage() {
             <div className="relative mx-auto mt-5 flex max-w-sm flex-col gap-3">
               <div className="longyu-reward-rise flex items-center justify-between rounded-2xl border border-line/80 bg-surface/95 px-4 py-3 text-left shadow-card">
                 <div>
-                  <div className="hanzi text-2xl leading-tight text-ink">你好</div>
-                  <div className="mt-0.5 pinyin text-sm text-ink-soft">nǐ hǎo · olá</div>
+                  <div className="hanzi text-2xl leading-tight text-ink" data-hanzi="你好">你好</div>
+                  <div className="mt-0.5 pinyin text-sm text-ink-soft">nǐ hǎo · {t("marketing.glossHello")}</div>
                 </div>
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-accent-soft text-accent">
                   <IconSound width={17} height={17} />
@@ -122,8 +119,8 @@ export function LandingPage() {
                 style={{ animationDelay: "120ms" }}
               >
                 <div>
-                  <div className="hanzi text-2xl leading-tight text-ink">谢谢</div>
-                  <div className="mt-0.5 pinyin text-sm text-ink-soft">xièxie · obrigado(a)</div>
+                  <div className="hanzi text-2xl leading-tight text-ink" data-hanzi="谢谢">谢谢</div>
+                  <div className="mt-0.5 pinyin text-sm text-ink-soft">xièxie · {t("marketing.glossThanks")}</div>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
                   <IconCheck width={13} height={13} /> +15 XP
@@ -138,22 +135,26 @@ export function LandingPage() {
             </div>
 
             <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/10 bg-accent-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-accent sm:text-[11px]">
-              <IconStar width={12} height={12} fill="currentColor" /> Grátis para começar
+              <IconStar width={12} height={12} fill="currentColor" /> {t("marketing.freeToStart")}
             </span>
 
             <h1 className="mt-2.5 font-serif text-[2rem] font-semibold leading-[1.02] tracking-[-0.02em] text-ink sm:text-[2.5rem] lg:text-[2.5rem] lg:leading-[1.04] xl:text-[2.7rem]">
-              <span className="block">Aprenda mandarim</span>
+              <span className="block">{t("marketing.heroTitle1")}</span>
               <span className="block">
-                com pinyin, tons e <span className="text-accent">hànzì</span>.
+                {t("marketing.heroTitle2Before")}<span className="text-accent">hànzì</span>{t("marketing.heroTitle2After")}
               </span>
             </h1>
             <p className="mx-auto mt-3 max-w-lg text-sm leading-5 text-ink-soft sm:text-[15px] sm:leading-6 lg:mx-0">
-              Lições curtas para brasileiros praticarem frases reais, escuta e caracteres
-              chineses todos os dias.
+              {t("marketing.heroLead")}
             </p>
 
             <ul className="mx-auto mt-4 grid max-w-lg grid-cols-2 gap-1.5 text-left sm:gap-2 lg:mx-0">
-              {BULLETS.map((item) => (
+              {[
+              t("marketing.bulletBasics"),
+              t("marketing.bulletTones"),
+              t("marketing.bulletHanzi"),
+              t("marketing.bulletReview"),
+            ].map((item) => (
                 <li
                   key={item}
                   className="flex min-h-11 items-center gap-2 rounded-xl border border-line/70 bg-surface/90 px-2.5 py-2 text-[12px] font-medium leading-4 text-ink-soft shadow-card sm:gap-2.5 sm:px-3 sm:text-sm"
@@ -168,15 +169,15 @@ export function LandingPage() {
 
             <div className="mx-auto mt-5 grid max-w-lg gap-2.5 lg:mx-0">
               <ButtonLink to="/comecar" size="lg" className="w-full shadow-lift">
-                Começar agora <IconChevron width={18} height={18} />
+                {t("marketing.ctaStart")} <IconChevron width={18} height={18} />
               </ButtonLink>
               <ButtonLink to="/login" variant="outline" size="lg" className="w-full">
-                Já tenho uma conta
+                {t("marketing.ctaHasAccount")}
               </ButtonLink>
             </div>
 
             <p className="mt-2.5 text-[11px] leading-4 text-ink-faint sm:text-xs">
-              Sem cartão de crédito. Seu progresso fica salvo na sua conta.
+              {t("marketing.noCard")}
             </p>
           </section>
         </div>
@@ -185,26 +186,26 @@ export function LandingPage() {
       <footer className="relative z-[1] mx-auto w-full max-w-6xl space-y-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 text-center sm:px-8 lg:text-left">
         <BetaNotice />
         <nav
-          aria-label="Aprenda mais"
+          aria-label={t("marketing.learnMore")}
           className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] text-ink-faint sm:justify-start sm:text-xs"
         >
           <Link to="/metodo-longyu" className="hover:text-ink-soft">
-            Método
+            {t("marketing.method")}
           </Link>
           <Link to="/como-funciona" className="hover:text-ink-soft">
-            Como funciona
+            {t("marketing.howItWorks")}
           </Link>
           <Link to="/aprender-mandarim" className="hover:text-ink-soft">
-            Aprender mandarim
+            {t("marketing.learnMandarin")}
           </Link>
           <Link to="/tons-do-mandarim" className="hover:text-ink-soft">
-            Tons
+            {t("marketing.tones")}
           </Link>
           <Link to="/business" className="hover:text-ink-soft">
-            Para empresas
+            {t("marketing.business")}
           </Link>
           <Link to="/privacidade" className="hover:text-ink-soft">
-            Privacidade
+            {t("marketing.privacy")}
           </Link>
         </nav>
         <p className="text-[11px] text-ink-faint">

@@ -3,9 +3,12 @@ import { Card, Pill } from "../ui/primitives";
 import { FEEDBACK_CATEGORIES, FEEDBACK_STATUSES } from "../../lib/feedback";
 import { fetchMyFeedback, type BetaFeedbackRow } from "../../services/feedbackService";
 import { getSupabaseClient } from "../../lib/supabaseClient";
+import { formatDateTime } from "../../i18n/format";
+import { useTranslation } from "../../i18n/useTranslation";
 
 /** Lista o feedback do usuário autenticado (RLS). Sem login: mensagem curta. */
 export function MyFeedbackList() {
+  useTranslation();
   const [rows, setRows] = useState<BetaFeedbackRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -77,7 +80,7 @@ export function MyFeedbackList() {
               {FEEDBACK_STATUSES.find((entry) => entry.id === row.status)?.label ?? row.status}
             </Pill>
             <span className="text-[11px] text-ink-faint">
-              {new Date(row.created_at).toLocaleString("pt-BR")}
+              {formatDateTime(row.created_at)}
             </span>
           </div>
           <p className="mt-2 whitespace-pre-wrap text-sm text-ink">{row.message}</p>

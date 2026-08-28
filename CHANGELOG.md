@@ -7,6 +7,14 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.8.0 — Localization foundation (pt-BR + English)
+
+Interface/instruction locales `pt-BR` (default) and `en`, separate from target
+`zh-CN`. App shell, auth, settings language switcher, marketing/Pro chrome.
+Canonical Chinese is not duplicated. No MandarimProject writes. PR #208 stays
+paused. Reports: `docs/reports/v480-localization-foundation.md`,
+`docs/reports/v480-localization-audit.md`, `docs/localization/glossary-en.md`.
+
 ### V4.7.8 — MandarimProject controlled upgrade (STOP before write)
 
 Freeze `LONGYU_BACKEND_RC=v4.7.8-rc.1`. New clamp migration
