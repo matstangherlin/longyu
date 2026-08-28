@@ -4,6 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { projectRoot } from "./lib/env-local.mjs";
 import { sha256File } from "./lib/schema-canonical.mjs";
 import { localMigrationFiles, localSchemaHash, classifyMigrationDrift } from "./lib/migration-drift.mjs";
@@ -128,7 +129,33 @@ assert(!v478bLib.includes(deployCall), "v478b lib must not deploy edges");
 
 const pkg = JSON.parse(read("package.json"));
 assert(pkg.scripts["test:v478b-human-gate"] === "node scripts/test-v478b-human-gate.mjs", "script human gate");
+assert(pkg.scripts["v478b:fase-b-plan"] === "node scripts/v478b-fase-b-plan.mjs", "script fase-b plan");
 assert(pkg.scripts["validate:beta"].includes("test:v478b-human-gate"), "validate:beta includes v478b gate");
+
+const runbook = read("docs/reports/v478b-fase-b-runbook.md");
+assert(runbook.includes(V478B_APPROVAL_TOKEN), "runbook names token");
+assert(/do not execute|not approval/i.test(runbook), "runbook is not execute-now");
+for (const file of V478_PENDING_MIGRATIONS) {
+  assert(runbook.includes(file), `runbook lists ${file}`);
+}
+assert(/immediately 9/.test(runbook) && /immediately 11/.test(runbook), "runbook inseparable pairs");
+
+const planSrc = read("scripts/v478b-fase-b-plan.mjs");
+assert(!planSrc.includes(applyCall), "plan script must not call apply migration MCP");
+assert(!planSrc.includes(deployCall), "plan script must not deploy edges");
+const planOk = spawnSync(process.execPath, [path.join(root, "scripts/v478b-fase-b-plan.mjs")], {
+  cwd: root,
+  encoding: "utf8",
+});
+assert(planOk.status === 0, "fase-b-plan exits 0");
+assert(planOk.stdout.includes(V478B_APPROVAL_TOKEN), "plan prints token");
+assert(planOk.stdout.includes("ZERO"), "plan prints ZERO writes");
+const planApply = spawnSync(process.execPath, [path.join(root, "scripts/v478b-fase-b-plan.mjs"), "--apply"], {
+  cwd: root,
+  encoding: "utf8",
+});
+assert(planApply.status === 2, "fase-b-plan --apply refused");
+assert(/REFUSED/.test(planApply.stderr), "--apply stderr REFUSED");
 
 const blocked = read("docs/reports/v479-blocked-pending-v478b.md");
 assert(/Not started/i.test(blocked), "v479 blocked file says not started");

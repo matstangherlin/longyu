@@ -93,6 +93,10 @@ this PR until FASE B has live evidence.
 - Rollback of locale columns: keep columns; drop unused drafts only if empty.
 - Restore from confirmed PITR if schema apply corrupts learner data.
 
+See `docs/reports/v478b-fase-b-runbook.md` for the operator checklist. It is
+not permission to apply. `npm run v478b:fase-b-plan` prints the plan;
+`--apply` exits 2.
+
 ## Explicitly blocked until the token
 
 FASE B steps 9–34: apply, mastery live matrix on hosted, grants live, RLS A≠B,

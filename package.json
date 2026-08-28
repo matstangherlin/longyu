@@ -106,6 +106,7 @@
     "test:mastery-monotonic-contract": "node scripts/test-mastery-monotonic-contract.mjs",
     "test:v478-hosted-gate": "node scripts/test-v478-hosted-gate.mjs",
     "test:v478b-human-gate": "node scripts/test-v478b-human-gate.mjs",
+    "v478b:fase-b-plan": "node scripts/v478b-fase-b-plan.mjs",
     "generate:backend-contracts": "node scripts/generate-backend-contracts.mjs",
     "rehearse:backend-contract": "node scripts/rehearse-backend-contract.mjs",
     "dump:canonical-schema": "node scripts/dump-canonical-schema.mjs",
