@@ -68,20 +68,21 @@ test.describe("i18n shell — V4.8.0", () => {
 
   test("locale switch does not change canonical hanzi", async ({ page }) => {
     await seedOnboardedSession(page, []);
-    await page.goto("/jornada");
-    await waitForLazyPage(page);
-    const before = await page.locator("[data-hanzi]").first().getAttribute("data-hanzi").catch(() => null);
-
     await page.goto("/ajustes");
     await waitForLazyPage(page);
+    const target = page.getByTestId("target-language-card");
+    await expect(target).toContainText("zh-CN");
+    await expect(target).toContainText("中文");
+
     await page.getByTestId("interface-locale-select").selectOption("en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByText(/I am learning Mandarin/i)).toBeVisible();
+    await expect(target).toContainText("zh-CN");
+    await expect(target).toContainText("中文");
 
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await expect(page.getByText("Journey", { exact: true }).first()).toBeVisible();
-    if (before) {
-      await expect(page.locator(`[data-hanzi="${before}"]`).first()).toBeVisible();
-    }
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 });
