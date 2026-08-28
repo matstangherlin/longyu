@@ -5,8 +5,8 @@
 export const LONGYU_BACKEND_RC = "v4.7.8-rc.1";
 export const LONGYU_BACKEND_RC_CHANNEL = "mandarimproject-controlled-upgrade";
 
-/** origin/main when this remessa started. FASE 0 merge of #206 may move main later. */
-export const LONGYU_MAIN_SHA_AT_FREEZE = "b2a5818af1182277ac61c699970b1e3e868ded12";
+/** origin/main after FASE 0 merged #206. */
+export const LONGYU_MAIN_SHA_AT_FREEZE = "0f2dfe453a10902449adaa262748d368839dce3a";
 
 /** V4.7.7 contract freeze HEAD (#206). */
 export const LONGYU_V477_HEAD = "1823d7d6a96c021eb7a55a5c94cf480ce4590a1d";

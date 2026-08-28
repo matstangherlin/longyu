@@ -15,7 +15,7 @@ tokens, or row payloads in this file.
 | watermark version | 20260810175737 |
 | watermark name | beta_experience_telemetry |
 | V4.7.7 parent | 1823d7d6a96c021eb7a55a5c94cf480ce4590a1d |
-| origin/main at freeze | b2a5818af1182277ac61c699970b1e3e868ded12 |
+| origin/main at freeze | 0f2dfe453a10902449adaa262748d368839dce3a |
 
 ## Exact counts (no PII)
 

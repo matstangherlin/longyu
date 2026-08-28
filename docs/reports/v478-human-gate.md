@@ -21,7 +21,8 @@ is `READY_FOR_CONTROLLED_UPGRADE`.
    last-write-wins; do not re-grant anon ALL except documented incident.
 5. HOST-008: production `VITE_CLOUD_ONBOARDING_V2_ENABLED` stays `"false"`.
 6. HOST-007: backup/PITR not taken in this remessa — take it immediately before apply.
-7. FASE 0: merge #206 to `main` when Firefox is green; rebase this branch; record `MAIN_SHA`.
+7. FASE 0: **done.** #206 merged to `main` as `0f2dfe4` (Firefox PASS). This
+   branch is rebased on that SHA.
 
 ## Explicitly blocked (HOST-010+)
 

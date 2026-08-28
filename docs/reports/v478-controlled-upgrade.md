@@ -16,16 +16,13 @@ Without it, hosted keys stay `NOT_RUN` and remessa status is
 
 ## FASE 0
 
-PR **#206** (`cursor/v477-backend-contract-freeze-3618`, HEAD `1823d7d`) is the
-V4.7.7 contract freeze. It is **not merged** to `main` in this remessa:
-required Firefox E2E was still in progress when V4.7.8 branched, and branch
-protection refuses `main` without required checks. Do not `--admin` bypass.
+PR **#206** (`cursor/v477-backend-contract-freeze-3618`, HEAD `1823d7d`) **merged**
+to `main` at `2026-08-28T03:30:52Z` as `0f2dfe4` after required Firefox E2E
+passed. #205 commits landed with that merge (GitHub marks #205 MERGED).
+#204 was already closed.
 
-- `origin/main` at freeze: `b2a5818af1182277ac61c699970b1e3e868ded12`
+- `origin/main` at freeze: `0f2dfe453a10902449adaa262748d368839dce3a`
 - V4.7.7 HEAD: `1823d7d6a96c021eb7a55a5c94cf480ce4590a1d`
-- After #206 lands: fetch `main`, record `MAIN_SHA`, rebase this branch.
-
-Close #205 as SUPERSEDED_BY_206 only after #206 merges. #204 is already closed.
 
 ## Scoreboard (hosted)
 

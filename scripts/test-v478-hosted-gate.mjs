@@ -39,7 +39,7 @@ const backendRcSrc = read("scripts/lib/v478-backend-rc.mjs");
 assert(backendRcSrc.includes(`LONGYU_BACKEND_RC = "${LONGYU_BACKEND_RC}"`), "backend RC const");
 assert(LONGYU_BACKEND_RC === "v4.7.8-rc.1", "backend RC is v4.7.8-rc.1");
 assert(LONGYU_BACKEND_PLACEMENT_VERSION === 2, "backend placement 2");
-assert(LONGYU_MAIN_SHA_AT_FREEZE === "b2a5818af1182277ac61c699970b1e3e868ded12", "main SHA recorded");
+assert(LONGYU_MAIN_SHA_AT_FREEZE === "0f2dfe453a10902449adaa262748d368839dce3a", "main SHA recorded");
 assert(LONGYU_V477_HEAD.startsWith("1823d7d"), "v477 head recorded");
 
 const rcJson = JSON.parse(read("docs/backend/v478-backend-rc.json"));
