@@ -31,77 +31,66 @@ import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
+import { localizeUserMessage } from "../../i18n/errors";
+import type { MessageKey } from "../../locales/pt-BR";
 
-const THEMES: { id: ThemeName; name: string; desc: string; swatch: string[] }[] = [
-  { id: "clay", name: "Notion Clay", desc: "Branco quente, calmo, focado.", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
-  { id: "china", name: "China Modern", desc: "Off-white rosado, vermelho mais profundo.", swatch: ["#FFF9F7", "#FFFFFF", "#B42318"] },
-  { id: "dark", name: "Longyu Dark", desc: "Quase preto, premium, foco em hànzì.", swatch: ["#0C0D0F", "#1F1F1F", "#CD4432"] },
+const THEMES: { id: ThemeName; nameKey: "settings.themeClay" | "settings.themeChina" | "settings.themeDark"; descKey: "settings.themeClayDesc" | "settings.themeChinaDesc" | "settings.themeDarkDesc"; swatch: string[] }[] = [
+  { id: "clay", nameKey: "settings.themeClay", descKey: "settings.themeClayDesc", swatch: ["#F7F6F3", "#FFFFFF", "#B9412E"] },
+  { id: "china", nameKey: "settings.themeChina", descKey: "settings.themeChinaDesc", swatch: ["#FFF9F7", "#FFFFFF", "#B42318"] },
+  { id: "dark", nameKey: "settings.themeDark", descKey: "settings.themeDarkDesc", swatch: ["#0C0D0F", "#1F1F1F", "#CD4432"] },
 ];
 
-const MANDARIN_DISPLAY_OPTIONS: { id: MandarinDisplayMode; label: string; example: string }[] = [
-  { id: "pinyin_hanzi", label: "Pinyin + caracteres", example: "nǐ hǎo · 你好" },
-  { id: "hanzi_pinyin", label: "Caracteres + pinyin", example: "你好 · nǐ hǎo" },
-  { id: "hanzi_only", label: "Somente caracteres", example: "你好" },
-  { id: "pinyin_only", label: "Somente pinyin", example: "nǐ hǎo" },
+const MANDARIN_DISPLAY_OPTIONS: { id: MandarinDisplayMode; labelKey: "settings.displayPinyinHanzi" | "settings.displayHanziPinyin" | "settings.displayHanziOnly" | "settings.displayPinyinOnly"; example: string }[] = [
+  { id: "pinyin_hanzi", labelKey: "settings.displayPinyinHanzi", example: "nǐ hǎo · 你好" },
+  { id: "hanzi_pinyin", labelKey: "settings.displayHanziPinyin", example: "你好 · nǐ hǎo" },
+  { id: "hanzi_only", labelKey: "settings.displayHanziOnly", example: "你好" },
+  { id: "pinyin_only", labelKey: "settings.displayPinyinOnly", example: "nǐ hǎo" },
 ];
 
-const TRANSLATION_OPTIONS: { id: TranslationMode; label: string }[] = [
-  { id: "always", label: "Mostrar sempre" },
-  { id: "tap", label: "Mostrar ao tocar" },
-  { id: "hidden", label: "Ocultar por padrão" },
+const TRANSLATION_OPTIONS: { id: TranslationMode; labelKey: "settings.translationAlways" | "settings.translationTap" | "settings.translationHidden" }[] = [
+  { id: "always", labelKey: "settings.translationAlways" },
+  { id: "tap", labelKey: "settings.translationTap" },
+  { id: "hidden", labelKey: "settings.translationHidden" },
 ];
 
-const DISPLAY_OPTION_COPY: Partial<Record<MandarinDisplayMode, { label: string; example: string }>> = {
-  pinyin_only: { label: "Somente pinyin", example: "wǒ men xué hànyǔ" },
-  hanzi_only: { label: "Somente caracteres", example: "我们学汉语" },
-  pinyin_hanzi: { label: "Pinyin e caracteres", example: "wǒ men xué hànyǔ · 我们学汉语" },
+const DISPLAY_OPTION_EXAMPLE: Partial<Record<MandarinDisplayMode, string>> = {
+  pinyin_only: "wǒ men xué hànyǔ",
+  hanzi_only: "我们学汉语",
+  pinyin_hanzi: "wǒ men xué hànyǔ · 我们学汉语",
 };
 
-const SOUND_THEME_OPTIONS: { id: SoundTheme; label: string; desc: string }[] = [
-  { id: "longyu_classic", label: "Longyu Classic", desc: "Sino, jade e madeira em equilibrio." },
-  { id: "longyu_soft", label: "Longyu Soft", desc: "Mais discreto para estudo longo." },
-  { id: "longyu_game", label: "Longyu Game", desc: "Mais brilhante para treino rapido." },
+const SOUND_THEME_OPTIONS: { id: SoundTheme; label: string; descKey: "settings.soundClassicDesc" | "settings.soundSoftDesc" | "settings.soundGameDesc" }[] = [
+  { id: "longyu_classic", label: "Longyu Classic", descKey: "settings.soundClassicDesc" },
+  { id: "longyu_soft", label: "Longyu Soft", descKey: "settings.soundSoftDesc" },
+  { id: "longyu_game", label: "Longyu Game", descKey: "settings.soundGameDesc" },
 ];
 
-// Um botão de teste por evento sonoro importante do app.
-const SOUND_TEST_ITEMS: { kind: SoundKind; label: string }[] = [
-  { kind: "tap", label: "Toque" },
-  { kind: "pieceSelect", label: "Selecionar peça" },
-  { kind: "step", label: "Etapa" },
-  { kind: "success", label: "Acerto" },
-  { kind: "error", label: "Erro" },
-  { kind: "streak", label: "Sequência" },
-  { kind: "missionComplete", label: "Missão concluída" },
-  { kind: "qiGain", label: "Qi ganho" },
-  { kind: "qiSpend", label: "Qi gasto" },
-  { kind: "chestReady", label: "Baú pronto" },
-  { kind: "chestOpenCommon", label: "Baú comum" },
-  { kind: "chestOpenRare", label: "Baú raro" },
-  { kind: "chestOpenEpic", label: "Baú épico" },
-  { kind: "chestOpenLegendary", label: "Baú lendário" },
-  { kind: "medal", label: "Medalha" },
-  { kind: "lessonComplete", label: "Lição concluída" },
-  { kind: "moduleComplete", label: "Módulo concluído" },
-  { kind: "blocked", label: "Sem carga/Qi" },
+const SOUND_TEST_ITEMS: { kind: SoundKind; labelKey: MessageKey }[] = [
+  { kind: "tap", labelKey: "settings.soundTap" },
+  { kind: "pieceSelect", labelKey: "settings.soundPieceSelect" },
+  { kind: "step", labelKey: "settings.soundStep" },
+  { kind: "success", labelKey: "settings.soundSuccess" },
+  { kind: "error", labelKey: "settings.soundError" },
+  { kind: "streak", labelKey: "settings.soundStreak" },
+  { kind: "missionComplete", labelKey: "settings.soundMissionComplete" },
+  { kind: "qiGain", labelKey: "settings.soundQiGain" },
+  { kind: "qiSpend", labelKey: "settings.soundQiSpend" },
+  { kind: "chestReady", labelKey: "settings.soundChestReady" },
+  { kind: "chestOpenCommon", labelKey: "settings.soundChestOpenCommon" },
+  { kind: "chestOpenRare", labelKey: "settings.soundChestOpenRare" },
+  { kind: "chestOpenEpic", labelKey: "settings.soundChestOpenEpic" },
+  { kind: "chestOpenLegendary", labelKey: "settings.soundChestOpenLegendary" },
+  { kind: "medal", labelKey: "settings.soundMedal" },
+  { kind: "lessonComplete", labelKey: "settings.soundLessonComplete" },
+  { kind: "moduleComplete", labelKey: "settings.soundModuleComplete" },
+  { kind: "blocked", labelKey: "settings.soundBlocked" },
 ];
 
-const PRO_ENGINES: Record<DomainTrack, { title: string; features: string[] }> = {
-  som: {
-    title: "Diagnóstico tonal",
-    features: ["pares mínimos avançados", "áudio lento neural", "mapa de tons fracos"],
-  },
-  fala: {
-    title: "Produção oral guiada",
-    features: ["roleplays", "feedback de pronúncia", "chunks ilimitados"],
-  },
-  hanzi: {
-    title: "Famílias gráficas",
-    features: ["radicais avançados", "decomposição extra", "modo sem pinyin"],
-  },
-  leitura: {
-    title: "Biblioteca graduada",
-    features: ["histórias maiores", "leitura sem pinyin", "shadowing por linha"],
-  },
+const PRO_ENGINE_KEYS: Record<DomainTrack, { titleKey: "settings.proSomTitle" | "settings.proFalaTitle" | "settings.proHanziTitle" | "settings.proLeituraTitle"; featuresKey: "settings.proSomFeatures" | "settings.proFalaFeatures" | "settings.proHanziFeatures" | "settings.proLeituraFeatures" }> = {
+  som: { titleKey: "settings.proSomTitle", featuresKey: "settings.proSomFeatures" },
+  fala: { titleKey: "settings.proFalaTitle", featuresKey: "settings.proFalaFeatures" },
+  hanzi: { titleKey: "settings.proHanziTitle", featuresKey: "settings.proHanziFeatures" },
+  leitura: { titleKey: "settings.proLeituraTitle", featuresKey: "settings.proLeituraFeatures" },
 };
 
 export function SettingsPage() {
@@ -206,11 +195,11 @@ export function SettingsPage() {
     const result = await updateUsername(socialUsername);
     setSocialLoading(false);
     if (!result.ok) {
-      setSocialNotice(result.message);
+      setSocialNotice(localizeUserMessage(result.message));
       return;
     }
     setSocialUsername(result.data.username ?? "");
-    setSocialNotice("Apelido atualizado.");
+    setSocialNotice(t("settings.usernameSaved"));
   }
 
   async function handleToggleShowInSearch() {
@@ -220,11 +209,11 @@ export function SettingsPage() {
     const result = await updateShowInSearch(next);
     setSocialLoading(false);
     if (!result.ok) {
-      setSocialNotice(result.message);
+      setSocialNotice(localizeUserMessage(result.message));
       return;
     }
     setSocialShowInSearch(result.data.show_in_search);
-    setSocialNotice(next ? "Seu perfil aparece na busca de amigos." : "Seu perfil ficou oculto na busca.");
+    setSocialNotice(next ? t("settings.profileVisible") : t("settings.profileHidden"));
   }
 
   function handleSuggestUsername() {
@@ -275,7 +264,7 @@ export function SettingsPage() {
           <div className="mt-1 font-serif text-lg font-semibold text-ink">
             {COURSE_PROFILE.sourceLanguage.name} → {COURSE_PROFILE.targetLanguage.name}
           </div>
-          <p className="mt-1 text-xs text-ink-soft">{COURSE_PROFILE.learningPromise}</p>
+          <p className="mt-1 text-xs text-ink-soft">{t("settings.coursePromise")}</p>
         </Card>
       </HubSection>
 
@@ -298,10 +287,10 @@ export function SettingsPage() {
                       <div>
                         <div className="font-medium text-ink">{account.name}</div>
                         <div className="text-xs text-ink-faint">
-                          {lessons} lições · {accountPoints} Qi · melhor sequência {account.longestStreak} dias
+                          {t("settings.lessonsQiStreak", { lessons, qi: accountPoints, streak: account.longestStreak })}
                         </div>
                       </div>
-                      {isCurrent && <span className="text-xs font-semibold text-accent">ativa</span>}
+                      {isCurrent && <span className="text-xs font-semibold text-accent">{t("common.active")}</span>}
                     </div>
                   </div>
                 </button>
@@ -314,11 +303,11 @@ export function SettingsPage() {
             <input
               value={newAccountName}
               onChange={(event) => setNewAccountName(event.target.value)}
-              placeholder="Nome do novo aluno"
+              placeholder={t("settings.newStudentPlaceholder")}
               className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
             />
             <Button onClick={handleCreateAccount} disabled={newAccountName.trim().length < 2}>
-              Criar perfil de teste
+              {t("settings.createTestProfile")}
             </Button>
           </div>
           ) : null}
@@ -327,13 +316,13 @@ export function SettingsPage() {
             to="/conta"
             className="inline-flex h-11 items-center justify-center rounded-xl border border-line px-4 text-[15px] font-medium text-ink transition hover:bg-surface-2"
           >
-            Abrir central de conta
+            {t("settings.openAccountHub")}
           </Link>
 
           <div className="rounded-lg bg-surface-2 px-3 py-2 text-[11px] text-ink-faint">
             {isSupabaseBackendEnabled()
-              ? "Seu progresso fica salvo na sua conta."
-              : "Dados salvos neste dispositivo até você entrar na conta."}
+              ? t("settings.progressInAccount")
+              : t("settings.progressOnDevice")}
           </div>
         </Card>
       </HubSection>
@@ -341,41 +330,43 @@ export function SettingsPage() {
       <HubSection
         id="privacidade"
         className="scroll-mt-6"
-        title="Amigos e privacidade"
-        desc="Apelido público e visibilidade na busca."
+        title={t("settings.friendsPrivacy")}
+        desc={t("settings.friendsPrivacyLead")}
       >
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
           {!cloudReady ? (
             <p className="text-sm text-ink-soft">
-              Crie uma conta na nuvem para definir @apelido, controlar busca e seguir amigos.
+              {t("settings.needCloudForFriends")}
             </p>
           ) : (
             <>
               <div>
                 <label htmlFor="social-username" className="text-sm font-medium text-ink">
-                  @apelido
+                  {t("settings.usernameLabel")}
                 </label>
-                <p className="mt-0.5 text-xs text-ink-soft">Amigos podem te encontrar por nome ou @{socialUsername || "apelido"}.</p>
+                <p className="mt-0.5 text-xs text-ink-soft">
+                  {t("settings.usernameHint", { username: socialUsername || t("settings.usernameFallback") })}
+                </p>
                 <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                   <input
                     id="social-username"
                     value={socialUsername}
                     onChange={(event) => setSocialUsername(event.target.value.replace(/^@/, ""))}
-                    placeholder="seu_apelido"
+                    placeholder={t("settings.usernamePlaceholder")}
                     className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
                   />
                   <Button type="button" variant="outline" onClick={handleSuggestUsername} disabled={socialLoading}>
-                    Sugerir
+                    {t("common.suggested")}
                   </Button>
                   <Button type="button" onClick={() => void handleSaveUsername()} disabled={socialLoading || socialUsername.trim().length < 3}>
-                    Salvar
+                    {t("common.save")}
                   </Button>
                 </div>
               </div>
 
               <SettingSwitch
-                label="Mostrar meu perfil em busca"
-                desc="Desligado: só aparece por link direto com @apelido."
+                label={t("settings.showInSearch")}
+                desc={t("settings.showInSearchLead")}
                 checked={socialShowInSearch}
                 onChange={() => void handleToggleShowInSearch()}
               />
@@ -389,13 +380,13 @@ export function SettingsPage() {
       <HubSection
         id="privacidade-dados"
         className="scroll-mt-6"
-        title="Privacidade e dados"
-        desc="Controle o que o Longyu pode coletar para melhorar o curso."
+        title={t("settings.privacyData")}
+        desc={t("settings.privacyDataLead")}
       >
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
           <SettingSwitch
-            label="Dados pedagógicos de melhoria"
-            desc="Lições, tipos de exercício, acertos/erros e abandonos. Sem senhas nem texto livre."
+            label={t("settings.pedagogyData")}
+            desc={t("settings.pedagogyDataLead")}
             checked={telemetryConsent}
             onChange={() => {
               const next = !telemetryConsent;
@@ -403,18 +394,14 @@ export function SettingsPage() {
                 await setTelemetryConsent(next);
                 setTelemetryConsentState(next);
                 setQueueSize(pedagogyEventQueueSize());
-                setPrivacyNotice(
-                  next
-                    ? "Consentimento ativado. Eventos pedagógicos podem ser enviados."
-                    : "Consentimento desligado. Fila local de eventos foi apagada. Seu progresso permanece."
-                );
+                setPrivacyNotice(next ? t("settings.consentOn") : t("settings.consentOff"));
               })();
             }}
           />
 
           <div className="grid gap-2 sm:grid-cols-2">
             <Button type="button" variant="outline" size="sm" onClick={() => setShowDataDetails(true)}>
-              Ver quais dados são coletados
+              {t("settings.seeCollectedData")}
             </Button>
             <Button
               type="button"
@@ -423,10 +410,10 @@ export function SettingsPage() {
               onClick={() => {
                 clearPedagogyEventQueue();
                 setQueueSize(0);
-                setPrivacyNotice("Fila de eventos pendentes apagada neste dispositivo.");
+                setPrivacyNotice(t("settings.queueCleared"));
               }}
             >
-              Limpar fila de eventos ({queueSize})
+              {t("settings.clearEventQueue", { count: queueSize })}
             </Button>
             <Button
               type="button"
@@ -447,14 +434,14 @@ export function SettingsPage() {
                     link.click();
                     link.remove();
                     URL.revokeObjectURL(url);
-                    setPrivacyNotice("Exportação dos seus dados baixada neste dispositivo.");
+                    setPrivacyNotice(t("settings.exportDownloaded"));
                   } finally {
                     setPrivacyBusy(false);
                   }
                 })();
               }}
             >
-              Solicitar exportação dos meus dados
+              {t("settings.requestExport")}
             </Button>
             <Button
               type="button"
@@ -464,17 +451,17 @@ export function SettingsPage() {
               onClick={() => {
                 void (async () => {
                   const confirmationText = window.prompt(
-                    `Esta ação é permanente. Digite ${ACCOUNT_DELETION_CONFIRMATION_TEXT} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.`
+                    t("settings.deletionPrompt", { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT })
                   );
                   if (confirmationText === null) return;
                   setPrivacyBusy(true);
                   const result = await requestAccountDeletion(confirmationText);
                   setPrivacyBusy(false);
-                  setPrivacyNotice(result.message);
+                  setPrivacyNotice(localizeUserMessage(result.message));
                 })();
               }}
             >
-              Solicitar exclusão da conta
+              {t("settings.requestDeletion")}
             </Button>
           </div>
 
@@ -482,7 +469,7 @@ export function SettingsPage() {
             to="/privacidade#politica"
             className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           >
-            Política de privacidade
+            {t("settings.privacyPolicy")}
           </Link>
 
           {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
@@ -490,38 +477,38 @@ export function SettingsPage() {
       </HubSection>
 
       {showDataDetails && (
-        <ModalOverlay label="Dados coletados" onBackdropClick={() => setShowDataDetails(false)}>
+        <ModalOverlay label={t("settings.collectedData")} onBackdropClick={() => setShowDataDetails(false)}>
           <div
             className="max-h-[calc(100dvh_-_env(safe-area-inset-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <TelemetryDataDetails />
             <Button type="button" className="mt-5 w-full" onClick={() => setShowDataDetails(false)}>
-              Fechar
+              {t("common.close")}
             </Button>
           </div>
         </ModalOverlay>
       )}
 
-      <HubSection id="tema" className="scroll-mt-6" title="Tema">
+      <HubSection id="tema" className="scroll-mt-6" title={t("settings.theme")}>
         <div className="grid gap-2 sm:grid-cols-2">
-          {THEMES.map((t) => (
+          {THEMES.map((themeOption) => (
             <button
-              key={t.id}
+              key={themeOption.id}
               type="button"
-              onClick={() => setTheme(t.id)}
-              aria-pressed={theme === t.id}
+              onClick={() => setTheme(themeOption.id)}
+              aria-pressed={theme === themeOption.id}
               className="group min-h-11 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
               <Card
                 variant="interactive"
                 className={[
                   "flex items-center gap-4 p-4 transition",
-                  theme === t.id ? "ring-2 ring-accent" : "hover:bg-surface-2",
+                  theme === themeOption.id ? "ring-2 ring-accent" : "hover:bg-surface-2",
                 ].join(" ")}
               >
                 <div className="flex gap-1.5">
-                  {t.swatch.map((c) => (
+                  {themeOption.swatch.map((c) => (
                     <span
                       key={c}
                       className="h-9 w-9 rounded-lg border border-line"
@@ -530,8 +517,8 @@ export function SettingsPage() {
                   ))}
                 </div>
                 <div>
-                  <div className="font-medium text-ink">{t.name}</div>
-                  <div className="text-sm text-ink-soft">{t.desc}</div>
+                  <div className="font-medium text-ink">{t(themeOption.nameKey)}</div>
+                  <div className="text-sm text-ink-soft">{t(themeOption.descKey)}</div>
                 </div>
               </Card>
             </button>
@@ -542,16 +529,16 @@ export function SettingsPage() {
       <HubSection
         id="exibicao"
         className="scroll-mt-6"
-        title="Como ver o mandarim"
-        desc="Comece com pinyin e hànzì. Depois esconda o pinyin para leitura real."
+        title={t("settings.howToSeeMandarin")}
+        desc={t("settings.howToSeeMandarinLead")}
       >
         <Card className="space-y-4 overflow-hidden rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="rounded-2xl bg-surface-2 p-4 text-center">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Prévia visual</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("settings.visualPreview")}</div>
             <MandarinText
               hanzi="我们学汉语"
               pinyin="wǒ men xué hànyǔ"
-              meaning="Nós estudamos chinês."
+              meaning={t("settings.previewGloss")}
               size="xl"
               audio
               align="center"
@@ -561,12 +548,12 @@ export function SettingsPage() {
 
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              Exibição
+              {t("settings.display")}
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               {MANDARIN_DISPLAY_OPTIONS.filter((option) => option.id !== "hanzi_pinyin").map((option) => {
                 const active = mandarinDisplayMode === option.id;
-                const copy = DISPLAY_OPTION_COPY[option.id] ?? option;
+                const example = DISPLAY_OPTION_EXAMPLE[option.id] ?? option.example;
                 return (
                   <button
                     key={option.id}
@@ -576,8 +563,8 @@ export function SettingsPage() {
                       active ? "border-accent bg-accent-soft ring-1 ring-accent" : "border-line bg-surface-2 hover:bg-surface",
                     ].join(" ")}
                   >
-                    <div className="font-medium text-ink">{copy.label}</div>
-                    <div className="mt-1 font-serif text-sm text-ink-soft">{copy.example}</div>
+                    <div className="font-medium text-ink">{t(option.labelKey)}</div>
+                    <div className="mt-1 font-serif text-sm text-ink-soft">{example}</div>
                   </button>
                 );
               })}
@@ -586,7 +573,7 @@ export function SettingsPage() {
 
           <div className="border-t border-line pt-5">
             <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              Tradução
+              {t("settings.translation")}
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               {TRANSLATION_OPTIONS.map((option) => {
@@ -600,7 +587,7 @@ export function SettingsPage() {
                       active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink-soft hover:text-ink",
                     ].join(" ")}
                   >
-                    {option.label}
+                    {t(option.labelKey)}
                   </button>
                 );
               })}
@@ -610,20 +597,20 @@ export function SettingsPage() {
           <div className="grid gap-5 border-t border-line pt-5 lg:grid-cols-2">
             <div className="space-y-4">
               <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3">
-                <div className="font-medium text-ink">Pinyin com acentos</div>
+                <div className="font-medium text-ink">{t("settings.pinyinWithMarks")}</div>
                 <div className="mt-0.5 text-sm leading-5 text-ink-soft">
-                  O app sempre mostra marcas de tom para o aluno.
+                  {t("settings.pinyinWithMarksLead")}
                 </div>
               </div>
               <SettingSwitch
-                label="Cores dos tons"
-                desc="Diferencia visualmente os quatro tons e o tom neutro."
+                label={t("settings.toneColors")}
+                desc={t("settings.toneColorsLead")}
                 checked={toneColors}
                 onChange={() => setToneColors(!toneColors)}
               />
               <div className={toneColors ? "" : "opacity-45"}>
                 <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-medium text-ink">Cor do pinyin</div>
+                  <div className="text-sm font-medium text-ink">{t("settings.pinyinColor")}</div>
                   <div className="font-serif text-lg text-ink">{Math.round(toneColorIntensity * 100)}%</div>
                 </div>
                 <input
@@ -641,14 +628,14 @@ export function SettingsPage() {
 
             <div className="space-y-4">
               <SettingSwitch
-                label="Tocar automaticamente"
-                desc="Reproduz o áudio quando um novo bloco compatível aparece."
+                label={t("settings.autoPlay")}
+                desc={t("settings.autoPlayLead")}
                 checked={autoPlayAudio}
                 onChange={() => setAutoPlayAudio(!autoPlayAudio)}
               />
               <SettingSwitch
-                label="Modo lento"
-                desc="Limita a velocidade da voz para destacar sílabas e tons."
+                label={t("settings.slowMode")}
+                desc={t("settings.slowModeLead")}
                 checked={slowAudio}
                 onChange={() => setSlowAudio(!slowAudio)}
               />
@@ -657,12 +644,12 @@ export function SettingsPage() {
 
           <div className="hidden">
             <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              Prévia
+              {t("settings.preview")}
             </div>
             <MandarinText
               hanzi="你好"
               pinyin="nǐ hǎo"
-              meaning="Olá"
+              meaning={t("settings.previewHello")}
               size="lg"
               audio
             />
@@ -671,28 +658,27 @@ export function SettingsPage() {
       </HubSection>
 
       <HubSection
-        title="Longyu Pro"
+        title={t("pro.badge")}
         count={
           <ButtonLink to="/pro" size="sm" variant="outline">
-            Ver Pro
+            {t("settings.seePro")}
           </ButtonLink>
         }
       >
         <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="text-sm text-ink-soft">
-            O Longyu Pro remove os limites diários, libera a revisão inteligente e as ferramentas avançadas. A Jornada
-            e a revisão essencial continuam grátis para sempre.
+            {t("settings.proLead")}
           </div>
-          <ButtonLink to="/pro" size="sm" className="mt-3">Ver planos Pro</ButtonLink>
+          <ButtonLink to="/pro" size="sm" className="mt-3">{t("settings.seeProPlans")}</ButtonLink>
         </Card>
 
         {/* Ferramenta interna: simular Pro sem assinatura real (só dev / flag explícita). */}
         {isDevPreviewAllowed() && (
           <Card className="mt-2 flex flex-col gap-3 rounded-xl border-dashed border-accent/40 p-3.5 shadow-none sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="font-medium text-ink">Preview local — não é assinatura real</div>
+              <div className="font-medium text-ink">{t("settings.localPreview")}</div>
               <div className="text-sm text-ink-soft">
-                Alterna o entitlement local para testar telas Pro. Não vale em produção beta.
+                {t("settings.localPreviewLead")}
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -700,7 +686,7 @@ export function SettingsPage() {
                 type="button"
                 role="switch"
                 aria-checked={isPremium}
-                aria-label="Preview local Pro"
+                aria-label={t("settings.localPreviewAria")}
                 onClick={() => setPremium(!isPremium)}
                 className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
               >
@@ -719,7 +705,7 @@ export function SettingsPage() {
               </button>
               {isPremium ? (
                 <Button size="sm" variant="outline" onClick={() => setPremium(false)}>
-                  Desativar
+                  {t("settings.deactivate")}
                 </Button>
               ) : null}
             </div>
@@ -730,7 +716,7 @@ export function SettingsPage() {
           {DOMAIN_ORDER.map((track) => {
             const meta = DOMAIN_META[track];
             const Icon = meta.icon;
-            const pro = PRO_ENGINES[track];
+            const pro = PRO_ENGINE_KEYS[track];
             return (
               <Card key={track} className="rounded-xl border-line/70 p-3 shadow-none">
                 <div className="flex items-start gap-3">
@@ -742,8 +728,8 @@ export function SettingsPage() {
                   </span>
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-ink">{meta.label} Pro</div>
-                    <div className="text-xs font-medium text-accent">{pro.title}</div>
-                    <p className="mt-1 text-xs text-ink-soft">{pro.features.join(" · ")}</p>
+                    <div className="text-xs font-medium text-accent">{t(pro.titleKey)}</div>
+                    <p className="mt-1 text-xs text-ink-soft">{t(pro.featuresKey)}</p>
                   </div>
                 </div>
               </Card>
@@ -752,27 +738,27 @@ export function SettingsPage() {
         </div>
 
         <Card className="mt-2 rounded-xl border-line/70 p-3 shadow-none">
-          <div className="text-sm font-semibold text-ink">Revisão Pro</div>
+          <div className="text-sm font-semibold text-ink">{t("settings.reviewPro")}</div>
           <p className="mt-1 text-xs text-ink-soft">
-            Grátis: revisão diária essencial. Pro: fila ilimitada, foco por fraqueza e refazer sem Qi.
+            {t("settings.reviewProLead")}
           </p>
         </Card>
       </HubSection>
 
-      <HubSection id="sons" className="scroll-mt-6" title="Áudio e Qi">
+      <HubSection id="sons" className="scroll-mt-6" title={t("settings.audioAndQi")}>
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="flex items-center justify-between gap-4 border-b border-line pb-4">
             <div>
-              <div className="font-medium text-ink">Sons de progresso</div>
+              <div className="font-medium text-ink">{t("settings.progressSounds")}</div>
               <div className="text-sm text-ink-soft">
-                Assinatura sonora original inspirada em escalas chinesas: tarefa, acerto, bônus e uso de Qi.
+                {t("settings.progressSoundsLead")}
               </div>
             </div>
             <button
               type="button"
               role="switch"
               aria-checked={soundEffects}
-              aria-label="Sons de progresso"
+              aria-label={t("settings.progressSounds")}
               onClick={() => setSoundEffects(!soundEffects)}
               className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
@@ -792,9 +778,9 @@ export function SettingsPage() {
           </div>
 
           <div className="border-b border-line pb-4">
-            <div className="font-medium text-ink">Tema sonoro</div>
+            <div className="font-medium text-ink">{t("settings.soundTheme")}</div>
             <div className="mt-1 text-sm text-ink-soft">
-              Longyu Classic e o pacote original de sino leve, jade, madeira, chama de Qi e brilho de baú.
+              {t("settings.soundThemeLead")}
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               {SOUND_THEME_OPTIONS.map((option) => {
@@ -814,13 +800,13 @@ export function SettingsPage() {
                     ].join(" ")}
                   >
                     <div className="text-sm font-semibold">{option.label}</div>
-                    <div className="mt-1 text-xs text-ink-soft">{option.desc}</div>
+                    <div className="mt-1 text-xs text-ink-soft">{t(option.descKey)}</div>
                   </button>
                 );
               })}
             </div>
             <Button className="mt-3 w-full" variant="soft" disabled={!soundEffects} onClick={testSoundSignature}>
-              Testar som
+              {t("settings.testSound")}
             </Button>
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {SOUND_TEST_ITEMS.map((item) => (
@@ -830,7 +816,7 @@ export function SettingsPage() {
                   disabled={!soundEffects}
                   onClick={() => playSoundFx(item.kind, soundEffects)}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </Button>
               ))}
             </div>
@@ -839,9 +825,9 @@ export function SettingsPage() {
           <div className="border-b border-line pb-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <div className="font-medium text-ink">Volume dos efeitos</div>
+                <div className="font-medium text-ink">{t("settings.fxVolume")}</div>
                 <div className="text-sm text-ink-soft">
-                  Ajuste a força dos acertos, sequências e conclusões.
+                  {t("settings.fxVolumeLead")}
                 </div>
               </div>
               <span className="font-serif text-lg text-ink">{Math.round(soundFxVolume * 100)}%</span>
@@ -862,9 +848,9 @@ export function SettingsPage() {
 
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="font-medium text-ink">Velocidade da fala</div>
+              <div className="font-medium text-ink">{t("settings.speechRate")}</div>
               <div className="text-sm text-ink-soft">
-                Mais devagar ajuda a captar os tons.
+                {t("settings.speechRateLead")}
               </div>
             </div>
             <span className="font-serif text-lg text-ink">{ttsRate.toFixed(2)}×</span>
@@ -881,9 +867,9 @@ export function SettingsPage() {
 
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="font-medium text-ink">Volume da voz</div>
+              <div className="font-medium text-ink">{t("settings.voiceVolume")}</div>
               <div className="text-sm text-ink-soft">
-                Controla a voz do Web Speech quando o navegador permite.
+                {t("settings.voiceVolumeLead")}
               </div>
             </div>
             <span className="font-serif text-lg text-ink">{Math.round(ttsVolume * 100)}%</span>
@@ -899,11 +885,11 @@ export function SettingsPage() {
           />
 
           <Button variant="outline" onClick={() => speak("你好，我在学中文", { rate: ttsRate, volume: ttsVolume })}>
-            Testar voz
+            {t("settings.testVoice")}
           </Button>
 
           <div className="rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">
-            Qi: tarefa +2, acerto +3, lição +10 e bônus por boa pontuação. Use Qi para refazer; no Pro, retries são inclusos sem gastar Qi.
+            {t("settings.qiExplainer")}
           </div>
 
           <p
@@ -915,8 +901,8 @@ export function SettingsPage() {
             ].join(" ")}
           >
             {voiceOk
-              ? "Voz em chinês (zh-CN) disponível neste dispositivo."
-              : "Nenhuma voz em chinês detectada — instale um pacote de voz zh-CN no sistema para melhor áudio. (Web Speech API)"}
+              ? t("settings.voiceOk")
+              : t("settings.voiceMissing")}
           </p>
         </Card>
       </HubSection>
@@ -924,7 +910,7 @@ export function SettingsPage() {
       <FeedbackPrompt context={{ screen: "/config" }} compact />
 
       <p className="text-center text-xs text-ink-faint">
-        Longyu Beta (龙语) · áudio via Web Speech API · dados salvos só neste dispositivo.
+        {t("settings.footer")}
       </p>
     </HubPage>
   );

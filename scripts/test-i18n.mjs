@@ -56,6 +56,7 @@ try {
   await mkdir(path.join(outDir, "src/i18n"), { recursive: true });
   await mkdir(path.join(outDir, "src/locales"), { recursive: true });
   await mkdir(path.join(outDir, "src/lib/auth"), { recursive: true });
+  await mkdir(path.join(outDir, "supabase/functions/_shared"), { recursive: true });
   await writeFile(path.join(outDir, "src/i18n/config.js"), transpile("src/i18n/config.ts"));
   await writeFile(path.join(outDir, "src/i18n/locale.js"), transpile("src/i18n/locale.ts"));
   await writeFile(path.join(outDir, "src/locales/pt-BR.js"), transpile("src/locales/pt-BR.ts"));
@@ -65,6 +66,10 @@ try {
   await writeFile(
     path.join(outDir, "src/lib/auth/localAuthPolicy.js"),
     "exports.BACKEND_UNAVAILABLE_MESSAGE = 'Não foi possível conectar ao Longyu agora. Tente novamente em alguns instantes.';\n"
+  );
+  await writeFile(
+    path.join(outDir, "supabase/functions/_shared/accountDeletion.js"),
+    transpile("supabase/functions/_shared/accountDeletion.ts")
   );
   await writeFile(path.join(outDir, "src/i18n/errors.js"), transpile("src/i18n/errors.ts"));
 
@@ -119,6 +124,8 @@ try {
   assert(mapped === "Incorrect email or password.", "known supabase error maps in EN");
   const mappedPt = errorsMod.localizeUserMessage("Informe um email válido e senha com pelo menos 6 caracteres.");
   assert(mappedPt === catalog.t("auth.errors.invalidEmailPassword"), "known PT error maps in EN");
+  const mappedDeletion = errorsMod.localizeUserMessage("Não foi possível excluir a conta.");
+  assert(mappedDeletion === catalog.t("settings.deletionFailed"), "privacy deletion error maps in EN");
 
   locale.setInterfaceLocale("pt-BR");
   assert(catalog.t("navigation.journey") === "Jornada", "pt-BR catalog");

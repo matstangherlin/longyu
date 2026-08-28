@@ -8,6 +8,8 @@ import {
 import { canUsePracticeTool, useIsPro } from "../../lib/proAccess";
 import { Card, ButtonLink } from "../ui/primitives";
 import { IconLock } from "../ui/Icon";
+import { useTranslation } from "../../i18n/useTranslation";
+import type { MessageKey } from "../../locales/pt-BR";
 
 interface EngineGateProps {
   track?: EngineTrack;
@@ -17,6 +19,7 @@ interface EngineGateProps {
 }
 
 export function EngineGate({ track, mode = "engine", children }: EngineGateProps) {
+  const { t } = useTranslation();
   const completed = useStore((s) => s.completedLessons);
   const isPremium = useIsPro();
   const access =
@@ -42,29 +45,28 @@ export function EngineGate({ track, mode = "engine", children }: EngineGateProps
         <IconLock width={32} height={32} />
       </div>
       <div>
-        <h1 className="font-serif text-2xl font-semibold text-ink">{copy.title} bloqueado</h1>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("shell.locked", { name: copy.title })}</h1>
         <p className="mt-2 text-sm text-ink-soft">{copy.desc}</p>
-        <p className="mt-1 text-xs text-ink-faint">Libera após: {copy.after}</p>
+        <p className="mt-1 text-xs text-ink-faint">{t("shell.unlocksAfter", { after: copy.after })}</p>
       </div>
       <Card className="p-4 text-left text-sm text-ink-soft">
-        A jornada é a trilha principal. Cada competência abre quando você já praticou o básico na ordem certa —
-        som depois das primeiras frases, hànzì depois dos tons, leitura depois do vocabulário fechado.
+        {t("shell.engineGateLead")}
       </Card>
       <ButtonLink to="/jornada" size="lg" className="w-full sm:w-auto">
-        Continuar na jornada
+        {t("shell.continueJourney")}
       </ButtonLink>
       {hub && (
         <ButtonLink to={hub.to} size="lg" variant="outline" className="w-full sm:w-auto">
-          {hub.label}
+          {t(hub.labelKey)}
         </ButtonLink>
       )}
     </div>
   );
 }
 
-function hubForLockedTool(track: EngineTrack | undefined, mode: "engine" | "treino") {
-  if (mode === "treino") return { to: "/treino", label: "Abrir Praticar" };
-  if (track === "hanzi") return { to: "/ideogramas", label: "Abrir Ideogramas" };
-  if (track === "som" || track === "fala" || track === "leitura") return { to: "/treino", label: "Abrir Praticar" };
+function hubForLockedTool(track: EngineTrack | undefined, mode: "engine" | "treino"): { to: string; labelKey: MessageKey } | undefined {
+  if (mode === "treino") return { to: "/treino", labelKey: "navigation.openPractice" };
+  if (track === "hanzi") return { to: "/ideogramas", labelKey: "shell.openHanzi" };
+  if (track === "som" || track === "fala" || track === "leitura") return { to: "/treino", labelKey: "navigation.openPractice" };
   return undefined;
 }

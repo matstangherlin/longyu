@@ -75,20 +75,31 @@ const feedbackSrc = read("src/services/feedbackService.ts");
 assert(!feedbackSrc.includes("getTelemetryConsent"), "feedbackService não deve depender de getTelemetryConsent");
 assert(feedbackSrc.includes("isBetaFeedbackEnabled"), "feedback continua com flag própria");
 
-// UI: modal + ajustes com revogação
+// UI: modal + ajustes com revogação (copy vive no catálogo pt-BR; a UI chama t())
 const modalSrc = read("src/components/privacy/TelemetryConsentModal.tsx");
-assert(modalSrc.includes("Permitir dados de melhoria"), "modal deve oferecer permitir");
-assert(modalSrc.includes("Agora não"), "modal deve oferecer agora não");
-assert(modalSrc.includes("Ver detalhes"), "modal deve oferecer ver detalhes");
+assert(modalSrc.includes('t("settings.allowImprovement")'), "modal deve oferecer permitir");
+assert(modalSrc.includes('t("settings.notNow")'), "modal deve oferecer agora não");
+assert(modalSrc.includes('t("settings.seeDetails")'), "modal deve oferecer ver detalhes");
 
 const settingsSrc = read("src/features/settings/SettingsPage.tsx");
-assert(settingsSrc.includes("Privacidade e dados"), "Ajustes deve ter seção Privacidade e dados");
-assert(settingsSrc.includes("Dados pedagógicos de melhoria"), "toggle de dados pedagógicos");
-assert(settingsSrc.includes("Limpar fila de eventos"), "opção de limpar fila");
-assert(settingsSrc.includes("Solicitar exportação"), "opção de exportação");
-assert(settingsSrc.includes("Solicitar exclusão"), "opção de exclusão");
-assert(settingsSrc.includes("Política de privacidade"), "link para política");
+assert(settingsSrc.includes('t("settings.privacyData")'), "Ajustes deve ter seção Privacidade e dados");
+assert(settingsSrc.includes('t("settings.pedagogyData")'), "toggle de dados pedagógicos");
+assert(settingsSrc.includes('t("settings.clearEventQueue"'), "opção de limpar fila");
+assert(settingsSrc.includes('t("settings.requestExport")'), "opção de exportação");
+assert(settingsSrc.includes('t("settings.requestDeletion")'), "opção de exclusão");
+assert(settingsSrc.includes('t("settings.privacyPolicy")'), "link para política");
 assert(settingsSrc.includes("setTelemetryConsent(next)"), "toggle deve chamar setTelemetryConsent");
+
+const ptCatalog = read("src/locales/pt-BR.ts");
+assert(ptCatalog.includes('privacyData: "Privacidade e dados"'), "catálogo pt-BR: Privacidade e dados");
+assert(ptCatalog.includes('pedagogyData: "Dados pedagógicos de melhoria"'), "catálogo pt-BR: dados pedagógicos");
+assert(ptCatalog.includes('clearEventQueue: "Limpar fila de eventos'), "catálogo pt-BR: limpar fila");
+assert(ptCatalog.includes('requestExport: "Solicitar exportação'), "catálogo pt-BR: exportação");
+assert(ptCatalog.includes('requestDeletion: "Solicitar exclusão'), "catálogo pt-BR: exclusão");
+assert(ptCatalog.includes('privacyPolicy: "Política de privacidade"'), "catálogo pt-BR: política");
+assert(ptCatalog.includes('allowImprovement: "Permitir dados de melhoria"'), "catálogo pt-BR: permitir");
+assert(ptCatalog.includes('notNow: "Agora não"'), "catálogo pt-BR: agora não");
+assert(ptCatalog.includes('seeDetails: "Ver detalhes"'), "catálogo pt-BR: ver detalhes");
 
 const migration = read("supabase/migrations/011_pedagogy_analytics_consent.sql");
 assert(migration.includes("pedagogy_analytics_consent"), "migration deve adicionar pedagogy_analytics_consent");

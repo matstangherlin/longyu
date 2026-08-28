@@ -1,10 +1,12 @@
+import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../supabase/functions/_shared/accountDeletion";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../lib/auth/localAuthPolicy";
-import { t } from "./catalog";
+import { t, type TranslateVars } from "./catalog";
 import type { MessageKey } from "../locales/pt-BR";
 
 type MessagePattern = {
   test: (message: string) => boolean;
   key: MessageKey;
+  vars?: TranslateVars;
 };
 
 function includesAny(message: string, needles: string[]): boolean {
@@ -135,22 +137,65 @@ const PATTERNS: MessagePattern[] = [
     test: (m) => includesAny(m, ["não foi possível abrir o portal", "could not open the billing portal"]),
     key: "pro.portalFailed",
   },
+  {
+    test: (m) => includesAny(m, ["exclusão de conta na nuvem ainda não está ativa", "cloud account deletion is not active"]),
+    key: "settings.deletionInactive",
+  },
+  {
+    test: (m) => includesAny(m, ["faça login para solicitar exclusão", "sign in to request cloud account deletion"]),
+    key: "settings.deletionNeedLogin",
+  },
+  {
+    test: (m) => includesAny(m, ["confirmação inválida", "invalid confirmation"]),
+    key: "settings.deletionInvalid",
+    vars: { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT },
+  },
+  {
+    test: (m) => includesAny(m, ["o servidor não confirmou a exclusão", "did not confirm account deletion"]),
+    key: "settings.deletionUnconfirmed",
+  },
+  {
+    test: (m) => includesAny(m, ["não foi possível excluir a conta", "could not delete the account"]),
+    key: "settings.deletionFailed",
+  },
+  {
+    test: (m) => includesAny(m, ["conta na nuvem necessária para amigos", "cloud account is required for friends"]),
+    key: "settings.socialNeedCloud",
+  },
+  {
+    test: (m) =>
+      includesAny(m, ["faça login na nuvem", "sign in to the cloud"]) &&
+      !includesAny(m, ["exclusão", "deletion"]),
+    key: "settings.socialNeedLogin",
+  },
+  {
+    test: (m) => includesAny(m, ["use 3–24 caracteres", "use 3-24 characters", "3–24 characters"]),
+    key: "settings.socialUsernameRules",
+  },
+  {
+    test: (m) => includesAny(m, ["este @apelido já está em uso", "this @username is already taken"]),
+    key: "settings.socialUsernameTaken",
+  },
 ];
 
-export function matchUserMessageKey(message: string | null | undefined): MessageKey | null {
+function matchUserMessage(message: string | null | undefined): MessagePattern | null {
   const raw = String(message ?? "").trim();
   if (!raw) return null;
   for (const pattern of PATTERNS) {
-    if (pattern.test(raw)) return pattern.key;
+    if (pattern.test(raw)) return pattern;
   }
   return null;
+}
+
+export function matchUserMessageKey(message: string | null | undefined): MessageKey | null {
+  return matchUserMessage(message)?.key ?? null;
 }
 
 /** Map a known PT or EN/Supabase message onto the active catalog. Unknown text is returned as-is. */
 export function localizeUserMessage(message: string | null | undefined): string {
   const raw = String(message ?? "").trim();
   if (!raw) return "";
-  const key = matchUserMessageKey(raw);
-  if (key) return t(key);
+  const match = matchUserMessage(raw);
+  if (match) return t(match.key, match.vars);
   return raw;
 }

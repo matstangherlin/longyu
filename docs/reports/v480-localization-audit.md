@@ -24,10 +24,12 @@ Generated against `origin/main` plus this PR. Default interface locale remains
 | Auth screens | `LoginPage`, `CloudLoginForm`, `ForgotPasswordPage`, `ResetPasswordPage`, `ConfirmEmailPage` |
 | Known auth/backend errors | `src/i18n/errors.ts` maps PT + common Supabase EN |
 | Settings language + headers | `SettingsPage.tsx` Language vs “I am learning Mandarin” |
+| Settings chrome (theme, display, audio, privacy, Pro blurbs) | `SettingsPage.tsx` full first-wave copy via `t()` |
+| Consent modal / EngineGate / paywall chrome | `TelemetryConsentModal.tsx`, `EngineGate.tsx`, `ProPaywall.tsx` buttons/footnotes |
 | Marketing shell | `LandingPage.tsx`, `PublicMarketingLayout.tsx` CTAs/header/footer |
 | Pro shell | `ProPage.tsx` headline, CTAs, plan names (feature matrix still PT) |
 | More hub | `MorePage.tsx` titles/descriptions |
-| Journey chrome | Continue / first lesson / completed / phase·unit labels |
+| Journey chrome | Continue / first lesson / completed / phase·unit labels; Offline + streak aria |
 | Language switcher | `LanguageSwitcher` on landing, marketing, settings |
 
 ## PEDAGOGICAL_LATER

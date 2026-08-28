@@ -62,6 +62,10 @@ test.describe("i18n shell — V4.8.0", () => {
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();
     await expect(page.getByText(/I am learning Mandarin/i)).toBeVisible();
+    await expect(page.getByText("Theme", { exact: true })).toBeVisible();
+    await expect(page.getByText(/How to see Mandarin/i)).toBeVisible();
+    await expect(page.getByText(/Privacy and data/i)).toBeVisible();
+    await expect(page.getByText(/Como ver o mandarim/)).toHaveCount(0);
     await expect(page.getByTestId("target-language-card")).toContainText("zh-CN");
     await expect(page.getByTestId("target-language-card")).toContainText("中文");
   });

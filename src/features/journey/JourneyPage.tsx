@@ -557,11 +557,11 @@ function JourneyHeader({
         <div className="flex shrink-0 items-center gap-1.5">
           {offline && (
             <Pill tone="muted" className="gap-1" data-testid="offline-indicator">
-              <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" aria-hidden /> Offline
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" aria-hidden /> {t("shell.offline")}
             </Pill>
           )}
           {streak > 0 && (
-            <Pill tone="accent" className="gap-1" aria-label={`Sequência de ${streak} dias`}>
+            <Pill tone="accent" className="gap-1" aria-label={t("shell.streakAria", { streak })}>
               <IconFlame width={12} height={12} /> {streak}d
             </Pill>
           )}

@@ -93,9 +93,9 @@ export async function seedMissingDraftFinalize(page: Page) {
 
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });
+    const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu|Help improve Longyu/i });
     if (await privacy.isVisible().catch(() => false)) {
-      const decline = page.getByRole("button", { name: /Agora não/i });
+      const decline = page.getByRole("button", { name: /Agora não|Not now/i });
       if (await decline.isVisible().catch(() => false)) {
         await decline.click({ timeout: 2_000 }).catch(() => undefined);
       }
