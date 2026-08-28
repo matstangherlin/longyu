@@ -24,10 +24,12 @@ import {
 } from "../../components/social/SocialCards";
 import { useStore } from "../../lib/store";
 import { getSupabaseClient } from "../../lib/supabaseClient";
+import { useTranslation } from "../../i18n/useTranslation";
 
 type Tab = "buscar" | "seguindo" | "seguidores";
 
 export function AmigosPage() {
+  const { t } = useTranslation();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name ?? "Aluno");
   const cloudReady = isSupabaseBackendEnabled() && authMode === "cloud";
@@ -143,10 +145,9 @@ export function AmigosPage() {
   if (!cloudReady) {
     return (
       <HubPage>
-        <HubHeader eyebrow="Social" title="Amigos" desc="Compare progresso semanal com quem você segue." />
+        <HubHeader eyebrow={t("hub.social")} title={t("navigation.friends")} desc={t("hub.friendsCloudDesc")} />
         <Card className="p-5 text-sm leading-6 text-ink-soft">
-          Crie uma conta na nuvem em <strong className="text-ink">Perfil → Conta</strong> para usar amigos, ranking e
-          atividade. Seu email nunca aparece para outros alunos.
+          {t("hub.friendsNeedCloud")}
         </Card>
       </HubPage>
     );
@@ -155,9 +156,9 @@ export function AmigosPage() {
   return (
     <HubPage>
       <HubHeader
-        eyebrow="Social"
-        title="Amigos"
-        desc="Busque por nome ou @apelido, siga amigos e compare XP da semana."
+        eyebrow={t("hub.social")}
+        title={t("navigation.friends")}
+        desc={t("hub.friendsDesc")}
       />
 
       {notice && (

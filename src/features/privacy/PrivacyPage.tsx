@@ -1,28 +1,30 @@
 import { Card, ButtonLink } from "../../components/ui/primitives";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function PrivacyPage() {
+  const { t } = useTranslation();
   return (
     <HubPage className="space-y-5">
       <HubHeader
-        eyebrow="Privacidade"
-        title="Privacidade e dados"
-        desc="Transparência sobre o que o Longyu coleta e como você controla."
+        eyebrow={t("hub.privacyEyebrow")}
+        title={t("settings.privacyData")}
+        desc={t("hub.privacyDesc")}
         aside={
           <ButtonLink to="/ajustes#privacidade-dados" variant="outline" size="sm">
-            Abrir ajustes
+            {t("common.openSettings")}
           </ButtonLink>
         }
       />
 
-      <HubSection id="dados-coletados" title="Dados pedagógicos">
+      <HubSection id="dados-coletados" title={t("hub.privacyPedagogy")}>
         <Card className="rounded-xl border-line/70 p-4 shadow-none">
           <TelemetryDataDetails />
         </Card>
       </HubSection>
 
-      <HubSection id="politica" title="Política de privacidade">
+      <HubSection id="politica" title={t("settings.privacyPolicy")}>
         <Card className="space-y-3 rounded-xl border-line/70 p-4 shadow-none text-sm leading-6 text-ink-soft">
           <p>
             O Longyu processa progresso de aprendizagem neste dispositivo e, se você criar conta na

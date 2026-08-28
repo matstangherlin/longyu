@@ -72,6 +72,17 @@ test.describe("i18n shell — V4.8.0", () => {
     await expect(page.getByTestId("target-language-card")).not.toContainText("Mandarim");
   });
 
+  test("Practice hub EN keeps Mandarin target", async ({ page }) => {
+    await seedInterfaceLocale(page, "en");
+    await seedOnboardedSession(page, ["l1"]);
+    await page.goto("/treino");
+    await waitForLazyPage(page);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByRole("heading", { name: /^Practice$/i }).first()).toBeVisible();
+    await expect(page.getByText(/Review, sound, speaking/i).first()).toBeVisible();
+    await expect(page.getByText(/^Praticar$/)).toHaveCount(0);
+  });
+
   test("locale switch does not change canonical hanzi", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/ajustes");

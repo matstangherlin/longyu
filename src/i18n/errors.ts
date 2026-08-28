@@ -176,6 +176,30 @@ const PATTERNS: MessagePattern[] = [
     test: (m) => includesAny(m, ["este @apelido já está em uso", "this @username is already taken"]),
     key: "settings.socialUsernameTaken",
   },
+  {
+    test: (m) => includesAny(m, ["envio de feedback temporariamente desativado", "feedback is temporarily disabled"]),
+    key: "feedback.disabled",
+  },
+  {
+    test: (m) => includesAny(m, ["aguarde alguns segundos antes de enviar outro feedback", "wait a few seconds before sending more feedback"]),
+    key: "feedback.cooldown",
+  },
+  {
+    test: (m) => includesAny(m, ["descreva o problema com pelo menos algumas palavras", "describe the problem in at least a few words"]),
+    key: "feedback.tooShort",
+  },
+  {
+    test: (m) => includesAny(m, ["remova senhas, tokens ou dados sensíveis", "remove passwords, tokens, or sensitive data"]),
+    key: "feedback.stripSecrets",
+  },
+  {
+    test: (m) => includesAny(m, ["muitos envios seguidos", "too many submissions"]),
+    key: "feedback.rateLimited",
+  },
+  {
+    test: (m) => includesAny(m, ["remova dados sensíveis da mensagem", "remove sensitive data from the message"]),
+    key: "feedback.stripSensitive",
+  },
 ];
 
 function matchUserMessage(message: string | null | undefined): MessagePattern | null {

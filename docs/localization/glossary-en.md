@@ -11,7 +11,7 @@ when a natural product word already exists.
 | Lesson | Lição | One session on the Journey. |
 | Review | Revisão | Spaced repetition / weak-item practice. |
 | Mastery | Domínio | Topic mastery 1/4–4/4. Not “domain” in the UI. |
-| Streak | Sequência | Consecutive study days. |
+| Streak | Sequência / Ofensiva | Consecutive study days. Top bar uses Sequência; overlay chrome uses Ofensiva in pt-BR and **Streak** in EN. |
 | Pearls | Pérolas | Premium currency. Keep the metaphor. |
 | Qi | Qi | XP analog. Do not translate. |
 | Missions | Missões | Daily/weekly goals. |

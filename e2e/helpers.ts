@@ -102,9 +102,9 @@ export async function dismissBlockingOverlays(page: Page) {
       await page.waitForTimeout(120);
       continue;
     }
-    const achievement = page.getByRole("dialog", { name: /medalha|conquista/i });
+    const achievement = page.getByRole("dialog", { name: /medalha|conquista|medal|achievement/i });
     if (await achievement.isVisible().catch(() => false)) {
-      const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
+      const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok|Continue|Close/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click({ timeout: 2_000, force: true }).catch(() => undefined);
       } else {
@@ -113,9 +113,9 @@ export async function dismissBlockingOverlays(page: Page) {
       await page.waitForTimeout(120);
       continue;
     }
-    const streak = page.getByRole("dialog", { name: /Ofensiva atualizada/i });
+    const streak = page.getByRole("dialog", { name: /Ofensiva atualizada|Streak updated/i });
     if (await streak.isVisible().catch(() => false)) {
-      const continueBtn = streak.getByRole("button", { name: /^Continuar$/i }).first();
+      const continueBtn = streak.getByRole("button", { name: /^(Continuar|Continue)$/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click({ timeout: 2_000, force: true }).catch(() => undefined);
       } else {
@@ -134,7 +134,7 @@ export async function dismissBlockingOverlays(page: Page) {
     // Qualquer outro dialog modal que bloqueie cliques (WebKit é mais sensível).
     const otherDialog = page.locator('[role="dialog"][aria-modal="true"]').first();
     if (await otherDialog.isVisible().catch(() => false)) {
-      const dismiss = otherDialog.getByRole("button", { name: /Continuar|Fechar|Ok|Depois|Entendi/i }).first();
+      const dismiss = otherDialog.getByRole("button", { name: /Continuar|Fechar|Ok|Depois|Entendi|Continue|Close|Later|Not now|Agora não/i }).first();
       if (await dismiss.isVisible().catch(() => false)) {
         await dismiss.click({ timeout: 2_000 }).catch(() => undefined);
       } else {

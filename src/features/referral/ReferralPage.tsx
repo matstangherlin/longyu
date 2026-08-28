@@ -9,8 +9,10 @@ import {
   fetchReferralDashboard,
   type ReferralDashboard,
 } from "../../services/referralService";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function ReferralPage() {
+  const { t } = useTranslation();
   const accountSetupComplete = useStore((s) => s.accountSetupComplete);
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const cloudReady = isSupabaseBackendEnabled() && authMode === "cloud";
@@ -74,9 +76,9 @@ export function ReferralPage() {
   if (!cloudReady) {
     return (
       <HubPage>
-        <HubHeader eyebrow="Indicações" title="Convide amigos" desc="Disponível com conta na nuvem." />
+        <HubHeader eyebrow={t("hub.referrals")} title={t("navigation.inviteFriends")} desc={t("hub.inviteCloudDesc")} />
         <Card className="p-4 text-sm text-ink-soft">
-          Crie uma conta com email e senha para gerar seu link de convite e ganhar semanas de Longyu Pro.
+          {t("hub.inviteNeedCloud")}
         </Card>
       </HubPage>
     );
@@ -87,9 +89,9 @@ export function ReferralPage() {
   return (
     <HubPage>
       <HubHeader
-        eyebrow="Indicações"
-        title="Convide amigos"
-        desc="Ganhe 7 dias de Longyu Pro por amigo que realmente estudar."
+        eyebrow={t("hub.referrals")}
+        title={t("navigation.inviteFriends")}
+        desc={t("hub.inviteDesc")}
       />
 
       <HubSection title="Como funciona">

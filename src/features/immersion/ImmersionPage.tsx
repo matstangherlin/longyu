@@ -259,6 +259,7 @@ function storySkill(step: StoryStep): ActivityErrorSkill {
 }
 
 export function ImmersionPage() {
+  const { t } = useTranslation();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ImmersionCategory>("all");
@@ -395,13 +396,13 @@ export function ImmersionPage() {
   return (
     <HubPage>
       <HubHeader
-        eyebrow="Hub"
-        title="Imersão"
-        desc="Histórias, diálogos e escuta curta em contexto."
+        eyebrow={t("hub.eyebrow")}
+        title={t("navigation.immersion")}
+        desc={t("hub.immersionDesc")}
         aside={
           <div className="flex items-center gap-2 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-xs font-semibold text-ink-soft">
             <IconHeadphones width={14} height={14} className="text-accent" />
-            {isPremium ? "Cargas ilimitadas" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges} cargas`}
+            {isPremium ? t("shell.chargesInfinite") : t("hub.chargesShort", { current: dailyEnergy.charges, max: dailyEnergy.maxCharges })}
           </div>
         }
       />
@@ -424,17 +425,17 @@ export function ImmersionPage() {
               <IconHeadphones width={16} height={16} />
             </span>
             <div>
-              <div className="text-sm font-semibold text-ink">Sessões de hoje</div>
-              <div className="text-xs text-ink-faint">Repetir não consome carga.</div>
+              <div className="text-sm font-semibold text-ink">{t("hub.sessionsToday")}</div>
+              <div className="text-xs text-ink-faint">{t("hub.repeatNoCharge")}</div>
             </div>
           </div>
           <div className="min-w-36 sm:w-40">
             {/* A barra sozinha era um traço sem significado: nada dizia o que
                 ela media nem quanto restava. */}
             <div className="mb-1 flex justify-between text-[10px] font-medium text-ink-faint">
-              <span>Cargas</span>
+              <span>{t("hub.chargesBar")}</span>
               <span className="tabular-nums">
-                {isPremium ? "Ilimitadas" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
+                {isPremium ? t("hub.unlimited") : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
               </span>
             </div>
             <ProgressBar value={isPremium ? 1 : dailyEnergy.charges} max={isPremium ? 1 : dailyEnergy.maxCharges} className="h-1" />
@@ -475,7 +476,7 @@ export function ImmersionPage() {
         </Card>
       )}
 
-      <HubSection title="Explorar" desc="Filtre por tipo de prática.">
+      <HubSection title={t("hub.explore")} desc={t("hub.exploreDesc")}>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
           {CATEGORY_CARDS.map((category) => (
             <HubCard
@@ -543,13 +544,13 @@ export function ImmersionPage() {
               })}
             </div>
           ) : (
-            <HubEmptyState title="Nenhuma sessão aqui" desc="Escolha outro filtro ou volte mais tarde." />
+            <HubEmptyState title={t("hub.immersionEmpty")} desc={t("hub.immersionEmptyDesc")} />
           )}
         </HubSection>
       )}
 
       {visibleUpcoming.length > 0 && (
-        <HubSection title="Em breve" desc="Trilhas maiores no roadmap." count={<Pill tone="muted">{visibleUpcoming.length}</Pill>}>
+        <HubSection title={t("hub.comingSoon")} desc={t("hub.comingSoonDesc")} count={<Pill tone="muted">{visibleUpcoming.length}</Pill>}>
           <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {visibleUpcoming.map((session) => (
               <ComingSoonCard key={session.id} session={session} onPro={() => setPaywallKind("immersion")} />
@@ -767,6 +768,7 @@ function ImmersionSessionCard({
 }
 
 function ComingSoonCard({ session, onPro }: { session: UpcomingSession; onPro: () => void }) {
+  const { t } = useTranslation();
   const categoryLabel = UPCOMING_CATEGORY_LABELS[session.category];
 
   return (
@@ -775,7 +777,7 @@ function ComingSoonCard({ session, onPro }: { session: UpcomingSession; onPro: (
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-ink-faint">
           <IconLock width={18} height={18} />
         </span>
-        <Pill tone={session.pro ? "gold" : "muted"}>{session.pro ? "Pro" : "Em breve"}</Pill>
+        <Pill tone={session.pro ? "gold" : "muted"}>{session.pro ? t("common.pro") : t("hub.comingSoon")}</Pill>
       </div>
       <h3 className="mt-2 text-sm font-semibold leading-tight text-ink">{session.title}</h3>
       <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft">{session.description}</p>
@@ -783,7 +785,7 @@ function ComingSoonCard({ session, onPro }: { session: UpcomingSession; onPro: (
         {categoryLabel} · {session.estimatedMinutes} min · {session.itemCount} itens
       </div>
       <Button className="mt-3 w-full" size="sm" variant="outline" disabled={!session.pro} onClick={session.pro ? onPro : undefined}>
-        {session.pro ? "Conhecer Pro" : "Em breve"}
+        {session.pro ? t("settings.seePro") : t("hub.comingSoon")}
       </Button>
     </Card>
   );

@@ -9,15 +9,9 @@ import { useAchievementSnapshot } from "../../components/achievements/Achievemen
 import { useStore } from "../../lib/store";
 import { Card, EmptyState, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
 import { formatDate } from "../../i18n/format";
+import { useTranslation } from "../../i18n/useTranslation";
 
 type AchievementFilter = "todas" | "desbloqueadas" | "bloqueadas" | "proximas";
-
-const FILTERS: { id: AchievementFilter; label: string }[] = [
-  { id: "todas", label: "Todas" },
-  { id: "desbloqueadas", label: "Desbloqueadas" },
-  { id: "bloqueadas", label: "Bloqueadas" },
-  { id: "proximas", label: "Próximas" },
-];
 
 interface AchievementView {
   def: AchievementDef;
@@ -32,9 +26,16 @@ function formatUnlockDate(timestamp: number): string {
 }
 
 export function AchievementsPage() {
+  const { t } = useTranslation();
   const snapshot = useAchievementSnapshot();
   const achievementsUnlocked = useStore((s) => s.achievementsUnlocked ?? {});
   const [filter, setFilter] = useState<AchievementFilter>("todas");
+  const FILTERS: { id: AchievementFilter; label: string }[] = [
+    { id: "todas", label: t("hub.filterAll") },
+    { id: "desbloqueadas", label: t("hub.filterUnlocked") },
+    { id: "bloqueadas", label: t("hub.filterLocked") },
+    { id: "proximas", label: t("hub.filterUpcoming") },
+  ];
 
   const views = useMemo<AchievementView[]>(
     () =>
@@ -69,9 +70,9 @@ export function AchievementsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
       <SectionTitle
-        eyebrow="Meu Longyu"
-        title="Conquistas"
-        desc="Medalhas da sua jornada no mandarim. A medalha do mês continua especial, em Missões."
+        eyebrow={t("hub.achievementsEyebrow")}
+        title={t("navigation.achievements")}
+        desc={t("hub.achievementsDesc")}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -96,7 +97,7 @@ export function AchievementsPage() {
           </div>
         </div>
         <Pill tone={unlocked.length > 0 ? "accent" : "muted"}>
-          {unlocked.length}/{views.length} desbloqueadas
+          {t("hub.unlockedCount", { count: unlocked.length, total: views.length })}
         </Pill>
       </div>
 
@@ -108,8 +109,8 @@ export function AchievementsPage() {
           {visible.length === 0 && (
             <EmptyState
               className="col-span-full"
-              title="Nada por aqui ainda"
-              desc="Continue estudando — as medalhas vêm com a prática."
+              title={t("hub.emptyFilterTitle")}
+              desc={t("hub.emptyFilterDesc")}
             />
           )}
         </div>
@@ -118,7 +119,7 @@ export function AchievementsPage() {
         <aside className="hidden lg:block">
           <Card className="p-5">
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-              Próxima conquista
+              {t("hub.nextAchievement")}
             </div>
             {nextUp ? (
               <>
@@ -136,18 +137,18 @@ export function AchievementsPage() {
                 <p className="mt-3 text-sm leading-6 text-ink-soft">{nextUp.def.desc}</p>
                 <div className="mt-3">
                   <div className="mb-1 flex items-center justify-between text-xs font-medium text-ink-faint">
-                    <span>Progresso</span>
+                    <span>{t("common.progress")}</span>
                     <span className="tabular-nums">{nextUp.current}/{nextUp.target}</span>
                   </div>
                   <ProgressBar value={nextUp.current} max={nextUp.target} />
                 </div>
                 <div className="mt-3 text-xs font-semibold text-accent">
-                  Recompensa: {achievementRewardLabel(nextUp.def.reward)}
+                  {t("hub.rewardLabel", { label: achievementRewardLabel(nextUp.def.reward) })}
                 </div>
               </>
             ) : (
               <p className="mt-3 text-sm leading-6 text-ink-soft">
-                Você desbloqueou tudo. 干杯 — brinde do dragão!
+                {t("hub.allUnlocked")}
               </p>
             )}
           </Card>

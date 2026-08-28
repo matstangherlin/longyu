@@ -61,6 +61,8 @@ const NAMESPACES = [
   "errors",
   "marketing",
   "shell",
+  "hub",
+  "feedback",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));

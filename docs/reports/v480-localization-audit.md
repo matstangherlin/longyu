@@ -31,6 +31,9 @@ Generated against `origin/main` plus this PR. Default interface locale remains
 | More hub | `MorePage.tsx` titles/descriptions |
 | Journey chrome | Continue / first lesson / completed / phase·unit labels; Offline + streak aria |
 | Language switcher | `LanguageSwitcher` on landing, marketing, settings |
+| Listen / feedback / overlay chrome | `SpeakButton`, feedback modal/FAB/prompt, streak + recovery + medal overlay chrome |
+| Hub headers + empty states | Practice, Review, Missions, Shop, Immersion, Friends, Referral, Privacy header, About, Local data, Achievements filters/empty, Profile empty |
+| Hub Pro strip / economy leads | `HubProStrip`, `EconomyExplainer` CONTEXT_LEAD |
 
 ## PEDAGOGICAL_LATER
 
@@ -44,10 +47,12 @@ Leave for V4.8.1+ (onboarding/placement) and V4.8.2+ (Journey overlays).
 - Onboarding funnel copy (`ComecarPage.tsx`, `onboardingCopy.ts`)
 - Tone trainer / pinyin lab / error diagnosis (source-language specific)
 - Conversation scenes instruction text
-- Review session labels (`reviewSessionLabel`)
+- Review session labels (`reviewSessionLabel`) inside an active exercise
 - Plan feature matrix (`src/data/planFeatures.ts`)
-- Missions/achievements bodies
+- Missions/achievements **bodies** (titles from data stay PT; hub headers are MIGRATED)
+- Shop item names (`src/data/shop.ts`)
 - SEO article bodies (`src/lib/seo.ts` public pages)
+- Privacy **legal** body paragraphs (`PrivacyPage` `<p>` + `privacyCopy.ts`)
 
 Do **not** duplicate as `lesson-001-en.ts`. Use `LocalizedText` overlays
 (`src/i18n/pedagogy.ts`).

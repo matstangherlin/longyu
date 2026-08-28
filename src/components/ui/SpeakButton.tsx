@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { scheduleAutoSpeak, speak, noteUserGesture, isTTSAvailable } from "../../lib/tts";
 import { useStore } from "../../lib/store";
 import { noteAudioManualPlay } from "../../lib/lessonSessionMetrics";
+import { useTranslation } from "../../i18n/useTranslation";
 import { IconSound } from "./Icon";
 
 // Botão de áudio reutilizável. Acessível e com feedback de "tocando".
@@ -9,7 +10,7 @@ import { IconSound } from "./Icon";
 // disponível para ouvir de novo.
 export function SpeakButton({
   text,
-  label = "Ouvir",
+  label,
   size = "md",
   className,
   autoPlay = false,
@@ -21,6 +22,9 @@ export function SpeakButton({
   /** Toca automaticamente quando o botão monta ou o texto muda. */
   autoPlay?: boolean;
 }) {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t("common.listen");
+  const unavailableLabel = t("common.audioUnavailable");
   const rate = useStore((s) => s.ttsRate);
   const slowAudio = useStore((s) => s.slowAudio);
   const autoPlayAudio = useStore((s) => s.autoPlayAudio);
@@ -75,8 +79,8 @@ export function SpeakButton({
   return (
     <button
       type="button"
-      aria-label={unavailable ? "Áudio indisponível neste navegador" : `${label}: ${text}`}
-      title={unavailable ? "Áudio indisponível neste navegador" : label}
+      aria-label={unavailable ? unavailableLabel : `${resolvedLabel}: ${text}`}
+      title={unavailable ? unavailableLabel : resolvedLabel}
       onClick={play}
       disabled={unavailable}
       className={[
