@@ -256,7 +256,7 @@ export function LessonDetailPage() {
         total: requiredTonePack.requiredRounds,
       })
     : startAccess.reasonCode === "missing_lesson"
-    ? startAccess.reason
+    ? localizeUnlockReason(startAccess.reason, locale, t)
     : lockedLessonMessage(lesson.id, completed, lessonStarsById, lessonMasteryById, t, locale);
 
   function startLesson() {

@@ -526,6 +526,8 @@ export const ptBR = {
     reviewReadyOne: "1 item pronto",
     reviewReadyMany: "{n} itens prontos",
     reviewReinforce: "Reforça o que você já aprendeu.",
+    reviewTakesMinutes: "Reforça o que você já aprendeu — leva poucos minutos.",
+    availableComplete: "Você concluiu a Jornada disponível. Continue revisando para fixar o que aprendeu.",
     summaryAria: "Resumo da jornada",
     chestReady: "Baú pronto",
     chestOpen: "Abrir",

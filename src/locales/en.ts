@@ -528,6 +528,8 @@ export const en: MessageCatalog = {
     reviewReadyOne: "1 item ready",
     reviewReadyMany: "{n} items ready",
     reviewReinforce: "It reinforces what you already learned.",
+    reviewTakesMinutes: "It reinforces what you already learned — it only takes a few minutes.",
+    availableComplete: "You finished the available Journey. Keep reviewing to lock in what you learned.",
     summaryAria: "Journey summary",
     chestReady: "Chest ready",
     chestOpen: "Open",

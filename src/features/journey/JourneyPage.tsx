@@ -636,12 +636,12 @@ function JourneyHeader({
       )}
       {journeyComplete && (
         <p className="relative mt-3 rounded-xl bg-surface/70 px-3 py-2 text-xs leading-5 text-ink-soft">
-          Você concluiu a Jornada disponível. Continue revisando para fixar o que aprendeu.
+          {t("journey.availableComplete")}
         </p>
       )}
       {reviewCount > 0 && (
         <p className="relative mt-1.5 text-[11px] leading-4 text-ink-faint">
-          Reforça o que você já aprendeu — leva poucos minutos.
+          {t("journey.reviewTakesMinutes")}
           {pendingLabel && <span className="ml-1 text-ink-faint">{pendingLabel}.</span>}
         </p>
       )}
