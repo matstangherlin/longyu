@@ -305,6 +305,12 @@ export const ptBR = {
     glossHello: "olá",
     glossThanks: "obrigado(a)",
     languageSwitcher: "Idioma da interface",
+    documentTitle: "Longyu — aprenda mandarim pela lógica",
+    documentDescription:
+      "Longyu (龙语) — aprenda mandarim pela lógica: som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+    ogImageAlt: "Longyu — aprenda mandarim pela lógica",
+    betaNotice:
+      "O Longyu está em beta. Algumas atividades ainda estão sendo aprimoradas. Seu feedback ajuda a construir o curso.",
   },
   shell: {
     chargesInfinite: "Cargas infinitas",

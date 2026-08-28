@@ -43,13 +43,21 @@ function upsertJsonLd(data: Record<string, unknown>) {
  */
 export function SeoHead() {
   const location = useLocation();
-  const { locale } = useTranslation();
+  const { locale, t } = useTranslation();
 
   useEffect(() => {
     const seo = resolveSeo(location.pathname);
-    document.title = seo.title;
+    const chromeSeo =
+      location.pathname === "/" ||
+      location.pathname === "/login" ||
+      location.pathname === "/esqueci-senha" ||
+      location.pathname === "/redefinir-senha" ||
+      location.pathname === "/confirmar-email";
+    const title = chromeSeo ? t("marketing.documentTitle") : seo.title;
+    const description = chromeSeo ? t("marketing.documentDescription") : seo.description;
+    document.title = title;
 
-    upsertMeta("name", "description", seo.description);
+    upsertMeta("name", "description", description);
     upsertMeta("name", "robots", seo.robots);
     upsertMeta("name", "googlebot", seo.robots);
     upsertLink("canonical", seo.canonical);
@@ -57,21 +65,21 @@ export function SeoHead() {
     upsertMeta("property", "og:type", "website");
     upsertMeta("property", "og:site_name", "Longyu");
     upsertMeta("property", "og:locale", LOCALE_OG[locale]);
-    upsertMeta("property", "og:title", seo.title);
-    upsertMeta("property", "og:description", seo.description);
+    upsertMeta("property", "og:title", title);
+    upsertMeta("property", "og:description", description);
     upsertMeta("property", "og:url", seo.canonical);
     upsertMeta("property", "og:image", seo.ogImage);
     upsertMeta("property", "og:image:width", "1200");
     upsertMeta("property", "og:image:height", "630");
-    upsertMeta("property", "og:image:alt", "Longyu — aprenda mandarim pela lógica");
+    upsertMeta("property", "og:image:alt", t("marketing.ogImageAlt"));
 
     upsertMeta("name", "twitter:card", "summary_large_image");
-    upsertMeta("name", "twitter:title", seo.title);
-    upsertMeta("name", "twitter:description", seo.description);
+    upsertMeta("name", "twitter:title", title);
+    upsertMeta("name", "twitter:description", description);
     upsertMeta("name", "twitter:image", seo.ogImage);
 
     upsertJsonLd(buildJsonLd());
-  }, [location.pathname, locale]);
+  }, [location.pathname, locale, t]);
 
   return null;
 }

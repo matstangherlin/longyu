@@ -304,6 +304,12 @@ export const en: MessageCatalog = {
     glossHello: "hello",
     glossThanks: "thank you",
     languageSwitcher: "Interface language",
+    documentTitle: "Longyu — learn Mandarin by logic",
+    documentDescription:
+      "Longyu (龙语) — learn Mandarin by logic: sound first, speech in chunks, characters in layers, guided reading.",
+    ogImageAlt: "Longyu — learn Mandarin by logic",
+    betaNotice:
+      "Longyu is in beta. Some activities are still being refined. Your feedback helps build the course.",
   },
   shell: {
     chargesInfinite: "Unlimited charges",
