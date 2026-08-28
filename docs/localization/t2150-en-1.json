@@ -1,0 +1,1202 @@
+{
+  "1": {
+    "en": "1",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "1º + 3º": {
+    "en": "1st + 3rd",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "1º × 2º tom": {
+    "en": "1st × 2nd tone",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "1º alto e reto · 2º sobe · 3º desce e sobe · 4º cai firme. A série ma (妈麻马骂) é o clássico para treinar.": {
+    "en": "1st: high and level · 2nd: rises · 3rd: falls and rises · 4th: falls sharply. The ma series (妈麻马骂) is the classic practice set.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "1º fica alto e reto; 4º cai. 2º sobe; 3º desce e sobe.": {
+    "en": "The 1st stays high and level; the 4th falls. The 2nd rises; the 3rd falls and rises.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "1º tom · zhōng": {
+    "en": "1st tone · zhōng",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "2": {
+    "en": "2",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "2º + 3º (ní hǎo)": {
+    "en": "2nd + 3rd (ní hǎo)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "2º e 3º são o mesmo tom 'baixo-alto'.": {
+    "en": "The 2nd and 3rd tones are the same 'low-to-high' tone.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "2º tom sobe; 3º tom desce e sobe.": {
+    "en": "The 2nd tone rises; the 3rd tone falls and rises.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "3": {
+    "en": "3",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "3º + 3º → 2º + 3º: soa ní hǎo.": {
+    "en": "3rd + 3rd → 2nd + 3rd: it sounds like ní hǎo.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "3º + 3º completos": {
+    "en": "Two full 3rd tones",
+    "kind": "NATURAL_REWRITE"
+  },
+  "4": {
+    "en": "4",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "4º + 3º": {
+    "en": "4th + 3rd",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "4º tom · bù": {
+    "en": "4th tone · bù",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "4º tom · shì": {
+    "en": "4th tone · shì",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "4º tom · xiè": {
+    "en": "4th tone · xiè",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "4º tom · zài": {
+    "en": "4th tone · zài",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "5": {
+    "en": "5",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A conversa travou": {
+    "en": "The Conversation Broke Down",
+    "kind": "NATURAL_REWRITE"
+  },
+  "A frase é 请再说一遍. Tente de novo.": {
+    "en": "The phrase is 请再说一遍. Try again.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A frase significa 'eu não gosto de chinês'.": {
+    "en": "The phrase means 'I don't like Chinese.'",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A frase significa 'fale mais alto'.": {
+    "en": "The phrase means 'speak louder.'",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A ordem importa": {
+    "en": "Word Order Matters",
+    "kind": "NATURAL_REWRITE"
+  },
+  "A pessoa falou rápido demais e você não entendeu. O que fazer agora?": {
+    "en": "The person spoke too quickly and you didn't understand. What do you do now?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "A pessoa não entendeu o que você disse. O que fazer agora?": {
+    "en": "The person didn't understand what you said. What do you do now?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "A pista é 我很好. Tente novamente.": {
+    "en": "The clue is 我很好. Try again.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A quinta irmã de ma": {
+    "en": "ma's Fifth Sister",
+    "kind": "NATURAL_REWRITE"
+  },
+  "A sílaba shi": {
+    "en": "The Syllable shi",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A sílaba yao": {
+    "en": "The Syllable yao",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A: 你叫什么？ B: ___": {
+    "en": "A: 你叫什么？ B: ___",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A: 你叫什么？ B: 我叫Matheus。 A: 你是哪国人？ B: ___": {
+    "en": "A: 你叫什么？ B: 我叫Matheus。 A: 你是哪国人？ B: ___",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "A: 你好！你好吗？ B: ___": {
+    "en": "A: 你好！你好吗？ B: ___",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Abra o dialogo": {
+    "en": "Open the Dialogue",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Abrir o microtexto": {
+    "en": "Open the Microtext",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Acrescentar origem e distinguir nome × origem.": {
+    "en": "Add where you're from and distinguish name × origin.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Agora Mei pergunta: 你会说英语吗？. Qual frase encaixa?": {
+    "en": "Now Mei asks: 你会说英语吗？ Which phrase fits?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Agora Mei pergunta: 你叫什么？. Qual frase encaixa?": {
+    "en": "Now Mei asks: 你叫什么？ Which phrase fits?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Agora Mei pergunta: 你是哪国人？. Qual frase encaixa?": {
+    "en": "Now Mei asks: 你是哪国人？ Which phrase fits?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Agora Mei pergunta: 怎么样？. Qual frase encaixa?": {
+    "en": "Now Mei asks: 怎么样？ Which phrase fits?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Agora Mei pergunta: 洗手间在哪里？. Qual frase encaixa?": {
+    "en": "Now Mei asks: 洗手间在哪里？ Which phrase fits?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Agora Mei pergunta: 请问. Qual frase encaixa?": {
+    "en": "Now Mei says: 请问. Which phrase fits?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Agora responda com seu nome: meu nome é Matheus.": {
+    "en": "Now answer with your name: my name is Matheus.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "agradecer (4º tom)": {
+    "en": "to thank (4th tone)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "agradecer com 谢谢 numa fala curta": {
+    "en": "say thanks with 谢谢 in a short response",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Agradecer numa micro-situação nova.": {
+    "en": "Say thanks in a new mini-scenario.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguem fala rapido demais e voce nao entende o que ouviu.": {
+    "en": "Someone speaks too quickly and you don't understand what you heard.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Alguem fala rapido demais em chines e voce nao entende nada.": {
+    "en": "Someone speaks Chinese too quickly and you don't understand anything.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguem fala rapido demais numa loja. Comunique que nao entendeu.": {
+    "en": "Someone speaks too quickly in a store. Tell them you didn't understand.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguém pergunta o que você está fazendo agora. Responda que está estudando chinês.": {
+    "en": "Someone asks what you're doing right now. Say that you're studying Chinese.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguem pergunta se voce fala chines fluente. Explique seu nivel real.": {
+    "en": "Someone asks if you speak Chinese fluently. Explain your actual level.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Alguem pergunta seu nome. O que voce diz?": {
+    "en": "Someone asks your name. What do you say?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Alguem que voce acabou de conhecer pergunta sua origem.": {
+    "en": "Someone you just met asks where you're from.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguém que você nunca viu te aborda. Recite o microtexto completo para ela, do início ao fim.": {
+    "en": "A stranger approaches you. Recite the entire microtext to them from beginning to end.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguem que voce nunca viu, numa festa, pergunta quem voce e.": {
+    "en": "Someone you've never met asks who you are at a party.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Alguem quer saber sua nacionalidade.": {
+    "en": "Someone wants to know your nationality.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ana": {
+    "en": "Ana",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Antes de avisar que nao fala chines, qual cumprimento abre a conversa?": {
+    "en": "Before saying that you don't speak Chinese, which greeting opens the conversation?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Antes de pedir para repetir, o que voce costuma dizer primeiro?": {
+    "en": "Before asking someone to repeat themselves, what do you usually say first?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Antes do pedido": {
+    "en": "Before the Request",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aplicar o contraste em 你 / 好.": {
+    "en": "Apply the contrast to 你 / 好.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aprender 六 七 八.": {
+    "en": "Learn 六 七 八.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aprender 四 e 五.": {
+    "en": "Learn 四 and 五.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Apresentar-se de verdade: nome, depois origem, depois perguntas, depois microconversa.": {
+    "en": "Introduce yourself for real: name, then where you're from, then questions, then a short conversation.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Apresente-se": {
+    "en": "Introduce Yourself",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Apresente-se ao professor: meu nome é Matheus.": {
+    "en": "Introduce yourself to the teacher: my name is Matheus.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Apresente-se dizendo seu nome.": {
+    "en": "Introduce yourself by saying your name.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "as frases/itens centrais de A ordem importa": {
+    "en": "the key phrases/items from Word Order Matters",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de Como você se chama?": {
+    "en": "the key phrases/items from What's Your Name?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de De onde sou": {
+    "en": "the key phrases/items from Where I'm From",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de Falo um pouco": {
+    "en": "the key phrases/items from I Speak a Little",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de Microdiálogo: cumprimentar": {
+    "en": "the key phrases/items from Microdialogue: Greetings",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de Microdiálogo: se apresentar": {
+    "en": "the key phrases/items from Microdialogue: Introducing Yourself",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de Microtexto 1": {
+    "en": "the key phrases/items from Microtext 1",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "as frases/itens centrais de Não entendi": {
+    "en": "the key phrases/items from I Didn't Understand",
+    "kind": "NATURAL_REWRITE"
+  },
+  "as frases/itens centrais de Nomes das peças": {
+    "en": "the key phrases/items from Names of the Parts",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "as frases/itens centrais de Tudo bem?": {
+    "en": "the key phrases/items from How Are You?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Avise que voce nao sabe falar chines.": {
+    "en": "Say that you don't know how to speak Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "balançar": {
+    "en": "to sway",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "balançar (2º tom)": {
+    "en": "to sway (2nd tone)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "bom (partícula)": {
+    "en": "okay (particle)",
+    "kind": "NATURAL_REWRITE"
+  },
+  "cai": {
+    "en": "falls",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "cai no 4º tom": {
+    "en": "falls in the 4th tone",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "cânhamo": {
+    "en": "hemp",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "cavalo (3º tom)": {
+    "en": "horse (3rd tone)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "cinco": {
+    "en": "five",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "cinco — o vale do 3º tom": {
+    "en": "five — the 3rd-tone valley",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine a resposta": {
+    "en": "Match the Answer",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine cada frase com a situação.": {
+    "en": "Match each phrase to the situation.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine cada sílaba com o contorno.": {
+    "en": "Match each syllable to its contour.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine cada sílaba com o sentido.": {
+    "en": "Match each syllable to its meaning.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine cada som com o número.": {
+    "en": "Match each sound to the number.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine cada tom com o contorno.": {
+    "en": "Match each tone to its contour.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Como soa na fala?": {
+    "en": "How Does It Sound in Speech?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Como você diria: “Eu sou brasileiro”?": {
+    "en": "How would you say: “I'm Brazilian”?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Como você responde que é estudante?": {
+    "en": "How do you say that you're a student?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Como você responderia 你叫什么？": {
+    "en": "How would you answer 你叫什么？",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Comparar 2º e 3º tom": {
+    "en": "Compare the 2nd and 3rd tones",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Compare em pares": {
+    "en": "Compare in Pairs",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Compare tons": {
+    "en": "Compare Tones",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete a frase": {
+    "en": "Complete the Phrase",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete a pergunta que você já conhece: tudo bem?": {
+    "en": "Complete the question you already know: how are you?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete a pergunta: tudo bem?": {
+    "en": "Complete the question: how are you?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete a resposta antiga: estou bem.": {
+    "en": "Complete the answer you learned before: I'm fine.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Complete o vale": {
+    "en": "Complete the Valley",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Até amanhã..": {
+    "en": "Complete: See you tomorrow.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Com licença, posso perguntar?.": {
+    "en": "Complete: Excuse me, may I ask?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Como você se chama?.": {
+    "en": "Complete: What's your name?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Não falo chinês..": {
+    "en": "Complete: I don't speak Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Por favor, mais devagar..": {
+    "en": "Complete: More slowly, please.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Tudo bem?.": {
+    "en": "Complete: How are you?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Conecte som e frase": {
+    "en": "Connect Sound and Phrase",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "conhecer você muito feliz": {
+    "en": "nice to meet you",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Conhecido: 你好吗？ Voce: ___": {
+    "en": "Acquaintance: 你好吗？ You: ___",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Contar até um desses números numa situação curta.": {
+    "en": "Count up to one of these numbers in a short scenario.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Contar com o ouvido": {
+    "en": "Counting by Ear",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Contar 一 二 三 de verdade.": {
+    "en": "Count 一 二 三 for real.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Conte sobre você: diga que tem 1 amigo.": {
+    "en": "Talk about yourself: say that you have 1 friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Conte sobre você: diga que tem 3 amigos.": {
+    "en": "Talk about yourself: say that you have 3 friends.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Conte sobre você: diga que tem 5 amigos.": {
+    "en": "Talk about yourself: say that you have 5 friends.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Continue explicando": {
+    "en": "Keep Explaining",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Contraste 2º × 3º: sobe versus vale.": {
+    "en": "Contrast the 2nd × 3rd tones: rise versus valley.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Cumprimente, pergunte se esta tudo bem e agradeca.": {
+    "en": "Say hello, ask how they are, and say thank you.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "De nao entender a pedir repeticao": {
+    "en": "From Not Understanding to Asking for Repetition",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "De nao saber a saber um pouco": {
+    "en": "From Not Speaking Chinese to Speaking a Little",
+    "kind": "NATURAL_REWRITE"
+  },
+  "De onde sou": {
+    "en": "Where I'm From",
+    "kind": "NATURAL_REWRITE"
+  },
+  "De onde voce e?": {
+    "en": "Where are you from?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "De que país você é?": {
+    "en": "What country are you from?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Depois da repetição, o que Matheus acrescenta?": {
+    "en": "After the repetition, what does Matheus add?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Depois de agradecer": {
+    "en": "After Saying Thanks",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Depois de cumprimentar, voce quer saber o nome da pessoa.": {
+    "en": "After saying hello, you want to know the person's name.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Depois de nao entender, peca a repeticao.": {
+    "en": "After failing to understand, ask the person to repeat themselves.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Depois de 你好！, monte as próximas duas frases do microtexto.": {
+    "en": "After 你好！, build the next two phrases in the microtext.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Descobrir de ouvido o que A sílaba shi está ensinando.": {
+    "en": "Listen and identify what The Syllable shi teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir de ouvido o que A sílaba yao está ensinando.": {
+    "en": "Listen and identify what The Syllable yao teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir de ouvido o que Compare tons está ensinando.": {
+    "en": "Listen and identify what Compare Tones teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir de ouvido o que Números por som está ensinando.": {
+    "en": "Listen and identify what Numbers by Sound teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir de ouvido o que Quatro tons está ensinando.": {
+    "en": "Listen and identify what Four Tones teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir de ouvido o que Sons que brasileiros confundem está ensinando.": {
+    "en": "Listen and identify what Sounds English Speakers Mix Up teaches.",
+    "kind": "SOURCE_LANGUAGE_ADAPTATION"
+  },
+  "Descobrir de ouvido o que Tons em 好 e 谢 está ensinando.": {
+    "en": "Listen and identify what Tones in 好 and 谢 teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir de ouvido o que Treino guiado está ensinando.": {
+    "en": "Listen and identify what Guided Practice teaches.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir o pedido de repetição.": {
+    "en": "Discover how to ask someone to repeat themselves.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de A ordem importa com áudio e sentido.": {
+    "en": "Discover the items from Word Order Matters through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de Como você se chama? com áudio e sentido.": {
+    "en": "Discover the items from What's Your Name? through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de De onde sou com áudio e sentido.": {
+    "en": "Discover the items from Where I'm From through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de Falo um pouco com áudio e sentido.": {
+    "en": "Discover the items from I Speak a Little through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de Microdiálogo: cumprimentar com áudio e sentido.": {
+    "en": "Discover the items from Microdialogue: Greetings through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de Microdiálogo: se apresentar com áudio e sentido.": {
+    "en": "Discover the items from Microdialogue: Introducing Yourself through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de Microtexto 1 com áudio e sentido.": {
+    "en": "Discover the items from Microtext 1 through audio and meaning.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Descobrir os itens de Não entendi com áudio e sentido.": {
+    "en": "Discover the items from I Didn't Understand through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir os itens de Nomes das peças com áudio e sentido.": {
+    "en": "Discover the items from Names of the Parts through audio and meaning.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Descobrir os itens de Tudo bem? com áudio e sentido.": {
+    "en": "Discover the items from How Are You? through audio and meaning.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Descobrir 九 e 十.": {
+    "en": "Discover 九 and 十.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Descobrir 四 e 五.": {
+    "en": "Discover 四 and 五.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Descobrir 我叫 + nome.": {
+    "en": "Discover 我叫 + name.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Desculpa.": {
+    "en": "Sorry.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dez": {
+    "en": "ten",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dez (2º tom)": {
+    "en": "ten (2nd tone)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diálogo": {
+    "en": "Dialogue",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dica auditiva": {
+    "en": "Listening Tip",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Diferencie": {
+    "en": "Tell Them Apart",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Diga de que pais voce e.": {
+    "en": "Say which country you're from.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diga do seu jeito": {
+    "en": "Say It Your Way",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diga que está bem e agradeça na mesma frase.": {
+    "en": "Say that you're doing well and thank them in the same sentence.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diga que nao sabe falar chines (nao que nao entendeu).": {
+    "en": "Say that you don't know how to speak Chinese (not that you didn't understand).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diga que você está bem para encerrar a apresentação.": {
+    "en": "Say that you're doing well to wrap up the introduction.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Diga que você está bem.": {
+    "en": "Say that you're doing well.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diga que voce sabe falar um pouco de chines.": {
+    "en": "Say that you can speak a little Chinese.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Diga seu nome": {
+    "en": "Say Your Name",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Diga seu nome e sua nacionalidade numa unica fala.": {
+    "en": "Say your name and nationality in a single response.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Diga sua origem": {
+    "en": "Say Where You're From",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar bem-estar vs. nome": {
+    "en": "Distinguish well-being vs. name",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Discriminar jiǔ e shí.": {
+    "en": "Tell jiǔ and shí apart.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar niveis": {
+    "en": "Tell the Levels Apart",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar o fechamento": {
+    "en": "Identify the Closing",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de A sílaba shi com pares próximos.": {
+    "en": "Tell apart the sounds from The Syllable shi using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de A sílaba yao com pares próximos.": {
+    "en": "Tell apart the sounds from The Syllable yao using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de Compare tons com pares próximos.": {
+    "en": "Tell apart the sounds from Compare Tones using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de Números por som com pares próximos.": {
+    "en": "Tell apart the sounds from Numbers by Sound using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de Quatro tons com pares próximos.": {
+    "en": "Tell apart the sounds from Four Tones using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de Sons que brasileiros confundem com pares próximos.": {
+    "en": "Tell apart the sounds from Sounds English Speakers Mix Up using similar pairs.",
+    "kind": "SOURCE_LANGUAGE_ADAPTATION"
+  },
+  "Discriminar os sons de Tons em 好 e 谢 com pares próximos.": {
+    "en": "Tell apart the sounds from Tones in 好 and 谢 using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os sons de Treino guiado com pares próximos.": {
+    "en": "Tell apart the sounds from Guided Practice using similar pairs.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os três pelo som e pela forma.": {
+    "en": "Tell the three apart by sound and form.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar os três.": {
+    "en": "Tell the three apart.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar reparos": {
+    "en": "Tell the Repair Phrases Apart",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar sì e wǔ de 一 二 三.": {
+    "en": "Tell sì and wǔ apart from 一 二 三.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Discriminar subida × vale.": {
+    "en": "Distinguish rise × valley.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Discriminar 谢谢 de 你好 pelo som.": {
+    "en": "Tell 谢谢 and 你好 apart by sound.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Peças da frase.": {
+    "en": "Distinguish the components and similar characters in Sentence Parts.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Radicais básicos.": {
+    "en": "Distinguish the components and similar characters in Basic Radicals.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir de 我不会说中文.": {
+    "en": "Distinguish it from 我不会说中文.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 木 de caracteres vizinhos.": {
+    "en": "Distinguish 木 from similar characters.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de A ordem importa": {
+    "en": "say or build the core of Word Order Matters",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de Como você se chama?": {
+    "en": "say or build the core of What's Your Name?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de De onde sou": {
+    "en": "say or build the core of Where I'm From",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de Falo um pouco": {
+    "en": "say or build the core of I Speak a Little",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de Microdiálogo: cumprimentar": {
+    "en": "say or build the core of Microdialogue: Greetings",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de Microdiálogo: se apresentar": {
+    "en": "say or build the core of Microdialogue: Introducing Yourself",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de Microtexto 1": {
+    "en": "say or build the core of Microtext 1",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dizer ou montar o núcleo de Não entendi": {
+    "en": "say or build the core of I Didn't Understand",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer ou montar o núcleo de Nomes das peças": {
+    "en": "say or build the core of Names of the Parts",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dizer ou montar o núcleo de Tudo bem?": {
+    "en": "say or build the core of How Are You?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Dizer que você está bem.": {
+    "en": "Say that you're doing well.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dizer que você tem um amigo.": {
+    "en": "Say that you have a friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dizer seu nome.": {
+    "en": "Say your name.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dizer só 你好 já é uma apresentação.": {
+    "en": "Just saying 你好 already counts as an introduction.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "dizer 一 二 三 na ordem": {
+    "en": "say 一 二 三 in order",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dizer 九 e 十": {
+    "en": "say 九 and 十",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dizer 我不会说中文": {
+    "en": "say 我不会说中文",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dizer 我不会说中文 quando você ainda não fala chinês com fluência.": {
+    "en": "Say 我不会说中文 when you don't speak Chinese fluently yet.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dizer/montar 一 二 三.": {
+    "en": "Say/build 一 二 三.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Do som ao número": {
+    "en": "From Sound to Number",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Do tom à frase": {
+    "en": "From Tone to Phrase",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dois": {
+    "en": "two",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dois (contagem)": {
+    "en": "two (counting)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dois 3º tons seguidos (nǐ hǎo, como em 你好) soam como...": {
+    "en": "Two 3rd tones in a row (nǐ hǎo, as in 你好) sound like...",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dois pares": {
+    "en": "Two Pairs",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Duas bocas (口口) em cima de 马: uma cena fácil para lembrar xingar.": {
+    "en": "Two mouths (口口) above 马: an easy image for remembering 'to scold.'",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Em mandarim, mudar o tom pode mudar a palavra inteira.": {
+    "en": "In Mandarin, changing the tone can change the entire word.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Em 你好, qual sílaba tem 3º tom?": {
+    "en": "In 你好, which syllable has the 3rd tone?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encadeie": {
+    "en": "Link Them Together",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Encadeie a origem": {
+    "en": "Add Where You're From",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Encontrar 木 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 木 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "èr": {
+    "en": "èr",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Era o mesmo som duas vezes: qī. Os dois são 'firmes'. O 1º fica parado no alto; o 4º despenca.": {
+    "en": "It was the same sound twice: qī. Both tones sound 'firm.' The 1st stays high; the 4th plunges.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Era o mesmo som duas vezes: shī. O 1º não se mexe; o 2º sobe como uma pergunta em português.": {
+    "en": "It was the same sound twice: shī. The 1st stays level; the 2nd rises like a yes/no question in English.",
+    "kind": "SOURCE_LANGUAGE_ADAPTATION"
+  },
+  "Era o mesmo som duas vezes: shī. Os dois são 'firmes'. O 1º fica parado no alto; o 4º despenca.": {
+    "en": "It was the same sound twice: shī. Both tones sound 'firm.' The 1st stays high; the 4th plunges.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Escolha o vale": {
+    "en": "Choose the Valley",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "escolher 四 ou 五 numa quantidade": {
+    "en": "choose 四 or 五 for a quantity",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Espera um pouco.": {
+    "en": "Wait a moment.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "esperar um momento": {
+    "en": "wait a moment",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Essa é a frase que te protege quando não dá para entender: 我不会说中文.": {
+    "en": "This is the phrase you can rely on when you can't understand: 我不会说中文.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Está bem; ok.": {
+    "en": "all right; okay",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "estar em; em": {
+    "en": "to be at; in",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Este texto usa cumprimentos, apresentação e despedida que você já praticou — inclusive 明天见.": {
+    "en": "This text uses greetings, introductions, and a farewell you've already practiced — including 明天见.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Estes dois sons são iguais?": {
+    "en": "Are these two sounds the same?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Estou estudando chinês": {
+    "en": "I'm studying Chinese",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Estou estudando chinês.": {
+    "en": "I'm studying Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "eu estar-em estudar chinês": {
+    "en": "I'm studying Chinese",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Eu estudo chinês.": {
+    "en": "I study Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Eu estudo na escola.": {
+    "en": "I study at school.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Eu falo um pouco de chinês.": {
+    "en": "I speak a little Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "eu não sei falar chinês": {
+    "en": "I can't speak Chinese",
+    "kind": "NATURAL_REWRITE"
+  },
+  "eu sei falar um pouco chinês": {
+    "en": "I can speak a little Chinese",
+    "kind": "NATURAL_REWRITE"
+  },
+  "eu sou Brasil pessoa": {
+    "en": "I'm Brazilian",
+    "kind": "NATURAL_REWRITE"
+  },
+  "eu sou estudante": {
+    "en": "I'm a student",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "eu tenho três unidades amigo": {
+    "en": "I have three friends",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Falar de estudo": {
+    "en": "Talk About Studying",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Fale de novo, por favor": {
+    "en": "Please say that again",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Fale de novo, por favor.": {
+    "en": "Please say that again.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Fale de novo, por favor. Responda 你叫什么？": {
+    "en": "Please say that again. Answer 你叫什么？",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Falo um pouco": {
+    "en": "I Speak a Little",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Fechar 1–10 com 九 e 十.": {
+    "en": "Complete 1–10 with 九 and 十.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Fechar uma microconversa completa de apresentação.": {
+    "en": "Complete a full short conversation introducing yourself.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "fechar uma microconversa de apresentação": {
+    "en": "wrap up a short conversation introducing yourself",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Feche com cortesia": {
+    "en": "Close Politely",
+    "kind": "NATURAL_REWRITE"
+  },
+  "forma e som de 木": {
+    "en": "the form and sound of 木",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Forme o ouvido": {
+    "en": "Train Your Ear",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Hànzì se copia de cor sem peças.": {
+    "en": "Hànzì should be copied from memory without breaking it into components.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Hoje está ótimo": {
+    "en": "Today is great",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Hoje está ótimo.": {
+    "en": "Today is great.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "hoje muito bom": {
+    "en": "today is very good",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de A sílaba shi": {
+    "en": "identify the target sound in The Syllable shi",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de A sílaba yao": {
+    "en": "identify the target sound in The Syllable yao",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de Compare tons": {
+    "en": "identify the target sound in Compare Tones",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de Números por som": {
+    "en": "identify the target sound in Numbers by Sound",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de Quatro tons": {
+    "en": "identify the target sound in Four Tones",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de Sons que brasileiros confundem": {
+    "en": "identify the target sound in Sounds English Speakers Mix Up",
+    "kind": "SOURCE_LANGUAGE_ADAPTATION"
+  },
+  "identificar o som-alvo de Tons em 好 e 谢": {
+    "en": "identify the target sound in Tones in 好 and 谢",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar o som-alvo de Treino guiado": {
+    "en": "identify the target sound in Guided Practice",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar o tom ouvido.": {
+    "en": "Identify the tone you hear.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "identificar 谢谢 pelo som": {
+    "en": "identify 谢谢 by sound",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 木": {
+    "en": "identify/build 木",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Identificar/produzir o contorno de A sílaba shi.": {
+    "en": "Identify/produce the contour from The Syllable shi.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar/produzir o contorno de A sílaba yao.": {
+    "en": "Identify/produce the contour from The Syllable yao.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar/produzir o contorno de Compare tons.": {
+    "en": "Identify/produce the contour from Compare Tones.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar/produzir o contorno de Números por som.": {
+    "en": "Identify/produce the contour from Numbers by Sound.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar/produzir o contorno de Quatro tons.": {
+    "en": "Identify/produce the contour from Four Tones.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar/produzir o contorno de Sons que brasileiros confundem.": {
+    "en": "Identify/produce the contour from Sounds English Speakers Mix Up.",
+    "kind": "SOURCE_LANGUAGE_ADAPTATION"
+  },
+  "Identificar/produzir o contorno de Tons em 好 e 谢.": {
+    "en": "Identify/produce the contour from Tones in 好 and 谢.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Identificar/produzir o contorno de Treino guiado.": {
+    "en": "Identify/produce the contour from Guided Practice.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "interior; dentro; em": {
+    "en": "interior; inside; in",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "isto é água": {
+    "en": "this is water",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Isto é água.": {
+    "en": "This is water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "jīntiān hěn hǎo": {
+    "en": "jīntiān hěn hǎo",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "jiǔ / shí": {
+    "en": "jiǔ / shí",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Junte nome e origem numa unica apresentacao.": {
+    "en": "Combine your name and where you're from in a single introduction.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Leitura fechada": {
+    "en": "Closed Reading",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ler e montar os hànzì de Peças da frase.": {
+    "en": "Read and build the hànzì from Sentence Parts.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de Radicais básicos.": {
+    "en": "Read and build the hànzì from Basic Radicals.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de A sílaba shi a um chunk conhecido.": {
+    "en": "Apply the sound from The Syllable shi to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de A sílaba yao a um chunk conhecido.": {
+    "en": "Apply the sound from The Syllable yao to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de Compare tons a um chunk conhecido.": {
+    "en": "Apply the sound from Compare Tones to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de Números por som a um chunk conhecido.": {
+    "en": "Apply the sound from Numbers by Sound to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de Quatro tons a um chunk conhecido.": {
+    "en": "Apply the sound from Four Tones to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de Sons que brasileiros confundem a um chunk conhecido.": {
+    "en": "Apply the sound from Sounds English Speakers Mix Up to a familiar chunk.",
+    "kind": "SOURCE_LANGUAGE_ADAPTATION"
+  },
+  "Levar o som de Tons em 好 e 谢 a um chunk conhecido.": {
+    "en": "Apply the sound from Tones in 好 and 谢 to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Levar o som de Treino guiado a um chunk conhecido.": {
+    "en": "Apply the sound from Guided Practice to a familiar chunk.",
+    "kind": "NATURAL_REWRITE"
+  }
+}
