@@ -59,7 +59,7 @@ assert.equal(unlock({ unlockedMax: 2, mistakeCount: 1, softCeiling: 2 }), 3, "1�
 assert.equal(unlock({ unlockedMax: 3, mistakeCount: 2, softCeiling: 3 }), 4, "2º erro libera build");
 
 const stepsSource = await readFile(path.join(rootDir, "src/features/lesson/steps.tsx"), "utf8");
-assert.match(stepsSource, /Preciso de uma dica/, "CTA opcional de ajuda");
+assert.match(stepsSource, /Preciso de uma dica|player\.needHint/, "CTA opcional de ajuda");
 assert.match(stepsSource, /production_help_requested/, "telemetria de pedido de ajuda");
 assert.match(stepsSource, /data-production-help-level/, "hook de nível");
 assert.match(stepsSource, /data-production-help-vocab/, "hook vocab nível 3");
