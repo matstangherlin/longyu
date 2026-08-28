@@ -43,8 +43,10 @@ before step 1. Hold a deploy lock (no parallel schema edits).
 | 7 | `20260827023000_placement_onboarding_handoff.sql` | 6 | High | `placement_onboarding_drafts`, locales, `save_placement_onboarding_draft` |
 | 8 | `20260828013000_api_role_table_grants.sql` | tables exist | Low on hosted | mostly no-op vs platform default ALL; **must be followed by 9** |
 | 9 | `20260828020000_least_privilege_api_grants.sql` | 8 (or current hosted ALL) | Medium | revoke anon table DML; tighten authenticated |
-| 10 | `20260828030000_progress_mastery_monotonic.sql` | `user_progress.client_snapshot` | Medium | `merge_progress_mastery_monotonic` BEFORE UPDATE |
+| 10 | `20260828030000_progress_mastery_monotonic.sql` | `user_progress.client_snapshot` | Medium | `merge_progress_mastery_monotonic` BEFORE UPDATE (historical; **must be followed by 11**) |
+| 11 | `20260828032249_progress_mastery_monotonic_clamp.sql` | 10 | Medium | Clamp VALID LEVELS 0..4; sanitize malformed jsonb; `search_path=''`; INSERT+UPDATE |
 
+Step 10 without 11 would leave `::integer` casts that can raise `22P02` on `"abc"` / `2.5`, and would not clamp 5/999. **Never apply 10 without 11.**
 Step 8 on hosted re-states `GRANT ALL` to anon/authenticated on several tables.
 If 9 is skipped, production privilege surface stays wide (today's state) or
 gets re-widened. **Never apply 8 without 9.**
@@ -98,11 +100,13 @@ already reconstruct.
   to anon ALL unless a documented incident requires it.
 - **10:** `DROP TRIGGER trg_progress_mastery_monotonic` + drop function. Clients
   return to last-write-wins.
+- **11:** same trigger/function replace; drop clamp helpers `longyu_clamp_mastery_level`,
+  `longyu_mastery_entry_level`, `longyu_merge_mastery_maps`.
 - **Edges:** redeploy previous bundle versions listed above.
 
 ## Post-apply checks (when a human actually applies)
 
-1. `supabase migration list` watermark ≥ `20260828030000`.
+1. `supabase migration list` watermark ≥ `20260828032249`.
 2. Canonical dump hash matches CI `LONGYU_BACKEND_SCHEMA_HASH` for that SHA.
 3. RPC contract: `commit_placement_result`, `save_placement_onboarding_draft`.
 4. Grant assert: zero anon privileges on user-owned tables.

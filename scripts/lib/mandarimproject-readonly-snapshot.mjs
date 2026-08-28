@@ -3,7 +3,7 @@
  * list_edge_functions, get_project). Zero writes. Refresh by re-reading
  * production — never apply this as DDL.
  */
-export const MANDARIMPROJECT_READONLY_CAPTURED_AT = "2026-08-28T02:20:00Z";
+export const MANDARIMPROJECT_READONLY_CAPTURED_AT = "2026-08-28T03:22:00Z";
 
 export const MANDARIMPROJECT_READONLY_MIGRATIONS = [
   { version: "20260804032032", name: "pedagogy_analytics_consent" },

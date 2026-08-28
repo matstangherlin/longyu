@@ -7,6 +7,20 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.8 — MandarimProject controlled upgrade (STOP before write)
+
+Freeze `LONGYU_BACKEND_RC=v4.7.8-rc.1`. New clamp migration
+`20260828032249_progress_mastery_monotonic_clamp.sql` (mastery 0..4, empty
+`search_path`, INSERT+UPDATE). Hosted scoreboard stays `NOT_RUN`. Production
+`VITE_CLOUD_ONBOARDING_V2_ENABLED=false`. Zero MandarimProject writes. Status:
+`READY_FOR_CONTROLLED_UPGRADE` until `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
+Relatórios: `docs/reports/v478-controlled-upgrade.md`, `v478-human-gate.md`.
+
+### V4.7.7 — Backend contract freeze
+
+Contratos offline + rehearsal efêmero. Drift MandarimProject classificado.
+Produção intocada. Relatório: `docs/reports/v477-backend-contract-freeze.md`.
+
 ### V4.7.6R — Longyu backend rehearsal + ephemeral validation
 
 Validação efêmera (CI/local `supabase start`) sem escrever em MandarimProject. Staging remoto opcional (`LONGYU_STAGING_PROJECT_ID`, sem default) = `BLOCKED_REMOTE_STAGING`. Relatório: `docs/reports/v476r-longyu-backend-rehearsal.md`.

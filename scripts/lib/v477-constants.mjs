@@ -208,6 +208,11 @@ export const V477_LOCAL_ONLY_CLASS = {
     purpose: "Server-side GREATEST mastery merge on user_progress updates.",
     objects: ["merge_progress_mastery_monotonic"],
   },
+  "20260828032249_progress_mastery_monotonic_clamp.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose: "Clamp mastery 0..4, sanitize malformed jsonb, search_path empty, INSERT+UPDATE.",
+    objects: ["longyu_clamp_mastery_level", "merge_progress_mastery_monotonic"],
+  },
 };
 
 export const V477_HISTORICAL_EDITS = [

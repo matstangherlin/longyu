@@ -26,7 +26,7 @@ export function buildMigrationManifest(root) {
   const files = localMigrationFiles(root);
   return {
     frozen_at: "2026-08-28",
-    remessa: "V4.7.7",
+    remessa: "V4.7.8",
     rebaseline: "Edit this file in the same PR that intentionally changes a frozen migration. CI fails on silent hash drift.",
     migrations: files.map((row) => ({
       path: `supabase/migrations/${row.file}`,

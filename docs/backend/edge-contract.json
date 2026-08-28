@@ -1,5 +1,5 @@
 {
-  "remessa": "V4.7.7",
+  "remessa": "V4.7.8",
   "note": "source_sha256 covers files under supabase/functions/<slug>. Compare with MandarimProject version numbers plus this hash.",
   "functions": [
     {

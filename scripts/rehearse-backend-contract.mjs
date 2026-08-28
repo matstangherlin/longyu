@@ -36,6 +36,7 @@ import {
   dumpCanonicalSchema,
   runCreateAccountEdge,
   runLocalAuthFlow,
+  runMalformedMasteryMatrix,
   runMonotonicityMatrix,
   runOnboardingEdgeFlow,
   runRlsNegativeMatrix,
@@ -152,10 +153,11 @@ async function main() {
     details.RPC_CONTRACT_READY = rpc;
 
     const mono = await runMonotonicityMatrix(env);
+    const malformed = await runMalformedMasteryMatrix(env);
     const race = await runConcurrentMastery(env);
     const economy = await runEconomyConcurrency(env);
     board.SYNC_MONOTONICITY_READY = SCORE_PASS;
-    details.SYNC_MONOTONICITY_READY = { mono, race, economy };
+    details.SYNC_MONOTONICITY_READY = { mono, malformed, race, economy };
 
     const auth = await runLocalAuthFlow(env);
     board.LOCAL_AUTH_FLOW_READY = SCORE_PASS;

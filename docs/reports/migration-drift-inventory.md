@@ -4,8 +4,8 @@
 Remote history captured at `2026-08-28T02:20:00Z` (MCP `list_migrations`).
 Production watermark: `20260810175737` `beta_experience_telemetry`.
 
-Counts: local **47** files, remote **34** versions,
-**LOCAL_AND_REMOTE=26**, **REMOTE_ONLY=8**, **LOCAL_ONLY=21**.
+Counts: local **48** files, remote **34** versions,
+**LOCAL_AND_REMOTE=26**, **REMOTE_ONLY=8**, **LOCAL_ONLY=22**.
 
 Do **not** add empty SQL files named after REMOTE_ONLY timestamps.
 
@@ -52,6 +52,7 @@ No REMOTE_ONLY row is UNKNOWN (class D).
 | `20260828013000_api_role_table_grants.sql` | NOT_YET_DEPLOYED | Ephemeral Data API grants (hosted already has platform defaults) | table privileges | yes (local only) |
 | `20260828020000_least_privilege_api_grants.sql` | NOT_YET_DEPLOYED | Tighten anon/authenticated after 13000 | table privileges | yes (local only) |
 | `20260828030000_progress_mastery_monotonic.sql` | NOT_YET_DEPLOYED | Server GREATEST mastery merge | `merge_progress_mastery_monotonic` | yes (local only) |
+| `20260828032249_progress_mastery_monotonic_clamp.sql` | NOT_YET_DEPLOYED | Clamp 0..4 + empty search_path | `longyu_clamp_mastery_level` | yes (local only) |
 
 ## LOCAL_AND_REMOTE (name match, timestamps differ)
 
