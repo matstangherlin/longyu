@@ -520,6 +520,13 @@ export const ptBR = {
     progressOf: "Progresso de {title}",
     collapse: "Recolher",
     expand: "Expandir",
+    overallProgress: "Progresso geral",
+    todayMinutes: "Hoje: {n} min",
+    noActiveMission: "Sem missão ativa.",
+    reviewReadyOne: "1 item pronto",
+    reviewReadyMany: "{n} itens prontos",
+    reviewReinforce: "Reforça o que você já aprendeu.",
+    summaryAria: "Resumo da jornada",
   },
   player: {
     continue: "Continuar",

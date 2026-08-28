@@ -522,6 +522,13 @@ export const en: MessageCatalog = {
     progressOf: "Progress of {title}",
     collapse: "Collapse",
     expand: "Expand",
+    overallProgress: "Overall progress",
+    todayMinutes: "Today: {n} min",
+    noActiveMission: "No active mission.",
+    reviewReadyOne: "1 item ready",
+    reviewReadyMany: "{n} items ready",
+    reviewReinforce: "It reinforces what you already learned.",
+    summaryAria: "Journey summary",
   },
   player: {
     continue: "Continue",

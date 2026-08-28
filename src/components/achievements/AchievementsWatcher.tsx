@@ -12,6 +12,7 @@ import { Button } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { ACHIEVEMENT_CATEGORY_META } from "../../data/achievements";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
 /** Snapshot reativo da store para calcular o progresso das medalhas. */
 export function useAchievementSnapshot(): AchievementSnapshot {
@@ -140,11 +141,11 @@ function AchievementUnlockModal({
           <div className="longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-[30px] bg-accent text-white shadow-lift sm:mt-4 sm:h-20 sm:w-20 sm:rounded-[26px]">
             <span aria-hidden className="hanzi text-5xl leading-none sm:text-4xl">{achievement.glyph}</span>
           </div>
-          <h2 className="mt-5 font-serif text-3xl font-semibold text-ink sm:mt-4 sm:text-2xl">{achievement.title}</h2>
-          <p className="mt-2 text-sm leading-6 text-ink-soft sm:mt-1">{achievement.desc}</p>
+          <h2 className="mt-5 font-serif text-3xl font-semibold text-ink sm:mt-4 sm:text-2xl">{displayInstruction(achievement.title)}</h2>
+          <p className="mt-2 text-sm leading-6 text-ink-soft sm:mt-1">{displayInstruction(achievement.desc)}</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs sm:mt-3">
             <span className="rounded-full bg-surface-2 px-2.5 py-1 font-medium text-ink-soft">
-              {category.label}
+              {displayInstruction(category.label)}
             </span>
             <span className="rounded-full bg-accent-soft px-2.5 py-1 font-semibold text-accent">
               {achievementRewardLabel(achievement.reward)}

@@ -646,6 +646,7 @@ function JourneyMobileChips({
   completedCount: number;
   totalLessons: number;
 }) {
+  const { t, locale } = useTranslation();
   return (
     <div className="flex gap-1.5 overflow-x-auto xl:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <Link
@@ -653,7 +654,9 @@ function JourneyMobileChips({
         className="flex min-w-0 shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-2.5 py-1.5 shadow-card transition active:scale-[0.98]"
       >
         <IconTarget width={12} height={12} className="shrink-0 text-accent" />
-        <span className="truncate text-[11px] font-semibold text-ink">{mission?.title ?? "Missão"}</span>
+        <span className="truncate text-[11px] font-semibold text-ink">
+          {mission ? displayInstruction(mission.title, locale) : t("missions.title")}
+        </span>
         {mission && (
           <span className="text-[10px] tabular-nums text-ink-faint">{mission.progress}/{mission.goal}</span>
         )}
@@ -681,9 +684,10 @@ function JourneySidePanel({
   totalLessons: number;
   reviewCount: number;
 }) {
+  const { t, locale } = useTranslation();
   const pct = Math.round((completedCount / Math.max(1, totalLessons)) * 100);
   return (
-    <aside className="sticky top-16 hidden space-y-2 xl:block" aria-label="Resumo da jornada">
+    <aside className="sticky top-16 hidden space-y-2 xl:block" aria-label={t("journey.summaryAria")}>
       {/* Revisão pendente — só quando há itens (evita duplicar o cabeçalho). */}
       {reviewCount > 0 && (
         <Card variant="info" className="p-3">
@@ -692,14 +696,14 @@ function JourneySidePanel({
               <IconRefresh width={14} height={14} />
             </span>
             <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              Revisão
+              {t("review.title")}
             </span>
             <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
           </Link>
           <div className="mt-2 text-xs font-semibold text-ink">
-            {reviewCount} {reviewCount === 1 ? "item pronto" : "itens prontos"}
+            {reviewCount === 1 ? t("journey.reviewReadyOne") : t("journey.reviewReadyMany", { n: reviewCount })}
           </div>
-          <p className="mt-0.5 text-[11px] leading-4 text-ink-faint">Reforça o que você já aprendeu.</p>
+          <p className="mt-0.5 text-[11px] leading-4 text-ink-faint">{t("journey.reviewReinforce")}</p>
         </Card>
       )}
 
@@ -709,14 +713,14 @@ function JourneySidePanel({
             <IconTarget width={14} height={14} />
           </span>
           <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-            Missão
+            {t("missions.title")}
           </span>
           <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
         </Link>
         {mission ? (
           <>
             <div className="mt-2 flex items-center justify-between gap-2">
-              <div className="min-w-0 truncate text-xs font-semibold text-ink">{mission.title}</div>
+              <div className="min-w-0 truncate text-xs font-semibold text-ink">{displayInstruction(mission.title, locale)}</div>
               <Pill tone={mission.complete ? "good" : "muted"}>
                 {mission.progress}/{mission.goal}
               </Pill>
@@ -724,7 +728,7 @@ function JourneySidePanel({
             <ProgressBar value={mission.progress} max={mission.goal} className="mt-1.5" />
           </>
         ) : (
-          <p className="mt-2 text-xs text-ink-faint">Sem missão ativa.</p>
+          <p className="mt-2 text-xs text-ink-faint">{t("journey.noActiveMission")}</p>
         )}
       </Card>
 
@@ -734,7 +738,7 @@ function JourneySidePanel({
             <IconFlame width={14} height={14} />
           </span>
           <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-            Progresso geral
+            {t("journey.overallProgress")}
           </span>
           <IconChevron width={13} height={13} className="text-ink-faint transition group-hover:text-ink" />
         </Link>
@@ -742,9 +746,9 @@ function JourneySidePanel({
           <span className="text-xs font-semibold text-ink">{completedCount}/{totalLessons}</span>
           <span className="text-[10px] font-medium tabular-nums text-ink-faint">{pct}%</span>
         </div>
-        <ProgressBar value={completedCount} max={totalLessons} className="mt-1.5" label="Progresso geral da jornada" />
+        <ProgressBar value={completedCount} max={totalLessons} className="mt-1.5" label={t("journey.overallProgress")} />
         <div className="mt-2 flex items-center gap-2 border-t border-line/40 pt-2 text-[11px] text-ink-faint">
-          <span>Hoje: {todayMinutes} min</span>
+          <span>{t("journey.todayMinutes", { n: todayMinutes })}</span>
         </div>
       </Card>
     </aside>
