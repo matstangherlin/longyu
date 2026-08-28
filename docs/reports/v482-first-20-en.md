@@ -65,8 +65,9 @@ Filled from this PR’s gates. Playwright Topic 1 4/4 EN is in
 
 Later-wave LessonPlayer surfaces still mix Portuguese: skip-with-breath banners,
 streak-shield copy, victory collapsible stats (“Rever resultados”, missions),
-and some production-step chrome that is not in the first-20 planned step list.
-`/revisao` hub chrome (“Plano de hoje”), the Journey side rail (Missão /
-Progresso geral), and achievement toasts are later waves. First-20 planned
-pedagogical strings, player actions, Journey/Detail CTAs, Review exercises,
-and Hanzi Builder chrome for these topics are overlaid.
+energy-blocked chrome, and some production-step chrome that is not in the
+first-20 planned step list. `/revisao` hub chrome (“Plano de hoje”) is a later
+wave. Journey side rail, first-topic achievement toast, and the lesson preload
+gate (“checking charges”) are overlaid. First-20 planned pedagogical strings,
+player actions, Journey/Detail CTAs, Review exercises, and Hanzi Builder chrome
+for these topics are overlaid.
