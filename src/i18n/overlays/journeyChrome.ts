@@ -85,3 +85,50 @@ export function localizedReviewPendingLabel(
   if (split.pending <= 0) return null;
   return translate("review.pendingExtra", { n: split.pending });
 }
+
+const UNLOCK_STATIC: Record<string, string> = {
+  "Esta área é liberada no Longyu Pro.": "journey.proArea",
+  "Próxima lição da Jornada.": "journey.nextLessonReason",
+  "Lição não encontrada.": "player.lessonUnavailable",
+  "Este conteúdo faz parte do Longyu Pro. A assinatura real será ativada no lançamento.": "journey.contentIsPro",
+  "Lição já adquirida; você pode continuar o tema ou praticar.": "journey.lessonAlreadyAcquired",
+  "Módulo não encontrado.": "journey.moduleNotFound",
+  "Módulo já iniciado.": "journey.moduleAlreadyStarted",
+};
+
+/** Display helper for canStartLesson().reason — canonical PT stays in proAccess. */
+export function localizeUnlockReason(
+  reason: string,
+  locale: SupportedLocale = getInterfaceLocale(),
+  translate: TFn = t
+): string {
+  if (!reason || locale === "pt-BR") return reason;
+  const staticKey = UNLOCK_STATIC[reason];
+  if (staticKey) return translate(staticKey);
+
+  let match = reason.match(
+    /^Complete as 4 lições de "(.+)" para manter a ordem pedagógica da Jornada\. O Pro abre ferramentas extras, mas a sequência das aulas continua guiada\.$/
+  );
+  if (match) return translate("journey.completeFourKeepOrder", { title: displayLessonTitle(match[1], locale) });
+
+  match = reason.match(
+    /^Conclua as 4 lições de "(.+)" \(e os demais temas da fase (.+)\) para avançar de fase\.$/
+  );
+  if (match) {
+    return translate("journey.completePhase", {
+      title: displayLessonTitle(match[1], locale),
+      phase: displayInstruction(match[2], locale),
+    });
+  }
+
+  match = reason.match(/^Conclua os temas da fase (.+) \(4\/4 em cada nó de ensino\) para avançar\.$/);
+  if (match) return translate("journey.completePhaseTopics", { phase: displayInstruction(match[1], locale) });
+
+  match = reason.match(/^Conclua "(.+)" com pelo menos 80% de precisão para liberar esta lição\.$/);
+  if (match) return translate("journey.completeWithAccuracy", { title: displayLessonTitle(match[1], locale) });
+
+  match = reason.match(/^Conclua as 4 lições de "(.+)" para liberar este tema\.$/);
+  if (match) return translate("journey.completeFourUnlock", { title: displayLessonTitle(match[1], locale) });
+
+  return displayInstruction(reason, locale);
+}

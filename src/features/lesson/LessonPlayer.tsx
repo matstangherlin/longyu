@@ -68,7 +68,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
-import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory } from "../../i18n/overlays/journeyChrome";
+import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
@@ -2342,7 +2342,7 @@ export function LessonPlayer() {
           {premiumBlocked ? "Longyu Pro" : t("navigation.journey")}
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</h1>
-        <p className="mt-3 text-sm leading-6 text-ink-soft">{startAccess.reason}</p>
+        <p className="mt-3 text-sm leading-6 text-ink-soft">{localizeUnlockReason(startAccess.reason, locale, t)}</p>
         <Button size="lg" className="mt-6 w-full" onClick={() => (premiumBlocked ? setProPaywallKind("content") : navigate("/jornada"))}>
           {premiumBlocked ? t("player.seePro") : t("player.continueOnJourney")}
         </Button>

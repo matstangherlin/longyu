@@ -935,7 +935,7 @@ function DetailedErrorsPanel({
   activeErrors: ActivityErrorRecord[];
   onCorrectWeakness: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const sortedErrors = [...errors].sort((a, b) => b.timestamp - a.timestamp);
   const priorityError = [...activeErrors].sort(
     (a, b) => (b.wrongCount ?? 1) - (a.wrongCount ?? 1) || b.timestamp - a.timestamp
@@ -943,7 +943,7 @@ function DetailedErrorsPanel({
   const repeatedCount = errors.filter((error) => (error.wrongCount ?? 1) > 1).length;
   const correctedCount = errors.filter((error) => error.correctedAt).length;
   const domainGroups = REVIEW_DOMAIN_ORDER.map((domain) => ({
-    label: REVIEW_DOMAIN_META[domain].shortLabel,
+    label: displayInstruction(REVIEW_DOMAIN_META[domain].shortLabel, locale),
     count: errors.filter((error) => errorDomain(error) === domain).length,
   })).filter((group) => group.count > 0);
 
@@ -972,16 +972,16 @@ function DetailedErrorsPanel({
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <ErrorMetric label="Pendentes" value={activeErrors.length} highlight={activeErrors.length > 0} />
-          <ErrorMetric label="Histórico" value={errors.length} />
-          <ErrorMetric label="Repetidos" value={repeatedCount} highlight={repeatedCount > 0} />
-          <ErrorMetric label="Corrigidos" value={correctedCount} />
+          <ErrorMetric label={t("review.pendingLabel")} value={activeErrors.length} highlight={activeErrors.length > 0} />
+          <ErrorMetric label={t("review.historyLabel")} value={errors.length} />
+          <ErrorMetric label={t("review.repeatedLabel")} value={repeatedCount} highlight={repeatedCount > 0} />
+          <ErrorMetric label={t("review.correctedLabel")} value={correctedCount} />
         </div>
 
         {domainGroups.length > 0 && (
           <div className="mt-4">
             <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
-              Por competência
+              {t("review.bySkill")}
             </div>
             <div className="flex flex-wrap gap-2">
               {domainGroups.map((group) => (
@@ -995,7 +995,7 @@ function DetailedErrorsPanel({
 
         {priorityError && (
           <div className="mt-4 rounded-xl border border-accent/25 bg-accent-soft/40 px-3 py-2.5 text-sm text-ink-soft">
-            <span className="font-semibold text-ink">Prioridade:</span>{" "}
+            <span className="font-semibold text-ink">{t("review.priorityColon")}</span>{" "}
             {errorSummary(priorityError)}
             <span className="text-ink-faint"> · {(priorityError.wrongCount ?? 1)}x</span>
           </div>
@@ -1005,7 +1005,7 @@ function DetailedErrorsPanel({
       <details className="group border-t border-line/60">
         <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink sm:px-5 [&::-webkit-details-marker]:hidden">
           <span className="inline-flex items-center gap-2">
-            Histórico completo
+            {t("review.fullHistory")}
             <span className="text-xs font-normal text-ink-faint">{sortedErrors.length}</span>
             <IconChevron
               width={14}
@@ -1017,24 +1017,24 @@ function DetailedErrorsPanel({
         </summary>
         <div className="max-h-72 overflow-y-auto border-t border-line/50 px-2 pb-3 sm:px-3">
           {sortedErrors.length === 0 ? (
-            <div className="p-3 text-sm text-ink-soft">Os erros detalhados aparecem depois das próximas revisões e lições.</div>
+            <div className="p-3 text-sm text-ink-soft">{t("review.detailedErrorsAppear")}</div>
           ) : (
             sortedErrors.map((error) => (
               <div key={error.id} className="border-b border-line/40 px-2 py-3 last:border-b-0">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm font-semibold text-ink">{errorSummary(error)}</div>
                   <Pill tone={error.correctedAt ? "good" : "accent"}>
-                    {error.correctedAt ? "Corrigido" : "Pendente"}
+                    {error.correctedAt ? t("review.correctedStatus") : t("review.pendingStatus")}
                   </Pill>
                 </div>
                 <div className="mt-1 text-xs leading-5 text-ink-soft">
-                  Esperado: {error.correctAnswer} · Resposta: {error.selectedAnswer}
+                  {t("review.expectedVsAnswer", { expected: error.correctAnswer, answer: error.selectedAnswer })}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2 text-xs text-ink-faint">
-                  <span>{REVIEW_DOMAIN_META[errorDomain(error)].shortLabel}</span>
+                  <span>{displayInstruction(REVIEW_DOMAIN_META[errorDomain(error)].shortLabel, locale)}</span>
                   <span>{error.lessonId || error.moduleId}</span>
                   <span>{formatErrorDate(error.timestamp)}</span>
-                  {(error.wrongCount ?? 1) > 1 && <span>{error.wrongCount} repetições</span>}
+                  {(error.wrongCount ?? 1) > 1 && <span>{t("review.repetitions", { n: error.wrongCount ?? 1 })}</span>}
                 </div>
               </div>
             ))
@@ -1533,7 +1533,7 @@ export function RevisaoPage() {
                       );
                       return (
                         <Pill key={domain} tone={accuracy >= 70 ? "good" : "accent"}>
-                          {REVIEW_DOMAIN_META[domain].shortLabel} · {accuracy}%
+                          {displayInstruction(REVIEW_DOMAIN_META[domain].shortLabel, locale)} · {accuracy}%
                         </Pill>
                       );
                     })}

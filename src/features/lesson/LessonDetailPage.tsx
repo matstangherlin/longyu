@@ -41,7 +41,7 @@ import type { MasteryLevel } from "../../data/masteryLoop";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
-import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicCta } from "../../i18n/overlays/journeyChrome";
+import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicCta, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
 
@@ -248,7 +248,7 @@ export function LessonDetailPage() {
       ? t("journey.lessonComplete")
       : t("player.ofTotal", { index: Math.min(progress + 1, tasks.length), total: tasks.length });
   const blockedCopy = !hasAccess
-    ? startAccess.reason
+    ? localizeUnlockReason(startAccess.reason, locale, t)
     : toneLocked && requiredTonePack
     ? t("journey.completeTonePack", {
         title: displayInstruction(requiredTonePack.shortTitle, locale),
