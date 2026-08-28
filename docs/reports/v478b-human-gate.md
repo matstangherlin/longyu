@@ -31,24 +31,30 @@ Do not interpret docs, CI green, or this PR as approval.
 
 ## MAIN_SHA CI (this SHA only — not an older branch)
 
-Refreshed 2026-08-28T05:39Z against
+Refreshed 2026-08-28T05:45Z against
 https://github.com/matstangherlin/longyu/actions/runs/33143685565
+(conclusion **success**).
 
 | Gate | Status on `3223d43` |
 | --- | --- |
-| validate:beta (Portão) | **PASS** (job completed 05:20:49Z) |
-| build | **PASS** (same Portão job) |
-| Chromium E2E | **PASS** (job “Testes E2E (Playwright)” 33143685565) |
-| Firefox E2E | **IN_PROGRESS** (step “E2E Firefox” in the cross-engine job) |
-| WebKit E2E | **PASS** (step completed 05:35:17Z; informative continue-on-error in `ci.yml`) |
+| validate:beta (Portão) | **PASS** |
+| build | **PASS** |
+| Chromium E2E | **PASS** |
+| Firefox E2E | **PASS** (step “E2E Firefox” success) |
+| WebKit E2E | **PASS** (informative continue-on-error in `ci.yml`) |
 | Security | **PASS** (run 33143685562) |
 | backend-rehearsal | **PASS** (run 33143685559) |
 | backend-contract | **PASS** (run 33143685576) |
 | GitHub Supabase Preview | expected fail-closed on main (remote-only timestamps; do not fake empty files) |
 
-FASE B also waits for Firefox to be terminal PASS on this SHA. CI green is
-**not** hosted PASS and is **not** approval. “Faz o que está faltando” is
-**not** `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
+MAIN_SHA CI is terminal green. That is **not** hosted PASS and is **not**
+approval. This FASE B prompt is **not** `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
+
+## #208 CI (PR_HEAD `3587fd0`)
+
+Security **PASS**. Portão (`validate:beta` + build) **IN_PROGRESS** at this
+capture. Do not apply on a red HEAD. Do not apply while backup/approval are
+missing even if Portão later PASSes.
 
 ## V4.7.9 not started
 

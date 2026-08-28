@@ -98,7 +98,8 @@ assert(gate.includes(V478B_APPROVAL_TOKEN), "human gate token");
 assert(/STOP/.test(gate), "STOP");
 assert(/not approval|não é aprovação|is \*\*not\*\* approval/i.test(gate), "prompt is not approval");
 assert(/ZERO WRITE/i.test(gate), "zero write");
-assert(/IN_PROGRESS/.test(gate), "records remaining CI IN_PROGRESS until Firefox/WebKit finish");
+assert(/Firefox E2E[^\n]*PASS/.test(gate), "Firefox PASS on MAIN_SHA");
+assert(/IN_PROGRESS/.test(gate), "records #208 Portão IN_PROGRESS until that HEAD is green");
 assert(/V4\.7\.9/.test(gate) && /not start/i.test(gate), "V4.7.9 not started while hosted keys NOT_RUN");
 
 const report = read("docs/reports/v478b-hosted-validation.md");
@@ -118,6 +119,8 @@ assert(board.remessa_status === V478B_REMESSA_STATUS, "json status");
 assert(board.production_writes === "ZERO", "json zero writes");
 assert(board.backup_gate === V478B_BACKUP_GATE, "json backup");
 assert(board.MAIN_SHA === V478B_MAIN_SHA, "json MAIN_SHA");
+assert(board.MAIN_SHA_FIREFOX === "PASS", "json Firefox PASS");
+assert(board.PR_HEAD_SHA === "3587fd06a559a1fad8dffaf6be1af05c6340b40b", "json PR_HEAD");
 assert(board.v479_started === false, "V4.7.9 not started");
 for (const key of V478B_HOSTED_SCOREBOARD_KEYS) {
   assert(board[key] === "NOT_RUN", `json ${key}=NOT_RUN`);
@@ -158,6 +161,16 @@ const planApply = spawnSync(process.execPath, [path.join(root, "scripts/v478b-fa
 });
 assert(planApply.status === 2, "fase-b-plan --apply refused");
 assert(/REFUSED/.test(planApply.stderr), "--apply stderr REFUSED");
+
+const evidence = read("docs/reports/v478b-fase-b-live-evidence.md");
+assert(/pre-flight STOP/i.test(evidence), "evidence is pre-flight");
+assert(evidence.includes(V478B_MAIN_SHA), "evidence MAIN_SHA");
+assert(evidence.includes("3587fd06a559a1fad8dffaf6be1af05c6340b40b"), "evidence PR_HEAD");
+assert(/ZERO/.test(evidence), "evidence zero writes");
+assert(!/sk_live_|sbp_/.test(evidence), "evidence no tokens");
+for (const key of V478B_HOSTED_SCOREBOARD_KEYS) {
+  assert(!new RegExp(`${key}[^\n]*PASS`).test(evidence), `evidence ${key} not PASS`);
+}
 
 const blocked = read("docs/reports/v479-blocked-pending-v478b.md");
 assert(/Not started/i.test(blocked), "v479 blocked file says not started");
