@@ -51,6 +51,8 @@ Filled from this PR’s gates. Playwright Topic 1 4/4 EN is in
 | `npm run validate:i18n` | PASS |
 | `npm run test:i18n` | PASS |
 | `npm run typecheck` | PASS |
+| `npx playwright test e2e/i18n-first-20-journey.spec.ts --project=chromium` | PASS (Journey chrome + Topic 1 M1→M4) |
+| `npx playwright test e2e/i18n-shell.spec.ts --project=chromium` | PASS |
 
 ## Out of scope
 
@@ -64,6 +66,7 @@ Filled from this PR’s gates. Playwright Topic 1 4/4 EN is in
 Later-wave LessonPlayer surfaces still mix Portuguese: skip-with-breath banners,
 streak-shield copy, victory collapsible stats (“Rever resultados”, missions),
 and some production-step chrome that is not in the first-20 planned step list.
-`/revisao` hub chrome (“Plano de hoje”) is V4.8.3+. First-20 planned pedagogical
-strings, player actions, Journey/Detail CTAs, Review exercises, and Hanzi
-Builder chrome for these topics are overlaid.
+`/revisao` hub chrome (“Plano de hoje”), the Journey side rail (Missão /
+Progresso geral), and achievement toasts are later waves. First-20 planned
+pedagogical strings, player actions, Journey/Detail CTAs, Review exercises,
+and Hanzi Builder chrome for these topics are overlaid.
