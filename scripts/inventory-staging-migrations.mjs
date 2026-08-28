@@ -1,39 +1,27 @@
 #!/usr/bin/env node
 /**
- * STG-002 — inventário ordenado de migrations.
- * Não aplica nada. Hard fail se o alvo for produção.
+ * Inventário local vs watermark de MandarimProject.
+ * Não aplica nada. Hard fail se o alvo remoto for produção.
  */
 import fs from "node:fs";
 import path from "node:path";
 import {
-  LONGYU_INTENDED_STAGING_PROJECT_ID,
-  LONGYU_INTENDED_STAGING_PROJECT_NAME,
+  BLOCKED_REMOTE_STAGING,
   LONGYU_PRODUCTION_PROJECT_ID,
   LONGYU_PRODUCTION_PROJECT_NAME,
   isProductionProjectId,
   requireStagingProjectId,
 } from "./lib/staging-guard.mjs";
+import { V476_OPERATIONAL_MIGRATIONS, V476_PRODUCTION_WATERMARK } from "./lib/v476-constants.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const migrationsDir = path.join(root, "supabase", "migrations");
 
-/** Última migration conhecida em MandarimProject (MCP list_migrations 2026-08-27T22:18Z). Não aplicar daqui. */
 const PRODUCTION_WATERMARK = {
-  version: "20260810175737",
-  name: "beta_experience_telemetry",
-  as_of: "2026-08-27T22:18Z",
+  ...V476_PRODUCTION_WATERMARK,
+  as_of: "2026-08-28T00:50Z",
   source: "MCP list_migrations MandarimProject — DO_NOT_APPLY",
 };
-
-const STAGING_PENDING = [
-  "20260812180000_production_help_telemetry.sql",
-  "20260813180000_pearl_pro_economy.sql",
-  "20260814010000_mastery_pass_telemetry.sql",
-  "20260825043000_business_foundation.sql",
-  "20260825062000_business_operational_hardening.sql",
-  "20260826230000_placement_onboarding.sql",
-  "20260827023000_placement_onboarding_handoff.sql",
-];
 
 function localFiles() {
   return fs
@@ -43,26 +31,30 @@ function localFiles() {
 }
 
 try {
-  const stagingId = process.env.LONGYU_STAGING_PROJECT_ID
-    ? requireStagingProjectId(process.env)
-    : LONGYU_INTENDED_STAGING_PROJECT_ID;
-  if (isProductionProjectId(stagingId)) {
-    console.error("HARD FAIL: inventário recusou MandarimProject.");
-    process.exit(2);
+  let stagingId = null;
+  let remoteStatus = BLOCKED_REMOTE_STAGING;
+  if (String(process.env.LONGYU_STAGING_PROJECT_ID ?? "").trim()) {
+    stagingId = requireStagingProjectId(process.env);
+    if (isProductionProjectId(stagingId)) {
+      console.error("HARD FAIL: inventário recusou MandarimProject.");
+      process.exit(2);
+    }
+    remoteStatus = "UNCONFIRMED";
   }
 
   const files = localFiles();
   const inventory = files.map((file) => {
     const version = file.replace(/\.sql$/, "").split("_")[0];
     const name = file.replace(/^\d+_/, "").replace(/\.sql$/, "");
-    const pendingOnStaging = STAGING_PENDING.includes(file);
+    const pendingOperational = V476_OPERATIONAL_MIGRATIONS.includes(file);
     const afterProd = version > PRODUCTION_WATERMARK.version;
     return {
       version,
       name,
       file,
       production: afterProd ? "NOT_APPLIED (watermark)" : "APPLIED_OR_OLDER (watermark)",
-      staging: pendingOnStaging ? "BLOCKED — staging INACTIVE" : "unknown_until_staging_active",
+      remote_staging: stagingId ? "unknown_until_healthy" : BLOCKED_REMOTE_STAGING,
+      operational_pending: pendingOperational,
     };
   });
 
@@ -74,14 +66,14 @@ try {
       watermark: PRODUCTION_WATERMARK,
       action: "DO_NOT_APPLY",
     },
-    staging: {
+    remote_staging: {
       project_id: stagingId,
-      name: LONGYU_INTENDED_STAGING_PROJECT_NAME,
-      status: "INACTIVE_OR_UNCONFIRMED",
-      action: "APPLY_ONLY_WHEN_ACTIVE_HEALTHY",
+      status: remoteStatus,
     },
-    ordered_repo_migrations: inventory,
-    next_on_staging: STAGING_PENDING,
+    ephemeral: {
+      note: "EPHEMERAL_BACKEND_VALIDATION aplica a cadeia local sem projeto remoto.",
+    },
+    files: inventory,
   };
 
   console.log(JSON.stringify(payload, null, 2));

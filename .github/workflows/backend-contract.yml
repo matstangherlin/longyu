@@ -1,0 +1,115 @@
+# backend-contract
+
+# Never links MandarimProject. Never uses production DB password or access token.
+# One supabase start. Node 22 (supabase-js Realtime native WebSocket).
+name: backend-contract
+
+on:
+  pull_request:
+    paths:
+      - "supabase/**"
+      - "docs/backend/**"
+      - "docs/reports/v477-backend-contract-freeze.md"
+      - "docs/reports/mandarimproject-deployment-plan.md"
+      - "docs/reports/migration-drift-inventory.md"
+      - "scripts/rehearse-backend-contract.mjs"
+      - "scripts/test-backend-contract.mjs"
+      - "scripts/generate-backend-contracts.mjs"
+      - "scripts/dump-canonical-schema.mjs"
+      - "scripts/lib/v477-*.mjs"
+      - "scripts/lib/schema-canonical.mjs"
+      - "scripts/lib/ephemeral-backend.mjs"
+      - "scripts/lib/migration-drift.mjs"
+      - "scripts/lib/mandarimproject-*.mjs"
+      - ".github/workflows/backend-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - "docs/backend/**"
+      - "docs/reports/v477-backend-contract-freeze.md"
+      - "docs/reports/mandarimproject-deployment-plan.md"
+      - "docs/reports/migration-drift-inventory.md"
+      - "scripts/rehearse-backend-contract.mjs"
+      - "scripts/test-backend-contract.mjs"
+      - "scripts/generate-backend-contracts.mjs"
+      - "scripts/dump-canonical-schema.mjs"
+      - "scripts/lib/v477-*.mjs"
+      - "scripts/lib/schema-canonical.mjs"
+      - "scripts/lib/ephemeral-backend.mjs"
+      - "scripts/lib/migration-drift.mjs"
+      - "scripts/lib/mandarimproject-*.mjs"
+      - ".github/workflows/backend-contract.yml"
+
+concurrency:
+  group: backend-contract-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Ephemeral backend contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_ACCESS_TOKEN: ""
+      LONGYU_STAGING_PROJECT_ID: ""
+      LONGYU_TARGET_PROJECT_ID: ""
+      TURNSTILE_ALLOW_SKIP: "1"
+      STRIPE_SECRET_KEY: "sk_test_placeholder_not_live"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Cache Supabase CLI metadata
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.supabase
+          key: supabase-cli-${{ runner.os }}-2.34.3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Offline contract gate
+        run: |
+          node scripts/generate-backend-contracts.mjs
+          node scripts/test-backend-contract.mjs
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.34.3
+
+      - name: Local Edge skip-captcha (ephemeral only)
+        run: |
+          mkdir -p supabase/functions
+          printf 'TURNSTILE_ALLOW_SKIP=1\n' >> supabase/functions/.env
+
+      - name: Start ephemeral Supabase
+        run: supabase start
+
+      - name: Rehearse backend contract
+        run: node scripts/rehearse-backend-contract.mjs --skip-start
+
+      - name: Upload contract artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-contract
+          path: |
+            docs/reports/v477-backend-contract-freeze.md
+            docs/reports/v477-backend-contract-freeze.ci.md
+            docs/reports/v477-backend-contract-scoreboard.json
+            docs/reports/mandarimproject-deployment-plan.md
+            docs/reports/migration-drift-inventory.md
+            docs/backend/migration-manifest.json
+            docs/backend/rpc-contract.json
+            docs/backend/edge-contract.json
+            docs/backend/grant-surface.json
+            supabase/baseline/canonical-schema.json
+            supabase/baseline/LONGYU_BACKEND_SCHEMA_HASH
+          if-no-files-found: warn

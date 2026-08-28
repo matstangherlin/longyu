@@ -1,0 +1,156 @@
+{
+  "remessa": "V4.7.7",
+  "note": "source_sha256 covers files under supabase/functions/<slug>. Compare with MandarimProject version numbers plus this hash.",
+  "functions": [
+    {
+      "slug": "create-account",
+      "verify_jwt": false,
+      "files": [
+        "supabase/functions/create-account/index.ts"
+      ],
+      "source_sha256": "0c853a333ca418a37eab96d16bc7e6b3c7e66994dfeee8d9a1cab7894d77bb26",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [
+        "TURNSTILE_SECRET_KEY (or TURNSTILE_ALLOW_SKIP=1 locally)"
+      ],
+      "db": [
+        "save_placement_onboarding_draft",
+        "profiles"
+      ],
+      "idempotency": "handler-specific",
+      "external": [
+        "Turnstile"
+      ]
+    },
+    {
+      "slug": "commit-placement",
+      "verify_jwt": true,
+      "files": [
+        "supabase/functions/commit-placement/index.ts"
+      ],
+      "source_sha256": "f9de99d4cb351593a5646c89698f77539205f178df86a27432575b6d5b7333e7",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [],
+      "db": [
+        "commit_placement_result"
+      ],
+      "idempotency": "RPC idempotency_key",
+      "external": []
+    },
+    {
+      "slug": "finalize-onboarding",
+      "verify_jwt": true,
+      "files": [
+        "supabase/functions/finalize-onboarding/index.ts"
+      ],
+      "source_sha256": "2d86bf6c44f06fbae5a289f12b517d47c48b6872db232c102dc4ddcab0db0295",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [],
+      "db": [
+        "commit_placement_result"
+      ],
+      "idempotency": "RPC idempotency_key",
+      "external": []
+    },
+    {
+      "slug": "submit-business-lead",
+      "verify_jwt": false,
+      "files": [
+        "supabase/functions/submit-business-lead/index.ts"
+      ],
+      "source_sha256": "22c978c4f1a51e16135ad189a386e8e044c1b4235e3364808cd7ddb349d26d5e",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [
+        "TURNSTILE_SECRET_KEY (or TURNSTILE_ALLOW_SKIP=1 locally)"
+      ],
+      "db": [],
+      "idempotency": "handler-specific",
+      "external": [
+        "Turnstile"
+      ]
+    },
+    {
+      "slug": "create-checkout-session",
+      "verify_jwt": true,
+      "files": [
+        "supabase/functions/create-checkout-session/index.ts"
+      ],
+      "source_sha256": "fbed83ef0851ae67ed6b572b9c2040c0e1c5b0c1ab274e30476fc5d1b4467252",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [],
+      "db": [],
+      "idempotency": "handler-specific",
+      "external": []
+    },
+    {
+      "slug": "create-billing-portal",
+      "verify_jwt": true,
+      "files": [
+        "supabase/functions/create-billing-portal/index.ts"
+      ],
+      "source_sha256": "572b65136b5dbe2e98e20ba780299064fffbbe000a758239e17ceee36cc05dea",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [],
+      "db": [],
+      "idempotency": "handler-specific",
+      "external": []
+    },
+    {
+      "slug": "stripe-webhook",
+      "verify_jwt": false,
+      "files": [
+        "supabase/functions/stripe-webhook/index.ts"
+      ],
+      "source_sha256": "25c68f8935b4eff5ce52fd5244308943dd9626029ea0696fc437d91a8467fa73",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET"
+      ],
+      "db": [
+        "apply_subscription_event",
+        "transactions",
+        "subscriptions"
+      ],
+      "idempotency": "handler-specific",
+      "external": [
+        "Stripe"
+      ]
+    },
+    {
+      "slug": "delete-account",
+      "verify_jwt": true,
+      "files": [
+        "supabase/functions/delete-account/index.ts"
+      ],
+      "source_sha256": "ed1255149cde273452e0d047d5022966fc1d810a3b973f6f1986f6d459f2b062",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [],
+      "db": [],
+      "idempotency": "handler-specific",
+      "external": []
+    },
+    {
+      "slug": "issue-anon-ingestion-session",
+      "verify_jwt": false,
+      "files": [
+        "supabase/functions/issue-anon-ingestion-session/index.ts"
+      ],
+      "source_sha256": "afe8e98125adf49f72529c2cf73cc350b240bb9d7442c5d2499aa19c4cc7a2da",
+      "request_schema": "see index.ts",
+      "response_schema": "see index.ts",
+      "required_secrets": [],
+      "db": [],
+      "idempotency": "handler-specific",
+      "external": []
+    }
+  ]
+}

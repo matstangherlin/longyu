@@ -31,6 +31,11 @@ yarn-debug.log*
 yarn-error.log*
 test-results/
 playwright-report/
+supabase/baseline/canonical-schema.json
+supabase/baseline/LONGYU_BACKEND_SCHEMA_HASH
+docs/backend/canonical-schema.json
+docs/reports/v477-backend-contract-scoreboard.json
+docs/reports/v477-backend-contract-freeze.ci.md
 # Cópias acidentais do Windows / explorador
 * - Copy/
 * - Copy.*

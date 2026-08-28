@@ -1,0 +1,103 @@
+{
+  "remessa": "V4.7.7",
+  "anon": [
+    {
+      "table": "(none of the user-owned product tables)",
+      "privileges": [],
+      "justification": "Anonymous product flows use RPCs (submit_beta_feedback, submit_beta_pedagogy_event, issue_beta_anon_ingestion_session) and public Edge (create-account, submit-business-lead). Direct table DML for anon is not a supported use-case."
+    }
+  ],
+  "authenticated": [
+    {
+      "table": "profiles",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "profiles_select_own",
+      "use_case": "Read own profile"
+    },
+    {
+      "table": "profiles",
+      "operation": "INSERT",
+      "sql_grant": "authenticated",
+      "rls": "profiles_insert_own",
+      "use_case": "Client fallback profile insert"
+    },
+    {
+      "table": "profiles",
+      "operation": "UPDATE",
+      "sql_grant": "authenticated",
+      "rls": "profiles_update_own",
+      "use_case": "Update own profile fields"
+    },
+    {
+      "table": "user_progress",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "user_progress_select_own",
+      "use_case": "Cloud pull"
+    },
+    {
+      "table": "user_progress",
+      "operation": "INSERT",
+      "sql_grant": "authenticated",
+      "rls": "user_progress_insert_own",
+      "use_case": "Cloud first push"
+    },
+    {
+      "table": "user_progress",
+      "operation": "UPDATE",
+      "sql_grant": "authenticated",
+      "rls": "user_progress_update_own",
+      "use_case": "Cloud sync upsert"
+    },
+    {
+      "table": "user_srs",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "user_srs_select_own",
+      "use_case": "SRS pull"
+    },
+    {
+      "table": "user_srs",
+      "operation": "INSERT",
+      "sql_grant": "authenticated",
+      "rls": "user_srs_insert_own",
+      "use_case": "SRS write"
+    },
+    {
+      "table": "user_srs",
+      "operation": "UPDATE",
+      "sql_grant": "authenticated",
+      "rls": "user_srs_update_own",
+      "use_case": "SRS write"
+    },
+    {
+      "table": "subscriptions",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "subscriptions_select_own",
+      "use_case": "Show own subscription"
+    },
+    {
+      "table": "transactions",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "transactions_select_own",
+      "use_case": "Show own receipts"
+    },
+    {
+      "table": "placement_attempts",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "placement_attempts_select_own",
+      "use_case": "Read own placement"
+    },
+    {
+      "table": "user_economy",
+      "operation": "SELECT",
+      "sql_grant": "authenticated",
+      "rls": "user_economy_select_own",
+      "use_case": "Read Qi/pearls; writes via RPC"
+    }
+  ]
+}

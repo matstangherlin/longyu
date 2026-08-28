@@ -25,7 +25,7 @@ try {
       "test:rls:staging exige STAGING_SUPABASE_URL, STAGING_SUPABASE_ANON_KEY e STAGING_SUPABASE_SERVICE_ROLE_KEY."
     );
   }
-  assertStagingUrlMatches(url, stagingId);
+  assertStagingUrlMatches(url, stagingId, "STAGING_SUPABASE_URL", env);
   if (env.ALLOW_STAGING_SECURITY_TESTS !== "true") {
     throw new StagingGuardError(
       "Defina ALLOW_STAGING_SECURITY_TESTS=true para fixtures A≠B no staging."

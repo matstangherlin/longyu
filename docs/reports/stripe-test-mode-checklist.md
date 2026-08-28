@@ -1,7 +1,7 @@
 # Stripe Test Mode — checklist da Release Candidate
 
 **Stripe Live está fora de escopo.** Não usar `sk_live`, não apontar webhook de produção.
-A execução real deste checklist é **V4.7.5+** no staging (`longyu-preview`), não nesta remessa.
+A execução real deste checklist é **V4.7.5+** num staging Longyu isolado (`LONGYU_STAGING_PROJECT_ID`), não nesta remessa.
 
 `PAYMENTS_READY` permanece `NOT_RUN` até cada linha abaixo ter evidência operacional
 (IDs de evento Stripe + user id + timestamp). Scripts `npm run test:stripe`,

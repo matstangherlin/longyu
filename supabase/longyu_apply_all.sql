@@ -860,7 +860,7 @@ left join public.user_progress up on up.user_id = p.id
 on conflict (user_id) do nothing;
 
 
--- 004_social.sql
+-- 005_social.sql
 -- Social: follows, public profiles, activity feed (Fase social leve).
 
 alter table public.profiles
@@ -2756,8 +2756,11 @@ comment on function public.submit_beta_pedagogy_event(
 -- ---------------------------------------------------------------------------
 -- Admin overview: colunas de consentimento
 -- ---------------------------------------------------------------------------
+-- CREATE OR REPLACE VIEW cannot rename columns (42P16). Fresh replay must drop first.
 
-create or replace view public.admin_user_overview
+drop view if exists public.admin_user_overview;
+
+create view public.admin_user_overview
 with (security_invoker = true) as
 select
   u.id as user_id,
@@ -10630,3 +10633,205 @@ grant execute on function public.submit_beta_pedagogy_event(
   text, text, text, text, integer, jsonb, text, text, text, text
 ) to anon, authenticated;
 
+
+-- 20260828013000_api_role_table_grants.sql
+-- Align local/ephemeral Data API grants with hosted Supabase defaults.
+begin;
+
+grant usage on schema public to anon, authenticated, service_role;
+
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant execute on all functions in schema public to service_role;
+
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;
+alter default privileges in schema public grant execute on functions to service_role;
+
+grant all on table public.profiles to anon, authenticated, service_role;
+grant all on table public.user_progress to anon, authenticated, service_role;
+grant all on table public.user_srs to anon, authenticated, service_role;
+grant all on table public.subscriptions to anon, authenticated, service_role;
+grant all on table public.transactions to anon, authenticated, service_role;
+
+do $$
+begin
+  if to_regclass('public.placement_attempts') is not null then
+    execute 'grant all on table public.placement_attempts to anon, authenticated, service_role';
+  end if;
+end $$;
+
+revoke insert, update, delete on table public.user_economy from authenticated;
+revoke insert, update, delete on table public.user_chests from authenticated;
+revoke insert, update, delete on table public.user_missions from authenticated;
+revoke insert, update, delete on table public.user_achievements from authenticated;
+revoke insert, update, delete on table public.economy_ledger from authenticated;
+
+grant select on table public.user_economy to authenticated;
+grant select on table public.user_chests to authenticated;
+grant select on table public.user_missions to authenticated;
+grant select on table public.user_achievements to authenticated;
+grant select on table public.economy_ledger to authenticated;
+
+commit;
+
+-- 20260828020000_least_privilege_api_grants.sql
+-- V4.7.7 — least privilege for Data API client roles.
+-- 20260828013000 granted ALL to anon/authenticated to match hosted defaults.
+-- Client roles only need the operations that RLS policies actually allow.
+-- service_role keeps ALL. Economy write-closes stay revoked.
+-- Anonymous product flows use RPCs + public Edges, not table DML.
+-- Idempotent. Not applied to MandarimProject this remessa.
+
+begin;
+
+-- Own-row tables: authenticated SELECT/INSERT/UPDATE. No DELETE/TRUNCATE. No anon.
+revoke all on table public.profiles from anon, authenticated;
+revoke all on table public.user_progress from anon, authenticated;
+revoke all on table public.user_srs from anon, authenticated;
+
+grant select, insert, update on table public.profiles to authenticated;
+grant select, insert, update on table public.user_progress to authenticated;
+grant select, insert, update on table public.user_srs to authenticated;
+
+-- Billing rows are written by service_role / Stripe webhook RPCs.
+revoke all on table public.subscriptions from anon, authenticated;
+revoke all on table public.transactions from anon, authenticated;
+grant select on table public.subscriptions to authenticated;
+grant select on table public.transactions to authenticated;
+
+do $$
+begin
+  if to_regclass('public.placement_attempts') is not null then
+    execute 'revoke all on table public.placement_attempts from anon, authenticated';
+    execute 'grant select on table public.placement_attempts to authenticated';
+  end if;
+  if to_regclass('public.placement_onboarding_drafts') is not null then
+    execute 'revoke all on table public.placement_onboarding_drafts from anon, authenticated';
+    execute 'grant all on table public.placement_onboarding_drafts to service_role';
+  end if;
+end $$;
+
+revoke all on table public.user_economy from anon;
+revoke insert, update, delete, truncate on table public.user_economy from authenticated;
+revoke insert, update, delete, truncate on table public.user_chests from authenticated;
+revoke insert, update, delete, truncate on table public.user_missions from authenticated;
+revoke insert, update, delete, truncate on table public.user_achievements from authenticated;
+revoke insert, update, delete, truncate on table public.economy_ledger from authenticated;
+grant select on table public.user_economy to authenticated;
+grant select on table public.user_chests to authenticated;
+grant select on table public.user_missions to authenticated;
+grant select on table public.user_achievements to authenticated;
+grant select on table public.economy_ledger to authenticated;
+
+grant all on table public.profiles to service_role;
+grant all on table public.user_progress to service_role;
+grant all on table public.user_srs to service_role;
+grant all on table public.subscriptions to service_role;
+grant all on table public.transactions to service_role;
+grant all on table public.user_economy to service_role;
+
+commit;
+
+-- 20260828030000_progress_mastery_monotonic.sql
+-- V4.7.7 — server-side monotonic mastery / completed_lessons.
+-- Client last-write-wins on user_progress.client_snapshot can regress 2/4 → 1/4.
+-- BEFORE UPDATE merges lessonMasteryById by GREATEST(level) and unions completed_lessons.
+-- Not applied to MandarimProject this remessa.
+
+begin;
+
+create or replace function public.merge_progress_mastery_monotonic()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  old_map jsonb := '{}'::jsonb;
+  new_map jsonb := '{}'::jsonb;
+  merged jsonb := '{}'::jsonb;
+  key text;
+  old_lvl integer;
+  new_lvl integer;
+  entry jsonb;
+  old_lessons text[] := '{}';
+  new_lessons text[] := '{}';
+  union_lessons text[];
+begin
+  if tg_op <> 'UPDATE' then
+    return new;
+  end if;
+
+  old_map := coalesce(old.client_snapshot #> '{progress,lessonMasteryById}', '{}'::jsonb);
+  new_map := coalesce(new.client_snapshot #> '{progress,lessonMasteryById}', '{}'::jsonb);
+  if jsonb_typeof(old_map) is distinct from 'object' then
+    old_map := '{}'::jsonb;
+  end if;
+  if jsonb_typeof(new_map) is distinct from 'object' then
+    new_map := '{}'::jsonb;
+  end if;
+
+  for key in
+    select distinct k from (
+      select jsonb_object_keys(old_map) as k
+      union
+      select jsonb_object_keys(new_map) as k
+    ) keys
+  loop
+    old_lvl := coalesce(nullif(old_map -> key ->> 'level', '')::integer, 0);
+    new_lvl := coalesce(nullif(new_map -> key ->> 'level', '')::integer, 0);
+    if new_map ? key then
+      entry := new_map -> key;
+      if jsonb_typeof(entry) is distinct from 'object' or entry is null then
+        entry := jsonb_build_object('level', greatest(old_lvl, new_lvl));
+      else
+        entry := entry || jsonb_build_object('level', greatest(old_lvl, new_lvl));
+      end if;
+    else
+      entry := old_map -> key;
+    end if;
+    merged := merged || jsonb_build_object(key, entry);
+  end loop;
+
+  if new.client_snapshot is null then
+    new.client_snapshot := coalesce(old.client_snapshot, '{}'::jsonb);
+  end if;
+  if jsonb_typeof(new.client_snapshot) is distinct from 'object' then
+    new.client_snapshot := coalesce(old.client_snapshot, '{}'::jsonb);
+  end if;
+  if new.client_snapshot -> 'progress' is null
+     or jsonb_typeof(new.client_snapshot -> 'progress') is distinct from 'object' then
+    new.client_snapshot := jsonb_set(new.client_snapshot, '{progress}', '{}'::jsonb, true);
+  end if;
+  new.client_snapshot := jsonb_set(
+    new.client_snapshot,
+    '{progress,lessonMasteryById}',
+    merged,
+    true
+  );
+
+  old_lessons := coalesce(old.completed_lessons, '{}');
+  new_lessons := coalesce(new.completed_lessons, '{}');
+  select coalesce(array_agg(distinct x), '{}')
+    into union_lessons
+  from unnest(old_lessons || new_lessons) as x
+  where x is not null and length(trim(x)) > 0;
+  new.completed_lessons := coalesce(union_lessons, '{}');
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_progress_mastery_monotonic on public.user_progress;
+create trigger trg_progress_mastery_monotonic
+  before update on public.user_progress
+  for each row
+  execute function public.merge_progress_mastery_monotonic();
+
+comment on function public.merge_progress_mastery_monotonic() is
+  'Server-side monotonic mastery: GREATEST(level) per lessonMasteryById key; union completed_lessons.';
+
+revoke all on function public.merge_progress_mastery_monotonic() from public, anon, authenticated;
+
+commit;

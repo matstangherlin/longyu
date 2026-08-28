@@ -53,12 +53,12 @@ Stripe completo nem o uso do aplicativo em aparelhos físicos.
 
 Status: **bloqueador para beta pública**.
 
-- O projeto `longyu-preview` continua inativo e indisponível no limite atual do
-  plano Free.
+- Staging remoto Longyu não está configurado (`BLOCKED_REMOTE_STAGING`).
+  A migration de hardening de Pérolas não foi aplicada em produção nesta remessa.
 - A migration de hardening de Pérolas não foi aplicada em produção nesta
   remessa.
 - O harness `npm run test:pearl-staging` está pronto, recusa o projeto de
-  produção e ainda precisa rodar em preview isolado.
+  produção e ainda precisa de `LONGYU_STAGING_PROJECT_ID`.
 - O teste de staging deve cobrir milestone inválido/forjado, 11→12 Pérolas,
   replay, duas abas, dupla ativação e ausência de double spend.
 

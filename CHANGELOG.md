@@ -7,9 +7,17 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
-### V4.7.5 — Staging live inventory (BLOCKED)
+### V4.7.6R — Longyu backend rehearsal + ephemeral validation
 
-MCP autenticado. `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Inventário em `docs/reports/staging-live-inventory.md`. Sem DDL/Edge em MandarimProject. Sem pause de atomurus. Correlação operacional no cliente/repo (STG-011 código; runtime NOT_RUN). IDs de correlação usam Web Crypto (`randomUUID` / `getRandomValues`), não `Math.random`.
+Validação efêmera (CI/local `supabase start`) sem escrever em MandarimProject. Staging remoto opcional (`LONGYU_STAGING_PROJECT_ID`, sem default) = `BLOCKED_REMOTE_STAGING`. Relatório: `docs/reports/v476r-longyu-backend-rehearsal.md`.
+
+### V4.7.6 — Live staging (BLOCKED_REMOTE_STAGING)
+
+Live identity **não rodou**. Sem staging remoto Longyu configurado. MandarimProject intocado. Relatório: `docs/reports/v476-staging-live-validation.md`.
+
+### V4.7.5 — Production read-only inventory
+
+MCP autenticado só em MandarimProject. Inventário em `docs/reports/staging-live-inventory.md`. Sem DDL/Edge em produção. IDs de correlação usam Web Crypto (`randomUUID` / `getRandomValues`), não `Math.random`.
 
 ### V4.7.4 — Closed Beta Release Candidate Hardening
 
@@ -33,7 +41,7 @@ Código V4.7.1 + V4.7.2 + V4.7.3 na main. **Não** é release da closed beta.
 
 ### V4.7.3 — Staging Activation + Real Beta Validation
 
-Identifica staging isolado, recusa MandarimProject de produção e só promove closed beta com evidência operacional. Staging pretendido (`longyu-preview`) continua INACTIVE; migrations e Edges **não** foram aplicadas em produção.
+Identifica staging isolado, recusa MandarimProject de produção e só promove closed beta com evidência operacional. Staging remoto sem default continua `BLOCKED_REMOTE_STAGING`; migrations e Edges **não** foram aplicadas em produção.
 
 - Guarda `LONGYU_STAGING_PROJECT_ID` (`scripts/lib/staging-guard.mjs`).
 - `identify:staging`, `migrate:staging` (para no primeiro erro), `deploy:staging-functions`.

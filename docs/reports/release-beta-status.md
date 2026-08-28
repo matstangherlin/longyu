@@ -11,9 +11,7 @@ Base reaplicada: `origin/main` em `8716ebbfb96e3d859c4fe5bfbd6095dfeb3339f2`
 O push para `main` registra o código-fonte consolidado; esta remessa não executa
 deploy manual nem aplica migrations.
 Os testes locais, o build e os E2E estão verdes, mas a migration de
-Pérolas ainda não foi executada e atacada em um Supabase isolado. O projeto
-`longyu-preview` está pausado e não pôde ser restaurado porque a organização
-`Noba` usa o plano Free e já tem dois projetos ativos. Produção não foi alterada.
+Pérolas ainda não foi executada num backend Longyu isolado. Produção não foi alterada.
 
 ## Economia de Pérolas e entitlement Pro
 
@@ -60,33 +58,14 @@ e preview Pro.
 
 ## Supabase staging / preview
 
-Status: **bloqueador**.
+Status: **BLOCKED_REMOTE_STAGING**.
 
-- `longyu-preview` (`wpnmygzxqvmpdlcuwrjp`): inativo.
-- Tentativa de restore: recusada por limite de dois projetos Free ativos.
-- Projetos ativos atuais: produção Longyu e `atomurus`.
-- A produção (`drjcfalvlbbeblmmyhwj`) termina na migration
-  `20260810175737_beta_experience_telemetry`; o hotfix de Pérolas não está aplicado.
-- A branch Supabase `main` está marcada `MIGRATIONS_FAILED` e não existe branch de
-  desenvolvimento utilizável.
-- Nenhuma DDL ou migration deste trabalho foi aplicada em produção.
+- MandarimProject (`drjcfalvlbbeblmmyhwj`) é produção Longyu — HARD FAIL como staging.
+- A produção termina na migration `20260810175737_beta_experience_telemetry`.
+- Nenhuma DDL desta remessa foi aplicada em produção.
+- Validação continua no rehearsal efêmero (`npm run rehearse:ephemeral`).
 
-O harness `npm run test:pearl-staging` está pronto e recusa explicitamente o ref
-de produção. Em staging ele cobre:
-
-1. milestone arbitrário e mês inválido;
-2. tentativa de enviar `p_evidence`;
-3. saldo 11 e ativação insuficiente;
-4. evidência autoritativa produzida por RPC e claim 11 → 12;
-5. replay de milestone;
-6. duas sessões simultâneas para claim;
-7. duas ativações simultâneas e replay do passe;
-8. limpeza dos usuários temporários.
-
-Próxima ação operacional: liberar uma vaga pausando `atomurus`, restaurar
-`longyu-preview`, aplicar as migrations e rodar o harness; ou aprovar uma branch
-Supabase paga. Branches Supabase são isoladas e recebem migrations em sequência,
-conforme a [documentação de Branching](https://supabase.com/docs/guides/deployment/branching).
+O harness `npm run test:pearl-staging` recusa explicitamente o ref de produção e exige `LONGYU_STAGING_PROJECT_ID`.
 
 ## Security Advisor do Supabase
 
@@ -142,8 +121,7 @@ Pendente, sem marcar como concluído por automação:
 
 ## Bloqueadores restantes
 
-1. disponibilizar staging/preview isolado;
-2. aplicar a migration e passar `test:pearl-staging` nesse ambiente;
-3. decidir pausa do `atomurus` ou custo de branch/upgrade Supabase;
-4. habilitar proteção HIBP após upgrade do plano;
-5. executar QA físico e Stripe humano antes da decisão final de beta pública.
+1. opcional: `LONGYU_STAGING_PROJECT_ID` para um remoto Longyu isolado;
+2. rehearsal efêmero / `test:pearl-staging` quando o remoto existir;
+3. habilitar proteção HIBP após upgrade do plano;
+4. executar QA físico e Stripe humano antes da decisão final de beta pública.

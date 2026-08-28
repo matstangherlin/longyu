@@ -118,7 +118,7 @@ Check **Supabase Preview** no push da main: FAILURE fail-closed (`Remote migrati
 | chave | estado |
 | --- | --- |
 | AUTOMATED CODE | **PASS** no HEAD `6d6680a` (quality + Chromium + Security) |
-| STAGING | BLOCKED / NOT_RUN (`longyu-preview` INACTIVE) |
+| STAGING | BLOCKED_REMOTE_STAGING / NOT_RUN |
 | PHYSICAL QA | NOT_RUN |
 | PAYMENTS | NOT_RUN |
 | READY_FOR_CLOSED_BETA_BR | **NOT_READY** |

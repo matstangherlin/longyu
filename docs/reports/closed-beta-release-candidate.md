@@ -16,15 +16,16 @@ Se o código do produto mudar, o rótulo vira `rc.2`. Não chamar HEADs diferent
 
 | Campo | Valor | O que falta para virar PASS |
 | --- | --- | --- |
-| `CODE_READY` | `PENDING_CI` | `validate:beta` + build + E2E Chromium + Firefox + Security **neste HEAD**. Código local não substitui o CI atual. |
-| `CROSS_BROWSER_READY` | `PENDING_CI` | Firefox é gate. WebKit permanece informativo (passo `continue-on-error`). Ver `docs/reports/webkit-ci-notes.md`. |
-| `STAGING_READY` | `NOT_READY` | Live MCP 2026-08-27T22:18Z: `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Ver `docs/reports/staging-live-inventory.md`. Não usar MandarimProject. |
+| `CODE_READY` | `PASS` (`b2a5818`) | Evidência: CI da #203 nesse SHA (qualidade + Chromium + Firefox + Security). **Não promove** nenhum outro campo. |
+| `CROSS_BROWSER_READY` | `PASS` (`b2a5818`) | Firefox gate SUCCESS. WebKit informativo SUCCESS. |
+| `STAGING_READY` | `BLOCKED_REMOTE_STAGING` | Sem `LONGYU_STAGING_PROJECT_ID`. Ephemeral ≠ este campo. Ver `docs/reports/v476r-longyu-backend-rehearsal.md`. |
 | `AUTH_READY` | `NOT_RUN` | Signup real + e-mail em nova aba + finalize. Exige staging (V4.7.6). |
 | `PLACEMENT_READY` | `NOT_RUN` | Servidor recalcula evidência bruta. Exige staging (V4.7.6). |
 | `SYNC_READY` | `NOT_RUN` | Cross-device 1/4 → 2/4 sem regressão. Exige staging (V4.7.6). |
 | `PHYSICAL_QA_READY` | `NOT_RUN` | `docs/reports/physical-qa-contract.md` em Android Chrome, iPhone Safari e desktop Chrome. Automação não preenche. |
 | `PAYMENTS_READY` | `NOT_RUN` | `docs/reports/stripe-test-mode-checklist.md` em Stripe **Test Mode** no staging. |
-| `SECURITY_READY` | `NOT_READY` | RLS A≠B live + advisors no staging (V4.7.8). Scripts de fronteira no `validate:beta` não substituem. |
+| `SECURITY_STAGING_READY` | `BLOCKED` | RLS A≠B live + advisors **no staging**. Scripts de fronteira no `validate:beta` não substituem. |
+| `SECURITY_READY` | `NOT_READY` | Mesmo bloqueio de `SECURITY_STAGING_READY`. |
 | `READY_FOR_CLOSED_BETA_BR` | `NOT_READY` | Só decisão humana depois de todos os campos operacionais. **Permanece NOT_READY nesta remessa.** |
 
 ## O que esta remessa entrega
@@ -65,18 +66,9 @@ Flakes conhecidos e mitigados (não no caminho crítico do merge Chromium):
 - `/qa` é `noindex` e `Disallow`.
 - `READY_FOR_CLOSED_BETA_BR` **não** sobe com `CODE_READY`.
 
-## Staging (não executado aqui)
+## Staging remoto (não executado aqui)
 
-`longyu-preview` (`wpnmygzxqvmpdlcuwrjp`) continua **INACTIVE**. Restore live recusado
-(`ForbiddenException`, **2 project limit** Free, owner `matstangherlin`). Inventário:
-`docs/reports/staging-live-inventory.md`. Decisão humana necessária (um de):
-
-1. Restaurar o projeto (hoje: limite Free de 2 projetos).
-2. Liberar slot / pausar outro projeto que **não** seja MandarimProject.
-3. Upgrade e branch Supabase.
-4. Criar projeto pago isolado.
-
-**Não improvisar em MandarimProject.** V4.7.5 só depois desta RC aprovada e mergeada.
+`LONGYU_STAGING_PROJECT_ID` ausente = `BLOCKED_REMOTE_STAGING`. MandarimProject é o backend Longyu de produção — **sem** migration/Edge nesta remessa. Validação efêmera: `docs/reports/v476r-longyu-backend-rehearsal.md`.
 
 ## Sequência seguinte (fora desta remessa)
 

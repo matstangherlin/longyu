@@ -5,11 +5,13 @@
 import { spawnSync } from "node:child_process";
 import process from "node:process";
 import { mergedEnv, projectRoot } from "./lib/env-local.mjs";
+import { fetchSupabaseProject } from "./lib/staging-api.mjs";
 import { edgeFunctionCatalog, LONGYU_EDGE_FUNCTIONS } from "./lib/edge-functions.mjs";
 import {
   StagingGuardError,
   failClosed,
-  requireStagingProjectId,
+  requireHealthyStagingStatus,
+  requireRemoteRehearsalTarget,
   supabaseApiUrl,
 } from "./lib/staging-guard.mjs";
 
@@ -49,7 +51,7 @@ async function smokeSlug(baseUrl, slug) {
 }
 
 try {
-  const stagingId = requireStagingProjectId(env);
+  const stagingId = requireRemoteRehearsalTarget(env);
   const catalog = edgeFunctionCatalog();
   const deployedAt = new Date().toISOString();
   const plan = catalog.map((item) => ({
@@ -71,6 +73,9 @@ try {
         : "STAGE-004 BLOCKED: sem SUPABASE_ACCESS_TOKEN. Não implantar em produção."
     );
   }
+
+  const project = await fetchSupabaseProject(token, stagingId);
+  requireHealthyStagingStatus(project.status, stagingId);
 
   if (run("npx", ["supabase", "--version"]) !== 0) {
     throw new StagingGuardError("STAGE-004 BLOCKED: Supabase CLI indisponível.");

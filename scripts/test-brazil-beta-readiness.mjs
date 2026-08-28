@@ -94,7 +94,10 @@ assert(report.includes("ANDROID") && report.includes("NOT_RUN"), "Android humano
 assert(report.includes("IPHONE") && report.includes("NOT_RUN"), "iPhone humano permanece NOT_RUN");
 assert(report.includes("PAYMENTS") && report.includes("NOT_RUN"), "Stripe humano permanece NOT_RUN");
 assert(report.includes("CLOSE_SAFE") && report.includes("SUPERSEDED"), "BR-029 classifica PRs legadas");
-assert(report.includes("2 project limit") || report.includes("project limit"), "BR-001 registra o bloqueio de staging");
+assert(
+  report.includes("BLOCKED_REMOTE_STAGING") || report.includes("MandarimProject"),
+  "BR-001 registra staging remoto bloqueado / só MandarimProject"
+);
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-brazil-beta-"));
 try {

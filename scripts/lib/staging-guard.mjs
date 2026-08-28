@@ -1,13 +1,15 @@
 /**
- * Proteção de staging Longyu (V4.7.3).
+ * Longyu project guards.
  *
- * MandarimProject de produção nunca é alvo de migrate/deploy/harness de staging.
- * Scripts de staging exigem LONGYU_STAGING_PROJECT_ID explícito.
+ * This repository knows one production backend: MandarimProject.
+ * Remote staging is optional (LONGYU_STAGING_PROJECT_ID) with no default.
+ * Missing remote staging does not block ephemeral/local validation.
  */
 export const LONGYU_PRODUCTION_PROJECT_ID = "drjcfalvlbbeblmmyhwj";
 export const LONGYU_PRODUCTION_PROJECT_NAME = "MandarimProject";
-export const LONGYU_INTENDED_STAGING_PROJECT_ID = "wpnmygzxqvmpdlcuwrjp";
-export const LONGYU_INTENDED_STAGING_PROJECT_NAME = "longyu-preview";
+
+export const REFUSING_TO_USE_PRODUCTION_AS_STAGING = "REFUSING_TO_USE_PRODUCTION_AS_STAGING";
+export const BLOCKED_REMOTE_STAGING = "BLOCKED_REMOTE_STAGING";
 
 export class StagingGuardError extends Error {
   constructor(message, exitCode = 2) {
@@ -35,27 +37,56 @@ export function isProductionProjectId(urlOrId) {
 export function assertNotProduction(urlOrId, label = "project_id") {
   const ref = extractProjectRef(urlOrId);
   if (!ref) {
-    throw new StagingGuardError(`${label} ausente.`);
+    throw new StagingGuardError(
+      `${BLOCKED_REMOTE_STAGING} ${label} ausente. Defina um projeto Longyu isolado; nunca ${LONGYU_PRODUCTION_PROJECT_NAME}.`
+    );
   }
   if (isProductionProjectId(ref)) {
     throw new StagingGuardError(
-      `HARD FAIL: ${label}=${ref} é ${LONGYU_PRODUCTION_PROJECT_NAME} de produção. ` +
-        "Recusado. Use um projeto de staging isolado e LONGYU_STAGING_PROJECT_ID."
+      `${REFUSING_TO_USE_PRODUCTION_AS_STAGING} HARD FAIL: ${label}=${ref} é ` +
+        `${LONGYU_PRODUCTION_PROJECT_NAME} de produção. Recusado. Use um projeto de staging isolado ` +
+        "ou validação efêmera local/CI."
     );
   }
   return ref;
+}
+
+/**
+ * Destructive/rehearsal remote ops: require LONGYU_TARGET_PROJECT_ID
+ * (fallback: LONGYU_STAGING_PROJECT_ID) and refuse production.
+ */
+export function requireRemoteRehearsalTarget(env = process.env, label = "LONGYU_TARGET_PROJECT_ID") {
+  const target = String(env.LONGYU_TARGET_PROJECT_ID ?? "").trim();
+  const staging = String(env.LONGYU_STAGING_PROJECT_ID ?? "").trim();
+  const id = target || staging;
+  if (!id) {
+    throw new StagingGuardError(
+      `${BLOCKED_REMOTE_STAGING} ${label} / LONGYU_STAGING_PROJECT_ID ausente. ` +
+        "Operação remota de rehearsal/staging não corre. Validação efêmera não usa este guard."
+    );
+  }
+  return assertNotProduction(id, target ? "LONGYU_TARGET_PROJECT_ID" : "LONGYU_STAGING_PROJECT_ID");
 }
 
 export function requireStagingProjectId(env = process.env) {
   const id = String(env.LONGYU_STAGING_PROJECT_ID ?? "").trim();
   if (!id) {
     throw new StagingGuardError(
-      "LONGYU_STAGING_PROJECT_ID ausente. Defina o project_id do staging isolado " +
-        `(pretendido: ${LONGYU_INTENDED_STAGING_PROJECT_NAME} ${LONGYU_INTENDED_STAGING_PROJECT_ID}). ` +
-        "Nunca use MandarimProject."
+      `${BLOCKED_REMOTE_STAGING} LONGYU_STAGING_PROJECT_ID ausente. ` +
+        "Não há staging remoto Longyu configurado. Isso não bloqueia o rehearsal efêmero."
     );
   }
   return assertNotProduction(id, "LONGYU_STAGING_PROJECT_ID");
+}
+
+export function requireHealthyStagingStatus(status, projectId) {
+  if (status !== "ACTIVE_HEALTHY") {
+    throw new StagingGuardError(
+      `${BLOCKED_REMOTE_STAGING} staging ${projectId} status=${status || "UNKNOWN"}. ` +
+        "Não aplicar migrations nem deploy. Exige ACTIVE_HEALTHY. " +
+        "Use o rehearsal efêmero enquanto o remoto não existir."
+    );
+  }
 }
 
 export function assertStagingUrlMatches(url, stagingId, label = "STAGING_SUPABASE_URL") {
