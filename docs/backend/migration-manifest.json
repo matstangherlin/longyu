@@ -336,7 +336,7 @@
       "path": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
       "version": "20260828032249",
       "name": "progress_mastery_monotonic_clamp",
-      "sha256": "d7211a77600b486883c7ffc935d868bd9d560b85f8ec5e9e09a2da451c192ee8",
+      "sha256": "598a102062ae17c7163edb2336c0c26b0a40871c92ad593753c9cfa090799e8f",
       "status": "FROZEN"
     }
   ]

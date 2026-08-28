@@ -64,6 +64,8 @@ assert(/revoke all on function public\.merge_progress_mastery_monotonic\(\) from
 assert(/revoke all on function public\.longyu_clamp_mastery_level\(jsonb\) from public, anon, authenticated/.test(clamp), "revoke helper");
 assert(!/nullif\([^)]*\)::integer/.test(clamp), "no crashing integer cast on text");
 assert(/trunc\(n\)/.test(clamp), "trunc before clamp");
+assert(!/pg_catalog\.greatest/.test(clamp), "GREATEST is a SQL keyword, not pg_catalog.greatest");
+assert(!/pg_catalog\.least/.test(clamp), "LEAST is a SQL keyword, not pg_catalog.least");
 assert(/Not applied to MandarimProject/.test(clamp), "no silent prod apply");
 
 const harness = fs.readFileSync(path.join(root, "scripts/lib/v477-harness.mjs"), "utf8");

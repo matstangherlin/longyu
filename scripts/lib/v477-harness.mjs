@@ -188,7 +188,10 @@ export async function runMonotonicityMatrix(env) {
           updated_at: new Date().toISOString(),
         };
       };
-      await sessionA.from("user_progress").upsert(snap(first), { onConflict: "user_id" });
+      const firstWrite = await sessionA.from("user_progress").upsert(snap(first), { onConflict: "user_id" });
+      if (firstWrite.error) {
+        throw new EphemeralError(`monotonic insert ${first}: ${firstWrite.error.message}`);
+      }
       await Promise.all([
         sessionA.from("user_progress").upsert(snap(first), { onConflict: "user_id" }),
         sessionB.from("user_progress").upsert(snap(second), { onConflict: "user_id" }),

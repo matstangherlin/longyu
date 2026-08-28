@@ -6,6 +6,8 @@
 --   -1 → 0; 5 / 999 → 4; 2.5 → trunc then clamp (2)
 --   lessonMasteryById null/array → {}
 -- Do not cast arbitrary jsonb text to integer (can raise 22P02).
+-- GREATEST/LEAST are SQL keywords, not pg_catalog functions — do not qualify them
+-- when search_path is empty (that made INSERT fail: stored mastery undefined).
 -- Trigger also runs on INSERT so the first write is clamped.
 -- Not applied to MandarimProject this remessa.
 
@@ -37,7 +39,7 @@ begin
   else
     return 0;
   end if;
-  return pg_catalog.greatest(0, pg_catalog.least(4, pg_catalog.trunc(n)))::integer;
+  return greatest(0, least(4, pg_catalog.trunc(n)))::integer;
 exception
   when others then
     return 0;
@@ -86,30 +88,37 @@ begin
   end if;
 
   for key in
-    select distinct k from (
-      select pg_catalog.jsonb_object_keys(old_map) as k
+    select distinct e.key
+    from (
+      select j.key from pg_catalog.jsonb_each(old_map) as j
       union
-      select pg_catalog.jsonb_object_keys(new_map) as k
-    ) keys
+      select j.key from pg_catalog.jsonb_each(new_map) as j
+    ) e
   loop
     old_lvl := public.longyu_mastery_entry_level(old_map -> key);
     new_lvl := public.longyu_mastery_entry_level(new_map -> key);
-    if new_map ? key then
+    if pg_catalog.jsonb_exists(new_map, key) then
       entry := new_map -> key;
       if pg_catalog.jsonb_typeof(entry) is distinct from 'object' or entry is null then
-        entry := pg_catalog.jsonb_build_object('level', pg_catalog.greatest(old_lvl, new_lvl));
+        entry := pg_catalog.jsonb_build_object('level', greatest(old_lvl, new_lvl));
       else
-        entry := entry || pg_catalog.jsonb_build_object('level', pg_catalog.greatest(old_lvl, new_lvl));
+        entry := pg_catalog.jsonb_concat(
+          entry,
+          pg_catalog.jsonb_build_object('level', greatest(old_lvl, new_lvl))
+        );
       end if;
     else
       entry := old_map -> key;
       if pg_catalog.jsonb_typeof(entry) is distinct from 'object' or entry is null then
         entry := pg_catalog.jsonb_build_object('level', old_lvl);
       else
-        entry := entry || pg_catalog.jsonb_build_object('level', old_lvl);
+        entry := pg_catalog.jsonb_concat(
+          entry,
+          pg_catalog.jsonb_build_object('level', old_lvl)
+        );
       end if;
     end if;
-    merged := merged || pg_catalog.jsonb_build_object(key, entry);
+    merged := pg_catalog.jsonb_concat(merged, pg_catalog.jsonb_build_object(key, entry));
   end loop;
 
   return merged;
