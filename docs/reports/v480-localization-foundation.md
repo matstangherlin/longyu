@@ -41,7 +41,7 @@ Filled from live commands on this PR (2026-08-28).
 | LANGUAGE_SWITCHER_READY | **PASS** | Settings + landing + marketing `<select data-testid="interface-locale-select">`; e2e switcher test |
 | LOCALE_PERSISTENCE_READY | **PASS** | `longyu:interface-locale` outside Zustand; e2e reload keeps `lang=en`; store version still **20** |
 | HTML_LANG_READY | **PASS** | `test:i18n` asserts `document.documentElement.lang`; e2e `html[lang=pt-BR\|en]` |
-| KEY_PARITY_READY | **PASS** | `npm run validate:i18n` — 667 keys, same tree, no empty / `[object Object]`, namespaces gated (incl. hub, feedback) |
+| KEY_PARITY_READY | **PASS** | `npm run validate:i18n` — 669 keys, same tree, no empty / `[object Object]`, namespaces gated (incl. hub, feedback) |
 | APP_SHELL_EN_READY | **PASS** | e2e Journey EN nav `Main` / `Journey`; TopBar/TabBar/Sidebar use `t()`; landing PT+EN smokes |
 | AUTH_EN_READY | **PASS** | e2e `/login` EN: `Sign in`, `Forgot password`, no `Entrar na conta`; `localizeUserMessage()` |
 | SETTINGS_EN_READY | **PASS** | e2e Language vs “I am learning Mandarin”; Theme / How to see Mandarin / Privacy and data; target card stays `zh-CN` / `中文` |
@@ -54,13 +54,13 @@ Filled from live commands on this PR (2026-08-28).
 | Command | Result |
 | --- | --- |
 | `npm run typecheck` | PASS (after final UI wiring) |
-| `npm run validate:i18n` | PASS (667 keys) |
+| `npm run validate:i18n` | PASS (669 keys) |
 | `npm run test:i18n` | PASS |
 | `npm run test:brazil-beta-readiness` | PASS |
 | `npm run test:rc-hardening` | PASS |
 | Remaining `validate:beta` chain (cloud-first-auth → seo / security / plans / economy / qa-fast-path) | PASS in split batches; pedagogical generators unchanged |
 | `npm run build` | PASS |
-| Playwright `e2e/i18n-shell.spec.ts` chromium | PASS (7); EN settings + Practice hub `Practice` heading |
+| Playwright `e2e/i18n-shell.spec.ts` chromium | PASS (8); EN settings, Practice hub, About/Privacy chrome |
 | Playwright `e2e/privacy-consent.spec.ts` + `e2e/auth-surface.spec.ts` chromium | PASS after overlay/feedback EN names |
 | Playwright `e2e/smoke.spec.ts` + `e2e/auth-surface.spec.ts` chromium | PASS |
 

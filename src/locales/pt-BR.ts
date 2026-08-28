@@ -531,6 +531,8 @@ export const ptBR = {
       "O Longyu está em beta. Algumas atividades ainda estão sendo aprimoradas. Seu feedback ajuda a construir o curso.",
     aboutEyebrow: "Sistema",
     aboutTitle: "Sobre o Longyu",
+    aboutDocumentTitle: "Sobre o Longyu",
+    privacyDocumentTitle: "Privacidade — Longyu",
     aboutLead: "Transparência sobre o estado atual da beta pública.",
     aboutTagline: "龙语 · mandarim pela lógica",
     aboutIntro:

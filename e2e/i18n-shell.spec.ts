@@ -83,6 +83,24 @@ test.describe("i18n shell — V4.8.0", () => {
     await expect(page.getByText(/^Praticar$/)).toHaveCount(0);
   });
 
+  test("About and Privacy chrome EN", async ({ page }) => {
+    await seedInterfaceLocale(page, "en");
+    await page.goto("/sobre");
+    await waitForLazyPage(page);
+    await expect(page).toHaveTitle(/About Longyu/i);
+    await expect(page.getByRole("heading", { name: /About Longyu/i }).first()).toBeVisible();
+    await expect(page.getByText(/Found a bug or have a suggestion/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /Send feedback/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Sobre o Longyu$/ })).toHaveCount(0);
+
+    await page.goto("/privacidade");
+    await waitForLazyPage(page);
+    await expect(page).toHaveTitle(/Privacy/i);
+    await expect(page.getByRole("heading", { name: /Privacy and data/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Open settings/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Privacidade e dados/ })).toHaveCount(0);
+  });
+
   test("locale switch does not change canonical hanzi", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/ajustes");

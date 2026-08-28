@@ -526,6 +526,8 @@ export const en: MessageCatalog = {
       "Longyu is in beta. Some activities are still being refined. Your feedback helps build the course.",
     aboutEyebrow: "System",
     aboutTitle: "About Longyu",
+    aboutDocumentTitle: "About Longyu",
+    privacyDocumentTitle: "Privacy — Longyu",
     aboutLead: "Transparency about the current state of the public beta.",
     aboutTagline: "龙语 · Mandarin by logic",
     aboutIntro:

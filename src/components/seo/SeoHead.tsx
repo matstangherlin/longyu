@@ -47,14 +47,31 @@ export function SeoHead() {
 
   useEffect(() => {
     const seo = resolveSeo(location.pathname);
+    const path = location.pathname;
     const chromeSeo =
-      location.pathname === "/" ||
-      location.pathname === "/login" ||
-      location.pathname === "/esqueci-senha" ||
-      location.pathname === "/redefinir-senha" ||
-      location.pathname === "/confirmar-email";
-    const title = chromeSeo ? t("marketing.documentTitle") : seo.title;
-    const description = chromeSeo ? t("marketing.documentDescription") : seo.description;
+      path === "/" ||
+      path === "/login" ||
+      path === "/esqueci-senha" ||
+      path === "/redefinir-senha" ||
+      path === "/confirmar-email" ||
+      path === "/sobre" ||
+      path === "/privacidade";
+    const title =
+      path === "/sobre"
+        ? t("marketing.aboutDocumentTitle")
+        : path === "/privacidade"
+          ? t("marketing.privacyDocumentTitle")
+          : chromeSeo
+            ? t("marketing.documentTitle")
+            : seo.title;
+    const description =
+      path === "/sobre"
+        ? t("marketing.aboutLead")
+        : path === "/privacidade"
+          ? t("hub.privacyDesc")
+          : chromeSeo
+            ? t("marketing.documentDescription")
+            : seo.description;
     document.title = title;
 
     upsertMeta("name", "description", description);
