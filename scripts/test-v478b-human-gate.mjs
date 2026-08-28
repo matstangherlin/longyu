@@ -78,6 +78,8 @@ assert(live.includes(V478B_WATERMARK_VERSION), "watermark");
 assert(live.includes("| profiles | 11 |"), "exact profile count");
 assert(!/@[a-z0-9.-]+\.[a-z]{2,}/i.test(live), "live state avoids emails");
 assert(!/sk_live_|sbp_/.test(live), "no tokens");
+assert(live.includes("TURNSTILE_SECRET_KEY"), "records Turnstile vault name");
+assert(!/TURNSTILE_SECRET_KEY.{0,40}[:=]\s*\S+/.test(live), "does not print Turnstile value");
 
 const delta = read("docs/reports/v478b-pending-delta.md");
 assert(/immediately/i.test(delta), "inseparable immediately");

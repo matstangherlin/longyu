@@ -28,7 +28,12 @@ approval token is later sent.
 | transactions | 0 |
 | wal_level | logical |
 | archive_mode | on |
+| pg_stat_archiver.failed_count | 0 |
+| pg_stat_archiver.last_archived_time | 2026-08-28T05:19:27Z |
 | monotonic trigger | absent |
+
+WAL archiver is healthy (`failed_count=0`). That is still **not** a Dashboard
+PITR window or backup id. Status stays `BLOCKED_BACKUP_NOT_CONFIRMED`.
 
 No emails, JWTs, `sbp_` tokens, or Stripe keys belong in git.
 

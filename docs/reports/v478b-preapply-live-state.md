@@ -116,6 +116,20 @@ service_role still has ALL on those tables (platform default).
 
 Canonical list: `LONGYU_EDGE_FUNCTIONS` in `scripts/lib/edge-functions.mjs`.
 
+## Secrets (presence only, names, no values)
+
+Read 2026-08-28T05:39Z: `SELECT name FROM vault.secrets` (no secret payloads).
+
+| name | in `vault.secrets` |
+| --- | --- |
+| `TURNSTILE_SECRET_KEY` | present |
+| `STRIPE_SECRET_KEY` | **not** in this table |
+| `STRIPE_WEBHOOK_SECRET` | **not** in this table |
+
+Service-role keys are platform credentials, not vault rows. Stripe may live
+in Edge Function secrets (no names-only MCP in this session). Do not treat
+this as `HOSTED_SECURITY_READY`. Do not print values.
+
 ## Advisors (pre-apply, this capture)
 
 | type | ERROR | WARN | INFO |
