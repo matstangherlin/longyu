@@ -1,0 +1,336 @@
+{
+  "frozen_at": "2026-08-28",
+  "remessa": "V4.7.7",
+  "rebaseline": "Edit this file in the same PR that intentionally changes a frozen migration. CI fails on silent hash drift.",
+  "migrations": [
+    {
+      "path": "supabase/migrations/001_initial_schema.sql",
+      "version": "001",
+      "name": "initial_schema",
+      "sha256": "eaf1ca6d36335a8af77ac94f7b26ae2d5b6c3d37493babaad34dcc3b8cc29c22",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/002_client_snapshot.sql",
+      "version": "002",
+      "name": "client_snapshot",
+      "sha256": "60cafdf04fa487f65e9e94794f49ffb739d3df51f960eb11a070d6b9cfa6cb05",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/003_profile_trigger.sql",
+      "version": "003",
+      "name": "profile_trigger",
+      "sha256": "2d74ff1853b96170853a3fe7771bd4c45df1459f29a11402b884afd07880992e",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/004_leagues.sql",
+      "version": "004",
+      "name": "leagues",
+      "sha256": "7fbf61b10991eac3faffddd83fe036abe267d22e42e625f3e9e00dff915961ae",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/005_social.sql",
+      "version": "005",
+      "name": "social",
+      "sha256": "fbdc8b379648efae0b8319c64c62a3421310e7d94f6423b02844942608456aaa",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/006_economy_server.sql",
+      "version": "006",
+      "name": "economy_server",
+      "sha256": "eb12ca165ff1a07ab9d0f0007ce56704301de8fef0145ac5e1fe197ab072c589",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/007_internal_test_pro.sql",
+      "version": "007",
+      "name": "internal_test_pro",
+      "sha256": "3271d36df460dbcad5ad6e43f6347a240da63a868dff878c5bfc7041c7b42bdf",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/008_server_entitlement_rpc.sql",
+      "version": "008",
+      "name": "server_entitlement_rpc",
+      "sha256": "e3646a72a2cc22fa58b81e102daa410aeff2922a4f46404ea5dcc778eb4c84ee",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/009_profile_admin.sql",
+      "version": "009",
+      "name": "profile_admin",
+      "sha256": "cda24169ae1da2cbb7c1f489dcbbead12c6d9ee6f8791fd64e040241d2183ef9",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/010_beta_feedback.sql",
+      "version": "010",
+      "name": "beta_feedback",
+      "sha256": "4335fdda5d26cc4a15aa1b7f6004b16680b01744d0cd0cfe03b4fa7d8fff0695",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/011_pedagogy_analytics_consent.sql",
+      "version": "011",
+      "name": "pedagogy_analytics_consent",
+      "sha256": "1dc97d5aab3b0d2544229740061c2ef4e75dd1cf5daca13b17a63eab3e3bdb85",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+      "version": "012",
+      "name": "pedagogy_consent_rpc_gate",
+      "sha256": "639562630cff989ca3c9ab37b7b992b3d0e5e47a170c832e03266c1225e37758",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+      "version": "013",
+      "name": "pedagogy_rpc_hardening",
+      "sha256": "9230770247a1bfb49831edcf2012079cfa5c49ace3d8bc8041a55cf9282bc9b3",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/014_subscription_event_ordering.sql",
+      "version": "014",
+      "name": "subscription_event_ordering",
+      "sha256": "ac51f1b333e93cf54680c2407a3c7d21936f136f50bfed141b2aa9badf96df5e",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/015_fix_apply_subscription_event_rowcount.sql",
+      "version": "015",
+      "name": "fix_apply_subscription_event_rowcount",
+      "sha256": "67f9141db13be9c4413b06209375f364f6bff3cadf4bed0ecaa08df615ce150a",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/016_fix_leagues_cohort_finalize.sql",
+      "version": "016",
+      "name": "fix_leagues_cohort_finalize",
+      "sha256": "a92ee5d90fa7074591c734e1995db56c08afe420b91de00562dcfa026c19be50",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/017_referrals.sql",
+      "version": "017",
+      "name": "referrals",
+      "sha256": "6c0997eef238308ab9b460bf14d947ebb92ee0c1497b124051970d70c371dbe3",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/018_signup_rate_limits.sql",
+      "version": "018",
+      "name": "signup_rate_limits",
+      "sha256": "30b98dedac5c6dedf322b8e0cef5c0895a673b379f8efd0779b00f52e75f9de9",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/019_turnstile_vault_secret.sql",
+      "version": "019",
+      "name": "turnstile_vault_secret",
+      "sha256": "9ba536234e8cee883a67b1153ac8f4b83014afd519833c5a63f6cabe012916f6",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/020_signup_cleanup_job.sql",
+      "version": "020",
+      "name": "signup_cleanup_job",
+      "sha256": "18b9e82608951412eb49483d5636873e06177286b5fe54a7b72f39aafd889629",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/021_ensure_own_profile.sql",
+      "version": "021",
+      "name": "ensure_own_profile",
+      "sha256": "9942816b5df584f70e3960db8e95691b5f48d495303e116861c5a6be690a6654",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/022_fix_referral_try_qualify.sql",
+      "version": "022",
+      "name": "fix_referral_try_qualify",
+      "sha256": "d3bcc40747f26a88154a632b1e3fc3f3a9926e05853151d04859755d7e273410",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808064852_harden_function_privileges.sql",
+      "version": "20260808064852",
+      "name": "harden_function_privileges",
+      "sha256": "7a236e4aa4489c526b5ff329f9c9557669761ed67f1d647d58bb94ce79cda418",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+      "version": "20260808070849",
+      "name": "secure_social_profile_boundary",
+      "sha256": "e21e26379b11ba700431527ade6622fa87e429fc913aa7b30926e419db536a37",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808073233_erase_account_personal_data.sql",
+      "version": "20260808073233",
+      "name": "erase_account_personal_data",
+      "sha256": "d6daccde9f05283b2c0f12339e3036a0918bf64de2d3506ce66b7d1a86e7c82c",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+      "version": "20260808081000",
+      "name": "harden_anonymous_ingestion",
+      "sha256": "1bf7e04783c0c1bb478180560e030594be903488504c11ed34bcb53dfd6f67da",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+      "version": "20260808093000",
+      "name": "harden_referral_qualification",
+      "sha256": "1a3e95eace7479394c31ac2fa594d6ec0d637d03d84614577f16208877d3c202",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+      "version": "20260808130000",
+      "name": "harden_economy_reward_trust",
+      "sha256": "3a850cf64ca21b036164fa40debf46aca354ddb9fb7683132c500a0e13ae7954",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808130100_harden_subscription_event_ordering.sql",
+      "version": "20260808130100",
+      "name": "harden_subscription_event_ordering",
+      "sha256": "4b568c2b6210acff98862734f62dc8eb69914d9466f50b9437b34c1a8af1658a",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808130200_admin_roles_user_id.sql",
+      "version": "20260808130200",
+      "name": "admin_roles_user_id",
+      "sha256": "ffa770f0b4ae5cd3125b5f9616ea000b0021e83928028a7d7f98f58623eb1466",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql",
+      "version": "20260808140000",
+      "name": "economy_anti_cheat_qi",
+      "sha256": "dfdfa1d4a231f0a78e2706ab6b941f68ba341e34afd8db373894013d8cb7eace",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808150000_abuse_controls_ip_email_snapshot.sql",
+      "version": "20260808150000",
+      "name": "abuse_controls_ip_email_snapshot",
+      "sha256": "b7013c54783a83ee1209906ad033ebe46d128cab3b486a42051c6b021363dfbc",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808160000_revoke_economy_user_is_pro_client.sql",
+      "version": "20260808160000",
+      "name": "revoke_economy_user_is_pro_client",
+      "sha256": "7440744747d151802766bc63d2f86f7836c2da3f05041b55b23b7e35390664d8",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+      "version": "20260808170000",
+      "name": "harden_client_reward_claims",
+      "sha256": "c010c863c8c89f836ef334c1fe55c3fdea68da0e10e482478c49378948607b37",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260809160306_require_referral_reward_review.sql",
+      "version": "20260809160306",
+      "name": "require_referral_reward_review",
+      "sha256": "78286b5306221418b6a06e90c90b1ba7b79377b4d2125c0cb169a0588023883a",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
+      "version": "20260809161134",
+      "name": "index_referral_review_reviewer",
+      "sha256": "8dfcb078c132dae932d1f16d2dce2f572b76353c1c3c7fa50e1257cc5dd862fc",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260810170000_beta_experience_telemetry.sql",
+      "version": "20260810170000",
+      "name": "beta_experience_telemetry",
+      "sha256": "2c482e8afd413222c735694a3142a0809a0809ef8580128f2e219b5d1a884cc2",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+      "version": "20260812180000",
+      "name": "production_help_telemetry",
+      "sha256": "11649fdabe6d64fda70ac6f60ca38830bf9ede801a13273367d2d5ef0b21530a",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "version": "20260813180000",
+      "name": "pearl_pro_economy",
+      "sha256": "89de1913a77c02097f747f3a54d9c51857d534d3f87e047a2da06100f384d262",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+      "version": "20260814010000",
+      "name": "mastery_pass_telemetry",
+      "sha256": "b108541b40ac0d62512514ffd4150c55034b67f1a9f4d53f86332cf74f858c53",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260825043000_business_foundation.sql",
+      "version": "20260825043000",
+      "name": "business_foundation",
+      "sha256": "49cf2f9fc471c6ecfe3124ce6b9177659eb765521e7e9ec869b8a508f6b96dee",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "version": "20260825062000",
+      "name": "business_operational_hardening",
+      "sha256": "87cf2524277db3d8d0ed96fa1d9bbefd08e5445389caae7e887a12e7d9e329cb",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "version": "20260826230000",
+      "name": "placement_onboarding",
+      "sha256": "969d2c4c3a398cae51111b16d0ee678b1373c66a7cfff8838c4b0504ec270a92",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "version": "20260827023000",
+      "name": "placement_onboarding_handoff",
+      "sha256": "065152aaa5a462ed4cc84874e293d05939df8a0e097a1b9c5562b936b4fc38b7",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260828013000_api_role_table_grants.sql",
+      "version": "20260828013000",
+      "name": "api_role_table_grants",
+      "sha256": "7ff831bb259613c92df6e2377f172d129ddd98003ac57f80fd250d2d9db47af2",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+      "version": "20260828020000",
+      "name": "least_privilege_api_grants",
+      "sha256": "12f69f3b2d886e969731e78683a5cb13d57a674c8cf2dc6996823d72d3863b97",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260828030000_progress_mastery_monotonic.sql",
+      "version": "20260828030000",
+      "name": "progress_mastery_monotonic",
+      "sha256": "4f3b129b8ce0b36d7f89d88a2113ce8dec6a7620a5aa2807cf39ec112f11e216",
+      "status": "FROZEN"
+    }
+  ]
+}

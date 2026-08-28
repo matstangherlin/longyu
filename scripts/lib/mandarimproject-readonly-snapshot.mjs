@@ -3,7 +3,7 @@
  * list_edge_functions, get_project). Zero writes. Refresh by re-reading
  * production — never apply this as DDL.
  */
-export const MANDARIMPROJECT_READONLY_CAPTURED_AT = "2026-08-28T00:50:00Z";
+export const MANDARIMPROJECT_READONLY_CAPTURED_AT = "2026-08-28T02:20:00Z";
 
 export const MANDARIMPROJECT_READONLY_MIGRATIONS = [
   { version: "20260804032032", name: "pedagogy_analytics_consent" },
@@ -62,6 +62,8 @@ export const MANDARIMPROJECT_MISSING_TABLES = [
   "placement_onboarding_drafts",
   "business_leads",
   "pearl_milestone_catalog",
+  "organizations",
+  "organization_members",
 ];
 
 export const MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS = ["pearl_ledger"];
@@ -69,4 +71,6 @@ export const MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS = ["pearl_ledger"];
 export const MANDARIMPROJECT_MISSING_RPCS = [
   "commit_placement_result",
   "save_placement_onboarding_draft",
+  "claim_pearl_milestone",
+  "merge_progress_mastery_monotonic",
 ];

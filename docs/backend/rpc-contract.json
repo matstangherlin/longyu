@@ -1,0 +1,116 @@
+{
+  "remessa": "V4.7.7",
+  "note": "CI fails if a listed RPC signature drifts without updating this file in the same PR.",
+  "rpcs": [
+    {
+      "name": "commit_placement_result",
+      "args": "p_user_id uuid, p_placement_version integer, p_declared_experience text, p_goal text, p_answers jsonb, p_score_summary jsonb, p_competency_summary jsonb, p_foundation_proofs jsonb, p_recommended_lesson_id text, p_mastered_by_placement text[], p_confidence numeric, p_idempotency_key text, p_learning_goal text",
+      "security": "definer",
+      "grants": [
+        "service_role"
+      ],
+      "caller": "edge:commit-placement, edge:finalize-onboarding",
+      "idempotency": "p_idempotency_key unique per user",
+      "domain": "placement"
+    },
+    {
+      "name": "save_placement_onboarding_draft",
+      "args": "p_user_id uuid, p_placement_version integer, p_declared_experience text, p_goal text, p_answers jsonb, p_ttl_hours integer",
+      "security": "definer",
+      "grants": [
+        "service_role"
+      ],
+      "caller": "edge:create-account",
+      "idempotency": "upsert by user_id",
+      "domain": "onboarding"
+    },
+    {
+      "name": "ensure_own_profile",
+      "args": "p_name text, p_birth_date date, p_country text, p_signup_source text, p_marketing_opt_in boolean, p_onboarding_completed boolean",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/services/authService.ts",
+      "idempotency": "upsert profiles id",
+      "domain": "onboarding"
+    },
+    {
+      "name": "grant_lesson_reward",
+      "args": "p_lesson_id text, p_attempt_id text, p_stars integer, p_no_skip boolean",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/lib/economyServerBridge.ts",
+      "idempotency": "economy_ledger key lesson-reward:<lesson_id>",
+      "domain": "economy"
+    },
+    {
+      "name": "claim_mission",
+      "args": "p_scope text, p_mission_id text, p_period_key text, p_metric_value integer",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/lib/economyServerBridge.ts",
+      "idempotency": "ledger per user/scope/mission/period",
+      "domain": "economy"
+    },
+    {
+      "name": "claim_pearl_milestone",
+      "args": "p_milestone_id text",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/lib/economyServerBridge.ts",
+      "idempotency": "pearl claim unique",
+      "domain": "economy"
+    },
+    {
+      "name": "add_league_weekly_xp",
+      "args": "p_amount integer, p_source_key text",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/services/leagueService.ts",
+      "idempotency": "league_xp_events source_key",
+      "domain": "economy"
+    },
+    {
+      "name": "apply_subscription_event",
+      "args": "p_user_id uuid, p_customer_id text, p_subscription_id text, p_status text, p_price_id text, p_current_period_start timestamp with time zone, p_current_period_end timestamp with time zone, p_cancel_at_period_end boolean, p_event_created bigint, p_event_id text",
+      "security": "definer",
+      "grants": [
+        "service_role"
+      ],
+      "caller": "edge:stripe-webhook",
+      "idempotency": "stripe event id",
+      "domain": "subscription"
+    },
+    {
+      "name": "get_server_entitlement",
+      "args": "",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/services/entitlementService.ts",
+      "idempotency": "read-only",
+      "domain": "subscription"
+    },
+    {
+      "name": "attribute_referral",
+      "args": "p_code text",
+      "security": "definer",
+      "grants": [
+        "authenticated"
+      ],
+      "caller": "src/services/referralService.ts",
+      "idempotency": "invitee unique",
+      "domain": "referral"
+    }
+  ]
+}

@@ -33,7 +33,7 @@ export function jwtRole(token) {
   }
 }
 
-const BEGINNER_EVIDENCE = [
+export const BEGINNER_EVIDENCE = [
   { questionId: "warm-nihao-meaning", answer: "Olá", hintUsed: true, responseMode: "choice" },
   { questionId: "warm-xiexie-meaning", answer: "Obrigado(a).", hintUsed: true, responseMode: "choice" },
   { questionId: "warm-nihao-pinyin", answer: "nǐ hǎo", hintUsed: true, responseMode: "choice" },
@@ -110,7 +110,11 @@ export function loadEphemeralEnv(root) {
   if (isProductionProjectId(url)) {
     throw new EphemeralError("RECUSADO: stack efêmera resolveu para MandarimProject.");
   }
-  return { url, anon, service, dbUrl, raw: parsed };
+  const inbucketUrl = String(parsed.INBUCKET_URL || parsed.MAILPIT_URL || "http://127.0.0.1:54324").replace(
+    /\/$/,
+    ""
+  );
+  return { url, anon, service, dbUrl, inbucketUrl, raw: parsed };
 }
 
 export function resetEphemeralDb(root) {
@@ -405,7 +409,7 @@ export function ephemeralClients(env) {
   };
 }
 
-async function createUser(admin, label) {
+export async function createUser(admin, label) {
   const nonce = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
   const email = `ephemeral-${label}-${nonce}@example.com`;
   const password = `Ly!${crypto.randomBytes(16).toString("base64url")}9a`;
@@ -419,7 +423,7 @@ async function createUser(admin, label) {
   return { id: data.user.id, email, password };
 }
 
-async function signIn(env, identity) {
+export async function signIn(env, identity) {
   requireNativeWebSocket();
   const client = createClient(env.url, env.anon, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
@@ -820,13 +824,16 @@ export async function runConcurrentMastery(env) {
       .maybeSingle();
     const stored = data?.client_snapshot?.progress?.lessonMasteryById?.["topic-1"]?.level;
     const clientProtected = stored === 2;
+    if (stored !== 2) {
+      throw new EphemeralError(
+        `SYNC monotonicity FAIL: stored=${stored}, expected GREATEST(2,1)=2`
+      );
+    }
     return {
       ok: true,
       storedLevel: stored,
       clientProtected,
-      classification: clientProtected
-        ? "MONOTONIC_IN_THIS_RUN"
-        : "CLIENT_ONLY_ANTI_REGRESSION — last-write-wins no banco; proteção só no client se fetchRemote antes do upsert",
+      classification: "SERVER_SIDE_MONOTONIC — trigger merge_progress_mastery_monotonic",
     };
   } finally {
     await admin.auth.admin.deleteUser(user.id);

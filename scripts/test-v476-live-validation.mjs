@@ -283,6 +283,7 @@ assert(pkg.scripts["v476:auth-identity"], "script v476:auth-identity");
 assert(pkg.scripts["v476:sync-identity"], "script v476:sync-identity");
 assert(pkg.scripts["rehearse:ephemeral"], "script rehearse:ephemeral");
 assert(pkg.scripts["validate:beta"].includes("test:v476-live-validation"), "validate:beta inclui v476");
+assert(pkg.scripts["validate:beta"].includes("test:backend-contract"), "validate:beta inclui V4.7.7 contract");
 assert(pkg.scripts["validate:beta"].includes("test:ops-correlation-crypto"), "validate:beta inclui crypto");
 assert(pkg.scripts["validate:beta"].includes("test:longyu-only-backend"), "validate:beta inclui longyu-only");
 
