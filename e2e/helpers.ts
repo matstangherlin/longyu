@@ -152,8 +152,15 @@ export async function dismissBlockingOverlays(page: Page) {
  * Sem isso, testes podem inspecionar o fallback "Carregando…" e falhar.
  */
 export async function waitForLazyPage(page: Page) {
-  await page.locator('[aria-label="Carregando página"]').waitFor({ state: "detached", timeout: 20_000 }).catch(() => undefined);
-  await page.getByText("Carregando…").first().waitFor({ state: "hidden", timeout: 5_000 }).catch(() => undefined);
+  await page
+    .locator('[aria-label="Carregando página"], [aria-label="Loading page"]')
+    .waitFor({ state: "detached", timeout: 20_000 })
+    .catch(() => undefined);
+  await page
+    .getByText(/Carregando…|Loading…/)
+    .first()
+    .waitFor({ state: "hidden", timeout: 5_000 })
+    .catch(() => undefined);
 }
 
 /**
