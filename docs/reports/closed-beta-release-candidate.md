@@ -18,7 +18,7 @@ Se o código do produto mudar, o rótulo vira `rc.2`. Não chamar HEADs diferent
 | --- | --- | --- |
 | `CODE_READY` | `PASS` (`b2a5818`) | Evidência: CI da #203 nesse SHA (qualidade + Chromium + Firefox + Security). **Não promove** nenhum outro campo. |
 | `CROSS_BROWSER_READY` | `PASS` (`b2a5818`) | Firefox gate SUCCESS. WebKit informativo SUCCESS. |
-| `STAGING_READY` | `BLOCKED_BY_INFRASTRUCTURE` | Live MCP 2026-08-27T23:46Z: `longyu-preview` INACTIVE; restore recusado (2 project limit Free). Ver `docs/reports/v476-staging-live-validation.md`. Não usar MandarimProject. |
+| `STAGING_READY` | `BLOCKED_BY_INFRASTRUCTURE` | Humano 2026-08-28: preview sem utilidade; não pausar atomurus; MandarimProject é o backend que importa (sem DDL). Ver `docs/reports/v476-staging-live-validation.md`. |
 | `AUTH_READY` | `NOT_RUN` | Signup real + e-mail em nova aba + finalize. Exige staging (V4.7.6). |
 | `PLACEMENT_READY` | `NOT_RUN` | Servidor recalcula evidência bruta. Exige staging (V4.7.6). |
 | `SYNC_READY` | `NOT_RUN` | Cross-device 1/4 → 2/4 sem regressão. Exige staging (V4.7.6). |
@@ -68,16 +68,7 @@ Flakes conhecidos e mitigados (não no caminho crítico do merge Chromium):
 
 ## Staging (não executado aqui)
 
-`longyu-preview` (`wpnmygzxqvmpdlcuwrjp`) continua **INACTIVE**. Restore live recusado
-(`ForbiddenException`, **2 project limit** Free, owner `matstangherlin`). Inventário:
-`docs/reports/v476-staging-live-validation.md`. Decisão humana (um de):
-
-1. **A** — Liberar slot Free (pausar/excluir projeto que **não** seja MandarimProject) e restaurar o preview.
-2. **B** — Upgrade da org Noba.
-3. **C** — Autorizar staging pago isolado (`confirm_cost`); `LONGYU_STAGING_PROJECT_ID` ≠ produção.
-4. **D** — Autorização explícita: “pode pausar o atomurus e restaurar o longyu-preview”.
-
-**Não improvisar em MandarimProject.** V4.7.6 permanece `BLOCKED_BY_INFRASTRUCTURE`.
+Humano: `longyu-preview` **sem utilidade**; **não** pausar atomurus. MandarimProject é o backend Longyu que importa — **sem** migration/Edge nesta remessa. Inventário: `docs/reports/v476-staging-live-validation.md`. Opções A/D **revogadas**. V4.7.6 permanece `BLOCKED_BY_INFRASTRUCTURE` até B (upgrade + projeto novo) ou C (staging pago isolado ≠ produção ≠ atomurus).
 
 ## Sequência seguinte (fora desta remessa)
 

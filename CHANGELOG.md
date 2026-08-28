@@ -9,7 +9,7 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ### V4.7.6 — Staging backend activation (BLOCKED_BY_INFRASTRUCTURE)
 
-Live identity (signup → Placement → Journey → 4/4 → sync) **não rodou**. `longyu-preview` continua INACTIVE; restore recusado (2 project limit Free). Guarda recusa MandarimProject (`REFUSING_TO_USE_PRODUCTION_AS_STAGING`), atomurus e project_id desconhecido. `migrate:staging` / `deploy:staging-functions` exigem `ACTIVE_HEALTHY`. Harnesses `v476:auth-identity` / `v476:placement-authority` / `v476:sync-identity` existem e saem BLOCKED sem staging; fixture Admin **não** conta como e-mail real. Relatório: `docs/reports/v476-staging-live-validation.md`. Scoreboard operacional: todos BLOCKED. Sem DDL/Edge em produção. Sem pause de atomurus. PRE-001: #203 mergeada em `main` (`b2a5818`). PRE-002: reconsulta MCP 2026-08-27T23:46Z. Humano precisa escolher A/B/C/D.
+Live identity **não rodou**. Humano: `longyu-preview` sem utilidade; **não** pausar atomurus; MandarimProject é o backend Longyu que importa. Pausa acidental do atomurus foi revertida (`ACTIVE_HEALTHY`). Preview voltou a INACTIVE. Zero DDL/Edge em produção (watermark inalterado). Relatório: `docs/reports/v476-staging-live-validation.md`. Scoreboard operacional: BLOCKED_BY_INFRASTRUCTURE. Opções D/A revogadas.
 
 ### V4.7.5 — Staging live inventory (BLOCKED)
 
