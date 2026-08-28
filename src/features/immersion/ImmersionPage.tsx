@@ -38,6 +38,7 @@ import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
 import { beginStoryEnergyAttestation } from "../../services/storyEnergyAttestation";
 import { todayKey } from "../../lib/storage";
+import { useTranslation } from "../../i18n/useTranslation";
 import { speak, stopSpeaking } from "../../lib/tts";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
@@ -1233,6 +1234,7 @@ function ImmersionPlayer({
   completedToday: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const ttsRate = useStore((state) => state.ttsRate);
   const toneColors = useStore((state) => state.toneColors);
   const completeImmersionSession = useStore((state) => state.completeImmersionSession);
@@ -1429,7 +1431,7 @@ function ImmersionPlayer({
                   className="mt-5 min-h-11 text-sm font-medium text-accent hover:underline"
                   onClick={() => setTranslationOpen((open) => !open)}
                 >
-                  {translationOpen ? item.meaning : "Ver tradução"}
+                  {translationOpen ? item.meaning : t("common.seeTranslation")}
                 </button>
               ) : (
                 <div className="mt-5 text-sm text-ink-soft">{item.meaning}</div>

@@ -68,6 +68,8 @@ test.describe("i18n shell — V4.8.0", () => {
     await expect(page.getByText(/Como ver o mandarim/)).toHaveCount(0);
     await expect(page.getByTestId("target-language-card")).toContainText("zh-CN");
     await expect(page.getByTestId("target-language-card")).toContainText("中文");
+    await expect(page.getByTestId("target-language-card")).toContainText("Mandarin");
+    await expect(page.getByTestId("target-language-card")).not.toContainText("Mandarim");
   });
 
   test("locale switch does not change canonical hanzi", async ({ page }) => {
@@ -83,6 +85,8 @@ test.describe("i18n shell — V4.8.0", () => {
     await expect(page.getByText(/I am learning Mandarin/i)).toBeVisible();
     await expect(target).toContainText("zh-CN");
     await expect(target).toContainText("中文");
+    await expect(target).toContainText("Mandarin");
+    await expect(target).not.toContainText("Mandarim");
 
     await page.goto("/jornada");
     await waitForLazyPage(page);

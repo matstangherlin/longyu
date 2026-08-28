@@ -251,7 +251,7 @@ export function SettingsPage() {
             {COURSE_PROFILE.targetLanguage.code}
           </div>
           <div className="mt-1 font-serif text-lg font-semibold text-ink">
-            {COURSE_PROFILE.targetLanguage.nativeName} · {COURSE_PROFILE.targetLanguage.name}
+            {COURSE_PROFILE.targetLanguage.nativeName} · {t("settings.targetLanguageName")}
           </div>
         </Card>
       </HubSection>
@@ -262,7 +262,7 @@ export function SettingsPage() {
             {t("settings.courseFocus")}
           </div>
           <div className="mt-1 font-serif text-lg font-semibold text-ink">
-            {COURSE_PROFILE.sourceLanguage.name} → {COURSE_PROFILE.targetLanguage.name}
+            {t("settings.sourceLanguageName")} → {t("settings.targetLanguageName")}
           </div>
           <p className="mt-1 text-xs text-ink-soft">{t("settings.coursePromise")}</p>
         </Card>

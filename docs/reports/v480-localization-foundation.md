@@ -41,7 +41,7 @@ Filled from live commands on this PR (2026-08-28).
 | LANGUAGE_SWITCHER_READY | **PASS** | Settings + landing + marketing `<select data-testid="interface-locale-select">`; e2e switcher test |
 | LOCALE_PERSISTENCE_READY | **PASS** | `longyu:interface-locale` outside Zustand; e2e reload keeps `lang=en`; store version still **20** |
 | HTML_LANG_READY | **PASS** | `test:i18n` asserts `document.documentElement.lang`; e2e `html[lang=pt-BR\|en]` |
-| KEY_PARITY_READY | **PASS** | `npm run validate:i18n` — 431 keys, same tree, no empty / `[object Object]`, namespaces gated |
+| KEY_PARITY_READY | **PASS** | `npm run validate:i18n` — 434 keys, same tree, no empty / `[object Object]`, namespaces gated |
 | APP_SHELL_EN_READY | **PASS** | e2e Journey EN nav `Main` / `Journey`; TopBar/TabBar/Sidebar use `t()`; landing PT+EN smokes |
 | AUTH_EN_READY | **PASS** | e2e `/login` EN: `Sign in`, `Forgot password`, no `Entrar na conta`; `localizeUserMessage()` |
 | SETTINGS_EN_READY | **PASS** | e2e Language vs “I am learning Mandarin”; Theme / How to see Mandarin / Privacy and data; target card stays `zh-CN` / `中文` |
@@ -54,7 +54,7 @@ Filled from live commands on this PR (2026-08-28).
 | Command | Result |
 | --- | --- |
 | `npm run typecheck` | PASS (after final UI wiring) |
-| `npm run validate:i18n` | PASS (431 keys) |
+| `npm run validate:i18n` | PASS (434 keys) |
 | `npm run test:i18n` | PASS |
 | `npm run test:brazil-beta-readiness` | PASS |
 | `npm run test:rc-hardening` | PASS |
