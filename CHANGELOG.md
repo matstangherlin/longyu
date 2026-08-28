@@ -7,6 +7,15 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### V4.7.8B — MandarimProject controlled apply + hosted validation (STOP)
+
+Read-only refresh of MandarimProject. MAIN_SHA `3223d43` matches expected.
+Pending apply chain still 11 LOCAL_ONLY migrations + 3 missing Edges.
+Backup gate `BLOCKED_BACKUP_NOT_CONFIRMED`. Hosted scoreboard stays `NOT_RUN`.
+Production `VITE_CLOUD_ONBOARDING_V2_ENABLED=false`. Zero MandarimProject
+writes until exact `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`. Relatórios:
+`docs/reports/v478b-human-gate.md`, `v478b-hosted-validation.md`.
+
 ### V4.7.8 — MandarimProject controlled upgrade (STOP before write)
 
 Freeze `LONGYU_BACKEND_RC=v4.7.8-rc.1`. New clamp migration
