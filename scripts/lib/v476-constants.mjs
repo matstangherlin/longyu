@@ -13,7 +13,7 @@ export const V476_REQUIRED_TABLES = [
   "placement_attempts",
   "placement_onboarding_drafts",
   "business_leads",
-  "pearl_ledger",
+  "pearl_milestone_catalog",
   "profiles",
   "user_progress",
   "user_srs",
@@ -22,6 +22,9 @@ export const V476_REQUIRED_TABLES = [
   "organizations",
   "organization_members",
 ];
+
+/** pearl_ledger is a column on user_economy, not a table. */
+export const V476_REQUIRED_ECONOMY_COLUMNS = ["pearl_ledger"];
 
 export const V476_REQUIRED_PROFILE_COLUMNS = [
   "country_code",

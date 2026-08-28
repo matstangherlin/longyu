@@ -6,6 +6,7 @@ import process from "node:process";
 import { mergedEnv } from "./lib/env-local.mjs";
 import { fetchSupabaseProject, queryStagingSql } from "./lib/staging-api.mjs";
 import {
+  V476_REQUIRED_ECONOMY_COLUMNS,
   V476_REQUIRED_PROFILE_COLUMNS,
   V476_REQUIRED_TABLES,
 } from "./lib/v476-constants.mjs";
@@ -57,6 +58,7 @@ try {
 
   const tableList = sqlStringList(V476_REQUIRED_TABLES, "tables");
   const columnList = sqlStringList(V476_REQUIRED_PROFILE_COLUMNS, "columns");
+  const economyList = sqlStringList(V476_REQUIRED_ECONOMY_COLUMNS, "economy");
   const query = `
     select
       (select coalesce(json_agg(table_name order by table_name), '[]'::json)
@@ -67,17 +69,24 @@ try {
          from information_schema.columns
         where table_schema = 'public'
           and table_name = 'profiles'
-          and column_name in (${columnList})) as profile_columns
+          and column_name in (${columnList})) as profile_columns,
+      (select coalesce(json_agg(column_name order by column_name), '[]'::json)
+         from information_schema.columns
+        where table_schema = 'public'
+          and table_name = 'user_economy'
+          and column_name in (${economyList})) as economy_columns
   `;
   const rows = await queryStagingSql(token, stagingId, query);
   const row = Array.isArray(rows) ? rows[0] : rows;
   const tables = asList(row?.tables);
   const columns = asList(row?.profile_columns);
+  const economyColumns = asList(row?.economy_columns);
   const missingTables = V476_REQUIRED_TABLES.filter((name) => !tables.includes(name));
   const missingColumns = V476_REQUIRED_PROFILE_COLUMNS.filter((name) => !columns.includes(name));
-  if (missingTables.length || missingColumns.length) {
+  const missingEconomy = V476_REQUIRED_ECONOMY_COLUMNS.filter((name) => !economyColumns.includes(name));
+  if (missingTables.length || missingColumns.length || missingEconomy.length) {
     throw new StagingGuardError(
-      `STG-006 FAIL: ausentes tables=[${missingTables.join(",")}] columns=[${missingColumns.join(",")}]`
+      `STG-006 FAIL: ausentes tables=[${missingTables.join(",")}] columns=[${missingColumns.join(",")}] economy=[${missingEconomy.join(",")}]`
     );
   }
   console.log("STG-006 tables=PASS");

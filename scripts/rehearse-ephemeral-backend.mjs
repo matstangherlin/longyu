@@ -42,6 +42,7 @@ import {
 } from "./lib/staging-guard.mjs";
 import { LONGYU_EDGE_FUNCTIONS } from "./lib/edge-functions.mjs";
 import {
+  MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS,
   MANDARIMPROJECT_MISSING_PROFILE_COLUMNS,
   MANDARIMPROJECT_MISSING_RPCS,
   MANDARIMPROJECT_MISSING_TABLES,
@@ -195,6 +196,7 @@ ${pending.join("\n")}
 
 Missing tables: ${MANDARIMPROJECT_MISSING_TABLES.join(", ")}
 Missing profile columns: ${MANDARIMPROJECT_MISSING_PROFILE_COLUMNS.join(", ")}
+Missing economy columns: ${MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS.map((name) => `user_economy.${name}`).join(", ")}
 Missing RPCs: ${MANDARIMPROJECT_MISSING_RPCS.join(", ")}
 
 This is the future deploy plan. Do not apply from this remessa.
@@ -214,6 +216,10 @@ ${edgeDelta ? `Local rehearsal edge note: ${edgeDelta}` : ""}
 const board = scoreboard();
 const details = {};
 let env = null;
+const files = localMigrationFiles(root);
+const drift = classifyMigrationDrift(files);
+const schemaHash = localSchemaHash(files);
+board.PRODUCTION_DELTA_KNOWN = SCORE_PASS;
 
 try {
   if (!skipStart) {
@@ -240,7 +246,7 @@ try {
     }
   } else {
     board.MIGRATION_CHAIN_READY = SCORE_PASS;
-    details.migrationApply = "skipped reset";
+    details.migrationApply = "skipped reset (applied by supabase start)";
   }
 
   details.schema = assertSchema(env);
@@ -256,16 +262,19 @@ try {
   details.missingDraft = await runMissingDraft(env);
   board.RPC_READY = SCORE_PASS;
 
-  details.mastery = await runTopicMasteryPersistence(env);
-  details.concurrentMastery = await runConcurrentMastery(env);
-  details.economy = await runEconomyConcurrency(env);
+  try {
+    details.mastery = await runTopicMasteryPersistence(env);
+    details.concurrentMastery = await runConcurrentMastery(env);
+    details.economy = await runEconomyConcurrency(env);
+  } catch (error) {
+    details.extraHarness = {
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 
   const definers = auditSecurityDefiner(env);
   details.securityDefinerCount = definers.length;
   const generatedAt = new Date().toISOString();
-  const files = localMigrationFiles(root);
-  const drift = classifyMigrationDrift(files);
-  const schemaHash = localSchemaHash(files);
   writeFile("docs/reports/backend-migration-drift.md", renderDriftMarkdown(drift, schemaHash, generatedAt));
   writeFile("docs/reports/backend-security-definer-audit.md", renderSecurityMarkdown(definers, generatedAt));
 
@@ -303,6 +312,15 @@ try {
     board.MIGRATION_CHAIN_READY = SCORE_FAIL;
   }
   console.error(message);
+  writeFile(
+    "docs/reports/production-backend-delta.md",
+    renderProductionDelta({
+      generatedAt: new Date().toISOString(),
+      sha: gitSha(),
+      edgeDelta: details.error ?? "",
+    })
+  );
+  board.PRODUCTION_DELTA_KNOWN = SCORE_PASS;
 }
 
 const durationMs = Date.now() - startedAt;
@@ -363,7 +381,8 @@ console.log(`duration_ms=${durationMs}`);
 const requiredPass = ["EPHEMERAL_DB_READY", "MIGRATION_CHAIN_READY", "SCHEMA_READY", "RLS_READY", "RPC_READY", "PRODUCTION_DELTA_KNOWN"];
 const failed = requiredPass.filter((key) => board[key] !== SCORE_PASS);
 const edgeOk = board.EDGE_LOCAL_READY === SCORE_PASS || board.EDGE_LOCAL_READY === SCORE_FOLLOW_UP;
+if (details.extraHarness?.error) failed.push("EXTRA_HARNESS");
 if (failed.length || !edgeOk) {
-  process.exit(board.EPHEMERAL_DB_READY === SCORE_FAIL || board.MIGRATION_CHAIN_READY === SCORE_FAIL ? 1 : 1);
+  process.exit(1);
 }
 console.log("OK: ephemeral backend rehearsal");

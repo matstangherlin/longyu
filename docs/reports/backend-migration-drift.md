@@ -1,6 +1,6 @@
 # Backend migration drift (Longyu / MandarimProject)
 
-Generated at: 2026-08-28T01:06:41.149Z
+Generated at: 2026-08-28T01:21:58.917Z
 
 **Read-only.** MandarimProject was not written.
 
@@ -12,9 +12,9 @@ Generated at: 2026-08-28T01:06:41.149Z
 - LOCAL_AND_REMOTE: 26
 - REMOTE_ONLY: 8
 - LOCAL_ONLY: 18
-- Baseline schema hash (local files, sha256): `ac47fed51a0ba25b5a650cf04e51f63bdadfddcb3194a936a609bc9fc0a25b87`
+- Baseline schema hash (local files, sha256): `11fb1d67237dab394d0ca74f7bf83ee852439a1237cb3627ee9d90b17f43cdaa`
 - Baseline source: `supabase/migrations` (`001_initial_schema.sql` onward)
-- generated_at: 2026-08-28T01:06:41.149Z
+- generated_at: 2026-08-28T01:21:58.917Z
 
 ## Baseline strategy
 

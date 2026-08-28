@@ -5,6 +5,7 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import {
   V476_OPERATIONAL_MIGRATIONS,
+  V476_REQUIRED_ECONOMY_COLUMNS,
   V476_REQUIRED_PROFILE_COLUMNS,
   V476_REQUIRED_RPCS,
   V476_REQUIRED_TABLES,
@@ -164,6 +165,7 @@ export function assertSchema(env) {
   const tableList = V476_REQUIRED_TABLES.map((name) => `'${name}'`).join(", ");
   const columnList = V476_REQUIRED_PROFILE_COLUMNS.map((name) => `'${name}'`).join(", ");
   const rpcList = V476_REQUIRED_RPCS.map((name) => `'${name}'`).join(", ");
+  const economyList = V476_REQUIRED_ECONOMY_COLUMNS.map((name) => `'${name}'`).join(", ");
   const sql = `
     select json_build_object(
       'tables', (
@@ -182,6 +184,13 @@ export function assertSchema(env) {
           and table_name = 'profiles'
           and column_name in (${columnList})
       ),
+      'economy_columns', (
+        select coalesce(json_agg(column_name order by column_name), '[]'::json)
+        from information_schema.columns
+        where table_schema = 'public'
+          and table_name = 'user_economy'
+          and column_name in (${economyList})
+      ),
       'rpcs', (
         select coalesce(json_agg(json_build_object(
           'name', p.proname,
@@ -198,9 +207,11 @@ export function assertSchema(env) {
   const tables = (payload.tables ?? []).map(String);
   const columns = payload.profile_columns ?? [];
   const rpcs = payload.rpcs ?? [];
+  const economyColumns = (payload.economy_columns ?? []).map(String);
   const missingTables = V476_REQUIRED_TABLES.filter((name) => !tables.includes(name));
   const presentCols = new Set(columns.map((row) => row.column_name));
   const missingColumns = V476_REQUIRED_PROFILE_COLUMNS.filter((name) => !presentCols.has(name));
+  const missingEconomy = V476_REQUIRED_ECONOMY_COLUMNS.filter((name) => !economyColumns.includes(name));
   const presentRpcs = new Set(rpcs.map((row) => row.name));
   const missingRpcs = V476_REQUIRED_RPCS.filter((name) => !presentRpcs.has(name));
   const nullableCritical = columns.filter(
@@ -208,9 +219,15 @@ export function assertSchema(env) {
       ["onboarding_completed", "native_language", "target_language"].includes(row.column_name) &&
       row.is_nullable === "YES"
   );
-  if (missingTables.length || missingColumns.length || missingRpcs.length || nullableCritical.length) {
+  if (
+    missingTables.length ||
+    missingColumns.length ||
+    missingEconomy.length ||
+    missingRpcs.length ||
+    nullableCritical.length
+  ) {
     throw new EphemeralError(
-      `SCHEMA_READY FAIL tables=${missingTables.join(",") || "-"} columns=${missingColumns.join(",") || "-"} rpcs=${missingRpcs.join(",") || "-"} nullable=${nullableCritical.map((row) => row.column_name).join(",") || "-"}`
+      `SCHEMA_READY FAIL tables=${missingTables.join(",") || "-"} columns=${missingColumns.join(",") || "-"} economy=${missingEconomy.join(",") || "-"} rpcs=${missingRpcs.join(",") || "-"} nullable=${nullableCritical.map((row) => row.column_name).join(",") || "-"}`
     );
   }
   const operationalMissing = V476_OPERATIONAL_MIGRATIONS.filter(
@@ -219,7 +236,7 @@ export function assertSchema(env) {
   if (operationalMissing.length) {
     throw new EphemeralError(`Migrations operacionais ausentes no repo: ${operationalMissing.join(",")}`);
   }
-  return { tables, columns, rpcs };
+  return { tables, columns, rpcs, economyColumns };
 }
 
 export function generatedTypesFromSchema(env) {
@@ -366,44 +383,66 @@ export async function runRlsIsolation(env) {
   const userB = await createUser(admin, "rls-b");
   const created = [userA.id, userB.id];
   try {
-    await admin.from("user_progress").upsert({
-      user_id: userB.id,
-      xp_total: 99,
-      completed_lessons: ["secret-b"],
-      updated_at: new Date().toISOString(),
-    });
-    await admin.from("user_economy").upsert({ user_id: userB.id, qi: 77, updated_at: new Date().toISOString() });
-    await admin.from("user_srs").upsert({
-      user_id: userB.id,
-      item_type: "chunk",
-      item_id: "rls-b",
-      domain: "meaning",
-      track: "speak",
-      ease: 2.5,
-      interval_days: 1,
-      repetitions: 1,
-      lapses: 0,
-      due_at: new Date().toISOString(),
-    });
-    await admin.from("subscriptions").upsert({
-      user_id: userB.id,
-      status: "active",
-      stripe_subscription_id: `eph_${userB.id}`,
-      updated_at: new Date().toISOString(),
-    });
-    await admin.from("placement_attempts").insert({
-      user_id: userB.id,
-      placement_version: 2,
-      declared_experience: "zero",
-      answers: [],
-    });
-    await admin.from("placement_onboarding_drafts").upsert({
-      user_id: userB.id,
-      placement_version: 2,
-      declared_experience: "zero",
-      answers: [],
-      expires_at: new Date(Date.now() + 86400000).toISOString(),
-    });
+    const seedErr = async (label, result) => {
+      if (result?.error) throw new EphemeralError(`seed ${label}: ${result.error.message}`);
+      return result;
+    };
+    await seedErr(
+      "user_progress",
+      await admin.from("user_progress").upsert({
+        user_id: userB.id,
+        xp_total: 99,
+        completed_lessons: ["secret-b"],
+        updated_at: new Date().toISOString(),
+      })
+    );
+    await seedErr(
+      "user_economy",
+      await admin.from("user_economy").upsert({ user_id: userB.id, qi: 77, updated_at: new Date().toISOString() })
+    );
+    await seedErr(
+      "user_srs",
+      await admin.from("user_srs").upsert({
+        user_id: userB.id,
+        item_type: "chunk",
+        item_id: "rls-b",
+        domain: "meaning",
+        track: "speak",
+        ease: 2.5,
+        interval_days: 1,
+        repetitions: 1,
+        lapses: 0,
+        due_at: new Date().toISOString(),
+      })
+    );
+    await seedErr(
+      "subscriptions",
+      await admin.from("subscriptions").upsert({
+        user_id: userB.id,
+        status: "active",
+        stripe_subscription_id: `eph_${userB.id}`,
+        updated_at: new Date().toISOString(),
+      })
+    );
+    await seedErr(
+      "placement_attempts",
+      await admin.from("placement_attempts").insert({
+        user_id: userB.id,
+        placement_version: 2,
+        declared_experience: "zero",
+        answers: [],
+      })
+    );
+    await seedErr(
+      "placement_onboarding_drafts",
+      await admin.from("placement_onboarding_drafts").upsert({
+        user_id: userB.id,
+        placement_version: 2,
+        declared_experience: "zero",
+        answers: [],
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      })
+    );
     const { data: org, error: orgErr } = await admin
       .from("organizations")
       .insert({ name: "Org B", slug: `org-b-${crypto.randomBytes(3).toString("hex")}` })
@@ -719,58 +758,202 @@ export async function runConcurrentMastery(env) {
   }
 }
 
+function rpcJson(result) {
+  let data = result?.data;
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch {
+      return data;
+    }
+  }
+  return data;
+}
+
+function utcNoonDaysAgo(daysAgo) {
+  const d = new Date();
+  d.setUTCHours(12, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() - daysAgo);
+  return d;
+}
+
+async function seedVerifiedLesson(admin, userId, lessonId, completedAt) {
+  const started = new Date(completedAt.getTime() - 20 * 60_000);
+  const notBefore = new Date(completedAt.getTime() - 10 * 60_000);
+  const expires = new Date(completedAt.getTime() + 60 * 60_000);
+  const session = await admin
+    .from("referral_lesson_sessions")
+    .insert({
+      user_id: userId,
+      lesson_id: lessonId,
+      started_at: started.toISOString(),
+      not_before: notBefore.toISOString(),
+      expires_at: expires.toISOString(),
+      completed_at: completedAt.toISOString(),
+    })
+    .select("id")
+    .maybeSingle();
+  if (session.error || !session.data?.id) {
+    throw new EphemeralError(`seed lesson session ${lessonId}: ${session.error?.message ?? "sem id"}`);
+  }
+  const completion = await admin.from("referral_verified_lesson_completions").insert({
+    user_id: userId,
+    lesson_id: lessonId,
+    source_session_id: session.data.id,
+    completed_at: completedAt.toISOString(),
+  });
+  if (completion.error) {
+    throw new EphemeralError(`seed lesson completion ${lessonId}: ${completion.error.message}`);
+  }
+}
+
 export async function runEconomyConcurrency(env) {
   const { admin } = ephemeralClients(env);
   const user = await createUser(admin, "eco");
   const client = await signIn(env, user);
   try {
-    const lesson = await Promise.all([
+    await seedVerifiedLesson(admin, user.id, "l1", utcNoonDaysAgo(0));
+
+    const firstLesson = await client.rpc("grant_lesson_reward", {
+      p_lesson_id: "l1",
+      p_attempt_id: "attempt-1",
+      p_stars: 3,
+      p_no_skip: true,
+    });
+    if (firstLesson.error) throw new EphemeralError(`grant_lesson_reward: ${firstLesson.error.message}`);
+    const firstBody = rpcJson(firstLesson);
+    if (firstBody?.ok === false) {
+      throw new EphemeralError(`grant_lesson_reward recusou: ${firstBody.error ?? JSON.stringify(firstBody)}`);
+    }
+    if (firstBody?.already_applied !== false) {
+      throw new EphemeralError("primeira grant_lesson_reward deveria aplicar");
+    }
+    const replayLesson = await client.rpc("grant_lesson_reward", {
+      p_lesson_id: "l1",
+      p_attempt_id: "attempt-1",
+      p_stars: 3,
+      p_no_skip: true,
+    });
+    if (replayLesson.error) throw new EphemeralError(`grant replay: ${replayLesson.error.message}`);
+    if (rpcJson(replayLesson)?.already_applied !== true) {
+      throw new EphemeralError("replay grant_lesson_reward deveria already_applied");
+    }
+
+    const concurrent = await Promise.all([
       client.rpc("grant_lesson_reward", {
-        p_lesson_id: "eph-lesson",
-        p_attempt_id: "attempt-1",
+        p_lesson_id: "l1",
+        p_attempt_id: "attempt-2",
         p_stars: 3,
         p_no_skip: true,
       }),
       client.rpc("grant_lesson_reward", {
-        p_lesson_id: "eph-lesson",
-        p_attempt_id: "attempt-1",
+        p_lesson_id: "l1",
+        p_attempt_id: "attempt-2",
         p_stars: 3,
         p_no_skip: true,
       }),
     ]);
-    for (const result of lesson) {
-      if (result.error) throw new EphemeralError(`grant_lesson_reward: ${result.error.message}`);
+    const concurrentErrors = concurrent.filter((result) => result.error);
+    if (concurrentErrors.length === 2) {
+      throw new EphemeralError(`grant concurrent: ${concurrentErrors[0].error.message}`);
     }
-    const applied = lesson.filter((result) => result.data?.already_applied === false).length;
-    const replayed = lesson.filter((result) => result.data?.already_applied === true).length;
-    if (applied > 1) throw new EphemeralError("double lesson reward");
+
     const missionPeriod = new Date().toISOString().slice(0, 10);
-    const mission = await Promise.all([
-      client.rpc("claim_mission", {
-        p_scope: "daily",
-        p_mission_id: "missao-diaria-1",
-        p_period_key: missionPeriod,
-        p_metric_value: 99,
+    const firstMission = await client.rpc("claim_mission", {
+      p_scope: "daily",
+      p_mission_id: "daily-three-star",
+      p_period_key: missionPeriod,
+      p_metric_value: 99,
+    });
+    if (firstMission.error) throw new EphemeralError(`claim_mission: ${firstMission.error.message}`);
+    const missionBody = rpcJson(firstMission);
+    if (missionBody?.ok === false) {
+      throw new EphemeralError(`claim_mission recusou: ${missionBody.error ?? JSON.stringify(missionBody)}`);
+    }
+    const replayMission = await client.rpc("claim_mission", {
+      p_scope: "daily",
+      p_mission_id: "daily-three-star",
+      p_period_key: missionPeriod,
+      p_metric_value: 99,
+    });
+    if (replayMission.error) throw new EphemeralError(`claim_mission replay: ${replayMission.error.message}`);
+    if (rpcJson(replayMission)?.already_applied !== true) {
+      throw new EphemeralError("replay claim_mission deveria already_applied");
+    }
+
+    const firstXp = await client.rpc("add_league_weekly_xp", { p_amount: 50, p_source_key: "lesson:l1" });
+    if (firstXp.error) throw new EphemeralError(`add_league_weekly_xp: ${firstXp.error.message}`);
+    const xpBody = rpcJson(firstXp);
+    if (!(Number(xpBody?.added ?? 0) > 0) && xpBody?.reason !== "duplicate_source") {
+      throw new EphemeralError(`XP não creditou: ${JSON.stringify(xpBody)}`);
+    }
+    const replayXp = await client.rpc("add_league_weekly_xp", { p_amount: 50, p_source_key: "lesson:l1" });
+    if (replayXp.error) throw new EphemeralError(`XP replay: ${replayXp.error.message}`);
+    if (Number(rpcJson(replayXp)?.added ?? 0) !== 0 && rpcJson(replayXp)?.reason !== "duplicate_source") {
+      throw new EphemeralError("replay de XP de liga não foi idempotente");
+    }
+
+    for (let i = 1; i <= 6; i += 1) {
+      await seedVerifiedLesson(admin, user.id, `l${i + 1}`, utcNoonDaysAgo(i));
+    }
+    const firstPearl = await client.rpc("claim_pearl_milestone", { p_milestone_id: "streak:7" });
+    if (firstPearl.error) throw new EphemeralError(`claim_pearl_milestone: ${firstPearl.error.message}`);
+    const pearlBody = rpcJson(firstPearl);
+    if (pearlBody?.ok === false) {
+      throw new EphemeralError(`pérola recusou: ${pearlBody.error ?? JSON.stringify(pearlBody)}`);
+    }
+    const replayPearl = await client.rpc("claim_pearl_milestone", { p_milestone_id: "streak:7" });
+    if (replayPearl.error) throw new EphemeralError(`pearl replay: ${replayPearl.error.message}`);
+    if (rpcJson(replayPearl)?.already_applied !== true && rpcJson(replayPearl)?.ok !== true) {
+      throw new EphemeralError("replay de pérola deveria ser idempotente");
+    }
+
+    await seedVerifiedLesson(admin, user.id, "l8", utcNoonDaysAgo(0));
+    const race = await Promise.all([
+      client.rpc("grant_lesson_reward", {
+        p_lesson_id: "l8",
+        p_attempt_id: "attempt-a",
+        p_stars: 3,
+        p_no_skip: true,
       }),
-      client.rpc("claim_mission", {
-        p_scope: "daily",
-        p_mission_id: "missao-diaria-1",
-        p_period_key: missionPeriod,
-        p_metric_value: 99,
+      client.rpc("grant_lesson_reward", {
+        p_lesson_id: "l8",
+        p_attempt_id: "attempt-b",
+        p_stars: 3,
+        p_no_skip: true,
       }),
     ]);
-    const missionErrors = mission.filter((result) => result.error);
-    if (missionErrors.length === 2) {
-      return {
-        ok: true,
-        lessonApplied: applied,
-        lessonReplayed: replayed,
-        missionNote: missionErrors[0].error.message,
-      };
+    const raceOk = race.filter((result) => !result.error && rpcJson(result)?.ok !== false).length;
+    if (raceOk === 0) {
+      throw new EphemeralError(`grant l8 concurrent: ${race[0].error?.message ?? JSON.stringify(rpcJson(race[0]))}`);
     }
-    const missionApplied = mission.filter((result) => result.data?.already_applied === false).length;
-    if (missionApplied > 1) throw new EphemeralError("double mission reward");
-    return { ok: true, lessonApplied: applied, lessonReplayed: replayed, missionApplied };
+
+    const { data: economy } = await admin
+      .from("user_economy")
+      .select("qi, pearl_ledger")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!Number(economy?.qi) || Number(economy.qi) <= 0) {
+      throw new EphemeralError("Qi não persistiu após grant_lesson_reward");
+    }
+    const ledgerCount = String(
+      querySql(
+        env,
+        `select count(*)::text from public.economy_ledger where user_id = '${user.id}' and idempotency_key in ('lesson-reward:l1','lesson-reward:l8');`
+      )
+    ).trim();
+    if (ledgerCount !== "2") {
+      throw new EphemeralError(`lesson ledger rows=${ledgerCount}, esperado 2 (l1+l8, sem double reward)`);
+    }
+
+    return {
+      ok: true,
+      qi: economy.qi,
+      pearlLedgerLen: Array.isArray(economy.pearl_ledger) ? economy.pearl_ledger.length : 0,
+      xpAdded: Number(xpBody?.added ?? 0),
+      concurrentGrantErrors: concurrentErrors.length,
+      lessonLedger: ledgerCount,
+    };
   } finally {
     await admin.auth.admin.deleteUser(user.id);
   }

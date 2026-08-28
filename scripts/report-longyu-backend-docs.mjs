@@ -14,6 +14,7 @@ import {
   LONGYU_PRODUCTION_PROJECT_NAME,
 } from "./lib/staging-guard.mjs";
 import {
+  MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS,
   MANDARIMPROJECT_MISSING_PROFILE_COLUMNS,
   MANDARIMPROJECT_MISSING_RPCS,
   MANDARIMPROJECT_MISSING_TABLES,
@@ -157,6 +158,7 @@ ${V476_OPERATIONAL_MIGRATIONS.map((file) => `- migration pending: \`${file}\``).
 ## Schema
 
 - column missing: ${MANDARIMPROJECT_MISSING_PROFILE_COLUMNS.join(", ")}
+- economy column missing: ${MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS.map((name) => `user_economy.${name}`).join(", ")}
 - table missing: ${MANDARIMPROJECT_MISSING_TABLES.join(", ")}
 - RPC missing: ${MANDARIMPROJECT_MISSING_RPCS.join(", ")}
 

@@ -61,8 +61,10 @@ export const MANDARIMPROJECT_MISSING_TABLES = [
   "placement_attempts",
   "placement_onboarding_drafts",
   "business_leads",
-  "pearl_ledger",
+  "pearl_milestone_catalog",
 ];
+
+export const MANDARIMPROJECT_MISSING_ECONOMY_COLUMNS = ["pearl_ledger"];
 
 export const MANDARIMPROJECT_MISSING_RPCS = [
   "commit_placement_result",

@@ -14,7 +14,7 @@ Remote staging: `BLOCKED_REMOTE_STAGING` (no `LONGYU_STAGING_PROJECT_ID`). Apply
 | 20260826230000 | placement_onboarding | NOT_APPLIED | BLOCKED_REMOTE_STAGING |
 | 20260827023000 | placement_onboarding_handoff | NOT_APPLIED | BLOCKED_REMOTE_STAGING |
 
-Proof on production: `placement_onboarding_drafts`, `placement_attempts`, `business_leads`, `pearl_ledger` **absent**.
+Proof on production: `placement_onboarding_drafts`, `placement_attempts`, `business_leads`, `pearl_milestone_catalog` absent; `user_economy.pearl_ledger` column absent.
 
 Order: one by one on an isolated target, stop on first error. Hard fail if the script points at production.
 

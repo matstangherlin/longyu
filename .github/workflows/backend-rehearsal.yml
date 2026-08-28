@@ -1,3 +1,5 @@
+# Never links MandarimProject. Never uses production DB password or access token.
+# Remote staging is optional; this workflow is EPHEMERAL_BACKEND_VALIDATION only.
 name: backend-rehearsal
 
 on:

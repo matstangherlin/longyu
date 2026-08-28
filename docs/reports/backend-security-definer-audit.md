@@ -1,6 +1,6 @@
 # SECURITY DEFINER audit (Longyu)
 
-Generated at: 2026-08-28T01:06:41.149Z
+Generated at: 2026-08-28T01:21:58.917Z
 
 Static pass over `supabase/migrations` (latest `create or replace` per signature). Live ephemeral audit runs in CI (`npm run rehearse:ephemeral`) and overwrites findings from the applied schema.
 

@@ -2756,8 +2756,11 @@ comment on function public.submit_beta_pedagogy_event(
 -- ---------------------------------------------------------------------------
 -- Admin overview: colunas de consentimento
 -- ---------------------------------------------------------------------------
+-- CREATE OR REPLACE VIEW cannot rename columns (42P16). Fresh replay must drop first.
 
-create or replace view public.admin_user_overview
+drop view if exists public.admin_user_overview;
+
+create view public.admin_user_overview
 with (security_invoker = true) as
 select
   u.id as user_id,

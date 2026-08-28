@@ -1,8 +1,8 @@
 # Production backend delta (repo HEAD vs MandarimProject)
 
-Generated at: 2026-08-28T01:06:41.149Z
+Generated at: 2026-08-28T01:21:58.917Z
 
-Repo SHA: `854658fbdc3e8008e2e9c053c25af2aec4bfb615`
+Repo SHA: `63102a5b1ee3ffb786bc761580e5b2f0c9b65d45`
 origin/main: `b2a5818af1182277ac61c699970b1e3e868ded12`
 
 **EXPECTED_REPO_STATE** vs **CURRENT_MANDARIMPROJECT_STATE** (read-only capture 2026-08-28T00:50:00Z).
@@ -24,7 +24,8 @@ Remote watermark: `20260810175737` beta_experience_telemetry
 ## Schema
 
 - column missing: country_code, interface_locale, instruction_locale
-- table missing: placement_attempts, placement_onboarding_drafts, business_leads, pearl_ledger
+- economy column missing: user_economy.pearl_ledger
+- table missing: placement_attempts, placement_onboarding_drafts, business_leads, pearl_milestone_catalog
 - RPC missing: commit_placement_result, save_placement_onboarding_draft
 
 ## Edge (LON-026)
