@@ -2785,17 +2785,17 @@ export function LessonPlayer() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-10 text-center">
         <div className="rounded-2xl bg-accent-soft px-4 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          {energyBlocked ? "Cargas do Dragão" : "Lição"}
+          {energyBlocked ? "Cargas do Dragão" : t("player.lessonBadge")}
         </div>
         <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">
-          {energyBlocked ? "Lição bloqueada por hoje" : !entryChecked ? "Preparando lição" : "Preparando atividades…"}
+          {energyBlocked ? "Lição bloqueada por hoje" : !entryChecked ? t("player.preparingLesson") : t("player.preparing")}
         </h1>
         <p className="mt-3 text-sm text-ink-soft">
           {energyBlocked
             ? "Você usou as cargas de novas lições por hoje. Elas voltam amanhã — e ainda há caminhos grátis para continuar aprendendo agora."
             : !entryChecked
-            ? "O Longyu está verificando suas cargas antes de começar."
-            : "Montando a sequência desta lição."}
+            ? t("player.checkingLoads")
+            : t("player.assemblingSequence")}
         </p>
         {energyBlocked && (
           <>
@@ -2818,7 +2818,7 @@ export function LessonPlayer() {
         )}
         {!energyBlocked && (
           <Button variant="outline" className="mt-3 w-full" onClick={() => navigate("/jornada")}>
-            Voltar à jornada
+            {t("player.backToJourney")}
           </Button>
         )}
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "energy"} onClose={() => setProPaywallKind(null)} />

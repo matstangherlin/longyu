@@ -54,7 +54,7 @@ assert(
   /locked\.lessonId === (?:foundLesson|lesson)\.id && locked\.nonce === planNonce/.test(player),
   "session plan lock early-returns when lesson+nonce match"
 );
-assert(/Preparando atividades/.test(player), "Player shows preparing copy while planning");
+assert(player.includes("player.preparing"), "Player shows preparing copy while planning");
 
 // No fake setTimeout wrapping lessonRoundStepsFor to hide freeze.
 assert(

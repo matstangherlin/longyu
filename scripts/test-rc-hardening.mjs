@@ -55,7 +55,7 @@ assert(mandarin.includes("data-hanzi"), " MandarinText expõe data-hanzi");
 assert(mandarin.includes("data-pinyin"), "MandarinText expõe data-pinyin");
 
 const player = read("src/features/lesson/LessonPlayer.tsx");
-assert(player.includes("Preparando atividades"), "copy de preparing ainda existe para o watchdog");
+assert(player.includes("player.preparing"), "copy de preparing ainda existe para o watchdog");
 assert(/setPlanReady|planReady/.test(player), "player tem planReady (não congela para sempre)");
 assert(player.includes("player.continueJourney") && player.includes("player.backToJourney"), "CTA de vitória permanece no player");
 
