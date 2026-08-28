@@ -221,7 +221,7 @@ export function ComecarPage() {
     setError(null);
     trackFunnelEvent("signup_submitted");
     if (!isSupabaseBackendEnabled()) {
-      setError(t("onboarding.networkRetry"));
+      setError(t("errors.backendUnavailable"));
       setBusy(false);
       return;
     }
@@ -234,7 +234,10 @@ export function ComecarPage() {
       onboardingCompleted: false,
     });
     if (result.status === "error" || result.status === "not_implemented") {
-      setError(localizeUserMessage(result.message || BACKEND_UNAVAILABLE_MESSAGE) || t("onboarding.signupHandoffFailed"));
+      const infra =
+        /criar a conta agora|conectar ao Longyu|indisponível|failed to fetch|network|timeout|ainda não estão ativas|could not reach longyu|real accounts are not active/i;
+      const raw = result.message || BACKEND_UNAVAILABLE_MESSAGE;
+      setError(infra.test(raw) ? t("errors.backendUnavailable") : localizeUserMessage(raw) || t("onboarding.signupHandoffFailed"));
       setBusy(false);
       return;
     }
@@ -785,7 +788,7 @@ function MandatoryAccount({
       </div>
       {error && <p className="mt-3 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm text-wrong">{localizeUserMessage(error)}</p>}
       {!cloud && (
-        <p className="mt-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft">{localizeUserMessage(BACKEND_UNAVAILABLE_MESSAGE)}</p>
+        <p className="mt-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft">{t("errors.backendUnavailable")}</p>
       )}
       <Button type="submit" size="lg" className="mt-5 w-full" disabled={busy || name.trim().length < 2}>
         {busy ? t("onboarding.creatingAccount") : t("onboarding.createAccountCta")}

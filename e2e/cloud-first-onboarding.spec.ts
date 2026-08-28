@@ -56,7 +56,9 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
     await page.locator('input[type="password"]').first().fill("senha123");
     await page.locator('input[type="password"]').nth(1).fill("senha123");
     await page.getByRole("button", { name: /Criar minha conta e salvar o resultado/i }).click();
-    await expect(page.getByText(/Não foi possível conectar ao Longyu agora/i)).toBeVisible();
+    await expect(
+      page.getByText(/Não foi possível conectar ao Longyu agora|We could not reach Longyu right now/i)
+    ).toBeVisible();
     await expect(page).not.toHaveURL(/\/jornada/);
   });
 });

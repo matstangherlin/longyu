@@ -16,7 +16,15 @@ function includesAny(message: string, needles: string[]): boolean {
 
 const PATTERNS: MessagePattern[] = [
   {
-    test: (m) => m === BACKEND_UNAVAILABLE_MESSAGE || includesAny(m, ["não foi possível conectar ao longyu", "could not reach longyu"]),
+    test: (m) =>
+      m === BACKEND_UNAVAILABLE_MESSAGE ||
+      includesAny(m, [
+        "não foi possível conectar ao longyu",
+        "could not reach longyu",
+        "failed to fetch",
+        "ainda não estão ativas",
+        "real accounts are not active",
+      ]),
     key: "errors.backendUnavailable",
   },
   {
