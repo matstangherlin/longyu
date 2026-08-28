@@ -1,6 +1,6 @@
 /**
  * Credenciais e clientes para probes V4.7.6.
- * Recusa produção e atomurus. Não imprime secrets.
+ * Recusa MandarimProject. Não imprime secrets. Staging remoto é opcional.
  */
 import { createClient } from "@supabase/supabase-js";
 import crypto from "node:crypto";

@@ -1,4 +1,4 @@
-/** V4.7.6 — migrations operacionais a aplicar SOMENTE em staging isolado. */
+/** V4.7.6R — migrations operacionais locais (schema planejado). Nunca aplicar em MandarimProject nesta remessa. */
 export const V476_OPERATIONAL_MIGRATIONS = [
   "20260812180000_production_help_telemetry.sql",
   "20260813180000_pearl_pro_economy.sql",
@@ -14,6 +14,13 @@ export const V476_REQUIRED_TABLES = [
   "placement_onboarding_drafts",
   "business_leads",
   "pearl_ledger",
+  "profiles",
+  "user_progress",
+  "user_srs",
+  "user_economy",
+  "subscriptions",
+  "organizations",
+  "organization_members",
 ];
 
 export const V476_REQUIRED_PROFILE_COLUMNS = [
@@ -23,6 +30,14 @@ export const V476_REQUIRED_PROFILE_COLUMNS = [
   "native_language",
   "target_language",
   "onboarding_completed",
+];
+
+export const V476_REQUIRED_RPCS = [
+  "commit_placement_result",
+  "save_placement_onboarding_draft",
+  "ensure_own_profile",
+  "grant_lesson_reward",
+  "claim_mission",
 ];
 
 export const V476_REQUIRED_EDGE_SLUGS = [
@@ -39,7 +54,8 @@ export const V476_REQUIRED_EDGE_SLUGS = [
 
 /** Names only. Never log values. */
 export const V476_SECRET_CATALOG = [
-  { name: "LONGYU_STAGING_PROJECT_ID", kind: "required_for_scripts" },
+  { name: "LONGYU_STAGING_PROJECT_ID", kind: "optional_remote_staging" },
+  { name: "LONGYU_TARGET_PROJECT_ID", kind: "optional_remote_rehearsal" },
   { name: "STAGING_SUPABASE_URL", kind: "required_for_live" },
   { name: "STAGING_SUPABASE_ANON_KEY", kind: "required_for_live" },
   { name: "STAGING_SUPABASE_SERVICE_ROLE_KEY", kind: "required_for_live" },
@@ -61,10 +77,29 @@ export const V476_PRODUCTION_WATERMARK = {
   name: "beta_experience_telemetry",
 };
 
-export const V476_SCOREBOARD_KEYS = [
+/** LIVE_STAGING_VALIDATION only. Never copy these onto the ephemeral board. */
+export const V476_LIVE_SCOREBOARD_KEYS = [
+  "LIVE_STAGING_VALIDATION",
   "STAGING_READY",
   "AUTH_READY",
   "PLACEMENT_READY",
   "SYNC_READY",
   "SECURITY_STAGING_READY",
 ];
+
+/** EPHEMERAL_BACKEND_VALIDATION. STAGING_READY is not a synonym. */
+export const V476_EPHEMERAL_SCOREBOARD_KEYS = [
+  "EPHEMERAL_DB_READY",
+  "MIGRATION_CHAIN_READY",
+  "SCHEMA_READY",
+  "RLS_READY",
+  "RPC_READY",
+  "EDGE_LOCAL_READY",
+  "PRODUCTION_DELTA_KNOWN",
+];
+
+export const SCORE_PASS = "PASS";
+export const SCORE_FAIL = "FAIL";
+export const SCORE_BLOCKED = "BLOCKED";
+export const SCORE_NOT_RUN = "NOT_RUN";
+export const SCORE_FOLLOW_UP = "FOLLOW_UP";

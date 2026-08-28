@@ -860,7 +860,7 @@ left join public.user_progress up on up.user_id = p.id
 on conflict (user_id) do nothing;
 
 
--- 004_social.sql
+-- 005_social.sql
 -- Social: follows, public profiles, activity feed (Fase social leve).
 
 alter table public.profiles

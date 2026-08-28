@@ -1,20 +1,17 @@
 /**
- * Portão V4.7.6 — código + guarda. Não inventa STAGING_READY=PASS.
+ * Portão V4.7.6R — guarda Longyu-only. Não inventa STAGING_READY=PASS.
+ * Não conhece produtos fora do Longyu.
  */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
-  LONGYU_INTENDED_STAGING_PROJECT_ID,
+  BLOCKED_REMOTE_STAGING,
   LONGYU_PRODUCTION_PROJECT_ID,
-  REFUSING_EMPTY_STAGING_PROJECT_ID,
-  REFUSING_FOREIGN_PRODUCT_AS_STAGING,
   REFUSING_TO_USE_PRODUCTION_AS_STAGING,
-  REFUSING_UNKNOWN_STAGING_PROJECT,
   extractProjectRef,
-  foreignProductName,
-  isForeignProductProjectId,
   isProductionProjectId,
+  requireRemoteRehearsalTarget,
   requireStagingProjectId,
 } from "./lib/staging-guard.mjs";
 
@@ -42,9 +39,14 @@ function runScript(script, env, extraArgs = []) {
 }
 
 assert(isProductionProjectId(LONGYU_PRODUCTION_PROJECT_ID), "MandarimProject é produção");
-assert(foreignProductName("ylofdottauzcqcifnnpm") === "atomurus", "atomurus é produto estrangeiro");
-assert(isForeignProductProjectId("https://ylofdottauzcqcifnnpm.supabase.co"), "URL atomurus recusada");
-assert(!isForeignProductProjectId(LONGYU_INTENDED_STAGING_PROJECT_ID), "preview não é atomurus");
+assert(
+  extractProjectRef("https://drjcfalvlbbeblmmyhwj.supabase.co") === LONGYU_PRODUCTION_PROJECT_ID,
+  "extractProjectRef lê URL de produção"
+);
+assert(
+  extractProjectRef("https://db.abcdefghijabcdefghij.supabase.co") === "abcdefghijabcdefghij",
+  "extractProjectRef lê host db.*"
+);
 
 let threw = false;
 try {
@@ -60,71 +62,41 @@ assert(threw, "requireStagingProjectId recusa produção");
 
 threw = false;
 try {
-  requireStagingProjectId({ LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm" });
-} catch (error) {
-  threw = true;
-  assert(String(error.message).includes("atomurus"), "mensagem cita atomurus");
-  assert(
-    String(error.message).includes(REFUSING_FOREIGN_PRODUCT_AS_STAGING),
-    "atomurus usa REFUSING_FOREIGN_PRODUCT_AS_STAGING"
-  );
-}
-assert(threw, "requireStagingProjectId recusa atomurus");
-
-threw = false;
-try {
   requireStagingProjectId({ LONGYU_STAGING_PROJECT_ID: "" });
 } catch (error) {
   threw = true;
-  assert(
-    String(error.message).includes(REFUSING_EMPTY_STAGING_PROJECT_ID),
-    "vazio usa REFUSING_EMPTY_STAGING_PROJECT_ID"
-  );
+  assert(String(error.message).includes(BLOCKED_REMOTE_STAGING), "vazio usa BLOCKED_REMOTE_STAGING");
 }
 assert(threw, "requireStagingProjectId recusa ID vazio");
 
 threw = false;
 try {
   requireStagingProjectId({ LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij" });
-} catch (error) {
-  threw = true;
-  assert(
-    String(error.message).includes(REFUSING_UNKNOWN_STAGING_PROJECT),
-    "id desconhecido recusado"
-  );
-}
-assert(threw, "requireStagingProjectId recusa project_id desconhecido");
-
-threw = false;
-try {
-  requireStagingProjectId({
-    LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
-    LONGYU_STAGING_ALLOWED_PROJECT_IDS: "abcdefghijabcdefghij",
-  });
 } catch {
   threw = true;
 }
-assert(!threw, "allowlist explícita aceita projeto isolado autorizado");
+assert(!threw, "staging isolado configurável é aceito (sem allowlist de outros produtos)");
 
 threw = false;
 try {
-  requireStagingProjectId({
-    LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
-    LONGYU_STAGING_ALLOWED_PROJECT_IDS: LONGYU_PRODUCTION_PROJECT_ID,
-  });
+  requireRemoteRehearsalTarget({ LONGYU_TARGET_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID });
 } catch (error) {
   threw = true;
   assert(
     String(error.message).includes(REFUSING_TO_USE_PRODUCTION_AS_STAGING),
-    "allowlist não autoriza produção"
+    "LONGYU_TARGET_PROJECT_ID recusa produção"
   );
 }
-assert(threw, "allowlist não contorna MandarimProject");
+assert(threw, "requireRemoteRehearsalTarget recusa produção");
 
-assert(
-  extractProjectRef("https://wpnmygzxqvmpdlcuwrjp.supabase.co") === LONGYU_INTENDED_STAGING_PROJECT_ID,
-  "preview URL resolve"
-);
+threw = false;
+try {
+  requireRemoteRehearsalTarget({});
+} catch (error) {
+  threw = true;
+  assert(String(error.message).includes(BLOCKED_REMOTE_STAGING), "alvo remoto ausente é BLOCKED");
+}
+assert(threw, "requireRemoteRehearsalTarget exige id");
 
 const prodLive = runScript("scripts/v476-live-validation.mjs", {
   LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
@@ -136,44 +108,42 @@ assert(
   "v476 live REFUSING_TO_USE_PRODUCTION_AS_STAGING"
 );
 
-const atomurusLive = runScript("scripts/v476-live-validation.mjs", {
-  LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
+const missingLive = runScript("scripts/v476-live-validation.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "",
   SUPABASE_ACCESS_TOKEN: "",
 });
-assert(atomurusLive.status === 2, "v476 live recusa atomurus (exit 2)");
-assert(/atomurus/.test(`${atomurusLive.stdout}\n${atomurusLive.stderr}`), "v476 live cita atomurus");
+assert(missingLive.status === 2, "v476 live BLOCKED sem staging remoto");
+const missingOut = `${missingLive.stdout}\n${missingLive.stderr}`;
+assert(missingOut.includes(BLOCKED_REMOTE_STAGING), "ausência é BLOCKED_REMOTE_STAGING");
+assert(!/"STAGING_READY": "PASS"/.test(missingOut), "runner não imprime STAGING_READY PASS");
+assert(!/EPHEMERAL_DB_READY/.test(missingOut), "live scoreboard não mistura EPHEMERAL_DB_READY");
 
-const previewBlocked = runScript("scripts/v476-live-validation.mjs", {
-  LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+const isolatedBlocked = runScript("scripts/v476-live-validation.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
   SUPABASE_ACCESS_TOKEN: "",
 });
-assert(previewBlocked.status === 2, "v476 live BLOCKED sem ACTIVE_HEALTHY/token");
-const previewOut = `${previewBlocked.stdout}\n${previewBlocked.stderr}`;
-assert(/BLOCKED/.test(previewOut), "preview sem token é BLOCKED");
-assert(!/"STAGING_READY": "PASS"/.test(previewOut), "runner não imprime STAGING_READY PASS");
+assert(isolatedBlocked.status === 2, "v476 live BLOCKED sem ACTIVE_HEALTHY/token");
+assert(/BLOCKED/.test(`${isolatedBlocked.stdout}\n${isolatedBlocked.stderr}`), "isolado sem token é BLOCKED");
 
 const applyBlocked = runScript(
   "scripts/v476-live-validation.mjs",
   {
-    LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+    LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
     SUPABASE_ACCESS_TOKEN: "",
   },
   ["--apply"]
 );
 assert(applyBlocked.status === 2, "--apply sem healthy não aplica");
-assert(!/OK: migrations de staging aplicadas/.test(`${applyBlocked.stdout}\n${applyBlocked.stderr}`), "não aplica DDL");
+assert(
+  !/OK: migrations de staging aplicadas/.test(`${applyBlocked.stdout}\n${applyBlocked.stderr}`),
+  "não aplica DDL"
+);
 
 const prodMigrate = runScript("scripts/apply-staging-migrations.mjs", {
   LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
   SUPABASE_ACCESS_TOKEN: "sbp_fake",
 });
 assert(prodMigrate.status === 2, "migrate:staging recusa produção");
-
-const atomurusMigrate = runScript("scripts/apply-staging-migrations.mjs", {
-  LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
-  SUPABASE_ACCESS_TOKEN: "sbp_fake",
-});
-assert(atomurusMigrate.status === 2, "migrate:staging recusa atomurus");
 
 const prodSchema = runScript("scripts/assert-staging-schema.mjs", {
   LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
@@ -187,7 +157,7 @@ const prodSecrets = runScript("scripts/audit-staging-secrets.mjs", {
 assert(prodSecrets.status === 2, "audit secrets recusa produção");
 
 const liveStripe = runScript("scripts/audit-staging-secrets.mjs", {
-  LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
   STRIPE_SECRET_KEY: "sk_live_this_is_not_a_real_secret_for_tests",
 });
 assert(liveStripe.status === 2, "audit recusa Stripe Live");
@@ -197,7 +167,7 @@ assert(
 );
 
 const secretsOk = runScript("scripts/audit-staging-secrets.mjs", {
-  LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
 });
 assert(secretsOk.status === 0, "audit sem Live sai 0");
 assert(/STRIPE_SECRET_KEY=MISSING/.test(secretsOk.stdout), "Stripe ausente classificado MISSING");
@@ -228,22 +198,22 @@ const prodPlace = runScript("scripts/v476-placement-authority.mjs", {
 });
 assert(prodPlace.status === 2, "placement-authority recusa produção");
 
-const atomurusAuth = runScript("scripts/v476-auth-identity.mjs", {
-  LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
+const isolatedAuth = runScript("scripts/v476-auth-identity.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
 });
-assert(atomurusAuth.status === 2, "auth-identity recusa atomurus");
+assert(isolatedAuth.status === 2, "auth-identity BLOCKED sem credenciais");
 
-const previewSync = runScript("scripts/v476-sync-identity.mjs", {
-  LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+const isolatedSync = runScript("scripts/v476-sync-identity.mjs", {
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
 });
-assert(previewSync.status === 2, "sync-identity BLOCKED sem credenciais");
-assert(/BLOCKED/.test(`${previewSync.stdout}\n${previewSync.stderr}`), "sync sem credenciais é BLOCKED");
-assert(!/OK: v476-sync-identity/.test(`${previewSync.stdout}\n${previewSync.stderr}`), "sync não passa sem staging");
+assert(isolatedSync.status === 2, "sync-identity BLOCKED sem credenciais");
+assert(/BLOCKED/.test(`${isolatedSync.stdout}\n${isolatedSync.stderr}`), "sync sem credenciais é BLOCKED");
+assert(!/OK: v476-sync-identity/.test(`${isolatedSync.stdout}\n${isolatedSync.stderr}`), "sync não passa sem staging");
 
 const identityBlocked = runScript(
   "scripts/v476-live-validation.mjs",
   {
-    LONGYU_STAGING_PROJECT_ID: LONGYU_INTENDED_STAGING_PROJECT_ID,
+    LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
     SUPABASE_ACCESS_TOKEN: "",
   },
   ["--identity"]
@@ -251,36 +221,39 @@ const identityBlocked = runScript(
 assert(identityBlocked.status === 2, "--identity sem healthy não cria usuários");
 
 const report = read("docs/reports/v476-staging-live-validation.md");
-assert(report.includes("STAGING_READY"), "relatório tem STAGING_READY");
-assert(report.includes("AUTH_READY"), "relatório tem AUTH_READY");
-assert(report.includes("PLACEMENT_READY"), "relatório tem PLACEMENT_READY");
-assert(report.includes("SYNC_READY"), "relatório tem SYNC_READY");
-assert(report.includes("SECURITY_STAGING_READY"), "relatório tem SECURITY_STAGING_READY");
-assert(/STAGING_READY[^\n]*BLOCKED/.test(report), "STAGING_READY BLOCKED");
+assert(report.includes("LIVE_STAGING_VALIDATION"), "relatório separa live staging");
+assert(report.includes("EPHEMERAL_BACKEND_VALIDATION"), "relatório aponta validação efêmera");
+assert(report.includes("BLOCKED_REMOTE_STAGING"), "live remoto BLOCKED_REMOTE_STAGING");
+assert(report.includes("MandarimProject"), "produção Longyu citada");
+assert(report.includes("drjcfalvlbbeblmmyhwj"), "produção citada como HARD FAIL");
 assert(!/STAGING_READY[^\n]*PASS/.test(report), "não inventa STAGING_READY PASS");
 assert(!/AUTH_READY[^\n]*PASS/.test(report), "não inventa AUTH_READY PASS");
 assert(!/READY_FOR_CLOSED_BETA_BR[^\n]*PASS/.test(report), "não marca closed beta");
 assert(!/PHYSICAL_QA_READY[^\n]*PASS/.test(report), "não marca PHYSICAL_QA");
 assert(!/PAYMENTS_READY[^\n]*PASS/.test(report), "não marca PAYMENTS");
-assert(report.includes("2 project limit"), "bloqueio Free documentado");
-assert(report.includes("PRE-001"), "PRE-001 documentado");
-assert(report.includes("drjcfalvlbbeblmmyhwj"), "produção citada como HARD FAIL");
-assert(report.includes("ylofdottauzcqcifnnpm"), "atomurus citado");
-assert(report.includes("wpnmygzxqvmpdlcuwrjp"), "preview citado");
-assert(report.includes("#203"), "dependência da #203");
-assert(report.includes("PRE-002"), "PRE-002 documentado");
-assert(report.includes("BLOCKED_BY_INFRASTRUCTURE"), "decisão BLOCKED_BY_INFRASTRUCTURE");
-assert(report.includes("REFUSING_TO_USE_PRODUCTION_AS_STAGING"), "token STG-003 no relatório");
-assert(report.includes("AUTH-013"), "AUTH-013 nova aba no relatório");
-assert(report.includes("AUTH-009"), "AUTH-009 mapeado no relatório");
-assert(report.includes("v476-placement-authority"), "harness Placement documentado");
+assert(report.includes("REFUSING_TO_USE_PRODUCTION_AS_STAGING"), "token de guarda no relatório");
+assert(report.includes("AUTH-013") || report.includes("e-mail real"), "e-mail real continua exigindo hosted");
 assert(report.includes("FIXTURE"), "AUTH fixture ≠ e-mail real");
-assert(report.includes("OBS-026"), "contrato de observabilidade documentado");
+assert(report.includes("v476-placement-authority"), "harness Placement documentado");
 assert(report.includes("OBS-027"), "OBS-027 teste de contrato documentado");
+assert(!report.includes(["LONGYU_", "FOREIGN_PROJECTS"].join("")), "sem allowlist de outros produtos");
+assert(!report.includes(["foreign", "ProductName"].join("")), "sem foreign product helper");
+assert(!new RegExp(["REFUSING_FOREIGN_", "PRODUCT_AS_STAGING"].join("")).test(report), "sem token de produto estrangeiro");
+
+const rehearsal = read("docs/reports/v476r-longyu-backend-rehearsal.md");
+assert(rehearsal.includes("EPHEMERAL_DB_READY"), "scoreboard efêmero");
+assert(rehearsal.includes("MIGRATION_CHAIN_READY"), "migration chain");
+assert(rehearsal.includes("SCHEMA_READY"), "schema");
+assert(rehearsal.includes("RLS_READY"), "rls");
+assert(rehearsal.includes("RPC_READY"), "rpc");
+assert(rehearsal.includes("EDGE_LOCAL_READY"), "edge local");
+assert(rehearsal.includes("PRODUCTION_DELTA_KNOWN"), "production delta");
+assert(!rehearsal.includes("STAGING_READY = PASS"), "efêmero não promove STAGING_READY");
 
 const applySrc = read("scripts/apply-staging-migrations.mjs");
 assert(applySrc.includes("requireHealthyStagingStatus"), "migrate exige ACTIVE_HEALTHY");
 assert(applySrc.includes("fetchSupabaseProject"), "migrate confirma o projeto remoto");
+assert(applySrc.includes("requireRemoteRehearsalTarget"), "migrate exige alvo remoto explícito");
 const deploySrc = read("scripts/deploy-staging-functions.mjs");
 assert(deploySrc.includes("requireHealthyStagingStatus"), "deploy exige ACTIVE_HEALTHY");
 
@@ -290,7 +263,10 @@ assert(pkg.scripts["v476:live"], "script v476:live");
 assert(pkg.scripts["v476:placement-authority"], "script v476:placement-authority");
 assert(pkg.scripts["v476:auth-identity"], "script v476:auth-identity");
 assert(pkg.scripts["v476:sync-identity"], "script v476:sync-identity");
+assert(pkg.scripts["rehearse:ephemeral"], "script rehearse:ephemeral");
 assert(pkg.scripts["validate:beta"].includes("test:v476-live-validation"), "validate:beta inclui v476");
+assert(pkg.scripts["validate:beta"].includes("test:ops-correlation-crypto"), "validate:beta inclui crypto");
+assert(pkg.scripts["validate:beta"].includes("test:longyu-only-backend"), "validate:beta inclui longyu-only");
 
 if (errors.length) {
   console.error("FAIL test:v476-live-validation:");
@@ -298,4 +274,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("OK: test:v476-live-validation (guarda + relatório honesto; live permanece BLOCKED)");
+console.log("OK: test:v476-live-validation (Longyu-only; live remoto BLOCKED; efêmero separado)");

@@ -1,6 +1,6 @@
 /**
  * PLACEMENT-012 live: o client não escolhe score / skippedLessonIds / mastery.
- * Fail-closed. Recusa produção e atomurus. Sem credenciais = BLOCKED.
+ * Fail-closed. Recusa MandarimProject. Sem credenciais = BLOCKED_REMOTE_STAGING.
  */
 import process from "node:process";
 import { mergedEnv } from "./lib/env-local.mjs";

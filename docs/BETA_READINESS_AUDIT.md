@@ -43,7 +43,7 @@
 ## Atualização operacional — 2026-08-04 (manhã)
 
 **Commit `main`:** `1686403` (+ PR de estabilização em andamento)  
-**Método desta atualização:** correções de pronúncia/ordem, gates npm, Preview isolado, projeto `longyu-preview`, script RLS, CI no commit da main.
+**Método desta atualização:** correções de pronúncia/ordem, gates npm, Preview isolado, script RLS, CI no commit da main.
 
 | Critério | Evidência 2026-08-04 |
 |---|---|
@@ -51,7 +51,7 @@
 | Pronúncia (contagem) | ✅ Corrigido; agora também exige **ordem** (`好你` ≠ `你好`) |
 | RPC pedagogia no remoto | ✅ `verify:beta-feedback` verde |
 | Stripe webhook + RPC ordering | ✅ Functions v8–v9; secrets presentes |
-| Deploy Preview ≠ produção | ✅ Preview em `VITE_BACKEND_MODE=local`; projeto `longyu-preview` criado (`wpnmygzxqvmpdlcuwrjp`) com schema |
+| Deploy Preview ≠ produção | ✅ Preview em `VITE_BACKEND_MODE=local` |
 | Portão único | ✅ `npm run gate:public-beta` / `gate:production` |
 | RLS A≠B automatizado | 🟡 Script `npm run test:rls` (precisa `SUPABASE_SERVICE_ROLE_KEY`) |
 | Stripe Test Mode E2E humano | 🟡 Runbook + `npm run test:stripe` (precisa `sk_test_`) |

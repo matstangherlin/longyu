@@ -18,7 +18,7 @@ Se o código do produto mudar, o rótulo vira `rc.2`. Não chamar HEADs diferent
 | --- | --- | --- |
 | `CODE_READY` | `PASS` (`b2a5818`) | Evidência: CI da #203 nesse SHA (qualidade + Chromium + Firefox + Security). **Não promove** nenhum outro campo. |
 | `CROSS_BROWSER_READY` | `PASS` (`b2a5818`) | Firefox gate SUCCESS. WebKit informativo SUCCESS. |
-| `STAGING_READY` | `BLOCKED_BY_INFRASTRUCTURE` | Humano 2026-08-28: preview sem utilidade; não pausar atomurus; MandarimProject é o backend que importa (sem DDL). Ver `docs/reports/v476-staging-live-validation.md`. |
+| `STAGING_READY` | `BLOCKED_REMOTE_STAGING` | Sem `LONGYU_STAGING_PROJECT_ID`. Ephemeral ≠ este campo. Ver `docs/reports/v476r-longyu-backend-rehearsal.md`. |
 | `AUTH_READY` | `NOT_RUN` | Signup real + e-mail em nova aba + finalize. Exige staging (V4.7.6). |
 | `PLACEMENT_READY` | `NOT_RUN` | Servidor recalcula evidência bruta. Exige staging (V4.7.6). |
 | `SYNC_READY` | `NOT_RUN` | Cross-device 1/4 → 2/4 sem regressão. Exige staging (V4.7.6). |
@@ -66,9 +66,9 @@ Flakes conhecidos e mitigados (não no caminho crítico do merge Chromium):
 - `/qa` é `noindex` e `Disallow`.
 - `READY_FOR_CLOSED_BETA_BR` **não** sobe com `CODE_READY`.
 
-## Staging (não executado aqui)
+## Staging remoto (não executado aqui)
 
-Humano: `longyu-preview` **sem utilidade**; **não** pausar atomurus. MandarimProject é o backend Longyu que importa — **sem** migration/Edge nesta remessa. Inventário: `docs/reports/v476-staging-live-validation.md`. Opções A/D **revogadas**. V4.7.6 permanece `BLOCKED_BY_INFRASTRUCTURE` até B (upgrade + projeto novo) ou C (staging pago isolado ≠ produção ≠ atomurus).
+`LONGYU_STAGING_PROJECT_ID` ausente = `BLOCKED_REMOTE_STAGING`. MandarimProject é o backend Longyu de produção — **sem** migration/Edge nesta remessa. Validação efêmera: `docs/reports/v476r-longyu-backend-rehearsal.md`.
 
 ## Sequência seguinte (fora desta remessa)
 

@@ -17,7 +17,7 @@ nao promovem `READY_FOR_CLOSED_BETA_BR`.
 | Chave | Estado | Evidencia |
 | --- | --- | --- |
 | AUTOMATED_READY | FAIL | Gates de codigo existem; PRs #197/#198 nao estao em `main` |
-| STAGING_READY | FAIL | `longyu-preview` INACTIVE; 2 project limit; branching Free recusado |
+| STAGING_READY | `BLOCKED_REMOTE_STAGING` | Sem `LONGYU_STAGING_PROJECT_ID`. Ephemeral ≠ STAGING_READY. Ver `docs/reports/v476r-longyu-backend-rehearsal.md`. |
 | PHYSICAL_QA_READY | NOT_RUN | Android / iPhone / desktop humanos nao executados |
 | PAYMENTS_READY | NOT_RUN | Stripe Test Mode humano nao executado |
 | READY_FOR_CLOSED_BETA_BR | **NOT_READY** | Criterio humano; nao inferir de CI |
@@ -45,7 +45,7 @@ Advisors de staging: `docs/reports/staging-supabase-advisors.md` (**BLOCKED**).
 
 | ID | Item | Status |
 | --- | --- | --- |
-| STAGE-001 | Identificar staging | PASS (inventario) / BLOCKED (alvo INACTIVE) |
+| STAGE-001 | Identificar staging | `BLOCKED_REMOTE_STAGING` (sem remoto Longyu configurado) |
 | STAGE-002 | Migrations staging | BLOCKED |
 | STAGE-003 | Advisors apos DDL | BLOCKED / NOT_RUN |
 | STAGE-004 | Edge Functions staging | BLOCKED |
@@ -73,17 +73,16 @@ Nao inventar HUMAN PASS. AUTH-007 tem copy e UI no repo
 (`Precisamos finalizar seu ponto de partida.` + refazer Placement);
 o cenario controlado com usuario cloud real permanece NOT_RUN.
 
-### STAGE-001 inventario (MCP 2026-08-27)
+### STAGE-001 inventario (MandarimProject only)
 
 | project_id | name | region | status | URL |
 | --- | --- | --- | --- | --- |
 | `drjcfalvlbbeblmmyhwj` | MandarimProject | us-west-2 | ACTIVE_HEALTHY | https://drjcfalvlbbeblmmyhwj.supabase.co |
-| `wpnmygzxqvmpdlcuwrjp` | longyu-preview | us-west-1 | INACTIVE | https://wpnmygzxqvmpdlcuwrjp.supabase.co |
-| `ylofdottauzcqcifnnpm` | atomurus | us-west-2 | ACTIVE_HEALTHY | https://ylofdottauzcqcifnnpm.supabase.co |
 
 Hard fail se `LONGYU_STAGING_PROJECT_ID` == producao. Scripts:
 `identify:staging`, `migrate:staging`, `deploy:staging-functions`,
 `test:pearl-staging`, `test:rls:staging`.
+Remote staging ausente = `BLOCKED_REMOTE_STAGING`. Rehearsal efêmero não usa esses scripts remotos.
 
 
 `READY_FOR_CLOSED_BETA_BR` exige, todos PASS ao mesmo tempo:
@@ -107,8 +106,8 @@ automaticamente.
    Quality + Security verdes; E2E cross-engine informativo FAILURE (`UNSTABLE`).
 2. PR #198 (V4.7.2) continua **draft**, empilhada em #197, **nao retargetada para main**.
 3. Esta PR V4.7.3 empilha em #198. Nao mergear #197, #198 nem esta PR automaticamente.
-4. Staging isolado **nao subiu**. Tentativas registradas abaixo. V4.7.3 nao repetiu
-   `restore_project` / `create_branch` (ultimo restore = 2 project limit).
+4. Staging isolado **nao subiu**. `LONGYU_STAGING_PROJECT_ID` ausente = `BLOCKED_REMOTE_STAGING`.
+   Validacao efemera e o caminho (ver V4.7.6R).
 5. Edge Functions novas (`commit-placement`, `finalize-onboarding`,
    `submit-business-lead`) **nao estao implantadas** em producao nem em staging.
 
@@ -142,32 +141,23 @@ Rodar: `npm run test:brazil-beta-readiness` (incluido em `validate:beta`).
 
 ## STAGING
 
-Status: **BLOCKED**
+Status: **BLOCKED_REMOTE_STAGING**
 
 ### Tentativas (nao aplicar SQL em producao)
 
 | Acao | Timestamp (UTC) | Resultado |
 | --- | --- | --- |
-| `get_cost` type=branch org Noba `cwvlptpndrekubhhtoln` | 2026-08-27 | `$0.01344/hora` |
-| `confirm_cost` branch | 2026-08-27 | `confirmation_id` emitido |
-| `create_branch` name=`v472-brazil-closed-beta` on MandarimProject | 2026-08-27 | **FAIL** `PaymentRequiredException`: branching so no plano Pro |
-| `restore_project` longyu-preview `wpnmygzxqvmpdlcuwrjp` | 2026-08-27 | **FAIL** `ForbiddenException`: 2 project limit Free (`matstangherlin`) |
-| `apply_migration` em `drjcfalvlbbeblmmyhwj` | — | **nao executado** (proibido por esta remessa) |
-| Docker / `supabase start` local | 2026-08-27 | **indisponivel** neste ambiente (`DOCKER_MISSING`) |
+| `create_branch` on MandarimProject | 2026-08-27 | **FAIL** `PaymentRequiredException`: branching so no plano Pro |
+| `apply_migration` em `drjcfalvlbbeblmmyhwj` | — | **nao executado** (proibido) |
 
-Projetos visiveis:
+Projeto Longyu:
 
 | Projeto | Ref | Status | Papel |
 | --- | --- | --- | --- |
 | MandarimProject | `drjcfalvlbbeblmmyhwj` | ACTIVE_HEALTHY | producao — nao aplicar migrations novas |
-| longyu-preview | `wpnmygzxqvmpdlcuwrjp` | INACTIVE | staging pretendido; restore bloqueado pelo limite Free |
-| atomurus | `ylofdottauzcqcifnnpm` | ACTIVE_HEALTHY | outro produto; nao pausar daqui |
 
-Desbloqueio humano (escolher um):
-
-1. Upgrade MandarimProject para Pro e criar branch `v472-brazil-closed-beta`; ou
-2. Pausar/apagar um projeto Free que nao seja MandarimProject e restaurar `longyu-preview` (hoje: **2 project limit**); ou
-3. Provisionar um terceiro projeto pago so para staging.
+Desbloqueio remoto: definir `LONGYU_STAGING_PROJECT_ID` para um projeto Longyu isolado ≠ producao.
+Enquanto isso: `npm run rehearse:ephemeral`.
 
 ### Migrations — producao vs repo
 

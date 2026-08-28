@@ -1,0 +1,125 @@
+name: backend-rehearsal
+
+on:
+  pull_request:
+    paths:
+      - "supabase/**"
+      - "src/services/**"
+      - "src/lib/**/*cloud*"
+      - "src/lib/cloud*"
+      - "src/lib/placement/**"
+      - "src/lib/opsCorrelation.ts"
+      - "src/lib/repositories/**"
+      - "src/lib/progressSnapshot.ts"
+      - "src/lib/economyServerBridge.ts"
+      - "scripts/rehearse-ephemeral-backend.mjs"
+      - "scripts/lib/ephemeral-backend.mjs"
+      - "scripts/lib/staging-guard.mjs"
+      - "scripts/lib/v476-constants.mjs"
+      - ".github/workflows/backend-rehearsal.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - "src/services/**"
+      - "src/lib/**/*cloud*"
+      - "src/lib/cloud*"
+      - "src/lib/placement/**"
+      - "src/lib/opsCorrelation.ts"
+      - "src/lib/repositories/**"
+      - "src/lib/progressSnapshot.ts"
+      - "src/lib/economyServerBridge.ts"
+      - "scripts/rehearse-ephemeral-backend.mjs"
+      - "scripts/lib/ephemeral-backend.mjs"
+      - "scripts/lib/staging-guard.mjs"
+      - "scripts/lib/v476-constants.mjs"
+      - ".github/workflows/backend-rehearsal.yml"
+
+concurrency:
+  group: backend-rehearsal-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db:
+    name: Ephemeral DB rehearsal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_ACCESS_TOKEN: ""
+      LONGYU_STAGING_PROJECT_ID: ""
+      LONGYU_TARGET_PROJECT_ID: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.34.3
+
+      - name: Start ephemeral Supabase
+        run: supabase start
+
+      - name: Rehearse schema / RLS / RPC
+        run: node scripts/rehearse-ephemeral-backend.mjs --skip-start --skip-edge
+
+      - name: Upload rehearsal reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ephemeral-db-rehearsal
+          path: |
+            docs/reports/v476r-longyu-backend-rehearsal.md
+            docs/reports/backend-migration-drift.md
+            docs/reports/backend-security-definer-audit.md
+            docs/reports/production-backend-delta.md
+            docs/reports/ephemeral-backend-scoreboard.json
+          if-no-files-found: warn
+
+  edge:
+    name: Ephemeral Edge rehearsal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_ACCESS_TOKEN: ""
+      LONGYU_STAGING_PROJECT_ID: ""
+      LONGYU_TARGET_PROJECT_ID: ""
+      STRIPE_SECRET_KEY: "sk_test_placeholder_not_live"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.34.3
+
+      - name: Start ephemeral Supabase
+        run: supabase start
+
+      - name: Rehearse including local Edge Functions
+        run: node scripts/rehearse-ephemeral-backend.mjs --skip-start
+
+      - name: Upload edge rehearsal reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ephemeral-edge-rehearsal
+          path: |
+            docs/reports/v476r-longyu-backend-rehearsal.md
+            docs/reports/ephemeral-backend-scoreboard.json
+          if-no-files-found: warn

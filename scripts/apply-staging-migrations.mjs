@@ -1,6 +1,7 @@
 /**
  * STAGE-002 — Aplicar migrations no staging isolado, em ordem, parando no primeiro erro.
  * Nunca defaulta para MandarimProject. Não usa o default perigoso de db:apply-api.
+ * Rehearsal remoto exige LONGYU_TARGET_PROJECT_ID ou LONGYU_STAGING_PROJECT_ID ≠ produção.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -11,8 +12,9 @@ import {
   StagingGuardError,
   failClosed,
   requireHealthyStagingStatus,
-  requireStagingProjectId,
+  requireRemoteRehearsalTarget,
 } from "./lib/staging-guard.mjs";
+import { V476_OPERATIONAL_MIGRATIONS } from "./lib/v476-constants.mjs";
 
 const root = projectRoot();
 const env = mergedEnv();
@@ -21,15 +23,7 @@ const planOnly = args.has("--plan");
 const token = String(env.SUPABASE_ACCESS_TOKEN ?? "").trim();
 const migrationsDir = path.join(root, "supabase", "migrations");
 
-const OPERATIONAL_PENDING = [
-  "20260812180000_production_help_telemetry.sql",
-  "20260813180000_pearl_pro_economy.sql",
-  "20260814010000_mastery_pass_telemetry.sql",
-  "20260825043000_business_foundation.sql",
-  "20260825062000_business_operational_hardening.sql",
-  "20260826230000_placement_onboarding.sql",
-  "20260827023000_placement_onboarding_handoff.sql",
-];
+const OPERATIONAL_PENDING = V476_OPERATIONAL_MIGRATIONS;
 
 function localMigrationFiles() {
   return fs
@@ -142,7 +136,7 @@ function printLog(entries) {
 }
 
 try {
-  const stagingId = requireStagingProjectId(env);
+  const stagingId = requireRemoteRehearsalTarget(env);
   if (token) {
     const project = await fetchSupabaseProject(token, stagingId);
     requireHealthyStagingStatus(project.status, stagingId);

@@ -1,11 +1,12 @@
 /**
- * Portão V4.7.3 — staging activation (código + guarda).
+ * Portão V4.7.3 / V4.7.6R — staging activation (código + guarda Longyu-only).
  * Não promove READY_FOR_CLOSED_BETA_BR. Não inventa PASS humano.
  */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
+  BLOCKED_REMOTE_STAGING,
   LONGYU_PRODUCTION_PROJECT_ID,
   extractProjectRef,
   isProductionProjectId,
@@ -40,11 +41,11 @@ assert(
   "extractProjectRef lê URL de produção"
 );
 assert(
-  extractProjectRef("https://db.wpnmygzxqvmpdlcuwrjp.supabase.co") === "wpnmygzxqvmpdlcuwrjp",
+  extractProjectRef("https://db.abcdefghijabcdefghij.supabase.co") === "abcdefghijabcdefghij",
   "extractProjectRef lê host db.*"
 );
 assert(isProductionProjectId("drjcfalvlbbeblmmyhwj"), "MandarimProject é produção");
-assert(!isProductionProjectId("wpnmygzxqvmpdlcuwrjp"), "longyu-preview não é produção");
+assert(!isProductionProjectId("abcdefghijabcdefghij"), "id isolado não é produção");
 
 const prodIdentify = runScript("scripts/identify-staging.mjs", {
   LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
@@ -56,28 +57,15 @@ assert(
   "identify:staging REFUSING_TO_USE_PRODUCTION_AS_STAGING"
 );
 
-const atomurusIdentify = runScript("scripts/identify-staging.mjs", {
-  LONGYU_STAGING_PROJECT_ID: "ylofdottauzcqcifnnpm",
-  SUPABASE_ACCESS_TOKEN: "",
-});
-assert(atomurusIdentify.status === 2, "identify:staging recusa atomurus (exit 2)");
-assert(/atomurus/.test(atomurusIdentify.stderr + atomurusIdentify.stdout), "identify:staging cita atomurus");
-
-const unknownIdentify = runScript("scripts/identify-staging.mjs", {
-  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
-  SUPABASE_ACCESS_TOKEN: "",
-});
-assert(unknownIdentify.status === 2, "identify:staging recusa ID desconhecido");
-assert(
-  /REFUSING_UNKNOWN_STAGING_PROJECT/.test(unknownIdentify.stderr + unknownIdentify.stdout),
-  "identify:staging REFUSING_UNKNOWN_STAGING_PROJECT"
-);
-
 const missingIdentify = runScript("scripts/identify-staging.mjs", {
   LONGYU_STAGING_PROJECT_ID: "",
   SUPABASE_ACCESS_TOKEN: "",
 });
 assert(missingIdentify.status === 2, "identify:staging recusa ID ausente");
+assert(
+  new RegExp(BLOCKED_REMOTE_STAGING).test(missingIdentify.stderr + missingIdentify.stdout),
+  "identify:staging BLOCKED_REMOTE_STAGING"
+);
 
 const prodMigrate = runScript("scripts/apply-staging-migrations.mjs", {
   LONGYU_STAGING_PROJECT_ID: LONGYU_PRODUCTION_PROJECT_ID,
@@ -105,13 +93,13 @@ const prodRls = runScript("scripts/test-rls-staging.mjs", {
 assert(prodRls.status === 2, "test:rls:staging recusa produção");
 
 const mismatch = runScript("scripts/test-rls-staging.mjs", {
-  LONGYU_STAGING_PROJECT_ID: "wpnmygzxqvmpdlcuwrjp",
+  LONGYU_STAGING_PROJECT_ID: "abcdefghijabcdefghij",
   STAGING_SUPABASE_URL: "https://drjcfalvlbbeblmmyhwj.supabase.co",
   STAGING_SUPABASE_ANON_KEY: "anon",
   STAGING_SUPABASE_SERVICE_ROLE_KEY: "service",
   ALLOW_STAGING_SECURITY_TESTS: "true",
 });
-assert(mismatch.status === 2, "test:rls:staging recusa URL de produção mesmo com ID de preview");
+assert(mismatch.status === 2, "test:rls:staging recusa URL de produção mesmo com ID isolado");
 
 const applyApi = read("scripts/apply-migrations-api.mjs");
 assert(applyApi.includes('?? "drjcfalvlbbeblmmyhwj"'), "apply-migrations-api ainda defaulta produção — staging não deve chamá-lo");
@@ -163,9 +151,13 @@ assert(
   !/LONGYU_STAGING_PROJECT_ID\s*=\s*drjcfalvlbbeblmmyhwj/.test(envExample),
   ".env.example não defaulta staging para produção"
 );
+assert(
+  !envExample.includes(["LONGYU_STAGING_", "ALLOWED_PROJECT_IDS"].join("")),
+  ".env.example sem allowlist de outros produtos"
+);
 
 const advisors = read("docs/reports/staging-supabase-advisors.md");
-assert(advisors.includes("BLOCKED"), "advisors de staging não inventam PASS");
+assert(advisors.includes("BLOCKED") || advisors.includes("BLOCKED_REMOTE_STAGING"), "advisors de staging não inventam PASS");
 assert(!/staging[\s\S]{0,80}Security[\s\S]{0,40}PASS/i.test(advisors), "advisors staging sem Security PASS inventado");
 
 const report = read("docs/reports/brazil-closed-beta-readiness.md");
@@ -178,10 +170,8 @@ assert(report.includes("DEVICE-013"), "relatório tem DEVICE-013");
 assert(report.includes("DEVICE-014"), "relatório tem DEVICE-014");
 assert(report.includes("STRIPE-016"), "relatório tem STRIPE-016");
 assert(report.includes("READY_FOR_CLOSED_BETA_BR"), "relatório declara decisão humana");
-assert(report.includes("wpnmygzxqvmpdlcuwrjp"), "STAGE-001 registra longyu-preview");
 assert(report.includes("drjcfalvlbbeblmmyhwj"), "STAGE-001 registra produção proibida");
-assert(report.includes("INACTIVE"), "preview continua INACTIVE");
-assert(report.includes("2 project limit"), "bloqueio Free permanece documentado");
+assert(report.includes("BLOCKED_REMOTE_STAGING") || report.includes("MandarimProject"), "staging remoto bloqueado ou só produção Longyu");
 assert(report.includes("ANDROID") && report.includes("NOT_RUN"), "Android humano NOT_RUN");
 assert(report.includes("IPHONE") && report.includes("NOT_RUN"), "iPhone humano NOT_RUN");
 assert(report.includes("PAYMENTS") && report.includes("NOT_RUN"), "pagamentos humanos NOT_RUN");
@@ -209,10 +199,10 @@ assert(
 assert(read("src/lib/featureFlags.ts").includes("isCloudOnboardingV2Enabled"), "flag V2 existe");
 
 const live = read("docs/reports/staging-live-inventory.md");
-assert(live.includes("2 project limit"), "live inventory registra limite Free");
-assert(live.includes("HARD FAIL"), "live inventory marca produção como HARD FAIL");
+assert(live.includes("HARD FAIL") || live.includes("REFUSING_TO_USE_PRODUCTION_AS_STAGING"), "live inventory marca produção como HARD FAIL");
 assert(live.includes("commit-placement"), "live inventory registra Edges ausentes em prod");
 assert(!/STAGING_READY[^\n]*PASS/.test(live), "live inventory não promove STAGING_READY");
+assert(live.includes("MandarimProject"), "inventário fala só do backend Longyu");
 
 const family = [
   "src/lib/auth/sessionAudience.ts",
@@ -241,4 +231,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("OK: test:staging-activation (guarda + scripts + relatório honesto; humano permanece NOT_RUN)");
+console.log("OK: test:staging-activation (guarda Longyu-only; humano permanece NOT_RUN)");

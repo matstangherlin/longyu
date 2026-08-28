@@ -1,6 +1,6 @@
 /**
- * STG-006 — afirma schema no staging isolado. Recusa produção e atomurus.
- * Sem ACTIVE_HEALTHY não envia SQL.
+ * Afirma schema no staging remoto isolado. Recusa MandarimProject.
+ * Sem ACTIVE_HEALTHY não envia SQL. Validação efêmera usa o rehearsal local.
  */
 import process from "node:process";
 import { mergedEnv } from "./lib/env-local.mjs";

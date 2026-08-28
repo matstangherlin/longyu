@@ -11,7 +11,7 @@ import {
   StagingGuardError,
   failClosed,
   requireHealthyStagingStatus,
-  requireStagingProjectId,
+  requireRemoteRehearsalTarget,
   supabaseApiUrl,
 } from "./lib/staging-guard.mjs";
 
@@ -51,7 +51,7 @@ async function smokeSlug(baseUrl, slug) {
 }
 
 try {
-  const stagingId = requireStagingProjectId(env);
+  const stagingId = requireRemoteRehearsalTarget(env);
   const catalog = edgeFunctionCatalog();
   const deployedAt = new Date().toISOString();
   const plan = catalog.map((item) => ({
