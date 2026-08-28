@@ -73,11 +73,18 @@ function gitSha() {
 }
 
 function mainSha() {
-  try {
-    return execSync("git rev-parse origin/main", { cwd: root, encoding: "utf8" }).trim();
-  } catch {
-    return "unknown";
+  for (const ref of ["origin/main", "main"]) {
+    try {
+      return execSync(`git rev-parse ${ref}`, {
+        cwd: root,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      }).trim();
+    } catch {
+      /* try next */
+    }
   }
+  return "unknown";
 }
 
 function writeFile(relative, contents) {
@@ -310,6 +317,9 @@ try {
   if (board.EPHEMERAL_DB_READY === SCORE_NOT_RUN) board.EPHEMERAL_DB_READY = SCORE_FAIL;
   if (board.MIGRATION_CHAIN_READY === SCORE_NOT_RUN && board.EPHEMERAL_DB_READY === SCORE_PASS) {
     board.MIGRATION_CHAIN_READY = SCORE_FAIL;
+  }
+  if (board.SCHEMA_READY === SCORE_NOT_RUN && board.MIGRATION_CHAIN_READY === SCORE_PASS) {
+    board.SCHEMA_READY = SCORE_FAIL;
   }
   console.error(message);
   writeFile(

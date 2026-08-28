@@ -131,34 +131,51 @@ export function applyLocalMigrationsInOrder(root, dbUrl) {
 }
 
 export function querySql(env, sql) {
-  const dbQuery = run("npx", ["supabase", "db", "query", sql], {
-    cwd: process.cwd(),
-    timeout: 60_000,
-  });
-  if (dbQuery.status === 0) return dbQuery.stdout;
   const psql = run("psql", [env.dbUrl, "-v", "ON_ERROR_STOP=1", "-A", "-t", "-c", sql], {
     timeout: 60_000,
   });
-  if (psql.status !== 0) {
-    throw new EphemeralError(
-      `SQL falhou: ${(psql.stderr || dbQuery.stderr || psql.stdout || dbQuery.stdout).slice(0, 1200)}`
-    );
+  if (psql.status === 0 && String(psql.stdout ?? "").trim()) {
+    return psql.stdout;
   }
-  return psql.stdout;
+  const dbQuery = run("npx", ["supabase", "db", "query", "--output", "json", sql], {
+    cwd: process.cwd(),
+    timeout: 60_000,
+  });
+  if (dbQuery.status === 0 && String(dbQuery.stdout ?? "").trim()) {
+    return dbQuery.stdout;
+  }
+  throw new EphemeralError(
+    `SQL falhou: ${(psql.stderr || dbQuery.stderr || psql.stdout || dbQuery.stdout).slice(0, 1200)}`
+  );
 }
 
-function parseJsonCell(text) {
+/** Extract JSON object/array from psql or `supabase db query` table output. */
+export function parseJsonCell(text) {
   const raw = String(text ?? "").trim();
   if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    const start = raw.indexOf("[");
-    const startObj = raw.indexOf("{");
-    const idx = [start, startObj].filter((value) => value >= 0).sort((a, b) => a - b)[0];
-    if (idx == null) return null;
-    return JSON.parse(raw.slice(idx));
+  const candidates = [];
+  const objStart = raw.indexOf("{");
+  const objEnd = raw.lastIndexOf("}");
+  if (objStart >= 0 && objEnd > objStart) {
+    candidates.push(raw.slice(objStart, objEnd + 1));
   }
+  const arrStart = raw.indexOf("[");
+  const arrEnd = raw.lastIndexOf("]");
+  if (arrStart >= 0 && arrEnd > arrStart) {
+    candidates.push(raw.slice(arrStart, arrEnd + 1));
+  }
+  candidates.push(raw);
+  let lastError = null;
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw new EphemeralError(
+    `JSON inválido da query: ${raw.slice(0, 180)}${lastError ? ` (${lastError.message})` : ""}`
+  );
 }
 
 export function assertSchema(env) {

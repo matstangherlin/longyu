@@ -14,6 +14,7 @@ import {
   requireRemoteRehearsalTarget,
   requireStagingProjectId,
 } from "./lib/staging-guard.mjs";
+import { parseJsonCell } from "./lib/ephemeral-backend.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -249,6 +250,11 @@ assert(rehearsal.includes("RPC_READY"), "rpc");
 assert(rehearsal.includes("EDGE_LOCAL_READY"), "edge local");
 assert(rehearsal.includes("PRODUCTION_DELTA_KNOWN"), "production delta");
 assert(!rehearsal.includes("STAGING_READY = PASS"), "efêmero não promove STAGING_READY");
+
+const fromTable = parseJsonCell(`json_build_object\n[economy_columns] {"tables":["profiles"],"economy_columns":["pearl_ledger"]}`);
+assert(fromTable?.tables?.[0] === "profiles", "parseJsonCell prefere objeto JSON, não o header [economy_columns]");
+assert(fromTable?.economy_columns?.[0] === "pearl_ledger", "parseJsonCell lê economy_columns");
+assert(parseJsonCell('{"ok":true}')?.ok === true, "parseJsonCell JSON limpo");
 
 const applySrc = read("scripts/apply-staging-migrations.mjs");
 assert(applySrc.includes("requireHealthyStagingStatus"), "migrate exige ACTIVE_HEALTHY");
