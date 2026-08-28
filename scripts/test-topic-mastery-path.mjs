@@ -224,7 +224,7 @@ try {
   assert.match(playerSrc, /allowSkipAhead: !topicNode/, "player não pula passes no anel 0–4");
   assert.match(playerSrc, /lessonPassXpRewardId/, "XP por pass");
   assert.match(playerSrc, /setLessonSessionStep/, "grava cursor da pass");
-  assert.match(playerSrc, /Voltar à Jornada/, "vitória do tema volta à Jornada");
+  assert.match(playerSrc, /player\.backToJourney/, "vitória do tema volta à Jornada");
   assert.doesNotMatch(playerSrc, /retryLesson\(\{\s*newPass:\s*true\s*\}\)/, "não auto-inicia a próxima pass");
 
   const journeySrc = await readFile(path.join(root, "src/features/journey/JourneyPage.tsx"), "utf8");

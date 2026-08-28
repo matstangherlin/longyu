@@ -57,7 +57,7 @@ assert(mandarin.includes("data-pinyin"), "MandarinText expõe data-pinyin");
 const player = read("src/features/lesson/LessonPlayer.tsx");
 assert(player.includes("Preparando atividades"), "copy de preparing ainda existe para o watchdog");
 assert(/setPlanReady|planReady/.test(player), "player tem planReady (não congela para sempre)");
-assert(player.includes("Continuar Jornada") && player.includes("Voltar à Jornada"), "CTA de vitória permanece no player");
+assert(player.includes("player.continueJourney") && player.includes("player.backToJourney"), "CTA de vitória permanece no player");
 
 const coordinator = read("src/services/cloudSyncCoordinator.ts");
 assert(coordinator.includes("CLOUD_SYNC_TIMEOUT_MS"), "sync tem timeout — não loading infinito");
