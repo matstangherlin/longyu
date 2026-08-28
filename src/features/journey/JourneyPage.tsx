@@ -873,7 +873,7 @@ function ModuleBlock({
                     )}
                   </div>
                 </div>
-                <ProgressBar value={done} max={total} className="mt-1.5" label={`Progresso de ${unitTitle}`} />
+                <ProgressBar value={done} max={total} className="mt-1.5" label={t("journey.progressOf", { title: unitTitle })} />
               </div>
             </>
           );
@@ -884,7 +884,7 @@ function ModuleBlock({
               type="button"
               onClick={onToggle}
               aria-expanded={expanded}
-              aria-label={`${unitTitle}: ${done} de ${total} lições. ${expanded ? "Recolher" : "Expandir"}.`}
+              aria-label={`${unitTitle}: ${t("player.ofTotal", { index: done, total })}. ${expanded ? t("journey.collapse") : t("journey.expand")}.`}
               className="flex w-full items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
             >
               {headerInner}
@@ -902,14 +902,14 @@ function ModuleBlock({
               {canChallenge ? (
                 <>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-semibold text-ink-soft">{skipAccess.labels.title}</div>
-                    <div className="truncate text-[10px] text-ink-faint">{skipAccess.labels.cost}</div>
+                    <div className="text-[11px] font-semibold text-ink-soft">{displayInstruction(skipAccess.labels.title, locale)}</div>
+                    <div className="truncate text-[10px] text-ink-faint">{displayInstruction(skipAccess.labels.cost, locale)}</div>
                   </div>
                   <button
                     onClick={() => onChallenge(unit.id)}
                     className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
                   >
-                    {skipAccess.labels.cta}
+                    {displayInstruction(skipAccess.labels.cta, locale)}
                   </button>
                 </>
               ) : insufficientSkipTest ? (
@@ -927,13 +927,13 @@ function ModuleBlock({
                 <>
                   <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-ink-soft">
                     <IconLock width={12} height={12} className="shrink-0" />
-                    <span className="truncate">{skipAccess.labels.pro ?? skipAccess.labels.title}</span>
+                    <span className="truncate">{displayInstruction(skipAccess.labels.pro ?? skipAccess.labels.title, locale)}</span>
                   </div>
                   <button
                     onClick={onProChallenge}
                     className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
                   >
-                    {skipAccess.labels.cta}
+                    {displayInstruction(skipAccess.labels.cta, locale)}
                   </button>
                 </>
               ) : (
@@ -944,7 +944,7 @@ function ModuleBlock({
               )}
             </div>
             {(canChallenge || proChallenge) && (
-              <div className="text-[10px] leading-4 text-ink-faint">{skipAccess.labels.requirement}</div>
+              <div className="text-[10px] leading-4 text-ink-faint">{displayInstruction(skipAccess.labels.requirement, locale)}</div>
             )}
           </div>
         )}
@@ -1293,7 +1293,7 @@ function LessonNode({
         />
         <button
           onClick={onClick}
-          aria-label={`${title}${safeStageTotal === 4 ? ` · ${safeStageProgress} de 4` : ""}`}
+          aria-label={`${title}${safeStageTotal === 4 ? ` · ${t("player.ofTotal", { index: safeStageProgress, total: safeStageTotal })}` : ""}`}
           data-lesson-id={lessonId}
           data-topic-progress={safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined}
           aria-disabled={locked}
@@ -1323,7 +1323,7 @@ function LessonNode({
         </button>
       </div>
       {stars > 0 && (
-        <div className="mt-1 flex h-3 items-center gap-0.5 text-accent" aria-label={`${stars} estrelas`}>
+        <div className="mt-1 flex h-3 items-center gap-0.5 text-accent" aria-label={t("player.starsCount", { n: stars })}>
           {[1, 2, 3].map((star) => (
             <IconStar
               key={star}

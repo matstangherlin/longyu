@@ -128,6 +128,10 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (parteDe) return `part of ${parteDe[1]}`;
   const baseDe = pt.match(/^base de (.+)$/);
   if (baseDe) return `base of ${baseDe[1]}`;
+  const skipReq = pt.match(/^(\d+)% no bloco pontuado · itens essenciais obrigatórios · mín\. (\d+) perguntas$/);
+  if (skipReq) {
+    return `${skipReq[1]}% on the scored block · required essentials · min. ${skipReq[2]} questions`;
+  }
   return undefined;
 }
 

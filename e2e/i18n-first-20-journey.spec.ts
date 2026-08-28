@@ -138,7 +138,7 @@ test.describe("V4.8.2 first 20 Journey English", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "4/4");
+    await expect(page.locator(`[data-lesson-id="${FIRST.id}"]`)).toHaveAttribute("data-topic-progress", "4/4");
     await expect(page.getByText("What is Mandarin?").first()).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });

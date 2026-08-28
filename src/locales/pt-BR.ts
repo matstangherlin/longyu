@@ -517,6 +517,9 @@ export const ptBR = {
     expandAll: "Ver tudo",
     topicProgress: "Progresso do tema",
     topicOf: "Tema {n} de 4",
+    progressOf: "Progresso de {title}",
+    collapse: "Recolher",
+    expand: "Expandir",
   },
   player: {
     continue: "Continuar",

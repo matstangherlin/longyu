@@ -519,6 +519,9 @@ export const en: MessageCatalog = {
     expandAll: "See all",
     topicProgress: "Topic progress",
     topicOf: "Topic {n} of 4",
+    progressOf: "Progress of {title}",
+    collapse: "Collapse",
+    expand: "Expand",
   },
   player: {
     continue: "Continue",
