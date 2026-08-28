@@ -60,7 +60,8 @@ Filled from live commands on this PR (2026-08-28).
 | `npm run test:rc-hardening` | PASS |
 | Remaining `validate:beta` chain (cloud-first-auth → seo / security / plans / economy / qa-fast-path) | PASS in split batches; pedagogical generators unchanged |
 | `npm run build` | PASS |
-| Playwright `e2e/i18n-shell.spec.ts` chromium | 7 tests (adds Practice hub EN); run in this remessa |
+| Playwright `e2e/i18n-shell.spec.ts` chromium | PASS (7); EN settings + Practice hub `Practice` heading |
+| Playwright `e2e/privacy-consent.spec.ts` + `e2e/auth-surface.spec.ts` chromium | PASS after overlay/feedback EN names |
 | Playwright `e2e/smoke.spec.ts` + `e2e/auth-surface.spec.ts` chromium | PASS |
 
 ## Chinese canonical identity
