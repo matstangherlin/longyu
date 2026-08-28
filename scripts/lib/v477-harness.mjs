@@ -28,6 +28,11 @@ function masterySnapshot(level) {
   };
 }
 
+function jsonAggQuery(sql) {
+  const inner = String(sql).replace(/;\s*$/, "").trim();
+  return `select coalesce(json_agg(q), '[]'::json) from (${inner}) q;`;
+}
+
 export function dumpCanonicalSchema(env) {
   const payload = parseJsonCell(querySql(env, CANONICAL_SCHEMA_SQL));
   if (!payload) throw new EphemeralError("canonical schema dump vazio");
@@ -42,7 +47,7 @@ export function assertRlsEnabled(env) {
     where n.nspname = 'public' and c.relkind = 'r'
       and c.relname in (${V477_SENSITIVE_TABLES.map((name) => `'${name}'`).join(",")});
   `;
-  const rows = String(querySql(env, `select coalesce(json_agg(q), '[]'::json) from (${sql}) q;`));
+  const rows = String(querySql(env, jsonAggQuery(sql)));
   const parsed = parseJsonCell(rows) ?? [];
   const missing = V477_SENSITIVE_TABLES.filter((name) => !parsed.some((row) => row.name === name));
   const disabled = parsed.filter((row) => row.rls !== true).map((row) => row.name);
@@ -60,7 +65,7 @@ export function assertLeastPrivilegeGrants(env) {
       and table_name in ('profiles','user_progress','user_srs','subscriptions','transactions','placement_attempts','user_economy')
     order by table_name, grantee, privilege_type;
   `;
-  const rows = parseJsonCell(querySql(env, `select coalesce(json_agg(q),'[]'::json) from (${sql}) q;`)) ?? [];
+  const rows = parseJsonCell(querySql(env, jsonAggQuery(sql))) ?? [];
   const anonAny = rows.filter((row) => row.grantee === "anon");
   if (anonAny.length) {
     throw new EphemeralError(
@@ -90,7 +95,7 @@ export function assertLiveRpcContract(env) {
     join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and p.prokind = 'f';
   `;
-  const live = parseJsonCell(querySql(env, `select coalesce(json_agg(q),'[]'::json) from (${sql}) q;`)) ?? [];
+  const live = parseJsonCell(querySql(env, jsonAggQuery(sql))) ?? [];
   const errors = compareRpcContract(live, V477_CRITICAL_RPCS);
   if (errors.length) throw new EphemeralError(errors.join("; "));
   return { ok: true, liveCount: live.length };
