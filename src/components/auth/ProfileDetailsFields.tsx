@@ -1,6 +1,7 @@
 import { SIGNUP_SOURCE_OPTIONS } from "../../data/profileSignup";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { CountrySelect } from "./CountrySelect";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export interface ProfileDetailsFormState {
   birthDate: string;
@@ -40,11 +41,21 @@ export function ProfileDetailsFields({
   onSignupSource: (value: string) => void;
   showSignupSource?: boolean;
 }) {
+  const { t } = useTranslation();
+  const sourceLabel: Record<string, string> = {
+    instagram: t("onboarding.sourceInstagram"),
+    youtube: t("onboarding.sourceYoutube"),
+    tiktok: t("onboarding.sourceTiktok"),
+    google: t("onboarding.sourceGoogle"),
+    amigo: t("onboarding.sourceFriend"),
+    escola: t("onboarding.sourceSchool"),
+    outro: t("onboarding.sourceOther"),
+  };
   return (
     <div className="grid gap-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Data de nascimento</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.birthDate")}</span>
           <input
             type="date"
             value={birthDate}
@@ -53,23 +64,23 @@ export function ProfileDetailsFields({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">País</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.country")}</span>
           <CountrySelect value={country} onChange={onCountry} className={FIELD_CLASS} />
         </label>
       </div>
 
       {showSignupSource && (
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Como conheceu o Longyu?</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.howDidYouHear")}</span>
           <select
             value={signupSource}
             onChange={(event) => onSignupSource(event.target.value)}
             className={FIELD_CLASS}
           >
-            <option value="">Selecione (opcional)</option>
+            <option value="">{t("onboarding.selectOptional")}</option>
             {SIGNUP_SOURCE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {sourceLabel[option.value] ?? option.label}
               </option>
             ))}
           </select>
@@ -84,7 +95,7 @@ export function ProfileDetailsFields({
           className="mt-1 h-4 w-4 rounded border-line text-accent"
         />
         <span className="text-sm leading-5 text-ink-soft">
-          Quero receber novidades, dicas de estudo e ofertas do Longyu por email.
+          {t("onboarding.marketingOptIn")}
         </span>
       </label>
     </div>

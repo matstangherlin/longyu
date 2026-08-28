@@ -52,4 +52,10 @@ export {
   readPendingPlacement,
   writePendingPlacement,
 } from "./pending";
+export {
+  canonicalQuestionIdentity,
+  canonicalizeAnswer,
+  optionLabelForLocale,
+  wireAnswer,
+} from "./optionIdentity";
 export { normalizeAnswerEvidence, toServerPlacementEvidence } from "./evidence";

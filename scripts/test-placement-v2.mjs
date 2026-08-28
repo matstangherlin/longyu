@@ -19,7 +19,7 @@ const fail = (message) => failures.push(message);
 
 try {
   const program = ts.createProgram(
-    ["src/lib/placement/types.ts", "src/lib/placement/questions.ts", "src/lib/placement/engine.ts"],
+    ["src/lib/placement/types.ts", "src/lib/placement/optionIdentity.ts", "src/lib/placement/questions.ts", "src/lib/placement/engine.ts"],
     {
       target: ts.ScriptTarget.ES2020,
       module: ts.ModuleKind.CommonJS,

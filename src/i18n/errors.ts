@@ -200,6 +200,18 @@ const PATTERNS: MessagePattern[] = [
     test: (m) => includesAny(m, ["remova dados sensíveis da mensagem", "remove sensitive data from the message"]),
     key: "feedback.stripSensitive",
   },
+  {
+    test: (m) => includesAny(m, ["não encontramos o teste de nivelamento", "couldn't find placement on this account", "could not find placement"]),
+    key: "onboarding.pendingMissingDraft",
+  },
+  {
+    test: (m) => includesAny(m, ["não foi possível finalizar agora", "couldn't finish this now", "could not finish this now"]),
+    key: "onboarding.pendingTempError",
+  },
+  {
+    test: (m) => includesAny(m, ["use um email válido e uma senha", "use a valid email and a password with at least"]),
+    key: "onboarding.invalidEmailPassword",
+  },
 ];
 
 function matchUserMessage(message: string | null | undefined): MessagePattern | null {

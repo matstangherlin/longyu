@@ -17,7 +17,7 @@ when a natural product word already exists.
 | Missions | Missões | Daily/weekly goals. |
 | Charges | Cargas | Daily energy / lesson attempts. |
 | Practice | Praticar | Skill drills hub. |
-| Placement | Diagnóstico | Starting-point check. Keep “Placement” in EN. |
+| Placement | Diagnóstico | Starting-point check. Keep “Placement” in EN. Onboarding/Placement chrome in V4.8.1 uses this term only — not Diagnostic / Level Test / Assessment. |
 | Hànzì | Hànzì | Characters. Do not spell “Hanzi” in chrome unless already in code. |
 | Pinyin | Pinyin | Romanization. Untranslated. |
 | Pro | Pro | Paid plan. |

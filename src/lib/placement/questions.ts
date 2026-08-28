@@ -1,3 +1,4 @@
+import { isCanonicalOptionId, OPTION_ALIASES } from "./optionIdentity";
 import type { EssentialPlacementItem, QuizCategory, QuizDifficulty, QuizLayer, QuizQuestion } from "./types";
 
 export function quizQuestion(
@@ -39,7 +40,7 @@ function defaultUnlockWeight(
 }
 
 const SUPPORTED_QUESTIONS: QuizQuestion[] = [
-  quizQuestion("warm-nihao-meaning", "meaning", "supported", "O que significa esta saudação?", "Olá", ["Olá", "Obrigado(a)", "Não", "Tchau"], {
+  quizQuestion("warm-nihao-meaning", "meaning", "supported", "O que significa esta saudação?", "hello", ["hello", "thanks", "no", "bye"], {
     stimulus: "你好",
     detail: "pinyin: nǐ hǎo",
     allowHints: true,
@@ -48,7 +49,7 @@ const SUPPORTED_QUESTIONS: QuizQuestion[] = [
     essentialItem: "你好",
     withClue: true,
   }),
-  quizQuestion("warm-xiexie-meaning", "meaning", "supported", "O que significa esta frase?", "Obrigado(a).", ["Obrigado(a).", "De nada.", "Até logo.", "Tudo bem?"], {
+  quizQuestion("warm-xiexie-meaning", "meaning", "supported", "O que significa esta frase?", "thanksStop", ["thanksStop", "youreWelcome", "seeYouLater", "allGood"], {
     stimulus: "谢谢",
     detail: "pinyin: xièxie",
     allowHints: true,
@@ -79,8 +80,8 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
     "context",
     "noHelp",
     "Sem dica: no Longyu, o que chamamos de mandarim?",
-    "A forma padrão do chinês falado",
-    ["A forma padrão do chinês falado", "Um alfabeto chinês", "Uma tradução em português", "Um tipo de hànzì"],
+    "standardSpoken",
+    ["standardSpoken", "chineseAlphabet", "ptTranslation", "kindOfHanzi"],
     { difficulty: 2, essential: true, essentialItem: "mandarim", unlockWeight: 1.05 }
   ),
   quizQuestion(
@@ -88,8 +89,8 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
     "sound",
     "noHelp",
     "Sem dica: para que serve o pinyin?",
-    "Mostrar o som com letras latinas",
-    ["Mostrar o som com letras latinas", "Substituir hànzì para sempre", "Traduzir palavras para português", "Marcar plural"],
+    "showSoundLatin",
+    ["showSoundLatin", "replaceHanziForever", "translateToPt", "markPlural"],
     { difficulty: 2, essential: true, essentialItem: "pinyin", unlockWeight: 1.1 }
   ),
   quizQuestion(
@@ -97,8 +98,8 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
     "tone",
     "noHelp",
     "Sem dica: em mandarim, mudar o tom pode...",
-    "mudar a palavra",
-    ["mudar a palavra", "apagar o hànzì", "criar plural", "virar tradução"],
+    "changeTheWord",
+    ["changeTheWord", "eraseHanzi", "createPlural", "becomeTranslation"],
     { difficulty: 2, essential: true, essentialItem: "tom", unlockWeight: 1.1 }
   ),
   quizQuestion(
@@ -106,8 +107,8 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
     "hanzi",
     "noHelp",
     "Sem dica: o que é hànzì?",
-    "Caractere chinês usado na escrita",
-    ["Caractere chinês usado na escrita", "Pinyin com acento", "Som gravado", "Tradução literal"],
+    "chineseCharWriting",
+    ["chineseCharWriting", "pinyinWithAccent", "recordedSound", "literalTranslation"],
     { difficulty: 2, essential: true, essentialItem: "hanzi", unlockWeight: 1.1 }
   ),
   quizQuestion(
@@ -115,8 +116,8 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
     "hanzi",
     "noHelp",
     "Sem dica: qual diferença está correta?",
-    "Pinyin guia o som; hànzì é o caractere",
-    ["Pinyin guia o som; hànzì é o caractere", "Pinyin é o caractere; hànzì é áudio", "Pinyin é português; hànzì é tom", "Pinyin e hànzì são a mesma coisa"],
+    "pinyinGuidesSound",
+    ["pinyinGuidesSound", "pinyinIsCharacter", "pinyinIsPortuguese", "pinyinSameAsHanzi"],
     { difficulty: 3, essential: true, essentialItem: "hanzi", unlockWeight: 1.2 }
   ),
   quizQuestion(
@@ -124,8 +125,8 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
     "tone",
     "noHelp",
     "Sem dica: as marcas em mā má mǎ mà marcam o quê?",
-    "O tom da sílaba",
-    ["O tom da sílaba", "O plural", "A tradução", "O hànzì"],
+    "syllableTone",
+    ["syllableTone", "thePlural", "theTranslation", "theHanzi"],
     { difficulty: 2, essential: true, essentialItem: "tom", unlockWeight: 1.1 }
   ),
   quizQuestion(
@@ -140,13 +141,13 @@ const FOUNDATION_CHECK_QUESTIONS: QuizQuestion[] = [
 ];
 
 const REDUCED_HELP_QUESTIONS: QuizQuestion[] = [
-  quizQuestion("core-bu-meaning", "meaning", "reduced", "O que significa este caractere?", "não", ["eu", "não", "três", "bom"], {
+  quizQuestion("core-bu-meaning", "meaning", "reduced", "O que significa este caractere?", "not", ["i", "not", "three", "good"], {
     stimulus: "不",
     allowHints: true,
     difficulty: 2,
     essential: true,
   }),
-  quizQuestion("core-hao-meaning", "meaning", "reduced", "O que significa este caractere?", "bom; bem", ["bom; bem", "mãe", "casa", "obrigado"], {
+  quizQuestion("core-hao-meaning", "meaning", "reduced", "O que significa este caractere?", "goodWell", ["goodWell", "mother", "house", "thankYou"], {
     stimulus: "好",
     allowHints: true,
     difficulty: 2,
@@ -180,13 +181,13 @@ const NO_HELP_QUESTIONS: QuizQuestion[] = [
     essential: true,
     essentialItem: "你好",
   }),
-  quizQuestion("nohelp-xiexie-tone", "tone", "noHelp", "Sem dica: qual é o tom da primeira sílaba de 谢谢?", "4º tom", ["1º tom", "2º tom", "3º tom", "4º tom"], {
+  quizQuestion("nohelp-xiexie-tone", "tone", "noHelp", "Sem dica: qual é o tom da primeira sílaba de 谢谢?", "tone4", ["tone1", "tone2", "tone3", "tone4"], {
     stimulus: "谢谢",
     difficulty: 3,
     essential: true,
     essentialItem: "tom",
   }),
-  quizQuestion("nohelp-san-meaning", "meaning", "noHelp", "Sem dica: o que significa 三?", "três", ["três", "dez", "pessoa", "sol"], {
+  quizQuestion("nohelp-san-meaning", "meaning", "noHelp", "Sem dica: o que significa 三?", "three", ["three", "ten", "person", "sun"], {
     stimulus: "三",
     difficulty: 3,
     essential: true,
@@ -196,13 +197,13 @@ const NO_HELP_QUESTIONS: QuizQuestion[] = [
     essential: true,
     essentialItem: "hanzi",
   }),
-  quizQuestion("nohelp-ni-meaning", "meaning", "noHelp", "Sem dica: o que significa 你?", "você", ["você", "eu", "bom; bem", "não"], {
+  quizQuestion("nohelp-ni-meaning", "meaning", "noHelp", "Sem dica: o que significa 你?", "you", ["you", "i", "goodWell", "not"], {
     stimulus: "你",
     difficulty: 3,
     essential: true,
     essentialItem: "你",
   }),
-  quizQuestion("nohelp-nihaoma-sentence", "sentence", "noHelp", "Sem dica: escolha o significado da pergunta.", "Tudo bem?", ["Tudo bem?", "Obrigado(a).", "Até logo.", "Meu nome é..."], {
+  quizQuestion("nohelp-nihaoma-sentence", "sentence", "noHelp", "Sem dica: escolha o significado da pergunta.", "allGood", ["allGood", "thanksStop", "seeYouLater", "myNameIs"], {
     stimulus: "你好吗？",
     difficulty: 3,
     essential: true,
@@ -217,7 +218,7 @@ const NO_HELP_QUESTIONS: QuizQuestion[] = [
 ];
 
 const PHRASE_REASONING_QUESTIONS: QuizQuestion[] = [
-  quizQuestion("phrase-brazilian", "sentence", "sentenceReasoning", "Entenda pelo contexto: 我是巴西人", "Sou brasileiro.", ["Meu nome é Ana.", "Sou brasileiro.", "Eu quero água.", "Não entendi."], {
+  quizQuestion("phrase-brazilian", "sentence", "sentenceReasoning", "Entenda pelo contexto: 我是巴西人", "imBrazilian", ["myNameIsAna", "imBrazilian", "iWantWater", "didntGetIt"], {
     stimulus: "我是巴西人",
     difficulty: 3,
     essential: true,
@@ -226,14 +227,14 @@ const PHRASE_REASONING_QUESTIONS: QuizQuestion[] = [
     difficulty: 3,
     essential: true,
   }),
-  quizQuestion("phrase-cannot-speak", "sentence", "sentenceReasoning", "Sem dica: escolha o significado da frase.", "Não falo chinês.", ["Eu falo chinês.", "Não falo chinês.", "Eu estudo chinês.", "Gosto de chinês."], {
+  quizQuestion("phrase-cannot-speak", "sentence", "sentenceReasoning", "Sem dica: escolha o significado da frase.", "iDontSpeakChinese", ["iSpeakChinese", "iDontSpeakChinese", "iStudyChinese", "iLikeChinese"], {
     stimulus: "我不会说中文",
     difficulty: 4,
   }),
   quizQuestion("phrase-repeat", "context", "sentenceReasoning", "Você quer pedir para a pessoa repetir. O que combina dizer?", "请再说一遍", ["请再说一遍", "谢谢", "我很好", "再见"], {
     difficulty: 4,
   }),
-  quizQuestion("phrase-price-clue", "sentence", "sentenceReasoning", "Com pista: escolha o significado da frase.", "Quanto custa este?", ["Quanto custa este?", "Que horas são?", "Onde fica?", "Eu quero água."], {
+  quizQuestion("phrase-price-clue", "sentence", "sentenceReasoning", "Com pista: escolha o significado da frase.", "howMuchThis", ["howMuchThis", "whatTime", "whereIs", "iWantWater"], {
     stimulus: "这个多少钱？",
     allowHints: true,
     withClue: true,
@@ -242,12 +243,12 @@ const PHRASE_REASONING_QUESTIONS: QuizQuestion[] = [
 ];
 
 const SOUND_SPEECH_QUESTIONS: QuizQuestion[] = [
-  quizQuestion("audio-ma1-tone", "tone", "soundSpeech", "Ouça 妈 e escolha o tom que você ouviu.", "1º tom", ["1º tom", "2º tom", "3º tom", "4º tom"], {
+  quizQuestion("audio-ma1-tone", "tone", "soundSpeech", "Ouça 妈 e escolha o tom que você ouviu.", "tone1", ["tone1", "tone2", "tone3", "tone4"], {
     audioText: "妈",
     difficulty: 3,
     essential: true,
   }),
-  quizQuestion("audio-ma3-tone", "tone", "soundSpeech", "Ouça 马 e escolha o tom que você ouviu.", "3º tom", ["1º tom", "2º tom", "3º tom", "4º tom"], {
+  quizQuestion("audio-ma3-tone", "tone", "soundSpeech", "Ouça 马 e escolha o tom que você ouviu.", "tone3", ["tone1", "tone2", "tone3", "tone4"], {
     audioText: "马",
     difficulty: 4,
   }),
@@ -256,7 +257,7 @@ const SOUND_SPEECH_QUESTIONS: QuizQuestion[] = [
     difficulty: 3,
     essential: true,
   }),
-  quizQuestion("speech-nihao-self", "speaking", "soundSpeech", "Repita em voz alta 你好. Como ficou?", "Consegui repetir com tom parecido", ["Consegui repetir com tom parecido", "Reconheci, mas não consegui repetir", "Não reconheci o som"], {
+  quizQuestion("speech-nihao-self", "speaking", "soundSpeech", "Repita em voz alta 你好. Como ficou?", "repeatedSimilarTone", ["repeatedSimilarTone", "recognizedNotRepeated", "didNotRecognize"], {
     audioText: "你好",
     difficulty: 3,
     tier: "A",
@@ -287,7 +288,7 @@ const PRODUCTION_QUESTIONS: QuizQuestion[] = [
 ];
 
 const ADVANCED_HANZI_QUESTIONS: QuizQuestion[] = [
-  quizQuestion("adv-ming-meaning", "hanzi", "noHelp", "Sem dica: 明 junta sol e lua. O que significa?", "claro; brilhante", ["escuro", "claro; brilhante", "floresta", "descanso"], {
+  quizQuestion("adv-ming-meaning", "hanzi", "noHelp", "Sem dica: 明 junta sol e lua. O que significa?", "bright", ["dark", "bright", "forest", "rest"], {
     stimulus: "明",
     difficulty: 4,
   }),
@@ -295,7 +296,7 @@ const ADVANCED_HANZI_QUESTIONS: QuizQuestion[] = [
     stimulus: "妈",
     difficulty: 4,
   }),
-  quizQuestion("adv-lin-meaning", "hanzi", "noHelp", "Sem dica: o que significa 林?", "bosque; floresta", ["montanha", "bosque; floresta", "rio", "fogo"], {
+  quizQuestion("adv-lin-meaning", "hanzi", "noHelp", "Sem dica: o que significa 林?", "woods", ["mountain", "woods", "river", "fire"], {
     stimulus: "林",
     difficulty: 4,
   }),
@@ -303,7 +304,7 @@ const ADVANCED_HANZI_QUESTIONS: QuizQuestion[] = [
     stimulus: "中国",
     difficulty: 4,
   }),
-  quizQuestion("adv-nice-meet", "sentence", "sentenceReasoning", "Sem dica: o que significa 认识你很高兴?", "Prazer em conhecer você.", ["Prazer em conhecer você.", "Eu quero este.", "Não falo chinês.", "Quanto custa?"], {
+  quizQuestion("adv-nice-meet", "sentence", "sentenceReasoning", "Sem dica: o que significa 认识你很高兴?", "niceToMeet", ["niceToMeet", "iWantThis", "iDontSpeakChinese", "howMuch"], {
     stimulus: "认识你很高兴",
     difficulty: 4,
   }),
@@ -350,9 +351,13 @@ export function isValidQuizQuestion(question: QuizQuestion): boolean {
   const options = question.options ?? [];
   if (options.length < 2) return false;
   if (options.some((option) => !option?.trim())) return false;
-  const normalized = options.map(normalizeQuizOption);
-  if (new Set(normalized).size !== normalized.length) return false;
-  return normalized.includes(normalizeQuizOption(question.answer));
+  if (!options.includes(question.answer)) return false;
+  if (new Set(options).size !== options.length) return false;
+  for (const option of options) {
+    if (isCanonicalOptionId(option)) continue;
+    if (!OPTION_ALIASES[option]?.length) return false;
+  }
+  return true;
 }
 
 export const VALID_PLACEMENT_QUESTIONS = PLACEMENT_QUESTION_BANK.filter(isValidQuizQuestion);

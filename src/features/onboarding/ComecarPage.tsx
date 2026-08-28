@@ -3,12 +3,11 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/primitives";
 import { Mascot } from "../../components/brand/Mascot";
 import { BrandWordmark } from "../../components/layout/Brand";
-import { GlossText } from "../../components/hanzi/GlossText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { IconCheck, IconChevron } from "../../components/ui/Icon";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
-import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
+import { ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
@@ -19,9 +18,11 @@ import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { createAccount as createAuthAccount } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
+import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
+import { useTranslation } from "../../i18n/useTranslation";
+import { localizeUserMessage } from "../../i18n/errors";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import {
-  CATEGORY_LABEL,
   appendPendingAnswer,
   assessmentTier,
   chooseNextQuestion,
@@ -33,47 +34,76 @@ import {
   writePendingPlacement,
   type Experience,
   type PlacementAnalysis,
+  type QuizCategory,
   type QuizQuestion,
 } from "../../lib/placement";
+import { isCanonicalOptionId } from "../../lib/placement/optionIdentity";
+import {
+  localizedPlacementHeading,
+  localizedPlacementMessage,
+  placementGlossKey,
+  placementOptionLabel,
+  placementPrompt,
+} from "../../lib/placement/uiCopy";
 import { ALL_LESSONS, JOURNEY } from "../../data/journey";
 
 type FunnelStep = "welcome" | "goal" | "level" | "quiz" | "result" | "account";
 
-const GOAL_OPTIONS = [
-  { id: "travel", icon: "✈", label: "Preparar uma viagem" },
-  { id: "study", icon: "📚", label: "Apoiar meus estudos" },
-  { id: "habit", icon: "🧠", label: "Usar melhor meu tempo" },
-  { id: "career", icon: "💼", label: "Crescer na carreira" },
-  { id: "people", icon: "🤝", label: "Conversar com pessoas" },
-  { id: "hanzi", icon: "字", label: "Ler caracteres chineses" },
+const GOAL_OPTIONS: Array<{ id: string; icon: string; labelKey: string }> = [
+  { id: "travel", icon: "✈", labelKey: "onboarding.goalTravel" },
+  { id: "study", icon: "📚", labelKey: "onboarding.goalStudy" },
+  { id: "habit", icon: "🧠", labelKey: "onboarding.goalHabit" },
+  { id: "career", icon: "💼", labelKey: "onboarding.goalCareer" },
+  { id: "people", icon: "🤝", labelKey: "onboarding.goalPeople" },
+  { id: "hanzi", icon: "字", labelKey: "onboarding.goalHanzi" },
 ];
 
-const EXPERIENCE_OPTIONS: Array<{ id: Experience; icon: string; label: string; desc: string }> = [
-  { id: "zero", icon: "▂", label: "Nunca estudei mandarim.", desc: "Você começa pela base essencial, mesmo se fizer o teste rápido." },
-  { id: "words", icon: "▂▅", label: "Sei algumas palavras.", desc: "Reconheço coisas como olá, obrigado ou alguns números." },
-  { id: "studied", icon: "▂▅▇", label: "Já estudei o básico.", desc: "Vi pinyin, tons ou frases curtas, mas ainda preciso consolidar." },
-  { id: "phrases", icon: "▂▅▇", label: "Consigo ler pinyin e frases simples.", desc: "Entendo frases simples sem glossário completo." },
-  { id: "advanced", icon: "▂▅▇█", label: "Já sei hànzì e tons básicos.", desc: "Quero provar leitura, áudio, tons, hànzì e produção." },
+const EXPERIENCE_OPTIONS: Array<{ id: Experience; icon: string; labelKey: string; descKey: string }> = [
+  { id: "zero", icon: "▂", labelKey: "onboarding.expZero", descKey: "onboarding.expZeroDesc" },
+  { id: "words", icon: "▂▅", labelKey: "onboarding.expWords", descKey: "onboarding.expWordsDesc" },
+  { id: "studied", icon: "▂▅▇", labelKey: "onboarding.expStudied", descKey: "onboarding.expStudiedDesc" },
+  { id: "phrases", icon: "▂▅▇", labelKey: "onboarding.expPhrases", descKey: "onboarding.expPhrasesDesc" },
+  { id: "advanced", icon: "▂▅▇█", labelKey: "onboarding.expAdvanced", descKey: "onboarding.expAdvancedDesc" },
 ];
 
 const STEPS: FunnelStep[] = ["welcome", "goal", "level", "quiz", "result", "account"];
 
-function firstName(name: string): string {
-  return name.trim().split(/\s+/)[0] || "aluno";
+function firstName(name: string, fallback: string): string {
+  return name.trim().split(/\s+/)[0] || fallback;
 }
 
 function containsCjkText(value: string): boolean {
   return /[\u3400-\u9fff]/.test(value);
 }
 
-function quizLayerLabel(question: QuizQuestion): string {
-  if (question.withClue) return "Com pista";
+function quizLayerLabel(question: QuizQuestion, t: (key: string) => string): string {
+  if (question.withClue) return t("placement.layerClue");
   const tier = assessmentTier(question);
-  if (tier === "A") return "Com apoio";
-  if (tier === "E") return "Produção guiada";
-  if (tier === "D") return "Áudio e tom";
-  if (tier === "C") return "Frase nova";
-  return "Sem ajuda";
+  if (tier === "A") return t("placement.layerSupport");
+  if (tier === "E") return t("placement.layerProduction");
+  if (tier === "D") return t("placement.layerAudioTone");
+  if (tier === "C") return t("placement.layerNewPhrase");
+  return t("placement.layerNoHelp");
+}
+
+function categoryLabel(category: QuizCategory, t: (key: string) => string): string {
+  const keys: Record<QuizCategory, string> = {
+    meaning: "placement.categoryMeaning",
+    sound: "placement.categorySound",
+    tone: "placement.categoryTone",
+    hanzi: "placement.categoryHanzi",
+    sentence: "placement.categorySentence",
+    context: "placement.categoryContext",
+    speaking: "placement.categorySpeaking",
+  };
+  return t(keys[category]);
+}
+
+function difficultyLabel(difficulty: number, t: (key: string) => string): string {
+  if (difficulty === 1) return t("placement.difficultyBase");
+  if (difficulty === 2) return t("placement.difficultyCurrent");
+  if (difficulty === 3) return t("placement.difficultyProbe");
+  return t("placement.difficultyAdvanced");
 }
 
 function entryPointForLesson(lessonId: string): { phaseTitle: string; unitTitle: string } | undefined {
@@ -92,6 +122,7 @@ function lessonTitle(lessonId: string): string {
 }
 
 export function ComecarPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<FunnelStep>("welcome");
@@ -179,7 +210,7 @@ export function ComecarPage() {
     event.preventDefault();
     if (busy || name.trim().length < 2) return;
     if (!canRegisterWithCredentials(email, password, passwordConfirm)) {
-      setError("Use um email válido e uma senha com pelo menos 6 caracteres.");
+      setError(t("onboarding.invalidEmailPassword"));
       return;
     }
     setBusy(true);
@@ -191,7 +222,7 @@ export function ComecarPage() {
       return;
     }
     const result = await createAuthAccount(email, password, {
-      name: firstName(name),
+      name: firstName(name, t("onboarding.learnerFallback")),
       birthDate: birthDate.trim() || null,
       country: country.trim() || null,
       signupSource: signupSource.trim() || null,
@@ -199,8 +230,7 @@ export function ComecarPage() {
       onboardingCompleted: false,
     });
     if (result.status === "error" || result.status === "not_implemented") {
-      const infra = /criar a conta agora|conectar ao Longyu|indisponível|failed to fetch|network|timeout|ainda não estão ativas/i;
-      setError(infra.test(result.message) ? BACKEND_UNAVAILABLE_MESSAGE : result.message || BACKEND_UNAVAILABLE_MESSAGE);
+      setError(localizeUserMessage(result.message || BACKEND_UNAVAILABLE_MESSAGE) || t("onboarding.signupHandoffFailed"));
       setBusy(false);
       return;
     }
@@ -218,7 +248,7 @@ export function ComecarPage() {
     });
     setBusy(false);
     if (!result.ok) {
-      setError(result.message || BACKEND_UNAVAILABLE_MESSAGE);
+      setError(localizeUserMessage(result.message || BACKEND_UNAVAILABLE_MESSAGE) || t("onboarding.signupHandoffFailed"));
       return;
     }
     navigate("/jornada", { replace: true });
@@ -243,14 +273,14 @@ export function ComecarPage() {
             if (previous === "level") setStep("level");
           }}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg text-ink-faint transition hover:bg-surface-2"
-          aria-label="Voltar"
+          aria-label={t("onboarding.back")}
         >
           ←
         </button>
         <div
           className="h-2.5 flex-1 overflow-hidden rounded-full bg-line"
           role="progressbar"
-          aria-label="Progresso da configuração"
+          aria-label={t("onboarding.progress")}
           aria-valuemin={1}
           aria-valuemax={STEPS.length}
           aria-valuenow={progress}
@@ -260,6 +290,7 @@ export function ComecarPage() {
             style={{ width: `${(progress / STEPS.length) * 100}%` }}
           />
         </div>
+        <LanguageSwitcher compact id="onboarding-interface-locale" />
         <BrandWordmark className="text-lg" />
       </header>
 
@@ -273,8 +304,8 @@ export function ComecarPage() {
         )}
         {step === "goal" && (
           <ChoiceGrid
-            prompt="Por que você quer aprender mandarim?"
-            choices={GOAL_OPTIONS}
+            prompt={t("onboarding.goalPrompt")}
+            choices={GOAL_OPTIONS.map((choice) => ({ ...choice, label: t(choice.labelKey) }))}
             value={goal}
             onPick={(id) => {
               setGoal(id);
@@ -284,8 +315,12 @@ export function ComecarPage() {
         )}
         {step === "level" && (
           <ChoiceGrid
-            prompt="Quanto mandarim você já sabe?"
-            choices={EXPERIENCE_OPTIONS}
+            prompt={t("onboarding.experiencePrompt")}
+            choices={EXPERIENCE_OPTIONS.map((choice) => ({
+              ...choice,
+              label: t(choice.labelKey),
+              desc: t(choice.descKey),
+            }))}
             value={experience}
             onPick={(id) => setExperience(id as Experience)}
           />
@@ -355,40 +390,41 @@ export function ComecarPage() {
               else if (step === "level" && experience) startQuiz(experience);
             }}
           >
-            Continuar <IconChevron width={18} height={18} />
+            {t("onboarding.continue")} <IconChevron width={18} height={18} />
           </Button>
         </div>
       )}
       {step === "quiz" && (
         <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-6">
           <Button size="lg" className="w-full" disabled={!picked} onClick={answerCurrent}>
-            Confirmar <IconChevron width={18} height={18} />
+            {t("placement.confirm")} <IconChevron width={18} height={18} />
           </Button>
         </div>
       )}
       {searchParams.get("intent") === "subscribe" ? (
-        <p className="sr-only">Depois da conta você volta para o plano Pro.</p>
+        <p className="sr-only">{t("onboarding.subscribeIntent")}</p>
       ) : null}
     </div>
   );
 }
 
 function Welcome({ onStart }: { onStart: () => void }) {
+  const { t } = useTranslation();
   return (
-    <div className="mx-auto grid w-full max-w-3xl items-center gap-8 md:grid-cols-2">
+    <div className="mx-auto grid w-full max-w-3xl items-center gap-8 md:grid-cols-2" data-testid="onboarding-welcome">
       <div className="flex justify-center">
         <Mascot size={224} variant="celebrate" />
       </div>
       <div className="text-center md:text-left">
         <BrandWordmark className="mx-auto block text-3xl md:mx-0" />
         <h1 className="mt-5 font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-          Primeiro o Longyu encontra seu ponto de partida.
+          {t("onboarding.welcomeTitle")}
         </h1>
         <p className="mt-3 text-ink-soft">
-          Um teste curto, depois você cria a conta para salvar o resultado. Sem conta local.
+          {t("onboarding.welcomeLead")}
         </p>
         <Button size="lg" onClick={onStart} className="mt-6 w-full md:w-auto">
-          Começar <IconChevron width={18} height={18} />
+          {t("onboarding.getStarted")} <IconChevron width={18} height={18} />
         </Button>
       </div>
     </div>
@@ -416,6 +452,7 @@ function ChoiceGrid<T extends string>({
             <button
               key={choice.id}
               type="button"
+              data-testid={`onboarding-choice-${choice.id}`}
               onClick={() => onPick(choice.id as T)}
               aria-pressed={active}
               className={[
@@ -453,10 +490,13 @@ function MascotPrompt({ prompt }: { prompt: string }) {
   );
 }
 
-function QuizText({ value, onUseHint, allowHints, className = "" }: { value: string; onUseHint: () => void; allowHints: boolean; className?: string }) {
-  if (!containsCjkText(value)) return <span className={className}>{formatPinyinForDisplay(value)}</span>;
-  if (!allowHints) return <GlossText examMode text={value} className={className} />;
-  return <GlossText text={value} speakOnClick={false} onHintOpen={onUseHint} className={className} />;
+function OptionText({ optionId }: { optionId: string }) {
+  const { locale } = useTranslation();
+  if (isCanonicalOptionId(optionId)) {
+    if (containsCjkText(optionId)) return <span className="hanzi">{optionId}</span>;
+    return <span>{formatPinyinForDisplay(optionId)}</span>;
+  }
+  return <span>{placementOptionLabel(optionId, locale)}</span>;
 }
 
 function QuizCard({
@@ -478,8 +518,16 @@ function QuizCard({
   onSubmit: () => void;
   onUseHint: () => void;
 }) {
+  const { t, locale } = useTranslation();
   const difficulty = quizDifficulty(question, declaredLevel);
   const allowHints = question.hasHint === true;
+  const [hintOpen, setHintOpen] = useState(false);
+  const glossKey = question.stimulus ? placementGlossKey(question.stimulus) : question.audioText ? placementGlossKey(question.audioText) : null;
+
+  useEffect(() => {
+    setHintOpen(false);
+  }, [question.id]);
+
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
@@ -491,22 +539,28 @@ function QuizCard({
     },
     onSubmit,
   });
+
+  function revealHint() {
+    setHintOpen(true);
+    onUseHint();
+  }
+
   return (
-    <div>
-      <MascotPrompt prompt={`Pergunta ${index + 1}`} />
+    <div data-testid="placement-quiz">
+      <MascotPrompt prompt={t("placement.questionN", { n: index + 1 })} />
       <div className="mx-auto max-w-2xl text-center">
         <div className="flex flex-wrap justify-center gap-2">
           <span className="rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-            {CATEGORY_LABEL[question.category]}
+            {categoryLabel(question.category, t)}
           </span>
           <span className="rounded-full border border-line px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-            {difficulty === 1 ? "Base" : difficulty === 2 ? "Fase atual" : difficulty === 3 ? "Sondagem" : "Avançada"}
+            {difficultyLabel(difficulty, t)}
           </span>
           <span className="rounded-full border border-line px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {quizLayerLabel(question)}
+            {quizLayerLabel(question, t)}
           </span>
         </div>
-        <h1 className="mt-3 font-serif text-3xl font-semibold text-ink">{question.prompt}</h1>
+        <h1 className="mt-3 font-serif text-3xl font-semibold text-ink">{placementPrompt(question, locale)}</h1>
         {question.audioText && (
           <div className="mt-4 flex justify-center">
             <SpeakButton text={question.audioText} size="lg" />
@@ -514,13 +568,22 @@ function QuizCard({
         )}
         {question.stimulus && (
           <div className="mt-4 rounded-[24px] border border-line bg-surface-2 px-4 py-5">
-            <QuizText value={question.stimulus} onUseHint={onUseHint} allowHints={allowHints} className="text-5xl font-semibold text-ink" />
+            <span className="hanzi text-5xl font-semibold text-ink">{question.stimulus}</span>
           </div>
         )}
+        {allowHints && glossKey && (
+          <button
+            type="button"
+            className="mt-3 text-sm font-semibold text-accent hover:underline"
+            onClick={revealHint}
+          >
+            {hintOpen ? t(glossKey) : t("placement.seeTranslation")}
+          </button>
+        )}
         <p className="mx-auto mt-3 max-w-sm text-xs text-ink-faint">
-          {allowHints ? "Acerto com dica ajuda o diagnóstico, mas não prova domínio." : "Sem dica nesta pergunta."}
+          {allowHints ? t("placement.hintHelps") : t("placement.noHintHere")}
         </p>
-        <KeyboardShortcutHint />
+        <p className="mt-2 hidden text-[11px] font-medium text-ink-faint sm:block">{t("onboarding.shortcutHint")}</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {question.options.map((option, optionIndex) => {
             const active = picked === option;
@@ -529,12 +592,13 @@ function QuizCard({
               <button
                 key={option}
                 type="button"
+                data-testid={`placement-option-${option}`}
                 onClick={() => onPick(option)}
                 aria-pressed={active}
                 className={["relative rounded-2xl border px-5 py-4 text-left font-medium shadow-card", active ? "border-accent bg-accent-soft" : "border-line bg-surface"].join(" ")}
               >
                 <ShortcutBadge className="absolute right-3 top-3">{shortcut}</ShortcutBadge>
-                <QuizText value={option} onUseHint={onUseHint} allowHints={allowHints} />
+                <OptionText optionId={option} />
               </button>
             );
           })}
@@ -557,43 +621,52 @@ function ResultPreview({
   busy?: boolean;
   error?: string | null;
 }) {
+  const { t, locale } = useTranslation();
   const entry = entryPointForLesson(analysis.placement.targetLessonId);
+  const strengths =
+    analysis.strengthCategoryIds?.map((category) => categoryLabel(category, t)).join(", ") || t("placement.strengthFallback");
+  const buildAreas = [
+    ...(analysis.hintIndependenceNeeded ? [t("placement.hintIndependence")] : []),
+    ...(analysis.reinforcementCategoryIds ?? []).map((category) => categoryLabel(category, t)),
+  ]
+    .slice(0, 4)
+    .join(", ") || t("placement.reinforcementFallback");
   return (
-    <div>
-      <MascotPrompt prompt="Encontramos seu ponto de partida." />
+    <div data-testid="placement-result">
+      <MascotPrompt prompt={t("placement.resultPrompt")} />
       <div className="mx-auto max-w-2xl rounded-[28px] border border-line bg-surface p-6 shadow-lift">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Ponto de partida recomendado</div>
-        <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{analysis.placement.label}</h1>
-        <p className="mt-3 text-sm leading-6 text-ink-soft">{analysis.resultMessage}</p>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("placement.recommended")}</div>
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{localizedPlacementHeading(analysis, locale)}</h1>
+        <p className="mt-3 text-sm leading-6 text-ink-soft">{localizedPlacementMessage(analysis, locale)}</p>
         <p className="mt-2 text-sm font-medium text-ink">
-          {entry?.phaseTitle ?? "Jornada"} {entry?.unitTitle ? `· ${entry.unitTitle}` : ""} · {lessonTitle(analysis.placement.targetLessonId)}
+          {entry?.phaseTitle ?? t("journey.title")} {entry?.unitTitle ? `· ${entry.unitTitle}` : ""} · {lessonTitle(analysis.placement.targetLessonId)}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <Stat label="Confiança da avaliação" value={`${Math.round(analysis.placementConfidence * 100)}%`} />
-          <Stat label="Perguntas" value={String(analysis.questionsAnswered)} />
+          <Stat label={t("placement.confidence")} value={`${Math.round(analysis.placementConfidence * 100)}%`} />
+          <Stat label={t("placement.questions")} value={String(analysis.questionsAnswered)} />
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <Stat label="Pontos fortes" value={analysis.strengths.join(", ") || "Vamos descobrir juntos"} />
-          <Stat label="Áreas que vamos construir" value={analysis.reinforcements.join(", ") || "Base essencial"} />
+          <Stat label={t("placement.strengths")} value={strengths} />
+          <Stat label={t("placement.buildAreas")} value={buildAreas} />
         </div>
         {error && (
           <p className="mt-4 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong">
-            {error}
+            {localizeUserMessage(error)}
           </p>
         )}
         <Button size="lg" className="mt-6 w-full" onClick={onContinue} data-testid="create-account-cta" disabled={busy}>
           {authenticated
             ? busy
-              ? "Salvando..."
-              : "Salvar ponto de partida"
-            : "Criar minha conta e salvar o resultado"}
+              ? t("placement.saving")
+              : t("placement.saveStartingPoint")
+            : t("placement.createAccountCta")}
         </Button>
         {!authenticated && (
           <Link
             to="/login?next=/jornada"
             className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl text-sm font-semibold text-accent hover:underline"
           >
-            Já tenho uma conta
+            {t("onboarding.alreadyHaveAccount")}
           </Link>
         )}
       </div>
@@ -652,27 +725,28 @@ function MandatoryAccount({
   onSubmit: (event: FormEvent) => void;
 }) {
   const cloud = isSupabaseBackendEnabled();
+  const { t } = useTranslation();
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-xl rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Conta obrigatória</div>
-      <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">Crie sua conta para salvar o resultado</h1>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("onboarding.accountEyebrow")}</div>
+      <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{t("onboarding.accountTitle")}</h1>
       <p className="mt-2 text-sm text-ink-soft">
-        O teste já está pronto neste dispositivo. Depois da confirmação do email, o Longyu grava o nivelamento na sua conta.
+        {t("onboarding.accountLead")}
       </p>
       <label className="mt-5 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Nome</span>
-        <input value={name} onChange={(event) => onName(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder="Ex.: Matheus" />
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.name")}</span>
+        <input value={name} onChange={(event) => onName(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder={t("onboarding.namePlaceholder")} />
       </label>
       <label className="mt-3 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Email</span>
-        <input type="email" value={email} onChange={(event) => onEmail(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder="voce@email.com" />
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
+        <input type="email" value={email} onChange={(event) => onEmail(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder={t("auth.emailPlaceholder")} />
       </label>
       <label className="mt-3 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.password")}</span>
         <input type="password" value={password} onChange={(event) => onPassword(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" />
       </label>
       <label className="mt-3 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Confirmar senha</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.confirmPassword")}</span>
         <input type="password" value={passwordConfirm} onChange={(event) => onPasswordConfirm(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" />
       </label>
       <div className="mt-3">
@@ -688,15 +762,15 @@ function MandatoryAccount({
           showSignupSource
         />
       </div>
-      {error && <p className="mt-3 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm text-wrong">{error}</p>}
+      {error && <p className="mt-3 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm text-wrong">{localizeUserMessage(error)}</p>}
       {!cloud && (
-        <p className="mt-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft">{BACKEND_UNAVAILABLE_MESSAGE}</p>
+        <p className="mt-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft">{localizeUserMessage(BACKEND_UNAVAILABLE_MESSAGE)}</p>
       )}
       <Button type="submit" size="lg" className="mt-5 w-full" disabled={busy || name.trim().length < 2}>
-        {busy ? "Criando conta..." : "Criar minha conta e salvar o resultado"}
+        {busy ? t("onboarding.creatingAccount") : t("onboarding.createAccountCta")}
       </Button>
       <Link to="/login" className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-accent hover:underline">
-        Já tenho uma conta
+        {t("onboarding.alreadyHaveAccount")}
       </Link>
     </form>
   );

@@ -78,7 +78,8 @@ assert(
   envExample.includes("VITE_CLOUD_ONBOARDING_V2_ENABLED"),
   ".env.example deve documentar o handoff V4.7.1"
 );
-assert(comecar.includes("Criar minha conta e salvar o resultado"), "CTA de conta obrigatória no resultado");
+assert(comecar.includes("createAccountCta"), "CTA de conta obrigatória no resultado (catalog key)");
+assert(ptBR.includes("Criar minha conta e salvar o resultado"), "pt-BR mantém CTA de conta obrigatória");
 assert(!comecar.includes("finishLocalOnboarding"), "funil /comecar não pode chamar finishLocalOnboarding");
 assert(!accountPage.includes("Conta local neste dispositivo"), "copy de conta local saiu da experiência normal");
 assert(!requireCloud.includes('authMode === "cloud"'), "Jornada não abre só porque o persist diz authMode=cloud");

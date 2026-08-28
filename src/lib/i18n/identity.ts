@@ -15,6 +15,10 @@
  * lancamento enviado ao backend (sempre pt-BR / zh-CN nesta remessa).
  * Nao exige as colunas hospedadas da #208 para a UI trocar de idioma.
  *
+ * V4.8.1: a UI de onboarding/Placement segue a preferencia local. Ate a #208
+ * ser aplicada, confirmar o email em outro browser nao persiste o idioma
+ * da interface na nuvem. Isso nao bloqueia V4.8.1.
+ *
  * Futuro (nao nesta PR): a mesma conta pode ter instruction_locale en
  * para o par en → zh-CN, sem duplicar banco nem a Journey. Dados canonicos
  * chineses (hanzi, pinyin, audio, estrutura) continuam independentes do locale.

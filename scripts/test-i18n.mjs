@@ -147,6 +147,14 @@ try {
   assert(pedagogy.isLocalizableInstructionField("explanation"), "explanation is localizable");
   assert(!pedagogy.isCanonicalZhField("explanation"), "explanation is not canonical zh");
 
+  locale.setInterfaceLocale("en");
+  assert(catalog.t("placement.title") === "Placement", "EN Placement term");
+  assert(catalog.t("onboarding.welcomeTitle").includes("right place for you to start"), "EN onboarding heading");
+  assert(catalog.t("placement.opt.hello") === "Hello", "gloss option overlay en");
+  locale.setInterfaceLocale("pt-BR");
+  assert(catalog.t("placement.opt.hello") === "Olá", "gloss option overlay pt-BR");
+  assert(catalog.t("placement.prompt.warmNihaoMeaning") === "O que significa esta saudação?", "PT prompt unchanged");
+
   const storeSrc = fs.readFileSync(path.join(root, "src/lib/store.ts"), "utf8");
   assert(!storeSrc.includes("INTERFACE_LOCALE_STORAGE_KEY"), "locale is not inside the pedagogical store");
   assert(/version:\s*20/.test(storeSrc), "pedagogical persist version unchanged");

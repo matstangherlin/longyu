@@ -1,12 +1,16 @@
 import { COUNTRY_OPTIONS } from "../../data/countries";
 import { canonicalCountryCode, countryLabelForCode, LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
+import { useTranslation } from "../../i18n/useTranslation";
+import type { SupportedLocale } from "../../i18n/config";
 
-const SORTED_OPTIONS = [
-  ...COUNTRY_OPTIONS.filter((item) => item.code === LAUNCH_COUNTRY_CODE),
-  ...COUNTRY_OPTIONS.filter((item) => item.code !== LAUNCH_COUNTRY_CODE).sort((a, b) =>
-    a.label.localeCompare(b.label, "pt-BR")
-  ),
-];
+function localizedCountryName(code: string, locale: SupportedLocale, fallback: string): string {
+  try {
+    const names = new Intl.DisplayNames([locale === "en" ? "en" : "pt-BR"], { type: "region" });
+    return names.of(code) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export function CountrySelect({
   id,
@@ -27,8 +31,15 @@ export function CountrySelect({
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
 }) {
+  const { locale } = useTranslation();
   const selected = canonicalCountryCode(value);
-  const listed = SORTED_OPTIONS.some((item) => item.code === selected);
+  const sorted = [
+    ...COUNTRY_OPTIONS.filter((item) => item.code === LAUNCH_COUNTRY_CODE),
+    ...COUNTRY_OPTIONS.filter((item) => item.code !== LAUNCH_COUNTRY_CODE).sort((a, b) =>
+      localizedCountryName(a.code, locale, a.label).localeCompare(localizedCountryName(b.code, locale, b.label), locale)
+    ),
+  ];
+  const listed = sorted.some((item) => item.code === selected);
 
   return (
     <select
@@ -43,10 +54,12 @@ export function CountrySelect({
       aria-describedby={ariaDescribedBy}
       className={className}
     >
-      {!listed ? <option value={selected}>{countryLabelForCode(selected)}</option> : null}
-      {SORTED_OPTIONS.map((item) => (
+      {!listed ? (
+        <option value={selected}>{localizedCountryName(selected, locale, countryLabelForCode(selected))}</option>
+      ) : null}
+      {sorted.map((item) => (
         <option key={item.code} value={item.code}>
-          {item.label}
+          {localizedCountryName(item.code, locale, item.label)}
         </option>
       ))}
     </select>

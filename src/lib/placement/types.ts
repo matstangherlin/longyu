@@ -100,9 +100,39 @@ export interface FoundationProof {
   proven: boolean;
 }
 
+export type PlacementLabelId =
+  | "firstContact"
+  | "compactBase"
+  | "guidedBase"
+  | "soundAndTones"
+  | "firstPhaseCompact"
+  | "tonesAndRhythm"
+  | "oneModuleAhead"
+  | "earlyPhrases"
+  | "strongBaseLimitedSkip"
+  | "logicalHanzi"
+  | "phrasesWithBasicHanzi"
+  | "selectiveFoundations";
+
+export type PlacementResultMessageId =
+  | "beginnerStart"
+  | "beginnerCompact"
+  | "guidedPinyinTonesHanzi"
+  | "consolidateTonesPinyin"
+  | "advanceWithFoundations"
+  | "skipOneModule"
+  | "consolidateBeforeAdvance"
+  | "journeySkipWhereProven"
+  | "needUnaidedProofs"
+  | "skipOnlyProvenThemes"
+  | "buildWhatNeedsEvidence";
+
+export type PlacementConsistencyId = "high" | "medium" | "low";
+
 export interface PlacementDecision {
   level: PlacementLevel;
   label: string;
+  labelId: PlacementLabelId;
   targetLessonId: string;
   skippedLessonIds: string[];
   foundationLessonIdsRequired: string[];
@@ -134,11 +164,17 @@ export interface PlacementAnalysis {
   advancedMisses: number;
   advancedCorrect: number;
   resultMessage: string;
+  resultMessageId: PlacementResultMessageId;
+  foundationGate: boolean;
   skippedLessonIds: string[];
   foundationLessonIdsRequired: string[];
   foundationProofs: FoundationProof[];
   decisionReasons: string[];
   consistency: "Alta" | "Média" | "Baixa";
+  consistencyId: PlacementConsistencyId;
+  strengthCategoryIds: QuizCategory[];
+  reinforcementCategoryIds: QuizCategory[];
+  hintIndependenceNeeded: boolean;
   strengths: string[];
   reinforcements: string[];
   placementConfidence: number;

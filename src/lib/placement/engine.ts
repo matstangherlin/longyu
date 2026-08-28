@@ -16,13 +16,16 @@ import {
   type PlacementCompetencyState,
   type PlacementDecision,
   type PlacementDimension,
+  type PlacementLabelId,
   type PlacementLevel,
+  type PlacementResultMessageId,
   type QuizCategory,
   type QuizCategoryStat,
   type QuizDifficulty,
   type QuizQuestion,
   type QuizTierStat,
 } from "./types";
+import { canonicalizeAnswer } from "./optionIdentity";
 import { getPlacementQuestion, VALID_PLACEMENT_QUESTIONS } from "./questions";
 
 const CATEGORY_DIFFICULTY: Record<QuizCategory, QuizDifficulty> = {
@@ -132,7 +135,7 @@ export function competenciesFromEvidence(
     const question = getPlacementQuestion(evidence.questionId);
     if (!question) continue;
     const dimension = dimensionOf(question);
-    const correct = normalizeMatch(evidence.answer, question.answer);
+    const correct = isCorrectAnswer(question, evidence.answer);
     map[dimension] = updateCompetency(map[dimension], {
       correct,
       hinted: evidence.hintUsed,
@@ -142,8 +145,8 @@ export function competenciesFromEvidence(
   return map;
 }
 
-function normalizeMatch(given: string, expected: string): boolean {
-  return given.trim() === expected.trim();
+function isCorrectAnswer(question: QuizQuestion, given: string): boolean {
+  return canonicalizeAnswer(question, given) === question.answer;
 }
 
 export function informationValue(
@@ -220,7 +223,7 @@ export function shouldStopPlacement(
   const wrongCount = answers.filter((item) => {
     const question = getPlacementQuestion(item.questionId);
     if (!question) return false;
-    return !normalizeMatch(item.answer, question.answer);
+    return !isCorrectAnswer(question, item.answer);
   }).length;
   const wrongRate = wrongCount / answered;
 
@@ -338,7 +341,7 @@ function resolvedQuestions(answers: PlacementAnswerEvidence[]): Array<{
     rows.push({
       question,
       evidence,
-      correct: normalizeMatch(evidence.answer, question.answer),
+      correct: isCorrectAnswer(question, evidence.answer),
       hinted: evidence.hintUsed,
     });
   }
@@ -531,73 +534,95 @@ export function scoreEvidence(declaredLevel: Experience, answers: PlacementAnswe
 
   let level: PlacementLevel = "inicio";
   let label = "Primeiro contato";
+  let labelId: PlacementLabelId = "firstContact";
   let targetLessonId = "p1-o-que-e-mandarim";
   let resultMessage = beginnerDignityMessage(false);
+  let resultMessageId: PlacementResultMessageId = "beginnerStart";
   let canSkipContent = false;
   let maxSkipLessons = 0;
+  let foundationGate = false;
 
   if (declaredLevel === "zero") {
     level = excellentSkip ? "sobrevivencia" : "inicio";
     label = excellentSkip ? "Base compacta" : "Primeiro contato";
+    labelId = excellentSkip ? "compactBase" : "firstContact";
     targetLessonId = "p1-o-que-e-mandarim";
     canSkipContent = false;
     resultMessage = beginnerDignityMessage(excellentSkip);
+    resultMessageId = excellentSkip ? "beginnerCompact" : "beginnerStart";
   } else if (questionsAnswered < 4 || correctWithoutHint <= 1 || decisiveAccuracy < 0.45) {
     level = "inicio";
     resultMessage = beginnerDignityMessage(false);
+    resultMessageId = "beginnerStart";
   } else if (!hasPinyin || !hasTone || manyHints || !noFundamentalErrors) {
     level = "sobrevivencia";
     label = "Base guiada";
+    labelId = "guidedBase";
     targetLessonId = "l1";
     resultMessage = "Encontramos seu ponto de partida. Vamos firmar pinyin, tons e hànzì antes de avançar.";
+    resultMessageId = "guidedPinyinTonesHanzi";
   } else if (!hasPhrase || !hasHanzi || !hasProduction || decisiveAccuracy < 0.72) {
     level = "tons";
     label = "Som e tons";
+    labelId = "soundAndTones";
     targetLessonId = "l1";
     resultMessage = "Encontramos seu ponto de partida. Vamos consolidar tons, pinyin, frases e hànzì básico.";
+    resultMessageId = "consolidateTonesPinyin";
   } else if (consistentSkip) {
     if (declaredLevel === "words") {
       level = "tons";
       label = excellentSkip ? "Primeira fase compacta" : "Tons e ritmo";
+      labelId = excellentSkip ? "firstPhaseCompact" : "tonesAndRhythm";
       targetLessonId = "l5";
       canSkipContent = true;
       maxSkipLessons = 4;
       resultMessage = "Encontramos seu ponto de partida. Você já tem base para avançar um trecho, mantendo os fundamentos obrigatórios.";
+      resultMessageId = "advanceWithFoundations";
     } else if (declaredLevel === "studied") {
       level = excellentSkip ? "frases" : "tons";
       label = excellentSkip ? "Um módulo adiante" : "Som e tons";
+      labelId = excellentSkip ? "oneModuleAhead" : "soundAndTones";
       targetLessonId = excellentSkip ? "l5" : "l1";
       canSkipContent = excellentSkip;
       maxSkipLessons = excellentSkip ? 4 : 0;
       resultMessage = excellentSkip
         ? "Encontramos seu ponto de partida. Você pode pular um módulo inicial, sem remover fundamentos sem prova."
         : "Encontramos seu ponto de partida. Vamos consolidar a base antes de avançar.";
+      resultMessageId = excellentSkip ? "skipOneModule" : "consolidateBeforeAdvance";
     } else if (declaredLevel === "phrases") {
       level = largeSkipAllowed ? "frases" : "tons";
       label = largeSkipAllowed ? "Frases iniciais" : "Som e tons";
+      labelId = largeSkipAllowed ? "earlyPhrases" : "soundAndTones";
       targetLessonId = largeSkipAllowed ? "l14" : "l5";
       canSkipContent = true;
       maxSkipLessons = largeSkipAllowed ? 12 : 4;
       resultMessage = "Encontramos seu ponto de partida na Jornada, com pulo só onde houve prova sem dica.";
+      resultMessageId = "journeySkipWhereProven";
     } else if (!hasAdvancedProof) {
       level = "tons";
       label = "Base forte, pulo limitado";
+      labelId = "strongBaseLimitedSkip";
       targetLessonId = "l1";
       canSkipContent = false;
       resultMessage = "Encontramos seu ponto de partida. Para avançar mais, ainda faltam provas sem dica em leitura, tom, hànzì e produção.";
+      resultMessageId = "needUnaidedProofs";
     } else {
       level = largeSkipAllowed ? "hanzi" : "frases";
       label = largeSkipAllowed ? "Hànzì lógico" : "Frases com hànzì básico";
+      labelId = largeSkipAllowed ? "logicalHanzi" : "phrasesWithBasicHanzi";
       targetLessonId = largeSkipAllowed ? "l19" : "l5";
       canSkipContent = true;
       maxSkipLessons = largeSkipAllowed ? Number.POSITIVE_INFINITY : 4;
       resultMessage = "Encontramos seu ponto de partida. O pulo só inclui temas cuja promessa o teste comprovou.";
+      resultMessageId = "skipOnlyProvenThemes";
     }
   } else {
     level = "sobrevivencia";
     label = "Base guiada";
+    labelId = "guidedBase";
     targetLessonId = "l1";
     resultMessage = "Encontramos seu ponto de partida. Vamos construir o que ainda precisa de evidência.";
+    resultMessageId = "buildWhatNeedsEvidence";
   }
 
   const desiredTargetLessonId = targetLessonId;
@@ -607,10 +632,14 @@ export function scoreEvidence(declaredLevel: Experience, answers: PlacementAnswe
     targetLessonId = requiredFoundationLessonId;
     level = declaredLevel === "zero" ? "inicio" : "sobrevivencia";
     label = allowedFoundationLessonIds.length > 0 ? "Fundamentos seletivos" : "Base guiada";
-    resultMessage =
-      declaredLevel === "zero"
-        ? beginnerDignityMessage(false)
-        : `${resultMessage} Antes de avançar, vamos passar por fundamentos cuja promessa ainda não foi comprovada sem dica.`;
+    labelId = allowedFoundationLessonIds.length > 0 ? "selectiveFoundations" : "guidedBase";
+    if (declaredLevel === "zero") {
+      resultMessage = beginnerDignityMessage(false);
+      resultMessageId = "beginnerStart";
+    } else {
+      foundationGate = true;
+      resultMessage = `${resultMessage} Antes de avançar, vamos passar por fundamentos cuja promessa ainda não foi comprovada sem dica.`;
+    }
   }
 
   const foundationLessonIdsRequired = FOUNDATION_LESSON_IDS.filter(
@@ -632,6 +661,7 @@ export function scoreEvidence(declaredLevel: Experience, answers: PlacementAnswe
   const placement: PlacementDecision = {
     level,
     label,
+    labelId,
     targetLessonId,
     skippedLessonIds,
     foundationLessonIdsRequired: [...foundationLessonIdsRequired],
@@ -642,14 +672,18 @@ export function scoreEvidence(declaredLevel: Experience, answers: PlacementAnswe
   const performanceBand = noHintAccuracy < 0.45 ? 0 : noHintAccuracy < 0.7 ? 1 : noHintAccuracy < 0.85 ? 2 : 3;
   const consistencyGap = Math.abs(performanceBand - declaredScore);
   const consistency: PlacementAnalysis["consistency"] = consistencyGap === 0 ? "Alta" : consistencyGap === 1 ? "Média" : "Baixa";
+  const consistencyId = consistencyGap === 0 ? "high" : consistencyGap === 1 ? "medium" : "low";
 
-  const strengths = Object.entries(stats)
+  const strengthCategoryIds = Object.entries(stats)
     .filter(([, stat]) => categoryMastered(stat))
-    .map(([category]) => CATEGORY_LABEL[category as QuizCategory]);
-  const reinforcements = Object.entries(stats)
+    .map(([category]) => category as QuizCategory);
+  const reinforcementCategoryIds = Object.entries(stats)
     .filter(([, stat]) => stat.total > 0 && !categoryMastered(stat))
-    .map(([category]) => CATEGORY_LABEL[category as QuizCategory]);
-  if (rows.filter((row) => row.hinted).length >= 3) reinforcements.unshift("Responder sem depender de dicas");
+    .map(([category]) => category as QuizCategory);
+  const hintIndependenceNeeded = rows.filter((row) => row.hinted).length >= 3;
+  const strengths = strengthCategoryIds.map((category) => CATEGORY_LABEL[category]);
+  const reinforcements = reinforcementCategoryIds.map((category) => CATEGORY_LABEL[category]);
+  if (hintIndependenceNeeded) reinforcements.unshift("Responder sem depender de dicas");
 
   const decisionReasons = [
     `versão ${PLACEMENT_VERSION}`,
@@ -684,6 +718,8 @@ export function scoreEvidence(declaredLevel: Experience, answers: PlacementAnswe
     advancedMisses: advancedProbes.length - advancedCorrect,
     advancedCorrect,
     resultMessage,
+    resultMessageId,
+    foundationGate,
     skippedLessonIds,
     foundationLessonIdsRequired: [...foundationLessonIdsRequired],
     foundationProofs: FOUNDATION_LESSON_IDS.map((lessonId) => ({
@@ -693,6 +729,10 @@ export function scoreEvidence(declaredLevel: Experience, answers: PlacementAnswe
     })),
     decisionReasons,
     consistency,
+    consistencyId,
+    strengthCategoryIds: strengthCategoryIds.slice(0, 3),
+    reinforcementCategoryIds: reinforcementCategoryIds.slice(0, 4),
+    hintIndependenceNeeded,
     strengths: strengths.length ? strengths.slice(0, 3) : ["Disposição para testar e aprender"],
     reinforcements: [...new Set(reinforcements)].slice(0, 4),
     placementConfidence,
@@ -727,7 +767,8 @@ export function validatePlacementEvidence(payload: {
     if (!question) return { ok: false, error: "unknown_question" };
     if (seen.has(answer.questionId)) return { ok: false, error: "duplicate_question" };
     seen.add(answer.questionId);
-    if (!question.options.includes(answer.answer)) {
+    const optionId = canonicalizeAnswer(question, answer.answer);
+    if (!question.options.includes(optionId)) {
       return { ok: false, error: "answer_not_in_options" };
     }
   }
