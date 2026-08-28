@@ -42,10 +42,11 @@ off this board (`NOT_RUN` / `NOT_READY`). Do not promote them in this remessa.
 
 0. `git fetch origin main` — MAIN_SHA matches expected `3223d43`. Contract
    hashes match `docs/backend/v478-backend-rc.json`.
-1. Reconsulted Actions on **this** SHA. Security / backend-rehearsal /
-   backend-contract **PASS**. Portão (validate:beta + build) **IN_PROGRESS**;
-   Chromium / Firefox / WebKit not started. No MandarimProject write while
-   those gates are unresolved.
+1. Reconsulted Actions on **this** SHA (refresh 05:30Z). Security /
+   backend-rehearsal / backend-contract **PASS**. Portão + build **PASS**.
+   Chromium E2E **PASS**. Firefox / WebKit **IN_PROGRESS**. No MandarimProject
+   write while Firefox is unresolved, and none without the approval token.
+   V4.7.9 was requested and **not started** (hosted keys still NOT_RUN).
 2. No new architecture / i18n / pedagogy / auth / economy / redesign.
 3. Read-only refresh: `docs/reports/v478b-preapply-live-state.md`.
 4. Delta regenerated: `docs/reports/v478b-pending-delta.md`.

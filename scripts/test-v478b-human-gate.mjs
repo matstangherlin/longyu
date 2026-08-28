@@ -95,7 +95,8 @@ assert(gate.includes(V478B_APPROVAL_TOKEN), "human gate token");
 assert(/STOP/.test(gate), "STOP");
 assert(/not approval|não é aprovação|is \*\*not\*\* approval/i.test(gate), "prompt is not approval");
 assert(/ZERO WRITE/i.test(gate), "zero write");
-assert(gate.includes("IN_PROGRESS"), "records Portão IN_PROGRESS");
+assert(/IN_PROGRESS/.test(gate), "records remaining CI IN_PROGRESS until Firefox/WebKit finish");
+assert(/V4\.7\.9/.test(gate) && /not start/i.test(gate), "V4.7.9 not started while hosted keys NOT_RUN");
 
 const report = read("docs/reports/v478b-hosted-validation.md");
 for (const key of V478B_HOSTED_SCOREBOARD_KEYS) {
@@ -114,6 +115,7 @@ assert(board.remessa_status === V478B_REMESSA_STATUS, "json status");
 assert(board.production_writes === "ZERO", "json zero writes");
 assert(board.backup_gate === V478B_BACKUP_GATE, "json backup");
 assert(board.MAIN_SHA === V478B_MAIN_SHA, "json MAIN_SHA");
+assert(board.v479_started === false, "V4.7.9 not started");
 for (const key of V478B_HOSTED_SCOREBOARD_KEYS) {
   assert(board[key] === "NOT_RUN", `json ${key}=NOT_RUN`);
 }
@@ -127,6 +129,10 @@ assert(!v478bLib.includes(deployCall), "v478b lib must not deploy edges");
 const pkg = JSON.parse(read("package.json"));
 assert(pkg.scripts["test:v478b-human-gate"] === "node scripts/test-v478b-human-gate.mjs", "script human gate");
 assert(pkg.scripts["validate:beta"].includes("test:v478b-human-gate"), "validate:beta includes v478b gate");
+
+const blocked = read("docs/reports/v479-blocked-pending-v478b.md");
+assert(/Not started/i.test(blocked), "v479 blocked file says not started");
+assert(!/READY_FOR_CLOSED_BETA_BR[^\n]*PASS/.test(blocked), "v479 file must not PASS closed beta");
 
 if (errors.length) {
   console.error("FAIL test:v478b-human-gate:");

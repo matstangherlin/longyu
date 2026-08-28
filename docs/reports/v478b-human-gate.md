@@ -31,23 +31,31 @@ Do not interpret docs, CI green, or this PR as approval.
 
 ## MAIN_SHA CI (this SHA only — not an older branch)
 
-Captured 2026-08-28T05:14Z against
+Refreshed 2026-08-28T05:30Z against
 https://github.com/matstangherlin/longyu/actions/runs/33143685565
 
 | Gate | Status on `3223d43` |
 | --- | --- |
-| validate:beta (Portão) | **IN_PROGRESS** — do not write while unresolved |
-| build | not started (same Portão job) |
-| Chromium E2E | not started (`needs: quality`) |
-| Firefox E2E | not started (`needs: quality`) |
-| WebKit E2E | not started (`needs: quality`; informative continue-on-error) |
+| validate:beta (Portão) | **PASS** (job completed 05:20:49Z) |
+| build | **PASS** (same Portão job) |
+| Chromium E2E | **PASS** (job “Testes E2E (Playwright)” 33143685565) |
+| Firefox E2E | **IN_PROGRESS** (job “E2E cross-engine (WebKit + Firefox)”) |
+| WebKit E2E | **IN_PROGRESS** (same cross-engine job; informative continue-on-error) |
 | Security | **PASS** (run 33143685562) |
 | backend-rehearsal | **PASS** (run 33143685559) |
 | backend-contract | **PASS** (run 33143685576) |
-| GitHub Supabase Preview | expected fail-closed (remote-only timestamps; do not fake empty files) |
+| GitHub Supabase Preview | expected fail-closed on main (remote-only timestamps; do not fake empty files) |
 
-FASE B also waits for Portão + Chromium + Firefox to be terminal PASS on this
-SHA. WebKit remains informative per `ci.yml`.
+FASE B also waits for Firefox to be terminal PASS on this SHA. WebKit remains
+informative per `ci.yml`. CI green is **not** hosted PASS and is **not**
+approval.
+
+## V4.7.9 not started
+
+A later prompt asked to open Physical QA + Stripe Test + Closed Beta Final Gate
+(`LONGYU_CLOSED_BETA_RC=v4.7.9-rc.1`). That remessa requires every V4.7.8B
+hosted key = PASS. They are still **NOT_RUN**. **Do not start V4.7.9.** Continue
+this PR until FASE B has live evidence.
 
 ## Risks
 
