@@ -7,7 +7,7 @@ import type {
   SVGProps,
 } from "react";
 import { Link, type LinkProps } from "react-router-dom";
-import { t } from "../../i18n/catalog";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -346,6 +346,7 @@ export function LoadingState({
   label?: string;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const resolved = label ?? t("common.loading");
   return (
     <div className={cx("flex min-h-32 items-center justify-center gap-3 text-sm text-ink-soft", className)} role="status">
@@ -366,6 +367,7 @@ export function ErrorState({
   action?: ReactNode;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const resolvedTitle = title ?? t("errors.loadFailed");
   return (
     <Card variant="alert" className={cx("p-5", className)} role="alert">
