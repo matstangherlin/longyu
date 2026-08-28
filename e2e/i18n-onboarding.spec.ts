@@ -54,6 +54,7 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
     await page.getByRole("button", { name: /^Continue$/i }).click();
     await expect(page.getByTestId("placement-quiz")).toBeVisible();
     await expect(page.getByText(/Question 1/i)).toBeVisible();
+    await expect(page.getByText(/Meaning|Sound and pinyin|Tones/i).first()).toBeVisible();
     await expect(page.getByText(/Pergunta 1/)).toHaveCount(0);
     await expect(page.locator("[data-hanzi='你好'], .hanzi").first()).toBeVisible();
     await completePlacement(page);

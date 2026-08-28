@@ -38,7 +38,7 @@ frontend of `/finalizar-cadastro` only.
 
 ## Scoreboard
 
-Filled from live commands on this PR.
+Filled from live commands on this PR (local `validate:beta` PASS in 983.7s; `npm run build` PASS). GitHub `CI / Portão de qualidade` was still running on the first push at report time.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |

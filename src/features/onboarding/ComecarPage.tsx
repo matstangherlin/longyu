@@ -161,7 +161,11 @@ export function ComecarPage() {
   function startQuiz(level: Experience) {
     const session = createPendingPlacement({ declaredExperience: level, goal: goal ?? null });
     const nextQuestion = chooseNextQuestion(level, [], []);
-    if (!nextQuestion) return;
+    if (!nextQuestion) {
+      setQuestion(null);
+      setStep("quiz");
+      return;
+    }
     session.askedQuestionIds = [nextQuestion.id];
     writePendingPlacement(session);
     setAskedIds([nextQuestion.id]);
@@ -217,7 +221,7 @@ export function ComecarPage() {
     setError(null);
     trackFunnelEvent("signup_submitted");
     if (!isSupabaseBackendEnabled()) {
-      setError(BACKEND_UNAVAILABLE_MESSAGE);
+      setError(t("onboarding.networkRetry"));
       setBusy(false);
       return;
     }
@@ -325,6 +329,15 @@ export function ComecarPage() {
             onPick={(id) => setExperience(id as Experience)}
           />
         )}
+        {step === "quiz" && !question && (
+          <div className="mx-auto max-w-xl text-center" data-testid="placement-load-error">
+            <h1 className="font-serif text-2xl font-semibold text-ink">{t("onboarding.loadError")}</h1>
+            <p className="mt-3 text-sm text-ink-soft">{t("onboarding.networkRetry")}</p>
+            <Button size="lg" className="mt-6 w-full" onClick={() => experience && startQuiz(experience)}>
+              {t("onboarding.retry")}
+            </Button>
+          </div>
+        )}
         {step === "quiz" && question && experience && (
           <QuizCard
             index={Math.max(0, askedIds.indexOf(question.id))}
@@ -336,6 +349,14 @@ export function ComecarPage() {
             onSubmit={answerCurrent}
             onUseHint={() => setHinted(true)}
           />
+        )}
+        {step === "result" && !analysis && (
+          <div className="mx-auto max-w-xl text-center" data-testid="placement-finish-error">
+            <h1 className="font-serif text-2xl font-semibold text-ink">{t("onboarding.placementCouldNotFinish")}</h1>
+            <Button size="lg" className="mt-6 w-full" onClick={() => setStep("level")}>
+              {t("onboarding.retry")}
+            </Button>
+          </div>
         )}
         {step === "result" && analysis && (
           <ResultPreview
@@ -394,7 +415,7 @@ export function ComecarPage() {
           </Button>
         </div>
       )}
-      {step === "quiz" && (
+      {step === "quiz" && question && (
         <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-6">
           <Button size="lg" className="w-full" disabled={!picked} onClick={answerCurrent}>
             {t("placement.confirm")} <IconChevron width={18} height={18} />

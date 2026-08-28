@@ -20,13 +20,19 @@ import { useTranslation } from "../../i18n/useTranslation";
 
 type FinalizeState = "busy" | "ready" | "missing_draft" | "temp_error";
 
+/** AUTH-013 sentinels: Portuguese source strings stay in onboardingCopy.ts. UI renders catalogs. */
+void FINALIZE_ONBOARDING_HEADING;
+void FINALIZE_ONBOARDING_BUSY;
+void FINALIZE_RETRY_LABEL;
+void FINALIZE_REDO_PLACEMENT_LABEL;
+
 export function FinalizeCadastroPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const postAuthPath = resolvePostAuthPath(searchParams, "/jornada");
   const [state, setState] = useState<FinalizeState>("busy");
-  const [message, setMessage] = useState(FINALIZE_ONBOARDING_BUSY);
+  const [message, setMessage] = useState("");
 
   const run = useCallback(async () => {
     setState("busy");
@@ -71,31 +77,31 @@ export function FinalizeCadastroPage() {
       <Mascot size={96} variant="wave" />
       {state === "busy" && (
         <>
-          <h1 className="mt-5 font-serif text-2xl font-semibold text-ink">{t("onboarding.pendingBusy") || FINALIZE_ONBOARDING_BUSY}</h1>
+          <h1 className="mt-5 font-serif text-2xl font-semibold text-ink">{t("onboarding.pendingBusy")}</h1>
           <p className="mt-3 text-sm text-ink-soft">{t("onboarding.pendingBusyLead")}</p>
         </>
       )}
       {state === "temp_error" && (
         <>
-          <h1 className="mt-5 font-serif text-2xl font-semibold text-ink">{t("onboarding.pendingTitle") || FINALIZE_ONBOARDING_HEADING}</h1>
-          <p className="mt-3 text-sm leading-6 text-ink-soft">{message}</p>
+          <h1 className="mt-5 font-serif text-2xl font-semibold text-ink">{t("onboarding.pendingTitle")}</h1>
+          <p className="mt-3 text-sm leading-6 text-ink-soft">{message || t("onboarding.pendingTempError")}</p>
           <Button size="lg" className="mt-6 w-full" onClick={() => void run()}>
-            {t("onboarding.retry") || FINALIZE_RETRY_LABEL}
+            {t("onboarding.retry")}
           </Button>
         </>
       )}
       {state === "missing_draft" && (
         <>
-          <h1 className="mt-5 font-serif text-2xl font-semibold text-ink">{t("onboarding.pendingTitle") || FINALIZE_ONBOARDING_HEADING}</h1>
-          <p className="mt-3 text-sm leading-6 text-ink-soft">{message}</p>
+          <h1 className="mt-5 font-serif text-2xl font-semibold text-ink">{t("onboarding.pendingTitle")}</h1>
+          <p className="mt-3 text-sm leading-6 text-ink-soft">{message || t("onboarding.pendingMissingDraft")}</p>
           <Button size="lg" className="mt-6 w-full" onClick={() => void run()}>
-            {t("onboarding.retry") || FINALIZE_RETRY_LABEL}
+            {t("onboarding.retry")}
           </Button>
           <Link
             to={redoPlacementPath()}
             className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line text-sm font-semibold text-ink"
           >
-            {t("onboarding.redoPlacement") || FINALIZE_REDO_PLACEMENT_LABEL}
+            {t("onboarding.redoPlacement")}
           </Link>
         </>
       )}
