@@ -4,6 +4,7 @@ import { SpeakButton } from "../ui/SpeakButton";
 import { GlossText } from "./GlossText";
 import { Pinyin } from "./Pinyin";
 import { useMandarinHelpSettings, type MandarinHelpMode } from "./helpMode";
+import { useTranslation } from "../../i18n/useTranslation";
 
 type MandarinTextSize = "sm" | "md" | "lg" | "xl";
 
@@ -39,6 +40,7 @@ export function MandarinText({
   helpMode?: MandarinHelpMode;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation();
   const globalDisplayMode = useStore((s) => s.mandarinDisplayMode);
   const translationMode = useStore((s) => s.translationMode);
   const help = useMandarinHelpSettings({ helpMode, disabled });
@@ -105,7 +107,7 @@ export function MandarinText({
           onClick={() => setTranslationOpen((open) => !open)}
           className={`mt-2 ${styles.meaning} font-medium text-accent hover:underline`}
         >
-          {translationOpen ? meaning : "Ver tradução"}
+          {translationOpen ? meaning : t("common.seeTranslation")}
         </button>
       )}
     </div>

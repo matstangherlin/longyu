@@ -2,6 +2,7 @@ import { ButtonLink } from "../ui/primitives";
 import { IconStar, IconX } from "../ui/Icon";
 import { PRO_PAYWALL_CTA } from "../../data/planFeatures";
 import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
+import { useTranslation } from "../../i18n/useTranslation";
 
 /**
  * Oferta do Pro em faixa, no fluxo da página — a contrapartida discreta do
@@ -23,11 +24,12 @@ export function ProOfferBanner({
   onDismiss: () => void;
   className?: string;
 }) {
+  const { t } = useTranslation();
   if (!offer) return null;
 
   return (
     <aside
-      aria-label="Oferta do Longyu Pro"
+      aria-label={t("shell.offerAria")}
       className={[
         "relative overflow-hidden rounded-xl border border-gold/25 bg-gold/[0.06] p-3 sm:p-3.5",
         className,
@@ -60,7 +62,7 @@ export function ProOfferBanner({
         <button
           type="button"
           onClick={onDismiss}
-          aria-label="Dispensar oferta do Pro"
+          aria-label={t("shell.dismissOfferAria")}
           className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
         >
           <IconX width={15} height={15} />

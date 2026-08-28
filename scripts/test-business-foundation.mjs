@@ -100,7 +100,7 @@ assert(!/business_monthly|business_annual/.test(checkout), "checkout sem plano B
 
 const proPage = read("src/features/pro/ProPage.tsx");
 assert(proPage.includes("<ProBusinessOffer"), "ProPage usa oferta Business/Enterprise");
-assert(proPage.includes("Para você"), "ProPage separa oferta individual");
+assert(proPage.includes('t("pro.forYou")'), "ProPage separa oferta individual");
 assert(!/createCheckoutSession\([^)]*business/.test(proPage), "ProPage não faz checkout Business");
 
 const proOffer = read("src/features/pro/ProBusinessOffer.tsx");

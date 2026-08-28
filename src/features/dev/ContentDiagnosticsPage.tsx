@@ -1,6 +1,7 @@
 import { CONTENT_CATALOG, CONTENT_PHASES, type ContentPhaseId, type PedagogicalContentItem } from "../../data/contentArchitecture";
 import { buildContentDiagnostics, validateContentArchitecture, type ContentAlternativeGap, type DuplicateContentEntry } from "../../data/contentValidation";
 import { Card, Pill, SectionTitle } from "../../components/ui/primitives";
+import { formatNumber } from "../../i18n/format";
 
 export function ContentDiagnosticsPage() {
   const diagnostics = buildContentDiagnostics();
@@ -91,7 +92,7 @@ function StatTile({
     <div className="rounded-2xl border border-line bg-surface px-4 py-3 shadow-card">
       <div className="flex items-center justify-between gap-3">
         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-        <Pill tone={tone}>{value.toLocaleString("pt-BR")}</Pill>
+        <Pill tone={tone}>{formatNumber(value)}</Pill>
       </div>
       <div className="mt-2 text-xs text-ink-soft">{detail}</div>
     </div>

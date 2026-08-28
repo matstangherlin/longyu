@@ -14,8 +14,11 @@ import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { isCloudOnboardingV2Enabled } from "../../lib/featureFlags";
 import { resendConfirmationEmail } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function ConfirmEmailPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const postAuthPath = resolvePostAuthPath(searchParams, "/jornada");
@@ -52,7 +55,7 @@ export function ConfirmEmailPage() {
       if (cancelled) return;
       if (isCloudOnboardingV2Enabled()) {
         clearPendingConfirmEmail();
-        setNotice("Email confirmado. Vamos finalizar seu ponto de partida.");
+        setNotice(t("auth.errors.emailConfirmedFinish"));
         navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
         return;
       }
@@ -60,7 +63,7 @@ export function ConfirmEmailPage() {
       if (cancelled) return;
       if (!onboard.ok) {
         setConfirming(false);
-        setError(onboard.message);
+        setError(localizeUserMessage(onboard.message));
         return;
       }
       clearPendingConfirmEmail();
@@ -104,7 +107,7 @@ export function ConfirmEmailPage() {
   async function handleResend(event: FormEvent) {
     event.preventDefault();
     if (!email.includes("@")) {
-      setError("Informe o email usado no cadastro.");
+      setError(t("auth.errors.signupEmail"));
       return;
     }
     setLoading(true);
@@ -113,21 +116,21 @@ export function ConfirmEmailPage() {
     const result = await resendConfirmationEmail(email);
     setLoading(false);
     if (result.status === "error") {
-      setError(result.message);
+      setError(localizeUserMessage(result.message));
       return;
     }
     storePendingConfirmEmail(email);
-    setNotice(result.message);
+    setNotice(localizeUserMessage(result.message));
   }
 
   if (!cloudEnabled) {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <Mascot size={96} variant="wave" />
-        <h1 className="font-serif text-2xl font-semibold text-ink">Confirmação indisponível</h1>
-        <p className="text-sm text-ink-soft">O backend em nuvem não está ativo neste ambiente.</p>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.confirmUnavailable")}</h1>
+        <p className="text-sm text-ink-soft">{t("auth.backendInactive")}</p>
         <Link to="/comecar" className="font-semibold text-accent hover:underline">
-          Voltar ao cadastro
+          {t("auth.backToSignup")}
         </Link>
       </div>
     );
@@ -136,7 +139,7 @@ export function ConfirmEmailPage() {
   if (confirming) {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center text-sm text-ink-soft">
-        Confirmando seu email…
+        {t("auth.confirmingEmail")}
       </div>
     );
   }
@@ -147,18 +150,17 @@ export function ConfirmEmailPage() {
         <div className="mx-auto mb-4 flex justify-center">
           <Mascot size={88} variant="wave" />
         </div>
-        <Pill tone="accent">Quase lá</Pill>
-        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">Confirme seu email</h1>
+        <Pill tone="accent">{t("auth.almostThere")}</Pill>
+        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">{t("auth.confirmEmailTitle")}</h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">
-          Enviamos um link de ativação. Abra o email e toque em confirmar — sem isso a conta não libera
-          sincronização, Pro por indicação nem login completo.
+          {t("auth.confirmEmailLead")}
         </p>
       </div>
 
       <Card className="p-5 sm:p-6">
         <form onSubmit={(event) => void handleResend(event)} className="grid gap-4">
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Email</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
             <input
               type="email"
               autoComplete="email"
@@ -167,7 +169,7 @@ export function ConfirmEmailPage() {
                 setEmail(event.target.value);
                 setError(null);
               }}
-              placeholder="voce@email.com"
+              placeholder={t("auth.emailPlaceholder")}
               className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
             />
           </label>
@@ -184,15 +186,15 @@ export function ConfirmEmailPage() {
           )}
 
           <Button type="submit" size="lg" disabled={loading} className="w-full">
-            {loading ? "Reenviando…" : "Reenviar link de confirmação"}
+            {loading ? t("auth.resending") : t("auth.resendConfirmation")}
           </Button>
         </form>
       </Card>
 
       <div className="mt-5 flex flex-col items-center gap-2 text-center text-sm text-ink-soft">
-        <p>Já confirmou?</p>
+        <p>{t("auth.alreadyConfirmed")}</p>
         <Link to="/login" className="font-semibold text-accent hover:underline">
-          Entrar na conta
+          {t("auth.signInTitle")}
         </Link>
       </div>
     </div>

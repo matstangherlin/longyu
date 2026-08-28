@@ -5,9 +5,10 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Button } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { IconFlame, IconShield, IconStar } from "../ui/Icon";
+import { useTranslation } from "../../i18n/useTranslation";
 
-function dayCountLabel(days: number): string {
-  return days === 1 ? "1 dia" : `${days} dias`;
+function dayCountLabel(days: number, one: string, many: string): string {
+  return days === 1 ? one : many.replace("{count}", String(days));
 }
 
 const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
@@ -17,6 +18,7 @@ const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
  * Só sobe com tarefa real (recordStudyDay), nunca com visita ao site.
  */
 export function StreakWatcher() {
+  const { t } = useTranslation();
   const pending = useStore((s) => s.pendingStreakCelebration);
   const clear = useStore((s) => s.clearStreakCelebration);
   const hold = useStore((s) => s.holdAchievementModals);
@@ -34,11 +36,12 @@ export function StreakWatcher() {
 
   const today = lastStudyDate ? activityByDay[lastStudyDate] : undefined;
   const nextMilestone = STREAK_MILESTONES.find((mark) => mark > pending) ?? pending + 7;
+  const daysLabel = dayCountLabel(pending, t("shell.dayCountOne"), t("shell.dayCountMany", { count: pending }));
 
   return (
     <ModalOverlay
       className="items-stretch p-0 sm:items-center sm:p-4"
-      label="Ofensiva atualizada"
+      label={t("shell.streakUpdated")}
       onBackdropClick={clear}
     >
       <div
@@ -47,44 +50,44 @@ export function StreakWatcher() {
       >
         <div className="my-auto sm:my-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-            Ofensiva
+            {t("shell.streakTitle")}
           </div>
           <div className="longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-[30px] bg-accent text-white shadow-lift sm:mt-4 sm:h-20 sm:w-20 sm:rounded-[26px]">
             <IconFlame width={44} height={44} fill="currentColor" />
           </div>
           <h2 className="mt-5 font-serif text-3xl font-semibold text-ink sm:mt-4 sm:text-2xl">
-            {dayCountLabel(pending)} seguidos!
+            {t("shell.streakInARow", { days: daysLabel })}
           </h2>
           <p className="mt-2 text-sm leading-6 text-ink-soft sm:mt-1">
-            Você estudou de verdade hoje. Volte amanhã para manter o fogo aceso.
+            {t("shell.streakBody")}
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
             <div className="rounded-2xl bg-surface-2 px-2.5 py-2">
               <div className="font-semibold text-ink">{today?.xp ?? 0}</div>
-              <div className="text-ink-faint">XP hoje</div>
+              <div className="text-ink-faint">{t("shell.xpToday")}</div>
             </div>
             <div className="rounded-2xl bg-surface-2 px-2.5 py-2">
               <div className="font-semibold text-ink">{today?.tasks ?? 0}</div>
-              <div className="text-ink-faint">Tarefas</div>
+              <div className="text-ink-faint">{t("shell.tasks")}</div>
             </div>
             <div className="rounded-2xl bg-surface-2 px-2.5 py-2">
               <div className="font-semibold text-ink">{today?.minutes ?? 0}m</div>
-              <div className="text-ink-faint">Estudo</div>
+              <div className="text-ink-faint">{t("shell.study")}</div>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 font-semibold text-accent">
-              <IconStar width={12} height={12} /> Próximo marco: {nextMilestone} dias
+              <IconStar width={12} height={12} /> {t("shell.nextMilestone", { count: nextMilestone })}
             </span>
             {streakShields > 0 && (
               <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 font-medium text-ink-soft">
-                <IconShield width={12} height={12} /> {streakShields} escudo(s)
+                <IconShield width={12} height={12} /> {t("shell.shields", { count: streakShields })}
               </span>
             )}
           </div>
         </div>
         <Button size="lg" className="mt-6 w-full shadow-lift sm:mt-5" onClick={clear}>
-          Continuar
+          {t("common.continue")}
         </Button>
       </div>
     </ModalOverlay>

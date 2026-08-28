@@ -1,5 +1,6 @@
 import type { FeedbackContext } from "../../lib/feedback";
 import { useFeedbackUi } from "./FeedbackContext";
+import { useTranslation } from "../../i18n/useTranslation";
 
 interface FeedbackLinkProps {
   context?: FeedbackContext;
@@ -8,6 +9,7 @@ interface FeedbackLinkProps {
 
 export function FeedbackLink({ context, className }: FeedbackLinkProps) {
   const { openFeedback } = useFeedbackUi();
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -19,7 +21,7 @@ export function FeedbackLink({ context, className }: FeedbackLinkProps) {
         .filter(Boolean)
         .join(" ")}
     >
-      Enviar feedback
+      {t("feedback.send")}
     </button>
   );
 }

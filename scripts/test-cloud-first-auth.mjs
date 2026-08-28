@@ -33,6 +33,7 @@ const [
   envExample,
   sql,
   commitFn,
+  ptBR,
 ] = await Promise.all([
   read("src/lib/store.ts"),
   read("src/features/account/AccountPage.tsx"),
@@ -46,6 +47,7 @@ const [
   read(".env.example"),
   read("supabase/migrations/20260826230000_placement_onboarding.sql"),
   read("supabase/functions/commit-placement/index.ts"),
+  read("src/locales/pt-BR.ts"),
 ]);
 
 assert(!accountPage.includes("Deixar para depois"), "AccountPage não pode oferecer Deixar para depois");
@@ -53,7 +55,8 @@ assert(!loginPage.includes("Continuar sem login"), "LoginPage não pode oferecer
 assert(!comecar.includes("Continuar sem conta"), "ComecarPage não pode oferecer Continuar sem conta");
 assert(!comecar.includes("Deixar para depois"), "ComecarPage não pode oferecer Deixar para depois");
 assert(!landing.includes("Seu progresso pode ser salvo na nuvem"), "Landing precisa da copy de conta obrigatória");
-assert(landing.includes("Seu progresso fica salvo na sua conta"), "Landing deve dizer que o progresso fica na conta");
+assert(landing.includes('t("marketing.noCard")'), "Landing usa a chave de progresso na conta");
+assert(ptBR.includes("Seu progresso fica salvo na sua conta"), "pt-BR deve dizer que o progresso fica na conta");
 assert(landing.includes('to="/comecar"'), "Começar agora deve ir para /comecar");
 assert(routes.includes('path: "comecar"'), "rota /comecar precisa existir");
 assert(routes.includes('path: "finalizar-cadastro"'), "rota /finalizar-cadastro precisa existir");

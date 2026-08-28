@@ -1,3 +1,5 @@
+import { getInterfaceLocale } from "../i18n/locale";
+
 export const FUNNEL_EVENT_TYPES = [
   "onboarding_started",
   "goal_selected",
@@ -32,6 +34,9 @@ export function trackFunnelEvent(
     if (PII_KEY.test(key)) continue;
     safe[key] = value;
   }
+  // Attached after the PII filter because the key contains the substring "name".
+  // Locale is not nationality, country, or ethnicity.
+  safe.interface_locale = getInterfaceLocale();
   try {
     window.dispatchEvent(new CustomEvent("longyu:funnel", { detail: { eventType, metadata: safe } }));
   } catch {

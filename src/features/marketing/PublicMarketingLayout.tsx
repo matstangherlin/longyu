@@ -6,6 +6,8 @@ import { BetaNotice } from "../../components/system/BetaNotice";
 import { useStore } from "../../lib/store";
 import { useEffect, type ReactNode } from "react";
 import { PUBLIC_SEO_PAGES } from "../../lib/seo";
+import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const FOOTER_LINKS = PUBLIC_SEO_PAGES.filter((p) =>
   [
@@ -28,6 +30,7 @@ export function PublicMarketingLayout({
   children: ReactNode;
   eyebrow?: string;
 }) {
+  const { t } = useTranslation();
   const theme = useStore((s) => s.theme);
 
   useEffect(() => {
@@ -37,15 +40,16 @@ export function PublicMarketingLayout({
   return (
     <div className="theme-transition relative min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_12%_0%,rgb(var(--accent)/0.08),transparent_42%),radial-gradient(circle_at_88%_18%,rgb(var(--accent-soft)/0.55),transparent_36%),rgb(var(--bg))]">
       <header className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <Link to="/" aria-label="Longyu — início">
-          <BrandLockup size={32} tagline={eyebrow ?? "PT-BR → Mandarim"} />
+        <Link to="/" aria-label={t("marketing.startHome")}>
+          <BrandLockup size={32} tagline={eyebrow ?? t("marketing.tagline")} />
         </Link>
         <div className="flex items-center gap-2">
+          <LanguageSwitcher compact id="marketing-interface-locale" />
           <ButtonLink to="/login" variant="ghost" size="sm">
-            Entrar
+            {t("marketing.signIn")}
           </ButtonLink>
           <ButtonLink to="/comecar" variant="primary" size="sm" className="hidden sm:inline-flex">
-            Começar
+            {t("marketing.getStarted")}
           </ButtonLink>
         </div>
       </header>
@@ -54,7 +58,7 @@ export function PublicMarketingLayout({
 
       <footer className="border-t border-line/60 bg-surface/40">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 sm:px-6">
-          <nav aria-label="Conteúdo público" className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+          <nav aria-label={t("marketing.publicNav")} className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
             {FOOTER_LINKS.map((page) => (
               <Link
                 key={page.path}
@@ -70,10 +74,10 @@ export function PublicMarketingLayout({
           </nav>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-faint">
             <Link to="/privacidade" className="hover:text-ink-soft">
-              Privacidade
+              {t("marketing.privacy")}
             </Link>
             <Link to="/sobre" className="hover:text-ink-soft">
-              Sobre
+              {t("marketing.about")}
             </Link>
             <span>
               Longyu · <AppVersionLabel />
@@ -95,6 +99,7 @@ export function MarketingArticle({
   lead: string;
   sections: { heading: string; body: string[] }[];
 }) {
+  const { t } = useTranslation();
   return (
     <article>
       <h1 className="font-serif text-[2rem] font-semibold leading-[1.08] tracking-[-0.02em] text-ink sm:text-[2.35rem]">
@@ -117,10 +122,10 @@ export function MarketingArticle({
 
       <div className="mt-12 flex flex-col gap-3 sm:max-w-md">
         <ButtonLink to="/comecar" size="lg" className="w-full shadow-lift">
-          Começar a aprender
+          {t("marketing.startLearning")}
         </ButtonLink>
         <ButtonLink to="/" variant="outline" size="lg" className="w-full">
-          Voltar ao início
+          {t("marketing.backHome")}
         </ButtonLink>
       </div>
     </article>

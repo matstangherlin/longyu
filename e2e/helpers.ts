@@ -61,6 +61,13 @@ export async function seedTelemetryDeclined(page: Page) {
   });
 }
 
+/** Interface locale for V4.8.0. Not part of the pedagogical Zustand persist. */
+export async function seedInterfaceLocale(page: Page, locale: "pt-BR" | "en") {
+  await page.addInitScript((value) => {
+    localStorage.setItem("longyu:interface-locale", value);
+  }, locale);
+}
+
 /** Pedagogy e2e: marca sessão local seeded. Production ignora este marker. */
 export async function allowE2ELocalSession(page: Page) {
   await page.addInitScript(() => {
@@ -86,18 +93,18 @@ export async function seedMissingDraftFinalize(page: Page) {
 
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu/i });
+    const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu|Help improve Longyu/i });
     if (await privacy.isVisible().catch(() => false)) {
-      const decline = page.getByRole("button", { name: /Agora não/i });
+      const decline = page.getByRole("button", { name: /Agora não|Not now/i });
       if (await decline.isVisible().catch(() => false)) {
         await decline.click({ timeout: 2_000 }).catch(() => undefined);
       }
       await page.waitForTimeout(120);
       continue;
     }
-    const achievement = page.getByRole("dialog", { name: /medalha|conquista/i });
+    const achievement = page.getByRole("dialog", { name: /medalha|conquista|medal|achievement/i });
     if (await achievement.isVisible().catch(() => false)) {
-      const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok/i }).first();
+      const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok|Continue|Close/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click({ timeout: 2_000, force: true }).catch(() => undefined);
       } else {
@@ -106,9 +113,9 @@ export async function dismissBlockingOverlays(page: Page) {
       await page.waitForTimeout(120);
       continue;
     }
-    const streak = page.getByRole("dialog", { name: /Ofensiva atualizada/i });
+    const streak = page.getByRole("dialog", { name: /Ofensiva atualizada|Streak updated/i });
     if (await streak.isVisible().catch(() => false)) {
-      const continueBtn = streak.getByRole("button", { name: /^Continuar$/i }).first();
+      const continueBtn = streak.getByRole("button", { name: /^(Continuar|Continue)$/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {
         await continueBtn.click({ timeout: 2_000, force: true }).catch(() => undefined);
       } else {
@@ -127,7 +134,7 @@ export async function dismissBlockingOverlays(page: Page) {
     // Qualquer outro dialog modal que bloqueie cliques (WebKit é mais sensível).
     const otherDialog = page.locator('[role="dialog"][aria-modal="true"]').first();
     if (await otherDialog.isVisible().catch(() => false)) {
-      const dismiss = otherDialog.getByRole("button", { name: /Continuar|Fechar|Ok|Depois|Entendi/i }).first();
+      const dismiss = otherDialog.getByRole("button", { name: /Continuar|Fechar|Ok|Depois|Entendi|Continue|Close|Later|Not now|Agora não/i }).first();
       if (await dismiss.isVisible().catch(() => false)) {
         await dismiss.click({ timeout: 2_000 }).catch(() => undefined);
       } else {
@@ -145,8 +152,15 @@ export async function dismissBlockingOverlays(page: Page) {
  * Sem isso, testes podem inspecionar o fallback "Carregando…" e falhar.
  */
 export async function waitForLazyPage(page: Page) {
-  await page.locator('[aria-label="Carregando página"]').waitFor({ state: "detached", timeout: 20_000 }).catch(() => undefined);
-  await page.getByText("Carregando…").first().waitFor({ state: "hidden", timeout: 5_000 }).catch(() => undefined);
+  const fallback = page.locator('[aria-label="Carregando página"], [aria-label="Loading page"]');
+  const appeared = await fallback
+    .first()
+    .waitFor({ state: "visible", timeout: 800 })
+    .then(() => true)
+    .catch(() => false);
+  if (appeared) {
+    await fallback.first().waitFor({ state: "hidden", timeout: 20_000 }).catch(() => undefined);
+  }
 }
 
 /**

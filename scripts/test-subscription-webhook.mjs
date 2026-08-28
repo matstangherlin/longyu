@@ -362,7 +362,7 @@ const bootstrapSrc = read("src/components/auth/EntitlementBootstrap.tsx");
 assert(bootstrapSrc.includes("beginCheck") && bootstrapSrc.includes("endCheck"), "bootstrap deve marcar/limpar a checagem");
 assert(bootstrapSrc.includes("finally"), "bootstrap deve limpar a checagem no finally (sem travar em 'Verificando')");
 const proPageSrc = read("src/features/pro/ProPage.tsx");
-assert(proPageSrc.includes("Verificando seu plano"), "ProPage deve mostrar 'Verificando seu plano...'");
+assert(proPageSrc.includes('t("pro.checkingPlan")'), "ProPage deve mostrar verificação de plano");
 
 if (errors.length > 0) {
   console.error("ERRO: test:subscription-webhook falhou.");

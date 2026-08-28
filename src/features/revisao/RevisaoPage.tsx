@@ -21,6 +21,8 @@ import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercis
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
+import { formatDate } from "../../i18n/format";
+import { useTranslation } from "../../i18n/useTranslation";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import {
@@ -1068,7 +1070,7 @@ function errorSummary(error: ActivityErrorRecord): string {
 }
 
 function formatErrorDate(timestamp: number): string {
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(timestamp);
+  return formatDate(timestamp, { day: "2-digit", month: "2-digit" });
 }
 
 function ReviewInsightGroup({
@@ -1096,6 +1098,7 @@ function ReviewInsightGroup({
 }
 
 export function RevisaoPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);
   const gradeSrs = useStore((s) => s.gradeSrs);
@@ -1388,25 +1391,25 @@ export function RevisaoPage() {
     return (
       <HubPage data-review-page="">
         <HubHeader
-          eyebrow="Revisão"
-          title="Erros detalhados"
-          desc="Histórico e correção intensiva fazem parte do Longyu Pro."
+          eyebrow={t("review.eyebrow")}
+          title={t("review.detailedErrors")}
+          desc={t("review.detailedErrorsLead")}
         />
-        <HubSection title="Plano grátis">
+        <HubSection title={t("review.freePlan")}>
           <HubNavGrid
             items={[
               {
-                title: "Revisão básica",
-                desc: "Fila gratuita do que você aprendeu.",
+                title: t("review.basic"),
+                desc: t("review.basicCardDesc"),
                 icon: IconRefresh,
                 to: "/revisao",
                 featured: true,
               },
               {
-                title: "Erros detalhados",
-                desc: "Padrões de erro e histórico.",
+                title: t("review.detailedErrors"),
+                desc: t("review.detailedCardDesc"),
                 icon: IconTarget,
-                status: "Pro",
+                status: t("common.pro"),
                 statusTone: "gold",
                 pro: true,
                 onClick: () => openPaywall("errors"),
@@ -1425,23 +1428,23 @@ export function RevisaoPage() {
     return (
       <HubPage data-review-page="">
         <HubHeader
-          eyebrow={moduleUnit ? "Revisão de módulo" : "Revisão"}
-          title={moduleUnit ? moduleUnit.title : detailedErrorsAllowed ? "Revisão por domínio" : "Revisão básica"}
+          eyebrow={moduleUnit ? t("review.moduleEyebrow") : t("review.eyebrow")}
+          title={moduleUnit ? moduleUnit.title : detailedErrorsAllowed ? t("review.byDomain") : t("review.basic")}
           desc={
             moduleUnit
-              ? "Fila focada no módulo atual, com reforço de erros e itens fracos."
+              ? t("review.moduleDesc")
               : detailedErrorsAllowed
-                ? "Som, forma, uso e frases em fila adaptativa."
-                : "Reforce o que você aprendeu. Histórico detalhado fica no Pro."
+                ? t("review.byDomainDesc")
+                : t("review.basicLead")
           }
         />
 
-        <HubSection title="Modos" desc="Escolha o tipo de revisão.">
+        <HubSection title={t("review.modes")} desc={t("review.modesDesc")}>
           <HubNavGrid
             items={[
               {
-                title: "Revisão básica",
-                desc: "Fila gratuita do dia.",
+                title: t("review.basic"),
+                desc: t("review.basicQueueDesc"),
                 icon: IconRefresh,
                 to: "/revisao",
                 // REVIEW-026: sessão do dia no lugar do total bruto da fila.
@@ -1449,30 +1452,30 @@ export function RevisaoPage() {
                 featured: !detailedErrorsAllowed,
               },
               {
-                title: "Itens fracos",
-                desc: "Priorize lapsos.",
+                title: t("review.weakItems"),
+                desc: t("review.weakItemsDesc"),
                 icon: IconTarget,
                 to: "/revisao?modo=fracos",
-                status: detailedErrorsAllowed ? `${modeCounts.weak} itens` : "Pro",
+                status: detailedErrorsAllowed ? t("hub.itemsCount", { count: modeCounts.weak }) : t("common.pro"),
                 statusTone: detailedErrorsAllowed ? "accent" : "gold",
                 pro: !detailedErrorsAllowed,
                 disabled: !detailedErrorsAllowed,
               },
               {
-                title: "Revisão de módulo",
-                desc: "Foco no módulo atual da Jornada.",
+                title: t("review.moduleEyebrow"),
+                desc: t("review.moduleFocusDesc"),
                 icon: IconRefresh,
                 to: suggestedModuleId ? `/revisao?modulo=${suggestedModuleId}` : "/jornada",
-                status: moduleUnitId ? "Ativo" : suggestedModuleId ? "Disponível" : "Jornada",
+                status: moduleUnitId ? t("review.active") : suggestedModuleId ? t("review.available") : t("navigation.journey"),
                 featured: Boolean(moduleUnitId),
               },
               {
-                title: "Erros detalhados",
-                desc: "Corrija erros recentes.",
+                title: t("review.detailedErrors"),
+                desc: t("review.correctRecentDesc"),
                 icon: IconTarget,
                 to: detailedErrorsAllowed ? "/revisao?modo=erros" : undefined,
                 onClick: detailedErrorsAllowed ? undefined : () => openPaywall("errors"),
-                status: "Pro",
+                status: t("common.pro"),
                 statusTone: "gold",
                 pro: !detailedErrorsAllowed,
                 featured: detailedErrorsAllowed && modeCounts.mistakes > 0,
@@ -1486,11 +1489,11 @@ export function RevisaoPage() {
           {reviewed > 0 ? (
             <>
               <div className="font-serif text-2xl font-semibold text-ink">
-                {correctionDrill ? "Rodadas concluídas" : "Sessão concluída"}
+                {correctionDrill ? t("review.roundsComplete") : t("review.sessionComplete")}
               </div>
               <p className="mt-1 text-ink-soft">
-                {reviewed} {reviewed === 1 ? "item revisado" : "itens revisados"}.
-                {sessionInsight.nextFocus ? ` Próximo foco: ${sessionInsight.nextFocus}.` : " Volte amanhã para os próximos."}
+                {reviewed} {reviewed === 1 ? t("review.itemReviewed") : t("review.itemsReviewed")}.
+                {sessionInsight.nextFocus ? ` ${t("review.nextFocus", { focus: sessionInsight.nextFocus })}` : ` ${t("review.comeBackTomorrow")}`}
               </p>
               {correctionDrill && returningItems.length > 0 && (
                 <p className="mt-3 rounded-xl border border-accent/25 bg-accent-soft/30 px-3 py-2 text-sm text-ink-soft">
@@ -1530,7 +1533,7 @@ export function RevisaoPage() {
               )}
               {correctionDrill && (
                 <Button className="mt-5" onClick={exitCorrectionDrill}>
-                  Voltar à revisão
+                  {t("review.backToReview")}
                 </Button>
               )}
               {!isPremium && fullQueue.length > queue.length && (
@@ -1549,20 +1552,23 @@ export function RevisaoPage() {
                   existe mais. Dizer "nada para revisar" ali contradiz a
                   contagem exibida logo acima e manda alimentar uma fila cheia. */}
               <div className="font-serif text-2xl font-semibold text-ink">
-                {fullQueue.length > 0 ? "Não consegui montar esta revisão" : "Nada para revisar agora"}
+                {fullQueue.length > 0 ? t("review.couldNotBuild") : t("review.emptyNow")}
               </div>
               <p className="mt-1 text-ink-soft">
                 {fullQueue.length > 0
-                  ? `Há ${fullQueue.length} ${fullQueue.length === 1 ? "item" : "itens"} na fila, mas nenhum deles pôde virar exercício agora. Estude um pouco para renovar a fila — os itens antigos saem sozinhos.`
-                  : "Aprenda caracteres no Hànzì ou chunks na Fala para alimentar a fila."}
+                  ? t("review.queueOrphan", {
+                      count: fullQueue.length,
+                      items: fullQueue.length === 1 ? t("review.item") : t("review.items"),
+                    })
+                  : t("review.emptyFeed")}
               </p>
               <div className="mt-4 flex justify-center gap-3">
                 {correctionDrill ? (
-                  <Button onClick={exitCorrectionDrill}>Voltar à revisão</Button>
+                  <Button onClick={exitCorrectionDrill}>{t("review.backToReview")}</Button>
                 ) : (
                   <>
-                    <ButtonLink to="/hanzi" variant="outline">Ir para Hànzì</ButtonLink>
-                    <ButtonLink to="/fala">Ir para Fala</ButtonLink>
+                    <ButtonLink to="/hanzi" variant="outline">{t("review.goHanzi")}</ButtonLink>
+                    <ButtonLink to="/fala">{t("review.goSpeaking")}</ButtonLink>
                   </>
                 )}
               </div>
@@ -1722,7 +1728,7 @@ export function RevisaoPage() {
             className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-xl px-1 text-sm font-semibold text-ink-soft transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           >
             <IconChevron width={16} height={16} className="rotate-180" aria-hidden="true" />
-            Voltar à revisão
+            {t("review.backToReview")}
           </button>
           <div className="rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] p-4 shadow-card sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1750,9 +1756,9 @@ export function RevisaoPage() {
         </div>
       ) : (
         <HubHeader
-          eyebrow="Revisão"
-          title={detailedErrorsAllowed ? "Sessão ativa" : "Revisão básica"}
-          desc={detailedErrorsAllowed ? domainMeta.weaknessLabel : "Responda e revele a resposta."}
+          eyebrow={t("review.eyebrow")}
+          title={detailedErrorsAllowed ? t("review.activeSession") : t("review.basic")}
+          desc={detailedErrorsAllowed ? domainMeta.weaknessLabel : t("review.basicActionDesc")}
         />
       )}
 

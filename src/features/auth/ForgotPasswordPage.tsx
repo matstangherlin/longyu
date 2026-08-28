@@ -5,8 +5,11 @@ import { Button } from "../../components/ui/primitives";
 import { isValidEmail } from "../../lib/authForm";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { requestPasswordReset } from "../../services/authService";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -16,7 +19,7 @@ export function ForgotPasswordPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!isValidEmail(email)) {
-      setError("Informe um email válido.");
+      setError(t("auth.errors.invalidEmail"));
       return;
     }
     setLoading(true);
@@ -25,23 +28,23 @@ export function ForgotPasswordPage() {
     const result = await requestPasswordReset(email);
     setLoading(false);
     if (result.status === "error") {
-      setError(result.message);
+      setError(localizeUserMessage(result.message));
       return;
     }
-    setNotice(result.message);
+    setNotice(localizeUserMessage(result.message));
   }
 
   if (!cloudEnabled) {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
         <Mascot size={96} variant="wave" />
-        <h1 className="font-serif text-2xl font-semibold text-ink">Recuperação indisponível</h1>
-        <p className="text-sm text-ink-soft">O backend em nuvem não está ativo neste ambiente.</p>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.recoveryUnavailable")}</h1>
+        <p className="text-sm text-ink-soft">{t("auth.backendInactive")}</p>
         <Link
           to="/login"
           className="inline-flex h-11 items-center justify-center rounded-xl border border-line/60 bg-surface px-5 text-sm font-semibold text-ink hover:bg-surface-2"
         >
-          Voltar ao login
+          {t("auth.backToLogin")}
         </Link>
       </div>
     );
@@ -51,21 +54,21 @@ export function ForgotPasswordPage() {
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center gap-6 py-8">
       <div className="text-center">
         <Mascot size={88} variant="wave" className="mx-auto" />
-        <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">Esqueci minha senha</h1>
+        <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">{t("auth.forgotPassword")}</h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">
-          Enviaremos um link para redefinir sua senha no email cadastrado.
+          {t("auth.forgotPasswordLead")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Email</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
           <input
             type="email"
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="voce@email.com"
+            placeholder={t("auth.emailPlaceholder")}
             className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
           />
         </label>
@@ -82,13 +85,13 @@ export function ForgotPasswordPage() {
         )}
 
         <Button type="submit" size="lg" disabled={loading} className="mt-5 w-full">
-          {loading ? "Enviando…" : "Enviar link de recuperação"}
+          {loading ? t("auth.sending") : t("auth.sendResetLink")}
         </Button>
       </form>
 
       <p className="text-center text-sm text-ink-soft">
         <Link to="/login" className="font-semibold text-accent hover:underline">
-          Voltar ao login
+          {t("auth.backToLogin")}
         </Link>
       </p>
     </div>

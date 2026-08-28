@@ -1,6 +1,7 @@
 import type { ComponentProps } from "react";
 import { IconChat } from "../ui/Icon";
 import type { FeedbackContext } from "../../lib/feedback";
+import { useTranslation } from "../../i18n/useTranslation";
 import { useFeedbackUi } from "./FeedbackContext";
 
 type Variant = "primary" | "ghost" | "soft" | "outline";
@@ -32,12 +33,14 @@ export function FeedbackButton({
   variant = "primary",
   size = "md",
   showIcon = true,
-  label = "Enviar feedback",
+  label,
   className,
   onClick,
   ...rest
 }: FeedbackButtonProps) {
   const { openFeedback } = useFeedbackUi();
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t("feedback.send");
 
   return (
     <button
@@ -57,7 +60,7 @@ export function FeedbackButton({
       {...rest}
     >
       {showIcon && <IconChat width={17} height={17} />}
-      {label}
+      {resolvedLabel}
     </button>
   );
 }

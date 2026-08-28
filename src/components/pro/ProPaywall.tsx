@@ -19,6 +19,7 @@ import {
   type ProPaywallKind,
 } from "../../data/planFeatures";
 import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export type { PaywallKind, ProPaywallKind };
 
@@ -51,6 +52,7 @@ export function ProPaywall({
   /** Copy contextual do proOfferEngine (sobrescreve PAYWALL_COPY). */
   offer?: ProOfferCopy | null;
 }) {
+  const { t } = useTranslation();
   const baseCopy = PAYWALL_COPY[kind];
   const copy = offer
     ? {
@@ -95,7 +97,7 @@ export function ProPaywall({
             <Icon width={24} height={24} />
           </span>
           <span className="rounded-full border border-[#B7791F]/25 bg-[#B7791F]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">
-            Longyu Pro
+            {t("pro.badge")}
           </span>
         </div>
         <div className="mt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</div>
@@ -113,22 +115,22 @@ export function ProPaywall({
               {PRO_PAYWALL_CTA}
             </ButtonLink>
             <ButtonLink to="/missoes" onClick={onClose} size="lg" variant="outline" className="w-full">
-              Ir para missões
+              {t("pro.goToMissions")}
             </ButtonLink>
-            <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>Voltar amanhã</Button>
+            <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>{t("pro.comeBackTomorrow")}</Button>
           </div>
         ) : (
           <div className="mt-5 grid gap-2">
             <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
               {PRO_PAYWALL_CTA}
             </ButtonLink>
-            <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>Agora não</Button>
+            <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>{t("pro.notNow")}</Button>
           </div>
         )}
         <p className="mt-3 text-center text-xs text-ink-faint">
           {realBilling
-            ? "30 dias grátis. Cancele quando quiser, direto na sua conta."
-            : "Os planos do Longyu Pro serão liberados em breve."}
+            ? t("pro.trialFootnote")
+            : t("pro.comingSoonFootnote")}
         </p>
       </section>
     </ModalOverlay>

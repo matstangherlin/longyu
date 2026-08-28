@@ -6,6 +6,7 @@ import {
   moreMobileSheetGroups,
   practiceMobileSheetItems,
   profileFlyoutItems,
+  navLabel,
   type NavGroup,
   type NavItem,
 } from "./nav";
@@ -17,10 +18,12 @@ import { buildMissionViews, isMissionActionable } from "../../data/missions";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
+import { useTranslation } from "../../i18n/useTranslation";
 
 type SheetKind = "praticar" | "perfil" | "mais";
 
 export function TabBar() {
+  const { t } = useTranslation();
   const navRef = useMeasuredHeightCssVar<HTMLElement>("--app-bottom-nav-height");
   const location = useLocation();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
@@ -61,26 +64,28 @@ export function TabBar() {
   const sheetConfig = sheet
     ? {
         praticar: {
-          title: "Praticar",
-          groups: [{ title: "Praticar", items: practiceMobileSheetItems(items) }] as NavGroup[],
-          footer: { to: "/treino", label: "Abrir Praticar" },
+          title: t("navigation.practice"),
+          groups: [{ id: "practice", title: t("navigation.practice"), titleKey: "navigation.practice", items: practiceMobileSheetItems(items) }] as NavGroup[],
+          footer: { to: "/treino", label: t("navigation.openPractice") },
         },
         perfil: {
-          title: "Perfil",
+          title: t("navigation.profile"),
           groups: [
             {
-              title: "Perfil",
+              id: "profile",
+              title: t("navigation.profile"),
+              titleKey: "navigation.profile",
               items: canUseReferral
                 ? profileFlyoutItems()
                 : profileFlyoutItems().filter((item) => item.to !== "/convide"),
             },
           ] as NavGroup[],
-          footer: { to: "/perfil", label: "Abrir Perfil" },
+          footer: { to: "/perfil", label: t("navigation.openProfile") },
         },
         mais: {
-          title: "Mais opções",
+          title: t("navigation.moreOptions"),
           groups: moreMobileSheetGroups(items),
-          footer: { to: "/mais", label: "Ver menu completo" },
+          footer: { to: "/mais", label: t("navigation.seeFullMenu") },
         },
       }[sheet]
     : null;
@@ -95,7 +100,7 @@ export function TabBar() {
           zLayerClass.bottomNav
         )}
         style={{ paddingBottom: "var(--app-safe-bottom)" }}
-        aria-label="Principal"
+        aria-label={t("navigation.primary")}
       >
         <div className="mx-auto flex min-h-16 max-w-md items-stretch justify-around px-1 py-1">
           {items.map((item) => {
@@ -122,7 +127,7 @@ export function TabBar() {
                     </span>
                   )}
                 </span>
-                <span className="max-w-full truncate px-0.5">{item.label}</span>
+                <span className="max-w-full truncate px-0.5">{navLabel(item, t)}</span>
               </>
             );
 
@@ -182,6 +187,7 @@ function TabSheet({
   pathname: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -236,12 +242,12 @@ function TabSheet({
         <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-2">
           {groups.map((group, groupIndex) => (
             <div
-              key={group.title}
+              key={group.id || group.title}
               className={groupIndex === 0 ? "" : "mt-3 border-t border-line/60 pt-3"}
             >
               {groups.length > 1 && (
                 <div className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
-                  {group.title}
+                  {t(group.titleKey)}
                 </div>
               )}
               <div className="grid grid-cols-2 gap-2">
@@ -261,7 +267,7 @@ function TabSheet({
                       ].join(" ")}
                     >
                       <Icon width={20} height={20} aria-hidden="true" />
-                      <span className="truncate">{item.label}</span>
+                      <span className="truncate">{navLabel(item, t)}</span>
                     </Link>
                   );
                 })}

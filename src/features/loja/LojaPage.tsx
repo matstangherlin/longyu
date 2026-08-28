@@ -36,6 +36,7 @@ import {
 import { useIsPro } from "../../lib/proAccess";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { monthKey } from "../../lib/storage";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
   breath: IconFlame,
@@ -53,6 +54,7 @@ const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
 };
 
 export function LojaPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const points = useStore((s) => s.points);
   const dragonPearls = useStore((s) => s.dragonPearls);
@@ -182,9 +184,9 @@ export function LojaPage() {
       )}
 
       <HubHeader
-        eyebrow="Loja"
-        title="Qi e Pérolas"
-        desc="Qi no dia a dia. Pérolas em grandes marcos."
+        eyebrow={t("navigation.shop")}
+        title={t("hub.shopTitle")}
+        desc={t("hub.shopDesc")}
         aside={
           <div className="flex flex-wrap items-center justify-end gap-2">
             <div className="flex items-center gap-1.5 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-sm font-semibold text-accent">
@@ -193,7 +195,7 @@ export function LojaPage() {
             </div>
             <div className="flex items-center gap-1.5 rounded-full border border-line/70 bg-surface px-3 py-1.5 text-sm font-semibold text-gold">
               <span aria-hidden>珠</span> {dragonPearls}
-              <span className="font-normal text-ink-faint">Pérolas</span>
+              <span className="font-normal text-ink-faint">{t("hub.pearls")}</span>
             </div>
           </div>
         }

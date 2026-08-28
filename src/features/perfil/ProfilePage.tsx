@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore, type DailyStudyRecord } from "../../lib/store";
+import { formatDate } from "../../i18n/format";
+import { useTranslation } from "../../i18n/useTranslation";
 import { todayKey } from "../../lib/storage";
 import { ALL_LESSONS } from "../../data/journey";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
@@ -38,7 +40,7 @@ function initials(name?: string): string {
 function memberSinceLabel(createdAt?: number): string | undefined {
   if (!createdAt) return undefined;
   try {
-    return new Date(createdAt).toLocaleDateString("pt-BR", { month: "short", year: "numeric" }).replace(".", "");
+    return formatDate(createdAt, { month: "short", year: "numeric" }).replace(".", "");
   } catch {
     return undefined;
   }
@@ -84,6 +86,7 @@ interface HistoryEvent {
 }
 
 export function ProfilePage() {
+  const { t } = useTranslation();
   const location = useLocation();
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
@@ -392,15 +395,15 @@ export function ProfilePage() {
               ))}
             </div>
             <Link to="/conquistas" className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-              Ver todas <IconChevron width={13} height={13} />
+              {t("common.seeAll")} <IconChevron width={13} height={13} />
             </Link>
           </>
         ) : (
           <EmptyState
             icon={IconTrophy}
-            title="Nenhuma conquista ainda"
-            desc="Conclua lições e mantenha a sequência para desbloquear medalhas."
-            action={<ActionButton to="/jornada" size="sm" trailingChevron>Continuar Jornada</ActionButton>}
+            title={t("hub.profileEmptyTitle")}
+            desc={t("hub.profileEmptyDesc")}
+            action={<ActionButton to="/jornada" size="sm" trailingChevron>{t("shell.continueJourney")}</ActionButton>}
           />
         )}
       </ResponsiveCollapsible>

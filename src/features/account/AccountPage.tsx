@@ -47,6 +47,7 @@ import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
+import { formatDateTime } from "../../i18n/format";
 import { FriendsProfileCard } from "../../components/social/FriendsProfileCard";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
@@ -3494,13 +3495,13 @@ function SecurityLine({ label, value }: { label: string; value: string }) {
 
 function formatAccountDate(timestamp?: number): string {
   if (!timestamp) return "Ainda não registrado";
-  return new Intl.DateTimeFormat("pt-BR", {
+  return formatDateTime(timestamp, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(timestamp);
+  });
 }
 
 interface DashboardInput {
@@ -3660,7 +3661,7 @@ function formatMinutes(minutes: number): string {
 }
 
 function formatDate(timestamp: number): string {
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(timestamp);
+  return formatDateTime(timestamp, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 function rewardLabel(reward: RewardHistoryEntry): string {

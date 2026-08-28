@@ -2,6 +2,8 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button, Card } from "../ui/primitives";
 import { IconHome, IconRefresh } from "../ui/Icon";
 import { recordClientDiagnostic, requestFeedbackOpen } from "../../lib/clientDiagnostics";
+import { t } from "../../i18n/catalog";
+import { subscribeInterfaceLocale } from "../../i18n/locale";
 
 /**
  * Rede de segurança contra tela branca.
@@ -31,9 +33,18 @@ interface ErrorBoundaryState {
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null };
+  private unsubscribeLocale: (() => void) | undefined;
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { error };
+  }
+
+  componentDidMount() {
+    this.unsubscribeLocale = subscribeInterfaceLocale(() => this.forceUpdate());
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeLocale?.();
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -93,11 +104,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <IconRefresh width={30} height={30} />
           </div>
           <h1 className="mt-5 font-serif text-2xl font-semibold text-ink sm:text-3xl">
-            Algo saiu do prumo
+            {t("errors.genericTitle")}
           </h1>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-            Um erro inesperado interrompeu esta tela. Seu progresso continua salvo.
-            Tente de novo ou volte para a Jornada.
+            {t("errors.genericBody")}
           </p>
 
           {isDev && (
@@ -108,14 +118,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
           <div className="mt-6 grid gap-2">
             <Button size="lg" className="w-full" onClick={this.handleRetry}>
-              <IconRefresh width={17} height={17} /> Tentar novamente
+              <IconRefresh width={17} height={17} /> {t("common.retry")}
             </Button>
             <Button variant="soft" className="w-full" onClick={this.handleReport}>
-              Reportar problema
+              {t("common.reportProblem")}
             </Button>
             <a href="/jornada" className="block">
               <Button variant="outline" className="w-full">
-                <IconHome width={17} height={17} /> Voltar para a Jornada
+                <IconHome width={17} height={17} /> {t("journey.backToJourney")}
               </Button>
             </a>
             <button
@@ -123,7 +133,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               onClick={this.handleReload}
               className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
-              Recarregar o app
+              {t("common.reloadApp")}
             </button>
           </div>
         </Card>

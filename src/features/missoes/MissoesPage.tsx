@@ -22,8 +22,10 @@ import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
 import { Button, ButtonLink, Card, Pill, ProgressBar, cx } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
+import { formatDate } from "../../i18n/format";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { zLayerClass } from "../../components/ui/layers";
+import { useTranslation } from "../../i18n/useTranslation";
 import {
   IconBook,
   IconCheck,
@@ -37,6 +39,7 @@ import {
 } from "../../components/ui/Icon";
 import {
   missionCardVariant,
+
   missionCta,
   missionIconTileClass,
   missionStatusOf,
@@ -103,6 +106,7 @@ function medalStreak(monthKeys: Set<string>, current = monthKey()): number {
 }
 
 export function MissoesPage() {
+  const { t } = useTranslation();
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyMissions = useStore((s) => s.dailyMissions);
   const weeklyMissions = useStore((s) => s.weeklyMissions);
@@ -208,9 +212,9 @@ export function MissoesPage() {
       )}
 
       <HubHeader
-        eyebrow="Missões"
-        title="Objetivos e recompensas"
-        desc="Metas curtas para manter ritmo e resgatar Qi."
+        eyebrow={t("missions.eyebrow")}
+        title={t("missions.goalsTitle")}
+        desc={t("missions.goalsDesc")}
       />
 
       <EconomyExplainer isPro={isPro} context="missoes" className="shadow-none" />
@@ -228,8 +232,8 @@ export function MissoesPage() {
       />
 
       <MissionSection
-        title="Missões do dia"
-        desc="Resetam todo dia. Complete para somar na missão do mês."
+        title={t("missions.daily")}
+        desc={t("missions.dailyDesc")}
         done={dailyDone}
         total={dailyViews.length}
         missions={dailyViews}
@@ -240,8 +244,8 @@ export function MissoesPage() {
       />
 
       <MissionSection
-        title="Missões da semana"
-        desc="Resetam toda semana. Objetivos maiores, recompensas maiores."
+        title={t("missions.weekly")}
+        desc={t("missions.weeklyDesc")}
         done={weeklyDone}
         total={weeklyViews.length}
         missions={weeklyViews}
@@ -253,18 +257,18 @@ export function MissoesPage() {
 
       <HubSection
         id="medalhas"
-        title="Medalhas mensais"
-        desc="Uma medalha por mês concluído."
+        title={t("missions.monthlyMedals")}
+        desc={t("missions.monthlyMedalsDesc")}
         count={
           <Pill tone={streak > 0 ? "accent" : "muted"}>
-            <IconStar width={13} height={13} /> {streak} {streak === 1 ? "mês" : "meses"}
+            <IconStar width={13} height={13} /> {streak} {streak === 1 ? t("common.month") : t("common.months")}
           </Pill>
         }
       >
         {medals.length === 0 ? (
           <HubEmptyState
-            title="Nenhuma medalha ainda"
-            desc={`Complete ${MONTHLY_GOAL} missões diárias em um mês para ganhar a primeira.`}
+            title={t("missions.emptyMedalsTitle")}
+            desc={t("missions.emptyMedalsBody", { count: MONTHLY_GOAL })}
           />
         ) : (
           <div className={missionUi.collectionGrid} data-mission-collection="medals">
@@ -277,7 +281,7 @@ export function MissoesPage() {
                   </div>
                   <div className="mt-2 w-full break-words text-center text-xs font-semibold text-ink">{medal.label}</div>
                   <div className="text-[10px] text-ink-faint">
-                    {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(medal.earnedAt)}
+                    {formatDate(medal.earnedAt, { month: "long", year: "numeric" })}
                   </div>
                 </Card>
               ))}
@@ -286,8 +290,8 @@ export function MissoesPage() {
       </HubSection>
 
       <HubSection
-        title="Conquistas"
-        desc="Jornada, sequência, hànzì, som e fala."
+        title={t("missions.achievementsSection")}
+        desc={t("missions.achievementsDesc")}
         count={
           <Pill tone={generalUnlockedCount > 0 ? "accent" : "muted"}>
             {generalUnlockedCount}/{ACHIEVEMENTS.length}

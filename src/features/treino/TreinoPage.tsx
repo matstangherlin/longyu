@@ -26,10 +26,16 @@ import {
   HubProStrip,
   HubSection,
 } from "../../components/layout/HubLayout";
+import { useTranslation } from "../../i18n/useTranslation";
+import type { TranslateVars } from "../../i18n/catalog";
+import type { MessageKey } from "../../locales/pt-BR";
 
 const RECENT_ERROR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+type TranslateFn = (key: MessageKey | string, vars?: TranslateVars) => string;
+
 export function TreinoPage() {
+  const { t } = useTranslation();
   const today = useStore((s) => s.today);
   const srs = useStore((s) => s.srs);
   const completed = useStore((s) => s.completedLessons);
@@ -64,62 +70,63 @@ export function TreinoPage() {
     weakTone,
     weakCount: detailedErrorsAccess.allowed ? weakCount : 0,
     learnedChunksCount: learnedChunks.length,
+    t,
   });
 
   const practiceItems: HubNavItem[] = [
     {
       title: "Mandarin Blitz",
-      desc: "Cinco desafios em uma rodada rápida.",
+      desc: t("hub.blitzDesc"),
       icon: IconFlame,
       to: "/arcade/blitz",
       status: "60 s",
       featured: learnedChunks.length + learnedChars.length >= 2,
     },
     {
-      title: "Revisão básica",
-      desc: "Reforce o que você aprendeu.",
+      title: t("review.basic"),
+      desc: t("hub.basicReviewDesc"),
       icon: IconRefresh,
       to: "/revisao",
-      status: due > 0 ? `${due} prontos` : "Em dia",
+      status: due > 0 ? t("navigation.dueReady", { count: due }) : t("hub.caughtUp"),
       featured: due > 0,
     },
     {
-      title: "Pinyin Lab",
-      desc: "Sílabas, acentos e tons.",
+      title: t("navigation.pinyinLab"),
+      desc: t("hub.pinyinLabDesc"),
       icon: IconSound,
       to: "/pinyin",
-      status: toolStatus("pinyin_lab", accessContext),
+      status: toolStatus("pinyin_lab", accessContext, t),
       featured: true,
       disabled: !canUsePracticeTool("pinyin_lab", accessContext).allowed,
     },
-    toolNavItem("Som", "Escuta guiada e tons.", IconSound, "/som", "som", accessContext),
-    toolNavItem("Fala", "Chunks em voz alta.", IconChat, "/fala", "fala", accessContext),
+    toolNavItem(t("hub.sound"), t("hub.soundDesc"), IconSound, "/som", "som", accessContext, t),
+    toolNavItem(t("navigation.speaking"), t("hub.speakingDesc"), IconChat, "/fala", "fala", accessContext, t),
     {
-      title: "Erros detalhados",
+      title: t("review.detailedErrors"),
       desc: detailedErrorsAccess.allowed
-        ? "Corrija erros recentes com foco."
-        : "Histórico e padrões de erro no Pro.",
+        ? t("hub.detailedErrorsDesc")
+        : t("hub.detailedErrorsProDesc"),
       icon: IconTarget,
       to: detailedErrorsAccess.allowed ? "/revisao?modo=erros&sessao=corrigir" : undefined,
       onClick: detailedErrorsAccess.allowed ? undefined : () => setPaywallKind("errors"),
-      status: detailedErrorsAccess.allowed && recentErrors > 0 ? `${recentErrors} erros` : "Pro",
+      status: detailedErrorsAccess.allowed && recentErrors > 0 ? t("hub.errorsCount", { count: recentErrors }) : t("common.pro"),
       statusTone: "gold",
       pro: !detailedErrorsAccess.allowed,
       featured: detailedErrorsAccess.allowed && recentErrors > 0,
     },
     {
-      title: "Prática rápida",
-      desc: "Teste se pode avançar.",
+      title: t("hub.quickPractice"),
+      desc: t("hub.quickPracticeDesc"),
       icon: IconTarget,
       to: quickTestUnit ? `/teste/${quickTestUnit.id}` : "/revisao",
-      status: quickTestUnit ? "Teste" : "Livre",
+      status: quickTestUnit ? t("hub.test") : t("hub.openAccess"),
     },
     {
-      title: "Frases aprendidas",
-      desc: "Repita chunks em voz alta.",
+      title: t("hub.learnedPhrases"),
+      desc: t("hub.learnedPhrasesDesc"),
       icon: IconChat,
       to: "/fala",
-      status: learnedChunks.length > 0 ? `${learnedChunks.length} frases` : "Começar",
+      status: learnedChunks.length > 0 ? t("hub.phrasesCount", { count: learnedChunks.length }) : t("common.getStarted"),
       featured: learnedChunks.length > 0,
     },
   ];
@@ -129,21 +136,21 @@ export function TreinoPage() {
   const extraReview: HubNavItem[] = detailedErrorsAccess.allowed
     ? [
         {
-          title: "Itens fracos",
-          desc: "Priorize lapsos da fila.",
+          title: t("review.weakItems"),
+          desc: t("hub.weakItemsDesc"),
           icon: IconShield,
           to: "/revisao?modo=fracos",
-          status: weakCount > 0 ? `${weakCount} itens` : "Estável",
+          status: weakCount > 0 ? t("hub.itemsCount", { count: weakCount }) : t("hub.stable"),
           featured: weakCount > 0,
         },
       ]
     : [
         {
-          title: "Itens fracos",
-          desc: "Fila priorizada por lapsos, sem limite.",
+          title: t("review.weakItems"),
+          desc: t("hub.weakItemsProDesc"),
           icon: IconShield,
           onClick: () => setPaywallKind("training"),
-          status: "Pro",
+          status: t("common.pro"),
           statusTone: "gold",
           pro: true,
         },
@@ -152,9 +159,9 @@ export function TreinoPage() {
   return (
     <HubPage>
       <HubHeader
-        eyebrow="Hub"
-        title="Praticar"
-        desc="Revisão, som, fala e pinyin em treinos curtos."
+        eyebrow={t("hub.eyebrow")}
+        title={t("navigation.practice")}
+        desc={t("hub.practiceDesc")}
       />
 
       <EconomyExplainer isPro={isPremium} context="treino" />
@@ -169,22 +176,22 @@ export function TreinoPage() {
         footer={
           <div className="mt-2.5 max-w-xs">
             <div className="mb-1 flex justify-between text-[10px] font-medium text-ink-faint">
-              <span>Hoje</span>
-              <span>{totalMin}/{goalMin} min</span>
+              <span>{t("common.today")}</span>
+              <span>{t("hub.todayMinutes", { current: totalMin, goal: goalMin })}</span>
             </div>
             <ProgressBar value={totalMin} max={goalMin} className="h-1" />
           </div>
         }
       />
 
-      <HubSection title="Treinos" desc="Escolha um foco para hoje.">
+      <HubSection title={t("hub.practiceSection")} desc={t("hub.practiceSectionDesc")}>
         <HubNavGrid items={practiceItems} columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
       </HubSection>
 
       {extraReview.length > 0 && (
         <HubSection
-          title="Revisão avançada"
-          desc={detailedErrorsAccess.allowed ? "Disponível no seu plano." : "Treino completo faz parte do Pro."}
+          title={t("hub.advancedReview")}
+          desc={detailedErrorsAccess.allowed ? t("hub.advancedReviewPro") : t("hub.advancedReviewLocked")}
         >
           <HubNavGrid items={extraReview} columns="grid-cols-2 sm:grid-cols-3" />
         </HubSection>
@@ -211,60 +218,62 @@ function buildPracticeRecommendation({
   weakTone,
   weakCount,
   learnedChunksCount,
+  t,
 }: {
   recentErrors: number;
   reviewMission?: MissionView;
   weakTone?: MandarinTone | null;
   weakCount: number;
   learnedChunksCount: number;
+  t: TranslateFn;
 }): PracticeRecommendation {
   if (recentErrors > 0) {
     return {
-      title: "Corrija seus erros recentes",
-      desc: `${recentErrors} ${recentErrors === 1 ? "erro na última semana" : "erros na última semana"}.`,
+      title: t("hub.recoFixErrors"),
+      desc: recentErrors === 1 ? t("hub.recoFixErrorsOne", { count: recentErrors }) : t("hub.recoFixErrorsMany", { count: recentErrors }),
       to: "/revisao?modo=erros",
       icon: IconTarget,
-      cta: "Corrigir",
-      status: "Prioridade",
+      cta: t("hub.recoFixCta"),
+      status: t("hub.recoPriority"),
     };
   }
   if (reviewMission && !reviewMission.complete) {
     return {
-      title: "Revise 10 itens",
-      desc: "Complete a missão de revisão de hoje.",
+      title: t("hub.recoReviewTen"),
+      desc: t("hub.recoReviewTenDesc"),
       to: "/revisao",
       icon: IconRefresh,
-      cta: "Revisar",
+      cta: t("hub.recoReviewCta"),
       status: `${reviewMission.progress}/${reviewMission.goal}`,
     };
   }
   if (weakTone) {
     return {
-      title: "Treine tons por 5 minutos",
-      desc: `Reforce o ${TONE_SHORT_LABEL[weakTone]} no treino auditivo.`,
+      title: t("hub.recoTones"),
+      desc: t("hub.recoTonesDesc", { tone: TONE_SHORT_LABEL[weakTone] }),
       to: "/som",
       icon: IconSound,
-      cta: "Treinar tons",
-      status: "Tom fraco",
+      cta: t("hub.recoTonesCta"),
+      status: t("hub.recoWeakTone"),
     };
   }
   if (weakCount > 0) {
     return {
-      title: "Revise itens fracos",
-      desc: "Recupere cartões que quebraram a sequência.",
+      title: t("hub.recoWeakItems"),
+      desc: t("hub.recoWeakItemsDesc"),
       to: "/revisao?modo=fracos",
       icon: IconShield,
-      cta: "Revisar",
-      status: `${weakCount} itens`,
+      cta: t("hub.recoReviewCta"),
+      status: t("hub.itemsCount", { count: weakCount }),
     };
   }
   return {
-    title: "Pratique frases aprendidas",
-    desc: learnedChunksCount > 0 ? `${learnedChunksCount} chunks para falar.` : "Comece com frases curtas em voz alta.",
+    title: t("hub.recoPhrases"),
+    desc: learnedChunksCount > 0 ? t("hub.recoPhrasesCount", { count: learnedChunksCount }) : t("hub.recoPhrasesStart"),
     to: "/fala",
     icon: IconChat,
-    cta: "Falar agora",
-    status: "Leve",
+    cta: t("hub.recoSpeakNow"),
+    status: t("hub.recoLight"),
   };
 }
 
@@ -274,7 +283,8 @@ function toolNavItem(
   icon: ComponentType<SVGProps<SVGSVGElement>>,
   to: string,
   toolId: PracticeToolId,
-  context: { isPremium: boolean; completedLessons: string[] }
+  context: { isPremium: boolean; completedLessons: string[] },
+  t: TranslateFn
 ): HubNavItem {
   const decision = canUsePracticeTool(toolId, context);
   return {
@@ -282,20 +292,20 @@ function toolNavItem(
     desc,
     icon,
     to,
-    status: decision.allowed ? accessLabel(decision.pro, decision.limited) : "Bloqueado",
+    status: decision.allowed ? accessLabel(decision.pro, decision.limited, t) : t("hub.blocked"),
     disabled: !decision.allowed,
     pro: decision.pro && decision.allowed,
   };
 }
 
-function toolStatus(toolId: PracticeToolId, context: { isPremium: boolean; completedLessons: string[] }) {
+function toolStatus(toolId: PracticeToolId, context: { isPremium: boolean; completedLessons: string[] }, t: TranslateFn) {
   const decision = canUsePracticeTool(toolId, context);
-  if (!decision.allowed) return "Bloqueado";
-  return accessLabel(decision.pro, decision.limited);
+  if (!decision.allowed) return t("hub.blocked");
+  return accessLabel(decision.pro, decision.limited, t);
 }
 
-function accessLabel(pro: boolean, limited?: boolean): string {
-  if (pro) return "Pro";
-  if (limited) return "Cargas";
-  return "Livre";
+function accessLabel(pro: boolean, limited: boolean | undefined, t: TranslateFn): string {
+  if (pro) return t("common.pro");
+  if (limited) return t("hub.charges");
+  return t("hub.openAccess");
 }

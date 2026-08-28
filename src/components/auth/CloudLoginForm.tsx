@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { canSignInWithCredentials } from "../../lib/authForm";
 import { Button } from "../ui/primitives";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function CloudLoginForm({
   email,
@@ -9,7 +10,7 @@ export function CloudLoginForm({
   error,
   notice,
   loading,
-  submitLabel = "Entrar",
+  submitLabel,
   forgotPasswordHref = "/esqueci-senha",
   onEmail,
   onPassword,
@@ -26,6 +27,8 @@ export function CloudLoginForm({
   onPassword: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const { t } = useTranslation();
+  const resolvedSubmit = submitLabel ?? t("auth.signIn");
   const canSubmit = canSignInWithCredentials(email, password) && !loading;
 
   return (
@@ -36,23 +39,23 @@ export function CloudLoginForm({
         </p>
       )}
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Email</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
         <input
           name="email"
           type="email"
           autoComplete="email"
           value={email}
           onChange={(event) => onEmail(event.target.value)}
-          placeholder="voce@email.com"
+          placeholder={t("auth.emailPlaceholder")}
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none transition focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
         />
       </label>
       <label className="block">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.password")}</span>
           {forgotPasswordHref && (
             <Link to={forgotPasswordHref} className="text-xs font-semibold text-accent hover:underline">
-              Esqueci minha senha
+              {t("auth.forgotPassword")}
             </Link>
           )}
         </div>
@@ -62,7 +65,7 @@ export function CloudLoginForm({
           autoComplete="current-password"
           value={password}
           onChange={(event) => onPassword(event.target.value)}
-          placeholder="Mínimo de 6 caracteres"
+          placeholder={t("auth.passwordPlaceholder")}
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none transition focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
         />
       </label>
@@ -72,7 +75,7 @@ export function CloudLoginForm({
         </p>
       )}
       <Button type="submit" size="lg" disabled={loading || (!canSubmit && !email && !password)} className="w-full">
-        {loading ? "Entrando…" : submitLabel}
+        {loading ? t("auth.signingIn") : resolvedSubmit}
       </Button>
     </form>
   );

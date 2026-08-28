@@ -11,6 +11,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Button } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { ACHIEVEMENT_CATEGORY_META } from "../../data/achievements";
+import { useTranslation } from "../../i18n/useTranslation";
 
 /** Snapshot reativo da store para calcular o progresso das medalhas. */
 export function useAchievementSnapshot(): AchievementSnapshot {
@@ -120,11 +121,12 @@ function AchievementUnlockModal({
   onClose: () => void;
 }) {
   const category = ACHIEVEMENT_CATEGORY_META[achievement.category];
+  const { t } = useTranslation();
   // Tela cheia no mobile (momento de recompensa); card centrado no desktop.
   return (
     <ModalOverlay
       className="items-stretch p-0 sm:items-center sm:p-4"
-      label="Nova medalha desbloqueada"
+      label={t("shell.newMedalUnlocked")}
       onBackdropClick={onClose}
     >
       <div
@@ -133,7 +135,7 @@ function AchievementUnlockModal({
       >
         <div className="my-auto sm:my-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-            Nova medalha!
+            {t("shell.newMedal")}
           </div>
           <div className="longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-[30px] bg-accent text-white shadow-lift sm:mt-4 sm:h-20 sm:w-20 sm:rounded-[26px]">
             <span aria-hidden className="hanzi text-5xl leading-none sm:text-4xl">{achievement.glyph}</span>
@@ -150,7 +152,7 @@ function AchievementUnlockModal({
           </div>
         </div>
         <Button size="lg" className="mt-6 w-full shadow-lift sm:mt-5" onClick={onClose}>
-          Continuar
+          {t("common.continue")}
         </Button>
       </div>
     </ModalOverlay>

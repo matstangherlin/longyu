@@ -6,6 +6,7 @@ import { buildPrivacyExportBundle } from "../../services/privacyService";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { Pill } from "../../components/ui/primitives";
 import { IconBook, IconCheck, IconRefresh, IconShield, IconUser } from "../../components/ui/Icon";
+import { useTranslation } from "../../i18n/useTranslation";
 
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -20,6 +21,7 @@ function downloadJson(filename: string, data: unknown) {
 }
 
 export function DadosLocaisPage() {
+  const { t } = useTranslation();
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const switchAccount = useStore((s) => s.switchAccount);
@@ -73,10 +75,10 @@ export function DadosLocaisPage() {
   return (
     <PageShell width="narrow">
       <PageHeader
-        back={{ to: "/mais", label: "Mais" }}
-        eyebrow="Sistema"
-        title="Dados locais"
-        subtitle="Exportar, fazer backup, gerenciar perfis e apagar os dados guardados neste aparelho."
+        back={{ to: "/mais", label: t("navigation.more") }}
+        eyebrow={t("hub.localDataEyebrow")}
+        title={t("navigation.localData")}
+        subtitle={t("hub.localDataDesc")}
       />
 
       {notice && (

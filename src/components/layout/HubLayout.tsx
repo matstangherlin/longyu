@@ -2,6 +2,7 @@ import type { ComponentType, HTMLAttributes, ReactNode, SVGProps } from "react";
 import { Link } from "react-router-dom";
 import { Card, EmptyState, PageHeader, Pill, SectionHeader } from "../ui/primitives";
 import { IconChevron, IconStar } from "../ui/Icon";
+import { useTranslation } from "../../i18n/useTranslation";
 
 function cx(...parts: (string | false | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -186,6 +187,7 @@ export function HubHeroCard({
 }
 
 export function HubProStrip({ isPremium }: { isPremium: boolean }) {
+  const { t } = useTranslation();
   return (
     <Card className="p-2.5 sm:p-3">
       <div className="flex items-center gap-2.5">
@@ -193,10 +195,10 @@ export function HubProStrip({ isPremium }: { isPremium: boolean }) {
           <IconStar width={14} height={14} />
         </span>
         <div className="min-w-0 flex-1 text-[13px] font-semibold text-ink">
-          {isPremium ? "Pro ativo" : "Pro: revisão ilimitada e sem cargas"}
+          {isPremium ? t("hub.proActive") : t("hub.proStripBlurb")}
         </div>
         <Link to="/pro" className={cx("inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45", isPremium ? "border-transparent bg-accent-soft text-accent" : "border-line/65 bg-transparent text-ink hover:bg-surface-2")}>
-            {isPremium ? "Plano" : "Ver Pro"}
+            {isPremium ? t("common.plan") : t("settings.seePro")}
         </Link>
       </div>
     </Card>
