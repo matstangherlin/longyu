@@ -1,8 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { projectRoot } from "./lib/env-local.mjs";
-import { buildMigrationManifest, edgeSourceCatalog } from "./lib/schema-canonical.mjs";
+import { buildMigrationManifest, edgeSourceCatalog, sha256File } from "./lib/schema-canonical.mjs";
+import { localMigrationFiles, localSchemaHash } from "./lib/migration-drift.mjs";
+import { journeyFingerprint } from "./lib/report-meta.mjs";
 import { V477_CRITICAL_RPCS, V477_GRANT_MATRIX, V477_ANON_TABLE_JUSTIFICATION } from "./lib/v477-constants.mjs";
+import {
+  LONGYU_BACKEND_PLACEMENT_VERSION,
+  LONGYU_BACKEND_RC,
+  LONGYU_BACKEND_RC_CHANNEL,
+  LONGYU_MAIN_SHA_AT_FREEZE,
+  LONGYU_V477_HEAD,
+  V478_REMESSA_STATUS,
+} from "./lib/v478-backend-rc.mjs";
 
 const root = projectRoot();
 const backendDir = path.join(root, "docs/backend");
@@ -12,14 +22,14 @@ const manifest = buildMigrationManifest(root);
 fs.writeFileSync(path.join(backendDir, "migration-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 
 const rpcContract = {
-  remessa: "V4.7.7",
+  remessa: "V4.7.8",
   note: "CI fails if a listed RPC signature drifts without updating this file in the same PR.",
   rpcs: V477_CRITICAL_RPCS,
 };
 fs.writeFileSync(path.join(backendDir, "rpc-contract.json"), `${JSON.stringify(rpcContract, null, 2)}\n`);
 
 const edge = {
-  remessa: "V4.7.7",
+  remessa: "V4.7.8",
   note: "source_sha256 covers files under supabase/functions/<slug>. Compare with MandarimProject version numbers plus this hash.",
   functions: edgeSourceCatalog(root).map((row) => ({
     ...row,
@@ -44,10 +54,30 @@ const edge = {
 fs.writeFileSync(path.join(backendDir, "edge-contract.json"), `${JSON.stringify(edge, null, 2)}\n`);
 
 const grants = {
-  remessa: "V4.7.7",
+  remessa: "V4.7.8",
   anon: V477_ANON_TABLE_JUSTIFICATION,
   authenticated: V477_GRANT_MATRIX,
 };
 fs.writeFileSync(path.join(backendDir, "grant-surface.json"), `${JSON.stringify(grants, null, 2)}\n`);
 
-console.log("OK: wrote docs/backend/{migration-manifest,rpc-contract,edge-contract,grant-surface}.json");
+const files = localMigrationFiles(root);
+const backendRc = {
+  remessa: "V4.7.8",
+  LONGYU_BACKEND_RC,
+  channel: LONGYU_BACKEND_RC_CHANNEL,
+  remessa_status: V478_REMESSA_STATUS,
+  main_sha_at_freeze: LONGYU_MAIN_SHA_AT_FREEZE,
+  v477_head: LONGYU_V477_HEAD,
+  journey_fingerprint: journeyFingerprint(root),
+  placement_version: LONGYU_BACKEND_PLACEMENT_VERSION,
+  migration_chain_sha256: localSchemaHash(files),
+  migration_manifest_sha256: sha256File(path.join(backendDir, "migration-manifest.json")),
+  rpc_contract_sha256: sha256File(path.join(backendDir, "rpc-contract.json")),
+  edge_contract_sha256: sha256File(path.join(backendDir, "edge-contract.json")),
+  grant_surface_sha256: sha256File(path.join(backendDir, "grant-surface.json")),
+  canonical_schema_hash: "NOT_RUN",
+  note: "canonical_schema_hash stays NOT_RUN until ephemeral CI. Hosted keys stay NOT_RUN until approved apply.",
+};
+fs.writeFileSync(path.join(backendDir, "v478-backend-rc.json"), `${JSON.stringify(backendRc, null, 2)}\n`);
+
+console.log("OK: wrote docs/backend/{migration-manifest,rpc-contract,edge-contract,grant-surface,v478-backend-rc}.json");

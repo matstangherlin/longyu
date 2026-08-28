@@ -1,6 +1,6 @@
 {
   "frozen_at": "2026-08-28",
-  "remessa": "V4.7.7",
+  "remessa": "V4.7.8",
   "rebaseline": "Edit this file in the same PR that intentionally changes a frozen migration. CI fails on silent hash drift.",
   "migrations": [
     {
@@ -330,6 +330,13 @@
       "version": "20260828030000",
       "name": "progress_mastery_monotonic",
       "sha256": "4f3b129b8ce0b36d7f89d88a2113ce8dec6a7620a5aa2807cf39ec112f11e216",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "version": "20260828032249",
+      "name": "progress_mastery_monotonic_clamp",
+      "sha256": "598a102062ae17c7163edb2336c0c26b0a40871c92ad593753c9cfa090799e8f",
       "status": "FROZEN"
     }
   ]

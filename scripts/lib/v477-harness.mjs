@@ -188,7 +188,10 @@ export async function runMonotonicityMatrix(env) {
           updated_at: new Date().toISOString(),
         };
       };
-      await sessionA.from("user_progress").upsert(snap(first), { onConflict: "user_id" });
+      const firstWrite = await sessionA.from("user_progress").upsert(snap(first), { onConflict: "user_id" });
+      if (firstWrite.error) {
+        throw new EphemeralError(`monotonic insert ${first}: ${firstWrite.error.message}`);
+      }
       await Promise.all([
         sessionA.from("user_progress").upsert(snap(first), { onConflict: "user_id" }),
         sessionB.from("user_progress").upsert(snap(second), { onConflict: "user_id" }),
@@ -204,6 +207,66 @@ export async function runMonotonicityMatrix(env) {
         throw new EphemeralError(`monotonic ${first}+${second} stored=${stored} expected=${expected}`);
       }
       out.push({ first, second, stored, expected });
+    } finally {
+      await admin.auth.admin.deleteUser(user.id);
+    }
+  }
+  return { ok: true, cases: out };
+}
+
+export async function runMalformedMasteryMatrix(env) {
+  const { admin } = ephemeralClients(env);
+  const out = [];
+
+  function progressRow(userId, { level, map, completed = ["topic-1"] }) {
+    const lessonMasteryById = map !== undefined ? map : { "topic-1": { level } };
+    return {
+      user_id: userId,
+      client_snapshot: {
+        schemaVersion: 1,
+        account: { id: `cloud:${userId}`, name: "A", authMode: "cloud", createdAt: Date.now(), updatedAt: Date.now() },
+        progress: { completedLessons: completed, lessonMasteryById },
+      },
+      client_snapshot_version: 1,
+      completed_lessons: completed,
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  async function storedLevel(userId) {
+    const { data } = await admin
+      .from("user_progress")
+      .select("client_snapshot")
+      .eq("user_id", userId)
+      .maybeSingle();
+    return data?.client_snapshot?.progress?.lessonMasteryById?.["topic-1"]?.level;
+  }
+
+  const cases = [
+    { name: "insert-999-clamps-to-4", steps: [{ level: 999 }], expect: 4 },
+    { name: "insert-2.5-trunc-to-2", steps: [{ level: 2.5 }], expect: 2 },
+    { name: "insert-neg1-to-0", steps: [{ level: -1 }], expect: 0 },
+    { name: "keep-2-when-abc", steps: [{ level: 2 }, { level: "abc" }], expect: 2 },
+    { name: "keep-2-when-empty-string", steps: [{ level: 2 }, { level: "" }], expect: 2 },
+    { name: "keep-3-when-string-entry", steps: [{ level: 3 }, { map: { "topic-1": "nope" } }], expect: 3 },
+    { name: "keep-2-when-null-map", steps: [{ level: 2 }, { map: null }], expect: 2 },
+    { name: "keep-2-when-array-map", steps: [{ level: 2 }, { map: [] }], expect: 2 },
+    { name: "insert-5-then-1-stays-4", steps: [{ level: 5 }, { level: 1 }], expect: 4 },
+  ];
+
+  for (const item of cases) {
+    const user = await createUser(admin, `mal-${item.name.slice(0, 24)}`);
+    const session = await signIn(env, user);
+    try {
+      for (const step of item.steps) {
+        const { error } = await session.from("user_progress").upsert(progressRow(user.id, step), { onConflict: "user_id" });
+        if (error) throw new EphemeralError(`malformed ${item.name}: ${error.message}`);
+      }
+      const stored = await storedLevel(user.id);
+      if (stored !== item.expect) {
+        throw new EphemeralError(`malformed ${item.name} stored=${stored} expected=${item.expect}`);
+      }
+      out.push({ name: item.name, stored, expected: item.expect });
     } finally {
       await admin.auth.admin.deleteUser(user.id);
     }

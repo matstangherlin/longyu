@@ -1,0 +1,21 @@
+{
+  "remessa": "V4.7.8",
+  "LONGYU_BACKEND_RC": "v4.7.8-rc.1",
+  "remessa_status": "READY_FOR_CONTROLLED_UPGRADE",
+  "production_writes": "ZERO",
+  "production_project": "MandarimProject drjcfalvlbbeblmmyhwj",
+  "approval_token_required": "APPROVE_MANDARINPROJECT_BACKEND_UPGRADE",
+  "MANDARINPROJECT_SCHEMA_READY": "NOT_RUN",
+  "MANDARINPROJECT_GRANTS_READY": "NOT_RUN",
+  "MANDARINPROJECT_RLS_READY": "NOT_RUN",
+  "MANDARINPROJECT_EDGE_READY": "NOT_RUN",
+  "HOSTED_AUTH_READY": "NOT_RUN",
+  "HOSTED_PLACEMENT_READY": "NOT_RUN",
+  "HOSTED_SYNC_READY": "NOT_RUN",
+  "HOSTED_RECOVERY_READY": "NOT_RUN",
+  "HOSTED_SECURITY_READY": "NOT_RUN",
+  "PHYSICAL_QA_READY": "NOT_RUN",
+  "PAYMENTS_READY": "NOT_RUN",
+  "READY_FOR_CLOSED_BETA_BR": "NOT_READY",
+  "note": "Hosted keys stay NOT_RUN until an approved later remessa applies and live-QA fills them. This file must not be edited to PASS without that evidence."
+}
