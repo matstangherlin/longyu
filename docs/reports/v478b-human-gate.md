@@ -22,7 +22,7 @@ Do not interpret docs, CI green, or this PR as approval.
 | BACKEND_RC | `v4.7.8-rc.1` |
 | product RC | `v4.7.4-rc.1` (unchanged) |
 | Placement | v2 |
-| backup status | **`BLOCKED_BACKUP_NOT_CONFIRMED`** |
+| backup status | **`BLOCKED_BACKUP_NOT_CONFIRMED`** (plan **FREE**; PITR/restore-to-new-project require Pro) |
 | current migration watermark | `20260810175737` `beta_experience_telemetry` |
 | migrations pending | **11** — see `docs/reports/v478b-pending-delta.md` |
 | Edge Functions pending | **3 MISSING**: `commit-placement`, `finalize-onboarding`, `submit-business-lead` |

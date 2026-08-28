@@ -89,6 +89,9 @@ assert(delta.includes("20260828032249_progress_mastery_monotonic_clamp.sql"), "c
 const backup = read("docs/reports/v478b-backup-record.md");
 assert(backup.includes(V478B_BACKUP_GATE), "backup blocked");
 assert(/PITR|Backups/i.test(backup), "names dashboard backups");
+assert(/FREE/.test(backup), "records Free plan");
+assert(/db dump/i.test(backup), "names logical dump path on Free");
+assert(!/sk_live_|sbp_/.test(backup), "backup record no tokens");
 
 const lock = read("docs/reports/v478b-deploy-lock.md");
 assert(/NOT_ARMED/.test(lock), "lock not armed");

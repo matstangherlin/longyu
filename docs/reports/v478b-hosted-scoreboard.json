@@ -11,6 +11,8 @@
   "production_project": "MandarimProject drjcfalvlbbeblmmyhwj",
   "approval_token_required": "APPROVE_MANDARINPROJECT_BACKEND_UPGRADE",
   "backup_gate": "BLOCKED_BACKUP_NOT_CONFIRMED",
+  "supabase_plan": "FREE",
+  "PITR_available": "NO",
   "deploy_lock": "DECLARED_NOT_ARMED",
   "watermark": "20260810175737",
   "pending_migrations": 11,
