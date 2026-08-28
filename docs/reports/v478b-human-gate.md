@@ -22,7 +22,10 @@ Do not interpret docs, CI green, or this PR as approval.
 | BACKEND_RC | `v4.7.8-rc.1` |
 | product RC | `v4.7.4-rc.1` (unchanged) |
 | Placement | v2 |
-| backup status | **`BLOCKED_BACKUP_NOT_CONFIRMED`** (plan **FREE**; PITR/restore-to-new-project require Pro) |
+| backup type | `MANUAL_LOGICAL` (not PITR; RPO = dump `created_at`) |
+| `MANUAL_LOGICAL_BACKUP_CREATED` | **`NOT_RUN`** (five CLI files off-repo not yet confirmed) |
+| `MANUAL_LOGICAL_BACKUP_VERIFIED` | **`NOT_RUN`** |
+| `BACKUP_RECOVERY_GATE` | **`WAITING_MANUAL_LOGICAL_BACKUP`** |
 | current migration watermark | `20260810175737` `beta_experience_telemetry` |
 | migrations pending | **11** — see `docs/reports/v478b-pending-delta.md` |
 | Edge Functions pending | **3 MISSING**: `commit-placement`, `finalize-onboarding`, `submit-business-lead` |
@@ -50,11 +53,13 @@ https://github.com/matstangherlin/longyu/actions/runs/33143685565
 MAIN_SHA CI is terminal green. That is **not** hosted PASS and is **not**
 approval. This FASE B prompt is **not** `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
 
-## #208 CI (PR_HEAD `3587fd0`)
+## #208 CI (PR_HEAD parent `9ca4047`)
 
 Security **PASS**. Portão (`validate:beta` + build) **IN_PROGRESS** at this
-capture. Do not apply on a red HEAD. Do not apply while backup/approval are
-missing even if Portão later PASSes.
+capture. Do not apply on a red HEAD. Do not apply while
+`MANUAL_LOGICAL_BACKUP_*` are `NOT_RUN` or the approval token is absent,
+even if Portão later PASSes. Paid Pro upgrade is **not** required for this
+gate.
 
 ## V4.7.9 not started
 
@@ -72,11 +77,16 @@ this PR until FASE B has live evidence.
 - Missing Edges: hosted signup/placement handoff cannot complete until
   `commit-placement` + `finalize-onboarding` exist **after** schema 6–7.
 - Anon still has ALL DML on personal tables until least-privilege apply.
-- Backup/PITR window **not** confirmed from Dashboard.
+- Manual logical dump **not** yet confirmed (`CREATED`/`VERIFIED` = `NOT_RUN`).
+  Not PITR. Recovery would be slower than a physical restore. Adequate for
+  this controlled apply on Free **after** the human confirms the five
+  off-repo files.
 
 ## Estimated operations (FASE B only, after token)
 
-1. Confirm PITR/backup; arm deploy lock.
+1. Human confirms the five off-repo dumps + auth scope; both
+   `MANUAL_LOGICAL_BACKUP_*` PASS; `BACKUP_RECOVERY_GATE` =
+   `PASS_WITH_MANUAL_LOGICAL_BACKUP`; arm deploy lock.
 2. Apply 11 migrations **one by one** in order; smoke after each.
 3. Schema / grants / RLS live evidence.
 4. Deploy missing Edges one by one (no Stripe Live transaction).
@@ -97,7 +107,9 @@ this PR until FASE B has live evidence.
   incident.
 - Grants: do not re-grant anon ALL except a documented incident.
 - Rollback of locale columns: keep columns; drop unused drafts only if empty.
-- Restore from confirmed PITR if schema apply corrupts learner data.
+- Restore from the off-repo logical dump (`roles.sql` → `schema.sql` →
+  `data.sql` → history files) if schema apply corrupts learner data. That
+  is slower than PITR and only as fresh as dump `created_at`.
 
 See `docs/reports/v478b-fase-b-runbook.md` for the operator checklist. It is
 not permission to apply. `npm run v478b:fase-b-plan` prints the plan;

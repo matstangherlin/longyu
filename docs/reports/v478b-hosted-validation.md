@@ -19,7 +19,9 @@ Required token before any write: `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
 ## Scoreboard
 
 Values: PASS | FAIL | BLOCKED | NOT_RUN. Hosted cells are **NOT_RUN**.
-Backup gate is recorded separately as `BLOCKED_BACKUP_NOT_CONFIRMED`.
+Backup: `MANUAL_LOGICAL_BACKUP_CREATED` / `MANUAL_LOGICAL_BACKUP_VERIFIED`
+are **NOT_RUN**. `BACKUP_RECOVERY_GATE` is `WAITING_MANUAL_LOGICAL_BACKUP`
+until both PASS (`PASS_WITH_MANUAL_LOGICAL_BACKUP`). Not PITR.
 
 | Campo | Valor | Evidência |
 | --- | --- | --- |
@@ -30,7 +32,7 @@ Backup gate is recorded separately as `BLOCKED_BACKUP_NOT_CONFIRMED`.
 | `HOSTED_AUTH_READY` | `NOT_RUN` | Real mailbox / confirm not executed. |
 | `HOSTED_PLACEMENT_READY` | `NOT_RUN` | Placement tables/RPC/Edge absent on hosted. |
 | `HOSTED_SYNC_READY` | `NOT_RUN` | Monotonic clamp trigger absent. |
-| `HOSTED_RECOVERY_READY` | `NOT_RUN` | Password recovery hosted QA not run. Backup also `BLOCKED_BACKUP_NOT_CONFIRMED`. |
+| `HOSTED_RECOVERY_READY` | `NOT_RUN` | Password recovery hosted QA not run. Backup gates still `NOT_RUN`. |
 | `HOSTED_SECURITY_READY` | `NOT_RUN` | Pre-apply advisors: 0 ERROR / 44 WARN security; AFTER not run. |
 
 Remessa status: **`WAITING_HUMAN_APPROVAL`**.
@@ -45,15 +47,17 @@ off this board (`NOT_RUN` / `NOT_READY`). Do not promote them in this remessa.
 1. Reconsulted Actions on **this** SHA (refresh 05:45Z). MAIN_SHA CI run
    33143685565 **success**: Portão, build, Chromium, Firefox, WebKit,
    Security, backend-rehearsal, backend-contract **PASS**. #208 Portão on
-   `3587fd0` **IN_PROGRESS**. No MandarimProject write: this FASE B prompt is
-   **not** approval; backup remains `BLOCKED_BACKUP_NOT_CONFIRMED`. V4.7.9
-   was requested and **not started**.
+   `9ca4047` **IN_PROGRESS**. No MandarimProject write: this FASE B prompt is
+   **not** approval; backup remains `WAITING_MANUAL_LOGICAL_BACKUP` (dumps
+   not confirmed). V4.7.9 was requested and **not started**.
 2. No new architecture / i18n / pedagogy / auth / economy / redesign.
 3. Read-only refresh: `docs/reports/v478b-preapply-live-state.md`.
 4. Delta regenerated: `docs/reports/v478b-pending-delta.md`.
 5. Inseparable pairs documented (grants 8→9, monotonic 10→11).
-6. Backup gate: `docs/reports/v478b-backup-record.md` →
-   `BLOCKED_BACKUP_NOT_CONFIRMED`.
+6. Backup gate: `docs/reports/v478b-backup-record.md` → Free Plan
+   `MANUAL_LOGICAL` (`CREATED`/`VERIFIED` `NOT_RUN`;
+   `BACKUP_RECOVERY_GATE=WAITING_MANUAL_LOGICAL_BACKUP`). Paid upgrade is
+   not required for this remessa.
 7. Deploy lock policy: `docs/reports/v478b-deploy-lock.md` (`DECLARED_NOT_ARMED`).
 8. **STOP** — `docs/reports/v478b-human-gate.md`.
 

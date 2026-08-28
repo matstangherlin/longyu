@@ -6,7 +6,8 @@ This remessa records the lock **policy**. It does not take a production schema
 lock, pause the project, or apply migrations.
 
 During FASE B (only after `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE` **and**
-backup confirmation **and** MAIN_SHA CI gates terminal-green):
+`BACKUP_RECOVERY_GATE=PASS_WITH_MANUAL_LOGICAL_BACKUP` **and** MAIN_SHA CI
+gates terminal-green):
 
 - no other migration on MandarimProject
 - no parallel backend deploy

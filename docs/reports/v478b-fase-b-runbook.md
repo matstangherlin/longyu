@@ -1,7 +1,9 @@
 # V4.7.8B — FASE B runbook (do not execute in this commit)
 
 **This file is the operator checklist after** `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`
-**and** a confirmed Dashboard backup/PITR **and** MAIN_SHA Firefox PASS.
+**and** `BACKUP_RECOVERY_GATE=PASS_WITH_MANUAL_LOGICAL_BACKUP` (both
+`MANUAL_LOGICAL_BACKUP_CREATED` and `MANUAL_LOGICAL_BACKUP_VERIFIED` PASS)
+**and** MAIN_SHA Firefox PASS. Not PITR.
 
 It is **not** approval. `scripts/v478b-fase-b-plan.mjs` is plan-only and exits 2
 on `--apply`. Zero MandarimProject writes happened while writing this file.
@@ -12,8 +14,15 @@ out of scope. Do not start V4.7.9 until hosted keys are PASS.
 ## Preconditions (all required)
 
 1. Chat contains exactly `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`
-2. Human confirms PITR window or backup id (off-repo) — today
-   `BLOCKED_BACKUP_NOT_CONFIRMED`
+2. Human confirms off-repo CLI dumps of `roles.sql`, `schema.sql`,
+   `data.sql`, `history_schema.sql`, `history_data.sql` against
+   MandarimProject, plus auth.users/auth.identities exported separately
+   **or** auth recovery `OUT_OF_SCOPE_THIS_MIGRATION`. Prefer restore of
+   that dump against local/ephemeral before apply. Today:
+   `MANUAL_LOGICAL_BACKUP_CREATED=NOT_RUN`,
+   `MANUAL_LOGICAL_BACKUP_VERIFIED=NOT_RUN`,
+   `BACKUP_RECOVERY_GATE=WAITING_MANUAL_LOGICAL_BACKUP`.
+   Do not require a paid PITR upgrade for this remessa.
 3. MAIN_SHA `3223d4379b5ab4af118a8d88773186e965c504b5` CI: Portão, build,
    Chromium, Firefox, Security, backend-rehearsal, backend-contract = PASS
 4. Deploy lock armed; no parallel schema/Edge work
@@ -95,5 +104,6 @@ only. No inferred PASS.
 ## Recovery if a step fails
 
 Forward fix. Do not DROP unused learner data. Do not edit
-`schema_migrations`. PITR only if learner data is corrupted and the backup
-was confirmed before apply.
+`schema_migrations`. If learner data is corrupted, restore from the
+off-repo logical dump (slower than physical/PITR; RPO = dump `created_at`).
+Only valid if that dump was confirmed before apply.

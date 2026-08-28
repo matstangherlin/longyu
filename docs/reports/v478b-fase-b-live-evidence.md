@@ -8,7 +8,7 @@ Hosted scoreboard keys stay `NOT_RUN`. No inferred PASS from ephemeral CI.
 | --- | --- |
 | MAIN_SHA | `3223d4379b5ab4af118a8d88773186e965c504b5` |
 | PR | #208 |
-| PR_HEAD_SHA | `3587fd06a559a1fad8dffaf6be1af05c6340b40b` |
+| PR_HEAD_SHA | `9ca404707441720668822136d273e77b1daa9891` |
 | LONGYU_BACKEND_RC | `v4.7.8-rc.1` |
 | journey fingerprint | `fb7ac3c5d18a` |
 | migration chain sha256 | `813306e1cc6954a5f146ebfb15f82db978ace322ba0ce20e424b3cace8c81c72` |
@@ -27,7 +27,11 @@ Hosted scoreboard keys stay `NOT_RUN`. No inferred PASS from ephemeral CI.
 | Edges missing | `commit-placement`, `finalize-onboarding`, `submit-business-lead` |
 | MAIN_SHA Firefox | **PASS** (run 33143685565) |
 | #208 Portão | **IN_PROGRESS** |
-| backup/PITR available | **not confirmed** (`BLOCKED_BACKUP_NOT_CONFIRMED`) |
+| backup type | `MANUAL_LOGICAL` (not PITR; RPO = dump created_at) |
+| `MANUAL_LOGICAL_BACKUP_CREATED` | **NOT_RUN** |
+| `MANUAL_LOGICAL_BACKUP_VERIFIED` | **NOT_RUN** |
+| `BACKUP_RECOVERY_GATE` | `WAITING_MANUAL_LOGICAL_BACKUP` |
+| auth.users / auth.identities | **NOT_RUN** (export separately or out of scope — not yet stated) |
 | wal_level / archive_mode | logical / on |
 | archiver failed_count | 0 |
 | approval token | **absent** (this prompt forbids inference) |
@@ -51,9 +55,13 @@ Hosted scoreboard keys stay `NOT_RUN`. No inferred PASS from ephemeral CI.
 ## Why FASE B did not apply
 
 1. APPROVAL-005: this prompt is not the token.
-2. BACKUP-004: MCP has no Backups API; WAL archive on is not a PITR id.
+2. BACKUP-004: Free Plan has no Dashboard PITR. Manual logical dumps are
+   the recovery path; `CREATED`/`VERIFIED` are still `NOT_RUN` (human has
+   not confirmed the five off-repo files). WAL archive on is not a restore.
 3. PRE-003: #208 HEAD Portão still IN_PROGRESS at capture.
 
-Next human message must contain exactly `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`
-and a Dashboard PITR/backup confirmation. Then apply one-by-one per
-`docs/reports/v478b-fase-b-runbook.md`.
+Next human remessa must confirm the five CLI dump files off-repo (no
+contents, no password, no DB URL) and auth export-or-out-of-scope, then a
+**later** message must contain exactly `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
+Then apply one-by-one per `docs/reports/v478b-fase-b-runbook.md`. This
+prompt is neither confirmation nor approval.

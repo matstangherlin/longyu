@@ -41,3 +41,13 @@ docs/reports/v477-backend-contract-freeze.ci.md
 * - Copy.*
 **/* - Copy/
 **/* - Copy.*
+
+# MandarimProject manual logical dumps — never commit (PII). Keep off GitHub.
+/roles.sql
+/schema.sql
+/data.sql
+/history_schema.sql
+/history_data.sql
+/auth_users.sql
+/auth_identities.sql
+/off-repo-dumps/

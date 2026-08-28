@@ -147,8 +147,10 @@ Same ERROR/WARN/INFO totals as V4.7.8. No new ERROR in this refresh.
 | archive_mode | on |
 | archive_command | present (wal-push) |
 
-WAL archive **on** is not a confirmed PITR window or backup id. See
-`docs/reports/v478b-backup-record.md`.
+WAL archive **on** is not a confirmed PITR window or backup id. MandarimProject
+is on **FREE**; the V4.7.8B recovery path is a **manual logical dump** (see
+`docs/reports/v478b-backup-record.md`). That dump is **not** PITR. RPO is the
+dump `created_at`. Paid upgrade is not required to finish this remessa.
 
 ## Installed extensions (subset)
 
