@@ -464,7 +464,7 @@ export function JourneyPage() {
           className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--app-bottom-nav-height)+1rem)] z-40 flex justify-center px-4 lg:bottom-8"
         >
           <div className="animate-pop rounded-full bg-ink px-4 py-2 text-sm font-medium text-bg shadow-lift">
-            {lockedHint}
+            {displayInstruction(lockedHint, locale)}
           </div>
         </div>
       )}
@@ -1029,14 +1029,16 @@ function JourneyChestNode({
   onOpen: () => void;
   onLocked: () => void;
 }) {
+  const { t, locale } = useTranslation();
   const locked = state === "locked";
   const opened = state === "opened";
+  const chestTitle = displayInstruction(chest.title, locale);
 
   return (
     <div className={["relative z-[1] flex flex-col items-center", opened ? "opacity-75" : ""].join(" ")} style={{ transform: `translateX(${offset}px)` }}>
       {state === "unlocked" && (
         <div className="mb-1 rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lift">
-          Baú pronto
+          {t("journey.chestReady")}
         </div>
       )}
       <button
@@ -1045,7 +1047,7 @@ function JourneyChestNode({
           if (locked) onLocked();
           if (!locked && !opened) onOpen();
         }}
-        aria-label={chest.title}
+        aria-label={chestTitle}
         className={[
           "rounded-[24px] transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
           locked ? "cursor-help opacity-90" : "hover:brightness-105",
@@ -1054,9 +1056,9 @@ function JourneyChestNode({
         <LongyuChest type={chest.type} state={state} size={opened ? "sm" : "md"} animated />
       </button>
       <span className={["mt-1.5 max-w-[128px] text-center text-xs font-medium", locked ? "text-ink-faint" : "text-ink-soft"].join(" ")}>
-        {chest.title}
+        {chestTitle}
         <span className="mt-0.5 block text-[10px] uppercase tracking-wide text-accent">
-          {opened ? "Aberto" : locked ? "Bloqueado" : "Abrir"}
+          {opened ? t("journey.chestOpened") : locked ? t("journey.chestLocked") : t("journey.chestOpen")}
         </span>
       </span>
     </div>

@@ -527,6 +527,10 @@ export const ptBR = {
     reviewReadyMany: "{n} itens prontos",
     reviewReinforce: "Reforça o que você já aprendeu.",
     summaryAria: "Resumo da jornada",
+    chestReady: "Baú pronto",
+    chestOpen: "Abrir",
+    chestOpened: "Aberto",
+    chestLocked: "Bloqueado",
   },
   player: {
     continue: "Continuar",
