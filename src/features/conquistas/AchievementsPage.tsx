@@ -8,6 +8,7 @@ import {
 import { useAchievementSnapshot } from "../../components/achievements/AchievementsWatcher";
 import { useStore } from "../../lib/store";
 import { Card, EmptyState, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
+import { formatDate } from "../../i18n/format";
 
 type AchievementFilter = "todas" | "desbloqueadas" | "bloqueadas" | "proximas";
 
@@ -27,7 +28,7 @@ interface AchievementView {
 }
 
 function formatUnlockDate(timestamp: number): string {
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).format(timestamp);
+  return formatDate(timestamp, { day: "2-digit", month: "short", year: "numeric" });
 }
 
 export function AchievementsPage() {

@@ -21,6 +21,7 @@ import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercis
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
+import { formatDate } from "../../i18n/format";
 import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import {
@@ -1068,7 +1069,7 @@ function errorSummary(error: ActivityErrorRecord): string {
 }
 
 function formatErrorDate(timestamp: number): string {
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(timestamp);
+  return formatDate(timestamp, { day: "2-digit", month: "2-digit" });
 }
 
 function ReviewInsightGroup({

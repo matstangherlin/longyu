@@ -22,6 +22,7 @@ import { ChestRewardModal } from "../../components/chests/ChestRewardModal";
 import { LongyuChest } from "../../components/chests/LongyuChest";
 import { Button, ButtonLink, Card, Pill, ProgressBar, cx } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
+import { formatDate } from "../../i18n/format";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { zLayerClass } from "../../components/ui/layers";
 import {
@@ -277,7 +278,7 @@ export function MissoesPage() {
                   </div>
                   <div className="mt-2 w-full break-words text-center text-xs font-semibold text-ink">{medal.label}</div>
                   <div className="text-[10px] text-ink-faint">
-                    {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(medal.earnedAt)}
+                    {formatDate(medal.earnedAt, { month: "long", year: "numeric" })}
                   </div>
                 </Card>
               ))}
