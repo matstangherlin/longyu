@@ -24,7 +24,7 @@
     "kind": "DIRECT_TRANSLATION"
   },
   "mā × má — 1º × 2º tom. O 1º não se mexe; o 2º sobe como uma pergunta em português.": {
-    "en": "mā × má — 1st × 2nd tone. The 1st stays level; the 2nd rises like the intonation of an English yes/no question.",
+    "en": "mā vs. má—1st vs. 2nd tone. The 1st stays level; the 2nd rises like the intonation of an English yes/no question.",
     "kind": "SOURCE_LANGUAGE_ADAPTATION"
   },
   "mà é a queda firme do 4º tom — compare com a reta (mā), a subida (má) e o vale (mǎ).": {
@@ -276,8 +276,8 @@
     "kind": "NATURAL_REWRITE"
   },
   "Nem tudo, nem nada": {
-    "en": "Neither everything nor nothing",
-    "kind": "DIRECT_TRANSLATION"
+    "en": "Not everything, but not nothing either",
+    "kind": "NATURAL_REWRITE"
   },
   "nǐ huì shuō Yīngyǔ ma?": {
     "en": "nǐ huì shuō Yīngyǔ ma?",
@@ -300,43 +300,43 @@
     "kind": "DIRECT_TRANSLATION"
   },
   "Nomear, pedir ou responder com o núcleo de A ordem importa.": {
-    "en": "Name, ask, or respond using key language from Word order matters.",
+    "en": "Identify, ask for, or respond using key language from the “Word order matters” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Como você se chama?.": {
-    "en": "Name, ask, or respond using key language from What's your name?",
+    "en": "Identify, ask for, or respond using key language from the “What's your name?” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de De onde sou.": {
-    "en": "Name, ask, or respond using key language from Where I'm from.",
+    "en": "Identify, ask for, or respond using key language from the “Where I'm from” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Falo um pouco.": {
-    "en": "Name, ask, or respond using key language from I speak a little.",
+    "en": "Identify, ask for, or respond using key language from the “I speak a little” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Microdiálogo: cumprimentar.": {
-    "en": "Name, ask, or respond using key language from Mini-dialogue: saying hello.",
+    "en": "Identify, ask for, or respond using key language from the “Mini-dialogue: saying hello” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Microdiálogo: se apresentar.": {
-    "en": "Name, ask, or respond using key language from Mini-dialogue: introducing yourself.",
+    "en": "Identify, ask for, or respond using key language from the “Mini-dialogue: introducing yourself” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Microtexto 1.": {
-    "en": "Name, ask, or respond using key language from Mini-text 1.",
+    "en": "Identify, ask for, or respond using key language from the “Mini-text 1” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Não entendi.": {
-    "en": "Name, ask, or respond using key language from I didn't understand.",
+    "en": "Identify, ask for, or respond using key language from the “I didn't understand” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Nomes das peças.": {
-    "en": "Name, ask, or respond using key language from Names of the building blocks.",
+    "en": "Identify, ask for, or respond using key language from the “Names of the building blocks” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomear, pedir ou responder com o núcleo de Tudo bem?.": {
-    "en": "Name, ask, or respond using key language from How are you?",
+    "en": "Identify, ask for, or respond using key language from the “How are you?” topic.",
     "kind": "NATURAL_REWRITE"
   },
   "Nomes das peças": {
@@ -400,75 +400,75 @@
     "kind": "DIRECT_TRANSLATION"
   },
   "o contraste sonoro de A sílaba shi": {
-    "en": "the sound contrast in The syllable shi",
+    "en": "the sound contrast in “The syllable shi”",
     "kind": "NATURAL_REWRITE"
   },
   "o contraste sonoro de A sílaba yao": {
-    "en": "the sound contrast in The syllable yao",
+    "en": "the sound contrast in “The syllable yao”",
     "kind": "NATURAL_REWRITE"
   },
   "o contraste sonoro de Compare tons": {
-    "en": "the sound contrast in Compare tones",
+    "en": "the sound contrast in “Compare tones”",
     "kind": "NATURAL_REWRITE"
   },
   "o contraste sonoro de Números por som": {
-    "en": "the sound contrast in Numbers by sound",
+    "en": "the sound contrast in “Numbers by sound”",
     "kind": "NATURAL_REWRITE"
   },
   "o contraste sonoro de Quatro tons": {
-    "en": "the sound contrast in Four tones",
+    "en": "the sound contrast in “Four tones”",
     "kind": "NATURAL_REWRITE"
   },
   "o contraste sonoro de Sons que brasileiros confundem": {
-    "en": "the sound contrast in Sounds English speakers mix up",
+    "en": "the sound contrast in “Sounds English speakers mix up”",
     "kind": "SOURCE_LANGUAGE_ADAPTATION"
   },
   "o contraste sonoro de Tons em 好 e 谢": {
-    "en": "the sound contrast in Tones in 好 and 谢",
+    "en": "the sound contrast in “Tones in 好 and 谢”",
     "kind": "NATURAL_REWRITE"
   },
   "o contraste sonoro de Treino guiado": {
-    "en": "the sound contrast in Guided practice",
+    "en": "the sound contrast in “Guided practice”",
     "kind": "NATURAL_REWRITE"
   },
   "O que A ordem importa permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with Word order matters.",
+    "en": "What “Word order matters” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Como você se chama? permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with What's your name?",
+    "en": "What “What's your name?” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que De onde sou permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with Where I'm from.",
+    "en": "What “Where I'm from” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Falo um pouco permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with I speak a little.",
+    "en": "What “I speak a little” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Microdiálogo: cumprimentar permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with Mini-dialogue: saying hello.",
+    "en": "What “Mini-dialogue: saying hello” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Microdiálogo: se apresentar permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with Mini-dialogue: introducing yourself.",
+    "en": "What “Mini-dialogue: introducing yourself” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Microtexto 1 permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with Mini-text 1.",
+    "en": "What “Mini-text 1” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Não entendi permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with I didn't understand.",
+    "en": "What “I didn't understand” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Nomes das peças permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with Names of the building blocks.",
+    "en": "What “Names of the building blocks” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que Tudo bem? permite dizer ou fazer em mandarim.": {
-    "en": "What you can say or do in Mandarin with How are you?",
+    "en": "What “How are you?” teaches you to say or do in Mandarin.",
     "kind": "NATURAL_REWRITE"
   },
   "O que você estuda?": {
@@ -612,39 +612,39 @@
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir 2º × 3º como duas curvas diferentes.": {
-    "en": "Hear the 2nd × 3rd tones as two different contours.",
+    "en": "Hear the 2nd and 3rd tones as two different contours.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de A sílaba shi.": {
-    "en": "Listen for and distinguish the sounds in The syllable shi.",
+    "en": "Listen for and distinguish the sounds covered in “The syllable shi”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de A sílaba yao.": {
-    "en": "Listen for and distinguish the sounds in The syllable yao.",
+    "en": "Listen for and distinguish the sounds covered in “The syllable yao”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de Compare tons.": {
-    "en": "Listen for and distinguish the sounds in Compare tones.",
+    "en": "Listen for and distinguish the sounds covered in “Compare tones”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de Números por som.": {
-    "en": "Listen for and distinguish the sounds in Numbers by sound.",
+    "en": "Listen for and distinguish the sounds covered in “Numbers by sound”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de Quatro tons.": {
-    "en": "Listen for and distinguish the sounds in Four tones.",
+    "en": "Listen for and distinguish the sounds covered in “Four tones”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de Sons que brasileiros confundem.": {
-    "en": "Listen for and distinguish the sounds in Sounds English speakers mix up.",
+    "en": "Listen for and distinguish the sounds covered in “Sounds English speakers mix up”.",
     "kind": "SOURCE_LANGUAGE_ADAPTATION"
   },
   "Ouvir e discriminar o som de Tons em 好 e 谢.": {
-    "en": "Listen for and distinguish the sounds in Tones in 好 and 谢.",
+    "en": "Listen for and distinguish the sounds covered in “Tones in 好 and 谢”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e discriminar o som de Treino guiado.": {
-    "en": "Listen for and distinguish the sounds in Guided practice.",
+    "en": "Listen for and distinguish the sounds covered in “Guided practice”.",
     "kind": "NATURAL_REWRITE"
   },
   "Ouvir e entender 我不会说中文.": {
@@ -772,23 +772,23 @@
     "kind": "NATURAL_REWRITE"
   },
   "Produza a apresentacao completa": {
-    "en": "Produce the full introduction",
-    "kind": "DIRECT_TRANSLATION"
+    "en": "Give the full introduction",
+    "kind": "NATURAL_REWRITE"
   },
   "Produza a sequencia": {
-    "en": "Produce the sequence",
-    "kind": "DIRECT_TRANSLATION"
+    "en": "Say the full sequence",
+    "kind": "NATURAL_REWRITE"
   },
   "Produza o microtexto completo": {
-    "en": "Produce the full mini-text",
-    "kind": "DIRECT_TRANSLATION"
+    "en": "Say the full mini-text",
+    "kind": "NATURAL_REWRITE"
   },
   "Produza o segundo reparo": {
-    "en": "Produce the second communication repair",
+    "en": "Give the second repair response",
     "kind": "NATURAL_REWRITE"
   },
   "Produza sozinho": {
-    "en": "Produce it on your own",
+    "en": "Try it on your own",
     "kind": "NATURAL_REWRITE"
   },
   "Produzir a frase de sobrevivência.": {
@@ -828,7 +828,7 @@
     "kind": "DIRECT_TRANSLATION"
   },
   "Qual frase ABRE o microtexto: 你好！谢谢。我是巴西人。再见！?": {
-    "en": "Which sentence OPENS the mini-text 你好！谢谢。我是巴西人。再见！?",
+    "en": "Which sentence OPENS this mini-text: “你好！谢谢。我是巴西人。再见！”?",
     "kind": "NATURAL_REWRITE"
   },
   "Qual frase apresenta o NOME, e nao a nacionalidade?": {
@@ -992,43 +992,43 @@
     "kind": "DIRECT_TRANSLATION"
   },
   "Reconhecer e distinguir os itens de A ordem importa por áudio/imagem.": {
-    "en": "Recognize and distinguish items from Word order matters by sound or image.",
+    "en": "Recognize and distinguish items from the “Word order matters” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Como você se chama? por áudio/imagem.": {
-    "en": "Recognize and distinguish items from What's your name? by sound or image.",
+    "en": "Recognize and distinguish items from the “What's your name?” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de De onde sou por áudio/imagem.": {
-    "en": "Recognize and distinguish items from Where I'm from by sound or image.",
+    "en": "Recognize and distinguish items from the “Where I'm from” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Falo um pouco por áudio/imagem.": {
-    "en": "Recognize and distinguish items from I speak a little by sound or image.",
+    "en": "Recognize and distinguish items from the “I speak a little” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Microdiálogo: cumprimentar por áudio/imagem.": {
-    "en": "Recognize and distinguish items from Mini-dialogue: saying hello by sound or image.",
+    "en": "Recognize and distinguish items from the “Mini-dialogue: saying hello” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Microdiálogo: se apresentar por áudio/imagem.": {
-    "en": "Recognize and distinguish items from Mini-dialogue: introducing yourself by sound or image.",
+    "en": "Recognize and distinguish items from the “Mini-dialogue: introducing yourself” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Microtexto 1 por áudio/imagem.": {
-    "en": "Recognize and distinguish items from Mini-text 1 by sound or image.",
+    "en": "Recognize and distinguish items from the “Mini-text 1” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Não entendi por áudio/imagem.": {
-    "en": "Recognize and distinguish items from I didn't understand by sound or image.",
+    "en": "Recognize and distinguish items from the “I didn't understand” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Nomes das peças por áudio/imagem.": {
-    "en": "Recognize and distinguish items from Names of the building blocks by sound or image.",
+    "en": "Recognize and distinguish items from the “Names of the building blocks” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e distinguir os itens de Tudo bem? por áudio/imagem.": {
-    "en": "Recognize and distinguish items from How are you? by sound or image.",
+    "en": "Recognize and distinguish items from the “How are you?” topic by sound or image.",
     "kind": "NATURAL_REWRITE"
   },
   "Reconhecer e usar o hànzì 木 (árvore/madeira).": {
@@ -1184,7 +1184,7 @@
     "kind": "NATURAL_REWRITE"
   },
   "Sua vez de produzir": {
-    "en": "Your turn to produce language",
+    "en": "Your turn to speak",
     "kind": "NATURAL_REWRITE"
   },
   "Subida contínua ≠ vale do 3º tom.": {
