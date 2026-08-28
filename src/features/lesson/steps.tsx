@@ -168,7 +168,8 @@ function StickyActionBar({
 }
 
 function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }) {
-  const resolved = label ?? t("player.continue");
+  const { locale } = useTranslation();
+  const resolved = label ? resolveInstructionText(label, locale) : t("player.continue");
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",

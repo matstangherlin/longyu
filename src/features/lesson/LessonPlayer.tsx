@@ -68,8 +68,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
-import { displayLessonTitle } from "../../i18n/overlays/journeyChrome";
-import { localizedPassLabel, localizedTopicVictory } from "../../i18n/overlays/journeyChrome";
+import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory } from "../../i18n/overlays/journeyChrome";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
@@ -4378,7 +4377,7 @@ export function LessonPlayer() {
   const stageLabel = activeStage
     ? [
         t("player.stageOf", { index: activeStageIndex + 1, total: lessonTasks.length }),
-        roundSummary(step, activeStage),
+        displayInstruction(roundSummary(step, activeStage), locale),
         isGradedStep(step) &&
         activeRoundProgress.questionCount > 1 &&
         activeRoundProgress.questionIndex > 0
