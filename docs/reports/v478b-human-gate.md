@@ -22,15 +22,18 @@ Do not interpret docs, CI green, or this PR as approval.
 | BACKEND_RC | `v4.7.8-rc.1` |
 | product RC | `v4.7.4-rc.1` (unchanged) |
 | Placement | v2 |
-| backup type | `MANUAL_LOGICAL` (not PITR; RPO = dump `created_at`) |
-| `MANUAL_LOGICAL_BACKUP_CREATED` | **`NOT_RUN`** (five CLI files off-repo not yet confirmed) |
-| `MANUAL_LOGICAL_BACKUP_VERIFIED` | **`NOT_RUN`** |
-| `BACKUP_RECOVERY_GATE` | **`WAITING_MANUAL_LOGICAL_BACKUP`** |
+| backup type | `MANUAL_LOGICAL` (not PITR; RPO = dump `created_at` `2026-08-28`) |
+| `MANUAL_LOGICAL_BACKUP_CREATED` | **`PASS`** |
+| `MANUAL_LOGICAL_BACKUP_VERIFIED` | **`PASS`** |
+| `BACKUP_RECOVERY_GATE` | **`PASS_WITH_MANUAL_LOGICAL_BACKUP`** |
+| `AUTH_RECOVERY` | `OUT_OF_SCOPE_THIS_MIGRATION` |
+| `BACKUP_STILL_VALID` | **`PASS`** (production unchanged at 2026-08-28T11:00:47Z) |
+| `CI_HEAD_READY` | **`PASS`** (`1e3622c`) |
 | current migration watermark | `20260810175737` `beta_experience_telemetry` |
 | migrations pending | **11** — see `docs/reports/v478b-pending-delta.md` |
 | Edge Functions pending | **3 MISSING**: `commit-placement`, `finalize-onboarding`, `submit-business-lead` |
 | production onboarding flag | `VITE_CLOUD_ONBOARDING_V2_ENABLED=false` (must stay false) |
-| remessa status | `WAITING_HUMAN_APPROVAL` |
+| remessa status | `READY_FOR_HUMAN_APPLY_APPROVAL` |
 
 ## MAIN_SHA CI (this SHA only — not an older branch)
 
@@ -53,13 +56,12 @@ https://github.com/matstangherlin/longyu/actions/runs/33143685565
 MAIN_SHA CI is terminal green. That is **not** hosted PASS and is **not**
 approval. This FASE B prompt is **not** `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
 
-## #208 CI (PR_HEAD parent `9ca4047`)
+## #208 CI (PR_HEAD `1e3622c`)
 
-Security **PASS**. Portão (`validate:beta` + build) **IN_PROGRESS** at this
-capture. Do not apply on a red HEAD. Do not apply while
-`MANUAL_LOGICAL_BACKUP_*` are `NOT_RUN` or the approval token is absent,
-even if Portão later PASSes. Paid Pro upgrade is **not** required for this
-gate.
+Terminal **PASS** on this SHA (Actions run 33147329539 + Security 33147329547):
+Portão (`validate:beta` + build), Chromium E2E, Firefox E2E (cross-engine job
+success), Security, CodeQL. WebKit step remains informative `continue-on-error`.
+That is **not** hosted PASS and is **not** `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
 
 ## V4.7.9 not started
 
@@ -77,16 +79,14 @@ this PR until FASE B has live evidence.
 - Missing Edges: hosted signup/placement handoff cannot complete until
   `commit-placement` + `finalize-onboarding` exist **after** schema 6–7.
 - Anon still has ALL DML on personal tables until least-privilege apply.
-- Manual logical dump **not** yet confirmed (`CREATED`/`VERIFIED` = `NOT_RUN`).
-  Not PITR. Recovery would be slower than a physical restore. Adequate for
-  this controlled apply on Free **after** the human confirms the five
-  off-repo files.
+- Manual logical dump **confirmed** (`CREATED`/`VERIFIED` = `PASS`;
+  `BACKUP_RECOVERY_GATE=PASS_WITH_MANUAL_LOGICAL_BACKUP`). Not PITR.
+  Recovery slower than physical restore. Auth login rows
+  `OUT_OF_SCOPE_THIS_MIGRATION`.
 
 ## Estimated operations (FASE B only, after token)
 
-1. Human confirms the five off-repo dumps + auth scope; both
-   `MANUAL_LOGICAL_BACKUP_*` PASS; `BACKUP_RECOVERY_GATE` =
-   `PASS_WITH_MANUAL_LOGICAL_BACKUP`; arm deploy lock.
+1. Arm deploy lock. Backup already `PASS_WITH_MANUAL_LOGICAL_BACKUP`.
 2. Apply 11 migrations **one by one** in order; smoke after each.
 3. Schema / grants / RLS live evidence.
 4. Deploy missing Edges one by one (no Stripe Live transaction).

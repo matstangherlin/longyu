@@ -14,15 +14,14 @@ out of scope. Do not start V4.7.9 until hosted keys are PASS.
 ## Preconditions (all required)
 
 1. Chat contains exactly `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`
-2. Human confirms off-repo CLI dumps of `roles.sql`, `schema.sql`,
+2. Off-repo CLI dumps confirmed: `roles.sql`, `schema.sql`,
    `data.sql`, `history_schema.sql`, `history_data.sql` against
-   MandarimProject, plus auth.users/auth.identities exported separately
-   **or** auth recovery `OUT_OF_SCOPE_THIS_MIGRATION`. Prefer restore of
-   that dump against local/ephemeral before apply. Today:
-   `MANUAL_LOGICAL_BACKUP_CREATED=NOT_RUN`,
-   `MANUAL_LOGICAL_BACKUP_VERIFIED=NOT_RUN`,
-   `BACKUP_RECOVERY_GATE=WAITING_MANUAL_LOGICAL_BACKUP`.
-   Do not require a paid PITR upgrade for this remessa.
+   MandarimProject. Auth recovery `OUT_OF_SCOPE_THIS_MIGRATION`.
+   Local/ephemeral restore rehearsal matched PRE_BACKUP counts.
+   `MANUAL_LOGICAL_BACKUP_CREATED=PASS`,
+   `MANUAL_LOGICAL_BACKUP_VERIFIED=PASS`,
+   `BACKUP_RECOVERY_GATE=PASS_WITH_MANUAL_LOGICAL_BACKUP`.
+   Not a paid PITR upgrade.
 3. MAIN_SHA `3223d4379b5ab4af118a8d88773186e965c504b5` CI: Portão, build,
    Chromium, Firefox, Security, backend-rehearsal, backend-contract = PASS
 4. Deploy lock armed; no parallel schema/Edge work

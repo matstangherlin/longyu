@@ -28,7 +28,7 @@ if (args.has("--apply") || args.has("--deploy") || args.has("--write")) {
   console.error("REFUSED: FASE B writes are not enabled in this remessa.");
   console.error(`Need exact chat token ${V478B_APPROVAL_TOKEN}.`);
   console.error(
-    `Need MANUAL_LOGICAL_BACKUP_CREATED=PASS and MANUAL_LOGICAL_BACKUP_VERIFIED=PASS (now ${V478B_MANUAL_LOGICAL_BACKUP_CREATED}/${V478B_MANUAL_LOGICAL_BACKUP_VERIFIED}; BACKUP_RECOVERY_GATE=${V478B_BACKUP_RECOVERY_GATE}).`
+    `MANUAL_LOGICAL_BACKUP_CREATED=${V478B_MANUAL_LOGICAL_BACKUP_CREATED} MANUAL_LOGICAL_BACKUP_VERIFIED=${V478B_MANUAL_LOGICAL_BACKUP_VERIFIED} BACKUP_RECOVERY_GATE=${V478B_BACKUP_RECOVERY_GATE}. Token is still required.`
   );
   console.error("This script is plan-only. It never calls apply or Edge deploy.");
   process.exit(2);
@@ -49,6 +49,9 @@ const plan = {
   backup_gate: V478B_BACKUP_GATE,
   auth_recovery_scope: V478B_AUTH_RECOVERY_SCOPE,
   critical_row_counts: V478B_CRITICAL_ROW_COUNTS,
+  backup_still_valid: "PASS",
+  production_delta_refreshed: "PASS",
+  ci_head_ready: "PASS",
   dump_files_off_repo: V478B_MANUAL_LOGICAL_DUMP_FILES,
   pitr: false,
   manual_logical_backup_ready: isV478bManualLogicalBackupReady(),
@@ -57,7 +60,7 @@ const plan = {
   inseparable_pairs: V478B_INSEPARABLE_PAIRS,
   missing_edge_functions: V478_MISSING_EDGES,
   runbook: "docs/reports/v478b-fase-b-runbook.md",
-  note: "This output is not permission to apply. Hosted scoreboard stays NOT_RUN. Not PITR; RPO is dump created_at.",
+  note: "READY_FOR_HUMAN_APPLY_APPROVAL. This output is not permission to apply. Hosted scoreboard stays NOT_RUN. Not PITR; RPO is dump created_at.",
 };
 
 console.log(JSON.stringify(plan, null, 2));

@@ -11,6 +11,10 @@ This file replaces any assumption that the V4.7.8 snapshot
 current. Counts and watermark **match** that snapshot; the capture is still
 independent.
 
+Refresh **2026-08-28T11:00:47Z** (read-only): counts, watermark, remote
+migration count, and missing objects **unchanged**. Backup record now
+`PASS_WITH_MANUAL_LOGICAL_BACKUP`. `BACKUP_STILL_VALID=PASS`.
+
 ## 0 — origin/main identity (recalculated)
 
 | Campo | Valor |

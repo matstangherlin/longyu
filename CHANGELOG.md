@@ -11,14 +11,15 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 Read-only refresh of MandarimProject. MAIN_SHA `3223d43` matches expected.
 Pending apply chain still 11 LOCAL_ONLY migrations + 3 missing Edges.
-Free Plan backup gate: `MANUAL_LOGICAL` —
-`CREATED`/`VERIFIED` `NOT_RUN`, `BACKUP_RECOVERY_GATE=WAITING_MANUAL_LOGICAL_BACKUP`.
-Not PITR; RPO is dump `created_at`; paid upgrade not required for this remessa.
-FASE B runbook is plan-only (`npm run v478b:fase-b-plan`; `--apply` refused).
-Hosted scoreboard stays `NOT_RUN`. Production
-`VITE_CLOUD_ONBOARDING_V2_ENABLED=false`. Zero MandarimProject writes until
-exact `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE` **and** both manual dump
-gates PASS. Relatórios: `docs/reports/v478b-human-gate.md`,
+Free Plan backup gate: `MANUAL_LOGICAL` — `CREATED`/`VERIFIED` **PASS**,
+`BACKUP_RECOVERY_GATE=PASS_WITH_MANUAL_LOGICAL_BACKUP`. Not PITR;
+RPO is dump date `2026-08-28`; `AUTH_RECOVERY=OUT_OF_SCOPE_THIS_MIGRATION`.
+#208 HEAD `1e3622c` CI terminal green. Status
+`READY_FOR_HUMAN_APPLY_APPROVAL`. FASE B runbook is plan-only
+(`npm run v478b:fase-b-plan`; `--apply` refused). Hosted scoreboard stays
+`NOT_RUN`. Production `VITE_CLOUD_ONBOARDING_V2_ENABLED=false`. Zero
+MandarimProject writes until exact `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`.
+Relatórios: `docs/reports/v478b-human-gate.md`,
 `v478b-hosted-validation.md`, `v478b-fase-b-runbook.md`,
 `v478b-backup-record.md`.
 

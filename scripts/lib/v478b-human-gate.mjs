@@ -1,19 +1,19 @@
 /**
  * V4.7.8B human-gate identity. Zero MandarimProject writes until the exact token.
- * Backend RC stays v4.7.8-rc.1 (no contract change in this remessa's STOP phase).
+ * Backend RC stays v4.7.8-rc.1.
  *
- * Backup on Free Plan is a manual logical dump (not PITR). Do not mark
- * CREATED / VERIFIED PASS until a later human remessa confirms the five
- * off-repo dump files. This module never invents PASS_WITH_MANUAL_LOGICAL_BACKUP.
+ * Backup on Free Plan is a manual logical dump (not PITR). Human remessa
+ * 2026-08-28 confirmed the five off-repo files + local restore rehearsal.
+ * This module still never calls apply or Edge deploy.
  */
 export const V478B_REMESSA = "V4.7.8B";
-export const V478B_REMESSA_STATUS = "WAITING_HUMAN_APPROVAL";
+export const V478B_REMESSA_STATUS = "READY_FOR_HUMAN_APPLY_APPROVAL";
 export const V478B_MAIN_SHA = "3223d4379b5ab4af118a8d88773186e965c504b5";
 export const V478B_PRODUCTION_PROJECT_ID = "drjcfalvlbbeblmmyhwj";
 export const V478B_PRODUCTION_PROJECT_NAME = "MandarimProject";
 export const V478B_WATERMARK_VERSION = "20260810175737";
 export const V478B_WATERMARK_NAME = "beta_experience_telemetry";
-export const V478B_CAPTURED_AT = "2026-08-28T05:14:56Z";
+export const V478B_CAPTURED_AT = "2026-08-28T11:00:47Z";
 export const V478B_APPROVAL_TOKEN = "APPROVE_MANDARINPROJECT_BACKEND_UPGRADE";
 
 /** Official CLI dump filenames. Keep off GitHub / off this repository. */
@@ -26,30 +26,25 @@ export const V478B_MANUAL_LOGICAL_DUMP_FILES = [
 ];
 
 export const V478B_BACKUP_TYPE = "MANUAL_LOGICAL";
-/** Dump created_at is unknown until the human reports a timestamp only. */
-export const V478B_BACKUP_CREATED_AT = "NOT_RUN";
-/**
- * Human has not confirmed the five off-repo files exist.
- * PASS only after a later remessa names those filenames (no contents).
- */
-export const V478B_MANUAL_LOGICAL_BACKUP_CREATED = "NOT_RUN";
-/**
- * Human has not confirmed restore/row-count/watermark checks off-repo.
- * Preferred: restore against local/ephemeral before production apply.
- */
-export const V478B_MANUAL_LOGICAL_BACKUP_VERIFIED = "NOT_RUN";
-/**
- * EXPORTED_SEPARATELY | OUT_OF_SCOPE_THIS_MIGRATION after human statement.
- * NOT_RUN until then. Do not invent either value.
- */
-export const V478B_AUTH_RECOVERY_SCOPE = "NOT_RUN";
+/** Calendar date of the off-repo dump. Exact UTC second was not transmitted. */
+export const V478B_BACKUP_CREATED_AT = "2026-08-28";
+export const V478B_MANUAL_LOGICAL_BACKUP_CREATED = "PASS";
+export const V478B_MANUAL_LOGICAL_BACKUP_VERIFIED = "PASS";
+export const V478B_AUTH_RECOVERY_SCOPE = "OUT_OF_SCOPE_THIS_MIGRATION";
+export const V478B_BACKUP_STILL_VALID = "PASS";
+export const V478B_CI_HEAD_READY = "PASS";
+export const V478B_PRODUCTION_DELTA_REFRESHED = "PASS";
 
 export const V478B_CRITICAL_ROW_COUNTS = Object.freeze({
   profiles: 11,
   user_progress: 10,
+  user_srs: 0,
   user_economy: 9,
   subscriptions: 1,
+  transactions: 0,
 });
+
+export const V478B_RESTORED_COUNTS = Object.freeze({ ...V478B_CRITICAL_ROW_COUNTS });
 
 export function v478bBackupRecoveryGateStatus({
   created = V478B_MANUAL_LOGICAL_BACKUP_CREATED,

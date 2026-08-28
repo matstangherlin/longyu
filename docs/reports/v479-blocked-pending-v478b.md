@@ -20,8 +20,9 @@ V4.7.9 may begin only after #208 hosted keys are all **PASS**:
 Also still blocking FASE B of #208:
 
 - no `APPROVE_MANDARINPROJECT_BACKEND_UPGRADE`
-- `MANUAL_LOGICAL_BACKUP_CREATED` / `MANUAL_LOGICAL_BACKUP_VERIFIED` still
-  `NOT_RUN` (`BACKUP_RECOVERY_GATE=WAITING_MANUAL_LOGICAL_BACKUP`; not PITR)
-- MAIN_SHA `3223d43` Firefox/Portão **PASS**; #208 Portão still running on HEAD
+- hosted keys still `NOT_RUN` (backup is
+  `PASS_WITH_MANUAL_LOGICAL_BACKUP`; not PITR; CI on `1e3622c` green)
+
+Continue https://github.com/matstangherlin/longyu/pull/208.
 
 Continue https://github.com/matstangherlin/longyu/pull/208.
