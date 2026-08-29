@@ -19,6 +19,7 @@ import { featureAvailability, isFeatureNewlyRelevant, type FeatureId } from "../
 import { getSeenIntros } from "../../lib/featureDiscovery";
 import { checkIsBetaAdmin } from "../../services/feedbackService";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import type { MessageKey } from "../../locales/pt-BR";
 
 // Descrições curtas por área — uma frase que responde "o que é isto?".
@@ -93,7 +94,7 @@ export function MorePage() {
     // Bloqueada por progressão: a rota continua acessível (mostra o gate),
     // mas o card explica o que é e quando será liberada — sem cadeado seco.
     if (info.locked) {
-      return { ...base, desc: info.reason ?? desc, status: t("navigation.statusLater"), statusTone: "muted" };
+      return { ...base, desc: displayInstruction(info.reason ?? desc), status: t("navigation.statusLater"), statusTone: "muted" };
     }
 
     // Recém-relevante e ainda não apresentada: destaque discreto "Nova".

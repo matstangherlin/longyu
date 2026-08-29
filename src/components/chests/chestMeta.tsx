@@ -1,5 +1,6 @@
 import type { ChestType, ChestRewardKind } from "../../lib/store";
 import { IconFlame, IconShield, IconStar, IconTarget } from "../ui/Icon";
+import { t } from "../../i18n/catalog";
 
 // Identidade Longyu para cada baú: um hànzì central (tesouro / dragão / jade),
 // um selo e as cores do tema. Nada de estética de cassino — pergaminho e jade.
@@ -52,15 +53,54 @@ export const CHEST_VISUALS: Record<ChestType, ChestVisual> = {
   },
 };
 
+const CHEST_COPY_KEYS: Record<ChestType, { name: string; rarity: string; tagline: string; contains: string }> = {
+  small: {
+    name: "player.chestSmallName",
+    rarity: "player.chestSmallRarity",
+    tagline: "player.chestSmallTagline",
+    contains: "player.chestSmallContains",
+  },
+  dragon: {
+    name: "player.chestDragonName",
+    rarity: "player.chestDragonRarity",
+    tagline: "player.chestDragonTagline",
+    contains: "player.chestDragonContains",
+  },
+  monthly: {
+    name: "player.chestMonthlyName",
+    rarity: "player.chestMonthlyRarity",
+    tagline: "player.chestMonthlyTagline",
+    contains: "player.chestMonthlyContains",
+  },
+  legendary: {
+    name: "player.chestLegendaryName",
+    rarity: "player.chestLegendaryRarity",
+    tagline: "player.chestLegendaryTagline",
+    contains: "player.chestLegendaryContains",
+  },
+};
+
+export function localizedChestVisual(type: ChestType): ChestVisual {
+  const base = CHEST_VISUALS[type];
+  const keys = CHEST_COPY_KEYS[type];
+  return {
+    ...base,
+    name: t(keys.name),
+    rarity: t(keys.rarity),
+    tagline: t(keys.tagline),
+    contains: t(keys.contains),
+  };
+}
+
 export function chestRewardCaption(kind: ChestRewardKind): string {
   const captions: Record<ChestRewardKind, string> = {
-    qi: "Moeda da Loja",
-    xp: "Progresso de estudo",
-    charge: "Bateria diária",
-    shield: "Protege sua sequência",
-    pearl: "Moeda rara de jade",
-    breath: "Recupera as Vidas numa lição",
-    focus_pass: "Revisão profunda por 24h",
+    qi: t("player.chestRewardQi"),
+    xp: t("player.chestRewardXp"),
+    charge: t("player.chestRewardCharge"),
+    shield: t("player.chestRewardShield"),
+    pearl: t("player.chestRewardPearl"),
+    breath: t("player.chestRewardBreath"),
+    focus_pass: t("player.chestRewardFocusPass"),
   };
   return captions[kind];
 }

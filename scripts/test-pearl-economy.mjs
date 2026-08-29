@@ -222,8 +222,8 @@ assert(bannerSrc.includes("setTimeout"), "banner de sync deve expirar sozinho");
 assert(bannerSrc.includes("aria-live"), "banner de sync precisa de aria-live");
 
 const lojaSrc = read("src/features/loja/LojaPage.tsx");
-assert(lojaSrc.includes("Próximas Pérolas"), "Loja mostra próximas Pérolas");
-assert(lojaSrc.includes("Pérolas de Jade"), "Loja mostra progresso de Pérolas");
+assert(lojaSrc.includes("hub.nextPearls") || lojaSrc.includes("Próximas Pérolas"), "Loja mostra próximas Pérolas");
+assert(lojaSrc.includes("hub.jadePearls") || lojaSrc.includes("Pérolas de Jade"), "Loja mostra progresso de Pérolas");
 assert(lojaSrc.includes("PurchaseFeedbackModal") || lojaSrc.includes("Compra confirmada"), "feedback de compra");
 
 const lessonSrc = read("src/features/lesson/LessonPlayer.tsx");

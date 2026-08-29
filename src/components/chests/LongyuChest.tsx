@@ -1,6 +1,8 @@
 import { useId, type CSSProperties } from "react";
 import type { ChestType } from "../../lib/store";
-import { CHEST_VISUALS } from "./chestMeta";
+import { localizedChestVisual } from "./chestMeta";
+import { t } from "../../i18n/catalog";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
 export type LongyuChestState = "locked" | "unlocked" | "opened";
 export type LongyuChestSize = "sm" | "md" | "lg";
@@ -105,10 +107,10 @@ const LOCKED_PALETTE: ChestPalette = {
 
 const SIZES: Record<LongyuChestSize, number> = { sm: 54, md: 74, lg: 118 };
 
-const STATE_LABEL: Record<LongyuChestState, string> = {
-  locked: "bloqueado",
-  unlocked: "pronto para abrir",
-  opened: "aberto",
+const STATE_LABEL_KEY: Record<LongyuChestState, "journey.chestLocked" | "journey.chestReady" | "journey.chestOpened"> = {
+  locked: "journey.chestLocked",
+  unlocked: "journey.chestReady",
+  opened: "journey.chestOpened",
 };
 
 // Pose final da tampa aberta — os keyframes de `longyu-chest-lid` terminam
@@ -151,7 +153,7 @@ export function LongyuChest({
   const locked = state === "locked";
   const opened = state === "opened";
   const p = locked ? LOCKED_PALETTE : PALETTES[type];
-  const visual = CHEST_VISUALS[type];
+  const visual = localizedChestVisual(type);
   const width = SIZES[size];
   const height = Math.round((width * 88) / 96);
 
@@ -165,7 +167,7 @@ export function LongyuChest({
   return (
     <span
       className={["inline-flex", className].filter(Boolean).join(" ")}
-      title={title ?? (locked ? "Complete o módulo para liberar" : undefined)}
+      title={title ?? (locked ? displayInstruction("Complete o módulo para liberar") : undefined)}
       style={{ "--chest-glow": p.glow } as CSSProperties}
     >
       <svg
@@ -173,7 +175,7 @@ export function LongyuChest({
         width={width}
         height={height}
         role="img"
-        aria-label={`${visual.name} — ${STATE_LABEL[state]}`}
+        aria-label={`${visual.name} — ${t(STATE_LABEL_KEY[state])}`}
         className={svgClass}
         style={svgStyle}
       >

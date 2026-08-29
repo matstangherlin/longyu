@@ -8,7 +8,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 
 /** Lista o feedback do usuário autenticado (RLS). Sem login: mensagem curta. */
 export function MyFeedbackList() {
-  useTranslation();
+  const { t } = useTranslation();
   const [rows, setRows] = useState<BetaFeedbackRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -49,13 +49,13 @@ export function MyFeedbackList() {
   }, []);
 
   if (loading) {
-    return <p className="text-sm text-ink-soft">Carregando seus envios…</p>;
+    return <p className="text-sm text-ink-soft">{t("feedback.loadingMine")}</p>;
   }
 
   if (!loggedIn) {
     return (
       <p className="text-sm text-ink-soft">
-        Entre com uma conta na nuvem para ver o histórico dos feedbacks que você enviou.
+        {t("feedback.needCloudHistory")}
       </p>
     );
   }
@@ -65,7 +65,7 @@ export function MyFeedbackList() {
   }
 
   if (rows.length === 0) {
-    return <p className="text-sm text-ink-faint">Você ainda não enviou feedback nesta conta.</p>;
+    return <p className="text-sm text-ink-faint">{t("feedback.noneYet")}</p>;
   }
 
   return (

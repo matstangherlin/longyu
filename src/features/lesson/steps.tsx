@@ -2650,7 +2650,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
         <div className="animate-pop mt-4 rounded-2xl border border-line bg-surface-2 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <IconX width={18} height={18} />
-            {assemblyHint ?? "Quase — tente outra montagem."}
+            {assemblyHint ? displayPt(assemblyHint) : t("player.almostAssembly")}
           </div>
           <p className="mt-2 text-sm leading-5 text-ink-soft">
             {t("player.almostAssemblyLong")}
@@ -4033,7 +4033,7 @@ function FreeAnswerField({
         disabled={disabled}
         rows={2}
         placeholder={placeholder}
-        aria-label="Sua resposta"
+        aria-label={t("player.yourAnswer")}
         className="w-full resize-none rounded-2xl border border-line bg-surface-2 p-3.5 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
       />
       {speechAsAlternative ? (
@@ -4046,7 +4046,7 @@ function FreeAnswerField({
               aria-pressed={listening}
               className="text-xs font-medium text-ink-mute underline decoration-line underline-offset-2 transition hover:text-ink disabled:opacity-50"
             >
-              {listening ? "Ouvindo… toque para parar" : "Ou falar a resposta"}
+              {listening ? t("player.listeningTapStop") : t("player.orSpeakAnswer")}
             </button>
           ) : null}
           <span className="text-xs text-ink-faint">{t("player.hanziOrPinyinOk")}</span>

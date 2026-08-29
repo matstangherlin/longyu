@@ -1,7 +1,8 @@
 import type { ChestType } from "../../lib/store";
 import { Button, Card, Pill } from "../ui/primitives";
-import { CHEST_VISUALS } from "./chestMeta";
+import { localizedChestVisual } from "./chestMeta";
 import { LongyuChest } from "./LongyuChest";
+import { useTranslation } from "../../i18n/useTranslation";
 
 // Baú no inventário: arte com identidade Longyu (baú SVG), contagem e Abrir.
 export function ChestCard({
@@ -13,7 +14,8 @@ export function ChestCard({
   count: number;
   onOpen: () => void;
 }) {
-  const visual = CHEST_VISUALS[type];
+  const { t } = useTranslation();
+  const visual = localizedChestVisual(type);
   const has = count > 0;
 
   return (
@@ -24,9 +26,9 @@ export function ChestCard({
           state={has ? "unlocked" : "locked"}
           size="md"
           animated={has}
-          title={has ? undefined : "Ganhe este baú estudando, em missões ou comprando"}
+          title={has ? undefined : t("player.chestEarnHint")}
         />
-        <Pill tone={has ? "accent" : "muted"}>{count} no baú</Pill>
+        <Pill tone={has ? "accent" : "muted"}>{t("player.chestCount", { n: count })}</Pill>
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-2">
@@ -34,11 +36,11 @@ export function ChestCard({
         <Pill tone={has ? "gold" : "muted"}>{visual.rarity}</Pill>
       </div>
       <p className="mt-1 text-sm leading-5 text-ink-soft">{visual.tagline}</p>
-      <p className="mt-2 text-xs leading-5 text-ink-faint">Pode conter: {visual.contains}</p>
+      <p className="mt-2 text-xs leading-5 text-ink-faint">{t("player.chestMayContain", { items: visual.contains })}</p>
 
       <div className="mt-auto pt-4">
         <Button size="sm" className="w-full" disabled={!has} onClick={onOpen}>
-          {has ? "Abrir" : "Nenhum baú"}
+          {has ? t("player.chestOpenCta") : t("player.chestNone")}
         </Button>
       </div>
     </Card>

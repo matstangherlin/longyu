@@ -60,7 +60,7 @@ const PT_STOP =
   /\b(você|voce|qual|lição|licao|monte|escolha|significa|obrigad|até|ate logo|estou|tudo bem|agora|para|com|uma|não|nao|sim|então|entao|também|tambem|depois|quando|porque|como|onde|quem|isto|isso|aqui|ali|muito|pouco|fazer|diga|complete|continue|continuar|começar|comecar|verificar|pular)\b/i;
 
 const CHROME_LEFTOVERS = [
-  { file: "src/features/lesson/LessonPlayer.tsx", needles: ["Cargas do Dragão", "Rever resultados", "Lição bloqueada por hoje", "Escudo de sequência x", "Treino de tons", "Abrir treino de tons", "Voltar à jornada"] },
+  { file: "src/features/lesson/LessonPlayer.tsx", needles: ["Cargas do Dragão", "Rever resultados", "Lição bloqueada por hoje", "Escudo de sequência x", "Treino de tons", "Abrir treino de tons", "Voltar à jornada", "> Revisar", "> Biblioteca", "> Treinar", "Progresso salvo na nuvem", "Enviado para revisão", "Conhecer a revisão focada"] },
   { file: "src/features/lesson/steps.tsx", needles: [">Áudio lento<", "Não posso ouvir agora", "Atalhos: use 1-9", 'aria-label="Ouvir"', ">Ouvir devagar<", ">Ouvir normal<", ">Entenda<", ">Ouça e imite<"] },
   { file: "src/lib/useExerciseHotkeys.tsx", needles: ["Atalhos: use 1-9 para responder.", "Atalhos: 1-5 na esquerda"] },
   { file: "src/features/revisao/RevisaoPage.tsx", needles: ['label="Revisão de hoje"', ">Plano de hoje<", ">Fila inteligente<", "Em dia", "Histórico completo", 'label="Pendentes"', '"Confira a resposta"', '"Erro corrigido!"', '"Escolha o par"', '"Errei — continuar"', '"Conferir resposta"', '"Ajustar dificuldade (Errei / Difícil / Bom / Fácil)"', '"Toque nas peças abaixo"', '"Este cartão avaliou"', '"Histórico e padrões de erro"'] },

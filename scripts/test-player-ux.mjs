@@ -27,7 +27,7 @@ assert(!/Estou travado · mostrar pinyin/.test(steps), "dica de tom enxuta");
 assert(!/>\s*Conferir\s*</.test(steps), "Conferir → Verificar");
 assert(/player\.unrecognizedLead/.test(steps) || /Não entendi essa forma — não contou como erro/.test(steps), "unrecognized curto");
 assert(/Monte · com intrusos/.test(steps), "eyebrow Sentence Lab em PT");
-assert(/Ouvindo… toque para parar/.test(steps), "mic com stop");
+assert(/player\.listeningTapStop/.test(steps) || /Ouvindo… toque para parar/.test(steps), "mic com stop");
 assert(/not-allowed/.test(steps) && !/speechErrorMessage\(permission === "denied" \? "denied"/.test(steps), "mic denied mapeado");
 
 assert(!/Você errou \${count}/.test(player) && !/Você errou \$\{count\}/.test(player), "oferta sem 'Você errou'");

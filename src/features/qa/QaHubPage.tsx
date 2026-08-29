@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { Button, Card } from "../../components/ui/primitives";
 import { LONGYU_RC_VERSION } from "../../lib/releaseCandidate";
+import { LONGYU_I18N_VERSION } from "../../i18n/config";
 import { QA_SCENARIOS, exitQaFastPathSession, type QaScenario } from "../../lib/qaFastPath";
 
 const GROUPS: { id: QaScenario["group"]; title: string }[] = [
@@ -20,7 +21,7 @@ export function QaHubPage() {
   return (
     <HubPage data-qa-fast-path="hub">
       <HubHeader
-        eyebrow={`Somente preview / dev · ${LONGYU_RC_VERSION}`}
+        eyebrow={`Preview / dev · ${LONGYU_RC_VERSION} · i18n ${LONGYU_I18N_VERSION}`}
         title="QA Fast Path"
         desc="Abre cenários críticos sem refazer o curso. Não existe em Production Beta. Sair restaura o estado real e não toca conta cloud. Automação nunca marca HUMAN PASS."
         aside={

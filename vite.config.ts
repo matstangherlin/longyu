@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "node:path";
+import { LONGYU_I18N_VERSION } from "./src/i18n/config";
 
 export default defineConfig({
   plugins: [
@@ -10,6 +11,9 @@ export default defineConfig({
       registerType: "prompt",
       includeAssets: ["favicon-16.png", "favicon-32.png", "apple-touch-icon.png", "logo.png"],
       workbox: {
+        // Bust i18n JS/catalog caches when the interface wave changes so an
+        // old PT bundle cannot mix with a new EN catalog (or the reverse).
+        cacheId: `longyu-i18n-${LONGYU_I18N_VERSION}`,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       manifest: {

@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useStore, type ChestType, type ShopPurchaseFeedback } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import {
-  CATEGORY_META,
   CATEGORY_ORDER,
   shopItemsByCategory,
   type ShopIconKey,
@@ -37,6 +36,7 @@ import { useIsPro } from "../../lib/proAccess";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { monthKey } from "../../lib/storage";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
 const SHOP_ICONS: Record<ShopIconKey, typeof IconStar> = {
   breath: IconFlame,
@@ -151,7 +151,7 @@ export function LojaPage() {
   async function buy(item: ShopItem) {
     if (await buyShopItem(item.id)) {
       const sound = item.kind === "chest_small" || item.kind === "chest_dragon" ? "chestReady" : "qiSpend";
-      flash(`Comprado: ${item.name}`, sound);
+      flash(t("hub.shopPurchased", { name: displayInstruction(item.name) }), sound);
     }
   }
 
@@ -202,31 +202,34 @@ export function LojaPage() {
       />
 
       <p className="text-xs leading-5 text-ink-faint">
-        {PEARL_ECONOMY_SUMMARY.qi} {PEARL_ECONOMY_SUMMARY.pearls}
+        {displayInstruction(PEARL_ECONOMY_SUMMARY.qi)} {displayInstruction(PEARL_ECONOMY_SUMMARY.pearls)}
       </p>
 
       <section
-        aria-label="Pérolas de Jade"
+        aria-label={t("hub.jadePearls")}
         className="rounded-xl border border-gold/25 bg-[linear-gradient(135deg,rgb(var(--gold)/0.12),rgb(var(--surface))_55%)] px-3.5 py-3"
       >
         <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold text-ink">Pérolas de Jade</h2>
+          <h2 className="text-sm font-semibold text-ink">{t("hub.jadePearls")}</h2>
           <p className="text-lg font-semibold tabular-nums text-gold">
             {towardPro.current} / {towardPro.cost}
           </p>
         </div>
         {towardPro.needed > 0 ? (
           <p className="mt-1 text-xs text-ink-soft">
-            Faltam {towardPro.needed} para {PEARL_PRO_COPY.costLabel.replace(`${PEARL_PRO_COST} Pérolas → `, "")}
+            {t("hub.pearlNeedFor", {
+              n: towardPro.needed,
+              goal: displayInstruction(PEARL_PRO_COPY.costLabel.replace(`${PEARL_PRO_COST} Pérolas → `, "")),
+            })}
           </p>
         ) : pearlPassActive && pearlProExpiresAt ? (
-          <p className="mt-1 text-xs text-good">Longyu Pro ativo até {formatPearlProUntil(pearlProExpiresAt)}</p>
+          <p className="mt-1 text-xs text-good">{t("hub.pearlProActiveUntil", { date: formatPearlProUntil(pearlProExpiresAt) })}</p>
         ) : (
-          <p className="mt-1 text-xs text-ink-soft">Saldo suficiente para 7 dias de Longyu Pro.</p>
+          <p className="mt-1 text-xs text-ink-soft">{t("hub.pearlProEnough")}</p>
         )}
         {pearlProPendingOffline && (
           <p className="mt-2 rounded-lg bg-surface-2 px-2.5 py-1.5 text-xs text-ink-soft">
-            Pro pronto para ativar — conecte-se à internet.
+            {t("hub.pearlProOfflineReady")}
           </p>
         )}
 
@@ -237,12 +240,12 @@ export function LojaPage() {
             checked={pearlProAutoActivate}
             onChange={toggleAutoActivate}
           />
-          <span>Ativar 7 dias de Pro automaticamente quando eu chegar a {PEARL_PRO_COST} Pérolas.</span>
+          <span>{t("hub.pearlProAutoToggle", { n: PEARL_PRO_COST })}</span>
         </label>
       </section>
 
       {pearlProgress.upcoming.length > 0 && (
-        <HubSection title="Próximas Pérolas" desc="Marcos reais do seu progresso — cada um só uma vez.">
+        <HubSection title={t("hub.nextPearls")} desc={t("hub.nextPearlsDesc")}>
           <ul className="space-y-2">
             {pearlProgress.upcoming.map((goal) => (
               <li
@@ -250,12 +253,17 @@ export function LojaPage() {
                 className="flex items-center justify-between gap-3 rounded-lg border border-line/50 bg-surface px-3 py-2 text-sm"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-ink">{goal.label}</p>
+                  <p className="truncate font-medium text-ink" data-commercial-later="">
+                    {displayInstruction(goal.label)}
+                  </p>
                   <p className="text-xs text-ink-faint">
                     {goal.kind === "monthly_challenge"
                       ? `${goal.current}%`
                       : `${goal.current}/${goal.target}`}
-                    {" · "}+{goal.pearls} Pérola{goal.pearls === 1 ? "" : "s"}
+                    {" · "}
+                    {goal.pearls === 1
+                      ? t("hub.pearlDeltaOne", { n: goal.pearls })
+                      : t("hub.pearlDeltaMany", { n: goal.pearls })}
                   </p>
                 </div>
                 <div className="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-surface-2">
@@ -274,8 +282,8 @@ export function LojaPage() {
 
       <HubSection
         id="baus"
-        title="Seus baús"
-        desc={isPremium ? "Recompensas do dragão. No Pro, rendem mais Qi." : "Recompensas do dragão."}
+        title={t("hub.yourChests")}
+        desc={isPremium ? t("hub.yourChestsDescPro") : t("hub.yourChestsDesc")}
       >
         <div className="grid gap-2 sm:grid-cols-2">
           {(["small", "dragon", "monthly", "legendary"] as ChestType[]).map((type) => (
@@ -292,7 +300,12 @@ export function LojaPage() {
       {CATEGORY_ORDER.map((category) => {
         const items = shopItemsByCategory(category);
         if (items.length === 0) return null;
-        const meta = CATEGORY_META[category];
+        const meta =
+          category === "qi"
+            ? { label: t("hub.shopCatQi"), desc: t("hub.shopCatQiDesc") }
+            : category === "perolas"
+              ? { label: t("hub.shopCatPearls"), desc: t("hub.shopCatPearlsDesc") }
+              : { label: t("hub.shopCatPro"), desc: t("hub.shopCatProDesc") };
         return (
           <HubSection key={category} title={meta.label} desc={meta.desc}>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -316,7 +329,7 @@ export function LojaPage() {
       })}
 
       <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-xs leading-5 text-ink-faint">
-        A Loja não vende progresso. A revisão essencial continua sempre disponível.
+        {t("hub.shopNoProgress")}
       </p>
 
       {openChestType && (
@@ -338,17 +351,17 @@ export function LojaPage() {
             className="w-full max-w-md rounded-2xl border border-line bg-surface p-4 shadow-lift"
           >
             <h2 id="pearl-auto-title" className="text-base font-semibold text-ink">
-              Ativação automática
+              {t("hub.autoActivateTitle")}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">{PEARL_PRO_COPY.autoExplain}</p>
+            <p className="mt-2 text-sm leading-6 text-ink-soft">{displayInstruction(PEARL_PRO_COPY.autoExplain)}</p>
             <p className="mt-2 text-xs text-ink-faint">
-              Você pode desligar depois. Assinantes pagos nunca perdem Pérolas automaticamente.
+              {t("hub.autoActivatePaidSafe")}
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <Button variant="outline" onClick={() => setShowAutoExplain(false)}>
-                Agora não
+                {t("hub.autoActivateLater")}
               </Button>
-              <Button onClick={confirmAutoActivate}>Ativar opção</Button>
+              <Button onClick={confirmAutoActivate}>{t("hub.autoActivateConfirm")}</Button>
             </div>
           </div>
         </div>
@@ -364,10 +377,11 @@ function PurchaseFeedbackModal({
   feedback: ShopPurchaseFeedback;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const item = shopItemsByCategory("qi")
     .concat(shopItemsByCategory("perolas"), shopItemsByCategory("pro"))
     .find((i) => i.id === feedback.itemId);
-  const currencyLabel = item?.currency === "pearl" ? "Pérolas" : "Qi";
+  const currencyLabel = item?.currency === "pearl" ? t("hub.pearls") : "Qi";
   const isProPass = item?.kind === "pearl_pro_pass";
 
   return (
@@ -378,48 +392,48 @@ function PurchaseFeedbackModal({
         className="w-full max-w-md rounded-2xl border border-line bg-surface p-4 shadow-lift"
       >
         <h2 id="purchase-feedback-title" className="text-base font-semibold text-ink">
-          Compra confirmada
+          {t("hub.purchaseConfirmed")}
         </h2>
         <dl className="mt-3 space-y-1.5 text-sm text-ink-soft">
           <div className="flex justify-between gap-3">
-            <dt>Saldo anterior</dt>
+            <dt>{t("hub.previousBalance")}</dt>
             <dd className="font-semibold text-ink tabular-nums">
               {feedback.balanceBefore} {currencyLabel}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt>Preço</dt>
+            <dt>{t("hub.price")}</dt>
             <dd className="font-semibold text-ink tabular-nums">
               −{feedback.cost} {currencyLabel}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt>Saldo restante</dt>
+            <dt>{t("hub.remainingBalance")}</dt>
             <dd className="font-semibold text-ink tabular-nums">
               {feedback.balanceAfter} {currencyLabel}
             </dd>
           </div>
           <div className="pt-1">
-            <dt className="text-xs text-ink-faint">Benefício</dt>
-            <dd className="mt-0.5 text-ink">{feedback.benefit}</dd>
+            <dt className="text-xs text-ink-faint">{t("hub.benefit")}</dt>
+            <dd className="mt-0.5 text-ink">{displayInstruction(feedback.benefit)}</dd>
           </div>
           {feedback.durationLabel && (
             <div className="flex justify-between gap-3">
-              <dt>Duração</dt>
-              <dd className="font-semibold text-ink">{feedback.durationLabel}</dd>
+              <dt>{t("hub.duration")}</dt>
+              <dd className="font-semibold text-ink">{displayInstruction(feedback.durationLabel)}</dd>
             </div>
           )}
           {isProPass && feedback.expiresAt && (
             <>
               <p className="pt-1 text-sm text-good">
-                {feedback.cost} Pérolas usadas · Longyu Pro ativo até {formatPearlProUntil(feedback.expiresAt)}
+                {t("hub.pearlProActiveUntil", { date: formatPearlProUntil(feedback.expiresAt) })}
               </p>
-              <p className="text-xs text-ink-faint">Anúncios removidos enquanto o pass estiver ativo.</p>
+              <p className="text-xs text-ink-faint">{displayInstruction("Anúncios removidos enquanto o pass estiver ativo.")}</p>
             </>
           )}
         </dl>
         <Button className="mt-4 w-full" onClick={onClose}>
-          Fechar
+          {t("common.close")}
         </Button>
       </div>
     </div>
@@ -447,14 +461,15 @@ function ShopItemCard({
   onUse: () => void;
   onPro: () => void;
 }) {
+  const { t } = useTranslation();
   const Icon = SHOP_ICONS[item.iconKey];
-  const currencyLabel = item.currency === "qi" ? "Qi" : "Pérolas";
+  const currencyLabel = item.currency === "qi" ? "Qi" : t("hub.pearls");
   const insufficient = !item.cosmetic && item.kind !== "pro_link" && balance < item.cost;
   const chestType: ChestType | null =
     item.iconKey === "chest" ? "small" : item.iconKey === "chest_dragon" ? "dragon" : null;
 
   return (
-    <Card className="flex min-h-36 flex-col rounded-xl border-line/70 p-3 shadow-none">
+    <Card className="flex min-h-36 flex-col rounded-xl border-line/70 p-3 shadow-none" data-commercial-later="">
       <div className="flex items-start justify-between gap-2">
         {chestType ? (
           <LongyuChest type={chestType} state="unlocked" size="sm" title={item.name} />
@@ -465,10 +480,10 @@ function ShopItemCard({
         )}
         <div className="flex items-center gap-1.5">
           {count > 0 && !item.cosmetic && item.kind !== "pro_link" && (
-            <Pill tone="good">No inventário: {count}</Pill>
+            <Pill tone="good">{t("hub.inInventory", { n: count })}</Pill>
           )}
-          {item.pro && item.kind !== "pearl_pro_pass" && <Pill tone="accent">Pro</Pill>}
-          {item.kind === "pearl_pro_pass" && <Pill tone="accent">7 dias</Pill>}
+          {item.pro && item.kind !== "pearl_pro_pass" && <Pill tone="accent">{t("common.pro")}</Pill>}
+          {item.kind === "pearl_pro_pass" && <Pill tone="accent">{t("shell.dayCountMany", { count: 7 })}</Pill>}
         </div>
       </div>
 
@@ -489,11 +504,11 @@ function ShopItemCard({
 
         {item.kind === "pro_link" ? (
           <Button size="sm" className="w-full" variant={isPremium ? "soft" : "primary"} onClick={onPro}>
-            {isPremium ? "Longyu Pro ativo" : "Ver planos Pro"}
+            {isPremium ? t("hub.proActiveCta") : t("settings.seeProPlans")}
           </Button>
         ) : item.cosmetic && owned ? (
           <Button size="sm" variant="outline" className="w-full" disabled>
-            Adquirido
+            {t("hub.acquired")}
           </Button>
         ) : (
           <div className="grid gap-2">
@@ -501,15 +516,15 @@ function ShopItemCard({
               {insufficient ? (
                 <>
                   <IconLock width={14} height={14} />{" "}
-                  {currencyLabel === "Qi" ? "Qi insuficiente" : "Pérolas insuficientes"}
+                  {currencyLabel === "Qi" ? t("hub.insufficientQi") : t("hub.insufficientPearls")}
                 </>
               ) : (
-                "Comprar"
+                t("hub.buy")
               )}
             </Button>
             {item.usableInShop && count > 0 && item.kind !== "pearl_pro_pass" && (
               <Button size="sm" variant="soft" className="w-full" onClick={onUse}>
-                Usar {count > 1 ? `(${count})` : ""}
+                {count > 1 ? t("hub.useItemCount", { n: count }) : t("hub.useItem")}
               </Button>
             )}
           </div>

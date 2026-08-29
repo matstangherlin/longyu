@@ -1,8 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   ACHIEVEMENTS,
-  ACHIEVEMENT_CATEGORY_META,
-  achievementRewardLabel,
   type AchievementDef,
 } from "../../data/achievements";
 import { useAchievementSnapshot } from "../../components/achievements/AchievementsWatcher";
@@ -10,6 +8,12 @@ import { useStore } from "../../lib/store";
 import { Card, EmptyState, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
 import { formatDate } from "../../i18n/format";
 import { useTranslation } from "../../i18n/useTranslation";
+import {
+  localizedAchievementCategory,
+  localizedAchievementDesc,
+  localizedAchievementReward,
+  localizedAchievementTitle,
+} from "../../i18n/achievements";
 
 type AchievementFilter = "todas" | "desbloqueadas" | "bloqueadas" | "proximas";
 
@@ -128,13 +132,13 @@ export function AchievementsPage() {
                     {nextUp.def.glyph}
                   </span>
                   <div className="min-w-0">
-                    <div className="font-semibold text-ink">{nextUp.def.title}</div>
+                    <div className="font-semibold text-ink">{localizedAchievementTitle(nextUp.def.id, nextUp.def.title)}</div>
                     <div className="text-xs text-ink-faint">
-                      {ACHIEVEMENT_CATEGORY_META[nextUp.def.category].label}
+                      {localizedAchievementCategory(nextUp.def.category)}
                     </div>
                   </div>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-ink-soft">{nextUp.def.desc}</p>
+                <p className="mt-3 text-sm leading-6 text-ink-soft">{localizedAchievementDesc(nextUp.def.id, nextUp.def.desc)}</p>
                 <div className="mt-3">
                   <div className="mb-1 flex items-center justify-between text-xs font-medium text-ink-faint">
                     <span>{t("common.progress")}</span>
@@ -143,7 +147,7 @@ export function AchievementsPage() {
                   <ProgressBar value={nextUp.current} max={nextUp.target} />
                 </div>
                 <div className="mt-3 text-xs font-semibold text-accent">
-                  {t("hub.rewardLabel", { label: achievementRewardLabel(nextUp.def.reward) })}
+                  {t("hub.rewardLabel", { label: localizedAchievementReward(nextUp.def.reward) })}
                 </div>
               </>
             ) : (
@@ -159,9 +163,9 @@ export function AchievementsPage() {
 }
 
 function AchievementCard({ view }: { view: AchievementView }) {
+  const { t } = useTranslation();
   const { def, current, target, unlockedAt } = view;
   const unlocked = Boolean(unlockedAt);
-  const category = ACHIEVEMENT_CATEGORY_META[def.category];
 
   return (
     <Card
@@ -180,22 +184,22 @@ function AchievementCard({ view }: { view: AchievementView }) {
           {def.glyph}
         </span>
         <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
-          {category.label}
+          {localizedAchievementCategory(def.category)}
         </span>
       </div>
-      <h3 className="mt-3 text-sm font-semibold leading-tight text-ink">{def.title}</h3>
-      <p className="mt-1 text-xs leading-5 text-ink-soft">{def.desc}</p>
+      <h3 className="mt-3 text-sm font-semibold leading-tight text-ink">{localizedAchievementTitle(def.id, def.title)}</h3>
+      <p className="mt-1 text-xs leading-5 text-ink-soft">{localizedAchievementDesc(def.id, def.desc)}</p>
       <div className="mt-auto space-y-1.5 pt-3">
         <div className="flex items-center justify-between gap-2 text-[11px] font-medium">
           <span className={unlocked ? "font-semibold text-[rgb(var(--good))]" : "text-ink-faint"}>
-            {unlocked ? "Desbloqueada" : "Bloqueada"}
+            {unlocked ? t("achievements.unlocked") : t("achievements.locked")}
           </span>
-          <span className="truncate text-ink-faint">{achievementRewardLabel(def.reward)}</span>
+          <span className="truncate text-ink-faint">{localizedAchievementReward(def.reward)}</span>
         </div>
         <ProgressBar value={current} max={target} />
         <div className="flex items-center justify-between gap-2 text-[11px] text-ink-faint">
           <span className="tabular-nums">{current}/{target}</span>
-          <span>{unlockedAt ? formatUnlockDate(unlockedAt) : "Ainda sem data"}</span>
+          <span>{unlockedAt ? formatUnlockDate(unlockedAt) : t("achievements.noDateYet")}</span>
         </div>
       </div>
     </Card>

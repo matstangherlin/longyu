@@ -82,9 +82,11 @@ try {
   locale.resetInterfaceLocaleForTests();
   assert(config.DEFAULT_LOCALE === "pt-BR", "default locale is pt-BR");
   assert(config.TARGET_LANGUAGE === "zh-CN", "target language is zh-CN");
+  assert(config.LONGYU_I18N_VERSION === "v4.8.4", "i18n wave is v4.8.4");
   assert(locale.getInterfaceLocale() === "pt-BR", "bootstrap default pt-BR");
   assert(globalThis.document.documentElement.lang === "pt-BR", "HTML lang default pt-BR");
   assert(globalThis.document.documentElement.dataset.interfaceLocale === "pt-BR", "data-interface-locale default");
+  assert(globalThis.document.documentElement.dataset.i18nVersion === "v4.8.4", "data-i18n-version default");
   assert(locale.parseInterfaceLocale("en") === "en", "parse en");
   assert(locale.parseInterfaceLocale("en-US") === "en", "en-US canonicalizes to en, not country");
   assert(locale.parseInterfaceLocale("pt") === "pt-BR", "pt canonicalizes to pt-BR");
@@ -106,6 +108,9 @@ try {
   assert(globalThis.document.documentElement.lang === "en", "HTML lang changes to en");
   assert(globalThis.document.documentElement.dataset.interfaceLocale === "en", "data-interface-locale en");
   assert(catalog.t("navigation.journey") === "Journey", "en catalog after switch");
+  assert(catalog.t("achievements.accuracy-serene.title") === "Serene Accuracy", "achievement ID localization EN");
+  assert(catalog.t("player.navReview") === "Review", "victory footer Review EN");
+  assert(catalog.t("player.saveLocalDevice") === "Saved on this device", "save status EN");
   assert(catalog.t("auth.signIn") === "Sign in", "auth en");
   assert(catalog.t("common.appName") === "Longyu", "product name stable");
 

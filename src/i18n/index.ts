@@ -80,6 +80,18 @@ export {
   pedagogyMetaLocId,
 } from "./overlays/teachingTopics";
 export {
+  localizedAchievementTitle,
+  localizedAchievementDesc,
+  localizedAchievementCategory,
+  localizedAchievementReward,
+  localizedBadgeTitle,
+  localizedRewardSource,
+  ACCURACY_SERENE_BADGE,
+  ACCURACY_SERENE_REWARD_ID,
+  ACCURACY_SERENE_LOC_ID,
+} from "./achievements";
+
+export {
   resolveInstructionText,
   answersEquivalent,
   scoredAnswersMatch,

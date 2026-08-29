@@ -4,21 +4,23 @@ import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
 import { Button } from "../ui/primitives";
 import { IconX } from "../ui/Icon";
 import { ModalOverlay } from "../ui/ModalOverlay";
-import { CHEST_VISUALS } from "./chestMeta";
+import { localizedChestVisual } from "./chestMeta";
 import { LongyuChest } from "./LongyuChest";
 import { RewardReveal } from "./RewardReveal";
+import { useTranslation } from "../../i18n/useTranslation";
 
 type Phase = "closed" | "opening" | "revealed";
 
 // Modal de abertura de baú: fechado -> abertura com brilho -> revelação.
 // As recompensas são aplicadas no store ao abrir; o modal só revela o resultado.
 export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: () => void }) {
+  const { t } = useTranslation();
   const openChest = useStore((s) => s.openChest);
   const soundEffects = useStore((s) => s.soundEffects);
   const [phase, setPhase] = useState<Phase>("closed");
   const [rewards, setRewards] = useState<ChestRewardItem[]>([]);
 
-  const visual = CHEST_VISUALS[type];
+  const visual = localizedChestVisual(type);
 
   function handleOpen() {
     if (phase !== "closed") return;
@@ -37,6 +39,7 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
   }
 
   const closable = phase !== "opening";
+  const openingLabel = phase === "opening" ? t("player.chestOpening") : t("player.chestTapToOpen");
 
   return (
     <ModalOverlay className="items-stretch sm:items-center" onBackdropClick={() => closable && onClose()}>
@@ -50,7 +53,7 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
             variant="ghost"
             onClick={onClose}
             className="absolute right-4 top-4 z-10"
-            aria-label="Fechar"
+            aria-label={t("common.close")}
           >
             <IconX width={18} height={18} />
           </Button>
@@ -65,7 +68,7 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
               "relative rounded-2xl px-8 py-5 transition active:scale-[0.98] disabled:cursor-default",
               phase === "opening" ? "longyu-chest-shake" : "",
             ].join(" ")}
-            aria-label={phase === "closed" ? "Toque para abrir" : visual.name}
+            aria-label={phase === "closed" ? t("player.chestTapToOpen") : visual.name}
           >
             <span className={phase === "opening" || phase === "revealed" ? "longyu-chest-aura" : ""} aria-hidden />
             <LongyuChest
@@ -85,34 +88,32 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
             <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">{visual.name}</h2>
             <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">{visual.tagline}</p>
             <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-ink-faint">
-              Pode conter: {visual.contains}
+              {t("player.chestMayContain", { items: visual.contains })}
             </p>
-            <p className="mt-5 text-sm font-semibold text-accent">
-              {phase === "opening" ? "Abrindo..." : "Toque para abrir"}
-            </p>
+            <p className="mt-5 text-sm font-semibold text-accent">{openingLabel}</p>
             <Button
               size="lg"
               className="mt-auto w-full shadow-lift sm:mt-6"
               disabled={phase === "opening"}
               onClick={handleOpen}
             >
-              {phase === "opening" ? "Abrindo..." : "Toque para abrir"}
+              {openingLabel}
             </Button>
           </div>
         ) : (
           <div className="flex flex-1 flex-col">
             <div className="mx-auto mt-3 inline-flex rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-              Recompensas
+              {t("player.chestRewards")}
             </div>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-ink">Você recebeu</h2>
+            <h2 className="mt-4 font-serif text-3xl font-semibold text-ink">{t("player.chestYouReceived")}</h2>
             <p className="mx-auto mt-1 max-w-xs text-sm text-ink-soft">
-              As recompensas já entraram no seu progresso.
+              {t("player.chestRewardsApplied")}
             </p>
             <div className="mt-5">
               <RewardReveal rewards={rewards} large />
             </div>
             <Button size="lg" className="mt-auto w-full shadow-lift sm:mt-6" onClick={onClose}>
-              Receber recompensas
+              {t("player.claimRewards")}
             </Button>
           </div>
         )}

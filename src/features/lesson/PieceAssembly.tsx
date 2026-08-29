@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Button, cx } from "../../components/ui/primitives";
 import { t } from "../../i18n/catalog";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { assemblyTileClass } from "./buildAssemblyFeedback";
 
@@ -21,7 +22,7 @@ export function PieceAssemblyTray({
   wrongIndexes,
   matchPrefix = 0,
   showWrong = false,
-  emptyHint = "Toque nas peças abaixo para montar aqui",
+  emptyHint,
   onRemove,
   className,
 }: {
@@ -38,6 +39,7 @@ export function PieceAssemblyTray({
   onRemove?: (index: number) => void;
   className?: string;
 }) {
+  const hint = emptyHint ?? t("player.tapPiecesHint");
   const wrong = wrongIndexes instanceof Set ? wrongIndexes : new Set(wrongIndexes ?? []);
 
   return (
@@ -49,7 +51,7 @@ export function PieceAssemblyTray({
       )}
     >
       {pieces.length === 0 ? (
-        <span className="w-full px-2 text-center text-sm font-medium leading-5 text-ink-faint">{emptyHint}</span>
+        <span className="w-full px-2 text-center text-sm font-medium leading-5 text-ink-faint">{hint}</span>
       ) : (
         pieces.map((piece, index) => {
           const isMatch = showWrong && index < matchPrefix;
@@ -144,8 +146,8 @@ export function PieceAssemblyBank({
 }
 
 export function PieceAssemblyBoard({
-  trayLabel = "Sua resposta",
-  bankLabel = "Peças",
+  trayLabel = t("player.yourAnswer"),
+  bankLabel = t("player.pieces"),
   tray,
   bank,
   hint,
@@ -196,7 +198,7 @@ export function AssemblyHintBanner({
       data-assembly-hint
       className={cx("animate-pop rounded-xl border px-3 py-2.5 text-center text-sm font-medium leading-5", tones[tone])}
     >
-      {message}
+      {displayInstruction(message)}
     </p>
   );
 }

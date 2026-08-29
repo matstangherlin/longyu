@@ -25,7 +25,7 @@ export function PrivacyPage() {
       </HubSection>
 
       <HubSection id="politica" title={t("settings.privacyPolicy")}>
-        <Card className="space-y-3 rounded-xl border-line/70 p-4 shadow-none text-sm leading-6 text-ink-soft">
+        <Card className="space-y-3 rounded-xl border-line/70 p-4 shadow-none text-sm leading-6 text-ink-soft" data-legal-later="">
           <p>
             O Longyu processa progresso de aprendizagem neste dispositivo e, se você criar conta na
             nuvem, sincroniza esse progresso no Supabase com proteção por login e regras de acesso.
