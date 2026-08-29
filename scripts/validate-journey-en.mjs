@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * V4.8.3 — fail-closed English overlay for teaching topics 1–50 (M1–M4).
- * Topics 51+ may still fall back to pt-BR. Canonical Chinese stays overlay-free.
+ * V4.8.5 — fail-closed English overlay for teaching topics 1–80 (M1–M4).
+ * Topics 81+ may still fall back to pt-BR. Canonical Chinese stays overlay-free.
  */
 import { createRequire } from "node:module";
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
@@ -202,18 +202,23 @@ try {
   const localize = load("src/i18n/overlays/localizeLesson.js");
 
   const allTeaching = ALL_LESSONS.filter((lesson) => topic.isTopicMasteryLesson(lesson));
-  const first50 = allTeaching.slice(0, 50);
-  const rest = allTeaching.slice(50);
-  if (first50.length !== 50) fail(`expected 50 teaching topics 1–50, got ${first50.length}`);
-  const actualIds = first50.map((lesson) => lesson.id);
-  const expectedIds = [...teaching.TOPICS_1_50_TEACHING_TOPIC_IDS];
+  const first80 = allTeaching.slice(0, 80);
+  const rest = allTeaching.slice(80);
+  if (first80.length !== 80) fail(`expected 80 teaching topics 1–80, got ${first80.length}`);
+  const actualIds = first80.map((lesson) => lesson.id);
+  const expectedIds = [...teaching.TOPICS_1_80_TEACHING_TOPIC_IDS];
   if (actualIds.join("|") !== expectedIds.join("|")) {
-    fail(`topics 1–50 ids drifted: ${actualIds.join(", ")}`);
+    fail(`topics 1–80 ids drifted: ${actualIds.join(", ")}`);
   }
   const expected2150 = [...teaching.TOPICS_21_50_TEACHING_TOPIC_IDS];
   const actual2150 = allTeaching.slice(20, 50).map((lesson) => lesson.id);
   if (actual2150.join("|") !== expected2150.join("|")) {
     fail(`topics 21–50 ids drifted vs teachingTopics.ts`);
+  }
+  const expected5180 = [...teaching.TOPICS_51_80_TEACHING_TOPIC_IDS];
+  const actual5180 = allTeaching.slice(50, 80).map((lesson) => lesson.id);
+  if (actual5180.join("|") !== expected5180.join("|")) {
+    fail(`topics 51–80 ids drifted vs teachingTopics.ts`);
   }
 
   function harvest(lessons) {
@@ -291,7 +296,7 @@ try {
     return { bag, fingerprints, walkIssues, uniqueStrings: bag.size };
   }
 
-  const harvested = harvest(first50);
+  const harvested = harvest(first80);
   const { missing, leaked } = classifyBag(harvested.bag, gloss);
   const fpDrift = harvested.fingerprints.filter((row) => row.fp !== row.localizedFp);
   if (fpDrift.length) {
@@ -303,7 +308,7 @@ try {
     );
   }
   if (missing.length) {
-    fail(`missing EN overlay for ${missing.length} topic 1–50 strings`);
+    fail(`missing EN overlay for ${missing.length} topic 1–80 strings`);
     for (const row of missing.slice(0, 40)) fail(`  • ${JSON.stringify(row.pt)} [${row.fields.join(", ")}]`);
     if (missing.length > 40) fail(`  … ${missing.length - 40} more`);
   }
@@ -327,7 +332,8 @@ try {
   const board = {
     "1-20": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
     "21-50": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
-    "51-113": laterClass.missing.length === 0 ? "READY" : "NOT_YET_LOCALIZED",
+    "51-80": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
+    "81-113": laterClass.missing.length === 0 ? "READY" : "NOT_YET_LOCALIZED",
   };
 
   const report = {
@@ -335,6 +341,7 @@ try {
     teachingTopicCount: allTeaching.length,
     topicIds: actualIds,
     topics2150: actual2150,
+    topics5180: actual5180,
     uniqueStrings: harvested.uniqueStrings,
     missingCount: missing.length,
     leakCount: leaked.length,
@@ -345,9 +352,9 @@ try {
     missing: missing.slice(0, 80),
   };
   await mkdir(path.join(root, "docs/reports"), { recursive: true });
-  await writeFile(path.join(root, "docs/reports/v483-journey-en-gate.json"), JSON.stringify(report, null, 2));
+  await writeFile(path.join(root, "docs/reports/v485-journey-en-gate.json"), JSON.stringify(report, null, 2));
   await writeFile(
-    path.join(root, "docs/reports/v483-english-journey-progress.json"),
+    path.join(root, "docs/reports/v485-english-journey-progress.json"),
     JSON.stringify(
       {
         generatedAt: report.generatedAt,
@@ -356,7 +363,8 @@ try {
         EnglishJourney: {
           "1-20": board["1-20"],
           "21-50": board["21-50"],
-          "51-113": board["51-113"],
+          "51-80": board["51-80"],
+          "81-113": board["81-113"],
         },
         laterMissingSample: laterClass.missing.slice(0, 12).map((row) => row.pt),
       },

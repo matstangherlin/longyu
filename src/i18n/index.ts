@@ -72,10 +72,15 @@ export {
 } from "./overlays/first20";
 export {
   TOPICS_21_50_TEACHING_TOPIC_IDS,
+  TOPICS_51_80_TEACHING_TOPIC_IDS,
+  TOPICS_21_80_TEACHING_TOPIC_IDS,
   TOPICS_1_50_TEACHING_TOPIC_IDS,
+  TOPICS_1_80_TEACHING_TOPIC_IDS,
   FAIL_CLOSED_TEACHING_TOPIC_COUNT,
   isTopics2150TeachingTopic,
+  isTopics5180TeachingTopic,
   isTopics150TeachingTopic,
+  isTopics180TeachingTopic,
   pedagogyLocId,
   pedagogyMetaLocId,
 } from "./overlays/teachingTopics";

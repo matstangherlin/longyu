@@ -8,7 +8,7 @@
  * One topic = one lesson.id. M1–M4 are mastery passes of that id.
  *
  * First 20 keep PT-text overlay as the compatibility resolver (V4.8.2).
- * Topics 21–50 also have stable loc ids (V4.8.3). Topic 51+ may still fall back.
+ * Topics 21–80 also have stable loc ids (V4.8.3 / V4.8.5). Topic 81+ may still fall back.
  */
 
 import {
@@ -66,16 +66,72 @@ export function isTopics2150TeachingTopic(lessonId: string | null | undefined): 
   return Boolean(lessonId && TOPICS_21_50_SET.has(lessonId));
 }
 
-/** Fail-closed English overlay applies to teaching topics 1–50. */
-export const FAIL_CLOSED_TEACHING_TOPIC_COUNT = 50;
+/** ALL_LESSONS.filter(isTopicMasteryLesson).slice(50, 80) */
+export const TOPICS_51_80_TEACHING_TOPIC_IDS = [
+  "p4-char-ren",
+  "p4-char-kou",
+  "p4-char-ri",
+  "p4-char-yue",
+  "p4-char-shan",
+  "p4-char-shui",
+  "p4-char-tian",
+  "p4-char-huo",
+  "p4-char-da",
+  "p4-char-xiao",
+  "p4-char-zhong",
+  "p4-char-bu",
+  "p4-char-shi",
+  "p4-char-wo",
+  "p4-char-ni",
+  "l14-numeros-visuais",
+  "l14-pecas-natureza",
+  "l14-frase-minima",
+  "l15",
+  "l16",
+  "l17",
+  "l18",
+  "p5-mu-mu-lin",
+  "p5-mu-mu-mu-sen",
+  "p5-ri-yue-ming",
+  "p5-ren-mu-xiu",
+  "p5-nv-zi-hao",
+  "p5-ren-ren-cong",
+  "p5-ren-ren-ren-zhong",
+  "p5-nv-ma-mae",
+] as const;
+
+export type Topics5180TeachingTopicId = (typeof TOPICS_51_80_TEACHING_TOPIC_IDS)[number];
+
+const TOPICS_51_80_SET = new Set<string>(TOPICS_51_80_TEACHING_TOPIC_IDS);
+
+export function isTopics5180TeachingTopic(lessonId: string | null | undefined): boolean {
+  return Boolean(lessonId && TOPICS_51_80_SET.has(lessonId));
+}
+
+export const TOPICS_21_80_TEACHING_TOPIC_IDS = [
+  ...TOPICS_21_50_TEACHING_TOPIC_IDS,
+  ...TOPICS_51_80_TEACHING_TOPIC_IDS,
+] as const;
+
+/** Fail-closed English overlay applies to teaching topics 1–80. */
+export const FAIL_CLOSED_TEACHING_TOPIC_COUNT = 80;
 
 export const TOPICS_1_50_TEACHING_TOPIC_IDS = [
   ...FIRST_20_TEACHING_TOPIC_IDS,
   ...TOPICS_21_50_TEACHING_TOPIC_IDS,
 ] as const;
 
+export const TOPICS_1_80_TEACHING_TOPIC_IDS = [
+  ...TOPICS_1_50_TEACHING_TOPIC_IDS,
+  ...TOPICS_51_80_TEACHING_TOPIC_IDS,
+] as const;
+
 export function isTopics150TeachingTopic(lessonId: string | null | undefined): boolean {
   return isFirst20TeachingTopic(lessonId) || isTopics2150TeachingTopic(lessonId);
+}
+
+export function isTopics180TeachingTopic(lessonId: string | null | undefined): boolean {
+  return isTopics150TeachingTopic(lessonId) || isTopics5180TeachingTopic(lessonId);
 }
 
 /**

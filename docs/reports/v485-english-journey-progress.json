@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-08-29T02:43:24.145Z",
+  "rule": "ALL_LESSONS.filter(isTopicMasteryLesson)",
+  "teachingTopicCount": 113,
+  "EnglishJourney": {
+    "1-20": "READY",
+    "21-50": "READY",
+    "51-80": "READY",
+    "81-113": "NOT_YET_LOCALIZED"
+  },
+  "laterMissingSample": [
+    "Ler e montar os hànzì de 口 + 马 = 吗.",
+    "O que Matheus perguntou?",
+    "这是什么？ pergunta o que é algo próximo.",
+    "Obrigado!",
+    "A pergunta foi 这是什么？ Tente de novo.",
+    "Você quer chá, não água. Como diz isso?",
+    "我想喝茶 = quero beber chá.",
+    "Isto é água. Se quer chá, diga 我想喝茶.",
+    "我想喝茶 é a opção que comunica Quero beber chá..",
+    "yuè",
+    "os caracteres centrais de 口 + 马 = 吗",
+    "Distinguir as peças e os caracteres vizinhos de 口 + 马 = 吗."
+  ]
+}
