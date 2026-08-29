@@ -1,0 +1,1966 @@
+{
+  "+": {
+    "en": "+",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "=": {
+    "en": "=",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "1º × 3º tom": {
+    "en": "1st × 3rd tone",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "2º × 4º tom": {
+    "en": "2nd × 4th tone",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "abre 明天": {
+    "en": "opens 明天",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Agora aponte para a lua.": {
+    "en": "Now point to the moon.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Água": {
+    "en": "Water",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Água?": {
+    "en": "Water?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Água.": {
+    "en": "Water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Alguém pergunta o que você está fazendo agora. Responda que está isto.": {
+    "en": "Someone asks what you are doing now. Answer that you are doing this.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "amanhã": {
+    "en": "tomorrow",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "amigo": {
+    "en": "friend",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Amigo": {
+    "en": "Friend",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Amigo ensina forma escrita, não só o som.": {
+    "en": "The Friend topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Aplicar": {
+    "en": "Apply",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Apontando a paisagem": {
+    "en": "Pointing at the landscape",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aponte o céu": {
+    "en": "Point to the sky",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é a lua?": {
+    "en": "Is that the moon?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é a lua.": {
+    "en": "That is the moon.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "aquilo é céu": {
+    "en": "that is sky",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é o céu.": {
+    "en": "That is the sky.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é o sol?": {
+    "en": "Is that the sun?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "aquilo é pessoa (pergunta)": {
+    "en": "that is a person (question)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é uma montanha?": {
+    "en": "Is that a mountain?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é uma montanha.": {
+    "en": "That is a mountain.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Aquilo é uma pessoa?": {
+    "en": "Is that a person?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "aquilo; aquele, aquela": {
+    "en": "that; that one",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "base de 好": {
+    "en": "base of 好",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "base de 明": {
+    "en": "base of 明",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "base de 林 e 森": {
+    "en": "base of 林 and 森",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Bāxī rén": {
+    "en": "Bāxī rén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Bāxīrén": {
+    "en": "Bāxīrén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "bom / bem": {
+    "en": "good / well",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "bosque": {
+    "en": "woods",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Caracteres de frase": {
+    "en": "Sentence Characters",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Caracteres de frase ensina forma escrita, não só o som.": {
+    "en": "The Sentence Characters topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "céu": {
+    "en": "sky",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Céu e dia": {
+    "en": "Sky and Day",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "claro": {
+    "en": "bright",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "claro; brilhante": {
+    "en": "bright; clear",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Com três árvores vira 森 (floresta).": {
+    "en": "With three trees it becomes 森 (forest).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Combine as peças de 明.": {
+    "en": "Put the pieces of 明 together.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Como componente, água costuma apontar para líquidos e fluxo.": {
+    "en": "As a component, water usually points to liquids and flow.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Como radical lateral costuma aparecer como 氵.": {
+    "en": "As a side radical it usually appears as 氵.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete a palavra: __天. Qual hànzì abre 'amanhã'?": {
+    "en": "Fill in the blank: __天. Which hànzì opens ‘tomorrow’?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete 明天": {
+    "en": "Complete 明天",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Aquilo é uma pessoa?.": {
+    "en": "Complete: Is that a person?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Complete: Você fala inglês?.": {
+    "en": "Complete: Do you speak English?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Conte em sequência": {
+    "en": "Count in sequence",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "criança": {
+    "en": "child",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Decorar 你好 em qualquer aula": {
+    "en": "Memorize 你好 in any lesson",
+    "kind": "NATURAL_REWRITE"
+  },
+  "descansar": {
+    "en": "rest",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "dia; céu": {
+    "en": "day; sky",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir": {
+    "en": "Distinguish",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Amigo.": {
+    "en": "Distinguish the components and similar characters in Friend.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Caracteres de frase.": {
+    "en": "Distinguish the components and similar characters in Sentence Characters.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Números visuais.": {
+    "en": "Distinguish the components and similar characters in Visual Numbers.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Peças da natureza.": {
+    "en": "Distinguish the components and similar characters in Nature Pieces.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Repetir intensifica.": {
+    "en": "Distinguish the components and similar characters in Repeating Intensifies.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de Sol e lua.": {
+    "en": "Distinguish the components and similar characters in Sun and Moon.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 不.": {
+    "en": "Distinguish the components and similar characters in 不.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 中.": {
+    "en": "Distinguish the components and similar characters in 中.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 人 + 人 + 人 = 众.": {
+    "en": "Distinguish the components and similar characters in 人 + 人 + 人 = 众.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 人 + 人 = 从.": {
+    "en": "Distinguish the components and similar characters in 人 + 人 = 从.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 人 + 木 = 休.": {
+    "en": "Distinguish the components and similar characters in 人 + 木 = 休.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 你.": {
+    "en": "Distinguish the components and similar characters in 你.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 大.": {
+    "en": "Distinguish the components and similar characters in 大.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 女 + 子 = 好.": {
+    "en": "Distinguish the components and similar characters in 女 + 子 = 好.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 女 + 马 = 妈.": {
+    "en": "Distinguish the components and similar characters in 女 + 马 = 妈.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 妈: sentido + som.": {
+    "en": "Distinguish the components and similar characters in 妈: meaning + sound.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 小.": {
+    "en": "Distinguish the components and similar characters in 小.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 我.": {
+    "en": "Distinguish the components and similar characters in 我.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 日 + 月 = 明.": {
+    "en": "Distinguish the components and similar characters in 日 + 月 = 明.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 是.": {
+    "en": "Distinguish the components and similar characters in 是.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 木 + 木 + 木 = 森.": {
+    "en": "Distinguish the components and similar characters in 木 + 木 + 木 = 森.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir as peças e os caracteres vizinhos de 木 + 木 = 林.": {
+    "en": "Distinguish the components and similar characters in 木 + 木 = 林.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Distinguir 人 de caracteres vizinhos.": {
+    "en": "Distinguish 人 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 口 de caracteres vizinhos.": {
+    "en": "Distinguish 口 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 天 de caracteres vizinhos.": {
+    "en": "Distinguish 天 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 山 de caracteres vizinhos.": {
+    "en": "Distinguish 山 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 日 de caracteres vizinhos.": {
+    "en": "Distinguish 日 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 月 de caracteres vizinhos.": {
+    "en": "Distinguish 月 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 水 de caracteres vizinhos.": {
+    "en": "Distinguish 水 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Distinguir 火 de caracteres vizinhos.": {
+    "en": "Distinguish 火 from similar characters.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dizer que você fala um pouco de chinês.": {
+    "en": "Say that you speak a little Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Dois traços que se apoiam no topo e abrem para baixo.": {
+    "en": "Two strokes that meet at the top and open downward.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Duas árvores, lado a lado.": {
+    "en": "Two trees, side by side.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Duas faíscas no topo e duas chamas descendo.": {
+    "en": "Two sparks at the top and two flames dropping down.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Duas 月 lado a lado: companheiros que andam juntos.": {
+    "en": "Two 月 side by side: companions who walk together.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 人 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 人 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 口 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 口 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 天 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 天 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 山 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 山 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 日 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 日 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 月 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 月 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 水 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 水 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Encontrar 火 num contexto conhecido, com menos pinyin.": {
+    "en": "Find 火 in a familiar context with less pinyin.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Era o mesmo som duas vezes: mā. O 1º é alto e reto; o 3º começa baixo e afunda.": {
+    "en": "It was the same sound twice: mā. The 1st is high and level; the 3rd starts low and dips.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Era o mesmo som duas vezes: má. Um sobe, o outro desce — mas em fala rápida a confusão acontece.": {
+    "en": "It was the same sound twice: má. One rises, the other falls — but in fast speech they get mixed up.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "este, isto": {
+    "en": "this",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "floresta": {
+    "en": "forest",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 人": {
+    "en": "the form and sound of 人",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 口": {
+    "en": "the form and sound of 口",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 天": {
+    "en": "the form and sound of 天",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 山": {
+    "en": "the form and sound of 山",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 日": {
+    "en": "the form and sound of 日",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 月": {
+    "en": "the form and sound of 月",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 水": {
+    "en": "the form and sound of 水",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "forma e som de 火": {
+    "en": "the form and sound of 火",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Frase curta": {
+    "en": "Short sentence",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Gancho no centro e um ponto de cada lado.": {
+    "en": "A hook in the center and a dot on each side.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ganhar estrelas": {
+    "en": "Earn stars",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Hã? A pista é água: 水.": {
+    "en": "Huh? The hint is water: 水.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "hěn hǎo!": {
+    "en": "hěn hǎo!",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "hěnhǎo!": {
+    "en": "hěnhǎo!",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 人": {
+    "en": "identify/build 人",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 口": {
+    "en": "identify/build 口",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 天": {
+    "en": "identify/build 天",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 山": {
+    "en": "identify/build 山",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 日": {
+    "en": "identify/build 日",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 月": {
+    "en": "identify/build 月",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 水": {
+    "en": "identify/build 水",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "identificar/montar 火": {
+    "en": "identify/build 火",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ignorar o contexto": {
+    "en": "Ignore the context",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ignorar o título": {
+    "en": "Ignore the title",
+    "kind": "NATURAL_REWRITE"
+  },
+  "isto é o quê": {
+    "en": "what is this",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Isto é uma árvore.": {
+    "en": "This is a tree.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Isto é 木.": {
+    "en": "This is 木.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "jīntiānhěnhǎo": {
+    "en": "jīntiānhěnhǎo",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ler e montar os hànzì de Amigo.": {
+    "en": "Read and build the hànzì from Friend.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de Caracteres de frase.": {
+    "en": "Read and build the hànzì from Sentence Characters.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de Números visuais.": {
+    "en": "Read and build the hànzì from Visual Numbers.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de Peças da natureza.": {
+    "en": "Read and build the hànzì from Nature Pieces.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de Repetir intensifica.": {
+    "en": "Read and build the hànzì from Repeating Intensifies.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de Sol e lua.": {
+    "en": "Read and build the hànzì from Sun and Moon.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 不.": {
+    "en": "Read and build the hànzì from 不.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 中.": {
+    "en": "Read and build the hànzì from 中.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 人 + 人 + 人 = 众.": {
+    "en": "Read and build the hànzì from 人 + 人 + 人 = 众.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 人 + 人 = 从.": {
+    "en": "Read and build the hànzì from 人 + 人 = 从.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 人 + 木 = 休.": {
+    "en": "Read and build the hànzì from 人 + 木 = 休.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 你.": {
+    "en": "Read and build the hànzì from 你.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 大.": {
+    "en": "Read and build the hànzì from 大.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 女 + 子 = 好.": {
+    "en": "Read and build the hànzì from 女 + 子 = 好.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 女 + 马 = 妈.": {
+    "en": "Read and build the hànzì from 女 + 马 = 妈.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 妈: sentido + som.": {
+    "en": "Read and build the hànzì from 妈: meaning + sound.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 小.": {
+    "en": "Read and build the hànzì from 小.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 我.": {
+    "en": "Read and build the hànzì from 我.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 日 + 月 = 明.": {
+    "en": "Read and build the hànzì from 日 + 月 = 明.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 是.": {
+    "en": "Read and build the hànzì from 是.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 木 + 木 + 木 = 森.": {
+    "en": "Read and build the hànzì from 木 + 木 + 木 = 森.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ler e montar os hànzì de 木 + 木 = 林.": {
+    "en": "Read and build the hànzì from 木 + 木 = 林.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "lua": {
+    "en": "moon",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Lua?": {
+    "en": "Moon?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "montar ou escolher os hànzì de Amigo": {
+    "en": "build or choose the hànzì in Friend",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de Caracteres de frase": {
+    "en": "build or choose the hànzì in Sentence Characters",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de Números visuais": {
+    "en": "build or choose the hànzì in Visual Numbers",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de Peças da natureza": {
+    "en": "build or choose the hànzì in Nature Pieces",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de Repetir intensifica": {
+    "en": "build or choose the hànzì in Repeating Intensifies",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de Sol e lua": {
+    "en": "build or choose the hànzì in Sun and Moon",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 不": {
+    "en": "build or choose the hànzì in 不",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 中": {
+    "en": "build or choose the hànzì in 中",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 人 + 人 + 人 = 众": {
+    "en": "build or choose the hànzì in 人 + 人 + 人 = 众",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 人 + 人 = 从": {
+    "en": "build or choose the hànzì in 人 + 人 = 从",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 人 + 木 = 休": {
+    "en": "build or choose the hànzì in 人 + 木 = 休",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 你": {
+    "en": "build or choose the hànzì in 你",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 大": {
+    "en": "build or choose the hànzì in 大",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 女 + 子 = 好": {
+    "en": "build or choose the hànzì in 女 + 子 = 好",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 女 + 马 = 妈": {
+    "en": "build or choose the hànzì in 女 + 马 = 妈",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 妈: sentido + som": {
+    "en": "build or choose the hànzì in 妈: meaning + sound",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 小": {
+    "en": "build or choose the hànzì in 小",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 我": {
+    "en": "build or choose the hànzì in 我",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 日 + 月 = 明": {
+    "en": "build or choose the hànzì in 日 + 月 = 明",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 是": {
+    "en": "build or choose the hànzì in 是",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 木 + 木 + 木 = 森": {
+    "en": "build or choose the hànzì in 木 + 木 + 木 = 森",
+    "kind": "NATURAL_REWRITE"
+  },
+  "montar ou escolher os hànzì de 木 + 木 = 林": {
+    "en": "build or choose the hànzì in 木 + 木 = 林",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de Amigo.": {
+    "en": "Build or recognize the hànzì in Friend.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de Caracteres de frase.": {
+    "en": "Build or recognize the hànzì in Sentence Characters.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de Números visuais.": {
+    "en": "Build or recognize the hànzì in Visual Numbers.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de Peças da natureza.": {
+    "en": "Build or recognize the hànzì in Nature Pieces.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de Repetir intensifica.": {
+    "en": "Build or recognize the hànzì in Repeating Intensifies.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de Sol e lua.": {
+    "en": "Build or recognize the hànzì in Sun and Moon.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 不.": {
+    "en": "Build or recognize the hànzì in 不.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 中.": {
+    "en": "Build or recognize the hànzì in 中.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 人 + 人 + 人 = 众.": {
+    "en": "Build or recognize the hànzì in 人 + 人 + 人 = 众.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 人 + 人 = 从.": {
+    "en": "Build or recognize the hànzì in 人 + 人 = 从.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 人 + 木 = 休.": {
+    "en": "Build or recognize the hànzì in 人 + 木 = 休.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 你.": {
+    "en": "Build or recognize the hànzì in 你.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 大.": {
+    "en": "Build or recognize the hànzì in 大.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 女 + 子 = 好.": {
+    "en": "Build or recognize the hànzì in 女 + 子 = 好.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 女 + 马 = 妈.": {
+    "en": "Build or recognize the hànzì in 女 + 马 = 妈.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 妈: sentido + som.": {
+    "en": "Build or recognize the hànzì in 妈: meaning + sound.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 小.": {
+    "en": "Build or recognize the hànzì in 小.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 我.": {
+    "en": "Build or recognize the hànzì in 我.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 日 + 月 = 明.": {
+    "en": "Build or recognize the hànzì in 日 + 月 = 明.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 是.": {
+    "en": "Build or recognize the hànzì in 是.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 木 + 木 + 木 = 森.": {
+    "en": "Build or recognize the hànzì in 木 + 木 + 木 = 森.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Montar/reconhecer os hànzì de 木 + 木 = 林.": {
+    "en": "Build or recognize the hànzì in 木 + 木 = 林.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Monte a sequência: um, dois, três.": {
+    "en": "Build the sequence: one, two, three.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte o hànzì de água sem silhueta.": {
+    "en": "Build the hànzì for water without a silhouette.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte o hànzì que completa amanhã.": {
+    "en": "Build the hànzì that completes tomorrow.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte o hànzì que significa 'bom'.": {
+    "en": "Build the hànzì that means ‘good’.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte o hànzì que significa 'bosque'.": {
+    "en": "Build the hànzì that means ‘woods’.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte o hànzì que significa 'descansar'.": {
+    "en": "Build the hànzì that means ‘rest’.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte o hànzì que significa 'floresta'.": {
+    "en": "Build the hànzì that means ‘forest’.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte 人 sem molde.": {
+    "en": "Build 人 without a template.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte 我": {
+    "en": "Build 我",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte 日 sem molde.": {
+    "en": "Build 日 without a template.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte 朋友": {
+    "en": "Build 朋友",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte: amigo.": {
+    "en": "Build: friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte: aquilo é o céu.": {
+    "en": "Build: that is the sky.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte: isto é água.": {
+    "en": "Build: this is water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte: isto é sol.": {
+    "en": "Build: this is sun.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Monte: Sou brasileiro.": {
+    "en": "Build: I'm Brazilian.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Mulher + criança.": {
+    "en": "Woman + child.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "multidão": {
+    "en": "crowd",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "não": {
+    "en": "no",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Não é isso. A pista é 月.": {
+    "en": "That's not it. The hint is 月.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Não é. A pista é 木.": {
+    "en": "No. The hint is 木.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Números visuais": {
+    "en": "Visual Numbers",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Números visuais ensina forma escrita, não só o som.": {
+    "en": "The Visual Numbers topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "O que \"Repetir intensifica\" quer que você consiga fazer?": {
+    "en": "What does \"Repeating Intensifies\" want you to be able to do?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "O que é isto?": {
+    "en": "What is this?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "O que Mei perguntou?": {
+    "en": "What did Mei ask?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "O que 水 quer dizer?": {
+    "en": "What does 水 mean?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "olá": {
+    "en": "hello",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "os caracteres centrais de Amigo": {
+    "en": "the core characters in Friend",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de Caracteres de frase": {
+    "en": "the core characters in Sentence Characters",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de Números visuais": {
+    "en": "the core characters in Visual Numbers",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de Peças da natureza": {
+    "en": "the core characters in Nature Pieces",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de Repetir intensifica": {
+    "en": "the core characters in Repeating Intensifies",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de Sol e lua": {
+    "en": "the core characters in Sun and Moon",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 不": {
+    "en": "the core characters in 不",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 中": {
+    "en": "the core characters in 中",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 人 + 人 + 人 = 众": {
+    "en": "the core characters in 人 + 人 + 人 = 众",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 人 + 人 = 从": {
+    "en": "the core characters in 人 + 人 = 从",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 人 + 木 = 休": {
+    "en": "the core characters in 人 + 木 = 休",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 你": {
+    "en": "the core characters in 你",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 大": {
+    "en": "the core characters in 大",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 女 + 子 = 好": {
+    "en": "the core characters in 女 + 子 = 好",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 女 + 马 = 妈": {
+    "en": "the core characters in 女 + 马 = 妈",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 妈: sentido + som": {
+    "en": "the core characters in 妈: meaning + sound",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 小": {
+    "en": "the core characters in 小",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 我": {
+    "en": "the core characters in 我",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 日 + 月 = 明": {
+    "en": "the core characters in 日 + 月 = 明",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 是": {
+    "en": "the core characters in 是",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 木 + 木 + 木 = 森": {
+    "en": "the core characters in 木 + 木 + 木 = 森",
+    "kind": "NATURAL_REWRITE"
+  },
+  "os caracteres centrais de 木 + 木 = 林": {
+    "en": "the core characters in 木 + 木 = 林",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Para montar 明 com 日 + 月, use o exercício de composição.": {
+    "en": "To build 明 with 日 + 月, use the composition exercise.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Peça água: eu quero água.": {
+    "en": "Ask for water: I want water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Peças da natureza": {
+    "en": "Nature Pieces",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Peças da natureza ensina forma escrita, não só o som.": {
+    "en": "The Nature Pieces topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Pedir água": {
+    "en": "Ask for water",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "péngyou": {
+    "en": "péngyou",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Pense na água que você pediu: 水.": {
+    "en": "Think of the water you asked for: 水.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Primeiro 女 (mulher), depois 子 (criança).": {
+    "en": "First 女 (woman), then 子 (child).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Procure o eixo central primeiro; depois encaixe as gotas laterais.": {
+    "en": "Find the central axis first; then fit the side droplets.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Promessa do tema": {
+    "en": "Topic promise",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Pular para o próximo nó": {
+    "en": "Skip to the next node",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Qual é o pinyin de árvore?": {
+    "en": "What is the pinyin for tree?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual hànzì combina com a imagem?": {
+    "en": "Which hànzì matches the image?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual hànzì combina com água?": {
+    "en": "Which hànzì matches water?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual hànzì combina com grande? (revisão visual)": {
+    "en": "Which hànzì matches big? (visual review)",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual hànzì combina com o céu?": {
+    "en": "Which hànzì matches the sky?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual hànzì combina com o sol?": {
+    "en": "Which hànzì matches the sun?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual imagem combina com 子?": {
+    "en": "Which image matches 子?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual imagem combina com 小?": {
+    "en": "Which image matches 小?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Qual peça representa: amigo?": {
+    "en": "Which piece stands for: friend?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 人 (pessoa).": {
+    "en": "Recognize and use the hànzì 人 (person).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 口 (boca).": {
+    "en": "Recognize and use the hànzì 口 (mouth).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 天 (céu/dia).": {
+    "en": "Recognize and use the hànzì 天 (sky/day).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 山 (montanha).": {
+    "en": "Recognize and use the hànzì 山 (mountain).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 日 (sol/dia).": {
+    "en": "Recognize and use the hànzì 日 (sun/day).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 月 (lua/mês).": {
+    "en": "Recognize and use the hànzì 月 (moon/month).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 水 (água).": {
+    "en": "Recognize and use the hànzì 水 (water).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer e usar o hànzì 火 (fogo).": {
+    "en": "Recognize and use the hànzì 火 (fire).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 人.": {
+    "en": "Recognize or build 人.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 口.": {
+    "en": "Recognize or build 口.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 天.": {
+    "en": "Recognize or build 天.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 山.": {
+    "en": "Recognize or build 山.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 日.": {
+    "en": "Recognize or build 日.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 月.": {
+    "en": "Recognize or build 月.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 水.": {
+    "en": "Recognize or build 水.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Reconhecer ou montar 火.": {
+    "en": "Recognize or build 火.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Repetir a mesma sessão de reconhecimento": {
+    "en": "Repeat the same recognition session",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Repetir intensifica": {
+    "en": "Repeating Intensifies",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Repetir intensifica ensina forma escrita, não só o som.": {
+    "en": "The Repeating Intensifies topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Repetir só o drill inicial": {
+    "en": "Repeat only the opening drill",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Repita a mesma peça: 木 + 木.": {
+    "en": "Repeat the same piece: 木 + 木.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Responda que isto é 木.": {
+    "en": "Answer that this is 木.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Retângulo com uma linha dividindo o meio.": {
+    "en": "A rectangle with a line dividing the middle.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Revisão visual: qual hànzì significa pessoa?": {
+    "en": "Visual review: which hànzì means person?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "São três 木, não dois.": {
+    "en": "There are three 木, not two.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "seguir; a partir de": {
+    "en": "to follow; from",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ser": {
+    "en": "To be",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Sim, aquilo é o sol.": {
+    "en": "Yes, that is the sun.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Só ganhar XP": {
+    "en": "Just earn XP",
+    "kind": "NATURAL_REWRITE"
+  },
+  "sol": {
+    "en": "sun",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Sol + lua": {
+    "en": "Sun + moon",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Sol e lua": {
+    "en": "Sun and Moon",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Sol e lua ensina forma escrita, não só o som.": {
+    "en": "The Sun and Moon topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "sol/dia": {
+    "en": "sun/day",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Substituir o tema por 你好": {
+    "en": "Replace the topic with 你好",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Três árvores empilhadas.": {
+    "en": "Three trees stacked.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Três hastes verticais apoiadas em uma base.": {
+    "en": "Three vertical stems resting on a base.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Três pertencem ao mesmo grupo. Qual sobra?": {
+    "en": "Three belong to the same group. Which one is left over?",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Três pessoas (人): uma multidão.": {
+    "en": "Three people (人): a crowd.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Trocar o tema por 你好": {
+    "en": "Swap the topic for 你好",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Tudo certo!": {
+    "en": "All good!",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Um traço central com gotas abrindo dos dois lados.": {
+    "en": "A central stroke with droplets opening on both sides.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Uma horizontal no alto e duas pernas abrindo.": {
+    "en": "A horizontal on top and two legs opening out.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Uma pessoa (人) atrás da outra: seguir.": {
+    "en": "One person (人) behind another: to follow.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Uma pessoa (亻) encostada numa árvore (木) está descansando.": {
+    "en": "A person (亻) leaning on a tree (木) is resting.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Uma pessoa ao lado de uma árvore.": {
+    "en": "A person next to a tree.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Usar os hànzì de Amigo num contexto já ouvido.": {
+    "en": "Use the hànzì from Friend in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de Caracteres de frase num contexto já ouvido.": {
+    "en": "Use the hànzì from Sentence Characters in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de Números visuais num contexto já ouvido.": {
+    "en": "Use the hànzì from Visual Numbers in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de Peças da natureza num contexto já ouvido.": {
+    "en": "Use the hànzì from Nature Pieces in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de Repetir intensifica num contexto já ouvido.": {
+    "en": "Use the hànzì from Repeating Intensifies in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de Sol e lua num contexto já ouvido.": {
+    "en": "Use the hànzì from Sun and Moon in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 不 num contexto já ouvido.": {
+    "en": "Use the hànzì from 不 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 中 num contexto já ouvido.": {
+    "en": "Use the hànzì from 中 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 人 + 人 + 人 = 众 num contexto já ouvido.": {
+    "en": "Use the hànzì from 人 + 人 + 人 = 众 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 人 + 人 = 从 num contexto já ouvido.": {
+    "en": "Use the hànzì from 人 + 人 = 从 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 人 + 木 = 休 num contexto já ouvido.": {
+    "en": "Use the hànzì from 人 + 木 = 休 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 你 num contexto já ouvido.": {
+    "en": "Use the hànzì from 你 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 大 num contexto já ouvido.": {
+    "en": "Use the hànzì from 大 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 女 + 子 = 好 num contexto já ouvido.": {
+    "en": "Use the hànzì from 女 + 子 = 好 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 女 + 马 = 妈 num contexto já ouvido.": {
+    "en": "Use the hànzì from 女 + 马 = 妈 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 妈: sentido + som num contexto já ouvido.": {
+    "en": "Use the hànzì from 妈: meaning + sound in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 小 num contexto já ouvido.": {
+    "en": "Use the hànzì from 小 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 我 num contexto já ouvido.": {
+    "en": "Use the hànzì from 我 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 日 + 月 = 明 num contexto já ouvido.": {
+    "en": "Use the hànzì from 日 + 月 = 明 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 是 num contexto já ouvido.": {
+    "en": "Use the hànzì from 是 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 木 + 木 + 木 = 森 num contexto já ouvido.": {
+    "en": "Use the hànzì from 木 + 木 + 木 = 森 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Usar os hànzì de 木 + 木 = 林 num contexto já ouvido.": {
+    "en": "Use the hànzì from 木 + 木 = 林 in a context you've already heard.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de Amigo e o que eles representam.": {
+    "en": "See the characters from Friend and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de Caracteres de frase e o que eles representam.": {
+    "en": "See the characters from Sentence Characters and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de Números visuais e o que eles representam.": {
+    "en": "See the characters from Visual Numbers and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de Peças da natureza e o que eles representam.": {
+    "en": "See the characters from Nature Pieces and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de Repetir intensifica e o que eles representam.": {
+    "en": "See the characters from Repeating Intensifies and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de Sol e lua e o que eles representam.": {
+    "en": "See the characters from Sun and Moon and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 不 e o que eles representam.": {
+    "en": "See the characters from 不 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 中 e o que eles representam.": {
+    "en": "See the characters from 中 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 人 + 人 + 人 = 众 e o que eles representam.": {
+    "en": "See the characters from 人 + 人 + 人 = 众 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 人 + 人 = 从 e o que eles representam.": {
+    "en": "See the characters from 人 + 人 = 从 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 人 + 木 = 休 e o que eles representam.": {
+    "en": "See the characters from 人 + 木 = 休 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 你 e o que eles representam.": {
+    "en": "See the characters from 你 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 大 e o que eles representam.": {
+    "en": "See the characters from 大 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 女 + 子 = 好 e o que eles representam.": {
+    "en": "See the characters from 女 + 子 = 好 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 女 + 马 = 妈 e o que eles representam.": {
+    "en": "See the characters from 女 + 马 = 妈 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 妈: sentido + som e o que eles representam.": {
+    "en": "See the characters from 妈: meaning + sound and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 小 e o que eles representam.": {
+    "en": "See the characters from 小 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 我 e o que eles representam.": {
+    "en": "See the characters from 我 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 日 + 月 = 明 e o que eles representam.": {
+    "en": "See the characters from 日 + 月 = 明 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 是 e o que eles representam.": {
+    "en": "See the characters from 是 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 木 + 木 + 木 = 森 e o que eles representam.": {
+    "en": "See the characters from 木 + 木 + 木 = 森 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver os caracteres de 木 + 木 = 林 e o que eles representam.": {
+    "en": "See the characters from 木 + 木 = 林 and what they represent.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Ver 人 e ligar à ideia de pessoa.": {
+    "en": "See 人 and connect it to the idea of a person.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 人 numa palavra ou contexto já conhecido": {
+    "en": "see 人 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 口 e ligar à ideia de boca.": {
+    "en": "See 口 and connect it to the idea of a mouth.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 口 numa palavra ou contexto já conhecido": {
+    "en": "see 口 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 天 e ligar à ideia de céu/dia.": {
+    "en": "See 天 and connect it to the idea of the sky or a day.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 天 numa palavra ou contexto já conhecido": {
+    "en": "see 天 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 山 e ligar à ideia de montanha.": {
+    "en": "See 山 and connect it to the idea of a mountain.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 山 numa palavra ou contexto já conhecido": {
+    "en": "see 山 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 日 e ligar à ideia de sol/dia.": {
+    "en": "See 日 and connect it to the idea of the sun or a day.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 日 numa palavra ou contexto já conhecido": {
+    "en": "see 日 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 月 e ligar à ideia de lua/mês.": {
+    "en": "See 月 and connect it to the idea of the moon or a month.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 月 numa palavra ou contexto já conhecido": {
+    "en": "see 月 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 水 e ligar à ideia de água.": {
+    "en": "See 水 and connect it to the idea of water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 水 numa palavra ou contexto já conhecido": {
+    "en": "see 水 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Ver 火 e ligar à ideia de fogo.": {
+    "en": "See 火 and connect it to the idea of fire.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "ver 火 numa palavra ou contexto já conhecido": {
+    "en": "see 火 in a familiar word or context",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Você quer água. Escolha o caractere de água.": {
+    "en": "You want water. Choose the water character.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "Você quer dizer: água.": {
+    "en": "You want to say: water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Você quer dizer: árvore, madeira.": {
+    "en": "You want to say: tree, wood.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Você quer dizer: lua, mês.": {
+    "en": "You want to say: moon, month.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "Você quer dizer: Não falo chinês..": {
+    "en": "You want to say: I don't speak Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒ": {
+    "en": "wǒ",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒ bú huì shuō Zhōngwén": {
+    "en": "wǒ bú huì shuō Zhōngwén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒ huì shuō yìdiǎn Zhōngwén": {
+    "en": "wǒ huì shuō yìdiǎn Zhōngwén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒ shì Bāxī rén": {
+    "en": "wǒ shì Bāxī rén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒ zài xuéxiào xuéxí": {
+    "en": "wǒ zài xuéxiào xuéxí",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒbúhuìshuōZhōngwén": {
+    "en": "wǒbúhuìshuōZhōngwén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "wǒshìBāxīrén": {
+    "en": "wǒshìBāxīrén",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "yú": {
+    "en": "yú",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "一 二 三 mostra a quantidade nos traços.": {
+    "en": "一 二 三 shows the quantity in the strokes.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "不 ensina forma escrita, não só o som.": {
+    "en": "不 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "中 ensina forma escrita, não só o som.": {
+    "en": "中 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 + 人 + 人 = 众 ensina forma escrita, não só o som.": {
+    "en": "人 + 人 + 人 = 众 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 + 人 = 从 ensina forma escrita, não só o som.": {
+    "en": "人 + 人 = 从 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 + 木 = 休 ensina forma escrita, não só o som.": {
+    "en": "人 + 木 = 休 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 é só um desenho, sem som.": {
+    "en": "人 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 escreve a ideia de pessoa.": {
+    "en": "人 represents the idea of a person in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 são dois traços que se encontram no topo e abrem como pernas.": {
+    "en": "人 is two strokes that meet at the top and open like legs.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "人 volta enquanto você prepara 中文.": {
+    "en": "人 comes back while you get ready for 中文.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "亻 é a pessoa lateral; depois vem 木.": {
+    "en": "亻 is the side-person component; then comes 木.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "今天很好 · jīntiān hěn hǎo — Hoje está ótimo.": {
+    "en": "今天很好 · jīntiān hěn hǎo — Today is great.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "休 junta 亻 (pessoa) + 木 (árvore): alguém encostado numa árvore, descansando.": {
+    "en": "休 joins 亻 (person) + 木 (tree): someone leaning on a tree, resting.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "你 ensina forma escrita, não só o som.": {
+    "en": "你 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "你会说英语吗？ = Você fala inglês?.": {
+    "en": "你会说英语吗？ = Do you speak English?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "口 (kǒu) = boca.": {
+    "en": "口 (kǒu) = mouth.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "口 é só um desenho, sem som.": {
+    "en": "口 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "口 escreve a ideia de boca.": {
+    "en": "口 represents the idea of a mouth in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "大 (dà) = grande.": {
+    "en": "大 (dà) = big.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "大 é uma pessoa de braços abertos: uma linha e duas pernas.": {
+    "en": "大 is a person with arms open: one line and two legs.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "大 ensina forma escrita, não só o som.": {
+    "en": "大 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "大 volta como revisão visual; números também têm forma.": {
+    "en": "大 returns as visual review; numbers have written form too.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "天 (tiān) = céu.": {
+    "en": "天 (tiān) = sky.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "天 é céu — e também entra em 今天 (hoje). Depois de 日、月 e 山, você aponta o que está acima.": {
+    "en": "天 is sky — and it also appears in 今天 (today). After 日, 月, and 山, you point to what is above.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "天 é o caractere de céu.": {
+    "en": "天 is the sky character.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "天 é só um desenho, sem som.": {
+    "en": "天 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "天 escreve a ideia de céu/dia.": {
+    "en": "天 represents the idea of the sky or a day in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "女 (nǚ) = mulher.": {
+    "en": "女 (nǚ) = woman.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "女 + 子 = 好 ensina forma escrita, não só o som.": {
+    "en": "女 + 子 = 好 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "女 + 马 = 妈 ensina forma escrita, não só o som.": {
+    "en": "女 + 马 = 妈 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "好 junta 女 + 子 — uma composição histórica. Hoje, a forma inteira significa bom ou bem.": {
+    "en": "好 joins 女 + 子 — a historical composition. Today the whole form means good or well.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "妈: sentido + som": {
+    "en": "妈: meaning + sound",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "妈: sentido + som ensina forma escrita, não só o som.": {
+    "en": "The 妈: meaning + sound topic teaches written forms, not just sounds.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "子 (zǐ) = criança.": {
+    "en": "子 (zǐ) = child.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "小 (xiǎo) = pequeno.": {
+    "en": "小 (xiǎo) = small.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "小 é um gancho central com dois pontinhos ao lado.": {
+    "en": "小 is a central hook with two little dots beside it.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "小 ensina forma escrita, não só o som.": {
+    "en": "小 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "山 é só um desenho, sem som.": {
+    "en": "山 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "山 escreve a ideia de montanha.": {
+    "en": "山 represents the idea of a mountain in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "山 são três picos sobre uma base, como uma montanha.": {
+    "en": "山 is three peaks on a base, like a mountain.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "巴西人 · Bāxī rén — brasileiro.": {
+    "en": "巴西人 · Bāxī rén — Brazilian.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "很好 · hěn hǎo! — Que bom!.": {
+    "en": "很好 · hěn hǎo! — How nice!",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我 = eu.": {
+    "en": "我 = I.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我 ensina forma escrita, não só o som.": {
+    "en": "我 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我不会说中文 · wǒ bú huì shuō Zhōngwén — Não falo chinês.": {
+    "en": "我不会说中文 · wǒ bú huì shuō Zhōngwén — I don't speak Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我不会说中文 continua a troca de frases de Reparo comunicativo.": {
+    "en": "我不会说中文 continues the Communication Repair exchange.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我不会说中文 é a opção que comunica Não falo chinês..": {
+    "en": "我不会说中文 is the option that communicates I don't speak Chinese.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我会说一点中文 avisa o nível e quase sempre faz a outra pessoa simplificar.": {
+    "en": "我会说一点中文 states your level and almost always makes the other person simplify.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "我会说中文。 (wǒ huì shuō zhōngwén.) — 会 acompanha a ação, e a coisa continua depois: 会说中文.": {
+    "en": "我会说中文。 (wǒ huì shuō zhōngwén.) — 会 goes with the action, and the rest still follows: 会说中文.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "我在学校学习 (wǒ zài xuéxiào xuéxí) — 在 antes da ação marca 'agora / em progresso': 在 + ação. A ação não muda de forma.": {
+    "en": "我在学校学习 (wǒ zài xuéxiào xuéxí) — 在 before the action marks ‘now / in progress’: 在 + action. The action itself does not change form.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "我在学校学习 = Eu estudo na escola.": {
+    "en": "我在学校学习 = I study at school.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我是巴西人 · wǒ shì Bāxī rén — Sou brasileiro.": {
+    "en": "我是巴西人 · wǒ shì Bāxī rén — I'm Brazilian.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我是巴西人 significa Sou brasileiro.": {
+    "en": "我是巴西人 means I'm Brazilian.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "我要水 = eu quero água.": {
+    "en": "我要水 = I want water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 (rì) = sol / dia.": {
+    "en": "日 (rì) = sun / day.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 (rì) = sol.": {
+    "en": "日 (rì) = sun.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 + 月 = 明 ensina forma escrita, não só o som.": {
+    "en": "日 + 月 = 明 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 + 月 cria uma ponte visual para luz e clareza.": {
+    "en": "日 + 月 creates a visual bridge to light and clarity.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 é só um desenho, sem som.": {
+    "en": "日 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 é sol/dia; 那是日吗？ pergunta se aquilo é o sol.": {
+    "en": "日 is sun/day; 那是日吗？ asks whether that is the sun.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日 escreve a ideia de sol/dia.": {
+    "en": "日 represents the idea of the sun or a day in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "日, não 月. Tente de novo.": {
+    "en": "日, not 月. Try again.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "明 = claro; brilhante.": {
+    "en": "明 = bright; clear.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "明天 = amanhã. Aqui você escolhe o caractere 明, não monta 日 + 月.": {
+    "en": "明天 = tomorrow. Here you choose the character 明; you do not build 日 + 月.",
+    "kind": "NATURAL_REWRITE"
+  },
+  "明天 começa com 明.": {
+    "en": "明天 starts with 明.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "是 ensina forma escrita, não só o som.": {
+    "en": "是 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "是 significa ser/sim. Em 我是巴西人, liga eu + brasileiro.": {
+    "en": "是 means to be / yes. In 我是巴西人, it links I + Brazilian.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "月 (yuè) = lua / mês.": {
+    "en": "月 (yuè) = moon / month.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "月 = lua, mês": {
+    "en": "月 = moon, month",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "月 é a opção que comunica lua, mês.": {
+    "en": "月 is the option that communicates moon, month.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "月 é lua; 那是月 aponta para ela.": {
+    "en": "月 is moon; 那是月 points to it.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "月 é só um desenho, sem som.": {
+    "en": "月 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "月 escreve a ideia de lua/mês.": {
+    "en": "月 represents the idea of the moon or a month in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "朋 (péng) = amigo.": {
+    "en": "朋 (péng) = friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "朋友 · péngyou — amigo.": {
+    "en": "朋友 · péngyou — friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "朋友 carrega a ideia de amigo.": {
+    "en": "朋友 carries the idea of friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "朋友 junta dois caracteres para formar amigo.": {
+    "en": "朋友 joins two characters to form friend.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "木 + 木 + 木 = 森 ensina forma escrita, não só o som.": {
+    "en": "木 + 木 + 木 = 森 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "木 + 木 = 林 ensina forma escrita, não só o som.": {
+    "en": "木 + 木 = 林 teaches written form, not just sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "木 é a opção que comunica árvore, madeira.": {
+    "en": "木 is the option that communicates tree, wood.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "林 (lín) = bosque.": {
+    "en": "林 (lín) = woods.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "林 junta 木 + 木: duas árvores formam um bosque.": {
+    "en": "林 joins 木 + 木: two trees make a woods.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "森 é mais denso que 林.": {
+    "en": "森 is denser than 林.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "森 junta 木 + 木 + 木: a repetição intensifica a ideia de árvore.": {
+    "en": "森 joins 木 + 木 + 木: repeating intensifies the idea of tree.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 (shuǐ) = água.": {
+    "en": "水 (shuǐ) = water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 é a opção que comunica água.": {
+    "en": "水 is the option that communicates water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 é água.": {
+    "en": "水 is water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 é água. Como radical lateral, costuma aparecer em assuntos ligados a líquido.": {
+    "en": "水 is water. As a side radical, it often appears in matters related to liquid.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 é o caractere de água.": {
+    "en": "水 is the water character.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 é só um desenho, sem som.": {
+    "en": "水 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 escreve a ideia de água.": {
+    "en": "水 represents the idea of water in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 quer dizer água.": {
+    "en": "水 means water.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 tem um eixo central e quatro movimentos laterais, como gotas correndo.": {
+    "en": "水 has a central axis and four side movements, like running droplets.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "水 tem um traço central e gotas dos dois lados, como água correndo.": {
+    "en": "水 has a central stroke and droplets on both sides, like water running.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "火 (huǒ) = fogo.": {
+    "en": "火 (huǒ) = fire.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "火 é só um desenho, sem som.": {
+    "en": "火 is just a drawing, with no sound.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "火 escreve a ideia de fogo.": {
+    "en": "火 represents the idea of fire in writing.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "火 tem duas faíscas em cima e o corpo da chama embaixo.": {
+    "en": "火 has two sparks on top and the body of the flame below.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "请慢一点 responde 你会说英语吗？ neste pacote (Reparo comunicativo).": {
+    "en": "请慢一点 answers 你会说英语吗？ in this set (Communication Repair).",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "这 = este, isto": {
+    "en": "这 = this",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "这是日 usa 日 em frase mínima.": {
+    "en": "这是日 uses 日 in a minimal sentence.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "这是木 = isto é 木, árvore/madeira.": {
+    "en": "这是木 = this is 木, tree/wood.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "这是水 usa 水 em frase mínima.": {
+    "en": "这是水 uses 水 in a minimal sentence.",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "那是人吗 = Aquilo é uma pessoa?.": {
+    "en": "那是人吗 = Is that a person?",
+    "kind": "DIRECT_TRANSLATION"
+  },
+  "那是天 aponta o céu na paisagem.": {
+    "en": "那是天 points to the sky in the landscape.",
+    "kind": "DIRECT_TRANSLATION"
+  }
+}

@@ -134,11 +134,11 @@ for (const row of CAPTURED_CONTEXT) {
   }
 }
 
-if (src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.3"')) {
-  fail("LONGYU_I18N_VERSION must be v4.8.4");
+if (src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.4"')) {
+  fail("LONGYU_I18N_VERSION must be v4.8.5");
 }
-if (!src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.4"')) {
-  fail("LONGYU_I18N_VERSION is not v4.8.4");
+if (!src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.5"')) {
+  fail("LONGYU_I18N_VERSION is not v4.8.5");
 }
 if (!src("vite.config.ts").includes("longyu-i18n-${LONGYU_I18N_VERSION}") && !src("vite.config.ts").includes("longyu-i18n-")) {
   fail("vite PWA workbox cacheId must include i18n version");
@@ -146,7 +146,8 @@ if (!src("vite.config.ts").includes("longyu-i18n-${LONGYU_I18N_VERSION}") && !sr
 if (!src("src/i18n/locale.ts").includes("dataset.i18nVersion")) {
   fail("html dataset.i18nVersion must be set for stale-build diagnosis");
 }
-if (src("src/lib/releaseCandidate.ts").includes('LONGYU_RC_VERSION = "v4.8.4"')) {
+if (src("src/lib/releaseCandidate.ts").includes('LONGYU_RC_VERSION = "v4.8.4"') ||
+    src("src/lib/releaseCandidate.ts").includes('LONGYU_RC_VERSION = "v4.8.5"')) {
   fail("do not bump LONGYU_RC_VERSION in this wave");
 }
 if (!src("src/i18n/config.ts").includes('"achievements"')) {
@@ -238,7 +239,7 @@ try {
     }
   }
 
-  if (config.LONGYU_I18N_VERSION !== "v4.8.4") {
+  if (config.LONGYU_I18N_VERSION !== "v4.8.5") {
     fail(`runtime LONGYU_I18N_VERSION is ${config.LONGYU_I18N_VERSION}`);
   }
 } finally {

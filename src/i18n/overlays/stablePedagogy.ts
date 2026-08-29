@@ -1,12 +1,12 @@
 /**
- * Stable pedagogical localization catalog for teaching topics 21–50.
+ * Stable pedagogical localization catalog for teaching topics 21–80.
  *
  * Runtime still resolves copy via the PT-text overlay (compatibility with
  * first 20 and with planner clones). This catalog is the durable identity:
  * topicId + pass + canonical/planned step index + field — not the Portuguese
  * string.
  *
- * First 20 are intentionally absent. Do not migrate them in V4.8.3.
+ * First 20 are intentionally absent. Do not migrate them in this wave.
  */
 
 import catalog from "./stablePedagogy.en.json";

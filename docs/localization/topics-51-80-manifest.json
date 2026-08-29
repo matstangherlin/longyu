@@ -1,0 +1,1025 @@
+{
+  "generatedAt": "2026-08-29T02:30:45.288Z",
+  "rule": "ALL_LESSONS.filter(isTopicMasteryLesson).slice(50, 80)",
+  "topics": [
+    {
+      "index": 51,
+      "topicId": "p4-char-ren",
+      "title": "人",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ren"
+      ]
+    },
+    {
+      "index": 52,
+      "topicId": "p4-char-kou",
+      "title": "口",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:kou"
+      ]
+    },
+    {
+      "index": 53,
+      "topicId": "p4-char-ri",
+      "title": "日",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ri"
+      ]
+    },
+    {
+      "index": 54,
+      "topicId": "p4-char-yue",
+      "title": "月",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:yue"
+      ]
+    },
+    {
+      "index": 55,
+      "topicId": "p4-char-shan",
+      "title": "山",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:shan"
+      ]
+    },
+    {
+      "index": 56,
+      "topicId": "p4-char-shui",
+      "title": "水",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:shui"
+      ]
+    },
+    {
+      "index": 57,
+      "topicId": "p4-char-tian",
+      "title": "天",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:tian_sky",
+        "chunk:nashitian",
+        "chunk:jintianhenhao"
+      ]
+    },
+    {
+      "index": 58,
+      "topicId": "p4-char-huo",
+      "title": "火",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:huo"
+      ]
+    },
+    {
+      "index": 59,
+      "topicId": "p4-char-da",
+      "title": "大",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:da"
+      ]
+    },
+    {
+      "index": 60,
+      "topicId": "p4-char-xiao",
+      "title": "小",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:xiao"
+      ]
+    },
+    {
+      "index": 61,
+      "topicId": "p4-char-zhong",
+      "title": "中",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:zhong"
+      ]
+    },
+    {
+      "index": 62,
+      "topicId": "p4-char-bu",
+      "title": "不",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "recognize",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:bu"
+      ]
+    },
+    {
+      "index": 63,
+      "topicId": "p4-char-shi",
+      "title": "是",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:shi"
+      ]
+    },
+    {
+      "index": 64,
+      "topicId": "p4-char-wo",
+      "title": "我",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:wo"
+      ]
+    },
+    {
+      "index": 65,
+      "topicId": "p4-char-ni",
+      "title": "你",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ni"
+      ]
+    },
+    {
+      "index": 66,
+      "topicId": "l14-numeros-visuais",
+      "title": "Números visuais",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "produce",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:yi",
+        "char:er",
+        "char:san",
+        "char:si",
+        "char:wu"
+      ]
+    },
+    {
+      "index": 67,
+      "topicId": "l14-pecas-natureza",
+      "title": "Peças da natureza",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:kou",
+        "char:ri",
+        "char:yue",
+        "char:mu",
+        "char:huo",
+        "char:shui"
+      ]
+    },
+    {
+      "index": 68,
+      "topicId": "l14-frase-minima",
+      "title": "Caracteres de frase",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:wo",
+        "char:ni",
+        "char:bu",
+        "char:shi",
+        "char:zhong",
+        "char:ren",
+        "chunk:zheshishenme"
+      ]
+    },
+    {
+      "index": 69,
+      "topicId": "l15",
+      "title": "Repetir intensifica",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "recognize",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:lin",
+        "char:sen",
+        "char:mu"
+      ]
+    },
+    {
+      "index": 70,
+      "topicId": "l16",
+      "title": "妈: sentido + som",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ma2",
+        "char:ma_horse"
+      ]
+    },
+    {
+      "index": 71,
+      "topicId": "l17",
+      "title": "Sol e lua",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "match_pairs",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ri",
+        "char:yue",
+        "char:ming"
+      ]
+    },
+    {
+      "index": 72,
+      "topicId": "l18",
+      "title": "Amigo",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": false,
+      "libraryItems": [
+        "char:peng",
+        "chunk:pengyou",
+        "char:you_friend"
+      ]
+    },
+    {
+      "index": 73,
+      "topicId": "p5-mu-mu-lin",
+      "title": "木 + 木 = 林",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:mu",
+        "char:lin"
+      ]
+    },
+    {
+      "index": 74,
+      "topicId": "p5-mu-mu-mu-sen",
+      "title": "木 + 木 + 木 = 森",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:mu",
+        "char:sen"
+      ]
+    },
+    {
+      "index": 75,
+      "topicId": "p5-ri-yue-ming",
+      "title": "日 + 月 = 明",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ri",
+        "char:yue",
+        "char:ming"
+      ]
+    },
+    {
+      "index": 76,
+      "topicId": "p5-ren-mu-xiu",
+      "title": "人 + 木 = 休",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "audio_discrimination",
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ren",
+        "char:mu",
+        "char:xiu"
+      ]
+    },
+    {
+      "index": 77,
+      "topicId": "p5-nv-zi-hao",
+      "title": "女 + 子 = 好",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:nv",
+        "char:zi",
+        "char:hao"
+      ]
+    },
+    {
+      "index": 78,
+      "topicId": "p5-ren-ren-cong",
+      "title": "人 + 人 = 从",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "hanzi_build",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "odd_one_out",
+        "recognize",
+        "reverse_recall",
+        "sentence_build"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ren",
+        "char:cong"
+      ]
+    },
+    {
+      "index": 79,
+      "topicId": "p5-ren-ren-ren-zhong",
+      "title": "人 + 人 + 人 = 众",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "dialogue_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:ren",
+        "char:zhong3"
+      ]
+    },
+    {
+      "index": 80,
+      "topicId": "p5-nv-ma-mae",
+      "title": "女 + 马 = 妈",
+      "skill": "hanzi",
+      "passes": {
+        "1": 8,
+        "2": 8,
+        "3": 9,
+        "4": 9
+      },
+      "kinds": [
+        "comprehend",
+        "contextual_choice",
+        "conversation_scene",
+        "dialogue_choice",
+        "dictation",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "intro",
+        "listen_select",
+        "recognize",
+        "reverse_recall",
+        "sentence_build",
+        "spot_error"
+      ],
+      "hasConversation": true,
+      "hasTransfer": true,
+      "libraryItems": [
+        "char:nv",
+        "char:ma2"
+      ]
+    }
+  ]
+}

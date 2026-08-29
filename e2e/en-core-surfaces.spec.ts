@@ -213,11 +213,11 @@ test.describe("V4.8.4 English core surfaces", () => {
     await seedInterfaceLocale(page, "en");
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-interface-locale", "en");
-    await expect(page.locator("html")).toHaveAttribute("data-i18n-version", "v4.8.4");
+    await expect(page.locator("html")).toHaveAttribute("data-i18n-version", "v4.8.5");
     const sw = await page.request.get("/sw.js");
     if (sw.ok()) {
       const body = await sw.text();
-      expect(body, "PWA cacheId must include the i18n version").toContain("longyu-i18n-v4.8.4");
+      expect(body, "PWA cacheId must include the i18n version").toContain("longyu-i18n-v4.8.5");
     }
   });
 
