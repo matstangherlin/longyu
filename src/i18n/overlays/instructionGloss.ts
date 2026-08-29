@@ -159,6 +159,14 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (readyOpen) return `${readyOpen[1]} ready to open`;
   const skipQi = pt.match(/^Você já usou a tentativa grátis desta semana\. Junte (\d+) Qi ou um Passe de teste\.$/);
   if (skipQi) return `You already used this week's free attempt. Gather ${skipQi[1]} Qi or a Test Pass.`;
+  const startClose = pt.match(/^Bom começo — faltam (\d+) peças para fechar\.$/);
+  if (startClose) return `Good start — ${startClose[1]} pieces left to finish.`;
+  const stillMissing = pt.match(/^Ainda faltam (\d+) peças\. Continue montando\.$/);
+  if (stillMissing) return `${stillMissing[1]} pieces still missing. Keep building.`;
+  const firstInPlace = pt.match(/^As (\d+) primeiras peças estão no lugar — ajuste a ordem das outras\.$/);
+  if (firstInPlace) return `The first ${firstInPlace[1]} pieces are in place — adjust the order of the others.`;
+  const firstCorrect = pt.match(/^As (\d+) primeiras estão certas\. Revise o restante\.$/);
+  if (firstCorrect) return `The first ${firstCorrect[1]} are right. Check the rest.`;
   return undefined;
 }
 

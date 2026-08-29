@@ -47,6 +47,9 @@ const CHROME_LEFTOVERS = [
       "Enviado para revisão",
       "Conhecer a revisão focada",
       "Dificuldade com ",
+      "Ouvir novamente",
+      'bankLabel="Peças para usar"',
+      'emptyHint="Toque nas peças abaixo para montar aqui"',
     ],
   },
   {
@@ -83,7 +86,7 @@ const CHROME_LEFTOVERS = [
   },
   {
     file: "src/features/lesson/PieceAssembly.tsx",
-    needles: ['emptyHint = "Toque nas peças'],
+    needles: ['emptyHint = "Toque nas peças', 'trayLabel = "Sua resposta"', 'bankLabel = "Peças"'],
   },
   {
     file: "src/features/journey/JourneyPage.tsx",
@@ -101,6 +104,10 @@ const CHROME_LEFTOVERS = [
   {
     file: "src/components/chests/LongyuChest.tsx",
     needles: ["STATE_LABEL[state]", 'locked: "bloqueado"'],
+  },
+  {
+    file: "src/features/lesson/steps.tsx",
+    needles: ['aria-label="Sua resposta"', "Ou falar a resposta", "Quase — tente outra montagem."],
   },
 ];
 

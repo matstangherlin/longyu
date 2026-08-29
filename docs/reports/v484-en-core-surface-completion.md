@@ -163,7 +163,7 @@ pinyin 2nd tone uses `á`.
 | Command | Result |
 | --- | --- |
 | `npm run typecheck` | PASS |
-| `npm run validate:i18n` | PASS (1753 catalog keys) |
+| `npm run validate:i18n` | PASS (1756 catalog keys) |
 | `npm run test:i18n` | PASS |
 | `npm run validate:en-core-surfaces` | PASS |
 | `npm run validate:journey-en` | PASS — topics 1–50 missing 0, leak 0, fingerprintDrift 0 |
@@ -177,9 +177,13 @@ pinyin 2nd tone uses `á`.
 | `npm run test:production-help` | PASS |
 | Playwright `e2e/en-core-surfaces.spec.ts` (chromium, fresh `CI=1` preview) | PASS 5/5 |
 
-Overlay key count after this wave: **2492** PT→EN strings in
+Follow-up (failure/review chrome the route crawler does not open): in-lesson
+review assembly labels, Listen again, free-answer aria, and overlay for
+assembly + error-cause feedback.
+
+Overlay key count after this wave: **2514** PT→EN strings in
 `instructionGloss.en.json`. Product i18n version: **v4.8.4**. Catalog keys:
-**1753**.
+**1756**.
 
 ## Stale build / PWA
 

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Button, cx } from "../../components/ui/primitives";
 import { t } from "../../i18n/catalog";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { assemblyTileClass } from "./buildAssemblyFeedback";
 
@@ -145,8 +146,8 @@ export function PieceAssemblyBank({
 }
 
 export function PieceAssemblyBoard({
-  trayLabel = "Sua resposta",
-  bankLabel = "Peças",
+  trayLabel = t("player.yourAnswer"),
+  bankLabel = t("player.pieces"),
   tray,
   bank,
   hint,
@@ -197,7 +198,7 @@ export function AssemblyHintBanner({
       data-assembly-hint
       className={cx("animate-pop rounded-xl border px-3 py-2.5 text-center text-sm font-medium leading-5", tones[tone])}
     >
-      {message}
+      {displayInstruction(message)}
     </p>
   );
 }

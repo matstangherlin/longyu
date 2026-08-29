@@ -1412,14 +1412,14 @@ function ErrorReviewQuestion({
           )}
           {exercise.kind === "listen" && (
             <Button variant="soft" className="mt-3" onClick={playReviewAudio}>
-              <IconSound width={17} height={17} /> Ouvir novamente
+              <IconSound width={17} height={17} /> {t("player.listenAgainBtn")}
             </Button>
           )}
         </section>
       ) : exercise.kind === "listen" ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           <Button variant="soft" onClick={playReviewAudio}>
-            <IconSound width={17} height={17} /> Ouvir novamente
+            <IconSound width={17} height={17} /> {t("player.listenAgainBtn")}
           </Button>
         </section>
       ) : null}
@@ -1427,8 +1427,8 @@ function ErrorReviewQuestion({
       {!answerable ? null : isBuild ? (
         <div data-review-options>
           <PieceAssemblyBoard
-            trayLabel="Sua resposta"
-            bankLabel="Peças para usar"
+            trayLabel={t("player.yourAnswer")}
+            bankLabel={t("player.piecesToUse")}
             tray={
               <PieceAssemblyTray
                 pieces={pickedPieces}
@@ -1437,7 +1437,7 @@ function ErrorReviewQuestion({
                 wrongIndexes={wrongIndexes}
                 matchPrefix={matchPrefix}
                 showWrong={feedback === "wrong"}
-                emptyHint="Toque nas peças abaixo para montar aqui"
+                emptyHint={t("player.tapPiecesHint")}
                 onRemove={(pieceIndex) => {
                   if (answered) return;
                   setPickedPieces((items) => items.filter((_, i) => i !== pieceIndex));
