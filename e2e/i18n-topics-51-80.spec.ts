@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
 import {
   dismissBlockingOverlays,
   seedInterfaceLocale,
@@ -6,6 +8,8 @@ import {
   waitForLazyPage,
 } from "./helpers";
 import { advanceOneStep, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
+
+const SHOTS = path.join(process.cwd(), "docs/reports/v485-screenshots");
 
 const VICTORY =
   /Continue Journey|Back to the Journey|Practice again|Continue topic|Continuar Jornada|Voltar à Jornada|Receber recompensas|Claim rewards|Praticar novamente|Continuar tema/i;
@@ -129,6 +133,7 @@ test.describe("V4.8.5 topics 51–80 Journey English", () => {
 
   for (const topic of REPRESENTATIVE) {
     test(`Topic ${topic.id} (${topic.kind}) opens in English`, async ({ page }) => {
+      await mkdir(SHOTS, { recursive: true });
       await seedInterfaceLocale(page, "en");
       await seedUnlockedLessonSession(page, topic.id);
       await page.goto(`/licao/${topic.id}`);
@@ -137,6 +142,9 @@ test.describe("V4.8.5 topics 51–80 Journey English", () => {
       await expect(page.getByText(topic.title).first()).toBeVisible();
       await expect(page.getByText("Começar", { exact: true })).toHaveCount(0);
       await expect(page.getByText("Descoberta", { exact: true })).toHaveCount(0);
+      if (topic.id === "p4-char-ren" || topic.id === "l18" || topic.id === "p5-nv-ma-mae") {
+        await page.screenshot({ path: path.join(SHOTS, `${topic.id}-detail.png`), fullPage: true });
+      }
 
       await page.goto(`/licao/${topic.id}/player`);
       await waitForLazyPage(page);
@@ -146,6 +154,9 @@ test.describe("V4.8.5 topics 51–80 Journey English", () => {
       await expect(page.getByText(/no Treino de tons com nota mínima/)).toHaveCount(0);
       await expect(page.locator("[data-lesson-player-frame], [data-lesson-activity-scroll]").first()).toBeVisible();
       await expect(page.getByText("Cargas do Dragão", { exact: true })).toHaveCount(0);
+      if (topic.id === "p4-char-ren" || topic.id === "l18" || topic.id === "p5-nv-ma-mae") {
+        await page.screenshot({ path: path.join(SHOTS, `${topic.id}-player.png`), fullPage: true });
+      }
     });
   }
 
@@ -156,5 +167,7 @@ test.describe("V4.8.5 topics 51–80 Journey English", () => {
     await seedUnlockedLessonSession(page, "p4-char-ren");
     await completeCurrentPass(page, "p4-char-ren", 1);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await mkdir(SHOTS, { recursive: true });
+    await page.screenshot({ path: path.join(SHOTS, "p4-char-ren-m1.png"), fullPage: true });
   });
 });

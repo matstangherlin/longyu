@@ -134,11 +134,12 @@ Stable loc catalog: **12966** ids · **1436** unique PT strings for topics 21–
 | `npm run validate:topic-mastery-depth` | PASS |
 | `npm run validate:pinyin-display` | PASS |
 | `npm run test:hanzi-builder-integrity` | PASS |
-| Playwright `e2e/i18n-topics-51-80.spec.ts` | pending local Chromium run |
-| Playwright `e2e/en-core-surfaces.spec.ts` | pending local Chromium run (i18n version bump) |
+| Playwright `e2e/i18n-topics-51-80.spec.ts` | **9/9 PASS** (Review hub, topics 51/52/66/72/73/77/80 chrome, topic 51 Discovery M1) |
+| Playwright `e2e/en-core-surfaces.spec.ts` | **5/5 PASS** (`data-i18n-version=v4.8.5`, crawler REAL_UI_LEAK=0) |
 
 Overlay key count: **3005** PT→EN strings in `instructionGloss.en.json`.
 New 51–80 authored strings: **491**.
+Evidence screenshots: `docs/reports/v485-screenshots/` (topic 51 detail/player, Friend, topic 80 player, topic 51 M1).
 
 ## Out of scope
 
