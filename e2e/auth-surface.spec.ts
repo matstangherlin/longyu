@@ -42,13 +42,13 @@ test.describe("auth surface — beta readiness", () => {
     await seedOnboardedSession(page, ["l1"]);
     await page.goto("/conta");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /Sua conta/i })).toBeVisible();
-    await expect(page.getByText(/Neste dispositivo|Nuvem/i).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^(Sua conta|Conta|Account)$/i })).toBeVisible();
+    await expect(page.getByText(/Neste dispositivo|On this device|Nuvem|Cloud/i).first()).toBeVisible();
     // Conta local: formulário de entrar/criar (backend ativo) ou CTA de sessão cloud.
     await expect(
       page
-        .getByRole("button", { name: /Entrar \/ criar conta|Sair da conta/i })
-        .or(page.getByRole("link", { name: /Esqueci minha senha/i }))
+        .getByRole("button", { name: /Entrar \/ criar conta|Sign in \/ create account|Sair da conta|Sign out/i })
+        .or(page.getByRole("link", { name: /Esqueci minha senha|Forgot password/i }))
         .first()
     ).toBeVisible();
   });
