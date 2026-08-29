@@ -64,6 +64,7 @@ const NAMESPACES = [
   "shell",
   "hub",
   "feedback",
+  "achievements",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));
@@ -109,11 +110,11 @@ try {
     if (String(value).includes("[object Object]")) fail(`en [object Object]: ${key}`);
   }
 
-  if (!/^[a-z][a-zA-Z0-9]*(?:\.[a-z][a-zA-Z0-9]*)*$/.test(ptKeys[0] ?? "common.a")) {
+  if (!/^[a-z][a-zA-Z0-9]*(?:\.[a-zA-Z][a-zA-Z0-9-]*)*$/.test(ptKeys[0] ?? "common.a")) {
     fail("unexpected key shape");
   }
   for (const key of ptKeys) {
-    if (!/^[a-z][a-zA-Z0-9]*(?:\.[a-zA-Z][a-zA-Z0-9]*)*$/.test(key)) {
+    if (!/^[a-z][a-zA-Z0-9]*(?:\.[a-zA-Z][a-zA-Z0-9-]*)*$/.test(key)) {
       fail(`unstable key identity: ${key}`);
     }
   }

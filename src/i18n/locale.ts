@@ -2,6 +2,7 @@ import {
   DEFAULT_LOCALE,
   INTERFACE_LOCALE_STORAGE_KEY,
   LOCALE_HTML_LANG,
+  LONGYU_I18N_VERSION,
   isSupportedLocale,
   type SupportedLocale,
 } from "./config";
@@ -76,6 +77,7 @@ export function applyDocumentLocale(locale: SupportedLocale): void {
   const html = document.documentElement;
   html.lang = LOCALE_HTML_LANG[locale];
   html.dataset.interfaceLocale = locale;
+  html.dataset.i18nVersion = LONGYU_I18N_VERSION;
 }
 
 export function getInterfaceLocale(): SupportedLocale {

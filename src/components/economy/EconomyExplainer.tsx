@@ -3,6 +3,7 @@ import { ButtonLink, Card } from "../ui/primitives";
 import { DAILY_CHARGES_FREE, ECONOMY_SUMMARY } from "../../data/economy";
 import { getPlanFeature } from "../../data/planFeatures";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import type { MessageKey } from "../../locales/pt-BR";
 
 interface EconomyExplainerProps {
@@ -29,13 +30,20 @@ export function EconomyExplainer({ isPro = false, context = "conta", className =
       <p className="text-ink-faint">{lead}</p>
       <p className="mt-2">
         <span className="font-semibold text-ink">{t("pro.free")}:</span>{" "}
-        {DAILY_CHARGES_FREE} cargas/dia · revisão essencial sem carga ·{" "}
-        {ECONOMY_SUMMARY.free.qiUses.toLowerCase()} · baús com {ECONOMY_SUMMARY.free.chestSmall.toLowerCase()}.
+        {t("hub.economyFreeBody", {
+          n: DAILY_CHARGES_FREE,
+          qi: displayInstruction(ECONOMY_SUMMARY.free.qiUses),
+          chest: displayInstruction(ECONOMY_SUMMARY.free.chestSmall),
+        })}
       </p>
       <p className="mt-1">
         <span className="font-semibold text-gold">{t("common.pro")}:</span>{" "}
-        {getPlanFeature("cargas").proBenefit} · +{ECONOMY_SUMMARY.pro.qiBonusPerLesson} Qi/lição ·{" "}
-        {ECONOMY_SUMMARY.pro.retryCost.toLowerCase()} · {ECONOMY_SUMMARY.pro.chestDeepReview.toLowerCase()}.
+        {t("hub.economyProBody", {
+          benefit: displayInstruction(getPlanFeature("cargas").proBenefit),
+          qi: ECONOMY_SUMMARY.pro.qiBonusPerLesson,
+          retry: displayInstruction(ECONOMY_SUMMARY.pro.retryCost),
+          chest: displayInstruction(ECONOMY_SUMMARY.pro.chestDeepReview),
+        })}
         {isPro ? (
           <span className="text-gold"> {t("hub.economyActive")}</span>
         ) : context === "missoes" ? null : (

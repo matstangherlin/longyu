@@ -48,6 +48,9 @@ import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { formatDateTime } from "../../i18n/format";
+import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
+import { localizedAchievementTitle } from "../../i18n/achievements";
 import { FriendsProfileCard } from "../../components/social/FriendsProfileCard";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
@@ -1386,36 +1389,38 @@ function getAccountStatus(authMode: AuthMode): {
 
   if (authMode === "local") {
     return {
-      label: "Progresso neste dispositivo",
+      label: displayInstruction("Progresso neste dispositivo"),
       tone: "accent",
       state: "local_profile",
-      blurb: cloudBackend
-        ? "Há estudo salvo só neste aparelho. Associe a uma conta para continuar na Jornada."
-        : "Há estudo salvo só neste aparelho. Associe a uma conta para não perder o progresso.",
+      blurb: displayInstruction(
+        cloudBackend
+          ? "Há estudo salvo só neste aparelho. Associe a uma conta para continuar na Jornada."
+          : "Há estudo salvo só neste aparelho. Associe a uma conta para não perder o progresso."
+      ),
     };
   }
 
   if (authMode === "cloud_pending") {
     return cloudBackend
       ? {
-          label: "Entrar na conta",
+          label: displayInstruction("Entrar na conta"),
           tone: "accent",
           state: "cloud_pending",
-          blurb: "Seu email já está registrado. Entre com a senha para ativar o salvamento automático na nuvem.",
+          blurb: displayInstruction("Seu email já está registrado. Entre com a senha para ativar o salvamento automático na nuvem."),
         }
       : {
-          label: "Sincronização em breve",
+          label: displayInstruction("Sincronização em breve"),
           tone: "accent",
           state: "cloud_pending",
-          blurb: "Seu perfil está salvo neste dispositivo. Em breve será possível sincronizar a conta.",
+          blurb: displayInstruction("Seu perfil está salvo neste dispositivo. Em breve será possível sincronizar a conta."),
         };
   }
 
   return {
-    label: "Conta na nuvem",
+    label: displayInstruction("Conta na nuvem"),
     tone: "good",
     state: "account_synced",
-    blurb: "Sessão ativa. Seu progresso é salvo automaticamente na sua conta.",
+    blurb: displayInstruction("Sessão ativa. Seu progresso é salvo automaticamente na sua conta."),
   };
 }
 
@@ -1424,22 +1429,22 @@ function cloudSyncBanner(sync: CloudSyncState): { className: string; label: stri
     case "loading":
       return {
         className: "rounded-2xl border border-accent/20 bg-accent/10 px-4 py-4 text-sm font-medium text-ink",
-        label: sync.message || "Carregando progresso da nuvem...",
+        label: displayInstruction(sync.message || "Carregando progresso da nuvem..."),
       };
     case "synced":
       return {
         className: "rounded-2xl border border-good/25 bg-good-soft px-4 py-4 text-sm font-medium text-ink",
-        label: sync.message || "Progresso sincronizado",
+        label: displayInstruction(sync.message || "Progresso sincronizado"),
       };
     case "pending":
       return {
         className: "rounded-2xl border border-gold/25 bg-gold-soft px-4 py-4 text-sm font-medium text-ink",
-        label: sync.message || "Sincronização pendente",
+        label: displayInstruction(sync.message || "Sincronização pendente"),
       };
     case "error":
       return {
         className: "rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-4 text-sm font-medium text-ink",
-        label: sync.message || "Erro ao sincronizar — seu progresso local está seguro",
+        label: displayInstruction(sync.message || "Erro ao sincronizar — seu progresso local está seguro"),
       };
     default:
       return null;
@@ -1447,6 +1452,8 @@ function cloudSyncBanner(sync: CloudSyncState): { className: string; label: stri
 }
 
 import { getAccountFreeBenefitLines, getAccountProBenefitLines } from "../../data/planFeatures";
+
+const ACCOUNT_PRO_BENEFITS = getAccountProBenefitLines();
 
 const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; blurb: string }> = {
   not_subscriber: {
@@ -1482,13 +1489,22 @@ const PRO_STATUS: Record<ProStateId, { label: string; tone: AccountStatusTone; b
 };
 
 // Enquanto contas antigas não têm authMode, derivamos pelo email (defensivo).
-const ACCOUNT_PRO_BENEFITS = getAccountProBenefitLines();
+function localizedProStatus(id: ProStateId) {
+  const raw = PRO_STATUS[id];
+  return {
+    ...raw,
+    label: displayInstruction(raw.label),
+    blurb: displayInstruction(raw.blurb),
+  };
+}
 
 function accountAuthMode(account?: LearningAccount): AuthMode {
   return account?.authMode ?? (account?.email ? "cloud_pending" : "local");
 }
 
 export function AccountPage() {
+  const { t, locale } = useTranslation();
+  const chrome = (text: string) => displayInstruction(text, locale);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const relevelRequested = searchParams.get("relevel") === "1";
@@ -2257,14 +2273,14 @@ export function AccountPage() {
   }, [subscribeIntent, authMode]);
 
   const proState = subscriptionStateFor(isPremium, serverSubscription);
-  const proStatus = PRO_STATUS[proState];
+  const proStatus = localizedProStatus(proState);
   const canAttachEmail = canRegisterWithCredentials(email, password, passwordConfirm);
   const mobileMenuSections: MobileMenuSectionData[] = [
     {
-      title: "Conta",
+      title: chrome("Conta"),
       items: [
         {
-          title: "Perfil",
+          title: chrome("Perfil"),
           desc: status.label,
           icon: IconUser,
           badge: status.state === "local_profile" ? "Local" : undefined,
@@ -2279,26 +2295,26 @@ export function AccountPage() {
           onClick: () => proAccountRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },
         {
-          title: "Progresso",
-          desc: "XP, tempo e repertório.",
+          title: chrome("Progresso"),
+          desc: chrome("XP, tempo e repertório."),
           icon: IconTarget,
           onClick: () => mobileProfileRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },
         {
-          title: "Segurança",
-          desc: "Conta e assinatura.",
+          title: chrome("Segurança"),
+          desc: chrome("Conta e assinatura."),
           icon: IconShield,
           onClick: () => securityAccountRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },
         {
-          title: "Dados",
-          desc: "Exportar, backup e perfis.",
+          title: chrome("Dados"),
+          desc: chrome("Exportar, backup e perfis."),
           icon: IconBook,
           onClick: () => dataAccountRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },
         {
-          title: "Sair",
-          desc: canSignOut ? "Encerrar sessão na nuvem." : "Sem sessão ativa.",
+          title: chrome("Sair"),
+          desc: canSignOut ? chrome("Encerrar sessão na nuvem.") : chrome("Sem sessão ativa."),
           icon: IconRefresh,
           onClick: () => {
             if (canSignOut) void handleCloudSignOut();
@@ -2340,8 +2356,8 @@ export function AccountPage() {
       {canSignOut && (
         <div className="flex flex-col gap-3 rounded-2xl border border-good/25 bg-good-soft px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Pill tone="good">Conta ativa na nuvem</Pill>
-            <p className="mt-1 text-sm text-ink-soft">Seu progresso salva automaticamente — não precisa sincronizar manualmente.</p>
+            <Pill tone="good">{chrome("Conta ativa na nuvem")}</Pill>
+            <p className="mt-1 text-sm text-ink-soft">{chrome("Seu progresso salva automaticamente — não precisa sincronizar manualmente.")}</p>
           </div>
           <Button variant="outline" className="border-wrong/30 text-wrong hover:bg-wrong-soft" onClick={() => void handleCloudSignOut()}>
             Sair da conta
@@ -2367,7 +2383,7 @@ export function AccountPage() {
 
       {subscribeIntent && authMode === "local" && (
         <div className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink-soft">
-          <Pill tone="gold">Assinatura Pro</Pill>
+          <Pill tone="gold">{chrome("Assinatura Pro")}</Pill>
           <p className="mt-1.5 leading-6">
             Crie sua conta abaixo para começar os 30 dias grátis. O checkout abre assim que a conta estiver pronta.
           </p>
@@ -2640,8 +2656,8 @@ export function AccountPage() {
         <div className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="font-serif text-xl font-semibold text-ink">Progresso por motor</h2>
-              <p className="mt-1 text-sm text-ink-soft">Treine o motor certo para destravar o próximo salto.</p>
+              <h2 className="font-serif text-xl font-semibold text-ink">{chrome("Progresso por motor")}</h2>
+              <p className="mt-1 text-sm text-ink-soft">{chrome("Treine o motor certo para destravar o próximo salto.")}</p>
             </div>
             <div className="flex items-center gap-2">
               <Pill tone="muted">{dashboard.totalProgress}% geral</Pill>
@@ -2677,7 +2693,7 @@ export function AccountPage() {
               </p>
               <div className="mt-4 rounded-2xl bg-surface-2 px-4 py-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-ink">Jornada concluída</span>
+                  <span className="font-medium text-ink">{chrome("Jornada concluída")}</span>
                   <span className="text-ink-faint">{completedLessons.length}/{ALL_LESSONS.length}</span>
                 </div>
                 <ProgressBar value={completedLessons.length} max={ALL_LESSONS.length} className="mt-3" />
@@ -2698,8 +2714,8 @@ export function AccountPage() {
         <div>
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
-              <h2 className="font-serif text-xl font-semibold text-ink">Conquistas</h2>
-              <p className="mt-1 text-sm text-ink-soft">Medalhas da sua jornada — recentes e as mais próximas.</p>
+              <h2 className="font-serif text-xl font-semibold text-ink">{t("navigation.achievements")}</h2>
+              <p className="mt-1 text-sm text-ink-soft">{t("hub.achievementMedalsLead")}</p>
             </div>
             <Pill tone={achievementSummary.unlockedCount > 0 ? "accent" : "muted"}>
               {achievementSummary.unlockedCount}/{achievementSummary.total}
@@ -2723,9 +2739,9 @@ export function AccountPage() {
                   {def.glyph}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-ink">{def.title}</div>
+                  <div className="text-sm font-semibold text-ink">{localizedAchievementTitle(def.id, def.title)}</div>
                   {unlockedAt ? (
-                    <div className="truncate text-xs text-[rgb(var(--good))]">Desbloqueada</div>
+                    <div className="truncate text-xs text-[rgb(var(--good))]">{t("achievements.unlocked")}</div>
                   ) : (
                     <ProgressBar value={current} max={target} className="mt-1.5" />
                   )}
@@ -2737,14 +2753,14 @@ export function AccountPage() {
             ))}
           </div>
           <Button variant="soft" className="mt-3 w-full sm:w-auto" onClick={() => navigate("/conquistas")}>
-            Ver todas as conquistas <IconChevron width={16} height={16} />
+            {t("hub.seeAllAchievements")} <IconChevron width={16} height={16} />
           </Button>
         </div>
 
         <div className="space-y-4">
           <section className="rounded-[24px] border border-line bg-surface p-5 shadow-card">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="font-serif text-xl font-semibold text-ink">Histórico recente</h2>
+              <h2 className="font-serif text-xl font-semibold text-ink">{t("hub.recentHistory")}</h2>
               <IconRefresh width={19} height={19} className="text-ink-faint" />
             </div>
             <div className="space-y-2">
@@ -2939,7 +2955,7 @@ export function AccountPage() {
 
       <div>
         <Card className="border-line/80 p-5 sm:p-6">
-          <h3 className="font-serif text-lg font-semibold text-ink">Perfis neste dispositivo</h3>
+          <h3 className="font-serif text-lg font-semibold text-ink">{t("hub.localProfilesHere")}</h3>
           <p className="mt-1 text-sm text-ink-soft">Cada perfil guarda progresso local separado.</p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <form className="flex-1" onSubmit={handleCreateProfile} id="longyu-local-account-form">
@@ -3192,7 +3208,7 @@ function ProSubscriptionCard({
   onCancelPlan: () => void;
 }) {
   const setPremium = useStore((state) => state.setPremium);
-  const meta = PRO_STATUS[proState];
+  const meta = localizedProStatus(proState);
   const periodEndLabel = serverSubscription?.currentPeriodEnd
     ? formatAccountDate(serverSubscription.currentPeriodEnd)
     : null;
@@ -3211,7 +3227,9 @@ function ProSubscriptionCard({
     hasRealSubscription &&
     isBillingPortalAvailable();
   const planName = serverSubscription?.planName ?? (isLocalPreview ? "Preview local" : "Gratuito");
-  const benefits = isFree ? getAccountFreeBenefitLines(isSupabaseBackendEnabled()) : ACCOUNT_PRO_BENEFITS;
+  const benefits = (isFree ? getAccountFreeBenefitLines(isSupabaseBackendEnabled()) : ACCOUNT_PRO_BENEFITS).map(
+    (line) => displayInstruction(line)
+  );
   const nextBilling =
     periodEndLabel ??
     (proState === "real_trialing" || proState === "real_active" || proState === "real_canceling"
@@ -3223,8 +3241,8 @@ function ProSubscriptionCard({
       <div className="flex items-start justify-between gap-4">
         <div>
           <Pill tone={meta.tone}>{meta.label}</Pill>
-          <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">Plano</h2>
-          <p className="mt-1 text-sm leading-6 text-ink-soft">{metaBlurb}</p>
+          <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{displayInstruction("Plano")}</h2>
+          <p className="mt-1 text-sm leading-6 text-ink-soft">{displayInstruction(metaBlurb)}</p>
         </div>
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#B7791F]/12 text-gold">
           <IconStar width={24} height={24} fill="currentColor" />
@@ -3233,16 +3251,16 @@ function ProSubscriptionCard({
 
       <div className="mt-5 grid gap-2 rounded-2xl border border-line bg-surface-2 p-3 text-sm sm:grid-cols-3">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Plano</div>
-          <div className="mt-1 font-semibold text-ink">{planName}</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{displayInstruction("Plano")}</div>
+          <div className="mt-1 font-semibold text-ink">{displayInstruction(planName)}</div>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Status</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{displayInstruction("Status")}</div>
           <div className="mt-1 font-semibold text-ink">{meta.label}</div>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Próxima cobrança</div>
-          <div className="mt-1 font-semibold text-ink">{nextBilling}</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{displayInstruction("Próxima cobrança")}</div>
+          <div className="mt-1 font-semibold text-ink">{displayInstruction(nextBilling)}</div>
         </div>
       </div>
 
@@ -3336,13 +3354,13 @@ function AccountSecurityCard({
       <div className="flex items-start justify-between gap-4">
         <div>
           <Pill tone={status.tone}>{status.label}</Pill>
-          <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">Segurança</h2>
+          <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{displayInstruction("Segurança")}</h2>
           <p className="mt-1 text-sm leading-6 text-ink-soft">
             {authMode === "cloud"
-              ? "Sua sessão é autenticada com Supabase. Senhas e tokens não ficam salvos neste aparelho."
+              ? displayInstruction("Sua sessão é autenticada com Supabase. Senhas e tokens não ficam salvos neste aparelho.")
               : cloudBackend
-                ? "Crie uma conta com email e senha. A autenticação é feita de forma segura pelo Supabase."
-                : "Por enquanto, o Longyu usa um perfil local. Senhas e dados de pagamento não são salvos."}
+                ? displayInstruction("Crie uma conta com email e senha. A autenticação é feita de forma segura pelo Supabase.")
+                : displayInstruction("Por enquanto, o Longyu usa um perfil local. Senhas e dados de pagamento não são salvos.")}
           </p>
         </div>
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
@@ -3461,14 +3479,14 @@ function AccountSignOutCard({
     <Card className="border-wrong/20 p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Pill tone={canSignOut ? "good" : "muted"}>Sessão</Pill>
-          <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">Sair da conta</h2>
+          <Pill tone={canSignOut ? "good" : "muted"}>{displayInstruction("Sessão")}</Pill>
+          <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{displayInstruction("Sair da conta")}</h2>
           <p className="mt-1 text-sm leading-6 text-ink-soft">
             {canSignOut
-              ? "Encerra a sessão neste dispositivo. Seu progresso continua salvo na nuvem."
+              ? displayInstruction("Encerra a sessão neste dispositivo. Seu progresso continua salvo na nuvem.")
               : authMode === "cloud_pending"
-                ? "Entre na conta para ativar a sessão na nuvem."
-                : "Perfil local — não há sessão remota para encerrar."}
+                ? displayInstruction("Entre na conta para ativar a sessão na nuvem.")
+                : displayInstruction("Perfil local — não há sessão remota para encerrar.")}
           </p>
         </div>
         <Button
@@ -3477,7 +3495,7 @@ function AccountSignOutCard({
           disabled={!canSignOut}
           onClick={onSignOut}
         >
-          {canSignOut ? "Sair da conta" : "Sem sessão ativa"}
+          {canSignOut ? displayInstruction("Sair da conta") : displayInstruction("Sem sessão ativa")}
         </Button>
       </div>
     </Card>
@@ -3487,8 +3505,8 @@ function AccountSignOutCard({
 function SecurityLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface-2 px-4 py-3">
-      <span className="font-medium text-ink">{label}</span>
-      <span className="text-right text-ink-soft">{value}</span>
+      <span className="font-medium text-ink">{displayInstruction(label)}</span>
+      <span className="text-right text-ink-soft">{displayInstruction(value)}</span>
     </div>
   );
 }
@@ -4574,7 +4592,7 @@ function MobileMenuSection({ title, items }: MobileMenuSectionData) {
 function MobileStats({ stats }: { stats: { label: string; value: string | number; icon: ReactNode }[] }) {
   return (
     <section>
-      <h2 className="mb-2 font-serif text-lg font-semibold text-ink">Estatísticas</h2>
+      <h2 className="mb-2 font-serif text-lg font-semibold text-ink">{displayInstruction("Estatísticas")}</h2>
       <div className="grid grid-cols-2 gap-2">
         {stats.map((stat) => (
           <div key={stat.label} className="rounded-xl border border-line/70 bg-surface p-3 shadow-none">

@@ -22,7 +22,7 @@ import { Mascot } from "../../components/brand/Mascot";
 import { dueItems } from "../../lib/srs";
 import { useOnline } from "../../hooks/useOnline";
 import { ProPaywall } from "../../components/pro/ProPaywall";
-import { CHEST_VISUALS } from "../../components/chests/chestMeta";
+import { localizedChestVisual } from "../../components/chests/chestMeta";
 import { LongyuChest } from "../../components/chests/LongyuChest";
 import { RewardReveal } from "../../components/chests/RewardReveal";
 import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
@@ -1088,12 +1088,15 @@ function JourneyChestRewardModal({
   chest: JourneyChestConfig;
   onClose: () => void;
 }) {
+  const { t, locale } = useTranslation();
   const openJourneyChest = useStore((s) => s.openJourneyChest);
   const soundEffects = useStore((s) => s.soundEffects);
   const [phase, setPhase] = useState<ChestModalPhase>("closed");
   const [rewards, setRewards] = useState<ChestRewardItem[]>([]);
-  const visual = CHEST_VISUALS[chest.type];
+  const visual = localizedChestVisual(chest.type);
   const closable = phase !== "opening";
+  const chestTitle = displayInstruction(chest.title, locale);
+  const openingLabel = phase === "opening" ? t("player.chestOpening") : t("player.chestTapToOpen");
 
   function handleOpen() {
     if (phase !== "closed") return;
@@ -1121,7 +1124,7 @@ function JourneyChestRewardModal({
           <button
             onClick={onClose}
             className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-            aria-label="Fechar"
+            aria-label={t("common.close")}
           >
             <IconX width={18} height={18} />
           </button>
@@ -1136,7 +1139,7 @@ function JourneyChestRewardModal({
               "relative rounded-[32px] px-8 py-5 transition active:scale-[0.98] disabled:cursor-default",
               phase === "opening" ? "longyu-chest-shake" : "",
             ].join(" ")}
-            aria-label={phase === "closed" ? "Toque para abrir" : chest.title}
+            aria-label={phase === "closed" ? t("player.chestTapToOpen") : chestTitle}
           >
             <span className={phase === "opening" || phase === "revealed" ? "longyu-chest-aura" : ""} aria-hidden />
             <LongyuChest
@@ -1151,13 +1154,13 @@ function JourneyChestRewardModal({
         {phase !== "revealed" ? (
           <div className="flex flex-1 flex-col">
             <Pill tone="accent" className="mx-auto mt-4">{visual.rarity}</Pill>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">{chest.title}</h2>
+            <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">{chestTitle}</h2>
             <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">{visual.tagline}</p>
             <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-ink-faint">
-              Pode conter: {visual.contains}
+              {t("player.chestMayContain", { items: visual.contains })}
             </p>
             <p className="mt-5 text-sm font-semibold text-accent">
-              {phase === "opening" ? "Abrindo..." : "Toque para abrir"}
+              {openingLabel}
             </p>
             <Button
               size="lg"
@@ -1165,21 +1168,21 @@ function JourneyChestRewardModal({
               disabled={phase === "opening"}
               onClick={handleOpen}
             >
-              {phase === "opening" ? "Abrindo..." : "Toque para abrir"}
+              {openingLabel}
             </Button>
           </div>
         ) : (
           <div className="flex flex-1 flex-col">
-            <Pill tone="accent" className="mx-auto mt-3">Recompensas</Pill>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-ink">Você recebeu</h2>
+            <Pill tone="accent" className="mx-auto mt-3">{t("player.chestRewards")}</Pill>
+            <h2 className="mt-4 font-serif text-3xl font-semibold text-ink">{t("player.chestYouReceived")}</h2>
             <p className="mx-auto mt-1 max-w-xs text-sm text-ink-soft">
-              As recompensas já entraram no seu progresso.
+              {t("player.chestRewardsApplied")}
             </p>
             <div className="mt-5">
               <RewardReveal rewards={rewards} large />
             </div>
             <Button size="lg" className="mt-auto w-full shadow-lift sm:mt-6" onClick={onClose}>
-              Receber recompensas
+              {t("player.claimRewards")}
             </Button>
           </div>
         )}

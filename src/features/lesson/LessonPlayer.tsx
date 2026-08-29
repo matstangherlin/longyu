@@ -69,6 +69,7 @@ import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primi
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
+import { ACCURACY_SERENE_BADGE, localizedBadgeTitle, localizedRewardSource } from "../../i18n/achievements";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
@@ -417,11 +418,13 @@ function progressSaveLabel(
   syncStatus: ReturnType<typeof useStore.getState>["cloudSyncState"]["status"]
 ): string {
   if (authMode === "cloud") {
-    if (syncStatus === "pending" || syncStatus === "loading") return "Sincronizando progresso...";
-    if (syncStatus === "error") return "Progresso local seguro — toque para tentar de novo";
-    return "Progresso salvo na nuvem";
+    if (syncStatus === "pending" || syncStatus === "loading") return t("player.saveSyncing");
+    if (syncStatus === "error") return t("player.saveLocalSafeRetry");
+    return t("player.saveCloud");
   }
-  return "Progresso salvo neste dispositivo";
+  if (syncStatus === "pending") return t("player.savePending");
+  if (syncStatus === "error") return t("player.saveFailed");
+  return t("player.saveLocalDevice");
 }
 
 function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> {
@@ -430,15 +433,16 @@ function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> 
 
 function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   if (step.postConversationPhase) {
-    const label =
+    const label = displayInstruction(
       (step.postConversationTaskType && POST_CONVERSATION_TASK_LABELS[step.postConversationTaskType]) ||
-      step.title ||
-      "Pós-Conversa";
+        step.title ||
+        t("player.postConversation")
+    );
     const progress =
       step.postConversationIndex && step.postConversationCount
         ? ` (${step.postConversationIndex}/${step.postConversationCount})`
         : "";
-    return `Pós-Conversa${progress}: ${label}`;
+    return `${t("player.postConversation")}${progress}: ${label}`;
   }
   const kinds = roundKindSet(step, stage);
   const hasOldVocabulary = Boolean(step.reusesPreviousVocabulary?.length);
@@ -449,29 +453,32 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   const hasUnaided = kinds.has("free_production") || kinds.has("transfer_task") || kinds.has("conversation_repair");
 
   if (step.lessonStageId === "consolidation") {
-    if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que você já viu.";
-    if (hasHanzi && hasOldVocabulary) return "Vamos reconhecer hànzì junto com conteúdo antigo.";
-    if (hasOldVocabulary) return "Revisão rápida com palavras que já apareceram.";
-    return "Vamos fixar o ponto principal antes de seguir.";
+    if (hasTone && hasOldVocabulary) return t("player.roundMixTonesOld");
+    if (hasHanzi && hasOldVocabulary) return t("player.roundHanziOld");
+    if (hasOldVocabulary) return t("player.roundQuickReview");
+    return t("player.roundLockMain");
   }
-  if (hasTone && hasOldVocabulary) return "Vamos misturar tons e palavras que você já viu.";
-  if (hasTone) return "Escute o contorno e ligue som, tom e pinyin.";
-  if (hasPinyin) return "Use o pinyin como ponte para reconhecer o som.";
-  if (hasHanzi) return "Observe a forma e conecte hànzì, som e sentido.";
-  if (hasUnaided) return "Agora sem alternativas: a frase sai de você.";
-  if (hasAssembly) return "Monte a frase em pedaços curtos.";
-  if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return "Escolha a resposta que combina com a situação.";
-  if (kinds.has("microread")) return "Leia um trecho curto e procure o sentido geral.";
-  return "Pratique este ponto em uma rodada curta.";
+  if (hasTone && hasOldVocabulary) return t("player.roundMixTonesOld");
+  if (hasTone) return t("player.roundListenContour");
+  if (hasPinyin) return t("player.roundPinyinBridge");
+  if (hasHanzi) return t("player.roundWatchForm");
+  if (hasUnaided) return t("player.roundUnaided");
+  if (hasAssembly) return t("player.roundAssemble");
+  if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return t("player.roundSituation");
+  if (kinds.has("microread")) return t("player.roundMicroread");
+  return t("player.roundPractice");
 }
 
-const VICTORY_TITLES = [
-  "A jornada continua!",
-  "Etapa concluída!",
-  "Seu dragão ficou mais forte!",
-  "Você dominou mais um passo!",
-  "Mandarim ficando mais claro!",
-];
+function victoryTitleFor(lessonId: string): string {
+  const titles = [
+    t("player.victoryContinue"),
+    t("player.victoryStageDone"),
+    t("player.victoryDragonStronger"),
+    t("player.victoryMasteredStep"),
+    t("player.victoryClearer"),
+  ];
+  return titles[Math.abs(lessonId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % titles.length];
+}
 
 const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
 const DRAGON_BREATH_LIVES = BREATH_LIVES;
@@ -488,7 +495,8 @@ function rewardLabel(reward: RewardGrant): string {
   if (reward.type === "qi") return t("player.rewardQi", { n: reward.amount });
   if (reward.type === "dragonPearl") return t("player.rewardPearls", { n: reward.amount });
   if (reward.type === "streakShield") return t("player.rewardStreakShield", { n: reward.amount });
-  return reward.source;
+  if (reward.type === "badge") return localizedBadgeTitle(reward.source);
+  return localizedRewardSource(reward.source);
 }
 
 function rewardIcon(reward: RewardGrant): string {
@@ -3572,10 +3580,12 @@ export function LessonPlayer() {
       recovered || (finishReason !== "out_of_lives" && canCompleteLesson(computedStars, graded, lesson.isReview, correct));
     const masteryStars = 3;
     const requiredAccuracy = Math.round(MODULE_REVIEW_PASS_ACCURACY * 100);
-    const passRequirementLabel = lesson.isReview ? `${requiredAccuracy}%` : `${masteryStars} estrelas`;
+    const passRequirementLabel = lesson.isReview
+      ? `${requiredAccuracy}%`
+      : t("player.starsRequired", { n: masteryStars });
     const helpCount = skippedStepsRef.current + retryUsesRef.current + recoveryUsesRef.current;
     const precision = graded === 0 ? 100 : Math.round((correct / graded) * 100);
-    const victoryTitle = VICTORY_TITLES[Math.abs(lesson.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % VICTORY_TITLES.length];
+    const victoryTitle = victoryTitleFor(lesson.id);
     const missionHighlights = [
       ...buildMissionViews("daily", missionAggregates, dailyMissions.claimed),
       ...buildMissionViews("weekly", missionAggregates, weeklyMissions.claimed),
@@ -3623,29 +3633,50 @@ export function LessonPlayer() {
     });
     const weakSkillsLabel =
       toneErrorCount > 0 && hanziErrorCount > 0
-        ? "tons e hànzì"
+        ? t("player.weakSkillsTonesHanzi")
         : toneErrorCount > 0
-          ? "tons"
+          ? t("player.weakSkillsTones")
           : hanziErrorCount > 0
-            ? "hànzì"
-            : "algumas frases";
+            ? t("player.weakSkillsHanzi")
+            : t("player.weakSkillsPhrases");
     const summaryParts: string[] = [];
     if (sessionSummary) {
       if (sessionSummary.phrases > 0) {
         summaryParts.push(
           sessionSummary.newPhrases > 0
-            ? `praticou ${sessionSummary.phrases} frases (${sessionSummary.newPhrases} novas)`
-            : `praticou ${sessionSummary.phrases} ${sessionSummary.phrases === 1 ? "frase" : "frases"}`
+            ? t("player.phrasesPracticedNew", {
+                n: sessionSummary.phrases,
+                newCount: sessionSummary.newPhrases,
+              })
+            : t("player.phrasesPracticed", {
+                n: sessionSummary.phrases,
+                unit:
+                  sessionSummary.phrases === 1 ? t("player.phraseUnitOne") : t("player.phraseUnitMany"),
+              })
         );
       }
-      if (sessionSummary.hanzi > 0) summaryParts.push(`reforçou ${sessionSummary.hanzi} hànzì`);
-      if (sessionSummary.tones > 0) summaryParts.push(`acertou ${sessionSummary.tones} tons`);
+      if (sessionSummary.hanzi > 0) summaryParts.push(t("player.reinforcedHanzi", { n: sessionSummary.hanzi }));
+      if (sessionSummary.tones > 0) summaryParts.push(t("player.hitTones", { n: sessionSummary.tones }));
     }
-    if (correctedCount > 0) summaryParts.push(`corrigiu ${correctedCount} ${correctedCount === 1 ? "erro" : "erros"}`);
+    if (correctedCount > 0) {
+      summaryParts.push(
+        correctedCount === 1
+          ? t("player.fixedErrorOne", { n: correctedCount })
+          : t("player.fixedErrorMany", { n: correctedCount })
+      );
+    }
     const sessionSummaryLine =
       summaryParts.length > 0
-        ? `Hoje você ${summaryParts.length > 1 ? `${summaryParts.slice(0, -1).join(", ")} e ${summaryParts[summaryParts.length - 1]}` : summaryParts[0]}.`
-        : "Você completou esta etapa da Jornada.";
+        ? t("player.todayYou", {
+            summary:
+              summaryParts.length > 1
+                ? t("player.summaryJoin", {
+                    head: summaryParts.slice(0, -1).join(", "),
+                    tail: summaryParts[summaryParts.length - 1],
+                  })
+                : summaryParts[0],
+          })
+        : t("player.completedJourneyStage");
 
     // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
     // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
@@ -3952,12 +3983,12 @@ export function LessonPlayer() {
         amount: lessonReward,
         source: "Conclusão de lição",
       },
-      ...(stars === 3 && !badges.includes("Precisão Serena")
+      ...(stars === 3 && !badges.includes(ACCURACY_SERENE_BADGE)
         ? [{
             id: "badge:precisao-serena",
             type: "badge" as const,
             amount: 1,
-            source: "Precisão Serena",
+            source: ACCURACY_SERENE_BADGE,
           }]
         : []),
     ].filter((reward) => reward.amount > 0);
@@ -3969,8 +4000,8 @@ export function LessonPlayer() {
     const hasUnclaimedRewards = newRewards.length > 0 && !claimedRewardCards;
     const topSummaryStats = [
       {
-        label: "Frases",
-        value: `${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${sessionSummary?.newPhrases} novas)` : ""}`,
+        label: t("player.phrases"),
+        value: `${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${t("player.newCount", { n: sessionSummary?.newPhrases ?? 0 })})` : ""}`,
       },
       { label: "Hànzì", value: `${sessionSummary?.hanzi ?? 0}` },
       { label: "Tons", value: `${sessionSummary?.tones ?? 0}` },
@@ -4186,7 +4217,7 @@ export function LessonPlayer() {
             {extraRewards.map((reward) => (
               <MetricChip
                 key={reward.id}
-                value={reward.type === "badge" ? reward.source : rewardLabel(reward)}
+            value={reward.type === "badge" ? localizedBadgeTitle(reward.source) : rewardLabel(reward)}
                 icon={<span className="hanzi text-base leading-none">{rewardIcon(reward)}</span>}
                 tone="gold"
               />
@@ -4309,16 +4340,16 @@ export function LessonPlayer() {
               <div className="rounded-[18px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] px-3 py-2.5 text-left shadow-card">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
                 <p className="mt-0.5 text-xs leading-5 text-ink">
-                  Dificuldade com {weakSkillsLabel}? O Pro cria uma revisão focada. Corrigir esta lição é sempre grátis.
+                  {t("player.proWeakSkills", { skills: weakSkillsLabel })}
                 </p>
                 <Button variant="soft" size="sm" className="mt-2" onClick={() => setProPaywallKind("weak_spots")}>
-                  Conhecer a revisão focada
+                  {t("player.meetFocusedReview")}
                 </Button>
               </div>
             )}
 
             {!recovered && mistakes.length > 0 && (
-              <CollapsibleInfoCard title="Enviado para revisão" compactLabel={`${mistakes.length} item(ns)`}>
+              <CollapsibleInfoCard title={t("player.sentToReview")} compactLabel={t("player.itemCount", { n: mistakes.length })}>
                 <div className="grid gap-2">
                   {mistakes.slice(0, 3).map((mistake, index) => (
                     <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-xs">
@@ -4344,13 +4375,13 @@ export function LessonPlayer() {
           <div className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface))] px-4 pb-3 pt-2 sm:px-6">
             <div className="mb-1.5 flex items-center justify-center gap-4 text-xs font-medium text-ink-faint">
               <Link to="/revisao" className="inline-flex items-center gap-1 transition hover:text-ink">
-                <IconRefresh width={14} height={14} /> Revisar
+                <IconRefresh width={14} height={14} /> {t("player.navReview")}
               </Link>
               <Link to="/biblioteca" className="inline-flex items-center gap-1 transition hover:text-ink">
-                <IconLibrary width={14} height={14} /> Biblioteca
+                <IconLibrary width={14} height={14} /> {t("player.navLibrary")}
               </Link>
               <Link to="/treino" className="inline-flex items-center gap-1 transition hover:text-ink">
-                <IconTarget width={14} height={14} /> Treinar
+                <IconTarget width={14} height={14} /> {t("player.navTrain")}
               </Link>
             </div>
             <Button

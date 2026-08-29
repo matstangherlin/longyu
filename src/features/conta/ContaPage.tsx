@@ -9,29 +9,50 @@ import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { IconChevron, IconShield, IconStar, IconLibrary, IconGear } from "../../components/ui/Icon";
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
+import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
 type AuthMode = "local" | "cloud_pending" | "cloud";
 
 function cloudSyncCopy(sync: CloudSyncState): string {
-  if (sync.message) return sync.message;
-  if (sync.status === "loading") return "Sincronizando progresso com a nuvem";
-  if (sync.status === "error") return "Erro ao sincronizar — seu progresso local está seguro";
-  if (sync.status === "pending") return "Sincronização pendente";
-  if (sync.status === "synced") return "Progresso sincronizado";
-  return "";
+  const raw =
+    sync.message ||
+    (sync.status === "loading"
+      ? "Sincronizando progresso com a nuvem"
+      : sync.status === "error"
+        ? "Erro ao sincronizar — seu progresso local está seguro"
+        : sync.status === "pending"
+          ? "Sincronização pendente"
+          : sync.status === "synced"
+            ? "Progresso sincronizado"
+            : "");
+  return displayInstruction(raw);
 }
 
 function statusFor(authMode: AuthMode): { label: string; tone: "muted" | "accent" | "good"; blurb: string } {
   if (authMode === "cloud") {
-    return { label: "Nuvem ativa", tone: "good", blurb: "Seu progresso está sincronizado na nuvem e disponível em qualquer aparelho." };
+    return {
+      label: displayInstruction("Nuvem ativa"),
+      tone: "good",
+      blurb: displayInstruction("Seu progresso está sincronizado na nuvem e disponível em qualquer aparelho."),
+    };
   }
   if (authMode === "cloud_pending") {
-    return { label: "Nuvem pendente", tone: "accent", blurb: "Sua conta está preparada. Entre com email e senha para ativar a sincronização." };
+    return {
+      label: displayInstruction("Nuvem pendente"),
+      tone: "accent",
+      blurb: displayInstruction("Sua conta está preparada. Entre com email e senha para ativar a sincronização."),
+    };
   }
-  return { label: "Neste dispositivo", tone: "muted", blurb: "Há estudo salvo só neste aparelho. Associe a uma conta Longyu para continuar." };
+  return {
+    label: displayInstruction("Neste dispositivo"),
+    tone: "muted",
+    blurb: displayInstruction("Há estudo salvo só neste aparelho. Associe a uma conta Longyu para continuar."),
+  };
 }
 
 export function ContaPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const subscribeIntent = isSubscribeIntent(searchParams);
@@ -81,10 +102,10 @@ export function ContaPage() {
   return (
     <PageShell width="narrow" data-conta-page="">
       <PageHeader
-        back={{ to: "/mais", label: "Mais" }}
-        eyebrow="Conta"
-        title="Sua conta"
-        subtitle="Login, email e sessão. Seu progresso e estatísticas ficam no Perfil."
+        back={{ to: "/mais", label: t("navigation.more") }}
+        eyebrow={t("navigation.account")}
+        title={t("navigation.account")}
+        subtitle={displayInstruction("Login, email e sessão. Seu progresso e estatísticas ficam no Perfil.")}
       />
 
       {cloudSyncState.status !== "idle" && syncCopy ? (
@@ -109,12 +130,12 @@ export function ContaPage() {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-ink">{account?.name?.trim() || "Aluno Longyu"}</span>
+              <span className="text-sm font-semibold text-ink">{account?.name?.trim() || t("hub.defaultLearner")}</span>
               <Pill tone={status.tone}>{status.label}</Pill>
             </div>
             {account?.email && <div className="mt-0.5 truncate text-xs text-ink-soft">{account.email}</div>}
           </div>
-          <ActionButton to="/perfil" variant="secondary" size="sm" trailingChevron>Ver perfil</ActionButton>
+          <ActionButton to="/perfil" variant="secondary" size="sm" trailingChevron>{displayInstruction("Ver perfil")}</ActionButton>
         </div>
         <p className="mt-2 text-[13px] leading-5 text-ink-soft">{status.blurb}</p>
       </CompactCard>
@@ -122,26 +143,30 @@ export function ContaPage() {
       {/* Login / sessão cloud */}
       {authMode === "cloud" ? (
         <CompactCard>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Sessão</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{displayInstruction("Sessão")}</div>
           <p className="mt-1 text-[13px] leading-5 text-ink-soft">
-            Você está conectado{account?.email ? ` como ${account.email}` : ""}. Ao sair, o progresso continua salvo na nuvem.
+            {displayInstruction(
+              account?.email
+                ? `Você está conectado como ${account.email}. Ao sair, o progresso continua salvo na nuvem.`
+                : "Você está conectado. Ao sair, o progresso continua salvo na nuvem."
+            )}
           </p>
           {canSignOut && (
             <ActionButton onClick={() => void onSignOut()} variant="secondary" size="sm" className="mt-3 border-wrong/30 text-wrong hover:bg-wrong-soft">
-              Sair da conta
+              {displayInstruction("Sair da conta")}
             </ActionButton>
           )}
-          {notice && <p className="mt-2 text-xs text-ink-soft">{notice}</p>}
+          {notice && <p className="mt-2 text-xs text-ink-soft">{displayInstruction(notice)}</p>}
         </CompactCard>
       ) : showLoginForm ? (
         <CompactCard>
           <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
-            {subscribeIntent ? "Conta para assinar o Pro" : "Entrar ou criar conta"}
+            {subscribeIntent ? displayInstruction("Conta para assinar o Pro") : displayInstruction("Entrar ou criar conta")}
           </div>
           <p className="mt-1 mb-3 text-[13px] leading-5 text-ink-soft">
             {subscribeIntent
-              ? "Entre ou crie sua conta com email e senha para continuar a assinatura."
-              : "Use email e senha para salvar seu progresso na nuvem. Sem cartão, sem tutorial."}
+              ? displayInstruction("Entre ou crie sua conta com email e senha para continuar a assinatura.")
+              : displayInstruction("Use email e senha para salvar seu progresso na nuvem. Sem cartão, sem tutorial.")}
           </p>
           <CloudLoginForm
             email={email}
@@ -149,7 +174,7 @@ export function ContaPage() {
             error={error}
             notice={notice}
             loading={loading}
-            submitLabel={authMode === "cloud_pending" ? "Entrar" : "Entrar / criar conta"}
+            submitLabel={authMode === "cloud_pending" ? displayInstruction("Entrar") : displayInstruction("Entrar / criar conta")}
             onEmail={setEmail}
             onPassword={setPassword}
             onSubmit={onSubmit}
@@ -157,33 +182,33 @@ export function ContaPage() {
         </CompactCard>
       ) : (
         <CompactCard>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Sincronização</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{displayInstruction("Sincronização")}</div>
           <p className="mt-1 text-[13px] leading-5 text-ink-soft">
-            A conta em nuvem estará disponível em breve. Enquanto isso, seu progresso fica salvo com segurança neste dispositivo.
+            {displayInstruction("A conta em nuvem estará disponível em breve. Enquanto isso, seu progresso fica salvo com segurança neste dispositivo.")}
           </p>
         </CompactCard>
       )}
 
       {/* Atalhos para as áreas que saíram da conta */}
       <div className="grid gap-2 sm:grid-cols-3">
-        <AccountLink to="/dados-locais" icon={IconLibrary} title="Dados locais" desc="Exportar, backup e apagar." />
-        <AccountLink to="/plano" icon={IconStar} title="Plano Pro" desc="Assinatura e benefícios." />
-        <AccountLink to="/ajustes" icon={IconGear} title="Ajustes" desc="Áudio, aparência e mais." />
+        <AccountLink to="/dados-locais" icon={IconLibrary} title={t("navigation.localData")} desc={displayInstruction("Exportar, backup e apagar.")} />
+        <AccountLink to="/plano" icon={IconStar} title={t("navigation.proPlan")} desc={displayInstruction("Assinatura e benefícios.")} />
+        <AccountLink to="/ajustes" icon={IconGear} title={t("navigation.settings")} desc={displayInstruction("Áudio, aparência e mais.")} />
       </div>
 
       {/* Re-nivelamento leve: reposiciona o ponto de partida sem apagar progresso */}
       <CompactCard>
-        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Nivelamento</div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{displayInstruction("Nivelamento")}</div>
         <p className="mt-1 text-[13px] leading-5 text-ink-soft">
-          Voltou depois de um tempo? Refazer o teste reposiciona seu ponto de partida na jornada — sem apagar lições, estrelas ou revisões já feitas.
+          {displayInstruction("Voltou depois de um tempo? Refazer o teste reposiciona seu ponto de partida na jornada — sem apagar lições, estrelas ou revisões já feitas.")}
         </p>
         <ActionButton to="/conta?relevel=1" variant="secondary" size="sm" className="mt-3" trailingChevron>
-          Refazer nivelamento
+          {displayInstruction("Refazer nivelamento")}
         </ActionButton>
       </CompactCard>
 
       <p className="flex items-center gap-1.5 px-1 text-[11px] leading-5 text-ink-faint">
-        <IconShield width={13} height={13} /> Sua senha nunca é salva neste dispositivo. A anon key do backend é pública por design; o RLS protege os dados.
+        <IconShield width={13} height={13} /> {displayInstruction("Sua senha nunca é salva neste dispositivo. A anon key do backend é pública por design; o RLS protege os dados.")}
       </p>
     </PageShell>
   );

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore, type DailyStudyRecord } from "../../lib/store";
 import { formatDate } from "../../i18n/format";
+import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { todayKey } from "../../lib/storage";
 import { ALL_LESSONS } from "../../data/journey";
@@ -14,6 +15,8 @@ import { useLeagueData } from "../../hooks/useLeagueData";
 import { Mascot } from "../../components/brand/Mascot";
 import { Card, ProgressBar, Pill } from "../../components/ui/primitives";
 import { PageShell, CompactCard, StatTile, RightRail, EmptyState, ActionButton } from "../../components/ui/page";
+import { localizedAchievementDesc, localizedAchievementTitle, localizedRewardSource } from "../../i18n/achievements";
+import { displayInstruction, displayLessonTitle } from "../../i18n/overlays/journeyChrome";
 import {
   IconCheck,
   IconChevron,
@@ -49,7 +52,7 @@ function memberSinceLabel(createdAt?: number): string | undefined {
 function relativeTime(ts: number): string {
   const diff = Date.now() - ts;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "agora";
+  if (min < 1) return t("hub.justNow");
   if (min < 60) return `${min} min`;
   const h = Math.floor(min / 60);
   if (h < 24) return `${h} h`;
@@ -86,7 +89,7 @@ interface HistoryEvent {
 }
 
 export function ProfilePage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const location = useLocation();
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
@@ -105,7 +108,7 @@ export function ProfilePage() {
   const league = useLeagueData();
 
   const account = accounts[currentAccountId];
-  const name = account?.name?.trim() || "Aluno Longyu";
+  const name = account?.name?.trim() || t("hub.defaultLearner");
   const nickname = useMemo(() => {
     const first = firstName(name);
     if (!first || RESERVED_NAMES.has(name.toLowerCase()) || RESERVED_NAMES.has(first.toLowerCase())) return undefined;
@@ -145,17 +148,17 @@ export function ProfilePage() {
         const isXp = entry.type === "xp";
         return {
           icon: isXp ? <IconStar width={14} height={14} /> : <IconTrophy width={14} height={14} />,
-          label: entry.source,
+          label: localizedRewardSource(entry.source),
           detail:
             entry.type === "xp"
               ? `+${entry.amount} XP`
               : entry.type === "qi"
               ? `+${entry.amount} Qi`
               : entry.type === "dragonPearl"
-              ? `+${entry.amount} pérola`
+              ? t("hub.pearlAmount", { n: entry.amount })
               : entry.type === "streakShield"
-              ? `+${entry.amount} escudo`
-              : "conquista",
+              ? t("hub.shieldAmount", { n: entry.amount })
+              : t("hub.achievementNoun"),
           time: relativeTime(entry.claimedAt),
         };
       });
@@ -168,14 +171,14 @@ export function ProfilePage() {
 
   const lastLessonTitle = useMemo(() => {
     const lastId = completedLessons[completedLessons.length - 1];
-    return lastId ? ALL_LESSONS.find((l) => l.id === lastId)?.title : undefined;
+    return lastId ? displayLessonTitle(ALL_LESSONS.find((l) => l.id === lastId)?.title ?? "", locale) : undefined;
   }, [completedLessons]);
 
   const stats = [
-    { icon: IconFlame, value: `${streak}`, label: streak === 1 ? "dia de sequência" : "dias de sequência", tone: streak > 0 ? "accent" : "default" },
-    { icon: IconStar, value: `${xpTotal}`, label: "XP total", tone: "default" },
-    { icon: IconTrophy, value: leagueName.replace("Liga ", ""), label: "Liga atual", tone: "gold" },
-    { icon: IconCheck, value: `${completedLessons.length}`, label: "lições concluídas", tone: "good" },
+    { icon: IconFlame, value: `${streak}`, label: streak === 1 ? t("hub.streakDayOne") : t("hub.streakDayMany"), tone: streak > 0 ? "accent" : "default" },
+    { icon: IconStar, value: `${xpTotal}`, label: t("hub.xpTotal"), tone: "default" },
+    { icon: IconTrophy, value: leagueName.replace("Liga ", ""), label: t("hub.currentLeague"), tone: "gold" },
+    { icon: IconCheck, value: `${completedLessons.length}`, label: t("hub.lessonsCompleted"), tone: "good" },
   ] as const;
 
   // Right rail é só desktop; no mobile o perfil fica curto (Liga já é um stat,
@@ -191,20 +194,20 @@ export function ProfilePage() {
             </span>
             <div>
               <div className="text-[13px] font-semibold text-ink">{leagueName}</div>
-              <div className="text-[11px] text-ink-faint">{league.isDemo ? "Demonstração" : `Você está em #${league.userRank}`}</div>
+              <div className="text-[11px] text-ink-faint">{league.isDemo ? t("hub.demo") : t("hub.youAreRanked", { rank: league.userRank })}</div>
             </div>
           </div>
-          <Link to="/ligas" className="text-xs font-semibold text-accent hover:underline">Ver</Link>
+          <Link to="/ligas" className="text-xs font-semibold text-accent hover:underline">{t("common.open")}</Link>
         </div>
       </CompactCard>
 
       <CompactCard>
         <div className="flex items-center justify-between text-[11px] font-semibold text-ink-faint">
-          <span className="uppercase tracking-[0.12em] text-accent">Progresso semanal</span>
+          <span className="uppercase tracking-[0.12em] text-accent">{t("hub.weeklyProgress")}</span>
           <span className="tabular-nums text-ink">{league.userWeeklyXp} XP</span>
         </div>
         <ProgressBar value={league.userWeeklyXp} max={Math.max(100, league.userWeeklyXp)} className="mt-2 h-2" />
-        <p className="mt-1.5 text-[11px] text-ink-faint">XP ganho nesta semana da liga.</p>
+        <p className="mt-1.5 text-[11px] text-ink-faint">{t("hub.weeklyLeagueXp")}</p>
       </CompactCard>
 
       {dailyMission && (
@@ -212,7 +215,7 @@ export function ProfilePage() {
           <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
             <IconTarget width={12} height={12} /> Missão do dia
           </div>
-          <div className="mt-1 text-[13px] font-semibold text-ink">{dailyMission.title}</div>
+          <div className="mt-1 text-[13px] font-semibold text-ink">{displayInstruction(dailyMission.title, locale)}</div>
           <div className="mt-1.5 flex items-center gap-2">
             <ProgressBar value={dailyMission.progress} max={dailyMission.goal} className="h-2 flex-1" />
             <span className="shrink-0 text-[11px] font-semibold tabular-nums text-ink-faint">{dailyMission.progress}/{dailyMission.goal}</span>
@@ -271,23 +274,21 @@ export function ProfilePage() {
       <div id="ofensiva" className="scroll-mt-20">
       <CompactCard>
         <div className="mb-1 flex items-center justify-between gap-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Ofensiva</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("hub.ofensiva")}</div>
           <div className="text-xs font-semibold text-ink">
             <IconFlame width={12} height={12} className="mr-1 inline text-accent" />
-            {streak} {streak === 1 ? "dia" : "dias"}
+            {streak === 1 ? t("shell.dayCountOne") : t("shell.dayCountMany", { count: streak })}
           </div>
         </div>
         <p className="mb-3 text-xs leading-5 text-ink-soft">
-          Conta à meia-noite do seu horário local. Só sobe quando você faz uma tarefa — entrar no site não conta.
-          Passou 24h sem estudar? A ofensiva zera, mas você tem o dia todo para recuperá-la fazendo um exercício.
+          {t("shell.streakBody")}
         </p>
         {streakRecovery && streakRecovery.brokenOn === todayKey() && (
           <div className="mb-3 flex flex-col gap-2 rounded-2xl border border-accent-soft bg-accent-soft/60 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2">
               <IconFlame width={16} height={16} className="mt-0.5 shrink-0 text-accent" />
               <p className="text-xs leading-5 text-ink">
-                Sua ofensiva de {streakRecovery.streak} {streakRecovery.streak === 1 ? "dia" : "dias"} zerou por 24h sem estudo.
-                Faça um exercício hoje e ela volta.
+                {t("shell.streakRecoveryBody", { days: streakRecovery.streak })}
               </p>
             </div>
             <Link
@@ -295,7 +296,7 @@ export function ProfilePage() {
               onClick={() => clearStreakRecovery()}
               className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
             >
-              <IconRefresh width={15} height={15} /> Recuperar ofensiva
+              <IconRefresh width={15} height={15} /> {t("shell.recoverStreak")}
             </Link>
           </div>
         )}
@@ -330,15 +331,15 @@ export function ProfilePage() {
         <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
           <div className="rounded-xl bg-surface-2 px-2 py-1.5">
             <div className="font-semibold tabular-nums text-ink">{todayStudy?.xp ?? 0}</div>
-            <div className="text-ink-faint">XP hoje</div>
+            <div className="text-ink-faint">{t("shell.xpToday")}</div>
           </div>
           <div className="rounded-xl bg-surface-2 px-2 py-1.5">
             <div className="font-semibold tabular-nums text-ink">{todayStudy?.tasks ?? 0}</div>
-            <div className="text-ink-faint">Tarefas</div>
+            <div className="text-ink-faint">{t("shell.tasks")}</div>
           </div>
           <div className="rounded-xl bg-surface-2 px-2 py-1.5">
             <div className="font-semibold tabular-nums text-ink">{todayStudy?.minutes ?? 0}m</div>
-            <div className="text-ink-faint">Estudo</div>
+            <div className="text-ink-faint">{t("shell.study")}</div>
           </div>
         </div>
       </CompactCard>
@@ -346,7 +347,7 @@ export function ProfilePage() {
 
       {/* 3 · Progresso de aprendizado — barras por competência. */}
       <CompactCard>
-        <div className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Progresso de aprendizado</div>
+        <div className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("hub.learningProgress")}</div>
         <div className="grid gap-2.5 sm:grid-cols-2">
           {DOMAIN_ORDER.map((track) => {
             const meta = DOMAIN_META[track];
@@ -360,7 +361,7 @@ export function ProfilePage() {
                     <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md" style={{ background: `${meta.color}1a`, color: meta.color }}>
                       <Icon width={12} height={12} />
                     </span>
-                    <span className="truncate">{meta.label} <span className="font-normal text-ink-faint">· {meta.tagline}</span></span>
+                    <span className="truncate">{displayInstruction(meta.label, locale)} <span className="font-normal text-ink-faint">· {displayInstruction(meta.tagline, locale)}</span></span>
                   </span>
                   <span className="shrink-0 tabular-nums font-semibold text-ink-soft">{pct}%</span>
                 </div>
@@ -376,8 +377,8 @@ export function ProfilePage() {
       {/* 4 + 5 · Conquistas e histórico (lado a lado no desktop, recolhíveis no mobile). */}
       <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
       <ResponsiveCollapsible
-        title="Conquistas recentes"
-        badge={`${unlockedCount} desbloqueada${unlockedCount === 1 ? "" : "s"}`}
+        title={t("hub.recentAchievements")}
+        badge={unlockedCount === 1 ? t("hub.unlockedCountBadge", { count: unlockedCount }) : t("hub.unlockedCountBadgeMany", { count: unlockedCount })}
       >
         {recentAchievements.length > 0 ? (
           <>
@@ -388,8 +389,8 @@ export function ProfilePage() {
                     <IconTrophy width={16} height={16} />
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate text-[13px] font-semibold text-ink">{def.title}</div>
-                    <div className="truncate text-[11px] text-ink-faint">{def.desc}</div>
+                    <div className="truncate text-[13px] font-semibold text-ink">{localizedAchievementTitle(def.id, def.title)}</div>
+                    <div className="truncate text-[11px] text-ink-faint">{localizedAchievementDesc(def.id, def.desc)}</div>
                   </div>
                 </div>
               ))}
@@ -409,7 +410,7 @@ export function ProfilePage() {
       </ResponsiveCollapsible>
 
       {/* 5 · Histórico recente (recolhível no mobile). */}
-      <ResponsiveCollapsible title="Histórico recente" badge={lastLessonTitle ? `Última: ${lastLessonTitle}` : undefined}>
+      <ResponsiveCollapsible title={t("hub.recentHistory")} badge={lastLessonTitle ? t("hub.lastLesson", { title: lastLessonTitle }) : undefined}>
         {history.length > 0 ? (
           <div className="grid gap-2">
             {history.map((event, i) => (
@@ -424,7 +425,7 @@ export function ProfilePage() {
             ))}
           </div>
         ) : (
-          <p className="text-[13px] text-ink-soft">Seu histórico recente aparece aqui conforme você estuda.</p>
+          <p className="text-[13px] text-ink-soft">{t("hub.historyEmpty")}</p>
         )}
       </ResponsiveCollapsible>
       </div>
@@ -436,8 +437,8 @@ export function ProfilePage() {
             <IconUser width={18} height={18} />
           </span>
           <div className="min-w-0">
-            <div className="text-[13px] font-semibold text-ink">Amigos em breve</div>
-            <div className="text-[11px] text-ink-faint">Comparar progresso com amigos chega em uma próxima atualização.</div>
+            <div className="text-[13px] font-semibold text-ink">{t("hub.friendsSoon")}</div>
+            <div className="text-[11px] text-ink-faint">{t("hub.friendsSoonDesc")}</div>
           </div>
         </div>
       </CompactCard>

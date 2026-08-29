@@ -9,6 +9,7 @@ import { canUsePracticeTool, useIsPro } from "../../lib/proAccess";
 import { Card, ButtonLink } from "../ui/primitives";
 import { IconLock } from "../ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import type { MessageKey } from "../../locales/pt-BR";
 
 interface EngineGateProps {
@@ -45,9 +46,9 @@ export function EngineGate({ track, mode = "engine", children }: EngineGateProps
         <IconLock width={32} height={32} />
       </div>
       <div>
-        <h1 className="font-serif text-2xl font-semibold text-ink">{t("shell.locked", { name: copy.title })}</h1>
-        <p className="mt-2 text-sm text-ink-soft">{copy.desc}</p>
-        <p className="mt-1 text-xs text-ink-faint">{t("shell.unlocksAfter", { after: copy.after })}</p>
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("shell.locked", { name: displayInstruction(copy.title) })}</h1>
+        <p className="mt-2 text-sm text-ink-soft">{displayInstruction(copy.desc)}</p>
+        <p className="mt-1 text-xs text-ink-faint">{t("shell.unlocksAfter", { after: displayInstruction(copy.after) })}</p>
       </div>
       <Card className="p-4 text-left text-sm text-ink-soft">
         {t("shell.engineGateLead")}

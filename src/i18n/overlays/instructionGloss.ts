@@ -135,6 +135,28 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (skipReq) {
     return `${skipReq[1]}% on the scored block · required essentials · min. ${skipReq[2]} questions`;
   }
+  const connected = pt.match(/^Você está conectado como (.+)\. Ao sair, o progresso continua salvo na nuvem\.$/);
+  if (connected) return `You are signed in as ${connected[1]}. Signing out keeps progress saved in the cloud.`;
+  const acessoPro = pt.match(/^Acesso Pro até (.+)\.$/);
+  if (acessoPro) return `Pro access until ${acessoPro[1]}.`;
+  const ofensiva = pt.match(/^Ofensiva de (\d+) dias$/);
+  if (ofensiva) return `${ofensiva[1]}-day streak`;
+  const faseStar = pt.match(/^Fase (.+) com 3★$/);
+  if (faseStar) return `Phase ${faseStar[1]} at 3★`;
+  const pearlGoal = pt.match(/^(Erros corrigidos|Hànzì aprendidos|Treino de áudio|Produção\/fala) · (\d+)$/);
+  if (pearlGoal) {
+    const labels: Record<string, string> = {
+      "Erros corrigidos": "Errors corrected",
+      "Hànzì aprendidos": "Hànzì learned",
+      "Treino de áudio": "Audio practice",
+      "Produção/fala": "Speaking production",
+    };
+    return `${labels[pearlGoal[1]]} · ${pearlGoal[2]}`;
+  }
+  const medalhaDe = pt.match(/^Medalha de (.+)$/);
+  if (medalhaDe) return `${medalhaDe[1]} medal`;
+  const readyOpen = pt.match(/^(\d+) (pronto|prontos) para abrir$/);
+  if (readyOpen) return `${readyOpen[1]} ready to open`;
   return undefined;
 }
 

@@ -21,7 +21,7 @@ export function PieceAssemblyTray({
   wrongIndexes,
   matchPrefix = 0,
   showWrong = false,
-  emptyHint = "Toque nas peças abaixo para montar aqui",
+  emptyHint,
   onRemove,
   className,
 }: {
@@ -38,6 +38,7 @@ export function PieceAssemblyTray({
   onRemove?: (index: number) => void;
   className?: string;
 }) {
+  const hint = emptyHint ?? t("player.tapPiecesHint");
   const wrong = wrongIndexes instanceof Set ? wrongIndexes : new Set(wrongIndexes ?? []);
 
   return (
@@ -49,7 +50,7 @@ export function PieceAssemblyTray({
       )}
     >
       {pieces.length === 0 ? (
-        <span className="w-full px-2 text-center text-sm font-medium leading-5 text-ink-faint">{emptyHint}</span>
+        <span className="w-full px-2 text-center text-sm font-medium leading-5 text-ink-faint">{hint}</span>
       ) : (
         pieces.map((piece, index) => {
           const isMatch = showWrong && index < matchPrefix;

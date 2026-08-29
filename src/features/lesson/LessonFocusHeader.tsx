@@ -111,7 +111,7 @@ export function DragonBreathMeter({
     return (
       <div
         className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/70 px-2.5 py-1 text-xs font-semibold text-accent shadow-card"
-        aria-label="Vidas do Dragão ilimitadas"
+        aria-label={t("player.livesUnlimitedAria")}
       >
         <IconFlame width={13} height={13} />
         <span>∞</span>
@@ -122,7 +122,7 @@ export function DragonBreathMeter({
   return (
     <div
       className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line bg-surface/95 px-2 py-1 shadow-card"
-      aria-label={`Vidas do Dragão: ${lives} de ${maxLives}`}
+      aria-label={t("player.livesCountAria", { lives, max: maxLives })}
     >
       <div className="flex items-center gap-0.5">
         {Array.from({ length: maxLives }, (_, index) => {

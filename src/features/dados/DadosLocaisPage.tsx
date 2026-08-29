@@ -7,6 +7,7 @@ import { PageShell, PageHeader, CompactCard, ActionButton } from "../../componen
 import { Pill } from "../../components/ui/primitives";
 import { IconBook, IconCheck, IconRefresh, IconShield, IconUser } from "../../components/ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -21,7 +22,8 @@ function downloadJson(filename: string, data: unknown) {
 }
 
 export function DadosLocaisPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const chrome = (text: string) => displayInstruction(text, locale);
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const switchAccount = useStore((s) => s.switchAccount);
@@ -32,23 +34,23 @@ export function DadosLocaisPage() {
   function download(kind: "export" | "backup") {
     const snapshot = activeLearningRepository().exportSnapshot();
     if (!validateProgressSnapshot(snapshot).ok) {
-      setNotice("Nenhum perfil local encontrado para exportar.");
+      setNotice(t("hub.noLocalProfile"));
       return;
     }
     const date = new Date(snapshot.exportedAt).toISOString().slice(0, 10);
     downloadJson(`longyu-${kind === "backup" ? "backup" : "progresso"}-${date}.json`, { kind, ...snapshot });
-    setNotice(kind === "backup" ? "Backup local gerado como arquivo JSON neste dispositivo." : "Progresso exportado como arquivo JSON neste dispositivo.");
+    setNotice(kind === "backup" ? t("hub.backupReady") : t("hub.exportReady"));
   }
 
   async function exportPrivacyBundle() {
     const bundle = await buildPrivacyExportBundle();
     downloadJson(`longyu-lgpd-${bundle.exportedAt.slice(0, 10)}.json`, bundle);
-    setNotice("Pacote de dados (LGPD) exportado como JSON neste dispositivo.");
+    setNotice(t("hub.privacyExportReady"));
   }
 
   function eraseLocalData() {
     const ok = window.confirm(
-      "Apagar TODOS os dados locais deste dispositivo? Progresso, perfis e preferências salvos apenas aqui serão removidos. Faça um backup antes. Esta ação não pode ser desfeita."
+      t("hub.eraseLocalConfirm")
     );
     if (!ok) return;
     try {
@@ -68,7 +70,7 @@ export function DadosLocaisPage() {
       }
       window.location.href = "/";
     } catch {
-      setNotice("Não foi possível apagar os dados neste navegador.");
+      setNotice(t("hub.eraseLocalFailed"));
     }
   }
 
@@ -89,7 +91,7 @@ export function DadosLocaisPage() {
 
       {/* Perfis locais */}
       <CompactCard>
-        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Perfis neste dispositivo</div>
+        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("hub.localProfilesHere")}</div>
         <div className="grid gap-2">
           {accountList.map((acc) => {
             const isCurrent = acc.id === currentAccountId;
@@ -100,14 +102,14 @@ export function DadosLocaisPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="truncate text-[13px] font-semibold text-ink">{acc.name?.trim() || "Aluno Longyu"}</span>
-                    {isCurrent && <Pill tone="accent">Ativo</Pill>}
+                    <span className="truncate text-[13px] font-semibold text-ink">{acc.name?.trim() || t("hub.defaultLearner")}</span>
+                    {isCurrent && <Pill tone="accent">{t("common.active")}</Pill>}
                   </div>
-                  <div className="truncate text-[11px] text-ink-faint">{acc.email || "Perfil local"}</div>
+                  <div className="truncate text-[11px] text-ink-faint">{acc.email || t("hub.localProfile")}</div>
                 </div>
                 {!isCurrent && (
                   <ActionButton onClick={() => switchAccount(acc.id)} variant="secondary" size="sm">
-                    Usar
+                    {t("hub.useProfile")}
                   </ActionButton>
                 )}
                 {isCurrent && <IconCheck width={16} height={16} className="shrink-0 text-[rgb(var(--good))]" />}
@@ -119,14 +121,14 @@ export function DadosLocaisPage() {
 
       {/* Exportar / backup */}
       <CompactCard>
-        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Exportar e backup</div>
-        <p className="text-[13px] leading-5 text-ink-soft">Baixe seu progresso como arquivo JSON para guardar ou transferir de aparelho.</p>
+        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{chrome("Exportar e backup")}</div>
+        <p className="text-[13px] leading-5 text-ink-soft">{chrome("Baixe seu progresso como arquivo JSON para guardar ou transferir de aparelho.")}</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           <ActionButton onClick={() => download("export")} variant="secondary" size="sm" icon={<IconBook width={15} height={15} />}>
-            Exportar progresso
+            {chrome("Exportar progresso")}
           </ActionButton>
           <ActionButton onClick={() => download("backup")} variant="secondary" size="sm" icon={<IconRefresh width={15} height={15} />}>
-            Backup local
+            {chrome("Backup local")}
           </ActionButton>
         </div>
         <button
@@ -134,15 +136,15 @@ export function DadosLocaisPage() {
           onClick={() => void exportPrivacyBundle()}
           className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
         >
-          <IconShield width={13} height={13} /> Exportar pacote de dados (LGPD)
+          <IconShield width={13} height={13} /> {chrome("Exportar pacote de dados (LGPD)")}
         </button>
       </CompactCard>
 
       {/* Apagar dados locais */}
       <CompactCard className="border-wrong/25">
-        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-wrong">Apagar dados locais</div>
+        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-wrong">{chrome("Apagar dados locais")}</div>
         <p className="text-[13px] leading-5 text-ink-soft">
-          Remove progresso, perfis e preferências guardados apenas neste aparelho. Faça um backup antes — não dá para desfazer.
+          {chrome("Remove progresso, perfis e preferências guardados apenas neste aparelho. Faça um backup antes — não dá para desfazer.")}
         </p>
         <ActionButton
           onClick={eraseLocalData}
@@ -150,7 +152,7 @@ export function DadosLocaisPage() {
           size="sm"
           className="mt-3 border-wrong/40 text-wrong hover:bg-wrong-soft"
         >
-          Apagar dados deste dispositivo
+          {chrome("Apagar dados deste dispositivo")}
         </ActionButton>
       </CompactCard>
     </PageShell>
