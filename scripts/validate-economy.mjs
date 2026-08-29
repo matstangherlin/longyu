@@ -118,7 +118,10 @@ if (!storeSrc.includes("pearlMilestonesClaimed") || !storeSrc.includes("activate
   fail("store.ts deve ter marcos de Pérola e activatePearlProPass");
 }
 const lojaSrc = read("src/features/loja/LojaPage.tsx");
-if (!lojaSrc.includes("Próximas Pérolas") || !lojaSrc.includes("Pérolas de Jade")) {
+if (
+  !(lojaSrc.includes("hub.nextPearls") || lojaSrc.includes("Próximas Pérolas")) ||
+  !(lojaSrc.includes("hub.jadePearls") || lojaSrc.includes("Pérolas de Jade"))
+) {
   fail("LojaPage deve mostrar progresso e próximas Pérolas");
 }
 

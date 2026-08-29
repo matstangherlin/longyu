@@ -181,6 +181,9 @@ Follow-up (failure/review chrome the route crawler does not open): in-lesson
 review assembly labels, Listen again, free-answer aria, and overlay for
 assembly + error-cause feedback.
 
+`test:pearl-economy` / `validate:economy` accept `hub.nextPearls` /
+`hub.jadePearls` (they previously required hardcoded PT shop chrome).
+
 Overlay key count after this wave: **2514** PT→EN strings in
 `instructionGloss.en.json`. Product i18n version: **v4.8.4**. Catalog keys:
 **1756**.
