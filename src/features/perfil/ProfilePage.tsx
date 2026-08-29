@@ -213,7 +213,7 @@ export function ProfilePage() {
       {dailyMission && (
         <CompactCard>
           <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
-            <IconTarget width={12} height={12} /> Missão do dia
+            <IconTarget width={12} height={12} /> {t("missions.todayMission")}
           </div>
           <div className="mt-1 text-[13px] font-semibold text-ink">{displayInstruction(dailyMission.title, locale)}</div>
           <div className="mt-1.5 flex items-center gap-2">
@@ -221,7 +221,7 @@ export function ProfilePage() {
             <span className="shrink-0 text-[11px] font-semibold tabular-nums text-ink-faint">{dailyMission.progress}/{dailyMission.goal}</span>
           </div>
           <Link to="/missoes" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-            Ver missões <IconChevron width={13} height={13} />
+            {t("player.seeMissions")} <IconChevron width={13} height={13} />
           </Link>
         </CompactCard>
       )}
@@ -245,20 +245,20 @@ export function ProfilePage() {
           <h1 className="font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">{name}</h1>
           <div className="mt-0.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs text-ink-faint sm:justify-start">
             {nickname && <span className="font-medium text-ink-soft">{nickname}</span>}
-            {since && <span>· estuda desde {since}</span>}
+            {since && <span>· {t("hub.studyingSince", { date: since })}</span>}
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
-            <Pill tone="accent">PT-BR → Mandarim</Pill>
+            <Pill tone="accent">{locale === "en" ? t("marketing.taglineEn") : t("marketing.tagline")}</Pill>
             {streak > 0 && (
               <Pill tone="muted">
-                <IconFlame width={12} height={12} /> {streak} {streak === 1 ? "dia" : "dias"}
+                <IconFlame width={12} height={12} /> {streak} {streak === 1 ? t("shell.day") : t("shell.days")}
               </Pill>
             )}
           </div>
         </div>
         <div className="shrink-0">
           <ActionButton to="/conta" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />}>
-            Editar perfil
+            {t("hub.editProfile")}
           </ActionButton>
         </div>
       </Card>

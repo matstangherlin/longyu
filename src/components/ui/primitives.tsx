@@ -198,13 +198,14 @@ export function ProgressBar({
   value,
   max = 100,
   className,
-  label = "Progresso",
+  label,
 }: {
   value: number;
   max?: number;
   className?: string;
   label?: string;
 }) {
+  const { t } = useTranslation();
   const safeMax = Number.isFinite(max) && max > 0 ? max : 1;
   const safeValue = Number.isFinite(value) ? value : 0;
   const pct = Math.max(0, Math.min(100, Math.round((safeValue / safeMax) * 100)));
@@ -212,7 +213,7 @@ export function ProgressBar({
     <div
       className={cx("h-2 overflow-hidden rounded-full bg-surface-2", className)}
       role="progressbar"
-      aria-label={label}
+      aria-label={label ?? t("missions.progressLabel")}
       aria-valuemin={0}
       aria-valuemax={safeMax}
       aria-valuenow={Math.max(0, Math.min(safeMax, safeValue))}

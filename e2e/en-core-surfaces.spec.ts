@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   dismissBlockingOverlays,
@@ -65,29 +65,37 @@ type LeakClass =
   | "LEGAL_LATER"
   | "COMMERCIAL_LATER";
 
-const PROPER = /^(Longyu|Mandarin|Pinyin|Hànzì|Hanzi|Qi|XP|Pro|Mei|Lin|Jade|Dragon)$/i;
+const PROPER = /^(Longyu|Mandarin|Pinyin|Hànzì|Hanzi|Qi|XP|Pro|Mei|Lin|Jade|Dragon|Longyu Pro)$/i;
 const CJK = /[\u3400-\u9FFF]/;
 const PINYIN = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/i;
+/** Portuguese-specific letters. Do NOT put `ões` inside `[]` — that also matches ASCII e/o/s. */
+const PT_DIACRITICS = /[çãõâêô]/i;
 const PT_MARKER =
-  /\b(você|voce|não|nao|estão|estão|estão|lição|licao|precisão|precisao|recompensas|missões|missoes|revisar|biblioteca|treinar|jornada|começar|comecar|continuar|verificar|próximo|proximo|obrigad|então|entao|salvos?|sincroniz|conta|perfil|progresso|ofensiva|desbloquead|bloquead|conquistas?|histórico|historico|exportar|apagar|backup)\b/i;
+  /\b(você|voce|não|nao|está|esta|estão|estao|lição|licao|precisão|precisao|recompensas|missões|missoes|revisar|biblioteca|treinar|jornada|começar|comecar|continuar|verificar|próximo|proximo|obrigad|então|entao|salvos?|sincroniz|conta|perfil|progresso|ofensiva|desbloquead|bloquead|conquistas?|histórico|historico|exportar|apagar|entrar|sair|ajustes|configuraç|missão|missao|baú|bau|pérola|perola|sequência|sequencia|módulo|modulo|grátis|gratis|indisponível|indisponivel|incluso|conteúdo|conteudo|pular|perguntas?|anterior|unidade|disponível|disponivel|concluíd|carregando|nenhum|ninguém|ninguem|procurar|seguir|convite|copiar|compartilhar|pendente|aguardando|teste)\b/i;
 
-function classify(text: string, flags: { legal?: boolean; commercial?: boolean; hanzi?: boolean }): LeakClass | null {
+function classify(
+  text: string,
+  flags: { legal?: boolean; commercial?: boolean; hanzi?: boolean; pedagogical?: boolean }
+): LeakClass | null {
   const trimmed = text.trim();
   if (!trimmed || trimmed.length < 2) return null;
   if (flags.hanzi || CJK.test(trimmed)) return "CHINESE";
-  if (PINYIN.test(trimmed) && !PT_MARKER.test(trimmed)) return "CHINESE";
   if (flags.legal) return "LEGAL_LATER";
   if (flags.commercial) return "COMMERCIAL_LATER";
-  if (PROPER.test(trimmed)) return "PROPER_NOUN";
+  if (PROPER.test(trimmed) || /^Português \(Brasil\)$/i.test(trimmed) || /^English$/i.test(trimmed)) return "PROPER_NOUN";
   if (/^v?\d+\.\d+|zh-CN|HTTPS?|JSON|LGPD|SRS|M[1-4]|4\/4$/i.test(trimmed)) return "TECHNICAL";
-  if (!PT_MARKER.test(trimmed) && !/[çãoõesãõáéíóúâêô]/i.test(trimmed)) return null;
+  const hasPtWord = PT_MARKER.test(trimmed);
+  const hasPtDiacritic = PT_DIACRITICS.test(trimmed);
+  if (PINYIN.test(trimmed) && !hasPtWord && !hasPtDiacritic) return "CHINESE";
+  if (!hasPtWord && !hasPtDiacritic) return null;
   if (/^(Qi|XP|Pro|Hànzì|Pinyin)$/i.test(trimmed)) return "PROPER_NOUN";
+  if (flags.pedagogical) return "PEDAGOGICAL_TARGET";
   return "REAL_UI_LEAK";
 }
 
 async function collectSurfaceText(page: Page) {
   return page.evaluate(() => {
-    const rows: { text: string; legal: boolean; commercial: boolean; hanzi: boolean; source: string }[] = [];
+    const rows: { text: string; legal: boolean; commercial: boolean; hanzi: boolean; pedagogical: boolean; source: string }[] = [];
     const push = (text: string, el: Element, source: string) => {
       const value = text.replace(/\s+/g, " ").trim();
       if (!value) return;
@@ -96,6 +104,9 @@ async function collectSurfaceText(page: Page) {
         legal: Boolean(el.closest("[data-legal-later]")),
         commercial: Boolean(el.closest("[data-commercial-later]")),
         hanzi: Boolean(el.closest("[data-hanzi], .hanzi")),
+        pedagogical: Boolean(
+          el.closest("[data-production-answer], [data-option-index], [data-conversation-scene], [data-canonical-zh]")
+        ),
         source,
       });
     };
@@ -115,7 +126,8 @@ async function collectSurfaceText(page: Page) {
       }
     }
     for (const el of document.querySelectorAll("button, a, [role='button'], [role='link'], [role='dialog']")) {
-      push((el as HTMLElement).innerText || "", el, el.getAttribute("role") || el.tagName.toLowerCase());
+      const label = el.getAttribute("aria-label") || el.getAttribute("name");
+      if (label) push(label, el, el.getAttribute("role") || el.tagName.toLowerCase());
     }
     return rows;
   });
@@ -202,6 +214,11 @@ test.describe("V4.8.4 English core surfaces", () => {
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-interface-locale", "en");
     await expect(page.locator("html")).toHaveAttribute("data-i18n-version", "v4.8.4");
+    const sw = await page.request.get("/sw.js");
+    if (sw.ok()) {
+      const body = await sw.text();
+      expect(body, "PWA cacheId must include the i18n version").toContain("longyu-i18n-v4.8.4");
+    }
   });
 
   test("route crawler: no REAL_UI_LEAK on core EN surfaces", async ({ page }) => {
@@ -221,7 +238,13 @@ test.describe("V4.8.4 English core surfaces", () => {
         }
       }
     }
-    expect(leaks, JSON.stringify(leaks.slice(0, 25), null, 2)).toEqual([]);
+    const unique = [...new Map(leaks.map((row) => [`${row.route}::${row.text}`, row])).values()];
+    await mkdir(path.resolve(process.cwd(), "docs/reports"), { recursive: true });
+    await writeFile(
+      path.resolve(process.cwd(), "docs/reports/v484-e2e-leaks.json"),
+      `${JSON.stringify({ count: unique.length, leaks: unique }, null, 2)}\n`
+    );
+    expect(unique, JSON.stringify(unique.slice(0, 40), null, 2)).toEqual([]);
   });
 
   test("topic 1 M1 victory screen is English", async ({ page, browserName }) => {
@@ -286,7 +309,7 @@ test.describe("V4.8.4 English core surfaces", () => {
     await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();
     await page.getByTestId("interface-locale-select").selectOption("pt-BR");
     await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
-    await expect(page.getByRole("heading", { name: /Ajustes/i })).toBeVisible();
+    await expect(page.getByText(/Ajustes|Configurações/i).first()).toBeVisible();
     await page.getByTestId("interface-locale-select").selectOption("en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();

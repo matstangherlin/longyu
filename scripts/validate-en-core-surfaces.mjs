@@ -85,6 +85,23 @@ const CHROME_LEFTOVERS = [
     file: "src/features/lesson/PieceAssembly.tsx",
     needles: ['emptyHint = "Toque nas peças'],
   },
+  {
+    file: "src/features/journey/JourneyPage.tsx",
+    needles: [
+      "Teste indisponível",
+      '{skipAccess.blockedReason ??',
+      'title="Este módulo ainda não tem perguntas suficientes para teste."',
+      "Progresso da unidade:",
+    ],
+  },
+  {
+    file: "src/features/perfil/ProfilePage.tsx",
+    needles: ["Editar perfil", "Missão do dia", "estuda desde", "PT-BR → Mandarim"],
+  },
+  {
+    file: "src/components/chests/LongyuChest.tsx",
+    needles: ["STATE_LABEL[state]", 'locked: "bloqueado"'],
+  },
 ];
 
 const CAPTURED_CONTEXT = [

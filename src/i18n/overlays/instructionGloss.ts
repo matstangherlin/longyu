@@ -157,6 +157,8 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (medalhaDe) return `${medalhaDe[1]} medal`;
   const readyOpen = pt.match(/^(\d+) (pronto|prontos) para abrir$/);
   if (readyOpen) return `${readyOpen[1]} ready to open`;
+  const skipQi = pt.match(/^Você já usou a tentativa grátis desta semana\. Junte (\d+) Qi ou um Passe de teste\.$/);
+  if (skipQi) return `You already used this week's free attempt. Gather ${skipQi[1]} Qi or a Test Pass.`;
   return undefined;
 }
 

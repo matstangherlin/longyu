@@ -491,6 +491,7 @@ export function JourneyPage() {
 }
 
 function UnitProgressRing({ done, total }: { done: number; total: number }) {
+  const { t } = useTranslation();
   const safeTotal = Math.max(1, total);
   const pct = Math.max(0, Math.min(1, done / safeTotal));
   const radius = 26;
@@ -500,7 +501,7 @@ function UnitProgressRing({ done, total }: { done: number; total: number }) {
     <div
       className="relative grid h-14 w-14 shrink-0 place-items-center sm:h-[72px] sm:w-[72px]"
       role="img"
-      aria-label={`Progresso da unidade: ${done} de ${safeTotal} lições`}
+      aria-label={t("journey.unitProgress", { done, total: safeTotal })}
     >
       <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
         <circle cx="32" cy="32" r={radius} fill="none" stroke="rgb(var(--line))" strokeWidth="5" strokeOpacity="0.6" />
@@ -932,13 +933,13 @@ function ModuleBlock({
                 </>
               ) : insufficientSkipTest ? (
                 <>
-                  <div className="min-w-0 text-[11px] text-ink-faint">Teste indisponível</div>
+                  <div className="min-w-0 text-[11px] text-ink-faint">{t("journey.skipTestUnavailable")}</div>
                   <button
                     disabled
-                    title="Este módulo ainda não tem perguntas suficientes para teste."
+                    title={displayInstruction("Este módulo ainda não tem perguntas suficientes para teste.", locale)}
                     className="inline-flex h-7 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-surface px-2.5 text-[11px] font-semibold text-ink-faint"
                   >
-                    Teste
+                    {t("journey.skipTest")}
                   </button>
                 </>
               ) : proChallenge ? (
@@ -957,7 +958,7 @@ function ModuleBlock({
               ) : (
                 <div className="flex items-center gap-1.5 text-[11px] text-ink-faint">
                   <IconLock width={12} height={12} className="shrink-0" />
-                  {skipAccess.blockedReason ?? "Complete o módulo anterior."}
+                  {displayInstruction(skipAccess.blockedReason ?? "Complete o módulo anterior.", locale)}
                 </div>
               )}
             </div>
