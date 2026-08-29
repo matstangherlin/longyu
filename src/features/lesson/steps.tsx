@@ -59,6 +59,7 @@ import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
+import { getInterfaceLocale } from "../../i18n/locale";
 import { localizeLessonStep } from "../../i18n/overlays/localizeLesson";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { validateExercise } from "./exerciseValidation";
@@ -104,6 +105,10 @@ export interface StepDoneMeta {
   helpLevel?: number;
   helpRequests?: number;
   initialHelpLevel?: number;
+}
+
+function displayPt(text: string | undefined | null): string {
+  return resolveInstructionText(text, getInterfaceLocale());
 }
 
 export interface StepProps {
@@ -308,7 +313,7 @@ function ToneAnswerFeedback({
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {pinyin && <Pinyin text={pinyin} className="font-serif text-xl" />}
-        <span className="text-sm text-ink-soft">{TONE_LABELS[answer]}</span>
+        <span className="text-sm text-ink-soft">{displayPt(TONE_LABELS[answer])}</span>
         {meaning && <span className="text-sm text-ink-faint">· {meaning}</span>}
       </div>
 
@@ -318,22 +323,22 @@ function ToneAnswerFeedback({
           className="mt-3 text-sm font-semibold text-accent underline-offset-2 hover:underline"
           onClick={() => setShowTheory(true)}
         >
-          Entender o tom
+          {displayPt("Entender o tom")}
         </button>
       ) : (
         <div className="mt-3 space-y-2 rounded-xl bg-surface/70 px-3 py-2 text-sm">
           <MandarinText hanzi={hanzi} pinyin={pinyin} meaning={meaning} size="md" audio autoPlay={false} />
           <div className="grid gap-2 sm:grid-cols-2">
             <div>
-              <span className="text-ink-faint">Você marcou: </span>
-              <span className="font-medium text-ink">{picked}º — {TONE_LABELS[picked]}</span>
+              <span className="text-ink-faint">{t("player.youMarked")} </span>
+              <span className="font-medium text-ink">{picked}º — {displayPt(TONE_LABELS[picked])}</span>
             </div>
             <div>
-              <span className="text-ink-faint">Era: </span>
-              <span className="font-medium text-ink">{answer}º — {TONE_LABELS[answer]}</span>
+              <span className="text-ink-faint">{t("player.itWas")} </span>
+              <span className="font-medium text-ink">{answer}º — {displayPt(TONE_LABELS[answer])}</span>
             </div>
           </div>
-          <p className="text-ink-soft">Pista auditiva: {TONE_LISTENING_TIPS[answer]}.</p>
+          <p className="text-ink-soft">{t("player.audioHint", { tip: displayPt(TONE_LISTENING_TIPS[answer]) })}</p>
           <ToneCurve tone={answer} />
         </div>
       )}
@@ -455,7 +460,7 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
 function StepIntro({ step, onDone }: StepProps) {
   return (
     <div>
-      <Eyebrow>Entenda</Eyebrow>
+      <Eyebrow>{t("player.understand")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       <p className="mt-3 text-ink-soft">{step.body}</p>
       <ContinueBtn onClick={() => onDone()} label="Entendi" />
@@ -466,7 +471,7 @@ function StepIntro({ step, onDone }: StepProps) {
 function StepListen({ step, onDone }: StepProps) {
   return (
     <div className="text-center">
-      <Eyebrow>Ouça e imite</Eyebrow>
+      <Eyebrow>{t("player.listenAndImitate")}</Eyebrow>
       <div className="my-4">
         <MandarinText
           hanzi={step.text!}
@@ -557,18 +562,18 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div className="text-center" data-tone-simple="1">
-      <Eyebrow>{contrastOnly ? "Dois tons" : "Qual tom você ouviu?"}</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">Ouça</h2>
+      <Eyebrow>{contrastOnly ? t("player.twoTones") : t("player.whichToneHeard")}</Eyebrow>
+      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{t("player.listenHeading")}</h2>
 
       <div className="mx-auto my-5 flex max-w-sm flex-col items-center gap-3">
         <button
           onClick={() => play(0.85)}
           className="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm ring-4 ring-accent-soft/40 transition hover:scale-105 active:scale-95"
-          aria-label="Ouvir"
+          aria-label={t("player.listen")}
           data-tone-listen
         >
           <IconSound width={32} height={32} />
-          <span className="mt-1 text-xs font-semibold">{listenCount > 0 ? `${listenCount}×` : "Ouvir"}</span>
+          <span className="mt-1 text-xs font-semibold">{listenCount > 0 ? `${listenCount}×` : t("player.listen")}</span>
         </button>
         {(listenCount > 0 || picked != null) && (
           <button
@@ -576,12 +581,12 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
             onClick={() => play(0.55)}
             className="rounded-full border border-line bg-surface px-3 py-1 text-[11px] font-semibold text-ink-soft"
           >
-            Ouvir devagar
+            {t("player.listenSlow")}
           </button>
         )}
       </div>
 
-      <h3 className="mb-3 font-serif text-base font-semibold text-ink">{resolveInstructionText("Qual tom você ouviu?")}</h3>
+      <h3 className="mb-3 font-serif text-base font-semibold text-ink">{displayPt("Qual tom você ouviu?")}</h3>
       <div className={["grid gap-2 sm:gap-3", ensuredChoices.length <= 2 ? "grid-cols-2" : "grid-cols-4"].join(" ")}>
         {ensuredChoices.map((tone, index) => {
           const state =
@@ -608,10 +613,10 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               ]
                 .filter(Boolean)
                 .join(" ")}
-              aria-label={t("player.optionAria", { key: String(index + 1), value: `${tone}º tom` })}
+              aria-label={t("player.optionAria", { key: String(index + 1), value: displayPt(`${tone}º tom`) })}
             >
               <span className="text-2xl font-semibold tabular-nums text-ink">{tone}</span>
-              <span className="text-xs font-medium text-ink-soft">{resolveInstructionText(`${tone}º tom`)}</span>
+              <span className="text-xs font-medium text-ink-soft">{displayPt(`${tone}º tom`)}</span>
               {showDetail && <ToneCurve tone={tone} size={12} />}
             </button>
           );
@@ -635,10 +640,10 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 setHintLevel(2);
               }}
             >
-              Comparar contornos
+              {t("player.compareContours")}
             </Button>
           ) : (
-            <p className="mt-2">Escute se o som {TONE_LISTENING_TIPS[answer]}.</p>
+            <p className="mt-2">{t("player.listenIfSound", { tip: displayPt(TONE_LISTENING_TIPS[answer]) })}</p>
           )}
         </div>
       )}
@@ -704,7 +709,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>Compreenda</Eyebrow>
+      <Eyebrow>{t("player.comprehend")}</Eyebrow>
       <div className="my-4">
         <MandarinText
           hanzi={step.hanzi!}
@@ -797,10 +802,10 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>Produza</Eyebrow>
-      <p className="mt-2 text-sm text-ink-soft">Monte “{step.pt}” na ordem certa.</p>
+      <Eyebrow>{t("player.produce")}</Eyebrow>
+      <p className="mt-2 text-sm text-ink-soft">{t("player.assembleInOrder", { pt: step.pt ?? "" })}</p>
       <div className="my-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4">
-        {picked.length === 0 && <span className="text-sm font-medium text-ink-faint">toque nas peças</span>}
+        {picked.length === 0 && <span className="text-sm font-medium text-ink-faint">{t("player.tapPiecesShort")}</span>}
         {picked.map((p, i) => (
           <button key={i} onClick={() => {
             playSoundFx("tap", soundEffects);
@@ -832,7 +837,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
             <IconX width={18} height={18} />
             Quase
           </div>
-          <p className="mt-2 text-sm text-ink-soft">A resposta certa está abaixo. Tente montar de novo.</p>
+          <p className="mt-2 text-sm text-ink-soft">{t("player.rightAnswerBelow")}</p>
           <div className="mt-2 hanzi text-3xl text-ink">
             <ExerciseText value={target.join("")} type="hanzi" speakOnClick />
           </div>
@@ -1037,7 +1042,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>{isFreeReflection ? "Reflexão opcional" : "Escrita guiada"}</Eyebrow>
+      <Eyebrow>{isFreeReflection ? t("player.optionalReflection") : t("player.guidedWriting")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {isFreeReflection && /^diga\b/i.test(step.title ?? "") ? "Pense antes de continuar" : step.title}
       </h2>
@@ -1045,7 +1050,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
 
       {suggestion && !isFreeReflection && (
         <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-4">
-          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Sugestão</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">{t("player.suggestionLabel")}</div>
           <p className="mt-1 text-sm leading-6 text-ink">{suggestion}</p>
         </div>
       )}
@@ -1075,7 +1080,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       {composing && (
         <div className="mt-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
           {pickedPieces.length === 0 && (
-            <span className="text-sm font-medium text-ink-faint">Toque nas peças abaixo</span>
+            <span className="text-sm font-medium text-ink-faint">{t("review.tapPieces")}</span>
           )}
           {pickedPieces.map((piece, index) => (
             <button
@@ -1333,9 +1338,9 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake, lessonId, attemp
 
   return (
     <div>
-      <Eyebrow>Ditado Dragão</Eyebrow>
+      <Eyebrow>{t("player.dragonDictation")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">
-        {step.title ?? "Ouça e escreva"}
+        {step.title ?? displayPt("Ouça e escreva")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
         {usePieces
@@ -1874,7 +1879,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
   return (
     <div>
       <div className="min-w-0">
-        <Eyebrow>{toneMode ? "Tons" : "Pares"}</Eyebrow>
+        <Eyebrow>{toneMode ? t("player.tones") : t("player.pairs")}</Eyebrow>
         <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl leading-tight text-ink">{title}</h2>
         <p className="mt-1 text-sm leading-5 text-ink-soft">{instruction}</p>
       </div>
@@ -2036,23 +2041,23 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
     <div>
       <Eyebrow>{t("player.activeListen")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
-      <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt ?? "Ouça e escolha a resposta certa."}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt ?? t("player.listenAndChooseRight")}</p>
 
       <div className="mt-5 grid gap-3 rounded-3xl bg-surface-2 p-4 text-center">
         <button
           type="button"
           onClick={() => speak(step.audioText ?? answer, { rate: 0.88 })}
           className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft text-accent shadow-sm transition hover:scale-105 active:scale-95"
-          aria-label="Ouvir"
+          aria-label={t("player.listen")}
         >
           <IconSound width={30} height={30} />
         </button>
         <div className="grid gap-2 sm:grid-cols-2">
           <Button variant="soft" onClick={() => speak(step.audioText ?? answer, { rate: 0.88 })}>
-            Ouvir normal
+            {t("player.listenNormal")}
           </Button>
           <Button variant="outline" onClick={() => speak(step.slowAudioText ?? step.audioText ?? answer, { rate: 0.68 })}>
-            Ouvir devagar
+            {t("player.listenSlow")}
           </Button>
         </div>
       </div>
@@ -2361,7 +2366,7 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
 
   return (
     <div>
-      <Eyebrow>Ouvido de dragão</Eyebrow>
+      <Eyebrow>{t("player.dragonEar")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">
         {step.title ?? "Os dois áudios são iguais?"}
       </h2>
@@ -2568,7 +2573,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
           onClick={() => speak(step.audioText!, { rate: 0.8 })}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-accent-soft bg-accent-soft/45 px-4 py-4 font-semibold text-accent shadow-card"
         >
-          <IconSound width={22} height={22} /> Ouvir a frase
+          <IconSound width={22} height={22} /> {t("player.listenPhrase")}
         </button>
       )}
       {!hideSource && (step.sourceText || (!helpDisabled && (step.sourcePinyin || step.sourceMeaning))) && (
@@ -2683,7 +2688,7 @@ function StepSentenceBuild(props: StepProps) {
     sentence_lab_repair: "Monte · conserte a frase",
   };
   const label = props.step.pedagogyVariant ? labels[props.step.pedagogyVariant] : undefined;
-  return <BuildExercise {...props} kindLabel={label ?? "Monte a frase"} />;
+  return <BuildExercise {...props} kindLabel={displayPt(label ?? "Monte a frase")} />;
 }
 
 function StepAddressBuild(props: StepProps) {
@@ -2768,7 +2773,7 @@ function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>Mapa</Eyebrow>
+      <Eyebrow>{t("player.map")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{instruction}</p>
 
@@ -2922,7 +2927,7 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>Complete a lacuna</Eyebrow>
+      <Eyebrow>{t("player.fillTheGap")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {step.prompt && <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt}</p>}
 
@@ -3038,7 +3043,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>{(step.pedagogyVariant ? variantLabel[step.pedagogyVariant] : undefined) ?? "Escolha no diálogo"}</Eyebrow>
+      <Eyebrow>{displayPt((step.pedagogyVariant ? variantLabel[step.pedagogyVariant] : undefined) ?? "Escolha no diálogo")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
 
       <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3.5">
@@ -3146,7 +3151,7 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div className="text-center">
-      <Eyebrow>O que significa?</Eyebrow>
+      <Eyebrow>{t("player.whatMeans")}</Eyebrow>
       <div className="my-4">
         <MandarinText
           hanzi={char.hanzi}
@@ -3202,7 +3207,7 @@ function StepDecompose({ step, onDone }: StepProps) {
   const char = charById[step.charId!];
   return (
     <div>
-      <Eyebrow>Desmonte</Eyebrow>
+      <Eyebrow>{t("player.disassemble")}</Eyebrow>
       <div className="my-4 flex justify-center rounded-2xl bg-surface-2 p-6">
         <DecompositionCard char={char} />
       </div>
@@ -3225,7 +3230,7 @@ function StepHanziEvolution({ step, onDone }: StepProps) {
   if (models.length === 0) {
     return (
       <div>
-        <Eyebrow>Entenda hànzì</Eyebrow>
+        <Eyebrow>{t("player.understandHanzi")}</Eyebrow>
         <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title ?? "O que é hànzì?"}</h2>
         <ContinueBtn onClick={() => onDone()} />
       </div>
@@ -3255,7 +3260,7 @@ function StepHanziEvolution({ step, onDone }: StepProps) {
 
   return (
     <div>
-      <Eyebrow>Entenda hànzì</Eyebrow>
+      <Eyebrow>{t("player.understandHanzi")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title ?? "O que é hànzì?"}</h2>
       {step.body && <p className="mt-2 text-sm leading-6 text-ink-soft">{step.body}</p>}
 
@@ -3287,7 +3292,7 @@ function StepFlashcard({ step, onDone }: StepProps) {
   const [revealed, setRevealed] = useState(false);
   return (
     <div className="text-center">
-      <Eyebrow>Frase útil</Eyebrow>
+      <Eyebrow>{t("player.usefulPhrase")}</Eyebrow>
       <div className="my-4 flex flex-col items-center gap-3">
         <MandarinText
           hanzi={chunk.hanzi}
@@ -3302,7 +3307,7 @@ function StepFlashcard({ step, onDone }: StepProps) {
             {chunk.literalPt && <div className="text-sm text-ink-faint">literal: {chunk.literalPt}</div>}
           </div>
         ) : (
-          <Button variant="soft" onClick={() => setRevealed(true)}>Mostrar significado</Button>
+          <Button variant="soft" onClick={() => setRevealed(true)}>{t("player.showMeaning")}</Button>
         )}
       </div>
       {revealed && <ContinueBtn onClick={() => onDone()} />}
@@ -3314,10 +3319,10 @@ function StepMicroread({ step, onDone }: StepProps) {
   const lines = step.lines ?? [];
   return (
     <div>
-      <Eyebrow>Leia</Eyebrow>
-      <p className="mt-2 text-sm text-ink-soft">Leia cada linha no formato escolhido nas configurações.</p>
+      <Eyebrow>{t("player.read")}</Eyebrow>
+      <p className="mt-2 text-sm text-ink-soft">{t("player.readEachLine")}</p>
       <p className="-mt-1 mb-3 text-xs text-ink-faint">
-        Passe o mouse (ou toque) num caractere para ver o significado.
+        {t("player.hoverCharMeaning")}
       </p>
       <div className="my-4 space-y-3">
         {lines.map((l, i) => (
@@ -3440,7 +3445,7 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
 
   return (
     <div>
-      <Eyebrow>Ouvido fino</Eyebrow>
+      <Eyebrow>{t("player.fineEar")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? "Estes dois sons são iguais?"}
       </h2>
@@ -3621,13 +3626,17 @@ function StepDictation({ step, onDone, onSkip, onMistake, lessonId, attemptSeed 
   }
 
   const modeLabel =
-    mode === "blocks" ? "Ouça e monte" : mode === "pinyin" ? "Ouça e escreva o pinyin" : "Ouça e escreva o hànzì";
+    mode === "blocks"
+      ? displayPt("Ouça e monte")
+      : mode === "pinyin"
+        ? displayPt("Ouça e escreva o pinyin")
+        : displayPt("Ouça e escreva o hànzì");
   const modeHint =
     mode === "blocks"
-      ? "Toque nas peças na ordem em que você ouvir."
+      ? displayPt("Toque nas peças na ordem em que você ouvir.")
       : mode === "pinyin"
-        ? "Escreva o que ouviu em pinyin. Acentos são opcionais."
-        : "Escreva o que ouviu em hànzì.";
+        ? displayPt("Escreva o que ouviu em pinyin. Acentos são opcionais.")
+        : displayPt("Escreva o que ouviu em hànzì.");
 
   return (
     <div>
@@ -4040,7 +4049,7 @@ function FreeAnswerField({
               {listening ? "Ouvindo… toque para parar" : "Ou falar a resposta"}
             </button>
           ) : null}
-          <span className="text-xs text-ink-faint">Vale hànzì ou pinyin.</span>
+          <span className="text-xs text-ink-faint">{t("player.hanziOrPinyinOk")}</span>
         </div>
       ) : (
         <>
@@ -4054,12 +4063,12 @@ function FreeAnswerField({
                 aria-pressed={listening}
               >
                 <IconSound width={16} height={16} />
-                {listening ? "Ouvindo… toque para parar" : "Falar"}
+                {listening ? t("player.listeningTapStop") : t("player.speak")}
               </Button>
-              <span className="text-xs text-ink-faint">Vale hànzì ou pinyin.</span>
+              <span className="text-xs text-ink-faint">{t("player.hanziOrPinyinOk")}</span>
             </div>
           )}
-          {!speechSupported && <p className="mt-2 text-xs text-ink-faint">Vale hànzì ou pinyin.</p>}
+          {!speechSupported && <p className="mt-2 text-xs text-ink-faint">{t("player.hanziOrPinyinOk")}</p>}
         </>
       )}
       {micError && <p className="mt-2 text-xs text-ink-soft">{micError}</p>}
@@ -4145,7 +4154,7 @@ function PatternSlotScaffold({
 
   return (
     <div className="mt-2" data-production-scaffold-pattern data-concept-lesson={lessonId ?? ""}>
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{t("player.structure")}</div>
       {patternPt && (
         <p className="mt-1.5 font-serif text-base font-semibold text-ink">
           <span className="hanzi">{patternPt}</span>
@@ -4209,7 +4218,7 @@ function StructureHowItWorks({
           {open ? "Ocultar como a frase funciona" : "Ver como a frase funciona"}
         </button>
       ) : (
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Estrutura</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{t("player.structure")}</p>
       )}
       {open ? (
         <div
@@ -4460,7 +4469,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         <div className="mt-2" data-production-help-build>
           <div className="mb-2 flex min-h-[3rem] flex-wrap gap-1.5 rounded-2xl border border-line bg-surface-2 p-2.5">
             {buildPicked.length === 0 ? (
-              <span className="text-sm text-ink-faint">Toque nas peças</span>
+              <span className="text-sm text-ink-faint">{t("player.tapPieces")}</span>
             ) : (
               buildPicked.map((piece, index) => (
                 <button
@@ -4496,7 +4505,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
               );
             })}
           </div>
-          <p className="mt-2 text-xs text-ink-faint">Ainda pode digitar se preferir.</p>
+          <p className="mt-2 text-xs text-ink-faint">{t("player.stillType")}</p>
           <FreeAnswerField
             value={draft}
             onChange={(next) => {
@@ -4533,13 +4542,13 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         data-production-help-initial={initialHelp}
         className="mx-auto w-full max-w-lg"
       >
-        <Eyebrow>Transferência</Eyebrow>
+        <Eyebrow>{t("player.transfer")}</Eyebrow>
 
         <section
           className="mt-3 rounded-2xl border border-accent-soft bg-accent-soft/40 px-3.5 py-3"
           data-production-situation
         >
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("player.situation")}</div>
           <p className="mt-1 text-base font-medium leading-6 text-ink sm:text-[1.05rem]">
             {step.situationPt ?? step.prompt}
           </p>
@@ -4642,16 +4651,16 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
       data-production-assist={step.productionAssist ?? (isOpen ? "open" : undefined)}
       data-production-help-initial={initialHelp}
     >
-      <Eyebrow>{step.kind === "reverse_recall" ? "Produção" : isOpen ? "Você escolhe" : "Produção livre"}</Eyebrow>
+      <Eyebrow>{step.kind === "reverse_recall" ? t("player.production") : isOpen ? t("player.youChoose") : t("player.freeProduction")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {step.title ?? (isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
+        {step.title ?? displayPt(isOpen ? "Diga do seu jeito" : "Sua vez de produzir")}
       </h2>
 
       <div
         className="mt-3.5 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5"
         data-production-situation
       >
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Situação</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("player.situation")}</div>
         <p className="mt-1 text-base font-medium leading-6 text-ink">{step.situationPt ?? step.prompt}</p>
         {isOpen && step.productionHintPt ? (
           <p className="mt-1.5 text-sm leading-5 text-ink-soft" data-production-goal>
@@ -4781,7 +4790,7 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
 
   return (
     <div>
-      <Eyebrow>Reparo</Eyebrow>
+      <Eyebrow>{t("player.repair")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? "A conversa travou"}
       </h2>
@@ -4821,23 +4830,25 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
                 strategyLocked ? "cursor-default" : "",
               ].join(" ")}
             >
-              {REPAIR_STRATEGY_LABELS[strategy]}
+              {displayPt(REPAIR_STRATEGY_LABELS[strategy])}
             </button>
           );
         })}
       </div>
       {strategyMissed && !strategyLocked && (
         <p className="mt-2 text-sm text-accent">
-          Esse movimento não resolve aqui. Leia de novo o que a pessoa disse e escolha outro.
+          {t("player.repairMoveWrongLong")}
         </p>
       )}
 
       {strategyLocked && (
         <>
           <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Agora diga</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("player.nowSay")}</div>
             <p className="mt-1 text-base leading-6 text-ink">
-              {REPAIR_STRATEGY_LABELS[step.repairStrategy ?? "repeat"]} — em mandarim, sem alternativas.
+              {t("player.sayInMandarinNoChoices", {
+                label: displayPt(REPAIR_STRATEGY_LABELS[step.repairStrategy ?? "repeat"]),
+              })}
             </p>
           </div>
           <FreeAnswerField
@@ -4879,7 +4890,7 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
 function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void }) {
   return (
     <div className="rounded-2xl border border-line bg-surface-2 p-5 text-center">
-      <Eyebrow>Exercício pulado</Eyebrow>
+      <Eyebrow>{t("player.skippedExercise")}</Eyebrow>
       <p className="mt-3 text-sm leading-6 text-ink-soft">
         Este passo não passou na validação de conteúdo e foi pulado para não travar sua lição.
         Nada foi descontado do seu progresso.

@@ -213,7 +213,7 @@ function SpeechBubble({
           </div>
           <SpeakButton
             text={audio}
-            label={highlightListen ? "Toque para ouvir" : "Ouvir"}
+            label={highlightListen ? t("player.tapToListen") : t("player.listen")}
             size="sm"
             className={["shrink-0", highlightListen ? "ring-2 ring-accent ring-offset-2 animate-pulse" : ""].join(" ")}
           />
@@ -327,14 +327,14 @@ function CheckpointPanel({
 
   return (
     <div className="mt-4 animate-pop rounded-2xl border border-accent-soft bg-surface p-3.5 shadow-card">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Sua vez</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("player.yourTurn")}</div>
       <p className="mt-2 text-base font-medium leading-7 text-ink">{checkpoint.prompt}</p>
 
       {isOrder ? (
         <>
           <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
             {ordered.length === 0 && (
-              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
+              <span className="self-center text-sm text-ink-faint">{t("player.tapPiecesToBuild")}</span>
             )}
             {ordered.map((piece, index) => (
               <button
@@ -466,8 +466,8 @@ function CheckpointPanel({
             {feedback === "correct"
               ? checkpoint.explanation ??
                 (hadMistake
-                  ? "Agora ficou certo. Como houve tentativa anterior, esta parte entra para revisão."
-                  : "Você entendeu a conversa.")
+                  ? t("player.fixedNowGoesReview")
+                  : t("player.understoodConversation"))
               : `Resposta sugerida: ${answer}`}
           </p>
           {feedback === "correct" ? (
@@ -586,20 +586,20 @@ function InteractionPanel({
 
   return (
     <div className="mt-4 animate-pop rounded-2xl border border-accent-soft bg-surface p-3.5 shadow-card">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Sua vez</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("player.yourTurn")}</div>
       <p className="mt-2 text-base font-medium leading-7 text-ink">{interaction.prompt}</p>
 
       {isListen && (
         <div className="mt-3 flex items-center gap-2">
-          <SpeakButton text={answer} label="Ouvir" size="sm" autoPlay />
-          <span className="text-xs text-ink-faint">Ouça e escolha a resposta.</span>
+          <SpeakButton text={answer} label={t("player.listen")} size="sm" autoPlay />
+          <span className="text-xs text-ink-faint">{t("player.listenAndChooseReply")}</span>
         </div>
       )}
 
       {isProduce ? (
         <>
           <p className="mt-2 text-sm text-ink-soft">
-            Sem alternativas desta vez: responda com as suas palavras.
+            {t("player.noChoicesThisTime")}
           </p>
           <textarea
             value={draft}
@@ -615,8 +615,8 @@ function InteractionPanel({
             }}
             disabled={feedback === "correct"}
             rows={2}
-            placeholder="Escreva em hànzì ou pinyin…"
-            aria-label="Sua resposta na conversa"
+            placeholder={t("player.writeHanziOrPinyin")}
+            aria-label={t("player.yourConversationAnswer")}
             className="mt-3 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
           />
         </>
@@ -624,7 +624,7 @@ function InteractionPanel({
         <>
           <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
             {ordered.length === 0 && (
-              <span className="self-center text-sm text-ink-faint">Toque nas peças para montar</span>
+              <span className="self-center text-sm text-ink-faint">{t("player.tapPiecesToBuild")}</span>
             )}
             {ordered.map((piece, index) => (
               <button
@@ -738,7 +738,7 @@ function InteractionPanel({
           <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
             <IconCheck width={18} height={18} /> {t("player.almostQi")}
           </div>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? "A conversa continua."}</p>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? t("player.conversationContinues")}</p>
           <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onCorrect}>
             {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
@@ -806,7 +806,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
   return (
     <div className="mt-4 animate-pop rounded-2xl border border-accent bg-surface p-3.5 shadow-card">
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-        A conversa travou
+        {t("player.conversationStuck")}
       </div>
 
       <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-3">
@@ -836,18 +836,18 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
                     : "border-line bg-surface-2 text-ink hover:border-accent-soft",
               ].join(" ")}
             >
-              {REPAIR_STRATEGY_LABELS[strategy]}
+              {resolveInstructionText(REPAIR_STRATEGY_LABELS[strategy], getInterfaceLocale())}
             </button>
           );
         })}
       </div>
       {missed && !strategyLocked && (
-        <p className="mt-2 text-sm text-accent">Esse movimento não resolve aqui. Releia o que a pessoa disse.</p>
+        <p className="mt-2 text-sm text-accent">{t("player.repairMoveWrong")}</p>
       )}
 
       {strategyLocked && !done && (
         <>
-          <p className="mt-4 text-sm font-medium text-ink">Agora diga isso em mandarim, sem alternativas.</p>
+          <p className="mt-4 text-sm font-medium text-ink">{t("player.nowSayMandarin")}</p>
           <textarea
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
@@ -858,8 +858,8 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
               }
             }}
             rows={2}
-            placeholder="Escreva em hànzì ou pinyin…"
-            aria-label="Sua recuperação"
+            placeholder={t("player.writeHanziOrPinyin")}
+            aria-label={t("player.yourConversationAnswer")}
             className="mt-2 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft"
           />
           <Button className="mt-3 w-full shadow-lift" disabled={draft.trim().length === 0} onClick={check}>
@@ -971,8 +971,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   if (!node) {
     return (
       <div data-conversation-scene>
-        <Eyebrow>Cena</Eyebrow>
-        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
+        <Eyebrow>{t("player.scene")}</Eyebrow>
+        <p className="mt-3 text-ink-soft">{t("player.emptyScene")}</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
           {t("player.continue")}
         </Button>
@@ -992,7 +992,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   return (
     <div data-conversation-scene>
-      <Eyebrow>Cena de conversa</Eyebrow>
+      <Eyebrow>{t("player.conversationScene")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
       <div className="mt-3">
@@ -1029,13 +1029,13 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
         {hint && !answering && (
           <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-2 text-sm text-ink-soft">
-            <span className="font-semibold text-accent">Pista:</span> {hint}
+            <span className="font-semibold text-accent">{t("player.clue")}</span> {hint}
           </div>
         )}
 
         {!answering && !repairPending && (
           <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-ink-faint">Fala {spokenCount}</span>
+            <span className="text-xs font-medium text-ink-faint">{t("player.lineN", { n: spokenCount })}</span>
             <Button className="min-w-[9.5rem] shadow-lift" onClick={advance}>
               {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
               <IconChevron width={18} height={18} />
@@ -1157,8 +1157,8 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   if (lines.length === 0) {
     return (
       <div data-conversation-scene>
-        <Eyebrow>Cena</Eyebrow>
-        <p className="mt-3 text-ink-soft">Esta cena ainda não tem falas.</p>
+        <Eyebrow>{t("player.scene")}</Eyebrow>
+        <p className="mt-3 text-ink-soft">{t("player.emptyScene")}</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
           {t("player.continue")}
         </Button>
@@ -1168,7 +1168,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div data-conversation-scene>
-      <Eyebrow>Cena de conversa</Eyebrow>
+      <Eyebrow>{t("player.conversationScene")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
       <div className="mt-3">
@@ -1214,7 +1214,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         {phase === "dialogue" && (
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">
-              Fala {lineIndex + 1} de {lines.length}
+              {t("player.lineOf", { index: lineIndex + 1, total: lines.length })}
             </span>
             <Button className="min-w-[9.5rem] shadow-lift" onClick={advanceDialogue}>
               {t("player.continue")} <IconChevron width={18} height={18} />

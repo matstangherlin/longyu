@@ -42,7 +42,6 @@ import { isJourneyBlockingActivityError } from "../../lib/missionHelpers";
 import {
   canAccessAdvancedReview,
   canAccessDetailedErrors,
-  FREE_TIER_REVIEW_HINT,
   useIsPro,
 } from "../../lib/proAccess";
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
@@ -246,12 +245,26 @@ function resolve(item: SRSItem): Resolved | null {
     : null;
 }
 
-const GRADES: { g: Grade; label: string; effect: string; variant: "outline" | "soft" | "primary" }[] = [
-  { g: "again", label: "Errei", effect: "volta em ~10 min", variant: "outline" },
-  { g: "hard", label: "Difícil", effect: "volta hoje", variant: "outline" },
-  { g: "good", label: "Bom", effect: "agenda normal", variant: "soft" },
-  { g: "easy", label: "Fácil", effect: "intervalo maior", variant: "primary" },
+const GRADE_BUTTONS: { g: Grade; variant: "outline" | "soft" | "primary" }[] = [
+  { g: "again", variant: "outline" },
+  { g: "hard", variant: "outline" },
+  { g: "good", variant: "soft" },
+  { g: "easy", variant: "primary" },
 ];
+
+function gradeLabel(g: Grade): string {
+  if (g === "again") return catalogT("review.gradeAgain");
+  if (g === "hard") return catalogT("review.gradeHard");
+  if (g === "easy") return catalogT("review.gradeEasy");
+  return catalogT("review.gradeGood");
+}
+
+function gradeEffect(g: Grade): string {
+  if (g === "again") return catalogT("review.gradeAgainEffect");
+  if (g === "hard") return catalogT("review.gradeHardEffect");
+  if (g === "easy") return catalogT("review.gradeEasyEffect");
+  return catalogT("review.gradeGoodEffect");
+}
 
 // Limite canônico do plano grátis vive em data/economy.ts.
 const FREE_REVIEW_LIMIT = FREE_REVIEW_SESSION_LIMIT;
@@ -363,9 +376,15 @@ function ReviewAnswer({ data, domain }: { data: Resolved; domain: ReviewDomain }
         audio
         align="center"
       />
-      {data.literalPt && <div className="mt-1 text-sm text-ink-faint">literal: {data.literalPt}</div>}
+      {data.literalPt && (
+        <div className="mt-1 text-sm text-ink-faint">
+          {catalogT("review.literalPrefix", { text: displayInstruction(data.literalPt) })}
+        </div>
+      )}
       <div className="mx-auto mt-3 max-w-sm rounded-xl bg-surface px-3 py-2 text-xs text-ink-soft">
-        Este cartão avaliou <span className="font-semibold text-ink">{meta.weaknessLabel}</span>. A nota afeta só esse domínio.
+        {catalogT("review.cardEvaluated", {
+          skill: displayInstruction(meta.weaknessLabel),
+        })}
       </div>
       {data.mnemonicPt && (
         <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-sm text-ink-soft">
@@ -447,7 +466,7 @@ function ReviewSummaryTile({
           <div className="mt-1 font-serif text-xl font-semibold text-ink">{value}</div>
           <div className="mt-1 text-xs leading-5 text-ink-soft">{detail}</div>
         </div>
-        <Pill tone={tone}>{tone === "accent" ? "Prioridade" : "OK"}</Pill>
+        <Pill tone={tone}>{tone === "accent" ? catalogT("review.priorityPill") : catalogT("common.ok")}</Pill>
       </div>
     </Card>
   );
@@ -515,7 +534,7 @@ function TypedValue({
   examMode?: boolean;
 }) {
   const cjk = type === "hanzi" || isHanziText(value);
-  if (type === "audio") return <SpeakButton text={value} size="sm" label="Ouvir" />;
+  if (type === "audio") return <SpeakButton text={value} size="sm" label={catalogT("common.listen")} />;
   if (type === "pinyin") return <Pinyin text={value} className={["font-serif", className].filter(Boolean).join(" ")} />;
   if (cjk) return <GlossText text={value} className={className} examMode={examMode} />;
   return <span className={[cjk ? "hanzi" : "", className].filter(Boolean).join(" ")}>{formatPinyinForDisplay(value)}</span>;
@@ -595,7 +614,7 @@ function ReviewExercisePanel({
       <div className="text-center text-sm font-medium text-ink-soft">{exercise.prompt}</div>
       {exercise.audioText && (
         <div className="mt-4 flex justify-center">
-          <SpeakButton text={exercise.audioText} size="lg" label="Ouvir" autoPlay />
+          <SpeakButton text={exercise.audioText} size="lg" label={catalogT("common.listen")} autoPlay />
         </div>
       )}
       {exercise.displayText && (
@@ -611,7 +630,11 @@ function ReviewExercisePanel({
       {exercise.kind === "speak" && (
         <div className="mt-4 rounded-2xl bg-surface px-4 py-4 text-center">
           <div className="text-2xl font-semibold text-ink">{exercise.entity.meaningPt}</div>
-          {exercise.entity.literalPt && <div className="mt-2 text-sm text-ink-soft">literal: {exercise.entity.literalPt}</div>}
+          {exercise.entity.literalPt && (
+            <div className="mt-2 text-sm text-ink-soft">
+              {catalogT("review.literalPrefix", { text: displayInstruction(exercise.entity.literalPt) })}
+            </div>
+          )}
           <p className="mt-3 text-sm text-ink-soft">Fale primeiro. Depois confira, toque no modelo e compare ritmo, tom e pinyin.</p>
         </div>
       )}
@@ -728,7 +751,7 @@ function SentenceBuildExercise({
             examMode={!revealed}
           />
         ) : (
-          <span className="text-sm text-ink-faint">Toque nas peças abaixo</span>
+          <span className="text-sm text-ink-faint">{catalogT("review.tapPieces")}</span>
         )}
       </div>
       <KeyboardShortcutHint />
@@ -741,7 +764,11 @@ function SentenceBuildExercise({
               type="button"
               disabled={revealed || used}
               onClick={() => onTogglePiece(piece.id)}
-              aria-label={index < 10 ? `Peça ${shortcutKeyForIndex(index)}: ${piece.value}` : piece.value}
+              aria-label={
+                index < 10
+                  ? catalogT("review.pieceAria", { n: shortcutKeyForIndex(index), value: piece.value })
+                  : piece.value
+              }
               className={[
                 "relative min-h-11 rounded-xl border px-4 py-2 text-sm font-semibold transition",
                 used ? "border-line bg-surface-2 text-ink-faint opacity-55" : "border-line bg-surface text-ink hover:border-accent hover:bg-accent-soft",
@@ -805,7 +832,7 @@ function MatchPairsExercise({
               <div className="font-semibold text-ink">
                 <TypedValue value={pair.left} type={pair.leftType} className={isHanziText(pair.left) ? "text-2xl" : ""} examMode={!revealed} />
               </div>
-              <div className="mt-1 text-xs text-ink-faint">{matched ?? "Escolha o par"}</div>
+              <div className="mt-1 text-xs text-ink-faint">{matched ?? catalogT("review.choosePair")}</div>
             </button>
           );
         })}
@@ -841,12 +868,12 @@ function ExerciseFeedback({
   showMistakeReason?: boolean;
 }) {
   const title = correct == null
-    ? "Confira a resposta"
+    ? catalogT("review.checkAnswerTitle")
     : correct && exercise.remediation
-      ? "Erro corrigido!"
+      ? catalogT("review.errorCorrected")
       : correct
-        ? "Certo"
-        : "Errado";
+        ? catalogT("review.feedbackRight")
+        : catalogT("review.feedbackWrong");
   return (
     <div
       data-review-feedback
@@ -878,22 +905,22 @@ function ExerciseFeedback({
       <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>
       {correct && exercise.remediation && (
         <p className="mx-auto mt-2 max-w-sm text-xs font-semibold text-[rgb(var(--good))]">
-          Agora essa frase voltou para revisão espaçada.
+          {catalogT("review.backToSpaced")}
         </p>
       )}
       {showMistakeReason && exercise.mistakeReason && (
         <p className="mx-auto mt-2 max-w-sm text-xs text-ink-faint">
-          Motivo provável: {exercise.mistakeReason}
+          {catalogT("review.probableReason", { reason: displayInstruction(exercise.mistakeReason) })}
         </p>
       )}
       {correct === false && (
         <p className="mx-auto mt-2 max-w-sm text-xs font-medium text-danger">
-          Esse erro vai voltar no fim da fila para você corrigir agora.
+          {catalogT("review.willReturnQueue")}
         </p>
       )}
       {suggestedGrade && (
         <div className="mx-auto mt-3 inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">
-          Sugestão: {GRADES.find((grade) => grade.g === suggestedGrade)?.label}
+          {catalogT("review.suggestion", { label: gradeLabel(suggestedGrade) })}
         </div>
       )}
     </div>
@@ -911,16 +938,18 @@ function DetailedErrorsUpsellCard({
     <Card className={["rounded-xl border-[#B7791F]/25 bg-[#B7791F]/5 p-4 shadow-none", className].filter(Boolean).join(" ")}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Erros detalhados</div>
-          <h2 className="mt-1 text-sm font-semibold text-ink">Histórico e padrões de erro</h2>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+            {catalogT("review.detailedErrors")}
+          </div>
+          <h2 className="mt-1 text-sm font-semibold text-ink">{catalogT("review.detailedErrorsHistory")}</h2>
         </div>
-        <Pill tone="gold">Pro</Pill>
+        <Pill tone="gold">{catalogT("common.pro")}</Pill>
       </div>
       <p className="mt-3 text-sm leading-6 text-ink-soft">
-        Erros detalhados fazem parte do Longyu Pro. Você ainda pode fazer revisões básicas pela Jornada.
+        {catalogT("review.detailedErrorsProBody")}
       </p>
       <Button size="sm" variant="outline" className="mt-4 w-full" onClick={onOpenPaywall}>
-        Ver Longyu Pro
+        {catalogT("player.seeLongyuPro")}
       </Button>
     </Card>
   );
@@ -1523,7 +1552,7 @@ export function RevisaoPage() {
               )}
               {detailedErrorsAllowed && sessionGrades.length > 0 && (
                 <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-left">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Por habilidade</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{t("review.bySkill")}</div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {REVIEW_DOMAIN_ORDER.map((domain) => {
                       const domainGrades = sessionGrades.filter((entry) => entry.domain === domain);
@@ -1547,9 +1576,12 @@ export function RevisaoPage() {
               )}
               {!isPremium && fullQueue.length > queue.length && (
                 <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-sm text-ink-soft">
-                  Ainda há {fullQueue.length - queue.length} prioridades de revisão. {FREE_TIER_REVIEW_HINT}
+                  {t("review.stillPriorities", {
+                    n: fullQueue.length - queue.length,
+                    hint: t("review.freeSessionLimit", { n: FREE_REVIEW_LIMIT }),
+                  })}
                   <button type="button" onClick={() => openPaywall("review")} className="mt-3 inline-flex font-semibold text-accent hover:underline">
-                    Ver Longyu Pro
+                    {t("player.seeLongyuPro")}
                   </button>
                 </div>
               )}
@@ -2007,15 +2039,17 @@ export function RevisaoPage() {
                     grade(exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : suggestedGrade ?? "good")
                   }
                 >
-                  {exerciseCorrect === false && activeExercise.canAutoCheck ? "Errei — continuar" : "Continuar"}
+                  {exerciseCorrect === false && activeExercise.canAutoCheck
+                    ? t("review.continueWrong")
+                    : t("common.continue")}
                 </Button>
                 {!(exerciseCorrect === false && activeExercise.canAutoCheck) && (
                   <details className="rounded-xl border border-line bg-surface-2/60 px-3 py-2 text-left">
                     <summary className="cursor-pointer text-xs font-semibold text-ink-soft">
-                      Ajustar dificuldade (Errei / Difícil / Bom / Fácil)
+                      {t("review.adjustDifficulty")}
                     </summary>
                     <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {GRADES.map(({ g, label, effect, variant }) => (
+                      {GRADE_BUTTONS.map(({ g, variant }) => (
                         <Button
                           key={g}
                           variant={variant}
@@ -2026,9 +2060,9 @@ export function RevisaoPage() {
                           ].join(" ")}
                           onClick={() => grade(g)}
                         >
-                          <span>{label}</span>
+                          <span>{gradeLabel(g)}</span>
                           <span className="text-[10px] font-normal opacity-80">
-                            {effect} · +{reviewXpForGrade(g)} XP · +{reviewQiForGrade(g)} Qi
+                            {gradeEffect(g)} · +{reviewXpForGrade(g)} XP · +{reviewQiForGrade(g)} Qi
                           </span>
                         </Button>
                       ))}
@@ -2044,7 +2078,7 @@ export function RevisaoPage() {
               disabled={!isExerciseComplete(activeExercise, selectedOption, selectedPieceIds, pairMatches)}
               onClick={verifyExercise}
             >
-              {activeExercise.canAutoCheck ? "Verificar" : "Conferir resposta"}
+              {activeExercise.canAutoCheck ? t("review.ctaCheck") : t("review.revealAnswer")}
             </Button>
           )}
           </>

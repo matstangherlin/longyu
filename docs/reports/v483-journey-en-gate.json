@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T22:25:47.330Z",
+  "generatedAt": "2026-08-29T00:09:04.215Z",
   "teachingTopicCount": 113,
   "topicIds": [
     "p1-o-que-e-mandarim",
@@ -90,7 +90,7 @@
   "leakCount": 0,
   "fingerprintDrift": 0,
   "walkIssueCount": 0,
-  "laterMissingCount": 1568,
+  "laterMissingCount": 1567,
   "progressBoard": {
     "1-20": "READY",
     "21-50": "READY",

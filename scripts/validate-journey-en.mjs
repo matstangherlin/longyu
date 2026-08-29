@@ -61,11 +61,12 @@ const PT_STOP =
 
 const CHROME_LEFTOVERS = [
   { file: "src/features/lesson/LessonPlayer.tsx", needles: ["Cargas do Dragão", "Rever resultados", "Lição bloqueada por hoje", "Escudo de sequência x", "Treino de tons", "Abrir treino de tons", "Voltar à jornada"] },
-  { file: "src/features/lesson/steps.tsx", needles: [">Áudio lento<", "Não posso ouvir agora", "Atalhos: use 1-9"] },
+  { file: "src/features/lesson/steps.tsx", needles: [">Áudio lento<", "Não posso ouvir agora", "Atalhos: use 1-9", 'aria-label="Ouvir"', ">Ouvir devagar<", ">Ouvir normal<", ">Entenda<", ">Ouça e imite<"] },
   { file: "src/lib/useExerciseHotkeys.tsx", needles: ["Atalhos: use 1-9 para responder.", "Atalhos: 1-5 na esquerda"] },
-  { file: "src/features/revisao/RevisaoPage.tsx", needles: ['label="Revisão de hoje"', ">Plano de hoje<", ">Fila inteligente<", "Em dia", "Histórico completo", 'label="Pendentes"'] },
+  { file: "src/features/revisao/RevisaoPage.tsx", needles: ['label="Revisão de hoje"', ">Plano de hoje<", ">Fila inteligente<", "Em dia", "Histórico completo", 'label="Pendentes"', '"Confira a resposta"', '"Erro corrigido!"', '"Escolha o par"', '"Errei — continuar"', '"Conferir resposta"', '"Ajustar dificuldade (Errei / Difícil / Bom / Fácil)"', '"Toque nas peças abaixo"', '"Este cartão avaliou"', '"Histórico e padrões de erro"'] },
   { file: "src/features/lesson/LessonDetailPage.tsx", needles: ["no Treino de tons com nota mínima"] },
   { file: "src/features/journey/JourneyPage.tsx", needles: ["no Treino de tons com nota mínima"] },
+  { file: "src/features/lesson/ConversationSceneStep.tsx", needles: [">Sua vez<", '"Toque para ouvir"', "A conversa travou", "Esta cena ainda não tem falas."] },
 ];
 
 function collectFromStep(step, bag) {

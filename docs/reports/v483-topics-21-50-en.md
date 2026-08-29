@@ -110,7 +110,7 @@ From `docs/reports/v483-english-journey-progress.json`
 
 | Command | Result |
 | --- | --- |
-| `npm run validate:i18n` | PASS (1358 catalog keys, pt-BR/en parity) |
+| `npm run validate:i18n` | PASS (1457 catalog keys, pt-BR/en parity) |
 | `npm run test:i18n` | PASS |
 | `npm run validate:first-20-en` | PASS |
 | `npm run test:first-20-locale-parity` | PASS |
@@ -122,7 +122,7 @@ From `docs/reports/v483-english-journey-progress.json`
 
 Tone-trainer gates for topics 21–22 (`p2-comparar-tom-2-3`, `p2-tons-xiexie`) now use `journey.completeTonePack*` catalog copy. E2E seeds completed Tone Trainer packs so EN walks enter the player.
 
-Overlay key count: **2221** PT→EN strings in `instructionGloss.en.json`.
+Overlay key count: **2238** PT→EN strings in `instructionGloss.en.json`.
 New 21–50 authored strings: **894**. Stable loc ids: **5990**.
 
 ## Out of scope
