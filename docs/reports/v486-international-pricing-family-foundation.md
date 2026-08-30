@@ -83,5 +83,6 @@ The planned response contains only `checkoutUrl`, `resolvedPlan`, `resolvedMarke
 - `npm run validate:plans` — PASS
 - `npm run validate:en-core-surfaces` — PASS, `REAL_UI_LEAKS_CORE_EN = 0`
 - `npm run validate:journey-en` — PASS (topics 1–80 remain covered by the existing fail-closed Journey gate)
+- `npm run test:backend-contract` — PASS after regenerating `docs/backend/edge-contract.json` for `create-checkout-session`
 
 Final build and CI are recorded on the pull request. Human approval is required before merge.
