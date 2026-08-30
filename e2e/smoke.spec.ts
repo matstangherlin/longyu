@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { seedLeagueDemoSession, seedOnboardedSession, waitForLazyPage } from "./helpers";
+import {
+  PRO_CHECKOUT_PENDING,
+  PRO_PRICING_HEADLINE,
+  seedLeagueDemoSession,
+  seedOnboardedSession,
+  waitForLazyPage,
+} from "./helpers";
 
 test.describe("smoke", () => {
   test("app abre onboarding ou jornada", async ({ page }) => {
@@ -103,8 +109,10 @@ test.describe("smoke", () => {
   test("página Pro vende o plano comercial, sem Pro Preview", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/pro");
-    await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
-    await expect(page.getByText(/30 dias grátis/i).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: PRO_PRICING_HEADLINE })).toBeVisible();
+    await expect(page.locator("[data-pro-page]")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Longyu Família/i }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: PRO_CHECKOUT_PENDING })).toBeVisible();
     await expect(page.getByText(/Pro Preview/i)).toHaveCount(0);
   });
 
@@ -175,8 +183,8 @@ test.describe("mobile", () => {
   test("página Pro cabe em 360px", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/pro");
-    await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Começar 30 dias grátis|Em breve/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: PRO_PRICING_HEADLINE })).toBeVisible();
+    await expect(page.getByRole("button", { name: PRO_CHECKOUT_PENDING })).toBeVisible();
   });
 });
 

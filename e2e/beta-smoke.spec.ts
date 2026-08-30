@@ -8,6 +8,7 @@ import {
   seedLessonRecoverySession,
   seedOnboardedSession,
   waitForLazyPage,
+  PRO_PRICING_HEADLINE,
 } from "./helpers";
 
 async function clickFirstVisible(page: Page, names: RegExp[]) {
@@ -250,7 +251,7 @@ test.describe("beta smoke — fluxos públicos", () => {
   test("paywall: /pro sem Pro Preview", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/pro");
-    await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: PRO_PRICING_HEADLINE })).toBeVisible();
     await expect(page.getByText(/Pro Preview/i)).toHaveCount(0);
     await expect(page.getByText(/Preview local — não é assinatura real/i)).toHaveCount(0);
   });
@@ -461,6 +462,6 @@ test.describe("beta smoke — mobile 360", () => {
     await page.goto("/jornada");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.goto("/pro");
-    await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: PRO_PRICING_HEADLINE })).toBeVisible();
   });
 });

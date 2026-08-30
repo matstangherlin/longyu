@@ -3,6 +3,12 @@ import { expect } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
 import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 
+/** V4.8.6 pricing chrome — locale-keyed, no hardcoded trial price. */
+export const PRO_PRICING_HEADLINE =
+  /Planos para aprender no seu ritmo|Plans for learning at your pace/i;
+export const PRO_CHECKOUT_PENDING =
+  /Indisponível enquanto o preço está pendente|Unavailable while pricing is pending/i;
+
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.

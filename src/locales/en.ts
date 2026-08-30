@@ -1232,6 +1232,8 @@ export const en: MessageCatalog = {
     activeThanks: "Pro is active. Thank you!",
     manageBilling: "Manage or cancel subscription",
     forYou: "For you",
+    forCompanies: "For companies",
+    meetBusiness: "Explore Business",
     freeVsPro: "Free vs Pro",
     free: "Free",
     freeTitle: "Teaches for real",

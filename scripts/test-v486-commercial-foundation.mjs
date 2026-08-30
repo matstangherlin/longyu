@@ -100,7 +100,7 @@ const before = JSON.stringify({ ownerProgress, memberProgress });
 family.removeFamilyMember(full, "u2");
 assert.equal(JSON.stringify({ ownerProgress, memberProgress }), before, "membership operations cannot alter learning state");
 
-for (const key of ["planFree", "planPro", "planFamily", "planBusiness", "planEnterprise", "pricePending", "monthlyLabel", "annualLabel"]) {
+for (const key of ["planFree", "planPro", "planFamily", "planBusiness", "planEnterprise", "pricePending", "monthlyLabel", "annualLabel", "forCompanies", "meetBusiness", "pricingHeadline"]) {
   assert.ok(ptBR.pro[key], `pt-BR pro.${key}`);
   assert.ok(en.pro[key], `en pro.${key}`);
 }

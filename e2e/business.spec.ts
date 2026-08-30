@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { dismissBlockingOverlays, seedOnboardedSession, waitForLazyPage } from "./helpers";
+import { dismissBlockingOverlays, seedOnboardedSession, waitForLazyPage, PRO_PRICING_HEADLINE } from "./helpers";
 
 const VIEWPORTS = [
   { label: "320×568", width: 320, height: 568 },
@@ -118,7 +118,7 @@ test.describe("V4.4 /business — guest, copy e formulário", () => {
     await expect(block).not.toContainText(/R\$\s*\d/);
     await expect(block).not.toContainText(/BYD/i);
     await expect(block).not.toContainText(/checkout de 1 assento/i);
-    await expect(page.getByRole("heading", { name: /30 dias grátis/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: PRO_PRICING_HEADLINE })).toBeVisible();
   });
 
   test("e-mail inválido, honeypot e labels de teclado", async ({ page }) => {

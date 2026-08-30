@@ -1231,6 +1231,8 @@ export const ptBR = {
     activeThanks: "Assinatura Pro ativa. Obrigado!",
     manageBilling: "Gerenciar ou cancelar assinatura",
     forYou: "Para você",
+    forCompanies: "Para empresas",
+    meetBusiness: "Conhecer Business",
     freeVsPro: "Grátis vs Pro",
     free: "Grátis",
     freeTitle: "Ensina de verdade",
