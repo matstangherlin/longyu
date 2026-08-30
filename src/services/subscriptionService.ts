@@ -3,6 +3,7 @@ import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { isDevPreviewAllowed } from "../lib/entitlements";
 import { fetchServerSubscription, subscriptionGrantsPro } from "./entitlementService";
 import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
+import type { CheckoutRequest, CheckoutResponse } from "../commercial/billing";
 
 export type SubscriptionState =
   | "not_subscriber"
@@ -60,8 +61,8 @@ export function subscriptionStateFor(
 }
 
 export async function createCheckoutSession(
-  planKey: ProPlanKey = "pro_monthly"
-): Promise<SubscriptionServiceResult<{ url?: string }>> {
+  request: CheckoutRequest
+): Promise<SubscriptionServiceResult<Partial<CheckoutResponse>>> {
   if (!isSupabaseBackendEnabled()) {
     return { status: "not_implemented", message: CHECKOUT_PENDING_MESSAGE };
   }
@@ -79,9 +80,9 @@ export async function createCheckoutSession(
   }
 
   const ops = edgeOpsInit("checkout");
-  const { data, error } = await client.functions.invoke<{ url?: string }>("create-checkout-session", {
+  const { data, error } = await client.functions.invoke<Partial<CheckoutResponse>>("create-checkout-session", {
     headers: ops.headers,
-    body: { planKey },
+    body: request,
   });
 
   if (error) {
@@ -89,12 +90,12 @@ export async function createCheckoutSession(
     return { status: "error", message: error.message || CHECKOUT_PENDING_MESSAGE };
   }
 
-  if (data?.url) {
+  if (data?.checkoutUrl) {
     noteOps("checkout", ops.correlationId, "ok");
     return {
       status: "opened",
       message: "Abrindo checkout seguro do Stripe...",
-      data: { url: data.url },
+      data,
     };
   }
 

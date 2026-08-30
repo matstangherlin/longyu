@@ -10,6 +10,8 @@ export {
   LOCALE_DISPLAY_NAME,
   isSupportedLocale,
   type SupportedLocale,
+  type InterfaceLocale,
+  type TargetLanguage,
   type I18nNamespace,
 } from "./config";
 

@@ -11,7 +11,10 @@ export type AccessTier = "free" | "pro" | "business" | "enterprise";
 export type EntitlementSource =
   | "none"
   | "individual_subscription"
-  | "organization"
+  | "family_membership"
+  | "business_seat"
+  | "enterprise_seat"
+  | "promotion"
   | "pearl"
   | "internal";
 
@@ -42,7 +45,10 @@ const ORG_ROLES = new Set<OrganizationRole>(["owner", "admin", "manager", "learn
 export function parseEntitlementSource(raw: string | null | undefined): EntitlementSource {
   const value = String(raw ?? "").trim().toLowerCase();
   if (value === "individual_subscription" || value === "stripe") return "individual_subscription";
-  if (value === "organization") return "organization";
+  if (value === "family_membership") return "family_membership";
+  if (value === "business_seat" || value === "organization") return "business_seat";
+  if (value === "enterprise_seat") return "enterprise_seat";
+  if (value === "promotion") return "promotion";
   if (value === "pearl" || value === "pearl_pass" || value === "pearl_pro_pass") return "pearl";
   if (value === "internal" || value === "grant") return "internal";
   return "none";

@@ -1,5 +1,10 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import {
+  BillingContractError,
+  buildServerPriceMatrix,
+  resolveAllowedPrice,
+} from "../../../src/commercial/billing.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_BETA_ORIGINS = [
@@ -50,6 +55,12 @@ serve(async (req) => {
         { status: 501, headers: { ...headers, "Content-Type": "application/json" } }
       );
     }
+    if (stripeSecret.startsWith("sk_live_")) {
+      return new Response(JSON.stringify({ error: "Stripe Live is disabled for this release candidate." }), {
+        status: 503,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -74,25 +85,18 @@ serve(async (req) => {
       });
     }
 
-    // Allowlist de planos: só chaves conhecidas viram lookup de price ID (o price
-    // vem SEMPRE do env do servidor — o cliente nunca injeta um price arbitrário).
-    // Business/Enterprise NÃO entram aqui: quantity permanece 1 e o plano
-    // corporativo não usa Checkout enquanto não houver seat management.
-    const ALLOWED_PLAN_KEYS = new Set(["pro_monthly", "pro_annual"]);
-    const { planKey = "pro_monthly" } = await req.json();
-    if (!ALLOWED_PLAN_KEYS.has(planKey)) {
-      return new Response(JSON.stringify({ error: `Plano desconhecido: ${planKey}` }), {
-        status: 400,
+    const checkoutRequest = await req.json();
+    const matrix = buildServerPriceMatrix((name) => Deno.env.get(name));
+    const resolved = resolveAllowedPrice(checkoutRequest, matrix);
+    if (resolved.status !== "CONFIGURED" || !resolved.providerPriceId) {
+      return new Response(JSON.stringify({ error: "PRICE_PENDING" }), {
+        status: 409,
         headers: { ...headers, "Content-Type": "application/json" },
       });
     }
-    const priceId = Deno.env.get(`STRIPE_PRICE_${planKey.toUpperCase()}`);
-    if (!priceId) {
-      return new Response(JSON.stringify({ error: `Plano indisponível: ${planKey}` }), {
-        status: 400,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
-    }
+    const returnPath = typeof checkoutRequest.returnPath === "string" && /^\/[A-Za-z0-9\-/_?=&%]*$/.test(checkoutRequest.returnPath)
+      ? checkoutRequest.returnPath
+      : "/pro";
 
     // Allowlist de URLs de retorno: o header Origin é controlado pelo cliente,
     // então nunca redirecionamos para um domínio arbitrário. Origins permitidos
@@ -100,11 +104,11 @@ serve(async (req) => {
     const origin = requestOrigin(req);
     const params = new URLSearchParams({
       mode: "subscription",
-      "line_items[0][price]": priceId,
+      "line_items[0][price]": resolved.providerPriceId,
       "line_items[0][quantity]": "1",
       "subscription_data[trial_period_days]": "30",
-      success_url: `${origin}/pro?checkout=success`,
-      cancel_url: `${origin}/pro?checkout=cancel`,
+      success_url: `${origin}${returnPath}${returnPath.includes("?") ? "&" : "?"}checkout=success`,
+      cancel_url: `${origin}${returnPath}${returnPath.includes("?") ? "&" : "?"}checkout=cancel`,
       client_reference_id: user.id,
       customer_email: user.email ?? "",
     });
@@ -126,10 +130,21 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ url: session.url }), {
+    return new Response(JSON.stringify({
+      checkoutUrl: session.url,
+      resolvedPlan: resolved.plan,
+      resolvedMarket: resolved.market,
+      resolvedCurrency: resolved.currency,
+    }), {
       headers: { ...headers, "Content-Type": "application/json" },
     });
   } catch (error) {
+    if (error instanceof BillingContractError) {
+      return new Response(JSON.stringify({ error: error.code }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
     const message = error instanceof Error ? error.message : "Erro inesperado.";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,

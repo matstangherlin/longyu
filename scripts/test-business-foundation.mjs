@@ -94,13 +94,13 @@ const planFeatures = read("src/data/planFeatures.ts");
 assert(planFeatures.includes('export type PlanTier = "free" | "pro"'), "PlanTier B2C permanece free|pro");
 
 const checkout = read("supabase/functions/create-checkout-session/index.ts");
-assert(checkout.includes('new Set(["pro_monthly", "pro_annual"])'), "checkout só Pro mensal/anual");
+assert(checkout.includes("resolveAllowedPrice"), "checkout usa catálogo server-side para Pro/Family");
 assert(checkout.includes('"line_items[0][quantity]": "1"'), "checkout quantity = 1");
 assert(!/business_monthly|business_annual/.test(checkout), "checkout sem plano Business");
 
 const proPage = read("src/features/pro/ProPage.tsx");
-assert(proPage.includes("<ProBusinessOffer"), "ProPage usa oferta Business/Enterprise");
-assert(proPage.includes('t("pro.forYou")'), "ProPage separa oferta individual");
+assert(proPage.includes('"business", "enterprise"'), "ProPage usa catálogo Business/Enterprise");
+assert(proPage.includes('selectedPlan === plan'), "ProPage separa oferta individual/familiar");
 assert(!/createCheckoutSession\([^)]*business/.test(proPage), "ProPage não faz checkout Business");
 
 const proOffer = read("src/features/pro/ProBusinessOffer.tsx");
