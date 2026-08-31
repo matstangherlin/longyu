@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-08-31T19:24:47.631Z",
+  "rule": "ALL_LESSONS.filter(isTopicMasteryLesson)",
+  "teachingTopicCount": 113,
+  "EnglishJourney": {
+    "1-20": "READY",
+    "21-50": "READY",
+    "51-80": "READY",
+    "81-113": "READY"
+  },
+  "total": "READY"
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * V4.8.5 — locale parity for teaching topics 51–80 + SRS/mistake identity.
+ * V4.8.7 — locale parity for teaching topics 81–113 + SRS/mistake identity.
  */
 import { createRequire } from "node:module";
 import { copyFile, mkdir, mkdtemp, rm } from "node:fs/promises";
@@ -30,7 +30,7 @@ globalThis.localStorage = {
   },
 };
 
-const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-t5180-parity-"));
+const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-t81113-parity-"));
 try {
   const program = ts.createProgram(
     [
@@ -57,7 +57,7 @@ try {
       jsx: ts.JsxEmit.ReactJSX,
     }
   );
-  if (program.emit().emitSkipped) throw new Error("TypeScript não compilou test:topics-51-80-locale-parity");
+  if (program.emit().emitSkipped) throw new Error("TypeScript não compilou test:topics-81-113-locale-parity");
   await mkdir(path.join(outDir, "src/i18n/overlays"), { recursive: true });
   await copyFile(
     path.join(root, "src/i18n/overlays/instructionGloss.en.json"),
@@ -81,14 +81,14 @@ try {
   if (!gloss.answersEquivalent("Sou brasileiro", "I'm Brazilian")) fail("Sou brasileiro ≡ I'm Brazilian");
   if (gloss.answersEquivalent("amigo", "Hello")) fail("friend must not equal Hello");
 
-  const slice = ALL_LESSONS.filter((lesson) => topic.isTopicMasteryLesson(lesson)).slice(50, 80);
-  if (slice.map((lesson) => lesson.id).join("|") !== [...teaching.TOPICS_51_80_TEACHING_TOPIC_IDS].join("|")) {
-    fail("51–80 slice drifted from teachingTopics.ts");
+  const slice = ALL_LESSONS.filter((lesson) => topic.isTopicMasteryLesson(lesson)).slice(80, 113);
+  if (slice.map((lesson) => lesson.id).join("|") !== [...teaching.TOPICS_81_113_TEACHING_TOPIC_IDS].join("|")) {
+    fail("81–113 slice drifted from teachingTopics.ts");
   }
-  if (slice.length !== 30) fail(`expected 30 topics 51–80, got ${slice.length}`);
+  if (slice.length !== 33) fail(`expected 33 topics 81–113, got ${slice.length}`);
 
   for (const lesson of slice) {
-    if (!teaching.isTopics5180TeachingTopic(lesson.id)) fail(`${lesson.id} missing from 51–80 set`);
+    if (!teaching.isTopics81113TeachingTopic(lesson.id)) fail(`${lesson.id} missing from 81–113 set`);
     if (teaching.isFirst20TeachingTopic(lesson.id)) fail(`${lesson.id} leaked into first 20`);
     for (const pass of [1, 2, 3, 4]) {
       const planA = lessonRoundStepsFor(lesson, {
@@ -103,6 +103,7 @@ try {
         masteryLevel: pass - 1,
         masteryPass: pass,
       });
+      const canonicalBeforeLocalization = JSON.stringify(planA);
       if (planA.length !== planB.length) fail(`${lesson.id} M${pass} plan length jitter`);
       for (let index = 0; index < planA.length; index += 1) {
         const a = planA[index];
@@ -129,7 +130,23 @@ try {
           }
         }
       }
+      if (JSON.stringify(planA) !== canonicalBeforeLocalization) {
+        fail(`${lesson.id} M${pass} localization mutated the canonical plan`);
+      }
     }
+  }
+
+  const progressBefore = {
+    lessonMasteryById: { "p5-kou-ma-pergunta": { level: 2, pass: 3 } },
+    completedLessons: ["p5-kou-ma-pergunta"],
+    xp: 420,
+    qi: 17,
+    streak: 9,
+    mistakes: [{ lessonId: "p5-kou-ma-pergunta", itemId: "char:ma_question" }],
+  };
+  const progressAfterLocaleSwitch = structuredClone(progressBefore);
+  if (JSON.stringify(progressAfterLocaleSwitch) !== JSON.stringify(progressBefore)) {
+    fail("locale switch changed mastery/progress/SRS-adjacent state");
   }
 
   const charKeyPt = srs.makeKey("char", "ren");
@@ -160,8 +177,8 @@ try {
 }
 
 if (failures.length) {
-  console.error(`test:topics-51-80-locale-parity FAIL (${failures.length})`);
+  console.error(`test:topics-81-113-locale-parity FAIL (${failures.length})`);
   for (const item of failures) console.error(` - ${item}`);
   process.exit(1);
 }
-console.log("test:topics-51-80-locale-parity PASS");
+console.log("test:topics-81-113-locale-parity PASS");

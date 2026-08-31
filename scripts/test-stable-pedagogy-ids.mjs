@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * V4.8.5 — stable pedagogical loc ids exist for topics 21–80.
+ * V4.8.7 — stable pedagogical loc ids exist for topics 21–113.
  * First 20 remain on the PT-text overlay (compatibility resolver).
  */
 import { createRequire } from "node:module";
@@ -70,11 +70,11 @@ try {
   const first20 = load("src/i18n/overlays/first20.js");
 
   const topicIds = stable.stablePedagogyTopicIds();
-  if (topicIds.join("|") !== [...teaching.TOPICS_21_80_TEACHING_TOPIC_IDS].join("|")) {
+  if (topicIds.join("|") !== [...teaching.TOPICS_21_113_TEACHING_TOPIC_IDS].join("|")) {
     fail("stable catalog topicIds drifted from teachingTopics.ts");
   }
-  if (stable.stablePedagogyEntryCount() < 7000) {
-    fail(`expected a dense 21–80 loc catalog, got ${stable.stablePedagogyEntryCount()}`);
+  if (stable.stablePedagogyEntryCount() < 20000) {
+    fail(`expected a dense 21–113 loc catalog, got ${stable.stablePedagogyEntryCount()}`);
   }
 
   const sample = teaching.pedagogyMetaLocId("l9", "title");
@@ -86,6 +86,10 @@ try {
   if (sample51 !== "p.p4-char-ren.meta.spec.promise") fail(`51–80 loc id shape ${sample51}`);
   const looked51 = stable.lookupStablePedagogy(sample51);
   if (!looked51?.en) fail("p4-char-ren spec.promise loc id missing EN");
+
+  const sample81 = teaching.pedagogyMetaLocId("p5-kou-ma-pergunta", "spec.promise");
+  const looked81 = stable.lookupStablePedagogy(sample81);
+  if (!looked81?.en) fail("p5-kou-ma-pergunta spec.promise loc id missing EN");
 
   const first20Id = first20.FIRST_20_TEACHING_TOPIC_IDS[0];
   if (!first20.isFirst20TeachingTopic(first20Id)) fail("first-20 compatibility helper broken");
@@ -102,7 +106,7 @@ try {
     if (!kinds.has(entry.kind)) fail(`bad kind ${entry.kind} on ${entry.id}`);
     if (!entry.en) fail(`empty EN on ${entry.id}`);
     if (first20.isFirst20TeachingTopic(entry.id.split(".")[1])) {
-      fail(`first-20 topic leaked into 21–80 catalog: ${entry.id}`);
+      fail(`first-20 topic leaked into 21–113 catalog: ${entry.id}`);
     }
   }
 } finally {

@@ -1475,6 +1475,8 @@ export const en: MessageCatalog = {
     pwaUpdateBody: "Update to get the latest beta fixes.",
     pwaDismiss: "Dismiss update notice",
     unknown: "Something went wrong. Try again.",
+    notFoundTitle: "This page is not here",
+    notFoundBody: "The link may be outdated. Return home or start your Mandarin Journey.",
   },
   marketing: {
     tagline: "EN → Mandarin",

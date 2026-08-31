@@ -213,11 +213,11 @@ test.describe("V4.8.4 English core surfaces", () => {
     await seedInterfaceLocale(page, "en");
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-interface-locale", "en");
-    await expect(page.locator("html")).toHaveAttribute("data-i18n-version", "v4.8.6");
+    await expect(page.locator("html")).toHaveAttribute("data-i18n-version", "v4.8.7");
     const sw = await page.request.get("/sw.js");
     if (sw.ok()) {
       const body = await sw.text();
-      expect(body, "PWA cacheId must include the i18n version").toContain("longyu-i18n-v4.8.6");
+      expect(body, "PWA cacheId must include the i18n version").toContain("longyu-i18n-v4.8.7");
     }
   });
 
@@ -328,5 +328,14 @@ test.describe("V4.8.4 English core surfaces", () => {
     const body = await page.locator("body").innerText();
     expect(body).not.toMatch(/\bLição bloqueada por hoje\b/);
     expect(body).not.toMatch(/\bCargas do Dragão\b/);
+  });
+
+  test("unknown public route fails safely in English", async ({ page }) => {
+    await seedInterfaceLocale(page, "en");
+    await page.goto("/this-route-does-not-exist");
+    await expect(page.locator("[data-public-not-found]")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "This page is not here" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Back to home/i })).toBeVisible();
+    await expect(page.getByText("Esta página não está aqui", { exact: true })).toHaveCount(0);
   });
 });

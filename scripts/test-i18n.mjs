@@ -82,11 +82,11 @@ try {
   locale.resetInterfaceLocaleForTests();
   assert(config.DEFAULT_LOCALE === "pt-BR", "default locale is pt-BR");
   assert(config.TARGET_LANGUAGE === "zh-CN", "target language is zh-CN");
-  assert(config.LONGYU_I18N_VERSION === "v4.8.6", "i18n wave is v4.8.6");
+  assert(config.LONGYU_I18N_VERSION === "v4.8.7", "i18n wave is v4.8.7");
   assert(locale.getInterfaceLocale() === "pt-BR", "bootstrap default pt-BR");
   assert(globalThis.document.documentElement.lang === "pt-BR", "HTML lang default pt-BR");
   assert(globalThis.document.documentElement.dataset.interfaceLocale === "pt-BR", "data-interface-locale default");
-  assert(globalThis.document.documentElement.dataset.i18nVersion === "v4.8.6", "data-i18n-version default");
+  assert(globalThis.document.documentElement.dataset.i18nVersion === "v4.8.7", "data-i18n-version default");
   assert(locale.parseInterfaceLocale("en") === "en", "parse en");
   assert(locale.parseInterfaceLocale("en-US") === "en", "en-US canonicalizes to en, not country");
   assert(locale.parseInterfaceLocale("pt") === "pt-BR", "pt canonicalizes to pt-BR");

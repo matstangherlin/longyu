@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | b4baa89ae3d4 |
-| HEAD no instante da geração | 75eb981c26f84780d84e6fbd2c248be98df6e668 |
+| Hash da Jornada | fb7ac3c5d18a |
+| HEAD no instante da geração | 61b0d8a99781e8d20733f7ea81c86a3569c7cdc7 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-26T06:36:38.736Z |
+| Gerado em | 2026-08-31T19:20:07.055Z |
 | Lições | 127 |
 
 ## Política
@@ -108,4 +108,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `state_destination` · modelo `我去北京。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-casa-amigo** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:4e804ff78eff6903 -->
+<!-- integridade:a48b092d898f3166 -->

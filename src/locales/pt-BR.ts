@@ -1479,6 +1479,8 @@ export const ptBR = {
     pwaUpdateBody: "Atualize para pegar correções da beta.",
     pwaDismiss: "Dispensar aviso de atualização",
     unknown: "Algo deu errado. Tente de novo.",
+    notFoundTitle: "Esta página não está aqui",
+    notFoundBody: "O link pode estar desatualizado. Volte ao início ou comece sua Jornada de mandarim.",
   },
   marketing: {
     tagline: "PT-BR → Mandarim",

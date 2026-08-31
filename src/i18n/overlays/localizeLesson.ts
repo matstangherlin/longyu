@@ -6,6 +6,7 @@ import {
   isCanonicalZhOrPinyin,
   localizeStringList,
   resolveInstructionText,
+  toCanonicalAnswerIdentity,
 } from "./instructionGloss";
 
 const STEP_TEXT_FIELDS = [
@@ -169,6 +170,6 @@ export function canonicalStepFingerprint(step: LessonStep): string {
     step.chunkId ?? "",
     step.sceneId ?? "",
     step.builderId ?? "",
-    (step.targetParts ?? step.target ?? []).join(""),
+    (step.targetParts ?? step.target ?? []).map((part) => toCanonicalAnswerIdentity(part)).join(""),
   ].join("|");
 }

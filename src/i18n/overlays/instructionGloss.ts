@@ -217,6 +217,12 @@ export function answersEquivalent(a: string | undefined | null, b: string | unde
   if (a == null && b == null) return true;
   if (a == null || b == null) return false;
   if (a === b) return true;
+  // Multiple canonical PT labels may intentionally share one natural EN label
+  // (for example, tone-shape wording). Treat that shared overlay as the same
+  // scored identity without making locale part of the stored answer.
+  const aEn = resolveInstructionText(a, "en");
+  const bEn = resolveInstructionText(b, "en");
+  if (aEn === b || bEn === a || aEn === bEn) return true;
   return foldAnswer(a) === foldAnswer(b);
 }
 

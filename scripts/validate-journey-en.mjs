@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * V4.8.5 — fail-closed English overlay for teaching topics 1–80 (M1–M4).
- * Topics 81+ may still fall back to pt-BR. Canonical Chinese stays overlay-free.
+ * V4.8.7 — fail-closed English overlay for all 113 teaching topics (M1–M4).
+ * Canonical Chinese stays overlay-free.
  */
 import { createRequire } from "node:module";
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
@@ -202,13 +202,11 @@ try {
   const localize = load("src/i18n/overlays/localizeLesson.js");
 
   const allTeaching = ALL_LESSONS.filter((lesson) => topic.isTopicMasteryLesson(lesson));
-  const first80 = allTeaching.slice(0, 80);
-  const rest = allTeaching.slice(80);
-  if (first80.length !== 80) fail(`expected 80 teaching topics 1–80, got ${first80.length}`);
-  const actualIds = first80.map((lesson) => lesson.id);
-  const expectedIds = [...teaching.TOPICS_1_80_TEACHING_TOPIC_IDS];
+  if (allTeaching.length !== 113) fail(`expected 113 teaching topics, got ${allTeaching.length}`);
+  const actualIds = allTeaching.map((lesson) => lesson.id);
+  const expectedIds = [...teaching.TOPICS_1_113_TEACHING_TOPIC_IDS];
   if (actualIds.join("|") !== expectedIds.join("|")) {
-    fail(`topics 1–80 ids drifted: ${actualIds.join(", ")}`);
+    fail(`topics 1–113 ids drifted: ${actualIds.join(", ")}`);
   }
   const expected2150 = [...teaching.TOPICS_21_50_TEACHING_TOPIC_IDS];
   const actual2150 = allTeaching.slice(20, 50).map((lesson) => lesson.id);
@@ -219,6 +217,11 @@ try {
   const actual5180 = allTeaching.slice(50, 80).map((lesson) => lesson.id);
   if (actual5180.join("|") !== expected5180.join("|")) {
     fail(`topics 51–80 ids drifted vs teachingTopics.ts`);
+  }
+  const expected81113 = [...teaching.TOPICS_81_113_TEACHING_TOPIC_IDS];
+  const actual81113 = allTeaching.slice(80, 113).map((lesson) => lesson.id);
+  if (actual81113.join("|") !== expected81113.join("|")) {
+    fail(`topics 81–113 ids drifted vs teachingTopics.ts`);
   }
 
   function harvest(lessons) {
@@ -253,7 +256,7 @@ try {
               walkIssues.push(`${lesson.id} M${pass} ${step.kind}: EN still requires Portuguese answer ${JSON.stringify(enAnswer)}`);
             }
             if (enAnswer && !gloss.scoredAnswersMatch(enAnswer, answer)) {
-              walkIssues.push(`${lesson.id} M${pass} ${step.kind}: EN answer does not match PT identity`);
+              walkIssues.push(`${lesson.id} M${pass} ${step.kind}: EN answer ${JSON.stringify(enAnswer)} does not match PT identity ${JSON.stringify(answer)}`);
             }
           }
           if (step.charId) lexicalIds.chars.add(step.charId);
@@ -296,7 +299,7 @@ try {
     return { bag, fingerprints, walkIssues, uniqueStrings: bag.size };
   }
 
-  const harvested = harvest(first80);
+  const harvested = harvest(allTeaching);
   const { missing, leaked } = classifyBag(harvested.bag, gloss);
   const fpDrift = harvested.fingerprints.filter((row) => row.fp !== row.localizedFp);
   if (fpDrift.length) {
@@ -308,7 +311,7 @@ try {
     );
   }
   if (missing.length) {
-    fail(`missing EN overlay for ${missing.length} topic 1–80 strings`);
+    fail(`missing EN overlay for ${missing.length} topic 1–113 strings`);
     for (const row of missing.slice(0, 40)) fail(`  • ${JSON.stringify(row.pt)} [${row.fields.join(", ")}]`);
     if (missing.length > 40) fail(`  … ${missing.length - 40} more`);
   }
@@ -318,9 +321,6 @@ try {
   }
   for (const issue of harvested.walkIssues.slice(0, 20)) fail(issue);
   if (harvested.walkIssues.length > 20) fail(`  … ${harvested.walkIssues.length - 20} more walk issues`);
-
-  const later = harvest(rest);
-  const laterClass = classifyBag(later.bag, gloss);
 
   for (const row of CHROME_LEFTOVERS) {
     const source = await readFile(path.join(root, row.file), "utf8");
@@ -333,7 +333,7 @@ try {
     "1-20": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
     "21-50": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
     "51-80": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
-    "81-113": laterClass.missing.length === 0 ? "READY" : "NOT_YET_LOCALIZED",
+    "81-113": missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
   };
 
   const report = {
@@ -342,19 +342,19 @@ try {
     topicIds: actualIds,
     topics2150: actual2150,
     topics5180: actual5180,
+    topics81113: actual81113,
     uniqueStrings: harvested.uniqueStrings,
     missingCount: missing.length,
     leakCount: leaked.length,
     fingerprintDrift: fpDrift.length,
     walkIssueCount: harvested.walkIssues.length,
-    laterMissingCount: laterClass.missing.length,
     progressBoard: board,
     missing: missing.slice(0, 80),
   };
   await mkdir(path.join(root, "docs/reports"), { recursive: true });
-  await writeFile(path.join(root, "docs/reports/v485-journey-en-gate.json"), JSON.stringify(report, null, 2));
+  await writeFile(path.join(root, "docs/reports/v487-journey-en-gate.json"), JSON.stringify(report, null, 2));
   await writeFile(
-    path.join(root, "docs/reports/v485-english-journey-progress.json"),
+    path.join(root, "docs/reports/v487-english-journey-progress.json"),
     JSON.stringify(
       {
         generatedAt: report.generatedAt,
@@ -366,7 +366,7 @@ try {
           "51-80": board["51-80"],
           "81-113": board["81-113"],
         },
-        laterMissingSample: laterClass.missing.slice(0, 12).map((row) => row.pt),
+        total: missing.length === 0 && leaked.length === 0 ? "READY" : "FAIL",
       },
       null,
       2
