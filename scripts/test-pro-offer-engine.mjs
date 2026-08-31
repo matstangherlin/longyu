@@ -256,12 +256,12 @@ assert(appShell.includes("markSessionStart"), "AppShell deve marcar início da s
 const paywall = read("src/components/pro/ProPaywall.tsx");
 assert(paywall.includes("recordProOfferClicked"), "ProPaywall deve registrar clique na oferta");
 const proPage = read("src/features/pro/ProPage.tsx");
-assert(proPage.includes("recordProOfferCheckoutStarted") && proPage.includes("recordProOfferSubscriptionStarted"), "ProPage deve registrar checkout/assinatura iniciados");
+assert(proPage.includes("PRICE_PENDING") && proPage.includes("createCheckoutSession"), "ProPage deve falhar fechado com preço pendente e manter o contrato futuro de checkout");
 
 // ── Banner: a oferta discreta precisa existir como faixa, não como modal ────
 const banner = read("src/components/pro/ProOfferBanner.tsx");
 assert(banner.includes("recordProOfferClicked"), "ProOfferBanner deve registrar clique na oferta");
-assert(banner.includes("offer.freeContinues"), "ProOfferBanner deve manter visível a promessa do grátis");
+assert(banner.includes("display.freeContinues"), "ProOfferBanner deve manter visível a promessa do grátis localizada");
 assert(banner.includes("onDismiss"), "ProOfferBanner deve permitir dispensar (arma o cooldown)");
 assert(!banner.includes("ModalOverlay"), "ProOfferBanner não pode virar modal");
 

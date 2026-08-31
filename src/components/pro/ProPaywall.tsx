@@ -14,7 +14,6 @@ import {
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import {
   PAYWALL_COPY,
-  PRO_PAYWALL_CTA,
   type PaywallKind,
   type ProPaywallKind,
 } from "../../data/planFeatures";
@@ -52,9 +51,16 @@ export function ProPaywall({
   /** Copy contextual do proOfferEngine (sobrescreve PAYWALL_COPY). */
   offer?: ProOfferCopy | null;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const baseCopy = PAYWALL_COPY[kind];
-  const copy = offer
+  const localizedCopy = {
+    eyebrow: t("pro.paywallEyebrow"),
+    title: t("pro.paywallTitle"),
+    description: t("pro.paywallDescription"),
+    benefit: t("pro.paywallBenefit"),
+    freeContinues: t("pro.paywallFreeContinues"),
+  };
+  const copy = offer && locale === "pt-BR"
     ? {
         eyebrow: offer.eyebrow,
         title: offer.title,
@@ -62,7 +68,7 @@ export function ProPaywall({
         benefit: offer.benefit,
         freeContinues: offer.freeContinues,
       }
-    : baseCopy;
+    : locale === "pt-BR" ? baseCopy : localizedCopy;
   const Icon = PAYWALL_ICONS[offer?.paywallKind ?? kind];
   const realBilling = isSupabaseBackendEnabled();
 
@@ -112,7 +118,7 @@ export function ProPaywall({
         {kind === "energy" ? (
           <div className="mt-5 grid gap-2">
             <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
-              {PRO_PAYWALL_CTA}
+              {t("pro.viewPlans")}
             </ButtonLink>
             <ButtonLink to="/missoes" onClick={onClose} size="lg" variant="outline" className="w-full">
               {t("pro.goToMissions")}
@@ -122,7 +128,7 @@ export function ProPaywall({
         ) : (
           <div className="mt-5 grid gap-2">
             <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
-              {PRO_PAYWALL_CTA}
+              {t("pro.viewPlans")}
             </ButtonLink>
             <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>{t("pro.notNow")}</Button>
           </div>

@@ -1,6 +1,5 @@
 import { ButtonLink } from "../ui/primitives";
 import { IconStar, IconX } from "../ui/Icon";
-import { PRO_PAYWALL_CTA } from "../../data/planFeatures";
 import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
 import { useTranslation } from "../../i18n/useTranslation";
 
@@ -24,8 +23,14 @@ export function ProOfferBanner({
   onDismiss: () => void;
   className?: string;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   if (!offer) return null;
+  const display = locale === "pt-BR" ? offer : {
+    eyebrow: t("pro.paywallEyebrow"),
+    title: t("pro.paywallTitle"),
+    description: t("pro.paywallDescription"),
+    freeContinues: t("pro.paywallFreeContinues"),
+  };
 
   return (
     <aside
@@ -43,19 +48,19 @@ export function ProOfferBanner({
         </span>
 
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">{offer.eyebrow}</div>
-          <h3 className="mt-0.5 text-sm font-semibold leading-tight text-ink">{offer.title}</h3>
-          <p className="mt-1 text-xs leading-5 text-ink-soft">{offer.description}</p>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">{display.eyebrow}</div>
+          <h3 className="mt-0.5 text-sm font-semibold leading-tight text-ink">{display.title}</h3>
+          <p className="mt-1 text-xs leading-5 text-ink-soft">{display.description}</p>
           {/* Mantém a promessa do grátis visível: a faixa vende sem sugerir
               que o caminho gratuito parou de existir. */}
-          <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">{offer.freeContinues}</p>
+          <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">{display.freeContinues}</p>
 
           <ButtonLink
             to="/pro"
             onClick={() => recordProOfferClicked(offer)}
             className="mt-2.5 w-full sm:w-auto"
           >
-            {PRO_PAYWALL_CTA}
+            {t("pro.viewPlans")}
           </ButtonLink>
         </div>
 

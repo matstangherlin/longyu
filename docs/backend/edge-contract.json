@@ -79,7 +79,7 @@
       "files": [
         "supabase/functions/create-checkout-session/index.ts"
       ],
-      "source_sha256": "fbed83ef0851ae67ed6b572b9c2040c0e1c5b0c1ab274e30476fc5d1b4467252",
+      "source_sha256": "abe07144d3c8df7a635798b6f385cc9684c4eb6a3f19d007acbfe66267a196fa",
       "request_schema": "see index.ts",
       "response_schema": "see index.ts",
       "required_secrets": [],

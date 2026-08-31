@@ -91,19 +91,16 @@ if (!fs.existsSync(path.join(root, planFeaturesPath))) {
 
 // ——— Paywall CTA padronizado ———
 const paywallSrc = read("src/components/pro/ProPaywall.tsx");
-if (!paywallSrc.includes("PRO_PAYWALL_CTA")) {
-  fail("ProPaywall.tsx deve usar PRO_PAYWALL_CTA de planFeatures");
-}
-if (!paywallSrc.includes("PRO_PAYWALL_CTA") && !paywallSrc.includes("Ver planos Pro")) {
-  fail('ProPaywall.tsx deve ter CTA "Ver planos Pro" (PRO_PAYWALL_CTA)');
+if (!paywallSrc.includes('t("pro.viewPlans")')) {
+  fail("ProPaywall.tsx deve localizar o CTA comercial");
 }
 if (/Pro Preview/i.test(paywallSrc)) {
   fail('ProPaywall.tsx não deve mencionar "Pro Preview"');
 }
 
-// ——— ProPage usa matriz ———
+// ——— ProPage usa catálogo comercial internacional ———
 const proPageSrc = read("src/features/pro/ProPage.tsx");
-for (const token of ["getProPageFreeHighlights", "getProPageProHighlights", "PLAN_FEATURES", "PRO_BENEFIT_GROUPS"]) {
+for (const token of ["PLAN_PRICE_MATRIX", "FAMILY_MAX_MEMBERS", "PRICE_PENDING", "qa-billing-market-switch"]) {
   if (!proPageSrc.includes(token)) {
     fail(`ProPage.tsx deve importar/usar ${token}`);
   }

@@ -353,8 +353,8 @@ assert(orderingSrc.includes("terminal_canceled"), "migração nova deve tratar c
 assert(orderingSrc.includes("p_event_id"), "migração nova deve aceitar p_event_id");
 const checkoutSrc = read("supabase/functions/create-checkout-session/index.ts");
 assert(checkoutSrc.includes("STRIPE_ALLOWED_ORIGINS"), "checkout deve validar origin contra allowlist");
-assert(checkoutSrc.includes("ALLOWED_PLAN_KEYS"), "checkout deve validar planKey contra allowlist");
-assert(checkoutSrc.includes("Deno.env.get(`STRIPE_PRICE_"), "checkout deve pegar price ID do env do servidor");
+assert(checkoutSrc.includes("resolveAllowedPrice"), "checkout deve resolver plano/ciclo/país no servidor");
+assert(checkoutSrc.includes("buildServerPriceMatrix"), "checkout deve pegar price ID da matriz do servidor");
 
 const statusSrc = read("src/lib/entitlementStatus.ts");
 assert(statusSrc.includes("checking"), "entitlementStatus deve expor flag checking");
@@ -362,7 +362,7 @@ const bootstrapSrc = read("src/components/auth/EntitlementBootstrap.tsx");
 assert(bootstrapSrc.includes("beginCheck") && bootstrapSrc.includes("endCheck"), "bootstrap deve marcar/limpar a checagem");
 assert(bootstrapSrc.includes("finally"), "bootstrap deve limpar a checagem no finally (sem travar em 'Verificando')");
 const proPageSrc = read("src/features/pro/ProPage.tsx");
-assert(proPageSrc.includes('t("pro.checkingPlan")'), "ProPage deve mostrar verificação de plano");
+assert(proPageSrc.includes("checkingPlan"), "ProPage deve preservar o estado de verificação do entitlement");
 
 if (errors.length > 0) {
   console.error("ERRO: test:subscription-webhook falhou.");

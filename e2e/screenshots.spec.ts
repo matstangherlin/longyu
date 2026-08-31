@@ -6,6 +6,7 @@ import {
   seedFoundationThrough,
   seedFreshJourneySession,
   seedOnboardedSession,
+  PRO_PRICING_HEADLINE,
 } from "./helpers";
 
 // Gera as evidências de docs/REAL_DEVICE_QA.md (docs/screenshots/*.png).
@@ -97,7 +98,7 @@ test("evidências — jornada e hubs (telefone)", async ({ browser }) => {
     await shot(page, "07-perfil-phone");
 
     await open(page, "/pro");
-    await settle(page.getByRole("heading", { name: /30 dias grátis/i }));
+    await settle(page.getByRole("heading", { name: PRO_PRICING_HEADLINE }));
     await shot(page, "08-paywall-phone");
 
     await open(page, "/ligas");

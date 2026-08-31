@@ -60,11 +60,11 @@ check("intent=subscribe sem next cai em /pro", () => {
   assert.equal(resolvePostAuthPath(params), "/pro");
 });
 
-check("ProPage redireciona auth_required", () => {
+check("ProPage mantém checkout desativado enquanto preço está pendente", () => {
   const src = readFileSync(path.join(root, "src/features/pro/ProPage.tsx"), "utf8");
-  assert.match(src, /auth_required/);
-  assert.match(src, /subscribeAccountPath/);
-  assert.match(src, /savePendingCheckoutPlan/);
+  assert.match(src, /PRICE_PENDING/);
+  assert.match(src, /checkoutEnabled/);
+  assert.match(src, /createCheckoutSession\(\{/);
 });
 
 check("subscriptionService expõe auth_required", () => {
