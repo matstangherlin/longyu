@@ -8,7 +8,7 @@
  * One topic = one lesson.id. M1–M4 are mastery passes of that id.
  *
  * First 20 keep PT-text overlay as the compatibility resolver (V4.8.2).
- * Topics 21–80 also have stable loc ids (V4.8.3 / V4.8.5). Topic 81+ may still fall back.
+ * Topics 21–113 also have stable loc ids (V4.8.3 / V4.8.5 / V4.8.7).
  */
 
 import {
@@ -108,13 +108,63 @@ export function isTopics5180TeachingTopic(lessonId: string | null | undefined): 
   return Boolean(lessonId && TOPICS_51_80_SET.has(lessonId));
 }
 
+/** ALL_LESSONS.filter(isTopicMasteryLesson).slice(80, 113) */
+export const TOPICS_81_113_TEACHING_TOPIC_IDS = [
+  "p5-kou-ma-pergunta",
+  "l19-logica-madeira",
+  "l19-logica-luz",
+  "l19-logica-pessoas",
+  "l19-logica-ma",
+  "l19",
+  "l20",
+  "l21",
+  "l22",
+  "l23",
+  "l24",
+  "l25",
+  "l26",
+  "l26b",
+  "l27",
+  "l28",
+  "p6-rotina-trabalho",
+  "p6-cidade-lugares",
+  "p6-china-cidades",
+  "p6-china-cidades-2",
+  "p6-china-ruas",
+  "p6-saude",
+  "p6-horarios",
+  "p6-natureza",
+  "p6-clima",
+  "p6-direcoes",
+  "p6-compras",
+  "p6-survival-mandarin",
+  "l29",
+  "l30",
+  "p7-imersao-mercado",
+  "p7-imersao-estacao",
+  "p7-imersao-casa-amigo",
+] as const;
+
+export type Topics81113TeachingTopicId = (typeof TOPICS_81_113_TEACHING_TOPIC_IDS)[number];
+
+const TOPICS_81_113_SET = new Set<string>(TOPICS_81_113_TEACHING_TOPIC_IDS);
+
+export function isTopics81113TeachingTopic(lessonId: string | null | undefined): boolean {
+  return Boolean(lessonId && TOPICS_81_113_SET.has(lessonId));
+}
+
 export const TOPICS_21_80_TEACHING_TOPIC_IDS = [
   ...TOPICS_21_50_TEACHING_TOPIC_IDS,
   ...TOPICS_51_80_TEACHING_TOPIC_IDS,
 ] as const;
 
-/** Fail-closed English overlay applies to teaching topics 1–80. */
-export const FAIL_CLOSED_TEACHING_TOPIC_COUNT = 80;
+export const TOPICS_21_113_TEACHING_TOPIC_IDS = [
+  ...TOPICS_21_80_TEACHING_TOPIC_IDS,
+  ...TOPICS_81_113_TEACHING_TOPIC_IDS,
+] as const;
+
+/** Fail-closed English overlay applies to every teaching topic. */
+export const FAIL_CLOSED_TEACHING_TOPIC_COUNT = 113;
 
 export const TOPICS_1_50_TEACHING_TOPIC_IDS = [
   ...FIRST_20_TEACHING_TOPIC_IDS,
@@ -126,12 +176,21 @@ export const TOPICS_1_80_TEACHING_TOPIC_IDS = [
   ...TOPICS_51_80_TEACHING_TOPIC_IDS,
 ] as const;
 
+export const TOPICS_1_113_TEACHING_TOPIC_IDS = [
+  ...TOPICS_1_80_TEACHING_TOPIC_IDS,
+  ...TOPICS_81_113_TEACHING_TOPIC_IDS,
+] as const;
+
 export function isTopics150TeachingTopic(lessonId: string | null | undefined): boolean {
   return isFirst20TeachingTopic(lessonId) || isTopics2150TeachingTopic(lessonId);
 }
 
 export function isTopics180TeachingTopic(lessonId: string | null | undefined): boolean {
   return isTopics150TeachingTopic(lessonId) || isTopics5180TeachingTopic(lessonId);
+}
+
+export function isTopics1113TeachingTopic(lessonId: string | null | undefined): boolean {
+  return isTopics180TeachingTopic(lessonId) || isTopics81113TeachingTopic(lessonId);
 }
 
 /**

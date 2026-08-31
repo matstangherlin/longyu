@@ -1,5 +1,5 @@
 /**
- * Stable pedagogical localization catalog for teaching topics 21–80.
+ * Stable pedagogical localization catalog for teaching topics 21–113.
  *
  * Runtime still resolves copy via the PT-text overlay (compatibility with
  * first 20 and with planner clones). This catalog is the durable identity:

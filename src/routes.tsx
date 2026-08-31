@@ -60,6 +60,7 @@ const QaScenarioPage = lazy(() =>
 import { QaFastPathGate } from "./components/qa/QaFastPathGate";
 
 import { LandingPage } from "./features/landing/LandingPage";
+import { NotFoundPage } from "./features/system/NotFoundPage";
 
 export const routes: RouteObject[] = [
   { path: "/", element: <LandingPage /> },
@@ -136,4 +137,5 @@ export const routes: RouteObject[] = [
       { path: "teste/:unitId", element: <ModuleChallengePage /> },
     ],
   },
+  { path: "*", element: <NotFoundPage /> },
 ];

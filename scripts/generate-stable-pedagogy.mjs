@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * V4.8.5 — generate stable pedagogical loc ids for teaching topics 21–80.
+ * V4.8.7 — generate stable pedagogical loc ids for teaching topics 21–113.
  *
  * Identity: p.{topicId}.m{pass}.s{nn}.{field}
  * First 20 stay on the PT-text overlay (compatibility resolver).
@@ -17,6 +17,7 @@ const require = createRequire(import.meta.url);
 const root = process.cwd();
 const kindsPath = path.join(root, "docs/localization/t2150-kinds.json");
 const kinds5180Path = path.join(root, "docs/localization/t5180-kinds.json");
+const kinds81113Path = path.join(root, "docs/localization/t81113-kinds.json");
 const outJson = path.join(root, "src/i18n/overlays/stablePedagogy.en.json");
 
 const STRING_FIELDS = [
@@ -153,6 +154,7 @@ globalThis.localStorage = {
 const kinds = {
   ...JSON.parse(await readFile(kindsPath, "utf8")),
   ...JSON.parse(await readFile(kinds5180Path, "utf8")),
+  ...JSON.parse(await readFile(kinds81113Path, "utf8")),
 };
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-stable-pedagogy-"));
 try {
@@ -200,10 +202,10 @@ try {
   const teaching = load("src/i18n/overlays/teachingTopics.js");
   const gloss = load("src/i18n/overlays/instructionGloss.js");
 
-  const expectedIds = [...teaching.TOPICS_21_80_TEACHING_TOPIC_IDS];
-  const slice = ALL_LESSONS.filter((lesson) => topic.isTopicMasteryLesson(lesson)).slice(20, 80);
+  const expectedIds = [...teaching.TOPICS_21_113_TEACHING_TOPIC_IDS];
+  const slice = ALL_LESSONS.filter((lesson) => topic.isTopicMasteryLesson(lesson)).slice(20, 113);
   if (slice.map((lesson) => lesson.id).join("|") !== expectedIds.join("|")) {
-    console.error("topics 21–80 ids drifted vs teachingTopics.ts");
+    console.error("topics 21–113 ids drifted vs teachingTopics.ts");
     process.exit(1);
   }
 
@@ -320,9 +322,9 @@ try {
   }
 
   const catalog = {
-    version: "v4.8.5",
+    version: "v4.8.7",
     generatedAt: new Date().toISOString(),
-    rule: "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 80)",
+    rule: "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 113)",
     topicIds: expectedIds,
     entryCount: entries.length,
     uniquePtCount: uniquePt.size,
