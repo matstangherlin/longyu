@@ -249,7 +249,11 @@ export function SettingsPage() {
       >
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="course-language-card">
           <CourseLanguageSwitcher id="settings-instruction-locale" />
-          <div className="border-t border-line/70 pt-3">
+          <div
+            className="border-t border-line/70 pt-3"
+            data-testid="target-language-card"
+            data-target-language={COURSE_PROFILE.targetLanguage.code}
+          >
             <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
               {t("settings.chineseTarget")}
             </div>
