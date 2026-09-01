@@ -1,6 +1,6 @@
 {
-  "version": "v4.8.7",
-  "generatedAt": "2026-08-31T19:23:10.475Z",
+  "version": "v4.8.8",
+  "generatedAt": "2026-09-01T05:18:32.241Z",
   "rule": "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 113)",
   "topicIds": [
     "p2-comparar-tom-2-3",
@@ -97,12 +97,12 @@
     "p7-imersao-estacao",
     "p7-imersao-casa-amigo"
   ],
-  "entryCount": 20309,
-  "uniquePtCount": 2829,
+  "entryCount": 20323,
+  "uniquePtCount": 2816,
   "kindCounts": {
-    "DIRECT_TRANSLATION": 1429,
-    "NATURAL_REWRITE": 1386,
-    "SOURCE_LANGUAGE_ADAPTATION": 14
+    "DIRECT_TRANSLATION": 1431,
+    "NATURAL_REWRITE": 1373,
+    "SOURCE_LANGUAGE_ADAPTATION": 12
   },
   "entries": [
     {
@@ -2386,16 +2386,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.l5.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l5.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de Quatro tons.",
-      "en": "Identify/produce the contour from Four Tones.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l5.meta.spec.pass.4",
-      "pt": "Levar o som de Quatro tons a um chunk conhecido.",
-      "en": "Apply the sound from Four Tones to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l5.m1.s01.title",
@@ -2573,9 +2579,9 @@
     },
     {
       "id": "p.l5.m3.s04.prompt",
-      "pt": "Identificar/produzir o contorno de Quatro tons.",
-      "en": "Identify/produce the contour from Four Tones.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l5.m3.s05.pt",
@@ -2627,15 +2633,15 @@
     },
     {
       "id": "p.l5.m4.s06.situationPt",
-      "pt": "Levar o som de Quatro tons a um chunk conhecido.",
-      "en": "Apply the sound from Four Tones to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l5.m4.s06.dialoguePrompt",
-      "pt": "Levar o som de Quatro tons a um chunk conhecido.",
-      "en": "Apply the sound from Four Tones to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l5.m4.s06.speaker",
@@ -2734,16 +2740,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.l6.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l6.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de Treino guiado.",
-      "en": "Identify/produce the contour from Guided Practice.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l6.meta.spec.pass.4",
-      "pt": "Levar o som de Treino guiado a um chunk conhecido.",
-      "en": "Apply the sound from Guided Practice to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l6.m1.s01.title",
@@ -3065,9 +3077,9 @@
     },
     {
       "id": "p.l6.m3.s08.prompt",
-      "pt": "Identificar/produzir o contorno de Treino guiado.",
-      "en": "Identify/produce the contour from Guided Practice.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l6.m3.s09.title",
@@ -3095,15 +3107,15 @@
     },
     {
       "id": "p.l6.m4.s02.situationPt",
-      "pt": "Levar o som de Treino guiado a um chunk conhecido.",
-      "en": "Apply the sound from Guided Practice to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l6.m4.s02.dialoguePrompt",
-      "pt": "Levar o som de Treino guiado a um chunk conhecido.",
-      "en": "Apply the sound from Guided Practice to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l6.m4.s02.speaker",
@@ -3310,10 +3322,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.l7.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l7.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de A sílaba yao.",
-      "en": "Identify/produce the contour from The Syllable yao.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l7.meta.spec.pass.4",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l7.m1.s01.title",
@@ -3563,9 +3587,9 @@
     },
     {
       "id": "p.l7.m3.s02.prompt",
-      "pt": "Identificar/produzir o contorno de A sílaba yao.",
-      "en": "Identify/produce the contour from The Syllable yao.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l7.m3.s04.answer",
@@ -3760,6 +3784,18 @@
       "kind": "DIRECT_TRANSLATION"
     },
     {
+      "id": "p.l7.m4.s08.situationPt",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l7.m4.s08.dialoguePrompt",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l7.m4.s08.speaker",
       "pt": "Situação",
       "en": "Situation",
@@ -3821,27 +3857,21 @@
     },
     {
       "id": "p.l8.meta.spec.pass.1",
-      "pt": "Descobrir de ouvido o que Tons em 好 e 谢 está ensinando.",
-      "en": "Listen and identify what Tones in 好 and 谢 teaches.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.l8.meta.spec.pass.2",
-      "pt": "Discriminar os sons de Tons em 好 e 谢 com pares próximos.",
-      "en": "Tell apart the sounds from Tones in 好 and 谢 using similar pairs.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de Tons em 好 e 谢.",
-      "en": "Identify/produce the contour from Tones in 好 and 谢.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8.meta.spec.pass.4",
-      "pt": "Levar o som de Tons em 好 e 谢 a um chunk conhecido.",
-      "en": "Apply the sound from Tones in 好 and 谢 to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8.m1.s01.title",
@@ -3979,12 +4009,6 @@
       "id": "p.l8.m2.s03.explanation",
       "pt": "o contraste sonoro de Tons em 好 e 谢",
       "en": "the sound contrast in “Tones in 好 and 谢”",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.l8.m2.s03.dialoguePrompt",
-      "pt": "Discriminar os sons de Tons em 好 e 谢 com pares próximos.",
-      "en": "Tell apart the sounds from Tones in 好 and 谢 using similar pairs.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -4175,9 +4199,9 @@
     },
     {
       "id": "p.l8.m3.s06.prompt",
-      "pt": "Identificar/produzir o contorno de Tons em 好 e 谢.",
-      "en": "Identify/produce the contour from Tones in 好 and 谢.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8.m3.s08.title",
@@ -4301,15 +4325,15 @@
     },
     {
       "id": "p.l8.m4.s07.situationPt",
-      "pt": "Levar o som de Tons em 好 e 谢 a um chunk conhecido.",
-      "en": "Apply the sound from Tones in 好 and 谢 to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8.m4.s07.dialoguePrompt",
-      "pt": "Levar o som de Tons em 好 e 谢 a um chunk conhecido.",
-      "en": "Apply the sound from Tones in 好 and 谢 to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8.m4.s07.speaker",
@@ -4402,16 +4426,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.l8-compare.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l8-compare.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de Compare tons.",
-      "en": "Identify/produce the contour from Compare Tones.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-compare.meta.spec.pass.4",
-      "pt": "Levar o som de Compare tons a um chunk conhecido.",
-      "en": "Apply the sound from Compare Tones to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-compare.m1.s01.title",
@@ -4655,9 +4685,9 @@
     },
     {
       "id": "p.l8-compare.m3.s02.prompt",
-      "pt": "Identificar/produzir o contorno de Compare tons.",
-      "en": "Identify/produce the contour from Compare Tones.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-compare.m3.s04.title",
@@ -4745,15 +4775,15 @@
     },
     {
       "id": "p.l8-compare.m4.s07.situationPt",
-      "pt": "Levar o som de Compare tons a um chunk conhecido.",
-      "en": "Apply the sound from Compare Tones to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-compare.m4.s07.dialoguePrompt",
-      "pt": "Levar o som de Compare tons a um chunk conhecido.",
-      "en": "Apply the sound from Compare Tones to a familiar chunk.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-compare.m4.s07.speaker",
@@ -4792,10 +4822,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.l8-shi.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l8-shi.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de A sílaba shi.",
-      "en": "Identify/produce the contour from The Syllable shi.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l8-shi.meta.spec.pass.4",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-shi.m1.s01.title",
@@ -4985,9 +5027,9 @@
     },
     {
       "id": "p.l8-shi.m3.s02.prompt",
-      "pt": "Identificar/produzir o contorno de A sílaba shi.",
-      "en": "Identify/produce the contour from The Syllable shi.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l8-shi.m3.s05.title",
@@ -5182,6 +5224,18 @@
       "kind": "DIRECT_TRANSLATION"
     },
     {
+      "id": "p.l8-shi.m4.s08.situationPt",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l8-shi.m4.s08.dialoguePrompt",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l8-shi.m4.s08.speaker",
       "pt": "Situação",
       "en": "Situation",
@@ -5236,16 +5290,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.p2-sons-brasileiros.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.p2-sons-brasileiros.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de Sons que brasileiros confundem.",
-      "en": "Identify/produce the contour from Sounds English speakers mix up.",
-      "kind": "SOURCE_LANGUAGE_ADAPTATION"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.meta.spec.pass.4",
-      "pt": "Levar o som de Sons que brasileiros confundem a um chunk conhecido.",
-      "en": "Apply the sound from Sounds English speakers mix up to a familiar chunk.",
-      "kind": "SOURCE_LANGUAGE_ADAPTATION"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m1.s01.title",
@@ -5477,14 +5537,14 @@
     },
     {
       "id": "p.p2-sons-brasileiros.m1.s06.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m1.s06.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -5837,14 +5897,14 @@
     },
     {
       "id": "p.p2-sons-brasileiros.m2.s06.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m2.s06.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -6143,14 +6203,14 @@
     },
     {
       "id": "p.p2-sons-brasileiros.m3.s05.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m3.s05.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -6227,9 +6287,9 @@
     },
     {
       "id": "p.p2-sons-brasileiros.m3.s08.prompt",
-      "pt": "Identificar/produzir o contorno de Sons que brasileiros confundem.",
-      "en": "Identify/produce the contour from Sounds English speakers mix up.",
-      "kind": "SOURCE_LANGUAGE_ADAPTATION"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m3.s09.title",
@@ -6293,15 +6353,15 @@
     },
     {
       "id": "p.p2-sons-brasileiros.m4.s02.situationPt",
-      "pt": "Levar o som de Sons que brasileiros confundem a um chunk conhecido.",
-      "en": "Apply the sound from Sounds English speakers mix up to a familiar chunk.",
-      "kind": "SOURCE_LANGUAGE_ADAPTATION"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m4.s02.dialoguePrompt",
-      "pt": "Levar o som de Sons que brasileiros confundem a um chunk conhecido.",
-      "en": "Apply the sound from Sounds English speakers mix up to a familiar chunk.",
-      "kind": "SOURCE_LANGUAGE_ADAPTATION"
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m4.s02.speaker",
@@ -6533,14 +6593,14 @@
     },
     {
       "id": "p.p2-sons-brasileiros.m4.s07.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-sons-brasileiros.m4.s07.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -6700,10 +6760,22 @@
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.p2-numeros-1-5.meta.spec.pass.1",
+      "pt": "Ouça e identifique o som-alvo.",
+      "en": "Listen and identify the target sound.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.p2-numeros-1-5.meta.spec.pass.3",
-      "pt": "Identificar/produzir o contorno de Números por som.",
-      "en": "Identify/produce the contour from Numbers by Sound.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p2-numeros-1-5.meta.spec.pass.4",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-numeros-1-5.m1.s01.title",
@@ -6905,9 +6977,9 @@
     },
     {
       "id": "p.p2-numeros-1-5.m3.s04.prompt",
-      "pt": "Identificar/produzir o contorno de Números por som.",
-      "en": "Identify/produce the contour from Numbers by Sound.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Reconheça o contraste em uma palavra ou frase curta.",
+      "en": "Recognize the contrast in a short word or phrase.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p2-numeros-1-5.m3.s05.pt",
@@ -6967,6 +7039,18 @@
       "id": "p.p2-numeros-1-5.m4.s05.title",
       "pt": "Situação nova",
       "en": "New situation",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p2-numeros-1-5.m4.s05.situationPt",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p2-numeros-1-5.m4.s05.dialoguePrompt",
+      "pt": "Perceba e use o contraste em contexto.",
+      "en": "Notice and use the contrast in context.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -10049,14 +10133,14 @@
     },
     {
       "id": "p.l9-qual-nome.m2.s05.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l9-qual-nome.m2.s05.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -15923,14 +16007,14 @@
     },
     {
       "id": "p.l11.m2.s05.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l11.m2.s05.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -20081,14 +20165,14 @@
     },
     {
       "id": "p.l13.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l13.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -31931,14 +32015,14 @@
     },
     {
       "id": "p.p4-num-678.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p4-num-678.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -37865,14 +37949,14 @@
     },
     {
       "id": "p.p4-char-kou.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p4-char-kou.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -49667,14 +49751,14 @@
     },
     {
       "id": "p.p4-char-xiao.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p4-char-xiao.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -55619,14 +55703,14 @@
     },
     {
       "id": "p.p4-char-wo.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p4-char-wo.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -61571,14 +61655,14 @@
     },
     {
       "id": "p.l14-frase-minima.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l14-frase-minima.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -71747,14 +71831,14 @@
     },
     {
       "id": "p.p5-ren-mu-xiu.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p5-ren-mu-xiu.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -81707,14 +81791,14 @@
     },
     {
       "id": "p.l19-logica-pessoas.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l19-logica-pessoas.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -85283,14 +85367,14 @@
     },
     {
       "id": "p.l20.m2.s05.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l20.m2.s05.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -89291,14 +89375,14 @@
     },
     {
       "id": "p.l23.m2.s05.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.l23.m2.s05.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -98639,14 +98723,14 @@
     },
     {
       "id": "p.p6-rotina-trabalho.m2.s04.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-rotina-trabalho.m2.s04.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -104171,14 +104255,14 @@
     },
     {
       "id": "p.p6-china-ruas.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-ruas.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -109337,14 +109421,14 @@
     },
     {
       "id": "p.p6-clima.m2.s03.title",
-      "pt": "Iguais ou diferentes?",
-      "en": "Same or different?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-clima.m2.s03.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -117233,14 +117317,14 @@
     },
     {
       "id": "p.p7-imersao-mercado.m1.s06.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p7-imersao-mercado.m1.s06.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -117563,14 +117647,14 @@
     },
     {
       "id": "p.p7-imersao-mercado.m2.s06.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p7-imersao-mercado.m2.s06.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -120365,14 +120449,14 @@
     },
     {
       "id": "p.p7-imersao-casa-amigo.m1.s06.title",
-      "pt": "Estes dois sons são iguais?",
-      "en": "Are these two sounds the same?",
+      "pt": "Os sons são iguais ou diferentes?",
+      "en": "Are the sounds the same or different?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p7-imersao-casa-amigo.m1.s06.prompt",
-      "pt": "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
-      "en": "Listen to both sounds and decide. No writing on this question — ear only.",
+      "pt": "Ouça os dois sons. Compare apenas o que você ouve.",
+      "en": "Listen to both sounds. Compare only what you hear.",
       "kind": "DIRECT_TRANSLATION"
     },
     {

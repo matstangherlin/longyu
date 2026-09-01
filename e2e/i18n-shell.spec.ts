@@ -61,15 +61,17 @@ test.describe("i18n shell — V4.8.0", () => {
     await page.goto("/ajustes");
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();
-    await expect(page.getByText(/I am learning Mandarin/i)).toBeVisible();
+    await expect(page.getByText(/Learn Mandarin from/i)).toBeVisible();
     await expect(page.getByText("Theme", { exact: true })).toBeVisible();
     await expect(page.getByText(/How to see Mandarin/i)).toBeVisible();
     await expect(page.getByText(/Privacy and data/i)).toBeVisible();
     await expect(page.getByText(/Como ver o mandarim/)).toHaveCount(0);
-    await expect(page.getByTestId("target-language-card")).toContainText("zh-CN");
-    await expect(page.getByTestId("target-language-card")).toContainText("中文");
-    await expect(page.getByTestId("target-language-card")).toContainText("Mandarin");
-    await expect(page.getByTestId("target-language-card")).not.toContainText("Mandarim");
+    const target = page.getByTestId("target-language-card");
+    await expect(target).toHaveAttribute("data-target-language", "zh-CN");
+    await expect(target).toContainText("中文");
+    await expect(target).toContainText("Mandarin");
+    await expect(target).not.toContainText("Mandarim");
+    await expect(page.getByTestId("current-course-focus")).toContainText("→ Mandarin");
   });
 
   test("Practice hub EN keeps Mandarin target", async ({ page }) => {
@@ -106,13 +108,13 @@ test.describe("i18n shell — V4.8.0", () => {
     await page.goto("/ajustes");
     await waitForLazyPage(page);
     const target = page.getByTestId("target-language-card");
-    await expect(target).toContainText("zh-CN");
+    await expect(target).toHaveAttribute("data-target-language", "zh-CN");
     await expect(target).toContainText("中文");
 
     await page.getByTestId("interface-locale-select").selectOption("en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByText(/I am learning Mandarin/i)).toBeVisible();
-    await expect(target).toContainText("zh-CN");
+    await expect(page.getByText(/Learn Mandarin from/i)).toBeVisible();
+    await expect(target).toHaveAttribute("data-target-language", "zh-CN");
     await expect(target).toContainText("中文");
     await expect(target).toContainText("Mandarin");
     await expect(target).not.toContainText("Mandarim");

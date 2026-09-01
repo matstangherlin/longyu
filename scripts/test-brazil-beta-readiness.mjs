@@ -108,12 +108,17 @@ try {
     skipLibCheck: true,
     strict: false,
   };
-  const countriesJs = ts.transpileModule(countries, { compilerOptions, fileName: "countries.ts" }).outputText;
-  const identityJs = ts.transpileModule(identity, { compilerOptions, fileName: "identity.ts" }).outputText;
+  function transpile(relativePath) {
+    return ts.transpileModule(read(relativePath), { compilerOptions, fileName: relativePath }).outputText;
+  }
   await mkdir(path.join(outDir, "src/data"), { recursive: true });
   await mkdir(path.join(outDir, "src/lib/i18n"), { recursive: true });
-  await writeFile(path.join(outDir, "src/data/countries.js"), countriesJs);
-  await writeFile(path.join(outDir, "src/lib/i18n/identity.js"), identityJs);
+  await mkdir(path.join(outDir, "src/i18n"), { recursive: true });
+  await writeFile(path.join(outDir, "src/data/countries.js"), transpile("src/data/countries.ts"));
+  await writeFile(path.join(outDir, "src/i18n/config.js"), transpile("src/i18n/config.ts"));
+  await writeFile(path.join(outDir, "src/i18n/locale.js"), transpile("src/i18n/locale.ts"));
+  await writeFile(path.join(outDir, "src/i18n/instructionLocale.js"), transpile("src/i18n/instructionLocale.ts"));
+  await writeFile(path.join(outDir, "src/lib/i18n/identity.js"), transpile("src/lib/i18n/identity.ts"));
   const mod = require(path.join(outDir, "src/lib/i18n/identity.js"));
   assert(mod.canonicalCountryCode("Brasil") === "BR", "Brasil -> BR");
   assert(mod.canonicalCountryCode("br") === "BR", "br -> BR");

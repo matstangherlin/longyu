@@ -1,0 +1,2033 @@
+{
+  "teachingTopicCount": 113,
+  "auditedCount": 420,
+  "audioDiscriminationCount": 136,
+  "simplifiedCount": 136,
+  "representativeAudioDiscrimination": [
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 1,
+      "index": 7,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 2,
+      "index": 7,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 3,
+      "index": 7,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 4,
+      "index": 7,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 1,
+      "index": 3,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 2,
+      "index": 3,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 3,
+      "index": 3,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 4,
+      "index": 3,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 1,
+      "index": 15,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 2,
+      "index": 15,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 3,
+      "index": 15,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 4,
+      "index": 15,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 1,
+      "index": 13,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 2,
+      "index": 13,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 3,
+      "index": 13,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 4,
+      "index": 13,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 1,
+      "index": 11,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 1,
+      "index": 14,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 2,
+      "index": 11,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 2,
+      "index": 14,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 3,
+      "index": 11,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 3,
+      "index": 14,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 4,
+      "index": 11,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 4,
+      "index": 14,
+      "kind": "audio_discrimination",
+      "classification": "GOOD"
+    }
+  ],
+  "counts": {
+    "GOOD": 156,
+    "TOO_COMPLEX": 256,
+    "MIXES_UNRELATED_SKILLS": 8,
+    "MISSING_AUDIO_CUE": 0,
+    "POOR_COPY": 0
+  },
+  "issues": [
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 1,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 2,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 3,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 4,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 1,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 2,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 3,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 4,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "MIXES_UNRELATED_SKILLS"
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "pass": 1,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "pass": 2,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "pass": 3,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "pass": 4,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l1",
+      "pass": 1,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l1",
+      "pass": 2,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l1",
+      "pass": 3,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l1",
+      "pass": 4,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l2",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l3",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l3",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l3",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l3",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 1,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 2,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 3,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l4",
+      "pass": 4,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "pass": 1,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "pass": 2,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "pass": 3,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "pass": 4,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "pass": 1,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "pass": 2,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "pass": 3,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "pass": 4,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 1,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 2,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 3,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 4,
+      "index": 1,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "pass": 1,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "pass": 2,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "pass": 3,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "pass": 4,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "pass": 1,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "pass": 2,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "pass": 3,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "pass": 4,
+      "index": 3,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "pass": 1,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "pass": 2,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "pass": 3,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "pass": 4,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l6",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l6",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l6",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l6",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l8-shi",
+      "pass": 1,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l8-shi",
+      "pass": 2,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l8-shi",
+      "pass": 3,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l8-shi",
+      "pass": 4,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 1,
+      "index": 10,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 2,
+      "index": 10,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 3,
+      "index": 10,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "pass": 4,
+      "index": 10,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l10",
+      "pass": 1,
+      "index": 12,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l10",
+      "pass": 2,
+      "index": 12,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l10",
+      "pass": 3,
+      "index": 12,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l10",
+      "pass": 4,
+      "index": 12,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l14",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l14",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l14",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l14",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-123",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-123",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-123",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-123",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-45",
+      "pass": 1,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-45",
+      "pass": 2,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-45",
+      "pass": 3,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-45",
+      "pass": 4,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-678",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-678",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-678",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-678",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-910",
+      "pass": 1,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-910",
+      "pass": 2,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-910",
+      "pass": 3,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-num-910",
+      "pass": 4,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "pass": 1,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "pass": 2,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "pass": 3,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "pass": 4,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "pass": 1,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "pass": 2,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "pass": 3,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "pass": 4,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l15",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l15",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l15",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l15",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 1,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 2,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 3,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 4,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l16",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l17",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l17",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l17",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l17",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 1,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 2,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 3,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l19",
+      "pass": 4,
+      "index": 11,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 1,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 2,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 3,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l20",
+      "pass": 4,
+      "index": 9,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l21",
+      "pass": 1,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l21",
+      "pass": 2,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l21",
+      "pass": 3,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l21",
+      "pass": 4,
+      "index": 7,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l26b",
+      "pass": 1,
+      "index": 15,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l26b",
+      "pass": 2,
+      "index": 15,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l26b",
+      "pass": 3,
+      "index": 15,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l26b",
+      "pass": 4,
+      "index": 15,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l28",
+      "pass": 1,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l28",
+      "pass": 2,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l28",
+      "pass": 3,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l28",
+      "pass": 4,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "pass": 1,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "pass": 2,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "pass": 3,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "pass": 4,
+      "index": 14,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "pass": 1,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "pass": 2,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "pass": 3,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "pass": 4,
+      "index": 6,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-saude",
+      "pass": 1,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-saude",
+      "pass": 2,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-saude",
+      "pass": 3,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-saude",
+      "pass": 4,
+      "index": 5,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-horarios",
+      "pass": 1,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-horarios",
+      "pass": 2,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-horarios",
+      "pass": 3,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-horarios",
+      "pass": 4,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-natureza",
+      "pass": 1,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-natureza",
+      "pass": 2,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-natureza",
+      "pass": 3,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-natureza",
+      "pass": 4,
+      "index": 8,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "pass": 1,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "pass": 2,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "pass": 3,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "pass": 4,
+      "index": 4,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 1,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 1,
+      "index": 13,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 2,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 2,
+      "index": 13,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 3,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 3,
+      "index": 13,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 4,
+      "index": 2,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "l30",
+      "pass": 4,
+      "index": 13,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "pass": 1,
+      "index": 24,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "pass": 2,
+      "index": 24,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "pass": 3,
+      "index": 24,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "pass": 4,
+      "index": 24,
+      "kind": "listen_select",
+      "classification": "TOO_COMPLEX"
+    }
+  ]
+}

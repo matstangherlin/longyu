@@ -3,28 +3,30 @@
  *
  * Conceitos separados (nao derivar um do outro):
  * - country / country_code: pais do usuario (ISO 3166-1 alpha-2, lancamento BR)
- * - interface_locale: idioma da interface (lancamento pt-BR)
- * - instruction_locale: lingua usada para ensinar (lancamento pt-BR)
- * - native_language: lingua principal do aluno (lancamento pt-BR)
+ * - interface_locale: idioma da interface (pt-BR | en)
+ * - instruction_locale: lingua usada para ensinar (pt-BR | en)
+ * - native_language: lingua de instrucao selecionada pelo aluno (pt-BR | en)
  * - target_language: idioma estudado (lancamento zh-CN)
  *
  * Pais nunca infere idioma. launchLocaleFields() ignora country.
  *
- * Runtime de interface (pt-BR | en) vive em `src/i18n/` e persiste so em
- * `longyu:interface-locale`. Este modulo continua sendo o contrato de
- * lancamento enviado ao backend (sempre pt-BR / zh-CN nesta remessa).
- * Nao exige as colunas hospedadas da #208 para a UI trocar de idioma.
+ * Runtime de interface e de instrucao vive em `src/i18n/`, com preferencias
+ * locais independentes. Este modulo gera o contrato sem inferir idioma por
+ * pais e sem exigir as colunas hospedadas da #208.
  *
  * V4.8.1: a UI de onboarding/Placement segue a preferencia local. Ate a #208
  * ser aplicada, confirmar o email em outro browser nao persiste o idioma
  * da interface na nuvem. Isso nao bloqueia V4.8.1.
  *
- * Futuro (nao nesta PR): a mesma conta pode ter instruction_locale en
- * para o par en → zh-CN, sem duplicar banco nem a Journey. Dados canonicos
- * chineses (hanzi, pinyin, audio, estrutura) continuam independentes do locale.
+ * A mesma conta pode estudar no par en -> zh-CN sem duplicar banco nem Journey.
+ * Dados canonicos chineses (hanzi, pinyin, audio, estrutura) continuam
+ * independentes do locale.
  */
 
 import { COUNTRY_LABEL_ALIASES, COUNTRY_OPTIONS } from "../../data/countries";
+import { getInterfaceLocale } from "../../i18n/locale";
+import { getInstructionLocale } from "../../i18n/instructionLocale";
+import type { InterfaceLocale, InstructionLocale } from "../../i18n/config";
 
 export const LAUNCH_INTERFACE_LOCALE = "pt-BR";
 export const LAUNCH_INSTRUCTION_LOCALE = "pt-BR";
@@ -55,11 +57,16 @@ export function countryLabelForCode(code: string | null | undefined): string {
   return CODE_TO_LABEL[normalized] ?? normalized;
 }
 
-export function launchLocaleFields() {
+export function launchLocaleFields(options: {
+  interfaceLocale?: InterfaceLocale;
+  instructionLocale?: InstructionLocale;
+} = {}) {
+  const interfaceLocale = options.interfaceLocale ?? getInterfaceLocale();
+  const instructionLocale = options.instructionLocale ?? getInstructionLocale();
   return {
-    interface_locale: LAUNCH_INTERFACE_LOCALE,
-    instruction_locale: LAUNCH_INSTRUCTION_LOCALE,
-    native_language: LAUNCH_NATIVE_LANGUAGE,
+    interface_locale: interfaceLocale,
+    instruction_locale: instructionLocale,
+    native_language: instructionLocale,
     target_language: LAUNCH_TARGET_LANGUAGE,
     country_code: LAUNCH_COUNTRY_CODE,
   };

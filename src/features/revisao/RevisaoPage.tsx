@@ -964,7 +964,7 @@ function DetailedErrorsPanel({
   activeErrors: ActivityErrorRecord[];
   onCorrectWeakness: () => void;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const sortedErrors = [...errors].sort((a, b) => b.timestamp - a.timestamp);
   const priorityError = [...activeErrors].sort(
     (a, b) => (b.wrongCount ?? 1) - (a.wrongCount ?? 1) || b.timestamp - a.timestamp
@@ -1133,7 +1133,7 @@ function ReviewInsightGroup({
 }
 
 export function RevisaoPage() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);
   const gradeSrs = useStore((s) => s.gradeSrs);

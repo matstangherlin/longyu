@@ -208,7 +208,7 @@ function lockedLessonMessage(
 }
 
 export function JourneyPage() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const navigate = useNavigate();
   const completed = useStore((s) => s.completedLessons);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
@@ -661,7 +661,7 @@ function JourneyMobileChips({
   completedCount: number;
   totalLessons: number;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   return (
     <div className="flex gap-1.5 overflow-x-auto xl:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <Link
@@ -699,7 +699,7 @@ function JourneySidePanel({
   totalLessons: number;
   reviewCount: number;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const pct = Math.round((completedCount / Math.max(1, totalLessons)) * 100);
   return (
     <aside className="sticky top-16 hidden space-y-2 xl:block" aria-label={t("journey.summaryAria")}>
@@ -817,7 +817,7 @@ function ModuleBlock({
   onChestOpen: (chest: JourneyChestConfig) => void;
   onChestLocked: (message: string) => void;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
   const inventory = useStore((s) => s.inventory);
   const points = useStore((s) => s.points);
@@ -1044,7 +1044,7 @@ function JourneyChestNode({
   onOpen: () => void;
   onLocked: () => void;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const locked = state === "locked";
   const opened = state === "opened";
   const chestTitle = displayInstruction(chest.title, locale);
@@ -1089,7 +1089,7 @@ function JourneyChestRewardModal({
   chest: JourneyChestConfig;
   onClose: () => void;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const openJourneyChest = useStore((s) => s.openJourneyChest);
   const soundEffects = useStore((s) => s.soundEffects);
   const [phase, setPhase] = useState<ChestModalPhase>("closed");

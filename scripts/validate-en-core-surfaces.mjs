@@ -137,10 +137,10 @@ for (const row of CAPTURED_CONTEXT) {
 if (src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.4"') ||
     src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.5"') ||
     src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.6"')) {
-  fail("LONGYU_I18N_VERSION must be v4.8.7");
+  fail("LONGYU_I18N_VERSION must be v4.8.8");
 }
-if (!src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.7"')) {
-  fail("LONGYU_I18N_VERSION is not v4.8.7");
+if (!src("src/i18n/config.ts").includes('LONGYU_I18N_VERSION = "v4.8.8"')) {
+  fail("LONGYU_I18N_VERSION is not v4.8.8");
 }
 if (!src("vite.config.ts").includes("longyu-i18n-${LONGYU_I18N_VERSION}") && !src("vite.config.ts").includes("longyu-i18n-")) {
   fail("vite PWA workbox cacheId must include i18n version");
@@ -241,7 +241,7 @@ try {
     }
   }
 
-  if (config.LONGYU_I18N_VERSION !== "v4.8.7") {
+  if (config.LONGYU_I18N_VERSION !== "v4.8.8") {
     fail(`runtime LONGYU_I18N_VERSION is ${config.LONGYU_I18N_VERSION}`);
   }
 } finally {

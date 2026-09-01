@@ -120,7 +120,7 @@ const SKILL_TIP: Record<Skill, string> = {
 // Passo compacto do ciclo: só ícone + título curto + cor de status.
 // Sem descrição, sem badge grande, sem botão por etapa.
 function StepNode({ task, status, index }: { task: LessonTask; status: TaskStatus; index: number }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const Icon = MOTOR_ICON[task.motor];
   const chip =
     status === "concluida"
@@ -163,7 +163,7 @@ function RewardChip({ icon, children, tone = "muted" }: { icon: ReactNode; child
 }
 
 export function LessonDetailPage() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;

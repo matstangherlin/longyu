@@ -74,6 +74,23 @@ export async function seedInterfaceLocale(page: Page, locale: "pt-BR" | "en") {
   }, locale);
 }
 
+/** Course/instruction locale is independent from the app chrome locale. */
+export async function seedInstructionLocale(
+  page: Page,
+  locale: "pt-BR" | "en",
+  options: { userOverride?: boolean } = { userOverride: true }
+) {
+  await page.addInitScript(({ value, userOverride }) => {
+    // Seed only the first document. A hard navigation after a user switch must
+    // preserve the value the UI just persisted.
+    if (localStorage.getItem("longyu:instruction-locale") === null) {
+      localStorage.setItem("longyu:instruction-locale", value);
+      if (userOverride) localStorage.setItem("longyu:instruction-locale-user-override", "1");
+      else localStorage.removeItem("longyu:instruction-locale-user-override");
+    }
+  }, { value: locale, userOverride: options.userOverride !== false });
+}
+
 /** Pedagogy e2e: marca sessão local seeded. Production ignora este marker. */
 export async function allowE2ELocalSession(page: Page) {
   await page.addInitScript(() => {
@@ -316,22 +333,17 @@ function buildCompletedToneTrainer() {
 export async function seedLessonPlayerReady(
   page: Page,
   lessonId: string,
-  options: { masteryLevel?: number; isPremium?: boolean; folego?: number } = {}
+  options: { masteryLevel?: number; isPremium?: boolean; folego?: number; completeToneTrainer?: boolean } = {}
 ) {
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
-  const foundation = [
-    "p1-o-que-e-mandarim",
-    "p1-o-que-e-pinyin",
-    "p1-o-que-e-tom",
-    "p1-o-que-e-hanzi",
-    "p1-primeiros-hanzi",
-    "p1-engine-2-lab",
-  ];
   const targetIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
   const journeyCompleted =
     targetIndex > 0 ? ALL_LESSONS.slice(0, targetIndex).map((lesson) => lesson.id) : [];
-  const completedLessons = [...foundation, ...journeyCompleted];
+  // Só conclui os predecessores reais. A antiga lista fixa de seis tópicos
+  // também pré-concluía tópicos posteriores quando o alvo estava na fundação,
+  // contaminando o planner adaptativo com conhecimento futuro.
+  const completedLessons = journeyCompleted;
   const lessonStarsById = Object.fromEntries(completedLessons.map((id) => [id, 3]));
   const lessonMasteryById = topicPathMasteryById(
     completedLessons,
@@ -349,7 +361,7 @@ export async function seedLessonPlayerReady(
     serverIsPro: isPremium,
     folego: options.folego ?? (isPremium ? 20 : undefined),
     holdAchievementModals: true,
-    toneTrainer: buildCompletedToneTrainer(),
+    toneTrainer: options.completeToneTrainer === false ? {} : buildCompletedToneTrainer(),
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
   }));
 }

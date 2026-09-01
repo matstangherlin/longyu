@@ -148,6 +148,18 @@ try {
     compilerOptions,
     fileName: "identity.ts",
   }).outputText;
+  const i18nConfigText = ts.transpileModule(await read("src/i18n/config.ts"), {
+    compilerOptions,
+    fileName: "config.ts",
+  }).outputText;
+  const localeText = ts.transpileModule(await read("src/i18n/locale.ts"), {
+    compilerOptions,
+    fileName: "locale.ts",
+  }).outputText;
+  const instructionLocaleText = ts.transpileModule(await read("src/i18n/instructionLocale.ts"), {
+    compilerOptions,
+    fileName: "instructionLocale.ts",
+  }).outputText;
   const countriesText = ts.transpileModule(await read("src/data/countries.ts"), {
     compilerOptions,
     fileName: "countries.ts",
@@ -161,9 +173,13 @@ try {
     { compilerOptions, fileName: "featureFlags.ts" }
   ).outputText;
   await mkdir(path.join(outDir, "src/lib/i18n"), { recursive: true });
+  await mkdir(path.join(outDir, "src/i18n"), { recursive: true });
   await mkdir(path.join(outDir, "src/data"), { recursive: true });
   await mkdir(path.join(outDir, "src/lib"), { recursive: true });
   await writeFile(path.join(outDir, "src/lib/i18n/identity.js"), identityText);
+  await writeFile(path.join(outDir, "src/i18n/config.js"), i18nConfigText);
+  await writeFile(path.join(outDir, "src/i18n/locale.js"), localeText);
+  await writeFile(path.join(outDir, "src/i18n/instructionLocale.js"), instructionLocaleText);
   await writeFile(path.join(outDir, "src/data/countries.js"), countriesText);
   await writeFile(path.join(outDir, "src/lib/appEnvironment.js"), envText);
   await writeFile(path.join(outDir, "src/lib/featureFlags.js"), flagsText);

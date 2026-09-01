@@ -12,6 +12,7 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 /** Explicit product-domain name; never reuse this type as a billing market. */
 export type InterfaceLocale = SupportedLocale;
+export type InstructionLocale = SupportedLocale;
 
 /** Default interface + instruction language until the learner picks another. */
 export const DEFAULT_LOCALE: SupportedLocale = "pt-BR";
@@ -44,9 +45,11 @@ export type I18nNamespace = (typeof I18N_NAMESPACES)[number];
 
 /** localStorage key. Must stay outside the pedagogical Zustand persist blob. */
 export const INTERFACE_LOCALE_STORAGE_KEY = "longyu:interface-locale";
+export const INSTRUCTION_LOCALE_STORAGE_KEY = "longyu:instruction-locale";
+export const INSTRUCTION_LOCALE_OVERRIDE_STORAGE_KEY = "longyu:instruction-locale-user-override";
 
 /** Product i18n wave. Independent of LONGYU_RC_VERSION. */
-export const LONGYU_I18N_VERSION = "v4.8.7";
+export const LONGYU_I18N_VERSION = "v4.8.8";
 
 export const LOCALE_HTML_LANG: Record<SupportedLocale, string> = {
   "pt-BR": "pt-BR",

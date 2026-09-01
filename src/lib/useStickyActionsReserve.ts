@@ -3,8 +3,8 @@ import { useLayoutEffect, useRef } from "react";
 /**
  * V3.9 · MOBILE-006 — Reserva de espaço para barras de ação fixas.
  *
- * O scroller da atividade (`[data-lesson-activity-scroll]`) reserva
- * `--lesson-sticky-actions-height` no padding inferior. Uma barra que deixa de
+ * O scroller da atividade (`[data-lesson-scroll-region]`) reserva
+ * `--lesson-bottom-action-height` no padding inferior. Uma barra que deixa de
  * publicar a própria altura nessa variável flutua sobre o conteúdo: foi o caso da
  * barra "Limpar | Verificar" do HanziBuilder, que em Android real cobria as
  * opções de caractere.
@@ -16,8 +16,8 @@ import { useLayoutEffect, useRef } from "react";
  * mais de uma barra fixa, reservar só a última deixaria a outra cobrindo o
  * conteúdo.
  */
-const RESERVE_VARIABLE = "--lesson-sticky-actions-height";
-const SCROLLER_SELECTOR = "[data-lesson-activity-scroll]";
+const RESERVE_VARIABLE = "--lesson-bottom-action-height";
+const SCROLLER_SELECTOR = "[data-lesson-scroll-region], [data-lesson-activity-scroll]";
 
 const registry = new WeakMap<HTMLElement, Map<HTMLElement, number>>();
 

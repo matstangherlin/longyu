@@ -10,7 +10,7 @@ import { KeyboardShortcutHint, useExerciseHotkeys } from "../../lib/useExerciseH
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { t } from "../../i18n/catalog";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
-import { getInterfaceLocale } from "../../i18n/locale";
+import { getInstructionLocale } from "../../i18n/instructionLocale";
 import type { StepProps } from "./steps";
 
 function shuffle<T>(items: T[]): T[] {
@@ -170,7 +170,7 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
             (concept
               ? resolveInstructionText(
                   `${concept.hanzi} (${formatPinyinForDisplay(concept.pinyin)}) = ${concept.meaningPt}.`,
-                  getInterfaceLocale()
+                  getInstructionLocale()
                 )
               : undefined)
           }

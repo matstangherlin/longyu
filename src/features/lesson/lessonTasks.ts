@@ -2276,8 +2276,8 @@ function makeAudioDiscriminationStep(
   const second = identical ? drill.a : drill.b;
   return {
     kind: "audio_discrimination",
-    title: "Iguais ou diferentes?",
-    prompt: "Ouça os dois sons e decida. Sem escrita nesta pergunta — só ouvido.",
+    title: "Os sons são iguais ou diferentes?",
+    prompt: "Ouça os dois sons. Compare apenas o que você ouve.",
     audioText: first.hanzi,
     audioTextB: second.hanzi,
     correctAnswer: identical ? "same" : "different",
@@ -2292,6 +2292,24 @@ function makeAudioDiscriminationStep(
       : `${first.pinyin} × ${second.pinyin} — ${drill.contrastLabelPt}. ${drill.notePt}`,
     isNoHint: true,
   };
+}
+
+/**
+ * A tarefa mede somente o contraste auditivo. Títulos de estágio, taxonomia da
+ * lição e referências ao idioma-fonte ficam fora da pergunta apresentada ao
+ * aluno; hànzì/pinyin continuam disponíveis apenas no feedback.
+ */
+function withDirectAudioDiscriminationCopy(steps: LessonRoundStep[]): LessonRoundStep[] {
+  return steps.map((step) =>
+    step.kind === "audio_discrimination"
+      ? {
+          ...step,
+          title: "Os sons são iguais ou diferentes?",
+          prompt: "Ouça os dois sons. Compare apenas o que você ouve.",
+          options: undefined,
+        }
+      : step
+  );
 }
 
 /** Ditado: o mesmo áudio da lição cobrado por montagem, pinyin ou hànzì. */
@@ -7181,7 +7199,7 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
       Math.min(4, Math.max(1, (context.masteryLevel ?? 0) + 1))) as ReviewMasteryLevel;
     const reviewSteps = reviewMasteryStepsFor(lesson.id, level);
     if (reviewSteps.length > 0) {
-      return withEvaluableQuestionNumbers(
+      return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(
         reviewSteps.map((step, index) => ({
           ...step,
           lessonStageId: "consolidation" as const,
@@ -7189,14 +7207,16 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
           lessonStageQuestionCount: reviewSteps.length,
           masteryPass: level as MasteryPass,
         }))
-      );
+      ));
     }
   }
 
   const base = buildLessonPracticePlan(lesson, context);
   const pass = resolveMasteryPassForContext(lesson, context);
-  if (!pass) return withEvaluableQuestionNumbers(base);
-  return withEvaluableQuestionNumbers(applyMasteryPassToPlan(base, lesson, pass, context));
+  if (!pass) return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(base));
+  return withDirectAudioDiscriminationCopy(
+    withEvaluableQuestionNumbers(applyMasteryPassToPlan(base, lesson, pass, context))
+  );
 }
 
 export function lessonMasteryPassMeta(pass: MasteryPass): { pass: MasteryPass; label: string } {

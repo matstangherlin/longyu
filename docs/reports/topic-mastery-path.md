@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | b4baa89ae3d4 |
-| HEAD no instante da geração | 75eb981c26f84780d84e6fbd2c248be98df6e668 |
+| Hash da Jornada | 8f189dc79da9 |
+| HEAD no instante da geração | a6abc946bd01b49b29d37dfdccd9bd44a85a2825 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-26T06:26:27.360Z |
+| Gerado em | 2026-09-01T13:51:41.586Z |
 | Lições | 127 |
 
 
@@ -89,14 +89,14 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Comparar 1º e 4º tom | Ouvir o par 1º × 4º lado a lado. | Discriminar os dois com distratores próximos. | Identificar qual tom soou sem ver o pinyin primeiro. | Levar o contraste a uma palavra já usada. |
 | Comparar 2º e 3º tom | Ouvir 2º × 3º como duas curvas diferentes. | Discriminar subida × vale. | Identificar o tom ouvido. | Aplicar o contraste em 你 / 好. |
 | Tons em 谢谢 | Ouvir 谢谢 e ligar ao agradecimento. | Discriminar 谢谢 de 你好 pelo som. | Reconhecer/produzir 谢谢. | Agradecer numa micro-situação nova. |
-| Quatro tons | Descobrir de ouvido o que Quatro tons está ensinando. | Discriminar os sons de Quatro tons com pares próximos. | Identificar/produzir o contorno de Quatro tons. | Levar o som de Quatro tons a um chunk conhecido. |
-| Treino guiado | Descobrir de ouvido o que Treino guiado está ensinando. | Discriminar os sons de Treino guiado com pares próximos. | Identificar/produzir o contorno de Treino guiado. | Levar o som de Treino guiado a um chunk conhecido. |
-| A sílaba yao | Descobrir de ouvido o que A sílaba yao está ensinando. | Discriminar os sons de A sílaba yao com pares próximos. | Identificar/produzir o contorno de A sílaba yao. | Levar o som de A sílaba yao a um chunk conhecido. |
-| Tons em 好 e 谢 | Descobrir de ouvido o que Tons em 好 e 谢 está ensinando. | Discriminar os sons de Tons em 好 e 谢 com pares próximos. | Identificar/produzir o contorno de Tons em 好 e 谢. | Levar o som de Tons em 好 e 谢 a um chunk conhecido. |
-| Compare tons | Descobrir de ouvido o que Compare tons está ensinando. | Discriminar os sons de Compare tons com pares próximos. | Identificar/produzir o contorno de Compare tons. | Levar o som de Compare tons a um chunk conhecido. |
-| A sílaba shi | Descobrir de ouvido o que A sílaba shi está ensinando. | Discriminar os sons de A sílaba shi com pares próximos. | Identificar/produzir o contorno de A sílaba shi. | Levar o som de A sílaba shi a um chunk conhecido. |
-| Sons que brasileiros confundem | Descobrir de ouvido o que Sons que brasileiros confundem está ensinando. | Discriminar os sons de Sons que brasileiros confundem com pares próximos. | Identificar/produzir o contorno de Sons que brasileiros confundem. | Levar o som de Sons que brasileiros confundem a um chunk conhecido. |
-| Números por som | Descobrir de ouvido o que Números por som está ensinando. | Discriminar os sons de Números por som com pares próximos. | Identificar/produzir o contorno de Números por som. | Levar o som de Números por som a um chunk conhecido. |
+| Quatro tons | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| Treino guiado | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| A sílaba yao | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| Tons em 好 e 谢 | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| Compare tons | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| A sílaba shi | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| Sons que brasileiros confundem | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
+| Números por som | Ouça e identifique o som-alvo. | Compare dois sons próximos. | Reconheça o contraste em uma palavra ou frase curta. | Perceba e use o contraste em contexto. |
 
 ## Avisos
 
@@ -106,4 +106,4 @@ Nenhum.
 
 Nenhuma.
 
-<!-- integridade:f95914175d3e6421 -->
+<!-- integridade:ec621bf2f6c6ace5 -->

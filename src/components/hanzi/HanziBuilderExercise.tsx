@@ -10,7 +10,7 @@ import { IconCheck, IconChevron, IconX } from "../ui/Icon";
 import { Pinyin } from "./Pinyin";
 import { t } from "../../i18n/catalog";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
-import { getInterfaceLocale } from "../../i18n/locale";
+import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 
 type BuilderPiece =
@@ -63,7 +63,7 @@ export function HanziBuilderExercise({
   continueLabel?: string;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
-  const locale = getInterfaceLocale();
+  const locale = getInstructionLocale();
   const prompt = resolveInstructionText(builder.promptPt, locale);
   const meaning = resolveInstructionText(builder.meaningPt, locale);
   const hint = builder.hintPt ? resolveInstructionText(builder.hintPt, locale) : undefined;
@@ -403,7 +403,8 @@ export function HanziBuilderExercise({
         <div
           ref={actionsRef}
           data-lesson-sticky-actions
-          className="sticky bottom-[var(--activity-actions-offset)] z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none lg:bottom-4"
+          data-lesson-bottom-action
+          className="sticky bottom-0 z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none"
         >
           {selected.length > 0 && (
             <Button variant="ghost" onClick={clearPieces} className="min-w-24">
@@ -566,7 +567,7 @@ function PieceButton({
   showInfo?: boolean;
   onClick: () => void;
 }) {
-  const locale = getInterfaceLocale();
+  const locale = getInstructionLocale();
   const glyphLabel =
     piece.kind === "glyph" ? resolveInstructionText(piece.glyph.label, locale) : "";
   const rolePt =

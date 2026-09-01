@@ -4,7 +4,7 @@ import { t, type TranslateVars } from "../catalog";
 import { resolveInstructionText } from "./instructionGloss";
 import { localizeLessonTitle } from "./localizeLesson";
 import type { SupportedLocale } from "../config";
-import { getInterfaceLocale } from "../locale";
+import { getInstructionLocale } from "../instructionLocale";
 
 type TFn = (key: string, vars?: TranslateVars) => string;
 
@@ -57,14 +57,14 @@ export function localizedTopicVictory(completedPass: 1 | 2 | 3 | 4, translate: T
 
 export function displayLessonTitle(
   title: string,
-  locale: SupportedLocale = getInterfaceLocale()
+  locale: SupportedLocale = getInstructionLocale()
 ): string {
   return localizeLessonTitle(title, locale);
 }
 
 export function displayInstruction(
   text: string | undefined | null,
-  locale: SupportedLocale = getInterfaceLocale()
+  locale: SupportedLocale = getInstructionLocale()
 ): string {
   return resolveInstructionText(text ?? "", locale);
 }
@@ -99,7 +99,7 @@ const UNLOCK_STATIC: Record<string, string> = {
 /** Display helper for canStartLesson().reason — canonical PT stays in proAccess. */
 export function localizeUnlockReason(
   reason: string,
-  locale: SupportedLocale = getInterfaceLocale(),
+  locale: SupportedLocale = getInstructionLocale(),
   translate: TFn = t
 ): string {
   if (!reason || locale === "pt-BR") return reason;

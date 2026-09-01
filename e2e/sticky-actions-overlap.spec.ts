@@ -49,7 +49,7 @@ for (const viewport of VIEWPORTS) {
       const reserved = await page.evaluate(() => {
         const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
         return scroller
-          ? getComputedStyle(scroller).getPropertyValue("--lesson-sticky-actions-height").trim()
+          ? getComputedStyle(scroller).getPropertyValue("--lesson-bottom-action-height").trim()
           : "";
       });
       expect(reserved, "scroller precisa reservar a altura da barra do builder").toMatch(/^\d+(\.\d+)?px$/);

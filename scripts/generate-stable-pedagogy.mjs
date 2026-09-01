@@ -322,7 +322,7 @@ try {
   }
 
   const catalog = {
-    version: "v4.8.7",
+    version: "v4.8.8",
     generatedAt: new Date().toISOString(),
     rule: "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 113)",
     topicIds: expectedIds,
