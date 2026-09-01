@@ -22,7 +22,7 @@ function downloadJson(filename: string, data: unknown) {
 }
 
 export function DadosLocaisPage() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const chrome = (text: string) => displayInstruction(text, locale);
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);

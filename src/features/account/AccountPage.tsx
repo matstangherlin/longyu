@@ -1503,7 +1503,7 @@ function accountAuthMode(account?: LearningAccount): AuthMode {
 }
 
 export function AccountPage() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const chrome = (text: string) => displayInstruction(text, locale);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

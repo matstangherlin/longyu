@@ -89,7 +89,7 @@ interface HistoryEvent {
 }
 
 export function ProfilePage() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const location = useLocation();
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
@@ -248,7 +248,7 @@ export function ProfilePage() {
             {since && <span>· {t("hub.studyingSince", { date: since })}</span>}
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
-            <Pill tone="accent">{locale === "en" ? t("marketing.taglineEn") : t("marketing.tagline")}</Pill>
+            <Pill tone="accent">{`${locale === "en" ? "EN" : "PT-BR"} → ${t("settings.targetLanguageName")}`}</Pill>
             {streak > 0 && (
               <Pill tone="muted">
                 <IconFlame width={12} height={12} /> {streak} {streak === 1 ? t("shell.day") : t("shell.days")}

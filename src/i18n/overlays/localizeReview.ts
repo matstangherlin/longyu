@@ -1,6 +1,6 @@
 import type { ReviewExercise } from "../../features/revisao/reviewExerciseBuilder";
 import { DEFAULT_LOCALE, type SupportedLocale } from "../config";
-import { getInterfaceLocale } from "../locale";
+import { getInstructionLocale } from "../instructionLocale";
 import {
   isCanonicalZhOrPinyin,
   localizeStringList,
@@ -20,7 +20,7 @@ function locRequired(text: string, locale: SupportedLocale): string {
 
 export function localizeReviewExercise(
   exercise: ReviewExercise | null,
-  locale: SupportedLocale = getInterfaceLocale()
+  locale: SupportedLocale = getInstructionLocale()
 ): ReviewExercise | null {
   if (!exercise || locale === DEFAULT_LOCALE) return exercise;
   return {

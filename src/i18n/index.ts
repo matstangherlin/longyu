@@ -11,9 +11,17 @@ export {
   isSupportedLocale,
   type SupportedLocale,
   type InterfaceLocale,
+  type InstructionLocale,
   type TargetLanguage,
   type I18nNamespace,
 } from "./config";
+
+export {
+  getInstructionLocale,
+  setInstructionLocale,
+  readPersistedInstructionLocale,
+  hasInstructionLocaleUserOverride,
+} from "./instructionLocale";
 
 export {
   parseInterfaceLocale,

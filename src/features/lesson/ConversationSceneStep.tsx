@@ -29,7 +29,7 @@ import {
 import type { StepProps } from "./steps";
 import { t } from "../../i18n/catalog";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
-import { getInterfaceLocale } from "../../i18n/locale";
+import { getInstructionLocale } from "../../i18n/instructionLocale";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -228,7 +228,7 @@ function SettingBackdrop({ setting }: { setting?: string }) {
     setting && setting in SETTING_LABELS
       ? SETTING_LABELS[setting as keyof typeof SETTING_LABELS]
       : t("player.scene");
-  const label = resolveInstructionText(raw, getInterfaceLocale());
+  const label = resolveInstructionText(raw, getInstructionLocale());
   const washes: Record<string, string> = {
     classroom: "from-[rgb(185_65_46/0.10)] via-[rgb(var(--surface-2))] to-[rgb(47_133_90/0.08)]",
     street: "from-[rgb(90_96_100/0.10)] via-[rgb(var(--surface-2))] to-[rgb(185_65_46/0.08)]",
@@ -836,7 +836,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
                     : "border-line bg-surface-2 text-ink hover:border-accent-soft",
               ].join(" ")}
             >
-              {resolveInstructionText(REPAIR_STRATEGY_LABELS[strategy], getInterfaceLocale())}
+              {resolveInstructionText(REPAIR_STRATEGY_LABELS[strategy], getInstructionLocale())}
             </button>
           );
         })}

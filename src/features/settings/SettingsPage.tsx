@@ -30,6 +30,7 @@ import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
+import { CourseLanguageSwitcher } from "../../components/i18n/CourseLanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
 import type { MessageKey } from "../../locales/pt-BR";
@@ -94,7 +95,7 @@ const PRO_ENGINE_KEYS: Record<DomainTrack, { titleKey: "settings.proSomTitle" | 
 };
 
 export function SettingsPage() {
-  const { t } = useTranslation();
+  const { t, instructionLocale } = useTranslation();
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const accounts = useStore((s) => s.accounts);
@@ -241,30 +242,33 @@ export function SettingsPage() {
       </HubSection>
 
       <HubSection
-        id="idioma-alvo"
+        id="idioma-curso"
         className="scroll-mt-6"
-        title={t("settings.learningMandarin")}
-        desc={t("settings.learningMandarinLead")}
+        title={t("settings.course")}
+        desc={t("settings.courseLanguageLead")}
       >
-        <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="target-language-card">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
-            {COURSE_PROFILE.targetLanguage.code}
-          </div>
-          <div className="mt-1 font-serif text-lg font-semibold text-ink">
-            {COURSE_PROFILE.targetLanguage.nativeName} · {t("settings.targetLanguageName")}
+        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="course-language-card">
+          <CourseLanguageSwitcher id="settings-instruction-locale" />
+          <div className="border-t border-line/70 pt-3">
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
+              {t("settings.chineseTarget")}
+            </div>
+            <div className="mt-1 font-serif text-lg font-semibold text-ink">
+              {COURSE_PROFILE.targetLanguage.nativeName} · {t("settings.targetLanguageName")}
+            </div>
           </div>
         </Card>
       </HubSection>
 
-      <HubSection title={t("settings.course")}>
-        <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
+      <HubSection title={t("settings.courseFocus")}>
+        <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="current-course-focus">
           <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
             {t("settings.courseFocus")}
           </div>
           <div className="mt-1 font-serif text-lg font-semibold text-ink">
-            {t("settings.sourceLanguageName")} → {t("settings.targetLanguageName")}
+            {instructionLocale === "en" ? t("settings.sourceLanguageEn") : t("settings.sourceLanguagePt")} → {t("settings.targetLanguageName")}
           </div>
-          <p className="mt-1 text-xs text-ink-soft">{t("settings.coursePromise")}</p>
+          <p className="mt-1 text-xs text-ink-soft">{t("settings.courseLanguagePromise")}</p>
         </Card>
       </HubSection>
 

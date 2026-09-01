@@ -10,7 +10,7 @@ import { useStore } from "../../lib/store";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { t } from "../../i18n/catalog";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
-import { getInterfaceLocale } from "../../i18n/locale";
+import { getInstructionLocale } from "../../i18n/instructionLocale";
 import type { StepProps } from "./steps";
 
 function shuffle<T>(items: readonly T[]): T[] {
@@ -67,7 +67,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
   });
 
   const chosenVisual = imagePick && answered ? resolveVisualConcept(answered) : undefined;
-  const locale = getInterfaceLocale();
+  const locale = getInstructionLocale();
   const feedback =
     step.explanation ??
     (target
@@ -118,6 +118,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
 
       {answered && (
         <div
+          data-lesson-feedback
           role="status"
           aria-live="polite"
           className={[
@@ -146,6 +147,7 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
       <div
         ref={actionsRef}
         data-lesson-sticky-actions
+        data-lesson-bottom-action
         className="sticky bottom-0 z-10 -mx-2 mt-5 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-4 sm:flex sm:flex-wrap"
       >
         {!answered && (

@@ -1,7 +1,7 @@
 import type { LessonStep } from "../../data/journey";
 import type { ConversationNode, ConversationInteraction, ConversationCheckpoint } from "../../data/conversationScenes";
 import { DEFAULT_LOCALE, type SupportedLocale } from "../config";
-import { getInterfaceLocale } from "../locale";
+import { getInstructionLocale } from "../instructionLocale";
 import {
   isCanonicalZhOrPinyin,
   localizeStringList,
@@ -78,14 +78,14 @@ function localizeNode(node: ConversationNode, locale: SupportedLocale): Conversa
 
 export function localizeLessonTitle(
   title: string | undefined | null,
-  locale: SupportedLocale = getInterfaceLocale()
+  locale: SupportedLocale = getInstructionLocale()
 ): string {
   return resolveInstructionText(title ?? "", locale);
 }
 
 export function localizeLessonStep(
   step: LessonStep,
-  locale: SupportedLocale = getInterfaceLocale()
+  locale: SupportedLocale = getInstructionLocale()
 ): LessonStep {
   if (locale === DEFAULT_LOCALE) return step;
   const next: LessonStep = { ...step };

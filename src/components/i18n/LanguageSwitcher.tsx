@@ -15,7 +15,7 @@ export function LanguageSwitcher({
     <label className={compact ? "inline-flex items-center gap-2" : "grid gap-1.5"} htmlFor={id}>
       {!compact && (
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
-          {t("settings.language")}
+          {t("settings.appLanguage")}
         </span>
       )}
       {compact && <span className="sr-only">{t("marketing.languageSwitcher")}</span>}

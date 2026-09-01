@@ -29,7 +29,7 @@ function linkClass(active: boolean) {
 }
 
 export function Sidebar() {
-  const { t } = useTranslation();
+  const { t, instructionLocale } = useTranslation();
   const location = useLocation();
   const profile = useLearnerProfile();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
@@ -99,7 +99,7 @@ export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-[14rem] shrink-0 flex-col border-r border-line/60 bg-surface px-3 py-5 lg:flex">
       <div className="px-2 pb-4">
-        <BrandLockup tagline={t("marketing.tagline")} />
+        <BrandLockup tagline={`${instructionLocale === "en" ? "EN" : "PT-BR"} → ${t("settings.targetLanguageName")}`} />
       </div>
 
       <nav className="mt-1 flex flex-1 flex-col overflow-y-auto" aria-label={t("navigation.primary")}>

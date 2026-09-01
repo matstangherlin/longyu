@@ -19,6 +19,7 @@ import { createAccount as createAuthAccount } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
+import { CourseLanguageSwitcher } from "../../components/i18n/CourseLanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
 import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
@@ -450,6 +451,10 @@ function Welcome({ onStart }: { onStart: () => void }) {
         <p className="mt-3 text-ink-soft">
           {t("onboarding.welcomeLead")}
         </p>
+        <div className="mt-5 rounded-2xl border border-line bg-surface p-3 text-left" data-testid="onboarding-course-language">
+          <CourseLanguageSwitcher id="onboarding-instruction-locale" compact />
+          <p className="mt-2 text-xs text-ink-soft">{t("settings.chineseTarget")}: 中文 · {t("settings.targetLanguageName")}</p>
+        </div>
         <Button size="lg" onClick={onStart} className="mt-6 w-full md:w-auto">
           {t("onboarding.getStarted")} <IconChevron width={18} height={18} />
         </Button>
@@ -518,7 +523,7 @@ function MascotPrompt({ prompt }: { prompt: string }) {
 }
 
 function OptionText({ optionId }: { optionId: string }) {
-  const { locale } = useTranslation();
+  const { instructionLocale: locale } = useTranslation();
   if (isCanonicalOptionId(optionId)) {
     if (containsCjkText(optionId)) return <span className="hanzi">{optionId}</span>;
     return <span>{formatPinyinForDisplay(optionId)}</span>;
@@ -545,7 +550,7 @@ function QuizCard({
   onSubmit: () => void;
   onUseHint: () => void;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const difficulty = quizDifficulty(question, declaredLevel);
   const allowHints = question.hasHint === true;
   const [hintOpen, setHintOpen] = useState(false);
@@ -648,7 +653,7 @@ function ResultPreview({
   busy?: boolean;
   error?: string | null;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const entry = entryPointForLesson(analysis.placement.targetLessonId);
   const strengths =
     analysis.strengthCategoryIds?.map((category) => categoryLabel(category, t)).join(", ") || t("placement.strengthFallback");

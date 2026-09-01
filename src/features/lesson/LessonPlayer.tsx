@@ -1500,6 +1500,7 @@ function ErrorReviewQuestion({
               : "border-line bg-surface-2",
           ].join(" ")}
           data-review-feedback
+          data-lesson-feedback
           data-review-feedback-status={feedback}
         >
           <div
@@ -1718,7 +1719,7 @@ function buildNextFocus({
 }
 
 export function LessonPlayer() {
-  const { t, locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
@@ -4127,7 +4128,7 @@ export function LessonPlayer() {
       <div className="flex h-full min-h-0 max-w-xl mx-auto w-full flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         {recoveryDebugPanel}
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] text-center shadow-lift">
-        <div data-lesson-activity-scroll className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-4 pb-2 pt-3 sm:px-6">
+        <div data-lesson-activity-scroll data-lesson-scroll-region className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-4 pb-2 pt-3 sm:px-6">
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {displayLessonTitle(lesson.title, locale)}
           </div>
@@ -4514,7 +4515,8 @@ export function LessonPlayer() {
       <div
         ref={activityScrollRef}
         data-lesson-activity-scroll
-        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-[calc(var(--lesson-sticky-actions-height,0px)+1rem)] [scroll-padding-bottom:calc(var(--lesson-sticky-actions-height,0px)+1rem)] [-webkit-overflow-scrolling:touch] [touch-action:pan-y]"
+        data-lesson-scroll-region
+        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-0.5 pb-[calc(var(--lesson-bottom-action-height,0px)+1rem)] [scroll-padding-bottom:calc(var(--lesson-bottom-action-height,0px)+1rem)] [-webkit-overflow-scrolling:touch] [touch-action:pan-y]"
       >
       {recoveryDebugPanel}
 
@@ -4544,6 +4546,8 @@ export function LessonPlayer() {
 
       <Card
         data-lesson-step-frame
+        data-lesson-task-body
+        data-current-step-kind={step.kind}
         className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
         <StepRenderer

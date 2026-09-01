@@ -255,6 +255,8 @@
     "test:topics-21-50-locale-parity": "node scripts/test-topics-21-50-locale-parity.mjs",
     "test:topics-51-80-locale-parity": "node scripts/test-topics-51-80-locale-parity.mjs",
     "test:topics-81-113-locale-parity": "node scripts/test-topics-81-113-locale-parity.mjs",
+    "test:course-language-switch": "node scripts/test-course-language-switch.mjs",
+    "test:audio-discrimination-quality": "node scripts/test-audio-discrimination-quality.mjs",
     "test:stable-pedagogy-ids": "node scripts/test-stable-pedagogy-ids.mjs",
     "generate:stable-pedagogy": "node scripts/generate-stable-pedagogy.mjs",
     "validate:en-core-surfaces": "node scripts/validate-en-core-surfaces.mjs"

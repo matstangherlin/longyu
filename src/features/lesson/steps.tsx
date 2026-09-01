@@ -59,7 +59,7 @@ import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
-import { getInterfaceLocale } from "../../i18n/locale";
+import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { localizeLessonStep } from "../../i18n/overlays/localizeLesson";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { validateExercise } from "./exerciseValidation";
@@ -108,7 +108,7 @@ export interface StepDoneMeta {
 }
 
 function displayPt(text: string | undefined | null): string {
-  return resolveInstructionText(text, getInterfaceLocale());
+  return resolveInstructionText(text, getInstructionLocale());
 }
 
 export interface StepProps {
@@ -161,6 +161,7 @@ function StickyActionBar({
     <div
       ref={barRef}
       data-lesson-sticky-actions
+      data-lesson-bottom-action
       className={cx(
         "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-5",
         className
@@ -172,7 +173,7 @@ function StickyActionBar({
 }
 
 function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }) {
-  const { locale } = useTranslation();
+  const { t, instructionLocale: locale } = useTranslation();
   const resolved = label ? resolveInstructionText(label, locale) : t("player.continue");
   useExerciseHotkeys({
     enabled: true,
@@ -208,7 +209,7 @@ function SkipStepButton({ onSkip, className = "mt-3" }: { onSkip?: () => void; c
 }
 
 function Eyebrow({ children }: { children: string }) {
-  const { locale } = useTranslation();
+  const { instructionLocale: locale } = useTranslation();
   const label = resolveInstructionText(children, locale);
   return (
     <div
@@ -246,29 +247,31 @@ function AnswerFeedback({
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
-      <div
-        className={[
-          "flex items-center justify-center gap-1.5 text-sm font-semibold",
-          correct ? "text-[rgb(var(--good))]" : "text-accent",
-        ].join(" ")}
-      >
-        {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-        {correct ? t("player.correct") : t("player.almost")}
+      <div data-lesson-feedback className="mb-2">
+        <div
+          className={[
+            "flex items-center justify-center gap-1.5 text-sm font-semibold",
+            correct ? "text-[rgb(var(--good))]" : "text-accent",
+          ].join(" ")}
+        >
+          {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
+          {correct ? t("player.correct") : t("player.almost")}
+        </div>
+        <MandarinText
+          hanzi={hanzi}
+          pinyin={pinyin}
+          meaning={meaning}
+          size="md"
+          audio
+          align="center"
+          className="mt-2"
+        />
+        {!correct && hint && (
+          <p className="mt-2 rounded-lg bg-surface/70 px-3 py-2 text-center text-xs text-ink-soft">
+            {hint}
+          </p>
+        )}
       </div>
-      <MandarinText
-        hanzi={hanzi}
-        pinyin={pinyin}
-        meaning={meaning}
-        size="md"
-        audio
-        align="center"
-        className="mt-2"
-      />
-      {!correct && hint && (
-        <p className="mt-2 rounded-lg bg-surface/70 px-3 py-2 text-center text-xs text-ink-soft">
-          {hint}
-        </p>
-      )}
       <ContinueBtn onClick={onContinue} />
     </div>
   );
@@ -301,6 +304,7 @@ function ToneAnswerFeedback({
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
+      <div data-lesson-feedback className="mb-2">
       <div
         className={[
           "flex items-center gap-2 text-sm font-semibold",
@@ -342,6 +346,7 @@ function ToneAnswerFeedback({
           <ToneCurve tone={answer} />
         </div>
       )}
+      </div>
       <ContinueBtn onClick={onContinue} />
     </div>
   );
@@ -1632,6 +1637,7 @@ function EngineFeedbackPanel({
             : "border-accent-soft bg-accent-soft/45",
       ].join(" ")}
     >
+      <div data-lesson-feedback className="mb-2">
       <div
         className={[
           "flex items-center gap-2 text-sm font-semibold",
@@ -1666,6 +1672,7 @@ function EngineFeedbackPanel({
           </div>
         </div>
       )}
+      </div>
       {correct ? (
         <StickyActionBar>
           <Button variant="good" className="w-full shadow-lift" onClick={onContinue}>
@@ -3104,7 +3111,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
 
 function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
-  const { locale } = useTranslation();
+  const { instructionLocale: locale } = useTranslation();
   const char = charById[step.charId!];
   const meaning = resolveInstructionText(char.meaningPt, locale);
   const [selected, setSelected] = useState<string | null>(null);
@@ -3368,14 +3375,14 @@ function DiscriminationAudioButton({
       type="button"
       onClick={onPlay}
       disabled={disabled}
-      aria-label={`Ouvir som ${label}`}
+      aria-label={t("player.listenSound", { label })}
       className="flex flex-1 flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-4 shadow-card transition hover:-translate-y-0.5 hover:border-accent-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-lift ring-4 ring-accent-soft">
         <IconSound width={26} height={26} />
       </span>
       <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-        Som {label}
+        {t("player.soundLabel", { label })}
       </span>
       <span className="sr-only">{text}</span>
     </button>
@@ -3384,8 +3391,8 @@ function DiscriminationAudioButton({
 
 /**
  * Par mínimo: "iguais ou diferentes?". O aluno decide ANTES de ver qualquer
- * escrita — é ouvido puro. Só depois de responder aparecem os dois hànzì, o
- * contraste e por que ele engana quem fala português.
+ * escrita — é ouvido puro. Só depois de responder aparecem os dois hànzì e o
+ * contraste, com a explicação adaptada ao idioma de instrução.
  */
 function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
@@ -3444,13 +3451,13 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
   });
 
   return (
-    <div>
+    <div data-audio-discrimination>
       <Eyebrow>{t("player.fineEar")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {step.title ?? "Estes dois sons são iguais?"}
+        {step.title ?? t("player.sameOrDifferent")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
-        {step.prompt ?? "Ouça os dois e decida. Não tem escrita nesta pergunta — só ouvido."}
+        {step.prompt ?? t("player.listenAndCompare")}
       </p>
 
       <div className="mt-3 flex gap-3">
@@ -3468,7 +3475,7 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
       <div className="mt-2 text-center">
         <Button variant="outline" size="sm" onClick={playBoth}>
           <IconSound width={16} height={16} />
-          Ouvir os dois de novo
+          {t("player.listenBothAgain")}
         </Button>
       </div>
 
@@ -3499,13 +3506,13 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
       {feedback && reveal.length > 0 && (
         <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-3.5">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {step.contrastLabel ? `Contraste · ${step.contrastLabel}` : "Os dois sons"}
+            {step.contrastLabel ? `${t("player.contrast")} · ${step.contrastLabel}` : t("player.twoSounds")}
           </div>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {reveal.map((side, index) => (
               <div key={`${side.hanzi}-${index}`} className="rounded-xl bg-surface/75 px-3 py-2 text-center">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                  Som {index === 0 ? "A" : "B"}
+                  {t("player.soundLabel", { label: index === 0 ? "A" : "B" })}
                 </div>
                 <div className="hanzi mt-1 text-3xl font-semibold text-ink">
                   <ExerciseText value={side.hanzi} type="hanzi" speakOnClick helpMode="disabled" />
@@ -4950,9 +4957,12 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
 
 export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
   const name = useStudentFirstName();
-  const { locale } = useTranslation();
+  const { instructionLocale } = useTranslation();
   const runtimeStep = useMemo(() => materializeRuntimeStep(step), [step]);
-  const localizedStep = useMemo(() => localizeLessonStep(runtimeStep, locale), [runtimeStep, locale]);
+  const localizedStep = useMemo(
+    () => localizeLessonStep(runtimeStep, instructionLocale),
+    [runtimeStep, instructionLocale]
+  );
   const personalizedStep = useMemo(() => personalizeStep(localizedStep, name), [localizedStep, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
   const isDev = Boolean((import.meta as { env?: { DEV?: boolean } }).env?.DEV);

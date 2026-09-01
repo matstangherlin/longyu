@@ -472,7 +472,7 @@ export async function assertBankAboveSticky(page: Page) {
     const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
     if (!stickyEl || !scroller) return Number.POSITIVE_INFINITY;
     const reserved = Number.parseFloat(
-      getComputedStyle(scroller).getPropertyValue("--lesson-sticky-actions-height")
+      getComputedStyle(scroller).getPropertyValue("--lesson-bottom-action-height")
     );
     return Math.abs(reserved - stickyEl.getBoundingClientRect().height);
   })).toBeLessThanOrEqual(2);
