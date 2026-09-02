@@ -55,6 +55,14 @@ The computed object/risk/rollback inventory is in `docs/reports/v489-production-
 
 Repo source identities are frozen in `docs/backend/edge-contract.json`. A source or SQL change creates a different backend RC.
 
+### Hosted signup failure evidence (read-only)
+
+The Supabase production snapshot for `create-account` is version 8. Its `OPTIONS` response allows only `authorization, x-client-info, apikey, content-type`, while the current frontend sends the operational headers `x-longyu-correlation-id`, `x-longyu-session-id` and `x-longyu-op`. The browser therefore rejects the preflight as a CORS mismatch and never sends the signup `POST`; the frontend can only observe `Failed to fetch`.
+
+The same deployed source predates the current onboarding contract: it does not consume the locale/placement fields, forces `onboarding_completed=true` and `native_language/interface_locale/instruction_locale=pt-BR`, and cannot persist the current placement draft. A read-only schema check also found `check_and_record_signup_rate` present, but `save_placement_onboarding_draft`, `commit_placement_result`, the placement tables and the new profile locale columns absent.
+
+This is not repaired by weakening the client or silently falling back to the old Edge: that would allow an account to be created with the wrong locale and without server-authoritative placement. The safe fix is a coordinated production migration plus deployment of the frozen current `create-account`, `commit-placement` and `finalize-onboarding` sources after the backup gates below are approved. No such production mutation was executed in this remessa.
+
 ## Ephemeral contract added to the final-HEAD gate
 
 `scripts/rehearse-backend-contract.mjs` now produces two V4.8.9 exact-run artifacts:
