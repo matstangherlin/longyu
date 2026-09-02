@@ -70,6 +70,60 @@ function normalizeMailboxBody(value) {
     .replace(/=3D/gi, "=");
 }
 
+function actionLinkFromBody(value, type) {
+  const body = normalizeMailboxBody(value);
+  const urls = body.match(/https?:\/\/[^\s"'<>]+/gi) ?? [];
+  for (const candidate of urls) {
+    const cleaned = candidate.replace(/[),.;]+$/, "");
+    try {
+      const parsed = new URL(cleaned);
+      if (parsed.pathname.includes("/auth/v1/verify") && parsed.searchParams.get("type") === type) {
+        return cleaned;
+      }
+    } catch {
+      // Ignore non-URL fragments from the MIME envelope.
+    }
+  }
+  return null;
+}
+
+function mailpitMessageMatches(message, email) {
+  const needle = email.toLowerCase();
+  const recipients = [message?.To, message?.to, message?.Recipients, message?.recipients]
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .map((value) => {
+      if (typeof value === "string") return value;
+      if (value && typeof value === "object") return value.Address ?? value.address ?? "";
+      return "";
+    })
+    .filter(Boolean)
+    .join(",")
+    .toLowerCase();
+  return recipients.includes(needle);
+}
+
+async function findMailpitActionLink(baseUrl, email, type) {
+  const response = await fetch(`${baseUrl}/api/v1/messages?limit=100`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) return null;
+  const payload = await response.json();
+  const messages = Array.isArray(payload) ? payload : (payload?.messages ?? []);
+  const ids = messages
+    .filter((message) => mailpitMessageMatches(message, email))
+    .map((message) => message?.ID ?? message?.id ?? message?.MessageID ?? message?.messageId)
+    .filter(Boolean);
+  for (const id of ids) {
+    const detail = await fetch(`${baseUrl}/api/v1/message/${encodeURIComponent(id)}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!detail.ok) continue;
+    const link = actionLinkFromBody(await detail.text(), type);
+    if (link) return link;
+  }
+  return null;
+}
+
 async function findMailboxActionLink(env, email, type, attempts = 20) {
   const mailbox = email.split("@")[0];
   const inbucket = env.inbucketUrl || "http://127.0.0.1:54324";
@@ -91,21 +145,15 @@ async function findMailboxActionLink(env, email, type, attempts = 20) {
           headers: { Accept: "application/json" },
         });
         if (!detail.ok) continue;
-        const body = normalizeMailboxBody(await detail.text());
-        const urls = body.match(/https?:\/\/[^\s"'<>]+/gi) ?? [];
-        for (const candidate of urls) {
-          const cleaned = candidate.replace(/[),.;]+$/, "");
-          try {
-            const parsed = new URL(cleaned);
-            if (parsed.pathname.includes("/auth/v1/verify") && parsed.searchParams.get("type") === type) {
-              return cleaned;
-            }
-          } catch {
-            // Ignore non-URL fragments from the MIME envelope.
-          }
-        }
+        const link = actionLinkFromBody(await detail.text(), type);
+        if (link) return link;
       }
     }
+    // Supabase CLI 2.x now ships Mailpit (same port, different REST API),
+    // while older stacks used Inbucket. Probe the Mailpit API after the
+    // mailbox route so the harness works with either local mail service.
+    const mailpitLink = await findMailpitActionLink(inbucket, email, type);
+    if (mailpitLink) return mailpitLink;
     await wait(1000);
   }
   throw new EphemeralError(`Inbucket sem link ${type} para mailbox efêmera`);
