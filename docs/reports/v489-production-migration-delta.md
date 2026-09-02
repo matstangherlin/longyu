@@ -6,7 +6,9 @@ Base main: `02bf2f1803ffbde0e17efc00dbf3f0cde5b71163`
 
 MandarimProject: `drjcfalvlbbeblmmyhwj`
 
-Read-only capture: `2026-09-01T23:48:15.668474Z`
+Aggregate snapshot: `2026-09-01T23:48:15.668474Z`
+
+Migration/Edge read-only refresh recorded at: `2026-09-02T09:18:43.053Z`
 
 Remote watermark: `20260810175737` (`beta_experience_telemetry`)
 
@@ -30,7 +32,7 @@ Risk scale: R0 documentation only; R1 additive/low impact; R2 bounded new surfac
 
 ## Hosted schema gap
 
-At capture time production did not have `placement_attempts`, `placement_onboarding_drafts`, `organizations`, `org_members`, `business_leads`, or the pearl catalog tables. Profile fields `country_code`, `interface_locale`, and `instruction_locale` were absent. `user_economy.pearl_ledger`, `commit_placement_result`, `save_placement_onboarding_draft`, and the mastery trigger were absent.
+At capture time production did not have `placement_attempts`, `placement_onboarding_drafts`, `organizations`, `organization_members`, `business_leads`, or the pearl catalog tables. Profile fields `country_code`, `interface_locale`, and `instruction_locale` were absent. `user_economy.pearl_ledger`, `commit_placement_result`, `save_placement_onboarding_draft`, and the mastery trigger were absent.
 
 Current API grants are materially broader than the intended contract: `anon` has `ALL` on learner-owned tables including profiles/progress/SRS/economy/subscriptions/transactions, while migration #9 narrows this surface. RLS alone is not a substitute for correct grants; both must be rehearsed.
 

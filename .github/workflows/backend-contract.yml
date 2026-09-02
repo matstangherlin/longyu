@@ -122,6 +122,8 @@ jobs:
             docs/reports/v489-backup-record.md
             docs/reports/v489-physical-smoke-checklist.md
             docs/reports/v489-production-backend-preflight.md
+            docs/reports/v489-production-backend-preflight.ci.md
+            docs/reports/v489-ephemeral-scoreboard.json
             supabase/baseline/canonical-schema.json
             supabase/baseline/LONGYU_BACKEND_SCHEMA_HASH
           if-no-files-found: warn

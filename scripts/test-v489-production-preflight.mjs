@@ -17,6 +17,7 @@ import {
   V489_PRODUCTION_WATERMARK,
   V489_PRODUCTION_WRITE_BOUNDARY,
   V489_SCOREBOARD,
+  V489_SCOREBOARD_KEYS,
 } from "./lib/v489-production-preflight.mjs";
 
 const root = projectRoot();
@@ -46,9 +47,41 @@ assert(V489_PRODUCTION_PROJECT_ID === "drjcfalvlbbeblmmyhwj", "MandarimProject i
 assert(V489_PRODUCTION_WATERMARK === "20260810175737", "fresh production watermark");
 assert(V489_PENDING_MIGRATIONS.length === 11, "eleven pending migrations");
 assert(Object.keys(V489_PRODUCTION_COUNTS).length >= 10, "aggregate snapshot is present");
-assert(V489_SCOREBOARD.NEW_LOGICAL_BACKUP_READY === "BLOCKED", "new logical backup is blocked");
-assert(V489_SCOREBOARD.BACKUP_RESTORE_VERIFIED === "BLOCKED", "restore verification is blocked");
+assert(V489_SCOREBOARD.NEW_LOGICAL_BACKUP === "BLOCKED", "new logical backup is blocked");
+assert(V489_SCOREBOARD.BACKUP_VERIFIED === "BLOCKED", "restore verification is blocked");
 assert(V489_SCOREBOARD.PRODUCTION_APPLY_READY === "BLOCKED", "production apply is blocked");
+assert(V489_SCOREBOARD.FRONTEND_OLD_BACKEND_COMPATIBLE === "FAIL", "old backend incompatibility remains explicit");
+assert(V489_SCOREBOARD.PHYSICAL_DEVICE_READY === "NOT_RUN", "physical device pass is not invented");
+const expectedScoreboardKeys = [
+  "MAIN_BASE_CURRENT",
+  "BACKEND_RC_CURRENT",
+  "PRODUCTION_DELTA_COMPUTED",
+  "PRODUCTION_SCHEMA_SNAPSHOT",
+  "NEW_LOGICAL_BACKUP",
+  "BACKUP_VERIFIED",
+  "MIGRATION_REHEARSAL",
+  "EDGE_CONTRACT",
+  "RLS_A_NOT_B",
+  "AUTH_EPHEMERAL",
+  "PLACEMENT_EPHEMERAL",
+  "FINALIZE_ONBOARDING_EPHEMERAL",
+  "SYNC_EPHEMERAL",
+  "RECOVERY_EPHEMERAL",
+  "COURSE_LANGUAGE_BACKEND_COMPATIBLE",
+  "FRONTEND_OLD_BACKEND_COMPATIBLE",
+  "ROLLOUT_ORDER_READY",
+  "ROLLBACK_PLAN_READY",
+  "OBSERVABILITY_READY",
+  "CI_HEAD_READY",
+  "SECURITY_HEAD_READY",
+  "PHYSICAL_DEVICE_READY",
+  "PRODUCTION_APPLY_READY",
+];
+assert(JSON.stringify(V489_SCOREBOARD_KEYS) === JSON.stringify(expectedScoreboardKeys), "exact V489 scoreboard contract");
+assert(
+  Object.values(V489_SCOREBOARD).every((value) => ["PASS", "FAIL", "BLOCKED", "NOT_RUN"].includes(value)),
+  "scoreboard uses only approved values"
+);
 assert(V489_DECISION === "BLOCKED_BEFORE_PRODUCTION_APPLY", "fail-closed decision");
 
 const local = new Set(localMigrationFiles(root).map((row) => row.file));
@@ -111,6 +144,8 @@ const workflow = read(".github/workflows/backend-contract.yml");
 assert(/node-version:\s*"22"/.test(workflow), "Node 22 current Supabase runtime");
 assert(/SUPABASE_ACCESS_TOKEN:\s*""/.test(workflow), "ephemeral CI has no hosted token");
 assert(!/logs\.all/.test(workflow), "removed logs.all endpoint not used");
+assert(workflow.includes("v489-ephemeral-scoreboard.json"), "workflow uploads V489 exact-run evidence");
+assert(workflow.includes("v489-production-backend-preflight.ci.md"), "workflow uploads V489 CI report");
 
 if (errors.length) {
   console.error("FAIL test:v489-production-preflight:");

@@ -127,6 +127,24 @@ export function resetEphemeralDb(root) {
   return reset.stdout;
 }
 
+export function verifySecondMigrationApplyIsNoop(root) {
+  const secondApply = run("npx", ["supabase", "migration", "up", "--local"], {
+    cwd: root,
+    timeout: 180_000,
+  });
+  if (secondApply.status !== 0) {
+    throw new EphemeralError(
+      `segunda aplicação da migration chain não foi segura: ${(secondApply.stderr || secondApply.stdout).slice(0, 1600)}`
+    );
+  }
+  const output = `${secondApply.stdout ?? ""}\n${secondApply.stderr ?? ""}`.trim();
+  return {
+    ok: true,
+    classification: "NO_PENDING_MIGRATIONS_AFTER_RESET",
+    output: output.slice(0, 500),
+  };
+}
+
 export function applyLocalMigrationsInOrder(root, dbUrl) {
   const dir = path.join(root, "supabase", "migrations");
   const files = fs
