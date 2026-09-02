@@ -28,19 +28,30 @@ import {
   runConcurrentMastery,
   runEconomyConcurrency,
   startSupabase,
+  verifySecondMigrationApplyIsNoop,
 } from "./lib/ephemeral-backend.mjs";
 import {
   assertLeastPrivilegeGrants,
   assertLiveRpcContract,
   assertRlsEnabled,
   dumpCanonicalSchema,
+  runCourseLanguageBackendCompatibility,
   runCreateAccountEdge,
   runLocalAuthFlow,
   runMalformedMasteryMatrix,
+  runMultiDeviceSyncContract,
   runMonotonicityMatrix,
   runOnboardingEdgeFlow,
+  runPasswordRecoveryFlow,
   runRlsNegativeMatrix,
 } from "./lib/v477-harness.mjs";
+import {
+  V489_BACKEND_RC,
+  V489_DECISION,
+  V489_PRODUCTION_WRITE_BOUNDARY,
+  V489_SCOREBOARD,
+  V489_SCOREBOARD_KEYS,
+} from "./lib/v489-production-preflight.mjs";
 
 const root = projectRoot();
 const args = new Set(process.argv.slice(2));
@@ -76,6 +87,48 @@ function boardInit() {
 
 function requiredFail(board) {
   return V477_SCOREBOARD_KEYS.some((key) => board[key] === SCORE_FAIL);
+}
+
+function v489EvidenceBoard(board, details) {
+  const evidence = { ...V489_SCOREBOARD };
+  const classify = (passed, attempted) => (passed ? SCORE_PASS : attempted ? SCORE_FAIL : SCORE_NOT_RUN);
+  const edgeAttempted = details.EDGE_CONTRACT_READY != null && typeof details.EDGE_CONTRACT_READY === "object";
+  evidence.MIGRATION_REHEARSAL = classify(
+    board.CANONICAL_SCHEMA_READY === SCORE_PASS && details.MIGRATION_SECOND_APPLY?.ok === true,
+    Boolean(details.MIGRATION_SECOND_APPLY || details.error)
+  );
+  evidence.EDGE_CONTRACT = classify(
+    board.EDGE_CONTRACT_READY === SCORE_PASS,
+    edgeAttempted
+  );
+  evidence.RLS_A_NOT_B = classify(board.RLS_MATRIX_READY === SCORE_PASS, details.RLS_MATRIX_READY !== undefined);
+  evidence.AUTH_EPHEMERAL = classify(
+    board.LOCAL_AUTH_FLOW_READY === SCORE_PASS,
+    details.LOCAL_AUTH_FLOW_READY !== undefined
+  );
+  evidence.PLACEMENT_EPHEMERAL = classify(
+    details.EDGE_CONTRACT_READY?.createAcct?.localeCases?.some((row) => row.placementDraft === true) === true &&
+      details.EDGE_CONTRACT_READY?.onboarding?.ok === true,
+    edgeAttempted
+  );
+  evidence.FINALIZE_ONBOARDING_EPHEMERAL = classify(
+    details.EDGE_CONTRACT_READY?.onboarding?.ok === true,
+    edgeAttempted
+  );
+  evidence.SYNC_EPHEMERAL = classify(
+    board.SYNC_MONOTONICITY_READY === SCORE_PASS,
+    details.SYNC_MONOTONICITY_READY !== undefined
+  );
+  evidence.RECOVERY_EPHEMERAL = classify(
+    details.RECOVERY_EPHEMERAL?.ok === true,
+    Boolean(details.RECOVERY_EPHEMERAL || details.error)
+  );
+  evidence.COURSE_LANGUAGE_BACKEND_COMPATIBLE = classify(
+    details.COURSE_LANGUAGE_BACKEND_COMPATIBLE?.ok === true &&
+      details.EDGE_CONTRACT_READY?.createAcct?.localeCases?.length === 4,
+    Boolean(details.COURSE_LANGUAGE_BACKEND_COMPATIBLE || edgeAttempted)
+  );
+  return evidence;
 }
 
 async function main() {
@@ -126,6 +179,7 @@ async function main() {
       throw new EphemeralError("RECUSADO: supabase status resolveu MandarimProject.");
     }
     if (!skipReset) resetEphemeralDb(root);
+    details.MIGRATION_SECOND_APPLY = verifySecondMigrationApplyIsNoop(root);
 
     const dump = dumpCanonicalSchema(env);
     const baselineDir = path.join(root, "supabase/baseline");
@@ -156,12 +210,16 @@ async function main() {
     const malformed = await runMalformedMasteryMatrix(env);
     const race = await runConcurrentMastery(env);
     const economy = await runEconomyConcurrency(env);
+    const multiDevice = await runMultiDeviceSyncContract(env);
     board.SYNC_MONOTONICITY_READY = SCORE_PASS;
-    details.SYNC_MONOTONICITY_READY = { mono, malformed, race, economy };
+    details.SYNC_MONOTONICITY_READY = { mono, malformed, race, economy, multiDevice };
 
     const auth = await runLocalAuthFlow(env);
     board.LOCAL_AUTH_FLOW_READY = SCORE_PASS;
     details.LOCAL_AUTH_FLOW_READY = auth;
+
+    details.RECOVERY_EPHEMERAL = await runPasswordRecoveryFlow(env);
+    details.COURSE_LANGUAGE_BACKEND_COMPATIBLE = await runCourseLanguageBackendCompatibility(env);
 
     if (skipEdge) {
       board.EDGE_CONTRACT_READY = SCORE_NOT_RUN;
@@ -237,12 +295,53 @@ ${prodDelta.differences.map((row) => `- ${row.class}: ${row.name ?? row.table}`)
 `;
   writeFile("docs/reports/v477-backend-contract-freeze.ci.md", report);
 
+  const v489Board = v489EvidenceBoard(board, details);
+  const v489Payload = {
+    remessa: "V4.8.9",
+    generated_at: generatedAt,
+    sha: gitSha(),
+    backend_rc: V489_BACKEND_RC,
+    production_writes: 0,
+    stripe_live_writes: 0,
+    decision: V489_DECISION,
+    boundary: V489_PRODUCTION_WRITE_BOUNDARY,
+    board: v489Board,
+    evidence: {
+      migration_second_apply: details.MIGRATION_SECOND_APPLY ?? null,
+      rls: details.RLS_MATRIX_READY ?? null,
+      auth: details.LOCAL_AUTH_FLOW_READY ?? null,
+      recovery: details.RECOVERY_EPHEMERAL ?? null,
+      sync: details.SYNC_MONOTONICITY_READY ?? null,
+      create_account: details.EDGE_CONTRACT_READY?.createAcct ?? null,
+      placement_finalize: details.EDGE_CONTRACT_READY?.onboarding ?? null,
+      course_language: details.COURSE_LANGUAGE_BACKEND_COMPATIBLE ?? null,
+      error: details.error ?? null,
+    },
+  };
+  writeFile("docs/reports/v489-ephemeral-scoreboard.json", `${JSON.stringify(v489Payload, null, 2)}\n`);
+  const v489Rows = V489_SCOREBOARD_KEYS.map((key) => `| \`${key}\` | \`${v489Board[key]}\` |`).join("\n");
+  writeFile(
+    "docs/reports/v489-production-backend-preflight.ci.md",
+    `# V4.8.9 — exact-run ephemeral evidence\n\n` +
+      `Generated at: ${generatedAt}\n\n` +
+      `- Repo SHA: \`${gitSha()}\`\n` +
+      `- Backend RC: \`${V489_BACKEND_RC}\`\n` +
+      `- Production writes: **ZERO**\n` +
+      `- Stripe Live writes: **ZERO**\n` +
+      `- Decision: \`${V489_DECISION}\`\n\n` +
+      `| Gate | Status |\n| --- | --- |\n${v489Rows}\n\n` +
+      `\`${V489_PRODUCTION_WRITE_BOUNDARY}\`\n`
+  );
+
   if (requiredFail(board) || details.error) {
     process.exit(1);
   }
   console.log("OK: rehearse-backend-contract");
   for (const key of V477_SCOREBOARD_KEYS) {
     console.log(`  ${key}=${board[key]}`);
+  }
+  for (const key of V489_SCOREBOARD_KEYS) {
+    console.log(`  V489.${key}=${v489Board[key]}`);
   }
 }
 

@@ -37,4 +37,3 @@ Auditoria do plano real (`lessonRoundStepsFor`) × pass de mastery. Meta: invali
 Cada pass precisa de topic fidelity DIRECT ≥ 70% **e** feasibility = 0 falhas.
 
 <!-- integridade:dcd095646f518d49 -->
-

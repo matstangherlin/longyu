@@ -322,7 +322,7 @@
       "path": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
       "version": "20260828020000",
       "name": "least_privilege_api_grants",
-      "sha256": "12f69f3b2d886e969731e78683a5cb13d57a674c8cf2dc6996823d72d3863b97",
+      "sha256": "85f586cc40a07abfcf7bea5d5d24ccd6e5eb0e3996b254fb87e570bcb0854fcd",
       "status": "FROZEN"
     },
     {

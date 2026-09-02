@@ -17,6 +17,9 @@ on:
       - "scripts/generate-backend-contracts.mjs"
       - "scripts/dump-canonical-schema.mjs"
       - "scripts/lib/v477-*.mjs"
+      - "scripts/lib/v489-*.mjs"
+      - "scripts/v489-*.mjs"
+      - "docs/reports/v489-*.md"
       - "scripts/lib/schema-canonical.mjs"
       - "scripts/lib/ephemeral-backend.mjs"
       - "scripts/lib/migration-drift.mjs"
@@ -35,6 +38,9 @@ on:
       - "scripts/generate-backend-contracts.mjs"
       - "scripts/dump-canonical-schema.mjs"
       - "scripts/lib/v477-*.mjs"
+      - "scripts/lib/v489-*.mjs"
+      - "scripts/v489-*.mjs"
+      - "docs/reports/v489-*.md"
       - "scripts/lib/schema-canonical.mjs"
       - "scripts/lib/ephemeral-backend.mjs"
       - "scripts/lib/migration-drift.mjs"
@@ -69,7 +75,7 @@ jobs:
         with:
           path: |
             ~/.supabase
-          key: supabase-cli-${{ runner.os }}-2.34.3
+          key: supabase-cli-${{ runner.os }}-2.109.1
 
       - name: Install dependencies
         run: npm ci
@@ -78,11 +84,12 @@ jobs:
         run: |
           node scripts/generate-backend-contracts.mjs
           node scripts/test-backend-contract.mjs
+          node scripts/test-v489-production-preflight.mjs
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.34.3
+          version: 2.109.1
 
       - name: Local Edge skip-captcha (ephemeral only)
         run: |
@@ -110,6 +117,13 @@ jobs:
             docs/backend/rpc-contract.json
             docs/backend/edge-contract.json
             docs/backend/grant-surface.json
+            docs/backend/v489-backend-rc.json
+            docs/reports/v489-production-migration-delta.md
+            docs/reports/v489-backup-record.md
+            docs/reports/v489-physical-smoke-checklist.md
+            docs/reports/v489-production-backend-preflight.md
+            docs/reports/v489-production-backend-preflight.ci.md
+            docs/reports/v489-ephemeral-scoreboard.json
             supabase/baseline/canonical-schema.json
             supabase/baseline/LONGYU_BACKEND_SCHEMA_HASH
           if-no-files-found: warn

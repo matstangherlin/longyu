@@ -6,6 +6,7 @@ import { BrandWordmark } from "../../components/layout/Brand";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { IconCheck, IconChevron } from "../../components/ui/Icon";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { canRegisterWithCredentials } from "../../lib/authForm";
@@ -239,7 +240,7 @@ export function ComecarPage() {
     });
     if (result.status === "error" || result.status === "not_implemented") {
       const infra =
-        /criar a conta agora|conectar ao Longyu|indisponível|failed to fetch|network|timeout|ainda não estão ativas|could not reach longyu|real accounts are not active/i;
+        /conectar ao Longyu|indisponível|failed to fetch|network|timeout|ainda não estão ativas|could not reach longyu|real accounts are not active/i;
       const raw = result.message || BACKEND_UNAVAILABLE_MESSAGE;
       setError(infra.test(raw) ? t("errors.backendUnavailable") : localizeUserMessage(raw) || t("onboarding.signupHandoffFailed"));
       setBusy(false);
@@ -773,14 +774,25 @@ function MandatoryAccount({
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
         <input type="email" value={email} onChange={(event) => onEmail(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder={t("auth.emailPlaceholder")} />
       </label>
-      <label className="mt-3 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.password")}</span>
-        <input type="password" value={password} onChange={(event) => onPassword(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" />
-      </label>
-      <label className="mt-3 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.confirmPassword")}</span>
-        <input type="password" value={passwordConfirm} onChange={(event) => onPasswordConfirm(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" />
-      </label>
+      <div className="mt-3">
+        <PasswordField
+          label={t("auth.password")}
+          value={password}
+          onChange={(event) => onPassword(event.target.value)}
+          autoComplete="new-password"
+          placeholder={t("auth.passwordPlaceholder")}
+        />
+      </div>
+      <div className="mt-3">
+        <PasswordField
+          label={t("auth.confirmPassword")}
+          value={passwordConfirm}
+          onChange={(event) => onPasswordConfirm(event.target.value)}
+          autoComplete="new-password"
+          placeholder={t("auth.confirmPasswordPlaceholder")}
+        />
+      </div>
+      <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-3" />
       <div className="mt-3">
         <ProfileDetailsFields
           birthDate={birthDate}

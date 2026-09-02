@@ -89,3 +89,9 @@ export const IconTrophy = (p: P) => (
 export const IconMore = (p: P) => (
   <svg {...base(p)}><circle cx="5.5" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="18.5" cy="12" r="1.4" fill="currentColor" stroke="none" /></svg>
 );
+export const IconEye = (p: P) => (
+  <svg {...base(p)}><path d="M2.8 12s3.2-5 9.2-5 9.2 5 9.2 5-3.2 5-9.2 5-9.2-5-9.2-5Z" /><circle cx="12" cy="12" r="2.2" /></svg>
+);
+export const IconEyeOff = (p: P) => (
+  <svg {...base(p)}><path d="m3 3 18 18" /><path d="M10.6 5.2A10.8 10.8 0 0 1 12 5c6 0 9.2 7 9.2 7a16 16 0 0 1-2.8 3.6M6.2 6.3C3.8 8 2.8 12 2.8 12s3.2 7 9.2 7a9.8 9.8 0 0 0 3.1-.5" /><path d="M9.9 9.9a2.2 2.2 0 0 0 3.1 3.1" /></svg>
+);

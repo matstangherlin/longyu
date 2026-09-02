@@ -22,7 +22,14 @@ port = 54323
 [auth]
 enabled = true
 site_url = "http://127.0.0.1:5173"
-additional_redirect_urls = ["http://127.0.0.1:4173", "http://localhost:5173"]
+additional_redirect_urls = [
+  "http://127.0.0.1:4173",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173/confirmar-email",
+  "http://localhost:5173/confirmar-email",
+  "http://127.0.0.1:5173/redefinir-senha",
+  "http://localhost:5173/redefinir-senha",
+]
 enable_signup = true
 
 # Stripe envia webhooks sem JWT do Supabase.

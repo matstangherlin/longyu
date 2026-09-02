@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { canSignInWithCredentials } from "../../lib/authForm";
 import { Button } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
+import { PasswordField } from "./PasswordField";
 
 export function CloudLoginForm({
   email,
@@ -50,25 +51,21 @@ export function CloudLoginForm({
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none transition focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
         />
       </label>
-      <label className="block">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.password")}</span>
-          {forgotPasswordHref && (
+      <PasswordField
+        name="password"
+        label={t("auth.password")}
+        labelTrailing={
+          forgotPasswordHref ? (
             <Link to={forgotPasswordHref} className="text-xs font-semibold text-accent hover:underline">
               {t("auth.forgotPassword")}
             </Link>
-          )}
-        </div>
-        <input
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(event) => onPassword(event.target.value)}
-          placeholder={t("auth.passwordPlaceholder")}
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none transition focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
-        />
-      </label>
+          ) : null
+        }
+        autoComplete="current-password"
+        value={password}
+        onChange={(event) => onPassword(event.target.value)}
+        placeholder={t("auth.passwordPlaceholder")}
+      />
       {error && (
         <p className="rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong">
           {error}

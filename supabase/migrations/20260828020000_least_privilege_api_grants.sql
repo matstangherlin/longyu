@@ -40,6 +40,16 @@ revoke insert, update, delete, truncate on table public.user_chests from authent
 revoke insert, update, delete, truncate on table public.user_missions from authenticated;
 revoke insert, update, delete, truncate on table public.user_achievements from authenticated;
 revoke insert, update, delete, truncate on table public.economy_ledger from authenticated;
+
+-- Organization records are read-only through the client Data API. The
+-- preceding API-defaults migration grants ALL to authenticated, so TRUNCATE
+-- must be revoked explicitly alongside the other write privileges.
+revoke insert, update, delete, truncate on table public.organizations from anon, authenticated;
+revoke insert, update, delete, truncate on table public.organization_members from anon, authenticated;
+revoke insert, update, delete, truncate on table public.organization_invites from anon, authenticated;
+revoke insert, update, delete, truncate on table public.organization_subscriptions from anon, authenticated;
+revoke insert, update, delete, truncate on table public.organization_entitlement_grants from anon, authenticated;
+
 grant select on table public.user_economy to authenticated;
 grant select on table public.user_chests to authenticated;
 grant select on table public.user_missions to authenticated;

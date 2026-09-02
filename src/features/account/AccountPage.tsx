@@ -46,6 +46,7 @@ import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { formatDateTime } from "../../i18n/format";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -2843,33 +2844,28 @@ export function AccountPage() {
                 />
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
-                <label className="block">
-                  <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(event) => {
-                      setPassword(event.target.value);
-                      setAccountError(null);
-                    }}
-                    placeholder="Mínimo de 6 caracteres"
-                    className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Confirmar</span>
-                  <input
-                    type="password"
-                    value={passwordConfirm}
-                    onChange={(event) => {
-                      setPasswordConfirm(event.target.value);
-                      setAccountError(null);
-                    }}
-                    placeholder="Repita a senha"
-                    className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
-                  />
-                </label>
+                <PasswordField
+                  label="Senha"
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setAccountError(null);
+                  }}
+                  autoComplete="new-password"
+                  placeholder="Mínimo de 6 caracteres"
+                />
+                <PasswordField
+                  label="Confirmar"
+                  value={passwordConfirm}
+                  onChange={(event) => {
+                    setPasswordConfirm(event.target.value);
+                    setAccountError(null);
+                  }}
+                  autoComplete="new-password"
+                  placeholder="Repita a senha"
+                />
               </div>
+              <PasswordRequirements password={password} confirmation={passwordConfirm} />
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block">
                   <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Idioma nativo</span>
@@ -4354,27 +4350,26 @@ function OptionalAccountStep({
           />
         </label>
 
-        <label className="mt-3 block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Senha</span>
-          <input
-            type="password"
+        <div className="mt-3">
+          <PasswordField
+            label="Senha"
             value={password}
             onChange={(event) => onPassword(event.target.value)}
+            autoComplete="new-password"
             placeholder="Mínimo de 6 caracteres"
-            className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
           />
-        </label>
+        </div>
 
-        <label className="mt-3 block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">Confirmar senha</span>
-          <input
-            type="password"
+        <div className="mt-3">
+          <PasswordField
+            label="Confirmar senha"
             value={passwordConfirm}
             onChange={(event) => onPasswordConfirm(event.target.value)}
+            autoComplete="new-password"
             placeholder="Repita a senha"
-            className="mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
           />
-        </label>
+        </div>
+        <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-3" />
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className="block">

@@ -6,9 +6,10 @@
       "slug": "create-account",
       "verify_jwt": false,
       "files": [
-        "supabase/functions/create-account/index.ts"
+        "supabase/functions/create-account/index.ts",
+        "supabase/functions/create-account/locales.ts"
       ],
-      "source_sha256": "0c853a333ca418a37eab96d16bc7e6b3c7e66994dfeee8d9a1cab7894d77bb26",
+      "source_sha256": "1a6e912d1af8bc2b264cab67ae7fa729fa95133147f3f7e9e0fe3d9330a4fee7",
       "request_schema": "see index.ts",
       "response_schema": "see index.ts",
       "required_secrets": [

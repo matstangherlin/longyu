@@ -33,7 +33,12 @@ export function journeyFingerprint(rootDir) {
   const hash = createHash("sha256");
   for (const rel of CURRICULUM_SOURCES) {
     try {
-      hash.update(readFileSync(path.join(rootDir, rel)));
+      // Git may materialize the same tracked source as CRLF on Windows and LF
+      // on Linux. The curriculum identity must describe its content, not the
+      // checkout platform, so normalize text line endings before hashing.
+      const source = readFileSync(path.join(rootDir, rel), "utf8")
+        .replace(/\r\n?/g, "\n");
+      hash.update(source, "utf8");
     } catch {
       hash.update(`ausente:${rel}`);
     }

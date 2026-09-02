@@ -13,6 +13,12 @@ import {
   LONGYU_V477_HEAD,
   V478_REMESSA_STATUS,
 } from "./lib/v478-backend-rc.mjs";
+import {
+  V489_BACKEND_RC,
+  V489_BASE_MAIN_SHA,
+  V489_DECISION,
+  V489_PRODUCTION_WATERMARK,
+} from "./lib/v489-production-preflight.mjs";
 
 const root = projectRoot();
 const backendDir = path.join(root, "docs/backend");
@@ -80,4 +86,23 @@ const backendRc = {
 };
 fs.writeFileSync(path.join(backendDir, "v478-backend-rc.json"), `${JSON.stringify(backendRc, null, 2)}\n`);
 
-console.log("OK: wrote docs/backend/{migration-manifest,rpc-contract,edge-contract,grant-surface,v478-backend-rc}.json");
+const v489BackendRc = {
+  remessa: "V4.8.9",
+  LONGYU_BACKEND_RC: V489_BACKEND_RC,
+  status: V489_DECISION,
+  base_main_sha: V489_BASE_MAIN_SHA,
+  production_watermark: V489_PRODUCTION_WATERMARK,
+  journey_fingerprint: journeyFingerprint(root),
+  placement_version: LONGYU_BACKEND_PLACEMENT_VERSION,
+  migration_chain_sha256: localSchemaHash(files),
+  migration_manifest_sha256: sha256File(path.join(backendDir, "migration-manifest.json")),
+  rpc_contract_sha256: sha256File(path.join(backendDir, "rpc-contract.json")),
+  edge_contract_sha256: sha256File(path.join(backendDir, "edge-contract.json")),
+  grant_surface_sha256: sha256File(path.join(backendDir, "grant-surface.json")),
+  canonical_schema_hash: "NOT_RUN",
+  hosted_mutations: "FORBIDDEN_IN_V4.8.9",
+  note: "Pre-apply identity only. A code or contract change requires a new identity; no hosted readiness is inferred.",
+};
+fs.writeFileSync(path.join(backendDir, "v489-backend-rc.json"), `${JSON.stringify(v489BackendRc, null, 2)}\n`);
+
+console.log("OK: wrote docs/backend/{migration-manifest,rpc-contract,edge-contract,grant-surface,v478-backend-rc,v489-backend-rc}.json");
