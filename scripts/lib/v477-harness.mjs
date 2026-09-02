@@ -37,7 +37,6 @@ const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, mill
 
 function normalizeMailboxBody(value) {
   return String(value ?? "")
-    .replace(/\\u0026/gi, "&")
     .replace(/\\\//g, "/")
     .replace(/&amp;/gi, "&")
     .replace(/=\r?\n/g, "")

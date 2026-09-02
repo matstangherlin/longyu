@@ -8,6 +8,7 @@ import { getSupabaseClient } from "../../lib/supabaseClient";
 import { updatePasswordAfterRecovery } from "../../services/authService";
 import { localizeUserMessage } from "../../i18n/errors";
 import { useTranslation } from "../../i18n/useTranslation";
+import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 
 export function ResetPasswordPage() {
   const { t } = useTranslation();
@@ -124,28 +125,25 @@ export function ResetPasswordPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
-        <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.newPassword")}</span>
-          <input
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder={t("auth.passwordPlaceholder")}
-            className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
-          />
-        </label>
-        <label className="mt-3 block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.confirmPassword")}</span>
-          <input
-            type="password"
+        <PasswordField
+          label={t("auth.newPassword")}
+          name="new-password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder={t("auth.passwordPlaceholder")}
+        />
+        <div className="mt-3">
+          <PasswordField
+            label={t("auth.confirmPassword")}
+            name="confirm-password"
             autoComplete="new-password"
             value={passwordConfirm}
             onChange={(event) => setPasswordConfirm(event.target.value)}
             placeholder={t("auth.confirmPasswordPlaceholder")}
-            className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25"
           />
-        </label>
+        </div>
+        <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-3" />
 
         {notice && (
           <p className="mt-4 rounded-xl border border-good/25 bg-good-soft px-4 py-3 text-sm font-medium text-ink">
