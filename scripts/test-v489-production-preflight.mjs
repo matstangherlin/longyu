@@ -1,9 +1,11 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { projectRoot } from "./lib/env-local.mjs";
 import { localMigrationFiles, localSchemaHash } from "./lib/migration-drift.mjs";
 import { edgeSourceCatalog, sha256File } from "./lib/schema-canonical.mjs";
+import { CURRICULUM_SOURCES, journeyFingerprint } from "./lib/report-meta.mjs";
 import {
   V489_BACKEND_RC,
   V489_BASE_MAIN_SHA,
@@ -21,6 +23,23 @@ const root = projectRoot();
 const errors = [];
 const assert = (condition, message) => { if (!condition) errors.push(message); };
 const read = (relative) => fs.readFileSync(path.join(root, relative), "utf8");
+
+const lfRoot = fs.mkdtempSync(path.join(os.tmpdir(), "longyu-journey-lf-"));
+const crlfRoot = fs.mkdtempSync(path.join(os.tmpdir(), "longyu-journey-crlf-"));
+try {
+  for (const relative of CURRICULUM_SOURCES) {
+    const lfPath = path.join(lfRoot, relative);
+    const crlfPath = path.join(crlfRoot, relative);
+    fs.mkdirSync(path.dirname(lfPath), { recursive: true });
+    fs.mkdirSync(path.dirname(crlfPath), { recursive: true });
+    fs.writeFileSync(lfPath, `source:${relative}\nline:2\n`);
+    fs.writeFileSync(crlfPath, `source:${relative}\r\nline:2\r\n`);
+  }
+  assert(journeyFingerprint(lfRoot) === journeyFingerprint(crlfRoot), "portable Journey fingerprint across LF/CRLF");
+} finally {
+  fs.rmSync(lfRoot, { recursive: true, force: true });
+  fs.rmSync(crlfRoot, { recursive: true, force: true });
+}
 
 assert(V489_BASE_MAIN_SHA === "02bf2f1803ffbde0e17efc00dbf3f0cde5b71163", "exact V4.8.9 base main");
 assert(V489_PRODUCTION_PROJECT_ID === "drjcfalvlbbeblmmyhwj", "MandarimProject id");
