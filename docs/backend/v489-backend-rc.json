@@ -1,10 +1,9 @@
 {
-  "remessa": "V4.7.8",
-  "LONGYU_BACKEND_RC": "v4.7.8-rc.1",
-  "channel": "mandarimproject-controlled-upgrade",
-  "remessa_status": "READY_FOR_CONTROLLED_UPGRADE",
-  "main_sha_at_freeze": "0f2dfe453a10902449adaa262748d368839dce3a",
-  "v477_head": "1823d7d6a96c021eb7a55a5c94cf480ce4590a1d",
+  "remessa": "V4.8.9",
+  "LONGYU_BACKEND_RC": "backend-rc-v489-preapply",
+  "status": "BLOCKED_BEFORE_PRODUCTION_APPLY",
+  "base_main_sha": "02bf2f1803ffbde0e17efc00dbf3f0cde5b71163",
+  "production_watermark": "20260810175737",
   "journey_fingerprint": "5266fd682632",
   "placement_version": 2,
   "migration_chain_sha256": "813306e1cc6954a5f146ebfb15f82db978ace322ba0ce20e424b3cace8c81c72",
@@ -13,5 +12,6 @@
   "edge_contract_sha256": "a16f10e1441346dacf6e9c73c0ff2016651ee258c00a8c35d427c4198e072f44",
   "grant_surface_sha256": "80aa874369b6201a05ec6f522bc14e338e4e628633e2a9c9899d968810ba7960",
   "canonical_schema_hash": "NOT_RUN",
-  "note": "canonical_schema_hash stays NOT_RUN until ephemeral CI. Hosted keys stay NOT_RUN until approved apply."
+  "hosted_mutations": "FORBIDDEN_IN_V4.8.9",
+  "note": "Pre-apply identity only. A code or contract change requires a new identity; no hosted readiness is inferred."
 }

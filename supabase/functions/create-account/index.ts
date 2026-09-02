@@ -6,6 +6,7 @@ import {
   parsePlacementEvidence,
 } from "../_shared/placement/evidence.ts";
 import { logOpsEdge } from "../_shared/opsCorrelation.ts";
+import { resolveSignupLocales } from "./locales.ts";
 
 const ALLOWED_ORIGINS = new Set([
   "https://longyu.com.br",
@@ -195,6 +196,10 @@ Deno.serve(async (req) => {
       birthDate?: string;
       signupSource?: string;
       marketingOptIn?: boolean;
+      interfaceLocale?: unknown;
+      instructionLocale?: unknown;
+      nativeLanguage?: unknown;
+      targetLanguage?: unknown;
       placement?: unknown;
     };
 
@@ -207,12 +212,20 @@ Deno.serve(async (req) => {
     const displayName = String(body.displayName ?? "").trim() || "Aluno Longyu";
     const emailRedirectTo = sanitizeEmailRedirect(body.emailRedirectTo);
     const captchaToken = String(body.captchaToken ?? "").trim() || undefined;
+    const locales = resolveSignupLocales(body);
 
     if (!emailRaw || !emailRaw.includes("@") || !password) {
       return json(req, { error: "Dados inválidos." }, 400);
     }
     if (password.length < 6) {
       return json(req, { error: "Senha deve ter ao menos 6 caracteres." }, 400);
+    }
+    if (!locales.ok) {
+      return json(
+        req,
+        { ok: false, code: locales.code, error: "Configuração de idioma inválida." },
+        400,
+      );
     }
 
     const admin = createClient(supabaseUrl, serviceRoleKey, {
@@ -273,7 +286,14 @@ Deno.serve(async (req) => {
         email: emailRaw,
         password,
         email_confirm: false,
-        user_metadata: { name: displayName, display_name: displayName },
+        user_metadata: {
+          name: displayName,
+          display_name: displayName,
+          interface_locale: locales.value.interface_locale,
+          instruction_locale: locales.value.instruction_locale,
+          native_language: locales.value.native_language,
+          target_language: locales.value.target_language,
+        },
       });
 
     if (createError || !created.user) {
@@ -309,10 +329,10 @@ Deno.serve(async (req) => {
         name: displayName,
         onboarding_completed: false,
         onboarding_version: 2,
-        native_language: "pt-BR",
-        target_language: "zh-CN",
-        interface_locale: "pt-BR",
-        instruction_locale: "pt-BR",
+        native_language: locales.value.native_language,
+        target_language: locales.value.target_language,
+        interface_locale: locales.value.interface_locale,
+        instruction_locale: locales.value.instruction_locale,
         country: countryLabel,
         country_code: countryCode,
         birth_date: birthDate,
@@ -324,6 +344,13 @@ Deno.serve(async (req) => {
     );
     if (profileError) {
       console.error("create-account profile:", profileError.message);
+      const { error: cleanupError } = await admin.auth.admin.deleteUser(userId);
+      if (cleanupError) console.error("create-account profile cleanup:", cleanupError.message);
+      return json(
+        req,
+        { ok: false, code: "profile_persist_failed", error: "Não foi possível preparar a conta agora." },
+        503,
+      );
     }
 
     const evidence = parsePlacementEvidence(body.placement);
@@ -344,6 +371,13 @@ Deno.serve(async (req) => {
         });
         if (draftError) {
           console.error("create-account draft:", draftError.message);
+          const { error: cleanupError } = await admin.auth.admin.deleteUser(userId);
+          if (cleanupError) console.error("create-account draft cleanup:", cleanupError.message);
+          return json(
+            req,
+            { ok: false, code: "placement_draft_failed", error: "Não foi possível preparar o ponto de partida agora." },
+            503,
+          );
         }
       } else {
         console.info("create-account placement rejected:", validated.error);

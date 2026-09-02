@@ -73,15 +73,17 @@ export function edgeSourceCatalog(root) {
     const files = walkFiles(dir).sort();
     const hash = crypto.createHash("sha256");
     for (const file of files) {
-      hash.update(path.relative(root, file));
+      const relative = path.relative(root, file).split(path.sep).join("/");
+      const source = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
+      hash.update(relative);
       hash.update("\0");
-      hash.update(fs.readFileSync(file));
+      hash.update(source);
       hash.update("\n");
     }
     return {
       slug,
       verify_jwt: verifyJwtForSlug(slug, configText),
-      files: files.map((file) => path.relative(root, file)),
+      files: files.map((file) => path.relative(root, file).split(path.sep).join("/")),
       source_sha256: hash.digest("hex"),
     };
   });

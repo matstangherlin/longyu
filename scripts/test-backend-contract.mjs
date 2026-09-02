@@ -102,7 +102,7 @@ assert(!pkg.scripts["validate:beta"].includes("rehearse:backend-contract"), "val
 
 const workflow = fs.readFileSync(path.join(root, ".github/workflows/backend-contract.yml"), "utf8");
 assert(/node-version:\s*"22"/.test(workflow), "backend-contract Node 22");
-assert(/version:\s*2\.34\.3/.test(workflow), "backend-contract CLI 2.34.3");
+assert(/version:\s*2\.109\.1/.test(workflow), "backend-contract CLI 2.109.1");
 assert(/TURNSTILE_ALLOW_SKIP:\s*"1"/.test(workflow), "local captcha skip env");
 assert(/SUPABASE_ACCESS_TOKEN:\s*""/.test(workflow), "empty access token");
 assert(/LONGYU_TARGET_PROJECT_ID:\s*""/.test(workflow), "empty target project");

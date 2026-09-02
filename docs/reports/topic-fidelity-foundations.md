@@ -277,4 +277,3 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
 <!-- integridade:74ef5be2863e91b0 -->
-

@@ -18,6 +18,9 @@ on:
       - "scripts/lib/ephemeral-backend.mjs"
       - "scripts/lib/staging-guard.mjs"
       - "scripts/lib/v476-constants.mjs"
+      - "scripts/lib/v489-*.mjs"
+      - "scripts/v489-*.mjs"
+      - "docs/reports/v489-*.md"
       - ".github/workflows/backend-rehearsal.yml"
   push:
     branches: [main]
@@ -35,6 +38,9 @@ on:
       - "scripts/lib/ephemeral-backend.mjs"
       - "scripts/lib/staging-guard.mjs"
       - "scripts/lib/v476-constants.mjs"
+      - "scripts/lib/v489-*.mjs"
+      - "scripts/v489-*.mjs"
+      - "docs/reports/v489-*.md"
       - ".github/workflows/backend-rehearsal.yml"
 
 concurrency:
@@ -65,7 +71,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.34.3
+          version: 2.109.1
 
       - name: Start ephemeral Supabase
         run: supabase start
@@ -110,7 +116,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.34.3
+          version: 2.109.1
 
       - name: Start ephemeral Supabase
         run: supabase start

@@ -16,7 +16,11 @@ export function localMigrationFiles(root) {
     .map((file) => {
       const version = file.replace(/\.sql$/, "").split("_")[0];
       const name = file.replace(/^\d+_/, "").replace(/\.sql$/, "");
-      const contents = fs.readFileSync(path.join(dir, file));
+      // Git may check text files out as CRLF on Windows. Backend identities must
+      // describe the repository content, not the workstation line-ending mode.
+      const contents = fs
+        .readFileSync(path.join(dir, file), "utf8")
+        .replace(/\r\n/g, "\n");
       return {
         file,
         version,
