@@ -36,7 +36,24 @@ function jsonAggQuery(sql) {
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 function normalizeMailboxBody(value) {
-  return String(value ?? "")
+  let raw = String(value ?? "");
+  // Inbucket deployments differ: the detail endpoint may return raw MIME or
+  // a JSON envelope whose text/html body contains the action URL. Parse the
+  // envelope first so JSON escaping (including \u0026) is decoded safely.
+  try {
+    const parsed = JSON.parse(raw);
+    const parts = [
+      parsed?.body?.text,
+      parsed?.body?.html,
+      parsed?.text,
+      parsed?.html,
+      typeof parsed?.body === "string" ? parsed.body : null,
+    ].filter((part) => typeof part === "string");
+    if (parts.length) raw = parts.join("\n");
+  } catch {
+    // Raw MIME/plain-text response; continue with the original body.
+  }
+  return raw
     .replace(/\\\//g, "/")
     .replace(/&amp;/gi, "&")
     .replace(/=\r?\n/g, "")
