@@ -9,6 +9,7 @@ import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPe
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
+import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
 import {
   personalizeConversationPrompt,
@@ -154,22 +155,29 @@ function StickyActionBar({
   children: ReactNode;
   className?: string;
 }) {
-  // Medição compartilhada com as demais barras fixas (MOBILE-006).
-  const barRef = useStickyActionsReserve<HTMLDivElement>();
+  const actionRegion = useLessonActionRegion();
+  // Dentro do player principal a faixa é um irmão do scroller e não precisa
+  // reservar padding. Fixtures sem região dedicada mantêm o fallback sticky.
+  const barRef = useStickyActionsReserve<HTMLDivElement>(!actionRegion);
 
-  return (
+  const content = (
     <div
       ref={barRef}
       data-lesson-sticky-actions
       data-lesson-bottom-action
+      data-lesson-action-mode={actionRegion ? "docked" : "sticky"}
       className={cx(
-        "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-5",
+        actionRegion
+          ? "relative z-20 px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4"
+          : "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-5",
         className
       )}
     >
       {children}
     </div>
   );
+
+  return <LessonActionPortal>{content}</LessonActionPortal>;
 }
 
 function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }) {

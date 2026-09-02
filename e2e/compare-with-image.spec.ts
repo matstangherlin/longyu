@@ -1,6 +1,10 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { dismissBlockingOverlays, seedLessonPlayerReady, waitForLazyPage } from "./helpers";
-import { advanceUntilSelector, seedProOnTopOfSession } from "./lesson-player-mobile-helpers";
+import {
+  advanceUntilSelector,
+  assertLessonActionDockedOutsideAnswers,
+  seedProOnTopOfSession,
+} from "./lesson-player-mobile-helpers";
 
 async function openComparison(page: Page): Promise<Locator> {
   await seedLessonPlayerReady(page, "l26b");
@@ -56,6 +60,9 @@ test.describe("compare_with_image — comparação visual", () => {
     );
     expect(overflow).toBeLessThanOrEqual(2);
     await comparison.getByRole("button", { name: /^Opção \d+:.*restaurante/i }).click();
-    await expect(comparison.getByRole("button", { name: "Continuar" })).toBeVisible();
+    await expect(
+      page.locator("[data-lesson-action-region]").getByRole("button", { name: "Continuar" })
+    ).toBeVisible();
+    await assertLessonActionDockedOutsideAnswers(page);
   });
 });

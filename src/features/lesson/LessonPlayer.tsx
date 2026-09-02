@@ -98,6 +98,7 @@ import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconLock, Ic
 import { Mascot } from "../../components/brand/Mascot";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { StepRenderer, type PairMistakePayload } from "./steps";
+import { LessonActionRegionProvider } from "./LessonActionRegion";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
@@ -1883,6 +1884,7 @@ export function LessonPlayer() {
   const pendingReviewRestoredRef = useRef(false);
   /** Região rolável da atividade: scroll fica aqui, não na página. */
   const activityScrollRef = useRef<HTMLDivElement>(null);
+  const [lessonActionRegion, setLessonActionRegion] = useState<HTMLDivElement | null>(null);
   const viewportFrame = useVisualViewportFrame();
   const requiredTonePack = foundLesson ? requiredToneTrainerPackForLesson(foundLesson.id) : undefined;
   const toneLocked = Boolean(
@@ -4125,16 +4127,24 @@ export function LessonPlayer() {
     }
 
     return (
-      <div className="flex h-full min-h-0 max-w-xl mx-auto w-full flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+      <div
+        className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[env(safe-area-inset-bottom)]"
+        data-lesson-victory
+      >
         {recoveryDebugPanel}
-        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[26px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.18),rgb(var(--surface))_40%,rgb(var(--bg))_100%)] text-center shadow-lift">
-        <div data-lesson-activity-scroll data-lesson-scroll-region className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [touch-action:pan-y] px-4 pb-2 pt-3 sm:px-6">
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift">
+        <div
+          data-lesson-activity-scroll
+          data-lesson-scroll-region
+          data-lesson-victory-scroll
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5 pt-4 [-webkit-overflow-scrolling:touch] [scroll-padding-bottom:1.25rem] [touch-action:pan-y] sm:px-6"
+        >
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {displayLessonTitle(lesson.title, locale)}
           </div>
-          <div className="relative mx-auto mt-1 h-16 w-20 shrink-0">
+          <div className="relative mx-auto mt-1 h-14 w-20 shrink-0">
             <div className="absolute inset-x-0 top-0 flex justify-center">
-              <Mascot size={62} variant="celebrate" />
+              <Mascot size={56} variant="celebrate" />
             </div>
             {[0, 1, 2].map((n) => (
               <IconStar
@@ -4150,7 +4160,7 @@ export function LessonPlayer() {
               />
             ))}
           </div>
-          <h1 className="mt-1 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+          <h1 className="mt-1 text-balance font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             {topicVictory ? `✓ ${topicVictory.heading}` : stars === 3 ? t("player.lessonComplete") : t("player.youAdvanced")}
           </h1>
           {topicVictory ? (
@@ -4211,7 +4221,7 @@ export function LessonPlayer() {
           )}
 
           {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+          <div className="mt-3 flex flex-wrap items-stretch justify-center gap-1.5">
             <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
             <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
             <MetricChip value={`${precision}%`} label={t("player.accuracy")} tone={precision >= 80 ? "good" : "neutral"} />
@@ -4373,8 +4383,11 @@ export function LessonPlayer() {
         </div>
 
           {/* 3 · Botão principal — fora do scroll, visível em 720p e no celular. */}
-          <div className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface))] px-4 pb-3 pt-2 sm:px-6">
-            <div className="mb-1.5 flex items-center justify-center gap-4 text-xs font-medium text-ink-faint">
+          <div
+            data-lesson-victory-actions
+            className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-10px_28px_rgb(0_0_0/0.14)] backdrop-blur sm:px-6"
+          >
+            <div className="mb-1.5 hidden items-center justify-center gap-4 text-xs font-medium text-ink-faint sm:flex">
               <Link to="/revisao" className="inline-flex items-center gap-1 transition hover:text-ink">
                 <IconRefresh width={14} height={14} /> {t("player.navReview")}
               </Link>
@@ -4386,7 +4399,7 @@ export function LessonPlayer() {
               </Link>
             </div>
             <Button
-              className="w-full shadow-lift"
+              className="min-h-12 w-full shadow-lift"
               size="lg"
               data-testid="topic-victory-return"
               onClick={handlePrimaryAction}
@@ -4457,6 +4470,7 @@ export function LessonPlayer() {
       }
     >
     <div className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0">
+      <LessonActionRegionProvider target={lessonActionRegion}>
       {/* PERF-010 — números de abertura visíveis no próprio aparelho. */}
       <LessonPerfOverlay />
       {correctBurst && (
@@ -4563,6 +4577,12 @@ export function LessonPlayer() {
       </Card>
       </div>
 
+      <div
+        ref={setLessonActionRegion}
+        data-lesson-action-region
+        className="empty:hidden shrink-0 border-t border-line/70 bg-[rgb(var(--bg)/0.98)] shadow-[0_-10px_28px_rgb(0_0_0/0.16)] backdrop-blur"
+      />
+
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
@@ -4657,6 +4677,7 @@ export function LessonPlayer() {
         offer={contextualOffer.offer}
         onClose={contextualOffer.dismiss}
       />
+      </LessonActionRegionProvider>
     </div>
     </div>
   );
