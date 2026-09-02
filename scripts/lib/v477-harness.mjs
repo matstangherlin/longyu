@@ -45,10 +45,20 @@ function normalizeMailboxBody(value) {
     const parts = [
       parsed?.body?.text,
       parsed?.body?.html,
+      parsed?.Body?.Text,
+      parsed?.Body?.HTML,
       parsed?.text,
       parsed?.html,
+      parsed?.Text,
+      parsed?.HTML,
       typeof parsed?.body === "string" ? parsed.body : null,
+      typeof parsed?.Body === "string" ? parsed.Body : null,
     ].filter((part) => typeof part === "string");
+    if (!parts.length) {
+      // Keep every JSON string as a fallback for versioned field names; the
+      // URL filter below still accepts only Supabase action links.
+      parts.push(JSON.stringify(parsed));
+    }
     if (parts.length) raw = parts.join("\n");
   } catch {
     // Raw MIME/plain-text response; continue with the original body.
@@ -70,9 +80,13 @@ async function findMailboxActionLink(env, email, type, attempts = 20) {
     if (response.ok) {
       const payload = await response.json();
       const messages = Array.isArray(payload) ? payload : (payload?.messages ?? []);
-      for (const message of messages) {
-        const id = message?.id ?? message?.Id;
-        if (!id) continue;
+      const messageIds = messages
+        .map((message) => message?.id ?? message?.Id ?? message?.ID)
+        .filter(Boolean);
+      // `latest` is supported by Inbucket v1 and covers list responses that
+      // use a version-specific envelope or omit message metadata.
+      if (!messageIds.length) messageIds.push("latest");
+      for (const id of messageIds) {
         const detail = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}/${id}`, {
           headers: { Accept: "application/json" },
         });
