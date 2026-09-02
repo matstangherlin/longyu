@@ -64,14 +64,18 @@ async function findMailboxActionLink(env, email, type, attempts = 20) {
   const mailbox = email.split("@")[0];
   const inbucket = env.inbucketUrl || "http://127.0.0.1:54324";
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const response = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}`);
+    const response = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}`, {
+      headers: { Accept: "application/json" },
+    });
     if (response.ok) {
       const payload = await response.json();
       const messages = Array.isArray(payload) ? payload : (payload?.messages ?? []);
       for (const message of messages) {
-        const id = message?.id;
+        const id = message?.id ?? message?.Id;
         if (!id) continue;
-        const detail = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}/${id}`);
+        const detail = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}/${id}`, {
+          headers: { Accept: "application/json" },
+        });
         if (!detail.ok) continue;
         const body = normalizeMailboxBody(await detail.text());
         const urls = body.match(/https?:\/\/[^\s"'<>]+/gi) ?? [];
