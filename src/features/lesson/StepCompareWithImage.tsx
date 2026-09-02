@@ -12,6 +12,7 @@ import { t } from "../../i18n/catalog";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import type { StepProps } from "./steps";
+import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 
 function shuffle<T>(items: readonly T[]): T[] {
   const copy = [...items];
@@ -33,7 +34,8 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
   const options = useMemo(() => shuffle(rawOptions), [rawOptions.join("|")]);
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
-  const actionsRef = useStickyActionsReserve<HTMLDivElement>();
+  const actionRegion = useLessonActionRegion();
+  const actionsRef = useStickyActionsReserve<HTMLDivElement>(!actionRegion);
 
   function select(value: string) {
     if (answered) return;
@@ -144,12 +146,19 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
         </div>
       )}
 
-      <div
-        ref={actionsRef}
-        data-lesson-sticky-actions
-        data-lesson-bottom-action
-        className="sticky bottom-0 z-10 -mx-2 mt-5 grid gap-2 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-4 sm:flex sm:flex-wrap"
-      >
+      <LessonActionPortal>
+        <div
+          ref={actionsRef}
+          data-lesson-sticky-actions
+          data-lesson-bottom-action
+          data-lesson-action-mode={actionRegion ? "docked" : "sticky"}
+          className={[
+            "z-10 grid gap-2 sm:flex sm:flex-wrap",
+            actionRegion
+              ? "relative px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4"
+              : "sticky bottom-0 -mx-2 mt-5 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-4",
+          ].join(" ")}
+        >
         {!answered && (
           <button
             type="button"
@@ -178,7 +187,8 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
             {t("player.skip")}
           </button>
         )}
-      </div>
+        </div>
+      </LessonActionPortal>
     </div>
   );
 }

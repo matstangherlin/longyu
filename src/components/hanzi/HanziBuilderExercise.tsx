@@ -12,6 +12,7 @@ import { t } from "../../i18n/catalog";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
+import { LessonActionPortal, useLessonActionRegion } from "../../features/lesson/LessonActionRegion";
 
 type BuilderPiece =
   | { kind: "stroke"; id: string; stroke: HanziStroke; correct: boolean }
@@ -115,7 +116,8 @@ export function HanziBuilderExercise({
   const [selected, setSelected] = useState<string[]>([]);
   const [status, setStatus] = useState<BuildStatus>("idle");
   const [hadMistake, setHadMistake] = useState(false);
-  const actionsRef = useStickyActionsReserve<HTMLDivElement>();
+  const actionRegion = useLessonActionRegion();
+  const actionsRef = useStickyActionsReserve<HTMLDivElement>(!actionRegion);
 
   // P0-003 — reinicia estado ao trocar builder (treino/revisão/lição).
   useEffect(() => {
@@ -397,15 +399,22 @@ export function HanziBuilderExercise({
         </div>
       )}
 
-      {/* MOBILE-006: a barra "Limpar | Verificar" também reserva espaço no
-          scroller — sem isso ela flutuava sobre as opções no Android real. */}
+      {/* MOBILE-006: no player, "Limpar | Verificar" vive fora do scroller;
+          fixtures sem a faixa dedicada mantêm o fallback sticky com reserva. */}
       {(status === "idle" || status === "incomplete") && (
-        <div
-          ref={actionsRef}
-          data-lesson-sticky-actions
-          data-lesson-bottom-action
-          className="sticky bottom-0 z-20 -mx-1 mt-5 flex items-center justify-center gap-2 rounded-2xl border border-line bg-bg/90 p-2 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none"
-        >
+        <LessonActionPortal>
+          <div
+            ref={actionsRef}
+            data-lesson-sticky-actions
+            data-lesson-bottom-action
+            data-lesson-action-mode={actionRegion ? "docked" : "sticky"}
+            className={[
+              "z-20 flex items-center justify-center gap-2 p-2",
+              actionRegion
+                ? "relative px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4"
+                : "sticky bottom-0 -mx-1 mt-5 rounded-2xl border border-line bg-bg/90 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none",
+            ].join(" ")}
+          >
           {selected.length > 0 && (
             <Button variant="ghost" onClick={clearPieces} className="min-w-24">
               {t("player.clear")}
@@ -422,7 +431,8 @@ export function HanziBuilderExercise({
           >
             {t("player.check")}
           </Button>
-        </div>
+          </div>
+        </LessonActionPortal>
       )}
     </div>
   );

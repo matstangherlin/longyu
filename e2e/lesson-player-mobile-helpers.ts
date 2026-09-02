@@ -112,11 +112,17 @@ export async function assertNoStickyBarOverlap(page: Page, safeGapPx = 4) {
     ].filter((el) => !bar.contains(el) && el.getBoundingClientRect().height > 0);
 
     const fresh = bar.getBoundingClientRect();
+    const scrollerRect = scroller?.getBoundingClientRect() ?? null;
+    const docked = bar.dataset.lessonActionMode === "docked";
     let worst: null | Record<string, unknown> = null;
     for (const el of interactive) {
       const rect = el.getBoundingClientRect();
+      // A faixa docked é irmã do scroller. Conteúdo que geometricamente
+      // continua abaixo do seu limite está recortado por overflow, não coberto.
+      const visibleTop = docked && scrollerRect ? Math.max(rect.top, scrollerRect.top) : rect.top;
+      const visibleBottom = docked && scrollerRect ? Math.min(rect.bottom, scrollerRect.bottom) : rect.bottom;
       // Só conta sobreposição real: elemento cruzando a faixa da barra.
-      const covered = rect.bottom > fresh.top + safeGap && rect.top < fresh.bottom;
+      const covered = visibleBottom > fresh.top + safeGap && visibleTop < fresh.bottom;
       if (!covered) continue;
       const depth = rect.bottom - fresh.top;
       if (!worst || depth > (worst.depth as number)) {
@@ -135,6 +141,51 @@ export async function assertNoStickyBarOverlap(page: Page, safeGapPx = 4) {
     overlap.worst,
     `opção coberta pela barra fixa: ${JSON.stringify(overlap.worst)}`
   ).toBeNull();
+}
+
+/**
+ * No player principal, a ação fica numa faixa irmã do scroller. Isso é mais
+ * forte que reservar padding: nenhuma posição de scroll consegue colocar uma
+ * resposta atrás do CTA.
+ */
+export async function assertLessonActionDockedOutsideAnswers(page: Page) {
+  const geometry = await page.evaluate(() => {
+    const scroller = document.querySelector<HTMLElement>("[data-lesson-activity-scroll]");
+    const region = document.querySelector<HTMLElement>("[data-lesson-action-region]");
+    const action = region?.querySelector<HTMLElement>("[data-lesson-bottom-action]") ?? null;
+    if (!scroller || !region || !action) return { ok: false, reason: "missing action region" };
+    const sr = scroller.getBoundingClientRect();
+    const rr = region.getBoundingClientRect();
+    const ar = action.getBoundingClientRect();
+    const visibleControls = [...scroller.querySelectorAll<HTMLElement>("button, [role='button'], input, textarea")]
+      .filter((node) => node.getBoundingClientRect().height > 0);
+    const overlaps = visibleControls
+      .filter((node) => {
+        const rect = node.getBoundingClientRect();
+        const visibleTop = Math.max(rect.top, sr.top);
+        const visibleBottom = Math.min(rect.bottom, sr.bottom);
+        return visibleBottom > rr.top && visibleTop < rr.bottom;
+      })
+      .map((node) => (node.textContent ?? node.getAttribute("aria-label") ?? node.tagName).trim().slice(0, 48));
+    return {
+      ok:
+        action.dataset.lessonActionMode === "docked" &&
+        region.contains(action) &&
+        !scroller.contains(action) &&
+        sr.bottom <= rr.top + 2 &&
+        ar.top >= rr.top - 1 &&
+        ar.bottom <= rr.bottom + 1 &&
+        overlaps.length === 0,
+      mode: action.dataset.lessonActionMode,
+      scrollerBottom: sr.bottom,
+      regionTop: rr.top,
+      regionBottom: rr.bottom,
+      actionTop: ar.top,
+      actionBottom: ar.bottom,
+      overlaps,
+    };
+  });
+  expect(geometry.ok, JSON.stringify(geometry)).toBe(true);
 }
 
 /** Botão visível dentro da visualViewport (tolerância pequena). */
@@ -261,6 +312,36 @@ export async function assertVictoryWithoutPageScroll(page: Page) {
     return { ok: false, mode: "unreachable" as const, bottom: rect.bottom, vv };
   });
   expect(reachable.ok, JSON.stringify(reachable)).toBe(true);
+
+  const geometry = await page.evaluate(() => {
+    const victory = document.querySelector<HTMLElement>("[data-lesson-victory]");
+    const scroll = document.querySelector<HTMLElement>("[data-lesson-victory-scroll]");
+    const actions = document.querySelector<HTMLElement>("[data-lesson-victory-actions]");
+    const cta = document.querySelector<HTMLElement>("[data-testid='topic-victory-return']");
+    if (!victory || !scroll || !actions || !cta) return { ok: false, reason: "missing victory layout" };
+    const vr = victory.getBoundingClientRect();
+    const sr = scroll.getBoundingClientRect();
+    const ar = actions.getBoundingClientRect();
+    const cr = cta.getBoundingClientRect();
+    const vv = window.visualViewport?.height ?? window.innerHeight;
+    return {
+      ok:
+        actions.contains(cta) &&
+        !scroll.contains(cta) &&
+        sr.bottom <= ar.top + 2 &&
+        cr.top >= ar.top - 1 &&
+        cr.bottom <= ar.bottom + 1 &&
+        vr.bottom <= vv + 2,
+      scrollBottom: sr.bottom,
+      actionsTop: ar.top,
+      actionsBottom: ar.bottom,
+      ctaTop: cr.top,
+      ctaBottom: cr.bottom,
+      victoryBottom: vr.bottom,
+      vv,
+    };
+  });
+  expect(geometry.ok, JSON.stringify(geometry)).toBe(true);
 }
 
 /** Avança até o passo listen_select da lição p1 (你好 / 谢谢 / 再见). */
@@ -460,7 +541,7 @@ export async function openDenseSentenceBuild(page: Page) {
   await expect(page.locator("[data-assembly-bank] button")).toHaveCount(before + 14);
 }
 
-/** Última fileira do banco não fica coberta pelo StickyActionBar (B001). */
+/** Última fileira do banco não fica coberta pela ação inferior (B001). */
 export async function assertBankAboveSticky(page: Page) {
   const sticky = page.locator("[data-lesson-sticky-actions]");
   const bank = page.locator("[data-assembly-bank]");
@@ -471,6 +552,15 @@ export async function assertBankAboveSticky(page: Page) {
     const stickyEl = document.querySelector("[data-lesson-sticky-actions]") as HTMLElement | null;
     const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
     if (!stickyEl || !scroller) return Number.POSITIVE_INFINITY;
+
+    if (stickyEl.dataset.lessonActionMode === "docked") {
+      const region = document.querySelector("[data-lesson-action-region]") as HTMLElement | null;
+      if (!region || !region.contains(stickyEl)) return Number.POSITIVE_INFINITY;
+      // No layout novo o scroller termina antes da faixa de ação; não existe
+      // reserva CSS para comparar porque as duas regiões não se sobrepõem.
+      return Math.max(0, scroller.getBoundingClientRect().bottom - region.getBoundingClientRect().top);
+    }
+
     const reserved = Number.parseFloat(
       getComputedStyle(scroller).getPropertyValue("--lesson-bottom-action-height")
     );

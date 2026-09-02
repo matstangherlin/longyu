@@ -32,10 +32,11 @@ function publish(scroller: HTMLElement): void {
   else scroller.style.removeProperty(RESERVE_VARIABLE);
 }
 
-export function useStickyActionsReserve<T extends HTMLElement = HTMLDivElement>() {
+export function useStickyActionsReserve<T extends HTMLElement = HTMLDivElement>(enabled = true) {
   const barRef = useRef<T | null>(null);
 
   useLayoutEffect(() => {
+    if (!enabled) return undefined;
     const bar = barRef.current;
     const scroller = bar?.closest<HTMLElement>(SCROLLER_SELECTOR);
     if (!bar || !scroller) return undefined;
@@ -92,7 +93,7 @@ export function useStickyActionsReserve<T extends HTMLElement = HTMLDivElement>(
       measured.delete(bar);
       publish(scroller);
     };
-  }, []);
+  }, [enabled]);
 
   return barRef;
 }

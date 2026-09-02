@@ -1,7 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { test } from "@playwright/test";
 import { dismissBlockingOverlays, seedFoundationThrough, waitForLazyPage } from "./helpers";
 import {
   advanceUntilSelector,
+  assertLessonActionDockedOutsideAnswers,
   assertNoStickyBarOverlap,
   openPlayer,
   simulateVirtualKeyboard,
@@ -32,6 +33,7 @@ for (const viewport of VIEWPORTS) {
 
     test("passo de escolha não fica sob a barra de ação", async ({ page }) => {
       await openPlayer(page);
+      await assertLessonActionDockedOutsideAnswers(page);
       await assertNoStickyBarOverlap(page);
     });
 
@@ -44,17 +46,9 @@ for (const viewport of VIEWPORTS) {
       const reached = await advanceUntilSelector(page, "[data-hanzi-builder]");
       test.skip(!reached, "HanziBuilder não apareceu no plano desta execução.");
 
-      // A barra do builder tem de publicar a própria altura; sem isso o
-      // scroller reserva 0 e as peças ficam presas atrás dela.
-      const reserved = await page.evaluate(() => {
-        const scroller = document.querySelector("[data-lesson-activity-scroll]") as HTMLElement | null;
-        return scroller
-          ? getComputedStyle(scroller).getPropertyValue("--lesson-bottom-action-height").trim()
-          : "";
-      });
-      expect(reserved, "scroller precisa reservar a altura da barra do builder").toMatch(/^\d+(\.\d+)?px$/);
-      expect(Number.parseFloat(reserved)).toBeGreaterThan(0);
-
+      // A barra agora ocupa uma faixa irmã do scroller. Nenhum padding medido
+      // é necessário, porque peças e CTA não compartilham a mesma geometria.
+      await assertLessonActionDockedOutsideAnswers(page);
       await assertNoStickyBarOverlap(page);
     });
 
