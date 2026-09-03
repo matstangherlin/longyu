@@ -84,29 +84,24 @@ for (const viewport of MOBILE_VIEWPORTS) {
     test("3 · feedback de acerto — CTA acessível", async ({ page }) => {
       await openListenSelectStep(page);
       const correct = page
-        .getByRole("button", { name: /Opção \d+: nǐ hǎo$/ })
+        .getByRole("button", { name: /Opção \d+: Olá|^Olá$/ })
+        .or(page.getByRole("button", { name: /Opção \d+: nǐ hǎo$/ }))
         .or(page.getByRole("button", { name: /Opção \d+: 你好/ }))
-        .or(page.getByRole("button", { name: /^Olá$/ }))
         .or(page.getByRole("button", { name: /^你好$/ }));
       await correct.first().click();
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
-      const feedback = page.getByText(/Boa! \+Qi|Estrutura certa|Boa, foi esse som/i).first();
       const stickyCta = page.locator("[data-lesson-sticky-actions]").locator("button:visible").first();
-      const nextChoice = page.getByRole("button", { name: /^Opção \d+/ }).first();
-      await expect(feedback.or(stickyCta).or(nextChoice)).toBeVisible({ timeout: 10_000 });
+      await expect(stickyCta).toBeVisible({ timeout: 10_000 });
       await assertPageScrollLocked(page);
       await assertFrameFillsViewport(page);
-      if (await stickyCta.isVisible().catch(() => false)) {
-        await assertPrimaryCtaInViewport(page);
-      } else {
-        await expect(nextChoice).toBeVisible();
-      }
+      await assertPrimaryCtaInViewport(page);
     });
 
     test("4 · feedback de erro — modal com ação acessível", async ({ page }) => {
       await openListenSelectStep(page);
       const wrong = page
         .getByRole("button", { name: /Opção \d+: wǒ hěn hǎo|Opção \d+: jīntiān hěn hǎo/ })
+        .or(page.getByRole("button", { name: /Opção \d+: um número|^um número$/i }))
         .or(page.getByRole("button", { name: /Obrigado|Até logo|De nada/i }))
         .or(page.getByRole("button", { name: /^(谢谢|再见)$/ }));
       await wrong.first().click();

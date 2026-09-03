@@ -5,6 +5,7 @@ import { PublicAuthLayout } from "./components/auth/PublicAuthLayout";
 import { RequireCloudSession } from "./components/auth/RequireCloudSession";
 
 const JourneyPage = lazy(() => import("./features/journey/JourneyPage").then((m) => ({ default: m.JourneyPage })));
+const LessonCapsulePage = lazy(() => import("./features/journey/LessonCapsulePage").then((m) => ({ default: m.LessonCapsulePage })));
 const TreinoPage = lazy(() => import("./features/treino/TreinoPage").then((m) => ({ default: m.TreinoPage })));
 const MandarinBlitzPage = lazy(() => import("./features/arcade/MandarinBlitzPage").then((m) => ({ default: m.MandarinBlitzPage })));
 const MissoesPage = lazy(() => import("./features/missoes/MissoesPage").then((m) => ({ default: m.MissoesPage })));
@@ -108,6 +109,7 @@ export const routes: RouteObject[] = [
     ),
     children: [
       { path: "jornada", element: <JourneyPage /> },
+      { path: "jornada/capsula/:capsuleId", element: <LessonCapsulePage /> },
       { path: "treino", element: <TreinoPage /> },
       { path: "praticar", element: <TreinoPage /> },
       { path: "arcade/blitz", element: <MandarinBlitzPage /> },

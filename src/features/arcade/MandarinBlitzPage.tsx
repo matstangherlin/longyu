@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import { ExerciseText } from "../../components/hanzi/ExerciseText";
@@ -6,18 +7,45 @@ import { Button, ButtonLink, Card, ProgressBar } from "../../components/ui/primi
 import { IconCheck, IconFlame, IconSound, IconX } from "../../components/ui/Icon";
 import { speak } from "../../lib/tts";
 import { useStore } from "../../lib/store";
-import { buildMandarinBlitzDeck } from "./blitzEngine";
+import { buildMandarinBlitzDeck, reachedBlitzQuestionLimit, type BlitzSessionConfig } from "./blitzEngine";
+import { FOUNDATION_BLITZ_NODE } from "../../data/journeyOrchestrator";
+import { useTranslation } from "../../i18n/useTranslation";
+import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
+import { completeJourneyNode } from "../../lib/journeyNodeProgress";
 
-const ROUND_SECONDS = 60;
+const STANDALONE_SECONDS = 60;
 
 export function MandarinBlitzPage() {
+  const [searchParams] = useSearchParams();
+  const { instructionLocale } = useTranslation();
+  const journeyMode = searchParams.get("journeyNode") === FOUNDATION_BLITZ_NODE.id;
+  const session: BlitzSessionConfig = journeyMode
+    ? { timeLimitSeconds: FOUNDATION_BLITZ_NODE.timeLimitSeconds ?? 45, maxQuestions: FOUNDATION_BLITZ_NODE.maxQuestions ?? 8 }
+    : { timeLimitSeconds: STANDALONE_SECONDS, maxQuestions: null };
+  const copy = instructionLocale === "en" ? {
+    empty: "Learn at least two phrases or characters in the Journey to build a safe deck with no locked content.",
+    journey: "Journey booster",
+    training: "Retrieval speed practice",
+    description: "Audio, meaning, hànzì, missing pieces, and tones — using only content you have already unlocked.",
+    points: "Points", accuracy: "Accuracy", response: "Response", replay: "Play again", start: "Start Blitz",
+    back: journeyMode ? "Back to Journey" : "Back to Practice", srs: "Blitz feeds your SRS, but does not grant Qi, XP, or core mastery.",
+    score: "points", combo: "Combo", listen: "Listen again", questions: "challenges at most",
+  } : {
+    empty: "Aprenda pelo menos duas frases ou caracteres na Jornada para formar um baralho seguro, sem conteúdo ainda bloqueado.",
+    journey: "Reforço da Jornada",
+    training: "Treino de recuperação rápida",
+    description: "Áudio, significado, hànzì, peça ausente e tom — somente com o que você já desbloqueou.",
+    points: "Pontos", accuracy: "Precisão", response: "Resposta", replay: "Jogar de novo", start: "Começar Blitz",
+    back: journeyMode ? "Voltar à Jornada" : "Voltar a Praticar", srs: "O Blitz alimenta o SRS, mas não concede Qi, XP ou mastery core.",
+    score: "pontos", combo: "Combo", listen: "Ouvir novamente", questions: "desafios no máximo",
+  };
   const learnedChunkIds = useStore((state) => state.learnedChunks);
   const learnedCharIds = useStore((state) => state.learnedChars);
   const gradeSrs = useStore((state) => state.gradeSrs);
   const ensureSrs = useStore((state) => state.ensureSrs);
   const addMinutes = useStore((state) => state.addMinutes);
   const [phase, setPhase] = useState<"ready" | "playing" | "finished">("ready");
-  const [seconds, setSeconds] = useState(ROUND_SECONDS);
+  const [seconds, setSeconds] = useState(session.timeLimitSeconds);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -30,12 +58,12 @@ export function MandarinBlitzPage() {
   const nextTimerRef = useRef<number | null>(null);
 
   const learnedChunks = useMemo(
-    () => CHUNKS.filter((chunk) => learnedChunkIds.includes(chunk.id)),
-    [learnedChunkIds]
+    () => CHUNKS.filter((chunk) => learnedChunkIds.includes(chunk.id) && (!journeyMode || FOUNDATION_BLITZ_NODE.allowedKnowledgeTargetIds?.includes(`chunk:${chunk.id}`))),
+    [journeyMode, learnedChunkIds]
   );
   const learnedCharacters = useMemo(
-    () => CHARACTERS.filter((character) => learnedCharIds.includes(character.id)),
-    [learnedCharIds]
+    () => CHARACTERS.filter((character) => learnedCharIds.includes(character.id) && (!journeyMode || FOUNDATION_BLITZ_NODE.allowedKnowledgeTargetIds?.includes(`char:${character.id}`))),
+    [journeyMode, learnedCharIds]
   );
   const deck = useMemo(
     () => buildMandarinBlitzDeck(learnedChunks, learnedCharacters, `${learnedChunkIds.join("|")}:${learnedCharIds.join("|")}`),
@@ -60,8 +88,9 @@ export function MandarinBlitzPage() {
   useEffect(() => {
     if (phase !== "finished" || creditedRef.current) return;
     creditedRef.current = true;
+    if (journeyMode) completeJourneyNode(FOUNDATION_BLITZ_NODE.id);
     addMinutes("fala", 1);
-  }, [addMinutes, phase]);
+  }, [addMinutes, journeyMode, phase]);
 
   useEffect(() => () => {
     if (nextTimerRef.current != null) window.clearTimeout(nextTimerRef.current);
@@ -76,7 +105,7 @@ export function MandarinBlitzPage() {
   function start() {
     creditedRef.current = false;
     setPhase("playing");
-    setSeconds(ROUND_SECONDS);
+    setSeconds(session.timeLimitSeconds);
     setIndex(0);
     setScore(0);
     setCombo(0);
@@ -92,7 +121,8 @@ export function MandarinBlitzPage() {
     const wasCorrect = option === question.answer;
     const elapsed = Math.max(0, Date.now() - questionStartedAtRef.current);
     setPicked(option);
-    setAnswered((value) => value + 1);
+    const nextAnswered = answered + 1;
+    setAnswered(nextAnswered);
     setResponseMs((value) => value + elapsed);
     ensureSrs(question.sourceType, question.sourceId, question.track, question.reviewDomain);
     gradeSrs(
@@ -110,6 +140,11 @@ export function MandarinBlitzPage() {
       setCombo(0);
     }
     nextTimerRef.current = window.setTimeout(() => {
+      if (reachedBlitzQuestionLimit(nextAnswered, session)) {
+        if (journeyMode) completeJourneyNode(FOUNDATION_BLITZ_NODE.id);
+        setPhase("finished");
+        return;
+      }
       setIndex((value) => value + 1);
       setPicked(null);
       questionStartedAtRef.current = Date.now();
@@ -122,10 +157,8 @@ export function MandarinBlitzPage() {
         <Card className="p-6 text-center">
           <IconFlame width={40} height={40} className="mx-auto text-accent" />
           <h1 className="mt-3 font-serif text-2xl font-semibold text-ink">Mandarin Blitz</h1>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">
-            Aprenda pelo menos duas frases ou caracteres na Jornada para formar um baralho seguro, sem conteúdo ainda bloqueado.
-          </p>
-          <ButtonLink className="mt-5 w-full" to="/jornada">Ir para a Jornada</ButtonLink>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">{copy.empty}</p>
+          <ButtonLink className="mt-5 w-full" to="/jornada">{instructionLocale === "en" ? "Go to Journey" : "Ir para a Jornada"}</ButtonLink>
         </Card>
       </div>
     );
@@ -139,52 +172,51 @@ export function MandarinBlitzPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
             <IconFlame width={34} height={34} />
           </div>
-          <div className="mt-4 text-xs font-bold uppercase tracking-[0.16em] text-accent">Treino de 60 segundos</div>
+          <div className="mt-4 text-xs font-bold uppercase tracking-[0.16em] text-accent">{journeyMode ? copy.journey : copy.training}</div>
           <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">Mandarin Blitz</h1>
-          <p className="mt-3 text-sm leading-6 text-ink-soft">
-            Áudio, significado, hànzì, peça ausente e tom — somente com o que você já desbloqueou.
-          </p>
+          <p className="mt-3 text-sm leading-6 text-ink-soft">{copy.description}</p>
+          <p className="mt-2 text-xs font-semibold text-ink-faint">{session.timeLimitSeconds}s{session.maxQuestions != null ? ` · ${session.maxQuestions} ${copy.questions}` : ""}</p>
           {phase === "finished" && (
             <div className="mt-5 grid grid-cols-3 gap-2">
-              <Stat label="Pontos" value={score} />
-              <Stat label="Precisão" value={`${accuracy}%`} />
-              <Stat label="Resposta" value={answered > 0 ? `${(responseMs / answered / 1000).toFixed(1)}s` : "—"} />
+              <Stat label={copy.points} value={score} />
+              <Stat label={copy.accuracy} value={`${accuracy}%`} />
+              <Stat label={copy.response} value={answered > 0 ? `${(responseMs / answered / 1000).toFixed(1)}s` : "—"} />
             </div>
           )}
           <Button size="lg" className="mt-6 w-full" onClick={start}>
-            {phase === "finished" ? "Jogar de novo" : "Começar Blitz"}
+            {phase === "finished" ? copy.replay : copy.start}
           </Button>
-          <ButtonLink variant="outline" className="mt-3 w-full" to="/treino">Voltar a Praticar</ButtonLink>
-          <p className="mt-3 text-xs text-ink-faint">O Blitz alimenta o SRS, mas não concede Qi ou XP.</p>
+          <ButtonLink variant="outline" className="mt-3 w-full" to={journeyMode ? "/jornada" : "/treino"}>{copy.back}</ButtonLink>
+          <p className="mt-3 text-xs text-ink-faint">{copy.srs}</p>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-lg py-4">
+    <div className="mx-auto max-w-lg py-4" data-testid="bounded-blitz" data-time-limit={session.timeLimitSeconds} data-max-questions={session.maxQuestions ?? "unbounded"}>
       <div className="mb-3 flex items-center justify-between text-sm font-semibold text-ink">
         <span>{seconds}s</span>
-        <span>{score} pontos</span>
-        <span>Combo {combo}</span>
+        <span>{score} {copy.score}</span>
+        <span>{copy.combo} {combo}</span>
       </div>
-      <ProgressBar value={seconds} max={ROUND_SECONDS} />
+      <ProgressBar value={seconds} max={session.timeLimitSeconds} />
       {question && (
         <Card className="mt-4 p-5">
           <div className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Mandarin Blitz</div>
-          <h2 className="mt-2 font-serif text-xl font-semibold text-ink">{question.prompt}</h2>
+          <h2 className="mt-2 font-serif text-xl font-semibold text-ink">{resolveInstructionText(question.prompt, instructionLocale)}</h2>
           {question.audioText && (
             <button
               type="button"
               onClick={() => speak(question.audioText!, { rate: 0.84 })}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-accent-soft bg-accent-soft/50 px-4 py-5 font-semibold text-accent"
             >
-              <IconSound width={24} height={24} /> Ouvir novamente
+              <IconSound width={24} height={24} /> {copy.listen}
             </button>
           )}
           {question.stimulus && (
             <div className="mt-4 rounded-2xl border border-line bg-surface-2 p-5 text-center text-3xl font-semibold text-ink">
-              <ExerciseText value={question.stimulus} type={/[\u3400-\u9fff]/u.test(question.stimulus) ? "hanzi" : "pt"} />
+              <ExerciseText value={resolveInstructionText(question.stimulus, instructionLocale)} type={/[\u3400-\u9fff]/u.test(question.stimulus) ? "hanzi" : "pt"} />
             </div>
           )}
           <div className="mt-4 grid gap-2">
@@ -195,6 +227,7 @@ export function MandarinBlitzPage() {
                 <button
                   key={option}
                   type="button"
+                  data-testid="blitz-option"
                   disabled={picked !== null}
                   onClick={() => answer(option)}
                   className={[
@@ -203,7 +236,7 @@ export function MandarinBlitzPage() {
                     isWrong ? "border-transparent bg-wrong-soft text-wrong" : "border-line bg-surface text-ink hover:border-accent-soft",
                   ].join(" ")}
                 >
-                  <ExerciseText value={option} type={/[\u3400-\u9fff]/u.test(option) ? "hanzi" : "pt"} />
+                  <ExerciseText value={resolveInstructionText(option, instructionLocale)} type={/[\u3400-\u9fff]/u.test(option) ? "hanzi" : "pt"} />
                   {isCorrect && <IconCheck width={20} height={20} />}
                   {isWrong && <IconX width={20} height={20} />}
                 </button>

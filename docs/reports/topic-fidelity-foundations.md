@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 8f189dc79da9 |
-| HEAD no instante da geração | a6abc946bd01b49b29d37dfdccd9bd44a85a2825 |
+| Hash da Jornada | 86f2d7fa171b |
+| HEAD no instante da geração | 813133b6f4a790583894a972bcf5ba6bed3e24c0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-01T13:49:12.032Z |
+| Gerado em | 2026-09-03T08:55:29.867Z |
 | Lições | 127 |
 
 
@@ -32,8 +32,8 @@ Promessa: Mandarim é a língua padrão ensinada no Longyu — falada, distinta 
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Uma língua falada |
 | 2 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
-| 3 | listen_select | DIRECT_TOPIC | Primeiro som real |
-| 4 | comprehend | SUPPORTING_TOPIC | apoia o tema (scaffold/uso) — comprehend |
+| 3 | comprehend | SUPPORTING_TOPIC | apoia o tema (scaffold/uso) — comprehend |
+| 4 | dialogue_choice | DIRECT_TOPIC | O som é a língua |
 | 5 | dialogue_choice | DIRECT_TOPIC | Fala × escrita |
 | 6 | dialogue_choice | DIRECT_TOPIC | O exemplo não é o tema |
 
@@ -89,16 +89,17 @@ Promessa: Pinyin existe para representar a pronúncia — é uma ponte, não sub
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 5 | 100% | 0% | 0% | 4.1 | 1 |
+| 7 | 5 | 100% | 0% | 0% | 4.5 | 2 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Para que o pinyin existe |
-| 2 | dialogue_choice | DIRECT_TOPIC | Pinyin não traduz |
-| 3 | match_pairs | DIRECT_TOPIC | Três linhas, três papéis |
-| 4 | listen_select | DIRECT_TOPIC | Áudio → pinyin |
-| 5 | dialogue_choice | DIRECT_TOPIC | Qual linha é pinyin? |
-| 6 | dialogue_choice | DIRECT_TOPIC | Para que serve |
+| 2 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
+| 3 | dialogue_choice | DIRECT_TOPIC | Pinyin não traduz |
+| 4 | match_pairs | DIRECT_TOPIC | Três linhas, três papéis |
+| 5 | listen_select | DIRECT_TOPIC | Áudio → pinyin |
+| 6 | dialogue_choice | DIRECT_TOPIC | Qual linha é pinyin? |
+| 7 | dialogue_choice | DIRECT_TOPIC | Para que serve |
 
 ### M2 · Notar a sílaba (nǐ / hǎo) e ligar áudio ↔ pinyin.
 
@@ -219,16 +220,17 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 5 | 100% | 0% | 0% | 4.1 | 1 |
+| 7 | 5 | 100% | 0% | 0% | 4.5 | 2 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Sistema de escrita |
-| 2 | dialogue_choice | DIRECT_TOPIC | O que é um caractere? |
-| 3 | dialogue_choice | DIRECT_TOPIC | Reconheça 好 |
-| 4 | match_pairs | DIRECT_TOPIC | Forma e papel |
-| 5 | listen_select | DIRECT_TOPIC | Veja e ouça 你好 |
-| 6 | dialogue_choice | DIRECT_TOPIC | Hànzì não é pinyin |
+| 2 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
+| 3 | dialogue_choice | DIRECT_TOPIC | O que é um caractere? |
+| 4 | dialogue_choice | DIRECT_TOPIC | Reconheça 好 |
+| 5 | match_pairs | DIRECT_TOPIC | Forma e papel |
+| 6 | listen_select | DIRECT_TOPIC | Veja e ouça 你好 |
+| 7 | dialogue_choice | DIRECT_TOPIC | Hànzì não é pinyin |
 
 ### M2 · Separar caractere de palavra e notar peças básicas.
 
@@ -276,4 +278,4 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:74ef5be2863e91b0 -->
+<!-- integridade:42e14abd9c6481de -->

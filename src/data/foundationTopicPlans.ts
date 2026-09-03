@@ -12,6 +12,7 @@ import { withEquivalentAccepts } from "./masteryLoop";
 import type { MasteryPass } from "./masteryLoop";
 import { isConceptFoundationTopic } from "./topicMastery";
 import { makeReverseRecall } from "./exerciseFeasibility";
+import { FOUNDATION_TARGET_IDS, knowledgeTargetIdsForStep, withPedagogicalEvidence, type PedagogicalRung } from "./pedagogicalSpine";
 
 function intro(title: string, body: string): LessonStep {
   return { kind: "intro", title, body };
@@ -78,6 +79,18 @@ function sentenceBuild(
   return { kind: "sentence_build", title, prompt, target, bank, explanation, correctAnswer: target.join("") };
 }
 
+function hanziBuild(builderId: string, title: string, prompt: string, answer: string, meaning: string): LessonStep {
+  return {
+    kind: "hanzi_build",
+    builderId,
+    title,
+    prompt,
+    correctAnswer: answer,
+    targetHanzi: answer,
+    targetMeaningPt: meaning,
+  };
+}
+
 function reverseRecall(title: string, situationPt: string, answer: string, accepts?: string[]): LessonStep {
   return makeReverseRecall(title, situationPt, answer, accepts);
 }
@@ -139,11 +152,17 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
     1: [
       intro(
         "Uma língua falada",
-        "Mandarim é uma língua — a variedade padrão do chinês moderno que o Longyu ensina. Língua falada não é o mesmo que sistema de escrita. Ouça uma frase real agora."
+        "Mandarim é uma língua — a variedade padrão do chinês moderno que o Longyu ensina. Primeiro você vai ouvir um cumprimento; depois verá como som, escrita e significado se conectam."
       ),
       listen("你好", "nǐ hǎo", "Olá"),
-      listenSelect("Primeiro som real", "你好", ["你好", "谢谢", "再见"], "你好", "Isso é mandarim falado: 你好."),
-      comprehend("你好", "nǐ hǎo", "Olá", ["Olá", "Obrigado(a)", "Até logo", "De nada"]),
+      comprehend("你好", "nǐ hǎo", "Olá", ["Olá", "um número", "um nome", "uma pergunta"]),
+      dialogue(
+        "O som é a língua",
+        "O que você acabou de ouvir em 你好?",
+        "mandarim falado",
+        ["mandarim falado", "uma tradução", "um alfabeto", "um desenho"],
+        "O áudio é mandarim falado; pinyin, hànzì e tradução são camadas de apoio."
+      ),
       dialogue(
         "Fala × escrita",
         "Mandarim, neste tema, é principalmente…",
@@ -189,7 +208,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         ["escrita (hànzì)", "a língua falada", "a tradução", "um tom isolado"],
         "A forma escrita e a língua falada são camadas diferentes."
       ),
-      listenSelect("Ouça de novo a língua", "你好", ["你好", "谢谢", "一"], "你好", "Volte ao som: isso é mandarim."),
+      listenSelect("Ouça de novo a língua", "你好", ["你好", "你", "好"], "你好", "Volte ao som: isso é mandarim."),
       dialogue(
         "Longyu ensina qual variedade?",
         "O Longyu ensina…",
@@ -208,7 +227,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Use o mandarim falado",
         "Uma pessoa olha para você e diz 你好. O que você faz na língua falada?",
         "你好",
-        ["你好", "谢谢", "Olá em português", "nǐ hǎo no papel"],
+        ["你好", "ficar em silêncio", "Olá em português", "nǐ hǎo no papel"],
         "A resposta natural é devolver o mandarim falado."
       ),
       reverseRecall(
@@ -232,7 +251,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Monte o mandarim que você fala",
         "Monte a frase falada em mandarim que você já ouviu.",
         ["你", "好"],
-        ["好", "你", "谢"]
+        ["好", "你", "？"]
       ),
       dialogue(
         "Som e intenção",
@@ -284,6 +303,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Para que o pinyin existe",
         "Pinyin é um sistema de romanização: letras latinas que representam a pronúncia do mandarim. Não é tradução, não é hànzì e não é a língua. É o guia do som."
       ),
+      listen("你好", "nǐ hǎo", "Olá"),
       dialogue(
         "Pinyin não traduz",
         "nǐ hǎo é…",
@@ -304,7 +324,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       listenSelect(
         "Áudio → pinyin",
         "你好",
-        ["nǐ hǎo", "xièxie", "zàijiàn"],
+        ["nǐ hǎo", "nǐ", "hǎo"],
         "nǐ hǎo",
         "Você ouviu o mandarim; nǐ hǎo é o pinyin desse som.",
         "Qual pinyin escreve o que você ouviu?"
@@ -356,7 +376,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       listenSelect(
         "Ouça a segunda sílaba",
         "好",
-        ["hǎo", "nǐ", "xiè"],
+        ["hǎo", "nǐ", "nǐ hǎo"],
         "hǎo",
         "h + ao forma hǎo. Não leia como se fosse português.",
         "Qual pinyin é esta sílaba?"
@@ -445,7 +465,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       listenSelect(
         "Agora sem o pinyin nas opções",
         "你好",
-        ["你好", "谢谢", "再见"],
+        ["你好", "你", "好"],
         "你好",
         "O áudio é a língua; você reconhece sem ler nǐ hǎo."
       ),
@@ -530,7 +550,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Qual é o vale?",
         "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?",
         "马",
-        ["马", "妈", "麻", "骂"],
+        ["马", "妈"],
         "马 (mǎ) é o vale: desce e volta."
       ),
       dialogue(
@@ -557,7 +577,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "O tom numa palavra real",
         "你好 são dois 3º tons; juntos você ouve ní hǎo. O tom não mora só no drill de ma — mora na palavra que você já usa."
       ),
-      listenSelect("你好 de ouvido", "你好", ["你好", "谢谢", "妈"], "你好", "Leve o contorno para um chunk conhecido."),
+      listenSelect("你好 de ouvido", "你好", ["你好", "妈", "马"], "你好", "Leve o contorno para um chunk conhecido."),
       dialogue(
         "O tom em 你好",
         "Em 你好, o que você precisa acertar além das letras?",
@@ -580,6 +600,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Sistema de escrita",
         "Hànzì são os caracteres do chinês escrito. Pinyin mostra o som (nǐ hǎo); hànzì mostra a forma: 你好. Um caractere tem forma, som e função — e não é automaticamente uma palavra inteira."
       ),
+      listen("你好", "nǐ hǎo", "Olá"),
       dialogue(
         "O que é um caractere?",
         "Em 你好, 你 é…",
@@ -591,7 +612,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Reconheça 好",
         "Em 你好, qual caractere é 好?",
         "好",
-        ["好", "你", "口", "日"]
+        ["好", "你", "你好"]
       ),
       match(
         "Forma e papel",
@@ -601,7 +622,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
           { left: "nǐ", right: "pinyin (som)", leftType: "pinyin", rightType: "pt" },
         ]
       ),
-      listenSelect("Veja e ouça 你好", "你好", ["你好", "木", "人"], "你好", "A forma escrita e o som andam juntos, mas não são a mesma camada."),
+      listenSelect("Veja e ouça 你好", "你好", ["你好", "你", "好"], "你好", "A forma escrita e o som andam juntos, mas não são a mesma camada."),
       dialogue(
         "Hànzì não é pinyin",
         "Qual linha é hànzì?",
@@ -652,23 +673,23 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
     ],
     3: [
       intro("Reconhecer e montar", "Agora você monta a palavra a partir dos caracteres — a prova de que viu as peças."),
-      sentenceBuild("Monte 你好", "Monte a palavra com os caracteres.", ["你", "好"], ["好", "你", "木", "人"]),
-      dialogue("Qual é o primeiro caractere?", "O primeiro caractere (peça escrita) de 你好 é…", "你", ["你", "好", "木", "口"]),
-      dialogue("Qual é o segundo caractere?", "O segundo caractere (peça escrita) de 你好 é…", "好", ["好", "你", "人", "日"]),
+      sentenceBuild("Monte 你好", "Monte a palavra com os caracteres.", ["你", "好"], ["好", "你", "？"]),
+      dialogue("Qual é o primeiro caractere?", "O primeiro caractere (peça escrita) de 你好 é…", "你", ["你", "好", "你好"]),
+      dialogue("Qual é o segundo caractere?", "O segundo caractere (peça escrita) de 你好 é…", "好", ["好", "你", "你好"]),
       dialogue(
         "Quais dois caracteres?",
         "A palavra de cumprimento em hànzì. Quais dois caracteres?",
         "你好",
-        ["你好", "谢谢", "木人", "口日"]
+        ["你好", "你", "好", "nǐ hǎo"]
       ),
-      listenSelect("Reconheça no áudio", "你好", ["你好", "谢谢", "木"], "你好"),
+      listenSelect("Reconheça no áudio", "你好", ["你好", "你", "好"], "你好"),
     ],
     4: [
       intro("Menos pinyin", "Uma mensagem chega só com 你好. Você reconhece a escrita no contexto, sem depender do mapa nǐ hǎo."),
       listenSelect(
         "Leia o hànzì com menos pinyin",
         "你好",
-        ["你好", "木", "人"],
+        ["你好", "你", "好"],
         "你好",
         "A forma escrita continua sendo hànzì, mesmo sem nǐ hǎo na tela."
       ),
@@ -694,7 +715,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Qual hànzì na tela?",
         "Alguém acena. Qual hànzì você leria na tela?",
         "你好",
-        ["你好", "谢谢", "木", "人"]
+        ["你好", "你", "好", "nǐ hǎo"]
       ),
       match(
         "Prova final",
@@ -707,11 +728,110 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       ),
     ],
   },
+  "p1-primeiros-hanzi": {
+    1: [
+      intro("Peças visuais, não desenhos aleatórios", "Você vai observar a forma, ouvir o som e conhecer o sentido antes de montar cada hànzì. Comece com 木: tronco, copa e galhos."),
+      listen("木", "mù", "árvore / madeira"),
+      intro("Note a forma de 木", "O traço vertical lembra o tronco; os traços laterais lembram galhos. Agora monte com o modelo guiando você."),
+      hanziBuild("hb-mu-fragments", "Monte 木 com apoio", "Encaixe os traços da árvore.", "木", "árvore / madeira"),
+      listen("人", "rén", "pessoa"),
+      intro("Note a forma de 人", "Dois traços apoiados formam 人. Veja o modelo antes de montar."),
+      hanziBuild("hb-ren-fragments", "Monte 人 com apoio", "Encaixe os dois traços de pessoa.", "人", "pessoa"),
+    ],
+    2: [
+      intro("Contornos simples", "Agora você reconhece e monta dois contornos já apresentados: 口, uma boca aberta, e 日, sol ou dia."),
+      listen("口", "kǒu", "boca"),
+      intro("Note 口", "Quatro lados fecham a forma de uma boca. Observe antes de montar."),
+      hanziBuild("hb-kou-fragments", "Monte 口", "Feche o contorno da boca.", "口", "boca"),
+      listen("日", "rì", "sol / dia"),
+      intro("Note 日", "日 é um contorno com uma linha no meio. Monte depois de observar."),
+      hanziBuild("hb-ri-fragments", "Monte 日", "Monte o hànzì de sol e dia.", "日", "sol / dia"),
+      match("Reconheça as formas", "Ligue somente itens que você acabou de aprender.", [
+        { left: "口", right: "boca", leftType: "hanzi", rightType: "pt" },
+        { left: "日", right: "sol / dia", leftType: "hanzi", rightType: "pt" },
+      ]),
+    ],
+    3: [
+      intro("Formas da natureza", "Você vai observar 月 e 山 antes de recuperar e montar as formas com menos ajuda."),
+      hanziBuild("hb-mu-fragments", "Recupere 木", "Monte novamente o hànzì de árvore, agora com menos apoio.", "木", "árvore / madeira"),
+      listen("月", "yuè", "lua / mês"),
+      intro("Note 月", "O contorno estreito e os dois traços internos diferenciam 月 de 日."),
+      hanziBuild("hb-yue-fragments", "Monte 月", "Monte o hànzì de lua e mês.", "月", "lua / mês"),
+      listen("山", "shān", "montanha"),
+      intro("Note 山", "Três picos sobre uma base formam 山."),
+      hanziBuild("hb-shan-fragments", "Monte 山", "Monte os três picos da montanha.", "山", "montanha"),
+      match("Diferencie sem surpresa", "Ligue cada forma ao sentido já apresentado.", [
+        { left: "月", right: "lua / mês", leftType: "hanzi", rightType: "pt" },
+        { left: "山", right: "montanha", leftType: "hanzi", rightType: "pt" },
+        { left: "日", right: "sol / dia", leftType: "hanzi", rightType: "pt" },
+      ]),
+    ],
+    4: [
+      intro("Transfira a lógica visual", "Observe quatro formas novas uma a uma. Cada montagem vem somente depois de som, significado e pista visual."),
+      listen("水", "shuǐ", "água"),
+      intro("Note 水", "Um traço central e gotas laterais organizam a forma de 水."),
+      hanziBuild("hb-shui-fragments", "Monte 水", "Monte o hànzì de água.", "水", "água"),
+      listen("火", "huǒ", "fogo"),
+      intro("Note 火", "As faíscas e as duas pernas da chama organizam 火."),
+      hanziBuild("hb-huo-fragments", "Monte 火", "Monte o hànzì de fogo.", "火", "fogo"),
+      listen("大", "dà", "grande"),
+      intro("Note 大", "Um traço horizontal e dois traços abertos lembram uma pessoa com os braços bem abertos."),
+      hanziBuild("hb-da-fragments", "Monte 大", "Abra os braços da forma grande.", "大", "grande"),
+      listen("小", "xiǎo", "pequeno"),
+      intro("Note 小", "Um traço central com dois pontos menores organiza a forma de 小."),
+      hanziBuild("hb-xiao-fragments", "Monte 小", "Monte a forma pequena.", "小", "pequeno"),
+      match("Feche o primeiro mapa visual", "Ligue apenas as formas ensinadas nesta sessão.", [
+        { left: "水", right: "água", leftType: "hanzi", rightType: "pt" },
+        { left: "火", right: "fogo", leftType: "hanzi", rightType: "pt" },
+        { left: "大", right: "grande", leftType: "hanzi", rightType: "pt" },
+        { left: "小", right: "pequeno", leftType: "hanzi", rightType: "pt" },
+      ]),
+    ],
+  },
 };
+
+const TARGETS_BY_FOUNDATION_LESSON: Record<string, string[]> = {
+  "p1-o-que-e-mandarim": [FOUNDATION_TARGET_IDS.mandarin, FOUNDATION_TARGET_IDS.nihao, FOUNDATION_TARGET_IDS.greetingIntent],
+  "p1-o-que-e-pinyin": [FOUNDATION_TARGET_IDS.pinyin, FOUNDATION_TARGET_IDS.nihao],
+  "p1-o-que-e-tom": [FOUNDATION_TARGET_IDS.tone],
+  "p1-o-que-e-hanzi": [FOUNDATION_TARGET_IDS.hanzi, FOUNDATION_TARGET_IDS.ni, FOUNDATION_TARGET_IDS.hao],
+  "p1-primeiros-hanzi": [FOUNDATION_TARGET_IDS.components],
+};
+
+const GRADED_KINDS = new Set([
+  "tone", "comprehend", "recognize", "match_pairs", "listen_select", "sentence_build", "translation_build",
+  "fill_blank", "dialogue_choice", "conversation_scene", "hanzi_build", "contextual_choice", "reverse_recall",
+  "free_production", "transfer_task", "conversation_repair",
+]);
+
+function rungFor(step: LessonStep, pass: MasteryPass, index: number): PedagogicalRung {
+  if (step.kind === "intro") return index === 0 ? "ORIENT" : "NOTICE";
+  if (step.kind === "listen") return pass === 1 ? "NOTICE" : "EXPOSE";
+  if (step.kind === "flashcard") return "EXPOSE";
+  if (step.kind === "hanzi_build" || step.kind === "sentence_build") return "ASSEMBLY";
+  if (step.kind === "free_production" || step.kind === "produce") return "PRODUCTION";
+  if (step.kind === "transfer_task" || step.kind === "conversation_scene") return "TRANSFER";
+  if (step.kind === "reverse_recall" || pass >= 3) return "RECALL";
+  if (pass === 1 || step.assist === "guided") return "GUIDED_RECOGNITION";
+  return "DISCRIMINATION";
+}
+
+function annotateFoundationPlan(lessonId: string, pass: MasteryPass, steps: LessonStep[]): LessonStep[] {
+  const targets = TARGETS_BY_FOUNDATION_LESSON[lessonId] ?? [];
+  return steps.map((step, index) => withPedagogicalEvidence(step, {
+    rung: rungFor(step, pass, index),
+    knowledgeTargetIds: knowledgeTargetIdsForStep(step, targets),
+    exposureStrength: step.kind === "listen" ? "MULTIMODAL" : step.kind === "intro" ? "ORIENTATION" : "GUIDED_PRACTICE",
+    primaryDifficulty: step.kind === "listen" || step.kind === "tone" ? "SOUND" : step.kind.includes("hanzi") || step.kind === "recognize" ? "FORM" : step.kind.includes("production") || step.kind === "reverse_recall" ? "PRODUCTION" : "MEANING",
+    hiddenSkillRequirements: [],
+    distractorSafety: step.options?.length ? (pass === 1 ? "CONTROLLED_UNKNOWN" : "KNOWN_TARGET") : "NOT_APPLICABLE",
+    graded: GRADED_KINDS.has(step.kind) && !(step.kind === "tone" && step.assist === "guided"),
+  }));
+}
 
 export function foundationAuthoredPlanFor(lessonId: string, pass: MasteryPass): LessonStep[] | null {
   const plan = PLANS[lessonId]?.[pass];
-  return plan ? plan : null;
+  return plan ? annotateFoundationPlan(lessonId, pass, plan) : null;
 }
 
 export function hasFoundationAuthoredPlan(lessonId: string): boolean {

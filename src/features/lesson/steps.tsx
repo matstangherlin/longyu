@@ -482,10 +482,11 @@ function StepIntro({ step, onDone }: StepProps) {
 }
 
 function StepListen({ step, onDone }: StepProps) {
+  const isNotice = step.pedagogicalEvidence?.rung === "NOTICE";
   return (
-    <div className="text-center">
+    <div className="text-center" data-testid={isNotice ? "pedagogical-notice" : undefined}>
       <Eyebrow>{t("player.listenAndImitate")}</Eyebrow>
-      <div className="my-4">
+      <div className={isNotice ? "my-4 rounded-3xl border border-accent/25 bg-paper-soft p-5" : "my-4"}>
         <MandarinText
           hanzi={step.text!}
           pinyin={step.pinyin}
@@ -494,6 +495,7 @@ function StepListen({ step, onDone }: StepProps) {
           audio
           align="center"
           displayMode={step.hanziMode === "pinyin_first" ? "pinyin_only" : undefined}
+          revealMeaning={isNotice}
         />
       </div>
       <PronunciationPractice target={step.text!} onContinue={() => onDone()} />

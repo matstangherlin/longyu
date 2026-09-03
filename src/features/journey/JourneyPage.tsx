@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
@@ -16,7 +16,7 @@ import { reviewSessionSplit } from "../../lib/reviewSession";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
-  IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame,
+  IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame, IconPlay,
 } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { dueItems } from "../../lib/srs";
@@ -43,6 +43,9 @@ import { displayInstruction, displayLessonTitle, localizedReviewPendingLabel, lo
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
+import { FOUNDATION_BLITZ_NODE, PINYIN_CAPSULE_NODE } from "../../data/journeyOrchestrator";
+import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
+import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -339,6 +342,11 @@ export function JourneyPage() {
 
   // índice global para alternar o offset ao longo de toda a jornada
   let globalIndex = -1;
+  const pinyinCapsulePath = `/jornada/capsula/${encodeURIComponent(PINYIN_FOUNDATION_CAPSULE.id)}`;
+  const routeForLesson = (lessonId: string) =>
+    lessonId === PINYIN_FOUNDATION_CAPSULE.topicId && !isJourneyNodeComplete(PINYIN_CAPSULE_NODE.id)
+      ? pinyinCapsulePath
+      : `/licao/${lessonId}`;
 
   return (
     <>
@@ -357,7 +365,7 @@ export function JourneyPage() {
             done={currentProgress?.done ?? ALL_LESSONS.length}
             total={currentProgress?.total ?? ALL_LESSONS.length}
             currentLessonTitle={currentLesson ? displayLessonTitle(currentLesson.title, locale) : undefined}
-            onContinue={currentId ? () => navigate(`/licao/${currentId}`) : undefined}
+            onContinue={currentId ? () => navigate(routeForLesson(currentId)) : undefined}
             continueLabel={
               completed.length > 0 || (currentId ? (lessonMasteryById?.[currentId]?.level ?? 0) > 0 : false)
                 ? t("journey.continue")
@@ -442,7 +450,7 @@ export function JourneyPage() {
                         nextIndex={() => (globalIndex += 1)}
                         chest={chest}
                         journeyChestsOpened={journeyChestsOpened}
-                        onOpen={(id) => navigate(`/licao/${id}`)}
+                        onOpen={(id) => navigate(routeForLesson(id))}
                         onChallenge={(id) => navigate(`/teste/${id}`)}
                         onProChallenge={() => setProPaywallOpen(true)}
                         onLocked={notifyLocked}
@@ -453,6 +461,12 @@ export function JourneyPage() {
                           lockedTimer.current = setTimeout(() => setLockedHint(null), 3200);
                         }}
                       />
+                      {unit.id === "u1-1" && expanded && (
+                        <FoundationOrchestrationPanel
+                          firstTopicMastery={lessonMasteryById["p1-o-que-e-mandarim"]?.level ?? 0}
+                          currentId={currentId}
+                        />
+                      )}
                     </div>
                   );
                 })}
@@ -487,6 +501,115 @@ export function JourneyPage() {
         <JourneyChestRewardModal chest={activeChest} onClose={() => setActiveChest(null)} />
       )}
     </>
+  );
+}
+
+function FoundationOrchestrationPanel({
+  firstTopicMastery,
+  currentId,
+}: {
+  firstTopicMastery: number;
+  currentId: string | undefined;
+}) {
+  const { instructionLocale } = useTranslation();
+  const learnedChunks = useStore((state) => state.learnedChunks);
+  const learnedChars = useStore((state) => state.learnedChars);
+  const foundationReady = firstTopicMastery >= 4 || currentId === "p1-o-que-e-pinyin";
+  const blitzReady = learnedChunks.includes("nihao") && learnedChars.some((id) => id === "ni" || id === "hao");
+  const capsuleComplete = isJourneyNodeComplete(PINYIN_CAPSULE_NODE.id);
+  const blitzComplete = isJourneyNodeComplete(FOUNDATION_BLITZ_NODE.id);
+  const text = instructionLocale === "en" ? {
+    label: "Learning path",
+    title: "Build a base, then gain speed",
+    capsuleTitle: "Pinyin: a map of sound",
+    capsuleBody: "A short interactive explanation before the graded pinyin exercises.",
+    capsuleCta: capsuleComplete ? "Review capsule" : "Take capsule",
+    blitzTitle: "Foundations Blitz",
+    blitzBody: "Up to 8 challenges · 45 seconds · only content you have learned.",
+    blitzCta: blitzComplete ? "Practice again" : "Start booster",
+    locked: "Finish the first Mandarin topic to unlock this step.",
+    optional: "Recommended · does not block core mastery",
+  } : {
+    label: "Trilha de aprendizagem",
+    title: "Construa a base, depois ganhe velocidade",
+    capsuleTitle: "Pinyin: o mapa do som",
+    capsuleBody: "Uma explicação interativa curta antes dos exercícios avaliados de pinyin.",
+    capsuleCta: capsuleComplete ? "Rever cápsula" : "Fazer cápsula",
+    blitzTitle: "Blitz de Fundamentos",
+    blitzBody: "Até 8 desafios · 45 segundos · só conteúdo que você já aprendeu.",
+    blitzCta: blitzComplete ? "Praticar novamente" : "Iniciar reforço",
+    locked: "Conclua o primeiro tema de mandarim para liberar esta etapa.",
+    optional: "Recomendado · não bloqueia o mastery core",
+  };
+
+  return (
+    <Card className="mx-auto mb-6 mt-3 max-w-sm p-3 lg:max-w-md" variant="info" data-testid="foundation-orchestration">
+      <div className="px-1">
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{text.label}</div>
+        <h3 className="mt-1 font-serif text-base font-semibold text-ink">{text.title}</h3>
+      </div>
+      <div className="mt-3 grid gap-2">
+        <JourneyAuxiliaryCard
+          icon={<IconPlay width={19} height={19} />}
+          title={text.capsuleTitle}
+          body={text.capsuleBody}
+          cta={text.capsuleCta}
+          to={`/jornada/capsula/${encodeURIComponent(PINYIN_FOUNDATION_CAPSULE.id)}`}
+          enabled={foundationReady}
+          completed={capsuleComplete}
+          lockedCopy={text.locked}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconFlame width={19} height={19} />}
+          title={text.blitzTitle}
+          body={text.blitzBody}
+          cta={text.blitzCta}
+          to={`/arcade/blitz?journeyNode=${encodeURIComponent(FOUNDATION_BLITZ_NODE.id)}`}
+          enabled={foundationReady && blitzReady}
+          completed={blitzComplete}
+          lockedCopy={text.locked}
+          footnote={text.optional}
+        />
+      </div>
+    </Card>
+  );
+}
+
+function JourneyAuxiliaryCard({
+  icon,
+  title,
+  body,
+  cta,
+  to,
+  enabled,
+  completed,
+  lockedCopy,
+  footnote,
+}: {
+  icon: ReactNode;
+  title: string;
+  body: string;
+  cta: string;
+  to: string;
+  enabled: boolean;
+  completed: boolean;
+  lockedCopy: string;
+  footnote?: string;
+}) {
+  return (
+    <div className={["rounded-xl border p-3", enabled ? "border-line/65 bg-surface" : "border-line/35 bg-surface-2/55"].join(" ")}>
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+          {completed ? <IconCheck width={19} height={19} /> : enabled ? icon : <IconLock width={17} height={17} />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold text-ink">{title}</div>
+          <p className="mt-0.5 text-xs leading-5 text-ink-soft">{enabled ? body : lockedCopy}</p>
+          {footnote && enabled && <p className="mt-1 text-[10px] text-ink-faint">{footnote}</p>}
+        </div>
+      </div>
+      {enabled && <ButtonLink size="sm" variant="outline" className="mt-3 w-full" to={to}>{cta}</ButtonLink>}
+    </div>
   );
 }
 

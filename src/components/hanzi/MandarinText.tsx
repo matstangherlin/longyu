@@ -27,6 +27,7 @@ export function MandarinText({
   align = "left",
   helpMode,
   disabled = false,
+  revealMeaning = false,
 }: {
   hanzi: string;
   pinyin?: string;
@@ -39,6 +40,7 @@ export function MandarinText({
   align?: "left" | "center";
   helpMode?: MandarinHelpMode;
   disabled?: boolean;
+  revealMeaning?: boolean;
 }) {
   const { t } = useTranslation();
   const globalDisplayMode = useStore((s) => s.mandarinDisplayMode);
@@ -98,10 +100,10 @@ export function MandarinText({
         {audio && <SpeakButton text={hanzi} size={styles.audio} className="shrink-0" autoPlay={autoPlay} />}
       </div>
 
-      {meaning && !helpDisabled && translationMode === "always" && (
+      {meaning && !helpDisabled && (translationMode === "always" || revealMeaning) && (
         <div className={`mt-2 ${styles.meaning} text-ink-soft`}>{meaning}</div>
       )}
-      {meaning && !helpDisabled && translationMode === "tap" && (
+      {meaning && !helpDisabled && translationMode === "tap" && !revealMeaning && (
         <button
           type="button"
           onClick={() => setTranslationOpen((open) => !open)}

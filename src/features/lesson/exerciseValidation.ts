@@ -3,6 +3,7 @@ import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { glossFor } from "../../data/gloss";
 import { HANZI_EVOLUTIONS } from "../../data/hanziPedagogy";
+import { getHanziBuilder } from "../../data/hanziBuilder";
 import { isNearDuplicatePinyinSet } from "../../lib/pinyin";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 
@@ -341,8 +342,7 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
     }
 
     case "sentence_build":
-    case "translation_build":
-    case "hanzi_build": {
+    case "translation_build": {
       const parts = step.targetParts ?? [];
       if (parts.length === 0) errors.push(`${step.kind} sem targetParts`);
       if (parts.some((piece) => !piece?.trim())) errors.push(`${step.kind} com peça vazia`);
@@ -356,6 +356,32 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
         if (step.dictationMode !== "blocks") errors.push("dragon_dictation por peças precisa do modo blocks");
         if (!step.audioText?.trim()) errors.push("dragon_dictation por peças sem audioText");
         if (!step.isNoHint && step.helpMode !== "disabled") errors.push("dragon_dictation precisa estar sem dica");
+      }
+      break;
+    }
+
+    case "hanzi_build": {
+      const builder = step.builderId ? getHanziBuilder(step.builderId) : undefined;
+      if (step.builderId && !builder) {
+        errors.push(`hanzi_build com builderId desconhecido: ${step.builderId}`);
+      }
+      if (builder) {
+        const declaredTarget = step.targetHanzi ?? step.correctAnswer;
+        if (declaredTarget?.trim() && declaredTarget.trim() !== builder.character) {
+          errors.push(`hanzi_build: target "${declaredTarget}" diverge do builder "${builder.character}"`);
+        }
+        break;
+      }
+
+      // Formato legado: montagem textual continua exigindo peças no próprio passo.
+      const parts = step.targetParts ?? [];
+      if (parts.length === 0) errors.push("hanzi_build sem targetParts");
+      if (parts.some((piece) => !piece?.trim())) errors.push("hanzi_build com peça vazia");
+      if ((step.bank ?? []).some((piece) => !piece?.trim())) errors.push("hanzi_build com peça vazia no banco");
+      for (const [index, accepted] of (step.acceptedTargetParts ?? []).entries()) {
+        if (accepted.length === 0 || accepted.some((piece) => !piece?.trim())) {
+          errors.push(`hanzi_build: acceptedTargetParts ${index + 1} inválido`);
+        }
       }
       break;
     }
