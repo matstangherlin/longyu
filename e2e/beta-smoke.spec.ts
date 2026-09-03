@@ -300,8 +300,15 @@ test.describe("beta smoke — aprendizagem", () => {
       timeout: 20_000,
     });
     await page.getByRole("button", { name: /^Entendi$/ }).click();
-    await expect(page.getByRole("button", { name: /^Não posso falar agora$/ })).toBeVisible();
-    await page.getByRole("button", { name: /^Não posso falar agora$/ }).click();
+    // Chromium expõe reconhecimento de fala e oferece o atalho abaixo; Firefox/WebKit
+    // seguem pelo fallback sem microfone. Ambos precisam preservar a mesma exposição
+    // pedagógica e chegar ao Builder real, que é o contrato que esta sentinela prova.
+    await expect(page.getByText(/^木$/).first()).toBeVisible();
+    const leftExposure = await clickFirstVisible(page, [
+      /^Não posso falar agora$/,
+      /^Continuar$/,
+    ]);
+    expect(leftExposure).toBe(true);
     await expect(page.getByRole("heading", { name: /Note a forma de 木/ })).toBeVisible();
     await page.getByRole("button", { name: /^Entendi$/ }).click();
     await expect(page.locator("[data-hanzi-builder]")).toBeVisible();
