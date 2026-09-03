@@ -69,6 +69,30 @@ for (const viewport of [
       await expect(page.locator("[data-match-pairs-board]")).toHaveCount(0);
     });
 
+    test("conclusão sobrevive a rerender do player", async ({ page }) => {
+      await openMatchPairs(page);
+      const before = Number(
+        await page.locator("[data-current-step-index]").getAttribute("data-current-step-index")
+      );
+      await completeEveryPair(page);
+
+      // Reproduz o churn real que tornava o bug intermitente: barra do browser,
+      // teclado ou rotação atualizam a visualViewport enquanto a animação do
+      // último par ainda aguarda o callback de conclusão.
+      await page.waitForTimeout(60);
+      await page.setViewportSize({
+        width: viewport.width,
+        height: Math.max(560, viewport.height - 24),
+      });
+
+      await expect(page.locator("[data-current-step-index]")).toHaveAttribute(
+        "data-current-step-index",
+        String(before + 1),
+        { timeout: 5_000 }
+      );
+      await expect(page.locator("[data-match-pairs-board]")).toHaveCount(0);
+    });
+
     test("usa superfície e texto escuros no tema dark", async ({ page }) => {
       await openMatchPairs(page);
       await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
