@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 1754158bcaa2 |
-| HEAD no instante da geração | a5bf7bf0bbf87de39760d7c9527e5dc9733d2407 |
+| Hash da Jornada | 86f2d7fa171b |
+| HEAD no instante da geração | 813133b6f4a790583894a972bcf5ba6bed3e24c0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-03T08:30:46.660Z |
+| Gerado em | 2026-09-03T08:55:09.715Z |
 | Lições | 127 |
 
 
@@ -40,9 +40,9 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Métrica | Sessão | Minutos até o início | Onde |
 |---------|------:|---------------------:|------|
 | timeToFirstInteraction | 1 | 0.0 | O que é mandarim? M1 |
-| timeToFirstConversation | 4 | 6.0 | O que é mandarim? M4 |
-| timeToFirstIndependentProduction | 3 | 4.1 | O que é mandarim? M3 |
-| timeToFirstTransfer | 4 | 6.0 | O que é mandarim? M4 |
+| timeToFirstConversation | 4 | 5.7 | O que é mandarim? M4 |
+| timeToFirstIndependentProduction | 3 | 3.8 | O que é mandarim? M3 |
+| timeToFirstTransfer | 4 | 5.7 | O que é mandarim? M4 |
 
 ## Exceções
 
@@ -106,4 +106,4 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 Nenhuma.
 
-<!-- integridade:145d30e75dd1c533 -->
+<!-- integridade:50e85bc03640efb9 -->

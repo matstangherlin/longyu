@@ -1,4 +1,5 @@
 # V4.6.1 — Topic Fidelity (fundações)
+
 ## Procedência
 
 A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fontes). O SHA em Commit/HEAD é o git no instante da geração — em geral o commit *anterior* ao que inclui este markdown.
@@ -6,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 86f2d7fa171b |
-| HEAD no instante da geração | a5bf7bf0bbf87de39760d7c9527e5dc9733d2407 |
+| HEAD no instante da geração | 813133b6f4a790583894a972bcf5ba6bed3e24c0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-03T08:33:21.437Z |
+| Gerado em | 2026-09-03T08:55:29.867Z |
 | Lições | 127 |
 
 
@@ -277,4 +278,4 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:99e9394b7ca5c292 -->
+<!-- integridade:42e14abd9c6481de -->
