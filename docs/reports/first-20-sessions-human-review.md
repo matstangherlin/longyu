@@ -9,11 +9,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | fb7ac3c5d18a |
-| HEAD no instante da geração | de3cfbfb28af16756fa074f4ed0fc0a3c28e7f40 |
+| Hash da Jornada | 61c5f87e08f0 |
+| HEAD no instante da geração | a5bf7bf0bbf87de39760d7c9527e5dc9733d2407 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-08-27T22:05:16.120Z |
+| Gerado em | 2026-09-03T07:55:08.810Z |
 | Lições | 20 |
 
 ## Como usar
@@ -35,7 +35,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | intro | Uma língua falada |  |  |  |  |  |  | OK |
 | 2 | listen |  | 你好 | nǐ hǎo | Olá | 你好 |  |  | OK |
-| 3 | listen_select | Toque no que ouviu. | 你好 |  |  | 你好 | 你好 | explanation | OK |
+| 3 | intro | Você acabou de ouvir ‘Olá’ |  |  |  |  |  |  | OK |
 | 4 | comprehend |  | 你好 | nǐ hǎo | Olá |  | Olá |  | OK |
 | 5 | dialogue_choice | Mandarim, neste tema, é principalmente… | uma língua falada |  |  |  | uma língua falada | explanation | OK |
 | 6 | dialogue_choice | 你好 nesta aula serve para… | mostrar a língua de verdade |  |  |  | mostrar a língua de verdade | explanation | OK |
@@ -91,17 +91,19 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 - topic: `p1-o-que-e-pinyin`
 - pass: 1
-- estimated time: ~2 min
+- estimated time: ~3 min
 - source: foundationAuthoredPlan
 
 | step | kind | instruction | hanzi | pinyin | meaning | audioText | correctAnswer | scaffold | flag |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | intro | Para que o pinyin existe |  |  |  |  |  |  | OK |
-| 2 | dialogue_choice | nǐ hǎo é… | a pronúncia escrita, não a tradução |  |  |  | a pronúncia escrita, não a tradução | explanation | OK |
-| 3 | match_pairs | Combine cada linha ao papel certo. |  |  |  |  |  | explanation | OK |
-| 4 | listen_select | Qual pinyin escreve o que você ouviu? | nǐ hǎo |  |  | 你好 | nǐ hǎo | explanation | OK |
-| 5 | dialogue_choice | Qual destas linhas é pinyin? | nǐ hǎo |  |  |  | nǐ hǎo | explanation | OK |
-| 6 | dialogue_choice | Pinyin serve principalmente para… | guiar a pronúncia |  |  |  | guiar a pronúncia | explanation | OK |
+| 2 | listen |  | 你好 | nǐ hǎo | Olá | 你好 |  |  | OK |
+| 3 | intro | Veja o mapa depois de ouvir |  |  |  |  |  |  | OK |
+| 4 | dialogue_choice | nǐ hǎo é… | a pronúncia escrita, não a tradução |  |  |  | a pronúncia escrita, não a tradução | explanation | OK |
+| 5 | match_pairs | Combine cada linha ao papel certo. |  |  |  |  |  | explanation | OK |
+| 6 | listen_select | Qual pinyin escreve o que você ouviu? | nǐ hǎo |  |  | 你好 | nǐ hǎo | explanation | OK |
+| 7 | dialogue_choice | Qual destas linhas é pinyin? | nǐ hǎo |  |  |  | nǐ hǎo | explanation | OK |
+| 8 | dialogue_choice | Pinyin serve principalmente para… | guiar a pronúncia |  |  |  | guiar a pronúncia | explanation | OK |
 
 ### Sessão 6 — O que é pinyin? · M2/4
 
@@ -221,17 +223,19 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 - topic: `p1-o-que-e-hanzi`
 - pass: 1
-- estimated time: ~2 min
+- estimated time: ~3 min
 - source: foundationAuthoredPlan
 
 | step | kind | instruction | hanzi | pinyin | meaning | audioText | correctAnswer | scaffold | flag |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | intro | Sistema de escrita |  |  |  |  |  |  | OK |
-| 2 | dialogue_choice | Em 你好, 你 é… | um caractere (peça escrita) |  |  |  | um caractere (peça escrita) | explanation | OK |
-| 3 | dialogue_choice | Em 你好, qual caractere é 好? | 好 |  |  |  | 好 |  | OK |
-| 4 | match_pairs | Combine o hànzì ao que ele é. |  |  |  |  |  |  | OK |
-| 5 | listen_select | Toque no que ouviu. | 你好 |  |  | 你好 | 你好 | explanation | OK |
-| 6 | dialogue_choice | Qual linha é hànzì? | 你好 |  |  |  | 你好 |  | OK |
+| 2 | listen |  | 你好 | nǐ hǎo | Olá | 你好 |  |  | OK |
+| 3 | intro | Olhe para as peças |  |  |  |  |  |  | OK |
+| 4 | dialogue_choice | Em 你好, 你 é… | um caractere (peça escrita) |  |  |  | um caractere (peça escrita) | explanation | OK |
+| 5 | dialogue_choice | Em 你好, qual caractere é 好? | 好 |  |  |  | 好 |  | OK |
+| 6 | match_pairs | Combine o hànzì ao que ele é. |  |  |  |  |  |  | OK |
+| 7 | listen_select | Toque no que ouviu. | 你好 |  |  | 你好 | 你好 | explanation | OK |
+| 8 | dialogue_choice | Qual linha é hànzì? | 你好 |  |  |  | 你好 |  | OK |
 
 ### Sessão 14 — O que é hànzì? · M2/4
 
@@ -286,93 +290,78 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 - topic: `p1-primeiros-hanzi`
 - pass: 1
-- estimated time: ~6 min
-- source: journey.steps (referência; planner pode variar)
+- estimated time: ~3 min
+- source: foundationAuthoredPlan
 
 | step | kind | instruction | hanzi | pinyin | meaning | audioText | correctAnswer | scaffold | flag |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | intro | Monte peça por peça |  |  |  |  |  |  | OK |
-| 2 | listen |  | 木 | mù | árvore — o hànzì que você vai montar | 木 |  |  | OK |
-| 3 | image_choice | O que você vê na foto? | 木 | mù | árvore |  |  | explanation | OK |
-| 4 | hanzi_build | Encaixe os traços da árvore. | 木 |  |  |  | 木 | explanation | OK |
-| 5 | image_choice | Qual hànzì significa pessoa? | 人 | rén | pessoa |  | 人 | explanation | OK |
-| 6 | hanzi_build | Monte o hànzì de pessoa. | 人 |  |  |  | 人 | explanation | OK |
-| 7 | recognize |  |  |  |  |  |  |  | OK |
-| 8 | hanzi_build | Monte o hànzì de boca. | 口 |  |  |  | 口 | explanation | OK |
-| 9 | recognize |  |  |  |  |  |  |  | OK |
-| 10 | hanzi_build | Monte o hànzì de sol. | 日 |  |  |  | 日 | explanation | OK |
-| 11 | image_choice | Ouça e escolha a imagem certa. | 山 | shān | montanha |  |  | explanation | OK |
-| 12 | hanzi_build | Encaixe os traços da montanha. | 山 |  |  |  | 山 | explanation | OK |
-| 13 | match_pairs | Feche o mapa |  |  |  |  |  | explanation | OK |
+| 1 | intro | Peças visuais, não desenhos aleatórios |  |  |  |  |  |  | OK |
+| 2 | listen |  | 木 | mù | árvore / madeira | 木 |  |  | OK |
+| 3 | intro | Note a forma de 木 |  |  |  |  |  |  | OK |
+| 4 | hanzi_build | Encaixe os traços da árvore. | 木 |  | árvore / madeira |  | 木 |  | OK |
+| 5 | listen |  | 人 | rén | pessoa | 人 |  |  | OK |
+| 6 | intro | Note a forma de 人 |  |  |  |  |  |  | OK |
+| 7 | hanzi_build | Encaixe os dois traços de pessoa. | 人 |  | pessoa |  | 人 |  | OK |
 
 ### Sessão 18 — Montando primeiros hànzì · M2/4
 
 - topic: `p1-primeiros-hanzi`
 - pass: 2
-- estimated time: ~6 min
-- source: journey.steps (referência; planner pode variar)
+- estimated time: ~3 min
+- source: foundationAuthoredPlan
 
 | step | kind | instruction | hanzi | pinyin | meaning | audioText | correctAnswer | scaffold | flag |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | intro | Monte peça por peça |  |  |  |  |  |  | OK |
-| 2 | listen |  | 木 | mù | árvore — o hànzì que você vai montar | 木 |  |  | OK |
-| 3 | image_choice | O que você vê na foto? | 木 | mù | árvore |  |  | explanation | OK |
-| 4 | hanzi_build | Encaixe os traços da árvore. | 木 |  |  |  | 木 | explanation | OK |
-| 5 | image_choice | Qual hànzì significa pessoa? | 人 | rén | pessoa |  | 人 | explanation | OK |
-| 6 | hanzi_build | Monte o hànzì de pessoa. | 人 |  |  |  | 人 | explanation | OK |
-| 7 | recognize |  |  |  |  |  |  |  | OK |
-| 8 | hanzi_build | Monte o hànzì de boca. | 口 |  |  |  | 口 | explanation | OK |
-| 9 | recognize |  |  |  |  |  |  |  | OK |
-| 10 | hanzi_build | Monte o hànzì de sol. | 日 |  |  |  | 日 | explanation | OK |
-| 11 | image_choice | Ouça e escolha a imagem certa. | 山 | shān | montanha |  |  | explanation | OK |
-| 12 | hanzi_build | Encaixe os traços da montanha. | 山 |  |  |  | 山 | explanation | OK |
-| 13 | match_pairs | Feche o mapa |  |  |  |  |  | explanation | OK |
+| 1 | intro | Contornos simples |  |  |  |  |  |  | OK |
+| 2 | listen |  | 口 | kǒu | boca | 口 |  |  | OK |
+| 3 | intro | Note 口 |  |  |  |  |  |  | OK |
+| 4 | hanzi_build | Feche o contorno da boca. | 口 |  | boca |  | 口 |  | OK |
+| 5 | listen |  | 日 | rì | sol / dia | 日 |  |  | OK |
+| 6 | intro | Note 日 |  |  |  |  |  |  | OK |
+| 7 | hanzi_build | Monte o hànzì de sol e dia. | 日 |  | sol / dia |  | 日 |  | OK |
+| 8 | match_pairs | Ligue somente itens que você acabou de aprender. |  |  |  |  |  |  | OK |
 
 ### Sessão 19 — Montando primeiros hànzì · M3/4
 
 - topic: `p1-primeiros-hanzi`
 - pass: 3
-- estimated time: ~6 min
-- source: journey.steps (referência; planner pode variar)
+- estimated time: ~3 min
+- source: foundationAuthoredPlan
 
 | step | kind | instruction | hanzi | pinyin | meaning | audioText | correctAnswer | scaffold | flag |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | intro | Monte peça por peça |  |  |  |  |  |  | OK |
-| 2 | listen |  | 木 | mù | árvore — o hànzì que você vai montar | 木 |  |  | OK |
-| 3 | image_choice | O que você vê na foto? | 木 | mù | árvore |  |  | explanation | OK |
-| 4 | hanzi_build | Encaixe os traços da árvore. | 木 |  |  |  | 木 | explanation | OK |
-| 5 | image_choice | Qual hànzì significa pessoa? | 人 | rén | pessoa |  | 人 | explanation | OK |
-| 6 | hanzi_build | Monte o hànzì de pessoa. | 人 |  |  |  | 人 | explanation | OK |
-| 7 | recognize |  |  |  |  |  |  |  | OK |
-| 8 | hanzi_build | Monte o hànzì de boca. | 口 |  |  |  | 口 | explanation | OK |
-| 9 | recognize |  |  |  |  |  |  |  | OK |
-| 10 | hanzi_build | Monte o hànzì de sol. | 日 |  |  |  | 日 | explanation | OK |
-| 11 | image_choice | Ouça e escolha a imagem certa. | 山 | shān | montanha |  |  | explanation | OK |
-| 12 | hanzi_build | Encaixe os traços da montanha. | 山 |  |  |  | 山 | explanation | OK |
-| 13 | match_pairs | Feche o mapa |  |  |  |  |  | explanation | OK |
+| 1 | intro | Formas da natureza |  |  |  |  |  |  | OK |
+| 2 | listen |  | 月 | yuè | lua / mês | 月 |  |  | OK |
+| 3 | intro | Note 月 |  |  |  |  |  |  | OK |
+| 4 | hanzi_build | Monte o hànzì de lua e mês. | 月 |  | lua / mês |  | 月 |  | OK |
+| 5 | listen |  | 山 | shān | montanha | 山 |  |  | OK |
+| 6 | intro | Note 山 |  |  |  |  |  |  | OK |
+| 7 | hanzi_build | Monte os três picos da montanha. | 山 |  | montanha |  | 山 |  | OK |
+| 8 | match_pairs | Ligue cada forma ao sentido já apresentado. |  |  |  |  |  |  | OK |
 
 ### Sessão 20 — Montando primeiros hànzì · M4/4
 
 - topic: `p1-primeiros-hanzi`
 - pass: 4
 - estimated time: ~6 min
-- source: journey.steps (referência; planner pode variar)
+- source: foundationAuthoredPlan
 
 | step | kind | instruction | hanzi | pinyin | meaning | audioText | correctAnswer | scaffold | flag |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | intro | Monte peça por peça |  |  |  |  |  |  | OK |
-| 2 | listen |  | 木 | mù | árvore — o hànzì que você vai montar | 木 |  |  | OK |
-| 3 | image_choice | O que você vê na foto? | 木 | mù | árvore |  |  | explanation | OK |
-| 4 | hanzi_build | Encaixe os traços da árvore. | 木 |  |  |  | 木 | explanation | OK |
-| 5 | image_choice | Qual hànzì significa pessoa? | 人 | rén | pessoa |  | 人 | explanation | OK |
-| 6 | hanzi_build | Monte o hànzì de pessoa. | 人 |  |  |  | 人 | explanation | OK |
-| 7 | recognize |  |  |  |  |  |  |  | OK |
-| 8 | hanzi_build | Monte o hànzì de boca. | 口 |  |  |  | 口 | explanation | OK |
-| 9 | recognize |  |  |  |  |  |  |  | OK |
-| 10 | hanzi_build | Monte o hànzì de sol. | 日 |  |  |  | 日 | explanation | OK |
-| 11 | image_choice | Ouça e escolha a imagem certa. | 山 | shān | montanha |  |  | explanation | OK |
-| 12 | hanzi_build | Encaixe os traços da montanha. | 山 |  |  |  | 山 | explanation | OK |
-| 13 | match_pairs | Feche o mapa |  |  |  |  |  | explanation | OK |
+| 1 | intro | Transfira a lógica visual |  |  |  |  |  |  | OK |
+| 2 | listen |  | 水 | shuǐ | água | 水 |  |  | OK |
+| 3 | intro | Note 水 |  |  |  |  |  |  | OK |
+| 4 | hanzi_build | Monte o hànzì de água. | 水 |  | água |  | 水 |  | OK |
+| 5 | listen |  | 火 | huǒ | fogo | 火 |  |  | OK |
+| 6 | intro | Note 火 |  |  |  |  |  |  | OK |
+| 7 | hanzi_build | Monte o hànzì de fogo. | 火 |  | fogo |  | 火 |  | OK |
+| 8 | listen |  | 大 | dà | grande | 大 |  |  | OK |
+| 9 | intro | Note 大 |  |  |  |  |  |  | OK |
+| 10 | hanzi_build | Abra os braços da forma grande. | 大 |  | grande |  | 大 |  | OK |
+| 11 | listen |  | 小 | xiǎo | pequeno | 小 |  |  | OK |
+| 12 | intro | Note 小 |  |  |  |  |  |  | OK |
+| 13 | hanzi_build | Monte a forma pequena. | 小 |  | pequeno |  | 小 |  | OK |
+| 14 | match_pairs | Ligue apenas as formas ensinadas nesta sessão. |  |  |  |  |  |  | OK |
 
 ## Classificação automática (não é correção)
 
@@ -380,4 +369,4 @@ Nenhum P0_CANDIDATE estrutural nas 20 sessões (faltando resposta, opções repe
 
 P1/P2 (instrução ambígua, copy, visual) exigem humano. Não promover V5 pedagógica daqui.
 
-<!-- integridade:18825a21f0384e60 -->
+<!-- integridade:f7b7466ed1c4dc81 -->

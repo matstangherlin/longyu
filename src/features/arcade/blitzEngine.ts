@@ -23,6 +23,18 @@ export interface BlitzQuestion {
   track: Track;
 }
 
+export interface BlitzSessionConfig {
+  timeLimitSeconds: number;
+  /** null keeps the standalone time-only modality. */
+  maxQuestions: number | null;
+}
+
+export type BlitzTerminationReason = "TIME_LIMIT_REACHED" | "MAX_QUESTIONS_REACHED";
+
+export function reachedBlitzQuestionLimit(answered: number, config: BlitzSessionConfig): boolean {
+  return config.maxQuestions != null && answered >= config.maxQuestions;
+}
+
 function unique(values: (string | undefined)[]): string[] {
   return [...new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))];
 }

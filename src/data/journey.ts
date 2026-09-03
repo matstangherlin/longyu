@@ -20,6 +20,7 @@ import {
 } from "./visualVocabulary";
 import { inferCurriculumRole, type CurriculumRole } from "./curriculumRole";
 import type { CommunicativeGoal, PatternSlot, RepairDirection, RepairStrategy } from "./productionTasks";
+import type { PedagogicalStepEvidence } from "./pedagogicalSpine";
 import {
   currentJourneyLessonId,
   isJourneyTopicComplete,
@@ -126,6 +127,8 @@ export type PedagogyVariant =
 
 export interface LessonStep {
   kind: StepKind;
+  /** V4.9 — evidence used by the teach-before-test auditor. It never changes grading identity. */
+  pedagogicalEvidence?: PedagogicalStepEvidence;
   objective?: string;
   exercises?: StepKind[];
   reusesPreviousVocabulary?: string[];
