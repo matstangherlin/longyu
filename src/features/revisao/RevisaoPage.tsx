@@ -809,8 +809,8 @@ function MatchPairsExercise({
   return (
     <div className="mt-5">
       <KeyboardShortcutHint pairs />
-    <div className="mt-3 grid gap-4 md:grid-cols-[1fr_1fr]">
-      <div className="space-y-2">
+    <div data-review-match-pairs-board className="mt-3 grid grid-cols-2 items-start gap-2 rounded-2xl border border-line/70 bg-surface-2/60 p-2 sm:gap-4 sm:p-3">
+      <div data-pair-column="left" className="min-w-0 space-y-2">
         {pairs.map((pair, index) => {
           const matched = matches[pair.id];
           const good = revealed && matched === pair.right;
@@ -822,7 +822,7 @@ function MatchPairsExercise({
               disabled={revealed}
               onClick={() => onSetActivePair(pair.id)}
               className={[
-                "relative w-full rounded-xl border px-3 py-3 text-left transition",
+                "relative w-full min-w-0 overflow-hidden rounded-xl border px-2 py-3 text-center transition sm:px-3 sm:text-left",
                 activePairId === pair.id ? "border-accent bg-accent-soft" : "border-line bg-surface",
                 good ? "border-good bg-[rgb(var(--good)/0.12)]" : "",
                 bad ? "border-danger bg-[rgb(var(--danger)/0.10)]" : "",
@@ -837,14 +837,14 @@ function MatchPairsExercise({
           );
         })}
       </div>
-      <div className="flex flex-col gap-2">
+      <div data-pair-column="right" className="flex min-w-0 flex-col gap-2">
         {rightOptions.map((right, index) => (
           <button
             key={right}
             type="button"
             disabled={revealed || !activePairId}
             onClick={() => onMatchPair(right)}
-            className="relative min-h-11 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:border-accent hover:bg-accent-soft disabled:opacity-55"
+            className="relative min-h-11 min-w-0 overflow-hidden rounded-xl border border-line bg-surface px-2 py-2 text-sm font-semibold text-ink transition hover:border-accent hover:bg-accent-soft disabled:opacity-55 sm:px-3"
           >
             <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
             {right}
