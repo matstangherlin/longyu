@@ -94,8 +94,8 @@ test.describe("lição", () => {
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    // A lição abre com a introdução conceitual: 木/口/日 aparecem como texto.
-    await expect(page.getByRole("heading", { name: /Monte peça por peça/ })).toBeVisible({
+    // A lição abre com orientação explícita antes de cobrar a montagem de 木.
+    await expect(page.getByRole("heading", { name: /Peças visuais, não desenhos aleatórios|Monte peça por peça/ })).toBeVisible({
       timeout: 20_000,
     });
     await expect(page.getByText(/木/).first()).toBeVisible();

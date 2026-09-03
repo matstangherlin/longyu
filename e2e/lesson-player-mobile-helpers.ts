@@ -344,13 +344,13 @@ export async function assertVictoryWithoutPageScroll(page: Page) {
   expect(geometry.ok, JSON.stringify(geometry)).toBe(true);
 }
 
-/** Avança até o passo listen_select da lição p1 (你好 / 谢谢 / 再见). */
+/** Avança até a primeira prática avaliada, depois do scaffold multimodal de 你好. */
 export async function openListenSelectStep(page: Page) {
   await openPlayer(page);
   const hasChoices = async () => {
-    const nihao = page.getByRole("button", { name: /你好/ }).first();
-    const xiexie = page.getByRole("button", { name: /谢谢/ }).first();
-    return (await nihao.isVisible().catch(() => false)) && (await xiexie.isVisible().catch(() => false));
+    const correct = page.getByRole("button", { name: /Opção \d+: Olá|^Olá$/ }).first();
+    const controlledDistractor = page.getByRole("button", { name: /Opção \d+: um número|^um número$/ }).first();
+    return (await correct.isVisible().catch(() => false)) && (await controlledDistractor.isVisible().catch(() => false));
   };
   for (let i = 0; i < 12; i += 1) {
     if (await hasChoices()) return;
@@ -363,15 +363,14 @@ export async function openListenSelectStep(page: Page) {
     ]);
     await page.waitForTimeout(180);
   }
-  await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByRole("button", { name: /谢谢/ }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Opção \d+: Olá|^Olá$/ }).first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("button", { name: /Opção \d+: um número|^um número$/ }).first()).toBeVisible();
 }
 
-/** Completa listen_select e abre o próximo passo avaliado (pinyin / comp). */
+/** Completa a primeira prática guiada e abre o próximo passo avaliado. */
 export async function openPostListenGradedStep(page: Page) {
   await openListenSelectStep(page);
-  // Tile da opção (hanzi) — com helpMode=disabled o token não abre sheet por cima do CTA.
-  await page.getByRole("button", { name: /你好/ }).first().click();
+  await page.getByRole("button", { name: /Opção \d+: Olá|^Olá$/ }).first().click();
   await page.keyboard.press("Escape").catch(() => undefined);
   const verify = page.getByRole("button", { name: /^Verificar$|^Confirmar$|^Conferir$/ }).first();
   await expect(verify).toBeEnabled({ timeout: 5_000 });

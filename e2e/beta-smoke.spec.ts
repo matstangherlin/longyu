@@ -174,6 +174,7 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
       /^Responder$/,
       /^Concluir$/,
       /^Ouvir de novo$/,
+      /^Não posso falar agora$/,
       /^Pular/,
     ]);
     if (!advanced) {
@@ -295,12 +296,15 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: /Monte peça por peça/ })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /Peças visuais, não desenhos aleatórios|Monte peça por peça/ })).toBeVisible({
       timeout: 20_000,
     });
-    const builderCue = page.getByText(/toque nas peças|Monte |peça por peça|componentes/i).first();
-    const found = await advanceUntilVisible(page, builderCue, 10);
-    expect(found).toBeTruthy();
+    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await expect(page.getByRole("button", { name: /^Não posso falar agora$/ })).toBeVisible();
+    await page.getByRole("button", { name: /^Não posso falar agora$/ }).click();
+    await expect(page.getByRole("heading", { name: /Note a forma de 木/ })).toBeVisible();
+    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await expect(page.locator("[data-hanzi-builder]")).toBeVisible();
   });
 
   test("imagem real: foto de conceito visual carrega no player", async ({ page }) => {
