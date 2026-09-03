@@ -1878,6 +1878,9 @@ export function LessonPlayer() {
   const attemptStartedAtRef = useRef<number>(Date.now());
   const recordedMistakeStepRef = useRef<number | null>(null);
   const recordedPairMistakesRef = useRef<Set<string>>(new Set());
+  // Segunda barreira de idempotência no shell: mesmo que um exercício legado
+  // dispare dois callbacks no mesmo frame, um passo só pode avançar uma vez.
+  const completedStepKeyRef = useRef<string | null>(null);
   // Garante que a recuperação da tentativa rode uma única vez (sem duplicar
   // conclusão, XP/Qi, missão ou baú).
   const recoveryAppliedRef = useRef(false);
@@ -2971,6 +2974,9 @@ export function LessonPlayer() {
   }
 
   function handleDone(wasCorrect?: boolean, meta?: { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number }) {
+    const completionKey = `${lesson.id}:${planNonce}:${idx}:${stepAttempt}`;
+    if (completedStepKeyRef.current === completionKey) return;
+    completedStepKeyRef.current = completionKey;
     let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
     const currentStepIsGraded = isGradedStep(currentStep);
@@ -4562,6 +4568,7 @@ export function LessonPlayer() {
         data-lesson-step-frame
         data-lesson-task-body
         data-current-step-kind={step.kind}
+        data-current-step-index={idx}
         className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
         <StepRenderer

@@ -4985,7 +4985,29 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
   return text;
 }
 
-export function StepRenderer({ step, onDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
+export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
+  // A função do LessonPlayer muda de identidade sempre que o shell atualiza
+  // (rede, áudio, streak, viewport etc.). Alguns exercícios concluem depois
+  // de uma animação/timer; repassar essa identidade volátil pode cancelar o
+  // avanço que já estava armado. O wrapper permanece estável durante toda a
+  // montagem do passo e sempre chama a implementação mais recente do player.
+  // O latch também torna a conclusão idempotente contra toque duplo, Enter +
+  // toque e callbacks atrasados concorrentes.
+  const parentOnDoneRef = useRef(parentOnDone);
+  parentOnDoneRef.current = parentOnDone;
+  const completionSentRef = useRef(false);
+  const onDone = useCallback<StepProps["onDone"]>((correct, meta) => {
+    if (completionSentRef.current) return;
+    completionSentRef.current = true;
+    try {
+      parentOnDoneRef.current(correct, meta);
+    } catch (error) {
+      // Se o handler falhar sincronicamente, não transforme o passo em um
+      // beco sem saída: permita que o usuário tente avançar novamente.
+      completionSentRef.current = false;
+      throw error;
+    }
+  }, []);
   const name = useStudentFirstName();
   const { instructionLocale } = useTranslation();
   const runtimeStep = useMemo(() => materializeRuntimeStep(step), [step]);

@@ -26,12 +26,15 @@ assert(!/Escute primeiro, compare com as curvas/.test(steps), "instrução longa
 assert(!/Estou travado · mostrar pinyin/.test(steps), "dica de tom enxuta");
 assert(!/>\s*Conferir\s*</.test(steps), "Conferir → Verificar");
 assert(/player\.unrecognizedLead/.test(steps) || /Não entendi essa forma — não contou como erro/.test(steps), "unrecognized curto");
+assert(/parentOnDoneRef/.test(steps), "callback de conclusão permanece estável durante rerenders");
+assert(/completionSentRef/.test(steps), "conclusão de cada tarefa é enviada uma única vez");
 assert(/Monte · com intrusos/.test(steps), "eyebrow Sentence Lab em PT");
 assert(/player\.listeningTapStop/.test(steps) || /Ouvindo… toque para parar/.test(steps), "mic com stop");
 assert(/not-allowed/.test(steps) && !/speechErrorMessage\(permission === "denied" \? "denied"/.test(steps), "mic denied mapeado");
 
 assert(!/Você errou \${count}/.test(player) && !/Você errou \$\{count\}/.test(player), "oferta sem 'Você errou'");
 assert(/REVIEW_OFFER/.test(player) || /Começar revisão/.test(player), "CTA Começar revisão (REVIEW_OFFER)");
+assert(/completedStepKeyRef/.test(player), "shell rejeita conclusão duplicada do mesmo passo");
 assert(!/Próximo erro/.test(player), "sem Próximo erro");
 assert(!/Continuar e perder perfeição/.test(player.replace(/\/\/.*/g, "")), "CTA Continuar sem culpa");
 assert(/Avançar sem refazer gasta 1 vida/.test(player) || /player\.advanceCostsLife/.test(player), "footnote curta");
