@@ -1814,8 +1814,13 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
   const [hintPairId, setHintPairId] = useState<string | null>(null);
   const [errors, setErrors] = useState(0);
   const completedRef = useRef(false);
+  const onDoneRef = useRef(onDone);
   const complete = pairs.length > 0 && pairs.every((pair) => matches[pair.id]);
   const mistakesAllowed = Math.max(1, Math.floor(pairs.length / 2));
+
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
 
   function pickLeft(id: string) {
     if (matches[id] || complete) return;
@@ -1865,9 +1870,12 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
     if (!complete || completedRef.current) return;
     completedRef.current = true;
     const passed = errors === 0;
-    const timer = window.setTimeout(() => onDone(passed), 520);
+    // `onDone` recebe uma identidade nova quando o player renderiza. Manter a
+    // callback num ref impede que uma renderização durante estes 520 ms
+    // cancele o timer e deixe o exercício completo preso para sempre.
+    const timer = window.setTimeout(() => onDoneRef.current(passed), 520);
     return () => window.clearTimeout(timer);
-  }, [complete, errors, onDone]);
+  }, [complete, errors]);
 
   useExerciseHotkeys({
     enabled: !complete,
@@ -1909,9 +1917,14 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
       </div>
       <KeyboardShortcutHint pairs />
 
-      {/* Empilhado em telas muito estreitas; colunas lado a lado a partir de 480px. */}
-      <div className="mt-3.5 grid grid-cols-1 gap-2 min-[480px]:grid-cols-[1fr_auto_1fr] sm:gap-3">
-        <div className="grid gap-2">
+      {/* Duas colunas também no celular: empilhar primeiro todo o lado esquerdo
+          e depois todo o direito dobrava a altura e deixava o último par sob a
+          região de ação. O conector aparece só quando há largura para ele. */}
+      <div
+        data-match-pairs-board
+        className="mt-3.5 grid grid-cols-2 items-start gap-2 rounded-2xl border border-line/70 bg-surface-2/60 p-2 min-[480px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3 sm:p-3"
+      >
+        <div data-pair-column="left" className="grid min-w-0 content-start gap-2">
           {pairs.map((pair, index) => {
             const matched = matches[pair.id];
             const wrong = wrongPair?.leftId === pair.id;
@@ -1919,11 +1932,15 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
               <button
                 key={pair.id}
                 type="button"
+                data-pair-tile
+                data-pair-side="left"
+                data-pair-id={pair.id}
+                data-pair-matched={matched ? "true" : "false"}
                 onClick={() => pickLeft(pair.id)}
                 disabled={Boolean(matched) || complete}
                 aria-label={pair.leftType === "audio" && !matched ? "Tocar áudio e combinar" : undefined}
                 className={[
-                  "relative flex items-center justify-center",
+                  "relative flex w-full !min-w-0 items-center justify-center overflow-hidden",
                   engineTileClass({
                     active: selectedLeft === pair.id,
                     matched,
@@ -1935,7 +1952,9 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 ].join(" ")}
               >
                 <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
-                <span className="px-3">{renderPairSide(pair.left, pair.leftType, Boolean(matched))}</span>
+                <span className="min-w-0 overflow-hidden px-1.5 sm:px-3">
+                  {renderPairSide(pair.left, pair.leftType, Boolean(matched))}
+                </span>
                 {matched && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
               </button>
             );
@@ -1952,10 +1971,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
             />
           ))}
         </div>
-        <div className="py-1 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint min-[480px]:hidden">
-          escolha o par
-        </div>
-        <div className="grid gap-2">
+        <div data-pair-column="right" className="grid min-w-0 content-start gap-2">
           {rightItems.map((item, index) => {
             const matched = matches[item.id];
             const wrong = wrongPair?.rightId === item.id;
@@ -1963,11 +1979,15 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
               <button
                 key={item.id}
                 type="button"
+                data-pair-tile
+                data-pair-side="right"
+                data-pair-id={item.id}
+                data-pair-matched={matched ? "true" : "false"}
                 onClick={() => pickRight(item.id)}
                 disabled={Boolean(matched) || complete}
                 aria-label={item.type === "audio" && !matched ? "Tocar áudio e combinar" : undefined}
                 className={[
-                  "relative flex items-center justify-center",
+                  "relative flex w-full !min-w-0 items-center justify-center overflow-hidden",
                   engineTileClass({
                     matched,
                     wrong,
@@ -1978,7 +1998,9 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 ].join(" ")}
               >
                 <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
-                <span className="px-3">{renderPairSide(item.value, item.type, Boolean(matched))}</span>
+                <span className="min-w-0 overflow-hidden px-1.5 sm:px-3">
+                  {renderPairSide(item.value, item.type, Boolean(matched))}
+                </span>
                 {matched && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
               </button>
             );
