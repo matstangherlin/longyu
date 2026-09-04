@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   dismissBlockingOverlays,
   seedInstructionLocale,
+  seedCompletedJourneyNodes,
   seedTelemetryDeclined,
   seedUnlockedLessonSession,
   waitForLazyPage,
@@ -165,13 +166,18 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
 
   test("captures Pinyin, Hànzì, and conversation booster evidence from reused engines", async ({ page }) => {
     await mkdir(SHOTS, { recursive: true });
-    await seedUnlockedLessonSession(page, "p1-primeiros-hanzi", {
+    // Semear a lição seguinte: o Hànzì Builder exige `p1-primeiros-hanzi`
+    // concluída, e antes da V4.9.2 o deep link deixava passar sem isso.
+    await seedUnlockedLessonSession(page, "p1-engine-2-lab", {
       learnedChunks: ["nihao"],
       learnedChars: ["ni", "hao", "mu", "ren"],
       isPremium: true,
       serverIsPro: true,
       folego: 20,
     });
+    // A prática de Pinyin vem depois da cápsula — o deep link deixou de poder
+    // pular esse degrau, então o aluno do teste precisa tê-la concluído.
+    await seedCompletedJourneyNodes(page, ["node:capsule:pinyin-foundation:v1"]);
     await page.setViewportSize({ width: 1280, height: 720 });
 
     await page.goto("/pinyin?journeyNode=booster%3Apinyin-practice%3Av1");

@@ -283,6 +283,20 @@ export async function seedUnlockedLessonSession(
   }));
 }
 
+/**
+ * Marca nodes auxiliares como concluídos.
+ *
+ * A partir da V4.9.2 o pré-requisito de cápsula vale também para quem abre o
+ * engine por URL, então um teste que entra direto no booster de Pinyin precisa
+ * de um aluno que realmente fez a cápsula — e não do bypass que o deep link
+ * tinha antes. O armazenamento é local-only por contrato da V4.9.1.
+ */
+export async function seedCompletedJourneyNodes(page: Page, nodeIds: string[]) {
+  await page.addInitScript((ids: string[]) => {
+    localStorage.setItem("longyu:journey-node-completions:v1", JSON.stringify(ids));
+  }, nodeIds);
+}
+
 /** Conclui todas as lições fundamentais até (e incluindo) `throughLessonId`. */
 export async function seedFoundationThrough(page: Page, throughLessonId: string) {
   await seedTelemetryDeclined(page);
