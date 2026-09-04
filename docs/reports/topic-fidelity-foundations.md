@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 86f2d7fa171b |
-| HEAD no instante da geração | 813133b6f4a790583894a972bcf5ba6bed3e24c0 |
+| Hash da Jornada | 0ae72f37d693 |
+| HEAD no instante da geração | a5928e8814c3f4469e6ca2afcc07d0a5d3c1cdd4 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-03T08:55:29.867Z |
+| Gerado em | 2026-09-04T16:10:56.928Z |
 | Lições | 127 |
 
 
@@ -156,61 +156,65 @@ Promessa: Tom é o contorno da voz e faz parte da palavra em mandarim.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 5 | 100% | 0% | 0% | 4.1 | 1 |
+| 7 | 6 | 100% | 0% | 0% | 4.9 | 1 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | A curva faz parte da palavra |
 | 2 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
 | 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
-| 4 | listen_select | DIRECT_TOPIC | Reta ou vale? |
-| 5 | dialogue_choice | DIRECT_TOPIC | O que é um tom? |
-| 6 | dialogue_choice | DIRECT_TOPIC | Não é só um número |
+| 4 | listen_select | DIRECT_TOPIC | Qual ficou reto? |
+| 5 | listen_select | DIRECT_TOPIC | Agora encontre o vale |
+| 6 | dialogue_choice | DIRECT_TOPIC | O que é um tom? |
+| 7 | dialogue_choice | DIRECT_TOPIC | Não é só um número |
 
 ### M2 · Discriminar tons contrastantes (reta × vale) sem aula longa.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 5 | 100% | 0% | 0% | 4.1 | 1 |
+| 7 | 6 | 100% | 0% | 0% | 4.9 | 1 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
-| 1 | intro | PASSIVE | Ouça a diferença |
-| 2 | listen_select | DIRECT_TOPIC | Qual é o vale? |
-| 3 | listen_select | DIRECT_TOPIC | Qual é a reta? |
-| 4 | dialogue_choice | DIRECT_TOPIC | O que mudou? |
-| 5 | match_pairs | DIRECT_TOPIC | Curva e ideia |
-| 6 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 1 | intro | PASSIVE | Duas curvas novas |
+| 2 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 4 | listen_select | DIRECT_TOPIC | Qual curva sobe? |
+| 5 | listen_select | DIRECT_TOPIC | Qual curva cai? |
+| 6 | dialogue_choice | DIRECT_TOPIC | 1º × 2º |
+| 7 | dialogue_choice | DIRECT_TOPIC | 3º × 4º |
 
 ### M3 · Identificar o tom e começar a reproduzir o contorno.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 5 | 100% | 0% | 0% | 4.1 | 1 |
+| 7 | 5 | 100% | 0% | 0% | 4.5 | 1 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
-| 1 | intro | PASSIVE | Identifique o contorno |
+| 1 | intro | PASSIVE | Reconheça os quatro |
 | 2 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
-| 3 | dialogue_choice | DIRECT_TOPIC | Qual é o vale? |
-| 4 | dialogue_choice | DIRECT_TOPIC | Reproduzir |
-| 5 | listen_select | DIRECT_TOPIC | Identifique de ouvido |
-| 6 | contextual_choice | DIRECT_TOPIC | Na prática |
+| 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 4 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 5 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 6 | intro | PASSIVE | Mapa das marcas |
+| 7 | dialogue_choice | DIRECT_TOPIC | Marca e tom |
 
 ### M4 · Aplicar o tom em 你好, um chunk que você já usa.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 4 | 100% | 0% | 0% | 3.7 | 1 |
+| 7 | 5 | 100% | 0% | 0% | 4.5 | 1 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
-| 1 | intro | PASSIVE | O tom numa palavra real |
+| 1 | intro | PASSIVE | Tons em palavras reais |
 | 2 | listen_select | DIRECT_TOPIC | 你好 de ouvido |
-| 3 | dialogue_choice | DIRECT_TOPIC | O tom em 你好 |
-| 4 | contextual_choice | DIRECT_TOPIC | Na rua |
-| 5 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
-| 6 | reverse_recall | DIRECT_TOPIC | Diga com o contorno |
+| 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 4 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 5 | dialogue_choice | DIRECT_TOPIC | Produção com contorno |
+| 6 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
+| 7 | reverse_recall | DIRECT_TOPIC | Diga com o contorno |
 
 ## O que é hànzì?
 
@@ -278,4 +282,4 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:42e14abd9c6481de -->
+<!-- integridade:8aaee50f07edd68a -->

@@ -1,6 +1,7 @@
 import { CHARACTERS } from "./characters";
 import { CHUNKS } from "./chunks";
 import { ALL_LESSONS, type LessonStep } from "./journey";
+import { TONE_KNOWLEDGE, TONE_SYSTEM_TARGET_ID } from "./toneKnowledge";
 
 export type KnowledgeStage =
   | "UNSEEN"
@@ -66,7 +67,12 @@ export interface KnowledgeTarget {
 export const FOUNDATION_TARGET_IDS = {
   mandarin: "concept:mandarin-language",
   pinyin: "concept:pinyin-map",
-  tone: "concept:tone-contour",
+  tone: TONE_SYSTEM_TARGET_ID,
+  tone1: "concept:tone-1",
+  tone2: "concept:tone-2",
+  tone3: "concept:tone-3",
+  tone4: "concept:tone-4",
+  toneNeutral: "concept:tone-5",
   hanzi: "concept:hanzi-writing",
   components: "concept:hanzi-components",
   greetingIntent: "intent:greeting",
@@ -107,6 +113,20 @@ const explicitTargets: KnowledgeTarget[] = [
     recognitionReadiness: "GUIDED",
     productionReadiness: "PRODUCED",
   },
+  ...TONE_KNOWLEDGE.map((tone): KnowledgeTarget => ({
+    id: tone.id,
+    type: "TONE_CONCEPT",
+    hanzi: tone.canonicalExample.hanzi,
+    pinyin: tone.canonicalExample.pinyin,
+    meaning: {
+      "pt-BR": `${tone.number === 5 ? "tom neutro" : `${tone.number}º tom`}: ${tone.learnerDescriptionPt}`,
+      en: `${tone.number === 5 ? "neutral tone" : `tone ${tone.number}`}: ${tone.learnerDescriptionEn}`,
+    },
+    firstIntroducedLessonId: "p1-o-que-e-tom",
+    prerequisites: [FOUNDATION_TARGET_IDS.tone],
+    recognitionReadiness: tone.number === 5 ? "EXPOSED" : "NOTICED",
+    productionReadiness: tone.number === 5 ? "RECOGNIZED" : "GUIDED",
+  })),
   {
     id: FOUNDATION_TARGET_IDS.hanzi,
     type: "HANZI_CONCEPT",

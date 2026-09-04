@@ -51,7 +51,7 @@ const PINYIN_DIRECT =
 const MANDARIN_DIRECT =
   /língua falada|mandarim|variedade padrão|camada|pinyin \(som|hànzì \(escrita|não é a língua|fala ≠|falado/;
 const TONE_DIRECT =
-  /contorno|vale|reta|tom da voz|tons das sílabas|3º tom|1º tom|mā|mǎ|curva da voz|fenômeno/;
+  /contorno|vale|reta|sobe|cai|tom da voz|tons? das sílabas|[1-4]º tom|mā|má|mǎ|mà|curva da voz|fenômeno|mapa das marcas|marca e tom|ˉ|´|ˇ|`/;
 const HANZI_DIRECT =
   /hànzì|caractere|peça escrita|peças de 你好|sistema de escrita|forma escrita|componentes|não necessariamente — juntos/;
 
@@ -97,7 +97,7 @@ function classifyMandarin(step: LessonStep, pass: MasteryPass, blob: string): To
 
 function classifyTone(step: LessonStep, _pass: MasteryPass, blob: string): TopicRelation {
   if (TONE_DIRECT.test(blob) || step.kind === "tone" || step.kind === "tone_pair") return "DIRECT_TOPIC";
-  if (step.kind === "listen_select" && (step.correctAnswer === "妈" || step.correctAnswer === "马")) return "DIRECT_TOPIC";
+  if (step.kind === "listen_select" && ["妈", "麻", "马", "骂"].includes(step.correctAnswer ?? "")) return "DIRECT_TOPIC";
   if (step.kind === "listen_select" && step.audioText === "你好") return "DIRECT_TOPIC";
   if (step.kind === "listen" && step.text === "你好") return "SUPPORTING_TOPIC";
   if (step.kind === "reverse_recall" && step.answer === "你好") return "SUPPORTING_TOPIC";

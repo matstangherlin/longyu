@@ -2,8 +2,8 @@
 /**
  * validate:tone-progression (PED-005)
  *
- * Impede regressão da escada de tons em `p1-o-que-e-tom`:
- *   2 tons contrastantes → 4 contornos → pinyin/palavra → mistura
+ * Impede regressão da escada autoral M1–M4 de `p1-o-que-e-tom`:
+ *   1º/3º guiados → 2º/4º guiados → 4 contornos avaliados → produção
  *
  * Falha se um exercício complexo (4 opções + quiz/mistura) aparecer
  * antes dos degraus iniciais com `toneChoices` de tamanho 2.
@@ -25,7 +25,14 @@ const warnings = [];
 
 try {
   const program = ts.createProgram(
-    ["src/data/journey.ts", "src/data/characters.ts", "src/data/chunks.ts", "src/data/types.ts", "src/data/visualVocabulary.ts"],
+    [
+      "src/data/journey.ts",
+      "src/data/foundationTopicPlans.ts",
+      "src/data/characters.ts",
+      "src/data/chunks.ts",
+      "src/data/types.ts",
+      "src/data/visualVocabulary.ts",
+    ],
     {
       target: ts.ScriptTarget.ES2020,
       module: ts.ModuleKind.CommonJS,
@@ -45,11 +52,18 @@ try {
   }
 
   const { ALL_LESSONS } = require(path.join(outDir, "src/data/journey.js"));
+  const { foundationAuthoredPlanFor } = require(path.join(outDir, "src/data/foundationTopicPlans.js"));
   const lesson = ALL_LESSONS.find((item) => item.id === TONE_LESSON_ID);
   if (!lesson) {
     errors.push(`lição ${TONE_LESSON_ID} não encontrada`);
   } else {
-    const steps = lesson.steps ?? [];
+    // The runtime uses the authored mastery plans for this foundation topic.
+    // Auditing `lesson.steps` here would inspect only the historical fallback
+    // and produce a false warning even when M3/M4 contain the real quizzes.
+    const authoredSteps = [1, 2, 3, 4].flatMap((pass) =>
+      foundationAuthoredPlanFor(TONE_LESSON_ID, pass) ?? []
+    );
+    const steps = authoredSteps.length ? authoredSteps : lesson.steps ?? [];
     const toneSteps = steps
       .map((step, index) => ({ step, index }))
       .filter(({ step }) => step.kind === "tone");

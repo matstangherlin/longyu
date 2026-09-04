@@ -26,6 +26,7 @@ import { localizeUserMessage } from "../../i18n/errors";
 import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
+import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
 import {
   appendPendingAnswer,
   assessmentTier,
@@ -351,6 +352,7 @@ export function ComecarPage() {
             index={Math.max(0, askedIds.indexOf(question.id))}
             total={Math.max(askedIds.length, 1)}
             question={question}
+            sessionSeed={String(pending?.startedAt ?? 0)}
             declaredLevel={experience}
             picked={picked}
             onPick={setPicked}
@@ -536,6 +538,7 @@ function QuizCard({
   index,
   total: _total,
   question,
+  sessionSeed,
   declaredLevel,
   picked,
   onPick,
@@ -545,6 +548,7 @@ function QuizCard({
   index: number;
   total: number;
   question: QuizQuestion;
+  sessionSeed: string;
   declaredLevel: Experience;
   picked?: string;
   onPick: (answer: string) => void;
@@ -555,6 +559,10 @@ function QuizCard({
   const difficulty = quizDifficulty(question, declaredLevel);
   const allowHints = question.hasHint === true;
   const [hintOpen, setHintOpen] = useState(false);
+  const displayOptions = useMemo(
+    () => stableOptionPermutation(question.options, sessionSeed, question.id),
+    [question.id, question.options, sessionSeed]
+  );
   const glossKey = question.stimulus ? placementGlossKey(question.stimulus) : question.audioText ? placementGlossKey(question.audioText) : null;
 
   useEffect(() => {
@@ -564,10 +572,10 @@ function QuizCard({
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
-    optionCount: question.options.length,
+    optionCount: displayOptions.length,
     hasSelection: Boolean(picked),
     onSelectOption: (optionIndex) => {
-      const option = question.options[optionIndex];
+      const option = displayOptions[optionIndex];
       if (option) onPick(option);
     },
     onSubmit,
@@ -618,7 +626,7 @@ function QuizCard({
         </p>
         <p className="mt-2 hidden text-[11px] font-medium text-ink-faint sm:block">{t("onboarding.shortcutHint")}</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {question.options.map((option, optionIndex) => {
+          {displayOptions.map((option, optionIndex) => {
             const active = picked === option;
             const shortcut = shortcutKeyForIndex(optionIndex);
             return (

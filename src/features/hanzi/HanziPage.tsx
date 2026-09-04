@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CHARACTERS, DECOMPOSABLE } from "../../data/characters";
 import { hanziLessonFor } from "../../data/hanziPedagogy";
 import { RADICALS } from "../../data/radicals";
@@ -27,9 +27,15 @@ import { SpeakButton } from "../../components/ui/SpeakButton";
 import { IconCheck, IconHanzi, IconLibrary, IconX } from "../../components/ui/Icon";
 import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { HANZI_BUILDER_NODE, getJourneyNode } from "../../data/journeyOrchestrator";
+import { completeJourneyNode } from "../../lib/journeyNodeProgress";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function HanziPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { instructionLocale } = useTranslation();
+  const journeyNode = getJourneyNode(searchParams.get("journeyNode"));
   const requestedCharId = searchParams.get("char");
   const [selected, setSelected] = useState(() => CHARACTERS.find((char) => char.id === requestedCharId) ?? DECOMPOSABLE[0]);
   const [paywallOpen, setPaywallOpen] = useState(false);
@@ -42,6 +48,40 @@ export function HanziPage() {
     const next = CHARACTERS.find((char) => char.id === requestedCharId);
     if (next) setSelected(next);
   }, [requestedCharId]);
+
+  if (journeyNode?.id === HANZI_BUILDER_NODE.id) {
+    const allowedCharacterIds = (journeyNode.allowedKnowledgeTargetIds ?? [])
+      .filter((id) => id.startsWith("char:"))
+      .map((id) => id.slice(5));
+    const copy = instructionLocale === "en"
+      ? {
+          eyebrow: "Journey booster · Hànzì",
+          title: "Build familiar characters",
+          desc: "You have already seen 木 and 人. Build only those characters here, with less support.",
+          back: "Back to Journey",
+        }
+      : {
+          eyebrow: "Reforço da Jornada · Hànzì",
+          title: "Monte caracteres conhecidos",
+          desc: "Você já viu 木 e 人. Monte somente esses caracteres aqui, com menos apoio.",
+          back: "Voltar à Jornada",
+        };
+    return (
+      <EngineGate track="hanzi">
+        <div className="space-y-5" data-testid="journey-hanzi-booster">
+          <SectionTitle eyebrow={copy.eyebrow} title={copy.title} desc={copy.desc} />
+          <HanziBuildTrainer
+            allowedCharacterIds={allowedCharacterIds}
+            returnLabel={copy.back}
+            onJourneyComplete={() => {
+              completeJourneyNode(journeyNode.id);
+              navigate("/jornada");
+            }}
+          />
+        </div>
+      </EngineGate>
+    );
+  }
 
   return (
     <EngineGate track="hanzi">
@@ -281,7 +321,15 @@ const BUILD_MODES: { id: string; label: string; desc: string; builders: HanziBui
 
 // Treino de montagem de hànzì: escolhe um modo e passa pelos exercícios daquele
 // modo, gradando forma no SRS a cada acerto/erro.
-function HanziBuildTrainer() {
+function HanziBuildTrainer({
+  allowedCharacterIds,
+  onJourneyComplete,
+  returnLabel,
+}: {
+  allowedCharacterIds?: string[];
+  onJourneyComplete?: () => void;
+  returnLabel?: string;
+} = {}) {
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
   const addMinutes = useStore((s) => s.addMinutes);
@@ -309,7 +357,18 @@ function HanziBuildTrainer() {
     return set;
   }, [builderProgress, learnedCharIds]);
 
-  const mode = BUILD_MODES.find((m) => m.id === modeId) ?? null;
+  const allowedGlyphs = useMemo(() => {
+    if (!allowedCharacterIds?.length) return null;
+    const ids = new Set(allowedCharacterIds);
+    return new Set(CHARACTERS.filter((character) => ids.has(character.id)).map((character) => character.hanzi));
+  }, [allowedCharacterIds]);
+  const visibleModes = useMemo(() => BUILD_MODES
+    .map((candidate) => ({
+      ...candidate,
+      builders: allowedGlyphs ? candidate.builders.filter((builder) => allowedGlyphs.has(builder.character)) : candidate.builders,
+    }))
+    .filter((candidate) => candidate.builders.length > 0), [allowedGlyphs]);
+  const mode = visibleModes.find((m) => m.id === modeId) ?? null;
   // Sem pular bases também no treino livre: composição (你, 明, 林…) só entra
   // depois de o aluno ter visto as bases (人, 日+月, 木…). Se o filtro esvaziar
   // o modo (conta nova explorando o lab), mantém a lista completa — o exercício
@@ -317,8 +376,8 @@ function HanziBuildTrainer() {
   const builders = useMemo(() => {
     const all = mode?.builders ?? [];
     const gated = all.filter((builder) => builderPrerequisitesMet(builder, seenGlyphs));
-    return gated.length > 0 ? gated : all;
-  }, [mode, seenGlyphs]);
+    return gated.length > 0 || allowedGlyphs ? gated : all;
+  }, [allowedGlyphs, mode, seenGlyphs]);
   const current = builders[index];
   const isLast = index + 1 >= builders.length;
 
@@ -365,6 +424,7 @@ function HanziBuildTrainer() {
       addXp(6, leagueXpKeyActivity("hanzi", `${todayKey()}:practice`));
       addMinutes("hanzi", 4);
       playSoundFx("streak", soundEffects);
+      onJourneyComplete?.();
       return;
     }
     setCorrect(next);
@@ -386,6 +446,9 @@ function HanziBuildTrainer() {
             <Button variant="outline" onClick={() => start(mode.id)}>
               Repetir modo
             </Button>
+          )}
+          {onJourneyComplete && (
+            <Button variant="outline" onClick={onJourneyComplete}>{returnLabel ?? "Voltar à Jornada"}</Button>
           )}
         </div>
         <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
@@ -427,7 +490,7 @@ function HanziBuildTrainer() {
         Memorize a forma montando caracteres como um quebra-cabeça visual.
       </p>
       <div className="grid gap-3 sm:grid-cols-3">
-        {BUILD_MODES.map((option) => (
+        {visibleModes.map((option) => (
           <Card key={option.id} className="flex flex-col p-4">
             <div className="text-sm font-semibold text-ink">{option.label}</div>
             <p className="mt-1 flex-1 text-xs leading-5 text-ink-soft">{option.desc}</p>

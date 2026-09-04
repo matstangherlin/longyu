@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { TONE_SYLLABLES, TONE_COLOR, TONE_NAMES } from "../../data/tones";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
@@ -38,6 +39,10 @@ import {
 import { PinyinReference } from "./PinyinReference";
 import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall } from "../../components/pro/ProPaywall";
+import { ToneContour } from "../../components/tone/ToneContour";
+import { getJourneyNode, type JourneyNode } from "../../data/journeyOrchestrator";
+import { completeJourneyNode } from "../../lib/journeyNodeProgress";
+import { useTranslation } from "../../i18n/useTranslation";
 
 type ToneN = MandarinTone;
 
@@ -51,6 +56,9 @@ interface ToneTrainerAnswer {
 }
 
 export function SomPage() {
+  const { instructionLocale } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const journeyNode = getJourneyNode(searchParams.get("journeyNode"));
   const [syllableIdx, setSyllableIdx] = useState(0);
   const syllable = TONE_SYLLABLES[syllableIdx];
 
@@ -58,12 +66,14 @@ export function SomPage() {
     <EngineGate track="som">
       <div className="space-y-8">
         <SectionTitle
-          eyebrow="Competencia - Som"
-          title="Treino de tons"
-          desc="Ouça, compare, erre, repita e só marque domínio quando a nota mínima aparecer."
+          eyebrow={instructionLocale === "en" ? "Skill · Sound" : "Competência · Som"}
+          title={journeyNode ? (instructionLocale === "en" ? "Journey Tone Trainer" : "Tone Trainer da Jornada") : instructionLocale === "en" ? "Tone training" : "Treino de tons"}
+          desc={journeyNode
+            ? instructionLocale === "en" ? "Only contours already taught in the Journey appear here." : "Aqui aparecem somente contornos já ensinados na Jornada."
+            : instructionLocale === "en" ? "Listen, compare, retry, and consolidate each contour." : "Ouça, compare, erre, repita e consolide cada contorno."}
         />
 
-        <section>
+        {!journeyNode && <section>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-ink-soft">Sílaba:</span>
             {TONE_SYLLABLES.map((s, i) => (
@@ -85,7 +95,7 @@ export function SomPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {syllable.forms.map((f) => (
               <Card key={f.tone} className="p-4 text-center">
-                <ToneCurve tone={f.tone as ToneN} />
+                <ToneContour tone={f.tone as ToneN} mode="MID" locale={instructionLocale} />
                 <GlossText text={f.hanzi} className="mt-2 text-4xl text-ink" />
                 <div
                   className="mt-1 font-serif text-xl"
@@ -103,9 +113,9 @@ export function SomPage() {
               </Card>
             ))}
           </div>
-        </section>
+        </section>}
 
-        <ToneTrainer />
+        <ToneTrainer journeyNode={journeyNode?.type === "TONE_TRAINER" ? journeyNode : undefined} />
 
         <PinyinReference />
       </div>
@@ -113,35 +123,9 @@ export function SomPage() {
   );
 }
 
-function ToneCurve({ tone }: { tone: ToneN }) {
-  if (tone === 5) {
-    return (
-      <div className="mx-auto h-7 w-16 rounded-full border border-line bg-surface-2 text-[10px] font-semibold leading-7 text-ink-faint">
-        leve
-      </div>
-    );
-  }
-  const paths: Record<ToneN, string> = {
-    1: "M4 8 H44",
-    2: "M4 20 L44 6",
-    3: "M4 10 C14 26, 26 26, 44 8",
-    4: "M4 6 L44 22",
-    5: "",
-  };
-  return (
-    <svg viewBox="0 0 48 28" className="mx-auto h-7 w-16" aria-hidden="true">
-      <path
-        d={paths[tone]}
-        fill="none"
-        stroke={TONE_COLOR[tone]}
-        strokeWidth={2.5}
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export function ToneTrainer() {
+export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {}) {
+  const navigate = useNavigate();
+  const { instructionLocale } = useTranslation();
   const toneTrainer = useStore((s) => s.toneTrainer);
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
@@ -153,7 +137,7 @@ export function ToneTrainer() {
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const soundEffects = useStore((s) => s.soundEffects);
 
-  const [selectedPackId, setSelectedPackId] = useState(TONE_TRAINER_PACKS[0].id);
+  const [selectedPackId, setSelectedPackId] = useState(journeyNode?.sourceId ?? TONE_TRAINER_PACKS[0].id);
   const [roundIndex, setRoundIndex] = useState(0);
   const [picked, setPicked] = useState<MandarinTone | string | null>(null);
   const [results, setResults] = useState<ToneTrainerAnswer[]>([]);
@@ -167,7 +151,31 @@ export function ToneTrainer() {
   const [energyPaywallOpen, setEnergyPaywallOpen] = useState(false);
   const [hasVoice, setHasVoice] = useState(true);
 
-  const pack = TONE_TRAINER_PACKS.find((item) => item.id === selectedPackId) ?? TONE_TRAINER_PACKS[0];
+  const sourcePack = TONE_TRAINER_PACKS.find((item) => item.id === selectedPackId) ?? TONE_TRAINER_PACKS[0];
+  const pack = useMemo(() => {
+    if (!journeyNode?.allowedTones?.length) return sourcePack;
+    const allowed = new Set(journeyNode.allowedTones);
+    const filtered = sourcePack.rounds.filter((round) => allowed.has(round.answerTone));
+    const requiredRounds = Math.max(1, Math.min(journeyNode.maxQuestions ?? filtered.length, filtered.length));
+    return {
+      ...sourcePack,
+      id: journeyNode.id,
+      title: instructionLocale === "en" ? "Journey Tone Trainer" : "Tone Trainer da Jornada",
+      shortTitle: journeyNode.mode === "CONTOUR_INTRO" ? "1 × 3" : "1–4",
+      focus: instructionLocale === "en"
+        ? journeyNode.mode === "CONTOUR_INTRO"
+          ? "Distinguish the level contour from the dip using only taught tones."
+          : "Recall tone numbers after all four contours have been taught."
+        : journeyNode.mode === "CONTOUR_INTRO"
+          ? "Diferencie a curva reta do vale usando apenas tons ensinados."
+          : "Recupere os números depois de aprender as quatro curvas.",
+      options: journeyNode.allowedTones,
+      rounds: filtered.slice(0, requiredRounds),
+      requiredRounds,
+      minimumCorrect: Math.max(1, Math.ceil(requiredRounds * 0.75)),
+      rewardQi: 0,
+    };
+  }, [instructionLocale, journeyNode, sourcePack]);
   const currentRound = pack.rounds[Math.min(roundIndex, pack.rounds.length - 1)];
   const stats = toneTrainer[pack.id];
   const score = results.filter((item) => item.correct).length;
@@ -324,6 +332,7 @@ export function ToneTrainer() {
     const finalScore = results.filter((item) => item.correct).length;
     const passedNow = finalScore >= pack.minimumCorrect;
     const firstCompletion = passedNow && !stats?.completed;
+    const grantsReward = firstCompletion && pack.rewardQi > 0;
     recordToneTrainerAttempt({
       packId: pack.id,
       totalRounds: pack.requiredRounds,
@@ -332,7 +341,7 @@ export function ToneTrainer() {
       errorsByTone: consonantPack ? emptyToneErrors() : errorsByTone,
     });
     addMinutes("som", passedNow ? 7 : 5);
-    if (firstCompletion) {
+    if (grantsReward) {
       addQi(pack.rewardQi, "tone_trainer");
       playSoundFx("qiGain", soundEffects);
     } else {
@@ -340,8 +349,9 @@ export function ToneTrainer() {
     }
     stopSpeaking();
     setPassed(passedNow);
-    setRewarded(firstCompletion);
+    setRewarded(grantsReward);
     setDone(true);
+    if (passedNow && journeyNode) completeJourneyNode(journeyNode.id);
   }
 
   if (done) {
@@ -407,15 +417,20 @@ export function ToneTrainer() {
               Refazer pack
               <IconRefresh width={18} height={18} />
             </Button>
-            {passed && nextPack && (
+            {!journeyNode && passed && nextPack && (
               <Button size="lg" variant="soft" onClick={() => resetSession(nextPack.id)}>
                 Próximo pack
                 <IconChevron width={18} height={18} />
               </Button>
             )}
+            {journeyNode?.returnToJourney && (
+              <Button size="lg" variant="outline" onClick={() => navigate("/jornada") }>
+                {instructionLocale === "en" ? "Back to Journey" : "Voltar à Jornada"}
+              </Button>
+            )}
           </div>
         </Card>
-        <TonePackList selectedPackId={pack.id} onSelect={resetSession} />
+        {!journeyNode && <TonePackList selectedPackId={pack.id} onSelect={resetSession} />}
         <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
       </section>
     );
@@ -534,6 +549,8 @@ export function ToneTrainer() {
                             ? "wrong"
                             : "idle"
                     }
+                    assessmentMode={journeyNode?.mode === "TONE_NUMBER" && !answered}
+                    locale={instructionLocale}
                     onClick={() => answer(tone)}
                   />
                 ))}
@@ -593,7 +610,7 @@ export function ToneTrainer() {
         </div>
       </Card>
 
-      <TonePackList selectedPackId={pack.id} onSelect={resetSession} />
+      {!journeyNode && <TonePackList selectedPackId={pack.id} onSelect={resetSession} />}
       <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
     </section>
   );
@@ -683,12 +700,16 @@ function ToneOptionButton({
   state,
   disabled = false,
   shortcut,
+  assessmentMode = false,
+  locale = "pt-BR",
   onClick,
 }: {
   tone: MandarinTone;
   state: "idle" | "right" | "wrong";
   disabled?: boolean;
   shortcut?: string;
+  assessmentMode?: boolean;
+  locale?: "pt-BR" | "en";
   onClick: () => void;
 }) {
   return (
@@ -713,7 +734,7 @@ function ToneOptionButton({
       >
         {toneMarkLabel(tone)}
       </span>
-      <ToneCurve tone={tone} />
+      <ToneContour tone={tone} mode={assessmentMode ? "ASSESSMENT" : "MID"} locale={locale} />
       <span className="text-sm font-semibold text-ink">{TONE_SHORT_LABEL[tone]}</span>
     </button>
   );
