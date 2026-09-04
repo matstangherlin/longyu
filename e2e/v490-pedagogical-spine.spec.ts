@@ -63,18 +63,24 @@ test.describe("V4.9.0 pedagogical spine", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const panel = page.locator("[data-testid=foundation-orchestration]");
-    await expect(panel).toBeVisible();
-    await page.getByRole("button", { name: /^Continuar$/ }).first().click();
+    // V4.9.2: os reforços saíram do painel piloto e passaram a viver na própria
+    // trilha, ancorados por `afterTopicId`. O contrato do Blitz é o mesmo.
+    const capsuleNode = page.locator("[data-journey-inline-node='node:capsule:pinyin-foundation:v1']");
+    await expect(capsuleNode).toBeVisible();
+    await capsuleNode.click();
     await expect(page).toHaveURL(/jornada\/capsula\/capsule%3Apinyin-foundation%3Av1/i);
     await page.goBack();
     await waitForLazyPage(page);
-    await expect(panel.getByText(/Até 8 desafios · 45 segundos/)).toBeVisible();
+    const blitzNode = page.locator("[data-journey-inline-node='booster:foundations-blitz:v1']");
+    await expect(blitzNode).toBeVisible();
+    await expect(blitzNode).toHaveAttribute("data-ready", "true");
+    // O Blitz fica ancorado logo depois do tópico que o motiva, não num bloco à parte.
+    await expect(
+      page.locator("[data-journey-inline-after='p1-o-que-e-mandarim']").locator("[data-journey-inline-node='booster:foundations-blitz:v1']")
+    ).toHaveCount(1);
     await mkdir(SHOTS, { recursive: true });
     await page.screenshot({ path: path.join(SHOTS, "journey-foundation-orchestration-desktop.png"), fullPage: true });
-    // O painel passou a listar vários boosters ("Iniciar reforço" repetido), então
-    // o alvo é o href do Blitz — mesmo padrão dos boosters da V4.9.1.
-    await panel.locator("a[href*='/arcade/blitz']").click();
+    await blitzNode.click();
     await waitForLazyPage(page);
     await page.getByRole("button", { name: "Começar Blitz" }).click();
 

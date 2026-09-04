@@ -260,6 +260,45 @@ export const JOURNEY_NODES: JourneyNode[] = [
   IMMERSION_READINESS_NODE,
 ];
 
+/**
+ * Rota canônica de um node auxiliar.
+ *
+ * O painel da V4.9.1 tinha estas URLs escritas à mão em nove lugares. Com os
+ * nodes agora aparecendo também inline ao longo da Jornada, duas listas de
+ * rotas divergiriam na primeira mudança — então a rota passa a sair do node.
+ */
+export function routeForJourneyNode(node: JourneyNode): string {
+  const query = `journeyNode=${encodeURIComponent(node.id)}`;
+  switch (node.type) {
+    case "LESSON_CAPSULE":
+      return `/jornada/capsula/${encodeURIComponent(node.sourceId ?? "")}`;
+    case "BLITZ":
+      return `/arcade/blitz?${query}`;
+    case "TONE_TRAINER":
+      return `/som?${query}`;
+    case "PINYIN_PRACTICE":
+      return `/pinyin?${query}`;
+    case "HANZI_BUILDER":
+      return `/hanzi?char=mu&${query}`;
+    case "CONVERSATION":
+      return `/jornada/reforco/${encodeURIComponent(node.id)}`;
+    case "REVIEW":
+      return `/revisao?${query}`;
+    case "PRACTICE":
+      return `/imersao?${query}`;
+    default:
+      return `/jornada`;
+  }
+}
+
+/**
+ * Nodes auxiliares ancorados logo depois de um tópico, na ordem declarada.
+ * É o que permite intercalá-los na trilha em vez de concentrá-los num painel.
+ */
+export function auxiliaryJourneyNodesAfterTopic(topicId: string): JourneyNode[] {
+  return JOURNEY_NODES.filter((node) => node.type !== "CORE_LESSON" && node.afterTopicId === topicId);
+}
+
 export function getJourneyNode(id: string | null | undefined): JourneyNode | undefined {
   return id ? JOURNEY_NODES.find((node) => node.id === id) : undefined;
 }
