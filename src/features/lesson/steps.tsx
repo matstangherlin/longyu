@@ -2006,6 +2006,8 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 data-pair-side="left"
                 data-pair-id={pair.id}
                 data-pair-matched={matched ? "true" : "false"}
+                data-pair-selected={selectedLeft === pair.id ? "true" : "false"}
+                data-pair-wrong={wrong ? "true" : "false"}
                 onClick={() => pickLeft(pair.id)}
                 disabled={Boolean(matched) || complete}
                 aria-label={pair.leftType === "audio" && !matched ? "Tocar áudio e combinar" : undefined}
@@ -2053,6 +2055,8 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 data-pair-side="right"
                 data-pair-id={item.id}
                 data-pair-matched={matched ? "true" : "false"}
+                data-pair-selected="false"
+                data-pair-wrong={wrong ? "true" : "false"}
                 onClick={() => pickRight(item.id)}
                 disabled={Boolean(matched) || complete}
                 aria-label={item.type === "audio" && !matched ? "Tocar áudio e combinar" : undefined}
