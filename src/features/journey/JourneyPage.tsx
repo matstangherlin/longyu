@@ -16,7 +16,7 @@ import { reviewSessionSplit } from "../../lib/reviewSession";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
-  IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame, IconPlay,
+  IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame, IconPlay, IconHeadphones,
 } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { dueItems } from "../../lib/srs";
@@ -43,7 +43,17 @@ import { displayInstruction, displayLessonTitle, localizedReviewPendingLabel, lo
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
-import { FOUNDATION_BLITZ_NODE, PINYIN_CAPSULE_NODE } from "../../data/journeyOrchestrator";
+import {
+  FIRST_CONVERSATION_NODE,
+  FOUNDATION_BLITZ_NODE,
+  HANZI_BUILDER_NODE,
+  IMMERSION_READINESS_NODE,
+  JOURNEY_REVIEW_NODE,
+  PINYIN_CAPSULE_NODE,
+  PINYIN_PRACTICE_NODE,
+  TONE_CONTOUR_INTRO_NODE,
+  TONE_NUMBER_NODE,
+} from "../../data/journeyOrchestrator";
 import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 
@@ -514,10 +524,25 @@ function FoundationOrchestrationPanel({
   const { instructionLocale } = useTranslation();
   const learnedChunks = useStore((state) => state.learnedChunks);
   const learnedChars = useStore((state) => state.learnedChars);
+  const completedLessons = useStore((state) => state.completedLessons);
+  const lessonMasteryById = useStore((state) => state.lessonMasteryById);
+  const srs = useStore((state) => state.srs);
   const foundationReady = firstTopicMastery >= 4 || currentId === "p1-o-que-e-pinyin";
   const blitzReady = learnedChunks.includes("nihao") && learnedChars.some((id) => id === "ni" || id === "hao");
   const capsuleComplete = isJourneyNodeComplete(PINYIN_CAPSULE_NODE.id);
   const blitzComplete = isJourneyNodeComplete(FOUNDATION_BLITZ_NODE.id);
+  const toneMastery = lessonMasteryById["p1-o-que-e-tom"]?.level ?? 0;
+  const pinyinMastery = lessonMasteryById["p1-o-que-e-pinyin"]?.level ?? 0;
+  const hanziMastery = lessonMasteryById["p1-primeiros-hanzi"]?.level ?? 0;
+  const reviewReady = dueItems(srs).length > 0;
+  const knownPatternCount = new Set(
+    ALL_LESSONS
+      .filter((lesson) => completedLessons.includes(lesson.id))
+      .flatMap((lesson) => (lesson.steps ?? []).map((step) => step.patternPt).filter((value): value is string => Boolean(value)))
+  ).size;
+  const immersionReady = learnedChunks.length >= (IMMERSION_READINESS_NODE.minimumKnownChunks ?? 8)
+    && knownPatternCount >= (IMMERSION_READINESS_NODE.minimumKnownPatterns ?? 2)
+    && firstTopicMastery >= 4;
   const text = instructionLocale === "en" ? {
     label: "Learning path",
     title: "Build a base, then gain speed",
@@ -529,6 +554,23 @@ function FoundationOrchestrationPanel({
     blitzCta: blitzComplete ? "Practice again" : "Start booster",
     locked: "Finish the first Mandarin topic to unlock this step.",
     optional: "Recommended · does not block core mastery",
+    tone13Title: "Tone Trainer · level vs dip",
+    tone13Body: "You have met the 1st and 3rd contours. Now train your ear using only those two.",
+    toneAllTitle: "Tone Trainer · four tones",
+    toneAllBody: "The 2nd and 4th tones are now in the map. Practice tone-number recall.",
+    pinyinTitle: "Pinyin practice",
+    pinyinBody: "You learned what pinyin does. Use the existing lab with familiar skills.",
+    hanziTitle: "Hànzì Builder",
+    hanziBody: "You have seen 木 and 人. Build only familiar characters with less support.",
+    conversationTitle: "First conversation",
+    conversationBody: "你好 is ready for guided use. Greet Mei in a short scene.",
+    reviewTitle: "Review what is due",
+    reviewBody: "Open the same SRS queue used everywhere else in Longyu.",
+    immersionTitle: "Short immersion",
+    immersionBody: "Mostly familiar input becomes available after a minimum known-language threshold.",
+    start: "Start booster",
+    review: "Open Review",
+    readinessLocked: "This booster appears only after its exact knowledge prerequisites are ready.",
   } : {
     label: "Trilha de aprendizagem",
     title: "Construa a base, depois ganhe velocidade",
@@ -540,6 +582,23 @@ function FoundationOrchestrationPanel({
     blitzCta: blitzComplete ? "Praticar novamente" : "Iniciar reforço",
     locked: "Conclua o primeiro tema de mandarim para liberar esta etapa.",
     optional: "Recomendado · não bloqueia o mastery core",
+    tone13Title: "Tone Trainer · reta × vale",
+    tone13Body: "Você já conheceu as curvas do 1º e do 3º tom. Agora treine o ouvido somente com as duas.",
+    toneAllTitle: "Tone Trainer · quatro tons",
+    toneAllBody: "O 2º e o 4º tom já entraram no mapa. Pratique a recuperação do número.",
+    pinyinTitle: "Prática de pinyin",
+    pinyinBody: "Você já aprendeu para que serve o pinyin. Use o laboratório existente com skills conhecidas.",
+    hanziTitle: "Hànzì Builder",
+    hanziBody: "Você já viu 木 e 人. Monte apenas caracteres conhecidos com menos apoio.",
+    conversationTitle: "Primeira conversa",
+    conversationBody: "你好 já está pronto para uso guiado. Cumprimente Mei numa cena curta.",
+    reviewTitle: "Revisar o que venceu",
+    reviewBody: "Abra a mesma fila SRS usada em todo o Longyu.",
+    immersionTitle: "Imersão curta",
+    immersionBody: "Conteúdo majoritariamente conhecido aparece após um repertório mínimo.",
+    start: "Iniciar reforço",
+    review: "Abrir Review",
+    readinessLocked: "Este reforço aparece somente quando os pré-requisitos exatos estiverem prontos.",
   };
 
   return (
@@ -568,6 +627,83 @@ function FoundationOrchestrationPanel({
           enabled={foundationReady && blitzReady}
           completed={blitzComplete}
           lockedCopy={text.locked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconSound width={19} height={19} />}
+          title={text.tone13Title}
+          body={text.tone13Body}
+          cta={text.start}
+          to={`/som?journeyNode=${encodeURIComponent(TONE_CONTOUR_INTRO_NODE.id)}`}
+          enabled={toneMastery >= 1}
+          completed={isJourneyNodeComplete(TONE_CONTOUR_INTRO_NODE.id)}
+          lockedCopy={text.readinessLocked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconSound width={19} height={19} />}
+          title={text.toneAllTitle}
+          body={text.toneAllBody}
+          cta={text.start}
+          to={`/som?journeyNode=${encodeURIComponent(TONE_NUMBER_NODE.id)}`}
+          enabled={toneMastery >= 2}
+          completed={isJourneyNodeComplete(TONE_NUMBER_NODE.id)}
+          lockedCopy={text.readinessLocked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconTarget width={19} height={19} />}
+          title={text.pinyinTitle}
+          body={text.pinyinBody}
+          cta={text.start}
+          to={`/pinyin?journeyNode=${encodeURIComponent(PINYIN_PRACTICE_NODE.id)}`}
+          enabled={capsuleComplete && pinyinMastery >= 1}
+          completed={isJourneyNodeComplete(PINYIN_PRACTICE_NODE.id)}
+          lockedCopy={text.readinessLocked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconHanzi width={19} height={19} />}
+          title={text.hanziTitle}
+          body={text.hanziBody}
+          cta={text.start}
+          to={`/hanzi?char=mu&journeyNode=${encodeURIComponent(HANZI_BUILDER_NODE.id)}`}
+          enabled={hanziMastery >= 1 && learnedChars.includes("mu")}
+          completed={isJourneyNodeComplete(HANZI_BUILDER_NODE.id)}
+          lockedCopy={text.readinessLocked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconChat width={19} height={19} />}
+          title={text.conversationTitle}
+          body={text.conversationBody}
+          cta={text.start}
+          to={`/jornada/reforco/${encodeURIComponent(FIRST_CONVERSATION_NODE.id)}`}
+          enabled={firstTopicMastery >= 2 && learnedChunks.includes("nihao")}
+          completed={isJourneyNodeComplete(FIRST_CONVERSATION_NODE.id)}
+          lockedCopy={text.readinessLocked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconRefresh width={19} height={19} />}
+          title={text.reviewTitle}
+          body={text.reviewBody}
+          cta={text.review}
+          to={`/revisao?journeyNode=${encodeURIComponent(JOURNEY_REVIEW_NODE.id)}`}
+          enabled={reviewReady}
+          completed={false}
+          lockedCopy={text.readinessLocked}
+          footnote={text.optional}
+        />
+        <JourneyAuxiliaryCard
+          icon={<IconHeadphones width={19} height={19} />}
+          title={text.immersionTitle}
+          body={text.immersionBody}
+          cta={text.start}
+          to={`/imersao?journeyNode=${encodeURIComponent(IMMERSION_READINESS_NODE.id)}`}
+          enabled={immersionReady}
+          completed={isJourneyNodeComplete(IMMERSION_READINESS_NODE.id)}
+          lockedCopy={text.readinessLocked}
           footnote={text.optional}
         />
       </div>

@@ -72,7 +72,9 @@ test.describe("V4.9.0 pedagogical spine", () => {
     await expect(panel.getByText(/Até 8 desafios · 45 segundos/)).toBeVisible();
     await mkdir(SHOTS, { recursive: true });
     await page.screenshot({ path: path.join(SHOTS, "journey-foundation-orchestration-desktop.png"), fullPage: true });
-    await panel.getByRole("link", { name: /Iniciar reforço|Praticar novamente/ }).click();
+    // O painel passou a listar vários boosters ("Iniciar reforço" repetido), então
+    // o alvo é o href do Blitz — mesmo padrão dos boosters da V4.9.1.
+    await panel.locator("a[href*='/arcade/blitz']").click();
     await waitForLazyPage(page);
     await page.getByRole("button", { name: "Começar Blitz" }).click();
 

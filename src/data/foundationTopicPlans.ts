@@ -498,11 +498,18 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       toneStep("妈", "mā", 1, "guided", [1, 3]),
       toneStep("马", "mǎ", 3, "guided", [1, 3]),
       listenSelect(
-        "Reta ou vale?",
+        "Qual ficou reto?",
+        "妈",
+        ["妈", "马"],
+        "妈",
+        "mā fica alto e reto. Esse contorno se chama 1º tom."
+      ),
+      listenSelect(
+        "Agora encontre o vale",
         "马",
         ["妈", "马"],
         "马",
-        "mǎ desce e volta (vale, 3º); mā fica reta no alto (1º)."
+        "mǎ faz o vale do 3º tom. Na fala natural, esse vale pode ficar mais baixo e curto."
       ),
       dialogue(
         "O que é um tom?",
@@ -523,72 +530,56 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       ),
     ],
     2: [
-      intro("Ouça a diferença", "Mesmas letras, curvas diferentes: a palavra muda. Discrimine reta × vale."),
-      listenSelect("Qual é o vale?", "马", ["妈", "马"], "马", "O vale (3º) é mǎ 马."),
-      listenSelect("Qual é a reta?", "妈", ["妈", "马"], "妈", "A reta alta (1º) é mā 妈."),
+      intro("Duas curvas novas", "Você já conhece a reta e o vale. Agora ouça uma curva que sobe e outra que cai."),
+      toneStep("麻", "má", 2, "guided", [1, 2]),
+      toneStep("骂", "mà", 4, "guided", [2, 4]),
+      listenSelect("Qual curva sobe?", "麻", ["麻", "骂"], "麻", "má sobe: é o 2º tom."),
+      listenSelect("Qual curva cai?", "骂", ["麻", "骂"], "骂", "mà cai: é o 4º tom."),
       dialogue(
-        "O que mudou?",
-        "mā e mǎ usam as mesmas letras. O que as torna palavras diferentes?",
-        "o contorno da voz",
-        ["o contorno da voz", "o tamanho da letra", "a tradução em inglês", "o hànzì decorativo"]
+        "1º × 2º",
+        "Qual comparação está correta?",
+        "1º fica reto; 2º sobe",
+        ["1º fica reto; 2º sobe", "1º sobe; 2º cai", "os dois fazem vale", "os dois são neutros"]
       ),
-      match(
-        "Curva e ideia",
-        "Combine o contorno à palavra (só duas).",
-        [
-          { left: "reta alta mā", right: "妈", leftType: "pt", rightType: "hanzi" },
-          { left: "vale mǎ", right: "马", leftType: "pt", rightType: "hanzi" },
-        ],
-        "O fenômeno é a curva, não o número isolado."
+      dialogue(
+        "3º × 4º",
+        "Qual comparação está correta?",
+        "3º faz o vale; 4º cai",
+        ["3º faz o vale; 4º cai", "3º fica reto; 4º sobe", "os dois sobem", "os dois são volume"]
       ),
-      toneStep("妈", "mā", 1, "quiz", [1, 3]),
     ],
     3: [
-      intro("Identifique o contorno", "Agora você marca qual curva ouviu — e começa a reproduzir o vale e a reta."),
-      toneStep("马", "mǎ", 3, "quiz", [1, 3]),
+      intro("Reconheça os quatro", "Agora as quatro curvas já foram apresentadas. Ouça primeiro; depois associe contorno, número e marca."),
+      toneStep("妈", "mā", 1, "quiz", [1, 2, 3, 4]),
+      toneStep("麻", "má", 2, "quiz", [1, 2, 3, 4]),
+      toneStep("马", "mǎ", 3, "quiz", [1, 2, 3, 4]),
+      toneStep("骂", "mà", 4, "quiz", [1, 2, 3, 4]),
+      intro("Mapa das marcas", "No pinyin: ˉ marca o 1º tom, ´ marca o 2º, ˇ marca o 3º e ` marca o 4º."),
       dialogue(
-        "Qual é o vale?",
-        "Você ouve o 3º tom (vale). Qual palavra de ma é o vale?",
-        "马",
-        ["马", "妈"],
-        "马 (mǎ) é o vale: desce e volta."
-      ),
-      dialogue(
-        "Reproduzir",
-        "Para ‘dizer o tom’, você precisa…",
-        "fazer o contorno com a voz, não só apontar um número",
+        "Marca e tom",
+        "Qual mapa está correto?",
+        "ˉ = 1º · ´ = 2º · ˇ = 3º · ` = 4º",
         [
-          "fazer o contorno com a voz, não só apontar um número",
-          "gritar mais alto",
-          "escrever a tradução",
-          "esconder o pinyin",
+          "ˉ = 1º · ´ = 2º · ˇ = 3º · ` = 4º",
+          "ˉ = 4º · ´ = 3º · ˇ = 2º · ` = 1º",
+          "todas as marcas são volume",
+          "a marca substitui o hànzì",
         ]
-      ),
-      listenSelect("Identifique de ouvido", "妈", ["妈", "马"], "妈"),
-      contextualChoice(
-        "Na prática",
-        "Alguém pede para você repetir o vale. Qual curva é essa?",
-        "desce e volta (3º tom)",
-        ["desce e volta (3º tom)", "reta alta", "só volume", "tradução"]
       ),
     ],
     4: [
       intro(
-        "O tom numa palavra real",
-        "你好 são dois 3º tons; juntos você ouve ní hǎo. O tom não mora só no drill de ma — mora na palavra que você já usa."
+        "Tons em palavras reais",
+        "Leve as quatro curvas para palavras conhecidas. Em fala natural, 你好 é escrito nǐ hǎo e costuma soar ní hǎo."
       ),
       listenSelect("你好 de ouvido", "你好", ["你好", "妈", "马"], "你好", "Leve o contorno para um chunk conhecido."),
+      toneStep("好", "hǎo", 3, "quiz", [1, 2, 3, 4]),
+      toneStep("骂", "mà", 4, "quiz", [1, 2, 3, 4]),
       dialogue(
-        "O tom em 你好",
-        "Em 你好, o que você precisa acertar além das letras?",
-        "o contorno das sílabas",
-        ["o contorno das sílabas", "só o volume", "só a tradução Olá", "o alfabeto português"]
-      ),
-      contextualChoice(
-        "Na rua",
-        "Você vai cumprimentar. Qual fenômeno da voz está dentro de 你好?",
-        "os tons (contornos) das sílabas",
-        ["os tons (contornos) das sílabas", "só o hànzì", "a tradução", "um número de exercício"]
+        "Produção com contorno",
+        "Para dizer 你好, o que precisa viajar junto com as sílabas?",
+        "os contornos dos tons",
+        ["os contornos dos tons", "só o volume", "uma tradução visível", "um número sem som"]
       ),
       listen("你好", "nǐ hǎo", "Olá — ouça o contorno, não só as letras"),
       reverseRecall("Diga com o contorno", "Cumprimente. O tom faz parte da palavra.", "你好", ["你好", "你好！"]),
@@ -818,15 +809,30 @@ function rungFor(step: LessonStep, pass: MasteryPass, index: number): Pedagogica
 
 function annotateFoundationPlan(lessonId: string, pass: MasteryPass, steps: LessonStep[]): LessonStep[] {
   const targets = TARGETS_BY_FOUNDATION_LESSON[lessonId] ?? [];
-  return steps.map((step, index) => withPedagogicalEvidence(step, {
-    rung: rungFor(step, pass, index),
-    knowledgeTargetIds: knowledgeTargetIdsForStep(step, targets),
-    exposureStrength: step.kind === "listen" ? "MULTIMODAL" : step.kind === "intro" ? "ORIENTATION" : "GUIDED_PRACTICE",
-    primaryDifficulty: step.kind === "listen" || step.kind === "tone" ? "SOUND" : step.kind.includes("hanzi") || step.kind === "recognize" ? "FORM" : step.kind.includes("production") || step.kind === "reverse_recall" ? "PRODUCTION" : "MEANING",
-    hiddenSkillRequirements: [],
-    distractorSafety: step.options?.length ? (pass === 1 ? "CONTROLLED_UNKNOWN" : "KNOWN_TARGET") : "NOT_APPLICABLE",
-    graded: GRADED_KINDS.has(step.kind) && !(step.kind === "tone" && step.assist === "guided"),
-  }));
+  return steps.map((step, index) => {
+    const serialized = [step.title, step.body, step.prompt, step.dialoguePrompt, step.explanation, step.pinyin, ...(step.options ?? [])]
+      .filter(Boolean)
+      .join(" ");
+    const toneTargets = lessonId === "p1-o-que-e-tom"
+      ? ([1, 2, 3, 4] as const)
+          .filter((tone) => {
+            // Only the explicit tone-mark glyph counts here. Accented vowels also
+            // occur naturally in Portuguese prose and caused false target matches.
+            const markPattern = tone === 1 ? "ˉ" : tone === 2 ? "´" : tone === 3 ? "ˇ" : "`";
+            return step.tone === tone || step.toneChoices?.includes(tone) || new RegExp(`${tone}(?:º|st|nd|rd|th)?\\s*(?:tom|tone)|${markPattern}`, "iu").test(serialized);
+          })
+          .map((tone) => FOUNDATION_TARGET_IDS[`tone${tone}` as "tone1" | "tone2" | "tone3" | "tone4"])
+      : [];
+    return withPedagogicalEvidence(step, {
+      rung: rungFor(step, pass, index),
+      knowledgeTargetIds: knowledgeTargetIdsForStep(step, [...targets, ...toneTargets]),
+      exposureStrength: step.kind === "listen" || (step.kind === "tone" && step.assist === "guided") ? "MULTIMODAL" : step.kind === "intro" ? "ORIENTATION" : "GUIDED_PRACTICE",
+      primaryDifficulty: step.kind === "listen" || step.kind === "tone" ? "SOUND" : step.kind.includes("hanzi") || step.kind === "recognize" ? "FORM" : step.kind.includes("production") || step.kind === "reverse_recall" ? "PRODUCTION" : "MEANING",
+      hiddenSkillRequirements: [],
+      distractorSafety: step.options?.length ? (pass === 1 ? "CONTROLLED_UNKNOWN" : "KNOWN_TARGET") : "NOT_APPLICABLE",
+      graded: GRADED_KINDS.has(step.kind) && !(step.kind === "tone" && step.assist === "guided"),
+    });
+  });
 }
 
 export function foundationAuthoredPlanFor(lessonId: string, pass: MasteryPass): LessonStep[] | null {

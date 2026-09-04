@@ -98,7 +98,18 @@ for (const viewport of [
       await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
       await assertTwoColumnBoard(page);
 
-      const colors = await page.locator("[data-match-pairs-board] [data-pair-tile]").first().evaluate((node) => {
+      // O avanço automático até o quadro pode entrar no próprio quadro e deixar
+      // uma peça selecionada ou já combinada. `accent-soft`/`good` são cores de
+      // estado, não a superfície padrão que este teste protege — então a
+      // amostra tem de ser uma peça intocada, senão o assert vira loteria.
+      const pristineTile = page
+        .locator(
+          '[data-match-pairs-board] [data-pair-tile][data-pair-matched="false"][data-pair-selected="false"][data-pair-wrong="false"]'
+        )
+        .first();
+      await expect(pristineTile).toBeVisible();
+
+      const colors = await pristineTile.evaluate((node) => {
         const style = window.getComputedStyle(node);
         const parseRgb = (value: string) =>
           (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);

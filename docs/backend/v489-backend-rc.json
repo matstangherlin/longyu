@@ -4,7 +4,7 @@
   "status": "BLOCKED_BEFORE_PRODUCTION_APPLY",
   "base_main_sha": "02bf2f1803ffbde0e17efc00dbf3f0cde5b71163",
   "production_watermark": "20260810175737",
-  "journey_fingerprint": "86f2d7fa171b",
+  "journey_fingerprint": "0ae72f37d693",
   "placement_version": 2,
   "migration_chain_sha256": "4668ca89fdb0bad02a4030a6ca6763262d57a3b7444995102ff2fecadc6591e9",
   "migration_manifest_sha256": "0612f1a0f8b4fd97ed992b69792b9082b85f10f718e7214dc1f9096b9ecc77e8",

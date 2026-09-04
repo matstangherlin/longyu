@@ -1,5 +1,12 @@
 const STORAGE_KEY = "longyu:journey-node-completions:v1";
 
+/**
+ * V4.9.1 contract: auxiliary completion is device-local and can only decorate
+ * the Journey. Missing this flag on another device must never lock, reset or
+ * downgrade canonical lesson mastery or SRS state.
+ */
+export const AUX_NODE_PROGRESS_LOCAL_ONLY = true as const;
+
 function read(): string[] {
   if (typeof localStorage === "undefined") return [];
   try {

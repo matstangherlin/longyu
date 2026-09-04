@@ -1,6 +1,7 @@
 import { ALL_LESSONS } from "./journey";
 import { PINYIN_FOUNDATION_CAPSULE } from "./lessonCapsules";
-import { FOUNDATION_TARGET_IDS } from "./pedagogicalSpine";
+import { FOUNDATION_TARGET_IDS, type KnowledgeStage } from "./pedagogicalSpine";
+import type { MandarinTone } from "./toneTrainer";
 import { JOURNEY_THEMES, themeForTopic } from "./journeyThemes";
 import { isTopicMasteryLesson } from "./topicMastery";
 
@@ -17,6 +18,8 @@ export type JourneyNodeType =
   | "CHECKPOINT";
 
 export type JourneyNodePriority = "CORE" | "RECOMMENDED" | "OPTIONAL";
+export type JourneyBoosterMode = "CONTOUR_INTRO" | "TONE_NUMBER" | "GUIDED" | "CURRENT_QUEUE" | "SHORT_KNOWN_INPUT";
+export type JourneyRewardPolicy = "ENGINE_DEFAULT" | "NO_CORE_MASTERY" | "NO_SPEED_MASTERY";
 
 export interface JourneyNode {
   id: string;
@@ -28,6 +31,15 @@ export interface JourneyNode {
   maxQuestions?: number;
   timeLimitSeconds?: number;
   allowedKnowledgeTargetIds?: string[];
+  requiredKnowledgeTargetIds?: string[];
+  minimumKnowledgeStages?: Partial<Record<string, KnowledgeStage>>;
+  mode?: JourneyBoosterMode;
+  allowedTones?: MandarinTone[];
+  rewardPolicy?: JourneyRewardPolicy;
+  returnToJourney?: boolean;
+  minimumKnownChunks?: number;
+  minimumKnownPatterns?: number;
+  minimumRecognitionRate?: number;
   affectsCoreMastery: boolean;
 }
 
@@ -64,11 +76,156 @@ export const FOUNDATION_BLITZ_NODE: JourneyNode = {
   affectsCoreMastery: false,
 };
 
+export const TONE_CONTOUR_INTRO_NODE: JourneyNode = {
+  id: "booster:tone-contour-1-3:v1",
+  type: "TONE_TRAINER",
+  priority: "RECOMMENDED",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "tone-all-isolated",
+  afterTopicId: "p1-o-que-e-tom",
+  requiredKnowledgeTargetIds: [FOUNDATION_TARGET_IDS.tone1, FOUNDATION_TARGET_IDS.tone3],
+  minimumKnowledgeStages: {
+    [FOUNDATION_TARGET_IDS.tone1]: "NOTICED",
+    [FOUNDATION_TARGET_IDS.tone3]: "NOTICED",
+  },
+  allowedKnowledgeTargetIds: [FOUNDATION_TARGET_IDS.tone1, FOUNDATION_TARGET_IDS.tone3],
+  mode: "CONTOUR_INTRO",
+  allowedTones: [1, 3],
+  maxQuestions: 6,
+  rewardPolicy: "NO_CORE_MASTERY",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
+export const TONE_NUMBER_NODE: JourneyNode = {
+  id: "booster:tone-number-1-4:v1",
+  type: "TONE_TRAINER",
+  priority: "RECOMMENDED",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "tone-all-isolated",
+  afterTopicId: "p1-o-que-e-tom",
+  requiredKnowledgeTargetIds: [
+    FOUNDATION_TARGET_IDS.tone1,
+    FOUNDATION_TARGET_IDS.tone2,
+    FOUNDATION_TARGET_IDS.tone3,
+    FOUNDATION_TARGET_IDS.tone4,
+  ],
+  minimumKnowledgeStages: {
+    [FOUNDATION_TARGET_IDS.tone1]: "NOTICED",
+    [FOUNDATION_TARGET_IDS.tone2]: "NOTICED",
+    [FOUNDATION_TARGET_IDS.tone3]: "NOTICED",
+    [FOUNDATION_TARGET_IDS.tone4]: "NOTICED",
+  },
+  allowedKnowledgeTargetIds: [
+    FOUNDATION_TARGET_IDS.tone1,
+    FOUNDATION_TARGET_IDS.tone2,
+    FOUNDATION_TARGET_IDS.tone3,
+    FOUNDATION_TARGET_IDS.tone4,
+  ],
+  mode: "TONE_NUMBER",
+  allowedTones: [1, 2, 3, 4],
+  maxQuestions: 8,
+  rewardPolicy: "NO_CORE_MASTERY",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
+export const PINYIN_PRACTICE_NODE: JourneyNode = {
+  id: "booster:pinyin-practice:v1",
+  type: "PINYIN_PRACTICE",
+  priority: "RECOMMENDED",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "pinyin-lab",
+  afterTopicId: "p1-o-que-e-pinyin",
+  requiredKnowledgeTargetIds: [FOUNDATION_TARGET_IDS.pinyin],
+  minimumKnowledgeStages: { [FOUNDATION_TARGET_IDS.pinyin]: "GUIDED" },
+  mode: "GUIDED",
+  rewardPolicy: "ENGINE_DEFAULT",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
+export const HANZI_BUILDER_NODE: JourneyNode = {
+  id: "booster:hanzi-builder-foundations:v1",
+  type: "HANZI_BUILDER",
+  priority: "RECOMMENDED",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "hanzi-builder",
+  afterTopicId: "p1-primeiros-hanzi",
+  requiredKnowledgeTargetIds: [FOUNDATION_TARGET_IDS.hanzi, FOUNDATION_TARGET_IDS.components],
+  minimumKnowledgeStages: {
+    [FOUNDATION_TARGET_IDS.hanzi]: "GUIDED",
+    [FOUNDATION_TARGET_IDS.components]: "GUIDED",
+  },
+  allowedKnowledgeTargetIds: ["char:mu", "char:ren"],
+  mode: "GUIDED",
+  rewardPolicy: "ENGINE_DEFAULT",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
+export const FIRST_CONVERSATION_NODE: JourneyNode = {
+  id: "booster:first-conversation:v1",
+  type: "CONVERSATION",
+  priority: "RECOMMENDED",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "primeiro-cumprimento",
+  afterTopicId: "p1-o-que-e-mandarim",
+  requiredKnowledgeTargetIds: [FOUNDATION_TARGET_IDS.nihao, FOUNDATION_TARGET_IDS.greetingIntent],
+  minimumKnowledgeStages: {
+    [FOUNDATION_TARGET_IDS.nihao]: "RECALLED",
+    [FOUNDATION_TARGET_IDS.greetingIntent]: "GUIDED",
+  },
+  allowedKnowledgeTargetIds: [FOUNDATION_TARGET_IDS.nihao],
+  mode: "GUIDED",
+  rewardPolicy: "ENGINE_DEFAULT",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
+export const JOURNEY_REVIEW_NODE: JourneyNode = {
+  id: "booster:shared-srs-review:v1",
+  type: "REVIEW",
+  priority: "RECOMMENDED",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "current-srs-queue",
+  mode: "CURRENT_QUEUE",
+  rewardPolicy: "ENGINE_DEFAULT",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
+export const IMMERSION_READINESS_NODE: JourneyNode = {
+  id: "booster:short-immersion:v1",
+  type: "PRACTICE",
+  priority: "OPTIONAL",
+  sourceThemeId: "theme:u1-1",
+  sourceId: "immersion",
+  mode: "SHORT_KNOWN_INPUT",
+  minimumKnownChunks: 8,
+  minimumKnownPatterns: 2,
+  minimumRecognitionRate: 0.7,
+  rewardPolicy: "ENGINE_DEFAULT",
+  returnToJourney: true,
+  affectsCoreMastery: false,
+};
+
 export const JOURNEY_NODES: JourneyNode[] = [
   ...coreLessonNodes,
   PINYIN_CAPSULE_NODE,
   FOUNDATION_BLITZ_NODE,
+  TONE_CONTOUR_INTRO_NODE,
+  TONE_NUMBER_NODE,
+  PINYIN_PRACTICE_NODE,
+  HANZI_BUILDER_NODE,
+  FIRST_CONVERSATION_NODE,
+  JOURNEY_REVIEW_NODE,
+  IMMERSION_READINESS_NODE,
 ];
+
+export function getJourneyNode(id: string | null | undefined): JourneyNode | undefined {
+  return id ? JOURNEY_NODES.find((node) => node.id === id) : undefined;
+}
 
 export function auxiliaryJourneyNodesForTheme(themeId: string): JourneyNode[] {
   return JOURNEY_NODES.filter((node) => node.sourceThemeId === themeId && node.type !== "CORE_LESSON");

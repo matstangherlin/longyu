@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   PINYIN_ACCENT_ROUNDS,
   PINYIN_BUILD_ROUNDS,
@@ -35,11 +35,14 @@ import { playSoundFx } from "../../lib/soundFx";
 import { canAccessPinyinLab, useIsPro } from "../../lib/proAccess";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ToneTrainer } from "../som/SomPage";
+import { ToneContour } from "../../components/tone/ToneContour";
+import { PINYIN_PRACTICE_NODE, getJourneyNode } from "../../data/journeyOrchestrator";
+import { completeJourneyNode } from "../../lib/journeyNodeProgress";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const BUILD_INITIAL_CHOICES = ["", ...PINYIN_INITIALS.map((item) => item.id)];
 const BUILD_FINAL_CHOICES = Array.from(new Set(PINYIN_BUILD_ROUNDS.map((round) => round.final)));
 const PASSING_BUILD_SCORE = Math.ceil(PINYIN_BUILD_ROUNDS.length * 0.8);
-const PASSING_ACCENT_SCORE = Math.ceil(PINYIN_ACCENT_ROUNDS.length * 0.8);
 type PinyinLabView = "iniciais" | "finais" | "silabas" | "tons" | "treino";
 const PINYIN_LAB_VIEWS: { id: PinyinLabView; label: string }[] = [
   { id: "iniciais", label: "Iniciais" },
@@ -50,6 +53,10 @@ const PINYIN_LAB_VIEWS: { id: PinyinLabView; label: string }[] = [
 ];
 
 export function PinyinLabPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { instructionLocale } = useTranslation();
+  const journeyNode = getJourneyNode(searchParams.get("journeyNode"));
   const completedLessons = useStore((s) => s.completedLessons);
   const isPremium = useIsPro();
   const access = canAccessPinyinLab({ isPremium, completedLessons });
@@ -88,6 +95,36 @@ export function PinyinLabPage() {
   function playToneVariant(pinyin: string) {
     recordDailyTask("audioHeard");
     speak(pinyin, { rate: 0.78 });
+  }
+
+  if (journeyNode?.id === PINYIN_PRACTICE_NODE.id) {
+    const copy = instructionLocale === "en"
+      ? {
+          eyebrow: "Journey booster",
+          title: "Guided pinyin practice",
+          desc: "You have learned what pinyin does. Now identify the familiar nǐ hǎo map without introducing new vocabulary.",
+          back: "Back to Journey",
+        }
+      : {
+          eyebrow: "Reforço da Jornada",
+          title: "Prática guiada de pinyin",
+          desc: "Você já aprendeu para que serve o pinyin. Agora reconheça o mapa conhecido de nǐ hǎo sem introduzir vocabulário novo.",
+          back: "Voltar à Jornada",
+        };
+    const taughtRounds = PINYIN_ACCENT_ROUNDS.filter((round) => round.id === "accent-nihao");
+    return (
+      <HubPage className="space-y-5" data-testid="journey-pinyin-booster">
+        <HubHeader eyebrow={copy.eyebrow} title={copy.title} desc={copy.desc} />
+        <PinyinAccentTrainer
+          rounds={taughtRounds}
+          onComplete={() => {
+            completeJourneyNode(journeyNode.id);
+            navigate("/jornada");
+          }}
+          returnLabel={copy.back}
+        />
+      </HubPage>
+    );
   }
 
   return (
@@ -272,7 +309,7 @@ export function PinyinLabPage() {
                     <span className="font-serif text-base font-semibold leading-none" style={{ color: TONE_COLOR[tone] }}>
                       <Pinyin text={pinyin} />
                     </span>
-                    <ToneCurve tone={tone} />
+                    <ToneContour tone={tone} mode="MID" />
                     <span className="text-[9px] font-medium text-ink-faint">{tone === 5 ? "neutro" : `${tone}º`}</span>
                   </button>
                 ))}
@@ -290,7 +327,7 @@ export function PinyinLabPage() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-2 font-serif text-2xl font-semibold" style={{ color: TONE_COLOR[tone.tone] }}>
                 {tone.symbol}
               </div>
-              <ToneCurve tone={tone.tone} />
+              <ToneContour tone={tone.tone} mode="EARLY" />
               <h3 className="mt-3 text-sm font-semibold text-ink">{tone.name}</h3>
               <p className="mt-1 text-xs leading-5 text-ink-soft">{tone.desc}</p>
               <div className="mt-3 rounded-lg bg-surface-2 px-3 py-2">
@@ -429,7 +466,15 @@ function ExampleRow({ example, compact = false }: { example: PinyinExample; comp
   );
 }
 
-function PinyinAccentTrainer() {
+function PinyinAccentTrainer({
+  rounds = PINYIN_ACCENT_ROUNDS,
+  onComplete,
+  returnLabel,
+}: {
+  rounds?: PinyinAccentRound[];
+  onComplete?: () => void;
+  returnLabel?: string;
+} = {}) {
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
   const recordActivityError = useStore((s) => s.recordActivityError);
@@ -445,7 +490,8 @@ function PinyinAccentTrainer() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [done, setDone] = useState(false);
 
-  const round = PINYIN_ACCENT_ROUNDS[roundIndex];
+  const passingScore = Math.ceil(rounds.length * 0.8);
+  const round = rounds[roundIndex];
   const checked = selected !== null;
   const selectedCorrect = selected === round.answer;
   const score = answers.filter((answer) => answer.correct).length;
@@ -478,8 +524,9 @@ function PinyinAccentTrainer() {
 
   function nextRound() {
     if (!checked) return;
-    if (roundIndex + 1 >= PINYIN_ACCENT_ROUNDS.length) {
+    if (roundIndex + 1 >= rounds.length) {
       addMinutes("som", 4);
+      if (score >= passingScore) onComplete?.();
       setDone(true);
       return;
     }
@@ -510,7 +557,7 @@ function PinyinAccentTrainer() {
   }
 
   if (done) {
-    const passed = score >= PASSING_ACCENT_SCORE;
+    const passed = score >= passingScore;
     return (
       <Card className="p-5 text-center sm:p-7">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
@@ -520,15 +567,20 @@ function PinyinAccentTrainer() {
           {passed ? "Acentos consolidados" : "Acentos para revisar"}
         </Pill>
         <h3 className="mt-3 font-serif text-3xl font-semibold text-ink">
-          {score}/{PINYIN_ACCENT_ROUNDS.length}
+          {score}/{rounds.length}
         </h3>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
-          Meta deste treino: {PASSING_ACCENT_SCORE}/{PINYIN_ACCENT_ROUNDS.length}. Erros de tom e pinyin entram em revisão com áudio.
+          Meta deste treino: {passingScore}/{rounds.length}. Erros de tom e pinyin entram em revisão com áudio.
         </p>
         <Button className="mt-5" size="lg" onClick={reset}>
           Refazer treino
           <IconRefresh width={18} height={18} />
         </Button>
+        {passed && onComplete && (
+          <Button className="mt-2" size="lg" variant="outline" onClick={onComplete}>
+            {returnLabel ?? "Voltar à Jornada"}
+          </Button>
+        )}
         <ProPaywall open={paywallOpen} kind="energy" onClose={() => setPaywallOpen(false)} />
       </Card>
     );
@@ -542,18 +594,18 @@ function PinyinAccentTrainer() {
             <div>
               <div className="flex flex-wrap gap-2">
                 <Pill tone="accent">Acento tonal</Pill>
-                <Pill tone="muted">{PASSING_ACCENT_SCORE}/{PINYIN_ACCENT_ROUNDS.length} meta</Pill>
+                <Pill tone="muted">{passingScore}/{rounds.length} meta</Pill>
               </div>
               <h3 className="mt-2 font-serif text-2xl font-semibold text-ink">Escolha o pinyin correto</h3>
             </div>
             <div className="text-right">
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">Rodada</div>
               <div className="font-serif text-2xl font-semibold text-ink">
-                {roundIndex + 1}/{PINYIN_ACCENT_ROUNDS.length}
+                {roundIndex + 1}/{rounds.length}
               </div>
             </div>
           </div>
-          <ProgressBar value={roundIndex + (checked ? 1 : 0)} max={PINYIN_ACCENT_ROUNDS.length} className="mt-4" />
+          <ProgressBar value={roundIndex + (checked ? 1 : 0)} max={rounds.length} className="mt-4" />
         </div>
 
         <div className="space-y-5 px-5 py-5 sm:px-6">
@@ -629,7 +681,7 @@ function PinyinAccentTrainer() {
               Repetir áudio
             </Button>
             <Button size="lg" disabled={!checked} onClick={nextRound}>
-              {roundIndex + 1 >= PINYIN_ACCENT_ROUNDS.length ? "Ver nota" : "Próxima"}
+              {roundIndex + 1 >= rounds.length ? "Ver nota" : "Próxima"}
               <IconChevron width={18} height={18} />
             </Button>
           </div>
@@ -957,27 +1009,6 @@ function LabSectionHeader({ title, desc }: { title: string; desc: string }) {
       <h2 className="font-serif text-lg font-semibold text-ink">{title}</h2>
       {desc && <p className="mt-0.5 text-xs text-ink-soft">{desc}</p>}
     </div>
-  );
-}
-
-function ToneCurve({ tone }: { tone: PinyinTone }) {
-  if (tone === 5) {
-    return (
-      <div className="mx-auto mt-3 h-7 w-16 rounded-full border border-line bg-surface-2 text-[10px] font-semibold leading-7 text-ink-faint">
-        leve
-      </div>
-    );
-  }
-  const paths: Record<1 | 2 | 3 | 4, string> = {
-    1: "M4 8 H44",
-    2: "M4 20 L44 6",
-    3: "M4 10 C14 26, 26 26, 44 8",
-    4: "M4 6 L44 22",
-  };
-  return (
-    <svg viewBox="0 0 48 28" className="mx-auto mt-3 h-7 w-16" aria-hidden="true">
-      <path d={paths[tone]} fill="none" stroke={TONE_COLOR[tone]} strokeWidth={2.5} strokeLinecap="round" />
-    </svg>
   );
 }
 

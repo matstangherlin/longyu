@@ -4,7 +4,7 @@ import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { diagnoseError, isUnexplainedProduction } from "../../data/errorDiagnosis";
-import { TONE_COLOR, TONE_LABELS, TONE_LISTENING_TIPS } from "../../data/tones";
+import { TONE_LABELS, TONE_LISTENING_TIPS } from "../../data/tones";
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
@@ -29,10 +29,13 @@ import {
 } from "../../lib/useExerciseHotkeys";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { seededShuffleAvoidingOrder } from "../../lib/seededShuffle";
+import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
 import { useStore } from "../../lib/store";
 import { Button, cx } from "../../components/ui/primitives";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { MandarinText } from "../../components/hanzi/MandarinText";
+import { ToneContour } from "../../components/tone/ToneContour";
+import { toneKnowledge } from "../../data/toneKnowledge";
 import { MandarinHelpProvider, useMandarinHelpSettings } from "../../components/hanzi/helpMode";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
@@ -130,20 +133,6 @@ export interface StepProps {
 }
 
 type ToneN = 1 | 2 | 3 | 4;
-
-function ToneCurve({ tone, size = 16 }: { tone: ToneN; size?: number }) {
-  const paths: Record<ToneN, string> = {
-    1: "M4 8 H44",
-    2: "M4 20 L44 6",
-    3: "M4 10 C14 26, 26 26, 44 8",
-    4: "M4 6 L44 22",
-  };
-  return (
-    <svg viewBox="0 0 48 28" style={{ height: size }} className="w-12">
-      <path d={paths[tone]} fill="none" stroke={TONE_COLOR[tone]} strokeWidth={2.5} strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /** CTA sticky na base da região da atividade (mobile + desktop).
  * O shell do LessonPlayer já acompanha `visualViewport` (teclado/barras);
@@ -292,6 +281,7 @@ function ToneAnswerFeedback({
   hanzi,
   pinyin,
   meaning,
+  instructionLocale,
   onContinue,
 }: {
   correct: boolean;
@@ -300,13 +290,16 @@ function ToneAnswerFeedback({
   hanzi: string;
   pinyin?: string;
   meaning?: string;
+  instructionLocale: "pt-BR" | "en";
   onContinue: () => void;
 }) {
   const [showTheory, setShowTheory] = useState(false);
+  const answerKnowledge = toneKnowledge(answer);
   return (
     <div
       role="status"
       aria-live="polite"
+      data-tone-answer-feedback={answer}
       className={[
         "animate-pop mt-4 rounded-2xl border p-3.5 text-left",
         correct ? "border-transparent bg-[rgb(var(--good)/0.12)] longyu-success-bloom" : "border-accent-soft bg-accent-soft/45",
@@ -320,13 +313,21 @@ function ToneAnswerFeedback({
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-        {correct ? `✓ ${answer}º tom` : `Era ${answer}º — você marcou ${picked}º`}
+        {correct
+          ? instructionLocale === "en"
+            ? `Correct · tone ${answer}`
+            : `Certo · ${answer}º tom`
+          : instructionLocale === "en"
+            ? `You chose tone ${picked}. The audio followed tone ${answer}: ${answerKnowledge.learnerDescriptionEn}.`
+            : `Você escolheu o ${picked}º tom. O áudio fez o ${answer}º: ${answerKnowledge.learnerDescriptionPt}.`}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        {pinyin && <Pinyin text={pinyin} className="font-serif text-xl" />}
-        <span className="text-sm text-ink-soft">{displayPt(TONE_LABELS[answer])}</span>
-        {meaning && <span className="text-sm text-ink-faint">· {meaning}</span>}
+      <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl bg-surface/70 px-3 py-2.5">
+        <ToneContour tone={answer} mode="EARLY" locale={instructionLocale} />
+        <div className="flex flex-wrap items-center gap-2">
+          {pinyin && <Pinyin text={pinyin} className="font-serif text-xl" />}
+          {meaning && <span className="text-sm text-ink-faint">· {meaning}</span>}
+        </div>
       </div>
 
       {!showTheory ? (
@@ -351,7 +352,6 @@ function ToneAnswerFeedback({
             </div>
           </div>
           <p className="text-ink-soft">{t("player.audioHint", { tip: displayPt(TONE_LISTENING_TIPS[answer]) })}</p>
-          <ToneCurve tone={answer} />
         </div>
       )}
       </div>
@@ -504,6 +504,7 @@ function StepListen({ step, onDone }: StepProps) {
 }
 
 function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
+  const { instructionLocale } = useTranslation();
   const soundEffects = useStore((s) => s.soundEffects);
   const [selectedTone, setSelectedTone] = useState<ToneN | null>(null);
   const [picked, setPicked] = useState<ToneN | null>(null);
@@ -560,20 +561,86 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
-    optionCount: ensuredChoices.length,
-    isAnswered: picked != null && (picked === answer || !onMistake),
-    hasSelection: selectedTone != null,
+    optionCount: guided ? 0 : ensuredChoices.length,
+    isAnswered: guided ? listenCount > 0 : picked != null && (picked === answer || !onMistake),
+    hasSelection: guided ? listenCount > 0 : selectedTone != null,
     onSelectOption: (index) => {
+      if (guided) return;
       const tone = ensuredChoices[index];
       if (tone) selectTone(tone);
     },
     onSubmit: () => {
+      if (guided) return;
       if (selectedTone != null) pick(selectedTone);
     },
     onContinue: () => {
+      if (guided) {
+        if (listenCount === 0) return;
+        onDone();
+        return;
+      }
       if (picked != null) onDone(picked === answer);
     },
   });
+
+  if (guided) {
+    const knowledge = toneKnowledge(answer);
+    return (
+      <div className="text-center" data-tone-guided-notice={answer}>
+        <Eyebrow>{displayPt("Conheça a curva")}</Eyebrow>
+        <h2 className="mt-2 font-serif text-xl font-semibold text-ink">
+          {instructionLocale === "en" ? "Listen first. No test yet." : "Primeiro ouça. Ainda não é teste."}
+        </h2>
+        <div className="mx-auto mt-5 max-w-sm rounded-3xl border border-line bg-surface-2/70 p-5">
+          {listenCount === 0 ? (
+            <button
+              type="button"
+              onClick={() => play(0.8)}
+              className="mx-auto flex h-24 w-24 flex-col items-center justify-center rounded-full bg-accent text-white shadow-lift"
+              data-tone-first-exposure
+            >
+              <IconSound width={32} height={32} />
+              <span className="mt-1 text-xs font-semibold">{instructionLocale === "en" ? "Listen" : "Ouvir"}</span>
+            </button>
+          ) : (
+            <>
+              <MandarinText
+                hanzi={step.hanzi!}
+                pinyin={step.pinyin}
+                meaning={meaning}
+                size="lg"
+                audio
+                align="center"
+              />
+              <ToneContour tone={answer} mode="EARLY" locale={instructionLocale} className="mt-5" />
+            </>
+          )}
+          {listenCount > 0 && answer === 3 && (
+            <p className="mt-3 text-xs leading-5 text-ink-soft">
+              {instructionLocale === "en"
+                ? "The dip is a learning map. In natural speech, the 3rd tone often stays lower and shorter."
+                : "O vale é um mapa de aprendizagem. Na fala natural, o 3º tom muitas vezes fica mais baixo e curto."}
+            </p>
+          )}
+          {listenCount > 0 && <button
+            type="button"
+            onClick={() => play(0.72)}
+            className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm font-semibold text-ink"
+          >
+            <IconSound width={18} height={18} />
+            {instructionLocale === "en" ? "Listen again" : "Ouvir novamente"}
+          </button>}
+          <span className="sr-only">{knowledge.mark}</span>
+        </div>
+        {listenCount > 0 && (
+          <ContinueBtn
+            onClick={() => onDone()}
+            label={instructionLocale === "en" ? "I noticed the contour" : "Percebi a curva"}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="text-center" data-tone-simple="1">
@@ -632,7 +699,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
             >
               <span className="text-2xl font-semibold tabular-nums text-ink">{tone}</span>
               <span className="text-xs font-medium text-ink-soft">{displayPt(`${tone}º tom`)}</span>
-              {showDetail && <ToneCurve tone={tone} size={12} />}
+              {showDetail && <ToneContour tone={tone} mode="LATE" locale={instructionLocale} />}
             </button>
           );
         })}
@@ -673,6 +740,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
             hanzi={step.hanzi!}
             pinyin={step.pinyin}
             meaning={meaning}
+            instructionLocale={instructionLocale}
             onContinue={() => onDone(picked === answer)}
           />
         </div>
@@ -685,7 +753,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
-  const options = useMemo(() => shuffle(step.options ?? []), [step]);
+  const options = useMemo(() => [...(step.options ?? [])], [step.options]);
 
   function selectOption(option: string) {
     if (answered) return;
@@ -1938,6 +2006,8 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 data-pair-side="left"
                 data-pair-id={pair.id}
                 data-pair-matched={matched ? "true" : "false"}
+                data-pair-selected={selectedLeft === pair.id ? "true" : "false"}
+                data-pair-wrong={wrong ? "true" : "false"}
                 onClick={() => pickLeft(pair.id)}
                 disabled={Boolean(matched) || complete}
                 aria-label={pair.leftType === "audio" && !matched ? "Tocar áudio e combinar" : undefined}
@@ -1985,6 +2055,8 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 data-pair-side="right"
                 data-pair-id={item.id}
                 data-pair-matched={matched ? "true" : "false"}
+                data-pair-selected="false"
+                data-pair-wrong={wrong ? "true" : "false"}
                 onClick={() => pickRight(item.id)}
                 disabled={Boolean(matched) || complete}
                 aria-label={item.type === "audio" && !matched ? "Tocar áudio e combinar" : undefined}
@@ -2054,7 +2126,7 @@ function StepTonePair(props: StepProps) {
 
 export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
-  const options = useMemo(() => shuffle([...(step.options ?? []), ...(step.distractors ?? [])]), [step.options, step.distractors]);
+  const options = useMemo(() => [...(step.options ?? []), ...(step.distractors ?? [])], [step.options, step.distractors]);
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
@@ -2140,7 +2212,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
 }
 
 function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
-  const options = useMemo(() => shuffle([...(step.options ?? []), ...(step.distractors ?? [])]), [step.options, step.distractors]);
+  const options = useMemo(() => [...(step.options ?? []), ...(step.distractors ?? [])], [step.options, step.distractors]);
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [audioFallback, setAudioFallback] = useState(false);
@@ -3025,7 +3097,7 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
 
 function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
   const soundEffects = useStore((s) => s.soundEffects);
-  const options = useMemo(() => shuffle(step.options ?? []), [step.options]);
+  const options = useMemo(() => [...(step.options ?? [])], [step.options]);
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
@@ -4978,6 +5050,36 @@ function hasInstructionalLatin(text: string): boolean {
   return /[A-Za-zÀ-ÿ]{2,}/.test(text);
 }
 
+const SESSION_STABLE_CHOICE_KINDS = new Set<LessonStep["kind"]>([
+  "comprehend",
+  "listen_select",
+  "dialogue_choice",
+  "contextual_choice",
+  "audio_to_action",
+  "odd_one_out",
+  "spot_error",
+  "place_label",
+  "sign_reading",
+  "menu_reading",
+  "price_task",
+]);
+
+function withSessionStableChoiceOrder(
+  step: LessonStep,
+  lessonId: string | undefined,
+  attemptSeed: string | undefined
+): LessonStep {
+  if (!SESSION_STABLE_CHOICE_KINDS.has(step.kind)) return step;
+  const options = [...(step.options ?? []), ...(step.distractors ?? [])];
+  if (options.length < 2) return step;
+  const seed = attemptSeed ?? `${lessonId ?? "lesson"}:${step.kind}:${step.correctAnswer ?? step.answer ?? ""}`;
+  return {
+    ...step,
+    options: stableOptionPermutation(options, seed),
+    distractors: [],
+  };
+}
+
 /** Só falas reais em mandarim entram no autoplay — enunciados em PT ficam mudos. */
 export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt: string): string | undefined {
   if (hintWouldRevealAnswer(step)) return undefined;
@@ -5013,9 +5115,13 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
   const name = useStudentFirstName();
   const { instructionLocale } = useTranslation();
   const runtimeStep = useMemo(() => materializeRuntimeStep(step), [step]);
+  const displayOrderedStep = useMemo(
+    () => withSessionStableChoiceOrder(runtimeStep, lessonId, attemptSeed),
+    [attemptSeed, lessonId, runtimeStep]
+  );
   const localizedStep = useMemo(
-    () => localizeLessonStep(runtimeStep, instructionLocale),
-    [runtimeStep, instructionLocale]
+    () => localizeLessonStep(displayOrderedStep, instructionLocale),
+    [displayOrderedStep, instructionLocale]
   );
   const personalizedStep = useMemo(() => personalizeStep(localizedStep, name), [localizedStep, name]);
   const validation = useMemo(() => validateExercise(personalizedStep), [personalizedStep]);
