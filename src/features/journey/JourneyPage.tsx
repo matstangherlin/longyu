@@ -20,6 +20,7 @@ import {
 } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { dueItems } from "../../lib/srs";
+import { evaluateJourneyNodeReadiness, type LearnerReadinessState } from "../../lib/journeyReadiness";
 import { useOnline } from "../../hooks/useOnline";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { localizedChestVisual } from "../../components/chests/chestMeta";
@@ -55,7 +56,7 @@ import {
   TONE_NUMBER_NODE,
 } from "../../data/journeyOrchestrator";
 import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
-import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
+import { completedJourneyNodeIds, isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -472,10 +473,7 @@ export function JourneyPage() {
                         }}
                       />
                       {unit.id === "u1-1" && expanded && (
-                        <FoundationOrchestrationPanel
-                          firstTopicMastery={lessonMasteryById["p1-o-que-e-mandarim"]?.level ?? 0}
-                          currentId={currentId}
-                        />
+                        <FoundationOrchestrationPanel currentId={currentId} />
                       )}
                     </div>
                   );
@@ -514,35 +512,43 @@ export function JourneyPage() {
   );
 }
 
-function FoundationOrchestrationPanel({
-  firstTopicMastery,
-  currentId,
-}: {
-  firstTopicMastery: number;
-  currentId: string | undefined;
-}) {
+function FoundationOrchestrationPanel({ currentId }: { currentId: string | undefined }) {
   const { instructionLocale } = useTranslation();
   const learnedChunks = useStore((state) => state.learnedChunks);
   const learnedChars = useStore((state) => state.learnedChars);
   const completedLessons = useStore((state) => state.completedLessons);
   const lessonMasteryById = useStore((state) => state.lessonMasteryById);
   const srs = useStore((state) => state.srs);
-  const foundationReady = firstTopicMastery >= 4 || currentId === "p1-o-que-e-pinyin";
-  const blitzReady = learnedChunks.includes("nihao") && learnedChars.some((id) => id === "ni" || id === "hao");
   const capsuleComplete = isJourneyNodeComplete(PINYIN_CAPSULE_NODE.id);
   const blitzComplete = isJourneyNodeComplete(FOUNDATION_BLITZ_NODE.id);
-  const toneMastery = lessonMasteryById["p1-o-que-e-tom"]?.level ?? 0;
-  const pinyinMastery = lessonMasteryById["p1-o-que-e-pinyin"]?.level ?? 0;
-  const hanziMastery = lessonMasteryById["p1-primeiros-hanzi"]?.level ?? 0;
-  const reviewReady = dueItems(srs).length > 0;
-  const knownPatternCount = new Set(
-    ALL_LESSONS
-      .filter((lesson) => completedLessons.includes(lesson.id))
-      .flatMap((lesson) => (lesson.steps ?? []).map((step) => step.patternPt).filter((value): value is string => Boolean(value)))
-  ).size;
-  const immersionReady = learnedChunks.length >= (IMMERSION_READINESS_NODE.minimumKnownChunks ?? 8)
-    && knownPatternCount >= (IMMERSION_READINESS_NODE.minimumKnownPatterns ?? 2)
-    && firstTopicMastery >= 4;
+  // V4.9.2: o painel deixa de decidir readiness. Toda condição vem de
+  // `evaluateJourneyNodeReadiness`, a mesma autoridade que os deep links usam.
+  const knownPatternCount = useMemo(
+    () =>
+      new Set(
+        ALL_LESSONS
+          .filter((lesson) => completedLessons.includes(lesson.id))
+          .flatMap((lesson) =>
+            (lesson.steps ?? []).map((step) => step.patternPt).filter((value): value is string => Boolean(value))
+          )
+      ).size,
+    [completedLessons]
+  );
+  const learnerState: LearnerReadinessState = useMemo(
+    () => ({
+      completedLessons,
+      lessonMasteryById,
+      learnedChunks,
+      learnedChars,
+      knownPatternCount,
+      srs,
+      completedNodeIds: completedJourneyNodeIds(),
+      currentTopicId: currentId,
+    }),
+    [completedLessons, lessonMasteryById, learnedChunks, learnedChars, knownPatternCount, srs, currentId]
+  );
+  const readyFor = (node: Parameters<typeof evaluateJourneyNodeReadiness>[0]) =>
+    evaluateJourneyNodeReadiness(node, learnerState).ready;
   const text = instructionLocale === "en" ? {
     label: "Learning path",
     title: "Build a base, then gain speed",
@@ -614,7 +620,7 @@ function FoundationOrchestrationPanel({
           body={text.capsuleBody}
           cta={text.capsuleCta}
           to={`/jornada/capsula/${encodeURIComponent(PINYIN_FOUNDATION_CAPSULE.id)}`}
-          enabled={foundationReady}
+          enabled={readyFor(PINYIN_CAPSULE_NODE)}
           completed={capsuleComplete}
           lockedCopy={text.locked}
         />
@@ -624,7 +630,7 @@ function FoundationOrchestrationPanel({
           body={text.blitzBody}
           cta={text.blitzCta}
           to={`/arcade/blitz?journeyNode=${encodeURIComponent(FOUNDATION_BLITZ_NODE.id)}`}
-          enabled={foundationReady && blitzReady}
+          enabled={readyFor(FOUNDATION_BLITZ_NODE)}
           completed={blitzComplete}
           lockedCopy={text.locked}
           footnote={text.optional}
@@ -635,7 +641,7 @@ function FoundationOrchestrationPanel({
           body={text.tone13Body}
           cta={text.start}
           to={`/som?journeyNode=${encodeURIComponent(TONE_CONTOUR_INTRO_NODE.id)}`}
-          enabled={toneMastery >= 1}
+          enabled={readyFor(TONE_CONTOUR_INTRO_NODE)}
           completed={isJourneyNodeComplete(TONE_CONTOUR_INTRO_NODE.id)}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
@@ -646,7 +652,7 @@ function FoundationOrchestrationPanel({
           body={text.toneAllBody}
           cta={text.start}
           to={`/som?journeyNode=${encodeURIComponent(TONE_NUMBER_NODE.id)}`}
-          enabled={toneMastery >= 2}
+          enabled={readyFor(TONE_NUMBER_NODE)}
           completed={isJourneyNodeComplete(TONE_NUMBER_NODE.id)}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
@@ -657,7 +663,7 @@ function FoundationOrchestrationPanel({
           body={text.pinyinBody}
           cta={text.start}
           to={`/pinyin?journeyNode=${encodeURIComponent(PINYIN_PRACTICE_NODE.id)}`}
-          enabled={capsuleComplete && pinyinMastery >= 1}
+          enabled={readyFor(PINYIN_PRACTICE_NODE)}
           completed={isJourneyNodeComplete(PINYIN_PRACTICE_NODE.id)}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
@@ -668,7 +674,7 @@ function FoundationOrchestrationPanel({
           body={text.hanziBody}
           cta={text.start}
           to={`/hanzi?char=mu&journeyNode=${encodeURIComponent(HANZI_BUILDER_NODE.id)}`}
-          enabled={hanziMastery >= 1 && learnedChars.includes("mu")}
+          enabled={readyFor(HANZI_BUILDER_NODE)}
           completed={isJourneyNodeComplete(HANZI_BUILDER_NODE.id)}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
@@ -679,7 +685,7 @@ function FoundationOrchestrationPanel({
           body={text.conversationBody}
           cta={text.start}
           to={`/jornada/reforco/${encodeURIComponent(FIRST_CONVERSATION_NODE.id)}`}
-          enabled={firstTopicMastery >= 2 && learnedChunks.includes("nihao")}
+          enabled={readyFor(FIRST_CONVERSATION_NODE)}
           completed={isJourneyNodeComplete(FIRST_CONVERSATION_NODE.id)}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
@@ -690,7 +696,7 @@ function FoundationOrchestrationPanel({
           body={text.reviewBody}
           cta={text.review}
           to={`/revisao?journeyNode=${encodeURIComponent(JOURNEY_REVIEW_NODE.id)}`}
-          enabled={reviewReady}
+          enabled={readyFor(JOURNEY_REVIEW_NODE)}
           completed={false}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
@@ -701,7 +707,7 @@ function FoundationOrchestrationPanel({
           body={text.immersionBody}
           cta={text.start}
           to={`/imersao?journeyNode=${encodeURIComponent(IMMERSION_READINESS_NODE.id)}`}
-          enabled={immersionReady}
+          enabled={readyFor(IMMERSION_READINESS_NODE)}
           completed={isJourneyNodeComplete(IMMERSION_READINESS_NODE.id)}
           lockedCopy={text.readinessLocked}
           footnote={text.optional}
