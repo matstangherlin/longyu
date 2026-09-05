@@ -8,7 +8,7 @@ import { parseLessonCatalog, type CatalogProblem } from "./lessonCatalogSchema";
 /**
  * V4.9.2B — o objetivo central da remessa, em um arquivo.
  *
- * "Adicionar uma aula nova ao Longyu NÃO deve exigir nova reconstrução da
+ * "Adicionar uma aula nova ao Longyu não deve exigir nova reconstrução da
  * aplicação." Enquanto o catálogo for um array TypeScript, toda aula é um
  * build e um deploy — e quem escreve a aula depende de quem escreve código.
  * Aqui o catálogo passa a ser um arquivo estático buscado em runtime:
@@ -47,6 +47,7 @@ interface CatalogState {
 let state: CatalogState = { status: "IDLE", capsules: [], assets: [], problems: [] };
 const listeners = new Set<() => void>();
 let inFlight: Promise<void> | null = null;
+let settled = false;
 
 function publish(next: CatalogState): void {
   state = next;
@@ -76,6 +77,9 @@ function writeCache(raw: unknown): void {
  */
 export function loadLessonCatalog(): Promise<void> {
   if (inFlight) return inFlight;
+  // Sem esta linha, cada bloco de módulo que o aluno expande na Jornada monta
+  // um assinante novo e dispara outro download do mesmo arquivo.
+  if (settled) return Promise.resolve();
 
   inFlight = (async () => {
     publish({ ...state, status: "LOADING" });
@@ -114,6 +118,7 @@ export function loadLessonCatalog(): Promise<void> {
     });
   })().finally(() => {
     inFlight = null;
+    settled = true;
   });
 
   return inFlight;
@@ -125,7 +130,9 @@ export function getLessonCatalogState(): Readonly<CatalogState> {
 
 export function subscribeLessonCatalog(listener: () => void): () => void {
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
 /**
@@ -183,5 +190,6 @@ export function allKnownCapsules(): LessonCapsule[] {
 /** Somente para testes: devolve o módulo ao estado de app recém-aberto. */
 export function resetLessonCatalogForTests(): void {
   inFlight = null;
+  settled = false;
   publish({ status: "IDLE", capsules: [], assets: [], problems: [] });
 }

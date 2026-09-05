@@ -104,17 +104,29 @@ async function seedLearner(page: Page) {
 }
 
 /**
- * Nem todo motor de mídia do Playwright decodifica VP8. Onde não decodifica, o
- * comportamento CORRETO do produto não é "tela preta": é cair no fallback
- * interativo da Parte O. Os testes que dependem de decodificação verificam a
- * capacidade primeiro e afirmam o caminho certo para aquele navegador — nunca
- * pulam, porque um teste pulado não prova nada.
+ * Nem todo motor de mídia do Playwright decodifica VP8. Os testes que dependem
+ * de decodificação verificam a capacidade primeiro e afirmam o caminho certo
+ * para aquele navegador — nunca pulam, porque um teste pulado não prova nada.
  */
 async function canDecodeFixture(page: Page): Promise<boolean> {
   return page.evaluate(() => {
     const probe = document.createElement("video");
     return probe.canPlayType('video/webm; codecs="vp8"') === "probably";
   });
+}
+
+/**
+ * O que precisa ser verdade num navegador que não decodifica o fixture.
+ *
+ * Não é "o fallback aparece sozinho": o player avisa e deixa o aluno escolher
+ * entre recarregar e seguir na versão interativa. O invariante é que ele nunca
+ * fica preso — ou o aviso com saída, ou já a versão interativa.
+ */
+async function expectNotStuck(page: Page) {
+  const escape = page.locator(
+    '[data-testid="capsule-media-error"], [data-testid="capsule-animated"]'
+  );
+  await expect(escape.first()).toBeVisible({ timeout: 20_000 });
 }
 
 async function openPublishedCapsule(page: Page) {
@@ -142,8 +154,8 @@ test.describe("V4.9.2B — catálogo de aulas em runtime", () => {
     await openPublishedCapsule(page);
 
     if (!(await canDecodeFixture(page))) {
-      // Sem codec, o contrato é o fallback — e ele precisa aparecer sozinho.
-      await expect(page.getByTestId("capsule-animated")).toBeVisible({ timeout: 15_000 });
+      // Sem codec não há o que medir; o contrato passa a ser não travar.
+      await expectNotStuck(page);
       return;
     }
 
@@ -316,7 +328,8 @@ test.describe("V4.9.2B — player, transcrição e fallback", () => {
     await openPublishedCapsule(page);
 
     if (!(await canDecodeFixture(page))) {
-      await expect(page.getByTestId("capsule-animated")).toBeVisible({ timeout: 15_000 });
+      // Sem codec não há o que medir; o contrato passa a ser não travar.
+      await expectNotStuck(page);
       return;
     }
 
@@ -368,7 +381,8 @@ test.describe("V4.9.2B — player, transcrição e fallback", () => {
     await openPublishedCapsule(page);
 
     if (!(await canDecodeFixture(page))) {
-      await expect(page.getByTestId("capsule-animated")).toBeVisible({ timeout: 15_000 });
+      // Sem codec não há o que medir; o contrato passa a ser não travar.
+      await expectNotStuck(page);
       return;
     }
     await expect(page.getByTestId("capsule-video-player")).toBeVisible();
@@ -412,4 +426,53 @@ test.describe("V4.9.2B — player, transcrição e fallback", () => {
     await page.getByTestId("capsule-continue").click();
     await expect(page.getByTestId("capsule-language-card")).toContainText("你好");
   });
+});
+
+/**
+ * Um player novo é onde geometria quebra primeiro: barra de progresso,
+ * velocidades, legendas e volume disputam a mesma linha. Estes viewports são
+ * os que mais aparecem no QA real — telefone pequeno, telefone grande,
+ * telefone deitado e tablet retrato.
+ */
+const VIEWPORTS = [
+  { name: "375x667 · iPhone SE", width: 375, height: 667 },
+  { name: "412x915 · Android grande", width: 412, height: 915 },
+  { name: "667x360 · telefone deitado", width: 667, height: 360 },
+  { name: "768x1024 · tablet retrato", width: 768, height: 1024 },
+];
+
+test.describe("V4.9.2B — geometria do player publicado", () => {
+  for (const viewport of VIEWPORTS) {
+    test(`17 · ${viewport.name}: a aula cabe na tela`, async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await seedLearner(page);
+      await serveCatalog(page, publishedCatalog());
+      await serveVideo(page);
+      await openPublishedCapsule(page);
+
+      const decodes = await canDecodeFixture(page);
+      if (decodes) await expect(page.getByTestId("capsule-video-player")).toBeVisible({ timeout: 20_000 });
+      else await expectNotStuck(page);
+
+      // Nada pode empurrar a página para os lados: rolagem horizontal numa
+      // aula é o sintoma clássico de controle que não coube.
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      );
+      expect(overflow).toBeLessThanOrEqual(1);
+
+      if (decodes) {
+        // Os controles essenciais precisam estar dentro da viewport e com
+        // área de toque utilizável, não só presentes no DOM.
+        for (const id of ["capsule-media-toggle", "capsule-media-seek"]) {
+          const box = await page.getByTestId(id).boundingBox();
+          expect(box, `${id} sem caixa`).not.toBeNull();
+          expect(box!.x).toBeGreaterThanOrEqual(0);
+          expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width + 1);
+        }
+        const toggle = await page.getByTestId("capsule-media-toggle").boundingBox();
+        expect(toggle!.height).toBeGreaterThanOrEqual(36);
+      }
+    });
+  }
 });

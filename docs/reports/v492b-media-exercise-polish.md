@@ -121,6 +121,23 @@ vídeo falho trocasse a aula por baixo do aluno. O player avisa e oferece
 recarregar ou seguir na versão interativa. Escolher é melhor do que ser
 trocado; os testes passaram a cobrir as duas saídas.
 
+## Evidências
+
+Em `docs/screenshots/`, geradas por `npx playwright test --project=screenshots
+-g "V4.9.2B"`:
+
+| Arquivo | O que mostra |
+| --- | --- |
+| `v492b-01-capsula-animada-{light,dark}` | Cápsula animada nos dois temas |
+| `v492b-02-capsula-cartao-{light,dark}` | Cartão de hànzì/pinyin nos dois temas |
+| `v492b-03-video-publicado-phone` | Aula em vídeo publicada em runtime, tocando |
+| `v492b-04-video-legendas-phone` | O mesmo player com legendas ligadas |
+| `v492b-05-transcricao-phone` | Transcrição aberta, com marcas de tempo |
+| `v492b-06-video-publicado-desktop` | O player em desktop |
+| `v492b-07-aula-publicada-na-trilha` | A aula publicada na Jornada, como OPCIONAL |
+| `v492b-08-video-falhou-com-saida` | Vídeo fora do ar, com recarregar e versão interativa |
+| `v492b-09-fallback-interativo` | A versão interativa depois da escolha |
+
 ## O que NÃO foi feito
 
 - **Nenhuma aula gravada foi produzida.** O catálogo publicado está vazio, por
