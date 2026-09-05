@@ -1,6 +1,6 @@
 # Lexical progression — L1–L20
 
-_Gerado por `validate:lexical-progression` · 2026-09-04_
+_Gerado por `validate:lexical-progression` · 2026-09-05_
 
 ## Contagem (PED-022 / PED-025)
 

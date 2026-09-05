@@ -14,3 +14,4 @@ Computed over canonical Placement option IDs. Display permutation does not chang
 Conventional choice tasks use a session-stable display permutation. Sentence ordering, timelines, tone legends, pair matching and other order-semantic tasks are intentionally excluded.
 
 Hotkeys 1–4 follow display order; submitted values remain canonical option IDs.
+
