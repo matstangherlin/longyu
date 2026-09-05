@@ -1,0 +1,15 @@
+{
+  "capsuleId": "capsule:foundation:mandarin:v1",
+  "instructionSlotId": "instruction:foundation:mandarin",
+  "topicId": "p1-o-que-e-mandarim",
+  "placement": "BEFORE_TOPIC",
+  "completionPolicy": "INSTRUCTION_COMPLETED",
+  "affectsMastery": false,
+  "knowledgeTargets": [
+    "concept:mandarin-language",
+    "intent:greeting",
+    "chunk:nihao"
+  ],
+  "productionVideoAssetPt": "NONE",
+  "productionVideoAssetEn": "NONE"
+}

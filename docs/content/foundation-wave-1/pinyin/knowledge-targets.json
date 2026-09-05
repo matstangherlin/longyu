@@ -1,0 +1,13 @@
+{
+  "capsuleId": "capsule:foundation:pinyin:v1",
+  "instructionSlotId": "instruction:foundation:pinyin",
+  "topicId": "p1-o-que-e-pinyin",
+  "placement": "BEFORE_TOPIC",
+  "completionPolicy": "INSTRUCTION_COMPLETED",
+  "affectsMastery": false,
+  "knowledgeTargets": [
+    "concept:pinyin-map"
+  ],
+  "productionVideoAssetPt": "NONE",
+  "productionVideoAssetEn": "NONE"
+}

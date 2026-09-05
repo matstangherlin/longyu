@@ -1,0 +1,13 @@
+{
+  "capsuleId": "capsule:foundation:hanzi:v1",
+  "instructionSlotId": "instruction:foundation:hanzi",
+  "topicId": "p1-o-que-e-hanzi",
+  "placement": "BEFORE_TOPIC",
+  "completionPolicy": "INSTRUCTION_COMPLETED",
+  "affectsMastery": false,
+  "knowledgeTargets": [
+    "concept:hanzi-writing"
+  ],
+  "productionVideoAssetPt": "NONE",
+  "productionVideoAssetEn": "NONE"
+}

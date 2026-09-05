@@ -1,0 +1,13 @@
+{
+  "capsuleId": "capsule:foundation:hanzi-components:v1",
+  "instructionSlotId": "instruction:foundation:hanzi-components",
+  "topicId": "p1-primeiros-hanzi",
+  "placement": "BEFORE_TOPIC",
+  "completionPolicy": "INSTRUCTION_COMPLETED",
+  "affectsMastery": false,
+  "knowledgeTargets": [
+    "concept:hanzi-components"
+  ],
+  "productionVideoAssetPt": "NONE",
+  "productionVideoAssetEn": "NONE"
+}
