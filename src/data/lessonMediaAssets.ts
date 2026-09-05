@@ -225,6 +225,54 @@ export function clearMediaProgressForTests(): void {
   localStorage.removeItem(MEDIA_PROGRESS_STORAGE_KEY);
 }
 
+// ── Decisões do player, como funções puras ────────────────────────────────
+//
+// Retomada e fallback são regras de produto, não detalhe de renderização.
+// Mantê-las dentro do componente as tornaria verificáveis só por E2E, que é
+// o teste mais lento e mais frágil de todos. Aqui elas ficam provadas em
+// milissegundos, e o componente só as consome.
+
+export type MediaPlaybackMode =
+  | "PLAYABLE"
+  | "FALLBACK_OFFLINE"
+  | "FALLBACK_UNSAFE_URL"
+  | "FALLBACK_UNSUPPORTED_DELIVERY"
+  | "FALLBACK_ERROR";
+
+export function mediaPlaybackMode(
+  asset: LessonMediaAsset,
+  state: { offline?: boolean; failed?: boolean } = {}
+): MediaPlaybackMode {
+  // Offline vem primeiro: sem rede, a URL mais segura do mundo não carrega, e
+  // insistir renderizaria o spinner infinito que a Parte P proíbe.
+  if (state.offline) return "FALLBACK_OFFLINE";
+  if (!verifyMediaUrl(asset.url).safe) return "FALLBACK_UNSAFE_URL";
+  // HLS está declarado no tipo, mas sem implementação: cair no fallback é
+  // honesto, tentar tocar seria prometer o que o player não faz.
+  if (asset.delivery === "HLS") return "FALLBACK_UNSUPPORTED_DELIVERY";
+  if (state.failed) return "FALLBACK_ERROR";
+  return "PLAYABLE";
+}
+
+/**
+ * Posição a oferecer como "continuar de", ou `null` quando não faz sentido.
+ *
+ * Não oferecemos retomada nos primeiros segundos (o aluno não perdeu nada) nem
+ * depois de concluída (aí o gesto natural é rever do começo). A oferta também
+ * morre quando a versão do asset muda, porque 1:42 no corte antigo pode ser
+ * outro assunto no novo.
+ */
+export const RESUME_MINIMUM_SECONDS = 3;
+
+export function resumeOfferSeconds(progress: MediaPlaybackProgress | undefined): number | null {
+  if (!progress) return null;
+  if (progress.completed) return null;
+  if (progress.maxPositionSeconds <= RESUME_MINIMUM_SECONDS) return null;
+  // Perto demais do fim também não é retomada útil.
+  if (progress.durationSeconds > 0 && progress.maxPositionSeconds >= progress.durationSeconds - 1) return null;
+  return progress.maxPositionSeconds;
+}
+
 // ── Registro ──────────────────────────────────────────────────────────────
 
 /**

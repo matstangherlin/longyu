@@ -96,7 +96,12 @@ export function LessonCapsulePlayer({
         )}
       </Card>
 
-      <CapsuleTranscript transcript={content.transcript} cues={asset?.captions} locale={locale} />
+      <CapsuleTranscript
+        transcript={content.transcript}
+        cues={asset?.captions}
+        locale={locale}
+        capsuleId={capsule.id}
+      />
 
       <p className="mt-3 px-2 text-center text-xs text-ink-faint">{content.objective}</p>
 

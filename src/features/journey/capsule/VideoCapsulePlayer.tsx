@@ -5,14 +5,16 @@ import type { InstructionLocale } from "../../../i18n/config";
 import {
   MEDIA_COMPLETION_THRESHOLD,
   isMediaWatched,
+  mediaPlaybackMode,
   mergeWatchedRanges,
   readMediaProgress,
-  verifyMediaUrl,
+  resumeOfferSeconds,
   watchedCoverage,
   writeMediaProgress,
   type LessonMediaAsset,
   type WatchedRange,
 } from "../../../data/lessonMediaAssets";
+import { pendingMilestones, trackMediaEvent, type MediaEventType } from "../../../services/mediaEvents";
 
 const SPEEDS = [0.75, 1, 1.25, 1.5] as const;
 /** `timeupdate` dispara ~4×/s; persistir a cada evento castigaria o storage. */
@@ -52,6 +54,7 @@ export function VideoCapsulePlayer({
   const segmentStartRef = useRef<number | null>(null);
   const lastPersistRef = useRef(0);
 
+  const sentMilestonesRef = useRef<Set<MediaEventType>>(new Set());
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(asset.durationSeconds);
@@ -66,13 +69,12 @@ export function VideoCapsulePlayer({
   const [offline, setOffline] = useState(() => typeof navigator !== "undefined" && !navigator.onLine);
   // A retomada é oferta, nunca automática: reabrir uma aula e ouvir voz de
   // repente é intrusivo, e o aluno pode querer justamente rever do começo.
-  const [resumeOffer, setResumeOffer] = useState(
-    stored && stored.maxPositionSeconds > 3 && !stored.completed ? stored.maxPositionSeconds : null
-  );
+  const [resumeOffer, setResumeOffer] = useState(() => resumeOfferSeconds(stored));
 
-  // Uma URL insegura nunca chega ao `src`: recusada antes de montar o elemento.
-  const urlVerdict = useMemo(() => verifyMediaUrl(asset.url), [asset.url]);
-  const unusable = !urlVerdict.safe || asset.delivery === "HLS";
+  // Uma URL insegura nunca chega ao `src`: a decisão é tomada antes de montar
+  // o elemento, e mora no domínio para ser testável sem browser.
+  const mode = mediaPlaybackMode(asset, { offline, failed });
+  const unusable = mode === "FALLBACK_UNSAFE_URL" || mode === "FALLBACK_UNSUPPORTED_DELIVERY";
 
   const persist = useCallback(
     (time: number, force = false) => {
@@ -93,7 +95,14 @@ export function VideoCapsulePlayer({
         completed: isMediaWatched(ranges, duration || asset.durationSeconds),
         updatedAt: now,
       });
-      setCoverage(watchedCoverage(ranges, duration || asset.durationSeconds));
+      const nextCoverage = watchedCoverage(ranges, duration || asset.durationSeconds);
+      setCoverage(nextCoverage);
+      // Um marco vale uma vez por sessão: rever um trecho não pode inflar
+      // retenção no funil.
+      for (const milestone of pendingMilestones(nextCoverage, sentMilestonesRef.current)) {
+        sentMilestonesRef.current.add(milestone);
+        trackMediaEvent(milestone, { capsule_id: capsuleId, media_asset_id: asset.id });
+      }
     },
     [asset.id, asset.version, asset.durationSeconds, capsuleId, duration, locale]
   );
@@ -108,6 +117,10 @@ export function VideoCapsulePlayer({
     },
     []
   );
+
+  useEffect(() => {
+    trackMediaEvent("capsule_impression", { capsule_id: capsuleId, media_asset_id: asset.id });
+  }, [capsuleId, asset.id]);
 
   useEffect(() => {
     const goOffline = () => setOffline(true);
@@ -176,6 +189,7 @@ export function VideoCapsulePlayer({
               variant="outline"
               onClick={() => {
                 setFailed(false);
+                trackMediaEvent("media_retry", { capsule_id: capsuleId, media_asset_id: asset.id });
                 videoRef.current?.load();
               }}
               data-testid="capsule-media-retry"
@@ -184,7 +198,17 @@ export function VideoCapsulePlayer({
               {en ? "Reload" : "Recarregar"}
             </Button>
           )}
-          <Button onClick={() => onOutcome("FALLBACK_REQUESTED")} data-testid="capsule-media-fallback">
+          <Button
+            onClick={() => {
+              trackMediaEvent("media_fallback_used", {
+                capsule_id: capsuleId,
+                media_asset_id: asset.id,
+                reason: mode,
+              });
+              onOutcome("FALLBACK_REQUESTED");
+            }}
+            data-testid="capsule-media-fallback"
+          >
             {en ? "Use the interactive version" : "Usar versão interativa"}
           </Button>
         </div>
@@ -207,11 +231,17 @@ export function VideoCapsulePlayer({
           onPlay={(event) => {
             segmentStartRef.current = event.currentTarget.currentTime;
             setPlaying(true);
+            trackMediaEvent("media_started", { capsule_id: capsuleId, media_asset_id: asset.id });
           }}
           onPause={(event) => {
             closeSegment(event.currentTarget.currentTime);
             persist(event.currentTarget.currentTime, true);
             setPlaying(false);
+            trackMediaEvent("media_paused", {
+              capsule_id: capsuleId,
+              media_asset_id: asset.id,
+              position_seconds: Math.round(event.currentTarget.currentTime),
+            });
           }}
           onTimeUpdate={(event) => {
             const time = event.currentTarget.currentTime;
@@ -225,13 +255,21 @@ export function VideoCapsulePlayer({
             // fabrica cobertura — é a regra central da Parte M.
             closeSegment(Math.min(event.currentTarget.currentTime, currentTime));
             segmentStartRef.current = event.currentTarget.currentTime;
+            trackMediaEvent("media_seek", {
+              capsule_id: capsuleId,
+              media_asset_id: asset.id,
+              position_seconds: Math.round(event.currentTarget.currentTime),
+            });
           }}
           onEnded={(event) => {
             closeSegment(event.currentTarget.currentTime);
             persist(event.currentTarget.currentTime, true);
             setPlaying(false);
           }}
-          onError={() => setFailed(true)}
+          onError={() => {
+            setFailed(true);
+            trackMediaEvent("media_error", { capsule_id: capsuleId, media_asset_id: asset.id });
+          }}
         >
           {captionUrl && (
             <track
@@ -258,6 +296,11 @@ export function VideoCapsulePlayer({
                   const video = videoRef.current;
                   if (video) video.currentTime = resumeOffer;
                   setResumeOffer(null);
+                  trackMediaEvent("capsule_started", {
+                    capsule_id: capsuleId,
+                    media_asset_id: asset.id,
+                    resumed: true,
+                  });
                 }}
                 data-testid="capsule-media-resume-continue"
               >
@@ -269,6 +312,11 @@ export function VideoCapsulePlayer({
                   const video = videoRef.current;
                   if (video) video.currentTime = 0;
                   setResumeOffer(null);
+                  trackMediaEvent("capsule_started", {
+                    capsule_id: capsuleId,
+                    media_asset_id: asset.id,
+                    resumed: false,
+                  });
                 }}
                 data-testid="capsule-media-resume-restart"
               >
@@ -388,7 +436,12 @@ export function VideoCapsulePlayer({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => setCaptionsOn((value) => !value)}
+            onClick={() =>
+              setCaptionsOn((value) => {
+                if (!value) trackMediaEvent("caption_enabled", { capsule_id: capsuleId, media_asset_id: asset.id });
+                return !value;
+              })
+            }
             aria-pressed={captionsOn}
             data-testid="capsule-media-captions"
           >
@@ -429,6 +482,7 @@ export function VideoCapsulePlayer({
         disabled={!completed}
         onClick={() => {
           persist(currentTime, true);
+          trackMediaEvent("capsule_completed", { capsule_id: capsuleId, media_asset_id: asset.id });
           onOutcome("COMPLETED");
         }}
         data-testid="capsule-media-finish"

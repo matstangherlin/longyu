@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "../../../components/ui/primitives";
 import type { InstructionLocale } from "../../../i18n/config";
 import type { MediaCaptionCue } from "../../../data/lessonMediaAssets";
+import { trackMediaEvent } from "../../../services/mediaEvents";
 
 /**
  * V4.9.2B — Parte J.
@@ -18,11 +19,13 @@ export function CapsuleTranscript({
   transcript,
   cues,
   locale,
+  capsuleId,
   onSeek,
 }: {
   transcript: string;
   cues?: MediaCaptionCue[];
   locale: InstructionLocale;
+  capsuleId?: string;
   /** Quando presente, cada marca de tempo vira um atalho para o ponto do vídeo. */
   onSeek?: (seconds: number) => void;
 }) {
@@ -35,7 +38,13 @@ export function CapsuleTranscript({
       <Button
         size="sm"
         variant="outline"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() =>
+          setOpen((value) => {
+            // Só a abertura é evento: fechar não é sinal de interesse.
+            if (!value) trackMediaEvent("transcript_opened", { capsule_id: capsuleId ?? null });
+            return !value;
+          })
+        }
         aria-expanded={open}
         data-testid="capsule-transcript-toggle"
       >
