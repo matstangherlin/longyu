@@ -158,10 +158,18 @@ export function assemblyTileClass({
   return [
     "min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2.5 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none",
     cjk ? "hanzi text-[26px] sm:text-[30px]" : "text-[15px]",
-    matched && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))] ring-1 ring-[rgb(var(--good)/0.18)]",
-    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong ring-1 ring-wrong/10",
-    active && !matched && !wrong && "border-accent bg-accent-soft text-accent shadow-lift ring-2 ring-accent/15",
-    muted && "bg-surface-2 text-ink-faint opacity-[0.35] grayscale",
+    // V4.9.2B — a cor do texto é sempre `ink` sobre o tint do estado. A versão
+    // anterior pintava o texto com a própria cor do estado (`text-accent` sobre
+    // `bg-accent-soft`), o que media 3.11:1 no dark e 4.04:1 no china: vermelho
+    // sobre vermelho não separa. O estado continua legível pela borda, pelo ring
+    // e pelo tint do fundo — nenhum deles precisa roubar contraste do Hànzì.
+    matched && "border-transparent bg-[rgb(var(--good)/0.16)] text-ink ring-1 ring-[rgb(var(--good)/0.45)]",
+    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-ink ring-1 ring-wrong/40",
+    active && !matched && !wrong && "border-accent bg-accent-soft text-ink shadow-lift ring-2 ring-accent/35",
+    // Peça já usada: menos proeminente, nunca ilegível. `opacity 0.35 +
+    // grayscale` derrubava o contraste efetivo para 1.85:1 — mancha, não peça.
+    // A de-ênfase agora vem de tokens medíveis, não de um véu sobre tudo.
+    muted && "border-line/50 bg-surface-2 text-ink-soft",
     !active && !matched && !wrong && !muted && "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-accent-soft hover:bg-surface-2",
   ]
     .filter(Boolean)
