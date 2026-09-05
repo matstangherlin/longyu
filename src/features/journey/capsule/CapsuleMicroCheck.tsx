@@ -8,7 +8,7 @@ import { trackMediaEvent } from "../../../services/mediaEvents";
 /**
  * V4.9.3 — Parte C2: a verificação de compreensão dentro da aula.
  *
- * Isto NÃO é avaliação, e cada decisão aqui existe para deixar isso claro
+ * Isto não é avaliação, e cada decisão aqui existe para deixar isso claro
  * para o aluno, não só para o código:
  *
  * - O apoio fica visível ANTES da resposta, não depois. Um microcheck de

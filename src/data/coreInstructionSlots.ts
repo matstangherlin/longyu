@@ -15,9 +15,9 @@ import { FOUNDATION_TARGET_IDS } from "./pedagogicalSpine";
  * já ter sido cobrado. Ela precisa acontecer ANTES, e o sistema precisa poder
  * afirmar isso.
  *
- * O `CoreInstructionSlot` resolve os dois lados. A IDENTIDADE pedagógica —
+ * O `CoreInstructionSlot` resolve os dois lados. A identidade pedagógica —
  * onde a aula entra, o que ela ensina, o que conta como concluí-la — mora
- * aqui, em código, revisada como código. A APRESENTAÇÃO — qual arquivo toca,
+ * aqui, em código, revisada como código. A apresentação — qual arquivo toca,
  * qual voz fala, quais legendas aparecem — continua podendo vir do catálogo,
  * sem rebuild.
  *
