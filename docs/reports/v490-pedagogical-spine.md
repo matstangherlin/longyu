@@ -15,7 +15,7 @@ Relatório computado pelo gate `npm run validate:teach-before-test`. A camada V4
 - first20AbruptDifficultyJumps: 0
 - first20ViolationsBefore: 8
 - first20ViolationsAfter: 0
-- lessonCapsules: 1
+- lessonCapsules: 6
 - journeyIntegratedBoosters: 8
 - themeCount: 15
 - topicsWithoutTheme: 0

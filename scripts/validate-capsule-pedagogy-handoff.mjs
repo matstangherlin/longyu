@@ -45,6 +45,7 @@ try {
       "src/data/journeyOrchestrator.ts",
       "src/data/lessonCapsules.ts",
       "src/data/journey.ts",
+      "src/data/coreInstructionSlots.ts",
     ],
     {
       target: ts.ScriptTarget.ES2020,
@@ -70,6 +71,7 @@ try {
   const orchestrator = require(path.join(outDir, "src/data/journeyOrchestrator.js"));
   const capsuleModule = require(path.join(outDir, "src/data/lessonCapsules.js"));
   const journey = require(path.join(outDir, "src/data/journey.js"));
+  const slots = require(path.join(outDir, "src/data/coreInstructionSlots.js"));
 
   const failures = [];
   const fail = (code, detail) => failures.push({ code, ...detail });
@@ -161,9 +163,30 @@ try {
       fail("CAPSULE_TOPIC_NOT_IN_JOURNEY", { capsule: capsule.id, topicId: capsule.topicId });
     }
 
+    // V4.9.3 — passaram a existir DUAS colocações válidas, e a nova é a mais
+    // forte. Uma cápsula pode ser ancorada por um `JourneyNode` (`afterTopicId`,
+    // o mecanismo da V4.9.1) ou preencher um `CoreInstructionSlot`, que a põe
+    // ANTES do tópico e é verificado por `validate:first20-instruction-order`.
+    //
+    // Este gate continua exigindo que toda cápsula tenha lugar; ele só deixou
+    // de assumir que "ter lugar" significa "estar em JOURNEY_NODES". Uma
+    // cápsula em slot não é órfã — é currículo.
+    const slot = slots.slotForCapsuleId(capsule.id);
     const node = nodeByCapsuleId.get(capsule.id);
+    if (!node && !slot) {
+      fail("CAPSULE_WITHOUT_PLACEMENT", { capsule: capsule.id });
+      continue;
+    }
     if (!node) {
-      fail("CAPSULE_WITHOUT_JOURNEY_NODE", { capsule: capsule.id });
+      // A ordenação de um slot é auditada por outro gate, com uma linha do
+      // tempo que este aqui não constrói. Duplicar a checagem aqui daria duas
+      // respostas para a mesma pergunta, e um dia elas discordariam.
+      if (slot.placement !== "BEFORE_TOPIC" && slot.placement !== "BETWEEN_PASSES") {
+        fail("SLOT_PLACEMENT_DOES_NOT_PRECEDE_GRADING", {
+          capsule: capsule.id,
+          placement: slot.placement,
+        });
+      }
       continue;
     }
     if (node.afterTopicId && !topicIndex.has(node.afterTopicId)) {
