@@ -91,7 +91,12 @@ export function LessonCapsulePlayer({
                   : "Mostrando a versão interativa desta aula."}
               </p>
             )}
-            <AnimatedCapsuleRenderer content={content} locale={locale} onComplete={onComplete} />
+            <AnimatedCapsuleRenderer
+              content={content}
+              locale={locale}
+              capsuleId={capsule.id}
+              onComplete={onComplete}
+            />
           </>
         )}
       </Card>

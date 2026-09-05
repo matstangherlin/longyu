@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Mascot } from "../../components/brand/Mascot";
 import {
   routeForJourneyNode,
   type JourneyNode,
@@ -76,14 +77,39 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
       <span className="min-w-0 text-left">
         <span className="block truncate text-[13px] font-semibold text-ink">{label}</span>
         <span className="block text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
-          {complete ? (en ? "Done" : "Feito") : ready ? (en ? "Optional" : "Opcional") : en ? "Locked" : "Bloqueado"}
+          {/*
+            Uma aula da fundação não é "opcional". Ela é o caminho, e chamá-la
+            de opcional ensinaria o aluno a pular exatamente o que a V4.9.3
+            colocou ali para ele ver primeiro.
+          */}
+          {complete
+            ? en
+              ? "Done"
+              : "Feito"
+            : !ready
+              ? en
+                ? "Locked"
+                : "Bloqueado"
+              : node.priority === "CORE"
+                ? en
+                  ? "Lesson"
+                  : "Aula"
+                : en
+                  ? "Optional"
+                  : "Opcional"}
         </span>
       </span>
     </>
   );
 
-  const shell =
-    "flex w-full max-w-[15rem] items-center gap-2.5 rounded-2xl border px-3 py-2 transition";
+  // A aula da fundação ocupa mais espaço e tem borda sólida: ela é o caminho,
+  // e um reforço opcional não pode competir visualmente com ela. O node core
+  // fica maior que o booster e menor que a lição — a hierarquia da Parte Q.
+  const core = node.priority === "CORE";
+  const shell = [
+    "flex w-full items-center gap-2.5 rounded-2xl border px-3 py-2 transition",
+    core ? "max-w-[17rem] py-2.5" : "max-w-[15rem]",
+  ].join(" ");
 
   if (!ready) {
     return (
@@ -98,17 +124,70 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
     );
   }
 
-  return (
+  const link = (
     <Link
       to={routeForJourneyNode(node)}
       data-journey-inline-node={node.id}
       data-ready="true"
-      className={[shell, "border-line/65 bg-surface hover:-translate-y-0.5 hover:border-accent-soft"].join(" ")}
+      className={[
+        shell,
+        core
+          ? "border-accent/45 bg-accent-soft/40 hover:-translate-y-0.5 hover:border-accent"
+          : "border-line/65 bg-surface hover:-translate-y-0.5 hover:border-accent-soft",
+      ].join(" ")}
     >
       {body}
     </Link>
   );
+
+  // Parte R — o handoff. Sem a frase, o reforço é mais um card na tela; com
+  // ela, o aluno sabe POR QUE está indo para lá e o que acabou de destravar.
+  // Só aparece depois da aula correspondente: antes disso, prometeria uma
+  // continuidade que ainda não existe.
+  const handoff = HANDOFF_LINES[node.id];
+  if (!handoff || !isJourneyNodeComplete(handoff.afterNodeId)) return link;
+
+  return (
+    <div className="flex w-full flex-col items-center gap-1.5" data-journey-handoff={node.id}>
+      <p className="flex max-w-[17rem] items-start gap-2 px-1 text-left text-[11px] leading-4 text-ink-soft">
+        <Mascot size={22} variant="wave" className="mt-0.5 shrink-0" />
+        <span>{en ? handoff.en : handoff.pt}</span>
+      </p>
+      {link}
+    </div>
+  );
 }
+
+/**
+ * As frases de entrega do dragão.
+ *
+ * Cada uma diz o que o aluno JÁ sabe e o que vem agora — nessa ordem, porque
+ * é o reconhecimento que faz a próxima etapa parecer consequência e não tarefa
+ * avulsa. `afterNodeId` amarra a frase à aula que a torna verdadeira: prometer
+ * "você já sabe como os tons se movem" a quem não viu a aula seria mentira.
+ */
+const HANDOFF_LINES: Record<string, { afterNodeId: string; pt: string; en: string }> = {
+  "booster:tone-contour-1-3:v1": {
+    afterNodeId: "node:instruction:foundation:tone",
+    pt: "Você já sabe como o 1º e o 3º tom se movem. Vamos testar seu ouvido?",
+    en: "You know how the 1st and 3rd tones move. Shall we test your ear?",
+  },
+  "booster:pinyin-practice:v1": {
+    afterNodeId: "node:instruction:foundation:pinyin",
+    pt: "Você já sabe o que o pinyin faz. Agora vamos ler algumas sílabas em voz alta.",
+    en: "You know what pinyin does. Now let's read a few syllables out loud.",
+  },
+  "booster:hanzi-builder-foundations:v1": {
+    afterNodeId: "node:instruction:foundation:hanzi-components",
+    pt: "Você já viu que os hànzì são feitos de peças. Vamos montar alguns?",
+    en: "You've seen that hànzì are made of parts. Shall we build a few?",
+  },
+  "booster:first-conversation:v1": {
+    afterNodeId: "node:instruction:foundation:mandarin",
+    pt: "Você já sabe dizer 你好. Vamos usar isso numa conversa de verdade.",
+    en: "You can already say 你好. Let's use it in a real conversation.",
+  },
+};
 
 /**
  * Rótulos curtos para a trilha. O painel usa textos mais longos porque tem

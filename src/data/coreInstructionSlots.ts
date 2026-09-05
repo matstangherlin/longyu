@@ -1,3 +1,4 @@
+import type { JourneyNode } from "./journeyOrchestrator";
 import type { LessonCapsule } from "./lessonCapsules";
 import { FOUNDATION_TARGET_IDS } from "./pedagogicalSpine";
 
@@ -193,6 +194,62 @@ export function reservedCoreCapsuleIds(): Set<string> {
  */
 export function instructionTargetsBeforeTopic(topicId: string): string[] {
   return instructionSlotsBeforeTopic(topicId).flatMap((slot) => slot.knowledgeTargets);
+}
+
+/**
+ * O slot como node da Jornada.
+ *
+ * `priority: "CORE"` porque a aula é currículo, não enriquecimento — ela
+ * precisa aparecer com o peso do caminho principal, e não como um card
+ * lateral que o aluno pode não ver.
+ *
+ * E, ao mesmo tempo, sem NENHUM requisito. Um portão numa aula explicativa
+ * seria um contrassenso: o pré-requisito da explicação é justamente não saber
+ * ainda. Trancar a aula que ensina X atrás de saber X é o defeito que a V4.9.3
+ * inteira existe para eliminar.
+ *
+ * `affectsCoreMastery` é falso pela mesma razão de sempre: assistir ensina,
+ * quem mede aprendizagem são os exercícios.
+ */
+function slotAsJourneyNode(slot: CoreInstructionSlot): JourneyNode {
+  return {
+    // `slot.id` já começa com "instruction:", então o prefixo é só "node:".
+    id: `node:${slot.id}`,
+    type: "LESSON_CAPSULE",
+    priority: "CORE",
+    sourceThemeId: "theme:foundation-instruction",
+    sourceId: slot.capsuleId,
+    affectsCoreMastery: false,
+  };
+}
+
+/** Nodes de instrução que precedem o tópico, na ordem de ensino. */
+export function instructionNodesBeforeTopic(topicId: string): JourneyNode[] {
+  return instructionSlotsBeforeTopic(topicId).map(slotAsJourneyNode);
+}
+
+export function instructionNodesAfterTopic(topicId: string): JourneyNode[] {
+  return instructionSlotsAfterTopic(topicId).map(slotAsJourneyNode);
+}
+
+/**
+ * Aulas que acontecem DENTRO do tópico, entre passes.
+ *
+ * Na trilha elas aparecem logo depois do node do tópico, e não antes: é ali
+ * que o aluno as encontra de fato, depois de já ter feito os primeiros passes.
+ * Desenhá-las antes prometeria uma aula que ainda não faz sentido para ele.
+ */
+export function instructionNodesWithinTopic(topicId: string): JourneyNode[] {
+  return FOUNDATION_INSTRUCTION_SLOTS.filter(
+    (slot) => slot.topicId === topicId && slot.placement === "BETWEEN_PASSES"
+  ).map(slotAsJourneyNode);
+}
+
+/** O slot por trás de um node de instrução, se for um. */
+export function slotForJourneyNodeId(nodeId: string): CoreInstructionSlot | undefined {
+  const prefix = "node:";
+  if (!nodeId.startsWith(prefix)) return undefined;
+  return getCoreInstructionSlot(nodeId.slice(prefix.length));
 }
 
 /** Verdadeiro quando a cápsula ocupa um slot canônico do currículo. */

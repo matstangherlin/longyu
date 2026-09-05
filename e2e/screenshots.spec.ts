@@ -7,6 +7,7 @@ import {
   seedFoundationThrough,
   seedFreshJourneySession,
   seedOnboardedSession,
+  seedUnlockedLessonSession,
   PRO_PRICING_HEADLINE,
 } from "./helpers";
 
@@ -325,5 +326,176 @@ test("evidências V4.9.2B — trilha e fallback", async ({ browser }) => {
     await page.getByTestId("capsule-media-fallback").click().catch(() => undefined);
     await settle(page.getByTestId("capsule-animated"));
     await shot(page, "v492b-09-fallback-interativo");
+  });
+});
+
+// ── V4.9.3 — evidências da Foundation Wave 1 ────────────────────────────────
+
+const V493_OUT = path.resolve(process.cwd(), "docs/screenshots/v493");
+
+async function v493Shot(page: Page, name: string) {
+  await page.waitForTimeout(400);
+  await mkdir(V493_OUT, { recursive: true });
+  await page.screenshot({ path: path.join(V493_OUT, `${name}.png`), fullPage: false, timeout: 15_000 });
+}
+
+const V493_CAPSULES = {
+  mandarin: "capsule:foundation:mandarin:v1",
+  pinyin: "capsule:foundation:pinyin:v1",
+  tone: "capsule:foundation:tone:v1",
+  hanzi: "capsule:foundation:hanzi:v1",
+  components: "capsule:foundation:hanzi-components:v1",
+};
+
+function capsuleRoute(id: string) {
+  return `/jornada/capsula/${encodeURIComponent(id)}`;
+}
+
+/** Avança N segmentos, respondendo o microcheck quando ele bloquear. */
+async function advanceSegments(page: Page, times: number) {
+  for (let i = 0; i < times; i += 1) {
+    const option = page.getByTestId("capsule-micro-check-option").first();
+    if (await option.isVisible().catch(() => false)) {
+      await option.click().catch(() => undefined);
+      await page.waitForTimeout(200);
+    }
+    await page.getByTestId("capsule-continue").click().catch(() => undefined);
+    await page.waitForTimeout(250);
+  }
+}
+
+/** Marca aulas de instrução como concluídas, para o handoff aparecer. */
+async function seedInstructionDone(page: Page, slotIds: string[]) {
+  await page.addInitScript((ids: string[]) => {
+    localStorage.setItem("longyu:journey-node-completions:v1", JSON.stringify(ids));
+  }, slotIds.map((id) => `node:${id}`));
+}
+
+test("evidências V4.9.3 — a primeira aula do dragão", async ({ browser }) => {
+  test.setTimeout(150_000);
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFreshJourneySession(page);
+    await open(page, capsuleRoute(V493_CAPSULES.mandarin));
+    await settle(page.getByTestId("capsule-animated"));
+    await v493Shot(page, "01-first-lesson-dragon-mobile");
+  });
+
+  await withContext(browser, { viewport: DESKTOP, touch: false }, async (page) => {
+    await seedFreshJourneySession(page);
+    await open(page, capsuleRoute(V493_CAPSULES.mandarin));
+    await settle(page.getByTestId("capsule-animated"));
+    // Terceiro segmento: é onde 你好 aparece com áudio pela primeira vez.
+    await advanceSegments(page, 2);
+    await v493Shot(page, "02-first-lesson-dragon-desktop");
+  });
+});
+
+test("evidências V4.9.3 — as cinco aulas", async ({ browser }) => {
+  test.setTimeout(180_000);
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFoundationThrough(page, "p1-o-que-e-mandarim");
+    await open(page, capsuleRoute(V493_CAPSULES.pinyin));
+    await settle(page.getByTestId("capsule-animated"));
+    await advanceSegments(page, 3);
+    await v493Shot(page, "03-pinyin-capsule");
+  });
+
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFoundationThrough(page, "p1-o-que-e-pinyin");
+    await open(page, capsuleRoute(V493_CAPSULES.tone));
+    await settle(page.getByTestId("capsule-animated"));
+    // Segmento 3: contorno do 1º e do 3º tom.
+    await advanceSegments(page, 2);
+    await v493Shot(page, "04-tone-capsule-1-3");
+    // Segmento 5: o COMPARE com o 2º e o 4º.
+    await advanceSegments(page, 2);
+    await v493Shot(page, "05-tone-capsule-2-4");
+  });
+
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFoundationThrough(page, "p1-o-que-e-tom");
+    await open(page, capsuleRoute(V493_CAPSULES.hanzi));
+    await settle(page.getByTestId("capsule-animated"));
+    await advanceSegments(page, 3);
+    await v493Shot(page, "06-hanzi-capsule");
+  });
+
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFoundationThrough(page, "p1-o-que-e-hanzi");
+    await open(page, capsuleRoute(V493_CAPSULES.components));
+    await settle(page.getByTestId("capsule-animated"));
+    // Segmento 3: 人 + 木 = 休, com as peças separadas.
+    await advanceSegments(page, 2);
+    await v493Shot(page, "07-hanzi-components-capsule");
+  });
+
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFoundationThrough(page, "p1-o-que-e-mandarim");
+    await page.addInitScript(() => {
+      localStorage.setItem("longyu:instruction-locale", "en");
+      localStorage.setItem("longyu:instruction-locale-user-override", "1");
+    });
+    await open(page, capsuleRoute(V493_CAPSULES.mandarin));
+    await settle(page.getByTestId("capsule-animated"));
+    await advanceSegments(page, 4);
+    await v493Shot(page, "13-en-foundation-capsule");
+  });
+});
+
+test("evidências V4.9.3 — handoffs do dragão", async ({ browser }) => {
+  // Cada handoff monta um contexto próprio com seed diferente; num teste só,
+  // os três somados estouravam o limite e derrubavam a última captura.
+  test.setTimeout(240_000);
+  const handoffs: Array<[string, string, string]> = [
+    ["08-pinyin-to-practice-handoff", "instruction:foundation:pinyin", "booster:pinyin-practice:v1"],
+    ["09-tone-to-trainer-handoff", "instruction:foundation:tone", "booster:tone-contour-1-3:v1"],
+    [
+      "10-hanzi-to-builder-handoff",
+      "instruction:foundation:hanzi-components",
+      "booster:hanzi-builder-foundations:v1",
+    ],
+  ];
+
+  for (const [name, slotId, boosterId] of handoffs) {
+    await withContext(browser, { viewport: PHONE }, async (page) => {
+      // `p1-engine-2-lab` como alvo conclui `p1-primeiros-hanzi` inteiro, e os
+      // caracteres entram no repertório: o Hànzì Builder exige 木 conhecido.
+      await seedUnlockedLessonSession(page, "p1-engine-2-lab", {
+        learnedChunks: ["nihao"],
+        learnedChars: ["ni", "hao", "mu", "ren"],
+      });
+      // O handoff só existe quando o reforço está destravado — ele é a ponte
+      // entre a aula e algo que o aluno pode de fato fazer agora. Por isso a
+      // cápsula-piloto entra junto: é pré-requisito da prática de Pinyin.
+      await seedInstructionDone(page, [slotId]);
+      await page.addInitScript((ids: string[]) => {
+        const key = "longyu:journey-node-completions:v1";
+        const current = JSON.parse(localStorage.getItem(key) ?? "[]") as string[];
+        localStorage.setItem(key, JSON.stringify([...new Set([...current, ...ids])]));
+      }, ["node:capsule:pinyin-foundation:v1"]);
+      await open(page, "/jornada");
+      const handoff = page.locator(`[data-journey-handoff="${boosterId}"]`);
+      await settle(handoff);
+      await handoff.scrollIntoViewIfNeeded().catch(() => undefined);
+      await v493Shot(page, name);
+    });
+  }
+
+});
+
+test("evidências V4.9.3 — a trilha da fundação", async ({ browser }) => {
+  test.setTimeout(150_000);
+  await withContext(browser, { viewport: PHONE }, async (page) => {
+    await seedFreshJourneySession(page);
+    await open(page, "/jornada");
+    await settle(page.locator("[data-journey-instruction-before]").first());
+    await v493Shot(page, "11-foundation-journey-mobile");
+  });
+
+  await withContext(browser, { viewport: DESKTOP, touch: false }, async (page) => {
+    await seedFreshJourneySession(page);
+    await open(page, "/jornada");
+    await settle(page.locator("[data-journey-instruction-before]").first());
+    await v493Shot(page, "12-foundation-journey-desktop");
   });
 });

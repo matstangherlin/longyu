@@ -30,6 +30,14 @@ export const MEDIA_EVENT_TYPES = [
   "media_retry",
   "media_fallback_used",
   "capsule_completed",
+  // V4.9.3 — Parte V: o funil da instrução. Mede a AULA, nunca o aluno.
+  // Saber que 40% erram um microcheck é como se descobre que a explicação
+  // acima dele está ruim; o número não vira nota de ninguém.
+  "instruction_started",
+  "instruction_completed",
+  "microcheck_attempt",
+  "microcheck_correct",
+  "booster_started_after_instruction",
 ] as const;
 
 export type MediaEventType = (typeof MEDIA_EVENT_TYPES)[number];

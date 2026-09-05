@@ -48,6 +48,10 @@ import {
   PINYIN_CAPSULE_NODE,
 } from "../../data/journeyOrchestrator";
 import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
+import {
+  instructionNodesBeforeTopic,
+  instructionNodesWithinTopic,
+} from "../../data/coreInstructionSlots";
 import { publishedCapsuleNodesAfterTopic } from "../../data/lessonCatalog";
 import { useLessonCatalogStatus } from "../../hooks/useLessonCatalog";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
@@ -1038,21 +1042,40 @@ function ModuleBlock({
           // As embutidas vêm primeiro: aula publicada acrescenta ao fim da
           // trilha do tópico, nunca se intercala antes do reforço revisado.
           const inline = [
+            // A aula entre passes vem antes dos reforços: ela ainda é o
+            // caminho principal do tópico, eles são enriquecimento.
+            ...instructionNodesWithinTopic(lesson.id),
             ...auxiliaryJourneyNodesAfterTopic(lesson.id),
             ...publishedCapsuleNodesAfterTopic(lesson.id),
           ];
-          if (!inline.length) return node;
+          // V4.9.3 — a aula explicativa vem ANTES do tópico na trilha, porque
+          // é antes dele que ela acontece. Renderizá-la depois seria desenhar
+          // a ordem errada e ensinar o aluno a ignorá-la.
+          const instruction = instructionNodesBeforeTopic(lesson.id);
+          if (!inline.length && !instruction.length) return node;
           return (
             <div key={lesson.id} className="flex w-full flex-col items-center gap-3">
+              {instruction.length > 0 && (
+                <div
+                  className="flex w-full flex-col items-center gap-2"
+                  data-journey-instruction-before={lesson.id}
+                >
+                  {instruction.map((slotNode) => (
+                    <JourneyInlineNode key={slotNode.id} node={slotNode} />
+                  ))}
+                </div>
+              )}
               {node}
-              <div
-                className="flex w-full flex-col items-center gap-2"
-                data-journey-inline-after={lesson.id}
-              >
-                {inline.map((auxiliary) => (
-                  <JourneyInlineNode key={auxiliary.id} node={auxiliary} />
-                ))}
-              </div>
+              {inline.length > 0 && (
+                <div
+                  className="flex w-full flex-col items-center gap-2"
+                  data-journey-inline-after={lesson.id}
+                >
+                  {inline.map((auxiliary) => (
+                    <JourneyInlineNode key={auxiliary.id} node={auxiliary} />
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
