@@ -30,6 +30,11 @@ const STATES: { name: string; classes: string }[] = [
   // extra de opacidade. Modelar um `opacity-70` que o código não aplica seria
   // auditar ficção — e a auditoria só vale se descrever o que roda.
   { name: "disabled", classes: "border-line/50 bg-surface-2 text-ink-soft disabled:cursor-not-allowed disabled:shadow-none" },
+  // Hover e focus são estados que o aluno vê tanto quanto os outros; o hover da
+  // peça ociosa troca a superfície, e um foco de teclado sem contraste deixa a
+  // navegação por Tab invisível.
+  { name: "hover", classes: "border-accent-soft bg-surface-2 text-ink" },
+  { name: "focus", classes: "border-line bg-surface text-ink ring-2 ring-accent/45" },
 ];
 
 const THEMES = ["dark", "china", "light"] as const;

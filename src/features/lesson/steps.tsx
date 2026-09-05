@@ -486,7 +486,7 @@ function StepListen({ step, onDone }: StepProps) {
   return (
     <div className="text-center" data-testid={isNotice ? "pedagogical-notice" : undefined}>
       <Eyebrow>{t("player.listenAndImitate")}</Eyebrow>
-      <div className={isNotice ? "my-4 rounded-3xl border border-accent/25 bg-paper-soft p-5" : "my-4"}>
+      <div className={isNotice ? "my-4 rounded-3xl border border-accent/25 bg-surface-2 p-5" : "my-4"}>
         <MandarinText
           hanzi={step.text!}
           pinyin={step.pinyin}
@@ -2750,7 +2750,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
             <IconCheck width={18} height={18} />
             {successMessage}
             </div>
-            <span className="rounded-full bg-[#B7791F]/10 px-2.5 py-1 text-xs font-semibold text-gold">+Qi</span>
+            <span className="rounded-full bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">+Qi</span>
           </div>
           {step.explanation && (
             <p className="mt-2 text-sm leading-6 text-ink-soft">
@@ -4338,7 +4338,7 @@ function StructureHowItWorks({
       )}
       {open ? (
         <div
-          className="mt-2 rounded-2xl border border-line/70 bg-white/55 px-3 py-3"
+          className="mt-2 rounded-2xl border border-line/70 bg-surface/55 px-3 py-3"
           data-production-scaffold-pattern
           data-concept-lesson={lessonId ?? ""}
         >
@@ -4591,7 +4591,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
                 <button
                   key={`${piece}-${index}`}
                   type="button"
-                  className="hanzi rounded-xl border border-line bg-white px-2.5 py-1.5 text-lg font-semibold text-ink"
+                  className="hanzi rounded-xl border border-line bg-surface px-2.5 py-1.5 text-lg font-semibold text-ink"
                   onClick={() => setBuildPicked((prev) => prev.filter((_, i) => i !== index))}
                   disabled={locked}
                 >

@@ -562,7 +562,7 @@ function ChoiceButton({
     tone === "good"
       ? "border-good bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
       : tone === "bad"
-        ? "border-danger bg-[rgb(var(--danger)/0.10)] text-danger"
+        ? "border-wrong bg-wrong-soft text-ink"
         : tone === "accent"
           ? "border-accent bg-accent-soft text-accent"
           : "border-line bg-surface text-ink hover:border-accent/50 hover:bg-accent-soft/60";
@@ -985,7 +985,7 @@ function ExerciseFeedback({
         </p>
       )}
       {correct === false && (
-        <p className="mx-auto mt-2 max-w-sm text-xs font-medium text-danger">
+        <p className="mx-auto mt-2 max-w-sm text-xs font-medium text-wrong">
           {catalogT("review.willReturnQueue")}
         </p>
       )}
@@ -1006,7 +1006,7 @@ function DetailedErrorsUpsellCard({
   className?: string;
 }) {
   return (
-    <Card className={["rounded-xl border-[#B7791F]/25 bg-[#B7791F]/5 p-4 shadow-none", className].filter(Boolean).join(" ")}>
+    <Card className={["rounded-xl border-gold/25 bg-gold/5 p-4 shadow-none", className].filter(Boolean).join(" ")}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
