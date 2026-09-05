@@ -1,0 +1,17 @@
+{
+  "capsuleId": "capsule:foundation:tone:v1",
+  "instructionSlotId": "instruction:foundation:tone",
+  "topicId": "p1-o-que-e-tom",
+  "placement": "BEFORE_TOPIC",
+  "completionPolicy": "INSTRUCTION_COMPLETED",
+  "affectsMastery": false,
+  "knowledgeTargets": [
+    "concept:tone-system",
+    "concept:tone-1",
+    "concept:tone-2",
+    "concept:tone-3",
+    "concept:tone-4"
+  ],
+  "productionVideoAssetPt": "NONE",
+  "productionVideoAssetEn": "NONE"
+}

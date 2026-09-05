@@ -32,3 +32,4 @@ Relatório computado por `npm run validate:tone-teach-before-test`. O gate perco
 - O número vem antes da primeira avaliação numérica.
 - As marcas são apresentadas num mapa explícito antes da avaliação de marca.
 - Produção exige prática guiada anterior; o tom neutro não é antecipado como quinta curva equivalente.
+

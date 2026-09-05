@@ -1,18 +1,67 @@
 import type { InstructionLocale } from "../i18n/config";
+// A wave 1 só importa TIPOS deste arquivo, então o ciclo some na compilação:
+// em runtime `foundationCapsules` não depende de nada daqui.
+import { FOUNDATION_WAVE_1_CAPSULES } from "./foundationCapsules";
 import { FOUNDATION_TARGET_IDS } from "./pedagogicalSpine";
 
 export type LessonCapsuleMediaType = "ANIMATED_CAPSULE" | "VIDEO_CAPSULE";
 export type LessonCapsuleCompletionRule = "VIEW_ALL_SEGMENTS" | "MEDIA_ENDED" | "INTERACTION_COMPLETE";
 
+/**
+ * V4.9.3 — os degraus de uma aula.
+ *
+ * `NOTICE`, `MICRO_CHECK` e `TRANSITION_TO_PRACTICE` entram na V4.9.3 para
+ * fechar o arco de uma aula de verdade: explicar, demonstrar, fazer o aluno
+ * REPARAR em algo, verificar que ele entendeu, e entregá-lo ao exercício
+ * sabendo por quê. `CHECK` continua existindo para as cápsulas anteriores.
+ */
+export type LessonCapsuleSegmentKind =
+  | "ORIENT"
+  | "EXPLAIN"
+  | "DEMONSTRATE"
+  | "NOTICE"
+  | "REPLAY"
+  | "COMPARE"
+  | "CONTEXT"
+  | "MICRO_CHECK"
+  | "CHECK"
+  | "TRANSITION_TO_PRACTICE";
+
+/**
+ * A verificação de compreensão da Parte C2.
+ *
+ * Não é avaliação: é o professor perguntando "ficou claro?". Por isso a
+ * resposta certa vem com apoio visível, errar não penaliza nada, e o
+ * resultado não entra em mastery, SRS nem XP. Um aluno que erra aqui precisa
+ * de mais explicação, não de menos pontos.
+ */
+export interface LessonCapsuleMicroCheck {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  /** Mostrado junto das opções: o microcheck é de livro aberto por desenho. */
+  scaffold?: string;
+  /** Dito pelo dragão depois do acerto — fecha o raciocínio, não celebra. */
+  afterCorrect: string;
+  /** Dito depois do erro: reensina em uma frase, sem culpar. */
+  afterWrong: string;
+}
+
 export interface LessonCapsuleSegment {
   id: string;
-  kind: "ORIENT" | "EXPLAIN" | "DEMONSTRATE" | "REPLAY" | "CHECK";
+  kind: LessonCapsuleSegmentKind;
   title: string;
   body: string;
   hanzi?: string;
   pinyin?: string;
   meaning?: string;
   audioText?: string;
+  /** Presente somente em `MICRO_CHECK`. */
+  check?: LessonCapsuleMicroCheck;
+  /** Contorno de tom a desenhar, quando a aula fala de tom. */
+  toneContour?: 1 | 2 | 3 | 4 | 5;
+  /** Partes destacadas de um hànzì, para a aula de componentes. */
+  components?: Array<{ glyph: string; label: string }>;
 }
 
 export interface LessonCapsuleLocalizedContent {
@@ -98,7 +147,18 @@ export const PINYIN_FOUNDATION_CAPSULE: LessonCapsule = {
   },
 };
 
-export const LESSON_CAPSULES: LessonCapsule[] = [PINYIN_FOUNDATION_CAPSULE];
+/**
+ * A cápsula-piloto da V4.9.0 continua aqui, intocada.
+ *
+ * A wave 1 mora em `foundationCapsules.ts` e é agregada em `LESSON_CAPSULES`
+ * abaixo, mas o piloto não foi reescrito nem renomeado: o id
+ * `capsule:pinyin-foundation:v1` tem progresso local de aluno atrás dele, e
+ * trocar identidade canônica para arrumar a casa perderia esse progresso.
+ */
+export const LESSON_CAPSULES: LessonCapsule[] = [
+  PINYIN_FOUNDATION_CAPSULE,
+  ...FOUNDATION_WAVE_1_CAPSULES,
+];
 
 export function getLessonCapsule(id: string): LessonCapsule | undefined {
   return LESSON_CAPSULES.find((capsule) => capsule.id === id);

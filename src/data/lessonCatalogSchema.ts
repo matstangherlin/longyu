@@ -6,6 +6,7 @@ import type {
   LessonCapsuleMediaType,
   LessonCapsuleSegment,
 } from "./lessonCapsules";
+import { reservedCoreCapsuleIds } from "./coreInstructionSlots";
 import {
   verifyMediaUrl,
   type LessonMediaAsset,
@@ -52,14 +53,34 @@ export interface CatalogProblem {
     | "EMPTY_SEGMENTS"
     | "MISSING_LOCALE"
     | "UNKNOWN_MEDIA_ASSET"
-    | "LOCALE_SPEAKS_WRONG_LANGUAGE";
+    | "LOCALE_SPEAKS_WRONG_LANGUAGE"
+    | "OVERRIDE_EXCEEDS_PRESENTATION"
+    | "RESERVED_CORE_CAPSULE_ID";
   detail?: string;
+}
+
+/**
+ * V4.9.3 — Parte A2: o catálogo trocando a apresentação de uma aula CORE.
+ *
+ * O objetivo é preciso: quando existir `foundation-pinyin-pt-v1.mp4`, publicar
+ * um JSON deve bastar para a MESMA aula passar a tocar vídeo — mesmo id, mesmo
+ * lugar no currículo, mesmos alvos, mesma regra de conclusão.
+ *
+ * Por isso este tipo carrega exclusivamente mídia. Não há campo para topicId,
+ * posição, alvos, prioridade ou pré-requisito, e essa ausência é a garantia:
+ * não é uma regra que alguém precisa lembrar de checar, é uma forma que não
+ * permite expressar o que é proibido.
+ */
+export interface CapsulePresentationOverride {
+  capsuleId: string;
+  localized: Partial<Record<InstructionLocale, { mediaAssetId: string }>>;
 }
 
 export interface ParsedLessonCatalog {
   version: number;
   capsules: LessonCapsule[];
   assets: LessonMediaAsset[];
+  presentationOverrides: CapsulePresentationOverride[];
   problems: CatalogProblem[];
 }
 
@@ -76,13 +97,19 @@ const SEGMENT_KINDS: LessonCapsuleSegment["kind"][] = [
   "ORIENT",
   "EXPLAIN",
   "DEMONSTRATE",
+  "NOTICE",
   "REPLAY",
+  "COMPARE",
+  "CONTEXT",
+  "MICRO_CHECK",
   "CHECK",
+  "TRANSITION_TO_PRACTICE",
 ];
 const MEDIA_KINDS: LessonMediaKind[] = ["VIDEO", "INTERNAL_ANIMATION"];
 const DELIVERIES: LessonMediaDelivery[] = ["DIRECT_MP4", "HLS", "INTERNAL"];
 const FALLBACKS: LessonMediaFallback[] = ["INTERACTIVE_SEGMENTS", "TRANSCRIPT_ONLY"];
 const LOCALES: InstructionLocale[] = ["pt-BR", "en"];
+const RESERVED_CORE_CAPSULE_IDS = reservedCoreCapsuleIds();
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -362,6 +389,97 @@ function parseCapsule(
  * válidos continuam. Publicar conteúdo não pode ser uma operação em que um
  * erro de digitação tira a aplicação do ar.
  */
+function parseOverride(
+  raw: unknown,
+  index: number,
+  assetsById: Map<string, LessonMediaAsset>,
+  problems: CatalogProblem[]
+): CapsulePresentationOverride | undefined {
+  const at = `presentationOverrides[${index}]`;
+  if (!isObject(raw)) {
+    problems.push({ at, code: "NOT_AN_OBJECT" });
+    return undefined;
+  }
+  const capsuleId = readString(raw, "capsuleId", at, problems, { max: 200 });
+  if (!capsuleId) return undefined;
+
+  // Parte A1 — a recusa que dá sentido ao resto. Um manifesto que tentasse
+  // trazer topicId, alvos ou pré-requisito junto da mídia estaria pedindo
+  // para redefinir currículo sem code review. Recusar em silêncio seria pior
+  // do que recusar: o autor acharia que funcionou.
+  for (const forbidden of [
+    "topicId",
+    "afterTopicId",
+    "placement",
+    "knowledgeTargets",
+    "completionRule",
+    "completionPolicy",
+    "priority",
+    "affectsMastery",
+    "prerequisites",
+    "requiredKnowledgeTargetIds",
+  ]) {
+    if (forbidden in raw) {
+      problems.push({ at: `${at}.${forbidden}`, code: "OVERRIDE_EXCEEDS_PRESENTATION" });
+      return undefined;
+    }
+  }
+
+  const localizedRaw = raw.localized;
+  if (!isObject(localizedRaw)) {
+    problems.push({ at: `${at}.localized`, code: "NOT_AN_OBJECT" });
+    return undefined;
+  }
+
+  const localized: CapsulePresentationOverride["localized"] = {};
+  for (const locale of LOCALES) {
+    const entry = localizedRaw[locale];
+    if (entry === undefined) continue;
+    if (!isObject(entry)) {
+      problems.push({ at: `${at}.localized.${locale}`, code: "NOT_AN_OBJECT" });
+      return undefined;
+    }
+    for (const forbidden of ["knowledgeTargets", "segments", "topicId"]) {
+      if (forbidden in entry) {
+        problems.push({
+          at: `${at}.localized.${locale}.${forbidden}`,
+          code: "OVERRIDE_EXCEEDS_PRESENTATION",
+        });
+        return undefined;
+      }
+    }
+    const mediaAssetId = readString(entry, "mediaAssetId", `${at}.localized.${locale}`, problems, {
+      max: 200,
+    });
+    if (!mediaAssetId) return undefined;
+
+    const asset = assetsById.get(mediaAssetId);
+    if (!asset) {
+      problems.push({
+        at: `${at}.localized.${locale}.mediaAssetId`,
+        code: "UNKNOWN_MEDIA_ASSET",
+        detail: mediaAssetId,
+      });
+      return undefined;
+    }
+    if (!asset.languageNeutral && asset.spokenLocale && asset.spokenLocale !== locale) {
+      problems.push({
+        at: `${at}.localized.${locale}.mediaAssetId`,
+        code: "LOCALE_SPEAKS_WRONG_LANGUAGE",
+        detail: `${asset.id} fala ${asset.spokenLocale}`,
+      });
+      return undefined;
+    }
+    localized[locale] = { mediaAssetId };
+  }
+
+  if (!Object.keys(localized).length) {
+    problems.push({ at: `${at}.localized`, code: "MISSING_LOCALE" });
+    return undefined;
+  }
+  return { capsuleId, localized };
+}
+
 export function parseLessonCatalog(raw: unknown): ParsedLessonCatalog {
   const problems: CatalogProblem[] = [];
   try {
@@ -375,12 +493,24 @@ export function parseLessonCatalog(raw: unknown): ParsedLessonCatalog {
       code: "INVALID_TYPE",
       detail: error instanceof Error ? error.message : String(error),
     });
-    return { version: LESSON_CATALOG_VERSION, capsules: [], assets: [], problems };
+    return {
+      version: LESSON_CATALOG_VERSION,
+      capsules: [],
+      assets: [],
+      presentationOverrides: [],
+      problems,
+    };
   }
 }
 
 function parseChecked(raw: unknown, problems: CatalogProblem[]): ParsedLessonCatalog {
-  const empty: ParsedLessonCatalog = { version: LESSON_CATALOG_VERSION, capsules: [], assets: [], problems };
+  const empty: ParsedLessonCatalog = {
+    version: LESSON_CATALOG_VERSION,
+    capsules: [],
+    assets: [],
+    presentationOverrides: [],
+    problems,
+  };
 
   if (!isObject(raw)) {
     problems.push({ at: "$", code: "NOT_AN_OBJECT" });
@@ -411,6 +541,16 @@ function parseChecked(raw: unknown, problems: CatalogProblem[]): ParsedLessonCat
   rawCapsules.forEach((entry, index) => {
     const capsule = parseCapsule(entry, index, assetsById, problems);
     if (!capsule) return;
+    if (RESERVED_CORE_CAPSULE_IDS.has(capsule.id)) {
+      // Parte A1 — publicar uma cápsula com o id de um slot canônico seria
+      // ocupar uma posição do currículo com conteúdo sem revisão.
+      problems.push({
+        at: `capsules[${index}].id`,
+        code: "RESERVED_CORE_CAPSULE_ID",
+        detail: capsule.id,
+      });
+      return;
+    }
     if (capsuleIds.has(capsule.id)) {
       problems.push({ at: `capsules[${index}].id`, code: "DUPLICATE_ID", detail: capsule.id });
       return;
@@ -419,5 +559,23 @@ function parseChecked(raw: unknown, problems: CatalogProblem[]): ParsedLessonCat
     capsules.push(capsule);
   });
 
-  return { version: LESSON_CATALOG_VERSION, capsules, assets, problems };
+  const presentationOverrides: CapsulePresentationOverride[] = [];
+  const overriddenCapsuleIds = new Set<string>();
+  const rawOverrides = Array.isArray(raw.presentationOverrides) ? raw.presentationOverrides : [];
+  rawOverrides.forEach((entry, index) => {
+    const override = parseOverride(entry, index, assetsById, problems);
+    if (!override) return;
+    if (overriddenCapsuleIds.has(override.capsuleId)) {
+      problems.push({
+        at: `presentationOverrides[${index}].capsuleId`,
+        code: "DUPLICATE_ID",
+        detail: override.capsuleId,
+      });
+      return;
+    }
+    overriddenCapsuleIds.add(override.capsuleId);
+    presentationOverrides.push(override);
+  });
+
+  return { version: LESSON_CATALOG_VERSION, capsules, assets, presentationOverrides, problems };
 }

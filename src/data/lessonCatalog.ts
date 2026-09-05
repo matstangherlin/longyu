@@ -3,7 +3,11 @@ import type { LessonCapsule } from "./lessonCapsules";
 import { LESSON_CAPSULES } from "./lessonCapsules";
 import type { LessonMediaAsset } from "./lessonMediaAssets";
 import { LESSON_MEDIA_ASSETS } from "./lessonMediaAssets";
-import { parseLessonCatalog, type CatalogProblem } from "./lessonCatalogSchema";
+import {
+  parseLessonCatalog,
+  type CapsulePresentationOverride,
+  type CatalogProblem,
+} from "./lessonCatalogSchema";
 
 /**
  * V4.9.2B — o objetivo central da remessa, em um arquivo.
@@ -41,10 +45,17 @@ interface CatalogState {
   status: LessonCatalogStatus;
   capsules: LessonCapsule[];
   assets: LessonMediaAsset[];
+  presentationOverrides: CapsulePresentationOverride[];
   problems: CatalogProblem[];
 }
 
-let state: CatalogState = { status: "IDLE", capsules: [], assets: [], problems: [] };
+let state: CatalogState = {
+  status: "IDLE",
+  capsules: [],
+  assets: [],
+  presentationOverrides: [],
+  problems: [],
+};
 const listeners = new Set<() => void>();
 let inFlight: Promise<void> | null = null;
 let settled = false;
@@ -100,7 +111,13 @@ export function loadLessonCatalog(): Promise<void> {
 
     if (raw === null) raw = readCache();
     if (raw === null) {
-      publish({ status: "UNAVAILABLE", capsules: [], assets: [], problems: [] });
+      publish({
+        status: "UNAVAILABLE",
+        capsules: [],
+        assets: [],
+        presentationOverrides: [],
+        problems: [],
+      });
       return;
     }
 
@@ -108,12 +125,17 @@ export function loadLessonCatalog(): Promise<void> {
     // Só um catálogo que produziu conteúdo entra no cache. Guardar um
     // manifesto que não gerou nenhuma aula transformaria um deploy ruim em
     // problema permanente do aluno.
-    if (fromNetwork && parsed.capsules.length) writeCache(raw);
+    // Um catálogo que só traz override de apresentação é legítimo e útil —
+    // é exatamente a forma de publicar vídeo para uma aula CORE existente.
+    if (fromNetwork && (parsed.capsules.length || parsed.presentationOverrides.length)) {
+      writeCache(raw);
+    }
 
     publish({
       status: fromNetwork ? "READY" : "CACHED",
       capsules: parsed.capsules,
       assets: parsed.assets,
+      presentationOverrides: parsed.presentationOverrides,
       problems: parsed.problems,
     });
   })().finally(() => {
@@ -143,10 +165,61 @@ export function subscribeLessonCatalog(listener: () => void): () => void {
  * que foi revisado e testado no repositório.
  */
 export function resolveLessonCapsule(id: string): LessonCapsule | undefined {
-  return (
-    LESSON_CAPSULES.find((capsule) => capsule.id === id) ??
-    state.capsules.find((capsule) => capsule.id === id)
-  );
+  const builtIn = LESSON_CAPSULES.find((capsule) => capsule.id === id);
+  if (builtIn) return applyPresentationOverride(builtIn);
+  return state.capsules.find((capsule) => capsule.id === id);
+}
+
+/**
+ * V4.9.3 — Parte A2: a aula troca de roupa, não de identidade.
+ *
+ * Quando existir um vídeo gravado da aula de Pinyin, publicar um JSON faz esta
+ * função devolver a MESMA cápsula com `mediaAssetId` apontando para ele. Tudo
+ * o que define a aula pedagogicamente é copiado do embutido e nunca do
+ * manifesto: id, topicId, alvos, regra de conclusão.
+ *
+ * O `mediaType` muda junto porque é consequência do arquivo, não decisão de
+ * currículo: uma cápsula que passa a apontar para um asset de vídeo precisa
+ * ser renderizada pelo player de vídeo, senão o override não faria nada.
+ *
+ * Se o asset apontado sumir ou falhar, `LessonCapsulePlayer` cai nos segmentos
+ * embutidos — que continuam aqui, intactos, porque o override não os toca.
+ * Falha fechada: a aula CORE nunca deixa de existir por causa de um manifesto.
+ */
+function applyPresentationOverride(capsule: LessonCapsule): LessonCapsule {
+  const override = state.presentationOverrides.find((entry) => entry.capsuleId === capsule.id);
+  if (!override) return capsule;
+
+  let touched = false;
+  const localized = { ...capsule.localized };
+  for (const [locale, presentation] of Object.entries(override.localized)) {
+    const key = locale as keyof typeof localized;
+    const content = localized[key];
+    if (!content || !presentation?.mediaAssetId) continue;
+    const asset = state.assets.find((entry) => entry.id === presentation.mediaAssetId);
+    if (!asset) continue;
+    localized[key] = { ...content, mediaAssetId: presentation.mediaAssetId };
+    touched = true;
+  }
+  if (!touched) return capsule;
+
+  const anyVideo = Object.values(override.localized).some((presentation) => {
+    const asset = state.assets.find((entry) => entry.id === presentation?.mediaAssetId);
+    return asset?.kind === "VIDEO";
+  });
+
+  return {
+    ...capsule,
+    // Explicitamente recopiados do embutido: se alguém um dia espalhar o
+    // override aqui com `...override`, estes campos continuam vencendo.
+    id: capsule.id,
+    topicId: capsule.topicId,
+    afterTopicId: capsule.afterTopicId,
+    knowledgeTargets: capsule.knowledgeTargets,
+    completionRule: capsule.completionRule,
+    mediaType: anyVideo ? "VIDEO_CAPSULE" : capsule.mediaType,
+    localized,
+  };
 }
 
 export function resolveLessonMediaAsset(id: string | undefined): LessonMediaAsset | undefined {
@@ -191,5 +264,5 @@ export function allKnownCapsules(): LessonCapsule[] {
 export function resetLessonCatalogForTests(): void {
   inFlight = null;
   settled = false;
-  publish({ status: "IDLE", capsules: [], assets: [], problems: [] });
+  publish({ status: "IDLE", capsules: [], assets: [], presentationOverrides: [], problems: [] });
 }

@@ -32,7 +32,7 @@ const rootDir = process.cwd();
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-v492b-catalog-"));
 
 try {
-  const program = ts.createProgram(["src/data/lessonCatalogSchema.ts"], {
+  const program = ts.createProgram(["src/data/lessonCatalogSchema.ts", "src/data/coreInstructionSlots.ts"], {
     target: ts.ScriptTarget.ES2020,
     module: ts.ModuleKind.CommonJS,
     moduleResolution: ts.ModuleResolutionKind.Node10,
@@ -159,6 +159,98 @@ try {
       "LOCALE_SPEAKS_WRONG_LANGUAGE",
     ],
     ["legenda invertida", manifest({ assets: [asset({ captions: [{ startSeconds: 9, endSeconds: 2, text: "x" }] })] }), "INVALID_TYPE"],
+
+    // ── V4.9.3 · Parte A1 — o catálogo não redefine currículo ─────────────
+    //
+    // Estes são os casos que dão sentido ao `CoreInstructionSlot`. Se um
+    // manifesto conseguisse qualquer um deles, publicar conteúdo passaria a
+    // ser publicar currículo, e a promessa de "publicar sem code review é
+    // seguro" cairia por terra.
+    [
+      "cápsula publicada ocupando id de slot CORE",
+      manifest({ capsules: [capsule({ id: "capsule:foundation:pinyin:v1" })] }),
+      "RESERVED_CORE_CAPSULE_ID",
+    ],
+    [
+      "override tentando mudar o tópico",
+      manifest({
+        assets: [asset()],
+        presentationOverrides: [
+          {
+            capsuleId: "capsule:foundation:pinyin:v1",
+            topicId: "p1-o-que-e-tom",
+            localized: { "pt-BR": { mediaAssetId: "media:probe:pt:v1" } },
+          },
+        ],
+      }),
+      "OVERRIDE_EXCEEDS_PRESENTATION",
+    ],
+    [
+      "override tentando mudar knowledge targets",
+      manifest({
+        assets: [asset()],
+        presentationOverrides: [
+          {
+            capsuleId: "capsule:foundation:pinyin:v1",
+            knowledgeTargets: ["chunk:nihao"],
+            localized: { "pt-BR": { mediaAssetId: "media:probe:pt:v1" } },
+          },
+        ],
+      }),
+      "OVERRIDE_EXCEEDS_PRESENTATION",
+    ],
+    [
+      "override tentando virar pré-requisito",
+      manifest({
+        assets: [asset()],
+        presentationOverrides: [
+          {
+            capsuleId: "capsule:foundation:pinyin:v1",
+            requiredKnowledgeTargetIds: ["concept:pinyin-map"],
+            localized: { "pt-BR": { mediaAssetId: "media:probe:pt:v1" } },
+          },
+        ],
+      }),
+      "OVERRIDE_EXCEEDS_PRESENTATION",
+    ],
+    [
+      "override tentando reescrever segmentos",
+      manifest({
+        assets: [asset()],
+        presentationOverrides: [
+          {
+            capsuleId: "capsule:foundation:pinyin:v1",
+            localized: { "pt-BR": { mediaAssetId: "media:probe:pt:v1", segments: [] } },
+          },
+        ],
+      }),
+      "OVERRIDE_EXCEEDS_PRESENTATION",
+    ],
+    [
+      "override apontando para asset inexistente",
+      manifest({
+        presentationOverrides: [
+          {
+            capsuleId: "capsule:foundation:pinyin:v1",
+            localized: { "pt-BR": { mediaAssetId: "media:fantasma" } },
+          },
+        ],
+      }),
+      "UNKNOWN_MEDIA_ASSET",
+    ],
+    [
+      "override com voz no idioma errado",
+      manifest({
+        assets: [asset()],
+        presentationOverrides: [
+          {
+            capsuleId: "capsule:foundation:pinyin:v1",
+            localized: { en: { mediaAssetId: "media:probe:pt:v1" } },
+          },
+        ],
+      }),
+      "LOCALE_SPEAKS_WRONG_LANGUAGE",
+    ],
   ];
 
   for (const [name, input, expectedCode] of rejects) {
@@ -173,6 +265,37 @@ try {
       );
     }
   }
+
+  // O caso feliz da Parte A2: publicar mídia para uma aula CORE existente.
+  // É o fluxo inteiro do "quando eu produzir o vídeo" — precisa funcionar,
+  // senão as recusas acima estariam só bloqueando tudo.
+  const overridden = parseLessonCatalog(
+    manifest({
+      assets: [asset(), asset({ id: "media:probe:en:v1", spokenLocale: "en" })],
+      presentationOverrides: [
+        {
+          capsuleId: "capsule:foundation:pinyin:v1",
+          localized: {
+            "pt-BR": { mediaAssetId: "media:probe:pt:v1" },
+            en: { mediaAssetId: "media:probe:en:v1" },
+          },
+        },
+      ],
+    })
+  );
+  check(
+    overridden.problems.length === 0,
+    `override legítimo não devia gerar problema: ${JSON.stringify(overridden.problems)}`
+  );
+  check(overridden.presentationOverrides.length === 1, "override legítimo precisa ser aceito");
+  check(
+    overridden.presentationOverrides[0]?.localized?.["pt-BR"]?.mediaAssetId === "media:probe:pt:v1",
+    "o override precisa carregar o asset PT"
+  );
+  check(
+    overridden.capsules.length === 0,
+    "override não publica cápsula: ele veste uma que já existe no currículo"
+  );
 
   // Um item podre não pode levar os saudáveis junto.
   const mixed = parseLessonCatalog(
