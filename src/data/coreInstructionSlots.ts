@@ -128,13 +128,15 @@ export const FOUNDATION_INSTRUCTION_SLOTS: CoreInstructionSlot[] = [
   {
     id: "instruction:foundation:hanzi-components",
     topicId: "p1-primeiros-hanzi",
-    // Não `BEFORE_TOPIC`, e a diferença é pedagógica, não técnica: a aula
-    // ensina composição mostrando 人 + 木 = 休, e 人 e 木 são ensinados nos
-    // dois primeiros passes DESTE tópico. Colocada antes do tópico, ela
-    // explicaria composição com peças que o aluno ainda não viu — seria a
-    // própria surpresa que a Parte N1 manda eliminar.
-    placement: "BETWEEN_PASSES",
-    beforePass: 3,
+    // `BEFORE_TOPIC`, e a razão veio do gate, não do palpite: o tópico cobra
+    // `concept:hanzi-components` já no primeiro passe, na montagem de 木 com
+    // apoio. Uma aula sobre composição no meio do tópico chegaria depois da
+    // cobrança — exatamente o que a Parte M proíbe.
+    //
+    // Isso forçou a aula a apresentar 木 e 人 ela mesma, em vez de assumi-los
+    // como já vistos. É o trabalho de uma cápsula de instrução: ser a primeira
+    // exposição, não depender de uma.
+    placement: "BEFORE_TOPIC",
     capsuleId: "capsule:foundation:hanzi-components:v1",
     fallbackCapsuleId: "capsule:foundation:hanzi-components:v1",
     knowledgeTargets: [F.components],

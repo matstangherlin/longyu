@@ -661,18 +661,22 @@ export const FOUNDATION_HANZI_CAPSULE: LessonCapsule = {
 
 // ── F5 — Como construímos os primeiros hànzì? ─────────────────────────────
 //
-// Esta aula entra ENTRE PASSES do tópico, não antes dele, e a razão é o
-// próprio conteúdo: ela ensina composição com 人 + 木 = 休, e 人 e 木 são
-// ensinados nos dois primeiros passes deste mesmo tópico. Antes disso, o
-// exemplo seria feito de peças que o aluno nunca viu.
+// Esta aula abre o tópico, e isso decidiu como ela é escrita.
+//
+// O tópico cobra composição já no primeiro passe, então a aula precisa vir
+// antes dele. Como consequência, ela não pode dizer "você já montou 木" — o
+// aluno não montou. Ela APRESENTA 木 e 人 como formas, e só então mostra que
+// juntas viram 休. Uma cápsula de instrução é a primeira exposição; depender
+// de uma anterior é o que a colocaria no lugar errado.
 
 const componentsPt: LessonCapsuleLocalizedContent = {
   title: "Como os hànzì são construídos?",
   objective: "Ver que caracteres são feitos de partes reutilizáveis, e usar isso para lembrar.",
   transcript: [
-    "Você já montou alguns hànzì: 木, árvore, e 人, pessoa. Agora quero te mostrar por que montar é o jeito certo de aprender.",
+    "Antes de você montar seu primeiro hànzì, quero te mostrar por que montar é o jeito certo de aprender.",
     "Muitos hànzì não são desenhos únicos: são combinações de partes menores, e essas partes se repetem.",
-    "Veja 休. À esquerda está 人, pessoa. À direita está 木, árvore. Uma pessoa ao lado de uma árvore: 休 quer dizer descansar.",
+    "Olhe duas formas. 木 é árvore: um tronco no meio, galhos abrindo. 人 é pessoa: dois traços apoiados um no outro.",
+    "Agora veja 休. À esquerda está 人. À direita está 木. Uma pessoa ao lado de uma árvore: 休 quer dizer descansar.",
     "Você não precisa decorar 休 agora. O que importa é o que acabou de acontecer: você leu um caractere novo enxergando duas peças que já conhecia.",
     "É assim que a escrita chinesa deixa de ser milhares de desenhos soltos e vira um sistema.",
   ].join("\n\n"),
@@ -682,19 +686,19 @@ const componentsPt: LessonCapsuleLocalizedContent = {
       id: "orient",
       kind: "ORIENT",
       title: "Por que montar, e não copiar",
-      body: "Você já montou 木, árvore, e 人, pessoa. Agora quero te mostrar por que montar é o jeito certo de aprender hànzì.",
-      hanzi: "木 人",
+      body: "Daqui a pouco você vai montar seus primeiros hànzì. Antes disso, quero te mostrar por que montar é o jeito certo de aprender.",
     },
     {
       id: "explain",
       kind: "EXPLAIN",
-      title: "Caracteres são feitos de peças",
-      body: "Muitos hànzì não são desenhos únicos. São combinações de partes menores — e essas partes se repetem de caractere para caractere.",
+      title: "Duas formas, para começar",
+      body: "木 é árvore: um tronco no meio, galhos abrindo para os lados. 人 é pessoa: dois traços apoiados um no outro. Guarde as duas por um instante.",
+      hanzi: "木 人",
     },
     {
       id: "demonstrate",
       kind: "DEMONSTRATE",
-      title: "Duas peças que você já conhece",
+      title: "Agora junte as duas",
       body: "À esquerda 人, pessoa. À direita 木, árvore. Juntas formam 休: uma pessoa ao lado de uma árvore, descansando.",
       hanzi: "休",
       pinyin: "xiū",
@@ -709,7 +713,7 @@ const componentsPt: LessonCapsuleLocalizedContent = {
       id: "notice",
       kind: "NOTICE",
       title: "Veja o que você acabou de fazer",
-      body: "Você leu um caractere que nunca tinha visto, enxergando duas peças que já conhecia. Não precisa decorar 休 agora — precisa perceber que dá para fazer isso.",
+      body: "Você leu um caractere novo enxergando duas formas que tinha acabado de ver. É assim que a escrita chinesa deixa de ser milhares de desenhos soltos e vira um sistema. Não precisa decorar 休 — precisa perceber que dá para fazer isso.",
       hanzi: "休",
       components: [
         { glyph: "人", label: "pessoa" },
@@ -724,8 +728,9 @@ const componentsPt: LessonCapsuleLocalizedContent = {
       hanzi: "休",
       check: {
         prompt: "Quais partes formam 休?",
-        // As três opções usam só caracteres que este tópico já ensinou.
-        options: ["人 e 木", "口 e 日", "木 e 木"],
+        // As três opções usam só as duas formas que esta aula acabou de
+        // apresentar: escolher não exige nenhum caractere de fora.
+        options: ["人 e 木", "木 e 木", "人 e 人"],
         correctIndex: 0,
         scaffold: "Olhe o lado esquerdo e o lado direito de 休, separadamente.",
         afterCorrect: "Isso: 人 à esquerda, 木 à direita. Pessoa e árvore, descansando.",
@@ -746,9 +751,10 @@ const componentsEn: LessonCapsuleLocalizedContent = {
   title: "How are hànzì built?",
   objective: "See that characters are made of reusable parts, and use that to remember them.",
   transcript: [
-    "You have built a few hànzì already: 木, tree, and 人, person. Now let me show you why building is the right way to learn them.",
+    "Before you build your first hànzì, let me show you why building is the right way to learn them.",
     "Many hànzì are not single drawings: they are combinations of smaller parts, and those parts repeat.",
-    "Look at 休. On the left is 人, person. On the right is 木, tree. A person beside a tree: 休 means to rest.",
+    "Look at two shapes. 木 is tree: a trunk down the middle, branches opening out. 人 is person: two strokes leaning on each other.",
+    "Now look at 休. On the left is 人. On the right is 木. A person beside a tree: 休 means to rest.",
     "You do not have to memorise 休 now. What matters is what just happened: you read a new character by seeing two parts you already knew.",
     "That is how Chinese writing stops being thousands of separate drawings and becomes a system.",
   ].join("\n\n"),
@@ -758,19 +764,19 @@ const componentsEn: LessonCapsuleLocalizedContent = {
       id: "orient",
       kind: "ORIENT",
       title: "Why build instead of copy",
-      body: "You have already built 木, tree, and 人, person. Now let me show you why building is the right way to learn hànzì.",
-      hanzi: "木 人",
+      body: "In a moment you'll build your first hànzì. Before that, let me show you why building is the right way to learn them.",
     },
     {
       id: "explain",
       kind: "EXPLAIN",
-      title: "Characters are made of parts",
-      body: "Many hànzì are not single drawings. They are combinations of smaller parts — and those parts repeat from character to character.",
+      title: "Two shapes, to begin with",
+      body: "木 is tree: a trunk down the middle, branches opening out. 人 is person: two strokes leaning on each other. Hold on to both for a moment.",
+      hanzi: "木 人",
     },
     {
       id: "demonstrate",
       kind: "DEMONSTRATE",
-      title: "Two parts you already know",
+      title: "Now put them together",
       body: "On the left, 人, person. On the right, 木, tree. Together they form 休: a person beside a tree, resting.",
       hanzi: "休",
       pinyin: "xiū",
@@ -785,7 +791,7 @@ const componentsEn: LessonCapsuleLocalizedContent = {
       id: "notice",
       kind: "NOTICE",
       title: "Look at what you just did",
-      body: "You read a character you had never seen, by spotting two parts you already knew. You don't need to memorise 休 now — you need to notice that this is possible.",
+      body: "You read a new character by spotting two shapes you had just seen. That is how Chinese writing stops being thousands of separate drawings and becomes a system. You don't need to memorise 休 — you need to notice this is possible.",
       hanzi: "休",
       components: [
         { glyph: "人", label: "person" },
@@ -800,7 +806,7 @@ const componentsEn: LessonCapsuleLocalizedContent = {
       hanzi: "休",
       check: {
         prompt: "Which parts make up 休?",
-        options: ["人 and 木", "口 and 日", "木 and 木"],
+        options: ["人 and 木", "木 and 木", "人 and 人"],
         correctIndex: 0,
         scaffold: "Look at the left side and the right side of 休 separately.",
         afterCorrect: "That's it: 人 on the left, 木 on the right. Person and tree, resting.",
