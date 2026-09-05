@@ -21,6 +21,15 @@ export interface LessonCapsuleLocalizedContent {
   transcript: string;
   captions: Array<{ startSeconds: number; endSeconds: number; text: string }>;
   segments: LessonCapsuleSegment[];
+  /**
+   * V4.9.2B — Parte D: a mídia é localizada, a cápsula não.
+   *
+   * `capsule:pinyin-foundation:v1` continua sendo uma identidade só. O que
+   * muda com o idioma é qual arquivo toca, qual voz fala e quais legendas
+   * aparecem — nunca o id da cápsula, o alvo de conhecimento ou o tópico.
+   * Ausente quando o conteúdo localizado não tem mídia própria.
+   */
+  mediaAssetId?: string;
 }
 
 export interface LessonCapsule {
@@ -44,6 +53,7 @@ export const PINYIN_FOUNDATION_CAPSULE: LessonCapsule = {
   knowledgeTargets: [FOUNDATION_TARGET_IDS.nihao, FOUNDATION_TARGET_IDS.pinyin],
   localized: {
     "pt-BR": {
+      mediaAssetId: "media:pinyin-foundation:pt:v1",
       title: "Pinyin: o mapa do som",
       objective: "Entender como letras e marcas ajudam você a reproduzir a pronúncia do mandarim.",
       transcript: "Primeiro ouça 你好. A fala é mandarim. nǐ hǎo é pinyin: um mapa do som. 你好 é hànzì; Olá é o significado.",
@@ -60,6 +70,7 @@ export const PINYIN_FOUNDATION_CAPSULE: LessonCapsule = {
       ],
     },
     en: {
+      mediaAssetId: "media:pinyin-foundation:en:v1",
       title: "Pinyin: a map of sound",
       objective: "Understand how letters and tone marks help you reproduce Mandarin pronunciation.",
       transcript: "First, listen to 你好. The spoken language is Mandarin. nǐ hǎo is pinyin: a map of sound. 你好 is hànzì; Hello is the meaning.",
