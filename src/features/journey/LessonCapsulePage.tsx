@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ButtonLink, Card } from "../../components/ui/primitives";
+import { slotForCapsuleId } from "../../data/coreInstructionSlots";
 import { resolveLessonCapsule } from "../../data/lessonCatalog";
 import { JOURNEY_NODES } from "../../data/journeyOrchestrator";
 import { isLessonCatalogSettling, useLessonCatalogStatus } from "../../hooks/useLessonCatalog";
@@ -54,9 +55,16 @@ export function LessonCapsulePage() {
   }
 
   const finish = () => {
-    const node = JOURNEY_NODES.find(
-      (candidate) => candidate.type === "LESSON_CAPSULE" && candidate.sourceId === capsule.id
-    );
+    // Os slots de instrução da V4.9.3 não moram em `JOURNEY_NODES` — eles são
+    // currículo, não orquestração de reforço. Sem procurá-los aqui, concluir
+    // uma aula da fundação não marcava nada: a trilha nunca mostrava "Feito" e
+    // o handoff do dragão nunca aparecia, porque ele depende dessa marca.
+    const slot = slotForCapsuleId(capsule.id);
+    const node = slot
+      ? { id: `node:${slot.id}` }
+      : JOURNEY_NODES.find(
+          (candidate) => candidate.type === "LESSON_CAPSULE" && candidate.sourceId === capsule.id
+        );
     // Progresso auxiliar local-only (contrato da V4.9.1): concluir a cápsula
     // decora a Jornada e nunca toca em mastery, SRS ou progresso core.
     if (node) completeJourneyNode(node.id);
