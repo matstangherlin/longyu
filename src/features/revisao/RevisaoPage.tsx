@@ -9,7 +9,9 @@ import { primaryReviewDomain } from "../../lib/reviewPlan";
 import { REVIEW_DOMAIN_META, REVIEW_DOMAIN_ORDER } from "../../data/reviewDomains";
 import { reviewExampleFor, type ReviewExample } from "../../data/reviewExamples";
 import { charById } from "../../data/characters";
-import { IconChevron, IconRefresh, IconTarget } from "../../components/ui/Icon";
+import { assemblyTileClass } from "../lesson/buildAssemblyFeedback";
+import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
+import { IconCheck, IconChevron, IconRefresh, IconTarget } from "../../components/ui/Icon";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
@@ -560,7 +562,7 @@ function ChoiceButton({
     tone === "good"
       ? "border-good bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
       : tone === "bad"
-        ? "border-danger bg-[rgb(var(--danger)/0.10)] text-danger"
+        ? "border-wrong bg-wrong-soft text-ink"
         : tone === "accent"
           ? "border-accent bg-accent-soft text-accent"
           : "border-line bg-surface text-ink hover:border-accent/50 hover:bg-accent-soft/60";
@@ -805,53 +807,122 @@ function MatchPairsExercise({
   onSetActivePair: (id: string) => void;
   onMatchPair: (right: string) => void;
 }) {
-  const rightOptions = pairs.map((pair) => pair.right).reverse();
+  // A coluna direita era `.reverse()`, não embaralhada: com quatro pares isso é
+  // um espelho determinístico, e o aluno acerta pela posição sem saber a
+  // resposta. `stableOptionPermutation` embaralha de verdade e mantém a ordem
+  // estável durante a rodada — rerender, resize e troca de tema não mexem nela,
+  // porque a semente vem da identidade dos pares, não de `Math.random`.
+  const rightOptions = useMemo(
+    () => stableOptionPermutation(pairs.map((pair) => pair.right), ...pairs.map((pair) => pair.id)),
+    [pairs]
+  );
+  const usedRights = new Set(Object.values(matches));
+  const done = Object.keys(matches).length;
+  const wrongCount = revealed
+    ? pairs.filter((pair) => matches[pair.id] && matches[pair.id] !== pair.right).length
+    : 0;
+
   return (
-    <div className="mt-5">
+    <div className="mt-5" data-review-pairs>
+      {/* Uma instrução acima do quadro. Antes cada tile carregava "Escolha o
+          par" embaixo, repetindo a mesma frase quatro vezes e competindo com o
+          próprio conteúdo que o aluno precisa ler. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p className="text-sm text-ink-soft">{catalogT("review.pairInstruction")}</p>
+        <span
+          data-review-pairs-progress
+          className="rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold tabular-nums text-ink-soft"
+        >
+          {catalogT("review.pairProgress", { done, total: pairs.length })}
+        </span>
+      </div>
+
+      <div
+        data-review-match-pairs-board
+        className="mt-3 grid grid-cols-2 items-start gap-2 sm:gap-4"
+      >
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
+          {catalogT("review.pairColumnMandarin")}
+        </div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
+          {catalogT("review.pairColumnMeaning")}
+        </div>
+
+        <div data-pair-column="left" className="flex min-w-0 flex-col gap-2">
+          {pairs.map((pair, index) => {
+            const matched = matches[pair.id];
+            const good = revealed && matched === pair.right;
+            const bad = revealed && Boolean(matched) && matched !== pair.right;
+            const active = activePairId === pair.id;
+            return (
+              <button
+                key={pair.id}
+                type="button"
+                data-review-pair-tile
+                data-pair-side="left"
+                data-pair-id={pair.id}
+                data-pair-state={good ? "matched" : bad ? "wrong" : active ? "selected" : matched ? "answered" : "idle"}
+                disabled={revealed}
+                onClick={() => onSetActivePair(pair.id)}
+                className={[
+                  // Mesma gramática de peça da lição: o estado vive na borda, no
+                  // ring e no tint, e o texto fica em `ink`. Antes o erro usava
+                  // `border-danger` e `--danger`, um token que não existe — o
+                  // estado de erro simplesmente não pintava nada.
+                  assemblyTileClass({ active, matched: good, wrong: bad }),
+                  "relative flex w-full min-w-0 flex-col items-start gap-1 overflow-hidden text-left",
+                ].join(" ")}
+              >
+                <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
+                <TypedValue
+                  value={pair.left}
+                  type={pair.leftType}
+                  className={isHanziText(pair.left) ? "hanzi text-[26px] leading-tight sm:text-[30px]" : "text-base"}
+                  examMode={!revealed}
+                />
+                {matched && (
+                  <span className="flex items-center gap-1 text-xs font-medium text-ink-soft">
+                    {good && <IconCheck width={13} height={13} className="text-[rgb(var(--good))]" />}
+                    {matched}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div data-pair-column="right" className="flex min-w-0 flex-col gap-2">
+          {rightOptions.map((right, index) => {
+            const used = usedRights.has(right);
+            return (
+              <button
+                key={right}
+                type="button"
+                data-review-pair-tile
+                data-pair-side="right"
+                data-pair-state={used ? "answered" : "idle"}
+                disabled={revealed || !activePairId || used}
+                onClick={() => onMatchPair(right)}
+                className={[
+                  assemblyTileClass({ muted: used }),
+                  "relative flex min-h-12 w-full min-w-0 items-center overflow-hidden text-left text-[15px]",
+                ].join(" ")}
+              >
+                <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
+                {right}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Atalhos abaixo do quadro e discretos: são conveniência, não a tela. */}
       <KeyboardShortcutHint pairs />
-    <div data-review-match-pairs-board className="mt-3 grid grid-cols-2 items-start gap-2 rounded-2xl border border-line/70 bg-surface-2/60 p-2 sm:gap-4 sm:p-3">
-      <div data-pair-column="left" className="min-w-0 space-y-2">
-        {pairs.map((pair, index) => {
-          const matched = matches[pair.id];
-          const good = revealed && matched === pair.right;
-          const bad = revealed && matched && matched !== pair.right;
-          return (
-            <button
-              key={pair.id}
-              type="button"
-              disabled={revealed}
-              onClick={() => onSetActivePair(pair.id)}
-              className={[
-                "relative w-full min-w-0 overflow-hidden rounded-xl border px-2 py-3 text-center transition sm:px-3 sm:text-left",
-                activePairId === pair.id ? "border-accent bg-accent-soft" : "border-line bg-surface",
-                good ? "border-good bg-[rgb(var(--good)/0.12)]" : "",
-                bad ? "border-danger bg-[rgb(var(--danger)/0.10)]" : "",
-              ].join(" ")}
-            >
-              <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
-              <div className="font-semibold text-ink">
-                <TypedValue value={pair.left} type={pair.leftType} className={isHanziText(pair.left) ? "text-2xl" : ""} examMode={!revealed} />
-              </div>
-              <div className="mt-1 text-xs text-ink-faint">{matched ?? catalogT("review.choosePair")}</div>
-            </button>
-          );
-        })}
-      </div>
-      <div data-pair-column="right" className="flex min-w-0 flex-col gap-2">
-        {rightOptions.map((right, index) => (
-          <button
-            key={right}
-            type="button"
-            disabled={revealed || !activePairId}
-            onClick={() => onMatchPair(right)}
-            className="relative min-h-11 min-w-0 overflow-hidden rounded-xl border border-line bg-surface px-2 py-2 text-sm font-semibold text-ink transition hover:border-accent hover:bg-accent-soft disabled:opacity-55 sm:px-3"
-          >
-            <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
-            {right}
-          </button>
-        ))}
-      </div>
-    </div>
+      {wrongCount > 0 && (
+        <p className="mt-2 text-xs font-medium text-wrong">
+          {catalogT("review.pairErrors", { count: wrongCount })}
+        </p>
+      )}
     </div>
   );
 }
@@ -914,7 +985,7 @@ function ExerciseFeedback({
         </p>
       )}
       {correct === false && (
-        <p className="mx-auto mt-2 max-w-sm text-xs font-medium text-danger">
+        <p className="mx-auto mt-2 max-w-sm text-xs font-medium text-wrong">
           {catalogT("review.willReturnQueue")}
         </p>
       )}
@@ -935,7 +1006,7 @@ function DetailedErrorsUpsellCard({
   className?: string;
 }) {
   return (
-    <Card className={["rounded-xl border-[#B7791F]/25 bg-[#B7791F]/5 p-4 shadow-none", className].filter(Boolean).join(" ")}>
+    <Card className={["rounded-xl border-gold/25 bg-gold/5 p-4 shadow-none", className].filter(Boolean).join(" ")}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
