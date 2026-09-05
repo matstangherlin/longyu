@@ -336,3 +336,55 @@ test.describe("V4.9.3 — os dois cursos e a identidade pedagógica", () => {
     expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
   });
 });
+
+test.describe("V4.9.3 — a aula sem depender de animação", () => {
+  test("14 · a aula inteira é navegável por teclado e legível por leitor de tela", async ({
+    page,
+  }) => {
+    await seedFreshJourneySession(page);
+    await open(page, route(CAPSULES.tone));
+
+    // Avançar dois segmentos até a demonstração dos contornos, só com teclado.
+    for (let i = 0; i < 2; i += 1) {
+      await page.getByTestId("capsule-continue").focus();
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(150);
+    }
+
+    // O contorno de tom é imagem COM texto: quem não enxerga recebe a mesma
+    // informação que quem enxerga.
+    const contour = page.locator("[data-tone-contour]").first();
+    await expect(contour).toBeVisible();
+    await expect(contour).toHaveAttribute("role", "img");
+    const label = await contour.getAttribute("aria-label");
+    expect(label && label.length > 8).toBe(true);
+
+    // Seguir até o microcheck, ainda sem mouse.
+    for (let i = 0; i < 3; i += 1) {
+      await page.getByTestId("capsule-continue").focus();
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(150);
+    }
+    const check = page.getByTestId("capsule-micro-check");
+    await expect(check).toBeVisible();
+
+    // As opções são botões reais: focáveis e acionáveis por teclado.
+    const first = page.getByTestId("capsule-micro-check-option").first();
+    await first.focus();
+    await expect(first).toBeFocused();
+    await page.keyboard.press("Enter");
+
+    // O retorno é anunciado como status, não como alerta: o professor
+    // conversando, não um alarme cortando a leitura em curso.
+    const feedback = page.getByTestId("capsule-micro-check-feedback");
+    await expect(feedback).toHaveAttribute("role", "status");
+    await expect(feedback).toHaveAttribute("aria-live", "polite");
+
+    // E a transcrição carrega a aula inteira para quem não pode ouvir.
+    await page.getByTestId("capsule-transcript-toggle").click();
+    const transcript = page.getByTestId("capsule-transcript");
+    await expect(transcript).toBeVisible();
+    await expect(transcript).toHaveAttribute("role", "region");
+    expect((await transcript.textContent())?.length ?? 0).toBeGreaterThan(200);
+  });
+});
