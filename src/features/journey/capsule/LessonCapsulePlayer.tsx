@@ -1,7 +1,7 @@
 import { Suspense, lazy, useMemo, useState } from "react";
 import { Card } from "../../../components/ui/primitives";
 import type { LessonCapsule } from "../../../data/lessonCapsules";
-import { getLessonMediaAsset } from "../../../data/lessonMediaAssets";
+import { resolveLessonMediaAsset } from "../../../data/lessonCatalog";
 import type { InstructionLocale } from "../../../i18n/config";
 import { AnimatedCapsuleRenderer } from "./AnimatedCapsuleRenderer";
 import { CapsuleTranscript } from "./CapsuleTranscript";
@@ -34,7 +34,7 @@ export function LessonCapsulePlayer({
   onComplete: () => void;
 }) {
   const content = capsule.localized[locale];
-  const asset = useMemo(() => getLessonMediaAsset(content.mediaAssetId), [content.mediaAssetId]);
+  const asset = useMemo(() => resolveLessonMediaAsset(content.mediaAssetId), [content.mediaAssetId]);
   const en = locale === "en";
 
   // Um vídeo que falha cai para os segmentos interativos (Parte O). A cápsula

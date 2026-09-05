@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ButtonLink, Card } from "../../components/ui/primitives";
-import { getLessonCapsule } from "../../data/lessonCapsules";
+import { resolveLessonCapsule } from "../../data/lessonCatalog";
 import { JOURNEY_NODES } from "../../data/journeyOrchestrator";
+import { isLessonCatalogSettling, useLessonCatalogStatus } from "../../hooks/useLessonCatalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { completeJourneyNode } from "../../lib/journeyNodeProgress";
 import { LessonCapsulePlayer } from "./capsule/LessonCapsulePlayer";
@@ -17,7 +18,25 @@ export function LessonCapsulePage() {
   const { capsuleId = "" } = useParams();
   const navigate = useNavigate();
   const { instructionLocale } = useTranslation();
-  const capsule = useMemo(() => getLessonCapsule(decodeURIComponent(capsuleId)), [capsuleId]);
+  const catalogStatus = useLessonCatalogStatus();
+  const capsule = useMemo(
+    () => resolveLessonCapsule(decodeURIComponent(capsuleId)),
+    // O catálogo publicado chega depois do primeiro render; sem ele na
+    // dependência, uma aula recém-publicada só apareceria ao recarregar.
+    [capsuleId, catalogStatus]
+  );
+
+  // Enquanto o catálogo não assentou, "não existe" seria uma mentira com
+  // aparência de erro: a aula pode estar a um fetch de distância.
+  if (!capsule && isLessonCatalogSettling(catalogStatus)) {
+    return (
+      <div className="mx-auto max-w-lg py-8" data-testid="lesson-capsule-loading">
+        <Card className="p-6 text-center text-sm text-ink-soft">
+          {instructionLocale === "en" ? "Loading the lesson…" : "Carregando a aula…"}
+        </Card>
+      </div>
+    );
+  }
 
   if (!capsule) {
     return (

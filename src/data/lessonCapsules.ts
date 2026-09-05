@@ -35,6 +35,15 @@ export interface LessonCapsuleLocalizedContent {
 export interface LessonCapsule {
   id: string;
   topicId: string;
+  /**
+   * Onde a cápsula aparece na Jornada, para cápsulas publicadas em runtime.
+   *
+   * As embutidas são posicionadas por um `JourneyNode` no orquestrador, que
+   * pode declarar pré-requisitos revisados em code review. Uma cápsula que
+   * chega pelo catálogo não tem essa revisão, então só pode dizer DEPOIS DE
+   * QUAL TÓPICO aparecer — nunca o que ela exige nem o que ela destrava.
+   */
+  afterTopicId?: string;
   mediaType: LessonCapsuleMediaType;
   durationSeconds: number;
   poster?: string;

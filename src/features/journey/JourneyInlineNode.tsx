@@ -3,6 +3,7 @@ import {
   routeForJourneyNode,
   type JourneyNode,
 } from "../../data/journeyOrchestrator";
+import { resolveLessonCapsule } from "../../data/lessonCatalog";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 import { useJourneyNodeAccess } from "../../hooks/useJourneyNodeAccess";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -49,7 +50,14 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
   const en = instructionLocale === "en";
   const Icon = ICON_BY_TYPE[node.type as keyof typeof ICON_BY_TYPE] ?? IconPlay;
 
-  const label = INLINE_LABELS[node.id]?.[en ? "en" : "pt"] ?? node.sourceId ?? node.id;
+  // Uma cápsula publicada não tem entrada em `INLINE_LABELS` — ela nasceu
+  // depois deste código. O título vem da própria aula, no idioma do curso;
+  // cair no id cru mostraria "capsule:algo:v1" na trilha do aluno.
+  const publishedTitle =
+    node.type === "LESSON_CAPSULE"
+      ? resolveLessonCapsule(node.sourceId ?? "")?.localized[instructionLocale]?.title
+      : undefined;
+  const label = INLINE_LABELS[node.id]?.[en ? "en" : "pt"] ?? publishedTitle ?? node.sourceId ?? node.id;
 
   const body = (
     <>

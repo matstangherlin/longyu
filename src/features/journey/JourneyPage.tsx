@@ -48,6 +48,8 @@ import {
   PINYIN_CAPSULE_NODE,
 } from "../../data/journeyOrchestrator";
 import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
+import { publishedCapsuleNodesAfterTopic } from "../../data/lessonCatalog";
+import { useLessonCatalogStatus } from "../../hooks/useLessonCatalog";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 import { JourneyInlineNode } from "./JourneyInlineNode";
 
@@ -831,6 +833,9 @@ function ModuleBlock({
   onChestLocked: (message: string) => void;
 }) {
   const { t, instructionLocale: locale } = useTranslation();
+  // Assinatura, não leitura: o catálogo publicado chega depois do primeiro
+  // render, e sem isso uma aula nova só apareceria ao recarregar a página.
+  useLessonCatalogStatus();
   const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
   const inventory = useStore((s) => s.inventory);
   const points = useStore((s) => s.points);
@@ -1030,7 +1035,12 @@ function ModuleBlock({
           );
           // V4.9.2: `afterTopicId` deixa de ser metadado e passa a posicionar o
           // reforço na trilha, logo depois do tópico que o motiva.
-          const inline = auxiliaryJourneyNodesAfterTopic(lesson.id);
+          // As embutidas vêm primeiro: aula publicada acrescenta ao fim da
+          // trilha do tópico, nunca se intercala antes do reforço revisado.
+          const inline = [
+            ...auxiliaryJourneyNodesAfterTopic(lesson.id),
+            ...publishedCapsuleNodesAfterTopic(lesson.id),
+          ];
           if (!inline.length) return node;
           return (
             <div key={lesson.id} className="flex w-full flex-col items-center gap-3">
