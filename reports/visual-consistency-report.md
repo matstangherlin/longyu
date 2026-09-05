@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 0ae72f37d693 |
-| HEAD no instante da geração | a5928e8814c3f4469e6ca2afcc07d0a5d3c1cdd4 |
+| HEAD no instante da geração | dc5d6df2a957b387f65d47bb474fccbaf670812b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-04T16:19:14.250Z |
+| Gerado em | 2026-09-05T13:30:00.362Z |
 | Lições | 127 |
 
 ## Resumo
@@ -47,7 +47,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 | Asset | Conceito | Estilo | Fundo | Tamanho | Dimensão | Problemas | Substituir? |
 |-------|----------|--------|-------|--------:|----------|-----------|:-----------:|
-| person | 人 pessoa | flat_illustration | transparent | 34.3 KB | 600×600 | — | — |
+| person | 人 pessoa | flat_illustration | transparent | 34.2 KB | 600×600 | — | — |
 | tree | 木 árvore | flat_illustration | transparent | 30.3 KB | 600×600 | — | — |
 | mouth | 口 boca | flat_illustration | transparent | 6.3 KB | 600×600 | — | — |
 | sun | 日 sol | flat_illustration | transparent | 10.8 KB | 600×600 | — | — |
@@ -58,10 +58,10 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | big | 大 grande | flat_illustration | transparent | 4.3 KB | 600×600 | — | — |
 | small | 小 pequeno | flat_illustration | transparent | 3.7 KB | 600×600 | — | — |
 | woman | 女 mulher | flat_illustration | transparent | 17.2 KB | 600×600 | — | — |
-| child | 子 criança | flat_illustration | transparent | 28.2 KB | 600×600 | — | — |
+| child | 子 criança | flat_illustration | transparent | 28.1 KB | 600×600 | — | — |
 | mother | 妈 mãe | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
-| father | 爸 pai | flat_illustration | transparent | 26.1 KB | 600×600 | — | — |
-| friend | 朋 amigo | flat_illustration | transparent | 32.3 KB | 600×600 | — | — |
+| father | 爸 pai | flat_illustration | transparent | 26.0 KB | 600×600 | — | — |
+| friend | 朋 amigo | flat_illustration | transparent | 32.2 KB | 600×600 | — | — |
 | son | 儿子 filho | flat_illustration | transparent | 22.5 KB | 600×600 | — | — |
 | daughter | 女儿 filha | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
 | older_brother | 哥哥 irmão mais velho | flat_illustration | transparent | 34.8 KB | 600×600 | — | — |
@@ -69,11 +69,11 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | female_friend | 女性朋友 amiga | flat_illustration | transparent | 32.6 KB | 600×600 | — | — |
 | girlfriend | 女朋友 namorada | flat_illustration | transparent | 33.5 KB | 600×600 | — | — |
 | boyfriend | 男朋友 namorado | flat_illustration | transparent | 35.3 KB | 600×600 | — | — |
-| crowd | 众 multidão | flat_illustration | transparent | 73.7 KB | 600×600 | — | — |
+| crowd | 众 multidão | flat_illustration | transparent | 73.6 KB | 600×600 | — | — |
 | sky | 天 céu | flat_illustration | transparent | 9.8 KB | 600×600 | — | — |
-| woods | 林 bosque | flat_illustration | transparent | 37.2 KB | 600×600 | — | — |
-| forest | 森 floresta | flat_illustration | transparent | 68.7 KB | 600×600 | — | — |
-| horse | 马 cavalo | flat_illustration | transparent | 67.4 KB | 600×600 | — | — |
+| woods | 林 bosque | flat_illustration | transparent | 37.1 KB | 600×600 | — | — |
+| forest | 森 floresta | flat_illustration | transparent | 68.6 KB | 600×600 | — | — |
+| horse | 马 cavalo | flat_illustration | transparent | 67.3 KB | 600×600 | — | — |
 | fish | 鱼 peixe | flat_illustration | transparent | 16.6 KB | 600×600 | — | — |
 | cat | 猫 gato | flat_illustration | transparent | 27.8 KB | 600×600 | — | — |
 | dog | 狗 cachorro | flat_illustration | transparent | 14.4 KB | 600×600 | — | — |
@@ -84,8 +84,8 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | apple | 苹果 maçã | flat_illustration | transparent | 22.6 KB | 600×600 | — | — |
 | meat | 肉 carne | flat_illustration | transparent | 12.1 KB | 600×600 | — | — |
 | vegetables | 菜 verdura | flat_illustration | transparent | 54.2 KB | 600×600 | — | — |
-| eat | 吃 comer | flat_illustration | transparent | 70.2 KB | 600×600 | — | — |
-| drink | 喝 beber | flat_illustration | transparent | 30.8 KB | 600×600 | — | — |
+| eat | 吃 comer | flat_illustration | transparent | 70.1 KB | 600×600 | — | — |
+| drink | 喝 beber | flat_illustration | transparent | 30.7 KB | 600×600 | — | — |
 | drinking_water | 一杯水 um copo de água | flat_illustration | transparent | 19.9 KB | 600×600 | — | — |
 | juice | 果汁 suco | flat_illustration | transparent | 20.0 KB | 600×600 | — | — |
 | beer | 啤酒 cerveja | flat_illustration | transparent | 20.3 KB | 600×600 | — | — |
@@ -95,7 +95,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | egg | 鸡蛋 ovo | flat_illustration | transparent | 20.7 KB | 600×600 | — | — |
 | book | 书 livro | flat_illustration | transparent | 24.7 KB | 600×600 | — | — |
 | car | 车 carro | flat_illustration | transparent | 35.3 KB | 600×600 | — | — |
-| home | 家 casa | flat_illustration | transparent | 51.5 KB | 600×600 | — | — |
+| home | 家 casa | flat_illustration | transparent | 51.4 KB | 600×600 | — | — |
 | money | 钱 dinheiro | flat_illustration | transparent | 33.8 KB | 600×600 | — | — |
 | ticket | 票 bilhete | flat_illustration | transparent | 7.4 KB | 600×600 | — | — |
 | phone | 手机 celular | flat_illustration | transparent | 23.1 KB | 600×600 | — | — |
@@ -139,4 +139,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:a97c60ee55e9ec14 -->
+<!-- integridade:155828cafc526012 -->
