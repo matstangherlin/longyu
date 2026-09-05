@@ -133,15 +133,50 @@ export interface SpeakOptions {
 }
 
 /** Fala um texto chinês. Cancela qualquer fala anterior. */
+
+// ── O que é para ser falado em mandarim ───────────────────────────────────
+//
+// A voz aqui é chinesa. Passar a ela um texto que mistura hànzì com rótulos
+// latinos faz o motor ler os dois: um prompt de diálogo como "A: 谢谢！ B: ___"
+// sai como "A, xièxie, B, sublinhado". O aluno pediu áudio da frase e recebeu
+// a marcação da tela junto.
+//
+// O guarda que existia vivia nos chamadores e olhava só para "tem hànzì?" ou
+// "tem palavra latina de 2+ letras?". A primeira pergunta libera texto
+// misturado inteiro; a segunda não vê rótulos de uma letra, que é exatamente
+// o caso de "A:" e "B:". Concentrar a decisão aqui resolve os dois de uma vez,
+// e vale para todos os pontos que chamam `speak`.
+//
+// A regra: texto COM hànzì tem seu latim tratado como andaime visual e só os
+// trechos chineses são falados. Texto SEM hànzì nenhum passa intacto — é o
+// caso do pinyin, que precisa mesmo ser pronunciado como está.
+const CJK_RANGE = "\\u3400-\\u9fff\\uf900-\\ufaff";
+/** Pontuação chinesa que faz parte da prosódia e deve acompanhar o trecho. */
+const CJK_PUNCTUATION = "\\u3001\\u3002\\uff01\\uff0c\\uff1a\\uff1b\\uff1f\\u201c\\u201d\\u2018\\u2019\\uff08\\uff09";
+const CJK_TEST = new RegExp(`[${CJK_RANGE}]`, "u");
+const SPEAKABLE_RUN = new RegExp(`[${CJK_RANGE}][${CJK_RANGE}${CJK_PUNCTUATION}]*`, "gu");
+
+export function mandarinSpeechText(text: string): string {
+  if (!CJK_TEST.test(text)) return text;
+  const runs = text.match(SPEAKABLE_RUN);
+  if (!runs?.length) return text;
+  return runs.join("");
+}
+
 export function speak(text: string, opts: SpeakOptions = {}): void {
   if (!isTTSAvailable()) {
+    opts.onend?.();
+    return;
+  }
+  const spoken = mandarinSpeechText(text);
+  if (!spoken.trim()) {
     opts.onend?.();
     return;
   }
   const synth = window.speechSynthesis;
   clearPendingSpeak();
   clearChromeResumeWatchdog();
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(spoken);
   const voice = cachedVoice || pickChineseVoice();
   const preferences = useStore.getState();
   if (voice) u.voice = voice;
