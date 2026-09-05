@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   dismissBlockingOverlays,
   seedInstructionLocale,
+  seedCompletedJourneyNodes,
   seedTelemetryDeclined,
   seedUnlockedLessonSession,
   waitForLazyPage,
@@ -102,12 +103,15 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const panel = page.getByTestId("foundation-orchestration");
-    await expect(panel).toBeVisible();
-    await expect(panel.getByText("Tone Trainer · reta × vale")).toBeVisible();
-    const earlyLink = panel.locator("a[href*='tone-contour-1-3']");
+    // V4.9.2: os reforços vivem na trilha, ancorados ao tópico que os motiva.
+    const trail = page.locator("[data-journey-inline-after='p1-o-que-e-tom']");
+    await expect(trail).toBeVisible();
+    const earlyLink = trail.locator("[data-journey-inline-node='booster:tone-contour-1-3:v1'][data-ready='true']");
     await expect(earlyLink).toBeVisible();
-    await expect(panel.locator("a[href*='tone-number-1-4']")).toHaveCount(0);
+    // O 1-4 só abre com mais mastery: continua visível, mas fechado.
+    await expect(
+      trail.locator("[data-journey-inline-node='booster:tone-number-1-4:v1'][data-ready='true']")
+    ).toHaveCount(0);
     await page.screenshot({ path: path.join(SHOTS, "tone-trainer-journey-node-desktop-pt.png"), fullPage: true });
 
     const masteryBefore = await page.evaluate(() => JSON.parse(localStorage.getItem("longyu-v1") ?? "{}").state?.lessonMasteryById);
@@ -165,13 +169,18 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
 
   test("captures Pinyin, Hànzì, and conversation booster evidence from reused engines", async ({ page }) => {
     await mkdir(SHOTS, { recursive: true });
-    await seedUnlockedLessonSession(page, "p1-primeiros-hanzi", {
+    // Semear a lição seguinte: o Hànzì Builder exige `p1-primeiros-hanzi`
+    // concluída, e antes da V4.9.2 o deep link deixava passar sem isso.
+    await seedUnlockedLessonSession(page, "p1-engine-2-lab", {
       learnedChunks: ["nihao"],
       learnedChars: ["ni", "hao", "mu", "ren"],
       isPremium: true,
       serverIsPro: true,
       folego: 20,
     });
+    // A prática de Pinyin vem depois da cápsula — o deep link deixou de poder
+    // pular esse degrau, então o aluno do teste precisa tê-la concluído.
+    await seedCompletedJourneyNodes(page, ["node:capsule:pinyin-foundation:v1"]);
     await page.setViewportSize({ width: 1280, height: 720 });
 
     await page.goto("/pinyin?journeyNode=booster%3Apinyin-practice%3Av1");

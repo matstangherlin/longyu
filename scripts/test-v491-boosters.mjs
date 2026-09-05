@@ -26,6 +26,11 @@ try {
   const progress = require(path.join(outDir, "src/lib/journeyNodeProgress.js"));
   const routes = await readFile(path.join(rootDir, "src/routes.tsx"), "utf8");
   const journeyPage = await readFile(path.join(rootDir, "src/features/journey/JourneyPage.tsx"), "utf8");
+  // V4.9.2: as URLs dos reforços saíram das nove cópias no JourneyPage e passaram
+  // a viver em `routeForJourneyNode`. O contrato auditado é o mesmo — a Jornada
+  // reusa os engines existentes —, só mudou onde a resposta é escrita.
+  const orchestratorSrc = await readFile(path.join(rootDir, "src/data/journeyOrchestrator.ts"), "utf8");
+  const inlineNode = await readFile(path.join(rootDir, "src/features/journey/JourneyInlineNode.tsx"), "utf8");
   const tonePage = await readFile(path.join(rootDir, "src/features/som/SomPage.tsx"), "utf8");
   const boosterPage = await readFile(path.join(rootDir, "src/features/journey/JourneyBoosterPage.tsx"), "utf8");
 
@@ -43,8 +48,21 @@ try {
   check(boosters.every((node) => node.priority !== "CORE"), "boosters must remain recommended or optional");
   check(nodes.TONE_CONTOUR_INTRO_NODE.allowedTones.join(",") === "1,3", "early Tone Trainer must allow only 1st/3rd tones");
   check(nodes.TONE_NUMBER_NODE.allowedTones.join(",") === "1,2,3,4", "number booster must allow all four taught tones");
-  check(nodes.TONE_CONTOUR_INTRO_NODE.minimumKnowledgeStages["concept:tone-1"] === "NOTICED", "tone 1 readiness missing");
-  check(nodes.TONE_CONTOUR_INTRO_NODE.minimumKnowledgeStages["concept:tone-3"] === "NOTICED", "tone 3 readiness missing");
+  // V4.9.2: a V4.9.1 declarava NOTICED enquanto o painel exigia mastery 1 (1×3)
+  // e 2 (1–4). A declaração era mais frouxa do que o portão real, então este
+  // gate petrificava o valor errado. Agora audita o piso pela ordem de estágio,
+  // não por igualdade literal — assim uma correção para cima nunca falha, e um
+  // afrouxamento silencioso continua falhando.
+  const STAGE_ORDER = ["UNSEEN", "EXPOSED", "NOTICED", "GUIDED", "RECOGNIZED", "RECALLED", "PRODUCED", "TRANSFERRED", "MASTERED"];
+  const atLeast = (actual, floor) => STAGE_ORDER.indexOf(actual) >= STAGE_ORDER.indexOf(floor);
+  check(atLeast(nodes.TONE_CONTOUR_INTRO_NODE.minimumKnowledgeStages["concept:tone-1"], "GUIDED"), "tone 1 readiness missing");
+  check(atLeast(nodes.TONE_CONTOUR_INTRO_NODE.minimumKnowledgeStages["concept:tone-3"], "GUIDED"), "tone 3 readiness missing");
+  check(
+    ["concept:tone-1", "concept:tone-2", "concept:tone-3", "concept:tone-4"].every((id) =>
+      atLeast(nodes.TONE_NUMBER_NODE.minimumKnowledgeStages[id], "RECOGNIZED")
+    ),
+    "tone number booster must require discrimination-level readiness"
+  );
   check(nodes.HANZI_BUILDER_NODE.allowedKnowledgeTargetIds.join(",") === "char:mu,char:ren", "Hanzi booster introduced unknown characters");
   check(nodes.JOURNEY_REVIEW_NODE.sourceId === "current-srs-queue", "Journey Review must reference the shared SRS queue");
   check(nodes.IMMERSION_READINESS_NODE.minimumKnownChunks > 0 && nodes.IMMERSION_READINESS_NODE.minimumKnownPatterns > 0, "Immersion readiness thresholds missing");
@@ -55,7 +73,16 @@ try {
   check(tonePage.includes("<ToneTrainer journeyNode=") && tonePage.includes("completeJourneyNode(journeyNode.id)"), "Tone Trainer engine was not reused by Journey");
   check(boosterPage.includes("ConversationSceneStep") && !boosterPage.includes("function Conversation"), "conversation engine must be reused, not copied");
   check(boosterPage.includes("constrainSceneToKnownTargets") && boosterPage.includes("CONTROLLED_UNKNOWN_DISTRACTORS"), "early conversation must not expose untaught Mandarin distractors");
-  check(journeyPage.includes("/revisao?journeyNode=") && journeyPage.includes("/pinyin?journeyNode=") && journeyPage.includes("/hanzi?char=mu&journeyNode="), "Journey links must use existing Review/Pinyin/Hanzi engines");
+  check(
+    orchestratorSrc.includes("/revisao?${query}") &&
+      orchestratorSrc.includes("/pinyin?${query}") &&
+      orchestratorSrc.includes("/hanzi?char=mu&${query}"),
+    "Journey links must use existing Review/Pinyin/Hanzi engines"
+  );
+  check(
+    inlineNode.includes("routeForJourneyNode(node)") && journeyPage.includes("auxiliaryJourneyNodesAfterTopic"),
+    "Journey must render boosters inline from the shared route resolver"
+  );
 
   if (failures.length) {
     console.error("FAIL test:v491-boosters");

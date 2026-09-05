@@ -8,6 +8,8 @@ const JourneyPage = lazy(() => import("./features/journey/JourneyPage").then((m)
 const LessonCapsulePage = lazy(() => import("./features/journey/LessonCapsulePage").then((m) => ({ default: m.LessonCapsulePage })));
 const JourneyBoosterPage = lazy(() => import("./features/journey/JourneyBoosterPage").then((m) => ({ default: m.JourneyBoosterPage })));
 const TreinoPage = lazy(() => import("./features/treino/TreinoPage").then((m) => ({ default: m.TreinoPage })));
+import { JourneyNodeGate } from "./components/journey/JourneyNodeGate";
+
 const MandarinBlitzPage = lazy(() => import("./features/arcade/MandarinBlitzPage").then((m) => ({ default: m.MandarinBlitzPage })));
 const MissoesPage = lazy(() => import("./features/missoes/MissoesPage").then((m) => ({ default: m.MissoesPage })));
 const LojaPage = lazy(() => import("./features/loja/LojaPage").then((m) => ({ default: m.LojaPage })));
@@ -111,22 +113,22 @@ export const routes: RouteObject[] = [
     children: [
       { path: "jornada", element: <JourneyPage /> },
       { path: "jornada/capsula/:capsuleId", element: <LessonCapsulePage /> },
-      { path: "jornada/reforco/:nodeId", element: <JourneyBoosterPage /> },
+      { path: "jornada/reforco/:nodeId", element: <JourneyNodeGate><JourneyBoosterPage /></JourneyNodeGate> },
       { path: "treino", element: <TreinoPage /> },
       { path: "praticar", element: <TreinoPage /> },
-      { path: "arcade/blitz", element: <MandarinBlitzPage /> },
+      { path: "arcade/blitz", element: <JourneyNodeGate><MandarinBlitzPage /></JourneyNodeGate> },
       { path: "missoes", element: <MissoesPage /> },
       { path: "loja", element: <LojaPage /> },
-      { path: "som", element: <SomPage /> },
-      { path: "pinyin", element: <PinyinLabPage /> },
-      { path: "hanzi", element: <HanziPage /> },
+      { path: "som", element: <JourneyNodeGate><SomPage /></JourneyNodeGate> },
+      { path: "pinyin", element: <JourneyNodeGate><PinyinLabPage /></JourneyNodeGate> },
+      { path: "hanzi", element: <JourneyNodeGate><HanziPage /></JourneyNodeGate> },
       { path: "ideogramas", element: <IdeogramasPage /> },
       { path: "hanzi/atlas", element: <HanziAtlasPage /> },
       { path: "fala", element: <FalaPage /> },
       { path: "leitura", element: <LeituraPage /> },
-      { path: "revisao", element: <RevisaoPage /> },
+      { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },
       { path: "biblioteca", element: <BibliotecaPage /> },
-      { path: "imersao", element: <ImmersionPage /> },
+      { path: "imersao", element: <JourneyNodeGate><ImmersionPage /></JourneyNodeGate> },
       { path: "ligas", element: <LigasPage /> },
       { path: "amigos", element: <AmigosPage /> },
       { path: "convide", element: <ReferralPage /> },
