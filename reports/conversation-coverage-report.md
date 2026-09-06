@@ -6,23 +6,23 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d6435e721702 |
-| HEAD no instante da geração | b6314a8054a2675af5e56eb927e1a42d185e09b9 |
-| Árvore de trabalho | limpa |
+| Hash da Jornada | d47933a8c7dd |
+| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T19:34:07.638Z |
+| Gerado em | 2026-09-06T21:51:06.285Z |
 | Lições | 127 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Cenas no catálogo | 46 |
-| Cenas V2 (nós/ramificação) | 46 |
+| Cenas no catálogo | 47 |
+| Cenas V2 (nós/ramificação) | 47 |
 | Cenas V1 autorais (sem nós) | 0 |
-| Fallback V1 derivado (lines/checkpoint) | 46 |
-| Intenções distintas | 46 |
-| Passos autorais na jornada | 49 |
+| Fallback V1 derivado (lines/checkpoint) | 47 |
+| Intenções distintas | 47 |
+| Passos autorais na jornada | 50 |
 | Lições com cena gerada no plano | 105 |
 | Cenas geradas distintas | 40 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
@@ -33,14 +33,14 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Papel | Cenas |
 |-------|------:|
 | common | 38 |
-| module_review | 5 |
+| module_review | 6 |
 | immersion | 3 |
 
 ## Cenas por cenário
 
 | Cenário | Cenas |
 |---------|------:|
-| school | 4 |
+| school | 5 |
 | park | 7 |
 | shop | 10 |
 | street | 13 |
@@ -57,22 +57,23 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
 | me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
 | revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 0 | 2 |
-| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 3 |
-| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 4 |
+| pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 4 |
+| cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 3 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
+| conhecer-alguem | module_review | meet-someone | 13 | 5 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
 | nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 5 |
-| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 9 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 5 |
+| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 8 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 3 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 0 |
 | identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
 | encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
 | onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 1 |
-| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 5 |
-| sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 6 |
-| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 3 |
-| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 4 |
+| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 4 |
+| sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 5 |
+| pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 2 |
+| fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 5 |
 | encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 6 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 2 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 1 |
@@ -106,8 +107,8 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 | Indicador | Valor |
 |-----------|------:|
-| Variantes com manifesto gerado | 47 |
-| Itens de vocabulário mapeados | 613 |
+| Variantes com manifesto gerado | 48 |
+| Itens de vocabulário mapeados | 628 |
 | Textos exibidos sem referência canônica (aviso) | 0 |
 | Refs declarados nunca exibidos (aviso) | 0 |
 
@@ -116,4 +117,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:47889c35ac3c9917 -->
+<!-- integridade:56c155c59f73d285 -->

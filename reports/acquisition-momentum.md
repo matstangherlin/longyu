@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d6435e721702 |
-| HEAD no instante da geração | b6314a8054a2675af5e56eb927e1a42d185e09b9 |
+| Hash da Jornada | d47933a8c7dd |
+| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T19:44:37.082Z |
+| Gerado em | 2026-09-06T21:59:40.985Z |
 | Lições | 127 |
 
 ## Resumo
@@ -67,14 +67,14 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 35 | acquisition | Me apresentar | sim | unidades novas: 妈妈、好的; conversation_scene; produção independente |
 | 36 | acquisition | Tudo bem? | sim | unidades novas: 这是水、在哪里、怎么样; conversation_scene; produção independente |
 | 37 | acquisition | Como você se chama? | sim | unidades novas: 你是哪国人、我是巴西人、什么; conversation_scene; produção independente |
-| 38 | acquisition | De onde sou | sim | unidades novas: 认识你很高兴; conversation_scene; produção independente |
+| 38 | acquisition | De onde sou | sim | unidades novas: 请坐; conversation_scene; produção independente |
 | 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene; produção independente |
 | 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene; produção independente |
 | 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene; produção independente |
 | 42 | acquisition | Falo um pouco | sim | unidades novas: 一点、我会说、中文、我在学中文、我是学生、你是学生吗、你学习什么、我学习中文、你在哪里学习、我在学校学习、在学校、是我是学生; conversation_scene; produção independente |
-| 43 | acquisition | Peças da frase | sim | conversation_scene; produção independente |
-| 44 | acquisition | Microtexto 1 | sim | conversation_scene; produção independente |
-| 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 今天很好、我要水; conversation_scene; produção independente |
+| 43 | acquisition | Peças da frase | sim | unidades novas: 今天很好; conversation_scene; produção independente |
+| 44 | acquisition | Microtexto 1 | sim | unidades novas: 我很好你呢、好你呢、认识你很高兴; conversation_scene; produção independente |
+| 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 我要水、我也是、你忙吗、你住在哪里; conversation_scene; produção independente |
 | 46 | acquisition | Microdiálogo: se apresentar | sim | unidades novas: 我有三个朋友、会说中文; conversation_scene; produção independente |
 | 47 | acquisition | A ordem importa | sim | conversation_scene; produção independente |
 | 48 | acquisition | Nomes das peças | sim | unidades novas: 我有五个朋友、我有一个朋友; conversation_scene; padrão estrutural |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:5e79b6371cfc87ac -->
+<!-- integridade:ed2878c73e4c8d01 -->

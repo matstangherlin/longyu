@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | b6314a8054a2675af5e56eb927e1a42d185e09b9 |
+| Commit | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T19:35:09.545Z |
+| Gerado em | 2026-09-06T21:51:56.082Z |
 | Lições | 127 |
-| Hash da Jornada | d6435e721702 |
+| Hash da Jornada | d47933a8c7dd |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 46 |
-| Média de falas | 7.72 |
-| Média de intervenções | 2.76 |
-| Número de ramificações | 127 |
-| Número de finais | 49 |
-| Vocabulário total exibido (refs únicas no plano real) | 130 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 130 |
+| Número de cenas | 47 |
+| Média de falas | 7.83 |
+| Média de intervenções | 2.81 |
+| Número de ramificações | 132 |
+| Número de finais | 50 |
+| Vocabulário total exibido (refs únicas no plano real) | 132 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 132 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 4 |
-| Média de reutilizações por ref exibida | 9.12 |
+| Palavras novas (refs únicas) | 3 |
+| Média de reutilizações por ref exibida | 9.07 |
 
 ## Cenas mais curtas
 
@@ -55,16 +55,16 @@
 
 | Cena | Usos |
 |------|-----:|
-| packet-exchange-introductions | 10 |
+| packet-exchange-introductions | 12 |
 | como-se-chama | 9 |
-| pedir-agua | 8 |
+| nao-falo-chinês | 8 |
 | encontro-amanha | 7 |
-| nao-falo-chinês | 7 |
-| sala-de-aula | 7 |
-| apontar-natureza | 7 |
-| packet-exchange-basic_questions | 6 |
+| sala-de-aula | 6 |
 | falar-de-estudo | 6 |
-| fale-de-novo | 5 |
+| pedir-agua | 6 |
+| apontar-natureza | 6 |
+| me-apresentando | 5 |
+| packet-exchange-courtesy | 5 |
 
 ## Cenas por cenário
 
@@ -73,7 +73,7 @@
 | classroom | 6 |
 | home | 6 |
 | park | 7 |
-| school | 4 |
+| school | 5 |
 | shop | 10 |
 | street | 13 |
 
@@ -112,6 +112,7 @@
 | immersion-visit | 1 |
 | introduce-self | 1 |
 | meet-friend | 1 |
+| meet-someone | 1 |
 | numbers-review | 1 |
 | order-menu | 1 |
 | plan-tomorrow | 1 |
@@ -144,4 +145,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:3a5e6bcbdc980ccd -->
+<!-- integridade:d8ddd76cd31852d2 -->

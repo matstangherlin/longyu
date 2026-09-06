@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d6435e721702 |
-| HEAD no instante da geração | 1981d97072804df9ab8a014b2c07b5ef7a695f59 |
+| Hash da Jornada | d47933a8c7dd |
+| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T19:23:53.515Z |
+| Gerado em | 2026-09-06T21:42:31.847Z |
 | Lições | 127 |
 
 
@@ -22,9 +22,9 @@ Auditoria do plano real (`lessonRoundStepsFor`) × pass de mastery. Meta: invali
 
 | métrica | n |
 |---|---:|
-| total steps | 3885 |
-| interactive | 3627 |
-| passive | 258 |
+| total steps | 3883 |
+| interactive | 3624 |
+| passive | 259 |
 | intentional reflection | 0 |
 | invalid interaction | 0 |
 | instruction mismatch | 0 |
@@ -32,9 +32,15 @@ Auditoria do plano real (`lessonRoundStepsFor`) × pass de mastery. Meta: invali
 | IME-only block | 0 |
 | dead screen | 0 |
 
+## Falhas
+
+| lesson | pass | # | kind | title | issues |
+|---|---:|---:|---|---|---|
+| l10 | 3 | 4 | write | Apresente-se por completo | write_mode_missing |
+
 ## Fundação (Mandarim / Pinyin / Tom / Hànzì)
 
 Cada pass precisa de topic fidelity DIRECT ≥ 70% **e** feasibility = 0 falhas.
 
-<!-- integridade:201d961321dc4bfa -->
+<!-- integridade:68e4e971b14f4c62 -->
 

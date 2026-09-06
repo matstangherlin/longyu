@@ -1294,6 +1294,150 @@ export const CONVERSATION_SCENES: ConversationSceneStep[] = [
     dedicatedLesson: true,
   }),
   sceneV2({
+    /**
+     * V4.9.4C — o primeiro encontro inteiro, de uma vez só.
+     *
+     * As peças de conhecer alguém já existiam todas, mas separadas: cumprimento
+     * em l2, nome em l9, origem e cortesia em l10, despedida em p1-ate-logo.
+     * O aluno sabia cada movimento e nunca tinha feito a sequência completa —
+     * e é a sequência que a vida cobra, não os movimentos soltos.
+     *
+     * Por isso aqui quase tudo é RECALL. O único item novo é 我也是, que estava
+     * no léxico (`chunks.ts`) sem ser ensinado em lição nenhuma. Ele entra no
+     * lugar onde é mais natural e mais útil: respondendo à cortesia. "认识你很
+     * 高兴 → 我也是" é a troca padrão de quem acabou de se apresentar.
+     *
+     * O interlocutor é Wang, e não Mei: quem já treinou origem com Mei em l10
+     * precisa provar que reconhece a funcao comunicativa da pergunta, e nao a
+     * posicao dela num
+     * diálogo decorado.
+     */
+    sceneId: "conhecer-alguem",
+    title: "Conhecendo alguém pela primeira vez",
+    intent: "meet-someone",
+    setting: "school",
+    characters: PAIR_LIN_WANG,
+    // Revisão de módulo, e não cena comum: ela recolhe o arco inteiro de l2 a
+    // l10 num encontro só, e por isso cabe nos limites de 10–14 falas e 3–5
+    // intervenções em vez dos 6–10/2–3 de uma cena de aquisição.
+    sceneRole: "module_review",
+    entryNodeId: "conhecer-alguem-1",
+    nodes: [
+      { id: "conhecer-alguem-1", speakerId: "wang", hanzi: "你好！我叫Wang。", pinyin: "nǐ hǎo! wǒ jiào Wang.", pt: "Olá! Meu nome é Wang.", emotion: "happy", nextNodeId: "conhecer-alguem-2" },
+      { id: "conhecer-alguem-2", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "conhecer-alguem-3" },
+      {
+        id: "conhecer-alguem-3",
+        speakerId: "wang",
+        hanzi: "你叫什么？",
+        pinyin: "nǐ jiào shénme?",
+        pt: "Como você se chama?",
+        emotion: "neutral",
+        interaction: {
+          type: "choose_reply",
+          prompt: "Wang acabou de dizer o nome dele e pergunta o seu. Como você responde?",
+          options: ["我叫Matheus", "我很好", "谢谢", "再见"],
+          correctAnswer: "我叫Matheus",
+          correctNextNodeId: "conhecer-alguem-5",
+          wrongNextNodeId: "conhecer-alguem-4",
+          explanation: "我叫… diz o seu nome.",
+        },
+      },
+      { id: "conhecer-alguem-4", speakerId: "wang", hanzi: "你叫什么？", pinyin: "nǐ jiào shénme?", pt: "Como você se chama?", emotion: "confused", nextNodeId: "conhecer-alguem-3" },
+      { id: "conhecer-alguem-5", speakerId: "lin", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "conhecer-alguem-6" },
+      {
+        id: "conhecer-alguem-6",
+        speakerId: "wang",
+        hanzi: "你好吗？",
+        pinyin: "nǐ hǎo ma?",
+        pt: "Tudo bem?",
+        emotion: "neutral",
+        interaction: {
+          type: "choose_reply",
+          prompt: "Responda que está bem E devolva a pergunta para Wang.",
+          options: ["我很好，你呢？", "我很好", "我叫Matheus", "我是巴西人"],
+          correctAnswer: "我很好，你呢？",
+          correctNextNodeId: "conhecer-alguem-8",
+          wrongNextNodeId: "conhecer-alguem-7",
+          explanation: "我很好 responde; 你呢？ devolve a pergunta e mantém a conversa viva.",
+        },
+      },
+      { id: "conhecer-alguem-7", speakerId: "wang", hanzi: "你好吗？", pinyin: "nǐ hǎo ma?", pt: "Tudo bem?", emotion: "confused", nextNodeId: "conhecer-alguem-6" },
+      { id: "conhecer-alguem-8", speakerId: "lin", hanzi: "我很好，你呢？", pinyin: "wǒ hěn hǎo, nǐ ne?", pt: "Estou bem, e você?", emotion: "happy", nextNodeId: "conhecer-alguem-9" },
+      { id: "conhecer-alguem-9", speakerId: "wang", hanzi: "我很好，谢谢。", pinyin: "wǒ hěn hǎo, xièxie.", pt: "Estou bem, obrigado.", emotion: "happy", nextNodeId: "conhecer-alguem-10" },
+      {
+        id: "conhecer-alguem-10",
+        speakerId: "wang",
+        hanzi: "你是哪国人？",
+        pinyin: "nǐ shì nǎ guó rén?",
+        pt: "De que país você é?",
+        emotion: "neutral",
+        interaction: {
+          type: "choose_reply",
+          prompt: "Wang quer saber de onde você é.",
+          options: ["我是巴西人", "我叫Matheus", "我很好", "没关系"],
+          correctAnswer: "我是巴西人",
+          correctNextNodeId: "conhecer-alguem-12",
+          wrongNextNodeId: "conhecer-alguem-11",
+          explanation: "我是巴西人 diz a sua origem.",
+        },
+      },
+      { id: "conhecer-alguem-11", speakerId: "wang", hanzi: "你是哪国人？", pinyin: "nǐ shì nǎ guó rén?", pt: "De que país você é?", emotion: "confused", nextNodeId: "conhecer-alguem-10" },
+      { id: "conhecer-alguem-12", speakerId: "lin", hanzi: "我是巴西人。", pinyin: "wǒ shì Bāxī rén.", pt: "Sou brasileiro(a).", emotion: "happy", nextNodeId: "conhecer-alguem-13" },
+      {
+        id: "conhecer-alguem-13",
+        speakerId: "wang",
+        hanzi: "认识你很高兴。",
+        pinyin: "rènshi nǐ hěn gāoxìng.",
+        pt: "Prazer em conhecer você.",
+        emotion: "happy",
+        interaction: {
+          type: "choose_reply",
+          prompt: "Wang diz que é um prazer conhecer você. Como você diz que sente o mesmo?",
+          options: ["我也是", "我很好", "谢谢", "再见"],
+          correctAnswer: "我也是",
+          correctNextNodeId: "conhecer-alguem-15",
+          wrongNextNodeId: "conhecer-alguem-14",
+          explanation: "我也是 é o «eu também» que devolve a gentileza sem repetir a frase inteira.",
+        },
+      },
+      { id: "conhecer-alguem-14", speakerId: "wang", hanzi: "认识你很高兴。", pinyin: "rènshi nǐ hěn gāoxìng.", pt: "Prazer em conhecer você.", emotion: "confused", nextNodeId: "conhecer-alguem-13" },
+      { id: "conhecer-alguem-15", speakerId: "lin", hanzi: "我也是。", pinyin: "wǒ yě shì.", pt: "Eu também.", emotion: "happy", nextNodeId: "conhecer-alguem-16" },
+      {
+        id: "conhecer-alguem-16",
+        speakerId: "wang",
+        hanzi: "再见！",
+        pinyin: "zàijiàn!",
+        pt: "Até logo!",
+        emotion: "happy",
+        interaction: {
+          type: "choose_reply",
+          prompt: "O encontro terminou. Como você se despede?",
+          options: ["再见", "你好", "我叫Matheus", "我是巴西人"],
+          correctAnswer: "再见",
+          correctNextNodeId: "conhecer-alguem-18",
+          wrongNextNodeId: "conhecer-alguem-17",
+          explanation: "再见 encerra a conversa.",
+        },
+      },
+      { id: "conhecer-alguem-17", speakerId: "wang", hanzi: "再见？", pinyin: "zàijiàn?", pt: "Até logo?", emotion: "confused", nextNodeId: "conhecer-alguem-16" },
+      { id: "conhecer-alguem-18", speakerId: "lin", hanzi: "再见！", pinyin: "zàijiàn!", pt: "Até logo!", emotion: "happy" },
+    ],
+    learnedRefs: [
+      "chunk:nihao",
+      "chunk:wojiao",
+      "chunk:nijiaoshenme",
+      "chunk:nihaoma",
+      "chunk:wohenhao",
+      "chunk:nine",
+      "chunk:xiexie",
+      "chunk:nishinaiguoren",
+      "chunk:wature",
+      "chunk:renshinihengaoxing",
+      "chunk:zaijian",
+    ],
+    newRefs: ["chunk:woyeshi"],
+  }),
+  sceneV2({
     sceneId: "nao-entendi-reparo",
     title: "Não entendi — peça reparo",
     intent: "repair-not-understood",

@@ -28,8 +28,8 @@ CONVERSATION (multi-item use)
 ## Current Atlas status
 
 - Atlas journey refs (chunks+chars authored): 424
-- Taught (journey library/use): 334
-- Scheduled (lifecycle): 16
+- Taught (journey library/use): 335
+- Scheduled (lifecycle): 15
 - Future (authored atlas): 74
 - Lifecycle entries: **196** (min 120)
 - Registry-classified units (incl. corpus T5/T6): **5561**
