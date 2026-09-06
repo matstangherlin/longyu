@@ -3620,12 +3620,13 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:nishinaiguoren",
               "chunk:woshixuesheng",
               "chunk:renshinihengaoxing",
+              "chunk:woyeshi",
               "chunk:nihao",
               "chunk:wojiao",
               "char:ni",
               "char:ren",
             ],
-            reviewItems: ["chunk:nihao", "chunk:wojiao", "chunk:wature", "char:ni", "char:ren"],
+            reviewItems: ["chunk:nihao", "chunk:wojiao", "chunk:wature", "chunk:woyeshi", "char:ni", "char:ren"],
             newHanzi: ["哪", "兴", "认", "识", "高"],
             steps: [
               listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),
@@ -3670,6 +3671,50 @@ export const JOURNEY: JourneyPhase[] = [
                 "我叫Matheus",
                 ["我叫Matheus", "我是巴西人", "谢谢", "再见"],
                 "我叫 volta em contexto de apresentação completa."
+              ),
+              // V4.9.4C — 我也是: o único item novo da remessa.
+              //
+              // Ele já existia em chunks.ts e não era ensinado em lição nenhuma.
+              // Entra aqui, logo depois de 认识你很高兴, porque é exatamente a
+              // resposta que falta: quem acabou de ouvir "prazer em conhecer
+              // você" precisa de duas palavras para devolver a gentileza.
+              // Som primeiro, sentido depois, uso em seguida.
+              listen("我也是", "wǒ yě shì", "Eu também"),
+              comp(
+                "我也是",
+                "wǒ yě shì",
+                "Eu também",
+                ["Eu também", "Estou bem", "Prazer em conhecer você", "Sou brasileiro"]
+              ),
+              dialogue(
+                "Devolva a gentileza",
+                "Wang diz 认识你很高兴. Qual resposta curta diz que você sente o mesmo?",
+                "我也是",
+                ["我也是", "谢谢", "我很好", "再见"],
+                "我也是 = eu também. Devolve a cortesia sem repetir a frase inteira."
+              ),
+              // P0.7 — produção com menos andaime.
+              //
+              // Sem alternativas para eliminar: o aluno escreve a apresentação
+              // inteira. `requiredTerms` cobra as duas funções (nome e origem)
+              // sem exigir uma pontuação exata, e `accepts` aceita as ordens
+              // que um falante usaria de verdade.
+              write(
+                "Apresente-se por completo",
+                "Você encontra alguém pela primeira vez. Escreva seu nome e de onde você é.",
+                "我叫Matheus。我是巴西人。",
+                "我叫… 我是…人",
+                undefined,
+                {
+                  requiredTerms: ["我叫", "我是巴西人"],
+                  accepts: [
+                    "我叫Matheus。我是巴西人。",
+                    "我叫Matheus，我是巴西人。",
+                    "我叫Matheus 我是巴西人",
+                    "我是巴西人。我叫Matheus。",
+                  ],
+                  suggestion: "Nome com 我叫 e origem com 我是…人.",
+                }
               ),
             ],
           },
@@ -3894,6 +3939,18 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
                 "我 = eu; 是 = sou/ser; 人 = pessoa."
               ),
+              // V4.9.4C — o encontro inteiro, de uma vez so.
+              //
+              // As pecas de conhecer alguem ja existiam todas, mas separadas:
+              // cumprimento em l2, nome em l9, origem e cortesia em l10. O aluno
+              // sabia cada movimento e nunca tinha feito a sequencia completa —
+              // e a sequencia e o que a vida cobra, nao os movimentos soltos.
+              //
+              // Mora aqui, e nao em l10, por duas razoes: l10 ja gasta sua unica
+              // vaga de cena com `de-onde-sou`, que ENSINA origem; e l12 e a
+              // licao que monta 我 + 是 + 人, exatamente as pecas que este
+              // encontro poe em uso.
+              conversationScene("conhecer-alguem"),
             ],
           },
           {

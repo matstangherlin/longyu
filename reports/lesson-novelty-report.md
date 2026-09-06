@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d6435e721702 |
-| HEAD no instante da geração | b6314a8054a2675af5e56eb927e1a42d185e09b9 |
+| Hash da Jornada | c0b2b8090d1d |
+| HEAD no instante da geração | a2c6f9e2168bba24dd4a632f3981a27b5bf8e209 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T19:36:10.349Z |
+| Gerado em | 2026-09-06T21:27:51.879Z |
 | Lições | 127 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 127 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 977 |
-| Pares com transformação cognitiva | 803 (82%) |
+| Pares de repetição semântica | 981 |
+| Pares com transformação cognitiva | 806 (82%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -69,18 +69,18 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l9 | 18 | 17 | 33 | 17 | 14 | 14 | phrase:我叫Matheus × 3 |
 | l9-tudo-bem | 17 | 16 | 38 | 14 | 10 | 12 | phrase:我很好 × 2 |
 | l9-qual-nome | 14 | 13 | 28 | 14 | 10 | 10 | phrase:你叫什么 × 3 |
-| l10 | 15 | 14 | 31 | 15 | 7 | 11 | intent:ask-origin × 3 |
+| l10 | 17 | 16 | 32 | 18 | 10 | 13 | intent:ask-origin × 3 |
 | p3-wobuhui-shuo-zhongwen | 14 | 13 | 34 | 10 | 9 | 8 | phrase:请再说一遍 × 3 |
 | p3-qing-zai-shuo-yibian | 14 | 13 | 30 | 11 | 11 | 10 | phrase:请再说一遍 × 2 |
 | l11 | 17 | 16 | 38 | 12 | 7 | 11 | phrase:你叫什么 × 2 |
 | l11-falo-pouco | 19 | 18 | 39 | 16 | 15 | 15 | action:assemble-phrase × 3 |
-| l12 | 19 | 18 | 41 | 11 | 9 | 14 | phrase:你叫什么 × 2 |
+| l12 | 20 | 19 | 43 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
 | l13 | 19 | 18 | 42 | 14 | 13 | 16 | intent:introduce-self × 4 |
-| l13-dialogo-ola | 18 | 17 | 34 | 16 | 10 | 13 | intent:state-wellbeing × 3 |
+| l13-dialogo-ola | 19 | 18 | 43 | 16 | 11 | 13 | intent:identify-concept × 3 |
 | l13-dialogo-nome | 17 | 16 | 40 | 11 | 11 | 14 | action:assemble-phrase × 3 |
 | p3-ordem-das-palavras | 14 | 13 | 31 | 11 | 7 | 10 | phrase:你叫什么 × 2 |
 | p3-nomes-da-frase | 10 | 9 | 26 | 3 | 3 | 7 | phrase:我叫Matheus × 2 |
-| l5-rev | 14 | 14 | 28 | 6 | 4 | 7 | intent:identify-concept × 3 |
+| l5-rev | 12 | 12 | 25 | 5 | 4 | 8 | action:assemble-phrase × 2 |
 | l14 | 16 | 15 | 31 | 11 | 10 | 10 | char:人 × 3 |
 | p4-num-123 | 15 | 14 | 29 | 10 | 10 | 9 | char:一 × 3 |
 | p4-num-45 | 14 | 13 | 29 | 5 | 5 | 8 | phrase:请再说一遍 × 2 |
@@ -164,4 +164,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:cb0ca6c15f95bda1 -->
+<!-- integridade:f593c8194c592b1a -->

@@ -734,6 +734,72 @@ try {
       }
     }
 
+    // (c2) cena autoral não pode exigir vocabulário que a Jornada nunca declara.
+    //
+    // `learnedRefs` é uma AFIRMAÇÃO — "isto o aluno já sabe ao chegar aqui" — e
+    // nada conferia se ela era verdadeira. Descoberto por mutação na V4.9.4C:
+    // mover um chunk de `newRefs` para `learnedRefs` e apagar a lição que o
+    // ensinava não acordava portão nenhum, nem este validador, nem
+    // teach-before-test, nem lexical-progression. A cena passava a cobrar do
+    // aluno uma frase que o curso nunca tinha mostrado.
+    //
+    // A regra: ao chegar na lição onde a cena está escrita, cada `learnedRefs`
+    // precisa ter sido declarado por ALGUMA lição até ali (inclusive a própria).
+    // `newRefs` fica de fora de propósito: é o que a cena apresenta agora.
+    // A checagem estreou encontrando 9 casos ANTERIORES a ela. Eles ficam
+    // listados aqui, com nome e refs, por três razões: não travar a cadeia por
+    // dívida que não é da remessa que trouxe o portão; deixar a dívida visível
+    // em vez de escondida atrás de um portão frouxo; e impedir que ela cresça,
+    // porque qualquer caso NOVO falha. A lista também não pode apodrecer: se um
+    // item deixar de violar, o portão exige que ele saia daqui.
+    {
+      const KNOWN_DEBT = new Map([
+        ["l11-falo-pouco/falar-de-estudo", ["char:na_which", "char:li_inside", "char:zai"]],
+        ["l25/onde-esta", ["chunk:nashirenm"]],
+        ["l26b/pedir-cardapio", ["chunk:taiguile", "chunk:la"]],
+        ["p6-rotina-trabalho/rotina-e-trabalho", ["char:dian_point"]],
+        ["p6-china-cidades-2/no-aeroporto", ["char:zai", "char:na_that", "char:li_inside"]],
+        ["p6-china-ruas/pegar-taxi", ["char:qu_go", "char:na_which", "char:li_inside"]],
+        ["p6-saude/nao-me-sinto-bem", ["char:zai", "char:na_that", "char:li_inside"]],
+        ["p6-clima/como-esta-o-tempo", ["char:tai_too"]],
+        ["p6-survival-mandarin/checkin-hotel", ["char:de", "char:zai", "char:na_that", "char:li_inside"]],
+      ]);
+      const stillOwed = new Set();
+
+      const declared = new Set();
+      for (const lesson of ALL_LESSONS) {
+        for (const ref of lesson.libraryItems ?? []) declared.add(ref);
+        for (const step of lesson.steps ?? []) {
+          if (step?.kind !== "conversation_scene") continue;
+          const scene = CONVERSATION_SCENES.find((item) => item.sceneId === step.sceneId);
+          if (!scene) continue;
+          const key = `${lesson.id}/${scene.sceneId}`;
+          const missing = (scene.learnedRefs ?? []).filter((ref) => !declared.has(ref));
+          if (missing.length === 0) continue;
+
+          const allowed = KNOWN_DEBT.get(key) ?? [];
+          const novel = missing.filter((ref) => !allowed.includes(ref));
+          if (novel.length > 0) {
+            err(
+              "pedagogy",
+              key,
+              `learnedRefs exigido sem nenhuma lição que o declare até aqui: ${novel.join(", ")}`
+            );
+          }
+          if (allowed.length > 0) {
+            stillOwed.add(key);
+            console.warn(`⚠ dívida conhecida de vocabulário não ensinado: ${key} → ${allowed.join(", ")}`);
+          }
+        }
+      }
+
+      for (const key of KNOWN_DEBT.keys()) {
+        if (!stillOwed.has(key)) {
+          err("pedagogy", key, "dívida da lista já foi quitada — remova a entrada de KNOWN_DEBT.");
+        }
+      }
+    }
+
     // (d) nenhuma intenção domina as conversas geradas.
     for (const [intent, count] of coverage.generatedByIntent) {
       if (totalGenerated > 0 && count > totalGenerated * INTENT_DOMINANCE_CAP) {
