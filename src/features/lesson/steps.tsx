@@ -8,6 +8,7 @@ import { TONE_LABELS, TONE_LISTENING_TIPS } from "../../data/tones";
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
+import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
@@ -1544,6 +1545,21 @@ function StepDragonDictation({ step, onDone, onSkip, onMistake, lessonId, attemp
 }
 
 type EngineFeedback = "correct" | "wrong" | "unrecognized" | null;
+
+/**
+ * V4.9.4 — a atividade mede TOM?
+ *
+ * A regra da remessa: a modalidade aceita deriva do OBJETIVO da tarefa, não de
+ * um acidente da interface. Produção aberta pergunta "você consegue responder
+ * a esta pessoa?", e ali pinyin sem tom demonstra isso. Um exercício de tom
+ * pergunta outra coisa, e apagar a exigência tonal nele apagaria a própria
+ * atividade.
+ */
+function measuresTone(step: Pick<LessonStep, "kind" | "tone" | "dictationMode">): boolean {
+  if (step.kind === "tone") return true;
+  if (step.dictationMode === "pinyin") return true;
+  return typeof step.tone === "number";
+}
 
 function normalizeEngineAnswer(value: string | undefined): string {
   return normalizeWriteText(value ?? "");
@@ -4082,6 +4098,7 @@ function FreeAnswerField({
   const [listening, setListening] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const [composing, setComposing] = useState(false);
+  const [pendingTranscript, setPendingTranscript] = useState<string | null>(null);
   const handleRef = useRef<RecognizeHandle | null>(null);
   const speechSupported = isRecognitionAvailable() && isSecureMicContext();
 
@@ -4110,7 +4127,13 @@ function FreeAnswerField({
       (transcript) => {
         setListening(false);
         handleRef.current = null;
-        if (transcript) onChange(transcript);
+        if (!transcript) return;
+        // P0.13 — o que o aluno digitou é trabalho dele. Campo vazio recebe a
+        // transcrição direto; campo com texto recebe uma PROPOSTA, que ele
+        // aceita ou ignora. Sobrescrever em silêncio destruía a resposta de
+        // quem tocou o microfone só para conferir a pronúncia.
+        if (!value.trim()) onChange(transcript);
+        else setPendingTranscript(transcript);
       },
       (code) => {
         setListening(false);
@@ -4177,8 +4200,13 @@ function FreeAnswerField({
                 disabled={disabled}
                 onClick={startListening}
                 aria-pressed={listening}
+                data-testid="free-answer-mic"
+                // P0.2 — 44px de alvo de toque. O botão media 16px de altura:
+                // existia na tela e não dava para acertar com o polegar, que é
+                // exatamente como a fala é usada.
+                className="min-h-11"
               >
-                <IconSound width={16} height={16} />
+                <IconSound width={18} height={18} aria-hidden="true" />
                 {listening ? t("player.listeningTapStop") : t("player.speak")}
               </Button>
               <span className="text-xs text-ink-faint">{t("player.hanziOrPinyinOk")}</span>
@@ -4186,6 +4214,47 @@ function FreeAnswerField({
           )}
           {!speechSupported && <p className="mt-2 text-xs text-ink-faint">{t("player.hanziOrPinyinOk")}</p>}
         </>
+      )}
+      {/*
+        P0.12 e P0.13 — a fala vira PROPOSTA quando já existe texto no campo.
+        O aluno vê o que foi entendido, decide, e nada é enviado sozinho:
+        reconhecimento de voz erra, e enviar automaticamente transformaria um
+        erro do reconhecedor em erro dele.
+      */}
+      {pendingTranscript && (
+        <div
+          className="mt-2 flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-surface-2 px-3 py-2"
+          data-testid="free-answer-transcript"
+          role="status"
+          aria-live="polite"
+        >
+          <span className="min-w-0 text-sm text-ink">
+            {t("player.heardTranscript")}{" "}
+            <span lang="zh-CN" className="font-semibold">
+              {pendingTranscript}
+            </span>
+          </span>
+          <Button
+            size="sm"
+            className="min-h-11"
+            data-testid="free-answer-transcript-use"
+            onClick={() => {
+              onChange(pendingTranscript);
+              setPendingTranscript(null);
+            }}
+          >
+            {t("player.useSpeech")}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="min-h-11"
+            data-testid="free-answer-transcript-dismiss"
+            onClick={() => setPendingTranscript(null)}
+          >
+            {t("player.keepTyping")}
+          </Button>
+        </div>
       )}
       {micError && <p className="mt-2 text-xs text-ink-soft">{micError}</p>}
     </div>
@@ -4473,8 +4542,17 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
   function check() {
     const candidate = showBuild && buildPicked.length > 0 ? buildPicked.join("") : draft.trim();
     if (!candidate || locked) return;
-    const normalized = normalizeEngineAnswer(candidate);
-    if (acceptedAnswers.some((value) => normalizeEngineAnswer(value) === normalized)) {
+    // V4.9.4 — P0.7: o campo promete "hànzì ou pinyin", e até aqui só o hànzì
+    // era verdade. Quem escrevia `zài jiàn` contra 再见 era reprovado e só
+    // tinha "Pular" como saída. `evaluateLearnerResponse` é a autoridade única
+    // dessa pergunta; a comparação em hànzì continua exatamente a mesma.
+    if (
+      evaluateLearnerResponse({
+        draft: candidate,
+        acceptedAnswers,
+        tonesRequired: measuresTone(step),
+      }).accepted
+    ) {
       setAccepted(candidate);
       setFeedback("correct");
       setCauseFeedback(undefined);
@@ -4892,8 +4970,13 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
   function check() {
     const candidate = draft.trim();
     if (!candidate || locked) return;
-    const normalized = normalizeEngineAnswer(candidate);
-    if (acceptedAnswers.some((accepted) => normalizeEngineAnswer(accepted) === normalized)) {
+    if (
+      evaluateLearnerResponse({
+        draft: candidate,
+        acceptedAnswers,
+        tonesRequired: measuresTone(step),
+      }).accepted
+    ) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       return;
