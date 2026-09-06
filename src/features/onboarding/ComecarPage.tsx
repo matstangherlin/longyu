@@ -460,7 +460,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
         </p>
         {/*
           Aqui existia um cartão com "Aprender mandarim a partir de" mais um
-          segundo seletor de idioma e a linha "Idioma estudado: 中文". Os três
+          segunda pergunta de idioma e a linha "Idioma estudado: 中文". Os três
           saíram, e nada entrou no lugar — o espaço que sobra é o resultado,
           não um buraco a preencher.
 

@@ -4,7 +4,7 @@ import { parseInterfaceLocale } from "../../i18n/locale";
 import { useTranslation } from "../../i18n/useTranslation";
 
 /**
- * O único seletor de idioma do onboarding.
+ * O único controle de idioma do onboarding.
  *
  * O produto distingue idioma da interface (`locale`) de idioma de instrução do
  * curso (`instructionLocale`), e essa distinção continua valendo — em
