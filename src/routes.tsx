@@ -64,6 +64,9 @@ const QaScenarioPage = lazy(() =>
 const QaAudioDiscriminationPage = lazy(() =>
   import("./features/qa/QaAudioDiscriminationPage").then((m) => ({ default: m.QaAudioDiscriminationPage }))
 );
+const QaHanziBuilderPage = lazy(() =>
+  import("./features/qa/QaHanziBuilderPage").then((m) => ({ default: m.QaHanziBuilderPage }))
+);
 import { QaFastPathGate } from "./components/qa/QaFastPathGate";
 
 import { LandingPage } from "./features/landing/LandingPage";
@@ -101,6 +104,7 @@ export const routes: RouteObject[] = [
       { path: "qa", element: <QaHubPage /> },
       { path: "qa/player", element: <QaHubPage /> },
       { path: "qa/audio-discrimination", element: <QaAudioDiscriminationPage /> },
+      { path: "qa/hanzi-builder", element: <QaHanziBuilderPage /> },
       { path: "qa/:scenario", element: <QaScenarioPage /> },
     ],
   },

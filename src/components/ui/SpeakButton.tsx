@@ -14,6 +14,8 @@ export function SpeakButton({
   size = "md",
   className,
   autoPlay = false,
+  revealText = true,
+  showStatus = false,
 }: {
   text: string;
   label?: string;
@@ -21,6 +23,17 @@ export function SpeakButton({
   className?: string;
   /** Toca automaticamente quando o botão monta ou o texto muda. */
   autoPlay?: boolean;
+  /**
+   * O texto falado pode aparecer no rótulo acessível?
+   *
+   * Em quase todo lugar sim — o hànzì está na tela e repeti-lo ajuda. No Hanzi
+   * Builder, não: lá o exercício é justamente descobrir o caractere, e um
+   * `aria-label` com a resposta entregaria de graça a quem usa leitor de tela
+   * o que o aluno que enxerga precisa montar.
+   */
+  revealText?: boolean;
+  /** Mostra em texto quando o áudio não pôde tocar (em vez de falhar calado). */
+  showStatus?: boolean;
 }) {
   const { t } = useTranslation();
   const resolvedLabel = label ?? t("common.listen");
@@ -31,6 +44,7 @@ export function SpeakButton({
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const [playing, setPlaying] = useState(false);
   const [unavailable, setUnavailable] = useState(() => !isTTSAvailable());
+  const [failed, setFailed] = useState(false);
 
   const dims =
     size === "sm" ? "h-9 w-9" : size === "lg" ? "h-14 w-14" : "h-11 w-11";
@@ -46,11 +60,13 @@ export function SpeakButton({
     noteUserGesture();
     setPlaying(true);
     setUnavailable(false);
+    setFailed(false);
     noteAudioManualPlay();
     recordDailyTask("audioHeard");
     speak(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
       onend: () => setPlaying(false),
+      onerror: () => setFailed(true),
     });
   }
 
@@ -76,13 +92,16 @@ export function SpeakButton({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPlay, autoPlayAudio, text]);
 
-  return (
+  const button = (
     <button
       type="button"
-      aria-label={unavailable ? unavailableLabel : `${resolvedLabel}: ${text}`}
+      aria-label={
+        unavailable ? unavailableLabel : revealText ? `${resolvedLabel}: ${text}` : resolvedLabel
+      }
       title={unavailable ? unavailableLabel : resolvedLabel}
       onClick={play}
       disabled={unavailable}
+      data-audio-failed={failed ? "true" : undefined}
       className={[
         "inline-flex items-center justify-center rounded-full shadow-sm transition active:scale-95",
         unavailable
@@ -95,5 +114,21 @@ export function SpeakButton({
     >
       <IconSound width={icon} height={icon} />
     </button>
+  );
+
+  if (!showStatus) return button;
+
+  // Um toque que não produz som precisa produzir uma frase. O botão continua
+  // ativo: "tentar de novo" é o conselho e também a ação.
+  const note = failed ? t("common.audioFailed") : unavailable ? unavailableLabel : null;
+  return (
+    <span className="inline-flex flex-col items-center gap-1">
+      {button}
+      {note && (
+        <span role="status" data-testid="speak-status" className="text-xs leading-4 text-ink-soft">
+          {note}
+        </span>
+      )}
+    </span>
   );
 }

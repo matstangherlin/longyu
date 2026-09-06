@@ -162,6 +162,20 @@ export function HanziBuilderExercise({
     setStatus("idle");
   }
 
+  /**
+   * Desfaz a última peça colocada.
+   *
+   * Remover tocando na peça já existia, mas exige mirar. No celular, com peças
+   * pequenas e o polegar em cima da bandeja, "tirar a última" é o gesto que o
+   * aluno realmente quer na maior parte das vezes — e ele não tem alvo.
+   */
+  function undoPiece() {
+    if (locked || selected.length === 0) return;
+    playSoundFx("tap", soundEffects);
+    setSelected((current) => current.slice(0, -1));
+    if (status !== "idle") setStatus("idle");
+  }
+
   function check() {
     if (locked || selected.length === 0) return;
     const hasDistractor = selected.some((id) => !correctIds.has(id));
@@ -219,6 +233,13 @@ export function HanziBuilderExercise({
 
   const canCheck = selected.length > 0 && status !== "correct";
 
+  // P1 — "2 de 3 peças" só quando o total não faz parte do enigma. Sem
+  // distratores, o total já está à vista na bandeja e dizê-lo não entrega
+  // nada; com distratores, a quantidade de peças certas é justamente o que o
+  // aluno tem de descobrir, e anunciá-la transformaria o exercício em
+  // contagem. Nesse caso mostramos só quantas ele colocou.
+  const totalAlreadyVisible = pool.length === correctOrder.length;
+
   useExerciseHotkeys({
     enabled: true,
     mode: "builder",
@@ -268,8 +289,41 @@ export function HanziBuilderExercise({
           )}
         </div>
       )}
+      {/*
+        P0.3 — o som vem ANTES da resposta.
+
+        Até aqui o `SpeakButton` só existia na carta concluída: o aluno tinha
+        de acertar o caractere para então poder ouvi-lo. Isso inverte a ordem
+        que o próprio curso ensina — som, significado, forma —, e castiga
+        justamente quem não lembra da pronúncia, que é quem mais precisa dela.
+
+        O caractere não é mostrado aqui, e o rótulo acessível também não o
+        revela (`revealText`): montar o hànzì é o exercício. A pista é
+        auditiva de propósito — ouvir 你 não conta como saber escrevê-lo.
+        Repetir é livre e não custa nada.
+      */}
+      {status !== "correct" && (
+        <div className="mt-3 flex items-center justify-center gap-2" data-builder-audio>
+          <span className="text-sm font-medium text-ink-soft">{t("player.builderListen")}</span>
+          <SpeakButton
+            text={builder.character}
+            label={t("common.listenAgain")}
+            revealText={false}
+            showStatus
+          />
+        </div>
+      )}
       {hint && status === "idle" && (
         <p className="mt-2 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">💡 {hint}</p>
+      )}
+      {/* Orientação de primeira vez: uma frase, some depois que ele monta. */}
+      {status === "idle" && selected.length === 0 && (
+        <p
+          data-testid="builder-orientation"
+          className="mt-2 rounded-xl border border-line bg-surface-2/70 px-3 py-2 text-center text-sm leading-5 text-ink-soft"
+        >
+          {t("player.builderOrientation")}
+        </p>
       )}
 
       {/* Carta central de montagem */}
@@ -288,9 +342,14 @@ export function HanziBuilderExercise({
 
       {/* Peças colocadas (toque devolve para a bandeja) */}
       {selectedPieces.length > 0 && status !== "correct" && (
-        <div className="mt-4">
+        <div className="mt-4" data-builder-placed>
           <div className="mb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {t("player.builderPlaced")}
+            {totalAlreadyVisible
+              ? t("player.builderProgress", {
+                  placed: String(selectedPieces.length),
+                  total: String(correctOrder.length),
+                })
+              : t("player.builderPlacedCount", { placed: String(selectedPieces.length) })}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             {selectedPieces.map((piece) => (
@@ -302,6 +361,29 @@ export function HanziBuilderExercise({
                 onClick={() => removePiece(piece.id)}
               />
             ))}
+          </div>
+          {/* Desfazer/Limpar: tirar peça não é erro, então não custa nada. */}
+          <div className="mt-2.5 flex items-center justify-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="min-h-11"
+              data-testid="builder-undo"
+              onClick={undoPiece}
+            >
+              ↶ {t("player.builderUndo")}
+            </Button>
+            {selectedPieces.length > 1 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="min-h-11"
+                data-testid="builder-clear"
+                onClick={clearPieces}
+              >
+                {t("player.clear")}
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -602,20 +684,39 @@ function PieceButton({
             ? t("player.returnAria", { value: label })
             : label
       }
+      data-builder-piece={placed ? "placed" : "available"}
       className={[
         "relative",
         "inline-flex items-center justify-center rounded-2xl border-2 bg-surface transition active:scale-95",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
+        // Peça colocada carrega um × no canto, então precisa de folga à direita
+        // para o glifo não ficar embaixo do indicador.
         placed && state === "wrong"
-          ? "h-12 min-w-12 border-wrong bg-wrong-soft px-2"
+          ? "h-12 min-w-12 border-wrong bg-wrong-soft pl-2 pr-3.5"
           : placed
-          ? "h-12 min-w-12 border-accent/60 px-2"
+          ? "h-12 min-w-12 border-accent/60 pl-2 pr-3.5"
           : withCaption
           ? "min-h-14 min-w-20 border-line px-2.5 py-1.5 hover:border-accent-soft hover:bg-surface-2"
           : "h-14 min-w-14 border-line px-2 hover:border-accent-soft hover:bg-surface-2",
       ].join(" ")}
     >
       {shortcut && !placed && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
+      {/*
+        O × que faltava. A remoção já existia — tocar na peça a devolvia — mas
+        nada na tela dizia isso, e quem colocou a peça errada ficava procurando
+        um jeito de desfazer que estava debaixo do dedo. `aria-hidden` porque o
+        próprio botão já se anuncia como "devolver peça"; o × é a pista visual
+        do mesmo gesto, não um segundo controle.
+      */}
+      {placed && (
+        <span
+          aria-hidden
+          data-builder-remove
+          className="pointer-events-none absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-ink-faint text-[10px] font-bold leading-none text-surface"
+        >
+          ×
+        </span>
+      )}
       {piece.kind === "stroke" ? (
         <svg
           viewBox="0 0 100 100"
