@@ -19,8 +19,7 @@ import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { createAccount as createAuthAccount } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
-import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
-import { CourseLanguageSwitcher } from "../../components/i18n/CourseLanguageSwitcher";
+import { OnboardingLanguageSwitcher } from "../../components/i18n/OnboardingLanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
 import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
@@ -303,8 +302,13 @@ export function ComecarPage() {
             style={{ width: `${(progress / STEPS.length) * 100}%` }}
           />
         </div>
-        <LanguageSwitcher compact id="onboarding-interface-locale" />
-        <BrandWordmark className="text-lg" />
+        {/*
+          Um seletor, e só. O header trazia também o wordmark, que o Welcome
+          repetia logo abaixo em tamanho grande: duas marcas na mesma dobra
+          pesam o topo sem dizer nada de novo. O Longyu segue no hero, onde
+          ele é a primeira coisa que a pessoa lê.
+        */}
+        <OnboardingLanguageSwitcher id="onboarding-interface-locale" />
       </header>
 
       <div className="flex flex-1 flex-col justify-start pt-4 sm:pt-8">
@@ -454,10 +458,18 @@ function Welcome({ onStart }: { onStart: () => void }) {
         <p className="mt-3 text-ink-soft">
           {t("onboarding.welcomeLead")}
         </p>
-        <div className="mt-5 rounded-2xl border border-line bg-surface p-3 text-left" data-testid="onboarding-course-language">
-          <CourseLanguageSwitcher id="onboarding-instruction-locale" compact />
-          <p className="mt-2 text-xs text-ink-soft">{t("settings.chineseTarget")}: 中文 · {t("settings.targetLanguageName")}</p>
-        </div>
+        {/*
+          Aqui existia um cartão com "Aprender mandarim a partir de" mais um
+          segundo seletor de idioma e a linha "Idioma estudado: 中文". Os três
+          saíram, e nada entrou no lugar — o espaço que sobra é o resultado,
+          não um buraco a preencher.
+
+          O seletor era a segunda pergunta de idioma da mesma tela. A linha do
+          mandarim parecia um campo a decidir, sendo texto fixo: o Longyu de
+          hoje ensina mandarim e só. Quando existir mais de um idioma-alvo,
+          isso merece um fluxo próprio, não uma legenda preventiva na primeira
+          tela de quem ainda não começou.
+        */}
         <Button size="lg" onClick={onStart} className="mt-6 w-full md:w-auto">
           {t("onboarding.getStarted")} <IconChevron width={18} height={18} />
         </Button>
