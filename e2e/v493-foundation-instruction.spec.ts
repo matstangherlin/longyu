@@ -280,6 +280,15 @@ test.describe("V4.9.3 — os dois cursos e a identidade pedagógica", () => {
         }),
       })
     );
+    // O vídeo precisa falhar AGORA, não quando o DNS do CI desistir.
+    //
+    // Um `<video>` carregando segura o evento `load` da janela enquanto procura
+    // o recurso, e `page.goto` espera esse evento. No Firefox a espera por um
+    // host inexistente estourava os 30s da navegação e derrubava o cenário —
+    // não por causa do produto, mas por causa do relógio do resolvedor. Cortar
+    // a requisição entrega ao player exatamente o mesmo desfecho (mídia
+    // indisponível → versão interativa) de forma determinística.
+    await page.route("https://cdn.exemplo.com/**", (routeCall) => routeCall.abort());
     await open(page, route(CAPSULES.pinyin));
 
     const capsule = page.getByTestId("lesson-capsule");
