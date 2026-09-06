@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 0ae72f37d693 |
-| HEAD no instante da geração | 3081ba2a58933a4621767911476afd239cd1da35 |
+| Hash da Jornada | d6435e721702 |
+| HEAD no instante da geração | ef18852beab248d2230393913e4643ac7a82fa0c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-05T21:45:03.289Z |
+| Gerado em | 2026-09-06T13:49:27.743Z |
 | Lições | 127 |
 
 ## Resumo
@@ -38,7 +38,7 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 6 | perception_lab | Laboratório de exercícios | sim | lab (lexical zero ok) |
 | 7 | acquisition | Mandarim, pinyin e tom | sim | unidades novas: 我叫、你叫什么; conversation_scene |
 | 8 | acquisition | Olá | sim | unidades novas: 早上好; conversation_scene |
-| 9 | acquisition | Tudo bem? | sim | unidades novas: 我很好、明天见; conversation_scene |
+| 9 | acquisition | Tudo bem? | sim | unidades novas: 我很好、你呢、明天见; conversation_scene |
 | 10 | review | Revisão do módulo | sim | revisão (isenta) |
 | 11 | acquisition | Obrigado | sim | unidades novas: 没关系; conversation_scene |
 | 12 | acquisition | Até logo | sim | unidades novas: 晚安; conversation_scene; produção independente |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:9b4dc7349f81a828 -->
+<!-- integridade:afee941ab9071b9f -->

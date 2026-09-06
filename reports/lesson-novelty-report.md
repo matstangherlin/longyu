@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 0ae72f37d693 |
-| HEAD no instante da geração | 3081ba2a58933a4621767911476afd239cd1da35 |
+| Hash da Jornada | d6435e721702 |
+| HEAD no instante da geração | ef18852beab248d2230393913e4643ac7a82fa0c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-05T21:34:47.218Z |
+| Gerado em | 2026-09-06T13:40:49.527Z |
 | Lições | 127 |
 
 ## Resumo
@@ -40,7 +40,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-engine-2-lab | 6 | 6 | 13 | 0 | 0 | 4 | — |
 | l1 | 10 | 9 | 21 | 4 | 4 | 4 | phrase:你好 × 2 |
 | l2 | 15 | 14 | 25 | 14 | 14 | 5 | intent:identify-concept × 4 |
-| l3 | 13 | 12 | 26 | 9 | 9 | 8 | phrase:我很好 × 3 |
+| l3 | 14 | 13 | 26 | 9 | 9 | 8 | phrase:我很好 × 3 |
 | l1-rev | 12 | 10 | 17 | 11 | 7 | 8 | phrase:你好 × 3 |
 | l4 | 16 | 15 | 30 | 12 | 9 | 8 | intent:identify-concept × 2 |
 | p1-ate-logo | 15 | 14 | 26 | 10 | 10 | 8 | phrase:再见 × 3 |
@@ -164,4 +164,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:3082b4ed7eba5574 -->
+<!-- integridade:c49f97be50944a30 -->
