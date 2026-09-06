@@ -21,7 +21,7 @@ import { numericPinyinToDiacritics } from "./pinyin";
  * que ele acrescenta é a ponte que faltava — comparar a digitação latina com o
  * pinyin CANÔNICO da resposta, tirado dos dados do próprio curso.
  *
- * De propósito NÃO existe aqui um conversor pinyin → hànzì por heurística.
+ * De propósito não existe aqui um conversor pinyin → hànzì por heurística.
  * Adivinhar caractere a partir de som é ambíguo em mandarim (zài pode ser 在,
  * 再, 载…), e um palpite errado reprovaria um aluno certo. A ponte é feita ao
  * contrário — do hànzì conhecido para o seu pinyin conhecido —, que é uma
