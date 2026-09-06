@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 0ae72f37d693 |
-| HEAD no instante da geração | 3081ba2a58933a4621767911476afd239cd1da35 |
+| Hash da Jornada | d6435e721702 |
+| HEAD no instante da geração | ef18852beab248d2230393913e4643ac7a82fa0c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-05T21:42:16.021Z |
+| Gerado em | 2026-09-06T13:47:04.227Z |
 | Lições | 127 |
 
 ## Resumo
@@ -18,7 +18,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 208 |
+| Passos somados | 209 |
 | Média de passos por lição | 10.4 |
 | Minutos estimados até a lição 20 | 86 |
 | Passos de digitação na entrada inteira | 3 |
@@ -40,7 +40,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | 6 | Laboratório de exercícios | 6 | 6 | 0 | 1 | 5 | 5 |
 | 7 | Mandarim, pinyin e tom | 10 | 9 | 0 | 2 | 9 | 3 |
 | 8 | Olá | 15 | 14 | 0 | 3 | 12 | 6 |
-| 9 | Tudo bem? | 13 | 12 | 0 | 2 | 10 | 5 |
+| 9 | Tudo bem? | 14 | 13 | 0 | 2 | 11 | 5 |
 | 10 | Revisão do módulo (revisão) | 12 | 10 | 0 | 1 | 9 | 3 |
 | 11 | Obrigado | 16 | 15 | 0 | 2 | 10 | 6 |
 | 12 | Até logo | 15 | 14 | 1 | 3 | 12 | 6 |
@@ -87,4 +87,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:5c8b5c6feebf5c9a -->
+<!-- integridade:87d5cf02a1ab3bff -->
