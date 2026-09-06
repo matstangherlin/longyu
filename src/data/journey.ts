@@ -2564,6 +2564,12 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我很好", "再见", "谢谢", "不客气"],
                 "我很好 é a resposta natural: estou bem."
               ),
+              // V4.9.4 — 你呢？ era cobrado aqui sem nunca ter aparecido: a
+              // primeira vez que o aluno o via, ele já valia nota. Foi o único
+              // teste-surpresa que a medição do arco encontrou, e a correção é
+              // a mínima que resolve — uma exposição de segundos antes da
+              // pergunta, no lugar de uma aula inteira para uma palavra.
+              listen("你呢？", "nǐ ne?", "E você?"),
               dialogue(
                 "Devolva a pergunta",
                 "Você respondeu 我很好. Como devolver a pergunta para a pessoa?",
