@@ -154,7 +154,21 @@ try {
 
   locale.setInterfaceLocale("en");
   assert(catalog.t("placement.title") === "Placement", "EN Placement term");
-  assert(catalog.t("onboarding.welcomeTitle").includes("right place for you to start"), "EN onboarding heading");
+  assert(catalog.t("onboarding.welcomeTitle").includes("find your starting point"), "EN onboarding heading");
+  // A chamada da primeira tela mudou na V4.9.4 (era "First, Longyu finds the
+  // right place for you to start"): o nome da marca aparecia no wordmark logo
+  // acima e a frase repetia. O que o portao guarda continua sendo o mesmo — a
+  // manchete do onboarding existe e esta no idioma certo —, e agora tambem que
+  // as duas versoes nao sao a mesma string, que e como uma traducao esquecida
+  // costuma passar despercebida.
+  {
+    const enTitle = catalog.t("onboarding.welcomeTitle");
+    locale.setInterfaceLocale("pt-BR");
+    const ptTitle = catalog.t("onboarding.welcomeTitle");
+    assert(ptTitle !== enTitle, "onboarding heading must differ between locales");
+    assert(ptTitle.includes("ponto de partida"), "PT onboarding heading");
+    locale.setInterfaceLocale("en");
+  }
   assert(catalog.t("placement.opt.hello") === "Hello", "gloss option overlay en");
   locale.setInterfaceLocale("pt-BR");
   assert(catalog.t("placement.opt.hello") === "Olá", "gloss option overlay pt-BR");

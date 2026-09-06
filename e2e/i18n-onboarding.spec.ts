@@ -42,8 +42,8 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
     await waitForLazyPage(page);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page).toHaveTitle(/learn Mandarin/i);
-    await expect(page.getByRole("heading", { name: /right place for you to start/i })).toBeVisible();
-    await expect(page.getByText(/Primeiro o Longyu encontra/)).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /find your starting point/i })).toBeVisible();
+    await expect(page.getByText(/encontrar seu ponto de partida/)).toHaveCount(0);
     await page.getByRole("button", { name: /^Get started$/i }).click();
     await expect(page.getByText(/Why do you want to learn Mandarin/i)).toBeVisible();
     await expect(page.getByText(/Por que você quer aprender/)).toHaveCount(0);
