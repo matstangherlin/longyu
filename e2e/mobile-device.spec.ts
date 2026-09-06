@@ -220,3 +220,62 @@ test.describe("dispositivo — rede lenta", () => {
     await client.detach().catch(() => undefined);
   });
 });
+
+test.describe("dispositivo — Hanzi Builder por toque (V4.9.4)", () => {
+  test("colocar, tirar pelo × e desfazer funcionam com o dedo", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto("/qa/hanzi-builder");
+    if (!(await hasTouch(page))) {
+      test.skip(true, "Sem toque neste projeto (motor de mesa).");
+    }
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+
+    const available = page.locator('[data-builder-piece="available"]');
+    const placed = page.locator('[data-builder-piece="placed"]');
+    await expect(available.first()).toBeVisible({ timeout: 20_000 });
+
+    // Toque real (tap), não clique sintético: é assim que o aluno usa.
+    await available.first().tap();
+    await expect(placed).toHaveCount(1);
+
+    // A pista de remoção precisa estar visível no tamanho de tela do celular,
+    // que é onde o atrito original aparecia.
+    await expect(placed.first().locator("[data-builder-remove]")).toBeVisible();
+
+    await available.first().tap();
+    await expect(placed).toHaveCount(2);
+
+    // Tocar na peça colocada devolve só ela.
+    await placed.first().tap();
+    await expect(placed).toHaveCount(1);
+
+    // E o Desfazer é alcançável e utilizável com o polegar.
+    const undo = page.getByTestId("builder-undo");
+    const box = await undo.boundingBox();
+    expect(box, "Desfazer sem caixa").not.toBeNull();
+    expect(box!.height, "alvo de toque pequeno demais").toBeGreaterThanOrEqual(40);
+    await undo.tap();
+    await expect(placed).toHaveCount(0);
+  });
+
+  test("o áudio do hànzì está disponível antes de responder", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto("/qa/hanzi-builder");
+    if (!(await hasTouch(page))) {
+      test.skip(true, "Sem toque neste projeto (motor de mesa).");
+    }
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+
+    // iOS bloqueia autoplay: o caminho manual por gesto precisa existir sempre.
+    const audio = page.locator("[data-builder-audio] button");
+    await expect(audio).toBeVisible({ timeout: 20_000 });
+    const box = await audio.boundingBox();
+    expect(box!.height, "botão de áudio pequeno demais para o polegar").toBeGreaterThanOrEqual(40);
+    await audio.tap();
+    // O exercício segue jogável depois de ouvir — áudio nunca trava o fluxo.
+    await page.locator('[data-builder-piece="available"]').first().tap();
+    await expect(page.locator('[data-builder-piece="placed"]')).toHaveCount(1);
+  });
+});

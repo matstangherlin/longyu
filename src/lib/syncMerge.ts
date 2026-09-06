@@ -5,6 +5,7 @@ import { getProgressScore } from "./progressSnapshot";
 import { isDevPreviewAllowed } from "./entitlements";
 import { FOLEGO_START, FOLEGO_MAX_FREE } from "../data/economy";
 import { mergeItemDimensionScores, mergeLessonMasteryRecords } from "../data/masteryLoop";
+import { mergeStreakRecovery } from "./streak";
 
 /**
  * Une as estrelas pendentes de dois dispositivos. Lições já dominadas (3★ no
@@ -198,16 +199,15 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     pearlAudioExposures: Math.max(local.pearlAudioExposures ?? 0, remote.pearlAudioExposures ?? 0),
     pearlProductionCount: Math.max(local.pearlProductionCount ?? 0, remote.pearlProductionCount ?? 0),
     streakShields: Math.max(local.streakShields, remote.streakShields),
-    // Recuperação de ofensiva é uma janela local de 24h: mantém a que quebrou
-    // mais recentemente (e o aviso pendente correspondente), sem perdê-la no sync.
-    streakRecovery: (() => {
-      const l = local.streakRecovery ?? null;
-      const r = remote.streakRecovery ?? null;
-      if (!l) return r;
-      if (!r) return l;
-      return l.brokenOn >= r.brokenOn ? l : r;
-    })(),
-    pendingStreakRecovery: local.pendingStreakRecovery ?? remote.pendingStreakRecovery ?? null,
+    // Recuperação de ofensiva: mantém a janela que quebrou mais recentemente,
+    // MAS nunca ressuscita uma já consumida.
+    //
+    // O merge antigo fazia exatamente isso. Quem recuperava ficava com
+    // `streakRecovery` nulo no aparelho, e "nulo" perdia para o valor antigo
+    // ainda guardado na nuvem — bastava sair e entrar na conta para a janela
+    // voltar e a mesma ofensiva ser recuperada de novo. A marca do dia do
+    // consumo é o desempate; ela só avança, então o lado que recuperou vence.
+    ...mergeStreakRecovery(local, remote),
     srs: mergeSrs(local.srs, remote.srs),
     achievementsUnlocked: { ...remote.achievementsUnlocked, ...local.achievementsUnlocked },
     achievementHistory: sortByTimestampDesc(

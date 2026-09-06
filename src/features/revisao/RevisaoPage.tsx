@@ -1212,6 +1212,7 @@ export function RevisaoPage() {
   const addQi = useStore((s) => s.addQi);
   const addMinutes = useStore((s) => s.addMinutes);
   const recordStudyDay = useStore((s) => s.recordStudyDay);
+  const completeStudySession = useStore((s) => s.completeStudySession);
   const isPremium = useIsPro();
   const soundEffects = useStore((s) => s.soundEffects);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
@@ -1419,8 +1420,14 @@ export function RevisaoPage() {
     if (queue.length > 0 && pos >= queue.length) {
       reviewCompletedRef.current = true;
       trackFunnelEvent("review_completed", { items: queue.length, mode });
+      // Concluir a revisão recupera a ofensiva pendente. Fica aqui, e não no
+      // `recordStudyDay` de cada item corrigido, porque uma pergunta
+      // respondida não é uma revisão concluída — quem entra, responde uma e
+      // sai não recuperou nada. Reaproveita a definição de "revisão concluída"
+      // que a tela já usava, em vez de inventar uma segunda.
+      completeStudySession();
     }
-  }, [mode, pos, queue.length]);
+  }, [completeStudySession, mode, pos, queue.length]);
 
   // Trocar de modo recomeça a fila filtrada do zero (sem carregar retry antigo).
   useEffect(() => {

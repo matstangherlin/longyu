@@ -31,6 +31,7 @@ import { todayKey, weekKey, monthKey } from "./storage";
 import {
   reconcileStreak as reconcileStreakState,
   computeStudyStreak,
+  applyStreakRecovery,
   type StreakRecovery,
 } from "./streak";
 export type { StreakRecovery } from "./streak";
@@ -1225,6 +1226,10 @@ interface AccountSnapshot extends XpBuckets {
   streakRecovery: StreakRecovery | null;
   /** Ofensiva a avisar no modal de recuperação ao abrir o app (null = nada pendente). */
   pendingStreakRecovery: number | null;
+  /** Dia em que uma recuperação foi consumida — impede pagar a mesma janela duas vezes. */
+  streakRecoveredOn: string | null;
+  /** Ofensiva recém-recuperada, para a interface confirmar (null = nada a mostrar). */
+  pendingStreakRecovered: number | null;
   points: number;
   dragonPearls: number;
   /** Marcos de Pérola já resgatados: id → timestamp. */
@@ -1342,6 +1347,8 @@ function blankSnapshot(): AccountSnapshot {
     pendingStreakCelebration: null,
     streakRecovery: null,
     pendingStreakRecovery: null,
+    streakRecoveredOn: null,
+    pendingStreakRecovered: null,
     points: 0,
     dragonPearls: 0,
     ...blankPearlEconomyFields(),
@@ -1457,6 +1464,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     pendingStreakCelebration: s.pendingStreakCelebration ?? null,
     streakRecovery: s.streakRecovery ?? null,
     pendingStreakRecovery: s.pendingStreakRecovery ?? null,
+    streakRecoveredOn: s.streakRecoveredOn ?? null,
+    pendingStreakRecovered: s.pendingStreakRecovered ?? null,
     points: s.points,
     dragonPearls: s.dragonPearls,
     pearlMilestonesClaimed: s.pearlMilestonesClaimed ?? {},
@@ -1593,6 +1602,8 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     pendingStreakCelebration: account.pendingStreakCelebration ?? null,
     streakRecovery: account.streakRecovery ?? null,
     pendingStreakRecovery: account.pendingStreakRecovery ?? null,
+    streakRecoveredOn: account.streakRecoveredOn ?? null,
+    pendingStreakRecovered: account.pendingStreakRecovered ?? null,
     points: account.points,
     dragonPearls: account.dragonPearls ?? 0,
     pearlMilestonesClaimed: account.pearlMilestonesClaimed ?? {},
@@ -1939,6 +1950,9 @@ interface AppState {
   pendingStreakCelebration: number | null;
   streakRecovery: StreakRecovery | null;
   pendingStreakRecovery: number | null;
+  streakRecoveredOn: string | null;
+  /** Ofensiva recém-recuperada, para a interface confirmar (null = nada a mostrar). */
+  pendingStreakRecovered: number | null;
   dragonPearls: number;
   pearlMilestonesClaimed: Record<string, number>;
   pearlLedger: PearlLedgerEntry[];
@@ -2146,6 +2160,13 @@ interface AppState {
   refillDailyCharges: () => void;
   canStartActivity: (activityType: EnergyActivityType) => boolean;
   registerActivity: () => void;
+  /**
+   * Marca uma atividade CONCLUÍDA e recupera a ofensiva se houver janela aberta.
+   * Devolve `true` só quando a recuperação aconteceu nesta chamada.
+   */
+  completeStudySession: () => boolean;
+  /** Dispensa a confirmação "ofensiva recuperada". */
+  clearStreakRecovered: () => void;
   /** Conta um dia de ofensiva: só estudo (lição/revisão), não visita. */
   recordStudyDay: (delta?: { xp?: number; tasks?: number; minutes?: number }) => void;
   clearStreakCelebration: () => void;
@@ -2292,6 +2313,8 @@ export const useStore = create<AppState>()(
       pendingStreakCelebration: null,
       streakRecovery: null,
       pendingStreakRecovery: null,
+      streakRecoveredOn: null,
+      pendingStreakRecovered: null,
       dragonPearls: 0,
       ...blankPearlEconomyFields(),
       lastShopPurchaseFeedback: null,
@@ -4731,14 +4754,20 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(next),
           };
         });
+        const lesson = ALL_LESSONS.find((item) => item.id === id);
         if (!wasComplete) {
-          const lesson = ALL_LESSONS.find((item) => item.id === id);
           queueSocialFromApp("lesson_complete", {
             lessonId: id,
             lessonTitle: lesson?.title ?? id,
           });
-          get().recordStudyDay({ tasks: 1, minutes: lesson?.estimatedMinutes ?? 5 });
         }
+        // Refazer uma lição também é estudar. Antes disto o registro do dia
+        // vivia dentro do `!wasComplete`, então quem voltava para revisar o que
+        // já tinha concluído — o caso mais comum de quem estuda todo dia — não
+        // contava ofensiva nenhuma, e a "recuperação estudando" simplesmente
+        // não acontecia. O anúncio social continua só na primeira vez.
+        get().recordStudyDay({ tasks: 1, minutes: lesson?.estimatedMinutes ?? 5 });
+        get().completeStudySession();
       },
 
       recordLessonMasteryPass: (lessonId, input) => {
@@ -4948,8 +4977,48 @@ export const useStore = create<AppState>()(
       clearStreakRecovery: () =>
         set((s) => {
           if (s.pendingStreakRecovery == null) return {};
+          // Dispensa só o AVISO. A janela (`streakRecovery`) continua aberta de
+          // propósito: quem fecha o banner e vai estudar recupera do mesmo
+          // jeito, que é a regra inteira desta remessa.
           const next = { ...s, pendingStreakRecovery: null };
           return { pendingStreakRecovery: null, accounts: saveCurrentAccount(next) };
+        }),
+
+      /**
+       * Um estudo CONCLUÍDO. É este evento — e só ele — que recupera a ofensiva.
+       *
+       * Fica separado de `recordStudyDay` porque os dois respondem perguntas
+       * diferentes: aquele conta "houve estudo hoje" e é chamado a cada item
+       * corrigido na revisão; este afirma "a atividade terminou". Recuperar no
+       * primeiro faria uma única pergunta respondida devolver a ofensiva.
+       *
+       * Chamar mais de uma vez é seguro: a segunda chamada não acha janela.
+       */
+      completeStudySession: () => {
+        let recovered = false;
+        set((s) => {
+          const outcome = applyStreakRecovery(s, todayKey());
+          if (!outcome.recovered) return {};
+          recovered = true;
+          const longestStreak = Math.max(s.longestStreak, outcome.streak);
+          const patch = {
+            streak: outcome.streak,
+            streakRecovery: outcome.streakRecovery,
+            pendingStreakRecovery: outcome.pendingStreakRecovery,
+            streakRecoveredOn: outcome.streakRecoveredOn,
+            pendingStreakRecovered: outcome.restored,
+            longestStreak,
+          };
+          return { ...patch, accounts: saveCurrentAccount({ ...s, ...patch }) };
+        });
+        return recovered;
+      },
+
+      clearStreakRecovered: () =>
+        set((s) => {
+          if (s.pendingStreakRecovered == null) return {};
+          const next = { ...s, pendingStreakRecovered: null };
+          return { pendingStreakRecovered: null, accounts: saveCurrentAccount(next) };
         }),
 
       registerActivity: () => {

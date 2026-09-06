@@ -94,7 +94,13 @@ export function installTTSGestureUnlock(): () => void {
 }
 
 export function isTTSAvailable(): boolean {
-  return typeof window !== "undefined" && "speechSynthesis" in window;
+  // `"speechSynthesis" in window` respondia "sim" para uma propriedade que
+  // existe valendo `undefined` — e aí a fala ia adiante e estourava ao chamar
+  // `.speak`. Perguntar pelo objeto e pelo método é a pergunta que interessa:
+  // "dá para falar?", não "o nome está declarado?".
+  if (typeof window === "undefined") return false;
+  const synth = window.speechSynthesis as SpeechSynthesis | undefined | null;
+  return Boolean(synth) && typeof synth?.speak === "function";
 }
 
 /** Carrega vozes (algumas plataformas só preenchem após o evento). */
@@ -130,6 +136,15 @@ export interface SpeakOptions {
   pitch?: number;
   volume?: number;
   onend?: () => void;
+  /**
+   * A fala não aconteceu: motor indisponível ou o navegador rejeitou.
+   *
+   * Separado de `onend` porque quem chama precisa saber a diferença entre
+   * "terminou" e "não saiu som nenhum". Sem isso, um toque no botão de áudio
+   * que falha fica silencioso nos dois sentidos — nada toca e nada é dito ao
+   * aluno, que conclui que o botão está quebrado.
+   */
+  onerror?: () => void;
 }
 
 /** Fala um texto chinês. Cancela qualquer fala anterior. */
@@ -165,6 +180,7 @@ export function mandarinSpeechText(text: string): string {
 
 export function speak(text: string, opts: SpeakOptions = {}): void {
   if (!isTTSAvailable()) {
+    opts.onerror?.();
     opts.onend?.();
     return;
   }
@@ -195,7 +211,13 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     opts.onend?.();
   };
   u.onend = settle;
-  u.onerror = settle;
+  u.onerror = (event) => {
+    // "interrupted"/"canceled" são fala trocada por outra (o aluno tocou de
+    // novo, ou a tela mudou) — não são falha para quem ouve.
+    const reason = (event as SpeechSynthesisErrorEvent)?.error;
+    if (reason && reason !== "interrupted" && reason !== "canceled") opts.onerror?.();
+    settle();
+  };
 
   // Enfileirar `speak()` na MESMA tick de `cancel()` faz o Firefox/Safari
   // descartarem a nova fala — a causa de o áudio "só repetir no Chrome". Quando
