@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d47933a8c7dd |
-| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Hash da Jornada | 7d90b16b98e3 |
+| HEAD no instante da geração | a63e7dc0aa1127a48eec26d5126aeee5fc1d0925 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:49:55.083Z |
+| Gerado em | 2026-09-07T15:51:37.163Z |
 | Lições | 127 |
 
 ## Resumo
@@ -26,7 +26,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
 | Meta: dedicadas com imagem | 100% — OK |
-| Passos image_choice autorais | 86 |
+| Passos image_choice autorais | 88 |
 | Conceitos nunca utilizados | 29 |
 
 ## Cobertura por fase
@@ -65,11 +65,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 31 |
-| imagem → pinyin (`choose_pinyin`) | 52 |
+| imagem → hànzì (`choose_hanzi`) | 32 |
+| imagem → pinyin (`choose_pinyin`) | 51 |
 | imagem → significado (`choose_meaning`) | 30 |
-| áudio → imagem (`listen_and_choose_image`) | 42 |
-| hànzì → imagem (`choose_image`) | 30 |
+| áudio → imagem (`listen_and_choose_image`) | 41 |
+| hànzì → imagem (`choose_image`) | 28 |
 
 ## Conceitos nunca utilizados
 
@@ -113,4 +113,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:756996f7d70c616b -->
+<!-- integridade:83f071d4f0c92247 -->
