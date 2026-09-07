@@ -39,11 +39,20 @@ passo de produção em M3, e os planos de M4 de `l11-falo-pouco`,
 `l13-dialogo-nome` e `l24` tinham 3 passos — abaixo do mínimo de
 `MASTERY_PASS_GRADED_BUDGET`. O portão estava certo nas duas contagens: o plano
 autoral fatiava a lição em quatro passes e o último ficava fino demais para ser
-uma sessão.
+uma sessão. Atrás dessa falha havia outra, escondida porque `assert` aborta na
+primeira: `test:mastery-coverage:strict` reprovava `no_false_depth`. Nenhuma
+das duas aparece em `main` — as duas nasceram nesta remessa.
 
 - `identityPeoplePlanFor`: M4 passou a fechar com a produção independente da
   própria lição (cena → tarefas derivadas → produzir), em vez de descartá-la
   depois de M3.
+- `identityPeoplePlanFor`: o ensino deixou de ser fatiado na ordem bruta do
+  código. `test:mastery-coverage:strict` reprovava `l11-falo-pouco` e `l24` em
+  `no_false_depth` — flashcards e `intro`, que só fazem sentido enquanto o
+  material é novo, caíam em M2/M3 porque estavam no fim do array. Agora os
+  passos são ordenados pelo número de passes que ainda os aceitam (o mais
+  restrito primeiro), preservando a ordem autoral dentro de cada grupo: M1
+  reconhece, M2 discrimina, M3 produz.
 - `l13-dialogo-nome` ganhou a produção que faltava — `我有三个朋友`, sem banco
   de palavras, o único conteúdo que só esta lição ensina.
 - `l24` ganhou `这是我爸爸` como produção livre no lugar onde os dois
@@ -60,7 +69,7 @@ uma sessão.
 
 Quitadas: `l11-falo-pouco` (`na_which`, `li_inside`, `zai`), `p6-china-cidades-2` (`zai`, `li_inside`), `p6-china-ruas` (`na_which`, `li_inside`), `p6-saude` (`zai`, `li_inside`) e `p6-survival-mandarin` (`zai`, `li_inside`). Permanecem apenas dívidas históricas não ligadas ao arco.
 
-Fingerprint da Jornada: `d47933a8c7dd` (V4.9.4C) → `8b4f94fd462f`. Os contratos backend foram regenerados por `npm run generate:backend-contracts` depois da alteração.
+Fingerprint da Jornada: `d47933a8c7dd` (V4.9.4C) → `4aecb518c2f1`. Os contratos backend foram regenerados por `npm run generate:backend-contracts` depois da alteração.
 
 `IDENTITY_PEOPLE_ARC` verifica `self_name`, `origin`, `study_or_work`, `identify_person`, `relationship`, `third_person_reference`, `simple_description` e `reciprocal_question` em produção real. As 9 mutações de regressão passam: learnedRef não ensinado, pronome sem ensino, produção convertida em escolha, relação não ensinada, terceira pessoa removida, lição duplicada, overlay EN removido, dívida nova e fingerprint desatualizado.
 
