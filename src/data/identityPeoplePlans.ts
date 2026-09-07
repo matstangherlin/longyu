@@ -4,7 +4,9 @@ import type { MasteryPass } from "./masteryLoop";
 export const IDENTITY_PEOPLE_TOPIC_IDS = ["l11-falo-pouco", "l13-dialogo-nome", "l18", "l24"] as const;
 
 /** Keep the authored progression visible rather than replacing it with unrelated generated drills.
- * M1–M3 distribute the existing teaching in order. M4 is the conversational application.
+ * M1–M3 distribute the existing teaching in order. M4 is the conversational application:
+ * the scene, the tasks derived from it, and the independent production of the same lesson —
+ * the production step closes the pass instead of disappearing after M3.
  * No duplicated curriculum, new input, or independent answer bank is introduced here.
  */
 export function identityPeoplePlanFor(lesson: Lesson, pass: MasteryPass, aggregate = false): LessonStep[] | null {
@@ -18,11 +20,6 @@ export function identityPeoplePlanFor(lesson: Lesson, pass: MasteryPass, aggrega
   if (pass < 4) {
     return [...teaching.slice((pass - 1) * width, pass * width), ...(pass === 3 && production.length > 0 ? production.slice(0, 1) : [])];
   }
-  return [
-    ...scenes,
-    ...postConversation,
-    ...(scenes.length
-      ? production.slice(1).filter(s => !s.postConversationPhase)
-      : production.filter(s => !s.postConversationPhase)),
-  ];
+  const applied = new Set<LessonStep>([...scenes, ...postConversation]);
+  return [...scenes, ...postConversation, ...production.filter(step => !applied.has(step))];
 }
