@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7d90b16b98e3 |
-| HEAD no instante da geração | a252f20bd472042a4304b3b89667a45415c94f25 |
+| Hash da Jornada | e36445e08156 |
+| HEAD no instante da geração | b873149cd8c695be532080fa4385298f031bed5c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T16:19:25.473Z |
+| Gerado em | 2026-09-07T16:56:13.122Z |
 | Lições | 127 |
 
 ## Resumo
@@ -19,13 +19,13 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Conversas analisadas (nos planos reais) | 138 |
 | Itens de vocabulário exibidos | 960 |
-| Itens cobertos por tarefa posterior | 758 |
-| Cobertura bruta | 79.0 % |
+| Itens cobertos por tarefa posterior | 759 |
+| Cobertura bruta | 79.1 % |
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 552 |
 | **Cobertura relevante** (portão ≥ 76 %) | **81.3 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
 | Reutilização média por item | 1.98 |
-| Itens sem cobertura | 202 |
+| Itens sem cobertura | 201 |
 | Tarefas da fase Pós-Conversa | 557 |
 | Média Pós-Conversa por conversa | 4.04 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build, write |
@@ -39,7 +39,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 ## Núcleo saturado (fora do denominador)
 
 - char:ni — 521 exposições ao longo dos 127 planos
-- char:hao — 495 exposições ao longo dos 127 planos
+- char:hao — 494 exposições ao longo dos 127 planos
 - chunk:nihao — 347 exposições ao longo dos 127 planos
 - char:shi — 259 exposições ao longo dos 127 planos
 - char:bu — 240 exposições ao longo dos 127 planos
@@ -47,7 +47,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - chunk:nijiaoshenme — 213 exposições ao longo dos 127 planos
 - chunk:wohenhao — 194 exposições ao longo dos 127 planos
 - char:ma_question — 185 exposições ao longo dos 127 planos
-- chunk:qingzaishuoyibian — 137 exposições ao longo dos 127 planos
+- chunk:qingzaishuoyibian — 138 exposições ao longo dos 127 planos
 - char:zai — 127 exposições ao longo dos 127 planos
 - chunk:xiexie — 108 exposições ao longo dos 127 planos
 - char:na_that — 108 exposições ao longo dos 127 planos
@@ -61,7 +61,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - char:shan — 55 exposições ao longo dos 127 planos
 - chunk:nashirenm — 55 exposições ao longo dos 127 planos
 - char:li_inside — 54 exposições ao longo dos 127 planos
-- chunk:wohuishuoyidian — 51 exposições ao longo dos 127 planos
+- chunk:wohuishuoyidian — 49 exposições ao longo dos 127 planos
 - char:er — 49 exposições ao longo dos 127 planos
 - chunk:wature — 46 exposições ao longo dos 127 planos
 - chunk:woshixuesheng — 45 exposições ao longo dos 127 planos
@@ -141,7 +141,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - l10:chunk:woshixuesheng
 - p3-wobuhui-shuo-zhongwen:chunk:wojiao
 - p3-qing-zai-shuo-yibian:chunk:woshixuesheng
-- l11-falo-pouco:chunk:qingzaishuoyibian
 - l12:chunk:zenmeyang
 - l12:chunk:nishixueshengma
 - l12:chunk:nixuexishenme
@@ -216,6 +215,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p5-mu-mu-mu-sen:chunk:zheshishenme
 - p5-ri-yue-ming:char:shan
 - p5-ri-yue-ming:chunk:zheshishenme
-- …mais 122.
+- p5-ren-mu-xiu:chunk:zheshishenme
+- …mais 121.
 
-<!-- integridade:0df3eacf30f3c3ae -->
+<!-- integridade:4abfd315107c70c6 -->
