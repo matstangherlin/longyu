@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d47933a8c7dd |
-| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Hash da Jornada | 9c919cc9511b |
+| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:52:45.267Z |
+| Gerado em | 2026-09-07T13:29:35.645Z |
 | Lições | 127 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 127 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 981 |
-| Pares com transformação cognitiva | 806 (82%) |
+| Pares de repetição semântica | 971 |
+| Pares com transformação cognitiva | 788 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -66,21 +66,21 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p2-sons-brasileiros | 16 | 15 | 26 | 13 | 12 | 6 | intent:identify-concept × 4 |
 | p2-numeros-1-5 | 11 | 5 | 4 | 0 | 0 | 0 | — |
 | l4-rev | 12 | 11 | 25 | 7 | 6 | 6 | intent:identify-concept × 3 |
-| l9 | 18 | 17 | 33 | 17 | 14 | 14 | phrase:我叫Matheus × 3 |
-| l9-tudo-bem | 17 | 16 | 38 | 14 | 10 | 12 | phrase:我很好 × 2 |
-| l9-qual-nome | 14 | 13 | 28 | 14 | 10 | 10 | phrase:你叫什么 × 3 |
+| l9 | 19 | 18 | 42 | 14 | 14 | 14 | action:assemble-phrase × 3 |
+| l9-tudo-bem | 18 | 17 | 36 | 22 | 16 | 12 | intent:ask-wellbeing × 3 |
+| l9-qual-nome | 15 | 14 | 32 | 15 | 14 | 10 | phrase:你叫什么 × 3 |
 | l10 | 17 | 16 | 32 | 18 | 10 | 13 | intent:ask-origin × 3 |
 | p3-wobuhui-shuo-zhongwen | 14 | 13 | 34 | 10 | 9 | 8 | phrase:请再说一遍 × 3 |
 | p3-qing-zai-shuo-yibian | 14 | 13 | 30 | 11 | 11 | 10 | phrase:请再说一遍 × 2 |
 | l11 | 17 | 16 | 38 | 12 | 7 | 11 | phrase:你叫什么 × 2 |
-| l11-falo-pouco | 19 | 18 | 39 | 16 | 15 | 15 | action:assemble-phrase × 3 |
-| l12 | 20 | 19 | 43 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
-| l13 | 19 | 18 | 42 | 14 | 13 | 16 | intent:introduce-self × 4 |
+| l11-falo-pouco | 25 | 13 | 19 | 18 | 14 | 9 | phrase:我会说一点中文 × 4 |
+| l12 | 20 | 19 | 45 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
+| l13 | 19 | 18 | 44 | 12 | 12 | 15 | action:assemble-phrase × 3 |
 | l13-dialogo-ola | 19 | 18 | 43 | 16 | 11 | 13 | intent:identify-concept × 3 |
-| l13-dialogo-nome | 17 | 16 | 40 | 11 | 11 | 14 | action:assemble-phrase × 3 |
+| l13-dialogo-nome | 13 | 7 | 22 | 2 | 1 | 6 | intent:introduce-self × 2 |
 | p3-ordem-das-palavras | 14 | 13 | 31 | 11 | 7 | 10 | phrase:你叫什么 × 2 |
-| p3-nomes-da-frase | 10 | 9 | 26 | 3 | 3 | 7 | phrase:我叫Matheus × 2 |
-| l5-rev | 12 | 12 | 25 | 5 | 4 | 8 | action:assemble-phrase × 2 |
+| p3-nomes-da-frase | 10 | 9 | 25 | 3 | 3 | 7 | phrase:我叫Matheus × 2 |
+| l5-rev | 14 | 14 | 31 | 3 | 2 | 8 | action:assemble-phrase × 2 |
 | l14 | 16 | 15 | 31 | 11 | 10 | 10 | char:人 × 3 |
 | p4-num-123 | 15 | 14 | 29 | 10 | 10 | 9 | char:一 × 3 |
 | p4-num-45 | 14 | 13 | 29 | 5 | 5 | 8 | phrase:请再说一遍 × 2 |
@@ -91,28 +91,28 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p4-char-kou | 15 | 14 | 30 | 11 | 10 | 9 | char:口 × 3 |
 | p4-char-ri | 14 | 13 | 32 | 9 | 8 | 10 | char:日 × 2 |
 | p4-char-yue | 14 | 13 | 31 | 9 | 8 | 9 | char:月 × 2 |
-| p4-char-shan | 14 | 13 | 33 | 9 | 8 | 11 | phrase:你叫什么 × 2 |
+| p4-char-shan | 15 | 14 | 36 | 9 | 8 | 11 | phrase:你叫什么 × 2 |
 | p4-char-shui | 13 | 12 | 29 | 9 | 6 | 9 | char:水 × 4 |
 | p4-char-tian | 19 | 18 | 43 | 14 | 12 | 14 | char:天 × 3 |
 | p4-char-huo | 14 | 13 | 23 | 10 | 6 | 10 | char:火 × 3 |
-| p4-char-da | 14 | 13 | 33 | 9 | 8 | 11 | phrase:你叫什么 × 2 |
-| p4-char-xiao | 14 | 13 | 32 | 12 | 8 | 10 | phrase:你叫什么 × 2 |
-| p4-char-zhong | 14 | 13 | 31 | 6 | 5 | 10 | char:人 × 2 |
-| p4-char-bu | 14 | 13 | 31 | 7 | 4 | 9 | char:不 × 2 |
-| p4-char-shi | 15 | 14 | 33 | 9 | 9 | 12 | intent:introduce-self × 4 |
-| p4-char-wo | 14 | 13 | 31 | 5 | 5 | 9 | char:我 × 3 |
-| p4-char-ni | 14 | 13 | 30 | 8 | 5 | 10 | char:你 × 3 |
-| l14-numeros-visuais | 14 | 13 | 25 | 8 | 8 | 8 | action:assemble-phrase × 3 |
+| p4-char-da | 14 | 13 | 32 | 9 | 8 | 10 | phrase:你叫什么 × 2 |
+| p4-char-xiao | 15 | 14 | 35 | 12 | 8 | 10 | phrase:你叫什么 × 2 |
+| p4-char-zhong | 15 | 14 | 34 | 6 | 5 | 10 | char:人 × 2 |
+| p4-char-bu | 15 | 14 | 34 | 7 | 4 | 9 | char:不 × 2 |
+| p4-char-shi | 15 | 14 | 30 | 10 | 7 | 12 | intent:introduce-self × 3 |
+| p4-char-wo | 15 | 14 | 34 | 5 | 5 | 9 | char:我 × 3 |
+| p4-char-ni | 15 | 14 | 33 | 8 | 5 | 10 | char:你 × 3 |
+| l14-numeros-visuais | 15 | 14 | 28 | 8 | 8 | 8 | action:assemble-phrase × 3 |
 | l14-pecas-natureza | 15 | 14 | 31 | 7 | 3 | 10 | action:assemble-hanzi × 2 |
 | l14-frase-minima | 19 | 18 | 42 | 10 | 6 | 14 | action:assemble-hanzi × 4 |
 | l14-char-rev | 16 | 16 | 28 | 7 | 5 | 10 | char:一 × 3 |
 | l15 | 16 | 15 | 28 | 5 | 4 | 9 | char:林 × 3 |
-| l6-rev | 13 | 12 | 25 | 9 | 8 | 7 | intent:state-wellbeing × 3 |
+| l6-rev | 15 | 14 | 32 | 4 | 3 | 8 | char:木 × 2 |
 | l16 | 16 | 15 | 33 | 1 | 1 | 8 | char:妈 × 2 |
 | l17 | 15 | 14 | 26 | 3 | 2 | 10 | char:日 × 2 |
-| l18 | 16 | 15 | 33 | 12 | 11 | 12 | intent:introduce-self × 4 |
-| l7-rev | 12 | 11 | 23 | 8 | 4 | 8 | action:assemble-hanzi × 2 |
-| p4-checkpoint-fundamentos | 12 | 11 | 24 | 9 | 5 | 7 | intent:identify-concept × 2 |
+| l18 | 17 | 10 | 12 | 9 | 6 | 6 | phrase:朋友 × 3 |
+| l7-rev | 13 | 12 | 32 | 2 | 1 | 8 | action:assemble-hanzi × 2 |
+| p4-checkpoint-fundamentos | 14 | 13 | 32 | 4 | 3 | 8 | intent:identify-concept × 2 |
 | p5-mu-mu-lin | 15 | 14 | 30 | 4 | 3 | 10 | char:木 × 3 |
 | p5-mu-mu-mu-sen | 15 | 14 | 30 | 4 | 3 | 9 | char:木 × 3 |
 | p5-ri-yue-ming | 15 | 14 | 27 | 4 | 2 | 9 | char:明 × 3 |
@@ -131,15 +131,15 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l20 | 16 | 15 | 28 | 2 | 2 | 8 | char:六 × 2 |
 | l8-rev | 12 | 12 | 26 | 5 | 4 | 5 | intent:identify-concept × 3 |
 | l21 | 16 | 15 | 31 | 4 | 4 | 9 | phrase:我们 × 2 |
-| l22 | 15 | 14 | 33 | 10 | 9 | 12 | action:assemble-phrase × 4 |
-| l23 | 14 | 13 | 29 | 9 | 7 | 10 | intent:introduce-self × 4 |
+| l22 | 16 | 15 | 30 | 14 | 8 | 13 | action:assemble-phrase × 4 |
+| l23 | 15 | 15 | 26 | 14 | 9 | 10 | intent:introduce-self × 4 |
 | l9-rev | 12 | 12 | 26 | 9 | 8 | 9 | action:assemble-phrase × 3 |
-| l24 | 18 | 17 | 37 | 13 | 9 | 12 | intent:state-wellbeing × 3 |
-| l25 | 19 | 18 | 44 | 10 | 10 | 16 | action:assemble-phrase × 3 |
-| l26 | 14 | 13 | 33 | 12 | 12 | 9 | phrase:我喜欢中文 × 3 |
-| l26b | 27 | 25 | 66 | 11 | 9 | 13 | intent:identify-concept × 3 |
+| l24 | 27 | 12 | 21 | 15 | 10 | 7 | intent:introduce-family × 4 |
+| l25 | 19 | 18 | 43 | 9 | 9 | 16 | action:assemble-phrase × 3 |
+| l26 | 15 | 14 | 30 | 18 | 15 | 10 | phrase:我喜欢中文 × 3 |
+| l26b | 25 | 23 | 64 | 12 | 12 | 11 | intent:agree × 4 |
 | l27 | 19 | 18 | 43 | 12 | 12 | 15 | action:produce-unaided × 4 |
-| l28 | 19 | 19 | 45 | 10 | 9 | 16 | action:assemble-phrase × 3 |
+| l28 | 18 | 18 | 48 | 6 | 5 | 15 | action:assemble-phrase × 3 |
 | p6-rotina-trabalho | 21 | 20 | 47 | 7 | 7 | 13 | phrase:我坐飞机 × 3 |
 | p6-cidade-lugares | 21 | 19 | 54 | 4 | 4 | 12 | action:assemble-phrase × 2 |
 | p6-china-cidades | 18 | 17 | 42 | 11 | 11 | 13 | phrase:我坐出租车 × 3 |
@@ -164,4 +164,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:cef44d2e17206ef9 -->
+<!-- integridade:e253c1c1d833f5c1 -->

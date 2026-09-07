@@ -18,6 +18,8 @@ export const CURRICULUM_SOURCES = [
   "src/data/journey.ts",
   "src/data/curriculumRole.ts",
   "src/data/conversationScenes.ts",
+  "src/data/identityPeopleScenes.ts",
+  "src/data/identityPeoplePlans.ts",
   "src/data/visualVocabulary.ts",
   "src/data/chunks.ts",
   "src/data/characters.ts",

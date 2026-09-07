@@ -32,6 +32,7 @@ import {
 } from "../../data/masteryPilot";
 import { isTopicMasteryLesson } from "../../data/topicMastery";
 import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
+import { identityPeoplePlanFor } from "../../data/identityPeoplePlans";
 import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
 import {
   isReviewMasteryLesson,
@@ -7189,6 +7190,15 @@ export function resolveMasteryPassForContext(
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
+  const identityPass = resolveMasteryPassForContext(lesson, context) ?? 1;
+  const identityPlan = identityPeoplePlanFor(lesson, identityPass, context.silent === true && context.masteryPass == null);
+  if (identityPlan) {
+    return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(identityPlan.map(step => ({
+      ...step, generated: false, masteryPass: identityPass,
+      practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+      lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),
+    }))));
+  }
   // Pedagogia V3.4 — Review Mastery so entra com pass/level explicito (player).
   // Validators silenciosos sem masteryLevel continuam no plano classico (imagens etc.).
   const reviewLevelRequested =

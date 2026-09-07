@@ -328,7 +328,10 @@ function validateStep(lesson: Lesson, index: number, step: LessonStep): CorpusIs
       const checkpoint = step.checkpoint;
       const answer = checkpoint?.correctAnswer ?? step.correctAnswer;
       const options = checkpoint?.options ?? step.options;
-      if (checkpoint?.type === "order_reply") {
+      if (checkpoint?.type === "produce_reply") {
+        if (options?.length) issues.push(issue("error", "journey", ref, "produção independente com alternativas"));
+        if (!answer?.trim()) issues.push(issue("error", "journey", ref, "produção independente sem resposta"));
+      } else if (checkpoint?.type === "order_reply") {
         const duplicate = hasDuplicates(options ?? []);
         if (duplicate) issues.push(issue("error", "journey", ref, `conversation_scene: peça duplicada "${duplicate}"`));
         if (!answer?.trim()) issues.push(issue("error", "journey", ref, "conversation_scene sem resposta correta"));

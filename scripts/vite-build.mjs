@@ -6,7 +6,9 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const viteEntry = path.join(root, "node_modules", "vite", "bin", "vite.js");
-const extraArgs = process.argv.slice(2);
+// The runner keeps the ESM Vite config in native mode. This avoids esbuild
+// walking protected parent directories on the Windows desktop checkout.
+const extraArgs = ["--configLoader", "runner", ...process.argv.slice(2)];
 
 // Alinha VITE_APP_VERSION com package.json quando a env não foi definida no CI/Netlify.
 if (!process.env.VITE_APP_VERSION?.trim()) {
