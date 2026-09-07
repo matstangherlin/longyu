@@ -32,6 +32,25 @@ O trabalho já tinha perguntas e respostas canônicas (`你做什么工作？`, 
 - O loop pós-conversa agora declara duas tarefas de modalidades diferentes nas cenas de estudo e família, com metadados `post_conversation` auditáveis.
 - A entrada anterior `那是人吗？` foi preservada antes de `identificar-pessoa`.
 
+### Correção depois do primeiro CI
+
+`test:mastery-coverage` reprovou a remessa: `l13-dialogo-nome` não tinha nenhum
+passo de produção em M3, e os planos de M4 de `l11-falo-pouco`,
+`l13-dialogo-nome` e `l24` tinham 3 passos — abaixo do mínimo de
+`MASTERY_PASS_GRADED_BUDGET`. O portão estava certo nas duas contagens: o plano
+autoral fatiava a lição em quatro passes e o último ficava fino demais para ser
+uma sessão.
+
+- `identityPeoplePlanFor`: M4 passou a fechar com a produção independente da
+  própria lição (cena → tarefas derivadas → produzir), em vez de descartá-la
+  depois de M3.
+- `l13-dialogo-nome` ganhou a produção que faltava — `我有三个朋友`, sem banco
+  de palavras, o único conteúdo que só esta lição ensina.
+- `l24` ganhou `这是我爸爸` como produção livre no lugar onde os dois
+  `dialogue_choice` de foto foram removidos: o mesmo quadro que o
+  `sentence_build` logo acima monta com andaime, agora escrito inteiro — e com
+  referente diferente do que a cena cobra (`这是我妈妈`).
+
 ## Dívida, contratos e gates
 
 | Medida | Antes | Depois |
@@ -41,7 +60,7 @@ O trabalho já tinha perguntas e respostas canônicas (`你做什么工作？`, 
 
 Quitadas: `l11-falo-pouco` (`na_which`, `li_inside`, `zai`), `p6-china-cidades-2` (`zai`, `li_inside`), `p6-china-ruas` (`na_which`, `li_inside`), `p6-saude` (`zai`, `li_inside`) e `p6-survival-mandarin` (`zai`, `li_inside`). Permanecem apenas dívidas históricas não ligadas ao arco.
 
-Fingerprint da Jornada: `af8a41db54c8` → `e77045f102a3`. Os contratos backend foram regenerados depois da alteração.
+Fingerprint da Jornada: `d47933a8c7dd` (V4.9.4C) → `8b4f94fd462f`. Os contratos backend foram regenerados por `npm run generate:backend-contracts` depois da alteração.
 
 `IDENTITY_PEOPLE_ARC` verifica `self_name`, `origin`, `study_or_work`, `identify_person`, `relationship`, `third_person_reference`, `simple_description` e `reciprocal_question` em produção real. As 9 mutações de regressão passam: learnedRef não ensinado, pronome sem ensino, produção convertida em escolha, relação não ensinada, terceira pessoa removida, lição duplicada, overlay EN removido, dívida nova e fingerprint desatualizado.
 

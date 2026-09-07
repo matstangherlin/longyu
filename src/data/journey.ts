@@ -4184,6 +4184,16 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "叫", "Matheus", "你", "什么"],
                 "我叫 + nome responde “eu me chamo...”."
               ),
+              // Produção independente do que só esta lição ensina: falar de quem
+              // está perto de você, sem banco de palavras nem alternativas.
+              write(
+                "Fale dos seus amigos",
+                "Você acabou de se apresentar. Agora diga que tem três amigos.",
+                "我有三个朋友",
+                "",
+                "woyousangepengyou",
+                { accepts: ["我有三个朋友", "我有三个朋友。"] }
+              ),
               // Continuation of conhecer-alguem; all language is recall from l10/l11.
               conversationScene("sala-de-aula"),
               postConversation(
@@ -5258,8 +5268,16 @@ export const JOURNEY: JourneyPhase[] = [
                 ["妈妈", "爸爸", "朋友", "中文"],
                 "这是我妈妈 apresenta quem é sua mãe."
               ),
-
-
+              // O andaime do sentence_build acabou de sair: aqui o quadro
+              // 这是我 + pessoa é produzido inteiro, sem banco de palavras.
+              write(
+                "Foto da família",
+                "Alguém aponta para seu pai na foto e pergunta quem é. Escreva sua resposta.",
+                "这是我爸爸",
+                "",
+                "zheshibaba",
+                { accepts: ["这是我爸爸", "这是我爸爸。"] }
+              ),
               // 家: a casa da família — conceito visual ligado a apresentar parentes.
               intro("Casa da família", "家 é casa e também família. Depois de apresentar pai e mãe, mostre onde vocês moram."),
               listen("家", "jiā", "casa; família"),
