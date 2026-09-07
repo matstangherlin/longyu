@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d4fbfb8878db |
-| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
+| Hash da Jornada | e36445e08156 |
+| HEAD no instante da geração | b873149cd8c695be532080fa4385298f031bed5c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T13:06:56.854Z |
+| Gerado em | 2026-09-07T17:08:49.608Z |
 | Lições | 127 |
 
 ## Resumo
@@ -71,7 +71,7 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene; produção independente |
 | 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene; produção independente |
 | 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene; produção independente |
-| 42 | acquisition | Falo um pouco | sim | unidades novas: 会说、一点、中文、我在学中文、我会说、你是学生吗、我学习中文、我在学校学习、你在哪里学习、我是学生、你学习什么、在学校; conversation_scene |
+| 42 | acquisition | Falo um pouco | sim | unidades novas: 会说、一点、中文、我在学中文、不会、说中文、你是学生吗、我学习中文、我在学校学习、你在哪里学习、我是学生、你学习什么、在学校; conversation_scene |
 | 43 | acquisition | Peças da frase | sim | unidades novas: 认识你很高兴、今天很好、是我是学生; conversation_scene; produção independente |
 | 44 | acquisition | Microtexto 1 | sim | unidades novas: 我很好你呢、好你呢; conversation_scene; produção independente |
 | 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 我要水、我也是、你忙吗、你住在哪里; conversation_scene; produção independente |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:1b68f3d58de0ee64 -->
+<!-- integridade:39aced8706d4e9af -->

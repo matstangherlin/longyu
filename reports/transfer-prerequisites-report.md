@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d47933a8c7dd |
-| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Hash da Jornada | e36445e08156 |
+| HEAD no instante da geração | b873149cd8c695be532080fa4385298f031bed5c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:55:58.070Z |
+| Gerado em | 2026-09-07T17:03:03.081Z |
 | Lições | 127 |
 
 ## Política
@@ -27,8 +27,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições | 127 |
 | Lições com transfer_task | 25 |
-| Lições com free_production guiada | 74 |
-| Lições com produção aberta (estruturalmente elegível) | 50 |
+| Lições com free_production guiada | 76 |
+| Lições com produção aberta (estruturalmente elegível) | 47 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
 
@@ -82,7 +82,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 ## Primeiras free_production guiadas
 
 - **p1-primeira-conversa** · `frame_nijiaoshenme` · `你叫什么？`
-- **l11-falo-pouco** · `frame_wozai` · `我在学中文。`
+- **l12** · `frame_wozai` · `我在学中文。`
 - **p3-ordem-das-palavras** · `frame_woyouge` · `我有三个朋友。`
 - **l26** · `frame_woxihuan` · `我喜欢中文。`
 - **l26b** · `frame_niyaoma` · `你要茶吗？`
@@ -108,4 +108,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `state_destination` · modelo `我去北京。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-casa-amigo** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:e08f82ae8caa0269 -->
+<!-- integridade:62f19be79caf785a -->
