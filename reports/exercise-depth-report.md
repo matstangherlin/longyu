@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d4fbfb8878db |
-| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
+| Hash da Jornada | e36445e08156 |
+| HEAD no instante da geração | a252f20bd472042a4304b3b89667a45415c94f25 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T13:05:07.524Z |
+| Gerado em | 2026-09-07T16:26:17.517Z |
 | Lições | 127 |
 
 ## Resumo
@@ -18,7 +18,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições analisadas | 127 |
-| Score médio | 91 (portão: ≥ 78) |
+| Score médio | 92 (portão: ≥ 78) |
 | Lições abaixo do portão (comum < 60 · revisão < 70) | 0 |
 | Revisões de módulo < 78 | 0 |
 
@@ -304,31 +304,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - incluir sentence_build, produce ou cena com frase completa
 
-### l11-falo-pouco — Falo um pouco (score 64)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 25 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 31 |
-| Chunks únicos | 13 |
-| Frases reais | 8 |
-| Contexto | 10 |
-| Visuais | 0 |
-| Conversas | 1 |
-| Produção sem apoio | 0 |
-| Transferência | 0 |
-
-**Problemas:**
-- resposta "我会说一点中文" repetida 4 vezes
-- resposta "我在学中文" repetida 3 vezes
-- hànzì muito repetido: 我, 中, 文, 学
-
-**Sugestões:**
-- diversificar opções e prompts de resposta
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
 ### p1-o-que-e-pinyin — O que é pinyin? (score 67)
 
 | Métrica | Valor |
@@ -462,50 +437,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
-### l13-dialogo-nome — Microdiálogo: se apresentar (score 76)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 13 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 6 |
-| Hànzì únicos | 43 |
-| Chunks únicos | 17 |
-| Frases reais | 6 |
-| Contexto | 7 |
-| Visuais | 0 |
-| Conversas | 1 |
-| Produção sem apoio | 0 |
-| Transferência | 0 |
-
-**Problemas:**
-- hànzì muito repetido: 你, 我
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l18 — Amigo (score 76)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 16 |
-| Tipos de exercício | 9 |
-| Respostas únicas | 7 |
-| Hànzì únicos | 17 |
-| Chunks únicos | 1 |
-| Frases reais | 3 |
-| Contexto | 5 |
-| Visuais | 0 |
-| Conversas | 0 |
-| Produção sem apoio | 0 |
-| Transferência | 0 |
-
-**Problemas:**
-- (nenhum crítico)
-
-**Sugestões:**
-- manter variedade atual
-
 ### p2-tons-nihao — Tons em 你好 (score 77)
 
 | Métrica | Valor |
@@ -573,6 +504,72 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - incluir sentence_build, produce ou cena com frase completa
 - adicionar conversation_scene com 你好 / 你好吗 / 我很好
+
+### l13-dialogo-nome — Microdiálogo: se apresentar (score 82)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 15 |
+| Tipos de exercício | 9 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 43 |
+| Chunks únicos | 17 |
+| Frases reais | 6 |
+| Contexto | 8 |
+| Visuais | 1 |
+| Conversas | 1 |
+| Produção sem apoio | 0 |
+| Transferência | 0 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l18 — Amigo (score 82)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 18 |
+| Tipos de exercício | 10 |
+| Respostas únicas | 8 |
+| Hànzì únicos | 20 |
+| Chunks únicos | 1 |
+| Frases reais | 3 |
+| Contexto | 6 |
+| Visuais | 1 |
+| Conversas | 0 |
+| Produção sem apoio | 0 |
+| Transferência | 0 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### l11-falo-pouco — Falo um pouco (score 84)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 26 |
+| Tipos de exercício | 12 |
+| Respostas únicas | 8 |
+| Hànzì únicos | 33 |
+| Chunks únicos | 13 |
+| Frases reais | 8 |
+| Contexto | 11 |
+| Visuais | 0 |
+| Conversas | 1 |
+| Produção sem apoio | 0 |
+| Transferência | 0 |
+
+**Problemas:**
+- hànzì muito repetido: 我, 中, 文, 学
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
 
 ### p4-num-123 — 一 二 三 (score 85)
 
@@ -666,13 +663,13 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 27 |
+| Passos no plano | 28 |
 | Tipos de exercício | 10 |
 | Respostas únicas | 10 |
 | Hànzì únicos | 40 |
 | Chunks únicos | 18 |
 | Frases reais | 6 |
-| Contexto | 7 |
+| Contexto | 8 |
 | Visuais | 3 |
 | Conversas | 1 |
 | Produção sem apoio | 0 |
@@ -2845,4 +2842,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:4e7d5692001dd2b1 -->
+<!-- integridade:7c6ceecd11ca299c -->

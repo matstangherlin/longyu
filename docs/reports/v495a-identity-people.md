@@ -55,6 +55,14 @@ das duas aparece em `main` — as duas nasceram nesta remessa.
   reconhece, M2 discrimina, M3 produz.
 - `l13-dialogo-nome` ganhou a produção que faltava — `我有三个朋友`, sem banco
   de palavras, o único conteúdo que só esta lição ensina.
+- `validate:exercise-depth --beta` reprovava `l11-falo-pouco`: com o plano
+  autoral, a lição inteira vira a sessão auditada, e ali `我会说一点中文` era a
+  resposta certa quatro vezes e `我在学中文` três. Ao mesmo tempo,
+  `我不会说中文` e `请再说一遍` estavam nos `reviewItems` da lição sem nunca
+  serem pedidos. Três passos foram redirecionados em vez de apagados: o
+  `listen_select` de abertura virou par mínimo 会/不会, o `fill_blank` completa
+  `我 ___ 说中文` e o `dialogue_choice` do fim pede o reparo `请再说一遍`. A
+  frase-título mantém montagem e uso em contexto.
 - `validate:image-exercises` reprovava `l13-dialogo-nome` e `l18`: o plano
   autoral substitui o gerador, e o gerador era quem produzia o exercício visual
   dessas lições concretas — `l18` é lição dedicada de hànzì, onde a cobertura
@@ -74,7 +82,7 @@ das duas aparece em `main` — as duas nasceram nesta remessa.
 
 Quitadas: `l11-falo-pouco` (`na_which`, `li_inside`, `zai`), `p6-china-cidades-2` (`zai`, `li_inside`), `p6-china-ruas` (`na_which`, `li_inside`), `p6-saude` (`zai`, `li_inside`) e `p6-survival-mandarin` (`zai`, `li_inside`). Permanecem apenas dívidas históricas não ligadas ao arco.
 
-Fingerprint da Jornada: `d47933a8c7dd` (V4.9.4C) → `7d90b16b98e3`. Os contratos backend foram regenerados por `npm run generate:backend-contracts` depois da alteração.
+Fingerprint da Jornada: `d47933a8c7dd` (V4.9.4C) → `e36445e08156`. Os contratos backend foram regenerados por `npm run generate:backend-contracts` depois da alteração.
 
 `IDENTITY_PEOPLE_ARC` verifica `self_name`, `origin`, `study_or_work`, `identify_person`, `relationship`, `third_person_reference`, `simple_description` e `reciprocal_question` em produção real. As 9 mutações de regressão passam: learnedRef não ensinado, pronome sem ensino, produção convertida em escolha, relação não ensinada, terceira pessoa removida, lição duplicada, overlay EN removido, dívida nova e fingerprint desatualizado.
 
