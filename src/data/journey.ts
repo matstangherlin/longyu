@@ -4160,6 +4160,15 @@ export const JOURNEY: JourneyPhase[] = [
               flash("nijiaoshenme"),
               flash("wojiao"),
               flash("qingzaishuoyibian"),
+              // 人 já aparece em 我是巴西人; a imagem fecha o sentido antes de falar de gente.
+              imageChoice(
+                "choose_meaning",
+                "person",
+                "O que esta imagem mostra?",
+                "pessoa",
+                visualMeaningOptions("person"),
+                { explanation: "人 (rén) = pessoa; 巴西人 é pessoa do Brasil." }
+              ),
               listen("我有三个朋友", "wǒ yǒu sān ge péngyou", "Tenho três amigos"),
               dialogue(
                 "Escolha a frase sobre amigos",
@@ -4732,6 +4741,15 @@ export const JOURNEY: JourneyPhase[] = [
               decompose("peng"),
               flash("pengyou"),
               comp("朋友", "péngyou", "amigo", ["amigo", "China", "casa", "mãe"]),
+              // Lição dedicada de hànzì concreto: a imagem ancora 朋 antes da montagem.
+              imageChoice(
+                "choose_hanzi",
+                "friend",
+                "Qual hànzì combina com a imagem?",
+                "朋",
+                visualHanziOptions("friend"),
+                { explanation: "朋 é a peça de 朋友 (péngyou), amigo." }
+              ),
               recognize("peng"),
               sentenceBuild(
                 "Monte 朋友",
