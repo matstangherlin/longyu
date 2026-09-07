@@ -1,3 +1,4 @@
+import { IDENTITY_CLASSROOM_NODES, IDENTITY_PERSON_NODES } from "./identityPeopleScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
@@ -5,7 +6,7 @@
 
 export type ConversationSetting = "classroom" | "street" | "shop" | "home" | "park" | "school";
 export type ConversationEmotion = "neutral" | "happy" | "confused" | "thinking";
-export type ConversationCheckpointType = "choose_reply" | "fill_reply" | "choose_meaning" | "order_reply";
+export type ConversationCheckpointType = "choose_reply" | "fill_reply" | "choose_meaning" | "order_reply" | "produce_reply";
 
 /** Papel pedagógico da cena — define quantas falas/intervenções ela deve ter. */
 export type ConversationSceneRole = "common" | "module_review" | "immersion";
@@ -1901,51 +1902,10 @@ sceneV2({
   intent: "identify-person",
   setting: "park",
   characters: PAIR_LIN_MEI,
-  sceneRole: "common",
+  sceneRole: "module_review",
   entryNodeId: "pessoa-1",
-  nodes: [
-    { id: "pessoa-1", speakerId: "lin", hanzi: "你好！那是人吗？", pinyin: "nǐ hǎo! nà shì rén ma?", pt: "Olá! Aquilo é uma pessoa?", emotion: "thinking", nextNodeId: "pessoa-2" },
-    {
-      id: "pessoa-2",
-      speakerId: "mei",
-      hanzi: "是。",
-      pinyin: "shì.",
-      pt: "Sim.",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus perguntou?",
-        options: ["Aquilo é uma pessoa?", "Isto é água.", "Estou bem.", "Obrigado."],
-        correctAnswer: "Aquilo é uma pessoa?",
-        correctNextNodeId: "pessoa-4",
-        wrongNextNodeId: "pessoa-3",
-        explanation: "那是人吗？ pergunta se aquilo ali é uma pessoa.",
-      },
-    },
-    { id: "pessoa-3", speakerId: "mei", hanzi: "那是人吗？", pinyin: "nà shì rén ma?", pt: "A pergunta foi: aquilo é uma pessoa? Tente de novo.", emotion: "thinking", nextNodeId: "pessoa-2" },
-    { id: "pessoa-4", speakerId: "mei", hanzi: "这是我妈妈。", pinyin: "zhè shì wǒ māma.", pt: "Esta é minha mãe.", emotion: "happy", nextNodeId: "pessoa-5" },
-    {
-      id: "pessoa-5",
-      speakerId: "lin",
-      hanzi: "你妈妈很好！",
-      pinyin: "nǐ māma hěn hǎo!",
-      pt: "Sua mãe é muito legal!",
-      emotion: "happy",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Cumprimente a mãe da Mei.",
-        options: ["你好", "谢谢", "我很好", "那是人吗"],
-        correctAnswer: "你好",
-        correctNextNodeId: "pessoa-7",
-        wrongNextNodeId: "pessoa-6",
-        explanation: "你好 é o cumprimento simples para conhecer alguém.",
-      },
-    },
-    { id: "pessoa-6", speakerId: "mei", hanzi: "你好？", pinyin: "nǐ hǎo?", pt: "Use o cumprimento: 你好. Tente de novo.", emotion: "thinking", nextNodeId: "pessoa-5" },
-    { id: "pessoa-7", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "pessoa-8" },
-    { id: "pessoa-8", speakerId: "mei", hanzi: "谢谢！", pinyin: "xièxie!", pt: "Obrigada!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:zheshimama", "chunk:wohenhao", "chunk:nihao", "chunk:xiexie"],
-  newRefs: ["chunk:nashirenm"],
+  nodes: IDENTITY_PERSON_NODES,
+  learnedRefs: ["chunk:zheshimama", "chunk:pengyou", "chunk:wohenhao", "chunk:woshixuesheng", "chunk:nishixueshengma", "chunk:nihao", "chunk:nine", "chunk:woyeshi", "chunk:qingzaishuoyibian", "chunk:xiexie", "char:ta", "char:ta_she"],
 }),
 sceneV2({
   sceneId: "encontrar-amigo",
@@ -2126,51 +2086,10 @@ sceneV2({
   intent: "classroom-intro",
   setting: "classroom",
   characters: PAIR_LIN_HUA,
-  sceneRole: "common",
+  sceneRole: "module_review",
   entryNodeId: "aula-1",
-  nodes: [
-    { id: "aula-1", speakerId: "hua", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá! Bem-vindo à aula!", emotion: "happy", nextNodeId: "aula-2" },
-    { id: "aula-2", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "aula-3" },
-    {
-      id: "aula-3",
-      speakerId: "hua",
-      hanzi: "你叫什么？",
-      pinyin: "nǐ jiào shénme?",
-      pt: "Como você se chama?",
-      interaction: {
-        type: "order_reply",
-        prompt: "Apresente-se ao professor: meu nome é Matheus.",
-        options: ["我", "叫", "Matheus", "你好"],
-        correctAnswer: "我叫Matheus",
-        correctNextNodeId: "aula-5",
-        wrongNextNodeId: "aula-4",
-        explanation: "我叫Matheus responde: meu nome é Matheus.",
-      },
-    },
-    { id: "aula-4", speakerId: "hua", hanzi: "请再说一遍。你叫什么？", pinyin: "qǐng zài shuō yí biàn. nǐ jiào shénme?", pt: "Fale de novo, por favor. Responda 你叫什么？", emotion: "thinking", nextNodeId: "aula-3" },
-    { id: "aula-5", speakerId: "lin", hanzi: "我叫Matheus。", pinyin: "wǒ jiào Matheus.", pt: "Meu nome é Matheus.", emotion: "happy", nextNodeId: "aula-6" },
-    {
-      id: "aula-6",
-      speakerId: "hua",
-      hanzi: "很好！",
-      pinyin: "hěn hǎo!",
-      pt: "Muito bem!",
-      emotion: "happy",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Diga que você está bem para encerrar a apresentação.",
-        options: ["我很好", "你好", "请再说一遍", "你叫什么？"],
-        correctAnswer: "我很好",
-        correctNextNodeId: "aula-8",
-        wrongNextNodeId: "aula-7",
-        explanation: "我很好 = estou bem.",
-      },
-    },
-    { id: "aula-7", speakerId: "hua", hanzi: "请再说一遍。我很好？", pinyin: "qǐng zài shuō yí biàn. wǒ hěn hǎo?", pt: "Tente de novo. A frase é 我很好.", emotion: "thinking", nextNodeId: "aula-6" },
-    { id: "aula-8", speakerId: "lin", hanzi: "我很好。", pinyin: "wǒ hěn hǎo.", pt: "Estou bem.", emotion: "happy", nextNodeId: "aula-9" },
-    { id: "aula-9", speakerId: "hua", hanzi: "很好！", pinyin: "hěn hǎo!", pt: "Muito bem!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:nihao", "chunk:nijiaoshenme", "chunk:wojiao", "chunk:qingzaishuoyibian", "chunk:wohenhao"],
+  nodes: IDENTITY_CLASSROOM_NODES,
+  learnedRefs: ["chunk:nihao", "chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:nishinaiguoren", "chunk:woshixuesheng", "chunk:nishixueshengma", "chunk:nixuexishenme", "chunk:woxuexizhongwen", "chunk:wozaixuezhongwen", "chunk:nine", "chunk:woyeshi", "chunk:renshinihengaoxing", "chunk:qingzaishuoyibian", "chunk:xiexie"],
 }),
 sceneV2({
   sceneId: "pedir-ajuda",

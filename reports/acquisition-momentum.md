@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d47933a8c7dd |
-| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Hash da Jornada | d4fbfb8878db |
+| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:59:40.985Z |
+| Gerado em | 2026-09-07T13:06:56.854Z |
 | Lições | 127 |
 
 ## Resumo
@@ -71,11 +71,11 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene; produção independente |
 | 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene; produção independente |
 | 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene; produção independente |
-| 42 | acquisition | Falo um pouco | sim | unidades novas: 一点、我会说、中文、我在学中文、我是学生、你是学生吗、你学习什么、我学习中文、你在哪里学习、我在学校学习、在学校、是我是学生; conversation_scene; produção independente |
-| 43 | acquisition | Peças da frase | sim | unidades novas: 今天很好; conversation_scene; produção independente |
-| 44 | acquisition | Microtexto 1 | sim | unidades novas: 我很好你呢、好你呢、认识你很高兴; conversation_scene; produção independente |
+| 42 | acquisition | Falo um pouco | sim | unidades novas: 会说、一点、中文、我在学中文、我会说、你是学生吗、我学习中文、我在学校学习、你在哪里学习、我是学生、你学习什么、在学校; conversation_scene |
+| 43 | acquisition | Peças da frase | sim | unidades novas: 认识你很高兴、今天很好、是我是学生; conversation_scene; produção independente |
+| 44 | acquisition | Microtexto 1 | sim | unidades novas: 我很好你呢、好你呢; conversation_scene; produção independente |
 | 45 | acquisition | Microdiálogo: cumprimentar | sim | unidades novas: 我要水、我也是、你忙吗、你住在哪里; conversation_scene; produção independente |
-| 46 | acquisition | Microdiálogo: se apresentar | sim | unidades novas: 我有三个朋友、会说中文; conversation_scene; produção independente |
+| 46 | acquisition | Microdiálogo: se apresentar | sim | unidades novas: 我有三个朋友、我是中国人; conversation_scene |
 | 47 | acquisition | A ordem importa | sim | conversation_scene; produção independente |
 | 48 | acquisition | Nomes das peças | sim | unidades novas: 我有五个朋友、我有一个朋友; conversation_scene; padrão estrutural |
 | 49 | review | Revisão do módulo | sim | revisão (isenta) |
@@ -89,7 +89,6 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 |-------|------|--------|-------|
 | p3-wobuhui-shuo-zhongwen | spot_error | erro_proposital | 我会中文说 |
 | p3-qing-zai-shuo-yibian | spot_error | erro_proposital | 我是叫小明 |
-| l11-falo-pouco | spot_error | erro_proposital | 我是好 |
 | l13 | spot_error | erro_proposital | 我会中文说 |
 | l13-dialogo-ola | spot_error | erro_proposital | 我是水 |
 | p3-nomes-da-frase | spot_error | erro_proposital | 我有一朋友 |
@@ -109,30 +108,31 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | l6-rev | spot_error | erro_proposital | 我是叫小明 |
 | l16 | spot_error | erro_proposital | 我会中文说 |
 | l17 | spot_error | erro_proposital | 我是水 |
-| l18 | spot_error | erro_proposital | 我是好 |
-| l7-rev | spot_error | erro_proposital | 我会中文说 |
+| l7-rev | spot_error | erro_proposital | 我有一朋友 |
 | p5-mu-mu-lin | spot_error | erro_proposital | 我是叫小明 |
-| p5-mu-mu-mu-sen | spot_error | erro_proposital | 我有一朋友 |
+| p5-mu-mu-mu-sen | spot_error | erro_proposital | 我是叫小明 |
 | p5-ri-yue-ming | spot_error | erro_proposital | 我是叫小明 |
-| p5-ren-mu-xiu | spot_error | erro_proposital | 我是好 |
-| p5-nv-zi-hao | spot_error | erro_proposital | 我是水 |
-| p5-ren-ren-cong | spot_error | erro_proposital | 我是好 |
-| p5-ren-ren-ren-zhong | spot_error | erro_proposital | 我是叫小明 |
-| p5-nv-ma-mae | spot_error | erro_proposital | 我会中文说 |
-| p5-kou-ma-pergunta | spot_error | erro_proposital | 我会中文说 |
-| l19-logica-madeira | spot_error | erro_proposital | 我是叫小明 |
+| p5-ren-mu-xiu | spot_error | erro_proposital | 我是水 |
+| p5-nv-zi-hao | spot_error | erro_proposital | 我是叫小明 |
+| p5-ren-ren-cong | spot_error | erro_proposital | 我有一朋友 |
+| p5-ren-ren-ren-zhong | spot_error | erro_proposital | 他是吗学生 |
+| p5-nv-ma-mae | spot_error | erro_proposital | 我有一朋友 |
+| p5-kou-ma-pergunta | spot_error | erro_proposital | 我有一朋友 |
+| l19-logica-madeira | spot_error | erro_proposital | 我会中文说 |
 | l19-logica-luz | spot_error | erro_proposital | 我是好 |
-| l19-logica-pessoas | spot_error | erro_proposital | 我是好 |
-| l19-logica-ma | spot_error | erro_proposital | 我是好 |
-| l19 | spot_error | erro_proposital | 我有一朋友 |
-| l21 | spot_error | erro_proposital | 我会中文说 |
-| l22 | spot_error | erro_proposital | 我是水 |
+| l19-logica-pessoas | spot_error | erro_proposital | 我有一朋友 |
+| l19-logica-ma | spot_error | erro_proposital | 我有一朋友 |
+| l19 | spot_error | erro_proposital | 我会中文说 |
+| l21 | spot_error | erro_proposital | 我有一朋友 |
+| l22 | spot_error | erro_proposital | 我会中文说 |
+| l25 | spot_error | erro_proposital | 他是吗学生 |
+| l26 | spot_error | erro_proposital | 他是在家 |
 
 ## Auditoria das frases suspeitas
 
 | Texto | Classe | Onde aparece |
 |-------|--------|--------------|
-| 我是好 | erro_proposital | l11-falo-pouco |
+| 我是好 | erro_proposital | não aparece no plano das 50 primeiras |
 | 我是叫小明 | erro_proposital | p3-qing-zai-shuo-yibian |
 | 我会中文说 | erro_proposital | p3-wobuhui-shuo-zhongwen, l13 |
 | 我是水 | erro_proposital | l13-dialogo-ola |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:ed2878c73e4c8d01 -->
+<!-- integridade:1b68f3d58de0ee64 -->

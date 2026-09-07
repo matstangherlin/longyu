@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d47933a8c7dd |
-| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Hash da Jornada | f795b7b6a62f |
+| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:41:38.759Z |
+| Gerado em | 2026-09-07T14:13:48.647Z |
 | Lições | 127 |
 
 
@@ -30,8 +30,8 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 | Exceções (review/checkpoint) | 14 |
 | Specs autoradas | 38 |
 | Sessões estimadas | 466 |
-| Horas estimadas | 21.1 |
-| Média de passos/pass | 8.3 |
+| Horas estimadas | 20.9 |
+| Média de passos/pass | 8.2 |
 
 ## Primeira vitória (sessão + minutos)
 
@@ -101,9 +101,13 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 ## Avisos
 
 - p1-primeiros-hanzi M4: 14 passos (alvo 6–9)
+- l11-falo-pouco M4: 3 passos (alvo 6–9)
+- l13-dialogo-nome M4: 3 passos (alvo 6–9)
+- l18 M4: 3 passos (alvo 6–9)
+- l24 M4: 3 passos (alvo 6–9)
 
 ## Falhas
 
 Nenhuma.
 
-<!-- integridade:49408a212fb12e58 -->
+<!-- integridade:0c210704908e2dd1 -->

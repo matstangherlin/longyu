@@ -205,7 +205,11 @@ try {
       if (interaction.wrongNextNodeId && !nodeIds.has(interaction.wrongNextNodeId)) {
         err("graph", refLabel, `wrongNextNodeId desconhecido: "${interaction.wrongNextNodeId}"`);
       }
-      if (interaction.type === "order_reply") {
+      if (interaction.type === "produce_reply") {
+        if (options.length) err("catalog", refLabel, "produção independente não pode ter alternativas");
+        if (!interaction.accepts?.length) err("catalog", refLabel, "produção independente sem respostas aceitas");
+        if (!interaction.wrongNextNodeId) err("catalog", refLabel, "produção independente sem reparo");
+      } else if (interaction.type === "order_reply") {
         if (options.length < 2) err("catalog", refLabel, "order_reply sem peças suficientes");
         // Montagem gulosa: a resposta precisa ser componível com as peças.
         let rest = cleanHanzi(interaction.correctAnswer);
@@ -754,15 +758,13 @@ try {
     // item deixar de violar, o portão exige que ele saia daqui.
     {
       const KNOWN_DEBT = new Map([
-        ["l11-falo-pouco/falar-de-estudo", ["char:na_which", "char:li_inside", "char:zai"]],
-        ["l25/onde-esta", ["chunk:nashirenm"]],
         ["l26b/pedir-cardapio", ["chunk:taiguile", "chunk:la"]],
         ["p6-rotina-trabalho/rotina-e-trabalho", ["char:dian_point"]],
-        ["p6-china-cidades-2/no-aeroporto", ["char:zai", "char:na_that", "char:li_inside"]],
-        ["p6-china-ruas/pegar-taxi", ["char:qu_go", "char:na_which", "char:li_inside"]],
-        ["p6-saude/nao-me-sinto-bem", ["char:zai", "char:na_that", "char:li_inside"]],
+        ["p6-china-cidades-2/no-aeroporto", ["char:na_that"]],
+        ["p6-china-ruas/pegar-taxi", ["char:qu_go"]],
+        ["p6-saude/nao-me-sinto-bem", ["char:na_that"]],
         ["p6-clima/como-esta-o-tempo", ["char:tai_too"]],
-        ["p6-survival-mandarin/checkin-hotel", ["char:de", "char:zai", "char:na_that", "char:li_inside"]],
+        ["p6-survival-mandarin/checkin-hotel", ["char:de", "char:na_that"]],
       ]);
       const stillOwed = new Set();
 

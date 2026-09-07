@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Commit | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:51:56.082Z |
+| Gerado em | 2026-09-07T13:04:36.774Z |
 | Lições | 127 |
-| Hash da Jornada | d47933a8c7dd |
+| Hash da Jornada | d4fbfb8878db |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Número de cenas | 47 |
-| Média de falas | 7.83 |
-| Média de intervenções | 2.81 |
-| Número de ramificações | 132 |
+| Média de falas | 8.02 |
+| Média de intervenções | 2.94 |
+| Número de ramificações | 138 |
 | Número de finais | 50 |
-| Vocabulário total exibido (refs únicas no plano real) | 132 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 132 |
+| Vocabulário total exibido (refs únicas no plano real) | 135 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 135 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 9.07 |
+| Palavras novas (refs únicas) | 4 |
+| Média de reutilizações por ref exibida | 8.77 |
 
 ## Cenas mais curtas
 
@@ -36,7 +36,6 @@
 | de-onde-sou | 6 | 2 |
 | nao-falo-chinês | 6 | 2 |
 | como-se-chama | 6 | 2 |
-| identificar-pessoa | 6 | 2 |
 | encontrar-amigo | 6 | 2 |
 | encontro-amanha | 6 | 2 |
 | conversa-em-casa | 6 | 2 |
@@ -55,16 +54,16 @@
 
 | Cena | Usos |
 |------|-----:|
-| packet-exchange-introductions | 12 |
 | como-se-chama | 9 |
+| me-apresentando | 8 |
+| encontro-amanha | 8 |
 | nao-falo-chinês | 8 |
-| encontro-amanha | 7 |
-| sala-de-aula | 6 |
-| falar-de-estudo | 6 |
-| pedir-agua | 6 |
-| apontar-natureza | 6 |
-| me-apresentando | 5 |
-| packet-exchange-courtesy | 5 |
+| falar-de-estudo | 8 |
+| pedir-agua | 7 |
+| packet-exchange-introductions | 6 |
+| packet-exchange-basic_questions | 5 |
+| fale-de-novo | 5 |
+| apontar-natureza | 5 |
 
 ## Cenas por cenário
 
@@ -145,4 +144,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:d8ddd76cd31852d2 -->
+<!-- integridade:e26ad6b3707ec5ae -->

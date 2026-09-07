@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | d47933a8c7dd |
-| HEAD no instante da geração | 5f48cdc51d6ee6b102cffe35a9b77b254872bd13 |
+| Hash da Jornada | d4fbfb8878db |
+| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-06T21:51:06.285Z |
+| Gerado em | 2026-09-07T13:04:46.998Z |
 | Lições | 127 |
 
 ## Resumo
@@ -22,9 +22,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Cenas V1 autorais (sem nós) | 0 |
 | Fallback V1 derivado (lines/checkpoint) | 47 |
 | Intenções distintas | 47 |
-| Passos autorais na jornada | 50 |
+| Passos autorais na jornada | 51 |
 | Lições com cena gerada no plano | 105 |
-| Cenas geradas distintas | 40 |
+| Cenas geradas distintas | 39 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
@@ -32,8 +32,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Papel | Cenas |
 |-------|------:|
-| common | 38 |
-| module_review | 6 |
+| common | 36 |
+| module_review | 8 |
 | immersion | 3 |
 
 ## Cenas por cenário
@@ -55,26 +55,26 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | perguntando-se-esta-bem | common | ask-wellbeing | 6 | 2 | sim | 1 | 2 | 0 |
 | agradecendo | common | thank | 6 | 2 | sim | 1 | 3 | 1 |
 | despedida | common | farewell | 6 | 2 | sim | 1 | 1 | 1 |
-| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 4 |
+| me-apresentando | common | introduce-self | 6 | 2 | sim | 1 | 1 | 7 |
 | revisao-cumprimento-completo | common | greet-review | 9 | 3 | sim | 1 | 0 | 2 |
 | pedir-repeticao | common | ask-repeat | 7 | 2 | sim | 1 | 2 | 4 |
 | cortesia-loja | common | polite-question | 7 | 2 | sim | 1 | 1 | 3 |
 | de-onde-sou | common | ask-origin | 6 | 2 | sim | 1 | 1 | 0 |
 | conhecer-alguem | module_review | meet-someone | 13 | 5 | sim | 1 | 1 | 0 |
 | nao-entendi-reparo | common | repair-not-understood | 8 | 3 | sim | 1 | 1 | 0 |
-| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 5 |
-| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 8 |
-| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 6 |
+| nao-falo-chinês | common | cannot-speak | 6 | 2 | sim | 1 | 1 | 6 |
+| como-se-chama | common | ask-name | 6 | 2 | sim | 1 | 2 | 9 |
+| pedir-agua | common | ask-water | 8 | 3 | sim | 1 | 1 | 7 |
 | pedir-cha | common | ask-tea | 7 | 2 | sim | 1 | 1 | 3 |
 | perguntar-quantidade | common | ask-quantity | 8 | 3 | sim | 1 | 1 | 0 |
-| identificar-pessoa | common | identify-person | 6 | 2 | sim | 1 | 1 | 0 |
+| identificar-pessoa | module_review | identify-person | 11 | 5 | sim | 1 | 1 | 0 |
 | encontrar-amigo | common | meet-friend | 6 | 2 | sim | 1 | 1 | 0 |
 | onde-esta | common | ask-where | 8 | 2 | sim | 1 | 1 | 1 |
-| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 4 |
-| sala-de-aula | common | classroom-intro | 7 | 2 | sim | 1 | 0 | 5 |
+| apontar-natureza | common | point-nature | 7 | 3 | sim | 1 | 1 | 5 |
+| sala-de-aula | module_review | classroom-intro | 11 | 5 | sim | 1 | 1 | 2 |
 | pedir-ajuda | common | ask-help | 7 | 2 | sim | 1 | 1 | 2 |
 | fale-de-novo | common | ask-slow-repeat | 7 | 3 | sim | 1 | 0 | 5 |
-| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 6 |
+| encontro-amanha | common | plan-tomorrow | 6 | 2 | sim | 1 | 1 | 7 |
 | o-que-e-isto | common | ask-what-object | 7 | 2 | sim | 1 | 1 | 2 |
 | conversa-em-casa | common | home-chat | 6 | 2 | sim | 1 | 0 | 1 |
 | conversa-na-loja | common | shop-chat | 8 | 3 | sim | 1 | 1 | 0 |
@@ -97,7 +97,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | como-esta-o-tempo | common | weather | 6 | 2 | sim | 1 | 1 | 0 |
 | checkin-hotel | common | hotel | 7 | 3 | sim | 1 | 1 | 0 |
 | no-aeroporto | common | airport | 6 | 2 | sim | 1 | 1 | 0 |
-| pegar-taxi | common | taxi | 7 | 3 | sim | 1 | 1 | 1 |
+| pegar-taxi | common | taxi | 7 | 3 | sim | 1 | 1 | 0 |
 
 ## Cenas nunca usadas
 
@@ -108,13 +108,19 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 | Indicador | Valor |
 |-----------|------:|
 | Variantes com manifesto gerado | 48 |
-| Itens de vocabulário mapeados | 628 |
+| Itens de vocabulário mapeados | 648 |
 | Textos exibidos sem referência canônica (aviso) | 0 |
-| Refs declarados nunca exibidos (aviso) | 0 |
+| Refs declarados nunca exibidos (aviso) | 3 |
+
+### Refs declarados que não aparecem no texto exibido (over-declaração)
+
+- identificar-pessoa (advanced): ref declarado nunca exibido → chunk:wohenhao
+- sala-de-aula (advanced): ref declarado nunca exibido → chunk:wojiao
+- sala-de-aula (advanced): ref declarado nunca exibido → chunk:wozaixuezhongwen
 
 
 ---
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:56c155c59f73d285 -->
+<!-- integridade:083fb7076a4e26c5 -->

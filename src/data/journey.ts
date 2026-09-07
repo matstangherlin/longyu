@@ -127,6 +127,7 @@ export type PedagogyVariant =
 
 export interface LessonStep {
   kind: StepKind;
+  lessonStageId?: LessonStageId;
   /** V4.9 — evidence used by the teach-before-test auditor. It never changes grading identity. */
   pedagogicalEvidence?: PedagogicalStepEvidence;
   objective?: string;
@@ -641,9 +642,30 @@ const write = (
   requiredTerms: guide.requiredTerms ?? [],
   wordBank: guide.wordBank ?? [],
   accepts: guide.accepts ?? [answer],
-  mode: guide.mode,
+  mode: guide.mode ?? "guided_write",
   placeholder,
   chunkId,
+});
+const postConversation = (
+  step: LessonStep,
+  sceneId: string,
+  coveredRef: string,
+  taskType: PostConversationTaskType,
+  index: number,
+  count = 2
+): LessonStep => ({
+  ...step,
+  lessonStageId: "post_conversation",
+  postConversationPhase: true,
+  postConversationTaskType: taskType,
+  postConversationIndex: index,
+  postConversationCount: count,
+  conversationDerived: true,
+  conversationSourceSceneId: sceneId,
+  conversationCoveredRef: coveredRef,
+  conversationModality: step.kind,
+  conversationExposureNumber: index,
+  conversationDerivedReason: "rule",
 });
 const recognize = (charId: string): LessonStep => ({ kind: "recognize", charId });
 const decompose = (charId: string): LessonStep => ({ kind: "decompose", charId });
@@ -3788,7 +3810,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             masteryLoop: true,
             newHanzi: ["习", "校"],
-            libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen", "chunk:nishixueshengma", "chunk:woxuexizhongwen", "chunk:wozaixuexiaoxuexi", "chunk:shiwoshixuesheng", "chunk:nixuexishenme"],
+            libraryItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen", "chunk:nishixueshengma", "chunk:woxuexizhongwen", "chunk:wozaixuexiaoxuexi", "chunk:shiwoshixuesheng", "chunk:nixuexishenme", "char:na_which", "char:li_inside", "char:zai"],
             reviewItems: ["chunk:wobuhui", "chunk:wohuishuoyidian", "chunk:qingzaishuoyibian", "chunk:wozaixuezhongwen"],
             rewardQi: 2,
             estimatedMinutes: 5,
@@ -3874,7 +3896,26 @@ export const JOURNEY: JourneyPhase[] = [
               flash("woxuexizhongwen"),
               flash("wozaixuexiaoxuexi"),
               listen("你在哪里学习？", "nǐ zài nǎlǐ xuéxí?", "Onde você estuda?"),
+              // V4.9.5A: explain the location frame already used here before declaring mastery.
+              intro("Onde você estuda", "Na pergunta, 哪里 significa onde: 哪 escolhe o lugar e 里 compõe a palavra. Na resposta, 在学校 situa o estudo na escola. Aqui 在 indica lugar; em 我在学中文, acompanha a ação em andamento."),
+              comp("你在哪里学习？", "nǐ zài nǎlǐ xuéxí?", "Onde você estuda?", ["Onde você estuda?", "O que você estuda?", "Você é estudante?", "Como você se chama?"]),
+              write(
+                "Escreva onde estuda",
+                "Diga onde você estuda usando a frase que acabou de ouvir.",
+                "我在学校学习",
+                "Digite a resposta em chinês",
+                "wozaixuexiaoxuexi",
+                { mode: "guided_write", accepts: ["我在学校学习", "我在学校学习。"] }
+              ),
               conversationScene("falar-de-estudo"),
+              postConversation(
+                dialogue("Retome o estudo", "Depois da conversa, qual resposta diz que você estuda chinês?", "我学习中文", ["我学习中文", "我很好", "你好", "谢谢"], "Recupere a resposta sobre estudo."),
+                "falar-de-estudo", "chunk:woxuexizhongwen", "situation_reply", 1
+              ),
+              postConversation(
+                sentenceBuild("Onde você estuda?", "Monte: eu estudo na escola.", ["我", "在", "学校", "学习"], ["我", "在", "学校", "学习", "朋友"], "A resposta retoma o local de estudo."),
+                "falar-de-estudo", "chunk:wozaixuexiaoxuexi", "build_used_answer", 2
+              ),
             ],
           },
         ],
@@ -4105,7 +4146,7 @@ export const JOURNEY: JourneyPhase[] = [
             reviewItems: ["chunk:nijiaoshenme", "chunk:wojiao", "chunk:wature", "chunk:qingzaishuoyibian"],
             rewardQi: 2,
             estimatedMinutes: 5,
-            newHanzi: ["英"],
+            newHanzi: ["英", "认", "识", "高", "兴"],
 
             steps: [
               read([
@@ -4121,7 +4162,7 @@ export const JOURNEY: JourneyPhase[] = [
               flash("qingzaishuoyibian"),
               listen("我有三个朋友", "wǒ yǒu sān ge péngyou", "Tenho três amigos"),
               dialogue(
-                "Fale de amigos",
+                "Escolha a frase sobre amigos",
                 "Depois de dizer quem você é, qual frase fala de amigos?",
                 "我有三个朋友",
                 ["我有三个朋友", "再见", "不客气", "我很好"],
@@ -4142,6 +4183,16 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "叫", "Matheus"],
                 ["我", "叫", "Matheus", "你", "什么"],
                 "我叫 + nome responde “eu me chamo...”."
+              ),
+              // Continuation of conhecer-alguem; all language is recall from l10/l11.
+              conversationScene("sala-de-aula"),
+              postConversation(
+                dialogue("Retome sua situação", "Depois da apresentação, qual frase diz que você é estudante?", "我是学生", ["我是学生", "我很好", "谢谢", "再见"], "Recupere a resposta sobre sua situação."),
+                "sala-de-aula", "chunk:woshixuesheng", "situation_reply", 1
+              ),
+              postConversation(
+                sentenceBuild("Recupere o estudo", "Monte: eu estudo chinês.", ["我", "学习", "中文"], ["我", "学习", "中文", "学生"], "A frase retoma o que você estuda."),
+                "sala-de-aula", "chunk:woxuexizhongwen", "build_used_answer", 2
               ),
             ],
           },
@@ -4664,6 +4715,9 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l18",
             title: "Amigo",
             skill: "hanzi",
+            libraryItems: ["chunk:pengyou", "char:peng", "char:you_friend", "char:ta", "char:ta_she"],
+            reviewItems: ["chunk:pengyou", "char:ta", "char:ta_she"],
+            newHanzi: ["他", "她"],
             steps: [
               decompose("peng"),
               flash("pengyou"),
@@ -4684,6 +4738,17 @@ export const JOURNEY: JourneyPhase[] = [
                 "朋友 / péngyou significa amigo.",
                 "Escolha"
               ),
+              listen("他", "tā", "ele"),
+              listen("她", "tā", "ela"),
+              intro("Falar de outra pessoa", "Os dois pronomes têm o mesmo som: tā. Na escrita, 他 retoma um homem e 她 retoma uma mulher. Você já diz quem é; agora pode falar de um amigo ou de uma amiga."),
+              comp("他", "tā", "ele", ["ele", "ela", "eu", "você"]),
+              comp("她", "tā", "ela", ["ela", "ele", "eu", "você"]),
+              listen("这是我朋友。他是学生。", "zhè shì wǒ péngyou. tā shì xuésheng.", "Este é meu amigo. Ele é estudante."),
+              listen("这是我朋友。她很好。", "zhè shì wǒ péngyou. tā hěn hǎo.", "Esta é minha amiga. Ela está bem."),
+              sentenceBuild("Monte a frase dele", "Seu amigo é estudante. Monte a resposta sobre ele.", ["他", "是", "学生"], ["他", "是", "学生", "我"], "Trocar quem faz parte da frase permite falar de outra pessoa."),
+              write("Fale dela", "Lin mostra uma foto de Mei, sua amiga. Diga que ela é estudante.", "她是学生。", "", undefined, { accepts: ["她是学生。"] }),
+              write("Mude a pessoa", "Agora Wang mostra uma foto de Lin, seu amigo. Diga que ele está bem.", "他很好。", "", undefined, { accepts: ["他很好。"] }),
+              write("Fale do amigo", "Wang é seu amigo e é estudante. Diga isso falando dele.", "他是学生。", "", undefined, { accepts: ["他是学生。"] }),
             ],
           },
           review("l7-rev", "hanzi", [decompose("ma2"), recognize("ming"), flash("pengyou")]),
@@ -5137,6 +5202,7 @@ export const JOURNEY: JourneyPhase[] = [
             libraryItems: [
               "chunk:zheshibaba",
               "chunk:zheshimama",
+              "chunk:nashirenm",
               "chunk:zheshiwodejia",
               "chunk:wohuijia",
               "chunk:woyoujiejie",
@@ -5192,22 +5258,8 @@ export const JOURNEY: JourneyPhase[] = [
                 ["妈妈", "爸爸", "朋友", "中文"],
                 "这是我妈妈 apresenta quem é sua mãe."
               ),
-              dialogue(
-                "Foto da família",
-                "Alguém aponta para seu pai na foto. O que você diz?",
-                "这是我爸爸",
-                ["这是我爸爸", "这是我妈妈", "这是什么？", "我喜欢中文"],
-                "这是我爸爸 apresenta seu pai em uma foto.",
-                "Pessoa"
-              ),
-              dialogue(
-                "Outra foto",
-                "Alguém aponta para sua mãe. O que você diz?",
-                "这是我妈妈",
-                ["这是我妈妈", "这是我爸爸", "我要这个", "我想喝茶"],
-                "这是我妈妈 apresenta sua mãe.",
-                "Pessoa"
-              ),
+
+
               // 家: a casa da família — conceito visual ligado a apresentar parentes.
               intro("Casa da família", "家 é casa e também família. Depois de apresentar pai e mãe, mostre onde vocês moram."),
               listen("家", "jiā", "casa; família"),
@@ -5244,9 +5296,19 @@ export const JOURNEY: JourneyPhase[] = [
                 "这是我家 aponta a casa.",
                 "Amigo"
               ),
-              // Cena autoral: identificar alguém à distância no momento certo do
-              // módulo Família (那是我妈妈), sem antecipar vocabulário.
+              // Preserve the prior distance-identification frame used by onde-esta.
+              listen("那是人吗？", "nà shì rén ma?", "Aquilo é uma pessoa?"),
+              flash("nashirenm"),
+              // Transfer from self/you to a person in a family photo.
               conversationScene("identificar-pessoa"),
+              postConversation(
+                write("Outra pessoa, outra relação", "Agora Lin é seu amigo e está bem. Apresente esse amigo e diga como ele está, sem repetir a relação na segunda frase.", "这是我朋友。他很好。", "", undefined, { accepts: ["这是我朋友。他很好。", "这是我朋友，他很好。"] }),
+                "identificar-pessoa", "chunk:pengyou", "produce_free", 1
+              ),
+              postConversation(
+                sentenceBuild("Descreva outra pessoa", "Monte: ela está bem.", ["她", "很", "好"], ["她", "很", "好", "他", "是"], "Troque o referente e fale dela."),
+                "identificar-pessoa", "char:ta_she", "build_used_answer", 2
+              ),
             ],
           },
           {

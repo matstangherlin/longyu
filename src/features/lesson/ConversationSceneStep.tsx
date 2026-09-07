@@ -30,6 +30,7 @@ import type { StepProps } from "./steps";
 import { t } from "../../i18n/catalog";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
+import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -539,7 +540,7 @@ function InteractionPanel({
     const attempt = isOrder ? ordered.join("") : isProduce ? draft.trim() : picked ?? "";
     if (!attempt) return;
     const matches = isProduce
-      ? acceptedAnswers.some((accepted) => conversationAnswersMatch(attempt, accepted))
+      ? evaluateLearnerResponse({ draft: attempt, acceptedAnswers }).accepted
       : conversationAnswersMatch(attempt, answer);
     if (matches) {
       setFeedback("correct");
@@ -1223,7 +1224,12 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         )}
 
         {phase === "checkpoint" && checkpoint && (
-          <CheckpointPanel
+          checkpoint.type === "produce_reply" ? <InteractionPanel
+            interaction={{ ...checkpoint, correctNextNodeId: "done" }}
+            onCorrect={onDone}
+            onLocalMistake={() => onMistake?.()}
+            onSkip={onSkip}
+          /> : <CheckpointPanel
             checkpoint={checkpoint}
             onMistake={onMistake}
             onDone={onDone}
