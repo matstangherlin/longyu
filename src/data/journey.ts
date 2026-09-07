@@ -3816,12 +3816,13 @@ export const JOURNEY: JourneyPhase[] = [
             estimatedMinutes: 5,
             steps: [
               listen("我会说一点中文", "wǒ huì shuō yìdiǎn Zhōngwén", "Sei falar um pouco de chinês"),
+              // O par mínimo é o ponto da lição: 会 e 不会 soam parecido e dizem o oposto.
               listenSelect(
                 "Toque no que ouviu",
-                "我会说一点中文",
-                ["我会说一点中文", "我不会说中文", "我听不懂", "谢谢"],
-                "我会说一点中文",
-                "会 fala de habilidade; 一点 suaviza para um pouco."
+                "我不会说中文",
+                ["我不会说中文", "我会说一点中文", "我听不懂", "谢谢"],
+                "我不会说中文",
+                "不会 nega a habilidade; 会 a afirma. Ouvir a diferença vem antes de escolher a frase."
               ),
               match(
                 "Blocos da frase",
@@ -3858,12 +3859,12 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               fillBlank(
                 "Complete o meio",
-                "Complete: 我会说 ___ 中文.",
-                "我会说",
-                "一点",
-                "中文",
-                ["一点", "不懂", "很好", "再见"],
-                "一点 deixa a frase mais modesta: um pouco."
+                "Complete: 我 ___ 说中文.",
+                "我",
+                "不会",
+                "说中文",
+                ["不会", "会", "一点", "再见"],
+                "不会 é o oposto de 会: aqui a frase diz que você não sabe falar."
               ),
               dialogue(
                 "Seja honesto no nível",
@@ -3872,12 +3873,14 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我会说一点中文", "我不会说中文", "再见", "不客气"],
                 "Essa frase ajuda a ajustar a expectativa da conversa."
               ),
+              // Quem fala pouco precisa do reparo tanto quanto da frase: 请再说一遍
+              // está nos itens desta lição e não era pedido em lugar nenhum.
               dialogue(
-                "O que você está fazendo?",
-                "Alguém pergunta o que você faz neste momento. O que você diz?",
-                "我在学中文",
-                ["我在学中文", "我会说一点中文", "再见", "谢谢"],
-                "我在学中文 responde com o que está acontecendo agora."
+                "Peça para repetir",
+                "A pessoa respondeu rápido demais e você não pegou nada. O que você diz?",
+                "请再说一遍",
+                ["请再说一遍", "我在学中文", "谢谢", "再见"],
+                "请再说一遍 mantém a conversa viva enquanto seu chinês ainda é pouco."
               ),
               translationBuild(
                 "Escreva em português",

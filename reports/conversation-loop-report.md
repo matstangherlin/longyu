@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e77045f102a3 |
-| HEAD no instante da geração | 29e2bbbb4f5b10c3ac46b6b51cc559cfc6640923 |
+| Hash da Jornada | 7d90b16b98e3 |
+| HEAD no instante da geração | a252f20bd472042a4304b3b89667a45415c94f25 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T14:22:49.491Z |
+| Gerado em | 2026-09-07T16:19:25.473Z |
 | Lições | 127 |
 
 ## Resumo
@@ -24,7 +24,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | **Itens de prioridade** (novo · resposta · pouco exposto) | 552 |
 | **Cobertura relevante** (portão ≥ 76 %) | **81.3 %** |
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
-| Reutilização média por item | 1.97 |
+| Reutilização média por item | 1.98 |
 | Itens sem cobertura | 202 |
 | Tarefas da fase Pós-Conversa | 557 |
 | Média Pós-Conversa por conversa | 4.04 |
@@ -41,7 +41,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - char:ni — 521 exposições ao longo dos 127 planos
 - char:hao — 495 exposições ao longo dos 127 planos
 - chunk:nihao — 347 exposições ao longo dos 127 planos
-- char:shi — 258 exposições ao longo dos 127 planos
+- char:shi — 259 exposições ao longo dos 127 planos
 - char:bu — 240 exposições ao longo dos 127 planos
 - char:yi — 215 exposições ao longo dos 127 planos
 - chunk:nijiaoshenme — 213 exposições ao longo dos 127 planos
@@ -51,7 +51,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - char:zai — 127 exposições ao longo dos 127 planos
 - chunk:xiexie — 108 exposições ao longo dos 127 planos
 - char:na_that — 108 exposições ao longo dos 127 planos
-- char:zhe — 107 exposições ao longo dos 127 planos
+- char:zhe — 108 exposições ao longo dos 127 planos
 - char:ri — 99 exposições ao longo dos 127 planos
 - chunk:wojiao — 98 exposições ao longo dos 127 planos
 - chunk:zaijian — 80 exposições ao longo dos 127 planos
@@ -66,8 +66,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - chunk:wature — 46 exposições ao longo dos 127 planos
 - chunk:woshixuesheng — 45 exposições ao longo dos 127 planos
 - char:yao — 45 exposições ao longo dos 127 planos
+- char:san — 43 exposições ao longo dos 127 planos
 - chunk:bukeqi — 43 exposições ao longo dos 127 planos
-- char:san — 42 exposições ao longo dos 127 planos
 - chunk:zaina — 41 exposições ao longo dos 127 planos
 
 ## Itens de prioridade sem cobertura
@@ -218,4 +218,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p5-ri-yue-ming:chunk:zheshishenme
 - …mais 122.
 
-<!-- integridade:6f26acb1b1a9bc85 -->
+<!-- integridade:0df3eacf30f3c3ae -->
