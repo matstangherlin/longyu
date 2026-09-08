@@ -22,6 +22,24 @@ export function loadIdentityRuntime() {
   return { lessons: ALL_LESSONS, scenes: CONVERSATION_SCENES, chunks: CHUNKS, characters: CHARACTERS, plans, debt, gloss: INSTRUCTION_GLOSS_EN, isCanonicalZhOrPinyin };
 }
 
+export function loadIntegratedLearningRuntime() {
+  const { ALL_LESSONS } = require("../../src/data/journey.ts");
+  const { CONVERSATION_SCENES } = require("../../src/data/conversationScenes.ts");
+  const { CHUNKS } = require("../../src/data/chunks.ts");
+  const { CHARACTERS } = require("../../src/data/characters.ts");
+  const { HANZI_MEMORY_TARGETS } = require("../../src/data/hanziMemoryTargets.ts");
+  const { foundationAuthoredPlanFor } = require("../../src/data/foundationTopicPlans.ts");
+  const tonePlans = Object.fromEntries([1, 2, 3, 4].map((pass) => [pass, foundationAuthoredPlanFor("p1-o-que-e-tom", pass) ?? []]));
+  return {
+    lessons: ALL_LESSONS,
+    scenes: CONVERSATION_SCENES,
+    chunks: CHUNKS,
+    characters: CHARACTERS,
+    hanziMemoryTargets: HANZI_MEMORY_TARGETS,
+    tonePlans,
+  };
+}
+
 export function loadRoutineTimeRuntime() {
   const { ALL_LESSONS } = require("../../src/data/journey.ts");
   const { CONVERSATION_SCENES } = require("../../src/data/conversationScenes.ts");
