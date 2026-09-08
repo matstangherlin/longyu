@@ -31,6 +31,7 @@ import { t } from "../../i18n/catalog";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { evaluateLearnerResponse } from "../../lib/learnerResponse";
+import { FreeAnswerField } from "./FreeAnswerField";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -602,23 +603,22 @@ function InteractionPanel({
           <p className="mt-2 text-sm text-ink-soft">
             {t("player.noChoicesThisTime")}
           </p>
-          <textarea
+          {/*
+            V4.9.5A.1 — produzir a própria fala numa conversa é o lugar mais
+            óbvio para responder falando, e era justamente onde só havia
+            teclado. O campo é o mesmo do resto do player: hànzì, pinyin ou
+            microfone, avaliados pelo mesmo evaluator.
+          */}
+          <FreeAnswerField
             value={draft}
-            onChange={(event) => {
-              setDraft(event.target.value);
+            onChange={(next) => {
+              setDraft(next);
               if (feedback !== "correct") setFeedback(null);
             }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                check();
-              }
-            }}
             disabled={feedback === "correct"}
-            rows={2}
             placeholder={t("player.writeHanziOrPinyin")}
-            aria-label={t("player.yourConversationAnswer")}
-            className="mt-3 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
+            ariaLabel={t("player.yourConversationAnswer")}
+            onSubmit={check}
           />
         </>
       ) : isOrder ? (
@@ -849,19 +849,14 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
       {strategyLocked && !done && (
         <>
           <p className="mt-4 text-sm font-medium text-ink">{t("player.nowSayMandarin")}</p>
-          <textarea
+          {/* Reparar uma conversa travada é falar. Mesmo campo, mesmo mic. */}
+          <FreeAnswerField
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                check();
-              }
-            }}
-            rows={2}
+            onChange={setDraft}
+            disabled={done}
             placeholder={t("player.writeHanziOrPinyin")}
-            aria-label={t("player.yourConversationAnswer")}
-            className="mt-2 w-full resize-none rounded-2xl border border-line bg-surface-2 p-3 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft"
+            ariaLabel={t("player.yourConversationAnswer")}
+            onSubmit={check}
           />
           <Button className="mt-3 w-full shadow-lift" disabled={draft.trim().length === 0} onClick={check}>
             {t("player.check")}
