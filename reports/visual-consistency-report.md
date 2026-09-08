@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e36445e08156 |
-| HEAD no instante da geração | 06f04ea958f15837703fc84e704603c9e3b47941 |
+| Hash da Jornada | f08cf7574ac3 |
+| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T13:10:28.427Z |
+| Gerado em | 2026-09-08T14:30:43.409Z |
 | Lições | 127 |
 
 ## Resumo
@@ -72,7 +72,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | crowd | 众 multidão | flat_illustration | transparent | 70.8 KB | 600×600 | — | — |
 | sky | 天 céu | flat_illustration | transparent | 4.1 KB | 600×600 | — | — |
 | woods | 林 bosque | flat_illustration | transparent | 34.5 KB | 600×600 | — | — |
-| forest | 森 floresta | flat_illustration | transparent | 65.7 KB | 600×600 | — | — |
+| forest | 森 floresta | flat_illustration | transparent | 65.1 KB | 600×600 | — | — |
 | horse | 马 cavalo | flat_illustration | transparent | 58.0 KB | 600×600 | — | — |
 | fish | 鱼 peixe | flat_illustration | transparent | 16.1 KB | 600×600 | — | — |
 | cat | 猫 gato | flat_illustration | transparent | 27.8 KB | 600×600 | — | — |
@@ -85,7 +85,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | meat | 肉 carne | flat_illustration | transparent | 11.9 KB | 600×600 | — | — |
 | vegetables | 菜 verdura | flat_illustration | transparent | 53.6 KB | 600×600 | — | — |
 | eat | 吃 comer | flat_illustration | transparent | 63.8 KB | 600×600 | — | — |
-| drink | 喝 beber | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
+| drink | 喝 beber | flat_illustration | transparent | 25.2 KB | 600×600 | — | — |
 | drinking_water | 一杯水 um copo de água | flat_illustration | transparent | 19.9 KB | 600×600 | — | — |
 | juice | 果汁 suco | flat_illustration | transparent | 20.0 KB | 600×600 | — | — |
 | beer | 啤酒 cerveja | flat_illustration | transparent | 20.3 KB | 600×600 | — | — |
@@ -94,8 +94,8 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | banana | 香蕉 banana | flat_illustration | transparent | 22.8 KB | 600×600 | — | — |
 | egg | 鸡蛋 ovo | flat_illustration | transparent | 20.7 KB | 600×600 | — | — |
 | book | 书 livro | flat_illustration | transparent | 24.5 KB | 600×600 | — | — |
-| car | 车 carro | flat_illustration | transparent | 34.4 KB | 600×600 | — | — |
-| home | 家 casa | flat_illustration | transparent | 50.6 KB | 600×600 | — | — |
+| car | 车 carro | flat_illustration | transparent | 33.7 KB | 600×600 | — | — |
+| home | 家 casa | flat_illustration | transparent | 50.1 KB | 600×600 | — | — |
 | money | 钱 dinheiro | flat_illustration | transparent | 33.7 KB | 600×600 | — | — |
 | ticket | 票 bilhete | flat_illustration | transparent | 7.2 KB | 600×600 | — | — |
 | phone | 手机 celular | flat_illustration | transparent | 23.1 KB | 600×600 | — | — |
@@ -139,4 +139,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:32e529fea8434663 -->
+<!-- integridade:4a59ae02674af286 -->
