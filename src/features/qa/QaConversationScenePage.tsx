@@ -7,7 +7,7 @@ import { ALL_LESSONS, type LessonStep } from "../../data/journey";
 /**
  * Fixture DEV/QA da cena de conversa — atrás do QaFastPathGate, como as demais.
  *
- * A cena que interessa aqui é a de PRODUÇÃO (`produce_reply`): o aluno escreve
+ * A cena que interessa aqui é a de produção livre (`produce_reply`): o aluno escreve
  * ou fala a própria resposta, sem alternativas. Chegar nela pela Jornada
  * depende do planner adaptativo e do progresso, então o Playwright encontraria
  * a tela em execuções diferentes — ou não encontraria. Aqui ele encontra o
