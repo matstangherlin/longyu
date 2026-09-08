@@ -15,6 +15,8 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import sharp from "sharp";
+import { findCanvasPlates } from "./lib/visual-transparency.mjs";
 
 const require = createRequire(import.meta.url);
 const rootDir = process.cwd();
@@ -23,6 +25,28 @@ const MAX_BYTES = 200 * 1024;
 const ALLOWED_EXTENSIONS = new Set([".svg", ".png", ".webp"]);
 const errors = [];
 const err = (ref, message) => errors.push({ ref, message });
+
+/**
+ * V4.9.5A.1 — contrato de transparência.
+ *
+ * `backgroundStyle: "transparent"` é uma promessa: fora do sujeito o canvas é
+ * vazio. Quem quebrou essa promessa até aqui foi o traçado dos SVGs, que
+ * desenhava o fundo da ilustração original como caminho — o retângulo claro que
+ * aparece em cima de qualquer superfície escura.
+ *
+ * O gate cobre os dois formatos com o que dá para verificar sem visão
+ * computacional: no SVG, a placa de canvas pela geometria; no raster, o canal
+ * alpha e os quatro cantos.
+ */
+function transparencyFailures(svgText) {
+  const plates = findCanvasPlates(svgText);
+  return plates.map(
+    (plate) =>
+      `placa de fundo ${plate.fill} cobrindo ${Math.round(plate.box.x1 - plate.box.x0)}×${Math.round(
+        plate.box.y1 - plate.box.y0
+      )} encostada na borda — "transparent" não aceita canvas opaco`
+  );
+}
 
 /** VIS-006: só fundo full-bleed (rect 600×600 ou path canvas inteiro), não flecks do VTracer. */
 function svgHasOpaqueMintBleed(svgText) {
@@ -138,6 +162,29 @@ try {
         }
         if (svgHasOpaqueMintBleed(svgText)) {
           err(ref, "SVG com fundo mint opaco full-bleed (VIS-006)");
+        }
+        if (concept.backgroundStyle === "transparent") {
+          for (const failure of transparencyFailures(svgText)) err(ref, failure);
+        }
+      } else if (concept.backgroundStyle === "transparent") {
+        // Raster: alpha de verdade e cantos vazados. Sem alpha o "transparent"
+        // é só uma etiqueta — e o card escuro mostra o retângulo.
+        const image = sharp(localPath);
+        const meta = await image.metadata();
+        if (!meta.hasAlpha) {
+          err(ref, `raster declarado transparent sem canal alpha (${extension})`);
+        } else {
+          const { data, info } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+          const alphaAt = (x, y) => data[(y * info.width + x) * info.channels + 3];
+          const corners = [
+            alphaAt(0, 0),
+            alphaAt(info.width - 1, 0),
+            alphaAt(0, info.height - 1),
+            alphaAt(info.width - 1, info.height - 1),
+          ];
+          if (corners.every((alpha) => alpha > 250)) {
+            err(ref, `raster declarado transparent com os 4 cantos opacos (alpha ${corners.join(", ")})`);
+          }
         }
       }
     } catch {
