@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e36445e08156 |
-| HEAD no instante da geração | b873149cd8c695be532080fa4385298f031bed5c |
+| Hash da Jornada | f08cf7574ac3 |
+| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T17:09:24.814Z |
+| Gerado em | 2026-09-08T14:41:53.638Z |
 | Lições | 127 |
 
 
@@ -247,4 +247,4 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **combinational_transfer:** contado acima — alvo inédito montado de componentes já ensinados.
 - **contextual_transfer:** reutilizar frase conhecida em situação nova (métrica separada; não infla novelTargets).
 
-<!-- integridade:3b8a907d9461acef -->
+<!-- integridade:87a6709f91e73eb3 -->

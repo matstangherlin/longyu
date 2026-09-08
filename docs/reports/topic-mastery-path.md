@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e36445e08156 |
-| HEAD no instante da geração | b873149cd8c695be532080fa4385298f031bed5c |
+| Hash da Jornada | f08cf7574ac3 |
+| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T16:41:11.045Z |
+| Gerado em | 2026-09-08T14:18:42.877Z |
 | Lições | 127 |
 
 
@@ -73,13 +73,13 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | O que é hànzì? | Ver hànzì como sistema de escrita, começando por 你 e 好. | Separar caractere de palavra e notar peças básicas. | Reconhecer e montar 你好 a partir das peças. | Ler 你好 em contexto conhecido com menos pinyin. |
 | Montando primeiros hànzì | Ver as peças dos primeiros hànzì. | Distinguir caracteres parecidos pelas peças. | Montar o caractere sem copiar um modelo completo. | Reconhecer o caractere montado numa palavra já ouvida. |
 | Laboratório de exercícios | Descobrir como cada tipo de exercício do laboratório funciona. | Distinguir ouvir × escolher × montar neste laboratório. | Completar as tarefas do laboratório com menos explicação. | Aplicar o mesmo motor a um item já conhecido. |
-| Mandarim, pinyin e tom | Descobrir os itens de Mandarim, pinyin e tom com áudio e sentido. | Reconhecer e distinguir os itens de Mandarim, pinyin e tom por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Mandarim, pinyin e tom. | Usar Mandarim, pinyin e tom numa micro-situação nova. |
+| Mandarim, pinyin e tom | Descobrir os itens de Mandarim, pinyin e tom com áudio e sentido. | Reconhecer e distinguir os itens de Mandarim, pinyin e tom. | Nomear, pedir ou responder com o núcleo de Mandarim, pinyin e tom. | Usar Mandarim, pinyin e tom numa micro-situação nova. |
 | Olá | Descobrir 你好 como cumprimento. | Reconhecer 你好 e 早上好 de ouvido. | Dizer ou montar o cumprimento. | Usar 你好 numa situação de encontro. |
 | Tudo bem? | Descobrir 你好吗？ e 我很好. | Distinguir cumprimento × pergunta × resposta. | Produzir a pergunta ou a resposta. | Trocar ‘tudo bem?’ numa situação nova. |
 | Obrigado | Descobrir 谢谢. | Reconhecer 谢谢 e 不客气. | Produzir o agradecimento ou a resposta. | Agradecer numa situação de ajuda. |
 | Até logo | Descobrir 再见 como despedida. | Distinguir 再见 de 你好 e 谢谢. | Produzir a despedida. | Encerrar uma conversa curta. |
 | Primeira conversa | Rever os atos da primeira conversa. | Ordenar cumprimento, pergunta e despedida. | Produzir os turnos com menos apoio. | Fechar a microconversa numa situação nova. |
-| Com licença | Descobrir os itens de Com licença com áudio e sentido. | Reconhecer e distinguir os itens de Com licença por áudio/imagem. | Nomear, pedir ou responder com o núcleo de Com licença. | Usar Com licença numa micro-situação nova. |
+| Com licença | Descobrir os itens de Com licença com áudio e sentido. | Reconhecer e distinguir os itens de Com licença. | Nomear, pedir ou responder com o núcleo de Com licença. | Usar Com licença numa micro-situação nova. |
 | 1º tom com ma | Ouvir a reta alta do 1º tom. | Discriminar 1º tom dos outros contornos de ma. | Identificar mā sem ver a resposta. | Reconhecer 1º tom numa palavra já usada. |
 | 2º tom com ma | Ouvir a subida do 2º tom. | Discriminar 2º × outros tons de ma. | Identificar má. | Levar o 2º tom a uma sílaba conhecida. |
 | 我很好 — Estou bem | Descobrir 我很好 como 'estou bem'. | Distinguir 我很好 de 你好 / 谢谢. | Produzir 我很好 ao responder. | Encaixar 我很好 num mini-diálogo. |
@@ -107,4 +107,4 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 Nenhuma.
 
-<!-- integridade:b5dee89a0339590e -->
+<!-- integridade:27b665e45dbc1925 -->

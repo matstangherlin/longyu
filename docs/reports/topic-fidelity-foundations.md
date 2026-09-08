@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e36445e08156 |
-| HEAD no instante da geração | b873149cd8c695be532080fa4385298f031bed5c |
+| Hash da Jornada | f08cf7574ac3 |
+| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-07T16:41:18.167Z |
+| Gerado em | 2026-09-08T14:18:47.899Z |
 | Lições | 127 |
 
 
@@ -209,7 +209,7 @@ Promessa: Tom é o contorno da voz e faz parte da palavra em mandarim.
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Tons em palavras reais |
-| 2 | listen_select | DIRECT_TOPIC | 你好 de ouvido |
+| 2 | listen_select | DIRECT_TOPIC | O cumprimento de ouvido |
 | 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
 | 4 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
 | 5 | dialogue_choice | DIRECT_TOPIC | Produção com contorno |
@@ -282,5 +282,5 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:6d54557d42dd57c4 -->
+<!-- integridade:d7a8334a3b948f4d -->
 
