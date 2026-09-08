@@ -33,6 +33,7 @@ import {
 import { isTopicMasteryLesson } from "../../data/topicMastery";
 import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
 import { identityPeoplePlanFor } from "../../data/identityPeoplePlans";
+import { routineTimePlanFor } from "../../data/routineTimePlans";
 import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
 import {
   isReviewMasteryLesson,
@@ -7194,6 +7195,14 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
   const identityPlan = identityPeoplePlanFor(lesson, identityPass, context.silent === true && context.masteryPass == null);
   if (identityPlan) {
     return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(identityPlan.map(step => ({
+      ...step, generated: false, masteryPass: identityPass,
+      practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+      lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),
+    }))));
+  }
+  const routineTimePlan = routineTimePlanFor(lesson, identityPass, context.silent === true && context.masteryPass == null);
+  if (routineTimePlan) {
+    return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(routineTimePlan.map(step => ({
       ...step, generated: false, masteryPass: identityPass,
       practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
       lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),

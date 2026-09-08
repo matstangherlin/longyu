@@ -5844,7 +5844,7 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             // Chars de rotina/trabalho que ainda não têm entrada própria em
             // CHARACTERS (têm gloss) — declarados aqui para o corpus aceitar.
-            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司", "做"],
+            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司", "做", "晚"],
             // Vocabulário novo de rotina/trabalho (chunks); os antigos (你好/谢谢)
             // aparecem como distratores para misturar repertório.
             libraryItems: [
@@ -5860,6 +5860,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:nijidianshangban",
               "chunk:nijidianqichuang",
               "chunk:woqidianqichuang",
+              "char:dian_point",
             ],
             reviewItems: [
               "chunk:woqichuang",
@@ -5880,6 +5881,14 @@ export const JOURNEY: JourneyPhase[] = [
               listen("我下班", "wǒ xiàbān", "Saio do trabalho"),
               listen("我要工作", "wǒ yào gōngzuò", "Quero trabalhar"),
               listen("我睡觉", "wǒ shuìjiào", "Eu durmo"),
+              imageChoice(
+                "choose_meaning",
+                "home",
+                "O que esta imagem mostra?",
+                "casa",
+                visualMeaningOptions("home"),
+                { explanation: "家 (jiā) = casa. A rotina começa e termina em casa." }
+              ),
               match(
                 "A rotina em ordem",
                 "Combine cada frase com o momento do dia.",
@@ -5945,7 +5954,49 @@ export const JOURNEY: JourneyPhase[] = [
               flash("woqidianqichuang"),
               flash("nijidianshangban"),
               listen("你几点上班？", "nǐ jǐ diǎn shàngbān?", "A que horas você começa o trabalho?"),
+              write(
+                "Diga quando você acorda",
+                "Você está combinando o dia com Mei. Diga quando você acorda.",
+                "我七点起床",
+                "Digite a resposta em chinês",
+                "woqidianqichuang",
+                { accepts: ["我七点起床", "我七点起床。", "七点起床"] }
+              ),
+              write(
+                "Diga quando você dorme",
+                "Agora fale da noite. Diga o que você faz à noite.",
+                "我晚上睡觉",
+                "Digite a resposta em chinês",
+                "woshujiao",
+                { accepts: ["我晚上睡觉", "我晚上睡觉。", "晚上睡觉"] }
+              ),
               conversationScene("rotina-e-trabalho"),
+              postConversation(
+                listenSelect(
+                  "Que horas começa?",
+                  "八点",
+                  ["七点", "八点", "九点"],
+                  "八点",
+                  "八点 é o horário de começar o trabalho."
+                ),
+                "rotina-e-trabalho",
+                "char:ba8",
+                "listen_choose",
+                1
+              ),
+              postConversation(
+                sentenceBuild(
+                  "Monte a noite",
+                  "Monte: à noite eu durmo.",
+                  ["我", "晚上", "睡觉"],
+                  ["我", "晚上", "睡觉", "起床"],
+                  "我晚上睡觉 combina tempo e ação."
+                ),
+                "rotina-e-trabalho",
+                "chunk:woshujiao",
+                "build_used_answer",
+                2
+              ),
             ],
           }),
           withLessonDefaults({
@@ -6585,8 +6636,8 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            // 午 é o único char só-gloss usado aqui (中 está em CHARACTERS).
-            newHanzi: ["午", "半", "下"],
+            // 午 is the only gloss-only clock char already here; 候 enters with 什么时候.
+            newHanzi: ["午", "半", "下", "候"],
             libraryItems: [
               "chunk:xianzaijidian",
               "chunk:xianzaibadian",
@@ -6595,6 +6646,17 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:badianban",
               "chunk:xiawusandian",
               "chunk:jiudianshifen",
+              "chunk:xianzai",
+              "chunk:jintian",
+              "chunk:mingtian",
+              "chunk:zuotian",
+              "chunk:shenmeshihou",
+              "char:ji_how",
+              "char:jin_now",
+              "char:zuo_yesterday",
+              "char:xian_now",
+              "char:shi_time",
+              "char:ban_half",
             ],
             reviewItems: [
               "chunk:xianzaijidian",
@@ -6603,6 +6665,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:zhongwu",
               "chunk:zaoshanghao",
               "chunk:wanan",
+              "chunk:jintian",
+              "chunk:mingtian",
             ],
             steps: [
               intro(
@@ -6613,6 +6677,32 @@ export const JOURNEY: JourneyPhase[] = [
               listen("现在八点", "xiànzài bā diǎn", "São oito horas"),
               listen("现在九点", "xiànzài jiǔ diǎn", "São nove horas"),
               listen("中午", "zhōngwǔ", "Meio-dia"),
+              listen("八点半", "bā diǎn bàn", "Oito e meia"),
+              listen("昨天", "zuótiān", "Ontem"),
+              listen("今天", "jīntiān", "Hoje"),
+              listen("明天", "míngtiān", "Amanhã"),
+              imageChoice(
+                "choose_meaning",
+                "moon",
+                "O que esta imagem mostra?",
+                "lua",
+                visualMeaningOptions("moon"),
+                { explanation: "月 (yuè) = lua / mês. Em 九月八号, 月 marca o mês." }
+              ),
+              listenSelect(
+                "Quando?",
+                "明天",
+                ["hoje", "amanhã", "ontem"],
+                "amanhã",
+                "Você ouviu 明天: amanhã."
+              ),
+              listenSelect(
+                "Qual é a data?",
+                "九月八号",
+                ["7 de setembro", "8 de setembro", "9 de setembro"],
+                "8 de setembro",
+                "九月八号 lê o mês e o dia: 8 de setembro."
+              ),
               match(
                 "Combine a hora",
                 "Combine cada relógio com a frase.",
@@ -6623,39 +6713,9 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
                 "八点 é 8h, 九点 é 9h, 中午 é meio-dia."
               ),
-              listenSelect("Que horas?", "九点", ["八点", "九点", "中午", "现在几点"], "九点", "九点 = 9 horas."),
-              comp("现在几点？", "xiànzài jǐ diǎn?", "Que horas são?", ["Que horas são?", "São oito horas.", "Meio-dia.", "Estou bem."]),
-              sentenceBuild(
-                "Monte a pergunta",
-                "Monte: que horas são?",
-                ["现", "在", "几", "点"],
-                ["现", "在", "几", "点", "八"],
-                "现在几点？ pergunta a hora."
-              ),
-              sentenceBuild(
-                "Monte: são oito",
-                "Monte: são oito horas.",
-                ["现", "在", "八", "点"],
-                ["现", "在", "八", "点", "九"],
-                "现在八点 = são oito horas."
-              ),
-              fillBlank(
-                "Complete: meio-dia",
-                "Complete: meio-dia.",
-                "中",
-                "午",
-                "",
-                ["午", "点"],
-                "中午 = meio-dia."
-              ),
-              dialogue(
-                "Pergunte a hora",
-                "Você quer saber as horas. O que pergunta?",
-                "现在几点？",
-                ["现在几点？", "现在八点", "中午", "再见"],
-                "现在几点？ pergunta as horas.",
-                "Situação"
-              ),
+              flash("badianban"),
+              flash("shenmeshihou"),
+              flash("zuotian"),
               dialogue(
                 "Responda a hora",
                 "São nove horas. O que você diz?",
@@ -6664,10 +6724,89 @@ export const JOURNEY: JourneyPhase[] = [
                 "现在九点 = são nove horas.",
                 "Situação"
               ),
-              listen("八点半", "bā diǎn bàn", "Oito e meia"),
-              listen("下午三点", "xiàwǔ sān diǎn", "Três da tarde"),
-              flash("badianban"),
+              write(
+                "Diga oito e meia",
+                "Alguém pergunta as horas. São oito e meia. Responda.",
+                "八点半",
+                "Digite a resposta em chinês",
+                "badianban",
+                { accepts: ["八点半", "八点半。", "现在八点半", "现在八点半。"] }
+              ),
+              write(
+                "Pergunte que horas são",
+                "Você precisa saber as horas. Pergunte.",
+                "现在几点？",
+                "Digite a resposta em chinês",
+                "xianzaijidian",
+                { accepts: ["现在几点？", "现在几点"] }
+              ),
+              write(
+                "Diga ontem",
+                "Alguém pergunta o dia. Diga ontem.",
+                "昨天",
+                "Digite a resposta em chinês",
+                "zuotian",
+                { accepts: ["昨天", "昨天。"] }
+              ),
+              write(
+                "Diga o que você faz hoje",
+                "Mei pergunta o que você faz hoje. Diga que estuda.",
+                "我今天学习",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["我今天学习", "我今天学习。", "今天我学习", "今天我学习。"] }
+              ),
+              write(
+                "Diga o plano de amanhã",
+                "Vocês combinam o dia seguinte. Diga que amanhã você vai.",
+                "我明天去",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["我明天去", "我明天去。", "明天我去", "明天我去。"] }
+              ),
+              write(
+                "Diga a data",
+                "Alguém pergunta a data. É o dia 8 de setembro. Responda.",
+                "九月八号",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["九月八号", "九月八号。"] }
+              ),
+              write(
+                "Pergunte quando a pessoa vai",
+                "Você quer saber quando a outra pessoa vai. Pergunte.",
+                "你什么时候去？",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["你什么时候去？", "你什么时候去", "什么时候？", "什么时候"] }
+              ),
               conversationScene("que-horas-sao"),
+              postConversation(
+                listenSelect(
+                  "Que horas ouviu?",
+                  "八点半",
+                  ["八点", "八点半", "九点"],
+                  "八点半",
+                  "八点半 = oito e meia."
+                ),
+                "que-horas-sao",
+                "chunk:badianban",
+                "listen_choose",
+                1
+              ),
+              postConversation(
+                sentenceBuild(
+                  "Monte agora",
+                  "Monte: agora.",
+                  ["现", "在"],
+                  ["现", "在", "天"],
+                  "现在 diz o momento: agora."
+                ),
+                "que-horas-sao",
+                "chunk:xianzai",
+                "build_used_answer",
+                2
+              ),
             ],
           }),
           microLesson({

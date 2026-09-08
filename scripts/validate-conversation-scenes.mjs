@@ -759,7 +759,6 @@ try {
     {
       const KNOWN_DEBT = new Map([
         ["l26b/pedir-cardapio", ["chunk:taiguile", "chunk:la"]],
-        ["p6-rotina-trabalho/rotina-e-trabalho", ["char:dian_point"]],
         ["p6-china-cidades-2/no-aeroporto", ["char:na_that"]],
         ["p6-china-ruas/pegar-taxi", ["char:qu_go"]],
         ["p6-saude/nao-me-sinto-bem", ["char:na_that"]],

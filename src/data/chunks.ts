@@ -145,6 +145,10 @@ export const CHUNKS: Chunk[] = [
   { id: "xianzaibadian", hanzi: "现在八点", pinyin: "xiànzài bā diǎn", meaningPt: "São oito horas.", literalPt: "agora oito ponto", tags: ["tempo"], domain: "tempo", level: "survival" },
   { id: "xianzaijiudian", hanzi: "现在九点", pinyin: "xiànzài jiǔ diǎn", meaningPt: "São nove horas.", literalPt: "agora nove ponto", tags: ["tempo"], domain: "tempo", level: "survival" },
   { id: "zhongwu", hanzi: "中午", pinyin: "zhōngwǔ", meaningPt: "Meio-dia.", literalPt: "meio + meio-dia", tags: ["tempo"], domain: "tempo", level: "survival" },
+  { id: "xianzai", hanzi: "现在", pinyin: "xiànzài", meaningPt: "Agora.", literalPt: "agora + estar", tags: ["tempo"], domain: "tempo", level: "survival" },
+  { id: "jintian", hanzi: "今天", pinyin: "jīntiān", meaningPt: "Hoje.", literalPt: "atual + dia", tags: ["tempo"], domain: "tempo", level: "survival" },
+  { id: "mingtian", hanzi: "明天", pinyin: "míngtiān", meaningPt: "Amanhã.", literalPt: "claro + dia", tags: ["tempo"], domain: "tempo", level: "survival" },
+  { id: "zuotian", hanzi: "昨天", pinyin: "zuótiān", meaningPt: "Ontem.", literalPt: "ontem + dia", tags: ["tempo"], domain: "tempo", level: "survival" },
 
   // --- Natureza ---
   { id: "tianshangyouyun", hanzi: "天上有云", pinyin: "tiān shàng yǒu yún", meaningPt: "Há nuvens no céu.", literalPt: "céu em cima ter nuvem", tags: ["natureza"], domain: "verbo", level: "elementary" },
