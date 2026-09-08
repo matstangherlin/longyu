@@ -108,6 +108,29 @@ export type ConversationInteractionType =
   // cena o bastante para merecer perder o apoio (ver unaidedConversationScene).
   | "produce_reply";
 
+/** Speech-act contract for conversation-coherence (not an LLM judge). */
+export type ConversationSpeechAct =
+  | "greet"
+  | "farewell"
+  | "ask_time"
+  | "tell_time"
+  | "ask_when"
+  | "tell_when"
+  | "ask_location"
+  | "tell_location"
+  | "ask_job"
+  | "tell_job"
+  | "thank"
+  | "acknowledge_thanks"
+  | "confirm_plan"
+  | "acknowledge"
+  | "ask_name"
+  | "tell_name"
+  | "ask_wellbeing"
+  | "tell_wellbeing";
+
+export type ConversationRepairType = "repeat" | "clarify" | "confirm_time" | "reask";
+
 export interface ConversationInteraction {
   type: ConversationInteractionType;
   prompt: string;
@@ -124,6 +147,12 @@ export interface ConversationInteraction {
   accepts?: string[];
   /** Alternativas que o passo TINHA antes de perder o apoio (para a correção). */
   removedOptions?: string[];
+  /** NPC move this turn is asking/doing. */
+  speechAct?: ConversationSpeechAct;
+  /** Learner move this turn should realize. */
+  expectedResponseAct?: ConversationSpeechAct;
+  /** Why the repair line exists (heard / understood / time / topic). */
+  repairType?: ConversationRepairType;
 }
 
 export interface ConversationNode {
@@ -2227,7 +2256,7 @@ sceneV2({
   sceneRole: "common",
   entryNodeId: "amanha-1",
   nodes: ROUTINE_TIME_TOMORROW_NODES,
-  learnedRefs: ["chunk:mingtianjian", "chunk:nihao", "chunk:zaijian", "chunk:qingzaishuoyibian", "chunk:xiexie"],
+  learnedRefs: ["chunk:mingtianjian", "chunk:nihao", "chunk:zaijian", "char:hao"],
 }),
 sceneV2({
   sceneId: "o-que-e-isto",
@@ -3626,16 +3655,17 @@ sceneV2({
   entryNodeId: "rotina-1",
   nodes: ROUTINE_TIME_ROUTINE_NODES,
   learnedRefs: [
-    "chunk:nizuoshenmegongzuo",
+    "chunk:nizainagongzuo",
     "chunk:wozaigongsishangban",
     "chunk:nijidianqichuang",
     "chunk:woqidianqichuang",
     "chunk:nijidianshangban",
-    "chunk:qingzaishuoyibian",
-    "chunk:xiexie",
+    "chunk:shangban",
+    "chunk:zaijian",
     "char:hao",
     "char:ba8",
     "char:dian_point",
+    "char:ma_question",
   ],
 }),
 sceneV2({
@@ -3652,9 +3682,11 @@ sceneV2({
     "chunk:badianban",
     "chunk:xianzai",
     "chunk:shenmeshihou",
-    "chunk:qingzaishuoyibian",
-    "chunk:xiexie",
+    "chunk:zaijian",
     "char:hao",
+    "char:ba8",
+    "char:dian_point",
+    "char:ma_question",
   ],
 }),
 sceneV2({
