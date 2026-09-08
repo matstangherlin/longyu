@@ -892,7 +892,7 @@ export function audioToAction(
     kind: "audio_to_action",
     title,
     audioText,
-    prompt: "Ouca e escolha a acao/imagem correspondente.",
+    prompt: "Ouca e toque no que voce ouviu.",
     correctAnswer,
     options,
     explanation,

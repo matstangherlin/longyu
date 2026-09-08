@@ -271,7 +271,7 @@ const AUTHORED_BONUS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Tons que você já usa",
         "你好 são dois 3º tons; juntos você ouve ní hǎo. O tom não mora só no drill de ma."
       ),
-      listenSelect("你好 de ouvido", "你好", ["你好", "谢谢", "妈"], "你好", "Leve o contorno para um chunk conhecido."),
+      listenSelect("O cumprimento de ouvido", "你好", ["你好", "谢谢", "妈"], "你好", "Leve o contorno para um chunk conhecido."),
       contextualChoice(
         "Na rua",
         "Você vai cumprimentar. Qual curva você precisa acertar em 你好?",

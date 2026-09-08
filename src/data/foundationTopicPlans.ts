@@ -572,7 +572,7 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
         "Tons em palavras reais",
         "Leve as quatro curvas para palavras conhecidas. Em fala natural, 你好 é escrito nǐ hǎo e costuma soar ní hǎo."
       ),
-      listenSelect("你好 de ouvido", "你好", ["你好", "妈", "马"], "你好", "Leve o contorno para um chunk conhecido."),
+      listenSelect("O cumprimento de ouvido", "你好", ["你好", "妈", "马"], "你好", "Leve o contorno para um chunk conhecido."),
       toneStep("好", "hǎo", 3, "quiz", [1, 2, 3, 4]),
       toneStep("骂", "mà", 4, "quiz", [1, 2, 3, 4]),
       dialogue(

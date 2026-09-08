@@ -66,7 +66,7 @@ function audioToAction(
     kind: "audio_to_action",
     title,
     audioText,
-    prompt: "Ouça e escolha a ação/imagem correspondente.",
+    prompt: "Ouça e toque no que você ouviu.",
     correctAnswer,
     options,
     explanation,

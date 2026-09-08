@@ -5081,7 +5081,13 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
       case "flashcard": return <StepFlashcard step={personalizedStep} onDone={onDone} />;
       case "microread": return <StepMicroread step={personalizedStep} onDone={onDone} />;
       case "match_pairs": return <StepMatchPairs step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "listen_select": return <StepListenSelect step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      // V4.9.5A.1 — audio_to_action é escuta: tem audioText e pede que o aluno
+      // reconheça o que ouviu. Ia parar no renderer de diálogo, que nunca toca
+      // áudio nenhum: a tarefa dizia "Ouça" e não havia o que ouvir, nem botão
+      // de repetir. StepListenSelect é o renderer que cumpre a promessa.
+      case "listen_select":
+      case "audio_to_action":
+        return <StepListenSelect step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
       case "sentence_build":
         return (
           <StepSentenceBuild
@@ -5108,7 +5114,6 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
       case "dialogue_choice":
       case "contextual_choice":
       case "dialogue_completion":
-      case "audio_to_action":
       case "place_label":
       case "city_context":
       case "sign_reading":
