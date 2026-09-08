@@ -14,6 +14,10 @@ const assert = (condition, message) => {
 };
 
 const steps = await readFile(path.join(rootDir, "src/features/lesson/steps.tsx"), "utf8");
+// V4.9.5A.1 — o campo de resposta aberta saiu de steps.tsx para ser o mesmo em
+// todo lugar (conversa inclusive). O contrato não mudou de dono, só de arquivo.
+const freeAnswer = await readFile(path.join(rootDir, "src/features/lesson/FreeAnswerField.tsx"), "utf8");
+const conversation = await readFile(path.join(rootDir, "src/features/lesson/ConversationSceneStep.tsx"), "utf8");
 const player = await readFile(path.join(rootDir, "src/features/lesson/LessonPlayer.tsx"), "utf8");
 const speech = await readFile(path.join(rootDir, "src/lib/speech.ts"), "utf8");
 const pronunciation = await readFile(
@@ -29,7 +33,29 @@ assert(/player\.unrecognizedLead/.test(steps) || /Não entendi essa forma — n�
 assert(/parentOnDoneRef/.test(steps), "callback de conclusão permanece estável durante rerenders");
 assert(/completionSentRef/.test(steps), "conclusão de cada tarefa é enviada uma única vez");
 assert(/Monte · com intrusos/.test(steps), "eyebrow Sentence Lab em PT");
-assert(/player\.listeningTapStop/.test(steps) || /Ouvindo… toque para parar/.test(steps), "mic com stop");
+assert(
+  /player\.listeningTapStop/.test(freeAnswer) || /Ouvindo… toque para parar/.test(freeAnswer),
+  "mic com stop"
+);
+
+// ————————————————————————————————————————————————————————————————
+// V4.9.5A.1 — a affordance de voz é uma só, e a conversa não fica de fora.
+// A regressão que isto guarda: um <textarea> próprio numa tela de produção,
+// prometendo "escreva em hànzì ou pinyin" e sem caminho de fala nenhum.
+// ————————————————————————————————————————————————————————————————
+assert(/data-testid="free-answer-mic"/.test(freeAnswer), "campo aberto expõe o microfone");
+assert(
+  /if \(!value\.trim\(\)\) onChange\(transcript\);/.test(freeAnswer) &&
+    /setPendingTranscript\(transcript\)/.test(freeAnswer),
+  "fala propõe quando já existe texto, em vez de sobrescrever"
+);
+assert(/isRecognitionAvailable\(\) && isSecureMicContext\(\)/.test(freeAnswer), "fallback sem speech continua digitável");
+assert(!/<textarea/.test(conversation), "cena de conversa usa o campo compartilhado, não um textarea próprio");
+assert(/FreeAnswerField/.test(conversation), "produce_reply e reparo usam FreeAnswerField");
+assert(
+  (steps.match(/<textarea/g) ?? []).length <= 1,
+  "só o ditado mantém campo próprio (transcrever é a tarefa; falar não seria)"
+);
 assert(/not-allowed/.test(steps) && !/speechErrorMessage\(permission === "denied" \? "denied"/.test(steps), "mic denied mapeado");
 
 assert(!/Você errou \${count}/.test(player) && !/Você errou \$\{count\}/.test(player), "oferta sem 'Você errou'");
