@@ -11,6 +11,8 @@ const DISCRIMINATION_KINDS = new Set([
   "audio_discrimination",
   "odd_one_out",
   "compare_with_image",
+  "tone",
+  "tone_pair",
 ]);
 const PRODUCTION_TEACHING_KINDS = new Set([
   "dialogue_choice",

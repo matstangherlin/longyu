@@ -493,9 +493,15 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
     1: [
       intro(
         "A curva faz parte da palavra",
-        "Em mandarim o contorno da voz não é emoção nem volume: faz parte da palavra. Ouça só a diferença entre reta alta e vale."
+        "Em mandarim o tom faz parte da sílaba. A mesma base sonora com outro contorno pode ser outra palavra. O pinyin marca esse contorno. Não é volume nem emoção: é o desenho da voz. Ouça a reta alta."
       ),
+      listen("妈", "mā", "mãe"),
       toneStep("妈", "mā", 1, "guided", [1, 3]),
+      intro(
+        "O vale",
+        "O outro contorno desce e volta a subir quando a sílaba vem sozinha. Na fala real, esse vale muitas vezes fica só baixo e curto, sem completar toda a subida. Ouça."
+      ),
+      listen("马", "mǎ", "cavalo"),
       toneStep("马", "mǎ", 3, "guided", [1, 3]),
       listenSelect(
         "Qual ficou reto?",
@@ -531,21 +537,33 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
     ],
     2: [
       intro("Duas curvas novas", "Você já conhece a reta e o vale. Agora ouça uma curva que sobe e outra que cai."),
+      listen("麻", "má", "cânhamo; dormente"),
       toneStep("麻", "má", 2, "guided", [1, 2]),
+      listen("骂", "mà", "xingar"),
       toneStep("骂", "mà", 4, "guided", [2, 4]),
-      listenSelect("Qual curva sobe?", "麻", ["麻", "骂"], "麻", "má sobe: é o 2º tom."),
-      listenSelect("Qual curva cai?", "骂", ["麻", "骂"], "骂", "mà cai: é o 4º tom."),
-      dialogue(
-        "1º × 2º",
-        "Qual comparação está correta?",
-        "1º fica reto; 2º sobe",
-        ["1º fica reto; 2º sobe", "1º sobe; 2º cai", "os dois fazem vale", "os dois são neutros"]
+      intro(
+        "Os quatro contornos",
+        "1º: alto e estável. 2º: sobe. 3º: vale; na fala real muitas vezes não completa a subida. 4º: queda forte. Ouça os contrastes que mais ajudam: 1º × 4º e 2º × 3º."
+      ),
+      listenSelect(
+        "Reto ou queda?",
+        "骂",
+        ["妈", "骂"],
+        "骂",
+        "mà cai (4º). mā ficaria alto e reto (1º)."
+      ),
+      listenSelect(
+        "Sobe ou vale?",
+        "马",
+        ["麻", "马"],
+        "马",
+        "mǎ faz o vale (3º). má subiria direto (2º)."
       ),
       dialogue(
-        "3º × 4º",
+        "1º × 4º",
         "Qual comparação está correta?",
-        "3º faz o vale; 4º cai",
-        ["3º faz o vale; 4º cai", "3º fica reto; 4º sobe", "os dois sobem", "os dois são volume"]
+        "1º fica reto; 4º cai",
+        ["1º fica reto; 4º cai", "1º sobe; 4º faz vale", "os dois fazem vale", "os dois são volume"]
       ),
     ],
     3: [
@@ -566,6 +584,11 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
           "a marca substitui o hànzì",
         ]
       ),
+      intro(
+        "Tom neutro",
+        "Há também um tom leve e curto, sem marca. Não é um quinto contorno completo: é uma sílaba fraca. Ouça 吗."
+      ),
+      listen("吗", "ma", "partícula de pergunta"),
     ],
     4: [
       intro(
