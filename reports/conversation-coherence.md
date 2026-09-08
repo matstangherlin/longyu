@@ -1731,7 +1731,7 @@ Cenas: 47.
 - PROMPT: Você trabalha numa empresa. Diga onde trabalha.
 - EXPECTED_RESPONSE: 我在公司上班
 - ACCEPTS: 我在公司上班 | 我在公司上班。
-- NEXT_TURN: 公司？好。
+- NEXT_TURN: 上班？好。
 - REPAIR: 你在哪里工作？
 - speechAct: ask_location → tell_location (reask)
 - CLASS: OK

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f08cf7574ac3 |
-| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Hash da Jornada | 7f4a081846d3 |
+| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:41:27.419Z |
+| Gerado em | 2026-09-08T23:13:16.696Z |
 | Lições | 127 |
 
 ## Resumo
@@ -38,10 +38,10 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 6 | perception_lab | Laboratório de exercícios | sim | lab (lexical zero ok) |
 | 7 | acquisition | Mandarim, pinyin e tom | sim | unidades novas: 我叫、你叫什么; conversation_scene |
 | 8 | acquisition | Olá | sim | unidades novas: 早上好; conversation_scene |
-| 9 | acquisition | Tudo bem? | sim | unidades novas: 我很好、你呢、明天见; conversation_scene |
+| 9 | acquisition | Tudo bem? | sim | unidades novas: 我很好、你呢、我不会说中文; conversation_scene |
 | 10 | review | Revisão do módulo | sim | revisão (isenta) |
 | 11 | acquisition | Obrigado | sim | unidades novas: 没关系; conversation_scene |
-| 12 | acquisition | Até logo | sim | unidades novas: 晚安; conversation_scene; produção independente |
+| 12 | acquisition | Até logo | sim | unidades novas: 明天见、晚安; conversation_scene; produção independente |
 | 13 | acquisition | Primeira conversa | sim | conversation_scene; produção independente |
 | 14 | acquisition | Com licença | sim | unidades novas: 请问; conversation_scene |
 | 15 | review | Revisão do módulo | sim | revisão (isenta) |
@@ -68,7 +68,7 @@ Labs e revisões podem ter novidade lexical zero. Lições `acquisition` precisa
 | 36 | acquisition | Tudo bem? | sim | unidades novas: 这是水、在哪里、怎么样; conversation_scene; produção independente |
 | 37 | acquisition | Como você se chama? | sim | unidades novas: 你是哪国人、我是巴西人、什么; conversation_scene; produção independente |
 | 38 | acquisition | De onde sou | sim | unidades novas: 请坐; conversation_scene; produção independente |
-| 39 | acquisition | 我不会说中文 | sim | unidades novas: 我不会说中文、洗手间在哪里、我会说中文; conversation_scene; produção independente |
+| 39 | acquisition | 我不会说中文 | sim | unidades novas: 洗手间在哪里、我会说中文; conversation_scene; produção independente |
 | 40 | acquisition | 请再说一遍 | sim | unidades novas: 我叫小明; conversation_scene; produção independente |
 | 41 | acquisition | Não entendi | sim | unidades novas: 你会说英语吗、我会说一点中文、请慢一点、不懂; conversation_scene; produção independente |
 | 42 | acquisition | Falo um pouco | sim | unidades novas: 会说、一点、中文、我在学中文、不会、说中文、你是学生吗、我学习中文、我在学校学习、你在哪里学习、我是学生、你学习什么、在学校; conversation_scene |
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:4ceb82e6b2fc374b -->
+<!-- integridade:50eb481ee3aed554 -->

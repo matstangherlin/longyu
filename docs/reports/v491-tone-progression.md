@@ -4,11 +4,11 @@ Relatório computado por `npm run validate:tone-teach-before-test`. O gate perco
 
 ## Métricas
 
-- toneTasksTotal: 166
-- toneAwarenessTasks: 25
-- toneContourTasks: 77
+- toneTasksTotal: 172
+- toneAwarenessTasks: 28
+- toneContourTasks: 79
 - toneNumberTasks: 42
-- toneMarkTasks: 8
+- toneMarkTasks: 9
 - toneProductionTasks: 2
 - toneTransferTasks: 0
 - toneNumberBeforeTeaching: 0
@@ -20,10 +20,10 @@ Relatório computado por `npm run validate:tone-teach-before-test`. O gate perco
 
 | tom | first exposure | number teaching | number grade |
 | --- | --- | --- | --- |
-| 1º | M1/step2 | M1/step2 | M3/step2 |
-| 2º | M2/step2 | M2/step2 | M3/step2 |
-| 3º | M1/step3 | M1/step3 | M3/step2 |
-| 4º | M2/step3 | M2/step3 | M3/step2 |
+| 1º | M1/step3 | M1/step3 | M3/step2 |
+| 2º | M2/step3 | M2/step3 | M3/step2 |
+| 3º | M1/step6 | M1/step6 | M3/step2 |
+| 4º | M2/step5 | M2/step5 | M3/step2 |
 | neutro | The neutral tone is introduced only after the four marked contours are noticed; it is never treated as a fifth full contour. | política futura explícita | não cobrado nesta fundação |
 
 ## Contrato

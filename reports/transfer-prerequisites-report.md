@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f08cf7574ac3 |
-| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Hash da Jornada | 7f4a081846d3 |
+| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:37:14.526Z |
+| Gerado em | 2026-09-08T23:10:19.138Z |
 | Lições | 127 |
 
 ## Política
@@ -26,9 +26,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições | 127 |
-| Lições com transfer_task | 25 |
-| Lições com free_production guiada | 76 |
-| Lições com produção aberta (estruturalmente elegível) | 47 |
+| Lições com transfer_task | 23 |
+| Lições com free_production guiada | 74 |
+| Lições com produção aberta (estruturalmente elegível) | 45 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
 
@@ -99,8 +99,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 - **l9** · objetivo `ask_name` · modelo `你叫什么？` _(elegibilidade estrutural — ver semântica acima)_
 - **l27** · objetivo `offer_item` · modelo `你要菜。` _(elegibilidade estrutural — ver semântica acima)_
-- **p6-rotina-trabalho** · objetivo `state_preference` · modelo `我喜欢茶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-cidade-lugares** · objetivo `state_ongoing` · modelo `我在公司上班` _(elegibilidade estrutural — ver semântica acima)_
+- **p6-china-cidades** · objetivo `state_preference` · modelo `我喜欢茶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-china-ruas** · objetivo `request_item` · modelo `我想吃米饭。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-saude** · objetivo `ask_location` · modelo `请问，超市在哪里？` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-clima** · objetivo `state_change` · modelo `我病了` _(elegibilidade estrutural — ver semântica acima)_
@@ -108,4 +108,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `state_destination` · modelo `我去北京。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-casa-amigo** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:c93aaa7f7b358e0a -->
+<!-- integridade:eb346799d5247dca -->

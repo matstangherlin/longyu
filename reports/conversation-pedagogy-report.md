@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Commit | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:32:41.992Z |
+| Gerado em | 2026-09-08T23:07:07.536Z |
 | Lições | 127 |
-| Hash da Jornada | f08cf7574ac3 |
+| Hash da Jornada | 7f4a081846d3 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Número de cenas | 47 |
-| Média de falas | 8.02 |
-| Média de intervenções | 2.94 |
-| Número de ramificações | 138 |
+| Média de falas | 8.17 |
+| Média de intervenções | 2.96 |
+| Número de ramificações | 139 |
 | Número de finais | 50 |
-| Vocabulário total exibido (refs únicas no plano real) | 135 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 135 |
+| Vocabulário total exibido (refs únicas no plano real) | 137 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 137 |
 | Porcentagem de cobertura | 100.0% |
-| Palavras novas (refs únicas) | 4 |
-| Média de reutilizações por ref exibida | 8.77 |
+| Palavras novas (refs únicas) | 3 |
+| Média de reutilizações por ref exibida | 8.40 |
 
 ## Cenas mais curtas
 
@@ -37,10 +37,8 @@
 | nao-falo-chinês | 6 | 2 |
 | como-se-chama | 6 | 2 |
 | encontrar-amigo | 6 | 2 |
-| encontro-amanha | 6 | 2 |
 | conversa-em-casa | 6 | 2 |
 | comentar-ceu | 6 | 2 |
-| que-horas-sao | 6 | 2 |
 | como-esta-o-tempo | 6 | 2 |
 | no-aeroporto | 6 | 2 |
 
@@ -55,15 +53,15 @@
 | Cena | Usos |
 |------|-----:|
 | como-se-chama | 9 |
-| me-apresentando | 8 |
 | encontro-amanha | 8 |
-| nao-falo-chinês | 8 |
 | falar-de-estudo | 8 |
+| me-apresentando | 7 |
+| nao-falo-chinês | 7 |
 | pedir-agua | 7 |
+| packet-exchange-basic_questions | 6 |
 | packet-exchange-introductions | 6 |
-| packet-exchange-basic_questions | 5 |
+| cortesia-loja | 5 |
 | fale-de-novo | 5 |
-| apontar-natureza | 5 |
 
 ## Cenas por cenário
 
@@ -144,4 +142,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:a92b3127cd1bc78d -->
+<!-- integridade:b345d681c6f40fa4 -->
