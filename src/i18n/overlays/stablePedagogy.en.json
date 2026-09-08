@@ -7187,8 +7187,8 @@
     },
     {
       "id": "p.l9.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -8633,7 +8633,7 @@
     },
     {
       "id": "p.l9-tudo-bem.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Tudo bem? por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Tudo bem?.",
       "en": "Recognize and distinguish items from the “How are you?” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -8651,8 +8651,8 @@
     },
     {
       "id": "p.l9-tudo-bem.m1.s01.prompt",
-      "pt": "Ouça e escolha a ação/imagem correspondente.",
-      "en": "Listen and choose the matching action or image.",
+      "pt": "Ouça e toque no que você ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -9731,7 +9731,7 @@
     },
     {
       "id": "p.l9-qual-nome.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Como você se chama? por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Como você se chama?.",
       "en": "Recognize and distinguish items from the “What's your name?” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -9755,8 +9755,8 @@
     },
     {
       "id": "p.l9-qual-nome.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -11195,7 +11195,7 @@
     },
     {
       "id": "p.l10.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de De onde sou por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de De onde sou.",
       "en": "Recognize and distinguish items from the “Where I'm from” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -11213,8 +11213,8 @@
     },
     {
       "id": "p.l10.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -13001,8 +13001,8 @@
     },
     {
       "id": "p.p3-wobuhui-shuo-zhongwen.m1.s07.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -14117,8 +14117,8 @@
     },
     {
       "id": "p.p3-qing-zai-shuo-yibian.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -15611,7 +15611,7 @@
     },
     {
       "id": "p.l11.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Não entendi por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Não entendi.",
       "en": "Recognize and distinguish items from the “I didn't understand” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -15635,8 +15635,8 @@
     },
     {
       "id": "p.l11.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -16985,7 +16985,7 @@
     },
     {
       "id": "p.l11-falo-pouco.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Falo um pouco por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Falo um pouco.",
       "en": "Recognize and distinguish items from the “I speak a little” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -17003,8 +17003,8 @@
     },
     {
       "id": "p.l11-falo-pouco.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -19799,7 +19799,7 @@
     },
     {
       "id": "p.l13.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Microtexto 1 por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Microtexto 1.",
       "en": "Recognize and distinguish items from the “Mini-text 1” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -20081,8 +20081,8 @@
     },
     {
       "id": "p.l13.m1.s07.prompt",
-      "pt": "Ouça e escolha a ação/imagem correspondente.",
-      "en": "Listen and choose the matching action or image.",
+      "pt": "Ouça e toque no que você ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -21257,7 +21257,7 @@
     },
     {
       "id": "p.l13-dialogo-ola.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Microdiálogo: cumprimentar por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Microdiálogo: cumprimentar.",
       "en": "Recognize and distinguish items from the “Mini-dialogue: saying hello” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -21281,8 +21281,8 @@
     },
     {
       "id": "p.l13-dialogo-ola.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -22757,7 +22757,7 @@
     },
     {
       "id": "p.l13-dialogo-nome.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Microdiálogo: se apresentar por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Microdiálogo: se apresentar.",
       "en": "Recognize and distinguish items from the “Mini-dialogue: introducing yourself” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -22781,8 +22781,8 @@
     },
     {
       "id": "p.l13-dialogo-nome.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -24155,7 +24155,7 @@
     },
     {
       "id": "p.p3-ordem-das-palavras.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de A ordem importa por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de A ordem importa.",
       "en": "Recognize and distinguish items from the “Word order matters” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -24509,7 +24509,7 @@
     },
     {
       "id": "p.p3-ordem-das-palavras.m2.s01.dialoguePrompt",
-      "pt": "Reconhecer e distinguir os itens de A ordem importa por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de A ordem importa.",
       "en": "Recognize and distinguish items from the “Word order matters” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -25685,7 +25685,7 @@
     },
     {
       "id": "p.p3-nomes-da-frase.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Nomes das peças por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Nomes das peças.",
       "en": "Recognize and distinguish items from the “Names of the building blocks” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -26039,7 +26039,7 @@
     },
     {
       "id": "p.p3-nomes-da-frase.m2.s01.dialoguePrompt",
-      "pt": "Reconhecer e distinguir os itens de Nomes das peças por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Nomes das peças.",
       "en": "Recognize and distinguish items from the “Names of the building blocks” topic by sound or image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -83975,8 +83975,8 @@
     },
     {
       "id": "p.l19.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -85121,8 +85121,8 @@
     },
     {
       "id": "p.l20.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -86219,8 +86219,8 @@
     },
     {
       "id": "p.l21.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Nós e vocês por áudio/imagem.",
-      "en": "Recognize and distinguish We and You items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Nós e vocês.",
+      "en": "Recognize and distinguish We and You items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -86243,8 +86243,8 @@
     },
     {
       "id": "p.l21.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -87419,8 +87419,8 @@
     },
     {
       "id": "p.l22.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de China e amigos por áudio/imagem.",
-      "en": "Recognize and distinguish items from China and friends by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de China e amigos.",
+      "en": "Recognize and distinguish items from China and friends.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -87437,8 +87437,8 @@
     },
     {
       "id": "p.l22.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -88955,8 +88955,8 @@
     },
     {
       "id": "p.l23.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Microtexto 2 por áudio/imagem.",
-      "en": "Recognize and distinguish Microtext 2 items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Microtexto 2.",
+      "en": "Recognize and distinguish Microtext 2 items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -88973,8 +88973,8 @@
     },
     {
       "id": "p.l23.m1.s01.prompt",
-      "pt": "Ouça e escolha a ação/imagem correspondente.",
-      "en": "Listen and choose the matching action or image.",
+      "pt": "Ouça e toque no que você ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -90737,8 +90737,8 @@
     },
     {
       "id": "p.l24.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Pai e mãe por áudio/imagem.",
-      "en": "Recognize and distinguish Father and Mother items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Pai e mãe.",
+      "en": "Recognize and distinguish Father and Mother items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -90995,8 +90995,8 @@
     },
     {
       "id": "p.l24.m1.s08.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -91937,8 +91937,8 @@
     },
     {
       "id": "p.l25.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Perguntas úteis por áudio/imagem.",
-      "en": "Recognize and distinguish Useful Question items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Perguntas úteis.",
+      "en": "Recognize and distinguish Useful Question items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -91955,8 +91955,8 @@
     },
     {
       "id": "p.l25.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -93311,7 +93311,7 @@
     },
     {
       "id": "p.l26.meta.spec.pass.2",
-      "pt": "Reconhecer por áudio/imagem o que você já viu.",
+      "pt": "Reconhecer o que você já viu.",
       "en": "Recognize through audio/image what you have already seen.",
       "kind": "NATURAL_REWRITE"
     },
@@ -93329,8 +93329,8 @@
     },
     {
       "id": "p.l26.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -94433,8 +94433,8 @@
     },
     {
       "id": "p.l26b.meta.spec.pass.2",
-      "pt": "Reconhecer os itens por áudio/imagem.",
-      "en": "Recognize items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens.",
+      "en": "Recognize items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -94643,8 +94643,8 @@
     },
     {
       "id": "p.l26b.m1.s08.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -95657,8 +95657,8 @@
     },
     {
       "id": "p.l27.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Na loja por áudio/imagem.",
-      "en": "Recognize and distinguish In store items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Na loja.",
+      "en": "Recognize and distinguish In store items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -95675,8 +95675,8 @@
     },
     {
       "id": "p.l27.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -96821,8 +96821,8 @@
     },
     {
       "id": "p.l28.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Vamos embora por áudio/imagem.",
-      "en": "Recognize and distinguish Let's go items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Vamos embora.",
+      "en": "Recognize and distinguish Let's go items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -96839,8 +96839,8 @@
     },
     {
       "id": "p.l28.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -98345,8 +98345,8 @@
     },
     {
       "id": "p.p6-rotina-trabalho.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Rotina e trabalho por áudio/imagem.",
-      "en": "Recognize and distinguish Routine and work items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Rotina e trabalho.",
+      "en": "Recognize and distinguish Routine and work items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -98663,8 +98663,8 @@
     },
     {
       "id": "p.p6-rotina-trabalho.m1.s08.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -99821,8 +99821,8 @@
     },
     {
       "id": "p.p6-cidade-lugares.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Cidade e lugares por áudio/imagem.",
-      "en": "Recognize and distinguish City items and places by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Cidade e lugares.",
+      "en": "Recognize and distinguish City items and places.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -100127,8 +100127,8 @@
     },
     {
       "id": "p.p6-cidade-lugares.m1.s08.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -101273,8 +101273,8 @@
     },
     {
       "id": "p.p6-china-cidades.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Cidades da China por áudio/imagem.",
-      "en": "Recognize and distinguish China Cities items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Cidades da China.",
+      "en": "Recognize and distinguish China Cities items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -102551,8 +102551,8 @@
     },
     {
       "id": "p.p6-china-cidades-2.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Mais cidades: Chengdu, Xi'an, Nanjing por áudio/imagem.",
-      "en": "Recognize and distinguish items from More cities: Chengdu, Xi'an, Nanjing by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Mais cidades: Chengdu, Xi'an, Nanjing.",
+      "en": "Recognize and distinguish items from More cities: Chengdu, Xi'an, Nanjing.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -103859,8 +103859,8 @@
     },
     {
       "id": "p.p6-china-ruas.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Ruas e endereços por áudio/imagem.",
-      "en": "Recognize and distinguish Street items and addresses by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Ruas e endereços.",
+      "en": "Recognize and distinguish Street items and addresses.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -105323,8 +105323,8 @@
     },
     {
       "id": "p.p6-saude.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Saúde por áudio/imagem.",
-      "en": "Recognize and distinguish Health items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Saúde.",
+      "en": "Recognize and distinguish Health items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -106667,8 +106667,8 @@
     },
     {
       "id": "p.p6-horarios.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Que horas são? por áudio/imagem.",
-      "en": "Recognize and distinguish the items in What time is it? by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Que horas são?.",
+      "en": "Recognize and distinguish the items in What time is it?.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -106691,8 +106691,8 @@
     },
     {
       "id": "p.p6-horarios.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -107969,8 +107969,8 @@
     },
     {
       "id": "p.p6-natureza.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de A natureza por áudio/imagem.",
-      "en": "Recognize and distinguish items from Nature by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de A natureza.",
+      "en": "Recognize and distinguish items from Nature.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -107987,8 +107987,8 @@
     },
     {
       "id": "p.p6-natureza.m1.s01.prompt",
-      "pt": "Ouça e escolha a ação/imagem correspondente.",
-      "en": "Listen and choose the matching action or image.",
+      "pt": "Ouça e toque no que você ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -109127,8 +109127,8 @@
     },
     {
       "id": "p.p6-clima.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de O tempo (clima) por áudio/imagem.",
-      "en": "Recognize and distinguish weather items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de O tempo (clima).",
+      "en": "Recognize and distinguish weather items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -109151,8 +109151,8 @@
     },
     {
       "id": "p.p6-clima.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -110321,8 +110321,8 @@
     },
     {
       "id": "p.p6-direcoes.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Direções por áudio/imagem.",
-      "en": "Recognize and distinguish Directions items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Direções.",
+      "en": "Recognize and distinguish Directions items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -111815,8 +111815,8 @@
     },
     {
       "id": "p.p6-compras.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Compras: roupas e itens por áudio/imagem.",
-      "en": "Recognize and distinguish Shopping items: clothes and items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Compras: roupas e itens.",
+      "en": "Recognize and distinguish Shopping items: clothes and items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -112055,8 +112055,8 @@
     },
     {
       "id": "p.p6-compras.m1.s07.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -113159,7 +113159,7 @@
     },
     {
       "id": "p.p6-survival-mandarin.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Survival: pagar, hotel, ajuda por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Survival: pagar, hotel, ajuda.",
       "en": "Recognize and distinguish Survival items: pay, hotel, audio/image help.",
       "kind": "NATURAL_REWRITE"
     },
@@ -114623,8 +114623,8 @@
     },
     {
       "id": "p.l29.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Eu e meus amigos por áudio/imagem.",
-      "en": "Recognize and distinguish items from Me and my friends by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Eu e meus amigos.",
+      "en": "Recognize and distinguish items from Me and my friends.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -114881,8 +114881,8 @@
     },
     {
       "id": "p.l29.m1.s07.prompt",
-      "pt": "Ouça e escolha a ação/imagem correspondente.",
-      "en": "Listen and choose the matching action or image.",
+      "pt": "Ouça e toque no que você ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -115865,8 +115865,8 @@
     },
     {
       "id": "p.l30.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Leitura em voz alta por áudio/imagem.",
-      "en": "Recognize and distinguish Read Aloud items by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Leitura em voz alta.",
+      "en": "Recognize and distinguish Read Aloud items.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -116087,8 +116087,8 @@
     },
     {
       "id": "p.l30.m1.s08.prompt",
-      "pt": "Ouça e escolha a ação/imagem correspondente.",
-      "en": "Listen and choose the matching action or image.",
+      "pt": "Ouça e toque no que você ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -117077,8 +117077,8 @@
     },
     {
       "id": "p.p7-imersao-mercado.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Imersão: no mercado por áudio/imagem.",
-      "en": "Recognize and distinguish Immersion items: in the market by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Imersão: no mercado.",
+      "en": "Recognize and distinguish Immersion items: in the market.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -117101,8 +117101,8 @@
     },
     {
       "id": "p.p7-imersao-mercado.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -118751,8 +118751,8 @@
     },
     {
       "id": "p.p7-imersao-estacao.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Imersão: na estação por áudio/imagem.",
-      "en": "Recognize and distinguish Immersion items: at the station by audio/image.",
+      "pt": "Reconhecer e distinguir os itens de Imersão: na estação.",
+      "en": "Recognize and distinguish Immersion items: at the station.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -119057,8 +119057,8 @@
     },
     {
       "id": "p.p7-imersao-estacao.m1.s08.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -120209,7 +120209,7 @@
     },
     {
       "id": "p.p7-imersao-casa-amigo.meta.spec.pass.2",
-      "pt": "Reconhecer e distinguir os itens de Imersão: visita à casa da amiga por áudio/imagem.",
+      "pt": "Reconhecer e distinguir os itens de Imersão: visita à casa da amiga.",
       "en": "Recognize and distinguish Immersion items: visit to a friend's house via audio/image.",
       "kind": "NATURAL_REWRITE"
     },
@@ -120233,8 +120233,8 @@
     },
     {
       "id": "p.p7-imersao-casa-amigo.m1.s01.prompt",
-      "pt": "Ouca e escolha a acao/imagem correspondente.",
-      "en": "Listen and choose the matching action/image.",
+      "pt": "Ouca e toque no que voce ouviu.",
+      "en": "Listen and tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {

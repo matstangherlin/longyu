@@ -511,7 +511,7 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     commonMisconceptions: ["Gosto e pedido são a mesma frase."],
     passObjectives: {
       1: "Descobrir os itens de fome e gosto.",
-      2: "Reconhecer por áudio/imagem o que você já viu.",
+      2: "Reconhecer o que você já viu.",
       3: "Nomear ou pedir o núcleo do tema.",
       4: "Usar o tema numa micro-situação de comida.",
     },
@@ -528,7 +528,7 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     commonMisconceptions: ["O cardápio se resolve só com 你好."],
     passObjectives: {
       1: "Descobrir os pratos e bebidas do cardápio.",
-      2: "Reconhecer os itens por áudio/imagem.",
+      2: "Reconhecer e distinguir os itens.",
       3: "Nomear ou pedir um prato.",
       4: "Resolver um pedido num restaurante um pouco novo.",
     },
@@ -636,7 +636,7 @@ function defaultSpec(lesson: LessonForSpec): TopicMasterySpec {
     commonMisconceptions: ["Decorar a lição sem conseguir usar o título."],
     passObjectives: {
       1: `Descobrir os itens de ${title} com áudio e sentido.`,
-      2: `Reconhecer e distinguir os itens de ${title} por áudio/imagem.`,
+      2: `Reconhecer e distinguir os itens de ${title}.`,
       3: `Nomear, pedir ou responder com o núcleo de ${title}.`,
       4: `Usar ${title} numa micro-situação nova.`,
     },
