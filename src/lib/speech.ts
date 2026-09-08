@@ -8,11 +8,15 @@
 // 3) continuous:false + onend imediato → "no-speech" antes do aluno terminar.
 
 export function isRecognitionAvailable(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    window.isSecureContext &&
-    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-  );
+  if (typeof window === "undefined" || !window.isSecureContext) return false;
+  // V4.9.5A.1 — a chave existir não basta. Um navegador que expõe
+  // `SpeechRecognition` com valor indefinido nos dava um microfone na tela que
+  // só sabia falhar ao ser tocado. Quem decide é o construtor.
+  const w = window as unknown as {
+    SpeechRecognition?: unknown;
+    webkitSpeechRecognition?: unknown;
+  };
+  return typeof (w.SpeechRecognition ?? w.webkitSpeechRecognition) === "function";
 }
 
 export function isSecureMicContext(): boolean {

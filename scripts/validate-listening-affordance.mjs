@@ -78,7 +78,7 @@ function rendererForKind(kind) {
   const at = stepsSource.indexOf(`case "${kind}":`);
   if (at < 0) return null;
   const tail = stepsSource.slice(at, at + 1200);
-  const match = tail.match(/<(Step[A-Za-z]+)\b/);
+  const match = tail.match(/<([A-Z][A-Za-z]+)\b/);
   return match ? match[1] : null;
 }
 
