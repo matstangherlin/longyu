@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7f4a081846d3 |
-| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
+| Hash da Jornada | f6430d1a11be |
+| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T23:13:35.162Z |
-| Lições | 127 |
+| Gerado em | 2026-09-09T07:50:31.409Z |
+| Lições | 128 |
 
 
 ## Before → After
@@ -22,10 +22,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | estimatedTimeToFirstTransfer | ~188 min | ~60 min (≈4 min/lição) |
 | firstFrame | frame_woyouge | frame_qingwennijiaoshenme |
 | firstTarget | 我有一个朋友 | 请问你叫什么 |
-| guided / supported / question | 112/0/19 | 22 / 1 / 0 |
-| totalTransfers (127) | 82 | 23 |
-| transferBearingLessons | ~49 | 23 |
-| transferBearingLessonRate | ~0.39 | 0.181 |
+| guided / supported / question | 112/0/19 | 20 / 1 / 0 |
+| totalTransfers (127) | 82 | 21 |
+| transferBearingLessons | ~49 | 21 |
+| transferBearingLessonRate | ~0.39 | 0.164 |
 | transfersBy20 | — | 1 (1 lições) |
 | transfersBy30 | — | 1 (1 lições) |
 | transfersBy50 | — | 3 (3 lições) |
@@ -36,7 +36,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | labTransferCount | — | 0 |
 | domainMismatchCount (soft) | — | 0 |
 | unknownComponentViolations | — | 0 |
-| onboardingSteps (L1–20) | ~206 | 209 |
+| onboardingSteps (L1–20) | ~206 | 206 |
 | gap 1ª→2ª transfer (lições) | — | 33 |
 
 ## Densidade de transferência
@@ -98,18 +98,6 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio study
 - **Assist:** guided
 
-### L92 `l19-logica-luz`
-
-- **Lesson:** l19-logica-luz
-- **Frame:** frame_woyouge
-- **Anchor:** 我有三个朋友
-- **Target:** 我有四个朋友。
-- **Novel:** combinational (não está no corpus)
-- **Known components:** 我有三个朋友, 我, 有, 四, 个, 朋, 友
-- **Domain:** study
-- **Why selected:** transferência posterior; 1 slot vs âncora; domínio study
-- **Assist:** guided
-
 ### L105 `l26`
 
 - **Lesson:** l26
@@ -134,19 +122,19 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
 - **Assist:** guided
 
-### L107 `l27`
+### L108 `l27`
 
 - **Lesson:** l27
 - **Frame:** frame_woxihuan
 - **Anchor:** 我喜欢中文
-- **Target:** 我喜欢茶。
+- **Target:** 我喜欢鱼。
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 我喜欢中文, 我, 喜, 欢, 茶
+- **Known components:** 我喜欢中文, 我, 喜, 欢, 鱼
 - **Domain:** restaurant
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
 - **Assist:** guided
 
-### L108 `l28`
+### L109 `l28`
 
 - **Lesson:** l28
 - **Frame:** frame_wozai
@@ -158,43 +146,43 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio work
 - **Assist:** guided
 
-### L110 `p6-cidade-lugares`
+### L111 `p6-cidade-lugares`
 
 - **Lesson:** p6-cidade-lugares
+- **Frame:** frame_wo_le
+- **Anchor:** 我饿了
+- **Target:** 我睡觉了。
+- **Novel:** combinational (não está no corpus)
+- **Known components:** 我饿了, 我, 睡, 觉, 了
+- **Domain:** health
+- **Why selected:** transferência posterior; 1 slot vs âncora; domínio health
+- **Assist:** guided
+
+### L112 `p6-china-cidades`
+
+- **Lesson:** p6-china-cidades
 - **Frame:** frame_woxihuan
 - **Anchor:** 我喜欢中文
-- **Target:** 我喜欢鱼。
+- **Target:** 我喜欢茶。
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 我喜欢中文, 我, 喜, 欢, 鱼
+- **Known components:** 我喜欢中文, 我, 喜, 欢, 茶
 - **Domain:** restaurant
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
 - **Assist:** guided
 
-### L111 `p6-china-cidades`
-
-- **Lesson:** p6-china-cidades
-- **Frame:** frame_woqu
-- **Anchor:** 我去学校
-- **Target:** 我明天去医院。
-- **Novel:** combinational (não está no corpus)
-- **Known components:** 我去学校, 我, 明, 天, 去, 医, 院
-- **Domain:** directions
-- **Why selected:** transferência posterior; 1 slot vs âncora; domínio directions
-- **Assist:** guided
-
-### L112 `p6-china-cidades-2`
+### L113 `p6-china-cidades-2`
 
 - **Lesson:** p6-china-cidades-2
-- **Frame:** frame_zainali
-- **Anchor:** 火车站在哪里？
-- **Target:** 车站在哪里？
+- **Frame:** frame_woqu
+- **Anchor:** 我去学校
+- **Target:** 我今天去火车站。
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 火车站在哪里, 车, 站, 在, 哪, 里
+- **Known components:** 我去学校, 我, 今, 天, 去, 火, 车, 站
 - **Domain:** directions
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio directions
 - **Assist:** guided
 
-### L113 `p6-china-ruas`
+### L114 `p6-china-ruas`
 
 - **Lesson:** p6-china-ruas
 - **Frame:** frame_woxiangchi
@@ -206,40 +194,52 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
 - **Assist:** guided
 
-### L114 `p6-saude`
+### L115 `p6-saude`
 
 - **Lesson:** p6-saude
 - **Frame:** frame_wo_le
 - **Anchor:** 我饿了
-- **Target:** 我睡觉了。
+- **Target:** 我回家了。
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 我饿了, 我, 睡, 觉, 了
+- **Known components:** 我饿了, 我, 回, 家, 了
 - **Domain:** health
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio health
 - **Assist:** guided
 
-### L116 `p6-natureza`
+### L117 `p6-natureza`
 
 - **Lesson:** p6-natureza
-- **Frame:** frame_woxiangchi
-- **Anchor:** 我想吃米饭
-- **Target:** 我想吃肉。
+- **Frame:** frame_zainali
+- **Anchor:** 火车站在哪里？
+- **Target:** 车站在哪里？
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 我想吃米饭, 我, 想, 吃, 肉
+- **Known components:** 火车站在哪里, 车, 站, 在, 哪, 里
+- **Domain:** directions
+- **Why selected:** transferência posterior; 1 slot vs âncora; domínio directions
+- **Assist:** guided
+
+### L118 `p6-clima`
+
+- **Lesson:** p6-clima
+- **Frame:** frame_woyao
+- **Anchor:** 我要这个
+- **Target:** 我要热水。
+- **Novel:** combinational (não está no corpus)
+- **Known components:** 我要这个, 我, 要, 热, 水
 - **Domain:** restaurant
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
 - **Assist:** guided
 
-### L117 `p6-clima`
+### L119 `p6-direcoes`
 
-- **Lesson:** p6-clima
-- **Frame:** frame_woxianghe
-- **Anchor:** 我想喝茶
-- **Target:** 我想喝热水。
+- **Lesson:** p6-direcoes
+- **Frame:** frame_woqu
+- **Anchor:** 我去学校
+- **Target:** 我明天去医院。
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 我想喝茶, 我, 想, 喝, 热, 水
-- **Domain:** restaurant
-- **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
+- **Known components:** 我去学校, 我, 明, 天, 去, 医, 院
+- **Domain:** directions
+- **Why selected:** transferência posterior; 1 slot vs âncora; domínio directions
 - **Assist:** guided
 
 ## contextual_transfer vs combinational_transfer
@@ -247,4 +247,4 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **combinational_transfer:** contado acima — alvo inédito montado de componentes já ensinados.
 - **contextual_transfer:** reutilizar frase conhecida em situação nova (métrica separada; não infla novelTargets).
 
-<!-- integridade:00e04655874ff596 -->
+<!-- integridade:ba09b6cc335849cb -->

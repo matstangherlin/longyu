@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7f4a081846d3 |
-| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
+| Hash da Jornada | f6430d1a11be |
+| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T22:57:13.311Z |
-| Lições | 127 |
+| Gerado em | 2026-09-09T07:32:39.815Z |
+| Lições | 128 |
 
 
 Semântica (TM-015): **ACQUIRED** = `completedLessons` (primeira exposição válida; SRS/achievements/analytics).
@@ -25,11 +25,11 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 
 | Métrica | Valor |
 |---------|------:|
-| Nós totais | 127 |
+| Nós totais | 128 |
 | Temas 4-pass | 113 |
-| Exceções (review/checkpoint) | 14 |
+| Exceções (review/checkpoint) | 15 |
 | Specs autoradas | 38 |
-| Sessões estimadas | 466 |
+| Sessões estimadas | 467 |
 | Horas estimadas | 20.9 |
 | Média de passos/pass | 8.2 |
 
@@ -60,6 +60,7 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Revisão de peças (`l19-logica-rev`) | review_mastery | 1 | Checkpoint de Review Mastery: uma sessão com níveis próprios (Recall→Transfer). Path complete = ACQUIRED, não 4/4 de ensino. |
 | Revisão do módulo (`l8-rev`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Revisão do módulo (`l9-rev`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
+| Imersão: almoce num restaurante (`l26c`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Revisão do módulo (`l10-rev`) | review_mastery | 1 | Checkpoint de Review Mastery: uma sessão com níveis próprios (Recall→Transfer). Path complete = ACQUIRED, não 4/4 de ensino. |
 | Revisão do módulo (`l11-rev`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 
@@ -107,4 +108,4 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 Nenhuma.
 
-<!-- integridade:ad315e002c3cf470 -->
+<!-- integridade:cd3e5abd2b48eb7b -->

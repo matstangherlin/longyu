@@ -4,9 +4,9 @@ Relatório computado por `npm run validate:tone-teach-before-test`. O gate perco
 
 ## Métricas
 
-- toneTasksTotal: 172
+- toneTasksTotal: 173
 - toneAwarenessTasks: 28
-- toneContourTasks: 79
+- toneContourTasks: 80
 - toneNumberTasks: 42
 - toneMarkTasks: 9
 - toneProductionTasks: 2

@@ -228,7 +228,7 @@ Erro na missão não recomeça do zero (remediation / retry da cena). O tester e
 
 `validate:journey-en` exigiu overlay para `Pergunte o preço` / `多少钱？ é a pergunta curta de preço.` (passos de `l27` que o plano passou a expor) e para a explicação gerada `不客气 responde 请问 neste pacote (Cortesia).`. Strings já cobertas por gloss: `Diga do seu jeito`, `Na loja, pergunte o preço de alguma coisa.`
 
-`validate:beta` / `build`: a correr após este ajuste. Rebase no SHA real do merge da #241 quando ela fechar.
+`validate:beta` e `npm run build`: **PASS** localmente. Draft até o rebase no SHA real do merge da #241.
 
 ## Não feito (de propósito)
 

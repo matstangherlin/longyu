@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | dae6d1770bc453d0793e896669931399769249cf |
+| Commit | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T03:16:17.152Z |
+| Gerado em | 2026-09-09T07:43:28.142Z |
 | Lições | 128 |
-| Hash da Jornada | 877a2bb35983 |
+| Hash da Jornada | f6430d1a11be |
 
 ## Resumo
 
@@ -23,7 +23,7 @@
 | Vocabulário coberto por tarefas posteriores (plano ou SRS) | 150 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.69 |
+| Média de reutilizações por ref exibida | 7.65 |
 
 ## Cenas mais curtas
 
@@ -143,4 +143,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:d9df8406f415b684 -->
+<!-- integridade:54c733b3fdf20bd1 -->

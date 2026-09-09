@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7f4a081846d3 |
-| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
+| Hash da Jornada | f6430d1a11be |
+| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T23:12:32.140Z |
-| Lições | 127 |
+| Gerado em | 2026-09-09T07:49:24.689Z |
+| Lições | 128 |
 
 ## Resumo
 
@@ -60,7 +60,7 @@ Primeira produção independente (`free_production`): **12. Até logo** (`p1-ate
 | 7 | acquisition | Mandarim, pinyin e tom | sim | sim | sim | não | não | sim | 3 |
 | 8 | acquisition | Olá | sim | sim | sim | sim | não | sim | 6 |
 | 9 | acquisition | Tudo bem? | sim | sim | sim | sim | não | sim | 5 |
-| 10 | review | Revisão do módulo | sim | sim | sim | sim | não | sim | 3 |
+| 10 | review | Revisão do módulo | sim | não | sim | não | não | sim | 3 |
 | 11 | acquisition | Obrigado | sim | sim | sim | sim | não | sim | 6 |
 | 12 | acquisition | Até logo | sim | sim | sim | não | sim | sim | 6 |
 | 13 | acquisition | Primeira conversa | sim | sim | sim | sim | sim | sim | 5 |
@@ -80,4 +80,4 @@ IDs das lições de fundação e da parede de tons **não mudaram**. Progresso a
 
 Nenhuma.
 
-<!-- integridade:6d8cea26947f7f4b -->
+<!-- integridade:8b01b727b1782413 -->
