@@ -237,13 +237,23 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
+    // Skip before playing a conversation beat-by-beat. A visible but disabled
+    // Responder used to `continue` forever and never reach Pular.
+    const skippedEarly = await clickFirstVisible(page, [/^Pular|^Skip/]);
+    if (skippedEarly) {
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
       name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
     });
-    if (!keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
-      await clickIfEnabled(conversationCta.first());
-      await page.waitForTimeout(180);
-      continue;
+    if (await conversationCta.first().isVisible().catch(() => false)) {
+      const clicked = await clickIfEnabled(conversationCta.first());
+      if (clicked) {
+        await page.waitForTimeout(180);
+        continue;
+      }
     }
 
     const advanced = await clickFirstVisible(page, [

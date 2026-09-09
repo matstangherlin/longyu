@@ -162,7 +162,7 @@ export async function dismissJourneyCultureBridgeIfOpen(
     }
     break;
   }
-  return progressed || Boolean(await bridge.isVisible().catch(() => false));
+  return progressed;
 }
 
 export async function dismissBlockingOverlays(page: Page) {
