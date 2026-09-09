@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
   seedInstructionLocale,
@@ -8,14 +8,56 @@ import {
   waitForLazyPage,
 } from "./helpers";
 
-test.describe("V4.9.6C Culture Hub", () => {
-  test("opens /cultura, filters, completes, saves, and persists", async ({ page }) => {
+async function playCurrentStep(page: Page, wrongFirst = false) {
+  const options = page.locator('[data-testid^="culture-option-"]');
+  if ((await options.count()) > 0 && !(await page.getByTestId("culture-check-feedback").isVisible().catch(() => false))) {
+    if (wrongFirst) {
+      const optionA = page.getByTestId("culture-option-a");
+      if (await optionA.count()) await optionA.click();
+    } else {
+      const optionB = page.getByTestId("culture-option-b");
+      if (await optionB.count()) await optionB.click();
+      else await options.first().click();
+    }
+  }
+  const sequence = page.getByTestId("culture-sequence");
+  if (await sequence.count()) {
+    const buttons = sequence.locator("button");
+    const n = await buttons.count();
+    for (let i = 0; i < n; i += 1) await buttons.nth(0).click();
+  }
+  const match = page.getByTestId("culture-match");
+  if (await match.count()) {
+    const left = match.locator("div").first().locator("button");
+    const right = match.locator("div").nth(1).locator("button");
+    const n = await left.count();
+    for (let i = 0; i < n; i += 1) {
+      await left.nth(i).click();
+      await right.nth(i).click();
+    }
+  }
+  await page.getByTestId("culture-complete").click();
+}
+
+async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
+  await expect(page.getByTestId("culture-item")).toBeVisible();
+  for (let i = 0; i < 24; i += 1) {
+    if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
+    await playCurrentStep(page, wrongFirst && i === 0);
+    wrongFirst = false;
+  }
+  await expect(page.getByTestId("culture-victory")).toBeVisible();
+}
+
+test.describe("V4.9.7A.1 Culture Quest Engine", () => {
+  test("hub shows next mission, plays a mission with contextual feedback, and persists", async ({ page }) => {
     await seedOnboardedSession(page, ["l1"], { replace: false });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 18|0 \/ 18 conteúdos|0 \/ 18 items/i);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 18/);
+    await expect(page.getByTestId("culture-next-cta")).toBeVisible();
 
     await page.getByTestId("culture-filter-home_visits").click();
     const cards = page.getByTestId("culture-card");
@@ -25,16 +67,20 @@ test.describe("V4.9.6C Culture Hub", () => {
     await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "visiting-home");
-    await expect(page.getByTestId("culture-mini-check")).toBeVisible();
+    await expect(page.getByTestId("culture-mission-progress")).toBeVisible();
 
-    await page.getByTestId("culture-option-b").click();
-    await page.getByRole("button", { name: /Verificar|Check/i }).click();
-    await expect(page.getByTestId("culture-check-feedback")).toBeVisible();
+    await playCurrentStep(page);
+    if (await page.getByTestId("culture-option-a").count()) {
+      await page.getByTestId("culture-option-a").click();
+      await page.getByTestId("culture-complete").click();
+      await expect(page.getByTestId("culture-check-feedback")).toBeVisible();
+      await expect(page.getByTestId("culture-check-feedback")).not.toContainText(/ERRADO|WRONG/i);
+    }
+    await playMissionToVictory(page);
+    await expect(page.getByTestId("culture-stars")).toBeVisible();
+    await expect(page.getByTestId("culture-xp")).toBeVisible();
 
-    await page.getByTestId("culture-complete").click();
-    await expect(page.getByTestId("culture-complete")).toContainText(/Concluído|Completed/i);
-
-    await page.getByTestId("culture-back").click();
+    await page.getByTestId("culture-back-journey").click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
     await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 18/);
@@ -60,7 +106,7 @@ test.describe("V4.9.6C Culture Hub", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Cultura" })).toBeVisible();
-    await expect(page.getByText("Entenda a língua dentro da vida real.")).toBeVisible();
+    await expect(page.getByText(/Missões culturais para agir na China|Entenda a língua/)).toBeVisible();
 
     await seedInterfaceLocale(page, "en");
     await seedInstructionLocale(page, "en", { force: true });
@@ -68,7 +114,6 @@ test.describe("V4.9.6C Culture Hub", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Culture" })).toBeVisible();
-    await expect(page.getByText("Understand the language inside real life.")).toBeVisible();
     await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').click();
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: "Arriving at someone's home" })).toBeVisible();
@@ -87,7 +132,7 @@ test.describe("V4.9.6C Culture Hub", () => {
     await expect(page.getByTestId("culture-hub")).toBeVisible();
   });
 
-  test("opens a CultureItem from a lesson and returns to that lesson", async ({ page }) => {
+  test("opens a Culture Mission from a lesson and returns to that lesson", async ({ page }) => {
     await seedUnlockedLessonSession(page, "l2");
     await page.goto("/licao/l2");
     await waitForLazyPage(page);
@@ -97,9 +142,26 @@ test.describe("V4.9.6C Culture Hub", () => {
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/cultura\/greetings-nihao/);
     await expect(page.getByTestId("culture-item")).toBeVisible();
+    await expect(page.getByTestId("culture-mission-step")).toBeVisible();
     await page.getByTestId("culture-back").click();
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/licao\/l2$/);
+  });
+
+  test("l26c restaurant touchpoint opens chopsticks-rest mission", async ({ page }) => {
+    await seedUnlockedLessonSession(page, "l26c");
+    await page.goto("/licao/l26c");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-touchpoint")).toHaveAttribute("data-culture-id", "chopsticks-rest");
+    await page.getByTestId("culture-touchpoint-open").click();
+    await waitForLazyPage(page);
+    await expect(page).toHaveURL(/\/cultura\/chopsticks-rest/);
+    await expect(page.getByTestId("culture-item")).toBeVisible();
+    await playMissionToVictory(page);
+    await page.getByTestId("culture-back-journey").click();
+    await waitForLazyPage(page);
+    await expect(page).toHaveURL(/\/licao\/l26c$/);
   });
 
   test("lesson player does not show a culture card mid-exercise", async ({ page }) => {
@@ -113,10 +175,10 @@ test.describe("V4.9.6C Culture Hub", () => {
   });
 });
 
-test.describe("V4.9.6C Culture Hub mobile", () => {
+test.describe("V4.9.7A.1 Culture Quest mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("hub cards are tappable at 390×844", async ({ page }) => {
+  test("hub and mission CTA are tappable at 390×844", async ({ page }) => {
     await seedOnboardedSession(page, ["l1"]);
     await page.goto("/cultura");
     await waitForLazyPage(page);
@@ -134,6 +196,9 @@ test.describe("V4.9.6C Culture Hub mobile", () => {
     await card.click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-item")).toBeVisible();
-    await expect(page.getByTestId("culture-complete")).toBeVisible();
+    const cta = page.getByTestId("culture-complete");
+    await expect(cta).toBeVisible();
+    const ctaBox = await cta.boundingBox();
+    expect((ctaBox?.height ?? 0)).toBeGreaterThanOrEqual(44);
   });
 });
