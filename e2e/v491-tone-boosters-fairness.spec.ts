@@ -10,6 +10,36 @@ import {
   waitForLazyPage,
 } from "./helpers";
 
+/** V4.9.6B inserts listen (and a short intro) before each guided contour. */
+async function advanceToToneGuidedNotice(page: Page, tone: 1 | 2 | 3 | 4) {
+  const notice = page.locator(`[data-tone-guided-notice='${tone}']`);
+  const deadline = Date.now() + 20_000;
+  while (Date.now() < deadline) {
+    if (await notice.isVisible().catch(() => false)) return notice;
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora|I can't speak now/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await skipSpeak.click();
+      await page.waitForTimeout(150);
+      continue;
+    }
+    const continueBtn = page.getByRole("button", { name: /^(Continuar|Continue)$/ });
+    if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
+      await continueBtn.click();
+      await page.waitForTimeout(150);
+      continue;
+    }
+    const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ });
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.click();
+      await page.waitForTimeout(150);
+      continue;
+    }
+    await page.waitForTimeout(150);
+  }
+  await expect(notice).toBeVisible({ timeout: 5_000 });
+  return notice;
+}
+
 const SHOTS = path.join(process.cwd(), "docs/reports/v491-screenshots");
 
 async function startPlacement(page: Page) {
@@ -64,7 +94,7 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
 
     await expect(page.getByRole("heading", { name: "A curva faz parte da palavra" })).toBeVisible();
     await page.getByRole("button", { name: /^Entendi$/ }).click();
-    const firstNotice = page.locator("[data-tone-guided-notice='1']");
+    const firstNotice = await advanceToToneGuidedNotice(page, 1);
     await expect(firstNotice).toBeVisible();
     await expect(firstNotice.locator("[data-tone-contour]")).toHaveCount(0);
     await expect(firstNotice.getByText("Primeiro ouça. Ainda não é teste.")).toBeVisible();
@@ -73,7 +103,7 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await page.screenshot({ path: path.join(SHOTS, "tone-1-teaching-mobile-pt.png"), fullPage: true });
 
     await page.getByRole("button", { name: "Percebi a curva" }).click();
-    const thirdNotice = page.locator("[data-tone-guided-notice='3']");
+    const thirdNotice = await advanceToToneGuidedNotice(page, 3);
     await expect(thirdNotice).toBeVisible();
     await thirdNotice.locator("[data-tone-first-exposure]").click();
     await expect(thirdNotice.locator("[data-tone-contour='3']")).toBeVisible();
@@ -136,13 +166,13 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await expect(page.getByRole("heading", { name: "Duas curvas novas" })).toBeVisible();
     await page.getByRole("button", { name: /^Entendi$/ }).click();
 
-    const secondNotice = page.locator("[data-tone-guided-notice='2']");
+    const secondNotice = await advanceToToneGuidedNotice(page, 2);
     await secondNotice.locator("[data-tone-first-exposure]").click();
     await expect(secondNotice.locator("[data-tone-contour='2'][data-tone-display-mode='EARLY']")).toBeVisible();
     await page.screenshot({ path: path.join(SHOTS, "tone-2-teaching-mobile-pt.png"), fullPage: true });
     await page.getByRole("button", { name: "Percebi a curva" }).click();
 
-    const fourthNotice = page.locator("[data-tone-guided-notice='4']");
+    const fourthNotice = await advanceToToneGuidedNotice(page, 4);
     await fourthNotice.locator("[data-tone-first-exposure]").click();
     await expect(fourthNotice.locator("[data-tone-contour='4'][data-tone-display-mode='EARLY']")).toBeVisible();
     await page.screenshot({ path: path.join(SHOTS, "tone-4-teaching-mobile-pt.png"), fullPage: true });
