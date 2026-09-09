@@ -9,9 +9,8 @@ export const PRO_PRICING_HEADLINE =
 export const PRO_CHECKOUT_PENDING =
   /Indisponível enquanto o preço está pendente|Unavailable while pricing is pending/i;
 
-// Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
-// antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
-// preview) e deixam de representar o estado que o teste quer simular.
+// Seeds stay on persist v21 so the v22 Culture Quest migration runs in E2E.
+// Older versions still pass through every prior migrate (v14 strips preview Pro).
 const STORE_VERSION = 21;
 
 type SeedState = Record<string, unknown>;

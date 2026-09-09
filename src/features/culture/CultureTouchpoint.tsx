@@ -34,7 +34,7 @@ export function CultureTouchpoint({
       <p className="mt-1 text-sm leading-5 text-ink-soft">{copy.summary}</p>
       <div className="mt-3 grid gap-2 sm:grid-cols-3">
         <ButtonLink to={href} className="min-h-11 w-full" data-testid="culture-touchpoint-open">
-          {t("culture.openNow")}
+          {t("culture.startMission")}
         </ButtonLink>
         <Button variant="outline" className="min-h-11 w-full" onClick={onSave} disabled={saved} data-testid="culture-touchpoint-save">
           {saved ? t("culture.saved") : t("culture.saveForLater")}

@@ -164,8 +164,8 @@ if (!/isPreview && isDevPreviewAllowed\(\)/.test(entitlementsSrc)) {
 }
 
 const storeSrc = read("src/lib/store.ts");
-if (!storeSrc.includes("version: 21")) {
-  fail("store.ts persist deve estar na versão 21 (Culture Hub + Topic Mastery Path)");
+if (!storeSrc.includes("version: 22")) {
+  fail("store.ts persist deve estar na versão 22 (Culture Quest + Topic Mastery Path)");
 }
 if (!storeSrc.includes("lessonMasteryById")) {
   fail("store.ts deve persistir lessonMasteryById (Pedagogia V3)");

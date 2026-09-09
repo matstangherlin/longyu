@@ -20,7 +20,7 @@ export {
   isQaTestStateActive,
 } from "./qaFastPathAccess";
 /** Deve acompanhar `version` do persist em src/lib/store.ts. */
-export const QA_STORE_VERSION = 21;
+export const QA_STORE_VERSION = 22;
 
 export type QaScenarioId =
   | "m1"

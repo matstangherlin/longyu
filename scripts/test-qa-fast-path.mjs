@@ -134,7 +134,7 @@ for (const id of [
 ]) {
   assert(qaSrc.includes(`id: "${id}"`), `cenário ausente: ${id}`);
 }
-assert(qaSrc.includes("QA_STORE_VERSION = 21"), "seed usa STORE_VERSION 21");
+assert(qaSrc.includes("QA_STORE_VERSION = 22"), "seed usa STORE_VERSION 22");
 assert(qaSrc.includes('case "topic-mastery-1"'), "seed 1/4");
 assert(qaSrc.includes('case "topic-mastery-3"'), "seed 3/4");
 assert(qaSrc.includes("qa_fast_path_disabled"), "apply recusa produção");

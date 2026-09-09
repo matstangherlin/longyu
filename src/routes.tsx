@@ -23,6 +23,7 @@ const LeituraPage = lazy(() => import("./features/leitura/LeituraPage").then((m)
 const RevisaoPage = lazy(() => import("./features/revisao/RevisaoPage").then((m) => ({ default: m.RevisaoPage })));
 const CultureHubPage = lazy(() => import("./features/culture/CultureHubPage").then((m) => ({ default: m.CultureHubPage })));
 const CultureItemPage = lazy(() => import("./features/culture/CultureItemPage").then((m) => ({ default: m.CultureItemPage })));
+const CultureReviewPage = lazy(() => import("./features/culture/CultureReviewPage").then((m) => ({ default: m.CultureReviewPage })));
 const BibliotecaPage = lazy(() => import("./features/biblioteca/BibliotecaPage").then((m) => ({ default: m.BibliotecaPage })));
 const SettingsPage = lazy(() => import("./features/settings/SettingsPage").then((m) => ({ default: m.SettingsPage })));
 const ProfilePage = lazy(() => import("./features/perfil/ProfilePage").then((m) => ({ default: m.ProfilePage })));
@@ -138,6 +139,7 @@ export const routes: RouteObject[] = [
       { path: "leitura", element: <LeituraPage /> },
       { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },
       { path: "cultura", element: <CultureHubPage /> },
+      { path: "cultura/revisao", element: <CultureReviewPage /> },
       { path: "cultura/:id", element: <CultureItemPage /> },
       { path: "biblioteca", element: <BibliotecaPage /> },
       { path: "imersao", element: <JourneyNodeGate><ImmersionPage /></JourneyNodeGate> },

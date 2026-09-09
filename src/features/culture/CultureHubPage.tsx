@@ -2,18 +2,19 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   cultureItemsForCategory,
-  cultureItemsRelatedToLesson,
-  cultureProgressByCategory,
   localizedCulture,
   type CultureCategory,
 } from "../../data/culture";
-import { currentLessonId } from "../../data/journey";
+import { CULTURE_ROUTES, CULTURE_SEALS, cultureText } from "../../data/cultureQuest";
+import { getCultureMission } from "../../data/cultureMissions";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
-import { Card } from "../../components/ui/primitives";
+import { ButtonLink, Card } from "../../components/ui/primitives";
 import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
-import { CultureCard, cultureCategoryLabel } from "./CultureCard";
+import { CultureCard } from "./CultureCard";
+import { pickNextCultureMissionId } from "../../lib/cultureMastery";
+import { dueCultureMemoryTargets } from "../../lib/cultureMastery";
 
 const CATEGORY_FILTERS: Array<{ id: "all" | CultureCategory; key: MessageKey }> = [
   { id: "all", key: "culture.filterAll" },
@@ -32,21 +33,25 @@ const CATEGORY_FILTERS: Array<{ id: "all" | CultureCategory; key: MessageKey }> 
 export function CultureHubPage() {
   const { t, instructionLocale } = useTranslation();
   const [category, setCategory] = useState<"all" | CultureCategory>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const savedIds = useStore((s) => s.cultureSavedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
-  const completedLessons = useStore((s) => s.completedLessons);
-  const lessonMasteryById = useStore((s) => s.lessonMasteryById);
+  const masteryById = useStore((s) => s.cultureMasteryById ?? {});
+  const seals = useStore((s) => s.cultureSeals ?? []);
+  const memoryById = useStore((s) => s.cultureMemoryById ?? {});
 
-  const items = cultureItemsForCategory(category);
-  const continueItems = items.filter((item) => savedIds.includes(item.id) || startedIds.includes(item.id)).filter((item) => !completedIds.includes(item.id));
-  const profile = cultureProgressByCategory(completedIds);
+  const nextId = pickNextCultureMissionId(completedIds, startedIds);
+  const nextMission = nextId ? getCultureMission(nextId) : undefined;
+  const nextTitle = nextMission
+    ? instructionLocale === "en"
+      ? nextMission.titleEn
+      : nextMission.titlePt
+    : "";
+  const due = dueCultureMemoryTargets(memoryById);
   const done = completedIds.length;
-  const total = profile.reduce((sum, row) => sum + row.total, 0);
-  const currentId = currentLessonId(completedLessons, false, lessonMasteryById);
-  const related = currentId ? cultureItemsRelatedToLesson(currentId).slice(0, 3) : [];
-
-  const cta = t("culture.learn");
+  const total = 18;
+  const items = cultureItemsForCategory(category);
 
   const filterButtons = useMemo(
     () =>
@@ -58,9 +63,7 @@ export function CultureHubPage() {
           onClick={() => setCategory(filter.id)}
           className={[
             "min-h-10 shrink-0 rounded-full border px-3 text-sm",
-            category === filter.id
-              ? "border-accent bg-accent text-white"
-              : "border-line bg-surface text-ink",
+            category === filter.id ? "border-accent bg-accent text-white" : "border-line bg-surface text-ink",
           ].join(" ")}
         >
           {t(filter.key)}
@@ -71,85 +74,120 @@ export function CultureHubPage() {
 
   return (
     <HubPage data-testid="culture-hub">
-      <HubHeader eyebrow={t("culture.eyebrow")} title={t("culture.title")} desc={t("culture.tagline")} />
+      <HubHeader eyebrow={t("culture.eyebrow")} title={t("culture.title")} desc={t("culture.passportTagline")} />
 
-      <Card className="p-4" data-testid="culture-progress">
-        <p className="text-sm font-semibold text-ink">{t("culture.progressCount", { done, total })}</p>
-        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-          {profile.map((row) => (
-            <li key={row.category} className="flex items-center justify-between text-sm text-ink-soft">
-              <span>{cultureCategoryLabel(row.category, t)}</span>
-              <span className="font-medium text-ink">
-                {row.done}/{row.total}
-              </span>
-            </li>
-          ))}
-        </ul>
+      <Card className="p-4" data-testid="culture-progress" data-passport="true">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">{t("culture.passportEyebrow")}</p>
+        <p className="mt-1 font-serif text-xl font-semibold text-ink">{t("culture.passportTitle")}</p>
+        <p className="mt-2 text-sm font-semibold text-ink">{t("culture.progressCount", { done, total })}</p>
+        <p className="text-xs text-ink-soft" data-testid="culture-seal-count">
+          {t("culture.sealCount", { n: seals.length })}
+        </p>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-2">
+          <div className="h-full bg-accent" style={{ width: `${Math.round((done / total) * 100)}%` }} />
+        </div>
+        {nextMission ? (
+          <div className="mt-4 space-y-2">
+            <p className="text-xs uppercase tracking-[0.12em] text-ink-faint">{t("culture.nextMissionLabel")}</p>
+            <p className="font-serif text-lg font-semibold text-ink" data-testid="culture-next-title">
+              🏮 {nextTitle}
+            </p>
+            <ButtonLink to={`/cultura/${nextMission.cultureItemId}`} className="min-h-12 w-full" data-testid="culture-next-cta">
+              {t("culture.continueMission")}
+            </ButtonLink>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-ink-soft">{t("culture.allMissionsDone")}</p>
+        )}
       </Card>
 
-      {continueItems.length > 0 && (
-        <HubSection title={t("culture.continueLearning")}>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {continueItems.map((item) => (
-              <CultureCard
-                key={`continue-${item.id}`}
-                item={item}
-                title={localizedCulture(item, instructionLocale).title}
-                completedIds={completedIds}
-                savedIds={savedIds}
-                startedIds={startedIds}
-                to={`/cultura/${item.id}`}
-                cta={cta}
-              />
-            ))}
-          </div>
-        </HubSection>
-      )}
+      {due.length > 0 ? (
+        <Card className="p-4" data-testid="culture-review-card">
+          <p className="font-serif text-lg font-semibold text-ink">{t("culture.reviewTitle")}</p>
+          <p className="mt-1 text-sm text-ink-soft">{t("culture.reviewCount", { n: due.length })}</p>
+          <ButtonLink to="/cultura/revisao" className="mt-3 min-h-12" data-testid="culture-review-cta">
+            {t("culture.reviewNow")}
+          </ButtonLink>
+        </Card>
+      ) : null}
 
-      {related.length > 0 && (
-        <HubSection title={t("culture.relatedToJourney")}>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {related.map((item) => (
-              <CultureCard
-                key={`related-${item.id}`}
-                item={item}
-                title={localizedCulture(item, instructionLocale).title}
-                completedIds={completedIds}
-                savedIds={savedIds}
-                startedIds={startedIds}
-                to={`/cultura/${item.id}`}
-                cta={cta}
-              />
-            ))}
-          </div>
-        </HubSection>
-      )}
-
-      <HubSection title={t("culture.categories")}>
-        <div className="flex gap-2 overflow-x-auto pb-1" data-testid="culture-category-filter">
-          {filterButtons}
+      <HubSection title={t("culture.currentRoute")}>
+        <div className="grid gap-3">
+          {CULTURE_ROUTES.map((route) => {
+            const nodes = route.itemIds.map((itemId) => ({
+              itemId,
+              done: completedIds.includes(itemId),
+              stars: masteryById[itemId]?.stars ?? 0,
+            }));
+            return (
+              <Card key={route.id} className="p-3" data-testid={`culture-route-${route.id}`}>
+                <p className="font-serif text-base font-semibold text-ink">
+                  {cultureText({ pt: route.titlePt, en: route.titleEn }, instructionLocale)}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {nodes.map((node) => (
+                    <Link
+                      key={node.itemId}
+                      to={`/cultura/${node.itemId}`}
+                      className="min-h-11 rounded-full border border-line px-3 py-2 text-xs text-ink"
+                      data-testid={`culture-node-${node.itemId}`}
+                    >
+                      {node.done ? "●" : "○"} {localizedCultureTitle(node.itemId, instructionLocale)}
+                    </Link>
+                  ))}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </HubSection>
 
-      <HubSection title={t("culture.recent")}>
-        {items.length === 0 ? (
-          <p className="text-sm text-ink-soft">{t("culture.emptyCategory")}</p>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-2">
-            {items.map((item) => (
-              <CultureCard
-                key={item.id}
-                item={item}
-                title={localizedCulture(item, instructionLocale).title}
-                completedIds={completedIds}
-                savedIds={savedIds}
-                startedIds={startedIds}
-                to={`/cultura/${item.id}`}
-                cta={cta}
-              />
-            ))}
+      <HubSection title={t("culture.sealsTitle")}>
+        <div className="flex flex-wrap gap-2" data-testid="culture-seals">
+          {CULTURE_SEALS.map((seal) => {
+            const earned = seals.includes(seal.id);
+            return (
+              <span
+                key={seal.id}
+                className={["min-h-11 rounded-full border px-3 py-2 text-sm", earned ? "border-gold bg-gold/10" : "border-line bg-surface text-ink-faint"].join(" ")}
+                data-testid={`culture-seal-${seal.id}`}
+                data-earned={earned ? "true" : "false"}
+              >
+                {seal.emoji} {cultureText({ pt: seal.titlePt, en: seal.titleEn }, instructionLocale)}
+              </span>
+            );
+          })}
+        </div>
+      </HubSection>
+
+      <HubSection title={t("culture.explore")}>
+        <button
+          type="button"
+          className="min-h-11 text-sm font-medium text-accent"
+          data-testid="culture-show-categories"
+          onClick={() => setShowFilters((open) => !open)}
+        >
+          {showFilters ? t("culture.hideCategories") : t("culture.showCategories")}
+        </button>
+        {showFilters ? (
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1" data-testid="culture-category-filter">
+            {filterButtons}
           </div>
-        )}
+        ) : null}
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {items.map((item) => (
+            <CultureCard
+              key={item.id}
+              item={item}
+              title={localizedCulture(item, instructionLocale).title}
+              completedIds={completedIds}
+              savedIds={savedIds}
+              startedIds={startedIds}
+              to={`/cultura/${item.id}`}
+              cta={t("culture.learn")}
+            />
+          ))}
+        </div>
       </HubSection>
 
       <p className="text-center text-xs text-ink-faint">
@@ -159,4 +197,10 @@ export function CultureHubPage() {
       </p>
     </HubPage>
   );
+}
+
+function localizedCultureTitle(itemId: string, locale: "pt-BR" | "en"): string {
+  const mission = getCultureMission(itemId);
+  if (!mission) return itemId;
+  return locale === "en" ? mission.titleEn : mission.titlePt;
 }
