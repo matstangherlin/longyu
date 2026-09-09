@@ -448,6 +448,13 @@ export interface Lesson {
   previewItems?: string[];
   /** Hànzì vistos como novidade visual nesta lição, antes de entrarem no repertório principal. */
   newHanzi?: string[];
+  /**
+   * Productive memory CORE for this lesson — a subset of newHanzi / library glyphs.
+   * Technical corpus glyphs stay out of this list.
+   */
+  hanziMemoryTargets?: string[];
+  /** Reserved for V4.9.6C Culture Hub association. Unused in this remessa. */
+  cultureItemId?: string;
   rewardQi?: number;
   estimatedMinutes?: number;
   /** Lição de consolidação no fim do módulo (nó dourado). */
@@ -959,6 +966,26 @@ const listenSelect = (
   correctAnswer,
   explanation,
 });
+const audioDiscrimination = (
+  audioText: string,
+  audioTextB: string,
+  same: boolean,
+  contrastLabel: string,
+  a: { hanzi: string; pinyin: string; meaningPt: string },
+  b: { hanzi: string; pinyin: string; meaningPt: string },
+  explanation: string
+): LessonStep => ({
+  kind: "audio_discrimination",
+  title: "Os sons são iguais ou diferentes?",
+  prompt: "Ouça os dois sons. Compare apenas o que você ouve.",
+  audioText,
+  audioTextB,
+  correctAnswer: same ? "same" : "different",
+  contrastLabel,
+  pairReveal: [a, b],
+  explanation,
+  isNoHint: true,
+});
 const fillBlank = (
   title: string,
   prompt: string,
@@ -1177,7 +1204,7 @@ const PHASE1_BOOTSTRAP_LESSONS: Lesson[] = [
     steps: [
       intro(
         "A curva da voz",
-        "Em mandarim, o contorno da voz faz parte da palavra. Comece só ouvindo dois tons bem diferentes — depois entram os quatro contornos."
+        "Em mandarim o tom faz parte da sílaba. A mesma base com outro contorno pode ser outra palavra. O pinyin marca o tom. Não é volume: é o desenho da voz. Comece ouvindo reta alta e vale."
       ),
       // PED-005: primeiro 2 tons contrastantes (1º × 3º), sem misturar significado.
       tone("妈", "mā", 1, "guided", [1, 3]),
@@ -1464,7 +1491,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2", "char:shan"],
     steps: [
-      intro("Alto e reto", "O 1º tom fica alto e constante. Em 妈 mā, pense em uma linha reta no alto."),
+      intro("Alto e reto", "O 1º tom fica alto e constante. Não é volume: é o contorno da sílaba. Em 妈 mā, pense em uma linha reta no alto."),
       listen("妈", "mā", "mãe"),
       tone("妈", "mā", 1, "quiz"),
       listen("山", "shān", "montanha (também 1º tom)"),
@@ -1490,7 +1517,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2"],
     steps: [
-      intro("Subindo", "O 2º tom sobe, como uma pergunta curta em português. Ouça má e acompanhe a subida."),
+      intro("Subindo", "O 2º tom sobe, como uma pergunta curta em português. Começa numa região média e sobe. Ouça má e acompanhe a subida."),
       listen("麻", "má", "cânhamo; dormente"),
       listenSelect("Ouça má", "麻", ["妈", "麻", "马", "骂"], "麻", "麻 usa 2º tom: sobe."),
       tone("麻", "má", 2, "quiz"),
@@ -1512,7 +1539,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2"],
     steps: [
-      intro("Desce e sobe", "O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico. O mesmo vale já apareceu no cumprimento que você usa."),
+      intro("Desce e sobe", "O 3º tom faz um vale: desce e depois volta a subir. 马 mǎ é o exemplo clássico. Isolado, o vale sobe no fim; na fala real, muitas vezes fica só baixo e curto."),
       listen("马", "mǎ", "cavalo"),
       listenSelect("Ouça mǎ", "马", ["妈", "麻", "马", "骂"], "马", "马 usa 3º tom: desce e sobe."),
       tone("马", "mǎ", 3, "quiz"),
@@ -1534,7 +1561,7 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["char:ma2", "chunk:xiexie"],
     reviewItems: ["char:ma2", "chunk:xiexie"],
     steps: [
-      intro("Cai firme", "O 4º tom cai rápido, como um comando curto. 骂 mà usa essa queda forte."),
+      intro("Cai firme", "O 4º tom cai rápido, como um comando curto. Não é gritar: é a queda do contorno. 骂 mà usa essa queda forte."),
       listen("骂", "mà", "xingar"),
       listenSelect("Ouça mà", "骂", ["妈", "麻", "马", "骂"], "骂", "骂 usa 4º tom: cai firme."),
       tone("骂", "mà", 4, "quiz"),
@@ -1557,7 +1584,9 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2"],
     steps: [
-      intro("Reto contra queda", "Compare: mā fica alto e reto; mà cai rápido. O contraste ajuda seu ouvido a decidir."),
+      intro("Reto contra queda", "Compare: mā fica alto e reto; mà cai rápido. O contraste ajuda seu ouvido a decidir. Ouça os dois antes de escolher."),
+      listen("妈", "mā", "mãe"),
+      listen("骂", "mà", "xingar"),
       tone("妈", "mā", 1, "quiz"),
       tone("骂", "mà", 4, "quiz"),
       listenSelect(
@@ -1587,7 +1616,9 @@ const PHASE2_MA_TONE_MICROTASKS: Lesson[] = [
     libraryItems: ["char:ma2"],
     reviewItems: ["char:ma2"],
     steps: [
-      intro("Subida contra vale", "O 2º tom sobe direto. O 3º tom desce e sobe, como um vale."),
+      intro("Subida contra vale", "O 2º tom sobe direto. O 3º tom desce e sobe, como um vale. Na fala real, o 3º muitas vezes não completa toda a subida. Ouça os dois."),
+      listen("麻", "má", "cânhamo; dormente"),
+      listen("马", "mǎ", "cavalo"),
       tone("麻", "má", 2, "quiz"),
       tone("马", "mǎ", 3, "quiz"),
       match(
@@ -5842,9 +5873,10 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
+            hanziMemoryTargets: ["点"],
             // Chars de rotina/trabalho que ainda não têm entrada própria em
             // CHARACTERS (têm gloss) — declarados aqui para o corpus aceitar.
-            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司", "做"],
+            newHanzi: ["起", "床", "上", "班", "下", "睡", "觉", "公", "司", "做", "晚"],
             // Vocabulário novo de rotina/trabalho (chunks); os antigos (你好/谢谢)
             // aparecem como distratores para misturar repertório.
             libraryItems: [
@@ -5860,6 +5892,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:nijidianshangban",
               "chunk:nijidianqichuang",
               "chunk:woqidianqichuang",
+              "char:dian_point",
             ],
             reviewItems: [
               "chunk:woqichuang",
@@ -5869,6 +5902,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:woshujiao",
               "chunk:nihao",
               "chunk:xiexie",
+              "char:dian_point",
             ],
             steps: [
               intro(
@@ -5880,6 +5914,14 @@ export const JOURNEY: JourneyPhase[] = [
               listen("我下班", "wǒ xiàbān", "Saio do trabalho"),
               listen("我要工作", "wǒ yào gōngzuò", "Quero trabalhar"),
               listen("我睡觉", "wǒ shuìjiào", "Eu durmo"),
+              imageChoice(
+                "choose_meaning",
+                "home",
+                "O que esta imagem mostra?",
+                "casa",
+                visualMeaningOptions("home"),
+                { explanation: "家 (jiā) = casa. A rotina começa e termina em casa." }
+              ),
               match(
                 "A rotina em ordem",
                 "Combine cada frase com o momento do dia.",
@@ -5939,13 +5981,56 @@ export const JOURNEY: JourneyPhase[] = [
                 "Situação"
               ),
               listen("你做什么工作？", "nǐ zuò shénme gōngzuò?", "O que você faz de trabalho?"),
+              listen("你在哪里工作？", "nǐ zài nǎlǐ gōngzuò?", "Onde você trabalha?"),
               listen("我在公司上班", "wǒ zài gōngsī shàngbān", "Trabalho numa empresa"),
               listen("你几点起床？", "nǐ jǐ diǎn qǐchuáng?", "A que horas você acorda?"),
               flash("wozaigongsishangban"),
               flash("woqidianqichuang"),
               flash("nijidianshangban"),
               listen("你几点上班？", "nǐ jǐ diǎn shàngbān?", "A que horas você começa o trabalho?"),
+              write(
+                "Diga quando você acorda",
+                "Você está combinando o dia com Mei. Diga quando você acorda.",
+                "我七点起床",
+                "Digite a resposta em chinês",
+                "woqidianqichuang",
+                { accepts: ["我七点起床", "我七点起床。", "七点起床"] }
+              ),
+              write(
+                "Diga quando você dorme",
+                "Agora fale da noite. Diga o que você faz à noite.",
+                "我晚上睡觉",
+                "Digite a resposta em chinês",
+                "woshujiao",
+                { accepts: ["我晚上睡觉", "我晚上睡觉。", "晚上睡觉"] }
+              ),
               conversationScene("rotina-e-trabalho"),
+              postConversation(
+                listenSelect(
+                  "Que horas começa?",
+                  "八点",
+                  ["七点", "八点", "九点"],
+                  "八点",
+                  "八点 é o horário de começar o trabalho."
+                ),
+                "rotina-e-trabalho",
+                "char:ba8",
+                "listen_choose",
+                1
+              ),
+              postConversation(
+                sentenceBuild(
+                  "Monte a noite",
+                  "Monte: à noite eu durmo.",
+                  ["我", "晚上", "睡觉"],
+                  ["我", "晚上", "睡觉", "起床"],
+                  "我晚上睡觉 combina tempo e ação."
+                ),
+                "rotina-e-trabalho",
+                "chunk:woshujiao",
+                "build_used_answer",
+                2
+              ),
             ],
           }),
           withLessonDefaults({
@@ -6585,8 +6670,9 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            // 午 é o único char só-gloss usado aqui (中 está em CHARACTERS).
-            newHanzi: ["午", "半", "下"],
+            hanziMemoryTargets: ["明", "天", "今", "昨", "现"],
+            // 午 is the only gloss-only clock char already here; 候 enters with 什么时候.
+            newHanzi: ["午", "半", "下", "候"],
             libraryItems: [
               "chunk:xianzaijidian",
               "chunk:xianzaibadian",
@@ -6595,6 +6681,19 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:badianban",
               "chunk:xiawusandian",
               "chunk:jiudianshifen",
+              "chunk:xianzai",
+              "chunk:jintian",
+              "chunk:mingtian",
+              "chunk:zuotian",
+              "chunk:shenmeshihou",
+              "char:ji_how",
+              "char:jin_now",
+              "char:zuo_yesterday",
+              "char:xian_now",
+              "char:shi_time",
+              "char:ban_half",
+              "char:ming",
+              "char:tian_sky",
             ],
             reviewItems: [
               "chunk:xianzaijidian",
@@ -6603,6 +6702,13 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:zhongwu",
               "chunk:zaoshanghao",
               "chunk:wanan",
+              "chunk:jintian",
+              "chunk:mingtian",
+              "chunk:zuotian",
+              "char:ming",
+              "char:tian_sky",
+              "char:xian_now",
+              "char:dian_point",
             ],
             steps: [
               intro(
@@ -6613,6 +6719,49 @@ export const JOURNEY: JourneyPhase[] = [
               listen("现在八点", "xiànzài bā diǎn", "São oito horas"),
               listen("现在九点", "xiànzài jiǔ diǎn", "São nove horas"),
               listen("中午", "zhōngwǔ", "Meio-dia"),
+              listen("八点半", "bā diǎn bàn", "Oito e meia"),
+              listen("昨天", "zuótiān", "Ontem"),
+              listen("今天", "jīntiān", "Hoje"),
+              listen("明天", "míngtiān", "Amanhã"),
+              recognize("ming"),
+              audioDiscrimination(
+                "明天",
+                "今天",
+                false,
+                "2º+1º × 1º+1º",
+                { hanzi: "明天", pinyin: "míngtiān", meaningPt: "amanhã" },
+                { hanzi: "今天", pinyin: "jīntiān", meaningPt: "hoje" },
+                "明天 começa em 2º tom; 今天 começa em 1º. Não é o mesmo par de contornos."
+              ),
+              listenSelect(
+                "Qual começa com 1º tom?",
+                "今天",
+                ["今天", "明天", "昨天"],
+                "今天",
+                "jīn de 今天 é 1º tom. míng e zuó sobem (2º)."
+              ),
+              imageChoice(
+                "choose_meaning",
+                "moon",
+                "O que esta imagem mostra?",
+                "lua",
+                visualMeaningOptions("moon"),
+                { explanation: "月 (yuè) = lua / mês. Em 九月八号, 月 marca o mês." }
+              ),
+              listenSelect(
+                "Quando?",
+                "明天",
+                ["hoje", "amanhã", "ontem"],
+                "amanhã",
+                "Você ouviu 明天: amanhã."
+              ),
+              listenSelect(
+                "Qual é a data?",
+                "九月八号",
+                ["7 de setembro", "8 de setembro", "9 de setembro"],
+                "8 de setembro",
+                "九月八号 lê o mês e o dia: 8 de setembro."
+              ),
               match(
                 "Combine a hora",
                 "Combine cada relógio com a frase.",
@@ -6623,39 +6772,9 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
                 "八点 é 8h, 九点 é 9h, 中午 é meio-dia."
               ),
-              listenSelect("Que horas?", "九点", ["八点", "九点", "中午", "现在几点"], "九点", "九点 = 9 horas."),
-              comp("现在几点？", "xiànzài jǐ diǎn?", "Que horas são?", ["Que horas são?", "São oito horas.", "Meio-dia.", "Estou bem."]),
-              sentenceBuild(
-                "Monte a pergunta",
-                "Monte: que horas são?",
-                ["现", "在", "几", "点"],
-                ["现", "在", "几", "点", "八"],
-                "现在几点？ pergunta a hora."
-              ),
-              sentenceBuild(
-                "Monte: são oito",
-                "Monte: são oito horas.",
-                ["现", "在", "八", "点"],
-                ["现", "在", "八", "点", "九"],
-                "现在八点 = são oito horas."
-              ),
-              fillBlank(
-                "Complete: meio-dia",
-                "Complete: meio-dia.",
-                "中",
-                "午",
-                "",
-                ["午", "点"],
-                "中午 = meio-dia."
-              ),
-              dialogue(
-                "Pergunte a hora",
-                "Você quer saber as horas. O que pergunta?",
-                "现在几点？",
-                ["现在几点？", "现在八点", "中午", "再见"],
-                "现在几点？ pergunta as horas.",
-                "Situação"
-              ),
+              flash("badianban"),
+              flash("shenmeshihou"),
+              flash("zuotian"),
               dialogue(
                 "Responda a hora",
                 "São nove horas. O que você diz?",
@@ -6664,10 +6783,89 @@ export const JOURNEY: JourneyPhase[] = [
                 "现在九点 = são nove horas.",
                 "Situação"
               ),
-              listen("八点半", "bā diǎn bàn", "Oito e meia"),
-              listen("下午三点", "xiàwǔ sān diǎn", "Três da tarde"),
-              flash("badianban"),
+              write(
+                "Diga oito e meia",
+                "Alguém pergunta as horas. São oito e meia. Responda.",
+                "八点半",
+                "Digite a resposta em chinês",
+                "badianban",
+                { accepts: ["八点半", "八点半。", "现在八点半", "现在八点半。"] }
+              ),
+              write(
+                "Pergunte que horas são",
+                "Você precisa saber as horas. Pergunte.",
+                "现在几点？",
+                "Digite a resposta em chinês",
+                "xianzaijidian",
+                { accepts: ["现在几点？", "现在几点"] }
+              ),
+              write(
+                "Diga ontem",
+                "Alguém pergunta o dia. Diga ontem.",
+                "昨天",
+                "Digite a resposta em chinês",
+                "zuotian",
+                { accepts: ["昨天", "昨天。"] }
+              ),
+              write(
+                "Diga o que você faz hoje",
+                "Mei pergunta o que você faz hoje. Diga que estuda.",
+                "我今天学习",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["我今天学习", "我今天学习。", "今天我学习", "今天我学习。"] }
+              ),
+              write(
+                "Diga o plano de amanhã",
+                "Vocês combinam o dia seguinte. Diga que amanhã você vai.",
+                "我明天去",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["我明天去", "我明天去。", "明天我去", "明天我去。"] }
+              ),
+              write(
+                "Diga a data",
+                "Alguém pergunta a data. É o dia 8 de setembro. Responda.",
+                "九月八号",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["九月八号", "九月八号。"] }
+              ),
+              write(
+                "Pergunte quando a pessoa vai",
+                "Você quer saber quando a outra pessoa vai. Pergunte.",
+                "你什么时候去？",
+                "Digite a resposta em chinês",
+                undefined,
+                { accepts: ["你什么时候去？", "你什么时候去", "什么时候？", "什么时候"] }
+              ),
               conversationScene("que-horas-sao"),
+              postConversation(
+                listenSelect(
+                  "Que horas ouviu?",
+                  "八点半",
+                  ["八点", "八点半", "九点"],
+                  "八点半",
+                  "八点半 = oito e meia."
+                ),
+                "que-horas-sao",
+                "chunk:badianban",
+                "listen_choose",
+                1
+              ),
+              postConversation(
+                sentenceBuild(
+                  "Monte agora",
+                  "Monte: agora.",
+                  ["现", "在"],
+                  ["现", "在", "天"],
+                  "现在 diz o momento: agora."
+                ),
+                "que-horas-sao",
+                "chunk:xianzai",
+                "build_used_answer",
+                2
+              ),
             ],
           }),
           microLesson({
@@ -6696,6 +6894,7 @@ export const JOURNEY: JourneyPhase[] = [
               "char:shan",
               "char:shui",
               "char:mu",
+              "char:tian_sky",
             ],
             steps: [
               intro(
@@ -6799,6 +6998,10 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:jintianhenleng",
               "chunk:beijingjintianhenleng",
               "chunk:shanghaijintianhenre",
+              "chunk:mingtian",
+              "chunk:zuotian",
+              "chunk:xianzai",
+              "char:ming",
             ],
             reviewItems: [
               "chunk:jintiantianqihenhao",
@@ -6809,6 +7012,10 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:youfeng",
               "chunk:xiayule",
               "chunk:jintianhenhao",
+              "chunk:mingtian",
+              "chunk:zuotian",
+              "chunk:xianzai",
+              "char:ming",
             ],
             steps: [
               intro(
@@ -6817,6 +7024,9 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("天气很热", "tiānqì hěn rè", "O tempo está quente"),
               listen("天气很冷", "tiānqì hěn lěng", "O tempo está frio"),
+              listen("昨天很冷", "zuótiān hěn lěng", "Ontem estava frio"),
+              listen("现在很冷", "xiànzài hěn lěng", "Agora está frio"),
+              listen("明天天气很好", "míngtiān tiānqì hěn hǎo", "Amanhã o tempo está ótimo"),
               listen("北京今天很冷", "Běijīng jīntiān hěn lěng", "Hoje Pequim está fria"),
               listen("上海今天很热", "Shànghǎi jīntiān hěn rè", "Hoje Xangai está quente"),
               listen("有风", "yǒu fēng", "Está ventando"),
@@ -6831,6 +7041,14 @@ export const JOURNEY: JourneyPhase[] = [
                 "热 é quente, 冷 é frio, 风 é vento."
               ),
               listen("今天天气很好", "jīntiān tiānqì hěn hǎo", "Hoje o tempo está ótimo"),
+              recognize("ming"),
+              listenSelect(
+                "Qual começa com 1º tom?",
+                "今天",
+                ["今天", "明天", "昨天"],
+                "今天",
+                "Você já conhece 今天 e 明天. jīn é 1º tom; míng sobe."
+              ),
               listen("下雨了", "xià yǔ le", "Está chovendo"),
               listen("下雪了", "xià xuě le", "Está nevando"),
               listen("天晴了", "tiān qíng le", "O céu abriu"),

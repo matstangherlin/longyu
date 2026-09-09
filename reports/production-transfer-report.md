@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f08cf7574ac3 |
-| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Hash da Jornada | 7f4a081846d3 |
+| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:35:57.595Z |
+| Gerado em | 2026-09-08T23:09:24.113Z |
 | Lições | 127 |
 
 ## Resumo
@@ -25,19 +25,19 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Tarefas que aceitam frase irmã | 44 |
 | Objetivos de produção aberta declarados | 13 |
 | Objetivos de produção aberta no plano real | 10 |
-| Lições com produção aberta | 47 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 191 |
+| Lições com produção aberta | 45 / 127 |
+| Falas de conversa sem apoio (aluno veterano) | 196 |
 | Lições com conversa sem apoio | 97 / 127 |
-| Lições com quebra de comunicação jogável | 89 / 127 |
+| Lições com quebra de comunicação jogável | 87 / 127 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 550 |
-| Lições com produção livre | 79 / 127 |
-| Lições com transferência | 25 / 127 |
-| Lições com reparo conversacional | 56 / 127 |
+| Passos auditados no plano real (3 tentativas) | 528 |
+| Lições com produção livre | 77 / 127 |
+| Lições com transferência | 23 / 127 |
+| Lições com reparo conversacional | 54 / 127 |
 | Estruturas diferentes no plano real | 16 |
-| Frases inéditas cobradas | 33 |
-| Transfer guided / supported / question | 33 / 21 / 19 |
-| 1ªs transferências (attempt 0) | 25 |
+| Frases inéditas cobradas | 31 |
+| Transfer guided / supported / question | 31 / 19 / 17 |
+| 1ªs transferências (attempt 0) | 23 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -56,14 +56,14 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l26b** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢中国。`
 - **l27** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢茶。`
 - **l28** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
-- **p6-rotina-trabalho** · `frame_wozai` · guided · âncora 我在学中文 → `我在睡觉。`
 - **p6-cidade-lugares** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢鱼。`
 - **p6-china-cidades** · `frame_woqu` · guided · âncora 我去学校 → `我明天去医院。`
 - **p6-china-cidades-2** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
 - **p6-china-ruas** · `frame_woxiangchi` · guided · âncora 我想吃米饭 → `我想吃鱼。`
 - **p6-saude** · `frame_wo_le` · guided · âncora 我饿了 → `我睡觉了。`
-- **p6-horarios** · `frame_woqu` · guided · âncora 我去学校 → `我今天去医院。`
-- …mais 10.
+- **p6-natureza** · `frame_woxiangchi` · guided · âncora 我想吃米饭 → `我想吃肉。`
+- **p6-clima** · `frame_woxianghe` · guided · âncora 我想喝茶 → `我想喝热水。`
+- …mais 8.
 
 ## Frases inéditas cobradas por transferência
 
@@ -73,14 +73,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 你要苹果吗
 - 你要茶
 - 你要菜吗
-- 我今天去医院
 - 我今天去超市
 - 我喜欢中国
 - 我喜欢茶
 - 我喜欢鱼
 - 我在吃饭
 - 我在喝水
-- 我在睡觉
 - 我想吃肉
 - 我想吃鱼
 - 我想喝热水
@@ -101,4 +99,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 车站在哪里
 - 香蕉多少钱
 
-<!-- integridade:fa4f75b89c0ac7d4 -->
+<!-- integridade:47002692fbb0e612 -->

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f08cf7574ac3 |
-| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Hash da Jornada | 7f4a081846d3 |
+| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:41:53.638Z |
+| Gerado em | 2026-09-08T23:13:35.162Z |
 | Lições | 127 |
 
 
@@ -22,10 +22,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | estimatedTimeToFirstTransfer | ~188 min | ~60 min (≈4 min/lição) |
 | firstFrame | frame_woyouge | frame_qingwennijiaoshenme |
 | firstTarget | 我有一个朋友 | 请问你叫什么 |
-| guided / supported / question | 112/0/19 | 24 / 1 / 0 |
-| totalTransfers (127) | 82 | 25 |
-| transferBearingLessons | ~49 | 25 |
-| transferBearingLessonRate | ~0.39 | 0.197 |
+| guided / supported / question | 112/0/19 | 22 / 1 / 0 |
+| totalTransfers (127) | 82 | 23 |
+| transferBearingLessons | ~49 | 23 |
+| transferBearingLessonRate | ~0.39 | 0.181 |
 | transfersBy20 | — | 1 (1 lições) |
 | transfersBy30 | — | 1 (1 lições) |
 | transfersBy50 | — | 3 (3 lições) |
@@ -158,18 +158,6 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio work
 - **Assist:** guided
 
-### L109 `p6-rotina-trabalho`
-
-- **Lesson:** p6-rotina-trabalho
-- **Frame:** frame_wozai
-- **Anchor:** 我在学中文
-- **Target:** 我在睡觉。
-- **Novel:** combinational (não está no corpus)
-- **Known components:** 我在学中文, 我, 在, 睡, 觉
-- **Domain:** work
-- **Why selected:** transferência posterior; 1 slot vs âncora; domínio work
-- **Assist:** guided
-
 ### L110 `p6-cidade-lugares`
 
 - **Lesson:** p6-cidade-lugares
@@ -230,16 +218,28 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **Why selected:** transferência posterior; 1 slot vs âncora; domínio health
 - **Assist:** guided
 
-### L115 `p6-horarios`
+### L116 `p6-natureza`
 
-- **Lesson:** p6-horarios
-- **Frame:** frame_woqu
-- **Anchor:** 我去学校
-- **Target:** 我今天去医院。
+- **Lesson:** p6-natureza
+- **Frame:** frame_woxiangchi
+- **Anchor:** 我想吃米饭
+- **Target:** 我想吃肉。
 - **Novel:** combinational (não está no corpus)
-- **Known components:** 我去学校, 我, 今, 天, 去, 医, 院
-- **Domain:** time
-- **Why selected:** transferência posterior; 1 slot vs âncora; domínio time
+- **Known components:** 我想吃米饭, 我, 想, 吃, 肉
+- **Domain:** restaurant
+- **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
+- **Assist:** guided
+
+### L117 `p6-clima`
+
+- **Lesson:** p6-clima
+- **Frame:** frame_woxianghe
+- **Anchor:** 我想喝茶
+- **Target:** 我想喝热水。
+- **Novel:** combinational (não está no corpus)
+- **Known components:** 我想喝茶, 我, 想, 喝, 热, 水
+- **Domain:** restaurant
+- **Why selected:** transferência posterior; 1 slot vs âncora; domínio restaurant
 - **Assist:** guided
 
 ## contextual_transfer vs combinational_transfer
@@ -247,4 +247,4 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **combinational_transfer:** contado acima — alvo inédito montado de componentes já ensinados.
 - **contextual_transfer:** reutilizar frase conhecida em situação nova (métrica separada; não infla novelTargets).
 
-<!-- integridade:87a6709f91e73eb3 -->
+<!-- integridade:00e04655874ff596 -->

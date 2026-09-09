@@ -4,8 +4,8 @@ Relatório computado pelo gate `npm run validate:teach-before-test`. A camada V4
 
 ## Métricas
 
-- totalKnowledgeTargets: 436
-- targetsWithPrerequisiteMetadata: 436
+- totalKnowledgeTargets: 440
+- targetsWithPrerequisiteMetadata: 440
 - firstGradedBeforeExposure: 0
 - insufficientScaffoldBeforeFirstGrade: 0
 - unknownDistractorCount: 0
@@ -42,15 +42,16 @@ Relatório computado pelo gate `npm run validate:teach-before-test`. A camada V4
 | char:ni | S1/M1/step2 | S1/M1/step2 | S1/M1/step3 | S3/M3/step2 | S3/M3/step4 | — |
 | char:hao | S1/M1/step2 | S1/M1/step2 | S1/M1/step3 | S3/M3/step2 | S3/M3/step4 | — |
 | concept:pinyin-map | S5/M1/step1 | S5/M1/step2 | S5/M1/step3 | S7/M3/step2 | — | — |
-| concept:tone-system | S9/M1/step1 | S9/M1/step2 | S9/M1/step4 | S11/M3/step2 | — | — |
-| concept:tone-1 | S9/M1/step2 | S9/M1/step2 | S9/M1/step4 | S11/M3/step2 | — | — |
-| concept:tone-3 | S9/M1/step2 | S9/M1/step2 | S9/M1/step5 | S11/M3/step2 | — | — |
-| char:ma2 | S9/M1/step2 | S9/M1/step2 | S9/M1/step4 | S11/M3/step2 | — | — |
-| char:ma_horse | S9/M1/step3 | S9/M1/step3 | S9/M1/step5 | S11/M3/step4 | — | — |
-| concept:tone-2 | S10/M2/step2 | S10/M2/step2 | S10/M2/step4 | S11/M3/step2 | — | — |
-| char:ma_hemp | S10/M2/step2 | S10/M2/step2 | S10/M2/step4 | S11/M3/step3 | — | — |
-| concept:tone-4 | S10/M2/step3 | S10/M2/step3 | S10/M2/step5 | S11/M3/step2 | — | — |
-| char:ma_scold | S10/M2/step3 | S10/M2/step3 | S10/M2/step5 | S11/M3/step5 | — | — |
+| concept:tone-system | S9/M1/step1 | S9/M1/step2 | S9/M1/step7 | S11/M3/step2 | — | — |
+| char:ma2 | S9/M1/step2 | S9/M1/step2 | S9/M1/step7 | S11/M3/step2 | — | — |
+| concept:tone-1 | S9/M1/step3 | S9/M1/step3 | S9/M1/step7 | S11/M3/step2 | — | — |
+| concept:tone-3 | S9/M1/step3 | S9/M1/step3 | S9/M1/step8 | S11/M3/step2 | — | — |
+| char:ma_horse | S9/M1/step5 | S9/M1/step5 | S9/M1/step8 | S11/M3/step4 | — | — |
+| char:ma_hemp | S10/M2/step2 | S10/M2/step2 | S11/M3/step3 | S11/M3/step3 | — | — |
+| concept:tone-2 | S10/M2/step3 | S10/M2/step3 | S11/M3/step2 | S11/M3/step2 | — | — |
+| char:ma_scold | S10/M2/step4 | S10/M2/step4 | S10/M2/step7 | S11/M3/step5 | — | — |
+| concept:tone-4 | S10/M2/step5 | S10/M2/step5 | S11/M3/step2 | S11/M3/step2 | — | — |
+| char:ma_question | S11/M3/step8 | S11/M3/step8 | — | — | — | — |
 | concept:hanzi-writing | S13/M1/step1 | S13/M1/step2 | S13/M1/step3 | S15/M3/step3 | S15/M3/step2 | — |
 | concept:hanzi-components | S17/M1/step1 | S17/M1/step2 | S17/M1/step4 | S19/M3/step9 | S17/M1/step4 | — |
 | char:mu | S17/M1/step1 | S17/M1/step2 | S17/M1/step4 | — | S17/M1/step4 | — |

@@ -28,8 +28,8 @@ quanto apoio.
 | 7 | p1-o-que-e-pinyin | M3 | — | 2 | 4 | — | 5/5 | 0 | RECEPTIVE |
 | 8 | p1-o-que-e-pinyin | M4 | — | 2 | 4 | — | 6/6 | 0 | RECEPTIVE |
 | 9 | p1-o-que-e-tom | M1 | instruction:foundation:tone | 7 | 5 | — | 4/4 | 0 | RECEPTIVE |
-| 10 | p1-o-que-e-tom | M2 | — | 6 | 5 | — | 4/4 | 0 | RECEPTIVE |
-| 11 | p1-o-que-e-tom | M3 | — | 5 | 9 | — | 5/5 | 0 | RECEPTIVE |
+| 10 | p1-o-que-e-tom | M2 | — | 6 | 3 | — | 3/3 | 0 | RECEPTIVE |
+| 11 | p1-o-que-e-tom | M3 | — | 6 | 9 | — | 5/5 | 0 | RECEPTIVE |
 | 12 | p1-o-que-e-tom | M4 | — | 4 | 9 | — | 5/5 | 0 | RECEPTIVE |
 | 13 | p1-o-que-e-hanzi | M1 | instruction:foundation:hanzi | 4 | 4 | — | 5/5 | 0 | RECEPTIVE |
 | 14 | p1-o-que-e-hanzi | M2 | — | 4 | 4 | — | 5/5 | 0 | RECEPTIVE |

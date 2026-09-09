@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f08cf7574ac3 |
-| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Hash da Jornada | 7f4a081846d3 |
+| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:33:38.441Z |
+| Gerado em | 2026-09-08T23:07:47.581Z |
 | Lições | 127 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 127 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 968 |
-| Pares com transformação cognitiva | 787 (81%) |
+| Pares de repetição semântica | 984 |
+| Pares com transformação cognitiva | 795 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -40,11 +40,11 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-engine-2-lab | 6 | 6 | 13 | 0 | 0 | 4 | — |
 | l1 | 10 | 9 | 21 | 4 | 4 | 4 | phrase:你好 × 2 |
 | l2 | 15 | 14 | 25 | 14 | 14 | 5 | intent:identify-concept × 4 |
-| l3 | 14 | 13 | 26 | 9 | 9 | 8 | phrase:我很好 × 3 |
+| l3 | 14 | 13 | 23 | 12 | 8 | 8 | action:assemble-phrase × 3 |
 | l1-rev | 12 | 10 | 17 | 11 | 7 | 8 | phrase:你好 × 3 |
 | l4 | 16 | 15 | 30 | 12 | 9 | 8 | intent:identify-concept × 2 |
-| p1-ate-logo | 15 | 14 | 26 | 10 | 10 | 8 | phrase:再见 × 3 |
-| p1-primeira-conversa | 13 | 12 | 28 | 7 | 7 | 9 | intent:ask-name × 3 |
+| p1-ate-logo | 15 | 14 | 23 | 14 | 11 | 8 | phrase:再见 × 3 |
+| p1-primeira-conversa | 13 | 12 | 27 | 9 | 9 | 9 | phrase:你好 × 3 |
 | p1-qingwen-cortesia | 15 | 14 | 30 | 12 | 9 | 8 | phrase:你好 × 3 |
 | l2-rev | 12 | 10 | 20 | 11 | 9 | 7 | intent:thank × 3 |
 | p2-ma-primeiro-tom | 8 | 5 | 5 | 1 | 1 | 2 | char:山 × 2 |
@@ -52,10 +52,10 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p3-wohenhao | 11 | 10 | 16 | 10 | 10 | 6 | intent:polite-question × 4 |
 | p2-ma-terceiro-tom | 5 | 3 | 1 | 1 | 1 | 1 | char:马 × 2 |
 | p2-ma-quarto-tom | 7 | 4 | 4 | 4 | 4 | 1 | phrase:谢谢 × 2 |
-| p2-tons-nihao | 12 | 11 | 16 | 12 | 12 | 7 | intent:polite-question × 4 |
-| p2-comparar-tom-1-4 | 6 | 5 | 2 | 1 | 1 | 1 | char:骂 × 2 |
-| p2-comparar-tom-2-3 | 6 | 5 | 2 | 0 | 0 | 2 | — |
-| p2-tons-xiexie | 12 | 11 | 24 | 5 | 5 | 8 | phrase:谢谢 × 2 |
+| p2-tons-nihao | 11 | 10 | 16 | 9 | 9 | 7 | phrase:你好 × 3 |
+| p2-comparar-tom-1-4 | 8 | 5 | 2 | 1 | 1 | 1 | char:骂 × 2 |
+| p2-comparar-tom-2-3 | 8 | 5 | 2 | 0 | 0 | 2 | — |
+| p2-tons-xiexie | 12 | 11 | 18 | 11 | 11 | 7 | intent:polite-question × 4 |
 | l5 | 10 | 5 | 4 | 0 | 0 | 0 | — |
 | l6 | 9 | 7 | 7 | 1 | 1 | 2 | char:骂 × 2 |
 | l3-rev | 12 | 11 | 20 | 10 | 9 | 7 | intent:polite-question × 4 |
@@ -75,7 +75,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l11 | 17 | 16 | 38 | 12 | 7 | 11 | phrase:你叫什么 × 2 |
 | l11-falo-pouco | 26 | 14 | 26 | 12 | 11 | 10 | action:assemble-phrase × 4 |
 | l12 | 20 | 19 | 45 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
-| l13 | 19 | 18 | 44 | 12 | 12 | 15 | action:assemble-phrase × 3 |
+| l13 | 19 | 18 | 42 | 13 | 12 | 16 | action:assemble-phrase × 3 |
 | l13-dialogo-ola | 19 | 18 | 43 | 16 | 11 | 13 | intent:identify-concept × 3 |
 | l13-dialogo-nome | 15 | 9 | 26 | 3 | 2 | 7 | intent:identify-concept × 2 |
 | p3-ordem-das-palavras | 14 | 13 | 31 | 11 | 7 | 10 | phrase:你叫什么 × 2 |
@@ -117,7 +117,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p5-mu-mu-mu-sen | 15 | 14 | 30 | 4 | 3 | 9 | char:木 × 3 |
 | p5-ri-yue-ming | 15 | 14 | 27 | 4 | 2 | 9 | char:明 × 3 |
 | p5-ren-mu-xiu | 15 | 14 | 29 | 3 | 2 | 8 | char:木 × 2 |
-| p5-nv-zi-hao | 15 | 14 | 26 | 8 | 7 | 10 | char:好 × 4 |
+| p5-nv-zi-hao | 14 | 13 | 25 | 10 | 9 | 10 | char:好 × 4 |
 | p5-ren-ren-cong | 16 | 15 | 32 | 1 | 1 | 10 | char:人 × 2 |
 | p5-ren-ren-ren-zhong | 16 | 15 | 32 | 2 | 2 | 9 | char:人 × 3 |
 | p5-nv-ma-mae | 16 | 15 | 29 | 3 | 3 | 8 | char:妈 × 3 |
@@ -126,7 +126,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l19-logica-luz | 16 | 15 | 36 | 4 | 3 | 11 | char:日 × 3 |
 | l19-logica-pessoas | 16 | 15 | 30 | 2 | 2 | 8 | char:人 × 3 |
 | l19-logica-ma | 14 | 13 | 28 | 4 | 4 | 8 | char:妈 × 4 |
-| l19-logica-rev | 16 | 15 | 30 | 8 | 3 | 10 | char:林 × 2 |
+| l19-logica-rev | 15 | 14 | 29 | 10 | 5 | 10 | char:林 × 2 |
 | l19 | 18 | 17 | 37 | 3 | 3 | 11 | action:produce-unaided × 2 |
 | l20 | 16 | 15 | 28 | 2 | 2 | 8 | char:六 × 2 |
 | l8-rev | 12 | 12 | 26 | 5 | 4 | 5 | intent:identify-concept × 3 |
@@ -140,23 +140,23 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l26b | 25 | 23 | 64 | 12 | 12 | 11 | intent:agree × 4 |
 | l27 | 19 | 18 | 43 | 12 | 12 | 15 | action:produce-unaided × 4 |
 | l28 | 18 | 18 | 48 | 6 | 5 | 15 | action:assemble-phrase × 3 |
-| p6-rotina-trabalho | 21 | 20 | 47 | 7 | 7 | 13 | phrase:我坐飞机 × 3 |
+| p6-rotina-trabalho | 28 | 14 | 21 | 7 | 4 | 9 | action:assemble-phrase × 3 |
 | p6-cidade-lugares | 21 | 19 | 54 | 4 | 4 | 12 | action:assemble-phrase × 2 |
 | p6-china-cidades | 18 | 17 | 42 | 11 | 11 | 13 | phrase:我坐出租车 × 3 |
 | p6-china-cidades-2 | 19 | 18 | 46 | 6 | 6 | 15 | action:produce-unaided × 2 |
 | p6-china-ruas | 20 | 19 | 46 | 9 | 8 | 15 | action:produce-unaided × 3 |
 | p6-saude | 17 | 16 | 40 | 5 | 5 | 13 | action:produce-unaided × 3 |
-| p6-horarios | 19 | 18 | 43 | 7 | 6 | 15 | action:assemble-phrase × 3 |
-| p6-natureza | 18 | 17 | 40 | 2 | 2 | 11 | intent:identify-concept × 2 |
-| p6-clima | 17 | 16 | 39 | 8 | 8 | 11 | intent:state-wellbeing × 3 |
-| p6-direcoes | 18 | 17 | 40 | 9 | 8 | 14 | action:assemble-phrase × 3 |
+| p6-horarios | 30 | 18 | 21 | 8 | 2 | 10 | action:write × 7 |
+| p6-natureza | 18 | 17 | 43 | 3 | 3 | 13 | action:produce-unaided × 2 |
+| p6-clima | 17 | 16 | 42 | 4 | 4 | 12 | action:produce-unaided × 2 |
+| p6-direcoes | 18 | 17 | 39 | 9 | 8 | 13 | action:assemble-phrase × 3 |
 | p6-compras | 20 | 19 | 51 | 9 | 8 | 13 | action:produce-unaided × 3 |
-| p6-survival-mandarin | 22 | 21 | 59 | 10 | 8 | 15 | intent:identify-concept × 4 |
+| p6-survival-mandarin | 22 | 21 | 58 | 10 | 8 | 16 | intent:identify-concept × 4 |
 | l10-rev | 12 | 12 | 25 | 5 | 4 | 7 | char:水 × 2 |
-| l29 | 19 | 18 | 39 | 10 | 6 | 16 | action:assemble-phrase × 3 |
+| l29 | 19 | 18 | 44 | 11 | 10 | 15 | action:assemble-phrase × 3 |
 | l30 | 18 | 17 | 44 | 5 | 4 | 12 | action:assemble-phrase × 3 |
 | l11-rev | 12 | 12 | 24 | 8 | 4 | 9 | action:assemble-hanzi × 2 |
-| p7-imersao-mercado | 31 | 30 | 52 | 23 | 13 | 17 | action:repair-conversation × 3 |
+| p7-imersao-mercado | 29 | 28 | 57 | 23 | 18 | 16 | action:produce-unaided × 3 |
 | p7-imersao-estacao | 33 | 31 | 73 | 21 | 14 | 16 | action:assemble-phrase × 3 |
 | p7-imersao-casa-amigo | 30 | 29 | 59 | 21 | 17 | 17 | action:repair-conversation × 3 |
 
@@ -164,4 +164,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:7238d2b9121fb96c -->
+<!-- integridade:876f90b6c552dc7d -->

@@ -1,4 +1,9 @@
 import { IDENTITY_CLASSROOM_NODES, IDENTITY_PERSON_NODES } from "./identityPeopleScenes";
+import {
+  ROUTINE_TIME_CLOCK_NODES,
+  ROUTINE_TIME_ROUTINE_NODES,
+  ROUTINE_TIME_TOMORROW_NODES,
+} from "./routineTimeScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
@@ -103,6 +108,29 @@ export type ConversationInteractionType =
   // cena o bastante para merecer perder o apoio (ver unaidedConversationScene).
   | "produce_reply";
 
+/** Speech-act contract for conversation-coherence (not an LLM judge). */
+export type ConversationSpeechAct =
+  | "greet"
+  | "farewell"
+  | "ask_time"
+  | "tell_time"
+  | "ask_when"
+  | "tell_when"
+  | "ask_location"
+  | "tell_location"
+  | "ask_job"
+  | "tell_job"
+  | "thank"
+  | "acknowledge_thanks"
+  | "confirm_plan"
+  | "acknowledge"
+  | "ask_name"
+  | "tell_name"
+  | "ask_wellbeing"
+  | "tell_wellbeing";
+
+export type ConversationRepairType = "repeat" | "clarify" | "confirm_time" | "reask";
+
 export interface ConversationInteraction {
   type: ConversationInteractionType;
   prompt: string;
@@ -119,6 +147,12 @@ export interface ConversationInteraction {
   accepts?: string[];
   /** Alternativas que o passo TINHA antes de perder o apoio (para a correção). */
   removedOptions?: string[];
+  /** NPC move this turn is asking/doing. */
+  speechAct?: ConversationSpeechAct;
+  /** Learner move this turn should realize. */
+  expectedResponseAct?: ConversationSpeechAct;
+  /** Why the repair line exists (heard / understood / time / topic). */
+  repairType?: ConversationRepairType;
 }
 
 export interface ConversationNode {
@@ -2221,48 +2255,8 @@ sceneV2({
   characters: PAIR_LIN_MEI,
   sceneRole: "common",
   entryNodeId: "amanha-1",
-  nodes: [
-    { id: "amanha-1", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "amanha-2" },
-    { id: "amanha-2", speakerId: "mei", hanzi: "你好！我很好。", pinyin: "nǐ hǎo! wǒ hěn hǎo.", pt: "Olá! Estou bem.", emotion: "happy", nextNodeId: "amanha-3" },
-    {
-      id: "amanha-3",
-      speakerId: "lin",
-      hanzi: "明天见？",
-      pinyin: "míngtiān jiàn?",
-      pt: "Até amanhã?",
-      emotion: "thinking",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus propôs?",
-        options: ["Até amanhã?", "Tudo bem?", "Obrigado.", "De nada."],
-        correctAnswer: "Até amanhã?",
-        correctNextNodeId: "amanha-5",
-        wrongNextNodeId: "amanha-4",
-        explanation: "明天见 combina ou confirma: até amanhã.",
-      },
-    },
-    { id: "amanha-4", speakerId: "mei", hanzi: "明天见？", pinyin: "míngtiān jiàn?", pt: "A pista é 明天见: até amanhã. Tente de novo.", emotion: "thinking", nextNodeId: "amanha-3" },
-    { id: "amanha-5", speakerId: "mei", hanzi: "明天见！", pinyin: "míngtiān jiàn!", pt: "Até amanhã!", emotion: "happy", nextNodeId: "amanha-6" },
-    {
-      id: "amanha-6",
-      speakerId: "lin",
-      hanzi: "再见！",
-      pinyin: "zàijiàn!",
-      pt: "Até logo!",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Responda ao tchau da Mei.",
-        options: ["再见", "明天见", "你好", "我很好"],
-        correctAnswer: "再见",
-        correctNextNodeId: "amanha-8",
-        wrongNextNodeId: "amanha-7",
-        explanation: "再见 é a despedida: até logo.",
-      },
-    },
-    { id: "amanha-7", speakerId: "mei", hanzi: "再见？", pinyin: "zàijiàn?", pt: "Para dizer tchau agora, use 再见. Tente de novo.", emotion: "thinking", nextNodeId: "amanha-6" },
-    { id: "amanha-8", speakerId: "mei", hanzi: "再见！", pinyin: "zàijiàn!", pt: "Até logo!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:mingtianjian", "chunk:nihao", "chunk:wohenhao", "chunk:zaijian"],
+  nodes: ROUTINE_TIME_TOMORROW_NODES,
+  learnedRefs: ["chunk:mingtianjian", "chunk:nihao", "chunk:zaijian", "char:hao"],
 }),
 sceneV2({
   sceneId: "o-que-e-isto",
@@ -3659,76 +3653,19 @@ sceneV2({
   characters: PAIR_LIN_MEI,
   sceneRole: "common",
   entryNodeId: "rotina-1",
-  nodes: [
-    {
-      id: "rotina-1",
-      speakerId: "mei",
-      hanzi: "你做什么工作？",
-      pinyin: "nǐ zuò shénme gōngzuò?",
-      pt: "O que você faz de trabalho?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Onde você trabalha?",
-        options: ["我在公司上班", "再见", "谢谢", "我很好"],
-        correctAnswer: "我在公司上班",
-        correctNextNodeId: "rotina-3",
-        wrongNextNodeId: "rotina-2",
-        explanation: "我在公司上班 = trabalho numa empresa.",
-      },
-    },
-    { id: "rotina-2", speakerId: "mei", hanzi: "请再说一遍：我在公司上班。", pinyin: "qǐng zài shuō yí biàn: wǒ zài gōngsī shàngbān.", pt: "Tente de novo: trabalho numa empresa.", emotion: "thinking", nextNodeId: "rotina-1" },
-    { id: "rotina-3", speakerId: "lin", hanzi: "我在公司上班。", pinyin: "wǒ zài gōngsī shàngbān.", pt: "Trabalho numa empresa.", nextNodeId: "rotina-4" },
-    {
-      id: "rotina-4",
-      speakerId: "mei",
-      hanzi: "你几点起床？",
-      pinyin: "nǐ jǐ diǎn qǐchuáng?",
-      pt: "A que horas você acorda?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "A que horas você acorda?",
-        options: ["我七点起床", "再见", "谢谢", "我很好"],
-        correctAnswer: "我七点起床",
-        correctNextNodeId: "rotina-6",
-        wrongNextNodeId: "rotina-5",
-        explanation: "我七点起床 = acordo às sete.",
-      },
-    },
-    { id: "rotina-5", speakerId: "mei", hanzi: "七点。请再说一遍。", pinyin: "qī diǎn. qǐng zài shuō yí biàn.", pt: "Sete horas. Tente de novo.", emotion: "thinking", nextNodeId: "rotina-4" },
-    { id: "rotina-6", speakerId: "lin", hanzi: "我七点起床。", pinyin: "wǒ qī diǎn qǐchuáng.", pt: "Acordo às sete.", nextNodeId: "rotina-7" },
-    {
-      id: "rotina-7",
-      speakerId: "mei",
-      hanzi: "你几点上班？",
-      pinyin: "nǐ jǐ diǎn shàngbān?",
-      pt: "A que horas você começa o trabalho?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "A que horas você começa?",
-        options: ["八点", "再见", "谢谢", "我很好"],
-        correctAnswer: "八点",
-        correctNextNodeId: "rotina-9",
-        wrongNextNodeId: "rotina-8",
-        explanation: "八点 = oito horas.",
-      },
-    },
-    { id: "rotina-8", speakerId: "mei", hanzi: "八点。请再说一遍。", pinyin: "bā diǎn. qǐng zài shuō yí biàn.", pt: "Oito. Tente de novo.", emotion: "thinking", nextNodeId: "rotina-7" },
-    { id: "rotina-9", speakerId: "lin", hanzi: "八点。", pinyin: "bā diǎn.", pt: "Oito horas.", nextNodeId: "rotina-10" },
-    { id: "rotina-10", speakerId: "mei", hanzi: "好！谢谢！", pinyin: "hǎo! xièxie!", pt: "Certo! Obrigado!", emotion: "happy" },
-  ],
+  nodes: ROUTINE_TIME_ROUTINE_NODES,
   learnedRefs: [
-    "chunk:nizuoshenmegongzuo",
+    "chunk:nizainagongzuo",
     "chunk:wozaigongsishangban",
     "chunk:nijidianqichuang",
     "chunk:woqidianqichuang",
     "chunk:nijidianshangban",
-    "chunk:qingzaishuoyibian",
+    "chunk:shangban",
     "chunk:zaijian",
-    "chunk:xiexie",
-    "chunk:wohenhao",
     "char:hao",
     "char:ba8",
     "char:dian_point",
+    "char:ma_question",
   ],
 }),
 sceneV2({
@@ -3739,58 +3676,17 @@ sceneV2({
   characters: PAIR_LIN_WANG,
   sceneRole: "common",
   entryNodeId: "hora-1",
-  nodes: [
-    { id: "hora-1", speakerId: "lin", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "hora-2" },
-    {
-      id: "hora-2",
-      speakerId: "wang",
-      hanzi: "你好！现在几点？",
-      pinyin: "nǐ hǎo! xiànzài jǐ diǎn?",
-      pt: "Olá! Que horas são?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "São oito e meia. O que você diz?",
-        options: ["八点半", "再见", "谢谢", "我很好"],
-        correctAnswer: "八点半",
-        correctNextNodeId: "hora-4",
-        wrongNextNodeId: "hora-3",
-        explanation: "八点半 = oito e meia.",
-      },
-    },
-    { id: "hora-3", speakerId: "wang", hanzi: "八点半。请再说一遍。", pinyin: "bā diǎn bàn. qǐng zài shuō yí biàn.", pt: "Oito e meia. Tente de novo.", emotion: "thinking", nextNodeId: "hora-2" },
-    { id: "hora-4", speakerId: "lin", hanzi: "八点半。", pinyin: "bā diǎn bàn.", pt: "Oito e meia.", nextNodeId: "hora-5" },
-    {
-      id: "hora-5",
-      speakerId: "wang",
-      hanzi: "下午三点？",
-      pinyin: "xiàwǔ sān diǎn?",
-      pt: "Três da tarde?",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Wang perguntou?",
-        options: ["Três da tarde?", "Oito e meia.", "Até logo.", "Obrigado."],
-        correctAnswer: "Três da tarde?",
-        correctNextNodeId: "hora-7",
-        wrongNextNodeId: "hora-6",
-        explanation: "下午三点 = três da tarde.",
-      },
-    },
-    { id: "hora-6", speakerId: "wang", hanzi: "下午三点。请再说一遍。", pinyin: "xiàwǔ sān diǎn. qǐng zài shuō yí biàn.", pt: "Três da tarde. Tente de novo.", emotion: "thinking", nextNodeId: "hora-5" },
-    { id: "hora-7", speakerId: "lin", hanzi: "不是。现在八点半。", pinyin: "bú shì. xiànzài bā diǎn bàn.", pt: "Não. Agora são oito e meia.", nextNodeId: "hora-8" },
-    { id: "hora-8", speakerId: "wang", hanzi: "好！谢谢！", pinyin: "hǎo! xièxie!", pt: "Certo! Obrigado!", emotion: "happy" },
-  ],
+  nodes: ROUTINE_TIME_CLOCK_NODES,
   learnedRefs: [
-    "chunk:nihao",
     "chunk:xianzaijidian",
     "chunk:badianban",
-    "chunk:xiawusandian",
-    "chunk:qingzaishuoyibian",
+    "chunk:xianzai",
+    "chunk:shenmeshihou",
     "chunk:zaijian",
-    "chunk:xiexie",
-    "chunk:wohenhao",
     "char:hao",
-    "char:bu",
-    "char:shi",
+    "char:ba8",
+    "char:dian_point",
+    "char:ma_question",
   ],
 }),
 sceneV2({

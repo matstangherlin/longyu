@@ -125,7 +125,7 @@ export const VOCABULARY_PACKETS: VocabularyPacket[] = [
   {
     id: "time",
     labelPt: "Tempo",
-    core: ["chunk:shenmeshihou", "chunk:xianzaijidian", "chunk:xianzaibadian"],
+    core: ["chunk:shenmeshihou", "chunk:xianzaijidian", "chunk:xianzaibadian", "chunk:xianzai"],
     support: ["chunk:zhongwu"],
     productive: [],
     receptive: [],

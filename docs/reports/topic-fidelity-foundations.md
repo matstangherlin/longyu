@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f08cf7574ac3 |
-| HEAD no instante da geração | 910da6bc050c0177fa923038c2c323f53fd13208 |
+| Hash da Jornada | 7f4a081846d3 |
+| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T14:18:47.899Z |
+| Gerado em | 2026-09-08T22:57:16.657Z |
 | Lições | 127 |
 
 
@@ -156,39 +156,44 @@ Promessa: Tom é o contorno da voz e faz parte da palavra em mandarim.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 7 | 6 | 100% | 0% | 0% | 4.9 | 1 |
+| 10 | 6 | 100% | 0% | 0% | 5.9 | 2 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | A curva faz parte da palavra |
-| 2 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 2 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
 | 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
-| 4 | listen_select | DIRECT_TOPIC | Qual ficou reto? |
-| 5 | listen_select | DIRECT_TOPIC | Agora encontre o vale |
-| 6 | dialogue_choice | DIRECT_TOPIC | O que é um tom? |
-| 7 | dialogue_choice | DIRECT_TOPIC | Não é só um número |
+| 4 | intro | PASSIVE | O vale |
+| 5 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
+| 6 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 7 | listen_select | DIRECT_TOPIC | Qual ficou reto? |
+| 8 | listen_select | DIRECT_TOPIC | Agora encontre o vale |
+| 9 | dialogue_choice | DIRECT_TOPIC | O que é um tom? |
+| 10 | dialogue_choice | DIRECT_TOPIC | Não é só um número |
 
 ### M2 · Discriminar tons contrastantes (reta × vale) sem aula longa.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 7 | 6 | 100% | 0% | 0% | 4.9 | 1 |
+| 9 | 5 | 100% | 0% | 0% | 5.2 | 2 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Duas curvas novas |
-| 2 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 2 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
 | 3 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
-| 4 | listen_select | DIRECT_TOPIC | Qual curva sobe? |
-| 5 | listen_select | DIRECT_TOPIC | Qual curva cai? |
-| 6 | dialogue_choice | DIRECT_TOPIC | 1º × 2º |
-| 7 | dialogue_choice | DIRECT_TOPIC | 3º × 4º |
+| 4 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
+| 5 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
+| 6 | intro | PASSIVE | Os quatro contornos |
+| 7 | listen_select | DIRECT_TOPIC | Reto ou queda? |
+| 8 | listen_select | DIRECT_TOPIC | Sobe ou vale? |
+| 9 | dialogue_choice | DIRECT_TOPIC | 1º × 4º |
 
 ### M3 · Identificar o tom e começar a reproduzir o contorno.
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 7 | 5 | 100% | 0% | 0% | 4.5 | 1 |
+| 9 | 5 | 100% | 0% | 0% | 5.2 | 2 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
@@ -199,6 +204,8 @@ Promessa: Tom é o contorno da voz e faz parte da palavra em mandarim.
 | 5 | tone | DIRECT_TOPIC | ensina a promessa de p1-o-que-e-tom (tone: ) |
 | 6 | intro | PASSIVE | Mapa das marcas |
 | 7 | dialogue_choice | DIRECT_TOPIC | Marca e tom |
+| 8 | intro | PASSIVE | Tom neutro |
+| 9 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
 
 ### M4 · Aplicar o tom em 你好, um chunk que você já usa.
 
@@ -282,5 +289,5 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:d7a8334a3b948f4d -->
+<!-- integridade:8873f316a3c9be8a -->
 
