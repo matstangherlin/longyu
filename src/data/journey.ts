@@ -8231,7 +8231,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
               }),
               freeProduction({
-                title: "Escolha o item",
+                title: "Diga que quer este",
                 situationPt: "Você aponta o produto e quer levar este.",
                 expected: "我要这个",
                 accepts: ["我要这个", "我要这个。", "我要买这个"],
