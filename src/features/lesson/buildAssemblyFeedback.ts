@@ -156,7 +156,7 @@ export function assemblyTileClass({
   muted?: boolean;
 }) {
   return [
-    "appearance-none min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2.5 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-100 disabled:text-ink",
+    "appearance-none min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2.5 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-100 disabled:!text-ink",
     cjk ? "hanzi text-[26px] sm:text-[30px]" : "text-[15px]",
     // V4.9.2B — a cor do texto é sempre `ink` sobre o tint do estado. A versão
     // anterior pintava o texto com a própria cor do estado (`text-accent` sobre

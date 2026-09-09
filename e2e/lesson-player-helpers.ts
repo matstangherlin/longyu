@@ -1,4 +1,5 @@
 import type { Page, Locator } from "@playwright/test";
+import { dismissJourneyCultureBridgeIfOpen } from "./helpers";
 
 export async function clickFirstVisible(page: Page, names: RegExp[]) {
   for (const name of names) {
@@ -40,6 +41,12 @@ export function hanziBuilderOrder(prompt: string): string[] {
 }
 
 /** Avança passos genéricos até o seletor aparecer (smoke, não prova pedagógica profunda). */
+async function locatorIsInsideCultureBridge(target: Locator): Promise<boolean> {
+  return target
+    .evaluate((el) => Boolean(el.closest?.("[data-testid=\"culture-bridge\"]") || el.getAttribute("data-testid") === "culture-bridge"))
+    .catch(() => false);
+}
+
 export async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): Promise<boolean> {
   const deadline = Date.now() + Math.min(25_000, Math.max(6_000, maxSteps * 1_200));
   for (let step = 0; step < maxSteps; step += 1) {
@@ -47,6 +54,11 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     if (await target.isVisible().catch(() => false)) return true;
     if ((await page.locator("[data-conversation-scene]").count()) > 0) {
       if (await target.isVisible().catch(() => false)) return true;
+    }
+    const keepBridge = await locatorIsInsideCultureBridge(target);
+    if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
+      await page.waitForTimeout(120);
+      continue;
     }
     await page.keyboard.press("Escape").catch(() => undefined);
 

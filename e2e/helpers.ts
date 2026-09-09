@@ -112,6 +112,49 @@ export async function seedMissingDraftFinalize(page: Page) {
   });
 }
 
+/**
+ * Journey Culture Bridges replace the current step until teach → task → feedback
+ * finish. Skip (`Pular`) still targets the underlying exercise, so E2E skip-through
+ * would stall on a disabled Verificar. Complete one overlay phase per call.
+ * Leave the overlay alone when the test is looking at the bridge itself.
+ */
+export async function dismissJourneyCultureBridgeIfOpen(
+  page: Page,
+  options: { keepVisible?: boolean } = {}
+): Promise<boolean> {
+  if (options.keepVisible) return false;
+  const bridge = page.getByTestId("culture-bridge");
+  if (!(await bridge.isVisible().catch(() => false))) return false;
+
+  const seqButtons = bridge.locator('[data-testid^="culture-bridge-seq-"]');
+  const seqCount = await seqButtons.count();
+  for (let i = 0; i < seqCount; i += 1) {
+    const button = seqButtons.nth(i);
+    if (!(await button.isVisible().catch(() => false))) continue;
+    if (await button.isDisabled().catch(() => false)) continue;
+    await button.click({ timeout: 1_500 }).catch(() => undefined);
+  }
+
+  const optionButtons = bridge.locator('[data-testid^="culture-bridge-option-"]');
+  if ((await optionButtons.count()) > 0) {
+    const preferred = bridge.getByTestId("culture-bridge-option-b");
+    const pick =
+      (await preferred.isVisible().catch(() => false)) && !(await preferred.isDisabled().catch(() => false))
+        ? preferred
+        : optionButtons.first();
+    if (!(await pick.isDisabled().catch(() => true))) {
+      await pick.click({ timeout: 1_500 }).catch(() => undefined);
+    }
+  }
+
+  const cta = bridge.getByTestId("culture-bridge-continue");
+  if (await cta.isVisible().catch(() => false) && !(await cta.isDisabled().catch(() => true))) {
+    await cta.click({ timeout: 2_000 }).catch(() => undefined);
+    return true;
+  }
+  return Boolean(await bridge.isVisible().catch(() => false));
+}
+
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu|Help improve Longyu/i });

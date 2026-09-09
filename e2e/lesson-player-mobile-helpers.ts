@@ -1,6 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
+  dismissJourneyCultureBridgeIfOpen,
   seedFreshJourneySession,
   seedLessonPlayerReady,
   seedPendingStarRecoverySession,
@@ -455,9 +456,14 @@ export async function advanceUntilSelector(
   const target = page.locator(selector);
   const deadline = Date.now() + timeoutMs;
   let steps = 0;
+  const keepBridge = /culture-bridge/.test(selector);
   while (!(await target.isVisible().catch(() => false)) && Date.now() < deadline && steps < maxSteps) {
     steps += 1;
     await dismissBlockingOverlays(page);
+    if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
+      await page.waitForTimeout(120);
+      continue;
+    }
     if (
       await page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first().isVisible().catch(() => false)
     ) {
