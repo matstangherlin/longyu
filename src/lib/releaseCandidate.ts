@@ -15,7 +15,7 @@ export const EXPECTED_PLACEMENT_VERSION = 2;
 /** src/lib/progressSnapshot.ts `PROGRESS_SNAPSHOT_SCHEMA_VERSION`. */
 export const EXPECTED_PROGRESS_SCHEMA_VERSION = 1;
 /** src/lib/store.ts persist `version`. */
-export const EXPECTED_STORE_VERSION = 20;
+export const EXPECTED_STORE_VERSION = 21;
 
 export const EXPECTED_EDGE_FUNCTIONS = [
   "create-account",

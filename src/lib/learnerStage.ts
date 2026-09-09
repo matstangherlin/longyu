@@ -69,6 +69,7 @@ export type FeatureId =
   | "jornada"
   | "treino"
   | "revisao"
+  | "cultura"
   | "pinyin"
   | "hanzi"
   | "biblioteca"
@@ -143,6 +144,8 @@ export function featureAvailability(
       };
     case "revisao":
       return { locked: false, recommendedAtStage: 2, group: "aprender" };
+    case "cultura":
+      return { locked: false, recommendedAtStage: 1, group: "aprender" };
     case "biblioteca":
       return { locked: false, recommendedAtStage: 3, group: "aprender" };
     case "imersao":

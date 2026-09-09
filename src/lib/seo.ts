@@ -141,6 +141,7 @@ const NOINDEX_PREFIXES = [
   "/fala",
   "/leitura",
   "/revisao",
+  "/cultura",
   "/biblioteca",
   "/imersao",
   "/ligas",

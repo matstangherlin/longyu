@@ -26,6 +26,7 @@ import type { MessageKey } from "../../locales/pt-BR";
 const FEATURE_DESC_KEYS: Record<string, MessageKey> = {
   treino: "navigation.descPractice",
   revisao: "navigation.descReview",
+  cultura: "navigation.descCulture",
   pinyin: "navigation.descPinyin",
   hanzi: "navigation.descHanzi",
   fala: "navigation.descSpeaking",

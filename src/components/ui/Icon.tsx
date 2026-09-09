@@ -89,6 +89,14 @@ export const IconTrophy = (p: P) => (
 export const IconMore = (p: P) => (
   <svg {...base(p)}><circle cx="5.5" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="18.5" cy="12" r="1.4" fill="currentColor" stroke="none" /></svg>
 );
+export const IconLantern = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M12 3v2" />
+    <path d="M8 7h8l-1 10H9L8 7Z" />
+    <path d="M9 12h6" />
+    <path d="M10 21h4" />
+  </svg>
+);
 export const IconEye = (p: P) => (
   <svg {...base(p)}><path d="M2.8 12s3.2-5 9.2-5 9.2 5 9.2 5-3.2 5-9.2 5-9.2-5-9.2-5Z" /><circle cx="12" cy="12" r="2.2" /></svg>
 );

@@ -12,7 +12,7 @@ export const PRO_CHECKOUT_PENDING =
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
-const STORE_VERSION = 20;
+const STORE_VERSION = 21;
 
 type SeedState = Record<string, unknown>;
 

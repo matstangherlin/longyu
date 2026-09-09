@@ -42,6 +42,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicCta, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
+import { CultureTouchpoint } from "../culture/CultureTouchpoint";
 
 type TaskStatus = "bloqueada" | "disponivel" | "concluida" | "premium";
 
@@ -176,7 +177,10 @@ export function LessonDetailPage() {
   const lessonSessionStepById = useStore((state) => state.lessonSessionStepById);
   const toneTrainer = useStore((state) => state.toneTrainer);
   const canStartActivity = useStore((state) => state.canStartActivity);
+  const saveCultureItem = useStore((state) => state.saveCultureItem);
+  const cultureSavedIds = useStore((state) => state.cultureSavedIds);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
+  const [cultureDismissed, setCultureDismissed] = useState(false);
 
   // PERF-011 — preaquece o planner em idle para o player não cold-startar o índice.
   useEffect(() => {
@@ -414,6 +418,17 @@ export function LessonDetailPage() {
           </span>
         </ActionButton>
       </Card>
+
+      {lesson.cultureItemId && !cultureDismissed ? (
+        <CultureTouchpoint
+          cultureItemId={lesson.cultureItemId}
+          lessonId={lesson.id}
+          from={`/licao/${lesson.id}`}
+          saved={(cultureSavedIds ?? []).includes(lesson.cultureItemId)}
+          onSave={() => saveCultureItem(lesson.cultureItemId!, true)}
+          onContinue={() => setCultureDismissed(true)}
+        />
+      ) : null}
 
       {/* Etapas compactas — só ícone, título curto e status. */}
       <div>

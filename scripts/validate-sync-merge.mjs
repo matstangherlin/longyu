@@ -145,6 +145,9 @@ function mergeRemoteProgress(local, remote) {
     learnedChunks: unionUnique([...local.learnedChunks, ...remote.learnedChunks]),
     badges: unionUnique([...(local.badges ?? []), ...(remote.badges ?? [])]),
     favoriteItems: unionUnique([...(local.favoriteItems ?? []), ...(remote.favoriteItems ?? [])]),
+    cultureCompletedIds: unionUnique([...(local.cultureCompletedIds ?? []), ...(remote.cultureCompletedIds ?? [])]),
+    cultureSavedIds: unionUnique([...(local.cultureSavedIds ?? []), ...(remote.cultureSavedIds ?? [])]),
+    cultureStartedIds: unionUnique([...(local.cultureStartedIds ?? []), ...(remote.cultureStartedIds ?? [])]),
     ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
     journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
     validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),
@@ -194,6 +197,9 @@ function baseProgress(overrides = {}) {
     learnedChunks: [],
     badges: [],
     favoriteItems: [],
+    cultureCompletedIds: [],
+    cultureSavedIds: [],
+    cultureStartedIds: [],
     ownedCosmetics: [],
     journeyChestsOpened: [],
     validatedModules: [],
@@ -472,6 +478,19 @@ if ((multiDevice.conversationHistory?.length ?? 0) !== 2) {
 }
 if (decideSync(phone, laptop) !== "merge_and_push") {
   errors.push("multi-device: dois lados com progresso deveriam mesclar e enviar");
+}
+
+const cultureLocal = baseProgress({ cultureCompletedIds: ["visiting-home"], cultureSavedIds: ["digital-pay"] });
+const cultureRemote = baseProgress({ cultureCompletedIds: ["metro-qr"], cultureSavedIds: ["visiting-home"], cultureStartedIds: ["host-insistence"] });
+const cultureMerged = mergeRemoteProgress(cultureLocal, cultureRemote);
+if (!cultureMerged.cultureCompletedIds.includes("visiting-home") || !cultureMerged.cultureCompletedIds.includes("metro-qr")) {
+  errors.push("culture: completed ids should union across devices");
+}
+if (!cultureMerged.cultureSavedIds.includes("digital-pay") || !cultureMerged.cultureSavedIds.includes("visiting-home")) {
+  errors.push("culture: saved ids should union across devices");
+}
+if (!cultureMerged.cultureStartedIds.includes("host-insistence")) {
+  errors.push("culture: started ids should union across devices");
 }
 
 if (errors.length > 0) {

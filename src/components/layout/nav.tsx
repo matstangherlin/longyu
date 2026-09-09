@@ -16,6 +16,7 @@ import {
   IconTrophy,
   IconUser,
   IconFlame,
+  IconLantern,
 } from "../ui/Icon";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
 import type { FeatureId, LearnerStage } from "../../lib/learnerStage";
@@ -72,6 +73,7 @@ export const NAV: Record<string, NavItem> = {
   jornada: { to: "/jornada", label: "Jornada", labelKey: "navigation.journey", icon: IconHome, matches: ["/jornada", "/licao", "/teste"], feature: "jornada" },
   treino: { to: "/treino", label: "Praticar", labelKey: "navigation.practice", icon: IconTarget, matches: PRACTICE_MATCHES, feature: "treino" },
   revisao: { to: "/revisao", label: "Revisão", labelKey: "navigation.review", icon: IconRefresh, feature: "revisao" },
+  cultura: { to: "/cultura", label: "Cultura", labelKey: "navigation.culture", icon: IconLantern, matches: ["/cultura"], feature: "cultura" },
   pinyin: { to: "/pinyin", label: "Pinyin Lab", labelKey: "navigation.pinyinLab", icon: IconSound, feature: "pinyin" },
   ideogramas: { to: "/ideogramas", label: "Hànzì", labelKey: "navigation.hanzi", icon: IconHanzi, matches: IDEOGRAM_MATCHES, feature: "hanzi" },
   fala: { to: "/fala", label: "Fala", labelKey: "navigation.speaking", icon: IconChat, feature: "fala" },
@@ -97,7 +99,13 @@ export const NAV: Record<string, NavItem> = {
 
 /** Barra inferior mobile: no máximo 5 destinos (navegação completa). */
 export function mobileNavForStage(_stage: LearnerStage): NavItem[] {
-  return [NAV.jornada, NAV.treino, NAV.missoes, NAV.perfil, NAV.mais];
+  return [
+    NAV.jornada,
+    NAV.treino,
+    NAV.missoes,
+    NAV.perfil,
+    { ...NAV.mais, matches: [...MORE_MATCHES, "/cultura"] },
+  ];
 }
 
 /**
@@ -134,7 +142,7 @@ export const MORE_CATALOG: NavGroup[] = [
     id: "learn",
     title: "Aprender",
     titleKey: "navigation.groupLearn",
-    items: [NAV.treino, NAV.revisao, NAV.pinyin, NAV.ideogramas, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao],
+    items: [NAV.treino, NAV.revisao, NAV.cultura, NAV.pinyin, NAV.ideogramas, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao],
   },
   {
     id: "motivation",
@@ -173,7 +181,7 @@ export function moreMobileSheetGroups(primaryNav: NavItem[]): NavGroup[] {
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to);
 
-  const explore = [NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
+  const explore = [NAV.cultura, NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
   const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
   const groups: NavGroup[] = [];
   if (explore.length) groups.push({ id: "explore", title: "Explorar", titleKey: "navigation.groupExplore", items: explore });
@@ -185,6 +193,7 @@ export const DESKTOP_NAV: NavItem[] = [
   NAV.jornada,
   NAV.treino,
   NAV.revisao,
+  NAV.cultura,
   NAV.missoes,
   NAV.ligas,
   NAV.loja,
@@ -197,7 +206,7 @@ export const NAV_MOBILE: NavItem[] = [
   NAV.treino,
   NAV.imersao,
   NAV.missoes,
-  { ...NAV.mais, matches: [...MORE_MATCHES, ...PROFILE_MATCHES, ...IDEOGRAM_MATCHES, "/loja", "/ligas"] },
+  { ...NAV.mais, matches: [...MORE_MATCHES, ...PROFILE_MATCHES, ...IDEOGRAM_MATCHES, "/loja", "/ligas", "/cultura"] },
 ];
 
 export const MORE_NAV: NavItem = NAV.mais;

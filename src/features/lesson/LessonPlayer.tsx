@@ -66,6 +66,7 @@ import {
 import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
+import { CultureTouchpoint } from "../culture/CultureTouchpoint";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
@@ -1726,6 +1727,8 @@ export function LessonPlayer() {
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
   const completeLesson = useStore((s) => s.completeLesson);
+  const saveCultureItem = useStore((s) => s.saveCultureItem);
+  const cultureSavedIds = useStore((s) => s.cultureSavedIds);
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
   useStore((s) => s.itemDimensionsByRef);
@@ -1811,6 +1814,7 @@ export function LessonPlayer() {
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
+  const [cultureTouchpointOpen, setCultureTouchpointOpen] = useState(true);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
   const [answerStreak, setAnswerStreak] = useState(0);
   const [streakBurst, setStreakBurst] = useState(0);
@@ -4255,6 +4259,17 @@ export function LessonPlayer() {
             · {t("player.xpTotalNow", { n: postLessonXpTotal })}
             {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · {t("player.rewardsReceived")}</span>}
           </div>
+
+          {lesson.cultureItemId && cultureTouchpointOpen ? (
+            <CultureTouchpoint
+              cultureItemId={lesson.cultureItemId}
+              lessonId={lesson.id}
+              from={`/licao/${lesson.id}`}
+              saved={(cultureSavedIds ?? []).includes(lesson.cultureItemId)}
+              onSave={() => saveCultureItem(lesson.cultureItemId!, true)}
+              onContinue={() => setCultureTouchpointOpen(false)}
+            />
+          ) : null}
 
           {/* 2 · Próximo foco — card compacto com CTA. */}
           <div className="mt-2.5 flex flex-col gap-2 rounded-2xl border border-line bg-surface/85 p-3 text-left shadow-card sm:flex-row sm:items-center sm:justify-between">

@@ -231,6 +231,8 @@ test.describe("navegação progressiva — desktop", () => {
     const earlyLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
     expect(earlyLabels).toContain("Jornada");
     expect(earlyLabels).toContain("Praticar");
+    expect(earlyLabels).toContain("Revisão");
+    expect(earlyLabels).toContain("Cultura");
     expect(earlyLabels).toContain("Missões");
     expect(earlyLabels).toContain("Perfil");
     // Hànzì e Imersão não poluem a barra principal — ficam no hover de Praticar.
