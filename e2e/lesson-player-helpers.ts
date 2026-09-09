@@ -1,82 +1,37 @@
 import type { Page, Locator } from "@playwright/test";
 import { dismissJourneyCultureBridgeIfOpen } from "./helpers";
-import { agentLog, hookPageConsole, snapshotSkipState } from "./debug-agent-log";
 
 export async function clickFirstVisible(page: Page, names: RegExp[]) {
-  hookPageConsole(page);
-  const snap = await snapshotSkipState(page);
-  const stall = Boolean(snap?.skipCard || snap?.listenImitate);
   for (const name of names) {
     const button = page.getByRole("button", { name });
     const first = button.first();
-    const visible = await first.isVisible().catch(() => false);
-    const disabled = visible ? await first.isDisabled().catch(() => false) : true;
-    const hid = /Continuar|Continue/i.test(String(name)) ? "B" : /Pular|Skip/i.test(String(name)) ? "A" : "D";
-    let probe: Record<string, unknown> | null = null;
-    if (visible) {
-      probe = await first
-        .evaluate((el) => {
-          const r = el.getBoundingClientRect();
-          const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-          return {
-            acc: (el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80),
-            disabled: (el as HTMLButtonElement).disabled,
-            occluded: Boolean(top && top !== el && !el.contains(top)),
-            top: top ? (top.textContent || top.tagName).replace(/\s+/g, " ").trim().slice(0, 32) : "",
-          };
-        })
-        .catch(() => null);
-    }
-    if (stall || /Pular|Skip|Continuar|Continue|falar|speak/i.test(String(name))) {
-      // #region agent log
-      agentLog(hid, "lesson-player-helpers.ts:clickFirstVisible", "candidate", {
-        regex: String(name),
-        visible,
-        disabled,
-        probe,
-        stall,
-        skipCard: snap?.skipCard,
-        listen: snap?.listenImitate,
-        kind: snap?.kind,
-        idx: snap?.idx,
-        pass: snap?.pass,
-        buttons: snap?.buttons,
-        brokenErrors: snap?.brokenErrors,
-      });
-      // #endregion
-    }
-    if (!visible || disabled) continue;
+    if (!(await first.isVisible().catch(() => false))) continue;
+    if (await first.isDisabled().catch(() => false)) continue;
     await first.scrollIntoViewIfNeeded().catch(() => undefined);
-    let clicked = false;
-    let forced = false;
     try {
       await first.click({ timeout: 1_500 });
-      clicked = true;
+      return true;
     } catch {
       try {
         await first.click({ timeout: 1_000, force: true });
-        clicked = true;
-        forced = true;
+        return true;
       } catch {
         continue;
       }
     }
-    if (clicked && stall) {
-      const after = await snapshotSkipState(page);
-      // #region agent log
-      agentLog("C", "lesson-player-helpers.ts:clickFirstVisible", "after-click", {
-        regex: String(name),
-        forced,
-        idxBefore: snap?.idx,
-        idxAfter: after?.idx,
-        skipAfter: after?.skipCard,
-        listenAfter: after?.listenImitate,
-      });
-      // #endregion
-    }
-    if (clicked) return true;
   }
   return false;
+}
+
+/** Content-skip card or listen-imitate without SpeechRecognition — Continuar, not Pular. */
+export async function continueIfSkipCardOrListenImitate(page: Page): Promise<boolean> {
+  const visible = await page
+    .getByText(/Ouça e imite|Listen and imitate|Exercício pulado|Skipped exercise|Voz não disponível|Voice isn't available/i)
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!visible) return false;
+  return clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]);
 }
 
 /** Clique curto — evita travar 30s em botão disabled (ex.: banco de produce cheio). */
@@ -137,46 +92,15 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
  * Pular on a bridge targets the hidden exercise and stalls on disabled Verificar.
  */
 export async function advanceSkipThroughOverlays(page: Page): Promise<boolean> {
-  hookPageConsole(page);
-  const before = await snapshotSkipState(page);
   if (await dismissJourneyCultureBridgeIfOpen(page)) {
-    // #region agent log
-    agentLog("A", "lesson-player-helpers.ts:advanceSkipThroughOverlays", "path", {
-      path: "bridge",
-      ...before,
-    });
-    // #endregion
     await page.waitForTimeout(120);
     return true;
   }
   if (await advanceConversationIfOpen(page)) {
-    // #region agent log
-    agentLog("A", "lesson-player-helpers.ts:advanceSkipThroughOverlays", "path", {
-      path: "conversation",
-      skipCard: before?.skipCard,
-      kind: before?.kind,
-      idx: before?.idx,
-    });
-    // #endregion
     await page.waitForTimeout(180);
     return true;
   }
-  // Listen-imitate without SpeechRecognition and the content-skip card both
-  // expose Continuar, not Pular. Click that before falling through to
-  // advanceOneStep — evaluate() on a missing victory CTA used to eat the
-  // whole test timeout.
-  if (
-    (before?.skipCard || before?.listenImitate || before?.voiceUnavail) &&
-    (await clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]))
-  ) {
-    // #region agent log
-    agentLog("D", "lesson-player-helpers.ts:advanceSkipThroughOverlays", "path", {
-      path: "listen-or-skip-continuar",
-      skipCard: before?.skipCard,
-      listen: before?.listenImitate,
-      idx: before?.idx,
-    });
-    // #endregion
+  if (await continueIfSkipCardOrListenImitate(page)) {
     await page.waitForTimeout(180);
     return true;
   }
@@ -188,29 +112,9 @@ export async function advanceSkipThroughOverlays(page: Page): Promise<boolean> {
       /Não posso ouvir agora|I can't listen now/,
     ])
   ) {
-    // #region agent log
-    agentLog("A", "lesson-player-helpers.ts:advanceSkipThroughOverlays", "path", {
-      path: "entendi-pular-speak",
-      skipCard: before?.skipCard,
-      listen: before?.listenImitate,
-      buttons: before?.buttons,
-      idx: before?.idx,
-      pass: before?.pass,
-    });
-    // #endregion
     await page.waitForTimeout(180);
     return true;
   }
-  // #region agent log
-  agentLog("B", "lesson-player-helpers.ts:advanceSkipThroughOverlays", "path", {
-    path: "none",
-    skipCard: before?.skipCard,
-    listen: before?.listenImitate,
-    buttons: before?.buttons,
-    idx: before?.idx,
-    brokenErrors: before?.brokenErrors,
-  });
-  // #endregion
   return false;
 }
 
@@ -238,7 +142,6 @@ async function locatorIsInsideCultureBridge(target: Locator): Promise<boolean> {
 }
 
 export async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): Promise<boolean> {
-  hookPageConsole(page);
   const deadline = Date.now() + Math.min(25_000, Math.max(6_000, maxSteps * 1_200));
   for (let step = 0; step < maxSteps; step += 1) {
     if (Date.now() > deadline) break;
@@ -261,6 +164,10 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     const skipSpeak = page.getByRole("button", { name: /Não posso falar agora|I can't speak now/i });
     if (await skipSpeak.isVisible().catch(() => false)) {
       await clickIfEnabled(skipSpeak);
+      await page.waitForTimeout(150);
+      continue;
+    }
+    if (await continueIfSkipCardOrListenImitate(page)) {
       await page.waitForTimeout(150);
       continue;
     }

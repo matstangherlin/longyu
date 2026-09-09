@@ -7,8 +7,7 @@ import {
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { agentLog, hookPageConsole, snapshotSkipState } from "./debug-agent-log";
-import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
+import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible, continueIfSkipCardOrListenImitate } from "./lesson-player-helpers";
 
 /** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
 export const MOBILE_VIEWPORTS = [
@@ -458,27 +457,8 @@ export async function advanceUntilSelector(
   const deadline = Date.now() + timeoutMs;
   let steps = 0;
   const keepBridge = /culture-bridge/.test(selector);
-  hookPageConsole(page);
   while (!(await target.isVisible().catch(() => false)) && Date.now() < deadline && steps < maxSteps) {
     steps += 1;
-    const beat = await snapshotSkipState(page);
-    if (beat?.skipCard || beat?.listenImitate || steps === 1 || steps % 5 === 0) {
-      // #region agent log
-      agentLog("D", "lesson-player-mobile-helpers.ts:advanceUntilSelector", "beat", {
-        steps,
-        selector,
-        allowSkip,
-        skipCard: beat?.skipCard,
-        listen: beat?.listenImitate,
-        voiceUnavail: beat?.voiceUnavail,
-        speech: beat?.speech,
-        kind: beat?.kind,
-        idx: beat?.idx,
-        buttons: beat?.buttons,
-        targetVisible: false,
-      });
-      // #endregion
-    }
     await dismissBlockingOverlays(page);
     if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
       await page.waitForTimeout(120);
@@ -499,13 +479,10 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(120);
       continue;
     }
-    // Voice-unavailable listen-imitate and the content-skip card: Continuar is
-    // the only exit. Do not wait for advanceOneStep — that used to block on
-    // evaluate() of a victory button that is not on the page.
-    if (
-      (beat?.listenImitate || beat?.skipCard || beat?.voiceUnavail) &&
-      (await clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]))
-    ) {
+    // Voice-unavailable listen-imitate / content-skip card: Continuar is the
+    // only exit. Do not fall through to advanceOneStep first — that used to
+    // block on evaluate() of a victory button that is not on the page.
+    if (await continueIfSkipCardOrListenImitate(page)) {
       await page.waitForTimeout(180);
       continue;
     }
