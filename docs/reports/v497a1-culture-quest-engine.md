@@ -8,7 +8,7 @@ Cultura deixa de ser artigo+botão Concluir e passa a ser missão: contexto → 
 |-------|-------|
 | PR de origem | **#242 — V4.9.7A China Survival I (restaurante)** |
 | SHA de origem (HEAD da 242) | `22bdf8c43068d05c2a2b898f34d5e20888c08eda` |
-| SHA de merge da #242 | *preencher com o SHA real do merge em `main`* |
+| SHA de merge da #242 | `f7945fd4ed47057d809c931eedc333d5827a52a9` |
 | Branch | `cursor/v497a1-culture-quest-6ae2` |
 | Fingerprint da Jornada | `f6430d1a11be` (inalterado — cultura não muda o currículo de mandarim) |
 
