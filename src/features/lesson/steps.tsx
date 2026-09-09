@@ -1680,7 +1680,7 @@ function engineTileClass({
 }) {
   return [
     // Peças grandes: alvo de toque confortável (>= 68px) e fonte legível no mobile.
-    "min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none",
+    "appearance-none min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-100 disabled:text-ink",
     cjk ? "hanzi text-[26px] sm:text-[30px]" : "text-[15px]",
     // Mesma gramática do assembly (V4.9.2B): estado vive na borda/ring/tint, e o
     // texto fica sempre em `ink` para não perder contraste sobre o próprio tint.
