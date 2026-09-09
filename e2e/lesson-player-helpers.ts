@@ -75,6 +75,34 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
   }
 }
 
+/**
+ * One skip-through beat for multi-pass loops.
+ * Finish the Journey culture bridge and conversation_scene before Pular —
+ * Pular on a bridge targets the hidden exercise and stalls on disabled Verificar.
+ */
+export async function advanceSkipThroughOverlays(page: Page): Promise<boolean> {
+  if (await dismissJourneyCultureBridgeIfOpen(page)) {
+    await page.waitForTimeout(120);
+    return true;
+  }
+  if (await advanceConversationIfOpen(page)) {
+    await page.waitForTimeout(180);
+    return true;
+  }
+  if (
+    await clickFirstVisible(page, [
+      /^Entendi$|^Got it$/,
+      /^Pular|^Skip/,
+      /Não posso falar agora|I can't speak now/,
+      /Não posso ouvir agora|I can't listen now/,
+    ])
+  ) {
+    await page.waitForTimeout(180);
+    return true;
+  }
+  return false;
+}
+
 /** Ordem correta de componentes do Hànzì Builder para prompts comuns no smoke. */
 export function hanziBuilderOrder(prompt: string): string[] {
   if (/você|you|nǐ|你/i.test(prompt)) return ["亻", "尔"];

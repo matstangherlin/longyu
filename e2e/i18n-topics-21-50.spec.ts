@@ -5,7 +5,7 @@ import {
   seedUnlockedLessonSession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
+import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 
 const VICTORY =
   /Continue Journey|Back to the Journey|Practice again|Continue topic|Continuar Jornada|Voltar à Jornada|Receber recompensas|Claim rewards|Praticar novamente|Continuar tema/i;
@@ -93,10 +93,7 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
       }
       waitedForPass = true;
     }
-    if (await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/, /Não posso falar agora|I can't speak now|I can't listen now|Não posso ouvir agora/])) {
-      await page.waitForTimeout(180);
-      continue;
-    }
+    if (await advanceSkipThroughOverlays(page)) continue;
     if (await playOpenStep(page)) {
       await page.waitForTimeout(180);
       continue;

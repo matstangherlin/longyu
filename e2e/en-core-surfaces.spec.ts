@@ -8,7 +8,7 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
+import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
 
 const FIRST = ALL_LESSONS[0];
@@ -194,10 +194,7 @@ async function reachVictory(page: Page, lessonId: string) {
           .toBe("1");
       }
     }
-    if (await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/, /Não posso falar agora|I can't speak now/])) {
-      await page.waitForTimeout(180);
-      continue;
-    }
+    if (await advanceSkipThroughOverlays(page)) continue;
     if (await playOpenStep(page)) {
       await page.waitForTimeout(180);
       continue;
