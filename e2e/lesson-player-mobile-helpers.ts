@@ -479,21 +479,27 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(120);
       continue;
     }
+    // Pular/Entendi first. Conversation "Continuar >" only advances one line and
+    // starves skip-through when Responder is disabled at the checkpoint.
+    const skipped = allowSkip
+      ? await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/])
+      : await clickFirstVisible(page, [/^Entendi$|^Got it$/]);
+    if (skipped) {
+      await page.waitForTimeout(120);
+      continue;
+    }
     const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
       name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
     });
-    if (!keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
-      await clickIfEnabled(conversationCta.first());
-      await page.waitForTimeout(180);
-      continue;
+    if (keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
+      const clicked = await clickIfEnabled(conversationCta.first());
+      if (clicked) {
+        await page.waitForTimeout(180);
+        continue;
+      }
     }
-    const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;
-    if (!skipped) {
-      const advanced = await advanceOneStep(page);
-      if (!advanced) await page.waitForTimeout(180);
-    } else {
-      await page.waitForTimeout(120);
-    }
+    const advanced = await advanceOneStep(page);
+    if (!advanced) await page.waitForTimeout(180);
   }
   return target.isVisible().catch(() => false);
 }
