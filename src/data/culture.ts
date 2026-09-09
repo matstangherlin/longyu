@@ -5,7 +5,8 @@
  * "Chinese people always X" without scope. Summaries only — no copied source text.
  */
 
-export const CULTURE_COMPLETE_XP = 3;
+/** First mission completion XP. Same reward id as V4.9.6C (`culture-complete:<id>`). */
+export const CULTURE_COMPLETE_XP = 8;
 
 export const CULTURE_CATEGORIES = [
   "home_visits",

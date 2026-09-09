@@ -10,6 +10,10 @@ export const CULTURE_EVENT_TYPES = [
   "culture_complete",
   "culture_save",
   "culture_from_journey",
+  "culture_mission_start",
+  "culture_step_answer",
+  "culture_mission_complete",
+  "culture_review_complete",
 ] as const;
 
 export type CultureEventType = (typeof CULTURE_EVENT_TYPES)[number];

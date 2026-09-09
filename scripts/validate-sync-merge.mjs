@@ -492,6 +492,19 @@ if (!cultureMerged.cultureSavedIds.includes("digital-pay") || !cultureMerged.cul
 if (!cultureMerged.cultureStartedIds.includes("host-insistence")) {
   errors.push("culture: started ids should union across devices");
 }
+const masteryLocal = baseProgress({
+  cultureMasteryById: { "visiting-home": { itemId: "visiting-home", completed: true, stars: 1, bestScore: 0.5, attempts: 1, reviewDueAt: 9, reviewStage: 0 } },
+});
+const masteryRemote = baseProgress({
+  cultureMasteryById: { "visiting-home": { itemId: "visiting-home", completed: true, stars: 2, bestScore: 0.8, attempts: 2, reviewDueAt: 3, reviewStage: 1 } },
+});
+const masteryMerged = mergeRemoteProgress(masteryLocal, masteryRemote);
+if ((masteryMerged.cultureMasteryById?.["visiting-home"]?.stars ?? 0) !== 2) {
+  errors.push("culture: mastery stars should keep the max");
+}
+if ((masteryMerged.cultureMasteryById?.["visiting-home"]?.reviewDueAt ?? 0) !== 3) {
+  errors.push("culture: reviewDueAt should keep the earlier due");
+}
 
 if (errors.length > 0) {
   console.error("ERRO: validate:sync-merge falhou.");
