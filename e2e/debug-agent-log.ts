@@ -44,7 +44,7 @@ export async function snapshotSkipState(page: Page) {
         const r = el.getBoundingClientRect();
         const style = getComputedStyle(el);
         const vis = r.width > 0 && r.height > 0 && style.visibility !== "hidden" && style.display !== "none";
-        const name = (el.getAttribute("aria-label") || el.innerText || "").replace(/\s+/g, " ").trim().slice(0, 80);
+        const name = (el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);
         if (!vis || !/pular|skip|continuar|continue|falar|speak|entendi|got it|ouvir|listen/i.test(name)) return [];
         const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
         return [
@@ -52,7 +52,7 @@ export async function snapshotSkipState(page: Page) {
             name,
             disabled: el.disabled,
             occluded: Boolean(top && top !== el && !el.contains(top)),
-            top: top ? ((top as HTMLElement).innerText || top.tagName).replace(/\s+/g, " ").trim().slice(0, 32) : "",
+            top: top ? (top.textContent || top.tagName).replace(/\s+/g, " ").trim().slice(0, 32) : "",
           },
         ];
       });
