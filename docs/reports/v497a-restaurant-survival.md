@@ -11,7 +11,7 @@ Experiência de sobrevivência, não unidade de vocabulário. O aluno cumpre a m
 | `main` antiga | **não usada** |
 | Branch | `cursor/v497a-restaurant-survival-6ae2` |
 | Fingerprint da Jornada (241 HEAD) | `43d5272e1d4b` |
-| Fingerprint da Jornada (esta remessa) | `58e347fb7f5f` |
+| Fingerprint da Jornada (esta remessa) | `f6430d1a11be` |
 | Atlas 241 HEAD | 351 / 429 taught (81.8%) |
 | Atlas esta remessa | 358 / 436 taught (82.1%) |
 
@@ -109,9 +109,12 @@ Não se declarou CORE novo além de **菜** (já no Atlas; agora com delayed rec
 | `l26` | Fome e gosto | `cultureItemId: host-insistence` (já 4.9.6C). Sem duplicar cardápio. |
 | `l26b` | No cardápio | Ensina o mínimo de mesa **antes** da cena. `hanziMemoryTargets: ["菜"]`. Cena `pedir-cardapio`. Cultura `shared-dishes`. |
 | `l26c` | **Imersão: almoce num restaurante** | Missão `isReview` + `curriculumRole: immersion`. Listening audio-first, contraste tonal 好×要, cena `imersao-restaurante`, 3 produções independentes. Cultura `chopsticks-rest`. |
-| `l27` | Na loja | Delayed recall de 菜. Produção **aberta** de `ask_price` (`多少钱？`) na loja já existente — não fecha pagamento digital. |
+| `l27` | Na loja | Delayed recall de 菜. Sem fechar pagamento digital. |
+| `p7-imersao-mercado` | Imersão no mercado (já existia) | Produção **aberta** de `ask_price` depois da produção guiada de `这件衣服多少钱？`. Não é mercado novo nem WeChat/Alipay. |
 
 Planner (escopo estreito): review+imersão não comprime para packet-exchange; cena autoral ganha o primeiro slot; sem transfer/open production gerados que injetavam 苹果/睡觉.
+
+Produção de preço: a missão de restaurante pede a **conta** (`买单`). `ask_price` aberto entra na imersão de mercado já existente (`p7-imersao-mercado`), depois da produção guiada de `这件衣服多少钱？` — sem pagamento digital.
 
 ## Cenas
 
@@ -221,7 +224,7 @@ Erro na missão não recomeça do zero (remediation / retry da cena). O tester e
 
 `validate:pedagogy-wave-one` exige 75% das lições com variante pedagógica. `l26c` entrou em `ALL_LESSONS` (128) sem variante e o piso subiu para 96; 95/128 falhava. Correção: `audio_same_different` autoral em `l26c` (好×要) + ensure no planner. Sem transfer/open production gerados na missão (evita 苹果/睡觉).
 
-`validate:transfer-integrity` passou a exigir `ask_price` no runtime (10/10 aplicáveis) porque a exposição de `多少钱` ficou completa no arco. A missão `l26c` não recebe produção aberta de loja. O slot aberto ficou em `l27` (loja já existente): produção aberta de preço, sem WeChat/Alipay.
+`validate:transfer-integrity` passou a exigir `ask_price` no runtime (10/10 aplicáveis). A missão `l26c` não recebe produção aberta de loja. O slot aberto ficou na imersão de mercado já existente (`p7-imersao-mercado`), depois da produção guiada de `这件衣服多少钱？`. Sem WeChat/Alipay.
 
 `validate:journey-en` exigiu overlay para `Pergunte o preço` / `多少钱？ é a pergunta curta de preço.` (passos de `l27` que o plano passou a expor) e para a explicação gerada `不客气 responde 请问 neste pacote (Cortesia).`. Strings já cobertas por gloss: `Diga do seu jeito`, `Na loja, pergunte o preço de alguma coisa.`
 

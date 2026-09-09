@@ -2546,7 +2546,7 @@ function makeOpenProductionStep(
   const task =
     pickOpenProductionTask(tasks, {
       lessonSalt: pickOptions.lessonSalt ?? seed,
-      preferredGoal: pickOptions.lessonId === "l27" ? "ask_price" : undefined,
+      preferredGoal: pickOptions.lessonId === "p7-imersao-mercado" ? "ask_price" : undefined,
     }) ?? tasks[0];
   const [model] = task.examples;
   if (!model) return null;

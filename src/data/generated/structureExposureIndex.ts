@@ -3440,7 +3440,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyao",
-      "frame_woyaomai",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
@@ -3463,7 +3462,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "我要买书",
       "我要热水",
       "我要苹果",
       "茶多少钱",
@@ -3517,7 +3515,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyao",
-      "frame_woyaomai",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
@@ -3541,7 +3538,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "我要买书",
       "我要热水",
       "我要苹果",
       "茶多少钱",

@@ -5998,30 +5998,6 @@ export const JOURNEY: JourneyPhase[] = [
               // Cena autoral: pedir água na loja (请问 → 我要水 → 谢谢), com o
               // vocabulário de compra já disponível neste módulo.
               conversationScene("pedir-agua"),
-              // Produção aberta de preço na loja já existente — não fecha
-              // pagamento digital (V4.9.7B). O arco de restaurante torna
-              // ask_price aplicável; o runtime precisa de um slot aberto.
-              freeProduction({
-                title: "Diga do seu jeito",
-                situationPt: "Na loja, pergunte o preço de alguma coisa.",
-                expected: "多少钱？",
-                accepts: [
-                  "多少钱？",
-                  "多少钱",
-                  "这个多少钱？",
-                  "这个多少钱",
-                  "茶多少钱？",
-                  "茶多少钱",
-                ],
-                productionGoal: "ask_price",
-                productionOpen: true,
-                productionHintPt: "Pode ser qualquer item que você já saiba nomear.",
-                productionExamples: [
-                  { hanzi: "多少钱？", pinyin: "duōshao qián?" },
-                  { hanzi: "这个多少钱？", pinyin: "zhège duōshao qián?" },
-                  { hanzi: "茶多少钱？", pinyin: "chá duōshao qián?" },
-                ],
-              }),
             ],
           },
           {
@@ -8168,6 +8144,29 @@ export const JOURNEY: JourneyPhase[] = [
                 "太贵了 = caro demais; no mercado, negociar faz parte.",
                 "Vendedor"
               ),
+              // Produção aberta de preço depois da produção guiada de
+              // 这件衣服多少钱？ em p6-survival-mandarin. Não fecha pagamento digital.
+              freeProduction({
+                title: "Diga do seu jeito",
+                situationPt: "Na loja, pergunte o preço de alguma coisa.",
+                expected: "多少钱？",
+                accepts: [
+                  "多少钱？",
+                  "多少钱",
+                  "这个多少钱？",
+                  "这个多少钱",
+                  "茶多少钱？",
+                  "茶多少钱",
+                ],
+                productionGoal: "ask_price",
+                productionOpen: true,
+                productionHintPt: "Pode ser qualquer item que você já saiba nomear.",
+                productionExamples: [
+                  { hanzi: "多少钱？", pinyin: "duōshao qián?" },
+                  { hanzi: "这个多少钱？", pinyin: "zhège duōshao qián?" },
+                  { hanzi: "茶多少钱？", pinyin: "chá duōshao qián?" },
+                ],
+              }),
             ],
           },
           {
