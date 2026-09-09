@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  CULTURE_ITEMS,
   cultureItemsForCategory,
   localizedCulture,
   type CultureCategory,
@@ -52,7 +53,7 @@ export function CultureHubPage() {
     : "";
   const due = dueCultureMemoryTargets(memoryById);
   const done = completedIds.length;
-  const total = 18;
+  const total = CULTURE_ITEMS.length;
   const items = cultureItemsForCategory(category);
 
   const filterButtons = useMemo(

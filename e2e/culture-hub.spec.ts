@@ -12,6 +12,7 @@ import { advanceUntilVisible } from "./lesson-player-helpers";
 
 const SEQUENCE_ORDERS = [
   ["notice", "decide", "thanks"],
+  ["notice", "decide", "act"],
   ["off", "in", "move"],
   ["wait-serve", "serve-others", "taste"],
   ["ask", "scan", "confirm"],
@@ -78,7 +79,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 18/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 19/);
     await expect(page.getByTestId("culture-next-cta")).toBeVisible();
     await expect(page.getByTestId("culture-seals")).toBeVisible();
     await expect(page.getByTestId("culture-show-categories")).toBeVisible();
@@ -111,7 +112,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await page.getByTestId("culture-back-journey").click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 18/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
 
     await page.getByTestId("culture-node-digital-pay").click();
     await waitForLazyPage(page);
@@ -120,7 +121,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 18/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
     await expect(page.locator('[data-culture-id="visiting-home"]').first()).toHaveAttribute("data-culture-status", "completed");
     await expect(page.locator('[data-culture-id="digital-pay"]').first()).toHaveAttribute("data-culture-status", "in_progress");
   });
