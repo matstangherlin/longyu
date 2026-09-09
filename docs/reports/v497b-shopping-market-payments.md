@@ -11,7 +11,7 @@ Experiência de sobrevivência, não catálogo de produtos. O aluno cumpre a mis
 | SHA de merge da #244 | *pendente — preencher com o SHA real de `Merge pull request #244` em `main`* |
 | Branch | `cursor/v497b-shopping-6ae2` |
 | Fingerprint da Jornada (244 HEAD) | `f6430d1a11be` |
-| Fingerprint da Jornada (esta remessa) | `c3ce49d7f1a0` |
+| Fingerprint da Jornada (esta remessa) | `29b70bfe0ae6` |
 | Atlas 244 / 4.9.7A | 436 itens / 358 taught (82.1%) |
 | Atlas esta remessa | 438 itens / 355 taught (81.1%) |
 
@@ -96,7 +96,7 @@ CORE **买**: introduzido em `p6-compras` → delayed recall `recognize("mai_buy
 | `l27` | Na loja | Continua `cultureItemId: digital-pay`. Listening 便宜一点 + 二十八 (`listen_select` «Quanto o vendedor cobrou?»). `pedir-agua` permanece. |
 | `p6-compras` | Compras | `cultureItemId: bargaining-context`. `hanziMemoryTargets: ["买"]`. 买×卖 integrado. Bridge mid. Visuais apple/phone/banana inalterados. |
 | `p6-survival-mandarin` | Survival pagar | flash/listen `现金可以吗？` depois de 现金. `libraryItems` inclui `xianjinkeyima`. |
-| `p7-imersao-mercado` | **Imersão: no mercado** | **Sem** `cultureItemId` (saiu `shared-dishes`; touchpoints 16→15). Delayed 买. Preço 二十八. Pagamento `listen_select` áudio `微信还是支付宝？` com opções PT («O que o caixa quer saber?»). Listen/flash `我要两个` **antes** da cena. Cenas: imersao-mercado, perguntar-quantidade, conversa-na-loja, comprar-itens. Produções independentes: 多少钱？, 我要这个, 现金可以吗？, 不要了. `curriculumRole: immersion`. |
+| `p7-imersao-mercado` | **Imersão: no mercado** | **Sem** `cultureItemId` (saiu `shared-dishes`; touchpoints 16→15). Delayed 买. Preço 二十八. Pagamento `listen_select` áudio `微信支付？` com opções PT («O que o caixa quer saber?») — o mesmo enunciado do NPC, sem 还是. Listen/flash `我要两个` **antes** da cena. Cenas: imersao-mercado, perguntar-quantidade, conversa-na-loja, comprar-itens. Produções independentes: 多少钱？, 我要这个, 现金可以吗？, 不要了. `curriculumRole: immersion`. |
 
 `shared-dishes.relatedLessonIds` = `l26b, l26` (sem `p7-imersao-mercado`).
 

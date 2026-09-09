@@ -5891,7 +5891,7 @@ export const JOURNEY: JourneyPhase[] = [
             cultureItemId: "digital-pay",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["多", "少"],
+            newHanzi: ["多", "少", "便", "宜"],
             libraryItems: [
               "chunk:duoshaoqian",
               "chunk:woyao",
@@ -8167,8 +8167,9 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             curriculumRole: "immersion",
-            // Vocabulário visto na imersão de mercado (多少钱) + delayed CORE 买.
-            newHanzi: ["多", "少"],
+            // Vocabulário visto na imersão de mercado (preço, quantidade, pagamento).
+            // Glifos de chunks/survival que não estão em CHARACTERS — allowlist, não CORE novo.
+            newHanzi: ["多", "少", "便", "宜", "微", "信", "支", "付", "金", "可", "以", "两", "刷", "卡", "双", "鞋"],
             libraryItems: [
               "char:mai_buy",
               "chunk:pianyiyidian",
@@ -8197,9 +8198,9 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listenSelect(
                 "O que o caixa quer saber?",
-                "微信还是支付宝？",
-                ["WeChat ou Alipay", "Quantas pessoas", "Onde fica o hotel", "Você quer chá"],
-                "WeChat ou Alipay",
+                "微信支付？",
+                ["Pagamento pelo WeChat", "Quantas pessoas", "Onde fica o hotel", "Você quer chá"],
+                "Pagamento pelo WeChat",
                 "O caixa oferece pagamento móvel. Cartão e 现金 continuam perguntas úteis."
               ),
               listen("现金可以吗？", "xiànjīn kěyǐ ma?", "Dinheiro pode?"),
