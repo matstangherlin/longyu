@@ -6,16 +6,16 @@ Experiência de sobrevivência, não unidade de vocabulário. O aluno cumpre a m
 
 | Campo | Valor |
 |-------|-------|
-| PR de origem | **#241 — V4.9.6C Culture Hub (ainda aberto)** |
-| SHA de origem | `dae6d1770bc453d0793e896669931399769249cf` (`Corrigir E2E do Culture Hub: persistência e catálogo EN`) |
-| `main` antiga | **não usada** |
+| PR de origem | **#241 — V4.9.6C Culture Hub (MERGED)** |
+| SHA de merge da #241 | `a92c0f003b24a118aaab01d8cb0713de93526e39` (`Merge pull request #241`) |
+| SHA de origem (HEAD da 241) | `dae6d1770bc453d0793e896669931399769249cf` |
 | Branch | `cursor/v497a-restaurant-survival-6ae2` |
 | Fingerprint da Jornada (241 HEAD) | `43d5272e1d4b` |
 | Fingerprint da Jornada (esta remessa) | `f6430d1a11be` |
 | Atlas 241 HEAD | 351 / 429 taught (81.8%) |
 | Atlas esta remessa | 358 / 436 taught (82.1%) |
 
-Quando #241 mergear, rebasear esta remessa no **SHA real do merge** — não na `main` antiga.
+#241 foi mergeado em `main` com `--admin` (branch estava `BEHIND` por causa do merge da #240; CI da 241 HEAD estava verde). Esta remessa já inclui `a92c0f0` via merge commit.
 
 Preservado integralmente:
 
@@ -228,7 +228,7 @@ Erro na missão não recomeça do zero (remediation / retry da cena). O tester e
 
 `validate:journey-en` exigiu overlay para `Pergunte o preço` / `多少钱？ é a pergunta curta de preço.` (passos de `l27` que o plano passou a expor) e para a explicação gerada `不客气 responde 请问 neste pacote (Cortesia).`. Strings já cobertas por gloss: `Diga do seu jeito`, `Na loja, pergunte o preço de alguma coisa.`
 
-`validate:beta` e `npm run build`: **PASS** localmente. Draft até o rebase no SHA real do merge da #241.
+`validate:beta` e `npm run build`: **PASS** localmente. PR #242 está retargetado para `main` (já inclui o merge da #241 em `a92c0f0`).
 
 ## Não feito (de propósito)
 
