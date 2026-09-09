@@ -134,6 +134,32 @@ function getProgressScore(source) {
   );
 }
 
+function mergeCultureMasteryMirror(local, remote) {
+  const merged = { ...(remote ?? {}) };
+  for (const [id, row] of Object.entries(local ?? {})) {
+    const other = merged[id];
+    if (!other) {
+      merged[id] = row;
+      continue;
+    }
+    merged[id] = {
+      ...other,
+      completed: Boolean(row.completed || other.completed),
+      stars: Math.max(row.stars ?? 0, other.stars ?? 0),
+      bestScore: Math.max(row.bestScore ?? 0, other.bestScore ?? 0),
+      attempts: Math.max(row.attempts ?? 0, other.attempts ?? 0),
+      reviewDueAt:
+        row.reviewDueAt == null
+          ? other.reviewDueAt
+          : other.reviewDueAt == null
+            ? row.reviewDueAt
+            : Math.min(row.reviewDueAt, other.reviewDueAt),
+      reviewStage: Math.max(row.reviewStage ?? 0, other.reviewStage ?? 0),
+    };
+  }
+  return merged;
+}
+
 function mergeRemoteProgress(local, remote) {
   const primary = getProgressScore(local) >= getProgressScore(remote) ? local : remote;
   const secondary = primary === local ? remote : local;
@@ -148,6 +174,8 @@ function mergeRemoteProgress(local, remote) {
     cultureCompletedIds: unionUnique([...(local.cultureCompletedIds ?? []), ...(remote.cultureCompletedIds ?? [])]),
     cultureSavedIds: unionUnique([...(local.cultureSavedIds ?? []), ...(remote.cultureSavedIds ?? [])]),
     cultureStartedIds: unionUnique([...(local.cultureStartedIds ?? []), ...(remote.cultureStartedIds ?? [])]),
+    cultureSeals: unionUnique([...(local.cultureSeals ?? []), ...(remote.cultureSeals ?? [])]),
+    cultureMasteryById: mergeCultureMasteryMirror(local.cultureMasteryById, remote.cultureMasteryById),
     ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
     journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
     validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),

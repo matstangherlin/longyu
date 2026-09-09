@@ -51,7 +51,7 @@ export function loadCultureRuntime() {
     REJECTED_CULTURE_CANDIDATES,
   } = require("../../src/data/culture.ts");
   const { CULTURE_MISSIONS, cultureMissionStats } = require("../../src/data/cultureMissions.ts");
-  const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS, isCultureStepScored } = require("../../src/data/cultureQuest.ts");
+  const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS } = require("../../src/data/cultureQuest.ts");
   const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
   return {
     items: CULTURE_ITEMS,
@@ -63,7 +63,6 @@ export function loadCultureRuntime() {
     flagshipIds: CULTURE_FLAGSHIP_ITEM_IDS,
     routes: CULTURE_ROUTES,
     seals: CULTURE_SEALS,
-    isCultureStepScored,
     lessons: ALL_LESSONS,
     chunks: CHUNKS,
     characters: CHARACTERS,

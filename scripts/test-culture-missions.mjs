@@ -7,8 +7,7 @@ const base = loadCultureRuntime();
 assert.deepEqual(validateCultureMissions(base).failures, [], "positive control must pass");
 
 function fixture() {
-  const { isCultureStepScored, ...rest } = base;
-  return { ...structuredClone(rest), isCultureStepScored };
+  return structuredClone(base);
 }
 
 function mutation(label, edit, code) {
