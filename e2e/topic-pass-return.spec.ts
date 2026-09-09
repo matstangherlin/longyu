@@ -5,7 +5,7 @@ import {
   seedFreshJourneySession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
+import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
 
 const FIRST = ALL_LESSONS[0];
@@ -127,10 +127,7 @@ async function playUntilVictory(page: Page, lessonId: string, targetLevel: numbe
       }
       waitedForPass = true;
     }
-    if (await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/, /Não posso falar agora/])) {
-      await page.waitForTimeout(180);
-      continue;
-    }
+    if (await advanceSkipThroughOverlays(page)) continue;
     if (await playOpenStep(page)) {
       await page.waitForTimeout(180);
       continue;
