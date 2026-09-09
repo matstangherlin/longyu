@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5f9ae5ce3818 |
-| HEAD no instante da geração | aa1982e6c4a308887aac01b783b102ad76b46431 |
+| Hash da Jornada | e8007959fb1f |
+| HEAD no instante da geração | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T14:47:15.383Z |
+| Gerado em | 2026-09-09T16:46:47.975Z |
 | Lições | 128 |
 
 ## Resumo
@@ -154,15 +154,15 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p6-compras | 20 | 19 | 51 | 9 | 8 | 12 | intent:identify-concept × 3 |
 | p6-survival-mandarin | 22 | 21 | 60 | 9 | 7 | 15 | intent:identify-concept × 4 |
 | l10-rev | 12 | 12 | 25 | 8 | 7 | 8 | char:水 × 2 |
-| l29 | 19 | 18 | 42 | 10 | 6 | 15 | action:assemble-phrase × 3 |
+| l29 | 19 | 18 | 41 | 10 | 6 | 15 | action:assemble-phrase × 3 |
 | l30 | 15 | 14 | 38 | 5 | 5 | 11 | action:produce-unaided × 2 |
 | l11-rev | 12 | 12 | 23 | 8 | 4 | 8 | action:assemble-phrase × 2 |
 | p7-imersao-mercado | 31 | 30 | 62 | 22 | 17 | 17 | action:produce-unaided × 5 |
 | p7-imersao-estacao | 33 | 31 | 73 | 18 | 13 | 16 | action:assemble-phrase × 3 |
-| p7-imersao-casa-amigo | 30 | 29 | 60 | 20 | 17 | 18 | action:repair-conversation × 3 |
+| p7-imersao-casa-amigo | 30 | 29 | 59 | 20 | 17 | 18 | action:repair-conversation × 3 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:e9983bc6b0fc54f5 -->
+<!-- integridade:d022d4c959a361b8 -->

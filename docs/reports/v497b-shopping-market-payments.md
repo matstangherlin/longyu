@@ -11,7 +11,7 @@ Experiência de sobrevivência, não catálogo de produtos. O aluno cumpre a mis
 | SHA de merge da #244 | *pendente — preencher com o SHA real de `Merge pull request #244` em `main`* |
 | Branch | `cursor/v497b-shopping-6ae2` |
 | Fingerprint da Jornada (244 HEAD) | `f6430d1a11be` |
-| Fingerprint da Jornada (esta remessa) | `29b70bfe0ae6` |
+| Fingerprint da Jornada (esta remessa) | `e8007959fb1f` |
 | Atlas 244 / 4.9.7A | 436 itens / 358 taught (82.1%) |
 | Atlas esta remessa | 438 itens / 355 taught (81.1%) |
 

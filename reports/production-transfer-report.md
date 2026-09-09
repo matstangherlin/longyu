@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f6430d1a11be |
-| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
+| Hash da Jornada | e8007959fb1f |
+| HEAD no instante da geração | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T07:46:01.251Z |
+| Gerado em | 2026-09-09T16:39:12.877Z |
 | Lições | 128 |
 
 ## Resumo
@@ -18,19 +18,19 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Estruturas (frames) declaradas | 21 |
-| Tarefas geradas pelos frames | 159 |
-| — produção (frase já ensinada) | 75 |
+| Tarefas geradas pelos frames | 160 |
+| — produção (frase já ensinada) | 76 |
 | — transferência (combinação inédita) | 84 |
 | Objetivos comunicativos | 15 |
 | Tarefas que aceitam frase irmã | 44 |
 | Objetivos de produção aberta declarados | 13 |
 | Objetivos de produção aberta no plano real | 9 |
 | Lições com produção aberta | 45 / 128 |
-| Falas de conversa sem apoio (aluno veterano) | 187 |
-| Lições com conversa sem apoio | 94 / 128 |
-| Lições com quebra de comunicação jogável | 82 / 128 |
+| Falas de conversa sem apoio (aluno veterano) | 192 |
+| Lições com conversa sem apoio | 95 / 128 |
+| Lições com quebra de comunicação jogável | 83 / 128 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 529 |
+| Passos auditados no plano real (3 tentativas) | 539 |
 | Lições com produção livre | 79 / 128 |
 | Lições com transferência | 21 / 128 |
 | Lições com reparo conversacional | 56 / 128 |
@@ -76,24 +76,24 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 我今天去医院
 - 我今天去火车站
 - 我喜欢中国
-- 我喜欢苹果
 - 我喜欢茶
 - 我喜欢鱼
 - 我回家了
 - 我在吃饭
 - 我在喝水
 - 我想吃鱼
+- 我想喝热水
 - 我明天去医院
 - 我有一个朋友
 - 我有三个香蕉
 - 我有五个朋友
 - 我睡觉了
-- 我要买书
+- 我要买苹果
 - 我要热水
 - 我要苹果
-- 茶多少钱
+- 衣服多少钱
 - 请问你叫什么
 - 请问医院在哪里
 - 车站在哪里
 
-<!-- integridade:db860eff612cf4aa -->
+<!-- integridade:40f57c835758ae74 -->
