@@ -202,8 +202,14 @@ try {
       if (!interaction.correctNextNodeId || !nodeIds.has(interaction.correctNextNodeId)) {
         err("graph", refLabel, `correctNextNodeId desconhecido: "${interaction.correctNextNodeId}"`);
       }
+      const nextBy = Object.values(interaction.nextByAnswer ?? {});
       if (interaction.wrongNextNodeId && !nodeIds.has(interaction.wrongNextNodeId)) {
         err("graph", refLabel, `wrongNextNodeId desconhecido: "${interaction.wrongNextNodeId}"`);
+      }
+      for (const nextId of nextBy) {
+        if (nextId && !nodeIds.has(nextId)) {
+          err("graph", refLabel, `nextByAnswer desconhecido: "${nextId}"`);
+        }
       }
       if (interaction.type === "produce_reply") {
         if (options.length) err("catalog", refLabel, "produção independente não pode ter alternativas");
@@ -250,9 +256,12 @@ try {
       }
 
       const edgesOf = (node) =>
-        [node.nextNodeId, node.interaction?.correctNextNodeId, node.interaction?.wrongNextNodeId].filter((id) =>
-          Boolean(id && byId.has(id))
-        );
+        [
+          node.nextNodeId,
+          node.interaction?.correctNextNodeId,
+          node.interaction?.wrongNextNodeId,
+          ...Object.values(node.interaction?.nextByAnswer ?? {}),
+        ].filter((id) => Boolean(id && byId.has(id)));
 
       const reachable = new Set();
       const queue = [entryId];

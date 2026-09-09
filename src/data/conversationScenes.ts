@@ -12,6 +12,14 @@ import {
   REVISAO_RESTAURANTE_LEARNED_REFS,
   REVISAO_RESTAURANTE_NODES,
 } from "./restaurantSurvivalScenes";
+import {
+  COMPRAR_ITENS_LEARNED_REFS,
+  COMPRAR_ITENS_NODES,
+  CONVERSA_NA_LOJA_LEARNED_REFS,
+  CONVERSA_NA_LOJA_NODES,
+  IMERSAO_MERCADO_LEARNED_REFS,
+  IMERSAO_MERCADO_NODES,
+} from "./shoppingSurvivalScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
@@ -165,6 +173,15 @@ export interface ConversationInteraction {
   correctAnswer: string;
   correctNextNodeId: string;
   wrongNextNodeId?: string;
+  /**
+   * When true, more than one reply is a live strategy — not a factual quiz.
+   * validAnswers do not call the error branch or count as a local mistake.
+   */
+  decision?: boolean;
+  /** Replies that continue the conversation without a repair loop. */
+  validAnswers?: string[];
+  /** Next node for each valid reply. Missing keys fall back to correctNextNodeId. */
+  nextByAnswer?: Record<string, string>;
   explanation?: string;
   /**
    * produce_reply: tudo que conta como certo. Inclui a resposta autoral e as
@@ -428,6 +445,25 @@ export const PAIR_LIN_HUA: ConversationCharacter[] = [
   { id: "hua", name: "Prof. Hua", avatar: "hua", side: "right" },
 ];
 
+export function conversationInteractionExits(interaction?: ConversationInteraction): string[] {
+  if (!interaction) return [];
+  return [
+    interaction.correctNextNodeId,
+    interaction.wrongNextNodeId,
+    ...Object.values(interaction.nextByAnswer ?? {}),
+  ].filter((id): id is string => Boolean(id));
+}
+
+export function conversationDecisionMatches(interaction: ConversationInteraction, attempt: string): boolean {
+  const needle = (attempt ?? "").trim();
+  if (!needle) return false;
+  if (interaction.decision) {
+    const valid = interaction.validAnswers?.length ? interaction.validAnswers : [interaction.correctAnswer];
+    return valid.some((item) => item.trim() === needle);
+  }
+  return (interaction.correctAnswer ?? "").trim() === needle;
+}
+
 /** Caminho principal de uma cena V2: entry → nextNodeId/correctNextNodeId até o terminal. */
 export function conversationSceneMainPath(nodes: readonly ConversationNode[], entryNodeId?: string): ConversationNode[] {
   const byId = new Map(nodes.map((node) => [node.id, node]));
@@ -502,7 +538,7 @@ export function conversationSceneStats(scene: ConversationSceneStep): Conversati
     const main = conversationSceneMainPath(scene.nodes, scene.entryNodeId);
     const terminals = new Set<string>();
     for (const node of scene.nodes) {
-      const exits = [node.nextNodeId, node.interaction?.correctNextNodeId, node.interaction?.wrongNextNodeId].filter(
+      const exits = [node.nextNodeId, ...conversationInteractionExits(node.interaction)].filter(
         (id): id is string => Boolean(id && byId.has(id))
       );
       if (exits.length === 0) terminals.add(node.id);
@@ -2398,67 +2434,8 @@ sceneV2({
   characters: PAIR_LIN_WANG,
   sceneRole: "common",
   entryNodeId: "loja-1",
-  nodes: [
-    { id: "loja-1", speakerId: "wang", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "loja-2" },
-    { id: "loja-2", speakerId: "lin", hanzi: "你好！我要这个。", pinyin: "nǐ hǎo! wǒ yào zhège.", pt: "Olá! Eu quero este.", emotion: "happy", nextNodeId: "loja-3" },
-    {
-      id: "loja-3",
-      speakerId: "wang",
-      hanzi: "这是什么？",
-      pinyin: "zhè shì shénme?",
-      pt: "O que é isto?",
-      emotion: "thinking",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Wang perguntou sobre o item?",
-        options: ["O que é isto?", "Quanto custa?", "Caro demais.", "Até logo."],
-        correctAnswer: "O que é isto?",
-        correctNextNodeId: "loja-5",
-        wrongNextNodeId: "loja-4",
-        explanation: "这是什么？ pergunta o que é o objeto.",
-      },
-    },
-    { id: "loja-4", speakerId: "wang", hanzi: "这是什么？", pinyin: "zhè shì shénme?", pt: "A pergunta foi 这是什么？ Tente de novo.", emotion: "thinking", nextNodeId: "loja-3" },
-    {
-      id: "loja-5",
-      speakerId: "lin",
-      hanzi: "多少钱？",
-      pinyin: "duōshao qián?",
-      pt: "Quanto custa?",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus perguntou?",
-        options: ["Quanto custa?", "O que é isto?", "Obrigado.", "De nada."],
-        correctAnswer: "Quanto custa?",
-        correctNextNodeId: "loja-7",
-        wrongNextNodeId: "loja-6",
-        explanation: "多少钱？ pergunta o preço.",
-      },
-    },
-    { id: "loja-6", speakerId: "wang", hanzi: "多少钱？", pinyin: "duōshao qián?", pt: "A pergunta de preço é 多少钱？ Tente de novo.", emotion: "thinking", nextNodeId: "loja-5" },
-    { id: "loja-7", speakerId: "wang", hanzi: "不贵。", pinyin: "bú guì.", pt: "Não é caro.", emotion: "happy", nextNodeId: "loja-8" },
-    {
-      id: "loja-8",
-      speakerId: "lin",
-      hanzi: "太贵了？",
-      pinyin: "tài guì le?",
-      pt: "Caro demais?",
-      emotion: "thinking",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Se ainda achou caro, como diz isso?",
-        options: ["太贵了", "谢谢", "再见", "不要"],
-        correctAnswer: "太贵了",
-        correctNextNodeId: "loja-10",
-        wrongNextNodeId: "loja-9",
-        explanation: "太贵了 = caro demais.",
-      },
-    },
-    { id: "loja-9", speakerId: "wang", hanzi: "太贵了？", pinyin: "tài guì le?", pt: "A pista para caro demais é 太贵了. Tente de novo.", emotion: "thinking", nextNodeId: "loja-8" },
-    { id: "loja-10", speakerId: "lin", hanzi: "太贵了。谢谢。", pinyin: "tài guì le. xièxie.", pt: "Está caro demais. Obrigado.", emotion: "thinking", nextNodeId: "loja-11" },
-    { id: "loja-11", speakerId: "wang", hanzi: "不客气！再见！", pinyin: "bú kèqi! zàijiàn!", pt: "De nada! Até logo!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:nihao", "chunk:woyao", "chunk:duoshaoqian", "chunk:zheshishenme", "char:bu", "chunk:taiguile", "chunk:xiexie", "chunk:bukeqi", "chunk:zaijian"],
+  nodes: CONVERSA_NA_LOJA_NODES,
+  learnedRefs: CONVERSA_NA_LOJA_LEARNED_REFS,
 }),
   sceneV2({
   sceneId: "comprar-itens",
@@ -2468,84 +2445,8 @@ sceneV2({
   characters: PAIR_LIN_WANG,
   sceneRole: "module_review",
   entryNodeId: "comprar-1",
-  nodes: [
-    { id: "comprar-1", speakerId: "wang", hanzi: "你好！你好吗？", pinyin: "nǐ hǎo! nǐ hǎo ma?", pt: "Olá! Tudo bem?", emotion: "happy", nextNodeId: "comprar-2" },
-    {
-      id: "comprar-2",
-      speakerId: "lin",
-      hanzi: "我很好！请问，我想喝茶。",
-      pinyin: "wǒ hěn hǎo! qǐng wèn, wǒ xiǎng hē chá.",
-      pt: "Estou bem! Com licença, eu quero beber chá.",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus disse que quer?",
-        options: ["Beber chá.", "Ir embora.", "Três amigos.", "A montanha."],
-        correctAnswer: "Beber chá.",
-        correctNextNodeId: "comprar-4",
-        wrongNextNodeId: "comprar-3",
-        explanation: "我想喝茶 = eu quero beber chá.",
-      },
-    },
-    { id: "comprar-3", speakerId: "wang", hanzi: "请再说一遍：茶。", pinyin: "qǐng zài shuō yí biàn: chá.", pt: "Tente de novo: chá.", emotion: "thinking", nextNodeId: "comprar-2" },
-    { id: "comprar-4", speakerId: "wang", hanzi: "有！多少钱？十。", pinyin: "yǒu! duōshao qián? shí.", pt: "Tem! Quanto custa? Dez.", nextNodeId: "comprar-5" },
-    {
-      id: "comprar-5",
-      speakerId: "lin",
-      hanzi: "太贵了！",
-      pinyin: "tài guì le!",
-      pt: "Caro demais!",
-      emotion: "confused",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Wang fez preço alto. Qual frase abre uma negociação?",
-        options: ["太贵了", "谢谢", "再见", "我很好"],
-        correctAnswer: "太贵了",
-        correctNextNodeId: "comprar-7",
-        wrongNextNodeId: "comprar-6",
-        explanation: "太贵了 mostra que o preço está caro demais.",
-      },
-    },
-    { id: "comprar-6", speakerId: "wang", hanzi: "不是。贵，太贵了。", pinyin: "bú shì. guì, tài guì le.", pt: "Não. Pense em caro: caro demais.", emotion: "thinking", nextNodeId: "comprar-5" },
-    { id: "comprar-7", speakerId: "wang", hanzi: "好，好！不贵。", pinyin: "hǎo, hǎo! bú guì.", pt: "Está bem, está bem! Não fica caro.", emotion: "thinking", nextNodeId: "comprar-8" },
-    {
-      id: "comprar-8",
-      speakerId: "lin",
-      hanzi: "我要这个。",
-      pinyin: "wǒ yào zhège.",
-      pt: "Eu quero este.",
-      interaction: {
-        type: "order_reply",
-        prompt: "Monte: eu quero este.",
-        options: ["我", "要", "这", "个", "三"],
-        correctAnswer: "我要这个",
-        correctNextNodeId: "comprar-10",
-        wrongNextNodeId: "comprar-9",
-        explanation: "我要这个 compra apontando: eu quero este.",
-      },
-    },
-    { id: "comprar-9", speakerId: "wang", hanzi: "请再说一遍：我要这个。", pinyin: "qǐng zài shuō yí biàn: wǒ yào zhège.", pt: "Fale de novo: eu quero este.", emotion: "thinking", nextNodeId: "comprar-8" },
-    { id: "comprar-10", speakerId: "wang", hanzi: "好！你要三吗？", pinyin: "hǎo! nǐ yào sān ma?", pt: "Tudo bem! Você quer três?", nextNodeId: "comprar-11" },
-    {
-      id: "comprar-11",
-      speakerId: "lin",
-      hanzi: "不，我要这个。",
-      pinyin: "bù, wǒ yào zhège.",
-      pt: "Não, eu quero este.",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "Matheus aceitou três itens?",
-        options: ["Não, ele quer este.", "Sim, ele quer três.", "Ele quer sair.", "Ele pediu água."],
-        correctAnswer: "Não, ele quer este.",
-        correctNextNodeId: "comprar-13",
-        wrongNextNodeId: "comprar-12",
-        explanation: "不 nega a quantidade três; 我要这个 mantém o pedido.",
-      },
-    },
-    { id: "comprar-12", speakerId: "wang", hanzi: "不，三？请再说一遍。", pinyin: "bù, sān? qǐng zài shuō yí biàn.", pt: "Não, três? Tente de novo.", emotion: "confused", nextNodeId: "comprar-11" },
-    { id: "comprar-13", speakerId: "wang", hanzi: "好！谢谢！", pinyin: "hǎo! xièxie!", pt: "Certo! Obrigado!", emotion: "happy", nextNodeId: "comprar-14" },
-    { id: "comprar-14", speakerId: "lin", hanzi: "谢谢！再见！", pinyin: "xièxie! zàijiàn!", pt: "Obrigado! Até logo!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:qingwen", "chunk:woxianghe", "char:you", "chunk:duoshaoqian", "char:shi10", "chunk:taiguile", "char:bu", "char:shi", "chunk:woyao", "char:san", "chunk:qingzaishuoyibian", "chunk:xiexie", "chunk:zaijian"],
+  nodes: COMPRAR_ITENS_NODES,
+  learnedRefs: COMPRAR_ITENS_LEARNED_REFS,
 }),
 sceneV2({
   sceneId: "revisao-restaurante",
@@ -2741,122 +2642,8 @@ sceneV2({
   characters: PAIR_LIN_WANG,
   sceneRole: "immersion",
   entryNodeId: "mercado-1",
-  nodes: [
-    { id: "mercado-1", speakerId: "wang", hanzi: "你好！你好吗？", pinyin: "nǐ hǎo! nǐ hǎo ma?", pt: "Olá! Tudo bem?", emotion: "happy", nextNodeId: "mercado-2" },
-    {
-      id: "mercado-2",
-      speakerId: "lin",
-      hanzi: "我很好！请问，我想喝茶。",
-      pinyin: "wǒ hěn hǎo! qǐng wèn, wǒ xiǎng hē chá.",
-      pt: "Estou bem! Com licença, quero beber chá.",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus procura no mercado?",
-        options: ["Chá.", "Uma passagem.", "Uma montanha.", "A mãe de Wang."],
-        correctAnswer: "Chá.",
-        correctNextNodeId: "mercado-4",
-        wrongNextNodeId: "mercado-3",
-        explanation: "我想喝茶 mostra que ele quer chá.",
-      },
-    },
-    { id: "mercado-3", speakerId: "wang", hanzi: "茶。请再说一遍。", pinyin: "chá. qǐng zài shuō yí biàn.", pt: "Chá. Tente de novo.", emotion: "thinking", nextNodeId: "mercado-2" },
-    {
-      id: "mercado-4",
-      speakerId: "wang",
-      hanzi: "有！你要三吗？",
-      pinyin: "yǒu! nǐ yào sān ma?",
-      pt: "Tem! Você quer três?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Você quer três unidades.",
-        options: ["我要三", "我要这个", "太贵了", "再见"],
-        correctAnswer: "我要三",
-        correctNextNodeId: "mercado-6",
-        wrongNextNodeId: "mercado-5",
-        explanation: "我要三 = quero três.",
-      },
-    },
-    { id: "mercado-5", speakerId: "wang", hanzi: "三。请再说一遍。", pinyin: "sān. qǐng zài shuō yí biàn.", pt: "Três. Tente de novo.", emotion: "thinking", nextNodeId: "mercado-4" },
-    { id: "mercado-6", speakerId: "wang", hanzi: "好，三。", pinyin: "hǎo, sān.", pt: "Certo, três.", emotion: "happy", nextNodeId: "mercado-6b" },
-    { id: "mercado-6b", speakerId: "lin", hanzi: "好，三。", pinyin: "hǎo, sān.", pt: "Certo, três.", emotion: "happy", nextNodeId: "mercado-7" },
-    {
-      id: "mercado-7",
-      speakerId: "lin",
-      hanzi: "多少钱？",
-      pinyin: "duōshao qián?",
-      pt: "Quanto custa?",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus perguntou?",
-        options: ["O preço.", "O nome.", "Onde fica.", "Se está tudo bem."],
-        correctAnswer: "O preço.",
-        correctNextNodeId: "mercado-9",
-        wrongNextNodeId: "mercado-8",
-        explanation: "多少钱 pergunta quanto custa.",
-      },
-    },
-    { id: "mercado-8", speakerId: "wang", hanzi: "多少钱，钱。请再说一遍。", pinyin: "duōshao qián, qián. qǐng zài shuō yí biàn.", pt: "Preço, dinheiro. Tente de novo.", emotion: "thinking", nextNodeId: "mercado-7" },
-    {
-      id: "mercado-9",
-      speakerId: "wang",
-      hanzi: "十。",
-      pinyin: "shí.",
-      pt: "Dez.",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Escolha uma estratégia: negociar ou pagar cheio.",
-        options: ["太贵了", "好"],
-        correctAnswer: "太贵了",
-        correctNextNodeId: "mercado-11",
-        wrongNextNodeId: "mercado-cheio-1",
-        explanation: "太贵了 negocia; 好 aceita pagar o preço cheio.",
-      },
-    },
-    { id: "mercado-cheio-1", speakerId: "wang", hanzi: "好，十。谢谢！", pinyin: "hǎo, shí. xièxie!", pt: "Certo, dez. Obrigado!", emotion: "happy", nextNodeId: "mercado-cheio-2" },
-    { id: "mercado-cheio-2", speakerId: "lin", hanzi: "好……再见！", pinyin: "hǎo…… zàijiàn!", pt: "Está bem... até logo. (pagou o preço cheio)", emotion: "thinking" },
-    { id: "mercado-11", speakerId: "wang", hanzi: "好，好！不贵。", pinyin: "hǎo, hǎo! bú guì.", pt: "Está bem, está bem! Não fica caro.", emotion: "thinking", nextNodeId: "mercado-11b" },
-    { id: "mercado-11b", speakerId: "lin", hanzi: "太好了！", pinyin: "tài hǎo le!", pt: "Ótimo!", emotion: "happy", nextNodeId: "mercado-12" },
-    {
-      id: "mercado-12",
-      speakerId: "lin",
-      hanzi: "我要这个。",
-      pinyin: "wǒ yào zhège.",
-      pt: "Eu quero este.",
-      emotion: "happy",
-      interaction: {
-        type: "order_reply",
-        prompt: "Monte a compra: eu quero este.",
-        options: ["我", "要", "这", "个", "三"],
-        correctAnswer: "我要这个",
-        correctNextNodeId: "mercado-14",
-        wrongNextNodeId: "mercado-13",
-        explanation: "我要这个 confirma a compra apontando para o item.",
-      },
-    },
-    { id: "mercado-13", speakerId: "wang", hanzi: "请再说一遍：我要这个。", pinyin: "qǐng zài shuō yí biàn: wǒ yào zhège.", pt: "Fale de novo: eu quero este.", emotion: "thinking", nextNodeId: "mercado-12" },
-    {
-      id: "mercado-14",
-      speakerId: "wang",
-      hanzi: "好！",
-      pinyin: "hǎo!",
-      pt: "Fechado!",
-      emotion: "happy",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Agradeça antes de sair.",
-        options: ["谢谢", "太贵了", "你好吗", "三"],
-        correctAnswer: "谢谢",
-        correctNextNodeId: "mercado-14b",
-        wrongNextNodeId: "mercado-15",
-        explanation: "谢谢 fecha a compra com educação.",
-      },
-    },
-    { id: "mercado-15", speakerId: "wang", hanzi: "谢谢。请再说一遍。", pinyin: "xièxie. qǐng zài shuō yí biàn.", pt: "Obrigado. Tente de novo.", emotion: "thinking", nextNodeId: "mercado-14" },
-    { id: "mercado-14b", speakerId: "lin", hanzi: "谢谢！", pinyin: "xièxie!", pt: "Obrigado!", emotion: "happy", nextNodeId: "mercado-16" },
-    { id: "mercado-16", speakerId: "lin", hanzi: "再见！", pinyin: "zàijiàn!", pt: "Até logo!", emotion: "happy", nextNodeId: "mercado-17" },
-    { id: "mercado-17", speakerId: "wang", hanzi: "不客气！再见！", pinyin: "bú kèqi! zàijiàn!", pt: "De nada! Até logo!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:nihao", "chunk:nihaoma", "chunk:wohenhao", "chunk:qingwen", "chunk:woxianghe", "char:you", "char:san", "chunk:woyao", "chunk:duoshaoqian", "char:shi10", "chunk:taiguile", "char:bu", "chunk:qingzaishuoyibian", "chunk:xiexie", "chunk:zaijian", "chunk:bukeqi"],
+  nodes: IMERSAO_MERCADO_NODES,
+  learnedRefs: IMERSAO_MERCADO_LEARNED_REFS,
 }),
 sceneV2({
   sceneId: "imersao-estacao",

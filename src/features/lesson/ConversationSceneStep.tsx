@@ -7,6 +7,7 @@ import type {
   ConversationNode,
   ConversationVariantLevel,
 } from "../../data/conversationScenes";
+import { conversationDecisionMatches } from "../../data/conversationScenes";
 import { AVATAR_TONES, SETTING_LABELS } from "../../data/conversationScenes";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -501,7 +502,7 @@ function InteractionPanel({
   onSkip,
 }: {
   interaction: ConversationInteraction;
-  onCorrect: () => void;
+  onCorrect: (attempt: string) => void;
   /** Presente quando a interação tem wrongNextNodeId: navega no erro. */
   onWrongBranch?: () => void;
   onLocalMistake: () => void;
@@ -516,9 +517,10 @@ function InteractionPanel({
   const isProduce = interaction.type === "produce_reply";
   const options = useMemo(() => [...(interaction.options ?? [])], [interaction.prompt, interaction.correctAnswer]);
   const acceptedAnswers = useMemo(
-    () => [...new Set([answer, ...(interaction.accepts ?? [])])].filter(Boolean),
-    [answer, interaction.accepts]
+    () => [...new Set([answer, ...(interaction.accepts ?? []), ...(interaction.validAnswers ?? [])])].filter(Boolean),
+    [answer, interaction.accepts, interaction.validAnswers]
   );
+  const lastAttemptRef = useRef("");
   const [picked, setPicked] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [ordered, setOrdered] = useState<string[]>([]);
@@ -540,9 +542,12 @@ function InteractionPanel({
   function check() {
     const attempt = isOrder ? ordered.join("") : isProduce ? draft.trim() : picked ?? "";
     if (!attempt) return;
+    lastAttemptRef.current = attempt;
     const matches = isProduce
       ? evaluateLearnerResponse({ draft: attempt, acceptedAnswers }).accepted
-      : conversationAnswersMatch(attempt, answer);
+      : interaction.decision
+        ? conversationDecisionMatches(interaction, attempt)
+        : conversationAnswersMatch(attempt, answer);
     if (matches) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
@@ -582,7 +587,7 @@ function InteractionPanel({
     },
     onSubmit: check,
     onContinue: () => {
-      if (feedback === "correct") onCorrect();
+      if (feedback === "correct") onCorrect(lastAttemptRef.current);
     },
   });
 
@@ -680,7 +685,8 @@ function InteractionPanel({
           <div className="mt-3 grid gap-2">
             {shuffled.map((option, index) => {
               const active = picked === option;
-              const correct = feedback && conversationAnswersMatch(option, answer);
+              const correct =
+                feedback === "correct" && conversationAnswersMatch(option, lastAttemptRef.current || answer);
               const wrong = feedback === "wrong" && active;
               return (
                 <button
@@ -740,7 +746,7 @@ function InteractionPanel({
             <IconCheck width={18} height={18} /> {t("player.almostQi")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? t("player.conversationContinues")}</p>
-          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={onCorrect}>
+          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onCorrect(lastAttemptRef.current)}>
             {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
         </div>
@@ -1053,9 +1059,11 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         {!repairPending && answering && node.interaction && (
           <InteractionPanel
             interaction={node.interaction}
-            onCorrect={() => {
+            onCorrect={(attempt) => {
               setHint(null);
-              const nextId = node.interaction!.correctNextNodeId;
+              const interaction = node.interaction!;
+              const mapped = interaction.decision ? interaction.nextByAnswer?.[attempt] : undefined;
+              const nextId = mapped || interaction.correctNextNodeId;
               goTo(nextId, nodeById.get(nextId));
             }}
             onWrongBranch={
@@ -1221,7 +1229,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         {phase === "checkpoint" && checkpoint && (
           checkpoint.type === "produce_reply" ? <InteractionPanel
             interaction={{ ...checkpoint, correctNextNodeId: "done" }}
-            onCorrect={onDone}
+            onCorrect={() => onDone(true)}
             onLocalMistake={() => onMistake?.()}
             onSkip={onSkip}
           /> : <CheckpointPanel
