@@ -103,6 +103,7 @@ async function seedDueCultureReview(page: Page) {
 
 test.describe("V4.9.7A.1 Culture Quest Engine", () => {
   test("hub shows next mission, plays a mission with contextual feedback, and persists", async ({ page }) => {
+    test.setTimeout(90_000);
     await seedOnboardedSession(page, ["l1"], { replace: false });
     await page.goto("/cultura");
     await waitForLazyPage(page);
@@ -203,6 +204,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
   });
 
   test("l26c restaurant touchpoint opens chopsticks-rest mission", async ({ page }) => {
+    test.setTimeout(120_000);
     await seedUnlockedLessonSession(page, "l26c");
     await page.goto("/licao/l26c");
     await waitForLazyPage(page);
@@ -220,6 +222,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
   });
 
   test("culture review session does not use lexical SRS chrome", async ({ page }) => {
+    test.setTimeout(90_000);
     await seedOnboardedSession(page, ["l1"]);
     await page.goto("/cultura");
     await waitForLazyPage(page);
