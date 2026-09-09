@@ -161,6 +161,25 @@ export async function advanceSkipThroughOverlays(page: Page): Promise<boolean> {
     await page.waitForTimeout(180);
     return true;
   }
+  // Listen-imitate without SpeechRecognition and the content-skip card both
+  // expose Continuar, not Pular. Click that before falling through to
+  // advanceOneStep — evaluate() on a missing victory CTA used to eat the
+  // whole test timeout.
+  if (
+    (before?.skipCard || before?.listenImitate || before?.voiceUnavail) &&
+    (await clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]))
+  ) {
+    // #region agent log
+    agentLog("D", "lesson-player-helpers.ts:advanceSkipThroughOverlays", "path", {
+      path: "listen-or-skip-continuar",
+      skipCard: before?.skipCard,
+      listen: before?.listenImitate,
+      idx: before?.idx,
+    });
+    // #endregion
+    await page.waitForTimeout(180);
+    return true;
+  }
   if (
     await clickFirstVisible(page, [
       /^Entendi$|^Got it$/,
@@ -209,6 +228,10 @@ export function hanziBuilderOrder(prompt: string): string[] {
 /** Avança passos genéricos até o seletor aparecer (smoke, não prova pedagógica profunda). */
 async function locatorIsInsideCultureBridge(target: Locator): Promise<boolean> {
   if (/culture-bridge/.test(String(target))) return true;
+  // count() does not wait. evaluate() on a missing locator inherits the
+  // Playwright Test timeout (actionTimeout is 0) and stalls skip-through
+  // for the rest of the test — e.g. listen-imitate Continuar never clicked.
+  if ((await target.count().catch(() => 0)) === 0) return false;
   return target
     .evaluate((el) => Boolean(el.closest?.("[data-testid=\"culture-bridge\"]") || el.getAttribute("data-testid") === "culture-bridge"))
     .catch(() => false);

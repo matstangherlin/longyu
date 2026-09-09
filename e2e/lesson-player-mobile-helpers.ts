@@ -499,6 +499,16 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(120);
       continue;
     }
+    // Voice-unavailable listen-imitate and the content-skip card: Continuar is
+    // the only exit. Do not wait for advanceOneStep — that used to block on
+    // evaluate() of a victory button that is not on the page.
+    if (
+      (beat?.listenImitate || beat?.skipCard || beat?.voiceUnavail) &&
+      (await clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]))
+    ) {
+      await page.waitForTimeout(180);
+      continue;
+    }
     const skipped = allowSkip
       ? await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/])
       : await clickFirstVisible(page, [/^Entendi$|^Got it$/]);
