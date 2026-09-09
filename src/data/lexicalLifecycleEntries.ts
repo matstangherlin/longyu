@@ -60,7 +60,7 @@ export const LEXICAL_LIFECYCLE_V37_EXTRA = [
   { ref: "chunk:woyaocaidan", introduceAt: "l26b", reinforceAt: ["l26c"], productiveAt: "l26b", packet: "restaurant", role: "core" },
   { ref: "chunk:buyaole", introduceAt: "l26b", reinforceAt: ["l26c"], productiveAt: "l26c", packet: "restaurant", role: "core" },
   { ref: "chunk:liangbeishui", introduceAt: "l26b", reinforceAt: ["l26c"], productiveAt: "l26b", packet: "restaurant", role: "support" },
-  { ref: "char:wei_person", introduceAt: "l26b", reinforceAt: ["l26c"], productiveAt: "l26c", packet: "restaurant", role: "support" },
+  { ref: "char:wei_person", introduceAt: "l26b", reinforceAt: ["l26c"], packet: "restaurant", role: "receptive" },
   { ref: "chunk:fanguan", introduceAt: "l26b", reinforceAt: ["l27", "l28"], productiveAt: "l26b", packet: "restaurant", role: "support" },
   { ref: "chunk:woxiangheshui", introduceAt: "l26b", productiveAt: "l26b", packet: "food_drink", role: "core" },
   { ref: "chunk:woyaoshui", introduceAt: "l26b", productiveAt: "l26b", packet: "food_drink", role: "support" },
