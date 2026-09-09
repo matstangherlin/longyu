@@ -482,7 +482,9 @@ export async function advanceUntilSelector(
     const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
       name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
     });
-    if (!keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
+    // Keep the culture-bridge overlay, but still advance a conversation that
+    // is blocking mid-lesson placement (conversation_scene is a blocked kind).
+    if (await conversationCta.first().isVisible().catch(() => false)) {
       await clickIfEnabled(conversationCta.first());
       await page.waitForTimeout(180);
       continue;
