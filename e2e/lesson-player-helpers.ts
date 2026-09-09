@@ -42,6 +42,7 @@ export function hanziBuilderOrder(prompt: string): string[] {
 
 /** Avança passos genéricos até o seletor aparecer (smoke, não prova pedagógica profunda). */
 async function locatorIsInsideCultureBridge(target: Locator): Promise<boolean> {
+  if (/culture-bridge/.test(String(target))) return true;
   return target
     .evaluate((el) => Boolean(el.closest?.("[data-testid=\"culture-bridge\"]") || el.getAttribute("data-testid") === "culture-bridge"))
     .catch(() => false);
@@ -71,7 +72,7 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
 
     const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição|Lesson review|points to lock in/i });
     if (await reviewHeading.isVisible().catch(() => false)) {
-      await clickFirstVisible(page, [/^Continuar$|^Continue$/]);
+      await clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]);
       await page.waitForTimeout(150);
       continue;
     }
@@ -236,19 +237,27 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
+    const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
+      name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
+    });
+    if (!keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
+      await clickIfEnabled(conversationCta.first());
+      await page.waitForTimeout(180);
+      continue;
+    }
+
     const advanced = await clickFirstVisible(page, [
       /^Entendi$|^Got it$/,
-      /^Continuar$|^Continue$/,
+      /^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/,
       /^Próximo$|^Next$/,
       /^Verificar$|^Check$/,
       /^Conferir$/,
       /^Confirmar$|^Confirm$/,
-      /^Responder$|^Answer$/,
+      /^Responder(?:\s*>)?$|^Reply(?:\s*>)?$|^Answer$/,
       /^Concluir$|^Finish$/,
       /^Ouvir de novo$|^Listen again$/,
     ]);
     if (!advanced) {
-      if ((await page.locator("[data-conversation-scene]").count()) > 0) return true;
       const skipped = await clickFirstVisible(page, [/^Pular|^Skip/]);
       if (!skipped) break;
     }
