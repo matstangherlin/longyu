@@ -433,6 +433,8 @@ export const SENTENCE_FRAMES: SentenceFrame[] = [
       { vocabId: "v_yifu", promptPt: "a roupa" },
       { vocabId: "v_niunai", promptPt: "o leite" },
       { vocabId: "v_cha", promptPt: "o chá" },
+      { vocabId: "v_shui", promptPt: "a água" },
+      { vocabId: "v_zhege", promptPt: "isto" },
     ],
   },
   {
@@ -1449,14 +1451,22 @@ export function pickFrameTask(tasks: readonly FrameTask[], options: FramePickOpt
 
 export function pickOpenProductionTask<T extends { goal: CommunicativeGoal }>(
   tasks: readonly T[],
-  options: { lessonSalt?: number; usedGoals?: ReadonlySet<CommunicativeGoal> } = {}
+  options: {
+    lessonSalt?: number;
+    usedGoals?: ReadonlySet<CommunicativeGoal>;
+    preferredGoal?: CommunicativeGoal;
+  } = {}
 ): T | undefined {
   if (tasks.length === 0) return undefined;
   const salt = Math.abs(options.lessonSalt ?? 0);
-  const declared = OPEN_PRODUCTION_GOALS.map((copy) => copy.goal);
-  const preferredDeclared = declared[salt % declared.length];
   const unused = tasks.filter((task) => !options.usedGoals?.has(task.goal));
   const pool = unused.length > 0 ? unused : tasks;
+  if (options.preferredGoal) {
+    const preferred = pool.find((task) => task.goal === options.preferredGoal);
+    if (preferred) return preferred;
+  }
+  const declared = OPEN_PRODUCTION_GOALS.map((copy) => copy.goal);
+  const preferredDeclared = declared[salt % declared.length];
   return (
     pool.find((task) => task.goal === preferredDeclared) ??
     pool[salt % pool.length] ??

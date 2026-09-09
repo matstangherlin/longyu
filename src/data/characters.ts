@@ -196,7 +196,21 @@ export const CHARACTERS: Character[] = [
     exampleWords: [{ hanzi: "喝茶", pinyin: "hē chá", pt: "beber chá" }],
   },
   { id: "fan_rice", hanzi: "饭", pinyin: "fàn", toneless: "fan", tone: 4, meaningPt: "refeição; arroz cozido", freqRank: 910, components: ["shi_food"], exampleWords: [{ hanzi: "米饭", pinyin: "mǐfàn", pt: "arroz" }] },
-  { id: "cai_dish", hanzi: "菜", pinyin: "cài", toneless: "cai", tone: 4, meaningPt: "prato; verdura", freqRank: 911, components: ["cao"], exampleWords: [{ hanzi: "中国菜", pinyin: "Zhōngguó cài", pt: "comida chinesa" }] },
+  { id: "cai_dish", hanzi: "菜", pinyin: "cài", toneless: "cai", tone: 4, meaningPt: "prato; verdura", freqRank: 911, components: ["cao"], exampleWords: [{ hanzi: "中国菜", pinyin: "Zhōngguó cài", pt: "comida chinesa" }, { hanzi: "菜单", pinyin: "càidān", pt: "cardápio" }] },
+  {
+    id: "wei_person",
+    hanzi: "位",
+    pinyin: "wèi",
+    toneless: "wei",
+    tone: 4,
+    meaningPt: "pessoa (no restaurante)",
+    freqRank: 294,
+    components: ["ren"],
+    exampleWords: [
+      { hanzi: "一位", pinyin: "yí wèi", pt: "uma pessoa" },
+      { hanzi: "两位", pinyin: "liǎng wèi", pt: "duas pessoas" },
+    ],
+  },
   { id: "rou_meat", hanzi: "肉", pinyin: "ròu", toneless: "rou", tone: 4, meaningPt: "carne", freqRank: 912, components: [] },
   { id: "yu_fish", hanzi: "鱼", pinyin: "yú", toneless: "yu", tone: 2, meaningPt: "peixe", freqRank: 913, components: [] },
   {

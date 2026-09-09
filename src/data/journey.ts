@@ -710,6 +710,9 @@ const freeProduction = (opts: {
   patternPt?: string;
   patternSlots?: PatternSlot[];
   productionFrameId?: string;
+  productionOpen?: boolean;
+  productionHintPt?: string;
+  productionExamples?: { hanzi: string; pinyin: string }[];
 }): LessonStep => ({
   kind: "free_production",
   title: opts.title,
@@ -718,8 +721,12 @@ const freeProduction = (opts: {
   answer: opts.expected,
   accepts: opts.accepts ?? [opts.expected],
   productionGoal: opts.productionGoal,
-  productionAssist: "guided",
-  productionHelpInitial: 1,
+  productionOpen: opts.productionOpen,
+  productionAssist: opts.productionOpen ? "open" : "guided",
+  productionHintPt: opts.productionHintPt,
+  productionExamples: opts.productionExamples,
+  productionHelpInitial: opts.productionOpen ? 0 : 1,
+  productionHelpCeiling: opts.productionOpen ? 1 : undefined,
   patternPt: opts.patternPt,
   patternSlots: opts.patternSlots,
   productionFrameId: opts.productionFrameId,
@@ -965,6 +972,21 @@ const listenSelect = (
   options,
   correctAnswer,
   explanation,
+});
+/** Same/different listening on already-taught restaurant vocab — counts as wave-one practice without a new food list. */
+const audioSameDifferent = (a: string, b: string, same: boolean, explanation: string): LessonStep => ({
+  kind: "listen_select",
+  pedagogyVariant: "audio_same_different",
+  title: "Os dois áudios são iguais?",
+  prompt: "Compare a pronúncia completa, incluindo os tons.",
+  audioSequence: [a, b],
+  audioText: a,
+  slowAudioText: a,
+  options: ["Iguais", "Diferentes"],
+  correctAnswer: same ? "Iguais" : "Diferentes",
+  explanation,
+  isNoHint: true,
+  helpMode: "disabled",
 });
 const audioDiscrimination = (
   audioText: string,
@@ -5513,7 +5535,8 @@ export const JOURNEY: JourneyPhase[] = [
             cultureItemId: "shared-dishes",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题", "面", "条", "咖", "啡"],
+            hanziMemoryTargets: ["菜"],
+            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题", "面", "条", "咖", "啡", "位", "两"],
             libraryItems: [
               "char:fan_rice",
               "char:cai_dish",
@@ -5547,6 +5570,14 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:miantiao",
               "chunk:mian_noodles",
               "chunk:woyaomian",
+              "chunk:qingwenjiwei",
+              "chunk:yiwei",
+              "chunk:liangwei",
+              "chunk:woyaocaidan",
+              "chunk:buyaole",
+              "chunk:liangbeishui",
+              "chunk:qingzuo",
+              "char:wei_person",
             ],
             reviewItems: [
               "char:fan_rice",
@@ -5562,6 +5593,17 @@ export const JOURNEY: JourneyPhase[] = [
                 "Pedir no cardápio",
                 "Num restaurante você escolhe arroz ou verdura, carne ou peixe, e diz o que quer beber — tudo com frases curtas."
               ),
+              flash("qingwenjiwei"),
+              flash("yiwei"),
+              flash("liangwei"),
+              flash("woyaocaidan"),
+              flash("buyaole"),
+              flash("liangbeishui"),
+              listen("请问几位？", "qǐng wèn jǐ wèi?", "Quantas pessoas?"),
+              listen("一位", "yí wèi", "Uma pessoa"),
+              listen("两位", "liǎng wèi", "Duas pessoas"),
+              listen("我要菜单", "wǒ yào càidān", "Quero o cardápio."),
+              listen("不要了", "bú yào le", "Não quero mais."),
               flash("woele"),
               flash("womenchifanba"),
               listen("饭", "fàn", "arroz; refeição"),
@@ -5748,6 +5790,101 @@ export const JOURNEY: JourneyPhase[] = [
             ],
           },
           {
+            id: "l26c",
+            title: "Imersão: almoce num restaurante",
+            skill: "fala",
+            isReview: true,
+            cultureItemId: "chopsticks-rest",
+            premium: true,
+            curriculumRole: "immersion",
+            newHanzi: ["两", "务", "员", "单", "杯"],
+            libraryItems: [
+              "chunk:qingwenjiwei",
+              "chunk:yiwei",
+              "chunk:liangwei",
+              "chunk:woyaocaidan",
+              "chunk:woyaomifan",
+              "chunk:woyaoyibeicha",
+              "chunk:woyaoshui",
+              "chunk:buyaole",
+              "chunk:maidan",
+              "chunk:fuwuyuan",
+              "chunk:haochi",
+              "chunk:liangbeishui",
+              "char:cai_dish",
+              "char:wei_person",
+              "char:hao",
+              "char:yao",
+            ],
+            reviewItems: [
+              "char:cai_dish",
+              "chunk:caidan",
+              "chunk:woyaomifan",
+              "chunk:maidan",
+              "chunk:qingwenjiwei",
+            ],
+            steps: [
+              intro(
+                "Almoce num restaurante",
+                "Você entrou num restaurante simples. Entenda quantas pessoas, peça, ajuste, peça a conta e saia. Erro não recomeça a missão inteira."
+              ),
+              recognize("cai_dish"),
+              listenSelect(
+                "O que a pessoa quer saber?",
+                "请问几位？",
+                ["Quantas pessoas", "O que você quer beber", "Quanto custa", "Onde fica"],
+                "Quantas pessoas",
+                "O funcionário pergunta com quantas pessoas você veio."
+              ),
+              audioDiscrimination(
+                "请问几位？",
+                "你要茶吗？",
+                false,
+                "entrada × pedido",
+                { hanzi: "请问几位？", pinyin: "qǐng wèn jǐ wèi?", meaningPt: "quantas pessoas" },
+                { hanzi: "你要茶吗？", pinyin: "nǐ yào chá ma?", meaningPt: "você quer chá" },
+                "Uma pergunta é sobre o número de pessoas; a outra oferece chá."
+              ),
+              audioSameDifferent(
+                "好",
+                "要",
+                false,
+                "hǎo cai (3º); yào desce (4º). Vocabulário que você já usa no restaurante."
+              ),
+              conversationScene("imersao-restaurante"),
+              freeProduction({
+                title: "Faça o pedido",
+                situationPt: "Você está no restaurante e quer arroz. Peça.",
+                expected: "我要米饭",
+                accepts: ["我要米饭", "我想吃米饭", "我要饭"],
+                productionGoal: "request_item",
+                productionFrameId: "frame_woyao",
+                patternPt: "eu quero + coisa",
+                patternSlots: [
+                  { role: "subject" },
+                  { role: "verb" },
+                  { role: "object", hole: true },
+                ],
+              }),
+              freeProduction({
+                title: "Recuse com educação",
+                situationPt: "O funcionário oferece mais chá. Você já está satisfeito. Recuse.",
+                expected: "不要了",
+                accepts: ["不要了", "不要了。", "谢谢，不要了"],
+                productionGoal: "refuse_drink",
+                patternPt: "não quero mais",
+              }),
+              freeProduction({
+                title: "Peça a conta",
+                situationPt: "Vocês terminaram de comer. Peça a conta.",
+                expected: "买单",
+                accepts: ["买单", "买单。", "买单谢谢"],
+                productionGoal: "request_item",
+                patternPt: "a conta",
+              }),
+            ],
+          },
+          {
             id: "l27",
             title: "Na loja",
             skill: "fala",
@@ -5776,6 +5913,7 @@ export const JOURNEY: JourneyPhase[] = [
                 visualMeaningOptions("rice"),
                 { explanation: "饭 reaparece na loja: comida e compra juntas." }
               ),
+              recognize("cai_dish"),
               listen("多少钱？", "duōshao qián?", "Quanto custa?"),
               listen("我要这个", "wǒ yào zhège", "Eu quero este."),
               listenSelect(
@@ -7711,7 +7849,7 @@ export const JOURNEY: JourneyPhase[] = [
             isReview: true,
             reviewMasteryMode: true,
             premium: true,
-            newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝"],
+            newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝", "单"],
             // Foco em chunks (não caracteres isolados) — evita trio de comprehend
             // intent:identify-concept sem transformação na revisão.
             libraryItems: [
@@ -8006,6 +8144,29 @@ export const JOURNEY: JourneyPhase[] = [
                 "太贵了 = caro demais; no mercado, negociar faz parte.",
                 "Vendedor"
               ),
+              // Produção aberta de preço depois da produção guiada de
+              // 这件衣服多少钱？ em p6-survival-mandarin. Não fecha pagamento digital.
+              freeProduction({
+                title: "Diga do seu jeito",
+                situationPt: "Na loja, pergunte o preço de alguma coisa.",
+                expected: "多少钱？",
+                accepts: [
+                  "多少钱？",
+                  "多少钱",
+                  "这个多少钱？",
+                  "这个多少钱",
+                  "茶多少钱？",
+                  "茶多少钱",
+                ],
+                productionGoal: "ask_price",
+                productionOpen: true,
+                productionHintPt: "Pode ser qualquer item que você já saiba nomear.",
+                productionExamples: [
+                  { hanzi: "多少钱？", pinyin: "duōshao qián?" },
+                  { hanzi: "这个多少钱？", pinyin: "zhège duōshao qián?" },
+                  { hanzi: "茶多少钱？", pinyin: "chá duōshao qián?" },
+                ],
+              }),
             ],
           },
           {

@@ -80,3 +80,33 @@ export function loadRoutineTimeRuntime() {
   const plans = Object.fromEntries(ROUTINE_TIME_TOPIC_IDS.map(id => [id, [1,2,3,4].map(masteryPass => lessonRoundStepsFor(ALL_LESSONS.find(l=>l.id===id), {masteryPass}))]));
   return { lessons: ALL_LESSONS, scenes: CONVERSATION_SCENES, chunks: CHUNKS, characters: CHARACTERS, plans, debt, gloss: INSTRUCTION_GLOSS_EN, hasEnglishOverlay, isCanonicalZhOrPinyin };
 }
+
+export function loadRestaurantRuntime() {
+  const { ALL_LESSONS } = require("../../src/data/journey.ts");
+  const { CONVERSATION_SCENES } = require("../../src/data/conversationScenes.ts");
+  const { CHUNKS } = require("../../src/data/chunks.ts");
+  const { CHARACTERS } = require("../../src/data/characters.ts");
+  const { HANZI_MEMORY_TARGETS } = require("../../src/data/hanziMemoryTargets.ts");
+  const { CULTURE_ITEMS } = require("../../src/data/culture.ts");
+  const { lessonRoundStepsFor } = require("../../src/features/lesson/lessonTasks.ts");
+  const { RESTAURANT_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalRestaurant.ts");
+  const { INSTRUCTION_GLOSS_EN, hasEnglishOverlay, isCanonicalZhOrPinyin } = require("../../src/i18n/overlays/instructionGloss.ts");
+  const plans = Object.fromEntries(
+    RESTAURANT_SURVIVAL_TOPIC_IDS.map((id) => [
+      id,
+      [1, 2, 3, 4].map((masteryPass) => lessonRoundStepsFor(ALL_LESSONS.find((lesson) => lesson.id === id), { masteryPass })),
+    ])
+  );
+  return {
+    lessons: ALL_LESSONS,
+    scenes: CONVERSATION_SCENES,
+    chunks: CHUNKS,
+    characters: CHARACTERS,
+    plans,
+    hanziMemoryTargets: HANZI_MEMORY_TARGETS,
+    cultureItems: CULTURE_ITEMS,
+    gloss: INSTRUCTION_GLOSS_EN,
+    hasEnglishOverlay,
+    isCanonicalZhOrPinyin,
+  };
+}

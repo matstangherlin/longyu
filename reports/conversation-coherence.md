@@ -1,6 +1,6 @@
 # Conversation coherence audit
 
-Cenas: 47.
+Cenas: 48.
 
 ## primeiro-cumprimento
 
@@ -1074,31 +1074,31 @@ Cenas: 47.
 
 - intent: restaurant-review
 - ending: 谢谢！再见！
-- last interaction: choose_meaning
+- last interaction: produce_reply
 
 ### rest-2
 
 - NPC_UTTERANCE: 你好！
-- MEANING: Olá! O que você quer?
+- MEANING: Olá!
 - PROMPT: Peça apontando para o prato.
 - EXPECTED_RESPONSE: 我要这个
-- ACCEPTS: (none)
-- NEXT_TURN: 我想喝茶。
-- REPAIR: 请再说一遍：我要这个。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- ACCEPTS: 我要这个
+- NEXT_TURN: 这个，好。你想喝茶吗？
+- REPAIR: 你要什么？
+- speechAct: ask_order → place_order (reask_order)
 - CLASS: ANSWER_TOO_NARROW
 
 ### rest-4
 
-- NPC_UTTERANCE: 好！你想喝茶吗？
-- MEANING: Está bem! Quer beber chá?
+- NPC_UTTERANCE: 你想喝茶吗？
+- MEANING: Quer beber chá?
 - PROMPT: Aceite o chá.
 - EXPECTED_RESPONSE: 我想喝茶
-- ACCEPTS: (none)
-- NEXT_TURN: 好吃吗？
-- REPAIR: 茶。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+- ACCEPTS: 我想喝茶 | 我要一杯茶
+- NEXT_TURN: 茶，好。
+- REPAIR: 茶？
+- speechAct: ask_order → accept_offer (clarify)
+- CLASS: OK
 
 ### rest-7
 
@@ -1107,22 +1107,22 @@ Cenas: 47.
 - PROMPT: O que Matheus achou da comida?
 - EXPECTED_RESPONSE: Muito gostosa.
 - ACCEPTS: (none)
-- NEXT_TURN: 十。
+- NEXT_TURN: 买单
 - REPAIR: 好吃，很好吃。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- speechAct: ask_wellbeing → praise_food (clarify)
 - CLASS: ANSWER_TOO_NARROW
 
-### rest-10
+### rest-9
 
-- NPC_UTTERANCE: 十。
-- MEANING: Dez.
-- PROMPT: Qual foi o preço?
-- EXPECTED_RESPONSE: Dez.
-- ACCEPTS: (none)
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Peça a conta.
+- EXPECTED_RESPONSE: 买单
+- ACCEPTS: 买单 | 买单。 | 买单谢谢
 - NEXT_TURN: 谢谢！再见！
-- REPAIR: 十。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- REPAIR: 买单？
+- speechAct: confirm_order → request_bill (confirm_bill)
+- CLASS: OK
 
 ## revisao-numeros
 
@@ -1529,67 +1529,157 @@ Cenas: 47.
 ## pedir-cardapio
 
 - intent: order-menu
-- ending: 好的！没问题！
-- last interaction: choose_reply
+- ending: 好的！
+- last interaction: produce_reply
+
+### cardapio-2
+
+- NPC_UTTERANCE: 你好，请问几位？
+- MEANING: Olá, com licença, quantas pessoas?
+- PROMPT: Vocês são duas pessoas. Responda ao funcionário.
+- EXPECTED_RESPONSE: 两位
+- ACCEPTS: 两位 | 两个人
+- NEXT_TURN: 两位，好。请坐。
+- REPAIR: 两位吗？
+- speechAct: ask_party_size → tell_party_size (confirm_quantity)
+- CLASS: OK
 
 ### cardapio-3
 
-- NPC_UTTERANCE: 你要米饭吗？
-- MEANING: Você quer arroz?
-- PROMPT: Peça arroz (米饭).
+- NPC_UTTERANCE: 你要菜单吗？
+- MEANING: Você quer o cardápio?
+- PROMPT: Peça o cardápio com o padrão que você já usa para pedir.
+- EXPECTED_RESPONSE: 我要菜单
+- ACCEPTS: 我要菜单 | 菜单
+- NEXT_TURN: 菜单，好。
+- REPAIR: 菜单？
+- speechAct: offer_menu → request_menu (clarify)
+- CLASS: OK
+
+### cardapio-4
+
+- NPC_UTTERANCE: 你要什么？
+- MEANING: O que você quer?
+- PROMPT: Peça arroz.
 - EXPECTED_RESPONSE: 我要米饭
-- ACCEPTS: 我想吃米饭 | 我要饭
-- NEXT_TURN: 要辣吗？
-- REPAIR: 米饭。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
+- ACCEPTS: 我要米饭 | 我想吃米饭 | 我要饭
+- NEXT_TURN: 米饭，好。
+- REPAIR: 你要什么？
+- speechAct: ask_order → place_order (reask_order)
+- CLASS: OK
 
-### cardapio-6
-
-- NPC_UTTERANCE: 要辣吗？
-- MEANING: Quer picante?
-- PROMPT: Peça sem pimenta.
-- EXPECTED_RESPONSE: 不要辣
-- ACCEPTS: (none)
-- NEXT_TURN: 你要茶吗？
-- REPAIR: 不要辣。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
-
-### cardapio-9
+### cardapio-5
 
 - NPC_UTTERANCE: 你要茶吗？
 - MEANING: Você quer chá?
-- PROMPT: Peça um copo de chá.
+- PROMPT: Aceite o chá.
 - EXPECTED_RESPONSE: 我要一杯茶
-- ACCEPTS: 我想喝水 | 我要水
-- NEXT_TURN: 多少钱？
-- REPAIR: 茶。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
-
-### cardapio-12
-
-- NPC_UTTERANCE: 多少钱？
-- MEANING: Quanto custa?
-- PROMPT: O que Matheus perguntou?
-- EXPECTED_RESPONSE: O preço.
-- ACCEPTS: (none)
+- ACCEPTS: 我要一杯茶 | 我想喝茶
 - NEXT_TURN: 好。
-- REPAIR: 多少钱。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- REPAIR: 茶？
+- speechAct: ask_order → accept_offer (clarify)
+- CLASS: OK
 
-### cardapio-15
+### cardapio-6
 
 - NPC_UTTERANCE: 好。
 - MEANING: Certo.
-- PROMPT: Peça a conta.
+- PROMPT: Vocês terminaram. Peça a conta, sem alternativas.
 - EXPECTED_RESPONSE: 买单
-- ACCEPTS: (none)
-- NEXT_TURN: 好的！没问题！
-- REPAIR: 买单。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- ACCEPTS: 买单 | 买单。 | 买单谢谢
+- NEXT_TURN: 好的！
+- REPAIR: 买单？
+- speechAct: confirm_order → request_bill (confirm_bill)
+- CLASS: OK
+
+## imersao-restaurante
+
+- intent: immersion-restaurant
+- ending: 再见！
+- last interaction: produce_reply
+
+### ir-2
+
+- NPC_UTTERANCE: 请问几位？
+- MEANING: Com licença, quantas pessoas?
+- PROMPT: Vocês são duas pessoas. Uma pessoa também é um caminho real.
+- EXPECTED_RESPONSE: 两位
+- ACCEPTS: 两位 | 两个人
+- NEXT_TURN: 两位，好。请坐。
+- REPAIR: 一位，好。请坐。
+- speechAct: ask_party_size → tell_party_size (confirm_quantity)
+- CLASS: OK
+
+### ir-3
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Chame o atendimento.
+- EXPECTED_RESPONSE: 服务员
+- ACCEPTS: 服务员 | 服务员！
+- NEXT_TURN: 你好。
+- REPAIR: 服务员？
+- speechAct: greet → get_attention (clarify)
+- CLASS: OK
+
+### ir-4
+
+- NPC_UTTERANCE: 你要菜单吗？
+- MEANING: Você quer o cardápio?
+- PROMPT: Peça o cardápio.
+- EXPECTED_RESPONSE: 我要菜单
+- ACCEPTS: 我要菜单 | 菜单
+- NEXT_TURN: 菜单，好。
+- REPAIR: 菜单？
+- speechAct: offer_menu → request_menu (clarify)
+- CLASS: OK
+
+### ir-5
+
+- NPC_UTTERANCE: 你要什么？
+- MEANING: O que você quer?
+- PROMPT: Peça arroz.
+- EXPECTED_RESPONSE: 我要米饭
+- ACCEPTS: 我要米饭 | 我想吃米饭 | 我要饭
+- NEXT_TURN: 米饭，好。
+- REPAIR: 你要什么？
+- speechAct: ask_order → place_order (reask_order)
+- CLASS: OK
+
+### ir-6
+
+- NPC_UTTERANCE: 你要茶吗？
+- MEANING: Você quer chá?
+- PROMPT: Aceite o chá, ou recuse se não quiser mais.
+- EXPECTED_RESPONSE: 我要一杯茶
+- ACCEPTS: 我要一杯茶 | 我想喝茶
+- NEXT_TURN: 茶，好。
+- REPAIR: 好，不要了。
+- speechAct: ask_order → accept_offer (clarify)
+- CLASS: OK
+
+### ir-8
+
+- NPC_UTTERANCE: 好吃吗？
+- MEANING: Está gostoso?
+- PROMPT: A comida está boa. Responda.
+- EXPECTED_RESPONSE: 很好吃
+- ACCEPTS: 很好吃
+- NEXT_TURN: 好吃，好。
+- REPAIR: 好吃吗？
+- speechAct: ask_wellbeing → praise_food (clarify)
+- CLASS: OK
+
+### ir-9
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Terminaram. Peça a conta falando ou escrevendo, sem banco de palavras.
+- EXPECTED_RESPONSE: 买单
+- ACCEPTS: 买单 | 买单。 | 买单谢谢
+- NEXT_TURN: 再见！
+- REPAIR: 买单？
+- speechAct: confirm_order → request_bill (confirm_bill)
 - CLASS: OK
 
 ## mostrar-livro

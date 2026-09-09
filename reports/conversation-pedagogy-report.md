@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | a5cb1f1f3a880ecb3645d8851e48925611589575 |
+| Commit | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T23:07:07.536Z |
-| Lições | 127 |
-| Hash da Jornada | 7f4a081846d3 |
+| Gerado em | 2026-09-09T07:43:28.142Z |
+| Lições | 128 |
+| Hash da Jornada | f6430d1a11be |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 47 |
-| Média de falas | 8.17 |
-| Média de intervenções | 2.96 |
-| Número de ramificações | 139 |
-| Número de finais | 50 |
-| Vocabulário total exibido (refs únicas no plano real) | 137 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 137 |
+| Número de cenas | 48 |
+| Média de falas | 8.50 |
+| Média de intervenções | 3.04 |
+| Número de ramificações | 147 |
+| Número de finais | 52 |
+| Vocabulário total exibido (refs únicas no plano real) | 150 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 150 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 8.40 |
+| Média de reutilizações por ref exibida | 7.65 |
 
 ## Cenas mais curtas
 
@@ -46,22 +46,22 @@
 
 | Cena | Falas | Intervenções |
 |------|------:|-------------:|
-| imersao-estacao | 15 | 6 |
+| imersao-restaurante | 22 | 7 |
 
 ## Cenas com maior repetição no plano real
 
 | Cena | Usos |
 |------|-----:|
 | como-se-chama | 9 |
+| me-apresentando | 8 |
+| nao-falo-chinês | 8 |
 | encontro-amanha | 8 |
-| falar-de-estudo | 8 |
-| me-apresentando | 7 |
-| nao-falo-chinês | 7 |
-| pedir-agua | 7 |
-| packet-exchange-basic_questions | 6 |
-| packet-exchange-introductions | 6 |
-| cortesia-loja | 5 |
-| fale-de-novo | 5 |
+| packet-exchange-introductions | 7 |
+| falar-de-estudo | 7 |
+| cortesia-loja | 6 |
+| pedir-repeticao | 5 |
+| packet-exchange-basic_questions | 5 |
+| pedir-agua | 5 |
 
 ## Cenas por cenário
 
@@ -71,7 +71,7 @@
 | home | 6 |
 | park | 7 |
 | school | 5 |
-| shop | 10 |
+| shop | 11 |
 | street | 13 |
 
 ## Cenas por intenção
@@ -105,6 +105,7 @@
 | hotel | 1 |
 | identify-person | 1 |
 | immersion-market | 1 |
+| immersion-restaurant | 1 |
 | immersion-station | 1 |
 | immersion-visit | 1 |
 | introduce-self | 1 |
@@ -142,4 +143,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:b345d681c6f40fa4 -->
+<!-- integridade:54c733b3fdf20bd1 -->

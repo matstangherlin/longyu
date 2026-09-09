@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7f4a081846d3 |
-| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
+| Hash da Jornada | f6430d1a11be |
+| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T22:57:16.657Z |
-| Lições | 127 |
+| Gerado em | 2026-09-09T07:32:43.765Z |
+| Lições | 128 |
 
 
 Atividades pontuadas excluem intro/listen passivo. DIRECT ≥ 70%. DIRECT+SUPPORTING ≥ 90%. GENERIC ≤ 10%. Máx. 2 passivos seguidos.
@@ -289,5 +289,5 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:8873f316a3c9be8a -->
+<!-- integridade:00f739232572c239 -->
 
