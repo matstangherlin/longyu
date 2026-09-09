@@ -201,7 +201,7 @@ try {
   assert.equal(cta4.primary, "Praticar novamente");
 
   const storeSrc = await readFile(path.join(root, "src/lib/store.ts"), "utf8");
-  assert.match(storeSrc, /version: 22/, "persist v22 Culture Quest + grandfather Topic Mastery");
+  assert.match(storeSrc, /version: 23/, "persist v23 Culture teaching loop + grandfather Topic Mastery");
   assert.match(storeSrc, /grandfatherTopicMastery/, "migração chama grandfather");
   assert.match(storeSrc, /lessonSessionStepById/, "resume de pass persistido");
   assert.match(storeSrc, /consumedChargeKeys/, "energia idempotente por pass");

@@ -67,6 +67,11 @@ import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { CultureTouchpoint } from "../culture/CultureTouchpoint";
+import { JourneyCultureBridgePanel } from "../culture/JourneyCultureBridge";
+import {
+  cultureBridgeForLesson,
+  isCultureBridgeBlockedKind,
+} from "../../data/cultureJourneyBridges";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
@@ -1729,6 +1734,8 @@ export function LessonPlayer() {
   const completeLesson = useStore((s) => s.completeLesson);
   const saveCultureItem = useStore((s) => s.saveCultureItem);
   const cultureSavedIds = useStore((s) => s.cultureSavedIds);
+  const completeCultureBridge = useStore((s) => s.completeCultureBridge);
+  const cultureKnowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
   useStore((s) => s.itemDimensionsByRef);
@@ -1815,6 +1822,10 @@ export function LessonPlayer() {
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
   const [cultureTouchpointOpen, setCultureTouchpointOpen] = useState(true);
+  const [cultureBridgeOpen, setCultureBridgeOpen] = useState(false);
+  const [culturePlusOne, setCulturePlusOne] = useState(false);
+  const cultureBridgeShownRef = useRef(false);
+  const pendingAfterBridgeRef = useRef<null | { type: "next" | "finish"; correct: number }>(null);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
   const [answerStreak, setAnswerStreak] = useState(0);
   const [streakBurst, setStreakBurst] = useState(0);
@@ -3156,6 +3167,25 @@ export function LessonPlayer() {
     setStepAttempt(0);
     if (wasCorrect === false && currentStepIsGraded && !hasUnlimitedLives && nextLives <= 0) {
       finish(nextCorrect, "out_of_lives");
+      return;
+    }
+    const bridge = cultureBridgeForLesson(lesson.id);
+    const nextStep = lesson.steps[idx + 1];
+    const atEnd = idx + 1 >= total;
+    const progressRatio = (idx + 1) / Math.max(1, total);
+    const nextOk = atEnd || !nextStep || !isCultureBridgeBlockedKind(nextStep.kind);
+    const midReady =
+      Boolean(bridge) &&
+      bridge?.placement === "mid" &&
+      !cultureBridgeShownRef.current &&
+      progressRatio >= 0.35 &&
+      nextOk;
+    const endReady =
+      Boolean(bridge) && bridge?.placement === "end" && !cultureBridgeShownRef.current && atEnd;
+    if (bridge && (midReady || endReady)) {
+      cultureBridgeShownRef.current = true;
+      pendingAfterBridgeRef.current = { type: atEnd ? "finish" : "next", correct: nextCorrect };
+      setCultureBridgeOpen(true);
       return;
     }
     if (idx + 1 >= total) finish(nextCorrect);
@@ -4508,6 +4538,13 @@ export function LessonPlayer() {
           </div>
         </div>
       )}
+      {culturePlusOne ? (
+        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
+          <div className="rounded-full border border-accent-soft bg-surface px-4 py-2 text-sm font-semibold text-accent shadow-card" data-testid="culture-plus-one">
+            {t("culture.plusOne")}
+          </div>
+        </div>
+      ) : null}
       {chargePenaltyNotice && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-error-shake rounded-full border border-wrong/30 bg-wrong-soft px-4 py-2 text-sm font-semibold text-wrong shadow-card">
@@ -4582,20 +4619,47 @@ export function LessonPlayer() {
       <Card
         data-lesson-step-frame
         data-lesson-task-body
-        data-current-step-kind={step.kind}
+        data-current-step-kind={cultureBridgeOpen ? "culture_bridge" : step.kind}
         data-current-step-index={idx}
         className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
-        <StepRenderer
-          key={`${idx}:${stepAttempt}`}
-          step={step}
-          lessonId={lesson.id}
-          attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
-          onDone={handleDone}
-          onSkip={canSkipStep ? skipCurrentStep : undefined}
-          onMistake={canSkipStep ? registerCurrentMistake : undefined}
-          onUnrecognized={registerUnrecognizedAnswer}
-        />
+        {cultureBridgeOpen && cultureBridgeForLesson(lesson.id) ? (
+          <JourneyCultureBridgePanel
+            bridge={cultureBridgeForLesson(lesson.id)!}
+            recall={["practiced", "mastered", "review_due"].includes(
+              cultureKnowledgeById[cultureBridgeForLesson(lesson.id)!.cultureConceptId]?.state ?? ""
+            )}
+            onFinished={(result) => {
+              const catalog = cultureBridgeForLesson(lesson.id);
+              if (catalog) {
+                completeCultureBridge({
+                  conceptId: catalog.cultureConceptId,
+                  cultureItemId: catalog.cultureItemId,
+                  taught: result.taught,
+                  taskCorrect: result.taskCorrect,
+                });
+              }
+              setCultureBridgeOpen(false);
+              setCulturePlusOne(true);
+              window.setTimeout(() => setCulturePlusOne(false), 1800);
+              const pending = pendingAfterBridgeRef.current;
+              pendingAfterBridgeRef.current = null;
+              if (pending?.type === "finish") finish(pending.correct);
+              else setIdx(idx + 1);
+            }}
+          />
+        ) : (
+          <StepRenderer
+            key={`${idx}:${stepAttempt}`}
+            step={step}
+            lessonId={lesson.id}
+            attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
+            onDone={handleDone}
+            onSkip={canSkipStep ? skipCurrentStep : undefined}
+            onMistake={canSkipStep ? registerCurrentMistake : undefined}
+            onUnrecognized={registerUnrecognizedAnswer}
+          />
+        )}
       </Card>
       </div>
 

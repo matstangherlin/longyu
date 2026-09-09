@@ -14,10 +14,13 @@ import {
   applyCultureStarted,
 } from "./cultureProgress";
 import {
+  applyCultureBridgeComplete,
+  applyCultureKnowledgeEvent,
   applyCultureMemoryReview,
   applyCultureMissionComplete,
   cultureMissionRewardId,
   emptyCultureMastery,
+  migrateCultureKnowledgeFromMastery,
   migrateCultureV21ToQuest,
   type CultureMissionResult,
 } from "./cultureMastery";
@@ -1266,6 +1269,7 @@ interface AccountSnapshot extends XpBuckets {
   /** V4.9.7A.1 — Culture Quest mastery / memory / seals. */
   cultureMasteryById: Record<string, import("../data/cultureQuest").CultureMasteryRecord>;
   cultureMemoryById: Record<string, import("../data/cultureQuest").CultureMemoryRecord>;
+  cultureKnowledgeById: Record<string, import("../data/cultureQuest").CultureKnowledgeRecord>;
   cultureSeals: string[];
   isPremium: boolean;
   placement: PlacementResult | null;
@@ -1511,6 +1515,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     cultureStartedIds: s.cultureStartedIds ?? [],
     cultureMasteryById: s.cultureMasteryById ?? {},
     cultureMemoryById: s.cultureMemoryById ?? {},
+    cultureKnowledgeById: s.cultureKnowledgeById ?? {},
     cultureSeals: s.cultureSeals ?? [],
     isPremium: s.isPremium,
     placement: s.placement,
@@ -1658,6 +1663,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     cultureStartedIds: account.cultureStartedIds ?? [],
     cultureMasteryById: account.cultureMasteryById ?? {},
     cultureMemoryById: account.cultureMemoryById ?? {},
+    cultureKnowledgeById: account.cultureKnowledgeById ?? {},
     cultureSeals: account.cultureSeals ?? [],
     isPremium: account.isPremium,
     placement: account.placement ?? null,
@@ -2010,6 +2016,7 @@ interface AppState {
   cultureStartedIds: string[];
   cultureMasteryById: Record<string, import("../data/cultureQuest").CultureMasteryRecord>;
   cultureMemoryById: Record<string, import("../data/cultureQuest").CultureMemoryRecord>;
+  cultureKnowledgeById: Record<string, import("../data/cultureQuest").CultureKnowledgeRecord>;
   cultureSeals: string[];
   /** Preview de assinatura Pro (paywall real vem depois). */
   isPremium: boolean;
@@ -2194,6 +2201,18 @@ interface AppState {
     grantedXp: boolean;
     newSeals: string[];
   };
+  completeCultureBridge: (input: {
+    conceptId: string;
+    cultureItemId: string;
+    taught: boolean;
+    taskCorrect: boolean;
+  }) => void;
+  recordCultureKnowledge: (
+    conceptId: string,
+    cultureItemId: string,
+    event: "introduced" | "practiced" | "mastered",
+    source: "journey" | "mission"
+  ) => void;
   reviewCultureMemory: (targetId: string, correct: boolean) => void;
   claimReward: (reward: RewardGrant) => boolean;
   grantLessonReward: (input: {
@@ -3739,6 +3758,7 @@ export const useStore = create<AppState>()(
             {
               cultureMasteryById: s.cultureMasteryById ?? {},
               cultureMemoryById: s.cultureMemoryById ?? {},
+              cultureKnowledgeById: s.cultureKnowledgeById ?? {},
               cultureSeals: s.cultureSeals ?? [],
               cultureCompletedIds: s.cultureCompletedIds ?? [],
               cultureSavedIds: s.cultureSavedIds ?? [],
@@ -3754,6 +3774,7 @@ export const useStore = create<AppState>()(
           const patch = {
             cultureMasteryById: applied.cultureMasteryById,
             cultureMemoryById: applied.cultureMemoryById,
+            cultureKnowledgeById: applied.cultureKnowledgeById,
             cultureSeals: applied.cultureSeals,
             cultureCompletedIds: applied.cultureCompletedIds,
             cultureSavedIds: applied.cultureSavedIds,
@@ -3773,11 +3794,43 @@ export const useStore = create<AppState>()(
         return outcome;
       },
 
+      completeCultureBridge: (input) => {
+        if (!input?.conceptId || !input.cultureItemId || !getCultureItem(input.cultureItemId)) return;
+        set((s) => {
+          const cultureKnowledgeById = applyCultureBridgeComplete(s.cultureKnowledgeById ?? {}, input);
+          const next = { ...s, cultureKnowledgeById };
+          return { cultureKnowledgeById, accounts: saveCurrentAccount(next) };
+        });
+      },
+
+      recordCultureKnowledge: (conceptId, cultureItemId, event, source) => {
+        if (!conceptId || !cultureItemId || !getCultureItem(cultureItemId)) return;
+        set((s) => {
+          const cultureKnowledgeById = applyCultureKnowledgeEvent(s.cultureKnowledgeById ?? {}, {
+            conceptId,
+            cultureItemId,
+            event,
+            source,
+          });
+          const next = { ...s, cultureKnowledgeById };
+          return { cultureKnowledgeById, accounts: saveCurrentAccount(next) };
+        });
+      },
+
       reviewCultureMemory: (targetId, correct) => {
         set((s) => {
           const cultureMemoryById = applyCultureMemoryReview(s.cultureMemoryById ?? {}, targetId, correct);
-          const next = { ...s, cultureMemoryById };
-          return { cultureMemoryById, accounts: saveCurrentAccount(next) };
+          const row = cultureMemoryById[targetId];
+          const cultureKnowledgeById = row
+            ? applyCultureKnowledgeEvent(s.cultureKnowledgeById ?? {}, {
+                conceptId: targetId,
+                cultureItemId: row.cultureItemId,
+                event: correct ? "mastered" : "practiced",
+                source: "mission",
+              })
+            : s.cultureKnowledgeById ?? {};
+          const next = { ...s, cultureMemoryById, cultureKnowledgeById };
+          return { cultureMemoryById, cultureKnowledgeById, accounts: saveCurrentAccount(next) };
         });
       },
 
@@ -5188,7 +5241,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 22,
+      version: 23,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -5213,6 +5266,7 @@ export const useStore = create<AppState>()(
       // v20: Topic Mastery Path — grandfather 4/4 para nós já atrás do ponteiro legado.
       // v21: Culture Hub — progresso cultural separado (completed / saved / started).
       // v22: Culture Quest — mastery, memory, seals. Completed items migrate to 1★.
+      // v23: Culture teaching loop — knowledge states (unseen/introduced/practiced/mastered).
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -5382,6 +5436,12 @@ export const useStore = create<AppState>()(
               ...migrateCultureV21ToQuest(migrated),
             };
           }
+          if (version < 23) {
+            migrated = {
+              ...migrated,
+              cultureKnowledgeById: migrateCultureKnowledgeFromMastery(migrated),
+            };
+          }
           const completedLessons = normalizeCompletedLessons(
             migrated.completedLessons,
             migrated.lessonStarsById,
@@ -5461,6 +5521,10 @@ export const useStore = create<AppState>()(
           pearlProductionCount: root.pearlProductionCount ?? 0,
           lastShopPurchaseFeedback: root.lastShopPurchaseFeedback ?? null,
           ...migrateCultureV21ToQuest(root),
+          cultureKnowledgeById: migrateCultureKnowledgeFromMastery({
+            ...root,
+            ...migrateCultureV21ToQuest(root),
+          }),
           accounts: normalized,
         } as AppState;
       },

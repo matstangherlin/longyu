@@ -9,6 +9,8 @@ import {
   CULTURE_SEALS,
   cultureStarsForAttempt,
   nextCultureReviewDue,
+  type CultureKnowledgeRecord,
+  type CultureKnowledgeState,
   type CultureMasteryRecord,
   type CultureMemoryRecord,
   type CultureSealId,
@@ -19,19 +21,29 @@ import { unionIds } from "./cultureProgress";
 export type CultureMasteryMaps = {
   cultureMasteryById: Record<string, CultureMasteryRecord>;
   cultureMemoryById: Record<string, CultureMemoryRecord>;
+  cultureKnowledgeById: Record<string, CultureKnowledgeRecord>;
   cultureSeals: string[];
   cultureCompletedIds: string[];
   cultureSavedIds: string[];
   cultureStartedIds: string[];
 };
 
+const KNOWLEDGE_RANK: Record<CultureKnowledgeState, number> = {
+  unseen: 0,
+  introduced: 1,
+  practiced: 2,
+  review_due: 2,
+  mastered: 3,
+};
+
 export function emptyCultureMastery(): Pick<
   CultureMasteryMaps,
-  "cultureMasteryById" | "cultureMemoryById" | "cultureSeals"
+  "cultureMasteryById" | "cultureMemoryById" | "cultureKnowledgeById" | "cultureSeals"
 > {
   return {
     cultureMasteryById: {},
     cultureMemoryById: {},
+    cultureKnowledgeById: {},
     cultureSeals: [],
   };
 }
@@ -87,11 +99,121 @@ export function migrateCultureV21ToQuest(input: {
   return {
     cultureMasteryById: mastery,
     cultureMemoryById: memory,
+    cultureKnowledgeById: migrateCultureKnowledgeFromMastery({
+      cultureMasteryById: mastery,
+      cultureKnowledgeById: {},
+    }),
     cultureSeals: seals,
     cultureCompletedIds: completedIds,
     cultureSavedIds: savedIds,
     cultureStartedIds: startedIds,
   };
+}
+
+export function conceptIdForItem(itemId: string): string {
+  return `${itemId}-core`;
+}
+
+export function migrateCultureKnowledgeFromMastery(input: {
+  cultureMasteryById?: Record<string, CultureMasteryRecord>;
+  cultureKnowledgeById?: Record<string, CultureKnowledgeRecord>;
+  now?: number;
+}): Record<string, CultureKnowledgeRecord> {
+  const now = input.now ?? Date.now();
+  const knowledge = { ...(input.cultureKnowledgeById ?? {}) };
+  for (const [itemId, row] of Object.entries(input.cultureMasteryById ?? {})) {
+    const conceptId = conceptIdForItem(itemId);
+    if (knowledge[conceptId]) continue;
+    if (!row?.completed) continue;
+    knowledge[conceptId] = {
+      conceptId,
+      cultureItemId: itemId,
+      state: "mastered",
+      source: "mission",
+      updatedAt: now,
+    };
+  }
+  return knowledge;
+}
+
+export function visibleKnowledgeState(
+  record: CultureKnowledgeRecord | undefined,
+  memory: CultureMemoryRecord | undefined,
+  now = Date.now()
+): CultureKnowledgeState {
+  if (!record) return "unseen";
+  if (record.state === "mastered" && memory && memory.due <= now) return "review_due";
+  return record.state;
+}
+
+export function applyCultureKnowledgeEvent(
+  knowledge: Record<string, CultureKnowledgeRecord>,
+  input: {
+    conceptId: string;
+    cultureItemId: string;
+    event: "introduced" | "practiced" | "mastered";
+    source: "journey" | "mission";
+  },
+  now = Date.now()
+): Record<string, CultureKnowledgeRecord> {
+  const previous = knowledge[input.conceptId];
+  const nextRank = KNOWLEDGE_RANK[input.event];
+  const previousRank = previous ? KNOWLEDGE_RANK[previous.state] : 0;
+  const state: CultureKnowledgeState =
+    nextRank >= previousRank ? input.event : previous?.state ?? "unseen";
+  if (state === "unseen") return knowledge;
+  return {
+    ...knowledge,
+    [input.conceptId]: {
+      conceptId: input.conceptId,
+      cultureItemId: input.cultureItemId,
+      state,
+      source: previous?.source === "mission" ? "mission" : input.source,
+      updatedAt: now,
+    },
+  };
+}
+
+export function applyCultureBridgeComplete(
+  knowledge: Record<string, CultureKnowledgeRecord>,
+  input: { conceptId: string; cultureItemId: string; taught: boolean; taskCorrect: boolean },
+  now = Date.now()
+): Record<string, CultureKnowledgeRecord> {
+  let next = knowledge;
+  if (input.taught) {
+    next = applyCultureKnowledgeEvent(
+      next,
+      { conceptId: input.conceptId, cultureItemId: input.cultureItemId, event: "introduced", source: "journey" },
+      now
+    );
+  }
+  if (input.taskCorrect) {
+    next = applyCultureKnowledgeEvent(
+      next,
+      { conceptId: input.conceptId, cultureItemId: input.cultureItemId, event: "practiced", source: "journey" },
+      now
+    );
+  }
+  return next;
+}
+
+export function mergeCultureKnowledge(
+  local: Record<string, CultureKnowledgeRecord> | undefined,
+  remote: Record<string, CultureKnowledgeRecord> | undefined
+): Record<string, CultureKnowledgeRecord> {
+  const merged: Record<string, CultureKnowledgeRecord> = { ...(remote ?? {}) };
+  for (const [id, row] of Object.entries(local ?? {})) {
+    const other = merged[id];
+    if (!other) {
+      merged[id] = row;
+      continue;
+    }
+    const localRank = KNOWLEDGE_RANK[row.state] ?? 0;
+    const remoteRank = KNOWLEDGE_RANK[other.state] ?? 0;
+    merged[id] =
+      localRank > remoteRank || (localRank === remoteRank && row.updatedAt >= other.updatedAt) ? row : other;
+  }
+  return merged;
 }
 
 export function sealsEarnedFromMastery(mastery: Record<string, CultureMasteryRecord>): CultureSealId[] {
@@ -160,9 +282,22 @@ export function applyCultureMissionComplete(
     (id): id is CultureSealId => CULTURE_SEALS.some((seal) => seal.id === id) && !previousSeals.has(id)
   );
 
+  const conceptId = conceptIdForItem(itemId);
+  const cultureKnowledgeById = applyCultureKnowledgeEvent(
+    maps.cultureKnowledgeById ?? {},
+    {
+      conceptId,
+      cultureItemId: itemId,
+      event: result.memoryCorrect ? "mastered" : "practiced",
+      source: "mission",
+    },
+    now
+  );
+
   return {
     cultureMasteryById,
     cultureMemoryById,
+    cultureKnowledgeById,
     cultureSeals: nextSeals,
     cultureCompletedIds: unionIds([...maps.cultureCompletedIds, itemId]),
     cultureSavedIds: unionIds(maps.cultureSavedIds).filter((id) => id !== itemId),

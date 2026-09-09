@@ -160,6 +160,25 @@ function mergeCultureMasteryMirror(local, remote) {
   return merged;
 }
 
+function mergeCultureKnowledgeMirror(local, remote) {
+  const rank = { unseen: 0, introduced: 1, practiced: 2, review_due: 2, mastered: 3 };
+  const merged = { ...(remote ?? {}) };
+  for (const [id, row] of Object.entries(local ?? {})) {
+    const other = merged[id];
+    if (!other) {
+      merged[id] = row;
+      continue;
+    }
+    const localRank = rank[row.state] ?? 0;
+    const remoteRank = rank[other.state] ?? 0;
+    merged[id] =
+      localRank > remoteRank || (localRank === remoteRank && (row.updatedAt ?? 0) >= (other.updatedAt ?? 0))
+        ? row
+        : other;
+  }
+  return merged;
+}
+
 function mergeRemoteProgress(local, remote) {
   const primary = getProgressScore(local) >= getProgressScore(remote) ? local : remote;
   const secondary = primary === local ? remote : local;
@@ -176,6 +195,7 @@ function mergeRemoteProgress(local, remote) {
     cultureStartedIds: unionUnique([...(local.cultureStartedIds ?? []), ...(remote.cultureStartedIds ?? [])]),
     cultureSeals: unionUnique([...(local.cultureSeals ?? []), ...(remote.cultureSeals ?? [])]),
     cultureMasteryById: mergeCultureMasteryMirror(local.cultureMasteryById, remote.cultureMasteryById),
+    cultureKnowledgeById: mergeCultureKnowledgeMirror(local.cultureKnowledgeById, remote.cultureKnowledgeById),
     ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
     journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
     validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),
@@ -532,6 +552,16 @@ if ((masteryMerged.cultureMasteryById?.["visiting-home"]?.stars ?? 0) !== 2) {
 }
 if ((masteryMerged.cultureMasteryById?.["visiting-home"]?.reviewDueAt ?? 0) !== 3) {
   errors.push("culture: reviewDueAt should keep the earlier due");
+}
+const knowledgeLocal = baseProgress({
+  cultureKnowledgeById: { "shared-dishes-core": { conceptId: "shared-dishes-core", cultureItemId: "shared-dishes", state: "introduced", source: "journey", updatedAt: 1 } },
+});
+const knowledgeRemote = baseProgress({
+  cultureKnowledgeById: { "shared-dishes-core": { conceptId: "shared-dishes-core", cultureItemId: "shared-dishes", state: "practiced", source: "journey", updatedAt: 2 } },
+});
+const knowledgeMerged = mergeRemoteProgress(knowledgeLocal, knowledgeRemote);
+if (knowledgeMerged.cultureKnowledgeById?.["shared-dishes-core"]?.state !== "practiced") {
+  errors.push("culture: knowledge merge should keep the higher state");
 }
 
 if (errors.length > 0) {
