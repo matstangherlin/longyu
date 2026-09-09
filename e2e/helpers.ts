@@ -259,6 +259,8 @@ export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
+    // Keep in-test navigations (player → Hub) from wiping live culture/knowledge writes.
+    if (localStorage.getItem("longyu-v1")) return;
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
@@ -279,6 +281,7 @@ export async function seedUnlockedLessonSession(
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
+    if (localStorage.getItem("longyu-v1")) return;
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
