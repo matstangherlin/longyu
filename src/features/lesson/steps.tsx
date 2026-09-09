@@ -68,6 +68,7 @@ import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { localizeLessonStep } from "../../i18n/overlays/localizeLesson";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { validateExercise } from "./exerciseValidation";
+import { agentDbg } from "../../lib/agentDbg";
 import {
   isEvaluableQuestionStep,
   isIntentionalFreeReflection,
@@ -166,15 +167,21 @@ function StickyActionBar({
 function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }) {
   const { t, instructionLocale: locale } = useTranslation();
   const resolved = label ? resolveInstructionText(label, locale) : t("player.continue");
+  const handleClick = () => {
+    // #region agent log
+    agentDbg("B", "steps.tsx:ContinueBtn", "continue-click", { label: resolved });
+    // #endregion
+    onClick();
+  };
   useExerciseHotkeys({
     enabled: true,
     mode: "choice",
     isAnswered: true,
-    onContinue: onClick,
+    onContinue: handleClick,
   });
   return (
     <StickyActionBar>
-      <Button className="w-full animate-pop shadow-lift" onClick={onClick}>
+      <Button className="w-full animate-pop shadow-lift" onClick={handleClick}>
         {resolved}
         <IconChevron width={18} height={18} aria-hidden="true" />
       </Button>
@@ -4901,9 +4908,22 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
 
 // Fallback seguro: exercício quebrado nunca aparece — o aluno segue adiante
 // sem punição e o problema fica registrado no console em dev.
-function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void }) {
+function BrokenStepFallback({
+  onDone,
+  errors,
+  kind,
+}: {
+  onDone: (correct?: boolean) => void;
+  errors?: string[];
+  kind?: string;
+}) {
   return (
-    <div className="rounded-2xl border border-line bg-surface-2 p-5 text-center">
+    <div
+      className="rounded-2xl border border-line bg-surface-2 p-5 text-center"
+      data-broken-step=""
+      data-broken-kind={kind ?? ""}
+      data-broken-errors={(errors ?? []).join(" | ")}
+    >
       <Eyebrow>{t("player.skippedExercise")}</Eyebrow>
       <p className="mt-3 text-sm leading-6 text-ink-soft">
         Este passo não passou na validação de conteúdo e foi pulado para não travar sua lição.
@@ -5058,7 +5078,22 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
         personalizedStep
       );
     }
-    return <BrokenStepFallback onDone={onDone} />;
+    // #region agent log
+    agentDbg("C", "steps.tsx:StepRenderer", "invalid-exercise-fallback", {
+      kind: personalizedStep.kind,
+      errors: validation.errors,
+      title: personalizedStep.title ?? "",
+      prompt: personalizedStep.prompt ?? "",
+      pairs: (personalizedStep.pairs ?? []).map((pair) => ({
+        l: pair.left,
+        r: pair.right,
+        lt: pair.leftType,
+        rt: pair.rightType,
+      })),
+      text: personalizedStep.text ?? "",
+    });
+    // #endregion
+    return <BrokenStepFallback onDone={onDone} errors={validation.errors} kind={personalizedStep.kind} />;
   }
 
   const rendered = (() => {

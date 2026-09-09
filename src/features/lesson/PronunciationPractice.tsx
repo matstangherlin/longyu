@@ -13,6 +13,7 @@ import {
 import { Button } from "../../components/ui/primitives";
 import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
 import { t } from "../../i18n/catalog";
+import { agentDbg } from "../../lib/agentDbg";
 
 type Phase = "idle" | "listening" | "result";
 
@@ -174,9 +175,24 @@ export function PronunciationPractice({
   }
 
   if (!secure || !supported) {
+    // #region agent log
+    agentDbg("D", "PronunciationPractice.tsx:fallback", "voice-unavailable-ui", {
+      secure,
+      supported,
+      target,
+    });
+    // #endregion
     return (
-      <div className="mt-6">
-        <Button className="w-full" onClick={onContinue}>
+      <div className="mt-6" data-voice-unavailable="">
+        <Button
+          className="w-full"
+          onClick={() => {
+            // #region agent log
+            agentDbg("D", "PronunciationPractice.tsx:fallback", "continue-click", { target });
+            // #endregion
+            onContinue();
+          }}
+        >
           {t("player.continue")} <IconChevron width={18} height={18} />
         </Button>
         <p className="mt-2 text-center text-xs text-ink-faint">
