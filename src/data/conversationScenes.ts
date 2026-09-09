@@ -155,7 +155,15 @@ export type ConversationSpeechAct =
   | "refuse_offer"
   | "accept_offer"
   | "get_attention"
-  | "praise_food";
+  | "praise_food"
+  | "ask_price"
+  | "tell_price"
+  | "confirm_item"
+  | "confirm_price"
+  | "request_discount"
+  | "ask_payment"
+  | "ask_card"
+  | "ask_cash";
 
 export type ConversationRepairType =
   | "repeat"

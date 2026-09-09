@@ -11,7 +11,7 @@ Experiência de sobrevivência, não catálogo de produtos. O aluno cumpre a mis
 | SHA de merge da #244 | *pendente — preencher com o SHA real de `Merge pull request #244` em `main`* |
 | Branch | `cursor/v497b-shopping-6ae2` |
 | Fingerprint da Jornada (244 HEAD) | `f6430d1a11be` |
-| Fingerprint da Jornada (esta remessa) | `9955de313e3b` |
+| Fingerprint da Jornada (esta remessa) | `2e99590ce213` |
 | Atlas 244 / 4.9.7A | 436 itens / 358 taught (82.1%) |
 | Atlas esta remessa | 438 itens / 355 taught (81.1%) |
 
@@ -104,6 +104,8 @@ CORE **买**: introduzido em `p6-compras` → delayed recall `recognize("mai_buy
 
 `ConversationInteraction` ganha `decision`, `validAnswers`, `nextByAnswer`. O player trata match de decisão como acerto (sem `onLocalMistake`, sem ramo de erro). Caminho canónico da imersão segue `correctNextNodeId` (pechincha) para os validadores de linhas/vocab; o validador de decisão percorre **todos** os `nextByAnswer`.
 
+Speech acts de compras (sem meter as cenas em `INTEGRATED_SCENE_IDS`): `tell_price` → `acknowledge`; `confirm_item` → `ask_price`; `confirm_price` → `request_discount`; `ask_payment` → `ask_card` / `ask_cash`. `ask_order` do restaurante fica intacto.
+
 NPC:
 
 - pagamento: `微信支付？` (não `微信还是支付宝？` — evita 还是 descoberto)
@@ -128,6 +130,7 @@ Novos, imediatamente depois do restaurante em `validate:beta`:
 
 - `validate:conversation-decisions` / `test:conversation-decisions` (4 mutações)
 - `validate:china-survival-shopping` / `test:china-survival-shopping` (14 mutações)
+- `test:conversation-coherence` ganha mutação `shopping tell_price cannot expect place_order` (`INTENT_MISMATCH`) — as cenas de compras **não** entram em `INTEGRATED_SCENE_IDS`
 
 Códigos: `VALID_AS_ERROR`, `ALWAYS_BARGAIN`, `TEACH_AFTER_TEST`, `CAPABILITY`, `TARGET_LEAK`, `SRS_LEAK`, `DELAYED_RECALL`, `EXPLAIN_BEFORE_TEST`, `BROKEN_CONTINUITY`, `GENERIC_REPAIR`, `MISSING_SOURCE`, `MISSING_EN`.
 
@@ -160,7 +163,7 @@ Local Chromium (preview com fixtures): compare-with-image 4/4, produção aberta
 - 50 produtos, classificadores como aula, `char:liang`
 - Tone Analyzer, AI Conversation, Stories, moeda extra, Culture Streak
 - Segunda bridge na mesma aula
-- Cenas de compras em `INTEGRATED_SCENE_IDS` / conversation-coherence
+- Cenas de compras em `INTEGRATED_SCENE_IDS` (o par `INTENT_MISMATCH` vale para todas as cenas; compras ganhou speech acts próprios)
 - V4.9.8
 
 ## Pronto quando

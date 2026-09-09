@@ -41,6 +41,14 @@ export const SPEECH_ACT_PAIRS = {
   accept_offer: ["acknowledge"],
   get_attention: ["acknowledge", "greet"],
   praise_food: ["acknowledge"],
+  ask_price: ["tell_price"],
+  tell_price: ["acknowledge", "accept_offer", "refuse_offer"],
+  confirm_item: ["ask_price"],
+  confirm_price: ["request_discount", "acknowledge"],
+  request_discount: ["acknowledge"],
+  ask_payment: ["ask_card", "ask_cash", "acknowledge"],
+  ask_card: ["acknowledge"],
+  ask_cash: ["acknowledge"],
 };
 
 const PUNCT = /[\u3000-\u303f\uff00-\uffef,.!?\s:;"'()？！。，、]/gu;

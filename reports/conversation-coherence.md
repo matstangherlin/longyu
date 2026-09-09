@@ -980,94 +980,106 @@ Cenas: 48.
 - ending: 不客气！再见！
 - last interaction: choose_reply
 
-### loja-3
+### loja-1
 
-- NPC_UTTERANCE: 这是什么？
-- MEANING: O que é isto?
-- PROMPT: O que Wang perguntou sobre o item?
-- EXPECTED_RESPONSE: O que é isto?
-- ACCEPTS: (none)
-- NEXT_TURN: 不贵。
-- REPAIR: 这是什么？
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NPC_UTTERANCE: 你好。你要什么？
+- MEANING: Olá. O que você quer?
+- PROMPT: Aponte o item. Diga que quer este.
+- EXPECTED_RESPONSE: 我要这个
+- ACCEPTS: 我要这个
+- NEXT_TURN: 这个？好。十。
+- REPAIR: 这个吗？
+- speechAct: ask_order → place_order (reask_order)
 - CLASS: ANSWER_TOO_NARROW
 
-### loja-5
+### loja-2
 
-- NPC_UTTERANCE: 多少钱？
-- MEANING: Quanto custa?
-- PROMPT: O que Matheus perguntou?
-- EXPECTED_RESPONSE: Quanto custa?
+- NPC_UTTERANCE: 十。
+- MEANING: Dez.
+- PROMPT: Quanto o vendedor cobrou?
+- EXPECTED_RESPONSE: 10
 - ACCEPTS: (none)
-- NEXT_TURN: 太贵了？
-- REPAIR: 多少钱？
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+- NEXT_TURN: 好。
+- REPAIR: 多少钱？十。
+- speechAct: tell_price → acknowledge (clarify)
+- CLASS: OK
 
-### loja-8
+### loja-3
 
-- NPC_UTTERANCE: 太贵了？
-- MEANING: Caro demais?
-- PROMPT: Se ainda achou caro, como diz isso?
-- EXPECTED_RESPONSE: 太贵了
+- NPC_UTTERANCE: 要吗？
+- MEANING: Você quer?
+- PROMPT: O preço está na etiqueta. Aceitar, achar caro ou desistir são decisões reais — nenhuma é «erro».
+- EXPECTED_RESPONSE: 好
 - ACCEPTS: (none)
-- NEXT_TURN: 不客气！再见！
-- REPAIR: 太贵了？
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 好。谢谢！
+- REPAIR: 要吗？
+- speechAct: ask_order → accept_offer (clarify)
 - CLASS: OK
 
 ## comprar-itens
 
 - intent: buy-items
 - ending: 谢谢！再见！
-- last interaction: choose_meaning
+- last interaction: choose_reply
+
+### comprar-1
+
+- NPC_UTTERANCE: 你好。你要什么？
+- MEANING: Olá. O que você quer?
+- PROMPT: Você quer os sapatos. Mesmo frame 我要 + item.
+- EXPECTED_RESPONSE: 我要这双鞋
+- ACCEPTS: 我要这双鞋 | 我要这个
+- NEXT_TURN: 这个？好。
+- REPAIR: 这个吗？
+- speechAct: ask_order → place_order (reask_order)
+- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
 
 ### comprar-2
 
-- NPC_UTTERANCE: 我很好！请问，我想喝茶。
-- MEANING: Estou bem! Com licença, eu quero beber chá.
-- PROMPT: O que Matheus disse que quer?
-- EXPECTED_RESPONSE: Beber chá.
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Pergunte o preço, falando ou escrevendo, sem alternativas.
+- EXPECTED_RESPONSE: 多少钱？
+- ACCEPTS: 多少钱？ | 多少钱 | 这个多少钱？ | 这个多少钱
+- NEXT_TURN: 二十八。
+- REPAIR: 多少钱？
+- speechAct: confirm_item → ask_price (clarify)
+- CLASS: OK
+
+### comprar-3
+
+- NPC_UTTERANCE: 二十八。
+- MEANING: Vinte e oito.
+- PROMPT: Quanto o vendedor cobrou?
+- EXPECTED_RESPONSE: 28
 - ACCEPTS: (none)
-- NEXT_TURN: 太贵了！
-- REPAIR: 请再说一遍：茶。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- NEXT_TURN: 好。
+- REPAIR: 多少钱？二十八。
+- speechAct: tell_price → acknowledge (clarify)
+- CLASS: OK
+
+### comprar-4
+
+- NPC_UTTERANCE: 要吗？
+- MEANING: Você quer?
+- PROMPT: O preço cabe. Aceite.
+- EXPECTED_RESPONSE: 好
+- ACCEPTS: (none)
+- NEXT_TURN: 微信支付？
+- REPAIR: 好吗？
+- speechAct: ask_order → accept_offer (clarify)
+- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
 
 ### comprar-5
 
-- NPC_UTTERANCE: 太贵了！
-- MEANING: Caro demais!
-- PROMPT: Wang fez preço alto. Qual frase abre uma negociação?
-- EXPECTED_RESPONSE: 太贵了
+- NPC_UTTERANCE: 微信支付？
+- MEANING: WeChat Pay?
+- PROMPT: Você prefere cartão. Pergunte.
+- EXPECTED_RESPONSE: 可以刷卡吗？
 - ACCEPTS: (none)
-- NEXT_TURN: 我要这个。
-- REPAIR: 不是。贵，太贵了。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: OK
-
-### comprar-8
-
-- NPC_UTTERANCE: 我要这个。
-- MEANING: Eu quero este.
-- PROMPT: Monte: eu quero este.
-- EXPECTED_RESPONSE: 我要这个
-- ACCEPTS: (none)
-- NEXT_TURN: 不，我要这个。
-- REPAIR: 请再说一遍：我要这个。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
-
-### comprar-11
-
-- NPC_UTTERANCE: 不，我要这个。
-- MEANING: Não, eu quero este.
-- PROMPT: Matheus aceitou três itens?
-- EXPECTED_RESPONSE: Não, ele quer este.
-- ACCEPTS: (none)
-- NEXT_TURN: 谢谢！再见！
-- REPAIR: 不，三？请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 好。
+- REPAIR: 现金吗？
+- speechAct: ask_payment → ask_card (clarify)
 - CLASS: ANSWER_TOO_NARROW
 
 ## revisao-restaurante
@@ -1238,76 +1250,100 @@ Cenas: 48.
 - ending: 不客气！再见！
 - last interaction: choose_reply
 
+### mercado-1
+
+- NPC_UTTERANCE: 你好。你要什么？
+- MEANING: Olá. O que você quer?
+- PROMPT: Aponte o item. Diga que quer este.
+- EXPECTED_RESPONSE: 我要这个
+- ACCEPTS: 我要这个
+- NEXT_TURN: 这个？好。
+- REPAIR: 这个吗？
+- speechAct: ask_order → place_order (reask_order)
+- CLASS: ANSWER_TOO_NARROW
+
 ### mercado-2
 
-- NPC_UTTERANCE: 我很好！请问，我想喝茶。
-- MEANING: Estou bem! Com licença, quero beber chá.
-- PROMPT: O que Matheus procura no mercado?
-- EXPECTED_RESPONSE: Chá.
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Pergunte o preço. Fale ou escreva, sem alternativas.
+- EXPECTED_RESPONSE: 多少钱？
+- ACCEPTS: 多少钱？ | 多少钱 | 这个多少钱？ | 这个多少钱
+- NEXT_TURN: 二十八。
+- REPAIR: 多少钱？
+- speechAct: confirm_item → ask_price (clarify)
+- CLASS: OK
+
+### mercado-3
+
+- NPC_UTTERANCE: 二十八。
+- MEANING: Vinte e oito.
+- PROMPT: Quanto o vendedor cobrou?
+- EXPECTED_RESPONSE: 28
 - ACCEPTS: (none)
-- NEXT_TURN: 好，三。
-- REPAIR: 茶。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- NEXT_TURN: 太贵了。
+- REPAIR: 多少钱？二十八。
+- speechAct: tell_price → acknowledge (clarify)
+- CLASS: OK
 
 ### mercado-4
 
-- NPC_UTTERANCE: 有！你要三吗？
-- MEANING: Tem! Você quer três?
-- PROMPT: Você quer três unidades.
-- EXPECTED_RESPONSE: 我要三
-- ACCEPTS: (none)
-- NEXT_TURN: 好，三。
-- REPAIR: 三。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: OK
-
-### mercado-7
-
-- NPC_UTTERANCE: 多少钱？
-- MEANING: Quanto custa?
-- PROMPT: O que Matheus perguntou?
-- EXPECTED_RESPONSE: O preço.
-- ACCEPTS: (none)
-- NEXT_TURN: 好，好！不贵。
-- REPAIR: 多少钱，钱。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
-
-### mercado-9
-
-- NPC_UTTERANCE: 十。
-- MEANING: Dez.
-- PROMPT: Escolha uma estratégia: negociar ou pagar cheio.
+- NPC_UTTERANCE: 二十八。要吗？
+- MEANING: Vinte e oito. Você quer?
+- PROMPT: Banca com preço falado. Aceitar, negociar ou desistir são decisões reais.
 - EXPECTED_RESPONSE: 太贵了
 - ACCEPTS: (none)
-- NEXT_TURN: 太好了！
-- REPAIR: 好，十。谢谢！
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 太贵了？
+- REPAIR: 要吗？
+- speechAct: ask_order → refuse_offer (clarify)
 - CLASS: OK
 
-### mercado-12
+### mercado-5
 
-- NPC_UTTERANCE: 我要这个。
-- MEANING: Eu quero este.
-- PROMPT: Monte a compra: eu quero este.
-- EXPECTED_RESPONSE: 我要这个
+- NPC_UTTERANCE: 太贵了？
+- MEANING: Caro demais?
+- PROMPT: Peça um pouco mais barato. Fale ou escreva.
+- EXPECTED_RESPONSE: 便宜一点
+- ACCEPTS: 便宜一点 | 便宜一点 | 便宜一点。
+- NEXT_TURN: 好，十八。
+- REPAIR: 便宜一点？
+- speechAct: confirm_price → request_discount (clarify)
+- CLASS: OK
+
+### mercado-qty
+
+- NPC_UTTERANCE: 我要两个？
+- MEANING: Quero dois?
+- PROMPT: Confirme a quantidade: dois.
+- EXPECTED_RESPONSE: 我要两个
 - ACCEPTS: (none)
-- NEXT_TURN: 谢谢！
-- REPAIR: 请再说一遍：我要这个。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 我要两个，好。
+- REPAIR: 我要两个？
+- speechAct: ask_order → place_order (confirm_quantity)
 - CLASS: ANSWER_TOO_NARROW
 
-### mercado-14
+### mercado-pay
 
-- NPC_UTTERANCE: 好！
-- MEANING: Fechado!
-- PROMPT: Agradeça antes de sair.
-- EXPECTED_RESPONSE: 谢谢
+- NPC_UTTERANCE: 微信支付？
+- MEANING: WeChat Pay?
+- PROMPT: O caixa pergunta o método. Cartão e dinheiro continuam perguntas úteis.
+- EXPECTED_RESPONSE: 可以刷卡吗？
 - ACCEPTS: (none)
-- NEXT_TURN: 再见！
-- REPAIR: 谢谢。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 好。
+- REPAIR: 现金吗？
+- speechAct: ask_payment → ask_card (clarify)
+- CLASS: ANSWER_TOO_NARROW
+
+### mercado-thanks
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Agradeça e feche a compra.
+- EXPECTED_RESPONSE: 谢谢
+- ACCEPTS: 谢谢 | 谢谢。 | 谢谢！
+- NEXT_TURN: 不客气！再见！
+- REPAIR: 谢谢。
+- speechAct: thank → acknowledge_thanks (clarify)
 - CLASS: OK
 
 ## imersao-estacao
