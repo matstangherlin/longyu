@@ -5475,6 +5475,7 @@ export const useStore = create<AppState>()(
         const rootDailyEnergy = stripPreview
           ? reconcileFreePlanEnergy(root.dailyEnergy)
           : activeDailyEnergy(root.dailyEnergy);
+        const rootQuest = migrateCultureV21ToQuest(root);
         return {
           ...root,
           // Keep the persisted hold. Forcing false on every version bump pops
@@ -5520,10 +5521,13 @@ export const useStore = create<AppState>()(
           pearlAudioExposures: root.pearlAudioExposures ?? 0,
           pearlProductionCount: root.pearlProductionCount ?? 0,
           lastShopPurchaseFeedback: root.lastShopPurchaseFeedback ?? null,
-          ...migrateCultureV21ToQuest(root),
+          ...rootQuest,
           cultureKnowledgeById: migrateCultureKnowledgeFromMastery({
-            ...root,
-            ...migrateCultureV21ToQuest(root),
+            ...rootQuest,
+            cultureKnowledgeById: {
+              ...rootQuest.cultureKnowledgeById,
+              ...(root.cultureKnowledgeById ?? {}),
+            },
           }),
           accounts: normalized,
         } as AppState;

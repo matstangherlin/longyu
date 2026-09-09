@@ -101,7 +101,7 @@ export function migrateCultureV21ToQuest(input: {
     cultureMemoryById: memory,
     cultureKnowledgeById: migrateCultureKnowledgeFromMastery({
       cultureMasteryById: mastery,
-      cultureKnowledgeById: {},
+      cultureKnowledgeById: input.cultureKnowledgeById,
     }),
     cultureSeals: seals,
     cultureCompletedIds: completedIds,
