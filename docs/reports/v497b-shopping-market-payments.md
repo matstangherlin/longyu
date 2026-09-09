@@ -6,14 +6,16 @@ Experiência de sobrevivência, não catálogo de produtos. O aluno cumpre a mis
 
 | Campo | Valor |
 |-------|-------|
-| PR de origem | **#244 — V4.9.7A.2 Culture Teaching Loop** (obrigatória; merge SHA abaixo) |
+| PR de origem | **#244 — V4.9.7A.2 Culture Teaching Loop** (MERGED) |
 | SHA de origem (HEAD da #244) | `aa1982e6c4a308887aac01b783b102ad76b46431` |
-| SHA de merge da #244 | *pendente — preencher com o SHA real de `Merge pull request #244` em `main`* |
+| SHA de merge da #244 | `962b4cb302b686c13e4a2a7494394dfc9473f7d4` (`Merge pull request #244`) |
 | Branch | `cursor/v497b-shopping-6ae2` |
 | Fingerprint da Jornada (244 HEAD) | `f6430d1a11be` |
 | Fingerprint da Jornada (esta remessa) | `e8007959fb1f` |
 | Atlas 244 / 4.9.7A | 436 itens / 358 taught (82.1%) |
 | Atlas esta remessa | 438 itens / 355 taught (81.1%) |
+
+#244 foi mergeado em `main` como `962b4cb`. Esta remessa já inclui esse SHA via merge commit.
 
 Preservado integralmente:
 
