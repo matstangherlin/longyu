@@ -1,6 +1,6 @@
 {
   "version": "v4.8.8",
-  "generatedAt": "2026-09-09T04:18:51.414Z",
+  "generatedAt": "2026-09-09T05:00:09.203Z",
   "rule": "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 113)",
   "topicIds": [
     "p2-comparar-tom-2-3",
@@ -97,11 +97,11 @@
     "p7-imersao-estacao",
     "p7-imersao-casa-amigo"
   ],
-  "entryCount": 19621,
-  "uniquePtCount": 2960,
+  "entryCount": 19620,
+  "uniquePtCount": 2972,
   "kindCounts": {
-    "DIRECT_TRANSLATION": 1781,
-    "NATURAL_REWRITE": 1170,
+    "DIRECT_TRANSLATION": 1784,
+    "NATURAL_REWRITE": 1179,
     "SOURCE_LANGUAGE_ADAPTATION": 9
   },
   "entries": [
@@ -77693,20 +77693,14 @@
     },
     {
       "id": "p.l19-logica-luz.m3.s01.title",
-      "pt": "Sua vez de produzir",
-      "en": "Your turn to produce",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s01.explanation",
-      "pt": "我在学中文。 (wǒ zài xué Zhōngwén.) — 在 antes da ação marca 'agora / em progresso': 在 + ação. A ação não muda de forma.",
-      "en": "我在学中文。 (wǒ zài xué Zhōngwén.) — 在 before the action marks 'now / in progress': 在 + action. The action doesn't change form.",
+      "pt": "Ouça e escreva o hànzì",
+      "en": "Listen and write the hànzì",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s01.situationPt",
-      "pt": "Alguém pergunta o que você está fazendo agora. Responda que está estudando chinês.",
-      "en": "Someone asks what you're doing right now. Say that you're studying Chinese.",
+      "id": "p.l19-logica-luz.m3.s01.explanation",
+      "pt": "你好吗 · nǐ hǎo ma? — Tudo bem?.",
+      "en": "你好吗 · nǐ hǎo ma? - All good?",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -77729,314 +77723,308 @@
     },
     {
       "id": "p.l19-logica-luz.m3.s03.title",
-      "pt": "Monte o caractere",
-      "en": "Build the character",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.prompt",
-      "pt": "Monte o hànzì que significa 'claro/brilhante'.",
-      "en": "Build the hànzì that means 'bright/clear'.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.explanation",
-      "pt": "明 junta 日 + 月: sol e lua, duas fontes de luz.",
-      "en": "明 joins 日 + 月: sun and moon, two sources of light.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.sourceMeaning",
-      "pt": "claro / brilhante",
-      "en": "bright / clear",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.promptPt",
-      "pt": "Monte o hànzì que significa 'claro/brilhante'.",
-      "en": "Build the hànzì that means 'bright/clear'.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.meaningPt",
-      "pt": "claro / brilhante",
-      "en": "bright / clear",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.hintPt",
-      "pt": "Sol + lua.",
-      "en": "Sun + moon.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.explanationPt",
-      "pt": "明 junta 日 + 月: sol e lua, duas fontes de luz.",
-      "en": "明 joins 日 + 月: sun and moon, two sources of light.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.errorHintPt",
-      "pt": "Primeiro o sol 日, depois a lua 月.",
-      "en": "First the sun 日, then the moon 月.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.components.0.label",
-      "pt": "sol/dia",
-      "en": "sun/day",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.components.0.rolePt",
-      "pt": "base de 明",
-      "en": "base of 明",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.components.1.label",
-      "pt": "lua/mês",
-      "en": "moon/month",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s03.builder.components.1.rolePt",
-      "pt": "base de 明",
-      "en": "base of 明",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s04.title",
-      "pt": "A conversa travou",
-      "en": "The Conversation Broke Down",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s04.prompt",
-      "pt": "A pessoa não entendeu o que você disse. O que fazer agora?",
-      "en": "The person didn't understand what you said. What do you do now?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s04.explanation",
-      "pt": "Repetir com calma resolve a maior parte dos mal-entendidos — o problema costuma ser velocidade, não vocabulário.",
-      "en": "Calm repetition clears up most misunderstandings—the problem is usually speed, not vocabulary.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s05.title",
       "pt": "Apontando a paisagem",
       "en": "Pointing at the landscape",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.prompt",
+      "id": "p.l19-logica-luz.m3.s03.prompt",
       "pt": "Responda que isto é 木.",
       "en": "Answer that this is 木.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.explanation",
+      "id": "p.l19-logica-luz.m3.s03.explanation",
       "pt": "这是木 = isto é 木, árvore/madeira.",
       "en": "这是木 = this is 木, tree/wood.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.lines.2.pt",
+      "id": "p.l19-logica-luz.m3.s03.lines.2.pt",
       "pt": "Isto é 木.",
       "en": "This is 木.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.lines.5.pt",
+      "id": "p.l19-logica-luz.m3.s03.lines.5.pt",
       "pt": "Lua?",
       "en": "Moon?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.1.prompt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.1.prompt",
       "pt": "Responda que isto é 木.",
       "en": "Answer that this is 木.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.1.explanation",
+      "id": "p.l19-logica-luz.m3.s03.nodes.1.explanation",
       "pt": "这是木 = isto é 木, árvore/madeira.",
       "en": "这是木 = this is 木, tree/wood.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.2.pt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.2.pt",
       "pt": "Não é. A pista é 木.",
       "en": "No. The hint is 木.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.3.pt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.3.pt",
       "pt": "Isto é 木.",
       "en": "This is 木.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.4.prompt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.4.prompt",
       "pt": "O que Mei perguntou?",
       "en": "What did Mei ask?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.4.explanation",
+      "id": "p.l19-logica-luz.m3.s03.nodes.4.explanation",
       "pt": "日 é sol/dia; 那是日吗？ pergunta se aquilo é o sol.",
       "en": "日 is sun/day; 那是日吗？ asks whether that is the sun.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.5.pt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.5.pt",
       "pt": "日, não 月. Tente de novo.",
       "en": "日, not 月. Try again.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.7.pt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.7.pt",
       "pt": "Lua?",
       "en": "Moon?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.7.prompt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.7.prompt",
       "pt": "Agora aponte para a lua.",
       "en": "Now point to the moon.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.7.explanation",
+      "id": "p.l19-logica-luz.m3.s03.nodes.7.explanation",
       "pt": "月 é lua; 那是月 aponta para ela.",
       "en": "月 is moon; 那是月 points to it.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.nodes.8.pt",
+      "id": "p.l19-logica-luz.m3.s03.nodes.8.pt",
       "pt": "Não é isso. A pista é 月.",
       "en": "That's not it. The hint is 月.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.checkpoint.prompt",
+      "id": "p.l19-logica-luz.m3.s03.checkpoint.prompt",
       "pt": "Responda que isto é 木.",
       "en": "Answer that this is 木.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s05.checkpoint.explanation",
+      "id": "p.l19-logica-luz.m3.s03.checkpoint.explanation",
       "pt": "这是木 = isto é 木, árvore/madeira.",
       "en": "这是木 = this is 木, tree/wood.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s06.title",
+      "id": "p.l19-logica-luz.m3.s04.title",
       "pt": "O que esta frase significa?",
       "en": "What does this phrase mean?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s06.answer",
+      "id": "p.l19-logica-luz.m3.s04.answer",
       "pt": "não",
       "en": "no",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s06.options.0",
+      "id": "p.l19-logica-luz.m3.s04.options.0",
       "pt": "não",
       "en": "no",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s06.options.2",
+      "id": "p.l19-logica-luz.m3.s04.options.2",
       "pt": "aquilo; aquele, aquela",
       "en": "that; that one",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s06.options.3",
+      "id": "p.l19-logica-luz.m3.s04.options.3",
       "pt": "sol, dia",
       "en": "sun, day",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s07.title",
+      "id": "p.l19-logica-luz.m3.s05.title",
       "pt": "Ouça e escolha a resposta.",
       "en": "Listen and choose the reply.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s07.prompt",
+      "id": "p.l19-logica-luz.m3.s05.prompt",
       "pt": "Toque no que você ouviu.",
       "en": "Tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s07.explanation",
+      "id": "p.l19-logica-luz.m3.s05.explanation",
       "pt": "这 = este, isto",
       "en": "这 = this",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s08.title",
-      "pt": "Complete a palavra que faltou.",
-      "en": "Complete the missing word.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s08.prompt",
-      "pt": "Complete: Aquilo é uma pessoa?.",
-      "en": "Complete: Is that a person?",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s08.explanation",
-      "pt": "那是人吗 = Aquilo é uma pessoa?.",
-      "en": "那是人吗 = Is that a person?",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l19-logica-luz.m3.s09.title",
+      "id": "p.l19-logica-luz.m3.s06.title",
       "pt": "Diga do seu jeito",
       "en": "Say it your way",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s09.explanation",
+      "id": "p.l19-logica-luz.m3.s06.explanation",
       "pt": "Qualquer uma destas cumpre a situação. Use a pergunta de nome que você já sabe.",
       "en": "Any of these works in this situation. Use the name question you already know.",
       "kind": "NATURAL_REWRITE"
     },
     {
-      "id": "p.l19-logica-luz.m3.s09.situationPt",
+      "id": "p.l19-logica-luz.m3.s06.situationPt",
       "pt": "Você quer saber o nome de alguém. Pergunte.",
       "en": "You want to know someone's name. Ask.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m3.s09.productionHintPt",
+      "id": "p.l19-logica-luz.m3.s06.productionHintPt",
       "pt": "Use a pergunta de nome que você já sabe.",
       "en": "Use the name question you already know.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m4.s01.title",
+      "id": "p.l19-logica-luz.m3.s07.title",
+      "pt": "A conversa travou",
+      "en": "The Conversation Broke Down",
+      "kind": "NATURAL_REWRITE"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s07.prompt",
+      "pt": "A pessoa não entendeu o que você disse. O que fazer agora?",
+      "en": "The person didn't understand what you said. What do you do now?",
+      "kind": "NATURAL_REWRITE"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s07.explanation",
+      "pt": "Repetir com calma resolve a maior parte dos mal-entendidos — o problema costuma ser velocidade, não vocabulário.",
+      "en": "Calm repetition clears up most misunderstandings—the problem is usually speed, not vocabulary.",
+      "kind": "NATURAL_REWRITE"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.title",
+      "pt": "Monte o caractere",
+      "en": "Build the character",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.prompt",
+      "pt": "Monte o hànzì que significa 'claro/brilhante'.",
+      "en": "Build the hànzì that means 'bright/clear'.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.explanation",
+      "pt": "明 junta 日 + 月: sol e lua, duas fontes de luz.",
+      "en": "明 joins 日 + 月: sun and moon, two sources of light.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.sourceMeaning",
+      "pt": "claro / brilhante",
+      "en": "bright / clear",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.promptPt",
+      "pt": "Monte o hànzì que significa 'claro/brilhante'.",
+      "en": "Build the hànzì that means 'bright/clear'.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.meaningPt",
+      "pt": "claro / brilhante",
+      "en": "bright / clear",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.hintPt",
+      "pt": "Sol + lua.",
+      "en": "Sun + moon.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.explanationPt",
+      "pt": "明 junta 日 + 月: sol e lua, duas fontes de luz.",
+      "en": "明 joins 日 + 月: sun and moon, two sources of light.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.errorHintPt",
+      "pt": "Primeiro o sol 日, depois a lua 月.",
+      "en": "First the sun 日, then the moon 月.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.components.0.label",
+      "pt": "sol/dia",
+      "en": "sun/day",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.components.0.rolePt",
+      "pt": "base de 明",
+      "en": "base of 明",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.components.1.label",
+      "pt": "lua/mês",
+      "en": "moon/month",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s08.builder.components.1.rolePt",
+      "pt": "base de 明",
+      "en": "base of 明",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m3.s09.title",
       "pt": "Sua vez de produzir",
       "en": "Your turn to produce",
       "kind": "NATURAL_REWRITE"
     },
     {
-      "id": "p.l19-logica-luz.m4.s01.explanation",
+      "id": "p.l19-logica-luz.m3.s09.explanation",
       "pt": "我在学中文。 (wǒ zài xué Zhōngwén.) — 在 antes da ação marca 'agora / em progresso': 在 + ação. A ação não muda de forma.",
       "en": "我在学中文。 (wǒ zài xué Zhōngwén.) — 在 before the action marks 'now / in progress': 在 + action. The action doesn't change form.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m4.s01.situationPt",
+      "id": "p.l19-logica-luz.m3.s09.situationPt",
       "pt": "Alguém pergunta o que você está fazendo agora. Responda que está estudando chinês.",
       "en": "Someone asks what you're doing right now. Say that you're studying Chinese.",
+      "kind": "NATURAL_REWRITE"
+    },
+    {
+      "id": "p.l19-logica-luz.m4.s01.title",
+      "pt": "Ouça e escreva o hànzì",
+      "en": "Listen and write the hànzì",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.l19-logica-luz.m4.s01.explanation",
+      "pt": "你好吗 · nǐ hǎo ma? — Tudo bem?.",
+      "en": "你好吗 · nǐ hǎo ma? - All good?",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -78052,15 +78040,21 @@
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.l19-logica-luz.m4.s03.explanation",
-      "pt": "我有四个朋友。 (wǒ yǒu sì ge péngyou.) — Entre o número e a coisa entra sempre o classificador: 有 + número + 个 + coisa. Combinação nova: você montou pela estrutura.",
-      "en": "我有四个朋友。 (wǒ yǒu sì ge péngyou.) — The classifier always enters between the number and the thing: 有 + number + 个 + thing. New combination: you assembled it by structure.",
+      "id": "p.l19-logica-luz.m4.s03.title",
+      "pt": "Sua vez de produzir",
+      "en": "Your turn to produce",
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.l19-logica-luz.m4.s03.explanation",
+      "pt": "我在学中文。 (wǒ zài xué Zhōngwén.) — 在 antes da ação marca 'agora / em progresso': 在 + ação. A ação não muda de forma.",
+      "en": "我在学中文。 (wǒ zài xué Zhōngwén.) — 在 before the action marks 'now / in progress': 在 + action. The action doesn't change form.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.l19-logica-luz.m4.s03.situationPt",
-      "pt": "Conte sobre você: diga que tem 4 amigos.",
-      "en": "Tell about yourself: say you have 4 friends.",
+      "pt": "Alguém pergunta o que você está fazendo agora. Responda que está estudando chinês.",
+      "en": "Someone asks what you're doing right now. Say that you're studying Chinese.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -96923,20 +96917,20 @@
     },
     {
       "id": "p.p6-cidade-lugares.m3.s04.explanation",
-      "pt": "Qualquer uma destas cumpre a situação. Qualquer pedido que você já saiba fazer serve.",
-      "en": "Either of these fits the bill. Any order you already know how to make will do.",
+      "pt": "Qualquer uma destas cumpre a situação. Use as palavras que você já tem.",
+      "en": "Either of these fits the bill. Use the words you already have.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m3.s04.situationPt",
-      "pt": "No restaurante, peça algo para comer ou beber.",
-      "en": "At the restaurant, order something to eat or drink.",
+      "pt": "Alguém pergunta do que você gosta. Responda.",
+      "en": "Someone asks what you like. Reply.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m3.s04.productionHintPt",
-      "pt": "Qualquer pedido que você já saiba fazer serve.",
-      "en": "Any request you already know how to make will do.",
+      "pt": "Use as palavras que você já tem.",
+      "en": "Use the words you already have.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -97157,14 +97151,14 @@
     },
     {
       "id": "p.p6-cidade-lugares.m3.s08.explanation",
-      "pt": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
-      "en": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Same structure as 想喝, changing the action: 想 + action + whatever you want.",
+      "pt": "我想喝水。 (wǒ xiǎng hē shuǐ.) — 想 + ação: 想喝 + bebida.",
+      "en": "我想喝水。 (wǒ xiǎng hē shuǐ.) — 想 + action: 想喝 + drink.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m3.s08.situationPt",
-      "pt": "Você está com fome. Diga que quer comer arroz.",
-      "en": "You're hungry. Say you want to eat rice.",
+      "pt": "Você está com sede. Diga que quer beber água.",
+      "en": "You're thirsty. Say you want to drink water.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -97223,14 +97217,14 @@
     },
     {
       "id": "p.p6-cidade-lugares.m4.s03.explanation",
-      "pt": "我喜欢鱼。 (wǒ xǐhuan yú.) — 喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa. Combinação nova: você montou pela estrutura.",
-      "en": "我喜欢鱼。 (wǒ xǐhuan yú.) — 喜欢 comes directly after whoever acts, without a preposition: 我喜欢 + thing. New combination: you assembled it by structure.",
+      "pt": "我睡觉了。 (wǒ shuìjiào le.) — 了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了. Combinação nova: você montou pela estrutura.",
+      "en": "我睡觉了。 (wǒ shuìjiào le.) — 了 at the end marks change / conclusion — the action (or state) is not conjugated: 饿 → 我饿了, 回家 → 我回家了. New combination: you assembled it by structure.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m4.s03.situationPt",
-      "pt": "Alguém pergunta sobre seus gostos. Diga do que você gosta: peixe.",
-      "en": "Someone asks about your tastes. Say what you like: fish.",
+      "pt": "Conte como você está agora. Diga que já foi dormir.",
+      "en": "Tell us how you are now. Tell him you've already gone to sleep.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -97241,20 +97235,20 @@
     },
     {
       "id": "p.p6-cidade-lugares.m4.s04.explanation",
-      "pt": "Qualquer uma destas cumpre a situação. Qualquer pedido que você já saiba fazer serve.",
-      "en": "Either of these fits the bill. Any order you already know how to make will do.",
+      "pt": "Qualquer uma destas cumpre a situação. Use as palavras que você já tem.",
+      "en": "Either of these fits the bill. Use the words you already have.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m4.s04.situationPt",
-      "pt": "No restaurante, peça algo para comer ou beber.",
-      "en": "At the restaurant, order something to eat or drink.",
+      "pt": "Alguém pergunta do que você gosta. Responda.",
+      "en": "Someone asks what you like. Reply.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m4.s04.productionHintPt",
-      "pt": "Qualquer pedido que você já saiba fazer serve.",
-      "en": "Any request you already know how to make will do.",
+      "pt": "Use as palavras que você já tem.",
+      "en": "Use the words you already have.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -97475,14 +97469,14 @@
     },
     {
       "id": "p.p6-cidade-lugares.m4.s08.explanation",
-      "pt": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
-      "en": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Same structure as 想喝, changing the action: 想 + action + whatever you want.",
+      "pt": "我想喝水。 (wǒ xiǎng hē shuǐ.) — 想 + ação: 想喝 + bebida.",
+      "en": "我想喝水。 (wǒ xiǎng hē shuǐ.) — 想 + action: 想喝 + drink.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-cidade-lugares.m4.s08.situationPt",
-      "pt": "Você está com fome. Diga que quer comer arroz.",
-      "en": "You're hungry. Say you want to eat rice.",
+      "pt": "Você está com sede. Diga que quer beber água.",
+      "en": "You're thirsty. Say you want to drink water.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -98465,14 +98459,14 @@
     },
     {
       "id": "p.p6-china-cidades.m3.s09.explanation",
-      "pt": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
-      "en": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Same structure as 想喝, changing the action: 想 + action + whatever you want.",
+      "pt": "我去医院。 (wǒ qù yīyuàn.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação.",
+      "en": "我去医院。 (wǒ qù yīyuàn.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-china-cidades.m3.s09.situationPt",
-      "pt": "Você está com fome. Diga que quer comer arroz.",
-      "en": "You're hungry. Say you want to eat rice.",
+      "pt": "Um amigo pergunta onde você vai agora. Responda que vai ao hospital.",
+      "en": "A friend asks where you are going now. Answer that you are going to the hospital.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -98705,14 +98699,14 @@
     },
     {
       "id": "p.p6-china-cidades.m4.s08.explanation",
-      "pt": "我明天去银行。 (wǒ míngtiān qù yínháng.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação. Combinação nova: você montou pela estrutura.",
-      "en": "我明天去银行。 (wǒ míngtiān qù yínháng.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action. New combination: you assembled it by structure.",
+      "pt": "我喜欢茶。 (wǒ xǐhuan chá.) — 喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa. Combinação nova: você montou pela estrutura.",
+      "en": "我喜欢茶。 (wǒ xǐhuan tea.) — 喜欢 comes directly after whoever acts, without a preposition: 我喜欢 + thing. New combination: you assembled it by structure.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-china-cidades.m4.s08.situationPt",
-      "pt": "Alguém pergunta seus planos. Diga que amanhã você vai ao banco.",
-      "en": "Someone asks your plans. Say that tomorrow you will go to the bank.",
+      "pt": "Alguém pergunta sobre seus gostos. Diga do que você gosta: chá.",
+      "en": "Someone asks about your tastes. Say what you like: tea.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -98723,14 +98717,14 @@
     },
     {
       "id": "p.p6-china-cidades.m4.s09.explanation",
-      "pt": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer.",
-      "en": "我想吃米饭。 (wǒ xiǎng chī mǐfàn.) — Same structure as 想喝, changing the action: 想 + action + whatever you want.",
+      "pt": "我去医院。 (wǒ qù yīyuàn.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação.",
+      "en": "我去医院。 (wǒ qù yīyuàn.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-china-cidades.m4.s09.situationPt",
-      "pt": "Você está com fome. Diga que quer comer arroz.",
-      "en": "You're hungry. Say you want to eat rice.",
+      "pt": "Um amigo pergunta onde você vai agora. Responda que vai ao hospital.",
+      "en": "A friend asks where you are going now. Answer that you are going to the hospital.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -99911,15 +99905,15 @@
     },
     {
       "id": "p.p6-china-cidades-2.m4.s04.explanation",
-      "pt": "车站在哪里？ (chēzhàn zài nǎlǐ?) — Em mandarim o lugar vem primeiro e a pergunta fecha a frase: LUGAR + 在哪里？ Combinação nova: você montou pela estrutura.",
-      "en": "车站在哪里？ (chēzhàn zài nǎlǐ?) — In Mandarin the place comes first and the question closes the sentence: PLACE + 在哪里？ New combination: you set up the structure.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "我今天去火车站。 (wǒ jīntiān qù huǒchēzhàn.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação. Combinação nova: você montou pela estrutura.",
+      "en": "我今天去火车站。 (wǒ jīntiān qù huǒchēzhàn.) — 去 already means 'go to' — the destination comes right after it, with no 到 in the middle. Time (今天/明天) sits between the doer and the action. New combination: you built it from the structure.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-cidades-2.m4.s04.situationPt",
-      "pt": "Você se perdeu na cidade. Pergunte onde fica o ponto de ônibus.",
-      "en": "You got lost in the city. Ask where the bus stop is.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Alguém pergunta seus planos. Diga que hoje você vai à estação de trem.",
+      "en": "Someone asks about your plans. Say that today you are going to the train station.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-cidades-2.m4.s05.explanation",
@@ -101015,20 +101009,20 @@
     },
     {
       "id": "p.p6-china-ruas.m3.s04.explanation",
-      "pt": "Qualquer uma destas cumpre a situação. Escolha um lugar que você já sabe dizer.",
-      "en": "Either of these fits the bill. Choose a place you already know how to say.",
+      "pt": "Qualquer uma destas cumpre a situação. Use a pergunta de nome que você já sabe.",
+      "en": "Any of these works in this situation. Use the name question you already know.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-china-ruas.m3.s04.situationPt",
-      "pt": "Você se perdeu. Pergunte onde fica um lugar.",
-      "en": "You got lost. Ask where a place is.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Você quer saber o nome de alguém. Pergunte.",
+      "en": "You want to know someone's name. Ask.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-ruas.m3.s04.productionHintPt",
-      "pt": "Escolha um lugar que você já sabe dizer.",
-      "en": "Choose a place you already know how to say.",
+      "pt": "Use a pergunta de nome que você já sabe.",
+      "en": "Use the name question you already know.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -101231,14 +101225,14 @@
     },
     {
       "id": "p.p6-china-ruas.m3.s09.explanation",
-      "pt": "我饿了。 (wǒ è le.) — 了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
-      "en": "我饿了。 (wǒ è le.) — 了 at the end marks change / conclusion — the action (or state) is not conjugated: 饿 → 我饿了, 回家 → 我回家了.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "登机口在哪里？ (dēngjīkǒu zài nǎlǐ?) — Em mandarim o lugar vem primeiro e a pergunta fecha a frase: LUGAR + 在哪里？",
+      "en": "登机口在哪里？ (dēngjīkǒu zài nǎlǐ?) — In Mandarin the place comes first and the question closes the sentence: PLACE + 在哪里？",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-ruas.m3.s09.situationPt",
-      "pt": "Conte como você está agora. Diga que está com fome.",
-      "en": "Tell us how you are now. Say you're hungry.",
+      "pt": "Você se perdeu na cidade. Pergunte onde fica isto.",
+      "en": "You got lost in the city. Ask where this is.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -101309,20 +101303,20 @@
     },
     {
       "id": "p.p6-china-ruas.m4.s04.explanation",
-      "pt": "Qualquer uma destas cumpre a situação. Escolha um lugar que você já sabe dizer.",
-      "en": "Either of these fits the bill. Choose a place you already know how to say.",
+      "pt": "Qualquer uma destas cumpre a situação. Use a pergunta de nome que você já sabe.",
+      "en": "Any of these works in this situation. Use the name question you already know.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-china-ruas.m4.s04.situationPt",
-      "pt": "Você se perdeu. Pergunte onde fica um lugar.",
-      "en": "You got lost. Ask where a place is.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Você quer saber o nome de alguém. Pergunte.",
+      "en": "You want to know someone's name. Ask.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-ruas.m4.s04.productionHintPt",
-      "pt": "Escolha um lugar que você já sabe dizer.",
-      "en": "Choose a place you already know how to say.",
+      "pt": "Use a pergunta de nome que você já sabe.",
+      "en": "Use the name question you already know.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -101519,14 +101513,14 @@
     },
     {
       "id": "p.p6-china-ruas.m4.s09.explanation",
-      "pt": "我饿了。 (wǒ è le.) — 了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了.",
-      "en": "我饿了。 (wǒ è le.) — 了 at the end marks change / conclusion — the action (or state) is not conjugated: 饿 → 我饿了, 回家 → 我回家了.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "登机口在哪里？ (dēngjīkǒu zài nǎlǐ?) — Em mandarim o lugar vem primeiro e a pergunta fecha a frase: LUGAR + 在哪里？",
+      "en": "登机口在哪里？ (dēngjīkǒu zài nǎlǐ?) — In Mandarin the place comes first and the question closes the sentence: PLACE + 在哪里？",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-china-ruas.m4.s09.situationPt",
-      "pt": "Conte como você está agora. Diga que está com fome.",
-      "en": "Tell us how you are now. Say you're hungry.",
+      "pt": "Você se perdeu na cidade. Pergunte onde fica isto.",
+      "en": "You got lost in the city. Ask where this is.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -102863,15 +102857,15 @@
     },
     {
       "id": "p.p6-saude.m4.s08.explanation",
-      "pt": "我睡觉了。 (wǒ shuìjiào le.) — 了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了. Combinação nova: você montou pela estrutura.",
-      "en": "我睡觉了。 (wǒ shuìjiào le.) — 了 at the end marks change / conclusion — the action (or state) is not conjugated: 饿 → 我饿了, 回家 → 我回家了. New combination: you assembled it by structure.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "我回家了。 (wǒ huí jiā le.) — 了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了. Combinação nova: você montou pela estrutura.",
+      "en": "我回家了。 (wǒ huí jiā le.) — 了 at the end marks a change / completion — the action (or state) is not conjugated: 饿 → 我饿了, 回家 → 我回家了. New combination: you built it from the structure.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m4.s08.situationPt",
-      "pt": "Conte como você está agora. Diga que já foi dormir.",
-      "en": "Tell us how you are now. Tell him you've already gone to sleep.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Conte como você está agora. Diga que já voltou para casa.",
+      "en": "Say how you are now. Say you have already gone home.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m4.s09.title",
@@ -104453,14 +104447,14 @@
     },
     {
       "id": "p.p6-natureza.m3.s04.explanation",
-      "pt": "你叫什么？ (nǐ jiào shénme?) — 你叫什么？ pergunta o nome — 叫 + 什么.",
-      "en": "你叫什么？ (nǐ jiào shénme?) — 你叫什么？ asks someone's name — 叫 + 什么.",
-      "kind": "DIRECT_TRANSLATION"
+      "pt": "你要茶吗？ (nǐ yào chá ma?) — 吗 transforma a afirmação em pergunta de sim/não — e vai sempre no FIM.",
+      "en": "你要茶吗？ (nǐ yào cá ma?) — 吗 turns the statement into a yes/no question — and always ends.",
+      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-natureza.m3.s04.situationPt",
-      "pt": "Você quer saber o nome da pessoa. Pergunte como ela se chama.",
-      "en": "You want to know the person's name. Ask what their name is.",
+      "pt": "Você recebe uma visita em casa. Ofereça chá, perguntando se a pessoa quer.",
+      "en": "You receive a visitor at home. Offer tea, asking if the person wants it.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -104723,14 +104717,14 @@
     },
     {
       "id": "p.p6-natureza.m4.s04.explanation",
-      "pt": "我想吃肉。 (wǒ xiǎng chī ròu.) — Mesma estrutura de 想喝, trocando a ação: 想 + ação + o que você quer. Combinação nova: você montou pela estrutura.",
-      "en": "我想吃肉。 (wǒ xiǎng chī ròu.) — Same structure as 想喝, changing the action: 想 + action + what you want. New combination: you assembled it by structure.",
+      "pt": "车站在哪里？ (chēzhàn zài nǎlǐ?) — Em mandarim o lugar vem primeiro e a pergunta fecha a frase: LUGAR + 在哪里？ Combinação nova: você montou pela estrutura.",
+      "en": "车站在哪里？ (chēzhàn zài nǎlǐ?) — In Mandarin the place comes first and the question closes the sentence: PLACE + 在哪里？ New combination: you set up the structure.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-natureza.m4.s04.situationPt",
-      "pt": "Você está com fome. Diga que quer comer carne.",
-      "en": "You're hungry. Say you want to eat meat.",
+      "pt": "Você se perdeu na cidade. Pergunte onde fica o ponto de ônibus.",
+      "en": "You got lost in the city. Ask where the bus stop is.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -104915,14 +104909,14 @@
     },
     {
       "id": "p.p6-natureza.m4.s09.explanation",
-      "pt": "你叫什么？ (nǐ jiào shénme?) — 你叫什么？ pergunta o nome — 叫 + 什么.",
-      "en": "你叫什么？ (nǐ jiào shénme?) — 你叫什么？ asks someone's name — 叫 + 什么.",
-      "kind": "DIRECT_TRANSLATION"
+      "pt": "你要茶吗？ (nǐ yào chá ma?) — 吗 transforma a afirmação em pergunta de sim/não — e vai sempre no FIM.",
+      "en": "你要茶吗？ (nǐ yào cá ma?) — 吗 turns the statement into a yes/no question — and always ends.",
+      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-natureza.m4.s09.situationPt",
-      "pt": "Você quer saber o nome da pessoa. Pergunte como ela se chama.",
-      "en": "You want to know the person's name. Ask what their name is.",
+      "pt": "Você recebe uma visita em casa. Ofereça chá, perguntando se a pessoa quer.",
+      "en": "You receive a visitor at home. Offer tea, asking if the person wants it.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -107345,14 +107339,14 @@
     },
     {
       "id": "p.p6-direcoes.m4.s04.explanation",
-      "pt": "我明天去银行。 (wǒ míngtiān qù yínháng.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação. Combinação nova: você montou pela estrutura.",
-      "en": "我明天去银行。 (wǒ míngtiān qù yínháng.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action. New combination: you assembled it by structure.",
+      "pt": "我明天去医院。 (wǒ míngtiān qù yīyuàn.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação. Combinação nova: você montou pela estrutura.",
+      "en": "我明天去医院。 (wǒ míngtiān qù yīyuàn.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action. New combination: you assembled it by structure.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-direcoes.m4.s04.situationPt",
-      "pt": "Alguém pergunta seus planos. Diga que amanhã você vai ao banco.",
-      "en": "Someone asks your plans. Say that tomorrow you will go to the bank.",
+      "pt": "Alguém pergunta seus planos. Diga que amanhã você vai ao hospital.",
+      "en": "Someone asks your plans. Say that tomorrow you will go to the hospital.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -108887,15 +108881,15 @@
     },
     {
       "id": "p.p6-compras.m4.s08.explanation",
-      "pt": "我要热水。 (wǒ yào rèshuǐ.) — 要 é o pedido direto: 我要 + o que você quer. Nada de 是 aqui. Combinação nova: você montou pela estrutura.",
-      "en": "我要热水。 (wǒ yào rèshuǐ.) — 要 is the direct request: 我要 + what you want. No 是 here. New combination: you assembled it by structure.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "我要苹果。 (wǒ yào píngguǒ.) — 要 é o pedido direto: 我要 + o que você quer. Nada de 是 aqui. Combinação nova: você montou pela estrutura.",
+      "en": "我要苹果。 (wǒ yào píngguǒ.) — 要 is the direct order: 我要 + what you want. No 是 here. New combination: you built it from the structure.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-compras.m4.s08.situationPt",
-      "pt": "No balcão, diga que você quer água quente.",
-      "en": "At the counter, say you want hot water.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "No balcão, diga que você quer uma maçã.",
+      "en": "At the counter, say you want an apple.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-compras.m4.s09.title",
@@ -110093,14 +110087,14 @@
     },
     {
       "id": "p.p6-survival-mandarin.m3.s08.explanation",
-      "pt": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
-      "en": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + action is the intention ('I will/want to do'): 要买 + thing.",
+      "pt": "这个多少钱？ (zhège duōshao qián?) — 多少钱 pergunta preço e vai no fim: COISA + 多少钱？ (几钱 é para contar, não para preço).",
+      "en": "这个多少钱？ (zhège duōshao qián?) — 多少钱 asks price and goes at the end: THING + 多少钱？ (几钱 is for counting, not for price).",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-survival-mandarin.m3.s08.situationPt",
-      "pt": "Você entra numa loja. Diga que quer comprar roupa.",
-      "en": "You enter a store. Say you want to buy clothes.",
+      "pt": "Na loja, pergunte quanto custa isto.",
+      "en": "At the store, ask how much this costs.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -110123,8 +110117,14 @@
     },
     {
       "id": "p.p6-survival-mandarin.m4.s01.explanation",
-      "pt": "茶多少钱？ (chá duōshao qián?) — 多少钱 pergunta preço e vai no fim: COISA + 多少钱？ (几钱 é para contar, não para preço). Combinação nova: você montou pela estrutura.",
-      "en": "茶多少钱？ (chá duōshao qián?) — 多少钱 asks the price and goes at the end: THING + 多少钱？ (几钱 is for counting, not price). New combination: you built it from the structure.",
+      "pt": "我喜欢苹果。 (wǒ xǐhuan píngguǒ.) — 喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa. Combinação nova: você montou pela estrutura.",
+      "en": "我喜欢苹果。 (wǒ xǐhuan píngguǒ.) — 喜欢 comes right after the doer, with no preposition: 我喜欢 + thing. New combination: you built it from the structure.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-survival-mandarin.m4.s01.situationPt",
+      "pt": "Alguém pergunta sobre seus gostos. Diga do que você gosta: maçã.",
+      "en": "Someone asks about your tastes. Say what you like: apple.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -110399,14 +110399,14 @@
     },
     {
       "id": "p.p6-survival-mandarin.m4.s08.explanation",
-      "pt": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
-      "en": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + action is the intention ('I will/want to do'): 要买 + thing.",
+      "pt": "这个多少钱？ (zhège duōshao qián?) — 多少钱 pergunta preço e vai no fim: COISA + 多少钱？ (几钱 é para contar, não para preço).",
+      "en": "这个多少钱？ (zhège duōshao qián?) — 多少钱 asks price and goes at the end: THING + 多少钱？ (几钱 is for counting, not for price).",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-survival-mandarin.m4.s08.situationPt",
-      "pt": "Você entra numa loja. Diga que quer comprar roupa.",
-      "en": "You enter a store. Say you want to buy clothes.",
+      "pt": "Na loja, pergunte quanto custa isto.",
+      "en": "At the store, ask how much this costs.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -111485,14 +111485,8 @@
     },
     {
       "id": "p.l29.m4.s09.explanation",
-      "pt": "我要买苹果。 (wǒ yào mǎi píngguǒ.) — 要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa. Combinação nova: você montou pela estrutura.",
-      "en": "我要买苹果。 (wǒ yào mǎi píngguǒ.) — 要 + action is the intention ('I will/want to do'): 要买 + thing. New combination: you built it from the structure.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.l29.m4.s09.situationPt",
-      "pt": "Você entra numa loja. Diga que quer comprar maçãs.",
-      "en": "You walk into a shop. Say you want to buy apples.",
+      "pt": "茶多少钱？ (chá duōshao qián?) — 多少钱 pergunta preço e vai no fim: COISA + 多少钱？ (几钱 é para contar, não para preço). Combinação nova: você montou pela estrutura.",
+      "en": "茶多少钱？ (chá duōshao qián?) — 多少钱 asks the price and goes at the end: THING + 多少钱？ (几钱 is for counting, not price). New combination: you built it from the structure.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
@@ -113885,14 +113879,14 @@
     },
     {
       "id": "p.p7-imersao-mercado.m3.s09.explanation",
-      "pt": "我喜欢中文。 (wǒ xǐhuan Zhōngwén.) — 喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa.",
-      "en": "我喜欢中文。 (wǒ xǐhuan Zhōngwén.) — 喜欢 comes directly after whoever acts, without a preposition: 我喜欢 + thing.",
+      "pt": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
+      "en": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + action is the intention ('I will/want to do'): 要买 + thing.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-mercado.m3.s09.situationPt",
-      "pt": "Alguém pergunta sobre seus gostos. Diga do que você gosta: chinês.",
-      "en": "Someone asks about your tastes. Say what you like: Chinese.",
+      "pt": "Você entra numa loja. Diga que quer comprar roupa.",
+      "en": "You enter a store. Say you want to buy clothes.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -114125,14 +114119,14 @@
     },
     {
       "id": "p.p7-imersao-mercado.m4.s06.explanation",
-      "pt": "我喜欢中文。 (wǒ xǐhuan Zhōngwén.) — 喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa.",
-      "en": "我喜欢中文。 (wǒ xǐhuan Zhōngwén.) — 喜欢 comes directly after whoever acts, without a preposition: 我喜欢 + thing.",
+      "pt": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa.",
+      "en": "我要买衣服。 (wǒ yào mǎi yīfu.) — 要 + action is the intention ('I will/want to do'): 要买 + thing.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-mercado.m4.s06.situationPt",
-      "pt": "Alguém pergunta sobre seus gostos. Diga do que você gosta: chinês.",
-      "en": "Someone asks about your tastes. Say what you like: Chinese.",
+      "pt": "Você entra numa loja. Diga que quer comprar roupa.",
+      "en": "You enter a store. Say you want to buy clothes.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -114161,15 +114155,15 @@
     },
     {
       "id": "p.p7-imersao-mercado.m4.s08.explanation",
-      "pt": "我喜欢苹果。 (wǒ xǐhuan píngguǒ.) — 喜欢 vem direto depois de quem age, sem preposição: 我喜欢 + coisa. Combinação nova: você montou pela estrutura.",
-      "en": "我喜欢苹果。 (wǒ xǐhuan píngguǒ.) — 喜欢 comes right after the doer, with no preposition: 我喜欢 + thing. New combination: you built it from the structure.",
-      "kind": "DIRECT_TRANSLATION"
+      "pt": "我要买书。 (wǒ yào mǎi shū.) — 要 + ação é a intenção ('vou/quero fazer'): 要买 + coisa. Combinação nova: você montou pela estrutura.",
+      "en": "我要买书。 (wǒ yào mǎi shū.) — 要 + action is the intention ('I will/want to do'): 要买 + thing. New combination: you assembled it by structure.",
+      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-mercado.m4.s08.situationPt",
-      "pt": "Alguém pergunta sobre seus gostos. Diga do que você gosta: maçã.",
-      "en": "Someone asks about your tastes. Say what you like: apple.",
-      "kind": "DIRECT_TRANSLATION"
+      "pt": "Você entra numa loja. Diga que quer comprar um livro.",
+      "en": "You enter a store. Say you want to buy a book.",
+      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-mercado.m4.s09.title",
@@ -115757,14 +115751,14 @@
     },
     {
       "id": "p.p7-imersao-estacao.m4.s09.explanation",
-      "pt": "我明天去银行。 (wǒ míngtiān qù yínháng.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação. Combinação nova: você montou pela estrutura.",
-      "en": "我明天去银行。 (wǒ míngtiān qù yínháng.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action. New combination: you assembled it by structure.",
+      "pt": "我今天去医院。 (wǒ jīntiān qù yīyuàn.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação. Combinação nova: você montou pela estrutura.",
+      "en": "我今天去医院。 (wǒ jīntiān qù yīyuàn.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action. New combination: you assembled it by structure.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-estacao.m4.s09.situationPt",
-      "pt": "Alguém pergunta seus planos. Diga que amanhã você vai ao banco.",
-      "en": "Someone asks your plans. Say that tomorrow you will go to the bank.",
+      "pt": "Alguém pergunta seus planos. Diga que hoje você vai ao hospital.",
+      "en": "Someone asks your plans. Say that today you are going to the hospital.",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -117191,15 +117185,15 @@
     },
     {
       "id": "p.p7-imersao-casa-amigo.m4.s08.explanation",
-      "pt": "我回家了。 (wǒ huí jiā le.) — 了 no fim marca mudança / conclusão — a ação (ou estado) não se conjuga: 饿 → 我饿了, 回家 → 我回家了. Combinação nova: você montou pela estrutura.",
-      "en": "我回家了。 (wǒ huí jiā le.) — 了 at the end marks a change / completion — the action (or state) is not conjugated: 饿 → 我饿了, 回家 → 我回家了. New combination: you built it from the structure.",
-      "kind": "DIRECT_TRANSLATION"
+      "pt": "我想喝热水。 (wǒ xiǎng hē rèshuǐ.) — 想 + ação: 想喝 + bebida. Combinação nova: você montou pela estrutura.",
+      "en": "我想喝热水。 (wǒ xiǎng hē rèshuǐ.) — 想 + action: 想喝 + drink. New combination: you assembled it by structure.",
+      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-casa-amigo.m4.s08.situationPt",
-      "pt": "Conte como você está agora. Diga que já voltou para casa.",
-      "en": "Say how you are now. Say you have already gone home.",
-      "kind": "DIRECT_TRANSLATION"
+      "pt": "Você está com sede. Diga que quer beber água quente.",
+      "en": "You're thirsty. Say you want to drink hot water.",
+      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p7-imersao-casa-amigo.m4.s09.title",

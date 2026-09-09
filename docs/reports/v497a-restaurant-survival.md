@@ -202,16 +202,22 @@ Preservados na cadeia `validate:beta`: routine-time, conversation-coherence, han
 
 ## QA humano
 
-Desktop + viewport 390×844: ver secção seguinte / artefatos após a passagem manual.
+Passagem manual em `l26c` (player) e nas fixtures `/qa/conversation-scene`.
 
-Perguntas-guia:
+| Pergunta | Resultado |
+|----------|-----------|
+| Consigo entender o que fazer? | Sim — intro da missão, prompts situacionais, áudio com replay |
+| Parece restaurante? | Sim — cena «Restaurante real», 几位 → menu → pedido → chá → 好吃吗 → 买单 |
+| Estou usando chinês acumulado? | Sim — `我要 + X`, 服务员, 买单, 不要了 |
+| Ou parece quiz solto? | A conversa segura o contexto; há reforço pós-conversa (monte a frase) |
+| A conversa reage ao que respondi? | NPC ecoa `米饭，好。` / `茶，好。` / `这个，好。` |
+| Se eu errar, o reparo faz sentido? | `我很好` em 几位 → `两位吗？` (não `请再说一遍`) |
 
-1. Consigo entender o que fazer?
-2. Parece restaurante?
-3. Estou usando chinês acumulado?
-4. Ou parece quiz solto?
-5. A conversa reage ao que respondi?
-6. Se eu errar, o reparo faz sentido?
+Desktop: listening «O que a pessoa quer saber?» **não** vaza 请问几位 no título; opções em PT; botão Áudio lento. Produção da conta sem alternativas (`买单`). Viewport 390×844 (Chrome device mode): card da conversa e botão Responder cabem.
+
+Erro na missão não recomeça do zero (remediation / retry da cena). O tester errou um par auditivo e um produce_reply; a UI ofereceu tentar de novo.
+
+`validate:beta` nesta revisão: a correr após overlays EN + índice estrutural. `build` a seguir se a cadeia fechar.
 
 ## Não feito (de propósito)
 
