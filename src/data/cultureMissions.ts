@@ -1534,6 +1534,16 @@ const bargainingContext = ((): CultureMission => {
           },
         ],
       },
+      sequenceStep(
+        "bc-order",
+        loc("Ordene uma compra atenta ao contexto.", "Put a context-aware purchase in order."),
+        [
+          { id: "notice", pt: "Ver se o preço está na etiqueta ou é falado", en: "See whether the price is tagged or spoken" },
+          { id: "decide", pt: "Decidir se 太贵了 cabe neste estabelecimento", en: "Decide whether 太贵了 fits this shop" },
+          { id: "act", pt: "Pagar, pedir um pouco menos, ou 不要了", en: "Pay, ask for a little less, or 不要了" },
+        ],
+        ["notice", "decide", "act"]
+      ),
       recallStep(memory),
       summaryStep(item),
     ],
