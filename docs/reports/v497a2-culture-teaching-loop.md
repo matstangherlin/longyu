@@ -8,9 +8,9 @@ Esta remessa **não** reconstrói o Quest Engine. Corrige a pedagogia cultural: 
 
 | Campo | Valor |
 |-------|-------|
-| PR de origem | **#243 — V4.9.7A.1 Culture Quest Engine** |
+| PR de origem | **#243 — V4.9.7A.1 Culture Quest Engine** (MERGED) |
 | SHA de trabalho (HEAD da #243) | `9366094c236b522710b2ff58a00c5f3212ae2af2` |
-| SHA de merge da #243 | *pendente — preencher após o merge commit em `main`* |
+| SHA de merge da #243 | `4618211a63c8ba5db3fac7e02b0d499899abb44a` |
 | Branch | `cursor/v497a2-culture-teaching-6ae2` |
 | Fingerprint da Jornada | `f6430d1a11be` (inalterado — bridges **não** entram em `journey.ts`) |
 
@@ -111,13 +111,19 @@ Todo `culture_teach`, demonstração, bridge, feedback e explanation nasce PT-BR
 
 ## E2E
 
+Chromium `e2e/culture-hub.spec.ts`: **12 passed**.
+
 - Missão nova começa em história; `culture_teach` aparece antes das opções
-- Flagship `host-insistence`: teach → demo → prática
-- Feedback contextual; NPC reage nas opções de diálogo
-- Hub marca conceito praticado na Jornada
-- Touchpoint de `l26c` / `l2` preservado
+- Flagship `host-insistence`: teach → demo → prática; NPC reage (`culture-npc-reaction`)
+- Missão pula `culture_teach` quando o conceito já está `practiced` na Jornada
+- Journey Culture Bridge em `l2`: explica → tarefa → toast `🏮 Cultura +1` → Hub **Visto na Jornada ✓**
+- Hub marca conceito praticado na Jornada (persist v21→v23 preserva `cultureKnowledgeById`)
+- Touchpoint de `l26c` / `l2` preservado (bridge usa `culture-bridge`, não `culture-touchpoint` no meio do exercício)
 - Review cultural não usa chrome de SRS lexical
 - Seeds E2E em persist v21 (migrações v22 + v23)
+- Mobile 390×844: hub e CTA tappable
+
+Walkthrough: teach → demo → NPC; Hub “Visto na Jornada”; teach em 390×844.
 
 ## Mutações
 
@@ -145,6 +151,8 @@ Novos (depois de culture-gamification em `validate:beta`):
 - `validate:culture-journey-integration` / `test:culture-journey-integration`
 
 Preservados: culture-content, culture-distribution, culture-missions, culture-memory, culture-gamification, china-survival-restaurant, conversation-coherence, hanzi-memory, tone-integration, teach-before-test, i18n, journey-en, sync, validate:beta, build.
+
+`validate:beta` local: **verde** (exit 0). Base `main` após #243: `4618211`.
 
 ## Não feito (fora desta remessa)
 
