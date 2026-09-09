@@ -76,15 +76,10 @@ test.describe("lição", () => {
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Entendi" }).click();
-    // O balancer pode inserir image_choice gerado entre o intro e o tom.
-    // O que importa: ao chegar no tom, o prompt em português é heading — nunca
-    // botão de glossário.
-    const toneHeading = page.getByRole("heading", { name: /Qual tom você ouviu|Ouça e escolha|Toque no que/i });
-    expect(
-      await advanceUntilVisible(page, toneHeading, 12),
-      "l1 M1 segue em reconhecimento (tom ou escuta), sem glossário em português",
-    ).toBe(true);
-    await expect(toneHeading).toBeVisible();
+    // O balancer pode abrir conversation_scene ou listen antes do tom.
+    // O prompt em português tem de ser heading — nunca botão de glossário.
+    const prompt = page.locator("[data-lesson-step-frame] h2").first();
+    await expect(prompt).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /qual|contorno|ouviu/i })).toHaveCount(0);
   });

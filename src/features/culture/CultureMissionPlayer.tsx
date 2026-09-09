@@ -3,8 +3,10 @@ import { useLocation, useNavigate, useParams, useSearchParams } from "react-rout
 import { CULTURE_COMPLETE_XP, getCultureItem, localizedCulture } from "../../data/culture";
 import { getCultureMission } from "../../data/cultureMissions";
 import {
+  cultureScoreWeight,
   cultureText,
   isCultureStepScored,
+  isCultureTeachStep,
   type CultureMissionStep,
 } from "../../data/cultureQuest";
 import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
@@ -39,10 +41,12 @@ export function CultureMissionPlayer() {
   const mission = getCultureMission(id);
   const startCultureItem = useStore((s) => s.startCultureItem);
   const completeCultureMission = useStore((s) => s.completeCultureMission);
+  const recordCultureKnowledge = useStore((s) => s.recordCultureKnowledge);
   const saveCultureItem = useStore((s) => s.saveCultureItem);
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const savedIds = useStore((s) => s.cultureSavedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
+  const knowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
 
   const from = params.get("from") || (location.state as { from?: string } | null)?.from || "/cultura";
   const fromJourney = params.get("src") === "journey";
@@ -54,8 +58,9 @@ export function CultureMissionPlayer() {
   const [pendingLeft, setPendingLeft] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [sourcesOpen, setSourcesOpen] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [scoredCount, setScoredCount] = useState(0);
+  const [whyOpen, setWhyOpen] = useState(false);
+  const [weightedEarned, setWeightedEarned] = useState(0);
+  const [weightedPossible, setWeightedPossible] = useState(0);
   const [memoryCorrect, setMemoryCorrect] = useState(true);
   const [victory, setVictory] = useState(false);
   const [resultStars, setResultStars] = useState<1 | 2 | 3>(1);
@@ -68,10 +73,20 @@ export function CultureMissionPlayer() {
     trackCultureEvent(fromJourney ? "culture_from_journey" : "culture_mission_start", { id: item.id });
   }, [item, mission, fromJourney, startCultureItem]);
 
-  const step: CultureMissionStep | undefined = mission?.steps[index];
+  const conceptId = mission?.memoryTargets[0]?.id ?? `${id}-core`;
+  const knowledge = knowledgeById[conceptId];
+  const seenOnJourney = knowledge?.source === "journey" && knowledge.state !== "unseen";
+  const steps = useMemo(() => {
+    if (!mission) return [];
+    if (knowledge?.state === "practiced" || knowledge?.state === "mastered" || knowledge?.state === "review_due") {
+      return mission.steps.filter((step) => !isCultureTeachStep(step));
+    }
+    return mission.steps;
+  }, [mission, knowledge?.state]);
+
+  const step: CultureMissionStep | undefined = steps[index];
   const locale = instructionLocale;
   const copy = item ? localizedCulture(item, locale) : null;
-  const scoredTotal = useMemo(() => mission?.steps.filter(isCultureStepScored).length ?? 0, [mission]);
   const matchRightPairs = useMemo(() => {
     const pairs = step?.matchPairs;
     if (!pairs) return [];
@@ -118,8 +133,9 @@ export function CultureMissionPlayer() {
     const ok = gradeCurrent();
     setRevealed(true);
     if (isCultureStepScored(step)) {
-      setScoredCount((count) => count + 1);
-      if (ok) setCorrectCount((count) => count + 1);
+      const weight = cultureScoreWeight(step);
+      setWeightedPossible((value) => value + weight);
+      if (ok) setWeightedEarned((value) => value + weight);
       if (step.kind === "culture_recall" && !ok) setMemoryCorrect(false);
       trackCultureEvent("culture_step_answer", { id: itemId, step: step.id, ok });
     }
@@ -127,19 +143,21 @@ export function CultureMissionPlayer() {
 
   function onContinue() {
     if (!step || !mission) return;
+    if (isCultureTeachStep(step) && step.cultureConceptId) {
+      recordCultureKnowledge(step.cultureConceptId, itemId, "introduced", "mission");
+    }
     if (isCultureStepScored(step) && !revealed) {
       onCheck();
       return;
     }
-    if (index + 1 >= mission.steps.length) {
-      const scored = scoredCount || scoredTotal;
-      const score = scored > 0 ? correctCount / scored : 0;
+    if (index + 1 >= steps.length) {
+      const score = weightedPossible > 0 ? weightedEarned / weightedPossible : 0;
       const outcome = completeCultureMission({
         itemId,
         score,
         memoryCorrect,
-        scoredCount: scored,
-        correctCount,
+        scoredCount: weightedPossible,
+        correctCount: weightedEarned,
       });
       setResultStars(outcome.stars);
       setXpGranted(outcome.grantedXp ? CULTURE_COMPLETE_XP : 0);
@@ -153,12 +171,13 @@ export function CultureMissionPlayer() {
       return;
     }
     setIndex((current) => current + 1);
+    setWhyOpen(false);
     resetStepUi();
   }
 
   const selectedOption = step?.options?.find((option) => option.id === selected);
   const nextId = pickNextCultureMissionId(unionWith(completedIds, victory ? item.id : ""), startedIds);
-  const progress = mission.steps.length ? (index + (victory ? 1 : 0)) / mission.steps.length : 0;
+  const progress = steps.length ? (index + (victory ? 1 : 0)) / steps.length : 0;
   const needsAnswer = Boolean(step && isCultureStepScored(step) && !revealed);
   const ctaDisabled =
     (needsAnswer && step?.kind !== "match" && step?.kind !== "sequence" && !selected) ||
@@ -222,7 +241,7 @@ export function CultureMissionPlayer() {
           <div className="h-full bg-accent" style={{ width: `${Math.max(8, progress * 100)}%` }} />
         </div>
         <p className="text-xs text-ink-faint">
-          {t("culture.missionProgress", { current: index + 1, total: mission.steps.length })}
+          {t("culture.missionProgress", { current: index + 1, total: steps.length })}
         </p>
       </div>
       <header>
@@ -235,8 +254,27 @@ export function CultureMissionPlayer() {
         <h1 className="mt-1 text-balance font-serif text-2xl font-semibold text-ink">{copy.title}</h1>
       </header>
       {step ? (
-        <Card className="space-y-3 p-4" data-testid="culture-mission-step" data-step-kind={step.kind}>
+        <Card className="space-y-3 p-4" data-testid="culture-mission-step" data-step-kind={step.kind} data-step-role={step.role ?? ""} data-concept-id={step.cultureConceptId ?? ""}>
+          {seenOnJourney ? (
+            <p className="text-xs font-medium text-accent" data-testid="culture-seen-on-journey">
+              {t("culture.seenOnJourney")}
+            </p>
+          ) : null}
           <CultureVisual kind={step.visual ?? step.beats?.find((beat) => beat.visual)?.visual} />
+          {step.kind === "culture_teach" ? (
+            <div className="space-y-2" data-testid="culture-teach">
+              {step.title ? <h2 className="font-serif text-lg font-semibold text-ink">{cultureText(step.title, locale)}</h2> : null}
+              {step.explanation ? <p className="text-sm leading-6 text-ink">{cultureText(step.explanation, locale)}</p> : null}
+              {step.why ? <p className="text-sm leading-6 text-ink-soft">{cultureText(step.why, locale)}</p> : null}
+              {step.example ? <p className="text-sm leading-6 text-ink">{cultureText(step.example, locale)}</p> : null}
+              {step.variability ? (
+                <p className="text-sm leading-6 text-ink-soft" data-testid="culture-may-vary">
+                  <span className="font-semibold text-accent">{t("culture.mayVary")} </span>
+                  {cultureText(step.variability, locale)}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           {step.prompt ? <p className="text-sm font-medium leading-6 text-ink">{cultureText(step.prompt, locale)}</p> : null}
           {step.body ? <p className="text-sm leading-6 text-ink">{cultureText(step.body, locale)}</p> : null}
           <div className="space-y-3">
@@ -314,10 +352,17 @@ export function CultureMissionPlayer() {
             </div>
           ) : null}
           {revealed && selectedOption ? (
-            <p className="text-sm leading-6 text-ink-soft" data-testid="culture-check-feedback">
-              {selectedOption.mayVary ? `${t("culture.mayVary")} ` : ""}
-              {cultureText(selectedOption.feedback, locale)}
-            </p>
+            <div className="space-y-2">
+              <p className="text-sm leading-6 text-ink-soft" data-testid="culture-check-feedback">
+                {selectedOption.mayVary ? `${t("culture.mayVary")} ` : ""}
+                {cultureText(selectedOption.feedback, locale)}
+              </p>
+              {selectedOption.reaction ? (
+                <div data-testid="culture-npc-reaction">
+                  <CultureBeat beat={selectedOption.reaction} locale={locale} />
+                </div>
+              ) : null}
+            </div>
           ) : null}
           {revealed && (step.kind === "sequence" || step.kind === "match") ? (
             <p className="text-sm leading-6 text-ink-soft" data-testid="culture-check-feedback">
@@ -327,6 +372,10 @@ export function CultureMissionPlayer() {
           {step.kind === "culture_summary" ? (
             <button type="button" className="min-h-11 text-sm font-medium text-accent" data-testid="culture-sources-open" onClick={() => setSourcesOpen(true)}>
               {t("culture.sourcesAndContext")}
+            </button>
+          ) : step.whyMore ? (
+            <button type="button" className="min-h-11 text-sm font-medium text-accent" data-testid="culture-why-open" onClick={() => setWhyOpen(true)}>
+              {t("culture.understandBetter")}
             </button>
           ) : (
             <p className="text-xs text-ink-faint">{t("culture.sourcedHint")}</p>
@@ -355,6 +404,23 @@ export function CultureMissionPlayer() {
           {savedIds.includes(item.id) ? t("culture.saved") : t("culture.saveForLater")}
         </Button>
       </div>
+      {whyOpen && step?.whyMore ? (
+        <Card className="p-4" data-testid="culture-why-drawer">
+          <h2 className="font-serif text-lg font-semibold text-ink">{t("culture.understandBetter")}</h2>
+          <p className="mt-2 text-sm leading-6 text-ink">{cultureText(step.whyMore.motive, locale)}</p>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">{cultureText(step.whyMore.context, locale)}</p>
+          {step.whyMore.variation ? (
+            <p className="mt-2 text-sm leading-6 text-ink-soft">
+              <span className="font-semibold text-accent">{t("culture.mayVary")} </span>
+              {cultureText(step.whyMore.variation, locale)}
+            </p>
+          ) : null}
+          {step.whyMore.sourceNote ? <p className="mt-2 text-xs text-ink-faint">{cultureText(step.whyMore.sourceNote, locale)}</p> : null}
+          <Button variant="ghost" className="mt-2 min-h-11" onClick={() => setWhyOpen(false)}>
+            {t("common.close")}
+          </Button>
+        </Card>
+      ) : null}
       {sourcesOpen ? (
         <Card className="p-4" data-testid="culture-sources-drawer">
           <h2 className="font-serif text-lg font-semibold text-ink">{t("culture.sources")}</h2>

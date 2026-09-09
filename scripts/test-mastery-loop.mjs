@@ -132,7 +132,7 @@ try {
   const storeSrc = await readFile(path.join(root, "src/lib/store.ts"), "utf8");
   assert.match(storeSrc, /lessonMasteryById/, "store persiste lessonMasteryById");
   assert.match(storeSrc, /recordLessonMasteryPass/, "store expõe recordLessonMasteryPass");
-  assert.match(storeSrc, /version: 22/, "migração v22 Culture Quest; v20 Topic Mastery Path permanece");
+  assert.match(storeSrc, /version: 23/, "migração v23 Culture teaching loop; v22 Culture Quest permanece");
 
   const syncSrc = await readFile(path.join(root, "src/lib/syncMerge.ts"), "utf8");
   assert.match(syncSrc, /mergeLessonMasteryRecords/, "syncMerge une mastery");

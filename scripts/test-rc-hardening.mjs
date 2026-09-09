@@ -65,7 +65,7 @@ assert(coordinator.includes("isQaTestStateActive"), "sync recusa TEST STATE");
 
 const store = read("src/lib/store.ts");
 assert(store.includes("if ((state.rewardHistory ?? []).some((entry) => entry.id === rewardId)) return false"), "grantLessonReward é idempotente");
-assert(/version:\s*22/.test(store), "persist version 22");
+assert(/version:\s*23/.test(store), "persist version 23");
 
 const placement = read("src/lib/placement/types.ts");
 assert(placement.includes("export const PLACEMENT_VERSION = 2"), "Placement v2");
@@ -76,7 +76,7 @@ const identity = read("src/lib/releaseCandidate.ts");
 assert(identity.includes('LONGYU_RC_VERSION = "v4.7.4-rc.1"'), "RC version");
 assert(identity.includes("EXPECTED_PLACEMENT_VERSION = 2"), "RC placement 2");
 assert(identity.includes("EXPECTED_PROGRESS_SCHEMA_VERSION = 1"), "RC schema 1");
-assert(identity.includes("EXPECTED_STORE_VERSION = 22"), "RC store 22");
+assert(identity.includes("EXPECTED_STORE_VERSION = 23"), "RC store 23");
 for (const slug of LONGYU_EDGE_FUNCTIONS) {
   assert(identity.includes(`"${slug}"`), `RC lista Edge ${slug}`);
 }

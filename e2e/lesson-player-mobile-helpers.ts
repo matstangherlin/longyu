@@ -1,12 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
+  dismissJourneyCultureBridgeIfOpen,
   seedFreshJourneySession,
   seedLessonPlayerReady,
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
+import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible, continueIfSkipCardOrListenImitate } from "./lesson-player-helpers";
 
 /** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
 export const MOBILE_VIEWPORTS = [
@@ -455,9 +456,14 @@ export async function advanceUntilSelector(
   const target = page.locator(selector);
   const deadline = Date.now() + timeoutMs;
   let steps = 0;
+  const keepBridge = /culture-bridge/.test(selector);
   while (!(await target.isVisible().catch(() => false)) && Date.now() < deadline && steps < maxSteps) {
     steps += 1;
     await dismissBlockingOverlays(page);
+    if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
+      await page.waitForTimeout(120);
+      continue;
+    }
     if (
       await page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first().isVisible().catch(() => false)
     ) {
@@ -473,13 +479,26 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(120);
       continue;
     }
-    const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;
-    if (!skipped) {
-      const advanced = await advanceOneStep(page);
-      if (!advanced) await page.waitForTimeout(180);
-    } else {
-      await page.waitForTimeout(120);
+    // Voice-unavailable listen-imitate / content-skip card: Continuar is the
+    // only exit. Do not fall through to advanceOneStep first — that used to
+    // block on evaluate() of a victory button that is not on the page.
+    if (await continueIfSkipCardOrListenImitate(page)) {
+      await page.waitForTimeout(180);
+      continue;
     }
+    const skipped = allowSkip
+      ? await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/])
+      : await clickFirstVisible(page, [/^Entendi$|^Got it$/]);
+    if (skipped) {
+      await page.waitForTimeout(120);
+      continue;
+    }
+    if (await advanceConversationIfOpen(page)) {
+      await page.waitForTimeout(180);
+      continue;
+    }
+    const advanced = await advanceOneStep(page);
+    if (!advanced) await page.waitForTimeout(180);
   }
   return target.isVisible().catch(() => false);
 }

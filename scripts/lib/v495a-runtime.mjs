@@ -52,7 +52,10 @@ export function loadCultureRuntime() {
   } = require("../../src/data/culture.ts");
   const { CULTURE_MISSIONS, cultureMissionStats } = require("../../src/data/cultureMissions.ts");
   const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS } = require("../../src/data/cultureQuest.ts");
+  const { CULTURE_JOURNEY_BRIDGES } = require("../../src/data/cultureJourneyBridges.ts");
   const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
+  const lessonPlayerSource = fs.readFileSync("src/features/lesson/LessonPlayer.tsx", "utf8");
+  const storeSource = fs.readFileSync("src/lib/store.ts", "utf8");
   return {
     items: CULTURE_ITEMS,
     categories: CULTURE_CATEGORIES,
@@ -70,6 +73,9 @@ export function loadCultureRuntime() {
     ineligible: CULTURE_INELIGIBLE_UNITS,
     futureHooks: FUTURE_UNIT_CULTURE_HOOKS,
     journey: JOURNEY,
+    bridges: CULTURE_JOURNEY_BRIDGES,
+    lessonPlayerSource,
+    storeSource,
   };
 }
 

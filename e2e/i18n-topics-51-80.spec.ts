@@ -7,7 +7,7 @@ import {
   seedUnlockedLessonSession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
+import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 
 const SHOTS = path.join(process.cwd(), "docs/reports/v485-screenshots");
 
@@ -45,7 +45,7 @@ async function playOpenStep(page: Page): Promise<boolean> {
     await production.fill("你好").catch(() => undefined);
     return clickFirstVisible(page, [/^Verificar$|^Check$/, /^Confirmar$|^Confirm$/, /^Responder$|^Answer$/, /^Continuar$|^Continue$/]);
   }
-  if ((await page.locator("[data-conversation-scene]").count()) > 0) {
+  if (await page.locator("[data-conversation-scene]").first().isVisible().catch(() => false)) {
     const option = page.getByRole("button", { name: /^(Opção|Option) \d+:/ });
     if (await option.first().isVisible().catch(() => false)) {
       await clickIfEnabled(option.first());
@@ -98,10 +98,7 @@ async function completeCurrentPass(page: Page, lessonId: string, targetLevel: nu
       }
       waitedForPass = true;
     }
-    if (await clickFirstVisible(page, [/^Pular|^Skip/, /Não posso falar agora|I can't speak now|I can't listen now|Não posso ouvir agora/])) {
-      await page.waitForTimeout(180);
-      continue;
-    }
+    if (await advanceSkipThroughOverlays(page)) continue;
     if (await playOpenStep(page)) {
       await page.waitForTimeout(180);
       continue;

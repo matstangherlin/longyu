@@ -8,6 +8,7 @@ import {
   seedUnlockedLessonSession,
   waitForLazyPage,
 } from "./helpers";
+import { advanceUntilVisible } from "./lesson-player-helpers";
 
 const SEQUENCE_ORDERS = [
   ["notice", "decide", "thanks"],
@@ -61,7 +62,7 @@ async function playCurrentStep(page: Page, wrongFirst = false) {
 
 async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
   await expect(page.getByTestId("culture-item")).toBeVisible();
-  for (let i = 0; i < 24; i += 1) {
+  for (let i = 0; i < 40; i += 1) {
     if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
     await playCurrentStep(page, wrongFirst && i === 0);
     wrongFirst = false;
@@ -93,6 +94,9 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "visiting-home");
     await expect(page.getByTestId("culture-mission-progress")).toBeVisible();
 
+    await playCurrentStep(page);
+    await expect(page.getByTestId("culture-teach")).toBeVisible();
+    await playCurrentStep(page);
     await playCurrentStep(page);
     if (await page.getByTestId("culture-option-a").count()) {
       await page.getByTestId("culture-option-a").click();
@@ -228,6 +232,104 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
     await expect(page.getByTestId("culture-touchpoint")).toHaveCount(0);
     await expect(page.getByTestId("topic-victory-return")).toHaveCount(0);
+  });
+});
+
+test.describe("V4.9.7A.2 Culture teaching loop", () => {
+  test("teaches before the first task and shows NPC reaction on dialogue", async ({ page }) => {
+    test.setTimeout(90_000);
+    await seedOnboardedSession(page, ["l1"]);
+    await page.goto("/cultura/host-insistence");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-mission-step")).toHaveAttribute("data-step-kind", "story");
+    await playCurrentStep(page);
+    await expect(page.getByTestId("culture-teach")).toBeVisible();
+    await expect(page.getByTestId("culture-options")).toHaveCount(0);
+    await expect(page.getByTestId("culture-why-open")).toBeVisible();
+    await playCurrentStep(page);
+    await playCurrentStep(page);
+    await expect(page.getByTestId("culture-mission-step")).toHaveAttribute("data-step-role", "demo");
+    await playCurrentStep(page);
+    let sawNpc = false;
+    for (let i = 0; i < 40; i += 1) {
+      if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) break;
+      await playCurrentStep(page);
+      if (await page.getByTestId("culture-npc-reaction").isVisible().catch(() => false)) sawNpc = true;
+    }
+    await expect(page.getByTestId("culture-victory")).toBeVisible();
+    expect(sawNpc).toBeTruthy();
+  });
+
+  test("skips teach screens when the Journey already practiced the concept", async ({ page }) => {
+    await seedMissionsSession(page, {
+      cultureKnowledgeById: {
+        "host-insistence-core": {
+          conceptId: "host-insistence-core",
+          cultureItemId: "host-insistence",
+          state: "practiced",
+          source: "journey",
+          updatedAt: Date.now(),
+        },
+      },
+    });
+    await page.goto("/cultura/host-insistence");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-seen-on-journey")).toBeVisible();
+    await playCurrentStep(page);
+    await expect(page.getByTestId("culture-teach")).toHaveCount(0);
+    await expect(page.getByTestId("culture-mission-step")).toHaveAttribute("data-step-role", "demo");
+  });
+
+  test("Journey culture bridge teaches then marks the Hub as practiced", async ({ page }) => {
+    test.setTimeout(90_000);
+    await seedUnlockedLessonSession(page, "l2", {
+      lessonSessionStepById: { l2: { pass: 1, stepIndex: 6 } },
+    });
+    await page.goto("/licao/l2/player");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+    for (let i = 0; i < 4; i += 1) {
+      if (await page.getByTestId("culture-bridge").isVisible().catch(() => false)) break;
+      await advanceUntilVisible(page, page.getByTestId("culture-bridge"), 10);
+    }
+    await expect(page.getByTestId("culture-bridge")).toBeVisible();
+    await expect(page.getByTestId("culture-bridge-teach")).toBeVisible();
+    await expect(page.getByTestId("culture-bridge-options")).toHaveCount(0);
+    await page.getByTestId("culture-bridge-continue").click();
+    await expect(page.getByTestId("culture-bridge-options")).toBeVisible();
+    await page.getByTestId("culture-bridge-option-b").click();
+    await page.getByTestId("culture-bridge-continue").click();
+    await expect(page.getByTestId("culture-bridge-feedback")).toBeVisible();
+    await page.getByTestId("culture-bridge-continue").click();
+    await expect(page.getByTestId("culture-plus-one")).toBeVisible();
+
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-node-journey-greetings-nihao")).toBeVisible();
+    await expect(page.getByTestId("culture-node-greetings-nihao")).toHaveAttribute("data-knowledge", "practiced");
+  });
+
+  test("Culture Hub marks a concept seen on the Journey", async ({ page }) => {
+    await seedMissionsSession(page, {
+      cultureKnowledgeById: {
+        "shared-dishes-core": {
+          conceptId: "shared-dishes-core",
+          cultureItemId: "shared-dishes",
+          state: "practiced",
+          source: "journey",
+          updatedAt: Date.now(),
+        },
+      },
+    });
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-node-journey-shared-dishes")).toBeVisible();
+    await expect(page.getByTestId("culture-node-shared-dishes")).toHaveAttribute("data-knowledge", "practiced");
   });
 });
 

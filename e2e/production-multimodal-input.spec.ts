@@ -94,7 +94,7 @@ async function openProductionTask(page: Page): Promise<boolean> {
     await page.goto("/qa/free-production");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    if (await advanceUntilSelector(page, "textarea", 45_000)) return true;
+    if (await advanceUntilSelector(page, "textarea", 45, 45_000)) return true;
   }
   return false;
 }

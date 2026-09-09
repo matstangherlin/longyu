@@ -6,7 +6,7 @@ import { isDevPreviewAllowed } from "./entitlements";
 import { FOLEGO_START, FOLEGO_MAX_FREE } from "../data/economy";
 import { mergeItemDimensionScores, mergeLessonMasteryRecords } from "../data/masteryLoop";
 import { mergeStreakRecovery } from "./streak";
-import { mergeCultureMastery, mergeCultureMemory } from "./cultureMastery";
+import { mergeCultureKnowledge, mergeCultureMastery, mergeCultureMemory } from "./cultureMastery";
 
 /**
  * Une as estrelas pendentes de dois dispositivos. Lições já dominadas (3★ no
@@ -139,6 +139,7 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     cultureSeals: unionUnique([...(local.cultureSeals ?? []), ...(remote.cultureSeals ?? [])]),
     cultureMasteryById: mergeCultureMastery(local.cultureMasteryById, remote.cultureMasteryById),
     cultureMemoryById: mergeCultureMemory(local.cultureMemoryById, remote.cultureMemoryById),
+    cultureKnowledgeById: mergeCultureKnowledge(local.cultureKnowledgeById, remote.cultureKnowledgeById),
     ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
     journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
     validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),

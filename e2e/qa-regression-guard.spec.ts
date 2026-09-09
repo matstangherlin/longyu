@@ -6,7 +6,7 @@ import {
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
+import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 
 /**
  * Guarda E2E dos fluxos QA que regressaram:
@@ -193,53 +193,10 @@ test.describe("QA regression guard — transferência", () => {
     await dismissBlockingOverlays(page);
 
     const transfer = page.locator('[data-production-step="transfer_task"]');
-    // Não usar "Use este padrão" — free_production guiada também mostra esse texto
-    // e o loop parava antes do transfer_task.
-    const transferCopy = page.getByText(/Transferência|Você já conhece|Troque só uma parte|Aplique a transformação/i);
-    const deadline = Date.now() + 120_000;
-    let steps = 0;
-    while (
-      !(await transfer.isVisible().catch(() => false)) &&
-      !(await transferCopy.first().isVisible().catch(() => false)) &&
-      Date.now() < deadline &&
-      steps < 40
-    ) {
-      steps += 1;
-      await dismissBlockingOverlays(page);
-
-      // Se a lição terminou sem transfer (variação adaptativa), falha clara.
-      if (await page.locator("[data-review-offer], [data-review-summary]").isVisible().catch(() => false)) {
-        break;
-      }
-      if (await page.getByRole("button", { name: /Continuar Jornada|Voltar à Jornada|Receber recompensas|Continuar tema/i }).first().isVisible().catch(() => false)) {
-        break;
-      }
-
-      const folegoBack = page.getByRole("button", { name: /Voltar e tentar acertar/i });
-      if (await folegoBack.isVisible().catch(() => false)) {
-        await folegoBack.click().catch(() => undefined);
-      }
-
-      const skippedSpeak = await clickFirstVisible(page, [
-        /^Não posso falar agora$/,
-        /^Agora não$/,
-        /^Continuar sem falar$/,
-      ]);
-      if (skippedSpeak) {
-        await page.waitForTimeout(120);
-        continue;
-      }
-
-      // Prefere Pular (Pro) para avançar estável até o bloco de produção.
-      const skipped = await clickFirstVisible(page, [/^Pular/]);
-      if (!skipped) {
-        const advanced = await advanceOneStep(page);
-        if (!advanced) await page.waitForTimeout(200);
-      } else {
-        await page.waitForTimeout(120);
-      }
-    }
-
+    // Mesmo skip-through do early-transfer: Pular sozinho deixa a ponte
+    // cultural e a conversation_scene no caminho e o teste estoura 150s.
+    const reached = await advanceUntilSelector(page, '[data-production-step="transfer_task"]', 40, 120_000);
+    expect(reached, "transfer_task deveria aparecer após o skip-through").toBe(true);
     await expect(transfer).toBeVisible({ timeout: 5_000 });
     await expect(page.locator("[data-production-learned]")).toBeVisible();
     await expect(page.locator("[data-production-situation]")).toBeVisible();

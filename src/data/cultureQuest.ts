@@ -39,12 +39,34 @@ export type CultureSpeaker = "mei" | "wang" | "lin" | "narrator";
 
 export type CultureMissionStepKind =
   | "story"
+  | "culture_teach"
   | "scenario_choice"
   | "dialogue_choice"
   | "sequence"
   | "match"
   | "culture_recall"
   | "culture_summary";
+
+export type CultureCognitive =
+  | "interpret"
+  | "decide"
+  | "sequence"
+  | "dialogue"
+  | "identify_mistake"
+  | "match"
+  | "recall";
+
+export type CultureStepRole = "demo" | "guided" | "independent" | "recall";
+
+export type CultureKnowledgeState = "unseen" | "introduced" | "practiced" | "mastered" | "review_due";
+
+export type CultureKnowledgeRecord = {
+  conceptId: string;
+  cultureItemId: string;
+  state: CultureKnowledgeState;
+  source?: "journey" | "mission";
+  updatedAt: number;
+};
 
 export type CultureStoryBeat = {
   id: string;
@@ -61,6 +83,7 @@ export type CultureChoiceOption = {
   preferred: boolean;
   feedback: CultureLocaleText;
   mayVary?: boolean;
+  reaction?: CultureStoryBeat;
 };
 
 export type CultureSequenceItem = {
@@ -77,8 +100,23 @@ export type CultureMatchPair = {
 export type CultureMissionStep = {
   id: string;
   kind: CultureMissionStepKind;
+  cultureConceptId?: string;
+  cognitive?: CultureCognitive;
+  role?: CultureStepRole;
+  scoreWeight?: number;
   prompt?: CultureLocaleText;
   body?: CultureLocaleText;
+  title?: CultureLocaleText;
+  explanation?: CultureLocaleText;
+  why?: CultureLocaleText;
+  example?: CultureLocaleText;
+  variability?: CultureLocaleText;
+  whyMore?: {
+    motive: CultureLocaleText;
+    context: CultureLocaleText;
+    variation?: CultureLocaleText;
+    sourceNote?: CultureLocaleText;
+  };
   beats?: CultureStoryBeat[];
   options?: CultureChoiceOption[];
   sequence?: CultureSequenceItem[];
@@ -268,8 +306,23 @@ export function cultureText(copy: CultureLocaleText | undefined, locale: "pt-BR"
   return locale === "en" ? copy.en : copy.pt;
 }
 
+export function isCultureTeachStep(step: CultureMissionStep): boolean {
+  return step.kind === "culture_teach";
+}
+
+export function cultureScoreWeight(step: CultureMissionStep): number {
+  if (step.scoreWeight != null) return step.scoreWeight;
+  if (step.scored === false || isCultureTeachStep(step) || step.kind === "story" || step.kind === "culture_summary") {
+    return 0;
+  }
+  if (step.role === "guided") return 0.4;
+  if (step.kind === "culture_recall" || step.role === "recall") return 1.2;
+  return 1;
+}
+
 export function isCultureStepScored(step: CultureMissionStep): boolean {
   if (step.scored === false) return false;
+  if (isCultureTeachStep(step)) return false;
   return (
     step.kind === "scenario_choice" ||
     step.kind === "dialogue_choice" ||
@@ -279,10 +332,21 @@ export function isCultureStepScored(step: CultureMissionStep): boolean {
   );
 }
 
+/** Stars use post-teach weighted applications only — first-contact guesses do not count. */
 export function cultureStarsForAttempt(score: number, memoryCorrect: boolean): 1 | 2 | 3 {
   if (memoryCorrect && score >= 0.9) return 3;
   if (score >= 0.7) return 2;
   return 1;
+}
+
+export function cognitiveForStep(step: CultureMissionStep): CultureCognitive | undefined {
+  if (step.cognitive) return step.cognitive;
+  if (step.kind === "match") return "match";
+  if (step.kind === "sequence") return "sequence";
+  if (step.kind === "dialogue_choice") return "dialogue";
+  if (step.kind === "culture_recall") return "recall";
+  if (step.kind === "scenario_choice") return "decide";
+  return undefined;
 }
 
 export function nextCultureReviewDue(stage: number, now = Date.now()): number {

@@ -1,4 +1,5 @@
 import type { Page, Locator } from "@playwright/test";
+import { dismissJourneyCultureBridgeIfOpen } from "./helpers";
 
 export async function clickFirstVisible(page: Page, names: RegExp[]) {
   for (const name of names) {
@@ -6,14 +7,31 @@ export async function clickFirstVisible(page: Page, names: RegExp[]) {
     const first = button.first();
     if (!(await first.isVisible().catch(() => false))) continue;
     if (await first.isDisabled().catch(() => false)) continue;
+    await first.scrollIntoViewIfNeeded().catch(() => undefined);
     try {
       await first.click({ timeout: 1_500 });
       return true;
     } catch {
-      continue;
+      try {
+        await first.click({ timeout: 1_000, force: true });
+        return true;
+      } catch {
+        continue;
+      }
     }
   }
   return false;
+}
+
+/** Content-skip card or listen-imitate without SpeechRecognition — Continuar, not Pular. */
+export async function continueIfSkipCardOrListenImitate(page: Page): Promise<boolean> {
+  const visible = await page
+    .getByText(/Ouça e imite|Listen and imitate|Exercício pulado|Skipped exercise|Voz não disponível|Voice isn't available/i)
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!visible) return false;
+  return clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]);
 }
 
 /** Clique curto — evita travar 30s em botão disabled (ex.: banco de produce cheio). */
@@ -28,6 +46,78 @@ export async function clickIfEnabled(locator: Locator, timeout = 1_500): Promise
   }
 }
 
+/** Avança uma batida da conversation_scene. Pular só aparece no checkpoint. */
+export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
+  const scenes = page.locator("[data-conversation-scene]");
+  const count = await scenes.count().catch(() => 0);
+  let scene = scenes.first();
+  let found = false;
+  for (let i = 0; i < count; i += 1) {
+    if (await scenes.nth(i).isVisible().catch(() => false)) {
+      scene = scenes.nth(i);
+      found = true;
+      break;
+    }
+  }
+  if (!found) return false;
+
+  const skipInScene = scene.getByRole("button", { name: /^Pular|^Skip/ });
+  if (await clickIfEnabled(skipInScene.first())) return true;
+
+  const option = scene.getByRole("button", { name: /^(Opção|Option) \d+:/ }).first();
+  if (await option.isVisible().catch(() => false)) {
+    if (await clickIfEnabled(option)) {
+      await clickIfEnabled(scene.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }).first());
+      return true;
+    }
+  }
+
+  const cta = scene.getByRole("button", {
+    name: /^(Responder|Reply|Continuar|Continue|Concluir|Finish)(?:\s*>)?$/i,
+  }).first();
+  if (!(await cta.isVisible().catch(() => false))) return false;
+  await cta.scrollIntoViewIfNeeded().catch(() => undefined);
+  if (await clickIfEnabled(cta, 2_000)) return true;
+  try {
+    await cta.click({ timeout: 1_500, force: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * One skip-through beat for multi-pass loops.
+ * Finish the Journey culture bridge and conversation_scene before Pular —
+ * Pular on a bridge targets the hidden exercise and stalls on disabled Verificar.
+ */
+export async function advanceSkipThroughOverlays(page: Page): Promise<boolean> {
+  if (await dismissJourneyCultureBridgeIfOpen(page)) {
+    await page.waitForTimeout(120);
+    return true;
+  }
+  if (await advanceConversationIfOpen(page)) {
+    await page.waitForTimeout(180);
+    return true;
+  }
+  if (await continueIfSkipCardOrListenImitate(page)) {
+    await page.waitForTimeout(180);
+    return true;
+  }
+  if (
+    await clickFirstVisible(page, [
+      /^Entendi$|^Got it$/,
+      /^Pular|^Skip/,
+      /Não posso falar agora|I can't speak now/,
+      /Não posso ouvir agora|I can't listen now/,
+    ])
+  ) {
+    await page.waitForTimeout(180);
+    return true;
+  }
+  return false;
+}
+
 /** Ordem correta de componentes do Hànzì Builder para prompts comuns no smoke. */
 export function hanziBuilderOrder(prompt: string): string[] {
   if (/você|you|nǐ|你/i.test(prompt)) return ["亻", "尔"];
@@ -40,13 +130,34 @@ export function hanziBuilderOrder(prompt: string): string[] {
 }
 
 /** Avança passos genéricos até o seletor aparecer (smoke, não prova pedagógica profunda). */
+async function locatorIsInsideCultureBridge(target: Locator): Promise<boolean> {
+  if (/culture-bridge/.test(String(target))) return true;
+  // count() does not wait. evaluate() on a missing locator inherits the
+  // Playwright Test timeout (actionTimeout is 0) and stalls skip-through
+  // for the rest of the test — e.g. listen-imitate Continuar never clicked.
+  if ((await target.count().catch(() => 0)) === 0) return false;
+  return target
+    .evaluate((el) => Boolean(el.closest?.("[data-testid=\"culture-bridge\"]") || el.getAttribute("data-testid") === "culture-bridge"))
+    .catch(() => false);
+}
+
 export async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): Promise<boolean> {
   const deadline = Date.now() + Math.min(25_000, Math.max(6_000, maxSteps * 1_200));
   for (let step = 0; step < maxSteps; step += 1) {
     if (Date.now() > deadline) break;
     if (await target.isVisible().catch(() => false)) return true;
-    if ((await page.locator("[data-conversation-scene]").count()) > 0) {
-      if (await target.isVisible().catch(() => false)) return true;
+    const keepBridge = await locatorIsInsideCultureBridge(target);
+    if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
+      await page.waitForTimeout(120);
+      continue;
+    }
+    if (await advanceConversationIfOpen(page)) {
+      await page.waitForTimeout(180);
+      continue;
+    }
+    if (await clickFirstVisible(page, [/^Entendi$|^Got it$/, /^Pular|^Skip/])) {
+      await page.waitForTimeout(150);
+      continue;
     }
     await page.keyboard.press("Escape").catch(() => undefined);
 
@@ -56,10 +167,14 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       await page.waitForTimeout(150);
       continue;
     }
+    if (await continueIfSkipCardOrListenImitate(page)) {
+      await page.waitForTimeout(150);
+      continue;
+    }
 
     const reviewHeading = page.getByRole("heading", { name: /pontos para firmar|Revisão da lição|Lesson review|points to lock in/i });
     if (await reviewHeading.isVisible().catch(() => false)) {
-      await clickFirstVisible(page, [/^Continuar$|^Continue$/]);
+      await clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]);
       await page.waitForTimeout(150);
       continue;
     }
@@ -224,19 +339,24 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
+    const skippedEarly = await clickFirstVisible(page, [/^Pular|^Skip/]);
+    if (skippedEarly) {
+      await page.waitForTimeout(150);
+      continue;
+    }
+
     const advanced = await clickFirstVisible(page, [
       /^Entendi$|^Got it$/,
-      /^Continuar$|^Continue$/,
+      /^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/,
       /^Próximo$|^Next$/,
       /^Verificar$|^Check$/,
       /^Conferir$/,
       /^Confirmar$|^Confirm$/,
-      /^Responder$|^Answer$/,
+      /^Responder(?:\s*>)?$|^Reply(?:\s*>)?$|^Answer$/,
       /^Concluir$|^Finish$/,
       /^Ouvir de novo$|^Listen again$/,
     ]);
     if (!advanced) {
-      if ((await page.locator("[data-conversation-scene]").count()) > 0) return true;
       const skipped = await clickFirstVisible(page, [/^Pular|^Skip/]);
       if (!skipped) break;
     }

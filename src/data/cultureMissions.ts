@@ -8,6 +8,7 @@ import { CULTURE_ITEMS, getCultureItem, type CultureItem } from "./culture";
 import {
   CULTURE_FLAGSHIP_ITEM_IDS,
   CULTURE_MISSION_XP,
+  isCultureTeachStep,
   loc,
   type CultureChoiceOption,
   type CultureLocaleText,
@@ -15,6 +16,7 @@ import {
   type CultureMission,
   type CultureMissionStep,
   type CultureReviewVariant,
+  type CultureStoryBeat,
 } from "./cultureQuest";
 import { cultureRouteForItem } from "./cultureQuest";
 
@@ -24,6 +26,321 @@ function itemOrThrow(id: string): CultureItem {
   const item = getCultureItem(id);
   if (!item) throw new Error(`CultureItem missing: ${id}`);
   return item;
+}
+
+function clipWords(text: string, max = 78): string {
+  const words = text.trim().split(/\s+/);
+  if (words.length <= max) return text.trim();
+  return `${words.slice(0, max).join(" ")}…`;
+}
+
+function teachScreens(item: CultureItem, conceptId: string): CultureMissionStep[] {
+  const whyMore = {
+    motive: loc(item.whyPt, item.whyEn),
+    context: loc(item.bodyPt, item.bodyEn),
+    variation: item.variabilityPt
+      ? loc(item.variabilityPt, item.variabilityEn ?? item.variabilityPt)
+      : undefined,
+    sourceNote: item.sources[0]
+      ? loc(`${item.sources[0].title} — ${item.sources[0].publisher}`, `${item.sources[0].title} — ${item.sources[0].publisher}`)
+      : undefined,
+  };
+  return [
+    {
+      id: `${item.id}-teach-what`,
+      kind: "culture_teach",
+      cultureConceptId: conceptId,
+      role: "demo",
+      scored: false,
+      scoreWeight: 0,
+      title: loc("O que acontece", "What happens"),
+      explanation: loc(clipWords(item.summaryPt, 70), clipWords(item.summaryEn, 70)),
+      why: loc(clipWords(item.whyPt, 70), clipWords(item.whyEn, 70)),
+      whyMore,
+    },
+    {
+      id: `${item.id}-teach-how`,
+      kind: "culture_teach",
+      cultureConceptId: conceptId,
+      role: "demo",
+      scored: false,
+      scoreWeight: 0,
+      title: loc("Como ler o contexto", "How to read the context"),
+      explanation: loc(clipWords(item.noticePt, 70), clipWords(item.noticeEn, 70)),
+      example: loc(
+        "Leia os sinais da cena e ajuste o gesto. Não copie uma frase única como se fosse lei.",
+        "Read the cues in the scene and adjust the gesture. Do not copy a single phrase as if it were law."
+      ),
+      variability: item.variabilityPt
+        ? loc(item.variabilityPt, item.variabilityEn ?? item.variabilityPt)
+        : loc(
+            "Família, região, geração e formalidade mudam o tom. Não transforme isto em «na China sempre…».",
+            "Family, region, generation, and formality change the tone. Do not turn this into “in China always…”."
+          ),
+      whyMore,
+    },
+  ];
+}
+
+function tagPedagogy(steps: CultureMissionStep[], conceptId: string): CultureMissionStep[] {
+  let guidedAssigned = false;
+  return steps.map((step) => {
+    const next: CultureMissionStep = {
+      ...step,
+      cultureConceptId: step.cultureConceptId ?? conceptId,
+    };
+    if (
+      isCultureTeachStep(next) ||
+      next.kind === "story" ||
+      next.kind === "culture_summary" ||
+      next.role === "demo"
+    ) {
+      next.role = next.kind === "culture_summary" ? next.role : next.role ?? "demo";
+      next.scored = false;
+      next.scoreWeight = 0;
+      return next;
+    }
+    if (next.kind === "culture_recall") {
+      next.role = "recall";
+      next.cognitive = "recall";
+      next.scored = true;
+      next.scoreWeight = 1.2;
+      return next;
+    }
+    if (!guidedAssigned && (next.kind === "scenario_choice" || next.kind === "dialogue_choice")) {
+      guidedAssigned = true;
+      next.role = "guided";
+      next.cognitive =
+        next.kind === "dialogue_choice"
+          ? "dialogue"
+          : next.visual
+            ? "identify_mistake"
+            : "decide";
+      next.scored = true;
+      next.scoreWeight = 0.4;
+      return next;
+    }
+    next.role = "independent";
+    next.cognitive =
+      next.kind === "match"
+        ? "match"
+        : next.kind === "sequence"
+          ? "sequence"
+          : next.kind === "dialogue_choice"
+            ? "dialogue"
+            : next.visual
+              ? "identify_mistake"
+              : next.cognitive ?? "interpret";
+    next.scored = true;
+    next.scoreWeight = 1;
+    return next;
+  });
+}
+
+function insertTeachAfterStory(
+  steps: CultureMissionStep[],
+  item: CultureItem,
+  conceptId: string,
+  demo?: CultureMissionStep
+): CultureMissionStep[] {
+  const storyIdx = steps.findIndex((step) => step.kind === "story");
+  const insertAt = storyIdx >= 0 ? storyIdx + 1 : 0;
+  const teach = teachScreens(item, conceptId);
+  const block = demo ? [...teach, demo] : teach;
+  return tagPedagogy([...steps.slice(0, insertAt), ...block, ...steps.slice(insertAt)], conceptId);
+}
+
+function defaultReaction(option: CultureChoiceOption, stepId: string): CultureStoryBeat {
+  if (option.preferred) {
+    return {
+      id: `${stepId}-${option.id}-rx`,
+      speaker: "mei",
+      hanzi: "好。",
+      pinyin: "Hǎo.",
+      text: loc("Mei aceita o tom da resposta e a conversa segue.", "Mei accepts the tone of the reply and the conversation continues."),
+    };
+  }
+  return {
+    id: `${stepId}-${option.id}-rx`,
+    speaker: "mei",
+    hanzi: "好吧。",
+    pinyin: "Hǎo ba.",
+    text: loc(
+      "O tom ficou um pouco seco. Mei não interrompe, mas o momento ficou menos leve.",
+      "The tone felt a bit blunt. Mei does not stop, but the moment feels less light."
+    ),
+  };
+}
+
+function withDialogueReactions(steps: CultureMissionStep[]): CultureMissionStep[] {
+  return steps.map((step) => {
+    if (step.kind !== "dialogue_choice" || !step.options) return step;
+    return {
+      ...step,
+      options: step.options.map((option) => ({
+        ...option,
+        reaction: option.reaction ?? defaultReaction(option, step.id),
+      })),
+    };
+  });
+}
+
+function flagshipDemoStep(itemId: string, conceptId: string): CultureMissionStep | undefined {
+  const demos: Record<string, { prompt: CultureLocaleText; beats: CultureStoryBeat[] }> = {
+    "visiting-home": {
+      prompt: loc("Veja como Lin lê os sinais na entrada.", "See how Lin reads the cues at the door."),
+      beats: [
+        {
+          id: "vh-demo-mei",
+          speaker: "mei",
+          hanzi: "请进！",
+          pinyin: "Qǐng jìn!",
+          text: loc("Mei marca o momento de entrar.", "Mei marks the moment to come in."),
+        },
+        {
+          id: "vh-demo-lin",
+          speaker: "lin",
+          hanzi: "谢谢。",
+          pinyin: "Xièxie.",
+          text: loc("Lin agradece e espera o próximo sinal, em vez de circular a casa.", "Lin thanks her and waits for the next cue instead of walking the home."),
+        },
+        {
+          id: "vh-demo-sit",
+          speaker: "mei",
+          hanzi: "请坐。",
+          pinyin: "Qǐng zuò.",
+          text: loc("Só então ela indica onde sentar. O espaço não estava automaticamente aberto.", "Only then does she show where to sit. The space was not automatically open."),
+        },
+      ],
+    },
+    "host-insistence": {
+      prompt: loc("Primeiro um modelo. Depois é a sua vez.", "First a model. Then it is your turn."),
+      beats: [
+        {
+          id: "hi-demo-mei",
+          speaker: "mei",
+          hanzi: "再吃一点吧！",
+          pinyin: "Zài chī yīdiǎn ba!",
+          text: loc("Mei oferece de novo.", "Mei offers again."),
+        },
+        {
+          id: "hi-demo-lin",
+          speaker: "lin",
+          hanzi: "谢谢，我吃饱了。",
+          pinyin: "Xièxie, wǒ chī bǎo le.",
+          text: loc("Lin recusa, agradece e explica brevemente.", "Lin declines, thanks her, and explains briefly."),
+        },
+        {
+          id: "hi-demo-ok",
+          speaker: "mei",
+          hanzi: "好。",
+          pinyin: "Hǎo.",
+          text: loc("A conversa continuou normalmente. Recusar com educação não quebrou a visita.", "The conversation continued as normal. A polite decline did not break the visit."),
+        },
+      ],
+    },
+    "shared-dishes": {
+      prompt: loc("Veja o que o grupo faz com os pratos no centro.", "See what the group does with the dishes in the centre."),
+      beats: [
+        {
+          id: "sd-demo-n",
+          speaker: "narrator",
+          text: loc("Vários pratos ficam no meio. Ninguém puxa um prato só para si.", "Several dishes stay in the middle. Nobody pulls a plate just for themselves."),
+          visual: "shared-table",
+        },
+        {
+          id: "sd-demo-mei",
+          speaker: "mei",
+          hanzi: "我们一起吃。",
+          pinyin: "Wǒmen yìqǐ chī.",
+          text: loc("Mei trata a mesa como compartilhada.", "Mei treats the table as shared."),
+        },
+        {
+          id: "sd-demo-lin",
+          speaker: "lin",
+          hanzi: "好。",
+          pinyin: "Hǎo.",
+          text: loc("Lin serve um pouco para o prato dele — porção pequena, sem esvaziar o centro.", "Lin takes a little onto his plate — a small portion, without emptying the centre."),
+        },
+      ],
+    },
+    "gift-receiving": {
+      prompt: loc("Veja o gesto antes de decidir o seu.", "See the gesture before you choose yours."),
+      beats: [
+        {
+          id: "gr-demo-mei",
+          speaker: "mei",
+          hanzi: "送给你。",
+          pinyin: "Sòng gěi nǐ.",
+          text: loc("Mei oferece o pacote com as duas mãos.", "Mei offers the package with both hands."),
+          visual: "gift-hands",
+        },
+        {
+          id: "gr-demo-lin",
+          speaker: "lin",
+          hanzi: "谢谢。",
+          pinyin: "Xièxie.",
+          text: loc("Lin recebe com as duas mãos e agradece, sem rasgar o papel na hora.", "Lin receives it with both hands and thanks her, without tearing the paper open at once."),
+        },
+      ],
+    },
+    "digital-pay": {
+      prompt: loc("Veja como Lin fecha a conta sem transformar o caixa num debate.", "See how Lin settles the bill without turning the till into a debate."),
+      beats: [
+        {
+          id: "dp-demo-n",
+          speaker: "narrator",
+          text: loc("No caixa há um código. Lin não procura dinheiro primeiro.", "There is a code at the till. Lin does not look for cash first."),
+          visual: "qr-till",
+        },
+        {
+          id: "dp-demo-lin",
+          speaker: "lin",
+          hanzi: "我扫一下。",
+          pinyin: "Wǒ sǎo yíxià.",
+          text: loc("Ele avisa que vai escanear e espera a confirmação na tela.", "He says he will scan and waits for the confirmation on the screen."),
+        },
+      ],
+    },
+    "metro-qr": {
+      prompt: loc("Veja o ritmo na catraca antes de ser a sua vez.", "See the rhythm at the gate before it is your turn."),
+      beats: [
+        {
+          id: "mq-demo-n",
+          speaker: "narrator",
+          text: loc("A fila anda rápido. O código já está aberto no celular.", "The queue moves fast. The code is already open on the phone."),
+          visual: "metro-door",
+        },
+        {
+          id: "mq-demo-lin",
+          speaker: "lin",
+          hanzi: "好。",
+          pinyin: "Hǎo.",
+          text: loc("Lin escaneia, passa e não para na catraca para mexer no app.", "Lin scans, walks through, and does not stop at the gate to fiddle with the app."),
+        },
+      ],
+    },
+  };
+  const demo = demos[itemId];
+  if (!demo) return undefined;
+  return {
+    id: `${itemId}-dialogue-demo`,
+    kind: "story",
+    role: "demo",
+    scored: false,
+    scoreWeight: 0,
+    cultureConceptId: conceptId,
+    prompt: demo.prompt,
+    beats: demo.beats,
+  };
+}
+
+function withTeachingLoop(mission: CultureMission): CultureMission {
+  const item = itemOrThrow(mission.cultureItemId);
+  const conceptId = mission.memoryTargets[0]?.id ?? `${mission.cultureItemId}-core`;
+  const demo = mission.flagship ? flagshipDemoStep(mission.cultureItemId, conceptId) : undefined;
+  const steps = withDialogueReactions(insertTeachAfterStory(mission.steps, item, conceptId, demo));
+  return { ...mission, steps };
 }
 
 function miniChoices(item: CultureItem, mayVary = Boolean(item.variabilityPt)): CultureChoiceOption[] {
@@ -258,7 +575,10 @@ const visitingHome = ((): CultureMission => {
         id: "vh-shoes-choice",
         kind: "scenario_choice",
         scored: true,
-        prompt: loc("O que você faz?", "What do you do?"),
+        prompt: loc(
+          "A porta abriu, mas ninguém indicou onde sentar. Qual ação demonstra melhor a ideia?",
+          "The door opened, but nobody showed where to sit. Which action best shows the idea?"
+        ),
         visual: "door-shoes",
         options: [
           {
@@ -977,7 +1297,10 @@ const chopsticksRest = shortMission("chopsticks-rest", {
         {
           id: "cr-v",
           speaker: "narrator",
-          text: loc("Há uma tigela de arroz, um prato e um descanso. Onde os hashis ficam menos adequados?", "There is a rice bowl, a plate, and a rest. Where do the chopsticks look least suitable?"),
+          text: loc(
+            "Há uma tigela de arroz, um prato e um descanso de hashis sobre a mesa.",
+            "There is a rice bowl, a plate, and a chopstick rest on the table."
+          ),
           visual: "chopsticks-table",
         },
       ],
@@ -1216,7 +1539,7 @@ export const CULTURE_MISSIONS: CultureMission[] = CULTURE_ITEMS.map((item) => {
   if (!authored) {
     throw new Error(`Culture mission missing for ${item.id}`);
   }
-  return authored;
+  return withTeachingLoop(authored);
 });
 
 export function getCultureMission(id: string): CultureMission | undefined {

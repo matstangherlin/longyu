@@ -14,7 +14,8 @@ import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
 import { CultureCard } from "./CultureCard";
 import { pickNextCultureMissionId } from "../../lib/cultureMastery";
-import { dueCultureMemoryTargets } from "../../lib/cultureMastery";
+import { dueCultureMemoryTargets, visibleKnowledgeState } from "../../lib/cultureMastery";
+import { conceptIdForItem } from "../../lib/cultureMastery";
 
 const CATEGORY_FILTERS: Array<{ id: "all" | CultureCategory; key: MessageKey }> = [
   { id: "all", key: "culture.filterAll" },
@@ -40,6 +41,7 @@ export function CultureHubPage() {
   const masteryById = useStore((s) => s.cultureMasteryById ?? {});
   const seals = useStore((s) => s.cultureSeals ?? []);
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
+  const knowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
 
   const nextId = pickNextCultureMissionId(completedIds, startedIds);
   const nextMission = nextId ? getCultureMission(nextId) : undefined;
@@ -114,11 +116,18 @@ export function CultureHubPage() {
       <HubSection title={t("culture.currentRoute")}>
         <div className="grid gap-3">
           {CULTURE_ROUTES.map((route) => {
-            const nodes = route.itemIds.map((itemId) => ({
-              itemId,
-              done: completedIds.includes(itemId),
-              stars: masteryById[itemId]?.stars ?? 0,
-            }));
+            const nodes = route.itemIds.map((itemId) => {
+              const conceptId = conceptIdForItem(itemId);
+              const knowledge = knowledgeById[conceptId];
+              const visible = visibleKnowledgeState(knowledge, memoryById[conceptId]);
+              return {
+                itemId,
+                done: completedIds.includes(itemId),
+                stars: masteryById[itemId]?.stars ?? 0,
+                fromJourney: knowledge?.source === "journey" && visible !== "unseen",
+                state: visible,
+              };
+            });
             return (
               <Card key={route.id} className="p-3" data-testid={`culture-route-${route.id}`}>
                 <p className="font-serif text-base font-semibold text-ink">
@@ -131,8 +140,14 @@ export function CultureHubPage() {
                       to={`/cultura/${node.itemId}`}
                       className="min-h-11 rounded-full border border-line px-3 py-2 text-xs text-ink"
                       data-testid={`culture-node-${node.itemId}`}
+                      data-knowledge={node.state}
                     >
-                      {node.done ? "●" : "○"} {localizedCultureTitle(node.itemId, instructionLocale)}
+                      {node.done ? "●" : node.state !== "unseen" ? "◐" : "○"} {localizedCultureTitle(node.itemId, instructionLocale)}
+                      {node.fromJourney ? (
+                        <span className="ml-1 text-[10px] text-accent" data-testid={`culture-node-journey-${node.itemId}`}>
+                          {t("culture.seenOnJourney")}
+                        </span>
+                      ) : null}
                     </Link>
                   ))}
                 </div>

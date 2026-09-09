@@ -9,7 +9,7 @@ export const PRO_PRICING_HEADLINE =
 export const PRO_CHECKOUT_PENDING =
   /Indisponível enquanto o preço está pendente|Unavailable while pricing is pending/i;
 
-// Seeds stay on persist v21 so the v22 Culture Quest migration runs in E2E.
+// Seeds stay on persist v21 so v22 Culture Quest and v23 teaching-loop migrations run in E2E.
 // Older versions still pass through every prior migrate (v14 strips preview Pro).
 const STORE_VERSION = 21;
 
@@ -110,6 +110,64 @@ export async function seedMissingDraftFinalize(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem("longyu:e2e-finalize-code", "missing_draft");
   });
+}
+
+/**
+ * Journey Culture Bridges replace the current step until teach → task → feedback
+ * finish. Skip (`Pular`) still targets the underlying exercise, so E2E skip-through
+ * would stall on a disabled Verificar. Complete one overlay phase per call.
+ * Leave the overlay alone when the test is looking at the bridge itself.
+ */
+export async function dismissJourneyCultureBridgeIfOpen(
+  page: Page,
+  options: { keepVisible?: boolean } = {}
+): Promise<boolean> {
+  if (options.keepVisible) return false;
+  const kindNode = page.locator("[data-current-step-kind]").first();
+  if ((await kindNode.count().catch(() => 0)) > 0) {
+    const currentKind = await kindNode.getAttribute("data-current-step-kind", { timeout: 500 }).catch(() => null);
+    if (currentKind && currentKind !== "culture_bridge") return false;
+  }
+  const bridge = page.getByTestId("culture-bridge");
+  if (!(await bridge.isVisible().catch(() => false))) return false;
+
+  let progressed = false;
+  for (let phase = 0; phase < 6; phase += 1) {
+    if (!(await bridge.isVisible().catch(() => false))) return progressed;
+
+    const seqButtons = bridge.locator('[data-testid^="culture-bridge-seq-"]');
+    const seqCount = await seqButtons.count();
+    for (let i = 0; i < seqCount; i += 1) {
+      const button = seqButtons.nth(i);
+      if (!(await button.isVisible().catch(() => false))) continue;
+      if (await button.isDisabled().catch(() => false)) continue;
+      await button.click({ timeout: 1_500, force: true }).catch(() => undefined);
+      progressed = true;
+    }
+
+    const optionButtons = bridge.locator('[data-testid^="culture-bridge-option-"]');
+    if ((await optionButtons.count()) > 0) {
+      const preferred = bridge.getByTestId("culture-bridge-option-b");
+      const pick =
+        (await preferred.isVisible().catch(() => false)) && !(await preferred.isDisabled().catch(() => false))
+          ? preferred
+          : optionButtons.first();
+      if (!(await pick.isDisabled().catch(() => true))) {
+        await pick.click({ timeout: 1_500, force: true }).catch(() => undefined);
+        progressed = true;
+      }
+    }
+
+    const cta = bridge.getByTestId("culture-bridge-continue");
+    if (await cta.isVisible().catch(() => false) && !(await cta.isDisabled().catch(() => true))) {
+      await cta.click({ timeout: 2_000, force: true }).catch(() => undefined);
+      progressed = true;
+      await page.waitForTimeout(120);
+      continue;
+    }
+    break;
+  }
+  return progressed;
 }
 
 export async function dismissBlockingOverlays(page: Page) {
@@ -259,6 +317,8 @@ export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
+    // Keep in-test navigations (player → Hub) from wiping live culture/knowledge writes.
+    if (localStorage.getItem("longyu-v1")) return;
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,
@@ -279,6 +339,7 @@ export async function seedUnlockedLessonSession(
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
   await page.addInitScript((payload: string) => {
+    if (localStorage.getItem("longyu-v1")) return;
     localStorage.setItem("longyu-v1", payload);
   }, buildStorePayload({
     accountSetupComplete: true,

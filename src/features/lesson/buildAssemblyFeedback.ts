@@ -156,7 +156,7 @@ export function assemblyTileClass({
   muted?: boolean;
 }) {
   return [
-    "appearance-none min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2.5 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-100 disabled:text-ink",
+    "appearance-none min-h-12 min-w-[3.25rem] rounded-2xl border px-3.5 py-2.5 text-center font-semibold shadow-card sm:min-h-[3.5rem] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none disabled:opacity-100 disabled:!text-ink",
     cjk ? "hanzi text-[26px] sm:text-[30px]" : "text-[15px]",
     // V4.9.2B — a cor do texto é sempre `ink` sobre o tint do estado. A versão
     // anterior pintava o texto com a própria cor do estado (`text-accent` sobre
@@ -169,7 +169,7 @@ export function assemblyTileClass({
     // Peça já usada: menos proeminente, nunca ilegível. `opacity 0.35 +
     // grayscale` derrubava o contraste efetivo para 1.85:1 — mancha, não peça.
     // A de-ênfase agora vem de tokens medíveis, não de um véu sobre tudo.
-    muted && "border-line/50 bg-surface-2 text-ink-soft",
+    muted && "border-line/50 bg-surface-2 text-ink",
     !active && !matched && !wrong && !muted && "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-accent-soft hover:bg-surface-2",
   ]
     .filter(Boolean)
