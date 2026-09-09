@@ -72,6 +72,11 @@ export function CultureMissionPlayer() {
   const locale = instructionLocale;
   const copy = item ? localizedCulture(item, locale) : null;
   const scoredTotal = useMemo(() => mission?.steps.filter(isCultureStepScored).length ?? 0, [mission]);
+  const matchRightPairs = useMemo(() => {
+    const pairs = step?.matchPairs;
+    if (!pairs) return [];
+    return [...pairs].reverse();
+  }, [step]);
 
   if (!item || !mission || !copy) {
     return (
@@ -221,7 +226,12 @@ export function CultureMissionPlayer() {
         </p>
       </div>
       <header>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">{t("culture.missionEyebrow")}</p>
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">{t("culture.missionEyebrow")}</p>
+          <p className="text-sm text-gold" data-testid="culture-live-stars" aria-hidden>
+            ☆☆☆
+          </p>
+        </div>
         <h1 className="mt-1 text-balance font-serif text-2xl font-semibold text-ink">{copy.title}</h1>
       </header>
       {step ? (
@@ -229,7 +239,6 @@ export function CultureMissionPlayer() {
           <CultureVisual kind={step.visual ?? step.beats?.find((beat) => beat.visual)?.visual} />
           {step.prompt ? <p className="text-sm font-medium leading-6 text-ink">{cultureText(step.prompt, locale)}</p> : null}
           {step.body ? <p className="text-sm leading-6 text-ink">{cultureText(step.body, locale)}</p> : null}
-          {index === 0 ? <p className="text-sm leading-6 text-ink">{copy.situation}</p> : null}
           <div className="space-y-3">
             {(step.beats ?? []).map((beat) => (
               <CultureBeat key={beat.id} beat={beat} locale={locale} />
@@ -260,6 +269,7 @@ export function CultureMissionPlayer() {
                   <button
                     key={row.id}
                     type="button"
+                    data-testid={`culture-seq-${row.id}`}
                     className="min-h-11 rounded-xl border border-line bg-surface px-3 py-2 text-left text-sm"
                     onClick={() => setOrder((current) => [...current, row.id])}
                   >
@@ -275,6 +285,7 @@ export function CultureMissionPlayer() {
                   <button
                     key={`L-${pair.id}`}
                     type="button"
+                    data-testid={`culture-match-left-${pair.id}`}
                     disabled={matched.includes(pair.id)}
                     onClick={() => setPendingLeft(pair.id)}
                     className={["min-h-11 rounded-xl border px-2 py-2 text-left text-sm", pendingLeft === pair.id ? "border-accent bg-accent-soft/40" : "border-line bg-surface"].join(" ")}
@@ -284,10 +295,11 @@ export function CultureMissionPlayer() {
                 ))}
               </div>
               <div className="grid gap-2">
-                {step.matchPairs.map((pair) => (
+                {matchRightPairs.map((pair) => (
                   <button
                     key={`R-${pair.id}`}
                     type="button"
+                    data-testid={`culture-match-right-${pair.id}`}
                     disabled={matched.includes(pair.id)}
                     onClick={() => {
                       if (pendingLeft === pair.id) setMatched((current) => [...current, pair.id]);
@@ -305,6 +317,11 @@ export function CultureMissionPlayer() {
             <p className="text-sm leading-6 text-ink-soft" data-testid="culture-check-feedback">
               {selectedOption.mayVary ? `${t("culture.mayVary")} ` : ""}
               {cultureText(selectedOption.feedback, locale)}
+            </p>
+          ) : null}
+          {revealed && (step.kind === "sequence" || step.kind === "match") ? (
+            <p className="text-sm leading-6 text-ink-soft" data-testid="culture-check-feedback">
+              {gradeCurrent() ? t("culture.checkCorrect") : step.kind === "sequence" ? t("culture.sequenceRetry") : t("culture.checkTryAgain")}
             </p>
           ) : null}
           {step.kind === "culture_summary" ? (

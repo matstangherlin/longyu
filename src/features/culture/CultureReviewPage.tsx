@@ -108,13 +108,14 @@ export function CultureReviewPage() {
           </div>
         ) : null}
         {step?.kind === "sequence" && step.sequence ? (
-          <div className="grid gap-2">
+          <div className="grid gap-2" data-testid="culture-sequence">
             {step.sequence
               .filter((row) => !order.includes(row.id))
               .map((row) => (
                 <button
                   key={row.id}
                   type="button"
+                  data-testid={`culture-seq-${row.id}`}
                   className="min-h-11 rounded-xl border border-line bg-surface px-3 py-2 text-left text-sm"
                   onClick={() => setOrder((current) => [...current, row.id])}
                 >

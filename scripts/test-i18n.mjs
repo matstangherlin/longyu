@@ -176,7 +176,7 @@ try {
 
   const storeSrc = fs.readFileSync(path.join(root, "src/lib/store.ts"), "utf8");
   assert(!storeSrc.includes("INTERFACE_LOCALE_STORAGE_KEY"), "locale is not inside the pedagogical store");
-  assert(/version:\s*21/.test(storeSrc), "pedagogical persist version 21 (Culture Hub)");
+  assert(/version:\s*22/.test(storeSrc), "pedagogical persist version 22 (Culture Quest)");
 
       if (errors.length) throw new Error(errors.join("; "));
       console.log("OK test:i18n");

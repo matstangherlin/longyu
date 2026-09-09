@@ -5213,29 +5213,6 @@ export const useStore = create<AppState>()(
       // v20: Topic Mastery Path — grandfather 4/4 para nós já atrás do ponteiro legado.
       // v21: Culture Hub — progresso cultural separado (completed / saved / started).
       // v22: Culture Quest — mastery, memory, seals. Completed items migrate to 1★.
-      // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
-      // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
-      //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
-      // v3: adiciona o sistema de missões (diárias/semanais/mensal + medalhas)
-      //     com estado zerado; nada de progresso antigo é perdido.
-      // v4: adiciona a Loja (inventário, cosméticos e histórico de compras) vazios.
-      // v5: adiciona o inventário de baús (small/dragon/monthly) zerado.
-      // v6: adiciona ligas locais (tier, entrada semanal, bots simulados e historico).
-      // v7: adiciona baus visuais da Jornada ja abertos.
-      // v8: adiciona medalhas gerais (achievementsUnlocked) e contadores
-      //     vitalicios (lifetimeStats), ambos zerados; nada antigo se perde.
-      // v9: adiciona achievementHistory para auditoria rica de medalhas gerais.
-      // v10: adiciona progresso do Tone Trainer por conta.
-      // v11: adiciona histórico leve de erros recentes para revisão corretiva.
-      // v13: adiciona progresso do HanziBuilder por caractere (guia/dificuldade).
-      // v14: remove preview Pro persistido em produção e normaliza cargas ao plano grátis.
-      // v15: adiciona moduleSkipUsage para cotas semanais do teste de pular.
-      // v16: ofensiva por estudo (lastStudyDate/activityByDay) + cura de aulas 1★+.
-      // v17: Pérolas V2 — marcos, ledger e Pass Pro por Pérolas.
-      // v18: entitlement cloud nunca é hidratado do navegador; servidor é autoridade.
-      // v19: Pedagogia V3 — lessonMasteryById + itemDimensionsByRef (migração segura).
-      // v20: Topic Mastery Path — grandfather 4/4 para nós já atrás do ponteiro legado.
-      // v21: Culture Hub — progresso cultural separado (completed / saved / started).
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;

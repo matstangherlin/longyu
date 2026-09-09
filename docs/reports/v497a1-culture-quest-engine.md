@@ -58,7 +58,7 @@ Todos os CultureItems têm missão com contexto, ≥2 tarefas, feedback, memory 
 | CultureItems convertidos | 18 |
 | Flagship | 6 |
 | CultureSteps | 99 |
-| Story beats | 40 |
+| Story beats | 28 (context beats; flagship dialogue lines included) |
 | Memory targets | 18 |
 | Rotas | 5 |
 | Selos | 7 |
@@ -92,7 +92,7 @@ Mutações 1–12 cobertas (missão ausente, só texto, sem memória, flagship s
 
 ## E2E
 
-`e2e/culture-hub.spec.ts`: hub + próxima missão, feedback contextual (sem "ERRADO"), vitória/estrelas/XP, persistência, PT/EN, l2→missão→volta, **l26c→chopsticks-rest→Jornada**, mobile 390×844.
+`e2e/culture-hub.spec.ts`: hub + próxima missão, categorias recolhidas, feedback contextual (sem "ERRADO"), vitória/estrelas/XP, persistência, PT/EN, l2→missão→volta, **l26c→chopsticks-rest (visual)→Jornada**, **Culture Review**, mobile 390×844. Seeds E2E permanecem em persist v21 para exercitar a migração v22.
 
 ## Não feito (de propósito)
 

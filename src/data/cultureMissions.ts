@@ -137,6 +137,7 @@ function shortMission(
     second: CultureMissionStep;
     extraStory?: CultureMissionStep[];
     takeaways: CultureLocaleText[];
+    visual?: CultureMissionStep["visual"];
   }
 ): CultureMission {
   const item = itemOrThrow(itemId);
@@ -147,10 +148,9 @@ function shortMission(
       id: `${itemId}-context`,
       kind: "story",
       scored: false,
-      prompt: loc(item.titlePt, item.titleEn),
-      body: loc(item.situationPt, item.situationEn),
+      prompt: loc(item.situationPt, item.situationEn),
+      visual: extras.visual,
       beats: [
-        { id: `${itemId}-sit`, speaker: "narrator", text: loc(item.situationPt, item.situationEn) },
         { id: `${itemId}-notice`, speaker: "narrator", text: loc(item.noticePt, item.noticeEn) },
       ],
     },
@@ -961,6 +961,7 @@ const metroQr = ((): CultureMission => {
 
 const chopsticksRest = shortMission("chopsticks-rest", {
   difficulty: 2,
+  visual: "chopsticks-table",
   concept: loc(
     "Pousar os hashis na horizontal é a pausa usual. Espetar no arroz lembra incenso funerário para muita gente.",
     "Resting chopsticks horizontally is the usual pause. Standing them in rice recalls funeral incense for many people."

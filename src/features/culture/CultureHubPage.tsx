@@ -33,6 +33,7 @@ const CATEGORY_FILTERS: Array<{ id: "all" | CultureCategory; key: MessageKey }> 
 export function CultureHubPage() {
   const { t, instructionLocale } = useTranslation();
   const [category, setCategory] = useState<"all" | CultureCategory>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const savedIds = useStore((s) => s.cultureSavedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
@@ -79,6 +80,9 @@ export function CultureHubPage() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">{t("culture.passportEyebrow")}</p>
         <p className="mt-1 font-serif text-xl font-semibold text-ink">{t("culture.passportTitle")}</p>
         <p className="mt-2 text-sm font-semibold text-ink">{t("culture.progressCount", { done, total })}</p>
+        <p className="text-xs text-ink-soft" data-testid="culture-seal-count">
+          {t("culture.sealCount", { n: seals.length })}
+        </p>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-2">
           <div className="h-full bg-accent" style={{ width: `${Math.round((done / total) * 100)}%` }} />
         </div>
@@ -157,9 +161,19 @@ export function CultureHubPage() {
       </HubSection>
 
       <HubSection title={t("culture.explore")}>
-        <div className="flex gap-2 overflow-x-auto pb-1" data-testid="culture-category-filter">
-          {filterButtons}
-        </div>
+        <button
+          type="button"
+          className="min-h-11 text-sm font-medium text-accent"
+          data-testid="culture-show-categories"
+          onClick={() => setShowFilters((open) => !open)}
+        >
+          {showFilters ? t("culture.hideCategories") : t("culture.showCategories")}
+        </button>
+        {showFilters ? (
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1" data-testid="culture-category-filter">
+            {filterButtons}
+          </div>
+        ) : null}
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {items.map((item) => (
             <CultureCard

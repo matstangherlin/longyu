@@ -8,32 +8,51 @@ import {
   waitForLazyPage,
 } from "./helpers";
 
+const SEQUENCE_ORDERS = [
+  ["notice", "decide", "thanks"],
+  ["off", "in", "move"],
+  ["wait-serve", "serve-others", "taste"],
+  ["ask", "scan", "confirm"],
+  ["shoes", "observe"],
+];
+
 async function playCurrentStep(page: Page, wrongFirst = false) {
-  const options = page.locator('[data-testid^="culture-option-"]');
-  if ((await options.count()) > 0 && !(await page.getByTestId("culture-check-feedback").isVisible().catch(() => false))) {
-    if (wrongFirst) {
-      const optionA = page.getByTestId("culture-option-a");
-      if (await optionA.count()) await optionA.click();
-    } else {
-      const optionB = page.getByTestId("culture-option-b");
-      if (await optionB.count()) await optionB.click();
-      else await options.first().click();
-    }
-  }
+  if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
+
   const sequence = page.getByTestId("culture-sequence");
-  if (await sequence.count()) {
+  if (await sequence.isVisible().catch(() => false)) {
     const buttons = sequence.locator("button");
     const n = await buttons.count();
-    for (let i = 0; i < n; i += 1) await buttons.nth(0).click();
-  }
-  const match = page.getByTestId("culture-match");
-  if (await match.count()) {
-    const left = match.locator("div").first().locator("button");
-    const right = match.locator("div").nth(1).locator("button");
-    const n = await left.count();
+    const ids: string[] = [];
     for (let i = 0; i < n; i += 1) {
-      await left.nth(i).click();
-      await right.nth(i).click();
+      const testid = await buttons.nth(i).getAttribute("data-testid");
+      ids.push((testid ?? "").replace("culture-seq-", ""));
+    }
+    const order = SEQUENCE_ORDERS.find((row) => row.length === ids.length && row.every((id) => ids.includes(id))) ?? ids;
+    for (const id of order) {
+      await page.getByTestId(`culture-seq-${id}`).click();
+    }
+  } else if (await page.getByTestId("culture-match").isVisible().catch(() => false)) {
+    const lefts = page.locator('[data-testid^="culture-match-left-"]');
+    const n = await lefts.count();
+    for (let i = 0; i < n; i += 1) {
+      const testid = await lefts.nth(i).getAttribute("data-testid");
+      const id = (testid ?? "").replace("culture-match-left-", "");
+      await page.getByTestId(`culture-match-left-${id}`).click();
+      await page.getByTestId(`culture-match-right-${id}`).click();
+    }
+  } else {
+    const options = page.locator('[data-testid^="culture-option-"]');
+    if ((await options.count()) > 0 && !(await page.getByTestId("culture-check-feedback").isVisible().catch(() => false))) {
+      if (wrongFirst) {
+        const optionA = page.getByTestId("culture-option-a");
+        if (await optionA.count()) await optionA.click();
+        else await options.first().click();
+      } else {
+        const optionB = page.getByTestId("culture-option-b");
+        if (await optionB.count()) await optionB.click();
+        else await options.first().click();
+      }
     }
   }
   await page.getByTestId("culture-complete").click();
@@ -49,6 +68,39 @@ async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
   await expect(page.getByTestId("culture-victory")).toBeVisible();
 }
 
+async function seedDueCultureReview(page: Page) {
+  await page.evaluate(() => {
+    const raw = localStorage.getItem("longyu-v1");
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as {
+      state: {
+        currentAccountId?: string;
+        cultureMemoryById?: Record<string, unknown>;
+        accounts?: Record<string, { cultureMemoryById?: Record<string, unknown> }>;
+      };
+    };
+    const due = Date.now() - 60_000;
+    const row = {
+      targetId: "visiting-home-core",
+      cultureItemId: "visiting-home",
+      due,
+      stage: 0,
+      reps: 0,
+      lapses: 0,
+      updatedAt: Date.now(),
+    };
+    parsed.state.cultureMemoryById = { ...(parsed.state.cultureMemoryById ?? {}), [row.targetId]: row };
+    const accountId = parsed.state.currentAccountId;
+    if (accountId && parsed.state.accounts?.[accountId]) {
+      parsed.state.accounts[accountId].cultureMemoryById = {
+        ...(parsed.state.accounts[accountId].cultureMemoryById ?? {}),
+        [row.targetId]: row,
+      };
+    }
+    localStorage.setItem("longyu-v1", JSON.stringify(parsed));
+  });
+}
+
 test.describe("V4.9.7A.1 Culture Quest Engine", () => {
   test("hub shows next mission, plays a mission with contextual feedback, and persists", async ({ page }) => {
     await seedOnboardedSession(page, ["l1"], { replace: false });
@@ -58,7 +110,10 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await expect(page.getByTestId("culture-hub")).toBeVisible();
     await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 18/);
     await expect(page.getByTestId("culture-next-cta")).toBeVisible();
+    await expect(page.getByTestId("culture-seals")).toBeVisible();
+    await expect(page.getByTestId("culture-show-categories")).toBeVisible();
 
+    await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-home_visits").click();
     const cards = page.getByTestId("culture-card");
     await expect(cards.first()).toBeVisible();
@@ -85,8 +140,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await expect(page.getByTestId("culture-hub")).toBeVisible();
     await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 18/);
 
-    await page.getByTestId("culture-filter-all").click();
-    await page.locator('[data-testid="culture-card"][data-culture-id="digital-pay"]').click();
+    await page.getByTestId("culture-node-digital-pay").click();
     await waitForLazyPage(page);
     await page.getByTestId("culture-save").click();
     await expect(page.getByTestId("culture-save")).toContainText(/Salvo|Saved/i);
@@ -117,7 +171,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').click();
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: "Arriving at someone's home" })).toBeVisible();
-    await expect(page.getByText("You are at a classmate's front door.")).toBeVisible();
+    await expect(page.getByText("You were invited to dinner at Mei's home.")).toBeVisible();
   });
 
   test("invalid culture id does not crash the route", async ({ page }) => {
@@ -158,10 +212,32 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/cultura\/chopsticks-rest/);
     await expect(page.getByTestId("culture-item")).toBeVisible();
+    await expect(page.getByTestId("culture-visual-chopsticks")).toBeVisible();
     await playMissionToVictory(page);
     await page.getByTestId("culture-back-journey").click();
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/licao\/l26c$/);
+  });
+
+  test("culture review session does not use lexical SRS chrome", async ({ page }) => {
+    await seedOnboardedSession(page, ["l1"]);
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await seedDueCultureReview(page);
+    await page.reload();
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-review-card")).toBeVisible();
+    await page.getByTestId("culture-review-cta").click();
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-review")).toBeVisible();
+    for (let i = 0; i < 12; i += 1) {
+      if (await page.getByTestId("culture-review-done").isVisible().catch(() => false)) break;
+      await playCurrentStep(page);
+    }
+    await expect(page.getByTestId("culture-review-done")).toBeVisible();
+    await expect(page.getByTestId("srs-card")).toHaveCount(0);
   });
 
   test("lesson player does not show a culture card mid-exercise", async ({ page }) => {

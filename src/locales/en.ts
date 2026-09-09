@@ -2058,6 +2058,7 @@ export const en: MessageCatalog = {
     reviewDone: "Cultural review complete.",
     currentRoute: "Cultural routes",
     sealsTitle: "Seals",
+    sealCount: "{n} seals earned",
     explore: "Explore",
     missionEyebrow: "Culture mission",
     missionProgress: "{current} / {total}",

@@ -2064,6 +2064,7 @@ export const ptBR = {
     reviewDone: "Revisão cultural concluída.",
     currentRoute: "Rotas culturais",
     sealsTitle: "Selos",
+    sealCount: "{n} selos conquistados",
     explore: "Explorar",
     missionEyebrow: "Missão cultural",
     missionProgress: "{current} / {total}",

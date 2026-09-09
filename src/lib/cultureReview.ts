@@ -33,31 +33,48 @@ export function buildCultureReviewSession(
   now = Date.now(),
   limit = 5
 ): CultureReviewTask[] {
-  const due = dueCultureMemoryTargets(memoryById, now).slice(0, Math.max(3, Math.min(7, limit)));
+  const cap = Math.max(3, Math.min(7, limit));
+  const due = dueCultureMemoryTargets(memoryById, now);
   const catalog = new Map(allCultureMemoryTargets().map((target) => [target.id, target]));
   const tasks: CultureReviewTask[] = [];
-  for (const row of due) {
+
+  function tryPush(row: CultureMemoryRecord, variantIndex: number): boolean {
     const target = catalog.get(row.targetId);
-    if (!target) continue;
-    const variant = target.reviewVariants[row.reps % target.reviewVariants.length];
-    if (!variant) continue;
-    const step = variantToStep(target.id, variant, row.reps);
+    if (!target) return false;
+    const variant = target.reviewVariants[variantIndex % target.reviewVariants.length];
+    if (!variant) return false;
+    const step = variantToStep(target.id, variant, variantIndex);
     const prompt = `${cultureText(step.prompt, "pt-BR")} ${cultureText(step.prompt, "en")}`;
     const answers = (step.options ?? [])
       .filter((option) => option.preferred)
       .map((option) => `${option.label.pt} ${option.label.en}`);
     if (answers.some((answer) => answer.trim() && prompt.includes(answer.trim()))) {
-      continue;
+      return false;
     }
+    const id = `${step.id}-${variantIndex}`;
+    if (tasks.some((task) => task.id === id)) return false;
     tasks.push({
-      id: step.id,
+      id,
       targetId: target.id,
       cultureItemId: target.cultureItemId,
       step,
     });
-    if (tasks.length >= limit) break;
+    return true;
   }
-  return tasks;
+
+  for (const row of due) {
+    tryPush(row, row.reps);
+    if (tasks.length >= cap) break;
+  }
+  if (tasks.length < 3) {
+    for (const row of due) {
+      for (let extra = 1; extra < 3 && tasks.length < 3; extra += 1) {
+        tryPush(row, row.reps + extra);
+      }
+      if (tasks.length >= 3) break;
+    }
+  }
+  return tasks.slice(0, cap);
 }
 
 export function reviewDoesNotTouchSrsKeys(patch: Record<string, unknown>): boolean {
