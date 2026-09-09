@@ -7,7 +7,7 @@ import {
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
+import { advanceOneStep, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 
 /** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
 export const MOBILE_VIEWPORTS = [
@@ -477,6 +477,14 @@ export async function advanceUntilSelector(
     ]);
     if (skippedSpeak) {
       await page.waitForTimeout(120);
+      continue;
+    }
+    const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
+      name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
+    });
+    if (!keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
+      await clickIfEnabled(conversationCta.first());
+      await page.waitForTimeout(180);
       continue;
     }
     const skipped = allowSkip ? await clickFirstVisible(page, [/^Pular/]) : false;

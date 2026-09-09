@@ -169,7 +169,7 @@ export function assemblyTileClass({
     // Peça já usada: menos proeminente, nunca ilegível. `opacity 0.35 +
     // grayscale` derrubava o contraste efetivo para 1.85:1 — mancha, não peça.
     // A de-ênfase agora vem de tokens medíveis, não de um véu sobre tudo.
-    muted && "border-line/50 bg-surface-2 text-ink-soft",
+    muted && "border-line/50 bg-surface-2 text-ink",
     !active && !matched && !wrong && !muted && "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-accent-soft hover:bg-surface-2",
   ]
     .filter(Boolean)

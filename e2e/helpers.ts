@@ -126,33 +126,43 @@ export async function dismissJourneyCultureBridgeIfOpen(
   const bridge = page.getByTestId("culture-bridge");
   if (!(await bridge.isVisible().catch(() => false))) return false;
 
-  const seqButtons = bridge.locator('[data-testid^="culture-bridge-seq-"]');
-  const seqCount = await seqButtons.count();
-  for (let i = 0; i < seqCount; i += 1) {
-    const button = seqButtons.nth(i);
-    if (!(await button.isVisible().catch(() => false))) continue;
-    if (await button.isDisabled().catch(() => false)) continue;
-    await button.click({ timeout: 1_500 }).catch(() => undefined);
-  }
+  let progressed = false;
+  for (let phase = 0; phase < 6; phase += 1) {
+    if (!(await bridge.isVisible().catch(() => false))) return progressed;
 
-  const optionButtons = bridge.locator('[data-testid^="culture-bridge-option-"]');
-  if ((await optionButtons.count()) > 0) {
-    const preferred = bridge.getByTestId("culture-bridge-option-b");
-    const pick =
-      (await preferred.isVisible().catch(() => false)) && !(await preferred.isDisabled().catch(() => false))
-        ? preferred
-        : optionButtons.first();
-    if (!(await pick.isDisabled().catch(() => true))) {
-      await pick.click({ timeout: 1_500 }).catch(() => undefined);
+    const seqButtons = bridge.locator('[data-testid^="culture-bridge-seq-"]');
+    const seqCount = await seqButtons.count();
+    for (let i = 0; i < seqCount; i += 1) {
+      const button = seqButtons.nth(i);
+      if (!(await button.isVisible().catch(() => false))) continue;
+      if (await button.isDisabled().catch(() => false)) continue;
+      await button.click({ timeout: 1_500, force: true }).catch(() => undefined);
+      progressed = true;
     }
-  }
 
-  const cta = bridge.getByTestId("culture-bridge-continue");
-  if (await cta.isVisible().catch(() => false) && !(await cta.isDisabled().catch(() => true))) {
-    await cta.click({ timeout: 2_000 }).catch(() => undefined);
-    return true;
+    const optionButtons = bridge.locator('[data-testid^="culture-bridge-option-"]');
+    if ((await optionButtons.count()) > 0) {
+      const preferred = bridge.getByTestId("culture-bridge-option-b");
+      const pick =
+        (await preferred.isVisible().catch(() => false)) && !(await preferred.isDisabled().catch(() => false))
+          ? preferred
+          : optionButtons.first();
+      if (!(await pick.isDisabled().catch(() => true))) {
+        await pick.click({ timeout: 1_500, force: true }).catch(() => undefined);
+        progressed = true;
+      }
+    }
+
+    const cta = bridge.getByTestId("culture-bridge-continue");
+    if (await cta.isVisible().catch(() => false) && !(await cta.isDisabled().catch(() => true))) {
+      await cta.click({ timeout: 2_000, force: true }).catch(() => undefined);
+      progressed = true;
+      await page.waitForTimeout(120);
+      continue;
+    }
+    break;
   }
-  return Boolean(await bridge.isVisible().catch(() => false));
+  return progressed || Boolean(await bridge.isVisible().catch(() => false));
 }
 
 export async function dismissBlockingOverlays(page: Page) {
