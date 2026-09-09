@@ -1323,6 +1323,22 @@ function profileForLesson(lesson: Lesson, focus: FocusItem[]): LessonPracticePro
   const maxPinyinTasks = maxPinyinTasksForLesson(lesson, pinyinRich);
 
   // Aula dedicada de montagem: muitos builders, dificuldade misturada.
+  if (lessonAllowsImmersionScenes(lesson) && lesson.isReview) {
+    const targetCount = Math.max(16, Math.min(18, Math.max(authoredCount + 4, 16)));
+    return {
+      targetCount,
+      stageTargets: { intro: 1, recognition: 3, assembly: 2, usage: 7, post_conversation: 0, consolidation: 3 },
+      minHanziBuilds: 0,
+      maxHanziBuilds: 1,
+      perCharBuildCap: 1,
+      maxPinyinTasks,
+      needsPinyinTask: pinyinRich,
+      maxConversationScenes: 1,
+      maxImageChoices: 2,
+      isReview: Boolean(lesson.isReview),
+    };
+  }
+
   if (isDedicatedBuilderLesson(lesson)) {
     const builds = authoredBuilderCount(lesson);
     const maxBuilds = Math.min(6, builds);
@@ -4101,6 +4117,12 @@ function supplementalStepsForStage(
   // plano de antes; o que muda é de ONDE o número vem.
   const variantSeedBase = 65 + (options.variantSeedOffset ?? 0);
   const enablePedagogyVariants = options.enablePedagogyVariants ?? true;
+  const currentLesson = options.lessonId
+    ? ALL_LESSONS.find((item) => item.id === options.lessonId)
+    : undefined;
+  const skipGeneratedProduction = Boolean(
+    currentLesson?.isReview && lessonAllowsImmersionScenes(currentLesson)
+  );
   const push = (step: LessonStep | null) => {
     if (!step || result.length >= targetCount) return;
     if (result.some((candidate) => stepSignature(candidate) === stepSignature(step))) return;
@@ -4254,7 +4276,7 @@ function supplementalStepsForStage(
       }
       if (result.length >= targetCount) break;
     }
-    if (!foundationLite) {
+    if (!foundationLite && !skipGeneratedProduction) {
       push(
         makeFreeProductionStep(
           knownGlyphs,
@@ -4264,6 +4286,8 @@ function supplementalStepsForStage(
           picks
         )
       );
+    }
+    if (!foundationLite) {
       push(makeConversationRepairStep(knownGlyphs, drillSeed + variantSeedBase, primary));
       push(makeOldPhraseReuseStep(focus, options.lessonId ? ALL_LESSONS.find((item) => item.id === options.lessonId) : undefined));
     }
@@ -4296,7 +4320,8 @@ function supplementalStepsForStage(
     const transferBlocked =
       options.curriculumRole === "perception_lab" ||
       options.curriculumRole === "hanzi_lab" ||
-      FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "");
+      FOUNDATION_LESSON_IDS.includes(options.lessonId ?? "") ||
+      skipGeneratedProduction;
     if (!transferBlocked) {
       push(
         makeTransferStep(
@@ -4311,9 +4336,11 @@ function supplementalStepsForStage(
         )
       );
     }
-    if (!foundationLite) {
+    if (!foundationLite && !skipGeneratedProduction) {
       push(makeFreeProductionStep(knownGlyphs, variantSeed, undefined, options.structureExposure, picks));
       push(makeOpenProductionStep(knownGlyphs, variantSeed, options.structureExposureForTransfer ?? options.structureExposure, picks));
+    }
+    if (!foundationLite) {
       push(makeConversationRepairStep(knownGlyphs, variantSeed, primary));
     }
     if (allowConversation) {
@@ -4696,6 +4723,23 @@ function generatedCandidatesFor(
     for (const step of generated) {
       const packetExchange = String(step.sceneId ?? "").startsWith("packet-exchange-");
       const hasAuthoredConversation = lesson.steps.some((item) => item.kind === "conversation_scene");
+      // Imersão autoral e o arco de restaurante não disputam o único/primeiro
+      // slot com troca gerada do packet — senão pedir-cardapio some do plano.
+      if (
+        packetExchange &&
+        hasAuthoredConversation &&
+        (lesson.isReview && lessonAllowsImmersionScenes(lesson) ||
+          lesson.steps.some((item) => item.sceneId === "pedir-cardapio" || item.sceneId === "imersao-restaurante"))
+      ) {
+        continue;
+      }
+      if (
+        lesson.isReview &&
+        lessonAllowsImmersionScenes(lesson) &&
+        (step.kind === "transfer_task" || step.kind === "free_production")
+      ) {
+        continue;
+      }
       // Com cena autoral na lição, a troca do packet disputa o 2º slot.
       // Sem autoral, fica um pouco atrás do catálogo no 1º slot.
       const packetBias = packetExchange ? (hasAuthoredConversation ? 15 : -8) : 0;
@@ -5095,7 +5139,12 @@ function ensureCoverage(
   // pós-conversa. A PRIMEIRA cena é protegida. A segunda nunca pode expulsar
   // produção/transferência — entra depois, sem protect.
   if (profile.maxConversationScenes > 0) {
-    ensure((candidate) => candidate.step.kind === "conversation_scene", true);
+    const hasAuthoredConversation = lesson.steps.some((step) => step.kind === "conversation_scene");
+    if (hasAuthoredConversation) {
+      ensure((candidate) => candidate.step.kind === "conversation_scene" && !candidate.generated, true);
+    } else {
+      ensure((candidate) => candidate.step.kind === "conversation_scene", true);
+    }
   }
   const AUDIO_STEP_KINDS: ReadonlySet<StepKind> = new Set([
     "listen",
@@ -5190,6 +5239,15 @@ function ensureCoverage(
   // Produção aberta e transferência: só entram no pool quando a estrutura já
   // foi praticada. Sem reserva, o score de outros motores as engolia e o
   // degrau final da escada sumia do plano real.
+  const authoredFreeCount = lesson.steps.filter((step) => step.kind === "free_production").length;
+  if (authoredFreeCount > 0 && lessonAllowsImmersionScenes(lesson) && lesson.isReview) {
+    ensureCount(
+      (candidate) => candidate.step.kind === "free_production" && !candidate.generated,
+      authoredFreeCount,
+      true
+    );
+    ensure((candidate) => candidate.step.kind === "listen_select" && !candidate.generated, true);
+  }
   ensure(
     (candidate) => candidate.step.kind === "free_production" && !candidate.generated,
     true
@@ -5198,7 +5256,8 @@ function ensureCoverage(
   const transferBlockedInLesson =
     lesson.curriculumRole === "perception_lab" ||
     lesson.curriculumRole === "hanzi_lab" ||
-    FOUNDATION_LESSON_IDS.includes(lesson.id);
+    FOUNDATION_LESSON_IDS.includes(lesson.id) ||
+    (lesson.isReview === true && lessonAllowsImmersionScenes(lesson));
   const hasTransferCandidate = candidates.some((candidate) => candidate.step.kind === "transfer_task");
   // V4.5: primeira transferência combinacional pode cair na revisão pós-请问 (≤ L15)
   // mesmo em fase 1–2 — desde que o pool tenha candidato elegível e não seja lab.
@@ -5214,7 +5273,9 @@ function ensureCoverage(
     }
   }
 
-  if (!earlyPedagogy) {
+  const skipGeneratedProduction =
+    lesson.isReview === true && lessonAllowsImmersionScenes(lesson);
+  if (!earlyPedagogy && !skipGeneratedProduction) {
     ensure(
       (candidate) => candidate.step.kind === "free_production" && Boolean(candidate.step.productionOpen),
       true
@@ -6248,7 +6309,7 @@ function shouldCompressPracticePlan(lesson: Lesson): boolean {
   return (
     FOUNDATION_LESSON_IDS.includes(lesson.id) ||
     lesson.curriculumRole === "perception_lab" ||
-    Boolean(lesson.isReview)
+    (Boolean(lesson.isReview) && !lessonAllowsImmersionScenes(lesson))
   );
 }
 

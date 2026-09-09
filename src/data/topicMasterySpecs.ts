@@ -521,9 +521,9 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
   l26b: {
     topicId: "l26b",
     promise: "Pedir no cardápio: descobrir pratos, reconhecer, pedir, resolver um pedido novo.",
-    mustUnderstand: ["我要 + prato é um pedido, não um cumprimento."],
-    mustRecognize: ["饭", "菜", "肉", "鱼", "喝"],
-    mustProduce: ["pedir um item do cardápio"],
+    mustUnderstand: ["我要 + prato é um pedido, não um cumprimento.", "请问几位 pergunta com quantas pessoas você veio."],
+    mustRecognize: ["饭", "菜", "肉", "鱼", "喝", "位"],
+    mustProduce: ["pedir um item do cardápio", "pedir a conta"],
     mustTransfer: ["fazer um pedido numa situação de restaurante"],
     commonMisconceptions: ["O cardápio se resolve só com 你好."],
     passObjectives: {

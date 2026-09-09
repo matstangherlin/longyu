@@ -6,36 +6,36 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7f4a081846d3 |
-| HEAD no instante da geração | a5cb1f1f3a880ecb3645d8851e48925611589575 |
+| Hash da Jornada | 2cee619aadde |
+| HEAD no instante da geração | dae6d1770bc453d0793e896669931399769249cf |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-08T23:09:24.113Z |
-| Lições | 127 |
+| Gerado em | 2026-09-09T03:03:41.488Z |
+| Lições | 128 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Estruturas (frames) declaradas | 21 |
-| Tarefas geradas pelos frames | 157 |
-| — produção (frase já ensinada) | 74 |
+| Tarefas geradas pelos frames | 158 |
+| — produção (frase já ensinada) | 75 |
 | — transferência (combinação inédita) | 83 |
 | Objetivos comunicativos | 15 |
 | Tarefas que aceitam frase irmã | 44 |
 | Objetivos de produção aberta declarados | 13 |
-| Objetivos de produção aberta no plano real | 10 |
-| Lições com produção aberta | 45 / 127 |
-| Falas de conversa sem apoio (aluno veterano) | 196 |
-| Lições com conversa sem apoio | 97 / 127 |
-| Lições com quebra de comunicação jogável | 87 / 127 |
+| Objetivos de produção aberta no plano real | 8 |
+| Lições com produção aberta | 45 / 128 |
+| Falas de conversa sem apoio (aluno veterano) | 200 |
+| Lições com conversa sem apoio | 98 / 128 |
+| Lições com quebra de comunicação jogável | 87 / 128 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 528 |
-| Lições com produção livre | 77 / 127 |
-| Lições com transferência | 23 / 127 |
-| Lições com reparo conversacional | 54 / 127 |
-| Estruturas diferentes no plano real | 16 |
-| Frases inéditas cobradas | 31 |
+| Passos auditados no plano real (3 tentativas) | 545 |
+| Lições com produção livre | 79 / 128 |
+| Lições com transferência | 23 / 128 |
+| Lições com reparo conversacional | 55 / 128 |
+| Estruturas diferentes no plano real | 15 |
+| Frases inéditas cobradas | 26 |
 | Transfer guided / supported / question | 31 / 19 / 17 |
 | 1ªs transferências (attempt 0) | 23 |
 
@@ -54,49 +54,44 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l19-logica-luz** · `frame_woyouge` · guided · âncora 我有三个朋友 → `我有四个朋友。`
 - **l26** · `frame_wozai` · guided · âncora 我在学中文 → `我在喝水。`
 - **l26b** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢中国。`
-- **l27** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢茶。`
+- **l27** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢鱼。`
 - **l28** · `frame_wozai` · guided · âncora 我在学中文 → `我在吃饭。`
 - **p6-cidade-lugares** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢鱼。`
-- **p6-china-cidades** · `frame_woqu` · guided · âncora 我去学校 → `我明天去医院。`
-- **p6-china-cidades-2** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
-- **p6-china-ruas** · `frame_woxiangchi` · guided · âncora 我想吃米饭 → `我想吃鱼。`
+- **p6-china-cidades** · `frame_woqu` · guided · âncora 我去学校 → `我明天去银行。`
+- **p6-china-cidades-2** · `frame_woqu` · guided · âncora 我去学校 → `我今天去火车站。`
+- **p6-china-ruas** · `frame_woqu` · guided · âncora 我去学校 → `我今天去医院。`
 - **p6-saude** · `frame_wo_le` · guided · âncora 我饿了 → `我睡觉了。`
 - **p6-natureza** · `frame_woxiangchi` · guided · âncora 我想吃米饭 → `我想吃肉。`
-- **p6-clima** · `frame_woxianghe` · guided · âncora 我想喝茶 → `我想喝热水。`
+- **p6-clima** · `frame_woyao` · guided · âncora 我要这个 → `我要热水。`
 - …mais 8.
 
 ## Frases inéditas cobradas por transferência
 
-- 书多少钱
 - 你要水
 - 你要水吗
-- 你要苹果吗
-- 你要茶
+- 你要苹果
 - 你要菜吗
-- 我今天去超市
+- 我今天去医院
+- 我今天去火车站
 - 我喜欢中国
-- 我喜欢茶
+- 我喜欢苹果
 - 我喜欢鱼
+- 我回家了
 - 我在吃饭
 - 我在喝水
 - 我想吃肉
-- 我想吃鱼
-- 我想喝热水
-- 我明天去医院
 - 我明天去银行
 - 我有一个朋友
-- 我有一个香蕉
+- 我有三个香蕉
 - 我有五个朋友
 - 我有四个朋友
 - 我睡觉了
-- 我要买书
+- 我要买苹果
 - 我要热水
-- 衣服多少钱
+- 茶多少钱
 - 请问你叫什么
 - 请问医院在哪里
 - 请问超市在哪里
 - 请问车站在哪里
-- 车站在哪里
-- 香蕉多少钱
 
-<!-- integridade:47002692fbb0e612 -->
+<!-- integridade:f89b5ae3726e5cee -->

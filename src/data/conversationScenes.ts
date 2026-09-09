@@ -4,6 +4,14 @@ import {
   ROUTINE_TIME_ROUTINE_NODES,
   ROUTINE_TIME_TOMORROW_NODES,
 } from "./routineTimeScenes";
+import {
+  IMERSAO_RESTAURANTE_BRANCHED_NODES,
+  IMERSAO_RESTAURANTE_LEARNED_REFS,
+  PEDIR_CARDAPIO_LEARNED_REFS,
+  PEDIR_CARDAPIO_NODES,
+  REVISAO_RESTAURANTE_LEARNED_REFS,
+  REVISAO_RESTAURANTE_NODES,
+} from "./restaurantSurvivalScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
@@ -127,9 +135,28 @@ export type ConversationSpeechAct =
   | "ask_name"
   | "tell_name"
   | "ask_wellbeing"
-  | "tell_wellbeing";
+  | "tell_wellbeing"
+  | "ask_party_size"
+  | "tell_party_size"
+  | "offer_menu"
+  | "request_menu"
+  | "ask_order"
+  | "place_order"
+  | "confirm_order"
+  | "request_bill"
+  | "refuse_offer"
+  | "accept_offer"
+  | "get_attention"
+  | "praise_food";
 
-export type ConversationRepairType = "repeat" | "clarify" | "confirm_time" | "reask";
+export type ConversationRepairType =
+  | "repeat"
+  | "clarify"
+  | "confirm_time"
+  | "reask"
+  | "confirm_quantity"
+  | "reask_order"
+  | "confirm_bill";
 
 export interface ConversationInteraction {
   type: ConversationInteractionType;
@@ -2528,85 +2555,8 @@ sceneV2({
   characters: PAIR_LIN_WANG,
   sceneRole: "module_review",
   entryNodeId: "rest-1",
-  nodes: [
-    { id: "rest-1", speakerId: "lin", hanzi: "我饿了！我们吃饭吧！", pinyin: "wǒ è le! wǒmen chīfàn ba!", pt: "Estou com fome! Vamos comer!", emotion: "thinking", nextNodeId: "rest-2" },
-    {
-      id: "rest-2",
-      speakerId: "wang",
-      hanzi: "你好！",
-      pinyin: "nǐ hǎo!",
-      pt: "Olá! O que você quer?",
-      emotion: "happy",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Peça apontando para o prato.",
-        options: ["我要这个", "再见", "你好吗", "太贵了"],
-        correctAnswer: "我要这个",
-        correctNextNodeId: "rest-4",
-        wrongNextNodeId: "rest-3",
-        explanation: "我要这个 = eu quero este.",
-      },
-    },
-    { id: "rest-3", speakerId: "wang", hanzi: "请再说一遍：我要这个。", pinyin: "qǐng zài shuō yí biàn: wǒ yào zhège.", pt: "Tente de novo: eu quero este.", emotion: "thinking", nextNodeId: "rest-2" },
-    {
-      id: "rest-4",
-      speakerId: "wang",
-      hanzi: "好！你想喝茶吗？",
-      pinyin: "hǎo! nǐ xiǎng hē chá ma?",
-      pt: "Está bem! Quer beber chá?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Aceite o chá.",
-        options: ["我想喝茶", "再见", "太贵了", "我很好"],
-        correctAnswer: "我想喝茶",
-        correctNextNodeId: "rest-6",
-        wrongNextNodeId: "rest-5",
-        explanation: "我想喝茶 aceita: quero beber chá.",
-      },
-    },
-    { id: "rest-5", speakerId: "wang", hanzi: "茶。请再说一遍。", pinyin: "chá. qǐng zài shuō yí biàn.", pt: "Chá. Tente de novo.", emotion: "thinking", nextNodeId: "rest-4" },
-    { id: "rest-6", speakerId: "lin", hanzi: "我想喝茶。", pinyin: "wǒ xiǎng hē chá.", pt: "Quero beber chá.", nextNodeId: "rest-6b" },
-    { id: "rest-6b", speakerId: "wang", hanzi: "好吃吗？", pinyin: "hǎochī ma?", pt: "Está gostoso?", emotion: "thinking", nextNodeId: "rest-7" },
-    {
-      id: "rest-7",
-      speakerId: "lin",
-      hanzi: "很好吃！",
-      pinyin: "hěn hǎochī!",
-      pt: "Muito gostoso!",
-      emotion: "happy",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus achou da comida?",
-        options: ["Muito gostosa.", "Muito cara.", "Ele não entendeu.", "Ele quer três."],
-        correctAnswer: "Muito gostosa.",
-        correctNextNodeId: "rest-9",
-        wrongNextNodeId: "rest-8",
-        explanation: "很好吃 elogia comida: muito gostoso.",
-      },
-    },
-    { id: "rest-8", speakerId: "wang", hanzi: "好吃，很好吃。", pinyin: "hǎochī, hěn hǎochī.", pt: "Gostoso, muito gostoso.", emotion: "thinking", nextNodeId: "rest-7" },
-    { id: "rest-9", speakerId: "lin", hanzi: "多少钱？", pinyin: "duōshao qián?", pt: "Quanto custa?", nextNodeId: "rest-10" },
-    {
-      id: "rest-10",
-      speakerId: "wang",
-      hanzi: "十。",
-      pinyin: "shí.",
-      pt: "Dez.",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "Qual foi o preço?",
-        options: ["Dez.", "Três.", "Muito caro.", "Chá."],
-        correctAnswer: "Dez.",
-        correctNextNodeId: "rest-12",
-        wrongNextNodeId: "rest-11",
-        explanation: "十 = dez.",
-      },
-    },
-    { id: "rest-11", speakerId: "wang", hanzi: "十。请再说一遍。", pinyin: "shí. qǐng zài shuō yí biàn.", pt: "Dez. Tente de novo.", emotion: "thinking", nextNodeId: "rest-10" },
-    { id: "rest-12", speakerId: "lin", hanzi: "好，谢谢！", pinyin: "hǎo, xièxie!", pt: "Está bem, obrigado!", emotion: "happy", nextNodeId: "rest-13" },
-    { id: "rest-13", speakerId: "wang", hanzi: "谢谢！再见！", pinyin: "xièxie! zàijiàn!", pt: "Obrigado! Até logo!", emotion: "happy" },
-  ],
-  learnedRefs: ["chunk:woele", "chunk:nihao", "chunk:woyao", "chunk:qingzaishuoyibian", "chunk:woxianghe", "chunk:haochi", "chunk:duoshaoqian", "char:shi10", "chunk:xiexie", "chunk:zaijian", "chunk:nihaoma", "chunk:taiguile", "chunk:wohenhao"],
+  nodes: REVISAO_RESTAURANTE_NODES,
+  learnedRefs: REVISAO_RESTAURANTE_LEARNED_REFS,
   newRefs: ["chunk:womenchifanba"],
 }),
 sceneV2({
@@ -3297,133 +3247,21 @@ sceneV2({
   setting: "shop",
   characters: PAIR_LIN_WANG,
   sceneRole: "module_review",
-  entryNodeId: "cardapio-1",
-  nodes: [
-    { id: "cardapio-1", speakerId: "lin", hanzi: "我饿了！我们吃饭吧！", pinyin: "wǒ è le! wǒmen chīfàn ba!", pt: "Estou com fome! Vamos comer!", emotion: "thinking", nextNodeId: "cardapio-2" },
-    { id: "cardapio-2", speakerId: "wang", hanzi: "你好！", pinyin: "nǐ hǎo!", pt: "Olá!", emotion: "happy", nextNodeId: "cardapio-2b" },
-    { id: "cardapio-2b", speakerId: "lin", hanzi: "服务员！", pinyin: "fúwùyuán!", pt: "Garçom!", emotion: "thinking", nextNodeId: "cardapio-3" },
-    {
-      id: "cardapio-3",
-      speakerId: "wang",
-      hanzi: "你要米饭吗？",
-      pinyin: "nǐ yào mǐfàn ma?",
-      pt: "Você quer arroz?",
-      emotion: "thinking",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Peça arroz (米饭).",
-        options: ["我要米饭", "我要菜", "再见", "我很好"],
-        correctAnswer: "我要米饭",
-        correctNextNodeId: "cardapio-5",
-        wrongNextNodeId: "cardapio-4",
-        explanation: "我要米饭 pede arroz — pedido produtivo do cardápio.",
-        accepts: ["我想吃米饭", "我要饭"],
-      },
-    },
-    { id: "cardapio-4", speakerId: "wang", hanzi: "米饭。请再说一遍。", pinyin: "mǐfàn. qǐng zài shuō yí biàn.", pt: "Arroz. Tente de novo.", emotion: "thinking", nextNodeId: "cardapio-3" },
-    { id: "cardapio-5", speakerId: "lin", hanzi: "我要米饭。", pinyin: "wǒ yào mǐfàn.", pt: "Quero arroz.", nextNodeId: "cardapio-6" },
-    {
-      id: "cardapio-6",
-      speakerId: "wang",
-      hanzi: "要辣吗？",
-      pinyin: "yào là ma?",
-      pt: "Quer picante?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Peça sem pimenta.",
-        options: ["不要辣", "买单", "你好", "太贵了"],
-        correctAnswer: "不要辣",
-        correctNextNodeId: "cardapio-8",
-        wrongNextNodeId: "cardapio-7",
-        explanation: "不要辣 = sem pimenta.",
-      },
-    },
-    { id: "cardapio-7", speakerId: "wang", hanzi: "不要辣。请再说一遍。", pinyin: "búyào là. qǐng zài shuō yí biàn.", pt: "Sem pimenta. Tente de novo.", emotion: "thinking", nextNodeId: "cardapio-6" },
-    { id: "cardapio-8", speakerId: "lin", hanzi: "不要辣。", pinyin: "búyào là.", pt: "Sem pimenta.", nextNodeId: "cardapio-9" },
-    {
-      id: "cardapio-9",
-      speakerId: "wang",
-      hanzi: "你要茶吗？",
-      pinyin: "nǐ yào chá ma?",
-      pt: "Você quer chá?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Peça um copo de chá.",
-        options: ["我要一杯茶", "我要鱼", "再见", "我很好"],
-        correctAnswer: "我要一杯茶",
-        correctNextNodeId: "cardapio-11",
-        wrongNextNodeId: "cardapio-10",
-        explanation: "我要一杯茶 pede chá.",
-        accepts: ["我想喝水", "我要水"],
-      },
-    },
-    { id: "cardapio-10", speakerId: "wang", hanzi: "茶。请再说一遍。", pinyin: "chá. qǐng zài shuō yí biàn.", pt: "Chá. Tente de novo.", emotion: "thinking", nextNodeId: "cardapio-9" },
-    { id: "cardapio-11", speakerId: "lin", hanzi: "我要一杯茶。", pinyin: "wǒ yào yì bēi chá.", pt: "Quero um copo de chá.", nextNodeId: "cardapio-12" },
-    {
-      id: "cardapio-12",
-      speakerId: "lin",
-      hanzi: "多少钱？",
-      pinyin: "duōshao qián?",
-      pt: "Quanto custa?",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus perguntou?",
-        options: ["O preço.", "O caminho.", "O nome.", "A hora."],
-        correctAnswer: "O preço.",
-        correctNextNodeId: "cardapio-14",
-        wrongNextNodeId: "cardapio-13",
-        explanation: "多少钱？ pergunta o preço.",
-      },
-    },
-    { id: "cardapio-13", speakerId: "wang", hanzi: "多少钱。请再说一遍。", pinyin: "duōshao qián. qǐng zài shuō yí biàn.", pt: "Quanto custa. Tente de novo.", emotion: "thinking", nextNodeId: "cardapio-12" },
-    { id: "cardapio-14", speakerId: "wang", hanzi: "十。", pinyin: "shí.", pt: "Dez.", nextNodeId: "cardapio-15" },
-    {
-      id: "cardapio-15",
-      speakerId: "wang",
-      hanzi: "好。",
-      pinyin: "hǎo.",
-      pt: "Certo.",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Peça a conta.",
-        options: ["买单", "不要辣", "你好吗", "太贵了"],
-        correctAnswer: "买单",
-        correctNextNodeId: "cardapio-17",
-        wrongNextNodeId: "cardapio-16",
-        explanation: "买单 pede a conta.",
-      },
-    },
-    { id: "cardapio-16", speakerId: "wang", hanzi: "买单。请再说一遍。", pinyin: "mǎidān. qǐng zài shuō yí biàn.", pt: "A conta. Tente de novo.", emotion: "thinking", nextNodeId: "cardapio-15" },
-    { id: "cardapio-17", speakerId: "lin", hanzi: "买单。谢谢！", pinyin: "mǎidān. xièxie!", pt: "A conta. Obrigado!", emotion: "happy", nextNodeId: "cardapio-18" },
-    { id: "cardapio-18", speakerId: "wang", hanzi: "好的！没问题！", pinyin: "hǎo de! méi wèntí!", pt: "Ok! Sem problema!", emotion: "happy" },
-  ],
-  learnedRefs: [
-    "chunk:woele",
-    "chunk:womenchifanba",
-    "chunk:nihao",
-    "chunk:fuwuyuan",
-    "chunk:woyaomifan",
-    "chunk:woyaocai",
-    "chunk:buyaola",
-    "chunk:woyaoyibeicha",
-    "chunk:duoshaoqian",
-    "chunk:maidan",
-    "chunk:qingzaishuoyibian",
-    "chunk:xiexie",
-    "chunk:haode",
-    "chunk:meiwenti",
-    "chunk:wohenhao",
-    "chunk:zaijian",
-    "chunk:taiguile",
-    "chunk:nihaoma",
-    "chunk:la",
-    "char:ma_question",
-    "char:shi10",
-    "char:hao",
-    "char:yao",
-    "char:cha_tea",
-    "char:fan_rice",
-  ],
+  entryNodeId: "cardapio-2",
+  nodes: PEDIR_CARDAPIO_NODES,
+  learnedRefs: PEDIR_CARDAPIO_LEARNED_REFS,
+  dedicatedLesson: true,
+}),
+sceneV2({
+  sceneId: "imersao-restaurante",
+  title: "Restaurante real",
+  intent: "immersion-restaurant",
+  setting: "shop",
+  characters: PAIR_LIN_WANG,
+  sceneRole: "immersion",
+  entryNodeId: "ir-1",
+  nodes: IMERSAO_RESTAURANTE_BRANCHED_NODES,
+  learnedRefs: IMERSAO_RESTAURANTE_LEARNED_REFS,
   dedicatedLesson: true,
 }),
 sceneV2({

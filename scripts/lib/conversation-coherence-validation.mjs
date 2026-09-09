@@ -2,10 +2,16 @@
  * Conversation coherence contracts — explicit speech-act pairs, not an LLM judge.
  */
 
-export const INTEGRATED_SCENE_IDS = ["encontro-amanha", "que-horas-sao", "rotina-e-trabalho"];
+export const INTEGRATED_SCENE_IDS = [
+  "encontro-amanha",
+  "que-horas-sao",
+  "rotina-e-trabalho",
+  "pedir-cardapio",
+  "imersao-restaurante",
+];
 
 export const SPEECH_ACT_PAIRS = {
-  greet: ["greet", "acknowledge"],
+  greet: ["greet", "acknowledge", "get_attention"],
   farewell: ["farewell"],
   ask_time: ["tell_time"],
   ask_when: ["tell_when"],
@@ -14,7 +20,7 @@ export const SPEECH_ACT_PAIRS = {
   thank: ["acknowledge_thanks"],
   confirm_plan: ["confirm_plan", "acknowledge"],
   ask_name: ["tell_name"],
-  ask_wellbeing: ["tell_wellbeing"],
+  ask_wellbeing: ["tell_wellbeing", "praise_food"],
   acknowledge: ["acknowledge", "greet"],
   tell_time: ["acknowledge"],
   tell_when: ["acknowledge"],
@@ -23,6 +29,18 @@ export const SPEECH_ACT_PAIRS = {
   acknowledge_thanks: ["acknowledge"],
   tell_name: ["acknowledge"],
   tell_wellbeing: ["acknowledge"],
+  ask_party_size: ["tell_party_size"],
+  tell_party_size: ["acknowledge"],
+  offer_menu: ["request_menu"],
+  request_menu: ["acknowledge"],
+  ask_order: ["place_order", "accept_offer", "refuse_offer"],
+  place_order: ["acknowledge", "confirm_order"],
+  confirm_order: ["request_bill", "acknowledge"],
+  request_bill: ["acknowledge"],
+  refuse_offer: ["acknowledge"],
+  accept_offer: ["acknowledge"],
+  get_attention: ["acknowledge", "greet"],
+  praise_food: ["acknowledge"],
 };
 
 const PUNCT = /[\u3000-\u303f\uff00-\uffef,.!?\s:;"'()？！。，、]/gu;

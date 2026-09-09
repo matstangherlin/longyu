@@ -332,7 +332,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     variabilityPt: "Em refeições muito informais o cuidado é menor. Em funerais e datas de memória o mesmo gesto tem outro significado — não misture os dois contextos.",
     variabilityEn: "At very informal meals people may be less strict. At funerals and memorial dates the same gesture has another meaning — do not mix the two contexts.",
     variabilityNote: "The association is widely reported; how strongly people react still depends on formality and generation.",
-    relatedLessonIds: ["l26b", "l26"],
+    relatedLessonIds: ["l26b", "l26", "l26c"],
     relatedChunkRefs: ["woyaomifan", "haochi", "maidan"],
     relatedHanziRefs: ["fan_rice"],
     sources: [SRC.chinaOrgTaboos, SRC.chinaDailyTable],

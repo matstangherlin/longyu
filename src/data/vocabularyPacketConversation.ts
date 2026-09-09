@@ -49,6 +49,7 @@ const PACKET_INTENT_TO_SCENE: Record<string, readonly string[]> = {
   "order-food": ["order-menu", "restaurant-review", "ask-tea", "ask-water"],
   "order-drink": ["ask-tea", "ask-water", "order-menu"],
   "ask-bill": ["restaurant-review", "order-menu"],
+  "ask-party-size": ["order-menu", "restaurant-review"],
   "ask-price": ["shop-chat", "buy-items", "ask-quantity"],
   buy: ["buy-items", "shop-chat"],
   bargain: ["shop-chat", "buy-items"],
@@ -326,10 +327,11 @@ export function buildPacketPhraseExchangeScene(
   if (questions.length === 0 || answers.length === 0) return null;
 
   const idx = Math.abs(options.variantIndex ?? 0);
-  const q1 = questions[idx % questions.length];
-  const q2 = questions[(idx + 1) % questions.length] ?? q1;
-  const a1 = answers[idx % answers.length];
-  const a2 = answers[(idx + 1) % answers.length] ?? a1;
+  const pairCount = Math.min(questions.length, answers.length);
+  const q1 = questions[idx % pairCount];
+  const q2 = questions[(idx + 1) % pairCount] ?? q1;
+  const a1 = answers[idx % pairCount];
+  const a2 = answers[(idx + 1) % pairCount] ?? a1;
 
   const available = (ref: string) => options.lessonRefs.has(ref) || Boolean(options.knownRefs?.has(ref));
   // Foco deve tocar o packet; Q/A podem ser receptivos (NPC) se o core estiver disponível.

@@ -177,10 +177,11 @@ const CORE_PILOT_LEXICAL_TARGETS = {
     themePt: "Restaurante / cardapio",
     newVocabularyTarget: 12,
     productiveVocabularyTarget: 6,
-    structuresTarget: ["我要 + comida", "我想喝 + bebida", "多少钱", "买单"],
-    communicativeFunctions: ["pedir comida", "pedir bebida", "perguntar preco", "pedir a conta"],
+    structuresTarget: ["我要 + comida", "我想喝 + bebida", "请问几位？", "买单"],
+    communicativeFunctions: ["entender quantas pessoas", "pedir comida", "pedir bebida", "pedir a conta"],
     vocabulary: [
-      { ref: "char:fan_rice", hanzi: "饭", pinyin: "fan", meaningPt: "arroz; refeicao", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:qingwenjiwei", hanzi: "请问几位？", pinyin: "qing wen ji wei", meaningPt: "Quantas pessoas?", role: "core", introduceAtPass: 1 },
+      { ref: "chunk:liangwei", hanzi: "两位", pinyin: "liang wei", meaningPt: "Duas pessoas", role: "core", introduceAtPass: 1 },
       { ref: "char:cai_dish", hanzi: "菜", pinyin: "cai", meaningPt: "prato; verdura", role: "core", introduceAtPass: 1 },
       { ref: "char:shui", hanzi: "水", pinyin: "shui", meaningPt: "agua", role: "core", introduceAtPass: 1 },
       { ref: "char:cha_tea", hanzi: "茶", pinyin: "cha", meaningPt: "cha", role: "core", introduceAtPass: 1 },
@@ -1093,6 +1094,13 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
   if (lessonId === "l26b") {
     if (pass === 1) {
       return [
+        audioToAction(
+          "O que a pessoa quer saber?",
+          "请问几位？",
+          "Quantas pessoas",
+          ["Quantas pessoas", "O que você quer beber", "Quanto custa", "Onde fica"],
+          "O funcionário pergunta com quantas pessoas você veio."
+        ),
         audioToAction("Ouca e escolha a bebida", "茶", "茶", ["茶", "饭", "肉", "鱼"], "茶 = cha."),
         contextualChoice(
           "No restaurante",
