@@ -4,6 +4,7 @@ import {
   seedInstructionLocale,
   seedInterfaceLocale,
   seedOnboardedSession,
+  seedMissionsSession,
   seedUnlockedLessonSession,
   waitForLazyPage,
 } from "./helpers";
@@ -68,39 +69,6 @@ async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
   await expect(page.getByTestId("culture-victory")).toBeVisible();
 }
 
-async function seedDueCultureReview(page: Page) {
-  await page.evaluate(() => {
-    const raw = localStorage.getItem("longyu-v1");
-    if (!raw) return;
-    const parsed = JSON.parse(raw) as {
-      state: {
-        currentAccountId?: string;
-        cultureMemoryById?: Record<string, unknown>;
-        accounts?: Record<string, { cultureMemoryById?: Record<string, unknown> }>;
-      };
-    };
-    const due = Date.now() - 60_000;
-    const row = {
-      targetId: "visiting-home-core",
-      cultureItemId: "visiting-home",
-      due,
-      stage: 0,
-      reps: 0,
-      lapses: 0,
-      updatedAt: Date.now(),
-    };
-    parsed.state.cultureMemoryById = { ...(parsed.state.cultureMemoryById ?? {}), [row.targetId]: row };
-    const accountId = parsed.state.currentAccountId;
-    if (accountId && parsed.state.accounts?.[accountId]) {
-      parsed.state.accounts[accountId].cultureMemoryById = {
-        ...(parsed.state.accounts[accountId].cultureMemoryById ?? {}),
-        [row.targetId]: row,
-      };
-    }
-    localStorage.setItem("longyu-v1", JSON.stringify(parsed));
-  });
-}
-
 test.describe("V4.9.7A.1 Culture Quest Engine", () => {
   test("hub shows next mission, plays a mission with contextual feedback, and persists", async ({ page }) => {
     test.setTimeout(90_000);
@@ -160,7 +128,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: "Cultura" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Cultura", exact: true })).toBeVisible();
     await expect(page.getByText(/Missões culturais para agir na China|Entenda a língua/)).toBeVisible();
 
     await seedInterfaceLocale(page, "en");
@@ -168,7 +136,7 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: "Culture" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Culture", exact: true })).toBeVisible();
     await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').click();
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: "Arriving at someone's home" })).toBeVisible();
@@ -223,12 +191,21 @@ test.describe("V4.9.7A.1 Culture Quest Engine", () => {
 
   test("culture review session does not use lexical SRS chrome", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedOnboardedSession(page, ["l1"]);
+    const due = Date.now() - 60_000;
+    await seedMissionsSession(page, {
+      cultureMemoryById: {
+        "visiting-home-core": {
+          targetId: "visiting-home-core",
+          cultureItemId: "visiting-home",
+          due,
+          stage: 0,
+          reps: 0,
+          lapses: 0,
+          updatedAt: Date.now(),
+        },
+      },
+    });
     await page.goto("/cultura");
-    await waitForLazyPage(page);
-    await dismissBlockingOverlays(page);
-    await seedDueCultureReview(page);
-    await page.reload();
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-review-card")).toBeVisible();

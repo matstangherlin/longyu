@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCultureItem } from "../../data/culture";
 import { cultureText, isCultureStepScored } from "../../data/cultureQuest";
@@ -13,9 +13,8 @@ import { CultureBeat } from "./CultureQuestVisuals";
 export function CultureReviewPage() {
   const { t, instructionLocale } = useTranslation();
   const navigate = useNavigate();
-  const memoryById = useStore((s) => s.cultureMemoryById ?? {});
   const reviewCultureMemory = useStore((s) => s.reviewCultureMemory);
-  const tasks = useMemo(() => buildCultureReviewSession(memoryById), [memoryById]);
+  const [tasks] = useState(() => buildCultureReviewSession(useStore.getState().cultureMemoryById ?? {}));
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [order, setOrder] = useState<string[]>([]);
