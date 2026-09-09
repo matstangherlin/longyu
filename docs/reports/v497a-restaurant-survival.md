@@ -11,7 +11,7 @@ Experiência de sobrevivência, não unidade de vocabulário. O aluno cumpre a m
 | `main` antiga | **não usada** |
 | Branch | `cursor/v497a-restaurant-survival-6ae2` |
 | Fingerprint da Jornada (241 HEAD) | `43d5272e1d4b` |
-| Fingerprint da Jornada (esta remessa) | `f3096d32f1ce` |
+| Fingerprint da Jornada (esta remessa) | `c7f0ce92ce00` |
 | Atlas 241 HEAD | 351 / 429 taught (81.8%) |
 | Atlas esta remessa | 358 / 436 taught (82.1%) |
 
