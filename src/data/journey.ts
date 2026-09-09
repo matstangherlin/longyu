@@ -5529,7 +5529,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             hanziMemoryTargets: ["菜"],
-            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题", "面", "条", "咖", "啡", "位"],
+            newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题", "面", "条", "咖", "啡", "位", "两"],
             libraryItems: [
               "char:fan_rice",
               "char:cai_dish",
@@ -5571,7 +5571,6 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:liangbeishui",
               "chunk:qingzuo",
               "char:wei_person",
-              "char:cai_dish",
             ],
             reviewItems: [
               "char:fan_rice",
@@ -5791,6 +5790,7 @@ export const JOURNEY: JourneyPhase[] = [
             cultureItemId: "chopsticks-rest",
             premium: true,
             curriculumRole: "immersion",
+            newHanzi: ["两", "务", "员", "单", "杯"],
             libraryItems: [
               "chunk:qingwenjiwei",
               "chunk:yiwei",
@@ -7842,7 +7842,7 @@ export const JOURNEY: JourneyPhase[] = [
             isReview: true,
             reviewMasteryMode: true,
             premium: true,
-            newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝"],
+            newHanzi: ["多", "少", "饿", "饭", "菜", "肉", "鱼", "喝", "单"],
             // Foco em chunks (não caracteres isolados) — evita trio de comprehend
             // intent:identify-concept sem transformação na revisão.
             libraryItems: [

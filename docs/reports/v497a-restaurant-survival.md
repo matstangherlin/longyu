@@ -23,7 +23,7 @@ Preservado integralmente:
 - V4.9.6B memória de hànzì, tons integrados, coerência de conversa
 - V4.9.6C Culture Hub, cultura distribuída, `CultureItem` / `cultureItemId`
 
-Teaching topics continuam **113**. `l26c` é `isReview: true` (missão / imersão), não um tópico novo de ensino.
+Teaching topics continuam **113**. `l26c` é `isReview: true` (missão / imersão), não um tópico novo de ensino. `newHanzi` em `l26c` / `l10-rev` só declara glifos já vistos (`两` `单` `杯` `务` `员`) para o corpus — não abre aula de classificadores.
 
 ## Princípio
 
