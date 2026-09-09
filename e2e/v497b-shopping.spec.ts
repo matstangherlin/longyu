@@ -27,7 +27,9 @@ type PersistSlice = {
 async function readPersist(page: Page): Promise<PersistSlice> {
   return page.evaluate(() => {
     const raw = localStorage.getItem("longyu-v1");
-    const parsed = raw ? (JSON.parse(raw) as { state?: PersistSlice } & PersistSlice) : {};
+    const parsed = raw
+      ? (JSON.parse(raw) as { state?: PersistSlice } & PersistSlice)
+      : ({ state: {} } as { state?: PersistSlice } & PersistSlice);
     const state = parsed.state ?? parsed;
     return {
       srs: state.srs ?? {},
