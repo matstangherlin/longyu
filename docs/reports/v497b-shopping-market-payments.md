@@ -78,7 +78,7 @@ Competências mínimas em uso: `identify_item`, `ask_price`, `understand_price`,
 
 ## Hànzì memory
 
-CORE **买**: introduzido em `p6-compras` → delayed recall `recognize("mai_buy")` em `p7-imersao-mercado`. Contraste 买×卖 na mesma aula (`listen` + `recognize` + `tone` + `audio_same_different` + `listen_select` «Qual significa comprar?»). Sem aula nova de tom. `TONE_INTEGRATION_LESSON_IDS` inclui `p6-compras`.
+CORE **买**: introduzido em `p6-compras` → delayed recall `recognize("mai_buy")` em `p7-imersao-mercado`. Contraste 买×卖 na mesma aula (`listen` + `recognize` + `tone` + `audio_same_different` + `listen_select` «Qual significa comprar?»). Sem aula nova de tom. `TONE_INTEGRATION_LESSON_IDS` inclui `p6-compras`. O índice estrutural sobe `frame_woyaomai` a 15 em `p6-survival-mandarin` / `l10-rev` / `l29` (antes 7) e o frame passa a `priorTransferred` nas imersões seguintes.
 
 ## Atlas antes / depois
 
