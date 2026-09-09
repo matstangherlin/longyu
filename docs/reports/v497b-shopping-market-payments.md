@@ -144,7 +144,15 @@ Códigos: `VALID_AS_ERROR`, `ALWAYS_BARGAIN`, `TEACH_AFTER_TEST`, `CAPABILITY`, 
 
 ## E2E (desbloqueio da #244)
 
-O Playwright da #244 falhava porque o skip-through (`Pular` / Verificar desabilitado) **não atravessa** a overlay `culture-bridge` (teach → tarefa → feedback). `dismissJourneyCultureBridgeIfOpen` completa uma fase por chamada em `advanceUntilSelector` / `advanceUntilVisible`, **sem** fechar o overlay quando o próprio teste procura `culture-bridge` (spec da Cultura). Peças de match-pairs desabilitadas no tema claro usam `disabled:!text-ink` (contraste ≥ 4.5).
+O Playwright Chromium da #244 falhava no skip-through da Jornada:
+
+1. Overlay `culture-bridge` (teach → tarefa → Verificar desabilitado; `Pular` não fecha o overlay).
+2. CTA de conversa **Responder >** / **Continuar >** não batiam em `^Continuar$`; o helper fingia avanço se `[data-conversation-scene]` existisse.
+3. Peças desabilitadas do match-pairs no tema claro (~2.17) e muted no escuro (~4.1) vs ≥ 4.5.
+
+`dismissJourneyCultureBridgeIfOpen` completa a overlay em fases, **sem** fechá-la quando o spec procura `culture-bridge`. Skip-through clica Responder/Continuar com chevron. `disabled:!text-ink` e muted `text-ink`.
+
+Local Chromium (preview com fixtures): compare-with-image 4/4, produção aberta 4 viewports, contraste match-pairs, e o spec da ponte em `l2` — pass.
 
 ## Não feito (de propósito)
 
