@@ -123,6 +123,11 @@ export async function dismissJourneyCultureBridgeIfOpen(
   options: { keepVisible?: boolean } = {}
 ): Promise<boolean> {
   if (options.keepVisible) return false;
+  const kindNode = page.locator("[data-current-step-kind]").first();
+  if ((await kindNode.count().catch(() => 0)) > 0) {
+    const currentKind = await kindNode.getAttribute("data-current-step-kind", { timeout: 500 }).catch(() => null);
+    if (currentKind && currentKind !== "culture_bridge") return false;
+  }
   const bridge = page.getByTestId("culture-bridge");
   if (!(await bridge.isVisible().catch(() => false))) return false;
 
