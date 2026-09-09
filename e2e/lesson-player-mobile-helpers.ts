@@ -7,7 +7,7 @@ import {
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceOneStep, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
+import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
 
 /** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
 export const MOBILE_VIEWPORTS = [
@@ -479,8 +479,6 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(120);
       continue;
     }
-    // Pular/Entendi first. Conversation "Continuar >" only advances one line and
-    // starves skip-through when Responder is disabled at the checkpoint.
     const skipped = allowSkip
       ? await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/])
       : await clickFirstVisible(page, [/^Entendi$|^Got it$/]);
@@ -488,15 +486,9 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(120);
       continue;
     }
-    const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
-      name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
-    });
-    if (keepBridge && (await conversationCta.first().isVisible().catch(() => false))) {
-      const clicked = await clickIfEnabled(conversationCta.first());
-      if (clicked) {
-        await page.waitForTimeout(180);
-        continue;
-      }
+    if (await advanceConversationIfOpen(page)) {
+      await page.waitForTimeout(180);
+      continue;
     }
     const advanced = await advanceOneStep(page);
     if (!advanced) await page.waitForTimeout(180);

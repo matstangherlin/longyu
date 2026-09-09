@@ -7,11 +7,17 @@ export async function clickFirstVisible(page: Page, names: RegExp[]) {
     const first = button.first();
     if (!(await first.isVisible().catch(() => false))) continue;
     if (await first.isDisabled().catch(() => false)) continue;
+    await first.scrollIntoViewIfNeeded().catch(() => undefined);
     try {
       await first.click({ timeout: 1_500 });
       return true;
     } catch {
-      continue;
+      try {
+        await first.click({ timeout: 1_000, force: true });
+        return true;
+      } catch {
+        continue;
+      }
     }
   }
   return false;
@@ -23,6 +29,46 @@ export async function clickIfEnabled(locator: Locator, timeout = 1_500): Promise
   if (await locator.isDisabled().catch(() => true)) return false;
   try {
     await locator.click({ timeout });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Avança uma batida da conversation_scene. Pular só aparece no checkpoint. */
+export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
+  const scenes = page.locator("[data-conversation-scene]");
+  const count = await scenes.count().catch(() => 0);
+  let scene = scenes.first();
+  let found = false;
+  for (let i = 0; i < count; i += 1) {
+    if (await scenes.nth(i).isVisible().catch(() => false)) {
+      scene = scenes.nth(i);
+      found = true;
+      break;
+    }
+  }
+  if (!found) return false;
+
+  const skipInScene = scene.getByRole("button", { name: /^Pular|^Skip/ });
+  if (await clickIfEnabled(skipInScene.first())) return true;
+
+  const option = scene.getByRole("button", { name: /^(Opção|Option) \d+:/ }).first();
+  if (await option.isVisible().catch(() => false)) {
+    if (await clickIfEnabled(option)) {
+      await clickIfEnabled(scene.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }).first());
+      return true;
+    }
+  }
+
+  const cta = scene.getByRole("button", {
+    name: /^(Responder|Reply|Continuar|Continue|Concluir|Finish)(?:\s*>)?$/i,
+  }).first();
+  if (!(await cta.isVisible().catch(() => false))) return false;
+  await cta.scrollIntoViewIfNeeded().catch(() => undefined);
+  if (await clickIfEnabled(cta, 2_000)) return true;
+  try {
+    await cta.click({ timeout: 1_500, force: true });
     return true;
   } catch {
     return false;
@@ -53,12 +99,17 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
   for (let step = 0; step < maxSteps; step += 1) {
     if (Date.now() > deadline) break;
     if (await target.isVisible().catch(() => false)) return true;
-    if ((await page.locator("[data-conversation-scene]").count()) > 0) {
-      if (await target.isVisible().catch(() => false)) return true;
-    }
     const keepBridge = await locatorIsInsideCultureBridge(target);
     if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
       await page.waitForTimeout(120);
+      continue;
+    }
+    if (await advanceConversationIfOpen(page)) {
+      await page.waitForTimeout(180);
+      continue;
+    }
+    if (await clickFirstVisible(page, [/^Entendi$|^Got it$/, /^Pular|^Skip/])) {
+      await page.waitForTimeout(150);
       continue;
     }
     await page.keyboard.press("Escape").catch(() => undefined);
@@ -237,23 +288,10 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
       continue;
     }
 
-    // Skip before playing a conversation beat-by-beat. A visible but disabled
-    // Responder used to `continue` forever and never reach Pular.
     const skippedEarly = await clickFirstVisible(page, [/^Pular|^Skip/]);
     if (skippedEarly) {
       await page.waitForTimeout(150);
       continue;
-    }
-
-    const conversationCta = page.locator("[data-conversation-scene]").getByRole("button", {
-      name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i,
-    });
-    if (await conversationCta.first().isVisible().catch(() => false)) {
-      const clicked = await clickIfEnabled(conversationCta.first());
-      if (clicked) {
-        await page.waitForTimeout(180);
-        continue;
-      }
     }
 
     const advanced = await clickFirstVisible(page, [

@@ -154,7 +154,7 @@ async function playOpenStep(page: Page): Promise<boolean> {
     await production.fill("你好").catch(() => undefined);
     return clickFirstVisible(page, [/^Verificar$|^Check$/, /^Confirmar$|^Confirm$/, /^Responder$|^Answer$/, /^Continuar$|^Continue$/]);
   }
-  if ((await page.locator("[data-conversation-scene]").count()) > 0) {
+  if (await page.locator("[data-conversation-scene]").first().isVisible().catch(() => false)) {
     const option = page.getByRole("button", { name: /^(Opção|Option) \d+:/ });
     if (await option.first().isVisible().catch(() => false)) {
       const preferred = page.getByRole("button", { name: /(Opção|Option) \d+:.*(你好|Olá|Hello|nǐ hǎo)/i }).first();
@@ -194,7 +194,7 @@ async function reachVictory(page: Page, lessonId: string) {
           .toBe("1");
       }
     }
-    if (await clickFirstVisible(page, [/^Pular|^Skip/, /Não posso falar agora|I can't speak now/])) {
+    if (await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/, /Não posso falar agora|I can't speak now/])) {
       await page.waitForTimeout(180);
       continue;
     }
