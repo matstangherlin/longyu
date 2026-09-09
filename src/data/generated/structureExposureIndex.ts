@@ -3,7 +3,7 @@
 // V3.9 · PERF-012 — índice de exposição estrutural pré-computado.
 //
 // Montar este índice em runtime custava ~12 s de CPU síncrona (plano de prática
-// das 127 lições) só para abrir UMA lição — o congelamento visto no Android.
+// das 128 lições) só para abrir UMA lição — o congelamento visto no Android.
 // Como ele depende apenas de dados estáticos da jornada, é resolvido no build.
 //
 // Degraus codificados como máscara de bits, na ordem:
@@ -531,13 +531,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
   "p3-qing-zai-shuo-yibian": {
     "free": {
       "frame_nijiaoshenme": 15,
-      "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1
+      "frame_qingwennijiaoshenme": 9
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
-      "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1
+      "frame_qingwennijiaoshenme": 9
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme"
@@ -549,13 +547,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
   "l11": {
     "free": {
       "frame_nijiaoshenme": 15,
-      "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1
+      "frame_qingwennijiaoshenme": 9
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
-      "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1
+      "frame_qingwennijiaoshenme": 9
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme"
@@ -568,13 +564,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
-      "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1
+      "frame_qingwennijiaoshenme": 9
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme"
@@ -587,13 +581,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "priorTransferred": [
@@ -607,13 +599,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "priorTransferred": [
@@ -627,13 +617,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "priorTransferred": [
@@ -647,14 +635,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15
     },
     "priorTransferred": [
@@ -668,14 +654,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 7
     },
@@ -690,14 +674,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -712,14 +694,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -736,14 +716,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -760,14 +738,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -785,14 +761,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -810,14 +784,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -835,14 +807,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -860,14 +830,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -885,14 +853,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -910,14 +876,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -935,14 +899,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -960,14 +922,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -985,14 +945,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -1010,14 +968,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15
     },
@@ -1035,7 +991,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1043,7 +998,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1062,7 +1016,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1070,7 +1023,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1089,7 +1041,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1097,7 +1048,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1116,7 +1066,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1124,7 +1073,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1143,7 +1091,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1151,7 +1098,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1170,7 +1116,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1178,7 +1123,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1197,7 +1141,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1205,7 +1148,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1224,7 +1166,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1232,7 +1173,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1251,7 +1191,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1259,7 +1198,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1278,7 +1216,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1286,7 +1223,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1305,7 +1241,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1313,7 +1248,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1332,7 +1266,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1340,7 +1273,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1359,7 +1291,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1367,7 +1298,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1386,7 +1316,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1394,7 +1323,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1413,7 +1341,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1421,7 +1348,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1440,7 +1366,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1448,7 +1373,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1467,7 +1391,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1475,7 +1398,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1494,7 +1416,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1502,7 +1423,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1521,7 +1441,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1529,7 +1448,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1541,6 +1459,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1548,7 +1467,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1556,7 +1474,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1568,6 +1485,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1575,7 +1493,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1583,7 +1500,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1595,6 +1511,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1602,7 +1519,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1610,7 +1526,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1622,6 +1537,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1629,7 +1545,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1637,7 +1552,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1649,6 +1563,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1656,7 +1571,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1664,7 +1578,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1676,6 +1589,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1683,7 +1597,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1691,7 +1604,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1703,6 +1615,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1710,7 +1623,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1718,7 +1630,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1730,6 +1641,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1737,7 +1649,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1745,7 +1656,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1757,6 +1667,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1764,7 +1675,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1772,7 +1682,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1784,6 +1693,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1791,7 +1701,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1799,7 +1708,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1
@@ -1811,6 +1719,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1818,7 +1727,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1827,7 +1735,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1840,6 +1747,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1847,7 +1755,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1856,7 +1763,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1869,6 +1775,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "priorTransferTargets": [
       "我有一个朋友",
       "我有五个朋友",
+      "我有四个朋友",
       "请问你叫什么"
     ]
   },
@@ -1876,7 +1783,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1885,7 +1791,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1906,7 +1811,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1915,7 +1819,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1936,7 +1839,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1945,7 +1847,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1966,7 +1867,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1975,7 +1875,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -1996,7 +1895,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2005,7 +1903,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2026,7 +1923,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2035,7 +1931,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2056,7 +1951,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2065,7 +1959,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2086,7 +1979,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2095,7 +1987,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2116,7 +2007,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2125,7 +2015,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2146,7 +2035,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2155,7 +2043,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2176,7 +2063,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2185,7 +2071,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2206,17 +2091,16 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
       "frame_woxianghe": 1,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
@@ -2237,11 +2121,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 7,
       "frame_wo_le": 7
@@ -2249,11 +2133,11 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
       "frame_woxianghe": 1,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1
     },
     "priorTransferred": [
@@ -2271,25 +2155,26 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 7,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_woxiangchi": 7,
-      "frame_niyaoma": 7
+      "frame_niyaoma": 7,
+      "frame_niyao": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 1,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 7
@@ -2307,33 +2192,81 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "请问你叫什么"
     ]
   },
-  "l27": {
+  "l26c": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
-      "frame_woyao": 7,
+      "frame_woyao": 15,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 7,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
+      "frame_woxiangchi": 7
+    },
+    "priorTransferred": [
+      "frame_qingwennijiaoshenme",
+      "frame_woxihuan",
+      "frame_woyouge",
+      "frame_wozai"
+    ],
+    "priorTransferTargets": [
+      "我喜欢中国",
+      "我在喝水",
+      "我有一个朋友",
+      "我有五个朋友",
+      "我有四个朋友",
+      "请问你叫什么"
+    ]
+  },
+  "l27": {
+    "free": {
+      "frame_nijiaoshenme": 15,
+      "frame_qingwennijiaoshenme": 9,
+      "frame_wozai": 15,
+      "frame_woyouge": 15,
+      "frame_woyao": 15,
+      "frame_woxianghe": 7,
+      "frame_zainali": 1,
+      "frame_qingwenzainali": 1,
+      "frame_woxihuan": 15,
+      "frame_wo_le": 7,
+      "frame_niyaoma": 15,
+      "frame_niyao": 7,
+      "frame_woxiangchi": 7
+    },
+    "transfer": {
+      "frame_nijiaoshenme": 15,
+      "frame_qingwennijiaoshenme": 9,
+      "frame_wozai": 15,
+      "frame_woyouge": 15,
+      "frame_woyao": 15,
+      "frame_woxianghe": 7,
+      "frame_zainali": 1,
+      "frame_qingwenzainali": 1,
+      "frame_woxihuan": 15,
+      "frame_wo_le": 7,
+      "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "priorTransferred": [
@@ -2355,29 +2288,31 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 7,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "priorTransferred": [
@@ -2388,7 +2323,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我喜欢茶",
+      "我喜欢鱼",
       "我在喝水",
       "我有一个朋友",
       "我有五个朋友",
@@ -2400,29 +2335,31 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
-      "frame_woxianghe": 15,
+      "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
-      "frame_woxianghe": 15,
+      "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "priorTransferred": [
@@ -2433,7 +2370,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我喜欢茶",
+      "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
       "我有一个朋友",
@@ -2446,30 +2383,32 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 7,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
-      "frame_woxianghe": 15,
+      "frame_woxianghe": 7,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7,
       "frame_woqu": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 1,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
-      "frame_woxianghe": 15,
+      "frame_woxianghe": 7,
+      "frame_zainali": 1,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7
     },
     "priorTransferred": [
@@ -2480,7 +2419,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我喜欢茶",
+      "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
@@ -2494,42 +2433,44 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 7,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7,
-      "frame_woqu": 15
+      "frame_woqu": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 7,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7,
-      "frame_woqu": 15
+      "frame_woqu": 7
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
+      "frame_wo_le",
       "frame_woxihuan",
       "frame_woyouge",
       "frame_wozai"
     ],
     "priorTransferTargets": [
       "我喜欢中国",
-      "我喜欢茶",
       "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
@@ -2537,6 +2478,7 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
+      "我睡觉了",
       "请问你叫什么"
     ]
   },
@@ -2544,38 +2486,38 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 7,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
-      "frame_woqu",
+      "frame_wo_le",
       "frame_woxihuan",
       "frame_woyouge",
       "frame_wozai"
@@ -2587,10 +2529,10 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
+      "我睡觉了",
       "请问你叫什么"
     ]
   },
@@ -2598,101 +2540,102 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 7,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
-      "frame_wo_le": 7,
+      "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
+      "frame_wo_le",
       "frame_woqu",
       "frame_woxihuan",
       "frame_woyouge",
-      "frame_wozai",
-      "frame_zainali"
+      "frame_wozai"
     ],
     "priorTransferTargets": [
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
-      "请问你叫什么",
-      "车站在哪里"
+      "我睡觉了",
+      "请问你叫什么"
     ]
   },
   "p6-saude": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
+      "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyouge",
-      "frame_wozai",
-      "frame_zainali"
+      "frame_wozai"
     ],
     "priorTransferTargets": [
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
@@ -2700,46 +2643,45 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "我在喝水",
       "我在睡觉",
       "我想吃鱼",
-      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
-      "请问你叫什么",
-      "车站在哪里"
+      "我睡觉了",
+      "请问你叫什么"
     ]
   },
   "p6-horarios": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
@@ -2748,58 +2690,57 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyouge",
-      "frame_wozai",
-      "frame_zainali"
+      "frame_wozai"
     ],
     "priorTransferTargets": [
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
       "我想吃鱼",
-      "我明天去医院",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "请问你叫什么",
-      "车站在哪里"
+      "请问你叫什么"
     ]
   },
   "p6-natureza": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
@@ -2808,59 +2749,58 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_woxiangchi",
       "frame_woxihuan",
       "frame_woyouge",
-      "frame_wozai",
-      "frame_zainali"
+      "frame_wozai"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
       "我想吃鱼",
-      "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "请问你叫什么",
-      "车站在哪里"
+      "请问你叫什么"
     ]
   },
   "p6-clima": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
@@ -2873,16 +2813,16 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
@@ -2895,62 +2835,62 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
+      "frame_woyao",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
-      "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
+      "我要热水",
       "请问你叫什么",
       "车站在哪里"
     ]
@@ -2959,64 +2899,65 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 7,
-      "frame_woyaomai": 7
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
-      "frame_woqu": 15,
-      "frame_duoshaoqian": 1
+      "frame_woqu": 15
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
+      "frame_woyao",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
+      "我要热水",
       "请问你叫什么",
       "车站在哪里"
     ]
@@ -3025,43 +2966,44 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 7
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 7
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 7
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme",
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
       "frame_woyouge",
@@ -3069,23 +3011,23 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
       "我要热水",
+      "我要苹果",
       "请问你叫什么",
       "车站在哪里"
     ]
@@ -3094,44 +3036,44 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
-      "frame_duoshaoqian",
       "frame_qingwennijiaoshenme",
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
       "frame_woyouge",
@@ -3139,70 +3081,70 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
       "我要热水",
+      "我要苹果",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   },
   "l29": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 7,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
-      "frame_duoshaoqian",
       "frame_qingwennijiaoshenme",
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
       "frame_woyouge",
@@ -3210,62 +3152,64 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
       "我要热水",
+      "我要苹果",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   },
   "l30": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
       "frame_duoshaoqian",
@@ -3273,72 +3217,72 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
-      "frame_woyaomai",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "我要买书",
       "我要热水",
+      "我要苹果",
+      "茶多少钱",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   },
   "l11-rev": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
       "frame_duoshaoqian",
@@ -3346,73 +3290,73 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
-      "frame_woyaomai",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
-      "我有一个香蕉",
+      "我有三个香蕉",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "我要买书",
       "我要热水",
+      "我要苹果",
+      "茶多少钱",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   },
   "p7-imersao-mercado": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
       "frame_duoshaoqian",
@@ -3420,73 +3364,73 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
-      "frame_woyaomai",
       "frame_woyouge",
       "frame_wozai",
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
-      "我有一个香蕉",
+      "我有三个香蕉",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
-      "我要买书",
       "我要热水",
+      "我要苹果",
+      "茶多少钱",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   },
   "p7-imersao-estacao": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
       "frame_duoshaoqian",
@@ -3494,7 +3438,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
       "frame_woyaomai",
@@ -3503,66 +3446,68 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_zainali"
     ],
     "priorTransferTargets": [
-      "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
+      "我明天去银行",
       "我有一个朋友",
-      "我有一个香蕉",
+      "我有三个香蕉",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
       "我要买书",
       "我要热水",
-      "衣服多少钱",
+      "我要苹果",
+      "茶多少钱",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   },
   "p7-imersao-casa-amigo": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
       "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15,
       "frame_huijia_action": 1
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_zainali": 15,
       "frame_wozai": 15,
       "frame_woyouge": 15,
       "frame_woyao": 15,
       "frame_woxianghe": 15,
+      "frame_zainali": 15,
       "frame_qingwenzainali": 1,
       "frame_woxihuan": 15,
       "frame_wo_le": 15,
       "frame_niyaoma": 15,
+      "frame_niyao": 7,
       "frame_woxiangchi": 15,
       "frame_woqu": 15,
-      "frame_duoshaoqian": 15,
-      "frame_woyaomai": 15
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
     },
     "priorTransferred": [
       "frame_duoshaoqian",
@@ -3570,7 +3515,6 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
       "frame_wo_le",
       "frame_woqu",
       "frame_woxiangchi",
-      "frame_woxianghe",
       "frame_woxihuan",
       "frame_woyao",
       "frame_woyaomai",
@@ -3580,29 +3524,29 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ],
     "priorTransferTargets": [
       "我今天去医院",
-      "我今天去超市",
+      "我今天去火车站",
       "我喜欢中国",
+      "我喜欢苹果",
       "我喜欢茶",
       "我喜欢鱼",
+      "我回家了",
       "我在吃饭",
       "我在喝水",
       "我在睡觉",
-      "我想吃肉",
       "我想吃鱼",
-      "我想喝热水",
       "我明天去医院",
       "我明天去银行",
       "我有一个朋友",
-      "我有一个香蕉",
+      "我有三个香蕉",
       "我有五个朋友",
       "我有四个朋友",
       "我睡觉了",
       "我要买书",
       "我要热水",
-      "衣服多少钱",
+      "我要苹果",
+      "茶多少钱",
       "请问你叫什么",
-      "车站在哪里",
-      "香蕉多少钱"
+      "车站在哪里"
     ]
   }
 };
